@@ -165,10 +165,11 @@ this routine is only ever called by Proc 0                                    */
 
 void print_profile(char *output_file4)
 {
-  int icomp,i,inode,ijk[3],idim,nunk_print,npol=0,ipol,iseg,itype_mer;
-  double kappa_sq,kappa,tmp,free,r,rsq;
-  char gfile[20];
-  FILE *ifp=NULL,*fp6=NULL;
+  int icomp,i,inode,ijk[3],idim,npol=0,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
+  double kappa_sq,kappa,tmp,free,r,rsq,bondproduct,site_dens=0.,sumsegdens=0.;
+  
+  char gfile[20],gfile2[20];
+  FILE *ifp=NULL,*fp6=NULL,*fp7=NULL;
   /* 
    *  print out the densities (and electrostatic potential)
    *  to the file dft_dens.dat or dft_dens.?.?   
@@ -178,6 +179,8 @@ void print_profile(char *output_file4)
      if (Sten_Type[POLYMER_CR]){
        sprintf(gfile,"%sg",output_file4);
        fp6 = fopen(gfile,"w");
+       sprintf(gfile2,"%s_site",output_file4);
+       fp7 = fopen(gfile2,"w");
      }
      kappa_sq = 0.0;
      if (Ipot_ff_c == COULOMB){
@@ -188,10 +191,6 @@ void print_profile(char *output_file4)
      kappa = sqrt(kappa_sq);
 
      free = 0.;
-     if (!Sten_Type[POLYMER_CR])
-       nunk_print = Nunk_per_node;
-     else
-       nunk_print = 2*Ncomp;
      for (inode=0; inode<Nnodes; inode++){
         node_to_ijk(inode,ijk);
  
@@ -239,7 +238,7 @@ void print_profile(char *output_file4)
                 else
                    fprintf(ifp,"%22.17f\t", VEXT_MAX);
               }
-              else if (icomp < 2*Ncomp+Ngeqn_tot){
+              else if (icomp < 2*Ncomp+Ngeqn_tot){    /* print G/Q equations and site densities */
                 if (Type_poly == 2){
                    ipol=Unk_to_Poly[icomp-2*Ncomp];
                    iseg=Unk_to_Seg[icomp-2*Ncomp];
@@ -247,14 +246,18 @@ void print_profile(char *output_file4)
                    fprintf(fp6,"%22.17f\t", X_old[inode*Nunk_per_node+icomp]*
                                             X_old[inode*Nunk_per_node+itype_mer]);
                 }
-                else fprintf(fp6,"%22.17f\t", X_old[inode*Nunk_per_node+icomp]);
+                else{
+                    fprintf(fp6,"%22.17f\t", X_old[inode*Nunk_per_node+icomp]);
+/*if (inode==Nnodes-1) printf("unk_GQ=%d  xloc=%d  X_old=%9.6f\n",
+                      icomp,inode*Nunk_per_node+icomp,X_old[inode*Nunk_per_node+icomp]);*/
+                }
               }
               else{
-               fprintf(ifp,"%22.17f\t", X_old[inode*Nunk_per_node+icomp]);
               }
             }
         }
 
+        /* print the Poisson-Boltzmann solution based on the computed electrostatic field */
         if (Ipot_ff_c == 1 && !Sten_Type[POLYMER_CR]){
         for (icomp=0; icomp<Ncomp; icomp++)
           fprintf(ifp,"%20.15f\t",
@@ -272,6 +275,36 @@ void print_profile(char *output_file4)
               (Ndim==3 && ijk[0]==Nodes_x[0]-1 &&ijk[1]==Nodes_x[1]-1 
                              &&ijk[2]==Nodes_x[2]-1)) fprintf(ifp,"\n");
      }    /* loop over all nodes  */
+
+     /* compute and print site densities for polymers */
+     for (inode=0; inode<Nnodes; inode++){
+        node_to_ijk(inode,ijk);
+        for (idim=0; idim<Ndim; idim++) fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
+        for (icomp=0; icomp<Ncomp; icomp++){
+            sumsegdens=0.0;
+            for(iseg=0;iseg<Nmer[icomp];iseg++){
+                 itype_mer=Type_mer[icomp][iseg];
+                 bondproduct=1.0;
+                 for(ibond=0;ibond<Nbond[icomp][iseg];ibond++){
+                      unk_GQ  = Geqn_start[npol] + Poly_to_Unk[icomp][iseg][ibond];
+                      bondproduct *= X_old[inode*Nunk_per_node+unk_GQ];
+                 }  
+                 unk_B=inode*Nunk_per_node+itype_mer;
+                 if (Type_poly==2)
+                    site_dens=bondproduct*X_old[unk_B]*Rho_b[itype_mer];
+                 else
+                    site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B],-(Nbond[icomp][iseg]-1))
+                                         *Rho_b[itype_mer]/Nmer_t[icomp][itype_mer];
+
+                 if (icomp==0 && iseg !=0 && iseg !=8 && iseg !=9) sumsegdens+=site_dens;
+                 fprintf(fp7,"%22.17f\t", site_dens);
+                 if (icomp==0 && iseg==Nmer[icomp]-1) fprintf(fp7,"%22.17f\t", sumsegdens);
+            }
+        }
+        if(inode != Nnodes-1) fprintf(fp7,"\n");
+     }
+     fclose(fp7);
+
      fclose(ifp);
      if (Sten_Type[POLYMER_CR]) {
         printf("Delta(Free energy) = %lf  %lf\n",Size_x[0],free/Size_x[0]);
