@@ -6115,7 +6115,7 @@ if test "${ac_cv_lib_aztecoo_AZ_iterate+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-laztecoo -ltriutils -lifpack -lepetra $LIBS"
+LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -6181,7 +6181,7 @@ fi
 
     if test ${HAS_AZTECOO} -eq 1
     then
-        TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS}"
+        TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra ${TRAMONTO_LDFLAGS}"
     else
                 echo "$as_me:$LINENO: checking for AZ_solve in -laztecoo" >&5
 echo $ECHO_N "checking for AZ_solve in -laztecoo... $ECHO_C" >&6
@@ -6189,7 +6189,7 @@ if test "${ac_cv_lib_aztecoo_AZ_solve+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-laztecoo -ltriutils -lifpack -lepetra ${FTOCLIBS} $LIBS"
+LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra ${FTOCLIBS} $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -6255,7 +6255,7 @@ fi
 
         if test ${HAS_AZTECOO} -eq 1
         then
-            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS} ${FTOCLIBS}"
+            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra ${TRAMONTO_LDFLAGS} ${FTOCLIBS}"
 	    LIBS="${LIBS} $FTOCLIBS"
         fi
         echo "$as_me:$LINENO: checking for AZ_check_input in -laztecoo" >&5
@@ -6264,7 +6264,7 @@ if test "${ac_cv_lib_aztecoo_AZ_check_input+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-laztecoo -ltriutils -lifpack -lepetra -ly12m ${FTOCLIBS}  $LIBS"
+LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -ly12m ${FTOCLIBS}  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -6330,7 +6330,7 @@ fi
 
         if test ${HAS_AZTECOO} -eq 1
         then
-            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra -ly12m ${TRAMONTO_LDFLAGS} ${FTOCLIBS}"
+            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -ly12m ${TRAMONTO_LDFLAGS} ${FTOCLIBS}"
 	    LIBS="${LIBS} $FTOCLIBS"
 	else
 	    echo Cannot find y12m functions.
@@ -6350,7 +6350,7 @@ fi
         exit
     fi
 
-    TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS}"
+    TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra ${TRAMONTO_LDFLAGS}"
     CXX=${OLD_CXX}
     ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
