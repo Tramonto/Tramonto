@@ -54,14 +54,14 @@ common_SOURCES= \
 	dft_images.c \
 	dft_potentials.c \
 	rf_allo.c \
-	loca_con_lib.c \
-	loca_con_bord.c \
+	loca_lib.c \
+	loca_bord.c \
 	loca_util.c \
 	dft_globals.h \
 	dft_globals_const.h \
 	dft_ldbal.h
 	rf_allo.h \
-	loca_con_const.h \ 
+	loca_const.h \ 
 	loca_util_const.h \
 	az_aztec.h \
 	az_aztec_defs.h \
@@ -102,7 +102,7 @@ common_SOURCES= \
 dft_SOURCES= dft_maindriver.c $(common_SOURCES) 
 	
 libdft_a_SOURCES=$(common_SOURCES)
-EXTRA_DIST = $(srcdir)/az_aztec_defs.h $(srcdir)/az_aztec.h $(srcdir)/loca_con_const.h $(srcdir)/loca_util_const.h $(srcdir)/rf_con_const.h $(srcdir)/rf_allo.h $(srcdir)/include
+EXTRA_DIST = $(srcdir)/az_aztec_defs.h $(srcdir)/az_aztec.h $(srcdir)/loca_const.h $(srcdir)/loca_util_const.h $(srcdir)/rf_allo.h $(srcdir)/include
 #
 # let the configure script figure out these parameters
 #

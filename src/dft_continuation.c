@@ -88,7 +88,7 @@
 
 /* This include file is for the continuation structures, defines, prototypes */
 
-#include "loca_con_const.h"
+#include "loca_const.h"
 static void print_con_struct(const struct con_struct* con);
 
 /* Define passdown structure: this structure is global to this file, and
@@ -160,20 +160,34 @@ int solve_continuation( double *x, double *x2, int polymer_flag)
                            "continuation method: %d\n",Loca.method);
        exit(-1);
   }
+ 
+  printf("\n###\nPROC = %d\n\n",Proc);
 
   con.general_info.param        = get_init_param_value(Loca.cont_type1);
   con.general_info.x            = x;
   con.general_info.numUnks      = Nunk_int_and_ext;
   con.general_info.numOwnedUnks = Aztec.N_update;
-  if (Proc==0) con.general_info.printproc = TRUE;
+  if (Proc==0) {
+     switch (Iwrite) {
+	     case NO_SCREEN: con.general_info.printproc = 0; break;
+	     case MINIMAL:   con.general_info.printproc = 1; break;
+	     case DENSITIES: con.general_info.printproc = 5; break;
+	     case VERBOSE:   con.general_info.printproc = 8; break;
+     }
+  }
   else         con.general_info.printproc = FALSE;
+  con.general_info.nv_save   = FALSE;   /* Salsa saves null vector anyway */
+  con.general_info.perturb  = 1.0e-7;
+
 
   /* Then load the stepping info structure */
 
   con.stepping_info.first_step     = Loca.step_size;
+  con.stepping_info.base_step      = 0;
   con.stepping_info.max_steps      = Loca.num_steps;
-  con.stepping_info.max_param      = 1.0e30;
-  con.stepping_info.max_delta_p    = 1.0e30;
+  con.stepping_info.max_param      = 1.0e10;
+  con.stepping_info.max_delta_p    = 1.0e10;
+  con.stepping_info.min_delta_p    = 1.0e-10;
   con.stepping_info.step_ctrl      = Loca.aggr;
   con.stepping_info.max_newton_its = Max_Newton_iter;
 
@@ -191,6 +205,7 @@ int solve_continuation( double *x, double *x2, int polymer_flag)
       break;
     case TURNING_POINT_CONTINUATION:
       con.turning_point_info.bif_param = get_init_param_value(Loca.cont_type2);
+      con.general_info.nv_restart       = FALSE;
       break;
     case PITCHFORK_CONTINUATION:
       con.pitchfork_info.bif_param = get_init_param_value(Loca.cont_type2);
@@ -241,7 +256,8 @@ int solve_continuation( double *x, double *x2, int polymer_flag)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-int nonlinear_solver_conwrap(double *x, void *con_ptr, int step_num)
+int nonlinear_solver_conwrap(double *x, void *con_ptr, int step_num,
+		             double lambda, double delta_s)
 /* Put the call to your nonlinear solver here.
  * Input:
  *    x         solution vector
@@ -298,7 +314,7 @@ int linear_solver_conwrap(double *x, int jac_flag, double *tmp)
   x_tmp = (double *) array_alloc(1, Nunk_int_and_ext, sizeof(double));
   for (i=0; i< Nunk_int_and_ext; i++) x_tmp[i] = 0.0;
 
-  if (jac_flag == OLD_JACOBIAN) {
+  if (jac_flag == OLD_JACOBIAN || jac_flag == CHECK_JACOBIAN) {
 
     /* reuse the preconditioner for this same matrix */
     Aztec.options[AZ_pre_calc] = AZ_reuse;
@@ -377,7 +393,7 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
   int i, resid_only_flag;
   double l2_resid;
 
-  if (matflag == RHS_ONLY) resid_only_flag = TRUE;
+  if (matflag == RHS_ONLY || matflag == RHS_MATRIX_SAVE) resid_only_flag = TRUE;
   else                     resid_only_flag = FALSE;
 
   /*fill_time not currently plugged in, iter hardwire above 2 */
@@ -984,7 +1000,9 @@ void calc_scale_vec_conwrap(double *x, double *scale_vec, int numUnks)
 {
   int      i;
 
+  /* This was the default -- changed for spinodal tracking */
   for (i=0; i<numUnks; i++) scale_vec[i] = 1.0;
+  /*for (i=0; i<numUnks; i++) scale_vec[i] = 1.0/ (sqrt(fabs(x[i])) + 1.0e-5);*/
 
 /* Scale vector using Rho_bulk seems to make things worse
   for (i=0; i<Aztec.N_update/Nunk_per_node; i++) 
@@ -1117,8 +1135,8 @@ void solution_output_conwrap(int num_soln_flag, double *x, double param,
 
   /* Print second solution for Phase Trans, but not Spinodal tracking */
 
-  if (num_soln_flag == 2 &&
-      con->general_info.method == PHASE_TRANSITION_CONTINUATION) {
+  if (num_soln_flag == 2 
+     && con->general_info.method == PHASE_TRANSITION_CONTINUATION) {
 
     for (i=0; i<Aztec.N_update; i++) x_internal[i] = x2[Aztec.update_index[i]];
 

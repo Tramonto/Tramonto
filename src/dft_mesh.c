@@ -2906,6 +2906,13 @@ void initialize_Aztec(void)
              Aztec.options[AZ_subdomain_solve]=AZ_ilut; 
              Aztec.params[AZ_ilut_fill]  = Az_ilut_fill_param;    break;
 
+    case 5:  Aztec.options[AZ_precond]   = AZ_dom_decomp; 
+             Aztec.options[AZ_subdomain_solve]=AZ_ilut; 
+             Aztec.params[AZ_ilut_fill]  = Az_ilut_fill_param;  
+	     /* Parameters to improve condition numer of preconditioner */
+             Aztec.params[AZ_athresh]  = 1.0e-5;  
+             Aztec.params[AZ_rthresh]  = 1.01;    break;
+
     case -1: Aztec.options[AZ_precond]   = AZ_none; break;
     default: Aztec.options[AZ_precond]   = AZ_dom_decomp;
              Aztec.options[AZ_subdomain_solve]   = AZ_ilu;
@@ -2921,7 +2928,8 @@ void initialize_Aztec(void)
   Aztec.options[AZ_max_iter] = Max_gmres_iter;
   Aztec.options[AZ_poly_ord] = 3;
   Aztec.options[AZ_overlap]  = AZ_none;
-  Aztec.options[AZ_kspace]   = Az_kspace;
+  if (Az_kspace < 1) Aztec.options[AZ_kspace]   = Max_gmres_iter;
+  else               Aztec.options[AZ_kspace]   = Az_kspace;
   Aztec.options[AZ_orthog]   = AZ_classic;
   Aztec.options[AZ_aux_vec]  = AZ_resid;
 

@@ -142,8 +142,8 @@ common_SOURCES = \
 	dft_images.c \
 	dft_potentials.c \
 	rf_allo.c \
-	loca_con_lib.c \
-	loca_con_bord.c \
+	loca_lib.c \
+	loca_bord.c \
 	loca_util.c \
 	dft_globals.h \
 	dft_globals_const.h \
@@ -153,7 +153,7 @@ common_SOURCES = \
 dft_SOURCES = dft_maindriver.c $(common_SOURCES) 
 
 libdft_a_SOURCES = $(common_SOURCES)
-EXTRA_DIST = $(srcdir)/az_aztec_defs.h $(srcdir)/az_aztec.h $(srcdir)/loca_con_const.h $(srcdir)/loca_util_const.h $(srcdir)/rf_con_const.h $(srcdir)/rf_allo.h $(srcdir)/include
+EXTRA_DIST = $(srcdir)/az_aztec_defs.h $(srcdir)/az_aztec.h $(srcdir)/loca_const.h $(srcdir)/loca_util_const.h $(srcdir)/rf_allo.h $(srcdir)/include
 MPICXX = @MPICXX@
 CFLAGS = @CFLAGS@ @TRAMONTO_CFLAGS@ -I.
 EXE = dft_@BUILD_MACHINE@
@@ -178,8 +178,7 @@ am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_fill_rosen.$(OBJEXT) dft_fill_rosen_rb.$(OBJEXT) \
 	dft_fill_mf.$(OBJEXT) dft_vext_coul.$(OBJEXT) dft_uww.$(OBJEXT) \
 	dft_images.$(OBJEXT) dft_potentials.$(OBJEXT) rf_allo.$(OBJEXT) \
-	loca_con_lib.$(OBJEXT) loca_con_bord.$(OBJEXT) \
-	loca_util.$(OBJEXT)
+	loca_lib.$(OBJEXT) loca_bord.$(OBJEXT) loca_util.$(OBJEXT)
 am_libdft_a_OBJECTS = $(am__objects_1)
 libdft_a_OBJECTS = $(am_libdft_a_OBJECTS)
 bin_PROGRAMS = dft$(EXEEXT)
@@ -225,8 +224,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_thermo.Po ./$(DEPDIR)/dft_uww.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_vext.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_vext_coul.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/loca_con_bord.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/loca_con_lib.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/loca_bord.Po ./$(DEPDIR)/loca_lib.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/loca_util.Po ./$(DEPDIR)/rf_allo.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -346,8 +344,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_uww.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_vext.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_vext_coul.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_con_bord.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_con_lib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_bord.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rf_allo.Po@am__quote@
 
@@ -594,7 +592,7 @@ uninstall-info: uninstall-info-recursive
 	uninstall-recursive
 
 	rf_allo.h \
-	loca_con_const.h \ 
+	loca_const.h \ 
 	loca_util_const.h \
 	az_aztec.h \
 	az_aztec_defs.h \
@@ -609,7 +607,6 @@ uninstall-info: uninstall-info-recursive
 	$(srcdir)/include/dft_guess.h \
 	$(srcdir)/include/dft_mesh.h \
 	$(srcdir)/include/dft_out_energy.h \
-	$(srcdir)/include/dft_postavs.h \
 	$(srcdir)/include/dft_uww.h \
 	$(srcdir)/include/dft_continuation.h \
 	$(srcdir)/include/dft_fillp.h \
