@@ -556,8 +556,8 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
 
     schur_solver = (DFT_SCHUR_SOLVER *) aux_info;
     
-    dft_update_schur_solver(Aztec.bindx, Aztec.val, schur_solver);
-    dft_apply_schur_solver((DFT_SCHUR_SOLVER *) schur_solver, delta_x, resid);
+    dft_update_schur_solver(Aztec.bindx, Aztec.val, Aztec.update_index, schur_solver);
+    dft_apply_schur_solver((DFT_SCHUR_SOLVER *) schur_solver, Aztec.update_index, delta_x, resid);
 #else
 
     AZ_solve(delta_x, resid, Aztec.options, Aztec.params, NULL, Aztec.bindx, 

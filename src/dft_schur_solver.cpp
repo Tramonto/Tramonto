@@ -54,7 +54,7 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
 
   Epetra_MpiComm comm(MPI_COMM_WORLD);
   Epetra_Time timer(comm);
-  bool debug = false;
+  bool debug = true;
 
   int nnodes = N_update/Nunk_per_node;
   assert(nnodes*Nunk_per_node==N_update); // Make sure there is a constant number of unknowns per node
@@ -65,8 +65,8 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
   for (int i=0; i<N_update; i++) ColGIDs[update_index[i]] = update[i];
   for (int i=0; i<nexternal; i++) ColGIDs[extern_index[i]] = external[i];
   if (debug) for (int i=0; i<N_update+nexternal; i++) assert(ColGIDs[i]!=-1); // Make sure all ColGIDs were assigned
-  if (debug) for (int i=0; i<N_update; i++) assert(update_index[i]==i); // We assume that local IDs are ordered 0 to N_update-1
-  if (debug) for (int i=0; i<nexternal; i++) assert(extern_index[i]==N_update+i);
+  //if (debug) for (int i=0; i<N_update; i++) assert(update_index[i]==i); // We assume that local IDs are ordered 0 to N_update-1
+  //if (debug) for (int i=0; i<nexternal; i++) assert(extern_index[i]==N_update+i);
 
   int * node_reorder = new int[Nunk_per_node];
   
@@ -154,12 +154,13 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
 
   for (int i=0; i< N_update; i++) {
     int curRowGID = update[i];
-    int curNumEntries = bindx[i+1] - bindx[i];
-    int * curEntries = bindx+bindx[i];
-    double * curVals = val+bindx[i];
+    int curRowLID = update_index[i];
+    int curNumEntries = bindx[curRowLID+1] - bindx[curRowLID];
+    int * curEntries = bindx+bindx[curRowLID];
+    double * curVals = val+bindx[curRowLID];
 
     for (int j=0; j<curNumEntries; j++) curGlobalVals[j] = curVals[j];
-    curGlobalVals[curNumEntries] = val[i]; // Insert diagonal value
+    curGlobalVals[curNumEntries] = val[curRowLID]; // Insert diagonal value
 
     for (int j=0; j<curNumEntries; j++) curColGIDs[j] = ColGIDs[curEntries[j]];
     curColGIDs[curNumEntries] = curRowGID; // Insert diagonal index
@@ -212,10 +213,10 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
   return;
 }
 
-void dft_update_schur_solver(int * bindx, double * val,
+void dft_update_schur_solver(int * bindx, double * val, int * update_index,
 			     DFT_SCHUR_SOLVER * schur_solver) {
 
-  bool debug = false;
+  bool debug = true;
 
   Epetra_CrsMatrix * A11 = (Epetra_CrsMatrix *) schur_solver->A11;
   Epetra_CrsMatrix * A12 = (Epetra_CrsMatrix *) schur_solver->A12;
@@ -241,12 +242,13 @@ void dft_update_schur_solver(int * bindx, double * val,
 
   for (int i=0; i< N_update; i++) {
     int curRowGID = update[i];
-    int curNumEntries = bindx[i+1] - bindx[i];
-    int * curEntries = bindx+bindx[i];
-    double * curVals = val+bindx[i];
+    int curRowLID = update_index[i];
+    int curNumEntries = bindx[curRowLID+1] - bindx[curRowLID];
+    int * curEntries = bindx+bindx[curRowLID];
+    double * curVals = val+bindx[curRowLID];
 
     for (int j=0; j<curNumEntries; j++) curGlobalVals[j] = curVals[j];
-    curGlobalVals[curNumEntries] = val[i]; // Insert diagonal value
+    curGlobalVals[curNumEntries] = val[curRowLID]; // Insert diagonal value
 
     for (int j=0; j<curNumEntries; j++) curColGIDs[j] = ColGIDs[curEntries[j]];
     curColGIDs[curNumEntries] = curRowGID; // Insert diagonal index
@@ -270,9 +272,9 @@ void dft_update_schur_solver(int * bindx, double * val,
   return;
 }
 
-void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x_aztec, double * b_aztec) {
+void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, int * update_index, double * x_aztec, double * b_aztec) {
 
-  bool debug = false;
+  bool debug = true;
 
   Epetra_CrsMatrix * A11 = (Epetra_CrsMatrix *) schur_solver->A11;
   Epetra_CrsMatrix * A12 = (Epetra_CrsMatrix *) schur_solver->A12;
@@ -298,8 +300,26 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x_aztec, d
     EpetraExt::RowMatrixToMatrixMarketFile("A.mm", *A, "A Matrix",
 					   "A matrix from Tramonto Schur complement");
   }
-  Epetra_Vector x(View, *RowMap, x_aztec);
-  Epetra_Vector b(View, *RowMap, b_aztec);
+
+  double * xp;
+  double * bp;
+
+  if (A11->Comm().NumProc()==1) {
+    xp = x_aztec;
+    bp = b_aztec;
+  }
+  else {
+    int numMyEquations = RowMap->NumMyElements();
+    xp = new double[numMyEquations];
+    bp = new double[numMyEquations];
+    for (int i=0; i<numMyEquations; i++) {
+      xp[i] = x_aztec[update_index[i]];
+      bp[i] = b_aztec[update_index[i]];
+    }
+  }
+    
+  Epetra_Vector x(View, *RowMap, xp);
+  Epetra_Vector b(View, *RowMap, bp);
 
   if (debug) {
     Epetra_Vector resid(b.Map());
@@ -348,6 +368,13 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x_aztec, d
     resid.Norm2(&resval);
     cout << "Residual from Schur Solver = "<<resval<< endl;
   }
+  if (A11->Comm().NumProc()>1) {
+    int numMyEquations = RowMap->NumMyElements();
+    for (int i=0; i<numMyEquations; i++)
+      x_aztec[update_index[i]] = xp[i];
+    delete [] xp;
+    delete [] bp;
+  }
   cout << "Time in dft_update_schur_solver = " << timer.ElapsedTime();
 }
 void dft_schur_solver_comp_invA11(void * A11v) {
@@ -369,7 +396,7 @@ void dft_schur_solver_comp_invA11(void * A11v) {
 }
 void dft_destroy_schur_solver(DFT_SCHUR_SOLVER ** schur_solver) {
 
-  bool debug = false;
+  bool debug = true;
   Epetra_CrsMatrix * A11 = (Epetra_CrsMatrix *) (*schur_solver)->A11;
   Epetra_CrsMatrix * A12 = (Epetra_CrsMatrix *) (*schur_solver)->A12;
   Epetra_CrsMatrix * A21 = (Epetra_CrsMatrix *) (*schur_solver)->A21;

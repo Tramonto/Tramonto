@@ -108,6 +108,7 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
 
 \param bindx (In) Aztec bindx array.
 \param val (In) Aztec val array.
+\param update_index (In) Aztec update_index array.
 \param schur_solver (In/Out) The address of the Schur complement solver object.
 
 \pre bindx and val must be valid.
@@ -118,7 +119,7 @@ that is identical to the present one, with the exception of the values.
 
 */
 
-void dft_update_schur_solver(int * bindx, double * val,
+  void dft_update_schur_solver(int * bindx, double * val, int * update_index,
 			     DFT_SCHUR_SOLVER * schur_solver);
 
 /*! \fn void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x, double * b)
@@ -127,7 +128,7 @@ void dft_update_schur_solver(int * bindx, double * val,
 
 \param vecspace (In) Vector space containing information to create operator.
 */
-void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x, double * b);
+void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, int * update_index, double * x, double * b);
 
 
 /*! \fn void dft_destroy_schur_solver(DFT_SCHUR_SOLVER ** schur_solver)
