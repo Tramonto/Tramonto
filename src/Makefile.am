@@ -76,7 +76,6 @@ common_SOURCES= \
 	$(srcdir)/include/dft_guess.h \
 	$(srcdir)/include/dft_mesh.h \
 	$(srcdir)/include/dft_out_energy.h \
-	$(srcdir)/include/dft_postavs.h \
 	$(srcdir)/include/dft_uww.h \
 	$(srcdir)/include/dft_continuation.h \
 	$(srcdir)/include/dft_fillp.h \
