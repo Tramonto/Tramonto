@@ -69,6 +69,8 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
   double time_preproc=0.0, t_solve_max=0.0;
 
   int ijk[3], ijk_box[3]= {0,0,0}, inode_box, iunk;
+  int inode,loc_global;
+  int *Az2G_unknowns;
   FILE *fp1=NULL;
 
 #define REGULAR_LOOP 1
@@ -320,6 +322,8 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
    /* Set up Box to local array */
 
    B2L_unknowns = (int *) array_alloc(1, Nunknowns_box, sizeof(int));
+   Az2G_unknowns = (int *) array_alloc(1, Aztec.N_update+Aztec.data_org[AZ_N_external], sizeof(int));
+
    for (i=0; i < Nunknowns_box; i++) 
       B2L_unknowns[i] = -1;
 
@@ -332,6 +336,10 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
         iunk = Aztec.update[i]/Nnodes_per_proc;
         node_to_ijk(Aztec.update[i]-Nnodes_per_proc*iunk,ijk);
      }
+     inode = ijk_to_node(ijk);
+     loc_global = loc_find(iunk,inode,GLOBAL);
+     Az2G_unknowns[i]=loc_global;
+
      ijk_to_ijk_box(ijk, ijk_box);
      inode_box = ijk_box_to_node_box(ijk_box);
      B2L_unknowns[loc_find(iunk,inode_box,BOX)] = Aztec.update_index[i];
@@ -355,6 +363,10 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
         iunk = Aztec.external[i]/(Aztec.data_org[AZ_N_external]/Nunk_per_node);
         node_to_ijk(Aztec.external[i]-(Aztec.data_org[AZ_N_external]/Nunk_per_node)*iunk,ijk);
      }
+     inode = ijk_to_node(ijk);
+     loc_global = loc_find(iunk,inode,GLOBAL);
+     Az2G_unknowns[i+Aztec.N_update]=loc_global;
+
      ijk_to_ijk_box(ijk, ijk_box);
      inode_box = ijk_box_to_node_box(ijk_box);
      B2L_unknowns[loc_find(iunk,inode_box,BOX)] = Aztec.extern_index[i];

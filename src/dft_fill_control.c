@@ -86,6 +86,8 @@ int loc_find(int iunk,int inode,int flag)
         loc_i = inode + Nnodes_per_proc*iunk;
      else if (flag == BOX)
         loc_i = inode + Nnodes_box*iunk;
+     else if (flag == GLOBAL)
+        loc_i = inode + Nnodes*iunk;
   }
   return loc_i;
 }

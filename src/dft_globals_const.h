@@ -124,13 +124,13 @@
 
 #define DENSITY        1
 #define DENSITY_SEG    4
-#define RHOBAR_ROSEN   0
+#define RHOBAR_ROSEN   5
 #define DIFFUSION      6
 #define CAVITY_WTC     7
 #define BOND_WTC       8
 
-#define CMS_FIELD      5
-#define CMS_G          2 
+#define CMS_FIELD      2
+#define CMS_G          0 
 #define POISSON        3
 
 /* Here are some constants needed to make the physics based ordering of the
@@ -139,6 +139,7 @@
 #define NODAL_FLAG -999
 #define BOX 0
 #define LOCAL 1
+#define GLOBAL 2
 
 /*
  * Zones refer to different quadrature schemes on the mesh.  We allow for 
