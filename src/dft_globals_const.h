@@ -1019,10 +1019,7 @@ extern
 double Az_tolerance;
 extern
 int    Max_gmres_iter;
-#ifdef HAVE_DFT_SCHUR_SOLVER
-extern
-void * schur_solver;
-#endif
+
 
 extern
 struct  Loca_Struct Loca; /* Information for continuation library */
@@ -1104,7 +1101,7 @@ extern void read_zero_density_TF(char *);
 extern void set_initial_guess(int,double *,int *);
 extern int  solve_problem(double **,double **, char *,int *);
 extern int  newton_solver(double *x, double *x2, double *fill_time,
-		          void *con_ptr, int max_iter, double *t_s);
+		          void *con_ptr, int max_iter, double *t_s, void * aux_info);
 
 /*EXTERNAL FIELD AND WALL_WALL INTERACTION ROUTINES */
 extern double integrate_potential(int, double, double, double, int, int, 

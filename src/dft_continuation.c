@@ -115,7 +115,7 @@ static void print_final(double param, int step_num);
 /*****************************************************************************/
 /*****************************************************************************/
 
-int solve_continuation( double *x, double *x2, int polymer_flag)
+int solve_continuation( double *x, double *x2, int polymer_flag, void * aux_info)
 
 /* Interface routine to the continuation library.
  */
@@ -246,7 +246,7 @@ int solve_continuation( double *x, double *x2, int polymer_flag)
 
   /* Now call continuation library and return */
 
-  nstep = con_lib(&con);
+  nstep = con_lib(&con, aux_info);
 
   if (con.general_info.printproc) print_final(con.general_info.param, nstep);
 
@@ -257,7 +257,7 @@ int solve_continuation( double *x, double *x2, int polymer_flag)
 /*****************************************************************************/
 /*****************************************************************************/
 int nonlinear_solver_conwrap(double *x, void *con_ptr, int step_num,
-		             double lambda, double delta_s)
+		             double lambda, double delta_s, void * aux_info)
 /* Put the call to your nonlinear solver here.
  * Input:
  *    x         solution vector
@@ -277,7 +277,7 @@ int nonlinear_solver_conwrap(double *x, void *con_ptr, int step_num,
   int num_its;
   double t=0; /* dumm spot with solve time returned */
 
-  num_its = newton_solver(x, NULL, NULL, con_ptr, Max_Newton_iter, &t);
+  num_its = newton_solver(x, NULL, NULL, con_ptr, Max_Newton_iter, &t, aux_info);
 
   return (num_its);
 }

@@ -82,10 +82,10 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
   int * reorder_cols2 = new int[nrows2+nexternal];
 
   for (int j=0; j<nnodes; j++) {
-    int jinc = update[j*nnodes];
+    int jinc = update[j*Nunk_per_node];
     for (int i=0; i<Nunk_per_node; i++) {
       reorder[jinc+i] = jinc + node_reorder[i];
-      assert(update[j*nnodes+i]==update[j*nnodes]+i); // Check to see that GIDs at a node are contiguously ordered
+      assert(update[j*Nunk_per_node+i]==update[j*Nunk_per_node]+i); // Check to see that GIDs at a node are contiguously ordered
     }
   }
 

@@ -1,9 +1,9 @@
 /*
   Prototypes from dft_continuation.c
 */
-int solve_continuation( double *x, double *x2, int polymer_flag);
+int solve_continuation( double *x, double *x2, int polymer_flag, void * aux_info);
 int nonlinear_solver_conwrap(double *x, void *con_ptr, int step_num,
-		             double lambda, double delta_s);
+		             double lambda, double delta_s, void * aux_info);
 int linear_solver_conwrap(double *x, int jac_flag, double *tmp);
 int komplex_linear_solver_conwrap(double *c, double *d,
 				  int jac_flag, double *omega, double *tmp);

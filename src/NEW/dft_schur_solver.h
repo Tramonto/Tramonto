@@ -28,6 +28,11 @@
 #ifndef DFT_SCHUR_SOLVER_H
 #define DFT_SCHUR_SOLVER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /*! \file dft_schur_solver.h
 \brief File defining all information needed for a Schur complement solver.
 
@@ -136,5 +141,9 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x, double 
 */
 
 void dft_destroy_schur_solver(DFT_SCHUR_SOLVER ** schur_solver);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* DFT_SCHUR_SOLVER_H */

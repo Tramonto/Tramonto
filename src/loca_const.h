@@ -231,7 +231,7 @@ struct con_struct {
 
 /*****************************************************************************/
 
-extern int con_lib(struct con_struct *con);
+extern int con_lib(struct con_struct *con, void * aux_info);
 extern int arc_length_bordering_alg(double *x, double *delta_x,
 		             struct con_struct *con,
 		             double reltol, double abstol);
@@ -239,7 +239,7 @@ extern int turning_point_alg(double *x, double *delta_x,
 		             struct con_struct *con,
 			     double reltol, double abstol);
 extern int  nonlinear_solver_conwrap(double *x, void *con, int step_num,
-                                     double lambda, double delta_s);
+                                     double lambda, double delta_s, void * aux_info);
 extern void assign_parameter_conwrap(double param);
 extern void assign_bif_parameter_conwrap(double bif_param);
 extern int  linear_solver_conwrap(double *x, int jac_flag, double *tmp);

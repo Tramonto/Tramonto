@@ -22,7 +22,7 @@
  */
 #include "mpi.h" 
 
-/*#define HAVE_DFT_SCHUR_SOLVER */
+
 #ifdef HAVE_DFT_SCHUR_SOLVER
 #include "dft_schur_solver.h"
 #endif
@@ -53,7 +53,10 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
  /*
   * Local variable declarations
   */
-
+#ifdef HAVE_DFT_SCHUR_SOLVER
+  DFT_SCHUR_SOLVER *schur_solver;
+#endif
+  void * aux_info = NULL;
   char *yo = "solve_problem";
   int   iter=0, i,j;  /* iteration counter for Newton's method */
   double   t1;
@@ -278,12 +281,11 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 
 #ifdef HAVE_DFT_SCHUR_SOLVER
 
-   DFT_SCHUR_SOLVER *schur_solver1;
    dft_create_schur_solver(Aztec.proc_config, Aztec.external, Aztec.bindx, 
 			   Aztec.val, Aztec.update, Aztec.update_index,
 			   Aztec.extern_index, Aztec.data_org, Aztec.N_update,
-			   Nunk_per_node, &schur_solver1);
-   schur_solver = (void *) schur_solver1;
+			   Nunk_per_node, &schur_solver);
+   aux_info = (void *) schur_solver;
 #endif
 
    /* Allocate solution vector x with space for externals */
@@ -378,9 +380,9 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 
   if (outer != ONE_ITER_LOOP && Loca.method != -1)
 #ifdef LOCA
-    iter += solve_continuation(x, x2, Sten_Type[POLYMER_CR]);
+    iter += solve_continuation(x, x2, Sten_Type[POLYMER_CR], aux_info);
 #endif
-  else iter += newton_solver(x, x2, fill_time, NULL, max_iter, &t_solve_max);
+  else iter += newton_solver(x, x2, fill_time, NULL, max_iter, &t_solve_max, aux_info);
 
   /* return solution vector with only internals, unsorted */
 
@@ -391,6 +393,10 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
        (*x2_internal_ptr)[i] = x2[Aztec.update_index[i]];
 
   /* free memory from local arrays */
+
+#ifdef HAVE_DFT_SCHUR_SOLVER
+  dft_destroy_schur_solver(&schur_solver);
+#endif
 
   safe_free((void *) &Aztec.bindx);
   safe_free((void *) &Aztec.val);
@@ -410,11 +416,14 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 /****************************************************************************/
 /****************************************************************************/
 int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
-		  int max_iter, double *t_solve_max_ptr)
+		  int max_iter, double *t_solve_max_ptr, void * aux_info)
 {
  /*
   * Local variable declarations
   */
+#ifdef HAVE_DFT_SCHUR_SOLVER
+  DFT_SCHUR_SOLVER * schur_solver;
+#endif
 
   char *yo = "newton_solver";
   int   iter=0, i;  /* iteration counter for Newton's method */
@@ -544,8 +553,10 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
 
     AZ_free_memory(Aztec.data_org[AZ_name]);
 #ifdef HAVE_DFT_SCHUR_SOLVER
+
+    schur_solver = (DFT_SCHUR_SOLVER *) aux_info;
     
-    dft_update_schur_solver(Aztec.bindx, Aztec.val, (DFT_SCHUR_SOLVER *) schur_solver);
+    dft_update_schur_solver(Aztec.bindx, Aztec.val, schur_solver);
     dft_apply_schur_solver((DFT_SCHUR_SOLVER *) schur_solver, delta_x, resid);
 #else
 
@@ -764,10 +775,6 @@ double g1, g2, ee=1.0e-8, bt, bh, ba;
   safe_free((void *) &delta_x);
   safe_free((void *) &resid);
   safe_free((void *) &resid_tmp);
-
-#ifdef HAVE_DFT_SCHUR_SOLVER
-  dft_destroy_schur_solver(&((DFT_SCHUR_SOLVER *) schur_solver));
-#endif
 
   *t_solve_max_ptr = t_solve_max;
   /* print out message on success or failure of Newton's nmethod */

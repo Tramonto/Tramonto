@@ -77,7 +77,7 @@ static void print_line (char *charstr, int ntimes);
 /*****************************************************************************/
 /*****************************************************************************/
 
-int con_lib(struct con_struct *con)
+int con_lib(struct con_struct *con, void * aux_info)
 
 /*****************************************************************************
 *
@@ -280,7 +280,7 @@ int con_lib(struct con_struct *con)
      */
 
     num_newt_conv = nonlinear_solver_conwrap(x,(void *)con,cpi->step_num,
-                                             cgi->param,step);
+                                             cgi->param,step, aux_info);
 
     /*
      * If tan_factor changes too much, tan_flag tells to halve step & reset.
