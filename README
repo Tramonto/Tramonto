@@ -6,6 +6,7 @@
 Contents:
     Prerequisites
     Building Tramonto
+    Known Problems and Work-arounds
     Adding New Code
     Running the Graphical User Interface
  
@@ -117,6 +118,19 @@ Building Tramonto:
     configure can be run again to build a different version of
     Tramonto.
 
+Known Problems and Work-arounds:
+
+    1. User automake requirements:
+    Because of how Autoconf and Automake work together, and limitation on 
+    timestamp updates in CVS, occasionally Tramonto's "make" command will try
+    to invoke automake on the user system after the user has configured Tramonto.
+    One work-around for this is to comment out (using the "#" character) the lines
+    in the Makefile's in the user's build directory.  In particular, the Makefile
+    in the main build directory, and in the src directory within the build directory
+    will have to be manually modified.
+
+    2. CYGWIN builds:  
+    There are several special issues for CYGWIN.  See the file README_CYGWIN.
 
 Adding New Code:
 
