@@ -138,16 +138,17 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
   Epetra_Map  RowMap2(-1, nrows2, reorder+nrows1, 0, comm);
   Epetra_Map  ColMap1(-1, ncols1, reorder_cols1, 0, comm);
   Epetra_Map  ColMap2(-1, ncols2, reorder_cols2, 0, comm);
-  Epetra_CrsMatrix * A11 = new Epetra_CrsMatrix(Copy, RowMap1, ColMap1, 0);
-  Epetra_CrsMatrix * A12 = new Epetra_CrsMatrix(Copy, RowMap1, ColMap2, 0);
-  Epetra_CrsMatrix * A21 = new Epetra_CrsMatrix(Copy, RowMap2, ColMap1, 0);
-  Epetra_CrsMatrix * A22 = new Epetra_CrsMatrix(Copy, RowMap2, ColMap2, 0);
+  Epetra_CrsGraph * G11 = new Epetra_CrsGraph(Copy, RowMap1, ColMap1, 0);
+  Epetra_CrsGraph * G12 = new Epetra_CrsGraph(Copy, RowMap1, ColMap2, 0);
+  Epetra_CrsGraph * G21 = new Epetra_CrsGraph(Copy, RowMap2, ColMap1, 0);
+  Epetra_CrsGraph * G22 = new Epetra_CrsGraph(Copy, RowMap2, ColMap2, 0);
 
   Epetra_Map  * RowMap = new Epetra_Map(-1, N_update, update, 0, comm);
   Epetra_Map  * ColMap = new Epetra_Map(-1, N_update+nexternal, ColGIDs, 0, comm);
+  Epetra_CrsGraph * G = 0;
   Epetra_CrsMatrix * A = 0;
   if (debug)
-    A = new Epetra_CrsMatrix(Copy, *RowMap, *ColMap, 0);
+    G = new Epetra_CrsGraph(Copy, *RowMap, *ColMap, 0);
 
   int * curColGIDs = new int[N_update+nexternal+1];
   double * curGlobalVals = new double[N_update+nexternal+1];
@@ -159,30 +160,40 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
     int * curEntries = bindx+bindx[curRowLID];
     double * curVals = val+bindx[curRowLID];
 
-    for (int j=0; j<curNumEntries; j++) curGlobalVals[j] = curVals[j];
-    curGlobalVals[curNumEntries] = val[curRowLID]; // Insert diagonal value
-
     for (int j=0; j<curNumEntries; j++) curColGIDs[j] = ColGIDs[curEntries[j]];
     curColGIDs[curNumEntries] = curRowGID; // Insert diagonal index
 
     if (RowMap1.MyGID(curRowGID)) {
-      A11->InsertGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
-      A12->InsertGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
+      G11->InsertGlobalIndices(curRowGID, curNumEntries+1, curColGIDs);
+      G12->InsertGlobalIndices(curRowGID, curNumEntries+1, curColGIDs);
     }
     else {
-      A21->InsertGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
-      A22->InsertGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
+      G21->InsertGlobalIndices(curRowGID, curNumEntries+1, curColGIDs);
+      G22->InsertGlobalIndices(curRowGID, curNumEntries+1, curColGIDs);
     }
     if (debug)
-      A->InsertGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
+      G->InsertGlobalIndices(curRowGID, curNumEntries+1, curColGIDs);
   }
 
+  G11->FillComplete();
+  G12->FillComplete(RowMap2, RowMap1);
+  G21->FillComplete(RowMap1, RowMap2);
+  G22->FillComplete();
+
+  Epetra_CrsMatrix * A11 = new Epetra_CrsMatrix(Copy, *G11);
+  Epetra_CrsMatrix * A12 = new Epetra_CrsMatrix(Copy, *G12);
+  Epetra_CrsMatrix * A21 = new Epetra_CrsMatrix(Copy, *G21);
+  Epetra_CrsMatrix * A22 = new Epetra_CrsMatrix(Copy, *G22);
   A11->FillComplete();
-  A22->FillComplete();
-  if (debug)
-    A->FillComplete();
   A12->FillComplete(RowMap2, RowMap1);
   A21->FillComplete(RowMap1, RowMap2);
+  A22->FillComplete();
+
+  if (debug) {
+    G->FillComplete();
+    A = new Epetra_CrsMatrix(Copy, *G);
+    A->FillComplete();
+  }
   //A11->OptimizeStorage();
   //A12->OptimizeStorage();
   //A21->OptimizeStorage();
@@ -353,8 +364,8 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, int * update_index,
   AztecOO solver(problem);
   solver.SetPrecMatrix(A22);
   solver.SetAztecOption(AZ_precond, AZ_none);
-  solver.SetAztecOption(AZ_output, 10);
-  solver.Iterate(13, 1.0E-3);
+  solver.SetAztecOption(AZ_output, Aztec.options[AZ_output]);
+  solver.Iterate(Aztec.options[AZ_max_iter], Az_tolerance);
 
   op.ComputeX1(b1, x2, x1);
   
@@ -402,20 +413,33 @@ void dft_destroy_schur_solver(DFT_SCHUR_SOLVER ** schur_solver) {
   Epetra_CrsMatrix * A12 = (Epetra_CrsMatrix *) (*schur_solver)->A12;
   Epetra_CrsMatrix * A21 = (Epetra_CrsMatrix *) (*schur_solver)->A21;
   Epetra_CrsMatrix * A22 = (Epetra_CrsMatrix *) (*schur_solver)->A22;
+  Epetra_CrsGraph * G11 = (Epetra_CrsGraph *) &(A11->Graph());
+  Epetra_CrsGraph * G12 = (Epetra_CrsGraph *) &(A12->Graph());
+  Epetra_CrsGraph * G21 = (Epetra_CrsGraph *) &(A21->Graph());
+  Epetra_CrsGraph * G22 = (Epetra_CrsGraph *) &(A22->Graph());
   Epetra_Map * RowMap = (Epetra_Map *) (*schur_solver)->RowMap;
   Epetra_Map * ColMap = (Epetra_Map *) (*schur_solver)->ColMap;
   Epetra_CrsMatrix * A = 0;
-  if (debug)
+  Epetra_CrsGraph * G = 0;
+  if (debug) {
     A   = (Epetra_CrsMatrix *) (*schur_solver)->A;
+    G = (Epetra_CrsGraph *) &(A->Graph());
+  }
 
   delete A11;
   delete A12;
   delete A21;
   delete A22;
+  delete G11;
+  delete G12;
+  delete G21;
+  delete G22;
   delete RowMap;
   delete ColMap;
-  if (debug)
+  if (debug) {
     delete A;
+    delete G;
+  }
 
   delete (DFT_SCHUR_SOLVER *) (*schur_solver);
   *schur_solver = 0;
