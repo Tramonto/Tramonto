@@ -904,7 +904,7 @@ void read_input_file(char *input_file, char *output_file1)
     if (Proc==0) {
       read_junk(fp,fp2);
       fprintf(fp2,"\n POLYMER INPUT NOT RELEVENT FOR THIS RUN\n");
-      for (i=0; i<7; i++) read_junk(fp,fp2);
+      for (i=0; i<8; i++) read_junk(fp,fp2);
     }
   }
   /* end of polymer input */
