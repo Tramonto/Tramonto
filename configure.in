@@ -501,22 +501,22 @@ dnl Checks for libraries.
     AC_LANG_CPLUSPLUS
     OLD_CXX=${CXX}
     CXX=${MPICXX}
-    AC_CHECK_LIB( aztecoo, AZ_iterate, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetra)
+    AC_CHECK_LIB( aztecoo, AZ_iterate, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetraext -lepetra)
     if test ${HAS_AZTECOO} -eq 1
     then
-        TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS}" 
+        TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra ${TRAMONTO_LDFLAGS}" 
     else
         dnl may need the FTOCLIBS as well
-        AC_CHECK_LIB( aztecoo, AZ_solve, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetra ${FTOCLIBS})
+        AC_CHECK_LIB( aztecoo, AZ_solve, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetraext -lepetra ${FTOCLIBS})
         if test ${HAS_AZTECOO} -eq 1
         then
-            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS} ${FTOCLIBS}" 
+            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra ${TRAMONTO_LDFLAGS} ${FTOCLIBS}" 
 	    LIBS="${LIBS} $FTOCLIBS"
         fi
-        AC_CHECK_LIB( aztecoo, AZ_check_input, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetra -ly12m ${FTOCLIBS} )
+        AC_CHECK_LIB( aztecoo, AZ_check_input, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetraext -lepetra -ly12m ${FTOCLIBS} )
         if test ${HAS_AZTECOO} -eq 1
         then
-            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra -ly12m ${TRAMONTO_LDFLAGS} ${FTOCLIBS}" 
+            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -ly12m ${TRAMONTO_LDFLAGS} ${FTOCLIBS}" 
 	    LIBS="${LIBS} $FTOCLIBS"
 	else
 	    echo Cannot find y12m functions. 
@@ -536,7 +536,7 @@ dnl Checks for libraries.
         exit
     fi
 
-    TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS}" 
+    TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra ${TRAMONTO_LDFLAGS}" 
     CXX=${OLD_CXX}
     AC_LANG_C
 
