@@ -1133,7 +1133,7 @@ void load_balance(int flag, double *fill_time)
 /* otherwise, the routine set_weight_for_node is used.                       */ 
 
 {
-  int loc_inode, inode, icomp, ijk[3];
+  int loc_inode, inode, iunk, ijk[3];
   struct rcb_dot *dots; /* Array of the structure that holds x[3], the       */ 
                         /* coordinates of nodes owned by this proc, and      */
                         /* weights, the weight of that node to balance       */
@@ -1165,13 +1165,13 @@ void load_balance(int flag, double *fill_time)
 
   for (loc_inode = 0; loc_inode < Nnodes_per_proc; loc_inode++) {
 
-    inode = Aztec.update[loc_inode * Nunk_per_node] / Nunk_per_node;
+    if (MATRIX_FILL_NODAL) inode = Aztec.update[loc_inode * Nunk_per_node] / Nunk_per_node;
+    else                   inode = Aztec.update[loc_inode];
 
     node_to_position(inode, dots[loc_inode].x);
 
     if (fill_time == NULL)
-      if (flag == 0) 
-            dots[loc_inode].weight = 1.;
+      if (flag == 0) dots[loc_inode].weight = 1.;
       else  dots[loc_inode].weight = set_weight_for_node(inode);
     else
       dots[loc_inode].weight = fill_time[loc_inode];
@@ -1238,9 +1238,10 @@ void load_balance(int flag, double *fill_time)
 
      inode = position_to_node(dots[loc_inode].x);
 
-     for (icomp = 0; icomp < Nunk_per_node; icomp++)
-        Aztec.update[loc_inode * Nunk_per_node + icomp] =
-            inode * Nunk_per_node + icomp;
+     for (iunk = 0; iunk < Nunk_per_node; iunk++){
+        if (MATRIX_FILL_NODAL) Aztec.update[loc_find(iunk,loc_inode,LOCAL)] = inode * Nunk_per_node + iunk;
+        else                   Aztec.update[loc_find(iunk,loc_inode,LOCAL)] = inode + Nnodes_per_proc*iunk;
+     }
 
      /* Calculate max 'n min range of nodes for each dimension */
 

@@ -32,7 +32,7 @@
 
 int update_solution(int,double *, double *);
 void full_to_msr(double **, int *, double *, int, int);
-static void set_multiple_B2L(int *ijk_box, int icomp, int loc_i);
+static void set_multiple_B2L(int *ijk_box, int iunk, int loc_i);
 #ifdef NUMERICAL_JACOBIAN
 static void do_numerical_jacobian(double *x, double *resid, double *resid_tmp);
 #endif
@@ -68,7 +68,7 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
   int max_nonzeros=1, min_nonzeros, tot_nonzeros, max_ints,max_exts,min_ints,min_exts; 
   double time_preproc=0.0, t_solve_max=0.0;
 
-  int ijk[3], ijk_box[3]= {0,0,0}, inode_box, icomp;
+  int ijk[3], ijk_box[3]= {0,0,0}, inode_box, iunk;
   FILE *fp1=NULL;
 
 #define REGULAR_LOOP 1
@@ -190,6 +190,8 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
    bindx_2d[Aztec.N_update] = 
                    (int *) array_alloc(1, Aztec.N_update, sizeof(int));
 
+   printf("bindx_2d allocated at %d by %d\n",Aztec.N_update+1,Aztec.N_update);
+
    /* alert fill of first time through fill after a preprocessing  */
 
 /*   if ((Load_Bal_Flag < LB_TIMINGS && iter==1) ||
@@ -202,10 +204,7 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
    /* Call fill, number of nonzeros returned in Aztec.nonzeros */
 
    T_msr_setup = -MPI_Wtime();
-   if (Sten_Type[POLYMER_CR])
-      fill_resid_and_matrix_P(NULL, NULL, bindx_2d, NULL, MSR_PREPROCESS, iter, FALSE);
-   else
-      fill_resid_and_matrix(NULL, NULL, bindx_2d, NULL, MSR_PREPROCESS, iter, FALSE);
+   fill_resid_and_matrix_control(NULL, NULL, bindx_2d, NULL, MSR_PREPROCESS, iter, FALSE);
    T_msr_setup += MPI_Wtime();
 
 
@@ -230,6 +229,7 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
       exit(-1);
    }
 
+
    /* load diagnal entries of bindx */
 
    Aztec.bindx[0] = Aztec.N_update + 1;
@@ -241,12 +241,14 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 
    /* load off-diagnal entries of bindx */
 
-   for (i=0; i<Aztec.N_update; i++)
-     for (j=0; j<bindx_2d[Aztec.N_update][i]; j++)
+   for (i=0; i<Aztec.N_update; i++){
+     for (j=0; j<bindx_2d[Aztec.N_update][i]; j++){
+/*       printf("i=%d  j=%d trial1=%d \n", i,j,bindx_2d[i][j]);*/
        Aztec.bindx[Aztec.bindx[i] + j] = bindx_2d[i][j];
+     } 
+   }
 
-   for (i=0; i<Aztec.N_update+1; i++)
-     safe_free((void *) &bindx_2d[i]);
+   for (i=0; i<Aztec.N_update+1; i++) safe_free((void *) &bindx_2d[i]);
    safe_free((void *) &bindx_2d);
 
    /* FIll number of unknowns for each node into array for load balancing */
@@ -270,7 +272,6 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
    for (i=0; i<Aztec.bindx[Aztec.bindx[0]-1]; i++)
      printf("Proc %d: %d. bindx = %d  \n", Proc,i, Aztec.bindx[i]);
 */
-
   
    AZ_transform(Aztec.proc_config, &(Aztec.external), Aztec.bindx, 
                 Aztec.val, Aztec.update, &(Aztec.update_index),
@@ -305,8 +306,9 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
  */
    }
 
-   for (i=0; i < Aztec.N_update; i++) 
+   for (i=0; i < Aztec.N_update; i++) {
       x[Aztec.update_index[i]] = (*x_internal_ptr)[Aztec.update_index[i]];
+   }
    AZ_exchange_bdry(x, Aztec.data_org,Aztec.proc_config);
 
    if (Lbinodal){
@@ -322,12 +324,17 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
       B2L_unknowns[i] = -1;
 
    for (i=0; i < Aztec.N_update; i++) {
-     node_to_ijk(Aztec.update[i]/Nunk_per_node,ijk);
-     icomp = Aztec.update[i] - Nunk_per_node * ijk_to_node(ijk);
+     if (MATRIX_FILL_NODAL){
+        node_to_ijk(Aztec.update[i]/Nunk_per_node,ijk);
+        iunk = Aztec.update[i] - Nunk_per_node * ijk_to_node(ijk);
+     }
+     else{
+        iunk = Aztec.update[i]/Nnodes_per_proc;
+        node_to_ijk(Aztec.update[i]-Nnodes_per_proc*iunk,ijk);
+     }
      ijk_to_ijk_box(ijk, ijk_box);
      inode_box = ijk_box_to_node_box(ijk_box);
-     B2L_unknowns[inode_box*Nunk_per_node + icomp] = 
-                               Aztec.update_index[i];
+     B2L_unknowns[loc_find(iunk,inode_box,BOX)] = Aztec.update_index[i];
 
      /*
       * With periodic BC, the same global node can be in multiple
@@ -336,15 +343,21 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
       */
 
      if (Non_unique_G2B[3])
-       set_multiple_B2L(ijk_box, icomp, Aztec.update_index[i]);
+       set_multiple_B2L(ijk_box, iunk, Aztec.update_index[i]);
    }
 
    for (i=0; i < Aztec.data_org[AZ_N_external]; i++){
-     node_to_ijk(Aztec.external[i]/Nunk_per_node,ijk);
-     icomp = Aztec.external[i] - Nunk_per_node * ijk_to_node(ijk);
+     if (MATRIX_FILL_NODAL){
+        node_to_ijk(Aztec.external[i]/Nunk_per_node,ijk);
+        iunk = Aztec.external[i] - Nunk_per_node * ijk_to_node(ijk);
+     }
+     else{
+        iunk = Aztec.external[i]/(Aztec.data_org[AZ_N_external]/Nunk_per_node);
+        node_to_ijk(Aztec.external[i]-(Aztec.data_org[AZ_N_external]/Nunk_per_node)*iunk,ijk);
+     }
      ijk_to_ijk_box(ijk, ijk_box);
      inode_box = ijk_box_to_node_box(ijk_box);
-     B2L_unknowns[inode_box*Nunk_per_node + icomp] = Aztec.extern_index[i];
+     B2L_unknowns[loc_find(iunk,inode_box,BOX)] = Aztec.extern_index[i];
 
      /*
       * With periodic BC, the same global node can be in multiple
@@ -353,7 +366,7 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
       */
 
      if (Non_unique_G2B[3]) 
-       set_multiple_B2L(ijk_box, icomp, Aztec.extern_index[i]);
+       set_multiple_B2L(ijk_box, iunk, Aztec.extern_index[i]);
    }
 
    max_ints = AZ_gmax_int(Aztec.N_update,Aztec.proc_config);
@@ -432,9 +445,8 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
   double  *delta_x=NULL;/* Update of solution vector returned by matrix solve*/
   double  *resid, *resid_tmp;    /* Residual vector */
   double t_solve=0.0, t_solve_min, t_solve_max;
-  double node_pos[3],residmax;
   int nodesave;
-  int ijk[3], icomp, inode;
+  int ijk[3], iunk,inode;
 
  /*
   *  Do Newton's method with a do ... while loop.
@@ -463,10 +475,7 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
     for (i=0; i<Aztec.nonzeros+1; i++) Aztec.val[i] = 0.0;
 
     t1 = MPI_Wtime();
-    if (Sten_Type[POLYMER_CR])
-      fill_resid_and_matrix_P(x,resid_tmp,NULL,fill_time,Matrix_fill_flag,iter,FALSE);
-    else
-      fill_resid_and_matrix(x,resid_tmp,NULL,fill_time,Matrix_fill_flag,iter,FALSE);
+    fill_resid_and_matrix_control(x,resid_tmp,NULL,fill_time,Matrix_fill_flag,iter,FALSE);
     t2 = MPI_Wtime() - t1;
 
     if (Proc == 0 && Iwrite != NO_SCREEN) printf("\n\t%s: Matrix fill took %g seconds\n", yo, t2);
@@ -515,23 +524,10 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
     /* Change sign on resid vector for Newton;s method, calc resid norm */
 
     l2_resid = 0.0;
-    residmax=0.0;
     for (i=0; i<Aztec.N_update; i++) {
-       node_to_ijk(Aztec.update[i]/Nunk_per_node,ijk);
-       inode = ijk_to_node(ijk);
-       icomp = Aztec.update[i] - Nunk_per_node * inode;
 
        resid[i] = -resid_tmp[i];
-
-       if (resid[i] > residmax) {
-                     residmax=resid[i];
-                     nodesave=L2G_node[i/Nunk_per_node];
-                    node_to_position(L2G_node[i/Nunk_per_node],node_pos);
-                }
-
        l2_resid += resid_tmp[i]*resid_tmp[i];
-/*       if (fabs(resid_tmp[i])>0.01) printf("i=%d inode=%d  iunk=%d  resid_tmp=%9.6f  l2_resid=%9.6f\n",
-                               i,inode,icomp,resid_tmp[i],l2_resid);*/
     }
 
     l2_resid = AZ_gsum_double(l2_resid, Aztec.proc_config);
@@ -611,11 +607,11 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
     /* set up d_f/d_mu (later change to numerical deriv) */
     dmu_drb= (dmu_drho_hs(Rho_b) + dmu_drho_att(Rho_b));
     for (i=0; i<Nnodes_per_proc; i++) {
-      for (icomp=0; icomp<Nunk_per_node; icomp++) {
-        if (icomp == 0)  resid_tmp[B2L_unknowns[L2B_node[i]*Nunk_per_node+icomp]] = 
-                              dmu_drb*Nel_hit2[0][Aztec.update_index[icomp + Nunk_per_node * i]]
+      for (iunk=0; iunk<Nunk_per_node; iunk++) {
+        if (iunk==Unk_start_eq[DENSITY])  resid_tmp[B2L_unknowns[loc_find(iunk,L2B_node[i],BOX)]] = 
+                              dmu_drb*Nel_hit2[0][Aztec.update_index[loc_find(iunk,i,LOCAL)]]
                                       *Vol_el/((double)Nnodes_per_el_V);
-        else             resid_tmp[B2L_unknowns[L2B_node[i]*Nunk_per_node+icomp]]= 0.0;
+        else             resid_tmp[B2L_unknowns[loc_find(iunk,L2B_node[i],BOX)]]= 0.0;
       }
     }
     
@@ -626,16 +622,9 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
     for (i=0; i<Aztec.N_update; i++) resid_tmp[i] = 0.0;
     for (i=0; i<Aztec.nonzeros+1; i++) Aztec.val[i] = 0.0;
 
-    if (Sten_Type[POLYMER_CR])
-      fill_resid_and_matrix_P(x2,resid_tmp,NULL,fill_time,Matrix_fill_flag,iter,FALSE);
-    else
-      fill_resid_and_matrix(x2,resid_tmp,NULL,fill_time,Matrix_fill_flag,iter,FALSE);
+    fill_resid_and_matrix_control(x2,resid_tmp,NULL,fill_time,Matrix_fill_flag,iter,FALSE);
     l2_resid = 0.0;
     for (i=0; i<Aztec.N_update; i++) {
-       node_to_ijk(Aztec.update[i]/Nunk_per_node,ijk);
-       inode = ijk_to_node(ijk);
-       icomp = Aztec.update[i] - Nunk_per_node * inode;
-
        resid[i] = -resid_tmp[i];
        l2_resid += resid_tmp[i]*resid_tmp[i];
     }
@@ -652,11 +641,11 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
 
     /* set up d_f/d_mu (later change to numerical deriv) */
     for (i=0; i<Nnodes_per_proc; i++) {
-      for (icomp=0; icomp<Nunk_per_node; icomp++) {
-        if (icomp ==0)  resid_tmp[B2L_unknowns[L2B_node[i]*Nunk_per_node+icomp]] = 
-                           dmu_drb*Nel_hit2[0][Aztec.update_index[icomp + Nunk_per_node * i]]
+      for (iunk=0; iunk<Nunk_per_node; iunk++) {
+        if (iunk ==Unk_start_eq[DENSITY])  resid_tmp[B2L_unknowns[loc_find(iunk,L2B_node[i],BOX)]] = 
+                           dmu_drb*Nel_hit2[0][Aztec.update_index[loc_find(iunk,i,LOCAL)]]
                                                            *Vol_el/((double)Nnodes_per_el_V);
-        else            resid_tmp[B2L_unknowns[L2B_node[i]*Nunk_per_node+icomp]] = 0.0;
+        else            resid_tmp[B2L_unknowns[loc_find(iunk,L2B_node[i],BOX)]] = 0.0;
       }
     }
     
@@ -804,24 +793,26 @@ int update_solution(int iter,double *x, double *delta_x)
  * converged and returns TRUE if it is, FALSE if it is not.
  */
 {
-  int loc_i,loc_inode,icomp,itmp;
+  int loc_i,loc_inode,iunk,itmp,eq_type;
   double l2_norm = 0.0, temp;
   char *yo = "update solution";
   double frac,frac_min;
 
 
   frac_min = 1.0; 
-  for (icomp=0; icomp<Nunk_per_node; icomp++){
-     if ( (Type_poly>-1 && icomp<2*Ncomp+Ngeqn_tot) || (icomp<Ncomp && Ipot_ff_n !=IDEAL_GAS)){
+  for (iunk=0; iunk<Nunk_per_node; iunk++){
+     if ( (Type_poly>-1 && Unk_to_eq_type[iunk]!=POISSON) || 
+          (Type_poly==-1 && Unk_to_eq_type[iunk]==DENSITY && Ipot_ff_n !=IDEAL_GAS)){
+
         for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
-           loc_i=Aztec.update_index[icomp+Nunk_per_node*loc_inode];
+           loc_i=Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
            if (x[loc_i]+delta_x[loc_i]<0.0){
                 frac = min(1.0,x[loc_i]/(-delta_x[loc_i]));
                 frac = max(frac,Min_update_frac);
            }
            else frac = 1.0;
-           if (Sten_Type[U_ATTRACT] && icomp<Ncomp && !Sten_Type[POLYMER_CR]
-               && x[loc_i] <= Rho_b[icomp]*exp(-VEXT_MAX)) frac = 1.0;
+           if (Type_poly==-1 && Sten_Type[U_ATTRACT] && Unk_to_eq_type[iunk]==DENSITY
+               && x[loc_i] <= Rho_b[iunk-Unk_start_eq[DENSITY]]*exp(-VEXT_MAX)) frac = 1.0;
 
            if (frac < frac_min) frac_min = frac;
          }
@@ -833,29 +824,34 @@ int update_solution(int iter,double *x, double *delta_x)
 
   if (frac_min < 1.0){
     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
-      for (icomp=0; icomp<Nunk_per_node; icomp++){
-          loc_i=Aztec.update_index[icomp+Nunk_per_node*loc_inode];
+      for (iunk=0; iunk<Nunk_per_node; iunk++){
+          loc_i=Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
           delta_x[loc_i] *= frac_min;
       }
     }
   }
   
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
-     for (icomp=0; icomp<Nunk_per_node; icomp++){
+     for (iunk=0; iunk<Nunk_per_node; iunk++){
+     eq_type=Unk_to_eq_type[iunk];
 
-      loc_i=Aztec.update_index[icomp+Nunk_per_node*loc_inode];
+      loc_i=Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
 
 
-      if (Type_poly >=0){
-          if (icomp<Ncomp) itmp=icomp;
-          else if (icomp<2*Ncomp) itmp=icomp-Ncomp;
-          else if (icomp<2*Ncomp+Ngeqn_tot){
-              itmp = Type_mer[Unk_to_Poly[icomp-2*Ncomp]][Unk_to_Seg[icomp-2*Ncomp]];
+      if (Type_poly != -1){
+          if (eq_type==DENSITY) itmp=iunk-Unk_start_eq[DENSITY];
+          else if (eq_type==CMS_FIELD) itmp=iunk-Unk_start_eq[CMS_FIELD];
+          else if (eq_type==CMS_G){
+              itmp = Type_mer[Unk_to_Poly[iunk-Unk_start_eq[CMS_G]]][Unk_to_Seg[iunk-Unk_start_eq[CMS_G]]];
           }
       }
+                                    /* TAKE CARE OF ZERO DENSITY NODES */
+      if (Type_poly==-1 && eq_type==DENSITY && 
+                   Zero_density_TF[L2B_node[loc_inode]][iunk-Unk_start_eq[DENSITY]]) x[loc_i] = 0.0; 
 
-      if (Type_poly==-1 && icomp<Ncomp && Zero_density_TF[L2B_node[loc_inode]][icomp]) x[loc_i] = 0.0; 
-      else if (Type_poly>=0 && icomp<2*Ncomp+Ngeqn_tot && Zero_density_TF[L2B_node[loc_inode]][itmp]) x[loc_i] = 0.0; 
+      else if (Type_poly>=0 && eq_type != POISSON && 
+                  Zero_density_TF[L2B_node[loc_inode]][itmp]) x[loc_i] = 0.0; 
+
       else{
 
         temp     = delta_x[loc_i]/(Newton_rel_tol*x[loc_i] + Newton_abs_tol);
@@ -865,11 +861,11 @@ int update_solution(int iter,double *x, double *delta_x)
             /* polymer B,rho, & G's always >= 0, but need to change this line
                 when charges are added */
 
-        if (( (Type_poly==-1 && icomp<Ncomp) || (Type_poly>=0 && icomp<2*Ncomp+Ngeqn_tot) ) && 
+        if (( (Type_poly==-1 && eq_type==DENSITY) || (Type_poly>=0 && eq_type != POISSON) ) && 
                x[loc_i]+delta_x[loc_i] <= 1.e-15){ 
               x[loc_i] = x[loc_i]*0.1;  
         }
-        else if(Matrix_fill_flag >=3 && Type_coul==-1 && icomp==Ncomp 
+        else if(Matrix_fill_flag >=3 && Type_coul==-1 && iunk==Unk_start_eq[RHOBAR_ROSEN] 
                           && x[loc_i] >=1.0 && Ipot_ff_n !=IDEAL_GAS){
                                         x[loc_i] += 0.5*(1.0-x[loc_i]);
         }
@@ -877,7 +873,7 @@ int update_solution(int iter,double *x, double *delta_x)
                x[loc_i] += delta_x[loc_i]; 
         }
         /* check for density out of bounds */
-        if (Type_poly > -1 && icomp>Ncomp-1 && icomp<2*Ncomp && x[loc_i]>Rho_max)
+        if (Type_poly > -1 && eq_type==DENSITY && x[loc_i]>Rho_max)
                         x[loc_i]=Rho_max;
       }
     }
@@ -894,7 +890,7 @@ int update_solution(int iter,double *x, double *delta_x)
 }
 
 /****************************************************************************/
-static void set_multiple_B2L(int *ijk_box, int icomp, int loc_i)
+static void set_multiple_B2L(int *ijk_box, int iunk, int loc_i)
 {
   int i2, j2, k2, ijk_box_wrap[3], inode_box;
 
@@ -917,7 +913,7 @@ static void set_multiple_B2L(int *ijk_box, int icomp, int loc_i)
             if (ijk_box_wrap[2] >=0 && ijk_box_wrap[2] < Nodes_x_box[2]) {
 
               inode_box = ijk_box_to_node_box(ijk_box_wrap);
-              B2L_unknowns[inode_box*Nunk_per_node + icomp] = loc_i;
+              B2L_unknowns[loc_find(iunk,inode_box,BOX)] = loc_i;
             }
           }
         }
@@ -1008,12 +1004,7 @@ static void do_numerical_jacobian(double *x, double *resid, double *resid_tmp)
      del=1.e-6*fabs(x[i])+1.e-12;
      x[i] += del;
      for (j=0; j<N; j++) resid_tmp[j] = 0.0;
-       if (Sten_Type[POLYMER_CR]){
-         fill_resid_and_matrix_P(x,resid_tmp,NULL,NULL,Matrix_fill_flag,1,TRUE);
-       }
-       else{
-         fill_resid_and_matrix(x, resid_tmp, NULL, NULL, Matrix_fill_flag, 1, TRUE);
-       }
+     fill_resid_and_matrix_control(x, resid_tmp, NULL, NULL, Matrix_fill_flag, 1, TRUE);
 
      for (j=0; j<N; j++){ 
         full[j][i] = (resid[j] + resid_tmp[j])/del;

@@ -35,7 +35,7 @@ void pre_calc_rho_bar(struct RB_Struct *rho_bar, double *x,
                       double *fill_time)
 
 {
-  int isten, idim, icomp;
+  int isten, idim, icomp,iunk;
   int izone=0, inode_end, ilist=0,izone_mesh;
   int inode_box,ijk_box[3],ijk[3],inode_sten_box;
   int *offset, inode_tmp;
@@ -190,14 +190,14 @@ void pre_calc_rho_bar(struct RB_Struct *rho_bar, double *x,
                 rho = 0.0;
              }
              else {
+               iunk=Unk_start_eq[DENSITY]+icomp;
                if (fill_flag != RHOBAR_JAC_SAVE) {
-		 assert( B2L_unknowns[inode_sten_box * Nunk_per_node + icomp] != -1 );
-		 rho = x[B2L_unknowns[inode_sten_box * Nunk_per_node + icomp]];
+		 assert( B2L_unknowns[loc_find(iunk,inode_sten_box,BOX)] != -1 );
+		 rho = x[B2L_unknowns[loc_find(iunk,inode_sten_box,BOX)]];
                }
                else {
                   jac_weights_hs[B2L_1stencil[inode_box]][0][jsten_delta] = weight;
-                  jac_columns_hs[B2L_1stencil[inode_box]][0][jsten_delta++] 
-                                           = inode_sten_box * Nunk_per_node + icomp;
+                  jac_columns_hs[B2L_1stencil[inode_box]][0][jsten_delta++] = loc_find(iunk,inode_sten_box,BOX);
                 }
              }
           }
@@ -249,16 +249,8 @@ void pre_calc_rho_bar(struct RB_Struct *rho_bar, double *x,
         weight = sten_weight[isten];
 
         inode_sten_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-
-        if      (inode_sten_box == -1) rho = Rho_b[icomp];
-        else if (inode_sten_box == -3) {
-              if (Lsteady_state == TRUE) rho = Rho_b_LBB[icomp];
-              else                       rho = Rho_coex[1];
-        }
-        else if (inode_sten_box == -4) {
-              if (Lsteady_state == TRUE) rho = Rho_b_RTF[icomp];
-              else                       rho = Rho_coex[0];
-        }
+        if (inode_sten_box == -1 || inode_sten_box == -3 || inode_sten_box == -4)
+            rho = constant_boundary(Unk_start_eq[DENSITY]+icomp,inode_sten_box);
         else if (inode_sten_box == -2) rho = 0.0;
         else {
 
@@ -281,14 +273,14 @@ void pre_calc_rho_bar(struct RB_Struct *rho_bar, double *x,
                 rho = 0.0;
              }
              else { 
+               iunk = Unk_start_eq[DENSITY]+icomp;
                if (fill_flag != RHOBAR_JAC_SAVE) {
-		 assert( B2L_unknowns[inode_sten_box * Nunk_per_node + icomp] != -1 );
-		 rho = x[B2L_unknowns[inode_sten_box * Nunk_per_node + icomp]];
+		 assert( B2L_unknowns[loc_find(iunk,inode_sten_box,BOX)] != -1 );
+		 rho = x[B2L_unknowns[loc_find(iunk,inode_sten_box,BOX)]];
                }
                else {
                   jac_weights_hs[B2L_1stencil[inode_box]][1][jsten_theta] = weight;
-                  jac_columns_hs[B2L_1stencil[inode_box]][1][jsten_theta++] 
-                                           = inode_sten_box * Nunk_per_node + icomp;
+                  jac_columns_hs[B2L_1stencil[inode_box]][1][jsten_theta++] = loc_find(iunk,inode_sten_box,BOX);
                }
              } 
           }
@@ -539,4 +531,100 @@ double  HW_boundary_weight(int icomp,int ilist, double *hw_weight,
   return(weight);
 }
 /****************************************************************************/
+/* find_jzone:  this little subroutine sets jzone for any izone given the options in the
+code.  Previously this little piece of code appeared in many places making it rather
+bug prone. */
+int find_jzone(int izone)
+{
+  int jzone;
+  if (Coarser_jac > 0 && izone<Nzone-1){
+      if (Coarser_jac == 1){
+          if (izone ==0 ) jzone = izone + 1;
+          else                 jzone = izone;
+      }
+      else if (Coarser_jac == 2) jzone = izone + 1;
+      else if (Coarser_jac == 3) jzone = Nzone-1;
+      else if (Coarser_jac == 4) jzone = Nzone-2;
+      else if (Coarser_jac == 5) jzone = Nzone-1;
+  }
+  else                         jzone = izone;
+  return jzone;
+}
+/****************************************************************************/
+/*constant_boundary:  This routine just returns a boundary condition 
+given an unknown number and an indication of what kind of boundary we have.*/
+double constant_boundary(int iunk,int jnode_box)
+{
+    double bcval;
+    switch(Unk_to_eq_type[iunk]){
+       case DENSITY:
+          if (Type_poly_TC){
+             printf("problem ... we haven't done the coarsening for TC polymers yet\n");
+             exit(-1);
+             if (jnode_box==-1){ }
+             if (jnode_box==-2){ }
+             else if (jnode_box==-3){ }
+             else if (jnode_box==-4){ }
+           }
+           else{
+              if (jnode_box==-1)     bcval = Rho_b[iunk-Unk_start_eq[DENSITY]];
+              if (jnode_box==-2)     bcval = 0.0;
+              else if (jnode_box==-3){
+                  if (Lsteady_state) bcval = Rho_b_LBB[iunk-Unk_start_eq[DENSITY]];
+                  else               bcval = Rho_coex[1];
+              }
+              else if (jnode_box==-4){
+                  if (Lsteady_state) bcval = Rho_b_RTF[iunk-Unk_start_eq[DENSITY]];
+                  else               bcval = Rho_coex[2];
+              }
+           }
+           break;
+       case RHOBAR_ROSEN:
+           if (jnode_box==-1)       bcval = Rhobar_b[iunk-Unk_start_eq[RHOBAR_ROSEN]];
+           if (jnode_box==-2)       bcval = 0.0;  /* assuming wall begins in domain and rhobars 
+                                                     have decayed beyond the boundary */
+           else if (jnode_box==-3)  bcval = Rhobar_b_LBB[iunk-Unk_start_eq[RHOBAR_ROSEN]];
+           else if (jnode_box==-4)  bcval = Rhobar_b_RTF[iunk-Unk_start_eq[RHOBAR_ROSEN]];
+           break;
+       case POISSON:
+           if (jnode_box==-1)       bcval = 0.;
+           if (jnode_box==-2){      printf("can't define Electric Potential in a wall\n"); 
+                                    exit(-1);
+                              }
+           else if (jnode_box==-3)  bcval = Elec_pot_LBB;
+           else if (jnode_box==-4)  bcval = Elec_pot_RTF;
+           break;
+       case DIFFUSION:
+           if (jnode_box==-1)       bcval = 0.;
+           if (jnode_box==-2)       bcval = -VEXT_MAX;
+           else if (jnode_box==-3)  bcval = Betamu_LBB[iunk - Unk_start_eq[DIFFUSION]];
+           else if (jnode_box==-4)  bcval = Betamu_RTF[iunk - Unk_start_eq[DIFFUSION]];
+           break;
+       case DENSITY_SEG:
+           if (jnode_box==-1){bcval=0.; }
+           else if (jnode_box==-3){bcval=0.;}
+           else if (jnode_box==-4){bcval=0.;}
+           break;
+       case CAVITY_WTC:
+           if (jnode_box==-1){bcval=0.; }
+           else if (jnode_box==-3){bcval=0.;}
+           else if (jnode_box==-4){bcval=0.;}
+           break;
+       case BOND_WTC:
+           if (jnode_box==-1){bcval=0.; }
+           else if (jnode_box==-3){bcval=0.;}
+           else if (jnode_box==-4){bcval=0.;}
+           break;
+       case CMS_FIELD:
+           bcval=0.0; 
+           break;
+       case CMS_G:
+           bcval=1.0; 
+           break;
+   }
+   return(bcval);
+}
+/****************************************************************************/
+
+
 

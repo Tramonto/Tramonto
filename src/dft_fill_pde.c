@@ -308,7 +308,7 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
              }
 
              jnode_box = offset_to_node_box(ijk_box, offset, junk2);
-             j_box = jnode_box*Nunk_per_node + Ncomp+Nrho_bar;
+             j_box = loc_find(Unk_start_eq[POISSON],jnode_box,BOX);
 
              /*
               * add in Laplace term
@@ -347,7 +347,7 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
                    Lsemiperm[WallType[Wall_elems[ilist][el_box]]][icomp]) ){
 
                   if (Charge_f[icomp] != 0.0) {
-                    j_box = jnode_box*Nunk_per_node + icomp;
+                    j_box = loc_find(Unk_start_eq[DENSITY] + icomp,jnode_box,BOX);
                     if (fill_flag != MSR_PREPROCESS){
                        loc_j = B2L_unknowns[j_box];
                        resid[loc_i] -= wt_s_1el[isten]*KAPPA_H2O*Charge_f[icomp]*x[loc_j]
@@ -390,8 +390,8 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
 
                   jnode_box = offset_to_node_box(ijk_box, offset, junk2);
 
-                  j_box_psi[jln]  = jnode_box*Nunk_per_node + Ncomp;
-                  j_box_rho[jln] = jnode_box*Nunk_per_node + icomp;
+                  j_box_psi[jln]  = loc_find(Unk_start_eq[POISSON],jnode_box,BOX);
+                  j_box_rho[jln] =  loc_find(Unk_start_eq[DENSITY] + icomp,jnode_box,BOX);
                   if (fill_flag != MSR_PREPROCESS){
                     loc_j_psi[jln]  = B2L_unknowns[j_box_psi[jln]];
                     loc_j_rho[jln] = B2L_unknowns[j_box_rho[jln]];
@@ -511,8 +511,7 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
              }
 
              jnode_box = offset_to_node_box(ijk_box, offset, junk2);
-             if (Type_poly==-1) j_box = jnode_box*Nunk_per_node + Ncomp+Nrho_bar;
-             else               j_box = jnode_box*Nunk_per_node + 2*Ncomp+Ngeqn_tot;
+             j_box = loc_find(Unk_start_eq[POISSON],jnode_box,BOX);
              /*
               * add in Laplace term
               */
@@ -536,8 +535,7 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
                    Lsemiperm[WallType[Wall_elems[ilist][el_box]]][icomp]) ){
 
                   if (Charge_f[icomp] != 0.0) {
-                    if (Type_poly==-1) j_box = jnode_box*Nunk_per_node + icomp;
-                    else               j_box = jnode_box*Nunk_per_node + Ncomp+icomp;
+                    j_box = loc_find(Unk_start_eq[DENSITY] + icomp,jnode_box,BOX);
                     if (fill_flag != MSR_PREPROCESS){
                        loc_j = B2L_unknowns[j_box];
                        resid[loc_i] -= wt_s_1el[isten]*Charge_f[icomp]*x[loc_j]
@@ -564,7 +562,7 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
                     of known charge.                                     
 void load_poisson_bc_old(double *resid)
 {
-  int loc_inode, inode_box, loc_i, iwall,idim;
+  int loc_inode, inode_box, loc_i, iwall,idim,iunk;
   double charge_i,fac;
 
   if (Type_coul==POLARIZE) fac=KAPPA_H2O;
@@ -578,7 +576,9 @@ void load_poisson_bc_old(double *resid)
          iwall     = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
          if (Type_bc_elec[WallType[iwall]] == CONST_CHARGE ){
 
-          loc_i = Aztec.update_index[Ncomp+ Nrho_bar+ Nunk_per_node * loc_inode];
+          iunk = Unk_start_eq[POISSON]
+
+          loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
 
           charge_i = 0.0;
           for (idim=0; idim<Ndim; idim++)
@@ -686,9 +686,7 @@ void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_
 
    /* iunk is nodal unknown number, icomp is component number */
 
-   if (Ipot_ff_c == COULOMB) icomp = iunk - Ncomp - 1;
-   else                      icomp = iunk - Ncomp;
-   if (Matrix_fill_flag >= 3) icomp -= Nrho_bar;
+   icomp = iunk - Unk_start_eq[DIFFUSION];
 
    if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
    else if (Nlists_HW > 2)  ilist = icomp;
@@ -759,8 +757,8 @@ void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_
              jnode_box = offset_to_node_box(ijk_box, offset, junk2);
              if (Zero_density_TF[jnode_box][icomp]) flag=TRUE;
 
-             j_box_mu[jln]  = jnode_box*Nunk_per_node + iunk;   
-             j_box_rho[jln] = jnode_box*Nunk_per_node + icomp;   
+             j_box_mu[jln]  = loc_find(iunk,jnode_box,BOX);   
+             j_box_rho[jln] = loc_find(Unk_start_eq[DENSITY] + icomp,jnode_box,BOX);   
              if (fill_flag != MSR_PREPROCESS){
                loc_j_mu[jln]  = B2L_unknowns[j_box_mu[jln]];
                loc_j_rho[jln] = B2L_unknowns[j_box_rho[jln]];
@@ -878,9 +876,7 @@ void load_linear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_box
 
    /* iunk is nodal unknown number, icomp is component number */
 
-   if (Ipot_ff_c == COULOMB) icomp = iunk - Ncomp - 1;
-   else                      icomp = iunk - Ncomp;
-   if (Matrix_fill_flag >= 3) icomp -= Nrho_bar;
+   icomp = iunk-Unk_start_eq[DIFFUSION];
 
    node_to_ijk(node_box_to_node(inode_box),ijk);
 
@@ -935,7 +931,7 @@ void load_linear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_box
              }
 
              jnode_box = offset_to_node_box(ijk_box, offset, junk2);
-             j_box = jnode_box*Nunk_per_node + iunk;
+             j_box = loc_find(iunk,jnode_box,BOX);
 
              /*
               * add in Laplace term

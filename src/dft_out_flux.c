@@ -51,11 +51,10 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
 
       current=0.0;
       for (icomp=0; icomp<Ncomp; icomp++){
-	  if (Matrix_fill_flag < 3) iunk =icomp+Ncomp;
-	  else                      iunk = icomp+Ncomp+Nrho_bar;
-	  if (Ipot_ff_c==COULOMB) iunk++;
-	 
-	  loc_i = icomp + Nunk_per_node * inode;
+
+          iunk = Unk_start_eq[DIFFUSION]+icomp;
+	  loc_i = Unk_start_eq[DENSITY]+icomp + Nunk_per_node * inode;
+
           for (idim=0; idim<Ndim; idim++) {
               if (idim == dim_flx){
                  ijk_minus1[idim] = ijk[dim_flx]-1;
@@ -107,11 +106,9 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
 
   for (icomp=0; icomp<Ncomp; icomp++){
 
-      if (Matrix_fill_flag < 3) iunk =icomp+Ncomp;
-      else                       iunk = icomp+Ncomp+Nrho_bar;
-      if (Ipot_ff_c==COULOMB) iunk++;
+      iunk = Unk_start_eq[DIFFUSION]+icomp;
+      loc_i = Aztec.update_index[Unk_start_eq[DENSITY]+icomp + Nunk_per_node * loc_inode];
 
-      loc_i = Aztec.update_index[icomp + Nunk_per_node * loc_inode];
       loc_i_minus1 = Aztec.update_index[iunk + 
                      Nunk_per_node * (loc_inode-1)];
       loc_i_plus1 = Aztec.update_index[iunk + 

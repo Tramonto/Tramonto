@@ -22,6 +22,7 @@
 #include "rf_allo.h"
 /*****************************************************************************/
 void continuation_shift();
+void setup_nunk_per_node(char *);
 void dftmain(double *);
 
 void dftmain(double * engptr)
@@ -108,6 +109,8 @@ void dftmain(double * engptr)
   */
 
   read_input_file(input_file,output_file1);
+  setup_nunk_per_node(output_file1);
+
   if (Mix_type == 0) pot_parameters(output_file1);
   if (Sten_Type[POLYMER_CR]){
       Rism_cr = (double ***) array_alloc (3, Ncomp,Ncomp,N_NZCR_MAX,sizeof(double));
@@ -146,7 +149,6 @@ void dftmain(double * engptr)
     /*
      * do all the thermodynamics for the bulk fluid mixture
      */
-
      thermodynamics(output_file1, TRUE);
 
     /*
@@ -504,8 +506,11 @@ void setup_polymer_cr()
          }
       }
   /* }*/
-   if (Proc==0) printf("crfac1=%9.6f  crfac2=%9.6f  crfac3=%9.6f  crfac4=%9.6f\n",
-                 crfac1,crfac2,crfac3,crfac4);
+   if (Ncr_files == 1) printf("crfac1=%9.6f  ",crfac1);
+   if (Ncr_files == 2) printf("crfac2=%9.6f  ",crfac2);
+   if (Ncr_files == 3) printf("crfac3=%9.6f  ",crfac3);
+   if (Ncr_files == 4) printf("crfac4=%9.6f  ",crfac4);
+   printf("\n");
 
    /* reading in c(r) file */
    if(Proc==0) printf("reading in %d c(r) file(s)...\n",Ncr_files);
@@ -759,3 +764,119 @@ void setup_polymer_cr()
    return;
 }
 /*************************************************************/
+/*******************************************************************************/
+/*setup_nunk_per_node:  here we just set up the basic parameters for the number
+  of unknowns per node for the run of interest, and some arrays to move between
+  unknown number and equation type easily. */
+void setup_nunk_per_node(char *output_file1)
+{
+  int i,iunk,icomp;
+  int NCMSField_unk;
+  FILE *fp2=NULL;
+
+  if( (fp2 = fopen(output_file1,"w+")) == NULL) {
+      printf("Can't open file %s\n", output_file1);
+      exit(1);
+   }
+
+/*in Makefile set switch for a polymer run an set unknowns accordingly*/
+   for (i=0;i<NEQ_TYPE;i++){
+     switch(i){
+         case DENSITY:                  /* unknowns of Euler-Lagrange equation */
+            Nunk_tot_eq[DENSITY]=Ncomp;
+            break;
+
+         case RHOBAR_ROSEN:     /* unknowns of Nonlocal Density Eqns for Rosenfeld Functionals */
+            Nrho_bar = 0;
+            if (Type_poly == -1 && Matrix_fill_flag >= 3 && Ipot_ff_n != IDEAL_GAS){
+                 if (Matrix_fill_flag ==3) Nrho_bar = 4 + 2*Ndim;
+                 else Nrho_bar = 4;
+                 Nrho_bar_s = 4;
+            }
+            Nunk_tot_eq[RHOBAR_ROSEN]=Nrho_bar;
+            break; 
+
+         case POISSON:                             /* unknowns of Poisson Equation */
+            Npoisson=0;
+            if ( Type_coul !=NONE) Npoisson=1;
+            Nunk_tot_eq[POISSON]=Npoisson;
+            break;
+
+         case DIFFUSION:                            /* unknowns of Diffusion Equation */
+            Ndiffusion=0;
+            if (Type_poly==-1 && Lsteady_state){
+              if (!Type_poly_TC) Ndiffusion=Ncomp;
+              if (Type_poly_TC) Ndiffusion=Nseg_tot;
+            }
+            Nunk_tot_eq[DIFFUSION]=Ndiffusion;
+            break;
+
+         case DENSITY_SEG:
+            Ntype_unk=0;
+            if (Type_poly_TC) Ntype_unk=Ncomp;
+            Nunk_tot_eq[DENSITY_SEG]=Ntype_unk;
+            break;
+             
+         case CAVITY_WTC:
+            Nrho_bar_cavity=0;
+            if (Type_poly_TC){
+                  Nrho_bar_cavity = 4;
+                  Nunk_tot_eq[CAVITY_WTC]=Nrho_bar_cavity-2;  
+                                   /* strange case because y function only uses two of the 
+                                      defined xi's.  But, I'm leaving a placeholder for 4 */
+            }
+            else Nunk_tot_eq[CAVITY_WTC]=0;
+            break;
+
+         case BOND_WTC:
+            Nrho_bar_bond=0;
+            if (Type_poly_TC) Nrho_bar_bond = Nbonds;
+            Nunk_tot_eq[BOND_WTC]=Nrho_bar_bond;
+            break;
+
+         case CMS_FIELD:
+            NCMSField_unk = 0;
+            if (Type_poly != NONE) NCMSField_unk=Ncomp;
+            Nunk_tot_eq[CMS_FIELD]=NCMSField_unk;
+            break;
+
+         case CMS_G:
+            if (Type_poly != NONE) Nunk_tot_eq[CMS_G] = Ngeqn_tot;
+            break;
+
+         default:
+            printf("problems with defining equation type %d\n",i);
+            exit(-1);
+            break;
+     }
+     if (i==0) Unk_start_eq[i]=0;
+     else      Unk_start_eq[i]=Unk_end_eq[i-1];
+     Unk_end_eq[i]=Unk_start_eq[i]+(Nunk_tot_eq[i]);
+     for (iunk=Unk_start_eq[i]; iunk< Unk_end_eq[i]; iunk++) Unk_to_eq_type[iunk]=i;
+     Nunk_per_node += Nunk_tot_eq[i];
+   }
+   for (i=0;i<NEQ_TYPE;i++){
+     if (Nunk_tot_eq[i]==0){
+        Unk_start_eq[i]=NO_UNK;
+        Unk_end_eq[i]=NO_UNK;
+     }
+     if (i==CMS_G && Type_poly != NONE){
+        for (icomp=0;icomp<Npol_comp;icomp++) Geqn_start[icomp]+=Unk_start_eq[i];
+     }
+   }
+   if (Iwrite==VERBOSE){
+        printf("\n******************************************************\n");
+        printf("TOTAL Nunk_per_node=%d\n",Nunk_per_node);
+        for (i=0;i<NEQ_TYPE;i++) printf("Nunk_tot_eq[%d]=%d  start_unk=%d  end_unk=%d\n",
+                                   i,Nunk_tot_eq[i],Unk_start_eq[i],Unk_end_eq[i]);
+        for (iunk=0;iunk<Nunk_per_node;iunk++) printf("iunk=%d equation_type=%d\n",iunk,Unk_to_eq_type[iunk]);
+        printf("******************************************************\n");
+   }
+   fprintf(fp2,"\n******************************************************\n");
+   fprintf(fp2,"TOTAL Nunk_per_node=%d\n",Nunk_per_node);
+   for (i=0;i<NEQ_TYPE;i++) fprintf(fp2,"Nunk_tot_eq[%d]=%d  start_unk=%d  end_unk=%d\n",
+                                   i,Nunk_tot_eq[i],Unk_start_eq[i],Unk_end_eq[i]);
+   for (iunk=0;iunk<Nunk_per_node;iunk++) fprintf(fp2,"iunk=%d equation_type=%d\n",iunk,Unk_to_eq_type[iunk]);
+   fprintf(fp2,"******************************************************\n");
+}
+/*******************************************************************************/

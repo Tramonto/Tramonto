@@ -141,14 +141,20 @@ void calc_stencils(void)
   for (isten=0; isten<NSTEN; isten++)  
   if (Sten_Type[isten]) {
 
-    if (isten == U_ATTRACT || isten == THETA_CHARGE || isten == POLYMER_CR) 
-          jmax = Ncomp;
-    else if (isten == DELTA_FN && Sten_Type[POLYMER_CR]) jmax = Ncomp;
-    else                                                 jmax = 1;
-
+ 
     if (isten == POLYMER_GAUSS) imax = 1;  /* currently a single Gauss bl must
                                               be used for all polymer segments*/
     else                   imax = Ncomp;
+
+    /* here we split stencils into those that depend only on one species and those that
+       depend on pairs of species */
+    if ((isten == DELTA_FN && Type_poly==-1) || isten==THETA_FN ||isten==THETA_FN_SIG) jmax=1;
+    else if (isten == U_ATTRACT || isten == THETA_CHARGE || isten == POLYMER_CR ||
+        (isten == DELTA_FN && Sten_Type[POLYMER_CR]) || isten==DELTA_FN_BOND) jmax = Ncomp;
+    else {
+       printf("problems defining the number of stencil functions to compute for the chosen type\n!");
+       exit(-1);
+    }
 
     if (isten == U_ATTRACT || isten == THETA_CHARGE || isten == POLYMER_CR){
        if (isten== THETA_CHARGE) ngpu = 20;
@@ -287,6 +293,8 @@ void calc_stencils(void)
                     case THETA_CHARGE:  npt =  20; break;
                     case POLYMER_CR:    npt =  20; break;
                     case POLYMER_GAUSS:      npt =  20; break;
+                    case THETA_FN_SIG:  npt = 40; break;
+                    case DELTA_FN_BOND: npt = 150; break;
                  }
                  inv_npt = 1.0 / (double) npt;
 
@@ -1084,6 +1092,10 @@ static double calc_sten_rad(int isten, int icomp, int jcomp)
         return (Cr_rad[icomp][jcomp]);
     case POLYMER_GAUSS:
         return (1.5*Sigma_ff[icomp][icomp]);   /* fix this later */
+    case THETA_FN_SIG:
+        return (Sigma_ff[icomp][icomp]);
+    case DELTA_FN_BOND:
+        return (Bond_ff[icomp][jcomp]);
   }
   return 0;
 }
@@ -1106,7 +1118,7 @@ static double calc_sten_vol(int isten, int i, int j)
         vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*uLJatt_n_noshift(r_min,i,j)
                   - (4.0/3.0)*PI*pow(r_cut,3.0)*uLJatt_n_noshift(r_cut,i,j)
                   + uLJatt_n_int(r_cut,i,j) - uLJatt_n_int(r_min,i,j);
-
+ 
         return(vol_sten);
 
     case THETA_CHARGE:
@@ -1124,6 +1136,21 @@ static double calc_sten_vol(int isten, int i, int j)
     case POLYMER_GAUSS:
         vol_sten = 1.;
         return(vol_sten);
+  
+    case THETA_FN_SIG:
+/*        return (4.0 * PI * POW_DOUBLE_INT(Sigma_ff[i][i],3)/3.0);*/
+/*        in order to avoid having to carry prefactors, we will set the 
+          stencil volume to 1.0.  This will effectively perform the multiplication
+          of 3/(4PI Sigma^3) times the native stencil.*/
+          return (1.0);
+          
+
+    case DELTA_FN_BOND:
+/*        return (4.0 * PI * POW_DOUBLE_INT(Bond_ff[i][j],2) );*/
+/*        in order to avoid having to carry prefactors, we will set the 
+          stencil volume to 1.0.  This will effectively perform the multiplication
+          of 1/(4PI Sigma[icomp][jcomp]^2) times the native stencil.*/
+          return (1.0);
   }
   return 0;
 }
@@ -1262,6 +1289,7 @@ static double get_weight_from_stencil(int isten, int icomp, int jcomp, double rs
   switch (isten) {
 
     case DELTA_FN:
+    case DELTA_FN_BOND:
           if (!Sten_Type[POLYMER_CR]){
             if (Ndim == 1)       return(2.0 * PI * R);
             else if (Ndim == 2)  return(2.0 / sqrt(1.0-rsq));
@@ -1276,6 +1304,7 @@ static double get_weight_from_stencil(int isten, int icomp, int jcomp, double rs
           }
 
     case THETA_FN:
+    case THETA_FN_SIG:
             if (Ndim == 1)       return((1.0-rsq) * PI*R*R);
             else if (Ndim == 2)  return(sqrt(1.0-rsq) * 2.0*R);
             else                 return(1.0);

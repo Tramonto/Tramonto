@@ -48,8 +48,8 @@ void collect_x_old(double *x,int flag)
   else {
      for (loc_inode=0; loc_inode < Nnodes_per_proc; loc_inode++ )
         for (iunk=0; iunk<Nunk_per_node; iunk++){
-        loc_i = Aztec.update_index[iunk + Nunk_per_node * loc_inode];
-        unk_loc[loc_inode*Nunk_per_node+iunk] = x[loc_i];
+        loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
+        unk_loc[iunk+Nunk_per_node*loc_inode] = x[loc_i];  /* always use nodal ordering here */
      }
   }
 
@@ -165,8 +165,10 @@ this routine is only ever called by Proc 0                                    */
 
 void print_profile(char *output_file4)
 {
-  int icomp,i,inode,ijk[3],idim,npol=0,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
-  double kappa_sq,kappa,tmp,free,r,rsq,bondproduct,site_dens=0.,sumsegdens=0.;
+  int icomp,iunk,i,inode,ijk[3],idim,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
+  int unk_field, node_start;
+  double kappa_sq,kappa,r,rsq,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX];
+  char *unk_char;
   
   char gfile[20],gfile2[20];
   FILE *ifp=NULL,*fp6=NULL,*fp7=NULL;
@@ -175,143 +177,171 @@ void print_profile(char *output_file4)
    *  to the file dft_dens.dat or dft_dens.?.?   
    */
 
+           /* open primary output file .... densities, electrostatic potential, and CMS fields */
      ifp = fopen(output_file4,"w");
-     if (Sten_Type[POLYMER_CR]){
+
+           /* open file for CMS_G variables ... */
+     if (Type_poly != -1){
        sprintf(gfile,"%sg",output_file4);
        fp6 = fopen(gfile,"w");
+     } 
+
+           /* open file for segment densities */
+     if (Type_poly != NONE || Type_poly_TC){
        sprintf(gfile2,"%s_site",output_file4);
        fp7 = fopen(gfile2,"w");
      }
-     kappa_sq = 0.0;
-     if (Ipot_ff_c == COULOMB){
-     for(icomp = 0; icomp<Ncomp; icomp++)
-        kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
-                     Charge_f[icomp]*Charge_f[icomp];
-     }
-     kappa = sqrt(kappa_sq);
 
-     free = 0.;
+           /* print order of unknowns at the top of the file */
+     for (i=0; i<NEQ_TYPE; i++){
+         switch(i){
+            case DENSITY: 
+               unk_char = "DENSITY"; 
+               if (Nunk_tot_eq[i] > 0){
+                 fputs (unk_char,ifp); 
+                 fprintf(ifp,"\n"); break;
+               }
+            case POISSON: 
+               unk_char = "POISSON"; 
+               if (Nunk_tot_eq[i] > 0){
+                 fputs (unk_char,ifp); 
+                 fprintf(ifp,"\n"); break;
+               }
+            case DIFFUSION: 
+               unk_char = "CHEMPOT";
+               if (Nunk_tot_eq[i] > 0){
+                 fputs (unk_char,ifp); 
+                 fprintf(ifp,"\n"); break;
+               }
+            case CMS_FIELD: 
+               unk_char = "CMSFIELD";
+               if (Nunk_tot_eq[i] > 0){
+                 fputs (unk_char,ifp); 
+                 fprintf(ifp,"\n"); break;
+               }
+            case RHOBAR_ROSEN: 
+               unk_char="RHOBAR_ROSEN";
+               if (Nunk_tot_eq[i] > 0){
+                 fputs (unk_char,ifp); 
+                 fprintf(ifp,"\n"); break;
+               }
+         }
+     }
+
+           /* compute DeBroglie wavelength for charged systems */
+     if (Npoisson >0 ){
+        kappa_sq = 0.0;
+        if (Ipot_ff_c == COULOMB){
+        for(icomp = 0; icomp<Ncomp; icomp++)
+           kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
+                        Charge_f[icomp]*Charge_f[icomp];
+        }
+        kappa = sqrt(kappa_sq);
+     }
+
      for (inode=0; inode<Nnodes; inode++){
         node_to_ijk(inode,ijk);
- 
-        rsq=0.0; r=0.0;
+        node_start = Nunk_per_node*inode;
+
+                         /* print ijk coordinates of this node in the files */ 
         for (idim=0; idim<Ndim; idim++) {
-            rsq = rsq+(ijk[idim]*Esize_x[idim])*(ijk[idim]*Esize_x[idim]);
-            fprintf(ifp,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
-            if (Sten_Type[POLYMER_CR])
-              fprintf(fp6,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
-/*            ijk[idim]*Esize_x[idim]*kappa);*/
-        }
-        if (rsq > 0.0) r=sqrt(rsq); 
-/*        fprintf(ifp,"%9.6f\t ",r);*/
-
-        for (icomp=0; icomp<Nunk_per_node; icomp++){
-            if (Lsteady_state &&
-                 ( (Ipot_ff_c == COULOMB && icomp > Ncomp) ||
-                   (Ipot_ff_c != COULOMB && icomp>Ncomp-1) ) ){
-               if (Ipot_ff_c == COULOMB) i=icomp-Ncomp-1;
-               else i=icomp-Ncomp;
-
-               if (Ipot_ff_n != IDEAL_GAS)
-               fprintf(ifp,"%22.17f\t", 
-                          X_old[inode*Nunk_per_node+icomp]);
-/*                        + 3.0*log(Sigma_ff[i][i]) 
-                        + 1.5*log(Mass[i]*Temp)  );*/
-               else
-               fprintf(ifp,"%22.17f\t", X_old[inode*Nunk_per_node+icomp]);
-            } 
-            else if (!Sten_Type[POLYMER_CR]){
-/*               if (icomp<Ncomp) fprintf(ifp,"%22.17f\t", X_old[inode*Nunk_per_node+icomp]/Rho_b[icomp]);*/
-               if (icomp<Ncomp) fprintf(ifp,"%22.17f\t", X_old[inode*Nunk_per_node+icomp]);
-               else fprintf(ifp,"%22.17f\t", X_old[inode*Nunk_per_node+icomp]);
-            }
-            else{
-              if (icomp < Ncomp)                         /* print rho's first */
-               fprintf(ifp,"%22.17f\t", X_old[inode*Nunk_per_node+icomp+Ncomp]);
-              else if (icomp < 2*Ncomp) {                 /* now print fields */
-                tmp = X_old[inode*Nunk_per_node+icomp-Ncomp];
-                if (tmp > 0.0 /*DENSITY_MIN*/ /*Rho_b[icomp]*exp(-VEXT_MAX)*/){
-                   tmp = -log(tmp);
-                   free += tmp*X_old[inode*Nunk_per_node+icomp];
-                   fprintf(ifp,"%22.17f\t", tmp);
-                }
-                else
-                   fprintf(ifp,"%22.17f\t", VEXT_MAX);
-              }
-              else if (icomp < 2*Ncomp+Ngeqn_tot){    /* print G/Q equations and site densities */
-                if (Type_poly == 2){
-                   ipol=Unk_to_Poly[icomp-2*Ncomp];
-                   iseg=Unk_to_Seg[icomp-2*Ncomp];
-                   itype_mer=Type_mer[ipol][iseg];
-                   fprintf(fp6,"%22.17f\t", X_old[inode*Nunk_per_node+icomp]*
-                                            X_old[inode*Nunk_per_node+itype_mer]);
-                }
-                else{
-                    fprintf(fp6,"%22.17f\t", X_old[inode*Nunk_per_node+icomp]);
-/*if (inode==Nnodes-1) printf("unk_GQ=%d  xloc=%d  X_old=%9.6f\n",
-                      icomp,inode*Nunk_per_node+icomp,X_old[inode*Nunk_per_node+icomp]);*/
-                }
-              }
-              else{
-              }
-            }
+                                    fprintf(ifp,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
+            if (Type_poly != NONE)  fprintf(fp6,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
+            if (Type_poly != NONE || Type_poly_TC) fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
         }
 
-        /* print the Poisson-Boltzmann solution based on the computed electrostatic field */
+        for (iunk=0; iunk<Nunk_per_node; iunk++){
+            
+            switch(Unk_to_eq_type[iunk]){
+               case DENSITY:   icomp = iunk-Unk_start_eq[DENSITY]; break;
+               case DIFFUSION: icomp = iunk-Unk_start_eq[DIFFUSION]; break;
+               case CMS_FIELD: icomp = iunk-Unk_start_eq[CMS_FIELD]; break;
+            }
+            switch(Unk_to_eq_type[iunk]){
+                case DENSITY:
+/*                fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]/Rho_b[icomp]);*/
+                case DIFFUSION:
+/*                if (Ipot_ff_n != IDEAL_GAS)
+                       fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]
+                            + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );*/
+                case POISSON:
+                case RHOBAR_ROSEN:
+                  fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
+                  break;
+
+                case CMS_FIELD:
+                   if (X_old[iunk+node_start] > 0.0 /*DENSITY_MIN*/ /*Rho_b[icomp]*exp(-VEXT_MAX)*/){
+                      fprintf(ifp,"%22.17f\t", -log(X_old[iunk+node_start]));
+                   }
+                   else fprintf(ifp,"%22.17f\t", VEXT_MAX);
+                   break;
+
+                case CMS_G:
+                   if (Type_poly == 2){
+                      ipol=Unk_to_Poly[iunk-Unk_start_eq[CMS_G]];
+                      iseg=Unk_to_Seg[iunk-Unk_start_eq[CMS_G]];
+                      itype_mer=Type_mer[ipol][iseg];
+                      unk_field = Unk_start_eq[CMS_FIELD]+itype_mer;
+                         fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]*X_old[unk_field+node_start]);
+                   }
+                   else  fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]);
+                   break;
+
+                case DENSITY_SEG:
+                  fprintf(fp7,"%22.17f\t", X_old[iunk+node_start]);
+                  break;
+            }
+
+        }    /* end loop over unknowns in the run */
+
+                /* print the Poisson-Boltzmann solution based on the computed electrostatic field */
         if (Ipot_ff_c == 1 && !Sten_Type[POLYMER_CR]){
         for (icomp=0; icomp<Ncomp; icomp++)
           fprintf(ifp,"%20.15f\t",
-                  Rho_b[icomp]*exp(-Charge_f[icomp]*X_old[inode*Nunk_per_node+Ncomp+Nrho_bar]
+                  Rho_b[icomp]*exp(-Charge_f[icomp]*X_old[Unk_start_eq[POISSON]+node_start]
                                                               -Vext_old[inode*Ncomp+icomp]));
         }
+ 
+               /* print segment densities for a CMS polymer run */
+        if (Type_poly != NONE){
+           for (icomp=0; icomp<Npol_comp; icomp++){
+               sumsegdens[icomp]=0.0;
+               for(iseg=0;iseg<Nmer[icomp];iseg++){
+                    itype_mer=Type_mer[icomp][iseg];
+                    bondproduct=1.0;
+                    for(ibond=0;ibond<Nbond[icomp][iseg];ibond++){
+                         unk_GQ  = Unk_start_eq[CMS_G] + Poly_to_Unk[icomp][iseg][ibond];
+                         bondproduct *= X_old[unk_GQ+node_start];
+                    }  
+                   unk_B=Unk_start_eq[CMS_FIELD]+itype_mer;
+                   if (Type_poly==2)
+                      site_dens=bondproduct*X_old[unk_B+node_start]*Rho_b[itype_mer];
+                   else
+                      site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[icomp][iseg]-1))
+                                           *Rho_b[itype_mer]/Nmer_t[icomp][itype_mer];
 
-        if(inode != Nnodes-1){
-          fprintf(ifp,"\n");
-          if (Sten_Type[POLYMER_CR]) fprintf(fp6,"\n");
+                   sumsegdens[itype_mer]+=site_dens;
+                   fprintf(fp7,"%22.17f\t", site_dens);
+              }
+           }
+           for (itype_mer=0; itype_mer<Ntype_mer; itype_mer++) fprintf(fp7,"%22.17f\t", sumsegdens[itype_mer]);
         }
+ 
+                /* add a carriage return to the file to start a new line */
+        fprintf(ifp,"\n");
+        if (Type_poly != NONE) fprintf(fp6,"\n");
+        if (Type_poly != NONE || Type_poly_TC) fprintf(fp7,"\n");
+
+                /* add some blank lines for improved graphics in 2D and 3D gnuplot */
         if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
-        if ( (Ndim==1 && ijk[0] == Nodes_x[0]-1) || (Ndim==2 &&
-              ijk[0]==Nodes_x[0]-1 && ijk[1]==Nodes_x[1]-1) ||
-              (Ndim==3 && ijk[0]==Nodes_x[0]-1 &&ijk[1]==Nodes_x[1]-1 
-                             &&ijk[2]==Nodes_x[2]-1)) fprintf(ifp,"\n");
+
      }    /* loop over all nodes  */
 
-     /* compute and print site densities for polymers */
-     if (Sten_Type[POLYMER_CR]){
-     for (inode=0; inode<Nnodes; inode++){
-        node_to_ijk(inode,ijk);
-        for (idim=0; idim<Ndim; idim++) fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
-        for (icomp=0; icomp<Ncomp; icomp++){
-            sumsegdens=0.0;
-            for(iseg=0;iseg<Nmer[icomp];iseg++){
-                 itype_mer=Type_mer[icomp][iseg];
-                 bondproduct=1.0;
-                 for(ibond=0;ibond<Nbond[icomp][iseg];ibond++){
-                      unk_GQ  = Geqn_start[npol] + Poly_to_Unk[icomp][iseg][ibond];
-                      bondproduct *= X_old[inode*Nunk_per_node+unk_GQ];
-                 }  
-                 unk_B=inode*Nunk_per_node+itype_mer;
-                 if (Type_poly==2)
-                    site_dens=bondproduct*X_old[unk_B]*Rho_b[itype_mer];
-                 else
-                    site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B],-(Nbond[icomp][iseg]-1))
-                                         *Rho_b[itype_mer]/Nmer_t[icomp][itype_mer];
-
-                 if (icomp==0 && iseg !=0 && iseg !=8 && iseg !=9) sumsegdens+=site_dens;
-                 fprintf(fp7,"%22.17f\t", site_dens);
-                 if (icomp==0 && iseg==Nmer[icomp]-1) fprintf(fp7,"%22.17f\t", sumsegdens);
-            }
-        }
-        if(inode != Nnodes-1) fprintf(fp7,"\n");
-     }
-     fclose(fp7);
-     }
-
+          /* close files */
      fclose(ifp);
-     if (Sten_Type[POLYMER_CR]) {
-        printf("Delta(Free energy) = %lf  %lf\n",Size_x[0],free/Size_x[0]);
-        fclose(fp6);
-     }
+     if (Type_poly != NONE) fclose(fp6);
+     if (Type_poly != NONE || Type_poly_TC) fclose(fp7);
+
   return;
 }
 /*******************************************************************************
@@ -321,7 +351,7 @@ this routine is only ever called by Proc 0                                    */
 void print_gofr(char *output_file6)
 {
   int icomp,i,inode,ijk[3],idim,nunk_print,npol=0,itype_mer,iwall,iunk;
-  double kappa_sq,kappa,tmp,r,rsq;
+  double kappa_sq,kappa,r,rsq;
   FILE *ifp=NULL;
   /* 
    *  print out the densities (and electrostatic potential)
@@ -330,7 +360,7 @@ void print_gofr(char *output_file6)
 
      ifp = fopen(output_file6,"w");
 
-     if (!Sten_Type[POLYMER_CR]) nunk_print = Nunk_per_node;
+     if (Type_poly==NONE) nunk_print = Nunk_per_node;
      else nunk_print = 2*Ncomp;
 
      for (iwall=0; iwall<Nwall; iwall++){  /*compute g(r) for different atoms
@@ -348,26 +378,15 @@ void print_gofr(char *output_file6)
         if (rsq > 0.0) r=sqrt(rsq); 
         fprintf(ifp,"%9.6f\t ",r);
 
-        for (icomp=0; icomp<nunk_print; icomp++){
-
-            iunk=inode*Nunk_per_node+icomp;
-            if (icomp < Ncomp) {                       
-                if (Sten_Type[POLYMER_CR]) iunk += Ncomp; /*rhos are after fields */
-                fprintf(ifp,"%22.17f\t", X_old[iunk]/Rho_b[icomp]);
-            }
-            else {
-                if (Sten_Type[POLYMER_CR]) iunk -= Ncomp; 
-                fprintf(ifp,"%22.17f\t", X_old[iunk]);
+        for (iunk=0; iunk<Nunk_per_node; iunk++){
+            if (Unk_to_eq_type[iunk]==DENSITY){
+                icomp = iunk-Unk_start_eq[DENSITY];
+                fprintf(ifp,"%22.17f\t", -log(X_old[iunk]/Rho_b[icomp]));
             }
         }
 
-        if(inode != Nnodes-1) fprintf(ifp,"\n");
-
+        fprintf(ifp,"\n");
         if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
-        if ( (Ndim==1 && ijk[0] == Nodes_x[0]-1) || (Ndim==2 &&
-              ijk[0]==Nodes_x[0]-1 && ijk[1]==Nodes_x[1]-1) ||
-              (Ndim==3 && ijk[0]==Nodes_x[0]-1 &&ijk[1]==Nodes_x[1]-1 
-                             &&ijk[2]==Nodes_x[2]-1)) fprintf(ifp,"\n");
 
      } /* loop over nodes */
      }    /* loop over all walls  */

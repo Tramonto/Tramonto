@@ -28,6 +28,7 @@ COMMON_C_SOURCES= \
 	${srcdir}/dft_comm.c \
 	${srcdir}/dft_continuation.c \
 	${srcdir}/dft_fill_shared.c \
+	${srcdir}/dft_fill_control.c \
 	${srcdir}/dft_fill_main.c \
 	${srcdir}/dft_fillp.c \
 	${srcdir}/dft_fill_rosen.c \

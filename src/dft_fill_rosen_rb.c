@@ -61,23 +61,12 @@ void load_nonlocal_hs_rosen_rb(int sten_type, int loc_i, int icomp,
   struct Stencil_Struct *stenJ;
 
   int jzone=0, loc_jnode, jnode_box, idim,j_box,loc_j;
-  int jnode_boxJ;
+  int jnode_boxJ,loc_js,loc_jv,j_box_v;
   int reflect_flag[NDIM_MAX];
   double  sign[3];
   struct  RB_Struct tmp;
 
-  if (Coarser_jac > 0 && izone<Nzone-1){
-      if (Coarser_jac == 1){
-          if (izone ==0 ) jzone = izone + 1;
-          else                 jzone = izone;
-      }
-      else if (Coarser_jac == 2) jzone = izone + 1;
-      else if (Coarser_jac == 3) jzone = Nzone-1;
-      else if (Coarser_jac == 4) jzone = Nzone-2;
-      else if (Coarser_jac == 5) jzone = Nzone-1;
-  }
-  else                         jzone = izone;
-
+  jzone = find_jzone(izone);
 
   sten = &(Stencil[sten_type][izone][icomp]);
   sten_offset = sten->Offset;
@@ -103,6 +92,7 @@ void load_nonlocal_hs_rosen_rb(int sten_type, int loc_i, int icomp,
                     (dphi_drb[loc_jnode].S0*Inv_4pirsq[icomp] +
                      dphi_drb[loc_jnode].S1*Inv_4pir[icomp] +
                      dphi_drb[loc_jnode].S2 );
+
              for (idim = 0; idim<Ndim; idim++){
                 sign[idim]=1.0;
                 if (reflect_flag[idim]) sign[idim]=-1.0;
@@ -112,36 +102,43 @@ void load_nonlocal_hs_rosen_rb(int sten_type, int loc_i, int icomp,
                         (offset[idim] * Esize_x[idim]*Inv_rad[icomp]); 
              }
           }
-          else if (sten_type == THETA_FN)
+          else if (sten_type == THETA_FN){
             resid[loc_i] += weight * dphi_drb[loc_jnode].S3; 
+          }
         }
         else if (jnode_box == -1 || jnode_box == -3 || jnode_box == -4 ){
          if (jnode_box == -1) {
-            if (sten_type == DELTA_FN) 
+            if (sten_type == DELTA_FN) {
                    resid[loc_i] += weight*
                            (dphi_drb_bulk->S0*Inv_4pirsq[icomp] +
                             dphi_drb_bulk->S1*Inv_4pir[icomp] +
                             dphi_drb_bulk->S2 );
-            else if (sten_type == THETA_FN) 
+            }
+            else if (sten_type == THETA_FN) {
                    resid[loc_i] += weight*dphi_drb_bulk->S3;
+            }
          }
          else if (jnode_box == -3) {
-            if (sten_type == DELTA_FN) 
+            if (sten_type == DELTA_FN) {
                    resid[loc_i] += weight*
                            (dphi_drb_bulk_left->S0*Inv_4pirsq[icomp] +
                             dphi_drb_bulk_left->S1*Inv_4pir[icomp] +
                             dphi_drb_bulk_left->S2 );
-            else if (sten_type == THETA_FN) 
+            }
+            else if (sten_type == THETA_FN) {
                    resid[loc_i] += weight*dphi_drb_bulk_left->S3;
+            }
          }
-         if (jnode_box == -4) {
-            if (sten_type == DELTA_FN) 
+         else if (jnode_box == -4) {
+            if (sten_type == DELTA_FN) {
                    resid[loc_i] += weight*
                            (dphi_drb_bulk_right->S0*Inv_4pirsq[icomp] +
                             dphi_drb_bulk_right->S1*Inv_4pir[icomp] +
                             dphi_drb_bulk_right->S2 );
-            else if (sten_type == THETA_FN) 
+            }
+            else if (sten_type == THETA_FN) {
                    resid[loc_i] += weight*dphi_drb_bulk_right->S3;
+            }
          }
         }
       }
@@ -160,7 +157,7 @@ void load_nonlocal_hs_rosen_rb(int sten_type, int loc_i, int icomp,
           }
           if (jnode_boxJ >=0){
             if (fill_flag != MSR_PREPROCESS){
-              loc_j = Ncomp + Nunk_per_node*jnode_boxJ;
+              loc_j = loc_find(Unk_start_eq[RHOBAR_ROSEN],jnode_boxJ,BOX);
 
               for (idim = 0; idim<Ndim; idim++){
                  if (reflect_flag[idim] == FALSE) sign[idim] = 1.0;
@@ -195,28 +192,39 @@ void load_nonlocal_hs_rosen_rb(int sten_type, int loc_i, int icomp,
 						weightJ, offsetJ,fill_flag,rho_bar);
 		   }
 		}
-              mat_row[B2L_unknowns[loc_j]]   += tmp.S3;
-              mat_row[B2L_unknowns[loc_j+1]] += tmp.S2;
-              mat_row[B2L_unknowns[loc_j+2]] += tmp.S1;
-              mat_row[B2L_unknowns[loc_j+3]] += tmp.S0;
+              loc_js =loc_j;
+              mat_row[B2L_unknowns[loc_js]]   += tmp.S3;
+              loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+1,jnode_boxJ,BOX);
+              mat_row[B2L_unknowns[loc_js]] += tmp.S2;
+              loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+2,jnode_boxJ,BOX);
+              mat_row[B2L_unknowns[loc_js]] += tmp.S1;
+              loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+3,jnode_boxJ,BOX);
+              mat_row[B2L_unknowns[loc_js]] += tmp.S0;
 
               if (Matrix_fill_flag !=4)
               for (idim = 0; idim<Ndim; idim++){
-                 mat_row[B2L_unknowns[loc_j+4+idim]]     +=tmp.V2[idim];
-                 mat_row[B2L_unknowns[loc_j+4+Ndim+idim]]+=tmp.V1[idim];
+                 loc_jv=loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_boxJ,BOX);
+                 mat_row[B2L_unknowns[loc_jv]]     +=tmp.V2[idim];
+                 loc_jv=loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_boxJ,BOX);
+                 mat_row[B2L_unknowns[loc_jv]]+=tmp.V1[idim];
               }
 
            }
            else {
-             j_box = Ncomp+Nunk_per_node*jnode_boxJ;
+             j_box = loc_find(Unk_start_eq[RHOBAR_ROSEN],jnode_boxJ,BOX);
              bindx_tmp[j_box] = TRUE;
-             bindx_tmp[j_box+1] = TRUE;
-             bindx_tmp[j_box+2] = TRUE;
-             bindx_tmp[j_box+3] = TRUE;
+             j_box = loc_find(Unk_start_eq[RHOBAR_ROSEN]+1,jnode_boxJ,BOX);
+             bindx_tmp[j_box] = TRUE;
+             j_box = loc_find(Unk_start_eq[RHOBAR_ROSEN]+2,jnode_boxJ,BOX);
+             bindx_tmp[j_box] = TRUE;
+             j_box = loc_find(Unk_start_eq[RHOBAR_ROSEN]+3,jnode_boxJ,BOX);
+             bindx_tmp[j_box] = TRUE;
              if (Matrix_fill_flag !=4)
              for (idim=0; idim<Ndim; idim++){
-                bindx_tmp[j_box+4+idim] = TRUE;
-                bindx_tmp[j_box+4+Ndim+idim] = TRUE;
+                j_box_v = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_boxJ,BOX);
+                bindx_tmp[j_box_v] = TRUE;
+                j_box_v = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_boxJ,BOX);
+                bindx_tmp[j_box_v] = TRUE;
              }
            }
          }  
@@ -241,37 +249,25 @@ void load_rho_bar_s(int sten_type,double *x,int loc_i, int iunk,
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
 
-  int jzone, jnode_box, j_box,loc_j,jcomp,jlist;
+  int jzone, jnode_box, j_box,loc_j,jcomp,jlist,junk;
   int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
 
 
 /*Jac coarsening does not work well for rho bar equations */
-     if (Coarser_jac > 0 && izone<Nzone-1){
-         if (Coarser_jac == 1){
-             if (izone ==0 ) jzone = izone + 1;
-             else                 jzone = izone;
-         }
-         else if (Coarser_jac == 2) jzone = izone + 1;
-         else if (Coarser_jac == 3) jzone = Nzone-1;
-         else if (Coarser_jac == 4) jzone = Nzone-2;
-         else if (Coarser_jac == 5) jzone = Nzone-1;
-     }
-     else                         jzone = izone;
-
-  jzone = izone;
-/*  if (jzone == 0 ) jzone = 1;*/
+     jzone = find_jzone(izone);
+     jzone = izone;
 
   if (fill_flag != MSR_PREPROCESS){
      resid[loc_i] -= x[loc_i];
      mat_row[loc_i] -=1.0;
   }
 
-  if (iunk > Ncomp+1 && ((Lhard_surf && Nlists_HW == 2) ||
+  if (iunk > Unk_start_eq[RHOBAR_ROSEN]+1 && ((Lhard_surf && Nlists_HW == 2) ||
                         (!Lhard_surf && Nlists_HW == 1))){
      if (fill_flag != MSR_PREPROCESS){
-     loc_j = Aztec.update_index[Ncomp+1 + Nunk_per_node * loc_inode];
-     if (iunk == Ncomp + 2){
+     loc_j = Aztec.update_index[loc_find(Unk_start_eq[RHOBAR_ROSEN]+1,loc_inode,LOCAL)];
+     if (iunk == Unk_start_eq[RHOBAR_ROSEN]+ 2){
         resid[loc_i] += x[loc_j]*Inv_4pir[0];
         mat_row[loc_j] += Inv_4pir[0];
      }
@@ -281,7 +277,7 @@ void load_rho_bar_s(int sten_type,double *x,int loc_i, int iunk,
      }
      }
      else{
-         j_box = Ncomp+1 + Nunk_per_node *L2B_node[loc_inode];
+         j_box = loc_find(Unk_start_eq[RHOBAR_ROSEN]+1,L2B_node[loc_inode],BOX);
          bindx_tmp[j_box] = TRUE;
      }
   }
@@ -291,8 +287,8 @@ void load_rho_bar_s(int sten_type,double *x,int loc_i, int iunk,
       if (Nlists_HW <= 2) jlist = 0;
       else                jlist = jcomp;
 
-      if      (iunk <= Ncomp + 1) fac = 1.0;
-      else if (iunk == Ncomp + 2) fac = Inv_4pir[jcomp];
+      if      (iunk <= Unk_start_eq[RHOBAR_ROSEN]+1) fac = 1.0;
+      else if (iunk == Unk_start_eq[RHOBAR_ROSEN]+2) fac = Inv_4pir[jcomp];
       else                        fac = Inv_4pirsq[jcomp];
 
       sten = &(Stencil[sten_type][izone][jcomp]);
@@ -316,22 +312,12 @@ void load_rho_bar_s(int sten_type,double *x,int loc_i, int iunk,
                      weight = HW_boundary_weight 
                       (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
               }
-              j_box=jnode_box*Nunk_per_node+jcomp;
+              j_box=loc_find(Unk_start_eq[DENSITY]+jcomp,jnode_box,BOX);
               resid[loc_i] +=  weight*fac*x[B2L_unknowns[j_box]];
            }
            else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) {
-              if      (jnode_box == -1) resid[loc_i] +=  weight*fac*Rho_b[jcomp];
-              else if (jnode_box == -3) {
-                 if (Lsteady_state == TRUE)
-                      resid[loc_i] +=  weight*fac*Rho_b_LBB[jcomp];
-                 else resid[loc_i] +=  weight*fac*Rho_coex[1];
-              }
-              else if (jnode_box == -4) {
-                 if (Lsteady_state == TRUE)
-                      resid[loc_i] +=  weight*fac*Rho_b_RTF[jcomp];
-                 else
-                   resid[loc_i] +=  weight*fac*Rho_coex[0];
-              }
+              junk=jcomp+Unk_start_eq[DENSITY];
+              resid[loc_i] += weight*fac*constant_boundary(junk,jnode_box);
            }
          }
 
@@ -341,19 +327,16 @@ void load_rho_bar_s(int sten_type,double *x,int loc_i, int iunk,
             weightJ = sten_weightJ[isten];
             jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
             if (jnode_boxJ >=0 && !Zero_density_TF[jnode_boxJ][jcomp]){
+               j_box=loc_find(Unk_start_eq[DENSITY]+jcomp,jnode_boxJ,BOX);
                if (fill_flag != MSR_PREPROCESS){
                   if (Lhard_surf) {
                      if (Nodes_2_boundary_wall[jlist][jnode_boxJ]!=-1) 
                         weightJ = HW_boundary_weight 
                          (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                    }
-                   j_box=jnode_boxJ*Nunk_per_node+jcomp;
                    mat_row[B2L_unknowns[j_box]] += fac*weightJ;
                }
-               else{
-                   j_box=jnode_boxJ*Nunk_per_node+jcomp;
-                   bindx_tmp[j_box] = TRUE;
-               }
+               else bindx_tmp[j_box] = TRUE;
             }
          }
 
@@ -377,97 +360,78 @@ void load_rho_bar_v(double *x,int loc_i,int iunk, int loc_inode,
   double *sten_weight,  weight,fac,vector[3];
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
+  int junk;
 
   int jzone, jnode_box, idim,j_box,loc_j,jcomp,jlist;
   int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
 
-  if (Coarser_jac > 0 && izone<Nzone-1){
-      if (Coarser_jac == 1){
-          if (izone ==0 ) jzone = izone + 1;
-          else                 jzone = izone;
-      }
-      else if (Coarser_jac == 2) jzone = izone + 1;
-      else if (Coarser_jac == 3) jzone = Nzone-1;
-      else if (Coarser_jac == 4) jzone = Nzone-2;
-      else if (Coarser_jac == 5) jzone = Nzone-1;
-  }
-  else                         jzone = izone;
 
-  jzone = izone;
+  jzone = find_jzone(izone);
+  jzone = izone;  /* Turn off Jacobian coarsening always */
 
   if (fill_flag !=MSR_PREPROCESS){
     resid[loc_i] -= x[loc_i];
     mat_row[loc_i] -=1.0;
   }
 
-  if (iunk >= Ncomp+Nrho_bar_s+Ndim && (
+  if (iunk >= Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+Ndim && (
                         (Lhard_surf && Nlists_HW == 2) ||
                         (!Lhard_surf && Nlists_HW == 1))){
-     idim = iunk - Ncomp - Nrho_bar_s - Ndim;
+     idim = iunk - Unk_start_eq[RHOBAR_ROSEN] - Nrho_bar_s - Ndim;
      if (fill_flag != MSR_PREPROCESS){
-        loc_j = Aztec.update_index[Ncomp+Nrho_bar_s+idim + Nunk_per_node * loc_inode];
+        loc_j = Aztec.update_index[loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+idim,loc_inode,LOCAL)];
         resid[loc_i] += x[loc_j]*Inv_4pir[0];
         mat_row[loc_j] += Inv_4pir[0];
      }   
      else{
-         j_box = Ncomp+Nrho_bar_s+idim+Nunk_per_node *L2B_node[loc_inode];
+         j_box = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+idim,L2B_node[loc_inode],BOX);
          bindx_tmp[j_box] = TRUE;
      }
   }
  
   else { 
-  if (iunk < Ncomp+Nrho_bar_s+Ndim)
-     idim = iunk - Ncomp - Nrho_bar_s;
-  else
-     idim = iunk - Ncomp - Nrho_bar_s - Ndim;
+     if (iunk < Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+Ndim)
+        idim = iunk - Unk_start_eq[RHOBAR_ROSEN] - Nrho_bar_s;
+     else
+        idim = iunk - Unk_start_eq[RHOBAR_ROSEN] - Nrho_bar_s - Ndim;
 
-  for (jcomp=0; jcomp<Ncomp; jcomp++){
-      if (Nlists_HW <= 2) jlist = 0;
-      else                jlist = jcomp;
+     for (jcomp=0; jcomp<Ncomp; jcomp++){
+       if (Nlists_HW <= 2) jlist = 0;
+       else                jlist = jcomp;
 
-      if (iunk < Ncomp + Nrho_bar_s + Ndim) fac = 1.0;
-      else                                   fac = Inv_4pir[jcomp];
+       if (iunk < Unk_start_eq[RHOBAR_ROSEN] + Nrho_bar_s + Ndim) fac = 1.0;
+       else                                            fac = Inv_4pir[jcomp];
 
-      sten = &(Stencil[DELTA_FN][izone][jcomp]);
-      sten_offset = sten->Offset;
-      sten_weight = sten->Weight;
+       sten = &(Stencil[DELTA_FN][izone][jcomp]);
+       sten_offset = sten->Offset;
+       sten_weight = sten->Weight;
 
-      stenJ = &(Stencil[DELTA_FN][jzone][jcomp]);
-      sten_offsetJ = stenJ->Offset;
-      sten_weightJ = stenJ->Weight;
+       stenJ = &(Stencil[DELTA_FN][jzone][jcomp]);
+       sten_offsetJ = stenJ->Offset;
+       sten_weightJ = stenJ->Weight;
 
-      for (isten = 0; isten < sten->Length; isten++) {
-        offset = sten_offset[isten];
-        weight = sten_weight[isten];
-        vector[idim] = offset[idim] * Esize_x[idim] * Inv_rad[jcomp];
+       for (isten = 0; isten < sten->Length; isten++) {
+          offset = sten_offset[isten];
+          weight = sten_weight[isten];
+          vector[idim] = offset[idim] * Esize_x[idim] * Inv_rad[jcomp];
 
-        jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
+          jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
+          junk=Unk_start_eq[DENSITY]+jcomp;
 
-        if (fill_flag != MSR_PREPROCESS ){
-           if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
-              if (Lhard_surf) {
-                if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
-                   weight = HW_boundary_weight 
-                    (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+          if (fill_flag != MSR_PREPROCESS ){
+             if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
+                if (Lhard_surf) {
+                  if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
+                     weight = HW_boundary_weight 
+                     (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+                }
+                j_box=loc_find(jcomp + Unk_start_eq[DENSITY],jnode_box,BOX);
+                resid[loc_i] +=  weight*fac*vector[idim]*x[B2L_unknowns[j_box]];
               }
-              j_box=jnode_box*Nunk_per_node+jcomp;
-              resid[loc_i] +=  weight*fac*vector[idim]*x[B2L_unknowns[j_box]];
-            }
-            else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
-              if      (jnode_box == -1) resid[loc_i] +=  weight*fac*vector[idim]*Rho_b[jcomp];
-              else if (jnode_box == -3) {
-                 if (Lsteady_state == TRUE)
-                      resid[loc_i] +=  weight*fac*vector[idim]*Rho_b_LBB[jcomp];
-                 else resid[loc_i] +=  weight*fac*vector[idim]*Rho_coex[1];
+              else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
+                resid[loc_i] +=  weight*fac*vector[idim]*constant_boundary(junk,jnode_box);
               }
-              else if (jnode_box == -4) {
-                 if (Lsteady_state == TRUE)
-                      resid[loc_i] +=  weight*fac*vector[idim]*Rho_b_RTF[jcomp];
-                 else
-                   resid[loc_i] +=  weight*fac*vector[idim]*Rho_coex[0];
-              }
-            }
         }
 
         if (!resid_only_flag)
@@ -475,6 +439,7 @@ void load_rho_bar_v(double *x,int loc_i,int iunk, int loc_inode,
            offsetJ = sten_offsetJ[isten];
            weightJ = sten_weightJ[isten];
            jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
+           j_box=loc_find(jcomp + Unk_start_eq[DENSITY],jnode_boxJ,BOX);
            if (jnode_boxJ >= 0 && !Zero_density_TF[jnode_boxJ][jcomp]){
               if (fill_flag != MSR_PREPROCESS){
                  if (Lhard_surf) {
@@ -482,13 +447,9 @@ void load_rho_bar_v(double *x,int loc_i,int iunk, int loc_inode,
                            weightJ = HW_boundary_weight 
                             (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                   }
-                  j_box=jnode_boxJ*Nunk_per_node+jcomp;
                   mat_row[B2L_unknowns[j_box]] += fac*weightJ*vector[idim];
                }
-               else {
-                  j_box=jnode_boxJ*Nunk_per_node+jcomp;
-                  bindx_tmp[j_box] = TRUE;
-               }
+               else  bindx_tmp[j_box] = TRUE;
             }
         }
     }
@@ -513,7 +474,7 @@ void pre_calc_dphi_drb_rb1(struct RB_Struct *dphi_drb,
  double rb0_r=0.0, rb1_r=0.0, rb2_r=0.0, rb3_r=0.0;
  int idim, icomp, loc_inode;
  int inode_box;
- int i,imax,loc_i;
+ int i,imax,loc_i,loc_iv;
  double rho;
 
  for (inode_box=0; inode_box < Nnodes_box; inode_box++) {
@@ -523,16 +484,21 @@ void pre_calc_dphi_drb_rb1(struct RB_Struct *dphi_drb,
            fill_time[B2L_node[inode_box]] = - MPI_Wtime();
        loc_inode = B2L_1stencil[inode_box];
 
-       loc_i = Ncomp + Nunk_per_node * inode_box;
+       loc_i = loc_find(Unk_start_eq[RHOBAR_ROSEN],inode_box,BOX);
        rb3 = x[B2L_unknowns[loc_i]];
-       rb2 = x[B2L_unknowns[loc_i+1]];
-       rb1 = x[B2L_unknowns[loc_i+2]];
-       rb0 = x[B2L_unknowns[loc_i+3]];
-     
+       loc_i = loc_find(Unk_start_eq[RHOBAR_ROSEN]+1,inode_box,BOX);
+       rb2 = x[B2L_unknowns[loc_i]];
+       loc_i = loc_find(Unk_start_eq[RHOBAR_ROSEN]+2,inode_box,BOX);
+       rb1 = x[B2L_unknowns[loc_i]];
+       loc_i = loc_find(Unk_start_eq[RHOBAR_ROSEN]+3,inode_box,BOX);
+       rb0 = x[B2L_unknowns[loc_i]];
+
        if (Matrix_fill_flag != 4){
           for (idim = 0; idim<Ndim; idim++) {
-            rb2v[idim] = x[B2L_unknowns[loc_i+4+idim]];
-            rb1v[idim] = x[B2L_unknowns[loc_i+4+Ndim+idim]];
+            loc_iv = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+idim,inode_box,BOX);
+            rb2v[idim] = x[B2L_unknowns[loc_iv]];
+            loc_iv = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,inode_box,BOX);
+            rb1v[idim] = x[B2L_unknowns[loc_iv]];
           }
        }
        else{
@@ -677,7 +643,7 @@ void pre_calc_dphi_drb_rb2(struct RB_Struct *dphi_drb,
  double rb0_r=0.0,rb1_r=0.0,rb2_r=0.0,rb3_r=0.0;
  int idim, icomp, loc_inode;
  int inode_box;
- int i,imax,loc_i;
+ int i,imax,loc_i,loc_iv;
  double rho,alpha,alpha_sq,alpha_cb,beta,gamma[3];
 
  for (inode_box=0; inode_box < Nnodes_box; inode_box++) {
@@ -687,16 +653,21 @@ void pre_calc_dphi_drb_rb2(struct RB_Struct *dphi_drb,
            fill_time[B2L_node[inode_box]] = - MPI_Wtime();
        loc_inode = B2L_1stencil[inode_box];
 
-       loc_i = Ncomp + Nunk_per_node * inode_box;
+       loc_i = loc_find(Unk_start_eq[RHOBAR_ROSEN],inode_box,BOX);
        rb3 = x[B2L_unknowns[loc_i]];
-       rb2 = x[B2L_unknowns[loc_i+1]];
-       rb1 = x[B2L_unknowns[loc_i+2]];
-       rb0 = x[B2L_unknowns[loc_i+3]];
+       loc_i = loc_find(Unk_start_eq[RHOBAR_ROSEN]+1,inode_box,BOX);
+       rb2 = x[B2L_unknowns[loc_i]];
+       loc_i = loc_find(Unk_start_eq[RHOBAR_ROSEN]+2,inode_box,BOX);
+       rb1 = x[B2L_unknowns[loc_i]];
+       loc_i = loc_find(Unk_start_eq[RHOBAR_ROSEN]+3,inode_box,BOX);
+       rb0 = x[B2L_unknowns[loc_i]];
 
        if (Matrix_fill_flag != 4){
           for (idim = 0; idim<Ndim; idim++) {
-            rb2v[idim] = x[B2L_unknowns[loc_i+4+idim]];
-            rb1v[idim] = x[B2L_unknowns[loc_i+4+Ndim+idim]];
+            loc_iv = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+idim,inode_box,BOX);
+            rb2v[idim] = x[B2L_unknowns[loc_iv]];
+            loc_iv = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,inode_box,BOX);
+            rb1v[idim] = x[B2L_unknowns[loc_iv]];
           }
        }
        else{
@@ -858,17 +829,23 @@ static struct RB_Struct d2phi_drb2_delta_rb(int loc_j, int jnode_box,double *x,
   double rb0, rb1, rb2, rb3, rb1v[NDIM_MAX], rb2v[NDIM_MAX];
   double inv_one_m_rb3, inv_one_m_rb3_sq, inv_one_m_rb3_3rd;
   double vector[NDIM_MAX];
-  int idim;
+  int idim,loc_js,loc_jv;
 
-  rb3 = x[B2L_unknowns[loc_j]];
-  rb2 = x[B2L_unknowns[loc_j+1]];
-  rb1 = x[B2L_unknowns[loc_j+2]];
-  rb0 = x[B2L_unknowns[loc_j+3]];
+  loc_js = loc_j;
+  rb3 = x[B2L_unknowns[loc_js]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+1,jnode_box,BOX);
+  rb2 = x[B2L_unknowns[loc_js]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+2,jnode_box,BOX);
+  rb1 = x[B2L_unknowns[loc_js]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+3,jnode_box,BOX);
+  rb0 = x[B2L_unknowns[loc_js]];
    
   if (Matrix_fill_flag !=4 ){
      for (idim = 0; idim<Ndim; idim++) {
-       rb2v[idim] = sign[idim]*x[B2L_unknowns[loc_j+4+idim]];
-       rb1v[idim] = sign[idim]*x[B2L_unknowns[loc_j+4+Ndim+idim]];
+       loc_jv = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_box,BOX);
+       rb2v[idim] = sign[idim]*x[B2L_unknowns[loc_jv]];
+       loc_jv = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_box,BOX);
+       rb1v[idim] = sign[idim]*x[B2L_unknowns[loc_jv]];
      }
   }
   else{
@@ -932,19 +909,24 @@ static struct RB_Struct d2phi_drb2_delta2_rb(int loc_j, int jnode_box,double *x,
   double rb0, rb1, rb2, rb3, rb1v[NDIM_MAX], rb2v[NDIM_MAX];
   double inv_one_m_rb3, inv_one_m_rb3_sq, inv_one_m_rb3_3rd, inv_one_m_rb3_4th;
   double vector[NDIM_MAX];
-  int idim;
+  int idim,loc_js,loc_jv;
   double DOT_rho22,alpha,alpha_sq,alpha_cb,beta,gamma[3],DOT_gamma,eps;
+  
+  loc_js = loc_j;
+  rb3 = x[B2L_unknowns[loc_js]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+1,jnode_box,BOX);
+  rb2 = x[B2L_unknowns[loc_js]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+2,jnode_box,BOX);
+  rb1 = x[B2L_unknowns[loc_js]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+3,jnode_box,BOX);
+  rb0 = x[B2L_unknowns[loc_js]];
 
-  rb3 = x[B2L_unknowns[loc_j]];
-  rb2 = x[B2L_unknowns[loc_j+1]];
-  rb1 = x[B2L_unknowns[loc_j+2]];
-  rb0 = x[B2L_unknowns[loc_j+3]];
-
-   
   if (Matrix_fill_flag !=4 ){
      for (idim = 0; idim<Ndim; idim++) {
-       rb2v[idim] = sign[idim]*x[B2L_unknowns[loc_j+4+idim]];
-       rb1v[idim] = sign[idim]*x[B2L_unknowns[loc_j+4+Ndim+idim]];
+       loc_jv = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_box,BOX);
+       rb2v[idim] = sign[idim]*x[B2L_unknowns[loc_jv]];
+       loc_jv = loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_box,BOX);
+       rb1v[idim] = sign[idim]*x[B2L_unknowns[loc_jv]];
      }
   }
   else{

@@ -158,7 +158,7 @@ void post_process (double *x_internal,char *output_file3,int *niters,
 
 /*   if (Ipot_wf_n != LJ12_6_WALL &&  
          Ipot_wf_n != LJ_CHARGED_ATOMS && Ipot_wf_n != LJ_ATOMIC) */
-        /*calc_force(fp,x,fac_area);   */
+        calc_force(fp,x,fac_area);   
                             /* haven't implemented V_dash 
                                for 12-6 integrated wall yet */
 
@@ -201,7 +201,7 @@ void setup_integrals()
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-      inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+      inode = L2G_node[loc_inode];
       node_to_ijk(inode,ijk);
 
       for (icomp=0; icomp<Ncomp; icomp++){
@@ -258,10 +258,7 @@ void setup_integrals()
                }
             }
  
-            if (Sten_Type[POLYMER_CR])
-              loc_i = Aztec.update_index[Ncomp+icomp+Nunk_per_node * loc_inode];
-            else
-              loc_i = Aztec.update_index[icomp + Nunk_per_node * loc_inode];
+            loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
 
             Nel_hit[i][loc_i]=nel_hit;
             Nel_hit2[i][loc_i]=nel_hit2;

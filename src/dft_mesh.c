@@ -599,22 +599,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag)
       setup_area_IC();
   }
 
-  /* for lack of a better place, precalc these quantities here */
-
-  if (Ipot_ff_n != IDEAL_GAS) {
-
-     Inv_4pi = 1.0 / (4.0*PI);
-     for (icomp=0; icomp<Ncomp; icomp++) {
-     if (Sigma_ff[icomp][icomp] < 1.e-6){
-        printf("ERROR : icomp=%d Sigma_ff[%d][%d]=%9.6f --- check particle sizes!\n",
-                    icomp,icomp,icomp,Sigma_ff[icomp][icomp]);    
-         exit(-1);
-     }
-        Inv_rad[icomp] = 2.0 / Sigma_ff[icomp][icomp];
-        Inv_4pir[icomp] = Inv_4pi * Inv_rad[icomp];
-        Inv_4pirsq[icomp] = Inv_4pir[icomp] * Inv_rad[icomp];
-     }
-  }
   return;
 }
 /************************************************************************/
@@ -678,38 +662,10 @@ void setup_basic_domain(FILE *fp1)
          if (jdim != idim) Area_surf_el[idim] *= Esize_x[jdim];
      }
   }
- 
-  /* 
-   * Calculate the total number of unknowns solution vector.
-   */
 
-/*in Makefile set switch for a polymer run an set unknowns accordingly*/
-  if (Sten_Type[POLYMER_CR]){
-     Nunk_per_node = 2*Ncomp + Ngeqn_tot;
-     if (Ipot_ff_c==COULOMB) Nunk_per_node += 1;
-  }
-  else {   
-
-     if (Ipot_ff_c==1) Nunk_per_node = Ncomp + 1;
-     else              Nunk_per_node = Ncomp;
-
-     /* if doing a diffusion problem, the chemical potential is
-        an unknown as a function of position in the domain */
-     if (Lsteady_state == TRUE)  Nunk_per_node += Ncomp;
-
-     Nrho_bar = 0;
-     if (Matrix_fill_flag >= 3 && Ipot_ff_n != IDEAL_GAS){
-        if (Matrix_fill_flag ==3) Nrho_bar = 4 + 2*Ndim; 
-        else Nrho_bar = 4;
-        Nrho_bar_s = 4;
-        Nunk_per_node += Nrho_bar;
-     }
-
-/*  if (Lstoichiometry == TRUE) 
-       Nconstraint = Ncomp_stoichiometry;*/
-  }
-
+  /*calculated total unknowns in the problem of interest ! */ 
   Nunknowns = Nnodes * Nunk_per_node;
+
   return;
 }
 /******************************************************************
@@ -865,7 +821,10 @@ void setup_basic_box(FILE *fp1)
     B2L_node[inode_box] = -1;
   }
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
-    inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+    if (MATRIX_FILL_NODAL) {
+      inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+    }
+    else inode = Aztec.update[loc_inode];
     inode_box = node_to_node_box(inode);
     L2B_node[loc_inode] = inode_box;
     B2L_node[inode_box] = loc_inode;
@@ -3243,7 +3202,16 @@ printf("Proc %d nx %d ny %d px %d py %d st_x %d e_x %d st_y %d e_y %d N_update %
       exit(-1);
     }
 
-    for (i = 0; i < *N_update; i++) (*update)[i] = i + t2;
+    if (MATRIX_FILL_NODAL){
+        for (i = 0; i < *N_update; i++) (*update)[i] = i + t2;
+    }
+    else{
+                 /* t1=numNodesThisProc, (i+t2/chunk)=global node number */
+     for (ii = 0; ii < chunk; ii++)
+       for (i = 0; i < t1; i++)
+         (*update)[i + ii*t1] = (i + t2/chunk) + ii*N;
+    }
+
   }
   else
     (void) fprintf(stderr,"Unknown input option (%d) in MY_read_update()\n",

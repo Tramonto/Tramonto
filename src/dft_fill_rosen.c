@@ -69,6 +69,7 @@ double load_nonlocal_hs_rosen(int sten_type, int loc_i, int icomp,
 
   int jzone=0, loc_jnode, jnode_box, idim,jzone_mesh;
   int reflect_flag[NDIM_MAX];
+  int node_start;
   double  sign[3],t_lj=0.0;
   struct  RB_Struct tmp;
   double resid_start;
@@ -95,17 +96,7 @@ double load_nonlocal_hs_rosen(int sten_type, int loc_i, int icomp,
          /* set zone based on position in domain and Nzone from input file */
 
          jzone_mesh = Nodes_to_zone[jnode_box];
-         if (Nzone > 1 && Coarser_jac > 0 && jzone_mesh<Nzone-1){
-             if (Coarser_jac == 1){
-                 if (jzone_mesh ==0 ) jzone = jzone_mesh + 1;  
-                 else                 jzone = jzone_mesh;
-             }
-             else if (Coarser_jac == 2) jzone = jzone_mesh + 1;
-             else if (Coarser_jac == 3) jzone = Nzone-1;
-             else if (Coarser_jac == 4) jzone = Nzone-2;
-             else if (Coarser_jac == 5) jzone = Nzone-1;
-         }
-         else                         jzone = jzone_mesh;
+         jzone = find_jzone(jzone_mesh);
 
          if (fill_flag != MSR_PREPROCESS) {
              loc_jnode = B2L_1stencil[jnode_box];
@@ -916,7 +907,7 @@ void load_Jacobian(double *mat_row, struct RB_Struct tmp, int jnode_box,
 #define FINAL_JACOBIAN_FILL_MACRO                                            \
 {                                                                            \
   if (fill_flag != MSR_PREPROCESS){                                          \
-     loc_k = B2L_unknowns[knode_box*Nunk_per_node + jcomp];                  \
+     loc_k = B2L_unknowns[loc_find(jcomp+Unk_start_eq[DENSITY],knode_box,BOX)];\
      if (sten_type == DELTA_FN){                                             \
         switch (Ndim) {                                                      \
          case 1:  mat_row[loc_k] +=                                          \
@@ -936,7 +927,7 @@ void load_Jacobian(double *mat_row, struct RB_Struct tmp, int jnode_box,
       }                                                                      \
    }                                                                         \
    else{  /* fill_flag == MSR_PREPROCESS */                                  \
-      bindx_tmp[knode_box*Nunk_per_node + jcomp] = TRUE;                     \
+      bindx_tmp[loc_find(jcomp+Unk_start_eq[DENSITY],knode_box,BOX)] = TRUE; \
    }                                                                         \
 }  /* end of fast_Jacobian_fill macro */
 

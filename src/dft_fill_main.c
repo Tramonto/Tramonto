@@ -27,14 +27,14 @@
 /****************************************************************************/
 void fill_resid_and_matrix (double *x, double *resid,
                             int **bindx_2d, double *fill_time, int fill_flag,
-                            int iter, int resid_only_flag)
+                            int iter, int resid_only_flag,int unk_flag)
 {
  /*
   * Local variable declarations
   */
 
   char   *yo = "fill_resid_and_matrix";
-  int     i, j, icomp,idim;
+  int     i, j, icomp,idim,iunk,iunk_start,iunk_end;
   int     reflect_flag[3];
   int     izone, mesh_coarsen_flag_i;
   int    *bindx_tmp=NULL;/*Full storage of 1 row of bindx for MSR_PREPROCESS*/
@@ -50,8 +50,7 @@ void fill_resid_and_matrix (double *x, double *resid,
           t_psi_min=0.0, t_put_min=0.0, t_all_min=0.0,t_precalc_min=0.0; /* time counters */
   double *mat_row=NULL; /* full storage of 1 row of matrix */
    double resid_hs1,resid_hs2,resid_old,resid_rhobars,resid_rhobarv,resid_uatt;
-   double resid_lg,resid_vext,resid_mu,resid_charge,resid_poisson,resid_transport,resid_el;
-  int first_time;
+   double resid_ig,resid_vext,resid_mu,resid_charge,resid_poisson,resid_transport,resid_el;
 
   int loc_i_charge_up,loc_i_charge_down,loc_i_charge_up2,loc_i_charge_down2,blocked;
   double fac_temp,gradphi;
@@ -67,6 +66,7 @@ void fill_resid_and_matrix (double *x, double *resid,
   static int    ***jac_columns_hs=NULL;
   int max_len, *jac_col;
   int node_count=0;
+  int l_elec_RTF, l_elec_LBB;
 
   int i_box, inode_box,jnode_box, ijk_box[3], ijk[3],ijk_tmp[3],loc_jnode;
 
@@ -156,9 +156,6 @@ void fill_resid_and_matrix (double *x, double *resid,
   }
 
   else {
-    /* For MSR pre-processing, start nonzeros counter at # of diagonals */ 
-    first_time = TRUE;
-    Aztec.nonzeros = Aztec.N_update;
     bindx_tmp = (int *) array_alloc(1, Nunknowns_box, sizeof(int));
     for (j=0; j<Nunknowns_box; j++) bindx_tmp[j] = FALSE;
 
@@ -210,10 +207,18 @@ void fill_resid_and_matrix (double *x, double *resid,
     }
   }
 
+  if (unk_flag == NODAL_FLAG){
+      iunk_start = 0;
+      iunk_end = Nunk_per_node;
+  } 
+  else{
+      iunk_start = unk_flag;
+      iunk_end = unk_flag+1;
+  }
+
   /* Load residuals and matrix */
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
-
 
     /* start timer for this node */
     if (fill_time != NULL) fill_time[loc_inode] -= MPI_Wtime();
@@ -224,38 +229,35 @@ void fill_resid_and_matrix (double *x, double *resid,
     node_box_to_ijk_box(inode_box, ijk_box);
     ijk_box_to_ijk(ijk_box,ijk);
 
-
-
     if ( ((Mesh_coarsening != FALSE) && (Nwall_type >0)) || L1D_bc)
       mesh_coarsen_flag_i = Mesh_coarsen_flag[inode_box];
     else
       mesh_coarsen_flag_i = 0;
-    
-    for (icomp=0; icomp<Nunk_per_node; icomp++) {
-/*if (mesh_coarsen_flag_i != FLAG_BULK && !Zero_density_TF[inode_box][icomp]){
+   
+
+    for (iunk=iunk_start; iunk<iunk_end; iunk++) {
+
+/*if (mesh_coarsen_flag_i != FLAG_BULK && !Zero_density_TF[inode_box][iunk]){
         printf("Proc: %d loc_inode: %d of %d : inode_box=%d and mesh_coarsen_flag: %d\n",
                  Proc,loc_inode,Nnodes_per_proc,inode_box,mesh_coarsen_flag_i);
 }*/
        /*resid_old=resid_old2=resid_hs=resid_hs1=resid_hs2=
                    resid_uatt=0.0;*/
-       resid_lg=resid_vext=resid_mu=resid_charge=resid_poisson=
+       resid_ig=resid_vext=resid_mu=resid_charge=resid_poisson=
                    resid_transport=resid_rhobars=resid_rhobarv=0.0;
 
       /* i_box is the equation number (matrix row) that we are filling now */
-
-      i_box = icomp + Nunk_per_node * inode_box;
-      
+      i_box = loc_find(iunk,inode_box,BOX);
+      loc_i = loc_find(iunk,loc_inode,LOCAL);
       if (fill_flag != MSR_PREPROCESS)
-        loc_i = Aztec.update_index[icomp + Nunk_per_node * loc_inode];
-      else
-        loc_i = icomp + Nunk_per_node * loc_inode;
+            loc_i = Aztec.update_index[loc_i];
 
       if (mesh_coarsen_flag_i == FLAG_1DBC){
          node_box_to_ijk_box(inode_box,ijk_box);
          for (idim=0; idim<Ndim; idim++) ijk_tmp[idim]=0;
          ijk_tmp[Grad_dim]=ijk_box[Grad_dim];
          jnode_box = ijk_box_to_node_box(ijk_tmp);
-         j_box=jnode_box*Nunk_per_node+icomp;
+         j_box=loc_find(iunk,jnode_box,BOX);
          loc_jnode = B2L_node[jnode_box];
 
          if (jnode_box <0 ){
@@ -270,10 +272,10 @@ void fill_resid_and_matrix (double *x, double *resid,
             mat_row[loc_i] =  1.0;
             mat_row[loc_j] = -1.0;
             put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
-                                 Aztec.val, mat_row, fill_flag,&first_time);
+                                 Aztec.val, mat_row, fill_flag,x);
          }
          else{
-            bindx_tmp[jnode_box*Nunk_per_node + icomp] = TRUE;
+            bindx_tmp[loc_find(iunk,jnode_box,BOX)] = TRUE;
             put_1Dsolution_in_msr(mesh_coarsen_flag_i,i_box,loc_i,jnode_box,bindx_2d);
          }
       } 
@@ -288,54 +290,16 @@ void fill_resid_and_matrix (double *x, double *resid,
              jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
 
              if (jnode_box >= 0) {
-                loc_j = B2L_unknowns[jnode_box*Nunk_per_node + icomp];
+                loc_j = B2L_unknowns[loc_find(iunk,jnode_box,BOX)];
                 resid[loc_i] = x[loc_i] - 0.5*x[loc_j];
                 mat_row[loc_i] =  1.0;
                 mat_row[loc_j] = -0.5;
              }
-             else if(jnode_box == -1){   /* bulk boundary */
+             else{
                 resid[loc_i] = x[loc_i];
                 mat_row[loc_i] =  1.0;
+                resid[loc_i] -= 0.5*constant_boundary(iunk,jnode_box);
 
-                if (icomp<Ncomp) resid[loc_i] -= 0.5*Rho_b[icomp];
-                else if (icomp < Ncomp+Nrho_bar)
-                                 resid[loc_i] -= 0.5*Rhobar_b[icomp-Ncomp];
-             }
-             else if(jnode_box == -3){    /* LBB boundary */
-                resid[loc_i] =  x[loc_i];
-                mat_row[loc_i] =  1.0;
-
-                if (icomp<Ncomp && Lsteady_state) 
-                       resid[loc_i] -= 0.5*Rho_b_LBB[icomp];
-                else if (icomp<Ncomp && !Lsteady_state) 
-                       resid[loc_i] -= 0.5*Rho_coex[1];
-                else if (icomp < Ncomp+Nrho_bar)
-                       resid[loc_i] -= 0.5*Rhobar_b_LBB[icomp-Ncomp];
-                else if (icomp==Ncomp+Nrho_bar && Ipot_ff_c == COULOMB) 
-                       resid[loc_i] -= 0.5*Elec_pot_LBB;
-                else if (Lsteady_state && Ipot_ff_c==COULOMB && 
-                                   icomp < 2*Ncomp + Nrho_bar+ 1) 
-                       resid[loc_i] -= 0.5*Betamu_LBB[icomp - Ncomp - Nrho_bar - 1];
-                else if (Lsteady_state && icomp < 2*Ncomp+Nrho_bar) 
-                   resid[loc_i] -= 0.5*Betamu_LBB[icomp - Ncomp - Nrho_bar];
-
-             }
-             else if(jnode_box == -4){  /* RTF boundary */
-                resid[loc_i] =  x[loc_i];
-                mat_row[loc_i] =  1.0;
-                if (icomp<Ncomp && Lsteady_state) 
-                       resid[loc_i] -= 0.5*Rho_b_RTF[icomp];
-                else if (icomp<Ncomp && !Lsteady_state) 
-                       resid[loc_i] -= 0.5*Rho_coex[0];
-                else if (icomp < Ncomp+Nrho_bar)
-                       resid[loc_i] -= 0.5*Rhobar_b_RTF[icomp-Ncomp];
-                else if (icomp==Ncomp+Nrho_bar && Ipot_ff_c == COULOMB) 
-                       resid[loc_i] -= 0.5*Elec_pot_RTF;
-                else if (Lsteady_state && Ipot_ff_c==COULOMB && 
-                                   icomp < 2*Ncomp + Nrho_bar+ 1) 
-                       resid[loc_i] -= 0.5*Betamu_RTF[icomp - Ncomp - Nrho_bar - 1];
-                else if (Lsteady_state && icomp < 2*Ncomp+Nrho_bar) 
-                   resid[loc_i] -= 0.5*Betamu_RTF[icomp - Ncomp - Nrho_bar];
              }
 
              /* Go to node 1 lower in the appropriate ijk direction */
@@ -344,50 +308,18 @@ void fill_resid_and_matrix (double *x, double *resid,
              jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
 
              if (jnode_box >= 0){
-                loc_j = B2L_unknowns[jnode_box*Nunk_per_node + icomp];
+                loc_j = B2L_unknowns[loc_find(iunk,jnode_box,BOX)];
                 resid[loc_i] -= 0.5*x[loc_j];
                 mat_row[loc_j] = -0.5;
              }
-             else if(jnode_box == -1){
-                if (icomp<Ncomp) resid[loc_i] -= 0.5*Rho_b[icomp];
-                else if (icomp < Ncomp+Nrho_bar)
-                                 resid[loc_i] -= 0.5*Rhobar_b[icomp-Ncomp];
-             }
-             else if(jnode_box == -3){
-                if (icomp<Ncomp && Lsteady_state) 
-                       resid[loc_i] -= 0.5*Rho_b_LBB[icomp];
-                else if (icomp<Ncomp && !Lsteady_state) 
-                       resid[loc_i] -= 0.5*Rho_coex[1];
-                else if (icomp < Ncomp+Nrho_bar)
-                       resid[loc_i] -= 0.5*Rhobar_b_LBB[icomp-Ncomp];
-                else if (icomp==Ncomp+Nrho_bar && Ipot_ff_c == COULOMB) 
-                       resid[loc_i] -= 0.5*Elec_pot_LBB;
-                else if (Lsteady_state && Ipot_ff_c==COULOMB && 
-                                   icomp < 2*Ncomp + Nrho_bar+ 1) 
-                       resid[loc_i] -= 0.5*Betamu_LBB[icomp - Ncomp - Nrho_bar - 1];
-                else if (Lsteady_state && icomp < 2*Ncomp+Nrho_bar) 
-                   resid[loc_i] -= 0.5*Betamu_LBB[icomp - Ncomp - Nrho_bar];
-             }
-             else if(jnode_box == -4){
-                if (icomp<Ncomp && Lsteady_state) 
-                       resid[loc_i] -= 0.5*Rho_b_RTF[icomp];
-                else if (icomp<Ncomp && !Lsteady_state) 
-                       resid[loc_i] -= 0.5*Rho_coex[0];
-                else if (icomp < Ncomp+Nrho_bar)
-                       resid[loc_i] -= 0.5*Rhobar_b_RTF[icomp-Ncomp];
-                else if (icomp==Ncomp+Nrho_bar && Ipot_ff_c == COULOMB) 
-                       resid[loc_i] -= 0.5*Elec_pot_RTF;
-                else if (Lsteady_state && Ipot_ff_c==COULOMB && 
-                                   icomp < 2*Ncomp + Nrho_bar+ 1) 
-                       resid[loc_i] -= 0.5*Betamu_RTF[icomp - Ncomp - Nrho_bar - 1];
-                else if (Lsteady_state && icomp < 2*Ncomp+Nrho_bar) 
-                   resid[loc_i] -= 0.5*Betamu_RTF[icomp - Ncomp - Nrho_bar];
+             else{
+                 resid[loc_i] -= 0.5*constant_boundary(iunk,jnode_box);
              }
              t_put -= MPI_Wtime();
 
              if (!resid_only_flag) 
                 put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
-                                 Aztec.val, mat_row, fill_flag,&first_time);
+                                 Aztec.val, mat_row, fill_flag,x);
              t_put += MPI_Wtime();
            }
            else {
@@ -398,7 +330,7 @@ void fill_resid_and_matrix (double *x, double *resid,
              jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
 
              if (jnode_box >= 0)
-                bindx_tmp[jnode_box*Nunk_per_node + icomp] = TRUE;
+                bindx_tmp[loc_find(iunk,jnode_box,BOX)] = TRUE;
      
              /* Go to node 1 lower in the appropriate ijk direction */
 
@@ -406,7 +338,7 @@ void fill_resid_and_matrix (double *x, double *resid,
              jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
              
              if (jnode_box >= 0)
-                bindx_tmp[jnode_box*Nunk_per_node + icomp] = TRUE;
+                bindx_tmp[loc_find(iunk,jnode_box,BOX)] = TRUE;
      
              t_put -= MPI_Wtime();
                 put_coarse_in_msr(mesh_coarsen_flag_i,i_box,loc_i,bindx_2d);
@@ -423,7 +355,8 @@ void fill_resid_and_matrix (double *x, double *resid,
       izone = mesh_coarsen_flag_i;
 
       /**** LOAD EULER-LAGRANGE EQUATIONS *****/
-      if (icomp<Ncomp) {      
+      if (Unk_to_eq_type[iunk]==DENSITY) {      
+        icomp = iunk-Unk_start_eq[DENSITY];
 
         /* Do trivial fill if it is a zero-density node */
         if (Zero_density_TF[inode_box][icomp] || Vext[loc_inode][icomp] == VEXT_MAX) {
@@ -440,7 +373,7 @@ void fill_resid_and_matrix (double *x, double *resid,
  
              resid[loc_i] = log(x[loc_i]) ; 
              mat_row[loc_i] +=1.0/x[loc_i];
-resid_lg=resid[loc_i];
+resid_ig=resid[loc_i];
 
              if (mesh_coarsen_flag_i == FLAG_BULK) resid[loc_i] -= log(Rho_b[icomp]);
              else {
@@ -450,7 +383,7 @@ resid_lg=resid[loc_i];
                                   -1.5*log(Mass[icomp]*Temp));*/
 
              if (Nwall > 0) resid[loc_i] += Vext[loc_inode][icomp];
-resid_vext=resid[loc_i]-resid_lg;
+resid_vext=resid[loc_i]-resid_ig;
  
              if (Lsteady_state == FALSE) { 
                if (Iliq_vap < 10 ){
@@ -465,28 +398,27 @@ resid_vext=resid[loc_i]-resid_lg;
                else resid[loc_i] -= Betamu[icomp];
              }
              else{ /* Lsteady_state == TRUE */
-               unk_mu = Ncomp+Nrho_bar+icomp+Nunk_per_node*loc_inode;
-               if (Ipot_ff_c == COULOMB) unk_mu +=1;
+               unk_mu = loc_find(Unk_start_eq[DIFFUSION] + icomp,loc_inode,LOCAL);
                loc_mu = Aztec.update_index[unk_mu];
                resid[loc_i] -= x[loc_mu];
                mat_row[loc_mu] -= 1.0;
              }
              }
-resid_mu=resid[loc_i]-resid_lg-resid_vext;
+resid_mu=resid[loc_i]-resid_ig-resid_vext;
 
              if (Ipot_ff_c == COULOMB){
-                loc_i_charge = Aztec.update_index[Ncomp+Nrho_bar+Nunk_per_node*loc_inode];
+                loc_i_charge = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)];
                 resid[loc_i]  += Charge_f[icomp]*x[loc_i_charge];
                 mat_row[loc_i_charge] += Charge_f[icomp];
-resid_charge=resid[loc_i]-resid_lg-resid_vext-resid_mu;
+resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
 
                 if (Lpolarize[icomp]){
 
                  fac_temp=Temp_elec/(4.0*PI*KAPPA_H2O);
                  if (Nodes_2_boundary_wall[0][inode_box] != -1){
                     if (Surf_normal[0][loc_inode][0] < 0){
-                           loc_i_charge_down = Aztec.update_index[Ncomp+Nrho_bar+Nunk_per_node*(loc_inode-1)];
-                           loc_i_charge_down2 = Aztec.update_index[Ncomp+Nrho_bar+Nunk_per_node*(loc_inode-2)];
+                           loc_i_charge_down = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode-1,LOCAL)];
+                           loc_i_charge_down2 = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode-2,LOCAL)];
                            gradphi = 0.5*(3.0*x[loc_i_charge]-4.0*x[loc_i_charge_down]+x[loc_i_charge_down2])/Esize_x[0];
 
                            mat_row[loc_i_charge]       += 1.5*Pol[icomp]*gradphi*fac_temp/Esize_x[0];
@@ -494,8 +426,8 @@ resid_charge=resid[loc_i]-resid_lg-resid_vext-resid_mu;
                            mat_row[loc_i_charge_down2] += 0.5*Pol[icomp]*gradphi*fac_temp/Esize_x[0];
                     }
                     else{
-                           loc_i_charge_up = Aztec.update_index[Ncomp+Nrho_bar+Nunk_per_node*(loc_inode+1)];
-                           loc_i_charge_up2 = Aztec.update_index[Ncomp+Nrho_bar+Nunk_per_node*(loc_inode+2)];
+                           loc_i_charge_up = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode+1,LOCAL)];
+                           loc_i_charge_up2 = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode+2,LOCAL)];
                            gradphi = 0.5*(-3.0*x[loc_i_charge]+4.0*x[loc_i_charge_up]-x[loc_i_charge_up2])/Esize_x[0];
 
                            mat_row[loc_i_charge]     -= 1.5*Pol[icomp]*gradphi*fac_temp/Esize_x[0];
@@ -504,8 +436,8 @@ resid_charge=resid[loc_i]-resid_lg-resid_vext-resid_mu;
                     }
                   }
                   else{
-                      loc_i_charge_up = Aztec.update_index[Ncomp+Nrho_bar+Nunk_per_node*(loc_inode+1)];
-                      loc_i_charge_down = Aztec.update_index[Ncomp+Nrho_bar+Nunk_per_node*(loc_inode-1)];
+                      loc_i_charge_up = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode+1,LOCAL)];
+                      loc_i_charge_down = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode-1,LOCAL)];
                       gradphi = 0.5*(x[loc_i_charge_up]-x[loc_i_charge_down])/Esize_x[0];
 
                       mat_row[loc_i_charge_up]   += 0.5*Pol[icomp]*gradphi*fac_temp/Esize_x[0];
@@ -521,29 +453,28 @@ resid_charge=resid[loc_i]-resid_lg-resid_vext-resid_mu;
 
              /* If transport, put in off-diagonal entry for mu in E-L equation */
              if (Lsteady_state == TRUE) {
-               unk_mu = Ncomp+Nrho_bar+icomp+Nunk_per_node*inode_box;
-               if (Ipot_ff_c == COULOMB) unk_mu +=1;
+               unk_mu = loc_find(Unk_start_eq[DIFFUSION]+icomp,inode_box,BOX);
                bindx_tmp[unk_mu] = TRUE;
              }
 
              /* If charged, put in off-diagonal entry for Psi in E-L equation */
              if (Ipot_ff_c == COULOMB){
-                  bindx_tmp[inode_box*Nunk_per_node+Ncomp+Nrho_bar] = TRUE;
+                  bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box,BOX)] = TRUE;
 
                 if (Lpolarize[icomp]){
                     if (Nodes_2_boundary_wall[0][inode_box] != -1){
                        if (Surf_normal[0][loc_inode][0]<0){
-                          bindx_tmp[(inode_box-1)*Nunk_per_node+Ncomp+Nrho_bar] = TRUE;
-                          bindx_tmp[(inode_box-2)*Nunk_per_node+Ncomp+Nrho_bar] = TRUE;
+                          bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box-1,BOX)] = TRUE;
+                          bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box-2,BOX)] = TRUE;
                        }
                        else{
-                          bindx_tmp[(inode_box+1)*Nunk_per_node+Ncomp+Nrho_bar] = TRUE;
-                          bindx_tmp[(inode_box+2)*Nunk_per_node+Ncomp+Nrho_bar] = TRUE;
+                          bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box+1,BOX)] = TRUE;
+                          bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box+2,BOX)] = TRUE;
                        }
                     }
                     else{
-                       bindx_tmp[(inode_box-1)*Nunk_per_node+Ncomp+Nrho_bar] = TRUE;
-                       bindx_tmp[(inode_box+1)*Nunk_per_node+Ncomp+Nrho_bar] = TRUE;
+                       bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box-1,BOX)] = TRUE;
+                       bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box+1,BOX)] = TRUE;
                     }
                 }
              }
@@ -637,14 +568,14 @@ resid_charge=resid[loc_i]-resid_lg-resid_vext-resid_mu;
             }
             else{
               t_put -= MPI_Wtime();
-              if ( (icomp!=0 || loc_inode !=0) &&
+              if ( (Unk_to_eq_type[iunk] != DENSITY && icomp !=0 || loc_inode !=0) &&
                    ( Zero_density_TF[inode_box][icomp] || 
                     Vext[loc_inode][icomp] == VEXT_MAX ) )
                  put_zero_in_msr(loc_i,bindx_2d);
               else{
 
                  put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
-                                     Aztec.val, mat_row, fill_flag,&first_time);
+                                     Aztec.val, mat_row, fill_flag,NULL);
               }
               t_put += MPI_Wtime();
             }
@@ -652,9 +583,11 @@ resid_charge=resid[loc_i]-resid_lg-resid_vext-resid_mu;
          else{  /* Fill matrix */
               t_put -= MPI_Wtime();
 
-              if (!resid_only_flag)
+              if (!resid_only_flag){
                  put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
-                                     Aztec.val, mat_row, fill_flag,&first_time);
+                                     Aztec.val, mat_row, fill_flag,x);
+              }
+
               t_put += MPI_Wtime();
          }
       }
@@ -663,45 +596,46 @@ resid_charge=resid[loc_i]-resid_lg-resid_vext-resid_mu;
       /*********************************/
       /**** LOAD RHO_BAR EQUATIONS *****/
       /*********************************/
-      else if (icomp < Ncomp + Nrho_bar_s && Ipot_ff_n != IDEAL_GAS){
+      else if (Unk_to_eq_type[iunk]==RHOBAR_ROSEN){
           t_rhobar -= MPI_Wtime();
 
-          if (icomp == Ncomp)
-             load_rho_bar_s(THETA_FN,x,loc_i,icomp,loc_inode,izone,ijk_box, 
+          if (iunk == Unk_start_eq[RHOBAR_ROSEN])
+             load_rho_bar_s(THETA_FN,x,loc_i,iunk,loc_inode,izone,ijk_box, 
                             fill_flag,resid,mat_row,bindx_tmp, resid_only_flag);
-           else
-             load_rho_bar_s(DELTA_FN,x,loc_i,icomp,loc_inode,izone,ijk_box, 
+          else if (iunk < Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s)
+             load_rho_bar_s(DELTA_FN,x,loc_i,iunk,loc_inode,izone,ijk_box, 
                             fill_flag,resid,mat_row,bindx_tmp, resid_only_flag);
-            if (fill_flag !=MSR_PREPROCESS) resid_rhobars = resid[loc_i] - resid_lg-resid_vext-resid_mu-resid_charge;
+          if (fill_flag !=MSR_PREPROCESS) resid_rhobars = resid[loc_i] - resid_ig-resid_vext-resid_mu-resid_charge;
 
-           t_rhobar += MPI_Wtime();
-           t_put -= MPI_Wtime();
-           if (!resid_only_flag)
+          t_rhobar += MPI_Wtime();
+          t_put -= MPI_Wtime();
+          if (!resid_only_flag)
              put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
-                                  Aztec.val, mat_row, fill_flag,&first_time);
-           t_put += MPI_Wtime();
-      }
-      else if (icomp < Ncomp + Nrho_bar && Ipot_ff_n != IDEAL_GAS){
-           if (Matrix_fill_flag ==3){
-           t_rhobar -= MPI_Wtime();
-           load_rho_bar_v(x,loc_i,icomp,loc_inode,izone,ijk_box, fill_flag,
-                          resid,mat_row,bindx_tmp, resid_only_flag);
-           t_rhobar += MPI_Wtime();
-           t_put -= MPI_Wtime();
-           if (!resid_only_flag)
-             put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
-                                  Aztec.val, mat_row, fill_flag,&first_time);
-           t_put += MPI_Wtime();
-           }
-         if (fill_flag !=MSR_PREPROCESS) 
-            resid_rhobarv = resid[loc_i] - resid_lg-resid_vext-resid_mu-resid_charge-resid_rhobars;
+                                  Aztec.val, mat_row, fill_flag,x);
+          t_put += MPI_Wtime();
+
+          if (iunk >= Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s){
+              if (Matrix_fill_flag==3){
+              t_rhobar -= MPI_Wtime();
+              load_rho_bar_v(x,loc_i,iunk,loc_inode,izone,ijk_box, fill_flag,
+                             resid,mat_row,bindx_tmp, resid_only_flag);
+              t_rhobar += MPI_Wtime();
+              t_put -= MPI_Wtime();
+              if (!resid_only_flag)
+                put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
+                                     Aztec.val, mat_row, fill_flag,x);
+              t_put += MPI_Wtime();
+              }
+              if (fill_flag !=MSR_PREPROCESS) 
+                 resid_rhobarv = resid[loc_i] - resid_ig-resid_vext-resid_mu-resid_charge-resid_rhobars;
+          }
       }
       /****** END RHOBAR *****/
 
       /***************************************************/
       /**** LOAD POISSON'S EQUATION FOR ELECTROSTATICS ***/
       /***************************************************/
-      else if (icomp==Ncomp+Nrho_bar && Ipot_ff_c == COULOMB) {   
+      else if (Unk_to_eq_type[iunk]==POISSON){
 
          if (fill_flag == MSR_PREPROCESS){  /* we know where all the columns are
                                              for poisson's equation so use a faster
@@ -712,138 +646,97 @@ resid_charge=resid[loc_i]-resid_lg-resid_vext-resid_mu;
          }
          else {                             /* Fill Poisson's equation */
 
-          if (Lsteady_state) {
-            node_to_position(node_box_to_node(inode_box),nodepos);
-            idim = Grad_dim;
-            if ( nodepos[idim] +0.5*Size_x[idim] - X_const_mu <= 0.00000001){
-               if (fill_flag != MSR_PREPROCESS){
-                 resid[loc_i] = x[loc_i]-Elec_pot_LBB;
-                 mat_row[loc_i] = 1.0;
-               }
+            l_elec_RTF=FALSE;
+            l_elec_LBB=FALSE;
+            if (Lsteady_state){
+               node_to_position(node_box_to_node(inode_box),nodepos);
+               idim = Grad_dim;
+               if ( nodepos[idim] +0.5*Size_x[idim] - X_const_mu <= 0.00000001) l_elec_LBB=TRUE;
+               else if (nodepos[idim] - 0.5*Size_x[idim] + X_const_mu >=-0.00000001) l_elec_RTF=TRUE;
             }
-            else if (nodepos[idim] - 0.5*Size_x[idim] + X_const_mu >=-0.00000001){
-               if (fill_flag != MSR_PREPROCESS){
-                 resid[loc_i] = x[loc_i]-Elec_pot_RTF;
-                 mat_row[loc_i] = 1.0;
-               }
-            }
-            else {
-              t_psi -= MPI_Wtime();
-              if(Type_coul==POLARIZE)
-                  load_polarize_poissons_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
-                                                       resid, x, bindx_tmp, fill_flag);
-              else
 
-              load_poissons_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
-                                resid, x, bindx_tmp, fill_flag);
-              load_poisson_bc(resid,inode_box,loc_inode,loc_i);
-if (fill_flag != MSR_PREPROCESS) resid_poisson=resid[loc_i]-resid_lg-resid_vext-resid_mu-resid_charge 
-                                                           -resid_rhobars-resid_rhobarv;
-              t_psi += MPI_Wtime();
+            if (l_elec_LBB){
+               resid[loc_i] = x[loc_i]-Elec_pot_LBB;
+               mat_row[loc_i] = 1.0;
             }
-          }
-          else{
-             t_psi -= MPI_Wtime();
-              if(Type_coul==POLARIZE)
-                  load_polarize_poissons_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
+            if (l_elec_RTF){
+               resid[loc_i] = x[loc_i]-Elec_pot_RTF;
+               mat_row[loc_i] = 1.0;
+            }
+            else if (!l_elec_LBB && !l_elec_RTF) {
+               t_psi -= MPI_Wtime();
+               if(Type_coul==POLARIZE){
+                 load_polarize_poissons_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
                                                        resid, x, bindx_tmp, fill_flag);
-              else{
-                  load_poissons_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
-                                              resid, x, bindx_tmp, fill_flag);
-              }
-             if (fill_flag !=MSR_PREPROCESS) load_poisson_bc(resid,inode_box,loc_inode,loc_i);
-if (fill_flag != MSR_PREPROCESS) resid_poisson=resid[loc_i]-resid_lg-resid_vext-resid_mu-resid_charge
-                                                                  -resid_rhobars-resid_rhobarv;
-             t_psi += MPI_Wtime();
-          }
+               }
+               else load_poissons_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
+                                    resid, x, bindx_tmp, fill_flag);
+               load_poisson_bc(resid,inode_box,loc_inode,loc_i);
 
-          t_put -= MPI_Wtime();
-          if (!resid_only_flag)
-            put_row_in_msr(i_box, loc_i,Aztec.bindx, bindx_tmp, bindx_2d,
-                               Aztec.val, mat_row, fill_flag,&first_time);
-          t_put += MPI_Wtime();
-        }
+               resid_poisson=resid[loc_i]-resid_ig-resid_vext-resid_mu-
+                                resid_charge-resid_rhobars-resid_rhobarv;
+               t_psi += MPI_Wtime();
+            }
+            t_put -= MPI_Wtime();
+            if (!resid_only_flag)
+                put_row_in_msr(i_box, loc_i,Aztec.bindx, bindx_tmp, bindx_2d,
+                               Aztec.val, mat_row, fill_flag,x);
+            t_put += MPI_Wtime();
+         }
       }
       /******** END POISSON ********/
 
       /*******************************/
       /*** LOAD TRANSPORT EQUATION ***/
       /*******************************/
-      else if (Lsteady_state && ( (Ipot_ff_c==COULOMB && 
-               icomp < 2*Ncomp + Nrho_bar+ 1) ||
-               (icomp < 2*Ncomp+ Nrho_bar)) ) { 
+      else if (Unk_to_eq_type[iunk]==DIFFUSION){
  
          if (fill_flag == MSR_PREPROCESS){
             put_transport_in_msr(i_box,loc_i,bindx_2d);
          }
          else {
 
-/* I don't understand why we call the load_transport 2x ... comment this out for now*/
-       if (Linear_transport)
-             load_linear_transport_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
-                            resid, x, bindx_tmp, fill_flag, icomp);
-          else{
-             load_nonlinear_transport_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
-                            resid, x, bindx_tmp, fill_flag, icomp);
-         }
+            if (Linear_transport)
+                load_linear_transport_eqn(i_box, inode_box, loc_i, ijk_box, 
+                           mat_row, resid, x, bindx_tmp, fill_flag, iunk);
+            else   load_nonlinear_transport_eqn(i_box, inode_box, loc_i, ijk_box, 
+                              mat_row, resid, x, bindx_tmp, fill_flag, iunk);
  
-             put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
-                            Aztec.val, mat_row, fill_flag,&first_time);
+            if (!resid_only_flag)
+                 put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
+                                   Aztec.val, mat_row, fill_flag,x);
+            resid_transport=resid[loc_i]-resid_ig-resid_vext-resid_mu-resid_charge-resid_poisson;
          }
-
-
-/*         if (fill_flag == MSR_PREPROCESS){    * we know where all the columns are
-                                                * for the transport equation so use a faster
-                                                * routine rather than calling the load_transport routine
-            put_transport_in_msr(i_box,loc_i,bindx_2d);
-         }
-         else{                   * Fill the transport equation *
-
-           if (Linear_transport)
-              load_linear_transport_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
-                             resid, x, bindx_tmp, fill_flag, icomp);
-           else
-              load_nonlinear_transport_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
-                             resid, x, bindx_tmp, fill_flag, icomp);
-
- 
-           if (!resid_only_flag)
-            put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
-                            Aztec.val, mat_row, fill_flag,&first_time);
-         }
-*/
-if (fill_flag != MSR_PREPROCESS) resid_transport=resid[loc_i]-resid_lg-resid_vext-resid_mu-resid_charge-resid_poisson;
       }
       /******** END TRANSPORT ********/
+      else if (Unk_to_eq_type[iunk]==DENSITY_SEG){
+      }
+      else if (Unk_to_eq_type[iunk]==CAVITY_WTC){
+      }
+      else if (Unk_to_eq_type[iunk]==BOND_WTC){
+      }
 
       else {
          printf("Problem with unknowns in fill !!!\n");
          exit (-1);
       }
       }
-       if (fill_flag != MSR_PREPROCESS){
-         /* if (icomp<Ncomp)
-          printf("%d   %d  %g  %g  %g %g %g %g %g\n",
-                  L2G_node[loc_inode],
-                  Zero_density_TF[inode_box][icomp],x[loc_i],
-                  Vext[loc_inode][icomp],resid[loc_i],
-                  resid_old,resid_hs1,resid_hs2,resid_uatt);
-          else 
-          printf(" %d  %g   %g  %g  \n",
-                  L2G_node[loc_inode],x[loc_i],
-                  Vext[loc_inode][icomp],resid[loc_i]);*/
-        }
      
-/*if ( ijk[1]==0  && fill_flag !=MSR_PREPROCESS) {
-
-    resid_el = resid_lg + resid_vext + resid_mu + resid_charge;
-    
-    if (icomp==0) printf("%d  %d  %9.6f",inode_box,icomp,resid_el);
-    else if (icomp<Ncomp) printf("  %d  %9.6f",icomp,resid_el);
-    else if (Nrho_bar !=0 && icomp<Ncomp+Nrho_bar) printf(" iunk_rbar=%d [  %g  %g]",icomp,resid_rhobars,resid_rhobarv);
-    if (icomp==Ncomp+Nrho_bar)printf(" %d   %9.6f ",icomp,resid_poisson);
-    if (icomp> Ncomp+Nrho_bar)printf(" %d   %9.6f",icomp,resid_transport);
-    if (icomp == Nunk_per_node-1) printf("  \n"); 
+/*if (fill_flag !=MSR_PREPROCESS) {
+    if (Unk_to_eq_type[iunk]==DENSITY){
+       resid_el = resid_ig + resid_vext + resid_mu + resid_charge;
+       printf("inode_box=%d  iunk=%d  loc_i=%d  resid_el=%9.6f  resid_hs=%9.6f resid=%9.6f",
+                                 inode_box,iunk,loc_i,resid_el,resid[loc_i]-resid_el,resid[loc_i]);
+    }
+    else if (Unk_to_eq_type[iunk]==RHOBAR_ROSEN)
+         printf("inode_box=%d : iunk_rbar=%d loc_i=%d [  %g  %g] : %9.6f",
+                 inode_box,iunk,loc_i,resid_rhobars,resid_rhobarv,resid[loc_i]);
+    else if (Unk_to_eq_type[iunk]==POISSON)   
+         printf(" inode_box=%d  iunk_poisson=%d   resid=%9.6f ",
+                   inode_box,iunk,resid_poisson);
+    else if (Unk_to_eq_type[iunk]==DIFFUSION) 
+         printf(" inode_box=%d  iunk_diffusion=%d  resid=%9.6f",inode_box,iunk,resid_transport);
+    printf("  \n");
 }*/
 
     } /* end of loop over # of unknowns per node */
@@ -879,7 +772,7 @@ if (fill_flag != MSR_PREPROCESS) resid_transport=resid[loc_i]-resid_lg-resid_vex
                                            resid, x, bindx_tmp, fill_flag, icomp); 
          t_put -= MPI_Wtime();
          put_row_in_msr(i_box, loc_i, Aztec.bindx, bindx_tmp, bindx_2d,
-                                        Aztec.val, mat_row, fill_flag,&first_time);
+                                        Aztec.val, mat_row, fill_flag,x);
          t_put += MPI_Wtime();
      }
   }*/

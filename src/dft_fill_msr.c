@@ -27,7 +27,7 @@
 void put_row_in_msr(int i_box, int loc_i,int *bindx, 
                     int *bindx_tmp, int **bindx_2d,
                     double *val, double *mat_row, 
-                    int fill_flag,int *first_time)
+                    int fill_flag,double *x)
 {
 int i,j,k, nonzeros_in_row, *b2dloci;
 /* following needed for ideal gas */
@@ -39,9 +39,9 @@ int uniq, new_nonzero;
     /* TEMPORARY FIX FOR B2L_unknowns not containing correct unknowns ....
        will probably remove when the preprocessing is clean !! */
 
-     if (*first_time && Num_Proc>1)  {
+     if (First_time && Num_Proc>1)  {
        for (j=0; j<Nunknowns_box; j++) bindx_tmp[j] = TRUE;
-       *first_time = FALSE;
+       First_time = FALSE;
      }
     
      /* Count the number of nonzero off-diagonals */
@@ -133,13 +133,19 @@ void put_euler_lag_in_msr(int i_box, int loc_i, int **bindx_2d)
 {
  int nonzeros_in_row;
  /* following needed for ideal gas */
- int ijk_box[3], icomp;
+ int ijk_box[3], icomp, iunk;
  int inode_box;
  int imu;
 
-     
-   inode_box = i_box/Nunk_per_node;
-   icomp = i_box - inode_box*Nunk_per_node;
+   if (MATRIX_FILL_NODAL){  
+      inode_box = i_box/Nunk_per_node;
+      iunk = i_box - inode_box*Nunk_per_node;
+   }
+   else{
+      iunk = i_box/Nnodes_box;
+      inode_box = i_box - iunk*Nnodes_box; 
+   }
+   icomp = iunk-Unk_start_eq[DENSITY];
    node_box_to_ijk_box(inode_box,ijk_box);
 
                                                nonzeros_in_row = 0;
@@ -150,15 +156,11 @@ void put_euler_lag_in_msr(int i_box, int loc_i, int **bindx_2d)
 
    /* put in electric potential entry */
    if (Ipot_ff_c == COULOMB) 
-       bindx_2d[loc_i][0] = B2G_unk[i_box - icomp + Ncomp];
+       bindx_2d[loc_i][0] = B2G_unk[loc_find(Unk_start_eq[POISSON],inode_box,BOX)];
 
    /* put in chemical potential entry */
-   if (Lsteady_state){
-      if (Ipot_ff_c == COULOMB) imu = Ncomp +1;
-      else                      imu = Ncomp;
-      if (Ipot_ff_c == COULOMB) bindx_2d[loc_i][1] = B2G_unk[i_box + imu];
-      else                      bindx_2d[loc_i][0] = B2G_unk[i_box + imu];
-   }
+   if (Lsteady_state)
+      bindx_2d[loc_i][1] = B2G_unk[loc_find(Unk_start_eq[DIFFUSION]+icomp,inode_box,BOX)];
 
    bindx_2d[Aztec.N_update][loc_i] = nonzeros_in_row;
    Aztec.nonzeros += nonzeros_in_row;
@@ -173,13 +175,19 @@ void put_coarse_in_msr(int mesh_coasen_flag, int i_box,
                                     int loc_i, int **bindx_2d)
 {
 
-  int k, nonzeros_in_row;
-  int idim, ijk_box[3], reflect_flag[3]={FALSE,FALSE,FALSE}, 
-      icomp, offset[3]={0,0,0}, isten;
-  int inode_box, jnode_box;
+ int k, nonzeros_in_row;
+ int idim, ijk_box[3], reflect_flag[3]={FALSE,FALSE,FALSE}, 
+     offset[3]={0,0,0}, isten, iunk;
+ int inode_box, jnode_box;
 
- inode_box = i_box/Nunk_per_node;
- icomp = i_box - inode_box*Nunk_per_node;
+ if (MATRIX_FILL_NODAL){  
+    inode_box = i_box/Nunk_per_node;
+    iunk = i_box - inode_box*Nunk_per_node;
+ }
+ else{
+    iunk = i_box/Nnodes_box;
+    inode_box = i_box - iunk*Nnodes_box; 
+ }
  node_box_to_ijk_box(inode_box,ijk_box);
 
  idim = -mesh_coasen_flag - 1;
@@ -194,7 +202,7 @@ void put_coarse_in_msr(int mesh_coasen_flag, int i_box,
       jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
       if (jnode_box >=0 && 
           reflect_flag[0]+reflect_flag[1]+reflect_flag[2]==FALSE)
-          bindx_2d[loc_i][k++] = B2G_unk[jnode_box*Nunk_per_node+icomp];
+          bindx_2d[loc_i][k++] = B2G_unk[loc_find(iunk,jnode_box,BOX)];
  }
 
  nonzeros_in_row = k;
@@ -211,18 +219,22 @@ void put_1Dsolution_in_msr(int mesh_coasen_flag, int i_box,
 {
 
   int nonzeros_in_row;
-  int ijk_box[3], icomp;
+  int ijk_box[3], iunk;
   int inode_box;
 
- inode_box = i_box/Nunk_per_node;
- icomp = i_box - inode_box*Nunk_per_node;
- node_box_to_ijk_box(inode_box,ijk_box);
-
+ if (MATRIX_FILL_NODAL){  
+    inode_box = i_box/Nunk_per_node;
+    iunk = i_box - inode_box*Nunk_per_node;
+ }
+ else{
+    iunk = i_box/Nnodes_box;
+    inode_box = i_box - iunk*Nnodes_box; 
+ }
 
  nonzeros_in_row = 1;
  bindx_2d[loc_i] = (int *) array_alloc(1, nonzeros_in_row, sizeof(int));
 
- bindx_2d[loc_i][0] = B2G_unk[jnode_box*Nunk_per_node+icomp];
+ bindx_2d[loc_i][0] = B2G_unk[loc_find(iunk,jnode_box,BOX)];
  bindx_2d[Aztec.N_update][loc_i] = nonzeros_in_row;
  Aztec.nonzeros += nonzeros_in_row;
 
@@ -240,11 +252,18 @@ void put_transport_in_msr(int i_box, int loc_i, int **bindx_2d)
      icomp, offset[3], isten, jsten, ksten;
  int inode_box, jnode_box;
  int minimum[3]={0,0,0}, maximum[3]={0,0,0};
- int irho,ijk[3];
+ int irho,ijk[3],iunk;
 
-   inode_box = i_box/Nunk_per_node;
-   icomp = i_box - inode_box*Nunk_per_node;
+   if (MATRIX_FILL_NODAL){  
+      inode_box = i_box/Nunk_per_node;
+      iunk = i_box - inode_box*Nunk_per_node;
+   }
+   else{
+      iunk = i_box/Nnodes_box;
+      inode_box = i_box - iunk*Nnodes_box; 
+   }
    node_box_to_ijk_box(inode_box,ijk_box);
+   icomp = iunk - Unk_start_eq[DIFFUSION];
 
                   minimum[0] = -1; maximum[0] = 1;
    if (Ndim >1)  {minimum[1] = -1; maximum[1] = 1;}
@@ -267,7 +286,7 @@ void put_transport_in_msr(int i_box, int loc_i, int **bindx_2d)
           if (!(ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu) &&
               !(Size_x[Grad_dim]-ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu)) {
               if (!(isten == 0 && jsten==0 && ksten==0))
-                 bindx_2d[loc_i][k++] = B2G_unk[jnode_box*Nunk_per_node+icomp];
+                 bindx_2d[loc_i][k++] = B2G_unk[loc_find(iunk,jnode_box,BOX)];
           }
           }
      }
@@ -287,11 +306,10 @@ void put_transport_in_msr(int i_box, int loc_i, int **bindx_2d)
           node_to_ijk(node_box_to_node(inode_box),ijk);
           if (!(ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu) && 
               !(Size_x[Grad_dim]-ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu)) {
-              if (Ipot_ff_c == COULOMB) irho = icomp-Ncomp-1;
-              else                      irho = icomp-Ncomp;
-              bindx_2d[loc_i][k++] = B2G_unk[jnode_box*Nunk_per_node+irho];
+              irho = Unk_start_eq[DENSITY]+icomp;
+              bindx_2d[loc_i][k++] = B2G_unk[loc_find(irho,jnode_box,BOX)];
               if (!(isten == 0 && jsten==0 && ksten==0))
-                 bindx_2d[loc_i][k++] = B2G_unk[jnode_box*Nunk_per_node+icomp];
+                 bindx_2d[loc_i][k++] = B2G_unk[loc_find(iunk,jnode_box,BOX)];
           }
         }
      }
@@ -313,11 +331,17 @@ void put_poisson_in_msr(int i_box, int loc_i, int **bindx_2d)
  /* following needed for ideal gas */
  int idim, jdim, ijk_box[3], reflect_flag[3]={FALSE,FALSE,FALSE}, 
      icomp, offset[3], isten, jsten, ksten;
- int inode_box, jnode_box,jtmp;
+ int inode_box, jnode_box,jtmp,iunk;
  int minimum[3]={0,0,0}, maximum[3]={0,0,0};
 
-   inode_box = i_box/Nunk_per_node;
-   icomp = i_box - inode_box*Nunk_per_node;
+   if (MATRIX_FILL_NODAL){  
+      inode_box = i_box/Nunk_per_node;
+      iunk = i_box - inode_box*Nunk_per_node;
+   }
+   else{
+      iunk = i_box/Nnodes_box;
+      inode_box = i_box - iunk*Nnodes_box; 
+   }
    node_box_to_ijk_box(inode_box,ijk_box);
 
                   minimum[0] = -1; maximum[0] = 1;
@@ -337,15 +361,9 @@ void put_poisson_in_msr(int i_box, int loc_i, int **bindx_2d)
           reflect_flag[0]+reflect_flag[1]+reflect_flag[2]==FALSE)
             for (j=0; j <= Ncomp; j++){
               if (!(isten==0 && jsten==0 && ksten==0 && j==Ncomp )){
-                if (Type_poly==-1){
-                   if (j==Ncomp) jtmp=Ncomp+Nrho_bar;
-                   else jtmp=j;
-                }
-                else{
-                   if (j==Ncomp) jtmp=2*Ncomp+Ngeqn_tot;
-                   else jtmp=Ncomp+j;
-                }
-                bindx_2d[loc_i][k++] = B2G_unk[jnode_box*Nunk_per_node+jtmp];
+                if (j==Ncomp) jtmp=Unk_start_eq[POISSON];
+                else          jtmp=Unk_start_eq[DENSITY]+j;
+                bindx_2d[loc_i][k++] = B2G_unk[loc_find(jtmp,jnode_box,BOX)];
               }
             }
   }
@@ -362,11 +380,7 @@ void put_poisson_in_msr(int i_box, int loc_i, int **bindx_2d)
             jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
             if (jnode_box >=0 && 
                 reflect_flag[0]+reflect_flag[1]+reflect_flag[2]==FALSE)
-               if (Type_poly==-1){
-                   bindx_2d[loc_i][k++] = B2G_unk[jnode_box*Nunk_per_node+Ncomp+Nrho_bar];
-               }
-               else{ bindx_2d[loc_i][k++] = B2G_unk[jnode_box*Nunk_per_node+2*Ncomp+Ngeqn_tot];
-               }
+                bindx_2d[loc_i][k++] = B2G_unk[loc_find(Unk_start_eq[POISSON],jnode_box,BOX)];
          }
     }
   }

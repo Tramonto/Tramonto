@@ -24,6 +24,7 @@
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
+#include <string.h>
  
 double interpolate(double *, int, int, double **, double *);
 void chop_profile(double *x, int);
@@ -42,7 +43,6 @@ void setup_chem_pot(double *);
 void setup_polymer(double *);
 void setup_polymer_rho(double *,int);
 void setup_polymer_field(double *,int);
-void setup_polymer_field_step(double *,int);
 void setup_polymer_simple(double *, int);
 void setup_polymer_G(double *);
 void setup_polymer_G_2(double *);
@@ -60,7 +60,7 @@ void set_initial_guess (int iguess,double *x,int *niters)
   double t1=0.0;
   double *x_new;
 
-  int iunk;
+  int iunk,i;
   int i1,start_no_info;
 
   int idim,iwall,iwall_type;
@@ -84,7 +84,8 @@ void set_initial_guess (int iguess,double *x,int *niters)
   } 
 
   if (Restart > 0 || Imain_loop > 0 || (*niters == 1 && Load_Bal_Flag >= LB_TIMINGS) ){
-        start_no_info = FALSE;
+       start_no_info = FALSE;
+       for (i=0;i<NEQ_TYPE;i++) Restart_field[i]=FALSE;
 
         x_new = (double *) array_alloc(1, Nnodes*Nunk_per_node, sizeof(double));
 
@@ -174,19 +175,27 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
               safe_free((void *) &X2_old);
         }
 
+        MPI_Bcast (Restart_field,NEQ_TYPE,MPI_INT,0,MPI_COMM_WORLD);
         AZ_broadcast((char *) &start_no_info, sizeof(int), 
                                      Aztec.proc_config, AZ_PACK);
         AZ_broadcast(NULL, 0, Aztec.proc_config, AZ_SEND);
 
         if (!start_no_info){
+            if (Restart_field[DENSITY]==FALSE) {
+                printf("can't restart without density fields yet\n");
+                exit(-1);
+            }
             communicate_profile(x_new,x);
             check_zero_densities(x);
-            if (Restart == 2) chop_profile(x,iguess);
-            if (Restart == 3) {
-               if (Lsteady_state)        setup_chem_pot(x);
-               if (Matrix_fill_flag >= 3) setup_rho_bar(x);
-               if (Ipot_ff_c == COULOMB) setup_elec_pot(x,iguess);
+            if (Lsteady_state && (Restart==3 || Restart_field[DIFFUSION]==FALSE))   setup_chem_pot(x);
+            if (Matrix_fill_flag >= 3 && Type_poly==NONE &&
+                                 (Restart==3 || Restart_field[RHOBAR_ROSEN]==FALSE)) setup_rho_bar(x);
+            if (Ipot_ff_c == COULOMB && (Restart==3 || Restart_field[POISSON]==FALSE)){
+                   printf("setting up electrostatic potential guess....\n");
+                   setup_elec_pot(x,iguess);
             }
+            if (Type_poly != NONE && Restart_field[CMS_FIELD]==FALSE) setup_polymer_field(x,iguess);   
+            if (Restart == 2) chop_profile(x,iguess);
         }
         safe_free((void *) &x_new);
 
@@ -197,7 +206,7 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
 
   if (start_no_info) {  /* START FROM A SPECIFIED INITIAL GUESS */
 
- if (!Sten_Type[POLYMER_CR]) {
+ if (Type_poly==NONE) {
     switch(iguess){
       case CONST_RHO:    
             setup_const_density(x,Rho_b,Ncomp,0);
@@ -234,6 +243,9 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
       case LINEAR:
             setup_linear_profile(x);
     }  /* end of iguess switch */
+
+    if (Matrix_fill_flag >= 3) setup_rho_bar(x);
+    if (Lsteady_state)         setup_chem_pot(x);
  }
  else{
     /*setup_polymer(x);*/
@@ -242,18 +254,14 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
      setup_polymer_simple(x,iguess);
    else
      setup_polymer_rho(x,iguess);
-     /*if(iguess==STEP_PROFILE) setup_polymer_field_step(x,iguess);
-     else  setup_polymer_field(x,iguess);*/
-     setup_polymer_field_step(x,iguess);
+     setup_polymer_field(x,iguess);
      setup_polymer_G(x);
     /* setup_polymer_G_2(x); */
 
     check_zero_densities(x);
  }
 
- if (Matrix_fill_flag >= 3) setup_rho_bar(x);
  if (Ipot_ff_c == COULOMB)  setup_elec_pot(x,iguess);
- if (Lsteady_state)         setup_chem_pot(x);
 
    } /* end of cases for setting initial guess from scratch */
 
@@ -283,17 +291,17 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
   return;
 }
 /*********************************************************/
-/*setup_polymer_field_step: in this routine set up the field guesses
+/*setup_polymer_field: in this routine set up the field guesses
                        for the polymers variables    */
-void setup_polymer_field_step(double *x, int iguess)
+void setup_polymer_field(double *x, int iguess)
 {
   int loc_inode,itype_mer,loc_RHO,loc_i;
   double field;
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 
      for (itype_mer=0; itype_mer<Ncomp; itype_mer++){
-         loc_RHO = Aztec.update_index[Ncomp+itype_mer+Nunk_per_node*loc_inode];
-         loc_i = Aztec.update_index[itype_mer+Nunk_per_node*loc_inode];
+         loc_RHO = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+itype_mer,loc_inode,LOCAL)];
+         loc_i = Aztec.update_index[loc_find(Unk_start_eq[CMS_FIELD]+itype_mer,loc_inode,LOCAL)];
          if (x[loc_RHO]<1.e-6) field=VEXT_MAX-1.;
          else field=-log(x[loc_RHO]/Rho_b[itype_mer]);
          x[loc_i]=exp(-field);
@@ -301,98 +309,6 @@ void setup_polymer_field_step(double *x, int iguess)
    }
    return;
 }
-/*********************************************************/
-/*setup_polymer_field: in this routine set up the field guesses
-                       for the polymers variables    */
-void setup_polymer_field(double *x, int iguess)
-{
-  int loc_inode,inode_box,ijk_box[3],loc_i,i,inode;
-  int reflect_flag[NDIM_MAX];
-  int   **sten_offset, *offset, isten;
-  double *sten_weight,  weight, weight_bulk;
-  struct Stencil_Struct *sten;
-  double sign,temp;
-  int sten_type,izone,jlist,itype_mer,jnode_box,jtype_mer;
-  int jnode,loc_j;
-  double nodepos[3];
-
-  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     inode_box = L2B_node[loc_inode];
-     node_box_to_ijk_box(inode_box, ijk_box);
-
-     sten_type = POLYMER_CR;
-     izone = 0;
-
-     for (itype_mer=0; itype_mer<Ncomp; itype_mer++){
-        loc_i = Aztec.update_index[itype_mer+Nunk_per_node*loc_inode];
-        if (!Zero_density_TF[inode_box][itype_mer]){
-           temp = 0.;
-           for (jtype_mer=0; jtype_mer<Ncomp; jtype_mer++){
-             if (Nlists_HW <= 2) jlist = 0;
-             else                jlist = jtype_mer;
-           
-             sten = &(Stencil[sten_type][izone][itype_mer+Ncomp*jtype_mer]);
-             sten_offset = sten->Offset;
-             sten_weight = sten->Weight;
-
-             for (isten = 0; isten < sten->Length; isten++) {
-                offset = sten_offset[isten];
-                weight_bulk = sten_weight[isten];
-
-               /* Find the Stencil point */
-               jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-
-	      if (jnode_box >= 0 ) {
-	         if (Lhard_surf) {
-		     if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
-                        weight = HW_boundary_weight (jtype_mer,jlist,
-                                 sten->HW_Weight[isten], jnode_box, reflect_flag);
-		     else weight = weight_bulk;
-		 }
-		 else weight = weight_bulk;
-
-	         if (iguess == CONST_RHO) {
-		   if (!Zero_density_TF[jnode_box][jtype_mer])
-		     temp -=  (weight - weight_bulk)*Rho_b[jtype_mer];
-		   else
-		     temp +=  weight_bulk*Rho_b[jtype_mer];
-		 }
-	         else if (iguess == STEP_PROFILE) {
-		   jnode = B2G_node[jnode_box];
-                   node_to_position(jnode,nodepos);
-                   for (i=0;i<Nsteps;i++){
-                        if (nodepos[Orientation_step[i]]>=Xstart_step[i] &&
-                            nodepos[Orientation_step[i]]<=Xend_step[i]){
-		            if (!Zero_density_TF[jnode_box][jtype_mer]){
-		                temp -= (weight*Rho_step[jtype_mer][i] - weight_bulk*Rho_b[jtype_mer]);
-                            }
-		            else temp +=  weight_bulk*Rho_b[jtype_mer];
-                        }
-                   }
-                 }
-              }
-	      else if ( jnode_box == -2 ){  /*in wall*/
-		     temp +=  weight_bulk*Rho_b[jtype_mer]; 
-                   /* jnode_box == -1 = in bulk contributes nothing  */
-	      }
-	     } /* end loop over stencil */
-           }
-	   temp += Vext[loc_inode][itype_mer];
-
-           if (temp < -1.0) temp=-1.0;
-
-           if ((Sten_Type[POLYMER_CR] == 1) || (temp > 0.5)) x[loc_i] = exp(-temp);
-           else                             x[loc_i] = exp(1. - sqrt(1.-2.*temp));
-
-        } /* end if i not zero density  */
-        else   x[loc_i] = DENSITY_MIN; /* zero density - Boltzmann probability = 0 */
-
-     } /* end loop over itype_mer */
-  } /* end loop over loc_inode */
-
-  return;
-}
-
 /*********************************************************/
 /*setup_polymer_simple: in this routine set up the field guesses
                        for the polymers variables for SCF case    */
@@ -408,11 +324,11 @@ void setup_polymer_simple(double *x, int iguess)
      node_box_to_ijk_box(inode_box, ijk_box);
 
      for (itype_mer=0; itype_mer<Ncomp; itype_mer++){
-        loc_i = Aztec.update_index[itype_mer+Nunk_per_node*loc_inode];
+        loc_i = Aztec.update_index[loc_find(Unk_start_eq[CMS_FIELD]+itype_mer,loc_inode,LOCAL)];
         if (!Zero_density_TF[inode_box][itype_mer]){
            temp = 0.;
            for (jtype_mer=0; jtype_mer<Ncomp; jtype_mer++){
-             loc_j = Aztec.update_index[jtype_mer+Nunk_per_node*loc_inode];
+             loc_j = Aztec.update_index[loc_find(Unk_start_eq[CMS_FIELD]+jtype_mer,loc_inode,LOCAL)];
            
 	     if (iguess == CONST_RHO) {
 	       temp = 0.;
@@ -444,8 +360,6 @@ void setup_polymer_simple(double *x, int iguess)
   return;
 }
 /*********************************************************/
-
-/*********************************************************/
 /*setup_polymer_rho: in this routine set up polymer density profiles    */
 void setup_polymer_rho(double *x, int iguess)
 {
@@ -457,11 +371,10 @@ void setup_polymer_rho(double *x, int iguess)
      inode_box = L2B_node[loc_inode];
      node_box_to_ijk_box(inode_box, ijk_box);
      if (iguess == CONST_RHO) {
-       for (i=0; i<Ncomp; i++){
-         loc_i = Aztec.update_index[i+  Ncomp  +Nunk_per_node*loc_inode];
-         if (!Zero_density_TF[inode_box][i])
-            x[loc_i] = Rho_b[i];
-         else x[loc_i] = DENSITY_MIN;
+       for (icomp=0; icomp<Ncomp; icomp++){
+         loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
+         if (!Zero_density_TF[inode_box][icomp]) x[loc_i] = Rho_b[icomp];
+         else                                    x[loc_i] = 0.0;
        }
      }
      else if (iguess == STEP_PROFILE) {
@@ -471,9 +384,7 @@ void setup_polymer_rho(double *x, int iguess)
            if (nodepos[Orientation_step[i]]>=Xstart_step[i] &&
                 nodepos[Orientation_step[i]]<=Xend_step[i]){
                 for (icomp=0;icomp<Ncomp;icomp++){
-if (loc_inode==20) printf("i=%d Xstart_step=%g  Xend_step=%g nodepos[%d]=%g Rho_step[%d]=%g\n",
-                            i,Xstart_step[i],Xend_step[i],Orientation_step[i],nodepos[0],icomp,Rho_step[icomp][i] );
-	           loc_i = Aztec.update_index[icomp+Ncomp+Nunk_per_node*loc_inode];
+	           loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
        		   if (!Zero_density_TF[inode_box][icomp]) x[loc_i]= Rho_step[icomp][i];
 		   else x[loc_i]=0.0;
                 }
@@ -509,7 +420,7 @@ void setup_polymer_G(double *x)
         iunk = Geqn_start[poln];
         for (iseg=0; iseg<Nmer[poln]; iseg++){
              for (ibond=0; ibond<Nbond[poln][iseg]; ibond++){
-                 loc_i = Aztec.update_index[iunk + Nunk_per_node*loc_inode];
+                 loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
                  x[loc_i] =999.0;
                  iunk++;
              }
@@ -534,8 +445,8 @@ void setup_polymer_G(double *x)
                  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
                      inode_box = L2B_node[loc_inode];
                      node_box_to_ijk_box(inode_box, ijk_box);
-                     loc_i = Aztec.update_index[iunk + Nunk_per_node*loc_inode];
-                     loc_j = Aztec.update_index[itype_mer+Nunk_per_node*loc_inode];
+                     loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
+                     loc_j = Aztec.update_index[loc_find(Unk_start_eq[CMS_FIELD]+itype_mer,loc_inode,LOCAL)];
                      if (Type_poly == 2) x[loc_i] = 1.0;  
                      else x[loc_i] = x[loc_j];
                   }
@@ -550,7 +461,7 @@ void setup_polymer_G(double *x)
                    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
                        inode_box = L2B_node[loc_inode];
                        node_box_to_ijk_box(inode_box, ijk_box);
-                       loc_i = Aztec.update_index[iunk + Nunk_per_node*loc_inode];
+                       loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
                        x[loc_i] = 0.;
 
                    if (!Zero_density_TF[inode_box][jtype_mer]){ 
@@ -575,18 +486,18 @@ void setup_polymer_G(double *x)
                                    (jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
                            }
                            if (B2L_node[jnode_box] >-1){ /* node in domain */
-                              loc_j = Aztec.update_index[junk+Nunk_per_node*B2L_node[jnode_box]];
+                              loc_j = Aztec.update_index[loc_find(junk,B2L_node[jnode_box],LOCAL)];
                               /*x[loc_i] +=  weight*x[loc_j]; */
                               x[loc_i] +=  weight; 
                            } /* check that node is in domain */
                            else{  /* use the value at loc_inode ... an approximation */
-                              loc_j = Aztec.update_index[junk+Nunk_per_node*loc_inode];
+                              loc_j = Aztec.update_index[loc_find(junk,loc_inode,LOCAL)];
                               x[loc_i] +=  weight*x[loc_j]; 
                            }
                          }
                       }
 
-                  loc_B = Aztec.update_index[itype_mer +Nunk_per_node*loc_inode];/*Boltz */
+                  loc_B = Aztec.update_index[loc_find(Unk_start_eq[CMS_FIELD]+itype_mer,loc_inode,LOCAL)];/*Boltz */
                   x[loc_i] *= x[loc_B];
 
                    /* simpler guess for debugging purposes LJDF*/
@@ -636,7 +547,7 @@ void setup_polymer_G_2(double *x)
   double *sten_weight,  weight;
   struct Stencil_Struct *sten;
   int sten_type,izone,jlist,jnode_box,itype_mer,jtype_mer;
-  int loc_j,iunk,poln,iseg,ibond,j_box;
+  int loc_j,iunk,poln,iseg,ibond,j_box,unk_B;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box = L2B_node[loc_inode];
@@ -652,12 +563,13 @@ void setup_polymer_G_2(double *x)
 	ibond = 0;  /* only doing one set of bonds at a time */
         for (iseg=0; iseg<Nmer[poln]; iseg++){
 	  itype_mer = Type_mer[poln][iseg];
-	  loc_i = Aztec.update_index[iunk + Nunk_per_node*loc_inode];
+	  loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
 	  x[loc_i] = 0.;
 
                              /* TREAT THE END SEGMENTS */
 	  if(Bonds[poln][iseg][ibond]== -1){
-	    loc_j = Aztec.update_index[Type_mer[poln][iseg]+Nunk_per_node*loc_inode];
+            unk_B = Unk_start_eq[CMS_FIELD] + Type_mer[poln][iseg];
+	    loc_j = Aztec.update_index[loc_find(unk_B,loc_inode,LOCAL)];
 	    x[loc_i] = x[loc_j];
 	    if (Type_poly == 2) x[loc_i] = 1.0; 
 	    MPI_Barrier(MPI_COMM_WORLD);
@@ -686,7 +598,7 @@ void setup_polymer_G_2(double *x)
 		      weight = HW_boundary_weight 
 			(jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
 		  }
-		  j_box = jnode_box*Nunk_per_node + iunk;
+		  j_box = loc_find(iunk,jnode_box,BOX);
 		  x[loc_i] +=  weight*x[B2L_unknowns[j_box]]; 
 		}
 		else if (jnode_box == -1 )
@@ -694,7 +606,7 @@ void setup_polymer_G_2(double *x)
 	      } /* end loop over stencil */
 
 	      /* Boltzmann factor */
-	      loc_j = Aztec.update_index[itype_mer +Nunk_per_node*loc_inode];
+	      loc_j = Aztec.update_index[loc_find(Unk_start_eq[CMS_FIELD] + itype_mer,loc_inode,LOCAL)];
 	      x[loc_i] *= x[loc_j];
 
 	      /* simpler guess for debugging purposes LJDF*/
@@ -703,20 +615,19 @@ void setup_polymer_G_2(double *x)
 	      /* } end of Zero_dens_TF test */
 	  } /* end of if Bond test */
 	  iunk++;
-	  MPI_Barrier(MPI_COMM_WORLD);
         } /* end of loop over each segment on poln */
 
 	/* now do G's in backward direction */
-        iunk = Ngeqn_tot;
+        iunk = Ngeqn_tot-1;
 	ibond = 1;  /* only doing one set of bonds at a time */
         for (iseg=Nmer[poln]-1; iseg>-1; iseg--){
 	  itype_mer = Type_mer[poln][iseg];
-	  loc_i = Aztec.update_index[iunk + Nunk_per_node*loc_inode];
+	  loc_i = Aztec.update_index[loc_find(Unk_start_eq[CMS_G]+iunk,loc_inode,LOCAL)];
 	  x[loc_i] = 0.;
 
                              /* TREAT THE END SEGMENTS */
 	  if(Bonds[poln][iseg][ibond]== -1){
-	    loc_j = Aztec.update_index[Type_mer[poln][iseg]+Nunk_per_node*loc_inode];
+	    loc_j = Aztec.update_index[loc_find(Unk_start_eq[CMS_FIELD]+Type_mer[poln][iseg],loc_inode,LOCAL)];
 	    x[loc_i] = x[loc_j];
 	    if (Type_poly == 2) x[loc_i] = 1.0; 
 	    MPI_Barrier(MPI_COMM_WORLD);
@@ -745,7 +656,7 @@ void setup_polymer_G_2(double *x)
 		      weight = HW_boundary_weight 
 			(jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
 		  }
-		  j_box = jnode_box*Nunk_per_node + iunk;
+		  j_box = loc_find(iunk,jnode_box,BOX);
 		  x[loc_i] +=  weight*x[B2L_unknowns[j_box]]; 
 		}
 		else if (jnode_box == -1 )
@@ -753,7 +664,7 @@ void setup_polymer_G_2(double *x)
 	      } /* end loop over stencil */
 
 	      /* Boltzmann factor */
-	      loc_j = Aztec.update_index[itype_mer +Nunk_per_node*loc_inode];
+	      loc_j = Aztec.update_index[loc_find(Unk_start_eq[CMS_FIELD]+itype_mer,loc_inode,LOCAL)];
 	      x[loc_i] *= x[loc_j];
 
 	      /* simpler guess for debugging purposes LJDF*/
@@ -781,7 +692,7 @@ void setup_const_density(double *x, double *rho,int nloop,int index)
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box = L2B_node[loc_inode];
      for (i=0; i<nloop; i++){
-         loc_i = Aztec.update_index[i+Nunk_per_node*loc_inode];
+         loc_i = Aztec.update_index[loc_find(i+Unk_start_eq[DENSITY],loc_inode,LOCAL)];
          if (!Zero_density_TF[inode_box][i]){
             if (nloop > 1) x[loc_i] = rho[i];
             else           x[loc_i] = rho[index];
@@ -792,10 +703,7 @@ void setup_const_density(double *x, double *rho,int nloop,int index)
 
          /* set up initial guess if chemical potential is an unknown */
          if (Lsteady_state) {
-             if (Ipot_ff_c == COULOMB) 
-                  loc_i = Aztec.update_index[i+Ncomp+1+Nunk_per_node*loc_inode];
-             else loc_i = Aztec.update_index[i+Ncomp+Nunk_per_node*loc_inode];
-
+             loc_i = Aztec.update_index[loc_find(i+Unk_start_eq[DIFFUSION],loc_inode,LOCAL)];
              if (!Zero_density_TF[inode_box][i]){
                 if (nloop > 1) x[loc_i] = Betamu[i];
                 else           x[loc_i] = Betamu[index];
@@ -823,7 +731,7 @@ void setup_stepped_profile(double *x)
        if (nodepos[Orientation_step[i]] >= Xstart_step[i] &&
            nodepos[Orientation_step[i]] <= Xend_step[i]){
            for (icomp=0; icomp<Ncomp; icomp++){
-               loc_i = Aztec.update_index[icomp+Nunk_per_node*loc_inode];
+               loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
                if (!Zero_density_TF[inode_box][icomp]){
                    x[loc_i]=Rho_step[icomp][i];
                }
@@ -851,7 +759,7 @@ void setup_exp_density(double *x, double *rho,int nloop,int index)
      inode_box = L2B_node[loc_inode];
      for (i=0; i<nloop; i++) {
 
-        loc_i = Aztec.update_index[i+Nunk_per_node*loc_inode];
+        loc_i = Aztec.update_index[loc_find(i+Unk_start_eq[DENSITY],loc_inode,LOCAL)];
         if (!Zero_density_TF[inode_box][i]){
             if (nloop > 1) x[loc_i] = rho[i] * exp(-Vext[loc_inode][i]);
             else           x[loc_i] = rho[index] * exp(-Vext[loc_inode][i]);
@@ -864,10 +772,7 @@ void setup_exp_density(double *x, double *rho,int nloop,int index)
 
          /* set up initial guess if chemical potential is an unknown */
          if (Lsteady_state) {
-             if (Ipot_ff_c == COULOMB) 
-                  loc_i = Aztec.update_index[i+Ncomp+1+Nunk_per_node*loc_inode];
-             else loc_i = Aztec.update_index[i+Ncomp+Nunk_per_node*loc_inode];
-
+            loc_i = Aztec.update_index[loc_find(i+Unk_start_eq[DIFFUSION],loc_inode,LOCAL)];
              if (!Zero_density_TF[inode_box][i]){
                 if (nloop > 1) x[loc_i] = Betamu[i];
                 else           x[loc_i] = Betamu[index];
@@ -888,6 +793,7 @@ void setup_step_2consts(double *x)
 {
 
   int loc_inode,icomp,inode_box,loc_i,ijk[3],inode;
+  int iunk;
   double x_dist;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
@@ -898,33 +804,24 @@ void setup_step_2consts(double *x)
 
      for (icomp=0; icomp<Ncomp; icomp++) {
 
-        loc_i = Aztec.update_index[icomp+Nunk_per_node*loc_inode];
+        iunk = icomp+Unk_start_eq[DENSITY];
+        loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
         if (!Zero_density_TF[inode_box][icomp]){
-
-           if (x_dist< 0.0) {
-              if (Lsteady_state) x[loc_i] = Rho_b_LBB[icomp];
-              else               x[loc_i] = Rho_coex[1];
-           }
-           else {
-              if (Lsteady_state) x[loc_i] = Rho_b_RTF[icomp];
-              else               x[loc_i] = Rho_coex[0];
-           }
+           if (x_dist< 0.0)  x[loc_i] = constant_boundary(iunk,-3);
+           else              x[loc_i] = constant_boundary(iunk,-4);
         }
         else x[loc_i] = 0.0;
 
-
        /* set up initial guess if chemical potential is an unknown */
-      /*  if (Lsteady_state) {
-            if (Ipot_ff_c == COULOMB) 
-                 loc_i = Aztec.update_index[icomp+Ncomp+1+Nunk_per_node*loc_inode];
-            else loc_i = Aztec.update_index[icomp+Ncomp+Nunk_per_node*loc_inode];
-
+        if (Lsteady_state) {
+            iunk = icomp+Unk_start_eq[DIFFUSION];
+            loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
             if (!Zero_density_TF[inode_box][icomp]){
-               if (x_dist< 0.0) x[loc_i] = Betamu_LBB[icomp];
-               else             x[loc_i] = Betamu_RTF[icomp];
+               if (x_dist< 0.0) x[loc_i] = constant_boundary(iunk,-3);
+               else             x[loc_i] = constant_boundary(iunk,-4);
             }
-            else x[loc_i] = -10.0;  zero density == -infinite chem.pot
-        }*/
+            else x[loc_i] = -10.0;  /*zero density == -infinite chem.pot*/
+        }
      }
   }
   return;
@@ -940,9 +837,12 @@ void setup_linear_profile(double *x)
 {
 
   int loc_inode,icomp,inode_box,loc_i,ijk[3],inode;
-  double x_dist,x_tot;
+  int iunk;
+  double x_dist,x_tot,rho_LBB, rho_RTF;
 
-  x_tot=Size_x[Grad_dim]-2.0*X_const_mu;
+  if (Lsteady_state) x_tot=Size_x[Grad_dim]-2.0*X_const_mu;
+  else x_tot = Size_x[Grad_dim];
+
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box = L2B_node[loc_inode];
      inode     = B2G_node[inode_box];
@@ -951,20 +851,17 @@ void setup_linear_profile(double *x)
 
      for (icomp=0; icomp<Ncomp; icomp++) {
 
-        loc_i = Aztec.update_index[icomp+Nunk_per_node*loc_inode];
+        iunk = Unk_start_eq[DENSITY]+icomp;
+        loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
         if (!Zero_density_TF[inode_box][icomp]){
+           rho_LBB = constant_boundary(iunk,-3);
+           rho_RTF = constant_boundary(iunk,-4);
 
-           if (Lsteady_state){
-             if (x_dist <0.) x[loc_i]=Rho_b_LBB[icomp];
-             else if (x_dist > x_tot) x[loc_i]= Rho_b_RTF[icomp];
-             else  x[loc_i] = Rho_b_LBB[icomp] + (Rho_b_RTF[icomp]-Rho_b_LBB[icomp])* x_dist/x_tot;
-           }
-           else 
-             x[loc_i] = Rho_coex[1] + (Rho_coex[0]-Rho_coex[1])*
-                                        x_dist/Size_x[Grad_dim];
+           if (x_dist <0.) x[loc_i] = rho_LBB;
+           else if (x_dist > x_tot) x[loc_i] = rho_RTF;
+           else  x[loc_i] = rho_LBB + (rho_RTF-rho_LBB)*x_dist/x_tot;
         }
         else x[loc_i] = 0.0;
-
 
      }
   }
@@ -979,67 +876,9 @@ void setup_rho_bar(double *x)
   int loc_inode,loc_i,inode_box,inode,ijk[3],icomp,idim,iunk;
   double vol,area,x_dist;
 
-  for (iunk=0; iunk<Nrho_bar; iunk++){
-    Rhobar_b[iunk] = 0.0;
-    Rhobar_b_LBB[iunk] = 0.0;
-    Rhobar_b_RTF[iunk] = 0.0;
-  }
-
-  for (icomp=0; icomp<Ncomp; icomp++){
-    vol = PI*Sigma_ff[icomp][icomp]*
-             Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp]/6.0;
-    area = PI*Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp];
-
-    Rhobar_b[0] += vol*Rho_b[icomp];
-    Rhobar_b[1] += area*Rho_b[icomp];
-    Rhobar_b[2] += area*Rho_b[icomp]*Inv_4pir[icomp];
-    Rhobar_b[3] += area*Rho_b[icomp]*Inv_4pirsq[icomp];
-    for (idim=0; idim<Ndim; idim++){
-        Rhobar_b[4+idim] = 0.0;
-        Rhobar_b[4+Ndim+idim] = 0.0;
-    }
-    if (Lsteady_state){
-       Rhobar_b_LBB[0] += vol*Rho_b_LBB[icomp];
-       Rhobar_b_LBB[1] += area*Rho_b_LBB[icomp];
-       Rhobar_b_LBB[2] += area*Rho_b_LBB[icomp]*Inv_4pir[icomp];
-       Rhobar_b_LBB[3] += area*Rho_b_LBB[icomp]*Inv_4pirsq[icomp];
-       for (idim=0; idim<Ndim; idim++){
-           Rhobar_b_LBB[4+idim] = 0.0;
-           Rhobar_b_LBB[4+Ndim+idim] = 0.0;
-       }
-       Rhobar_b_RTF[0] += vol*Rho_b_RTF[icomp];
-       Rhobar_b_RTF[1] += area*Rho_b_RTF[icomp];
-       Rhobar_b_RTF[2] += area*Rho_b_RTF[icomp]*Inv_4pir[icomp];
-       Rhobar_b_RTF[3] += area*Rho_b_RTF[icomp]*Inv_4pirsq[icomp];
-       for (idim=0; idim<Ndim; idim++){
-           Rhobar_b_RTF[4+idim] = 0.0;
-           Rhobar_b_RTF[4+Ndim+idim] = 0.0;
-       }
-       
-    }
-    else if (Nwall == 0 && Iliq_vap == 3){
-       Rhobar_b_LBB[0] += vol*Rho_coex[1];
-       Rhobar_b_LBB[1] += area*Rho_coex[1];
-       Rhobar_b_LBB[2] += area*Rho_coex[1]*Inv_4pir[icomp];
-       Rhobar_b_LBB[3] += area*Rho_coex[1]*Inv_4pirsq[icomp];
-       for (idim=0; idim<Ndim; idim++){
-           Rhobar_b_LBB[4+idim] = 0.0;
-           Rhobar_b_LBB[4+Ndim+idim] = 0.0;
-       }
-       Rhobar_b_RTF[0] += vol*Rho_coex[0];
-       Rhobar_b_RTF[1] += area*Rho_coex[0];
-       Rhobar_b_RTF[2] += area*Rho_coex[0]*Inv_4pir[icomp];
-       Rhobar_b_RTF[3] += area*Rho_coex[0]*Inv_4pirsq[icomp];
-       for (idim=0; idim<Ndim; idim++){
-           Rhobar_b_RTF[4+idim] = 0.0;
-           Rhobar_b_RTF[4+Ndim+idim] = 0.0;
-       }
-    }
-  }
-
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (iunk = 0; iunk < Nrho_bar; iunk++){
-       loc_i = Aztec.update_index[Ncomp+iunk+Nunk_per_node*loc_inode];
+       loc_i = Aztec.update_index[loc_find(Unk_start_eq[RHOBAR_ROSEN]+iunk,loc_inode,LOCAL)];
        if (Lsteady_state || (Nwall == 0 && Iliq_vap == 3)){
            inode_box = L2B_node[loc_inode];
            inode     = B2G_node[inode_box];
@@ -1065,8 +904,8 @@ void setup_elec_pot(double *x,int iguess)
   double x_dist;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-       if (Type_poly==-1) loc_i = Aztec.update_index[Ncomp+Nrho_bar+Ngeqn_tot+Nunk_per_node*loc_inode];
-       else               loc_i = Aztec.update_index[2*Ncomp+Ngeqn_tot+Nunk_per_node*loc_inode];
+       
+       loc_i = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)];
        if (Lsteady_state && iguess==LINEAR){
            inode_box = L2B_node[loc_inode];
            inode     = B2G_node[inode_box];
@@ -1097,13 +936,12 @@ void setup_chem_pot(double *x)
      x_dist = Esize_x[Grad_dim]*ijk[Grad_dim]-X_const_mu;
 
      for (icomp=0; icomp<Ncomp; icomp++){
-        if (Ipot_ff_c == 1) iunk = Ncomp+Nrho_bar+1+icomp;
-        else                iunk = Ncomp+Nrho_bar+icomp;
-        loc_i = Aztec.update_index[iunk+Nunk_per_node*loc_inode];
+        iunk = Unk_start_eq[DIFFUSION]+icomp;
+        loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
        if (!Zero_density_TF[inode_box][icomp]){
         if (Ipot_ff_c == 1){
-             x[loc_i] = log(x[Aztec.update_index[icomp+Nunk_per_node*loc_inode]])
-                           +Charge_f[icomp]*(x[Aztec.update_index[Ncomp+Nunk_per_node*loc_inode]]);
+             x[loc_i] = log(x[Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)]])
+                           +Charge_f[icomp]*(x[Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)]]);
 
         }
         else{
@@ -1144,11 +982,78 @@ int find_length_of_file(char *filename)
 void read_in_a_file(int iguess,char *filename)
 {
   int c;
-  int i,iunk,idim, inode,nunk_tot,itype_mer,ipol,iseg,index,dim_tmp;
-  int ijk_old[3],ijk_old_max[3],open_now,ndim_max;
-  double pos_old,pos_old0[3],tmp;
+  int i,iunk,junk,idim, inode,itype_mer,ipol,iseg,index,dim_tmp,iunk_file;
+  int ijk_old[3],ijk_old_max[3],open_now,ndim_max,node_start;
+  int unk_in_file, unk_start_in_file[NEQ_TYPE],header,eq_type;
+  int unk_to_eq_in_file[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13];
+  double pos_old,pos_old0[3],tmp,x_tmp;
   char filename2[20];
+  char unk_char[20];
   FILE *fp5=NULL,*fp6=NULL;
+
+
+                    /* open the dft_dens.dat file */
+   fp5=fopen(filename,"r");
+
+                   /* identify which unknowns are found in this file and in what order */
+    header=0;
+    iunk=0;
+    unk_in_file=0;
+    for (eq_type=0;eq_type<NEQ_TYPE;eq_type++){
+       fgets(unk_char,20,fp5);
+       if (strncmp(unk_char,"DENSITY",5)==0) {
+             Restart_field[DENSITY]=TRUE;
+             header++;
+             unk_in_file+=Ncomp;
+             unk_start_in_file[DENSITY]=iunk;
+             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DENSITY;
+       }
+       else if (strncmp(unk_char,"POISSON",5)==0){
+             Restart_field[POISSON]=TRUE;
+             header++;
+             unk_in_file+=1;
+             unk_start_in_file[POISSON]=iunk;
+             unk_to_eq_in_file[iunk++]=POISSON;
+       }
+       else if (strncmp(unk_char,"RHOBAR_ROSEN",5)==0){
+             Restart_field[RHOBAR_ROSEN]=TRUE;
+             header++;
+             unk_in_file+=Nrho_bar;
+             unk_start_in_file[RHOBAR_ROSEN]=iunk;
+             for (i=0;i<Nrho_bar;i++) unk_to_eq_in_file[iunk++]=RHOBAR_ROSEN;
+       }
+       else if (strncmp(unk_char,"CMSFIELD",5)==0){
+             Restart_field[CMS_FIELD]=TRUE;
+             header++;
+             unk_in_file+=Ncomp;
+             unk_start_in_file[CMS_FIELD]=iunk;
+             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=CMS_FIELD;
+       }
+       else if (strncmp(unk_char,"CHEMPOT",5)==0){
+             Restart_field[DIFFUSION]=TRUE;
+             header++;
+             unk_in_file+=Ncomp;
+             unk_start_in_file[DIFFUSION]=iunk;
+             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
+       }
+       else eq_type=NEQ_TYPE;  /* end loop */
+    }
+    if (Iwrite != NO_SCREEN) printf("Number of unknowns in the file=%d\n",unk_in_file);
+
+    if (Lsteady_state && Restart_field[DIFFUSION]==FALSE) 
+         if (Proc==0 && Iwrite != NO_SCREEN)
+           printf("there is no chemical potential data in the restart file\n");
+    if (Type_coul != NONE && Restart_field[POISSON]==FALSE)
+           printf("there is no electrostatic potential data in the restart file\n");
+    if (Type_poly != NONE && Restart_field[CMS_FIELD]==FALSE)
+           printf("there is no CMS field data in the restart file\n");
+    if (Matrix_fill_flag >= 3 && Type_poly==NONE  && Restart_field[RHOBAR_ROSEN]==FALSE)
+           printf("there is no Rosenfeld nonlocal density data in the restart file\n");
+    if (Restart_field[DENSITY]==FALSE)
+           printf("there is no density data in the restart file\n");
+
+    fclose(fp5);
+    Nodes_old-=header;
 
   /* read positions from file find Nodes_x_old[idim] */
   /* read the densities and electrostatic potentials from file */
@@ -1156,126 +1061,102 @@ void read_in_a_file(int iguess,char *filename)
   open_now=TRUE;
   for (idim=0;idim<Ndim;idim++) ijk_old_max[idim] = 0;
   for (index=0; index<Nodes_old; index++) {
+
     if (open_now){
        fp5=fopen(filename,"r");
-       if (Sten_Type[POLYMER_CR]){
+       if (Type_poly != NONE){
          sprintf(filename2,"%sg",filename);
          fp6=fopen(filename2,"r");
        }
-      open_now=FALSE;
+       open_now=FALSE;
+                                      /* discard header when ready to read */
+       for (i=0;i<header;i++) while ((c=getc(fp5)) != EOF && c !='\n') ; 
+       printf("skipping %d lines in the dft_dens.dat file\n",header);
     }
-    if (Restart==5) ndim_max=1;
+
+    if (Restart==5) ndim_max=1;  /* again for using 1D solution for 2D/3D guess */
     else ndim_max=Ndim;
+
+                                 /* find number of nodes in each dimension in the file */
     for (idim=0;idim<ndim_max;idim++)         {
       fscanf(fp5,"%lf",&pos_old);
       if (index==0) pos_old0[idim]=pos_old;
       pos_old -= pos_old0[idim];
-  /*NEW CODE .... use this to start with x guess and transform to y etc.*/
-      /*if (idim==0) dim_tmp=1;
-      else if (idim==1) dim_tmp=0;
-      else*/   dim_tmp=idim;
+                                  /* this code transforms x to y etc in the guess */
+                                      /*if (idim==0) dim_tmp=1;
+                                        else if (idim==1) dim_tmp=0;
+                                        else   dim_tmp=idim; */
+
+      dim_tmp=idim;
       ijk_old[dim_tmp] = round_to_int(pos_old/Esize_x[dim_tmp]);
- /*END OF NEW CODE */
-      if (Sten_Type[POLYMER_CR]) {
-	fscanf(fp6,"%lf",&tmp);
-      }
-      if (ijk_old[dim_tmp] > ijk_old_max[dim_tmp]){
-	ijk_old_max[dim_tmp] = ijk_old[dim_tmp];
-      } 
+      if (Type_poly!=NONE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
+
+      if (ijk_old[dim_tmp] > ijk_old_max[dim_tmp]) ijk_old_max[dim_tmp] = ijk_old[dim_tmp];
     }
-     /* fscanf(fp5,"%lf",&tmp);*/
+                                    /* identify the node and starting unknown number at that node */
     inode=ijk_to_node(ijk_old);
     if (Restart==5) inode=index;
-    if (Restart == 3) {
-        if (Sten_Type[POLYMER_CR]) nunk_tot=2*Ncomp+Ngeqn_tot;
-        else                       nunk_tot = Ncomp;
-    }
-    else              nunk_tot = Nunk_per_node;
-    for (iunk=0;iunk<nunk_tot;iunk++) {
-      if (Sten_Type[POLYMER_CR]){
-	if (iunk < Ncomp){
-            if (Lbinodal && iguess==BINODAL_FLAG)
-   	         fscanf(fp5,"%lf",&X2_old[Ncomp+inode*Nunk_per_node+iunk]);
-            else
-   	         fscanf(fp5,"%lf",&X_old[Ncomp+inode*Nunk_per_node+iunk]);
-      /*  X_old[Ncomp+inode*Nunk_per_node+iunk]=
-	  (X_old[Ncomp+inode*Nunk_per_node+iunk]-0.45)*0.025 + 0.45;
-       */
-	}
-	else if (iunk < 2*Ncomp){
-	  fscanf(fp5,"%lf",&tmp);
-          if (Lbinodal && iguess==BINODAL_FLAG)
-	      X2_old[inode*Nunk_per_node+iunk-Ncomp] = exp(-tmp);
-          else{
-	      X_old[inode*Nunk_per_node+iunk-Ncomp] = exp(-tmp);
-          }
-	}
-	else if (iunk<2*Ncomp+Ngeqn_tot){
-          ipol=Unk_to_Poly[iunk-2*Ncomp];
-          iseg=Unk_to_Seg[iunk-2*Ncomp];
-          itype_mer=Type_mer[ipol][iseg];
+    node_start=inode*Nunk_per_node;
 
-	  if (Type_poly == 2){
-	      fscanf(fp6,"%lf",&tmp);
-              if (Lbinodal && iguess==BINODAL_FLAG)
-	          X2_old[inode*Nunk_per_node+iunk]=tmp/X2_old[inode*Nunk_per_node+itype_mer];
-              else
-	          X_old[inode*Nunk_per_node+iunk]=tmp/X_old[inode*Nunk_per_node+itype_mer];
-	  }
-	  else {
-            if (Lbinodal && iguess==BINODAL_FLAG)
-	          fscanf(fp6,"%lf",&X2_old[inode*Nunk_per_node+iunk]);
-	    else  fscanf(fp6,"%lf",&X_old[inode*Nunk_per_node+iunk]);
-	  }    
-	}
-        else{    /* electric field */
-	  fscanf(fp5,"%lf",&tmp);
-          if (Lbinodal && iguess==BINODAL_FLAG)
-	      X2_old[inode*Nunk_per_node+iunk] = tmp;
-          else
-	      X_old[inode*Nunk_per_node+iunk] = tmp;
-        } 
-      }
-      else
-	if (Lbinodal && iguess==BINODAL_FLAG) { 
-	  fscanf(fp5,"%lf",&X2_old[inode*Nunk_per_node+iunk]);
-	}
-	else { 
-	  fscanf(fp5,"%lf",&X_old[inode*Nunk_per_node+iunk]);
-	}
-      
-      /* if (iunk<Ncomp && Lsteady_state){
-	 if (Lbinodal && iguess==BINODAL_FLAG) 
-	 X2_old[inode*Nunk_per_node+iunk] *= Mass[iunk];
-	 else
-	 X_old[inode*Nunk_per_node+iunk] *= Mass[iunk];
-	 }
-      */
+                                   /* loop over unknows assume the order of input is correct */
 
-      
-      if (Lsteady_state){
-	if ( (Ipot_ff_c == COULOMB && iunk > Ncomp) ||
-	     (Ipot_ff_c != COULOMB && iunk>Ncomp-1)){
-	  if (Ipot_ff_c == COULOMB) i=iunk-Ncomp-1;
-	  else i=iunk-Ncomp;
-	  
-     /*   if (Ipot_ff_n != IDEAL_GAS){
-	  if (Lbinodal && iguess==BINODAL_FLAG) 
-	  X2_old[inode*Nunk_per_node+iunk] -=
-	  ( 3.0*log(Sigma_ff[i][i]) + 1.5*log(Mass[i]*Temp)  );
-	  else
-	  X_old[inode*Nunk_per_node+iunk] -=
-	  ( 3.0*log(Sigma_ff[i][i]) + 1.5*log(Mass[i]*Temp)  );
-	  }
-      */
-	}
-      }
-      
+    for (iunk_file=0;iunk_file<unk_in_file;iunk_file++) {
+          eq_type = unk_to_eq_in_file[iunk_file];
+
+          switch (eq_type){
+              case CMS_FIELD: 
+   	         fscanf(fp5,"%lf",&tmp);
+                 tmp = exp(-tmp); 
+                 break;
+
+              case DENSITY:
+                               /* icomp = iunk_file-unk_start_in_file[DENSITY]; */
+                               /* if (Lsteady_state) tmp *= Mass[icomp]; */
+   	         fscanf(fp5,"%lf",&tmp); 
+                 break;
+
+              case RHOBAR_ROSEN:
+              case POISSON:
+   	         fscanf(fp5,"%lf",&tmp); 
+                 break;
+
+              case DIFFUSION: 
+                               /* icomp = iunk_file-unk_start_in_file[DIFFUSION]; */
+                               /* if (Ipot_ff_n != IDEAL_GAS) */  /* Debroglie wavelength contribution */
+                               /* tmp -= 3.0*log(Sigma_ff[icomp][icomp]+1.5*log(Mass[icomp]*Temp));*/
+   	         fscanf(fp5,"%lf",&tmp); break;
+           }
+       iunk = Unk_start_eq[eq_type]+iunk_file-unk_start_in_file[eq_type];
+       if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
+       else                                  X_old[iunk+node_start]=tmp;
     }
+ 
+    if (Type_poly != NONE){
+        for (iunk=Unk_start_eq[CMS_G];iunk<Unk_end_eq[CMS_G];iunk++) {
+
+         fscanf(fp6,"%lf",&tmp);
+         ipol=Unk_to_Poly[iunk-Unk_start_eq[CMS_G]];
+         iseg=Unk_to_Seg[iunk-Unk_start_eq[CMS_G]];
+         itype_mer=Unk_start_eq[CMS_FIELD]+Type_mer[ipol][iseg];
+
+         if (Type_poly == 2){
+           if (Lbinodal && iguess==BINODAL_FLAG) tmp /= X2_old[node_start+itype_mer];
+           else                                  tmp /= X_old[node_start+itype_mer];
+         }
+     
+         if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
+         else                                  X_old[iunk+node_start]=tmp;
+
+       } /* end of loop over unknowns */
+    }  /* end of loading for the CMS G equations. */
+
+
+             /* read extra variables on the line and ignore them -
+                for example the Poisson-Boltzman electrolyte output */
     while ((c=getc(fp5)) != EOF && c !='\n') ;
     if (Restart==5 && ijk_old[0]==Nodes_x[0]-1){
        fclose(fp5);
-       if (Sten_Type[POLYMER_CR]) fclose(fp6);
+       if (Type_poly != NONE) fclose(fp6);
        open_now=TRUE;
     }
   }
@@ -1368,15 +1249,16 @@ void shift_the_profile(double *x_new,double fac)
      }
 
      /* check a few limiting values ... and finally set initial guess*/
-     if (iunk <Ncomp )
+     if (Unk_to_eq_type[iunk]==DENSITY)
         x_test = min(Rho_max,fac*(unk_old-Rho_b[iunk])+ Rho_b[iunk]);
 
-     else if (iunk<Ncomp+Nrho_bar){
+     else if (Unk_to_eq_type[iunk]==RHOBAR_ROSEN){
         x_test = fac*(unk_old-Rhobar_b[iunk-Ncomp])+ Rhobar_b[iunk-Ncomp];
         if (iunk == Ncomp && x_test >= 1.0) x_test = Rhobar_b[iunk-Ncomp];
      }
-     else if (iunk == Ncomp+Nrho_bar && Ipot_ff_c == COULOMB)
+     else if (Unk_to_eq_type[iunk]==POISSON){
         x_test = fac*(unk_old-1.0) + 1.0;
+     }
      else 
         x_test = unk_old;
 
@@ -1413,7 +1295,7 @@ void communicate_profile(double *x_new,double *x)
        inode = L2G_node[loc_inode];
        node_to_ijk(inode,ijk);
        for (iunk=0; iunk<Nunk_per_node; iunk++){
-           loc_i = Aztec.update_index[iunk + Nunk_per_node * loc_inode];
+           loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
            x[loc_i] = x_new[inode*Nunk_per_node+iunk];
        }
     }
@@ -1431,13 +1313,9 @@ void check_zero_densities(double *x)
       zero_all = TRUE;
       for (icomp=0; icomp<Ncomp; icomp++){
          inode_box = L2B_node[loc_inode];
-         loc_i = Aztec.update_index[icomp + Nunk_per_node * loc_inode];
-         if (Sten_Type[POLYMER_CR]) loc_j = Aztec.update_index[icomp + Ncomp+ Nunk_per_node * loc_inode];
-         if (Zero_density_TF[inode_box][icomp] == TRUE){  
-               x[loc_i] = 0.0;
-               if (Sten_Type[POLYMER_CR]) x[loc_j]=0.0;
-         }
-         else if (Zero_density_TF[inode_box][icomp] == FALSE && !Sten_Type[POLYMER_CR]){
+         loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
+         if (Zero_density_TF[inode_box][icomp]) x[loc_i] = 0.0;
+         else if (!Zero_density_TF[inode_box][icomp] == FALSE){
              zero_all = FALSE;
              if (x[loc_i]</*DENSITY_MIN*/Rho_b[icomp]*exp(-VEXT_MAX)) {
                   x[loc_i] = /*DENSITY_MIN*/Rho_b[icomp]*exp(-VEXT_MAX);
@@ -1445,12 +1323,6 @@ void check_zero_densities(double *x)
          }
 
       }
-
-      if (zero_all == TRUE && Nunk_per_node > Ncomp+Nrho_bar 
-              && !Sten_Type[POLYMER_CR] && Type_coul==-1){
-        loc_i = Aztec.update_index[Ncomp+Nrho_bar + Nunk_per_node * loc_inode];
-        x[loc_i] = 1.0; 
-      } 
   }
   return;
 }
@@ -1467,7 +1339,7 @@ void chop_profile(double *x, int iguess)
         for (iwall=0; iwall<Nwall; iwall++)
               if (X_wall[loc_inode][iwall] > Xstart_step[0]) check++;
         if (check == Nwall){
-              loc_i = Aztec.update_index[icomp+Nunk_per_node*loc_inode];
+              loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
               if (iguess==CHOP_RHO_L) x[loc_i] = Rho_coex[1];
               else if (iguess==CHOP_RHO_V) x[loc_i] = Rho_coex[0];
               else if (iguess==CHOP_RHO) x[loc_i] = Rho_b[icomp];

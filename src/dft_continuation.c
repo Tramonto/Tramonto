@@ -397,12 +397,8 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
   else                     resid_only_flag = FALSE;
 
   /*fill_time not currently plugged in, iter hardwire above 2 */
-  if (passdown.polymer_flag)
-    fill_resid_and_matrix_P(x, rhs, NULL, NULL, Matrix_fill_flag,
-                            4, resid_only_flag);
-  else
-    fill_resid_and_matrix(x, rhs, NULL, NULL, Matrix_fill_flag,
-                          4, resid_only_flag);
+  fill_resid_and_matrix_control(x, rhs, NULL, NULL, Matrix_fill_flag,
+                                                 4, resid_only_flag);
 
   /* calculate and print resid norm */
   l2_resid=0.0;
@@ -1021,7 +1017,7 @@ void calc_scale_vec_conwrap(double *x, double *scale_vec, int numUnks)
 /* Scale vector using Rho_bulk seems to make things worse
   for (i=0; i<Aztec.N_update/Nunk_per_node; i++) 
     for (j=0; j<Ncomp; j++) 
-      scale_vec[Aztec.update_index[i*Nunk_per_node + j]] = 1.0/Rho_b[j];
+      scale_vec[Aztec.update_index[i*Nunk_per_node + Unk_start_eq[DENSITY]+j]] = 1.0/Rho_b[j];
 */
 
 }

@@ -370,14 +370,14 @@ double uLJatt_n_noshift(double r,int i, int j)
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
   sigma6 = sigma2*sigma2*sigma2;
 
+  r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
+  if (r < r_min) r = r_min;
+
   r_inv = 1.0/r;
 
   r2_inv  = r_inv*r_inv;
   r6_inv  = r2_inv*r2_inv*r2_inv;
   r12_inv = r6_inv*r6_inv;
-
-  r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
-  if (r < r_min) r = r_min;
 
   uatt = 4.0 * Eps_ff[i][j]* sigma6 * (
             sigma6*r12_inv  - r6_inv);

@@ -41,6 +41,15 @@ double  T_av_lj_max;
 double  T_av_solve_max;
 double  T_msr_setup;
 
+/* Basic Equation info */
+int Nunk_tot_eq[NEQ_TYPE];  /* Number of unknowns of a particular equation type */
+int Unk_start_eq[NEQ_TYPE]; /* starting unknown number for a given equation type */
+int Unk_end_eq[NEQ_TYPE]; /* ending unknown number for a given equation type */
+int Unk_to_eq_type[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equation type
+                                                                         given an unknown index */
+
+
+
 /* Mesh info */
 
 /*************** Global Mesh ********************************/
@@ -104,6 +113,12 @@ int     Nnodes_1stencil;  /* Number of nodes on proc where rho_bar is needed */
 int     Nunk_per_node;   /* Number of unknowns per node (usually Ncomp       */
 int     Nrho_bar;        /* Number of rhobar equations per node */
 int     Nrho_bar_s;      /* Number of scalar rhobar equations per node */
+int     Npoisson;      /* Number of scalar rhobar equations per node */
+int     Ndiffusion;      /* Number of scalar rhobar equations per node */
+int     NEL_unk;         /* Number of unknowns for the Euler-Lagrange equation */
+int     Ntype_unk;       /* Number of equations defining segment types for polymer TC cases */
+int     Nrho_bar_cavity; /* Number of nonlocal densities for the cavity function - WTC polymers */
+int     Nrho_bar_bond; /* Number of nonlocal densities for the bond functionals - WTC polymers */
 int     Nnodes_per_el_V;   /* Number of nodes per volume element             */
 int     Nnodes_per_el_S;   /* Number of nodes per surface element            */
 int     Plane_new_nodes; /* Indicates in which plane (xy,yz,xz)nodes are added*/
@@ -128,6 +143,7 @@ int  **Wall_touch_node; /*Array to store which walls touch a given node */
 int  **List_wall_node; /*Array to store which walls touch a given node */
 int  *Index_wall_nodes;  /*Array to store indexing in these mesh arrays*/
 
+int First_time; /* for MSR preprocessing */
 
 int     Nzone;          /* Number of diff. quadrature zones on the mesh      */
 int    *Nodes_to_zone;   /* Array[Nnodes] of quadrature zones */
@@ -193,7 +209,9 @@ double  Energy; /* surface free energy to return to Towhee  */
 
 
 double  charge_fluid;    /* The charge in the fluid ... post processing */
-double  Betap;           /* Presseure in units of kT sigma_ff[1]^3           */
+double  Betap;           /* Pressure in units of kT sigma_ff[1]^3           */
+double Betap_LBB;        /* Pressure for LBB of domain */
+double Betap_RTF;        /* Pressure for RTF of domain */
 double  Betap_id;        /* Ideal Gas Presseure in units of kT sigma_ff[1]^3 */
 double  Betap_att;       /* Attractive Presseure in units of kT sigma_ff[1]^3 */
 double  P_over_po;
@@ -204,10 +222,19 @@ double  Rhobar_b[10];   /* Array[Nrho_bar] of bulk rhobars        */
 double  Rhobar_b_LBB[10];   /* Array[Nrho_bar] of bulk rhobars LBB    */
 double  Rhobar_b_RTF[10];   /* Array[Nrho_bar] of bulk rhobars RTF    */
 double *Rhobar3_old;      /* Array[Nodes_box] of old values of rhobar3 */
+double Rhobar_cavity_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+double Rhobar_cavity_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+double Rhobar_cavity_RTF[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+double Rhobar_bond_b[NMER_MAX*NMER_MAX]; /* Array of bulk rhobars for bonds in WTC functionals*/
+double Rhobar_bond_LBB[NMER_MAX*NMER_MAX]; /* Array of bulk rhobars for bonds in WTC functionals*/
+double Rhobar_bond_RTF[NMER_MAX*NMER_MAX]; /* Array of bulk rhobars for bonds in WTC functionals*/
+
 int     N_rho;   /* Number of density runs to perform         */
 double  Del_rho;   /* How to step in density         */
 double  Rho_coex[2];   /* Liquid-vapor coexisting densities         */
 double  Betamu_hs_ex[NCOMP_MAX];/* Array of excess hardsphere chemical potentials*/
+double  Betamu_ex_bondTC[NCOMP_MAX][NMER_MAX*NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
+double  Betamu_seg[NCOMP_MAX][NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 double  Betamu[NCOMP_MAX]; /*Array[Ncomp] of chemical potentials */
 double  Betamu_id[NCOMP_MAX]; /*Array[Ncomp] of ideal gas chemical potentials */
 int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
@@ -321,9 +348,11 @@ int     Type_func;    /* Type of functional for the calculation              */
 int     Type_attr;    /* Type for handling attractions                       */
 int     Type_coul;    /* Type for handling Coulombics                        */
 int     Type_poly;    /* Type for handling polymers                          */
+int     Type_poly_TC; /* Type for Werthein-Tripathi-Chapman polymers         */
 
 /* Startup Info */
 int     Restart;      /* Logical that switches between new prof & restart file*/
+int     Restart_field[NEQ_TYPE];
 int     Iprofile;     /* Specifies Liq-Solid,Vap-Solid,or Liq-Vap profile    */
 double  Toler;        /* Tolerance for Newton-Rhapson iterations             */
 int     Iwrite;       /* Do we want a complete or modified set of output data*/
@@ -378,10 +407,12 @@ double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 double Bupdate_fact;
 int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
+int Nmer_t_total[NBLOCK_MAX];
+int Nseg_tot;
 int Bupdate_iters,Geqn_start[NCOMP_MAX];
 char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
 double Cr_break[2];
 int  Ncr_files;
 int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk;
-int Ngeqn_tot, **Nbond,***Bonds; 
+int Ngeqn_tot, Nbonds, **Nbond,***Bonds; 
 int *Pol_Sym;

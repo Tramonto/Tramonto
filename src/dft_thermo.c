@@ -11,19 +11,25 @@ Output:	1) hard sphere pressure:  p sigma_ff[1]^3 / kT
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
+double calc_ideal_gas(double *,double *);
 double calc_hs_properties(double *,double *);
 double calc_att_properties(double *, double *);
+void calc_poly_TC_properties(double *,double *);
 void   calc_charge_correlations_b();
 double int_stencil_bulk(int,int,int);
 double   coexistence();
 double dp_drho_hs(double *);
 double dp_drho_att(double *);
+double calc_y_bulk(int, double *);
 void print_thermo(char *,double,double *);
+void compute_bulk_nonlocal_properties(char *);
 
 void  thermodynamics( char *output_file1, int print_flag)
 {
-   int icomp;
-   double betap_hs=0, betamu_hs[NCOMP_MAX],p_coex=0.0;
+   int icomp,i,ipol,iseg,ibond,jseg;
+   double betap_hs=0, betamu_hs[NCOMP_MAX],betap_att,p_coex=0.0,betap_TC=0.0;
+   double sum_all[NCOMP_MAX],sum_ab,y[NMER_MAX*NMER_MAX];
+   double rho_iseg_b,rho_jseg_b;
    char *yo = "thermodynamics";
 
  if (!Sten_Type[POLYMER_CR]){
@@ -33,10 +39,18 @@ void  thermodynamics( char *output_file1, int print_flag)
    }
    if (Ipot_ff_n == LJ12_6) {
       Avdw = (double **) array_alloc(2, Ncomp, Ncomp, sizeof(double));
-      Betamu_att = (double *) array_alloc(1, Ncomp, sizeof(double));
+   }
+   Betamu_att = (double *) array_alloc(1, Ncomp, sizeof(double));
+   for (i=0;i<Ncomp;i++) Betamu_att[i]=0.0;
+   betap_att=0.0;
+
+   if (Type_poly_TC){
+         for (icomp=0; icomp<Ncomp; icomp++)
+             for (i=0;i<Nbonds;i++)  Betamu_ex_bondTC[icomp][i]=0.0;
    }
 
-   /* Find bulk coexistence !! */
+   /* Find bulk coexistence  for a very special case of only one atomistic component with
+      mean field attractions turned on !! */
 
    if (Ncomp == 1 && Ipot_ff_n==2 && Iliq_vap != -2){ 
       p_coex = coexistence();
@@ -70,83 +84,115 @@ void  thermodynamics( char *output_file1, int print_flag)
       }
    }
 
-   if (Ipot_ff_n == IDEAL_GAS) {
-      Betap = 0.0;
-      Betap_id = 0.0;
-      Betamu_att = (double *) array_alloc(1, Ncomp, sizeof(double));
-   
-      if (Lsteady_state){
-         for (icomp=0; icomp<Ncomp; icomp++) {
-             Betamu_LBB[icomp] = log(Rho_b_LBB[icomp]);
-             Betamu_RTF[icomp] = log(Rho_b_RTF[icomp]);
-             if (Ipot_ff_c == COULOMB){
-               Betamu_LBB[icomp] += Charge_f[icomp]*(Elec_pot_LBB);
-               Betamu_RTF[icomp] += Charge_f[icomp]*(Elec_pot_RTF);
-             }
-         }
-      }
-      else{
-         for (icomp=0; icomp<Ncomp; icomp++) {
-             Betamu[icomp] = log(Rho_b[icomp]);
-             Betamu_id[icomp] = log(Rho_b[icomp]);
-             Betamu_hs_ex[icomp] = 0.0;
-             Betap += Rho_b[icomp];
-             Betap_id += Rho_b[icomp];
-             Betamu_att[icomp] = 0.0;
-             Betap_att = 0.0;
-         }
+  /* for lack of a better place, precalc these quantities here */
+ 
+  if (Ipot_ff_n != IDEAL_GAS) {
+
+     Inv_4pi = 1.0 / (4.0*PI);
+     for (icomp=0; icomp<Ncomp; icomp++) {
+     if (Sigma_ff[icomp][icomp] < 1.e-6){
+        printf("ERROR : icomp=%d Sigma_ff[%d][%d]=%9.6f --- check particle sizes!\n",
+                    icomp,icomp,icomp,Sigma_ff[icomp][icomp]);
+         exit(-1);
+     }
+        Inv_rad[icomp] = 2.0 / Sigma_ff[icomp][icomp];
+        Inv_4pir[icomp] = Inv_4pi * Inv_rad[icomp];
+        Inv_4pirsq[icomp] = Inv_4pir[icomp] * Inv_rad[icomp];
+     }
+  }
+
+
+   if (Iwrite==VERBOSE) printf("CALCULATING BULK NONLOCAL PROPERTIES.....\n");
+      if (Matrix_fill_flag >=3 || Type_poly_TC) 
+          compute_bulk_nonlocal_properties(output_file1);
+
+   /* Now find pressure and chemical potential contributions for the fluid of interest */
+
+     /* start with ideal gas contributions - need this for all fluids. */ 
+   Betap=calc_ideal_gas(Rho_b,Betamu);
+   for (icomp=0;icomp<Ncomp;icomp++) Betamu_id[icomp]=Betamu[icomp];
+   if (Lsteady_state){
+      Betap_LBB=calc_ideal_gas(Rho_b_LBB,Betamu_LBB);
+      Betap_RTF=calc_ideal_gas(Rho_b_RTF,Betamu_RTF);
+      if (Type_coul !=NONE){
+             Betamu_LBB[icomp] += Charge_f[icomp]*(Elec_pot_LBB);
+             Betamu_RTF[icomp] += Charge_f[icomp]*(Elec_pot_RTF);
       }
    }
-   else{
 
-      if (Lsteady_state) {
-        betap_hs = calc_hs_properties(betamu_hs,Rho_b_LBB);
 
-        if (Ipot_ff_n == LJ12_6) {
-            Betap = betap_hs + calc_att_properties(Betamu_att,Rho_b_LBB);
-            for (icomp=0; icomp<Ncomp; icomp++) 
-               Betamu_LBB[icomp] = betamu_hs[icomp] + Betamu_att[icomp];
-        }
-        else{
-            Betap = betap_hs;
-            for (icomp=0; icomp<Ncomp; icomp++) 
-               Betamu_LBB[icomp] = betamu_hs[icomp] + Charge_f[icomp]*Elec_pot_LBB;
-        }
-        betap_hs = calc_hs_properties(betamu_hs,Rho_b_RTF);
+     /* now add in the hard sphere contributions */
+  
+   if (Type_func==ROSENFELD || Type_func==ROSENFELD2){
+      if (Lsteady_state){
+         betap_hs = calc_hs_properties(betamu_hs,Rho_b_LBB);
+         for (icomp=0; icomp<Ncomp; icomp++) Betamu_LBB[icomp] += betamu_hs[icomp];    
 
-        if (Ipot_ff_n == LJ12_6) {
-            Betap = betap_hs + calc_att_properties(Betamu_att,Rho_b_RTF);
-            for (icomp=0; icomp<Ncomp; icomp++) 
-               Betamu_RTF[icomp] = betamu_hs[icomp] + Betamu_att[icomp];
-        }
-        else{
-            Betap = betap_hs;
-            for (icomp=0; icomp<Ncomp; icomp++) 
-               Betamu_RTF[icomp] = betamu_hs[icomp];
-        }
-
+         betap_hs = calc_hs_properties(betamu_hs,Rho_b_RTF);
+         for (icomp=0; icomp<Ncomp; icomp++) Betamu_RTF[icomp] += betamu_hs[icomp];
       }
-      else {
+      else{
+         betap_hs = calc_hs_properties(betamu_hs,Rho_b);
+         Betap += betap_hs;
+         for (icomp=0; icomp<Ncomp; icomp++) Betamu[icomp] += betamu_hs[icomp];
+     }
+   }
 
-        Betap_id = 0.0;
-        betap_hs = calc_hs_properties(betamu_hs,Rho_b);
+     /* now add in the mean field attraction contributions */
+   if (Type_attr == LJ_WCA_CS){
+      if (Lsteady_state){
+         betap_att = calc_att_properties(Betamu_att,Rho_b_LBB);
+         for (icomp=0; icomp<Ncomp; icomp++) 
+               Betamu_LBB[icomp] += Betamu_att[icomp];
 
-        if (Ipot_ff_n == LJ12_6) {
-            Betap_att = calc_att_properties(Betamu_att,Rho_b);
-            Betap = betap_hs + Betap_att;
-            for (icomp=0; icomp<Ncomp; icomp++) {
-               Betamu[icomp] = betamu_hs[icomp] + Betamu_att[icomp];
-               Betap_id += Rho_b[icomp];
-            }
-        }
-        else{
-            Betap_att = 0.0;
-            Betap = betap_hs;
-            for (icomp=0; icomp<Ncomp; icomp++) {
-               Betamu[icomp] = betamu_hs[icomp];
-               Betap_id += Rho_b[icomp];
-            }
-        }
+         betap_att = calc_att_properties(Betamu_att,Rho_b_RTF);
+         for (icomp=0; icomp<Ncomp; icomp++) 
+               Betamu_RTF[icomp] += Betamu_att[icomp];
+      }
+      else{
+         betap_att = calc_att_properties(Betamu_att,Rho_b);
+         Betap += betap_att;
+         for (icomp=0; icomp<Ncomp; icomp++) Betamu[icomp] += Betamu_att[icomp];
+      }
+   }
+
+     /* now add in an applied electric field if one exists */
+   if (Lsteady_state && Type_coul != NONE){
+      for (icomp=0; icomp<Ncomp; icomp++){
+         Betamu_LBB[icomp] += Charge_f[icomp]*Elec_pot_LBB;
+         Betamu_RTF[icomp] += Charge_f[icomp]*Elec_pot_RTF;
+      }
+   }
+
+    /* now add in the WTC polymer contributions */
+   if (Type_poly_TC){
+      if (Lsteady_state){
+          printf("have not implemented the thermodynamics for diffusion plus Wertheim-Tripathi-Chapman functionals yet....please debug.\n");
+          exit(-1);
+      }
+      else{
+         for (i=0;i<Ncomp;i++) sum_all[i]=0.0;
+         for (i=0;i<Nbonds;i++){
+             y[i]=calc_y_bulk(i,sum_all);
+         }
+         for (ipol=0; ipol<Npol_comp; ipol++){
+           for (iseg=0; iseg<Nmer[ipol];iseg++){
+              rho_iseg_b=(Rho_b[Type_mer[ipol][iseg]]/Nmer_t_total[Type_mer[ipol][iseg]]);
+              sum_ab=0.0;
+              for (ibond=0; ibond<Nbond[ipol][iseg]; ibond++){
+                  if (Bonds[ipol][iseg][ibond] != -1){
+                    jseg=Bonds[ipol][iseg][ibond];
+                    rho_jseg_b=(Rho_b[Type_mer[ipol][jseg]]/
+                                 Nmer_t_total[Type_mer[ipol][jseg]]);
+                    sum_ab+=0.5*(1.0-log(y[Poly_to_Unk[ipol][iseg][ibond]])
+                                                  -rho_jseg_b/rho_iseg_b);
+                  }
+              }
+              Betamu_ex_bondTC[ipol][iseg]= sum_ab-sum_all[Type_mer[ipol][iseg]];
+              Betamu_seg[ipol][iseg]=Betamu[Type_mer[ipol][iseg]]
+                     -log(Nmer_t_total[Type_mer[ipol][iseg]])+Betamu_ex_bondTC[ipol][iseg];
+           }
+         }
       }
    }
 
@@ -171,6 +217,70 @@ void  thermodynamics( char *output_file1, int print_flag)
 
  } /* end of   if (!Sten_Type[POLYMER_CR])   */
    
+}
+/****************************************************************************/
+/*calc_y_bulk: This computes the cavity correlation function in the bulk for each
+  bond in the problem of interest.  Note that these could be computed rigorously
+  for bond types, but this would introduce more bookkeeping into the code */
+double calc_y_bulk(int ibond, double *sum)
+{
+  int iseg,pol_number, jseg,type_jseg,type_iseg,i;
+  double sigma, sigma_prime, xi_3, xi_2, one_minus_xi_3_cubed,y;
+  double rho_seg_alpha,rho_seg_alpha_prime;
+  double sig2,sig3;
+  double deriv2,deriv3;
+
+      iseg=Unk_to_Seg[ibond];
+      pol_number=Unk_to_Poly[ibond];
+      jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]];
+      type_jseg=Type_mer[pol_number][jseg];
+      type_iseg=Type_mer[pol_number][iseg];
+      sigma=Sigma_ff[type_iseg][type_iseg];
+      sigma_prime=Sigma_ff[type_jseg][type_jseg];
+      xi_3=Rhobar_cavity_b[3];
+      xi_2=Rhobar_cavity_b[2];
+      one_minus_xi_3_cubed = (1.0-xi_3)*(1.0-xi_3)*(1.0-xi_3);
+            
+      y=(1.0)/(1.0-xi_3) +
+        ( (3.0*sigma*sigma_prime)/(sigma+sigma_prime) )*(xi_2/((1.-xi_3)*(1.-xi_3))) +
+        (2.0)*POW_DOUBLE_INT(((sigma*sigma_prime)/(sigma+sigma_prime)),2)*
+               (xi_2*xi_2/(one_minus_xi_3_cubed));
+
+      deriv2= ( (3.0*sigma*sigma_prime)/(sigma+sigma_prime) )/((1.-xi_3)*(1.-xi_3))+
+              (4.0)*POW_DOUBLE_INT(((sigma*sigma_prime)/(sigma+sigma_prime)),2)*
+                           (xi_2/(one_minus_xi_3_cubed));
+
+      deriv3= (1.0/((1.0-xi_3)*(1.0-xi_3))) +
+              2.0*( (3.0*sigma*sigma_prime)/(sigma+sigma_prime) )*(xi_2/one_minus_xi_3_cubed) +
+              (6.0)*POW_DOUBLE_INT(((sigma*sigma_prime)/(sigma+sigma_prime)),2)*
+                      (xi_2*xi_2/(one_minus_xi_3_cubed*(1.-xi_3)));
+
+      rho_seg_alpha=(Rho_b[type_iseg]/Nmer_t_total[type_iseg]);
+      rho_seg_alpha_prime=(Rho_b[type_jseg]/Nmer_t_total[type_jseg]);
+
+      for (i=0;i<Ncomp;i++){
+         sig2=Sigma_ff[i][i]*Sigma_ff[i][i];
+         sig3=Sigma_ff[i][i]*Sigma_ff[i][i]*Sigma_ff[i][i];
+         sum[i] += (PI/12.)*(Rho_b[i]/Nmer_t_total[i])*
+                   rho_seg_alpha*(1.0/y)*(deriv2*sig2 + deriv3*sig3);
+      }
+
+      return (y);
+}
+/******************************************************************************/
+/* calc_ideal_gas: This routine computes ideal gas properties at a density of interest */
+double calc_ideal_gas(double *rho,double *betamu)
+{
+   double betap=0.0;
+   int i;
+   
+   for (i=0;i<Ncomp;i++){
+       betamu[i] = log(rho[i]);
+                  /*           - 3.0*log(Sigma_ff[icomp][icomp]) -
+                               1.5*log(Mass[icomp]*Temp); */
+       betap+=rho[i];
+   }
+   return(betap);
 }
 /********************************************************************************
 calc_hs_properties:  This routine calculates the pressure and excess chemical 
@@ -236,14 +346,7 @@ double calc_hs_properties(double *betamu_hs,double *rho)
     * the hard sphere chemical potential in units of kT 
     */
    for (icomp=0; icomp<Ncomp; ++icomp) {
-      hs_diam_cubed = POW_DOUBLE_INT (Hs_diam[icomp],3);
-      betamu_hs[icomp]  = log(rho[icomp] * hs_diam_cubed) 
-                          + Betamu_hs_ex[icomp]; 
-                        /*     - 3.0*log(Sigma_ff[icomp][icomp]) -
-                               1.5*log(Mass[icomp]*Temp);*/
-      Betamu_id[icomp]  = log(rho[icomp] * hs_diam_cubed);
-                  /*           - 3.0*log(Sigma_ff[icomp][icomp]) -
-                               1.5*log(Mass[icomp]*Temp); */
+      betamu_hs[icomp]  =  Betamu_hs_ex[icomp]; 
    }
 
    return (betap_hs);
@@ -360,6 +463,157 @@ double deltaC_MSA_int(double r,int i, int j)
   return deltac_int;
 }
 /*******************************************************************************/
+/* compute_bulk_nonlocal_properties: compute some additional bulk properties we
+   need to carry around the calculation. These are based on the input densities
+   and particle sizes. */
+void compute_bulk_nonlocal_properties(char *output_file1)
+{
+  int i,loc_inode,loc_i,inode_box,inode,ijk[3],icomp,idim,iunk,printproc;
+  int ibond,iseg,jseg,pol_number,type_jseg;
+  double vol,area,x_dist;
+  FILE *fp2=NULL;
+  if (Proc==0 && output_file1 != NULL) printproc = TRUE;
+  else printproc=FALSE;
+  if (printproc) fp2 = fopen(output_file1,"a+");
+
+   /* compute bulk nonlocal densities needed for Rosenfeld terms */
+  if (Matrix_fill_flag >= 3 && Type_func != NONE){   
+     for (iunk=0; iunk<Nrho_bar; iunk++){
+       Rhobar_b[iunk] = 0.0;
+       Rhobar_b_LBB[iunk] = 0.0;
+       Rhobar_b_RTF[iunk] = 0.0;
+     }
+
+     for (icomp=0; icomp<Ncomp; icomp++){
+       vol = PI*Sigma_ff[icomp][icomp]*
+                Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp]/6.0;
+       area = PI*Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp];
+
+       Rhobar_b[0] += vol*Rho_b[icomp];
+       Rhobar_b[1] += area*Rho_b[icomp];
+       Rhobar_b[2] += area*Rho_b[icomp]*Inv_4pir[icomp];
+       Rhobar_b[3] += area*Rho_b[icomp]*Inv_4pirsq[icomp];
+       for (idim=0; idim<Ndim; idim++){
+           Rhobar_b[4+idim] = 0.0;
+           Rhobar_b[4+Ndim+idim] = 0.0;
+       }
+       if (Lsteady_state){
+          Rhobar_b_LBB[0] += vol*Rho_b_LBB[icomp];
+          Rhobar_b_LBB[1] += area*Rho_b_LBB[icomp];
+          Rhobar_b_LBB[2] += area*Rho_b_LBB[icomp]*Inv_4pir[icomp];
+          Rhobar_b_LBB[3] += area*Rho_b_LBB[icomp]*Inv_4pirsq[icomp];
+          for (idim=0; idim<Ndim; idim++){
+              Rhobar_b_LBB[4+idim] = 0.0;
+              Rhobar_b_LBB[4+Ndim+idim] = 0.0;
+          }
+          Rhobar_b_RTF[0] += vol*Rho_b_RTF[icomp];
+          Rhobar_b_RTF[1] += area*Rho_b_RTF[icomp];
+          Rhobar_b_RTF[2] += area*Rho_b_RTF[icomp]*Inv_4pir[icomp];
+          Rhobar_b_RTF[3] += area*Rho_b_RTF[icomp]*Inv_4pirsq[icomp];
+          for (idim=0; idim<Ndim; idim++){
+              Rhobar_b_RTF[4+idim] = 0.0;
+              Rhobar_b_RTF[4+Ndim+idim] = 0.0;
+          }
+       }
+       else if (Nwall == 0 && Iliq_vap == 3){
+          Rhobar_b_LBB[0] += vol*Rho_coex[1];
+          Rhobar_b_LBB[1] += area*Rho_coex[1];
+          Rhobar_b_LBB[2] += area*Rho_coex[1]*Inv_4pir[icomp];
+          Rhobar_b_LBB[3] += area*Rho_coex[1]*Inv_4pirsq[icomp];
+          for (idim=0; idim<Ndim; idim++){
+              Rhobar_b_LBB[4+idim] = 0.0;
+              Rhobar_b_LBB[4+Ndim+idim] = 0.0;
+          }
+          Rhobar_b_RTF[0] += vol*Rho_coex[0];
+          Rhobar_b_RTF[1] += area*Rho_coex[0];
+          Rhobar_b_RTF[2] += area*Rho_coex[0]*Inv_4pir[icomp];
+          Rhobar_b_RTF[3] += area*Rho_coex[0]*Inv_4pirsq[icomp];
+          for (idim=0; idim<Ndim; idim++){
+              Rhobar_b_RTF[4+idim] = 0.0;
+              Rhobar_b_RTF[4+Ndim+idim] = 0.0;
+          }
+       }
+     }
+     if (printproc){
+        fprintf(fp2,"Rhobar_bulk, LBB, and RTF variables for Rosenfeld HS functionals:\n");
+        fprintf(fp2,"Note that vector terms are strictly zero in the bulk!\n");
+        fprintf(fp2,"\t i  Rhobar_b[i]  Rhobar_b_LBB[i]  Rhobar_b_RTF[i]\n");
+        for (i=0;i<4;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
+                 Rhobar_b[i], Rhobar_b_LBB[i], Rhobar_b_RTF[i]);
+        if (Iwrite==VERBOSE){
+           printf("Rhobar_bulk, LBB, and RTF variables for Rosenfeld HS functionals:\n");
+           printf("Note that vector terms are strictly zero in the bulk!\n");
+           printf("\t i  Rhobar_b[i]  Rhobar_b_LBB[i]  Rhobar_b_RTF[i]\n");
+           for (i=0;i<4;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
+                 Rhobar_b[i], Rhobar_b_LBB[i], Rhobar_b_RTF[i]);
+        }
+     }
+  }
+
+  /* compute bulk nonlocal densities needed for Wertheim-Tripathi-Chapman functionals */
+  if (Type_poly_TC){  
+     for (i=0; i<4; i++){
+        Rhobar_cavity_b[i]=0.0;
+           Rhobar_cavity_LBB[i]=0.0;
+           Rhobar_cavity_RTF[i]=0.0;
+     }
+     for (icomp=0;icomp<Ncomp;icomp++){
+        for (i=0;i<4;i++){
+           Rhobar_cavity_b[i]+=(PI/6.0)*Rho_b[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
+           if (Lsteady_state){
+             Rhobar_cavity_LBB[i]+=(PI/6.0)*Rho_b_LBB[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
+             Rhobar_cavity_RTF[i]+=(PI/6.0)*Rho_b_RTF[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
+           }
+        }
+     }
+     if (printproc){
+        fprintf(fp2,"Rhobar_cavity_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+        fprintf(fp2,"\t i  Rhobar_cavity_b[i]  Rhobar_cavity_LBB[i]  Rhobar_cavity_RTF[i]\n");
+        for (i=0;i<4;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
+                 Rhobar_cavity_b[i], Rhobar_cavity_LBB[i], Rhobar_cavity_RTF[i]);
+        if (Iwrite==VERBOSE){
+           printf("Rhobar_cavity_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+           printf("\t i  Rhobar_cavity_b[i]  Rhobar_cavity_LBB[i]  Rhobar_cavity_RTF[i]\n");
+            for (i=0;i<4;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
+                 Rhobar_cavity_b[i], Rhobar_cavity_LBB[i], Rhobar_cavity_RTF[i]);
+        }
+     }
+
+     for (ibond=0; ibond<Nbonds; ibond++){
+       Rhobar_bond_b[ibond]=NO_BOND_PAIR;
+       Rhobar_bond_LBB[ibond]=NO_BOND_PAIR;
+       Rhobar_bond_RTF[ibond]=NO_BOND_PAIR;
+    }
+
+    for (ibond=0; ibond<Nbonds; ibond++){
+        iseg=Unk_to_Seg[ibond];
+        pol_number=Unk_to_Poly[ibond];
+        jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]];
+        type_jseg=Type_mer[pol_number][jseg];
+        Rhobar_bond_b[ibond]=Rho_b[type_jseg]/Nmer_t_total[type_jseg];
+        if (Lsteady_state){
+           Rhobar_bond_LBB[ibond]=Rho_b_LBB[type_jseg]/Nmer_t_total[type_jseg];
+           Rhobar_bond_RTF[ibond]=Rho_b_RTF[type_jseg]/Nmer_t_total[type_jseg];
+        }
+    }
+    if (printproc){
+        fprintf(fp2,"Rhobar_bond_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+        fprintf(fp2,"\t i  Rhobar_bond_b[i]  Rhobar_bond_LBB[i]  Rhobar_bond_RTF[i]\n");
+        for (i=0;i<Nbonds;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
+                 Rhobar_bond_b[i], Rhobar_bond_LBB[i], Rhobar_bond_RTF[i]);
+        if (Iwrite==VERBOSE){
+           printf("Rhobar_bond_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+           printf("\t i  Rhobar_bond_b[i]  Rhobar_bond_LBB[i]  Rhobar_bond_RTF[i]\n");
+           for (i=0;i<Nbonds;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
+                 Rhobar_bond_b[i], Rhobar_bond_LBB[i], Rhobar_bond_RTF[i]);
+        }
+     }
+
+  } /* end of Type_poly_TC rhobars (bulk)*/
+
+
+}
+/*******************************************************************************/
 /* pot_parameters: calculate the cross terms (sigmaij,epsilonij,cutoffij)
    for this potential */
 void pot_parameters(char *output_file1)
@@ -449,15 +703,19 @@ double coexistence()
 
    /* calculate residuals at these densities */
 
-   resid[0] = ( calc_hs_properties(betamu_hs_l,&(Rho_coex[0])) 
+   resid[0] = ( Rho_coex[0]+calc_hs_properties(betamu_hs_l,&(Rho_coex[0])) 
                       + calc_att_properties(betamu_att_l,&(Rho_coex[0])) ) -
-              ( calc_hs_properties(betamu_hs_g,&(Rho_coex[1])) 
+              ( Rho_coex[1]+calc_hs_properties(betamu_hs_g,&(Rho_coex[1])) 
                       + calc_att_properties(betamu_att_g,&(Rho_coex[1])) );
 
-   resid[1] = ( betamu_hs_l[0] + betamu_att_l[0]) - 
-              ( betamu_hs_g[0] + betamu_att_g[0]);
+   resid[1] = ( log(Rho_coex[0])+betamu_hs_l[0] + betamu_att_l[0]) - 
+              ( log(Rho_coex[1])+betamu_hs_g[0] + betamu_att_g[0]);
 
    niter = 0;
+if (niter==0) printf("Rho_coex=%9.6f  %9.6f\n",Rho_coex[0],Rho_coex[1]);
+if (niter==0) printf("betamu_hs_l=%9.6f  betamu_hs_g=%9.6f  betamu_att_l=%9.6f  betamu_att_g=%9.6f\n",
+                      betamu_hs_l[0],betamu_hs_g[0],betamu_att_l[0],betamu_att_g[0]);
+if (niter==0) printf("resid= %9.6f  %9.6f\n", resid[0],resid[1]);
 
 
    /* perform Newton iterations to find the root */
@@ -472,6 +730,8 @@ double coexistence()
         Jac[1][0] = dmu_drho_hs(&(Rho_coex[0])) + dmu_drho_att(&(Rho_coex[0]));
         Jac[1][1] = dmu_drho_hs(&(Rho_coex[1])) + dmu_drho_att(&(Rho_coex[1]));
 
+if (niter==0) printf("Jac: %9.6f  %9.6f  %9.6f  %9.6f\n",Jac[0][0],Jac[0][1],Jac[1][0],Jac[1][1]);
+
 
         /* matrix inversion is simple for this two by two */
 
@@ -479,6 +739,7 @@ double coexistence()
         Jac_inv[1][1] = 1.0/(Jac[1][1]-Jac[1][0]*Jac[0][1]/Jac[0][0]);
         Jac_inv[0][0] = -(Jac[1][1]/Jac[1][0])*Jac_inv[1][0];
         Jac_inv[0][1] = -(Jac[0][1]/Jac[0][0])*Jac_inv[1][1];
+if (niter==0) printf("Jac: %9.6f  %9.6f  %9.6f  %9.6f\n",Jac_inv[0][0],Jac_inv[0][1],Jac_inv[1][0],Jac_inv[1][1]);
 
         for (i=0; i< 2; i++) {
           for (j=0; j< 2; j++) {
@@ -490,13 +751,13 @@ double coexistence()
         if (Rho_coex[0] > 1.0) Rho_coex[0] = rho_coex_old[0] ;
 
 
-        resid[0] = ( calc_hs_properties(betamu_hs_l,&(Rho_coex[0])) 
+        resid[0] = ( Rho_coex[0]+calc_hs_properties(betamu_hs_l,&(Rho_coex[0])) 
                       + calc_att_properties(betamu_att_l,&(Rho_coex[0])) ) -
-                   ( calc_hs_properties(betamu_hs_g,&(Rho_coex[1])) 
+                   ( Rho_coex[1]+calc_hs_properties(betamu_hs_g,&(Rho_coex[1])) 
                       + calc_att_properties(betamu_att_g,&(Rho_coex[1])) );
 
-        resid[1] = ( betamu_hs_l[0] + betamu_att_l[0]) - 
-                   ( betamu_hs_g[0] + betamu_att_g[0]);
+        resid[1] = ( log(Rho_coex[0])+betamu_hs_l[0] + betamu_att_l[0]) - 
+                   ( log(Rho_coex[1])+betamu_hs_g[0] + betamu_att_g[0]);
         niter++;
         if (niter > 100) {
            printf("problems locating coexistence....more than 100 iterations");
@@ -618,7 +879,7 @@ void print_thermo(char *output_file1, double betap_hs,
 {
 
   FILE *fp2;
-  int icomp,jcomp;
+  int icomp,jcomp,ipol,iseg;
 
   fp2 = fopen(output_file1,"a+");
   fprintf(fp2,"\n!!!!!!!!!!!!! output from dft_thermo.c !!!!!!!!!!!!!!!!!!\n");
@@ -626,6 +887,17 @@ void print_thermo(char *output_file1, double betap_hs,
   fprintf(fp2,"chemical potentials : mu/kT : \n");
   for (icomp=0; icomp<Ncomp; ++icomp) 
     fprintf(fp2,"\t\t\t Betamu[%d] = %9.6f\n\n",icomp, Betamu[icomp]);
+
+  if (Type_poly_TC){
+          fprintf (fp2,"Note the above Betamu is based on segment types and does not include the bonding term!!\n");
+          for (ipol=0; ipol<Npol_comp;ipol++){
+             for (iseg=0; iseg<Nmer[ipol];iseg++){
+                fprintf(fp2,"\t\t Betamu_seg[ipol=%d][iseg=%d] = %9.6f\n",
+                     ipol, iseg, Betamu_seg[ipol][iseg]);
+             }
+          }
+   }
+
 
    if (Ipot_ff_n != IDEAL_GAS) {
       fprintf(fp2,"\nhard sphere pressure : betap_hs  = %e\n",betap_hs);
@@ -670,6 +942,17 @@ void print_thermo(char *output_file1, double betap_hs,
    printf("\ttotal chemical potentials  (units of kT)\n");
    for (icomp=0; icomp<Ncomp; ++icomp) 
         printf("\t\tBetamu[%d] = %e\n",icomp, Betamu[icomp]);
+
+  if (Type_poly_TC){
+          printf ("Note the above Betamu is based on segment types and does not include the bonding term!!\n");
+          printf ("The segment based chemical potentials are ...\n");
+          for (ipol=0; ipol<Npol_comp;ipol++){
+             for (iseg=0; iseg<Nmer[ipol];iseg++){
+                printf("\t\t Betamu_seg[ipol=%d][iseg=%d] = %9.6f\n",
+                                  ipol, iseg, Betamu_seg[ipol][iseg]);
+             }
+          }
+   }
 
   
    return;

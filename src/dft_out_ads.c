@@ -47,10 +47,7 @@ double calc_adsorption(FILE *fp,double *x,double fac_area,double fac_vol)
     for (icomp=0; icomp<Ncomp; icomp++){
       for (i=0; i<Imax; i++){
 
-         if (Sten_Type[POLYMER_CR])
-           loc_i = Aztec.update_index[Ncomp+icomp+Nunk_per_node * loc_inode];
-         else
-           loc_i = Aztec.update_index[icomp + Nunk_per_node * loc_inode];
+         loc_i=Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
 
 	 /* Note: if change def. of ads, must change polymer free energy also */
           Ads_ex[icomp][i] += (x[loc_i]*Nel_hit2[i][loc_i]-Rho_b[icomp]*Nel_hit[i][loc_i])
@@ -153,7 +150,7 @@ void calc_surface_charge(FILE *fp, double *x,double fac_area,double fac_vol)
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       /* convert local node to global */
-      inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+      inode = L2G_node[loc_inode];
       node_to_ijk(inode,ijk);
 
       for (icomp=0; icomp<Ncomp; icomp++){
@@ -183,8 +180,7 @@ void calc_surface_charge(FILE *fp, double *x,double fac_area,double fac_vol)
                                  &&  ijk[idim] == Nodes_x[idim]-1)  nel_hit /= 2;
          }
 
-         if (Type_poly==-1) loc_i = Aztec.update_index[icomp + Nunk_per_node * loc_inode];
-         else               loc_i = Aztec.update_index[icomp + Ncomp + Nunk_per_node * loc_inode];
+         loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
 
          charge_sum += (Charge_f[icomp]*x[loc_i])
                        *Vol_el*((double)nel_hit)/((double)Nnodes_per_el_V);

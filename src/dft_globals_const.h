@@ -90,6 +90,10 @@
 
 #define NSTEPS_MAX 10
 
+/* a constat flag to indicate that there is no bond between a pair of segments in 
+   a polymer problems */
+#define NO_BOND_PAIR -962.0
+
 /* a constant flag for the share_global_vec routine */
 #define UNINIT_VEC -200.0
 /*
@@ -99,7 +103,7 @@
  * The following are the current acceptable values for Stencil types.
  */
 
-#define NSTEN        6
+#define NSTEN        8
 
 #define DELTA_FN       0
 #define THETA_FN       1
@@ -107,6 +111,34 @@
 #define THETA_CHARGE   3
 #define POLYMER_CR     4
 #define POLYMER_GAUSS  5
+#define THETA_FN_SIG   6
+#define DELTA_FN_BOND  7
+
+/*
+ * An equation type list is given here to make identification of a particular
+ * unknown number straightforward.  This became necessary with the introduction
+ * of the WTC polymers where we now have 6 types of equations to fill.
+ */
+#define NEQ_TYPE       9 
+#define NO_UNK        -888
+
+#define DENSITY        1
+#define DENSITY_SEG    4
+#define RHOBAR_ROSEN   0
+#define DIFFUSION      6
+#define CAVITY_WTC     7
+#define BOND_WTC       8
+
+#define CMS_FIELD      5
+#define CMS_G          2 
+#define POISSON        3
+
+/* Here are some constants needed to make the physics based ordering of the
+   matrix an option in the code. */
+#define MATRIX_FILL_NODAL 0   /* set to zero for physics based ordering */
+#define NODAL_FLAG -999
+#define BOX 0
+#define LOCAL 1
 
 /*
  * Zones refer to different quadrature schemes on the mesh.  We allow for 
@@ -134,10 +166,19 @@
 /* 
  * These constants identify the functional choices (Type_func).
  */
+#define NONE       -1
 #define ROSENFELD  0
-#define LDA        1
-#define GHRM       2
-#define GVDWM      3
+#define ROSENFELD2 1
+#define LDA        2
+#define GHRM       3
+#define GVDWM      4
+
+
+/*
+ * These constants identify attraction functional choices (Type_attr).
+ */
+#define NONE -1
+#define LJ_WCA_CS 0
 
 /* 
  * These constants identify the functional choices (Type_coul).
@@ -147,6 +188,17 @@
 #define DELTAC     1 
 #define POLARIZE   2
 #define LIKE_LJ    3
+
+/*
+ *  These constants identify choice for polymers.
+ */
+#define NONE           -1
+#define CMS_FR_JNT_CHN1     0
+#define CMS_FR_JNT_CHN2 1
+#define CMS_FR_JNT_CHN3 2
+#define CMS_GAUSSIAN    3
+#define CMS_SCFT        4
+#define TC_FR_JNT_CHN   5
 
 /*
  * The following are choices for the neutral fluid-fluid interactions (Ipot_ff_n)
@@ -457,6 +509,13 @@ extern double T_av_lj_max;
 extern double T_av_solve_max;
 extern double T_msr_setup;
 
+/* Basic Equation info */
+extern int Nunk_tot_eq[NEQ_TYPE];  /* Number of unknowns of a particular equation type */
+extern int Unk_start_eq[NEQ_TYPE]; /* starting unknown number for a given equation type */
+extern int Unk_end_eq[NEQ_TYPE]; /* ending unknown number for a given equation type */
+extern int Unk_to_eq_type[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equation type
+                                                                         given an unknown index */
+
 /* Mesh info */
 
 
@@ -573,6 +632,18 @@ int     Nrho_bar;        /* Number of rhobar equations per node */
 extern
 int     Nrho_bar_s;      /* Number of scalar rhobar equations per node */
 extern
+int     Npoisson;        /* Number of rhobar equations per node */
+extern
+int     Ndiffusion;        /* Number of rhobar equations per node */
+extern
+int     Ndensity_unk;         /* Number of unknowns for the Euler-Lagrange equation */
+extern
+int     Ntype_unk;       /* Number of equations defining segment types for polymer TC cases */
+extern
+int     Nrho_bar_cavity; /* Number of nonlocal densities for the cavity function - WTC polymers */
+extern
+int     Nrho_bar_bond; /* Number of nonlocal densities for the bond functionals - WTC polymers */
+extern
 int     Nnodes_per_el_V;  /* Number of nodes per volume element              */
 extern
 int     Nnodes_per_el_S;  /* Number of nodes per surface element            */
@@ -615,7 +686,8 @@ int  **List_wall_node; /*Array to store which walls touch a given node */
 extern
 int  *Index_wall_nodes; /* ArraY to store indexing in these mesh arrays */
 
-
+extern
+int First_time; /* for MSR preprocessing */
 
 extern
 int     Nzone;          /* Number of diff. quadrature zones on the mesh      */
@@ -737,7 +809,11 @@ double  Energy;   /* Surface free energy to return to Towhee */
 
 
 extern
-double  Betap;           /* Presseure in units of kT sigma_ff[1]^3           */
+double  Betap;           /* Pressure in units of kT sigma_ff[1]^3           */
+extern
+double Betap_LBB;       /* Pressure calculated for LBB of domain */
+extern
+double Betap_RTF;       /* Pressure calculated for RTF of domain */
 extern
 double  Betap_id;       /* Ideal gas Presseure in units of kT sigma_ff[1]^3   */
 extern
@@ -759,6 +835,18 @@ double  Rhobar_b_RTF[10]; /* Array[Nrho_bar] of bulk rhobars RTF  */
 extern
 double  *Rhobar3_old;   /* Array[Nnodes_box] of old values of rhobar 3*/
 extern
+double Rhobar_cavity_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+extern
+double Rhobar_cavity_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+extern
+double Rhobar_cavity_RTF[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+extern
+double Rhobar_bond_b[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
+extern
+double Rhobar_bond_LBB[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
+extern
+double Rhobar_bond_RTF[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
+extern
 double  Rho_coex[2];   /* Liquid and Vapor Coexisting Densities         */
 extern
 double  Betamu_hs_ex[NCOMP_MAX];/* Array of excess hardsphere chemical potentials*/
@@ -766,6 +854,10 @@ extern
 double  Betamu[NCOMP_MAX];   /* Array[Ncomp] of chemical potentials*/
 extern
 double  Betamu_id[NCOMP_MAX];   /* Array[Ncomp] of ideal gas chemical potentials*/
+extern
+double  Betamu_ex_bondTC[NCOMP_MAX][NMER_MAX*NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
+extern
+double  Betamu_seg[NCOMP_MAX][NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 extern
 int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
 extern
@@ -977,10 +1069,14 @@ extern
 int     Type_coul;    /* Type for handling coulomb interactions              */
 extern
 int     Type_poly;    /* Type for handling polymers                          */
+extern
+int     Type_poly_TC;  /* Type for Wertheim-Tripathi-Chapman polymers */
 
 /* Startup Info */
 extern
 int     Restart;     /* Logical that switches between new prof & restart file*/
+extern
+int     Restart_field[NEQ_TYPE];
 extern
 int     Iwrite;       /* Do we want a complete or modified set of output data*/
 
@@ -1063,13 +1159,15 @@ extern
 int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
 extern
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
+extern int Nmer_t_total[NBLOCK_MAX];
+extern int Nseg_tot;
 extern
 char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
 extern double Cr_break[2];
 extern int Ncr_files;
 extern int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond;
 extern int ***Poly_to_Unk;
-extern int Ngeqn_tot, **Nbond,***Bonds;
+extern int Ngeqn_tot, Nbonds, **Nbond,***Bonds;
 extern int *Pol_Sym;
 
 
@@ -1129,12 +1227,15 @@ extern void find_images_coulomb(int,int *, double **, double *);
 
 
 /* RESIDUAL AND MATRIX FILL ROUTINES */
-extern void fill_resid_and_matrix(double *, double *, 
+extern int loc_find(int,int,int);
+extern void fill_resid_and_matrix_control(double *, double *, 
                                   int **, double *, int, int, int);
+extern void fill_resid_and_matrix(double *, double *, 
+                                  int **, double *, int, int, int,int);
 extern void fill_resid_and_matrix_rb(double *, double *, 
                                   int **, double *, int, int);
 extern void fill_resid_and_matrix_P(double *, double *, 
-                                  int **, double *, int, int, int);
+                                  int **, double *, int, int, int,int);
 extern int  get_integration_pts(int, int, double ***, double **);
 extern void pre_calc_rho_bar(struct RB_Struct *, double *, int,int,
                              double ***, int ***,double *);
@@ -1184,7 +1285,7 @@ extern void load_rho_bar_v(double *,int,int,int,int,int *,int,
 extern void load_mean_field(int, int, int, int, int *, int,
                      double *, double *, int *, double *, int);
 extern void put_row_in_msr(int, int,int *, int *, int **,
-                          double *, double *, int,int *);
+                          double *, double *, int,double *);
 extern void put_coarse_in_msr(int, int, int, int **);
 extern void put_1Dsolution_in_msr(int, int, int, int,int **);
 extern void put_poisson_in_msr(int, int, int **);
@@ -1201,6 +1302,8 @@ extern void load_linear_transport_eqn(int,int,int,int *,
 extern void load_poisson_bc(double *,int,int,int);
 extern void setup_polymer_cr(void);
 
+extern double constant_boundary(int, int);
+extern int find_jzone(int);
 
 /*  MESH TRANSLATION ROUTINES */
 extern int  map_0th_plane(int, int);

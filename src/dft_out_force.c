@@ -170,18 +170,14 @@ void sum_rho_wall(double *x, double **Sum_rho)
        else                                  ilist = icomp;
 
        for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-          inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+          inode = L2B_node[loc_inode];
           inode_box = L2B_node[loc_inode];
           iwall = Nodes_2_boundary_wall[ilist][inode_box];
 
           if (iwall != -1){
 
              node_to_position(inode,nodepos); 
-
-             if (Sten_Type[POLYMER_CR])
-               loc_i = Aztec.update_index[Ncomp+icomp+Nunk_per_node*loc_inode];
-             else
-               loc_i = Aztec.update_index[icomp + Nunk_per_node * loc_inode];
+             loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
 
              for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++){
 
@@ -231,7 +227,7 @@ void force_elec(double *x, double **Sum_dphi_dx)
 
     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
        inode_box = L2B_node[loc_inode];
-       inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+       inode = L2G_node[loc_inode];
        /*iwall = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];*/
        iwall = Nodes_2_boundary_wall[0][inode_box];
 
@@ -258,10 +254,7 @@ void force_elec(double *x, double **Sum_dphi_dx)
              for (idim=0; idim<Ndim; idim++)  deriv_x[iel_w][idim] = 0.0;
           }
 
-          if (Matrix_fill_flag < 3)
-            loc_i = Aztec.update_index[Ncomp + Nunk_per_node * loc_inode];
-          else
-            loc_i = Aztec.update_index[Ncomp+Nrho_bar+Nunk_per_node * loc_inode];
+          loc_i = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)];
          /* printf("inode: %d icomp: %d  elec_pot: %9.6f \n",inode,Ncomp,x[loc_i]);*/
 /*          printf(" %9.6f  %9.6f  %9.6f \n",nodepos[0],nodepos[1],x[loc_i]);*/
 /*          printf(" %9.6f  %9.6f  ",nodepos[0],nodepos[1]);*/
@@ -287,10 +280,7 @@ void force_elec(double *x, double **Sum_dphi_dx)
                     if (Nodes_2_boundary_wall[0][jnode_box] == -1){
                   /*     printf("trouble ... the derivatives are not within surface elements !!");*/
                     }
-                    if (Matrix_fill_flag < 3)
-                     loc_j = B2L_unknowns[jnode_box*Nunk_per_node + Ncomp];
-                    else
-                     loc_j = B2L_unknowns[jnode_box*Nunk_per_node+Ncomp+Nrho_bar];
+                    loc_j = B2L_unknowns[loc_find(Unk_start_eq[POISSON],jnode_box,BOX)];
 
                     deriv_x[iel_w][jdim] = offset[jdim]*(x[loc_j] - x[loc_i])/Esize_x[jdim];
 /*                    printf("%d  %9.6f",jdim,deriv_x[iel_w][jdim]);*/
@@ -425,16 +415,9 @@ double calc_deriv(int idim,int inode0,int flag,int *blocked, double *x, int ilis
    inode1 = offset_to_node_box(ijk_box,offset1,reflect_flag);
    inode2 = offset_to_node_box(ijk_box,offset2,reflect_flag);
 
-   if (Matrix_fill_flag < 3) {
-      loc_i0 = B2L_unknowns[inode0*Nunk_per_node + Ncomp];
-      loc_i1 = B2L_unknowns[inode1*Nunk_per_node + Ncomp];
-      loc_i2 = B2L_unknowns[inode2*Nunk_per_node + Ncomp];
-   }
-   else {
-      loc_i0 = B2L_unknowns[inode0*Nunk_per_node + Ncomp+Nrho_bar];
-      loc_i1 = B2L_unknowns[inode1*Nunk_per_node + Ncomp+Nrho_bar];
-      loc_i2 = B2L_unknowns[inode2*Nunk_per_node + Ncomp+Nrho_bar];
-   }
+   loc_i0 = B2L_unknowns[loc_find(Unk_start_eq[POISSON],inode0,BOX)];
+   loc_i1 = B2L_unknowns[loc_find(Unk_start_eq[POISSON],inode1,BOX)];
+   loc_i2 = B2L_unknowns[loc_find(Unk_start_eq[POISSON],inode2,BOX)];
 
 /*   iwall1 = Nodes_2_boundary_wall[Nlists_HW-1][inode1];
    iwall2 = Nodes_2_boundary_wall[Nlists_HW-1][inode2];*/
@@ -479,20 +462,19 @@ void find_pot_derivs(double *x, double *psi_deriv)
        iel_w,inode,surf_norm,i;
    double prefac;
 
-    if (Matrix_fill_flag < 3) iunk = Ncomp;
-    else                       iunk = Ncomp+Nrho_bar;
+   iunk = Unk_start_eq[POISSON];
 
     ilist = 0;
     psi_deriv[0] = 0.0;
     psi_deriv[1] = 0.0;
 
     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-       inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+       inode = L2G_node[loc_inode];
        iwall = Nodes_2_boundary_wall[ilist][node_to_node_box(inode)];
 
        if (iwall != -1){
 
-          loc_i = Aztec.update_index[iunk + Nunk_per_node * loc_inode];
+          loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
           for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++){
               
               surf_norm = Surf_normal[ilist][loc_inode][iel_w];
@@ -503,16 +485,16 @@ void find_pot_derivs(double *x, double *psi_deriv)
               if (prefac > 0.0) {  /* RHS*/
                    i = 1;
                    psi_deriv[i] = (
-                               -    x[iunk+Nunk_per_node*(loc_inode + 2)] 
-                               + 4.*x[iunk+Nunk_per_node*(loc_inode + 1)] 
+                               -    x[loc_find(iunk,loc_inode+2,LOCAL)] 
+                               + 4.*x[loc_find(iunk,loc_inode+1,LOCAL)] 
                                - 3.*x[loc_i]         )/(2.*Esize_x[0]);
               }
               else {              /* LHS */
                     i = 0;
                     psi_deriv[i] = (
                                   3.*x[loc_i] 
-                                - 4.*x[iunk+Nunk_per_node*(loc_inode - 1)]
-                                +    x[iunk+Nunk_per_node*(loc_inode - 2)])
+                                - 4.*x[loc_find(iunk,loc_inode-1,LOCAL)]
+                                +    x[loc_find(iunk,loc_inode-2,LOCAL)])
                                     /(2.0*Esize_x[0]);
               }
 
@@ -523,9 +505,7 @@ void find_pot_derivs(double *x, double *psi_deriv)
     return;
 }
 /***************************************************************************
- * sum_rho_midplane: For the hard wall case, sum the densities at the wall to  *
- *                   get the force on the wall.                                */
-
+ * sum_rho_midplane:   */
 double sum_rho_midplane(double *x)
 {
    int loc_i,loc_inode,icomp,inode,ijk[3];
@@ -534,22 +514,19 @@ double sum_rho_midplane(double *x)
    rho_mid_sum = 0.0;
 
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-      inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+      inode = L2G_node[loc_inode];
       node_to_ijk(inode,ijk);
 
       if (ijk[0] == Nodes_x[0]-1){
-         icomp = 0;
-         loc_i = Aztec.update_index[icomp + Nunk_per_node * loc_inode];
+         loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY],loc_inode,LOCAL)];
          if (Ipot_ff_n == IDEAL_GAS) {
             for (icomp=0; icomp<Ncomp; icomp++){
-               loc_i = Aztec.update_index[icomp + Nunk_per_node * loc_inode];
+               loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
                if      (Ndim == 1) rho_mid_sum += x[loc_i];
                else if (Ndim == 2) rho_mid_sum += x[loc_i]*Esize_x[1];
             }
          }
-         else{
-            rho_mid_sum += calc_local_pressure( &(x[loc_i]) );
-         }
+         else  rho_mid_sum += calc_local_pressure( &(x[loc_i]) );
 
       }       /* end of loop over nodes on this processor */
    }          /* end of icomp loop */
@@ -604,8 +581,7 @@ void integrate_rho_vdash(double *x,double **rho_vdash)
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-
-    inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+    inode = L2G_node[loc_inode];
     node_to_ijk(inode,ijk);
 
     for (icomp=0; icomp<Ncomp; icomp++){
@@ -631,7 +607,7 @@ void integrate_rho_vdash(double *x,double **rho_vdash)
                       Type_bc[idim][1] == IN_BULK ||
                       Type_bc[idim][1] == LAST_NODE )              ) nel_hit /= 2;
 
-           loc_i = Aztec.update_index[icomp + Nunk_per_node * loc_inode];
+           loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
            iunk = iwall*Ncomp + icomp; 
            rho_vdash[iwall][idim] -=
                      (x[loc_i]*Vext_dash[loc_inode][iunk][idim])
@@ -644,7 +620,7 @@ void integrate_rho_vdash(double *x,double **rho_vdash)
 }             
 /****************************************************************************/
 /*calc_local_pressure:  This routine calculates the local pressure in the 
-                      solution */
+                        solution */
 
 double calc_local_pressure(double *rho)
 {
