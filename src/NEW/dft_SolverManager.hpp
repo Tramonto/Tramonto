@@ -83,10 +83,15 @@ class dft_SolverManager {
   /* Insert indices into block i,j.
      \param i (In) ith physics block.
      \param j (In) jth physics block (column).
+     \param localRow (In) Local row to which entries will be added.  
+            This value should be between zero and the number of equations in block i.
      \param numEntries (In) Number of graph indices being inserted.
      \param indices (In) Column indices corresponding to matrix values.
   */
-  int insertRowIndices(int i, int j, int numEntries, int * indices) const;
+  int insertRowIndices(int i, int j, int localRow, int numEntries, int * indices) {
+    EPETRA_CHK_ERR(blockGraph_[i][j]->InsertMyIndices(localRow, numEntries, indices));
+    return(0);
+  }
 
   //! Method that must be called once, when all graph indices are set.
   int finalizeGraphStructure();
@@ -94,21 +99,43 @@ class dft_SolverManager {
 
   //@{ \name Matrix value setup methods
 
+  //! Method that must be called each time \e prior to starting matrix value insertion (usually once per nonlinear iteration).
+  int initializeMatrixFill();
+
   //! Insert matrix coefficients
   /* Insert values into block i,j.
      \param i (In) ith physics block.
      \param j (In) jth physics block (column).
+     \param localRow (In) Local row to which entries will be added.  
+            This value should be between zero and the number of equations in block i.
      \param numEntries (In) Number of matrix coefficients being inserted.
      \param values (In) Matrix values.
      \param indices (In) Column indices corresponding to matrix values.
   */
-  int insertRowValues(int i, int j, int numEntries, double * values, int * indices) const;
+  int insertRowValues(int i, int j, int localRow, int numEntries, double * values, int * indices) {
+    EPETRA_CHK_ERR(blockMatrix_[i][j]->SumIntoMyValues(localRow, numEntries, values, indices));
+    return(0);
+  }
+  //! Method that must be called each time matrix value insertion is complete (usually once per nonlinear iteration).
+  int finalizeMatrixFill();
+  //@}
+
+  //@{ \name Solver Strategy Methods
+  //! Select a strategy for solving the problem;  for now we just hard-code the strategy.
+  /*! This method is typically called once, or a few times at most per run of the application.
+      All of the interesting future work will go into developing good strategies using the solver
+      tools we have on hard, or are actively developing.
+  */
+  int setSolverStrategy(){return(0)} // This is a no-op for now.
+
+  //! Setup up the solver for solving the current linear problem.
+  int setupSolver();
   //@}
 
 private:
 
   Epetra_Comm comm_;
-  Epetra_Operator *** blockOperator_;
+  Epetra_Matrix *** blockMatrix_;
   Epetra_Graph *** blockGraph_;
   Epetra_Vector ** blockLhs_;
   Epetra_Vector ** blockRhs_;

@@ -27,7 +27,7 @@
 */
 
 #include "dft_SolverManager.h"
-#include "Epetra_Operator.h"
+#include "Epetra_CrsMatrix.h"
 #include "Epetra_Vector.h"
 #include "Epetra_Comm.h"
 
@@ -35,17 +35,17 @@
 //=============================================================================
 dft_SolverManager::dft_SolverManager(int numBlocks, const Epetra_Comm & comm) 
   : comm_(comm),
-    blockOperator_(0),
+    blockMatrix_(0),
     blockLhs_(0),
     blockRhs_(0),
     rowMaps_(0),
     colMaps_(0),
     isStructureSet_(false) {
-  // Allocate blockOperator, blockGraph, blockLhs, blockRhs and map arrays
-  blockOperator_ = new Epetra_Operator **[numBlocks];
-  for (int i=0; i<numBlocks; i++) blockOperator_[i] = new Epetra_Operator *[numBlocks];
+  // Allocate blockMatrix, blockGraph, blockLhs, blockRhs and map arrays
+  blockMatrix_ = new Epetra_CrsMatrix **[numBlocks];
+  for (int i=0; i<numBlocks; i++) blockMatrix_[i] = new Epetra_CrsMatrix *[numBlocks];
   for (int i=0; i<numBlocks; i++; i++)
-    for (int j=0; j<numBlocks; j++) blockOperator_[i][j] = 0; // Initialize block operator pointers to zero
+    for (int j=0; j<numBlocks; j++) blockMatrix_[i][j] = 0; // Initialize block operator pointers to zero
 
   blockGraph_ = new Epetra_Graph **[numBlocks];
   for (int i=0; i<numBlocks; i++) blockGraph_[i] = new Epetra_Graph *[numBlocks];
@@ -72,9 +72,9 @@ dft_SolverManager::~dft_SolverManager() {
  
   
   for (int i=0; i<numBlocks; i++; i++)
-    for (int j=0; j<numBlocks; j++) delete blockOperator_[i][j];
-  for (int i=0; i<numBlocks; i++) delete [] blockOperator_[i];
-  delete [] blockOperator_;
+    for (int j=0; j<numBlocks; j++) delete blockMatrix_[i][j];
+  for (int i=0; i<numBlocks; i++) delete [] blockMatrix_[i];
+  delete [] blockMatrix_;
 
   for (int i=0; i<numBlocks; i++; i++)
     for (int j=0; j<numBlocks; j++) delete blockGraph_[i][j];
@@ -97,10 +97,43 @@ dft_SolverManager::~dft_SolverManager() {
 }
 
 //=============================================================================
-dft_SolverManager::finalizeBlockStructure() {
+int dft_SolverManager::finalizeBlockStructure() {
   
   // initialize graphs 
   for (int i=0; i<numBlocks; i++; i++)
     for (int j=0; j<numBlocks; j++) blockGraph_[i][j] = new Epetra_Graph(Copy, rowMap_[i], colMap_[j], 0);
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::finalizeGraphStructure() {
   
+  // finalize graphs and optimize their storage, initialize matrix structure
+  for (int i=0; i<numBlocks; i++; i++)
+    for (int j=0; j<numBlocks; j++) {
+      EPETRA_CHK_ERR(blockGraph_[i][j]->FillComplete());
+      EPETRA_CHK_ERR(blockGraph_[i][j]->OptimizeStorage());
+      blockMatrix_[i][j] = new Epetra_CrsMatrix(Copy, blockGraph_[i][j]);
+      EPETRA_CHK_ERR(blockMatrix_[i][j]->OptimizeStorage());
+    }
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::initializeMatrixFill() {
+  
+  // Zero out matrix values
+  for (int i=0; i<numBlocks; i++; i++)
+    for (int j=0; j<numBlocks; j++) {
+      EPETRA_CHK_ERR(blockMatrix_[i][j]->PutScalar(0.0));
+    }
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::finalizeMatrixFill() {
+  
+  // Perform book-keeping after all values submitted
+  for (int i=0; i<numBlocks; i++; i++)
+    for (int j=0; j<numBlocks; j++) {
+      EPETRA_CHK_ERR(blockMatrix_[i][j]->FillComplete());
+    }
+  return(0);
 }
