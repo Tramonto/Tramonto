@@ -60,7 +60,6 @@ void fill_resid_and_matrix_control (double *x, double *resid,
               if (Type_poly != -1)
                  fill_resid_and_matrix_P(x,resid,NULL,fill_time,Matrix_fill_flag,iter,resid_only_flag,i);
               else{
-                 printf("iunk=%d  x[10]=%9.6f\n",i,x[10]);
                  fill_resid_and_matrix(x,resid,NULL,fill_time,Matrix_fill_flag,iter,resid_only_flag,i);
               }
            }

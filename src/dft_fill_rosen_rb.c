@@ -1023,17 +1023,23 @@ static struct RB_Struct d2phi_drb2_theta_rb(int loc_j, int jnode_box,double *x,d
   struct RB_Struct tmp;
   double rb0, rb1, rb2, rb3, rb1v[NDIM_MAX], rb2v[NDIM_MAX];
   double inv_one_m_rb3, inv_one_m_rb3_sq, inv_one_m_rb3_3rd, inv_one_m_rb3_4th;
-  int idim;
+  int idim,loc_js,loc_jv;
 
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN],jnode_box,BOX);
   rb3 = x[B2L_unknowns[loc_j]];
-  rb2 = x[B2L_unknowns[loc_j+1]];
-  rb1 = x[B2L_unknowns[loc_j+2]];
-  rb0 = x[B2L_unknowns[loc_j+3]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+1,jnode_box,BOX);
+  rb2 = x[B2L_unknowns[loc_js]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+2,jnode_box,BOX);
+  rb1 = x[B2L_unknowns[loc_js]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+3,jnode_box,BOX);
+  rb0 = x[B2L_unknowns[loc_js]];
   
   if (Matrix_fill_flag != 4)
      for (idim = 0; idim<Ndim; idim++) {
-       rb2v[idim] = x[B2L_unknowns[loc_j+4+idim]];   
-       rb1v[idim] = x[B2L_unknowns[loc_j+4+Ndim+idim]];
+       loc_jv=loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_box,BOX);
+       rb2v[idim] = x[B2L_unknowns[loc_jv]];   
+       loc_jv=loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_box,BOX);
+       rb1v[idim] = x[B2L_unknowns[loc_jv]];
      }
   else{
     for (idim = 0; idim<Ndim; idim++) {
@@ -1085,18 +1091,24 @@ static struct RB_Struct d2phi_drb2_theta2_rb(int loc_j, int jnode_box,double *x,
   struct RB_Struct tmp;
   double rb0, rb1, rb2, rb3, rb1v[NDIM_MAX], rb2v[NDIM_MAX];
   double inv_one_m_rb3, inv_one_m_rb3_sq, inv_one_m_rb3_3rd, inv_one_m_rb3_4th;
-  int idim;
+  int idim,loc_js,loc_jv;
   double DOT_rho22,DOT_rho12,alpha,alpha_sq,alpha_cb,beta,gamma[3];
 
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN],jnode_box,BOX);
   rb3 = x[B2L_unknowns[loc_j]];
-  rb2 = x[B2L_unknowns[loc_j+1]];
-  rb1 = x[B2L_unknowns[loc_j+2]];
-  rb0 = x[B2L_unknowns[loc_j+3]];
-  
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+1,jnode_box,BOX);
+  rb2 = x[B2L_unknowns[loc_js]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+2,jnode_box,BOX);
+  rb1 = x[B2L_unknowns[loc_js]];
+  loc_js = loc_find(Unk_start_eq[RHOBAR_ROSEN]+3,jnode_box,BOX);
+  rb0 = x[B2L_unknowns[loc_js]];
+
   if (Matrix_fill_flag != 4)
      for (idim = 0; idim<Ndim; idim++) {
-       rb2v[idim] = x[B2L_unknowns[loc_j+4+idim]];   
-       rb1v[idim] = x[B2L_unknowns[loc_j+4+Ndim+idim]];
+       loc_jv=loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_box,BOX);
+       rb2v[idim] = x[B2L_unknowns[loc_jv]];   
+       loc_jv=loc_find(Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_box,BOX);
+       rb1v[idim] = x[B2L_unknowns[loc_jv]];
      }
   else{
     for (idim = 0; idim<Ndim; idim++) {
