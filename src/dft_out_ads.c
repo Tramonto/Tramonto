@@ -121,13 +121,14 @@ double calc_adsorption(FILE *fp,double *x,double fac_area,double fac_vol)
      if (first){
        for (icomp=0;icomp<Ncomp; icomp++) fprintf(fp,"ads[%d]=%9.6f ",icomp,Ads[icomp][i]);
        for (icomp=0;icomp<Ncomp; icomp++) fprintf(fp,"ads_ex[%d]=%9.6f ",icomp,Ads_ex[icomp][i]);
-       fprintf(fp," area=%9.4f fac_area=%9.4f fac_vol=%9.4f",area,fac_area,fac_vol);
+       fprintf(fp," vol_in_surfs=%9.6f  area=%9.4f fac_area=%9.4f fac_vol=%9.4f",
+                 Vol_in_surfs[Nlists_HW-1],area,fac_area,fac_vol);
        first=FALSE;
      }
      else{
        for (icomp=0;icomp<Ncomp; icomp++) fprintf(fp,"%9.6f ",Ads[icomp][i]);
        for (icomp=0;icomp<Ncomp; icomp++) fprintf(fp,"%9.6f ",Ads_ex[icomp][i]);
-       fprintf(fp," %9.4f %9.4f %9.4f",area,fac_area,fac_vol);
+       fprintf(fp," %9.4f %9.4f %9.4f %9.4f",Vol_in_surfs[Nlists_HW-1],area,fac_area,fac_vol);
      }
    }
 

@@ -538,6 +538,8 @@ extern
 double  Vol_el;          /* Volume of one element of our regular mesh        */
 extern
 double  Area_surf_el[3]; /*Area of surface element with normal in idim direction*/
+extern
+double Vol_in_surfs[NCOMP_MAX];  /* volume in all of the surfaces for each list */
 extern  
 int     Nlists_HW;       /* Number of lists needed if hard walls (for mixtures)*/
 extern

@@ -274,6 +274,10 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag)
       count_check_bc,count_check_bc_all;
 
   char *output_TF="dft_zeroTF.dat";
+
+  int *comm_icount_proc, *comm_offset_icount;
+
+  int ntot_per_list,ntot_per_list_all_procs,*el_tmp,*elems_w_per_w_proc_0_tmp,ncount;
   
   reflect_flag[0]=reflect_flag[1]=reflect_flag[2] = FALSE;
 
@@ -305,9 +309,8 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag)
         depends on the presence of discontinuities in the
         density profile. */
 
-     Nlists_HW = 1;
+     Nlists_HW = 2;
      if (Lhard_surf && Ipot_ff_n != IDEAL_GAS){
-        Nlists_HW = 2;
         if (Ncomp > 1){
            sigma_test = Sigma_ff[0][0];
            flag = FALSE;
@@ -379,9 +382,76 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag)
          setup_surface(fp1,nelems_f, nelems_w_per_w, elems_f,
                                    elems_w_per_w,elem_zones,
                                    fast_fill_elem_TF,el_type);
+
+         /* gather the elems_w_per_w array into a global list of wall elements on processor zero */
+         /* first gather and sum the nelems_w_per_w on processor zero -- this gives a maximum possible number of wall elements */
+         /* to do --- every processor - loop through list - convert box unit elements to global elements */
+         /* pass the global wall element array to processor zero.  For each entry in the passed array - proc 0 must look 
+            for matches with other processor and discard duplicates - alternatively, we could allocate a global array, copy
+            all versions into this global array and then cound the wall element entries. */
+
+
+          for (ilist=0;ilist<Nlists_HW;ilist++){
+             Vol_in_surfs[ilist]=0.0;
+
+             ntot_per_list=0;
+             for (iwall=0;iwall<Nwall;iwall++){
+                 ntot_per_list+=nelems_w_per_w[ilist][iwall];
+             }
+
+             ntot_per_list_all_procs=AZ_gsum_int(ntot_per_list,Aztec.proc_config);
+             if (Proc==0){
+                  elems_w_per_w_proc_0_tmp  =(int *) array_alloc(1, ntot_per_list_all_procs, sizeof(int));
+             }
+             el_tmp  =(int *) array_alloc(1, ntot_per_list, sizeof(int));
+
+             j=0;
+             for (iwall=0;iwall<Nwall;iwall++) 
+                for (i=0;i<nelems_w_per_w[ilist][iwall];i++){
+                     el_tmp[j]=el_box_to_el(elems_w_per_w[ilist][i][iwall]);
+                     j++;
+                }
+
+             comm_icount_proc = (int *) array_alloc (1, Num_Proc, sizeof(int));
+             comm_offset_icount = (int *) array_alloc (1, Num_Proc, sizeof(int));
+ 
+             MPI_Gather(&j,1,MPI_INT,comm_icount_proc,1,MPI_INT,0,MPI_COMM_WORLD);
+
+             if (Proc == 0){
+                comm_offset_icount[0] = 0;
+                for (i=1; i<Num_Proc; i++)
+                   comm_offset_icount[i] = comm_offset_icount[i-1] + comm_icount_proc[i-1];
+             }   
+
+             MPI_Gatherv(el_tmp,ntot_per_list,MPI_INT,
+                         elems_w_per_w_proc_0_tmp,comm_icount_proc,comm_offset_icount,
+                         MPI_INT,0,MPI_COMM_WORLD);
+
+             safe_free((void *) &comm_icount_proc);     
+             safe_free((void *) &comm_offset_icount);
+
+             if (Proc==0){
+                 ncount=ntot_per_list_all_procs; /*(start out assuming all entries are unique)*/
+                 for (i=1;i<ntot_per_list_all_procs;i++){
+                    j=0;
+                                                          /* increment j if no match is found */
+                    while (j<i && elems_w_per_w_proc_0_tmp[i]!=elems_w_per_w_proc_0_tmp[j]){j++;} 
+                    if (j != i) ncount--;  /* deincrement the counter if there was a match */
+                 }
+                 safe_free((void *) &elems_w_per_w_proc_0_tmp);
+             }
+             safe_free((void *) &el_tmp);
+             if (Proc==0){
+                  Vol_in_surfs[ilist]+=(double)ncount*Vol_el;
+                  if (Iwrite != NO_SCREEN) printf("total volume in surfaces for ilist=%d is %9.6f (%d elements)\n",
+                         ilist,Vol_in_surfs[ilist],ncount);
+             }
+          }
+
      }
 
-     if (Num_Proc>1) MPI_Barrier(MPI_COMM_WORLD);
+/*     if (Num_Proc>1) MPI_Barrier(MPI_COMM_WORLD);*/
+
      if (Imain_loop == 0 && Proc ==0){
         fprintf (fp1,"\n---------------------------------------------------------------\n");
         fprintf (fp1, " Have set up elements for the  selected surface geometry\n");
@@ -1218,11 +1288,14 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
       iel, idim, ilist, loc_node_el,
       inode,inode_box,iel_box,icomp, iside,
       periodic_flag,wall_flag,jwall;
- int *n_el_in_box, *countw;
+ int n_el_in_box, *countw_per_w,*countw_per_list,*countw_per_link;
+ int *counted_list,*counted_link;
  int test,all_equal,ijk[3], reflect,count,*els_one_owner,i;
  int dim_reflect[3],ndim_reflect,wall_chk; 
  int link_chk,ilink;
  int jw,index,index_w,turn_off;
+ double node_pos[3];
+ FILE *fp11,*fp12;
 
  Nodes_2_boundary_wall = (int **) array_alloc(2, Nlists_HW, Nnodes_box, sizeof(int));
  Zero_density_TF = (int **) array_alloc (2, Nnodes_box,Ncomp+1,sizeof(int));
@@ -1262,9 +1335,15 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
      }*/
 
  n_fluid_els = (int *) array_alloc (1, Nwall*Nlists_HW, sizeof(int));
- n_el_in_box = (int *) array_alloc (1, Nwall*Nlists_HW, sizeof(int));
  els_one_owner = (int *) array_alloc (1, Nnodes_per_el_V, sizeof(int));
- countw = (int *) array_alloc (1, Nwall*Nlists_HW,sizeof(int));
+/* keep track for each wall and each list */
+ countw_per_w = (int *) array_alloc (1, Nwall*Nlists_HW,sizeof(int));
+/* keep track for each list but be blind to the particular wall */
+ countw_per_list = (int *) array_alloc (1, Nlists_HW,sizeof(int));
+ counted_list = (int *) array_alloc (1, Nlists_HW,sizeof(int));
+/* keep track for each linked wall and each list */
+ countw_per_link = (int *) array_alloc (1, Nlink*Nlists_HW,sizeof(int));
+ counted_link = (int *) array_alloc (1, Nlink*Nlists_HW,sizeof(int));
 
  /* 
   * loop over all nodes in the box coordinates of this processor
@@ -1279,22 +1358,26 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
 
     for (index_w=0; index_w<Nwall_touch_node[index]; index_w++){
        n_fluid_els[index_w] = 0;
-       n_el_in_box[index_w] = 0;
-       countw[index_w]=0;
+       countw_per_w[index_w]=0;
     }
+    for (ilist=0;ilist<Nlists_HW;ilist++){
+         countw_per_list[ilist]=0;
+         for (ilink=0;ilink<Nlink;ilink++) countw_per_link[ilist+Nlists_HW*ilink]=0;
+    }
+    n_el_in_box=0; 
 
     for (loc_node_el=0; loc_node_el<Nnodes_per_el_V ; loc_node_el++){
-   
        iel = node_to_elem_return_dim(inode, loc_node_el,reflect_flag,
                                      &idim,&iside,&periodic_flag);
-       if (iel >= 0) 
-	 {
-	   iel_box = el_to_el_box(iel); 
-	 }
-       else
-	 {
-  	   iel_box = 0;
-	 }
+       if (iel >= 0) iel_box = el_to_el_box(iel); 
+       else iel_box = 0;
+
+       if (iel_box>=0 || iel==-2 || iel==-1) n_el_in_box++;
+
+       for (ilist=0;ilist<Nlists_HW; ilist++){
+              counted_list[ilist]=FALSE;
+             for (ilink<0;ilink<Nlink;ilink++) counted_link[ilist+Nlists_HW*ilink]=FALSE;
+       }
 
        for (index_w=0; index_w<Nwall_touch_node[index]; index_w++){
          iwall=Wall_touch_node[index][index_w];
@@ -1303,29 +1386,44 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
           if (iel >= 0){
 
             if (iel_box >= 0) {
-               n_el_in_box[index_w]++;
                if (el_type[iwall][ilist][iel_box] == FLUID_EL) n_fluid_els[index_w]++;
+               else{
+                    countw_per_w[index_w]++;
+                    if (!counted_list[ilist]){
+                          countw_per_list[ilist]++;
+                          counted_list[ilist]=TRUE;
+                    }
+                    if (!counted_link[ilist+Nlists_HW*Link[iwall]]){
+                         countw_per_link[ilist+Nlists_HW*Link[iwall]]++;
+                         counted_link[ilist+Nlists_HW*Link[iwall]]=TRUE;
+                    }
+               }
 
-               wall_flag = FALSE;
+/*               wall_flag = FALSE;
                for (jw=0; jw<Nwall_touch_node[index]; jw++){
                  if (ilist==List_wall_node[index][jw]){
                    jwall=Wall_touch_node[index][jw];
                    if (el_type[jwall][ilist][iel_box] == WALL_EL) wall_flag = TRUE;
                  }
                }
-               if (wall_flag) countw[index_w]++;
+               if (wall_flag) countw[index_w]++;*/
             }
 
           }
-          else if (iel == -2){
+          else if (iel == -2){        /* this indicates a bulk fluid boundary */
              n_fluid_els[index_w]++;
-             n_el_in_box[index_w]++;  /*i.e. we know what is beyond this boundary */
           }
-          else if (iel == -1){
-             /* find if iwall touches boundary */
+          else if (iel == -1){         /* indicates an semi-infinite surface boundary */
              if (Touch_domain_boundary[iwall][ilist][idim][iside]){
-                n_el_in_box[index_w]++;  
-                countw[index_w]++;
+                countw_per_w[index_w]++;
+                if (!counted_list[ilist]){
+                      countw_per_list[ilist]++;
+                      counted_list[ilist]=TRUE;
+                }
+                if (!counted_link[ilist+Nlists_HW*Link[iwall]]){
+                     countw_per_link[ilist+Nlists_HW*Link[iwall]]++;
+                     counted_link[ilist+Nlists_HW*Link[iwall]]=TRUE;
+                }
              }
           }
 
@@ -1333,17 +1431,23 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
     }     /* end of loop over elements that touch a given node */
 
 
-    /* if any one wall owns all the elements around a given 
-       node, the number of fluid elements is zero for all
-       walls with the same list number. */
-    for (index_w=0; index_w<Nwall_touch_node[index]; index_w++){
-        ilist=List_wall_node[index][index_w];
-        if (countw[index_w]==Nnodes_per_el_V) {
-          for (jw=0; jw<Nwall_touch_node[index]; jw++) 
-             if (ilist==List_wall_node[index][jw]) n_fluid_els[jw]=0;
-        }
+    /* in the case where n_el_in_box==Nnodes_per_el_V...
+         if (i) any one wall or (ii) any linked wall or (iii) any list has all walls
+         in the absence of hard surfaces then ...
+       the number of fluid elements is zero for all walls that touch this node
+       and have the same list number*/
+    if (n_el_in_box==Nnodes_per_el_V){
+       for (index_w=0; index_w<Nwall_touch_node[index]; index_w++){
+           ilist=List_wall_node[index][index_w];
+           iwall=Wall_touch_node[index][index_w];
+           if (countw_per_w[index_w]==Nnodes_per_el_V || 
+               countw_per_list[ilist]==Nnodes_per_el_V ||
+               countw_per_link[ilist+Nlists_HW*Link[iwall]]==Nnodes_per_el_V){ 
+               for (jw=0; jw<Nwall_touch_node[index]; jw++) 
+                    if (ilist==List_wall_node[index][jw]) n_fluid_els[jw]=0;
+           }
+       }
     }
-
 
     /* Now set up the Nodes_2_boundary_wall array */
 
@@ -1360,7 +1464,7 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
             }
         }
 
-        else if (n_fluid_els[index_w] != n_el_in_box[index_w]) {
+        else if ((n_fluid_els[index_w] != n_el_in_box) /*&& n_fluid_els[index_w]>0*/) {
             Nodes_2_boundary_wall[ilist][inode_box] = Wall_touch_node[index][index_w]; 
         }
     }
@@ -1467,6 +1571,21 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
 
  }        /* End of loop over nodes in local box coordinates */
 
+  if (Num_Proc==1){
+     fp11 = fopen("bound_wf.dat","w+");
+     fp12 = fopen("bound_ww.dat","w+");
+     ilist=1;
+     for (inode_box=0; inode_box<Nnodes_box; inode_box++){
+        inode=B2G_node[inode_box];
+        node_to_position(inode,node_pos);
+        if (Nodes_2_boundary_wall[ilist][inode_box] >=0 && fabs(node_pos[2]-Esize_x[2]/2)<1.e-6) 
+             fprintf(fp11," %9.6f  %9.6f  %9.6f  %d  %d \n",node_pos[0],node_pos[1],node_pos[2],Proc,inode_box);
+        else if (Nodes_2_boundary_wall[ilist][inode_box] == -2 && node_pos[2]<1.e-6) 
+             fprintf(fp12," %9.6f  %9.6f  %9.6f\n",node_pos[0],node_pos[1],node_pos[2]);
+     }
+     fclose(fp11);
+     fclose(fp12);
+   }
 
  if (Imain_loop==0 && Proc==0 && Iwrite==VERBOSE) {
     fprintf (fp1,"\n---------------------------------------------------------------\n");
@@ -1486,10 +1605,11 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
  } 
 
  safe_free((void *) &n_fluid_els);
- safe_free((void *) &n_el_in_box);
  safe_free((void *) &Touch_domain_boundary);
  safe_free((void *) &els_one_owner);
- safe_free((void *) &countw);
+ safe_free((void *) &countw_per_w);
+ safe_free((void *) &countw_per_list);
+ safe_free((void *) &countw_per_link);
 
  return;
 }
@@ -1503,7 +1623,7 @@ void boundary_properties(FILE *fp1)
   int norm,ilist,loc_inode,iwall,i,j,*iel,idim,inode,iel_s,
       loc_node_el,reflect_flag[3], ijk[3],inode_box,surf_norm,
       sum[3],sum_all[3],*iel_box,flag,el,type,normal;
-  double  s_area_tot_proc,esize1=1.0,esize2=1.0;
+  double  s_area_tot_proc,esize1=1.0,esize2=1.0,sarea_sum;
   int test,all_equal,reflect,count,*els_one_owner;
   int dim_reflect[3],ndim_reflect,ielement,ielement_box; 
   int flag_fluid;
@@ -2025,13 +2145,16 @@ void boundary_properties(FILE *fp1)
   if (Proc == 0 && Imain_loop>=0) {
      for (ilist=0; ilist<Nlists_HW; ilist++){
         fprintf (fp1,"\nilist: %d\n",ilist); 
+        sarea_sum=0.0;
         for (iwall=0; iwall<Nwall; iwall++){
             fprintf (fp1,"\t iwall: %d \t S_area_tot[ilist][iwall]: %9.6f\n",
                                             iwall, S_area_tot[ilist][iwall]); 
+            sarea_sum += S_area_tot[ilist][iwall];
             for (idim=0; idim<Ndim; idim++)
                  fprintf (fp1,"\t\t idim: %d \t S_area[ilist][iwall][idim]: %9.6f\n",
                                                   idim, S_area[ilist][iwall][idim]); 
        }
+            fprintf (fp1,"\t total of walls: %d \t sarea_sum=%9.6f\n", ilist, sarea_sum);
      }
   }
   if (Proc ==0 && Imain_loop >=0) 

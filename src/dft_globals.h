@@ -86,6 +86,7 @@ int *Comm_offset_unk;  /* array on proc 0 of offsets of unknowns MPI_Gatherv*/
 
 /************** Other ***************************************/
 double  Vol_el;          /* Volume of one element of our regular mesh        */
+double Vol_in_surfs[NCOMP_MAX]; /* volume in all the surfaces of each list */
 double  Area_surf_el[3];  /* Area of surface element w/ normal in direction idim*/
 int     Nlists_HW;       /* Number of lists needed if hard walls (for mixtures)*/
 int     Nel_wall_count;  /* Number of elements in the 0.5sigma of wall:rhobars*/

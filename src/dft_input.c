@@ -70,8 +70,7 @@ void read_input_file(char *input_file, char *output_file1)
   /********************** BEGIN EXECUTION ************************************/
 
   if (Proc==0) {
-     printf("\n-----------------------------------------------------------------------\n");
-     printf("%s: Reading input file %s and copying to %s\n",yo, input_file,output_file1);
+     printf("\n-----------------STARTING DFT CALCULATION----------------------------\n");
   }
   /* Read in the Mesh, Surface, Potential Type, Fluid Particle, 
      Surface Particle, State Point, Functional, and Run Control Parameters.
@@ -349,7 +348,6 @@ void read_input_file(char *input_file, char *output_file1)
        fscanf(fp3,"%lf",&Elec_param_w[iwall]);
        charge_sum+=Elec_param_w[iwall];
        } 
-       printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
        /*for (idim=0; idim<Ndim; idim++) printf("\n idim: %d min pos: %9.6f max pos %9.6f \n",idim,minpos[idim],maxpos[idim]);*/
        if (Lauto_center){
          for (iwall=0; iwall<Nwall; iwall++)
@@ -1448,6 +1446,7 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(&Iwrite,1,MPI_INT,0,MPI_COMM_WORLD);
 
+  if (Proc==0 && Iwrite !=NO_SCREEN) printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
   /* COARSENING Switches */
 
   if (Proc==0) {

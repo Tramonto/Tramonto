@@ -327,7 +327,7 @@ void find_wall_images(int idim,
 void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
              int **nelems_w_per_w, int ***elems_w_per_w, int ***el_type)
 {
-   int ijk[3],idim,nadd,i,new_wall,new_entry;
+   int ijk[3],idim,nadd,i,new_wall,new_entry,diff_wall;
    int imax[3],ix[3],iw,ijk_box[3],inode_box,inode_tmp_box,ijk_tmp_box[3],index;
    imax[0]=imax[1]=imax[2]=1;
 
@@ -353,6 +353,7 @@ void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
       /* flag cases where a given wall touches the domain boundary - need
          to do some special things if we touch a reflective boundary */
       node_to_ijk(inode,ijk);
+
       for (idim=0; idim<Ndim; idim++){
       if (ijk[idim] == 0 && !Touch_domain_boundary[iwall][ilist][idim][0]) 
                        Touch_domain_boundary[iwall][ilist][idim][0] = TRUE;
@@ -401,7 +402,6 @@ void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
                   Wall_touch_node[index][Nwall_touch_node[index]]=iwall;
                   List_wall_node[index][Nwall_touch_node[index]++]=ilist;
              }
-
           }
         }
       }
@@ -659,11 +659,30 @@ void els_atomic_centers(int iwall, int real_wall,int itype, int **L_wall, double
 
    for (ilist=0; ilist<Nlists_HW; ilist++){
 
+       if (Lhard_surf){ 
+          radius = 0.5*Sigma_ww[itype][itype];
+          if (ilist != Nlists_HW-1 && (Type_func >=0 || Type_poly >=0) )  
+                   radius += 0.5*Sigma_ff[ilist][ilist];
+       }
+       else{
+         if (ilist==0){
+            rsq = 0.0;
+            for (idim=0; idim<Ndim; idim++) rsq += Esize_x[idim]*Esize_x[idim];
+            radius = sqrt(rsq);
+         }
+         else{
+            /* this will be used for the proper computation of surface area for LJ atomic systems */
+            radius = 0.5*Sigma_ww[itype][itype]+0.5*Sigma_ff[ilist][ilist];
+         }
+       }
+       radius -= roff; /* adjust for round-off errors */
+
       for (iel_box = 0; iel_box < Nelements_box; iel_box++){
 
          iel=el_box_to_el(iel_box);
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
+
 
          switch(Ndim)   /* xtest = position at center of element */
          {
@@ -671,20 +690,7 @@ void els_atomic_centers(int iwall, int real_wall,int itype, int **L_wall, double
             case 2:  xtest[1] = node_pos[1] + 0.5*Esize_x[1];
             default: xtest[0] = node_pos[0] + 0.5*Esize_x[0];   
          }
-  
-         if (Lhard_surf){ 
-            radius = 0.5*Sigma_ww[itype][itype];
-            if (ilist != Nlists_HW-1 && (Type_func >=0 || Type_poly >=0) )  
-                     radius += 0.5*Sigma_ff[ilist][ilist];
-         }
-         else{
-          rsq = 0.0;
-          for (idim=0; idim<Ndim; idim++) rsq += Esize_x[idim]*Esize_x[idim];
-          radius = sqrt(rsq);
-         }
-
-         radius -= roff; /* adjust for round-off errors */
-
+ 
          r12_sq_sum = 0.0;
          for (idim = 0; idim < Ndim; idim++) {
             dx =  xtest[idim] -  image_pos[iwall][idim];
@@ -692,9 +698,10 @@ void els_atomic_centers(int iwall, int real_wall,int itype, int **L_wall, double
          }
          r12 = sqrt(r12_sq_sum);
 
-         if (r12 <= radius ) 
+         if (r12 <= radius ) {
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
+         }
          else{
              /* in fluid ... flag slow fill regions */
               if (Lhard_surf && r12 <= radius + sten)
