@@ -54,7 +54,7 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
 
   Epetra_MpiComm comm(MPI_COMM_WORLD);
   Epetra_Time timer(comm);
-  bool debug = true;
+  bool debug = false;
 
   int nnodes = N_update/Nunk_per_node;
   assert(nnodes*Nunk_per_node==N_update); // Make sure there is a constant number of unknowns per node
@@ -183,10 +183,10 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
     A->FillComplete();
   A12->FillComplete(RowMap2, RowMap1);
   A21->FillComplete(RowMap1, RowMap2);
-  A11->OptimizeStorage();
-  A12->OptimizeStorage();
-  A21->OptimizeStorage();
-  A22->OptimizeStorage();
+  //A11->OptimizeStorage();
+  //A12->OptimizeStorage();
+  //A21->OptimizeStorage();
+  //A22->OptimizeStorage();
 
   if (debug) assert(A11->LowerTriangular());
   dft_schur_solver_comp_invA11((void *) A11); // change sign on off-diagonal values of A11
@@ -216,7 +216,7 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
 void dft_update_schur_solver(int * bindx, double * val, int * update_index,
 			     DFT_SCHUR_SOLVER * schur_solver) {
 
-  bool debug = true;
+  bool debug = false;
 
   Epetra_CrsMatrix * A11 = (Epetra_CrsMatrix *) schur_solver->A11;
   Epetra_CrsMatrix * A12 = (Epetra_CrsMatrix *) schur_solver->A12;
@@ -274,7 +274,7 @@ void dft_update_schur_solver(int * bindx, double * val, int * update_index,
 
 void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, int * update_index, double * x_aztec, double * b_aztec) {
 
-  bool debug = true;
+  bool debug = false;
 
   Epetra_CrsMatrix * A11 = (Epetra_CrsMatrix *) schur_solver->A11;
   Epetra_CrsMatrix * A12 = (Epetra_CrsMatrix *) schur_solver->A12;
@@ -352,8 +352,9 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, int * update_index,
   Epetra_LinearProblem problem(&op, &x2, &b2s);
   AztecOO solver(problem);
   solver.SetPrecMatrix(A22);
-  solver.SetAztecOption(AZ_precond, AZ_Jacobi);
-  solver.Iterate(200, 1.0E-7);
+  solver.SetAztecOption(AZ_precond, AZ_none);
+  solver.SetAztecOption(AZ_output, 10);
+  solver.Iterate(13, 1.0E-3);
 
   op.ComputeX1(b1, x2, x1);
   
@@ -396,7 +397,7 @@ void dft_schur_solver_comp_invA11(void * A11v) {
 }
 void dft_destroy_schur_solver(DFT_SCHUR_SOLVER ** schur_solver) {
 
-  bool debug = true;
+  bool debug = false;
   Epetra_CrsMatrix * A11 = (Epetra_CrsMatrix *) (*schur_solver)->A11;
   Epetra_CrsMatrix * A12 = (Epetra_CrsMatrix *) (*schur_solver)->A12;
   Epetra_CrsMatrix * A21 = (Epetra_CrsMatrix *) (*schur_solver)->A21;
