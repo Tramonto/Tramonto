@@ -179,7 +179,6 @@ void post_process (double *x_internal,char *output_file3,int *niters,
       fclose(fp);
    }
 
-/*   if (Ndim == 2 && Iwrite == RHO_AVS) make_avs_file(x);*/
    safe_free((void *) &x);
 
 /*   if (Iwrite) print_time_histogram(Hist_time,niters);*/

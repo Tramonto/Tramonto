@@ -21,24 +21,8 @@
 #include "dft_globals.h"
 #include "rf_allo.h"
 /*****************************************************************************/
-/* if dftnormal is 0 then compile for a library */
-/* if dftnormal is 1 then compile as stand alone code */
-#define DFTNORMAL 1
-/*****************************************************************************/
 void continuation_shift();
 void dftmain(double *);
-
-#if DFTNORMAL
-int main(int argc, char* argv[])
-{
-  int i;
-  double dumb;
-  MPI_Init( &argc , &argv );
-/*  for (i=0; i<1000; i++)*/ dftmain(&dumb);
-  MPI_Finalize();
-  return(1);
-}
-#endif
 
 void dftmain(double * engptr)
 

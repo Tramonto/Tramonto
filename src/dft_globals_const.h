@@ -1212,7 +1212,6 @@ extern int  element_to_node(int);
 extern int  element_box_to_node_box(int);
 extern void element_to_nodes(int,int *);
 extern void boundary_condition (int *);
-extern void print_avs(double *);
 extern void setup_surface(FILE *,int *, int **, int **, int ***, int *,int*,int ***);
 extern int  node_to_elem(int, int, int *);
 extern int  node_to_elem_return_dim(int, int, int *,int *, int *,int *);
@@ -1267,7 +1266,6 @@ extern void setup_integrals(void);
    read all prototypes from the dft_*.c files to verify 
    that all routines are called with the correct signature
 */
-#include "include/dft_avs.h"   
 #include "include/dft_fill_shared.h"
 #include "include/dft_out_energy.h"
 #ifdef PARALLEL
@@ -1288,7 +1286,6 @@ extern void setup_integrals(void);
 #include "include/dft_out_profiles.h"
 #include "include/dft_fill_msr.h"
 #include "include/dft_mesh.h"       
-#include "include/dft_postavs.h"
 #include "include/dft_fill_pde.h"
 #include "include/dft_mesh_lib.h"
 #include "include/dft_quadratue.h"

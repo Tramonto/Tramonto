@@ -481,11 +481,6 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
   *    gather_global_vec(fill_time , index, Nnodes_per_proc, time_global);
   *    gather_global_vec(proc_store, index, Nnodes_per_proc, proc_global);
  *
-  *    if (Proc == 0){
-  *         print_avs(time_global);
-  *         print_avs(proc_global);
-  *    }
-
   *    safe_free((void *) &index);
   *    safe_free((void *) &proc_store);
   *    if (Proc == 0) {

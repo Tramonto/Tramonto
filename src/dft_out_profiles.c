@@ -24,7 +24,6 @@
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 
-/*void make_avs_file(double *);*/
 /*******************************************************************************
 collect_x_old: This gathers all of the densities into X_old.               */ 
 
@@ -916,48 +915,3 @@ void print_time_histogram(int *hist,int *niters)
    return;
 }
 /****************************************************************************/
-/*make_avs_file:  Collect the x array on processor 0, and then print the avs file
-
-void make_avs_file(double *x)
-{
-  int *index;
-  double *solution,*soln_global=NULL,*unks_global=NULL;
-  int inode,loc_inode,iunk,loc_i;
-
-  index = (int *) array_alloc (1, Nnodes_per_proc, sizeof(int));
-  solution = (double *) array_alloc (1, Nnodes_per_proc, sizeof(double));
-
-  if (Proc == 0){
-       soln_global = (double *) array_alloc (1, Nnodes, sizeof(double));
-       unks_global = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
-  }
-
-  for (iunk = 0; iunk < Nunk_per_node; iunk++){
-     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-        inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
-        index[loc_inode] = inode;
-        loc_i = Aztec.update_index[iunk + Nunk_per_node * loc_inode];
-        solution[loc_inode] = x[loc_i];
-     }
-
-     if (Proc == 0){
-       for (inode=0; inode<Nnodes; inode++) soln_global[inode] = 0.0;
-     }
-
-     gather_global_vec(solution, index, Nnodes_per_proc, soln_global);
-
-     if (Proc == 0)  print_avs(soln_global);
-
-  }
-
-
-  safe_free((void *) &index);
-  safe_free((void *) &solution);
-  if (Proc == 0) {
-       safe_free((void *) &soln_global);
-       safe_free((void *) &unks_global);
-  }
-  return;
-}
-*/
-
