@@ -1,0 +1,61 @@
+Special steps to build Tramonto on CYGWIN:
+
+1) Remove Tramonto/src/dft_globals_const.h from working copy (It was modified).
+2) cvs update from main Tramonto directory (among other things, it should give you the new
+   dft_global_const.h file).
+3) Edit dft_global_const.h and comment out the include of values.h (it's not needed).
+
+4) From the build directory (e.g., Tramonto/CYGWIN_MPI) 
+   execute the following configure invocation command:
+
+../configure --enable-cflags="-I/usr/MPICH/SDK.gcc/include" \
+--enable-ldflags="-L/home/mheroux/Tramonto/lib/CYGWIN_MPI/lib \
+-L/usr/MPICH/SDK.gcc/lib -lmpich -lg2c -lm"
+
+5) Type make (you will get up to dft_fill_pde.c)
+
+6) Since dft_fill_pde.c does not build properly, you need to compile it directly:
+
+cd src (now in Tramonto/CYGWIN_MPI/src)
+
+gcc -O -DRCB_LOAD_BALANCE -DPARALLEL -DML_MPI -I/usr/include \
+-I/usr/MPICH/SDK.gcc/include  -c -o \
+dft_fill_pde.o ../../src/dft_fill_pde.c
+
+cd .. (now in Tramonto/CYGWIN_MPI)
+
+7) Type make again to finish the build.
+
+8) The make process will complain about dft_unix being identical.  This final error can be ignored.
+
+That should be all that is needed.  The following text has a bit more information, sent to Rich Schiek, that 
+might be useful for further troubleshooting.
+
+Mike
+
+
+I have been able to build Tramonto under Cygwin/Windows, but with some difficulty.  The most challenging 
+problem was the compilation of dft_fill_pde.c.  For some reason the compile line did not insert 
+my --enable-cflags="-I/usr/MPICH/SDK.gcc/include" definition.  This was the only compiler command that 
+had this problem.
+
+Original command (won't compile because it can't find mpi.h):
+
+$ gcc -O -DRCB_LOAD_BALANCE -DPARALLEL -DML_MPI -I/usr/include \
+-c -o dft_fill_pde.o ../../src/dft_fill_pde.c
+
+Hand coded compile line (works because -I/usr/MPICH/SDK.gcc/include resolve mpi.h):
+
+gcc -O -DRCB_LOAD_BALANCE -DPARALLEL -DML_MPI -I/usr/include \
+-I/usr/MPICH/SDK.gcc/include  -c -o \
+dft_fill_pde.o ../../src/dft_fill_pde.c
+
+A couple of other issues:
+
+Cygwin did not like the cp of dft_unix to ../. at the very end of make, since the files were the same.
+
+The autotools version (1.6) appeared to be hard-coded in the configure script.  I had to manually 
+change that to 1.7 to get it to run.
+
+I have been able to run this on my Windows laptop with multiple MPI proceses.  Results appear to be reasonable.
+
