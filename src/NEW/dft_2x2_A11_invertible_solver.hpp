@@ -30,13 +30,14 @@
 class Epetra_Operator;
 class Epetra_Vector;
 class Epetra_Comm;
+#include"dft_2x2_schur_epetra_operator.hpp"
 #include "Epetra_Map.h"
 
 //! dft_2x2_A11_invertible_solver:  Solver for a 2 by 2 block system with A11 explicitly invertible via offdiagonal term negation.
 /*! Special solver for one important case of Tramonto.
   
 */
-class dft_2x2_A11_invertible_solver {
+class dft_2x2_A11_invertible_solve {
     
   public:
 
@@ -60,7 +61,8 @@ class dft_2x2_A11_invertible_solver {
      \param numBlocks (In) The number of physics blocks that will be handled by the solver manager.
      \param blockMatrix (In) 2-by-2 block of Epetra_CrsMatrix objects.
   */
-  updateMatrix(int numBlocks, Epetra_CrsMatrix *** blockMatrix);
+  updateMatrix(int numBlocks, Epetra_CrsMatrix *** blockMatrix)
+  {op_.UpdateBlocks(blockMatrix[1][1], blockMatrix[1][2], blockMatrix[2][1], blockMatrix[2][2]);}
   //@}
 
   //@{ \name Apply solver method.
@@ -69,8 +71,13 @@ class dft_2x2_A11_invertible_solver {
      \param blockRhs (In) 2 block of Epetra_Vector objects containing right hand side.
      \param blockLhs (InOut) 2 block of Epetra_Vector objects containing initial guess on entry, and solution on exit.
   */
-  apply(Epetra_Vector ** blockLhs, Epetra_Vector ** blockRhs);
+  solve(Epetra_Vector ** blockRhs, Epetra_Vector ** blockLhs);
   //@}
+
+private:
+  dft_2x2_schur_epetra_operator op_;
+  int numBlocks_;
+  Epetra_CrsMatrix *** blockMatrix_;
 
 
 #endif /* DFT_2X2_A11_INVERTIBLE_SOLVER_H */
