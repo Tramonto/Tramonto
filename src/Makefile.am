@@ -65,6 +65,10 @@ common_SOURCES= \
 	loca_util_const.h \
 	az_aztec.h \
 	az_aztec_defs.h \
+     dft_schur_solver.cpp \
+     dft_schur_solver.h \
+     dft_schur_epetra_operator.cpp \
+     dft_schur_epetra_operator.h \
 	$(srcdir)/include/dft_fill_msr.h \
 	$(srcdir)/include/dft_fill_shared.h  \
 	$(srcdir)/include/dft_main.h \
