@@ -61,6 +61,7 @@ Building Tramonto:
 
     and several custom parallel machines: 
         delmar  (Sandia National Labs, California Cplant) 
+        icc     (Institutional Comp. Cluster, Liberty, Shasta...)
         janus   (Sandia National Labs, ASCI Red) 
         ross    (Sandia National Labs, Cplant ross) 
         west    (Sandia National Labs, Cplant west)

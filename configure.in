@@ -6,7 +6,7 @@ dnl
 dnl Point autoconf to the source directory
 dnl
     AC_INIT(src/dft_main.c)
-    AM_INIT_AUTOMAKE( dft, 1.0 )
+    AM_INIT_AUTOMAKE( Tramonto, 1.0 )
     
 dnl
 dnl let autoconf know where other config scrips are
@@ -92,6 +92,10 @@ dnl
             then
                 host="west"
                 echo "Setting host to west"
+            elif test -d /apps/intel/mkl
+            then
+                host="icc"
+                echo "Setting host to icc"
             fi
         fi
     else
@@ -121,11 +125,11 @@ dnl
     LIBS="${LIBS} ${LIB_FLAGS}"
 
     dnl see if any extra c compiler flags were specified
-    AC_ARG_ENABLE( cflags, --enable-cflags=... use cflags flags ... with c compiler, C_FLAGS=$enableval, C_FLAGS="")
+    AC_ARG_ENABLE( cflags,   --enable-cflags=... use cflags flags ... with c compiler, C_FLAGS=$enableval, C_FLAGS="")
     CFLAGS="${CFLAGS} ${C_FLAGS}"
 
     dnl see if any extra fortran compiler flags were specified
-    AC_ARG_ENABLE( fflags, --enable-fflags=... use fflags flags ... with fortran compiler, F_FLAGS=$enableval, F_FLAGS="")
+    AC_ARG_ENABLE( fflags,   --enable-fflags=... use fflags flags ... with fortran compiler, F_FLAGS=$enableval, F_FLAGS="")
     FFLAGS="${FFLAGS} ${F_FLAGS}"
 
 
@@ -136,9 +140,16 @@ dnl so that they can build a serial version of Tramonto so that
 dnl ./config --enable-mpi or ./config --disable-serial  builds a parallel program
 dnl ./config --disable-mpi or ./config --enable-serial  builds a serial program
 dnl ./config defaults to an MPI parallel program
-    AC_ARG_ENABLE( mpi, --enable-mpi Build a parallel version of Tramonto using MPI. (default), PARALLEL_TYPE="MPI", PARALLEL_TYPE="SERIAL")
-    AC_ARG_ENABLE( serial, --enable-serial Build a nonparallel version of Tramonto., PARALLEL_TYPE="SERIAL", PARALLEL_TYPE="MPI")
+dnl
+dnl  this is disabled because Tramonto only supports parallel versions now
+dnl
+dnl  AC_ARG_ENABLE( mpi, --enable-mpi Build a parallel version of Tramonto using MPI. (default), PARALLEL_TYPE="MPI", PARALLEL_TYPE="SERIAL")
+dnl  AC_ARG_ENABLE( serial, --enable-serial Build a nonparallel version of Tramonto., PARALLEL_TYPE="SERIAL", PARALLEL_TYPE="MPI")
 
+dnl
+dnl find out if user has specified a special location for the mpi headers
+dnl
+    AC_ARG_ENABLE( mpi-include-dir, --enable-mpi-include-dir=... location of mpi header files (in -I format), MPI_INCLUDE_DIR=$enableval, MPI_INCLUDE_DIR="")
 dnl
 dnl find out if user wants to build a 32 bit version on SGI platforms
 dnl 64 bit builds are the default
@@ -157,6 +168,7 @@ dnl
             dnl pc-linux specific options
             MACHINE="LINUX"
             BUILD_MACHINE="intel_linux"
+            BUILD_MACHINE_SUFFIX=""
             FTOCLIBS="-lg2c"
             TRAMONTO_CFLAGS="-O2 -malign-double -Wall"
             TRAMONTO_LDFLAGS=""
@@ -168,10 +180,22 @@ dnl
             TRILINOS_ARCH_F77FLAGS="-O"
             TRILINOS_ARCH_INCLUDES=""
         ;;
+	*-*-cygwin*)
+            MACHINE="WINTEL"
+            BUILD_MACHINE="cygwin"
+            BUILD_MACHINE_SUFFIX=".exe"
+            FTOCLIBS=""
+            TRAMONTO_CFLAGS="-O"
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            # MPI_INCLUDE_DIR=""
+            FFLAGS="-O ${FFLAGS}"
+        ;;
         alpha*-dec-osf*)
             dnl alpha processor running under osf
             MACHINE="DEC"
             BUILD_MACHINE="dec_osf"
+            BUILD_MACHINE_SUFFIX=""
             FTOCLIBS="-lg2c"
             TRAMONTO_CFLAGS="-O -DDEC_ALPHA"
             TRAMONTO_LDFLAGS=""
@@ -187,6 +211,7 @@ dnl
             dnl alpha running under linux
             MACHINE="DEC"
             BUILD_MACHINE="dec_linux"
+            BUILD_MACHINE_SUFFIX=""
             FTOCLIBS="-lfor -lots"
             TRAMONTO_CFLAGS="-O"
             TRAMONTO_LDFLAGS=""
@@ -199,28 +224,21 @@ dnl
             dnl MACHINE="SGI"  dnl does -n32 compile
             dnl MACHINE="SGIM4"  dnl does -n32 compile
             BUILD_MACHINE="sgi_irix"
+            BUILD_MACHINE_SUFFIX=""
             FTOCLIBS="-lftn "
             if test $SGI_BUILD -eq 64
             then
-                MACHINE="SGI10K"  dnl does -64 compile for Aztec
+                MACHINE="SGI10K"  
                 TRAMONTO_CFLAGS="-O2 -64 -woff 1552 -woff 1174"
                 FFLAGS="-O2 -64 ${FFLAGS}"
                 CFLAGS="-64 ${CFLAGS}"
                 CXXFLAGS="-64 ${CXXFLAGS}"
-                TRILINOS_ARCH_CXXFLAGS=" -O -r10000 -64 -I/usr/include/CC -Dlint -LANG:std -DPETRA_ADDRESS64BIT -LANG:ansi-for-init-scope=ON -DMPI_NO_CPPBIND -DSGI64 -ptused"
-                TRILINOS_ARCH_CFLAGS="-O -r10000 -64 -I/usr/include -Dlint"
-                TRILINOS_ARCH_F77FLAGS="-O -r10000 -64 -Dlint"
-                TRILINOS_ARCH_INCLUDES=""
             else
-                MACHINE="SGI"     dnl does -32 compile for Aztec
+                MACHINE="SGI"     
                 TRAMONTO_CFLAGS="-O2 -n32 -woff 1552 -woff 1174"
                 FFLAGS="-O2 -n32 ${FFLAGS}"
                 CFLAGS="-n32 ${CFLAGS}"
                 CXXFLAGS="-n32 ${CXXFLAGS}"
-                TRILINOS_ARCH_CXXFLAGS="-O -r10000 -n32 -I/usr/include/CC -Dlint -LANG:std -LANG:ansi-for-init-scope=ON -DMPI_NO_CPPBIND -DSGI32 -ptused"
-                TRILINOS_ARCH_CFLAGS="-O -r10000 -n32 -I/usr/include -Dlint"
-                TRILINOS_ARCH_F77FLAGS="-O -r10000 -n32 -Dlint"
-                TRILINOS_ARCH_INCLUDES=""
             fi;
             TRAMONTO_LDFLAGS=""
             DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
@@ -230,6 +248,7 @@ dnl
             dnl Sun machine running solaris
             MACHINE="SOLARIS"
             BUILD_MACHINE="sun_solaris"
+            BUILD_MACHINE_SUFFIX=""
             FTOCLIBS=""
             TRAMONTO_CFLAGS="-O"
             TRAMONTO_LDFLAGS="-lF77 -Ml77 -lsunmath"
@@ -245,7 +264,8 @@ dnl
             cross_compiling=yes
             MACHINE="DEC"
             BUILD_MACHINE="dec_delmar"
-	        host="${host}cplant"
+            BUILD_MACHINE_SUFFIX=""
+            host="${host}cplant"
             BASE_DIR="/usr/local/delmar"
             CXX="${BASE_DIR}/bin/mpiCC"
             CC="${BASE_DIR}/bin/mpicc"
@@ -266,15 +286,16 @@ dnl
             dnl ASCI-Red the Intel TFlop machine
             MACHINE="TFLOP"
             BUILD_MACHINE="intel_tflop"
+            BUILD_MACHINE_SUFFIX=""
             cross_compiling=yes
-	        host="${host}tflop"
+	    host="${host}tflop"
             BASE_DIR="/usr/local/intel/tflop/current"
             CXX="${BASE_DIR}/tflops/bin.solaris/ciCC"
             CC="${BASE_DIR}/tflops/bin.solaris/cicc"
             F77="${BASE_DIR}/tflops/bin.solaris/cif77"
             LIBS="-L${BASE_DIR}/tflops/lib -L${BASE_DIR}/tflops/lib/scalapack -L${BASE_DIR}/tflops/lib/RW -lstd"
-	        CFLAGS="${CFLAGS} -DTFLOP"
-	        CXXFLAGS="${CXXFLAGS} -g -rwstl -Wc,-tlocal"
+	    CFLAGS="${CFLAGS} -DTFLOP"
+	    CXXFLAGS="${CXXFLAGS} -g -rwstl -Wc,-tlocal"
             FTOCLIBS="-lf"
             TRAMONTO_CFLAGS="-O2 ${CFLAGS}"
             TRAMONTO_LDFLAGS=""
@@ -290,6 +311,7 @@ dnl
             dnl ross cplant computer cluster
             MACHINE="DEC"
             BUILD_MACHINE="dec_ross"
+            BUILD_MACHINE_SUFFIX=""
             cross_compiling=yes
 	        host="${host}cplant"
             BASE_DIR="/usr/local/cplant/ross/current"
@@ -312,6 +334,7 @@ dnl
             dnl ross cplant computer cluster
             MACHINE="DEC"
             BUILD_MACHINE="dec_west"
+            BUILD_MACHINE_SUFFIX=""
             cross_compiling=yes
 	    host="${host}cplant"
             BASE_DIR="/usr/local/cplant/west/current"
@@ -330,10 +353,25 @@ dnl
             TRILINOS_ARCH_F77FLAGS="-O3"
             TRILINOS_ARCH_INCLUDES="-I${BASE_DIR}/include"
         ;;
+	icc)
+            dnl the institutional computation cluster
+            CC=mpicc
+            CXX=mpiCC
+            F77=mpif77
+            LIBS="-L/apps/intel/mkl/lib/32 -lmkl_lapack -lmkl_ia32 -lguide ${LIBS}"
+            MACHINE="linux"
+            BUILD_MACHINE="icc"
+            BUILD_MACHINE_SUFFIX=""
+            FTOCLIBS=""
+            TRAMONTO_CFLAGS="-O"
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            # MPI_INCLUDE_DIR=""
+            FFLAGS="-O ${FFLAGS}"
+        ;;
         *)
-            AC_MSG_WARN(This host type is unknown to me, but we will try to build for it.)
-            MACHINE="LINUX"
-            BUILD_MACHINE="unix"
+            dnl MACHINE="LINUX"
+            dnl BUILD_MACHINE="unix"
             FTOCLIBS=""
             TRAMONTO_CFLAGS="-O"
             TRAMONTO_LDFLAGS=""
@@ -348,56 +386,44 @@ dnl
     AC_PROG_F77
     
     dnl
-    dnl if a parallel program is to be built, look for the mpi compilers and the mpi libraries
+    dnl Check that we can link up an mpi based program
     dnl
-    case "$PARALLEL_TYPE" in
-        MPI)
-            dnl look for the regular mpi compiler
-            AC_CHECK_PROG( MPICXX, mpiCC, mpiCC, ${CXX})
-            AC_CHECK_PROG( MPICC, mpicc, mpicc, ${CC})
-            AC_CHECK_PROG( MPIF77, mpif77, mpif77, ${F77} )
-            if test "$MPICC" != "mpicc"
+    dnl look for the regular mpi compiler
+    AC_CHECK_PROG( MPICXX, mpiCC, mpiCC, ${CXX})
+    AC_CHECK_PROG( MPICC, mpicc, mpicc, ${CC})
+    AC_CHECK_PROG( MPIF77, mpif77, mpif77, ${F77} )
+    if test "$MPICC" != "mpicc"
+    then
+        dnl couldn't find the mpicc compiler so see if we can use
+        dnl the c compiler and link with the mpi library
+        AC_SEARCH_LIBS( MPI_Init, mpi, HAS_MPI=1, HAS_MPI=0 )
+        if test $HAS_MPI -eq 0;
+        then
+            dnl can't link with the mpi library alone.  Some platforms require
+            dnl the lam library with the mpi library so try that
+            AC_SEARCH_LIBS( MPI_Finalize, mpi, HAS_MPI=1, HAS_MPI=0, -llam )
+            if test $HAS_MPI -eq 1;
             then
-                dnl couldn't find the mpicc compiler so see if we can use
-                dnl the c compiler and link with the mpi library
-                AC_SEARCH_LIBS( MPI_Init, mpi, HAS_MPI=1, HAS_MPI=0 )
-                if test $HAS_MPI -eq 0;
-                then
-                    dnl can't link with the mpi library alone.  Some platforms require
-                    dnl the lam library with the mpi library so try that
-                    AC_SEARCH_LIBS( MPI_Finalize, mpi, HAS_MPI=1, HAS_MPI=0, -llam )
-                    if test $HAS_MPI -eq 1;
-                    then
-                        MPI_LIBS="${LIBS} -llam"
-                    else
-                        dnl we can't successfully link with the mpi library so tell then user
-                        dnl and exit
-                        AC_MSG_WARN(Cannot find required mpicc or the mpi library to build a parallel program.)
-                        AC_MSG_ERROR(Try ./configure --enable-serial to build a serial program)
-                    fi;
-                else
-                    MPI_LIBS=${LIBS}
-                fi;
+                MPI_LIBS="${LIBS} -llam"
+            else
+                dnl we can't successfully link with the mpi library so tell then user
+                dnl and exit
+                AC_MSG_WARN(Cannot find required mpicc or the mpi library to build a parallel program.)
+                AC_MSG_ERROR(Try ./configure --enable-ldflags=... to ensure that the mpi libraries are found.)
+                AC_MSG_ERROR(Or try defining CC=... to help the configure script find the right compiler.)
+                AC_MSG_ERROR(See config.log for details of this error.)
             fi;
-            TRAMONTO_CFLAGS="${TRAMONTO_CFLAGS} -DRCB_LOAD_BALANCE -DPARALLEL -DML_MPI"
-            DFT_FILL_PDE_CFLAGS="${DFT_FILL_PDE_CFLAGS} -DRCB_LOAD_BALANCE -DPARALLEL -DML_MPI"
-            dnl CXX=${MPICXX}
-            dnl CC=${MPICC}
-            dnl F77=${MPIF77}
-        ;;
-        SERIAL)
-            AC_PROG_F77
-            MPIF77=${F77}
-            AC_PROG_CC
-            MPICC=${CC}
-            AC_PROG_CXX
-            MPICXX=${CXX}
-        ;;
-    esac
+        else
+            MPI_LIBS=${LIBS}
+        fi;
+    fi;
+    TRAMONTO_CFLAGS="${TRAMONTO_CFLAGS} -DRCB_LOAD_BALANCE -DPARALLEL -DML_MPI"
+    DFT_FILL_PDE_CFLAGS="${DFT_FILL_PDE_CFLAGS} -DRCB_LOAD_BALANCE -DPARALLEL -DML_MPI"
 
 dnl set substitution for MACHINE variable in makefiles
     AC_SUBST(MACHINE)
     AC_SUBST(BUILD_MACHINE)
+    AC_SUBST(BUILD_MACHINE_SUFFIX)
 
 dnl Checks for other needed programs.
     AC_PROG_MAKE_SET
@@ -463,16 +489,29 @@ dnl Checks for libraries.
     fi
 
     dnl Check C libraries that Tramonto needs
-    AC_LANG_C
-
-    dnl add default location of libraries build by Tramonto
-    LIBS="${LIBS} ${FTOCLIBS}"
+    dnl AC_LANG_C
+    dnl OLD_CC=${CC}
+    dnl CC=${MPICC}
 
     dnl Check C++ libraries that Tramonto needs
     AC_LANG_CPLUSPLUS
     OLD_CXX=${CXX}
     CXX=${MPICXX}
-    AC_CHECK_LIB( aztecoo, AZ_solve, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetra ${FTOCLIBS})
+    AC_CHECK_LIB( aztecoo, AZ_iterate, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetra)
+    if test ${HAS_AZTECOO} -eq 1
+    then
+        TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS}" 
+    else
+        dnl may need the FTOCLIBS as well
+        AC_CHECK_LIB( aztecoo, AZ_solve, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetra ${FTOCLIBS})
+        if test ${HAS_AZTECOO} -eq 1
+        then
+            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS} ${FTOCLIBS}" 
+	    LIBS="${LIBS} $FTOCLIBS"
+        fi
+    fi
+
+    echo "Tramonto ldflags " ${TRAMONTO_LDFLAGS}
     if test ${HAS_AZTECOO} -eq 1
     then
         echo Found all required AztecOO functions.
@@ -494,7 +533,7 @@ dnl Check for the mpi header needed by parallel versions of Tramonto
         MPI)
             dnl need to temporarily add the MPI_INCLUDE_DIR variable to CFLAGS
             dnl to test for the MPI header. because Aztec epxpects to see
-            dnl this inlucde directory as a separate variable
+            dnl this include directory as a separate variable
 
 	    dnl if MPI_INCLUDE_DIR is blank, then make a guess
 	    if test "${MPI_INCLUDE_DIR}" = "" 
@@ -502,11 +541,11 @@ dnl Check for the mpi header needed by parallel versions of Tramonto
 	        MPI_COMP=`which ${MPICC}`
 		    MPI_INCLUDE_DIR=`echo ${MPI_COMP} | sed -e s\xbin/.*$\xinclude\x `
 	    fi
-        dnl OLD_CFLAGS=${CFLAGS}
-        dnl MPI_INCLUDE_DIR="-I/usr/local/lam-6.5.9/ip/gnu/ssh/include"
-        CFLAGS="${CFLAGS} -I${MPI_INCLUDE_DIR}"
+            dnl OLD_CFLAGS=${CFLAGS}
+            dnl MPI_INCLUDE_DIR="-I/usr/local/lam-6.5.9/ip/gnu/ssh/include"
+            CFLAGS="${CFLAGS} -I${MPI_INCLUDE_DIR}"
 	    DFT_FILL_PDE_CFLAGS="${DFT_FILL_PDE_CFLAGS} -I${MPI_INCLUDE_DIR}"
-        dnl AC_CHECK_HEADERS(mpi.h, PARALLEL_TYPE="MPI", PARALLEL_TYPE="SERIAL" )
+            dnl AC_CHECK_HEADERS(mpi.h, PARALLEL_TYPE="MPI", PARALLEL_TYPE="SERIAL" )
 	    if test -r ${MPI_INCLUDE_DIR}/mpi.h
 	    then
 	        PARALLEL_TYPE="MPI"
@@ -514,7 +553,7 @@ dnl Check for the mpi header needed by parallel versions of Tramonto
             if test "${PARALLEL_TYPE}" = "SERIAL"
             then
                 AC_MSG_WARN(Cannot find required mpi.h header file to build a parallel program.)
-		        AC_MSG_WARN(Try MPI_INCLUDE_DIR=/your/mpi/includedir ./configure to specify the directory location or )
+	        AC_MSG_WARN(Try MPI_INCLUDE_DIR=/your/mpi/includedir ./configure to specify the directory location or )
                 AC_MSG_ERROR(Try ./configure --enable-serial to build a serial program)
             fi;
             dnl CFLAGS=${OLD_CFLAGS}
@@ -527,6 +566,9 @@ dnl Check for the mpi header needed by parallel versions of Tramonto
     esac
     AC_SUBST(PARALLEL_TYPE)
     AC_SUBST(MPI_INCLUDE_DIR)
+
+    dnl check for values.h
+    AC_CHECK_HEADERS(values.h, TRAMONTO_CFLAGS="${TRAMONTO_CFLAGS} -DHAS_VALUES_H", )
 
     dnl finished building TRAMONTO_CFLAGS, TRAMONTO_LDFLAGS and DFT_FILL_PDE_CFLAGS
     dnl so set if substitution
