@@ -867,6 +867,7 @@ Optional Features:
 --disable-special-host-checking Don't check if this is a special parallel machine
 --enable-ldflags=... use linker flags ...
 --enable-cflags=... use cflags flags ... with c compiler
+--enable-cxxflags=... use cxxflags flags ... with c++ compiler
 --enable-fflags=... use fflags flags ... with fortran compiler
 --enable-mpi-include-dir=... location of mpi header files (in -I format)
 --enable-sgi64 For an SGI machine build a 64 bit version of this program (default).
@@ -1916,6 +1917,15 @@ else
   C_FLAGS=""
 fi;
     CFLAGS="${CFLAGS} ${C_FLAGS}"
+
+        # Check whether --enable-cxxflags or --disable-cxxflags was given.
+if test "${enable_cxxflags+set}" = set; then
+  enableval="$enable_cxxflags"
+  CXX_FLAGS=$enableval
+else
+  CXX_FLAGS=""
+fi;
+    CXXFLAGS="${CXXFLAGS} ${CXX_FLAGS}"
 
         # Check whether --enable-fflags or --disable-fflags was given.
 if test "${enable_fflags+set}" = set; then
@@ -3797,7 +3807,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3800:" \
+echo "$as_me:3810:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
