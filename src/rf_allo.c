@@ -24,43 +24,37 @@
 #endif
 
 #ifdef DEBUG
-extern int Proc;
+    extern int Proc;
 #endif
 
 /* prototypes */
-static void *smalloc (size_t n);
+static void * smalloc(size_t n);
 #ifdef __STDC__
-void *array_alloc (int numdim, ...);
+void * array_alloc(int numdim, ...);
 #else
-void *array_alloc (...);
+void * array_alloc(...);
 #endif
 
 /* user callable interface to array_alloc */
 
-void *
-array_alloc_1d (size_t n1, size_t size)
+void * array_alloc_1d ( size_t n1, size_t size )
 {
-  return array_alloc ((int) 1, (size_t) n1, (size_t) size);
+  return array_alloc( (int) 1, (size_t) n1, (size_t) size );
 }
 
-void *
-array_alloc_2d (size_t n1, size_t n2, size_t size)
+void * array_alloc_2d ( size_t n1, size_t n2, size_t size )
 {
-  return array_alloc ((int) 2, (size_t) n1, (size_t) n2, (size_t) size);
+  return array_alloc( (int) 2, (size_t) n1, (size_t) n2, (size_t) size );
 }
 
-void *
-array_alloc_3d (size_t n1, size_t n2, size_t n3, size_t size)
+void * array_alloc_3d ( size_t n1, size_t n2, size_t n3, size_t size )
 {
-  return array_alloc ((int) 3, (size_t) n1, (size_t) n2, (size_t) n3,
-		      (size_t) size);
+  return array_alloc( (int) 3, (size_t) n1, (size_t) n2, (size_t) n3, (size_t) size );
 }
 
-void *
-array_alloc_4d (size_t n1, size_t n2, size_t n3, size_t n4, size_t size)
+void * array_alloc_4d ( size_t n1, size_t n2, size_t n3, size_t n4, size_t size )
 {
-  return array_alloc ((int) 4, (size_t) n1, (size_t) n2, (size_t) n3,
-		      (size_t) n4, (size_t) size);
+  return array_alloc( (int) 4, (size_t) n1, (size_t) n2, (size_t) n3, (size_t) n4, (size_t) size );
 }
 
 
@@ -140,122 +134,111 @@ array_alloc_4d (size_t n1, size_t n2, size_t n3, size_t n4, size_t size)
 /*****************************************************************************/
 
 #ifdef __STDC__
-void *
-array_alloc (int numdim, ...)
+void *array_alloc(int numdim, ...)
 #else
-void *
-array_alloc (va_alist)
-     va_dcl
+void  *array_alloc(va_alist)
+va_dcl
 #endif
+
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+
 {
   int i, j;
-  struct dim
-  {
-    size_t index;		/* Number of elements in the dimension  */
-    size_t total;		/* Total number of elements             */
-    size_t size;		/* Size of a single element in bytes    */
-    size_t off;			/* offset from beginning of array       */
-  } dim[4];			/* Info about each dimension            */
+  struct dim {
+    size_t index;  /* Number of elements in the dimension  */
+    size_t total;  /* Total number of elements             */
+    size_t size;   /* Size of a single element in bytes    */
+    size_t off;    /* offset from beginning of array       */
+  } dim[4];      /* Info about each dimension            */
 
 #ifndef __STDC__
-  int numdim;			/* Number of dimensions                 */
+  int numdim;           /* Number of dimensions                 */
 #endif
 
-  size_t total;			/* Total size of the array              */
-  void *dfield;			/* ptr to avoid lint complaints         */
-  char *field;			/* The multi-dimensional array          */
-  char **ptr;			/* Pointer offset                       */
-  char *data;			/* Data offset                          */
-  va_list va;			/* Current pointer in the argument list */
+  size_t  total;        /* Total size of the array              */
+  void  *dfield;        /* ptr to avoid lint complaints         */
+  char   *field;        /* The multi-dimensional array          */
+  char  **ptr;          /* Pointer offset                       */
+  char   *data;         /* Data offset                          */
+  va_list va;           /* Current pointer in the argument list */
 
 #ifdef __STDC__
-  va_start (va, numdim);
+  va_start(va, numdim);
 #else
-  va_start (va);
-  numdim = va_arg (va, int);
+  va_start(va);
+  numdim = va_arg(va, int);
 #endif
 
-  if (numdim <= 0)
-    {
-      fprintf (stderr,
-	       "array_alloc ERROR: number of dimensions, %d, is <=0\n",
-	       numdim);
-      exit (EXIT_FAILURE);
-    }
-  else if (numdim > 4)
-    {
-      fprintf (stderr,
-	       "array_alloc ERROR: number of dimensions, %d, is > 4\n",
-	       numdim);
-      exit (EXIT_FAILURE);
-    }
+  if (numdim <= 0) {
+    fprintf(stderr, "array_alloc ERROR: number of dimensions, %d, is <=0\n",
+            numdim);
+    exit(EXIT_FAILURE);
+  }
+  else if (numdim > 4) {
+    fprintf(stderr, "array_alloc ERROR: number of dimensions, %d, is > 4\n",
+            numdim);
+    exit(EXIT_FAILURE);
+  }
 
-  dim[0].index = va_arg (va, size_t);
+  dim[0].index = va_arg(va, size_t);
 
-  if (dim[0].index <= 0)
-    {
+  if (dim[0].index <= 0) {
 #ifdef DEBUG
-      fprintf (stderr, "WARNING, Proc = %d: array_alloc called with first "
-	       "dimension <= 0, %ld\n\twill return the nil pointer\n", Proc,
-	       dim[0].index);
+    fprintf(stderr, "WARNING, Proc = %d: array_alloc called with first "
+            "dimension <= 0, %ld\n\twill return the nil pointer\n", Proc,
+            dim[0].index);
 #endif
-      return ((double *) NULL);
-    }
+    return((double *) NULL);
+  }
 
   dim[0].total = dim[0].index;
-  dim[0].size = sizeof (void *);
-  dim[0].off = 0;
-  for (i = 1; i < numdim; i++)
-    {
-      dim[i].index = va_arg (va, size_t);
-      if (dim[i].index <= 0)
-	{
-	  fprintf (stderr,
-		   "WARNING: array_alloc called with dimension %d <= 0, "
-		   "%ld\n", i + 1, dim[i].index);
-	  fprintf (stderr, "\twill return the nil pointer\n");
-	  return ((double *) NULL);
-	}
-      dim[i].total = dim[i - 1].total * dim[i].index;
-      dim[i].size = sizeof (void *);
-      dim[i].off = dim[i - 1].off + dim[i - 1].total * dim[i - 1].size;
+  dim[0].size  = sizeof(void *);
+  dim[0].off   = 0;
+  for (i = 1; i < numdim; i++) {
+    dim[i].index = va_arg(va, size_t);
+    if (dim[i].index <= 0) {
+      fprintf(stderr, "WARNING: array_alloc called with dimension %d <= 0, "
+              "%ld\n", i+1, dim[i].index);
+      fprintf(stderr, "\twill return the nil pointer\n");
+      return((double *) NULL);
     }
+    dim[i].total = dim[i-1].total * dim[i].index;
+    dim[i].size  = sizeof(void *);
+    dim[i].off   = dim[i-1].off + dim[i-1].total * dim[i-1].size;
+  }
 
   /* 
      last argument passed to array_alloc is provided by the sizeof 
      operator which returns a type size_t.  size_t may be an 
      unsigned int or unsigned long depending on the platform, so 
      to be safe we should read a type size_t
-   */
-  dim[numdim - 1].size = va_arg (va, size_t);
-  va_end (va);
+  */
+  dim[numdim-1].size = va_arg(va, size_t);
+  va_end(va);
 
   /* Round up the last offset value so data is properly aligned. */
 
-  dim[numdim - 1].off = dim[numdim - 1].size *
-    ((dim[numdim - 1].off + dim[numdim - 1].size - 1) / dim[numdim - 1].size);
+  dim[numdim-1].off = dim[numdim-1].size *
+    ((dim[numdim-1].off+dim[numdim-1].size-1)/dim[numdim-1].size);
 
-  total = dim[numdim - 1].off + dim[numdim - 1].total * dim[numdim - 1].size;
+  total = dim[numdim-1].off + dim[numdim-1].total * dim[numdim-1].size;
 
-  dfield = (void *) smalloc ((size_t) total);
-  field = (char *) dfield;
+  dfield = (void *) smalloc((size_t) total);
+  field  = (char *) dfield;
 
-  for (i = 0; i < numdim - 1; i++)
-    {
-      ptr = (char **) (field + dim[i].off);
-      data = (char *) (field + dim[i + 1].off);
-      for (j = 0; j < dim[i].total; j++)
-	{
-	  ptr[j] = data + j * dim[i + 1].size * dim[i + 1].index;
-	}
+  for (i = 0; i < numdim - 1; i++) {
+    ptr  = (char **) (field + dim[i].off);
+    data = (char *) (field + dim[i+1].off);
+    for (j = 0; j < dim[i].total; j++) {
+      ptr[j] = data + j * dim[i+1].size * dim[i+1].index;
     }
+  }
 
   return dfield;
 
-}				/* array_alloc */
+} /* array_alloc */
 
 /*****************************************************************************/
 /*****************************************************************************/
@@ -265,62 +248,57 @@ array_alloc (va_alist)
 
 /* Modified by Scott Hutchinson (1421) 20 January 1993 */
 
-static void *
-smalloc (size_t n)
+static void * smalloc(size_t n)
+
 {
-  void *pntr;			/* return value */
-#ifndef DEBUG			/* if we're not defining DEBUG then define this to be zero */
+  void * pntr;            /* return value */
+#ifndef DEBUG             /* if we're not defining DEBUG then define this to be zero */
   int Proc = 0;
 #endif
 
-  if (n < 0)
-    {
-      fprintf (stderr, "smalloc ERROR: Non-positive argument. (%d)\n", n);
-      exit (EXIT_FAILURE);
-    }
+  if (n < 0) {
+    fprintf(stderr, "smalloc ERROR: Non-positive argument. (%d)\n", n);
+    exit(EXIT_FAILURE);
+  }
   else if (n == 0)
     pntr = NULL;
   else
-    pntr = (void *) malloc ((size_t) n);
+    pntr = (void *) malloc((size_t) n);
 
-  if (pntr == NULL && n != 0)
-    {
-      fprintf (stderr, "smalloc (Proc = %d): Out of space - number of bytes "
-	       "requested = %u\n", Proc, n);
-      exit (EXIT_FAILURE);
-    }
+  if (pntr == NULL && n != 0) {
+    fprintf(stderr, "smalloc (Proc = %d): Out of space - number of bytes "
+            "requested = %u\n", Proc, n);
+    exit(EXIT_FAILURE);
+  }
 
   return pntr;
 
-}				/* smalloc */
+} /* smalloc */
 
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 
-void
-safe_free (void **ptr)
+void safe_free (void **ptr)
 {
 /*
  *  This version of free calls the system's free function
  *  with maximum error checking. It also doesn't call free if ptr is
  *  the NULL pointer.
  */
-
-  if (*ptr != NULL)
-    {
-
-      free (*ptr);
-
-      /*
-       *  Set the value of ptr to NULL, so that further references
-       *  to it will be flagged.
-       */
-
-      *ptr = NULL;
-    }
-}				/* safe_free */
-
+ 
+  if (*ptr != NULL) {
+ 
+    free(*ptr);
+ 
+    /*
+     *  Set the value of ptr to NULL, so that further references
+     *  to it will be flagged.
+     */
+ 
+    *ptr = NULL;
+  }
+}  /* safe_free */
 /*****************************************************************************/
 /*                      END of rf_allo.c                                     */
 /*****************************************************************************/
