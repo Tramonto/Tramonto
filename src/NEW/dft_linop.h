@@ -78,7 +78,7 @@ struct DFT_LINOP_STRUCT {
 */
 typedef struct DFT_LINOP_STRUCT DFT_LINOP;
 
-/*! \fn void create_linop(DFT_VEC_SPACE * vec_space, DFT_LINOP ** op)
+/*! \fn void dft_create_linop(DFT_VEC_SPACE * vec_space, DFT_LINOP ** op)
 
 \brief Create a vector space of size N_loc on each processor with global IDs from update.
 
@@ -94,15 +94,15 @@ responsibility of the calling program to maintain the integrity of the associate
 
 */
 
-void create_linop(DFT_VEC_SPACE * vec_space, DFT_LINOP ** op);
+void dft_create_linop(DFT_VEC_SPACE * vec_space, DFT_LINOP ** op);
 
-/*! \fn void destroy_linop(DFT_LINOP ** op)
+/*! \fn void dft_destroy_linop(DFT_LINOP ** op)
 
 \brief Destroy a linear operator and delete all associated memory.
 
 \param op (In/Out) The address of the linear operator object that will be destroyed.
 
-\pre op must have been created by a call to create_linop.
+\pre op must have been created by a call to dft_create_linop.
 
 \post All memory associated with this object will be deleted and the pointer will be set to NULL.  
 \post The associated vec_space object will NOT be deleted.  This is the responsibility of the calling
@@ -110,9 +110,9 @@ program.
 
 */
 
-void destroy_linop(DFT_LINOP ** op);
+void dft_destroy_linop(DFT_LINOP ** op);
 
-/*! \fn int insert_global_graph_row(DFT_LINOP * op, int i_box, int i_mat, int * col_indices)
+/*! \fn int dft_insert_global_graph_row(DFT_LINOP * op, int i_box, int i_mat, int * col_indices)
 
 \brief Insert box column indices for i_box row into i_mat row of matrix graph.
 
@@ -136,9 +136,9 @@ indices are in box coordinate space.
 \return Returns 0 if no errors detected.
 
 */
-int insert_global_graph_row(DFT_LINOP * op, int i_box, int i_mat, int * row_indices);
+int dft_insert_global_graph_row(DFT_LINOP * op, int i_box, int i_mat, int * row_indices);
 
-/*! \fn int fill_complete(DFT_LINOP * op)
+/*! \fn int dft_fill_complete(DFT_LINOP * op)
 
 \brief Insert box column indices for i_box row into i_mat row of matrix graph.
 
@@ -164,9 +164,9 @@ indices are in box coordinate space.
 \return Returns 0 if no errors detected.
 
 */
-int fill_complete(DFT_LINOP * op);
+int dft_fill_complete(DFT_LINOP * op);
 
-/*! \fn int insert_local_mat_row(DFT_LINOP * op, int i_mat, double * values)
+/*! \fn int dft_insert_local_mat_row(DFT_LINOP * op, int i_mat, double * values)
 
 \brief Insert values for i_mat row of matrix.
 
@@ -191,6 +191,18 @@ op->internal_index and op->external_index.  On exit, all values should be set to
 \return Returns 0 if no errors detected.
 
 */
-int insert_local_mat_row(DFT_LINOP * op, int i_mat, double * values);
+int dft_insert_local_mat_row(DFT_LINOP * op, int i_mat, double * values);
+
+
+/*! \fn void dft_matvec(DFT_LINOP * op, double *x, double *y)
+
+\brief Sparse matrix-vector multiply kernel.
+
+\param A (In) A  pointer to a sparse matrix object.
+\param x (In) Array of doubles of length compatible with the vec_space associated with the op.
+\param y (Out) Array of doubles of length compatible with the vec_space associated with the op.
+
+*/
+void dft_matvec(DFT_LINOP * op, double *x, double *y);
 
 #endif /* DFT_LINOP_H */
