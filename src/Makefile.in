@@ -71,7 +71,8 @@ am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_fill_mf.$(OBJEXT) dft_vext_coul.$(OBJEXT) \
 	dft_uww.$(OBJEXT) dft_images.$(OBJEXT) \
 	dft_potentials.$(OBJEXT) rf_allo.$(OBJEXT) loca_lib.$(OBJEXT) \
-	loca_bord.$(OBJEXT) loca_util.$(OBJEXT)
+	loca_bord.$(OBJEXT) loca_util.$(OBJEXT) \
+	dft_schur_solver.$(OBJEXT) dft_schur_epetra_operator.$(OBJEXT)
 am_libdft_a_OBJECTS = $(am__objects_1)
 libdft_a_OBJECTS = $(am_libdft_a_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -106,6 +107,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_out_main.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_out_profiles.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_potentials.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_schur_epetra_operator.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_schur_solver.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_stencil.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_thermo.Po ./$(DEPDIR)/dft_uww.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_vext.Po \
@@ -116,6 +119,11 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
 SOURCES = $(libdft_a_SOURCES) $(dft_SOURCES)
 DIST_SOURCES = $(libdft_a_SOURCES) $(dft_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -277,7 +285,49 @@ common_SOURCES = \
 	loca_util.c \
 	dft_globals.h \
 	dft_globals_const.h \
-	dft_ldbal.h
+	dft_ldbal.h \
+	rf_allo.h \
+	loca_const.h \
+	loca_util_const.h \
+	az_aztec.h \
+	az_aztec_defs.h \
+     dft_schur_solver.cpp \
+     dft_schur_solver.h \
+     dft_schur_epetra_operator.cpp \
+     dft_schur_epetra_operator.h \
+	$(srcdir)/include/dft_fill_msr.h \
+	$(srcdir)/include/dft_fill_shared.h  \
+	$(srcdir)/include/dft_main.h \
+	$(srcdir)/include/dft_out_ads.h \
+	$(srcdir)/include/dft_out_profiles.h \
+	$(srcdir)/include/dft_thermo.h \
+	$(srcdir)/include/dft_comm.h \
+	$(srcdir)/include/dft_fill_pde.h \
+	$(srcdir)/include/dft_guess.h \
+	$(srcdir)/include/dft_mesh.h \
+	$(srcdir)/include/dft_out_energy.h \
+	$(srcdir)/include/dft_uww.h \
+	$(srcdir)/include/dft_continuation.h \
+	$(srcdir)/include/dft_fillp.h \
+	$(srcdir)/include/dft_images.h \
+	$(srcdir)/include/dft_mesh_lib.h \
+	$(srcdir)/include/dft_out_flux.h	\
+	$(srcdir)/include/dft_potentials.h  \
+	$(srcdir)/include/dft_vext.h \
+	$(srcdir)/include/dft_fill_main.h \
+	$(srcdir)/include/dft_fill_rosen.h \
+	$(srcdir)/include/dft_input.h \
+	$(srcdir)/include/dft_mesh_surfaces.h \
+	$(srcdir)/include/dft_out_force.h \
+	$(srcdir)/include/dft_quadratue.h	 \
+	$(srcdir)/include/loca_con_bord.h \
+	$(srcdir)/include/dft_fill_mf.h \
+	$(srcdir)/include/dft_fill_rosen_rb.h \
+	$(srcdir)/include/dft_ldbal.h \
+	$(srcdir)/include/dft_newton.h \
+	$(srcdir)/include/dft_out_main.h \
+	$(srcdir)/include/dft_stencil.h \
+	$(srcdir)/include/loca_util.h
 
 dft_SOURCES = dft_maindriver.c $(common_SOURCES) 
 libdft_a_SOURCES = $(common_SOURCES)
@@ -286,7 +336,7 @@ EXE = dft_@BUILD_MACHINE@@BUILD_MACHINE_SUFFIX@
 all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .o .obj
+.SUFFIXES: .c .cpp .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -402,6 +452,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_out_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_out_profiles.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_potentials.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_schur_epetra_operator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_schur_solver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_thermo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_uww.Po@am__quote@
@@ -427,6 +479,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+
+.cpp.o:
+@am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+@am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 uninstall-info-am:
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -684,48 +752,6 @@ uninstall-info: uninstall-info-recursive
 	tags tags-recursive uninstall uninstall-am \
 	uninstall-binPROGRAMS uninstall-info-am uninstall-libLIBRARIES
 
-	rf_allo.h \
-	loca_const.h \
-	loca_util_const.h \
-	az_aztec.h \
-	az_aztec_defs.h \
-     dft_schur_solver.cpp \
-     dft_schur_solver.h \
-     dft_schur_epetra_operator.cpp \
-     dft_schur_epetra_operator.h \
-	$(srcdir)/include/dft_fill_msr.h \
-	$(srcdir)/include/dft_fill_shared.h  \
-	$(srcdir)/include/dft_main.h \
-	$(srcdir)/include/dft_out_ads.h \
-	$(srcdir)/include/dft_out_profiles.h \
-	$(srcdir)/include/dft_thermo.h \
-	$(srcdir)/include/dft_comm.h \
-	$(srcdir)/include/dft_fill_pde.h \
-	$(srcdir)/include/dft_guess.h \
-	$(srcdir)/include/dft_mesh.h \
-	$(srcdir)/include/dft_out_energy.h \
-	$(srcdir)/include/dft_uww.h \
-	$(srcdir)/include/dft_continuation.h \
-	$(srcdir)/include/dft_fillp.h \
-	$(srcdir)/include/dft_images.h \
-	$(srcdir)/include/dft_mesh_lib.h \
-	$(srcdir)/include/dft_out_flux.h	\
-	$(srcdir)/include/dft_potentials.h  \
-	$(srcdir)/include/dft_vext.h \
-	$(srcdir)/include/dft_fill_main.h \
-	$(srcdir)/include/dft_fill_rosen.h \
-	$(srcdir)/include/dft_input.h \
-	$(srcdir)/include/dft_mesh_surfaces.h \
-	$(srcdir)/include/dft_out_force.h \
-	$(srcdir)/include/dft_quadratue.h	 \
-	$(srcdir)/include/loca_con_bord.h \
-	$(srcdir)/include/dft_fill_mf.h \
-	$(srcdir)/include/dft_fill_rosen_rb.h \
-	$(srcdir)/include/dft_ldbal.h \
-	$(srcdir)/include/dft_newton.h \
-	$(srcdir)/include/dft_out_main.h \
-	$(srcdir)/include/dft_stencil.h \
-	$(srcdir)/include/loca_util.h
 
 # Targets
 dft$(EXEEXT): $(dft_OBJECTS) 
