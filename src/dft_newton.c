@@ -12,7 +12,7 @@
  * $Revision$
  *
  *====================================================================*/
-
+ 
 /*
  *  FILE: dft_newton.c
  *
@@ -20,9 +20,14 @@
  *  of the residual and matrix are in file dft_fill.c, and the linear
  *  solve is done using calls to the Aztec library.
  */
+#include "mpi.h" 
 
-#include "mpi.h"
-#include "dft_globals_const.h"
+/*#define HAVE_DFT_SCHUR_SOLVER */
+#ifdef HAVE_DFT_SCHUR_SOLVER
+#include "dft_schur_solver.h"
+#endif
+
+#include "dft_globals_const.h" 
 #include "rf_allo.h"
 
 int update_solution(int,double *, double *);
@@ -271,6 +276,16 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 
    Aztec.data_org[AZ_name] = 1;
 
+#ifdef HAVE_DFT_SCHUR_SOLVER
+
+   DFT_SCHUR_SOLVER *schur_solver1;
+   dft_create_schur_solver(Aztec.proc_config, Aztec.external, Aztec.bindx, 
+			   Aztec.val, Aztec.update, Aztec.update_index,
+			   Aztec.extern_index, Aztec.data_org, Aztec.N_update,
+			   Nunk_per_node, &schur_solver1);
+   schur_solver = (void *) schur_solver1;
+#endif
+
    /* Allocate solution vector x with space for externals */
    /* and communicate initial guess between procs         */
 
@@ -367,7 +382,6 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 #endif
   else iter += newton_solver(x, x2, fill_time, NULL, max_iter, &t_solve_max);
 
-
   /* return solution vector with only internals, unsorted */
 
   for (i=0; i < Aztec.N_update; i++)
@@ -395,7 +409,6 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
-
 int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
 		  int max_iter, double *t_solve_max_ptr)
 {
@@ -530,11 +543,16 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
     t1 = MPI_Wtime();
 
     AZ_free_memory(Aztec.data_org[AZ_name]);
+#ifdef HAVE_DFT_SCHUR_SOLVER
+    
+    dft_update_schur_solver(Aztec.bindx, Aztec.val, (DFT_SCHUR_SOLVER *) schur_solver);
+    dft_apply_schur_solver((DFT_SCHUR_SOLVER *) schur_solver, delta_x, resid);
+#else
 
     AZ_solve(delta_x, resid, Aztec.options, Aztec.params, NULL, Aztec.bindx, 
              NULL, NULL, NULL, Aztec.val, Aztec.data_org, Aztec.status, 
              Aztec.proc_config);
-
+#endif
     t_solve = MPI_Wtime() - t1;
     t_solve_max = AZ_gmax_double(t_solve,Aztec.proc_config);
     t_solve_min = AZ_gmin_double(t_solve,Aztec.proc_config);
@@ -746,6 +764,10 @@ double g1, g2, ee=1.0e-8, bt, bh, ba;
   safe_free((void *) &delta_x);
   safe_free((void *) &resid);
   safe_free((void *) &resid_tmp);
+
+#ifdef HAVE_DFT_SCHUR_SOLVER
+  dft_destroy_schur_solver(&((DFT_SCHUR_SOLVER *) schur_solver));
+#endif
 
   *t_solve_max_ptr = t_solve_max;
   /* print out message on success or failure of Newton's nmethod */

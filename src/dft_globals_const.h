@@ -1019,6 +1019,10 @@ extern
 double Az_tolerance;
 extern
 int    Max_gmres_iter;
+#ifdef HAVE_DFT_SCHUR_SOLVER
+extern
+void * schur_solver;
+#endif
 
 extern
 struct  Loca_Struct Loca; /* Information for continuation library */
