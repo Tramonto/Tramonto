@@ -20,7 +20,7 @@
  *  the surface geometry.  The primary output are the number of nodes 
  *  and elements (total, wall, fluid, and boundary).  
  *
- *  Finally, some aztec parameters are set up here.
+ *  Finally, some solver parameters are set up here.
  *  
  */
 
@@ -45,10 +45,15 @@ void setup_basic_domain(FILE *);
 void zones_el_to_nodes(int *);  
 void set_mesh_coarsen_flag(void);  
 void setup_area_IC(void);
-
+#ifdef HAVE_NEW_DFT_COMM
+void initialize_solver(void);
+void MY_read_update(int *N_update, int *update[], int proc_config[],
+		    int N, int *nodes_x, int chunk, int input_option);
+#else
 void initialize_Aztec(void);        
-   void MY_read_update(int *N_update, int *update[], int proc_config[],
-                       int N, int *nodes_x, int chunk, int input_option);
+void MY_read_update(int *N_update, int *update[], int proc_config[],
+		    int N, int *nodes_x, int chunk, int input_option);
+#endif
 
 
 void bc_setup_const_charge(int,int);
@@ -85,11 +90,16 @@ void set_up_mesh (char *output_file1,char *output_file2)
   setup_basic_domain(fp1);
 
   /* 
-   * Initialize Aztec settings. We may read in 
+   * Initialize solver settings. We may read in 
    * some of these eventually 
    */
+#ifdef HAVE_NEW_DFT_COMM
+  initialie_solver();
+  Nnodes_per_proc = solver.N_update / Nunk_per_node;
+#else
   initialize_Aztec();
   Nnodes_per_proc = Aztec.N_update / Nunk_per_node;
+#endif
 
   /* 
    * Do load balancing assuming equal weights
@@ -463,14 +473,20 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag)
             else if (Fast_fill_TF[L2B_node[i]] ==CHECK_BC) count_check_bc++;
             else if (Fast_fill_TF[L2B_node[i]] ==CHECK_BOTH) count_check_both++;
         }
+#ifdef HAVE_NEW_DFT_COMM
+#else
         count_zero_all=AZ_gsum_int(count_zero,Aztec.proc_config);
+#endif
         if (icomp==0){
+#ifdef HAVE_NEW_DFT_COMM
+#else
           count_coarse_r_all=AZ_gsum_int(count_coarse_resid,Aztec.proc_config);
           count_coarse_jac_all=AZ_gsum_int(count_coarse_jac,Aztec.proc_config);
           count_fast_all=AZ_gsum_int(count_fast,Aztec.proc_config);
           count_check_hw_all=AZ_gsum_int(count_check_hw,Aztec.proc_config);
           count_check_bc_all=AZ_gsum_int(count_check_bc,Aztec.proc_config);
           count_check_both_all=AZ_gsum_int(count_check_both,Aztec.proc_config);
+#endif
           if (Proc==0 && Iwrite != NO_SCREEN && print_flag) {
               printf("**************************************************************\n");
               printf("..............MESH SUMMARY..........\n");     
@@ -795,7 +811,11 @@ void setup_basic_box(FILE *fp1)
     B2L_node[inode_box] = -1;
   }
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
+#ifdef HAVE_NEW_DFT_COMM
+    inode = solver.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+#else
     inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+#endif
     inode_box = node_to_node_box(inode);
     L2B_node[loc_inode] = inode_box;
     B2L_node[inode_box] = loc_inode;
@@ -1973,9 +1993,12 @@ void boundary_properties(FILE *fp1)
        s_area_tot_proc = 0.0;
        for (idim=0; idim<Ndim; idim++) {
            s_area_tot_proc += S_area[ilist][iwall][idim];
+#ifdef HAVE_NEW_DFT_COMM
+#else
            S_area_tot[ilist][iwall] = AZ_gsum_double(s_area_tot_proc,Aztec.proc_config);
            S_area[ilist][iwall][idim] = AZ_gsum_double(S_area[ilist][iwall][idim],
                                                                Aztec.proc_config);
+#endif
        }
     }
   }             /* end of loop over lists */
@@ -2011,7 +2034,10 @@ void boundary_properties(FILE *fp1)
          }
       }
       for (idim=0; idim<Ndim; idim++){
+#ifdef HAVE_NEW_DFT_COMM
+#else
       sum_all[idim] = AZ_gsum_double(sum[idim],Aztec.proc_config);
+#endif
         if (Proc == 0)
           fprintf(fp1,"ilist: %d Summing surface normals idim: %d yields: %d\n", 
                                                       ilist,idim,sum_all[idim]);
@@ -2322,7 +2348,10 @@ void setup_volume_charge1(int iwall)
   nelems = 0;
   nelems_unique = 0;
   els_charge_spheres(r,x,&nelems,&nelems_unique,elems,Charge_type_atoms);
+#ifdef HAVE_NEW_DFT_COMM
+#else
   nelems_unique = AZ_gsum_int(nelems_unique, Aztec.proc_config);
+#endif
 
   charge_per_el = Elec_param_w[iwall]/(double) nelems_unique;
 
@@ -2371,7 +2400,10 @@ void setup_volume_charge2(void)
          nelems = 0;
          nelems_unique = 0;
          els_charge_spheres(r,x,&nelems,&nelems_unique,elems,Charge_type_local);
+#ifdef HAVE_NEW_DFT_COMM
+#else
          nelems_unique = AZ_gsum_int(nelems_unique, Aztec.proc_config);
+#endif
 
          charge_per_el = Charge[i]/(double) nelems_unique;
 
@@ -2619,11 +2651,17 @@ void set_mesh_coarsen_flag(void)
       }
   }
   if (L1D_bc){
+#ifdef HAVE_NEW_DFT_COMM
+#else
      AZ_gsum_int(count,Aztec.proc_config);
+#endif
      if (Proc==0&&Iwrite!=NO_SCREEN) printf(" %d nodes of %d total will be set to the 1D boundary region\n",count,Nnodes);
   }
   else{
+#ifdef HAVE_NEW_DFT_COMM
+#else
      AZ_gsum_int(count_coarse,Aztec.proc_config);
+#endif
      if (Proc==0&&Iwrite!=NO_SCREEN) printf(" %d nodes of %d total will be coarsened\n",count_coarse,Nnodes);
   }
 
@@ -2859,6 +2897,14 @@ void setup_area_IC(void)
  node_to_position(inode,node_pos);
 }
 */
+
+#ifdef HAVE_NEW_DFT_COMM
+void initialize_solver(void) {
+  /* This function must implement the initial distribution of global IDs 
+     and initialize solver default options.  Presently it is not implemented.
+  return;
+}
+#else
 /****************************************************************************/
 void initialize_Aztec(void)
 /*
@@ -2938,9 +2984,14 @@ void initialize_Aztec(void)
 
   Aztec.params[AZ_drop] = 0.0;
 }
+#endif
 /****************************************************************************/
 /****************************************************************************/
-
+#ifdef HAVE_NEW_DFT_COMM
+void MY_read_update(int *N_update, int *update[], int proc_config[],
+                    int N, int *nodes_x, int chunk, int input_option) {
+  /* This function must be reimplemented without Aztec-specific variables */
+#else
 void MY_read_update(int *N_update, int *update[], int proc_config[],
                     int N, int *nodes_x, int chunk, int input_option)
 
@@ -3130,3 +3181,4 @@ printf("Proc %d nx %d ny %d px %d py %d st_x %d e_x %d st_y %d e_y %d N_update %
                    input_option);
 
 } /* MY_read_update */
+#endif

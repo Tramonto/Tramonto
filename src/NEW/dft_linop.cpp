@@ -86,6 +86,48 @@ int dft_fill_complete(DFT_LINOP * linop){
   if (linop->vecspace->vecspace_type==DFT_AZTEC_VECSPACE) {
     DFT_AZTEC_LINOP * aztec_linop = linop->aux_info;
     int ** bindx_2d = aztec_linop->bindx_2d;
+
+   /* Allocate MSR matrix with known size */
+
+   min_nonzeros = AZ_gmin_int(Aztec.nonzeros,Aztec.proc_config);
+   max_nonzeros = AZ_gmax_int(Aztec.nonzeros,Aztec.proc_config);
+   tot_nonzeros = AZ_gsum_int(Aztec.nonzeros,Aztec.proc_config);
+
+   time_preproc = MPI_Wtime()-t1;
+
+   if (Proc ==0 && Iwrite != NO_SCREEN) {
+      printf("\n\tMSR Preproc found %d to %d (total %d) nonzeros\n",
+                                min_nonzeros,max_nonzeros, tot_nonzeros);
+      printf("\tMSR Preproc took %g seconds\n", time_preproc);
+   }
+
+   Aztec.bindx  = (int *) array_alloc(1, Aztec.nonzeros+1, sizeof(int));
+   Aztec.val = (double *) array_alloc(1, Aztec.nonzeros+1, sizeof(double));
+   if (Aztec.val==NULL) {
+      printf("%s ERROR: Not enough memory to allocate MSR matrix\n",yo);
+      exit(-1);
+   }
+
+   /* load diagnal entries of bindx */
+
+   Aztec.bindx[0] = Aztec.N_update + 1;
+   for (i=0; i< Aztec.N_update; i++){
+     Aztec.bindx[i+1] = Aztec.bindx[i] + bindx_2d[Aztec.N_update][i];
+     /*printf("i: %d  Aztec.bindx[i]: %d  bindx_2d[Aztec.N_update][i]: %d\n",
+              i,Aztec.bindx[i],bindx_2d[Aztec.N_update][i]);*/
+   }
+
+   /* load off-diagnal entries of bindx */
+
+   for (i=0; i<Aztec.N_update; i++)
+     for (j=0; j<bindx_2d[Aztec.N_update][i]; j++)
+       Aztec.bindx[Aztec.bindx[i] + j] = bindx_2d[i][j];
+
+   AZ_transform(Aztec.proc_config, &(Aztec.external), Aztec.bindx,
+                Aztec.val, Aztec.update, &(Aztec.update_index),
+                &(Aztec.extern_index), &(Aztec.data_org), Aztec.N_update,
+                NULL, NULL, NULL, NULL, AZ_MSR_MATRIX);
+
     for (int i=0; i<N_loc+; i++) if (bindx_2d[i]>0) delete [] bindx_2d[i];
     delete [] bindx_2d;
   }

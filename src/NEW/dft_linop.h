@@ -181,11 +181,33 @@ int dft_insert_local_mat_row(DFT_LINOP * linop, int i_mat, double * values);
 
 \brief Sparse matrix-vector multiply kernel.
 
-\param A (In) A  pointer to a sparse matrix object.
+\param linop (In) A  pointer to a sparse matrix object.
 \param x (In) Array of doubles of length compatible with the vecspace associated with the linop.
 \param y (Out) Array of doubles of length compatible with the vecspace associated with the linop.
 
 */
 void dft_matvec(DFT_LINOP * linop, double *x, double *y);
+
+/*! \fn void dft_create_range_vec(DFT_LINOP * linop, double ** y)
+
+\brief Create a vector compatible with the range of the linear operator, eg, a vector y such that y = A*x.
+
+\param linop (In) A  pointer to a sparse matrix object.
+\param y (Out) Array of doubles of length compatible with the range associated with the linop.  For Aztec and
+Epetra, this vector is typically the same size on each processor as the number of rows kept on the processor.
+*/
+void dft_create_range_vec(DFT_LINOP * linop, double **y);
+
+/*! \fn void dft_create_domain_vec(DFT_LINOP * linop, double ** x)
+
+\brief Create a vector compatible with the domain of the linear operator, eg, a vector x such that y = A*x.
+
+\param linop (In) A  pointer to a sparse matrix object.
+\param x (Out) Array of doubles of length compatible with the domain associated with the linop.  For Aztec,
+this vector is typically longer than the number of rows on the processor.  The extra length is used to store
+ghost node values for sparse matrix vector multiplication.  For Epetra this vector is typically the same length
+as the number of rows on the calling processor.
+*/
+void dft_create_domain_vec(DFT_LINOP * linop, double **x);
 
 #endif /* DFT_LINOP_H */
