@@ -59,7 +59,7 @@ common_SOURCES= \
 	loca_util.c \
 	dft_globals.h \
 	dft_globals_const.h \
-	dft_ldbal.h
+	dft_ldbal.h \
 	rf_allo.h \
 	loca_const.h \
 	loca_util_const.h \
