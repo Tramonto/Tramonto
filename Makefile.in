@@ -1,0 +1,20 @@
+#
+# Simple top level makefile for the Tramonto project
+#
+
+#
+# autoconf results that this file needs 
+#
+@SET_MAKE@
+
+all:
+	(cd src; \
+	${MAKE} @DFTTYPE@;)
+
+clean:
+	-(cd src; ${MAKE} clean)
+	-rm -rf config.cache config.log config.status Makefile autom4te*
+
+veryclean: clean;
+	-rm xdft*
+	

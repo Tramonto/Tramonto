@@ -1,0 +1,33 @@
+<Maui>
+
+    <!--
+        this class combines all the elements that go into
+        a set of boundary conditions
+    -->
+    <Class type="BoundaryConditions1DPolymeric" 
+        label="Boundary conditions">
+        <Fields>
+            <BoundaryConditionTypes1D name="boundaryConditionTypes1D"
+                label="Boundary condition type" collapsible="true" 
+                beginCollapsed="true"/>
+            <SurfaceReflections1D name="surfaceReflections1D"
+                label="Treatment of reflected sufaces" 
+                collapsible="true" beginCollapsed="true"/>
+            <ChargedSurfaceBoundaryConditions1D 
+                name="chargedSurfaceBoundaryConditions1D"
+                label="Charge boundary conditions"
+                collapsible="true"
+                beginCollapsed="true"/>
+            <SemiPermeableSurfacesPolymeric
+                name="semiPermeableSurfacesAtomic"
+                label="Semi-Permeable Surfaces"
+                collapsible="true"
+                beginCollapsed="true"/>
+            <DielectricParameters name="dielectricParameters"
+                label="Dielectric Parameters"
+                collapsible="true"
+                beginCollapsed="true"/>
+        </Fields> 
+    </Class>
+
+</Maui>

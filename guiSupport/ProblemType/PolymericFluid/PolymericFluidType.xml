@@ -1,0 +1,62 @@
+<Maui>
+
+    <!--
+        Here is the generic information for a Polymeric fluid type
+    -->
+    <Class label="Polymer segment parameters" type="PanelOfPolymerSegments" 
+        collapsible="false">
+        <Fields>
+            <Integer name="blockNumber" label="Block number" default="0" 
+                lower="0" optional="false"/>
+            <Integer name="segments" label="Segments in this block" default="0"
+                 lower="0" optional="false"/>
+            <Integer name="segmentType" label="Segment type" default="0" 
+                 lower="0" optional="false"/>
+            <Comment name="blockNumberComment">
+                Block number must be consecutive 
+                from 0 to Number of blocks - 1, or
+                from 1 to Number of blocks.
+            </Comment>
+        </Fields>
+    </Class>
+
+    <Class label="Component editing panel" type="PanelOfPolymerComponents" 
+        collapsible="false">
+        <Fields>
+            <Reference name="component" label="Fluid" 
+                path="root/fluidNames/componentsArray" 
+                output="dereference" />
+            <String name="polyFile" label="Connectivity file" default="" 
+                optional="false"/>
+            <Double name="cRRadius" label="radius" default="0.0" lower="0" 
+                optional="false"/>
+            <Double name="gaussA" label="Aspect ratio (gauss A)" default="0.0" 
+                lower="0" optional="false"/>
+            <!--
+            <Integer name="numBlock" label="Number of blocks in this polymer" 
+                default="0" lower="0" optional="false"/>
+            -->
+            <Array name="polymerSegmentArray" label="Segment parameters">
+                <Master label="block number = $blockNumber">
+                    <PanelOfPolymerSegments name="thePolymerSegmentPanel" 
+                        label="Polymer segment parameters"/>
+                </Master>
+            </Array>
+        </Fields>
+    </Class>
+
+    <Class label="Polymer" type="PolymericFluidType" collapsible="true"
+        beginCollapsed="true">
+        <Fields>
+            <String name="cRFile" label="PRISM c(r) data file" default="" 
+                optional="false"/>
+            <Array name="componentsArray" label="Components" collapsible="true">
+                <Master label="$polyFile">
+                    <PanelOfPolymerComponents name="theComponentPanel" 
+                        label="Components"/>
+                </Master>
+            </Array>
+        </Fields>
+    </Class>
+
+</Maui>

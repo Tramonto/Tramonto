@@ -1,0 +1,686 @@
+<Maui>
+
+    <!--
+        These classes allow the user to include or exclude deBroglie
+        wavelength term in the chemical potential
+    -->
+
+    <Class type="MassFluidTable" label="Fluid mass data">
+        <Fields>
+            <Table name="massFluidTable" label="Fluid massdata"
+                collapsible="false">
+                <Header name="massFluidTableHeader" 
+                    label="Fluid mass data">
+                    <Reference name="component" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Double name="massF" label="Mass" default="1.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <Class type="DeBroglieWavelengthInChemPot" 
+        label="Include deBroglie wavelength in chemical potential (default no)">
+        <Fields>
+        </Fields>
+    </Class>
+
+    <Class type="NoDeBroglieWavelengthInChemPot" 
+        label="Do not include deBroglie wavelength in chemical potential"
+        base="DeBroglieWavelengthInChemPot">
+        <Fields>
+        </Fields>
+    </Class>
+
+    <Class type="IncludeDeBroglieWavelengthInChemPot" 
+        label="Include deBroglie wavelength in chemical potential"
+        base="DeBroglieWavelengthInChemPot">
+        <Fields>
+            <MassFluidTable label="Component mass" name="fluidMass"/>
+        </Fields>
+    </Class>
+
+
+    <!-- 
+        We'll define eight tables for the eight unique
+        sets of data the user may need to enter
+        Lorentz-Berthelot mixing 
+          (single component specified)
+          1) Sigma_ff
+          2) Sigma_ff, Eps_ff, Cut_ff
+          3) Sigma_ff, Charge_f
+          4) Sigma_ff, Eps_ff, Cut_ff, Charge_f
+
+        User defined mixing 
+          (component pairs specified)
+          1) Sigma_ff
+          2) Sigma_ff, Eps_ff, Cut_ff
+          3) Sigma_ff, Charge_f
+          4) Sigma_ff, Eps_ff, Cut_ff, Charge_f
+
+        Then these tables can be inserted in the appropriate
+        classes below which indicate the users
+        choice of functionals
+    -->
+
+    <Class type="LBSigmaFluidTable" label="Fluid component data">
+        <Fields>
+            <Table name="sigmaFluidTable" label="Fluid component data"
+                collapsible="false">
+                <Header name="sigmaFluidTableHeader" 
+                    label="Fluid component data">
+                    <Reference name="component" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Double name="sigmaFF" label="Sigma_ff" default="0.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <Class type="LBSigmaEpsCutFluidTable" label="Fluid component data">
+        <Fields>
+            <Table name="sigmaFluidTable" label="Fluid component data"
+                collapsible="false">
+                <Header name="sigmaFluidTableHeader" 
+                    label="Fluid component data">
+                    <Reference name="component" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Double name="sigmaFF" label="Sigma_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="epsFF" label="Eps_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="cutFF" label="Cut_ff" default="0.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <Class type="LBSigmaChargeFluidTable" label="Fluid component data">
+        <Fields>
+            <Table name="sigmaFluidTable" label="Fluid component data"
+                collapsible="false">
+                <Header name="sigmaFluidTableHeader" 
+                    label="Fluid component data">
+                    <Reference name="component" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Double name="sigmaFF" label="Sigma_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="chargeF" label="Charge_f" default="0.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <Class type="LBSigmaEpsCutChargeFluidTable" label="Fluid component data">
+        <Fields>
+            <Table name="sigmaFluidTable" label="Fluid component data"
+                collapsible="false">
+                <Header name="sigmaFluidTableHeader" 
+                    label="Fluid component data">
+                    <Reference name="component" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Double name="sigmaFF" label="Sigma_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="epsFF" label="Eps_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="cutFF" label="Cut_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="chargeF" label="Charge_f" default="0.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <Class type="UDSigmaFluidTable" label="Fluid component data">
+        <Fields>
+            <Table name="sigmaFluidTable" label="Fluid component data"
+                collapsible="false">
+                <Header name="sigmaFluidTableHeader" 
+                    label="Fluid component data">
+                    <Reference name="component1" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Reference name="component2" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Double name="sigmaFF" label="Sigma_ff" default="0.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <Class type="UDSigmaEpsCutFluidTable" label="Fluid component data">
+        <Fields>
+            <Table name="sigmaFluidTable" label="Fluid component data"
+                collapsible="false">
+                <Header name="sigmaFluidTableHeader" 
+                    label="Fluid component data">
+                    <Reference name="component1" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Reference name="component2" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Double name="sigmaFF" label="Sigma_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="epsFF" label="Eps_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="cutFF" label="Cut_ff" default="0.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <Class type="UDSigmaChargeFluidTable" label="Fluid component data">
+        <Fields>
+            <Table name="sigmaFluidTable" label="Fluid component data"
+                collapsible="false">
+                <Header name="sigmaFluidTableHeader" 
+                    label="Fluid component data">
+                    <Reference name="component1" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Reference name="component2" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Double name="sigmaFF" label="Sigma_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="chargeF" label="Charge_f" default="0.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <Class type="UDSigmaEpsCutChargeFluidTable" label="Fluid component data">
+        <Fields>
+            <Table name="sigmaFluidTable" label="Fluid component data"
+                collapsible="false">
+                <Header name="sigmaFluidTableHeader" 
+                    label="Fluid component data">
+                    <Reference name="component1" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Reference name="component2" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Double name="sigmaFF" label="Sigma_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="epsFF" label="Eps_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="cutFF" label="Cut_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="chargeF" label="Charge_f" default="0.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <!--
+        These classes tie together the selection of mixing type and
+        the fluid component data needed
+    -->
+    <Class type="MixingTypeSigmaFluidTable"
+        label="Mixing Rule (default Lorentz-Berthelot)">
+    </Class>
+
+        <Class type="MixingTypeLBSigmaFluidTable"
+            label="Lorentz-Berthelot" base="MixingTypeSigmaFluidTable">
+            <Fields>
+                <LBSigmaFluidTable name="lBSigmaFluidTable" 
+                    label="Interaction diameters"/>
+                <DeBroglieWavelengthInChemPot name="deBroglieWavelenghtInChemPot"
+                    label="deBroglie wavelenght in chemical potential"/>
+            </Fields>
+        </Class>
+
+        <Class type="MixingTypeUDSigmaFluidTable"
+            label="User defined" base="MixingTypeSigmaFluidTable">
+            <Fields>
+                <UDSigmaFluidTable name="uDSigmaFluidTable" 
+                    label="Interaction diameters"/>
+                <DeBroglieWavelengthInChemPot name="deBroglieWavelenghtInChemPot"
+                    label="deBroglie wavelenght in chemical potential"/>
+            </Fields>
+        </Class>
+
+    <Class type="MixingTypeSigmaEpsCutFluidTable"
+        label="Mixing Rule (default Lorentz-Berthelot)">
+    </Class>
+
+        <Class type="MixingTypeLBSigmaEpsCutFluidTable"
+            label="Lorentz-Berthelot" base="MixingTypeSigmaEpsCutFluidTable">
+            <Fields>
+                <LBSigmaEpsCutFluidTable name="lBSigmaEpsCutFluidTable" 
+                    label="Interaction diameters"/>
+                <DeBroglieWavelengthInChemPot name="deBroglieWavelenghtInChemPot"
+                    label="deBroglie wavelenght in chemical potential"/>
+            </Fields>
+        </Class>
+
+        <Class type="MixingTypeUDSigmaEpsCutFluidTable"
+            label="User defined" base="MixingTypeSigmaEpsCutFluidTable">
+            <Fields>
+                <UDSigmaEpsCutFluidTable name="uDSigmaEpsCutFluidTable" 
+                    label="Interaction diameters"/>
+                <DeBroglieWavelengthInChemPot name="deBroglieWavelenghtInChemPot"
+                    label="deBroglie wavelenght in chemical potential"/>
+            </Fields>
+        </Class>
+
+    <Class type="MixingTypeSigmaChargeFluidTable"
+        label="Mixing Rule (default Lorentz-Berthelot)">
+    </Class>
+
+        <Class type="MixingTypeLBSigmaChargeFluidTable"
+            label="Lorentz-Berthelot" base="MixingTypeSigmaChargeFluidTable">
+            <Fields>
+                <LBSigmaChargeFluidTable name="lBSigmaChargeFluidTable" 
+                    label="Interaction diameters"/>
+                <DeBroglieWavelengthInChemPot name="deBroglieWavelenghtInChemPot"
+                    label="deBroglie wavelenght in chemical potential"/>
+            </Fields>
+        </Class>
+
+        <Class type="MixingTypeUDSigmaChargeFluidTable"
+            label="User defined" base="MixingTypeSigmaChargeFluidTable">
+            <Fields>
+                <UDSigmaChargeFluidTable name="uDSigmaChargeFluidTable" 
+                    label="Interaction diameters"/>
+                <DeBroglieWavelengthInChemPot name="deBroglieWavelenghtInChemPot"
+                    label="deBroglie wavelenght in chemical potential"/>
+            </Fields>
+        </Class>
+
+    <Class type="MixingTypeSigmaEpsCutChargeFluidTable"
+        label="Mixing Rule (default Lorentz-Berthelot)">
+    </Class>
+
+        <Class type="MixingTypeLBSigmaEpsCutChargeFluidTable"
+            label="Lorentz-Berthelot" base="MixingTypeSigmaEpsCutChargeFluidTable">
+            <Fields>
+                <LBSigmaEpsCutChargeFluidTable name="lBSigmaEpsCutChargeFluidTable" 
+                    label="Interaction diameters"/>
+                <DeBroglieWavelengthInChemPot name="deBroglieWavelenghtInChemPot"
+                    label="deBroglie wavelenght in chemical potential"/>
+            </Fields>
+        </Class>
+
+        <Class type="MixingTypeUDSigmaEpsCutChargeFluidTable"
+            label="User defined" base="MixingTypeSigmaEpsCutChargeFluidTable">
+            <Fields>
+                <UDSigmaEpsCutChargeFluidTable name="uDSigmaEpsCutChargeFluidTable" 
+                    label="Interaction diameters"/>
+                <DeBroglieWavelengthInChemPot name="deBroglieWavelenghtInChemPot"
+                    label="deBroglie wavelenght in chemical potential"/>
+            </Fields>
+        </Class>
+   
+
+    <!--
+        This class ties together all of the specific 
+        functional classes since it's the base class
+    -->
+    <Class type="FunctionalsAndInteractions"
+        label="Functionals and Interactions (default all off)">
+    </Class>
+
+    <!--
+       There are three choices of hard sphere functionals, 
+       two choices of attractive functionals and
+       three choices of coulombic functionals.  Since the
+       data required for a simulation is highly dependent on 
+       the combination of functionals the user selects,
+       we'll ennumerate all 3*2*3=18 choices and let the
+       user pick the exact combination they want.
+
+       Extra indentation is used here to highlight
+       the inheritance structure
+    -->
+
+    <Class type="NoHardSphereFunctional" label="No hard sphere functional"
+        base="FunctionalsAndInteractions">
+    </Class>    
+
+        <Class type="NoHSNoAttractiveFunctional" label="No attractive functional"
+            base="NoHardSphereFunctional">
+        </Class>
+
+            <Class type="NoHSNoAttNoCoulomb" label="No coulombic functional"
+                base="NoHSNoAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        No Hard Sphere Functional
+                        No Attractive Functional
+                        No Coulombic Functional
+
+                        No further data is required for this combination of functionals.
+                    </Comment>
+                    <DeBroglieWavelengthInChemPot name="deBroglieWavelenghtInChemPot"
+                        label="deBroglie wavelenght in chemical potential"/>
+                </Fields>
+            </Class>
+
+            <Class type="NoHSNoAttStrictCoulomb" label="Strict mean field"
+                base="NoHSNoAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        No Hard Sphere Functional
+                        No Attractive Functional
+                        Strict Mean Field Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaChargeFluidTable 
+                        name="mixingTypeSigmaChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+            <Class type="NoHSNoAttSecondCoulomb" label="Second order"
+                base="NoHSNoAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        No Hard Sphere Functional
+                        No Attractive Functional
+                        Mean Field with Second Order Corrections Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaChargeFluidTable 
+                        name="mixingTypeSigmaChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+        <Class type="NoHSStrictMeanFieldAttractiveFunctional" 
+            label="Strict mean field"
+            base="NoHardSphereFunctional"> 
+            <!-- 
+            remove the above base tag to disable this branch of the tree
+            -->
+        </Class>
+
+            <Class type="NoHSStMFNoCoulomb" label="No coulombic functional"
+                base="NoHSStrictMeanFieldAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        No Hard Sphere Functional
+                        Strict Mean Field Attractive Functional
+                        No Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaEpsCutFluidTable 
+                        name="mixingTypeSigmaEpsCutFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+            <Class type="NoHSStMFStrictCoulomb" label="Strict mean field"
+                base="NoHSStrictMeanFieldAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        No Hard Sphere Functional
+                        Strict Mean Field Attractive Functional
+                        Strict Mean Field Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaEpsCutChargeFluidTable 
+                        name="mixingTypeSigmaEpsCutChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+            <Class type="NoHSStMFSecondCoulomb" label="Second order"
+                base="NoHSStrictMeanFieldAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        No Hard Sphere Functional
+                        Strict Mean Field Attractive Functional
+                        Mean Field with Second Order Corrections Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaEpsCutChargeFluidTable 
+                        name="mixingTypeSigmaEpsCutChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+
+    <Class type="RosenOneHardSphereFunctional" label="Original Rosenfeld"
+        base="FunctionalsAndInteractions">
+    </Class>
+
+        <Class type="RosenOneNoAttractiveFunctional" label="No attractive functional"
+            base="RosenOneHardSphereFunctional">
+        </Class>
+
+            <Class type="RosenOneNoAttNoCoulomb" label="No coulombic functional"
+                base="RosenOneNoAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Original Rosenfled Functional
+                        No Attractive Functional
+                        No Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaFluidTable 
+                        name="mixingTypeSigmaFluidTable" 
+                        label="Interaction diameters"/>
+                </Fields>
+            </Class>
+
+            <Class type="RosenOneNoAttStrictCoulomb" label="Strict mean field"
+                base="RosenOneNoAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Original Rosenfled Functional
+                        No Attractive Functional
+                        Strict Mean Field Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaChargeFluidTable 
+                        name="mixingTypeSigmaChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+            <Class type="RosenOneNoAttSecondCoulomb" label="Second order"
+                base="RosenOneNoAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Original Rosenfled Functional
+                        No Attractive Functional
+                        Mean Field with Second Order Corrections Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaChargeFluidTable 
+                        name="mixingTypeSigmaChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+        <Class type="RosenOneStrictMeanFieldAttractiveFunctional" 
+            label="Strict mean field"
+            base="RosenOneHardSphereFunctional">
+        </Class>
+
+            <Class type="RosenOneStMFNoCoulomb" label="No coulombic functional"
+                base="RosenOneStrictMeanFieldAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Original Rosenfled Functional
+                        Strict Mean Field Attractive Functional
+                        No Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaEpsCutFluidTable 
+                        name="mixingTypeSigmaEpsCutFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+
+            </Class>
+
+            <Class type="RosenOneStMFStrictCoulomb" label="Strict mean field"
+                base="RosenOneStrictMeanFieldAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Original Rosenfled Functional
+                        Strict Mean Field Attractive Functional
+                        Strict Mean Field Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaEpsCutChargeFluidTable 
+                        name="mixingTypeSigmaEpsCutChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+            <Class type="RosenOneStMFSecondCoulomb" label="Second order"
+                base="RosenOneStrictMeanFieldAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Original Rosenfled Functional
+                        Strict Mean Field Attractive Functional
+                        Mean Field with Second Order Corrections Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaEpsCutChargeFluidTable 
+                        name="mixingTypeSigmaEpsCutChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+    <Class type="RosenTwoHardSphereFunctional" label="Updated Rosenfeld"
+        base="FunctionalsAndInteractions">
+    </Class>
+
+        <Class type="RosenTwoNoAttractiveFunctional" label="No attractive functional"
+            base="RosenTwoHardSphereFunctional">
+        </Class>
+
+            <Class type="RosenTwoNoAttNoCoulomb" label="No coulombic functional"
+                base="RosenTwoNoAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Updated Rosenfled Functional
+                        No Attractive Functional
+                        No Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaFluidTable 
+                        name="mixingTypeSigmaFluidTable" 
+                        label="Interaction diameters"/>
+                </Fields>
+            </Class>
+
+            <Class type="RosenTwoNoAttStrictCoulomb" label="Strict mean field"
+                base="RosenTwoNoAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Updated Rosenfled Functional
+                        No Attractive Functional
+                        Strict Mean Field Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaChargeFluidTable 
+                        name="mixingTypeSigmaChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+            <Class type="RosenTwoNoAttSecondCoulomb" label="Second order"
+                base="RosenTwoNoAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Updated Rosenfled Functional
+                        No Attractive Functional
+                        Mean Field with Second Order Corrections Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaChargeFluidTable 
+                        name="mixingTypeSigmaChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+        <Class type="RosenTwoStrictMeanFieldAttractiveFunctional" 
+            label="Strict mean field"
+            base="RosenTwoHardSphereFunctional">
+        </Class>
+
+            <Class type="RosenTwoStMFNoCoulomb" label="No coulombic functional"
+                base="RosenTwoStrictMeanFieldAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Updated Rosenfled Functional
+                        Strict Mean Field Attractive Functional
+                        No Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaEpsCutFluidTable 
+                        name="mixingTypeSigmaEpsCutFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+            <Class type="RosenTwoStMFStrictCoulomb" label="Strict mean field"
+                base="RosenTwoStrictMeanFieldAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Updated Rosenfled Functional
+                        Strict Mean Field Attractive Functional
+                        Strict Mean Field Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaEpsCutChargeFluidTable 
+                        name="mixingTypeSigmaEpsCutChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+            <Class type="RosenTwoStMFSecondCoulomb" label="Second order"
+                base="RosenTwoStrictMeanFieldAttractiveFunctional">
+                <Fields>
+                    <Comment name="aComment">
+                        Current selection:
+                        Updated Rosenfled Functional
+                        Strict Mean Field Attractive Functional
+                        Mean Field with Second Order Corrections Coulombic Functional
+
+                    </Comment>
+                    <MixingTypeSigmaEpsCutChargeFluidTable 
+                        name="mixingTypeSigmaEpsCutChargeFluidTable" 
+                        label="Interaction parameters"/>
+                </Fields>
+            </Class>
+
+</Maui>

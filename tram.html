@@ -1,0 +1,2419 @@
+<!DOCTYPE html PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<HTML>
+<HEAD>
+<TITLE>Enscript Output</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#1F00FF" ALINK="#FF0000" VLINK="#9900DD">
+<A NAME="top">
+<H1>Contents</H1>
+<OL>
+  <LI><A HREF="#file1">dft_stencil.c</A>
+  <LI><A HREF="#file2">dft_thermo.c</A>
+</OL>
+<HR>
+<A NAME="file1">
+<H1>dft_stencil.c 1/2</H1>
+[<A HREF="#top">top</A>][prev][<A HREF="#file2">next</A>]
+<PRE>
+<I><FONT COLOR="#B22222">/*====================================================================
+ * ------------------------
+ * | CVS File Information |
+ * ------------------------
+ *
+ * $RCSfile$
+ *
+ * $Author$
+ *
+ * $Date$
+ *
+ * $Revision$
+ *
+ *====================================================================*/</FONT></I>
+
+<I><FONT COLOR="#B22222">/*
+ *  FILE: dft_stencil.c
+ *
+ *  This file contains the routines to precalculate the &quot;stencils,&quot;
+ *  which are the integration schemes for the non-local interactions.
+ *  The results will be strored in the global variable Stencil, which
+ *  is a 2D array of Stencil_Struct (defined in dft_stencil_const.h).
+ *
+ */</FONT></I>
+
+#<B><FONT COLOR="#5F9EA0">include</FONT></B> <FONT COLOR="#BC8F8F"><B>&quot;dft_globals_const.h&quot;</FONT></B>
+#<B><FONT COLOR="#5F9EA0">include</FONT></B> <FONT COLOR="#BC8F8F"><B>&quot;rf_allo.h&quot;</FONT></B>
+#<B><FONT COLOR="#5F9EA0">ifdef</FONT></B> <FONT COLOR="#B8860B">PARALLEL</FONT>
+#<B><FONT COLOR="#5F9EA0">include</FONT></B> <FONT COLOR="#BC8F8F"><B>&quot;mpi.h&quot;</FONT></B>
+#<B><FONT COLOR="#5F9EA0">endif</FONT></B>
+
+<I><FONT COLOR="#B22222">/* Prototypes for functions found in this file */</FONT></I>
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">merge_load_stencil</FONT></B>(<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *, <FONT COLOR="#228B22"><B>int</FONT></B> **, <FONT COLOR="#228B22"><B>double</FONT></B> *,<FONT COLOR="#228B22"><B>int</FONT></B> *, <FONT COLOR="#228B22"><B>int</FONT></B> *);
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">print_out_stencil</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B>, <FONT COLOR="#228B22"><B>int</FONT></B>,<FONT COLOR="#228B22"><B>int</FONT></B>, <FONT COLOR="#228B22"><B>int</FONT></B>, FILE *);
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">sort_stencil</FONT></B>(<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *);
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">calc_sten_rad</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> , <FONT COLOR="#228B22"><B>int</FONT></B> , <FONT COLOR="#228B22"><B>int</FONT></B>);
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">calc_sten_vol</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> , <FONT COLOR="#228B22"><B>int</FONT></B> , <FONT COLOR="#228B22"><B>int</FONT></B>);
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">get_weight_from_stencil</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> , <FONT COLOR="#228B22"><B>int</FONT></B> , <FONT COLOR="#228B22"><B>int</FONT></B> , <FONT COLOR="#228B22"><B>double</FONT></B> , <FONT COLOR="#228B22"><B>double</FONT></B>,
+                                      <FONT COLOR="#228B22"><B>int</FONT></B> , <FONT COLOR="#228B22"><B>double</FONT></B> *, <FONT COLOR="#228B22"><B>double</FONT></B> *);
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>int</FONT></B> <B><FONT COLOR="#0000FF">calc_in_out_on</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *, <FONT COLOR="#228B22"><B>double</FONT></B> *, <FONT COLOR="#228B22"><B>double</FONT></B> );
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">renormalize_stencil</FONT></B>(<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *, <FONT COLOR="#228B22"><B>double</FONT></B>);
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">int_cr</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>,<FONT COLOR="#228B22"><B>double</FONT></B>,<FONT COLOR="#228B22"><B>double</FONT></B>,<FONT COLOR="#228B22"><B>int</FONT></B>,<FONT COLOR="#228B22"><B>int</FONT></B>, <FONT COLOR="#228B22"><B>int</FONT></B>, <FONT COLOR="#228B22"><B>double</FONT></B>, <FONT COLOR="#228B22"><B>double</FONT></B> *);
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">gauss</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>, <FONT COLOR="#228B22"><B>int</FONT></B>, <FONT COLOR="#228B22"><B>int</FONT></B>);
+<FONT COLOR="#228B22"><B>int</FONT></B> <B><FONT COLOR="#0000FF">ijk_to_isten_index</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> *,<FONT COLOR="#228B22"><B>int</FONT></B> *);
+<FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">shorten_stencil</FONT></B>(<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *);
+
+
+
+<FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">calc_stencils</FONT></B>()
+{
+ <I><FONT COLOR="#B22222">/*
+  * Local variable declarations
+  */</FONT></I>
+
+  <FONT COLOR="#228B22"><B>char</FONT></B> *yo = <FONT COLOR="#BC8F8F"><B>&quot;calc_stencils&quot;</FONT></B>;
+  <FONT COLOR="#228B22"><B>int</FONT></B> izone,iizone,isten, 
+      icomp, isp, i, j, k;   <I><FONT COLOR="#B22222">/* counters in for loops         */</FONT></I>
+  <FONT COLOR="#228B22"><B>int</FONT></B> jcomp, imax, jmax, idim, ig, jg, kg, iii; <I><FONT COLOR="#B22222">/* counters in for loops      */</FONT></I>
+
+  <FONT COLOR="#228B22"><B>int</FONT></B>    **el_offsets;
+  <FONT COLOR="#228B22"><B>double</FONT></B> *el_weights;
+
+  <FONT COLOR="#228B22"><B>int</FONT></B> max_sten_nodes, el_in_radius[3], t1, in_out_on_flag;
+  <FONT COLOR="#228B22"><B>int</FONT></B> nsten_max;
+  <FONT COLOR="#228B22"><B>double</FONT></B> vol_sten, sten_rad, el_vol;
+ 
+  <FONT COLOR="#228B22"><B>int</FONT></B> count1=0, count2=0;
+
+  <I><FONT COLOR="#B22222">/* quadrature and interpolation stuff */</FONT></I>
+  <FONT COLOR="#228B22"><B>double</FONT></B> weight, x_left[3], x_right[3], delx[3];
+  <FONT COLOR="#228B22"><B>double</FONT></B> qp[3], point[3], ok_distance;
+  <FONT COLOR="#228B22"><B>int</FONT></B> ngp, ngp1, ngp2, ngp3, npt;
+  <FONT COLOR="#228B22"><B>double</FONT></B> gp1[12],gp2[12],gp3[12],gw1[12],gw2[12],gw3[12];
+  <FONT COLOR="#228B22"><B>double</FONT></B> *gp, *gw;
+  <FONT COLOR="#228B22"><B>double</FONT></B> r_center_sq,x_mid[3];
+  <FONT COLOR="#228B22"><B>double</FONT></B> radius,radius_sq, inv_sten_rad_sq, inv_npt;
+
+
+  <I><FONT COLOR="#B22222">/* u_attract quadrature off-dimensions*/</FONT></I>
+  <FONT COLOR="#228B22"><B>int</FONT></B> ngpu, ngpu1,ngpu2,ngpu3;
+  <FONT COLOR="#228B22"><B>double</FONT></B> gpu1[40], gwu1[40], gpu2[40], gwu2[40], gpu3[40],gwu3[40],
+         gpu4[40],gwu4[40];
+  <FONT COLOR="#228B22"><B>double</FONT></B> *gpu, *gwu;
+
+  <FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *sten;
+  <FONT COLOR="#228B22"><B>int</FONT></B> *index_sten;
+  FILE *ifp, *ifp2;
+
+  <FONT COLOR="#228B22"><B>double</FONT></B> esize_zone[3];
+  <FONT COLOR="#228B22"><B>int</FONT></B>  zone_coarseness;
+
+  <I><FONT COLOR="#B22222">/********************** BEGIN EXECUTION ************************************/</FONT></I>
+
+  <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0) {
+    printf(<FONT COLOR="#BC8F8F"><B>&quot;\n%s: Calculating stencils ... &quot;</FONT></B>,yo);
+#<B><FONT COLOR="#5F9EA0">ifdef</FONT></B> <FONT COLOR="#B8860B">PARALLEL</FONT>
+    t1 = MPI_Wtime();
+#<B><FONT COLOR="#5F9EA0">endif</FONT></B>
+    <B><FONT COLOR="#A020F0">if</FONT></B> (Iwrite == VERBOSE) ifp = fopen(<FONT COLOR="#BC8F8F"><B>&quot;stencil.out&quot;</FONT></B>, <FONT COLOR="#BC8F8F"><B>&quot;w&quot;</FONT></B>);
+    ifp2 = fopen(<FONT COLOR="#BC8F8F"><B>&quot;dft_out.lis&quot;</FONT></B>,<FONT COLOR="#BC8F8F"><B>&quot;a+&quot;</FONT></B>);
+  }
+
+ <I><FONT COLOR="#B22222">/*
+  * Allocate the Stencil variable to be a 3D array of structures
+  * Now it can be accessed as Stencil[i][j][k].Length
+  */</FONT></I>
+
+  Stencil = (<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct ***) array_alloc
+             (3, NSTEN, Nzone, Ncomp*Ncomp, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct));
+
+  el_offsets = (<FONT COLOR="#228B22"><B>int</FONT></B> **) array_alloc (2, Nnodes_per_el_V, Ndim, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B>));
+  el_weights = (<FONT COLOR="#228B22"><B>double</FONT></B> *) array_alloc (1, Nnodes_per_el_V, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+
+  ngp1  = 6; ngp2  = 3; ngp3 = 1;
+  ngpu1 = 40; ngpu2 = 20; ngpu3 = 12;
+
+  set_gauss_quad(ngp1, gp1, gw1);
+  set_gauss_quad(ngp2, gp2, gw2);
+  set_gauss_quad(ngp3, gp3, gw3);
+
+  <I><FONT COLOR="#B22222">/* zero the maximum stencil length .... used later for
+     setting up local coordinate systems */</FONT></I>
+  <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0; idim&lt;Ndim; idim++) {
+       Max_sten_length[idim] = 0;
+       Sten_length_hs[idim] = 0;
+  }
+ 
+ <I><FONT COLOR="#B22222">/* Loop over each quadrature zone */</FONT></I>
+  <B><FONT COLOR="#A020F0">for</FONT></B> (izone=0; izone&lt;Nzone; izone++){
+
+  <B><FONT COLOR="#A020F0">if</FONT></B> (Coarser_jac ==5 &amp;&amp; izone == Nzone-1 ){
+    <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0; idim&lt;Ndim; idim++){
+        zone_coarseness = (<FONT COLOR="#228B22"><B>int</FONT></B>)(Jac_grid/Esize_x[idim]+0.000000001);
+        esize_zone[idim]=Esize_x[idim]* zone_coarseness;
+    }
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B>{
+    zone_coarseness = POW_INT(2,izone);
+    <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0; idim&lt;Ndim; idim++)
+       esize_zone[idim]=Esize_x[idim]* zone_coarseness;
+  }
+
+ <I><FONT COLOR="#B22222">/* Loop over each stencil type, only proceed if stencil type is true */</FONT></I>
+ 
+  <B><FONT COLOR="#A020F0">for</FONT></B> (isten=0; isten&lt;NSTEN; isten++)  
+  <B><FONT COLOR="#A020F0">if</FONT></B> (Sten_Type[isten]) {
+
+    <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT || isten == THETA_CHARGE || isten == POLYMER_CR) 
+          jmax = Ncomp;
+    <B><FONT COLOR="#A020F0">else</FONT></B>  jmax = 1;
+
+    <B><FONT COLOR="#A020F0">if</FONT></B> (isten == POLYMER_GAUSS) imax = 1;  <I><FONT COLOR="#B22222">/* currently a single Gauss bl must
+                                              be used for all polymer segments*/</FONT></I>
+    <B><FONT COLOR="#A020F0">else</FONT></B>                   imax = Ncomp;
+
+    <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT || isten == THETA_CHARGE || isten == POLYMER_CR){
+       <B><FONT COLOR="#A020F0">if</FONT></B> (isten== THETA_CHARGE) ngpu = 20;
+       set_gauss_quad(ngpu1, gpu1, gwu1);
+       set_gauss_quad(ngpu2, gpu2, gwu2);
+       set_gauss_quad(ngpu3, gpu3, gwu3);
+    }
+
+    <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;imax; icomp++) {
+    <B><FONT COLOR="#A020F0">for</FONT></B> (jcomp=0; jcomp&lt;jmax; jcomp++) {
+
+      <I><FONT COLOR="#B22222">/* calculate stencil volume (e.g. 4/3 pi r^3), radius, and element vol */</FONT></I>
+
+      vol_sten = calc_sten_vol(isten, icomp, jcomp);
+      sten_rad = calc_sten_rad(isten, icomp, jcomp);
+      inv_sten_rad_sq = 1.0/(sten_rad*sten_rad);
+      el_vol=1.0; <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i&lt;Ndim; i++) el_vol *= esize_zone[i];
+
+      <I><FONT COLOR="#B22222">/*
+       * Figure out elements that form a bounding box for the stencil 
+       * and the maximum number of nodes in the stencil
+       */</FONT></I>
+
+      max_sten_nodes = 1.0;
+      <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i&lt;Ndim; i++) {
+        el_in_radius[i] = (<FONT COLOR="#228B22"><B>int</FONT></B>) ((<FONT COLOR="#228B22"><B>float</FONT></B>)sten_rad/(<FONT COLOR="#228B22"><B>float</FONT></B>) esize_zone[i] + 0.999);
+        max_sten_nodes *= 2 * el_in_radius[i] + 1;
+
+        <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT || isten == THETA_CHARGE || Matrix_fill_flag&gt;=3
+            || isten == POLYMER_CR || isten == POLYMER_GAUSS) 
+                            nsten_max = el_in_radius[i];
+        <B><FONT COLOR="#A020F0">else</FONT></B>{               nsten_max = 2*el_in_radius[i];}
+        <B><FONT COLOR="#A020F0">if</FONT></B> (isten == DELTA_FN || isten==THETA_FN){
+                <B><FONT COLOR="#A020F0">if</FONT></B> (el_in_radius[i]*zone_coarseness &gt; Sten_length_hs[i])
+                    Sten_length_hs[i] = el_in_radius[i]*zone_coarseness;
+        }
+        <B><FONT COLOR="#A020F0">if</FONT></B> (nsten_max*zone_coarseness &gt; Max_sten_length[i]) 
+              Max_sten_length[i] = nsten_max*zone_coarseness;
+      }
+
+      <I><FONT COLOR="#B22222">/* Allocate current stencil using this upper bound length */</FONT></I>
+
+      sten = &amp;(Stencil[isten][izone][icomp+Ncomp*jcomp]);
+      sten-&gt;Length = 0;
+      sten-&gt;Offset = (<FONT COLOR="#228B22"><B>int</FONT></B> **) array_alloc(2, max_sten_nodes, Ndim, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B>));
+      sten-&gt;Weight = (<FONT COLOR="#228B22"><B>double</FONT></B> *) array_alloc(1, max_sten_nodes, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+      <B><FONT COLOR="#A020F0">if</FONT></B> (Lhard_surf) sten-&gt;HW_Weight = (<FONT COLOR="#228B22"><B>double</FONT></B> **)
+           array_alloc(2, max_sten_nodes, Nnodes_per_el_V, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+
+      <I><FONT COLOR="#B22222">/* Allocate temporary index array to keep track of which 
+         nodes have been set and which have not. -1 is the flag value
+         for not yet set ! */</FONT></I>
+      index_sten = (<FONT COLOR="#228B22"><B>int</FONT></B> *) array_alloc(1, max_sten_nodes, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B>));
+      <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i&lt;max_sten_nodes; i++) index_sten[i] = -1;
+        
+
+      <I><FONT COLOR="#B22222">/* Loop through all elements in bounding box, and perform quadrature */</FONT></I>
+
+      <B><FONT COLOR="#A020F0">switch</FONT></B> (Ndim) {
+
+        <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">1</FONT></B>:
+
+          <I><FONT COLOR="#B22222">/* loop over all elements, which contain nodes i and i+1 */</FONT></I>
+
+          <B><FONT COLOR="#A020F0">for</FONT></B> (i = -el_in_radius[0]; i &lt; el_in_radius[0]; i++) {
+             x_left[0]  = i * esize_zone[0];
+             x_right[0] = (i+1) * esize_zone[0];
+             el_offsets[0][0] = i;
+             el_offsets[1][0] = i + 1;
+             x_mid[0] = x_left[0] + 0.5*esize_zone[0];
+             r_center_sq = (x_mid[0]*x_mid[0]);
+             <B><FONT COLOR="#A020F0">if</FONT></B> (r_center_sq &lt;= 4.0){
+                 <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT)
+                     { ngp = ngp3; gp = &amp;gp3[0]; gw = &amp;gw3[0];}
+                 <B><FONT COLOR="#A020F0">else</FONT></B>{ ngp = ngp1; gp = &amp;gp1[0]; gw = &amp;gw1[0];}
+                 ngpu = ngpu1; gpu = &amp;gpu1[0]; gwu = &amp;gwu1[0];
+             }
+             <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (r_center_sq &lt;= 16.0){
+                 <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT)
+                     { ngp = ngp3; gp = &amp;gp3[0]; gw = &amp;gw3[0];}
+                 <B><FONT COLOR="#A020F0">else</FONT></B>{ ngp = ngp2; gp = &amp;gp2[0]; gw = &amp;gw2[0];}
+                 ngpu = ngpu2; gpu = &amp;gpu2[0]; gwu = &amp;gwu2[0];
+             }
+             <B><FONT COLOR="#A020F0">else</FONT></B>{
+                 <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT)
+                     { ngp = ngp3; gp = &amp;gp3[0]; gw = &amp;gw3[0];}
+                 <B><FONT COLOR="#A020F0">else</FONT></B>{ ngp = ngp2; gp = &amp;gp2[0]; gw = &amp;gw2[0];}
+                 ngpu = ngpu3; gpu = &amp;gpu3[0]; gwu = &amp;gwu3[0];
+             }
+
+             <B><FONT COLOR="#A020F0">for</FONT></B> (iii=0; iii &lt; Nnodes_per_el_V; iii++)
+                el_weights[iii] = 0.0;
+
+             <I><FONT COLOR="#B22222">/* test if element is out, in, or stradles radius */</FONT></I>
+
+             in_out_on_flag = calc_in_out_on(x_left, x_right, sten_rad);
+               
+             <B><FONT COLOR="#A020F0">if</FONT></B> (in_out_on_flag == 1) {
+               <I><FONT COLOR="#B22222">/* nothing to do -- element outside of stencil radius */</FONT></I>
+             }
+             <B><FONT COLOR="#A020F0">else</FONT></B>{
+               <B><FONT COLOR="#A020F0">if</FONT></B> (in_out_on_flag == -1) {
+                 <I><FONT COLOR="#B22222">/* element completely within stencil radius -- use Gauss Quad*/</FONT></I>
+
+                 <B><FONT COLOR="#A020F0">for</FONT></B> (ig=0; ig &lt; ngp; ig++) {
+
+                   point[0] = x_left[0] + gp[ig] * esize_zone[0];
+  
+                   <I><FONT COLOR="#B22222">/*radius = fabs(point[0]) / sten_rad;*/</FONT></I>
+
+                   radius_sq = point[0]*point[0]*inv_sten_rad_sq;
+
+                   <B><FONT COLOR="#A020F0">if</FONT></B> (isten != POLYMER_CR)
+                     weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                          radius_sq,sten_rad, ngpu, gpu, gwu);
+                   <B><FONT COLOR="#A020F0">else</FONT></B> {
+                     radius = fabs(point[0]);
+                     weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                          radius,sten_rad, ngpu, gpu, gwu);
+                   }
+                   weight *= gw[ig] * el_vol;
+
+                   el_weights[0] += weight * (1.0-gp[ig]); 
+                   el_weights[1] += weight * gp[ig]; 
+  
+                 }
+  
+               } 
+               <B><FONT COLOR="#A020F0">else</FONT></B> {
+                 <I><FONT COLOR="#B22222">/* element stradles stencil boundary -- use lots of dumb quad*/</FONT></I>
+
+                 <B><FONT COLOR="#A020F0">switch</FONT></B> (isten) {
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">DELTA_FN</FONT></B>:      npt = 150; <B><FONT COLOR="#A020F0">break</FONT></B>; <I><FONT COLOR="#B22222">/* singular at r=1 */</FONT></I>
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_FN</FONT></B>:      npt =  40; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">U_ATTRACT</FONT></B>:     npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_CHARGE</FONT></B>:  npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_CR</FONT></B>:    npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_GAUSS</FONT></B>:      npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                 }
+                 inv_npt = 1.0 / (<FONT COLOR="#228B22"><B>double</FONT></B>) npt;
+
+                 <B><FONT COLOR="#A020F0">for</FONT></B> (ig=0; ig &lt; npt; ig++) {
+                   
+                   qp[0] =  (ig + 0.5) * inv_npt;
+
+                   point[0] = x_left[0] + qp[0] * esize_zone[0];
+  
+                   <I><FONT COLOR="#B22222">/*radius = fabs(point[0]) / sten_rad;*/</FONT></I>
+                   radius_sq = point[0]*point[0]*inv_sten_rad_sq;
+
+                   <B><FONT COLOR="#A020F0">if</FONT></B> (radius_sq &lt;= 1.000001) {
+                     <B><FONT COLOR="#A020F0">if</FONT></B> (isten != POLYMER_CR)
+                       weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                            radius_sq,sten_rad, ngpu, gpu, gwu);
+                     <B><FONT COLOR="#A020F0">else</FONT></B> {
+                       radius = fabs(point[0]);
+                       weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                            radius,sten_rad, ngpu, gpu, gwu);
+                     }
+                     <B><FONT COLOR="#A020F0">if</FONT></B> (radius_sq == 1.0) weight *= 0.5;
+                     weight *= inv_npt * el_vol; 
+
+                     el_weights[0] += weight * (1.0-qp[0]); 
+                     el_weights[1] += weight * qp[0]; 
+                   }
+                 }
+               
+               }
+
+               merge_load_stencil(sten, el_offsets, el_weights,el_in_radius,index_sten);
+             }
+          }
+          <B><FONT COLOR="#A020F0">break</FONT></B>;
+
+        <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">2</FONT></B>:
+
+          <I><FONT COLOR="#B22222">/* loop over all elements, which contain nodes i and i+1 */</FONT></I>
+
+          <B><FONT COLOR="#A020F0">for</FONT></B> (i = -el_in_radius[0]; i &lt; el_in_radius[0]; i++) {
+             x_left[0]  = i * esize_zone[0];
+             x_right[0] = (i+1) * esize_zone[0];
+             el_offsets[0][0] = i;
+             el_offsets[1][0] = i + 1;
+             el_offsets[2][0] = i;
+             el_offsets[3][0] = i + 1;
+          <B><FONT COLOR="#A020F0">for</FONT></B> (j = -el_in_radius[1]; j &lt; el_in_radius[1]; j++) {
+             x_left[1]  = j * esize_zone[1];
+             x_right[1] = (j+1) * esize_zone[1];
+             el_offsets[0][1] = j;
+             el_offsets[1][1] = j;
+             el_offsets[2][1] = j + 1;
+             el_offsets[3][1] = j + 1;
+
+             x_mid[0] = x_left[0] + 0.5*esize_zone[0];
+             x_mid[1] = x_left[1] + 0.5*esize_zone[1];
+
+             r_center_sq = (x_mid[0]*x_mid[0]) + (x_mid[1]*x_mid[1]);
+             <B><FONT COLOR="#A020F0">if</FONT></B> (r_center_sq &lt;= 4.0000001){
+                 <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT)
+                     { ngp = ngp3; gp = &amp;gp3[0]; gw = &amp;gw3[0];}
+                 <B><FONT COLOR="#A020F0">else</FONT></B>{ ngp = ngp1; gp = &amp;gp1[0]; gw = &amp;gw1[0];}
+                 ngpu = ngpu1; gpu = &amp;gpu1[0]; gwu = &amp;gwu1[0];
+             }
+             <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (r_center_sq &lt;= 16.0000001){
+                 <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT)
+                     { ngp = ngp3; gp = &amp;gp3[0]; gw = &amp;gw3[0];}
+                 <B><FONT COLOR="#A020F0">else</FONT></B>{ ngp = ngp2; gp = &amp;gp2[0]; gw = &amp;gw2[0];}
+                 ngpu = ngpu2; gpu = &amp;gpu2[0]; gwu = &amp;gwu2[0];
+             }
+             <B><FONT COLOR="#A020F0">else</FONT></B>{
+                 <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT)
+                     { ngp = ngp3; gp = &amp;gp3[0]; gw = &amp;gw3[0];}
+                 <B><FONT COLOR="#A020F0">else</FONT></B>{ ngp = ngp2; gp = &amp;gp2[0]; gw = &amp;gw2[0];}
+                 ngpu = ngpu3; gpu = &amp;gpu3[0]; gwu = &amp;gwu3[0];
+             }
+
+             <B><FONT COLOR="#A020F0">for</FONT></B> (iii=0; iii &lt; Nnodes_per_el_V; iii++)
+                el_weights[iii] = 0.0;
+
+             <I><FONT COLOR="#B22222">/* test if element is out, in, or stradles radius */</FONT></I>
+
+             in_out_on_flag = calc_in_out_on(x_left, x_right, sten_rad);
+               
+             <B><FONT COLOR="#A020F0">if</FONT></B> (in_out_on_flag == 1) {
+               <I><FONT COLOR="#B22222">/* nothing to do -- element outside of stencil radius */</FONT></I>
+             }
+             <B><FONT COLOR="#A020F0">else</FONT></B> {
+               <B><FONT COLOR="#A020F0">if</FONT></B> (in_out_on_flag == -1) {
+                 <I><FONT COLOR="#B22222">/* element completely within stencil radius -- use Gauss Quad*/</FONT></I>
+
+                 <B><FONT COLOR="#A020F0">for</FONT></B> (ig=0; ig &lt; ngp; ig++) {
+
+                   point[0] = x_left[0] + gp[ig] * esize_zone[0];
+  
+                   <B><FONT COLOR="#A020F0">for</FONT></B> (jg=0; jg &lt; ngp; jg++) {
+                     point[1] = x_left[1] + gp[jg] * esize_zone[1];
+                     <I><FONT COLOR="#B22222">/*radius = sqrt(point[0]*point[0] + point[1]*point[1])
+                                                               / sten_rad;*/</FONT></I>
+                     radius_sq = (point[0]*point[0] + point[1]*point[1])
+                                 *inv_sten_rad_sq;
+
+                   <B><FONT COLOR="#A020F0">if</FONT></B> (isten != POLYMER_CR)
+                     weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                          radius_sq,sten_rad, ngpu, gpu, gwu);
+                   <B><FONT COLOR="#A020F0">else</FONT></B> {
+                     radius = sqrt(point[0]*point[0] + point[1]*point[1]);
+                     weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                          radius,sten_rad, ngpu, gpu, gwu);
+                   }
+
+                     weight *= gw[ig] * gw [jg] * el_vol;
+
+                     el_weights[0] += weight * (1.0-gp[ig]) * (1.0-gp[jg]); 
+                     el_weights[1] += weight * gp[ig] * (1.0-gp[jg]); 
+                     el_weights[2] += weight * (1.0-gp[ig]) * gp[jg]; 
+                     el_weights[3] += weight * gp[ig] * gp[jg]; 
+  
+                   }
+                 }
+  
+               } 
+               <B><FONT COLOR="#A020F0">else</FONT></B> {
+                 <I><FONT COLOR="#B22222">/* element stradles stencil boundary -- use lots of dumb quad*/</FONT></I>
+
+                 <B><FONT COLOR="#A020F0">switch</FONT></B> (isten) {
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">DELTA_FN</FONT></B>:      npt = 150; <B><FONT COLOR="#A020F0">break</FONT></B>; <I><FONT COLOR="#B22222">/* singular at r=1 */</FONT></I>
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_FN</FONT></B>:      npt =  40; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">U_ATTRACT</FONT></B>:     npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_CHARGE</FONT></B>:  npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_CR</FONT></B>:    npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_GAUSS</FONT></B>:      npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                 }
+                 inv_npt = 1.0 / (<FONT COLOR="#228B22"><B>double</FONT></B>) npt;
+
+                 <B><FONT COLOR="#A020F0">for</FONT></B> (ig=0; ig &lt; npt; ig++) {
+                   
+                   qp[0] =  (ig + 0.5) * inv_npt;
+
+                   point[0] = x_left[0] + qp[0] * esize_zone[0];
+  
+                   <B><FONT COLOR="#A020F0">for</FONT></B> (jg=0; jg &lt; npt; jg++) {
+
+                     qp[1] =  (jg + 0.5) * inv_npt;
+                     point[1] = x_left[1] + qp[1] * esize_zone[1];
+                     <I><FONT COLOR="#B22222">/*radius = sqrt(point[0]*point[0] + point[1]*point[1])
+                                                               / sten_rad;*/</FONT></I>
+                     radius_sq = (point[0]*point[0] + point[1]*point[1])
+                                 * inv_sten_rad_sq;
+
+                     <B><FONT COLOR="#A020F0">if</FONT></B> (radius_sq &lt;= 1.0000001) {
+
+                   <B><FONT COLOR="#A020F0">if</FONT></B> (isten != POLYMER_CR)
+                     weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                          radius_sq,sten_rad, ngpu, gpu, gwu);
+                   <B><FONT COLOR="#A020F0">else</FONT></B> {
+                     radius = sqrt(point[0]*point[0] + point[1]*point[1]);
+                     weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                          radius,sten_rad, ngpu, gpu, gwu);
+                   }
+                       <B><FONT COLOR="#A020F0">if</FONT></B> (radius_sq == 1.0) weight *= 0.5;
+                       weight *= inv_npt * inv_npt * el_vol; 
+  
+                       el_weights[0] += weight * (1.0-qp[0]) * (1.0-qp[1]); 
+                       el_weights[1] += weight * qp[0] * (1.0-qp[1]); 
+                       el_weights[2] += weight * (1.0-qp[0]) * qp[1]; 
+                       el_weights[3] += weight * qp[0] * qp[1]; 
+                     }
+                   }
+                 }
+               
+               }
+
+               merge_load_stencil(sten, el_offsets, el_weights,el_in_radius,index_sten);
+             }
+          }
+          }
+          <B><FONT COLOR="#A020F0">break</FONT></B>;
+
+        <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">3</FONT></B>:
+
+          <I><FONT COLOR="#B22222">/* loop over all elements, which contain nodes i and i+1 */</FONT></I>
+
+          <B><FONT COLOR="#A020F0">for</FONT></B> (i = -el_in_radius[0]; i &lt; el_in_radius[0]; i++) {
+             x_left[0]  = i * esize_zone[0];
+             x_right[0] = (i+1) * esize_zone[0];
+             el_offsets[0][0] = i;
+             el_offsets[1][0] = i + 1;
+             el_offsets[2][0] = i;
+             el_offsets[3][0] = i + 1;
+             el_offsets[4][0] = i;
+             el_offsets[5][0] = i + 1;
+             el_offsets[6][0] = i;
+             el_offsets[7][0] = i + 1;
+          <B><FONT COLOR="#A020F0">for</FONT></B> (j = -el_in_radius[1]; j &lt; el_in_radius[1]; j++) {
+             x_left[1]  = j * esize_zone[1];
+             x_right[1] = (j+1) * esize_zone[1];
+             el_offsets[0][1] = j;
+             el_offsets[1][1] = j;
+             el_offsets[2][1] = j + 1;
+             el_offsets[3][1] = j + 1;
+             el_offsets[4][1] = j;
+             el_offsets[5][1] = j;
+             el_offsets[6][1] = j + 1;
+             el_offsets[7][1] = j + 1;
+          <B><FONT COLOR="#A020F0">for</FONT></B> (k = -el_in_radius[2]; k &lt; el_in_radius[2]; k++) {
+             x_left[2]  = k * esize_zone[2];
+             x_right[2] = (k+1) * esize_zone[2];
+             el_offsets[0][2] = k;
+             el_offsets[1][2] = k;
+             el_offsets[2][2] = k;
+             el_offsets[3][2] = k;
+             el_offsets[4][2] = k + 1;
+             el_offsets[5][2] = k + 1;
+             el_offsets[6][2] = k + 1;
+             el_offsets[7][2] = k + 1;
+
+             x_mid[0] = x_left[0] + 0.5*esize_zone[0];
+             x_mid[1] = x_left[1] + 0.5*esize_zone[1];
+             x_mid[2] = x_left[2] + 0.5*esize_zone[2];
+
+             r_center_sq = (x_mid[0]*x_mid[0]) + (x_mid[1]*x_mid[1] + 
+                            x_mid[2]*x_mid[2]);
+             <B><FONT COLOR="#A020F0">if</FONT></B> (r_center_sq &lt;= 4.0){
+                 <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT)
+                     { ngp = ngp3; gp = &amp;gp3[0]; gw = &amp;gw3[0];}
+                 <B><FONT COLOR="#A020F0">else</FONT></B>{ ngp = ngp1; gp = &amp;gp1[0]; gw = &amp;gw1[0];}
+                 ngpu = ngpu1; gpu = &amp;gpu1[0]; gwu = &amp;gwu1[0];
+             }
+             <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (r_center_sq &lt;= 16.0){
+                 <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT)
+                     { ngp = ngp3; gp = &amp;gp3[0]; gw = &amp;gw3[0];}
+                 <B><FONT COLOR="#A020F0">else</FONT></B>{ ngp = ngp2; gp = &amp;gp2[0]; gw = &amp;gw2[0];}
+                 ngpu = ngpu2; gpu = &amp;gpu2[0]; gwu = &amp;gwu2[0];
+             }
+             <B><FONT COLOR="#A020F0">else</FONT></B>{
+                 <B><FONT COLOR="#A020F0">if</FONT></B> (isten == U_ATTRACT)
+                     { ngp = ngp3; gp = &amp;gp3[0]; gw = &amp;gw3[0];}
+                 <B><FONT COLOR="#A020F0">else</FONT></B>{ ngp = ngp2; gp = &amp;gp2[0]; gw = &amp;gw2[0];}
+                 ngpu = ngpu3; gpu = &amp;gpu3[0]; gwu = &amp;gwu3[0];
+             }
+
+             <B><FONT COLOR="#A020F0">for</FONT></B> (iii=0; iii &lt; Nnodes_per_el_V; iii++)
+                el_weights[iii] = 0.0;
+
+             <I><FONT COLOR="#B22222">/* test if element is out, in, or stradles radius */</FONT></I>
+
+             in_out_on_flag = calc_in_out_on(x_left, x_right, sten_rad);
+               
+             <B><FONT COLOR="#A020F0">if</FONT></B> ( (in_out_on_flag == 1) ||
+                  ((in_out_on_flag == -1) &amp;&amp; (isten == DELTA_FN))){
+               <I><FONT COLOR="#B22222">/* nothing to do in this case -- element outside of stencil   */</FONT></I>
+               <I><FONT COLOR="#B22222">/* radius or completely inside of a delta function stencil    */</FONT></I>
+             }
+             <B><FONT COLOR="#A020F0">else</FONT></B> {
+               <B><FONT COLOR="#A020F0">if</FONT></B> (in_out_on_flag == -1) {
+                 <I><FONT COLOR="#B22222">/* element completely within stencil radius -- use Gauss Quad*/</FONT></I>
+
+                 <B><FONT COLOR="#A020F0">for</FONT></B> (ig=0; ig &lt; ngp; ig++) {
+
+                   point[0] = x_left[0] + gp[ig] * esize_zone[0];
+  
+                   <B><FONT COLOR="#A020F0">for</FONT></B> (jg=0; jg &lt; ngp; jg++) {
+
+                     point[1] = x_left[1] + gp[jg] * esize_zone[1];
+  
+                     <B><FONT COLOR="#A020F0">for</FONT></B> (kg=0; kg &lt; ngp; kg++) {
+  
+                       point[2] = x_left[2] + gp[kg] * esize_zone[2];
+                       <I><FONT COLOR="#B22222">/*radius = sqrt(point[0]*point[0] + point[1]*point[1] 
+                                     + point[2]*point[2]) / sten_rad;*/</FONT></I>
+                       radius_sq = (point[0]*point[0] + point[1]*point[1]
+                                     + point[2]*point[2])*inv_sten_rad_sq;
+  
+                   <B><FONT COLOR="#A020F0">if</FONT></B> (isten != POLYMER_CR)
+                     weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                          radius_sq,sten_rad, ngpu, gpu, gwu);
+                   <B><FONT COLOR="#A020F0">else</FONT></B> {
+                     radius = sqrt(point[0]*point[0] + point[1]*point[1]
+                                                     + point[2]*point[2]);
+                     weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                          radius,sten_rad, ngpu, gpu, gwu);
+                   }
+
+                       weight *= gw[ig] * gw [jg] * gw[kg] * el_vol;
+  
+                       el_weights[0] += weight *
+                                    (1.0-gp[ig]) * (1.0-gp[jg]) * (1.0-gp[kg]);
+                       el_weights[1] += weight *
+                                         gp[ig]  * (1.0-gp[jg]) * (1.0-gp[kg]);
+                       el_weights[2] += weight *
+                                    (1.0-gp[ig]) *      gp[jg]  * (1.0-gp[kg]);
+                       el_weights[3] += weight *
+                                         gp[ig] *       gp[jg]  * (1.0-gp[kg]); 
+                       el_weights[4] += weight *
+                                    (1.0-gp[ig]) * (1.0-gp[jg]) *      gp[kg];
+                       el_weights[5] += weight *
+                                         gp[ig]  * (1.0-gp[jg]) *      gp[kg];
+                       el_weights[6] += weight *
+                                    (1.0-gp[ig]) *      gp[jg]  *      gp[kg];
+                       el_weights[7] += weight *
+                                         gp[ig]  *      gp[jg]  *      gp[kg]; 
+                     }
+                   }
+                 }
+  
+               } 
+               <B><FONT COLOR="#A020F0">else</FONT></B> {
+                 <I><FONT COLOR="#B22222">/* element stradles stencil boundary -- use lots of dumb quadrature */</FONT></I>
+
+                 <B><FONT COLOR="#A020F0">switch</FONT></B> (isten) {
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">DELTA_FN</FONT></B>:      npt =  40; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_FN</FONT></B>:      npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">U_ATTRACT</FONT></B>:     
+                        <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim==3)    npt = ngp3; 
+                        <B><FONT COLOR="#A020F0">else</FONT></B>            npt =  10; 
+                        <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_CHARGE</FONT></B>:  npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_CR</FONT></B>:    npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_GAUSS</FONT></B>:      npt =  20; <B><FONT COLOR="#A020F0">break</FONT></B>;
+                 }
+                 inv_npt = 1.0 / (<FONT COLOR="#228B22"><B>double</FONT></B>) npt;
+
+                 <I><FONT COLOR="#B22222">/* define distance from the r=1 that counts as being on sphere's surface */</FONT></I>
+
+                 <B><FONT COLOR="#A020F0">if</FONT></B> (isten == DELTA_FN) 
+                    ok_distance = sqrt(esize_zone[0]*esize_zone[0] +
+                                       esize_zone[1]*esize_zone[1] +
+                                       esize_zone[2]*esize_zone[2])
+                                        *(0.5 * inv_npt);
+
+                 <B><FONT COLOR="#A020F0">for</FONT></B> (ig=0; ig &lt; npt; ig++) {
+                   
+                   qp[0] =  (ig + 0.5) * inv_npt;
+
+                   point[0] = x_left[0] + qp[0] * esize_zone[0];
+  
+                   <B><FONT COLOR="#A020F0">for</FONT></B> (jg=0; jg &lt; npt; jg++) {
+
+                     qp[1] =  (jg + 0.5) * inv_npt;
+                     point[1] = x_left[1] + qp[1] * esize_zone[1];
+  
+                     <B><FONT COLOR="#A020F0">for</FONT></B> (kg=0; kg &lt; npt; kg++) {
+
+                       qp[2] =  (kg + 0.5) * inv_npt;
+                       point[2] = x_left[2] + qp[2] * esize_zone[2];
+                       <I><FONT COLOR="#B22222">/*radius = sqrt(point[0]*point[0] + point[1]*point[1]
+                                     + point[2]*point[2]) / sten_rad;*/</FONT></I>
+                       radius_sq = (point[0]*point[0] + point[1]*point[1]
+                                     + point[2]*point[2])*inv_sten_rad_sq;
+
+                       <B><FONT COLOR="#A020F0">if</FONT></B> ( ((radius_sq &lt;= 1.0) &amp;&amp; (isten != DELTA_FN)) || 
+                            ((isten == DELTA_FN) &amp;&amp; (fabs(radius_sq-1.0) &lt; 2*ok_distance)) ) {
+                   <B><FONT COLOR="#A020F0">if</FONT></B> (isten != POLYMER_CR)
+                     weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                          radius_sq,sten_rad, ngpu, gpu, gwu);
+                   <B><FONT COLOR="#A020F0">else</FONT></B> {
+                     radius = sqrt(point[0]*point[0] + point[1]*point[1]
+                                                     + point[2]*point[2]);
+                     weight = get_weight_from_stencil(isten, icomp, jcomp, 
+                                          radius,sten_rad, ngpu, gpu, gwu);
+                   }
+
+                         <B><FONT COLOR="#A020F0">if</FONT></B> (radius_sq == 1.0 &amp;&amp; isten != DELTA_FN) weight *= 0.5;
+
+                         weight *=  (inv_npt*inv_npt*inv_npt) * el_vol; 
+    
+                         el_weights[0] += weight * 
+                                        (1.0-qp[0]) * (1.0-qp[1]) * (1.0-qp[2]);
+                         el_weights[1] += weight *
+                                             qp[0]  * (1.0-qp[1]) * (1.0-qp[2]);
+                         el_weights[2] += weight *
+                                        (1.0-qp[0]) *      qp[1]  * (1.0-qp[2]);
+                         el_weights[3] += weight *
+                                             qp[0]  *      qp[1]  * (1.0-qp[2]);
+                         el_weights[4] += weight *
+                                        (1.0-qp[0]) * (1.0-qp[1]) *      qp[2];
+                         el_weights[5] += weight *
+                                             qp[0]  * (1.0-qp[1]) *      qp[2];
+                         el_weights[6] += weight *
+                                        (1.0-qp[0]) *      qp[1] *       qp[2];
+                         el_weights[7] += weight *
+                                             qp[0]  *      qp[1] *       qp[2];
+                       }
+                     }
+                   }
+                 }
+               
+               }
+               merge_load_stencil(sten, el_offsets, el_weights,el_in_radius,index_sten);
+             }
+          }
+          }
+          }
+          <B><FONT COLOR="#A020F0">break</FONT></B>;
+
+      } 
+
+      safe_free((<FONT COLOR="#228B22"><B>void</FONT></B> *)&amp;index_sten);
+
+      <I><FONT COLOR="#B22222">/* Sort Stencil in ascending order by node number */</FONT></I>
+  
+<I><FONT COLOR="#B22222">/*  SORT DOESN&quot;T SORT HW STUFF -- DO NOT USE AS IS    
+ * sort_stencil(sten);
+ */</FONT></I>
+
+      <I><FONT COLOR="#B22222">/* coarse stencils for big esize_zone must be scaled to real Esize*/</FONT></I>
+
+      <B><FONT COLOR="#A020F0">if</FONT></B> (izone &gt; 0){
+        <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i&lt;sten-&gt;Length; i++)
+          <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0; idim&lt;Ndim; idim++) 
+            sten-&gt;Offset[i][idim] *= zone_coarseness;
+      }
+     
+      <B><FONT COLOR="#A020F0">if</FONT></B> (Lcut_jac &amp;&amp; izone&gt;0 &amp;&amp; isten==U_ATTRACT){
+         printf (<FONT COLOR="#BC8F8F"><B>&quot;shortening stencil\n&quot;</FONT></B>);
+         shorten_stencil(sten);
+      }
+
+
+      <B><FONT COLOR="#A020F0">if</FONT></B> (isten != POLYMER_CR){   <I><FONT COLOR="#B22222">/* take care of this later */</FONT></I>
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0) printf(<FONT COLOR="#BC8F8F"><B>&quot;Renormalize stencil: %d \n&quot;</FONT></B>,isten);
+        renormalize_stencil(sten, vol_sten);
+      }
+
+      <B><FONT COLOR="#A020F0">if</FONT></B> (Iwrite == VERBOSE &amp;&amp; Proc==0)
+          print_out_stencil(isten, izone,icomp, jcomp, ifp);
+
+    } <I><FONT COLOR="#B22222">/* End of loop over components j */</FONT></I>
+    } <I><FONT COLOR="#B22222">/* End of loop over components i */</FONT></I>
+  } <I><FONT COLOR="#B22222">/* End of loop over stencil types */</FONT></I>
+  } <I><FONT COLOR="#B22222">/* End of loop over quadrature zones */</FONT></I>
+
+
+  <I><FONT COLOR="#B22222">/* add 2 nodes in each direction to compensate for inability
+     to check beyond box boundaries when setting up Nodes_2_boundary array*/</FONT></I>
+  <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0; idim&lt;Ndim; idim++) Max_sten_length[idim] += 4;
+
+  safe_free((<FONT COLOR="#228B22"><B>void</FONT></B> *) &amp;el_offsets);
+  safe_free((<FONT COLOR="#228B22"><B>void</FONT></B> *) &amp;el_weights);
+
+  <B><FONT COLOR="#A020F0">if</FONT></B> (Proc == 0) {
+    fprintf(ifp2,<FONT COLOR="#BC8F8F"><B>&quot;\n!!!!!!!!!!!! done setting up stencils !!!!!!!!!!!!!!!!!\n&quot;</FONT></B>);
+    fclose(ifp2);   
+
+    <B><FONT COLOR="#A020F0">if</FONT></B> (Iwrite == VERBOSE) fclose(ifp);
+
+#<B><FONT COLOR="#5F9EA0">ifdef</FONT></B> <FONT COLOR="#B8860B">PARALLEL</FONT>
+    printf(<FONT COLOR="#BC8F8F"><B>&quot;took %g secs\n&quot;</FONT></B>, MPI_Wtime()-t1);
+#<B><FONT COLOR="#5F9EA0">endif</FONT></B>
+  }
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+<FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">shorten_stencil</FONT></B>(<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *sten)
+{
+<I><FONT COLOR="#B22222">/* eliminate small tail contributions from the
+   U_ATTRACT stencil for Jacobian terms */</FONT></I>
+
+<FONT COLOR="#228B22"><B>int</FONT></B> i,j,k,length_tmp,count; 
+<FONT COLOR="#228B22"><B>double</FONT></B> max_len;
+<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct sten_tmp;
+
+length_tmp = sten-&gt;Length;
+
+(&amp;sten_tmp)-&gt;Offset = (<FONT COLOR="#228B22"><B>int</FONT></B> **) array_alloc(2, sten-&gt;Length, Ndim, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B>));
+(&amp;sten_tmp)-&gt;Weight = (<FONT COLOR="#228B22"><B>double</FONT></B> *) array_alloc(1, sten-&gt;Length, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+<B><FONT COLOR="#0000FF">if</FONT></B> (Lhard_surf) (&amp;sten_tmp)-&gt;HW_Weight = (<FONT COLOR="#228B22"><B>double</FONT></B> **)
+      array_alloc(2, sten-&gt;Length, Nnodes_per_el_V, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+
+max_len=0.0;
+<B><FONT COLOR="#0000FF">for</FONT></B> (i=0; i&lt;sten-&gt;Length; i++){
+   <B><FONT COLOR="#A020F0">if</FONT></B> (fabs(sten-&gt;Weight[i]) &gt; max_len) max_len=fabs(sten-&gt;Weight[i]);
+}
+<B><FONT COLOR="#0000FF">printf</FONT></B>(<FONT COLOR="#BC8F8F"><B>&quot;max_len: %9.6f\n&quot;</FONT></B>,max_len);
+
+count=0;
+<B><FONT COLOR="#0000FF">for</FONT></B> (i=0; i&lt;sten-&gt;Length; i++){
+   (&amp;sten_tmp)-&gt;Weight[i] = sten-&gt;Weight[i];
+   <B><FONT COLOR="#A020F0">for</FONT></B> (j=0; j&lt;Ndim; j++)  (&amp;sten_tmp)-&gt;Offset[i][j] = sten-&gt;Offset[i][j];
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Lhard_surf){
+     <B><FONT COLOR="#A020F0">for</FONT></B> (j=0; j&lt;Nnodes_per_el_V; j++)  
+         (&amp;sten_tmp)-&gt;HW_Weight[i][j] = sten-&gt;HW_Weight[i][j];
+   }
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (fabs(sten-&gt;Weight[i]) &gt; max_len/Jac_threshold) count++;
+}
+<B><FONT COLOR="#0000FF">printf</FONT></B>(<FONT COLOR="#BC8F8F"><B>&quot;count: %d  Jac_thresh: %9.6f \n&quot;</FONT></B>,count,Jac_threshold);
+
+<B><FONT COLOR="#0000FF">safe_free</FONT></B>((<FONT COLOR="#228B22"><B>void</FONT></B> *) &amp;sten-&gt;Offset);
+<B><FONT COLOR="#0000FF">safe_free</FONT></B>((<FONT COLOR="#228B22"><B>void</FONT></B> *) &amp;sten-&gt;Weight);
+<B><FONT COLOR="#0000FF">if</FONT></B> (Lhard_surf) safe_free((<FONT COLOR="#228B22"><B>void</FONT></B> *) &amp;sten-&gt;HW_Weight);
+
+sten-&gt;Offset = (<FONT COLOR="#228B22"><B>int</FONT></B> **) array_alloc(2, count, Ndim, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B>));
+sten-&gt;Weight = (<FONT COLOR="#228B22"><B>double</FONT></B> *) array_alloc(1, count, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+<B><FONT COLOR="#0000FF">if</FONT></B> (Lhard_surf) sten-&gt;HW_Weight = (<FONT COLOR="#228B22"><B>double</FONT></B> **)
+      array_alloc(2, count, Nnodes_per_el_V, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+
+sten-&gt;Length=0;
+<B><FONT COLOR="#0000FF">for</FONT></B> (i=0; i&lt;length_tmp; i++){
+   <B><FONT COLOR="#A020F0">if</FONT></B> (fabs((&amp;sten_tmp)-&gt;Weight[i]) &gt; max_len/Jac_threshold){
+      sten-&gt;Weight[sten-&gt;Length] = (&amp;sten_tmp)-&gt;Weight[i]; 
+      <B><FONT COLOR="#A020F0">for</FONT></B> (j=0; j&lt;Ndim; j++)
+         sten-&gt;Offset[sten-&gt;Length][j] = (&amp;sten_tmp)-&gt;Offset[i][j];
+
+      <B><FONT COLOR="#A020F0">if</FONT></B> (Lhard_surf) {
+           <B><FONT COLOR="#A020F0">for</FONT></B> (k=0; k&lt;Nnodes_per_el_V; k++) 
+                sten-&gt;HW_Weight[sten-&gt;Length][k] = (&amp;sten_tmp)-&gt;HW_Weight[i][k];
+      }
+      sten-&gt;Length++;
+   }
+}
+
+<B><FONT COLOR="#0000FF">if</FONT></B> (sten-&gt;Length != count){
+   printf(<FONT COLOR="#BC8F8F"><B>&quot;problems with shortening the stencil\n&quot;</FONT></B>);
+   printf(<FONT COLOR="#BC8F8F"><B>&quot;number of entries: %d  expected number %d&quot;</FONT></B>,sten-&gt;Length,count);
+   exit(-1);
+}
+
+<B><FONT COLOR="#0000FF">safe_free</FONT></B>((<FONT COLOR="#228B22"><B>void</FONT></B> *) &amp;(&amp;sten_tmp)-&gt;Offset);
+<B><FONT COLOR="#0000FF">safe_free</FONT></B>((<FONT COLOR="#228B22"><B>void</FONT></B> *) &amp;(&amp;sten_tmp)-&gt;Weight);
+<B><FONT COLOR="#0000FF">if</FONT></B> (Lhard_surf) safe_free((<FONT COLOR="#228B22"><B>void</FONT></B> *) &amp;(&amp;sten_tmp)-&gt;HW_Weight);
+
+<B><FONT COLOR="#A020F0">return</FONT></B>;
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">merge_load_stencil</FONT></B>(<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *sten,
+                               <FONT COLOR="#228B22"><B>int</FONT></B> **el_offsets, <FONT COLOR="#228B22"><B>double</FONT></B> *el_weights,
+                               <FONT COLOR="#228B22"><B>int</FONT></B> *el_in_radius,<FONT COLOR="#228B22"><B>int</FONT></B> *index_sten)
+<I><FONT COLOR="#B22222">/*
+ * The variable sten in this routine is known globally as 
+ * Stencil[isten][izone][icomp+Ncomp*jcomp]
+ */</FONT></I>
+{
+  <FONT COLOR="#228B22"><B>int</FONT></B> isten, i, j, k;
+  <FONT COLOR="#228B22"><B>int</FONT></B> *el_offset_ptr;
+
+  <I><FONT COLOR="#B22222">/* loop over element stencils stored in el_* arrays */</FONT></I>
+ 
+  <B><FONT COLOR="#A020F0">for</FONT></B> (j=0; j&lt;Nnodes_per_el_V; j++) {
+
+    el_offset_ptr = el_offsets[j];
+
+    <I><FONT COLOR="#B22222">/* Move on to next entry in stencil if weight is zero */</FONT></I>
+
+    <B><FONT COLOR="#A020F0">if</FONT></B> (el_weights[j] != 0.0) {
+
+       isten = ijk_to_isten_index(el_offset_ptr,el_in_radius);
+
+        <I><FONT COLOR="#B22222">/* If the node is new, add to the end of the merge array */</FONT></I>
+       <B><FONT COLOR="#A020F0">if</FONT></B> (index_sten[isten] == -1) {
+ 
+            sten-&gt;Weight[sten-&gt;Length] = el_weights[j];
+            <B><FONT COLOR="#A020F0">for</FONT></B> (k=0; k&lt;Ndim; k++) 
+                 sten-&gt;Offset[sten-&gt;Length][k] = el_offset_ptr[k];
+ 
+         <I><FONT COLOR="#B22222">/* If hard walls, init weights then set one for this local elem */</FONT></I>
+         <B><FONT COLOR="#A020F0">if</FONT></B> (Lhard_surf) {
+           <B><FONT COLOR="#A020F0">for</FONT></B> (k=0; k&lt;Nnodes_per_el_V; k++) 
+                sten-&gt;HW_Weight[sten-&gt;Length][k] = 0.0;
+           sten-&gt;HW_Weight[sten-&gt;Length][j] = el_weights[j];
+         }
+         index_sten[isten] = sten-&gt;Length;
+
+         sten-&gt;Length++;
+       }
+
+       <I><FONT COLOR="#B22222">/* else the node is old, add the weights together */</FONT></I>
+
+       <B><FONT COLOR="#A020F0">else</FONT></B> {
+         sten-&gt;Weight[index_sten[isten]] += el_weights[j];
+         <B><FONT COLOR="#A020F0">if</FONT></B> (Lhard_surf)
+           sten-&gt;HW_Weight[index_sten[isten]][j] = el_weights[j];
+       }
+
+    } <I><FONT COLOR="#B22222">/* End of if statement checking for non-zero weight */</FONT></I>
+  } <I><FONT COLOR="#B22222">/* End loop over all nodes in el_* arrays */</FONT></I>
+
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+<I><FONT COLOR="#B22222">/* ijk_to_isten_index:  Given an i,j,k position of a node, return its node number */</FONT></I>
+
+<FONT COLOR="#228B22"><B>int</FONT></B> <B><FONT COLOR="#0000FF">ijk_to_isten_index</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> *ijk,<FONT COLOR="#228B22"><B>int</FONT></B> *el_in_radius)
+{
+  <FONT COLOR="#228B22"><B>int</FONT></B> ijk_tmp[3],nodes_plane,nodes_x[3],i,Nodes_x_tmp[3];
+  <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i&lt;Ndim; i++){
+      Nodes_x_tmp[i] = round_to_int(Size_x[i]/Esize_x[i] + 1.)-1;
+      <B><FONT COLOR="#A020F0">if</FONT></B> (Type_bc[i][0]==PERIODIC &amp;&amp; (2*el_in_radius[i]+1) &gt; Nodes_x_tmp[i]){
+        nodes_x[i] = Nodes_x_tmp[i];
+        <B><FONT COLOR="#A020F0">if</FONT></B> (ijk[i] &lt; -Nodes_x_tmp[i]/2)
+           ijk_tmp[i] = ijk[i] + Nodes_x_tmp[i];
+        <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> ( ijk[i] &gt;= (Nodes_x_tmp[i]/2 + Nodes_x_tmp[i]%2) ) 
+           ijk_tmp[i] = ijk[i] - Nodes_x_tmp[i];
+        <B><FONT COLOR="#A020F0">else</FONT></B> ijk_tmp[i] = ijk[i];
+
+        ijk_tmp[i] += Nodes_x_tmp[i]/2;
+      }
+      <B><FONT COLOR="#A020F0">else</FONT></B>{           
+        nodes_x[i] = 2 * el_in_radius[i] + 1;
+        ijk_tmp[i] = ijk[i] + el_in_radius[i];
+      }
+  }
+  <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim==3) nodes_plane = nodes_x[0]*nodes_x[1];
+
+  <B><FONT COLOR="#A020F0">switch</FONT></B> (Ndim){
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">1</FONT></B>:   <B><FONT COLOR="#A020F0">return</FONT></B> (*ijk_tmp);
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">2</FONT></B>:   <B><FONT COLOR="#A020F0">return</FONT></B> (*ijk_tmp + ijk_tmp[1] * (*nodes_x));
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">3</FONT></B>:   <B><FONT COLOR="#A020F0">return</FONT></B> (*ijk_tmp + ijk_tmp[1] * (*nodes_x) + ijk_tmp[2] * nodes_plane);
+  }
+  <B><FONT COLOR="#A020F0">return</FONT></B> 0;
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">renormalize_stencil</FONT></B>(<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *sten, <FONT COLOR="#228B22"><B>double</FONT></B> vol_sten)
+{
+   <FONT COLOR="#228B22"><B>double</FONT></B> sum = 0, ratio;
+   <FONT COLOR="#228B22"><B>int</FONT></B> i,j;
+
+   <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i &lt; sten-&gt;Length; i++) 
+     sum += sten-&gt;Weight[i];
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (sum == vol_sten) <B><FONT COLOR="#A020F0">return</FONT></B>;
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (fabs(sum - vol_sten) / vol_sten &lt; 0.1) {
+<I><FONT COLOR="#B22222">/*      if (Proc==0) printf(&quot;\tRenormalizing stencil from %g to known volume of %g\n&quot;,
+            sum, vol_sten);*/</FONT></I>
+   }
+   <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B>(Ndim !=3) {
+      printf(<FONT COLOR="#BC8F8F"><B>&quot;WARNING: Stencil does not add up near correct volume %g %g\n&quot;</FONT></B>,
+             sum, vol_sten);
+   }
+
+   <I><FONT COLOR="#B22222">/* renormalize stencil */</FONT></I>
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0) printf(<FONT COLOR="#BC8F8F"><B>&quot;\tProc: %d Renormalizing stencil from %g to known volume of %g\n&quot;</FONT></B>,
+            Proc,sum, vol_sten);
+   ratio = vol_sten/sum;
+
+   <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i &lt; sten-&gt;Length; i++) 
+     sten-&gt;Weight[i] *= ratio;
+   
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Lhard_surf) {
+     <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i &lt; sten-&gt;Length; i++) 
+       <B><FONT COLOR="#A020F0">for</FONT></B> (j=0; j &lt; Nnodes_per_el_V; j++) 
+         sten-&gt;HW_Weight[i][j] *= ratio;
+   }
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">print_out_stencil</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> isten, <FONT COLOR="#228B22"><B>int</FONT></B> izone,
+                              <FONT COLOR="#228B22"><B>int</FONT></B> icomp, <FONT COLOR="#228B22"><B>int</FONT></B> jcomp, FILE *ifp)
+{
+  <FONT COLOR="#228B22"><B>int</FONT></B> i,j;
+  <FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *sten;
+  <FONT COLOR="#228B22"><B>double</FONT></B> sum=0;
+
+  <I><FONT COLOR="#B22222">/* set temporary stencil pointer, to avoid repeated indexing */</FONT></I>
+
+  sten = &amp;(Stencil[isten][izone][icomp + Ncomp*jcomp]);
+
+  fprintf(ifp,<FONT COLOR="#BC8F8F"><B>&quot;\nWriting out stencil for isten %d, izone %d, icomp %d, jcomp %d, Length %d\n\n&quot;</FONT></B>,
+              isten, izone, icomp, jcomp, sten-&gt;Length);
+
+  fprintf(ifp,<FONT COLOR="#BC8F8F"><B>&quot; #  Node Offsets   Weight\n&quot;</FONT></B>);
+  <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i&lt;sten-&gt;Length; i++) {
+    <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim&lt;3 || sten-&gt;Offset[i][0]==0){
+       fprintf(ifp,<FONT COLOR="#BC8F8F"><B>&quot;%3d. &quot;</FONT></B>,i);
+       <B><FONT COLOR="#A020F0">for</FONT></B> (j=0; j&lt;Ndim; j++){ 
+         fprintf(ifp,<FONT COLOR="#BC8F8F"><B>&quot;  %3d  %7.4f&quot;</FONT></B>,sten-&gt;Offset[i][j],Esize_x[j]*sten-&gt;Offset[i][j]);
+       }
+       fprintf(ifp,<FONT COLOR="#BC8F8F"><B>&quot;  %e  &quot;</FONT></B>,sten-&gt;Weight[i]);
+       sum += sten-&gt;Weight[i];
+       <B><FONT COLOR="#A020F0">if</FONT></B> (Lhard_surf)
+         <B><FONT COLOR="#A020F0">for</FONT></B> (j=0; j&lt;Nnodes_per_el_V; j++){
+            fprintf(ifp,<FONT COLOR="#BC8F8F"><B>&quot; %5f&quot;</FONT></B>,sten-&gt;HW_Weight[i][j]);
+          }
+       fprintf(ifp,<FONT COLOR="#BC8F8F"><B>&quot;\n&quot;</FONT></B>);
+    }
+  }
+  fprintf(ifp,<FONT COLOR="#BC8F8F"><B>&quot;\tSUM OF WEIGHTS = %e\n\n&quot;</FONT></B>,sum);
+
+  fprintf(ifp,<FONT COLOR="#BC8F8F"><B>&quot;============================================\n&quot;</FONT></B>);
+
+  <B><FONT COLOR="#A020F0">return</FONT></B>;
+}
+
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">sort2_int_double_array</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> n, <FONT COLOR="#228B22"><B>int</FONT></B> ra[], <FONT COLOR="#228B22"><B>double</FONT></B> rb[],
+                                            <FONT COLOR="#228B22"><B>int</FONT></B> *rc[], <FONT COLOR="#228B22"><B>int</FONT></B> ndim)
+<I><FONT COLOR="#B22222">/*
+*       Numerical Recipies in C source code
+*       modified to have first argument an integer array (JS)
+*       modified to include int array and to number from 0
+*
+*       Sorts the array ra[1,..,n] in ascending numerical order using heapsort
+*       algorityhm, while making the corresponding rearrangement of the
+*       array rb[1,..,n] and rc[1,..,n][ndim].
+*
+*/</FONT></I>
+
+{
+  <FONT COLOR="#228B22"><B>int</FONT></B> l,j,ir,i,idim;
+  <FONT COLOR="#228B22"><B>int</FONT></B> rra, rrc[NDIM_MAX];
+  <FONT COLOR="#228B22"><B>double</FONT></B> rrb;
+
+  <I><FONT COLOR="#B22222">/*
+   *  No need to sort if one or fewer items.
+   */</FONT></I>
+  <B><FONT COLOR="#A020F0">if</FONT></B> (n &lt;= 1) <B><FONT COLOR="#A020F0">return</FONT></B>;
+
+  l=(n &gt;&gt; 1)+1;
+  ir=n;
+  <B><FONT COLOR="#A020F0">for</FONT></B> (;;) {
+    <B><FONT COLOR="#A020F0">if</FONT></B> (l &gt; 1) {
+      rra=ra[--l];
+      rrb=rb[l];
+      <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0;idim&lt;ndim;idim++) rrc[idim]=rc[l][idim];
+    } <B><FONT COLOR="#A020F0">else</FONT></B> {
+      rra=ra[ir];
+      rrb=rb[ir];
+      <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0;idim&lt;ndim;idim++) rrc[idim]=rc[ir][idim];
+      ra[ir]=ra[1];
+      rb[ir]=rb[1];
+      <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0;idim&lt;ndim;idim++) rc[ir][idim]=rc[1][idim];
+      <B><FONT COLOR="#A020F0">if</FONT></B> (--ir == 1) {
+        ra[1]=rra;
+        rb[1]=rrb;
+        <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0;idim&lt;ndim;idim++) rc[1][idim]=rrc[idim];
+        <B><FONT COLOR="#A020F0">return</FONT></B>;
+      }
+    }
+    i=l;
+    j=l &lt;&lt; 1;
+    <B><FONT COLOR="#A020F0">while</FONT></B> (j &lt;= ir)     {
+      <B><FONT COLOR="#A020F0">if</FONT></B> (j &lt; ir &amp;&amp; ra[j] &lt; ra[j+1]) ++j;
+      <B><FONT COLOR="#A020F0">if</FONT></B> (rra &lt; ra[j]) {
+        ra[i]=ra[j];
+        rb[i]=rb[j];
+        <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0;idim&lt;ndim;idim++) rc[i][idim]=rc[j][idim];
+        j += (i=j);
+      }
+      <B><FONT COLOR="#A020F0">else</FONT></B> j=ir+1;
+    }
+    ra[i]=rra;
+    rb[i]=rrb;
+    <B><FONT COLOR="#A020F0">for</FONT></B> (idim=0;idim&lt;ndim;idim++)  rc[i][idim]=rrc[idim];
+  }
+}
+
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">sort_stencil</FONT></B> (<FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *sten)
+{
+#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">MAX_NODES_DIM</FONT> 10000
+  <FONT COLOR="#228B22"><B>int</FONT></B> i, idim, *value;
+
+  <I><FONT COLOR="#B22222">/* Assemble value array, with nodal offsets from current node */</FONT></I>
+
+  value = (<FONT COLOR="#228B22"><B>int</FONT></B> *) array_alloc(1, sten-&gt;Length, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B>));
+
+  <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i&lt;sten-&gt;Length; i++) {
+    value[i] = sten-&gt;Offset[i][0];
+    <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim&gt;1) value[i] += sten-&gt;Offset[i][1] * MAX_NODES_DIM;
+    <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim&gt;2) value[i] += sten-&gt;Offset[i][2] * MAX_NODES_DIM * MAX_NODES_DIM;
+  }
+  
+  <I><FONT COLOR="#B22222">/* Sort Weight and Offset by value */</FONT></I>
+  <I><FONT COLOR="#B22222">/* Subtract 1 from array pointers since sort expects fortran indexing */</FONT></I>
+  sort2_int_double_array(sten-&gt;Length, value-1, sten-&gt;Weight-1,
+                                          sten-&gt;Offset-1, Ndim);
+
+  safe_free((<FONT COLOR="#228B22"><B>void</FONT></B> *) &amp;value);
+}
+
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">calc_sten_rad</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> isten, <FONT COLOR="#228B22"><B>int</FONT></B> icomp, <FONT COLOR="#228B22"><B>int</FONT></B> jcomp)
+{
+  <B><FONT COLOR="#A020F0">switch</FONT></B> (isten) {
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">DELTA_FN</FONT></B>:
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Sten_Type[POLYMER_CR])
+          <B><FONT COLOR="#A020F0">return</FONT></B> (Sigma_ff[icomp][icomp]);
+        <B><FONT COLOR="#A020F0">else</FONT></B>
+          <B><FONT COLOR="#A020F0">return</FONT></B> (Sigma_ff[icomp][icomp]/2.0);
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_FN</FONT></B>:
+        <B><FONT COLOR="#A020F0">return</FONT></B> (Sigma_ff[icomp][icomp]/2.0);
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">U_ATTRACT</FONT></B>:
+        <B><FONT COLOR="#A020F0">return</FONT></B> (Cut_ff[icomp][jcomp]);
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_CHARGE</FONT></B>:
+        <B><FONT COLOR="#A020F0">return</FONT></B> (Sigma_ff[icomp][icomp]);
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_CR</FONT></B>:
+        <B><FONT COLOR="#A020F0">return</FONT></B> (Cr_rad*Sigma_ff[icomp][jcomp]);
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_GAUSS</FONT></B>:
+        <B><FONT COLOR="#A020F0">return</FONT></B> (1.5*Sigma_ff[icomp][icomp]);   <I><FONT COLOR="#B22222">/* fix this later */</FONT></I>
+  }
+  <B><FONT COLOR="#A020F0">return</FONT></B> 0;
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">calc_sten_vol</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> isten, <FONT COLOR="#228B22"><B>int</FONT></B> i, <FONT COLOR="#228B22"><B>int</FONT></B> j)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> r_min,r_cut,vol_sten,r_max;
+  <B><FONT COLOR="#A020F0">switch</FONT></B> (isten) {
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">DELTA_FN</FONT></B>:
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Sten_Type[POLYMER_CR])
+          <B><FONT COLOR="#A020F0">return</FONT></B> (1.0);
+        <B><FONT COLOR="#A020F0">else</FONT></B>
+          <B><FONT COLOR="#A020F0">return</FONT></B> (PI * POW_DOUBLE_INT(Sigma_ff[i][i],2));
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_FN</FONT></B>:
+        <B><FONT COLOR="#A020F0">return</FONT></B> (PI * POW_DOUBLE_INT(Sigma_ff[i][i],3)/6.0);
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">U_ATTRACT</FONT></B>:
+        r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
+        r_cut = Cut_ff[i][j];
+
+        vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*uLJatt_n_noshift(r_min,i,j)
+                  - (4.0/3.0)*PI*pow(r_cut,3.0)*uLJatt_n_noshift(r_cut,i,j)
+                  + uLJatt_n_int(r_cut,i,j) - uLJatt_n_int(r_min,i,j);
+
+        <B><FONT COLOR="#A020F0">return</FONT></B>(vol_sten);
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_CHARGE</FONT></B>:
+        r_max = Sigma_ff[i][j];
+        vol_sten = deltaC_MSA_int(r_max,i,j);
+
+        <B><FONT COLOR="#A020F0">return</FONT></B>(vol_sten);
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_CR</FONT></B>:  <I><FONT COLOR="#B22222">/* actually this is an integration of c(r) over all
+                         volume. Maybe normalize this to the compressibility.
+                         do this later  */</FONT></I>
+        vol_sten = 0.;
+        <B><FONT COLOR="#A020F0">return</FONT></B>(vol_sten);
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_GAUSS</FONT></B>:
+        vol_sten = 1.;
+        <B><FONT COLOR="#A020F0">return</FONT></B>(vol_sten);
+  }
+  <B><FONT COLOR="#A020F0">return</FONT></B> 0;
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+<FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">set_gauss_quad</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> ngp, <FONT COLOR="#228B22"><B>double</FONT></B> *gp, <FONT COLOR="#228B22"><B>double</FONT></B> *gw)
+{
+
+  <B><FONT COLOR="#A020F0">if</FONT></B> (ngp == 40) {
+    gp[ 0] = ( 0.038772417506050821933 + 1.0)/2.0;  gw[ 0] = 0.077505947978424811264/2.0;
+    gp[ 1] = ( 0.116084070675255208483 + 1.0)/2.0;  gw[ 1] = 0.077039818164247965588/2.0;
+    gp[ 2] = ( 0.192697580701371099716 + 1.0)/2.0;  gw[ 2] = 0.076110361900626242372/2.0;
+    gp[ 3] = ( 0.268152185007253681141 + 1.0)/2.0;  gw[ 3] = 0.074723169057968264200/2.0;
+    gp[ 4] = ( 0.341994090825758473007 + 1.0)/2.0;  gw[ 4] = 0.072886582395804059061/2.0;
+    gp[ 5] = ( 0.413779204371605001525 + 1.0)/2.0;  gw[ 5] = 0.070611647391286779695/2.0;
+    gp[ 6] = ( 0.483075801686178712909 + 1.0)/2.0;  gw[ 6] = 0.067912045815233903826/2.0;
+    gp[ 7] = ( 0.549467125095128202076 + 1.0)/2.0;  gw[ 7] = 0.064804013456601038075/2.0;
+    gp[ 8] = ( 0.612553889667980237953 + 1.0)/2.0;  gw[ 8] = 0.061306242492928939167/2.0;
+    gp[ 9] = ( 0.671956684614179548379 + 1.0)/2.0;  gw[ 9] = 0.057439769099391551367/2.0;
+    gp[10] = ( 0.727318255189927103281 + 1.0)/2.0;  gw[10] = 0.053227846983936824355/2.0;
+    gp[11] = ( 0.778305651426519387695 + 1.0)/2.0;  gw[11] = 0.048695807635072232061/2.0;
+    gp[12] = ( 0.824612230833311663196 + 1.0)/2.0;  gw[12] = 0.043870908185673271992/2.0;
+    gp[13] = ( 0.865959503212259503821 + 1.0)/2.0;  gw[13] = 0.038782167974472017640/2.0;
+    gp[14] = ( 0.902098806968874296728 + 1.0)/2.0;  gw[14] = 0.033460195282547847393/2.0;
+    gp[15] = ( 0.932812808278676533361 + 1.0)/2.0;  gw[15] = 0.027937006980023401098/2.0;
+    gp[16] = ( 0.957916819213791655805 + 1.0)/2.0;  gw[16] = 0.022245849194166957262/2.0;
+    gp[17] = ( 0.977259949983774262663 + 1.0)/2.0;  gw[17] = 0.016421058381907888713/2.0;
+    gp[18] = ( 0.990726238699457006453 + 1.0)/2.0;  gw[18] = 0.010498284531152813615/2.0;
+    gp[19] = ( 0.998237709710559200350 + 1.0)/2.0;  gw[19] = 0.004521277098533191258/2.0;
+    gp[20] = (-0.038772417506050821933 + 1.0)/2.0;  gw[20] = gw[0];
+    gp[21] = (-0.116084070675255208483 + 1.0)/2.0;  gw[21] = gw[1];
+    gp[22] = (-0.192697580701371099716 + 1.0)/2.0;  gw[22] = gw[2];
+    gp[23] = (-0.268152185007253681141 + 1.0)/2.0;  gw[23] = gw[3];
+    gp[24] = (-0.341994090825758473007 + 1.0)/2.0;  gw[24] = gw[4];
+    gp[25] = (-0.413779204371605001525 + 1.0)/2.0;  gw[25] = gw[5];
+    gp[26] = (-0.483075801686178712909 + 1.0)/2.0;  gw[26] = gw[6];
+    gp[27] = (-0.549467125095128202076 + 1.0)/2.0;  gw[27] = gw[7];
+    gp[28] = (-0.612553889667980237953 + 1.0)/2.0;  gw[28] = gw[8];
+    gp[29] = (-0.671956684614179548379 + 1.0)/2.0;  gw[29] = gw[9];
+    gp[30] = (-0.727318255189927103281 + 1.0)/2.0;  gw[30] = gw[10];
+    gp[31] = (-0.778305651426519387695 + 1.0)/2.0;  gw[31] = gw[11];
+    gp[32] = (-0.824612230833311663196 + 1.0)/2.0;  gw[32] = gw[12];
+    gp[33] = (-0.865959503212259503821 + 1.0)/2.0;  gw[33] = gw[13];
+    gp[34] = (-0.902098806968874296728 + 1.0)/2.0;  gw[34] = gw[14];
+    gp[35] = (-0.932812808278676533361 + 1.0)/2.0;  gw[35] = gw[15];
+    gp[36] = (-0.957916819213791655805 + 1.0)/2.0;  gw[36] = gw[16];
+    gp[37] = (-0.977259949983774262663 + 1.0)/2.0;  gw[37] = gw[17];
+    gp[38] = (-0.990726238699457006453 + 1.0)/2.0;  gw[38] = gw[18];
+    gp[39] = (-0.998237709710559200350 + 1.0)/2.0;  gw[39] = gw[19];
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (ngp == 20) {
+    gp[ 0] = ( 0.076526521133497333755 +1.0 )/2.0;  gw[ 0] = 0.152753387130725850698/2.0;
+    gp[ 1] = ( 0.227785851141645078080 +1.0 )/2.0;  gw[ 1] = 0.149172986472603746788/2.0;
+    gp[ 2] = ( 0.373706088715419560673 + 1.0)/2.0;  gw[ 2] = 0.142096109318382051329/2.0;
+    gp[ 3] = ( 0.510867001950827098004 + 1.0)/2.0;  gw[ 3] = 0.131688638449176626898/2.0;
+    gp[ 4] = ( 0.636053680726515025453 + 1.0)/2.0;  gw[ 4] = 0.118194531961518417312/2.0;
+    gp[ 5] = ( 0.746331906460150792614 + 1.0)/2.0;  gw[ 5] = 0.101930119817240435037/2.0;
+    gp[ 6] = (0.839116971822218823395 + 1.0)/2.0;  gw[ 6] = 0.083276741576704748725/2.0;
+    gp[ 7] = (0.912234428251325905868 + 1.0)/2.0;  gw[ 7] = 0.062672048334109063570/2.0;
+    gp[ 8] = (0.963971927277913791268 + 1.0)/2.0;  gw[ 8] = 0.040601429800386941331/2.0;
+    gp[ 9] = (0.993128599185094924786 + 1.0)/2.0;  gw[ 9] = 0.017614007139152118312/2.0;
+    gp[10] = (-0.076526521133497333755 +1.0 )/2.0;  gw[10] = gw[0];
+    gp[11] = (-0.227785851141645078080 +1.0 )/2.0;  gw[11] = gw[1];
+    gp[12] = (-0.373706088715419560673 + 1.0)/2.0;  gw[12] = gw[2];
+    gp[13] = (-0.510867001950827098004 + 1.0)/2.0;  gw[13] = gw[3];
+    gp[14] = (-0.636053680726515025453 + 1.0)/2.0;  gw[14] = gw[4];
+    gp[15] = (-0.746331906460150792614 + 1.0)/2.0;  gw[15] = gw[5];
+    gp[16] = (-0.839116971822218823395 + 1.0)/2.0;  gw[16] = gw[6];
+    gp[17] = (-0.912234428251325905868 + 1.0)/2.0;  gw[17] = gw[7];
+    gp[18] = (-0.963971927277913791268 + 1.0)/2.0;  gw[18] = gw[8];
+    gp[19] = (-0.993128599185094924786 + 1.0)/2.0;  gw[19] = gw[9];
+  }
+
+  <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (ngp == 12) {
+    gp[ 0] = ( 0.125233408511469 + 1.0)/2.0;  gw[ 0] = 0.249147045813403/2.0;
+    gp[ 1] = ( 0.367831498998180 + 1.0)/2.0;  gw[ 1] = 0.233492536538355/2.0;
+    gp[ 2] = ( 0.587317954286617 + 1.0)/2.0;  gw[ 2] = 0.203167426723066/2.0;
+    gp[ 3] = ( 0.769902674194305 + 1.0)/2.0;  gw[ 3] = 0.160078328543346/2.0;
+    gp[ 4] = ( 0.904117256370475 + 1.0)/2.0;  gw[ 4] = 0.106939325995318/2.0;
+    gp[ 5] = ( 0.981560634246719 + 1.0)/2.0;  gw[ 5] = 0.047175336386512/2.0;
+    gp[ 6] = (-0.125233408511469 + 1.0)/2.0;  gw[ 6] = 0.249147045813403/2.0;
+    gp[ 7] = (-0.367831498998180 + 1.0)/2.0;  gw[ 7] = 0.233492536538355/2.0;
+    gp[ 8] = (-0.587317954286617 + 1.0)/2.0;  gw[ 8] = 0.203167426723066/2.0;
+    gp[ 9] = (-0.769902674194305 + 1.0)/2.0;  gw[ 9] = 0.160078328543346/2.0;
+    gp[10] = (-0.904117256370475 + 1.0)/2.0;  gw[10] = 0.106939325995318/2.0;
+    gp[11] = (-0.981560634246719 + 1.0)/2.0;  gw[11] = 0.047175336386512/2.0;
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (ngp == 3) {
+    gp[ 0] = ( 0.7745966692      + 1.0)/2.0;  gw[ 0] = 0.555555555555556/2.0;
+    gp[ 1] = ( 0.0000000         + 1.0)/2.0;  gw[ 1] = 0.888888888888888/2.0;
+    gp[ 2] = (-0.7745966692      + 1.0)/2.0;  gw[ 2] = 0.555555555555556/2.0;
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (ngp == 1) {
+    gp[ 0] = ( 0.0000000         + 1.0)/2.0;  gw[ 0] = 2.000000000000000/2.0;
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (ngp == 5) {
+    gp[ 0] = ( 0.906179845936884 + 1.0)/2.0;  gw[ 0] = 0.236926885056189/2.0;
+    gp[ 1] = ( 0.538469310105683 + 1.0)/2.0;  gw[ 1] = 0.478628670499366/2.0;
+    gp[ 2] = ( 0.00000           + 1.0)/2.0;  gw[ 2] = 0.568888888888890/2.0;
+    gp[ 3] = (-0.538469310105683 + 1.0)/2.0;  gw[ 3] = 0.478628670499366/2.0;
+    gp[ 4] = (-0.906179845936884 + 1.0)/2.0;  gw[ 4] = 0.236926885056189/2.0;
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (ngp == 6) {
+    gp[ 0] = ( 0.238619186083197 + 1.0)/2.0;  gw[ 0] = 0.467913934572691/2.0;
+    gp[ 1] = ( 0.661209386466265 + 1.0)/2.0;  gw[ 1] = 0.360761573048139/2.0;
+    gp[ 2] = ( 0.932469514203152 + 1.0)/2.0;  gw[ 2] = 0.171324492379170/2.0;
+    gp[ 3] = (-0.238619186083197 + 1.0)/2.0;  gw[ 3] = 0.467913934572691/2.0;
+    gp[ 4] = (-0.661209386466265 + 1.0)/2.0;  gw[ 4] = 0.360761573048139/2.0;
+    gp[ 5] = (-0.932469514203152 + 1.0)/2.0;  gw[ 5] = 0.171324492379170/2.0;
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (ngp == 9) {
+    gp[ 0] = ( 0.324253423403809 + 1.0)/2.0;  gw[ 0] = 0.312347077040004/2.0;
+    gp[ 1] = ( 0.613371432700590 + 1.0)/2.0;  gw[ 1] = 0.260610696402935/2.0;
+    gp[ 2] = ( 0.836031107326636 + 1.0)/2.0;  gw[ 2] = 0.180648160694857/2.0;
+    gp[ 3] = ( 0.968160239507626 + 1.0)/2.0;  gw[ 3] = 0.081274388361574/2.0;
+    gp[ 4] = ( 0.000000000000000 + 1.0)/2.0;  gw[ 4] = 0.330239355001260/2.0;
+    gp[ 5] = (-0.324253423403809 + 1.0)/2.0;  gw[ 5] = 0.312347077040004/2.0;
+    gp[ 6] = (-0.613371432700590 + 1.0)/2.0;  gw[ 6] = 0.260610696402935/2.0;
+    gp[ 7] = (-0.836031107326636 + 1.0)/2.0;  gw[ 7] = 0.180648160694857/2.0;
+    gp[ 8] = (-0.968160239507626 + 1.0)/2.0;  gw[ 8] = 0.081274388361574/2.0;
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B> {
+    printf(<FONT COLOR="#BC8F8F"><B>&quot;Requested Number of Gauss points not allowed (%d)\n&quot;</FONT></B>,ngp);
+    exit(-1);
+  }
+
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">get_weight_from_stencil</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> isten, <FONT COLOR="#228B22"><B>int</FONT></B> icomp, <FONT COLOR="#228B22"><B>int</FONT></B> jcomp, <FONT COLOR="#228B22"><B>double</FONT></B> rsq,
+                                   <FONT COLOR="#228B22"><B>double</FONT></B> R, <FONT COLOR="#228B22"><B>int</FONT></B> ngpu, <FONT COLOR="#228B22"><B>double</FONT></B> *gpu, <FONT COLOR="#228B22"><B>double</FONT></B> *gwu)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> temp, zmax, z, rho, rmin, rlast_nz, r_upp,slope_dr,r_low,zsq,rx_low;
+  <FONT COLOR="#228B22"><B>int</FONT></B> i, irmin;
+
+  <B><FONT COLOR="#A020F0">switch</FONT></B> (isten) {
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">DELTA_FN</FONT></B>:
+          <B><FONT COLOR="#A020F0">if</FONT></B> (!Sten_Type[POLYMER_CR]){
+            <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 1)       <B><FONT COLOR="#A020F0">return</FONT></B>(2.0 * PI * R);
+            <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 2)  <B><FONT COLOR="#A020F0">return</FONT></B>(2.0 / sqrt(1.0-rsq));
+            <B><FONT COLOR="#A020F0">else</FONT></B>                 <B><FONT COLOR="#A020F0">return</FONT></B>(1.0);
+          }
+          <B><FONT COLOR="#A020F0">else</FONT></B>{
+            <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 1)       <B><FONT COLOR="#A020F0">return</FONT></B>(R / 2.0);
+            <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 2)  <B><FONT COLOR="#A020F0">return</FONT></B>(0.5 / (sqrt(1.0-rsq) * PI));
+            <B><FONT COLOR="#A020F0">else</FONT></B>                 <B><FONT COLOR="#A020F0">return</FONT></B>(0.25 / PI);
+          }
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_FN</FONT></B>:
+            <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 1)       <B><FONT COLOR="#A020F0">return</FONT></B>((1.0-rsq) * PI*R*R);
+            <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 2)  <B><FONT COLOR="#A020F0">return</FONT></B>(sqrt(1.0-rsq) * 2.0*R);
+            <B><FONT COLOR="#A020F0">else</FONT></B>                 <B><FONT COLOR="#A020F0">return</FONT></B>(1.0);
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">U_ATTRACT</FONT></B>:
+
+            <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 1) {
+               temp = 0.0;
+               zmax = sqrt(1 - rsq);
+               <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i &lt; ngpu; i++) {
+
+                  z = zmax * gpu[i];
+                  rho = sqrt(rsq + z*z) * Cut_ff[icomp][jcomp];
+                  temp += gwu[i] * z * uLJatt_n(rho, icomp, jcomp);
+                  <B><FONT COLOR="#A020F0">if</FONT></B> (uLJatt_n(rho,icomp,jcomp) &gt; 0.)
+                       printf(<FONT COLOR="#BC8F8F"><B>&quot;rij: %f  uLJ: %f\n&quot;</FONT></B>,rho,
+                              uLJatt_n(rho,icomp,jcomp));
+               }
+               <B><FONT COLOR="#A020F0">return</FONT></B>(2.0 * PI * temp * Cut_ff[icomp][jcomp]
+                                      * Cut_ff[icomp][jcomp] * zmax);
+            }
+            <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 2) {
+               temp = 0.0;
+               zmax = sqrt(1 - rsq);
+               <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i &lt; ngpu; i++) {
+                  z = zmax * gpu[i];
+                  rho = sqrt(rsq + z*z) * Cut_ff[icomp][jcomp];
+                  temp += gwu[i] * uLJatt_n(rho, icomp, jcomp);
+               }
+               <B><FONT COLOR="#A020F0">return</FONT></B>(2.0 * temp * Cut_ff[icomp][jcomp] * zmax);
+            }
+            <B><FONT COLOR="#A020F0">else</FONT></B> {
+              rho = sqrt(rsq) * Cut_ff[icomp][jcomp];
+              temp = uLJatt_n(rho, icomp, jcomp);
+              <B><FONT COLOR="#A020F0">return</FONT></B>(temp);
+            }
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">THETA_CHARGE</FONT></B>:
+            <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 1) {
+               temp = 0.0;
+               zmax = sqrt(1 - rsq);
+               <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i &lt; ngpu; i++) {
+                  z = zmax * gpu[i];
+                  <I><FONT COLOR="#B22222">/* perhaps rho doesn't need Sigma_ff multiplier */</FONT></I>
+                  rho = sqrt(rsq + z*z) * Sigma_ff[icomp][jcomp];
+                  temp += gwu[i] * z *  deltaC_MSA(rho, icomp, jcomp);
+               }
+               <B><FONT COLOR="#A020F0">return</FONT></B>(2.0 * PI * temp * Sigma_ff[icomp][jcomp]
+                                      * Sigma_ff[icomp][jcomp] * zmax);
+            }
+            <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 2) {
+               temp = 0.0;
+               zmax = sqrt(1 - rsq);
+               <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i &lt; ngpu; i++) {
+                  z = zmax * gpu[i];
+                  <I><FONT COLOR="#B22222">/* perhaps rho doesn't need Sigma_ff multiplier */</FONT></I>
+                  rho = sqrt(rsq + z*z) * Sigma_ff[icomp][jcomp];
+                  temp += gwu[i] *  deltaC_MSA(rho, icomp, jcomp);
+               }
+               <B><FONT COLOR="#A020F0">return</FONT></B>(2.0 * temp * Sigma_ff[icomp][jcomp] * zmax);
+            }
+            <B><FONT COLOR="#A020F0">else</FONT></B> {
+              rho = sqrt(rsq) * Sigma_ff[icomp][jcomp];
+              temp = deltaC_MSA(rho, icomp, jcomp);
+              <B><FONT COLOR="#A020F0">return</FONT></B>(temp);
+            }
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_CR</FONT></B>:  
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim &lt; 3) {
+          rmin = rsq;
+          zsq = rmin*rmin;
+          irmin = (<FONT COLOR="#228B22"><B>int</FONT></B>) (rmin/Deltar_cr + 0.00000001);
+     <I><FONT COLOR="#B22222">/*   last_nz_cr = (int) (R/Deltar_cr + 0.00000001);     */</FONT></I>
+          rlast_nz   = Deltar_cr*Last_nz_cr;          
+          temp = 0.;
+          <B><FONT COLOR="#A020F0">if</FONT></B> (irmin &lt; Last_nz_cr) {
+            r_upp = Deltar_cr*(irmin+1);
+            <B><FONT COLOR="#A020F0">if</FONT></B> (r_upp &gt; R) r_upp = R;
+            slope_dr = (Rism_cr[icomp][jcomp][irmin+1] - 
+                       Rism_cr[icomp][jcomp][irmin]);
+            rx_low = 0.;
+            temp = int_cr(rmin,r_upp,slope_dr,icomp,jcomp,irmin,zsq,&amp;rx_low);
+            <B><FONT COLOR="#A020F0">for</FONT></B> (irmin = irmin+1; irmin &lt; Last_nz_cr; irmin++) {
+             <B><FONT COLOR="#A020F0">if</FONT></B> (r_upp &lt; R){
+              r_low = r_upp;
+              r_upp = Deltar_cr*(irmin+1);
+              <B><FONT COLOR="#A020F0">if</FONT></B> (r_upp &gt; R) r_upp = R;
+              slope_dr = (Rism_cr[icomp][jcomp][irmin+1] - 
+                       Rism_cr[icomp][jcomp][irmin]);
+             temp += int_cr(r_low,r_upp,slope_dr,icomp,jcomp,irmin,zsq,&amp;rx_low);
+             }
+            }
+          }
+          <B><FONT COLOR="#A020F0">if</FONT></B> (rlast_nz &lt; R) {
+            <B><FONT COLOR="#A020F0">if</FONT></B> (rlast_nz &gt; rmin){
+               r_low = rlast_nz;
+               rx_low = sqrt(r_low*r_low - zsq);
+            }
+            <B><FONT COLOR="#A020F0">else</FONT></B>{
+               r_low = rmin;
+               rx_low = 0.;
+            }
+            r_upp = R;
+            slope_dr = (Rism_cr[icomp][jcomp][Last_nz_cr] - 
+                       Rism_cr[icomp][jcomp][Last_nz_cr-1]);
+        temp += int_cr(r_low,r_upp,slope_dr,icomp,jcomp,Last_nz_cr,zsq,&amp;rx_low);
+          }          
+          <B><FONT COLOR="#A020F0">return</FONT></B>(temp);
+        }
+        <B><FONT COLOR="#A020F0">else</FONT></B> {
+          rmin = rsq;
+          irmin = (<FONT COLOR="#228B22"><B>int</FONT></B>) (rmin/Deltar_cr + 0.00000001);
+          <B><FONT COLOR="#A020F0">if</FONT></B> (irmin &lt; Last_nz_cr) 
+            slope_dr = (Rism_cr[icomp][jcomp][irmin+1] - 
+                       Rism_cr[icomp][jcomp][irmin]);
+          <B><FONT COLOR="#A020F0">else</FONT></B>
+            slope_dr = (Rism_cr[icomp][jcomp][irmin] - 
+                       Rism_cr[icomp][jcomp][irmin-1]);
+          temp = Rism_cr[icomp][jcomp][irmin] + 
+                                   slope_dr*(rmin - irmin*Deltar_cr)/Deltar_cr;
+          <B><FONT COLOR="#A020F0">return</FONT></B>(temp);
+        }
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">POLYMER_GAUSS</FONT></B>:   <I><FONT COLOR="#B22222">/* fix the cut-off values here */</FONT></I>
+
+            r_upp = -1.5*R*R/(Gauss_a*Gauss_a);
+            <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 1) {
+               temp = 0.0;
+               zmax = sqrt(1 - rsq);
+               <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i &lt; ngpu; i++) {
+
+                  z = zmax * gpu[i];
+                  rho = (rsq + z*z);
+                  temp += gwu[i] * z * exp(rho*r_upp);
+<I><FONT COLOR="#B22222">/*                temp += gwu[i] * z * gauss(rho, icomp, jcomp);     */</FONT></I>
+               }
+               <B><FONT COLOR="#A020F0">return</FONT></B>(2.0 * PI * temp * R*Gauss_k * R*zmax);
+            }
+            <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 2) {
+               temp = 0.0;
+               zmax = sqrt(1 - rsq);
+               <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i &lt; ngpu; i++) {
+                  z = zmax * gpu[i];
+                  rho = (rsq + z*z);
+                  temp += gwu[i] * exp(rho*r_upp);
+               }
+               <B><FONT COLOR="#A020F0">return</FONT></B>(2.0 * temp * R*Gauss_k * zmax);
+            }
+            <B><FONT COLOR="#A020F0">else</FONT></B> {
+              temp = exp(rsq*r_upp);
+              <B><FONT COLOR="#A020F0">return</FONT></B>(temp*Gauss_k);
+            }
+  }
+  <B><FONT COLOR="#A020F0">return</FONT></B> 0;
+}
+
+<I><FONT COLOR="#B22222">/*******************************************************************************
+  int_cr:  integrate the direct correlation function                         */</FONT></I>
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">int_cr</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> r_low,<FONT COLOR="#228B22"><B>double</FONT></B> r_upp,<FONT COLOR="#228B22"><B>double</FONT></B> slope_dr,<FONT COLOR="#228B22"><B>int</FONT></B> icomp,<FONT COLOR="#228B22"><B>int</FONT></B> jcomp,
+                  <FONT COLOR="#228B22"><B>int</FONT></B> irmin, <FONT COLOR="#228B22"><B>double</FONT></B> zsq, <FONT COLOR="#228B22"><B>double</FONT></B> *rx_low)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> temp,rusq,rlsq,rx_upp;
+
+  rusq = r_upp*r_upp;
+  rlsq = r_low*r_low;
+  <B><FONT COLOR="#A020F0">if</FONT></B> (Ndim == 1)   
+    temp = 2.*PI*(
+      ( rusq*(Rism_cr[icomp][jcomp][irmin] - slope_dr*irmin)/2. +
+        slope_dr*rusq*r_upp/(3.*Deltar_cr) ) -
+      ( rlsq*(Rism_cr[icomp][jcomp][irmin] - slope_dr*irmin)/2. +
+        slope_dr*rlsq*r_low/(3.*Deltar_cr) )   );
+  <B><FONT COLOR="#A020F0">else</FONT></B>{
+    rx_upp = sqrt(r_upp*r_upp - zsq);
+    temp = 2.*(rx_upp - *rx_low)*(Rism_cr[icomp][jcomp][irmin] - slope_dr*irmin)
+           + slope_dr*( (r_upp*rx_upp - r_low* *rx_low) +
+           zsq*log((r_upp + rx_upp)/(r_low + *rx_low)) )/Deltar_cr;
+    *rx_low = rx_upp;
+  }
+  <B><FONT COLOR="#A020F0">return</FONT></B> temp;
+}
+<I><FONT COLOR="#B22222">/*******************************************************************************
+  gauss:      calculate Gaussian function                         */</FONT></I>
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">gauss</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> r, <FONT COLOR="#228B22"><B>int</FONT></B> i, <FONT COLOR="#228B22"><B>int</FONT></B> j)
+{
+  <FONT COLOR="#228B22"><B>void</FONT></B> gcf(<FONT COLOR="#228B22"><B>double</FONT></B> *gammcf, <FONT COLOR="#228B22"><B>double</FONT></B> a, <FONT COLOR="#228B22"><B>double</FONT></B> psq, <FONT COLOR="#228B22"><B>double</FONT></B> *gln);
+  <FONT COLOR="#228B22"><B>void</FONT></B> gser(<FONT COLOR="#228B22"><B>double</FONT></B> *gamser, <FONT COLOR="#228B22"><B>double</FONT></B> a, <FONT COLOR="#228B22"><B>double</FONT></B> psq, <FONT COLOR="#228B22"><B>double</FONT></B> *gln);
+
+  <FONT COLOR="#228B22"><B>double</FONT></B> psq,gamser,gammcf,gln,a;
+
+  a = 0.5;
+  psq = 1.5*(r/Gauss_a)*(r/Gauss_a);
+  <B><FONT COLOR="#A020F0">if</FONT></B> (psq &lt; 1.5) {
+    gser(&amp;gamser,a,psq,&amp;gln);
+    <B><FONT COLOR="#A020F0">return</FONT></B> gamser;
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B> {
+    gcf(&amp;gammcf,a,psq,&amp;gln);
+    <B><FONT COLOR="#A020F0">return</FONT></B> 1.0 - gammcf;
+  }
+}
+        
+
+#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">itmax</FONT> 100
+#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">eps</FONT> 3.e-7
+
+<FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">gser</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *gamser, <FONT COLOR="#228B22"><B>double</FONT></B> a, <FONT COLOR="#228B22"><B>double</FONT></B> x, <FONT COLOR="#228B22"><B>double</FONT></B> *gln)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> gammln(<FONT COLOR="#228B22"><B>double</FONT></B> xx);
+  <FONT COLOR="#228B22"><B>int</FONT></B> n;
+  <FONT COLOR="#228B22"><B>double</FONT></B> sum,del,ap;
+
+  *gln = gammln(a);
+    <B><FONT COLOR="#A020F0">if</FONT></B> (x &lt;= 0.) {
+        *gamser=0.;
+        <B><FONT COLOR="#A020F0">return</FONT></B>;
+    }
+    <B><FONT COLOR="#A020F0">else</FONT></B> {
+      ap=a;
+      del=sum=1./a;
+      <B><FONT COLOR="#A020F0">for</FONT></B> (n=1; n&lt;=itmax; n++) {
+        ++ap;
+        del *= x/ap;
+        sum += del;
+        <B><FONT COLOR="#A020F0">if</FONT></B> (fabs(del) &lt; fabs(sum)*eps) {
+          *gamser=sum*exp(-x+a*log(x)-(*gln));
+          <B><FONT COLOR="#A020F0">return</FONT></B>;
+        }
+      }
+      printf(<FONT COLOR="#BC8F8F"><B>&quot;a too large, itmax too small in gcf\n&quot;</FONT></B>);
+      <B><FONT COLOR="#A020F0">return</FONT></B>;
+    }
+}
+
+#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">itmax</FONT> 100
+#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">eps</FONT> 3.e-7
+#<B><FONT COLOR="#5F9EA0">define</FONT></B> <FONT COLOR="#B8860B">fpmin</FONT> 1.0e-30
+
+<FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">gcf</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *gammcf, <FONT COLOR="#228B22"><B>double</FONT></B> a, <FONT COLOR="#228B22"><B>double</FONT></B> x, <FONT COLOR="#228B22"><B>double</FONT></B> *gln)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> gammln(<FONT COLOR="#228B22"><B>double</FONT></B> xx);
+  <FONT COLOR="#228B22"><B>int</FONT></B> i;
+  <FONT COLOR="#228B22"><B>double</FONT></B> an,b,c,d,del,h;
+
+  *gln = gammln(a);
+  b = x + 1.0 - a;
+  c = 1.0/fpmin;
+  d = 1.0/b;
+  h = d;
+  <B><FONT COLOR="#A020F0">for</FONT></B> (i=1; i&lt;itmax; i++) {
+    an = -i*(i-a);
+    b += 2.0;
+    d = an*d + b;
+    <B><FONT COLOR="#A020F0">if</FONT></B> (fabs(d) &lt; fpmin) d = fpmin;
+    c = b + an/c;
+    <B><FONT COLOR="#A020F0">if</FONT></B> (fabs(c) &lt; fpmin) c = fpmin;
+    d = 1.0/d;
+    del = d*c;
+    h *= del;
+    <B><FONT COLOR="#A020F0">if</FONT></B> (fabs(del - 1.0) &lt; eps) <B><FONT COLOR="#A020F0">break</FONT></B>;
+  }
+  <B><FONT COLOR="#A020F0">if</FONT></B> (i &gt; itmax) printf(<FONT COLOR="#BC8F8F"><B>&quot;a too large, itmax too small in gcf\n&quot;</FONT></B>);
+  *gammcf = exp(-x + a*log(x) - (*gln))*h;
+}
+
+
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">gammln</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> xx)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> x,y,tmp,ser;
+  <FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>double</FONT></B> cof[6]={76.18009173e0,-86.50532033e0,24.01409822e0,
+          -1.231739516e0,.120858003e-2,-.536382e-5};
+  <FONT COLOR="#228B22"><B>int</FONT></B> j;
+
+      y = x = xx;
+      tmp = x + 5.5;
+      tmp -= (x+0.5)*log(tmp);
+      ser= 1.000000000190015;
+      <B><FONT COLOR="#A020F0">for</FONT></B> (j=0; j &lt;= 5; j++) ser += cof[j]/++y;
+      <B><FONT COLOR="#A020F0">return</FONT></B> -tmp+log(2.50662827465e0*ser/x);
+}
+  
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+<FONT COLOR="#228B22"><B>static</FONT></B> <FONT COLOR="#228B22"><B>int</FONT></B> <B><FONT COLOR="#0000FF">calc_in_out_on</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *x_l, <FONT COLOR="#228B22"><B>double</FONT></B> *x_r, <FONT COLOR="#228B22"><B>double</FONT></B> sten_rad)
+{
+  <FONT COLOR="#228B22"><B>int</FONT></B> idim, jdim, inflag = FALSE, outflag = FALSE;
+  <FONT COLOR="#228B22"><B>double</FONT></B> r;
+
+  <B><FONT COLOR="#A020F0">switch</FONT></B> (Ndim) {
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">1</FONT></B>:
+       <I><FONT COLOR="#B22222">/* check 2 end nodes */</FONT></I>
+
+       r = fabs(x_l[0]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = fabs(x_r[0]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+
+       <B><FONT COLOR="#A020F0">break</FONT></B>;
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">2</FONT></B>:
+       <I><FONT COLOR="#B22222">/* check 4 corner nodes */</FONT></I>
+
+       r = sqrt(x_l[0]*x_l[0] + x_l[1]*x_l[1]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = sqrt(x_l[0]*x_l[0] + x_r[1]*x_r[1]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = sqrt(x_r[0]*x_r[0] + x_l[1]*x_l[1]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = sqrt(x_r[0]*x_r[0] + x_r[1]*x_r[1]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+
+       <B><FONT COLOR="#A020F0">break</FONT></B>;
+
+    <B><FONT COLOR="#A020F0">case</FONT></B> <B><FONT COLOR="#5F9EA0">3</FONT></B>:
+       <I><FONT COLOR="#B22222">/* check 8 corner nodes */</FONT></I>
+
+       r = sqrt(x_l[0]*x_l[0] + x_l[1]*x_l[1] + x_l[2]*x_l[2]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = sqrt(x_l[0]*x_l[0] + x_r[1]*x_r[1] + x_l[2]*x_l[2]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = sqrt(x_r[0]*x_r[0] + x_l[1]*x_l[1] + x_l[2]*x_l[2]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = sqrt(x_r[0]*x_r[0] + x_r[1]*x_r[1] + x_l[2]*x_l[2]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = sqrt(x_l[0]*x_l[0] + x_l[1]*x_l[1] + x_r[2]*x_r[2]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = sqrt(x_l[0]*x_l[0] + x_r[1]*x_r[1] + x_r[2]*x_r[2]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = sqrt(x_r[0]*x_r[0] + x_l[1]*x_l[1] + x_r[2]*x_r[2]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+       r = sqrt(x_r[0]*x_r[0] + x_r[1]*x_r[1] + x_r[2]*x_r[2]);
+         <B><FONT COLOR="#A020F0">if</FONT></B> (r &gt; sten_rad) outflag = TRUE; <B><FONT COLOR="#A020F0">else</FONT></B> inflag = TRUE;
+
+       <B><FONT COLOR="#A020F0">break</FONT></B>;
+  }
+
+  <I><FONT COLOR="#B22222">/* return 1 if the element is completely outside, -1 inside, 0 stradling */</FONT></I>
+  <B><FONT COLOR="#A020F0">if</FONT></B>      (inflag == FALSE &amp;&amp; outflag == TRUE ) <B><FONT COLOR="#A020F0">return</FONT></B>(1);
+  <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (inflag == TRUE  &amp;&amp; outflag == FALSE) <B><FONT COLOR="#A020F0">return</FONT></B>(-1);
+  <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">return</FONT></B>(0);
+
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+</PRE>
+<HR>
+<A NAME="file2">
+<H1>dft_thermo.c 2/2</H1>
+[<A HREF="#top">top</A>][<A HREF="#file1">prev</A>][next]
+<PRE>
+<I><FONT COLOR="#B22222">/* ---------------------------------------------------------
+Calculate the relevant thermodynamic properties of the bulk fluid.
+We use the Percus-Yevick compressibilty equation of state.
+
+Input:  bulk densities of each component: Rho_b[icomp]
+
+Output:	1) hard sphere pressure:  p sigma_ff[1]^3 / kT
+        2) excess hard sphere chemical potentials: mu_hs_ex/kT
+        3)       hard sphere chemical potentials: mu_hs/kT
+------------------------------------------------------------*/</FONT></I>
+#<B><FONT COLOR="#5F9EA0">include</FONT></B> <FONT COLOR="#BC8F8F"><B>&quot;dft_globals_const.h&quot;</FONT></B>
+#<B><FONT COLOR="#5F9EA0">include</FONT></B> <FONT COLOR="#BC8F8F"><B>&quot;rf_allo.h&quot;</FONT></B>
+#<B><FONT COLOR="#5F9EA0">ifdef</FONT></B> <FONT COLOR="#B8860B">PARALLEL</FONT>
+#<B><FONT COLOR="#5F9EA0">include</FONT></B> <FONT COLOR="#BC8F8F"><B>&quot;mpi.h&quot;</FONT></B>
+#<B><FONT COLOR="#5F9EA0">endif</FONT></B>
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">calc_hs_properties</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *,<FONT COLOR="#228B22"><B>double</FONT></B> *);
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">calc_att_properties</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *, <FONT COLOR="#228B22"><B>double</FONT></B> *);
+<FONT COLOR="#228B22"><B>void</FONT></B>   <B><FONT COLOR="#0000FF">calc_charge_correlations_b</FONT></B>();
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">int_stencil_bulk</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B>,<FONT COLOR="#228B22"><B>int</FONT></B>,<FONT COLOR="#228B22"><B>int</FONT></B>);
+<FONT COLOR="#228B22"><B>double</FONT></B>   <B><FONT COLOR="#0000FF">coexistence</FONT></B>();
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">dp_drho_hs</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *);
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">dp_drho_att</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *);
+<FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">print_thermo</FONT></B>(<FONT COLOR="#228B22"><B>char</FONT></B> *,<FONT COLOR="#228B22"><B>double</FONT></B>,<FONT COLOR="#228B22"><B>double</FONT></B> *);
+
+<FONT COLOR="#228B22"><B>void</FONT></B>  <B><FONT COLOR="#0000FF">thermodynamics</FONT></B>( <FONT COLOR="#228B22"><B>char</FONT></B> *output_file1, <FONT COLOR="#228B22"><B>int</FONT></B> print_flag)
+{
+   <FONT COLOR="#228B22"><B>int</FONT></B> icomp;
+   <FONT COLOR="#228B22"><B>double</FONT></B> hs_diam_cubed, betap_hs, t1, betamu_hs[NCOMP_MAX],p_coex=0.0;
+   <FONT COLOR="#228B22"><B>char</FONT></B> *yo = <FONT COLOR="#BC8F8F"><B>&quot;thermodynamics&quot;</FONT></B>;
+
+ <B><FONT COLOR="#A020F0">if</FONT></B> (!Sten_Type[POLYMER_CR]){
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0 &amp;&amp; print_flag) printf(<FONT COLOR="#BC8F8F"><B>&quot;\n%s: Doing Thermo precalculations\n&quot;</FONT></B>,yo);
+#<B><FONT COLOR="#5F9EA0">ifdef</FONT></B> <FONT COLOR="#B8860B">PARALLEL</FONT>
+   t1 = MPI_Wtime();
+#<B><FONT COLOR="#5F9EA0">endif</FONT></B>
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n == LJ12_6) {
+      Avdw = (<FONT COLOR="#228B22"><B>double</FONT></B> **) array_alloc(2, Ncomp, Ncomp, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+      Betamu_att = (<FONT COLOR="#228B22"><B>double</FONT></B> *) array_alloc(1, Ncomp, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+   }
+
+   <I><FONT COLOR="#B22222">/* Find bulk coexistence !! */</FONT></I>
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ncomp == 1 &amp;&amp; Ipot_ff_n==2 &amp;&amp; Iliq_vap != -2){ 
+      p_coex = coexistence();
+      <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0) {
+         <B><FONT COLOR="#A020F0">if</FONT></B> (print_flag) {
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;For kT/epsilon=:%9.6f  the coexistence densities are:\n&quot;</FONT></B>,Temp);
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;\t\t\tliquid: %9.6f  vapor: %9.6f\n&quot;</FONT></B>,Rho_coex[0],Rho_coex[1]);
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;and the pressure at coexistence is:%9.6f\n&quot;</FONT></B>,p_coex);
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;\n\n your density is %9.6f\n&quot;</FONT></B>,Rho_b[0]);
+         }
+         <B><FONT COLOR="#A020F0">else</FONT></B> {
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;\n\tThermodynamics called for For kT/epsilon=:%9.6f and bulk density %9.6f\n&quot;</FONT></B>,
+                   Temp, Rho_b[0]);
+         }
+      }
+
+      <B><FONT COLOR="#A020F0">if</FONT></B> (Iliq_vap == 1 ){
+         <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0 &amp;&amp; print_flag) printf(<FONT COLOR="#BC8F8F"><B>&quot;\n RESETTING RHO_BULK = RHO_VAPOR\n&quot;</FONT></B>);
+         Rho_b[0] = Rho_coex[1];
+      }
+      <B><FONT COLOR="#A020F0">else</FONT></B> <B><FONT COLOR="#A020F0">if</FONT></B> (Iliq_vap == 2 ||Iliq_vap==3){
+         <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0 &amp;&amp; print_flag) printf(<FONT COLOR="#BC8F8F"><B>&quot;\n RESETTING RHO_BULK = RHO_LIQUID\n&quot;</FONT></B>);
+         Rho_b[0] = Rho_coex[0];
+      }
+      <B><FONT COLOR="#A020F0">if</FONT></B> (Rho_b[0] &lt; Rho_coex[0] &amp;&amp; Rho_b[0] &gt; Rho_coex[1] &amp;&amp; 
+          Iliq_vap == -1 &amp;&amp; Loca.method == -1){
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;PROBLEMS: The density you've selected is\n&quot;</FONT></B>);
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;          in the coexistence region\n &quot;</FONT></B>);
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;          setting density to rho_vapor    \n &quot;</FONT></B>);
+           Rho_b[0] = Rho_coex[1];
+      }
+   }
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n == IDEAL_GAS) {
+      Betap = 0.0;
+      Betap_id = 0.0;
+      Betamu_att = (<FONT COLOR="#228B22"><B>double</FONT></B> *) array_alloc(1, Ncomp, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+   
+      <B><FONT COLOR="#A020F0">if</FONT></B> (Lsteady_state){
+         <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) {
+             Betamu_LBB[icomp] = log(Rho_b_LBB[icomp]);
+             Betamu_RTF[icomp] = log(Rho_b_RTF[icomp]);
+             <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_c == COULOMB){
+               Betamu_LBB[icomp] += Charge_f[icomp]*(Elec_pot_LBB);
+             }
+         }
+      }
+      <B><FONT COLOR="#A020F0">else</FONT></B>{
+         <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) {
+             Betamu[icomp] = log(Rho_b[icomp]);
+             Betamu_id[icomp] = log(Rho_b[icomp]);
+             Betamu_hs_ex[icomp] = 0.0;
+             Betap += Rho_b[icomp];
+             Betap_id += Rho_b[icomp];
+             Betamu_att[icomp] = 0.0;
+             Betap_att = 0.0;
+         }
+      }
+   }
+   <B><FONT COLOR="#A020F0">else</FONT></B>{
+
+      <B><FONT COLOR="#A020F0">if</FONT></B> (Lsteady_state) {
+        betap_hs = calc_hs_properties(betamu_hs,Rho_b_LBB);
+
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n == LJ12_6) {
+            Betap = betap_hs + calc_att_properties(Betamu_att,Rho_b_LBB);
+            <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) 
+               Betamu_LBB[icomp] = betamu_hs[icomp] + Betamu_att[icomp];
+        }
+        <B><FONT COLOR="#A020F0">else</FONT></B>{
+            Betap = betap_hs;
+            <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) 
+               Betamu_LBB[icomp] = betamu_hs[icomp] + Charge_f[icomp]*Elec_pot_LBB;
+        }
+        betap_hs = calc_hs_properties(betamu_hs,Rho_b_RTF);
+
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n == LJ12_6) {
+            Betap = betap_hs + calc_att_properties(Betamu_att,Rho_b_RTF);
+            <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) 
+               Betamu_RTF[icomp] = betamu_hs[icomp] + Betamu_att[icomp];
+        }
+        <B><FONT COLOR="#A020F0">else</FONT></B>{
+            Betap = betap_hs;
+            <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) 
+               Betamu_RTF[icomp] = betamu_hs[icomp];
+        }
+
+      }
+      <B><FONT COLOR="#A020F0">else</FONT></B> {
+
+        Betap_id = 0.0;
+        betap_hs = calc_hs_properties(betamu_hs,Rho_b);
+
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n == LJ12_6) {
+            Betap_att = calc_att_properties(Betamu_att,Rho_b);
+            Betap = betap_hs + Betap_att;
+            <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) {
+               Betamu[icomp] = betamu_hs[icomp] + Betamu_att[icomp];
+               Betap_id += Rho_b[icomp];
+            }
+        }
+        <B><FONT COLOR="#A020F0">else</FONT></B>{
+            Betap_att = 0.0;
+            Betap = betap_hs;
+            <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) {
+               Betamu[icomp] = betamu_hs[icomp];
+               Betap_id += Rho_b[icomp];
+            }
+        }
+      }
+   }
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_c == COULOMB &amp;&amp; Sten_Type[THETA_CHARGE])
+      calc_charge_correlations_b();
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ncomp == 1 &amp;&amp; Ipot_ff_n==2 &amp;&amp; Iliq_vap != -2) P_over_po=Betap/p_coex;
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0 &amp;&amp; Imain_loop==0 &amp;&amp; print_flag){
+      print_thermo(output_file1,betap_hs,betamu_hs);
+#<B><FONT COLOR="#5F9EA0">ifdef</FONT></B> <FONT COLOR="#B8860B">PARALLEL</FONT>
+      printf(<FONT COLOR="#BC8F8F"><B>&quot;\t%s ... took %g secs\n&quot;</FONT></B>,yo,MPI_Wtime()-t1);
+#<B><FONT COLOR="#5F9EA0">endif</FONT></B>
+   }
+ 
+ }
+ <B><FONT COLOR="#A020F0">else</FONT></B>{  <I><FONT COLOR="#B22222">/* POLYMER properties */</FONT></I>
+   
+   <I><FONT COLOR="#B22222">/* the stencil has already been calculated at this point. attractions
+      need to be added to c(r) earlier in the code */</FONT></I>
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0 &amp;&amp; print_flag) printf(<FONT COLOR="#BC8F8F"><B>&quot;\n%s: No polymer thermo precalculations\n&quot;</FONT></B>,yo);
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_c == COULOMB &amp;&amp; Sten_Type[THETA_CHARGE])
+      calc_charge_correlations_b();
+
+ } <I><FONT COLOR="#B22222">/* end of   if (!Sten_Type[POLYMER_CR])   */</FONT></I>
+   
+}
+<I><FONT COLOR="#B22222">/********************************************************************************
+calc_hs_properties:  This routine calculates the pressure and excess chemical 
+                     potential for hard spheres at the density of interest 
+                     using the PY equations.            */</FONT></I>
+
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">calc_hs_properties</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *betamu_hs,<FONT COLOR="#228B22"><B>double</FONT></B> *rho)
+{
+   <FONT COLOR="#228B22"><B>int</FONT></B> icomp;
+   <FONT COLOR="#228B22"><B>double</FONT></B> pi6, hs_diam_cubed, xsi0, xsi1, xsi2, xsi3, y1, y2, y3,
+          betap_hs;
+
+   xsi0 = 0.0;
+   xsi1 = 0.0;
+   xsi2 = 0.0;
+   xsi3 = 0.0;
+   pi6 = PI/6.0;                 <I><FONT COLOR="#B22222">/* shorthand  for pi/6                 */</FONT></I>
+
+   <I><FONT COLOR="#B22222">/*  Determine the effective hard sphere diameters 
+    For now we will set these to unity, but in the future we
+    can define a temperature dependent diameter. Doing so
+    offers a way to provide a better mean field equation of
+    state. In essence, for  an attractive (e.g LJ) fluid (mixture)
+    we can use the effective hard sphere diameter to off set the 
+    shortcomings of the PY + mean field approximation. See the
+    work by Telo da Gama et al.. 
+   */</FONT></I>
+
+   <I><FONT COLOR="#B22222">/* calculate the hard sphere diamtere ... this can be 
+      turned into a T-dependent diameter */</FONT></I>
+
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) Hs_diam[icomp] = 1.0;  
+
+   <I><FONT COLOR="#B22222">/*  calculate the constants xsi and introduce some shorthand */</FONT></I>
+
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) {
+      hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
+      xsi0 +=pi6 * rho[icomp] * hs_diam_cubed;
+      xsi1 +=pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
+      xsi2 +=pi6 * rho[icomp] * hs_diam_cubed * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
+      xsi3 +=pi6 * rho[icomp] * hs_diam_cubed * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
+   }
+   y1 = 1.0 - xsi3;
+   y2 = y1 * y1;
+   y3 = y1 * y1 * y1;
+
+   <I><FONT COLOR="#B22222">/* the hard sphere pressure in units of kT and Sigma_ff[1]^3 */</FONT></I>
+
+   betap_hs = (1.0/pi6) * (xsi0/y1 + 3.0 * xsi1 * xsi2/y2 +
+                                     3.0 * POW_DOUBLE_INT(xsi2,3)/y3  );
+
+   <I><FONT COLOR="#B22222">/* the excess hard sphere chemical potential in units of kT */</FONT></I>
+
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) 
+      Betamu_hs_ex[icomp] = - log(y1) + 
+              pi6 * betap_hs * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3) +
+              3.0 * xsi2 * Sigma_ff[icomp][icomp]/y1 +
+              3.0 * xsi1 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2)/y1 +
+              4.5 * POW_DOUBLE_INT((xsi2 * Sigma_ff[icomp][icomp]),2)/y2 ;
+
+   <I><FONT COLOR="#B22222">/* 
+    * add the ideal gas term to give
+    * the hard sphere chemical potential in units of kT 
+    */</FONT></I>
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) {
+      hs_diam_cubed = POW_DOUBLE_INT (Hs_diam[icomp],3);
+      betamu_hs[icomp]  = log(rho[icomp] * hs_diam_cubed) 
+                          + Betamu_hs_ex[icomp]; 
+                        <I><FONT COLOR="#B22222">/*     - 3.0*log(Sigma_ff[icomp][icomp]) -
+                               1.5*log(Mass[icomp]*Temp);*/</FONT></I>
+      Betamu_id[icomp]  = log(rho[icomp] * hs_diam_cubed);
+                  <I><FONT COLOR="#B22222">/*           - 3.0*log(Sigma_ff[icomp][icomp]) -
+                               1.5*log(Mass[icomp]*Temp); */</FONT></I>
+   }
+
+   <B><FONT COLOR="#A020F0">return</FONT></B> (betap_hs);
+}
+<I><FONT COLOR="#B22222">/*************************************************************
+calc_att_properties: In this routine calculate the strict mean field
+                     attraction contribution to the pressure and
+                     chemical potential */</FONT></I>
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">calc_att_properties</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *betamu_att, <FONT COLOR="#228B22"><B>double</FONT></B> *rho)
+{
+  <FONT COLOR="#228B22"><B>int</FONT></B> icomp,jcomp;
+  <FONT COLOR="#228B22"><B>double</FONT></B> betap_att;
+
+  betap_att = 0.0; 
+  <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) betamu_att[icomp] = 0.0;
+
+  <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) {
+     <B><FONT COLOR="#A020F0">for</FONT></B> (jcomp=0; jcomp&lt;Ncomp;jcomp++){
+       Avdw[icomp][jcomp] = int_stencil_bulk(U_ATTRACT,icomp,jcomp);
+       betamu_att[icomp] += rho[jcomp]*Avdw[icomp][jcomp]/Temp;
+       betap_att += 0.5*Avdw[icomp][jcomp]*rho[icomp]*rho[jcomp]/Temp;
+     }
+  }
+  <B><FONT COLOR="#A020F0">return</FONT></B>(betap_att);
+}
+<I><FONT COLOR="#B22222">/********************************************************************
+calc_charge_correlations_b: Here we set up the bulk cross correlations
+      between the hard sphere and coulomb parts of the potential*/</FONT></I>
+<FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">calc_charge_correlations_b</FONT></B>()
+{
+   <FONT COLOR="#228B22"><B>int</FONT></B> icomp,jcomp;
+
+   Deltac_b = (<FONT COLOR="#228B22"><B>double</FONT></B> *) array_alloc (1, Ncomp, <B><FONT COLOR="#A020F0">sizeof</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B>));
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) Deltac_b[icomp] = 0.0;
+
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; icomp++) 
+      <B><FONT COLOR="#A020F0">for</FONT></B> (jcomp=0; jcomp&lt;Ncomp;jcomp++)
+          Deltac_b[icomp]+= Rho_b[jcomp]*
+                            int_stencil_bulk(THETA_CHARGE,icomp,jcomp);
+   <B><FONT COLOR="#A020F0">return</FONT></B>;
+}
+<I><FONT COLOR="#B22222">/***********************************************************************
+int_stencil_bulk: this routine sums the appropriate stencil to get
+                  the bulk contributions to various terms in the E-L
+                  equation. */</FONT></I>
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">int_stencil_bulk</FONT></B>(<FONT COLOR="#228B22"><B>int</FONT></B> sten_type,<FONT COLOR="#228B22"><B>int</FONT></B> icomp,<FONT COLOR="#228B22"><B>int</FONT></B> jcomp)
+{
+  <FONT COLOR="#228B22"><B>int</FONT></B> izone, isten;
+  <FONT COLOR="#228B22"><B>double</FONT></B> sum, weight, *sten_weight;
+  <FONT COLOR="#228B22"><B>struct</FONT></B> Stencil_Struct *sten;
+
+  sum = 0.0;
+  izone = 0;
+  sten = &amp;(Stencil[sten_type][izone][icomp+Ncomp*jcomp]);
+  sten_weight = sten-&gt;Weight;
+
+  <B><FONT COLOR="#A020F0">for</FONT></B> (isten = 0; isten&lt;sten-&gt;Length; isten++){
+     weight = sten_weight[isten];
+     sum += weight;
+  }
+  <B><FONT COLOR="#A020F0">return</FONT></B>(sum);
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+<I><FONT COLOR="#B22222">/* uLJatt_n:  given r12, calculate the attractive part of a cut and
+           shifted 12-6 LJ potential. */</FONT></I>
+
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">uLJatt_n</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> r,<FONT COLOR="#228B22"><B>int</FONT></B> i, <FONT COLOR="#228B22"><B>int</FONT></B> j)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> uatt,r_min,sigma2,sigma6;
+  <FONT COLOR="#228B22"><B>double</FONT></B> r_inv,r2_inv,r6_inv,r12_inv;
+  <FONT COLOR="#228B22"><B>double</FONT></B> rc_inv,rc2_inv,rc6_inv,rc12_inv;
+
+  sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
+  sigma6 = sigma2*sigma2*sigma2;
+
+  rc_inv   = 1.0/Cut_ff[i][j];
+  rc2_inv  = rc_inv*rc_inv;
+  rc6_inv  = rc2_inv*rc2_inv*rc2_inv;
+  rc12_inv = rc6_inv*rc6_inv;
+
+
+  <B><FONT COLOR="#A020F0">if</FONT></B> (r &lt;= Cut_ff[i][j]) {
+     r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
+     <B><FONT COLOR="#A020F0">if</FONT></B> (r &lt; r_min) r = r_min;
+
+     r_inv = 1.0/r;
+     r2_inv  = r_inv*r_inv;
+     r6_inv  = r2_inv*r2_inv*r2_inv;
+     r12_inv = r6_inv*r6_inv;
+
+     uatt = 4.0 * Eps_ff[i][j]* sigma6 * (
+               sigma6*(r12_inv - rc12_inv)
+                    - (r6_inv  - rc6_inv ) );
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B> uatt = 0.0;
+
+  <B><FONT COLOR="#A020F0">return</FONT></B> uatt;
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+<I><FONT COLOR="#B22222">/* uLJatt_n_int:  given r_12, calculate the integral of the
+                  attractive part of 
+                  12-6 LJ potential (not cut and shifted). */</FONT></I>
+
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">uLJatt_n_int</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> r,<FONT COLOR="#228B22"><B>int</FONT></B> i, <FONT COLOR="#228B22"><B>int</FONT></B> j)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> uatt_int,r_min,sigma2,sigma6;
+  <FONT COLOR="#228B22"><B>double</FONT></B> r_inv,r3_inv,r9_inv;
+
+  sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
+  sigma6 = sigma2*sigma2*sigma2;
+
+  r_inv = 1.0/r;
+
+  r3_inv  = r_inv*r_inv*r_inv;
+  r9_inv  = r3_inv*r3_inv*r3_inv;
+
+  uatt_int = 16 * PI * Eps_ff[i][j]* sigma6 * (
+             - sigma6*r9_inv/9.0  + r3_inv/3.0 );
+
+  <B><FONT COLOR="#A020F0">return</FONT></B> uatt_int;
+}
+<I><FONT COLOR="#B22222">/****************************************************************************/</FONT></I>
+<I><FONT COLOR="#B22222">/* uLJatt_n_noshift:  calculate the attractive part of 
+                  12-6 LJ potential at the minimum. */</FONT></I>
+
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">uLJatt_n_noshift</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> r,<FONT COLOR="#228B22"><B>int</FONT></B> i, <FONT COLOR="#228B22"><B>int</FONT></B> j)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> uatt,r_min,sigma2,sigma6;
+  <FONT COLOR="#228B22"><B>double</FONT></B> r_inv,r2_inv,r6_inv,r12_inv;
+  <FONT COLOR="#228B22"><B>double</FONT></B> rc_inv,rc2_inv,rc6_inv,rc12_inv;
+
+  sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
+  sigma6 = sigma2*sigma2*sigma2;
+
+  r_inv = 1.0/r;
+
+  r2_inv  = r_inv*r_inv;
+  r6_inv  = r2_inv*r2_inv*r2_inv;
+  r12_inv = r6_inv*r6_inv;
+
+  r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
+  <B><FONT COLOR="#A020F0">if</FONT></B> (r &lt; r_min) r = r_min;
+
+  uatt = 4.0 * Eps_ff[i][j]* sigma6 * (
+            sigma6*r12_inv  - r6_inv);
+
+  <B><FONT COLOR="#A020F0">return</FONT></B> uatt;
+}
+<I><FONT COLOR="#B22222">/*******************************************************************************/</FONT></I>
+<I><FONT COLOR="#B22222">/* deltaC_MSA:  given r12, calculate the attractive part of a cut and
+           shifted 12-6 LJ potential. */</FONT></I>
+
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">deltaC_MSA</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> r,<FONT COLOR="#228B22"><B>int</FONT></B> i, <FONT COLOR="#228B22"><B>int</FONT></B> j)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> deltac,B,kappa,kappa_sq;
+  <FONT COLOR="#228B22"><B>int</FONT></B> icomp;
+
+  kappa_sq = 0.0;
+  <B><FONT COLOR="#A020F0">for</FONT></B>(icomp = 0; icomp&lt;Ncomp; icomp++)
+     kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
+                  Charge_f[icomp]*Charge_f[icomp];
+  kappa = sqrt(kappa_sq);
+  B = (kappa + 1.0 - sqrt(1.0+2.0*kappa))/kappa;
+
+<I><FONT COLOR="#B22222">/*  printf(&quot;\t r: %9.6f icomp: %d  jcomp: %d  kappa: %9.6f  B: %9.6f  Sigma_ff: %9.6f\n&quot;,
+          r,i,j,kappa,B,Sigma_ff[i][j]);*/</FONT></I>
+
+  <B><FONT COLOR="#A020F0">if</FONT></B> (r == 0.0) printf(<FONT COLOR="#BC8F8F"><B>&quot;trouble with deltaC term .... r=0&quot;</FONT></B>);
+  <B><FONT COLOR="#A020F0">if</FONT></B> (r &lt;= Sigma_ff[i][j] &amp;&amp; r&gt;0) {
+
+     deltac = -Charge_f[i]*Charge_f[j]/Temp_elec*
+              (  2*B/Sigma_ff[i][j] - 1.0/r
+               - POW_DOUBLE_INT(B/Sigma_ff[i][j],2)*r );
+  }
+  <B><FONT COLOR="#A020F0">else</FONT></B> deltac = 0.0;
+
+  <B><FONT COLOR="#A020F0">return</FONT></B> deltac;
+}
+<I><FONT COLOR="#B22222">/*******************************************************************************/</FONT></I>
+<I><FONT COLOR="#B22222">/* deltaC_MSA_int:  given range of integrattion, r, calculate the definite
+           integral of deltac_MSA over all space */</FONT></I>
+
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">deltaC_MSA_int</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> r,<FONT COLOR="#228B22"><B>int</FONT></B> i, <FONT COLOR="#228B22"><B>int</FONT></B> j)
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> deltac_int,B,kappa,kappa_sq;
+  <FONT COLOR="#228B22"><B>int</FONT></B> icomp;
+
+  kappa_sq = 0.0;
+  <B><FONT COLOR="#A020F0">for</FONT></B>(icomp = 0; icomp&lt;Ncomp; icomp++)
+     kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
+                  Charge_f[icomp]*Charge_f[icomp];
+  kappa = sqrt(kappa_sq);
+  B = (kappa + 1.0 - sqrt(1.0+2.0*kappa))/kappa;
+
+  deltac_int = -(4*PI*Charge_f[i]*Charge_f[j]/Temp_elec)*
+                r*r*
+               (  2*B*r/(3.0*Sigma_ff[i][j]) - 0.5
+               - 0.25*POW_DOUBLE_INT(B/Sigma_ff[i][j],2)*r*r );
+
+  <B><FONT COLOR="#A020F0">return</FONT></B> deltac_int;
+}
+<I><FONT COLOR="#B22222">/*******************************************************************************/</FONT></I>
+<I><FONT COLOR="#B22222">/* pot_parameters: calculate the cross terms (sigmaij,epsilonij,cutoffij)
+   for this potential */</FONT></I>
+<FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">pot_parameters</FONT></B>(<FONT COLOR="#228B22"><B>char</FONT></B> *output_file1)
+{
+ <FONT COLOR="#228B22"><B>int</FONT></B> i,j,iw,jw, printproc=FALSE;
+ <FONT COLOR="#228B22"><B>double</FONT></B> cut;
+ FILE *fp2;
+ <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0 &amp;&amp; output_file1 != NULL) printproc = TRUE;
+ printproc=FALSE;
+ <B><FONT COLOR="#A020F0">if</FONT></B> (printproc) fp2 = fopen(output_file1,<FONT COLOR="#BC8F8F"><B>&quot;a+&quot;</FONT></B>);
+
+ <B><FONT COLOR="#A020F0">if</FONT></B> (printproc) fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;****** SUMMARY OF POTENTIAL PARAMETERS ************\n&quot;</FONT></B>);
+
+ <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i&lt;Ncomp; i++){
+     <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n &gt; HARD_SPHERE) cut = Cut_ff[i][i];
+     <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_wf_n ==LJ9_3_WALL || Ipot_wf_n==LJ9_3_NORM_WALL ||
+         Ipot_wf_n==LJ12_6_WALL || Ipot_wf_n==LJ_ATOMIC ||
+         Ipot_wf_n==STEPPED_93 || Ipot_wf_n==HARD_EXP) cut = Cut_ff[i][i];
+     <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n==IDEAL_GAS) Sigma_ff[i][i]=0.0;
+
+     <B><FONT COLOR="#A020F0">for</FONT></B> (j=0; j&lt;Ncomp; j++){
+
+        Sigma_ff[i][j] = 0.5*(Sigma_ff[i][i]+Sigma_ff[j][j]);
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_wf_n ==LJ9_3_WALL || Ipot_wf_n==LJ9_3_NORM_WALL ||
+            Ipot_wf_n==LJ12_6_WALL || Ipot_wf_n==LJ_ATOMIC ||
+            Ipot_wf_n==STEPPED_93 || Ipot_wf_n==HARD_EXP){
+           Eps_ff[i][j] = sqrt(Eps_ff[i][i]*Eps_ff[j][j]);
+           Cut_ff[i][j] = cut*Sigma_ff[i][j];
+        }
+
+        <B><FONT COLOR="#A020F0">if</FONT></B> (printproc) {
+           fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;\ti:%d  j:%d&quot;</FONT></B>,i,j);
+           fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;   Sigma_ff: %9.6f  Cut_ff: %9.6f  Eps_ff: %9.6f\n&quot;</FONT></B>,
+                   Sigma_ff[i][j],Cut_ff[i][j],Eps_ff[i][j]);
+        }
+     }
+     <B><FONT COLOR="#A020F0">for</FONT></B> (iw=0; iw&lt;Nwall_type; iw++){
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Proc==0){
+        }
+        Sigma_wf[i][iw] = 0.5*(Sigma_ff[i][i] + Sigma_w[iw]);
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_wf_n ==LJ9_3_WALL || Ipot_wf_n==LJ9_3_NORM_WALL ||
+            Ipot_wf_n==LJ12_6_WALL || Ipot_wf_n==LJ_ATOMIC ||
+            Ipot_wf_n==STEPPED_93 || Ipot_wf_n==HARD_EXP){
+             Eps_wf[i][iw] = sqrt(Eps_ff[i][i]*Eps_w[iw]);
+             Cut_wf[i][iw] = cut*Sigma_wf[i][iw];
+        }
+        <B><FONT COLOR="#A020F0">if</FONT></B> (printproc) {
+          fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;\ti:%d  iwall_type:%d&quot;</FONT></B>,i,iw);
+          fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;   Sigma_wf: %9.6f  Cut_wf: %9.6f  Eps_wf: %9.6f\n&quot;</FONT></B>,
+           Sigma_wf[i][iw],Cut_wf[i][iw],Eps_wf[i][iw]);
+        }
+     }
+ } 
+ <B><FONT COLOR="#A020F0">for</FONT></B> (iw=0; iw&lt;Nwall_type; iw++){
+   cut = Cut_ff[0][0];
+   <B><FONT COLOR="#A020F0">for</FONT></B> (jw=0; jw&lt;Nwall_type; jw++){
+       Sigma_ww[iw][jw] = 0.5*(Sigma_w[iw]+Sigma_w[jw]);
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_wf_n ==LJ9_3_WALL || Ipot_wf_n==LJ9_3_NORM_WALL ||
+            Ipot_wf_n==LJ12_6_WALL || Ipot_wf_n==LJ_ATOMIC ||
+            Ipot_wf_n==STEPPED_93 || Ipot_wf_n==HARD_EXP){
+           Cut_ww[iw][jw] = cut*Sigma_ww[iw][jw];
+           Eps_ww[iw][jw] = sqrt(Eps_w[iw]*Eps_w[jw]);
+        }
+        <B><FONT COLOR="#A020F0">if</FONT></B> (printproc){
+          fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;\tiwall_type:%d  jwall_type:%d&quot;</FONT></B>,iw,jw);
+          fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;   Sigma_ww: %9.6f  Cut_ww: %9.6f  Eps_ww: %9.6f\n&quot;</FONT></B>,
+                           Sigma_ww[iw][jw],Cut_ww[iw][jw],Eps_ww[iw][jw]);
+        }
+   }
+ }
+
+
+ <B><FONT COLOR="#A020F0">if</FONT></B> (printproc) {
+     fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;***************************************************\n&quot;</FONT></B>);
+     fclose(fp2);
+ }
+}
+<I><FONT COLOR="#B22222">/*******************************************************************************/</FONT></I>
+<I><FONT COLOR="#B22222">/* coexistence: This routine finds the coexisting densities of a pure fluid
+                given a temperature */</FONT></I>
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">coexistence</FONT></B>()
+{
+  <FONT COLOR="#228B22"><B>double</FONT></B> resid[2],Jac[2][2],Jac_inv[2][2];
+  <FONT COLOR="#228B22"><B>double</FONT></B> betamu_hs_l[1],betamu_hs_g[1];
+  <FONT COLOR="#228B22"><B>double</FONT></B> betamu_att_l[1],betamu_att_g[1];
+  <FONT COLOR="#228B22"><B>double</FONT></B> rho_coex_old[2],p_coex;
+  <FONT COLOR="#228B22"><B>int</FONT></B> i,j,niter;
+
+  <I><FONT COLOR="#B22222">/* for one component only */</FONT></I>
+
+  <I><FONT COLOR="#B22222">/* Initial guesses for the densitites */</FONT></I>
+   Rho_coex[0] = 0.7;
+   Rho_coex[1] = 0.01;
+
+   <I><FONT COLOR="#B22222">/* calculate residuals at these densities */</FONT></I>
+
+   resid[0] = ( calc_hs_properties(betamu_hs_l,&amp;(Rho_coex[0])) 
+                      + calc_att_properties(betamu_att_l,&amp;(Rho_coex[0])) ) -
+              ( calc_hs_properties(betamu_hs_g,&amp;(Rho_coex[1])) 
+                      + calc_att_properties(betamu_att_g,&amp;(Rho_coex[1])) );
+
+   resid[1] = ( betamu_hs_l[0] + betamu_att_l[0]) - 
+              ( betamu_hs_g[0] + betamu_att_g[0]);
+
+   niter = 0;
+
+
+   <I><FONT COLOR="#B22222">/* perform Newton iterations to find the root */</FONT></I>
+
+   <B><FONT COLOR="#A020F0">while</FONT></B> (fabs(resid[0]) &gt; 1e-10 || fabs(resid[1]) &gt; 1e-10){
+
+        rho_coex_old[0] = Rho_coex[0];
+        rho_coex_old[1] = Rho_coex[1];
+
+        Jac[0][0] = dp_drho_hs (&amp;(Rho_coex[0])) + dp_drho_att(&amp;(Rho_coex[0]));
+        Jac[0][1] = dp_drho_hs (&amp;(Rho_coex[1])) + dp_drho_att(&amp;(Rho_coex[1]));
+        Jac[1][0] = dmu_drho_hs(&amp;(Rho_coex[0])) + dmu_drho_att(&amp;(Rho_coex[0]));
+        Jac[1][1] = dmu_drho_hs(&amp;(Rho_coex[1])) + dmu_drho_att(&amp;(Rho_coex[1]));
+
+
+        <I><FONT COLOR="#B22222">/* matrix inversion is simple for this two by two */</FONT></I>
+
+        Jac_inv[1][0] = 1.0/(Jac[0][1]-Jac[0][0]*Jac[1][1]/Jac[1][0]);
+        Jac_inv[1][1] = 1.0/(Jac[1][1]-Jac[1][0]*Jac[0][1]/Jac[0][0]);
+        Jac_inv[0][0] = -(Jac[1][1]/Jac[1][0])*Jac_inv[1][0];
+        Jac_inv[0][1] = -(Jac[0][1]/Jac[0][0])*Jac_inv[1][1];
+
+        <B><FONT COLOR="#A020F0">for</FONT></B> (i=0; i&lt; 2; i++) {
+          <B><FONT COLOR="#A020F0">for</FONT></B> (j=0; j&lt; 2; j++) {
+             Rho_coex[i] += Jac_inv[i][j]*resid[j];
+          }
+        }
+
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Rho_coex[1] &lt; 0.0) Rho_coex[1] = 0.0001 ;
+        <B><FONT COLOR="#A020F0">if</FONT></B> (Rho_coex[0] &gt; 1.0) Rho_coex[0] = rho_coex_old[0] ;
+
+
+        resid[0] = ( calc_hs_properties(betamu_hs_l,&amp;(Rho_coex[0])) 
+                      + calc_att_properties(betamu_att_l,&amp;(Rho_coex[0])) ) -
+                   ( calc_hs_properties(betamu_hs_g,&amp;(Rho_coex[1])) 
+                      + calc_att_properties(betamu_att_g,&amp;(Rho_coex[1])) );
+
+        resid[1] = ( betamu_hs_l[0] + betamu_att_l[0]) - 
+                   ( betamu_hs_g[0] + betamu_att_g[0]);
+        niter++;
+        <B><FONT COLOR="#A020F0">if</FONT></B> (niter &gt; 100) {
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;problems locating coexistence....more than 100 iterations&quot;</FONT></B>);
+           exit(-1);
+        }
+   }
+   p_coex = calc_hs_properties(betamu_hs_l,&amp;(Rho_coex[0])) 
+                      + calc_att_properties(betamu_att_l,&amp;(Rho_coex[0])) ;
+   <B><FONT COLOR="#A020F0">return</FONT></B>(p_coex);
+}
+<I><FONT COLOR="#B22222">/*************************************************************************
+dp_drho_hs: the derivative of the hard sphere pressure with respect to rho*/</FONT></I>
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">dp_drho_hs</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *rho)
+{
+   <FONT COLOR="#228B22"><B>int</FONT></B> icomp;
+   <FONT COLOR="#228B22"><B>double</FONT></B> Hs_diam[NCOMP_MAX],hs_diam_cubed,pi6;
+   <FONT COLOR="#228B22"><B>double</FONT></B> xsi0,xsi1,xsi2,xsi3,y1,y2,y3,dy1_drho,dy2_drho,dy3_drho;
+   <FONT COLOR="#228B22"><B>double</FONT></B> dp_drho;
+
+   xsi0 = xsi1 = xsi2 = xsi3 = 0.0;
+   pi6 = PI/6.0;                 <I><FONT COLOR="#B22222">/* shorthand  for pi/6                 */</FONT></I>
+
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) Hs_diam[icomp] = 1.0;  
+
+   <I><FONT COLOR="#B22222">/*  calculate the constants xsi and introduce some shorthand */</FONT></I>
+
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) {
+      hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
+      xsi0 +=pi6 * rho[icomp] * hs_diam_cubed;
+      xsi1 +=pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
+      xsi2 +=pi6 * rho[icomp] * hs_diam_cubed 
+                 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
+      xsi3 +=pi6 * rho[icomp] * hs_diam_cubed 
+                 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
+   }
+   y1 = 1.0 - xsi3;
+   y2 = y1 * y1;
+   y3 = y1 * y1 * y1;
+
+   dy1_drho = xsi3/rho[0];
+   dy2_drho = 2*y1*dy1_drho;
+   dy3_drho = 3*y1*y1*dy1_drho;
+
+   dp_drho = (1.0/pi6) * (  xsi0/(rho[0]*y1) - xsi0*dy1_drho/(y1*y1) +
+                           (3.0*xsi1*xsi2/y2)*( 2.0/rho[0] - dy2_drho/y2) +
+                           (3.0*xsi2*xsi2*xsi2/y3) *(3.0/(rho[0]) - dy3_drho/y3) );
+   <B><FONT COLOR="#A020F0">return</FONT></B> (dp_drho);
+}
+<I><FONT COLOR="#B22222">/*************************************************************************
+dp_drho_att: the derivative of the attractive part of the pressure 
+             with respect to rho*/</FONT></I>
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">dp_drho_att</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *rho)
+{
+ <FONT COLOR="#228B22"><B>double</FONT></B> dp_drho;
+
+ dp_drho = Avdw[0][0]*rho[0]/Temp;
+ <B><FONT COLOR="#A020F0">return</FONT></B> (dp_drho);
+}
+<I><FONT COLOR="#B22222">/*************************************************************************
+dmu_drho_hs: the derivative of the hard sphere chemical potential 
+             with respect to rho*/</FONT></I>
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">dmu_drho_hs</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *rho)
+{
+   <FONT COLOR="#228B22"><B>int</FONT></B> icomp;
+   <FONT COLOR="#228B22"><B>double</FONT></B> Hs_diam[NCOMP_MAX],hs_diam_cubed,pi6;
+   <FONT COLOR="#228B22"><B>double</FONT></B> xsi0,xsi1,xsi2,xsi3,y1,y2,y3,dy1_drho,dy2_drho,dy3_drho;
+   <FONT COLOR="#228B22"><B>double</FONT></B> dmu_drho;
+
+   xsi0 = xsi1 = xsi2 = xsi3 = 0.0;
+   pi6 = PI/6.0;                 <I><FONT COLOR="#B22222">/* shorthand  for pi/6                 */</FONT></I>
+
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) Hs_diam[icomp] = 1.0;  
+
+   <I><FONT COLOR="#B22222">/*  calculate the constants xsi and introduce some shorthand */</FONT></I>
+
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) {
+      hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
+      xsi0 +=pi6 * rho[icomp] * hs_diam_cubed;
+      xsi1 +=pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
+      xsi2 +=pi6 * rho[icomp] * hs_diam_cubed 
+                 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
+      xsi3 +=pi6 * rho[icomp] * hs_diam_cubed 
+                 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
+   }
+   y1 = 1.0 - xsi3;
+   y2 = y1 * y1;
+   y3 = y1 * y1 * y1;
+
+   dy1_drho = xsi3/rho[0];
+   dy2_drho = 2*y1*dy1_drho;
+   dy3_drho = 3*y1*y1*dy1_drho;
+
+   dmu_drho = - dy1_drho/y1 + 
+        pi6 * dp_drho_hs(rho) * POW_DOUBLE_INT(Sigma_ff[0][0],3) +
+       (3.0 * xsi2 * Sigma_ff[0][0]/y1)
+                                 *( 1.0/rho[0] - dy1_drho/y1) +
+       (3.0 * xsi1 * POW_DOUBLE_INT(Sigma_ff[0][0],2)/y1)
+                                 *( 1.0/rho[0] - dy1_drho/y1) +
+       (9.0 * POW_DOUBLE_INT((xsi2 * Sigma_ff[0][0]),2)/y2)
+                                 *( 1.0/rho[0] - 0.5*dy2_drho/y2) +
+       (1.0/rho[0]);
+
+   <B><FONT COLOR="#A020F0">return</FONT></B>(dmu_drho);
+}
+<I><FONT COLOR="#B22222">/*************************************************************************
+dmu_drho_att: the derivative of the attractive part of the chemical potential 
+               with respect to rho*/</FONT></I>
+<FONT COLOR="#228B22"><B>double</FONT></B> <B><FONT COLOR="#0000FF">dmu_drho_att</FONT></B>(<FONT COLOR="#228B22"><B>double</FONT></B> *rho)
+{
+   <FONT COLOR="#228B22"><B>double</FONT></B> dmu_drho;
+
+   dmu_drho = Avdw[0][0]/Temp;
+   <B><FONT COLOR="#A020F0">return</FONT></B> (dmu_drho);
+}
+<I><FONT COLOR="#B22222">/******************************************************************************
+print_thermo_properties:  do all the file printing here.*/</FONT></I>
+<FONT COLOR="#228B22"><B>void</FONT></B> <B><FONT COLOR="#0000FF">print_thermo</FONT></B>(<FONT COLOR="#228B22"><B>char</FONT></B> *output_file1, <FONT COLOR="#228B22"><B>double</FONT></B> betap_hs, 
+                      <FONT COLOR="#228B22"><B>double</FONT></B> *betamu_hs)
+{
+
+  FILE *fp,*fp2;
+  <FONT COLOR="#228B22"><B>int</FONT></B> icomp,jcomp;
+
+  fp2 = fopen(output_file1,<FONT COLOR="#BC8F8F"><B>&quot;a+&quot;</FONT></B>);
+  fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;\n!!!!!!!!!!!!! output from dft_thermo.c !!!!!!!!!!!!!!!!!!\n&quot;</FONT></B>);
+  fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;\npressure : psigma^3/kT : \t%9.6f\n&quot;</FONT></B>,Betap);
+  fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;chemical potentials : mu/kT : \n&quot;</FONT></B>);
+  <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) 
+    fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;\t\t\t Betamu[%d] = %9.6f\n\n&quot;</FONT></B>,icomp, Betamu[icomp]);
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n != IDEAL_GAS) {
+      fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;\nhard sphere pressure : betap_hs  = %e\n&quot;</FONT></B>,betap_hs);
+      fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;excess hard sphere chemical potentials  (units of kT)\n\n&quot;</FONT></B> );
+      <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) 
+           fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;Betamu_hs_ex (%d) = %e\n&quot;</FONT></B>,icomp, Betamu_hs_ex[icomp]);
+      fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;hard sphere chemical potentials  (units of kT)\n\n&quot;</FONT></B>);
+      <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) 
+           fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;betamu_hs    (%d) = %e\n\n&quot;</FONT></B>,icomp, betamu_hs[icomp]);
+   }
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n == LJ12_6){
+      <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) 
+        fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;Betamu_att[%d] = %e\n\n&quot;</FONT></B>,icomp, Betamu_att[icomp]); 
+
+      <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) 
+       <B><FONT COLOR="#A020F0">for</FONT></B> (jcomp=0; jcomp&lt;Ncomp; ++jcomp) 
+        fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;Avdw[%d][%d] = %e\n\n&quot;</FONT></B>,icomp,jcomp,Avdw[icomp][jcomp]); 
+   }
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_c &gt; 0 &amp;&amp; Sten_Type[THETA_CHARGE]){
+      <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) 
+        fprintf(fp2,<FONT COLOR="#BC8F8F"><B>&quot;Deltac_b[%d] = %e\n\n&quot;</FONT></B>,icomp, Deltac_b[icomp]);                  }
+
+   fclose(fp2);
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n != IDEAL_GAS) 
+      printf(<FONT COLOR="#BC8F8F"><B>&quot;\thard sphere pressure : betap_hs  = %e\n&quot;</FONT></B>,betap_hs);
+   
+   printf(<FONT COLOR="#BC8F8F"><B>&quot;\ttotal pressure : Betap  = %e\n&quot;</FONT></B>,Betap);
+
+   <B><FONT COLOR="#A020F0">if</FONT></B> (Ipot_ff_n != IDEAL_GAS) {
+      printf(<FONT COLOR="#BC8F8F"><B>&quot;\texcess hard sphere chemical potentials  (units of kT)\n&quot;</FONT></B> );
+
+      <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) 
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;\t\tBetamu_hs_ex (%d) = %e\n&quot;</FONT></B>,icomp, Betamu_hs_ex[icomp]);
+      printf(<FONT COLOR="#BC8F8F"><B>&quot;\tchemical potentials  (units of kT)\n&quot;</FONT></B>);
+   
+      <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) 
+           printf(<FONT COLOR="#BC8F8F"><B>&quot;\t\tbetamu_hs    (%d) = %e\n&quot;</FONT></B>,icomp, betamu_hs[icomp]);
+   }
+
+   printf(<FONT COLOR="#BC8F8F"><B>&quot;\ttotal chemical potentials  (units of kT)\n&quot;</FONT></B>);
+   <B><FONT COLOR="#A020F0">for</FONT></B> (icomp=0; icomp&lt;Ncomp; ++icomp) 
+        printf(<FONT COLOR="#BC8F8F"><B>&quot;\t\tBetamu[%d] = %e\n&quot;</FONT></B>,icomp, Betamu[icomp]);
+
+  
+   <B><FONT COLOR="#A020F0">return</FONT></B>;
+}
+<I><FONT COLOR="#B22222">/***********************end of thermo file **********************************/</FONT></I>
+</PRE>
+<HR>
+<ADDRESS>Generated by <A HREF="http://www.iki.fi/~mtr/genscript/">GNU enscript 1.6.1</A>.</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,209 @@
+<Maui>
+
+    <!--
+        Define a base class for the two common types
+        of boundary conditions:
+        equilibrium problems
+        steady state (transport) problems
+
+        Need to specify a 1D (and later 2D and 3D classes)
+        because transport option includes picking a dimension 
+        direction and there are some special 1D options
+    -->
+
+    <Class type="BoundaryConditionTypes2D" 
+        label="Boundary condition type (default equilibrium)">
+    </Class>
+
+        <Class type="EquilibriumBoundaryConditions2D"
+            base="BoundaryConditionTypes2D"
+            label="Equilibrium Boundary Conditions">
+            <Fields>
+                <Table name="fluidBulkDensities" label="Fluid bulk densities"
+                    collapsible="false">
+                    <Header name="fluidBulkDensitiesHeader" 
+                        label="Fluid bulk densities">
+                        <Reference name="component" label="Fluid" 
+                            path="root/fluidNames/componentsArray" 
+                            output="dereference" />
+                        <Double name="rhoB" label="Rho_b" default="0.0" 
+                            optional="false" />
+                    </Header>
+                </Table>
+            </Fields>
+        </Class>
+  
+
+        <Class type="TransportBoundaryConditions2D"
+            base="BoundaryConditionTypes2D"
+            label="Transport Boundary Conditions">
+            <Fields>
+
+                <String name="linearTransport" label="Transport mechanism">
+                    <Menu options="Linear|Non-Linear"/>
+                </String>
+                <String name="gradientDirection" label="Gradient direction">
+                    <Menu options="x|y"/>
+                </String>
+                <Double name="xConstantMu" 
+                    label="Position in gradient direction where potential is constant"
+                    default="0.0" optional="false"/>
+                <Double name="electricPotentialLBB"
+                    label="Electric potential (left, bottom or back)"
+                    default="0.0" optional="false"/>
+                <Double name="electricPotentialRTF"
+                    label="Electric potential (right, top, front)"
+                    default="0.0" optional="false"/>
+                <Double name="velocity" label="Center of mass velocity" 
+                    default="0.0" optional="false"/>
+                <Table name="fluidBulkDensities" label="Fluid bulk densities"
+                    collapsible="false">
+                    <Header name="fluidBulkDensitiesHeader" 
+                        label="Fluid bulk densities">
+                        <Reference name="component" label="Fluid" 
+                            path="root/fluidNames/componentsArray" 
+                            output="dereference" />
+                        <Double name="rhoB1" label="Rho (left, bottom, back)" default="0.0" 
+                            optional="false" />
+                        <Double name="rhoB2" label="Rho (right, top, front)" default="0.0" 
+                            optional="false" />
+                        <Double name="diffCoef" label="Diffusion coef." default="0.0" 
+                            optional="false" />
+                    </Header>
+                </Table>
+
+            </Fields>
+        </Class>
+
+    <!--
+        This class deals with the treatment of reflections of solid surfaces
+        in adjoining computational cells
+    -->
+    <Class type="SurfaceReflections2D" 
+        label="Surface treatment in adjoining domains.">
+        <Fields>
+            <Comment name="aComment">
+            For surfaces that share the same link number, a check in a 
+            given direction indicates that surfaces in adjoining
+            computational cells across reflective boundaries are
+            independent and different surfaces.
+            </Comment>
+            <Comment name="anotherComment">
+            For example, consider a cylindrical surface with its long axis
+            parallel to the z-coordinate of the system and assume all 
+            boundaries of the 3D domain are reflective.  In the x and y 
+            directions, there are independent surfaces beyond the boundaries
+            while in the z direction, the same cylinder is extended.  Thus,
+            a check would be needed in the x and y directions because the
+            reflected images are of different surfaces while no check is
+            needed in the z direction because the reflected images are of
+            the same surface.
+            </Comment>
+            
+            <Table name="SurfaceReflections" label="Reflected Surface Treatment"
+                collapsible="false">
+                <Header name="ReflectedSurfacesHeader" 
+                    label="Reflected surfaces">
+                    <Integer name="linkNumber" label="Surface link number" 
+                        default="0" optional="false"/>
+                    <Boolean name="xReflections" label="X direction"
+                        default="false"/>
+                    <Boolean name="yReflections" label="Y direction"
+                        default="false"/>
+                </Header>
+            </Table>
+
+        </Fields>
+    </Class>
+
+
+    <!--
+        Here we add in classes for charges inside surfaces
+    -->
+    
+    <Class type="ChargedSurfaceBoundaryConditions2D"
+         label="(default No charge)">
+    </Class>
+    
+    <Class type="NoCharge2D" label="No charge" 
+        base="ChargedSurfaceBoundaryConditions2D">
+    </Class>
+
+    <Class type="ChargedSurfaces2D" label="Charged surfaces"
+        base="ChargedSurfaceBoundaryConditions2D">
+        <Fields>
+            <Table name="ChargedSurfaces" label="ChargedSurfaces"
+                collapsible="false">
+                <Header name="ChargedSurfacesHeader" 
+                    label="Charged surfaces">
+                    <Reference name="surface" label="Surface" 
+                        path="root/surfaceNames/surfaceArray" 
+                        output="dereference" />
+                    <String name="typeBCElec" label="Type of Boundary Condition"
+                        default="Neutral surface" optional="false">
+                        <Menu options="Neutral surface|Constant potential|Constant surface charge|Atomic charges" />
+                    </String>
+                    <Double name="elecParameter" label="Parameter value" 
+                        default="0.0" optional="false" />
+                </Header>
+            </Table>
+
+            <Table name="LocalCharges" label="Local charges"
+                collapsible="false">
+                <Header name="LocalChargesHeader" 
+                    label="Local charges">
+                    <Double name="chargeValue" label="Charge value" 
+                        default="0.0" optional="false" />
+                    <Double name="chargeDiameter" label="Charge diameter" 
+                        default="0.0" optional="false" />
+                    <Double name="chargeX" label="x coordinate" 
+                        default="0.0" optional="false" />
+                    <Double name="chargeY" label="y coordinate" 
+                        default="0.0" optional="false" />
+                </Header>
+            </Table>
+            <String name="chargeTypeAtoms" label="Charge type for atoms"
+                default="Point charge" optional="false">
+                    <Menu options="Point charge|Smeared charge over diameter|Background charge"/>
+            </String>
+            <String name="chargeTypeLocal" label="Charge type for local charges"
+                default="Point charge" optional="false">
+                    <Menu options="Point charge|Smeared charge over diameter|Background charge"/>
+            </String>
+            <Boolean name="chargeProfile" 
+                label="Linear profile of charge between two points aligned with principle axes"
+                default="false"/>
+        </Fields>
+    </Class>
+
+    <!--
+        Finally, this class combines all the elements that go into
+        a set of boundary conditions
+    -->
+    <Class type="BoundaryConditions2D" 
+        label="Boundary conditions">
+        <Fields>
+            <BoundaryConditionTypes2D name="boundaryConditionTypes2D"
+                label="Boundary condition type" collapsible="true" 
+                beginCollapsed="true"/>
+            <SurfaceReflections2D name="surfaceReflections2D"
+                label="Treatment of reflected sufaces" 
+                collapsible="true" beginCollapsed="true"/>
+            <ChargedSurfaceBoundaryConditions2D 
+                name="chargedSurfaceBoundaryConditions2D"
+                label="Charge boundary conditions"
+                collapsible="true"
+                beginCollapsed="true"/>
+            <SemiPermeableSurfacesAtomic
+                name="semiPermeableSurfacesAtomic"
+                label="Semi-Permeable Surfaces"
+                collapsible="true"
+                beginCollapsed="true"/>
+            <DielectricParameters name="dielectricParameters"
+                label="Dielectric Parameters"
+                collapsible="true"
+                beginCollapsed="true"/>
+        </Fields> 
+    </Class>
+
+</Maui>

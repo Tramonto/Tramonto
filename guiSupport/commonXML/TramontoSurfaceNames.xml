@@ -1,0 +1,28 @@
+<Maui>
+
+    <!--
+        Here is the generic information for Fluid Names
+    -->
+    <Class label="Surface editing panel" type="PanelOfSurfaces" 
+        collapsible="false">
+        <Fields>
+            <String name="surfaceName" label="Surface name" default="" 
+                optional="false"/>
+        </Fields>
+    </Class>
+
+    <Class label="Surfaces" type="SurfaceNames" collapsible="true"
+        beginCollapsed="false" >
+        <Fields>
+            <Array name="surfaceArray" label="Surfaces" 
+                collapsible="true">
+                <Master label="$surfaceName">
+                    <PanelOfSurfaces name="theSurfacePanel" 
+                        label="Surfaces"/>
+                </Master>
+            </Array>
+        </Fields>
+    </Class>
+
+</Maui>
+

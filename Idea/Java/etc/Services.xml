@@ -1,0 +1,11 @@
+<Maui RootClass="Services">
+  <Class label="User services" type="Services">
+    <Action label="Submit" class="Maui.Interface.SubmitAction"/>
+    <Action label="View compressed" class="Maui.Interface.ViewAction"/>
+    <Action verbose="true" label="View verbose" class="Maui.Interface.ViewAction"/>
+    <Action verbose="true" label="Save XML" dir="$HOME" class="Maui.Interface.SaveAction"/>
+    <Action label="Read XML" dir="$HOME" class="Maui.Interface.ReadAction"/>
+    <Fields/>
+  </Class>
+  <Import filename="$IDEA_HOME/Java/examples/XML/Simple/CanonicalExample.xml"/>
+</Maui>

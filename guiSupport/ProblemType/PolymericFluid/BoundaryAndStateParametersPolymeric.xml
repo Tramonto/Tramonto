@@ -1,0 +1,34 @@
+<Maui>
+    <!--
+        A class for semi-permeable surfaces
+        (Specific to polymeric problems)
+    -->
+
+    <Class type="SemiPermeableSurfacesPolymeric" label="Semi-Permeable Surfaces">
+        <Fields>
+
+            <Table name="PermeableSurfaces" label="Permeable Surfaces"
+                collapsible="false">
+                <Header name="PermeableSurfacesHeader" 
+                    label="Permeable surfaces">
+                    <Reference name="surface" label="Surface" 
+                        path="root/surfaceNames/surfaceArray" 
+                        output="dereference" />
+                    <Reference name="component" label="Fluid" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Integer name="block" label="Block" default="0"
+                        optional="false"/>
+                    <Double name="vExtMembrane" label="Potential value" 
+                        default="0.0" optional="false" />
+                </Header>
+            </Table>
+            <Comment name="aComment">
+                It is only necessary to list permeable surfaces.
+                Surfaces not listed are assumed impermeable.
+            </Comment>
+        </Fields>
+    </Class>
+
+
+</Maui>

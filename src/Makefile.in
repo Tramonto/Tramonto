@@ -1,0 +1,91 @@
+#
+# MAKEFILE FOR DFT CODE
+#
+
+SRC_DFT = 	dft_input.c \
+		dft_main.c \
+		dft_mesh.c \
+		dft_mesh_surfaces.c \
+		dft_mesh_lib.c \
+		dft_newton.c \
+		dft_ldbal.c \
+		dft_fill_msr.c \
+		dft_fill_pde.c \
+		dft_stencil.c \
+		dft_thermo.c \
+		dft_out_main.c \
+		dft_out_ads.c \
+		dft_out_energy.c \
+		dft_out_force.c \
+		dft_out_flux.c \
+		dft_out_profiles.c \
+		dft_vext.c \
+		dft_guess.c \
+		dft_comm.c \
+		dft_continuation.c \
+		dft_fill_shared.c \
+		dft_fill_main.c \
+		dft_fillp.c \
+		dft_fill_rosen.c \
+		dft_fill_rosen_rb.c \
+		dft_fill_mf.c \
+		dft_vext_coul.c \
+		dft_uww.c \
+		dft_images.c \
+		dft_potentials.c
+
+INC_DFT = 	dft_globals.h \
+		dft_globals_const.h \
+		dft_ldbal.h
+
+SRC_RF = 	rf_allo.c \
+		loca_con_lib.c \
+		loca_con_bord.c \
+		loca_util.c 
+
+INC_RF =	rf_allo.h \
+		loca_con_const.h \
+		loca_util_const.h \
+		az_aztec.h \
+		az_aztec_defs.h
+
+
+# machine independent routines
+INC      = $(INC_DFT) $(INC_RF)
+SRC_C = $(SRC_DFT) $(SRC_RF) $(SRC_SGI)
+
+# the object files
+OBJ_C = $(SRC_C:.c=.o)
+
+#
+# let the configure script figure out these parameters
+#
+LD = @LD@
+CC = @CC@
+CXX = @CXX@
+MPICXX = @MPICXX@
+CFLAGS = @CFLAGS@ @TRAMONTO_CFLAGS@ -I.
+DFT_FILL_PDE_CFLAGS = @DFT_FILL_PDE_CFLAGS@
+TRAMONTO_LDFLAGS = -L../../lib/@BUILD_MACHINE@ @TRAMONTO_LDFLAGS@ @LDFLAGS@ @LIBS@ @FTOCLIBS@
+EXE = xdft_@BUILD_MACHINE@
+
+# Targets
+dft: ${OBJ_C}
+	${MPICXX} ${CFLAGS} -o ${EXE} ${OBJ_C} ${TRAMONTO_LDFLAGS} 
+	cp ${EXE} ../.
+	
+dftlib: ${OBJ_C}
+	${LD} ${TRAMONTO_LDFLAGS} -o libtramonto.a ${OBJ_C}
+	${RANLIB} libtramonto.a
+	cp libtramonto.a ../.
+
+# This file gets special treatment on pc-linux platforms
+# on all other platforms it's compiled like any other 
+# c file
+dft_fill_pde.o: dft_fill_pde.c
+	${CC} ${DFT_FILL_PDE_CFLAGS} -c -o $@ $<
+
+# UTILITY TARGETS
+clean:
+	-rm *.o xdft* Makefile
+

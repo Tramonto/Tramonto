@@ -1,0 +1,132 @@
+<Maui>
+
+
+    <!--
+        These classes define the two types of interaction data a use could supply
+    -->
+   
+    <Class type="LBSigmaEpsCutPolymerTable" label="Polymer component data">
+        <Fields>
+            <Table name="sigmaPolymerTable" label="Polymer component data"
+                collapsible="false">
+                <Header name="sigmaPolymerTableHeader" 
+                    label="Polymer component data">
+                    <Reference name="component" label="Polymer" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Integer name="block" label="Block" default="0"
+                        optional="false" />
+                    <Double name="sigmaFF" label="Sigma_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="epsFF" label="Eps_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="cutFF" label="Cut_ff" default="0.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <Class type="UDSigmaEpsCutPolymerTable" label="Polymer component data">
+        <Fields>
+            <Table name="sigmaPolymerTable" label="Polymer component data"
+                collapsible="false">
+                <Header name="sigmaPolymerTableHeader" 
+                    label="Polymer component data">
+                    <Reference name="component1" label="Polymer" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Integer name="block1" label="Block" default="0"
+                        optional="false" />
+                    <Reference name="component2" label="Polymer" 
+                        path="root/fluidNames/componentsArray" 
+                        output="dereference" />
+                    <Integer name="block2" label="Block" default="0"
+                        optional="false" />
+                    <Double name="sigmaFF" label="Sigma_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="epsFF" label="Eps_ff" default="0.0" 
+                        optional="false" />
+                    <Double name="cutFF" label="Cut_ff" default="0.0" 
+                        optional="false" />
+                </Header>
+            </Table>
+        </Fields>
+    </Class>
+
+    <!--
+        These three classes let the user pick betweek LB mixing and 
+        userdefined mixing
+    -->
+
+    <Class type="MixingTypePolymerTable"
+        label="Mixing Rule (default Lorentz-Berthelot)">
+    </Class>
+
+        <Class type="MixingTypeLBPolymerTable"
+            label="Lorentz-Berthelot" base="MixingTypePolymerTable">
+            <Fields>
+                <LBSigmaEpsCutPolymerTable name="lBPolymerTable" 
+                    label="Interaction parameters"/>
+            </Fields>
+        </Class>
+
+        <Class type="MixingTypeUDPolymerTable"
+            label="User defined" base="MixingTypePolymerTable">
+            <Fields>
+                <UDSigmaEpsCutPolymerTable name="uDPolymerTable" 
+                    label="Interaction parameters"/>
+            </Fields>
+        </Class>
+
+
+    <!--
+        This class ties together all of the specific 
+        functional classes since it's the base class
+    -->
+    <Class type="PolymerFunctionalsAndInteractions"
+        label="Functionals and Interactions (default Model 0)">
+    </Class>
+
+    <!--
+       There are three choices of hard sphere functionals, 
+       two choices of attractive functionals and
+       three choices of coulombic functionals.  Since the
+       data required for a simulation is highly dependent on 
+       the combination of functionals the user selects,
+       we'll ennumerate all 3*2*3=18 choices and let the
+       user pick the exact combination they want.
+
+       Extra indentation is used here to highlight
+       the inheritance structure
+    -->
+
+    <Class type="PolymerModel0" label="Polymer Model 0"
+        base="PolymerFunctionalsAndInteractions">
+        <Fields>
+            <MixingTypePolymerTable 
+                name="mixingTypePolymerTable" 
+                label="Interaction parameters"/>
+        </Fields>
+    </Class>    
+
+    <Class type="PolymerModel1" label="Polymer Model 1"
+        base="PolymerFunctionalsAndInteractions">
+        <Fields>
+            <MixingTypePolymerTable 
+                name="mixingTypePolymerTable" 
+                label="Interaction parameters"/>
+        </Fields>
+    </Class>    
+
+    <Class type="PolymerModel2" label="Polymer Model 2"
+        base="PolymerFunctionalsAndInteractions">
+        <Fields>
+            <MixingTypePolymerTable 
+                name="mixingTypePolymerTable" 
+                label="Interaction parameters"/>
+        </Fields>
+    </Class>    
+
+
+</Maui>

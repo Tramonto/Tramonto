@@ -1,0 +1,29 @@
+<Maui>
+
+    <!--
+        Here is the generic information for Fluid Names
+    -->
+   
+    <Class label="Component editing panel" type="PanelOfComponents" 
+        collapsible="false">
+        <Fields>
+            <String name="name" label="Component name" default="" 
+                optional="false"/>
+        </Fields>
+    </Class>
+
+    <Class label="Fluids" type="FluidNames" collapsible="true"
+        beginCollapsed="false" >
+        <Fields>
+            <Array name="componentsArray" label="Components" 
+                collapsible="true">
+                <Master label="$name">
+                    <PanelOfComponents name="theComponentPanel" 
+                        label="Components"/>
+                </Master>
+            </Array>
+        </Fields>
+    </Class>
+
+</Maui>
+

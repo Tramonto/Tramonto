@@ -1,0 +1,555 @@
+dnl
+dnl Process this file with autoconf to produce a configure script.
+dnl
+
+dnl
+dnl Point autoconf to the source directory
+dnl
+    AC_INIT(src/dft_main.c)
+
+
+dnl
+dnl let autoconf know where other config scrips are
+dnl
+    AC_CONFIG_AUX_DIR(./config/.)
+
+
+dnl
+dnl determine what type of computer this is
+dnl but don't overide the user's choice if they
+dnl specified a host with --host=xxxx
+dnl
+
+    if test "$host" = ""
+    then
+        dnl
+        dnl host not set by user so unless the user 
+        dnl chose to override special host detection,
+        dnl then try an figure it out what this is.
+        dnl
+
+        AC_ARG_ENABLE( special-host-checking, --disable-special-host-checking Don't check if this is a special parallel machine, \
+        SPECIAL_MACHINE_CHECK=0, SPECIAL_MACHINE_CHECK=1)
+
+        if test $SPECIAL_MACHINE_CHECK -eq 1
+        then
+dnl
+dnl         first check if more than one compiler type is
+dnl         available.  If so then we have to ask user for clarification
+dnl
+            SPECIAL_COMPILERS_FOUND=0
+            if test -d /usr/local/delmar
+            then
+	            SPECIAL_COMPILERS_FOUND=`expr ${SPECIAL_COMPILERS_FOUND} + 1`
+	        fi
+            if test -d /usr/local/intel/tflop/current
+            then
+	            SPECIAL_COMPILERS_FOUND=`expr ${SPECIAL_COMPILERS_FOUND} + 1`
+	        fi
+            
+            if test -d /usr/local/cplant/ross/current
+            then
+	            SPECIAL_COMPILERS_FOUND=`expr ${SPECIAL_COMPILERS_FOUND} + 1`
+	        fi
+            
+            if test -d /usr/local/cplant/west/current
+            then
+	            SPECIAL_COMPILERS_FOUND=`expr ${SPECIAL_COMPILERS_FOUND} + 1`
+	        fi
+
+            if test $SPECIAL_COMPILERS_FOUND -gt 1
+            then
+                echo
+                echo Warning: Found more than one special compiler environment,
+                echo and therefore cannot determine the build type you desire.
+                echo
+                echo Therefore, you must specify the host type by typing:
+ 	            echo ./configure --host=xxxxx
+	            echo
+		        echo where xxxxx = delmar, janus, ross or west
+	 	        echo
+		        echo or use
+		        echo ./configure --disable-special-host-checking
+		        echo
+		        echo to try to build for this specific architecture.
+		        echo
+		        exit
+	        fi
+
+            if test -d /usr/local/delmar
+            then
+                host="delmar"
+                echo "Setting host to delmar"
+            elif test -d /usr/local/intel/tflop/current
+            then
+                host="janus"
+                echo "Setting host to janus"
+            elif test -d /usr/local/cplant/ross/current
+            then
+                host="ross"
+                echo "Setting host to ross"
+            elif test -d /usr/local/cplant/west/current
+            then
+                host="west"
+                echo "Setting host to west"
+            fi
+        fi
+    else
+        echo host set by user to $host;
+    fi
+    
+
+    dnl 
+    dnl To compile Trilinos, host can't be a simple 'ross' or such
+    dnl so save current host as myHost and then let AC_CANNONICAL_HOST
+    dnl set official values
+    dnl
+    myHost=$host
+    host=""
+    AC_CANONICAL_BUILD
+    host=$build
+    if test "$myHost" = ""
+    then
+        myHost=$host
+    fi    
+dnl
+dnl Check for extra arguments like cc, f77 and linker flags
+dnl
+
+    dnl see if any extra linker flags were specified
+    AC_ARG_ENABLE( ldflags, --enable-ldflags=... use linker flags ..., LIB_FLAGS=$enableval, LIB_FLAGS="")
+    LIBS="${LIBS} ${LIB_FLAGS}"
+
+    dnl see if any extra c compiler flags were specified
+    AC_ARG_ENABLE( cflags, --enable-cflags=... use cflags flags ... with c compiler, C_FLAGS=$enableval, C_FLAGS="")
+    CFLAGS="${CFLAGS} ${C_FLAGS}"
+
+    dnl see if any extra fortran compiler flags were specified
+    AC_ARG_ENABLE( fflags, --enable-fflags=... use fflags flags ... with fortran compiler, F_FLAGS=$enableval, F_FLAGS="")
+    FFLAGS="${FFLAGS} ${F_FLAGS}"
+
+
+dnl
+dnl find out if the user wants an MPI parallel or a serial version of the program
+dnl
+dnl so that they can build a serial version of Tramonto so that
+dnl ./config --enable-mpi or ./config --disable-serial  builds a parallel program
+dnl ./config --disable-mpi or ./config --enable-serial  builds a serial program
+dnl ./config defaults to an MPI parallel program
+    AC_ARG_ENABLE( mpi, --enable-mpi Build a parallel version of Tramonto using MPI. (default), PARALLEL_TYPE="MPI", PARALLEL_TYPE="SERIAL")
+    AC_ARG_ENABLE( serial, --enable-serial Build a nonparallel version of Tramonto., PARALLEL_TYPE="SERIAL", PARALLEL_TYPE="MPI")
+
+dnl
+dnl find out if user wants to build a 32 bit version on SGI platforms
+dnl 64 bit builds are the default
+dnl
+    AC_ARG_ENABLE( sgi64, --enable-sgi64 For an SGI machine build a 64 bit version of this program (default)., SGI_BUILD=64, SGI_BUILD=32 )
+    AC_ARG_ENABLE( sgi32, --enable-sgi32 For an SGI machine build a 32 bit version of this program., SGI_BUILD=32, SGI_BUILD=64 )
+
+dnl
+dnl  Check if user want's to build Tramonto as a library rather than an application
+dnl
+    AC_ARG_ENABLE( libtramonto, --enable-libtramonto Build Tramonto as a library, \
+        BUILD_TRAMONTO_LIB=1, BUILD_TRAMONTO_LIB=0)
+
+dnl
+dnl set build variables that strictly depend on platform 
+dnl
+    case "$myHost" in 
+        dnl
+        dnl start with the general machine types
+        dnl
+        *pc-linux*) 
+            dnl pc-linux specific options
+            MACHINE="LINUX"
+            BUILD_MACHINE="intel_linux"
+            FTOCLIBS="-lg2c"
+            TRAMONTO_CFLAGS="-O2 -malign-double -Wall"
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS="-O1 -malign-double -Wall"
+            # MPI_INCLUDE_DIR=""
+            FFLAGS="-O ${FFLAGS}"
+            TRILINOS_ARCH_CXXFLAGS="-O3"
+            TRILINOS_ARCH_CFLAGS="-O3"
+            TRILINOS_ARCH_F77FLAGS="-O"
+            TRILINOS_ARCH_INCLUDES=""
+        ;;
+        alpha*-dec-osf*)
+            dnl alpha processor running under osf
+            MACHINE="DEC"
+            BUILD_MACHINE="dec_osf"
+            FTOCLIBS="-lg2c"
+            TRAMONTO_CFLAGS="-O -DDEC_ALPHA"
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            # MPI_INCLUDE_DIR=""
+            FFLAGS="-O ${FFLAGS}"
+            TRILINOS_ARCH_CXXFLAGS="-O3 -D__USE_STD_IOSTREAM"
+            TRILINOS_ARCH_CFLAGS="-O3"
+            TRILINOS_ARCH_F77FLAGS="-O3"
+            TRILINOS_ARCH_INCLUDES=""
+        ;;
+        alpha*linux*)
+            dnl alpha running under linux
+            MACHINE="DEC"
+            BUILD_MACHINE="dec_linux"
+            FTOCLIBS="-lfor -lots"
+            TRAMONTO_CFLAGS="-O"
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            # MPI_INCLUDE_DIR=""
+            FFLAGS="-O ${FFLAGS}"
+        ;;
+        mips-sgi-irix*)
+            dnl silicon graphics IRIX machine
+            dnl MACHINE="SGI"  dnl does -n32 compile
+            dnl MACHINE="SGIM4"  dnl does -n32 compile
+            BUILD_MACHINE="sgi_irix"
+            FTOCLIBS="-lftn "
+            if test $SGI_BUILD -eq 64
+            then
+                MACHINE="SGI10K"  dnl does -64 compile for Aztec
+                TRAMONTO_CFLAGS="-O2 -64 -woff 1552 -woff 1174"
+                FFLAGS="-O2 -64 ${FFLAGS}"
+                CFLAGS="-64 ${CFLAGS}"
+                CXXFLAGS="-64 ${CXXFLAGS}"
+                TRILINOS_ARCH_CXXFLAGS=" -O -r10000 -64 -I/usr/include/CC -Dlint -LANG:std -DPETRA_ADDRESS64BIT -LANG:ansi-for-init-scope=ON -DMPI_NO_CPPBIND -DSGI64 -ptused"
+                TRILINOS_ARCH_CFLAGS="-O -r10000 -64 -I/usr/include -Dlint"
+                TRILINOS_ARCH_F77FLAGS="-O -r10000 -64 -Dlint"
+                TRILINOS_ARCH_INCLUDES=""
+            else
+                MACHINE="SGI"     dnl does -32 compile for Aztec
+                TRAMONTO_CFLAGS="-O2 -n32 -woff 1552 -woff 1174"
+                FFLAGS="-O2 -n32 ${FFLAGS}"
+                CFLAGS="-n32 ${CFLAGS}"
+                CXXFLAGS="-n32 ${CXXFLAGS}"
+                TRILINOS_ARCH_CXXFLAGS="-O -r10000 -n32 -I/usr/include/CC -Dlint -LANG:std -LANG:ansi-for-init-scope=ON -DMPI_NO_CPPBIND -DSGI32 -ptused"
+                TRILINOS_ARCH_CFLAGS="-O -r10000 -n32 -I/usr/include -Dlint"
+                TRILINOS_ARCH_F77FLAGS="-O -r10000 -n32 -Dlint"
+                TRILINOS_ARCH_INCLUDES=""
+            fi;
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            # MPI_INCLUDE_DIR=""
+        ;;
+        *sun-solaris*)
+            dnl Sun machine running solaris
+            MACHINE="SOLARIS"
+            BUILD_MACHINE="sun_solaris"
+            FTOCLIBS=""
+            TRAMONTO_CFLAGS="-O"
+            TRAMONTO_LDFLAGS="-lF77 -Ml77 -lsunmath"
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            # MPI_INCLUDE_DIR=""
+            FFLAGS="-O4 ${FFLAGS}"
+        ;;
+        dnl
+        dnl following are the uniquely configured machines
+        dnl
+        delmar)
+            dnl cplant-ca computer cluster
+            cross_compiling=yes
+            MACHINE="DEC"
+            BUILD_MACHINE="dec_delmar"
+	        host="${host}cplant"
+            BASE_DIR="/usr/local/delmar"
+            CXX="${BASE_DIR}/bin/mpiCC"
+            CC="${BASE_DIR}/bin/mpicc"
+            F77="${BASE_DIR}/bin/mpif77"
+            LIBS="-L${BASE_DIR}/lib ${LIBS}"
+            FTOCLIBS="-lfor -lFutil"
+            TRAMONTO_CFLAGS="-O4 ${CFLAGS}"
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            #MPI_INCLUDE_DIR=""
+            FFLAGS="-O ${FFLAGS}"
+            TRILINOS_ARCH_CXXFLAGS="-O3 -D__USE_STD_IOSTREAM -Hf"
+            TRILINOS_ARCH_CFLAGS="-O3"
+            TRILINOS_ARCH_F77FLAGS="-O3"
+            TRILINOS_ARCH_INCLUDES="-I${BASE_DIR}/include"
+        ;;
+        janus)
+            dnl ASCI-Red the Intel TFlop machine
+            MACHINE="TFLOP"
+            BUILD_MACHINE="intel_tflop"
+            cross_compiling=yes
+	        host="${host}tflop"
+            BASE_DIR="/usr/local/intel/tflop/current"
+            CXX="${BASE_DIR}/tflops/bin.solaris/ciCC"
+            CC="${BASE_DIR}/tflops/bin.solaris/cicc"
+            F77="${BASE_DIR}/tflops/bin.solaris/cif77"
+            LIBS="-L${BASE_DIR}/tflops/lib -L${BASE_DIR}/tflops/lib/scalapack -L${BASE_DIR}/tflops/lib/RW -lstd"
+	        CFLAGS="${CFLAGS} -DTFLOP"
+	        CXXFLAGS="${CXXFLAGS} -g -rwstl -Wc,-tlocal"
+            FTOCLIBS="-lf"
+            TRAMONTO_CFLAGS="-O2 ${CFLAGS}"
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            MPI_INCLUDE_DIR="${BASE_DIR}/include"
+            FFLAGS="-O3 ${FFLAGS}"
+            TRILINOS_ARCH_CXXFLAGS="-O2 -Wc,-tlocal -I/usr/local/intel/tflop/current/tflops/include/CC/RW"
+            TRILINOS_ARCH_CFLAGS="-O2"
+            TRILINOS_ARCH_F77FLAGS="-O2"
+            TRILINOS_ARCH_INCLUDES="-I${BASE_DIR}/include"
+        ;;
+        ross)
+            dnl ross cplant computer cluster
+            MACHINE="DEC"
+            BUILD_MACHINE="dec_ross"
+            cross_compiling=yes
+	        host="${host}cplant"
+            BASE_DIR="/usr/local/cplant/ross/current"
+            CXX="${BASE_DIR}/bin/c++"
+            CC="${BASE_DIR}/bin/cc"
+            F77="${BASE_DIR}/bin/f77"
+            LIBS="-L${BASE_DIR}/lib ${LIBS}"
+            FTOCLIBS="-lfor -lFutil"
+            TRAMONTO_CFLAGS="-I${BASE_DIR}/include ${CFLAGS}"
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            MPI_INCLUDE_DIR="${BASE_DIR}/include"
+            FFLAGS="${FFLAGS}"
+            TRILINOS_ARCH_CXXFLAGS="-O3 -D__USE_STD_IOSTREAM -Hf"
+            TRILINOS_ARCH_CFLAGS="-O3"
+            TRILINOS_ARCH_F77FLAGS="-O3"
+            TRILINOS_ARCH_INCLUDES="-I${BASE_DIR}/include"
+        ;;
+        west)
+            dnl ross cplant computer cluster
+            MACHINE="DEC"
+            BUILD_MACHINE="dec_west"
+            cross_compiling=yes
+	    host="${host}cplant"
+            BASE_DIR="/usr/local/cplant/west/current"
+            CXX="${BASE_DIR}/bin/c++"
+            CC="${BASE_DIR}/bin/cc"
+            F77="${BASE_DIR}/bin/f77"
+            LIBS="-L${BASE_DIR}/lib ${LIBS}"
+            FTOCLIBS="-lfor -lFutil"
+            TRAMONTO_CFLAGS="-I${BASE_DIR}/include -O4 ${CFLAGS}"
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            MPI_INCLUDE_DIR="${BASE_DIR}/include"
+            FFLAGS="-O ${FFLAGS}"
+            TRILINOS_ARCH_CXXFLAGS="-O3 -D__USE_STD_IOSTREAM -Hf"
+            TRILINOS_ARCH_CFLAGS="-O3"
+            TRILINOS_ARCH_F77FLAGS="-O3"
+            TRILINOS_ARCH_INCLUDES="-I${BASE_DIR}/include"
+        ;;
+        *)
+            AC_MSG_WARN(This host type is unknown to me, but we will try to build for it.)
+            MACHINE="LINUX"
+            BUILD_MACHINE="unix"
+            FTOCLIBS=""
+            TRAMONTO_CFLAGS="-O"
+            TRAMONTO_LDFLAGS=""
+            DFT_FILL_PDE_CFLAGS=${TRAMONTO_CFLAGS}
+            # MPI_INCLUDE_DIR=""
+            FFLAGS="-O ${FFLAGS}"
+        ;;
+    esac
+    
+    AC_PROG_CXX
+    AC_PROG_CC
+    AC_PROG_F77
+    
+    dnl
+    dnl if a parallel program is to be built, look for the mpi compilers and the mpi libraries
+    dnl
+    case "$PARALLEL_TYPE" in
+        MPI)
+            dnl look for the regular mpi compiler
+            AC_CHECK_PROG( MPICXX, mpiCC, mpiCC, ${CXX})
+            AC_CHECK_PROG( MPICC, mpicc, mpicc, ${CC})
+            AC_CHECK_PROG( MPIF77, mpif77, mpif77, ${F77} )
+            if test "$MPICC" != "mpicc"
+            then
+                dnl couldn't find the mpicc compiler so see if we can use
+                dnl the c compiler and link with the mpi library
+                AC_SEARCH_LIBS( MPI_Init, mpi, HAS_MPI=1, HAS_MPI=0 )
+                if test $HAS_MPI -eq 0;
+                then
+                    dnl can't link with the mpi library alone.  Some platforms require
+                    dnl the lam library with the mpi library so try that
+                    AC_SEARCH_LIBS( MPI_Finalize, mpi, HAS_MPI=1, HAS_MPI=0, -llam )
+                    if test $HAS_MPI -eq 1;
+                    then
+                        MPI_LIBS="${LIBS} -llam"
+                    else
+                        dnl we can't successfully link with the mpi library so tell then user
+                        dnl and exit
+                        AC_MSG_WARN(Cannot find required mpicc or the mpi library to build a parallel program.)
+                        AC_MSG_ERROR(Try ./configure --enable-serial to build a serial program)
+                    fi;
+                else
+                    MPI_LIBS=${LIBS}
+                fi;
+            fi;
+            TRAMONTO_CFLAGS="${TRAMONTO_CFLAGS} -DRCB_LOAD_BALANCE -DPARALLEL -DML_MPI"
+            DFT_FILL_PDE_CFLAGS="${DFT_FILL_PDE_CFLAGS} -DRCB_LOAD_BALANCE -DPARALLEL -DML_MPI"
+        ;;
+        SERIAL)
+            AC_PROG_F77
+            MPIF77=${F77}
+            AC_PROG_CC
+            MPICC=${CC}
+            AC_PROG_CXX
+            MPICXX=${CXX}
+        ;;
+    esac
+
+dnl set substitution for MACHINE variable in makefiles
+    AC_SUBST(MACHINE)
+    AC_SUBST(BUILD_MACHINE)
+
+dnl Checks for other needed programs.
+    AC_PROG_MAKE_SET
+    AC_PROG_RANLIB
+
+dnl Checks for libraries.
+
+    if test $BUILD_TRAMONTO_LIB -eq 0
+    then
+       CFLAGS="${CFLAGS} -DDFTNORMAL"
+       DFTTYPE="dft"
+    else
+       DFTTYPE="dftlib"
+    fi
+    AC_SUBST(DFTTYPE)
+
+    dnl look for the math libaray
+    AC_SEARCH_LIBS( pow, dxml m, HAS_M=1, HAS_M=0)
+
+    dnl Check fortran libraries that aztec needes
+    AC_LANG_FORTRAN77
+
+    dnl check for blas functionality (only the blas routines Aztec requires)
+    HAS_BLAS=0
+    AC_SEARCH_LIBS( idamax, blas dxml cxml csmath complib.sgimath aztec, HAS_BLAS=`expr ${HAS_BLAS} + 1`, )
+    if test $HAS_BLAS -eq 1
+    then
+        dnl if the first test failed, then don't bother with the rest
+        AC_SEARCH_LIBS( ddot, blas dxml cxml csmath complib.sgimath aztec, HAS_BLAS=`expr ${HAS_BLAS} + 1`, )
+        AC_SEARCH_LIBS( dasum, blas dxml cxml csmath complib.sgimath aztec, HAS_BLAS=`expr ${HAS_BLAS} + 1`, )
+        AC_SEARCH_LIBS( dscal, blas dxml cxml csmath complib.sgimath aztec, HAS_BLAS=`expr ${HAS_BLAS} + 1`, )
+        AC_SEARCH_LIBS( dcopy, blas dxml cxml csmath complib.sgimath aztec, HAS_BLAS=`expr ${HAS_BLAS} + 1`, )
+        AC_SEARCH_LIBS( daxpy, blas dxml cxml csmath complib.sgimath aztec, HAS_BLAS=`expr ${HAS_BLAS} + 1`, )
+        AC_SEARCH_LIBS( DGEMV, blas dxml cxml csmath complib.sgimath aztec, HAS_BLAS=`expr ${HAS_BLAS} + 1`, )
+        AC_SEARCH_LIBS( DGEMM, blas dxml cxml csmath complib.sgimath aztec, HAS_BLAS=`expr ${HAS_BLAS} + 1`, )
+        AC_SEARCH_LIBS( DTRSM, blas dxml cxml csmath complib.sgimath aztec, HAS_BLAS=`expr ${HAS_BLAS} + 1`, )
+        AC_SEARCH_LIBS( DTRMM, blas dxml cxml csmath complib.sgimath aztec, HAS_BLAS=`expr ${HAS_BLAS} + 1`, )
+    fi
+
+    if test $HAS_BLAS -eq 10
+    then
+       echo Found all requied blas functions.
+    else
+       echo Cannot find needed blas routines. 
+       echo Please specify a location to search for the blas library 
+       echo with the --enable-ldflags= option. 
+       echo Type ./configure --help for more information. 
+       exit
+    fi
+
+    dnl check for lapack functionality (only the routines needed by Aztec)
+    HAS_LAPACK=0
+    AC_SEARCH_LIBS( DGETRF, lapack dxml cxml csmath complib.sgimath aztec, HAS_LAPACK=`expr ${HAS_LAPACK} + 1`, )
+    if test $HAS_LAPACK -eq 1
+    then
+        AC_SEARCH_LIBS( DGETRI, lapack dxml cxml csmath complib.sgimath aztec, HAS_LAPACK=`expr ${HAS_LAPACK} + 1`, )
+        AC_SEARCH_LIBS( DGETRS, lapack dxml cxml csmath complib.sgimath aztec, HAS_LAPACK=`expr ${HAS_LAPACK} + 1`, )
+        AC_SEARCH_LIBS( DLAIC1, lapack dxml cxml csmath complib.sgimath aztec, HAS_LAPACK=`expr ${HAS_LAPACK} + 1`, )
+        AC_SEARCH_LIBS( DLASWP, lapack dxml cxml csmath complib.sgimath aztec, HAS_LAPACK=`expr ${HAS_LAPACK} + 1`, )
+        AC_SEARCH_LIBS( DPOTRF, lapack dxml cxml csmath complib.sgimath aztec, HAS_LAPACK=`expr ${HAS_LAPACK} + 1`, )
+    fi
+
+    if test $HAS_LAPACK -eq 6
+    then
+        echo Found all required lapack functions.
+    else
+        echo Cannot find needed lapack routines. 
+        echo Please specify a location to search for the lapack library 
+        echo with the --enable-ldflags= option.  
+        echo Type ./configure --help for more information.
+        exit
+    fi
+
+    dnl Check C libraries that Tramonto needs
+    AC_LANG_C
+
+    dnl add default location of libraries build by Tramonto
+    LIBS="${LIBS} ${FTOCLIBS}"
+
+    dnl Check C++ libraries that Tramonto needs
+    AC_LANG_CPLUSPLUS
+    OLD_CXX=${CXX}
+    CXX=${MPICXX}
+    AC_CHECK_LIB( aztecoo, AZ_solve, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetra ${FTOCLIBS} )
+    if test ${HAS_AZTECOO} -eq 1
+    then
+        echo Found all required AztecOO functions.
+    else
+        echo Cannot find needed aztecoo routines. 
+        echo Please specify a location to search for the aztecoo library 
+        echo with the --enable-ldflags= option.  
+        echo Type ./configure --help for more information.
+        exit
+    fi
+
+    TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS}" 
+    CXX=${OLD_CXX}
+    AC_LANG_C
+
+
+dnl Check for the mpi header needed by parallel versions of Tramonto
+    case "$PARALLEL_TYPE" in
+        MPI)
+            dnl need to temporarily add the MPI_INCLUDE_DIR variable to CFLAGS
+            dnl to test for the MPI header. because Aztec epxpects to see
+            dnl this inlucde directory as a separate variable
+
+	    dnl if MPI_INCLUDE_DIR is blank, then make a guess
+	    if test "${MPI_INCLUDE_DIR}" = "" 
+	    then
+	        MPI_COMP=`which ${MPICC}`
+		    MPI_INCLUDE_DIR=`echo ${MPI_COMP} | sed -e s\xbin/.*$\xinclude\x `
+	    fi
+        dnl OLD_CFLAGS=${CFLAGS}
+        dnl MPI_INCLUDE_DIR="-I/usr/local/lam-6.5.9/ip/gnu/ssh/include"
+        CFLAGS="${CFLAGS} -I${MPI_INCLUDE_DIR}"
+	    DFT_FILL_PDE_CFLAGS="${DFT_FILL_PDE_CFLAGS} -I${MPI_INCLUDE_DIR}"
+        dnl AC_CHECK_HEADERS(mpi.h, PARALLEL_TYPE="MPI", PARALLEL_TYPE="SERIAL" )
+	    if test -r ${MPI_INCLUDE_DIR}/mpi.h
+	    then
+	        PARALLEL_TYPE="MPI"
+	    fi;
+            if test "${PARALLEL_TYPE}" = "SERIAL"
+            then
+                AC_MSG_WARN(Cannot find required mpi.h header file to build a parallel program.)
+		        AC_MSG_WARN(Try MPI_INCLUDE_DIR=/your/mpi/includedir ./configure to specify the directory location or )
+                AC_MSG_ERROR(Try ./configure --enable-serial to build a serial program)
+            fi;
+            dnl CFLAGS=${OLD_CFLAGS}
+        ;;
+        SERIAL)
+            dnl need to do this because Tramonto links with ${MPICXX} which is either an mpi compiler,
+            dnl or the regular cxx compiler when we're making a serial version
+	    MPICXX=${CXX}
+        ;;
+    esac
+    AC_SUBST(PARALLEL_TYPE)
+    AC_SUBST(MPI_INCLUDE_DIR)
+
+    dnl finished building TRAMONTO_CFLAGS, TRAMONTO_LDFLAGS and DFT_FILL_PDE_CFLAGS
+    dnl so set if substitution
+    AC_SUBST(FTOCLIBS)
+    AC_SUBST(TRAMONTO_CFLAGS)
+    AC_SUBST(TRAMONTO_LDFLAGS)
+    AC_SUBST(DFT_FILL_PDE_CFLAGS)
+
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+
+
+dnl process the following Makefile.in to Makefile
+    AC_OUTPUT(Makefile src/Makefile )

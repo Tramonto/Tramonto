@@ -1,0 +1,94 @@
+<Maui>
+
+<!--************** RealSpaceMesh specifications *************-->
+
+<!-- specify grid length, grid line spacing, 
+     and boundary conditions for Y dimension -->
+<Class type="Ydim" label="Y-dimension specifications">
+    <Fields>
+        <Double name="sigma" 
+            label="Unit length scale, sigma (1.0 for dimensionless)"
+	    default="1.0" lower="0.0" optional="false" />
+        <Double name="domainSize" 
+            label="Computational domain size (units of sigma)"
+            default="1" lower="0" optional="false" />
+        <Double name="meshDivisions" 
+            label="Mesh divisions per unit length"
+            default="1" lower="1" optional="false" />
+        <!--
+        <Double name="size_y" 
+            label="Length of mesh (Size_y)" 
+	    default="0.0" lower="0.0" optional="false" /> 
+        <Double name="esize_y" 
+            label="Mesh spacing (Esize_y)" 
+	    default="0.0" lower="0.0" optional="false" /> 
+        -->
+        <String name="bclbb" label="Top boundary condition">
+            <Menu options="Wall|Bulk fluid|Periodic|Reflective"/>
+        </String>
+        <String name="bcrtf" label="Bottom boundary condition">
+            <Menu options="Wall|Bulk fluid|Periodic|Reflective"/>
+        </String>
+    </Fields>
+</Class>
+
+<Class type="TwoDMesh" label="2-D Mesh" base="RealSpaceMesh">
+    <Fields>
+        <Xdim name="xdim" label="X-dimension specifications"/>
+        <Ydim name="ydim" label="Y-dimension specifications"/>
+    </Fields>
+</Class>
+
+
+<!--*************** Mesh continuation control ****************-->
+
+<Class type="MeshContinuation2D" label="Mesh continuation">
+    <Fields>
+        <Integer name="nRunsFirst" label="Number of runs" default="1" 
+            lower="0" optional="false"/>
+        <String name="planeNewNodes" 
+            label="Line for node addition/subtraction">
+            <Menu options="x|y"/>
+        </String>
+        <String name="positionNewNodes"
+            label="Position of new node line">
+            <Menu options="Left, bottom |Center of plane|Right, top"/>
+        </String>
+        <Double name="changeX" 
+            label="Box size change in X direction"
+            default="0.0" lower="0.0" optional="false"/>
+        <Double name="changeY" 
+            label="Box size change in Y direction"
+            default="0.0" lower="0.0" optional="false"/>
+        <Double name="guessRange1" 
+            label="Maximum surface separation where initial guess is Rho_b"
+            default="0.0" lower="0.0" optional="false"/>
+        <Double name="guessRange2"
+            label="Minimum surface separation where initial guess is previous solution"
+            default="0.0" lower="0.0" optional="false"/>
+    </Fields>
+</Class>
+
+<!--**************Computational Parameters Menu**************-->
+<Class type="ComputationalParameters2D" label="Computational Parameters"
+    collapsible="true" beginCollapsed="true">
+    <Fields>
+        <TwoDMesh name="meshParameters" label="Mesh parameters" />
+        <!--
+            for now skip calculation method since only real space is available 
+        <CalculationMethod name="calculationMethod" label="Calculation method"/>
+        -->
+        <StartupControl name="startupControl" label="Startup control"/>
+        <MeshContinuation2D name="meshContinuation" label="Mesh cotinuation"/>
+        <OutputFormat name="outputFormat" label="Output format"/>
+        <CoarseningSwitches name="coarseningSwitches" 
+            label="Coarsening switches"/>
+        <NonlinearSolver name="nonlinearSolver" label="Nonlinear solver"/>
+        <LinearSolver name="linearSolver" label="Linear solver"/>
+        <LocaContinuation name="locaContinuation"
+            label="Loca continuation"/>
+    </Fields>
+</Class>
+
+
+</Maui>

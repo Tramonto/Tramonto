@@ -1,0 +1,39 @@
+<Maui>
+
+    <!--
+        These files describe elements specific
+        to a 3D Atomic problem
+    -->
+    <Import filename="ThreeDSurfaces.xml"/>
+    <Import filename="BoundaryAndStateParameters3D.xml"/>
+    <Import filename="ComputationalParameters3D.xml"/>
+    
+  
+    <!--
+        This is the actual class for a 3D atomic problem
+    -->
+
+   <Class type="ThreeDAtomicProblem" label="3D Atomic Problem"
+        base="AtomicFluid">
+        <Fields>
+            <SurfaceEditor3D name="surfaceEditor3D" label="Surface types" 
+                collapsible="true" beginCollapsed="true"/>
+            <FunctionalsAndInteractions name="functionalsAndInteractions"
+                label="Functionals and Interactions" collapsible="true" 
+                beginCollapsed="true"/>
+            <SurfaceInteractions2D3D name="surfaceInteractions2D3D"
+                label="Surface Interactions" collapsible="true"
+                beginCollapsed="true"/>
+            <BoundaryConditions3D name="boundaryConditions3D"
+                label="Boundary Conditions" collapsible="true"
+                beginCollapsed="true"/>
+            <ComputationalParameters3D name="computationalParametres3D"
+                label="Computational Parameters" collapsible="true"
+                beginCollapsed="true"/>
+        </Fields>
+    </Class>
+
+
+</Maui>
+
+

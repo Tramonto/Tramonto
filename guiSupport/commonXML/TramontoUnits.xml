@@ -1,0 +1,38 @@
+<Maui>
+
+  <!--
+    Let the user select between using reference units
+    or reduced units
+  -->
+  <Class beginCollapsed="true" label="Reference Units (default Reduced)" 
+    type="TramontoUnits" collapsible="true"/>
+
+  <Class label="Reduced units (dimensionless)" type="TramontoReducedUnits" 
+    base="TramontoUnits">
+    <Fields>
+      <Double name="refLength" label="Reference length" default="1.0" 
+        optional="true" editable="false"/>
+      <Double name="refDensity" label="Reference density" default="1.0" 
+        optional="true" editable="false"/>
+      <Double name="refTemperature" label="Reference temperature" 
+        default="298.0" optional="true" editable="false"/>
+      <Double name="refDielectric" label="Reference dielectric" default="1.0"
+        editable="false"/>
+    </Fields>
+  </Class>
+
+  <Class label="Real units (dimensional)" type="TramontoRealUnits" base="TramontoUnits">
+    <Fields>
+      <Double name="refLength" label="Reference length" default="1.0" 
+        optional="false"/>
+      <Double name="refDensity" label="Reference density" default="1.0" 
+        optional="false"/>
+      <Double name="refTemperature" label="Reference temperature" default="298.0" 
+        optional="false"/>
+      <Double name="refDielectric" label="Reference dielectric" default="1.0"
+        optional="false"/>
+
+    </Fields>
+  </Class>
+
+</Maui>

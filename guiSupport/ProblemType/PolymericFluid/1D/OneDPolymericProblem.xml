@@ -1,0 +1,43 @@
+<Maui>
+
+    <!--
+        These files describe elements specific
+        to a 1D Polymeric problem
+    -->
+    <!-- 
+        this can be skipped becaue it's imported in 
+        the 1D atomic problem 
+        <Import filename="OneDSurfaces.xml"/>
+        <Import filename="ComputationalParameters1D.xml"/>
+        <Import filename="BoundaryAndStateParameters1D.xml"/>
+    -->
+   <Import filename="SurfaceInteractions1DPolymer.xml"/>
+   <Import filename="BoundaryAndStateParameters1DPolymeric.xml" />
+
+    <!--
+        This is the actual class for a 1D atomic problem
+    -->
+
+    <Class type="OneDPolymericProblem" label="1D Polymeric Problem"
+        base="PolymericFluid">
+        <Fields>
+            <SurfaceEditor1D name="surfaceEditor1D" label="Surface types" 
+                collapsible="true" beginCollapsed="true"/>
+            <PolymerFunctionalsAndInteractions name="functionalsAndInteractions"
+                label="Functionals and Interactions" collapsible="true" 
+                beginCollapsed="true"/>
+            <SurfaceInteractions1DPolymer name="surfaceInteractions1DPolymer"
+                label="Surface Interactions" collapsible="true"
+                beginCollapsed="true"/>
+            <BoundaryConditions1DPolymeric name="boundaryConditions1DPolymeric"
+                label="Boundary Conditions" collapsible="true"
+                beginCollapsed="true"/>
+            <ComputationalParameters1D name="computationalParametres1D"
+                label="Computational Parameters" collapsible="true"
+                beginCollapsed="true"/>
+        </Fields>
+    </Class>
+
+</Maui>
+
+

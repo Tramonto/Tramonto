@@ -1,0 +1,313 @@
+
+<!-- General Entity Definitions -->
+<!ENTITY % torf " (true | false) ">
+
+<!-- Common Attribute Entity Definitions -->
+<!ENTITY % name " name CDATA #REQUIRED ">
+<!ENTITY % label " label CDATA #IMPLIED ">
+<!ENTITY % toolTip " toolTip CDATA #IMPLIED ">
+<!ENTITY % columnWidth " columnWidth CDATA #IMPLIED ">
+<!ENTITY % selectionLabel " selectionLabel CDATA #IMPLIED ">
+<!ENTITY % optional " optional %torf; #IMPLIED ">
+<!ENTITY % lower " lower CDATA #IMPLIED ">
+<!ENTITY % upper " upper CDATA #IMPLIED ">
+
+<!ENTITY % basic " %name; %label; %toolTip;">
+<!ENTITY % bounded " %lower; %upper;">
+<!ENTITY % editable " editable %torf; #IMPLIED ">
+<!ENTITY % default " default CDATA #IMPLIED ">
+<!ENTITY % collapsible " collapsible %torf; #IMPLIED   beginCollapsed %torf; #IMPLIED">
+
+<!ENTITY % basicelt "((CustomEditor | customeditor)?, AppData?)">
+
+<!-- The base elements for Array contents -->
+<!ENTITY % arraybase.elt " ((Integer | int | integer | Int) | (Double | double) | (Boolean | bool | boolean | Bool) | (String | string) | (Array | array) | (Reference | reference) | (Comment | comment) | (Table | table) %mauispecific.elt; )">
+
+
+<!-- User Defined classes need to be defined at runtime by Maui -->
+<!-- These are the generic definitions for those classes -->
+
+<!ENTITY % userclass.elt "((Action | action)*, %basicelt;)">
+<!ENTITY % userclass.attr " %name; %label; %selectionLabel; %toolTip; %collapsible; useTab CDATA #IMPLIED">
+
+<!-- Individual Element Definitions -->
+<!-- Definition for Maui -->
+<!ENTITY % maui.elt "((Class | class) | (Import | import))*">
+<!ENTITY % maui.attr "RootClass CDATA #IMPLIED ">
+
+
+<!ELEMENT Maui %maui.elt;>
+<!ELEMENT maui %maui.elt;>
+<!ATTLIST Maui %maui.attr;>
+<!ATTLIST maui %maui.attr;>
+
+
+<!-- Definition for Class -->
+<!ENTITY % class.elt "((Action | action)*, (CustomEditor | customeditor)?, (Fields | fields)?, AppData?)">
+<!ENTITY % class.attr "type ID #REQUIRED 
+				%collapsible;
+				%label;
+				%selectionLabel;
+				altName CDATA #IMPLIED
+				base CDATA #IMPLIED
+				useTab CDATA #IMPLIED">
+
+
+<!ELEMENT Class %class.elt;>
+<!ELEMENT class %class.elt;>
+<!ATTLIST Class %class.attr;>
+<!ATTLIST class %class.attr;>
+
+
+<!-- Definition for Import -->
+<!ENTITY % import.elt "EMPTY">
+<!ENTITY % import.attr "filename CDATA #REQUIRED ">
+
+
+<!ELEMENT Import %import.elt;>
+<!ELEMENT import %import.elt;>
+<!ATTLIST Import %import.attr;>
+<!ATTLIST import %import.attr;>
+
+
+<!-- Definition for Fields -->
+<!ENTITY % fields.elt " ((Integer | int | integer | Int) | (Double | double) | (Boolean | bool | boolean | Bool) | (String | string) | (Array | array) | (Reference | reference) | (Comment | comment) | (Table | table) %mauispecific.elt; )* ">
+<!ENTITY % fields.attr " ">
+
+
+<!ELEMENT Fields %fields.elt;>
+<!ELEMENT fields %fields.elt;>
+<!ATTLIST Fields %fields.attr;>
+<!ATTLIST fields %fields.attr;>
+
+
+<!-- Definition for AppData -->
+<!ENTITY % appdata.elt "ANY">
+<!ENTITY % appdata.attr " ">
+
+
+<!ELEMENT AppData %appdata.elt;>
+<!ATTLIST AppData %appdata.attr;>
+
+
+<!-- Definition for Action -->
+<!ENTITY % action.elt " ANY ">
+<!ENTITY % action.attr " label CDATA #REQUIRED
+				class CDATA #REQUIRED
+				verbose CDATA #IMPLIED
+				dir CDATA #IMPLIED
+				path CDATA #IMPLIED
+				package CDATA #IMPLIED
+				toolTip CDATA #IMPLIED">
+				
+
+
+<!ELEMENT Action %action.elt;>
+<!ELEMENT action %action.elt;>
+<!ATTLIST Action %action.attr;>
+<!ATTLIST action %action.attr;>
+
+
+<!-- Definition for CustomEditor -->
+<!ENTITY % customeditor.elt " ANY ">
+<!ENTITY % customeditor.attr " name CDATA #REQUIRED
+				path CDATA #IMPLIED
+				package CDATA #IMPLIED">
+
+
+<!ELEMENT CustomEditor %customeditor.elt;>
+<!ATTLIST CustomEditor %customeditor.attr;>
+
+
+<!-- Definition for Integer -->
+<!ENTITY % integer.elt "(%basicelt;)">
+<!ENTITY % integer.attr " %basic; %bounded; %default; %optional; %editable; %columnWidth;">
+
+
+<!ELEMENT Integer %integer.elt;>
+<!ELEMENT int %integer.elt;>
+<!ELEMENT integer %integer.elt;>
+<!ELEMENT Int %integer.elt;>
+<!ATTLIST Integer %integer.attr;>
+<!ATTLIST int %integer.attr;>
+<!ATTLIST integer %integer.attr;>
+<!ATTLIST Int %integer.attr;>
+
+
+<!-- Definition for Double -->
+<!ENTITY % double.elt "(%basicelt;)">
+<!ENTITY % double.attr " %basic; %bounded; %default; %optional; %editable; %columnWidth;">
+
+
+<!ELEMENT Double %double.elt;>
+<!ELEMENT double %double.elt;>
+<!ATTLIST Double %double.attr;>
+<!ATTLIST double %double.attr;>
+
+
+<!-- Definition for Boolean -->
+<!ENTITY % boolean.elt "(%basicelt;)">
+<!ENTITY % boolean.attr " %basic; %optional; %editable; %columnWidth;
+				default %torf; #IMPLIED">
+
+
+<!ELEMENT Boolean %boolean.elt;>
+<!ELEMENT bool %boolean.elt;>
+<!ELEMENT boolean %boolean.elt;>
+<!ELEMENT Bool %boolean.elt;>
+<!ATTLIST Boolean %boolean.attr;>
+<!ATTLIST bool %boolean.attr;>
+<!ATTLIST boolean %boolean.attr;>
+<!ATTLIST Bool %boolean.attr;>
+
+
+<!-- Definition for String -->
+<!ENTITY % string.elt "((CustomEditor | customeditor)?, (Menu | menu)?, AppData?)">
+<!ENTITY % string.attr " %basic; %optional; %default; %editable; %columnWidth;">
+
+
+<!ELEMENT String %string.elt;>
+<!ELEMENT string %string.elt;>
+<!ATTLIST String %string.attr;>
+<!ATTLIST string %string.attr;>
+
+<!-- Definition for Array -->
+<!ENTITY % array.elt "((Action | action)*, (CustomEditor | customeditor)?, (Master | master) ,(Contents | contents)?, AppData?)">
+<!ENTITY % array.attr " %basic; %selectionLabel; %collapsible;">
+
+
+<!ELEMENT Array %array.elt;>
+<!ELEMENT array %array.elt;>
+<!ATTLIST Array %array.attr;>
+<!ATTLIST array %array.attr;>
+
+
+<!-- Definition for Reference -->
+<!ENTITY % reference.elt " (%basicelt;) ">
+<!ENTITY % reference.attr " %basic;
+				%optional;
+				path CDATA #REQUIRED
+				output	(reference | dereference) #IMPLIED
+				select %torf; #IMPLIED">
+
+
+<!ELEMENT Reference %reference.elt;>
+<!ELEMENT reference %reference.elt;>
+<!ATTLIST Reference %reference.attr;>
+<!ATTLIST reference %reference.attr;>
+
+
+<!-- Definition for Comment -->
+<!ENTITY % comment.elt "(#PCDATA)">
+<!ENTITY % comment.attr "%name;
+				visible (true | false) #IMPLIED">
+
+
+<!ELEMENT Comment %comment.elt;>
+<!ELEMENT comment %comment.elt;>
+<!ATTLIST Comment %comment.attr;>
+<!ATTLIST comment %comment.attr;>
+
+
+<!-- Definition for Table -->
+<!ENTITY % table.elt "((Action | action)*, (CustomEditor | customeditor)?, (Header | header), ((Entries | entries)? | (Entry | entry)*), AppData?)">
+<!ENTITY % table.attr "%basic; %selectionLabel; %collapsible;
+				minEntries CDATA #IMPLIED
+				maxEntries CDATA #IMPLIED
+				fixedNumberOfEntries CDATA #IMPLIED">
+
+<!ELEMENT Table %table.elt;>
+<!ELEMENT table %table.elt;>
+<!ATTLIST Table %table.attr;>
+<!ATTLIST table %table.attr;>
+
+
+<!-- Definition for Menu -->
+<!ENTITY % menu.elt "EMPTY ">
+<!ENTITY % menu.attr " options CDATA #REQUIRED">
+
+
+<!ELEMENT Menu %menu.elt;>
+<!ELEMENT menu %menu.elt;>
+<!ATTLIST Menu %menu.attr;>
+<!ATTLIST menu %menu.attr;>
+
+
+<!-- Definition for Master -->
+<!ENTITY % master.elt "%arraybase.elt;">
+<!ENTITY % master.attr " %label; ">
+
+
+<!ELEMENT Master %master.elt;>
+<!ELEMENT master %master.elt;>
+<!ATTLIST Master %master.attr;>
+<!ATTLIST master %master.attr;>
+
+<!-- Definition for Contents -->
+<!ENTITY % contents.elt "((Item | item))*">
+<!ENTITY % contents.attr " ">
+
+
+<!ELEMENT Contents %contents.elt;>
+<!ELEMENT contents %contents.elt;>
+<!ATTLIST Contents %contents.attr;>
+<!ATTLIST contents %contents.attr;>
+
+
+<!-- Definition for Item -->
+<!ENTITY % item.elt "%arraybase.elt;">
+<!ENTITY % item.attr " ">
+
+
+<!ELEMENT Item %item.elt;>
+<!ELEMENT item %item.elt;>
+<!ATTLIST Item %item.attr;>
+<!ATTLIST item %item.attr;>
+
+
+<!-- Definition for Header -->
+<!ENTITY % header.elt "((Reference | reference) |(Integer | int | integer | Int) | (Boolean | bool | boolean | Bool) | (Double | double) | (String | string))*">
+<!ENTITY % header.attr "%basic;
+			sizing CDATA #IMPLIED">
+
+
+<!ELEMENT Header %header.elt;>
+<!ELEMENT header %header.elt;>
+<!ATTLIST Header %header.attr;>
+<!ATTLIST header %header.attr;>
+
+
+<!-- Definition for Entries -->
+<!ENTITY % entries.elt "( (Entry | entry)* )">
+<!ENTITY % entries.attr " ">
+
+
+<!ELEMENT Entries %entries.elt;>
+<!ELEMENT entries %entries.elt;>
+<!ATTLIST Entries %entries.attr;>
+<!ATTLIST entries %entries.attr;>
+
+
+<!-- Definition for Entry -->
+<!ENTITY % entry.elt "( (Cell | cell)* )">
+<!ENTITY % entry.attr " name CDATA #IMPLIED
+					label CDATA #IMPLIED">
+
+
+<!ELEMENT Entry %entry.elt;>
+<!ELEMENT entry %entry.elt;>
+<!ATTLIST Entry %entry.attr;>
+<!ATTLIST entry %entry.attr;>
+
+
+<!-- Definition for Cell -->
+<!ENTITY % cell.elt "EMPTY">
+<!ENTITY % cell.attr " field CDATA #REQUIRED 
+			value CDATA #REQUIRED">
+
+
+<!ELEMENT Cell %cell.elt;>
+<!ELEMENT cell %cell.elt;>
+<!ATTLIST Cell %cell.attr;>
+<!ATTLIST cell %cell.attr;>
+
