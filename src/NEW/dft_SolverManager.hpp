@@ -20,7 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// Questions? Contact Laura J.D. Frink (ljfrink@sandia.gov)
+// Questions? Contact Michael A. Heroux (maherou@sandia.gov)
 // 
 // ***********************************************************************
 //@HEADER
@@ -74,6 +74,7 @@ class dft_SolverManager {
   */
   int setColMap(int j, int numGIDs int * GIDs) {colMap_[j] = new Epetra_Map(-1, numGIDs, GIDs, 0, comm_); return;};
   //! Method that must be called once, when all row and column maps are set.
+  /*! This method constructs all of the Epetra_CrsGraph objects and the lhs and rhs vectors. */
   int finalizeBlockStructure();
   //@}
 
@@ -97,9 +98,10 @@ class dft_SolverManager {
   int finalizeGraphStructure();
   //@}
 
-  //@{ \name Matrix value setup methods
+  //@{ \name Matrix, lhs and rhs value setup methods
 
   //! Method that must be called each time \e prior to starting matrix value insertion (usually once per nonlinear iteration).
+  /*! This method zeros out the matrix, lhs and rhs values. */
   int initializeMatrixFill();
 
   //! Insert matrix coefficients
@@ -116,6 +118,29 @@ class dft_SolverManager {
     EPETRA_CHK_ERR(blockMatrix_[i][j]->SumIntoMyValues(localRow, numEntries, values, indices));
     return(0);
   }
+
+  //! Insert lhs initial value (if any)
+  /* Insert initial guess value into entry localEntry of block i.
+     \param i (In) ith physics block.
+     \param localEntry (In) Local entry to which the lhs value will be inserted.  
+            This value should be between zero and the number of equations in block i.
+     \param value (In) Lhs value.
+  */
+  int insertLhsValue(int i, int localEntry, double value) {
+    blockLhs_[i][localEntry] = value;
+    return(0);
+  }
+  //! Insert rhs value
+  /* Insert rhs value into entry localEntry of block i.
+     \param i (In) ith physics block.
+     \param localEntry (In) Local entry to which the lhs value will be inserted.  
+            This value should be between zero and the number of equations in block i.
+     \param value (In) Rhs value.
+  */
+  int insertRhsValue(int i, int localEntry, double value) {
+    blockRhs_[i][localEntry] = value;
+    return(0);
+  }
   //! Method that must be called each time matrix value insertion is complete (usually once per nonlinear iteration).
   int finalizeMatrixFill();
   //@}
@@ -126,22 +151,45 @@ class dft_SolverManager {
       All of the interesting future work will go into developing good strategies using the solver
       tools we have on hard, or are actively developing.
   */
-  int setSolverStrategy(){return(0)} // This is a no-op for now.
+  int setSolverStrategy(){return(0);} // This is a no-op for now.
 
   //! Setup up the solver for solving the current linear problem.
   int setupSolver();
   //@}
 
+  //@{ \name Attribute Access Methods
+
+  //! Get the ith lhs.
+  inline Epetra_Vector * getLhs(int i) const {return(blockLhs_[i]);}
+
+  //! Get the ith rhs.
+  inline Epetra_Vector * getRhs(int i) const {return(blockRhs_[i]);}
+
+  //! Get the ith rowMap.
+  inline Epetra_Map * getRowMap(int i) const {return(rowMaps_[i]);}
+
+  //! Get the jth colMap.
+  inline Epetra_Map * getColMap(int j) const {return(colMaps_[j]);}
+
+  //! Get (i,j) Graph.
+  inline Epetra_CrsGraph * getGraph(int i, int j) const {return(blockGraph_[i][j]);}
+
+  //! Get (i,j) Matrix.
+  inline Epetra_CrsMatrix * getMatrix(int i, int j) const {return(blockMatrix_[i][j]);}
+  //@}
+
 private:
 
+  int numBlocks_;
   Epetra_Comm comm_;
-  Epetra_Matrix *** blockMatrix_;
-  Epetra_Graph *** blockGraph_;
+  Epetra_CrsMatrix *** blockMatrix_;
+  Epetra_CrsGraph *** blockGraph_;
   Epetra_Vector ** blockLhs_;
   Epetra_Vector ** blockRhs_;
   Epetra_Map ** rowMaps_;
   Epetra_Map ** colMaps_;
-  bool isStructureSet_;
+  bool isBlockStructureSet_;
+  bool isGraphStructureSet_;
 
 };
 
