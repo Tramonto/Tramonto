@@ -694,9 +694,9 @@ void setup_basic_box(FILE *fp1)
           (Min_IJK[idim]==0 && Max_IJK[idim]==Nodes_x[idim]-1))) 
                                                Pflag[idim]=TRUE;
 
-      if ((Type_bc[idim][0] != PERIODIC || Pflag[idim]) && Min_IJK_box[idim] < 0) 
+      if ((Type_bc[idim][0] != PERIODIC && Min_IJK_box[idim]<0) ||Pflag[idim]) 
           Min_IJK_box[idim] = 0;
-      if ((Type_bc[idim][1] != PERIODIC || Pflag[idim]) && Max_IJK_box[idim] >= Nodes_x[idim]) 
+      if ((Type_bc[idim][1] != PERIODIC && Max_IJK_box[idim] >= Nodes_x[idim]) ||Pflag[idim])
           Max_IJK_box[idim] = Nodes_x[idim] - 1;
  
   }
@@ -914,8 +914,6 @@ void setup_zeroTF_and_Node2bound (FILE *fp1,int ***el_type)
 
  Nodes_2_boundary_wall = (int **) array_alloc(2, Nlists_HW, Nnodes_box, sizeof(int));
  Zero_density_TF = (int **) array_alloc (2, Nnodes_box,Ncomp+1,sizeof(int));
-
- 
 
  /* zero the arrays that will be set up here */
 
