@@ -66,6 +66,8 @@ for Tramonto.
 struct DFT_PMACHINE_STRUCT {
 
   int machine_type;    /*!< Selector for machine type */
+  int size;            /*!< Size of parallel machine */
+  int rank;            /*!< This processor's rank on parallel machine */
   void * aux_info;  /*!< Generic pointer that can be used by the implementing library for addional data */
   
 };
@@ -231,7 +233,7 @@ double dft_gmax_double(DFT_PMACHINE * machine, double partial_max);
 
 */
 
-double dft_broadcast(DFT_PMACHINE * machine, char * buffer, int size_of_buffer);
+void dft_broadcast(DFT_PMACHINE * machine, char * buffer, int size_of_buffer);
 
 
 /*! \fn void dft_broadcast(DFT_PMACHINE * machine, char * buffer, int size_of_buffer);
@@ -242,7 +244,7 @@ double dft_broadcast(DFT_PMACHINE * machine, char * buffer, int size_of_buffer);
 
 */
 
-double dft_barrier(DFT_PMACHINE * machine);
+void dft_barrier(DFT_PMACHINE * machine);
 
 
 

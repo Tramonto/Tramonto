@@ -27,25 +27,27 @@
 */
 #include "dft_pmachine.h"
 #include "az_aztec.h"
-
-struct DFT_AZTEC_COMM_STRUCT {
-  int * proc_config;
-};
-typedef struct DFT_AZTEC_COMM_STRUCT DFT_AZTEC_COMM;
-
+#include <cstdlib>
 void dft_create_pmachine(int machine_type, MPI_Comm * comm, DFT_PMACHINE ** machine) {
 
   int * proc_config;
  
-  *machine = (DFT_PMACHINE *) malloc(sizeof(DFT_PMACHINE));
+  int size, rank; // Number of MPI processes, My process ID
+
+  MPI_Comm_size(*comm, &size);
+  MPI_Comm_rank(*comm, &rank);
+  *machine = (DFT_PMACHINE *) new DFT_PMACHINE;
   (*machine)->machine_type = machine_type;
+  (*machine)->size = size;
+  (*machine)->rank = rank;
+
   if (machine_type==DFT_AZTEC_PMACHINE) {
-    proc_config = (int *) malloc(AZ_PROC_SIZE*sizeof(int));
+    proc_config = (int *) new int[AZ_PROC_SIZE];
     AZ_set_proc_config(proc_config,*comm);
     (*machine)->aux_info = (void *) proc_config;
   }
   else {
-    abort();
+    exit(1);
   }
   return;
 }
@@ -53,32 +55,34 @@ void dft_create_pmachine(int machine_type, MPI_Comm * comm, DFT_PMACHINE ** mach
 void dft_destroy_pmachine(DFT_PMACHINE ** machine) {
   
   if ((*machine)->machine_type==DFT_AZTEC_PMACHINE) {
-    free((char*)(*machine)->aux_info);
+    delete [] (int *) (*machine)->aux_info;
   }
   else {
-    abort();
+    exit(1);
   }
+  delete (DFT_PMACHINE *) (*machine);
+  *machine = 0;
 }
 
 
 void dft_gather_global_vec(DFT_PMACHINE * machine, double *loc_vec, 
-			   int *loc_index, int N_loc, double *global_vec){}
+			   int *loc_index, int N_loc, double *global_vec){return;}
 
 void dft_gather_global_vec_int(DFT_PMACHINE * machine, int *loc_vec, 
-			       int *loc_index,int N_loc, int *global_vec){}
+			       int *loc_index,int N_loc, int *global_vec){return;}
 
-double dft_gsum_double(DFT_PMACHINE * machine, double partial_sum){}
+double dft_gsum_double(DFT_PMACHINE * machine, double partial_sum){return(0.0);}
 
-double dft_gmax_double(DFT_PMACHINE * machine, double partial_max){}
+double dft_gmax_double(DFT_PMACHINE * machine, double partial_max){return(0.0);}
 
-int dft_gavg_double(DFT_PMACHINE * machine, double in_value){}
+int dft_gavg_double(DFT_PMACHINE * machine, double in_value){return(0);}
 
-int dft_gmax_int(DFT_PMACHINE * machine, int partial_max){}
+int dft_gmax_int(DFT_PMACHINE * machine, int partial_max){return(0);}
 
-int dft_gmin_int(DFT_PMACHINE * machine,  int partial_max){}
+int dft_gmin_int(DFT_PMACHINE * machine,  int partial_max){return(0);}
 
-int dft_gsum_vec_int(DFT_PMACHINE * machine,  int partial_sum, int * sum, int length){}
+int dft_gsum_vec_int(DFT_PMACHINE * machine,  int partial_sum, int * sum, int length){return(0);}
 
-double dft_broadcast(DFT_PMACHINE * machine, char * buffer, int size_of_buffer){}
+void dft_broadcast(DFT_PMACHINE * machine, char * buffer, int size_of_buffer){return;}
 
-double dft_barrier(DFT_PMACHINE * machine){}
+void dft_barrier(DFT_PMACHINE * machine){}

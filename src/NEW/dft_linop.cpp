@@ -1,0 +1,110 @@
+/*@HEADER
+// ***********************************************************************
+// 
+//                Tramonto: Molecular Theories Modeling Code
+//                 Copyright (2004) Sandia Corporation
+// 
+// Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive
+// license for use of this work by or on behalf of the U.S. Government.
+// 
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+// Questions? Contact Laura J.D. Frink (ljfrink@sandia.gov)
+// 
+// ***********************************************************************
+//@HEADER
+*/
+
+#include "dft_linop.h"
+
+struct DFT_AZTEC_LINOP_STRUCT {
+  int ** bindx_2d;
+  
+};
+typedef struct DFT_AZTEC_LINOP_STRUCT DFT_AZTEC_LINOP;
+
+void dft_create_linop(DFT_VECSPACE * vecspace, DFT_LINOP ** linop){
+
+  *linop = (DFT_LINOP *) new DFT_LINOP;
+  (*linop)->vecspace = vecspace;
+  (*linop)->first_time_graph_insert = TRUE;
+  (*linop)->nonzeros = 0;
+  int N_loc = vecspace->N_loc;
+  if (vecspace->vecspace_type==DFT_AZTEC_VECSPACE) {
+    int ** bindx_2d = new int*[N_loc+1];
+    for (int i=0; i<N_loc+1; i++) bindx_2d = 0;
+    if (N_loc>0) bindx_2d[N_loc] = new int[N_loc];
+    DFT_AZTEC_LINOP * aztec_linop = new DFT_AZTEC_LINOP;
+    aztec_linop->bindx_2d = bindx_2d;
+    (*linop)->aux_info = (void *) aztec_linop;
+  }
+  else {
+    exit(1);
+  }
+  return;
+}
+
+void dft_destroy_linop(DFT_LINOP ** linop){
+
+  if ((*linop)->vecspace->vecspace_type==DFT_AZTEC_VECSPACE) {
+
+  }
+  
+  delete (DFT_LINOP *) (*linop);
+  *linop = 0;
+  return;
+}
+int dft_insert_global_graph_row(DFT_LINOP * linop, int i_mat, int * row_indices,
+				       int nonzeros_in_row) {
+  int N_loc = linop->vecspace->N_loc;
+  if (linop->vecspace->vecspace_type==DFT_AZTEC_VECSPACE) {
+    DFT_AZTEC_LINOP * aztec_linop = linop->aux_info;
+    int ** bindx_2d = aztec_linop->bindx_2d;
+    bindx_2d[i_mat] = row_indices;
+    bindx_2d[N_loc][i_mat] = nonzeros_in_row;
+  }
+  linop->nonzeros += nonzeros_in_row;
+
+  return(0);
+}
+
+int dft_fill_complete(DFT_LINOP * linop){
+
+  int N_loc = linop->vecspace->N_loc;
+
+  if (linop->vecspace->vecspace_type==DFT_AZTEC_VECSPACE) {
+    DFT_AZTEC_LINOP * aztec_linop = linop->aux_info;
+    int ** bindx_2d = aztec_linop->bindx_2d;
+    for (int i=0; i<N_loc+; i++) if (bindx_2d[i]>0) delete [] bindx_2d[i];
+    delete [] bindx_2d;
+  }
+  return(0);
+}
+
+int dft_insert_local_mat_row(DFT_LINOP * linop, int i_mat, double * values){
+  int i;
+  /* following needed for ideal gas */
+
+     val[i_mat] = mat_row[i_mat];
+     mat_row[i_mat] = 0.0;
+     for (j=bindx[i_mat]; j<bindx[i_mat+1]; j++) {
+       val[j] = mat_row[bindx[j]];
+       mat_row[bindx[j]] = 0.0;
+     }
+  return(0);
+}
+
+void dft_matvec(DFT_LINOP * linop, double *x, double *y){
+  return(0);
+}
