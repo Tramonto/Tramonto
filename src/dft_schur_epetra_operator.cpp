@@ -34,6 +34,7 @@
 #include "Epetra_MultiVector.h"
 #include "Epetra_Comm.h"
 #include "Epetra_Distributor.h"
+#include "EpetraExt_RowMatrixOut.h"
 
 //==============================================================================
 dft_schur_epetra_operator::dft_schur_epetra_operator(Epetra_CrsMatrix * A11, Epetra_CrsMatrix * A12, 
@@ -45,6 +46,39 @@ dft_schur_epetra_operator::dft_schur_epetra_operator(Epetra_CrsMatrix * A11, Epe
     Label_(0) {
 
   Label_ = "dft_schur_epetra_operator";
+  /* Used to capture matrix data
+  int nrows1 = A11->RowMap().NumGlobalElements();
+  int nrows2 = A22->RowMap().NumGlobalElements();
+  int ncols1 = A11->ColMap().NumGlobalElements();
+  int ncols2 = A22->ColMap().NumGlobalElements();
+  Epetra_Map Row1Map(-1, nrows1, 0, A11->Comm());
+  Epetra_Map Row2Map(-1, nrows2, nrows1, A22->Comm());
+  Epetra_Map Col1Map(-1, ncols1, 0, A11->Comm());
+  Epetra_Map Col2Map(-1, ncols2, ncols1, A22->Comm());
+
+  assert(A11->ReplaceRowMap(Row1Map)==0);
+  assert(A11->ReplaceColMap(Col1Map)==0);
+  assert(A12->ReplaceRowMap(Row1Map)==0);
+  assert(A12->ReplaceColMap(Col2Map)==0);
+  assert(A21->ReplaceRowMap(Row2Map)==0);
+  assert(A21->ReplaceColMap(Col1Map)==0);
+  assert(A22->ReplaceRowMap(Row2Map)==0);
+  assert(A22->ReplaceColMap(Col2Map)==0);
+
+  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA21.dat", *A21, "HardSphere_A21", 
+					  "The 2,1 block of HardSphere Problem with Explicit non-local densities",
+					  true);
+  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA12.dat", *A12, "HardSphere_A12", 
+					  "The 1,2 block of HardSphere Problem with Explicit non-local densities",
+					  true);
+  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA11.dat", *A11, "HardSphere_A11", 
+					  "The 1,1 block of HardSphere Problem with Explicit non-local densities",
+					  true);
+  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA22.dat", *A22, "HardSphere_A22", 
+					  "The 2,2 block of HardSphere Problem with Explicit non-local densities",
+					  true);
+  abort();
+  */
 }
 //==============================================================================
 dft_schur_epetra_operator::~dft_schur_epetra_operator() {
