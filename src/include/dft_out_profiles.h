@@ -9,6 +9,7 @@ void print_zeroTF(int **zero_TF, char *output_file);
 void print_Nodes_to_zone(int *node_to_zone, char *output_file);
 void print_charge_surf(double **charge_w_sum, char *output_file);
 void print_charge_vol(double *charge_els, char *output_file);
+void print_free_energy_profile(double *freen_profile_1D, char *output_file);
 void print_vext(double **vext, char *output_file);
 void print_rho_bar(struct RB_Struct *rho_bar, char *output_file);
 void print_time_histogram(int *hist,int *niters);

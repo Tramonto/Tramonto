@@ -25,7 +25,7 @@
 #include "rf_allo.h"
 
 /*******************************************************************************
-collect_x_old: This gathers all of the densities into X_old.               */ 
+collect_x_old: This gathers all of the densities into X_old on proc 0.        */ 
 
 void collect_x_old(double *x,int flag)
 {
@@ -89,7 +89,7 @@ void collect_x_old(double *x,int flag)
   return;
 }
 /*******************************************************************************
-collect_vext_old: This gathers all of the densities into X_old.               */ 
+collect_vext_old: This gathers all of the external field into Vext_old on proc 0   */ 
 
 void collect_vext_old()
 {
@@ -450,7 +450,7 @@ void print_zeroTF(int **zero_TF, char *output_file)
   return;
 }
 /************************************************************************
-print_Nodes_to_zone: This routine collects and prints Charge_vol_els  */
+print_Nodes_to_zone: This routine collects and prints nodes_to_zone  */
 void print_Nodes_to_zone(int *node_to_zone, char *output_file)
 {
   int loc_inode,inode,ijk[3],*index,idim,inode_box;
@@ -607,6 +607,99 @@ void print_charge_surf(double **charge_w_sum, char *output_file)
 
         fprintf(ifp,"\n");
         if (ijk[0] == Nodes_x[0]) fprintf(ifp,"\n");
+     }    /* loop over all nodes  */
+
+     safe_free((void *) &unk);
+     fclose(ifp);
+  }       /* end of Proc ==0 test */
+  return;
+}
+/************************************************************************
+print_free_energy_profile: This routine collects and prints freen_profile_1D  */
+void print_freen_profile_1D(double *freen_profile_1D, char *output_file)
+{
+  int i,iel,iel_box,icount,logical;
+  int loc_inode,inode,ijk[3],*index_loc,*index,idim,inode_box;
+  int reflect_flag[3];
+  int *comm_icount_proc, *comm_offset_icount;
+  double *unk,*unk_loc, *unk_global,charge_total;
+  FILE *ifp=NULL;
+
+  reflect_flag[0] = reflect_flag[1] = reflect_flag[2] = FALSE;
+
+  if (Proc == 0){
+     unk = (double *) array_alloc (1, Nnodes, sizeof(double));
+     ifp = fopen(output_file,"w");
+  }
+
+  index_loc = (int *) array_alloc (1, Nnodes_per_proc, sizeof(int));
+  unk_loc = (double *) array_alloc (1, Nnodes_per_proc, sizeof(double));
+
+  icount=0;
+  for (loc_inode=0; loc_inode < Nnodes_per_proc; loc_inode++ ){
+      inode_box = L2B_node[loc_inode];
+      inode = L2G_node[loc_inode];
+      index_loc[icount] = inode;
+      unk_loc[icount++] = freen_profile_1D[loc_inode];
+  }
+
+  if (Proc ==0){
+    unk_global = (double *) array_alloc (1, Nnodes, sizeof(double));
+    index = (int *) array_alloc (1, Nnodes, sizeof(int));
+  }
+
+  comm_icount_proc = (int *) array_alloc (1, Num_Proc, sizeof(int));
+  comm_offset_icount = (int *) array_alloc (1, Num_Proc, sizeof(int));
+
+  MPI_Gather(&icount,1,MPI_INT, comm_icount_proc,1,MPI_INT,0,MPI_COMM_WORLD);
+
+  if (Proc == 0){
+     comm_offset_icount[0] = 0; 
+     for (i=1; i<Num_Proc; i++){
+        comm_offset_icount[i] = comm_offset_icount[i-1] + comm_icount_proc[i-1];
+     }
+  }
+
+  /* collect the global indices from all processors */
+  MPI_Gatherv(index_loc,icount,MPI_INT,
+           index,comm_icount_proc,comm_offset_icount,
+           MPI_INT,0,MPI_COMM_WORLD);
+  safe_free((void *) &index_loc);
+
+  /* collect the unknowns from all the processors */
+
+  MPI_Gatherv(unk_loc,icount,MPI_DOUBLE,
+           unk_global,comm_icount_proc,comm_offset_icount,
+           MPI_DOUBLE,0,MPI_COMM_WORLD);
+  safe_free((void *) &unk_loc);
+
+  
+  safe_free((void *) &comm_icount_proc);
+  safe_free((void *) &comm_offset_icount);
+
+  if (Proc == 0) {
+     for (inode=0; inode<Nnodes; inode++){
+         unk[index[inode]] = unk_global[inode];
+     }
+     safe_free((void *) &unk_global);
+     safe_free((void *) &index);
+  }
+
+  /* 
+   *  now print out the free energy profile
+   */
+  if (Proc ==0){
+     for (inode=0; inode<Nnodes; inode++){
+        node_to_ijk(inode,ijk);
+/*        for (idim=0; idim<Ndim; idim++)*/  /* only do free energy profile in 1D so far */
+            idim=0;
+            fprintf(ifp,"%9.6f\t ",
+            ((double)ijk[idim])*Esize_x[idim]);
+
+            fprintf(ifp,"%9.6f\t", unk[inode]);
+
+        fprintf(ifp,"\n");
+        if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
      }    /* loop over all nodes  */
 
      safe_free((void *) &unk);

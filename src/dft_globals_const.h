@@ -1267,6 +1267,7 @@ extern void print_vext(double **, char *);
 extern void print_zeroTF(int **, char *);
 extern void print_charge_vol(double *, char *);
 extern void print_charge_surf(double **, char *);
+extern void print_freen_profile_1D(double *, char *);
 extern void print_Nodes_to_zone(int *, char *);
 extern void print_rho_bar(struct RB_Struct *, char *);
 extern void print_time_histogram(int *,int *);

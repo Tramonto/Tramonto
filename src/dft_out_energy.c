@@ -1094,10 +1094,15 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
   double ifluid,sfluid,ibulk,sbulk,vol;
   int loc_inode, icomp,jcomp, loc_i,loc_j, idim,iwall,pol_number;
   int reflect_flag[3];
-  int izone,ijk_box[3],inode_box;
+  int izone,ijk_box[3],inode_box,i_box;
+  double *freen_profile_1D;
 
   sfluid = 0.0;
   sbulk = 0.0;
+  freen_profile_1D = (double *) array_alloc(1, Nnodes_per_proc, sizeof(double));
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+    freen_profile_1D[loc_inode]=0.0;
+  }
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
 
@@ -1112,28 +1117,35 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
           node_box_to_ijk_box(inode_box, ijk_box);
           izone = 0;
 
-          /* ALF: modfied for SCF case--check free energy!  */
-          if (Type_poly != 3)
-            ideal_nz = calc_u_ideal(icomp,ijk_box,x,&ifluid,&ibulk);
-          else { /* SCF version */
-            ifluid = 0.;
-            ibulk = 0.;
-            for (jcomp=0; jcomp<Ncomp; jcomp++) {
-              loc_j = Aztec.update_index[Ncomp+jcomp+Nunk_per_node * loc_inode];
-              ifluid += Rism_cr[icomp][jcomp][0]*x[loc_j];
-              ibulk -= Rism_cr[icomp][jcomp][0]*Rho_b[icomp]*Rho_b[jcomp];
-            }
-          }
+          ideal_nz = calc_u_ideal(icomp,ijk_box,x,&ifluid,&ibulk);
 
-          sfluid += ifluid*x[loc_i]*Nel_hit2[0][loc_i]*Vol_el/((double)Nnodes_per_el_V);
-          sbulk  += ibulk*Nel_hit[0][loc_i]*Vol_el/((double)Nnodes_per_el_V);
+          sfluid += 0.5*ifluid*x[loc_i]*Nel_hit2[0][loc_i]*Vol_el/((double)Nnodes_per_el_V);
+          sbulk  += 0.5*ibulk*Nel_hit[0][loc_i]*Vol_el/((double)Nnodes_per_el_V);
+
+         /* Collect the free energy as a function of position for pressure profiles ....
+            Note that this funny code does the following...
+                (1)find out if they type "icomp" is on a given polymer chain.  
+                    If not, move on....if so, 
+                (2) add the contribution of the density profile here */
+          freen_profile_1D[loc_inode]+=0.5*(x[loc_i]*ifluid+ibulk);
+if (L2G_node[loc_inode]==400) printf("icomp %d contribution 1: %9.6f  ifluid=%9.6f  ibulk=%9.6f \n",
+                                      icomp,freen_profile_1D[loc_inode],ifluid,ibulk);
+          pol_number = 0;
+          while (Nmer_t[pol_number][icomp]==0) pol_number++;  
+
+          inode_box=L2B_node[loc_inode];
+          i_box=inode_box*Nunk_per_node+icomp+Ncomp;
+          freen_profile_1D[loc_inode] -= (x[loc_i]-Rho_b[icomp])/Nmer[pol_number];
+
+if (L2G_node[loc_inode]==400) printf("icomp %d x: %9.6f  Nmer: %d contribution 2: %9.6f\n",
+                   icomp,x[B2L_unknowns[i_box]],
+                   Nmer[pol_number],(x[loc_i]-Rho_b[icomp])/Nmer[pol_number]);
 
       }   /* end of icomp loop */
   }       /* end of loc_inode loop */
 
   /* write liquid-state theory (polymer) free energy */
   energy = sfluid+sbulk;
-  energy *= 0.5;
   free_energy = AZ_gsum_double(energy,Aztec.proc_config);
 
   area = 0.0;
@@ -1168,6 +1180,8 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
                      Ads_ex[icomp][0]/Nmer[pol_number],Nmer[pol_number]);
      }
   }
+
+  print_freen_profile_1D(freen_profile_1D,"dft_freen_prof.dat");
 
   if (Proc == 0) {
      if (Nwall == 0 || Ndim == 1) {
