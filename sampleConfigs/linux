@@ -1,0 +1,7 @@
+#
+# This configure invocation works for RedHat Linux
+# with Trilinos installed in /home/rlschie/arch/intelLinuxParallel
+#
+./configure \
+  --with-ldflags="-L/home/rlschie/arch/intelLinuxParallel/lib" \
+  --with-cxxflags="-I/home/rlschie/arch/intelLinuxParallel/include"

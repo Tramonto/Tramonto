@@ -1,0 +1,10 @@
+#
+# for Cplant Ross
+#
+./configure \
+  --host=dec \
+  CC=/usr/local/cplant/ross/current/bin/cc \
+  CXX=/usr/local/cplant/ross/current/bin/c++ \
+  F77=/usr/local/cplant/ross/current/bin/f77 \
+  --with-ldflags="-L/home/rlschie/arch/ross/lib -lmpi" \
+  --with-cxxflags="-I/home/rlschie/arch/ross/include"

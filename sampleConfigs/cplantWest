@@ -1,0 +1,10 @@
+#
+# for Cplant West
+#
+./configure \
+  --host=cplant \
+  CC=/usr/local/cplant/west/current/bin/cc \
+  CXX=/usr/local/cplant/west/current/bin/c++ \
+  F77=/usr/local/cplant/west/current/bin/f77 \
+  --with-ldflags="-L/home/rlschie/arch/west/lib -lmpi" \
+  --with-cxxflags="-I/home/rlschie/arch/west/include"

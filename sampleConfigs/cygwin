@@ -1,0 +1,11 @@
+#
+# for Cygwin (unix under windows)
+# 
+# Note: this script assumes that mpi compilers
+# are installed as well as Atlas for blas and
+# lapack support and Trilinos
+#
+./configure \
+  --with-ldflags="-L/home/rlschie/arch/cygwinParallel/lib -lf77blas -latlas -lg2c" \
+  --with-cxxflags="-I/home/rlschie/arch/cygwinParallel/include"
+
