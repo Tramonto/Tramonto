@@ -2009,7 +2009,7 @@ fi;
             BUILD_MACHINE="dec_ross"
             BUILD_MACHINE_SUFFIX=""
             cross_compiling=yes
-	        host="${host}cplant"
+            host="${host}cplant"
             BASE_DIR="/usr/local/cplant/ross/current"
             CXX="${BASE_DIR}/bin/c++"
             CC="${BASE_DIR}/bin/cc"
@@ -5561,9 +5561,77 @@ fi
             TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS} ${FTOCLIBS}"
 	    LIBS="${LIBS} $FTOCLIBS"
         fi
+        echo "$as_me:$LINENO: checking for AZ_check_input in -laztecoo" >&5
+echo $ECHO_N "checking for AZ_check_input in -laztecoo... $ECHO_C" >&6
+if test "${ac_cv_lib_aztecoo_AZ_check_input+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-laztecoo -ltriutils -lifpack -lepetra -ly12m ${FTOCLIBS}  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char AZ_check_input ();
+int
+main ()
+{
+AZ_check_input ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_aztecoo_AZ_check_input=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_aztecoo_AZ_check_input=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_aztecoo_AZ_check_input" >&5
+echo "${ECHO_T}$ac_cv_lib_aztecoo_AZ_check_input" >&6
+if test $ac_cv_lib_aztecoo_AZ_check_input = yes; then
+  HAS_AZTECOO=1
+else
+  HAS_AZTECOO=0
+fi
+
+        if test ${HAS_AZTECOO} -eq 1
+        then
+            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra -ly12m ${TRAMONTO_LDFLAGS} ${FTOCLIBS}"
+	    LIBS="${LIBS} $FTOCLIBS"
+	else
+	    echo Cannot find y12m functions.
+	    echo Please tell me where to find liby12m.a
+	    echo with the --enable-ldflags= option.
+        fi
     fi
 
-    echo "Tramonto ldflags " ${TRAMONTO_LDFLAGS}
     if test ${HAS_AZTECOO} -eq 1
     then
         echo Found all required AztecOO functions.

@@ -313,7 +313,7 @@ dnl
             BUILD_MACHINE="dec_ross"
             BUILD_MACHINE_SUFFIX=""
             cross_compiling=yes
-	        host="${host}cplant"
+            host="${host}cplant"
             BASE_DIR="/usr/local/cplant/ross/current"
             CXX="${BASE_DIR}/bin/c++"
             CC="${BASE_DIR}/bin/cc"
@@ -509,9 +509,18 @@ dnl Checks for libraries.
             TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra ${TRAMONTO_LDFLAGS} ${FTOCLIBS}" 
 	    LIBS="${LIBS} $FTOCLIBS"
         fi
+        AC_CHECK_LIB( aztecoo, AZ_check_input, HAS_AZTECOO=1, HAS_AZTECOO=0, -ltriutils -lifpack -lepetra -ly12m ${FTOCLIBS} )
+        if test ${HAS_AZTECOO} -eq 1
+        then
+            TRAMONTO_LDFLAGS="-laztecoo -ltriutils -lifpack -lepetra -ly12m ${TRAMONTO_LDFLAGS} ${FTOCLIBS}" 
+	    LIBS="${LIBS} $FTOCLIBS"
+	else
+	    echo Cannot find y12m functions. 
+	    echo Please tell me where to find liby12m.a 
+	    echo with the --enable-ldflags= option.
+        fi
     fi
 
-    echo "Tramonto ldflags " ${TRAMONTO_LDFLAGS}
     if test ${HAS_AZTECOO} -eq 1
     then
         echo Found all required AztecOO functions.
