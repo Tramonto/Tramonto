@@ -143,9 +143,11 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
   Epetra_CrsMatrix * A21 = new Epetra_CrsMatrix(Copy, RowMap2, ColMap1, 0);
   Epetra_CrsMatrix * A22 = new Epetra_CrsMatrix(Copy, RowMap2, ColMap2, 0);
 
-  Epetra_Map  RowMap(-1, N_update, update, 0, comm);
-  Epetra_Map  ColMap(-1, N_update+nexternal, ColGIDs, 0, comm);
-  Epetra_CrsMatrix * A = new Epetra_CrsMatrix(Copy, RowMap, ColMap, 0);
+  Epetra_Map  * RowMap = new Epetra_Map(-1, N_update, update, 0, comm);
+  Epetra_Map  * ColMap = new Epetra_Map(-1, N_update+nexternal, ColGIDs, 0, comm);
+  Epetra_CrsMatrix * A = 0;
+  if (debug)
+    A = new Epetra_CrsMatrix(Copy, *RowMap, *ColMap, 0);
 
   int * curColGIDs = new int[N_update+nexternal+1];
   double * curGlobalVals = new double[N_update+nexternal+1];
@@ -170,12 +172,14 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
       A21->InsertGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
       A22->InsertGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
     }
-    A->InsertGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
+    if (debug)
+      A->InsertGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
   }
 
   A11->FillComplete();
   A22->FillComplete();
-  A->FillComplete();
+  if (debug)
+    A->FillComplete();
   A12->FillComplete(RowMap2, RowMap1);
   A21->FillComplete(RowMap1, RowMap2);
   A11->OptimizeStorage();
@@ -184,13 +188,17 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
   A22->OptimizeStorage();
 
   if (debug) assert(A11->LowerTriangular());
+  dft_schur_solver_comp_invA11((void *) A11); // change sign on off-diagonal values of A11
 
   *schur_solver = (DFT_SCHUR_SOLVER *) new DFT_SCHUR_SOLVER;
   (*schur_solver)->A11 = (void *) A11;
   (*schur_solver)->A12 = (void *) A12;
   (*schur_solver)->A21 = (void *) A21;
   (*schur_solver)->A22 = (void *) A22;
-  (*schur_solver)->A   = (void *) A;
+  (*schur_solver)->RowMap = (void *) RowMap;
+  (*schur_solver)->ColMap = (void *) ColMap;
+  if (debug)
+    (*schur_solver)->A   = (void *) A;
   
   delete [] ColGIDs;
   delete [] node_reorder;
@@ -207,18 +215,24 @@ void dft_create_schur_solver(int * proc_config, int * external, int * bindx,
 void dft_update_schur_solver(int * bindx, double * val,
 			     DFT_SCHUR_SOLVER * schur_solver) {
 
+  bool debug = false;
+
   Epetra_CrsMatrix * A11 = (Epetra_CrsMatrix *) schur_solver->A11;
   Epetra_CrsMatrix * A12 = (Epetra_CrsMatrix *) schur_solver->A12;
   Epetra_CrsMatrix * A21 = (Epetra_CrsMatrix *) schur_solver->A21;
   Epetra_CrsMatrix * A22 = (Epetra_CrsMatrix *) schur_solver->A22;
-  Epetra_CrsMatrix * A   = (Epetra_CrsMatrix *) schur_solver->A;
+  Epetra_Map * RowMap = (Epetra_Map *) schur_solver->RowMap;
+  Epetra_Map * ColMap = (Epetra_Map *) schur_solver->ColMap;
+  Epetra_CrsMatrix * A = 0;
+  if (debug)
+    A = (Epetra_CrsMatrix *) schur_solver->A;
 
   Epetra_Time timer(A11->Comm());
 
-  int * update = A->RowMap().MyGlobalElements();
-  int * ColGIDs = A->ColMap().MyGlobalElements();
-  int N_update = A->RowMap().NumMyElements();
-  int N_cols = A->ColMap().NumMyElements();
+  int * update = RowMap->MyGlobalElements();
+  int * ColGIDs = ColMap->MyGlobalElements();
+  int N_update = RowMap->NumMyElements();
+  int N_cols = ColMap->NumMyElements();
 
   Epetra_Map RowMap1(A11->RowMap());
 
@@ -245,11 +259,13 @@ void dft_update_schur_solver(int * bindx, double * val,
       A21->ReplaceGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
       A22->ReplaceGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
     }
-    A->ReplaceGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
+    if (debug) 
+      A->ReplaceGlobalValues(curRowGID, curNumEntries+1, curGlobalVals, curColGIDs);
   }
   delete [] curColGIDs;
   delete [] curGlobalVals;
 
+  dft_schur_solver_comp_invA11((void *) A11); // change sign on off-diagonal values of A11
   cout << "Time in dft_update_schur_solver = " << timer.ElapsedTime();
   return;
 }
@@ -262,7 +278,11 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x_aztec, d
   Epetra_CrsMatrix * A12 = (Epetra_CrsMatrix *) schur_solver->A12;
   Epetra_CrsMatrix * A21 = (Epetra_CrsMatrix *) schur_solver->A21;
   Epetra_CrsMatrix * A22 = (Epetra_CrsMatrix *) schur_solver->A22;
-  Epetra_CrsMatrix * A   = (Epetra_CrsMatrix *) schur_solver->A;
+  Epetra_Map * RowMap = (Epetra_Map *) schur_solver->RowMap;
+  Epetra_Map * ColMap = (Epetra_Map *) schur_solver->ColMap;
+  Epetra_CrsMatrix * A = 0;
+  if (debug)
+    A   = (Epetra_CrsMatrix *) schur_solver->A;
 
   Epetra_Time timer(A11->Comm());
 
@@ -278,8 +298,8 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x_aztec, d
     EpetraExt::RowMatrixToMatrixMarketFile("A.mm", *A, "A Matrix",
 					   "A matrix from Tramonto Schur complement");
   }
-  Epetra_Vector x(View, A->DomainMap(), x_aztec);
-  Epetra_Vector b(View, A->RangeMap(), b_aztec);
+  Epetra_Vector x(View, *RowMap, x_aztec);
+  Epetra_Vector b(View, *RowMap, b_aztec);
 
   if (debug) {
     Epetra_Vector resid(b.Map());
@@ -290,7 +310,6 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x_aztec, d
     cout << "Initial residual before Schur Solver = "<<resval<< endl;
   }
 
-  Epetra_Map RowMap(A->RowMap());
   Epetra_Map RowMap1(A11->RowMap());
   Epetra_Map RowMap2(A22->RowMap());
   
@@ -300,8 +319,8 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x_aztec, d
   Epetra_Vector b2(RowMap2);
   Epetra_Vector b2s(RowMap2);
 
-  Epetra_Import importer1(RowMap1, RowMap);
-  Epetra_Import importer2(RowMap2, RowMap);
+  Epetra_Import importer1(RowMap1, *RowMap);
+  Epetra_Import importer2(RowMap2, *RowMap);
 
   x1.Import(x, importer1, Insert);
   b1.Import(b, importer1, Insert);
@@ -331,19 +350,44 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x_aztec, d
   }
   cout << "Time in dft_update_schur_solver = " << timer.ElapsedTime();
 }
+void dft_schur_solver_comp_invA11(void * A11v) {
+
+  Epetra_CrsMatrix * A11 = (Epetra_CrsMatrix *) A11v;
+  int nrows = A11->RowMap().NumMyElements();
+  int numentries;
+  int * indices;
+  double * values;
+  for (int i=0; i<nrows; i++) {
+    A11->ExtractMyRowView(i, numentries, values, indices);
+    if (numentries>1) {
+      assert(numentries==2); // We assume only two entries per row
+      if (*indices==i) values++; // if on the diagonal, increment past it
+      *values = - *values; // negate off-diagonal term
+    }
+  }
+  return;
+}
 void dft_destroy_schur_solver(DFT_SCHUR_SOLVER ** schur_solver) {
 
+  bool debug = false;
   Epetra_CrsMatrix * A11 = (Epetra_CrsMatrix *) (*schur_solver)->A11;
   Epetra_CrsMatrix * A12 = (Epetra_CrsMatrix *) (*schur_solver)->A12;
   Epetra_CrsMatrix * A21 = (Epetra_CrsMatrix *) (*schur_solver)->A21;
   Epetra_CrsMatrix * A22 = (Epetra_CrsMatrix *) (*schur_solver)->A22;
-  Epetra_CrsMatrix * A   = (Epetra_CrsMatrix *) (*schur_solver)->A;
+  Epetra_Map * RowMap = (Epetra_Map *) (*schur_solver)->RowMap;
+  Epetra_Map * ColMap = (Epetra_Map *) (*schur_solver)->ColMap;
+  Epetra_CrsMatrix * A = 0;
+  if (debug)
+    A   = (Epetra_CrsMatrix *) (*schur_solver)->A;
 
   delete A11;
   delete A12;
   delete A21;
   delete A22;
-  delete A;
+  delete RowMap;
+  delete ColMap;
+  if (debug)
+    delete A;
 
   delete (DFT_SCHUR_SOLVER *) (*schur_solver);
   *schur_solver = 0;

@@ -48,11 +48,13 @@ extern "C" {
 */
 struct DFT_SCHUR_SOLVER_STRUCT {
 
-  void * A;  /*!< Generic pointer to full matrix in Epetra_CrsMatrix form */
   void * A11;  /*!< Generic pointer to 11 block matrix in Epetra_CrsMatrix form */
   void * A12;  /*!< Generic pointer to 12 block matrix in Epetra_CrsMatrix form */
   void * A21;  /*!< Generic pointer to 21 block matrix in Epetra_CrsMatrix form */
   void * A22;  /*!< Generic pointer to 22 block matrix in Epetra_CrsMatrix form */
+  void * RowMap;  /*!< Generic pointer to the row map of the complete operator */
+  void * ColMap;  /*!< Generic pointer to the column map of the complete operator */
+  void * A;  /*!< Generic pointer to full matrix in Epetra_CrsMatrix form */
   
 };
 
@@ -141,6 +143,7 @@ void dft_apply_schur_solver(DFT_SCHUR_SOLVER * schur_solver, double * x, double 
 */
 
 void dft_destroy_schur_solver(DFT_SCHUR_SOLVER ** schur_solver);
+  void dft_schur_solver_comp_invA11(void * A11);
 
 #ifdef __cplusplus
 }
