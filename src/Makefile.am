@@ -61,7 +61,7 @@ common_SOURCES= \
 	dft_globals_const.h \
 	dft_ldbal.h
 	rf_allo.h \
-	loca_const.h \ 
+	loca_const.h \
 	loca_util_const.h \
 	az_aztec.h \
 	az_aztec_defs.h \
@@ -72,7 +72,7 @@ common_SOURCES= \
 	$(srcdir)/include/dft_out_profiles.h \
 	$(srcdir)/include/dft_thermo.h \
 	$(srcdir)/include/dft_comm.h \
-	$(srcdir)/include/dft_fill_pde.h \     
+	$(srcdir)/include/dft_fill_pde.h \
 	$(srcdir)/include/dft_guess.h \
 	$(srcdir)/include/dft_mesh.h \
 	$(srcdir)/include/dft_out_energy.h \
@@ -100,7 +100,7 @@ common_SOURCES= \
 	$(srcdir)/include/loca_util.h
 
 dft_SOURCES= dft_maindriver.c $(common_SOURCES) 
-	
+
 libdft_a_SOURCES=$(common_SOURCES)
 EXTRA_DIST = $(srcdir)/az_aztec_defs.h $(srcdir)/az_aztec.h $(srcdir)/loca_const.h $(srcdir)/loca_util_const.h $(srcdir)/rf_allo.h $(srcdir)/include
 #
@@ -112,14 +112,14 @@ CXX = @CXX@
 MPICXX = @MPICXX@
 CFLAGS = @CFLAGS@ @TRAMONTO_CFLAGS@ -I.
 DFT_FILL_PDE_CFLAGS = @DFT_FILL_PDE_CFLAGS@
-TRAMONTO_LDFLAGS = -L../../lib/@BUILD_MACHINE@ @TRAMONTO_LDFLAGS@ @LDFLAGS@ @LIBS@ @FTOCLIBS@
-EXE = dft_@BUILD_MACHINE@
+TRAMONTO_LDFLAGS = -L../../lib/@BUILD_MACHINE@ @TRAMONTO_LDFLAGS@ @LDFLAGS@ @LIBS@
+EXE = dft_@BUILD_MACHINE@@BUILD_MACHINE_SUFFIX@
 
 # Targets
 dft$(EXEEXT): $(dft_OBJECTS) 
 	${MPICXX} ${CFLAGS} -o ${EXE} ${dft_OBJECTS} ${TRAMONTO_LDFLAGS} 
 	cp ${EXE} ../.
-	
+
 libdft.a: ${libdft_a_OBJECTS}
 	ar cru libdft.a ${libdft_a_OBJECTS}
 	${RANLIB} libdft.a

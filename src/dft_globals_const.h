@@ -33,7 +33,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#ifdef HAS_VALUES_H
 #include <values.h> /* for PI called (M_PI) */
+#endif
 
 #include "az_aztec.h"
 

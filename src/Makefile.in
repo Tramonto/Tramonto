@@ -72,6 +72,7 @@ VPATH = @srcdir@
 AMTAR = @AMTAR@
 AWK = @AWK@
 BUILD_MACHINE = @BUILD_MACHINE@
+BUILD_MACHINE_SUFFIX = @BUILD_MACHINE_SUFFIX@
 
 #
 # let the configure script figure out these parameters
@@ -90,7 +91,7 @@ PARALLEL_TYPE = @PARALLEL_TYPE@
 RANLIB = @RANLIB@
 STRIP = @STRIP@
 TRAMONTO_CFLAGS = @TRAMONTO_CFLAGS@
-TRAMONTO_LDFLAGS = -L../../lib/@BUILD_MACHINE@ @TRAMONTO_LDFLAGS@ @LDFLAGS@ @LIBS@ @FTOCLIBS@
+TRAMONTO_LDFLAGS = -L../../lib/@BUILD_MACHINE@ @TRAMONTO_LDFLAGS@ @LDFLAGS@ @LIBS@
 VERSION = @VERSION@
 am__include = @am__include@
 am__quote = @am__quote@
@@ -156,7 +157,7 @@ libdft_a_SOURCES = $(common_SOURCES)
 EXTRA_DIST = $(srcdir)/az_aztec_defs.h $(srcdir)/az_aztec.h $(srcdir)/loca_const.h $(srcdir)/loca_util_const.h $(srcdir)/rf_allo.h $(srcdir)/include
 MPICXX = @MPICXX@
 CFLAGS = @CFLAGS@ @TRAMONTO_CFLAGS@ -I.
-EXE = dft_@BUILD_MACHINE@
+EXE = dft_@BUILD_MACHINE@@BUILD_MACHINE_SUFFIX@
 subdir = src
 mkinstalldirs = $(SHELL) $(top_srcdir)/./config/./mkinstalldirs
 CONFIG_CLEAN_FILES =
@@ -592,7 +593,7 @@ uninstall-info: uninstall-info-recursive
 	uninstall-recursive
 
 	rf_allo.h \
-	loca_const.h \ 
+	loca_const.h \
 	loca_util_const.h \
 	az_aztec.h \
 	az_aztec_defs.h \
@@ -603,7 +604,7 @@ uninstall-info: uninstall-info-recursive
 	$(srcdir)/include/dft_out_profiles.h \
 	$(srcdir)/include/dft_thermo.h \
 	$(srcdir)/include/dft_comm.h \
-	$(srcdir)/include/dft_fill_pde.h \     
+	$(srcdir)/include/dft_fill_pde.h \
 	$(srcdir)/include/dft_guess.h \
 	$(srcdir)/include/dft_mesh.h \
 	$(srcdir)/include/dft_out_energy.h \
