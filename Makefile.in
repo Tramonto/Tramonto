@@ -13,9 +13,6 @@ dftTarget:
 
 clean:
 	-(cd src; ${MAKE} clean)
-	-(cd Documentation; ${MAKE} clean)
 	-rm Makefile
 
-doc:
-	(cd doc; ${MAKE})
 
