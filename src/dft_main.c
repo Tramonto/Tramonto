@@ -464,8 +464,13 @@ void setup_polymer_cr()
    crfac3=0.0; crfac4=0.0;*/
 
 /*   if (fabs(Crfac+1.0) < 1.e-8) { *//* do automated interpolation */
+      /* note that this particular interpolation is based on xs varying between 0 and 1....
+         to interpolate other parameters with other limits will require a different implementation */
       xs=Rho_b[2]/(Rho_b[0]+Rho_b[1]+Rho_b[2]); 
-      if (Ncr_files == 2){
+      if (Ncr_files == 1){
+             crfac1=1.0;
+      }
+      else if (Ncr_files == 2){
              crfac1=xs;
              crfac2=1.0-xs;
       }
