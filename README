@@ -6,7 +6,6 @@
 Contents:
     Prerequisites
     Building Tramonto
-    Known Problems and Work-arounds
     Adding New Code
     Running the Graphical User Interface
  
@@ -21,135 +20,230 @@ Prerequisites:
     installing these two packages, ask your system administrator about
     local versions of these libraries.
 
-        Package                 Web Reference
-        BLAS                  http://www.netlib.org
-        LAPACK                http://www.netlib.org
-        LAM-MPI               http://www.lam-mpi.org
-        Trilinos              http://software.sandia.gov/trilinos
+        Package                      Web Reference
+        BLAS                      http://www.netlib.org
+        LAPACK                    http://www.netlib.org
+        LAM-MPI                   http://www.lam-mpi.org
+        Trilinos (4.0 or later)   http://software.sandia.gov/trilinos
     
     Of these packages, Trilinos is the most complex and the one you will
     most likely have to build yourself.  Trilinos contains several
     packages of which Tramonto requires aztecoo, triutils, ifpack and
-    epetra. Trilinos contains detailed instructions on building it, and
-    once you have done so, please either install the libraries which it
-    created or place them in a location where you can find them (i.e. in
-    a  ~/lib/arch/ directory).
+    epetra. While Trilinos has its own detailed instructions on building you
+    will find help in the following section.
+    
+    Tramonto was developed using LAM-MPI, but you may use MPICH in its 
+    place (http://www-unix.mcs.anl.gov/mpi/mpich/).  The section on 
+    building Tramonto will offer some guidance.
+
+
+Building Trilinos:
+
+    As of July 2004, Tramonto requires Trilinos version 4.0 or later.
+    Therefore, please ensure that you have a recent version.
+
+    Trilinos is a complex set of packages, that may appear difficult to
+    build, but its integrated configure system helps.  To set up
+    Trilinios to build on your computer you will need to download the
+    source code, uncompress, configure, compile and finally install it. 
+    There are many options available in configuring Trilinos before one
+    builds it, but some of the most important one are:
+    
+    --prefix=
+    --enable-mpi
+    CC=
+    CXX=
+    F77=
+	
+	The "--prefix=" option lets you specify a location in which to
+	install Trilinos.  If you don't want to install it in /usr/local/lib
+	and /usr/local/include, or if you don't have permission to do so,
+	you should pick a location in your home directory.  For example, I
+	use the following on my linux computer:  
+	
+	--preifix="/home/rlschie/arch/intelLinuxParallel"
+	
+	When Trilinos is installed, all of its libraries go in
+	/home/rlschie/arch/intelLinuxParallel/lib and its include files go
+	in /home/rlschie/arch/intelLinuxParallel/include.
+
+	The "--enable-mpi" option builds a parallel version of Trilinos. 
+	Since Tramonto requires a parallel computer to run, you will need a
+	parallel version of Trilinos.
+
+	Finally, the CC=, CXX= and F77= options let you specify which C, C++
+	and Fortran compilers to use.  These variables are very useful on
+	high performance computers where the compilers may be located in
+	non-default locations.
+
+	Following are examples of ways to invoke the configure script to
+	properly configure Trilinos.  You can find more examples in the
+	"sampleScripts" directory withing the Trilinos distribution.
+
+		
+		Linux - parallel
+		../configure \
+		  --prefix=/home/rlschie/arch/intelLinuxSerial \
+		  --enable-mpi \
+		  --with-mpi-compilers
+
+		
+		Mac OSX - parallel
+		../configure \
+		  CC=mpicc CXX=mpic++ F77=mpif77 \
+		  FLIBS="-L/sw/lib/ -lg2c" \
+		  LDFLAGS="-framework vecLib" \
+		  --prefix=/Users/rlschie/arch/MacOsXParallel \
+		  --enable-mpi 
+		  
+		Cygwin Parallel
+		CC=mpicc CXX=mpic++ F77=mpif77 \
+		../configure \
+		  --prefix=/home/rslchie/arch/cygwinParallel \
+		  --with-ldflags="-L/home/rlschie/arch/cygwinParallel" \
+		  --with-lapack=/home/rlschie/arch/cygwinParallel/lib/lapack.a \
+		  --enable-mpi
+		
+		Ross - Parallel
+		../configure \
+		CXXFLAGS=-O3 CPPFLAGS=-D__USE_STD_IOSTREAM \
+		TRILINOS_TEMPLATE_OBJS="./cxx_repository/*.o" \
+		--with-cflags=-O3 --with-fflags=-O3 --host=alpha-unknown-linux \
+		--with-mpi=/usr/local/cplant/ross/current \
+		CXX="/usr/local/cplant/ross/current/bin/c++" \
+		CC="/usr/local/cplant/ross/current/bin/cc" \
+		F77="/usr/local/cplant/ross/current/bin/f77" \
+		--enable-referencey12m \
+		--prefix=/home/rlschie/arch/ross \
+		--enable-mpi
+		
+		West - Parallel
+		../configure \
+		CXXFLAGS=-O3 CPPFLAGS=-D__USE_STD_IOSTREAM \
+		TRILINOS_TEMPLATE_OBJS="./cxx_repository/*.o" \
+		--with-cflags=-O3 --with-fflags=-O3 --host=alpha-unknown-linux \
+		--with-mpi=/usr/local/cplant/west/current \
+		CXX="/usr/local/cplant/west/current/bin/c++" \
+		CC="/usr/local/cplant/west/current/bin/cc" \
+		F77="/usr/local/cplant/west/current/bin/f77" \
+		--enable-referencey12m \
+		--prefix=/home/rlschie/arch/west \
+		--enable-mpi
+
+
+	Once you have configured Trilinos, build it by typing "make".  If
+	the build is successful, then install it with "make install"
 
 
 Building Tramonto:
 
     Once you have the prerequisites at hand, building Tramonto is
-    straightforward.
+    straightforward.  As with Trilinos, you will have to first
+    configure the code and then build it.  Since the fully built
+    Tramonto is just one executable, there is no need to install it --
+    you can just copy the executable to where it you will use it.
     
-    1. type ./configure
+    To configure Tramonto, you will need to tell the configure script
+    where it can find the required libraries and compilers.  There are
+    several useful configure options:
     
-    The configure script will look for libraries needed to compile
-    Tramonto. If some of your libraries are not in standard
-    locations like /lib or /usr/lib then you will have to tell
-    configure where to find them.  For example, if you have
-    libraries located in /home/mydirectory/lib/linux then you should
-    invoke configure as follows:
+    --with-cflags=
+    --with-cxxflags=
+    --with-ldflags=
+    CC=
+    CXX=
+    F77=
+    --host=
     
-        ./configure --enable-ldflags="-L/home/mydirectory/lib/linux"
+    The first three options identify where libraries like Trilinos and
+    it's include files can be found.  If you followed the example from
+    the previous section, then these options will have values like:
+
+    --with-ldflags="-L/home/rlschie/arch/intelLinuxParallel/lib"
+    --with-cxxflags="-I/home/rlschie/arch/intelLinuxParallel/include"
+
+	Additionally, if you are using MPICH you can specify the location
+	of the MPI header files and libraries with:
+	
+	--enable-cflags="-I/usr/MPICH/SDK.gcc/include" \
+    --enable-ldflags="-L/usr/MPICH/SDK.gcc/lib -lmpich"
+	
+	As with Trilinos, the options CC=, CXX= and F77= allow you to select
+    specific compilers for your system.
+
+    The final option, --host=, is normally not needed unless you're
+    cross-compiling. On cross-compiling system, you compile your program
+    on one type of machine and run it on another.  Typically, the
+    compiled program won't run on the compiling machine, and this can
+    cause the configure script to think that the compilers are broken. 
+    Specifying any value for host causes the configure script to ignore
+    this issue.
+
+    Next you will find a set of configure invocations as examples and to
+    help you see how to configure Tramonto for your computer.  These
+    scripts can be found in the directory "sampleConfigs" in the Tramonto
+    distribution.
     
-    The configure program can automatically set up Tramonto to build
-    on the following platforms: 
-        linux (intel family), 
-        Compac/DEC True64, 
-        Compac/DEC Linux,
-        Silicon Graphics 
-        Sun Solaris Workstations
+	Linux
+	./configure \
+	  --with-ldflags="-L/home/rlschie/arch/intelLinuxParallel/lib" \
+	  --with-cxxflags="-I/home/rlschie/arch/intelLinuxParallel/include"
+	
+	Cygwin
+	./configure \
+	  --with-ldflags="-L/home/rlschie/arch/cygwinParallel/lib -lf77blas -latlas -lg2c" \
+	  --with-cxxflags="-I/home/rlschie/arch/cygwinParallel/include"
+	
+	Mac OS X
+	./configure \
+	  FLIBS="-lg2c" \
+	  --with-ldflags="-Wl,-framework -Wl,vecLib -L/sw/lib -L/Users/rlschie/arch/MacOsXParallel/lib" \
+	  --with-cxxflags="-I/Users/rlschie/arch/MacOsXParallel/include"
+	
+	Cplant Ross
+	./configure \
+	  --host=dec \
+	  CC=/usr/local/cplant/ross/current/bin/cc \
+	  CXX=/usr/local/cplant/ross/current/bin/c++ \
+	  F77=/usr/local/cplant/ross/current/bin/f77 \
+	  --with-ldflags="-L/home/rlschie/arch/ross/lib -lmpi" \
+	  --with-cxxflags="-I/home/rlschie/arch/ross/include"
+	
+	Cplant West
+	./configure \
+	  --host=cplant \
+	  CC=/usr/local/cplant/west/current/bin/cc \
+	  CXX=/usr/local/cplant/west/current/bin/c++ \
+	  F77=/usr/local/cplant/west/current/bin/f77 \
+	  --with-ldflags="-L/home/rlschie/arch/west/lib -lmpi" \
+	  --with-cxxflags="-I/home/rlschie/arch/west/include"
 
-    and several custom parallel machines: 
-        delmar  (Sandia National Labs, California Cplant) 
-        icc     (Institutional Comp. Cluster, Liberty, Shasta...)
-        janus   (Sandia National Labs, ASCI Red) 
-        ross    (Sandia National Labs, Cplant ross) 
-        west    (Sandia National Labs, Cplant west)
 
-    Also, any of the following options can be given to configure to
-    alter the build process:
 
-    --enable-ldflags=... This allows the user to specify extra
-    linker flags for the build. For example if some libraries are
-    stored in /home/me/lib then the option
-    
-    --enable-ldflags=-L/home/me/lib will look in that directory for
-    libraries
-
-    --enable-cflags=... --enable-fflags=... With these options one
-    can pass special compiler flags to the c or fortran compilers
-    used in building Tramonto.
-
-    --enable-sgi32 By default, a 64 bit program is built on SGI
-    machines, but if one needs a 32 bit version, then this flag
-    forces the compiler to build such a version.
-
-    --disable-special-host-checking By default the configure script
-    checks if you're building one of the custom parallel
-    machines mentioned above. If for some reason this prevents
-    configure from determining you type of machine, you can turn it
-    off with this option.
-
-    --host=... Configure can normally figure out what host you're
-    compiling for, but if it can't you can specify one of the
-    following as your host pc-linux alpha-dec-osf alpha-linux
-    mpis-sgi-irix sun-solaris delmar janus ross west
-
-    2. type make
-
-    After make finishes, a copy of the Tramonto binary will be
-    placed in this directory.  The binary's name will depend on
-    platform with the following platforms currently supported:
-
-    platform                  binary name 
-    Compac/DigitalOsf         xdft_dec_osf 
-    Compac/Digital Linux      xdft_dec_linux 
-    Intel Linux               xdft_intel_linux 
-    SGI Irix                  xdft_sgi_irix 
-    Sun Solaris               xdft_sun_solaris 
-    ASCI Red (TFLOP)          xdft_intel_tflop 
-    Compac Delmar Cplant      xdft_dec_delmar 
-    Compac Ross Cplant        xdft_dec_ross 
-    Compac Ross Cplant        xdft_dec_west
-
+    Once the configure script completes, you can type "make" to 
+    build Tramonto. After make finishes, a copy of the Tramonto 
+    binary, "dft"  will be placed in this directory.
 
     To clean up after a build type "make clean" after which
     configure can be run again to build a different version of
     Tramonto.
 
-Known Problems and Work-arounds:
-
-    1. User automake requirements:
-    Because of how Autoconf and Automake work together, and limitation on 
-    timestamp updates in CVS, occasionally Tramonto's "make" command will try
-    to invoke automake on the user system after the user has configured Tramonto.
-    One work-around for this is to comment out (using the "#" character) the lines
-    in the Makefile's in the user's build directory.  In particular, the Makefile
-    in the main build directory, and in the src directory within the build directory
-    will have to be manually modified.
-
-    2. CYGWIN builds:  
-    There are several special issues for CYGWIN.  See the file README_CYGWIN.
 
 Adding New Code:
 
     If you add new code to this project, then please do the 
     following to add it to the make files.  
     
-    1. Edit the Makefile.am in the src to include your new 
+    1. Edit the Makefile.in in the src to include your new 
     source file in the build process.
     
-    2. Run "automake --foreign" from the projects root
-    directory to update all the Makefile.in's
-    
-    3. If you've edited "configure.in" then run "autoconf" to 
+    2. If you've edited "configure.ac" then run "autoconf" to 
     update the configure script.
     
     4. Now you should be able to run configure and make as
     normal to build the project.
 
-     
+
 Running the Graphical User Interface
     (NEEDS TO BE UPDATED 10/2003)
 
