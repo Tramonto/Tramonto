@@ -30,7 +30,7 @@
 
 #include "dft_pmachine.h"
 
-/*! \file dft_vec_vecspace.h
+/*! \file dft_vecspace.h
 \brief File defining struct that contains all information about a vector space object.
 
 The file must be included by each Tramonto source file that needs access

@@ -51,6 +51,7 @@ class dft_schur_epetra_operator: public virtual Epetra_Operator {
 
   dft_schur_epetra_operator(Epetra_CrsMatrix * A11, Epetra_CrsMatrix * A12, 
 			    Epetra_CrsMatrix * A21, Epetra_CrsMatrix * A22);
+  //@}
   //@{ \name Destructor.
     //! Destructor
   ~dft_schur_epetra_operator();
@@ -116,11 +117,11 @@ class dft_schur_epetra_operator: public virtual Epetra_Operator {
   //@}
   
 
-  Epetra_CrsMatrix * A11_;
-  Epetra_CrsMatrix * A12_;
-  Epetra_CrsMatrix * A21_;
-  Epetra_CrsMatrix * A22_;
-  char * Label_;
+  Epetra_CrsMatrix * A11_; /*!< The 1,1 block of the 2 by 2 block matrix */
+  Epetra_CrsMatrix * A12_; /*!< The 1,2 block of the 2 by 2 block matrix */
+  Epetra_CrsMatrix * A21_; /*!< The 2,1 block of the 2 by 2 block matrix */
+  Epetra_CrsMatrix * A22_; /*!< The 2,2 block of the 2 by 2 block matrix */
+  char * Label_; /*!< Description of object */
 };
 
 #endif /* DFT_SCHUR_EPETRA_OPERATOR_H */

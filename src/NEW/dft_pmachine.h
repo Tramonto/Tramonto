@@ -53,7 +53,7 @@ for Tramonto.
 */
 #define DFT_EPETRA_PMACHINE          2
 
-/*! \def DFT_LAPACK_PMACHINE
+/*! \def DFT_SERIAL_PMACHINE
   \brief Selector for a serial implementation of Tramonto's parallel machine.
 */
 #define DFT_SERIAL_PMACHINE          3
@@ -113,7 +113,7 @@ program.
 
 void dft_destroy_pmachine(DFT_PMACHINE ** machine);
 
-/*! \fn void dft_gather_global_vec(DFT_VEC_SPACE * vec_space, double *loc_vec, 
+/*! \fn void dft_gather_global_vec(DFT_PMACHINE * machine, double *loc_vec, 
                                    int *loc_index,int N_loc, double *global_vec)
 
 \brief Collect a distributed vector on root processor.
@@ -221,7 +221,7 @@ double dft_gmax_double(DFT_PMACHINE * machine, double partial_max);
 \param length (In) Length of vectors.
 
 */
-  int dft_gsum_vec_int(DFT_PMACHINE * machine,  int partial_sum, int * sum, int length);
+  int dft_gsum_vec_int(DFT_PMACHINE * machine,  int * partial_sum, int * sum, int length);
 
 /*! \fn void dft_broadcast(DFT_PMACHINE * machine, char * buffer, int size_of_buffer);
 
@@ -236,7 +236,7 @@ double dft_gmax_double(DFT_PMACHINE * machine, double partial_max);
 void dft_broadcast(DFT_PMACHINE * machine, char * buffer, int size_of_buffer);
 
 
-/*! \fn void dft_broadcast(DFT_PMACHINE * machine, char * buffer, int size_of_buffer);
+/*! \fn void dft_barrier(DFT_PMACHINE * machine)
 
 \brief Barrier forcing all processors to synchronize execution.
 

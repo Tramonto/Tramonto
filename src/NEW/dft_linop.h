@@ -52,7 +52,7 @@ struct DFT_LINOP_STRUCT {
   int first_time_graph_insert;   /*!< Initialized to TRUE, set to FALSE after the first call to insert_global_graph_row */
   int * internal_index; /*!< After fill_complete is called, contains the operator ordering for GIDs owned by this processor */
   int * external_index; /*!< After fill_complete is called, contains the operator ordering for GIDs not owned by this processor but present as column indices on this processor */
-  int nonzeros;
+  int nonzeros;     /*!< Number of nonzeros in linear operator */
   void * aux_info;  /*!< Generic pointer that can be used by the implementing library for addional data */
   
 };
@@ -98,7 +98,7 @@ program.
 
 void dft_destroy_linop(DFT_LINOP ** linop);
 
-/*! \fn int dft_insert_global_graph_row(DFT_LINOP * linop, int i_box, int i_mat, int * indices, int nonzeros_in_row)
+/*! \fn int dft_insert_global_graph_row(DFT_LINOP * linop, int i_mat, int * indices, int nonzeros_in_row)
 
 \brief Insert box column indices for i_box row into i_mat row of matrix graph.
 
