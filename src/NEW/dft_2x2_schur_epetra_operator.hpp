@@ -35,7 +35,6 @@ class Epetra_Map;
 class Epetra_Import;
 class Epetra_BlockMap;
 class Epetra_Comm;
-#include "Epetra_CrsMatrix.h"
 #include "Epetra_Operator.h"
 
 //! dft_2x2_schur_epetra_operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
@@ -49,8 +48,8 @@ class dft_2x2_schur_epetra_operator: public virtual Epetra_Operator {
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2-by-2 block system
 
-  dft_2x2_schur_epetra_operator(Epetra_CrsMatrix * A11, Epetra_CrsMatrix * A12, 
-			    Epetra_CrsMatrix * A21, Epetra_CrsMatrix * A22);
+  dft_2x2_schur_epetra_operator(Epetra_Operator * A11inv, Epetra_Operator * A12, 
+			    Epetra_Operator * A21, Epetra_Operator * A22);
   //@}
   //@{ \name Destructor.
     //! Destructor
@@ -86,13 +85,21 @@ class dft_2x2_schur_epetra_operator: public virtual Epetra_Operator {
   //! Generate X1.
   int ComputeX1(const Epetra_MultiVector& B1, const Epetra_MultiVector& X2, Epetra_MultiVector& X1) const;
   
-  //! Compute residual for global system.
-  double ComputeGlobalResidual(const Epetra_MultiVector& B1, const Epetra_MultiVector& B2, 
+  //! Compute inf-norm residual for global system over all Rhs.
+  /*! Compute the inf-norm global residual of the original 2x2 system.
+    \param A11 (In) (1,1) block (non-inverted) of the system.
+    \param B1 (In) (1) segment of RHS.
+    \param B2 (In) (2) segment of RHS.
+    \param X1 (In) (1) segment of LHS.
+    \param X2 (In) (2) segment of LHS.
+  */
+
+  double ComputeGlobalResidual(const Epetra_Operator & A11, const Epetra_MultiVector& B1, const Epetra_MultiVector& B2, 
 			       const Epetra_MultiVector& X1, const Epetra_MultiVector& X2) const;
   
   //! Update block matrices.
-  int UpdateBlocks(Epetra_CrsMatrix * A11, Epetra_CrsMatrix * A12, 
-		   Epetra_CrsMatrix * A21, Epetra_CrsMatrix * A22) {A11_ = A11; A12_ = A12; A21_ = A21; A22_ = A22;}
+  int UpdateBlocks(Epetra_Operator * A11inv, Epetra_Operator * A12, 
+		   Epetra_Operator * A21, Epetra_Operator * A22) {A11inv_ = A11inv; A12_ = A12; A21_ = A21; A22_ = A22;}
   
   //! Returns the infinity norm of the global matrix.
   /* Returns the quantity \f$ \| A \|_\infty\f$ such that
@@ -115,7 +122,7 @@ class dft_2x2_schur_epetra_operator: public virtual Epetra_Operator {
   bool HasNormInf() const{return(false);};
   
   //! Returns a pointer to the Epetra_Comm communicator associated with this operator.
-  const Epetra_Comm & Comm() const{return(A11_->Comm());};
+  const Epetra_Comm & Comm() const{return(A11inv_->Comm());};
   
   //! Returns the Epetra_Map object associated with the domain of this operator.
   const Epetra_Map & OperatorDomainMap() const {return(A22_->DomainMap());};
@@ -125,10 +132,10 @@ class dft_2x2_schur_epetra_operator: public virtual Epetra_Operator {
   //@}
   
 
-  Epetra_CrsMatrix * A11_; /*!< The 1,1 block of the 2 by 2 block matrix */
-  Epetra_CrsMatrix * A12_; /*!< The 1,2 block of the 2 by 2 block matrix */
-  Epetra_CrsMatrix * A21_; /*!< The 2,1 block of the 2 by 2 block matrix */
-  Epetra_CrsMatrix * A22_; /*!< The 2,2 block of the 2 by 2 block matrix */
+  Epetra_Operator * A11inv_; /*!< The inverse of the 1,1 block of the 2 by 2 block matrix */
+  Epetra_Operator * A12_; /*!< The 1,2 block of the 2 by 2 block matrix */
+  Epetra_Operator * A21_; /*!< The 2,1 block of the 2 by 2 block matrix */
+  Epetra_Operator * A22_; /*!< The 2,2 block of the 2 by 2 block matrix */
   char * Label_; /*!< Description of object */
 };
 

@@ -54,7 +54,7 @@ dft_2x2_A11_invertible_solver::dft_2x2_A11_invertible_solver(int numBlocks, Epet
 
   bool debug = true;
 
-  if (debug) assert(blockMatrix-{i][j]->LowerTriangular());
+  if (debug) assert(blockMatrix->[1][1]->LowerTriangular());
 
   return;
 }
