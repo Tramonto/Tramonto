@@ -39,7 +39,6 @@ void fill_resid_and_matrix_P (double *x, double *resid,
   * Local variable declarations
   */
 
-  char   *yo = "fill_resid_and_matrix";
   int     i, j, iunk,unk_GQ,unk_B,loc_B,iunk_start,iunk_end;
   int     reflect_flag[3],junk;
   int     izone, mesh_coarsen_flag_i;
@@ -73,8 +72,6 @@ void fill_resid_and_matrix_P (double *x, double *resid,
   int inode,ijk[3];
 
   /********************** BEGIN EXECUTION ************************************/
-
-  if (Proc == 0 && !resid_only_flag) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
 
   if (Sten_Type[POLYMER_GAUSS]) sten=POLYMER_GAUSS;
   else                          sten=DELTA_FN;
@@ -115,7 +112,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
     if (Sten_Type[POLYMER_CR])
         for (iunk=0; iunk<Ncomp; iunk++) max_field[iunk] = FALSE;
 
-    for (iunk=iunk_start; iunk<iunk_end+1; iunk++) {                /*************/
+    for (iunk=iunk_start; iunk<iunk_end; iunk++) {                /*************/
 
     resid_B=0.0;resid_R=0.0;resid_G=0.0;resid_P=0.0;
 
@@ -123,7 +120,8 @@ void fill_resid_and_matrix_P (double *x, double *resid,
 
       i_box = loc_find(iunk,inode_box,BOX);
       loc_i = loc_find(iunk,loc_inode,LOCAL);
-      
+
+
       if (fill_flag != MSR_PREPROCESS){
              loc_i = Aztec.update_index[loc_i];
              resid[loc_i]=0.0;                      /*initialize resid to zero*/
@@ -315,6 +313,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
                       unk_GQ  = Geqn_start[npol] + Poly_to_Unk[npol][i][ibond]; 
                       loc_GQ = Aztec.update_index[loc_find(unk_GQ,loc_inode,LOCAL)]; 
                       fac1 *= x[loc_GQ];
+
 
                       fac2= k_poly;
                       for (jbond=0; jbond<Nbond[npol][i]; jbond++) {
@@ -516,11 +515,6 @@ if (loc_i==501) printf("unk_B=%d  itype_mer=%d \n",unk_B,itype_mer);
 
   /* print out load balancing info */
 
-  if (Iwrite == VERBOSE && !resid_only_flag) {
-    if (Num_Proc>1) MPI_Barrier(MPI_COMM_WORLD);
-    printf("Proc %2d: time %g\n", Proc, t_all);
-  }
-
   if (!resid_only_flag){
   t_put_max         = AZ_gmax_double(t_put,Aztec.proc_config);
   t_all_max         = AZ_gmax_double(t_all,Aztec.proc_config);
@@ -541,7 +535,8 @@ if (loc_i==501) printf("unk_B=%d  itype_mer=%d \n",unk_B,itype_mer);
   if (Proc == 0) {
     if (Ipot_wf_c)
     printf("\t\tTime in put_row_in_msr = (max): %g    (min): %g secs\n", t_put_max,t_put_min);
-    if (!resid_only_flag) printf("\n\t\tTotal load time (max): %g   (min): %g secs\n",t_all_max,t_all_min);
+    if (!resid_only_flag && Iwrite==VERBOSE && MATRIX_FILL_NODAL) 
+         printf("\n\t\tTotal load time (max): %g   (min): %g secs\n",t_all_max,t_all_min);
   }
 }
 /*****************************************************************************/

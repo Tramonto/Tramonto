@@ -438,10 +438,9 @@ void setup_polymer_G(double *x)
 
                              /* TREAT THE END SEGMENTS */
              /* only try to generate the iunk guess if not already filled in */
-             if (fabs(x[Aztec.update_index[iunk]]-999.0)<1.e-6){
+             if (fabs(x[Aztec.update_index[loc_find(iunk,0,LOCAL)]]-999.0)<1.e-6){
 
              if(Bonds[poln][iseg][ibond]== -1){
-                 if (Iwrite==VERBOSE) printf("computing end segment poln=%d iseg=%d ibond=%d this cycle=%d \n",poln,iseg,ibond,cycle);
                  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
                      inode_box = L2B_node[loc_inode];
                      node_box_to_ijk_box(inode_box, ijk_box);
@@ -456,8 +455,7 @@ void setup_polymer_G(double *x)
                junk = Geqn_start[poln]+2*Bonds[poln][iseg][ibond];
                if (iseg<Bonds[poln][iseg][ibond]) junk += 1;
                /* test if this G equation has been generated yet ... if not, go on */
-               if (fabs(x[Aztec.update_index[junk]]-999.0)>1.e-6){
-                 if (Iwrite==VERBOSE) printf("computing poln=%d iseg=%d ibond=%d this cycle=%d \n",poln,iseg,ibond,cycle);
+               if (fabs(x[Aztec.update_index[loc_find(junk,0,LOCAL)]]-999.0)>1.e-6){
                    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
                        inode_box = L2B_node[loc_inode];
                        node_box_to_ijk_box(inode_box, ijk_box);
@@ -519,7 +517,7 @@ void setup_polymer_G(double *x)
         iunk = Geqn_start[poln];
         for (iseg=0; iseg<Nmer[poln]; iseg++){
              for (ibond=0; ibond<Nbond[poln][iseg]; ibond++){
-                 if (fabs(x[Aztec.update_index[iunk]]-999.0)<1.e-6) not_done=TRUE;
+                 if (fabs(x[Aztec.update_index[loc_find(iunk,0,LOCAL)]]-999.0)<1.e-6) not_done=TRUE;
                 /* else{
                     printf("poln=%d iseg=%d ibond=%d is done \n",poln,iseg,ibond);
                  }*/
