@@ -1,5 +1,5 @@
 # aclocal.m4 generated automatically by aclocal 1.6.3 -*- Autoconf -*-
-
+#
 # Copyright 1996, 1997, 1998, 1999, 2000, 2001, 2002
 # Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
