@@ -275,6 +275,7 @@ double calc_free_energy(FILE *fp, double *x, double fac_area,
        printf("\t\t Grand Free Energy: %g \n",grand_free_energy[i]);
        printf("\t\t Surface Free Energy: %g \n",surface_free_energy[i]);
     }
+    Energy = surface_free_energy[i]; /* return value for MC-DFT calculations */
     if (Iwrite!=NO_SCREEN){
        printf("\t====Contributions of each term to surface free energy =========\n");
        printf("\t\t Ideal Gas and Chem.pot term: %9.6f\n",ideal_sum[i]); 

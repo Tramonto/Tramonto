@@ -779,7 +779,7 @@ double g1, g2, ee=1.0e-8, bt, bh, ba;
   *t_solve_max_ptr = t_solve_max;
   /* print out message on success or failure of Newton's nmethod */
 
-  if (Proc==0) {
+  if (Proc==0 && Iwrite!=NO_SCREEN) {
     printf("\n=====================================");
     printf("=======================================\n");
     if (converged && converged2) 
@@ -808,6 +808,7 @@ int update_solution(int iter,double *x, double *delta_x)
   double l2_norm = 0.0, temp;
   char *yo = "update solution";
   double frac,frac_min;
+
 
   frac_min = 1.0; 
   for (icomp=0; icomp<Nunk_per_node; icomp++){
@@ -866,13 +867,14 @@ int update_solution(int iter,double *x, double *delta_x)
 
         if (( (Type_poly==-1 && icomp<Ncomp) || (Type_poly>=0 && icomp<2*Ncomp+Ngeqn_tot) ) && 
                x[loc_i]+delta_x[loc_i] <= 1.e-15){ 
-              x[loc_i] = x[loc_i]*0.1;  /* temporary*/
+              x[loc_i] = x[loc_i]*0.1;  
         }
-        else if(Matrix_fill_flag >=3 && Type_coul==-1 && icomp==Ncomp && x[loc_i] >=1.0 && Ipot_ff_n !=IDEAL_GAS){
+        else if(Matrix_fill_flag >=3 && Type_coul==-1 && icomp==Ncomp 
+                          && x[loc_i] >=1.0 && Ipot_ff_n !=IDEAL_GAS){
                                         x[loc_i] += 0.5*(1.0-x[loc_i]);
         }
         else {
-               x[loc_i] += delta_x[loc_i]; /* temporary */
+               x[loc_i] += delta_x[loc_i]; 
         }
         /* check for density out of bounds */
         if (Type_poly > -1 && icomp>Ncomp-1 && icomp<2*Ncomp && x[loc_i]>Rho_max)

@@ -521,7 +521,7 @@ void read_input_file(char *input_file, char *output_file1)
           else                 Lpolarize[icomp]=FALSE;
        }
     }
-    else if (Proc==0) fprintf(fp2,"not relevent");
+    else if (Proc==0) fprintf(fp2,"n/a: no polarization");
   }
   MPI_Bcast(Pol,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
   MPI_Bcast(Lpolarize,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
@@ -573,7 +573,7 @@ void read_input_file(char *input_file, char *output_file1)
          else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
          for (j=jmin; j<jmax; j++) Eps_ff[i][j] = 0.0;
       }
-      fprintf(fp2,"n/a");
+      fprintf(fp2,"n/a: no Eps_ff for ideal gas or hard sphere");
     }
   }
   MPI_Bcast(Eps_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -598,7 +598,7 @@ void read_input_file(char *input_file, char *output_file1)
          else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
          for (j=jmin; j<jmax; j++) Cut_ff[i][j] = 0.0;
       }
-      fprintf(fp2,"n/a");
+      fprintf(fp2,"n/a: no cutoff for ideal gas or hard sphere");
     }
   }
   MPI_Bcast(Cut_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -606,7 +606,7 @@ void read_input_file(char *input_file, char *output_file1)
                        /* Bond_ff */
   if (Proc==0) {
     read_junk(fp,fp2);
-    if (Type_poly>=0L){
+    if (Type_poly>=0){
       for (i=0; i<Ncomp; i++){
         if (Mix_type==0) {jmin=i; jmax=i+1;}
         else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
@@ -623,7 +623,7 @@ void read_input_file(char *input_file, char *output_file1)
          else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
          for(j=jmin;j<jmax;j++) Bond_ff[i][j] = 0.0;
       }
-      fprintf(fp2,"n/a");
+      fprintf(fp2,"n/a: bonds only needed for polymer runs");
     }
   }
   MPI_Bcast(Bond_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -743,9 +743,13 @@ void read_input_file(char *input_file, char *output_file1)
   else{
     if (Proc==0){
          read_junk(fp,fp2);
-         fprintf(fp2,"\n USING L_B Mixing Rules --- WALL-FLUID INTERACTIONS COMPUTED BY CODE\n");
-         fprintf(fp2,"........MANUAL INPUT DOES NOT APPLY\n");
-         for (i=0; i<2; i++) read_junk(fp,fp2);
+         fprintf(fp2,"\n  USING L_B Mixing Rules --- WALL-FLUID INTERACTIONS COMPUTED BY CODE\n");
+         fprintf(fp2,"........MANUAL INPUT DOES NOT APPLY \n");
+         fprintf(fp2,"skipping this parameter  ");
+         for (i=0; i<2; i++){
+                read_junk(fp,fp2);
+                fprintf(fp2,"skipping this parameter  ");
+         }
     }
   }
 
@@ -954,7 +958,11 @@ void read_input_file(char *input_file, char *output_file1)
     if (Proc==0) {
       read_junk(fp,fp2);
       fprintf(fp2,"\n POLYMER INPUT NOT RELEVENT FOR THIS RUN\n");
-      for (i=0; i<8; i++) read_junk(fp,fp2);
+      fprintf(fp2,"not read   ");
+      for (i=0; i<8; i++) {
+             read_junk(fp,fp2);
+             fprintf(fp2,"not read   ");
+      }
     }
   }
   /* end of polymer input */
@@ -1079,11 +1087,11 @@ void read_input_file(char *input_file, char *output_file1)
     if (Proc==0) read_junk(fp,fp2);
     if (Nlocal_charge == 0)  {
       if (Proc==0) {
-	fprintf(fp2,"not relevant: Nlocal_charge=0");
+	fprintf(fp2,"n/a: Nlocal_charge=0");
 	read_junk(fp,fp2);
-	fprintf(fp2,"not relevant: Nlocal_charge=0");
+	fprintf(fp2,"n/a: Nlocal_charge=0");
 	read_junk(fp,fp2);
-	fprintf(fp2,"not relevant: Nlocal_charge=0");
+	fprintf(fp2,"n/a: Nlocal_charge=0");
       }
     }
     else{
@@ -1129,7 +1137,7 @@ void read_input_file(char *input_file, char *output_file1)
       MPI_Bcast(&Charge_type_atoms,1,MPI_INT,0,MPI_COMM_WORLD);
       MPI_Bcast(&Charge_type_local,1,MPI_INT,0,MPI_COMM_WORLD);
     }
-    else if (Proc==0)  fprintf(fp2,"not relevant  ncharge=0 and walls are not atoms");
+    else if (Proc==0)  fprintf(fp2,"n/a:  ncharge=0 and walls are not atoms");
   }
   else{
     if (Proc==0) {
@@ -1870,13 +1878,6 @@ void error_check(void)
   }
   if (Coarser_jac == 5) nmax= Nzone-1;
   else                  nmax = Nzone;
-  for (i=0; i<nmax-1; i++){
-        if (Rmax_zone[i] <= 0.5+Esize_x[0]){
-             printf("\nERROR: izone: %d  Rmax_zone=:%9.6f\n",
-                                           i,Rmax_zone[i]);
-/*             exit(-1);*/
-        }
-  }
 
   if ( Iliq_vap > -1 ) { 
     if (Ncomp > 1){

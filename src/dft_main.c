@@ -468,7 +468,7 @@ void setup_polymer_cr()
          to interpolate other parameters with other limits will require a different implementation */
       xs=Rho_b[2]/(Rho_b[0]+Rho_b[1]+Rho_b[2]); 
       if (Ncr_files == 1){
-             crfac1=1.0;
+             crfac1=Crfac;
       }
       else if (Ncr_files == 2){
              crfac1=xs;

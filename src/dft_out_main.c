@@ -158,7 +158,7 @@ void post_process (double *x_internal,char *output_file3,int *niters,
 
 /*   if (Ipot_wf_n != LJ12_6_WALL &&  
          Ipot_wf_n != LJ_CHARGED_ATOMS && Ipot_wf_n != LJ_ATOMIC) */
-        calc_force(fp,x,fac_area);   
+        /*calc_force(fp,x,fac_area);   */
                             /* haven't implemented V_dash 
                                for 12-6 integrated wall yet */
 

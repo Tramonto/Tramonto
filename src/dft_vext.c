@@ -275,13 +275,6 @@ void setup_vext_max()
          inode_box=L2B_node[loc_inode];
          inode=L2G_node[loc_inode];
          node_to_position(inode,xpos);
-         if (   fabs (xpos[0]+0.5*Size_x[0]-7.25)<1.e-8 
-             && fabs(xpos[1]+0.5*Size_x[1]-7.25)<1.e-8 
-             && fabs(xpos[2]+0.5*Size_x[2]-5.25)<1.e-8){
-             printf("Proc=%d inode=%d loc_inode=%d icomp=%d zero_density_TF=%d\n",
-                     Proc,inode,loc_inode,icomp,Zero_density_TF[inode_box][icomp]);
-         }
-
          if (Zero_density_TF[inode_box][icomp]) {
             Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp];
             if (!Lhard_surf){
