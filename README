@@ -1,166 +1,210 @@
 
 
-How to build Tramonto
-
-1) type ./configure
-
-The configure script will look for libraries needed to compile
-Tramonto and build those that it cannot find.
-
-The configure program can automatically set up Tramonto to build on
-the following platforms:
-    linux (intel family), 
-    Compac/DEC True64, 
-    Compac/DEC Linux,
-    Silicon Graphics 
-    Sun Solaris Workstations
-
-and several custom parallel machines:
-    alaska  (Sandia National Labs, Cplant alaska)
-    delmar  (Sandia National Labs, California Cplant)
-    janus   (Sandia National Labs, ASCI Red)
-    ross    (Sandia National Labs, Cplant ross)
-    west    (Sandia National Labs, Cplant west)
-
-Also, any of the following options can be given to configure to alter the
-build process:
-
-  --enable-serial  
-    This will build a serial version of Tramonto
-
-  --enable-mpi     
-    This will build a parallel version of Tramonto
-    using the MPI parallel library.  This isn't really
-    necessary at a parallel program is the default type.
-
-  --enable-ldflags=...
-    This allows the user to specify extra linker flags for the
-    build. For example if some libraries are stored in /home/me/lib
-    then the option --enable-ldflags=-L/home/me/lib will look in that
-    directory for libraries
-
-  --enable-cflags=...
-  --enable-fflags=...
-    With these options one can pass special compiler flags to 
-    the c or fortran compilers used in building Tramonto.
-
-  --enable-sgi32
-    By default, a 64 bit program is built on SGI machines, but
-    if one needs a 32 bit version, then this flag forces the
-    compiler to build such a version.    
-
-  --disable-special-host-checking
-    By default the configure script checks if you're building
-    one of the the custom parallel machines mentioned above.
-    If for some reason this prevents configure from determining 
-    you type of machine, you can turn it off with this option.
-
-  --host=...
-    Configure can normally figure out what host you're compiling
-    for, but if it can't you can specify one of the following
-    as your host
-    pc-linux
-    alpha-dec-osf
-    alpha-linux
-    mpis-sgi-irix
-    sun-solaris
-    alaska
-    delmar
-    janus
-    ross
-    west
-
-2) type make
-
-After make finishes, a copy of the Tramonto binary will be placed in 
-this directory.  The binary's name will depend on platform with 
-the following platforms currently supported:
-
-platform                             binary name
-Compac/Digital Osf                   xdft_dec_osf
-Compac/Digital Linux                 xdft_dec_linux
-Intel Linux                          xdft_intel_linux
-SGI Irix                             xdft_sgi_irix
-Sun Solaris                          xdft_sun_solaris
-ASCI Red (TFLOP)                     xdft_intel_tflop
-Compac Alaska Cplant                 xdft_dec_alaska
-Compac Delmar Cplant                 xdft_dec_delmar
-Compac Ross Cplant                   xdft_dec_ross
-Compac Ross Cplant                   xdft_dec_west
+                       How to Build Tramonto
 
 
-To clean up after a build type "make clean" after which configure 
-can be run again to build a different version of Tramonto.
+Contents:
+    Prerequisites
+    Building Tramonto
+    Adding New Code
+    Running the Graphical User Interface
+ 
+
+Prerequisites:
+
+    Tramonto requires several supporting software packages to build and
+    run properly. Following is a list of the required packages and a web
+    address from which you can download them.  Some of the basic
+    packages like BLAS and LAPACK may already be available on your
+    computer in a format optimized for your cpu.  Before downloading and
+    installing these two packages, ask your system administrator about
+    local versions of these libraries.
+
+        Package                 Web Reference
+        BLAS                  http://www.netlib.org
+        LAPACK                http://www.netlib.org
+        LAM-MPI               http://www.lam-mpi.org
+        Trilinos              http://software.sandia.gov/trilinos
+    
+    Of these packages, Trilinos is the most complex and the one you will
+    most likely have to build yourself.  Trilinos contains several
+    packages of which Tramonto requires aztecoo, triutils, ifpack and
+    epetra. Trilinos contains detailed instructions on building it, and
+    once you have done so, please either install the libraries which it
+    created or place them in a location where you can find them (i.e. in
+    a  ~/lib/arch/ directory).
 
 
+Building Tramonto:
 
-How to run the graphical user interface
+    Once you have the prerequisites at hand, building Tramonto is
+    straightforward.
+    
+    1. type ./configure
+    
+    The configure script will look for libraries needed to compile
+    Tramonto. If some of your libraries are not in standard
+    locations like /lib or /usr/lib then you will have to tell
+    configure where to find them.  For example, if you have
+    libraries located in /home/mydirectory/lib/linux then you should
+    invoke configure as follows:
+    
+        ./configure --enable-ldflags="-L/home/mydirectory/lib/linux"
+    
+    The configure program can automatically set up Tramonto to build
+    on the following platforms: 
+        linux (intel family), 
+        Compac/DEC True64, 
+        Compac/DEC Linux,
+        Silicon Graphics 
+        Sun Solaris Workstations
 
-The graphical user interface is run through a program called "Maui".
-Maui reads a series of configuration file that describes the
-interface and then helps you enter valid simulation parameters for
-your problem of interest. 
+    and several custom parallel machines: 
+        delmar  (Sandia National Labs, California Cplant) 
+        janus   (Sandia National Labs, ASCI Red) 
+        ross    (Sandia National Labs, Cplant ross) 
+        west    (Sandia National Labs, Cplant west)
 
-To run Maui do the following.
+    Also, any of the following options can be given to configure to
+    alter the build process:
 
-1) Define the environment variable IDEA_HOME to point to the location
-of the top level Tramonto directory.  For example, if you've unpacked
-Tramonto in /home/myAccount/src/, so that there is now a directory
-called /home/myAccount/src/Tramonto, then set IDEA_HOME to
-/home/myAccount/src/Tramonto. 
+    --enable-ldflags=... This allows the user to specify extra
+    linker flags for the build. For example if some libraries are
+    stored in /home/me/lib then the option
+    
+    --enable-ldflags=-L/home/me/lib will look in that directory for
+    libraries
 
-2) Add to your path the location of Maui's startup script by adding
-$IDEA_HOME/Idea/Java/bin to your path.  You may have to type "source
-~/.cshrc" or "source ~/.bash_profile" or even logoff and back on again
-to get your changes to your path to show up in your current shell.
+    --enable-cflags=... --enable-fflags=... With these options one
+    can pass special compiler flags to the c or fortran compilers
+    used in building Tramonto.
 
-3) Start Maui by typing "Maui.e"
+    --enable-sgi32 By default, a 64 bit program is built on SGI
+    machines, but if one needs a 32 bit version, then this flag
+    forces the compiler to build such a version.
 
-4) On your first time running Maui you'll have to tell it where to
-find the Tramonto configuration files.  When Maui starts up click on
-the "Configure Maui" button.
+    --disable-special-host-checking By default the configure script
+    checks if you're building one of the custom parallel
+    machines mentioned above. If for some reason this prevents
+    configure from determining you type of machine, you can turn it
+    off with this option.
 
-5) In the window that just opened, click on the "Package Names" tab
-and then click on the "Add" button.  In the dialog box that just
-popped up, type "Tramonto" in the box that's labeled "package".  Note,
-that the case of "Tramonto" is important, so typing "tramonto" won't
-work.  Click "Ok" to close this dialog box.
+    --host=... Configure can normally figure out what host you're
+    compiling for, but if it can't you can specify one of the
+    following as your host pc-linux alpha-dec-osf alpha-linux
+    mpis-sgi-irix sun-solaris delmar janus ross west
 
-6) Next, click on the "Services to Add" tab and then click on the
-"Add" button.  In the dialog box that just opened, in the box labeled
-"service" type your value for IDEA_HOME followed by
-/guiSupport/Tramonto.xml.  If IDEA_HOME was
-"/home/myAccount/src/Tramonto" then you'll type
-"/home/myAccount/src/Tramonto/guiSupport/Tramonto.xml" In the box
-labeled "label" type "Tramonto".  Make sure the check box "To be
-included" is checked and then click "OK" to close this dialog
-box.
+    2. type make
 
-7) Next, click on the tab labeled "Classpath entries", click on the
-button labeled "Add" and in the dialog box that just opened type in
-your value for IDEA_HOME followed by /guiSupport/Tramonto.jar".  Thus
-if your value for IDEA_HOME was "/home/myAccount/src/Tramonto" then
-you would type
-"/home/myAccount/src/Tramonto/guiSupport/Tramonto.jar".  Now click on
-"Ok" to close this dialog box.
+    After make finishes, a copy of the Tramonto binary will be
+    placed in this directory.  The binary's name will depend on
+    platform with the following platforms currently supported:
 
-8) Well, that was the wort of it. Now click on "Save Config" then
-"Apply Settings" and then "Close"  Maui will ask if you're sure you
-want to close this window, so click on "Yes".  That was the end of the
-configuration work -- if you don't move the Tramonto or Idea
-directories, you'll never have to do steps 1 through 8 again and can
-just skip to step 9.
+    platform                  binary name 
+    Compac/DigitalOsf         xdft_dec_osf 
+    Compac/Digital Linux      xdft_dec_linux 
+    Intel Linux               xdft_intel_linux 
+    SGI Irix                  xdft_sgi_irix 
+    Sun Solaris               xdft_sun_solaris 
+    ASCI Red (TFLOP)          xdft_intel_tflop 
+    Compac Delmar Cplant      xdft_dec_delmar 
+    Compac Ross Cplant        xdft_dec_ross 
+    Compac Ross Cplant        xdft_dec_west
 
-9) To start the Tramonto part of the Maui interface click on the "Start
-New Session" button.  
 
-10) In a few moments, a window will pop up on the
-second line of which is a label saying "Select subclass" and next to
-it a pull down box.  From the pull down box select "Tramonto".  You'll
-now have the Tramonto interface up and you can begin entering values.
-To save your work click on "Save XML" and to restore it click on "Read
-XML".  When you're ready to convert your input to a file that Tramonto
-can understand click on "Submit".
+    To clean up after a build type "make clean" after which
+    configure can be run again to build a different version of
+    Tramonto.
+
+
+Adding New Code:
+
+    If you add new code to this project, then please do the 
+    following to add it to the make files.  
+    
+    1. Edit the Makefile.am in the src to include your new 
+    source file in the build process.
+    
+    2. Run "automake --foreign" from the projects root
+    directory to update all the Makefile.in's
+    
+    3. If you've edited "configure.in" then run "autoconf" to 
+    update the configure script.
+    
+    4. Now you should be able to run configure and make as
+    normal to build the project.
+
+     
+Running the Graphical User Interface
+    (NEEDS TO BE UPDATED 10/2003)
+
+    The graphical user interface is run through a program called
+    "Maui". Maui reads a series of configuration file that describes
+    the interface and then helps you enter valid simulation
+    parameters for your problem of interest.
+
+    To run Maui do the following.
+
+    1. Define the environment variable IDEA_HOME to point to the
+    location of the top level Tramonto directory.  For example, if
+    you've unpacked Tramonto in /home/myAccount/src/, so that there
+    is now a directory called /home/myAccount/src/Tramonto, then set
+    IDEA_HOME to /home/myAccount/src/Tramonto.
+
+    2. Add to your path the location of Maui's startup script by
+    adding $IDEA_HOME/Idea/Java/bin to your path.  You may have to
+    type "source ~/.cshrc" or "source ~/.bash_profile" or even
+    logoff and back on again to get your changes to your path to
+    show up in your current shell.
+
+    3. Start Maui by typing "Maui.e"
+
+    4. On your first time running Maui you will have to tell it where
+    to find the Tramonto configuration files.  When Maui starts up
+    click on the "Configure Maui" button.
+
+    5. In the window that just opened, click on the "Package Names"
+    tab and then click on the "Add" button.  In the dialog box that
+    just popped up, type "Tramonto" in the box that's labeled
+    "package".  Note, that the case of "Tramonto" is important, so
+    typing "tramonto" won't work.  Click "Ok" to close this dialog
+    box.
+
+    6. Next, click on the "Services to Add" tab and then click on
+    the "Add" button.  In the dialog box that just opened, in the
+    box labeled "service" type your value for IDEA_HOME followed by
+    /guiSupport/Tramonto.xml.  If IDEA_HOME was
+    "/home/myAccount/src/Tramonto" then you will type
+    "/home/myAccount/src/Tramonto/guiSupport/Tramonto.xml" In the
+    box labeled "label" type "Tramonto".  Make sure the check box
+    "To be included" is checked and then click "OK" to close this
+    dialog box.
+
+    7. Next, click on the tab labeled "Classpath entries", click on
+    the button labeled "Add" and in the dialog box that just opened
+    type in your value for IDEA_HOME followed by
+    /guiSupport/Tramonto.jar".  Thus if your value for IDEA_HOME was
+    "/home/myAccount/src/Tramonto" then you would type
+    "/home/myAccount/src/Tramonto/guiSupport/Tramonto.jar".  Now
+    click on "Ok" to close this dialog box.
+
+    8. Well, that was the wort of it. Now click on "Save Config"
+    then "Apply Settings" and then "Close"  Maui will ask if you're
+    sure you want to close this window, so click on "Yes".  That was
+    the end of the configuration work -- if you don't move the
+    Tramonto or Idea directories, you will never have to do steps 1
+    through 8 again and can just skip to step 9.
+
+    9. To start the Tramonto part of the Maui interface click on the
+    "Start New Session" button.
+
+    10. In a few moments, a window will pop up on the second line of
+    which is a label saying "Select subclass" and next to it a pull
+    down box. From the pull down box select "Tramonto".  You'll now
+    have the Tramonto interface up and you can begin entering
+    values. To save your work click on "Save XML" and to restore it
+    click on "Read XML".  When you're ready to convert your input to
+    a file that Tramonto can understand click on "Submit".
 
 
 
