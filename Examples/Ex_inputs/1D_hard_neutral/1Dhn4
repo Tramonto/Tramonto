@@ -4,7 +4,7 @@
 @   1 	      Ndim
 @   3.0       size_x(idim): idim=1,Ndim
 @  0.1      Esize_x(idim): idim=1,Ndim
-@   2  -1        Type_bc(x0,: left, right)  (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
+@  2   -1        Type_bc(x0,: left, right)  (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
 @   0   0        Type_bc(x1,: down, up)     (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
 @   0   0        Type_bc(x2,: back, front)  (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
 
@@ -16,7 +16,7 @@
 @ 0             Lcompare_fastram
 
 ************** SURFACE PARAMETERS **********************************************
-@  1 1 1  0 0   Nwall_types  Nwall   Nlink Lauto_center  Lauto_size
+@ 1 1 1 0 0    Nwall_types  Nwall   Nlink Lauto_center  Lauto_size
 @  0            Xtest_reflect_TF[ilink=0,Nlink][idim=0,Ndim]
 @  0            Surf_type[iwall_type] ; iwall_type=0,Nwall_types
                   (0 = smooth uniform planar wall of infinite extent, 
@@ -61,6 +61,8 @@
 @  1.            Sigma_ff[i][j], [0][1]...[0][Ncomp]; 
 @  0.            Eps_ff[i][j]
 @  0.            Cut_ff[i][j] 
+@  1.            Bond_ff[i][j]
+
 
 @  1.            Rho_w[i] [i=0,Nwall_type]
 @  1.            Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1]
@@ -82,7 +84,11 @@
 @ 0            block[pol_number][iblock]: Number of segments in each block 
 @ 0            block_type[iblock_tot]:    Segment types in each block (start w/0, must not skip)
 @ n/a           poly_file:                 File containing polymer connectivity
-@ n/a           Cr_file:                   c(r) filename
+@ n/a            NCrfiles  Crfac  Cr_file  Cr_file2 Cr_file3 Cr_file4:
+                 NCrfiles (number of cr files - up to 4 to be read in)
+                 Crfac (multiplicative factor for the first c(r).
+                        The second c(r) is multiplied by (1.-crfac)
+@ n/a             Cr_break[i=0;NCr_files-2]
 @ 0.           Cr_rad:                    c(r) radius (units of sigma)
 @ 0.           Gauss_a:                   Aspect ratio ( gauss bl/sigma)
 
@@ -257,6 +263,11 @@
 
                         CONT_SCALE_CHG   16  /* Charged surface params */
 
+                        CONT_SEMIPERM    17  /* Vext_memebrane */
+                        CONT_WALLPARAM   18  /* WallParam */
+                                                                                                 
+                        CONT_CRFAC        19      /* Miximg parameter for 2 cr files */
+                                                                                                 
 
 @  1.e-7   Parameter initial step size
 @  1  0.25  N Steps,  Step Control Aggressiveness  (0.0 = constant step)

@@ -61,6 +61,7 @@
 @  1. 1. 1.          Sigma_ff[i][j], [0][1]...[0][Ncomp]; 
 @  1. 1. 1.          Eps_ff[i][j]
 @  2. 2. 2.          Cut_ff[i][j] 
+@  1. 1. 1.          Bond_ff[i][j], [0][1]...[0][Ncomp]; 
 
 @  1.            Rho_w[i] [i=0,Nwall_type]
 @  1.            Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1]
@@ -82,7 +83,11 @@
 @ 0            block[pol_number][iblock]: Number of segments in each block 
 @ 0            block_type[iblock_tot]:    Segment types in each block (start w/0, must not skip)
 @ n/a           poly_file:                 File containing polymer connectivity
-@ n/a           Cr_file:                   c(r) filename
+@ n/a            NCrfiles  Crfac  Cr_file  Cr_file2 Cr_file3 Cr_file4:
+                 NCrfiles (number of cr files - up to 4 to be read in)
+                 Crfac (multiplicative factor for the first c(r).
+                        The second c(r) is multiplied by (1.-crfac)
+@ n/a             Cr_break[i=0;NCr_files-2]
 @ 0.           Cr_rad:                    c(r) radius (units of sigma)
 @ 0.           Gauss_a:                   Aspect ratio ( gauss bl/sigma)
 
@@ -256,6 +261,10 @@
                         CONT_SCALE_EPSFF 15
 
                         CONT_SCALE_CHG   16  /* Charged surface params */
+                        CONT_SEMIPERM    17  /* Vext_memebrane */
+                        CONT_WALLPARAM   18  /* WallParam */
+                                                                                                                    
+                        CONT_CRFAC        19      /* Miximg parameter for 2 cr files */
 
 
 @  1.e-7   Parameter initial step size

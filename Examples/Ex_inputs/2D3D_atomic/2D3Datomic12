@@ -1,11 +1,11 @@
 ************* DIMENSION PARAMETERS *************************************************
 @ -1. -1. -1. -1. 10.  Length_ref Density_ref Temp Dielec_ref VEXT_MAX
 ************* MESH PARAMETERS *************************************************
-@   1 	      Ndim
-@  3. 3. 2.     size_x(idim): idim=1,Ndim
+@   3 	      Ndim
+@  3. 2. 2.     size_x(idim): idim=1,Ndim
 @  0.25 0.25 0.25    Esize_x(idim): idim=1,Ndim
-@   -1   2            Type_bc(x0,: left, right)  (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
-@   -1   2          Type_bc(x1,: down, up)     (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
+@  -1   2           Type_bc(x0,: left, right)  (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
+@   3   3          Type_bc(x1,: down, up)     (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
 @   2   2        Type_bc(x2,: back, front)  (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
 
 ************ FUNCTIONAL SWITCHES *********************************************
@@ -61,7 +61,7 @@
 @  1. 1. 1.          Sigma_ff[i][j], [0][1]...[0][Ncomp]; 
 @  1. 1. 1.          Eps_ff[i][j]
 @  2. 2. 2.          Cut_ff[i][j] 
-@  1. 1.  1.         Bond_ff[i][j]
+@  1. 1. 1.          Bond_ff[i][j], [0][1]...[0][Ncomp]; 
 
 @  1.            Rho_w[i] [i=0,Nwall_type]
 @  1.            Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1]
@@ -263,10 +263,8 @@
                         CONT_SCALE_CHG   16  /* Charged surface params */
                         CONT_SEMIPERM    17  /* Vext_memebrane */
                         CONT_WALLPARAM   18  /* WallParam */
-                                                                                                      
+                                                                                                                    
                         CONT_CRFAC        19      /* Miximg parameter for 2 cr files */
-                                                                                                      
-
 
 
 @  1.e-7   Parameter initial step size

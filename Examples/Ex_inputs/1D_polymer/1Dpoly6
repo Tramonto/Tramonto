@@ -61,6 +61,7 @@
 @  1. 1.22 1. 1.22 1.44 1.22 1. 1.22 1.         Sigma_ff[i][j], [0][1]...[0][Ncomp]; 
 @  0.77 0. 0.  0. 0.77 0.77  0. 0.77 0.77     Eps_ff[i][j]
 @  3.5 3.5 3.5  3.5 3.5 3.5 3.5 3.5 3.5            Cut_ff[i][j] 
+@  1. 1.22 1. 1.22 1.44 1.22 1. 1.22 1.         Bond_ff[i][j], [0][1]...[0][Ncomp]; 
 
 @  1.            Rho_w[i] [i=0,Nwall_type]
 @  1.            Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1]
@@ -82,7 +83,11 @@
 @ 8 2 8 1           block[pol_number][iblock]: Number of segments in each block 
 @ 0 1 0 2          block_type[iblock_tot]:    Segment types in each block (start w/0, must not skip)
 @ lin_18_1           poly_file:                 File containing polymer connectivity
-@ cr8.2.8_0.375_1_0.375           Cr_file:                   c(r) filename
+@  1 1.0 cr8.2.8_0.375_1_0.375        NCrfiles  Crfac  Cr_file  Cr_file2 Cr_file3 Cr_file4:
+                 NCrfiles (number of cr files - up to 4 to be read in)
+                 Crfac (multiplicative factor for the first c(r).
+                        The second c(r) is multiplied by (1.-crfac)
+@ n/a             Cr_break[i=0;NCr_files-2]
 @  1.1 1.35 1.1 1.35 1.625 1.35 1.1 1.35 1.1            Cr_rad:                    c(r) radius (units of sigma)
 @ 0.9814           Gauss_a:                   Aspect ratio ( gauss bl/sigma)
 
@@ -258,8 +263,11 @@
                         CONT_SCALE_EPSFF 15
 
                         CONT_SCALE_CHG   16  /* Charged surface params */
-
-
+                        CONT_SEMIPERM    17  /* Vext_memebrane */
+                        CONT_WALLPARAM   18  /* WallParam */
+                                                                                                                    
+                        CONT_CRFAC        19      /* Miximg parameter for 2 cr files */
+                                                                                                                    
 @  1.e-7   Parameter initial step size
 @  1  0.25  N Steps,  Step Control Aggressiveness  (0.0 = constant step)
 @  2       Second parameter for Spinodal and Binoadal Calculations (Same list).
