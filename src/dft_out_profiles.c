@@ -277,6 +277,7 @@ void print_profile(char *output_file4)
      }    /* loop over all nodes  */
 
      /* compute and print site densities for polymers */
+     if (Sten_Type[POLYMER_CR]){
      for (inode=0; inode<Nnodes; inode++){
         node_to_ijk(inode,ijk);
         for (idim=0; idim<Ndim; idim++) fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
@@ -304,6 +305,7 @@ void print_profile(char *output_file4)
         if(inode != Nnodes-1) fprintf(fp7,"\n");
      }
      fclose(fp7);
+     }
 
      fclose(ifp);
      if (Sten_Type[POLYMER_CR]) {

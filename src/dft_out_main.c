@@ -323,6 +323,9 @@ void print_cont_variable(int cont_type,FILE *fp)
 	 else fprintf(fp,"%7.4f   ",Temp_elec);
          break;
 
+      case CONT_CRFAC:
+	 fprintf(fp,"%11.8f   ",Crfac);
+         break;
       case CONT_SCALE_RHO:
          fprintf(fp,"%11.8f   ", Scale_fac); 
       case CONT_RHO_0:

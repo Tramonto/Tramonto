@@ -471,7 +471,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
          }
       }     /* end of else (not Zero_density and mesh_coarsen_flag_i >= 0) */
 
-     /*if (fill_flag != MSR_PREPROCESS && resid[loc_i]>.000001 )
+/*     if (fill_flag != MSR_PREPROCESS && fabs(resid[loc_i])>.000001 )
       printf("loc_i=%d inode %d : iunk %d : resid_B %g : resid_R %g : resid_G %g : resid_P %g resid_tot=%g\n",
                loc_i,L2G_node[loc_inode],iunk,resid_B,resid_R,resid_G,resid_P,resid[loc_i]);*/
   

@@ -218,6 +218,8 @@
 #define CONT_SEMIPERM   17  /* Vext_membrane */
 #define CONT_WALLPARAM  18  /* Vext_membrane */
 
+#define CONT_CRFAC  19  /* continuous mixing of two cr files */
+
 
 #define PRINT_RHO_0      0
 
@@ -802,6 +804,8 @@ double  Mass[NCOMP_MAX];           /* Array of the mass of each specie*/
 extern
 double  Sigma_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f interaction diameters */
 extern
+double  Bond_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
+extern
 double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
 extern
 double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
@@ -1043,6 +1047,8 @@ int Sten_Choice_R[NSTEN][NZONE_MAX]; /* # Radial Gauss points for THETA_FNCs */
 extern
 double Deltar_cr,Gauss_a,Gauss_k,***Rism_cr;
 extern
+double Crfac;
+extern
 double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 extern
 double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
@@ -1055,7 +1061,9 @@ int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
 extern
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
 extern
-char Cr_file[40];
+char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
+extern double Cr_break[2];
+extern int Ncr_files;
 extern int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond;
 extern int ***Poly_to_Unk;
 extern int Ngeqn_tot, **Nbond,***Bonds;

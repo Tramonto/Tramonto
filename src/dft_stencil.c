@@ -1070,7 +1070,8 @@ static double calc_sten_rad(int isten, int icomp, int jcomp)
   switch (isten) {
     case DELTA_FN:
         if (Sten_Type[POLYMER_CR])
-          return (Sigma_ff[icomp][jcomp]);
+/*          return (Sigma_ff[icomp][jcomp]);*/
+          return (Bond_ff[icomp][jcomp]);
         else
           return (Sigma_ff[icomp][icomp]/2.0);
     case THETA_FN:

@@ -164,7 +164,7 @@ int turning_point_alg(double *x, double *delta_x, struct con_struct *con,
  * Lines labeled  SCALED  are additions for new scaling (section 4 of same
  * write-up). The SCALED lines can be commented out to recover unscaled version.
  */
-#define SCALE_TP
+/*#define SCALE_TP*/
 {
   /* shorthand for long con sub-structure */
   struct general_info_struct *cgi = &(con->general_info);
@@ -1115,7 +1115,7 @@ int phase_transition_alg(double *x, double *delta_x,
 
   /* Construct d vector using tangent calculation */
 
-  calc_rhs_continuation(TP_CONT_SOL2, x, d, NULL, NULL, NULL,
+  calc_rhs_continuation(TP_CONT_SOL2, x2, d, NULL, NULL, NULL,
 		        con->phase_transition_info.bif_param, cgi->perturb,
                         NULL, cgi->numUnks, cgi->numOwnedUnks);
 

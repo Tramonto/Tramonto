@@ -452,19 +452,85 @@ void continuation_shift()
   ALF: modified 10/21 for Type_poly == 3 */
 void setup_polymer_cr()
 {
-   FILE *fp7;
-   int i,j,lines,ir, nextChar;
-   double r,u,cr_rad_max,rsave,dummy_read;
+   FILE *fp7,*fp8,*fp9,*fp10;
+   int i,j,lines,lines2,ir,ir2, nextChar;
+   double r,u,cr_rad_max,cr_rad_max2,rsave,rsave2,dummy_read,crread;
+   double crfac1,crfac2,crfac3,crfac4,xs;
    char c;
 
+   /* not doing automated interpolation - just mixing two c(r) files */
+/*   crfac1=Crfac;
+   crfac2=(1.0-crfac1);
+   crfac3=0.0; crfac4=0.0;*/
+
+/*   if (fabs(Crfac+1.0) < 1.e-8) { *//* do automated interpolation */
+      xs=Rho_b[2]/(Rho_b[0]+Rho_b[1]+Rho_b[2]); 
+      if (Ncr_files == 2){
+             crfac1=xs;
+             crfac2=1.0-xs;
+      }
+      else if (Ncr_files ==3){
+         if (xs>0 && xs<Cr_break[0]){
+            crfac1=xs/(Cr_break[0]);
+            crfac2=1.0-crfac1;
+            crfac3=0.0;
+         }
+         else{ 
+           crfac1=0.0;
+           crfac2=(xs-Cr_break[0])/(1.0-Cr_break[0]);
+           crfac3=1.0-crfac2;
+         }
+      }
+      else if (Ncr_files ==4){
+         if (xs>0 && xs<Cr_break[0]){
+            crfac1=1.0-xs/(Cr_break[0]);
+            crfac2=1.0-crfac1;
+            crfac3=0.0; crfac4=0.0;
+         }
+         else if (xs>=Cr_break[0] && xs<Cr_break[1]){
+            crfac1=0.0; crfac4=0.0;
+            crfac2 = 1.0-(xs-Cr_break[0])/(Cr_break[1]-Cr_break[0]);
+            crfac3=1.0-crfac2;
+         }
+         else if (xs>=Cr_break[1]){
+            crfac1=0.0; crfac2=0.0;
+            crfac3 = 1.0 - (xs-Cr_break[1])/(1.0-Cr_break[1]);
+            crfac4=1.0-crfac3;
+         }
+      }
+  /* }*/
+   if (Proc==0) printf("crfac1=%9.6f  crfac2=%9.6f  crfac3=%9.6f  crfac4=%9.6f\n",
+                 crfac1,crfac2,crfac3,crfac4);
+
    /* reading in c(r) file */
-   if(Proc==0) printf("reading in c(r) file...\n");
+   if(Proc==0) printf("reading in %d c(r) file(s)...\n",Ncr_files);
    if (Type_poly != 3) {
 
    if (Proc==0){
      if( (fp7  = fopen(Cr_file,"r")) == NULL) {
        printf("Can't open file %s\n", Cr_file);
        exit(1);
+     }
+     if (Ncr_files>=2){
+       if( (fp8  = fopen(Cr_file2,"r")) == NULL) {
+          printf("Can't open file %s\n", Cr_file2);
+          exit(1);
+        }
+        fclose(fp8);
+     }
+     if (Ncr_files>=3){
+       if( (fp9  = fopen(Cr_file3,"r")) == NULL) {
+          printf("Can't open file %s\n", Cr_file3);
+          exit(1);
+        }
+        fclose(fp9);
+     }
+     if (Ncr_files==4){
+       if( (fp10  = fopen(Cr_file4,"r")) == NULL) {
+          printf("Can't open file %s\n", Cr_file4);
+          exit(1);
+        }
+        fclose(fp10);
      }
      for (ir=1; ir<=3; ir++){
        fscanf(fp7,"%lf",&r );
@@ -485,46 +551,100 @@ void setup_polymer_cr()
    }
    MPI_Bcast(&Deltar_cr,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-
    lines = 0;
    cr_rad_max=0.0;
    for (i=0; i < Ncomp; ++i)
       for (j=0; j<Ncomp; ++j){
 	 if (Cr_rad_hs[i][j] > cr_rad_max) cr_rad_max = Cr_rad_hs[i][j];
       }
-
    lines=(int)(cr_rad_max/Deltar_cr);
 
    if (Proc==0 && lines >= N_NZCR_MAX) {
       printf("Warning: Rism_cr array may be truncated :: Max Cr_rad_hs > allowed\n");
       lines = N_NZCR_MAX-1;
     }
-   /* printf("Proc=%d lines=%d\n",Proc,lines); */
+    /*printf("Proc=%d lines=%d\n",Proc,lines); */
 
    Last_nz_cr = lines;
    if (Proc==0) {
      fp7  = fopen(Cr_file,"r");
+     if (Ncr_files>=2) fp8  = fopen(Cr_file2,"r");
+     if (Ncr_files>=3) fp9  = fopen(Cr_file3,"r");
+     if (Ncr_files==4) fp10  = fopen(Cr_file4,"r");
+    
      for (ir=1; ir<=lines; ir++){
        fscanf(fp7,"%lf",&r );
        fscanf(fp7,"%c",&c );
        if (ir == 1) rsave = r;
        if (ir == 2) Deltar_cr = r-rsave;
+
+       if (Ncr_files>=2){
+         fscanf(fp8,"%lf",&r );
+         fscanf(fp8,"%c",&c );
+       }
+       if (Ncr_files>=3){
+         fscanf(fp9,"%lf",&r );
+         fscanf(fp9,"%c",&c );
+       }
+       if (Ncr_files==4){
+         fscanf(fp10,"%lf",&r );
+         fscanf(fp10,"%c",&c );
+       }
+
        for (i=0; i<Ncomp; i++){  /* for (i=0; i<Ntype_mer; i++)  */
-	 fscanf(fp7,"%lf",&Rism_cr[i][i][ir]);
-   /*Rism_cr[i][i][ir] *=1.5;*/
+	 fscanf(fp7,"%lf",&crread);
+         Rism_cr[i][i][ir]=Crfac*crfac1*crread;
+	 if (Ncr_files>=2){
+              fscanf(fp8,"%lf",&crread);
+              Rism_cr[i][i][ir]+=Crfac*crfac2*crread;
+         }
+	 if (Ncr_files>=3){
+              fscanf(fp9,"%lf",&crread);
+              Rism_cr[i][i][ir]+=Crfac*crfac3*crread;
+         }
+	 if (Ncr_files==4){
+              fscanf(fp10,"%lf",&crread);
+              Rism_cr[i][i][ir]+=Crfac*crfac4*crread;
+         }
        }
        fscanf(fp7,"%c",&c );
+       if (Ncr_files>=2) fscanf(fp8,"%c",&c );
+       if (Ncr_files>=3) fscanf(fp9,"%c",&c );
+       if (Ncr_files==4) fscanf(fp10,"%c",&c );
+
        for (i=0; i<Ncomp; i++) {                
 	 for (j=i+1; j<Ncomp; j++) {                
-	   fscanf(fp7,"%lf",&Rism_cr[i][j][ir]);
-   /*Rism_cr[i][j][ir] *=1.5;*/
+	   fscanf(fp7,"%lf",&crread);
+           Rism_cr[i][j][ir]=Crfac*crfac1*crread;
 	   fscanf(fp7,"%c",&c );
+	   if (Ncr_files>=2){
+                 fscanf(fp8,"%lf",&crread);
+                 Rism_cr[i][j][ir]+=Crfac*crfac2*crread;
+	         fscanf(fp8,"%c",&c );
+           }
+	   if (Ncr_files>=3){
+                 fscanf(fp9,"%lf",&crread);
+                 Rism_cr[i][j][ir]+=Crfac*crfac3*crread;
+	         fscanf(fp9,"%c",&c );
+           }
+	   if (Ncr_files==4){
+                 fscanf(fp10,"%lf",&crread);
+                 Rism_cr[i][j][ir]+=Crfac*crfac4*crread;
+	         fscanf(fp10,"%c",&c );
+           }
 	   Rism_cr[j][i][ir] = Rism_cr[i][j][ir];
 	 }
        }
        while(c != '\n') c=getc(fp7);
+       if(Ncr_files>=2) while(c != '\n') c=getc(fp8);
+       if(Ncr_files>=3) while(c != '\n') c=getc(fp9);
+       if(Ncr_files==4) while(c != '\n') c=getc(fp10);
      }
      fclose(fp7);
+     if(Ncr_files>=2) fclose(fp8);
+     if(Ncr_files>=3) fclose(fp9);
+     if(Ncr_files==4) fclose(fp10);
+
      for (ir=lines+1; ir<N_NZCR_MAX; ir++)
        for (i=0; i<Ncomp; i++){
 	 Rism_cr[i][i][ir] = 0.;

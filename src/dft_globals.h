@@ -228,6 +228,7 @@ double  Alpha;        /* Yukawa decay parameter                              */
 int     Mix_type;     /* Type of mixing rules */
 double  Mass[NCOMP_MAX];           /* Array of the mass of each specie*/
 double  Sigma_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f interaction diameters */
+double  Bond_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
 double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
 double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
 double  Charge_f[NCOMP_MAX];           /* Array of the valence of each specie*/
@@ -370,13 +371,16 @@ double Ads_ex[NCOMP_MAX][2];
 
 /* Polymer variables */
 double Deltar_cr,Gauss_a,Gauss_k,***Rism_cr;
+double Crfac;
 double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 double Bupdate_fact;
 int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
 int Bupdate_iters,Geqn_start[NCOMP_MAX];
-char Cr_file[40];
+char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
+double Cr_break[2];
+int  Ncr_files;
 int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk;
 int Ngeqn_tot, **Nbond,***Bonds; 
 int *Pol_Sym;

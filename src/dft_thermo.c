@@ -375,6 +375,7 @@ void pot_parameters(char *output_file1)
 
  for (i=0; i<Ncomp; i++){
      if (Ipot_ff_n==IDEAL_GAS) Sigma_ff[i][i]=0.0;
+     if (Type_poly <0) Bond_ff[i][i]=0.0;
 
      for (j=0; j<Ncomp; j++){
 
@@ -382,12 +383,13 @@ void pot_parameters(char *output_file1)
            Sigma_ff[i][j] = 0.5*(Sigma_ff[i][i]+Sigma_ff[j][j]);
            Eps_ff[i][j] = sqrt(Eps_ff[i][i]*Eps_ff[j][j]);
            Cut_ff[i][j] = 0.5*(Cut_ff[i][i]+Cut_ff[j][j]);
+           Bond_ff[i][j] = 0.5*(Bond_ff[i][i]+Bond_ff[j][j]);
         }
 
         if (printproc) {
            fprintf(fp2,"\ti:%d  j:%d",i,j);
-           fprintf(fp2,"   Sigma_ff: %9.6f  Cut_ff: %9.6f  Eps_ff: %9.6f\n",
-                   Sigma_ff[i][j],Cut_ff[i][j],Eps_ff[i][j]);
+           fprintf(fp2,"   Sigma_ff: %9.6f  Cut_ff: %9.6f  Eps_ff: %9.6f  Bond_ff: %9.6f \n",
+                   Sigma_ff[i][j],Cut_ff[i][j],Eps_ff[i][j],Bond_ff[i][j]);
         }
      }
  } 

@@ -1136,15 +1136,6 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
   energy *= 0.5;
   free_energy = AZ_gsum_double(energy,Aztec.proc_config);
 
-  for (icomp=0; icomp<Ncomp; icomp++){
-     if (icomp >= Ntype_mer) free_energy -= Ads_ex[icomp][0];
-     else{
-        pol_number = 0;
-        while (Nmer_t[pol_number][icomp]==0) pol_number++;
-        free_energy -= Ads_ex[icomp][0]/Nmer[pol_number];
-     }
-  }
-
   area = 0.0;
   if (Nwall == 0) area = 1.0;
   else{
@@ -1163,6 +1154,21 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
   }
   else{ free_energy *= fac_vol;}
 
+  /* note that the fac_vol and area adjustments were already 
+     made for the excess adsorption terms in dft_out_ads.c */
+  for (icomp=0; icomp<Ncomp; icomp++){
+     if (icomp >= Ntype_mer){ free_energy -= Ads_ex[icomp][0];
+        if (Proc==0) printf("adsorption contribution of icomp=%d is %9.6f\n",icomp,Ads_ex[icomp][0]);
+     }
+     else{
+        pol_number = 0;
+        while (Nmer_t[pol_number][icomp]==0) pol_number++;
+        free_energy -= Ads_ex[icomp][0]/Nmer[pol_number];
+        if (Proc==0) printf("adsorption contribution of icomp=%d is %9.6f  and Nmer is %d\n",icomp,
+                     Ads_ex[icomp][0]/Nmer[pol_number],Nmer[pol_number]);
+     }
+  }
+
   if (Proc == 0) {
      if (Nwall == 0 || Ndim == 1) {
         vol = Size_x[0];
@@ -1174,7 +1180,7 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
      }
      else
         printf("Delta(Free energy) = %lf \n",free_energy);
-     if (fp !=NULL) fprintf(fp," %9.6f ", free_energy);
+     if (fp !=NULL) fprintf(fp," %9.6f  %9.6f", free_energy, free_energy/vol);
   }
   return(free_energy);
 }

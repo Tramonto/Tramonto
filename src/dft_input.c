@@ -298,7 +298,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fscanf(fp,"%d", &Surface_type[iwall_type]);
 	fprintf(fp2,"%d  ",Surface_type[iwall_type]);
       }
-    else fprintf(fp2,"not relevant");
+    else fprintf(fp2,"n/a");
   }
   if(Nwall_type > 0) 
     MPI_Bcast(Surface_type,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
@@ -310,7 +310,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fscanf(fp,"%d", &Orientation[iwall_type]);
 	fprintf(fp2,"%d  ",Orientation[iwall_type]);
       }
-    else fprintf(fp2,"not relevant");
+    else fprintf(fp2,"n/a");
   }
   if (Nwall_type > 0) 
     MPI_Bcast(Orientation,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
@@ -398,7 +398,7 @@ void read_input_file(char *input_file, char *output_file1)
         if (Length_ref >0.0) WallParam[iwall_type]/=Length_ref;
         if (Surface_type[iwall_type]==point_surface) WallParam[iwall_type]=Esize_x[0];
       }
-    else fprintf(fp2,"not relevant");
+    else fprintf(fp2,"n/a");
   }
   if (Nwall_type > 0) 
     MPI_Bcast(WallParam,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -411,7 +411,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fprintf(fp2,"%f  ",WallParam_2[iwall_type]);
         if (Length_ref >0.0) WallParam_2[iwall_type]/=Length_ref;
       }
-    else fprintf(fp2,"not relevant");
+    else fprintf(fp2,"n/a");
   }
   
   if (Nwall_type > 0) 
@@ -425,7 +425,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fprintf(fp2,"%f  ",WallParam_3[iwall_type]);
         if (Length_ref >0.0) WallParam_3[iwall_type]/=Length_ref;
       }
-    else fprintf(fp2,"not relevant");
+    else fprintf(fp2,"n/a");
   }
   if (Nwall_type > 0) 
     MPI_Bcast(WallParam_3,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -442,7 +442,7 @@ void read_input_file(char *input_file, char *output_file1)
           /* set logical indicating if any of the surfaces have hard cores - if so, we
               will need be careful with rosenfeld integrals */
       }
-    else fprintf(fp2,"not relevant");
+    else fprintf(fp2,"n/a");
   }
   if (Lcompare_fastram) Lhard_surf=FALSE;
   MPI_Bcast(Ipot_wf_n,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
@@ -466,7 +466,7 @@ void read_input_file(char *input_file, char *output_file1)
            else if (latoms) Ipot_ww_n[iwall_type][jwall_type]=1;
         }
       }
-    else fprintf(fp2,"not relevant");
+    else fprintf(fp2,"n/a");
   }
   MPI_Bcast(Ipot_wf_n,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
 
@@ -504,7 +504,7 @@ void read_input_file(char *input_file, char *output_file1)
       }
     }
     else{ 
-      fprintf(fp2,"not relevant");
+      fprintf(fp2,"n/a");
       for (icomp=0; icomp < Ncomp; ++icomp)Charge_f[icomp]=0.0;
     }
   }
@@ -548,7 +548,7 @@ void read_input_file(char *input_file, char *output_file1)
          else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
          for(j=jmin;j<jmax;j++) Sigma_ff[i][j] = 0.0;
       }
-      fprintf(fp2,"not relevant");
+      fprintf(fp2,"n/a");
     }
   }
   MPI_Bcast(Sigma_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -573,7 +573,7 @@ void read_input_file(char *input_file, char *output_file1)
          else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
          for (j=jmin; j<jmax; j++) Eps_ff[i][j] = 0.0;
       }
-      fprintf(fp2,"not relevant");
+      fprintf(fp2,"n/a");
     }
   }
   MPI_Bcast(Eps_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -598,10 +598,35 @@ void read_input_file(char *input_file, char *output_file1)
          else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
          for (j=jmin; j<jmax; j++) Cut_ff[i][j] = 0.0;
       }
-      fprintf(fp2,"not relevant");
+      fprintf(fp2,"n/a");
     }
   }
   MPI_Bcast(Cut_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+                       /* Bond_ff */
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Type_poly>=0L){
+      for (i=0; i<Ncomp; i++){
+        if (Mix_type==0) {jmin=i; jmax=i+1;}
+        else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
+        for (j=jmin; j<jmax; j++){
+	  fscanf(fp,"%lf",&Bond_ff[i][j]);
+	  fprintf(fp2,"%f  ",Bond_ff[i][j]);
+          if (Length_ref > 0.0) Bond_ff[i][j]/=Length_ref;
+        }
+      }
+    }
+    else  {
+      for (i=0; i<Ncomp; i++){
+         if (Mix_type==0) {jmin=i; jmax=i+1;}
+         else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
+         for(j=jmin;j<jmax;j++) Bond_ff[i][j] = 0.0;
+      }
+      fprintf(fp2,"n/a");
+    }
+  }
+  MPI_Bcast(Bond_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
                        /* WALL-WALL PARAMS */
 
@@ -856,8 +881,30 @@ void read_input_file(char *input_file, char *output_file1)
     
     if (Proc==0) {
       read_junk(fp,fp2);
+      fscanf(fp,"%d",&Ncr_files);
+      fscanf(fp,"%lf", &Crfac);
       fscanf(fp,"%s", Cr_file);
-      fprintf(fp2,"%s  ",Cr_file);
+      fprintf(fp2,"%d  %9.6f  %s ", Ncr_files,Crfac,Cr_file);
+      if (Ncr_files>=2){ 
+                fscanf(fp,"%s",Cr_file2);
+                fprintf(fp2,"  %s ",Cr_file2);
+      }
+      if (Ncr_files>=3){ 
+                fscanf(fp,"%s",Cr_file3);
+                fprintf(fp2,"  %s ",Cr_file3);
+      }
+      if (Ncr_files>=4){ 
+                fscanf(fp,"%s",Cr_file4);
+                fprintf(fp2,"  %s ",Cr_file4);
+      }
+      read_junk(fp,fp2);
+/*      if ( fabs(Crfac+1.0)<1.e-8){*/
+         for (i=0;i<Ncr_files-2;i++){
+            fscanf(fp,"%lf", &Cr_break[i]);
+            fprintf(fp2,"%f  ",Cr_break[i]);
+         }
+     /* }
+      else fprintf(fp2,"n/a: not doing automated linear interpolation");*/
       read_junk(fp,fp2);
       for  (icomp=0; icomp<Ncomp; icomp++){
          for  (jcomp=0; jcomp<Ncomp; jcomp++){
@@ -867,6 +914,9 @@ void read_input_file(char *input_file, char *output_file1)
       }
     }
     MPI_Bcast(Cr_rad_hs,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(Cr_break,2,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(&Ncr_files,1,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(&Crfac,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
     /* Note: the value of Cr_rad_hs may get reset to Cutoff_ff if Ipot_ff_n=2 
        see setup_polymer_cr in dft_main.c */
     if (Proc==0) {
@@ -1085,10 +1135,10 @@ void read_input_file(char *input_file, char *output_file1)
     if (Proc==0) {
       read_junk(fp,fp2);
       fprintf(fp2,"CHARGED SURFACE INPUT NOT RELEVENT FOR THIS RUN\n");
-      fprintf(fp2,"not relevant");
+      fprintf(fp2,"n/a");
       for (i=0; i<5; i++){
 	read_junk(fp,fp2);
-	fprintf(fp2,"not relevant");
+	fprintf(fp2,"n/a");
       }
     }
   }
@@ -1146,16 +1196,16 @@ void read_input_file(char *input_file, char *output_file1)
       }
       MPI_Bcast(Dielec_wall,Nwall_type,MPI_DOUBLE,0,MPI_COMM_WORLD);
     }
-    else if (Proc==0)  fprintf(fp2,"not relevant");
+    else if (Proc==0)  fprintf(fp2,"n/a");
   }
   else{
     if (Proc==0) {
       read_junk(fp,fp2);
       fprintf(fp2,"CHARGED FLUID (DIELECTRIC) INPUT NOT RELEVENT FOR THIS RUN\n");
-      fprintf(fp2,"not relevant");
+      fprintf(fp2,"n/a");
       for (i=0; i<2; i++){
 	read_junk(fp,fp2);
-	fprintf(fp2,"not relevant");
+	fprintf(fp2,"n/a");
       }
     }
   }
@@ -1261,7 +1311,7 @@ void read_input_file(char *input_file, char *output_file1)
     else{
       if (Proc==0) {
 	read_junk(fp,fp2);
-	fprintf(fp2,"not relevant");
+	fprintf(fp2,"n/a");
       }
     }
     if (Proc==0) {
@@ -1275,10 +1325,10 @@ void read_input_file(char *input_file, char *output_file1)
     if (Proc==0) {
       read_junk(fp,fp2);
       fprintf(fp2,"TRANSPORT INPUT NOT RELEVENT FOR THIS RUN\n");
-      fprintf(fp2,"not relevant");
+      fprintf(fp2,"n/a");
       for (i=0; i<8; i++) {
 	read_junk(fp,fp2);
-	fprintf(fp2,"not relevant");
+	fprintf(fp2,"n/a");
       }
     }
   }

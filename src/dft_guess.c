@@ -1226,7 +1226,6 @@ void read_in_a_file(int iguess,char *filename)
             if (Lbinodal && iguess==BINODAL_FLAG)
 	          fscanf(fp6,"%lf",&X2_old[inode*Nunk_per_node+iunk]);
 	    else  fscanf(fp6,"%lf",&X_old[inode*Nunk_per_node+iunk]);
-            X_old[inode*Nunk_per_node+iunk]*=1.0;
 	  }    
 	}
         else{    /* electric field */
@@ -1252,6 +1251,7 @@ void read_in_a_file(int iguess,char *filename)
 	 X_old[inode*Nunk_per_node+iunk] *= Mass[iunk];
 	 }
       */
+
       
       if (Lsteady_state){
 	if ( (Ipot_ff_c == COULOMB && iunk > Ncomp) ||

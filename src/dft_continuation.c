@@ -614,8 +614,13 @@ void assign_parameter_tramonto(int cont_type, double param)
       case CONT_RHO_0:   Rho_b[2]= param;    
                          /*Rho_b[0] = (16./18.)*(Rho_b[2]);
                          Rho_b[1] = (2./18.)*(Rho_b[2]);*/
-                         Rho_b[0] = (16./18.)*(0.7-Rho_b[2]);
-                         Rho_b[1] = (2./18.)*(0.7-Rho_b[2]);
+
+                         Rho_b[0] = (16./18.)*(0.59-Rho_b[2]);
+                         Rho_b[1] = (2./18.)*(0.59-Rho_b[2]);
+
+                         /*Rho_b[0] = (16./18.)*(0.825-Rho_b[2]);
+                         Rho_b[1] = (2./18.)*(0.825-Rho_b[2]);*/
+                         if (Type_poly >=0) setup_polymer_cr();
                          recalculate_stencils();
                          break;
       case CONT_RHO_ALL: for (i=0; i<Ncomp;i++)  Rho_b[i]= param;    break;
@@ -767,7 +772,7 @@ void assign_parameter_tramonto(int cont_type, double param)
 
       case CONT_EPSFF_ALL: 
                          for (i=0; i<Ncomp; i++) 
-                            for (j=0; j<Ncomp; j++) Eps_ff[i][j] = param;
+                            for (j=0; j<Ncomp; j++) if (fabs(Eps_ff[i][j])>1.e-15) Eps_ff[i][j] = param;
                       
                          if (Mix_type==0) {
                              for (i=0; i<Ncomp; i++){ 
@@ -844,6 +849,12 @@ void assign_parameter_tramonto(int cont_type, double param)
           }
 
            break;
+
+     case CONT_CRFAC:
+         Crfac=param;
+         setup_polymer_cr();
+         recalculate_stencils();
+         break;
 
       default:
         printf("ERROR_apt: Unknown Continuation parameter %d\n",cont_type);
@@ -965,6 +976,9 @@ static double get_init_param_value(int cont_type)
       case CONT_SEMIPERM: return Vext_membrane[0][0];
 
       case CONT_WALLPARAM: return WallParam[WallType[1]];
+
+      case CONT_CRFAC:
+              return Crfac;
 
       default:
         printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
@@ -1179,7 +1193,7 @@ double free_energy_diff_conwrap(double *x, double *x2)
   safe_free((void *)&Nel_hit);
   safe_free((void *)&Nel_hit2);
 
-   printf("In energy calc: e1,e2,e1-e2 = %g %g %g\n",
+  if (Proc==0)  printf("In energy calc: e1,e2,e1-e2 = %g %g %g\n",
         energy1, energy2, energy1-energy2);
   
 

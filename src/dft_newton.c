@@ -495,9 +495,9 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
     l2_resid = 0.0;
     residmax=0.0;
     for (i=0; i<Aztec.N_update; i++) {
-/*       node_to_ijk(Aztec.update[i]/Nunk_per_node,ijk);
+       node_to_ijk(Aztec.update[i]/Nunk_per_node,ijk);
        inode = ijk_to_node(ijk);
-       icomp = Aztec.update[i] - Nunk_per_node * inode;*/
+       icomp = Aztec.update[i] - Nunk_per_node * inode;
 
        resid[i] = -resid_tmp[i];
 
@@ -508,6 +508,8 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
                 }
 
        l2_resid += resid_tmp[i]*resid_tmp[i];
+/*       if (fabs(resid_tmp[i])>0.01) printf("i=%d inode=%d  iunk=%d  resid_tmp=%9.6f  l2_resid=%9.6f\n",
+                               i,inode,icomp,resid_tmp[i],l2_resid);*/
     }
 
     l2_resid = AZ_gsum_double(l2_resid, Aztec.proc_config);
