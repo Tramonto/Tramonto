@@ -63,7 +63,7 @@ class dft_SolverManager {
      \param numGIDs (In) Number of global IDs
      \param GIDs (In) List of global IDs in the order of local indexing.
   */
-  int setRowMap(int i, int numGIDs int * GIDs) {rowMap_[i] = new Epetra_Map(-1, numGIDs, GIDs, 0, comm_); return;};
+  int setRowMap(int i, int numGIDs int * GIDs) {rowMap_[i] = new Epetra_Map(-1, numGIDs, GIDs, 0, comm_); return(0);};
 
   //! Define global to local index column mappings
   /* Define the list of global IDs for the jth physics type.  This mapping is used for identifying
@@ -72,7 +72,8 @@ class dft_SolverManager {
      \param numGIDs (In) Number of global IDs
      \param GIDs (In) List of global IDs in the order of local indexing.
   */
-  int setColMap(int j, int numGIDs int * GIDs) {colMap_[j] = new Epetra_Map(-1, numGIDs, GIDs, 0, comm_); return;};
+  int setColMap(int j, int numGIDs int * GIDs) {colMap_[j] = new Epetra_Map(-1, numGIDs, GIDs, 0, comm_); return(0);};
+
   //! Method that must be called once, when all row and column maps are set.
   /*! This method constructs all of the Epetra_CrsGraph objects and the lhs and rhs vectors. */
   int finalizeBlockStructure();
@@ -89,7 +90,7 @@ class dft_SolverManager {
      \param numEntries (In) Number of graph indices being inserted.
      \param indices (In) Column indices corresponding to matrix values.
   */
-  int insertRowIndices(int i, int j, int localRow, int numEntries, int * indices) {
+  int insertGraphIndices(int i, int j, int localRow, int numEntries, int * indices) {
     EPETRA_CHK_ERR(blockGraph_[i][j]->InsertMyIndices(localRow, numEntries, indices));
     return(0);
   }
@@ -100,9 +101,9 @@ class dft_SolverManager {
 
   //@{ \name Matrix, lhs and rhs value setup methods
 
-  //! Method that must be called each time \e prior to starting matrix value insertion (usually once per nonlinear iteration).
+  //! Method that must be called each time \e prior to starting matrix, lhs and rhs value insertion (usually once per nonlinear iteration).
   /*! This method zeros out the matrix, lhs and rhs values. */
-  int initializeMatrixFill();
+  int initializeProblemValues();
 
   //! Insert matrix coefficients
   /* Insert values into block i,j.
@@ -114,7 +115,7 @@ class dft_SolverManager {
      \param values (In) Matrix values.
      \param indices (In) Column indices corresponding to matrix values.
   */
-  int insertRowValues(int i, int j, int localRow, int numEntries, double * values, int * indices) {
+  int insertMatrixValues(int i, int j, int localRow, int numEntries, double * values, int * indices) {
     EPETRA_CHK_ERR(blockMatrix_[i][j]->SumIntoMyValues(localRow, numEntries, values, indices));
     return(0);
   }
@@ -142,7 +143,23 @@ class dft_SolverManager {
     return(0);
   }
   //! Method that must be called each time matrix value insertion is complete (usually once per nonlinear iteration).
-  int finalizeMatrixFill();
+  int finalizeProblemValues();
+
+  //! Declare a block matrix to be read-only or read-write.
+  /* Change the read-only mode of a matrix block i,j.  Initially all blocks are read-write (not read-only).
+     \param i (In) ith physics block.
+     \param j (In) jth physics block (column).
+     \param readOnly (In) Bool:  If true, then the i,j block of the matrix will not be further modified.  
+     Thus the method initializeProblemValues() will not zero out this block of the matrix.  Calling this method
+     with readOnly set to false will allow initializeProblemValues() and insertMatrixValues() to change the contents
+     of the i,j block.
+  */
+  int setBlockMatrixReadOnly(int i, int j, bool readOnly) {
+    if (!isLinearProblemSet_ && readOnly) EPETRA_CHK_ERR(-1); // Read-only can only be set after the linear problem is set.
+    blockMatrixReadOnly_[i][j] = readOnly;
+    return(0);
+  }
+
   //@}
 
   //@{ \name Solver Strategy Methods
@@ -158,6 +175,12 @@ class dft_SolverManager {
   //@}
 
   //@{ \name Attribute Access Methods
+
+  //! Get number of blocks associated with the solver.
+  inline int getNumBlocks() const {return(numBlocks_);}
+
+  //! Get comm object associated with the solver.
+  const Epetra_Comm & getComm() const {return(comm_);}
 
   //! Get the ith lhs.
   inline Epetra_Vector * getLhs(int i) const {return(blockLhs_[i]);}
@@ -176,6 +199,9 @@ class dft_SolverManager {
 
   //! Get (i,j) Matrix.
   inline Epetra_CrsMatrix * getMatrix(int i, int j) const {return(blockMatrix_[i][j]);}
+
+  //! Get (i,j) Matrix read-only state.
+  inline bool getMatrixReadOnly(int i, int j) const {return(blockMatrixReadOnly_[i][j]);}
   //@}
 
 private:
@@ -183,6 +209,7 @@ private:
   int numBlocks_;
   Epetra_Comm comm_;
   Epetra_CrsMatrix *** blockMatrix_;
+  bool ** blockMatrixReadOnly_;
   Epetra_CrsGraph *** blockGraph_;
   Epetra_Vector ** blockLhs_;
   Epetra_Vector ** blockRhs_;
@@ -190,6 +217,7 @@ private:
   Epetra_Map ** colMaps_;
   bool isBlockStructureSet_;
   bool isGraphStructureSet_;
+  bool isLinearProblemSet_;
 
 };
 

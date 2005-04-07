@@ -97,6 +97,18 @@ class dft_2x2_schur_epetra_operator: public virtual Epetra_Operator {
   double ComputeGlobalResidual(const Epetra_Operator & A11, const Epetra_MultiVector& B1, const Epetra_MultiVector& B2, 
 			       const Epetra_MultiVector& X1, const Epetra_MultiVector& X2) const;
   
+  //! Compute the Rhs given the block matrices and Lhs.
+  /*! Compute a Rhs for original 2x2 system.
+    \param A11 (In) (1,1) block (non-inverted) of the system.
+    \param X1 (In) (1) segment of LHS.
+    \param X2 (In) (2) segment of LHS.
+    \param B1 (Out) (1) segment of RHS.
+    \param B2 (Out) (2) segment of RHS.
+  */
+
+  int ComputeGlobalRhs(const Epetra_Operator & A11, const Epetra_MultiVector& X1, const Epetra_MultiVector& X2, 
+			  Epetra_MultiVector& B1, Epetra_MultiVector& B2) const;
+  
   //! Update block matrices.
   int UpdateBlocks(Epetra_Operator * A11inv, Epetra_Operator * A12, 
 		   Epetra_Operator * A21, Epetra_Operator * A22) {A11inv_ = A11inv; A12_ = A12; A21_ = A21; A22_ = A22;}

@@ -43,18 +43,18 @@
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 
-#include "dft_schur_solver.h"
+#include "dft_2x2_A11_invertible_solver.h"
 #include <cassert>
 
 //=============================================================================
-dft_2x2_A11_invertible_solver::dft_2x2_A11_invertible_solver(int numBlocks, Epetra_CrsMatrix *** blockMatrix) 
-  : op_(blockMatrix[1][1], blockMatrix[1][2], blockMatrix[2][1], blockMatrix[2][2]),
+dft_2x2_A11_invertible_solver::dft_2x2_A11_invertible_solver(int numBlocks, Epetra_Operator *** blockMatrix) 
+  : op_(blockMatrix[0][0], blockMatrix[0][1], blockMatrix[1][0], blockMatrix[1][1]),
     numBlocks_(numBlocks),
     blockMatrix_(blockMatrix) {
 
   bool debug = true;
 
-  if (debug) assert(blockMatrix->[1][1]->LowerTriangular());
+  if (debug) assert(blockMatrix->[0][0]->LowerTriangular());
 
   return;
 }

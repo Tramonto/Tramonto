@@ -37,7 +37,7 @@ class Epetra_Comm;
 /*! Special solver for one important case of Tramonto.
   
 */
-class dft_2x2_A11_invertible_solve {
+class dft_2x2_A11_invertible_solve{
     
   public:
 
@@ -47,7 +47,7 @@ class dft_2x2_A11_invertible_solve {
      \param numBlocks (In) The number of physics blocks that will be handled by the solver manager.
      \param blockMatrix (In) 2-by-2 block of Epetra_CrsMatrix objects.
  */
-  dft_2x2_A11_invertible_solver(int numBlocks, Epetra_CrsMatrix *** blockMatrix);
+  dft_2x2_A11_invertible_solver(int numBlocks, Epetra_Operator *** blockMatrix);
 
   //! dft_2x2_A11_invertible_solver Destructor.
   /*! Completely deletes a dft_2x2_A11_invertible_solver object.
@@ -62,7 +62,7 @@ class dft_2x2_A11_invertible_solve {
      \param blockMatrix (In) 2-by-2 block of Epetra_CrsMatrix objects.
   */
   updateMatrix(int numBlocks, Epetra_CrsMatrix *** blockMatrix)
-  {op_.UpdateBlocks(blockMatrix[1][1], blockMatrix[1][2], blockMatrix[2][1], blockMatrix[2][2]);}
+  {op_.UpdateBlocks(blockMatrix[0][0], blockMatrix[0][1], blockMatrix[1][0], blockMatrix[1][1]);}
   //@}
 
   //@{ \name Apply solver method.

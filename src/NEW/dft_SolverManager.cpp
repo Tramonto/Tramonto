@@ -37,18 +37,25 @@ dft_SolverManager::dft_SolverManager(int numBlocks, const Epetra_Comm & comm)
   : numBlocks_(numBlocks),
     comm_(comm),
     blockMatrix_(0),
+    blockMatrixReadOnly_(0),
     blockGraph_(0),
     blockLhs_(0),
     blockRhs_(0),
     rowMaps_(0),
     colMaps_(0),
     isBlockStructureSet_(false),
-    isGraphStructureSet_(false) {
+    isGraphStructureSet_(false),
+    isLinearProblemSet_(false) {
   // Allocate blockMatrix, blockGraph, blockLhs, blockRhs and map arrays
   blockMatrix_ = new Epetra_CrsMatrix **[numBlocks_];
   for (int i=0; i<numBlocks_; i++) blockMatrix_[i] = new Epetra_CrsMatrix *[numBlocks_];
   for (int i=0; i<numBlocks_; i++)
     for (int j=0; j<numBlocks_; j++) blockMatrix_[i][j] = 0; // Initialize block operator pointers to zero
+
+  blockMatrixReadOnly_ = new bool *[numBlocks_];
+  for (int i=0; i<numBlocks_; i++) blockMatrixReadOnly_[i] = new bool [numBlocks_];
+  for (int i=0; i<numBlocks_; i++)
+    for (int j=0; j<numBlocks_; j++) blockMatrixReadOnly_[i][j] = false; // Initialize read-only to false
 
   blockGraph_ = new Epetra_Graph **[numBlocks_];
   for (int i=0; i<numBlocks_; i++) blockGraph_[i] = new Epetra_Graph *[numBlocks_];
@@ -78,6 +85,10 @@ dft_SolverManager::~dft_SolverManager() {
     for (int j=0; j<numBlocks_; j++) if (blockMatrix_[i][j]!=0) delete blockMatrix_[i][j];
   for (int i=0; i<numBlocks_; i++) delete [] blockMatrix_[i];
   delete [] blockMatrix_;
+
+  for (int i=0; i<numBlocks_; i++)
+    for (int j=0; j<numBlocks_; j++) delete [] blockMatrixReadOnly_[i][j];
+  for (int i=0; i<numBlocks_; i++) delete [] blockMatrixReadOnly_[i];
 
   for (int i=0; i<numBlocks_; i++)
     for (int j=0; j<numBlocks_; j++) if (blockGraph_[i][j]!=0) delete blockGraph_[i][j];
@@ -131,9 +142,10 @@ int dft_SolverManager::finalizeGraphStructure() {
   return(0);
 }
 //=============================================================================
-int dft_SolverManager::initializeMatrixFill() {
+int dft_SolverManager::initializeProblemValues() {
   
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
+  isLinearProblemSet_ = false; // We are reinitializing the linear problem
   
   // Zero out matrix Lhs and Rhs values
   for (int i=0; i<numBlocks_; i++) {
@@ -146,13 +158,15 @@ int dft_SolverManager::initializeMatrixFill() {
   return(0);
 }
 //=============================================================================
-int dft_SolverManager::finalizeMatrixFill() {
-  
+int dft_SolverManager::finalizeProblemValues() {
+  if (isLinearProblemSet_) return(0); // nothing to do
   // Perform book-keeping after all values submitted
   for (int i=0; i<numBlocks_; i++)
-    for (int j=0; j<numBlocks_; j++) {
-      EPETRA_CHK_ERR(blockMatrix_[i][j]->FillComplete());
-    }
+    for (int j=0; j<numBlocks_; j++) 
+      if (!getMatrixReadOnly(i,j)) { // Only needed if matrix i,j is read-write
+	EPETRA_CHK_ERR(blockMatrix_[i][j]->FillComplete());
+      }
+  isLinearProblemSet_ = true;
   return(0);
 }
 //=============================================================================
