@@ -791,12 +791,6 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
 
    /* print out load balancing info */
 
-   if (Iwrite == VERBOSE) {
-     if (Num_Proc>1) MPI_Barrier(MPI_COMM_WORLD);
-     printf("Proc %2d: time %g\n", Proc, t_all);
-   }
-
-
   if (!resid_only_flag){
     t_precalc_max     = AZ_gmax_double(t_precalc,Aztec.proc_config);
     t_hs_max          = AZ_gmax_double(t_hs,Aztec.proc_config);
@@ -842,7 +836,7 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
  * }
  */
 
-  if (Proc == 0 && !resid_only_flag && Iwrite !=NO_SCREEN) {
+  if (Proc == 0 && !resid_only_flag && Iwrite ==VERBOSE) {
     if (Ipot_ff_n !=IDEAL_GAS) printf( "\t\tTime for Precalcs (max): %g   (min) %g secs\n",t_precalc_max,t_precalc_min);
 
     if (Ipot_ff_n !=IDEAL_GAS) printf("\t\tTime loading euler-lagrange equations (max): %g   (min): %g secs\n",t_hs_max,t_hs_min);

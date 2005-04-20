@@ -780,10 +780,13 @@ void setup_nunk_per_node(char *output_file1)
    }
 
 /*in Makefile set switch for a polymer run an set unknowns accordingly*/
+   
+   Ntype_blocks=0;
    for (i=0;i<NEQ_TYPE;i++){
      switch(i){
          case DENSITY:                  /* unknowns of Euler-Lagrange equation */
             Nunk_tot_eq[DENSITY]=Ncomp;
+            Block_type[i]=Ntype_blocks++;
             break;
 
          case RHOBAR_ROSEN:     /* unknowns of Nonlocal Density Eqns for Rosenfeld Functionals */
@@ -792,13 +795,17 @@ void setup_nunk_per_node(char *output_file1)
                  if (Matrix_fill_flag ==3) Nrho_bar = 4 + 2*Ndim;
                  else Nrho_bar = 4;
                  Nrho_bar_s = 4;
+                 Block_type[i]=Ntype_blocks++;
             }
             Nunk_tot_eq[RHOBAR_ROSEN]=Nrho_bar;
             break; 
 
          case POISSON:                             /* unknowns of Poisson Equation */
             Npoisson=0;
-            if ( Type_coul !=NONE) Npoisson=1;
+            if ( Type_coul !=NONE){
+                 Npoisson=1;
+                 Block_type[i]=Ntype_blocks++;
+            }
             Nunk_tot_eq[POISSON]=Npoisson;
             break;
 
@@ -807,21 +814,26 @@ void setup_nunk_per_node(char *output_file1)
             if (Type_poly==-1 && Lsteady_state){
               if (!Type_poly_TC) Ndiffusion=Ncomp;
               if (Type_poly_TC) Ndiffusion=Nseg_tot;
+                 Block_type[i]=Ntype_blocks++;
             }
             Nunk_tot_eq[DIFFUSION]=Ndiffusion;
             break;
 
          case DENSITY_SEG:
             Ntype_unk=0;
-            if (Type_poly_TC) Ntype_unk=Ncomp;
+            if (Type_poly_TC){
+               Ntype_unk=Ncomp;
+                 Block_type[i]=Ntype_blocks++;
+            }
             Nunk_tot_eq[DENSITY_SEG]=Ntype_unk;
             break;
              
          case CAVITY_WTC:
             Nrho_bar_cavity=0;
             if (Type_poly_TC){
-                  Nrho_bar_cavity = 4;
-                  Nunk_tot_eq[CAVITY_WTC]=Nrho_bar_cavity-2;  
+                 Nrho_bar_cavity = 4;
+                 Nunk_tot_eq[CAVITY_WTC]=Nrho_bar_cavity-2;  
+                 Block_type[i]=Ntype_blocks++;
                                    /* strange case because y function only uses two of the 
                                       defined xi's.  But, I'm leaving a placeholder for 4 */
             }
@@ -830,18 +842,27 @@ void setup_nunk_per_node(char *output_file1)
 
          case BOND_WTC:
             Nrho_bar_bond=0;
-            if (Type_poly_TC) Nrho_bar_bond = Nbonds;
+            if (Type_poly_TC){
+                 Nrho_bar_bond = Nbonds;
+                 Block_type[i]=Ntype_blocks++;
+            }
             Nunk_tot_eq[BOND_WTC]=Nrho_bar_bond;
             break;
 
          case CMS_FIELD:
             NCMSField_unk = 0;
-            if (Type_poly != NONE) NCMSField_unk=Ncomp;
+            if (Type_poly != NONE){
+                 NCMSField_unk=Ncomp;
+                 Block_type[i]=Ntype_blocks++;
+            }
             Nunk_tot_eq[CMS_FIELD]=NCMSField_unk;
             break;
 
          case CMS_G:
-            if (Type_poly != NONE) Nunk_tot_eq[CMS_G] = Ngeqn_tot;
+            if (Type_poly != NONE){
+                 Nunk_tot_eq[CMS_G] = Ngeqn_tot;
+                 Block_type[i]=Ntype_blocks++;
+            }
             break;
 
          default:
@@ -878,5 +899,11 @@ void setup_nunk_per_node(char *output_file1)
                                    i,Nunk_tot_eq[i],Unk_start_eq[i],Unk_end_eq[i]);
    for (iunk=0;iunk<Nunk_per_node;iunk++) fprintf(fp2,"iunk=%d equation_type=%d\n",iunk,Unk_to_eq_type[iunk]);
    fprintf(fp2,"******************************************************\n");
+   printf("******************************************************\n");
+   printf("CALLING SOLVER MANAGER CONSTRUCTOR\n");
+   epetra_comm=dft_epetrampicomm_create(MPI_COMM_WORLD);
+   solver_manager=dft_solvermanager_create(Ntype_blocks,epetra_comm);
+   printf("******************************************************\n");
+   return;
 }
 /*******************************************************************************/

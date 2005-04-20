@@ -542,6 +542,7 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
                                                          *4.0*PI/Temp_elec;
                        mat_row[loc_j] -= wt_s_1el[isten]*Charge_f[icomp]*
                                                           4.0*PI/Temp_elec;
+
                     }
                     else bindx_tmp[j_box] = TRUE;
                     

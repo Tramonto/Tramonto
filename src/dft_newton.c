@@ -70,7 +70,6 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 
   int ijk[3], ijk_box[3]= {0,0,0}, inode_box, iunk;
   int inode,loc_global;
-  int *Az2G_unknowns;
   FILE *fp1=NULL;
 
 #define REGULAR_LOOP 1
@@ -191,8 +190,6 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
    bindx_2d = (int **) array_alloc(1, Aztec.N_update+1, sizeof(int *));
    bindx_2d[Aztec.N_update] = 
                    (int *) array_alloc(1, Aztec.N_update, sizeof(int));
-
-   printf("bindx_2d allocated at %d by %d\n",Aztec.N_update+1,Aztec.N_update);
 
    /* alert fill of first time through fill after a preprocessing  */
 
@@ -323,9 +320,16 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 
    B2L_unknowns = (int *) array_alloc(1, Nunknowns_box, sizeof(int));
    Az2G_unknowns = (int *) array_alloc(1, Aztec.N_update+Aztec.data_org[AZ_N_external], sizeof(int));
+   Az2G_unknowns_by_type = (int *) array_alloc(1, Aztec.N_update+Aztec.data_org[AZ_N_external], sizeof(int));
+   Az2eq_type = (int *) array_alloc(1, Aztec.N_update+Aztec.data_org[AZ_N_external], sizeof(int));
+   Nunk_eq_type = (int *) array_alloc(1, Ntype_blocks, sizeof(int));
 
    for (i=0; i < Nunknowns_box; i++) 
       B2L_unknowns[i] = -1;
+
+   for (i=0;i<Ntype_blocks;i++){
+      Nunk_eq_type[i]=0;
+   }
 
    for (i=0; i < Aztec.N_update; i++) {
      if (MATRIX_FILL_NODAL){
@@ -339,6 +343,9 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
      inode = ijk_to_node(ijk);
      loc_global = loc_find(iunk,inode,GLOBAL);
      Az2G_unknowns[i]=loc_global;
+     Az2G_unknowns_by_type[Block_type[Unk_to_eq_type[iunk]][i]=loc_global;
+     Az2eq_type[i]=Block_type[Unk_to_eq_type[iunk]];
+     Nunk_eq_type[Block_type[Unk_to_eq_type[iunk]]]++;
 
      ijk_to_ijk_box(ijk, ijk_box);
      inode_box = ijk_box_to_node_box(ijk_box);
@@ -353,6 +360,10 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
      if (Non_unique_G2B[3])
        set_multiple_B2L(ijk_box, iunk, Aztec.update_index[i]);
    }
+   /* loop over block types in this problem ... call the row map for this processor */
+   for (i=0;i<Ntype_blocks;i++){
+     dft_solvermanager_setrowmap(solver_manager, i, Nunk_eq_type[i], Az2G_unknowns_by_type[i]); 
+   }
 
    for (i=0; i < Aztec.data_org[AZ_N_external]; i++){
      if (MATRIX_FILL_NODAL){
@@ -366,6 +377,9 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
      inode = ijk_to_node(ijk);
      loc_global = loc_find(iunk,inode,GLOBAL);
      Az2G_unknowns[i+Aztec.N_update]=loc_global;
+     Az2G_unknowns_by_type[Block_type[Unk_to_eq_type[iunk]][i+Aztec.N_update]=loc_global;
+     Az2eq_type[i+Aztec.N_update]=Unk_to_eq_type[iunk];
+     Nunks_eq_type[Block_type[Unk_to_eq_type[iunk]]]++;
 
      ijk_to_ijk_box(ijk, ijk_box);
      inode_box = ijk_box_to_node_box(ijk_box);
@@ -379,6 +393,10 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 
      if (Non_unique_G2B[3]) 
        set_multiple_B2L(ijk_box, iunk, Aztec.extern_index[i]);
+   }
+   /* loop over block types in this problem ... call the row map for this processor */
+   for (i=0;i<Ntype_blocks;i++){
+     dft_solvermanager_setcolmap(solver_manager, i, Nunk_eq_type[i], Az2G_unknowns_by_type[i]); 
    }
 
    max_ints = AZ_gmax_int(Aztec.N_update,Aztec.proc_config);
@@ -989,6 +1007,8 @@ static void do_numerical_jacobian(double *x, double *resid, double *resid_tmp)
 /* row, column, and value.                                                */
 {
   double **full=NULL, del;
+  double **diff=NULL;
+  double error;
   int i, j, N=Aztec.N_update,count=0;
   char filename[20];
   FILE *ifp;
@@ -1010,10 +1030,11 @@ static void do_numerical_jacobian(double *x, double *resid, double *resid_tmp)
   /* compute numerical jacobian by repeated residual fill calls */
 
   full = (double **) array_alloc(2,N,N,sizeof(double));
+  diff = (double **) array_alloc(2,N,N,sizeof(double));
   if (full==NULL){printf("Not enough memory for full numerical jacobian\n");
                   exit(-1);}
   for (i=0; i<N; i++) {
-     del=1.e-6*fabs(x[i])+1.e-12;
+     del=1.e-6*fabs(x[i])+1.e-8;
      x[i] += del;
      for (j=0; j<N; j++) resid_tmp[j] = 0.0;
      fill_resid_and_matrix_control(x, resid_tmp, NULL, NULL, Matrix_fill_flag, 1, TRUE);
@@ -1023,7 +1044,7 @@ static void do_numerical_jacobian(double *x, double *resid, double *resid_tmp)
      }
      x[i] -= del;
      if (count==100 || i==N-1){
-       if (Iwrite != NO_SCREEN)printf("Proc: %d :: ith row=%d, out of %d rows.\n",Proc,i,N-1);
+       if (Iwrite != NO_SCREEN)printf("Proc: %d :: varying ith unknown=%d, out of %d unknowns.\n",Proc,i,N-1);
        count=0;
      } count++;
   }
@@ -1044,16 +1065,21 @@ static void do_numerical_jacobian(double *x, double *resid, double *resid_tmp)
   sprintf(filename, "jd%0d",Proc);
   ifp = fopen(filename,"w");
   for (i=0; i< N; i++) {
-     full[i][i] -= Aztec.val[i];
+     diff[i][i] = full[i][i]-Aztec.val[i];
      for (j= Aztec.bindx[i]; j<Aztec.bindx[i+1]; j++) {
-       full[i][Aztec.bindx[j]] -= Aztec.val[j];
+       diff[i][Aztec.bindx[j]] = full[i][Aztec.bindx[j]]-Aztec.val[j];
      }
    }
 
   for (i=0; i<N; i++) {
     for (j=0; j<N; j++) {
-      if (fabs(full[i][j]) > 1.e-4)
-       fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
+      if (fabs(full[i][j])>1.e-5){
+         error = fabs(diff[i][j]/full[i][j])*100;
+         if (error>1.)
+          fprintf(ifp,"%d  %d   error=%g  diff=%g  numeric=%g\n",i,j,error,diff[i][j],full[i][j]);
+      }
+      else if (fabs(diff[i][j])>1.e-6)
+          fprintf(ifp,"%d  %d   diff=%g  numeric=%g\n",i,j,diff[i][j],full[i][j]);
     }
   }
   fclose(ifp);

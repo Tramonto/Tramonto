@@ -138,10 +138,16 @@ void fill_resid_and_matrix_P (double *x, double *resid,
                                                                /*DO ZERO DENSITY FILL*/
       if ( fill_flag != MSR_PREPROCESS && ( ((Zero_density_TF[inode_box][itype_mer] ||    
             Vext[loc_inode][itype_mer] == VEXT_MAX) && Unk_to_eq_type[iunk]!=POISSON)
-            /*|| (Unk_to_eq_type[iunk]==CMS_FIELD && -log(x[loc_i]) > VEXT_MAX )*/) ){
+            /*|| (Unk_to_eq_type[iunk]==DENSITY 
+               && -log(x[loc_find(Unk_start_eq[CMS_FIELD]+itype_mer,loc_inode,LOCAL)]) > VEXT_MAX )*/) ){
            resid[loc_i] = x[loc_i];
            mat_row[loc_i] = 1.0;
       }
+/*      else if (fill_flag != MSR_PREPROCESS && Unk_to_eq_type[iunk]==CMS_FIELD 
+               && x[loc_i] < exp(-VEXT_MAX) ){
+               resid[loc_i] = x[loc_i]-exp(-VEXT_MAX);
+               mat_row[loc_i] = 1.0;
+      }*/
       /* ALF:  check this code sometime! */
       else if (mesh_coarsen_flag_i < 0) {                   /*DO COARSENED MESH FILL*/
          if (fill_flag != MSR_PREPROCESS){
@@ -227,9 +233,9 @@ void fill_resid_and_matrix_P (double *x, double *resid,
 	   }
 
             if (fill_flag != MSR_PREPROCESS){   /* diagonal terms */
-	      resid[loc_i] += Vext[loc_inode][itype_mer];
-                  resid[loc_i] += log(x[loc_i]);      
-                  mat_row[loc_i] += row_fact/x[loc_i];  
+              resid[loc_i] += Vext[loc_inode][itype_mer];
+              resid[loc_i] += log(x[loc_i]);      
+              mat_row[loc_i] += row_fact/x[loc_i];  
               if (Ipot_ff_c == COULOMB){
                     loc_i_charge = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)];
                     resid[loc_i]  += Charge_f[itype_mer]*x[loc_i_charge];
@@ -424,7 +430,6 @@ void fill_resid_and_matrix_P (double *x, double *resid,
                                  /* First calculate the residual contributions */
 
                   unk_B = Unk_start_eq[CMS_FIELD] + itype_mer;   /* Boltz unk for this seg */
-if (loc_i==501) printf("unk_B=%d  itype_mer=%d \n",unk_B,itype_mer);
                   if (fill_flag == MSR_PREPROCESS){
                      if (Type_poly !=2) bindx_tmp[loc_find(unk_B,inode_box,BOX)] = TRUE;
                   }
@@ -479,21 +484,19 @@ if (loc_i==501) printf("unk_B=%d  itype_mer=%d \n",unk_B,itype_mer);
          }
       }     /* end of else (not Zero_density and mesh_coarsen_flag_i >= 0) */
 
-/*     if (fill_flag != MSR_PREPROCESS && fabs(resid[loc_i])>.000001 )
+     if (fill_flag != MSR_PREPROCESS && fabs(resid[loc_i])>.000001 && resid_P != 0. ){
       printf("loc_i=%d inode %d : iunk %d : resid_B %g : resid_R %g : resid_G %g : resid_P %g resid_tot=%g\n",
-               loc_i,L2G_node[loc_inode],iunk,resid_B,resid_R,resid_G,resid_P,resid[loc_i]);*/
+               loc_i,L2G_node[loc_inode],iunk,resid_B,resid_R,resid_G,resid_P,resid[loc_i]);
 
-/*       if (fill_flag != MSR_PREPROCESS){
-       printf("loc_inode=%d  iunk=%d loc_i=%d ",loc_inode,iunk,loc_i); 
+/*       printf("loc_inode=%d  iunk=%d loc_i=%d ",loc_inode,iunk,loc_i); 
        for (i=0;i<Nnodes_box;i++){
           for (j=0;j<Nunk_per_node;j++){
              loc_j = Aztec.update_index[loc_find(j,i,BOX)];
              if (fabs (mat_row[loc_j]) >= 1.e-12) printf("j=%d mr=%9.6f  ",loc_j,mat_row[loc_j]); 
           }
-       }
+       }*/
        printf("\n");
-       }
-*/
+     }
   
       /* now that fill of row i is finished, put in MSR format */
       if (!resid_only_flag){
@@ -719,7 +722,6 @@ double load_polymer_cr(int sten_type, int loc_i, int itype_mer,
                     r_tmp -=  sign*(weight*x[B2L_unknowns[j_box]]-
                                            weight_bulk*Rho_b[jtype_mer]);
                     mat_row[B2L_unknowns[j_box]] -= sign*weight;
-
              }
              else /* MSR_PREPROCESS */
                  bindx_tmp[j_box] = TRUE;

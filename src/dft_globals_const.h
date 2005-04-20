@@ -38,6 +38,7 @@
 #endif
 
 #include "az_aztec.h"
+#include "dft_c2cpp_wrappers.h"
 
 /****************************************************************************/
 /* Machine specific definitions */
@@ -129,13 +130,13 @@
 #define CAVITY_WTC     7
 #define BOND_WTC       8
 
-#define CMS_FIELD      2
-#define CMS_G          0 
+#define CMS_FIELD      0
+#define CMS_G          2 
 #define POISSON        3
 
 /* Here are some constants needed to make the physics based ordering of the
    matrix an option in the code. */
-#define MATRIX_FILL_NODAL 0   /* set to zero for physics based ordering */
+#define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 #define NODAL_FLAG -999
 #define BOX 0
 #define LOCAL 1
@@ -449,6 +450,18 @@ struct RB_Struct {
   double    V1[NDIM_MAX];      /*  1/(4*pi*Ri) * unit_vec * Delta_Fn   */
   double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
 };
+
+/*
+ * Declaration of the Trilinos solver stuff follows.
+ */
+  extern DFT_OBJECT_PTR Solver_manager, epetra_comm;      
+  extern int Ntype_blocks;*Az2G_unknows, *Az2eq_type
+    **Az2G_unknowns_by_type, int * nunk_this_type_this_proc;
+  extern int Block_type[NEQ_TYPE];
+
+
+  
+  
 
 /* 
  *  Declaration of the Aztec_Struct follows. 
@@ -1170,7 +1183,6 @@ extern int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond;
 extern int ***Poly_to_Unk;
 extern int Ngeqn_tot, Nbonds, **Nbond,***Bonds;
 extern int *Pol_Sym;
-
 
 /*********************************************************************/
 extern

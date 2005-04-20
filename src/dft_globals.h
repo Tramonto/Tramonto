@@ -357,6 +357,13 @@ int     Iprofile;     /* Specifies Liq-Solid,Vap-Solid,or Liq-Vap profile    */
 double  Toler;        /* Tolerance for Newton-Rhapson iterations             */
 int     Iwrite;       /* Do we want a complete or modified set of output data*/
 
+/* Trilinos info */
+DFT_OBJECT_PTR Solver_manager, epetra_comm;
+int Ntype_blocks;*Az2G_unknows, *Az2eq_type
+    **Az2G_unknowns_by_type, int * nunk_this_type_this_proc;
+int Block_type[NEQ_TYPE];
+
+
 /* Parallel Info, Aztec info */
 int     Num_Proc; /* The total number of processors used in this calculation */
 int     Proc;     /* The unique  processor number (from 0 to Num_Proc-1)     */
