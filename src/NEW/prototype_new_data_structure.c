@@ -10,127 +10,132 @@ have two meanings, but in the data structure I am proposing here
 there is no need to name the discretized degrees-of-freedom.
 */
 
-#define MAX_UNKNOWNS 100
-///Tramonto block physics variables:
-int Num_Blocks;
-int Num_block_unk[Num_Blocks];  //Number of unknowns per physics block
-                                //Is currently called Num_total_eq in dft_main
-int Num_Unknowns; //sum of previous array over all blocks
-int UnknownIndices[Num_Blocks][MAX_UNKNOWNS]; //Indices of unknwons
-int Phys[NUM_BLOCKS]; //Identifier of Physics type, e.g DENSITY, POISSON, RHO_BARS,...
+///Tramonto Unknown Information:
+int numUnknowns; //sum of previous array over all blocks
+int Phys[numUnknowns]; //Identifier of Physics type, e.g DENSITY, POISSON, RHO_BARS,...
 
-// Give the Block Physics Variable values for 2x2 block problem with 6 rho-bars and 1 rho
-Num_Blocks = 2;
-Num_block_unk[0] = 6;
-Num_block_unk[1] = 1;
-Num_Unknowns=7;
+// Identify the unknowns being solved (can be switched to physics names, 
+// instead of unknown names....
+numUnknowns=7;
 
-UnknownIndicies[0][0] = 0;
-UnknownIndicies[0][1] = 1;
-UnknownIndicies[0][2] = 2;
-UnknownIndicies[0][3] = 3;
-UnknownIndicies[0][4] = 4;
-UnknownIndicies[0][5] = 5;
-
-UnknownIndicies[1][0] = 6;
-
-Phys[0]=PHO_BARS;
-Phys[1]=DENSITY;
+Phys[0]=PHO_BAR_0;
+Phys[1]=PHO_BAR_1;
+Phys[2]=PHO_BAR_2;
+Phys[3]=PHO_BAR_3;
+Phys[4]=PHO_BAR_V1;
+Phys[5]=PHO_BAR_V2;
+Phys[6]=DENSITY;
+Phys[7]=POISSON;
 
 //Tramonto Mesh Variables:
-int num_owned_nodes, num_box_nodes;
+int numOwnedNodes, numBoxNodes;
   // Maps: Owned-to-global, box-to-global, local-to-box
-int OwnedNodes[num_owned_nodes], BoxNodes[num_box_nodes], L2B[num_owned_nodes];
+int OwnedNodes[numOwnedNodes], BoxNodes[numBoxNodes], L2B[numOwnedNodes];
 
-//Construct dft_Solvermanager: DIFFERENT ARGUMENTS THAN CURRENT CODE!
-//Physics block variables now passed in here, for consistancy
-dft_solvermanager_create(Num_Blocks, Num_block_unk, UnknownIndices, MPI_COMM_WORLD);
+//Construct dft_Solvermanager: 
+//Physics names passed in so that block decisions can be made in this class
+dft_solvermanager_create(NumUnknowns, Phys, MPI_COMM_WORLD);
 
 //Added "Nodal" to the name to highlight the change from previous version
-dft_solvermanager_setNodalrowmap(num_owned_nodes, OwnedNodes);
-dft_solvermanager_setNodalcolumnmap(num_box_nodes, BoxNodes);
+dft_solvermanager_setNodalrowmap(numOwnedNodes, OwnedNodes);
+dft_solvermanager_setNodalcolumnmap(numBoxNodes, BoxNodes);
 
 // The following routine creates the real Maps for the matrix blocks
 // but Tramonto doesn't need to know them. The choice of node ordering
-// or physics Unknown numbering can be made internally here
+// or physics Unknown numbering can be made internally here, as can
+// the choice to form 1 or many epetra matrices, Crs vs VBR, etc.
 dft_solvermanager_finalizeblockstructure();
 
 
-// Note: No need for graph methods in dft_SolutionManager, we
-// would love to fill the matrix directly wiithout a graph-building
-// stage.
+// Mike: No need for Graph methods in dft_SolutionManager, we want
+// to fill the matrix directly wiithout a graph-building stage.
+
+
 
 // Pseudo code for matrix and residual fill:
 dft_solvermanager_initializeproblemvalues();
 
-int i,j; // Physics block indices
-for (i=0; i< Num_Blocks; i++) {
-for (j=0; j< Num_Blocks; j++) {
-
- //POISSON example implemented...
- if (Phys[i]==POISSON && Phys[j]==POISSON) {
-  for (inode=0; inod<num_owned_nodes; inode++) {
+for (inode=0; inode<numOwnedNodes; inode++) {
+  // Residual vector loaded with row inode, solution vector
+  // indexed with row jbox, diagonal entries in matrix
+  // loaded withnode numberings  [inode][ibox]
   ibox = L2B(inode);
 
-  // residual vector f aka Rhs is accessed with local nodes
-  // solution vector x aka Lhs accessed with box nodes
-  ipsi = UnknownIndices[i][0]; //Unknown number for Psi variable
+  // Loop over unknown types at each node. This loop could be changed
+  // so that chunks of physics get loaded together, like all rho bars,
+  for (iunk=0; iunk<numUnknowns; iunk++) {
+    if (Phys[iunk]==POISSON) {
+      for (junk=0; junk<numUnknowns; junk++) {
+        if (Phys[junk]==POISSON) {
+	  // Now doing residual cand jacobian contributions
+	  // for Poisson EQ w.r.t Poisson Unknowns.
 
-  if (FILL_RESIDUAL) {
-    // Residual fill for 1D diffusion operator f[inode][ipsi]
-    f = x[ibox-1][ipsi] -2*x[ibox][ipsi] + x[ibox+1][ipsi];
-
-    //Row number is now expanded to 2 integers [node][unk#]
-    //dft_solutionmanager_insertRhsValue(i, nodeNumber, rowUnkNumber, value);
-    dft_solutionmanager_insertRhsValue(i, inode, ipsi, -f);
-  }
-
-  if (FILL_JACOBIAN) {
-    //Jacobian fill for same: this loads three entries in 1 call
-    //nodeIndices is an integer temp array, Values a double temp array
-    numEntries=3;
-    nodeIndicies[0]=ibox-1; nodeIndicies[1]=ibox; nodeIndicies[2]=ibox+1; 
-    Values[0]=1.0; Values[1]=-2.0; Values[2]=1.0; 
-
-    // Row and Column are now each expressed with 2 integers: node,unknown
-    // so an extra 2 arguments added to this routine: rowUnkNumber and colUnkNumber
-    // I think the colUnkNumber can be an integer and not a more general array of 
-    // integers.
-    //dft_solutionmanager_insertMatrixValues(i, j, nodeNumber, rowUnkNumber,
-    //                                       numEntries, Values, nodeIndices, colUnkNumber);
-    dft_solutionmanager_insertMatrixValues(i, j, inode, ipsi, numEntries, Values, nodeIndices, ipsi);
-  }
-
-  }//end inode loop
- }//end IF POISSON 
-
- // Some code fragments for rho_bar_0 fill
- // Looking at A12 block, derivative of rho_bar_0 w.r.t density
+          // residual vector f aka Rhs is accessed with local nodes and iunk
+          // solution vector x aka Lhs accessed with box nodes and junk
  
- if (Phys[i]==RHO_BAR && Phys[j]==DENSITY) {
- irb0 =  UnknownIndices[i][0]; //Unknown number for rho_bar_0
- jden =  UnknownIndices[j][0]; //Unknown number for density
-   for (inode=0; inod<num_owned_nodes; inode++) {
-     ibox = L2B(inode);
-     f=0;
-
-     // Uses RB0 structure holding Stencil info for this integral
-     for (isten=0; isten<RB0.stenPoints; isten++) {
-       jbox = RB0.StencilOffset(isten, ibox);
-       weight = RB0.StencilWeight(isten);
-       f -= weight*x[jbox][jden];
-
-       // Add 1 entry into Jacobian
-       Values[0]=-weight; nodeIndices[0] = jbox;
-       dft_solutionmanager_insertMatrixValues(i, j, inode, irb0, 1, Values, &jbox, iden);
-     }
-     // LOAD Residual contribution from this physics block,node,unknown
-     dft_solutionmanager_insertRhsValue(i, inode, irb0, -f);
-   }
- }
+          if (FILL_RESIDUAL) {
+            // Residual fill for 1D LaPlace operator f[inode][iunk]
+            f = x[ibox-1][junk] -2*x[ibox][junk] + x[ibox+1][junk];
  
-}//end j 
-}//end i
+            //Row number is now expanded to 2 integers [node][unk#]
+	    //I think we want this a sum-into method, not a replace!
+            dft_solutionmanager_insertRhsValue(inode, iunk, -f);
+          }
+ 
+          if (FILL_JACOBIAN) {
+            //Jacobian fill for same: this loads three entries in 1 call
+            //nodeIndices is an integer temp array, Values a double temp array
+            numEntries=3;
+            nodeIndicies[0]=ibox-1; nodeIndicies[1]=ibox; nodeIndicies[2]=ibox+1; 
+            Values[0]=1.0; Values[1]=-2.0; Values[2]=1.0; 
+ 
+            // Row and Column are now each expressed with 2 integers: node,unknown
+            // so an extra 2 arguments added to this routine: rowUnkNumber and colUnkNumber
+            // I think the colUnkNumber can be an integer and not a more general array of 
+            // integers.
+            dft_solutionmanager_insertMatrixValues(inode, iunk, numEntries, Values, nodeIndices, junk);
+          }
+        } // Loop over junk==POISSON
+
+	else if (Phys[junk]==DENSITY) {
+	  // For the same equation, add contributions from density unknown
+          if (FILL_RESIDUAL) {
+            f = charge*factor*x[ibox][junk];
+            dft_solutionmanager_insertRhsValue(inode, iunk, -f);
+	  }
+          if (FILL_JACOBIAN) {
+            // Proposed single matrix entry interface -- one less argument, and value and indices are not pointers
+            dft_solutionmanager_insertOneMatrixValue(inode, iunk, factor*charge, ibox, junk);
+	  }
+        }
+      } //Loop over junk
+    }//end IF POISSON EQ
+    
+    //All the above was for Phys[iunk]==POISSON. Now check for other physics
+
+    // Some code fragments for rho_bar_0 fill w.r.t density unknowns
+ 
+    if (Phys[iunk]==RHO_BAR_0) {
+      for (junk=0; junk<numUnknowns; junk++) {
+        if (Phys[junk]==DENSITY) {
+
+          // Uses RB0 structure holding Stencil info for this integral
+	  f=0;
+          for (isten=0; isten<RB0.stenPoints; isten++) {
+            jbox = RB0.StencilOffset(isten, ibox);
+            weight = RB0.StencilWeight(isten);
+            f -= weight*x[jbox][junk];
+     
+            // Add 1 entry into Jacobian
+            dft_solutionmanager_insertOneMatrixValue(inode, iunk, -weight, jbox, junk);
+          }
+          // LOAD -Residual contribution from this node, unknown
+          dft_solutionmanager_insertRhsValue(inode, iunk, -f);
+        } // End of contributions of this equation due to density unknowns
+      } //END of loop over unknowns 
+    } //end of filling Rho_BAR_0 EQuation
+  } //End of unknown iunk loop
+}//end inode loop
 
 // Mike: It would be great to have an internal flag e.g. "MatrixIsFinalized" 
 // in dft_SolutionManager that allows us to fill the matrix graph/values
@@ -150,8 +155,8 @@ dft_solvermanager_solve();
 
 // Newton update: Lhs is 2D array
 dft_solvermanager_getLhs(delta_x);
-for (i=0; i<num_box_nodes; i++)
-  for (j=0; j<Num_Unknowns; j++)
+for (i=0; i<numBoxNodes; i++)
+  for (j=0; j<numUnknowns; j++)
     x[i][j] += delta_x[i][j];
 
 printf("Total Time = %g (sec)\n", old_time*0.1);
