@@ -26,18 +26,24 @@
 //@HEADER
 */
 
-#include "dft_SolverManager.h"
+#include "dft_SolverManager.hpp"
+#include "Epetra_RowMatrix.h"
 #include "Epetra_CrsMatrix.h"
+#include "Epetra_VbrMatrix.h"
+#include "Epetra_BlockMap.h"
+#include "Epetra_Map.h"
 #include "Epetra_Vector.h"
-#include "Epetra_Comm.h"
+#include "Epetra_MpiComm.h"
 
 
 //=============================================================================
-dft_SolverManager::dft_SolverManager(int numBlocks, const Epetra_Comm & comm) 
-  : numBlocks_(numBlocks),
-    comm_(comm),
+dft_SolverManager::dft_SolverManager(int numPhysicsTypes, int * physicsTypes, int * solverOptions, double * solverParams, MPI_Comm comm) 
+  : numPhysicsTypes_(numPhysicsTypes),
+    numMatrixBlocks_(0),
+    comm_(Epetra_MpiComm(comm)),
     blockMatrix_(0),
     blockMatrixReadOnly_(0),
+    blockMatrixIsVbr_(0),
     blockGraph_(0),
     blockLhs_(0),
     blockRhs_(0),
@@ -46,6 +52,9 @@ dft_SolverManager::dft_SolverManager(int numBlocks, const Epetra_Comm & comm)
     isBlockStructureSet_(false),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false) {
+
+  if (numPhysicsTypes==2) {
+    numMatrixBlocks_ = 2;
   // Allocate blockMatrix, blockGraph, blockLhs, blockRhs and map arrays
   blockMatrix_ = new Epetra_CrsMatrix **[numBlocks_];
   for (int i=0; i<numBlocks_; i++) blockMatrix_[i] = new Epetra_CrsMatrix *[numBlocks_];
