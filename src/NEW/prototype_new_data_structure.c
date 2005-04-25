@@ -1,7 +1,7 @@
 
 /*
 Pseudo code for Tramonto interacting with modified dft_Solvermanager
-Prototype code for [node][unknown#] data structures in Tramonto
+Prototype code for [unknown#][node] data structures in Tramonto
 
 NOTE: The term "Unknown" now means exclusively the undiscretized
 quantity (e.g. density, rho_bar_0) described by the physics being
@@ -74,12 +74,12 @@ for (inode=0; inode<numOwnedNodes; inode++) {
           // solution vector x aka Lhs accessed with box nodes and junk
  
           if (FILL_RESIDUAL) {
-            // Residual fill for 1D LaPlace operator f[inode][iunk]
-            f = x[ibox-1][junk] -2*x[ibox][junk] + x[ibox+1][junk];
+            // Residual fill for 1D LaPlace operator f[iunk][inode]
+            f = x[junk][ibox-1] -2*x[junk][ibox] + x[junk][ibox+1];
  
-            //Row number is now expanded to 2 integers [node][unk#]
+            //Row number is now expanded to 2 integers [unk#][node]
 	    //I think we want this a sum-into method, not a replace!
-            dft_solutionmanager_insertRhsValue(inode, iunk, -f);
+            dft_solutionmanager_insertRhsValue(iunk, inode, -f);
           }
  
           if (FILL_JACOBIAN) {
@@ -93,19 +93,19 @@ for (inode=0; inode<numOwnedNodes; inode++) {
             // so an extra 2 arguments added to this routine: rowUnkNumber and colUnkNumber
             // I think the colUnkNumber can be an integer and not a more general array of 
             // integers.
-            dft_solutionmanager_insertMatrixValues(inode, iunk, numEntries, Values, nodeIndices, junk);
+            dft_solutionmanager_insertMatrixValues(iunk, inode, junk, numEntries, Values, nodeIndices);
           }
         } // Loop over junk==POISSON
 
 	else if (Phys[junk]==DENSITY) {
 	  // For the same equation, add contributions from density unknown
           if (FILL_RESIDUAL) {
-            f = charge*factor*x[ibox][junk];
-            dft_solutionmanager_insertRhsValue(inode, iunk, -f);
+            f = charge*factor*x[junk][ibox];
+            dft_solutionmanager_insertRhsValue(iunk, inode, -f);
 	  }
           if (FILL_JACOBIAN) {
             // Proposed single matrix entry interface -- one less argument, and value and indices are not pointers
-            dft_solutionmanager_insertOneMatrixValue(inode, iunk, factor*charge, ibox, junk);
+            dft_solutionmanager_insertOneMatrixValue(iunk, inode, junk, factor*charge, ibox);
 	  }
         }
       } //Loop over junk
@@ -124,13 +124,13 @@ for (inode=0; inode<numOwnedNodes; inode++) {
           for (isten=0; isten<RB0.stenPoints; isten++) {
             jbox = RB0.StencilOffset(isten, ibox);
             weight = RB0.StencilWeight(isten);
-            f -= weight*x[jbox][junk];
+            f -= weight*x[junk][jbox];
      
             // Add 1 entry into Jacobian
-            dft_solutionmanager_insertOneMatrixValue(inode, iunk, -weight, jbox, junk);
+            dft_solutionmanager_insertOneMatrixValue(iunk, inode, junk, -weight, jbox);
           }
           // LOAD -Residual contribution from this node, unknown
-          dft_solutionmanager_insertRhsValue(inode, iunk, -f);
+          dft_solutionmanager_insertRhsValue(iunk, inode, -f);
         } // End of contributions of this equation due to density unknowns
       } //END of loop over unknowns 
     } //end of filling Rho_BAR_0 EQuation
@@ -155,8 +155,8 @@ dft_solvermanager_solve();
 
 // Newton update: Lhs is 2D array
 dft_solvermanager_getLhs(delta_x);
-for (i=0; i<numBoxNodes; i++)
-  for (j=0; j<numUnknowns; j++)
+for (i=0; i<numUnknowns; i++)
+  for (j=0; j<numBoxNodes; j++)
     x[i][j] += delta_x[i][j];
 
 printf("Total Time = %g (sec)\n", old_time*0.1);

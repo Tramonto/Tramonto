@@ -99,40 +99,40 @@ class dft_SolverManager {
 
   //! Insert rhs value
   /* Insert rhs value into entry based on node and physicsID.
-     \param node (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
-                      This should be between 0 and one less than the number of nodes owned by this processor, independent of
-		      the number of physics types being computed for the given problem.
      \param physicsID (In) The index for the type of unknown.  
                            This should be between 0 and one less than the number of physics variables track at a node.  
-     \param value (In) Rhs value.
-  */
-  int insertRhsValue(int node, int physicsID, double value);
-  //! Insert matrix coefficients
-  /* Insert values into matrix.
      \param node (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
                       This should be between 0 and one less than the number of nodes owned by this processor, independent of
 		      the number of physics types being computed for the given problem.
+     \param value (In) Rhs value.
+  */
+  int insertRhsValue(int physicsID, int node, double value);
+  //! Insert matrix coefficients
+  /* Insert values into matrix.
      \param rowPhysicsID (In) The index for the type of unknown.  
                            This should be between 0 and one less than the number of physics variables track at a node.  
 			   node and rowPhysicsID together specify which row of the matrix is being updated.
-     \param numEntries (In) Number of matrix coefficients being inserted.
-     \param values (In) Matrix values.
-     \param colNodeIndices (In) Nodal Column indices corresponding to matrix values.
-     \param colPhysicsID (In) The index for the type of unknown to use for the column indices.  
-                           This should be between 0 and one less than the number of physics variables track at a node.  
-			   colNodeIndices and colPhysicsID together specify which column of the matrix is being updated.
-  */
-  int insertMatrixValues(int node, int rowPhysicsID, int numEntries, double * values, int * colNodeIndices, int colPhysicsID);
-
-  /* Insert lhs value into entry based on node and physicsID.
      \param node (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
                       This should be between 0 and one less than the number of nodes owned by this processor, independent of
 		      the number of physics types being computed for the given problem.
+     \param colPhysicsID (In) The index for the type of unknown to use for the column indices.  
+                           This should be between 0 and one less than the number of physics variables track at a node.  
+			   colNodeIndices and colPhysicsID together specify which column of the matrix is being updated.
+     \param numEntries (In) Number of matrix coefficients being inserted.
+     \param values (In) Matrix values.
+     \param colNodeIndices (In) Nodal Column indices corresponding to matrix values.
+  */
+  int insertMatrixValues(int rowPhysicsID, int node, int colPhysicsID, int numEntries, double * values, int * colNodeIndices);
+
+  /* Insert lhs value into entry based on node and physicsID.
      \param physicsID (In) The index for the type of unknown.  
                            This should be between 0 and one less than the number of physics variables track at a node.  
+     \param node (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
+                      This should be between 0 and one less than the number of nodes owned by this processor, independent of
+		      the number of physics types being computed for the given problem.
      \param value (In) Lhs value.
   */
-  int insertLhsValue(int node, int physicsID, double value);
+  int insertLhsValue(int physicsID, int node, double value);
 
   //! Method that must be called each time matrix value insertion is complete (usually once per nonlinear iteration).
   int finalizeProblemValues();
@@ -154,25 +154,25 @@ class dft_SolverManager {
 
   //! Set all left hand side (initial guess) vectors at once.
   /*! Allows the definition of initial guess values in a single call.
-    \param x (In) An array of pointers of length numPhysicsTypes, where each array x[i] of length numOwnedNodes.
+    \param x (In) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numOwnedNodes.
   */
   int setLhs(const double ** x);
 
   //! Set all left hand side (initial guess) vectors at once.
   /*! Allows the definition of initial guess values in a single call.
-    \param b (In) An array of pointers of length numPhysicsTypes, where each array x[i] of length numOwnedNodes.
+    \param b (In) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numOwnedNodes.
   */
   int setRhs(const double ** b);
 
   //! Get all left hand side (solution) vectors at once.
   /*! Allows access to all solution values in a single call.
-    \param x (Out) An array of pointers of length numPhysicsTypes, where each array x[i] of length numOwnedNodes.
+    \param x (Out) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numOwnedNodes.
   */
   int getLhs(double ** x) const;
 
   //! Get all right hand side vectors at once.
   /*! Allows the definition of initial guess values in a single call.
-    \param b (Out) An array of pointers of length numPhysicsTypes, where each array x[i] of length numOwnedNodes.
+    \param b (Out) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numOwnedNodes.
   */
   int getRhs(double ** b) const;
   //@}
