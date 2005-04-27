@@ -33,6 +33,7 @@ Questions? Contact Michael A. Heroux (maherou@sandia.gov)
 #define DFT_C2CPP_WRAPPERS_H
 #include <mpi.h>
 
+#include "dft_SolverManager.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,8 +43,8 @@ extern "C" {
   /**                  dft_SolverManager             **/
   /***************************************************/
 
-  void * dft_solvermanager_create(int numUnks, int* iunk_to_phys,
-		        int* solverOptions, double* solverParams, MPI_Comm * comm);
+  void * dft_solvermanager_create(int numUnks, int* Unk2Phys,
+		        int* solverOptions, double* solverParams, MPI_Comm comm);
 
   void dft_solvermanager_destruct(void * solvermanagerptr);
 

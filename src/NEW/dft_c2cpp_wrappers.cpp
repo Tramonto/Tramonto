@@ -38,9 +38,9 @@ extern "C" {
   /**                  dft_SolverManager             **/
   /***************************************************/
 
-  void * dft_solvermanager_create(int numUnks, int* iunk_to_phys,
+  void * dft_solvermanager_create(int numUnks, int* Unk2Phys,
                         int* solverOptions, double* solverParams, MPI_Comm comm) {
-    dft_SolverManager * solvermanager_ = new dft_SolverManager(numUnks, iunk_to_phys, solverOptions,
+    dft_SolverManager * solvermanager_ = new dft_SolverManager(numUnks, Unk2Phys, solverOptions,
 		                                               solverParams, comm);
     return((void *)solvermanager_);
   }
@@ -71,24 +71,24 @@ extern "C" {
   }
 
 
-  int dft_solvermanager_insertrhsvalue) (void * solvermanager, int iunk, int inode, double value) {
+  int dft_solvermanager_insertrhsvalue (void * solvermanager, int iunk, int inode, double value) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     return(solvermanager_->insertRhsValue(iunk, inode, value));
   }
 
-  int dft_solvermanager_insertonematrixvalue) (void * solvermanager, int iunk, int ownednode,
+  int dft_solvermanager_insertonematrixvalue (void * solvermanager, int iunk, int ownednode,
                                                       int junk, int boxnode, double value) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     return(solvermanager_->insertMatrixValue(iunk, ownednode, junk, boxnode, value));
   }
   
-  int dft_solvermanager_insertmultinodematrixvalues) (void * solvermanager, int iunk, int ownednode,
+  int dft_solvermanager_insertmultinodematrixvalues (void * solvermanager, int iunk, int ownednode,
                                                     int junk, int * boxnodeindices, double *values, int numEntries) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     return(solvermanager_->insertMatrixValues(iunk, ownednode, junk, boxnodeindices, values, numEntries));
   }
   
-  int dft_solvermanager_insertmultiphysicsmatrixvalues) (void * solvermanager, int iunk, int ownednode,
+  int dft_solvermanager_insertmultiphysicsmatrixvalues (void * solvermanager, int iunk, int ownednode,
                                                     int *junkindices, int boxnode, double *values, int numEntries) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     return(solvermanager_->insertMatrixValues(iunk, ownednode, junkindices, boxnode, values, numEntries));

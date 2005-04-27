@@ -46,7 +46,6 @@ void dftmain(double * engptr)
   char     *input_file;
   char     *output_file1, *output_file2, *output_file3, *output_file4;
   char     *output_TF, *yo = "main";
-  int       successful;
   int       iend, match, idim, icomp, i, niters;
   double    Esize_x_final[3];
   double    *x,*x2=NULL;  /* The solution vector of densities */
@@ -210,7 +209,7 @@ void dftmain(double * engptr)
      /*
       * Use Newton's method to solve the problem
       * (see file dft_newton.c, which calls dft_fill.c and Aztec library)
-      * The variable "successful" is TRUE if Newton's method converrged.
+      * The variable "niters" is positive if Newton's method converrged.
       */
       x = (double *) array_alloc (1, Nnodes_per_proc*Nunk_per_node, sizeof(double));
       if (Lbinodal) x2 = (double *) array_alloc (1, Nnodes_per_proc*Nunk_per_node, sizeof(double));
@@ -220,7 +219,7 @@ void dftmain(double * engptr)
       t_solve = -MPI_Wtime();
       T_av_precalc_min = T_av_fill_min = T_av_solve_min = T_av_lj_min = 0.0;
       T_av_precalc_max = T_av_fill_max = T_av_solve_max = T_av_lj_max = 0.0;
-      successful = solve_problem(&x,&x2,output_file1, &niters);
+      niters = solve_problem(&x, &x2);
       t_solve += MPI_Wtime();
      /*
       * Post-Process the results
@@ -781,12 +780,10 @@ void setup_nunk_per_node(char *output_file1)
 
 /*in Makefile set switch for a polymer run an set unknowns accordingly*/
    
-   Ntype_blocks=0;
    for (i=0;i<NEQ_TYPE;i++){
      switch(i){
          case DENSITY:                  /* unknowns of Euler-Lagrange equation */
             Phys2Nunk[DENSITY]=Ncomp;
-            Block_type[i]=Ntype_blocks++;
             break;
 
          case RHOBAR_ROSEN:     /* unknowns of Nonlocal Density Eqns for Rosenfeld Functionals */
@@ -795,7 +792,6 @@ void setup_nunk_per_node(char *output_file1)
                  if (Matrix_fill_flag ==3) Nrho_bar = 4 + 2*Ndim;
                  else Nrho_bar = 4;
                  Nrho_bar_s = 4;
-                 Block_type[i]=Ntype_blocks++;
             }
             Phys2Nunk[RHOBAR_ROSEN]=Nrho_bar;
             break; 
@@ -804,7 +800,6 @@ void setup_nunk_per_node(char *output_file1)
             Npoisson=0;
             if ( Type_coul !=NONE){
                  Npoisson=1;
-                 Block_type[i]=Ntype_blocks++;
             }
             Phys2Nunk[POISSON]=Npoisson;
             break;
@@ -814,7 +809,6 @@ void setup_nunk_per_node(char *output_file1)
             if (Type_poly==-1 && Lsteady_state){
               if (!Type_poly_TC) Ndiffusion=Ncomp;
               if (Type_poly_TC) Ndiffusion=Nseg_tot;
-                 Block_type[i]=Ntype_blocks++;
             }
             Phys2Nunk[DIFFUSION]=Ndiffusion;
             break;
@@ -823,7 +817,6 @@ void setup_nunk_per_node(char *output_file1)
             Ntype_unk=0;
             if (Type_poly_TC){
                Ntype_unk=Ncomp;
-                 Block_type[i]=Ntype_blocks++;
             }
             Phys2Nunk[DENSITY_SEG]=Ntype_unk;
             break;
@@ -833,7 +826,6 @@ void setup_nunk_per_node(char *output_file1)
             if (Type_poly_TC){
                  Nrho_bar_cavity = 4;
                  Phys2Nunk[CAVITY_WTC]=Nrho_bar_cavity-2;  
-                 Block_type[i]=Ntype_blocks++;
                                    /* strange case because y function only uses two of the 
                                       defined xi's.  But, I'm leaving a placeholder for 4 */
             }
@@ -844,7 +836,6 @@ void setup_nunk_per_node(char *output_file1)
             Nrho_bar_bond=0;
             if (Type_poly_TC){
                  Nrho_bar_bond = Nbonds;
-                 Block_type[i]=Ntype_blocks++;
             }
             Phys2Nunk[BOND_WTC]=Nrho_bar_bond;
             break;
@@ -853,7 +844,6 @@ void setup_nunk_per_node(char *output_file1)
             NCMSField_unk = 0;
             if (Type_poly != NONE){
                  NCMSField_unk=Ncomp;
-                 Block_type[i]=Ntype_blocks++;
             }
             Phys2Nunk[CMS_FIELD]=NCMSField_unk;
             break;
@@ -861,7 +851,6 @@ void setup_nunk_per_node(char *output_file1)
          case CMS_G:
             if (Type_poly != NONE){
                  Phys2Nunk[CMS_G] = Ngeqn_tot;
-                 Block_type[i]=Ntype_blocks++;
             }
             break;
 
@@ -899,11 +888,7 @@ void setup_nunk_per_node(char *output_file1)
                                    i,Phys2Nunk[i],Phys2Unk_first[i],Phys2Unk_last[i]);
    for (iunk=0;iunk<Nunk_per_node;iunk++) fprintf(fp2,"iunk=%d equation_type=%d\n",iunk,Unk2Phys[iunk]);
    fprintf(fp2,"******************************************************\n");
-/*   printf("******************************************************\n");
-   printf("CALLING SOLVER MANAGER CONSTRUCTOR\n");
-   epetra_comm=dft_epetrampicomm_create(MPI_COMM_WORLD);
-   solver_manager=dft_solvermanager_create(Ntype_blocks,epetra_comm);
-   printf("******************************************************\n");*/
+
    return;
 }
 /*******************************************************************************/

@@ -358,10 +358,7 @@ double  Toler;        /* Tolerance for Newton-Rhapson iterations             */
 int     Iwrite;       /* Do we want a complete or modified set of output data*/
 
 /* Trilinos info */
-/*DFT_OBJECT_PTR Solver_manager, epetra_comm;*/
-int Ntype_blocks;
-int Block_type[NEQ_TYPE];
-
+void * Solver_manager;
 
 /* Parallel Info, Aztec info */
 int     Num_Proc; /* The total number of processors used in this calculation */

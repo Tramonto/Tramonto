@@ -454,9 +454,7 @@ struct RB_Struct {
 /*
  * Declaration of the Trilinos solver stuff follows.
  */
-/*  extern DFT_OBJECT_PTR Solver_manager, epetra_comm;      */
-  extern int Ntype_blocks;
-  extern int Block_type[NEQ_TYPE];
+extern void * Solver_manager;
 
 /* 
  *  Declaration of the Aztec_Struct follows. 
@@ -1207,9 +1205,8 @@ extern void  setup_vext_coulomb_vol();
 extern void read_external_field_n(char *);
 extern void read_zero_density_TF(char *);
 extern void set_initial_guess(int,double *,int *);
-extern int  solve_problem(double **,double **, char *,int *);
-extern int  newton_solver(double *x, double *x2, double *fill_time,
-		          void *con_ptr, int max_iter, double *t_s, void * aux_info);
+extern int  solve_problem(double **, double **);
+extern int  newton_solver(double **x, void *con_ptr);
 
 /*EXTERNAL FIELD AND WALL_WALL INTERACTION ROUTINES */
 extern double integrate_potential(int, double, double, double, int, int, 
