@@ -39,9 +39,9 @@ class dft_SolverManager {
   public:
   //@{ \name Constructors/destructor.
   //! dft_SolverManager Constructor.
-  /* Initialize a solver manager for Tramonto
-     \param numPhysicsTypes (In) The number of physics blocks that will be handled by the solver manager.
-     \param physicsTypes (In) An array of length numPhysicsTypes, such that physicsTypes[i] 
+  /*! Initialize a solver manager for Tramonto
+     \param numUnknownsPerNode (In) The number of unknowns tracked per node of the mesh.
+     \param unknownToPhysicsType (In) An array of length numUnknownsPerNode, such that unknownToPhysicsType[i] 
             describes the ith physics type.
      \param solverOptions (In) An array of ints defined in dft_solver_defs.h containing information to 
                                guide and report solver status.
@@ -49,7 +49,7 @@ class dft_SolverManager {
                                guide and report solver status.
      \param comm (In) MPI communicator that should be used by the solver.
   */
-  dft_SolverManager(int numPhysicsTypes, int * physicsTypes, int * solverOptions, double * solverParams, MPI_Comm comm);
+  dft_SolverManager(int numUnknownsPerNode, int * unknownToPhysicsType, int * solverOptions, double * solverParams, MPI_Comm comm);
 
   //! dft_SolverManager Destructor.
   /*! Completely deletes a dft_SolverManager object.
@@ -60,7 +60,7 @@ class dft_SolverManager {
   //@{ \name Block structure setup methods
 
   //! Define global to local index row mappings
-  /* Define the list of global node IDs owned by this processor.  This mapping is used for identifying
+  /*! Define the list of global node IDs owned by this processor.  This mapping is used for identifying
      the global row indexing given the local row IDs and the physics ID.
      \param numOwnedNodes (In) Number of owned nodes.
      \param GIDs (In) List of global IDs in the order of local indexing of the owned nodes.
@@ -73,7 +73,7 @@ class dft_SolverManager {
   int setNodalRowMap(int numOwnedNodes, int * GIDs, int nx=0, int ny = 1, int nz = 1);
 
   //! Define global to local index column mappings, the rectangular box containing all ghost nodes and owned nodes.
-  /* Define the list of global node IDs reached to by global row nodes on this processor. 
+  /*! Define the list of global node IDs reached to by global row nodes on this processor. 
      This mapping is used for identifying
      the global column indexing given the local column IDs and the physics ID.
      \param numBoxNodes (In) Number of global IDs.  Should equal nx*ny*nz.
@@ -97,48 +97,85 @@ class dft_SolverManager {
   /*! This method zeros out the matrix, lhs and rhs values. */
   int initializeProblemValues();
 
-  //! Insert rhs value
-  /* Insert rhs value into entry based on node and physicsID.
-     \param physicsID (In) The index for the type of unknown.  
-                           This should be between 0 and one less than the number of physics variables track at a node.  
-     \param node (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
+  //! Insert rhs value based on ownedNode and ownedPhysicsID.
+  /*! Insert rhs value into entry based on owned node and physicsID.
+     \param ownedPhysicsID (In) The index for the type of unknown.  
+                           This should be between 0 and one less than the number of physics variables tracked at a node.  
+     \param ownedNode (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
                       This should be between 0 and one less than the number of nodes owned by this processor, independent of
 		      the number of physics types being computed for the given problem.
      \param value (In) Rhs value.
   */
-  int insertRhsValue(int physicsID, int node, double value);
-  //! Insert matrix coefficients
-  /* Insert values into matrix.
-     \param rowPhysicsID (In) The index for the type of unknown.  
-                           This should be between 0 and one less than the number of physics variables track at a node.  
-			   node and rowPhysicsID together specify which row of the matrix is being updated.
-     \param node (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
-                      This should be between 0 and one less than the number of nodes owned by this processor, independent of
-		      the number of physics types being computed for the given problem.
-     \param colPhysicsID (In) The index for the type of unknown to use for the column indices.  
-                           This should be between 0 and one less than the number of physics variables track at a node.  
-			   colNodeIndices and colPhysicsID together specify which column of the matrix is being updated.
-     \param numEntries (In) Number of matrix coefficients being inserted.
-     \param values (In) Matrix values.
-     \param colNodeIndices (In) Nodal Column indices corresponding to matrix values.
-  */
-  int insertMatrixValues(int rowPhysicsID, int node, int colPhysicsID, int numEntries, double * values, int * colNodeIndices);
+  int insertRhsValue(int ownedPhysicsID, int ownedNode, double value);
 
-  /* Insert lhs value into entry based on node and physicsID.
-     \param physicsID (In) The index for the type of unknown.  
-                           This should be between 0 and one less than the number of physics variables track at a node.  
-     \param node (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
+  //! Insert lhs value based on ownedNode and ownedPhysicsID.
+  /*! Insert lhs value based on ownedNode and ownedPhysicsID.
+     \param ownedPhysicsID (In) The index for the type of unknown.  
+                           This should be between 0 and one less than the number of physics variables tracked at a node.  
+     \param ownedNode (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
                       This should be between 0 and one less than the number of nodes owned by this processor, independent of
 		      the number of physics types being computed for the given problem.
      \param value (In) Lhs value.
   */
-  int insertLhsValue(int physicsID, int node, double value);
+  int insertLhsValue(int ownedPhysicsID, int ownedNode, double value);
+
+  //! Insert single matrix coefficient into system.
+  /*! Insert single value into matrix.
+     \param ownedPhysicsID (In) The physics ID for the matrix row being updated.  
+                           This should be between 0 and one less than the number of physics variables tracked at a node.  
+			   ownedNode and ownedPhysicsID together specify which row of the matrix is being updated.
+     \param ownedNode (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
+                      This should be between 0 and one less than the number of nodes owned by this processor, independent of
+		      the number of physics types being computed for the given problem. rowPhysicsID and ownedNode together specify 
+		      which row of the matrix is being updated.
+     \param boxPhysicsID (In) The index for the type of unknown to use for the column indices.  
+                           This should be between 0 and one less than the number of physics variables tracked at a node.  
+			   boxNode and colPhysicsID together specify which column of the matrix is being updated.
+     \param boxNode (In) Current box node ID.  Local ID based on the box node ordering.
+     \param value (In) Matrix value.
+  */
+  int insertMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode, double value);
+
+  //! Insert matrix coefficients for a given row, where columns are all from the same physics type at different nodes.
+  /*! Insert values into matrix for a given row, where columns are all from the same physics type at different nodes.
+     \param ownedPhysicsID (In) The physics ID for the matrix row being updated.
+                           This should be between 0 and one less than the number of physics variables tracked at a node.  
+			   ownedNode and rowPhysicsID together specify which row of the matrix is being updated.
+     \param ownedNode (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
+                      This should be between 0 and one less than the number of nodes owned by this processor, independent of
+		      the number of physics types being computed for the given problem.
+     \param boxPhysicsID (In) The index for the type of unknown to use for the column indices.  
+                           This should be between 0 and one less than the number of physics variables tracked at a node.  
+			   boxNodelist and colPhysicsID together specify which column of the matrix is being updated.
+     \param boxNodeList (In) Nodal Column indices corresponding to matrix values. These are local IDs in the box coordinate system.
+     \param values (In) Matrix values.
+     \param numEntries (In) Number of matrix coefficients being inserted.
+  */
+  int insertMatrixValues(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int * boxNodeList, double * values, int numEntries);
+
+  //! Insert matrix coefficients for a given row, where columns are from different physics types at the same node.
+  /*! Insert values into matrix for a given row, where columns are from different physics types at the same node.
+     \param ownedPhysicsID (In) 
+                           This should be between 0 and one less than the number of physics variables tracked at a node.  
+			   node and rowPhysicsID together specify which row of the matrix is being updated.
+     \param ownedNode (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
+                      This should be between 0 and one less than the number of nodes owned by this processor, independent of
+		      the number of physics types being computed for the given problem.
+     \param boxPhysicsIDList (In) The list of indices for the types of unknowns to use for the column indices.  
+                           This should be an array of length numEntries where each value is
+			   between 0 and one less than the number of physics variables tracked at a node.  
+			   boxPhysicsIDList and boxNode together specify which column of the matrix is being updated.
+     \param boxNode (In) Nodal index corresponding to matrix values. This is a local ID in the box coordinate system.
+     \param values (In) Matrix values.
+     \param numEntries (In) Number of matrix coefficients being inserted.
+  */
+  int insertMatrixValues(int ownedPhysicsID, int ownedNode, int * boxPhysicsIDList, int boxNode, double * values, int numEntries);
 
   //! Method that must be called each time matrix value insertion is complete (usually once per nonlinear iteration).
   int finalizeProblemValues();
 
   //! Declare a block matrix to be read-only or read-write.
-  /* Change the read-only mode of a matrix block i,j.  Initially all blocks are read-write (not read-only).
+  /*! Change the read-only mode of a matrix block i,j.  Initially all blocks are read-write (not read-only).
      \param rowPhysicsID (In) ith physics block (row).
      \param colPhysicsID (In) jth physics block (column).
      \param readOnly (In) Bool:  If true, then the i,j block of the matrix will not be further modified.  

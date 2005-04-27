@@ -31,109 +31,62 @@ Questions? Contact Michael A. Heroux (maherou@sandia.gov)
 
 #ifndef DFT_C2CPP_WRAPPERS_H
 #define DFT_C2CPP_WRAPPERS_H
+#include <mpi.h>
 
-#ifdef DFT_FORTRAN
-
-typedef double * DFT_DOUBLE;
-typedef int    * DFT_INT;
-#define DFT_DEREF(a) *a
-
-#ifdef DFT_ADDRESS64BIT
-
-typedef long int DFT_OBJECT_PTR;
-typedef long int & DFT_OBJECT_REF;
-
-#else
-
-typedef int DFT_OBJECT_PTR;
-typedef int & DFT_OBJECT_REF;
-
-#endif
-#else
-
-/* These typedefs act as new types for the Epetra C interface */
-;
-typedef double DFT_DOUBLE;
-typedef int    DFT_INT;
-
-#define DFT_DEREF(a) a
-
-typedef void * DFT_OBJECT_PTR;
-typedef void * DFT_OBJECT_REF;
-
-
-#endif
- 
-#ifdef DFT_FORTRAN
-#if defined(DFT_HAVE_NO_FORTRAN_UNDERSCORE)
-#define MANGLE(x) x
-#else
-#define MANGLE(x) x ## __
-#endif
-#else
-#define MANGLE(x) x
-#endif
-
-
-#include "dft_SolverManager.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
   /*****************************************************/
-  /**                  dft_EpetraComm                **/
-  /***************************************************/
-
-  DFT_OBJECT_PTR MANGLE(dft_epetrampicomm_create)(MPI_Comm * comm);
-  /*****************************************************/
   /**                  dft_SolverManager             **/
   /***************************************************/
 
-  DFT_OBJECT_PTR MANGLE(dft_solvermanager_create)(DFT_INT numUnks, int* iunk_to_phys,
-		        int* solverOptions, double* solverParams, DFT_OBJECT_REF comm);
+  void * dft_solvermanager_create(int numUnks, int* iunk_to_phys,
+		        int* solverOptions, double* solverParams, MPI_Comm * comm);
 
-  void MANGLE(dft_solvermanager_destruct)(DFT_OBJECT_PTR solvermanagerptr);
+  void dft_solvermanager_destruct(void * solvermanagerptr);
 
-  int MANGLE(dft_solvermanager_setnodalrowmap)(DFT_OBJECT_PTR solvermanager, DFT_INT numgids, int * gids);
+  int dft_solvermanager_setnodalrowmap(void * solvermanager, int numgids, int * gids);
 
-  int MANGLE(dft_solvermanager_setnodalcolmap)(DFT_OBJECT_PTR solvermanager, DFT_INT numgids, int * gids);
+  int dft_solvermanager_setnodalcolmap(void * solvermanager, int numgids, int * gids);
 
-  int MANGLE(dft_solvermanager_finalizeblockstructure)(DFT_OBJECT_PTR solvermanager);
+  int dft_solvermanager_finalizeblockstructure(void * solvermanager);
 
-  int MANGLE(dft_solvermanager_initializeproblemvalues)(DFT_OBJECT_PTR solvermanager);
+  int dft_solvermanager_initializeproblemvalues(void * solvermanager);
   
-  int MANGLE(dft_solvermanager_insertrhsvalue)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT inode, DFT_DOUBLE value);
+  int dft_solvermanager_insertrhsvalue(void * solvermanager, int iunk, int inode, double value);
 
-  int MANGLE(dft_solvermanager_insertlhsvalue)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT ibox, DFT_DOUBLE value);
+  int dft_solvermanager_insertlhsvalue(void * solvermanager, int iunk, int ibox, double value);
+
+  int dft_solvermanager_insertonematrixvalue(void * solvermanager, int iunk, int ownednode,
+                                                     int junk, int boxnode, double value);
+
+  int dft_solvermanager_insertmultinodematrixvalues(void * solvermanager, int iunk, int ownednode,
+							    int junk, int *boxnodeindices, double *values, int numentries);
+
+  int dft_solvermanager_insertmultiphysicsmatrixvalues(void * solvermanager, int iunk, int ownednode,
+		                                   int * junkindices, int boxnode, double *values, int numentries);
   
-  int MANGLE(dft_solvermanager_insertmatrixvalues)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT inode,
-		                                   DFT_INT junk, DFT_INT numentries, double *values, int *indices);
-
-  int MANGLE(dft_solvermanager_insertonematrixvalue)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT inode,
-                                                     DFT_INT junk, double value, int index);
+  int dft_solvermanager_finalizeproblemvalues(void * solvermanager);
   
-  int MANGLE(dft_solvermanager_finalizeproblemvalues)(DFT_OBJECT_PTR solvermanager);
+  int dft_solvermanager_setblockmatrixreadonly(void * solvermanager, int iunk, int junk, int readOnly);
   
-  int MANGLE(dft_solvermanager_setblockmatrixreadonly)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT junk, DFT_INT readOnly);
+  int dft_solvermanager_setrhs(void * solvermanager, double** b);
 
-  int MANGLE(dft_solvermanager_setlhs)(DFT_OBJECT_PTR solvermanager, double** x);
-  
-  int MANGLE(dft_solvermanager_setrhs)(DFT_OBJECT_PTR solvermanager, double** b);
+  int dft_solvermanager_getlhs(void * solvermanager, double** x);
 
-  int MANGLE(dft_solvermanager_getlhs)(DFT_OBJECT_PTR solvermanager, double** x);
+  int dft_solvermanager_getrhs(void * solvermanager, double** b);
 
-  int MANGLE(dft_solvermanager_getrhs)(DFT_OBJECT_PTR solvermanager, double** b);
+  int dft_solvermanager_setupsolver(void * solvermanager);
 
-  int MANGLE(dft_solvermanager_setupsolver)(DFT_OBJECT_PTR solvermanager);
+  int dft_solvermanager_solve(void * solvermanager);
 
-  int MANGLE(dft_solvermanager_solve)(DFT_OBJECT_PTR solvermanager);
+  int dft_solvermanager_applymatrix(void * solvermanager, double**x, double** b);
 
-  int MANGLE(dft_solvermanager_applymatrix)(DFT_OBJECT_PTR solvermanager, double**x, double** b);
+  int dft_solvermanager_importr2c(void * solvermanager, double**x, double** b);
 
-  int MANGLE(dft_solvermanager_importr2c)(DFT_OBJECT_PTR solvermanager, double**x, double** b);
-
-  int MANGLE(dft_solvermanager_importnodalr2c)(DFT_OBJECT_PTR solvermanager, double*x, double* b);
+  int dft_solvermanager_importnodalr2c(void * solvermanager, double*x, double* b);
 
 
 #ifdef __cplusplus
