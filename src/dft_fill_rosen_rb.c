@@ -23,6 +23,7 @@
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
+
 static struct RB_Struct d2phi_drb2_delta_rb(int, int, double *,double, 
 					    int *,double *,int,double,double,
 					    double,struct RB_Struct *);
@@ -42,15 +43,15 @@ static struct RB_Struct d2phi_drb2_theta2_rb(int, int, double *,double,int *,
 /* load_nonlocal_hs_rosen_rb: Here we load all the dphi_drb terms for the 
                         Rosenfeld functional.                         */
 
-void load_nonlocal_hs_rosen_rb(int sten_type, int loc_i, int icomp,
+void load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode, 
+                       int inode_box, int icomp,
                        int izone, int *ijk_box, int fill_flag,
-                       double *x,
+                       double **x,
                        struct RB_Struct *dphi_drb,
                        struct RB_Struct *dphi_drb_bulk,
                        struct RB_Struct *dphi_drb_bulk_left,
                        struct RB_Struct *dphi_drb_bulk_right,
-                       double *resid, double *mat_row, int *bindx_tmp,
-                       struct RB_Struct *rho_bar,int loc_inode,
+                       struct RB_Struct *rho_bar,
                        int resid_only_flag)
 {
   int   **sten_offset, *offset, isten;
@@ -60,11 +61,12 @@ void load_nonlocal_hs_rosen_rb(int sten_type, int loc_i, int icomp,
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
 
-  int jzone=0, loc_jnode, jnode_box, idim,j_box,loc_j;
-  int jnode_boxJ,loc_js,loc_jv,j_box_v;
+  int jzone=0, loc_jnode, jnode_box, idim,j_box,unk_tmp,junk;
+  int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
   double  sign[3];
   struct  RB_Struct tmp;
+  double resid,mat_val;
 
   jzone = find_jzone(izone);
 
@@ -83,152 +85,110 @@ void load_nonlocal_hs_rosen_rb(int sten_type, int loc_i, int icomp,
 
       jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
 
-      if (fill_flag != MSR_PREPROCESS){
-        if (jnode_box >= 0) {
-          loc_jnode = B2L_1stencil[jnode_box];
+      if (jnode_box >= 0) {
+        loc_jnode = B2L_1stencil[jnode_box];
 
-          if (sten_type == DELTA_FN) {
-             resid[loc_i] += weight*
-                    (dphi_drb[loc_jnode].S0*Inv_4pirsq[icomp] +
-                     dphi_drb[loc_jnode].S1*Inv_4pir[icomp] +
-                     dphi_drb[loc_jnode].S2 );
+        if (sten_type == DELTA_FN) {
+           resid = weight*
+                  (dphi_drb[loc_jnode].S0*Inv_4pirsq[icomp] +
+                   dphi_drb[loc_jnode].S1*Inv_4pir[icomp] +
+                   dphi_drb[loc_jnode].S2 );
 
-             for (idim = 0; idim<Ndim; idim++){
-                sign[idim]=1.0;
-                if (reflect_flag[idim]) sign[idim]=-1.0;
-                resid[loc_i] -= sign[idim]*weight * 
-                        (  dphi_drb[loc_jnode].V1[idim]*Inv_4pir[icomp]
-                         + dphi_drb[loc_jnode].V2[idim] ) *
-                        (offset[idim] * Esize_x[idim]*Inv_rad[icomp]); 
-             }
-          }
-          else if (sten_type == THETA_FN){
-            resid[loc_i] += weight * dphi_drb[loc_jnode].S3; 
-          }
-        }
-        else if (jnode_box == -1 || jnode_box == -3 || jnode_box == -4 ){
-         if (jnode_box == -1) {
-            if (sten_type == DELTA_FN) {
-                   resid[loc_i] += weight*
-                           (dphi_drb_bulk->S0*Inv_4pirsq[icomp] +
-                            dphi_drb_bulk->S1*Inv_4pir[icomp] +
-                            dphi_drb_bulk->S2 );
-            }
-            else if (sten_type == THETA_FN) {
-                   resid[loc_i] += weight*dphi_drb_bulk->S3;
-            }
-         }
-         else if (jnode_box == -3) {
-            if (sten_type == DELTA_FN) {
-                   resid[loc_i] += weight*
-                           (dphi_drb_bulk_left->S0*Inv_4pirsq[icomp] +
-                            dphi_drb_bulk_left->S1*Inv_4pir[icomp] +
-                            dphi_drb_bulk_left->S2 );
-            }
-            else if (sten_type == THETA_FN) {
-                   resid[loc_i] += weight*dphi_drb_bulk_left->S3;
-            }
-         }
-         else if (jnode_box == -4) {
-            if (sten_type == DELTA_FN) {
-                   resid[loc_i] += weight*
-                           (dphi_drb_bulk_right->S0*Inv_4pirsq[icomp] +
-                            dphi_drb_bulk_right->S1*Inv_4pir[icomp] +
-                            dphi_drb_bulk_right->S2 );
-            }
-            else if (sten_type == THETA_FN) {
-                   resid[loc_i] += weight*dphi_drb_bulk_right->S3;
-            }
-         }
-        }
-      }
-    
-      if (!resid_only_flag)
-      if (isten < stenJ->Length){
-          if (jzone != izone){
-             offsetJ = sten_offsetJ[isten];
-      	     weightJ = sten_weightJ[isten];
-             jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
-          }
-          else{
-              offsetJ = offset;
-              weightJ = weight;
-              jnode_boxJ = jnode_box;
-          }
-          if (jnode_boxJ >=0){
-            if (fill_flag != MSR_PREPROCESS){
-              loc_j = loc_find(Phys2Unk_first[RHOBAR_ROSEN],jnode_boxJ,BOX);
-
-              for (idim = 0; idim<Ndim; idim++){
-                 if (reflect_flag[idim] == FALSE) sign[idim] = 1.0;
-                 else sign[idim] = -1.0;
-              }
-
-              if (sten_type == DELTA_FN) 
-		{
-		  if (Type_func == 0)
-		    {
-		      tmp = d2phi_drb2_delta_rb(loc_j,jnode_boxJ,x,weightJ,offsetJ, 
-						sign,fill_flag,Inv_rad[icomp],Inv_4pir[icomp], 
-						Inv_4pirsq[icomp],rho_bar);
-		    }
-		  else
-		    {
-		      tmp = d2phi_drb2_delta2_rb(loc_j,jnode_boxJ,x,weightJ,offsetJ, 
-						 sign,fill_flag,Inv_rad[icomp],Inv_4pir[icomp], 
-						 Inv_4pirsq[icomp],rho_bar);
-		    }
-		}
-              else if (sten_type == THETA_FN)
-		{
-		  if (Type_func == 0)
-		    {
-		      tmp = d2phi_drb2_theta_rb(loc_j,jnode_boxJ,x, 
-						weightJ, offsetJ,fill_flag,rho_bar);
-		    }
-                 else
-		   {
-		     tmp = d2phi_drb2_theta2_rb(loc_j,jnode_boxJ,x, 
-						weightJ, offsetJ,fill_flag,rho_bar);
-		   }
-		}
-              loc_js =loc_j;
-              mat_row[B2L_unknowns[loc_js]]   += tmp.S3;
-              loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+1,jnode_boxJ,BOX);
-              mat_row[B2L_unknowns[loc_js]] += tmp.S2;
-              loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+2,jnode_boxJ,BOX);
-              mat_row[B2L_unknowns[loc_js]] += tmp.S1;
-              loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+3,jnode_boxJ,BOX);
-              mat_row[B2L_unknowns[loc_js]] += tmp.S0;
-
-              if (Matrix_fill_flag !=4)
-              for (idim = 0; idim<Ndim; idim++){
-                 loc_jv=loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_boxJ,BOX);
-                 mat_row[B2L_unknowns[loc_jv]]     +=tmp.V2[idim];
-                 loc_jv=loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_boxJ,BOX);
-                 mat_row[B2L_unknowns[loc_jv]]+=tmp.V1[idim];
-              }
-
+           for (idim = 0; idim<Ndim; idim++){
+              sign[idim]=1.0;
+              if (reflect_flag[idim]) sign[idim]=-1.0;
+              resid -= sign[idim]*weight * 
+                      (  dphi_drb[loc_jnode].V1[idim]*Inv_4pir[icomp]
+                       + dphi_drb[loc_jnode].V2[idim] ) *
+                      (offset[idim] * Esize_x[idim]*Inv_rad[icomp]); 
            }
-           else {
-             j_box = loc_find(Phys2Unk_first[RHOBAR_ROSEN],jnode_boxJ,BOX);
-             bindx_tmp[j_box] = TRUE;
-             j_box = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+1,jnode_boxJ,BOX);
-             bindx_tmp[j_box] = TRUE;
-             j_box = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+2,jnode_boxJ,BOX);
-             bindx_tmp[j_box] = TRUE;
-             j_box = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+3,jnode_boxJ,BOX);
-             bindx_tmp[j_box] = TRUE;
-             if (Matrix_fill_flag !=4)
-             for (idim=0; idim<Ndim; idim++){
-                j_box_v = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_boxJ,BOX);
-                bindx_tmp[j_box_v] = TRUE;
-                j_box_v = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_boxJ,BOX);
-                bindx_tmp[j_box_v] = TRUE;
-             }
-           }
-         }  
+        }
+        else if (sten_type == THETA_FN) resid = weight * dphi_drb[loc_jnode].S3; 
       }
+      else if (jnode_box == -1 || jnode_box == -3 || jnode_box == -4 ){
+       if (jnode_box == -1) {
+          if (sten_type == DELTA_FN) resid = weight*
+                                      (dphi_drb_bulk->S0*Inv_4pirsq[icomp] +
+                                       dphi_drb_bulk->S1*Inv_4pir[icomp] +
+                                       dphi_drb_bulk->S2 );
+          else if (sten_type == THETA_FN) resid = weight*dphi_drb_bulk->S3;
+       }
+       else if (jnode_box == -3) {
+          if (sten_type == DELTA_FN) resid = weight*
+                                      (dphi_drb_bulk_left->S0*Inv_4pirsq[icomp] +
+                                       dphi_drb_bulk_left->S1*Inv_4pir[icomp] +
+                                       dphi_drb_bulk_left->S2 );
+          else if (sten_type == THETA_FN) resid = weight*dphi_drb_bulk_left->S3;
+       }
+       else if (jnode_box == -4) {
+          if (sten_type == DELTA_FN) resid = weight*
+                                       (dphi_drb_bulk_right->S0*Inv_4pirsq[icomp] +
+                                        dphi_drb_bulk_right->S1*Inv_4pir[icomp] +
+                                        dphi_drb_bulk_right->S2 );
+          else if (sten_type == THETA_FN) resid = weight*dphi_drb_bulk_right->S3;
+       }
+      }
+      dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+  
+    if (!resid_only_flag)
+    if (isten < stenJ->Length){
+        if (jzone != izone){
+           offsetJ = sten_offsetJ[isten];
+    	     weightJ = sten_weightJ[isten];
+           jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
+        }
+        else{
+            offsetJ = offset;
+            weightJ = weight;
+            jnode_boxJ = jnode_box;
+        }
+        if (jnode_boxJ >=0){
+            junk=Phys2Unk_first[RHOBAR_ROSEN];
+
+            for (idim = 0; idim<Ndim; idim++){
+               if (reflect_flag[idim] == FALSE) sign[idim] = 1.0;
+               else sign[idim] = -1.0;
+            }
+
+            if (sten_type == DELTA_FN) {
+               if (Type_func == 0) tmp = 
+                          d2phi_drb2_delta_rb(junk,jnode_boxJ,x,weightJ,offsetJ, 
+			  sign,fill_flag,Inv_rad[icomp],Inv_4pir[icomp], 
+			  Inv_4pirsq[icomp],rho_bar);
+
+               else       tmp = 
+                          d2phi_drb2_delta2_rb(junk,jnode_boxJ,x,weightJ,offsetJ, 
+			  sign,fill_flag,Inv_rad[icomp],Inv_4pir[icomp], 
+			  Inv_4pirsq[icomp],rho_bar);
+            }
+            else if (sten_type == THETA_FN) {
+               if (Type_func == 0) tmp = 
+                          d2phi_drb2_theta_rb(junk,jnode_boxJ,x, 
+			  weightJ, offsetJ,fill_flag,rho_bar);
+               else    tmp = d2phi_drb2_theta2_rb(junk,jnode_boxJ,x, 
+				weightJ, offsetJ,fill_flag,rho_bar);
+            }
+            mat_val=tmp.S3;
+            dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_val,jnode_boxJ);
+            mat_val=tmp.S2;
+            dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk+1,mat_val,jnode_boxJ);
+            mat_val=tmp.S1;
+            dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk+2,mat_val,jnode_boxJ);
+            mat_val=tmp.S0;
+            dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk+3,mat_val,jnode_boxJ);
+
+            if (Matrix_fill_flag !=4)
+            for (idim = 0; idim<Ndim; idim++){
+               mat_val=tmp.V2[idim];
+               unk_tmp=junk+Nrho_bar_s+idim;
+               dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,unk_tmp,mat_val,jnode_boxJ);
+
+               mat_val=tmp.V1[idim];
+               unk_tmp=junk+Nrho_bar_s+Ndim+idim;
+               dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,unk_tmp,mat_val,jnode_boxJ);
+            }
+       }  
+    }
   }
   return;
 } 
@@ -237,10 +197,9 @@ void load_nonlocal_hs_rosen_rb(int sten_type, int loc_i, int icomp,
 
    WITH JACOBIAN COARSENING .....*/
 
-void load_rho_bar_s(int sten_type,double *x,int loc_i, int iunk,
-                     int loc_inode, int izone,int *ijk_box,
-                     int fill_flag,double *resid,
-                     double *mat_row,int *bindx_tmp, int resid_only_flag)
+void load_rho_bar_s(int sten_type,double *x, int iunk,
+                     int loc_inode, int inode_box, int izone,int *ijk_box,
+                     int fill_flag, int resid_only_flag)
 {
   int   **sten_offset, *offset, isten;
   int   **sten_offsetJ, *offsetJ;
@@ -248,48 +207,45 @@ void load_rho_bar_s(int sten_type,double *x,int loc_i, int iunk,
   double *sten_weight,  weight,fac;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
+  double resid,mat_val;
 
-  int jzone, jnode_box, j_box,loc_j,jcomp,jlist,junk;
+  int jzone, jnode_box, jcomp,jlist,junk;
   int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
-
 
 /*Jac coarsening does not work well for rho bar equations */
      jzone = find_jzone(izone);
      jzone = izone;
 
-  if (fill_flag != MSR_PREPROCESS){
-     resid[loc_i] -= x[loc_i];
-     mat_row[loc_i] -=1.0;
-  }
+     resid =-x[iunk][inode_box];
+     mat_val=-1.0;
+     dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,mat_val,inode_box);
 
   if (iunk > Phys2Unk_first[RHOBAR_ROSEN]+1 && ((Lhard_surf && Nlists_HW == 2) ||
-                        (!Lhard_surf && Nlists_HW == 1))){
-     if (fill_flag != MSR_PREPROCESS){
-     loc_j = Aztec.update_index[loc_find(Phys2Unk_first[RHOBAR_ROSEN]+1,loc_inode,LOCAL)];
+                                               (!Lhard_surf && Nlists_HW == 1))){
+     junk=Phys2Unk_first[RHOBAR_ROSEN]+1;
      if (iunk == Phys2Unk_first[RHOBAR_ROSEN]+ 2){
-        resid[loc_i] += x[loc_j]*Inv_4pir[0];
-        mat_row[loc_j] += Inv_4pir[0];
+        resid = x[junk][inode_box]*Inv_4pir[0];
+        mat_val = Inv_4pir[0];
      }
      else{
-        resid[loc_i] += x[loc_j]*Inv_4pirsq[0];
-        mat_row[loc_j] += Inv_4pirsq[0];
+        resid = x[junk][inode_box]*Inv_4pirsq[0];
+        mat_val = Inv_4pirsq[0];
      }
-     }
-     else{
-         j_box = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+1,L2B_node[loc_inode],BOX);
-         bindx_tmp[j_box] = TRUE;
-     }
+     dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_val,inode_box);
   }
-
   else {
   for (jcomp=0; jcomp<Ncomp; jcomp++){
+      junk=Phys2Unk_first[DENSITY]+jcomp;
+
       if (Nlists_HW <= 2) jlist = 0;
       else                jlist = jcomp;
 
       if      (iunk <= Phys2Unk_first[RHOBAR_ROSEN]+1) fac = 1.0;
       else if (iunk == Phys2Unk_first[RHOBAR_ROSEN]+2) fac = Inv_4pir[jcomp];
-      else                        fac = Inv_4pirsq[jcomp];
+      else                                             fac = Inv_4pirsq[jcomp];
 
       sten = &(Stencil[sten_type][izone][jcomp]);
       sten_offset = sten->Offset;
@@ -305,21 +261,19 @@ void load_rho_bar_s(int sten_type,double *x,int loc_i, int iunk,
 
          jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
 
-         if (fill_flag != MSR_PREPROCESS){
-           if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
-              if (Lhard_surf) {
-                  if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
-                     weight = HW_boundary_weight 
-                      (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
-              }
-              j_box=loc_find(Phys2Unk_first[DENSITY]+jcomp,jnode_box,BOX);
-              resid[loc_i] +=  weight*fac*x[B2L_unknowns[j_box]];
-           }
-           else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) {
-              junk=jcomp+Phys2Unk_first[DENSITY];
-              resid[loc_i] += weight*fac*constant_boundary(junk,jnode_box);
-           }
+         resid=0;
+         if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
+            if (Lhard_surf) {
+                if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
+                   weight = HW_boundary_weight 
+                    (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+            }
+            resid =  weight*fac*x[junk][jnode_box];
          }
+         else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) {
+            resid = weight*fac*constant_boundary(junk,jnode_box);
+         }
+         dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
 
          if (!resid_only_flag)
          if (isten < stenJ->Length){
@@ -327,16 +281,13 @@ void load_rho_bar_s(int sten_type,double *x,int loc_i, int iunk,
             weightJ = sten_weightJ[isten];
             jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
             if (jnode_boxJ >=0 && !Zero_density_TF[jnode_boxJ][jcomp]){
-               j_box=loc_find(Phys2Unk_first[DENSITY]+jcomp,jnode_boxJ,BOX);
-               if (fill_flag != MSR_PREPROCESS){
                   if (Lhard_surf) {
                      if (Nodes_2_boundary_wall[jlist][jnode_boxJ]!=-1) 
                         weightJ = HW_boundary_weight 
                          (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                    }
-                   mat_row[B2L_unknowns[j_box]] += fac*weightJ;
-               }
-               else bindx_tmp[j_box] = TRUE;
+                   mat_val = weightJ*fac;
+                   dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_val,jnode_boxJ);
             }
          }
 
@@ -349,47 +300,42 @@ void load_rho_bar_s(int sten_type,double *x,int loc_i, int iunk,
 /* load_rho_bar_v:  Load vector rho_bar definition equations  
       WITH JACOBIAN COARSENING ....*/
 
-void load_rho_bar_v(double *x,int loc_i,int iunk, int loc_inode,
+void load_rho_bar_v(double *x,int iunk, int loc_inode,int inode_box,
                     int izone,int *ijk_box, int fill_flag,
-                    double *resid, double *mat_row,int *bindx_tmp,
                     int resid_only_flag)
 {
   int   **sten_offset, *offset, isten;
   int   **sten_offsetJ, *offsetJ;
   double *sten_weightJ,weightJ;
   double *sten_weight,  weight,fac,vector[3];
+  double resid,mat_val;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
   int junk;
 
-  int jzone, jnode_box, idim,j_box,loc_j,jcomp,jlist;
+  int jzone, jnode_box, idim,jcomp,jlist;
   int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
-
 
   jzone = find_jzone(izone);
   jzone = izone;  /* Turn off Jacobian coarsening always */
 
-  if (fill_flag !=MSR_PREPROCESS){
-    resid[loc_i] -= x[loc_i];
-    mat_row[loc_i] -=1.0;
-  }
+  resid =-x[iunk][inode_box];
+  mat_val=-1.0;
+  dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+  dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,mat_val,inode_box);
 
   if (iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim && (
-                        (Lhard_surf && Nlists_HW == 2) ||
-                        (!Lhard_surf && Nlists_HW == 1))){
+                                (Lhard_surf && Nlists_HW == 2) ||
+                                (!Lhard_surf && Nlists_HW == 1))){
      idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s - Ndim;
-     if (fill_flag != MSR_PREPROCESS){
-        loc_j = Aztec.update_index[loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim,loc_inode,LOCAL)];
-        resid[loc_i] += x[loc_j]*Inv_4pir[0];
-        mat_row[loc_j] += Inv_4pir[0];
-     }   
-     else{
-         j_box = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim,L2B_node[loc_inode],BOX);
-         bindx_tmp[j_box] = TRUE;
-     }
+     junk = Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim;
+
+     resid = x[junk][inode_box]*Inv_4pir[0];
+     mat_val = Inv_4pir[0];
+     dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_val,inode_box);
   }
- 
   else { 
      if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim)
         idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s;
@@ -397,6 +343,8 @@ void load_rho_bar_v(double *x,int loc_i,int iunk, int loc_inode,
         idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s - Ndim;
 
      for (jcomp=0; jcomp<Ncomp; jcomp++){
+       junk=Phys2Unk_first[DENSITY]+jcomp;
+
        if (Nlists_HW <= 2) jlist = 0;
        else                jlist = jcomp;
 
@@ -417,43 +365,38 @@ void load_rho_bar_v(double *x,int loc_i,int iunk, int loc_inode,
           vector[idim] = offset[idim] * Esize_x[idim] * Inv_rad[jcomp];
 
           jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-          junk=Phys2Unk_first[DENSITY]+jcomp;
 
-          if (fill_flag != MSR_PREPROCESS ){
-             if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
+          resid=0;
+          if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
+             if (Lhard_surf) {
+               if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
+                  weight = HW_boundary_weight 
+                  (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+             }
+             resid = weight*fac*vector[idim]*x[junk][jnode_box];
+          }
+          else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
+             resid =  weight*fac*vector[idim]*constant_boundary(junk,jnode_box);
+          }
+          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+
+          if (!resid_only_flag)
+          if (isten < stenJ->Length){
+             offsetJ = sten_offsetJ[isten];
+             weightJ = sten_weightJ[isten];
+             jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
+             if (jnode_boxJ >= 0 && !Zero_density_TF[jnode_boxJ][jcomp]){
                 if (Lhard_surf) {
-                  if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
-                     weight = HW_boundary_weight 
-                     (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+                     if (Nodes_2_boundary_wall[jlist][jnode_boxJ]!=-1) 
+                        weightJ = HW_boundary_weight 
+                         (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                 }
-                j_box=loc_find(jcomp + Phys2Unk_first[DENSITY],jnode_box,BOX);
-                resid[loc_i] +=  weight*fac*vector[idim]*x[B2L_unknowns[j_box]];
-              }
-              else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
-                resid[loc_i] +=  weight*fac*vector[idim]*constant_boundary(junk,jnode_box);
-              }
-        }
-
-        if (!resid_only_flag)
-        if (isten < stenJ->Length){
-           offsetJ = sten_offsetJ[isten];
-           weightJ = sten_weightJ[isten];
-           jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
-           j_box=loc_find(jcomp + Phys2Unk_first[DENSITY],jnode_boxJ,BOX);
-           if (jnode_boxJ >= 0 && !Zero_density_TF[jnode_boxJ][jcomp]){
-              if (fill_flag != MSR_PREPROCESS){
-                 if (Lhard_surf) {
-                        if (Nodes_2_boundary_wall[jlist][jnode_boxJ]!=-1) 
-                           weightJ = HW_boundary_weight 
-                            (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
-                  }
-                  mat_row[B2L_unknowns[j_box]] += fac*weightJ*vector[idim];
-               }
-               else  bindx_tmp[j_box] = TRUE;
-            }
-        }
+                mat_val = weightJ*fac*vector[idim];
+                dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_val,jnode_boxJ);
+             }
+          }
+      }
     }
-  }
   }
   return;
 }
@@ -820,7 +763,7 @@ void pre_calc_dphi_drb_rb2(struct RB_Struct *dphi_drb,
 /* d2phi_drb2_delta_rb:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                 for the dphi_drb that use Delta_Fn Stencils (all but S3) */
 
-static struct RB_Struct d2phi_drb2_delta_rb(int loc_j, int jnode_box,double *x, 
+static struct RB_Struct d2phi_drb2_delta_rb(int junk, int jnode_box,double *x, 
 					    double weight, int *offset, double *sign,
 					    int fill_flag, double inv_rad, double inv_4pir, 
 					    double inv_4pirsq,struct RB_Struct *rho_bar)
@@ -831,21 +774,15 @@ static struct RB_Struct d2phi_drb2_delta_rb(int loc_j, int jnode_box,double *x,
   double vector[NDIM_MAX];
   int idim,loc_js,loc_jv;
 
-  loc_js = loc_j;
-  rb3 = x[B2L_unknowns[loc_js]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+1,jnode_box,BOX);
-  rb2 = x[B2L_unknowns[loc_js]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+2,jnode_box,BOX);
-  rb1 = x[B2L_unknowns[loc_js]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+3,jnode_box,BOX);
-  rb0 = x[B2L_unknowns[loc_js]];
+  rb3=x[junk][jnode_box];
+  rb2=x[junk+1][jnode_box];
+  rb1=x[junk+2][jnode_box];
+  rb0=x[junk+3][jnode_box];
    
   if (Matrix_fill_flag !=4 ){
      for (idim = 0; idim<Ndim; idim++) {
-       loc_jv = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_box,BOX);
-       rb2v[idim] = sign[idim]*x[B2L_unknowns[loc_jv]];
-       loc_jv = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_box,BOX);
-       rb1v[idim] = sign[idim]*x[B2L_unknowns[loc_jv]];
+       rb2v[idim] = sign[idim]*x[junk+Nrho_bar_s+idim][jnode_box];
+       rb1v[idim] = sign[idim]*x[junk+Nrho_bar_s+Ndim+idim][jnode_box];
      }
   }
   else{
@@ -900,7 +837,7 @@ static struct RB_Struct d2phi_drb2_delta_rb(int loc_j, int jnode_box,double *x,
 /* d2phi_drb2_delta2_rb:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                 for the dphi_drb that use Delta_Fn Stencils (all but S3) */
 
-static struct RB_Struct d2phi_drb2_delta2_rb(int loc_j, int jnode_box,double *x, 
+static struct RB_Struct d2phi_drb2_delta2_rb(int junk, int jnode_box,double *x, 
 					     double weight, int *offset, double *sign,
 					     int fill_flag, double inv_rad, double inv_4pir, 
 					     double inv_4pirsq,struct RB_Struct *rho_bar)
@@ -912,21 +849,15 @@ static struct RB_Struct d2phi_drb2_delta2_rb(int loc_j, int jnode_box,double *x,
   int idim,loc_js,loc_jv;
   double DOT_rho22,alpha,alpha_sq,alpha_cb,beta,gamma[3],DOT_gamma,eps;
   
-  loc_js = loc_j;
-  rb3 = x[B2L_unknowns[loc_js]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+1,jnode_box,BOX);
-  rb2 = x[B2L_unknowns[loc_js]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+2,jnode_box,BOX);
-  rb1 = x[B2L_unknowns[loc_js]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+3,jnode_box,BOX);
-  rb0 = x[B2L_unknowns[loc_js]];
+  rb3 = x[junk][jnode_box];
+  rb2 = x[junk+1][jnode_box];
+  rb1 = x[junk+2][jnode_box];
+  rb0 = x[junk+3][jnode_box];
 
   if (Matrix_fill_flag !=4 ){
      for (idim = 0; idim<Ndim; idim++) {
-       loc_jv = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_box,BOX);
-       rb2v[idim] = sign[idim]*x[B2L_unknowns[loc_jv]];
-       loc_jv = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_box,BOX);
-       rb1v[idim] = sign[idim]*x[B2L_unknowns[loc_jv]];
+       rb2v[idim] = sign[idim]*x[junk+Nrho_bar_s+idim][jnode_box];
+       rb1v[idim] = sign[idim]*x[junk+Nrho_bar_s+Ndim+idim][jnode_box];
      }
   }
   else{
@@ -1017,7 +948,7 @@ static struct RB_Struct d2phi_drb2_delta2_rb(int loc_j, int jnode_box,double *x,
 /* d2phi_drb2_theta_rb:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                    for the dphi_drb that use Theta_Fn Stencils (S3)      */
 
-static struct RB_Struct d2phi_drb2_theta_rb(int loc_j, int jnode_box,double *x,double weight,
+static struct RB_Struct d2phi_drb2_theta_rb(int junk, int jnode_box,double *x,double weight,
 					    int *offset,int fill_flag,struct RB_Struct *rho_bar)
 {
   struct RB_Struct tmp;
@@ -1025,21 +956,16 @@ static struct RB_Struct d2phi_drb2_theta_rb(int loc_j, int jnode_box,double *x,d
   double inv_one_m_rb3, inv_one_m_rb3_sq, inv_one_m_rb3_3rd, inv_one_m_rb3_4th;
   int idim,loc_js,loc_jv;
 
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN],jnode_box,BOX);
-  rb3 = x[B2L_unknowns[loc_j]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+1,jnode_box,BOX);
-  rb2 = x[B2L_unknowns[loc_js]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+2,jnode_box,BOX);
-  rb1 = x[B2L_unknowns[loc_js]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+3,jnode_box,BOX);
-  rb0 = x[B2L_unknowns[loc_js]];
+
+  rb3 = x[junk][jnode_box];
+  rb2 = x[junk+1][jnode_box];
+  rb1 = x[junk+2][jnode_box];
+  rb0 = x[junk+3][jnode_box];
   
   if (Matrix_fill_flag != 4)
      for (idim = 0; idim<Ndim; idim++) {
-       loc_jv=loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_box,BOX);
-       rb2v[idim] = x[B2L_unknowns[loc_jv]];   
-       loc_jv=loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_box,BOX);
-       rb1v[idim] = x[B2L_unknowns[loc_jv]];
+       rb2v[idim] = x[junk+Nrho_bar_s+idim][jnode_box];   
+       rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][jnode_box];   
      }
   else{
     for (idim = 0; idim<Ndim; idim++) {
@@ -1085,7 +1011,7 @@ static struct RB_Struct d2phi_drb2_theta_rb(int loc_j, int jnode_box,double *x,d
 /* d2phi_drb2_theta2_rb:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                    for the dphi_drb that use Theta_Fn Stencils (S3)      */
 
-static struct RB_Struct d2phi_drb2_theta2_rb(int loc_j, int jnode_box,double *x,double weight,
+static struct RB_Struct d2phi_drb2_theta2_rb(int junk, int jnode_box,double *x,double weight,
 					     int *offset,int fill_flag,struct RB_Struct *rho_bar)
 {
   struct RB_Struct tmp;
@@ -1094,21 +1020,15 @@ static struct RB_Struct d2phi_drb2_theta2_rb(int loc_j, int jnode_box,double *x,
   int idim,loc_js,loc_jv;
   double DOT_rho22,DOT_rho12,alpha,alpha_sq,alpha_cb,beta,gamma[3];
 
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN],jnode_box,BOX);
-  rb3 = x[B2L_unknowns[loc_j]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+1,jnode_box,BOX);
-  rb2 = x[B2L_unknowns[loc_js]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+2,jnode_box,BOX);
-  rb1 = x[B2L_unknowns[loc_js]];
-  loc_js = loc_find(Phys2Unk_first[RHOBAR_ROSEN]+3,jnode_box,BOX);
-  rb0 = x[B2L_unknowns[loc_js]];
-
+  rb3 = x[junk][jnode_box];
+  rb2 = x[junk+1][jnode_box];
+  rb1 = x[junk+2][jnode_box];
+  rb0 = x[junk+3][jnode_box];
+  
   if (Matrix_fill_flag != 4)
      for (idim = 0; idim<Ndim; idim++) {
-       loc_jv=loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim,jnode_box,BOX);
-       rb2v[idim] = x[B2L_unknowns[loc_jv]];   
-       loc_jv=loc_find(Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim+idim,jnode_box,BOX);
-       rb1v[idim] = x[B2L_unknowns[loc_jv]];
+       rb2v[idim] = x[junk+Nrho_bar_s+idim][jnode_box];   
+       rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][jnode_box];   
      }
   else{
     for (idim = 0; idim<Ndim; idim++) {
