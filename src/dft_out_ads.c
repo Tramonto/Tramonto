@@ -47,7 +47,7 @@ double calc_adsorption(FILE *fp,double *x,double fac_area,double fac_vol)
     for (icomp=0; icomp<Ncomp; icomp++){
       for (i=0; i<Imax; i++){
 
-         loc_i=Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
+         loc_i=Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
 
 	 /* Note: if change def. of ads, must change polymer free energy also */
           Ads_ex[icomp][i] += (x[loc_i]*Nel_hit2[i][loc_i]-Rho_b[icomp]*Nel_hit[i][loc_i])
@@ -180,7 +180,7 @@ void calc_surface_charge(FILE *fp, double *x,double fac_area,double fac_vol)
                                  &&  ijk[idim] == Nodes_x[idim]-1)  nel_hit /= 2;
          }
 
-         loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
+         loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
 
          charge_sum += (Charge_f[icomp]*x[loc_i])
                        *Vol_el*((double)nel_hit)/((double)Nnodes_per_el_V);

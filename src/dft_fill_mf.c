@@ -78,11 +78,11 @@ void load_mean_field(int sten_type, int loc_i, int icomp, int izone,
                       weight = HW_boundary_weight
                        (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
                }
-               j_box=loc_find(jcomp+Unk_start_eq[DENSITY],jnode_box,BOX);
+               j_box=loc_find(jcomp+Phys2Unk_first[DENSITY],jnode_box,BOX);
                resid[loc_i] +=  sign*weight*x[B2L_unknowns[j_box]];
             }
             else if (jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
-               junk=jcomp+Unk_start_eq[DENSITY];
+               junk=jcomp+Phys2Unk_first[DENSITY];
                resid[loc_i] += sign*weight*constant_boundary(junk,jnode_box);
             }
          }   
@@ -92,7 +92,7 @@ void load_mean_field(int sten_type, int loc_i, int icomp, int izone,
            offsetJ = sten_offsetJ[isten];
            weightJ = sten_weightJ[isten];
            jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
-           j_box = loc_find(Unk_start_eq[DENSITY]+jcomp,jnode_boxJ,BOX);
+           j_box = loc_find(Phys2Unk_first[DENSITY]+jcomp,jnode_boxJ,BOX);
               if (jnode_boxJ >=0 && !Zero_density_TF[jnode_boxJ][jcomp]){
                  if (fill_flag != MSR_PREPROCESS){
                     if (Lhard_surf) {

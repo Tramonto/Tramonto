@@ -355,8 +355,8 @@ void fill_resid_and_matrix (double *x, double *resid,
       izone = mesh_coarsen_flag_i;
 
       /**** LOAD EULER-LAGRANGE EQUATIONS *****/
-      if (Unk_to_eq_type[iunk]==DENSITY) {      
-        icomp = iunk-Unk_start_eq[DENSITY];
+      if (Unk2Phys[iunk]==DENSITY) {      
+        icomp = iunk-Phys2Unk_first[DENSITY];
 
         /* Do trivial fill if it is a zero-density node */
         if (Zero_density_TF[inode_box][icomp] || Vext[loc_inode][icomp] == VEXT_MAX) {
@@ -398,7 +398,7 @@ resid_vext=resid[loc_i]-resid_ig;
                else resid[loc_i] -= Betamu[icomp];
              }
              else{ /* Lsteady_state == TRUE */
-               unk_mu = loc_find(Unk_start_eq[DIFFUSION] + icomp,loc_inode,LOCAL);
+               unk_mu = loc_find(Phys2Unk_first[DIFFUSION] + icomp,loc_inode,LOCAL);
                loc_mu = Aztec.update_index[unk_mu];
                resid[loc_i] -= x[loc_mu];
                mat_row[loc_mu] -= 1.0;
@@ -407,7 +407,7 @@ resid_vext=resid[loc_i]-resid_ig;
 resid_mu=resid[loc_i]-resid_ig-resid_vext;
 
              if (Ipot_ff_c == COULOMB){
-                loc_i_charge = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)];
+                loc_i_charge = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode,LOCAL)];
                 resid[loc_i]  += Charge_f[icomp]*x[loc_i_charge];
                 mat_row[loc_i_charge] += Charge_f[icomp];
 resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
@@ -417,8 +417,8 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
                  fac_temp=Temp_elec/(4.0*PI*KAPPA_H2O);
                  if (Nodes_2_boundary_wall[0][inode_box] != -1){
                     if (Surf_normal[0][loc_inode][0] < 0){
-                           loc_i_charge_down = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode-1,LOCAL)];
-                           loc_i_charge_down2 = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode-2,LOCAL)];
+                           loc_i_charge_down = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode-1,LOCAL)];
+                           loc_i_charge_down2 = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode-2,LOCAL)];
                            gradphi = 0.5*(3.0*x[loc_i_charge]-4.0*x[loc_i_charge_down]+x[loc_i_charge_down2])/Esize_x[0];
 
                            mat_row[loc_i_charge]       += 1.5*Pol[icomp]*gradphi*fac_temp/Esize_x[0];
@@ -426,8 +426,8 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
                            mat_row[loc_i_charge_down2] += 0.5*Pol[icomp]*gradphi*fac_temp/Esize_x[0];
                     }
                     else{
-                           loc_i_charge_up = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode+1,LOCAL)];
-                           loc_i_charge_up2 = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode+2,LOCAL)];
+                           loc_i_charge_up = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode+1,LOCAL)];
+                           loc_i_charge_up2 = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode+2,LOCAL)];
                            gradphi = 0.5*(-3.0*x[loc_i_charge]+4.0*x[loc_i_charge_up]-x[loc_i_charge_up2])/Esize_x[0];
 
                            mat_row[loc_i_charge]     -= 1.5*Pol[icomp]*gradphi*fac_temp/Esize_x[0];
@@ -436,8 +436,8 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
                     }
                   }
                   else{
-                      loc_i_charge_up = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode+1,LOCAL)];
-                      loc_i_charge_down = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode-1,LOCAL)];
+                      loc_i_charge_up = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode+1,LOCAL)];
+                      loc_i_charge_down = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode-1,LOCAL)];
                       gradphi = 0.5*(x[loc_i_charge_up]-x[loc_i_charge_down])/Esize_x[0];
 
                       mat_row[loc_i_charge_up]   += 0.5*Pol[icomp]*gradphi*fac_temp/Esize_x[0];
@@ -453,28 +453,28 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
 
              /* If transport, put in off-diagonal entry for mu in E-L equation */
              if (Lsteady_state == TRUE) {
-               unk_mu = loc_find(Unk_start_eq[DIFFUSION]+icomp,inode_box,BOX);
+               unk_mu = loc_find(Phys2Unk_first[DIFFUSION]+icomp,inode_box,BOX);
                bindx_tmp[unk_mu] = TRUE;
              }
 
              /* If charged, put in off-diagonal entry for Psi in E-L equation */
              if (Ipot_ff_c == COULOMB){
-                  bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box,BOX)] = TRUE;
+                  bindx_tmp[loc_find(Phys2Unk_first[POISSON],inode_box,BOX)] = TRUE;
 
                 if (Lpolarize[icomp]){
                     if (Nodes_2_boundary_wall[0][inode_box] != -1){
                        if (Surf_normal[0][loc_inode][0]<0){
-                          bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box-1,BOX)] = TRUE;
-                          bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box-2,BOX)] = TRUE;
+                          bindx_tmp[loc_find(Phys2Unk_first[POISSON],inode_box-1,BOX)] = TRUE;
+                          bindx_tmp[loc_find(Phys2Unk_first[POISSON],inode_box-2,BOX)] = TRUE;
                        }
                        else{
-                          bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box+1,BOX)] = TRUE;
-                          bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box+2,BOX)] = TRUE;
+                          bindx_tmp[loc_find(Phys2Unk_first[POISSON],inode_box+1,BOX)] = TRUE;
+                          bindx_tmp[loc_find(Phys2Unk_first[POISSON],inode_box+2,BOX)] = TRUE;
                        }
                     }
                     else{
-                       bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box-1,BOX)] = TRUE;
-                       bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box+1,BOX)] = TRUE;
+                       bindx_tmp[loc_find(Phys2Unk_first[POISSON],inode_box-1,BOX)] = TRUE;
+                       bindx_tmp[loc_find(Phys2Unk_first[POISSON],inode_box+1,BOX)] = TRUE;
                     }
                 }
              }
@@ -568,7 +568,7 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
             }
             else{
               t_put -= MPI_Wtime();
-              if ( (Unk_to_eq_type[iunk] != DENSITY && icomp !=0 || loc_inode !=0) &&
+              if ( (Unk2Phys[iunk] != DENSITY && icomp !=0 || loc_inode !=0) &&
                    ( Zero_density_TF[inode_box][icomp] || 
                     Vext[loc_inode][icomp] == VEXT_MAX ) )
                  put_zero_in_msr(loc_i,bindx_2d);
@@ -596,13 +596,13 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
       /*********************************/
       /**** LOAD RHO_BAR EQUATIONS *****/
       /*********************************/
-      else if (Unk_to_eq_type[iunk]==RHOBAR_ROSEN){
+      else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
           t_rhobar -= MPI_Wtime();
 
-          if (iunk == Unk_start_eq[RHOBAR_ROSEN])
+          if (iunk == Phys2Unk_first[RHOBAR_ROSEN])
              load_rho_bar_s(THETA_FN,x,loc_i,iunk,loc_inode,izone,ijk_box, 
                             fill_flag,resid,mat_row,bindx_tmp, resid_only_flag);
-          else if (iunk < Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s)
+          else if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s)
              load_rho_bar_s(DELTA_FN,x,loc_i,iunk,loc_inode,izone,ijk_box, 
                             fill_flag,resid,mat_row,bindx_tmp, resid_only_flag);
           if (fill_flag !=MSR_PREPROCESS) resid_rhobars = resid[loc_i] - resid_ig-resid_vext-resid_mu-resid_charge;
@@ -614,7 +614,7 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
                                   Aztec.val, mat_row, fill_flag,x);
           t_put += MPI_Wtime();
 
-          if (iunk >= Unk_start_eq[RHOBAR_ROSEN]+Nrho_bar_s){
+          if (iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s){
               if (Matrix_fill_flag==3){
               t_rhobar -= MPI_Wtime();
               load_rho_bar_v(x,loc_i,iunk,loc_inode,izone,ijk_box, fill_flag,
@@ -635,7 +635,7 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
       /***************************************************/
       /**** LOAD POISSON'S EQUATION FOR ELECTROSTATICS ***/
       /***************************************************/
-      else if (Unk_to_eq_type[iunk]==POISSON){
+      else if (Unk2Phys[iunk]==POISSON){
 
          if (fill_flag == MSR_PREPROCESS){  /* we know where all the columns are
                                              for poisson's equation so use a faster
@@ -689,7 +689,7 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
       /*******************************/
       /*** LOAD TRANSPORT EQUATION ***/
       /*******************************/
-      else if (Unk_to_eq_type[iunk]==DIFFUSION){
+      else if (Unk2Phys[iunk]==DIFFUSION){
  
          if (fill_flag == MSR_PREPROCESS){
             put_transport_in_msr(i_box,loc_i,bindx_2d);
@@ -709,11 +709,11 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
          }
       }
       /******** END TRANSPORT ********/
-      else if (Unk_to_eq_type[iunk]==DENSITY_SEG){
+      else if (Unk2Phys[iunk]==DENSITY_SEG){
       }
-      else if (Unk_to_eq_type[iunk]==CAVITY_WTC){
+      else if (Unk2Phys[iunk]==CAVITY_WTC){
       }
-      else if (Unk_to_eq_type[iunk]==BOND_WTC){
+      else if (Unk2Phys[iunk]==BOND_WTC){
       }
 
       else {
@@ -723,18 +723,18 @@ resid_charge=resid[loc_i]-resid_ig-resid_vext-resid_mu;
       }
      
 /*if (fill_flag !=MSR_PREPROCESS) {
-    if (Unk_to_eq_type[iunk]==DENSITY){
+    if (Unk2Phys[iunk]==DENSITY){
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge;
        printf("inode_box=%d  iunk=%d  loc_i=%d  resid_el=%9.6f  resid_hs=%9.6f resid=%9.6f",
                                  inode_box,iunk,loc_i,resid_el,resid[loc_i]-resid_el,resid[loc_i]);
     }
-    else if (Unk_to_eq_type[iunk]==RHOBAR_ROSEN)
+    else if (Unk2Phys[iunk]==RHOBAR_ROSEN)
          printf("inode_box=%d : iunk_rbar=%d loc_i=%d [  %g  %g] : %9.6f",
                  inode_box,iunk,loc_i,resid_rhobars,resid_rhobarv,resid[loc_i]);
-    else if (Unk_to_eq_type[iunk]==POISSON)   
+    else if (Unk2Phys[iunk]==POISSON)   
          printf(" inode_box=%d  iunk_poisson=%d   resid=%9.6f ",
                    inode_box,iunk,resid_poisson);
-    else if (Unk_to_eq_type[iunk]==DIFFUSION) 
+    else if (Unk2Phys[iunk]==DIFFUSION) 
          printf(" inode_box=%d  iunk_diffusion=%d  resid=%9.6f",inode_box,iunk,resid_transport);
     printf("  \n");
 }*/

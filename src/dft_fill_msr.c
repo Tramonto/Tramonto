@@ -145,7 +145,7 @@ void put_euler_lag_in_msr(int i_box, int loc_i, int **bindx_2d)
       iunk = i_box/Nnodes_box;
       inode_box = i_box - iunk*Nnodes_box; 
    }
-   icomp = iunk-Unk_start_eq[DENSITY];
+   icomp = iunk-Phys2Unk_first[DENSITY];
    node_box_to_ijk_box(inode_box,ijk_box);
 
                                                nonzeros_in_row = 0;
@@ -156,11 +156,11 @@ void put_euler_lag_in_msr(int i_box, int loc_i, int **bindx_2d)
 
    /* put in electric potential entry */
    if (Ipot_ff_c == COULOMB) 
-       bindx_2d[loc_i][0] = B2G_unk[loc_find(Unk_start_eq[POISSON],inode_box,BOX)];
+       bindx_2d[loc_i][0] = B2G_unk[loc_find(Phys2Unk_first[POISSON],inode_box,BOX)];
 
    /* put in chemical potential entry */
    if (Lsteady_state)
-      bindx_2d[loc_i][1] = B2G_unk[loc_find(Unk_start_eq[DIFFUSION]+icomp,inode_box,BOX)];
+      bindx_2d[loc_i][1] = B2G_unk[loc_find(Phys2Unk_first[DIFFUSION]+icomp,inode_box,BOX)];
 
    bindx_2d[Aztec.N_update][loc_i] = nonzeros_in_row;
    Aztec.nonzeros += nonzeros_in_row;
@@ -263,7 +263,7 @@ void put_transport_in_msr(int i_box, int loc_i, int **bindx_2d)
       inode_box = i_box - iunk*Nnodes_box; 
    }
    node_box_to_ijk_box(inode_box,ijk_box);
-   icomp = iunk - Unk_start_eq[DIFFUSION];
+   icomp = iunk - Phys2Unk_first[DIFFUSION];
 
                   minimum[0] = -1; maximum[0] = 1;
    if (Ndim >1)  {minimum[1] = -1; maximum[1] = 1;}
@@ -306,7 +306,7 @@ void put_transport_in_msr(int i_box, int loc_i, int **bindx_2d)
           node_to_ijk(node_box_to_node(inode_box),ijk);
           if (!(ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu) && 
               !(Size_x[Grad_dim]-ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu)) {
-              irho = Unk_start_eq[DENSITY]+icomp;
+              irho = Phys2Unk_first[DENSITY]+icomp;
               bindx_2d[loc_i][k++] = B2G_unk[loc_find(irho,jnode_box,BOX)];
               if (!(isten == 0 && jsten==0 && ksten==0))
                  bindx_2d[loc_i][k++] = B2G_unk[loc_find(iunk,jnode_box,BOX)];
@@ -361,8 +361,8 @@ void put_poisson_in_msr(int i_box, int loc_i, int **bindx_2d)
           reflect_flag[0]+reflect_flag[1]+reflect_flag[2]==FALSE)
             for (j=0; j <= Ncomp; j++){
               if (!(isten==0 && jsten==0 && ksten==0 && j==Ncomp )){
-                if (j==Ncomp) jtmp=Unk_start_eq[POISSON];
-                else          jtmp=Unk_start_eq[DENSITY]+j;
+                if (j==Ncomp) jtmp=Phys2Unk_first[POISSON];
+                else          jtmp=Phys2Unk_first[DENSITY]+j;
                 bindx_2d[loc_i][k++] = B2G_unk[loc_find(jtmp,jnode_box,BOX)];
               }
             }
@@ -380,7 +380,7 @@ void put_poisson_in_msr(int i_box, int loc_i, int **bindx_2d)
             jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
             if (jnode_box >=0 && 
                 reflect_flag[0]+reflect_flag[1]+reflect_flag[2]==FALSE)
-                bindx_2d[loc_i][k++] = B2G_unk[loc_find(Unk_start_eq[POISSON],jnode_box,BOX)];
+                bindx_2d[loc_i][k++] = B2G_unk[loc_find(Phys2Unk_first[POISSON],jnode_box,BOX)];
          }
     }
   }

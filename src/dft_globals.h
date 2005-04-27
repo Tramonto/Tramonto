@@ -42,10 +42,10 @@ double  T_av_solve_max;
 double  T_msr_setup;
 
 /* Basic Equation info */
-int Nunk_tot_eq[NEQ_TYPE];  /* Number of unknowns of a particular equation type */
-int Unk_start_eq[NEQ_TYPE]; /* starting unknown number for a given equation type */
-int Unk_end_eq[NEQ_TYPE]; /* ending unknown number for a given equation type */
-int Unk_to_eq_type[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equation type
+int Phys2Nunk[NEQ_TYPE];  /* Number of unknowns of a particular equation type */
+int Phys2Unk_first[NEQ_TYPE]; /* starting unknown number for a given equation type */
+int Phys2Unk_last[NEQ_TYPE]; /* ending unknown number for a given equation type */
+int Unk2Phys[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equation type
                                                                          given an unknown index */
 
 
@@ -358,9 +358,8 @@ double  Toler;        /* Tolerance for Newton-Rhapson iterations             */
 int     Iwrite;       /* Do we want a complete or modified set of output data*/
 
 /* Trilinos info */
-DFT_OBJECT_PTR Solver_manager, epetra_comm;
-int Ntype_blocks;*Az2G_unknows, *Az2eq_type
-    **Az2G_unknowns_by_type, int * nunk_this_type_this_proc;
+/*DFT_OBJECT_PTR Solver_manager, epetra_comm;*/
+int Ntype_blocks;
 int Block_type[NEQ_TYPE];
 
 

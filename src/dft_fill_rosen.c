@@ -907,7 +907,7 @@ void load_Jacobian(double *mat_row, struct RB_Struct tmp, int jnode_box,
 #define FINAL_JACOBIAN_FILL_MACRO                                            \
 {                                                                            \
   if (fill_flag != MSR_PREPROCESS){                                          \
-     loc_k = B2L_unknowns[loc_find(jcomp+Unk_start_eq[DENSITY],knode_box,BOX)];\
+     loc_k = B2L_unknowns[loc_find(jcomp+Phys2Unk_first[DENSITY],knode_box,BOX)];\
      if (sten_type == DELTA_FN){                                             \
         switch (Ndim) {                                                      \
          case 1:  mat_row[loc_k] +=                                          \
@@ -927,7 +927,7 @@ void load_Jacobian(double *mat_row, struct RB_Struct tmp, int jnode_box,
       }                                                                      \
    }                                                                         \
    else{  /* fill_flag == MSR_PREPROCESS */                                  \
-      bindx_tmp[loc_find(jcomp+Unk_start_eq[DENSITY],knode_box,BOX)] = TRUE; \
+      bindx_tmp[loc_find(jcomp+Phys2Unk_first[DENSITY],knode_box,BOX)] = TRUE; \
    }                                                                         \
 }  /* end of fast_Jacobian_fill macro */
 

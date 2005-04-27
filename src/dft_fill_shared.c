@@ -190,7 +190,7 @@ void pre_calc_rho_bar(struct RB_Struct *rho_bar, double *x,
                 rho = 0.0;
              }
              else {
-               iunk=Unk_start_eq[DENSITY]+icomp;
+               iunk=Phys2Unk_first[DENSITY]+icomp;
                if (fill_flag != RHOBAR_JAC_SAVE) {
 		 assert( B2L_unknowns[loc_find(iunk,inode_sten_box,BOX)] != -1 );
 		 rho = x[B2L_unknowns[loc_find(iunk,inode_sten_box,BOX)]];
@@ -250,7 +250,7 @@ void pre_calc_rho_bar(struct RB_Struct *rho_bar, double *x,
 
         inode_sten_box = offset_to_node_box(ijk_box, offset, reflect_flag);
         if (inode_sten_box == -1 || inode_sten_box == -3 || inode_sten_box == -4)
-            rho = constant_boundary(Unk_start_eq[DENSITY]+icomp,inode_sten_box);
+            rho = constant_boundary(Phys2Unk_first[DENSITY]+icomp,inode_sten_box);
         else if (inode_sten_box == -2) rho = 0.0;
         else {
 
@@ -273,7 +273,7 @@ void pre_calc_rho_bar(struct RB_Struct *rho_bar, double *x,
                 rho = 0.0;
              }
              else { 
-               iunk = Unk_start_eq[DENSITY]+icomp;
+               iunk = Phys2Unk_first[DENSITY]+icomp;
                if (fill_flag != RHOBAR_JAC_SAVE) {
 		 assert( B2L_unknowns[loc_find(iunk,inode_sten_box,BOX)] != -1 );
 		 rho = x[B2L_unknowns[loc_find(iunk,inode_sten_box,BOX)]];
@@ -556,7 +556,7 @@ given an unknown number and an indication of what kind of boundary we have.*/
 double constant_boundary(int iunk,int jnode_box)
 {
     double bcval;
-    switch(Unk_to_eq_type[iunk]){
+    switch(Unk2Phys[iunk]){
        case DENSITY:
           if (Type_poly_TC){
              printf("problem ... we haven't done the coarsening for TC polymers yet\n");
@@ -567,24 +567,24 @@ double constant_boundary(int iunk,int jnode_box)
              else if (jnode_box==-4){ }
            }
            else{
-              if (jnode_box==-1)     bcval = Rho_b[iunk-Unk_start_eq[DENSITY]];
+              if (jnode_box==-1)     bcval = Rho_b[iunk-Phys2Unk_first[DENSITY]];
               if (jnode_box==-2)     bcval = 0.0;
               else if (jnode_box==-3){
-                  if (Lsteady_state) bcval = Rho_b_LBB[iunk-Unk_start_eq[DENSITY]];
+                  if (Lsteady_state) bcval = Rho_b_LBB[iunk-Phys2Unk_first[DENSITY]];
                   else               bcval = Rho_coex[1];
               }
               else if (jnode_box==-4){
-                  if (Lsteady_state) bcval = Rho_b_RTF[iunk-Unk_start_eq[DENSITY]];
+                  if (Lsteady_state) bcval = Rho_b_RTF[iunk-Phys2Unk_first[DENSITY]];
                   else               bcval = Rho_coex[2];
               }
            }
            break;
        case RHOBAR_ROSEN:
-           if (jnode_box==-1)       bcval = Rhobar_b[iunk-Unk_start_eq[RHOBAR_ROSEN]];
+           if (jnode_box==-1)       bcval = Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
            if (jnode_box==-2)       bcval = 0.0;  /* assuming wall begins in domain and rhobars 
                                                      have decayed beyond the boundary */
-           else if (jnode_box==-3)  bcval = Rhobar_b_LBB[iunk-Unk_start_eq[RHOBAR_ROSEN]];
-           else if (jnode_box==-4)  bcval = Rhobar_b_RTF[iunk-Unk_start_eq[RHOBAR_ROSEN]];
+           else if (jnode_box==-3)  bcval = Rhobar_b_LBB[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
+           else if (jnode_box==-4)  bcval = Rhobar_b_RTF[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
            break;
        case POISSON:
            if (jnode_box==-1)       bcval = 0.;
@@ -597,8 +597,8 @@ double constant_boundary(int iunk,int jnode_box)
        case DIFFUSION:
            if (jnode_box==-1)       bcval = 0.;
            if (jnode_box==-2)       bcval = -VEXT_MAX;
-           else if (jnode_box==-3)  bcval = Betamu_LBB[iunk - Unk_start_eq[DIFFUSION]];
-           else if (jnode_box==-4)  bcval = Betamu_RTF[iunk - Unk_start_eq[DIFFUSION]];
+           else if (jnode_box==-3)  bcval = Betamu_LBB[iunk - Phys2Unk_first[DIFFUSION]];
+           else if (jnode_box==-4)  bcval = Betamu_RTF[iunk - Phys2Unk_first[DIFFUSION]];
            break;
        case DENSITY_SEG:
            if (jnode_box==-1){bcval=0.; }

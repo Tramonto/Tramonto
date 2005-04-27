@@ -785,7 +785,7 @@ void setup_nunk_per_node(char *output_file1)
    for (i=0;i<NEQ_TYPE;i++){
      switch(i){
          case DENSITY:                  /* unknowns of Euler-Lagrange equation */
-            Nunk_tot_eq[DENSITY]=Ncomp;
+            Phys2Nunk[DENSITY]=Ncomp;
             Block_type[i]=Ntype_blocks++;
             break;
 
@@ -797,7 +797,7 @@ void setup_nunk_per_node(char *output_file1)
                  Nrho_bar_s = 4;
                  Block_type[i]=Ntype_blocks++;
             }
-            Nunk_tot_eq[RHOBAR_ROSEN]=Nrho_bar;
+            Phys2Nunk[RHOBAR_ROSEN]=Nrho_bar;
             break; 
 
          case POISSON:                             /* unknowns of Poisson Equation */
@@ -806,7 +806,7 @@ void setup_nunk_per_node(char *output_file1)
                  Npoisson=1;
                  Block_type[i]=Ntype_blocks++;
             }
-            Nunk_tot_eq[POISSON]=Npoisson;
+            Phys2Nunk[POISSON]=Npoisson;
             break;
 
          case DIFFUSION:                            /* unknowns of Diffusion Equation */
@@ -816,7 +816,7 @@ void setup_nunk_per_node(char *output_file1)
               if (Type_poly_TC) Ndiffusion=Nseg_tot;
                  Block_type[i]=Ntype_blocks++;
             }
-            Nunk_tot_eq[DIFFUSION]=Ndiffusion;
+            Phys2Nunk[DIFFUSION]=Ndiffusion;
             break;
 
          case DENSITY_SEG:
@@ -825,19 +825,19 @@ void setup_nunk_per_node(char *output_file1)
                Ntype_unk=Ncomp;
                  Block_type[i]=Ntype_blocks++;
             }
-            Nunk_tot_eq[DENSITY_SEG]=Ntype_unk;
+            Phys2Nunk[DENSITY_SEG]=Ntype_unk;
             break;
              
          case CAVITY_WTC:
             Nrho_bar_cavity=0;
             if (Type_poly_TC){
                  Nrho_bar_cavity = 4;
-                 Nunk_tot_eq[CAVITY_WTC]=Nrho_bar_cavity-2;  
+                 Phys2Nunk[CAVITY_WTC]=Nrho_bar_cavity-2;  
                  Block_type[i]=Ntype_blocks++;
                                    /* strange case because y function only uses two of the 
                                       defined xi's.  But, I'm leaving a placeholder for 4 */
             }
-            else Nunk_tot_eq[CAVITY_WTC]=0;
+            else Phys2Nunk[CAVITY_WTC]=0;
             break;
 
          case BOND_WTC:
@@ -846,7 +846,7 @@ void setup_nunk_per_node(char *output_file1)
                  Nrho_bar_bond = Nbonds;
                  Block_type[i]=Ntype_blocks++;
             }
-            Nunk_tot_eq[BOND_WTC]=Nrho_bar_bond;
+            Phys2Nunk[BOND_WTC]=Nrho_bar_bond;
             break;
 
          case CMS_FIELD:
@@ -855,12 +855,12 @@ void setup_nunk_per_node(char *output_file1)
                  NCMSField_unk=Ncomp;
                  Block_type[i]=Ntype_blocks++;
             }
-            Nunk_tot_eq[CMS_FIELD]=NCMSField_unk;
+            Phys2Nunk[CMS_FIELD]=NCMSField_unk;
             break;
 
          case CMS_G:
             if (Type_poly != NONE){
-                 Nunk_tot_eq[CMS_G] = Ngeqn_tot;
+                 Phys2Nunk[CMS_G] = Ngeqn_tot;
                  Block_type[i]=Ntype_blocks++;
             }
             break;
@@ -870,40 +870,40 @@ void setup_nunk_per_node(char *output_file1)
             exit(-1);
             break;
      }
-     if (i==0) Unk_start_eq[i]=0;
-     else      Unk_start_eq[i]=Unk_end_eq[i-1];
-     Unk_end_eq[i]=Unk_start_eq[i]+(Nunk_tot_eq[i]);
-     for (iunk=Unk_start_eq[i]; iunk< Unk_end_eq[i]; iunk++) Unk_to_eq_type[iunk]=i;
-     Nunk_per_node += Nunk_tot_eq[i];
+     if (i==0) Phys2Unk_first[i]=0;
+     else      Phys2Unk_first[i]=Phys2Unk_last[i-1];
+     Phys2Unk_last[i]=Phys2Unk_first[i]+(Phys2Nunk[i]);
+     for (iunk=Phys2Unk_first[i]; iunk< Phys2Unk_last[i]; iunk++) Unk2Phys[iunk]=i;
+     Nunk_per_node += Phys2Nunk[i];
    }
    for (i=0;i<NEQ_TYPE;i++){
-     if (Nunk_tot_eq[i]==0){
-        Unk_start_eq[i]=NO_UNK;
-        Unk_end_eq[i]=NO_UNK;
+     if (Phys2Nunk[i]==0){
+        Phys2Unk_first[i]=NO_UNK;
+        Phys2Unk_last[i]=NO_UNK;
      }
      if (i==CMS_G && Type_poly != NONE){
-        for (icomp=0;icomp<Npol_comp;icomp++) Geqn_start[icomp]+=Unk_start_eq[i];
+        for (icomp=0;icomp<Npol_comp;icomp++) Geqn_start[icomp]+=Phys2Unk_first[i];
      }
    }
    if (Iwrite==VERBOSE){
         printf("\n******************************************************\n");
         printf("TOTAL Nunk_per_node=%d\n",Nunk_per_node);
-        for (i=0;i<NEQ_TYPE;i++) printf("Nunk_tot_eq[%d]=%d  start_unk=%d  end_unk=%d\n",
-                                   i,Nunk_tot_eq[i],Unk_start_eq[i],Unk_end_eq[i]);
-        for (iunk=0;iunk<Nunk_per_node;iunk++) printf("iunk=%d equation_type=%d\n",iunk,Unk_to_eq_type[iunk]);
+        for (i=0;i<NEQ_TYPE;i++) printf("Phys2Nunk[%d]=%d  start_unk=%d  end_unk=%d\n",
+                                   i,Phys2Nunk[i],Phys2Unk_first[i],Phys2Unk_last[i]);
+        for (iunk=0;iunk<Nunk_per_node;iunk++) printf("iunk=%d equation_type=%d\n",iunk,Unk2Phys[iunk]);
         printf("******************************************************\n");
    }
    fprintf(fp2,"\n******************************************************\n");
    fprintf(fp2,"TOTAL Nunk_per_node=%d\n",Nunk_per_node);
-   for (i=0;i<NEQ_TYPE;i++) fprintf(fp2,"Nunk_tot_eq[%d]=%d  start_unk=%d  end_unk=%d\n",
-                                   i,Nunk_tot_eq[i],Unk_start_eq[i],Unk_end_eq[i]);
-   for (iunk=0;iunk<Nunk_per_node;iunk++) fprintf(fp2,"iunk=%d equation_type=%d\n",iunk,Unk_to_eq_type[iunk]);
+   for (i=0;i<NEQ_TYPE;i++) fprintf(fp2,"Phys2Nunk[%d]=%d  start_unk=%d  end_unk=%d\n",
+                                   i,Phys2Nunk[i],Phys2Unk_first[i],Phys2Unk_last[i]);
+   for (iunk=0;iunk<Nunk_per_node;iunk++) fprintf(fp2,"iunk=%d equation_type=%d\n",iunk,Unk2Phys[iunk]);
    fprintf(fp2,"******************************************************\n");
-   printf("******************************************************\n");
+/*   printf("******************************************************\n");
    printf("CALLING SOLVER MANAGER CONSTRUCTOR\n");
    epetra_comm=dft_epetrampicomm_create(MPI_COMM_WORLD);
    solver_manager=dft_solvermanager_create(Ntype_blocks,epetra_comm);
-   printf("******************************************************\n");
+   printf("******************************************************\n");*/
    return;
 }
 /*******************************************************************************/

@@ -38,7 +38,7 @@
 #endif
 
 #include "az_aztec.h"
-#include "dft_c2cpp_wrappers.h"
+/*#include "dft_c2cpp_wrappers.h"*/
 
 /****************************************************************************/
 /* Machine specific definitions */
@@ -454,14 +454,9 @@ struct RB_Struct {
 /*
  * Declaration of the Trilinos solver stuff follows.
  */
-  extern DFT_OBJECT_PTR Solver_manager, epetra_comm;      
-  extern int Ntype_blocks;*Az2G_unknows, *Az2eq_type
-    **Az2G_unknowns_by_type, int * nunk_this_type_this_proc;
+/*  extern DFT_OBJECT_PTR Solver_manager, epetra_comm;      */
+  extern int Ntype_blocks;
   extern int Block_type[NEQ_TYPE];
-
-
-  
-  
 
 /* 
  *  Declaration of the Aztec_Struct follows. 
@@ -524,10 +519,10 @@ extern double T_av_solve_max;
 extern double T_msr_setup;
 
 /* Basic Equation info */
-extern int Nunk_tot_eq[NEQ_TYPE];  /* Number of unknowns of a particular equation type */
-extern int Unk_start_eq[NEQ_TYPE]; /* starting unknown number for a given equation type */
-extern int Unk_end_eq[NEQ_TYPE]; /* ending unknown number for a given equation type */
-extern int Unk_to_eq_type[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equation type
+extern int Phys2Nunk[NEQ_TYPE];  /* Number of unknowns of a particular equation type */
+extern int Phys2Unk_first[NEQ_TYPE]; /* starting unknown number for a given equation type */
+extern int Phys2Unk_last[NEQ_TYPE]; /* ending unknown number for a given equation type */
+extern int Unk2Phys[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equation type
                                                                          given an unknown index */
 
 /* Mesh info */

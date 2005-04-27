@@ -308,7 +308,7 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
              }
 
              jnode_box = offset_to_node_box(ijk_box, offset, junk2);
-             j_box = loc_find(Unk_start_eq[POISSON],jnode_box,BOX);
+             j_box = loc_find(Phys2Unk_first[POISSON],jnode_box,BOX);
 
              /*
               * add in Laplace term
@@ -347,7 +347,7 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
                    Lsemiperm[WallType[Wall_elems[ilist][el_box]]][icomp]) ){
 
                   if (Charge_f[icomp] != 0.0) {
-                    j_box = loc_find(Unk_start_eq[DENSITY] + icomp,jnode_box,BOX);
+                    j_box = loc_find(Phys2Unk_first[DENSITY] + icomp,jnode_box,BOX);
                     if (fill_flag != MSR_PREPROCESS){
                        loc_j = B2L_unknowns[j_box];
                        resid[loc_i] -= wt_s_1el[isten]*KAPPA_H2O*Charge_f[icomp]*x[loc_j]
@@ -390,8 +390,8 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
 
                   jnode_box = offset_to_node_box(ijk_box, offset, junk2);
 
-                  j_box_psi[jln]  = loc_find(Unk_start_eq[POISSON],jnode_box,BOX);
-                  j_box_rho[jln] =  loc_find(Unk_start_eq[DENSITY] + icomp,jnode_box,BOX);
+                  j_box_psi[jln]  = loc_find(Phys2Unk_first[POISSON],jnode_box,BOX);
+                  j_box_rho[jln] =  loc_find(Phys2Unk_first[DENSITY] + icomp,jnode_box,BOX);
                   if (fill_flag != MSR_PREPROCESS){
                     loc_j_psi[jln]  = B2L_unknowns[j_box_psi[jln]];
                     loc_j_rho[jln] = B2L_unknowns[j_box_rho[jln]];
@@ -511,7 +511,7 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
              }
 
              jnode_box = offset_to_node_box(ijk_box, offset, junk2);
-             j_box = loc_find(Unk_start_eq[POISSON],jnode_box,BOX);
+             j_box = loc_find(Phys2Unk_first[POISSON],jnode_box,BOX);
              /*
               * add in Laplace term
               */
@@ -535,7 +535,7 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
                    Lsemiperm[WallType[Wall_elems[ilist][el_box]]][icomp]) ){
 
                   if (Charge_f[icomp] != 0.0) {
-                    j_box = loc_find(Unk_start_eq[DENSITY] + icomp,jnode_box,BOX);
+                    j_box = loc_find(Phys2Unk_first[DENSITY] + icomp,jnode_box,BOX);
                     if (fill_flag != MSR_PREPROCESS){
                        loc_j = B2L_unknowns[j_box];
                        resid[loc_i] -= wt_s_1el[isten]*Charge_f[icomp]*x[loc_j]
@@ -577,7 +577,7 @@ void load_poisson_bc_old(double *resid)
          iwall     = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
          if (Type_bc_elec[WallType[iwall]] == CONST_CHARGE ){
 
-          iunk = Unk_start_eq[POISSON]
+          iunk = Phys2Unk_first[POISSON]
 
           loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
 
@@ -687,7 +687,7 @@ void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_
 
    /* iunk is nodal unknown number, icomp is component number */
 
-   icomp = iunk - Unk_start_eq[DIFFUSION];
+   icomp = iunk - Phys2Unk_first[DIFFUSION];
 
    if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
    else if (Nlists_HW > 2)  ilist = icomp;
@@ -759,7 +759,7 @@ void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_
              if (Zero_density_TF[jnode_box][icomp]) flag=TRUE;
 
              j_box_mu[jln]  = loc_find(iunk,jnode_box,BOX);   
-             j_box_rho[jln] = loc_find(Unk_start_eq[DENSITY] + icomp,jnode_box,BOX);   
+             j_box_rho[jln] = loc_find(Phys2Unk_first[DENSITY] + icomp,jnode_box,BOX);   
              if (fill_flag != MSR_PREPROCESS){
                loc_j_mu[jln]  = B2L_unknowns[j_box_mu[jln]];
                loc_j_rho[jln] = B2L_unknowns[j_box_rho[jln]];
@@ -877,7 +877,7 @@ void load_linear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_box
 
    /* iunk is nodal unknown number, icomp is component number */
 
-   icomp = iunk-Unk_start_eq[DIFFUSION];
+   icomp = iunk-Phys2Unk_first[DIFFUSION];
 
    node_to_ijk(node_box_to_node(inode_box),ijk);
 

@@ -242,7 +242,6 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 
    for (i=0; i<Aztec.N_update; i++){
      for (j=0; j<bindx_2d[Aztec.N_update][i]; j++){
-/*       printf("i=%d  j=%d trial1=%d \n", i,j,bindx_2d[i][j]);*/
        Aztec.bindx[Aztec.bindx[i] + j] = bindx_2d[i][j];
      } 
    }
@@ -319,17 +318,8 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
    /* Set up Box to local array */
 
    B2L_unknowns = (int *) array_alloc(1, Nunknowns_box, sizeof(int));
-   Az2G_unknowns = (int *) array_alloc(1, Aztec.N_update+Aztec.data_org[AZ_N_external], sizeof(int));
-   Az2G_unknowns_by_type = (int *) array_alloc(1, Aztec.N_update+Aztec.data_org[AZ_N_external], sizeof(int));
-   Az2eq_type = (int *) array_alloc(1, Aztec.N_update+Aztec.data_org[AZ_N_external], sizeof(int));
-   Nunk_eq_type = (int *) array_alloc(1, Ntype_blocks, sizeof(int));
-
    for (i=0; i < Nunknowns_box; i++) 
       B2L_unknowns[i] = -1;
-
-   for (i=0;i<Ntype_blocks;i++){
-      Nunk_eq_type[i]=0;
-   }
 
    for (i=0; i < Aztec.N_update; i++) {
      if (MATRIX_FILL_NODAL){
@@ -340,13 +330,6 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
         iunk = Aztec.update[i]/Nnodes_per_proc;
         node_to_ijk(Aztec.update[i]-Nnodes_per_proc*iunk,ijk);
      }
-     inode = ijk_to_node(ijk);
-     loc_global = loc_find(iunk,inode,GLOBAL);
-     Az2G_unknowns[i]=loc_global;
-     Az2G_unknowns_by_type[Block_type[Unk_to_eq_type[iunk]][i]=loc_global;
-     Az2eq_type[i]=Block_type[Unk_to_eq_type[iunk]];
-     Nunk_eq_type[Block_type[Unk_to_eq_type[iunk]]]++;
-
      ijk_to_ijk_box(ijk, ijk_box);
      inode_box = ijk_box_to_node_box(ijk_box);
      B2L_unknowns[loc_find(iunk,inode_box,BOX)] = Aztec.update_index[i];
@@ -360,10 +343,6 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
      if (Non_unique_G2B[3])
        set_multiple_B2L(ijk_box, iunk, Aztec.update_index[i]);
    }
-   /* loop over block types in this problem ... call the row map for this processor */
-   for (i=0;i<Ntype_blocks;i++){
-     dft_solvermanager_setrowmap(solver_manager, i, Nunk_eq_type[i], Az2G_unknowns_by_type[i]); 
-   }
 
    for (i=0; i < Aztec.data_org[AZ_N_external]; i++){
      if (MATRIX_FILL_NODAL){
@@ -374,13 +353,6 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
         iunk = Aztec.external[i]/(Aztec.data_org[AZ_N_external]/Nunk_per_node);
         node_to_ijk(Aztec.external[i]-(Aztec.data_org[AZ_N_external]/Nunk_per_node)*iunk,ijk);
      }
-     inode = ijk_to_node(ijk);
-     loc_global = loc_find(iunk,inode,GLOBAL);
-     Az2G_unknowns[i+Aztec.N_update]=loc_global;
-     Az2G_unknowns_by_type[Block_type[Unk_to_eq_type[iunk]][i+Aztec.N_update]=loc_global;
-     Az2eq_type[i+Aztec.N_update]=Unk_to_eq_type[iunk];
-     Nunks_eq_type[Block_type[Unk_to_eq_type[iunk]]]++;
-
      ijk_to_ijk_box(ijk, ijk_box);
      inode_box = ijk_box_to_node_box(ijk_box);
      B2L_unknowns[loc_find(iunk,inode_box,BOX)] = Aztec.extern_index[i];
@@ -393,10 +365,6 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr,
 
      if (Non_unique_G2B[3]) 
        set_multiple_B2L(ijk_box, iunk, Aztec.extern_index[i]);
-   }
-   /* loop over block types in this problem ... call the row map for this processor */
-   for (i=0;i<Ntype_blocks;i++){
-     dft_solvermanager_setcolmap(solver_manager, i, Nunk_eq_type[i], Az2G_unknowns_by_type[i]); 
    }
 
    max_ints = AZ_gmax_int(Aztec.N_update,Aztec.proc_config);
@@ -638,7 +606,7 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
     dmu_drb= (dmu_drho_hs(Rho_b) + dmu_drho_att(Rho_b));
     for (i=0; i<Nnodes_per_proc; i++) {
       for (iunk=0; iunk<Nunk_per_node; iunk++) {
-        if (iunk==Unk_start_eq[DENSITY])  resid_tmp[B2L_unknowns[loc_find(iunk,L2B_node[i],BOX)]] = 
+        if (iunk==Phys2Unk_first[DENSITY])  resid_tmp[B2L_unknowns[loc_find(iunk,L2B_node[i],BOX)]] = 
                               dmu_drb*Nel_hit2[0][Aztec.update_index[loc_find(iunk,i,LOCAL)]]
                                       *Vol_el/((double)Nnodes_per_el_V);
         else             resid_tmp[B2L_unknowns[loc_find(iunk,L2B_node[i],BOX)]]= 0.0;
@@ -672,7 +640,7 @@ int newton_solver(double *x, double *x2, double *fill_time, void *con_ptr,
     /* set up d_f/d_mu (later change to numerical deriv) */
     for (i=0; i<Nnodes_per_proc; i++) {
       for (iunk=0; iunk<Nunk_per_node; iunk++) {
-        if (iunk ==Unk_start_eq[DENSITY])  resid_tmp[B2L_unknowns[loc_find(iunk,L2B_node[i],BOX)]] = 
+        if (iunk ==Phys2Unk_first[DENSITY])  resid_tmp[B2L_unknowns[loc_find(iunk,L2B_node[i],BOX)]] = 
                            dmu_drb*Nel_hit2[0][Aztec.update_index[loc_find(iunk,i,LOCAL)]]
                                                            *Vol_el/((double)Nnodes_per_el_V);
         else            resid_tmp[B2L_unknowns[loc_find(iunk,L2B_node[i],BOX)]] = 0.0;
@@ -831,8 +799,8 @@ int update_solution(int iter,double *x, double *delta_x)
 
   frac_min = 1.0; 
   for (iunk=0; iunk<Nunk_per_node; iunk++){
-     if ( (Type_poly>-1 && Unk_to_eq_type[iunk]!=POISSON) || 
-          (Type_poly==-1 && Unk_to_eq_type[iunk]==DENSITY && Ipot_ff_n !=IDEAL_GAS)){
+     if ( (Type_poly>-1 && Unk2Phys[iunk]!=POISSON) || 
+          (Type_poly==-1 && Unk2Phys[iunk]==DENSITY && Ipot_ff_n !=IDEAL_GAS)){
 
         for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
            loc_i=Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
@@ -841,8 +809,8 @@ int update_solution(int iter,double *x, double *delta_x)
                 frac = max(frac,Min_update_frac);
            }
            else frac = 1.0;
-           if (Type_poly==-1 && Sten_Type[U_ATTRACT] && Unk_to_eq_type[iunk]==DENSITY
-               && x[loc_i] <= Rho_b[iunk-Unk_start_eq[DENSITY]]*exp(-VEXT_MAX)) frac = 1.0;
+           if (Type_poly==-1 && Sten_Type[U_ATTRACT] && Unk2Phys[iunk]==DENSITY
+               && x[loc_i] <= Rho_b[iunk-Phys2Unk_first[DENSITY]]*exp(-VEXT_MAX)) frac = 1.0;
 
            if (frac < frac_min) frac_min = frac;
          }
@@ -863,21 +831,21 @@ int update_solution(int iter,double *x, double *delta_x)
   
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
      for (iunk=0; iunk<Nunk_per_node; iunk++){
-     eq_type=Unk_to_eq_type[iunk];
+     eq_type=Unk2Phys[iunk];
 
       loc_i=Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
 
 
       if (Type_poly != -1){
-          if (eq_type==DENSITY) itmp=iunk-Unk_start_eq[DENSITY];
-          else if (eq_type==CMS_FIELD) itmp=iunk-Unk_start_eq[CMS_FIELD];
+          if (eq_type==DENSITY) itmp=iunk-Phys2Unk_first[DENSITY];
+          else if (eq_type==CMS_FIELD) itmp=iunk-Phys2Unk_first[CMS_FIELD];
           else if (eq_type==CMS_G){
-              itmp = Type_mer[Unk_to_Poly[iunk-Unk_start_eq[CMS_G]]][Unk_to_Seg[iunk-Unk_start_eq[CMS_G]]];
+              itmp = Type_mer[Unk_to_Poly[iunk-Phys2Unk_first[CMS_G]]][Unk_to_Seg[iunk-Phys2Unk_first[CMS_G]]];
           }
       }
                                     /* TAKE CARE OF ZERO DENSITY NODES */
       if (Type_poly==-1 && eq_type==DENSITY && 
-                   Zero_density_TF[L2B_node[loc_inode]][iunk-Unk_start_eq[DENSITY]]) x[loc_i] = 0.0; 
+                   Zero_density_TF[L2B_node[loc_inode]][iunk-Phys2Unk_first[DENSITY]]) x[loc_i] = 0.0; 
 
       else if (Type_poly>=0 && eq_type != POISSON && 
                   Zero_density_TF[L2B_node[loc_inode]][itmp]) x[loc_i] = 0.0; 
@@ -895,7 +863,7 @@ int update_solution(int iter,double *x, double *delta_x)
                x[loc_i]+delta_x[loc_i] <= 1.e-15){ 
               x[loc_i] = x[loc_i]*0.1;  
         }
-        else if(Matrix_fill_flag >=3 && Type_coul==-1 && iunk==Unk_start_eq[RHOBAR_ROSEN] 
+        else if(Matrix_fill_flag >=3 && Type_coul==-1 && iunk==Phys2Unk_first[RHOBAR_ROSEN] 
                           && x[loc_i] >=1.0 && Ipot_ff_n !=IDEAL_GAS){
                                         x[loc_i] += 0.5*(1.0-x[loc_i]);
         }

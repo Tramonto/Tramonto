@@ -1017,7 +1017,7 @@ void calc_scale_vec_conwrap(double *x, double *scale_vec, int numUnks)
 /* Scale vector using Rho_bulk seems to make things worse
   for (i=0; i<Aztec.N_update/Nunk_per_node; i++) 
     for (j=0; j<Ncomp; j++) 
-      scale_vec[Aztec.update_index[i*Nunk_per_node + Unk_start_eq[DENSITY]+j]] = 1.0/Rho_b[j];
+      scale_vec[Aztec.update_index[i*Nunk_per_node + Phys2Unk_first[DENSITY]+j]] = 1.0/Rho_b[j];
 */
 
 }

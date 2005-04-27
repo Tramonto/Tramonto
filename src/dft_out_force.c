@@ -177,7 +177,7 @@ void sum_rho_wall(double *x, double **Sum_rho)
           if (iwall != -1){
 
              node_to_position(inode,nodepos); 
-             loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
+             loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
 
              for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++){
 
@@ -254,7 +254,7 @@ void force_elec(double *x, double **Sum_dphi_dx)
              for (idim=0; idim<Ndim; idim++)  deriv_x[iel_w][idim] = 0.0;
           }
 
-          loc_i = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)];
+          loc_i = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode,LOCAL)];
          /* printf("inode: %d icomp: %d  elec_pot: %9.6f \n",inode,Ncomp,x[loc_i]);*/
 /*          printf(" %9.6f  %9.6f  %9.6f \n",nodepos[0],nodepos[1],x[loc_i]);*/
 /*          printf(" %9.6f  %9.6f  ",nodepos[0],nodepos[1]);*/
@@ -280,7 +280,7 @@ void force_elec(double *x, double **Sum_dphi_dx)
                     if (Nodes_2_boundary_wall[0][jnode_box] == -1){
                   /*     printf("trouble ... the derivatives are not within surface elements !!");*/
                     }
-                    loc_j = B2L_unknowns[loc_find(Unk_start_eq[POISSON],jnode_box,BOX)];
+                    loc_j = B2L_unknowns[loc_find(Phys2Unk_first[POISSON],jnode_box,BOX)];
 
                     deriv_x[iel_w][jdim] = offset[jdim]*(x[loc_j] - x[loc_i])/Esize_x[jdim];
 /*                    printf("%d  %9.6f",jdim,deriv_x[iel_w][jdim]);*/
@@ -415,9 +415,9 @@ double calc_deriv(int idim,int inode0,int flag,int *blocked, double *x, int ilis
    inode1 = offset_to_node_box(ijk_box,offset1,reflect_flag);
    inode2 = offset_to_node_box(ijk_box,offset2,reflect_flag);
 
-   loc_i0 = B2L_unknowns[loc_find(Unk_start_eq[POISSON],inode0,BOX)];
-   loc_i1 = B2L_unknowns[loc_find(Unk_start_eq[POISSON],inode1,BOX)];
-   loc_i2 = B2L_unknowns[loc_find(Unk_start_eq[POISSON],inode2,BOX)];
+   loc_i0 = B2L_unknowns[loc_find(Phys2Unk_first[POISSON],inode0,BOX)];
+   loc_i1 = B2L_unknowns[loc_find(Phys2Unk_first[POISSON],inode1,BOX)];
+   loc_i2 = B2L_unknowns[loc_find(Phys2Unk_first[POISSON],inode2,BOX)];
 
 /*   iwall1 = Nodes_2_boundary_wall[Nlists_HW-1][inode1];
    iwall2 = Nodes_2_boundary_wall[Nlists_HW-1][inode2];*/
@@ -462,7 +462,7 @@ void find_pot_derivs(double *x, double *psi_deriv)
        iel_w,inode,surf_norm,i;
    double prefac;
 
-   iunk = Unk_start_eq[POISSON];
+   iunk = Phys2Unk_first[POISSON];
 
     ilist = 0;
     psi_deriv[0] = 0.0;
@@ -518,10 +518,10 @@ double sum_rho_midplane(double *x)
       node_to_ijk(inode,ijk);
 
       if (ijk[0] == Nodes_x[0]-1){
-         loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY],loc_inode,LOCAL)];
+         loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY],loc_inode,LOCAL)];
          if (Ipot_ff_n == IDEAL_GAS) {
             for (icomp=0; icomp<Ncomp; icomp++){
-               loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
+               loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
                if      (Ndim == 1) rho_mid_sum += x[loc_i];
                else if (Ndim == 2) rho_mid_sum += x[loc_i]*Esize_x[1];
             }
@@ -607,7 +607,7 @@ void integrate_rho_vdash(double *x,double **rho_vdash)
                       Type_bc[idim][1] == IN_BULK ||
                       Type_bc[idim][1] == LAST_NODE )              ) nel_hit /= 2;
 
-           loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
+           loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
            iunk = iwall*Ncomp + icomp; 
            rho_vdash[iwall][idim] -=
                      (x[loc_i]*Vext_dash[loc_inode][iunk][idim])

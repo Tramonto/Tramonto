@@ -108,9 +108,9 @@ double calc_free_energy(FILE *fp, double *x, double fac_area,
          for (i=0; i<Imax; i++){
             ilist = List[i];
 
-                              loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
-            if (Lsteady_state) loc_i_mu=Aztec.update_index[loc_find(Unk_start_eq[DIFFUSION]+icomp,loc_inode,LOCAL)]; 
-            if (Ipot_ff_c == 1)loc_i_psi = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)];
+                              loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
+            if (Lsteady_state) loc_i_mu=Aztec.update_index[loc_find(Phys2Unk_first[DIFFUSION]+icomp,loc_inode,LOCAL)]; 
+            if (Ipot_ff_c == 1)loc_i_psi = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode,LOCAL)];
 
             rho_i = x[loc_i];
             if (Ipot_ff_c == 1) psi_i = x[loc_i_psi];
@@ -445,7 +445,7 @@ double energy_elec_vext_vol(double *x)
     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
        inode = L2G_node[loc_inode];
    
-      loc_i = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)];
+      loc_i = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode,LOCAL)];
     
        charge_at_node = 0.0; 
        for (jln=0; jln< Nnodes_per_el_V; jln++) { 
@@ -502,7 +502,7 @@ double energy_elec(double *x, double *sum3)
 
           geom_factor[0]=geom_factor[1]=geom_factor[2]=1.0;
 
-          loc_i = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)];
+          loc_i = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode,LOCAL)];
 
           for (idim=0; idim<Ndim; idim++)  deriv_x[idim] = 0.0;
 
@@ -739,7 +739,7 @@ double free_energy_charging_up(double *x)
 
       if  (Nodes_2_boundary_wall[Nlists_HW-1][node_to_node_box(inode)] != -1){
 
-         iunk = Unk_start_eq[POISSON];
+         iunk = Phys2Unk_first[POISSON];
          loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
 
          ilist = Nlists_HW - 1;
@@ -838,12 +838,12 @@ int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
            }
 
            if (inode_sten<Nnodes_box && inode_sten >=0){
-               j = loc_find(Unk_start_eq[DENSITY]+jcomp,inode_sten,BOX);
+               j = loc_find(Phys2Unk_first[DENSITY]+jcomp,inode_sten,BOX);
                sum +=  weight*x[B2L_unknowns[j]];
            }
         }
         else if (inode_sten<0){
-             sum += weight*constant_boundary(jcomp+Unk_start_eq[DENSITY],inode_sten);
+             sum += weight*constant_boundary(jcomp+Phys2Unk_first[DENSITY],inode_sten);
         }
 
      }  /* end of loop over isten */ 
@@ -971,7 +971,7 @@ double calc_deriv_e(int idim,int inode0,int flag,int *blocked, double *x,
 
    inode1 = offset_to_node_box(ijk_box,offset1,reflect_flag);
    inode2 = offset_to_node_box(ijk_box,offset2,reflect_flag);
-   iunk = Unk_start_eq[POISSON];
+   iunk = Phys2Unk_first[POISSON];
 
    loc_i0 = B2L_unknowns[loc_find(iunk,inode0,BOX)];
    loc_i1 = B2L_unknowns[loc_find(iunk,inode1,BOX)];
@@ -1034,7 +1034,7 @@ double calc_deriv2(int idim,int inode0,int flag,double *x)
    }
 
    inode1 = offset_to_node_box(ijk_box,offset,reflect_flag);
-   iunk = Unk_start_eq[POISSON];
+   iunk = Phys2Unk_first[POISSON];
    loc_i0 = B2L_unknowns[loc_find(iunk,inode0,BOX)];
    loc_i1 = B2L_unknowns[loc_find(iunk,inode1,BOX)];
  
@@ -1077,8 +1077,8 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       for (icomp=0; icomp<Ncomp; icomp++){
 
-          loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
-          loc_boltz = Aztec.update_index[loc_find(Unk_start_eq[CMS_FIELD]+icomp,loc_inode,LOCAL)];
+          loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
+          loc_boltz = Aztec.update_index[loc_find(Phys2Unk_first[CMS_FIELD]+icomp,loc_inode,LOCAL)];
 
           boltz = x[loc_boltz];
           inode_box = L2B_node[loc_inode];
@@ -1100,7 +1100,7 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
           while (Nmer_t[pol_number][icomp]==0) pol_number++;  
 
           inode_box=L2B_node[loc_inode];
-          i_box=loc_find(Unk_start_eq[DENSITY]+icomp,inode_box,BOX);
+          i_box=loc_find(Phys2Unk_first[DENSITY]+icomp,inode_box,BOX);
           freen_profile_1D[loc_inode] -= (x[loc_i]-Rho_b[icomp])/Nmer[pol_number];
 
       }   /* end of icomp loop */
@@ -1204,7 +1204,7 @@ double calc_u_ideal(int itype_mer, int *ijk_box, double *x, double *fluid, doubl
             }
             else weight = weight_bulk;
 
-            j_box=loc_find(Unk_start_eq[DENSITY]+jtype_mer,jnode_box,BOX);
+            j_box=loc_find(Phys2Unk_first[DENSITY]+jtype_mer,jnode_box,BOX);
                                             /* density of this component type */
 
             *fluid +=  sign*weight*x[B2L_unknowns[j_box]];

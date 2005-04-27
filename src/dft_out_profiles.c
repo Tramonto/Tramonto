@@ -197,31 +197,31 @@ void print_profile(char *output_file4)
          switch(i){
             case DENSITY: 
                unk_char = "DENSITY"; 
-               if (Nunk_tot_eq[i] > 0){
+               if (Phys2Nunk[i] > 0){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
                }
             case POISSON: 
                unk_char = "POISSON"; 
-               if (Nunk_tot_eq[i] > 0){
+               if (Phys2Nunk[i] > 0){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
                }
             case DIFFUSION: 
                unk_char = "CHEMPOT";
-               if (Nunk_tot_eq[i] > 0){
+               if (Phys2Nunk[i] > 0){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
                }
             case CMS_FIELD: 
                unk_char = "CMSFIELD";
-               if (Nunk_tot_eq[i] > 0){
+               if (Phys2Nunk[i] > 0){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
                }
             case RHOBAR_ROSEN: 
                unk_char="RHOBAR_ROSEN";
-               if (Nunk_tot_eq[i] > 0){
+               if (Phys2Nunk[i] > 0){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
                }
@@ -252,12 +252,12 @@ void print_profile(char *output_file4)
 
         for (iunk=0; iunk<Nunk_per_node; iunk++){
             
-            switch(Unk_to_eq_type[iunk]){
-               case DENSITY:   icomp = iunk-Unk_start_eq[DENSITY]; break;
-               case DIFFUSION: icomp = iunk-Unk_start_eq[DIFFUSION]; break;
-               case CMS_FIELD: icomp = iunk-Unk_start_eq[CMS_FIELD]; break;
+            switch(Unk2Phys[iunk]){
+               case DENSITY:   icomp = iunk-Phys2Unk_first[DENSITY]; break;
+               case DIFFUSION: icomp = iunk-Phys2Unk_first[DIFFUSION]; break;
+               case CMS_FIELD: icomp = iunk-Phys2Unk_first[CMS_FIELD]; break;
             }
-            switch(Unk_to_eq_type[iunk]){
+            switch(Unk2Phys[iunk]){
                 case DENSITY:
 /*                fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]/Rho_b[icomp]);*/
                 case DIFFUSION:
@@ -278,10 +278,10 @@ void print_profile(char *output_file4)
 
                 case CMS_G:
                    if (Type_poly == 2){
-                      ipol=Unk_to_Poly[iunk-Unk_start_eq[CMS_G]];
-                      iseg=Unk_to_Seg[iunk-Unk_start_eq[CMS_G]];
+                      ipol=Unk_to_Poly[iunk-Phys2Unk_first[CMS_G]];
+                      iseg=Unk_to_Seg[iunk-Phys2Unk_first[CMS_G]];
                       itype_mer=Type_mer[ipol][iseg];
-                      unk_field = Unk_start_eq[CMS_FIELD]+itype_mer;
+                      unk_field = Phys2Unk_first[CMS_FIELD]+itype_mer;
                          fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]*X_old[unk_field+node_start]);
                    }
                    else  fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]);
@@ -298,7 +298,7 @@ void print_profile(char *output_file4)
         if (Ipot_ff_c == 1 && !Sten_Type[POLYMER_CR]){
         for (icomp=0; icomp<Ncomp; icomp++)
           fprintf(ifp,"%20.15f\t",
-                  Rho_b[icomp]*exp(-Charge_f[icomp]*X_old[Unk_start_eq[POISSON]+node_start]
+                  Rho_b[icomp]*exp(-Charge_f[icomp]*X_old[Phys2Unk_first[POISSON]+node_start]
                                                               -Vext_old[inode*Ncomp+icomp]));
         }
  
@@ -310,10 +310,10 @@ void print_profile(char *output_file4)
                     itype_mer=Type_mer[icomp][iseg];
                     bondproduct=1.0;
                     for(ibond=0;ibond<Nbond[icomp][iseg];ibond++){
-                         unk_GQ  = Unk_start_eq[CMS_G] + Poly_to_Unk[icomp][iseg][ibond];
+                         unk_GQ  = Phys2Unk_first[CMS_G] + Poly_to_Unk[icomp][iseg][ibond];
                          bondproduct *= X_old[unk_GQ+node_start];
                     }  
-                   unk_B=Unk_start_eq[CMS_FIELD]+itype_mer;
+                   unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
                    if (Type_poly==2)
                       site_dens=bondproduct*X_old[unk_B+node_start]*Rho_b[itype_mer];
                    else
@@ -379,8 +379,8 @@ void print_gofr(char *output_file6)
         fprintf(ifp,"%9.6f\t ",r);
 
         for (iunk=0; iunk<Nunk_per_node; iunk++){
-            if (Unk_to_eq_type[iunk]==DENSITY){
-                icomp = iunk-Unk_start_eq[DENSITY];
+            if (Unk2Phys[iunk]==DENSITY){
+                icomp = iunk-Phys2Unk_first[DENSITY];
                 fprintf(ifp,"%22.17f\t", -log(X_old[iunk]/Rho_b[icomp]));
             }
         }

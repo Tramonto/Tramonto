@@ -127,23 +127,23 @@ void fill_resid_and_matrix_P (double *x, double *resid,
              resid[loc_i]=0.0;                      /*initialize resid to zero*/
       }
 
-      if (Unk_to_eq_type[iunk]==DENSITY) itype_mer = iunk-Unk_start_eq[DENSITY]; 
-      else if (Unk_to_eq_type[iunk] == CMS_FIELD) itype_mer = iunk - Unk_start_eq[CMS_FIELD];
-      else if  (Unk_to_eq_type[iunk] == CMS_G) {                   
-                               npol = Unk_to_Poly[iunk-Unk_start_eq[CMS_G]];
-                               nseg = Unk_to_Seg[iunk-Unk_start_eq[CMS_G]]; 
+      if (Unk2Phys[iunk]==DENSITY) itype_mer = iunk-Phys2Unk_first[DENSITY]; 
+      else if (Unk2Phys[iunk] == CMS_FIELD) itype_mer = iunk - Phys2Unk_first[CMS_FIELD];
+      else if  (Unk2Phys[iunk] == CMS_G) {                   
+                               npol = Unk_to_Poly[iunk-Phys2Unk_first[CMS_G]];
+                               nseg = Unk_to_Seg[iunk-Phys2Unk_first[CMS_G]]; 
                                itype_mer = Type_mer[npol][nseg];
       }
 
                                                                /*DO ZERO DENSITY FILL*/
       if ( fill_flag != MSR_PREPROCESS && ( ((Zero_density_TF[inode_box][itype_mer] ||    
-            Vext[loc_inode][itype_mer] == VEXT_MAX) && Unk_to_eq_type[iunk]!=POISSON)
-            /*|| (Unk_to_eq_type[iunk]==DENSITY 
-               && -log(x[loc_find(Unk_start_eq[CMS_FIELD]+itype_mer,loc_inode,LOCAL)]) > VEXT_MAX )*/) ){
+            Vext[loc_inode][itype_mer] == VEXT_MAX) && Unk2Phys[iunk]!=POISSON)
+            /*|| (Unk2Phys[iunk]==DENSITY 
+               && -log(x[loc_find(Phys2Unk_first[CMS_FIELD]+itype_mer,loc_inode,LOCAL)]) > VEXT_MAX )*/) ){
            resid[loc_i] = x[loc_i];
            mat_row[loc_i] = 1.0;
       }
-/*      else if (fill_flag != MSR_PREPROCESS && Unk_to_eq_type[iunk]==CMS_FIELD 
+/*      else if (fill_flag != MSR_PREPROCESS && Unk2Phys[iunk]==CMS_FIELD 
                && x[loc_i] < exp(-VEXT_MAX) ){
                resid[loc_i] = x[loc_i]-exp(-VEXT_MAX);
                mat_row[loc_i] = 1.0;
@@ -211,7 +211,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
          izone = mesh_coarsen_flag_i;
 
 	 /* ALF: modify field eqns for SCF option, Type_poly==3  */
-         if (Unk_to_eq_type[iunk] == CMS_FIELD){             /*BOLTZMANN EQNS*/
+         if (Unk2Phys[iunk] == CMS_FIELD){             /*BOLTZMANN EQNS*/
 
 	    if(Type_poly != 3) {
 	      row_fact = load_polymer_cr(POLYMER_CR,loc_i,itype_mer,
@@ -221,12 +221,12 @@ void fill_resid_and_matrix_P (double *x, double *resid,
 	   else {    /* ALF: new code */
 	     for (jtype_mer=0; jtype_mer<Ncomp; jtype_mer++){
 	       if (fill_flag != MSR_PREPROCESS) {
-		 loc_l = Aztec.update_index[loc_find(jtype_mer + Unk_start_eq[DENSITY],loc_inode,LOCAL)];
+		 loc_l = Aztec.update_index[loc_find(jtype_mer + Phys2Unk_first[DENSITY],loc_inode,LOCAL)];
 		 resid[loc_i] -= Rism_cr[itype_mer][jtype_mer][0]*(x[loc_l]-Rho_b[jtype_mer]);
 		 mat_row[loc_l] -= Rism_cr[itype_mer][jtype_mer][0];
 	       }
 	       else{ /* MSR_PREPROCESS  */
-		 bindx_tmp[loc_find(jtype_mer + Unk_start_eq[DENSITY],inode_box,BOX)] = TRUE;
+		 bindx_tmp[loc_find(jtype_mer + Phys2Unk_first[DENSITY],inode_box,BOX)] = TRUE;
                }
 	     }
 	     row_fact = 1.;
@@ -237,7 +237,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
               resid[loc_i] += log(x[loc_i]);      
               mat_row[loc_i] += row_fact/x[loc_i];  
               if (Ipot_ff_c == COULOMB){
-                    loc_i_charge = Aztec.update_index[loc_find(Unk_start_eq[POISSON],loc_inode,LOCAL)];
+                    loc_i_charge = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode,LOCAL)];
                     resid[loc_i]  += Charge_f[itype_mer]*x[loc_i_charge];
                     mat_row[loc_i_charge] += Charge_f[itype_mer];
               }
@@ -258,11 +258,11 @@ void fill_resid_and_matrix_P (double *x, double *resid,
                 resid_B=resid[loc_i]; 
             }
             else{
-               if (Ipot_ff_c==COULOMB)  bindx_tmp[loc_find(Unk_start_eq[POISSON],inode_box,BOX)] = TRUE;
+               if (Ipot_ff_c==COULOMB)  bindx_tmp[loc_find(Phys2Unk_first[POISSON],inode_box,BOX)] = TRUE;
             }
          }                                  /* END BOLTZMAN EQNS */
 
-         else if (Unk_to_eq_type[iunk]==DENSITY){   /* DENSITY EQNS FOR POLYMER SEGS*/
+         else if (Unk2Phys[iunk]==DENSITY){   /* DENSITY EQNS FOR POLYMER SEGS*/
 
             if (fill_flag != MSR_PREPROCESS && max_field[itype_mer]){
                resid[loc_i] = x[loc_i];
@@ -279,7 +279,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
 
             if (fill_flag != MSR_PREPROCESS){
 	      /* Boltzmann factor for this i */
-               loc_B = Aztec.update_index[loc_find(itype_mer + Unk_start_eq[CMS_FIELD],loc_inode,LOCAL)];
+               loc_B = Aztec.update_index[loc_find(itype_mer + Phys2Unk_first[CMS_FIELD],loc_inode,LOCAL)];
                if (Type_poly == 2 || Type_poly == 1) {
                  resid[loc_i] += x[loc_i];
                  mat_row[loc_i] += 1.;
@@ -291,7 +291,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
                }
             }
             else{
-               bindx_tmp[loc_find(itype_mer+Unk_start_eq[CMS_FIELD],inode_box,BOX)] = TRUE;
+               bindx_tmp[loc_find(itype_mer+Phys2Unk_first[CMS_FIELD],inode_box,BOX)] = TRUE;
             }
 
             npol = 0;
@@ -367,7 +367,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
          }                                   * END SOLVENT DENSITY EQNS *
 **********************************************************************/
 
-         else if (Unk_to_eq_type[iunk] == CMS_G){          /* G EQNS */
+         else if (Unk2Phys[iunk] == CMS_G){          /* G EQNS */
 
             if (max_field[itype_mer] && fill_flag != MSR_PREPROCESS){  /* ACCOUNT FOR MAX FIELD */
                resid[loc_i] = x[loc_i];
@@ -375,13 +375,13 @@ void fill_resid_and_matrix_P (double *x, double *resid,
             }
             else {
 
-             unk_GQ=iunk-Unk_start_eq[CMS_G];
+             unk_GQ=iunk-Phys2Unk_first[CMS_G];
              pol_num = Unk_to_Poly[unk_GQ];
              seg_num = Unk_to_Seg[unk_GQ];
              bond_num = Unk_to_Bond[unk_GQ];
       
              if (Pol_Sym[unk_GQ] != -1){                            /* FILL IN G's FOR SYMMETRIC BONDS */
-                junk = Pol_Sym[unk_GQ] + Unk_start_eq[CMS_G];
+                junk = Pol_Sym[unk_GQ] + Phys2Unk_first[CMS_G];
                 if (fill_flag == MSR_PREPROCESS){
                   bindx_tmp[loc_find(junk,inode_box,BOX)] = TRUE;
                 }
@@ -405,7 +405,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
                      }
                      else{*/
                                                          /* Boltz unk for 1st seg */
-                        unk_B = Unk_start_eq[CMS_FIELD] + Type_mer[npol][seg_num];     
+                        unk_B = Phys2Unk_first[CMS_FIELD] + Type_mer[npol][seg_num];     
                         if (fill_flag == MSR_PREPROCESS){
                            bindx_tmp[loc_find(unk_B,inode_box,BOX)] = TRUE;
                         }
@@ -429,7 +429,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
 
                                  /* First calculate the residual contributions */
 
-                  unk_B = Unk_start_eq[CMS_FIELD] + itype_mer;   /* Boltz unk for this seg */
+                  unk_B = Phys2Unk_first[CMS_FIELD] + itype_mer;   /* Boltz unk for this seg */
                   if (fill_flag == MSR_PREPROCESS){
                      if (Type_poly !=2) bindx_tmp[loc_find(unk_B,inode_box,BOX)] = TRUE;
                   }
@@ -470,7 +470,7 @@ void fill_resid_and_matrix_P (double *x, double *resid,
 		printf("large resid in G eqns\n");
 		}*/
          }                                  /* END G EQNS */
-         else if (Unk_to_eq_type[iunk] == POISSON){ /* LOAD POISSON'S EQUATION*/
+         else if (Unk2Phys[iunk] == POISSON){ /* LOAD POISSON'S EQUATION*/
               load_poissons_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
                                               resid, x, bindx_tmp, fill_flag);
               if (fill_flag !=MSR_PREPROCESS){
@@ -570,7 +570,7 @@ double load_polymer_G(int sten_type,int iunk,int loc_B,int itype_mer,
      products now.  one excludes k(beta)=i, the other also excludes k(beta=i2)*/
 
    /* (1) from iunk get the segment number i and bond number*/
-  unk_GQ = iunk-Unk_start_eq[CMS_G];
+  unk_GQ = iunk-Phys2Unk_first[CMS_G];
   pol_num  = Unk_to_Poly[unk_GQ];
   seg_num  = Unk_to_Seg[unk_GQ];
   bond_num = Unk_to_Bond[unk_GQ];
@@ -588,7 +588,7 @@ double load_polymer_G(int sten_type,int iunk,int loc_B,int itype_mer,
   nunk=0;
   for (ibond=0; ibond<Nbond[pol_num][jseg];ibond++){
       if (Bonds[pol_num][jseg][ibond] != seg_num){
-        unk[nunk++]     = Poly_to_Unk[pol_num][jseg][ibond]+Unk_start_eq[CMS_G];
+        unk[nunk++]     = Poly_to_Unk[pol_num][jseg][ibond]+Phys2Unk_first[CMS_G];
       }
   }
   /* don't forget Boltzman factor */
@@ -716,7 +716,7 @@ double load_polymer_cr(int sten_type, int loc_i, int itype_mer,
             }
             else weight = weight_bulk;
 
-             j_box=loc_find(Unk_start_eq[DENSITY]+jtype_mer,jnode_box,BOX);  
+             j_box=loc_find(Phys2Unk_first[DENSITY]+jtype_mer,jnode_box,BOX);  
                                             /* density of this component type */
              if (fill_flag != MSR_PREPROCESS){
                     r_tmp -=  sign*(weight*x[B2L_unknowns[j_box]]-

@@ -258,7 +258,7 @@ void setup_integrals()
                }
             }
  
-            loc_i = Aztec.update_index[loc_find(Unk_start_eq[DENSITY]+icomp,loc_inode,LOCAL)];
+            loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
 
             Nel_hit[i][loc_i]=nel_hit;
             Nel_hit2[i][loc_i]=nel_hit2;
