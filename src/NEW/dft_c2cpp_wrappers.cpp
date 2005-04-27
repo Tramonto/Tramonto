@@ -75,12 +75,6 @@ extern "C" {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     return(solvermanager_->insertRhsValue(iunk, inode, value));
   }
-  
-  int dft_solvermanager_insertlhsvalue) (void * solvermanager, int iunk, int inode, double value) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->insertLhsValue(iunk, inode, value));
-  }
-
 
   int dft_solvermanager_insertonematrixvalue) (void * solvermanager, int iunk, int ownednode,
                                                       int junk, int boxnode, double value) {
@@ -109,11 +103,6 @@ extern "C" {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     bool readonly_ = !(readOnly==0);
     return(solvermanager_->setBlockMatrixReadOnly(iunk, junk, readonly_));
-  }
-
-  int dft_solvermanager_setlhs(void * solvermanager, double** x) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->setLhs((const double**) x));
   }
 
   int dft_solvermanager_setrhs(void * solvermanager, double** x) {

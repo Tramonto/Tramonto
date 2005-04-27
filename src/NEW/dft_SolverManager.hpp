@@ -108,17 +108,6 @@ class dft_SolverManager {
   */
   int insertRhsValue(int ownedPhysicsID, int ownedNode, double value);
 
-  //! Insert lhs value based on ownedNode and ownedPhysicsID.
-  /*! Insert lhs value based on ownedNode and ownedPhysicsID.
-     \param ownedPhysicsID (In) The index for the type of unknown.  
-                           This should be between 0 and one less than the number of physics variables tracked at a node.  
-     \param ownedNode (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
-                      This should be between 0 and one less than the number of nodes owned by this processor, independent of
-		      the number of physics types being computed for the given problem.
-     \param value (In) Lhs value.
-  */
-  int insertLhsValue(int ownedPhysicsID, int ownedNode, double value);
-
   //! Insert single matrix coefficient into system.
   /*! Insert single value into matrix.
      \param ownedPhysicsID (In) The physics ID for the matrix row being updated.  
@@ -191,12 +180,6 @@ class dft_SolverManager {
 
   //! Set all left hand side (initial guess) vectors at once.
   /*! Allows the definition of initial guess values in a single call.
-    \param x (In) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numOwnedNodes.
-  */
-  int setLhs(const double ** x);
-
-  //! Set all left hand side (initial guess) vectors at once.
-  /*! Allows the definition of initial guess values in a single call.
     \param b (In) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numOwnedNodes.
   */
   int setRhs(const double ** b);
@@ -255,7 +238,7 @@ class dft_SolverManager {
 
 private:
 
-  int numPhysicsTypes_;
+  int numUnknownsPerNode_;
   int numMatrixBlocks_;
   Epetra_MpiComm comm_;
   Epetra_RowMatrix *** blockMatrix_;

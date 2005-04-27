@@ -57,8 +57,6 @@ extern "C" {
   
   int dft_solvermanager_insertrhsvalue(void * solvermanager, int iunk, int inode, double value);
 
-  int dft_solvermanager_insertlhsvalue(void * solvermanager, int iunk, int ibox, double value);
-
   int dft_solvermanager_insertonematrixvalue(void * solvermanager, int iunk, int ownednode,
                                                      int junk, int boxnode, double value);
 
