@@ -84,7 +84,7 @@ class dft_SolverManager {
      \param nz (In) Number of nodes in Z direction on this processor, defaults to 1.
 
   */
-  int setNodalColMap(int numBoxNodes int * GIDs, int nx, int ny = 1, int nz = 1);
+  int setNodalColMap(int numBoxNodes, int * GIDs, int nx=0, int ny = 1, int nz = 1);
 
   //! Method that must be called once, when all row and column maps are set.
   /*! This method constructs all of the Epetra_CrsGraph objects and the lhs and rhs vectors. */
@@ -193,7 +193,7 @@ class dft_SolverManager {
     \param x (In) Array of pointers such that x[i] is an array of doubles of length numOwnedNodes.
     \param b (Out) Array of pointers such that b[i] is an array of doubles of length numOwnedNodes.
   */
-  applyMatrix(const double** x, double** b) const;
+  int applyMatrix(const double** x, double** b) const;
   
   //! Fill the arrays xBox[i] with xOwned[i] for all physics types i, i.e., fill in ghost values on each processor.
   /*! Fills in xBox[i] with values from xOwned[i] such that ghost values from other processors are updated.
@@ -202,7 +202,7 @@ class dft_SolverManager {
 
     \warning Note that xOwned[i] is of length numOwnedNodes and xBox[i] is of length numBoxNodes.
   */
-  importR2C(const double** xOwned, double** xBox) const;//Local2Box all unknowns
+  int importR2C(const double** xOwned, double** xBox) const;//Local2Box all unknowns
 
   //! Fill the array aBox with aOwned, i.e., fill in ghost values on each processor.
   //! Fill the arrays aBox with aOwned for a single physics types.
@@ -212,7 +212,7 @@ class dft_SolverManager {
 
     \warning Note that aOwned is of length numOwnedNodes and aBox is of length numBoxNodes.
   */
-  importR2C(const double* aOwned, double* aBox) const;//Local2Box node-based (R2C==Row to Column map)
+  int importR2C(const double* aOwned, double* aBox) const;//Local2Box node-based (R2C==Row to Column map)
 
   //@}
 

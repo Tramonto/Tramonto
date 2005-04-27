@@ -29,6 +29,8 @@
 
 #ifdef EPETRA_MPI
 #include <mpi.h>
+#else
+typedef int MPI_Comm;
 #endif
 
 #include "Epetra_Object.h"
@@ -46,6 +48,8 @@
 #include "Epetra_MpiComm.h"
 #endif
 
+#include "dft_c2cpp_wrappers.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,70 +66,111 @@ extern "C" {
   /**                  dft_SolverManager             **/
   /***************************************************/
 
-  DFT_OBJECT_PTR MANGLE(dft_solvermanager_create)(DFT_INT numblocks, DFT_OBJET_REF comm) {
-    Epetra_Comm& comm_ = *(Epetra_Comm *) comm;
-    Epetra_Map *map = new Epetra_Map(EPETRA_DEREF(numGlobalElements), EPETRA_DEREF(indexBase), comm_);
-    return((EPETRA_OBJECT_PTR ) map);
+  DFT_OBJECT_PTR MANGLE(dft_solvermanager_create)(DFT_INT numUnks, int* iunk_to_phys,
+                        int* solverOptions, double* solverParams, DFT_OBJECT_REF comm) {
+    dft_SolverManager * solvermanager_ = new dft_SolverManager(numUnks, iunk_to_phys, solverOptions,
+		                                               solverParams, (MPI_Comm &) comm);
+    return(solvermanager_);
   }
 
-  int MANGLE(dft_solvermanager_setrowmap)(DFT_OBJECT_REF solvermanager, DFT_INT i, DFT_INT numgids, int * gids) {
+  void MANGLE(dft_solvermanager_destruct)(DFT_OBJECT_PTR solvermanagerptr) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanagerptr;
+    solvermanager_->~dft_SolverManager();
+  }
+
+  int MANGLE(dft_solvermanager_setnodalrowmap)(DFT_OBJECT_PTR solvermanager, DFT_INT numgids, int * gids) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->setRowMap(i, numgids, gids));
+    return(solvermanager_->setNodalRowMap(numgids, gids));
   }
 
-  int MANGLE(dft_solvermanager_setcolmap)(DFT_OBJECT_REF solvermanager, DFT_INT j, DFT_INT numgids, int * gids) {
+  int MANGLE(dft_solvermanager_setnodalcolmap)(DFT_OBJECT_PTR solvermanager, DFT_INT numgids, int * gids) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->setColMap(j, numgids, gids));
+    return(solvermanager_->setNodalColMap(numgids, gids));
   }
 
-  int MANGLE(dft_solvermanager_finalizeblockstructure)(DFT_OBJECT_REF solvermanager) {
+  int MANGLE(dft_solvermanager_finalizeblockstructure)(DFT_OBJECT_PTR solvermanager) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     return(solvermanager_->finalizeBlockStructure());
   }
 
-  int  MANGLE(dft_solvermanager_insertgraphindices) (DFT_OBJECT_REF solvermanager, DFT_INT i, DFT_INT j, DFT_INT localrow, DFT_INT numentries, int *indices) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->insertGraphIndices(i, j, localrow, numentries, indices));
-  }
-
-  int MANGLE(dft_solvermanager_finalizegraphstructure)(DFT_OBJECT_REF solvermanager) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->finalizeGraphStructure());
-  }
-
-  int MANGLE(dft_solvermanager_initializeproblemvalues)(DFT_OBJECT_REF solvermanager) {
+  int MANGLE(dft_solvermanager_initializeproblemvalues)(DFT_OBJECT_PTR solvermanager) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     return(solvermanager_->initializeProblemValues());
   }
 
-  
-  int MANGLE(dft_solvermanager_insertmatrixvalues) (DFT_OBJECT_REF solvermanager, DFT_INT i, DFT_INT j, DFT_INT localrow, DFT_INT numentries, double *values, int *indices) {
+
+  int MANGLE(dft_solvermanager_insertrhsvalue) (DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT inode, DFT_DOUBLE value) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->insertMatrixValues(i, j, localrow, numentries, values, indices));
+    return(solvermanager_->insertRhsValue(iunk, inode, value));
+  }
+  
+  int MANGLE(dft_solvermanager_insertlhsvalue) (DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT inode, DFT_DOUBLE value) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->insertLhsValue(iunk, inode, value));
   }
 
-  
-  int MANGLE(dft_solvermanager_insertlhsvalues) (DFT_OBJECT_REF solvermanager, DFT_INT i, DFT_INT localentry, DFT_DOUBLE value) {
+
+  int MANGLE(dft_solvermanager_insertmatrixvalues) (DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT inode,
+                                                    DFT_INT junk, DFT_INT numentries, double *values, int *indices) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->insertLhsValues(i, localentry, value));
+    return(solvermanager_->insertMatrixValues(iunk, inode, junk, numentries, values, indices));
   }
 
-  
-  int MANGLE(dft_solvermanager_insertrhsvalues) (DFT_OBJECT_REF solvermanager, DFT_INT i, DFT_INT localentry, DFT_DOUBLE value) {
+  int MANGLE(dft_solvermanager_insertonematrixvalue) (DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT inode,
+                                                      DFT_INT junk, double value, int index) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->insertRhsValues(i, localentry, value));
+    return(solvermanager_->insertMatrixValues(iunk, inode, junk, 1, &value, &index));
   }
   
-  int MANGLE(dft_solvermanager_finalizeproblemvalues)(DFT_OBJECT_REF solvermanager) {
+  int MANGLE(dft_solvermanager_finalizeproblemvalues)(DFT_OBJECT_PTR solvermanager) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     return(solvermanager_->finalizeProblemValues());
   }
-
   
-  int MANGLE(dft_solvermanager_setblockmatrixreadonly)(DFT_OBJECT_REF solvermanager, DFT_INT i, DFT_INT j, DFT_INT readOnly) {
+  int MANGLE(dft_solvermanager_setblockmatrixreadonly)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT junk, DFT_INT readOnly) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     bool readonly_ = !(DFT_DEREF(readOnly==0));
-    return(solvermanager_->setblockmatrixreadonly(i, j, readonly_));
+    return(solvermanager_->setBlockMatrixReadOnly(iunk, junk, readonly_));
+  }
+
+  int MANGLE(dft_solvermanager_setlhs)(DFT_OBJECT_PTR solvermanager, double** x) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->setLhs((const double**) x));
+  }
+
+  int MANGLE(dft_solvermanager_setrhs)(DFT_OBJECT_PTR solvermanager, double** x) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->setRhs((const double**) x));
+  }
+
+  int MANGLE(dft_solvermanager_getlhs)(DFT_OBJECT_PTR solvermanager, double** x) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->getLhs(x));
+  }
+
+  int MANGLE(dft_solvermanager_getrhs)(DFT_OBJECT_PTR solvermanager, double** x) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->getRhs(x));
+  }
+
+  int MANGLE(dft_solvermanager_setupsolver)(DFT_OBJECT_PTR solvermanager) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->setupSolver());
+  }
+
+  int MANGLE(dft_solvermanager_solve)(DFT_OBJECT_PTR solvermanager) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->solve());
+  }
+
+  int MANGLE(dft_solvermanager_importr2c)(DFT_OBJECT_PTR solvermanager, double** x, double **b) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->importR2C((const double**) x,b));
+  }
+
+  int MANGLE(dft_solvermanager_importnodalr2c)(DFT_OBJECT_PTR solvermanager, double* x, double *b) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->importR2C((const double*) x,b));
   }
 
 #ifdef __cplusplus

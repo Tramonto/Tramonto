@@ -52,9 +52,10 @@ typedef int & DFT_OBJECT_REF;
 #else
 
 /* These typedefs act as new types for the Epetra C interface */
-
+;
 typedef double DFT_DOUBLE;
 typedef int    DFT_INT;
+
 #define DFT_DEREF(a) a
 
 typedef void * DFT_OBJECT_PTR;
@@ -74,6 +75,7 @@ typedef void * DFT_OBJECT_REF;
 #endif
 
 
+#include "dft_SolverManager.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,29 +90,51 @@ extern "C" {
   /**                  dft_SolverManager             **/
   /***************************************************/
 
-  DFT_OBJECT_PTR MANGLE(dft_solvermanager_create)(DFT_INT numblocks, DFT_OBJET_REF comm);
+  DFT_OBJECT_PTR MANGLE(dft_solvermanager_create)(DFT_INT numUnks, int* iunk_to_phys,
+		        int* solverOptions, double* solverParams, DFT_OBJECT_REF comm);
 
-  int MANGLE(dft_solvermanager_setrowmap)(DFT_OBJECT_REF solvermanager, DFT_INT i, DFT_INT numgids, int * gids);
+  void MANGLE(dft_solvermanager_destruct)(DFT_OBJECT_PTR solvermanagerptr);
 
-  int MANGLE(dft_solvermanager_setcolmap)(DFT_OBJECT_REF solvermanager, DFT_INT j, DFT_INT numgids, int * gids);
+  int MANGLE(dft_solvermanager_setnodalrowmap)(DFT_OBJECT_PTR solvermanager, DFT_INT numgids, int * gids);
 
-  int MANGLE(dft_solvermanager_finalizeblockstructure)(DFT_OBJECT_REF solvermanager);
+  int MANGLE(dft_solvermanager_setnodalcolmap)(DFT_OBJECT_PTR solvermanager, DFT_INT numgids, int * gids);
 
-  int  MANGLE(dft_solvermanager_insertgraphindices) (DFT_INT i, DFT_INT j, DFT_INT localrow, DFT_INT numentries, int *indices);
+  int MANGLE(dft_solvermanager_finalizeblockstructure)(DFT_OBJECT_PTR solvermanager);
 
-  int MANGLE(dft_solvermanager_finalizegraphstructure)(DFT_OBJECT_REF solvermanager);
+  int MANGLE(dft_solvermanager_initializeproblemvalues)(DFT_OBJECT_PTR solvermanager);
   
-  int MANGLE(dft_solvermanager_initializeproblemvalues)(DFT_OBJECT_REF solvermanager);
+  int MANGLE(dft_solvermanager_insertrhsvalue)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT inode, DFT_DOUBLE value);
+
+  int MANGLE(dft_solvermanager_insertlhsvalue)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT ibox, DFT_DOUBLE value);
   
-  int MANGLE(dft_solvermanager_insertmatrixvalues) (DFT_INT i, DFT_INT j, DFT_INT localrow, DFT_INT numentries, double *values, int *indices);
+  int MANGLE(dft_solvermanager_insertmatrixvalues)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT inode,
+		                                   DFT_INT junk, DFT_INT numentries, double *values, int *indices);
+
+  int MANGLE(dft_solvermanager_insertonematrixvalue)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT inode,
+                                                     DFT_INT junk, double value, int index);
   
-  int MANGLE(dft_solvermanager_insertlhsvalues) (DFT_INT i, DFT_INT localentry, DFT_DOUBLE value);
+  int MANGLE(dft_solvermanager_finalizeproblemvalues)(DFT_OBJECT_PTR solvermanager);
   
-  int MANGLE(dft_solvermanager_insertrhsvalues) (DFT_INT i, DFT_INT localentry, DFT_DOUBLE value);
+  int MANGLE(dft_solvermanager_setblockmatrixreadonly)(DFT_OBJECT_PTR solvermanager, DFT_INT iunk, DFT_INT junk, DFT_INT readOnly);
+
+  int MANGLE(dft_solvermanager_setlhs)(DFT_OBJECT_PTR solvermanager, double** x);
   
-  int MANGLE(dft_solvermanager_finalizeproblemvalues)(DFT_OBJECT_REF solvermanager);
-  
-  int MANGLE(dft_solvermanager_setblockmatrixreadonly)(DFT_OBJECT_REF solvermanager, DFT_INT i, DFT_INT j, DFT_INT readOnly);
+  int MANGLE(dft_solvermanager_setrhs)(DFT_OBJECT_PTR solvermanager, double** b);
+
+  int MANGLE(dft_solvermanager_getlhs)(DFT_OBJECT_PTR solvermanager, double** x);
+
+  int MANGLE(dft_solvermanager_getrhs)(DFT_OBJECT_PTR solvermanager, double** b);
+
+  int MANGLE(dft_solvermanager_setupsolver)(DFT_OBJECT_PTR solvermanager);
+
+  int MANGLE(dft_solvermanager_solve)(DFT_OBJECT_PTR solvermanager);
+
+  int MANGLE(dft_solvermanager_applymatrix)(DFT_OBJECT_PTR solvermanager, double**x, double** b);
+
+  int MANGLE(dft_solvermanager_importr2c)(DFT_OBJECT_PTR solvermanager, double**x, double** b);
+
+  int MANGLE(dft_solvermanager_importnodalr2c)(DFT_OBJECT_PTR solvermanager, double*x, double* b);
+
 
 #ifdef __cplusplus
 }
