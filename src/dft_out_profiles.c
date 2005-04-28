@@ -1031,34 +1031,3 @@ void print_rho_bar(struct RB_Struct *rho_bar, char *output_file)
   return;
 }
 /****************************************************************************/
-/*print_time_histogram: This little routine just prints a histogram of the
-                        frequency of processor run times fill.*/
-void print_time_histogram(int *hist,int *niters)
-{
-   int nhist = 200, hist_sum[200],ntot,i;
-   FILE *fp=NULL;
-
-   if (Proc ==0) 
-       fp = fopen("hist.dat","a");
-   for (i=0; i<200; i++) hist_sum[i] = 0;
-  
-   gsum_vec_int(hist, hist_sum, nhist) ;
-
-   if (Proc == 0) {
-      ntot = 0;
-      for (i=0; i<nhist; i++) ntot += hist_sum[i];
-
-      if (ntot > 0) {
-        for (i=0; i<nhist; i++){
-           fprintf(fp," %g \t %g \n", 
-                   (double)i*Bin_size +
-                    Time_min_avg/(*niters - 2),
-                    (double)hist_sum[i]/((double)ntot));
-        }
-      }
-
-      fclose(fp);
-   }
-   return;
-}
-/****************************************************************************/

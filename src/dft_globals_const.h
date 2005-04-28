@@ -503,19 +503,6 @@ extern
 int    count_nonzero;
 */
 
-extern int Hist_time[200];  /* Bin the time per processor ... this is to check lb*/
-extern double Bin_size;
-extern double Time_min_avg;
-extern double T_av_precalc_min;
-extern double T_av_fill_min;
-extern double T_av_lj_min;
-extern double T_av_solve_min;
-extern double T_av_precalc_max;
-extern double T_av_fill_max;
-extern double T_av_lj_max;
-extern double T_av_solve_max;
-extern double T_msr_setup;
-
 /* Basic Equation info */
 extern int Phys2Nunk[NEQ_TYPE];  /* Number of unknowns of a particular equation type */
 extern int Phys2Unk_first[NEQ_TYPE]; /* starting unknown number for a given equation type */
@@ -1234,8 +1221,7 @@ extern void fill_resid_and_matrix_control(double *, double *,
 extern void fill_resid_and_matrix(double **, int, int, int);
 extern void fill_resid_and_matrix_rb(double *, double *, 
                                   int **, double *, int, int);
-extern void fill_resid_and_matrix_P(double *, double *, 
-                                  int **, double *, int, int, int,int);
+extern void fill_resid_and_matrix_P(double **, int, int, int);
 extern int  get_integration_pts(int, int, double ***, double **);
 extern void pre_calc_rho_bar(struct RB_Struct *, double *, int,int,
                              double ***, int ***,double *);

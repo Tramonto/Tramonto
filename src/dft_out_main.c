@@ -181,8 +181,6 @@ void post_process (double *x_internal,char *output_file3,int *niters,
 
    safe_free((void *) &x);
 
-/*   if (Iwrite) print_time_histogram(Hist_time,niters);*/
-
    if (Proc==0 && Iwrite !=NO_SCREEN) printf("post processing took %g secs\n",MPI_Wtime()-t1);
 }
 /***************************************************************************/

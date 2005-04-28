@@ -160,33 +160,25 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /* do mesh coarsening if indicated .... for all unknowns ! */
       else if (mesh_coarsen_flag_i < 0 && mesh_coarsen_flag_i != FLAG_BULK) {
 
-          /* Go to node 1 higher in the appropriate ijk direction */
+         resid= x[iunk][inode_box];
+         mat_value=1.0;
+         dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
 
-          offset_ptr = &offset_idim_pm[3*(-mesh_coarsen_flag_i - 1)];
+         for (iloop=0;iloop<2;iloop++){
+
+          if (iloop==0) offset_ptr = &offset_idim_pm[3*(-mesh_coarsen_flag_i - 1)];  /* one node higher */
+          else          offset_ptr += 9;                                             /* one node lower */
+
           jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
 
-          resid= x[iunk][inode_box];
-          mat_value=1.0;
-          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
           if (jnode_box >= 0) {
              resid= - 0.5*x[iunk][jnode_box];
              mat_value=-0.5;
              dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,jnode_box,mat_value);         
           }
-          else{ resid= - 0.5*constant_boundary(iunk,jnode_box); }
-
-          /* Go to node 1 lower in the appropriate ijk direction */
-
-          offset_ptr += 9;  /* gets negative of offset used above */
-          jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
-
-          if (jnode_box >= 0){
-             resid= - 0.5*x[iunk][jnode_box];
-             mat_value=-0.5;
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,jnode_box,mat_value);         
-          }
-          else{ resid -= 0.5*constant_boundary(iunk,jnode_box); }
-          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          else{  resid= - 0.5*constant_boundary(iunk,jnode_box); }
+        }
+        dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
      }
      else{
 

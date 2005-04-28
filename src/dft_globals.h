@@ -25,30 +25,12 @@
 
 #include "dft_globals_const.h"
 
-/*int     count_zero;
-int     count_nonzero;
-*/
-int     Hist_time[200];
-double  Bin_size;
-double  Time_min_avg;
-double  T_av_precalc_min;
-double  T_av_fill_min;
-double  T_av_lj_min;
-double  T_av_solve_min;
-double  T_av_precalc_max;
-double  T_av_fill_max;
-double  T_av_lj_max;
-double  T_av_solve_max;
-double  T_msr_setup;
-
 /* Basic Equation info */
 int Phys2Nunk[NEQ_TYPE];  /* Number of unknowns of a particular equation type */
 int Phys2Unk_first[NEQ_TYPE]; /* starting unknown number for a given equation type */
 int Phys2Unk_last[NEQ_TYPE]; /* ending unknown number for a given equation type */
 int Unk2Phys[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equation type
                                                                          given an unknown index */
-
-
 
 /* Mesh info */
 

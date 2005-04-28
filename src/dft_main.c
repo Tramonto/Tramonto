@@ -51,8 +51,8 @@ void dftmain(double * engptr)
   double    *x,*x2=NULL;  /* The solution vector of densities */
   double    time_save;
   double    t_preprocess=0.0,t_solve=0.0,t_postprocess=0.0,t_total=0.0;
-  double    t_pre_max,t_solve_max,t_post_max,t_total_max,t_msr_max;
-  double    t_pre_min,t_solve_min,t_post_min,t_total_min,t_msr_min;
+  double    t_pre_max,t_solve_max,t_post_max,t_total_max;
+  double    t_pre_min,t_solve_min,t_post_min,t_total_min;
   int izone,isten,jcomp,jmax;
   struct Stencil_Struct *sten;
   char line[100],linecwd[100];
@@ -220,8 +220,6 @@ void dftmain(double * engptr)
 
       t_preprocess += MPI_Wtime();
       t_solve = -MPI_Wtime();
-      T_av_precalc_min = T_av_fill_min = T_av_solve_min = T_av_lj_min = 0.0;
-      T_av_precalc_max = T_av_fill_max = T_av_solve_max = T_av_lj_max = 0.0;
       niters = solve_problem(&x, &x2);
       t_solve += MPI_Wtime();
      /*
@@ -273,13 +271,11 @@ void dftmain(double * engptr)
 
       t_total = MPI_Wtime() - start_t;
       t_pre_max= gmax_double(t_preprocess);
-      t_msr_max= gmax_double(T_msr_setup);
       t_solve_max=gmax_double(t_solve);
       t_post_max=gmax_double(t_postprocess);
       t_total_max=gmax_double(t_total);
 
       t_pre_min= gmin_double(t_preprocess);
-      t_msr_min= gmin_double(T_msr_setup);
       t_solve_min=gmin_double(t_solve);
       t_post_min=gmin_double(t_postprocess);
       t_total_min=gmin_double(t_total);
@@ -293,19 +289,6 @@ void dftmain(double * engptr)
         printf ("---------------------------------------------------\n");
         printf ("MESH SETUP               %g         %g       \n",
                                                     t_pre_max,t_pre_min); 
-        printf ("---------------------------------------------------\n");
-        printf ("MSR_PREPROC              %g         %g       \n",
-                                                    t_msr_min,t_msr_max);
-        printf ("PRE_CALC ROUTINES        %g        %g       \n",
-                        T_av_precalc_min/niters,T_av_precalc_max/niters);
-        if (Matrix_fill_flag <3)
-        printf ("JACOBIAN                 %g         %g       \n",
-                                  T_av_lj_min/niters,T_av_lj_max/niters);
-        printf ("FILL ROUTINE             %g         %g       \n",
-                              T_av_fill_min/niters,T_av_fill_max/niters);
-        printf ("---------------------------------------------------\n");
-        printf ("AZTEC SOLVE              %g          %g       \n",
-                            T_av_solve_min/niters,T_av_solve_max/niters);
         printf ("---------------------------------------------------\n");
         printf ("TOTAL SOLVE              %g         %g       \n",
                                                 t_solve_min,t_solve_max);
