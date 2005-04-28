@@ -807,7 +807,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
 }
 /****************************************************************************/
 double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box, 
-                                 int *ijk_box,double *x)
+                                 int *ijk_box,double **x)
 {
 
   int iwall, isten, idim,ijk[3],icomp;

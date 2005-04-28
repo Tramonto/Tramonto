@@ -1235,8 +1235,7 @@ extern void find_images_coulomb(int,int *, double **, double *);
 extern int loc_find(int,int,int);
 extern void fill_resid_and_matrix_control(double *, double *, 
                                   int **, double *, int, int, int);
-extern void fill_resid_and_matrix(double *, double *, 
-                                  int **, double *, int, int, int,int);
+extern void fill_resid_and_matrix(double **, int, int, int);
 extern void fill_resid_and_matrix_rb(double *, double *, 
                                   int **, double *, int, int);
 extern void fill_resid_and_matrix_P(double *, double *, 
@@ -1254,57 +1253,36 @@ extern void  pre_calc_dphi_drb1(struct RB_Struct *, struct RB_Struct *,
 extern void  pre_calc_dphi_drb2(struct RB_Struct *, struct RB_Struct *,
                         struct RB_Struct *, struct RB_Struct *,
                         struct RB_Struct *);
-extern double load_nonlocal_hs_rosen(int, int, int, int, int *, int,
-                             struct RB_Struct *, struct RB_Struct *,
-                             struct RB_Struct *,
-                             struct RB_Struct *, struct RB_Struct *,
-                             double *, double *, int *, double ***,
-                             int ***, int);
 extern void  pre_calc_dphi_drb_rb(struct RB_Struct *, double *,
                         struct RB_Struct *, struct RB_Struct *,
                         struct RB_Struct *, struct RB_Struct *,
                         double *);
 
-extern void  pre_calc_dphi_drb_rb1(struct RB_Struct *, double *,
+extern void  pre_calc_dphi_drb_rb1(struct RB_Struct *, double **,
                         struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *, struct RB_Struct *,
-                        double *);
+                        struct RB_Struct *, struct RB_Struct *);
 
-extern void  pre_calc_dphi_drb_rb2(struct RB_Struct *, double *,
+extern void  pre_calc_dphi_drb_rb2(struct RB_Struct *, double **,
                         struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *, struct RB_Struct *,
-                        double *);
+                        struct RB_Struct *, struct RB_Struct *);
 
-extern void load_nonlocal_hs_rosen_rb(int, int, int,int,int *,int,double *,
+extern double load_nonlocal_hs_rosen_rb(int, int, int,int,int, int,
+                       int *,double **,
                        struct RB_Struct *,struct RB_Struct *,
                        struct RB_Struct *,struct RB_Struct *,
-                       double *, double *, int *,struct RB_Struct *,
-                       int, int);
+                       struct RB_Struct *,int);
 
-extern void load_rho_bar_s(int,double *,int, int,int,int,int *,int,
-                           double *,double *,int *, int);
+extern double load_rho_bar_s(int,double **,int, int,int,int,int *,int);
 
-extern void load_rho_bar_v(double *,int,int,int,int,int *,int,
-                     double *,double *,int *, int);
+extern double load_rho_bar_v(double **,int,int,int,int,int *,int);
 
-extern void load_mean_field(int, int, int, int, int *, int,
-                     double *, double *, int *, double *, int);
-extern void put_row_in_msr(int, int,int *, int *, int **,
-                          double *, double *, int,double *);
-extern void put_coarse_in_msr(int, int, int, int **);
-extern void put_1Dsolution_in_msr(int, int, int, int,int **);
-extern void put_poisson_in_msr(int, int, int **);
-extern void put_transport_in_msr(int, int, int **);
-extern void put_zero_in_msr(int, int **);
-extern void put_euler_lag_in_msr(int, int, int **);
+extern double load_mean_field(int, int, int, int, int, int *, double **, int);
 
-extern void load_poissons_eqn(int, int, int, int *, double *, 
-                              double *, double *, int *, int);
-extern void load_nonlinear_transport_eqn(int,int,int,int *,
-                 double *, double *, double *, int *,int,int);
-extern void load_linear_transport_eqn(int,int,int,int *,
-                 double *, double *,double *,int *,int,int);
-extern void load_poisson_bc(double *,int,int,int);
+extern double load_poissons_eqn(int, int, int, int *, double **);
+extern double load_polarize_poissons_eqn(int, int, int, int *, double **);
+extern double load_nonlinear_transport_eqn(int,int,int,int *, double **);
+extern double load_linear_transport_eqn(int,int,int,int *, double **);
+extern double load_poisson_bc(int,int,int);
 extern void setup_polymer_cr(void);
 
 extern double constant_boundary(int, int);

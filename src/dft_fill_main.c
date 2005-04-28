@@ -25,9 +25,7 @@
 #include "mpi.h"
 #define HIT_FLAG 999
 /****************************************************************************/
-void fill_resid_and_matrix (double *x, double *resid,
-                            int **bindx_2d, double *fill_time, int fill_flag,
-                            int iter, int resid_only_flag,int unk_flag)
+void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_flag)
 {
  /*
   * Local variable declarations
@@ -73,7 +71,7 @@ void fill_resid_and_matrix (double *x, double *resid,
     if (Sten_Type[DELTA_FN] && Sten_Type[THETA_FN]) {
       rho_bar = (struct RB_Struct *) array_alloc
                           (1, Nnodes_1stencil, sizeof(struct RB_Struct));
-      pre_calc_rho_bar(rho_bar, x, fill_flag, iter, NULL, NULL,fill_time);
+      pre_calc_rho_bar(rho_bar, x, fill_flag, iter, NULL, NULL);
 /*      if (Mesh_coarsening != FALSE && Nwall_type >0 || L1D_bc) pre_calc_coarse_rho_bar(rho_bar);*/
 
       dphi_drb = (struct RB_Struct *) array_alloc
@@ -83,22 +81,11 @@ void fill_resid_and_matrix (double *x, double *resid,
          if (Type_func==0)
             pre_calc_dphi_drb_rb1(dphi_drb, x, &dphi_drb_bulk, 
                         &dphi_drb_bulk_left,
-                        &dphi_drb_bulk_right,rho_bar,fill_time);
+                        &dphi_drb_bulk_right,rho_bar);
          else
             pre_calc_dphi_drb_rb2(dphi_drb, x, &dphi_drb_bulk, 
                         &dphi_drb_bulk_left,
-                        &dphi_drb_bulk_right,rho_bar,fill_time);
-      }
-      else{
-         if (Type_func==0){
-            pre_calc_dphi_drb(dphi_drb, rho_bar, &dphi_drb_bulk, 
-                        &dphi_drb_bulk_left,
-                        &dphi_drb_bulk_right);
-         }
-         else
-            pre_calc_dphi_drb2(dphi_drb, rho_bar, &dphi_drb_bulk, 
-                        &dphi_drb_bulk_left,
-                        &dphi_drb_bulk_right);
+                        &dphi_drb_bulk_right,rho_bar);
       }
 
       /* for debugging print out profiles on each iteration */
@@ -151,9 +138,6 @@ void fill_resid_and_matrix (double *x, double *resid,
   /* Load residuals and matrix */
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
-
-    /* start timer for this node */
-    if (fill_time != NULL) fill_time[loc_inode] -= MPI_Wtime();
 
     /* convert local node to global */
 
@@ -345,16 +329,17 @@ void fill_resid_and_matrix (double *x, double *resid,
 
               resid_hs1 =load_nonlocal_hs_rosen_rb(DELTA_FN,iunk,loc_inode,inode_box,
                             icomp,izone,
-                            ijk_box,fill_flag,x,dphi_drb,
+                            ijk_box,x,dphi_drb,
                             &dphi_drb_bulk, &dphi_drb_bulk_left,
                             &dphi_drb_bulk_right,
                             rho_bar,resid_only_flag);
 
-              resid_hs2=load_nonlocal_hs_rosen_rb(THETA_FN,loc_i,icomp,izone,
-                            ijk_box,fill_flag,x,dphi_drb,
+              resid_hs2=load_nonlocal_hs_rosen_rb(THETA_FN,iunk,loc_inode,inode_box,
+                            icomp,izone,
+                            ijk_box,x,dphi_drb,
                             &dphi_drb_bulk, &dphi_drb_bulk_left,
                             &dphi_drb_bulk_right,
-                            rho_bar,loc_inode, resid_only_flag);
+                            rho_bar,resid_only_flag);
 
 
               if (Sten_Type[U_ATTRACT]) {  /* load attractions */
@@ -386,7 +371,7 @@ void fill_resid_and_matrix (double *x, double *resid,
 
           if (iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s){
               if (Matrix_fill_flag==3){
-              resid_rhobarv+=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, fill_flag,resid_only_flag);
+              resid_rhobarv+=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
               }
           }
       }
