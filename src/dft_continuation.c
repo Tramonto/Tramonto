@@ -1036,7 +1036,7 @@ double gsum_double_conwrap(double sum)
  *    The global sum is returned on all processors.
  */
 {
-  return AZ_gsum_double(sum, Aztec.proc_config);
+  return gsum_double(sum);
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -1055,7 +1055,7 @@ int gmax_int_conwrap(int max)
  * Only used by Eigensolver
  */
 {
-  return AZ_gmax_int(max, Aztec.proc_config);
+  return gmax_int(max);
 }
 /*****************************************************************************/
 /*****************************************************************************/

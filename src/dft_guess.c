@@ -176,9 +176,7 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
         }
 
         MPI_Bcast (Restart_field,NEQ_TYPE,MPI_INT,0,MPI_COMM_WORLD);
-        AZ_broadcast((char *) &start_no_info, sizeof(int), 
-                                     Aztec.proc_config, AZ_PACK);
-        AZ_broadcast(NULL, 0, Aztec.proc_config, AZ_SEND);
+        MPI_Bcast (&start_no_info,1,MPI_INT,0,MPI_COMM_WORLD);
 
         if (!start_no_info){
             if (Restart_field[DENSITY]==FALSE) {
@@ -1285,9 +1283,7 @@ void communicate_profile(double *x_new,double *x)
 {
    int loc_inode,inode,ijk[3],iunk,loc_i;   
    
-    AZ_broadcast((char *) x_new, Nnodes*Nunk_per_node*sizeof(double), 
-                                 Aztec.proc_config, AZ_PACK);
-    AZ_broadcast(NULL, 0, Aztec.proc_config, AZ_SEND);
+    MPI_Bcast (x_new, Nnodes*Nunk_per_node,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
        inode = L2G_node[loc_inode];

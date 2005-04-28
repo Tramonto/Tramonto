@@ -585,23 +585,23 @@ void fill_resid_and_matrix (double *x, double *resid,
    /* print out load balancing info */
 
   if (!resid_only_flag){
-    t_precalc_max     = AZ_gmax_double(t_precalc,Aztec.proc_config);
-    t_hs_max          = AZ_gmax_double(t_hs,Aztec.proc_config);
-    if (Matrix_fill_flag>=3 && Ipot_ff_n !=IDEAL_GAS)  t_rhobar_max      = AZ_gmax_double(t_rhobar,Aztec.proc_config);
-    else                      t_lj_max          = AZ_gmax_double(t_lj,Aztec.proc_config);
-    t_uatt_max        = AZ_gmax_double(t_uatt,Aztec.proc_config);
-    t_charge_max      = AZ_gmax_double(t_charge,Aztec.proc_config);
-    t_psi_max         = AZ_gmax_double(t_psi,Aztec.proc_config);
-    t_all_max         = AZ_gmax_double(t_all,Aztec.proc_config);
+    t_precalc_max     = gmax_double(t_precalc);
+    t_hs_max          = gmax_double(t_hs);
+    if (Matrix_fill_flag>=3 && Ipot_ff_n !=IDEAL_GAS)  t_rhobar_max      = gmax_double(t_rhobar);
+    else                      t_lj_max          = gmax_double(t_lj);
+    t_uatt_max        = gmax_double(t_uatt);
+    t_charge_max      = gmax_double(t_charge);
+    t_psi_max         = gmax_double(t_psi);
+    t_all_max         = gmax_double(t_all);
 
-    t_precalc_min     = AZ_gmin_double(t_precalc,Aztec.proc_config);
-    t_hs_min          = AZ_gmin_double(t_hs,Aztec.proc_config);
-    if (Matrix_fill_flag>=3 && Ipot_ff_n !=IDEAL_GAS)  t_rhobar_min      = AZ_gmin_double(t_rhobar,Aztec.proc_config);
-    else                      t_lj_min          = AZ_gmin_double(t_lj,Aztec.proc_config);
-    t_uatt_min        = AZ_gmin_double(t_uatt,Aztec.proc_config);
-    t_charge_min      = AZ_gmin_double(t_charge,Aztec.proc_config);
-    t_psi_min         = AZ_gmin_double(t_psi,Aztec.proc_config);
-    t_all_min         = AZ_gmin_double(t_all,Aztec.proc_config);
+    t_precalc_min     = gmin_double(t_precalc);
+    t_hs_min          = gmin_double(t_hs);
+    if (Matrix_fill_flag>=3 && Ipot_ff_n !=IDEAL_GAS)  t_rhobar_min      = gmin_double(t_rhobar);
+    else                      t_lj_min          = gmin_double(t_lj);
+    t_uatt_min        = gmin_double(t_uatt);
+    t_charge_min      = gmin_double(t_charge);
+    t_psi_min         = gmin_double(t_psi);
+    t_all_min         = gmin_double(t_all);
   }
 
       T_av_precalc_max    += t_precalc_max;

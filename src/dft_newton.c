@@ -198,7 +198,7 @@ int update_solution(double** x, double** delta_x, int iter) {
   }
 
   /* Aztec call can be replaced by MPI? */
-  updateNorm = sqrt(AZ_gsum_double(updateNorm, Aztec.proc_config));
+  updateNorm = sqrt(gsum_double(updateNorm));
 
   if (Proc==0 && Iwrite != NO_SCREEN)
     printf("\t\t%s: Weighted norm of update vector =  %g\n", yo, updateNorm);

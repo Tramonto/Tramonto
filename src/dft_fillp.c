@@ -519,10 +519,10 @@ void fill_resid_and_matrix_P (double *x, double *resid,
   /* print out load balancing info */
 
   if (!resid_only_flag){
-  t_put_max         = AZ_gmax_double(t_put,Aztec.proc_config);
-  t_all_max         = AZ_gmax_double(t_all,Aztec.proc_config);
-  t_put_min         = AZ_gmin_double(t_put,Aztec.proc_config);
-  t_all_min         = AZ_gmin_double(t_all,Aztec.proc_config);
+  t_put_max         = gmax_double(t_put);
+  t_all_max         = gmax_double(t_all);
+  t_put_min         = gmin_double(t_put);
+  t_all_min         = gmin_double(t_all);
   }
 
   if (fill_flag != MSR_PREPROCESS) { 

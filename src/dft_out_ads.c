@@ -73,8 +73,8 @@ double calc_adsorption(FILE *fp,double *x,double fac_area,double fac_vol)
 
   for (i=0; i<Imax; i++){
      for (icomp=0; icomp<Ncomp; icomp++){
-         ads_icomp = AZ_gsum_double(Ads[icomp][i],Aztec.proc_config);
-         ads_ex_icomp = AZ_gsum_double(Ads_ex[icomp][i],Aztec.proc_config);
+         ads_icomp = gsum_double(Ads[icomp][i]);
+         ads_ex_icomp = gsum_double(Ads_ex[icomp][i]);
          Ads[icomp][i] = ads_icomp;
          Ads_ex[icomp][i] = ads_ex_icomp;
 
@@ -189,7 +189,7 @@ void calc_surface_charge(FILE *fp, double *x,double fac_area,double fac_vol)
   }       /* end of loc_inode loop */
 
   /* get sum of charge_sum and if you're proc #0 print it !! */
-  charge_fluid = AZ_gsum_double(charge_sum,Aztec.proc_config);
+  charge_fluid = gsum_double(charge_sum);
 
   area = 0.0;
   if (Nwall == 0) area = 1.0;

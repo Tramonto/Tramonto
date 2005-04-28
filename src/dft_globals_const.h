@@ -1354,10 +1354,13 @@ extern double deltaC_MSA_int(double,int,int);
 
 
 /* COMMUNICATIONS ROUTINES */
-extern void gather_global_vec(double *, int *,int, double *);
-extern void gather_global_vec_int(int *, int *,int, int *);
-extern void share_global_int_vec(int,int *);
-extern void share_global_double_vec(int,double *);
+extern double gsum_double(double);
+extern double gmax_double(double);
+extern double gmin_double(double);
+extern int    gsum_int(int);
+extern int    gmax_int(int);
+extern int    gmin_int(int);
+extern void   gsum_int_vec(int *, int *, int);
 
 /* POSTPROCESSING ROUTINES*/
 extern void post_process(double *,char *,int *,double *,int, int);

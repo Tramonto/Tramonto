@@ -201,20 +201,20 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
 
   t1 += MPI_Wtime();
 
-  t_zero_max = AZ_gmax_double(t_zeroTF,Aztec.proc_config);
-  t_vext_max = AZ_gmax_double(t_vext,Aztec.proc_config);
-  t_tot_max = AZ_gmax_double(t1,Aztec.proc_config);
+  t_zero_max = gmax_double(t_zeroTF);
+  t_vext_max = gmax_double(t_vext);
+  t_tot_max = gmax_double(t1);
 
-  t_zero_min = AZ_gmin_double(t_zeroTF,Aztec.proc_config);
-  t_vext_min = AZ_gmin_double(t_vext,Aztec.proc_config);
-  t_tot_min = AZ_gmin_double(t1,Aztec.proc_config);
+  t_zero_min = gmin_double(t_zeroTF);
+  t_vext_min = gmin_double(t_vext);
+  t_tot_min = gmin_double(t1);
 
   count=0;
   for (inode_box=0; inode_box<Nnodes_box; inode_box++)
      if (B2L_node[inode_box] >=0){
         if (!Zero_density_TF[inode_box][0]) count++;
      }
-  count_max = AZ_gsum_int(count,Aztec.proc_config);
+  count_max = gsum_int(count);
 
 
   if (Proc==0&&Iwrite==VERBOSE) {
@@ -1115,7 +1115,7 @@ void comm_wall_els(int iwall,int **nelems_w_per_w, int ***elems_w_per_w,
          * get the total number of wall elements 
          * on all the processors. 
          */
-        n_tot = AZ_gsum_int(n_loc, Aztec.proc_config);
+        n_tot = gsum_int(n_loc);
 
         /*
          * allocate arrays that contain global element numbers
@@ -1218,7 +1218,7 @@ void comm_vext_max(int *nnodes_vext_max, int **nodes_vext_max)
       * get the total number of wall elements 
       * on all the processors. 
       */
-     n_tot = AZ_gsum_int(n_loc, Aztec.proc_config);
+     n_tot = gsum_int(n_loc);
  
      /*
       * allocate arrays that contain global element numbers

@@ -65,9 +65,12 @@ void dftmain(double * engptr)
   /*  printf(" hello %s %s \n",line,linecwd); */
   MPI_Barrier(MPI_COMM_WORLD);
 
-  /*  AZ_processor_info(Aztec.proc_config);*/
+  /*  AZ_processor_info(Aztec.proc_config);
   Proc     = Aztec.proc_config[AZ_node];
   Num_Proc = Aztec.proc_config[AZ_N_procs];
+  */
+  (void) MPI_Comm_size(MPI_COMM_WORLD, &Num_Proc);
+  (void) MPI_Comm_rank(MPI_COMM_WORLD, &Proc);
 
   start_t = MPI_Wtime();
   t_preprocess = -MPI_Wtime();
@@ -269,17 +272,17 @@ void dftmain(double * engptr)
       */
 
       t_total = MPI_Wtime() - start_t;
-      t_pre_max= AZ_gmax_double(t_preprocess,Aztec.proc_config);
-      t_msr_max= AZ_gmax_double(T_msr_setup,Aztec.proc_config);
-      t_solve_max=AZ_gmax_double(t_solve,Aztec.proc_config);
-      t_post_max=AZ_gmax_double(t_postprocess,Aztec.proc_config);
-      t_total_max=AZ_gmax_double(t_total,Aztec.proc_config);
+      t_pre_max= gmax_double(t_preprocess);
+      t_msr_max= gmax_double(T_msr_setup);
+      t_solve_max=gmax_double(t_solve);
+      t_post_max=gmax_double(t_postprocess);
+      t_total_max=gmax_double(t_total);
 
-      t_pre_min= AZ_gmin_double(t_preprocess,Aztec.proc_config);
-      t_msr_min= AZ_gmin_double(T_msr_setup,Aztec.proc_config);
-      t_solve_min=AZ_gmin_double(t_solve,Aztec.proc_config);
-      t_post_min=AZ_gmin_double(t_postprocess,Aztec.proc_config);
-      t_total_min=AZ_gmin_double(t_total,Aztec.proc_config);
+      t_pre_min= gmin_double(t_preprocess);
+      t_msr_min= gmin_double(T_msr_setup);
+      t_solve_min=gmin_double(t_solve);
+      t_post_min=gmin_double(t_postprocess);
+      t_total_min=gmin_double(t_total);
 
       if (Proc == 0 &&Iwrite !=NO_SCREEN) {
         printf ("\n\n\n\n");

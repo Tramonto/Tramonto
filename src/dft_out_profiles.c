@@ -1042,7 +1042,7 @@ void print_time_histogram(int *hist,int *niters)
        fp = fopen("hist.dat","a");
    for (i=0; i<200; i++) hist_sum[i] = 0;
   
-   AZ_gsum_vec_int(hist,hist_sum,nhist,Aztec.proc_config) ;
+   gsum_vec_int(hist, hist_sum, nhist) ;
 
    if (Proc == 0) {
       ntot = 0;

@@ -208,16 +208,16 @@ double calc_free_energy(FILE *fp, double *x, double fac_area,
   }            /* end of loc_inode loop */
 
   for (i=0; i<Imax; i++){
-    grand_free_energy[i]   = AZ_gsum_double(omega_sum[i],Aztec.proc_config);
-    surface_free_energy[i] = AZ_gsum_double(omega_s_sum[i],Aztec.proc_config);
+    grand_free_energy[i]   = gsum_double(omega_sum[i]);
+    surface_free_energy[i] = gsum_double(omega_s_sum[i]);
 
-    ideal_sum[i] = AZ_gsum_double(ideal_sum[i],Aztec.proc_config);
-    lj_sum[i] = AZ_gsum_double(lj_sum[i],Aztec.proc_config);
-    vext_sum[i] = AZ_gsum_double(vext_sum[i],Aztec.proc_config);
+    ideal_sum[i] = gsum_double(ideal_sum[i]);
+    lj_sum[i] = gsum_double(lj_sum[i]);
+    vext_sum[i] = gsum_double(vext_sum[i]);
     if (Type_coul > -1){
-      psi_rho_sum[i] = AZ_gsum_double(psi_rho_sum[i],Aztec.proc_config);
-      vext_c_sum[i] = AZ_gsum_double(vext_c_sum[i],Aztec.proc_config);
-      deltac_sum[i] = AZ_gsum_double(deltac_sum[i],Aztec.proc_config);
+      psi_rho_sum[i] = gsum_double(psi_rho_sum[i]);
+      vext_c_sum[i] = gsum_double(vext_c_sum[i]);
+      deltac_sum[i] = gsum_double(deltac_sum[i]);
     }
   }
 
@@ -414,9 +414,9 @@ void assemble_HS_free_energy(double *x, double *sum_phispt, double *sum_phispt_b
   }    /* end of loop over local nodes */
 
 
-  (*sum_phispt)   = AZ_gsum_double(sum_phi,Aztec.proc_config);
-  (*sum_phispt_b) = AZ_gsum_double(sum_phi_b,Aztec.proc_config);
-  (*sum_phispt_b_old)=AZ_gsum_double(sum_phi_b_old,Aztec.proc_config);
+  (*sum_phispt)   = gsum_double(sum_phi);
+  (*sum_phispt_b) = gsum_double(sum_phi_b);
+  (*sum_phispt_b_old)=gsum_double(sum_phi_b_old);
 
   safe_free((void *) &rho_bar);
   return;
@@ -1108,7 +1108,7 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
 
   /* write liquid-state theory (polymer) free energy */
   energy = sfluid+sbulk;
-  free_energy = AZ_gsum_double(energy,Aztec.proc_config);
+  free_energy = gsum_double(energy);
 
   area = 0.0;
   if (Nwall == 0) area = 1.0;

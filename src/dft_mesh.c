@@ -399,7 +399,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag)
                  ntot_per_list+=nelems_w_per_w[ilist][iwall];
              }
 
-             ntot_per_list_all_procs=AZ_gsum_int(ntot_per_list,Aztec.proc_config);
+             ntot_per_list_all_procs=gsum_int(ntot_per_list);
              if (Proc==0){
                   elems_w_per_w_proc_0_tmp  =(int *) array_alloc(1, ntot_per_list_all_procs, sizeof(int));
              }
@@ -533,14 +533,14 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag)
             else if (Fast_fill_TF[L2B_node[i]] ==CHECK_BC) count_check_bc++;
             else if (Fast_fill_TF[L2B_node[i]] ==CHECK_BOTH) count_check_both++;
         }
-        count_zero_all=AZ_gsum_int(count_zero,Aztec.proc_config);
+        count_zero_all=gsum_int(count_zero);
         if (icomp==0){
-          count_coarse_r_all=AZ_gsum_int(count_coarse_resid,Aztec.proc_config);
-          count_coarse_jac_all=AZ_gsum_int(count_coarse_jac,Aztec.proc_config);
-          count_fast_all=AZ_gsum_int(count_fast,Aztec.proc_config);
-          count_check_hw_all=AZ_gsum_int(count_check_hw,Aztec.proc_config);
-          count_check_bc_all=AZ_gsum_int(count_check_bc,Aztec.proc_config);
-          count_check_both_all=AZ_gsum_int(count_check_both,Aztec.proc_config);
+          count_coarse_r_all=gsum_int(count_coarse_resid);
+          count_coarse_jac_all=gsum_int(count_coarse_jac);
+          count_fast_all=gsum_int(count_fast);
+          count_check_hw_all=gsum_int(count_check_hw);
+          count_check_bc_all=gsum_int(count_check_bc);
+          count_check_both_all=gsum_int(count_check_both);
           if (Proc==0 && Iwrite != NO_SCREEN && print_flag) {
               printf("**************************************************************\n");
               printf("..............MESH SUMMARY..........\n");     
@@ -2050,8 +2050,8 @@ void boundary_properties(FILE *fp1)
        s_area_tot_proc = 0.0;
        for (idim=0; idim<Ndim; idim++) {
            s_area_tot_proc += S_area[ilist][iwall][idim];
-           S_area_tot[ilist][iwall] = AZ_gsum_double(s_area_tot_proc,Aztec.proc_config);
-           S_area[ilist][iwall][idim] = AZ_gsum_double(S_area[ilist][iwall][idim],
+           S_area_tot[ilist][iwall] = gsum_double(s_area_tot_proc);
+           S_area[ilist][iwall][idim] = gsum_double(S_area[ilist][iwall][idim],
                                                                Aztec.proc_config);
        }
     }
@@ -2088,7 +2088,7 @@ void boundary_properties(FILE *fp1)
          }
       }
       for (idim=0; idim<Ndim; idim++){
-      sum_all[idim] = AZ_gsum_double(sum[idim],Aztec.proc_config);
+      sum_all[idim] = gsum_double(sum[idim]);
         if (Proc == 0)
           fprintf(fp1,"ilist: %d Summing surface normals idim: %d yields: %d\n", 
                                                       ilist,idim,sum_all[idim]);
@@ -2402,7 +2402,7 @@ void setup_volume_charge1(int iwall)
   nelems = 0;
   nelems_unique = 0;
   els_charge_spheres(r,x,&nelems,&nelems_unique,elems,Charge_type_atoms);
-  nelems_unique = AZ_gsum_int(nelems_unique, Aztec.proc_config);
+  nelems_unique = gsum_int(nelems_unique, Aztec.proc_config);
 
   charge_per_el = Elec_param_w[iwall]/(double) nelems_unique;
 
@@ -2451,7 +2451,7 @@ void setup_volume_charge2(void)
          nelems = 0;
          nelems_unique = 0;
          els_charge_spheres(r,x,&nelems,&nelems_unique,elems,Charge_type_local);
-         nelems_unique = AZ_gsum_int(nelems_unique, Aztec.proc_config);
+         nelems_unique = gsum_int(nelems_unique, Aztec.proc_config);
 
          charge_per_el = Charge[i]/(double) nelems_unique;
 
@@ -2699,11 +2699,11 @@ void set_mesh_coarsen_flag(void)
       }
   }
   if (L1D_bc){
-     AZ_gsum_int(count,Aztec.proc_config);
+     gsum_int(count);
      if (Proc==0&&Iwrite!=NO_SCREEN) printf(" %d nodes of %d total will be set to the 1D boundary region\n",count,Nnodes);
   }
   else{
-     AZ_gsum_int(count_coarse,Aztec.proc_config);
+     gsum_int(count_coarse);
      if (Proc==0&&Iwrite!=NO_SCREEN) printf(" %d nodes of %d total will be coarsened\n",count_coarse,Nnodes);
   }
 

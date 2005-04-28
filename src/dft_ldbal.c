@@ -1145,9 +1145,9 @@ void load_balance(int flag, double *fill_time)
   int    nmin, nmax;
   int idim;
 
-  nmax = AZ_gmax_int(Aztec.N_update, Aztec.proc_config);
-  nmin = AZ_gmin_int(Aztec.N_update, Aztec.proc_config);
-  navg = AZ_gavg_double((double)Aztec.N_update, Aztec.proc_config);
+  nmax = gmax_int(Aztec.N_update);
+  nmin = gmin_int(Aztec.N_update);
+  navg = gavg_double((double)Aztec.N_update);
   if (Proc == 0 &&Iwrite==VERBOSE) {
     printf("\n+++++++++++++++++++++++++++++++++++++");
     printf("+++++++++++++++++++++++++++++++++++++++\n");
@@ -1201,9 +1201,9 @@ void load_balance(int flag, double *fill_time)
  if (Load_Bal_Flag != LB_LINEAR) rcb(&dots, &(Nnodes_per_proc), &pdotmax, 1, 1.5, 0, &pdottop, &rcbbox, treept);
   /* Print out statistics before load balancing */
 
-  nmax = AZ_gmax_int(Aztec.N_update, Aztec.proc_config);
-  nmin = AZ_gmin_int(Aztec.N_update, Aztec.proc_config);
-  navg = AZ_gavg_double((double)Aztec.N_update, Aztec.proc_config);
+  nmax = gmax_int(Aztec.N_update);
+  nmin = gmin_int(Aztec.N_update);
+  navg = gavg_double((double)Aztec.N_update);
   if (Proc == 0&&Iwrite==VERBOSE)
     printf("\tBefore load_balance: Max %d  Min %d  Ave %g Unknowns per Proc\n",
              nmax, nmin, navg);
@@ -1215,9 +1215,9 @@ void load_balance(int flag, double *fill_time)
   Aztec.update = (int *) array_alloc(1, Aztec.N_update, sizeof(int));
   /*printf("in dft_ldbal: Aztec.update allocated to %d length\n",Aztec.N_update);*/
 
-  nmax = AZ_gmax_int(Aztec.N_update, Aztec.proc_config);
-  nmin = AZ_gmin_int(Aztec.N_update, Aztec.proc_config);
-  navg = AZ_gavg_double((double)Aztec.N_update, Aztec.proc_config);
+  nmax = gmax_int(Aztec.N_update);
+  nmin = gmin_int(Aztec.N_update);
+  navg = gavg_double((double)Aztec.N_update);
   if (Proc == 0 && Iwrite == VERBOSE)
     printf("\tAfter load_balance: Max=%d  Min=%d  Avg=%g (Unknowns per Proc)\n",
              nmax, nmin, navg);

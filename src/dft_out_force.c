@@ -57,7 +57,7 @@ void calc_force(FILE *fp, double *x,double fac_area)
     else{
        sum_rho_wall(x, p_tilde);
 /*       rho_sum_mid = sum_rho_midplane(x);
-         rho_sum_tot = AZ_gsum_double(rho_sum_mid,Aztec.proc_config);*/
+         rho_sum_tot = gsum_double(rho_sum_mid);*/
     }
 
     /* calculate the electrostatic contribution to the force */
@@ -93,11 +93,10 @@ void calc_force(FILE *fp, double *x,double fac_area)
 
          f_elec_iwall_idim = 0.0; 
          if (Ipot_wf_c == 1) 
-             f_elec_iwall_idim = AZ_gsum_double(f_elec_L[i][idim],
-                                 Aztec.proc_config)*Temp_elec/(4.0*PI);
+             f_elec_iwall_idim = gsum_double(f_elec_L[i][idim])*Temp_elec/(4.0*PI);
 
          p_tilde_iwall_idim = 
-             AZ_gsum_double(p_tilde_L[i][idim],Aztec.proc_config);
+             gsum_double(p_tilde_L[i][idim]);
 
          force = p_tilde_iwall_idim + f_elec_iwall_idim;
 
@@ -323,10 +322,8 @@ void force_elec(double *x, double **Sum_dphi_dx)
        }    /* end of test for boundary node */
     }       /* end of loop over nodes on this processor */
 
-    store1_tot = AZ_gsum_double(store1,
-                                Aztec.proc_config)*Temp_elec/(4.0*PI*0.05);
-    store2_tot = AZ_gsum_double(store2,
-                                Aztec.proc_config)*Temp_elec/(4.0*PI*0.05);
+    store1_tot = gsum_double(store1)*Temp_elec/(4.0*PI*0.05);
+    store2_tot = gsum_double(store2)*Temp_elec/(4.0*PI*0.05);
     if (Proc == 0)
     printf("normal contribution: %9.6f  tangential contribution:%9.6f",
            store1_tot,store2_tot);
