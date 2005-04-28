@@ -37,21 +37,15 @@ void fill_resid_and_matrix (double *x, double *resid,
   int     i, j, icomp,idim,iunk,iunk_start,iunk_end;
   int     reflect_flag[3];
   int     izone, mesh_coarsen_flag_i;
-  int     loc_i, loc_j, loc_inode, loc_i_charge, loc_mu,unk_mu,j_box;
+  int     loc_i, loc_inode;
   struct  RB_Struct *rho_bar = NULL;
   struct  RB_Struct *dphi_drb=NULL, dphi_drb_bulk,
                      dphi_drb_bulk_left, dphi_drb_bulk_right;
-  double  t_lj=0.0, t_hs=0.0, t_rhobar=0.0, t_uatt=0.0, t_charge=0.0, t_psi=0.0, 
-          t_all=0.0, t_precalc=0.0; /* time counters */
-  double  t_lj_max,t_hs_max=0.0, t_rhobar_max=0.0, t_uatt_max=0.0, t_charge_max=0.0, 
-          t_psi_max=0.0, t_all_max=0.0, t_precalc_max=0.0; /* time counters */
-  double  t_lj_min,t_hs_min=0.0, t_rhobar_min=0.0, t_uatt_min=0.0, t_charge_min=0.0,
-          t_psi_min=0.0, t_all_min=0.0,t_precalc_min=0.0; /* time counters */
-  double *mat_row=NULL; /* full storage of 1 row of matrix */
-   double resid_hs1,resid_hs2,resid_old,resid_rhobars,resid_rhobarv,resid_uatt;
-   double resid_ig,resid_vext,resid_mu,resid_charge,resid_poisson,resid_transport,resid_el;
 
-  int loc_i_charge_up,loc_i_charge_down,loc_i_charge_up2,loc_i_charge_down2,blocked;
+   double resid_hs1,resid_hs2,resid_rhobars,resid_rhobarv,resid_uatt;
+   double resid_ig,resid_vext,resid_mu,resid_charge,resid_deltac;
+   double resid_poisson,resid_transport,resid_el;
+
   double fac_temp,gradphi;
 
   double  nodepos[3];
@@ -79,7 +73,6 @@ void fill_resid_and_matrix (double *x, double *resid,
     if (Sten_Type[DELTA_FN] && Sten_Type[THETA_FN]) {
       rho_bar = (struct RB_Struct *) array_alloc
                           (1, Nnodes_1stencil, sizeof(struct RB_Struct));
-      t_precalc -=MPI_Wtime();
       pre_calc_rho_bar(rho_bar, x, fill_flag, iter, NULL, NULL,fill_time);
 /*      if (Mesh_coarsening != FALSE && Nwall_type >0 || L1D_bc) pre_calc_coarse_rho_bar(rho_bar);*/
 
@@ -107,8 +100,6 @@ void fill_resid_and_matrix (double *x, double *resid,
                         &dphi_drb_bulk_left,
                         &dphi_drb_bulk_right);
       }
-
-      t_precalc += MPI_Wtime();
 
       /* for debugging print out profiles on each iteration */
       if (Iwrite==VERBOSE) {
@@ -182,10 +173,8 @@ void fill_resid_and_matrix (double *x, double *resid,
         printf("Proc: %d loc_inode: %d of %d : inode_box=%d and mesh_coarsen_flag: %d\n",
                  Proc,loc_inode,Nnodes_per_proc,inode_box,mesh_coarsen_flag_i);
 }*/
-       /*resid_old=resid_old2=resid_hs=resid_hs1=resid_hs2=
-                   resid_uatt=0.0;*/
-       resid_ig=resid_vext=resid_mu=resid_charge=resid_poisson=
-                   resid_transport=resid_rhobars=resid_rhobarv=0.0;
+       resid_ig = resid_vext = resid_hs1 = resid_hs2 = resid_uatt = resid_mu = resid_charge
+                = resid_poisson = resid_deltac = resid_transport = resid_rhobars = resid_rhobarv = 0.0;
 
       if (mesh_coarsen_flag_i == FLAG_1DBC){
          node_box_to_ijk_box(inode_box,ijk_box);
@@ -202,9 +191,11 @@ void fill_resid_and_matrix (double *x, double *resid,
 
          resid = x[iunk][inode_box]-x[iunk][jnode_box];
          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-         mat_value=1.0;
-         dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,mat_value,inode_box);         
-         dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,-mat_value,jnode_box);         
+         numEntries=2;
+         values[0]=1.0; values[1]=-1.0
+         nodeIndices[0]=inode_box; nodeIndices[1]=jnode_box;
+         dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+                                               iunk, nodeIndices,values,numEntries);
       } 
 
       /* do mesh coarsening if indicated .... for all unknowns ! */
@@ -217,11 +208,11 @@ void fill_resid_and_matrix (double *x, double *resid,
 
           resid= x[iunk][inode_box];
           mat_value=1.0;
-          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,mat_value,inode_box);         
+          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
           if (jnode_box >= 0) {
              resid= - 0.5*x[iunk][jnode_box];
              mat_value=-0.5;
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,mat_value,jnode_box);         
+             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,jnode_box,mat_value);         
           }
           else{ resid= - 0.5*constant_boundary(iunk,jnode_box); }
 
@@ -233,7 +224,7 @@ void fill_resid_and_matrix (double *x, double *resid,
           if (jnode_box >= 0){
              resid= - 0.5*x[iunk][jnode_box];
              mat_value=-0.5;
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,mat_value,jnode_box);         
+             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,jnode_box,mat_value);         
           }
           else{ resid -= 0.5*constant_boundary(iunk,jnode_box); }
           dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
@@ -256,7 +247,7 @@ void fill_resid_and_matrix (double *x, double *resid,
              resid= x[iunk][inode_box];
              mat_value = 1.0;
              dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,mat_value,inode_box);         
+             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
         }
         else {
 
@@ -266,7 +257,7 @@ void fill_resid_and_matrix (double *x, double *resid,
              mat_value = 1.0/x[iunk][inode_box];
              resid_ig=resid;
              dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,mat_value,inode_box);         
+             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
 
              if (mesh_coarsen_flag_i == FLAG_BULK){
                   resid = -log(Rho_b[icomp]);
@@ -299,7 +290,7 @@ void fill_resid_and_matrix (double *x, double *resid,
                   junk=Phys2Unk_first[DIFFUSION] + icomp;
                   resid_mu = -x[junk][inode_box];
                   mat_value=-1.0;
-                  dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_value,inode_box);         
+                  dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,inode_box,mat_value);         
                }
                dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid_mu);
              }
@@ -309,7 +300,7 @@ void fill_resid_and_matrix (double *x, double *resid,
                 resid_charge = Charge_f[icomp]*x[junk][inode_box];
                 dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid_charge);
                 mat_value = Charge_f[icomp];
-                dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_value,inode_box);         
+                dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,inode_box,mat_value);         
 
                 if (Lpolarize[icomp] && Ndim==1){
 
@@ -342,87 +333,40 @@ void fill_resid_and_matrix (double *x, double *resid,
                   resid = 0.5*Pol[icomp]*gradphi*gradphi*fac_temp;
                   resid_charge += resid;
                   dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,resid);
-                  dft_solvermanager_matrixvalues(Solver_manager,iunk,loc_inode,junk,numEntries,values,nodeIndices); 
-
+                  dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+                                                       junk,nodeIndices,values,numEntries);
                 } 
              }
         
-        /* Now loop over all the stencils to load off diagonal contributions
-           to the Jacobian. */
+        /* Now loop over all the stencils to load hard sphere and mean field 
+           (off diagonal)  contributions to the Euler-Lagrange equations in the Jacobian. */
 
            if (Ipot_ff_n != IDEAL_GAS && mesh_coarsen_flag_i != FLAG_BULK) {
-              t_hs -= MPI_Wtime();
 
-              if (Matrix_fill_flag >= 3) {
-                 load_nonlocal_hs_rosen_rb(DELTA_FN,iunk,loc_inode,inode_box,
-                               icomp,izone,
-                               ijk_box,fill_flag,x,dphi_drb,
-                               &dphi_drb_bulk, &dphi_drb_bulk_left,
-                               &dphi_drb_bulk_right,
-                               rho_bar,resid_only_flag);
-/*                 resid_hs1 = resid[loc_i]-resid_old;*/
-                 load_nonlocal_hs_rosen_rb(THETA_FN,loc_i,icomp,izone,
-                               ijk_box,fill_flag,x,dphi_drb,
-                               &dphi_drb_bulk, &dphi_drb_bulk_left,
-                               &dphi_drb_bulk_right,
-                               rho_bar,loc_inode, resid_only_flag);
-/*                 resid_hs2 = resid[loc_i]-resid_old-resid_hs1;*/
-              }
-              else{
-                 resid_old=resid[loc_i];
-                 t_lj += load_nonlocal_hs_rosen(DELTA_FN,loc_i,icomp,izone,ijk_box,
-                                       fill_flag,rho_bar,dphi_drb,
-                                       &dphi_drb_bulk, &dphi_drb_bulk_left,
-                                       &dphi_drb_bulk_right,resid,mat_row,bindx_tmp,
-                                       jac_weights_hs, jac_columns_hs,
-                                       resid_only_flag);
-                 resid_hs1 = resid[loc_i]-resid_old;
+              resid_hs1 =load_nonlocal_hs_rosen_rb(DELTA_FN,iunk,loc_inode,inode_box,
+                            icomp,izone,
+                            ijk_box,fill_flag,x,dphi_drb,
+                            &dphi_drb_bulk, &dphi_drb_bulk_left,
+                            &dphi_drb_bulk_right,
+                            rho_bar,resid_only_flag);
 
-                 resid_old=resid[loc_i];
-                 t_lj += load_nonlocal_hs_rosen(THETA_FN,loc_i,icomp,izone,ijk_box,
-                                       fill_flag,rho_bar,dphi_drb,
-                                       &dphi_drb_bulk, &dphi_drb_bulk_left,
-                                       &dphi_drb_bulk_right,resid,mat_row,bindx_tmp,
-                                       jac_weights_hs, jac_columns_hs,
-                                       resid_only_flag);
-                 resid_hs2 = resid[loc_i]-resid_old;
+              resid_hs2=load_nonlocal_hs_rosen_rb(THETA_FN,loc_i,icomp,izone,
+                            ijk_box,fill_flag,x,dphi_drb,
+                            &dphi_drb_bulk, &dphi_drb_bulk_left,
+                            &dphi_drb_bulk_right,
+                            rho_bar,loc_inode, resid_only_flag);
 
-              }
 
-              t_hs += MPI_Wtime();
-
-              if (Sten_Type[U_ATTRACT]) {
-                 t_uatt -= MPI_Wtime();
-
-                 resid_old=resid[loc_i];
-                 load_mean_field(U_ATTRACT,loc_i,icomp,izone,ijk_box,fill_flag,
-                                 resid,mat_row,bindx_tmp,x, resid_only_flag);
-                 resid_uatt = resid[loc_i] - resid_old;
-                 t_uatt += MPI_Wtime();
-
-              }    /* end load attractions */
+              if (Sten_Type[U_ATTRACT]) {  /* load attractions */
+                 resid_uatt=load_mean_field(U_ATTRACT,iunk,loc_inode,
+                                 icomp,izone,ijk_box, x, resid_only_flag);
+              }   
             
-              if (Sten_Type[THETA_CHARGE]) {
-                 t_charge -= MPI_Wtime();
-                 load_mean_field(THETA_CHARGE,loc_i,icomp,izone,ijk_box,fill_flag,
-                                 resid,mat_row,bindx_tmp,x, resid_only_flag);
-                 t_charge += MPI_Wtime();
-              }    /* end load electrostatic c(r) corrections */
+              if (Sten_Type[THETA_CHARGE]) {   /* load electrostatics deltac correlations */
+                 resid_deltac=load_mean_field(THETA_CHARGE,iunk,loc_inode,
+                                 icomp,izone,ijk_box,x, resid_only_flag);
+              }   
 
-              /* if total effective field is greater than VEXT_MAX *
-               * ... solve the equation x=0 for this node          */
-/*COMMENT OUT DYNAMIC ZEROING
-              if (Sten_Type[U_ATTRACT]){
-                 if (resid[loc_i]-log(x[loc_i]) > VEXT_MAX){ 
-                    for (j=Aztec.bindx[loc_i]; j<Aztec.bindx[loc_i+1]; j++)
-                        mat_row[Aztec.bindx[j]] = 0.0;
-                        resid[loc_i] = x[loc_i]-Rho_b[icomp]*exp(-VEXT_MAX);
-                        resid[loc_i] = x[loc_i];
-                        mat_row[loc_i] = 1.0;
-                  }
-              }
-*/
- 
            }
         }
       }
@@ -432,25 +376,18 @@ void fill_resid_and_matrix (double *x, double *resid,
       /**** LOAD RHO_BAR EQUATIONS *****/
       /*********************************/
       else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
-          t_rhobar -= MPI_Wtime();
 
           if (iunk == Phys2Unk_first[RHOBAR_ROSEN])
-             load_rho_bar_s(THETA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, 
+             resid_rhobars+=load_rho_bar_s(THETA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, 
                             fill_flag,resid_only_flag);
           else if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s)
-             load_rho_bar_s(DELTA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, 
+             resid_rhobars+=load_rho_bar_s(DELTA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, 
                             fill_flag,resid_only_flag);
-          resid_rhobars = resid[loc_i] - resid_ig-resid_vext-resid_mu-resid_charge;
-
-          t_rhobar += MPI_Wtime();
 
           if (iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s){
               if (Matrix_fill_flag==3){
-              t_rhobar -= MPI_Wtime();
-              load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, fill_flag,resid_only_flag);
-              t_rhobar += MPI_Wtime();
+              resid_rhobarv+=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, fill_flag,resid_only_flag);
               }
-              resid_rhobarv = resid[loc_i] - resid_ig-resid_vext-resid_mu-resid_charge-resid_rhobars;
           }
       }
       /****** END RHOBAR *****/
@@ -470,26 +407,27 @@ void fill_resid_and_matrix (double *x, double *resid,
             }
 
             if (l_elec_LBB){
-               resid[loc_i] = x[loc_i]-Elec_pot_LBB;
-               mat_row[loc_i] = 1.0;
+               resid = x[iunk][inode_box]-Elec_pot_LBB;
+               mat_value = 1.0;
+               dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+               dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
+               resid_poisson = resid;
             }
-            if (l_elec_RTF){
-               resid[loc_i] = x[loc_i]-Elec_pot_RTF;
-               mat_row[loc_i] = 1.0;
+            else if (l_elec_RTF){
+               resid = x[iunk][inode_box]-Elec_pot_RTF;
+               mat_value = 1.0;
+               dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+               dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
+               resid_poisson = resid;
             }
             else if (!l_elec_LBB && !l_elec_RTF) {
-               t_psi -= MPI_Wtime();
                if(Type_coul==POLARIZE){
-                 load_polarize_poissons_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
-                                                       resid, x, bindx_tmp, fill_flag);
+                  resid_poisson=load_polarize_poissons_eqn(iunk,loc_inode, inode_box,ijk_box,x);
                }
-               else load_poissons_eqn(i_box, inode_box, loc_i, ijk_box, mat_row,
-                                    resid, x, bindx_tmp, fill_flag);
-               load_poisson_bc(resid,inode_box,loc_inode,loc_i);
-
-               resid_poisson=resid[loc_i]-resid_ig-resid_vext-resid_mu-
-                                resid_charge-resid_rhobars-resid_rhobarv;
-               t_psi += MPI_Wtime();
+               else{
+                  resid_poisson=load_poissons_eqn(iunk,loc_inode,inode_box,ijk_box,x);
+               }
+               resid_poisson+=load_poisson_bc(iunk,loc_inode,inode_box);
             }
       }
       /******** END POISSON ********/
@@ -500,12 +438,9 @@ void fill_resid_and_matrix (double *x, double *resid,
       else if (Unk2Phys[iunk]==DIFFUSION){
  
             if (Linear_transport)
-                load_linear_transport_eqn(i_box, inode_box, loc_i, ijk_box, 
-                           mat_row, resid, x, bindx_tmp, fill_flag, iunk);
-            else   load_nonlinear_transport_eqn(i_box, inode_box, loc_i, ijk_box, 
-                              mat_row, resid, x, bindx_tmp, fill_flag, iunk);
- 
-            resid_transport=resid[loc_i]-resid_ig-resid_vext-resid_mu-resid_charge-resid_poisson;
+                resid_transport=load_linear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x);
+            else   
+                resid_transport=load_nonlinear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x);
       }
       /******** END TRANSPORT ********/
       else if (Unk2Phys[iunk]==DENSITY_SEG){
@@ -520,27 +455,25 @@ void fill_resid_and_matrix (double *x, double *resid,
          exit (-1);
       }
       }
-     
+    
+
+      /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
 /*    if (Unk2Phys[iunk]==DENSITY){
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge;
-       printf("inode_box=%d  iunk=%d  loc_i=%d  resid_el=%9.6f  resid_hs=%9.6f resid=%9.6f",
-                                 inode_box,iunk,loc_i,resid_el,resid[loc_i]-resid_el,resid[loc_i]);
+       printf("loc_inode=%d  iunk=%d  resid_el=%9.6f  resid_hs1=%9.6f resid_hs2=%9.6f",
+                                 loc_inode,iunk,loc_i,resid_el,resid_hs1,resid_hs2);
     }
     else if (Unk2Phys[iunk]==RHOBAR_ROSEN)
-         printf("inode_box=%d : iunk_rbar=%d loc_i=%d [  %g  %g] : %9.6f",
-                 inode_box,iunk,loc_i,resid_rhobars,resid_rhobarv,resid[loc_i]);
+         printf("loc_inode=%d : iunk_rbar=%d resid_rhobars=%9.6f  resid_rhobarv=%9.6f ",
+                 loc_inode,iunk,resid_rhobars,resid_rhobarv);
     else if (Unk2Phys[iunk]==POISSON)   
-         printf(" inode_box=%d  iunk_poisson=%d   resid=%9.6f ",
-                   inode_box,iunk,resid_poisson);
+         printf(" loc_inode=%d  iunk_poisson=%d   resid=%9.6f ", loc_inode,iunk,resid_poisson);
     else if (Unk2Phys[iunk]==DIFFUSION) 
-         printf(" inode_box=%d  iunk_diffusion=%d  resid=%9.6f",inode_box,iunk,resid_transport);
+         printf(" loc_inode=%d  iunk_diffusion=%d  resid=%9.6f",loc_inode,iunk,resid_transport);
     printf("  \n");*/
 
     } /* end of loop over # of unknowns per node */
 
-    if (fill_time != NULL) {
-       fill_time[loc_inode] += MPI_Wtime();
-    }
   } /* end of loop over local nodes */
 
 
@@ -572,78 +505,9 @@ void fill_resid_and_matrix (double *x, double *resid,
 
 
 /*  if (Ipot_wf_c) {
-     t_psi -= MPI_Wtime();
      load_poisson_bc(resid);
-     t_psi += MPI_Wtime();
   }*/
 
-  
-  if (Mesh_coarsening == FALSE){ 
-  t_all = t_precalc + t_hs + t_uatt + t_charge + t_psi;
-  if (Matrix_fill_flag >=3 && Ipot_ff_n !=IDEAL_GAS) t_all += t_rhobar;
-
-   /* print out load balancing info */
-
-  if (!resid_only_flag){
-    t_precalc_max     = gmax_double(t_precalc);
-    t_hs_max          = gmax_double(t_hs);
-    if (Matrix_fill_flag>=3 && Ipot_ff_n !=IDEAL_GAS)  t_rhobar_max      = gmax_double(t_rhobar);
-    else                      t_lj_max          = gmax_double(t_lj);
-    t_uatt_max        = gmax_double(t_uatt);
-    t_charge_max      = gmax_double(t_charge);
-    t_psi_max         = gmax_double(t_psi);
-    t_all_max         = gmax_double(t_all);
-
-    t_precalc_min     = gmin_double(t_precalc);
-    t_hs_min          = gmin_double(t_hs);
-    if (Matrix_fill_flag>=3 && Ipot_ff_n !=IDEAL_GAS)  t_rhobar_min      = gmin_double(t_rhobar);
-    else                      t_lj_min          = gmin_double(t_lj);
-    t_uatt_min        = gmin_double(t_uatt);
-    t_charge_min      = gmin_double(t_charge);
-    t_psi_min         = gmin_double(t_psi);
-    t_all_min         = gmin_double(t_all);
-  }
-
-      T_av_precalc_max    += t_precalc_max;
-      T_av_fill_max += t_all_max;
-
-      T_av_precalc_min    += t_precalc_min;
-      T_av_fill_min  += t_all_min;
-
-/*  if (iter == 1){
- *    Bin_size = (t_all_max-t_all_min)/100.;
- *    for (i=0; i<200; i++) Hist_time[i] = 0;
- *    Time_min_avg = 0.0;
- * }
-
- * else if (iter > 2) {
- *   if (Bin_size != 0.0) {
- *      ibin = (int)((t_all-t_all_min)/Bin_size);
- *      Hist_time[ibin]++;
- *      Time_min_avg += t_all_min;
- *   }
- * }
- */
-
-  if (Proc == 0 && !resid_only_flag && Iwrite ==VERBOSE) {
-    if (Ipot_ff_n !=IDEAL_GAS) printf( "\t\tTime for Precalcs (max): %g   (min) %g secs\n",t_precalc_max,t_precalc_min);
-
-    if (Ipot_ff_n !=IDEAL_GAS) printf("\t\tTime loading euler-lagrange equations (max): %g   (min): %g secs\n",t_hs_max,t_hs_min);
-
-    if (Matrix_fill_flag >=3 && Ipot_ff_n !=IDEAL_GAS)
-         printf("\t\tTime loading rhobar equations (max): %g   (min): %g secs\n",t_rhobar_max,t_rhobar_min);
-
-    if (Sten_Type[U_ATTRACT])
-      printf("\t\tTime loading U_Attract term (max): %g    (min): %g secs\n",t_uatt_max,t_uatt_min);
-
-    if (Sten_Type[THETA_CHARGE])
-      printf("\t\tTime loading Delta_C term    (max): %g    (min): %g secs\n",t_charge_max,t_charge_min);
-
-    if (Ipot_wf_c)
-      printf("\t\tTime loading Poisson's Equation (max): %g    (min): %g secs\n", t_psi_max,t_psi_min);
-
-    printf("\n\t\tTotal load time (max): %g   (min): %g secs\n",t_all_max,t_all_min);
-  }
   }
   if (Ipot_ff_n != IDEAL_GAS) {
      safe_free((void *) &rho_bar);

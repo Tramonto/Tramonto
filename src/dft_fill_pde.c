@@ -233,32 +233,28 @@ void set_fem_1el_weights(double **wt_lp_1el_ptr, double **wt_s_1el_ptr,
   }
 }
 /****************************************************************************/
-void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
-                       double *mat_row,
-                       double *resid, double *x, int *bindx_tmp, int fill_flag)
+double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x)
 {
 
   int iwall,  isten, icomp,ilist,idim;
-  int iln, jln, elem, offset[3], loc_j,el_box;
+  int iln, jln, elem, offset[3], el_box;
   int nodes_volm_el, nodes_surf_el, junk2[3];
-  int in_wall;
+  int in_wall,numEntries, nodeIndices[2];
+  double values[2];
   double pol_wall,wt;
+  double resid,resid_sum=0.0,mat_val;
 
   /* static variables keep their value for every time the function is called*/
   static double *wt_lp_1el, *wt_s_1el;
   static int   **elem_permute, off_ref[2][2] = { {0,1}, {-1,0}};
-  int j_box_psi[8], j_box_rho[8], loc_j_psi[8], loc_j_rho[8];
   double rho_0, rho_1, psi_0, psi_1, tmp;
-  int j_box, jnode_box;
+  int jnode_box;
   int reflect_flag[3];
 
   /* First time through, load weights appropriate for this Ndim */
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
-  
-  if (MSR_PREPROCESS){
-    set_fem_1el_weights(&wt_lp_1el, &wt_s_1el, &elem_permute);
-  }
+  set_fem_1el_weights(&wt_lp_1el, &wt_s_1el, &elem_permute);
 
 /* if we are at a boundary node and the boundary condition is constant
  * potential, then solve the equation psi = constant ..... in all other
@@ -268,11 +264,12 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
 
    iwall = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
    if (iwall != -1 && Type_bc_elec[WallType[iwall]] == CONST_POTENTIAL) {
-       if (fill_flag != MSR_PREPROCESS){
-          resid[loc_i] = x[loc_i] - Elec_param_w[iwall];
-          mat_row[loc_i] = 1.0;
-       }
-       else bindx_tmp[i_box]=TRUE;
+          resid = x[iunk][inode_box] - Elec_param_w[iwall];
+          resid_sum+=resid;
+          mat_val = 1.0;
+          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                      iunk,inode_box,mat_val);
    }
    else {
        for (iln=0; iln< Nnodes_per_el_V; iln++) {
@@ -283,10 +280,10 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
 
          if (elem >= 0 ) {
 
-           if (fill_flag != MSR_PREPROCESS){
-             if (Vol_charge_flag) 
-               resid[loc_i] -= Charge_vol_els[el_box]*4.0*PI
-                              / (Temp_elec * Nnodes_per_el_V);
+           if (Vol_charge_flag) {
+               resid = -Charge_vol_els[el_box]*4.0*PI/(Temp_elec * Nnodes_per_el_V);
+               resid_sum+=resid;
+               dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
            }
 
            for (jln=0; jln< Nnodes_per_el_V; jln++) {
@@ -308,14 +305,12 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
              }
 
              jnode_box = offset_to_node_box(ijk_box, offset, junk2);
-             j_box = loc_find(Phys2Unk_first[POISSON],jnode_box,BOX);
 
              /*
               * add in Laplace term
               */
+             junk = Phys2Unk_first[POISSON];
              if (jnode_box >= 0){  /* new flag for boundaries */
-                if (fill_flag != MSR_PREPROCESS){
-                   loc_j = B2L_unknowns[j_box];
                    in_wall=TRUE;
                    for (icomp=0; icomp<Ncomp; icomp++){
                       if (!Zero_density_TF[jnode_box][icomp])in_wall=FALSE;
@@ -325,21 +320,24 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
                          to zero, but leave code as place holder. */
                       pol_wall=(KAPPA_H2O-1.0);
                       pol_wall=0.0;
-                      resid[loc_i] += (1.0+pol_wall)*wt_lp_1el[isten]*x[loc_j];
-                      mat_row[loc_j] += (1.0+pol_wall)*wt_lp_1el[isten];
+                      resid = (1.0+pol_wall)*wt_lp_1el[isten]*x[junk][jnode_box];
+                      mat_val = (1.0+pol_wall)*wt_lp_1el[isten];
                    }
                    else{
-                      resid[loc_i] += wt_lp_1el[isten]*x[loc_j];
-                      mat_row[loc_j] += wt_lp_1el[isten];
+                      resid = wt_lp_1el[isten]*x[junk][jnode_box];
+                      mat_val = wt_lp_1el[isten];
                    }
-                }
-                else bindx_tmp[j_box]=TRUE;
+                   resid_sum+=resid;
+                   dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                   dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                               junk,jnode_box,mat_val);
              }
 
              /* 
               * add in source term (electroneutrality sum) 
               */
              for (icomp=0; icomp<Ncomp; icomp++) {
+               junk=Phys2Unk_first[DENSITY] + icomp;
 
                if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
                else ilist = icomp;
@@ -347,15 +345,12 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
                    Lsemiperm[WallType[Wall_elems[ilist][el_box]]][icomp]) ){
 
                   if (Charge_f[icomp] != 0.0) {
-                    j_box = loc_find(Phys2Unk_first[DENSITY] + icomp,jnode_box,BOX);
-                    if (fill_flag != MSR_PREPROCESS){
-                       loc_j = B2L_unknowns[j_box];
-                       resid[loc_i] -= wt_s_1el[isten]*KAPPA_H2O*Charge_f[icomp]*x[loc_j]
-                                                         *4.0*PI/Temp_elec;
-                       mat_row[loc_j] -= wt_s_1el[isten]*KAPPA_H2O*Charge_f[icomp]*
-                                                          4.0*PI/Temp_elec;
-                    }
-                    else bindx_tmp[j_box] = TRUE;
+                    resid = -wt_s_1el[isten]*KAPPA_H2O*Charge_f[icomp]*x[junk][jnode_box]*
+                                                                         4.0*PI/Temp_elec;
+                    mat_val = -wt_s_1el[isten]*KAPPA_H2O*Charge_f[icomp]*4.0*PI/Temp_elec;
+                    dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                    dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                                junk,jnode_box,mat_val);
                     
                   } /* End if (Charge_f[icomp] != 0.0) */
                }
@@ -376,7 +371,9 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
               else if (iln == 1) wt = -1.0 / (Esize_x[0] * 2.0);
            }
 
+           junk_psi = Phys2Unk_first[POISSON];
            for (icomp=0; icomp<Ncomp; icomp ++){
+               junk_rho = Phys2Unk_first[DENSITY] + icomp;
                if (!Zero_density_TF[inode_box][icomp] && Lpolarize[icomp]){
 
                for (jln=0; jln< Nnodes_per_el_V; jln++) {
@@ -388,14 +385,7 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
                                   [((nodes_volm_el+jln)%nodes_volm_el)/nodes_surf_el];
                   }
 
-                  jnode_box = offset_to_node_box(ijk_box, offset, junk2);
-
-                  j_box_psi[jln]  = loc_find(Phys2Unk_first[POISSON],jnode_box,BOX);
-                  j_box_rho[jln] =  loc_find(Phys2Unk_first[DENSITY] + icomp,jnode_box,BOX);
-                  if (fill_flag != MSR_PREPROCESS){
-                    loc_j_psi[jln]  = B2L_unknowns[j_box_psi[jln]];
-                    loc_j_rho[jln] = B2L_unknowns[j_box_rho[jln]];
-                  }
+                  nodeIndices[jln] = offset_to_node_box(ijk_box, offset, junk2);
                }
 
                in_wall=TRUE;
@@ -404,31 +394,28 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
                }
 
                if (!in_wall){
-               if (fill_flag != MSR_PREPROCESS){
 
                   if (Ndim==1) {
 
-                    rho_0 = x[loc_j_rho[0]];
-                    rho_1 = x[loc_j_rho[1]];
-                    psi_0  = x[loc_j_psi[0]];
-                    psi_1  = x[loc_j_psi[1]];
+                    rho_0 = x[junk_rho][nodeIndices[0]];
+                    rho_1 = x[junk_rho][nodeIndices[1]];
+                    psi_0  = x[junk_psi][nodeIndices[0]];
+                    psi_1  = x[junk_psi][nodeIndices[1]];
+
                     tmp = (rho_0 + rho_1);
 
-                    resid[loc_i] += wt*Pol[icomp]*(psi_0 - psi_1)*tmp;
+                    resid = wt*Pol[icomp]*(psi_0 - psi_1)*tmp;
+                    resid_sum+=resid;
+                    dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
 
-                    mat_row[loc_j_rho[0]] += wt*Pol[icomp]*(psi_0 - psi_1);
-                    mat_row[loc_j_rho[1]] += wt*Pol[icomp]*(psi_0 - psi_1);
-                    mat_row[loc_j_psi[0]] += wt*Pol[icomp]*tmp;
-                    mat_row[loc_j_psi[1]]  -= wt*Pol[icomp]*tmp;
-
+                    numEntries=2;
+                    values[0]=values[1]=wt*Pol[icomp]*(psi_0 - psi_1);
+                    dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+                                                      junk_rho, nodeIndices,values,numEntries);
+                    values[0]=wt*Pol[icomp]*tmp; values[1]=-values[0];
+                    dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+                                                      junk_psi, nodeIndices,values,numEntries);
                   }
-               }
-               else {
-                 for (jln=0; jln< Nnodes_per_el_V; jln++) {
-                   bindx_tmp[j_box_psi[jln]] =TRUE;
-                   bindx_tmp[j_box_rho[jln]]=TRUE;
-                 }
-               }
                }
              } /*end of test for polarizeable fluid species */
            }   /*end of loop over components for adding in polarization term */
@@ -440,27 +427,24 @@ void load_polarize_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_bo
 
 }
 /****************************************************************************/
-void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
-                       double *mat_row,
-                       double *resid, double *x, int *bindx_tmp, int fill_flag)
+void load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x)
 {
 
   int iwall,  isten, icomp,ilist,idim;
-  int iln, jln, elem, offset[3], loc_j,el_box;
+  int iln, jln, elem, offset[3], el_box;
   int nodes_volm_el, nodes_surf_el, junk2[3];
   /* static variables keep their value for every time the function is called*/
   static double *wt_lp_1el, *wt_s_1el;
   static int   **elem_permute, off_ref[2][2] = { {0,1}, {-1,0}};
-  int j_box, jnode_box;
+  int jnode_box;
   int reflect_flag[3];
+  double resid,mat_val,resid_sum=0.0;
 
   /* First time through, load weights appropriate for this Ndim */
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
   
-  if (MSR_PREPROCESS){
     set_fem_1el_weights(&wt_lp_1el, &wt_s_1el, &elem_permute);
-  }
 
 /* if we are at a boundary node and the boundary condition is constant
  * potential, then solve the equation psi = constant ..... in all other
@@ -470,13 +454,12 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
 
    iwall = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
    if (iwall != -1 && Type_bc_elec[WallType[iwall]] == CONST_POTENTIAL) {
-       if (fill_flag != MSR_PREPROCESS){
-          resid[loc_i] = x[loc_i] - Elec_param_w[iwall];
-          mat_row[loc_i] = 1.0;
-       }
-       else{ 
-          bindx_tmp[i_box]=TRUE;
-       }
+          resid = x[iunk][inode_box] - Elec_param_w[iwall];
+          mat_val=1.0;
+          resid_sum+=resid;
+          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                      iunk,inode_box,mat_val);
    }
    else {
        for (iln=0; iln< Nnodes_per_el_V; iln++) {
@@ -486,12 +469,14 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
          el_box = el_to_el_box(elem);
 
          if (elem >= 0 ) {
-           if (fill_flag != MSR_PREPROCESS){
-             if (Vol_charge_flag) 
-               resid[loc_i] -= Charge_vol_els[el_box]*4.0*PI
+             if (Vol_charge_flag){ 
+               resid = -Charge_vol_els[el_box]*4.0*PI
                               / (Temp_elec * Nnodes_per_el_V);
+               resid_sum += resid;
+               dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
            }
 
+           junk=Phys2Unk_first[POISSON];
            for (jln=0; jln< Nnodes_per_el_V; jln++) {
 
             /* 
@@ -511,23 +496,23 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
              }
 
              jnode_box = offset_to_node_box(ijk_box, offset, junk2);
-             j_box = loc_find(Phys2Unk_first[POISSON],jnode_box,BOX);
              /*
               * add in Laplace term
               */
              if (jnode_box >= 0){  /* new flag for boundaries */
-                if (fill_flag != MSR_PREPROCESS){
-                   loc_j = B2L_unknowns[j_box];
-                   resid[loc_i] += Dielec[el_box]*wt_lp_1el[isten]*x[loc_j];
-                   mat_row[loc_j] += Dielec[el_box]*wt_lp_1el[isten];
-                }
-                else bindx_tmp[j_box]=TRUE;
+                   resid = Dielec[el_box]*wt_lp_1el[isten]*x[junk][jnode_box];
+                   mat_val = Dielec[el_box]*wt_lp_1el[isten];
+                   dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                   dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                               junk,jnode_box,mat_val);
+                   resid_sum+=resid;
              }
 
              /* 
               * add in source term (electroneutrality sum) 
               */
              for (icomp=0; icomp<Ncomp; icomp++) {
+               junk=Phys2Unk_first[DENSITY] + icomp;
 
                if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
                else ilist = icomp;
@@ -535,16 +520,12 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
                    Lsemiperm[WallType[Wall_elems[ilist][el_box]]][icomp]) ){
 
                   if (Charge_f[icomp] != 0.0) {
-                    j_box = loc_find(Phys2Unk_first[DENSITY] + icomp,jnode_box,BOX);
-                    if (fill_flag != MSR_PREPROCESS){
-                       loc_j = B2L_unknowns[j_box];
-                       resid[loc_i] -= wt_s_1el[isten]*Charge_f[icomp]*x[loc_j]
-                                                         *4.0*PI/Temp_elec;
-                       mat_row[loc_j] -= wt_s_1el[isten]*Charge_f[icomp]*
-                                                          4.0*PI/Temp_elec;
-
-                    }
-                    else bindx_tmp[j_box] = TRUE;
+                       resid = -wt_s_1el[isten]*Charge_f[icomp]*x[junk][jnode_box]*4.0*PI/Temp_elec;
+                       mat_val = -wt_s_1el[isten]*Charge_f[icomp]* 4.0*PI/Temp_elec;
+                       dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                       dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                                  junk,jnode_box,mat_val);
+                       resid_sum+=resid;
                     
                   } /* End if (Charge_f[icomp] != 0.0) */
 
@@ -556,49 +537,15 @@ void load_poissons_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
          }       /* end of test to be sure element is in fluid */
        }         /* end of possible local node positions */
    }
-
+   return(resid_sum);
 }
 /************************************************************************/
 /* load_poisson_bc: Load the Boundary condiditions associated with surfaces
-                    of known charge.                                     
-void load_poisson_bc_old(double *resid)
-{
-  int loc_inode, inode_box, loc_i, iwall,idim,iunk;
-  double charge_i,fac;
-
-  if (Type_coul==POLARIZE) fac=KAPPA_H2O;
-  else              fac=1.0;
-
-  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     inode_box = L2B_node[loc_inode];
-     
-     if (Nodes_2_boundary_wall[Nlists_HW-1][inode_box] != -1){
-
-         iwall     = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
-         if (Type_bc_elec[WallType[iwall]] == CONST_CHARGE ){
-
-          iunk = Phys2Unk_first[POISSON]
-
-          loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
-
-          charge_i = 0.0;
-          for (idim=0; idim<Ndim; idim++)
-             charge_i += Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
-          resid[loc_i] -= 4.0*PI*charge_i*fac/Temp_elec;
-
-        }   
-     }
-  }
-  return;
-}*/
-/************************************************************************/
-/************************************************************************/
-/* load_poisson_bc: Load the Boundary condiditions associated with surfaces
                     of known charge.                                     */
-void load_poisson_bc(double *resid,int inode_box,int loc_inode,int loc_i)
+double load_poisson_bc(int iunk,int loc_inode,int inode_box )
 {
   int iwall,idim;
-  double charge_i;
+  double charge_i,resid=0.0;
 
      if (Nodes_2_boundary_wall[Nlists_HW-1][inode_box] != -1){
 
@@ -608,11 +555,13 @@ void load_poisson_bc(double *resid,int inode_box,int loc_inode,int loc_i)
           charge_i = 0.0;
           for (idim=0; idim<Ndim; idim++)
              charge_i += Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
-          resid[loc_i] -= 4.0*PI*charge_i/Temp_elec;
+
+          resid = 4.0*PI*charge_i/Temp_elec;
+          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
 
         }   /* check for charge b.c. on this wall */
      }      /* end of check for if this is a boundary node */
-  return;
+  return(resid);
 }
 /************************************************************************/
 /* basis_fn_calc: calcs phi and grad_phi for regular hex element */
@@ -650,9 +599,8 @@ void basis_fn_calc(double **phi, double ***grad_phi, double *evol)
    }
 }
 /************************************************************************/
-void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
-                        double *mat_row, double *resid, double *x,
-                        int *bindx_tmp, int fill_flag, int iunk)
+double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
+                                    int *ijk_box, double **x)
 {
 
   int ilist=0, icomp, idim, ijk[3],inode;
@@ -661,8 +609,9 @@ void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_
   int off_ref[2][2] = { {0,1}, {-1,0}};
   int j_box_mu[8], j_box_rho[8], loc_j_mu[8], loc_j_rho[8], jnode_box,flag,count_flag;
   double wt=1.0, area_0=0.0, area_1=0.0, rho_0, rho_1, mu_0, mu_1, tmp;
-
-   int dummy_int;
+  double resid,resid_sum=0.0,mat_val;
+  int nodeIndices[8];
+  double values[2],values_rho[8],values_mu[8];
 
   /* pre calc basis function stuff for 3D */
 
@@ -696,26 +645,29 @@ void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_
 
    if (Zero_density_TF[inode_box][icomp]) {
        /* set mu to -VEXT_MAX in walls, and skip transport eqn fill */
-       if (fill_flag != MSR_PREPROCESS){
-          resid[loc_i] = x[loc_i] + VEXT_MAX;
-          mat_row[loc_i] = 1.0;
-       }
-       else bindx_tmp[i_box]=TRUE;
+          resid = x[iunk][inode_box] + VEXT_MAX;
+          resid_sum+=resid;
+          mat_val = 1.0;
+          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                      iunk,inode_box,mat_val);
    }
    /* check if you are in well-mixed bulk region */
    else if (ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu+0.0000001) {
-       if (fill_flag != MSR_PREPROCESS){
-          resid[loc_i] = x[loc_i] - Betamu_LBB[icomp];
-          mat_row[loc_i] = 1.0;
-       }
-       else bindx_tmp[i_box]=TRUE;
+          resid = x[iunk][inode_box] - Betamu_LBB[icomp];
+          resid_sum+=resid;
+          mat_val = 1.0;
+          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                      iunk,inode_box,mat_val);
    }
    else if (Size_x[Grad_dim]-ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu+0.0000001) {
-       if (fill_flag != MSR_PREPROCESS){
-          resid[loc_i] = x[loc_i] - Betamu_RTF[icomp];
-          mat_row[loc_i] = 1.0;
-       }
-       else bindx_tmp[i_box]=TRUE;
+          resid = x[iunk][inode_box] - Betamu_RTF[icomp];
+          resid_sum+=resid;
+          mat_val = 1.0;
+          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                      iunk,inode_box,mat_val);
    }
    else {
        count_flag=0;
@@ -745,6 +697,8 @@ void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_
            /* process indices to all local mu and rho unks in this element */
            /* this loop should be good for 2D and 3D as well */
 
+           junk_mu = iunk;
+           junk_rho = Phys2Unk_first[DENSITY];
            flag=FALSE;
            for (jln=0; jln< Nnodes_per_el_V; jln++) {
              for (idim=0; idim<Ndim; idim++){
@@ -758,12 +712,7 @@ void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_
              jnode_box = offset_to_node_box(ijk_box, offset, junk2);
              if (Zero_density_TF[jnode_box][icomp]) flag=TRUE;
 
-             j_box_mu[jln]  = loc_find(iunk,jnode_box,BOX);   
-             j_box_rho[jln] = loc_find(Phys2Unk_first[DENSITY] + icomp,jnode_box,BOX);   
-             if (fill_flag != MSR_PREPROCESS){
-               loc_j_mu[jln]  = B2L_unknowns[j_box_mu[jln]];
-               loc_j_rho[jln] = B2L_unknowns[j_box_rho[jln]];
-             }
+             nodeIndices[jln] = jnode_box;
            }
            if (flag) count_flag++;
            if (count_flag==Nnodes_per_el_V) {
@@ -775,31 +724,38 @@ void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_
            /* only fill if every node is non zero density node - otherwise will be 
               including discontinuities in mu */
            if (flag==FALSE){
-           if (fill_flag != MSR_PREPROCESS){
 
               if (Ndim==1) {   
 
-                rho_0 = x[loc_j_rho[0]];
-                rho_1 = x[loc_j_rho[1]];
-                mu_0  = x[loc_j_mu[0]];
-                mu_1  = x[loc_j_mu[1]];
+                rho_0 = x[junk_rho][nodeIndices[0]];
+                rho_1 = x[junk_rho][nodeIndices[1]];
+                mu_0  = x[junk_mu][nodeIndices[0]];
+                mu_1  = x[junk_mu][nodeIndices[1]];
+
                 tmp = (2.0*rho_0*area_0 + rho_1*area_0 
                        + rho_0*area_1 + 2.0*rho_1*area_1);
 
-                resid[loc_i] += wt*(mu_0 - mu_1)*tmp;
+                resid = wt*(mu_0 - mu_1)*tmp;
+                resid_sum+=resid;
+                dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+ 
+                numEntries=2;
+                values[0]=values[1]=wt*(mu_0 - mu_1)*(2.0*area_0 + area_1);
+                dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+                                                  junk_rho, nodeIndices,values,numEntries);
+                values[0] = wt*tmp;  values[1]=-values[0]; 
+                dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+                                                  junk_mu, nodeIndices,values,numEntries);
 
-                mat_row[loc_j_rho[0]] += wt*(mu_0 - mu_1)*(2.0*area_0 + area_1);
-                mat_row[loc_j_rho[1]] += wt*(mu_0 - mu_1)*(area_0 + 2.0*area_1);
-                mat_row[loc_j_mu[0]]  += wt*tmp;
-                mat_row[loc_j_mu[1]]  -= wt*tmp;
-         
                 /* add in a bulk convection term */
                 if (iln == 0) tmp = (2.0*area_0 + area_1)/6.0;
                 else          tmp = (area_0 + 2.0*area_1)/6.0;
-                resid[loc_i] += Velocity * (rho_1 - rho_0) * tmp;
-                mat_row[loc_j_rho[0]] -= Velocity * tmp;
-                mat_row[loc_j_rho[1]] += Velocity * tmp;
-
+                resid = Velocity * (rho_1 - rho_0) * tmp;
+                resid_sum+=resid;
+                dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                values[0] = -Velocity*tmp;  values[1]=-values[0];
+                dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+                                                  junk_rho, nodeIndices,values,numEntries);
               }
               else if (Ndim==3){     /* Ndim==3 case */
 
@@ -811,63 +767,61 @@ void load_nonlinear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_
                   rho = 0.0; 
                   grad_mu[0] = grad_mu[1] = grad_mu[2] = 0.0;
                   for (jln=0; jln<8; jln++) {
-/*if (Proc==4 && inode_box==L2B_node[26]) printf("jln=%d\n",jln);*/
-dummy_int=jln;
-                     rho += phi[jln][igp] * x[loc_j_rho[jln]];
-                     grad_mu[0] += grad_phi[jln][igp][0] * x[loc_j_mu[jln]];
-                     grad_mu[1] += grad_phi[jln][igp][1] * x[loc_j_mu[jln]];
-                     grad_mu[2] += grad_phi[jln][igp][2] * x[loc_j_mu[jln]];
+
+                     rho += phi[jln][igp] * x[junk_rho][nodeIndices[jln]];
+                     grad_mu[0] += grad_phi[jln][igp][0] * x[junk_mu][nodeIndices[jln]];
+                     grad_mu[1] += grad_phi[jln][igp][1] * x[junk_mu][nodeIndices[jln]];
+                     grad_mu[2] += grad_phi[jln][igp][2] * x[junk_mu][nodeIndices[jln]];
                   }
                   grad_mu_dot_grad_phi = grad_mu[0]*grad_phi[iln][igp][0]
                                        + grad_mu[1]*grad_phi[iln][igp][1]
                                        + grad_mu[2]*grad_phi[iln][igp][2];
                                       
                   resid[loc_i] += evol * rho * grad_mu_dot_grad_phi;
+                  resid = evol * rho * grad_mu_dot_grad_phi;
+                  resid_sum+=resid;
+                  dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
                   for (jln=0; jln<8; jln++) {
-                    mat_row[loc_j_rho[jln]] += 
-                                 evol * phi[jln][igp] * grad_mu_dot_grad_phi;
-                    mat_row[loc_j_mu[jln]] += evol * rho * (
+                    values_rho[jln]= evol * phi[jln][igp] * grad_mu_dot_grad_phi;
+                    values_mu[jln] = evol * rho * (
                                  grad_phi[jln][igp][0] * grad_phi[iln][igp][0]
                                + grad_phi[jln][igp][1] * grad_phi[iln][igp][1]
                                + grad_phi[jln][igp][2] * grad_phi[iln][igp][2]);
                   }
+                  numEntries=8;
+                  dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+                                                  junk_rho, nodeIndices,values_rho,numEntries);
+                  dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+                                                  junk_mu, nodeIndices,values_mu,numEntries);
                 }
               }
               else {
                 printf("load_transport not written for 2D yet\n");
                 exit(-1);
               }  
-           }  
-           else {
-             for (jln=0; jln< Nnodes_per_el_V; jln++) {
-               bindx_tmp[j_box_mu[jln]] =TRUE;
-               bindx_tmp[j_box_rho[jln]]=TRUE;
-             }
-           }
            }
          }
        }
    }
+   return(resid_sum);
 }
 /****************************************************************************/
-void load_linear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_box,
-                        double *mat_row, double *resid, double *x,
-                        int *bindx_tmp, int fill_flag, int iunk)
+double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box, 
+                                 int *ijk_box,double *x)
 {
 
   int iwall, isten, idim,ijk[3],icomp;
-  int iln, jln, elem, offset[3], loc_j,el_box;
+  int iln, jln, elem, offset[3], el_box;
   int nodes_volm_el, nodes_surf_el, junk2[3];
   /* static variables keep their value for every time the function is called*/
   static double *wt_lp_1el, *wt_s_1el;
   static int   **elem_permute, off_ref[2][2] = { {0,1}, {-1,0}};
-  int j_box, jnode_box;
+  int  jnode_box;
+  double resid, resid_sum=0.0; mat_val;
 
   /* First time through, load weights appropriate for this Ndim */
   
-  if (MSR_PREPROCESS){
     set_fem_1el_weights(&wt_lp_1el, &wt_s_1el, &elem_permute);
-  }
 
 /* if we are at a boundary node and the boundary condition is constant
  * potential, then solve the equation psi = constant ..... in all other
@@ -883,27 +837,28 @@ void load_linear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_box
 
    iwall = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
    if (iwall != -1) {
-       if (fill_flag != MSR_PREPROCESS){
-          resid[loc_i] = x[loc_i] + 25.0;
-          mat_row[loc_i] = 1.0;
-       }
-       else bindx_tmp[i_box]=TRUE;
+          resid = x[iunk][inode_box] + VEXT_MAX;
+          resid_sum+=resid;
+          mat_val = 1.0;
+          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                      iunk,inode_box,mat_val);
    }
-   /*else if (ijk[Grad_dim] == 0) {*/
     if (ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu+0.0000001) {
-       if (fill_flag != MSR_PREPROCESS){
-          resid[loc_i] = x[loc_i] - Betamu_LBB[icomp];
-          mat_row[loc_i] = 1.0;
-       }
-       else bindx_tmp[i_box]=TRUE;
+          resid = x[iunk][inode_box] - Betamu_LBB[icomp];
+          resid_sum+=resid;
+          mat_val = 1.0;
+          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                      iunk,inode_box,mat_val);
    }
-   /*else if (ijk[Grad_dim] == Nodes_x[Grad_dim]-1) {*/
    else if (Size_x[Grad_dim]-ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu+0.0000001) {
-       if (fill_flag != MSR_PREPROCESS){
-          resid[loc_i] = x[loc_i] - Betamu_RTF[icomp];
-          mat_row[loc_i] = 1.0;
-       }
-       else bindx_tmp[i_box]=TRUE;
+          resid = x[iunk][inode_box] - Betamu_RTF[icomp];
+          resid_sum+=resid;
+          mat_val = 1.0;
+          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                      iunk,inode_box,mat_val);
    }
    else {
        for (iln=0; iln< Nnodes_per_el_V; iln++) {
@@ -932,26 +887,24 @@ void load_linear_transport_eqn(int i_box, int inode_box, int loc_i, int *ijk_box
              }
 
              jnode_box = offset_to_node_box(ijk_box, offset, junk2);
-             j_box = loc_find(iunk,jnode_box,BOX);
 
              /*
               * add in Laplace term
               */
              if (jnode_box >= 0){  /* new flag for boundaries */
-                if (fill_flag != MSR_PREPROCESS){
-                   loc_j = B2L_unknowns[j_box];
-                   resid[loc_i] += wt_lp_1el[isten]*x[loc_j];
-                   mat_row[loc_j] += wt_lp_1el[isten];
-                }
-                else bindx_tmp[j_box]=TRUE;
+                   resid = wt_lp_1el[isten]*x[iunk][jnode_box];
+                   resid_sum+=resid;
+                   mat_val = wt_lp_1el[isten];
+                   dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                   dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
+                                                                iunk,jnode_box,mat_val);
              }
-
 
            }     /* end of loop over all local nodes in this fluid element */
          }       /* end of test to be sure element is in fluid */
        }         /* end of possible local node positions */
    }
-
+   return(resid_sum);
 }
 /****************************************************************************/
 /*void load_stoichiometric_constraint(int i_box, int inode_box, 

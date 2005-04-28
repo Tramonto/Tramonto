@@ -43,7 +43,7 @@ static struct RB_Struct d2phi_drb2_theta2_rb(int, int, double *,double,int *,
 /* load_nonlocal_hs_rosen_rb: Here we load all the dphi_drb terms for the 
                         Rosenfeld functional.                         */
 
-void load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode, 
+double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode, 
                        int inode_box, int icomp,
                        int izone, int *ijk_box, int fill_flag,
                        double **x,
@@ -66,7 +66,8 @@ void load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
   int reflect_flag[NDIM_MAX];
   double  sign[3];
   struct  RB_Struct tmp;
-  double resid,mat_val;
+  double resid,mat_val,resid_sum=0.0;
+  int numEntries, values[4],indexUnks[4];
 
   jzone = find_jzone(izone);
 
@@ -168,36 +169,31 @@ void load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
                else    tmp = d2phi_drb2_theta2_rb(junk,jnode_boxJ,x, 
 				weightJ, offsetJ,fill_flag,rho_bar);
             }
-            mat_val=tmp.S3;
-            dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_val,jnode_boxJ);
-            mat_val=tmp.S2;
-            dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk+1,mat_val,jnode_boxJ);
-            mat_val=tmp.S1;
-            dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk+2,mat_val,jnode_boxJ);
-            mat_val=tmp.S0;
-            dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk+3,mat_val,jnode_boxJ);
+            numEntries=4;
+            values[0]=tmp.S3; values[1]=tmp.S2; values[2]=tmp.S1;values[3]=tmp.S0;
+            indexUnks[0]=junk; indexUnks[1]=junk+1; indexUnks[2]=junk+2; indexUnks[3]=junk+3
+            dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
+                                                   indexUnks, jnode_boxJ, values, numEntries);
 
             if (Matrix_fill_flag !=4)
             for (idim = 0; idim<Ndim; idim++){
-               mat_val=tmp.V2[idim];
-               unk_tmp=junk+Nrho_bar_s+idim;
-               dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,unk_tmp,mat_val,jnode_boxJ);
-
-               mat_val=tmp.V1[idim];
-               unk_tmp=junk+Nrho_bar_s+Ndim+idim;
-               dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,unk_tmp,mat_val,jnode_boxJ);
+               numEntries=2;
+               values[0]=tmp.V2[idim]; values[1]=tmp.V1[idim];
+               indexUnks[0]=junk+Nrho_bar_s+idim; indexUnks[1]=indexUnks[0]+Ndim; 
+               dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
+                                                    indexUnks, jnode_boxJ, values, numEntries);
             }
        }  
     }
   }
-  return;
+  return (resid_sum);
 } 
 /*****************************************************************************/
 /* load_rho_bar_s:  Load scalar rho_bar definition equations  
 
    WITH JACOBIAN COARSENING .....*/
 
-void load_rho_bar_s(int sten_type,double *x, int iunk,
+double load_rho_bar_s(int sten_type,double *x, int iunk,
                      int loc_inode, int inode_box, int izone,int *ijk_box,
                      int fill_flag, int resid_only_flag)
 {
@@ -207,7 +203,7 @@ void load_rho_bar_s(int sten_type,double *x, int iunk,
   double *sten_weight,  weight,fac;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
-  double resid,mat_val;
+  double resid,mat_val,resid_sum=0.0;
 
   int jzone, jnode_box, jcomp,jlist,junk;
   int jnode_boxJ;
@@ -218,9 +214,10 @@ void load_rho_bar_s(int sten_type,double *x, int iunk,
      jzone = izone;
 
      resid =-x[iunk][inode_box];
+     resid_sum+=resid;
      mat_val=-1.0;
      dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,mat_val,inode_box);
+     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
 
   if (iunk > Phys2Unk_first[RHOBAR_ROSEN]+1 && ((Lhard_surf && Nlists_HW == 2) ||
                                                (!Lhard_surf && Nlists_HW == 1))){
@@ -234,7 +231,8 @@ void load_rho_bar_s(int sten_type,double *x, int iunk,
         mat_val = Inv_4pirsq[0];
      }
      dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_val,inode_box);
+     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,inode_box,mat_val);
+     resid_sum+=resid;
   }
   else {
   for (jcomp=0; jcomp<Ncomp; jcomp++){
@@ -274,6 +272,7 @@ void load_rho_bar_s(int sten_type,double *x, int iunk,
             resid = weight*fac*constant_boundary(junk,jnode_box);
          }
          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+         resid_sum+=resid;
 
          if (!resid_only_flag)
          if (isten < stenJ->Length){
@@ -287,20 +286,20 @@ void load_rho_bar_s(int sten_type,double *x, int iunk,
                          (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                    }
                    mat_val = weightJ*fac;
-                   dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_val,jnode_boxJ);
+                   dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
             }
          }
 
       }
   }
   }
-  return;
+  return(resid_sum);
 }
 /*****************************************************************************/
 /* load_rho_bar_v:  Load vector rho_bar definition equations  
       WITH JACOBIAN COARSENING ....*/
 
-void load_rho_bar_v(double *x,int iunk, int loc_inode,int inode_box,
+double load_rho_bar_v(double *x,int iunk, int loc_inode,int inode_box,
                     int izone,int *ijk_box, int fill_flag,
                     int resid_only_flag)
 {
@@ -308,7 +307,7 @@ void load_rho_bar_v(double *x,int iunk, int loc_inode,int inode_box,
   int   **sten_offsetJ, *offsetJ;
   double *sten_weightJ,weightJ;
   double *sten_weight,  weight,fac,vector[3];
-  double resid,mat_val;
+  double resid,resid_sum=0.0,mat_val;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
   int junk;
@@ -320,10 +319,11 @@ void load_rho_bar_v(double *x,int iunk, int loc_inode,int inode_box,
   jzone = find_jzone(izone);
   jzone = izone;  /* Turn off Jacobian coarsening always */
 
-  resid =-x[iunk][inode_box];
+  resid =-x[iunk][inode_box]; 
+  resid_sum+=resid;
   mat_val=-1.0;
   dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-  dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,mat_val,inode_box);
+  dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
 
   if (iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim && (
                                 (Lhard_surf && Nlists_HW == 2) ||
@@ -332,9 +332,10 @@ void load_rho_bar_v(double *x,int iunk, int loc_inode,int inode_box,
      junk = Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim;
 
      resid = x[junk][inode_box]*Inv_4pir[0];
+     resid_sum+=resid;
      mat_val = Inv_4pir[0];
      dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_val,inode_box);
+     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,inode_box,mat_val);
   }
   else { 
      if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim)
@@ -379,6 +380,7 @@ void load_rho_bar_v(double *x,int iunk, int loc_inode,int inode_box,
              resid =  weight*fac*vector[idim]*constant_boundary(junk,jnode_box);
           }
           dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          resid_sum+=resid;
 
           if (!resid_only_flag)
           if (isten < stenJ->Length){
@@ -392,13 +394,13 @@ void load_rho_bar_v(double *x,int iunk, int loc_inode,int inode_box,
                          (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                 }
                 mat_val = weightJ*fac*vector[idim];
-                dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,mat_val,jnode_boxJ);
+                dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
              }
           }
       }
     }
   }
-  return;
+  return(resid_sum);
 }
 /*****************************************************************************/
 /* pre_calc_dphi_drb_rb1: rho_bars are calculated at each wall & fluid node
