@@ -617,8 +617,6 @@ int     Nnodes_per_proc;  /* Number of nodes owned by this processor         */
 extern
 int     Nunk_int_and_ext; /* Number of unknownsneeded on this processor      */
 extern
-int     *B2L_1stencil;     /* Box to Local array for nodes where rho_bar is needed*/
-extern
 int     *B2L_unknowns;     /* Box to Local array for all unknowns */
 extern
 int     *B2G_node;         /* Box to global array for all box nodes */
@@ -630,8 +628,6 @@ extern
 int     *B2L_node;         /* Box to local array for all local nodes */
 extern
 int     *L2G_node;         /* Local to global coordinates */
-extern
-int     Nnodes_1stencil;  /* Number of nodes on proc where rho_bar is needed */
 extern
 int     Nunk_per_node;   /* Number of unknowns per node (usually Ncomp       */
 extern
@@ -1260,17 +1256,16 @@ extern void  pre_calc_dphi_drb_rb(struct RB_Struct *, double *,
 
 extern void  pre_calc_dphi_drb_rb1(struct RB_Struct *, double **,
                         struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *, struct RB_Struct *);
+                        struct RB_Struct *);
 
 extern void  pre_calc_dphi_drb_rb2(struct RB_Struct *, double **,
                         struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *, struct RB_Struct *);
+                        struct RB_Struct *);
 
 extern double load_nonlocal_hs_rosen_rb(int, int, int,int,int, int,
                        int *,double **,
                        struct RB_Struct *,struct RB_Struct *,
-                       struct RB_Struct *,struct RB_Struct *,
-                       struct RB_Struct *,int);
+                       struct RB_Struct *,struct RB_Struct *, int);
 
 extern double load_rho_bar_s(int,double **,int, int,int,int,int *,int);
 

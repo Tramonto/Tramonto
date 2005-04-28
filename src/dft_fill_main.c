@@ -36,7 +36,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   int     reflect_flag[3];
   int     izone, mesh_coarsen_flag_i;
   int     loc_i, loc_inode;
-  struct  RB_Struct *rho_bar = NULL;
   struct  RB_Struct *dphi_drb=NULL, dphi_drb_bulk,
                      dphi_drb_bulk_left, dphi_drb_bulk_right;
 
@@ -66,13 +65,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
 
-  /* Allocate and precalculate rho_bars */
-
     if (Sten_Type[DELTA_FN] && Sten_Type[THETA_FN]) {
-      rho_bar = (struct RB_Struct *) array_alloc
-                          (1, Nnodes_1stencil, sizeof(struct RB_Struct));
-      pre_calc_rho_bar(rho_bar, x, fill_flag, iter, NULL, NULL);
-/*      if (Mesh_coarsening != FALSE && Nwall_type >0 || L1D_bc) pre_calc_coarse_rho_bar(rho_bar);*/
 
       dphi_drb = (struct RB_Struct *) array_alloc
                       (1, Nnodes_box, sizeof(struct RB_Struct));
@@ -106,24 +99,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          }
       }
       
-    }
-
-    mat_row = (double *) array_alloc(1, Nunk_int_and_ext, sizeof(double));
-
-    for (j=0; j<Nunk_int_and_ext; j++) mat_row[j] =0.0;
-
-    /* rename saved columns from global to local numbering scheme */
-
-    if ((fill_flag==JAC_SAVE_FILL_1 || fill_flag==JAC_SAVE_FILL_2) && 
-          (iter ==1 || (iter==2 && Load_Bal_Flag == LB_TIMINGS)) ) {
-       for (j=0; j < Nnodes_1stencil; j++) {
-         jac_col = jac_columns_hs[j][0];
-         for (i=1; i<jac_col[0]; i++) 
-             jac_col[i] = B2L_unknowns[jac_col[i]];
-         jac_col = jac_columns_hs[j][1];
-         for (i=1; i<jac_col[0]; i++) 
-             jac_col[i] = B2L_unknowns[jac_col[i]];
-       }
     }
 
   if (unk_flag == NODAL_FLAG){
@@ -332,14 +307,14 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                             ijk_box,x,dphi_drb,
                             &dphi_drb_bulk, &dphi_drb_bulk_left,
                             &dphi_drb_bulk_right,
-                            rho_bar,resid_only_flag);
+                            resid_only_flag);
 
               resid_hs2=load_nonlocal_hs_rosen_rb(THETA_FN,iunk,loc_inode,inode_box,
                             icomp,izone,
                             ijk_box,x,dphi_drb,
                             &dphi_drb_bulk, &dphi_drb_bulk_left,
                             &dphi_drb_bulk_right,
-                            rho_bar,resid_only_flag);
+                            resid_only_flag);
 
 
               if (Sten_Type[U_ATTRACT]) {  /* load attractions */
@@ -495,7 +470,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
   }
   if (Ipot_ff_n != IDEAL_GAS) {
-     safe_free((void *) &rho_bar);
      safe_free((void *) &dphi_drb);
   }
   safe_free((void *) &mat_row);

@@ -336,7 +336,6 @@ void dftmain(double * engptr)
            safe_free((void *) &Deltac_b);
 
       /* solution arrays*/
-      if (Ipot_ff_n != IDEAL_GAS) safe_free((void *) &B2L_1stencil);
       safe_free((void *) &B2L_unknowns);
       safe_free((void *) &x); 
       if (Lbinodal) safe_free((void *) &x2); 
