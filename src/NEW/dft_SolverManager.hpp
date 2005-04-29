@@ -253,6 +253,9 @@ private:
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
 
+  Epetra_IntVector ownedPN2GIDMap_;
+  Epetra_IntVector boxBN2GIDMap_;
+
 };
 
 #endif /* DFT_SOLVERMANAGER_HPP */

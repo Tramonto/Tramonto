@@ -33,12 +33,13 @@
 #include "Epetra_BlockMap.h"
 #include "Epetra_Map.h"
 #include "Epetra_Vector.h"
+#include "Epetra_IntVector.h"
 #include "Epetra_MpiComm.h"
 
 
 //=============================================================================
-dft_SolverManager::dft_SolverManager(int numPhysicsTypes, int * physicsTypes, int * solverOptions, double * solverParams, MPI_Comm comm) 
-  : numPhysicsTypes_(numPhysicsTypes),
+dft_SolverManager::dft_SolverManager(int numUnknownsPerNode, int * unknownToPhysicsType, int * solverOptions, double * solverParams, MPI_Comm comm) 
+  : numUnknownsPerNode_(numUnknownsPerNode),
     numMatrixBlocks_(0),
     comm_(Epetra_MpiComm(comm)),
     blockMatrix_(0),
@@ -53,101 +54,34 @@ dft_SolverManager::dft_SolverManager(int numPhysicsTypes, int * physicsTypes, in
     isGraphStructureSet_(false),
     isLinearProblemSet_(false) {
 
-  if (numPhysicsTypes==2) {
-    numMatrixBlocks_ = 2;
-  // Allocate blockMatrix, blockGraph, blockLhs, blockRhs and map arrays
-  blockMatrix_ = new Epetra_CrsMatrix **[numBlocks_];
-  for (int i=0; i<numBlocks_; i++) blockMatrix_[i] = new Epetra_CrsMatrix *[numBlocks_];
-  for (int i=0; i<numBlocks_; i++)
-    for (int j=0; j<numBlocks_; j++) blockMatrix_[i][j] = 0; // Initialize block operator pointers to zero
-
-  blockMatrixReadOnly_ = new bool *[numBlocks_];
-  for (int i=0; i<numBlocks_; i++) blockMatrixReadOnly_[i] = new bool [numBlocks_];
-  for (int i=0; i<numBlocks_; i++)
-    for (int j=0; j<numBlocks_; j++) blockMatrixReadOnly_[i][j] = false; // Initialize read-only to false
-
-  blockGraph_ = new Epetra_Graph **[numBlocks_];
-  for (int i=0; i<numBlocks_; i++) blockGraph_[i] = new Epetra_Graph *[numBlocks_];
-  for (int i=0; i<numBlocks_; i++)
-    for (int j=0; j<numBlocks_; j++) blockGraph_[i][j] = 0; // Initialize block graph pointers to zero
-
-  blockLhs_ = new Epetra_Vector *[numBlocks_];
-  for (int j=0; j<numBlocks_; j++) rowMap_[j] = 0; // Initialize Lhs pointers to zero
-
-  blockRhs_ = new Epetra_Vector *[numBlocks_];
-  for (int i=0; i<numBlocks_; i++) rowMap_[i] = 0; // Initialize Rhs pointers to zero
-
-  rowMaps_ = new Epetra_Map *[numBlocks_];
-  for (int i=0; i<numBlocks_; i++) rowMap_[i] = 0; // Initialize rowMap pointers to zero 
-
-  colMaps_ = new Epetra_Map *[numBlocks_];
-  for (int j=0; j<numBlocks_; j++) colMap_[j] = 0; // Initialize colMap pointers to zero
-
   return;
 }
-
 //=============================================================================
 dft_SolverManager::~dft_SolverManager() {
  
-  
-  for (int i=0; i<numBlocks_; i++)
-    for (int j=0; j<numBlocks_; j++) if (blockMatrix_[i][j]!=0) delete blockMatrix_[i][j];
-  for (int i=0; i<numBlocks_; i++) delete [] blockMatrix_[i];
-  delete [] blockMatrix_;
-
-  for (int i=0; i<numBlocks_; i++)
-    for (int j=0; j<numBlocks_; j++) delete [] blockMatrixReadOnly_[i][j];
-  for (int i=0; i<numBlocks_; i++) delete [] blockMatrixReadOnly_[i];
-
-  for (int i=0; i<numBlocks_; i++)
-    for (int j=0; j<numBlocks_; j++) if (blockGraph_[i][j]!=0) delete blockGraph_[i][j];
-  for (int i=0; i<numBlocks_; i++) delete [] blockGraph_[i];
-  delete [] blockGraph_;
-
-  for (int j=0; j<numBlocks_; j++) delete blockLhs_[j];
-  delete [] blockLhs_;
-
-  for (int i=0; i<numBlocks_; i++) delete blockRhs_[i];
-  delete [] blockRhs_;
-
-  for (int i=0; i<numBlocks_; i++) delete rowMap_[i];
-  delete [] rowMaps_;
-
-  for (int j=0; j<numBlocks_; j++) delete colMap_[j];
-  delete [] colMaps_;
-
   return;
 }
-
 //=============================================================================
-int dft_SolverManager::finalizeBlockStructure() {
+int dft_SolverManager::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx=0, int ny = 1, int nz = 1) {
   
-  if (isBlockStructureSet_) return(1); // Already been here, return warning
-  // initialize graphs 
-  for (int i=0; i<numBlocks_; i++) {
-    blockLhs_ = new Epetra_Vector(rowMap_[i]);
-    blockRhs_ = new Epetra_Vector(rowMap_[i]);
-    for (int j=0; j<numBlocks_; j++) blockGraph_[i][j] = new Epetra_Graph(Copy, rowMap_[i], colMap_[j], 0);
-
-    isBlockStructureSet_ = true;
   return(0);
 }
 //=============================================================================
-int dft_SolverManager::finalizeGraphStructure() {
+int dft_SolverManager::setNodalColMap(int numBoxNodes, int * GIDs, int nx=0, int ny = 1, int nz = 1) {
   
-  if (isBlockStructureSet_) return(-1); // Block structure must be set
-  if (isGraphStructureSet_) return(1); // Already been here, return warning
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::finalizeBlockStructure() {
 
-  // finalize graphs and optimize their storage, initialize matrix structure
-  for (int i=0; i<numBlocks_; i++)
-    for (int j=0; j<numBlocks_; j++) {
-      EPETRA_CHK_ERR(blockGraph_[i][j]->FillComplete());
-      EPETRA_CHK_ERR(blockGraph_[i][j]->OptimizeStorage());
-      blockMatrix_[i][j] = new Epetra_CrsMatrix(Copy, blockGraph_[i][j]);
-      EPETRA_CHK_ERR(blockMatrix_[i][j]->OptimizeStorage());
-    }
-  isGraphStructureSet_ = true;
+  if (isBlockStructureSet_) return(1); // Already been here, return warning
   
+  bool useDefaultSolver = true;  // Make this always true for now.
+  
+  // Compute owned Physics/Node to solver GID translation mappings, then the same for box physics/nodes.
+  compute
+  if (useDefaultSolver) {
+    isBlockStructureSet_ = true;
   return(0);
 }
 //=============================================================================
@@ -156,36 +90,78 @@ int dft_SolverManager::initializeProblemValues() {
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
   
-  // Zero out matrix Lhs and Rhs values
-  for (int i=0; i<numBlocks_; i++) {
-    EPETRA_CHK_ERR(blockLhs_->PutScalar(0.0));
-    EPETRA_CHK_ERR(blockRhs_->PutScalar(0.0));
-    for (int j=0; j<numBlocks_; j++) {
-      EPETRA_CHK_ERR(blockMatrix_[i][j]->PutScalar(0.0));
-    }
-  }
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::insertRhsValue(int ownedPhysicsID, int ownedNode, double value) {
+  
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::insertMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode, double value) {
+  
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::insertMatrixValues(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int * boxNodeList, double * values, int numEntries) {
+  
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::insertMatrixValues(int ownedPhysicsID, int ownedNode, int * boxPhysicsIDList, int boxNode, double * values, int numEntries) {
+  
   return(0);
 }
 //=============================================================================
 int dft_SolverManager::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
-  // Perform book-keeping after all values submitted
-  for (int i=0; i<numBlocks_; i++)
-    for (int j=0; j<numBlocks_; j++) 
-      if (!getMatrixReadOnly(i,j)) { // Only needed if matrix i,j is read-write
-	EPETRA_CHK_ERR(blockMatrix_[i][j]->FillComplete());
-      }
   isLinearProblemSet_ = true;
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::setBlockMatrixReadOnly(int rowPhysicsID, int colPhysicsID, bool readOnly) {
+  
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::setRhs(const double ** b) {
+  
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::getLhs(double ** x) const {
+  
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::getRhs(double ** b) const {
+  
   return(0);
 }
 //=============================================================================
 int dft_SolverManager::setupSolver() {
   
-  if (numBlocks_!=2) return(-1); // Can only do a two-block solver for now.
-  // Perform book-keeping after all values submitted
-  for (int i=0; i<numBlocks_; i++)
-    for (int j=0; j<numBlocks_; j++) {
-      EPETRA_CHK_ERR(blockMatrix_[i][j]->FillComplete());
-    }
   return(0);
 }
+//=============================================================================
+int dft_SolverManager::solve() {
+  
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::applyMatrix(const double** x, double** b) const {
+  
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::importR2C(const double** xOwned, double** xBox) const {
+  
+  return(0);
+}
+//=============================================================================
+int dft_SolverManager::importR2C(const double* aOwned, double* aBox) const {
+  
+  return(0);
+}
+//=============================================================================
+
