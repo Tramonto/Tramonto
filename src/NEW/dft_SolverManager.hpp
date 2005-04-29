@@ -210,8 +210,10 @@ class dft_SolverManager {
 
   //! Apply global linear operator for all physics types, b = Ax
   /*! Computes b = Ax where A is the global linear operator and each x[i] and b[i] is associated with the ith physics block.
-    \param x (In) Array of pointers such that x[i] is an array of doubles of length numOwnedNodes.
+    \param x (In) Array of pointers such that x[i] is an array of doubles of length numBoxNodes.
     \param b (Out) Array of pointers such that b[i] is an array of doubles of length numOwnedNodes.
+
+    \warning Note that x[i] is of length numBoxNodes and b[i] is of length numOwnedNodes.
   */
   int applyMatrix(const double** x, double** b) const;
   
@@ -238,7 +240,30 @@ class dft_SolverManager {
 
 private:
 
+  inline int ownedToSolverGID(int ownedPhysicsID, int ownedNode) { 
+    if (groupByPhysics_) 
+      return(ownedPhysicsID*numOwnedNodes + ownedMap.GID(ownedNode));
+    else
+      return(ownedPhysicsID + numOwnedNodes*ownedMap.GID(ownedNode);
+  }
+	     
+  inline int ownedToSolverLID(int ownedPhysicsID, int ownedNode) { 
+    if (groupByPhysics_) 
+      return(ownedPhysicsID*numOwnedNodes + ownedNode);
+    else
+      return(ownedPhysicsID + numOwnedNodes*ownedNode);
+  }
+	     
+  inline int boxToSolverGID(int boxPhysicsID, int boxNode) { 
+    if (groupByPhysics_) 
+      return(boxPhysicsID*numBoxNodes + boxMap.GID(boxNode));
+    else
+      return(boxPhysicsID + numBoxNodes*boxMap.GID(boxNode));
+  }
+	     
   int numUnknownsPerNode_;
+  int numOwnedNodes_;
+  int numBoxNodes_;
   int numMatrixBlocks_;
   Epetra_MpiComm comm_;
   Epetra_RowMatrix *** blockMatrix_;
@@ -249,12 +274,19 @@ private:
   Epetra_Vector ** blockRhs_;
   Epetra_BlockMap ** rowMaps_;
   Epetra_BlockMap ** colMaps_;
+  Epetra_Map * ownedMap_;
+  Epetra_Map * boxMap_;
+  Epetra_Import * ownedToBoxImporter_;
+  Epetra_CrsMatrix * globalMatrix_;
+  Epetra_Vector * globalRhs_;
+  Epetra_Vector * globalLhs_;
+  AztecOO * solver_;
   bool isBlockStructureSet_;
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
+  bool groupByPhysics_;
 
-  Epetra_IntVector ownedPN2GIDMap_;
-  Epetra_IntVector boxBN2GIDMap_;
+
 
 };
 
