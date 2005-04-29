@@ -34,7 +34,9 @@
 #include "Epetra_Map.h"
 #include "Epetra_Vector.h"
 #include "Epetra_IntVector.h"
+#include "Epetra_IntSerialDenseVector.h"
 #include "Epetra_MpiComm.h"
+#include "AztecOO.h"
 
 
 //=============================================================================
@@ -68,8 +70,7 @@ dft_SolverManager::dft_SolverManager(int numUnknownsPerNode, int * unknownToPhys
 }
 //=============================================================================
 dft_SolverManager::~dft_SolverManager() {
- 
-  return;
+   return;
 }
 //=============================================================================
 int dft_SolverManager::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx=0, int ny = 1, int nz = 1) {
@@ -86,9 +87,9 @@ int dft_SolverManager::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx=0, i
     for (int i=0; i<numUnknownsPerNode_; i++)
       for (int j=0; j<numOwnedNodes_; j++) globalGIDList[k++] = i*numOwnedNodes + GIDs[j];
 
-  globalRowMap_ = new Epetra_Map(-1, numUnks, globalGIDList.Values(), 0, comm_);
+  globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, globalGIDList.Values(), 0, comm_));
 
-  ownedMap_ = new Epetra_Map(-1, numOwnedNodes, GIDs, 0, comm_);
+  ownedMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes, GIDs, 0, comm_));
   return(0);
 }
 //=============================================================================
@@ -96,7 +97,7 @@ int dft_SolverManager::setNodalColMap(int numBoxNodes, int * GIDs, int nx=0, int
   
   numBoxNodes_ = numBoxNodes;
 
-  boxMap_ = new Epetra_Map(-1, numBoxNodes, GIDs, 0, comm_);
+  boxMap_ = Teuchos::rcp(new Epetra_Map(-1, numBoxNodes, GIDs, 0, comm_));
 
   return(0);
 }
@@ -105,12 +106,12 @@ int dft_SolverManager::finalizeBlockStructure() {
 
   if (isBlockStructureSet_) return(1); // Already been here, return warning
   
-  globalMatrix_ = new Epetra_CrsMatrix(Copy, *globalRowMap_, 0);
-  globalRhs_ = new Epetra_Vector(*globalRowMap_);
-  globalLhs_ = new Epetra_Vector(*globalRowMap_);
-  globalProblem_ = new Epetra_LinearProblem(globalMatrix_, globalLhs_, globalRhs_);
+  globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
+  globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
+  globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
+  globalProblem_ = Teuchos::rcp(new Epetra_LinearProblem(globalMatrix_, globalLhs_, globalRhs_));
     
-  ownedToBoxImporter_ = new Epetra_Import(*boxMap_, *ownedMap_);
+  ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*boxMap_, *ownedMap_));
 
   isBlockStructureSet_ = true;
   return(0);
@@ -221,7 +222,7 @@ int dft_SolverManager::getRhs(double ** b) const {
 //=============================================================================
 int dft_SolverManager::setupSolver() {
 
-  solver_ = new AztecOO(globalProblem_);
+  solver_ = Teuchos::rcp(new AztecOO(globalProblem_));
   solver_->SetAztecOption(AZ_solver, AZ_gmres);
   solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
   solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);

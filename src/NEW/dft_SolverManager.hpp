@@ -28,7 +28,17 @@
 #ifndef DFT_SOLVERMANAGER_HPP
 #define DFT_SOLVERMANAGER_HPP
 
-#include "dft_solver_defs.h"
+//#include "dft_solver_defs.h"
+class Epetra_MpiComm;
+class Epetra_RowMatrix;
+class Epetra_CrsGraph;
+class Epetra_Vector;
+class Epetra_BlockMap;
+class Epetra_Map;
+class Epetra_Import;
+class Epetra_CrsMatrix;
+class AztecOO;
+#include "Teuchos_RefCountPtr.hpp"
 
 //! dft_SolverManager:  Solver manager class for Tramonto using Trilinos.
 /*! The dft_SolverManager class supports solver capabilities for Tramonto.
@@ -184,17 +194,23 @@ class dft_SolverManager {
   */
   int setRhs(const double ** b);
 
-  //! Get all left hand side (solution) vectors at once.
-  /*! Allows access to all solution values in a single call.
-    \param x (Out) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numOwnedNodes.
+  //! Set all left hand side (solution) vectors at once.
+  /*! Allows definition of all solution values in a single call.
+    \param x (In) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numBoxNodes.
   */
-  int getLhs(double ** x) const;
+  int setLhs(double ** x) const;
 
   //! Get all right hand side vectors at once.
   /*! Allows the definition of initial guess values in a single call.
     \param b (Out) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numOwnedNodes.
   */
   int getRhs(double ** b) const;
+
+  //! Get all left hand side (solution) vectors at once.
+  /*! Allows access to all solution values in a single call.
+    \param x (Out) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numBoxNodes.
+  */
+  int getLhs(double ** x) const;
   //@}
 
   //@{ \name Solver-related methods
@@ -224,7 +240,7 @@ class dft_SolverManager {
 
     \warning Note that xOwned[i] is of length numOwnedNodes and xBox[i] is of length numBoxNodes.
   */
-  int importR2C(const double** xOwned, double** xBox) const;//Local2Box all unknowns
+  int importR2C(const double** xOwned, double** xBox) const;
 
   //! Fill the array aBox with aOwned, i.e., fill in ghost values on each processor.
   //! Fill the arrays aBox with aOwned for a single physics types.
@@ -234,7 +250,17 @@ class dft_SolverManager {
 
     \warning Note that aOwned is of length numOwnedNodes and aBox is of length numBoxNodes.
   */
-  int importR2C(const double* aOwned, double* aBox) const;//Local2Box node-based (R2C==Row to Column map)
+  int importR2C(const double* aOwned, double* aBox) const;
+
+  //! Fill the array aOwned with aBox, i.e., filter out ghost values on each processor.
+  //! Fill the arrays aOwned with aBox for a single physics types.
+  /*! Fills in aOwned with values from aBox such that ghost values from other processors are removed.
+    \param aBox (In) An array of doubles of length numBoxNodes.
+    \param aOwned (Out) An array of doubles of length numOwnedNodes.
+
+    \warning Note that aOwned is of length numOwnedNodes and aBox is of length numBoxNodes.
+  */
+  int exportC2R(const double* aBox, double* aOwned) const;
 
   //@}
 
@@ -274,13 +300,13 @@ private:
   Epetra_Vector ** blockRhs_;
   Epetra_BlockMap ** rowMaps_;
   Epetra_BlockMap ** colMaps_;
-  Epetra_Map * ownedMap_;
-  Epetra_Map * boxMap_;
-  Epetra_Import * ownedToBoxImporter_;
-  Epetra_CrsMatrix * globalMatrix_;
-  Epetra_Vector * globalRhs_;
-  Epetra_Vector * globalLhs_;
-  AztecOO * solver_;
+  Teuchos::RefCountPtr<Epetra_Map> ownedMap_;
+  Teuchos::RefCountPtr<Epetra_Map> boxMap_;
+  Teuchos::RefCountPtr<Epetra_Import> ownedToBoxImporter_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> globalMatrix_;
+  Teuchos::RefCountPtr<Epetra_Vector> globalRhs_;
+  Teuchos::RefCountPtr<Epetra_Vector> globalLhs_;
+  Teuchos::RefCountPtr<AztecOO> solver_;
   bool isBlockStructureSet_;
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
