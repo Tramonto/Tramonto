@@ -29,10 +29,10 @@
  *                  Gamma^ex = integral [rho-rho_b]dr                  *
  *                  for this processor.                                */
 
-double calc_adsorption(FILE *fp,double *x,double fac_area,double fac_vol)
+double calc_adsorption(FILE *fp,double **x,double fac_area,double fac_vol)
 {
   double area,ads_icomp,ads_ex_icomp,ads_return=0.0;
-  int loc_inode, icomp,loc_i,iwall;
+  int loc_inode, icomp,iunk, inode_box,iwall;
   int i;
   static int first=TRUE;
 
@@ -44,15 +44,16 @@ double calc_adsorption(FILE *fp,double *x,double fac_area,double fac_vol)
   }
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+    inode_box = L2B_node[loc_inode];
     for (icomp=0; icomp<Ncomp; icomp++){
       for (i=0; i<Imax; i++){
 
-         loc_i=Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
+	 iunk = Phys2Unk_first[DENSITY]+icomp;
 
 	 /* Note: if change def. of ads, must change polymer free energy also */
-          Ads_ex[icomp][i] += (x[loc_i]*Nel_hit2[i][loc_i]-Rho_b[icomp]*Nel_hit[i][loc_i])
+          Ads_ex[icomp][i] += (x[iunk][inode_box]*Nel_hit2[i][iunk][inode_box]-Rho_b[icomp]*Nel_hit[i][iunk][inode_box])
 	  *Vol_el/((double)Nnodes_per_el_V); 
-	  Ads[icomp][i] += (x[loc_i]*Nel_hit2[i][loc_i])*Vol_el/((double)Nnodes_per_el_V);
+	  Ads[icomp][i] += (x[iunk][inode_box]*Nel_hit2[i][iunk][inode_box])*Vol_el/((double)Nnodes_per_el_V);
 
       }
     }   /* end of icomp loop */
@@ -136,10 +137,10 @@ double calc_adsorption(FILE *fp,double *x,double fac_area,double fac_vol)
  *                       principle of charge neutrality. i.e. the charge   *
  *                       on the surface = the charge in the fluid !!       */
 
-void calc_surface_charge(FILE *fp, double *x,double fac_area,double fac_vol)
+void calc_surface_charge(FILE *fp, double **x,double fac_area,double fac_vol)
 {
   double charge_sum,area;
-  int loc_inode, icomp, iel, loc_i,nel_hit,idim,ilist,
+  int loc_inode, icomp, iel, iunk, inode_box,nel_hit,idim,ilist,
       inode,ielement,iwall,ijk[3], iel_box=0;
   int reflect_flag[3],semiperm,jcomp;
   static int first=TRUE;
@@ -151,6 +152,7 @@ void calc_surface_charge(FILE *fp, double *x,double fac_area,double fac_vol)
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       /* convert local node to global */
       inode = L2G_node[loc_inode];
+      inode_box = L2B_node[loc_inode];
       node_to_ijk(inode,ijk);
 
       for (icomp=0; icomp<Ncomp; icomp++){
@@ -180,9 +182,9 @@ void calc_surface_charge(FILE *fp, double *x,double fac_area,double fac_vol)
                                  &&  ijk[idim] == Nodes_x[idim]-1)  nel_hit /= 2;
          }
 
-         loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
+	 iunk = Phys2Unk_first[DENSITY]+icomp;
 
-         charge_sum += (Charge_f[icomp]*x[loc_i])
+         charge_sum += (Charge_f[icomp]*x[iunk][inode_box])
                        *Vol_el*((double)nel_hit)/((double)Nnodes_per_el_V);
 
       }   /* end of icomp loop */

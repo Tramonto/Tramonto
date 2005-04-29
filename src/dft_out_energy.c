@@ -28,17 +28,17 @@
 #define FFD 1
 #define CFD 2
 
-double phispt_i(struct RB_Struct *,int);
+double phispt_i(double *);
 double phispt_bulk();
-double int_stencil(double *,int, int,int);
-void assemble_HS_free_energy(double *, double *, double *,double *);
-double free_energy_charging_up(double *);
-double energy_elec(double *,double *);
-double charge_stress(double *,double *);
-double calc_deriv_e(int,int,int,int *,double *,int);
-double calc_deriv2(int,int,int,double *);
-double calc_u_ideal(int, int *, double *, double *, double *);
-double energy_elec_vext_vol(double *);
+double int_stencil(double **,int, int,int);
+void assemble_HS_free_energy(double **, double *, double *,double *);
+double free_energy_charging_up(double **);
+double energy_elec(double **,double *);
+double charge_stress(double **,double *);
+double calc_deriv_e(int,int,int,int *,double **,int);
+double calc_deriv2(int,int,int,double **);
+double calc_u_ideal(int, int *, double **, double *, double *);
+double energy_elec_vext_vol(double **);
 
 /****************************************************************************/
 /****************************************************************************
@@ -47,11 +47,11 @@ double energy_elec_vext_vol(double *);
  *                   free energy (omega + pV).                              */
 /****************************************************************************/
 
-double calc_free_energy(FILE *fp, double *x, double fac_area,
+double calc_free_energy(FILE *fp, double **x, double fac_area,
                               double fac_vol, int print_flag)
 {
-  int    icomp, ilist, loc_inode, inode,loc_i,
-         loc_i_psi,i,inode_box,loc_i_mu;
+  int    icomp, ilist, loc_inode, inode,iunk,
+         psiunk,i,inode_box,muunk;
 
   int    iwall,ijk[3],jwall;
 
@@ -108,19 +108,19 @@ double calc_free_energy(FILE *fp, double *x, double fac_area,
          for (i=0; i<Imax; i++){
             ilist = List[i];
 
-                              loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
-            if (Lsteady_state) loc_i_mu=Aztec.update_index[loc_find(Phys2Unk_first[DIFFUSION]+icomp,loc_inode,LOCAL)]; 
-            if (Ipot_ff_c == 1)loc_i_psi = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode,LOCAL)];
+	    iunk = Phys2Unk_first[DENSITY]+icomp;
+	    if (Lsteady_state) muunk = Phys2Unk_first[DIFFUSION]+icomp;
+	    if (Ipot_ff_c == 1) psiunk = Phys2Unk_first[POISSON];
 
-            rho_i = x[loc_i];
-            if (Ipot_ff_c == 1) psi_i = x[loc_i_psi];
+            rho_i = x[iunk][inode_box];
+            if (Ipot_ff_c == 1) psi_i = x[psiunk][inode_box];
 
             /* FIRST DETERMINE THE RHO_I TERMS */ 
             if (rho_i > Rho_b[icomp]*exp(-VEXT_MAX) && Vext[loc_inode][icomp] < VEXT_MAX){ 
                if (Lsteady_state){
                    omega_i = rho_i*( log(rho_i)-1.0 
                                  + Vext[loc_inode][icomp] 
-                                 - x[loc_i_mu]  );
+                                 - x[muunk][inode_box]  );
                    ideal = rho_i*( log(rho_i)-1.0 - Betamu_RTF[icomp]  );
                }
                else{
@@ -184,23 +184,23 @@ double calc_free_energy(FILE *fp, double *x, double fac_area,
             }
             else deltac_b=0.0;
 
-            omega_s_sum[i] += (omega_i*Nel_hit2[i][loc_i]
-                               -omega_i_b*Nel_hit[i][loc_i])
+            omega_s_sum[i] += (omega_i*Nel_hit2[i][iunk][inode_box]
+                               -omega_i_b*Nel_hit[i][iunk][inode_box])
                                    * Vol_el/((double)Nnodes_per_el_V);
-            omega_sum[i]   +=  omega_i*Nel_hit2[i][loc_i]
+            omega_sum[i]   +=  omega_i*Nel_hit2[i][iunk][inode_box]
                                    * Vol_el/((double)Nnodes_per_el_V);
-            ideal_sum[i]  +=  (ideal*Nel_hit2[i][loc_i]-ideal_b*Nel_hit[i][loc_i])
+            ideal_sum[i]  +=  (ideal*Nel_hit2[i][iunk][inode_box]-ideal_b*Nel_hit[i][iunk][inode_box])
                                    * Vol_el/((double)Nnodes_per_el_V);
-            lj_sum[i]  +=  (ljterm*Nel_hit2[i][loc_i]-lj_b*Nel_hit[i][loc_i])
+            lj_sum[i]  +=  (ljterm*Nel_hit2[i][iunk][inode_box]-lj_b*Nel_hit[i][iunk][inode_box])
                                    * Vol_el/((double)Nnodes_per_el_V);
-            vext_sum[i]  +=  vext*Nel_hit2[i][loc_i]
+            vext_sum[i]  +=  vext*Nel_hit2[i][iunk][inode_box]
                                    * Vol_el/((double)Nnodes_per_el_V);
             if (Type_coul > -1){
-            psi_rho_sum[i]   +=  psi_rho*Nel_hit2[i][loc_i]
+            psi_rho_sum[i]   +=  psi_rho*Nel_hit2[i][iunk][inode_box]
                                    * Vol_el/((double)Nnodes_per_el_V);
-            vext_c_sum[i]  +=  vext_c*Nel_hit2[i][loc_i]
+            vext_c_sum[i]  +=  vext_c*Nel_hit2[i][iunk][inode_box]
                                    * Vol_el/((double)Nnodes_per_el_V);
-            deltac_sum[i]  +=  (deltacterm*Nel_hit2[i][loc_i]-deltac_b*Nel_hit[i][loc_i])
+            deltac_sum[i]  +=  (deltacterm*Nel_hit2[i][iunk][inode_box]-deltac_b*Nel_hit[i][iunk][inode_box])
                                    * Vol_el/((double)Nnodes_per_el_V);
             }
         }      /* end of loop over lists */
@@ -340,19 +340,13 @@ assemble_HS_free_energy:  In this subroutine we calculate PHI on all of this   *
                           the values to processor 0 where they are collected   *
                           and summed.                                          */
 
-void assemble_HS_free_energy(double *x, double *sum_phispt, double *sum_phispt_b,
+void assemble_HS_free_energy(double **x, double *sum_phispt, double *sum_phispt_b,
                              double *sum_phispt_b_old)
 {
-  struct RB_Struct *rho_bar=NULL;
-  int    iel,ielement,iel_box,reflect_flag[NDIM_MAX],ijk[3];
+  int    i,iel,ielement,iel_box,reflect_flag[NDIM_MAX],ijk[3];
   int    inode,inode_box,loc_inode,idim,nel_hit,nel_hit_b;
   double phi,fac,fac_b,sum_phi,sum_phi_b,sum_phi_b_old;
-
-  rho_bar = (struct RB_Struct *) array_alloc
-                      (1, Nnodes_1stencil, sizeof(struct RB_Struct));
-
-  pre_calc_rho_bar(rho_bar, x, FULL_MSR_FILL, -1, NULL, NULL,NULL);
-  for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
+  double rho_bar[10];
 
 /* integrate phi locally  */
 
@@ -368,9 +362,11 @@ void assemble_HS_free_energy(double *x, double *sum_phispt, double *sum_phispt_b
 
       node_to_ijk(inode,ijk);
 
-      if (B2L_1stencil[inode_box] != -1) 
-          phi = phispt_i(&(rho_bar[B2L_1stencil[inode_box]]),inode);
-      else phi = 0.0;
+      /* Load rho-bar's into a single array*/
+      for(i=0; i<Phys2Nunk[RHOBAR_ROSEN]; i++)
+	      rho_bar[i] = x[i+Phys2Unk_first[RHOBAR_ROSEN]][inode_box];
+
+      phi = phispt_i(rho_bar);
 
       nel_hit = Nnodes_per_el_V;
       for (iel=0; iel<Nnodes_per_el_V; iel++){
@@ -418,7 +414,6 @@ void assemble_HS_free_energy(double *x, double *sum_phispt, double *sum_phispt_b
   (*sum_phispt_b) = gsum_double(sum_phi_b);
   (*sum_phispt_b_old)=gsum_double(sum_phi_b_old);
 
-  safe_free((void *) &rho_bar);
   return;
 }
 /*******************************************************************************
@@ -427,9 +422,9 @@ void assemble_HS_free_energy(double *x, double *sum_phispt, double *sum_phispt_b
                             over the fixed charge distribution times the 
                             electrostatic potential. */
 
-double energy_elec_vext_vol(double *x)
+double energy_elec_vext_vol(double **x)
 {
-  int loc_inode, loc_i, inode, iel_box,ijk_box[3],jln,ielement,reflect_flag[3];
+  int loc_inode, iunk, inode_box, inode, iel_box,ijk_box[3],jln,ielement,reflect_flag[3];
   double charge_at_node,energy;
 
   reflect_flag[0]=reflect_flag[1]=reflect_flag[2]=0;
@@ -444,8 +439,9 @@ double energy_elec_vext_vol(double *x)
 
     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
        inode = L2G_node[loc_inode];
+       inode_box = L2B_node[loc_inode];
    
-      loc_i = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode,LOCAL)];
+      iunk = Phys2Unk_first[POISSON];
     
        charge_at_node = 0.0; 
        for (jln=0; jln< Nnodes_per_el_V; jln++) { 
@@ -455,7 +451,7 @@ double energy_elec_vext_vol(double *x)
              charge_at_node += Charge_vol_els[iel_box]/Nnodes_per_el_V;
           }
        }
-      energy += 0.5*charge_at_node*x[loc_i]*Vol_el;
+      energy += 0.5*charge_at_node*x[iunk][inode_box]*Vol_el;
 
     }
     printf("PROC=%d: RETURNING energy=%9.6f \n",Proc,energy);
@@ -466,9 +462,9 @@ double energy_elec_vext_vol(double *x)
  * energy_elec: For charged surfaces, find the electrostatic contribution   *
  *             to the force on each wall.                                  */
 
-double energy_elec(double *x, double *sum3)
+double energy_elec(double **x, double *sum3)
 {
-   int loc_i,loc_inode,iwall,idim=0,ilist,
+   int iunk,loc_inode,iwall,idim=0,ilist,
      iel_w,inode,surf_norm,ijk[3],inode_box;
    int wall_count[NWALL_MAX],blocked,nblock=0;
    double prefac,nodepos[3],geom_factor[3],deriv_x[3];
@@ -502,15 +498,9 @@ double energy_elec(double *x, double *sum3)
 
           geom_factor[0]=geom_factor[1]=geom_factor[2]=1.0;
 
-          loc_i = Aztec.update_index[loc_find(Phys2Unk_first[POISSON],loc_inode,LOCAL)];
+	  iunk = Phys2Unk_first[POISSON];
 
           for (idim=0; idim<Ndim; idim++)  deriv_x[idim] = 0.0;
-
-/*          for (iel_w=0; iel_w<Nelems_S[Nlists_HW-1][loc_inode]; iel_w++){
-              surf_norm = Surf_normal[Nlists_HW-1][loc_inode][iel_w];
-
-          for (iel_w=0; iel_w<Nelems_S[0][loc_inode]; iel_w++){
-              surf_norm = Surf_normal[0][loc_inode][iel_w];*/
 
             for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++){
               surf_norm = Surf_normal[ilist][loc_inode][iel_w];
@@ -530,7 +520,7 @@ double energy_elec(double *x, double *sum3)
 
 /*              printf("iel_w: %d  surf_norm: %d  idim: %d\n",iel_w,surf_norm,idim);*/
 
-              sum += x[loc_i]*(deriv_x_A[idim]-deriv_x_B[idim])*prefac*geom_factor[idim];
+              sum += x[iunk][inode_box]*(deriv_x_A[idim]-deriv_x_B[idim])*prefac*geom_factor[idim];
 
               if (blocked){
                  sblock += deriv_x[idim]*prefac;
@@ -540,7 +530,7 @@ double energy_elec(double *x, double *sum3)
                  sopen += deriv_x[idim]*prefac;
 
               if (Type_bc_elec[WallType[iwall]]==2){
-                       wall_avg_psi[iwall] += x[loc_i];
+                       wall_avg_psi[iwall] += x[iunk][inode_box];
                        wall_count[iwall]++;
               }
 
@@ -631,7 +621,7 @@ double energy_elec(double *x, double *sum3)
  * charge_stress: For charged surfaces, find the contribution of the stress *
  *             tensor to the local pressure.                                */
 
-double charge_stress(double *x,double *sum2)
+double charge_stress(double **x,double *sum2)
 {
    int loc_inode,iwall,idim,
        inode,ijk[3],inode_box,iel_box;
@@ -725,9 +715,9 @@ double charge_stress(double *x,double *sum2)
  * free_energy_charging_up:  In this routine we calculate the surface       *
  *                           integral that gives the free energy due to     *
  *                           charging up the surfaces                       */
-double free_energy_charging_up(double *x)
+double free_energy_charging_up(double **x)
 {
-  int loc_inode,loc_i,idim,inode,iunk;
+  int loc_inode,idim,inode,iunk, inode_box;
   double psi_i,charging_int,charge_i=0.0;
   int i,iel_w,surf_norm,ilist;
   double psi_deriv[2][2],prefac,dphi_term;
@@ -736,11 +726,11 @@ double free_energy_charging_up(double *x)
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       inode = L2G_node[loc_inode];
+      inode_box = L2B_node[loc_inode];
 
       if  (Nodes_2_boundary_wall[Nlists_HW-1][node_to_node_box(inode)] != -1){
 
          iunk = Phys2Unk_first[POISSON];
-         loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
 
          ilist = Nlists_HW - 1;
          for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++){
@@ -753,21 +743,21 @@ double free_energy_charging_up(double *x)
               if (prefac > 0.0) {  /* RHS*/
                    i = 1;
                    psi_deriv[i][0] = (
-                               -    x[loc_find(iunk,loc_inode+2,LOCAL)] 
-                               + 4.*x[loc_find(iunk,loc_inode+1,LOCAL)] 
-                               - 3.*x[loc_i]         )/(2.*Esize_x[0]);
-                   psi_deriv[i][1] = (x[loc_i] -
-                                      x[loc_find(iunk,loc_inode-1,LOCAL)])/Esize_x[0];
+                               -    x[iunk][inode_box+2] 
+                               + 4.*x[iunk][inode_box+1] 
+                               - 3.*x[iunk][inode_box]         )/(2.*Esize_x[0]);
+                   psi_deriv[i][1] = (x[iunk][inode_box] -
+                                      x[iunk][inode_box-1])/Esize_x[0];
               }
               else {              /* LHS */
                     i = 0;
                     psi_deriv[i][0] = -(
-                                  3.*x[loc_i] 
-                                - 4.*x[loc_find(iunk,loc_inode-1,LOCAL)]
-                                +    x[loc_find(iunk,loc_inode-2,LOCAL)])
+                                  3.*x[iunk][inode_box] 
+                                - 4.*x[iunk][inode_box-1]
+                                +    x[iunk][inode_box-2])
                                     /(2.0*Esize_x[0]);
-                    psi_deriv[i][1] = (x[loc_find(iunk,loc_inode+1,LOCAL)] 
-                                                      - x[loc_i])/Esize_x[0];
+                    psi_deriv[i][1] = (x[iunk][inode_box+1] 
+                                                      - x[iunk][inode_box])/Esize_x[0];
               }
               charge_i = (Temp_elec/(8.0*PI))*psi_deriv[i][0]; 
 
@@ -781,7 +771,7 @@ double free_energy_charging_up(double *x)
  */
  
 
-         psi_i = x[loc_i];
+         psi_i = x[iunk][inode_box];
          charging_int -= (psi_i * charge_i);
 /*         printf("loc_inode: %d  charge_i: %9.6f   psi_i: %9.6f  charging_int: %9.6f\n",
                  loc_inode,charge_i,psi_i,charging_int);   */
@@ -801,7 +791,7 @@ double free_energy_charging_up(double *x)
 }
 /****************************************************************************
 int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
- double int_stencil(double *x,int inode_box,int icomp,int sten_type)
+ double int_stencil(double **x,int inode_box,int icomp,int sten_type)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
   int j,jcomp;
@@ -838,8 +828,7 @@ int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
            }
 
            if (inode_sten<Nnodes_box && inode_sten >=0){
-               j = loc_find(Phys2Unk_first[DENSITY]+jcomp,inode_sten,BOX);
-               sum +=  weight*x[B2L_unknowns[j]];
+               sum +=  weight*x[Phys2Unk_first[DENSITY]+jcomp][inode_sten];
            }
         }
         else if (inode_sten<0){
@@ -853,19 +842,19 @@ int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
 /***************************************************************************
 phispt_i: Calculate the hard sphere free energy contribution from 
            scaled particle theory at a given node i.                      */
-double phispt_i(struct RB_Struct *rho_bar,int inode)
+double phispt_i(double *rho_bar)
 {
   int idim;
   double rb0,rb1,rb2,rb3,rb2v[3],rb1v[3];
   double phi_s,phi_v,dot_12,dot_22;
 
-  rb0 = rho_bar->S0;
-  rb1 = rho_bar->S1;
-  rb2 = rho_bar->S2;
-  rb3 = rho_bar->S3;
+  rb0 = rho_bar[0];
+  rb1 = rho_bar[1];
+  rb2 = rho_bar[2];
+  rb3 = rho_bar[3];
   for (idim=0; idim<Ndim; idim++){
-    rb1v[idim] = rho_bar->V1[idim];
-    rb2v[idim] = rho_bar->V2[idim];
+    rb1v[idim] = rho_bar[4+2*idim];
+    rb2v[idim] = rho_bar[5+2*idim];
   }
 
   if (rb3 < 1.0 && rb2 > 0.0){
@@ -936,11 +925,11 @@ double phispt_bulk()
 /*********************************************************************
  * calc_deriv_e : calculate a derivative of the electric potential!!   */
 
-double calc_deriv_e(int idim,int inode0,int flag,int *blocked, double *x, 
+double calc_deriv_e(int idim,int inode0,int flag,int *blocked, double **x, 
                   int ilist)
 {
    int inode1,inode2,offset1[3],offset2[3],
-       loc_i0,loc_i1,loc_i2,iwall1,iwall2,
+       iwall1,iwall2,
        jdim,ijk_box[3],reflect_flag[3],iunk;
    double deriv=0.0;
 
@@ -973,10 +962,6 @@ double calc_deriv_e(int idim,int inode0,int flag,int *blocked, double *x,
    inode2 = offset_to_node_box(ijk_box,offset2,reflect_flag);
    iunk = Phys2Unk_first[POISSON];
 
-   loc_i0 = B2L_unknowns[loc_find(iunk,inode0,BOX)];
-   loc_i1 = B2L_unknowns[loc_find(iunk,inode1,BOX)];
-   loc_i2 = B2L_unknowns[loc_find(iunk,inode2,BOX)];
-
    iwall1 = Nodes_2_boundary_wall[ilist][inode1];
    iwall2 = Nodes_2_boundary_wall[ilist][inode2];
 
@@ -985,11 +970,11 @@ double calc_deriv_e(int idim,int inode0,int flag,int *blocked, double *x,
       switch(flag)
       {
          case CFD:
-           deriv =    x[loc_i2] - x[loc_i1];break;
+           deriv =    x[iunk][inode2] - x[iunk][inode1];break;
          case FFD:
-           deriv = -3*x[loc_i0] + 4*x[loc_i1] - x[loc_i2];break;
+           deriv = -3*x[iunk][inode0] + 4*x[iunk][inode1] - x[iunk][inode2];break;
          case BFD:
-           deriv =  3*x[loc_i0] - 4*x[loc_i1] + x[loc_i2];break;
+           deriv =  3*x[iunk][inode0] - 4*x[iunk][inode1] + x[iunk][inode2];break;
       }
       deriv /= (2.0*Esize_x[idim]);
    }
@@ -998,9 +983,9 @@ double calc_deriv_e(int idim,int inode0,int flag,int *blocked, double *x,
       switch(flag)
       {
          case FFD:
-           deriv = x[loc_i1] - x[loc_i0]; break;
+           deriv = x[iunk][inode1] - x[iunk][inode0]; break;
          case BFD:
-           deriv = x[loc_i0] - x[loc_i1]; break;
+           deriv = x[iunk][inode0] - x[iunk][inode1]; break;
       }
       deriv /= (Esize_x[idim]);
    }
@@ -1010,10 +995,9 @@ double calc_deriv_e(int idim,int inode0,int flag,int *blocked, double *x,
 /***************************************************************************
  * calc_deriv2 : calculate a derivative of the electric potential (first order)!!   */
 
-double calc_deriv2(int idim,int inode0,int flag,double *x)
+double calc_deriv2(int idim,int inode0,int flag,double **x)
 {
-   int inode1,offset[3],
-       loc_i0,loc_i1,iunk,
+   int inode1,offset[3], iunk,
        jdim,ijk_box[3],reflect_flag[3];
    double deriv=0.0;
 
@@ -1035,16 +1019,13 @@ double calc_deriv2(int idim,int inode0,int flag,double *x)
 
    inode1 = offset_to_node_box(ijk_box,offset,reflect_flag);
    iunk = Phys2Unk_first[POISSON];
-   loc_i0 = B2L_unknowns[loc_find(iunk,inode0,BOX)];
-   loc_i1 = B2L_unknowns[loc_find(iunk,inode1,BOX)];
- 
 
    switch(flag)
    {
       case FFD:
-        deriv = x[loc_i1] - x[loc_i0]; break;
+        deriv = x[iunk][inode1] - x[iunk][inode0]; break;
       case BFD:
-        deriv = x[loc_i0] - x[loc_i1];  break;
+        deriv = x[iunk][inode0] - x[iunk][inode1];  break;
    }
    deriv /= (Esize_x[idim]);
 
@@ -1055,12 +1036,12 @@ double calc_deriv2(int idim,int inode0,int flag,double *x)
                  see eq. 2.22 in Hooper, McCoy, Curro, J. Chem. Phys.,
                            112, p. 3090, (2000)                                 */
 
-double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vol)
+double calc_free_energy_polymer(FILE *fp,double **x,double fac_area,double fac_vol)
 {
   double /*ads[NCOMP_MAX][2],*/area,free_energy,energy=0.0,boltz,ideal_nz;
   double ifluid,sfluid,ibulk,sbulk,vol;
-  int loc_inode, icomp,jcomp, loc_i,loc_j, idim,iwall,pol_number;
-  int reflect_flag[3],loc_boltz;
+  int loc_inode, icomp,jcomp, idim,iwall,pol_number;
+  int reflect_flag[3],i_boltz, iunk;
   int izone,ijk_box[3],inode_box,i_box;
   double *freen_profile_1D;
 
@@ -1075,33 +1056,32 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
 
   /* loop to do double integral over c(r) */
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+      inode_box = L2B_node[loc_inode];
       for (icomp=0; icomp<Ncomp; icomp++){
 
-          loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
-          loc_boltz = Aztec.update_index[loc_find(Phys2Unk_first[CMS_FIELD]+icomp,loc_inode,LOCAL)];
-
-          boltz = x[loc_boltz];
-          inode_box = L2B_node[loc_inode];
+	  iunk = Phys2Unk_first[DENSITY]+icomp;
+          i_boltz = Phys2Unk_first[CMS_FIELD]+icomp;
+          boltz = x[i_boltz][inode_box];
           node_box_to_ijk_box(inode_box, ijk_box);
           izone = 0;
 
           ideal_nz = calc_u_ideal(icomp,ijk_box,x,&ifluid,&ibulk);
 
-          sfluid += 0.5*ifluid*x[loc_i]*Nel_hit2[0][loc_i]*Vol_el/((double)Nnodes_per_el_V);
-          sbulk  += 0.5*ibulk*Nel_hit[0][loc_i]*Vol_el/((double)Nnodes_per_el_V);
+          sfluid += 0.5*ifluid*x[iunk][inode_box]*Nel_hit2[0][iunk][inode_box]*Vol_el/((double)Nnodes_per_el_V);
+          sbulk  += 0.5*ibulk*Nel_hit[0][iunk][inode_box]*Vol_el/((double)Nnodes_per_el_V);
 
          /* Collect the free energy as a function of position for pressure profiles ....
             Note that this funny code does the following...
                 (1)find out if they type "icomp" is on a given polymer chain.  
                     If not, move on....if so, 
                 (2) add the contribution of the density profile here */
-          freen_profile_1D[loc_inode]+=0.5*(x[loc_i]*ifluid+ibulk);
+          freen_profile_1D[loc_inode]+=0.5*(x[iunk][inode_box]*ifluid+ibulk);
           pol_number = 0;
           while (Nmer_t[pol_number][icomp]==0) pol_number++;  
 
           inode_box=L2B_node[loc_inode];
           i_box=loc_find(Phys2Unk_first[DENSITY]+icomp,inode_box,BOX);
-          freen_profile_1D[loc_inode] -= (x[loc_i]-Rho_b[icomp])/Nmer[pol_number];
+          freen_profile_1D[loc_inode] -= (x[iunk][inode_box]-Rho_b[icomp])/Nmer[pol_number];
 
       }   /* end of icomp loop */
   }       /* end of loc_inode loop */
@@ -1165,14 +1145,14 @@ double calc_free_energy_polymer(FILE *fp,double *x,double fac_area,double fac_vo
              calculate the ideal field. Necessary only for nodes where the
              true field (walls) has already been incorporated into the
              boltz unknown                      */
-double calc_u_ideal(int itype_mer, int *ijk_box, double *x, double *fluid, double *bulk)
+double calc_u_ideal(int itype_mer, int *ijk_box, double **x, double *fluid, double *bulk)
 {
   int   **sten_offset, *offset, isten;
   double *sten_weight,  weight, weight_bulk;
   struct Stencil_Struct *sten;
 
   double sign,ideal_nz;
-  int jtype_mer, jlist;
+  int jtype_mer, jlist, iunk;
   int reflect_flag[NDIM_MAX];
   int j_box, jnode_box;
 
@@ -1204,14 +1184,13 @@ double calc_u_ideal(int itype_mer, int *ijk_box, double *x, double *fluid, doubl
             }
             else weight = weight_bulk;
 
-            j_box=loc_find(Phys2Unk_first[DENSITY]+jtype_mer,jnode_box,BOX);
-                                            /* density of this component type */
+	    iunk = Phys2Unk_first[DENSITY]+jtype_mer;
 
-            *fluid +=  sign*weight*x[B2L_unknowns[j_box]];
+            *fluid +=  sign*weight*x[iunk][jnode_box];
             *bulk -= sign*weight_bulk*Rho_b[jtype_mer]*Rho_b[itype_mer];
 
             if (!Zero_density_TF[jnode_box][jtype_mer])  {
-                  ideal_nz -=  sign*(weight*x[B2L_unknowns[j_box]]-
+                  ideal_nz -=  sign*(weight*x[iunk][jnode_box]-
                                            weight*Rho_b[jtype_mer]);
             }
          }

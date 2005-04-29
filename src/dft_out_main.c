@@ -27,7 +27,7 @@
 void print_cont_type(int,FILE *);
 void print_cont_variable(int,FILE *);
 
-void post_process (double *x_internal,char *output_file3,int *niters,
+void post_process (double **x,char *output_file3,int *niters,
                    double *time_save, int loop1, int binodal_flag)
 {
  /*
@@ -41,7 +41,7 @@ void post_process (double *x_internal,char *output_file3,int *niters,
              *output_file7="dft_dens_site.dat",*output_file8=NULL;
   char filename[20];
 
-  double t1, *x;
+  double t1;
   double fac_area,fac_vol;
   int i,iwall,idim;
   FILE *fp=NULL;
@@ -71,11 +71,6 @@ void post_process (double *x_internal,char *output_file3,int *niters,
  /*
   * First exchange boundary information as necessary !! 
   */
-
-  x = (double *) array_alloc (1, Nunk_int_and_ext, sizeof(double));
-  for (i=0; i < Aztec.N_update; i++) x[Aztec.update_index[i]] = x_internal[i];
-  AZ_exchange_bdry(x, Aztec.data_org,Aztec.proc_config);
-
 
   if (Proc == 0) {
     X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
@@ -189,17 +184,18 @@ void post_process (double *x_internal,char *output_file3,int *niters,
                      parameters (adsorption, free energy etc.). */
 void setup_integrals()
 {
-  int loc_inode, icomp, iel, loc_i, nel_hit,inode,iel_box,
+  int loc_inode, icomp, iel, iunk, inode_box, nel_hit,inode,iel_box,
       nel_hit2,ilist,idim,ielement,semiperm,iwall,jcomp;
   int reflect_flag[3],ijk[3],i;
 
-  Nel_hit = (int **) array_alloc (2, 2, Nunk_int_and_ext, sizeof(int));
-  Nel_hit2 = (int **) array_alloc (2, 2, Nunk_int_and_ext, sizeof(int));
+  Nel_hit = (int ***) array_alloc (3, 2, Nunk_per_node, Nnodes_box, sizeof(int));
+  Nel_hit2 = (int ***) array_alloc (3, 2, Nunk_per_node, Nnodes_box, sizeof(int));
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       inode = L2G_node[loc_inode];
+      inode_box = L2B_node[loc_inode];
       node_to_ijk(inode,ijk);
 
       for (icomp=0; icomp<Ncomp; icomp++){
@@ -256,10 +252,10 @@ void setup_integrals()
                }
             }
  
-            loc_i = Aztec.update_index[loc_find(Phys2Unk_first[DENSITY]+icomp,loc_inode,LOCAL)];
+	    iunk = Phys2Unk_first[DENSITY]+icomp;
 
-            Nel_hit[i][loc_i]=nel_hit;
-            Nel_hit2[i][loc_i]=nel_hit2;
+            Nel_hit[i][iunk][inode_box]=nel_hit;
+            Nel_hit2[i][iunk][inode_box]=nel_hit2;
         }
       }
     }

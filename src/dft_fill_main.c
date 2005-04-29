@@ -82,12 +82,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       }
 
       /* for debugging print out profiles on each iteration */
-      if (Iwrite==VERBOSE) {
-         print_rho_bar(rho_bar, "rb.out");
-         print_rho_bar(dphi_drb, "dphi.out");
-
-	 print_profile_box(x, "dens_iter.dat");
-    }
+      if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");
+ 
 
   if (unk_flag == NODAL_FLAG){
       iunk_start = 0;

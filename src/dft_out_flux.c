@@ -107,13 +107,8 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
   for (icomp=0; icomp<Ncomp; icomp++){
 
       iunk = Phys2Unk_first[DIFFUSION]+icomp;
-      loc_i = Aztec.update_index[Phys2Unk_first[DENSITY]+icomp + Nunk_per_node * loc_inode];
 
-      loc_i_minus1 = Aztec.update_index[iunk + 
-                     Nunk_per_node * (loc_inode-1)];
-      loc_i_plus1 = Aztec.update_index[iunk + 
-                         Nunk_per_node * (loc_inode+1)];
-      grad_mu = (x[loc_i_plus1]-x[loc_i_minus1])/(2*Esize_x[0]);
+      grad_mu = (x[iunk][inode_box+1]-x[iunk][inode_box-1])/(2*Esize_x[0]);
       if (Ipot_ff_c==1){
       if (Linear_transport){
          flux = - grad_mu*D_coef[icomp]*1.602e-19*
@@ -123,14 +118,14 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
          current += flux*Charge_f[icomp];
       }
       else{
-         flux = - x[loc_i]*grad_mu*D_coef[icomp]*1.602e-19*
+         flux = - x[iunk][inode_box]*grad_mu*D_coef[icomp]*1.602e-19*
                  Area_IC[inode_box]/
                  (POW_DOUBLE_INT(4.25e-8,2)*1.e-12);
          current += flux*Charge_f[icomp];
       }
       }
       else{
-         flux = - x[loc_i]*grad_mu*D_coef[icomp]+Velocity*D_coef[icomp]*x[loc_i];
+         flux = - x[iunk][inode_box]*grad_mu*D_coef[icomp]+Velocity*D_coef[icomp]*x[iunk][inode_box];
       }
       fprintf(fp,"  %g ",flux);
   }

@@ -1033,9 +1033,9 @@ int   Geom_flag;    /* geometry flag for ion chan. see OPTION_ definitions*/
 
 /* OUTPUT INTEGRAL PARAMETERS */
 extern
-int    **Nel_hit;      /* number of elements hit by a given node in a given list */
+int    ***Nel_hit;      /* number of elements hit by a given node in a given list */
 extern
-int    **Nel_hit2;     /* same as prev. for a bulk fluid */
+int    ***Nel_hit2;     /* same as prev. for a bulk fluid */
 extern
 int    List[2];       /* which list numbers we care about for integrals*/
 extern
@@ -1323,12 +1323,12 @@ extern void   gsum_int_vec(int *, int *, int);
 
 /* POSTPROCESSING ROUTINES*/
 extern void post_process(double **,char *,int *,double *,int, int);
-extern double calc_adsorption(FILE *, double *,double,double);
-extern void calc_surface_charge(FILE *, double *,double,double);
-extern double calc_free_energy(FILE *, double *,double,double, int);
+extern double calc_adsorption(FILE *, double **,double,double);
+extern void calc_surface_charge(FILE *, double **,double,double);
+extern double calc_free_energy(FILE *, double **,double,double, int);
 extern void calc_flux(FILE *,char *,double *);
-extern void calc_force(FILE *, double *,double);
-extern double calc_free_energy_polymer(FILE *,double *,double,double);
+extern void calc_force(FILE *, double **,double);
+extern double calc_free_energy_polymer(FILE *,double **,double,double);
 
 /* PRINTING - OUTPUT ROUTINES */
 extern void collect_x_old(double **);
@@ -1342,7 +1342,6 @@ extern void print_charge_vol(double *, char *);
 extern void print_charge_surf(double **, char *);
 extern void print_freen_profile_1D(double *, char *);
 extern void print_Nodes_to_zone(int *, char *);
-extern void print_rho_bar(struct RB_Struct *, char *);
 extern void print_time_histogram(int *,int *);
 extern void setup_integrals(void);
 /****************************************************************************/
