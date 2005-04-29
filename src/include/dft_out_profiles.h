@@ -1,8 +1,9 @@
 /*
   Prototypes for dft_out_profiles.c
 */
-void collect_x_old(double *x,int flag);
+void collect_x_old(double **x);
 void collect_vext_old();
+void print_profile_box(double **x,char *output_file4);
 void print_profile(char *output_file4);
 void print_gofr(char *output_file6);
 void print_zeroTF(int **zero_TF, char *output_file);

@@ -82,7 +82,7 @@ void post_process (double *x_internal,char *output_file3,int *niters,
     Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
   }
 
-  collect_x_old(x,0);
+  collect_x_old(x);
   collect_vext_old();
 
 

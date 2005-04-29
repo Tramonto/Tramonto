@@ -1322,7 +1322,7 @@ extern int    gmin_int(int);
 extern void   gsum_int_vec(int *, int *, int);
 
 /* POSTPROCESSING ROUTINES*/
-extern void post_process(double *,char *,int *,double *,int, int);
+extern void post_process(double **,char *,int *,double *,int, int);
 extern double calc_adsorption(FILE *, double *,double,double);
 extern void calc_surface_charge(FILE *, double *,double,double);
 extern double calc_free_energy(FILE *, double *,double,double, int);
@@ -1331,8 +1331,9 @@ extern void calc_force(FILE *, double *,double);
 extern double calc_free_energy_polymer(FILE *,double *,double,double);
 
 /* PRINTING - OUTPUT ROUTINES */
-extern void collect_x_old(double *,int);
+extern void collect_x_old(double **);
 extern void collect_vext_old(void);
+extern void print_profile_box(double **,char *);
 extern void print_profile(char *);
 extern void print_gofr(char *);
 extern void print_vext(double **, char *);

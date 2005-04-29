@@ -31,15 +31,15 @@
 #include "rf_allo.h"
 
 /* NEWTON SOLVER using dft_SolverManager */
-int solve_problem(double **x_internal_ptr, double **x2_internal_ptr)
+int solve_problem(double **x, double **x2)
 /*
- * x and x2 in dfrt_main have been renamed  "internal" to represent 1d arrays
+ * x and x2 in dft_main are allocated [Nunk_per_node][Nnodes_box]
  * x2 only relevent for Lbinodal calculations, so can mostly be ignored
  */
 
 {
   int iter;
-  double **x, **x2, **xLocal;
+  double **xOwned;
 
   /* Construct dft_SolverManager with information on number of unknowns*/
   Solver_manager = dft_solvermanager_create(Nunk_per_node, Unk2Phys, NULL, NULL, MPI_COMM_WORLD);
@@ -51,18 +51,21 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr)
   /* SolverManager can now set up its own numbering scheme, set up unknown-based Maps */
   (void) dft_solvermanager_finalizeblockstructure(Solver_manager);
 
-  /* Create 2d arrays for solution vector and reconcile ghost nodes using import */
-  xLocal = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
-  x      = (double **) array_alloc(2, Nunk_per_node, Nnodes_box     , sizeof(double));
-  internal2local(*x_internal_ptr, xLocal);
-  (void) dft_solvermanager_importR2C(Solver_manager, xLocal, x);
+  /* Set initial guess on owned nodes and reconcile ghost nodes using importR2C */
+  xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
+  set_initial_guess(Iguess1, xOwned);
+  (void) dft_solvermanager_importR2C(Solver_manager, xOwned, x);
 
-  /* Same for second solution vector when Lbinodal is true */
+  /* If requested, write out initial guess */
+   if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");
+
+  /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
-    x2   = (double **) array_alloc(2, Nunk_per_node, Nnodes_box     , sizeof(double));
-    internal2local(*x2_internal_ptr, xLocal);
-    (void) dft_solvermanager_importR2C(Solver_manager, xLocal, x2);
+    set_initial_guess(BINODAL_FLAG, xOwned);
+    (void) dft_solvermanager_importR2C(Solver_manager, xOwned, x2);
+    if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
+  safe_free((void **) &xOwned);
 
 #ifdef LOCA_REIMPLEMENTED
   if (Loca.method != -1)
@@ -71,18 +74,7 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr)
 #endif
      iter = newton_solver(x, NULL);
 
-  /* Translate solution back into internal (1d) coordinates */
-  
-  box2local(x, xLocal);
-  loca2internal(xLocal, *x_internal_ptr);
-
-  if (Lbinodal) {
-    box2local(x2, xLocal);
-    loca2internal(xLocal, *x2_internal_ptr);
-  }
-
   /* Call the destructor for the dft_SolverManager */
-  safe_free((void **) &xLocal);
   dft_solvermanager_destruct(Solver_manager);
 
   return(iter);
@@ -90,29 +82,7 @@ int solve_problem(double **x_internal_ptr, double **x2_internal_ptr)
 
 /****************************************************************************/
 /****************************************************************************/
-void internal2local(double* xInternal, double** xLocal) {
-  /* Routine to translate 1d array of owned unknows to 2d array */
-  int iunk, inode;
-
-  for (iunk=0; iunk<Nunk_per_node; iunk++)
-    for (inode=0; inode<Nnodes_per_proc; inode++)
-      xLocal[iunk][inode] = xInternal[loc_find(iunk,inode,LOCAL)];
-}
-
-/****************************************************************************/
-/****************************************************************************/
-void local2internal(double** xLocal, double* xInternal) {
-  /* Routine to translate 1d array of owned unknows to 2d array */
-  int iunk, inode;
-
-  for (iunk=0; iunk<Nunk_per_node; iunk++)
-    for (inode=0; inode<Nnodes_per_proc; inode++)
-      xInternal[loc_find(iunk,inode,LOCAL)] = xLocal[iunk][inode];
-}
-
-/****************************************************************************/
-/****************************************************************************/
-void box2local(double** xBox, double** xLocal) {
+void box2owned(double** xBox, double** xOwned) {
   /* Routine to restrict 2d box array to 2d node array */
   /* This is the opposite of importR2C, and strips ghost nodes */
   int iunk, inode, ibox;
@@ -121,7 +91,7 @@ void box2local(double** xBox, double** xLocal) {
     inode = B2L_node[ibox];
     if (inode!=-1) {
       for (iunk=0; iunk<Nunk_per_node; iunk++)
-        xLocal[iunk][inode] = xBox[iunk][ibox];
+        xOwned[iunk][inode] = xBox[iunk][ibox];
     }
   }
 }
@@ -207,3 +177,4 @@ int update_solution(double** x, double** delta_x, int iter) {
   else                  return(TRUE);
 
 }
+

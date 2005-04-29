@@ -27,7 +27,7 @@
 /*******************************************************************************
 collect_x_old: This gathers all of the densities into X_old on proc 0.        */ 
 
-void collect_x_old(double *x,int flag)
+void collect_x_old(double **x)
 {
   int i,iunk,loc_inode, loc_i,idim,nunk_per_proc;
   int *index=NULL;
@@ -42,17 +42,10 @@ void collect_x_old(double *x,int flag)
   nunk_per_proc = Nnodes_per_proc*Nunk_per_node;
   unk_loc = (double *) array_alloc (1, nunk_per_proc, sizeof(double));
 
-  if (flag)
-     for (i=0; i < Aztec.N_update; i++ ) unk_loc[i] = x[i];
-
-  else {
-     for (loc_inode=0; loc_inode < Nnodes_per_proc; loc_inode++ )
-        for (iunk=0; iunk<Nunk_per_node; iunk++){
-        loc_i = Aztec.update_index[loc_find(iunk,loc_inode,LOCAL)];
-        unk_loc[iunk+Nunk_per_node*loc_inode] = x[loc_i];  /* always use nodal ordering here */
-     }
+  for (loc_inode=0; loc_inode < Nnodes_per_proc; loc_inode++ )
+     for (iunk=0; iunk<Nunk_per_node; iunk++){
+     unk_loc[iunk+Nunk_per_node*loc_inode] = x[iunk][L2B_node[loc_inode]];  /* always use nodal ordering here */
   }
-
 
   if (Proc == 0) {
     unk_global = (double *) array_alloc (1, Nunknowns, sizeof(double));
@@ -158,6 +151,27 @@ void collect_vext_old()
   safe_free((void *) &unk_loc);
 
   return;
+}
+/*******************************************************************************
+print_profile_box: This routine prints out the density profile. It gathers
+the solution vector on Proc 0 and then prints it out using print_profile      */ 
+
+void print_profile_box(double **x, char *outfile)
+{
+
+  if (Proc == 0){
+    X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
+    Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
+  }
+
+  collect_x_old(x);
+  collect_vext_old();
+
+  if (Proc==0) {
+     print_profile(outfile);
+     safe_free((void *) &X_old);
+     safe_free((void *) &Vext_old);
+  }
 }
 /*******************************************************************************
 print_profile: This routine prints out the density profile.        

@@ -48,7 +48,7 @@ void dftmain(double * engptr)
   char     *output_TF, *yo = "main";
   int       iend, match, idim, icomp, i, niters;
   double    Esize_x_final[3];
-  double    *x,*x2=NULL;  /* The solution vector of densities */
+  double    **x,**x2=NULL;  /* The solution vector of densities */
   double    time_save;
   double    t_preprocess=0.0,t_solve=0.0,t_postprocess=0.0,t_total=0.0;
   double    t_pre_max,t_solve_max,t_post_max,t_total_max;
@@ -214,13 +214,13 @@ void dftmain(double * engptr)
       * (see file dft_newton.c, which calls dft_fill.c and Aztec library)
       * The variable "niters" is positive if Newton's method converrged.
       */
-      x = (double *) array_alloc (1, Nnodes_per_proc*Nunk_per_node, sizeof(double));
-      if (Lbinodal) x2 = (double *) array_alloc (1, Nnodes_per_proc*Nunk_per_node, sizeof(double));
+      x = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
+      if (Lbinodal) x2 = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
 
 
       t_preprocess += MPI_Wtime();
       t_solve = -MPI_Wtime();
-      niters = solve_problem(&x, &x2);
+      niters = solve_problem(x, x2);
       t_solve += MPI_Wtime();
      /*
       * Post-Process the results

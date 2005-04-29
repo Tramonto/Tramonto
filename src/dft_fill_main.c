@@ -85,20 +85,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       if (Iwrite==VERBOSE) {
          print_rho_bar(rho_bar, "rb.out");
          print_rho_bar(dphi_drb, "dphi.out");
-         if (Proc == 0){
-             X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, 
-                                                     sizeof(double));
-             Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
-         }
-         collect_x_old(x,0);
-         collect_vext_old();
-         if (Proc==0) {
-              print_profile("dens_iter.dat");
-              safe_free((void *) &X_old);
-              safe_free((void *) &Vext_old);
-         }
-      }
-      
+
+	 print_profile_box(x, "dens_iter.dat");
     }
 
   if (unk_flag == NODAL_FLAG){
@@ -429,32 +417,20 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   } /* end of loop over local nodes */
 
 
-  if (Iwrite==VERBOSE){
-     if (Proc == 0){
-         X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, 
-                                                 sizeof(double));
-         Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
-     }
-     collect_x_old(resid,0);
-     collect_vext_old();
-     if (Proc==0) {
-         print_profile("resid_iter.dat");
-         safe_free((void *) &X_old);
-         safe_free((void *) &Vext_old);
-     }
-  }
+/*** resid is no longer a vector so this won't work.
+ * Perhaps first do a getRhs and then a ImportR2C to get assembled
+ * resid vector in box coordinates
+  if (Iwrite==VERBOSE){ print_profile_box(resid,"dens_iter.dat"); }
+ ***/
 
 
   /* Now add in constraint equation(s)  */
 /*  if (Proc==0 && Lstoichiometry) {
      for (icomp = 0; icomp<Ncomp; icomp++){
-
-         
          load_stoichimetric_constraint(i_box, inode_box, loc_i, ijk_box, mat_row,
                                            resid, x, bindx_tmp, fill_flag, icomp); 
      }
   }*/
-
 
 /*  if (Ipot_wf_c) {
      load_poisson_bc(resid);
