@@ -30,6 +30,8 @@
 #include "dft_globals_const.h" 
 #include "rf_allo.h"
 
+void fill_test(double **x, int flag);
+
 /* NEWTON SOLVER using dft_SolverManager */
 int solve_problem(double **x, double **x2)
 /*
@@ -111,7 +113,8 @@ int newton_solver(double** x, void* con_ptr) {
     (void) dft_solvermanager_initializeproblemvalues(Solver_manager);
 
     /* Call Matrix and Residual Fill routine, resid_only_flag=FALSE)*/
-    fill_resid_and_matrix_control(x, FALSE);
+    /*fill_resid_and_matrix_control(x, FALSE); */
+    fill_test(x, FALSE);
 
     (void) dft_solvermanager_finalizeproblemvalues(Solver_manager);
     (void) dft_solvermanager_setupsolver(Solver_manager);
@@ -177,4 +180,44 @@ int update_solution(double** x, double** delta_x, int iter) {
   else                  return(TRUE);
 
 }
+
+/*****************************************************************************************************/
+
+void fill_test(double **x, int flag) 
+/* Quick test problem for matrix loading, solve, and Newton's method */
+/* For the first unknown at a node, x[0]=inode 
+ * for subsequent unknowns at that node, x[iunk]^2=x[iunk-1]
+ * So, when run at 3 unknowns per node, global node 16 should have
+ * solutions 16, +-4, +-2, for the three unknowns at that node
+ */
+{
+  int loc_inode, inode_box, iunk, inode;
+  double f;
+
+  for (loc_inode=0; loc_inode< Nnodes_per_proc; loc_inode++) {
+    inode = L2G_node[loc_inode];
+    inode_box = L2B_node[loc_inode];
+    iunk = 0;
+
+    f = x[iunk][inode_box] - inode;
+    dft_solvermanager_insertrhsvalue(Solver_manager, iunk, loc_inode, -f);
+    dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,1.0);
+
+    /* For iunk 1 and higher, the square of the unknow is the previous value */
+    for (iunk=1; iunk<Nunk_per_node; iunk++) {
+      f = x[iunk][inode_box]*x[iunk][inode_box] - x[iunk-1][inode_box];
+      dft_solvermanager_insertrhsvalue(Solver_manager, iunk, loc_inode, -f);
+      dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box, 2*x[iunk][inode_box]);
+      dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk-1,inode_box, -1.0);
+    }
+  } 
+}
+
+
+
+
+
+
+
+
 
