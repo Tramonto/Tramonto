@@ -37,7 +37,9 @@ class Epetra_BlockMap;
 class Epetra_Map;
 class Epetra_Import;
 class Epetra_CrsMatrix;
+class Epetra_LinearProblem;
 class AztecOO;
+#include "Epetra_MpiComm.h"
 #include "Teuchos_RefCountPtr.hpp"
 
 //! dft_SolverManager:  Solver manager class for Tramonto using Trilinos.
@@ -198,7 +200,7 @@ class dft_SolverManager {
   /*! Allows definition of all solution values in a single call.
     \param x (In) An array of pointers of length numPhysicsTypes, where each array x[i] is of length numBoxNodes.
   */
-  int setLhs(double ** x) const;
+  int setLhs(const double ** x) const;
 
   //! Get all right hand side vectors at once.
   /*! Allows the definition of initial guess values in a single call.
@@ -266,25 +268,25 @@ class dft_SolverManager {
 
 private:
 
-  inline int ownedToSolverGID(int ownedPhysicsID, int ownedNode) { 
+  inline int ownedToSolverGID(int ownedPhysicsID, int ownedNode) const { 
     if (groupByPhysics_) 
-      return(ownedPhysicsID*numOwnedNodes + ownedMap.GID(ownedNode));
+      return(ownedPhysicsID*numOwnedNodes_ + ownedMap_->GID(ownedNode));
     else
-      return(ownedPhysicsID + numOwnedNodes*ownedMap.GID(ownedNode);
+      return(ownedPhysicsID + numOwnedNodes_*ownedMap_->GID(ownedNode));
   }
 	     
-  inline int ownedToSolverLID(int ownedPhysicsID, int ownedNode) { 
+  inline int ownedToSolverLID(int ownedPhysicsID, int ownedNode) const { 
     if (groupByPhysics_) 
-      return(ownedPhysicsID*numOwnedNodes + ownedNode);
+      return(ownedPhysicsID*numOwnedNodes_ + ownedNode);
     else
-      return(ownedPhysicsID + numOwnedNodes*ownedNode);
+      return(ownedPhysicsID + numOwnedNodes_*ownedNode);
   }
 	     
-  inline int boxToSolverGID(int boxPhysicsID, int boxNode) { 
+  inline int boxToSolverGID(int boxPhysicsID, int boxNode) const { 
     if (groupByPhysics_) 
-      return(boxPhysicsID*numBoxNodes + boxMap.GID(boxNode));
+      return(boxPhysicsID*numBoxNodes_ + boxMap_->GID(boxNode));
     else
-      return(boxPhysicsID + numBoxNodes*boxMap.GID(boxNode));
+      return(boxPhysicsID + numBoxNodes_*boxMap_->GID(boxNode));
   }
 	     
   int numUnknownsPerNode_;
@@ -303,14 +305,17 @@ private:
   Teuchos::RefCountPtr<Epetra_Map> ownedMap_;
   Teuchos::RefCountPtr<Epetra_Map> boxMap_;
   Teuchos::RefCountPtr<Epetra_Import> ownedToBoxImporter_;
+  Teuchos::RefCountPtr<Epetra_Map> globalRowMap_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> globalMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> globalRhs_;
   Teuchos::RefCountPtr<Epetra_Vector> globalLhs_;
+  Teuchos::RefCountPtr<Epetra_LinearProblem> globalProblem_;
   Teuchos::RefCountPtr<AztecOO> solver_;
   bool isBlockStructureSet_;
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool groupByPhysics_;
+  bool firstTime_;
 
 
 

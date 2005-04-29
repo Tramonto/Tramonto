@@ -35,7 +35,9 @@
 #include "Epetra_Vector.h"
 #include "Epetra_IntVector.h"
 #include "Epetra_IntSerialDenseVector.h"
-#include "Epetra_MpiComm.h"
+#include "Epetra_SerialDenseVector.h"
+#include "Epetra_LinearProblem.h"
+#include "Epetra_Import.h"
 #include "AztecOO.h"
 
 
@@ -54,17 +56,11 @@ dft_SolverManager::dft_SolverManager(int numUnknownsPerNode, int * unknownToPhys
     blockRhs_(0),
     rowMaps_(0),
     colMaps_(0),
-    ownedMap_(0),
-    boxMap_(0),
-    ownedToBoxImporter_(0),
-    globalMatrix_(0),
-    globalRhs_(0),
-    globalLhs_(0),
-    solver_(0),
     isBlockStructureSet_(false),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
-    groupByPhysics_(true) {
+    groupByPhysics_(true),
+    firstTime_(true) {
 
   return;
 }
@@ -73,19 +69,21 @@ dft_SolverManager::~dft_SolverManager() {
    return;
 }
 //=============================================================================
-int dft_SolverManager::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx=0, int ny = 1, int nz = 1) {
+int dft_SolverManager::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx, int ny, int nz) {
   numOwnedNodes_ = numOwnedNodes;
 
-  const int numUnks = numOwnedNodes*numUnknownsPerNode_
+  const int numUnks = numOwnedNodes*numUnknownsPerNode_;
   Epetra_IntSerialDenseVector globalGIDList(numUnks);
 
   int k=0;
   if (groupByPhysics_) 
     for (int i=0; i<numUnknownsPerNode_; i++)
-      for (int j=0; j<numOwnedNodes_; j++) globalGIDList[k++] = i + GIDs[j]*numOwnedNodes;
+      for (int j=0; j<numOwnedNodes_; j++) 
+	globalGIDList[k++] = i*numOwnedNodes + GIDs[j];
   else
-    for (int i=0; i<numUnknownsPerNode_; i++)
-      for (int j=0; j<numOwnedNodes_; j++) globalGIDList[k++] = i*numOwnedNodes + GIDs[j];
+    for (int j=0; j<numOwnedNodes_; j++) 
+      for (int i=0; i<numUnknownsPerNode_; i++)
+	globalGIDList[k++] = i + GIDs[j]*numUnknownsPerNode_;
 
   globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, globalGIDList.Values(), 0, comm_));
 
@@ -93,7 +91,7 @@ int dft_SolverManager::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx=0, i
   return(0);
 }
 //=============================================================================
-int dft_SolverManager::setNodalColMap(int numBoxNodes, int * GIDs, int nx=0, int ny = 1, int nz = 1) {
+int dft_SolverManager::setNodalColMap(int numBoxNodes, int * GIDs, int nx, int ny, int nz) {
   
   numBoxNodes_ = numBoxNodes;
 
@@ -109,9 +107,9 @@ int dft_SolverManager::finalizeBlockStructure() {
   globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
-  globalProblem_ = Teuchos::rcp(new Epetra_LinearProblem(globalMatrix_, globalLhs_, globalRhs_));
+  globalProblem_ = Teuchos::rcp(new Epetra_LinearProblem(globalMatrix_.get(), globalLhs_.get(), globalRhs_.get()));
     
-  ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*boxMap_, *ownedMap_));
+  ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*(boxMap_.get()), *(ownedMap_.get())));
 
   isBlockStructureSet_ = true;
   return(0);
@@ -122,10 +120,10 @@ int dft_SolverManager::initializeProblemValues() {
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
-  if (!firstTime) {
+  if (!firstTime_) {
     globalMatrix_->PutScalar(0.0);
     globalRhs_->PutScalar(0.0);
-    globalLhs_->PutScalara(0.0);
+    globalLhs_->PutScalar(0.0);
   }
   
   return(0);
@@ -142,7 +140,7 @@ int dft_SolverManager::insertMatrixValue(int ownedPhysicsID, int ownedNode, int 
 
   int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   int colGID = boxToSolverGID(boxPhysicsID, boxNode);
-  if (firstTime)
+  if (firstTime_)
     globalMatrix_->InsertGlobalValues(rowGID, 1, &value, &colGID);
   else
     globalMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
@@ -171,6 +169,7 @@ int dft_SolverManager::finalizeProblemValues() {
   globalMatrix_->OptimizeStorage();
 
   isLinearProblemSet_ = true;
+  firstTime_ = false;
   return(0);
 }
 //=============================================================================
@@ -181,30 +180,33 @@ int dft_SolverManager::setBlockMatrixReadOnly(int rowPhysicsID, int colPhysicsID
 //=============================================================================
 int dft_SolverManager::setRhs(const double ** b) {
 
+  double * tmp = globalRhs_->Values();
   for (int i=0; i<numUnknownsPerNode_; i++)
     for (int j=0; j<numOwnedNodes_; j++)
-      globalRhs[ownedToSolverLID(i,j)] = b[i][j];
+      tmp[ownedToSolverLID(i,j)] = b[i][j];
   
   return(0);
 }
 //=============================================================================
-int dft_SolverManager::setLhs(double ** x) const {
+int dft_SolverManager::setLhs(const double ** x) const {
 
+  double * tmp = globalLhs_->Values();
   Epetra_SerialDenseVector xtmp(numOwnedNodes_); // Temp vector to hold local x values
   for (int i=0; i<numUnknownsPerNode_; i++) {
     exportC2R(x[i], xtmp.Values()); // Use simple import
     for (int j=0; j<numOwnedNodes_; j++)
-      globalLhs[ownedToSolverLID(i,j)] = xtmp[j];
+      tmp[ownedToSolverLID(i,j)] = xtmp[j];
   }
   return(0);
 }
 //=============================================================================
 int dft_SolverManager::getLhs(double ** x) const {
 
+  double * tmp = globalLhs_->Values();
   Epetra_SerialDenseVector xtmp(numOwnedNodes_); // Temp vector to hold local x values
   for (int i=0; i<numUnknownsPerNode_; i++) {
     for (int j=0; j<numOwnedNodes_; j++)
-      xtmp[j] = globalLhs[ownedToSolverLID(i,j)];
+      xtmp[j] = tmp[ownedToSolverLID(i,j)];
     importR2C(xtmp.Values(), x[i]); // Use simple import
   }
   return(0);
@@ -212,9 +214,10 @@ int dft_SolverManager::getLhs(double ** x) const {
 //=============================================================================
 int dft_SolverManager::getRhs(double ** b) const {
 
+  double * tmp = globalRhs_->Values();
   for (int i=0; i<numUnknownsPerNode_; i++)
     for (int j=0; j<numOwnedNodes_; j++)
-      b[i][j] = globalRhs[ownedToSolverLID(i,j)];
+      b[i][j] = tmp[ownedToSolverLID(i,j)];
   
   
   return(0);
@@ -222,7 +225,7 @@ int dft_SolverManager::getRhs(double ** b) const {
 //=============================================================================
 int dft_SolverManager::setupSolver() {
 
-  solver_ = Teuchos::rcp(new AztecOO(globalProblem_));
+  solver_ = Teuchos::rcp(new AztecOO(*(globalProblem_.get())));
   solver_->SetAztecOption(AZ_solver, AZ_gmres);
   solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
   solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
@@ -241,7 +244,7 @@ int dft_SolverManager::solve() {
 int dft_SolverManager::applyMatrix(const double** x, double** b) const {
   
   setLhs(x);
-  globalMatrix_->Apply(false, *globalLhs_, *globalRhs_);
+  globalMatrix_->Apply(*globalLhs_.get(), *globalRhs_.get());
   getRhs(b);
   
   return(0);
@@ -256,20 +259,20 @@ int dft_SolverManager::importR2C(const double** xOwned, double** xBox) const {
 //=============================================================================
 int dft_SolverManager::importR2C(const double* aOwned, double* aBox) const {
   
-  Epetra_Vector owned(View, ownedMap, (double *) aOwned);
-  Epetra_Vector box(View, boxMap, aBox);
+  Epetra_Vector owned(View, *ownedMap_.get(), (double *) aOwned);
+  Epetra_Vector box(View, *boxMap_.get(), aBox);
   
-  box.Import(owned, *ownedToBoxImporter_, Insert);
+  box.Import(owned, *ownedToBoxImporter_.get(), Insert);
 
   return(0);
 }
 //=============================================================================
 int dft_SolverManager::exportC2R(const double* aBox, double* aOwned) const {
   
-  Epetra_Vector owned(View, ownedMap, aOwned);
-  Epetra_Vector box(View, boxMap, (double *) aBox);
+  Epetra_Vector owned(View, *ownedMap_.get(), aOwned);
+  Epetra_Vector box(View, *boxMap_.get(), (double *) aBox);
   
-  owned.Export(box, *ownedToBoxImporter_, Zero); // Use importer, but zero out off-processor contributions.
+  owned.Export(box, *ownedToBoxImporter_.get(), Zero); // Use importer, but zero out off-processor contributions.
 
   return(0);
 }
