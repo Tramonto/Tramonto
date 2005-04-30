@@ -46,6 +46,7 @@ dft_SolverManager::dft_SolverManager(int numUnknownsPerNode, int * unknownToPhys
   : numUnknownsPerNode_(numUnknownsPerNode),
     numOwnedNodes_(0),
     numBoxNodes_(0),
+    numGlobalNodes_(0),
     numMatrixBlocks_(0),
     comm_(Epetra_MpiComm(comm)),
     blockMatrix_(0),
@@ -71,23 +72,10 @@ dft_SolverManager::~dft_SolverManager() {
 //=============================================================================
 int dft_SolverManager::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx, int ny, int nz) {
   numOwnedNodes_ = numOwnedNodes;
-
-  const int numUnks = numOwnedNodes*numUnknownsPerNode_;
-  Epetra_IntSerialDenseVector globalGIDList(numUnks);
-
-  int k=0;
-  if (groupByPhysics_) 
-    for (int i=0; i<numUnknownsPerNode_; i++)
-      for (int j=0; j<numOwnedNodes_; j++) 
-	globalGIDList[k++] = i*numOwnedNodes + GIDs[j];
-  else
-    for (int j=0; j<numOwnedNodes_; j++) 
-      for (int i=0; i<numUnknownsPerNode_; i++)
-	globalGIDList[k++] = i + GIDs[j]*numUnknownsPerNode_;
-
-  globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, globalGIDList.Values(), 0, comm_));
+  comm_.SumAll(&numOwnedNodes_, &numGlobalNodes_, 1);
 
   ownedMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes, GIDs, 0, comm_));
+  std::cout << " Owned Map" << *ownedMap_.get() << std::endl;
   return(0);
 }
 //=============================================================================
@@ -96,6 +84,7 @@ int dft_SolverManager::setNodalColMap(int numBoxNodes, int * GIDs, int nx, int n
   numBoxNodes_ = numBoxNodes;
 
   boxMap_ = Teuchos::rcp(new Epetra_Map(-1, numBoxNodes, GIDs, 0, comm_));
+  std::cout << " Box Map" << *boxMap_.get() << std::endl;
 
   return(0);
 }
@@ -104,6 +93,24 @@ int dft_SolverManager::finalizeBlockStructure() {
 
   if (isBlockStructureSet_) return(1); // Already been here, return warning
   
+  const int numUnks = numOwnedNodes_*numUnknownsPerNode_;
+  Epetra_IntSerialDenseVector globalGIDList(numUnks);
+
+  int * GIDs = ownedMap_->MyGlobalElements();
+  int k=0;
+  if (groupByPhysics_) 
+    for (int i=0; i<numUnknownsPerNode_; i++)
+      for (int j=0; j<numOwnedNodes_; j++) 
+	globalGIDList[k++] = i*numGlobalNodes_ + GIDs[j];
+  else
+    for (int j=0; j<numOwnedNodes_; j++) 
+      for (int i=0; i<numUnknownsPerNode_; i++)
+	globalGIDList[k++] = i + GIDs[j]*numUnknownsPerNode_;
+
+  globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, globalGIDList.Values(), 0, comm_));
+
+  std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl;
+
   globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
@@ -168,6 +175,8 @@ int dft_SolverManager::finalizeProblemValues() {
   globalMatrix_->FillComplete();
   globalMatrix_->OptimizeStorage();
 
+  std::cout << *globalMatrix_.get();
+
   isLinearProblemSet_ = true;
   firstTime_ = false;
   return(0);
@@ -227,10 +236,10 @@ int dft_SolverManager::setupSolver() {
 
   solver_ = Teuchos::rcp(new AztecOO(*(globalProblem_.get())));
   solver_->SetAztecOption(AZ_solver, AZ_gmres);
-  solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
-  solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
-  solver_->SetAztecParam(AZ_ilut_fill, 4.0);
-  solver_->SetAztecParam(AZ_drop, 0.0);
+  //solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
+  //solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
+  //solver_->SetAztecParam(AZ_ilut_fill, 4.0);
+  //solver_->SetAztecParam(AZ_drop, 0.0);
 
   return(0);
 }

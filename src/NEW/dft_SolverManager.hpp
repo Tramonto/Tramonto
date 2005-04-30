@@ -270,28 +270,29 @@ private:
 
   inline int ownedToSolverGID(int ownedPhysicsID, int ownedNode) const { 
     if (groupByPhysics_) 
-      return(ownedPhysicsID*numOwnedNodes_ + ownedMap_->GID(ownedNode));
+      return(ownedPhysicsID*numGlobalNodes_ + ownedMap_->GID(ownedNode));
     else
-      return(ownedPhysicsID + numOwnedNodes_*ownedMap_->GID(ownedNode));
+      return(ownedPhysicsID + numUnknownsPerNode_*ownedMap_->GID(ownedNode));
   }
 	     
   inline int ownedToSolverLID(int ownedPhysicsID, int ownedNode) const { 
     if (groupByPhysics_) 
       return(ownedPhysicsID*numOwnedNodes_ + ownedNode);
     else
-      return(ownedPhysicsID + numOwnedNodes_*ownedNode);
+      return(ownedPhysicsID + numUnknownsPerNode_*ownedNode);
   }
 	     
   inline int boxToSolverGID(int boxPhysicsID, int boxNode) const { 
     if (groupByPhysics_) 
-      return(boxPhysicsID*numBoxNodes_ + boxMap_->GID(boxNode));
+      return(boxPhysicsID*numGlobalNodes_ + boxMap_->GID(boxNode));
     else
-      return(boxPhysicsID + numBoxNodes_*boxMap_->GID(boxNode));
+      return(boxPhysicsID + numUnknownsPerNode_*boxMap_->GID(boxNode));
   }
 	     
   int numUnknownsPerNode_;
   int numOwnedNodes_;
   int numBoxNodes_;
+  int numGlobalNodes_;
   int numMatrixBlocks_;
   Epetra_MpiComm comm_;
   Epetra_RowMatrix *** blockMatrix_;
