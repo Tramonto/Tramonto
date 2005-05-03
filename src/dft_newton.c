@@ -53,10 +53,10 @@ int solve_problem(double **x, double **x2)
   /* SolverManager can now set up its own numbering scheme, set up unknown-based Maps */
   (void) dft_solvermanager_finalizeblockstructure(Solver_manager);
 
-  /* Set initial guess on owned nodes and reconcile ghost nodes using importR2C */
+  /* Set initial guess on owned nodes and reconcile ghost nodes using importr2c */
   xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   set_initial_guess(Iguess1, xOwned);
-  (void) dft_solvermanager_importR2C(Solver_manager, xOwned, x);
+  (void) dft_solvermanager_importr2c(Solver_manager, xOwned, x);
 
   /* If requested, write out initial guess */
    if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");
@@ -64,7 +64,7 @@ int solve_problem(double **x, double **x2)
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
     set_initial_guess(BINODAL_FLAG, xOwned);
-    (void) dft_solvermanager_importR2C(Solver_manager, xOwned, x2);
+    (void) dft_solvermanager_importr2c(Solver_manager, xOwned, x2);
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
   safe_free((void **) &xOwned);
@@ -86,7 +86,7 @@ int solve_problem(double **x, double **x2)
 /****************************************************************************/
 void box2owned(double** xBox, double** xOwned) {
   /* Routine to restrict 2d box array to 2d node array */
-  /* This is the opposite of importR2C, and strips ghost nodes */
+  /* This is the opposite of importr2c, and strips ghost nodes */
   int iunk, inode, ibox;
 
   for (ibox=0; ibox<Nnodes_box; ibox++) {

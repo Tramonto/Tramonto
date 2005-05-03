@@ -2051,8 +2051,7 @@ void boundary_properties(FILE *fp1)
        for (idim=0; idim<Ndim; idim++) {
            s_area_tot_proc += S_area[ilist][iwall][idim];
            S_area_tot[ilist][iwall] = gsum_double(s_area_tot_proc);
-           S_area[ilist][iwall][idim] = gsum_double(S_area[ilist][iwall][idim],
-                                                               Aztec.proc_config);
+           S_area[ilist][iwall][idim] = gsum_double(S_area[ilist][iwall][idim]);
        }
     }
   }             /* end of loop over lists */
@@ -2402,7 +2401,7 @@ void setup_volume_charge1(int iwall)
   nelems = 0;
   nelems_unique = 0;
   els_charge_spheres(r,x,&nelems,&nelems_unique,elems,Charge_type_atoms);
-  nelems_unique = gsum_int(nelems_unique, Aztec.proc_config);
+  nelems_unique = gsum_int(nelems_unique);
 
   charge_per_el = Elec_param_w[iwall]/(double) nelems_unique;
 
@@ -2451,7 +2450,7 @@ void setup_volume_charge2(void)
          nelems = 0;
          nelems_unique = 0;
          els_charge_spheres(r,x,&nelems,&nelems_unique,elems,Charge_type_local);
-         nelems_unique = gsum_int(nelems_unique, Aztec.proc_config);
+         nelems_unique = gsum_int(nelems_unique);
 
          charge_per_el = Charge[i]/(double) nelems_unique;
 

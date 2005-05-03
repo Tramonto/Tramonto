@@ -145,6 +145,18 @@ double constant_boundary(int iunk,int jnode_box)
    return(bcval);
 }
 /****************************************************************************/
-
-
-
+int loc_find(int iunk,int inode,int flag)
+{
+  int loc_i;
+  if (MATRIX_FILL_NODAL) loc_i = iunk + Nunk_per_node * inode;
+  else{
+     if (flag == LOCAL)
+        loc_i = inode + Nnodes_per_proc*iunk;
+     else if (flag == BOX)
+        loc_i = inode + Nnodes_box*iunk;
+     else if (flag == GLOBAL)
+        loc_i = inode + Nnodes*iunk;
+  }
+  return loc_i;
+}
+/*****************************************************************************************************/

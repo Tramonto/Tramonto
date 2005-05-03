@@ -1147,7 +1147,7 @@ void load_balance(int flag, double *fill_time)
 
   nmax = gmax_int(Aztec.N_update);
   nmin = gmin_int(Aztec.N_update);
-  navg = gavg_double((double)Aztec.N_update);
+  navg = gsum_double((double)Aztec.N_update) / (double) Num_Proc;
   if (Proc == 0 &&Iwrite==VERBOSE) {
     printf("\n+++++++++++++++++++++++++++++++++++++");
     printf("+++++++++++++++++++++++++++++++++++++++\n");
@@ -1203,7 +1203,7 @@ void load_balance(int flag, double *fill_time)
 
   nmax = gmax_int(Aztec.N_update);
   nmin = gmin_int(Aztec.N_update);
-  navg = gavg_double((double)Aztec.N_update);
+  navg = gsum_double((double)Aztec.N_update) / (double)Num_Proc;
   if (Proc == 0&&Iwrite==VERBOSE)
     printf("\tBefore load_balance: Max %d  Min %d  Ave %g Unknowns per Proc\n",
              nmax, nmin, navg);
@@ -1217,7 +1217,7 @@ void load_balance(int flag, double *fill_time)
 
   nmax = gmax_int(Aztec.N_update);
   nmin = gmin_int(Aztec.N_update);
-  navg = gavg_double((double)Aztec.N_update);
+  navg = gsum_double((double)Aztec.N_update) / (double)Num_Proc;
   if (Proc == 0 && Iwrite == VERBOSE)
     printf("\tAfter load_balance: Max=%d  Min=%d  Avg=%g (Unknowns per Proc)\n",
              nmax, nmin, navg);

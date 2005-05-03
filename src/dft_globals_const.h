@@ -1187,7 +1187,7 @@ extern void setup_external_field_n(int **, int ***);
 extern void  setup_vext_coulomb_vol();
 extern void read_external_field_n(char *);
 extern void read_zero_density_TF(char *);
-extern void set_initial_guess(int,double *,int *);
+extern void set_initial_guess(int,double **);
 extern int  solve_problem(double **, double **);
 extern int  newton_solver(double **x, void *con_ptr);
 
@@ -1350,6 +1350,7 @@ extern void setup_integrals(void);
    read all prototypes from the dft_*.c files to verify 
    that all routines are called with the correct signature
 */
+#ifdef AGSGETRIDOFTHIS
 #include "include/dft_fill_shared.h"
 #include "include/dft_out_energy.h"
 #ifdef PARALLEL
@@ -1387,4 +1388,5 @@ extern void setup_integrals(void);
 #include "include/dft_potentials.h"
 #include "include/loca_con_bord.h"
 #include "include/loca_util.h"
+#endif
 

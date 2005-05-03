@@ -315,8 +315,8 @@ double    *Area_IC;      /* 1D ion channel area per node (box units)*/
 int   Geom_flag;   /* geometry flag for ion chann. see OPTION_ definitions*/
 
 /* OUTPUT INTEGRAL PARAMETERS */
-int    **Nel_hit;      /* number of elements hit by a given node in a given list */
-int    **Nel_hit2;     /* same as prev. for a bulk fluid */
+int    ***Nel_hit;      /* number of elements hit by a given node in a given list */
+int    ***Nel_hit2;     /* same as prev. for a bulk fluid */
 int    List[2];       /* which list numbers we care about for integrals*/
 int    Imax;          /* how many lists are relevent to the case at hand 1 or 2 */
 
