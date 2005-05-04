@@ -44,8 +44,8 @@ COMMON_C_SOURCES= \
 	${srcdir}/loca_util.c 
 
 COMMON_CXX_SOURCES = \
-	${srcdir}/dft_schur_solver.cpp \
-	${srcdir}/dft_schur_epetra_operator.cpp 
+	${srcdir}/dft_SolverManager.cpp \
+	${srcdir}/dft_c2cpp_wrappers.cpp 
 
 COMMON_HEADERS = \
 	${srcdir}/dft_globals.h \
@@ -56,41 +56,8 @@ COMMON_HEADERS = \
 	${srcdir}/loca_util_const.h \
 	${srcdir}/az_aztec.h \
 	${srcdir}/az_aztec_defs.h \
-	${srcdir}/dft_schur_solver.h \
-	${srcdir}/dft_schur_epetra_operator.h \
-	${srcdir}/include/dft_fill_msr.h \
-	${srcdir}/include/dft_fill_shared.h  \
-	${srcdir}/include/dft_main.h \
-	${srcdir}/include/dft_out_ads.h \
-	${srcdir}/include/dft_out_profiles.h \
-	${srcdir}/include/dft_thermo.h \
-	${srcdir}/include/dft_comm.h \
-	${srcdir}/include/dft_fill_pde.h \
-	${srcdir}/include/dft_guess.h \
-	${srcdir}/include/dft_mesh.h \
-	${srcdir}/include/dft_out_energy.h \
-	${srcdir}/include/dft_uww.h \
-	${srcdir}/include/dft_continuation.h \
-	${srcdir}/include/dft_fillp.h \
-	${srcdir}/include/dft_images.h \
-	${srcdir}/include/dft_mesh_lib.h \
-	${srcdir}/include/dft_out_flux.h \
-	${srcdir}/include/dft_potentials.h  \
-	${srcdir}/include/dft_vext.h \
-	${srcdir}/include/dft_fill_main.h \
-	${srcdir}/include/dft_fill_rosen.h \
-	${srcdir}/include/dft_input.h \
-	${srcdir}/include/dft_mesh_surfaces.h \
-	${srcdir}/include/dft_out_force.h \
-	${srcdir}/include/dft_quadratue.h	 \
-	${srcdir}/include/loca_con_bord.h \
-	${srcdir}/include/dft_fill_mf.h \
-	${srcdir}/include/dft_fill_rosen_rb.h \
-	${srcdir}/include/dft_ldbal.h \
-	${srcdir}/include/dft_newton.h \
-	${srcdir}/include/dft_out_main.h \
-	${srcdir}/include/dft_stencil.h \
-	${srcdir}/include/loca_util.h
+	${srcdir}/dft_c2cpp_wrappers.h \
+	${srcdir}/dft_SolverManager.hpp 
 
 libdft_a_SOURCES=${COMMON_C_SOURCES} ${COMMON_CXX_SOURCES}
 dft_SOURCES= dft_maindriver.c ${COMMON_C_SOURCES} ${COMMON_CXX_SOURCES}
@@ -107,9 +74,9 @@ VPATH = @srcdir@
 
 CC = @CC@
 CXX = @CXX@
-CFLAGS = @CFLAGS@ -I. -I./include/
-CXXFLAGS = @CXXFLAGS@ -I. -I./include/
-LDFLAGS = @LDFLAGS@ @LIBS@ @FLIBS@
+CFLAGS = @CFLAGS@ -I. -I./include/ 
+CXXFLAGS = @CXXFLAGS@ -DHAVE_CONFIG_H -I. -I./include/ 
+LDFLAGS = @LDFLAGS@ @LIBS@ @FLIBS@ 
 RANLIB = @RANLIB@
 
 # Targets
