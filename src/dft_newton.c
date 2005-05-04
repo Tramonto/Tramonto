@@ -199,7 +199,7 @@ void fill_test(double **x, int flag)
     inode_box = L2B_node[loc_inode];
     iunk = 0;
 
-    f = x[iunk][inode_box] - inode;
+    f = x[iunk][inode_box] - inode - 1;
     dft_solvermanager_insertrhsvalue(Solver_manager, iunk, loc_inode, -f);
     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,1.0);
 

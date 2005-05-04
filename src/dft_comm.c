@@ -22,19 +22,19 @@ double gmin_double(double c){
   return r;
 }
 /***************************************************************************/
-double gsum_int(int c){
+int gsum_int(int c){
   int r;
   (void) MPI_Allreduce(&c, &r, 1,  MPI_INT, MPI_SUM, Comm);
   return r;
 }
 /***************************************************************************/
-double gmax_int(int c){
+int gmax_int(int c){
   int r;
   (void) MPI_Allreduce(&c, &r, 1,  MPI_INT, MPI_MAX, Comm);
   return r;
 }
 /***************************************************************************/
-double gmin_int(int c){
+int gmin_int(int c){
   int r;
   (void) MPI_Allreduce(&c, &r, 1,  MPI_INT, MPI_MIN, Comm);
   return r;
