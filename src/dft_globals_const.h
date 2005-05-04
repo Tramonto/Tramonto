@@ -462,9 +462,10 @@ extern void * Solver_manager;
  */
 
 struct Aztec_Struct {
-  int    proc_config[AZ_PROC_SIZE];/* Processor information.                */
   int    options[AZ_OPTIONS_SIZE]; /* Array used to select solver options.  */
   double params[AZ_PARAMS_SIZE];   /* User selected solver paramters.       */
+#ifdef DONE_WITH_THESE
+  int    proc_config[AZ_PROC_SIZE];/* Processor information.                */
   int    *data_org;                /* Array to specify data layout          */
   double status[AZ_STATUS_SIZE];   /* Information returned from AZ_solve(). */
   int    *update;                  /* vector elements updated on this node. */
@@ -475,6 +476,7 @@ struct Aztec_Struct {
   double *val;                     /* in these MSR arrays.                  */
   int    N_update;                 /* # of unknowns updated on this node    */
   int    nonzeros;                 /* # of nonzeros in sparse matrix        */
+#endif
 };
 
 /* 
@@ -1178,10 +1180,10 @@ extern double dmu_drho_att(double *);
 extern void calc_stencils(void);
 extern void set_gauss_quad(int , double *, double *);
 extern void set_up_mesh(char *,char *);
-extern void load_balance(int, double *);
+extern void load_balance(int, double *, int *, int **);
 extern void boundary_setup(char *);
 extern void boundary_free(void);
-extern void control_mesh(FILE *, char *,int);
+extern void control_mesh(FILE *, char *,int, int *);
 extern void free_mesh_arrays(void);
 extern void setup_external_field_n(int **, int ***);
 extern void  setup_vext_coulomb_vol();

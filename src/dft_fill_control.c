@@ -22,7 +22,7 @@ void fill_resid_and_matrix_control (double *x, double *resid,
            if (fill_flag==MSR_PREPROCESS){
               /* For MSR pre-processing, start nonzeros counter at # of diagonals */ 
               First_time = TRUE;
-              Aztec.nonzeros = Aztec.N_update;
+              /*Aztec.nonzeros = Aztec.N_update;*/
               if (Type_poly != -1)
                  fill_resid_and_matrix_P(NULL, NULL, bindx_2d, NULL, fill_flag, iter, resid_only_flag,NODAL_FLAG);
               else
@@ -50,7 +50,7 @@ void fill_resid_and_matrix_control (double *x, double *resid,
               if (i==0){
                   /* For MSR pre-processing, start nonzeros counter at # of diagonals */ 
                   First_time = TRUE;
-                  Aztec.nonzeros = Aztec.N_update;
+                  /*Aztec.nonzeros = Aztec.N_update;*/
               }
               if (Type_poly != -1)
                  fill_resid_and_matrix_P(NULL, NULL, bindx_2d, NULL, fill_flag, iter, resid_only_flag,i);

@@ -16,9 +16,7 @@
 /*
  *  FILE: dft_newton.c
  *
- *  This file solves the dft problem using Newton's method. The fill
- *  of the residual and matrix are in file dft_fill.c, and the linear
- *  solve is done using calls to the Aztec library.
+ *  This file solves the dft problem using Newton's method.
  */
 #include "mpi.h" 
 
@@ -30,6 +28,7 @@
 #include "dft_globals_const.h" 
 #include "rf_allo.h"
 
+static void print_resid_norm(int iter);
 void fill_test(double **x, int flag);
 
 /* NEWTON SOLVER using dft_SolverManager */
@@ -117,6 +116,7 @@ int newton_solver(double** x, void* con_ptr) {
     fill_test(x, FALSE);
 
     (void) dft_solvermanager_finalizeproblemvalues(Solver_manager);
+    if (Iwrite != NO_SCREEN) print_resid_norm(iter);
     (void) dft_solvermanager_setupsolver(Solver_manager);
     (void) dft_solvermanager_solve(Solver_manager);
     
@@ -170,17 +170,33 @@ int update_solution(double** x, double** delta_x, int iter) {
       x[iunk][ibox] += delta_x[iunk][ibox];
   }
 
-  /* Aztec call can be replaced by MPI? */
   updateNorm = sqrt(gsum_double(updateNorm));
 
   if (Proc==0 && Iwrite != NO_SCREEN)
-    printf("\t\t%s: Weighted norm of update vector =  %g\n", yo, updateNorm);
+    printf("\n\t\t%s: Weighted norm of update vector =  %g\n", yo, updateNorm);
 
   if (updateNorm > 1.0) return(FALSE);
   else                  return(TRUE);
 
 }
 
+/*****************************************************************************************************/
+static void print_resid_norm(int iter)
+{
+  int iunk, j;
+  double norm=0.0;
+  double **f;
+  f = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
+  dft_solvermanager_getrhs(Solver_manager, f);
+
+  for (iunk=0; iunk<Nunk_per_node; iunk++) {
+    for (j=0; j< Nnodes_per_proc; j++) {
+       norm += f[iunk][j] * f[iunk][j];
+    }
+  }
+  norm = gsum_int(norm);
+  if (Proc==0) printf("\t\tResidual norm at iteration %d = %g\n",iter, sqrt(norm));
+}
 /*****************************************************************************************************/
 
 void fill_test(double **x, int flag) 
@@ -212,12 +228,4 @@ void fill_test(double **x, int flag)
     }
   } 
 }
-
-
-
-
-
-
-
-
 

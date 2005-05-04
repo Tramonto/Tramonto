@@ -59,16 +59,11 @@ void dftmain(double * engptr)
   int *dummy,proper_bc;
   int argc=1;
 
-  AZ_set_proc_config(Aztec.proc_config,MPI_COMM_WORLD);
   gethostname(line,100);
   getcwd(linecwd,100);
   /*  printf(" hello %s %s \n",line,linecwd); */
   MPI_Barrier(MPI_COMM_WORLD);
 
-  /*  AZ_processor_info(Aztec.proc_config);
-  Proc     = Aztec.proc_config[AZ_node];
-  Num_Proc = Aztec.proc_config[AZ_N_procs];
-  */
   (void) MPI_Comm_size(MPI_COMM_WORLD, &Num_Proc);
   (void) MPI_Comm_rank(MPI_COMM_WORLD, &Proc);
 
@@ -167,17 +162,9 @@ void dftmain(double * engptr)
            safe_free((void *) &Comm_unk_proc);
            safe_free((void *) &Comm_offset_node);
            safe_free((void *) &Comm_offset_unk);
-           safe_free((void *) &Aztec.update);
 
      }
      set_up_mesh(output_file1,output_file2);
-
-     /* call load balancer if requested */
-
-     /*if (Load_Bal_Flag == LB_TIMINGS) {
-       load_balance(1, NULL);
-     }
-     */
 
     /*
      * Set up boundary and surface charge information -- this must come
@@ -323,13 +310,6 @@ void dftmain(double * engptr)
       safe_free((void *) &x); 
       if (Lbinodal) safe_free((void *) &x2); 
 
-      /* Aztec arrays -- mostly allocated by AZ_transform */
-      safe_free((void *) &Aztec.external);
-      safe_free((void *) &Aztec.extern_index);
-      safe_free((void *) &Aztec.update_index);
-      /*AZ_free_memory(Aztec.data_org[AZ_name]);*/
-      safe_free((void *) &Aztec.data_org);
-
   } /* end of loop over continuation field #1 */
 
   if (Nwall_type !=0){
@@ -343,7 +323,6 @@ void dftmain(double * engptr)
   safe_free((void *) &Comm_unk_proc);
   safe_free((void *) &Comm_offset_node);
   safe_free((void *) &Comm_offset_unk);
-  safe_free((void *) &Aztec.update);
 
   safe_free((void *)  &Xtest_reflect_TF);
   safe_free((void *)  &Lsemiperm);

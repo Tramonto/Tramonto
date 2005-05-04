@@ -47,7 +47,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
   int ipol,iseg;
   int boltz_pow,boltz_pow_J;
   double fac1,fac2;
-  int jbond,unk_GQ_j,loc_GQ_j,loc_GQ,node_start;
+  int jbond,unk_GQ_j,node_start;
 
   double  resid_tmp=0.0;
 
@@ -206,14 +206,12 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                  fac1= k_poly;
                  for (ibond=0; ibond<Nbond[npol][i]; ibond++) {
                     unk_GQ  = Geqn_start[npol] + Poly_to_Unk[npol][i][ibond]; 
-                    loc_GQ = Aztec.update_index[loc_find(unk_GQ,loc_inode,LOCAL)]; 
                     fac1 *= x[unk_GQ][inode_box];
  
                     fac2= k_poly;
                     for (jbond=0; jbond<Nbond[npol][i]; jbond++) {
                       if (jbond != ibond){       
                         unk_GQ_j  = Geqn_start[npol] + Poly_to_Unk[npol][i][jbond]; 
-                        loc_GQ_j = Aztec.update_index[loc_find(unk_GQ_j,loc_inode,LOCAL)]; 
                         fac2 *= x[unk_GQ_j][loc_inode];
                       }
                     }

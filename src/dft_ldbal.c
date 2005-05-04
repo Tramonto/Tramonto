@@ -1123,12 +1123,12 @@ double set_weight_for_node(int inode)
 /*****************************************************************************/
 
 
-void load_balance(int flag, double *fill_time)
+void load_balance(int flag, double *fill_time, int *N_update, int **update)
 /* This routine re-loadbalances the nodes, as stored by unknown numbers in   */
-/* Aztec.update, by calling the recursive coordinate bisection (rcb) routine */
+/* *update, by calling the recursive coordinate bisection (rcb) routine */
 /* supplied by Steve Plimpton. The rest of this routine is just preparing    */
 /* the data to send to the rcb routine, and stuffing the results back into   */
-/* our format (Aztec.N_update, Aztec.update, and Nnodes_per_proc).           */
+/* our format (*N_update, *update, and Nnodes_per_proc).           */
 /* If fill_time != NULL, then this array of timings is used as nodal weights;*/
 /* otherwise, the routine set_weight_for_node is used.                       */ 
 
@@ -1145,9 +1145,9 @@ void load_balance(int flag, double *fill_time)
   int    nmin, nmax;
   int idim;
 
-  nmax = gmax_int(Aztec.N_update);
-  nmin = gmin_int(Aztec.N_update);
-  navg = gsum_double((double)Aztec.N_update) / (double) Num_Proc;
+  nmax = gmax_int(*N_update);
+  nmin = gmin_int(*N_update);
+  navg = gsum_double((double)*N_update) / (double) Num_Proc;
   if (Proc == 0 &&Iwrite==VERBOSE) {
     printf("\n+++++++++++++++++++++++++++++++++++++");
     printf("+++++++++++++++++++++++++++++++++++++++\n");
@@ -1165,8 +1165,8 @@ void load_balance(int flag, double *fill_time)
 
   for (loc_inode = 0; loc_inode < Nnodes_per_proc; loc_inode++) {
 
-    if (MATRIX_FILL_NODAL) inode = Aztec.update[loc_inode * Nunk_per_node] / Nunk_per_node;
-    else                   inode = Aztec.update[loc_inode];
+    if (MATRIX_FILL_NODAL) inode = (*update)[loc_inode * Nunk_per_node] / Nunk_per_node;
+    else                   inode = (*update)[loc_inode];
 
     node_to_position(inode, dots[loc_inode].x);
 
@@ -1201,23 +1201,23 @@ void load_balance(int flag, double *fill_time)
  if (Load_Bal_Flag != LB_LINEAR) rcb(&dots, &(Nnodes_per_proc), &pdotmax, 1, 1.5, 0, &pdottop, &rcbbox, treept);
   /* Print out statistics before load balancing */
 
-  nmax = gmax_int(Aztec.N_update);
-  nmin = gmin_int(Aztec.N_update);
-  navg = gsum_double((double)Aztec.N_update) / (double)Num_Proc;
+  nmax = gmax_int(*N_update);
+  nmin = gmin_int(*N_update);
+  navg = gsum_double((double)*N_update) / (double)Num_Proc;
   if (Proc == 0&&Iwrite==VERBOSE)
     printf("\tBefore load_balance: Max %d  Min %d  Ave %g Unknowns per Proc\n",
              nmax, nmin, navg);
 
-  /* Reset Aztec arrays for unknowns owned by this proc and print new stats*/
+  /* Reset  arrays for unknowns owned by this proc and print new stats*/
 
-  safe_free((void *) &Aztec.update);
-  Aztec.N_update = Nunk_per_node * Nnodes_per_proc;
-  Aztec.update = (int *) array_alloc(1, Aztec.N_update, sizeof(int));
-  /*printf("in dft_ldbal: Aztec.update allocated to %d length\n",Aztec.N_update);*/
+  safe_free((void *) update);
+  *N_update = Nunk_per_node * Nnodes_per_proc;
+  *update = (int *) array_alloc(1, *N_update, sizeof(int));
+  /*printf("in dft_ldbal: *update allocated to %d length\n",*N_update);*/
 
-  nmax = gmax_int(Aztec.N_update);
-  nmin = gmin_int(Aztec.N_update);
-  navg = gsum_double((double)Aztec.N_update) / (double)Num_Proc;
+  nmax = gmax_int(*N_update);
+  nmin = gmin_int(*N_update);
+  navg = gsum_double((double)*N_update) / (double)Num_Proc;
   if (Proc == 0 && Iwrite == VERBOSE)
     printf("\tAfter load_balance: Max=%d  Min=%d  Avg=%g (Unknowns per Proc)\n",
              nmax, nmin, navg);
@@ -1233,14 +1233,14 @@ void load_balance(int flag, double *fill_time)
     Max_IJK[idim] = Min_IJK[2] = 0;
   }
 
-  /* Translate new dots array into node and unknown numbers, put in Aztec.update */
+  /* Translate new dots array into node and unknown numbers, put in *update */
   for (loc_inode = 0; loc_inode < Nnodes_per_proc; loc_inode++) {
 
      inode = position_to_node(dots[loc_inode].x);
 
      for (iunk = 0; iunk < Nunk_per_node; iunk++){
-        if (MATRIX_FILL_NODAL) Aztec.update[loc_find(iunk,loc_inode,LOCAL)] = inode * Nunk_per_node + iunk;
-        else                   Aztec.update[loc_find(iunk,loc_inode,LOCAL)] = inode + Nnodes_per_proc*iunk;
+        if (MATRIX_FILL_NODAL) (*update)[loc_find(iunk,loc_inode,LOCAL)] = inode * Nunk_per_node + iunk;
+        else                   (*update)[loc_find(iunk,loc_inode,LOCAL)] = inode + Nnodes_per_proc*iunk;
      }
 
      /* Calculate max 'n min range of nodes for each dimension */
@@ -1282,9 +1282,9 @@ void load_balance(int flag, double *fill_time)
      }
 **********/
 
-  /* Finally, sort the new Aztec.update array in ascending order */
+  /* Finally, sort the new *update array in ascending order */
 
-  sort_int_array(Aztec.N_update, Aztec.update - 1);
+  sort_int_array(*N_update, *update - 1);
 
   /* Free the dots and treept arrays */
 

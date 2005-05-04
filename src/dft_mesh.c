@@ -30,7 +30,7 @@
 
 /* Prototypes for functions found in this file */
 
-void setup_basic_box(FILE *);
+void setup_basic_box(FILE *, int *);
 void initialize_fast_fill_flag(void);
 void fast_fill_el_to_nodes(int *);
 void boundary_properties(FILE *);
@@ -46,10 +46,9 @@ void zones_el_to_nodes(int *);
 void set_mesh_coarsen_flag(void);  
 void setup_area_IC(void);
 
-void initialize_Aztec(void);        
-   void MY_read_update(int *N_update, int *update[], int proc_config[],
-                       int N, int *nodes_x, int chunk, int input_option);
-
+void initialize_Aztec(int *, int *update[]);        
+void MY_read_update(int *N_update, int *update[], int N,
+		    int *nodes_x, int chunk, int input_option);
 
 void bc_setup_const_charge(int,int);
 void els_charge_spheres(double,double *, int *,int *, int *,int);
@@ -68,6 +67,8 @@ void set_up_mesh (char *output_file1,char *output_file2)
   double t1;
   FILE *fp1=NULL;
   int i,inode,ijk[3],flag,idim,coarse_fac,count,print_flag;
+  int N_update=0; //local variables to replace AztecStruct global ones of same name
+  int *update=NULL;
 
   if (Proc==0 && Iwrite != NO_SCREEN){
        printf("\n-------------------------------------------------------------------\n");
@@ -88,15 +89,15 @@ void set_up_mesh (char *output_file1,char *output_file2)
    * Initialize Aztec settings. We may read in 
    * some of these eventually 
    */
-  initialize_Aztec();
-  Nnodes_per_proc = Aztec.N_update / Nunk_per_node;
+  initialize_Aztec(&N_update, &update);
+  Nnodes_per_proc = N_update / Nunk_per_node;
 
   /* 
    * Do load balancing assuming equal weights
    * on all the nodes in the domain. The load balance
    * routine resets the value of Nodes_per_proc.
    */
-  load_balance(0, NULL);
+  load_balance(0, NULL, &N_update, &update);
 
 /*set up arrays on processor 0 that are needed for communications
   involved with printing arrays */
@@ -130,7 +131,7 @@ void set_up_mesh (char *output_file1,char *output_file2)
   if (L1D_bc || Load_Bal_Flag == LB_WEIGHTS || (Load_Bal_Flag >= LB_TIMINGS
 				      && Mesh_coarsening != FALSE) ) print_flag=FALSE;
 
-  control_mesh(fp1,output_file2,print_flag);
+  control_mesh(fp1,output_file2,print_flag, update);
 
   if (L1D_bc || Load_Bal_Flag == LB_WEIGHTS || (Load_Bal_Flag >= LB_TIMINGS
 				      && Mesh_coarsening != FALSE) ) {
@@ -139,7 +140,7 @@ void set_up_mesh (char *output_file1,char *output_file2)
       * Now redo load balancing based on mesh info
       * and then free all the old global mesh arrays.
       */
-    load_balance(1,NULL);
+    load_balance(1,NULL, &N_update, &update);
 
     if (Iwrite==VERBOSE) printf("Proc: %d Nodes_per_proc: %d\n",Proc,Nnodes_per_proc);
 
@@ -164,7 +165,7 @@ void set_up_mesh (char *output_file1,char *output_file2)
       * load balancing.
       */
      if (Proc==0 && Iwrite == VERBOSE) printf("\n%s: Setting up the mesh again after load balance... \n",yo);
-     control_mesh(fp1,output_file2,print_flag);
+     control_mesh(fp1,output_file2,print_flag, update);
   }
     /* now reset the Mesh_coarsen_flag on the one row of nodes where
        we will do the computation beyond the 1D boundary */
@@ -190,6 +191,8 @@ void set_up_mesh (char *output_file1,char *output_file2)
        }
     }
 
+  safe_free((void *) &update);
+  
   if (Proc==0) fclose(fp1);
   if (Proc==0 && Iwrite !=NO_SCREEN){
        printf("mesh set up took %g secs\n",MPI_Wtime()-t1);
@@ -251,7 +254,7 @@ void free_mesh_arrays(void)
 control_mesh: this routine calls other functions
    involved in setting up the mesh.                     */
 
-void control_mesh(FILE *fp1,char *output_file2,int print_flag)
+void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 {
   int  **elems_f,  
     ***elems_w_per_w;
@@ -288,7 +291,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag)
    * Elements_x_box[],Nodes_plane_box, Elements_plane_box,
    * Nunknowns_box. 
    */
-  setup_basic_box(fp1);
+  setup_basic_box(fp1, update);
 
   /* determine which nodes need to be treated carefully 
    * in the jacobian fill, and which are easy.  Anything 
@@ -671,7 +674,7 @@ void setup_basic_domain(FILE *fp1)
 /******************************************************************
 setup_basic_box: here we set up the box coordinates for
                  parallel computations. */
-void setup_basic_box(FILE *fp1)
+void setup_basic_box(FILE *fp1, int *update)
 {
   int idim,inode_box,i_box,loc_inode,inode,icomp;
   double max_cut=0.0;
@@ -822,9 +825,9 @@ void setup_basic_box(FILE *fp1)
   }
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
     if (MATRIX_FILL_NODAL) {
-      inode = Aztec.update[Nunk_per_node * loc_inode] / Nunk_per_node;
+      inode = update[Nunk_per_node * loc_inode] / Nunk_per_node;
     }
-    else inode = Aztec.update[loc_inode];
+    else inode = update[loc_inode];
     inode_box = node_to_node_box(inode);
     L2B_node[loc_inode] = inode_box;
     B2L_node[inode_box] = loc_inode;
@@ -2939,7 +2942,7 @@ void setup_area_IC(void)
 }
 */
 /****************************************************************************/
-void initialize_Aztec(void)
+void initialize_Aztec(int* N_update, int *update[])
 /*
  * This sets up various options for Aztec, the linear solver package.
  * Most are defaults. All info is stored in the structure Aztec.
@@ -2953,8 +2956,7 @@ void initialize_Aztec(void)
   else                            flag = AZ_box;*/
   flag = AZ_linear;
 
-  MY_read_update(&(Aztec.N_update), &(Aztec.update), Aztec.proc_config,
-                                     Nnodes, Nodes_x, Nunk_per_node, flag);
+  MY_read_update(N_update, update, Nnodes, Nodes_x, Nunk_per_node, flag);
 
  /*
   * Set up linear solver options. Some of these can be moved to the
@@ -3019,7 +3021,7 @@ void initialize_Aztec(void)
 /****************************************************************************/
 /****************************************************************************/
 
-void MY_read_update(int *N_update, int *update[], int proc_config[],
+void MY_read_update(int *N_update, int *update[],
                     int N, int *nodes_x, int chunk, int input_option)
 
 /*******************************************************************************
@@ -3030,8 +3032,7 @@ void MY_read_update(int *N_update, int *update[], int proc_config[],
 
   If input_option == AZ_linear Do a linear partitioning of the chunks.
      Specifically, proc 0 is assigned the first floor( (N+P-1)/P ) chunks,
-     processor 1 is assigned the next floor( (N+P-2)/P ) chunks, etc. where P =
-     proc_config[AZ_N_procs].
+     processor 1 is assigned the next floor( (N+P-2)/P ) chunks.
   If input_option == AZ_file Processor 0 reads the file '.update'.  This file
      should contain nprocs lists.  Each list consists of a number telling how
      many global indices are in the list followed by a list of global indices.
@@ -3053,9 +3054,6 @@ void MY_read_update(int *N_update, int *update[], int proc_config[],
 
   update:          On Output, list of unknowns updated by this processor in
                    ascending order.
-
-  proc_config:     proc_config[AZ_node] is node number.
-                   proc_config[AZ_N_procs] is the number of processors.
 
   N:               Total number of chunks to be distributed.
 
@@ -3090,8 +3088,8 @@ void MY_read_update(int *N_update, int *update[], int proc_config[],
 
   /**************************** execution begins ******************************/
 
-  proc   = proc_config[AZ_node];
-  nprocs = proc_config[AZ_N_procs];
+  proc   = Proc;
+  nprocs = Num_Proc;
 
   /*
    * Figure out which chunks should be assigned to this processor using a box
