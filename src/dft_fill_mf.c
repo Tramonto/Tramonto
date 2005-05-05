@@ -100,10 +100,9 @@ double load_mean_field(int sten_type, int iunk, int loc_inode,
                           weightJ = HW_boundary_weight (jcomp, jlist,
                             stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                     }
-                    mat_row[B2L_unknowns[j_box]] += sign*weight;
                     mat_val = sign*weight;
                     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
-                                                               junk,jnode_boxJ,mat_value);
+                                                               junk,jnode_boxJ,mat_val);
               }
            }
         }

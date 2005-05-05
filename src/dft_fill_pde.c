@@ -236,7 +236,7 @@ void set_fem_1el_weights(double **wt_lp_1el_ptr, double **wt_s_1el_ptr,
 double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x)
 {
 
-  int iwall,  isten, icomp,ilist,idim;
+  int iwall,  isten, icomp,ilist,idim,junk;
   int iln, jln, elem, offset[3], el_box;
   int nodes_volm_el, nodes_surf_el, junk2[3];
   int in_wall,numEntries, nodeIndices[2];
@@ -248,7 +248,7 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
   static double *wt_lp_1el, *wt_s_1el;
   static int   **elem_permute, off_ref[2][2] = { {0,1}, {-1,0}};
   double rho_0, rho_1, psi_0, psi_1, tmp;
-  int jnode_box;
+  int jnode_box,junk_psi,junk_rho;
   int reflect_flag[3];
 
   /* First time through, load weights appropriate for this Ndim */
@@ -427,7 +427,7 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
 
 }
 /****************************************************************************/
-void load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x)
+double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x)
 {
 
   int iwall,  isten, icomp,ilist,idim;
@@ -436,7 +436,7 @@ void load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, dou
   /* static variables keep their value for every time the function is called*/
   static double *wt_lp_1el, *wt_s_1el;
   static int   **elem_permute, off_ref[2][2] = { {0,1}, {-1,0}};
-  int jnode_box;
+  int jnode_box,junk;
   int reflect_flag[3];
   double resid,mat_val,resid_sum=0.0;
 
@@ -610,12 +610,12 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
   int j_box_mu[8], j_box_rho[8], loc_j_mu[8], loc_j_rho[8], jnode_box,flag,count_flag;
   double wt=1.0, area_0=0.0, area_1=0.0, rho_0, rho_1, mu_0, mu_1, tmp;
   double resid,resid_sum=0.0,mat_val;
-  int nodeIndices[8];
+  int nodeIndices[8],junk_mu,junk_rho;
   double values[2],values_rho[8],values_mu[8];
 
   /* pre calc basis function stuff for 3D */
 
-  int igp;
+  int igp,numEntries;
   double rho, grad_mu[3], grad_mu_dot_grad_phi;
   static double **phi, ***grad_phi, evol;
   static int first=TRUE;
@@ -777,7 +777,6 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                                        + grad_mu[1]*grad_phi[iln][igp][1]
                                        + grad_mu[2]*grad_phi[iln][igp][2];
                                       
-                  resid[loc_i] += evol * rho * grad_mu_dot_grad_phi;
                   resid = evol * rho * grad_mu_dot_grad_phi;
                   resid_sum+=resid;
                   dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
@@ -817,7 +816,7 @@ double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,
   static double *wt_lp_1el, *wt_s_1el;
   static int   **elem_permute, off_ref[2][2] = { {0,1}, {-1,0}};
   int  jnode_box;
-  double resid, resid_sum=0.0; mat_val;
+  double resid, resid_sum=0.0, mat_val;
 
   /* First time through, load weights appropriate for this Ndim */
   

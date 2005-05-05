@@ -1218,8 +1218,7 @@ extern void find_images_coulomb(int,int *, double **, double *);
 
 /* RESIDUAL AND MATRIX FILL ROUTINES */
 extern int loc_find(int,int,int);
-extern void fill_resid_and_matrix_control(double *, double *, 
-                                  int **, double *, int, int, int);
+extern void fill_resid_and_matrix_control(double **, int, int);
 extern void fill_resid_and_matrix(double **, int, int, int);
 extern void fill_resid_and_matrix_rb(double *, double *, 
                                   int **, double *, int, int);
@@ -1353,42 +1352,42 @@ extern void setup_integrals(void);
    that all routines are called with the correct signature
 */
 #ifdef AGSGETRIDOFTHIS
-#include "include/dft_fill_shared.h"
-#include "include/dft_out_energy.h"
+  #include "include/dft_fill_shared.h"
+  #include "include/dft_out_energy.h"
 #ifdef PARALLEL
-#include "include/dft_comm.h"
+  #include "include/dft_comm.h"
 #endif
-#include "include/dft_guess.h"
-#include "include/dft_out_flux.h"
-#include "include/dft_continuation.h"
-#include "include/dft_input.h"
-#include "include/dft_out_force.h"
-#include "include/dft_fill_main.h"
+  #include "include/dft_guess.h"
+  #include "include/dft_out_flux.h"
+  #include "include/dft_continuation.h"
+  #include "include/dft_input.h"
+  #include "include/dft_out_force.h"
+  #include "include/dft_fill_main.h"
 #ifdef RCB_LOAD_BALANCE
-#include "include/dft_ldbal.h"
+  #include "include/dft_ldbal.h"
 #endif
-#include "include/dft_out_main.h"
-#include "include/dft_fill_mf.h"
-#include "include/dft_main.h"
-#include "include/dft_out_profiles.h"
-#include "include/dft_fill_msr.h"
-#include "include/dft_mesh.h"       
-#include "include/dft_fill_pde.h"
-#include "include/dft_mesh_lib.h"
-#include "include/dft_quadratue.h"
-#include "include/dft_fillp.h"
-#include "include/dft_mesh_surfaces.h"
-#include "include/dft_stencil.h"
-#include "include/dft_fill_rosen.h"
-#include "include/dft_newton.h"
-#include "include/dft_thermo.h"
-#include "include/dft_fill_rosen_rb.h"
-#include "include/dft_out_ads.h"
-#include "include/dft_vext.h"
-#include "include/dft_uww.h"
-#include "include/dft_images.h"
-#include "include/dft_potentials.h"
-#include "include/loca_con_bord.h"
-#include "include/loca_util.h"
+  #include "include/dft_out_main.h"
+  #include "include/dft_fill_mf.h"
+  #include "include/dft_main.h"
+  #include "include/dft_out_profiles.h"
+  #include "include/dft_fill_msr.h"
+  #include "include/dft_mesh.h"       
+  #include "include/dft_fill_pde.h"
+  #include "include/dft_mesh_lib.h"
+  #include "include/dft_quadratue.h"
+  #include "include/dft_fillp.h"
+  #include "include/dft_mesh_surfaces.h"
+  #include "include/dft_stencil.h"
+  #include "include/dft_fill_rosen.h"
+  #include "include/dft_newton.h"
+  #include "include/dft_thermo.h"
+  #include "include/dft_fill_rosen_rb.h"
+  #include "include/dft_out_ads.h"
+  #include "include/dft_vext.h"
+  #include "include/dft_uww.h"
+  #include "include/dft_images.h"
+  #include "include/dft_potentials.h"
+  #include "include/loca_con_bord.h"
+  #include "include/loca_util.h"
 #endif
 

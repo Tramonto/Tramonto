@@ -28,12 +28,13 @@ static struct RB_Struct d2phi_drb2_delta_rb(int, int, double **,double,
 					    int *,double *,double,double,
 					    double);
 
-static struct RB_Struct d2phi_drb2_theta_rb(int, int, double **,double,int *, int);
+static struct RB_Struct d2phi_drb2_theta_rb(int, int, double **,double,int *);
 
 static struct RB_Struct d2phi_drb2_delta2_rb(int, int, double **,double, 
 				      int *,double *,double, double,double);
 
-static struct RB_Struct d2phi_drb2_theta2_rb(int, int, double **,double,int *, int);
+static struct RB_Struct d2phi_drb2_theta2_rb(int, int, double **,double,int *);
+
 
 
 /**********************************************************************/
@@ -57,7 +58,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
 
-  int jzone=0, loc_jnode, jnode_box, idim,j_box,unk_tmp,junk;
+  int jzone=0, jnode_box, idim,j_box,unk_tmp,junk;
   int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
   double  sign[3];
@@ -83,24 +84,23 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
       jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
 
       if (jnode_box >= 0) {
-        loc_jnode = B2L_1stencil[jnode_box];
 
         if (sten_type == DELTA_FN) {
            resid = weight*
-                  (dphi_drb[loc_jnode].S0*Inv_4pirsq[icomp] +
-                   dphi_drb[loc_jnode].S1*Inv_4pir[icomp] +
-                   dphi_drb[loc_jnode].S2 );
+                  (dphi_drb[jnode_box].S0*Inv_4pirsq[icomp] +
+                   dphi_drb[jnode_box].S1*Inv_4pir[icomp] +
+                   dphi_drb[jnode_box].S2 );
 
            for (idim = 0; idim<Ndim; idim++){
               sign[idim]=1.0;
               if (reflect_flag[idim]) sign[idim]=-1.0;
               resid -= sign[idim]*weight * 
-                      (  dphi_drb[loc_jnode].V1[idim]*Inv_4pir[icomp]
-                       + dphi_drb[loc_jnode].V2[idim] ) *
+                      (  dphi_drb[jnode_box].V1[idim]*Inv_4pir[icomp]
+                       + dphi_drb[jnode_box].V2[idim] ) *
                       (offset[idim] * Esize_x[idim]*Inv_rad[icomp]); 
            }
         }
-        else if (sten_type == THETA_FN) resid = weight * dphi_drb[loc_jnode].S3; 
+        else if (sten_type == THETA_FN) resid = weight * dphi_drb[jnode_box].S3; 
       }
       else if (jnode_box == -1 || jnode_box == -3 || jnode_box == -4 ){
        if (jnode_box == -1) {
@@ -165,7 +165,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
             }
             numEntries=4;
             values[0]=tmp.S3; values[1]=tmp.S2; values[2]=tmp.S1;values[3]=tmp.S0;
-            indexUnks[0]=junk; indexUnks[1]=junk+1; indexUnks[2]=junk+2; indexUnks[3]=junk+3
+            indexUnks[0]=junk; indexUnks[1]=junk+1; indexUnks[2]=junk+2; indexUnks[3]=junk+3;
             dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
                                                    indexUnks, jnode_boxJ, values, numEntries);
 
@@ -412,7 +412,7 @@ void pre_calc_dphi_drb_rb1(struct RB_Struct *dphi_drb,
  double rb0_r=0.0, rb1_r=0.0, rb2_r=0.0, rb3_r=0.0;
  int idim, icomp, loc_inode;
  int inode_box;
- int i,imax,loc_i,loc_iv;
+ int i,imax,loc_i,loc_iv,junk;
  double rho;
 
  for (inode_box=0; inode_box < Nnodes_box; inode_box++) {
@@ -425,8 +425,8 @@ void pre_calc_dphi_drb_rb1(struct RB_Struct *dphi_drb,
 
        if (Matrix_fill_flag != 4){
           for (idim = 0; idim<Ndim; idim++) {
-            rb2v[idim] = x[junk+Nrho_bar_s+idim][inode_box]
-            rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][inode_box]
+            rb2v[idim] = x[junk+Nrho_bar_s+idim][inode_box];
+            rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][inode_box];
           }
        }
        else{
@@ -559,7 +559,7 @@ void pre_calc_dphi_drb_rb2(struct RB_Struct *dphi_drb,
  double rb0_r=0.0,rb1_r=0.0,rb2_r=0.0,rb3_r=0.0;
  int idim, icomp, loc_inode;
  int inode_box;
- int i,imax,loc_i,loc_iv;
+ int i,imax,loc_i,loc_iv,junk;
  double rho,alpha,alpha_sq,alpha_cb,beta,gamma[3];
 
  for (inode_box=0; inode_box < Nnodes_box; inode_box++) {
@@ -572,8 +572,8 @@ void pre_calc_dphi_drb_rb2(struct RB_Struct *dphi_drb,
 
        if (Matrix_fill_flag != 4){
           for (idim = 0; idim<Ndim; idim++) {
-            rb2v[idim] = x[junk+Nrho_bar_s+idim][inode_box]
-            rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][inode_box]
+            rb2v[idim] = x[junk+Nrho_bar_s+idim][inode_box];
+            rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][inode_box];
           }
        }
        else{
@@ -781,7 +781,7 @@ static struct RB_Struct d2phi_drb2_delta_rb(int junk, int jnode_box,double **x,
 /* d2phi_drb2_delta2_rb:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                 for the dphi_drb that use Delta_Fn Stencils (all but S3) */
 
-static struct RB_Struct d2phi_drb2_delta2_rb(int junk, int jnode_box,double *x, 
+static struct RB_Struct d2phi_drb2_delta2_rb(int junk, int jnode_box,double **x, 
 					     double weight, int *offset, double *sign,
 					     double inv_rad, double inv_4pir, 
 					     double inv_4pirsq)

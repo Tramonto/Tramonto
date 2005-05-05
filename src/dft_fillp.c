@@ -33,7 +33,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
   * Local variable declarations
   */
 
-  int     i, j, iunk,unk_GQ,unk_B,iunk_start,iunk_end;
+  int     i, j, iunk,unk_GQ,unk_B,iunk_start,iunk_end,iloop;
   int     reflect_flag[3],junk;
   int     izone, mesh_coarsen_flag_i;
   int     loc_i, loc_inode, itype_mer;
@@ -44,12 +44,12 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
   double nodepos[3];
  
   double gint_tmp;
-  int ipol,iseg;
+  int ipol,iseg,numEntries,unkIndex[2];
   int boltz_pow,boltz_pow_J;
   double fac1,fac2;
   int jbond,unk_GQ_j,node_start;
 
-  double  resid_tmp=0.0;
+  double  resid_tmp=0.0,resid,mat_val,values[2];
 
   /* the 6 offset patterns for nearest neighbors */
   int offset_idim_pm[18] = {1,0,0,  0,1,0,  0,0,1,  -1,0,0,  0,-1,0,  0,0,-1};
@@ -65,8 +65,6 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
   if (Sten_Type[POLYMER_GAUSS]) sten=POLYMER_GAUSS;
   else                          sten=DELTA_FN;
 
- /* if (Proc==0 && Iwrite == VERBOSE)  fp31 = fopen ("resid.out","w");*/
-
   if (unk_flag == NODAL_FLAG){
       iunk_start = 0;
       iunk_end = Nunk_per_node;
@@ -78,7 +76,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
 
   /* Load residuals and matrix */
 
-  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {    /*************/
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {    
 
     /* convert local node to global */
 
@@ -88,7 +86,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
     if (Mesh_coarsening && Nwall_type >0) mesh_coarsen_flag_i = Mesh_coarsen_flag[inode_box];
     else                                  mesh_coarsen_flag_i = 0;
 
-    for (iunk=iunk_start; iunk<iunk_end; iunk++) {                /*************/
+    for (iunk=iunk_start; iunk<iunk_end; iunk++) {               
 
     resid_B=0.0;resid_R=0.0;resid_G=0.0;resid_P=0.0;
 
@@ -115,8 +113,8 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
       else if (mesh_coarsen_flag_i < 0) {                   /*DO COARSENED MESH FILL*/
 
          resid= x[iunk][inode_box];
-         mat_value=1.0;
-         dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);    
+         mat_val=1.0;
+         dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);    
 
          for (iloop=0;iloop<2;iloop++){
 
@@ -127,8 +125,8 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
   
           if (jnode_box >= 0) {
              resid= - 0.5*x[iunk][jnode_box];
-             mat_value=-0.5;
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,jnode_box,mat_value);
+             mat_val=-0.5;
+             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,jnode_box,mat_val);
           }
           else{  resid= - 0.5*constant_boundary(iunk,jnode_box); }
         }
@@ -303,6 +301,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                      dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
                      dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
                    }
+
                   /* Now Finish loading the Jacobian... */
                   gint_tmp = load_polymer_G(sten,iunk,loc_inode,inode_box,unk_B,itype_mer,izone,ijk_box,x);
                   resid_G += gint_tmp;
@@ -310,9 +309,9 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                      mat_val = gint_tmp / boltz;
                      dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
                   }
+
                }
              }
-
          }                                  /* END G EQNS */
                /**************************************************************/
          else if (Unk2Phys[iunk] == POISSON){ /* LOAD POISSON'S EQUATION*/
@@ -324,17 +323,15 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
             printf("Problem with unknowns in fill !!!\n");
             exit (-1);
          }
-      }     /* end of else (not Zero_density and mesh_coarsen_flag_i >= 0) */
+      }      /* end of else (not Zero_density and mesh_coarsen_flag_i >= 0) */
 
 /*     if (fabs(resid[loc_i])>.000001 && resid_P != 0. ){
        printf("loc_inode=%d : iunk %d : resid_B %g : resid_R %g : resid_G %g : resid_P %g \n",
                loc_inode,iunk,resid_B,resid_R,resid_G,resid_P);
        printf("\n");
-*/
-     }
-  
-    } /* end of loop over # of unknowns per node */
+     } */
 
+    } /* end ofloop over number of unknowns per node */
   } /* end of loop over local nodes */
   return;
 }
@@ -455,7 +452,6 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
         }
      }
   }
-
   return(resid_sum);
 }
 /*****************************************************************************/
@@ -470,7 +466,7 @@ double load_polymer_cr(int sten_type,int iunk,int loc_inode,int inode_box,int it
   struct Stencil_Struct *sten;
 
   double sign,resid_sum,resid,mat_val;
-  int jtype_mer, jlist;
+  int jtype_mer, jlist,junk;
   int reflect_flag[NDIM_MAX];
   int jnode_box,node_start;
 
