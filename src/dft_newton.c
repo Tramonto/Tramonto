@@ -27,6 +27,7 @@
 
 #include "dft_globals_const.h" 
 #include "rf_allo.h"
+#include "dft_c2cpp_wrappers.h"
 
 static void print_resid_norm(int iter);
 void fill_test(double **x, int flag);
