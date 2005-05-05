@@ -33,8 +33,6 @@ Questions? Contact Michael A. Heroux (maherou@sandia.gov)
 #define DFT_C2CPP_WRAPPERS_H
 #include <mpi.h>
 
-#include "dft_SolverManager.hpp"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

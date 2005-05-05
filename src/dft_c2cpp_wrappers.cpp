@@ -29,6 +29,7 @@
 
 
 #include "dft_c2cpp_wrappers.h"
+#include "dft_SolverManager.hpp"
 
 #ifdef __cplusplus
 extern "C" {
