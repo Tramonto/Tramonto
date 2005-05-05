@@ -27,7 +27,7 @@
 
 #include "dft_globals_const.h" 
 #include "rf_allo.h"
-#include "dft_c2cpp_wrappers.h"
+/*#include "dft_c2cpp_wrappers.h"*/
 
 static void print_resid_norm(int iter);
 void fill_test(double **x, int flag);
@@ -113,8 +113,8 @@ int newton_solver(double** x, void* con_ptr) {
     (void) dft_solvermanager_initializeproblemvalues(Solver_manager);
 
     /* Call Matrix and Residual Fill routine, resid_only_flag=FALSE)*/
-    /*fill_resid_and_matrix_control(x, FALSE); */
-    fill_test(x, FALSE);
+    fill_resid_and_matrix_control(x, iter,FALSE); 
+    /*fill_test(x, FALSE);*/
 
     (void) dft_solvermanager_finalizeproblemvalues(Solver_manager);
     if (Iwrite != NO_SCREEN) print_resid_norm(iter);

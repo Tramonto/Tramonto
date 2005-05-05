@@ -38,7 +38,7 @@
 #endif
 
 #include "az_aztec.h"
-/*#include "dft_c2cpp_wrappers.h"*/
+#include "dft_c2cpp_wrappers.h"
 
 /****************************************************************************/
 /* Machine specific definitions */

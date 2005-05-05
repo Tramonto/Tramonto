@@ -64,7 +64,8 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
   double  sign[3];
   struct  RB_Struct tmp;
   double resid,mat_val,resid_sum=0.0;
-  int numEntries, values[4],indexUnks[4];
+  int numEntries, indexUnks[4];
+  double values[4];
 
   jzone = find_jzone(izone);
 
@@ -164,7 +165,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
                else    tmp = d2phi_drb2_theta2_rb(junk,jnode_boxJ,x,weightJ,offsetJ);
             }
             numEntries=4;
-            values[0]=tmp.S3; values[1]=tmp.S2; values[2]=tmp.S1;values[3]=tmp.S0;
+            values[0]=tmp.S3; values[1]=tmp.S2; values[2]=tmp.S1; values[3]=tmp.S0;
             indexUnks[0]=junk; indexUnks[1]=junk+1; indexUnks[2]=junk+2; indexUnks[3]=junk+3;
             dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
                                                    indexUnks, jnode_boxJ, values, numEntries);
