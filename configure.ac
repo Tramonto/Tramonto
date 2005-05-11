@@ -115,14 +115,14 @@ dnl check for blas library
 dnl
 AC_LANG_FORTRAN77
 AC_SEARCH_LIBS( [idamax], 
-                [blas dxml cxml csmath complib.sgimath aztec],,
+                [blas dxml cxml csmath complib.sgimath],,
                 [AC_MSG_FAILURE([Cannot link to blas library functions.])] )
 
 dnl
 dnl check for lapack library
 dnl
 AC_SEARCH_LIBS( [DGETRF], 
-                [lapack dxml cxml csmath complib.sgimath aztec],,
+                [lapack dxml cxml csmath complib.sgimath],,
                 [AC_MSG_FAILURE([Cannot link to lapack library functions.])] )
 
 dnl
@@ -131,9 +131,9 @@ dnl
 AC_LANG_CPLUSPLUS
 AC_CHECK_LIB( [aztecoo], 
               [AZ_iterate],
-              [LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra ${FLIBS} $LIBS"],
+              [LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos ${FLIBS} $LIBS"],
               [AC_MSG_FAILURE([Cannot link to AztecOO library.])], 
-              [-ltriutils -lifpack -lepetraext -lepetra ${FLIBS}])
+              [-ltriutils -lifpack -lepetraext -lepetra -lteuchos ${FLIBS}])
 
 dnl
 dnl If we're not using an mpi compiler, then see if we can find

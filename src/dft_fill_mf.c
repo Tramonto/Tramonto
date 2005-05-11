@@ -83,7 +83,7 @@ double load_mean_field(int sten_type, int iunk, int loc_inode,
          else if (jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
             resid = sign*weight*constant_boundary(junk,jnode_box);
          }
-         solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+         dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
          resid_sum += resid;
 
          if (!resid_only_flag) {

@@ -3275,7 +3275,7 @@ fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 if test "$ac_cv_search_idamax" = no; then
-  for ac_lib in blas dxml cxml csmath complib.sgimath aztec; do
+  for ac_lib in blas dxml cxml csmath complib.sgimath; do
     LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
     cat >conftest.$ac_ext <<_ACEOF
       program main
@@ -3374,7 +3374,7 @@ fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 if test "$ac_cv_search_DGETRF" = no; then
-  for ac_lib in lapack dxml cxml csmath complib.sgimath aztec; do
+  for ac_lib in lapack dxml cxml csmath complib.sgimath; do
     LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
     cat >conftest.$ac_ext <<_ACEOF
       program main
@@ -3443,7 +3443,7 @@ if test "${ac_cv_lib_aztecoo_AZ_iterate+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra ${FLIBS} $LIBS"
+LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos ${FLIBS} $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -3502,7 +3502,7 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_aztecoo_AZ_iterate" >&5
 echo "${ECHO_T}$ac_cv_lib_aztecoo_AZ_iterate" >&6
 if test $ac_cv_lib_aztecoo_AZ_iterate = yes; then
-  LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra ${FLIBS} $LIBS"
+  LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos ${FLIBS} $LIBS"
 else
   { { echo "$as_me:$LINENO: error: Cannot link to AztecOO library.
 See \`config.log' for more details." >&5
