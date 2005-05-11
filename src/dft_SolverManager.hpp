@@ -290,6 +290,8 @@ private:
   }
 	     
   int numUnknownsPerNode_;
+  int * solverOptions_;
+  double * solverParams_;
   int numOwnedNodes_;
   int numBoxNodes_;
   int numGlobalNodes_;

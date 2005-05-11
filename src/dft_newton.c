@@ -44,7 +44,7 @@ int solve_problem(double **x, double **x2)
   double **xOwned;
 
   /* Construct dft_SolverManager with information on number of unknowns*/
-  Solver_manager = dft_solvermanager_create(Nunk_per_node, Unk2Phys, NULL, NULL, MPI_COMM_WORLD);
+  Solver_manager = dft_solvermanager_create(Nunk_per_node, Unk2Phys, Aztec.options, Aztec.params, MPI_COMM_WORLD);
 
   /* Give Nodal Row and Column maps */
   (void) dft_solvermanager_setnodalrowmap(Solver_manager, Nnodes_per_proc, L2G_node);

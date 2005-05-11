@@ -44,6 +44,8 @@
 //=============================================================================
 dft_SolverManager::dft_SolverManager(int numUnknownsPerNode, int * unknownToPhysicsType, int * solverOptions, double * solverParams, MPI_Comm comm) 
   : numUnknownsPerNode_(numUnknownsPerNode),
+    solverOptions_(solverOptions),
+    solverParams_(solverParams),
     numOwnedNodes_(0),
     numBoxNodes_(0),
     numGlobalNodes_(0),
@@ -75,7 +77,7 @@ int dft_SolverManager::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx, int
   comm_.SumAll(&numOwnedNodes_, &numGlobalNodes_, 1);
 
   ownedMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes, GIDs, 0, comm_));
-  std::cout << " Owned Map" << *ownedMap_.get() << std::endl;
+  //std::cout << " Owned Map" << *ownedMap_.get() << std::endl;
   return(0);
 }
 //=============================================================================
@@ -84,7 +86,7 @@ int dft_SolverManager::setNodalColMap(int numBoxNodes, int * GIDs, int nx, int n
   numBoxNodes_ = numBoxNodes;
 
   boxMap_ = Teuchos::rcp(new Epetra_Map(-1, numBoxNodes, GIDs, 0, comm_));
-  std::cout << " Box Map" << *boxMap_.get() << std::endl;
+  //std::cout << " Box Map" << *boxMap_.get() << std::endl;
 
   return(0);
 }
@@ -109,7 +111,7 @@ int dft_SolverManager::finalizeBlockStructure() {
 
   globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, globalGIDList.Values(), 0, comm_));
 
-  std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl;
+  //std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl;
 
   globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
@@ -175,7 +177,7 @@ int dft_SolverManager::finalizeProblemValues() {
   globalMatrix_->FillComplete();
   globalMatrix_->OptimizeStorage();
 
-  std::cout << *globalMatrix_.get();
+  //std::cout << *globalMatrix_.get();
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -235,7 +237,9 @@ int dft_SolverManager::getRhs(double ** b) const {
 int dft_SolverManager::setupSolver() {
 
   solver_ = Teuchos::rcp(new AztecOO(*(globalProblem_.get())));
-  solver_->SetAztecOption(AZ_solver, AZ_gmres);
+  solver_->SetAllAztecOptions(solverOptions_);
+  solver_->SetAllAztecParams(solverParams_);
+  //solver_->SetAztecOption(AZ_solver, AZ_gmres);
   //solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
   //solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
   //solver_->SetAztecParam(AZ_ilut_fill, 4.0);
@@ -246,7 +250,7 @@ int dft_SolverManager::setupSolver() {
 //=============================================================================
 int dft_SolverManager::solve() {
   
-  solver_->Iterate(200, 1.0E-8); // Try to solve
+  solver_->Iterate(solverOptions_[AZ_max_iter], solverParams_[AZ_tol]); // Try to solve
   return(0);
 }
 //=============================================================================
