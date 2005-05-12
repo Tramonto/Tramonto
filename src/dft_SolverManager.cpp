@@ -141,7 +141,7 @@ int dft_SolverManager::initializeProblemValues() {
 int dft_SolverManager::insertRhsValue(int ownedPhysicsID, int ownedNode, double value) {
 
   int rhsLID = ownedToSolverLID(ownedPhysicsID, ownedNode); // Get solver LID
-  (*globalRhs_)[rhsLID] = value;
+  (*globalRhs_)[rhsLID] += value;
   return(0);
 }
 //=============================================================================
