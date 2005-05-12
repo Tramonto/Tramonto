@@ -190,12 +190,13 @@ static void print_resid_norm(int iter)
   f = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   dft_solvermanager_getrhs(Solver_manager, f);
 
-  for (iunk=0; iunk<Nunk_per_node; iunk++) {
-    for (j=0; j< Nnodes_per_proc; j++) {
+  for (j=0; j< Nnodes_per_proc; j++) {
+    for (iunk=0; iunk<Nunk_per_node; iunk++) {
        norm += f[iunk][j] * f[iunk][j];
+/*       printf("%d %d %d %9.6f %9.6f\n",j*Nunk_per_node+iunk,j,iunk,f[iunk][j],norm);*/
     }
   }
-  norm = gsum_int(norm);
+  norm = gsum_double(norm);
   if (Proc==0) printf("\t\tResidual norm at iteration %d = %g\n",iter, sqrt(norm));
 }
 /*****************************************************************************************************/

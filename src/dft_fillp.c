@@ -178,6 +178,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
               values[0]=x[iunk][inode_box]; values[1]=x[unk_B][inode_box];
               unkIndex[0]=unk_B; unkIndex[1]=iunk;
               numEntries=2;
+              dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
               dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
                                                    unkIndex, inode_box, values, numEntries);
             }
