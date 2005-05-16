@@ -69,11 +69,9 @@ int solve_problem(double **x, double **x2)
   }
   safe_free((void **) &xOwned);
 
-#ifdef LOCA_REIMPLEMENTED
   if (Loca.method != -1)
-    iter = solve_continuation(x, x2, Sten_Type[POLYMER_CR], aux_info);
+    iter = solve_continuation(x, x2);
   else
-#endif
      iter = newton_solver(x, NULL);
 
   /* Call the destructor for the dft_SolverManager */
@@ -124,8 +122,12 @@ int newton_solver(double** x, void* con_ptr) {
     /* I am assuming getLhs returns box coordinates (e.g. Column Map)!! */
     (void) dft_solvermanager_getlhs(Solver_manager, delta_x);
     
+    if (con_ptr != NULL) converged2 =
+      continuation_hook_conwrap(x, delta_x, con_ptr, Newton_rel_tol, Newton_abs_tol);
+
     /* Do: x += delta_x, and check for convergence */
     converged = update_solution(x, delta_x, iter);
+
 
   } while (iter < Max_Newton_iter && (!converged || !converged2));
 
@@ -136,7 +138,7 @@ int newton_solver(double** x, void* con_ptr) {
   else
     printf("\tNewton Solver: Successful convergence in %d iterations\n",iter);
 
-  safe_free((void *) &delta_x);
+  safe_free((void **) &delta_x);
   return iter;
 }
 
@@ -193,9 +195,10 @@ static void print_resid_norm(int iter)
   for (j=0; j< Nnodes_per_proc; j++) {
     for (iunk=0; iunk<Nunk_per_node; iunk++) {
        norm += f[iunk][j] * f[iunk][j];
-/*       printf("%d %d %d %9.6f %9.6f\n",j*Nunk_per_node+iunk,j,iunk,f[iunk][j],norm);*/
     }
   }
+
+  safe_free((void **) &f);
   norm = gsum_double(norm);
   if (Proc==0) printf("\t\tResidual norm at iteration %d = %g\n",iter, sqrt(norm));
 }

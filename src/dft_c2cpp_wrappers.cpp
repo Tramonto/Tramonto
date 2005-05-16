@@ -131,6 +131,11 @@ extern "C" {
     return(solvermanager_->solve());
   }
 
+  int dft_solvermanager_applymatrix(void * solvermanager, double**x, double** b) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->applyMatrix((const double**) x,b));
+  }
+
   int dft_solvermanager_importr2c(void * solvermanager, double** x, double **b) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     return(solvermanager_->importR2C((const double**) x,b));

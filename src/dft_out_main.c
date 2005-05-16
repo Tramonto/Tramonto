@@ -174,8 +174,6 @@ void post_process (double **x,char *output_file3,int *niters,
       fclose(fp);
    }
 
-   safe_free((void *) &x);
-
    if (Proc==0 && Iwrite !=NO_SCREEN) printf("post processing took %g secs\n",MPI_Wtime()-t1);
 }
 /***************************************************************************/

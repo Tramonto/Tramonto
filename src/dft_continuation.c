@@ -82,6 +82,7 @@
 
 /* Put include statements for your code here. */
 #include "dft_globals_const.h"
+#include "dft_c2cpp_wrappers.h"
 #include "rf_allo.h"
 
 /*****************************************************************************/
@@ -105,38 +106,51 @@ double epswf_previous; /* Save old value of Eps_wf for rescaling external field*
 double epsff_previous; /* Save old value of Eps_ff for rescaling stencils */
 double temp_previous; /* Save old value of Temp for rescaling external field*/
 double chg_scale_previous;
-int    polymer_flag;  /* Flag for calling polymer vs.regular fill*/
+double **xBox;
+double **xOwned;
+double **zerovec;
 } passdown;
 
 static double get_init_param_value(int cont_type);
 static void print_final(double param, int step_num);
+static void translate_2dBox_1dOwned(double **xBox, double *x);
+static void translate_1dOwned_2dBox(double *x, double **xBox);
 
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 
-int solve_continuation( double *x, double *x2, int polymer_flag, void * aux_info)
+int solve_continuation( double **xx, double **xx2)
 
 /* Interface routine to the continuation library.
  */
 {
-
-  /* Define 2 continuation structures */
   struct con_struct con;
+  int nstep=0, i, j;
+  double *x, *x2;
 
-  /* Local Variables */
-  int nstep=0;
 
   /******************************* First Executable Statment *****************/
+
+  /* xOwned and xBox are always temp storage space */
+  passdown.xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
+  passdown.xBox   = (double **) array_alloc(2, Nunk_per_node, Nnodes_box,      sizeof(double));
+  passdown.zerovec= (double **) array_alloc(2, Nunk_per_node, Nnodes_box,      sizeof(double));
+  x               = (double * ) array_alloc(1, Nunk_per_node*Nnodes_per_proc,  sizeof(double));
+
+  /* Translate from 2d to 1d data structure */
+  translate_2dBox_1dOwned(xx, x);
+
+  if (con.general_info.method==PHASE_TRANSITION_CONTINUATION) {
+    x2              = (double * ) array_alloc(1, Nunk_per_node*Nnodes_per_proc,  sizeof(double));
+    translate_2dBox_1dOwned(xx2, x2);
+  }
 
   /* 
    * Set passdown structure -- variables needed in the argument
    * lists to wrapped routines but not needed in the continuation
    * library.
    */
-
-
-   passdown.polymer_flag = polymer_flag;
 
   /*
    * Fill all the necessary information into the 'con' structure
@@ -165,8 +179,8 @@ int solve_continuation( double *x, double *x2, int polymer_flag, void * aux_info
 
   con.general_info.param        = get_init_param_value(Loca.cont_type1);
   con.general_info.x            = x;
-  con.general_info.numUnks      = Nunk_int_and_ext;
-  con.general_info.numOwnedUnks = Aztec.N_update;
+  con.general_info.numUnks      = Nunk_per_node*Nnodes_per_proc;
+  con.general_info.numOwnedUnks = Nunk_per_node*Nnodes_per_proc;
   if (Proc==0) {
      switch (Iwrite) {
 	     case NO_SCREEN: con.general_info.printproc = 0; break;
@@ -246,7 +260,22 @@ int solve_continuation( double *x, double *x2, int polymer_flag, void * aux_info
 
   /* Now call continuation library and return */
 
-  nstep = con_lib(&con, aux_info);
+  nstep = con_lib(&con, NULL);
+
+
+  /*****  Clean Up ********/
+  /* Load final solutions back into original memory location */
+  translate_1dOwned_2dBox(x, xx);
+  if (con.general_info.method==PHASE_TRANSITION_CONTINUATION)
+      translate_1dOwned_2dBox(x2, xx2);
+
+  /* Free temporary memory */
+  safe_free((void **) &passdown.xOwned);
+  safe_free((void **) &passdown.xBox);
+  safe_free((void **) &passdown.zerovec);
+  safe_free((void **) &x);
+  if (con.general_info.method==PHASE_TRANSITION_CONTINUATION)
+    safe_free((void **) &x2);
 
   if (con.general_info.printproc) print_final(con.general_info.param, nstep);
 
@@ -275,9 +304,12 @@ int nonlinear_solver_conwrap(double *x, void *con_ptr, int step_num,
  */
 {
   int num_its;
-  double t=0; /* dumm spot with solve time returned */
 
-  num_its = newton_solver(x, NULL, NULL, con_ptr, Max_Newton_iter, &t, aux_info);
+  translate_1dOwned_2dBox(x, passdown.xBox);
+
+  num_its = newton_solver(passdown.xBox, con_ptr);
+
+  translate_2dBox_1dOwned(passdown.xBox, x);
 
   return (num_its);
 }
@@ -308,59 +340,28 @@ int linear_solver_conwrap(double *x, int jac_flag, double *tmp)
  *    Negative value means linear solver didn't converge.
  */
 {
-  double *x_tmp;
   int i;
 
-  x_tmp = (double *) array_alloc(1, Nunk_int_and_ext, sizeof(double));
-  for (i=0; i< Nunk_int_and_ext; i++) x_tmp[i] = 0.0;
+  translate_1dOwned_2dBox(x, passdown.xBox);
+  (void) dft_solvermanager_setrhs(Solver_manager, passdown.xBox);
 
   if (jac_flag == OLD_JACOBIAN || jac_flag == CHECK_JACOBIAN) {
-
     /* reuse the preconditioner for this same matrix */
-    Aztec.options[AZ_pre_calc] = AZ_reuse;
-
+    /*Aztec.options[AZ_pre_calc] = AZ_reuse;*/
   }
   else if (jac_flag == SAME_BUT_UNSCALED_JACOBIAN) {
-
-    /* This option is for when the matrix is the same as the last
-     * solve but it has been recalculated. Therfore it must be
-     * rescaled.
-     */
-
-     /* Currently, reuse preconditioner if there was no scaling,  */
-     /* otherwise recomput it                                     */
-
-     if (Aztec.options[AZ_scaling] == AZ_none) {
-         Aztec.options[AZ_pre_calc] = AZ_reuse;
-
-     /* In future, use AZ_MATRIX structure and switch to this coding */
-
-/**
-     scaling = AZ_scaling_create();
-     AZ_scale_f(AZ_SCALE_MAT_RHS_SOL, m, passdown.options, tmp, NULL,
-                passdown.proc_config, scaling);
-     AZ_scaling_destroy(&scaling);
-
-     Aztec.options[AZ_pre_calc] = AZ_reuse;
-**/
-
-    }
   }
   else if (jac_flag != NEW_JACOBIAN) {
     printf("ERROR: linear solve conwrap: unknown flag value %d\n",jac_flag);
     exit(-1);
   }
 
+ (void) dft_solvermanager_setupsolver(Solver_manager);
+ (void) dft_solvermanager_solve(Solver_manager);
+ (void) dft_solvermanager_getlhs(Solver_manager, passdown.xBox);
 
-  AZ_solve(x_tmp, x, Aztec.options, Aztec.params, NULL, Aztec.bindx,
-           NULL, NULL, NULL, Aztec.val, Aztec.data_org, Aztec.status,
-           Aztec.proc_config);
+ translate_2dBox_1dOwned(passdown.xBox, x);
 
-  for (i=0; i< Nunk_int_and_ext; i++) x[i] = x_tmp[i];
-  safe_free((void *) &x_tmp);
- 
-  Aztec.options[AZ_pre_calc] = AZ_calc;
- 
   return 0;
 }
 /*****************************************************************************/
@@ -390,19 +391,35 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
  * Return Value:
  */
 {
-  int i, resid_only_flag;
+  int i, j, resid_only_flag;
   double l2_resid;
 
-  if (matflag == RHS_ONLY || matflag == RHS_MATRIX_SAVE) resid_only_flag = TRUE;
-  else                     resid_only_flag = FALSE;
+  if (matflag == RHS_ONLY || matflag == RHS_MATRIX_SAVE) {
+      resid_only_flag = TRUE;
+      (void) dft_solvermanager_setrhs(Solver_manager, passdown.zerovec);
+  }
+  else { 
+      resid_only_flag = FALSE;
+      (void) dft_solvermanager_initializeproblemvalues(Solver_manager);
+  }
+
 
   /*fill_time not currently plugged in, iter hardwire above 2 */
-  fill_resid_and_matrix_control(x, rhs, NULL, NULL, Matrix_fill_flag,
-                                                 4, resid_only_flag);
+  translate_1dOwned_2dBox(x, passdown.xBox);
+
+  fill_resid_and_matrix_control(passdown.xBox, 0, resid_only_flag);
+  (void) dft_solvermanager_finalizeproblemvalues(Solver_manager);
+
+  (void) dft_solvermanager_getrhs(Solver_manager, passdown.xOwned);
+   for (i=0; i<Nunk_per_node; i++)
+     for (j=0; j<Nnodes_per_proc; j++)
+/* NOTE NEGATIVE SIGN TO FIT CONVENTION !!!! */
+       rhs[i*Nnodes_per_proc + j] = -passdown.xOwned[i][j];
+
 
   /* calculate and print resid norm */
   l2_resid=0.0;
-  for (i=0; i<Aztec.N_update; i++) l2_resid += rhs[i]*rhs[i];
+  for (i=0; i<Nunk_per_node*Nnodes_per_proc; i++) l2_resid += rhs[i]*rhs[i];
 
   l2_resid= sqrt(gsum_double_conwrap(l2_resid));
   if (Proc==0) printf("\t\tNorm of resid vector = %g\n", l2_resid);
@@ -422,9 +439,14 @@ void matvec_mult_conwrap(double *x, double *y)
  * Return Value:
  */
 {
+  int i,j;
 
- AZ_matvec_mult(Aztec.val, NULL, Aztec.bindx,NULL,
-		NULL, NULL, x, y, 1, Aztec.data_org);
+  translate_1dOwned_2dBox(x, passdown.xBox);
+  (void) dft_solvermanager_applymatrix(Solver_manager,passdown.xBox, passdown.xOwned);
+
+   for (i=0; i<Nunk_per_node; i++)
+     for (j=0; j<Nnodes_per_proc; j++)
+       y[i*Nnodes_per_proc + j] = passdown.xOwned[i][j];
 
 }
 /*****************************************************************************/
@@ -834,7 +856,6 @@ void assign_parameter_tramonto(int cont_type, double param)
            safe_free((void *) &Comm_unk_proc);
            safe_free((void *) &Comm_offset_node);
            safe_free((void *) &Comm_offset_unk);
-           safe_free((void *) &Aztec.update);
            output_file2 = "dft_vext.dat";
            output_TF = "dft_zeroTF.dat";
            set_up_mesh(output_file1,output_file2);
@@ -1014,12 +1035,6 @@ void calc_scale_vec_conwrap(double *x, double *scale_vec, int numUnks)
   for (i=0; i<numUnks; i++) scale_vec[i] = 1.0;
   /*for (i=0; i<numUnks; i++) scale_vec[i] = 1.0/ (sqrt(fabs(x[i])) + 1.0e-5);*/
 
-/* Scale vector using Rho_bulk seems to make things worse
-  for (i=0; i<Aztec.N_update/Nunk_per_node; i++) 
-    for (j=0; j<Ncomp; j++) 
-      scale_vec[Aztec.update_index[i*Nunk_per_node + Phys2Unk_first[DENSITY]+j]] = 1.0/Rho_b[j];
-*/
-
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -1071,7 +1086,9 @@ void random_vector_conwrap(double *x, int numOwnedUnks)
  * Used by eigensolver only
  */
 {
-  AZ_random_vector(x, Aztec.data_org, Aztec.proc_config);
+  int i;
+  printf("\tWARNING: random_vector_conwrap just filling vec with constant\n");
+  for (i=0; i<numOwnedUnks; i++) x[i] = 0.5;
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -1133,14 +1150,12 @@ void solution_output_conwrap(int num_soln_flag, double *x, double param,
  */
 {
   char *output_file3 = "dft_output.dat";
-  double time_save=0, *x_internal;
+  double time_save=0;
   int i;
 
-  x_internal = (double *) array_alloc(1, Aztec.N_update, sizeof(double));
+  translate_1dOwned_2dBox(x, passdown.xBox);
 
-  for (i=0; i<Aztec.N_update; i++) x_internal[i] = x[Aztec.update_index[i]];
-
-  post_process(x_internal, output_file3, &num_its, &time_save, 
+  post_process(passdown.xBox, output_file3, &num_its, &time_save, 
                step_num, FALSE);
 
   /* Print second solution for Phase Trans, but not Spinodal tracking */
@@ -1148,13 +1163,11 @@ void solution_output_conwrap(int num_soln_flag, double *x, double param,
   if (num_soln_flag == 2 
      && con->general_info.method == PHASE_TRANSITION_CONTINUATION) {
 
-    for (i=0; i<Aztec.N_update; i++) x_internal[i] = x2[Aztec.update_index[i]];
+    translate_1dOwned_2dBox(x2, passdown.xBox);
 
-    post_process(x_internal, output_file3, &num_its, &time_save, 
+    post_process(passdown.xBox, output_file3, &num_its, &time_save, 
                  step_num, TRUE);
   }
-
-  safe_free((void *) &x_internal);
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -1176,14 +1189,20 @@ double free_energy_diff_conwrap(double *x, double *x2)
   setup_integrals();
 
   if (!Sten_Type[POLYMER_CR]){
-    energy1 = calc_free_energy(NULL,x,1.0,1.0,FALSE);
-    energy2 = calc_free_energy(NULL,x2,1.0,1.0,FALSE);
+    translate_1dOwned_2dBox(x, passdown.xBox);
+    energy1 = calc_free_energy(NULL,passdown.xBox,1.0,1.0,FALSE);
+
+    translate_1dOwned_2dBox(x2, passdown.xBox);
+    energy2 = calc_free_energy(NULL,passdown.xBox,1.0,1.0,FALSE);
   }
   else {
-    calc_adsorption(NULL,x,1.0,1.0);
-    energy1=calc_free_energy_polymer(NULL,x,1.0,1.0);
-    calc_adsorption(NULL,x2,1.0,1.0);
-    energy2=calc_free_energy_polymer(NULL,x2,1.0,1.0);
+    translate_1dOwned_2dBox(x, passdown.xBox);
+    calc_adsorption(NULL,passdown.xBox,1.0,1.0);
+    energy1=calc_free_energy_polymer(NULL,passdown.xBox,1.0,1.0);
+
+    translate_1dOwned_2dBox(x2, passdown.xBox);
+    calc_adsorption(NULL,passdown.xBox,1.0,1.0);
+    energy2=calc_free_energy_polymer(NULL,passdown.xBox,1.0,1.0);
   }
 
   safe_free((void *)&Nel_hit);
@@ -1283,3 +1302,46 @@ static void print_final(double param, int step_num)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+static void translate_1dOwned_2dBox(double *x, double **xBox) 
+{
+  int i,j;
+  for (i=0; i<Nunk_per_node; i++)
+    for (j=0; j<Nnodes_per_proc;j++)
+      passdown.xOwned[i][j] = x[i*Nnodes_per_proc + j];
+  (void) dft_solvermanager_importr2c(Solver_manager, passdown.xOwned, xBox);
+}
+
+static void translate_2dBox_1dOwned(double **xBox, double *x) 
+{
+  int i,j;
+  box2owned(xBox, passdown.xOwned);
+  for (i=0; i<Nunk_per_node; i++)
+    for (j=0; j<Nnodes_per_proc; j++)
+      x[i*Nnodes_per_proc + j] = passdown.xOwned[i][j];
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+int continuation_hook_conwrap(double **xx, double **delta_xx, void *con_ptr,
+		              double reltol, double abstol)
+{
+  int converged,i;
+  double *x, *delta_x;
+  x       = (double *) array_alloc(1, Nunk_per_node*Nnodes_per_proc,  sizeof(double));
+  delta_x = (double *) array_alloc(1, Nunk_per_node*Nnodes_per_proc,  sizeof(double));
+
+  translate_2dBox_1dOwned(xx, x);
+  translate_2dBox_1dOwned(delta_xx, delta_x);
+
+    for (i=0; i<Nunk_per_node*Nnodes_per_proc; i++) delta_x[i] *= -1.0;
+    converged = continuation_hook(x, delta_x, con_ptr, reltol, abstol);
+    for (i=0; i<Nunk_per_node*Nnodes_per_proc; i++) delta_x[i] *= -1.0;
+
+  translate_1dOwned_2dBox(x, xx);
+  translate_1dOwned_2dBox(delta_x, delta_xx);
+
+  safe_free((void **) &x);
+  safe_free((void **) &delta_x);
+
+  return converged;
+}
