@@ -143,7 +143,6 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
          if (Unk2Phys[iunk] == CMS_FIELD){             /*BOLTZMANN EQNS*/
 
              resid_B = load_polymer_cr(POLYMER_CR,iunk,loc_inode,inode_box,itype_mer,izone,ijk_box,x); 
-
              resid = Vext[loc_inode][itype_mer]+log(x[iunk][inode_box]);
              resid_B+=resid;
              dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
@@ -326,10 +325,8 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
          }
       }      /* end of else (not Zero_density and mesh_coarsen_flag_i >= 0) */
 
-/*     if (fabs(resid[loc_i])>.000001 && resid_P != 0. ){
-       printf("loc_inode=%d : iunk %d : resid_B %g : resid_R %g : resid_G %g : resid_P %g \n",
-               loc_inode,iunk,resid_B,resid_R,resid_G,resid_P);
-       printf("\n");
+/*     if (iter<3){
+       printf("%d %d %d  %9.6f %9.6f %9.6f %9.6f \n",iunk+Nunk_per_node*loc_inode,inode_box,iunk, resid_B,resid_R,resid_G,resid_P);
      } */
 
     } /* end ofloop over number of unknowns per node */

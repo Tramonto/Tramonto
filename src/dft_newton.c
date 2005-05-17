@@ -154,8 +154,29 @@ int update_solution(double** x, double** delta_x, int iter) {
  */
 
   int iunk, ibox, inode;
-  double updateNorm=0.0, temp;
+  double updateNorm=0.0, temp,frac_min,frac;
   char *yo = "newupdate solution";
+
+   /* Certain unknowns - specifically densities and Gs in CMS DFT cannot be less than 0.
+      Here we locate problems, and scale the entire update vector to prevent this from 
+      happening. */
+  for (ibox=0; ibox<Nnodes_box; ibox++) { /* find minimum update fraction in entire domain */
+    frac_min=1.0;
+    for (iunk=0; iunk<Nunk_per_node; iunk++){
+      if (Unk2Phys[iunk]==CMS_G || Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==CMS_FIELD){
+         if(x[iunk][ibox]+delta_x[iunk][ibox]<0.0){
+             frac = min(1.0,x[iunk][ibox]/(-delta_x[iunk][ibox]));
+             frac = max(frac,Min_update_frac);
+         } 
+         else frac=1.0;
+
+         if (frac<frac_min) frac_min=frac;
+      }
+    }
+    frac_min=gmin_double(frac_min);
+  }
+  if (Proc==0 && Iwrite != NO_SCREEN)
+      printf("\tUPDATE FRAC = %g percent\n",frac_min*100);
 
   for (ibox=0; ibox<Nnodes_box; ibox++) {
 
@@ -163,14 +184,26 @@ int update_solution(double** x, double** delta_x, int iter) {
     inode = B2L_node[ibox];
     if (inode != -1) {
       for (iunk=0; iunk<Nunk_per_node; iunk++) {
-        temp = delta_x[iunk][ibox]/(Newton_rel_tol*x[iunk][ibox] + Newton_abs_tol);
+        temp =(frac_min*delta_x[iunk][ibox])/(Newton_rel_tol*x[iunk][ibox] + Newton_abs_tol);
         updateNorm +=  temp*temp;
       }
     }
 
     /* Update all solution componenets */
-    for (iunk=0; iunk<Nunk_per_node; iunk++)
-      x[iunk][ibox] += delta_x[iunk][ibox];
+    for (iunk=0; iunk<Nunk_per_node; iunk++){
+      if ((Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==CMS_G || Unk2Phys[iunk]==CMS_FIELD) && 
+            x[iunk][ibox]+frac_min*delta_x[iunk][ibox] <1.e-15){
+            x[iunk][ibox]=0.1*x[iunk][ibox];
+      }
+      else if (iunk==Phys2Unk_first[RHOBAR_ROSEN] && 
+              x[iunk][ibox]+frac_min*delta_x[iunk][ibox] < 1.0){
+              x[iunk][ibox]+=0.5*(1.0-x[iunk][ibox]);
+      }
+      else{
+         x[iunk][ibox] += frac_min*delta_x[iunk][ibox];
+      }
+      if (Unk2Phys[iunk]==DENSITY && x[iunk][ibox]> Rho_max) x[iunk][ibox]=Rho_max;
+    }
   }
 
   updateNorm = sqrt(gsum_double(updateNorm));
