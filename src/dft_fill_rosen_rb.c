@@ -127,6 +127,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
        }
       }
       dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+      resid_sum+=resid;
   
     if (!resid_only_flag)
     if (isten < stenJ->Length){

@@ -268,7 +268,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                   }
                   resid = 0.5*Pol[icomp]*gradphi*gradphi*fac_temp;
                   resid_charge += resid;
-                  dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,resid);
+                  dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
                   dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
                                                        junk,nodeIndices,values,numEntries);
                 } 
@@ -397,17 +397,21 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
 /*    if (Unk2Phys[iunk]==DENSITY){
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge;
-       printf("loc_inode=%d  iunk=%d  resid_el=%9.6f  resid_hs1=%9.6f resid_hs2=%9.6f",
-                                 loc_inode,iunk,loc_i,resid_el,resid_hs1,resid_hs2);
+          printf("loc_inode=%d  iunk=%d  resid_el=%9.6f  resid_hs1=%9.6f resid_hs2=%9.6f",
+                                 loc_inode,iunk,resid_el,resid_hs1,resid_hs2);
+          printf("%d %d %9.6f %9.6f %9.6f", loc_inode,iunk,resid_el,resid_hs1,resid_hs2);
     }
-    else if (Unk2Phys[iunk]==RHOBAR_ROSEN)
-         printf("loc_inode=%d : iunk_rbar=%d resid_rhobars=%9.6f  resid_rhobarv=%9.6f ",
+    else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
+       printf("loc_inode=%d : iunk_rbar=%d resid_rhobars=%9.6f  resid_rhobarv=%9.6f ",
                  loc_inode,iunk,resid_rhobars,resid_rhobarv);
+         printf("   %d %9.6f %9.6f", iunk,resid_rhobars,resid_rhobarv);
+    }
     else if (Unk2Phys[iunk]==POISSON)   
          printf(" loc_inode=%d  iunk_poisson=%d   resid=%9.6f ", loc_inode,iunk,resid_poisson);
     else if (Unk2Phys[iunk]==DIFFUSION) 
          printf(" loc_inode=%d  iunk_diffusion=%d  resid=%9.6f",loc_inode,iunk,resid_transport);
-    printf("  \n");*/
+    printf("  \n");
+*/
 
     } /* end of loop over # of unknowns per node */
 
