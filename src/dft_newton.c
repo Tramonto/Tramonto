@@ -173,8 +173,9 @@ int update_solution(double** x, double** delta_x, int iter) {
          if (frac<frac_min) frac_min=frac;
       }
     }
-    frac_min=gmin_double(frac_min);
   }
+
+  frac_min=gmin_double(frac_min);
   if (Proc==0 && Iwrite != NO_SCREEN)
       printf("\tUPDATE FRAC = %g percent\n",frac_min*100);
 
