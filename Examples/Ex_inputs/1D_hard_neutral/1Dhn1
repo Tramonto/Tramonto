@@ -197,7 +197,7 @@
                switches to determine how output will look in dft_force file
                rho: (0 - all densities, 1=p/po, 2=kappa, 3=all betamu)
                mesh: (0=surface separations, 1=wall positions)
-@  1            IWRITE (0=MINIMAL 1=DENSITY_PROF 2=RHO_AVS 3=VERBOSE)
+@  1            IWRITE (0=MINIMAL 1=DENSITY_PROF 2=NO_SCREEN 3=VERBOSE)
 
 *********** COARSENING SWITCHES ************************************************
 @  1           Nzone (Coarsens Mesh/Jacobian by factor of 2)
@@ -211,12 +211,6 @@
                          4 =use 2nd coarsest zone in all but coarsest zone 
                          5 =use Esize_jacobian for all Jacobian integrals
 @  0   100.      Ljac_cut   Jac_threshold
-@  0             Matrix_fill_flag 
-                    0= Exact Jacobian, 
-                    1= Jac_Save1 (only rhobar2 and rhobar 3)
-                    2= Jac_Save2 (rhobar 2,3 exact: rhobar 0,1 estimated)
-                    3= Enumerated rhobar equations (all of them)
-                    4= Enumerated rhobar equations (no vector terms)
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
 @ 50             Maximum # of Newton Iterations

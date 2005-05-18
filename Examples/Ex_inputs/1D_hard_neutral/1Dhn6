@@ -3,7 +3,7 @@
 ************* MESH PARAMETERS *************************************************
 @   1 	      Ndim
 @   10.0       size_x(idim): idim=1,Ndim
-@  0.1      Esize_x(idim): idim=1,Ndim
+@  0.025      Esize_x(idim): idim=1,Ndim
 @   -1  0        Type_bc(x0,: left, right)  (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
 @   0   0        Type_bc(x1,: down, up)     (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
 @   0   0        Type_bc(x2,: back, front)  (-1=none, 0=rho_bulk, 1=pbc, 2=ref, 3=cont)
@@ -16,7 +16,7 @@
 @ 0             Lcompare_fastram
 
 ************** SURFACE PARAMETERS **********************************************
-@ 1 1 1 0 0     Nwall_types  Nwall   Nlink Lauto_center  Lauto_size
+@  1 1 1  0 0   Nwall_types  Nwall   Nlink Lauto_center  Lauto_size
 @  0            Xtest_reflect_TF[ilink=0,Nlink][idim=0,Ndim]
 @  0            Surf_type[iwall_type] ; iwall_type=0,Nwall_types
                   (0 = smooth uniform planar wall of infinite extent, 
@@ -197,13 +197,13 @@
                switches to determine how output will look in dft_force file
                rho: (0 - all densities, 1=p/po, 2=kappa, 3=all betamu)
                mesh: (0=surface separations, 1=wall positions)
-@  1            IWRITE (0=MINIMAL 1=DENSITY_PROF 2=RHO_AVS 3=VERBOSE)
+@  1            IWRITE (0=MINIMAL 1=DENSITY_PROF 2=NO_SCREEN 3=VERBOSE)
 
 *********** COARSENING SWITCHES ************************************************
-@  1           Nzone (Coarsens Mesh/Jacobian by factor of 2)
-@  0.         Rmax_zone[Nzone-1] [0.0 for complete coarsening]
-@  0            Coarsen Residual ? (0=NO, 1=YES)
-@  0  0.25      Coarser_jac; Esize_jacobian
+@  4           Nzone (Coarsens Mesh/Jacobian by factor of 2)
+@  2. 4. 5.        Rmax_zone[Nzone-1] [0.0 for complete coarsening]
+@  1            Coarsen Residual ? (0=NO, 1=YES)
+@  0  0.2      Coarser_jac; Esize_jacobian
                          0 =Jac. zones are the same as resid zones.
                          1 =coarsen finest Jacobian zone by fac of 2 
                          2 =coarsen all but coarsest zone by fac of 2
@@ -211,12 +211,6 @@
                          4 =use 2nd coarsest zone in all but coarsest zone 
                          5 =use Esize_jacobian for all Jacobian integrals
 @  0   100.      Ljac_cut   Jac_threshold
-@  1             Matrix_fill_flag 
-                    0= Exact Jacobian, 
-                    1= Jac_Save1 (only rhobar2 and rhobar 3)
-                    2= Jac_Save2 (rhobar 2,3 exact: rhobar 0,1 estimated)
-                    3= Enumerated rhobar equations (all of them)
-                    4= Enumerated rhobar equations (no vector terms)
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
 @ 50             Maximum # of Newton Iterations
