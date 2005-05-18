@@ -128,7 +128,6 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
       }
       dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
       resid_sum+=resid;
-      if (loc_inode==10) printf("isten=%d resid=%9.6f  resid_sum=%9.6f\n",isten,resid,resid_sum);
   
     if (!resid_only_flag)
     if (isten < stenJ->Length){

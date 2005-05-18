@@ -236,7 +236,7 @@ void set_fem_1el_weights(double **wt_lp_1el_ptr, double **wt_s_1el_ptr,
 double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x)
 {
 
-  int iwall,  isten, icomp,ilist,idim,junk;
+  int iwall,  isten, icomp,ilist,idim,junk,junkP;
   int iln, jln, elem, offset[3], el_box;
   int nodes_volm_el, nodes_surf_el, junk2[3];
   int in_wall,numEntries, nodeIndices[2];
@@ -309,7 +309,7 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
              /*
               * add in Laplace term
               */
-             junk = Phys2Unk_first[POISSON];
+             junkP = Phys2Unk_first[POISSON];
              if (jnode_box >= 0){  /* new flag for boundaries */
                    in_wall=TRUE;
                    for (icomp=0; icomp<Ncomp; icomp++){
@@ -320,17 +320,17 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
                          to zero, but leave code as place holder. */
                       pol_wall=(KAPPA_H2O-1.0);
                       pol_wall=0.0;
-                      resid = (1.0+pol_wall)*wt_lp_1el[isten]*x[junk][jnode_box];
+                      resid = (1.0+pol_wall)*wt_lp_1el[isten]*x[junkP][jnode_box];
                       mat_val = (1.0+pol_wall)*wt_lp_1el[isten];
                    }
                    else{
-                      resid = wt_lp_1el[isten]*x[junk][jnode_box];
+                      resid = wt_lp_1el[isten]*x[junkP][jnode_box];
                       mat_val = wt_lp_1el[isten];
                    }
                    resid_sum+=resid;
                    dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
                    dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
-                                                               junk,jnode_box,mat_val);
+                                                               junkP,jnode_box,mat_val);
              }
 
              /* 
@@ -436,7 +436,7 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
   /* static variables keep their value for every time the function is called*/
   static double *wt_lp_1el, *wt_s_1el;
   static int   **elem_permute, off_ref[2][2] = { {0,1}, {-1,0}};
-  int jnode_box,junk;
+  int jnode_box,junk,junkP;
   int reflect_flag[3];
   double resid,mat_val,resid_sum=0.0;
 
@@ -476,7 +476,7 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
                dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
            }
 
-           junk=Phys2Unk_first[POISSON];
+           junkP=Phys2Unk_first[POISSON];
            for (jln=0; jln< Nnodes_per_el_V; jln++) {
 
             /* 
@@ -500,11 +500,11 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
               * add in Laplace term
               */
              if (jnode_box >= 0){  /* new flag for boundaries */
-                   resid = Dielec[el_box]*wt_lp_1el[isten]*x[junk][jnode_box];
+                   resid = Dielec[el_box]*wt_lp_1el[isten]*x[junkP][jnode_box];
                    mat_val = Dielec[el_box]*wt_lp_1el[isten];
                    dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
                    dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,
-                                                               junk,jnode_box,mat_val);
+                                                               junkP,jnode_box,mat_val);
                    resid_sum+=resid;
              }
 
