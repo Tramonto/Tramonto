@@ -183,7 +183,7 @@ void calc_stencils(void)
         el_in_radius[i] = (int) ((float)sten_rad/(float) esize_zone[i] + 0.999);
         max_sten_nodes *= 2 * el_in_radius[i] + 1;
 	
-        if (isten == U_ATTRACT || isten == THETA_CHARGE /*|| Matrix_fill_flag>=3*/
+        if (isten == U_ATTRACT || isten == THETA_CHARGE 
             || isten == POLYMER_CR || isten == POLYMER_GAUSS) 
                             nsten_max = el_in_radius[i];
         else{               nsten_max = 2*el_in_radius[i];}

@@ -185,8 +185,8 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
             communicate_profile(x_new,xOwned);
             check_zero_densities(xOwned);
             if (Lsteady_state && (Restart==3 || Restart_field[DIFFUSION]==FALSE))   setup_chem_pot(xOwned);
-            if (Matrix_fill_flag >= 3 && Type_poly==NONE &&
-                                 (Restart==3 || Restart_field[RHOBAR_ROSEN]==FALSE)) setup_rho_bar(xOwned);
+            if (Type_poly==NONE &&
+                  (Restart==3 || Restart_field[RHOBAR_ROSEN]==FALSE)) setup_rho_bar(xOwned);
             if (Ipot_ff_c == COULOMB && (Restart==3 || Restart_field[POISSON]==FALSE)){
                    printf("setting up electrostatic potential guess....\n");
                    setup_elec_pot(xOwned,iguess);
@@ -241,8 +241,8 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
             setup_linear_profile(xOwned);
     }  /* end of iguess switch */
 
-    if (Matrix_fill_flag >= 3) setup_rho_bar(xOwned);
-    if (Lsteady_state)         setup_chem_pot(xOwned);
+    setup_rho_bar(xOwned);
+    if (Lsteady_state)   setup_chem_pot(xOwned);
  }
  else{
     /*setup_polymer(x);*/
@@ -1007,7 +1007,7 @@ static void read_in_a_file(int iguess,char *filename)
            printf("there is no electrostatic potential data in the restart file\n");
     if (Type_poly != NONE && Restart_field[CMS_FIELD]==FALSE)
            printf("there is no CMS field data in the restart file\n");
-    if (Matrix_fill_flag >= 3 && Type_poly==NONE  && Restart_field[RHOBAR_ROSEN]==FALSE)
+    if (Type_poly==NONE  && Restart_field[RHOBAR_ROSEN]==FALSE)
            printf("there is no Rosenfeld nonlocal density data in the restart file\n");
     if (Restart_field[DENSITY]==FALSE)
            printf("there is no density data in the restart file\n");

@@ -160,8 +160,8 @@ int update_solution(double** x, double** delta_x, int iter) {
    /* Certain unknowns - specifically densities and Gs in CMS DFT cannot be less than 0.
       Here we locate problems, and scale the entire update vector to prevent this from 
       happening. */
+  frac_min=1.0;
   for (ibox=0; ibox<Nnodes_box; ibox++) { /* find minimum update fraction in entire domain */
-    frac_min=1.0;
     for (iunk=0; iunk<Nunk_per_node; iunk++){
       if (Unk2Phys[iunk]==CMS_G || Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==CMS_FIELD){
          if(x[iunk][ibox]+delta_x[iunk][ibox]<0.0){
@@ -196,13 +196,12 @@ int update_solution(double** x, double** delta_x, int iter) {
             x[iunk][ibox]=0.1*x[iunk][ibox];
       }
       else if (iunk==Phys2Unk_first[RHOBAR_ROSEN] && 
-              x[iunk][ibox]+frac_min*delta_x[iunk][ibox] < 1.0){
+              x[iunk][ibox]+frac_min*delta_x[iunk][ibox] > 1.0){
               x[iunk][ibox]+=0.5*(1.0-x[iunk][ibox]);
       }
       else{
          x[iunk][ibox] += frac_min*delta_x[iunk][ibox];
       }
-      if (Unk2Phys[iunk]==DENSITY && x[iunk][ibox]> Rho_max) x[iunk][ibox]=Rho_max;
     }
   }
 

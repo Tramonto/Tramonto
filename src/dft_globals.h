@@ -349,7 +349,6 @@ struct  Aztec_Struct Aztec; /* Structure to hold all the Aztec info          */
 int     Load_Bal_Flag; /* Flag specifying type of laod balancing to do       */
 
 /* Nonlinear Solver info */
-int Matrix_fill_flag;   /* Specifies Full or MSR matrix storage format       */
 int Max_Newton_iter;    /* Maximum # of Newton iterations (10 - 30)          */
 double Newton_abs_tol,Newton_rel_tol; /* Convergence tolerances (update_soln)*/
 double Min_update_frac; /* Minimum fraction to update solution to slow down

@@ -752,9 +752,8 @@ void setup_nunk_per_node(char *output_file1)
 
          case RHOBAR_ROSEN:     /* unknowns of Nonlocal Density Eqns for Rosenfeld Functionals */
             Nrho_bar = 0;
-            if (Type_poly == -1 && Matrix_fill_flag >= 3 && Ipot_ff_n != IDEAL_GAS){
-                 if (Matrix_fill_flag ==3) Nrho_bar = 4 + 2*Ndim;
-                 else Nrho_bar = 4;
+            if (Type_poly == -1 && Ipot_ff_n != IDEAL_GAS){
+                 Nrho_bar = 4 + 2*Ndim;
                  Nrho_bar_s = 4;
             }
             Phys2Nunk[RHOBAR_ROSEN]=Nrho_bar;

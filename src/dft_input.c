@@ -1563,13 +1563,6 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&Lcut_jac,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Jac_threshold,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-  if (Proc==0) {
-    read_junk(fp,fp2);
-    fscanf(fp,"%d", &Matrix_fill_flag);
-    fprintf(fp2,"%d  ",Matrix_fill_flag);
-  }
-  MPI_Bcast(&Matrix_fill_flag,1,MPI_INT,0,MPI_COMM_WORLD);
-
   /* Nonlinear Solver Parameters */
 
   if (Proc==0) {
@@ -1928,11 +1921,6 @@ void error_check(void)
       exit (-1);
   } 
 
-  if (Matrix_fill_flag<0 || Matrix_fill_flag>4) {
-      printf("\nERROR: the Matrix_fill_flag (%d) out of range\n",Matrix_fill_flag);
-      exit (-1);
-  } 
-
   if (Load_Bal_Flag < 0 || Load_Bal_Flag > 5) {
       printf("\nERROR: the Load_Bal_Flag (%d) must 0-5 \n", Load_Bal_Flag);
       exit (-1);
@@ -1963,11 +1951,6 @@ void error_check(void)
        printf("\nERROR: If Iliq_vap = 3 then Iguess should be 6\n");
        exit(-1);
     }
-  }
-
-  if (Lbinodal && Matrix_fill_flag >=3){
-    printf("\nERROR: If Lbinodal=TRUE then Matrix_fill_flag must be < 3 !\n");
-    exit(-1);
   }
 
   /* ALF: temporary change for polymers */

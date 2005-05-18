@@ -848,13 +848,13 @@ double phispt_i(double *rho_bar)
   double rb0,rb1,rb2,rb3,rb2v[3],rb1v[3];
   double phi_s,phi_v,dot_12,dot_22;
 
-  rb0 = rho_bar[0];
-  rb1 = rho_bar[1];
-  rb2 = rho_bar[2];
-  rb3 = rho_bar[3];
+  rb0 = rho_bar[3];
+  rb1 = rho_bar[2];
+  rb2 = rho_bar[1];
+  rb3 = rho_bar[0];
   for (idim=0; idim<Ndim; idim++){
-    rb1v[idim] = rho_bar[4+2*idim];
-    rb2v[idim] = rho_bar[5+2*idim];
+    rb1v[idim] = rho_bar[Nrho_bar_s+Ndim+idim];
+    rb2v[idim] = rho_bar[Nrho_bar_s+idim];
   }
 
   if (rb3 < 1.0 && rb2 > 0.0){

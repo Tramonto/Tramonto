@@ -293,14 +293,6 @@
 #define ONE_D_TWELVE  7
 #define MIDPOINT_RULE 8
 
- /* The following are choices for the matrix Matrix_fill_flag */
-#define FULL_MSR_FILL    0
-#define JAC_SAVE_FILL_1  1
-#define JAC_SAVE_FILL_2  2
-#define MSR_PREPROCESS   9
-#define ONE_RHO_BAR     10 
-#define RHOBAR_JAC_SAVE 20
-
  /* The following is a choice for the wall type Ipot_wf_n*/
 #define VEXT_NONE          0
 #define VEXT_HARD        1
@@ -1084,8 +1076,6 @@ int     Load_Bal_Flag; /* Flag specifying type of laod balancing to do       */
 
 
 /* Nonlinear Solver info */
-extern
-int Matrix_fill_flag;   /* Specifies Full or Jac_Save methods   */
 extern
 int Max_Newton_iter;    /* Maximum # of Newton iterations (10 - 30)          */
 extern

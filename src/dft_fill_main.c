@@ -71,7 +71,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       dphi_drb = (struct RB_Struct *) array_alloc
                       (1, Nnodes_box, sizeof(struct RB_Struct));
  
-      if (Matrix_fill_flag >= 3 && Ipot_ff_n != IDEAL_GAS){
+      if (Ipot_ff_n != IDEAL_GAS){
          if (Type_func==0)
             pre_calc_dphi_drb_rb1(dphi_drb, x, &dphi_drb_bulk, 
                         &dphi_drb_bulk_left,
@@ -109,7 +109,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       mesh_coarsen_flag_i = Mesh_coarsen_flag[inode_box];
     else
       mesh_coarsen_flag_i = 0;
-   
 
     for (iunk=iunk_start; iunk<iunk_end; iunk++) {
 
@@ -157,11 +156,11 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
           jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
 
           if (jnode_box >= 0) {
-             resid= - 0.5*x[iunk][jnode_box];
+             resid-= 0.5*x[iunk][jnode_box];
              mat_value=-0.5;
              dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,jnode_box,mat_value);         
           }
-          else{  resid= - 0.5*constant_boundary(iunk,jnode_box); }
+          else{  resid-= 0.5*constant_boundary(iunk,jnode_box); }
         }
         dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
      }
@@ -322,9 +321,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                             resid_only_flag);
 
           if (iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s){
-              if (Matrix_fill_flag==3){
               resid_rhobarv+=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
-              }
           }
       }
       /****** END RHOBAR *****/

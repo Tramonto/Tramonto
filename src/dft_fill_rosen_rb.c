@@ -128,6 +128,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
       }
       dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
       resid_sum+=resid;
+      if (loc_inode==10) printf("isten=%d resid=%9.6f  resid_sum=%9.6f\n",isten,resid,resid_sum);
   
     if (!resid_only_flag)
     if (isten < stenJ->Length){
@@ -171,7 +172,6 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
             dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
                                                    indexUnks, jnode_boxJ, values, numEntries);
 
-            if (Matrix_fill_flag !=4)
             for (idim = 0; idim<Ndim; idim++){
                numEntries=2;
                values[0]=tmp.V2[idim]; values[1]=tmp.V1[idim];
@@ -425,17 +425,9 @@ void pre_calc_dphi_drb_rb1(struct RB_Struct *dphi_drb,
        rb1 = x[junk+2][inode_box];
        rb0 = x[junk+3][inode_box];
 
-       if (Matrix_fill_flag != 4){
-          for (idim = 0; idim<Ndim; idim++) {
-            rb2v[idim] = x[junk+Nrho_bar_s+idim][inode_box];
-            rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][inode_box];
-          }
-       }
-       else{
-            for (idim = 0; idim<Ndim; idim++) {
-              rb2v[idim] = 0.0;
-              rb1v[idim] = 0.0;
-            }
+       for (idim = 0; idim<Ndim; idim++) {
+          rb2v[idim] = x[junk+Nrho_bar_s+idim][inode_box];
+          rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][inode_box];
        }
 
        inv_one_m_rb3 = 1.0 / (1.0 - rb3);
@@ -572,17 +564,9 @@ void pre_calc_dphi_drb_rb2(struct RB_Struct *dphi_drb,
        rb1 = x[junk+2][inode_box];
        rb0 = x[junk+3][inode_box];
 
-       if (Matrix_fill_flag != 4){
-          for (idim = 0; idim<Ndim; idim++) {
-            rb2v[idim] = x[junk+Nrho_bar_s+idim][inode_box];
-            rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][inode_box];
-          }
-       }
-       else{
-            for (idim = 0; idim<Ndim; idim++) {
-              rb2v[idim] = 0.0;
-              rb1v[idim] = 0.0;
-            }
+       for (idim = 0; idim<Ndim; idim++) {
+         rb2v[idim] = x[junk+Nrho_bar_s+idim][inode_box];
+         rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][inode_box];
        }
 
        DOT_rho12 = 0.0;
@@ -733,15 +717,9 @@ static struct RB_Struct d2phi_drb2_delta_rb(int junk, int jnode_box,double **x,
   rb1=x[junk+2][jnode_box];
   rb0=x[junk+3][jnode_box];
    
-  if (Matrix_fill_flag !=4 ){
-     for (idim = 0; idim<Ndim; idim++) {
-       rb2v[idim] = sign[idim]*x[junk+Nrho_bar_s+idim][jnode_box];
-       rb1v[idim] = sign[idim]*x[junk+Nrho_bar_s+Ndim+idim][jnode_box];
-     }
-  }
-  else{
-       rb2v[idim] = 0.0;
-       rb1v[idim] = 0.0;
+  for (idim = 0; idim<Ndim; idim++) {
+     rb2v[idim] = sign[idim]*x[junk+Nrho_bar_s+idim][jnode_box];
+     rb1v[idim] = sign[idim]*x[junk+Nrho_bar_s+Ndim+idim][jnode_box];
   }
 
   inv_one_m_rb3 = 1.0 / (1.0 - rb3);
@@ -800,15 +778,9 @@ static struct RB_Struct d2phi_drb2_delta2_rb(int junk, int jnode_box,double **x,
   rb1 = x[junk+2][jnode_box];
   rb0 = x[junk+3][jnode_box];
 
-  if (Matrix_fill_flag !=4 ){
-     for (idim = 0; idim<Ndim; idim++) {
-       rb2v[idim] = sign[idim]*x[junk+Nrho_bar_s+idim][jnode_box];
-       rb1v[idim] = sign[idim]*x[junk+Nrho_bar_s+Ndim+idim][jnode_box];
-     }
-  }
-  else{
-    rb2v[idim]=0.0;
-    rb1v[idim]=0.0;
+  for (idim = 0; idim<Ndim; idim++) {
+    rb2v[idim] = sign[idim]*x[junk+Nrho_bar_s+idim][jnode_box];
+    rb1v[idim] = sign[idim]*x[junk+Nrho_bar_s+Ndim+idim][jnode_box];
   }
 
   DOT_rho22 = 0.0;
@@ -900,14 +872,9 @@ static struct RB_Struct d2phi_drb2_theta_rb(int junk, int jnode_box,double **x,d
   rb1 = x[junk+2][jnode_box];
   rb0 = x[junk+3][jnode_box];
   
-  if (Matrix_fill_flag != 4)
-     for (idim = 0; idim<Ndim; idim++) {
-       rb2v[idim] = x[junk+Nrho_bar_s+idim][jnode_box];   
-       rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][jnode_box];   
-     }
-  else{
-         rb2v[idim] = 0.0;
-         rb1v[idim] = 0.0;
+  for (idim = 0; idim<Ndim; idim++) {
+    rb2v[idim] = x[junk+Nrho_bar_s+idim][jnode_box];   
+    rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][jnode_box];   
   }
 
   inv_one_m_rb3 = 1.0 / (1.0 - rb3);
@@ -955,14 +922,9 @@ static struct RB_Struct d2phi_drb2_theta2_rb(int junk, int jnode_box,double **x,
   rb1 = x[junk+2][jnode_box];
   rb0 = x[junk+3][jnode_box];
   
-  if (Matrix_fill_flag != 4)
-     for (idim = 0; idim<Ndim; idim++) {
-       rb2v[idim] = x[junk+Nrho_bar_s+idim][jnode_box];   
-       rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][jnode_box];   
-     }
-  else{
-         rb2v[idim] = 0.0;
-         rb1v[idim] = 0.0;
+  for (idim = 0; idim<Ndim; idim++) {
+    rb2v[idim] = x[junk+Nrho_bar_s+idim][jnode_box];   
+    rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][jnode_box];   
   }
 
   inv_one_m_rb3 = 1.0 / (1.0 - rb3);

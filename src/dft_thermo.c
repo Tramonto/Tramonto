@@ -101,10 +101,7 @@ void  thermodynamics( char *output_file1, int print_flag)
      }
   }
 
-
-   if (Iwrite==VERBOSE) printf("CALCULATING BULK NONLOCAL PROPERTIES.....\n");
-      if (Matrix_fill_flag >=3 || Type_poly_TC) 
-          compute_bulk_nonlocal_properties(output_file1);
+   compute_bulk_nonlocal_properties(output_file1);
 
    /* Now find pressure and chemical potential contributions for the fluid of interest */
 
@@ -477,7 +474,7 @@ void compute_bulk_nonlocal_properties(char *output_file1)
   if (printproc) fp2 = fopen(output_file1,"a+");
 
    /* compute bulk nonlocal densities needed for Rosenfeld terms */
-  if (Matrix_fill_flag >= 3 && Type_func != NONE){   
+  if (Type_func != NONE){   
      for (iunk=0; iunk<Nrho_bar; iunk++){
        Rhobar_b[iunk] = 0.0;
        Rhobar_b_LBB[iunk] = 0.0;
