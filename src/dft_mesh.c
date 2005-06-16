@@ -67,7 +67,7 @@ void set_up_mesh (char *output_file1,char *output_file2)
   double t1;
   FILE *fp1=NULL;
   int i,inode,ijk[3],flag,idim,coarse_fac,count,print_flag;
-  int N_update=0; //local variables to replace AztecStruct global ones of same name
+  int N_update=0; /*local variables to replace AztecStruct global ones of same name*/
   int *update=NULL;
 
   if (Proc==0 && Iwrite != NO_SCREEN){

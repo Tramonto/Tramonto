@@ -325,7 +325,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
          }
       }      /* end of else (not Zero_density and mesh_coarsen_flag_i >= 0) */
 
-/*     if (iter<2){
+/*     if (fabs(resid_B)>1.e-3 ||fabs(resid_R)>1.e-3 ||fabs(resid_G)>1.e-3){
        printf("%d %d %d  %9.6f %9.6f %9.6f %9.6f \n",iunk+Nunk_per_node*loc_inode,inode_box,iunk, resid_B,resid_R,resid_G,resid_P);
      } */
 

@@ -26,7 +26,6 @@
 #include "mpi.h"
 #include <string.h>
  
-double interpolate(double *, int, int, double **, double *);
 static void chop_profile(double **x, int);
 static void check_zero_densities(double **);
 static void communicate_profile(double *,double **);
@@ -47,6 +46,7 @@ static void setup_polymer_simple(double **, int);
 static void setup_polymer_G(double **);
 static void setup_polymer_G_2(double **);
 static void setup_rho_bar(double **);
+static void setup_exp_density_with_profile(double **);
 static int locate_inode_old(int *);
 
 void set_initial_guess (int iguess, double** xOwned)
@@ -110,7 +110,10 @@ void set_initial_guess (int iguess, double** xOwned)
               }
 
               Nodes_old = find_length_of_file(filename);
-              if (Restart==5) Nodes_old=Nnodes;  /* going to read in 1D file, need to dimension arrays for 2D or 3D system */
+              if (Restart==5){ /* going to read in 1D file, need to dimension arrays for 2D or 3D system */
+                  Nodes_old=Nnodes;  
+if (Proc==0 && Iwrite != NO_SCREEN) printf("set Nodes_old to be Nnodes...Nnodes=%d Nodes_old=%d\n",Nnodes,Nodes_old);
+              }
               if (Lbinodal && iguess==BINODAL_FLAG){
                  X2_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
               }
@@ -193,6 +196,7 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
             }
             if (Type_poly != NONE && Restart_field[CMS_FIELD]==FALSE) setup_polymer_field(xOwned,iguess);   
             if (Restart == 2) chop_profile(xOwned,iguess);
+        /*    if (Restart ==6 && Nwall>0) setup_exp_density_with_profile(xOwned);*/
         }
         safe_free((void *) &x_new);
 
@@ -713,6 +717,27 @@ static void setup_stepped_profile(double **xOwned)
   return;
 }
 /*********************************************************/
+/*setup_exp_density_with_profile: in this routine set up a density 
+                     profile as rho(x)*exp(-Vext/kT)*/
+static void setup_exp_density_with_profile(double **xOwned)
+{
+
+  int loc_inode,i,inode_box,iunk,icomp;
+
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     inode_box = L2B_node[loc_inode];
+     for (i=0;i<Ncomp;i++){
+        iunk = icomp+Phys2Unk_first[DENSITY];
+        if (Vext[loc_inode][icomp]>0.0) xOwned[iunk][loc_inode] *= exp(-Vext[loc_inode][i]);
+
+/*        if (Type_poly!=NONE)
+        xOwned[i+Phys2Unk_first[CMS_FIELD]][loc_inode] = exp(-log(xOwned[i+Phys2Unk_first[CMS_FIELD]][loc_inode])+Vext[loc_inode][i]);*/
+     }
+  }
+
+  return;
+}
+/*********************************************************/
 /*setup_exp_density: in this routine set up a density 
                      profile as rho_b*exp(-Vext/kT)*/
 static void setup_exp_density(double **xOwned, double *rho,int nloop,int index)
@@ -1013,7 +1038,8 @@ static void read_in_a_file(int iguess,char *filename)
            printf("there is no density data in the restart file\n");
 
     fclose(fp5);
-    Nodes_old-=header;
+    if (Restart != 5) Nodes_old-=header;
+    printf("skipping %d lines in the dft_dens.dat file\n",header);
 
   /* read positions from file find Nodes_x_old[idim] */
   /* read the densities and electrostatic potentials from file */
@@ -1031,11 +1057,11 @@ static void read_in_a_file(int iguess,char *filename)
        open_now=FALSE;
                                       /* discard header when ready to read */
        for (i=0;i<header;i++) while ((c=getc(fp5)) != EOF && c !='\n') ; 
-       printf("skipping %d lines in the dft_dens.dat file\n",header);
     }
 
     if (Restart==5) ndim_max=1;  /* again for using 1D solution for 2D/3D guess */
     else ndim_max=Ndim;
+    /*printf("Proc=%d  ndim_max=%d\n",Proc,ndim_max);*/
 
                                  /* find number of nodes in each dimension in the file */
     for (idim=0;idim<ndim_max;idim++)         {
@@ -1118,6 +1144,7 @@ static void read_in_a_file(int iguess,char *filename)
        fclose(fp5);
        if (Type_poly != NONE) fclose(fp6);
        open_now=TRUE;
+/* if (Proc==0) printf("closing files to read again!\n");*/
     }
   }
   for (idim=0; idim<Ndim; idim++) {
@@ -1298,171 +1325,5 @@ static void chop_profile(double **xOwned, int iguess)
         }
     }
   return;
-}
-/****************************************************************************/
-/* interpolate: given a set of densities for an arbitrary number of
-                   components, interpolate to find a density at a new
-                   location.  For the moment, we assume that the old and new
-                   domains are the same size.                               */
-
-double interpolate(double *pos,int icomp, int nodes_old,
-                           double **pos_old, double *Esize_old)
-{
-  /* define local variables */
-  int idim,i,imin=0,npoints,match;
-  double delx[3],delx_min[3],r12_sq,r12_sq_min,pos_test;
-  double x_upper[3],x_lower[3],x_corner[8][3],func[8],fac[3];
-  double Lmax[3],interp=0.0;
-
-  /* find the grid spacing in each direction in the old data set */
- 
-  for(idim=0;idim<Ndim;idim++){
-      Lmax[idim] = 0.0;
-      for (i=0; i<nodes_old; i++)
-         if (pos_old[i][idim] > Lmax[idim]) Lmax[idim]=pos_old[i][idim];
-  }
-
-  /* find the old node that is closest to the proposed point */
-  r12_sq_min = 10000.;
-  for (i=0; i<nodes_old; i++) {
-
-     r12_sq = 0.0;
-     for (idim=0; idim<Ndim; idim++){
-          delx[idim] = pos_old[i][idim] - pos[idim];
-          r12_sq = r12_sq + delx[idim]*delx[idim];
-     }
-
-     if (r12_sq < r12_sq_min) {
-        r12_sq_min=r12_sq;
-        for (idim=0; idim<Ndim; idim++) delx_min[idim]=delx[idim];
-        imin = i;
-     }
-  }
-
-  /* find the positions of the old nodes that surround the proposed point */
-  for (idim=0; idim<Ndim; idim++){
-     if (delx_min[idim] > 0.0) {
-         x_upper[idim] = pos_old[imin][idim];
-         x_lower[idim] = pos_old[imin][idim] - Esize_old[idim];
-     }
-     else if (delx_min[idim] < 0.0) {
-         x_upper[idim] = pos_old[imin][idim] + Esize_old[idim];
-         x_lower[idim] = pos_old[imin][idim];
-     }
-     else {
-         x_upper[idim] = pos_old[imin][idim] + Esize_old[idim];
-         x_lower[idim] = pos_old[imin][idim];
-         if (x_upper[idim] > Lmax[idim]) {
-            x_upper[idim] = pos_old[imin][idim];
-            x_lower[idim] = pos_old[imin][idim] - Esize_old[idim];
-         }
-     } 
-  }
-
-  if (Ndim==1){
-     x_corner[0][0] = x_lower[0];
-     x_corner[1][0] = x_upper[0];
-  }
-  else if (Ndim == 2){
-     x_corner[0][0] = x_lower[0];
-     x_corner[0][1] = x_lower[1];
-
-     x_corner[1][0] = x_upper[0];
-     x_corner[1][1] = x_lower[1];
-
-     x_corner[2][0] = x_upper[0];
-     x_corner[2][1] = x_upper[1];
-
-     x_corner[3][0] = x_lower[0];
-     x_corner[3][1] = x_upper[1];
-  }
-  else {
-     x_corner[0][0] = x_lower[0];
-     x_corner[0][1] = x_lower[1];
-     x_corner[0][2] = x_lower[2];
-
-     x_corner[1][0] = x_upper[0];
-     x_corner[1][1] = x_lower[1];
-     x_corner[1][2] = x_lower[2];
-
-     x_corner[2][0] = x_upper[0];
-     x_corner[2][1] = x_upper[1];
-     x_corner[2][2] = x_lower[2];
-
-     x_corner[3][0] = x_lower[0];
-     x_corner[3][1] = x_upper[1];
-     x_corner[3][2] = x_lower[2];
-
-     x_corner[4][0] = x_lower[0];
-     x_corner[4][1] = x_lower[1];
-     x_corner[4][2] = x_upper[2];
-
-     x_corner[5][0] = x_upper[0];
-     x_corner[5][1] = x_lower[1];
-     x_corner[5][2] = x_upper[2];
-
-     x_corner[6][0] = x_upper[0];
-     x_corner[6][1] = x_upper[1];
-     x_corner[6][2] = x_upper[2];
-
-     x_corner[7][0] = x_lower[0];
-     x_corner[7][1] = x_upper[1];
-     x_corner[7][2] = x_upper[2];
-  }
-
-  /* find the old values of f(x) at the corner nodes */
-  for (npoints = 0; npoints<Nnodes_per_el_V; npoints++) 
-                                      func[npoints] = -1.0;
-
-  for (npoints = 0; npoints<Nnodes_per_el_V; npoints++) {
-     for (i=0; i<nodes_old; i++) {
-        match = 0;
-        for (idim=0; idim<Ndim; idim++) {
-           if (Type_bc[idim][1]==PERIODIC && x_corner[npoints][idim] > Lmax[idim]) 
-                    pos_test = pos_old[i][idim] + Size_x[idim];
-           else     pos_test = pos_old[i][idim];
-           if (fabs(x_corner[npoints][idim] - pos_test) < 1.e-8) match++;
-        }
-        if (match == Ndim) func[npoints] = X_old[i*Nunk_per_node+icomp];
-     }
-  }
-
-  for (npoints = 0; npoints<Nnodes_per_el_V; npoints++) {
-     if (func[npoints] == -1.0) {
-        if      (npoints == 0 && func[1] != -1.0) func[0] = func[1];
-        else if (npoints == 1 && func[0] != -1.0) func[1] = func[0];
-        else if (npoints == 2 && func[3] != -1.0) func[2] = func[3];
-        else if (npoints == 3 && func[2] != -1.0) func[3] = func[2];
-        else if (npoints == 4 && func[5] != -1.0) func[4] = func[5];
-        else if (npoints == 5 && func[4] != -1.0) func[5] = func[4];
-        else if (npoints == 6 && func[7] != -1.0) func[6] = func[7];
-        else if (npoints == 7 && func[6] != -1.0) func[7] = func[6];
-        else func[npoints] = 1.0e-5;
-/*        else{
-           printf("ERROR in interpolate: corner # %d has a value of -1.0\n",npoints);
-           printf("Its dimensions are:\n");
-           for (idim=0;idim<Ndim; idim++) 
-              printf("x%d : %f",idim,x_corner[npoints][idim]);
-           exit(-1);
-        } */
-     }
-  }
-
-
-  /* calculate interpolation factors */
-  for (idim=0; idim<Ndim; idim++) 
-     fac[idim] = (pos[idim]-x_lower[idim])/(x_upper[idim]-x_lower[idim]);
-
-  /* calculate the density at the proposed point */
-  if (Ndim == 1) 
-     interp =  (1.0-fac[0])*func[0] + fac[0]*func[1];
-  else if (Ndim == 2) 
-     interp = (1.0-fac[0])*(1.0-fac[1])*func[0] + fac[0]*(1.0-fac[1])*func[1]
-                + fac[1]*(1.0-fac[0])*func[3] + fac[1]*fac[0]*func[2];
-  else if (Ndim == 3) {
-     printf("ERROR:Haven't coded 3D interpolation yet");
-     exit(-1);
-  }
-  return interp;
 }
 /****************************************************************************/
