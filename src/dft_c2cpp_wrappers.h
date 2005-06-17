@@ -75,6 +75,8 @@ extern "C" {
 
   int dft_solvermanager_getrhs(void * solvermanager, double** b);
 
+  int dft_solvermanager_writeMatrix(void * solvermanager, char * filename, char * matrixName, char * matrixDescription);
+
   int dft_solvermanager_setupsolver(void * solvermanager);
 
   int dft_solvermanager_solve(void * solvermanager);

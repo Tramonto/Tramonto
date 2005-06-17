@@ -121,6 +121,11 @@ extern "C" {
     return(solvermanager_->getRhs(x));
   }
 
+  int dft_solvermanager_writeMatrix(void * solvermanager, char * filename, char * matrixName, char * matrixDescription) {
+    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+    return(solvermanager_->writeMatrix(filename, matrixName, matrixDescription));
+  }
+
   int dft_solvermanager_setupsolver(void * solvermanager) {
     dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
     return(solvermanager_->setupSolver());

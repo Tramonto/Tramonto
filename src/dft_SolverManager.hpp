@@ -224,6 +224,20 @@ class dft_SolverManager {
   int solve();
   //@}
 
+  //@{ \name Output facilities
+
+  //! Write matrix to specified filename using Matrix Market (i,j,value) format.
+  /*! Write the matrix owned by the solver manager to the file called filename on PE 0 regardless of how many processors are
+      involved in the computation.
+      \param filename (In) Name of the file.  Any contents in this file will be erased.
+      \param matrixName (In) Optional brief name for the matrix, will be inserted in the header of the output file, can be set to 0.
+      \param matrixDescription (In) Optional longer description for the matrix, will be inserted in the header of the output file, can be set to 0.
+
+    \return Returns 0 if no error, -1 of any problems with the file system.
+  */
+  int writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const;
+  //@}
+
   //@{ \name Miscellaneous support methods (used by the application, or by LOCA, or both)
 
   //! Apply global linear operator for all physics types, b = Ax

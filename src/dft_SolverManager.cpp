@@ -39,6 +39,7 @@
 #include "Epetra_LinearProblem.h"
 #include "Epetra_Import.h"
 #include "AztecOO.h"
+#include "EpetraExt_RowMatrixOut.h"
 
 
 //=============================================================================
@@ -250,6 +251,7 @@ int dft_SolverManager::setupSolver() {
 //=============================================================================
 int dft_SolverManager::solve() {
   
+  //writeMatrix("SmallPolymer.mm", "Small Polymer Matrix", "Global Matrix from Small Polymer Problem");
   solver_->Iterate(solverOptions_[AZ_max_iter], solverParams_[AZ_tol]); // Try to solve
   return(0);
 }
@@ -288,6 +290,10 @@ int dft_SolverManager::exportC2R(const double* aBox, double* aOwned) const {
   owned.Export(box, *ownedToBoxImporter_.get(), Zero); // Use importer, but zero out off-processor contributions.
 
   return(0);
+}
+//=============================================================================
+int dft_SolverManager::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
+    return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_.get(), matrixName, matrixDescription));
 }
 //=============================================================================
 
