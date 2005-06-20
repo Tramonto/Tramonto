@@ -66,24 +66,21 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
 
-    if (Sten_Type[DELTA_FN] && Sten_Type[THETA_FN]) {
+  if (Ipot_ff_n != IDEAL_GAS){
+     dphi_drb = (struct RB_Struct *) array_alloc
+                    (1, Nnodes_box, sizeof(struct RB_Struct));
+     if (Type_func==0)
+        pre_calc_dphi_drb_rb1(dphi_drb, x, &dphi_drb_bulk, 
+                    &dphi_drb_bulk_left,
+                    &dphi_drb_bulk_right);
+     else
+        pre_calc_dphi_drb_rb2(dphi_drb, x, &dphi_drb_bulk, 
+                    &dphi_drb_bulk_left,
+                    &dphi_drb_bulk_right);
+  }
 
-      dphi_drb = (struct RB_Struct *) array_alloc
-                      (1, Nnodes_box, sizeof(struct RB_Struct));
- 
-      if (Ipot_ff_n != IDEAL_GAS){
-         if (Type_func==0)
-            pre_calc_dphi_drb_rb1(dphi_drb, x, &dphi_drb_bulk, 
-                        &dphi_drb_bulk_left,
-                        &dphi_drb_bulk_right);
-         else
-            pre_calc_dphi_drb_rb2(dphi_drb, x, &dphi_drb_bulk, 
-                        &dphi_drb_bulk_left,
-                        &dphi_drb_bulk_right);
-      }
-
-      /* for debugging print out profiles on each iteration */
-      if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");
+  /* for debugging print out profiles on each iteration */
+  if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");
  
 
   if (unk_flag == NODAL_FLAG){
@@ -434,7 +431,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
      load_poisson_bc(resid);
   }*/
 
-  }
   if (Ipot_ff_n != IDEAL_GAS) {
      safe_free((void *) &dphi_drb);
   }
