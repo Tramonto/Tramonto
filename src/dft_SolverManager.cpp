@@ -251,8 +251,9 @@ int dft_SolverManager::setupSolver() {
 //=============================================================================
 int dft_SolverManager::solve() {
   
-  //writeMatrix("SmallPolymer.mm", "Small Polymer Matrix", "Global Matrix from Small Polymer Problem");
-  solver_->Iterate(solverOptions_[AZ_max_iter], solverParams_[AZ_tol]); // Try to solve
+  //writeMatrix("2D.mm", "Small Polymer Matrix", "Global Matrix from Small Polymer Problem");
+  //abort();
+  solver_->AdaptiveIterate(solverOptions_[AZ_max_iter], 5, solverParams_[AZ_tol]); // Try to solve
   return(0);
 }
 //=============================================================================

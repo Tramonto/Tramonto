@@ -29,7 +29,6 @@
 #define DFT_SOLVERMANAGER_HPP
 
 //#include "dft_solver_defs.h"
-class Epetra_MpiComm;
 class Epetra_RowMatrix;
 class Epetra_CrsGraph;
 class Epetra_Vector;
