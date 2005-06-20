@@ -407,7 +407,6 @@ void assemble_HS_free_energy(double **x, double *sum_phispt, double *sum_phispt_
          sum_phi_b     += (phispt_bulk()*fac);
          sum_phi_b_old += (phispt_bulk()*fac_b);
       } 
-printf("loc_inode=%d...sum_phi_term=%9.6f  sum_phi=%9.6f\n",loc_inode,phi*fac,sum_phi);
   }    /* end of loop over local nodes */
 
 

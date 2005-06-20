@@ -1533,7 +1533,7 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
 
  }        /* End of loop over nodes in local box coordinates */
 
-  if (Num_Proc==1){
+  if (Num_Proc==1 && Iwrite==VERBOSE){
      fp11 = fopen("bound_wf.dat","w+");
      fp12 = fopen("bound_ww.dat","w+");
      ilist=1;
