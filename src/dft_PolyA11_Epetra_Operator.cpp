@@ -35,7 +35,7 @@
 #include "Epetra_Comm.h"
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
-#include "Epetra_InSerialDenseVector.h"
+#include "Epetra_IntSerialDenseVector.h"
 
 //==============================================================================
 dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, int numBeads) 
@@ -48,7 +48,7 @@ dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & owne
     firstTime_(true) {
 
   Label_ = "dft_PolyA11_Epetra_Operator";
-  matrix_ = Teuchos::rcp(new Teuchos::RefCountPtr<Epetra_CrsMatrix>[numBlocks_]);
+  matrix_ = new Epetra_CrsMatrix*[numBlocks_];
 
   int numGlobalElements = ownedMap.NumGlobalElements();
   int numMyElements = ownedMap.NumMyElements();
@@ -56,7 +56,7 @@ dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & owne
   Epetra_IntSerialDenseVector allGIDs(numBlocks_*numMyElements);
   int * ptr = allGIDs.Values();
   for (int i=0; i<numBlocks_; i++) {
-    matrix_[i] = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *ownedMap_.get(), 0));
+    matrix_[i] = new Epetra_CrsMatrix(Copy, ownedMap_, 0);
     int offset = i*numGlobalElements;
     for (int j=0; j<numMyElements; j++) *ptr++ = offset+ownedGIDs[j];
   }
@@ -66,9 +66,11 @@ dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & owne
 }
 //==============================================================================
 dft_PolyA11_Epetra_Operator::~dft_PolyA11_Epetra_Operator() {
+  for (int i=0; i<numBlocks_; i++) delete matrix_[i];
+  delete [] matrix_;
 }
 //=============================================================================
-int dft_SolverManager::initializeProblemValues() {
+int dft_PolyA11_Epetra_Operator::initializeProblemValues() {
   
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
@@ -80,7 +82,9 @@ int dft_SolverManager::initializeProblemValues() {
   return(0);
 }
 //=============================================================================
-int dft_SolverManager::insertMatrixValue(int ownedPhysicsID, int ownedNode, int colGID, double value) {
+int dft_PolyA11_Epetra_Operator::insertMatrixValue(int ownedPhysicsID, int ownedNode, int rowGID, int colGID, double value) {
+
+  if (rowGID!=colGID) value = -value; // negate off-diagonal values to simplify kernel calls
 
   if (firstTime_)
     matrix_[ownedPhysicsID]->InsertGlobalValues(ownedNode, 1, &value, &colGID);
@@ -90,11 +94,11 @@ int dft_SolverManager::insertMatrixValue(int ownedPhysicsID, int ownedNode, int 
   return(0);
 }
 //=============================================================================
-int dft_SolverManager::finalizeProblemValues() {
+int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   for (int i=0; i<numBlocks_; i++) {
-    matrix_[i]->FillComplete(ownedMap_,vectorMap_.get());
+    matrix_[i]->FillComplete(ownedMap_,*vectorMap_.get());
     matrix_[i]->OptimizeStorage();
   }
 
@@ -106,51 +110,67 @@ int dft_SolverManager::finalizeProblemValues() {
   return(0);
 }
 //==============================================================================
+int dft_PolyA11_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+
+
+  if (!X.Map().SameAs(OperatorDomainMap())) abort();  // These aborts should be handled as int return codes.
+  if (!Y.Map().SameAs(OperatorRangeMap())) abort();
+  if (Y.NumVectors()!=X.NumVectors()) abort();
+  int NumVectors = Y.NumVectors();
+  int numMyElements = ownedMap_.NumMyElements();
+
+  Y=X; // We can safely do this
+
+  double ** curY = new double *[NumVectors];
+  double ** Yptr;
+
+  Y.ExtractView(&Yptr); // Get array of pointers to columns of Y
+  for (int i=0; i<NumVectors; i++) curY[i] = Yptr[i];
+  Epetra_MultiVector Ytmp(View, ownedMap_, curY, NumVectors); // Start Ytmp to view first numNodes elements of Y
+
+  for (int i=0; i< numBlocks_; i++) {
+    matrix_[i]->Multiply(false, Y, Ytmp);
+    for (int j=0; j<NumVectors; j++) curY[j]+=numMyElements; // Increment pointers to next block
+    Ytmp.ResetView(curY); // Reset view to next block
+  }
+  delete [] curY;
+  return(0);
+}
+//==============================================================================
 int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
 
 
   if (!X.Map().SameAs(OperatorDomainMap())) abort();  // These aborts should be handled as int return codes.
   if (!Y.Map().SameAs(OperatorRangeMap())) abort();
   if (Y.NumVectors()!=X.NumVectors()) abort();
+  int NumVectors = Y.NumVectors();
+  int numMyElements = ownedMap_.NumMyElements();
 
-  // Apply (A22 - A21*inv(A11)*A12 to X
+  double ** curY = new double *[NumVectors];
+  double ** curX = new double *[NumVectors];
+  double ** Yptr;
+  double ** Xptr;
 
-  Epetra_MultiVector Y1(A12_->RangeMap(), X.NumVectors());
-  Epetra_MultiVector Y11(A12_->RangeMap(), X.NumVectors());
-  Epetra_MultiVector Y2(A21_->RangeMap(), X.NumVectors());
- 
-  A12_->Apply(X, Y1);
-  A11_->Apply(Y1, Y11);
-  A21_->Apply(Y11, Y2);
-  A22_->Apply(X, Y);
-  Y.Update(-1.0, Y2, 1.0);
-  return(0);
-}
-//==============================================================================
-int dft_PolyA11_Epetra_Operator::ComputeRHS(const Epetra_MultiVector& B1, const Epetra_MultiVector& B2, 
-					  Epetra_MultiVector& B2S) const {
+  Y.ExtractView(&Yptr); // Get array of pointers to columns of Y
+  for (int i=0; i<NumVectors; i++) curY[i] = Yptr[i];
+  Epetra_MultiVector Ytmp(View, ownedMap_, curY, NumVectors); // Start Ytmp to view first numNodes elements of Y
+  Y.ExtractView(&Xptr); // Get array of pointers to columns of X
+  for (int i=0; i<NumVectors; i++) curX[i] = Xptr[i];
+  Epetra_MultiVector Xtmp(View, ownedMap_, curX, NumVectors); // Start Xtmp to view first numNodes elements of X
 
+  for (int i=0; i< numBlocks_; i++) {
+    matrix_[i]->Multiply(false, X, Ytmp); // This gives a result that is X - off-diagonal-matrix*X
+    Ytmp.Update(2.0, Xtmp, 1.0); // This gives a result of -X - off-diagonal-matrix*X
+    Ytmp.Scale(-1.0); // Finally negate to get the desired result
+    for (int j=0; j<NumVectors; j++) {
+      curY[j]+=numMyElements; // Increment pointers to next block
+      curX[j]+=numMyElements; // Increment pointers to next block
+    }
+    Ytmp.ResetView(curY); // Reset view to next block
+    Xtmp.ResetView(curX); // Reset view to next block
+  }
+  delete [] curY;
+  delete [] curX;
 
-  // Compute B2S =  B2 - A21*inv(A11)B1
-
-  Epetra_MultiVector Y1(A11_->DomainMap(), B1.NumVectors());
- 
-  A11_->Apply(B1, Y1);
-  A21_->Apply(Y1, B2S);
-  B2S.Update(1.0, B2, -1.0);
-  return(0);
-}
-//==============================================================================
-int dft_PolyA11_Epetra_Operator::ComputeX1(const Epetra_MultiVector& B1, const Epetra_MultiVector& X2, 
-					 Epetra_MultiVector& X1) const {
-
-
-  // Compute X1 =  inv(A11)(B1 - A12*X2)
- 
-  Epetra_MultiVector Y1(A12_->RangeMap(), X1.NumVectors());
-
-  A12_->Apply(X2, Y1);
-  Y1.Update(1.0, B1, -1.0);
-  A11_->Apply(Y1, X1);
   return(0);
 }

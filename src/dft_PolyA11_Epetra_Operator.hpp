@@ -36,11 +36,12 @@ class Epetra_Import;
 class Epetra_BlockMap;
 class Epetra_Comm;
 #include "Epetra_CrsMatrix.h"
+#include "Epetra_Map.h"
 #include "Epetra_Operator.h"
 #include "Teuchos_RefCountPtr.hpp"
 
 //! dft_PolyA11_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
-/*! Special 2-by-2 block operator for Tramonto polymer and explicit non-local density problems.
+/*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
 */    
 
 class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
@@ -48,9 +49,14 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
  public:
 
   //@{ \name Constructors.
-    //! Builds an implicit composite operator from a 2-by-2 block system
+    //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
-  dft_PolyA11_Epetra_Operator(int numOwnedNodes, int numBeads);
+  dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, int numBeads);
+  //@}
+  //@{ \name Assembly methods.
+  int initializeProblemValues();
+  int insertMatrixValue(int ownedPhysicsID, int ownedNode, int rowGID, int colGID, double value);
+  int finalizeProblemValues();
   //@}
   //@{ \name Destructor.
     //! Destructor
@@ -68,9 +74,9 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
     //! Returns the result of a dft_PolyA11_Epetra_Operator applied to a Epetra_MultiVector X in Y.
     /*! 
     \param In
-	   X - A Epetra_MultiVector of dimension NumVectors to multiply with matrix.
+	   X - An Epetra_MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
-	   Y -A Epetra_MultiVector of dimension NumVectors containing result.
+	   Y -An Epetra_MultiVector of dimension NumVectors containing result.
 
     \return Integer error code, set to 0 if successful.
   */
@@ -79,9 +85,9 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   //! Returns the result of an inverse dft_PolyA11_Epetra_Operator applied to a Epetra_MultiVector X in Y.
   /*! 
     \param In
-    X - A Epetra_MultiVector of dimension NumVectors to multiply with matrix.
+    X - An Epetra_MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
-    Y -A Epetra_MultiVector of dimension NumVectors containing result.
+    Y - An Epetra_MultiVector of dimension NumVectors containing result.
     
     \return Integer error code, set to 0 if successful.
   */
@@ -112,16 +118,17 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   const Epetra_Comm & Comm() const{return(vectorMap_->Comm());};
   
   //! Returns the Epetra_Map object associated with the domain of this operator.
-  const Epetra_Map & OperatorDomainMap() const {return(vectorMap_.get());};
+  const Epetra_Map & OperatorDomainMap() const {return(*vectorMap_.get());};
   
   //! Returns the Epetra_Map object associated with the range of this operator.
-  const Epetra_Map & OperatorRangeMap() const {return(vectorMap_.get());};
+  const Epetra_Map & OperatorRangeMap() const {return(*vectorMap_.get());};
   //@}
   
 
-  Teuchos::RefCountPtr<Teuchos::RefCountPtr<Epetra_CrsMatrix>> matrix_;
   Teuchos::RefCountPtr<Epetra_Map> vectorMap_;
   Epetra_Map ownedMap_;
+  int numBlocks_;
+  Epetra_CrsMatrix ** matrix_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;

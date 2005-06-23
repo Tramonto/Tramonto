@@ -43,6 +43,7 @@ COMMON_C_SOURCES= \
 
 COMMON_CXX_SOURCES = \
 	${srcdir}/dft_SolverManager.cpp \
+	${srcdir}/dft_PolyA11_Epetra_Operator.cpp \
 	${srcdir}/dft_c2cpp_wrappers.cpp 
 
 COMMON_HEADERS = \
@@ -55,7 +56,8 @@ COMMON_HEADERS = \
 	${srcdir}/az_aztec.h \
 	${srcdir}/az_aztec_defs.h \
 	${srcdir}/dft_c2cpp_wrappers.h \
-	${srcdir}/dft_SolverManager.hpp 
+	${srcdir}/dft_SolverManager.hpp \
+	${srcdir}/dft_PolyA11_Epetra_Operator.hpp 
 
 libdft_a_SOURCES=${COMMON_C_SOURCES} ${COMMON_CXX_SOURCES}
 dft_SOURCES= dft_maindriver.c ${COMMON_C_SOURCES} ${COMMON_CXX_SOURCES}
