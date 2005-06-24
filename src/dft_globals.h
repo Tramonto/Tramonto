@@ -340,7 +340,7 @@ double  Toler;        /* Tolerance for Newton-Rhapson iterations             */
 int     Iwrite;       /* Do we want a complete or modified set of output data*/
 
 /* Trilinos info */
-void * Solver_manager;
+void * LinProbMgr_manager;
 
 /* Parallel Info, Aztec info */
 int     Num_Proc; /* The total number of processors used in this calculation */

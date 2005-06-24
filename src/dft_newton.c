@@ -32,7 +32,7 @@
 static void print_resid_norm(int iter);
 void fill_test(double **x, int flag);
 
-/* NEWTON SOLVER using dft_SolverManager */
+/* NEWTON SOLVER using dft_Linprobmgr */
 int solve_problem(double **x, double **x2)
 /*
  * x and x2 in dft_main are allocated [Nunk_per_node][Nnodes_box]
@@ -43,20 +43,20 @@ int solve_problem(double **x, double **x2)
   int iter;
   double **xOwned;
 
-  /* Construct dft_SolverManager with information on number of unknowns*/
-  Solver_manager = dft_solvermanager_create(Nunk_per_node, Unk2Phys, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+  /* Construct dft_Linprobmgr with information on number of unknowns*/
+  LinProbMgr_manager = dft_linprobmgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
 
   /* Give Nodal Row and Column maps */
-  (void) dft_solvermanager_setnodalrowmap(Solver_manager, Nnodes_per_proc, L2G_node);
-  (void) dft_solvermanager_setnodalcolmap(Solver_manager, Nnodes_box     , B2G_node);
+  (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
+  (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
 
-  /* SolverManager can now set up its own numbering scheme, set up unknown-based Maps */
-  (void) dft_solvermanager_finalizeblockstructure(Solver_manager);
+  /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
+  (void) dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
 
   /* Set initial guess on owned nodes and reconcile ghost nodes using importr2c */
   xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   set_initial_guess(Iguess1, xOwned);
-  (void) dft_solvermanager_importr2c(Solver_manager, xOwned, x);
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
   /* If requested, write out initial guess */
    if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");
@@ -64,7 +64,7 @@ int solve_problem(double **x, double **x2)
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
     set_initial_guess(BINODAL_FLAG, xOwned);
-    (void) dft_solvermanager_importr2c(Solver_manager, xOwned, x2);
+    (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x2);
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
   safe_free((void **) &xOwned);
@@ -74,8 +74,8 @@ int solve_problem(double **x, double **x2)
   else
      iter = newton_solver(x, NULL);
 
-  /* Call the destructor for the dft_SolverManager */
-  dft_solvermanager_destruct(Solver_manager);
+  /* Call the destructor for the dft_Linprobmgr */
+  dft_linprobmgr_destruct(LinProbMgr_manager);
 
   return(iter);
 }
@@ -108,19 +108,19 @@ int newton_solver(double** x, void* con_ptr) {
   do {
     iter++;
 
-    (void) dft_solvermanager_initializeproblemvalues(Solver_manager);
+    (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
 
     /* Call Matrix and Residual Fill routine, resid_only_flag=FALSE)*/
     fill_resid_and_matrix_control(x, iter,FALSE); 
     /*fill_test(x, FALSE);*/
 
-    (void) dft_solvermanager_finalizeproblemvalues(Solver_manager);
+    (void) dft_linprobmgr_finalizeproblemvalues(LinProbMgr_manager);
     if (Iwrite != NO_SCREEN) print_resid_norm(iter);
-    (void) dft_solvermanager_setupsolver(Solver_manager);
-    (void) dft_solvermanager_solve(Solver_manager);
+    (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
+    (void) dft_linprobmgr_solve(LinProbMgr_manager);
     
     /* I am assuming getLhs returns box coordinates (e.g. Column Map)!! */
-    (void) dft_solvermanager_getlhs(Solver_manager, delta_x);
+    (void) dft_linprobmgr_getlhs(LinProbMgr_manager, delta_x);
     
     if (con_ptr != NULL) converged2 =
       continuation_hook_conwrap(x, delta_x, con_ptr, Newton_rel_tol, Newton_abs_tol);
@@ -223,7 +223,7 @@ static void print_resid_norm(int iter)
   double norm=0.0;
   double **f;
   f = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
-  dft_solvermanager_getrhs(Solver_manager, f);
+  dft_linprobmgr_getrhs(LinProbMgr_manager, f);
 
   for (j=0; j< Nnodes_per_proc; j++) {
     for (iunk=0; iunk<Nunk_per_node; iunk++) {
@@ -254,15 +254,15 @@ void fill_test(double **x, int flag)
     iunk = 0;
 
     f = x[iunk][inode_box] - inode - 1;
-    dft_solvermanager_insertrhsvalue(Solver_manager, iunk, loc_inode, -f);
-    dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,1.0);
+    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager, iunk, loc_inode, -f);
+    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,1.0);
 
     /* For iunk 1 and higher, the square of the unknow is the previous value */
     for (iunk=1; iunk<Nunk_per_node; iunk++) {
       f = x[iunk][inode_box]*x[iunk][inode_box] - x[iunk-1][inode_box];
-      dft_solvermanager_insertrhsvalue(Solver_manager, iunk, loc_inode, -f);
-      dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box, 2*x[iunk][inode_box]);
-      dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk-1,inode_box, -1.0);
+      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager, iunk, loc_inode, -f);
+      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box, 2*x[iunk][inode_box]);
+      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk-1,inode_box, -1.0);
     }
   } 
 }

@@ -126,7 +126,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
           else if (sten_type == THETA_FN) resid = weight*dphi_drb_bulk_right->S3;
        }
       }
-      dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       resid_sum+=resid;
   
     if (!resid_only_flag)
@@ -168,14 +168,14 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
             numEntries=4;
             values[0]=tmp.S3; values[1]=tmp.S2; values[2]=tmp.S1; values[3]=tmp.S0;
             indexUnks[0]=junk; indexUnks[1]=junk+1; indexUnks[2]=junk+2; indexUnks[3]=junk+3;
-            dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
+            dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                    indexUnks, jnode_boxJ, values, numEntries);
 
             for (idim = 0; idim<Ndim; idim++){
                numEntries=2;
                values[0]=tmp.V2[idim]; values[1]=tmp.V1[idim];
                indexUnks[0]=junk+Nrho_bar_s+idim; indexUnks[1]=indexUnks[0]+Ndim; 
-               dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
+               dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                     indexUnks, jnode_boxJ, values, numEntries);
             }
        }  
@@ -211,8 +211,8 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      resid =-x[iunk][inode_box];
      resid_sum+=resid;
      mat_val=-1.0;
-     dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
 
   if (iunk > Phys2Unk_first[RHOBAR_ROSEN]+1 && ((Lhard_surf && Nlists_HW == 2) ||
                                                (!Lhard_surf && Nlists_HW == 1))){
@@ -225,8 +225,8 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
         resid = x[junk][inode_box]*Inv_4pirsq[0];
         mat_val = Inv_4pirsq[0];
      }
-     dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,inode_box,mat_val);
+     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
      resid_sum+=resid;
   }
   else {
@@ -266,7 +266,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
          else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) {
             resid = weight*fac*constant_boundary(junk,jnode_box);
          }
-         dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
          resid_sum+=resid;
 
          if (!resid_only_flag)
@@ -281,7 +281,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
                          (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                    }
                    mat_val = weightJ*fac;
-                   dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
+                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
             }
          }
 
@@ -317,8 +317,8 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
   resid =-x[iunk][inode_box]; 
   resid_sum+=resid;
   mat_val=-1.0;
-  dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-  dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
 
   if (iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim && (
                                 (Lhard_surf && Nlists_HW == 2) ||
@@ -329,8 +329,8 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
      resid = x[junk][inode_box]*Inv_4pir[0];
      resid_sum+=resid;
      mat_val = Inv_4pir[0];
-     dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,inode_box,mat_val);
+     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
   }
   else { 
      if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim)
@@ -374,7 +374,7 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
           else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
              resid =  weight*fac*vector[idim]*constant_boundary(junk,jnode_box);
           }
-          dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           resid_sum+=resid;
 
           if (!resid_only_flag)
@@ -389,7 +389,7 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
                          (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                 }
                 mat_val = weightJ*fac*vector[idim];
-                dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
+                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
              }
           }
       }

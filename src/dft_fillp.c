@@ -107,14 +107,14 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                && -log(x[loc_find(Phys2Unk_first[CMS_FIELD]+itype_mer,loc_inode,LOCAL)]) > VEXT_MAX )*/ ){
            resid = x[iunk][inode_box];
            mat_val=1.0;
-           dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-           dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
       }
       else if (mesh_coarsen_flag_i < 0) {                   /*DO COARSENED MESH FILL*/
 
          resid= x[iunk][inode_box];
          mat_val=1.0;
-         dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);    
+         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);    
 
          for (iloop=0;iloop<2;iloop++){
 
@@ -126,11 +126,11 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
           if (jnode_box >= 0) {
              resid= - 0.5*x[iunk][jnode_box];
              mat_val=-0.5;
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,jnode_box,mat_val);
+             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,jnode_box,mat_val);
           }
           else{  resid= - 0.5*constant_boundary(iunk,jnode_box); }
         }
-        dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       }
       else {                                           /* FILL REAL EQUATIONS */
 
@@ -145,17 +145,17 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
              resid_B = load_polymer_cr(POLYMER_CR,iunk,loc_inode,inode_box,itype_mer,izone,ijk_box,x); 
              resid = Vext[loc_inode][itype_mer]+log(x[iunk][inode_box]);
              resid_B+=resid;
-             dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+             dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              mat_val = 1.0/x[iunk][inode_box];  
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
 
              if (Ipot_ff_c == COULOMB){
                  junk = Phys2Unk_first[POISSON];
                  resid = Charge_f[itype_mer]*x[junk][inode_box];
                  resid_B+=resid;
                  mat_val = Charge_f[itype_mer];
-                 dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-                 dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,inode_box,mat_val);
+                 dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
               }
          }                                           /* END BOLTZMAN EQNS */
                /**************************************************************/
@@ -168,8 +168,8 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
               resid = x[iunk][inode_box];
               resid_R+=resid;
               mat_val = 1.;
-              dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-              dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
             }
             else{
               resid = x[iunk][inode_box]*x[unk_B][inode_box];
@@ -177,8 +177,8 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
               values[0]=x[iunk][inode_box]; values[1]=x[unk_B][inode_box];
               unkIndex[0]=unk_B; unkIndex[1]=iunk;
               numEntries=2;
-              dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-              dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
+              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+              dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                    unkIndex, inode_box, values, numEntries);
             }
 
@@ -214,13 +214,13 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                       }
                     }
                     mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
-                    dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
+                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
                  }
                  mat_val = -fac1*((double) boltz_pow)*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow_J);
-                 dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
+                 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
                  resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
                  resid_R+=resid;
-                 dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                 dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
               }
            }
          }                                  /* END POLYMER DENSITY EQNS */
@@ -236,11 +236,11 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                 junk = Pol_Sym[unk_GQ] + Phys2Unk_first[CMS_G];
                 resid = x[iunk][inode_box]-x[junk][inode_box];
                 resid_G+=resid;
-                dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                 unkIndex[0]=iunk; unkIndex[1]=junk;
                 values[0]=1.0; values[1]=-1.0;
                 numEntries=2;
-                dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
+                dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                    unkIndex, inode_box, values, numEntries);
              } 
              else{                                                  /* FILL IN G's FOR UNIQUE BONDS */
@@ -252,19 +252,19 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                         unk_B = Phys2Unk_first[CMS_FIELD] + Type_mer[npol][seg_num];     
                         resid = x[iunk][inode_box]-x[unk_B][inode_box];
                         resid_G+=resid;
-                        dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                         unkIndex[0]=iunk; unkIndex[1]=unk_B;
                         values[0]=1.0; values[1]=-1.0;
                         numEntries=2;
-                        dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
+                        dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                              unkIndex, inode_box, values, numEntries);
                   }
                   else{
                         resid = x[iunk][inode_box]-1.0;
                         resid_G+=resid;
-                        dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                         mat_val = 1.0;
-                        dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+                        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
                   }
 
                }
@@ -277,20 +277,20 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                      boltz = x[unk_B][inode_box];
                      resid = x[iunk][inode_box]; 
                      resid_G+=resid;
-                     dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                      mat_val = 1.;
-                     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
                   }
                   else if (Type_poly == 1) {
                      boltz = 1.0;
                      resid = x[iunk][inode_box]/x[unk_B][inode_box];
                      resid_G+=resid;
-                     dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                      values[0] += 1./x[unk_B][inode_box];
                      values[1] -= x[iunk][inode_box]/(x[unk_B][inode_box]*x[unk_B][inode_box]);
                      unkIndex[0]=iunk; unkIndex[1]=unk_B;
                      numEntries=2;
-                     dft_solvermanager_insertmultiphysicsmatrixvalues(Solver_manager,iunk,loc_inode,
+                     dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                              unkIndex, inode_box, values, numEntries);
                    }
                    else if (Type_poly == 2) {
@@ -298,8 +298,8 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                      resid = x[iunk][inode_box];
                      resid_G+=resid;
                      mat_val = 1.;
-                     dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-                     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+                     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
                    }
 
                   /* Now Finish loading the Jacobian... */
@@ -307,7 +307,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                   resid_G += gint_tmp;
                   if (Type_poly==0 || Type_poly==3){
                      mat_val = gint_tmp / boltz;
-                     dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
+                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
                   }
 
                }
@@ -433,9 +433,9 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
 
         resid = fac1*boltz_prefac_R*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_R); /* Boltz Term */
         resid_sum += resid;
-        dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
         mat_val = fac1*boltz_prefac_1*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_1); /* Boltz Term */
-        dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,unk[nunk-1],jnode_box,mat_val);
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[nunk-1],jnode_box,mat_val);
            
           
         /* now load the G/Q derivatives */
@@ -446,7 +446,7 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
               if (j != i)  fac2 *= x[unk[j]][jnode_box];  /*Gs or Qs*/
            }
            mat_val = fac2*boltz_prefac_2*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_2); /*Boltz Term*/
-           dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,unk[i],jnode_box,mat_val);
+           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[i],jnode_box,mat_val);
         }
      }
   }
@@ -500,13 +500,13 @@ double load_polymer_cr(int sten_type,int iunk,int loc_inode,int inode_box,int it
                                             /* density of this component type */
              resid =  -sign*(weight*x[junk][jnode_box]- weight_bulk*Rho_b[jtype_mer]);
              mat_val = -sign*weight;
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,jnode_box,mat_val);
+             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_box,mat_val);
          }
          else if ( jnode_box == -2){  /*in wall*/
               resid =  sign*weight_bulk*Rho_b[jtype_mer];
          }
          resid_sum+=resid;
-         dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
          /* jnode_box == -1 = in bulk contributes nothing  */
       }
   }

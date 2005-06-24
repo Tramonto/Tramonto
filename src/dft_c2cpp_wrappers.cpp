@@ -29,126 +29,126 @@
 
 
 #include "dft_c2cpp_wrappers.h"
-#include "dft_SolverManager.hpp"
+#include "dft_BasicLinProbMgr.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
   /*****************************************************/
-  /**                  dft_SolverManager             **/
+  /**                  dft_BasicLinProbMgr             **/
   /***************************************************/
 
-  void * dft_solvermanager_create(int numUnks, int* Unk2Phys,
+  void * dft_linprobmgr_create(int numUnks,
                         int* solverOptions, double* solverParams, MPI_Comm comm) {
-    dft_SolverManager * solvermanager_ = new dft_SolverManager(numUnks, Unk2Phys, solverOptions,
+    dft_BasicLinProbMgr * linprobmgr_ = new dft_BasicLinProbMgr(numUnks, solverOptions,
 		                                               solverParams, comm);
-    return((void *)solvermanager_);
+    return((void *)linprobmgr_);
   }
 
-  void dft_solvermanager_destruct(void * solvermanager) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    delete solvermanager_;
+  void dft_linprobmgr_destruct(void * linprobmgr) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    delete linprobmgr_;
   }
 
-  int dft_solvermanager_setnodalrowmap(void * solvermanager, int numgids, int * gids) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->setNodalRowMap(numgids, gids));
+  int dft_linprobmgr_setnodalrowmap(void * linprobmgr, int numgids, int * gids) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->setNodalRowMap(numgids, gids));
   }
 
-  int dft_solvermanager_setnodalcolmap(void * solvermanager, int numgids, int * gids) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->setNodalColMap(numgids, gids));
+  int dft_linprobmgr_setnodalcolmap(void * linprobmgr, int numgids, int * gids) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->setNodalColMap(numgids, gids));
   }
 
-  int dft_solvermanager_finalizeblockstructure(void * solvermanager) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->finalizeBlockStructure());
+  int dft_linprobmgr_finalizeblockstructure(void * linprobmgr) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->finalizeBlockStructure());
   }
 
-  int dft_solvermanager_initializeproblemvalues(void * solvermanager) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->initializeProblemValues());
+  int dft_linprobmgr_initializeproblemvalues(void * linprobmgr) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->initializeProblemValues());
   }
 
 
-  int dft_solvermanager_insertrhsvalue (void * solvermanager, int iunk, int inode, double value) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->insertRhsValue(iunk, inode, value));
+  int dft_linprobmgr_insertrhsvalue (void * linprobmgr, int iunk, int inode, double value) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->insertRhsValue(iunk, inode, value));
   }
 
-  int dft_solvermanager_insertonematrixvalue (void * solvermanager, int iunk, int ownednode,
+  int dft_linprobmgr_insertonematrixvalue (void * linprobmgr, int iunk, int ownednode,
                                                       int junk, int boxnode, double value) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->insertMatrixValue(iunk, ownednode, junk, boxnode, value));
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->insertMatrixValue(iunk, ownednode, junk, boxnode, value));
   }
   
-  int dft_solvermanager_insertmultinodematrixvalues (void * solvermanager, int iunk, int ownednode,
+  int dft_linprobmgr_insertmultinodematrixvalues (void * linprobmgr, int iunk, int ownednode,
                                                     int junk, int * boxnodeindices, double *values, int numEntries) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->insertMatrixValues(iunk, ownednode, junk, boxnodeindices, values, numEntries));
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->insertMatrixValues(iunk, ownednode, junk, boxnodeindices, values, numEntries));
   }
   
-  int dft_solvermanager_insertmultiphysicsmatrixvalues (void * solvermanager, int iunk, int ownednode,
+  int dft_linprobmgr_insertmultiphysicsmatrixvalues (void * linprobmgr, int iunk, int ownednode,
                                                     int *junkindices, int boxnode, double *values, int numEntries) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->insertMatrixValues(iunk, ownednode, junkindices, boxnode, values, numEntries));
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->insertMatrixValues(iunk, ownednode, junkindices, boxnode, values, numEntries));
   }
 
-  int dft_solvermanager_finalizeproblemvalues(void * solvermanager) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->finalizeProblemValues());
+  int dft_linprobmgr_finalizeproblemvalues(void * linprobmgr) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->finalizeProblemValues());
   }
   
-  int dft_solvermanager_setblockmatrixreadonly(void * solvermanager, int iunk, int junk, int readOnly) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
+  int dft_linprobmgr_setblockmatrixreadonly(void * linprobmgr, int iunk, int junk, int readOnly) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
     bool readonly_ = !(readOnly==0);
-    return(solvermanager_->setBlockMatrixReadOnly(iunk, junk, readonly_));
+    return(linprobmgr_->setBlockMatrixReadOnly(iunk, junk, readonly_));
   }
 
-  int dft_solvermanager_setrhs(void * solvermanager, double** x) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->setRhs((const double**) x));
+  int dft_linprobmgr_setrhs(void * linprobmgr, double** x) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->setRhs((const double**) x));
   }
 
-  int dft_solvermanager_getlhs(void * solvermanager, double** x) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->getLhs(x));
+  int dft_linprobmgr_getlhs(void * linprobmgr, double** x) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->getLhs(x));
   }
 
-  int dft_solvermanager_getrhs(void * solvermanager, double** x) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->getRhs(x));
+  int dft_linprobmgr_getrhs(void * linprobmgr, double** x) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->getRhs(x));
   }
 
-  int dft_solvermanager_writeMatrix(void * solvermanager, char * filename, char * matrixName, char * matrixDescription) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->writeMatrix(filename, matrixName, matrixDescription));
+  int dft_linprobmgr_writeMatrix(void * linprobmgr, char * filename, char * matrixName, char * matrixDescription) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->writeMatrix(filename, matrixName, matrixDescription));
   }
 
-  int dft_solvermanager_setupsolver(void * solvermanager) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->setupSolver());
+  int dft_linprobmgr_setupsolver(void * linprobmgr) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->setupSolver());
   }
 
-  int dft_solvermanager_solve(void * solvermanager) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->solve());
+  int dft_linprobmgr_solve(void * linprobmgr) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->solve());
   }
 
-  int dft_solvermanager_applymatrix(void * solvermanager, double**x, double** b) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->applyMatrix((const double**) x,b));
+  int dft_linprobmgr_applymatrix(void * linprobmgr, double**x, double** b) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->applyMatrix((const double**) x,b));
   }
 
-  int dft_solvermanager_importr2c(void * solvermanager, double** x, double **b) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->importR2C((const double**) x,b));
+  int dft_linprobmgr_importr2c(void * linprobmgr, double** x, double **b) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->importR2C((const double**) x,b));
   }
 
-  int dft_solvermanager_importnodalr2c(void * solvermanager, double* x, double *b) {
-    dft_SolverManager * solvermanager_ = (dft_SolverManager *) solvermanager;
-    return(solvermanager_->importR2C((const double*) x,b));
+  int dft_linprobmgr_importnodalr2c(void * linprobmgr, double* x, double *b) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->importR2C((const double*) x,b));
   }
 
 #ifdef __cplusplus

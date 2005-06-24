@@ -343,7 +343,7 @@ int linear_solver_conwrap(double *x, int jac_flag, double *tmp)
   int i;
 
   translate_1dOwned_2dBox(x, passdown.xBox);
-  (void) dft_solvermanager_setrhs(Solver_manager, passdown.xBox);
+  (void) dft_linprobmgr_setrhs(LinProbMgr_manager, passdown.xBox);
 
   if (jac_flag == OLD_JACOBIAN || jac_flag == CHECK_JACOBIAN) {
     /* reuse the preconditioner for this same matrix */
@@ -356,9 +356,9 @@ int linear_solver_conwrap(double *x, int jac_flag, double *tmp)
     exit(-1);
   }
 
- (void) dft_solvermanager_setupsolver(Solver_manager);
- (void) dft_solvermanager_solve(Solver_manager);
- (void) dft_solvermanager_getlhs(Solver_manager, passdown.xBox);
+ (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
+ (void) dft_linprobmgr_solve(LinProbMgr_manager);
+ (void) dft_linprobmgr_getlhs(LinProbMgr_manager, passdown.xBox);
 
  translate_2dBox_1dOwned(passdown.xBox, x);
 
@@ -396,11 +396,11 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
 
   if (matflag == RHS_ONLY || matflag == RHS_MATRIX_SAVE) {
       resid_only_flag = TRUE;
-      (void) dft_solvermanager_setrhs(Solver_manager, passdown.zerovec);
+      (void) dft_linprobmgr_setrhs(LinProbMgr_manager, passdown.zerovec);
   }
   else { 
       resid_only_flag = FALSE;
-      (void) dft_solvermanager_initializeproblemvalues(Solver_manager);
+      (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
   }
 
 
@@ -408,9 +408,9 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
   translate_1dOwned_2dBox(x, passdown.xBox);
 
   fill_resid_and_matrix_control(passdown.xBox, 0, resid_only_flag);
-  (void) dft_solvermanager_finalizeproblemvalues(Solver_manager);
+  (void) dft_linprobmgr_finalizeproblemvalues(LinProbMgr_manager);
 
-  (void) dft_solvermanager_getrhs(Solver_manager, passdown.xOwned);
+  (void) dft_linprobmgr_getrhs(LinProbMgr_manager, passdown.xOwned);
    for (i=0; i<Nunk_per_node; i++)
      for (j=0; j<Nnodes_per_proc; j++)
 /* NOTE NEGATIVE SIGN TO FIT CONVENTION !!!! */
@@ -442,7 +442,7 @@ void matvec_mult_conwrap(double *x, double *y)
   int i,j;
 
   translate_1dOwned_2dBox(x, passdown.xBox);
-  (void) dft_solvermanager_applymatrix(Solver_manager,passdown.xBox, passdown.xOwned);
+  (void) dft_linprobmgr_applymatrix(LinProbMgr_manager,passdown.xBox, passdown.xOwned);
 
    for (i=0; i<Nunk_per_node; i++)
      for (j=0; j<Nnodes_per_proc; j++)
@@ -1308,7 +1308,7 @@ static void translate_1dOwned_2dBox(double *x, double **xBox)
   for (i=0; i<Nunk_per_node; i++)
     for (j=0; j<Nnodes_per_proc;j++)
       passdown.xOwned[i][j] = x[i*Nnodes_per_proc + j];
-  (void) dft_solvermanager_importr2c(Solver_manager, passdown.xOwned, xBox);
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, passdown.xOwned, xBox);
 }
 
 static void translate_2dBox_1dOwned(double **xBox, double *x) 

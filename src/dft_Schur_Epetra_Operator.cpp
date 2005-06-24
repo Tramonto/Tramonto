@@ -26,7 +26,7 @@
 // ***********************************************************************
 //@HEADER
 
-#include "dft_schur_epetra_operator.h"
+#include "dft_Schur_Epetra_Operator.hpp"
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_Map.h"
 #include "Epetra_Import.h"

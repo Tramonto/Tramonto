@@ -446,7 +446,7 @@ struct RB_Struct {
 /*
  * Declaration of the Trilinos solver stuff follows.
  */
-extern void * Solver_manager;
+extern void * LinProbMgr_manager;
 
 /* 
  *  Declaration of the Aztec_Struct follows. 

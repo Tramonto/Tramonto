@@ -38,54 +38,54 @@ extern "C" {
 #endif
 
   /*****************************************************/
-  /**                  dft_SolverManager             **/
+  /**                  dft_Linprobmgr             **/
   /***************************************************/
 
-  void * dft_solvermanager_create(int numUnks, int* Unk2Phys,
+  void * dft_linprobmgr_create(int numUnks,
 		        int* solverOptions, double* solverParams, MPI_Comm comm);
 
-  void dft_solvermanager_destruct(void * solvermanagerptr);
+  void dft_linprobmgr_destruct(void * linprobmgrptr);
 
-  int dft_solvermanager_setnodalrowmap(void * solvermanager, int numgids, int * gids);
+  int dft_linprobmgr_setnodalrowmap(void * linprobmgr, int numgids, int * gids);
 
-  int dft_solvermanager_setnodalcolmap(void * solvermanager, int numgids, int * gids);
+  int dft_linprobmgr_setnodalcolmap(void * linprobmgr, int numgids, int * gids);
 
-  int dft_solvermanager_finalizeblockstructure(void * solvermanager);
+  int dft_linprobmgr_finalizeblockstructure(void * linprobmgr);
 
-  int dft_solvermanager_initializeproblemvalues(void * solvermanager);
+  int dft_linprobmgr_initializeproblemvalues(void * linprobmgr);
   
-  int dft_solvermanager_insertrhsvalue(void * solvermanager, int iunk, int inode, double value);
+  int dft_linprobmgr_insertrhsvalue(void * linprobmgr, int iunk, int inode, double value);
 
-  int dft_solvermanager_insertonematrixvalue(void * solvermanager, int iunk, int ownednode,
+  int dft_linprobmgr_insertonematrixvalue(void * linprobmgr, int iunk, int ownednode,
                                                      int junk, int boxnode, double value);
 
-  int dft_solvermanager_insertmultinodematrixvalues(void * solvermanager, int iunk, int ownednode,
+  int dft_linprobmgr_insertmultinodematrixvalues(void * linprobmgr, int iunk, int ownednode,
 							    int junk, int *boxnodeindices, double *values, int numentries);
 
-  int dft_solvermanager_insertmultiphysicsmatrixvalues(void * solvermanager, int iunk, int ownednode,
+  int dft_linprobmgr_insertmultiphysicsmatrixvalues(void * linprobmgr, int iunk, int ownednode,
 		                                   int * junkindices, int boxnode, double *values, int numentries);
   
-  int dft_solvermanager_finalizeproblemvalues(void * solvermanager);
+  int dft_linprobmgr_finalizeproblemvalues(void * linprobmgr);
   
-  int dft_solvermanager_setblockmatrixreadonly(void * solvermanager, int iunk, int junk, int readOnly);
+  int dft_linprobmgr_setblockmatrixreadonly(void * linprobmgr, int iunk, int junk, int readOnly);
   
-  int dft_solvermanager_setrhs(void * solvermanager, double** b);
+  int dft_linprobmgr_setrhs(void * linprobmgr, double** b);
 
-  int dft_solvermanager_getlhs(void * solvermanager, double** x);
+  int dft_linprobmgr_getlhs(void * linprobmgr, double** x);
 
-  int dft_solvermanager_getrhs(void * solvermanager, double** b);
+  int dft_linprobmgr_getrhs(void * linprobmgr, double** b);
 
-  int dft_solvermanager_writeMatrix(void * solvermanager, char * filename, char * matrixName, char * matrixDescription);
+  int dft_linprobmgr_writeMatrix(void * linprobmgr, char * filename, char * matrixName, char * matrixDescription);
 
-  int dft_solvermanager_setupsolver(void * solvermanager);
+  int dft_linprobmgr_setupsolver(void * linprobmgr);
 
-  int dft_solvermanager_solve(void * solvermanager);
+  int dft_linprobmgr_solve(void * linprobmgr);
 
-  int dft_solvermanager_applymatrix(void * solvermanager, double**x, double** b);
+  int dft_linprobmgr_applymatrix(void * linprobmgr, double**x, double** b);
 
-  int dft_solvermanager_importr2c(void * solvermanager, double**x, double** b);
+  int dft_linprobmgr_importr2c(void * linprobmgr, double**x, double** b);
 
-  int dft_solvermanager_importnodalr2c(void * solvermanager, double*x, double* b);
+  int dft_linprobmgr_importnodalr2c(void * linprobmgr, double*x, double* b);
 
 
 #ifdef __cplusplus

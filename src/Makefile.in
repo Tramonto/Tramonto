@@ -42,8 +42,10 @@ COMMON_C_SOURCES= \
 	${srcdir}/loca_util.c 
 
 COMMON_CXX_SOURCES = \
-	${srcdir}/dft_SolverManager.cpp \
+	${srcdir}/dft_BasicLinProbMgr.cpp \
+	${srcdir}/dft_PolyLinProbMgr.cpp \
 	${srcdir}/dft_PolyA11_Epetra_Operator.cpp \
+	${srcdir}/dft_Schur_Epetra_Operator.cpp \
 	${srcdir}/dft_c2cpp_wrappers.cpp 
 
 COMMON_HEADERS = \
@@ -55,9 +57,11 @@ COMMON_HEADERS = \
 	${srcdir}/loca_util_const.h \
 	${srcdir}/az_aztec.h \
 	${srcdir}/az_aztec_defs.h \
-	${srcdir}/dft_c2cpp_wrappers.h \
-	${srcdir}/dft_SolverManager.hpp \
-	${srcdir}/dft_PolyA11_Epetra_Operator.hpp 
+	${srcdir}/dft_BasicLinProbMgr.cpp \
+	${srcdir}/dft_PolyLinProbMgr.cpp \
+	${srcdir}/dft_PolyA11_Epetra_Operator.cpp \
+	${srcdir}/dft_Schur_Epetra_Operator.cpp \
+	${srcdir}/dft_c2cpp_wrappers.h  
 
 libdft_a_SOURCES=${COMMON_C_SOURCES} ${COMMON_CXX_SOURCES}
 dft_SOURCES= dft_maindriver.c ${COMMON_C_SOURCES} ${COMMON_CXX_SOURCES}

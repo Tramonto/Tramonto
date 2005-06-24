@@ -130,11 +130,11 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          }
 
          resid = x[iunk][inode_box]-x[iunk][jnode_box];
-         dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
          numEntries=2;
          values[0]=1.0; values[1]=-1.0;
          nodeIndices[0]=inode_box; nodeIndices[1]=jnode_box;
-         dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+         dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                iunk, nodeIndices,values,numEntries);
       } 
 
@@ -143,7 +143,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
          resid= x[iunk][inode_box];
          mat_value=1.0;
-         dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
+         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
 
          for (iloop=0;iloop<2;iloop++){
 
@@ -155,11 +155,11 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
           if (jnode_box >= 0) {
              resid-= 0.5*x[iunk][jnode_box];
              mat_value=-0.5;
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,jnode_box,mat_value);         
+             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,jnode_box,mat_value);         
           }
           else{  resid-= 0.5*constant_boundary(iunk,jnode_box); }
         }
-        dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      }
      else{
 
@@ -178,8 +178,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
         if (Zero_density_TF[inode_box][icomp] || Vext[loc_inode][icomp] == VEXT_MAX) {
              resid= x[iunk][inode_box];
              mat_value = 1.0;
-             dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
+             dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
         }
         else {
 
@@ -188,22 +188,22 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
              resid = log(x[iunk][inode_box]) ; 
              mat_value = 1.0/x[iunk][inode_box];
              resid_ig=resid;
-             dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-             dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
+             dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
 
              if (mesh_coarsen_flag_i == FLAG_BULK){
                   resid = -log(Rho_b[icomp]);
-                  dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              }
              else {
 /*             if(Lsteady_state){
                   resid = (- 3.0*log(Sigma_ff[icomp][icomp]) -1.5*log(Mass[icomp]*Temp));
-                  dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                }
 */
                if (Nwall > 0){
                  resid = Vext[loc_inode][icomp];
-                 dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
+                 dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                  resid_vext=resid;
                }
                
@@ -222,17 +222,17 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                   junk=Phys2Unk_first[DIFFUSION] + icomp;
                   resid_mu = -x[junk][inode_box];
                   mat_value=-1.0;
-                  dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,inode_box,mat_value);         
+                  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_value);         
                }
-               dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid_mu);
+               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_mu);
              }
 
              if (Ipot_ff_c == COULOMB){
                 junk = Phys2Unk_first[POISSON];
                 resid_charge = Charge_f[icomp]*x[junk][inode_box];
-                dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid_charge);
+                dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_charge);
                 mat_value = Charge_f[icomp];
-                dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,junk,inode_box,mat_value);         
+                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_value);         
 
                 if (Lpolarize[icomp] && Ndim==1){
 
@@ -264,8 +264,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                   }
                   resid = 0.5*Pol[icomp]*gradphi*gradphi*fac_temp;
                   resid_charge += resid;
-                  dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-                  dft_solvermanager_insertmultinodematrixvalues(Solver_manager,iunk,loc_inode,
+                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                  dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                        junk,nodeIndices,values,numEntries);
                 } 
              }
@@ -340,15 +340,15 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
             if (l_elec_LBB){
                resid = x[iunk][inode_box]-Elec_pot_LBB;
                mat_value = 1.0;
-               dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-               dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
+               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
                resid_poisson = resid;
             }
             else if (l_elec_RTF){
                resid = x[iunk][inode_box]-Elec_pot_RTF;
                mat_value = 1.0;
-               dft_solvermanager_insertrhsvalue(Solver_manager,iunk,loc_inode,-resid);
-               dft_solvermanager_insertonematrixvalue(Solver_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
+               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
                resid_poisson = resid;
             }
             else if (!l_elec_LBB && !l_elec_RTF) {
