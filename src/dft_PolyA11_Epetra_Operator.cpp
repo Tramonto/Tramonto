@@ -38,9 +38,10 @@
 #include "Epetra_IntSerialDenseVector.h"
 
 //==============================================================================
-dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, int numBeads) 
+dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, const EpetraMap & block1Map) 
   : ownedMap_(ownedMap),
-    numBlocks_(2*numBeads),
+    block1Map_(block1Map),
+    numBlocks_(block1Map.NumMyElements()/ownedMap.NumMyElements()),
     matrix_(0),
     Label_(0),
     isGraphStructureSet_(false),
@@ -49,24 +50,13 @@ dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & owne
 
   Label_ = "dft_PolyA11_Epetra_Operator";
   matrix_ = new Epetra_CrsMatrix*[numBlocks_];
-
-  int numGlobalElements = ownedMap.NumGlobalElements();
-  int numMyElements = ownedMap.NumMyElements();
-  int * ownedGIDs = ownedMap.MyGlobalElements();
-  Epetra_IntSerialDenseVector allGIDs(numBlocks_*numMyElements);
-  int * ptr = allGIDs.Values();
-  for (int i=0; i<numBlocks_; i++) {
-    matrix_[i] = new Epetra_CrsMatrix(Copy, ownedMap_, 0);
-    int offset = i*numGlobalElements;
-    for (int j=0; j<numMyElements; j++) *ptr++ = offset+ownedGIDs[j];
-  }
-  vectorMap_ = Teuchos::rcp(new Epetra_Map(-1, numBlocks_*numMyElements, allGIDs.Values(), 0, ownedMap_.Comm()));
+  for (int i=0; i<numBlocks_; i++) matrix_[i] = 0;
   
-    
+
 }
 //==============================================================================
 dft_PolyA11_Epetra_Operator::~dft_PolyA11_Epetra_Operator() {
-  for (int i=0; i<numBlocks_; i++) delete matrix_[i];
+  for (int i=0; i<numBlocks_; i++) if (matrix_[i]!=0) delete matrix_[i];
   delete [] matrix_;
 }
 //=============================================================================
@@ -98,12 +88,12 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   for (int i=0; i<numBlocks_; i++) {
-    matrix_[i]->FillComplete(ownedMap_,*vectorMap_.get());
+    matrix_[i]->FillComplete(ownedMap_,block1Map);
     matrix_[i]->OptimizeStorage();
   }
 
   /*  for (int i=0; i<numBlocks_; i++) {
-      std::cout << matrix_[i].get();
+      std::cout << *matrix_[i];
   */
   isLinearProblemSet_ = true;
   firstTime_ = false;
