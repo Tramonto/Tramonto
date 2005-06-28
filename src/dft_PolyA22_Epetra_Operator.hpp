@@ -35,9 +35,11 @@ class Epetra_Map;
 class Epetra_Import;
 class Epetra_BlockMap;
 class Epetra_Comm;
+#include "Epetra_Vector.h"
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_Map.h"
 #include "Epetra_Operator.h"
+#include "Ifpack.h"
 #include "Teuchos_RefCountPtr.hpp"
 
 //! dft_PolyA22_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
@@ -61,6 +63,10 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
   //@{ \name Destructor.
     //! Destructor
   ~dft_PolyA22_Epetra_Operator();
+  //@}
+  
+  //@{ \name Atribute get methods.
+  Epetra_Operator * getA22Inv() {return(cmsOnDensityInverse_.get());}
   //@}
   
   //@{ \name Atribute set methods.
@@ -125,17 +131,18 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
   //@}
   
 
-  Teuchos::RefCountPtr<Epetra_Map> vectorMap_;
   Epetra_Map cmsMap__;
   Epetra_Map densityMap__;
   Epetra_Map block2Map__;
   int numBlocks_;
   Epetra_CrsMatrix cmsOnDensityMatrix_;
+  Teuchos::RefCountPtr<Epetra_Operator> cmsOnDensityInverse_;
   Epetra_Vector densityOnCmsMatrix_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool firstTime_;
+  Ifpack factory_;
 };
 
 #endif /* DFT_POLYA22_EPETRA_OPERATOR_H */

@@ -37,15 +37,15 @@
 #include "EpetraExt_RowMatrixOut.h"
 
 //==============================================================================
-dft_schur_epetra_operator::dft_schur_epetra_operator(Epetra_CrsMatrix * A11, Epetra_CrsMatrix * A12, 
-			    Epetra_CrsMatrix * A21, Epetra_CrsMatrix * A22) 
+dft_Schur_Epetra_Operator::dft_Schur_Epetra_Operator(Epetra_Operator * A11, Epetra_CrsMatrix * A12, 
+						     Epetra_CrsMatrix * A21, Epetra_Operator * A22) 
   : A11_(A11),
     A12_(A12),
     A21_(A21),
     A22_(A22),
     Label_(0) {
 
-  Label_ = "dft_schur_epetra_operator";
+  Label_ = "dft_Schur_Epetra_Operator";
   /* Used to capture matrix data
   int nrows1 = A11->RowMap().NumGlobalElements();
   int nrows2 = A22->RowMap().NumGlobalElements();
@@ -81,10 +81,10 @@ dft_schur_epetra_operator::dft_schur_epetra_operator(Epetra_CrsMatrix * A11, Epe
   */
 }
 //==============================================================================
-dft_schur_epetra_operator::~dft_schur_epetra_operator() {
+dft_Schur_Epetra_Operator::~dft_Schur_Epetra_Operator() {
 }
 //==============================================================================
-int dft_schur_epetra_operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+int dft_Schur_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
 
 
   if (!X.Map().SameAs(OperatorDomainMap())) abort();  // These aborts should be handled as int return codes.
@@ -105,7 +105,7 @@ int dft_schur_epetra_operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVe
   return(0);
 }
 //==============================================================================
-int dft_schur_epetra_operator::ComputeRHS(const Epetra_MultiVector& B1, const Epetra_MultiVector& B2, 
+int dft_Schur_Epetra_Operator::ComputeRHS(const Epetra_MultiVector& B1, const Epetra_MultiVector& B2, 
 					  Epetra_MultiVector& B2S) const {
 
 
@@ -119,7 +119,7 @@ int dft_schur_epetra_operator::ComputeRHS(const Epetra_MultiVector& B1, const Ep
   return(0);
 }
 //==============================================================================
-int dft_schur_epetra_operator::ComputeX1(const Epetra_MultiVector& B1, const Epetra_MultiVector& X2, 
+int dft_Schur_Epetra_Operator::ComputeX1(const Epetra_MultiVector& B1, const Epetra_MultiVector& X2, 
 					 Epetra_MultiVector& X1) const {
 
 

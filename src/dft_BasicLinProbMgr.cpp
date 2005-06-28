@@ -117,9 +117,14 @@ int dft_BasicLinProbMgr::finalizeBlockStructure() {
   A21_=null;
   A12_=null;
   A22_=null;
+  schurOperator_=null;
   globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
+  rhs1_=null;// not used
+  rhs2_=null;
+  lhs1_=null;
+  lhs2_=null;
   implicitProblem_ = Teuchos::rcp(new Epetra_LinearProblem(globalMatrix_.get(), globalLhs_.get(), globalRhs_.get()));
     
   ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*(boxMap_.get()), *(ownedMap_.get())));

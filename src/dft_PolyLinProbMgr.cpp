@@ -67,17 +67,31 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
       
   
   // Fill physics ordering vector with the concatenated contents of the IDs for all physics types
-
+  // Load Schur block mappings
   physicsOrdering_.Size(numUnknownsPerNode_);
+  physicsIdToSchurBlockId_.Size(numUnknownsPerNode_);
   int * ptr = physicsOrdering_.Values();
-  for (int i=0; i<gEquations_.Length(); i++) *ptr++ = gEquations_[i];
-  for (int i=0; i<gInvEquations_.Length(); i++) *ptr++ = gInvEquations_[i];
-  for (int i=0; i<cmsEquations_.Length(); i++) *ptr++ = cmsEquations_[i];
-  for (int i=0; i<densityEquations_.Length(); i++) *ptr++ = densityEquations_[i];
+  for (int i=0; i<gEquations_.Length(); i++) {
+    *ptr++ = gEquations_[i];
+    physicsIdToSchurBlockId_[gEquations_[i]] = 1;
+  }
+  for (int i=0; i<gInvEquations_.Length(); i++) {
+    *ptr++ = gInvEquations_[i];
+    physicsIdToSchurBlockId_[gInvEquations_[i]] = 1;
+  }
+  for (int i=0; i<cmsEquations_.Length(); i++) {
+    *ptr++ = cmsEquations_[i];
+    physicsIdToSchurBlockId_[cmsEquations_[i]] = 2;
+  }
+  for (int i=0; i<densityEquations_.Length(); i++) {
+    *ptr++ = densityEquations_[i];
+    physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
+  }
+
 
   const int numUnks = numOwnedNodes_*numUnknownsPerNode_;
   const int numUnks1 = gEquations_.Length()+gInvEquations_.Length();
-  const int numUnks2 = cmsEquations_.Length()+densityInvEquations_.Length();
+  const int numUnks2 = cmsEquations_.Length()+densityEquations_.Length();
   assert(numUnks==(numUnks1+numUnks2));  // Sanity test
   Epetra_IntSerialDenseVector globalGIDList(numUnks);
 
@@ -93,18 +107,29 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, ptr, 0, comm_));
   block1RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes_*numUnks1, ptr, 0, comm_));
   block2RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes_*numUnks2, ptr+numUnks1, 0, comm_));
+  cmsRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes_*cmsEquations_.Length(), ptr+numUnks1, 0, comm_));
+  densityRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes_*densityEquations_.Length(), ptr+numUnks1+cmsEquations_.Length(), 0, comm_));
 
   //std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl;
 
   A11_ = Teuchos::rcp(new dft_PolyA11_Epetra_Operator(ownedMap_, gEquations.Length()));
   A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block1RowMap_, 0));
   A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block2RowMap_, 0));
-  A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(ownedMap_, cmsEquations_.Length()+densityEquations_.Length()));
+  A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(cmsRowMap_, densityRowMap_, block2RowMap_));
   globalMatrix = null; // not used by this solver
-
+  
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
-  globalProblem_ = Teuchos::rcp(new Epetra_LinearProblem(globalMatrix_.get(), globalLhs_.get(), globalRhs_.get()));
+
+  rhs1_ = Teuchos::rcp(new Epetra_Vector(View, (block1RowMap_.get()), globalRhs_->Values()));
+  rhs2_ = Teuchos::rcp(new Epetra_Vector(View, (block1RowMap_.get()), globalRhs_->Values()+numUnks1));
+  rhsSchur_ = Teuchos::rcp(new Epetra_Vector(*(rhs2_.get())));
+  lhs1_ = Teuchos::rcp(new Epetra_Vector(View, (block1RowMap_.get()), globalLhs_->Values()));
+  lhs2_ = Teuchos::rcp(new Epetra_Vector(View, (block1RowMap_.get()), globalLhs_->Values()+numUnks1));
+
+  schurOperator_ = Teuchos::rcp(new dft_Schur_Epetra_Operator(A11_.get(), A12_.get(), A21_.get(), A22_.get()));
+  implicitProblem_ = Teuchos::rcp(new Epetra_LinearProblem(schurOperator_.get(), lhs2_.get(), rhsSchur_.get()));
+
     
   ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*(boxMap_.get()), *(ownedMap_.get())));
 
@@ -118,10 +143,14 @@ int dft_PolyLinProbMgr::initializeProblemValues() {
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_) {
-    globalMatrix_->PutScalar(0.0);
+    A12_->PutScalar(0.0);
+    A12_->PutScalar(0.0);
     globalRhs_->PutScalar(0.0);
     globalLhs_->PutScalar(0.0);
   }
+
+  A11_->initializeProblemValues();
+  A22_->initializeProblemValues();
   
   return(0);
 }
@@ -135,12 +164,28 @@ int dft_PolyLinProbMgr::insertRhsValue(int ownedPhysicsID, int ownedNode, double
 //=============================================================================
 int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode, double value) {
 
+  int schurBlockRow = physicsIdToSchurBlockId_[ownedPhysicsID];
+  int schurBlockCol = physicsIdToSchurBlockId_[boxPhysicsID];
   int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   int colGID = boxToSolverGID(boxPhysicsID, boxNode);
-  if (firstTime_)
-    globalMatrix_->InsertGlobalValues(rowGID, 1, &value, &colGID);
-  else
-    globalMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
+  if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
+    A11_->insertMatrixValue(ownedPhysicsID, ownedNode, rowGID, colGID, value); 
+  }
+  else if (schurBlockRow==2 && schurBlockCol==2) { // A22 block
+    A22_->insertMatrixValue(rowGID, colGID, value); 
+  }
+  else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
+    if (firstTime_)
+      A21_->InsertGlobalValues(rowGID, 1, &value, &colGID);
+    else
+      A21_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
+  }
+  else { // A12 block
+    if (firstTime_)
+      A12_->InsertGlobalValues(rowGID, 1, &value, &colGID);
+    else
+      A12_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
+  }
   
   return(0);
 }
@@ -148,10 +193,16 @@ int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int
 int dft_PolyLinProbMgr::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
-  globalMatrix_->FillComplete();
-  globalMatrix_->OptimizeStorage();
+  A12_->FillComplete();
+  A12_->OptimizeStorage();
+  A21_->FillComplete();
+  A21_->OptimizeStorage();
 
-  //std::cout << *globalMatrix_.get();
+  //std::cout << *A12_.get() << endl 
+  //          << *A21_.get() << endl;
+
+  A11_->finalizeProblemValues();
+  A22_->finalizeProblemValues();
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -160,9 +211,14 @@ int dft_PolyLinProbMgr::finalizeProblemValues() {
 //=============================================================================
 int dft_PolyLinProbMgr::setupSolver() {
 
-  solver_ = Teuchos::rcp(new AztecOO(*(globalProblem_.get())));
+  if (!isLinearProblemSet_) return(-1);
+
+  schurOperator_->ComputeRHS(rhs1, rhs2, rhsSchur_)
+  
+  solver_ = Teuchos::rcp(new AztecOO(*(implicitProblem_.get())));
   solver_->SetAllAztecOptions(solverOptions_);
   solver_->SetAllAztecParams(solverParams_);
+  solver_->SetPrecOperator(schurOperator_->getA22Inv());
   //solver_->SetAztecOption(AZ_solver, AZ_gmres);
   //solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
   //solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);

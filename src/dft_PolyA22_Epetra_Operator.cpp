@@ -88,11 +88,37 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
 int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
-  cmsOnDensityMatrix_.FillComplete(densityMap__,densityMap_);
+  cmsOnDensityMatrix_.FillComplete();
   cmsOnDensityMatrix_.OptimizeStorage();
   
   /*  std::cout << cmsOnDensityMatrix_<< std::endl;
   */
+  if (firstTime_) {
+    Teuchos::ParameterList list;
+    // create the preconditioner. For valid PrecType values,
+    // please check the documentation
+    string PrecType = "ILU"; // incomplete LU
+    int OverlapLevel = 1; // must be >= 0. If Comm.NumProc() == 1,
+    // it is ignored.
+    
+    cmsOnDensityInverse_ = Factory.Create(PrecType, A, OverlapLevel);
+    assert(cmsOnDensityInverse_ != 0);
+    
+    // specify parameters for ILU
+    list.set("fact: drop tolerance", 1e-9);  // these should be input parameters from Tramonto
+    list.set("fact: level-of-fill", 1);
+    
+    // sets the parameters
+    IFPACK_CHK_ERR(cmsOnDensityInverse_->SetParameters(list));
+    
+    // initialize the preconditioner. At this point the matrix must
+    // have been FillComplete()'d, but actual values are ignored.
+    IFPACK_CHK_ERR(cmsOnDensityInverse_->Initialize());
+  }
+  // Builds the preconditioners, by looking for the values of 
+  // the matrix.
+  IFPACK_CHK_ERR(cmsOnDensityInverse_->Compute());
+
   isLinearProblemSet_ = true;
   firstTime_ = false;
   return(0);
@@ -106,26 +132,26 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
   int NumVectors = Y.NumVectors();
   int numCmsElements = cmsMap_.NumMyElements();
 
-  double ** X1ptr;
   double ** Y1ptr;
-  double ** X2ptr = new double *[NumVectors];
+  double ** X1ptr;
   double ** Y2ptr = new double *[NumVectors];
+  double ** X2ptr = new double *[NumVectors];
 
-  X.ExtractView(&X1ptr); // Get array of pointers to columns of X
   Y.ExtractView(&Y1ptr); // Get array of pointers to columns of Y
+  X.ExtractView(&X1ptr); // Get array of pointers to columns of X
   for (int i=0; i<NumVectors; i++) {
-    X2ptr[i] = X1ptr[i]+numCmsElements;
     Y2ptr[i] = Y1ptr[i]+numCmsElements;
+    X2ptr[i] = X1ptr[i]+numCmsElements;
   }
-  Epetra_MultiVector X1(View, cmsMap_, X1ptr, NumVectors); // X1 is a view of the first numDensity/numCms elements of X
-  Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity/numCms elements of X
-  Epetra_MultiVector Y1(View, densityMap_, Y1ptr, NumVectors); // Start Y1 to view first numCmsElements elements of Y
-  Epetra_MultiVector Y2(View, cmsMap_, Y2ptr, NumVectors); // Start Y2 to view last numDensity elements of Y
+  Epetra_MultiVector Y1(View, cmsMap_, Y1ptr, NumVectors); // Y1 is a view of the first numDensity/numCms elements of Y
+  Epetra_MultiVector Y2(View, densityMap_, Y2ptr, NumVectors); // Start Y2 to view last numDensity/numCms elements of Y
+  Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view first numCmsElements elements of X
+  Epetra_MultiVector X2(View, cmsMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
 
-  X1.ReciprocalMultipy(1.0, densityOnCmsMatrix_, Y2, 0.0);
-  cmsOnDensityInverse_.ApplyInverse(X2, Y1);
-  delete [] X2ptr;
+  Y1.ReciprocalMultipy(1.0, densityOnCmsMatrix_, X2, 0.0);
+  cmsOnDensityInverse_.ApplyInverse(Y2, X1);
   delete [] Y2ptr;
+  delete [] X2ptr;
   return(0);
 }
 //==============================================================================

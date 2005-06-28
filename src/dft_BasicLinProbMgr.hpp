@@ -307,6 +307,7 @@ protected:
   int numGlobalBoxNodes_;
   Epetra_MpiComm comm_;
   Epetra_IntSerialDenseVector physicsOrdering_;
+  Epetra_IntSerialDenseVector physicsIdToSchurBlockId_;
   Teuchos::RefCountPtr<Epetra_Map> ownedMap_;
   Teuchos::RefCountPtr<Epetra_Map> boxMap_;
   Teuchos::RefCountPtr<Epetra_Import> ownedToBoxImporter_;
@@ -316,10 +317,16 @@ protected:
   Teuchos::RefCountPtr<Epetra_Operator> A11_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A12_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A21_;
-  Teuchos::RefCountPtr<Epetra_CrsMatrix> A22_;
+  Teuchos::RefCountPtr<Epetra_Operator> A22_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> globalMatrix_;
+  Teuchos::RefCountPtr<Epetra_Operator> schurOperator_;
   Teuchos::RefCountPtr<Epetra_Vector> globalRhs_;
   Teuchos::RefCountPtr<Epetra_Vector> globalLhs_;
+  Teuchos::RefCountPtr<Epetra_Vector> rhs1_;
+  Teuchos::RefCountPtr<Epetra_Vector> rhs2_;
+  Teuchos::RefCountPtr<Epetra_Vector> rhsSchur_;
+  Teuchos::RefCountPtr<Epetra_Vector> lhs1_;
+  Teuchos::RefCountPtr<Epetra_Vector> lhs2_;
   Teuchos::RefCountPtr<Epetra_LinearProblem> implicitProblem_;
   Teuchos::RefCountPtr<AztecOO> solver_;
   bool isBlockStructureSet_;

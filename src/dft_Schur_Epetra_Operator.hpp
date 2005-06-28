@@ -38,23 +38,23 @@ class Epetra_Comm;
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_Operator.h"
 
-//! dft_schur_epetra_operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
+//! dft_Schur_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
 /*! Special 2-by-2 block operator for Tramonto polymer and explicit non-local density problems.
 */    
 
-class dft_schur_epetra_operator: public virtual Epetra_Operator {
+class dft_Schur_Epetra_Operator: public virtual Epetra_Operator {
       
  public:
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2-by-2 block system
 
-  dft_schur_epetra_operator(Epetra_CrsMatrix * A11, Epetra_CrsMatrix * A12, 
+  dft_Schur_Epetra_Operator(Epetra_CrsMatrix * A11, Epetra_CrsMatrix * A12, 
 			    Epetra_CrsMatrix * A21, Epetra_CrsMatrix * A22);
   //@}
   //@{ \name Destructor.
     //! Destructor
-  ~dft_schur_epetra_operator();
+  ~dft_Schur_Epetra_Operator();
   //@}
   
   //@{ \name Atribute set methods.
@@ -65,7 +65,7 @@ class dft_schur_epetra_operator: public virtual Epetra_Operator {
   
   //@{ \name Mathematical functions.
 
-    //! Returns the result of a dft_schur_epetra_operator applied to a Epetra_MultiVector X in Y.
+    //! Returns the result of a dft_Schur_Epetra_Operator applied to a Epetra_MultiVector X in Y.
     /*! 
     \param In
 	   X - A Epetra_MultiVector of dimension NumVectors to multiply with matrix.
@@ -117,10 +117,10 @@ class dft_schur_epetra_operator: public virtual Epetra_Operator {
   //@}
   
 
-  Epetra_CrsMatrix * A11_; /*!< The 1,1 block of the 2 by 2 block matrix */
+  Epetra_Operator * A11_; /*!< The 1,1 block of the 2 by 2 block matrix */
   Epetra_CrsMatrix * A12_; /*!< The 1,2 block of the 2 by 2 block matrix */
   Epetra_CrsMatrix * A21_; /*!< The 2,1 block of the 2 by 2 block matrix */
-  Epetra_CrsMatrix * A22_; /*!< The 2,2 block of the 2 by 2 block matrix */
+  Epetra_Operator * A22_; /*!< The 2,2 block of the 2 by 2 block matrix */
   char * Label_; /*!< Description of object */
 };
 

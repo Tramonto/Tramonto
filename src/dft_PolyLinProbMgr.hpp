@@ -202,10 +202,7 @@ protected:
   Epetra_IntSerialDenseVector gEquations_;
   Epetra_IntSerialDenseVector gInvEquations_;
   Epetra_IntSerialDenseVector cmsEquations_;
-  Epetra_IntSerialDenseVector densityEquations_;
-  Epetra_IntSerialDenseVector physicsIdToMatrixId_;
-  Epetra_IntSerialDenseVector physicsIdToSchurBlockId_;
-  
+  Epetra_IntSerialDenseVector densityEquations_;  
 	     
 };
 
