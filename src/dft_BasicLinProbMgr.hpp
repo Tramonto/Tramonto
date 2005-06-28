@@ -279,23 +279,23 @@ protected:
 
   inline int ownedToSolverGID(int ownedPhysicsID, int ownedNode) const { 
     if (groupByPhysics_) 
-      return(ownedPhysicsID*numGlobalNodes_ + ownedMap_->GID(ownedNode));
+      return(physicsOrdering_[ownedPhysicsID]*numGlobalNodes_ + ownedMap_->GID(ownedNode));
     else
-      return(ownedPhysicsID + numUnknownsPerNode_*ownedMap_->GID(ownedNode));
+      return(physicsOrdering_[ownedPhysicsID] + numUnknownsPerNode_*ownedMap_->GID(ownedNode));
   }
 	     
   inline int ownedToSolverLID(int ownedPhysicsID, int ownedNode) const { 
     if (groupByPhysics_) 
-      return(ownedPhysicsID*numOwnedNodes_ + ownedNode);
+      return(physicsOrdering_[ownedPhysicsID]*numOwnedNodes_ + ownedNode);
     else
-      return(ownedPhysicsID + numUnknownsPerNode_*ownedNode);
+      return(physicsOrdering_[ownedPhysicsID] + numUnknownsPerNode_*ownedNode);
   }
 	     
   inline int boxToSolverGID(int boxPhysicsID, int boxNode) const { 
     if (groupByPhysics_) 
-      return(boxPhysicsID*numGlobalNodes_ + boxMap_->GID(boxNode));
+      return(physicsOrdering_[boxPhysicsID]*numGlobalNodes_ + boxMap_->GID(boxNode));
     else
-      return(boxPhysicsID + numUnknownsPerNode_*boxMap_->GID(boxNode));
+      return(physicsOrdering_[boxPhysicsID] + numUnknownsPerNode_*boxMap_->GID(boxNode));
   }
 	     
   int numUnknownsPerNode_;
@@ -304,16 +304,23 @@ protected:
   int numOwnedNodes_;
   int numBoxNodes_;
   int numGlobalNodes_;
-  int numMatrixBlocks_;
+  int numGlobalBoxNodes_;
   Epetra_MpiComm comm_;
+  Epetra_IntSerialDenseVector physicsOrdering_;
   Teuchos::RefCountPtr<Epetra_Map> ownedMap_;
   Teuchos::RefCountPtr<Epetra_Map> boxMap_;
   Teuchos::RefCountPtr<Epetra_Import> ownedToBoxImporter_;
+  Teuchos::RefCountPtr<Epetra_Map> block1RowMap_;
+  Teuchos::RefCountPtr<Epetra_Map> block2RowMap_;
   Teuchos::RefCountPtr<Epetra_Map> globalRowMap_;
+  Teuchos::RefCountPtr<Epetra_Operator> A11_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> A12_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> A21_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> A22_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> globalMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> globalRhs_;
   Teuchos::RefCountPtr<Epetra_Vector> globalLhs_;
-  Teuchos::RefCountPtr<Epetra_LinearProblem> globalProblem_;
+  Teuchos::RefCountPtr<Epetra_LinearProblem> implicitProblem_;
   Teuchos::RefCountPtr<AztecOO> solver_;
   bool isBlockStructureSet_;
   bool isGraphStructureSet_;

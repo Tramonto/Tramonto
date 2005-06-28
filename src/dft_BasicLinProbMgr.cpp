@@ -50,7 +50,7 @@ dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOpt
     numOwnedNodes_(0),
     numBoxNodes_(0),
     numGlobalNodes_(0),
-    numMatrixBlocks_(0),
+    numGlobalBoxNodes_(0),
     comm_(Epetra_MpiComm(comm)),
     isBlockStructureSet_(false),
     isGraphStructureSet_(false),
@@ -66,6 +66,7 @@ dft_BasicLinProbMgr::~dft_BasicLinProbMgr() {
 }
 //=============================================================================
 int dft_BasicLinProbMgr::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx, int ny, int nz) {
+  if (numGlobalNodes_!=0) return(0); // Already been here
   numOwnedNodes_ = numOwnedNodes;
   comm_.SumAll(&numOwnedNodes_, &numGlobalNodes_, 1);
 
@@ -77,6 +78,7 @@ int dft_BasicLinProbMgr::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx, i
 int dft_BasicLinProbMgr::setNodalColMap(int numBoxNodes, int * GIDs, int nx, int ny, int nz) {
   
   numBoxNodes_ = numBoxNodes;
+  comm_.SumAll(&numBoxNodes_, &numGlobalBoxNodes_, 1);
 
   boxMap_ = Teuchos::rcp(new Epetra_Map(-1, numBoxNodes, GIDs, 0, comm_));
   //std::cout << " Box Map" << *boxMap_.get() << std::endl;
@@ -90,6 +92,11 @@ int dft_BasicLinProbMgr::finalizeBlockStructure() {
   
   const int numUnks = numOwnedNodes_*numUnknownsPerNode_;
   Epetra_IntSerialDenseVector globalGIDList(numUnks);
+
+  // Physics ordering for Basic Linear Problem is natural ordering:
+  physicsOrdering_.Size(numUnknownsPerNode_);
+  int * ptr = physicsOrdering_.Values();
+  for (int i=0; i<physicsOrdering_.Length(); i++) *ptr++ = i;
 
   int * GIDs = ownedMap_->MyGlobalElements();
   int k=0;
@@ -106,10 +113,14 @@ int dft_BasicLinProbMgr::finalizeBlockStructure() {
 
   //std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl;
 
+  A11_=null; // Schur complement is not used in basic problem
+  A21_=null;
+  A12_=null;
+  A22_=null;
   globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
-  globalProblem_ = Teuchos::rcp(new Epetra_LinearProblem(globalMatrix_.get(), globalLhs_.get(), globalRhs_.get()));
+  implicitProblem_ = Teuchos::rcp(new Epetra_LinearProblem(globalMatrix_.get(), globalLhs_.get(), globalRhs_.get()));
     
   ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*(boxMap_.get()), *(ownedMap_.get())));
 
@@ -229,14 +240,9 @@ int dft_BasicLinProbMgr::getRhs(double ** b) const {
 //=============================================================================
 int dft_BasicLinProbMgr::setupSolver() {
 
-  solver_ = Teuchos::rcp(new AztecOO(*(globalProblem_.get())));
+  solver_ = Teuchos::rcp(new AztecOO(*(implicitProblem_.get())));
   solver_->SetAllAztecOptions(solverOptions_);
   solver_->SetAllAztecParams(solverParams_);
-  //solver_->SetAztecOption(AZ_solver, AZ_gmres);
-  //solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
-  //solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
-  //solver_->SetAztecParam(AZ_ilut_fill, 4.0);
-  //solver_->SetAztecParam(AZ_drop, 0.0);
 
   return(0);
 }

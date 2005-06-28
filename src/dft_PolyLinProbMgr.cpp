@@ -45,6 +45,7 @@
 //=============================================================================
 dft_PolyLinProbMgr::dft_PolyLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm) 
   : dft_BasicLinProbMgr(numUnknownsPerNode, solverOptions, solverParams, comm) {
+  
 
   return;
 }
@@ -56,6 +57,14 @@ dft_PolyLinProbMgr::~dft_PolyLinProbMgr() {
 int dft_PolyLinProbMgr::finalizeBlockStructure() {
 
   if (isBlockStructureSet_) return(1); // Already been here, return warning
+
+  if (numGlobalNodes_==0 ||
+      numGlobalBoxNodes_==0 ||
+      gInvEquations_.Length()==0 ||
+      gInvEquations_.Length()==0 ||
+      cmsEquations_.Length()==0 ||
+      densityEquations_.Length()==0) return(-1); // Error: One or more set methods not called
+      
   
   // Fill physics ordering vector with the concatenated contents of the IDs for all physics types
 
@@ -67,6 +76,9 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   for (int i=0; i<densityEquations_.Length(); i++) *ptr++ = densityEquations_[i];
 
   const int numUnks = numOwnedNodes_*numUnknownsPerNode_;
+  const int numUnks1 = gEquations_.Length()+gInvEquations_.Length();
+  const int numUnks2 = cmsEquations_.Length()+densityInvEquations_.Length();
+  assert(numUnks==(numUnks1+numUnks2));  // Sanity test
   Epetra_IntSerialDenseVector globalGIDList(numUnks);
 
   int * GIDs = ownedMap_->MyGlobalElements();
@@ -77,11 +89,19 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
       globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
   }
 
-  globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, globalGIDList.Values(), 0, comm_));
+  ptr = globalGIDList.Values();
+  globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, ptr, 0, comm_));
+  block1RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes_*numUnks1, ptr, 0, comm_));
+  block2RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes_*numUnks2, ptr+numUnks1, 0, comm_));
 
   //std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl;
 
-  // Start here on 6/27: Should this be an Epetra_Operator???  globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
+  A11_ = Teuchos::rcp(new dft_PolyA11_Epetra_Operator(ownedMap_, gEquations.Length()));
+  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block1RowMap_, 0));
+  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block2RowMap_, 0));
+  A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(ownedMap_, cmsEquations_.Length()+densityEquations_.Length()));
+  globalMatrix = null; // not used by this solver
+
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalProblem_ = Teuchos::rcp(new Epetra_LinearProblem(globalMatrix_.get(), globalLhs_.get(), globalRhs_.get()));

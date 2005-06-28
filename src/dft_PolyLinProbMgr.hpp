@@ -71,8 +71,10 @@ class dft_PolyLinProbMgr: public dft_BasicLinProbMgr {
      \param physicsIDs (In) List of physics IDs associated with the G equations in ascending order.
   */
   int setGEquationIDs(int numGEquations, int * physicsIDs) { 
-    gEquations_.Resize(numGEquations); 
+    if (gEquations_.Length()!=0) return(0); // Already been here
+    gEquations_.Size(numGEquations); 
     for (int i=0; i<numGEquations; i++) gEquations_[i] = physicsIDs[i];
+    return(0);
   }
 
   //! Define G inverse equation IDs
@@ -80,9 +82,11 @@ class dft_PolyLinProbMgr: public dft_BasicLinProbMgr {
      \param numGInvEquations (In) Number of G inverse equations per node.
      \param physicsIDs (In) List of physics IDs associated with the G equations in ascending order.
   */
-  int setGInvEquationIDs(int numGInvEquations, int * physicsIDs) { 
-    gInvEquations_.Resize(numGInvEquations); 
+  int setGInvEquationIDs(int numGInvEquations, int * physicsIDs) {
+    if (gInvEquations_.Length()!=0) return(0); // Already been here
+    gInvEquations_.Size(numGInvEquations); 
     for (int i=0; i<numGInvEquations; i++) gInvEquations_[i] = physicsIDs[i];
+    return(0);
   }
 
   //! Define CMS equation IDs
@@ -91,8 +95,10 @@ class dft_PolyLinProbMgr: public dft_BasicLinProbMgr {
      \param physicsIDs (In) List of physics IDs associated with the CMS equations in ascending order.
   */
   int setCmsEquationIDs(int numCmsEquations, int * physicsIDs) { 
-    cmsEquations_.Resize(numCmsEquations); 
+    if (cmsEquations_.Length()!=0) return(0); // Already been here
+    cmsEquations_.Size(numCmsEquations); 
     for (int i=0; i<numCmsEquations; i++) cmsEquations_[i] = physicsIDs[i];
+    return(0);
   }
 
   //! Define primitive density equation IDs
@@ -101,12 +107,17 @@ class dft_PolyLinProbMgr: public dft_BasicLinProbMgr {
      \param physicsIDs (In) List of physics IDs associated with the primitive density equations in ascending order.
   */
   int setDensityEquationIDs(int numDensityEquations, int * physicsIDs) { 
-    densityEquations_.Resize(numDensityEquations); 
+    if (densityEquations_.Length()!=0) return(0); // Already been here
+    densityEquations_.Size(numDensityEquations); 
     for (int i=0; i<numDensityEquations; i++) densityEquations_[i] = physicsIDs[i];
+    return(0);
   }
 
   //! Method that must be called once, when all row and column maps are set.
-  /*! This method constructs all of the Epetra_CrsGraph objects and the lhs and rhs vectors. */
+  /*! This method constructs all of the Epetra_CrsGraph objects and the lhs and rhs vectors. 
+   \pre All "set" methods must be called: setNodalRowMap(), setNodalColMap(), setGEquationIDs(), setGInvEquationIDs(), setCmsEquationIDs() and setDensityEquationIDs() 
+   \post The problem structure is finalized and cannot be changed.
+  */
   int finalizeBlockStructure();
   //@}
 
@@ -192,7 +203,6 @@ protected:
   Epetra_IntSerialDenseVector gInvEquations_;
   Epetra_IntSerialDenseVector cmsEquations_;
   Epetra_IntSerialDenseVector densityEquations_;
-  Epetra_IntSerialDenseVector physicsOrdering_;
   Epetra_IntSerialDenseVector physicsIdToMatrixId_;
   Epetra_IntSerialDenseVector physicsIdToSchurBlockId_;
   
