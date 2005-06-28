@@ -38,7 +38,7 @@
 #include "Epetra_IntSerialDenseVector.h"
 
 //==============================================================================
-dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map block2Map) 
+dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map) 
   : cmsMap_(cmsMap),
     densityMap_(densityMap),
     block2Map_(block2Map),

@@ -34,6 +34,10 @@ class Epetra_Import;
 class Epetra_CrsMatrix;
 class Epetra_LinearProblem;
 class AztecOO;
+class dft_PolyA11_Epetra_Operator;
+class dft_PolyA22_Epetra_Operator;
+class dft_Schur_Epetra_Operator;
+
 #include "dft_BasicLinProbMgr.hpp"
 #include "Epetra_MpiComm.h"
 #include "Teuchos_RefCountPtr.hpp"
@@ -203,6 +207,21 @@ protected:
   Epetra_IntSerialDenseVector gInvEquations_;
   Epetra_IntSerialDenseVector cmsEquations_;
   Epetra_IntSerialDenseVector densityEquations_;  
+  Teuchos::RefCountPtr<dft_PolyA11_Epetra_Operator> A11_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> A12_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> A21_;
+  Teuchos::RefCountPtr<dft_PolyA22_Epetra_Operator> A22_;
+  Teuchos::RefCountPtr<Epetra_Map> block1RowMap_;
+  Teuchos::RefCountPtr<Epetra_Map> block2RowMap_;
+  Teuchos::RefCountPtr<Epetra_Map> cmsRowMap_;
+  Teuchos::RefCountPtr<Epetra_Map> densityRowMap_;
+  Epetra_IntSerialDenseVector physicsIdToSchurBlockId_;
+  Teuchos::RefCountPtr<dft_Schur_Epetra_Operator> schurOperator_;
+  Teuchos::RefCountPtr<Epetra_Vector> rhs1_;
+  Teuchos::RefCountPtr<Epetra_Vector> rhs2_;
+  Teuchos::RefCountPtr<Epetra_Vector> rhsSchur_;
+  Teuchos::RefCountPtr<Epetra_Vector> lhs1_;
+  Teuchos::RefCountPtr<Epetra_Vector> lhs2_;
 	     
 };
 

@@ -49,8 +49,8 @@ class dft_Schur_Epetra_Operator: public virtual Epetra_Operator {
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2-by-2 block system
 
-  dft_Schur_Epetra_Operator(Epetra_CrsMatrix * A11, Epetra_CrsMatrix * A12, 
-			    Epetra_CrsMatrix * A21, Epetra_CrsMatrix * A22);
+  dft_Schur_Epetra_Operator(Epetra_Operator * A11, Epetra_CrsMatrix * A12, 
+			    Epetra_CrsMatrix * A21, Epetra_Operator * A22);
   //@}
   //@{ \name Destructor.
     //! Destructor
@@ -107,13 +107,13 @@ class dft_Schur_Epetra_Operator: public virtual Epetra_Operator {
   bool HasNormInf() const{return(false);};
   
   //! Returns a pointer to the Epetra_Comm communicator associated with this operator.
-  const Epetra_Comm & Comm() const{return(A11_->Comm());};
+  const Epetra_Comm & Comm() const{return(A22_->Comm());};
   
   //! Returns the Epetra_Map object associated with the domain of this operator.
-  const Epetra_Map & OperatorDomainMap() const {return(A22_->DomainMap());};
+  const Epetra_Map & OperatorDomainMap() const {return(A22_->OperatorDomainMap());};
   
   //! Returns the Epetra_Map object associated with the range of this operator.
-  const Epetra_Map & OperatorRangeMap() const {return(A22_->DomainMap());};
+  const Epetra_Map & OperatorRangeMap() const {return(A22_->OperatorRangeMap());};
   //@}
   
 

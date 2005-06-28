@@ -38,7 +38,7 @@
 #include "Epetra_IntSerialDenseVector.h"
 
 //==============================================================================
-dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, const EpetraMap & block1Map) 
+dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map) 
   : ownedMap_(ownedMap),
     block1Map_(block1Map),
     numBlocks_(block1Map.NumMyElements()/ownedMap.NumMyElements()),
@@ -88,7 +88,7 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   for (int i=0; i<numBlocks_; i++) {
-    matrix_[i]->FillComplete(ownedMap_,block1Map);
+    matrix_[i]->FillComplete(ownedMap_,block1Map_);
     matrix_[i]->OptimizeStorage();
   }
 

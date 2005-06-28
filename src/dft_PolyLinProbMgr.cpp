@@ -40,6 +40,9 @@
 #include "Epetra_Import.h"
 #include "AztecOO.h"
 #include "EpetraExt_RowMatrixOut.h"
+#include "dft_PolyA11_Epetra_Operator.hpp"
+#include "dft_PolyA22_Epetra_Operator.hpp"
+#include "dft_Schur_Epetra_Operator.hpp"
 
 
 //=============================================================================
@@ -112,20 +115,20 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
 
   //std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl;
 
-  A11_ = Teuchos::rcp(new dft_PolyA11_Epetra_Operator(ownedMap_, gEquations.Length()));
-  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block1RowMap_, 0));
-  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block2RowMap_, 0));
-  A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(cmsRowMap_, densityRowMap_, block2RowMap_));
-  globalMatrix = null; // not used by this solver
+  A11_ = Teuchos::rcp(new dft_PolyA11_Epetra_Operator(*(ownedMap_.get()), *(block1RowMap_.get())));
+  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block1RowMap_.get()), 0));
+  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block2RowMap_.get()), 0));
+  A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
+  globalMatrix_ = Teuchos::null; // not used by this solver
   
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
 
-  rhs1_ = Teuchos::rcp(new Epetra_Vector(View, (block1RowMap_.get()), globalRhs_->Values()));
-  rhs2_ = Teuchos::rcp(new Epetra_Vector(View, (block1RowMap_.get()), globalRhs_->Values()+numUnks1));
+  rhs1_ = Teuchos::rcp(new Epetra_Vector(View, *(block1RowMap_.get()), globalRhs_->Values()));
+  rhs2_ = Teuchos::rcp(new Epetra_Vector(View, *(block1RowMap_.get()), globalRhs_->Values()+numUnks1));
   rhsSchur_ = Teuchos::rcp(new Epetra_Vector(*(rhs2_.get())));
-  lhs1_ = Teuchos::rcp(new Epetra_Vector(View, (block1RowMap_.get()), globalLhs_->Values()));
-  lhs2_ = Teuchos::rcp(new Epetra_Vector(View, (block1RowMap_.get()), globalLhs_->Values()+numUnks1));
+  lhs1_ = Teuchos::rcp(new Epetra_Vector(View, *(block1RowMap_.get()), globalLhs_->Values()));
+  lhs2_ = Teuchos::rcp(new Epetra_Vector(View, *(block1RowMap_.get()), globalLhs_->Values()+numUnks1));
 
   schurOperator_ = Teuchos::rcp(new dft_Schur_Epetra_Operator(A11_.get(), A12_.get(), A21_.get(), A22_.get()));
   implicitProblem_ = Teuchos::rcp(new Epetra_LinearProblem(schurOperator_.get(), lhs2_.get(), rhsSchur_.get()));
@@ -213,12 +216,12 @@ int dft_PolyLinProbMgr::setupSolver() {
 
   if (!isLinearProblemSet_) return(-1);
 
-  schurOperator_->ComputeRHS(rhs1, rhs2, rhsSchur_)
+  schurOperator_->ComputeRHS((*rhs1_.get()), (*rhs2_.get()), (*rhsSchur_.get()));
   
   solver_ = Teuchos::rcp(new AztecOO(*(implicitProblem_.get())));
   solver_->SetAllAztecOptions(solverOptions_);
   solver_->SetAllAztecParams(solverParams_);
-  solver_->SetPrecOperator(schurOperator_->getA22Inv());
+  solver_->SetPrecOperator(A22_->getA22Inv());
   //solver_->SetAztecOption(AZ_solver, AZ_gmres);
   //solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
   //solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);

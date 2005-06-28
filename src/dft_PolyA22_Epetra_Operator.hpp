@@ -53,7 +53,7 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
-  dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map block2Map);
+  dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map);
   //@}
   //@{ \name Assembly methods.
   int initializeProblemValues();
@@ -121,19 +121,19 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
   bool HasNormInf() const{return(false);};
   
   //! Returns a pointer to the Epetra_Comm communicator associated with this operator.
-  const Epetra_Comm & Comm() const{return(block2Map.Comm());};
+  const Epetra_Comm & Comm() const{return(block2Map_.Comm());};
   
   //! Returns the Epetra_Map object associated with the domain of this operator.
-  const Epetra_Map & OperatorDomainMap() const {return(block2Map);};
+  const Epetra_Map & OperatorDomainMap() const {return(block2Map_);};
   
   //! Returns the Epetra_Map object associated with the range of this operator.
-  const Epetra_Map & OperatorRangeMap() const {return(block2Map);};
+  const Epetra_Map & OperatorRangeMap() const {return(block2Map_);};
   //@}
   
 
   Epetra_Map cmsMap__;
-  Epetra_Map densityMap__;
-  Epetra_Map block2Map__;
+  Epetra_Map densityMap_;
+  Epetra_Map block2Map_;
   int numBlocks_;
   Epetra_CrsMatrix cmsOnDensityMatrix_;
   Teuchos::RefCountPtr<Epetra_Operator> cmsOnDensityInverse_;

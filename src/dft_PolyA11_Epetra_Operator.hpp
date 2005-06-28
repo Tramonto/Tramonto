@@ -51,7 +51,7 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
-  dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, const EpetraMap & block1Map);
+  dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map);
   //@}
   //@{ \name Assembly methods.
   int initializeProblemValues();
@@ -115,13 +115,13 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   bool HasNormInf() const{return(false);};
   
   //! Returns a pointer to the Epetra_Comm communicator associated with this operator.
-  const Epetra_Comm & Comm() const{return(block1Map.Comm());};
+  const Epetra_Comm & Comm() const{return(block1Map_.Comm());};
   
   //! Returns the Epetra_Map object associated with the domain of this operator.
-  const Epetra_Map & OperatorDomainMap() const {return(block1Map);};
+  const Epetra_Map & OperatorDomainMap() const {return(block1Map_);};
   
   //! Returns the Epetra_Map object associated with the range of this operator.
-  const Epetra_Map & OperatorRangeMap() const {return(block1Map);};
+  const Epetra_Map & OperatorRangeMap() const {return(block1Map_);};
   //@}
   
 
