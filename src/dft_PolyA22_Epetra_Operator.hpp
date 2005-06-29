@@ -130,13 +130,14 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
   const Epetra_Map & OperatorRangeMap() const {return(block2Map_);};
   //@}
   
+private:
 
-  Epetra_Map cmsMap__;
+  Epetra_Map cmsMap_;
   Epetra_Map densityMap_;
   Epetra_Map block2Map_;
   int numBlocks_;
   Epetra_CrsMatrix cmsOnDensityMatrix_;
-  Teuchos::RefCountPtr<Epetra_Operator> cmsOnDensityInverse_;
+  Teuchos::RefCountPtr<Ifpack_Preconditioner> cmsOnDensityInverse_;
   Epetra_Vector densityOnCmsMatrix_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;

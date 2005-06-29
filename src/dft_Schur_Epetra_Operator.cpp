@@ -111,7 +111,7 @@ int dft_Schur_Epetra_Operator::ComputeRHS(const Epetra_MultiVector& B1, const Ep
 
   // Compute B2S =  B2 - A21*inv(A11)B1
 
-  Epetra_MultiVector Y1(A11_->DomainMap(), B1.NumVectors());
+  Epetra_MultiVector Y1(A11_->OperatorDomainMap(), B1.NumVectors());
  
   A11_->Apply(B1, Y1);
   A21_->Apply(Y1, B2S);
