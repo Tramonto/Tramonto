@@ -36,6 +36,7 @@
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
 #include "Epetra_IntSerialDenseVector.h"
+#include "Teuchos_TestForException.hpp"
 
 //==============================================================================
 dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map) 
@@ -103,9 +104,9 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
 int dft_PolyA11_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
 
 
-  if (!X.Map().SameAs(OperatorDomainMap())) abort();  // These aborts should be handled as int return codes.
-  if (!Y.Map().SameAs(OperatorRangeMap())) abort();
-  if (Y.NumVectors()!=X.NumVectors()) abort();
+  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
+  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numMyElements = ownedMap_.NumMyElements();
 
@@ -130,9 +131,9 @@ int dft_PolyA11_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
 int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
 
 
-  if (!X.Map().SameAs(OperatorDomainMap())) abort();  // These aborts should be handled as int return codes.
-  if (!Y.Map().SameAs(OperatorRangeMap())) abort();
-  if (Y.NumVectors()!=X.NumVectors()) abort();
+  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
+  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numMyElements = ownedMap_.NumMyElements();
 

@@ -35,6 +35,7 @@
 #include "Epetra_Comm.h"
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
+#include "Teuchos_TestForException.hpp"
 
 //==============================================================================
 dft_Schur_Epetra_Operator::dft_Schur_Epetra_Operator(Epetra_Operator * A11, Epetra_CrsMatrix * A12, 
@@ -87,9 +88,9 @@ dft_Schur_Epetra_Operator::~dft_Schur_Epetra_Operator() {
 int dft_Schur_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
 
 
-  if (!X.Map().SameAs(OperatorDomainMap())) abort();  // These aborts should be handled as int return codes.
-  if (!Y.Map().SameAs(OperatorRangeMap())) abort();
-  if (Y.NumVectors()!=X.NumVectors()) abort();
+  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
+  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
 
   // Apply (A22 - A21*inv(A11)*A12 to X
 
