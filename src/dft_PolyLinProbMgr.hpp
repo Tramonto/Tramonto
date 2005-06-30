@@ -46,7 +46,7 @@ class dft_Schur_Epetra_Operator;
 /*! The dft_PolyLinProbMgr class supports solver capabilities for Tramonto.
   
 */
-class dft_PolyLinProbMgr: public dft_BasicLinProbMgr {
+class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
     
   public:
   //@{ \name Constructors/destructor.

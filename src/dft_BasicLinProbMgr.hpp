@@ -96,7 +96,7 @@ class dft_BasicLinProbMgr {
 
   //! Method that must be called once, when all row and column maps are set.
   /*! This method constructs all of the Epetra_CrsGraph objects and the lhs and rhs vectors. */
-  int finalizeBlockStructure();
+  virtual int finalizeBlockStructure();
   //@}
 
   //@{ \name Matrix, lhs and rhs value setup methods for piece-wise construction.

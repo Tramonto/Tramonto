@@ -93,8 +93,8 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
 
 
   const int numUnks = numOwnedNodes_*numUnknownsPerNode_;
-  const int numUnks1 = gEquations_.Length()+gInvEquations_.Length();
-  const int numUnks2 = cmsEquations_.Length()+densityEquations_.Length();
+  const int numUnks1 = numOwnedNodes_*(gEquations_.Length()+gInvEquations_.Length());
+  const int numUnks2 = numOwnedNodes_*(cmsEquations_.Length()+densityEquations_.Length());
   assert(numUnks==(numUnks1+numUnks2));  // Sanity test
   Epetra_IntSerialDenseVector globalGIDList(numUnks);
 
@@ -108,8 +108,8 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
 
   ptr = globalGIDList.Values();
   globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, ptr, 0, comm_));
-  block1RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes_*numUnks1, ptr, 0, comm_));
-  block2RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes_*numUnks2, ptr+numUnks1, 0, comm_));
+  block1RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks1, ptr, 0, comm_));
+  block2RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks2, ptr+numUnks1, 0, comm_));
   cmsRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes_*cmsEquations_.Length(), ptr+numUnks1, 0, comm_));
   densityRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes_*densityEquations_.Length(), ptr+numUnks1+cmsEquations_.Length(), 0, comm_));
 
