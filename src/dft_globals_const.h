@@ -38,7 +38,8 @@
 #endif
 
 #include "az_aztec.h"
-#include "dft_c2cpp_wrappers.h"
+#include "dft_basic_lin_prob_mgr_wrapper.h"
+#include "dft_poly_lin_prob_mgr_wrapper.h"
 
 /****************************************************************************/
 /* Machine specific definitions */

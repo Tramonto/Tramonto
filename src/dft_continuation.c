@@ -82,7 +82,8 @@
 
 /* Put include statements for your code here. */
 #include "dft_globals_const.h"
-#include "dft_c2cpp_wrappers.h"
+#include "dft_basic_lin_prob_mgr_wrapper.h"
+#include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "rf_allo.h"
 
 /*****************************************************************************/

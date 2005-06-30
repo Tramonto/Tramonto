@@ -47,7 +47,8 @@ COMMON_CXX_SOURCES = \
 	${srcdir}/dft_PolyA11_Epetra_Operator.cpp \
 	${srcdir}/dft_PolyA22_Epetra_Operator.cpp \
 	${srcdir}/dft_Schur_Epetra_Operator.cpp \
-	${srcdir}/dft_c2cpp_wrappers.cpp 
+	${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp \
+	${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp
 
 COMMON_HEADERS = \
 	${srcdir}/dft_globals.h \
@@ -63,7 +64,8 @@ COMMON_HEADERS = \
 	${srcdir}/dft_PolyA11_Epetra_Operator.hpp \
 	${srcdir}/dft_PolyA22_Epetra_Operator.hpp \
 	${srcdir}/dft_Schur_Epetra_Operator.hpp \
-	${srcdir}/dft_c2cpp_wrappers.h  
+	${srcdir}/dft_basic_lin_prob_mgr_wrapper.h \
+	${srcdir}/dft_poly_lin_prob_mgr_wrapper.h
 
 libdft_a_SOURCES=${COMMON_C_SOURCES} ${COMMON_CXX_SOURCES}
 dft_SOURCES= dft_maindriver.c ${COMMON_C_SOURCES} ${COMMON_CXX_SOURCES}

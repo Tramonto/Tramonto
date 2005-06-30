@@ -158,13 +158,6 @@ int dft_PolyLinProbMgr::initializeProblemValues() {
   return(0);
 }
 //=============================================================================
-int dft_PolyLinProbMgr::insertRhsValue(int ownedPhysicsID, int ownedNode, double value) {
-
-  int rhsLID = ownedToSolverLID(ownedPhysicsID, ownedNode); // Get solver LID
-  (*globalRhs_)[rhsLID] += value;
-  return(0);
-}
-//=============================================================================
 int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode, double value) {
 
   int schurBlockRow = physicsIdToSchurBlockId_[ownedPhysicsID];
