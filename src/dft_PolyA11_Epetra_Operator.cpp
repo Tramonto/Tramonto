@@ -51,7 +51,7 @@ dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & owne
 
   Label_ = "dft_PolyA11_Epetra_Operator";
   matrix_ = new Epetra_CrsMatrix*[numBlocks_];
-  for (int i=0; i<numBlocks_; i++) matrix_[i] = 0;
+  for (int i=0; i<numBlocks_; i++) matrix_[i] = new Epetra_CrsMatrix(Copy, ownedMap, 0);
   
 
 }
@@ -88,11 +88,12 @@ int dft_PolyA11_Epetra_Operator::insertMatrixValue(int ownedPhysicsID, int owned
 int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
-  for (int i=0; i<numBlocks_; i++) {
-    matrix_[i]->FillComplete(ownedMap_,block1Map_);
-    matrix_[i]->OptimizeStorage();
-  }
-
+  if (firstTime_) 
+    for (int i=0; i<numBlocks_; i++) {
+      matrix_[i]->FillComplete(ownedMap_,block1Map_);
+      matrix_[i]->OptimizeStorage();
+    }
+  
   /*  for (int i=0; i<numBlocks_; i++) {
       std::cout << *matrix_[i];
   */

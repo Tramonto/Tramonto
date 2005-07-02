@@ -98,17 +98,26 @@ int dft_BasicLinProbMgr::finalizeBlockStructure() {
   int * ptr = physicsOrdering_.Values();
   for (int i=0; i<physicsOrdering_.Length(); i++) *ptr++ = i;
 
+  // create inverse mapping of where each physics unknown is ordered for the solver
+  solverOrdering_.Size(numUnknownsPerNode_);
+  for (int i=0; i<physicsOrdering_.Length(); i++) solverOrdering_[physicsOrdering_[i]]=i;
+
+
   int * GIDs = ownedMap_->MyGlobalElements();
   int k=0;
   if (groupByPhysics_) 
-    for (int i=0; i<numUnknownsPerNode_; i++)
-      for (int j=0; j<numOwnedNodes_; j++) 
-	globalGIDList[k++] = i*numGlobalNodes_ + GIDs[j];
+    for (int i=0; i<numUnknownsPerNode_; i++) {
+	int ii=physicsOrdering_[i];
+	for (int j=0; j<numOwnedNodes_; j++) 
+	  globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
+    }
   else
-    for (int j=0; j<numOwnedNodes_; j++) 
-      for (int i=0; i<numUnknownsPerNode_; i++)
-	globalGIDList[k++] = i + GIDs[j]*numUnknownsPerNode_;
-
+    for (int j=0; j<numOwnedNodes_; j++)
+      for (int i=0; i<numUnknownsPerNode_; i++) {
+	int ii=physicsOrdering_[i];
+	globalGIDList[k++] = ii + GIDs[j]*numUnknownsPerNode_;
+      }
+  
   globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, globalGIDList.Values(), 0, comm_));
 
   //std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl;

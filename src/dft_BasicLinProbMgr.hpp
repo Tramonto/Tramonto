@@ -280,23 +280,26 @@ protected:
 
   inline int ownedToSolverGID(int ownedPhysicsID, int ownedNode) const { 
     if (groupByPhysics_) 
-      return(physicsOrdering_[ownedPhysicsID]*numGlobalNodes_ + ownedMap_->GID(ownedNode));
+      return(ownedPhysicsID*numGlobalNodes_ + ownedMap_->GID(ownedNode));
     else
-      return(physicsOrdering_[ownedPhysicsID] + numUnknownsPerNode_*ownedMap_->GID(ownedNode));
+      return(ownedPhysicsID + numUnknownsPerNode_*ownedMap_->GID(ownedNode));
   }
 	     
-  inline int ownedToSolverLID(int ownedPhysicsID, int ownedNode) const { 
-    if (groupByPhysics_) 
-      return(physicsOrdering_[ownedPhysicsID]*numOwnedNodes_ + ownedNode);
-    else
-      return(physicsOrdering_[ownedPhysicsID] + numUnknownsPerNode_*ownedNode);
+  inline int ownedToSolverLID(int ownedPhysicsID, int ownedNode) const {
+    return(globalRowMap_->LID(ownedToSolverGID(ownedPhysicsID,ownedNode)));
   }
+  /*  inline int ownedToSolverLID(int ownedPhysicsID, int ownedNode) const { 
+      if (groupByPhysics_) 
+       return(physicsOrdering_[ownedPhysicsID]*numOwnedNodes_ + ownedNode);
+      else
+       return(physicsOrdering_[ownedPhysicsID] + numUnknownsPerNode_*ownedNode);
+      }*/
 	     
   inline int boxToSolverGID(int boxPhysicsID, int boxNode) const { 
     if (groupByPhysics_) 
-      return(physicsOrdering_[boxPhysicsID]*numGlobalNodes_ + boxMap_->GID(boxNode));
+      return(boxPhysicsID*numGlobalNodes_ + boxMap_->GID(boxNode));
     else
-      return(physicsOrdering_[boxPhysicsID] + numUnknownsPerNode_*boxMap_->GID(boxNode));
+      return(boxPhysicsID + numUnknownsPerNode_*boxMap_->GID(boxNode));
   }
 	     
   int numUnknownsPerNode_;
@@ -308,6 +311,7 @@ protected:
   int numGlobalBoxNodes_;
   Epetra_MpiComm comm_;
   Epetra_IntSerialDenseVector physicsOrdering_;
+  Epetra_IntSerialDenseVector solverOrdering_;
   Teuchos::RefCountPtr<Epetra_Map> ownedMap_;
   Teuchos::RefCountPtr<Epetra_Map> boxMap_;
   Teuchos::RefCountPtr<Epetra_Import> ownedToBoxImporter_;
