@@ -49,7 +49,7 @@ int solve_problem(double **x, double **x2)
   int densityequ[] = { 3, 4, 5};
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
-  int is_poly = 1;
+  int is_poly = 0;
   if (is_poly) {
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, 19, gequ);
