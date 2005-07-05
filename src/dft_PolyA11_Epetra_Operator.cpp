@@ -90,7 +90,7 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
 
   if (firstTime_) 
     for (int i=0; i<numBlocks_; i++) {
-      matrix_[i]->FillComplete(ownedMap_,block1Map_);
+      matrix_[i]->FillComplete(block1Map_, ownedMap_);
       matrix_[i]->OptimizeStorage();
     }
   

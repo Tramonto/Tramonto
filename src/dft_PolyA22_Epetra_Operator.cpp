@@ -73,7 +73,7 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
 
   if (rowGID==colGID) return(0); // diagonals are 1, we don't store them
 
-  if (cmsMap_.MyGID(rowGID)) {
+  if (densityMap_.MyGID(rowGID)) {
     int newRowGID = densityMap_.GID(cmsMap_.LID(rowGID));
     if (firstTime_)
       cmsOnDensityMatrix_.InsertGlobalValues(newRowGID, 1, &value, &colGID);
@@ -81,7 +81,7 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
       cmsOnDensityMatrix_.SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
   }
   else
-    densityOnCmsMatrix_[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
+    densityOnCmsMatrix_[cmsMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
 
   return(0);
 }
