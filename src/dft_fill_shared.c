@@ -120,11 +120,6 @@ double constant_boundary(int iunk,int jnode_box)
            else if (jnode_box==-3)  bcval = Betamu_LBB[iunk - Phys2Unk_first[DIFFUSION]];
            else if (jnode_box==-4)  bcval = Betamu_RTF[iunk - Phys2Unk_first[DIFFUSION]];
            break;
-       case DENSITY_SEG:
-           if (jnode_box==-1){bcval=0.; }
-           else if (jnode_box==-3){bcval=0.;}
-           else if (jnode_box==-4){bcval=0.;}
-           break;
        case CAVITY_WTC:
            if (jnode_box==-1){bcval=0.; }
            else if (jnode_box==-3){bcval=0.;}

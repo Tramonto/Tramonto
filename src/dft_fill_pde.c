@@ -336,9 +336,9 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
              /* 
               * add in source term (electroneutrality sum) 
               */
-             for (icomp=0; icomp<Ncomp; icomp++) {
-               junk=Phys2Unk_first[DENSITY] + icomp;
-
+             for (junk=Phys2Unk_first[DENSITY]; junk<Phys2Unk_last[DENSITY]; junk++){
+               icomp=Unk2Comp[junk];
+ 
                if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
                else ilist = icomp;
                if (elem !=-2 && (Wall_elems[ilist][el_box] == -1 ||
@@ -372,8 +372,8 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
            }
 
            junk_psi = Phys2Unk_first[POISSON];
-           for (icomp=0; icomp<Ncomp; icomp ++){
-               junk_rho = Phys2Unk_first[DENSITY] + icomp;
+           for (junk_rho=Phys2Unk_first[DENSITY]; junk_rho<Phys2Unk_last[DENSITY]; junk_rho++){
+               icomp=Unk2Comp[junk_rho];
                if (!Zero_density_TF[inode_box][icomp] && Lpolarize[icomp]){
 
                for (jln=0; jln< Nnodes_per_el_V; jln++) {
@@ -511,8 +511,8 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
              /* 
               * add in source term (electroneutrality sum) 
               */
-             for (icomp=0; icomp<Ncomp; icomp++) {
-               junk=Phys2Unk_first[DENSITY] + icomp;
+             for (junk=Phys2Unk_first[DENSITY]; junk<Phys2Unk_last[DENSITY]; junk++){
+               icomp=Unk2Comp[junk];
 
                if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
                else ilist = icomp;
@@ -636,7 +636,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
 
    /* iunk is nodal unknown number, icomp is component number */
 
-   icomp = iunk - Phys2Unk_first[DIFFUSION];
+   icomp = Unk2Comp[iunk];
 
    if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
    else if (Nlists_HW > 2)  ilist = icomp;

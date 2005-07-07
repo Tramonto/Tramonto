@@ -121,17 +121,16 @@
  * unknown number straightforward.  This became necessary with the introduction
  * of the WTC polymers where we now have 6 types of equations to fill.
  */
-#define NEQ_TYPE       9 
+#define NEQ_TYPE       8 
 #define NO_UNK        -888
 
-#define DENSITY        1
-#define DENSITY_SEG    4
-#define RHOBAR_ROSEN   5
-#define DIFFUSION      6
-#define CAVITY_WTC     7
-#define BOND_WTC       8
+#define DENSITY        0
+#define RHOBAR_ROSEN   4
+#define DIFFUSION      5
+#define CAVITY_WTC     6
+#define BOND_WTC       7
 
-#define CMS_FIELD      0
+#define CMS_FIELD      1
 #define CMS_G          2 
 #define POISSON        3
 
@@ -818,19 +817,25 @@ double  Rhobar_b_LBB[10]; /* Array[Nrho_bar] of bulk rhobars LBB  */
 extern
 double  Rhobar_b_RTF[10]; /* Array[Nrho_bar] of bulk rhobars RTF  */
 extern
+double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
+extern
+double  Rho_seg_LBB[NMER_MAX];
+extern
+double  Rho_seg_RTF[NMER_MAX];
+extern
 double  *Rhobar3_old;   /* Array[Nnodes_box] of old values of rhobar 3*/
 extern
-double Rhobar_cavity_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+double Xi_cav_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
 extern
-double Rhobar_cavity_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+double Xi_cav_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
 extern
-double Rhobar_cavity_RTF[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+double Xi_cav_RTF[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
 extern
-double Rhobar_bond_b[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
+double BondWTC_b[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
 extern
-double Rhobar_bond_LBB[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
+double BondWTC_LBB[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
 extern
-double Rhobar_bond_RTF[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
+double BondWTC_RTF[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
 extern
 double  Rho_coex[2];   /* Liquid and Vapor Coexisting Densities         */
 extern
@@ -842,7 +847,7 @@ double  Betamu_id[NCOMP_MAX];   /* Array[Ncomp] of ideal gas chemical potentials
 extern
 double  Betamu_ex_bondTC[NCOMP_MAX][NMER_MAX*NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 extern
-double  Betamu_seg[NCOMP_MAX][NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
+double  Betamu_seg[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 extern
 int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
 extern
@@ -1144,14 +1149,16 @@ extern
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
 extern int Nmer_t_total[NBLOCK_MAX];
 extern int Nseg_tot;
-extern
-char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
+extern int Nseg_type[NCOMP_MAX];
+extern char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
 extern double Cr_break[2];
 extern int Ncr_files;
 extern int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond;
-extern int ***Poly_to_Unk;
+extern int ***Poly_to_Unk,**Poly_to_Unk_SegAll;
 extern int Ngeqn_tot, Nbonds, **Nbond,***Bonds;
 extern int *Pol_Sym;
+extern int *Unk2Comp,SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
+
 
 /*********************************************************************/
 extern
@@ -1256,6 +1263,9 @@ extern double load_polarize_poissons_eqn(int, int, int, int *, double **);
 extern double load_nonlinear_transport_eqn(int,int,int,int *, double **);
 extern double load_linear_transport_eqn(int,int,int,int *, double **);
 extern double load_poisson_bc(int,int,int);
+extern double load_cavity_wtc(int,int,int,int,int *,double **);
+extern double load_bond_wtc(int,int,int,int,int *,double **);
+extern double load_polyTC_diagEL(int,int,int,int,int,int *,double **,int);
 extern void setup_polymer_cr(void);
 
 extern double constant_boundary(int, int);
@@ -1302,6 +1312,10 @@ extern double uCOULOMB_att(double,int, int);
 extern double uCOULOMB_att_int(double,int, int);
 extern double deltaC_MSA(double,int,int);
 extern double deltaC_MSA_int(double,int,int);
+extern double y_cav(double,double,double,double);
+extern double dy_dxi2_cav(double,double,double,double);
+extern double dy_dxi3_cav(double,double,double,double);
+
 
 
 /* COMMUNICATIONS ROUTINES */

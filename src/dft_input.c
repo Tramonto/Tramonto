@@ -63,7 +63,7 @@ void read_input_file(char *input_file, char *output_file1)
        block_type[NBLOCK_MAX],pol_number, nlink_chk,irand,irand_range,itmp,
        *nbond_tot,nbond_all,iseg,nseg,nmer_max,ibond,pol_num2,nunk,
        ***pol_sym_tmp,dim_tmp,Lauto_center,Lauto_size,Lcompare_fastram,jmin=0,jmax=0,
-       lzeros,latoms,ltrues,jwall_type;
+       lzeros,latoms,ltrues,jwall_type,seg_tot;
    double r,rho_tmp[NCOMP_MAX],dxdx,dtmp,charge_sum,minpos[3],maxpos[3];
 
   
@@ -771,6 +771,8 @@ void read_input_file(char *input_file, char *output_file1)
 
   /* Read and set up Polymer parameters - only read if stencil is turned on */
   Nbonds=0;
+  for (icomp=0;icomp<Ncomp;icomp++) Nseg_type[icomp]=1;  /* if no polymer we just set to 1 */
+
   if (Sten_Type[POLYMER_CR] || Type_poly_TC){
 
     if (Proc==0) {
@@ -809,29 +811,39 @@ void read_input_file(char *input_file, char *output_file1)
     if (Proc==0) {
       Ntype_mer = 0;
       read_junk(fp,fp2);
+      seg_tot=0;
       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
+printf("loop over pol_comp=%d of %d\n",pol_number,Npol_comp);
 	seg = 0;
 	for (i=0; i<NCOMP_MAX; ++i) {
              Nmer_t[pol_number][i] = 0; 
              Nmer_t_total[i] = 0; 
         }
 	for (i=0; i<Nblock[pol_number]; ++i){
+printf("loop over block=%d of %d\n",i,Nblock[pol_number]);
 	  fscanf(fp,"%d", &block_type[i]);
 	  fprintf(fp2,"%d  ",block_type[i]);
 	  Nmer_t[pol_number][block_type[i]] += block[pol_number][i];
 	  Nmer_t_total[block_type[i]] += block[pol_number][i];
-	  for (j=0; j<block[pol_number][i]; j++) 
-	    Type_mer[pol_number][seg++] = block_type[i];
+	  for (j=0; j<block[pol_number][i]; j++) {
+	    Type_mer[pol_number][seg] = block_type[i];
+printf("SegChain2SegAll...pol_number=%d seg=%d seg_tot=%d\n",pol_number,seg,seg_tot);
+            SegChain2SegAll[pol_number][seg]=seg_tot;
+            seg++; seg_tot++;
+          }
 	  if (block_type[i] > Ntype_mer) Ntype_mer = block_type[i];
 	}
       }
+printf("finished pol_number and block loops\n");
       Ntype_mer++;
       printf("Number of segment types (Ntype_mer) = %d\n",Ntype_mer);
     }
     MPI_Bcast(&Ntype_mer,1,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Nmer_t,NCOMP_MAX*NBLOCK_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Nmer_t_total,NBLOCK_MAX,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(SegChain2SegAll,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Type_mer,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
+
 
     if (Proc==0) {
       read_junk(fp,fp2);
@@ -854,17 +866,22 @@ void read_input_file(char *input_file, char *output_file1)
     Unk_to_Poly = (int *) array_alloc (1, NBOND_MAX*nseg, sizeof(int));
     Unk_to_Seg = (int *) array_alloc (1, NBOND_MAX*nseg, sizeof(int));
     Unk_to_Bond = (int *) array_alloc (1, NBOND_MAX*nseg, sizeof(int));
+    Unk2Comp = (int *) array_alloc (1, NMER_MAX, sizeof(int));
 
     Nbond = (int **) array_alloc (2, Npol_comp,nmer_max,sizeof(int));
+    Nbonds_SegAll = (int *) array_alloc (1, NMER_MAX,sizeof(int));
     Bonds = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
+    Bonds_SegAll = (int **) array_alloc (2, NMER_MAX,NBOND_MAX,sizeof(int));
     pol_sym_tmp = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
     Poly_to_Unk = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
+    Poly_to_Unk_SegAll = (int **) array_alloc (2, NMER_MAX,NBOND_MAX,sizeof(int));
     Pol_Sym = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
     nbond_tot = (int *) array_alloc (1, Npol_comp, sizeof(int));
 
     nbond_all = 0; 
     Nbonds=0;
     Nseg_tot=0;
+    seg_tot=0;
     for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       Nseg_tot += Nmer[pol_number];
       nbond_tot[pol_number]=0;
@@ -873,12 +890,15 @@ void read_input_file(char *input_file, char *output_file1)
         end_count=0;
 	if (Proc==0) fscanf(fp4,"%d", &Nbond[pol_number][iseg]);
 	MPI_Bcast(&Nbond[pol_number][iseg],1,MPI_INT,0,MPI_COMM_WORLD);
+        Nbonds_SegAll[seg_tot]=Nbond[pol_number][iseg];
+
 	for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
 	  if (Proc==0) {
 	    fscanf(fp4,"%d  %d", &Bonds[pol_number][iseg][ibond],&pol_sym_tmp[pol_number][iseg][ibond]);
 	    fprintf(fp2,"%d  ",Bonds[pol_number][iseg][ibond]);
 	  }
 	  MPI_Bcast(&Bonds[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
+          Bonds_SegAll[seg_tot][ibond]=Bonds[pol_number][iseg][ibond];
 	  MPI_Bcast(&pol_sym_tmp[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
           if (!Type_poly_TC || (Type_poly_TC && Bonds[pol_number][iseg][ibond] != -1)){
                                   /* note we don't want to include ends for the WTC polymers!*/
@@ -886,6 +906,7 @@ void read_input_file(char *input_file, char *output_file1)
   	    Unk_to_Seg[nbond_all]  = iseg;
 	    Unk_to_Bond[nbond_all] = ibond;
 	    Poly_to_Unk[pol_number][iseg][ibond] = nunk;
+	    Poly_to_Unk_SegAll[seg_tot][ibond] = nunk;
 	    Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond];
 	    nbond_all++;
 	    nunk++;
@@ -896,8 +917,13 @@ void read_input_file(char *input_file, char *output_file1)
           }
 	}
 	nbond_tot[pol_number] += (Nbond[pol_number][iseg]-end_count);
+        Unk2Comp[seg_tot]=Type_mer[pol_number][iseg];
+printf("Proc=%d  iseg=%d  Unk2Comp=%d\n",Proc,seg_tot,Unk2Comp[seg_tot]);
+        seg_tot++;
       }
     }
+    for (icomp=0;icomp<Ncomp;icomp++) Nseg_type[icomp]=0;
+    for (iseg=0;iseg<Nseg_tot;iseg++) Nseg_type[Unk2Comp[iseg]]++;
     if (Proc==0){
        fprintf(fp2,"\n********************\n BOND DETAILS \n **********************\n");
        fprintf(fp2,"\t total number of bonds is %d\n",Nbonds);
@@ -913,11 +939,24 @@ void read_input_file(char *input_file, char *output_file1)
               }
           }
        }
+       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
+          for (iseg=0;iseg<Nmer[pol_number];iseg++){
+              printf("SegChain2SegAll[%d][%d]=%d\n",
+                   pol_number, iseg,SegChain2SegAll[pol_number][iseg]);
+          }
+       }
+       printf("Total Number of segments in the problem=%d\n",Nseg_tot);
+       for (iseg=0;iseg<Nseg_tot;iseg++){
+           printf("Nbonds_SegAll[%d]=%d",iseg,Nbonds_SegAll[iseg]);
+           printf("\t seg %d is bonded to...",iseg);
+           for(ibond=0;ibond<Nbonds_SegAll[iseg];ibond++)
+                printf("%d  ",Bonds_SegAll[iseg][ibond]); 
+           printf("\n");
+       }
        fprintf(fp2,"****************\n END BOND DETAILS \n **********************\n");
     }
     
     if (Proc==0) fclose(fp4);
-    safe_free((void *) &pol_sym_tmp);
 
     if (Sten_Type[POLYMER_CR]){  /*POLYMER INPUT FOR ONLY CMS FUNCTIONAL */
     /* set start value of Geqns for each of the polymers in the system.  

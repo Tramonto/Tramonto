@@ -32,17 +32,18 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   */
 
   char   *yo = "fill_resid_and_matrix";
-  int     i, j, icomp,idim,iunk,junk,iunk_start,iunk_end;
+  int     i, j, icomp,idim,iunk,junk,iunk_start,iunk_end,iseg;
   int     reflect_flag[3];
   int     izone, mesh_coarsen_flag_i;
   int     loc_i, loc_inode;
   struct  RB_Struct *dphi_drb=NULL, dphi_drb_bulk,
                      dphi_drb_bulk_left, dphi_drb_bulk_right;
+
    double resid,mat_value,values[3];
    int numEntries,nodeIndices[3],iloop;
    double resid_hs1,resid_hs2,resid_rhobars,resid_rhobarv,resid_uatt;
    double resid_ig,resid_vext,resid_mu,resid_charge,resid_deltac;
-   double resid_poisson,resid_transport,resid_el;
+   double resid_poisson,resid_transport,resid_el,resid_cavity,resid_bondwtc,resid_WTC1;
 
   double fac_temp,gradphi,fac;
 
@@ -114,7 +115,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                  Proc,loc_inode,Nnodes_per_proc,inode_box,mesh_coarsen_flag_i);
 }*/
        resid_ig = resid_vext = resid_hs1 = resid_hs2 = resid_uatt = resid_mu = resid_charge
-                = resid_poisson = resid_deltac = resid_transport = resid_rhobars = resid_rhobarv = 0.0;
+                = resid_poisson = resid_deltac = resid_transport = resid_rhobars = resid_rhobarv 
+                = resid_cavity= resid_bondwtc=resid_WTC1=0.0;
 
       if (mesh_coarsen_flag_i == FLAG_1DBC){
          node_box_to_ijk_box(inode_box,ijk_box);
@@ -172,7 +174,12 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
       /**** LOAD EULER-LAGRANGE EQUATIONS *****/
       if (Unk2Phys[iunk]==DENSITY) {      
-        icomp = iunk-Phys2Unk_first[DENSITY];
+        i = Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+        if (Type_poly_TC){
+                          iseg=i;
+                          icomp=Unk2Comp[iseg];
+        }
+        else              icomp=i;
 
         /* Do trivial fill if it is a zero-density node */
         if (Zero_density_TF[inode_box][icomp] || Vext[loc_inode][icomp] == VEXT_MAX) {
@@ -192,7 +199,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
 
              if (mesh_coarsen_flag_i == FLAG_BULK){
-                  resid = -log(Rho_b[icomp]);
+                  if (Type_poly_TC)   resid = -log(Rho_seg_b[iseg]);
+                  else                resid = -log(Rho_b[icomp]);
                   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              }
              else {
@@ -210,16 +218,22 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                resid_mu = 0.0; 
                if (Lsteady_state == FALSE) { 
                   if (Iliq_vap < 10 ){
-                     resid_mu -= log(Rho_b[icomp]);
+                     if (Type_poly_TC)  resid_mu -= log(Rho_seg_b[iseg]);
+                     else               resid_mu -= log(Rho_b[icomp]);
                   
                    if (Ipot_ff_n != IDEAL_GAS) resid_mu -= Betamu_hs_ex[icomp];
                    if (Ipot_ff_n == LJ12_6)    resid_mu -= Betamu_att[icomp];
+/*                   if (Type_poly_TC)           resid_mu += Betamu_bondwtc[iseg];.....fix this up - not yet defined*/
                    if (Ipot_ff_c == COULOMB && Sten_Type[THETA_CHARGE]) resid_mu += Deltac_b[icomp];
                   }
-                  else resid_mu = -Betamu[icomp];
+                  else{
+                      if (Type_poly_TC) resid_mu = -Betamu_seg[iseg];
+                      else              resid_mu = -Betamu[icomp];
+                  }
                }
                else{                             /* Lsteady_state == TRUE */
-                  junk=Phys2Unk_first[DIFFUSION] + icomp;
+                  if(Type_poly_TC)  junk=Phys2Unk_first[DIFFUSION] + iseg;
+                  else              junk=Phys2Unk_first[DIFFUSION] + icomp;
                   resid_mu = -x[junk][inode_box];
                   mat_value=-1.0;
                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_value);         
@@ -300,6 +314,11 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                                  icomp,izone,ijk_box,x, resid_only_flag);
               }   
 
+              if (Type_poly_TC){
+                   resid_WTC1=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
+                                                 izone,ijk_box,x,resid_only_flag);
+              }
+
            }
         }
       }
@@ -374,11 +393,28 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                 resid_transport=load_nonlinear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x);
       }
       /******** END TRANSPORT ********/
-      else if (Unk2Phys[iunk]==DENSITY_SEG){
-      }
       else if (Unk2Phys[iunk]==CAVITY_WTC){
+      /***********************************************/
+      /*** LOAD CAVITY EQUATIONS OF WTC FUNCTIONALS***/
+      /***********************************************/
+         resid=x[iunk][loc_inode];
+         mat_value=1.0;
+         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
+         resid -= load_cavity_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
+         resid_cavity=resid;
+         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       }
       else if (Unk2Phys[iunk]==BOND_WTC){
+
+      /********************************************/
+      /*** LOAD BOND EQUATIONS OF WTC FUNCTIONS ***/
+      /********************************************/
+         resid=x[iunk][loc_inode];
+         mat_value=1.0;
+         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
+         resid -= load_bond_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
+         resid_bondwtc=resid;
+         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       }
 
       else {

@@ -200,7 +200,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
   struct Stencil_Struct *stenJ;
   double resid,mat_val,resid_sum=0.0;
 
-  int jzone, jnode_box, jcomp,jlist,junk;
+  int jzone, jnode_box, jcomp,jlist,junk,loop_max,jloop,jseg;
   int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
 
@@ -230,8 +230,18 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      resid_sum+=resid;
   }
   else {
-  for (jcomp=0; jcomp<Ncomp; jcomp++){
-      junk=Phys2Unk_first[DENSITY]+jcomp;
+  if (Type_poly_TC) loop_max=Nseg_tot;
+  else              loop_max=Ncomp;
+  for (jloop=0; jloop<loop_max; jloop++){
+      if (Type_poly_TC) {
+         jseg=jloop;
+         jcomp=Unk2Comp[jseg];
+         junk=Phys2Unk_first[DENSITY]+jseg;
+      }
+      else{
+         jcomp=jloop;
+         junk=Phys2Unk_first[DENSITY]+jcomp;
+      }
 
       if (Nlists_HW <= 2) jlist = 0;
       else                jlist = jcomp;
@@ -305,7 +315,7 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
   double resid,resid_sum=0.0,mat_val;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
-  int junk;
+  int junk,loop_max,jseg,jloop;
 
   int jzone, jnode_box, idim,jcomp,jlist;
   int jnode_boxJ;
@@ -338,8 +348,18 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
      else
         idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s - Ndim;
 
-     for (jcomp=0; jcomp<Ncomp; jcomp++){
-       junk=Phys2Unk_first[DENSITY]+jcomp;
+     if (Type_poly_TC) loop_max=Nseg_tot;
+     else              loop_max=Ncomp;
+      for (jloop=0; jloop<loop_max; jloop++){
+       if (Type_poly_TC) {
+          jseg=jloop;
+          jcomp=Unk2Comp[jseg];
+          junk=Phys2Unk_first[DENSITY]+jseg;
+       }
+       else{
+          jcomp=jloop;
+          junk=Phys2Unk_first[DENSITY]+jcomp;
+       }
 
        if (Nlists_HW <= 2) jlist = 0;
        else                jlist = jcomp;

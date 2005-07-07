@@ -52,8 +52,9 @@ double load_mean_field(int sten_type, int iunk, int loc_inode,
 
   jzone = find_jzone(izone);
 
-  for (jcomp=0; jcomp<Ncomp; jcomp++){
-      junk = jcomp+Phys2Unk_first[DENSITY];
+  for (junk=Phys2Unk_first[DENSITY]; junk<Phys2Unk_last[DENSITY]; junk++){
+
+      jcomp=Unk2Comp[junk];
       if (Nlists_HW <= 2) jlist = 0;
       else                jlist = jcomp;
            

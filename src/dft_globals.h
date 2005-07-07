@@ -203,20 +203,23 @@ double  Rho_b[NCOMP_MAX];   /* Array[Ncomp] of component bulk values         */
 double  Rhobar_b[10];   /* Array[Nrho_bar] of bulk rhobars        */
 double  Rhobar_b_LBB[10];   /* Array[Nrho_bar] of bulk rhobars LBB    */
 double  Rhobar_b_RTF[10];   /* Array[Nrho_bar] of bulk rhobars RTF    */
+double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
+double  Rho_seg_LBB[NMER_MAX];
+double  Rho_seg_RTF[NMER_MAX];
 double *Rhobar3_old;      /* Array[Nodes_box] of old values of rhobar3 */
-double Rhobar_cavity_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
-double Rhobar_cavity_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
-double Rhobar_cavity_RTF[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
-double Rhobar_bond_b[NMER_MAX*NMER_MAX]; /* Array of bulk rhobars for bonds in WTC functionals*/
-double Rhobar_bond_LBB[NMER_MAX*NMER_MAX]; /* Array of bulk rhobars for bonds in WTC functionals*/
-double Rhobar_bond_RTF[NMER_MAX*NMER_MAX]; /* Array of bulk rhobars for bonds in WTC functionals*/
+double Xi_cav_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+double Xi_cav_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+double Xi_cav_RTF[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+double BondWTC_b[NMER_MAX*NMER_MAX]; /* Array of bulk rhobars for bonds in WTC functionals*/
+double BondWTC_LBB[NMER_MAX*NMER_MAX]; /* Array of bulk rhobars for bonds in WTC functionals*/
+double BondWTC_RTF[NMER_MAX*NMER_MAX]; /* Array of bulk rhobars for bonds in WTC functionals*/
 
 int     N_rho;   /* Number of density runs to perform         */
 double  Del_rho;   /* How to step in density         */
 double  Rho_coex[2];   /* Liquid-vapor coexisting densities         */
 double  Betamu_hs_ex[NCOMP_MAX];/* Array of excess hardsphere chemical potentials*/
 double  Betamu_ex_bondTC[NCOMP_MAX][NMER_MAX*NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
-double  Betamu_seg[NCOMP_MAX][NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
+double  Betamu_seg[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 double  Betamu[NCOMP_MAX]; /*Array[Ncomp] of chemical potentials */
 double  Betamu_id[NCOMP_MAX]; /*Array[Ncomp] of ideal gas chemical potentials */
 int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
@@ -393,10 +396,13 @@ int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
 int Nmer_t_total[NBLOCK_MAX];
 int Nseg_tot;
+int Nseg_type[NCOMP_MAX];
 int Bupdate_iters,Geqn_start[NCOMP_MAX];
 char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
 double Cr_break[2];
 int  Ncr_files;
-int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk;
+int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk, **Poly_to_Unk_SegAll;
 int Ngeqn_tot, Nbonds, **Nbond,***Bonds; 
 int *Pol_Sym;
+int *Unk2Comp,SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
+

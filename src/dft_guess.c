@@ -48,6 +48,8 @@ static void setup_polymer_G_2(double **);
 static void setup_rho_bar(double **);
 static void setup_exp_density_with_profile(double **);
 static int locate_inode_old(int *);
+static void setup_BondWTC(double **);
+static void setup_Xi_cavWTC(double **);
 
 void set_initial_guess (int iguess, double** xOwned)
 {
@@ -210,7 +212,8 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
  if (Type_poly==NONE) {
     switch(iguess){
       case CONST_RHO:    
-            setup_const_density(xOwned,Rho_b,Ncomp,0);
+            if (Type_poly_TC) setup_const_density(xOwned,Rho_seg_b,Nseg_tot,0);
+            else              setup_const_density(xOwned,Rho_b,Ncomp,0);
             break;
 
       case CONST_RHO_V:  
@@ -247,6 +250,10 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
 
     setup_rho_bar(xOwned);
     if (Lsteady_state)   setup_chem_pot(xOwned);
+    if (Type_poly_TC){ 
+         setup_BondWTC(xOwned);
+         setup_Xi_cavWTC(xOwned);
+    }
  }
  else{
     /*setup_polymer(x);*/
@@ -875,6 +882,42 @@ static void setup_rho_bar(double **xOwned)
        else {
           xOwned[iunk][loc_inode] = Rhobar_b[irb];
        }
+     }
+  }
+  return;
+}
+/************************************************************/
+/*setup_Xi_cavWTC: set up the cavity function initial guesses for 
+                 Wertheim-Tripathi-Chapman functionals.  For now
+                use bulk segment densities initial guess.  Later calculate
+                based on rho initial guess. */
+static void setup_Xi_cavWTC(double **xOwned)
+{
+  int loc_inode,inode_box,inode,ijk[3],iunk,icav;
+  double vol,area,x_dist;
+
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     for (icav = 0; icav < Phys2Nunk[CAVITY_WTC]; icav++){
+       iunk = Phys2Unk_first[CAVITY_WTC] + icav;
+       xOwned[iunk][loc_inode] = Xi_cav_b[icav+2];
+     }
+  }
+  return;
+}
+/************************************************************/
+/*setup_BondWTC: set up the bond function initial guesses for 
+                 Wertheim-Tripathi-Chapman functionals.  For now
+                use bulk segment densities initial guess.  Later calculate
+                based on rho initial guess. */
+static void setup_BondWTC(double **xOwned)
+{
+  int loc_inode,inode_box,inode,ijk[3],iunk,ibond;
+  double vol,area,x_dist;
+
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     for (ibond = 0; ibond < Nbonds; ibond++){
+       iunk = Phys2Unk_first[BOND_WTC] + ibond;
+       xOwned[iunk][loc_inode] = BondWTC_b[ibond];
      }
   }
   return;

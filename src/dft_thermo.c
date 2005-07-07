@@ -26,10 +26,9 @@ void compute_bulk_nonlocal_properties(char *);
 
 void  thermodynamics( char *output_file1, int print_flag)
 {
-   int icomp,i,ipol,iseg,ibond,jseg;
+   int icomp,jcomp,kcomp,i,ipol,iseg,ibond,jseg,kseg;
    double betap_hs=0, betamu_hs[NCOMP_MAX],betap_att,p_coex=0.0,betap_TC=0.0;
-   double sum_all[NCOMP_MAX],sum_ab,y[NMER_MAX*NMER_MAX];
-   double rho_iseg_b,rho_jseg_b;
+   double y,dydxi2,dydxi3,sig2,sig3,sum;
    char *yo = "thermodynamics";
 
  if (!Sten_Type[POLYMER_CR]){
@@ -168,6 +167,46 @@ void  thermodynamics( char *output_file1, int print_flag)
           exit(-1);
       }
       else{
+
+         /* first compute terms that are based on bond pairs starting from segment iseg*/
+         /* note that in the bulk the BondWTC is identical to the site density of the jth segment */
+         for (iseg=0; iseg<Nseg_tot;iseg++){
+            icomp=Unk2Comp[iseg];
+            Betamu_seg[iseg]=Betamu[icomp]-log(Nmer_t_total[icomp]); /* correct the ideal gas term for segments */
+            for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
+                jseg=Bonds_SegAll[iseg][ibond];
+                jcomp=Unk2Comp[jseg];
+                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+                Betamu_seg[iseg] += 0.5*(1.0-log(y*Rho_seg_b[jseg])
+                                         - Rho_seg_b[jseg]/Rho_seg_b[iseg]);
+            }
+         }
+         /* now add in the term that involves _all_ the bond pairs in the system for each segment via that cavity
+            correlation function.  Note that this term is nonzero even for bond pairs on different polymer
+            components than the one where the iseg segment is found ! */
+         for (kseg=0; kseg<Nseg_tot;kseg++){
+ sum=0.0;
+           kcomp = Unk2Comp[kseg];
+           sig2=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
+           sig3=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
+           for (iseg=0; iseg<Nseg_tot;iseg++){
+              icomp=Unk2Comp[iseg];
+              for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
+                jseg=Bonds_SegAll[iseg][ibond];
+                jcomp=Unk2Comp[jseg];
+                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+                dydxi2 = dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+                dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+printf("iseg=%d  jseg=%d dydxi2=%9.6f dydxi3=%9.6f\n",iseg,jseg,dydxi2,dydxi3);
+                Betamu_seg[kseg] -= (PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
+if (kseg==0) sum -=(PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
+              }
+           }
+if (kseg==0) printf("sum of third term...comp0=%9.6f\n",sum);
+         }
+     
+
+/*************old code implemented by Sandeep .... modified above to parallel fill routines *************
          for (i=0;i<Ncomp;i++) sum_all[i]=0.0;
          for (i=0;i<Nbonds;i++){
              y[i]=calc_y_bulk(i,sum_all);
@@ -190,6 +229,7 @@ void  thermodynamics( char *output_file1, int print_flag)
                      -log(Nmer_t_total[Type_mer[ipol][iseg]])+Betamu_ex_bondTC[ipol][iseg];
            }
          }
+**********************************************************************************************/
       }
    }
 
@@ -234,23 +274,13 @@ double calc_y_bulk(int ibond, double *sum)
       type_iseg=Type_mer[pol_number][iseg];
       sigma=Sigma_ff[type_iseg][type_iseg];
       sigma_prime=Sigma_ff[type_jseg][type_jseg];
-      xi_3=Rhobar_cavity_b[3];
-      xi_2=Rhobar_cavity_b[2];
-      one_minus_xi_3_cubed = (1.0-xi_3)*(1.0-xi_3)*(1.0-xi_3);
-            
-      y=(1.0)/(1.0-xi_3) +
-        ( (3.0*sigma*sigma_prime)/(sigma+sigma_prime) )*(xi_2/((1.-xi_3)*(1.-xi_3))) +
-        (2.0)*POW_DOUBLE_INT(((sigma*sigma_prime)/(sigma+sigma_prime)),2)*
-               (xi_2*xi_2/(one_minus_xi_3_cubed));
 
-      deriv2= ( (3.0*sigma*sigma_prime)/(sigma+sigma_prime) )/((1.-xi_3)*(1.-xi_3))+
-              (4.0)*POW_DOUBLE_INT(((sigma*sigma_prime)/(sigma+sigma_prime)),2)*
-                           (xi_2/(one_minus_xi_3_cubed));
+      xi_3=Xi_cav_b[3];
+      xi_2=Xi_cav_b[2];
 
-      deriv3= (1.0/((1.0-xi_3)*(1.0-xi_3))) +
-              2.0*( (3.0*sigma*sigma_prime)/(sigma+sigma_prime) )*(xi_2/one_minus_xi_3_cubed) +
-              (6.0)*POW_DOUBLE_INT(((sigma*sigma_prime)/(sigma+sigma_prime)),2)*
-                      (xi_2*xi_2/(one_minus_xi_3_cubed*(1.-xi_3)));
+      y=y_cav(sigma,sigma_prime,xi_2,xi_3);
+      deriv2= dy_dxi2_cav(sigma,sigma_prime,xi_2,xi_3);
+      deriv3= dy_dxi3_cav(sigma,sigma_prime,xi_2,xi_3);
 
       rho_seg_alpha=(Rho_b[type_iseg]/Nmer_t_total[type_iseg]);
       rho_seg_alpha_prime=(Rho_b[type_jseg]/Nmer_t_total[type_jseg]);
@@ -261,8 +291,53 @@ double calc_y_bulk(int ibond, double *sum)
          sum[i] += (PI/12.)*(Rho_b[i]/Nmer_t_total[i])*
                    rho_seg_alpha*(1.0/y)*(deriv2*sig2 + deriv3*sig3);
       }
-
       return (y);
+}
+/********************************************************************************************/
+   double y_cav(double sigma_1,double sigma_2,double xi_2, double xi_3)
+{           
+   double one_m_xi3_sq,one_m_xi3_cb,sig_sum,sig_m,y;
+                   
+   one_m_xi3_sq= (1.-xi_3)*(1.-xi_3); 
+   one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3);
+   sig_sum=sigma_1+sigma_2;
+   sig_m=sigma_1*sigma_2;
+              
+   y = 1./(1.-xi_3) +(3.*sig_m/sig_sum)*(xi_2/one_m_xi3_sq)+
+       2.*(sig_m/sig_sum)*(sig_m/sig_sum)*(xi_2*xi_2/one_m_xi3_cb);
+                 
+   return y;     
+}
+/********************************************************************************************/
+   double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2, double xi_3)
+{                
+   double one_m_xi3_sq,one_m_xi3_cb,sig_sum,sig_m,dy_dxi2;
+
+   one_m_xi3_sq= (1.-xi_3)*(1.-xi_3); 
+   one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3); 
+   sig_sum=sigma_1+sigma_2;
+   sig_m=sigma_1*sigma_2;
+                 
+  dy_dxi2 = (3.*sig_m/sig_sum)*(1.0/one_m_xi3_sq)+
+       4.*(sig_m/sig_sum)*(sig_m/sig_sum)*(xi_2/one_m_xi3_cb);
+                 
+   return dy_dxi2;
+}
+/********************************************************************************************/
+   double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2, double xi_3)
+{
+   double one_m_xi3_sq,one_m_xi3_cb,sig_sum,sig_m,dy_dxi3,one_m_xi3_4th;
+
+   one_m_xi3_sq= (1.-xi_3)*(1.-xi_3);
+   one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3);
+   one_m_xi3_4th= (1.-xi_3)*one_m_xi3_cb;
+   sig_sum=sigma_1+sigma_2;
+   sig_m=sigma_1*sigma_2;
+
+  dy_dxi3 = 1./one_m_xi3_sq +(6.*sig_m/sig_sum)*(xi_2/one_m_xi3_cb)+
+       6.*(sig_m/sig_sum)*(sig_m/sig_sum)*(xi_2*xi_2/one_m_xi3_4th);
+
+   return dy_dxi3;
 }
 /******************************************************************************/
 /* calc_ideal_gas: This routine computes ideal gas properties at a density of interest */
@@ -469,7 +544,7 @@ void compute_bulk_nonlocal_properties(char *output_file1)
   int ibond,iseg,jseg,pol_number,type_jseg;
   double vol,area,x_dist;
   FILE *fp2=NULL;
-  if (Proc==0 && output_file1 != NULL) printproc = TRUE;
+  if (Proc==0) printproc = TRUE;
   else printproc=FALSE;
   if (printproc) fp2 = fopen(output_file1,"a+");
 
@@ -550,36 +625,44 @@ void compute_bulk_nonlocal_properties(char *output_file1)
   /* compute bulk nonlocal densities needed for Wertheim-Tripathi-Chapman functionals */
   if (Type_poly_TC){  
      for (i=0; i<4; i++){
-        Rhobar_cavity_b[i]=0.0;
-           Rhobar_cavity_LBB[i]=0.0;
-           Rhobar_cavity_RTF[i]=0.0;
+        Xi_cav_b[i]=0.0;
+        Xi_cav_LBB[i]=0.0;
+        Xi_cav_RTF[i]=0.0;
      }
      for (icomp=0;icomp<Ncomp;icomp++){
         for (i=0;i<4;i++){
-           Rhobar_cavity_b[i]+=(PI/6.0)*Rho_b[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
+           Xi_cav_b[i]+=(PI/6.0)*Rho_b[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
            if (Lsteady_state){
-             Rhobar_cavity_LBB[i]+=(PI/6.0)*Rho_b_LBB[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
-             Rhobar_cavity_RTF[i]+=(PI/6.0)*Rho_b_RTF[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
+             Xi_cav_LBB[i]+=(PI/6.0)*Rho_b_LBB[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
+             Xi_cav_RTF[i]+=(PI/6.0)*Rho_b_RTF[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
            }
         }
      }
      if (printproc){
-        fprintf(fp2,"Rhobar_cavity_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-        fprintf(fp2,"\t i  Rhobar_cavity_b[i]  Rhobar_cavity_LBB[i]  Rhobar_cavity_RTF[i]\n");
+        fprintf(fp2,"Xi_cavity_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+        fprintf(fp2,"\t i  Xi_cav_b[i]  Xi_cav_LBB[i]  Xi_cav_RTF[i]\n");
         for (i=0;i<4;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 Rhobar_cavity_b[i], Rhobar_cavity_LBB[i], Rhobar_cavity_RTF[i]);
+                 Xi_cav_b[i], Xi_cav_LBB[i], Xi_cav_RTF[i]);
         if (Iwrite==VERBOSE){
-           printf("Rhobar_cavity_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-           printf("\t i  Rhobar_cavity_b[i]  Rhobar_cavity_LBB[i]  Rhobar_cavity_RTF[i]\n");
+           printf("Xi_cav_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+           printf("\t i  Xi_cav_b[i]  Xi_cav_LBB[i]  Xi_cav_RTF[i]\n");
             for (i=0;i<4;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 Rhobar_cavity_b[i], Rhobar_cavity_LBB[i], Rhobar_cavity_RTF[i]);
+                 Xi_cav_b[i], Xi_cav_LBB[i], Xi_cav_RTF[i]);
         }
      }
 
+     for (iseg=0;iseg<Nseg_tot;iseg++){
+         Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
+         if (Lsteady_state){
+            Rho_seg_LBB[iseg]=Rho_b_LBB[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
+            Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
+         }
+     }
+
      for (ibond=0; ibond<Nbonds; ibond++){
-       Rhobar_bond_b[ibond]=NO_BOND_PAIR;
-       Rhobar_bond_LBB[ibond]=NO_BOND_PAIR;
-       Rhobar_bond_RTF[ibond]=NO_BOND_PAIR;
+       BondWTC_b[ibond]=NO_BOND_PAIR;
+       BondWTC_LBB[ibond]=NO_BOND_PAIR;
+       BondWTC_RTF[ibond]=NO_BOND_PAIR;
     }
 
     for (ibond=0; ibond<Nbonds; ibond++){
@@ -587,23 +670,24 @@ void compute_bulk_nonlocal_properties(char *output_file1)
         pol_number=Unk_to_Poly[ibond];
         jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]];
         type_jseg=Type_mer[pol_number][jseg];
-        Rhobar_bond_b[ibond]=Rho_b[type_jseg]/Nmer_t_total[type_jseg];
+        BondWTC_b[ibond]=Rho_seg_b[jseg];
         if (Lsteady_state){
-           Rhobar_bond_LBB[ibond]=Rho_b_LBB[type_jseg]/Nmer_t_total[type_jseg];
-           Rhobar_bond_RTF[ibond]=Rho_b_RTF[type_jseg]/Nmer_t_total[type_jseg];
+           BondWTC_LBB[ibond]=Rho_seg_LBB[jseg];
+           BondWTC_RTF[ibond]=Rho_seg_RTF[jseg];
         }
     }
     if (printproc){
-        fprintf(fp2,"Rhobar_bond_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-        fprintf(fp2,"\t i  Rhobar_bond_b[i]  Rhobar_bond_LBB[i]  Rhobar_bond_RTF[i]\n");
+        fprintf(fp2,"BondWTC_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+        fprintf(fp2,"\t i  BondWTC_b[i]  BondWTC_LBB[i]  BondWTC_RTF[i]\n");
         for (i=0;i<Nbonds;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 Rhobar_bond_b[i], Rhobar_bond_LBB[i], Rhobar_bond_RTF[i]);
+                 BondWTC_b[i], BondWTC_LBB[i], BondWTC_RTF[i]);
         if (Iwrite==VERBOSE){
-           printf("Rhobar_bond_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-           printf("\t i  Rhobar_bond_b[i]  Rhobar_bond_LBB[i]  Rhobar_bond_RTF[i]\n");
+           printf("BondWTC_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+           printf("\t i  BondWTC_b[i]  BondWTC_LBB[i]  BondWTC_RTF[i]\n");
            for (i=0;i<Nbonds;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 Rhobar_bond_b[i], Rhobar_bond_LBB[i], Rhobar_bond_RTF[i]);
+                 BondWTC_b[i], BondWTC_LBB[i], BondWTC_RTF[i]);
         }
+       fclose(fp2);
      }
 
   } /* end of Type_poly_TC rhobars (bulk)*/
@@ -618,7 +702,7 @@ void pot_parameters(char *output_file1)
  int i,j,iw,jw, printproc=FALSE;
  double cut=0.0;
  FILE *fp2=NULL;
- if (Proc==0 && output_file1 != NULL) printproc = TRUE;
+ if (Proc==0) printproc = TRUE;
  else printproc=FALSE;
  if (printproc) fp2 = fopen(output_file1,"a+");
 
@@ -877,81 +961,64 @@ void print_thermo(char *output_file1, double betap_hs,
 
   FILE *fp2;
   int icomp,jcomp,ipol,iseg;
+   double betap_id;
 
   fp2 = fopen(output_file1,"a+");
   fprintf(fp2,"\n!!!!!!!!!!!!! output from dft_thermo.c !!!!!!!!!!!!!!!!!!\n");
-  fprintf(fp2,"\npressure : psigma^3/kT : \t%9.6f\n",Betap);
-  fprintf(fp2,"chemical potentials : mu/kT : \n");
-  for (icomp=0; icomp<Ncomp; ++icomp) 
-    fprintf(fp2,"\t\t\t Betamu[%d] = %9.6f\n\n",icomp, Betamu[icomp]);
 
-  if (Type_poly_TC){
-          fprintf (fp2,"Note the above Betamu is based on segment types and does not include the bonding term!!\n");
-          for (ipol=0; ipol<Npol_comp;ipol++){
-             for (iseg=0; iseg<Nmer[ipol];iseg++){
-                fprintf(fp2,"\t\t Betamu_seg[ipol=%d][iseg=%d] = %9.6f\n",
-                     ipol, iseg, Betamu_seg[ipol][iseg]);
-             }
-          }
-   }
+      fprintf(fp2,"\n     ********** component sphere based contributions ***********\n");
+      fprintf(fp2,"           **** ideal gas contributions ****\n");
+      betap_id=0.0;
+      for (icomp=0;icomp<Ncomp;icomp++)
+         betap_id += Rho_b[icomp];
 
-
+      fprintf(fp2,"\tideal gas pressure : betap_id  = %e\n",betap_id);
+      for (icomp=0;icomp<Ncomp;icomp++)
+      fprintf(fp2,"\tideal component chemical potentials:betap_mu_id[%d]=%e\n",
+                                                 icomp,log(Rho_b[icomp]));
    if (Ipot_ff_n != IDEAL_GAS) {
-      fprintf(fp2,"\nhard sphere pressure : betap_hs  = %e\n",betap_hs);
-      fprintf(fp2,"excess hard sphere chemical potentials  (units of kT)\n\n" );
+      fprintf(fp2,"\n           **** hard sphere contributions ****\n");
+      fprintf(fp2,"\thard sphere pressure : betap_hs  = %e\n",betap_hs);
+      fprintf(fp2,"\texcess hard sphere chemical potentials  (units of kT)\n" );
       for (icomp=0; icomp<Ncomp; ++icomp) 
-           fprintf(fp2,"Betamu_hs_ex (%d) = %e\n",icomp, Betamu_hs_ex[icomp]);
-      fprintf(fp2,"hard sphere chemical potentials  (units of kT)\n\n");
-      for (icomp=0; icomp<Ncomp; ++icomp) 
-           fprintf(fp2,"betamu_hs    (%d) = %e\n\n",icomp, betamu_hs[icomp]);
+           fprintf(fp2,"\t\tBetamu_hs_ex[%d] = %e\n",icomp, Betamu_hs_ex[icomp]);
    }
 
    if (Ipot_ff_n == LJ12_6){
+      fprintf(fp2,"\n           **** attractive contributions ****\n");
       for (icomp=0; icomp<Ncomp; ++icomp) 
-        fprintf(fp2,"Betamu_att[%d] = %e\n\n",icomp, Betamu_att[icomp]); 
+        fprintf(fp2,"\tBetamu_att[%d] = %e\n\n",icomp, Betamu_att[icomp]); 
 
       for (icomp=0; icomp<Ncomp; ++icomp) 
        for (jcomp=0; jcomp<Ncomp; ++jcomp) 
-        fprintf(fp2,"Avdw[%d][%d] = %e\n\n",icomp,jcomp,Avdw[icomp][jcomp]); 
+        fprintf(fp2,"\tAvdw[%d][%d] = %e\n\n",icomp,jcomp,Avdw[icomp][jcomp]); 
    }
    if (Ipot_ff_c > 0 && Sten_Type[THETA_CHARGE]){
+      fprintf(fp2,"\n           **** charge contributions ****\n");
       for (icomp=0; icomp<Ncomp; ++icomp) 
-        fprintf(fp2,"Deltac_b[%d] = %e\n\n",icomp, Deltac_b[icomp]);                  }
+        fprintf(fp2,"\tDeltac_b[%d] = %e\n\n",icomp, Deltac_b[icomp]);                  
+   }
+      fprintf(fp2,"\n           ******* TOTAL OF ABOVE !!!*******\n");
+  fprintf(fp2,"\tpressure : psigma^3/kT : \t%9.6f\n",Betap);
+  fprintf(fp2,"\tchemical potentials : mu/kT : \n");
+  for (icomp=0; icomp<Ncomp; ++icomp) 
+    fprintf(fp2,"\t\t\t Betamu[%d] = %9.6f\n",icomp, Betamu[icomp]);
+      fprintf(fp2,"           *********************************\n");
 
+   if (Type_poly_TC){
+      fprintf(fp2,"\n     ***********************************************************\n");
+      fprintf(fp2,"     *** NOTE THE ABOVE IS NOT APPROPRIATE FOR BONDED SYSTEMS ***\n");
+      fprintf(fp2,"     *** INSTEAD WE REQUIRE SEGMENT BASED CHEMICAL POTENTIALS ***\n");
+      fprintf(fp2,"     *** THAT INCLUDE THE CONTRIBUTIONS OF THE BONDS !!       ***\n");
+      fprintf(fp2,"     ***********************************************************\n");
+      for (iseg=0; iseg<Nseg_tot;iseg++){
+          fprintf(fp2,"\t\t Betamu_seg[iseg=%d] = %9.6f\n", iseg, Betamu_seg[iseg]);
+      }
+   }
+
+   fprintf(fp2,"\n!!!!!!!!!!!!! end of dft_thermo.c output !!!!!!!!!!!!!!!!!!\n");
    fclose(fp2);
 
-   if (Ipot_ff_n != IDEAL_GAS) 
-      printf("\thard sphere pressure : betap_hs  = %e\n",betap_hs);
-   
-   printf("\ttotal pressure : Betap  = %e\n",Betap);
-
-   if (Ipot_ff_n != IDEAL_GAS) {
-      printf("\texcess hard sphere chemical potentials  (units of kT)\n" );
-
-      for (icomp=0; icomp<Ncomp; ++icomp) 
-           printf("\t\tBetamu_hs_ex (%d) = %e\n",icomp, Betamu_hs_ex[icomp]);
-      printf("\tchemical potentials  (units of kT)\n");
-   
-      for (icomp=0; icomp<Ncomp; ++icomp) 
-           printf("\t\tbetamu_hs    (%d) = %e\n",icomp, betamu_hs[icomp]);
-   }
-
-   printf("\ttotal chemical potentials  (units of kT)\n");
-   for (icomp=0; icomp<Ncomp; ++icomp) 
-        printf("\t\tBetamu[%d] = %e\n",icomp, Betamu[icomp]);
-
-  if (Type_poly_TC){
-          printf ("Note the above Betamu is based on segment types and does not include the bonding term!!\n");
-          printf ("The segment based chemical potentials are ...\n");
-          for (ipol=0; ipol<Npol_comp;ipol++){
-             for (iseg=0; iseg<Nmer[ipol];iseg++){
-                printf("\t\t Betamu_seg[ipol=%d][iseg=%d] = %9.6f\n",
-                                  ipol, iseg, Betamu_seg[ipol][iseg]);
-             }
-          }
-   }
-
-  
    return;
 }
 /***********************end of thermo file **********************************/

@@ -733,21 +733,21 @@ void setup_polymer_cr()
   unknown number and equation type easily. */
 void setup_nunk_per_node(char *output_file1)
 {
-  int i,iunk,icomp;
+  int i,iunk,icomp,unk_rel;
   int NCMSField_unk;
   FILE *fp2=NULL;
 
-  if( (fp2 = fopen(output_file1,"w+")) == NULL) {
-      printf("Can't open file %s\n", output_file1);
-      exit(1);
-   }
+  if (Proc==0) fp2 = fopen(output_file1,"a+");
+
+printf("in setup_nunk_per_node...\n");
 
 /*in Makefile set switch for a polymer run an set unknowns accordingly*/
    
    for (i=0;i<NEQ_TYPE;i++){
      switch(i){
          case DENSITY:                  /* unknowns of Euler-Lagrange equation */
-            Phys2Nunk[DENSITY]=Ncomp;
+            if (Type_poly_TC==FALSE) Phys2Nunk[DENSITY]=Ncomp;
+            else                     Phys2Nunk[DENSITY]=Nseg_tot;
             break;
 
          case RHOBAR_ROSEN:     /* unknowns of Nonlocal Density Eqns for Rosenfeld Functionals */
@@ -770,20 +770,12 @@ void setup_nunk_per_node(char *output_file1)
          case DIFFUSION:                            /* unknowns of Diffusion Equation */
             Ndiffusion=0;
             if (Type_poly==-1 && Lsteady_state){
-              if (!Type_poly_TC) Ndiffusion=Ncomp;
-              if (Type_poly_TC) Ndiffusion=Nseg_tot;
+              if (Type_poly_TC==FALSE) Ndiffusion=Ncomp;
+              else                     Ndiffusion=Nseg_tot;
             }
             Phys2Nunk[DIFFUSION]=Ndiffusion;
             break;
 
-         case DENSITY_SEG:
-            Ntype_unk=0;
-            if (Type_poly_TC){
-               Ntype_unk=Ncomp;
-            }
-            Phys2Nunk[DENSITY_SEG]=Ntype_unk;
-            break;
-             
          case CAVITY_WTC:
             Nrho_bar_cavity=0;
             if (Type_poly_TC){
@@ -797,9 +789,7 @@ void setup_nunk_per_node(char *output_file1)
 
          case BOND_WTC:
             Nrho_bar_bond=0;
-            if (Type_poly_TC){
-                 Nrho_bar_bond = Nbonds;
-            }
+            if (Type_poly_TC) Nrho_bar_bond = Nbonds;
             Phys2Nunk[BOND_WTC]=Nrho_bar_bond;
             break;
 
@@ -837,6 +827,20 @@ void setup_nunk_per_node(char *output_file1)
         for (icomp=0;icomp<Npol_comp;icomp++) Geqn_start[icomp]+=Phys2Unk_first[i];
      }
    }
+/*   for (iunk=0;i<Nunk_per_node;iunk++){
+     if (Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==DIFFUSION){
+         if(Type_poly_TC==FALSE){ 
+            icomp=iunk-Phys2Unk_first[Unk2Phys[iunk]];
+         }
+         else{
+            unk_rel=iunk-Phys2Unk_first[Unk2Phys[iunk]];
+            icomp = Unk2Comp[unk_rel];
+         }
+         Unk2Comp[iunk]=icomp;
+     }
+   }*/
+
+   if (Proc==0){
    if (Iwrite==VERBOSE){
         printf("\n******************************************************\n");
         printf("TOTAL Nunk_per_node=%d\n",Nunk_per_node);
@@ -851,7 +855,8 @@ void setup_nunk_per_node(char *output_file1)
                                    i,Phys2Nunk[i],Phys2Unk_first[i],Phys2Unk_last[i]);
    for (iunk=0;iunk<Nunk_per_node;iunk++) fprintf(fp2,"iunk=%d equation_type=%d\n",iunk,Unk2Phys[iunk]);
    fprintf(fp2,"******************************************************\n");
-
+   }
+   if (Proc==0)fclose(fp2);
    return;
 }
 /*******************************************************************************/
