@@ -92,6 +92,7 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
     for (int i=0; i<numBlocks_; i++) {
       matrix_[i]->FillComplete(block1Map_, ownedMap_);
       matrix_[i]->OptimizeStorage();
+      //TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
     }
   
   /*  for (int i=0; i<numBlocks_; i++) {

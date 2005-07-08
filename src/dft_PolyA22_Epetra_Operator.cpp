@@ -71,7 +71,9 @@ int dft_PolyA22_Epetra_Operator::initializeProblemValues() {
 //=============================================================================
 int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
 
-  if (rowGID==colGID) return(0); // diagonals are 1, we don't store them
+  
+  if (rowGID==colGID)
+    return(0); // We don't keep diagonal values
 
   //  if (rowGID==168 && colGID==0) {
   // std::cout <<" Made it" << std::endl;
@@ -83,8 +85,10 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
     else
       cmsOnDensityMatrix_.SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
   }
-  else
+  else {
+    TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // This should be a diagonal in the densityOnCmsMatrix block
     densityOnCmsMatrix_[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
+  }
 
   return(0);
 }
@@ -109,8 +113,8 @@ int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
     assert(cmsOnDensityInverse_.get()!=0);
     
     // specify parameters for ILU
-    list.set("fact: drop tolerance", 1e-9);  // these should be input parameters from Tramonto
-    list.set("fact: level-of-fill", 1);
+    //list.set("fact: drop tolerance", 1e-9);  // these should be input parameters from Tramonto
+    list.set("fact: level-of-fill", 2);
     
     // sets the parameters
     IFPACK_CHK_ERR(cmsOnDensityInverse_->SetParameters(list));
@@ -147,13 +151,13 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
     Y2ptr[i] = Y1ptr[i]+numCmsElements;
     X2ptr[i] = X1ptr[i]+numCmsElements;
   }
-  Epetra_MultiVector Y1(View, cmsMap_, Y1ptr, NumVectors); // Y1 is a view of the first numDensity/numCms elements of Y
-  Epetra_MultiVector Y2(View, densityMap_, Y2ptr, NumVectors); // Start Y2 to view last numDensity/numCms elements of Y
-  Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view first numCmsElements elements of X
-  Epetra_MultiVector X2(View, cmsMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
+  Epetra_MultiVector Y1(View, densityMap_, Y1ptr, NumVectors); // Y1 is a view of the first numDensity/numCms elements of Y
+  Epetra_MultiVector Y2(View, cmsMap_, Y2ptr, NumVectors); // Start Y2 to view last numDensity/numCms elements of Y
+  Epetra_MultiVector X1(View, cmsMap_, X1ptr, NumVectors); // Start X1 to view first numCmsElements elements of X
+  Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
 
-  Y1.ReciprocalMultiply(1.0, densityOnCmsMatrix_, X2, 0.0);
-  cmsOnDensityInverse_->ApplyInverse(Y2, X1);
+  Y2.ReciprocalMultiply(1.0, densityOnCmsMatrix_, X1, 0.0);
+  cmsOnDensityInverse_->ApplyInverse(X2, Y1);
   delete [] Y2ptr;
   delete [] X2ptr;
   return(0);

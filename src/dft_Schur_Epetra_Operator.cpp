@@ -99,7 +99,7 @@ int dft_Schur_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVe
   Epetra_MultiVector Y2(A21_->RangeMap(), X.NumVectors());
  
   A12_->Apply(X, Y1);
-  A11_->Apply(Y1, Y11);
+  A11_->ApplyInverse(Y1, Y11);
   A21_->Apply(Y11, Y2);
   A22_->Apply(X, Y);
   Y.Update(-1.0, Y2, 1.0);
@@ -114,7 +114,7 @@ int dft_Schur_Epetra_Operator::ComputeRHS(const Epetra_MultiVector& B1, const Ep
 
   Epetra_MultiVector Y1(A11_->OperatorDomainMap(), B1.NumVectors());
  
-  A11_->Apply(B1, Y1);
+  A11_->ApplyInverse(B1, Y1);
   A21_->Apply(Y1, B2S);
   B2S.Update(1.0, B2, -1.0);
   return(0);
@@ -130,6 +130,6 @@ int dft_Schur_Epetra_Operator::ComputeX1(const Epetra_MultiVector& B1, const Epe
 
   A12_->Apply(X2, Y1);
   Y1.Update(1.0, B1, -1.0);
-  A11_->Apply(Y1, X1);
+  A11_->ApplyInverse(Y1, X1);
   return(0);
 }

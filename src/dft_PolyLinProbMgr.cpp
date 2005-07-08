@@ -156,7 +156,7 @@ int dft_PolyLinProbMgr::initializeProblemValues() {
 
   if (!firstTime_) {
     A12_->PutScalar(0.0);
-    A12_->PutScalar(0.0);
+    A21_->PutScalar(0.0);
     globalRhs_->PutScalar(0.0);
     globalLhs_->PutScalar(0.0);
   }
@@ -219,14 +219,16 @@ int dft_PolyLinProbMgr::setupSolver() {
 
   if (!isLinearProblemSet_) return(-1);
 
-  schurOperator_->ComputeRHS((*rhs1_.get()), (*rhs2_.get()), (*rhsSchur_.get()));
+  schurOperator_->ComputeRHS(*rhs1_.get(), *rhs2_.get(), *rhsSchur_.get());
   
   solver_ = Teuchos::rcp(new AztecOO(*(implicitProblem_.get())));
   solver_->SetAllAztecOptions(solverOptions_);
   solver_->SetAllAztecParams(solverParams_);
-  solver_->SetPrecOperator(A22_->getA22Inv());
   solver_->SetAztecOption(AZ_scaling, AZ_none); 
-  solver_->SetAztecOption(AZ_max_iter, 500);
+  solverOptions_[AZ_max_iter] = 500;
+  solver_->SetAztecOption(AZ_kspace, solverOptions_[AZ_max_iter]); 
+  solver_->SetAztecOption(AZ_precond, AZ_none);
+  //solver_->SetPrecOperator(A22_.get());
   //solver_->SetAztecOption(AZ_solver, AZ_gmres);
   //solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
   //solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
@@ -241,6 +243,7 @@ int dft_PolyLinProbMgr::solve() {
   //writeMatrix("2D.mm", "Small Polymer Matrix", "Global Matrix from Small Polymer Problem");
   //abort();
   solver_->Iterate(solverOptions_[AZ_max_iter], solverParams_[AZ_tol]); // Try to solve
+  schurOperator_->ComputeX1(*rhs1_.get(), *lhs2_.get(), *lhs1_.get()); // Compute rest of solution
   //solver_->AdaptiveIterate(solverOptions_[AZ_max_iter], 5, solverParams_[AZ_tol]); // Try to solve
   return(0);
 }
