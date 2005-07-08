@@ -47,6 +47,7 @@ COMMON_CXX_SOURCES = \
 	${srcdir}/dft_PolyLinProbMgr.cpp \
 	${srcdir}/dft_PolyA11_Epetra_Operator.cpp \
 	${srcdir}/dft_PolyA22_Epetra_Operator.cpp \
+	${srcdir}/dft_PolyA22Full_Epetra_Operator.cpp \
 	${srcdir}/dft_Schur_Epetra_Operator.cpp \
 	${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp \
 	${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp
@@ -63,6 +64,8 @@ COMMON_HEADERS = \
 	${srcdir}/dft_BasicLinProbMgr.hpp \
 	${srcdir}/dft_PolyLinProbMgr.hpp \
 	${srcdir}/dft_PolyA11_Epetra_Operator.hpp \
+	${srcdir}/dft_PolyA22_Epetra_Operator.hpp \
+	${srcdir}/dft_PolyA22_Epetra_Operator.hpp \
 	${srcdir}/dft_PolyA22_Epetra_Operator.hpp \
 	${srcdir}/dft_Schur_Epetra_Operator.hpp \
 	${srcdir}/dft_basic_lin_prob_mgr_wrapper.h \

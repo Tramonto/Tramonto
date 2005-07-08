@@ -42,6 +42,7 @@
 #include "EpetraExt_RowMatrixOut.h"
 #include "dft_PolyA11_Epetra_Operator.hpp"
 #include "dft_PolyA22_Epetra_Operator.hpp"
+#include "dft_PolyA22Full_Epetra_Operator.hpp"
 #include "dft_Schur_Epetra_Operator.hpp"
 
 
@@ -127,7 +128,8 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   A11_ = Teuchos::rcp(new dft_PolyA11_Epetra_Operator(*(ownedMap_.get()), *(block1RowMap_.get())));
   A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block1RowMap_.get()), 0));
   A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block2RowMap_.get()), 0));
-  A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
+  //A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
+  A22_ = Teuchos::rcp(new dft_PolyA22Full_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
   globalMatrix_ = Teuchos::null; // not used by this solver
   
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
