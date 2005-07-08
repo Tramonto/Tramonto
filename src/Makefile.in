@@ -32,6 +32,7 @@ COMMON_C_SOURCES= \
 	${srcdir}/dft_fillp.c \
 	${srcdir}/dft_fill_rosen_rb.c \
 	${srcdir}/dft_fill_mf.c \
+	${srcdir}/dft_fill_wtc.c \
 	${srcdir}/dft_vext_coul.c \
 	${srcdir}/dft_uww.c \
 	${srcdir}/dft_images.c \

@@ -86,6 +86,10 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
       cmsOnDensityMatrix_.SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
   }
   else {
+    if (densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)) 
+      std::cout << "densityMap_.LID(" << rowGID <<") = " << densityMap_.LID(rowGID) << std::endl
+                << "    cmsMap_.LID(" << colGID <<") = " << cmsMap_.LID(colGID) << std::endl
+                << "          value = " << value << std::endl;;
     TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // This should be a diagonal in the densityOnCmsMatrix block
     densityOnCmsMatrix_[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
   }
