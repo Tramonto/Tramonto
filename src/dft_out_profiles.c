@@ -331,22 +331,22 @@ void print_profile(char *output_file4)
         }
  
                /* print segment densities for a CMS polymer run */
-        if (Type_poly != NONE){
-           for (icomp=0; icomp<Npol_comp; icomp++){
-               sumsegdens[icomp]=0.0;
-               for(iseg=0;iseg<Nmer[icomp];iseg++){
-                    itype_mer=Type_mer[icomp][iseg];
+        if (Type_poly != NONE && Iwrite==VERBOSE){
+           for (itype_mer=0;itype_mer<Ncomp;itype_mer++) sumsegdens[itype_mer]=0.0;
+           for (ipol=0; ipol<Npol_comp; ipol++){
+               for(iseg=0;iseg<Nmer[ipol];iseg++){
+                    itype_mer=Type_mer[ipol][iseg];
                     bondproduct=1.0;
-                    for(ibond=0;ibond<Nbond[icomp][iseg];ibond++){
-                         unk_GQ  = Phys2Unk_first[CMS_G] + Poly_to_Unk[icomp][iseg][ibond];
+                    for(ibond=0;ibond<Nbond[ipol][iseg];ibond++){
+                         unk_GQ  = Phys2Unk_first[CMS_G] + Poly_to_Unk[ipol][iseg][ibond];
                          bondproduct *= X_old[unk_GQ+node_start];
                     }  
                    unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
                    if (Type_poly==2)
                       site_dens=bondproduct*X_old[unk_B+node_start]*Rho_b[itype_mer];
                    else
-                      site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[icomp][iseg]-1))
-                                           *Rho_b[itype_mer]/Nmer_t[icomp][itype_mer];
+                      site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[ipol][iseg]-1))
+                                           *Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
 
                    sumsegdens[itype_mer]+=site_dens;
                    fprintf(fp7,"%22.17f\t", site_dens);
