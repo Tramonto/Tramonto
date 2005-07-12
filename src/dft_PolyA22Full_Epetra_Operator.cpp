@@ -92,10 +92,10 @@ int dft_PolyA22Full_Epetra_Operator::finalizeProblemValues() {
 
   A22Matrix_.FillComplete();
   A22Matrix_.OptimizeStorage();
-  EpetraExt::RowMatrixToMatrixMarketFile( "CmsDensityA22.dat", A22Matrix_, "CMS and Density blocks", 
-					  "The 2,2 block of 2D polymer problem: 2d.tar.gz",
-					  true);
-  abort();
+  //EpetraExt::RowMatrixToMatrixMarketFile( "CmsDensityA22.dat", A22Matrix_, "CMS and Density blocks", 
+//					  "The 2,2 block of 2D polymer problem: 2d.tar.gz",
+//					  true);
+ // abort();
   
   /*  std::cout << A22Matrix_<< std::endl;
   */
