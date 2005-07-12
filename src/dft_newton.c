@@ -41,8 +41,9 @@ int solve_problem(double **x, double **x2)
  */
 
 {
-  int iter;
+  int iter,iunk,i;
   double **xOwned;
+  int geq[NMER_MAX], ginveq[NMER_MAX], cmseq[NCOMP_MAX], densityeq[NCOMP_MAX] ;
 /*  int gequ[] = {6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42};
   int ginvequ[] = {43, 41, 39, 37, 35, 33, 31, 29, 27, 25, 23, 21, 19, 17, 15, 13, 11, 9, 7};
   int cmsequ[] = {0, 1, 2};
@@ -55,7 +56,7 @@ int solve_problem(double **x, double **x2)
   if (Type_poly != NONE) {
 
     count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
-    for (iunk=0;i<iunk<Nunk_per_node;i++){
+    for (iunk=0;iunk<Nunk_per_node;iunk++){
       switch(Unk2Phys[iunk]){
           case DENSITY:
                 densityeq[count_density++]=iunk; break; 
@@ -63,23 +64,23 @@ int solve_problem(double **x, double **x2)
                 cmseq[count_cms_field++]=iunk; break; 
           case CMS_G:                  
                 if ((iunk-Geqn_start[0])%2 == 0)
-                    geq[count_geqn++]=iunk; break; 
+                    geq[count_geqn++]=iunk; 
                 else
-                    ginveq[count_ginv_eqn++]=iunk; break; 
+                    ginveq[count_ginv_eqn++]=iunk; 
                 break;
       } 
     }
                             /* now invert the order of the ginverse equations ! */
     for (i=0;i<count_ginv_eqn/2;i++){
        index_save = ginveq[i];
-       ginveq[i] = genveq[count-ginv_eqn-1-i];
-       ginveq[count-ginv_eqn-1-i]=index_save;
+       ginveq[i] = ginveq[count_ginv_eqn-1-i];
+       ginveq[count_ginv_eqn-1-i]=index_save;
     }
     LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
-    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, Ngeqn_tot/2, gequ);
-    dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, Ngeqn_tot/2, ginvequ);
-    dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmsequ);
-    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityequ);
+    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, Ngeqn_tot/2, geq);
+    dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, Ngeqn_tot/2, ginveq);
+    dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmseq);
+    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
   }
   else   
     LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
