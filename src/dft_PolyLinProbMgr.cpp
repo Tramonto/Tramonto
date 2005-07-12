@@ -229,8 +229,8 @@ int dft_PolyLinProbMgr::setupSolver() {
   solver_->SetAztecOption(AZ_scaling, AZ_none); 
   solverOptions_[AZ_max_iter] = 500;
   solver_->SetAztecOption(AZ_kspace, solverOptions_[AZ_max_iter]); 
-  solver_->SetAztecOption(AZ_precond, AZ_none);
-  //solver_->SetPrecOperator(A22_.get());
+  //solver_->SetAztecOption(AZ_precond, AZ_none);
+  solver_->SetPrecOperator(A22_.get());
   //solver_->SetAztecOption(AZ_solver, AZ_gmres);
   //solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
   //solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);

@@ -92,15 +92,21 @@ int dft_PolyA22Full_Epetra_Operator::finalizeProblemValues() {
 
   A22Matrix_.FillComplete();
   A22Matrix_.OptimizeStorage();
+  EpetraExt::RowMatrixToMatrixMarketFile( "CmsDensityA22.dat", A22Matrix_, "CMS and Density blocks", 
+					  "The 2,2 block of 2D polymer problem: 2d.tar.gz",
+					  true);
+  abort();
   
   /*  std::cout << A22Matrix_<< std::endl;
   */
+
   if (firstTime_) {
     Teuchos::ParameterList list;
     // create the preconditioner. For valid PrecType values,
     // please check the documentation
-    string PrecType = "ILU"; // incomplete LU
-    int OverlapLevel = 1; // must be >= 0. If Comm.NumProc() == 1,
+    //string PrecType = "ILU"; // incomplete LU
+    string PrecType = "point relaxation"; // incomplete LU
+    int OverlapLevel = 0; // must be >= 0. If Comm.NumProc() == 1,
     // it is ignored.
     
     A22Inverse_  = Teuchos::rcp(factory_.Create(PrecType, &A22Matrix_, OverlapLevel));
@@ -108,7 +114,8 @@ int dft_PolyA22Full_Epetra_Operator::finalizeProblemValues() {
     
     // specify parameters for ILU
     //list.set("fact: drop tolerance", 1e-9);  // these should be input parameters from Tramonto
-    list.set("fact: level-of-fill", 2);
+    //list.set("fact: level-of-fill", 2);
+    list.set("relaxation: type", "Gauss-Seidel");
     
     // sets the parameters
     IFPACK_CHK_ERR(A22Inverse_->SetParameters(list));
