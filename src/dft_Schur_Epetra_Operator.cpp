@@ -98,6 +98,7 @@ int dft_Schur_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVe
   Epetra_MultiVector Y11(A12_->RangeMap(), X.NumVectors());
   Epetra_MultiVector Y2(A21_->RangeMap(), X.NumVectors());
  
+  Y.PutScalar(0.0);
   A12_->Apply(X, Y1);
   A11_->ApplyInverse(Y1, Y11);
   A21_->Apply(Y11, Y2);
