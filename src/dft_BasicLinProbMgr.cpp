@@ -248,10 +248,10 @@ int dft_BasicLinProbMgr::setupSolver() {
   solver_ = Teuchos::rcp(new AztecOO(*(implicitProblem_.get())));
   solver_->SetAllAztecOptions(solverOptions_);
   solver_->SetAllAztecParams(solverParams_);
-  solver_->SetAztecOption(AZ_scaling, AZ_none); 
+  //solver_->SetAztecOption(AZ_scaling, AZ_none); 
   solverOptions_[AZ_max_iter] = 500;
   solver_->SetAztecOption(AZ_kspace, solverOptions_[AZ_max_iter]); 
-  solver_->SetAztecOption(AZ_precond, AZ_none);
+  //solver_->SetAztecOption(AZ_precond, AZ_none);
 
   return(0);
 }
