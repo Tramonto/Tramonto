@@ -845,6 +845,8 @@ double  Betamu[NCOMP_MAX];   /* Array[Ncomp] of chemical potentials*/
 extern
 double  Betamu_id[NCOMP_MAX];   /* Array[Ncomp] of ideal gas chemical potentials*/
 extern
+double Betamu_wtc[NMER_MAX];
+extern
 double  Betamu_ex_bondTC[NCOMP_MAX][NMER_MAX*NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 extern
 double  Betamu_seg[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
@@ -1266,6 +1268,8 @@ extern double load_poisson_bc(int,int,int);
 extern double load_cavity_wtc(int,int,int,int,int *,double **);
 extern double load_bond_wtc(int,int,int,int,int *,double **);
 extern double load_polyTC_diagEL(int,int,int,int,int,int *,double **,int);
+extern double load_polyTC_bondEL(int,int,int,int,int,int *,double **,int);
+extern double load_polyTC_cavityEL(int,int,int,int,int,int *,double **,int);
 extern void setup_polymer_cr(void);
 
 extern double constant_boundary(int, int);

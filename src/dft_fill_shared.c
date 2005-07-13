@@ -79,12 +79,12 @@ double constant_boundary(int iunk,int jnode_box)
     switch(Unk2Phys[iunk]){
        case DENSITY:
           if (Type_poly_TC){
-             printf("problem ... we haven't done the coarsening for TC polymers yet\n");
-             exit(-1);
-             if (jnode_box==-1){ }
-             if (jnode_box==-2){ }
-             else if (jnode_box==-3){ }
-             else if (jnode_box==-4){ }
+             if (jnode_box==-1) bcval=Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
+             if (jnode_box==-2) bcval=0.0;
+             else if (jnode_box==-3) 
+                 if(Lsteady_state) bcval=Rho_seg_LBB[iunk-Phys2Unk_first[DENSITY]];
+             else if (jnode_box==-4) 
+                 if(Lsteady_state) bcval=Rho_seg_RTF[iunk-Phys2Unk_first[DENSITY]];
            }
            else{
               if (jnode_box==-1)     bcval = Rho_b[iunk-Phys2Unk_first[DENSITY]];
@@ -121,14 +121,14 @@ double constant_boundary(int iunk,int jnode_box)
            else if (jnode_box==-4)  bcval = Betamu_RTF[iunk - Phys2Unk_first[DIFFUSION]];
            break;
        case CAVITY_WTC:
-           if (jnode_box==-1){bcval=0.; }
-           else if (jnode_box==-3){bcval=0.;}
-           else if (jnode_box==-4){bcval=0.;}
+           if (jnode_box==-1)      bcval=Xi_cav_b[iunk-Phys2Unk_first[CAVITY_WTC]]; 
+           else if (jnode_box==-3) bcval=Xi_cav_LBB[iunk-Phys2Unk_first[CAVITY_WTC]];
+           else if (jnode_box==-4) bcval=Xi_cav_RTF[iunk-Phys2Unk_first[CAVITY_WTC]];
            break;
        case BOND_WTC:
-           if (jnode_box==-1){bcval=0.; }
-           else if (jnode_box==-3){bcval=0.;}
-           else if (jnode_box==-4){bcval=0.;}
+           if (jnode_box==-1)      bcval=BondWTC_b[iunk-Phys2Unk_first[BOND_WTC]]; 
+           else if (jnode_box==-3) bcval=BondWTC_LBB[iunk-Phys2Unk_first[BOND_WTC]];
+           else if (jnode_box==-4) bcval=BondWTC_RTF[iunk-Phys2Unk_first[BOND_WTC]];
            break;
        case CMS_FIELD:
            bcval=0.0; 

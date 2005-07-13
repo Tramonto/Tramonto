@@ -235,7 +235,7 @@ int update_solution(double** x, double** delta_x, int iter) {
             x[iunk][ibox]+frac_min*delta_x[iunk][ibox] <1.e-15){
             x[iunk][ibox]=0.1*x[iunk][ibox];
       }
-      else if (iunk==Phys2Unk_first[RHOBAR_ROSEN] && 
+      else if ((iunk==Phys2Unk_first[RHOBAR_ROSEN] || iunk==(Phys2Unk_first[CAVITY_WTC]+1)) && 
               x[iunk][ibox]+frac_min*delta_x[iunk][ibox] > 1.0){
               x[iunk][ibox]+=0.5*(1.0-x[iunk][ibox]);
       }

@@ -61,7 +61,7 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box, int icomp,
                        to the Euler-Lagrange equation for the Wertheim-Tripathi-Chapman theory */
 double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag)
 {
-  int iseg,jseg,ibond,jcomp,jzone,jnode_box,reflect_flag[3],junk,unk_bond,jnode_boxJ,jlist;
+  int iseg,jseg,ibond,jcomp,jzone,jnode_box,reflect_flag[3],junk_rho,unk_bond,jnode_boxJ,jlist;
   int   **sten_offset, *offset, isten;
   int   **sten_offsetJ, *offsetJ;
   double *sten_weightJ,weightJ;
@@ -73,10 +73,11 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
   iseg = iunk-Phys2Unk_first[DENSITY];
   jzone=izone;
 
-  resid_sum=0.0;
   for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
      jseg = Bonds_SegAll[iseg][ibond];
-     jcomp = Unk2Comp[Phys2Unk_first[DENSITY]+jseg];
+     junk_rho = jseg+Phys2Unk_first[DENSITY];
+     unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+Phys2Unk_first[BOND_WTC];
+     jcomp = Unk2Comp[junk_rho];
 
      if (Nlists_HW <= 2) jlist = 0;
      else                jlist = jcomp;
@@ -97,18 +98,18 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
         weight = sten_weight[isten];
         jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
 
-        resid=0.0;
         if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
             if (Lhard_surf) {
                 if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1)
                    weight = HW_boundary_weight
                     (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
             }
-            resid = weight*x[junk][jnode_box]/x[unk_bond][jnode_box];
+            resid = -0.5*weight*x[junk_rho][jnode_box]/x[unk_bond][jnode_box];
         }
         else if (jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
-            resid = weight*constant_boundary(junk,jnode_box)/constant_boundary(unk_bond,jnode_box);
+            resid = -0.5*weight*constant_boundary(junk_rho,jnode_box)/constant_boundary(unk_bond,jnode_box);
         }
+        else resid = 0.0;
         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
         resid_sum += resid;
 
@@ -124,10 +125,10 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
                           weightJ = HW_boundary_weight (jcomp, jlist,
                             stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                     }
-                    mat_val = weight/x[unk_bond][jnode_boxJ];
+                    mat_val = -0.5*weight/x[unk_bond][jnode_boxJ];
                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                                 junk,jnode_boxJ,mat_val);
-                    mat_val = -weight*x[junk][jnode_box]/(x[unk_bond][jnode_boxJ]*x[unk_bond][jnode_boxJ]);
+                                                                 junk_rho,jnode_boxJ,mat_val);
+                    mat_val = 0.5*weight*x[junk_rho][jnode_box]/(x[unk_bond][jnode_boxJ]*x[unk_bond][jnode_boxJ]);
                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                 unk_bond,jnode_boxJ,mat_val);
               }
@@ -137,13 +138,14 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
       }  /* end of loop over the bonding stencils */
 
   } /* end of loop over segments bonded to the segment of interest iseg */
+  return(resid_sum);
 }
 /***********************************************************************************************/
-/*load_polyTC_cavityEL:  Here add the bond contributions of the WTC association/bonding functionals
+/*load_polyTC_cavityEL:  Here add the bond contributions of the WTC association/bonding (cavity term) functionals
                        to the Euler-Lagrange equation for the Wertheim-Tripathi-Chapman theory */
 double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag)
 {
-  int iseg,jseg,ibond,jcomp,unk_xi2,unk_xi3,unk_rho,junk_rho;
+  int iseg,jseg,kseg,kbond,jcomp,unk_xi2,unk_xi3,unk_rho,junk_rho,kunk_rho,kcomp;
   double xi_2,xi_3,s1,s2,y,dy_dxi2,dy_dxi3,prefac2,prefac3;
   double d2y_dxi2_2,d2y_dxi3_2,d2y_dxi2_dxi3;
   int jzone,jnode_box,jlist,reflect_flag[3],jnode_boxJ;
@@ -153,7 +155,9 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
   double *sten_weight,  weight,fac;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
-  double resid,mat_val,resid_sum=0.0;
+  double resid,mat_val,resid_sum;
+
+  iseg = iunk - Phys2Unk_first[DENSITY];
 
   resid_sum=0.0;
   unk_xi2 = Phys2Unk_first[CAVITY_WTC];
@@ -174,39 +178,56 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
     jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
 
     resid=0.0;
-    if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
-        xi_2=x[unk_xi2][jnode_box];
-        xi_3=x[unk_xi3][jnode_box];
-        if (Lhard_surf) {
+    for (jseg=0;jseg<Nseg_tot;jseg++){
+       unk_rho = Phys2Unk_first[DENSITY]+jseg; 
+       jcomp=Unk2Comp[unk_rho];
+       s1=Sigma_ff[jcomp][jcomp];
+       if (Nlists_HW <= 2) jlist = 0;
+       else                jlist = jcomp;
+
+       if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
+         xi_2=x[unk_xi2][jnode_box]; xi_3=x[unk_xi3][jnode_box];
+       }
+       else if (jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
+          if (jnode_box == -1) {
+             xi_2 = Xi_cav_b[2]; xi_3=Xi_cav_b[3];
+          } 
+          else if (jnode_box == -3) {xi_2 = Xi_cav_LBB[2]; xi_3=Xi_cav_LBB[3];} 
+          else if (jnode_box == -4) {xi_2 = Xi_cav_RTF[2]; xi_3=Xi_cav_RTF[3];} 
+          
+       }
+       
+       if (Lhard_surf && jnode_box>=0 && !Zero_density_TF[jnode_box][jcomp]) {
             if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1)
                weight = HW_boundary_weight
                 (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
-        }
-        for (iseg=0;iseg<Nseg_tot;iseg++){
-            unk_rho = Phys2Unk_first[DENSITY]+iseg; 
-            s1=Sigma_ff[Unk2Comp[unk_rho]][Unk2Comp[unk_rho]];
-            for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++){
-               jseg = Bonds_SegAll[iseg][ibond];
-               junk_rho = Phys2Unk_first[DENSITY]+jseg;
-               s2=Sigma_ff[Unk2Comp[junk_rho]][Unk2Comp[junk_rho]];
+       }
+       for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
+            kseg = Bonds_SegAll[jseg][kbond];
+            kunk_rho = Phys2Unk_first[DENSITY]+kseg;
+            kcomp=Unk2Comp[kunk_rho];
+            s2=Sigma_ff[kcomp][kcomp];
 
-               y = y_cav(s1,s2,xi_2,xi_3);
-               dy_dxi2=dy_dxi2_cav(s1,s2,xi_2,xi_3);
-               dy_dxi3=dy_dxi3_cav(s1,s2,xi_2,xi_3);
+            y = y_cav(s1,s2,xi_2,xi_3);
+            dy_dxi2=dy_dxi2_cav(s1,s2,xi_2,xi_3);
+            dy_dxi3=dy_dxi3_cav(s1,s2,xi_2,xi_3);
              
-               prefac2 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
-               prefac3 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
+            prefac2 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
+            prefac3 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
 
-               resid = (prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(x[unk_rho][jnode_box]/y);
-               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-               resid_sum += resid;
+            if (jnode_box >=0 && !Zero_density_TF[jnode_box][jcomp]){
+                resid = -0.5*(prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(x[unk_rho][jnode_box]/y);
+            }
+            else if (jnode_box==-1 ||jnode_box==-3 ||jnode_box==-4){
+                resid = -0.5*(prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(constant_boundary(unk_rho,jnode_box)/y);
+            }
+            else resid=0.0;
 
-           } /* end of bond pair loop */
-        } /* end of iseg loop
-    }
-    else if (jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
-       /* what is this for a constant boundary ?????? */
-    }
+            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+            resid_sum += resid;
+
+        } /* end of bond pair loop */
+    }        /* end of jseg loop */
 
 
     if (!resid_only_flag) {
@@ -214,52 +235,59 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
           offsetJ = sten_offsetJ[isten];
           weightJ = sten_weightJ[isten];
           jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
+          xi_2=x[unk_xi2][jnode_boxJ];
+          xi_3=x[unk_xi3][jnode_boxJ];
 
-          if (jnode_boxJ >=0 && !Zero_density_TF[jnode_boxJ][jcomp]){
-            if (Lhard_surf) {
-                if (Nodes_2_boundary_wall[jlist][jnode_boxJ]!=-1)
-                   weightJ = HW_boundary_weight (jcomp, jlist,
-                     stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
-            }
+          for (jseg=0;jseg<Nseg_tot;jseg++){
+              junk_rho = Phys2Unk_first[DENSITY]+jseg; 
+              jcomp=Unk2Comp[junk_rho];
+              s1=Sigma_ff[jcomp][jcomp];
+              if (Nlists_HW <= 2) jlist = 0;
+              else                jlist = jcomp;
 
-            for (iseg=0;iseg<Nseg_tot;iseg++){
-              unk_rho = Phys2Unk_first[DENSITY]+iseg; 
-              s1=Sigma_ff[Unk2Comp[unk_rho]][Unk2Comp[unk_rho]];
-              for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++){
-                 jseg = Bonds_SegAll[iseg][ibond];
-                 junk_rho = Phys2Unk_first[DENSITY]+jseg;
-                 s2=Sigma_ff[Unk2Comp[junk_rho]][Unk2Comp[junk_rho]];
+              if (jnode_boxJ >=0 && !Zero_density_TF[jnode_boxJ][jcomp]){
+                if (Lhard_surf) {
+                    if (Nodes_2_boundary_wall[jlist][jnode_boxJ]!=-1)
+                       weightJ = HW_boundary_weight (jcomp, jlist,
+                         stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
+                }
 
-                 y = y_cav(s1,s2,xi_2,xi_3);
-                 dy_dxi2=dy_dxi2_cav(s1,s2,xi_2,xi_3);
-                 dy_dxi3=dy_dxi3_cav(s1,s2,xi_2,xi_3);
-
-                 d2y_dxi2_2=d2y_dxi2_sq(s1,s2,xi_2,xi_3);
-                 d2y_dxi3_2=d2y_dxi3_sq(s1,s2,xi_2,xi_3);
-                 d2y_dxi2_dxi3=d2y_dxi3_dxi2(s1,s2,xi_2,xi_3);
- 
-                 prefac2 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
-                 prefac3 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
-
-                 mat_val = (prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight/y;
-                 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                           unk_rho,jnode_boxJ,mat_val);
-
-                 mat_val = (prefac2*d2y_dxi2_2 + prefac3*d2y_dxi2_dxi3)*weight*(x[unk_rho][jnode_box]/y)-
-                           (prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(x[unk_rho][jnode_box]/(y*y))*dy_dxi2;
-
-                 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                           unk_xi2,jnode_boxJ,mat_val);
-
-                 mat_val = (prefac2*d2y_dxi2_dxi3 + prefac3*d2y_dxi3_2)*weight*(x[unk_rho][jnode_box]/y)-
-                           (prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(x[unk_rho][jnode_box]/(y*y))*dy_dxi3;
-
-                 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                           unk_xi3,jnode_boxJ,mat_val);
-              }
-            }
-          }
-       }
+                for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
+                   kseg = Bonds_SegAll[jseg][kbond];
+                   kunk_rho = Phys2Unk_first[DENSITY]+kseg;
+                   kcomp=Unk2Comp[kunk_rho];
+                   s2=Sigma_ff[kcomp][kcomp];
+  
+                   y = y_cav(s1,s2,xi_2,xi_3);
+                   dy_dxi2=dy_dxi2_cav(s1,s2,xi_2,xi_3);
+                   dy_dxi3=dy_dxi3_cav(s1,s2,xi_2,xi_3);
+  
+                   d2y_dxi2_2=d2y_dxi2_sq(s1,s2,xi_2,xi_3);
+                   d2y_dxi3_2=d2y_dxi3_sq(s1,s2,xi_2,xi_3);
+                   d2y_dxi2_dxi3=d2y_dxi3_dxi2(s1,s2,xi_2,xi_3);
+   
+                   prefac2 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
+                   prefac3 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
+  
+                   mat_val = -0.5*(prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight/y;
+                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                             junk_rho,jnode_boxJ,mat_val);
+  
+                   mat_val = -0.5*((prefac2*d2y_dxi2_2 + prefac3*d2y_dxi2_dxi3)*weight*(x[junk_rho][jnode_boxJ]/y)-
+                             (prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(x[junk_rho][jnode_boxJ]/(y*y))*dy_dxi2);
+  
+                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                             unk_xi2,jnode_boxJ,mat_val);
+  
+                   mat_val = -0.5*((prefac2*d2y_dxi2_dxi3 + prefac3*d2y_dxi3_2)*weight*(x[junk_rho][jnode_boxJ]/y)-
+                             (prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(x[junk_rho][jnode_boxJ]/(y*y))*dy_dxi3);
+  
+                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                             unk_xi3,jnode_boxJ,mat_val);
+                }  /*loop over kbonds */
+            }  /* check that the node has nonzero density */
+          }  /* loop over all jseg */
+       }  /* check on Jacobian fill */
      }  /* end Jacobian fill */
 
   } /* end of loop over stencil !! */
@@ -366,6 +394,8 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_box,mat_val);
            
      }
+     else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) 
+             resid_sum += weight*constant_boundary(junk,jnode_box);
   }
   return(resid_sum);
 }
@@ -416,6 +446,9 @@ double load_cavity_wtc(int iunk, int loc_inode, int inode_box,
         resid_sum += (PI/6.0)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow)*weight*x[unk_rho][jnode_box]; 
         mat_val = (PI/6.0)*weight*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow);
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_rho,jnode_box,mat_val);
+     }
+     else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) {
+        resid_sum += (PI/6.0)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow)*weight*constant_boundary(unk_rho,jnode_box);
      }
   }
   }  

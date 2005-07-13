@@ -827,6 +827,7 @@ printf("in setup_nunk_per_node...\n");
         for (icomp=0;icomp<Npol_comp;icomp++) Geqn_start[icomp]+=Phys2Unk_first[i];
      }
    }
+
 /*   for (iunk=0;i<Nunk_per_node;iunk++){
      if (Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==DIFFUSION){
          if(Type_poly_TC==FALSE){ 

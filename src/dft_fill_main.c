@@ -223,7 +223,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                   
                    if (Ipot_ff_n != IDEAL_GAS) resid_mu -= Betamu_hs_ex[icomp];
                    if (Ipot_ff_n == LJ12_6)    resid_mu -= Betamu_att[icomp];
-/*                   if (Type_poly_TC)           resid_mu += Betamu_bondwtc[iseg];.....fix this up - not yet defined*/
+                   if (Type_poly_TC)           resid_mu -= Betamu_wtc[iseg];
                    if (Ipot_ff_c == COULOMB && Sten_Type[THETA_CHARGE]) resid_mu += Deltac_b[icomp];
                   }
                   else{
@@ -315,7 +315,11 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
               }   
 
               if (Type_poly_TC){
-                   resid_WTC1=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
+                   resid_WTC1+=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
+                                                 izone,ijk_box,x,resid_only_flag);
+                   resid_WTC1+=load_polyTC_bondEL(iunk,loc_inode,inode_box,icomp,
+                                                 izone,ijk_box,x,resid_only_flag);
+                   resid_WTC1+=load_polyTC_cavityEL(iunk,loc_inode,inode_box,icomp,
                                                  izone,ijk_box,x,resid_only_flag);
               }
 
@@ -427,19 +431,21 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
 /*    if (Unk2Phys[iunk]==DENSITY){
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge;
-          printf("loc_inode=%d  iunk=%d  resid_el=%9.6f  resid_hs1=%9.6f resid_hs2=%9.6f",
-                                 loc_inode,iunk,resid_el,resid_hs1,resid_hs2);
-          printf("%d %d %9.6f %9.6f %9.6f", loc_inode,iunk,resid_el,resid_hs1,resid_hs2);
+          printf("loc_inode=%d  iunk=%d  resid_el=%9.6f  resid_hs1=%9.6f resid_hs2=%9.6f  resid_WTC1=%9.6f",
+                                 loc_inode,iunk,resid_el,resid_hs1,resid_hs2,resid_WTC1);
     }
     else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
        printf("loc_inode=%d : iunk_rbar=%d resid_rhobars=%9.6f  resid_rhobarv=%9.6f ",
                  loc_inode,iunk,resid_rhobars,resid_rhobarv);
-         printf("   %d %9.6f %9.6f", iunk,resid_rhobars,resid_rhobarv);
     }
     else if (Unk2Phys[iunk]==POISSON)   
          printf(" loc_inode=%d  iunk_poisson=%d   resid=%9.6f ", loc_inode,iunk,resid_poisson);
     else if (Unk2Phys[iunk]==DIFFUSION) 
          printf(" loc_inode=%d  iunk_diffusion=%d  resid=%9.6f",loc_inode,iunk,resid_transport);
+    else if (Unk2Phys[iunk]==CAVITY_WTC) 
+         printf(" loc_inode=%d  iunk_cavity=%d  resid=%9.6f",loc_inode,iunk,resid_cavity);
+    else if (Unk2Phys[iunk]==BOND_WTC) 
+         printf(" loc_inode=%d  iunk_bondwtc=%d  resid=%9.6f",loc_inode,iunk,resid_bondwtc);
     printf("  \n");
 */
 

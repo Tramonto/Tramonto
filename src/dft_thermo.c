@@ -23,6 +23,7 @@ double dp_drho_att(double *);
 double calc_y_bulk(int, double *);
 void print_thermo(char *,double,double *);
 void compute_bulk_nonlocal_properties(char *);
+void sum_rhobar(double,int, double *);
 
 void  thermodynamics( char *output_file1, int print_flag)
 {
@@ -43,9 +44,12 @@ void  thermodynamics( char *output_file1, int print_flag)
    for (i=0;i<Ncomp;i++) Betamu_att[i]=0.0;
    betap_att=0.0;
 
-   if (Type_poly_TC){
+ /*  if (Type_poly_TC){
          for (icomp=0; icomp<Ncomp; icomp++)
              for (i=0;i<Nbonds;i++)  Betamu_ex_bondTC[icomp][i]=0.0;
+   }*/
+   if (Type_poly_TC){
+      for (iseg=0;iseg<Nseg_tot;iseg++) Betamu_wtc[iseg]=0.0;
    }
 
    /* Find bulk coexistence  for a very special case of only one atomistic component with
@@ -97,6 +101,16 @@ void  thermodynamics( char *output_file1, int print_flag)
         Inv_rad[icomp] = 2.0 / Sigma_ff[icomp][icomp];
         Inv_4pir[icomp] = Inv_4pi * Inv_rad[icomp];
         Inv_4pirsq[icomp] = Inv_4pir[icomp] * Inv_rad[icomp];
+     }
+  }
+
+  if (Type_poly_TC){
+     for (iseg=0;iseg<Nseg_tot;iseg++){
+         Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
+         if (Lsteady_state){
+            Rho_seg_LBB[iseg]=Rho_b_LBB[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
+            Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
+         }
      }
   }
 
@@ -177,8 +191,10 @@ void  thermodynamics( char *output_file1, int print_flag)
                 jseg=Bonds_SegAll[iseg][ibond];
                 jcomp=Unk2Comp[jseg];
                 y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-                Betamu_seg[iseg] += 0.5*(1.0-log(y*Rho_seg_b[jseg])
-                                         - Rho_seg_b[jseg]/Rho_seg_b[iseg]);
+                  Betamu_seg[iseg] += 0.5*(1.0-log(y)-log(Rho_seg_b[jseg])  
+                                      - Rho_seg_b[jseg]/Rho_seg_b[iseg]);
+                  Betamu_wtc[iseg] += 0.5*(1.0-log(y)-log(Rho_seg_b[jseg])    
+                                       -Rho_seg_b[jseg]/Rho_seg_b[iseg]);
             }
          }
          /* now add in the term that involves _all_ the bond pairs in the system for each segment via that cavity
@@ -197,12 +213,10 @@ void  thermodynamics( char *output_file1, int print_flag)
                 y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
                 dydxi2 = dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
                 dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-printf("iseg=%d  jseg=%d dydxi2=%9.6f dydxi3=%9.6f\n",iseg,jseg,dydxi2,dydxi3);
                 Betamu_seg[kseg] -= (PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
-if (kseg==0) sum -=(PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
+                Betamu_wtc[kseg] -= (PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
               }
            }
-if (kseg==0) printf("sum of third term...comp0=%9.6f\n",sum);
          }
      
 
@@ -541,7 +555,7 @@ double deltaC_MSA_int(double r,int i, int j)
 void compute_bulk_nonlocal_properties(char *output_file1)
 {
   int i,loc_inode,loc_i,inode_box,inode,ijk[3],icomp,idim,iunk,printproc;
-  int ibond,iseg,jseg,pol_number,type_jseg;
+  int ibond,iseg,jseg,pol_number,type_jseg,nloop,iloop;
   double vol,area,x_dist;
   FILE *fp2=NULL;
   if (Proc==0) printproc = TRUE;
@@ -556,54 +570,29 @@ void compute_bulk_nonlocal_properties(char *output_file1)
        Rhobar_b_RTF[iunk] = 0.0;
      }
 
-     for (icomp=0; icomp<Ncomp; icomp++){
-       vol = PI*Sigma_ff[icomp][icomp]*
-                Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp]/6.0;
-       area = PI*Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp];
+    if (Type_poly_TC) nloop=Nseg_tot;
+    else             nloop=Ncomp;
 
-       Rhobar_b[0] += vol*Rho_b[icomp];
-       Rhobar_b[1] += area*Rho_b[icomp];
-       Rhobar_b[2] += area*Rho_b[icomp]*Inv_4pir[icomp];
-       Rhobar_b[3] += area*Rho_b[icomp]*Inv_4pirsq[icomp];
-       for (idim=0; idim<Ndim; idim++){
-           Rhobar_b[4+idim] = 0.0;
-           Rhobar_b[4+Ndim+idim] = 0.0;
+     for (iloop=0; iloop<nloop; iloop++){
+       if (Type_poly_TC) icomp=Unk2Comp[iloop];
+       else             icomp=iloop;
+
+       if (Type_poly_TC){
+ printf("calling sum_rho with %9.6f icomp=%d",Rho_seg_b[iloop],icomp);
+           sum_rhobar(Rho_seg_b[iloop],icomp,Rhobar_b);
+printf("after sumrhobar...Rhobar_b=%9.6f %9.6f %9.6f %9.6f\n",Rhobar_b[0],Rhobar_b[1],Rhobar_b[2],Rhobar_b[3]);
        }
-       if (Lsteady_state){
-          Rhobar_b_LBB[0] += vol*Rho_b_LBB[icomp];
-          Rhobar_b_LBB[1] += area*Rho_b_LBB[icomp];
-          Rhobar_b_LBB[2] += area*Rho_b_LBB[icomp]*Inv_4pir[icomp];
-          Rhobar_b_LBB[3] += area*Rho_b_LBB[icomp]*Inv_4pirsq[icomp];
-          for (idim=0; idim<Ndim; idim++){
-              Rhobar_b_LBB[4+idim] = 0.0;
-              Rhobar_b_LBB[4+Ndim+idim] = 0.0;
+       else{
+          if (Lsteady_state){
+                 sum_rhobar(Rho_b_LBB[icomp],icomp,Rhobar_b_LBB);
+                 sum_rhobar(Rho_b_RTF[icomp],icomp,Rhobar_b_RTF);
           }
-          Rhobar_b_RTF[0] += vol*Rho_b_RTF[icomp];
-          Rhobar_b_RTF[1] += area*Rho_b_RTF[icomp];
-          Rhobar_b_RTF[2] += area*Rho_b_RTF[icomp]*Inv_4pir[icomp];
-          Rhobar_b_RTF[3] += area*Rho_b_RTF[icomp]*Inv_4pirsq[icomp];
-          for (idim=0; idim<Ndim; idim++){
-              Rhobar_b_RTF[4+idim] = 0.0;
-              Rhobar_b_RTF[4+Ndim+idim] = 0.0;
+          else if (Nwall ==0 && Iliq_vap==3){
+                 sum_rhobar(Rho_coex[1],icomp,Rhobar_b_LBB);
+                 sum_rhobar(Rho_coex[0],icomp,Rhobar_b_RTF);
           }
-       }
-       else if (Nwall == 0 && Iliq_vap == 3){
-          Rhobar_b_LBB[0] += vol*Rho_coex[1];
-          Rhobar_b_LBB[1] += area*Rho_coex[1];
-          Rhobar_b_LBB[2] += area*Rho_coex[1]*Inv_4pir[icomp];
-          Rhobar_b_LBB[3] += area*Rho_coex[1]*Inv_4pirsq[icomp];
-          for (idim=0; idim<Ndim; idim++){
-              Rhobar_b_LBB[4+idim] = 0.0;
-              Rhobar_b_LBB[4+Ndim+idim] = 0.0;
-          }
-          Rhobar_b_RTF[0] += vol*Rho_coex[0];
-          Rhobar_b_RTF[1] += area*Rho_coex[0];
-          Rhobar_b_RTF[2] += area*Rho_coex[0]*Inv_4pir[icomp];
-          Rhobar_b_RTF[3] += area*Rho_coex[0]*Inv_4pirsq[icomp];
-          for (idim=0; idim<Ndim; idim++){
-              Rhobar_b_RTF[4+idim] = 0.0;
-              Rhobar_b_RTF[4+Ndim+idim] = 0.0;
-          }
+          else sum_rhobar(Rho_b[icomp],icomp,Rhobar_b);
+   
        }
      }
      if (printproc){
@@ -651,14 +640,6 @@ void compute_bulk_nonlocal_properties(char *output_file1)
         }
      }
 
-     for (iseg=0;iseg<Nseg_tot;iseg++){
-         Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
-         if (Lsteady_state){
-            Rho_seg_LBB[iseg]=Rho_b_LBB[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
-            Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
-         }
-     }
-
      for (ibond=0; ibond<Nbonds; ibond++){
        BondWTC_b[ibond]=NO_BOND_PAIR;
        BondWTC_LBB[ibond]=NO_BOND_PAIR;
@@ -693,6 +674,26 @@ void compute_bulk_nonlocal_properties(char *output_file1)
   } /* end of Type_poly_TC rhobars (bulk)*/
 
 
+}
+/*********************************************************************************************/
+void sum_rhobar(double rho,int icomp, double *rhobar)
+{
+   double vol,area;
+   int idim;
+
+   vol = PI*Sigma_ff[icomp][icomp]*
+           Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp]/6.0;
+   area = PI*Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp];
+
+   rhobar[0] += vol*rho;
+   rhobar[1] += area*rho;
+   rhobar[2] += area*rho*Inv_4pir[icomp];
+   rhobar[3] += area*rho*Inv_4pirsq[icomp];
+   for (idim=0; idim<Ndim; idim++){
+       rhobar[4+idim] = 0.0;
+       rhobar[4+Ndim+idim] = 0.0;
+   }
+   return;
 }
 /*******************************************************************************/
 /* pot_parameters: calculate the cross terms (sigmaij,epsilonij,cutoffij)
