@@ -231,7 +231,7 @@ int update_solution(double** x, double** delta_x, int iter) {
 
     /* Update all solution componenets */
     for (iunk=0; iunk<Nunk_per_node; iunk++){
-      if ((Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==CMS_G || Unk2Phys[iunk]==CMS_FIELD) && 
+      if ((Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==CMS_G || Unk2Phys[iunk]==CMS_FIELD || Unk2Phys[iunk]==BOND_WTC || Unk2Phys[iunk]==CAVITY_WTC) && 
             x[iunk][ibox]+frac_min*delta_x[iunk][ibox] <1.e-15){
             x[iunk][ibox]=0.1*x[iunk][ibox];
       }

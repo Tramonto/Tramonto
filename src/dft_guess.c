@@ -669,13 +669,11 @@ static void setup_const_density(double **xOwned, double *rho,int nloop,int index
      inode_box = L2B_node[loc_inode];
      for (i=0; i<nloop; i++){
 	 iunk = i+Phys2Unk_first[DENSITY];
-         if (!Zero_density_TF[inode_box][i]){
+         if (!Zero_density_TF[inode_box][Unk2Comp[i]]){
             if (nloop > 1) xOwned[iunk][loc_inode] = rho[i];
             else           xOwned[iunk][loc_inode] = rho[index];
          }
          else xOwned[iunk][loc_inode] = 0.0;
-         if (i==1 && !Zero_density_TF[inode_box][1] &&
-                      Zero_density_TF[inode_box][0]) xOwned[iunk][loc_inode] = rho[0];
 
          /* set up initial guess if chemical potential is an unknown */
          if (Lsteady_state) {

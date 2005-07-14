@@ -516,6 +516,7 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
 
                if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
                else ilist = icomp;
+
                if (elem !=-2 && (Wall_elems[ilist][el_box] == -1 ||
                    Lsemiperm[WallType[Wall_elems[ilist][el_box]]][icomp]) ){
 
@@ -905,14 +906,4 @@ double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,
    }
    return(resid_sum);
 }
-/****************************************************************************/
-/*void load_stoichiometric_constraint(int i_box, int inode_box, 
-                        int loc_i, int *ijk_box, double *mat_row, 
-                        double *resid, double *x, int *bindx_tmp, 
-                                         int fill_flag, int iunk)
-{
-
-    
-
-}*/
 /****************************************************************************/

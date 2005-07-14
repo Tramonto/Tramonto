@@ -193,7 +193,7 @@ void  thermodynamics( char *output_file1, int print_flag)
                 y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
                   Betamu_seg[iseg] += 0.5*(1.0-log(y)-log(Rho_seg_b[jseg])  
                                       - Rho_seg_b[jseg]/Rho_seg_b[iseg]);
-                  Betamu_wtc[iseg] += 0.5*(1.0-log(y)-log(Rho_seg_b[jseg])    
+                  Betamu_wtc[iseg] += 0.5*(1.0-log(y)-log(Rho_seg_b[jseg])     
                                        -Rho_seg_b[jseg]/Rho_seg_b[iseg]);
             }
          }

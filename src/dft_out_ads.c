@@ -33,7 +33,7 @@ double calc_adsorption(FILE *fp,double **x,double fac_area,double fac_vol)
 {
   double area,ads_icomp,ads_ex_icomp,ads_return=0.0;
   int loc_inode, icomp,iunk, inode_box,iwall;
-  int i;
+  int i,iloop,nloop;
   static int first=TRUE;
 
   for (i=0; i<2; i++) {
@@ -43,12 +43,16 @@ double calc_adsorption(FILE *fp,double **x,double fac_area,double fac_vol)
        }
   }
 
+  nloop=Ncomp;
+  if (Type_poly_TC) nloop=Nseg_tot;
+
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
     inode_box = L2B_node[loc_inode];
-    for (icomp=0; icomp<Ncomp; icomp++){
+    for (iloop=0; iloop<nloop; iloop++){
       for (i=0; i<Imax; i++){
 
-	 iunk = Phys2Unk_first[DENSITY]+icomp;
+	 iunk = Phys2Unk_first[DENSITY]+iloop;
+         icomp = Unk2Comp[iunk];
 
 	 /* Note: if change def. of ads, must change polymer free energy also */
           Ads_ex[icomp][i] += (x[iunk][inode_box]*Nel_hit2[i][iunk][inode_box]-Rho_b[icomp]*Nel_hit[i][iunk][inode_box])
@@ -142,12 +146,15 @@ void calc_surface_charge(FILE *fp, double **x,double fac_area,double fac_vol)
   double charge_sum,area;
   int loc_inode, icomp, iel, iunk, inode_box,nel_hit,idim,ilist,
       inode,ielement,iwall,ijk[3], iel_box=0;
-  int reflect_flag[3],semiperm,jcomp;
+  int reflect_flag[3],semiperm,jcomp,iloop,nloop;
   static int first=TRUE;
   
 
   charge_sum = 0.0;
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
+
+  nloop=Ncomp;
+  if (Type_poly_TC) nloop=Nseg_tot;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       /* convert local node to global */
@@ -155,11 +162,11 @@ void calc_surface_charge(FILE *fp, double **x,double fac_area,double fac_vol)
       inode_box = L2B_node[loc_inode];
       node_to_ijk(inode,ijk);
 
-      for (icomp=0; icomp<Ncomp; icomp++){
+      for (iloop=0; iloop<nloop; iloop++){
+         icomp=Unk2Comp[iloop];
 
          if (Nlists_HW==1 || Nlists_HW==2) ilist = 0;
          else                              ilist = icomp;
-
 
          nel_hit = Nnodes_per_el_V;
 
@@ -182,7 +189,7 @@ void calc_surface_charge(FILE *fp, double **x,double fac_area,double fac_vol)
                                  &&  ijk[idim] == Nodes_x[idim]-1)  nel_hit /= 2;
          }
 
-	 iunk = Phys2Unk_first[DENSITY]+icomp;
+	 iunk = Phys2Unk_first[DENSITY]+iloop;
 
          charge_sum += (Charge_f[icomp]*x[iunk][inode_box])
                        *Vol_el*((double)nel_hit)/((double)Nnodes_per_el_V);

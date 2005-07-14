@@ -32,7 +32,9 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   */
 
   char   *yo = "fill_resid_and_matrix";
-  int     i, j, icomp,idim,iunk,junk,iunk_start,iunk_end,iseg;
+  int     i, j, icomp,idim,iunk,junk,iunk_start,iunk_end,iseg,ibond;
+  int     zero_density_bond_check,unk_bond;
+  double  n;
   int     reflect_flag[3];
   int     izone, mesh_coarsen_flag_i;
   int     loc_i, loc_inode;
@@ -174,7 +176,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
       /**** LOAD EULER-LAGRANGE EQUATIONS *****/
       if (Unk2Phys[iunk]==DENSITY) {      
-        i = Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+        i = iunk-Phys2Unk_first[DENSITY];
         if (Type_poly_TC){
                           iseg=i;
                           icomp=Unk2Comp[iseg];
@@ -182,7 +184,15 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
         else              icomp=i;
 
         /* Do trivial fill if it is a zero-density node */
-        if (Zero_density_TF[inode_box][icomp] || Vext[loc_inode][icomp] == VEXT_MAX) {
+        zero_density_bond_check=FALSE;
+        if (Type_poly_TC){
+            for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
+                unk_bond = Phys2Unk_first[BOND_WTC]+Poly_to_Unk_SegAll[iseg][ibond];
+                n=x[unk_bond][inode_box];
+                if (fabs(n)<1.e-8) zero_density_bond_check=TRUE;
+            }
+        }
+        if (Zero_density_TF[inode_box][icomp] || Vext[loc_inode][icomp] == VEXT_MAX ||zero_density_bond_check) {
              resid= x[iunk][inode_box];
              mat_value = 1.0;
              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
@@ -431,8 +441,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
 /*    if (Unk2Phys[iunk]==DENSITY){
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge;
-          printf("loc_inode=%d  iunk=%d  resid_el=%9.6f  resid_hs1=%9.6f resid_hs2=%9.6f  resid_WTC1=%9.6f",
-                                 loc_inode,iunk,resid_el,resid_hs1,resid_hs2,resid_WTC1);
+          printf("loc_inode=%d  iunk=%d  resid_el=%9.6f (%9.6f %9.6f %9.6f %9.6f) resid_hs1=%9.6f resid_hs2=%9.6f  resid_WTC1=%9.6f",
+                                 loc_inode,iunk,resid_el,resid_ig,resid_vext,resid_mu,resid_charge,resid_hs1,resid_hs2,resid_WTC1);
     }
     else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
        printf("loc_inode=%d : iunk_rbar=%d resid_rhobars=%9.6f  resid_rhobarv=%9.6f ",
