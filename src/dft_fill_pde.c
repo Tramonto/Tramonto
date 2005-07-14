@@ -512,7 +512,7 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
               * add in source term (electroneutrality sum) 
               */
              for (junk=Phys2Unk_first[DENSITY]; junk<Phys2Unk_last[DENSITY]; junk++){
-               icomp=Unk2Comp[junk];
+               icomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
 
                if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
                else ilist = icomp;
@@ -557,7 +557,7 @@ double load_poisson_bc(int iunk,int loc_inode,int inode_box )
           for (idim=0; idim<Ndim; idim++)
              charge_i += Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
 
-          resid = 4.0*PI*charge_i/Temp_elec;
+          resid = -4.0*PI*charge_i/Temp_elec;
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
         }   /* check for charge b.c. on this wall */

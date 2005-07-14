@@ -148,8 +148,9 @@ void post_process (double **x,char *output_file3,int *niters,
    }
    if (Area==0.0){printf("trouble .... Area=0.0\n"); exit(-1);}
 */
- 
+   printf("before setup_integrals\n"); 
    setup_integrals();
+   printf("after setup_integrals\n"); 
 
 /*   if (Ipot_wf_n != LJ12_6_WALL &&  
          Ipot_wf_n != LJ_CHARGED_ATOMS && Ipot_wf_n != LJ_ATOMIC) */
@@ -159,8 +160,10 @@ void post_process (double **x,char *output_file3,int *niters,
 
    if (!Sten_Type[POLYMER_CR]) (void)calc_free_energy(fp,x,fac_area,fac_vol,TRUE); 
 
+   printf("before calc_ads\n"); 
    if (Ipot_ff_c > 0 || Type_coul==LIKE_LJ) calc_surface_charge(fp,x,fac_area,fac_vol); 
    (void)calc_adsorption(fp,x,fac_area,fac_vol);    
+   printf("after calc_ads\n"); 
 
    if (Sten_Type[POLYMER_CR]) calc_free_energy_polymer(fp,x,fac_area,fac_vol); 
 
@@ -184,19 +187,24 @@ void setup_integrals()
 {
   int loc_inode, icomp, iel, iunk, inode_box, nel_hit,inode,iel_box,
       nel_hit2,ilist,idim,ielement,semiperm,iwall,jcomp;
-  int reflect_flag[3],ijk[3],i;
+  int reflect_flag[3],ijk[3],i,nloop,iloop;
 
   Nel_hit = (int ***) array_alloc (3, 2, Nunk_per_node, Nnodes_box, sizeof(int));
   Nel_hit2 = (int ***) array_alloc (3, 2, Nunk_per_node, Nnodes_box, sizeof(int));
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
 
+  if (Type_poly_TC) nloop=Nseg_tot;
+  else              nloop=Ncomp;
+
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       inode = L2G_node[loc_inode];
       inode_box = L2B_node[loc_inode];
       node_to_ijk(inode,ijk);
 
-      for (icomp=0; icomp<Ncomp; icomp++){
+      for (iloop=0; iloop<nloop; iloop++){
+
+         icomp=Unk2Comp[iloop];
 
          if (Nlists_HW==1 || Nlists_HW==2) List[0] = 0;
          else                              List[0] = icomp;
@@ -250,7 +258,7 @@ void setup_integrals()
                }
             }
  
-	    iunk = Phys2Unk_first[DENSITY]+icomp;
+	    iunk = Phys2Unk_first[DENSITY]+iloop;
 
             Nel_hit[i][iunk][inode_box]=nel_hit;
             Nel_hit2[i][iunk][inode_box]=nel_hit2;

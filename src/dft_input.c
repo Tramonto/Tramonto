@@ -812,15 +812,11 @@ void read_input_file(char *input_file, char *output_file1)
       Ntype_mer = 0;
       read_junk(fp,fp2);
       seg_tot=0;
+      for (i=0; i<NBLOCK_MAX; ++i) Nmer_t_total[i]=0;
       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-printf("loop over pol_comp=%d of %d\n",pol_number,Npol_comp);
 	seg = 0;
-	for (i=0; i<NCOMP_MAX; ++i) {
-             Nmer_t[pol_number][i] = 0; 
-             Nmer_t_total[i] = 0; 
-        }
+	for (i=0; i<NBLOCK_MAX; ++i)  Nmer_t[pol_number][i] = 0; 
 	for (i=0; i<Nblock[pol_number]; ++i){
-printf("loop over block=%d of %d\n",i,Nblock[pol_number]);
 	  fscanf(fp,"%d", &block_type[i]);
 	  fprintf(fp2,"%d  ",block_type[i]);
 	  Nmer_t[pol_number][block_type[i]] += block[pol_number][i];
@@ -834,7 +830,6 @@ printf("SegChain2SegAll...pol_number=%d seg=%d seg_tot=%d\n",pol_number,seg,seg_
 	  if (block_type[i] > Ntype_mer) Ntype_mer = block_type[i];
 	}
       }
-printf("finished pol_number and block loops\n");
       Ntype_mer++;
       printf("Number of segment types (Ntype_mer) = %d\n",Ntype_mer);
     }

@@ -201,7 +201,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
         else {
 
              /* First load diagonal and constant terms to the residual */
- 
              resid = log(x[iunk][inode_box]) ; 
              mat_value = 1.0/x[iunk][inode_box];
              resid_ig=resid;
@@ -449,7 +448,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                  loc_inode,iunk,resid_rhobars,resid_rhobarv);
     }
     else if (Unk2Phys[iunk]==POISSON)   
-         printf(" loc_inode=%d  iunk_poisson=%d   resid=%9.6f ", loc_inode,iunk,resid_poisson);
+         printf(" loc_inode=%d  iunk_poisson=%d   resid=%9.6f", loc_inode,iunk,resid_poisson);
     else if (Unk2Phys[iunk]==DIFFUSION) 
          printf(" loc_inode=%d  iunk_diffusion=%d  resid=%9.6f",loc_inode,iunk,resid_transport);
     else if (Unk2Phys[iunk]==CAVITY_WTC) 

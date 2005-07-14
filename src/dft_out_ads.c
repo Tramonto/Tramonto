@@ -52,7 +52,7 @@ double calc_adsorption(FILE *fp,double **x,double fac_area,double fac_vol)
       for (i=0; i<Imax; i++){
 
 	 iunk = Phys2Unk_first[DENSITY]+iloop;
-         icomp = Unk2Comp[iunk];
+         icomp = Unk2Comp[iloop];
 
 	 /* Note: if change def. of ads, must change polymer free energy also */
           Ads_ex[icomp][i] += (x[iunk][inode_box]*Nel_hit2[i][iunk][inode_box]-Rho_b[icomp]*Nel_hit[i][iunk][inode_box])

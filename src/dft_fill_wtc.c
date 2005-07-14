@@ -274,13 +274,13 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
                                                              junk_rho,jnode_boxJ,mat_val);
   
                    mat_val = -0.5*((prefac2*d2y_dxi2_2 + prefac3*d2y_dxi2_dxi3)*weight*(x[junk_rho][jnode_boxJ]/y)-
-                             (prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(x[junk_rho][jnode_boxJ]/(y*y))*dy_dxi2);
+                             0.5*(prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(x[junk_rho][jnode_boxJ]/(y*y))*dy_dxi2);
   
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_xi2,jnode_boxJ,mat_val);
   
                    mat_val = -0.5*((prefac2*d2y_dxi2_dxi3 + prefac3*d2y_dxi3_2)*weight*(x[junk_rho][jnode_boxJ]/y)-
-                             (prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(x[junk_rho][jnode_boxJ]/(y*y))*dy_dxi3);
+                             0.5*(prefac2*dy_dxi2 + prefac3*dy_dxi3)*weight*(x[junk_rho][jnode_boxJ]/(y*y))*dy_dxi3);
   
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_xi3,jnode_boxJ,mat_val);
@@ -304,8 +304,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
    sig_sum=sigma_1+sigma_2;
    sig_m=sigma_1*sigma_2;
 
-  d2y_dxi2sq = (3.*sig_m/sig_sum)*(1.0/one_m_xi3_sq)+
-       4.*(sig_m/sig_sum)*(sig_m/sig_sum)*(1./one_m_xi3_cb);
+  d2y_dxi2sq = 4.*(sig_m/sig_sum)*(sig_m/sig_sum)*(1./one_m_xi3_cb);
 
    return d2y_dxi2sq;
 }
@@ -320,8 +319,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
    sig_sum=sigma_1+sigma_2;
    sig_m=sigma_1*sigma_2;
 
-  d2y_dxi3_dxi2 = (6.*sig_m/sig_sum)*(1.0/one_m_xi3_cb)+
-       12.*(sig_m/sig_sum)*(sig_m/sig_sum)*(xi_2/one_m_xi3_4th);
+  d2y_dxi3_dxi2 = 6.*(sig_m/sig_sum)*(1.0/one_m_xi3_cb)
+                 + 12.*(sig_m/sig_sum)*(sig_m/sig_sum)*(xi_2/one_m_xi3_4th);
 
    return d2y_dxi3_dxi2;
 }

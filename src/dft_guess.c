@@ -1026,9 +1026,12 @@ static void read_in_a_file(int iguess,char *filename)
        if (strncmp(unk_char,"DENSITY",5)==0) {
              Restart_field[DENSITY]=TRUE;
              header++;
-             unk_in_file+=Ncomp;
+             if (Type_poly_TC) unk_in_file+=Nseg_tot;
+             else              unk_in_file+=Ncomp;
              unk_start_in_file[DENSITY]=iunk;
-             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DENSITY;
+             if (Type_poly_TC)
+                  for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DENSITY;
+             else for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DENSITY;
        }
        else if (strncmp(unk_char,"POISSON",5)==0){
              Restart_field[POISSON]=TRUE;
@@ -1051,12 +1054,30 @@ static void read_in_a_file(int iguess,char *filename)
              unk_start_in_file[CMS_FIELD]=iunk;
              for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=CMS_FIELD;
        }
+       else if (strncmp(unk_char,"CAVITY_WTC",5)==0){
+             Restart_field[CAVITY_WTC]=TRUE;
+             header++;
+             unk_in_file+=2;
+             unk_start_in_file[CAVITY_WTC]=iunk;
+             for (i=0;i<2;i++) unk_to_eq_in_file[iunk++]=CAVITY_WTC;
+       }
+       else if (strncmp(unk_char,"BOND_WTC",5)==0){
+             Restart_field[BOND_WTC]=TRUE;
+             header++;
+             unk_in_file+=Nbonds;
+             unk_start_in_file[BOND_WTC]=iunk;
+             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=BOND_WTC;
+       }
        else if (strncmp(unk_char,"CHEMPOT",5)==0){
              Restart_field[DIFFUSION]=TRUE;
              header++;
-             unk_in_file+=Ncomp;
+             if (Type_poly_TC) unk_in_file+=Nseg_tot;
+             else              unk_in_file+=Ncomp;
              unk_start_in_file[DIFFUSION]=iunk;
-             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
+             if (Type_poly_TC)
+                 for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
+             else
+                 for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
        }
        else eq_type=NEQ_TYPE;  /* end loop */
     }
@@ -1140,6 +1161,8 @@ static void read_in_a_file(int iguess,char *filename)
 
               case RHOBAR_ROSEN:
               case POISSON:
+              case CAVITY_WTC:
+              case BOND_WTC:
    	         fscanf(fp5,"%lf",&tmp); 
                  break;
 
@@ -1327,16 +1350,27 @@ static void communicate_profile(double *x_new, double** xOwned)
 void check_zero_densities(double **xOwned)
 {
 
-  int loc_inode,icomp,inode_box,iunk;
+  int loc_inode,icomp,inode_box,iunk,iloop,nloop;
+
+  if (Type_poly_TC) nloop=Nseg_tot;
+  else nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       inode_box = L2B_node[loc_inode];
-      for (icomp=0; icomp<Ncomp; icomp++){
-	 iunk = Phys2Unk_first[DENSITY]+icomp;
+      for (iloop=0; iloop<nloop; iloop++){
+         icomp=Unk2Comp[iloop];
+	 iunk = Phys2Unk_first[DENSITY]+iloop;
          if (Zero_density_TF[inode_box][icomp])
                  xOwned[iunk][loc_inode] = 0.0;
-         else if (xOwned[iunk][loc_inode] < Rho_b[icomp]*exp(-VEXT_MAX)) {
+         else{
+           if (Type_poly_TC)
+              if (xOwned[iunk][loc_inode] < Rho_seg_b[iunk]*exp(-VEXT_MAX)) {
+                  xOwned[iunk][loc_inode] = Rho_seg_b[iunk]*exp(-VEXT_MAX); /*DENSITY_MIN*/
+              }
+           else
+              if (xOwned[iunk][loc_inode] < Rho_b[icomp]*exp(-VEXT_MAX)) {
                   xOwned[iunk][loc_inode] = Rho_b[icomp]*exp(-VEXT_MAX); /*DENSITY_MIN*/
+              }
          }
       }
   }
