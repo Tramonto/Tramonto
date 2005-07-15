@@ -1,5 +1,5 @@
 
-//@HEADER
+/*@HEADER*/
 /*
 ************************************************************************
 
@@ -27,7 +27,7 @@ Questions? Contact Michael A. Heroux (maherou@sandia.gov)
 
 ************************************************************************
 */
-//@HEADER
+/*@HEADER*/
 
 #ifndef DFT_C2CPP_WRAPPERS_H
 #define DFT_C2CPP_WRAPPERS_H

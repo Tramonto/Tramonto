@@ -1,5 +1,5 @@
 
-//@HEADER
+/*@HEADER*/
 /*
 ************************************************************************
 
@@ -27,7 +27,7 @@ Questions? Contact Michael A. Heroux (maherou@sandia.gov)
 
 ************************************************************************
 */
-//@HEADER
+/*@HEADER*/
 
 #ifndef DFT_BASIC_LIN_PROB_MGR_WRAPPER_H
 #define DFT_BASIC_LIN_PROB_MGR_WRAPPER_H
