@@ -71,8 +71,9 @@ void collect_x_old(double **x)
 
   if (Proc == 0){
      for (i=0; i<Nnodes; i++){
-        for (iunk=0; iunk<Nunk_per_node; iunk++)
+        for (iunk=0; iunk<Nunk_per_node; iunk++){
            X_old[index[i]*Nunk_per_node+iunk] = unk_global[i*Nunk_per_node+iunk];
+        }
      }
      safe_free((void *) &unk_global);
      safe_free((void *) &index);

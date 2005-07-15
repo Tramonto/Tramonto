@@ -80,7 +80,7 @@ void set_initial_guess (int iguess, double** xOwned)
   */
 
   if (Proc==0 && Iwrite==VERBOSE){
-    if (Restart==0) printf("generating guess from scratch\n");  
+    if (Restart==0 && Imain_loop==0) printf("generating guess from scratch\n");  
     else printf("setting up guess from existing files\n");
   } 
 
@@ -121,9 +121,10 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("set Nodes_old to be Nnodes...Nnodes=
               }
               else
                  X_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
-printf("start read in a file\n");
               read_in_a_file(iguess,filename); /* Get X_old */
-printf("after read in a file\n");
+           }
+           else{
+              for (iunk=0;iunk<Nunk_per_node;iunk++) Restart_field[Unk2Phys[iunk]]=TRUE;
            }
 
            if (Nodes_old != Nnodes) {
@@ -214,10 +215,8 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
  if (Type_poly==NONE) {
     switch(iguess){
       case CONST_RHO:    
-printf("setup_const_density call\n");
             if (Type_poly_TC) setup_const_density(xOwned,Rho_seg_b,Nseg_tot,0);
             else              setup_const_density(xOwned,Rho_b,Ncomp,0);
-printf("after setup_const_density call\n");
             break;
 
       case CONST_RHO_V:  
@@ -1020,6 +1019,7 @@ static void read_in_a_file(int iguess,char *filename)
 
                     /* open the dft_dens.dat file */
    fp5=fopen(filename,"r");
+   printf("IN READ IN A FILE !!\n");
 
                    /* identify which unknowns are found in this file and in what order */
     header=0;
@@ -1231,7 +1231,6 @@ static void shift_the_profile(double *x_new,double fac)
 
   idim = Plane_new_nodes;
   Nadd = round_to_int(Del_1[idim]/Esize_x[idim]);
-
   for (inode=0; inode<Nnodes; inode++){
      node_to_ijk(inode,ijk);
      for (iunk=0; iunk<Nunk_per_node; iunk++){
@@ -1300,12 +1299,12 @@ static void shift_the_profile(double *x_new,double fac)
      }
 
      /* check a few limiting values ... and finally set initial guess*/
-     if (Unk2Phys[iunk]==DENSITY)
-        x_test = min(Rho_max,fac*(unk_old-Rho_b[iunk])+ Rho_b[iunk]);
-
+     if (Unk2Phys[iunk]==DENSITY){
+        x_test = min(Rho_max,fac*(unk_old-Rho_b[iunk-Phys2Unk_first[DENSITY]])+ Rho_b[iunk-Phys2Unk_first[DENSITY]]);
+     }
      else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
-        x_test = fac*(unk_old-Rhobar_b[iunk-Ncomp])+ Rhobar_b[iunk-Ncomp];
-        if (iunk == Ncomp && x_test >= 1.0) x_test = Rhobar_b[iunk-Ncomp];
+        x_test = fac*(unk_old-Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]])+ Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
+        if (iunk == Ncomp && x_test >= 1.0) x_test = Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
      }
      else if (Unk2Phys[iunk]==POISSON){
         x_test = fac*(unk_old-1.0) + 1.0;

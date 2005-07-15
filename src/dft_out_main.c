@@ -77,6 +77,7 @@ void post_process (double **x,char *output_file3,int *niters,
     Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
   }
 
+  printf("calling collect_x_old in order to be ready to shift the profile !\n");
   collect_x_old(x);
   collect_vext_old();
 
@@ -148,9 +149,7 @@ void post_process (double **x,char *output_file3,int *niters,
    }
    if (Area==0.0){printf("trouble .... Area=0.0\n"); exit(-1);}
 */
-   printf("before setup_integrals\n"); 
    setup_integrals();
-   printf("after setup_integrals\n"); 
 
 /*   if (Ipot_wf_n != LJ12_6_WALL &&  
          Ipot_wf_n != LJ_CHARGED_ATOMS && Ipot_wf_n != LJ_ATOMIC) */
