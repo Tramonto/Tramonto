@@ -1159,7 +1159,7 @@ extern int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond;
 extern int ***Poly_to_Unk,**Poly_to_Unk_SegAll;
 extern int Ngeqn_tot, Nbonds, **Nbond,***Bonds;
 extern int *Pol_Sym;
-extern int *Unk2Comp,SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
+extern int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
 
 
 /*********************************************************************/

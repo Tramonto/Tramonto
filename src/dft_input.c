@@ -771,7 +771,10 @@ void read_input_file(char *input_file, char *output_file1)
 
   /* Read and set up Polymer parameters - only read if stencil is turned on */
   Nbonds=0;
-  for (icomp=0;icomp<Ncomp;icomp++) Nseg_type[icomp]=1;  /* if no polymer we just set to 1 */
+  for (icomp=0;icomp<Ncomp;icomp++){
+       Nseg_type[icomp]=1;  /* if no polymer we just set to 1 */
+       Unk2Comp[icomp]=icomp;
+  }
 
   if (Sten_Type[POLYMER_CR] || Type_poly_TC){
 
@@ -861,7 +864,6 @@ printf("SegChain2SegAll...pol_number=%d seg=%d seg_tot=%d\n",pol_number,seg,seg_
     Unk_to_Poly = (int *) array_alloc (1, NBOND_MAX*nseg, sizeof(int));
     Unk_to_Seg = (int *) array_alloc (1, NBOND_MAX*nseg, sizeof(int));
     Unk_to_Bond = (int *) array_alloc (1, NBOND_MAX*nseg, sizeof(int));
-    Unk2Comp = (int *) array_alloc (1, NMER_MAX, sizeof(int));
 
     Nbond = (int **) array_alloc (2, Npol_comp,nmer_max,sizeof(int));
     Nbonds_SegAll = (int *) array_alloc (1, NMER_MAX,sizeof(int));

@@ -121,7 +121,9 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("set Nodes_old to be Nnodes...Nnodes=
               }
               else
                  X_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
+printf("start read in a file\n");
               read_in_a_file(iguess,filename); /* Get X_old */
+printf("after read in a file\n");
            }
 
            if (Nodes_old != Nnodes) {
@@ -212,8 +214,10 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
  if (Type_poly==NONE) {
     switch(iguess){
       case CONST_RHO:    
+printf("setup_const_density call\n");
             if (Type_poly_TC) setup_const_density(xOwned,Rho_seg_b,Nseg_tot,0);
             else              setup_const_density(xOwned,Rho_b,Ncomp,0);
+printf("after setup_const_density call\n");
             break;
 
       case CONST_RHO_V:  

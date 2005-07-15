@@ -406,5 +406,5 @@ int  Ncr_files;
 int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk, **Poly_to_Unk_SegAll;
 int Ngeqn_tot, Nbonds, **Nbond,***Bonds; 
 int *Pol_Sym;
-int *Unk2Comp,SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
+int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
 
