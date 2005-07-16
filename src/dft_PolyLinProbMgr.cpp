@@ -226,14 +226,20 @@ int dft_PolyLinProbMgr::setupSolver() {
   schurOperator_->ComputeRHS(*rhs1_.get(), *rhs2_.get(), *rhsSchur_.get());
   
   solver_ = Teuchos::rcp(new AztecOO(*(implicitProblem_.get())));
-  solver_->SetAllAztecOptions(solverOptions_);
-  solver_->SetAllAztecParams(solverParams_);
+
+  if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);
+  if (solverParams_!=0) solver_->SetAllAztecParams(solverParams_);
+
+  const int * options =  = solver_->GetAllAztecOptions();
+  const double * params = solver_->GetAllAztecParams(solverParams_);
+
   solver_->SetAztecOption(AZ_scaling, AZ_none); 
-  solverOptions_[AZ_max_iter] = 500;
-  solver_->SetAztecOption(AZ_kspace, solverOptions_[AZ_max_iter]); 
+  int maxiter = 500;
+  solver_->SetAztecOption(AZ_max_iter, maxiter);
+  solver_->SetAztecOption(AZ_kspace, maxiter]); 
+  solver_->SetPrecOperator(A22_.get());
   //solver_->SetAztecParam(AZ_ill_cond_thresh, 0.0);
-  solver_->SetAztecOption(AZ_precond, AZ_none);
-  //solver_->SetPrecOperator(A22_.get());
+  //solver_->SetAztecOption(AZ_precond, AZ_none);
   //solver_->SetAztecOption(AZ_solver, AZ_bicgstab);
   //solver_->SetAztecOption(AZ_precond, AZ_dom_decomp);
   //solver_->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
