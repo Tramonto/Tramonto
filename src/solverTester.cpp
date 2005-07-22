@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
 
   int numUnknownsPerNode = 6;
   int numOwnedNodes = 4;
+  int cmsIntegrationRange = 5; // Number of grid points involved in "F" block stencil.
 
   int densityequ[] = {0}; int numDensity = 1;
   int cmsequ[] = {1}; int numCms = 1;
@@ -71,8 +72,8 @@ int main(int argc, char *argv[])
   for (int i=0; i<numUnknownsPerNode; i++) 
     for (int j=0; j<numOwnedNodes; j++) *ptr++ = numGlobalNodes*i + j;
 
-  Epetra_Map globalRowMap(-1, numMyUnknowns, globalGids, 0, comm);
-  Epetra_CrsMatrix(Copy, globalRowMap);
+  Epetra_Map globalRowMap(-1, numMyUnknowns, globalGids.Values(), 0, comm);
+  Epetra_CrsMatrix(Copy, globalRowMap, 0);
   
 
   // For now we are on a single processor
@@ -82,40 +83,113 @@ int main(int argc, char *argv[])
   dft_PolyLinProbMgr mgr(numUnknownsPerNode, 0, 0, MPI_COMM_WORLD);
   mgr.setNodalRowMap(numOwnedNodes, nodalRowMap.MyGlobalElements());
   mgr.setNodalColMap(numBoxNodes, nodalColMap.MyGlobalElements());
+
+  mgr.setGEquationIDs(numG, gequ);
+  mgr.setGInvEquationIDs(numGinv, ginvequ);
+  mgr.setCmsEquationIDs(numCms, cmsequ);
+  mgr.setDensityEquationIDs(numDensity, densityequ);
   mgr.finalizeBlockStructure();
 
   mgr.initializeProblemValues();
+  assert(numG==numGinv && numDensity==numCms);  // Sanity test for assumptions below
+  for (int i=0; i<numOwnedNodes; i++) {
+    int ownedNode = nodalRowMap.GID(i);
 
-  for (int i=0; i<numDensity; i++) {
-    int ownedPhysicsId = densityequ[i];
-    for (int j=0; j<numOwnedNodes; j++) {
-      int ownedNode = j;
-      mgr.insertMatrixValue(ownedPhysicsId, ownedNode, ownedPhysicsID, ownedNode, 1.0); // insert diagonal
-      for (int i1=0; i1<numUnknownsPerNode; i1++) {
-	for (int j1=0; j1<numOwnedNodes; j1++) {
+    // Density Equations
+
+    for (int j=0; j<numDensity; j++) {
+      int ownedPhysicsID = densityequ[j];
+      mgr.insertRhsValue(ownedPhysicsID, ownedNode, 1.0); // rhs
+      int boxPhysicsID = ownedPhysicsID; // density on density
+      int boxNode = ownedNode;
+      mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
+      
+      boxPhysicsID = cmsequ[j];  // density on cms
+      mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0e-11);
+      
+      int ratioGtoDensity = numGinv/numDensity;
+      for (int k=0; k<ratioGtoDensity; k++) {
+	int k1 = j*ratioGtoDensity+k;
+	boxPhysicsID = gequ[k1];  // density on G
+	mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
+	boxPhysicsID = ginvequ[k1];  // density on GInv
+	mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
+      } // End of Density Equations
+    }
     
+    // Cms Field Equations
 
-  mgr.insertRhsValue(i, j, rhsValue)
+    for (int j=0; j<numCms; j++) {
+      int ownedPhysicsID = cmsequ[j];
+      mgr.insertRhsValue(ownedPhysicsID, ownedNode, 1.0); // rhs
+      int boxPhysicsID = ownedPhysicsID; // cms on cms
+      int boxNode = ownedNode;
+      mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
+      
+      for (int k=-cmsIntegrationRange; k<=cmsIntegrationRange; k++) {
+	boxNode = ownedNode + k;
+	boxPhysicsID = densityequ[j];  // cms on density
+	if (boxNode>=0 && boxNode<numOwnedNodes) {
+	  double value = 1 - 0.5*((double) abs(k))/((double) cmsIntegrationRange); // 1 on diagonal, taper off away from diagonal
+	  mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, value);
+	}
+      }
+    } // End of CMS Equations
+      
+    // G Equations
+    
+    for (int j=0; j<numG; j++) {
+      int ownedPhysicsID = gequ[j];
+      mgr.insertRhsValue(ownedPhysicsID, ownedNode, 1.0); // rhs
+	int boxPhysicsID = ownedPhysicsID; // g on g
+      int boxNode = ownedNode;
+      mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
+      
+      if (j>0) { // block subdiagonal 
+	boxPhysicsID = gequ[j-1];  // g_j on g_{j-1}
+	mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, -0.5);
+      }
+      boxPhysicsID = cmsequ[j/numCms]; // g on cms
+      mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, -0.5);
 
-  // Construct a Map with NumElements and index base of 0
-  Epetra_Map Map(NumElements, 0, Comm);
+    } // End of G Equations
 
+    // G Inverse Equations
 
-  // Create x and b vectors
-  Epetra_Vector x(Map);
-  Epetra_Vector b(Map);
+    for (int j=0; j<numGinv; j++) {
+      int ownedPhysicsID = ginvequ[j];
+      mgr.insertRhsValue(ownedPhysicsID, ownedNode, 1.0); // rhs
+      int boxPhysicsID = ownedPhysicsID; // ginv on ginv
+      int boxNode = ownedNode;
+      mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
+      
+      if (j>0) { // block subdiagonal 
+	boxPhysicsID = ginvequ[j-1];  // ginv_j on ginv_{j-1}
+	mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, -0.5);
+      }
+      boxPhysicsID = gequ[j]; // ginv on g
+      mgr.insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, -0.5);
 
-  b.Random();
-  x.Update(2.0, b, 0.0); // x = 2*b
+    } // End of G Inverse Equations
 
-  double bnorm, xnorm;
-  x.Norm2(&xnorm);
-  b.Norm2(&bnorm);
+  } // End of numOwnedNodes loop
 
-  cout << "2 norm of x = " << xnorm << endl
-       << "2 norm of b = " << bnorm << endl;
+  mgr.finalizeProblemValues();  // All done filling values
 
-  MPI_Finalize() ;
+  mgr.setupSolver();
+
+  mgr.solve();
+
+  double * xptr = new double[numUnknownsPerNode*numOwnedNodes];
+  double ** x = new double *[numUnknownsPerNode];
+  for (int i=0; i<numUnknownsPerNode; i++) x[i] = xptr+i*numOwnedNodes;
+
+  mgr.getLhs(x);
+
+  delete[] x;
+  delete [] xptr;
+
+  MPI_Finalize();
 
   return 0;
 }
