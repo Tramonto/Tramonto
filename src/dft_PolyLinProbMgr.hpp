@@ -37,7 +37,7 @@ class AztecOO;
 class dft_PolyA11_Epetra_Operator;
 class dft_PolyA22_Epetra_Operator;
 class dft_PolyA22Full_Epetra_Operator;
-//class dft_PolyA22Bsor_Epetra_Operator;
+class dft_PolyA22Bsor_Epetra_Operator;
 class dft_Schur_Epetra_Operator;
 
 #include "dft_BasicLinProbMgr.hpp"
@@ -60,8 +60,10 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
      \param solverParams (In) An array of doubles defined in dft_solver_defs.h containing information to 
                                guide and report solver status.
      \param comm (In) MPI communicator that should be used by the solver.
+
+     \param debug (In) Turns debug mode on if set to true, false by default.
   */
-  dft_PolyLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm);
+  dft_PolyLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug = false);
 
   //! dft_PolyLinProbMgr Destructor.
   /*! Completely deletes a dft_PolyLinProbMgr object.
@@ -163,6 +165,14 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
 
   //! Solve the current linear problem.
   virtual int solve();
+
+  //! Check for inconsistencies in operators.
+  /* \param verbose (In) Print the residual of inv(A11)*A11*x_random.
+     
+     \return Returns 0 if residual is "small", otherwise it returns -1.
+  */ 
+  int Check(bool verbose);
+
   //@}
 
   //@{ \name Output facilities
@@ -202,8 +212,8 @@ protected:
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A12_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A21_;
   //Teuchos::RefCountPtr<dft_PolyA22_Epetra_Operator> A22_;
-  Teuchos::RefCountPtr<dft_PolyA22Full_Epetra_Operator> A22_;
-  //Teuchos::RefCountPtr<dft_PolyA22Bsor_Epetra_Operator> A22_;
+  //Teuchos::RefCountPtr<dft_PolyA22Full_Epetra_Operator> A22_;
+  Teuchos::RefCountPtr<dft_PolyA22Bsor_Epetra_Operator> A22_;
   Teuchos::RefCountPtr<Epetra_Map> block1RowMap_;
   Teuchos::RefCountPtr<Epetra_Map> block2RowMap_;
   Teuchos::RefCountPtr<Epetra_Map> cmsRowMap_;
@@ -215,6 +225,7 @@ protected:
   Teuchos::RefCountPtr<Epetra_Vector> rhsSchur_;
   Teuchos::RefCountPtr<Epetra_Vector> lhs1_;
   Teuchos::RefCountPtr<Epetra_Vector> lhs2_;
+  bool debug_;
 	     
 };
 

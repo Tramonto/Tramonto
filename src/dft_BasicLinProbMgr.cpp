@@ -166,6 +166,27 @@ int dft_BasicLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, in
   return(0);
 }
 //=============================================================================
+double dft_BasicLinProbMgr::getMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode) {
+
+  int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
+  int colGID = boxToSolverGID(boxPhysicsID, boxNode);
+  int numEntries;
+  int * indices;
+  double * values;
+  if (globalMatrix_->IndicesAreGlobal()) {
+    globalMatrix_->ExtractGlobalRowView(rowGID, numEntries, values, indices); // get view of current row
+    for (int i=0; i<numEntries; i++) if (colGID==indices[i]) return(values[i]);
+  }
+  else {
+    rowGID = globalMatrix_->LRID(rowGID); // get local row ID
+    colGID = globalMatrix_->LCID(colGID); // get local column ID
+    globalMatrix_->ExtractMyRowView(rowGID, numEntries, values, indices); // get view of current row
+    for (int i=0; i<numEntries; i++) if (colGID==indices[i]) return(values[i]);
+  }
+  
+  return(0.0);
+}
+//=============================================================================
 int dft_BasicLinProbMgr::insertMatrixValues(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int * boxNodeList, double * values, int numEntries) {
   
   for (int i=0; i<numEntries; i++) insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNodeList[i], values[i]);

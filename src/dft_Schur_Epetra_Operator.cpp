@@ -134,3 +134,51 @@ int dft_Schur_Epetra_Operator::ComputeX1(const Epetra_MultiVector& B1, const Epe
   A11_->ApplyInverse(Y1, X1);
   return(0);
 }
+//==============================================================================
+int dft_Schur_Epetra_Operator::ApplyGlobal(const Epetra_MultiVector& X1, const Epetra_MultiVector& X2, 
+					   Epetra_MultiVector& Y1, Epetra_MultiVector& Y2) const {
+
+
+  TEST_FOR_EXCEPT(!X1.Map().SameAs(A11_->OperatorDomainMap()));
+  TEST_FOR_EXCEPT(!X2.Map().SameAs(A22_->OperatorDomainMap()));
+  TEST_FOR_EXCEPT(!Y1.Map().SameAs(A11_->OperatorRangeMap()));
+  TEST_FOR_EXCEPT(!Y2.Map().SameAs(A22_->OperatorRangeMap()));
+  TEST_FOR_EXCEPT(Y1.NumVectors()!=X1.NumVectors());
+
+  // Apply (A22 - A21*inv(A11)*A12 to X
+
+  Epetra_MultiVector Y11(A11_->OperatorRangeMap(), X1.NumVectors());
+  Epetra_MultiVector Y12(A12_->OperatorRangeMap(), X1.NumVectors());
+  Epetra_MultiVector Y21(A21_->OperatorRangeMap(), X1.NumVectors());
+  Epetra_MultiVector Y22(A22_->OperatorRangeMap(), X1.NumVectors());
+ 
+  Y1.PutScalar(0.0);
+  Y2.PutScalar(0.0);
+  A11_->Apply(X1, Y11);
+  A12_->Apply(X2, Y12);
+  A21_->Apply(X1, Y21);
+  A22_->Apply(X2, Y22);
+  Y1.Update(1.0, Y11, 1.0, Y12, 0.0);
+  Y2.Update(1.0, Y21, 1.0, Y22, 0.0);
+  return(0);
+}
+//==============================================================================
+int dft_Schur_Epetra_Operator::CheckA11(bool verbose) const {
+
+  Epetra_Vector x(A11_->OperatorDomainMap());
+  Epetra_Vector b(A11_->OperatorRangeMap());
+  x.Random(); // Fill x with random numbers
+  A11_->Apply(x, b); // Forward operation
+  A11_->ApplyInverse(b, b); // Reverse operation
+
+  b.Update(-1.0, x, 1.0); // Should be zero
+
+  double resid = 0.0;
+  b.Norm2(&resid);
+
+  if (verbose) 
+    std::cout << "A11 self-check residual = " << resid << endl;
+
+  if (resid > 1.0E-12) return(-1); // Bad residual
+  return(0);
+}

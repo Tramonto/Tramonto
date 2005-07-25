@@ -101,6 +101,7 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
      \warning This method must not be called unless HasNormInf() returns true.
   */ 
   double NormInf() const {return(0.0);};
+  
   //@}
   
   //@{ \name Atribute access functions

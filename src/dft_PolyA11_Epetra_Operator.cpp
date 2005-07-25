@@ -147,13 +147,13 @@ int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
   Y.ExtractView(&Yptr); // Get array of pointers to columns of Y
   for (int i=0; i<NumVectors; i++) curY[i] = Yptr[i];
   Epetra_MultiVector Ytmp(View, ownedMap_, curY, NumVectors); // Start Ytmp to view first numNodes elements of Y
-  Y.ExtractView(&Xptr); // Get array of pointers to columns of X
+  X.ExtractView(&Xptr); // Get array of pointers to columns of X
   for (int i=0; i<NumVectors; i++) curX[i] = Xptr[i];
   Epetra_MultiVector Xtmp(View, ownedMap_, curX, NumVectors); // Start Xtmp to view first numNodes elements of X
 
   for (int i=0; i< numBlocks_; i++) {
     matrix_[i]->Multiply(false, X, Ytmp); // This gives a result that is X - off-diagonal-matrix*X
-    Ytmp.Update(2.0, Xtmp, 1.0); // This gives a result of -X - off-diagonal-matrix*X
+    Ytmp.Update(-2.0, Xtmp, 1.0); // This gives a result of -X - off-diagonal-matrix*X
     Ytmp.Scale(-1.0); // Finally negate to get the desired result
     for (int j=0; j<NumVectors; j++) {
       curY[j]+=numMyElements; // Increment pointers to next block

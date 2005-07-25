@@ -185,6 +185,23 @@ class dft_BasicLinProbMgr {
   //@}
 
   //@{ \name Single-call modifier and accessor methods
+  
+  //! Get a matrix entry
+  /*! Returns the matrix value for the given physics and node values, if the value is not present then a zero value is returned.
+     \param ownedPhysicsID (In) The physics ID for the matrix row being queried.  
+                           This should be between 0 and one less than the number of physics variables tracked at a node.  
+			   ownedNode and ownedPhysicsID together specify which row of the matrix is being updated.
+     \param ownedNode (In) Current owned node ID.  This is the local ID based on the set of owned nodes for this processor.
+                      This should be between 0 and one less than the number of nodes owned by this processor, independent of
+		      the number of physics types being computed for the given problem. rowPhysicsID and ownedNode together specify 
+		      which row of the matrix is being updated.
+     \param boxPhysicsID (In) The index for the type of unknown to use for the column indices.  
+                           This should be between 0 and one less than the number of physics variables tracked at a node.  
+			   boxNode and colPhysicsID together specify which column of the matrix is being updated.
+     \param boxNode (In) Current box node ID.  Local ID based on the box node ordering.
+     \return The requested matrix value is returned; if the value is not present, the return value will be zero.
+  */
+  double getMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode);
 
   //! Set all left hand side (initial guess) vectors at once.
   /*! Allows the definition of initial guess values in a single call.

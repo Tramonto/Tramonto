@@ -86,6 +86,16 @@ class dft_Schur_Epetra_Operator: public virtual Epetra_Operator {
   //! Generate X1.
   int ComputeX1(const Epetra_MultiVector& B1, const Epetra_MultiVector& X2, Epetra_MultiVector& X1) const;
   
+  //! Apply global operator.
+  int ApplyGlobal(const Epetra_MultiVector& X1, const Epetra_MultiVector& X2, Epetra_MultiVector& B1, Epetra_MultiVector& B1) const;
+  
+  //! Check A11 to see of Apply and ApplyInverse are inverses of each other.
+  /* \param verbose (In) Print the residual of inv(A11)*A11*x_random.
+     
+     \return Returns 0 if residual is "small", otherwise it returns -1.
+  */ 
+  int CheckA11(bool verbose) const;
+
   //! Returns the infinity norm of the global matrix.
   /* Returns the quantity \f$ \| A \|_\infty\f$ such that
      \f[\| A \|_\infty = \max_{1\lei\lem} \sum_{j=1}^n |a_{ij}| \f].

@@ -48,8 +48,9 @@
 
 
 //=============================================================================
-dft_PolyLinProbMgr::dft_PolyLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm) 
-  : dft_BasicLinProbMgr(numUnknownsPerNode, solverOptions, solverParams, comm) {
+dft_PolyLinProbMgr::dft_PolyLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug) 
+  : dft_BasicLinProbMgr(numUnknownsPerNode, solverOptions, solverParams, comm),
+    debug_(debug) {
   
 
   return;
@@ -119,20 +120,23 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   block2RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks2, ptr+numUnks1, 0, comm_));
   cmsRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numCms, ptr+numUnks1, 0, comm_));
   densityRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numDensity, ptr+numUnks1+numCms, 0, comm_));
-
-  std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl
-	    << " Block 1 Row Map " << *block1RowMap_.get() << std::endl
-	    << " Block 2 Row Map " << *block2RowMap_.get() << std::endl
-	    << " CMS     Row Map " << *cmsRowMap_.get() << std::endl
-	    << " Density Row Map " << *densityRowMap_.get() << std::endl;
-  
+  /*
+    std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl
+    << " Block 1 Row Map " << *block1RowMap_.get() << std::endl
+    << " Block 2 Row Map " << *block2RowMap_.get() << std::endl
+    << " CMS     Row Map " << *cmsRowMap_.get() << std::endl
+    << " Density Row Map " << *densityRowMap_.get() << std::endl;
+  */
   A11_ = Teuchos::rcp(new dft_PolyA11_Epetra_Operator(*(ownedMap_.get()), *(block1RowMap_.get())));
   A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block1RowMap_.get()), 0));
   A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block2RowMap_.get()), 0));
   //A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
-  A22_ = Teuchos::rcp(new dft_PolyA22Full_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
-  //A22_ = Teuchos::rcp(new dft_PolyA22Bsor_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
-  globalMatrix_ = Teuchos::null; // not used by this solver
+  //A22_ = Teuchos::rcp(new dft_PolyA22Full_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
+  A22_ = Teuchos::rcp(new dft_PolyA22Bsor_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
+  if (debug_) 
+    globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
+  else
+    globalMatrix_ = Teuchos::null; // not used by this solver
   
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
@@ -163,6 +167,7 @@ int dft_PolyLinProbMgr::initializeProblemValues() {
     A21_->PutScalar(0.0);
     globalRhs_->PutScalar(0.0);
     globalLhs_->PutScalar(0.0);
+    if (debug_) globalMatrix_->PutScalar(0.0);
   }
 
   A11_->initializeProblemValues();
@@ -195,6 +200,8 @@ int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int
     else
       A12_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
   }
+
+  if (debug_) dft_BasicLinProbMgr::insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, value);
   
   return(0);
 }
@@ -207,6 +214,8 @@ int dft_PolyLinProbMgr::finalizeProblemValues() {
     A12_->OptimizeStorage();
     A21_->FillComplete(*(block1RowMap_.get()),*(block2RowMap_.get()));
     A21_->OptimizeStorage();
+
+    if (debug_) globalMatrix_->FillComplete();
   }
   //std::cout << *A12_.get() << endl 
   //          << *A21_.get() << endl;
@@ -237,6 +246,7 @@ int dft_PolyLinProbMgr::setupSolver() {
   int maxiter = 500;
   solver_->SetAztecOption(AZ_max_iter, maxiter);
   solver_->SetAztecOption(AZ_kspace, maxiter); 
+  solver_->SetAztecOption(AZ_conv, AZ_noscaled); 
   solver_->SetPrecOperator(A22_.get());
   //solver_->SetAztecParam(AZ_ill_cond_thresh, 0.0);
   //solver_->SetAztecOption(AZ_precond, AZ_none);
@@ -253,11 +263,15 @@ int dft_PolyLinProbMgr::solve() {
   
   //writeMatrix("2D.mm", "Small Polymer Matrix", "Global Matrix from Small Polymer Problem");
   //abort();
-  solver_->Iterate(solverOptions_[AZ_max_iter], solverParams_[AZ_tol]); // Try to solve
+
+  const int * options = solver_->GetAllAztecOptions();
+  const double * params = solver_->GetAllAztecParams();
+
+  solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
   schurOperator_->ComputeX1(*rhs1_.get(), *lhs2_.get(), *lhs1_.get()); // Compute rest of solution
 
-  std::cout << "Global RHS = " << *globalRhs_.get() << std::endl
-	    << "Global LHS = " << *globalLhs_.get() << std::endl;
+  //std::cout << "Global RHS = " << *globalRhs_.get() << std::endl
+  //          << "Global LHS = " << *globalLhs_.get() << std::endl;
 
   //solver_->AdaptiveIterate(solverOptions_[AZ_max_iter], 5, solverParams_[AZ_tol]); // Try to solve
   return(0);
@@ -266,14 +280,17 @@ int dft_PolyLinProbMgr::solve() {
 int dft_PolyLinProbMgr::applyMatrix(const double** x, double** b) const {
   
   setLhs(x);
-  globalMatrix_->Apply(*globalLhs_.get(), *globalRhs_.get());
+  schurOperator_->ApplyGlobal(*lhs1_.get(), *lhs2_.get(), *rhs1_.get(), *rhs2_.get());
   getRhs(b);
   
   return(0);
 }
 //=============================================================================
 int dft_PolyLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
+  if (debug_)
     return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_.get(), matrixName, matrixDescription));
+  else
+    return(-1); // Not available if not in debug mode
 }
 //=============================================================================
-
+  int dft_PolyLinProbMgr::Check(bool verbose){return(schurOperator_->CheckA11(verbose));}
