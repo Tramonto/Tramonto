@@ -267,12 +267,17 @@ int dft_BasicLinProbMgr::getRhs(double ** b) const {
 int dft_BasicLinProbMgr::setupSolver() {
 
   solver_ = Teuchos::rcp(new AztecOO(*(implicitProblem_.get())));
-  solver_->SetAllAztecOptions(solverOptions_);
-  solver_->SetAllAztecParams(solverParams_);
-  //solver_->SetAztecOption(AZ_scaling, AZ_none); 
-  solverOptions_[AZ_max_iter] = 500;
-  solver_->SetAztecOption(AZ_kspace, solverOptions_[AZ_max_iter]); 
-  //solver_->SetAztecOption(AZ_precond, AZ_none);
+  if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);
+  if (solverParams_!=0) solver_->SetAllAztecParams(solverParams_);
+
+  const int * options = solver_->GetAllAztecOptions();
+  const double * params = solver_->GetAllAztecParams();
+  solver_->SetAztecOption(AZ_scaling, AZ_none); 
+  int maxiter = 500;
+  solver_->SetAztecOption(AZ_max_iter, maxiter);
+  solver_->SetAztecOption(AZ_kspace, maxiter); 
+  solver_->SetAztecOption(AZ_conv, AZ_noscaled); 
+  solver_->SetAztecOption(AZ_precond, AZ_none);
 
   return(0);
 }
@@ -281,7 +286,10 @@ int dft_BasicLinProbMgr::solve() {
   
   //writeMatrix("2D.mm", "Small Polymer Matrix", "Global Matrix from Small Polymer Problem");
   //abort();
-  solver_->Iterate(solverOptions_[AZ_max_iter], solverParams_[AZ_tol]); // Try to solve
+  const int * options = solver_->GetAllAztecOptions();
+  const double * params = solver_->GetAllAztecParams();
+
+  solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
   //solver_->AdaptiveIterate(solverOptions_[AZ_max_iter], 5, solverParams_[AZ_tol]); // Try to solve
   return(0);
 }
