@@ -578,9 +578,7 @@ void compute_bulk_nonlocal_properties(char *output_file1)
        else             icomp=iloop;
 
        if (Type_poly_TC){
- printf("calling sum_rho with %9.6f icomp=%d",Rho_seg_b[iloop],icomp);
            sum_rhobar(Rho_seg_b[iloop],icomp,Rhobar_b);
-printf("after sumrhobar...Rhobar_b=%9.6f %9.6f %9.6f %9.6f\n",Rhobar_b[0],Rhobar_b[1],Rhobar_b[2],Rhobar_b[3]);
        }
        else{
           if (Lsteady_state){

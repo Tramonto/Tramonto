@@ -84,7 +84,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
   /* for debugging print out profiles on each iteration */
   if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");
- 
 
   if (unk_flag == NODAL_FLAG){
       iunk_start = 0;
@@ -413,7 +412,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          resid=x[iunk][loc_inode];
          mat_value=1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
-         resid -= load_cavity_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
+         resid += load_cavity_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
          resid_cavity=resid;
          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       }
@@ -425,7 +424,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          resid=x[iunk][loc_inode];
          mat_value=1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
-         resid -= load_bond_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
+         resid += load_bond_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
          resid_bondwtc=resid;
          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       }
@@ -455,12 +454,12 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          printf(" loc_inode=%d  iunk_cavity=%d  resid=%9.6f",loc_inode,iunk,resid_cavity);
     else if (Unk2Phys[iunk]==BOND_WTC) 
          printf(" loc_inode=%d  iunk_bondwtc=%d  resid=%9.6f",loc_inode,iunk,resid_bondwtc);
-    printf("  \n");
-*/
+    printf("  \n");*/
 
     } /* end of loop over # of unknowns per node */
 
   } /* end of loop over local nodes */
+
 
 
 /*** resid is no longer a vector so this won't work.

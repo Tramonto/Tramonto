@@ -227,13 +227,13 @@ void read_input_file(char *input_file, char *output_file1)
     fscanf(fp,"%d",&Type_poly);
     fprintf(fp2,"%d",Type_poly);
   }
+  MPI_Bcast(&Type_poly,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Type_poly == TC_FR_JNT_CHN) {
     Type_poly_TC = TRUE;
     Type_poly = NONE;
     Sten_Type[THETA_FN_SIG]=TRUE;
     Sten_Type[DELTA_FN_BOND]=TRUE;
   }
-  MPI_Bcast(&Type_poly,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Type_poly_TC,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Type_poly != NONE){
       Sten_Type[DELTA_FN]=TRUE;

@@ -716,7 +716,6 @@ void calc_stencils(void)
 
 
       if (isten != POLYMER_CR){   /* take care of this later */
-        if (Proc==0 && Iwrite==VERBOSE) printf("Renormalize stencil: %d , i=%d,j=%d\n",isten,icomp,jcomp);
         renormalize_stencil(sten, vol_sten);
       }
 
@@ -926,14 +925,13 @@ static void renormalize_stencil(struct Stencil_Struct *sten, double vol_sten)
       if(Proc==0) printf("WARNING: Stencil does not add up near correct volume %g %g\n",
              sum, vol_sten);
    }
-   MPI_Barrier(MPI_COMM_WORLD);
 
    /* renormalize stencil */
 
-   if (Proc==0 &&Iwrite==VERBOSE) printf("\tProc: %d Renormalizing stencil from %g to known volume of %g\n",
+   if (Iwrite==VERBOSE) printf("\tProc: %d Renormalizing stencil from %g to known volume of %g\n",
             Proc,sum, vol_sten);
    ratio = vol_sten/sum;
-
+ 
    for (i=0; i < sten->Length; i++) sten->Weight[i] *= ratio;
 
    if (Lhard_surf) {
@@ -1116,8 +1114,8 @@ static double calc_sten_vol(int isten, int i, int j)
         r_cut = Cut_ff[i][j];
 
         vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*uLJatt_n_noshift(r_min,i,j)
-                  - (4.0/3.0)*PI*pow(r_cut,3.0)*uLJatt_n_noshift(r_cut,i,j)
-                  + uLJatt_n_int(r_cut,i,j) - uLJatt_n_int(r_min,i,j);
+                      - (4.0/3.0)*PI*pow(r_cut,3.0)*uLJatt_n_noshift(r_cut,i,j)
+                      + uLJatt_n_int(r_cut,i,j) - uLJatt_n_int(r_min,i,j);
  
         return(vol_sten);
 

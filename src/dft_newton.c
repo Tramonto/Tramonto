@@ -33,6 +33,11 @@
 static void print_resid_norm(int iter);
 void fill_test(double **x, int flag);
 
+#ifdef NUMERICAL_JACOBIAN
+static void do_numerical_jacobian(double **x);
+#endif
+
+
 /* NEWTON SOLVER using dft_Linprobmgr */
 int solve_problem(double **x, double **x2)
 /*
@@ -53,7 +58,7 @@ int solve_problem(double **x, double **x2)
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
   int is_poly = 0;
-  if (Type_poly != NONE) {
+/*  if (Type_poly != NONE) {
 
     count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
     for (iunk=0;iunk<Nunk_per_node;iunk++){
@@ -70,7 +75,7 @@ int solve_problem(double **x, double **x2)
                 break;
       } 
     }
-                            /* now invert the order of the ginverse equations ! */
+                            / now invert the order of the ginverse equations ! /
     for (i=0;i<count_ginv_eqn/2;i++){
        index_save = ginveq[i];
        ginveq[i] = ginveq[count_ginv_eqn-1-i];
@@ -82,7 +87,7 @@ int solve_problem(double **x, double **x2)
     dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmseq);
     dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
   }
-  else   
+  else   */
     LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
 
   /* Give Nodal Row and Column maps */
@@ -160,12 +165,17 @@ int newton_solver(double** x, void* con_ptr) {
     
     /* I am assuming getLhs returns box coordinates (e.g. Column Map)!! */
     (void) dft_linprobmgr_getlhs(LinProbMgr_manager, delta_x);
+
+#ifdef NUMERICAL_JACOBIAN
+    do_numerical_jacobian(x);
+#endif
     
     if (con_ptr != NULL) converged2 =
       continuation_hook_conwrap(x, delta_x, con_ptr, Newton_rel_tol, Newton_abs_tol);
 
     /* Do: x += delta_x, and check for convergence */
     converged = update_solution(x, delta_x, iter);
+
 
 
   } while (iter < Max_Newton_iter && (!converged || !converged2));
@@ -254,6 +264,103 @@ int update_solution(double** x, double** delta_x, int iter) {
   else                  return(TRUE);
 
 }
+/*****************************************************************************************************/
+#ifdef NUMERICAL_JACOBIAN
+static void do_numerical_jacobian(double **x)
+/* This routine compares the analytic and numerical jacobians for the     */
+/* purpose of checking the accuracy of an analytic Jacobian. It is only   */
+/* written for serial runs and will be slow, so only for small problems.  */
+/* Three files are created: ja, jn, jd  containing the analytic jacobian, */
+/* numerical jacobian, and the difference between them, printed as the    */
+/* row, column, and value.                                                */
+{
+  double **full=NULL, del;
+  int i, j, N=Nunk_per_node*Nnodes, count=0,iunk,junk,jnode,inode;
+  char filename[20];
+  FILE *ifp;
+  double **resid, **resid_tmp;
+  resid = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
+  resid_tmp = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
+
+  dft_linprobmgr_getrhs(LinProbMgr_manager, resid);
+
+  /* print out analytic matrix in MSR format */
+  sprintf(filename, "ja%0d",Proc);
+  dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);
+
+  /* compute numerical jacobian by repeated residual fill calls */
+
+  full = (double **) array_alloc(2,N,N,sizeof(double));
+  if (full==NULL){printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
+
+  for (iunk=0;iunk<Nunk_per_node;iunk++){
+    for (inode=0; inode<Nnodes; inode++) {
+      i=inode+Nnodes*iunk;
+      del=1.e-6*fabs(x[iunk][inode])+1.e-12;
+      x[iunk][inode] += del;
+
+      for (junk=0; junk<Nunk_per_node; junk++) 
+          for (jnode=0; jnode<Nnodes_per_proc; jnode++) resid_tmp[junk][jnode] = 0.0;
+
+      (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
+      if (Sten_Type[POLYMER_CR]) fill_resid_and_matrix_P(x,1,TRUE,NODAL_FLAG);
+      else                       fill_resid_and_matrix(x,1,TRUE,NODAL_FLAG);
+
+      dft_linprobmgr_getrhs(LinProbMgr_manager, resid_tmp);
+
+      for (junk=0; junk<Nunk_per_node; junk++){ 
+          for (jnode=0; jnode<Nnodes_per_proc; jnode++){ 
+          j=jnode+Nnodes*junk;
+          full[j][i] = (resid[junk][jnode] - resid_tmp[junk][jnode])/del;
+      }}
+      x[iunk][inode] -= del;
+      if (count==100 || i==N-1){
+        if (Iwrite != NO_SCREEN)printf("Proc: %d :: ith row=%d, out of %d rows.\n",Proc,i,N-1);
+        count=0;
+      } count++;
+    }
+  }
+  if (Iwrite != NO_SCREEN)printf("Proc: %d finished computing numerical jacobian !!\n",Proc);
+
+  /* print out nonzero entries of numerical jacobian */
+  sprintf(filename, "jn%0d",Proc);
+  ifp = fopen(filename,"w");
+  for (i=0; i<Nnodes*Nunk_per_node; i++) {
+    for (j=0; j<Nnodes*Nunk_per_node; j++) {
+      if (fabs(full[i][j]) > 1.0e-10)
+       fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
+    }
+  }
+  fclose(ifp);
+}
+#endif
+
+/*
+  / compute and print the difference between the two jacobans /
+  sprintf(filename, "jd%0d",Proc);
+  ifp = fopen(filename,"w");
+  for (i=0; i< N; i++) {
+     full[i][i] -= Aztec.val[i];
+     for (j= Aztec.bindx[i]; j<Aztec.bindx[i+1]; j++) {
+       full[i][Aztec.bindx[j]] -= Aztec.val[j];
+     }
+   }
+
+  for (i=0; i<N; i++) {
+    for (j=0; j<N; j++) {
+      if (fabs(full[i][j]) > 1.e-4)
+       fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
+    }
+  }
+  fclose(ifp);
+  safe_free((void *) &full);
+  if (Num_Proc>1) MPI_Barrier(MPI_COMM_WORLD);
+    if (Iwrite != NO_SCREEN)printf("Proc: %d KILLING CODE AT END OF NUMERICAL JACOBIAN PRINT\n",Proc);
+  exit(-1);
+}
+ endif*/
+/****************************************************************************/
+
 
 /*****************************************************************************************************/
 static void print_resid_norm(int iter)

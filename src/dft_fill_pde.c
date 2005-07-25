@@ -435,10 +435,15 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
   int nodes_volm_el, nodes_surf_el, junk2[3];
   /* static variables keep their value for every time the function is called*/
   static double *wt_lp_1el, *wt_s_1el;
-  static int   **elem_permute, off_ref[2][2] = { {0,1}, {-1,0}};
+  static int   **elem_permute;
+  int off_ref[2][2]; /*= { {0,1}, {-1,0}};*/
   int jnode_box,junk,junkP;
   int reflect_flag[3];
   double resid,mat_val,resid_sum=0.0;
+  off_ref[0][0]=0;
+  off_ref[0][1]=1;
+  off_ref[1][0]=-1;
+  off_ref[1][1]=0;
 
   /* First time through, load weights appropriate for this Ndim */
 

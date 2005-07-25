@@ -210,7 +210,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                     for (jbond=0; jbond<Nbond[npol][i]; jbond++) {
                       if (jbond != ibond){       
                         unk_GQ_j  = Geqn_start[npol] + Poly_to_Unk[npol][i][jbond]; 
-                        fac2 *= x[unk_GQ_j][loc_inode];
+                        fac2 *= x[unk_GQ_j][inode_box];
                       }
                     }
                     mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
