@@ -58,37 +58,37 @@ int solve_problem(double **x, double **x2)
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
   int is_poly = 0;
-/*  if (Type_poly != NONE) {
-
-    count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
-    for (iunk=0;iunk<Nunk_per_node;iunk++){
-      switch(Unk2Phys[iunk]){
-          case DENSITY:
-                densityeq[count_density++]=iunk; break; 
-          case CMS_FIELD:                  
-                cmseq[count_cms_field++]=iunk; break; 
-          case CMS_G:                  
-                if ((iunk-Geqn_start[0])%2 == 0)
-                    geq[count_geqn++]=iunk; 
-                else
-                    ginveq[count_ginv_eqn++]=iunk; 
-                break;
-      } 
-    }
-                            / now invert the order of the ginverse equations ! /
-    for (i=0;i<count_ginv_eqn/2;i++){
-       index_save = ginveq[i];
-       ginveq[i] = ginveq[count_ginv_eqn-1-i];
-       ginveq[count_ginv_eqn-1-i]=index_save;
-    }
-    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
-    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, Ngeqn_tot/2, geq);
-    dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, Ngeqn_tot/2, ginveq);
-    dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmseq);
-    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
-  }
-  else   */
-    LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+ if (Type_poly != NONE) {
+   
+   count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
+   for (iunk=0;iunk<Nunk_per_node;iunk++){
+     switch(Unk2Phys[iunk]){
+     case DENSITY:
+       densityeq[count_density++]=iunk; break; 
+     case CMS_FIELD:                  
+       cmseq[count_cms_field++]=iunk; break; 
+     case CMS_G:                  
+       if ((iunk-Geqn_start[0])%2 == 0)
+	 geq[count_geqn++]=iunk; 
+       else
+	 ginveq[count_ginv_eqn++]=iunk; 
+       break;
+     } 
+   }
+   /* now invert the order of the ginverse equations ! */
+   for (i=0;i<count_ginv_eqn/2;i++){
+     index_save = ginveq[i];
+     ginveq[i] = ginveq[count_ginv_eqn-1-i];
+     ginveq[count_ginv_eqn-1-i]=index_save;
+   }
+   LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, Ngeqn_tot/2, geq);
+   dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, Ngeqn_tot/2, ginveq);
+   dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmseq);
+   dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
+ }
+ else   
+   LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
 
   /* Give Nodal Row and Column maps */
   (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
@@ -145,6 +145,7 @@ void box2owned(double** xBox, double** xOwned) {
 int newton_solver(double** x, void* con_ptr) {
 
   int iter=0;
+  int iunk, ibox;
   int converged=FALSE, converged2=TRUE;
   double** delta_x;
   delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
@@ -165,6 +166,10 @@ int newton_solver(double** x, void* con_ptr) {
     
     /* I am assuming getLhs returns box coordinates (e.g. Column Map)!! */
     (void) dft_linprobmgr_getlhs(LinProbMgr_manager, delta_x);
+    for (iunk=0; iunk<Nunk_per_node; iunk++)
+      for (ibox=0; ibox<Nnodes_box; ibox++) {
+	printf("delta_x[%d][%d] = %g\n", iunk, ibox,delta_x[iunk][ibox]);
+    }
 
 #ifdef NUMERICAL_JACOBIAN
     do_numerical_jacobian(x);

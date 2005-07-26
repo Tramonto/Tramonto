@@ -223,6 +223,7 @@ int dft_PolyLinProbMgr::finalizeProblemValues() {
   A11_->finalizeProblemValues();
   A22_->finalizeProblemValues();
 
+  Check(true);
   isLinearProblemSet_ = true;
   firstTime_ = false;
   return(0);
@@ -246,7 +247,7 @@ int dft_PolyLinProbMgr::setupSolver() {
   int maxiter = 500;
   solver_->SetAztecOption(AZ_max_iter, maxiter);
   solver_->SetAztecOption(AZ_kspace, maxiter); 
-  solver_->SetAztecOption(AZ_conv, AZ_noscaled); 
+  //solver_->SetAztecOption(AZ_conv, AZ_noscaled); 
   solver_->SetPrecOperator(A22_.get());
   //solver_->SetAztecParam(AZ_ill_cond_thresh, 0.0);
   //solver_->SetAztecOption(AZ_precond, AZ_none);
