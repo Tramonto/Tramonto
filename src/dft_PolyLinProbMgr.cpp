@@ -40,6 +40,8 @@
 #include "Epetra_Import.h"
 #include "AztecOO.h"
 #include "EpetraExt_RowMatrixOut.h"
+#include "EpetraExt_MultiVectorOut.h"
+#include "EpetraExt_BlockMapOut.h"
 #include "dft_PolyA11_Epetra_Operator.hpp"
 #include "dft_PolyA22_Epetra_Operator.hpp"
 #include "dft_PolyA22Full_Epetra_Operator.hpp"
@@ -223,7 +225,7 @@ int dft_PolyLinProbMgr::finalizeProblemValues() {
   A11_->finalizeProblemValues();
   A22_->finalizeProblemValues();
 
-  Check(true);
+  //Check(true);
   isLinearProblemSet_ = true;
   firstTime_ = false;
   return(0);
@@ -247,6 +249,7 @@ int dft_PolyLinProbMgr::setupSolver() {
   int maxiter = 500;
   solver_->SetAztecOption(AZ_max_iter, maxiter);
   solver_->SetAztecOption(AZ_kspace, maxiter); 
+  //solver_->SetAztecParam(AZ_tol, 1.0e-12); 
   //solver_->SetAztecOption(AZ_conv, AZ_noscaled); 
   solver_->SetPrecOperator(A22_.get());
   //solver_->SetAztecParam(AZ_ill_cond_thresh, 0.0);
@@ -271,6 +274,24 @@ int dft_PolyLinProbMgr::solve() {
   solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
   schurOperator_->ComputeX1(*rhs1_.get(), *lhs2_.get(), *lhs1_.get()); // Compute rest of solution
 
+  if (debug_) {
+    Epetra_Vector tmpRhs(*globalRowMap_);
+    Epetra_Vector tmprhs1(View, *(block1RowMap_.get()), tmpRhs.Values());
+    Epetra_Vector tmprhs2(View, *(block2RowMap_.get()), tmpRhs.Values()+block1RowMap_->NumMyElements());
+    
+    schurOperator_->ApplyGlobal(*lhs1_.get(), *lhs2_.get(), tmprhs1, tmprhs2);
+    
+    tmpRhs.Update(-1.0, *globalRhs_.get(), 1.0);
+    double resid=0.0;
+    tmpRhs.Norm2(&resid);
+    std::cout << "Global Residual for solution = " << resid << std::endl;
+
+    writeMatrix("A.dat", "GlobalMatrix", "GlobalMatrix");
+    writeLhs("x.dat");
+    writeRhs("b.dat");
+    writePermutation("p.dat");
+    abort();
+  }
   //std::cout << "Global RHS = " << *globalRhs_.get() << std::endl
   //          << "Global LHS = " << *globalLhs_.get() << std::endl;
 
@@ -287,6 +308,18 @@ int dft_PolyLinProbMgr::applyMatrix(const double** x, double** b) const {
   return(0);
 }
 //=============================================================================
+int dft_PolyLinProbMgr::writeLhs(const char * filename) const  {
+    return(EpetraExt::MultiVectorToMatlabFile(filename, *globalLhs_.get()));
+}
+//=============================================================================
+int dft_PolyLinProbMgr::writeRhs(const char * filename) const  {
+    return(EpetraExt::MultiVectorToMatlabFile(filename, *globalRhs_.get()));
+}
+//=============================================================================
+int dft_PolyLinProbMgr::writePermutation(const char * filename) const  {
+  return(EpetraExt::BlockMapToMatrixMarketFile(filename, *globalRowMap_.get(), " ", " ", false));
+}
+//=============================================================================
 int dft_PolyLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
   if (debug_)
     return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_.get(), matrixName, matrixDescription));
@@ -294,4 +327,11 @@ int dft_PolyLinProbMgr::writeMatrix(const char * filename, const char * matrixNa
     return(-1); // Not available if not in debug mode
 }
 //=============================================================================
-  int dft_PolyLinProbMgr::Check(bool verbose){return(schurOperator_->CheckA11(verbose));}
+  int dft_PolyLinProbMgr::Check(bool verbose) const {
+
+  int ierr1 = A11_->Check(verbose);
+  int ierr2 = A22_->Check(verbose);
+  if (ierr1!=0 || ierr2!=0) return(-1);
+  return(0);
+    
+  }

@@ -162,23 +162,3 @@ int dft_Schur_Epetra_Operator::ApplyGlobal(const Epetra_MultiVector& X1, const E
   Y2.Update(1.0, Y21, 1.0, Y22, 0.0);
   return(0);
 }
-//==============================================================================
-int dft_Schur_Epetra_Operator::CheckA11(bool verbose) const {
-
-  Epetra_Vector x(A11_->OperatorDomainMap());
-  Epetra_Vector b(A11_->OperatorRangeMap());
-  x.Random(); // Fill x with random numbers
-  A11_->Apply(x, b); // Forward operation
-  A11_->ApplyInverse(b, b); // Reverse operation
-
-  b.Update(-1.0, x, 1.0); // Should be zero
-
-  double resid = 0.0;
-  b.Norm2(&resid);
-
-  if (verbose) 
-    std::cout << "A11 self-check residual = " << resid << endl;
-
-  if (resid > 1.0E-12) return(-1); // Bad residual
-  return(0);
-}

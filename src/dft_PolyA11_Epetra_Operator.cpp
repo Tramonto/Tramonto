@@ -167,3 +167,23 @@ int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
 
   return(0);
 }
+//==============================================================================
+int dft_PolyA11_Epetra_Operator::Check(bool verbose) const {
+
+  Epetra_Vector x(OperatorDomainMap());
+  Epetra_Vector b(OperatorRangeMap());
+  x.Random(); // Fill x with random numbers
+  Apply(x, b); // Forward operation
+  ApplyInverse(b, b); // Reverse operation
+
+  b.Update(-1.0, x, 1.0); // Should be zero
+
+  double resid = 0.0;
+  b.Norm2(&resid);
+
+  if (verbose) 
+    std::cout << "A11 self-check residual = " << resid << endl;
+
+  if (resid > 1.0E-12) return(-1); // Bad residual
+  return(0);
+}

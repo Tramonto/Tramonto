@@ -102,6 +102,13 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   */ 
   double NormInf() const {return(0.0);};
   
+  //! Check for inconsistencies in operators.
+  /* \param verbose (In) Print the residual of inv(A11)*A11*x_random.
+     
+     \return Returns 0 if residual is "small", otherwise it returns -1.
+  */ 
+  int Check(bool verbose) const;
+
   //@}
   
   //@{ \name Atribute access functions

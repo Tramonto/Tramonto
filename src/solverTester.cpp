@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
 
     mgr->initializeProblemValues();
     assert(numG==numGinv && numDensity==numCms);  // Sanity test for assumptions below
+    int irhs = 0;
     for (int i=0; i<numOwnedNodes; i++) {
       int ownedNode = nodalRowMap.GID(i);
 
@@ -125,7 +126,7 @@ int main(int argc, char *argv[])
 
       for (int j=0; j<numDensity; j++) {
 	int ownedPhysicsID = densityequ[j];
-	mgr->insertRhsValue(ownedPhysicsID, ownedNode, 1.0); // rhs
+	mgr->insertRhsValue(ownedPhysicsID, ownedNode, (double) irhs++); // rhs
 	int boxPhysicsID = ownedPhysicsID; // density on density
 	int boxNode = ownedNode;
 	mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
@@ -151,7 +152,7 @@ int main(int argc, char *argv[])
 
       for (int j=0; j<numCms; j++) {
 	int ownedPhysicsID = cmsequ[j];
-	mgr->insertRhsValue(ownedPhysicsID, ownedNode, 1.0); // rhs
+	mgr->insertRhsValue(ownedPhysicsID, ownedNode, (double) irhs++); // rhs
 	int boxPhysicsID = ownedPhysicsID; // cms on cms
 	int boxNode = ownedNode;
 	mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
@@ -172,7 +173,7 @@ int main(int argc, char *argv[])
     
       for (int j=0; j<numG; j++) {
 	int ownedPhysicsID = gequ[j];
-	mgr->insertRhsValue(ownedPhysicsID, ownedNode, 1.0); // rhs
+	mgr->insertRhsValue(ownedPhysicsID, ownedNode, (double) irhs++); // rhs
 	int boxPhysicsID = ownedPhysicsID; // g on g
 	int boxNode = ownedNode;
 	mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
@@ -192,7 +193,7 @@ int main(int argc, char *argv[])
 
       for (int j=0; j<numGinv; j++) {
 	int ownedPhysicsID = ginvequ[j];
-	mgr->insertRhsValue(ownedPhysicsID, ownedNode, 1.0); // rhs
+	mgr->insertRhsValue(ownedPhysicsID, ownedNode, (double) irhs++); // rhs
 	int boxPhysicsID = ownedPhysicsID; // ginv on ginv
 	int boxNode = ownedNode;
 	mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);

@@ -66,7 +66,9 @@ class dft_PolyA22Bsor_Epetra_Operator: public virtual Epetra_Operator {
   //@}
   
   //@{ \name Atribute get methods.
-  Epetra_Operator * getA22Inv() {return(cmsOnDensityInverse_.get());}
+
+  //! Returns an Epetra_Operator pointer that is actually the \e this object, since this class implements Epetra_Operator.
+  Epetra_Operator * getA22Inv() {return(this);}
   //@}
   
   //@{ \name Atribute set methods.
@@ -107,6 +109,14 @@ class dft_PolyA22Bsor_Epetra_Operator: public virtual Epetra_Operator {
      \warning This method must not be called unless HasNormInf() returns true.
   */ 
   double NormInf() const {return(0.0);};
+
+  //! Check for inconsistencies in operators.
+  /* \param verbose (In) Print the residual of inv(A22)*A22*x_random.
+     
+     \return Returns 0 if residual is "small", otherwise it returns -1.
+  */ 
+  int Check(bool verbose) const;
+
   //@}
   
   //@{ \name Atribute access functions
@@ -137,7 +147,8 @@ private:
   Epetra_Map block2Map_;
   int numBlocks_;
   Epetra_CrsMatrix cmsOnDensityMatrix_;
-  Teuchos::RefCountPtr<Ifpack_Preconditioner> cmsOnDensityInverse_;
+  Epetra_Vector cmsOnCmsMatrix_;
+  Epetra_Vector densityOnDensityMatrix_;
   Epetra_Vector densityOnCmsMatrix_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;

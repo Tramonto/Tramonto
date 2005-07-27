@@ -44,6 +44,8 @@ dft_PolyA22Bsor_Epetra_Operator::dft_PolyA22Bsor_Epetra_Operator(const Epetra_Ma
     densityMap_(densityMap),
     block2Map_(block2Map),
     cmsOnDensityMatrix_(Epetra_CrsMatrix(Copy, densityMap, 0)),
+    cmsOnCmsMatrix_(Epetra_Vector(densityMap)),
+    densityOnDensityMatrix_(Epetra_Vector(densityMap)),
     densityOnCmsMatrix_(Epetra_Vector(densityMap)),
     Label_(0),
     isGraphStructureSet_(false),
@@ -63,6 +65,8 @@ int dft_PolyA22Bsor_Epetra_Operator::initializeProblemValues() {
 
   if (!firstTime_) {
     cmsOnDensityMatrix_.PutScalar(0.0);
+    cmsOnCmsMatrix_.PutScalar(0.0);
+    densityOnDensityMatrix_.PutScalar(0.0);
     densityOnCmsMatrix_.PutScalar(0.0);
   }
   
@@ -72,26 +76,22 @@ int dft_PolyA22Bsor_Epetra_Operator::initializeProblemValues() {
 int dft_PolyA22Bsor_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
 
   
-  if (rowGID==colGID)
-    return(0); // We don't keep diagonal values
-
-  //  if (rowGID==168 && colGID==0) {
-  // std::cout <<" Made it" << std::endl;
-  //}
   if (cmsMap_.MyGID(rowGID)) {
-    int newRowGID = densityMap_.GID(cmsMap_.LID(rowGID));
-    if (firstTime_)
-      cmsOnDensityMatrix_.InsertGlobalValues(newRowGID, 1, &value, &colGID);
-    else
-      cmsOnDensityMatrix_.SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
+    if (rowGID==colGID)
+      cmsOnCmsMatrix_[cmsMap_.LID(rowGID)] += value; // Storing this cms block in a vector since it is diagonal
+    else {
+      int newRowGID = densityMap_.GID(cmsMap_.LID(rowGID));
+      if (firstTime_)
+	cmsOnDensityMatrix_.InsertGlobalValues(newRowGID, 1, &value, &colGID);
+      else
+	cmsOnDensityMatrix_.SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
+    }
   }
   else {
-    if (densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)) 
-      std::cout << "densityMap_.LID(" << rowGID <<") = " << densityMap_.LID(rowGID) << std::endl
-                << "    cmsMap_.LID(" << colGID <<") = " << cmsMap_.LID(colGID) << std::endl
-                << "          value = " << value << std::endl;;
-    TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // This should be a diagonal in the densityOnCmsMatrix block
-    densityOnCmsMatrix_[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
+    if (rowGID==colGID)
+      densityOnDensityMatrix_[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
+    else
+      densityOnCmsMatrix_[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
   }
 
   return(0);
@@ -113,25 +113,27 @@ int dft_PolyA22Bsor_Epetra_Operator::finalizeProblemValues() {
 }
 //==============================================================================
 int dft_PolyA22Bsor_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
-  Y=X;
-  return(0);
   // The true A22 block is of the form:
 
-  // |  I     F  |
-  // |  D     I  |
+  // |  Dcc     F    |
+  // |  Ddc     Ddd  |
   
-  // where I is the identity, F is a fairly dense matrix and D is a diagonal matrix with small entries
+  // where 
+  // Dcc is Cms on Cms (diagonal),
+  // F is Cms on Density (fairly dense)
+  // Ddc is Density on Cms (diagonal with small coefficient values),
+  // Ddd is Density on Density (diagonal).
   //
   // We will approximate A22 with:
   
-  // |  I     F  |
-  // |  0     I  |
+  // |  Dcc     F    |
+  // |  0       Ddd  |
   
-  // replacing D with a zero matrix for the ApplyInverse method only.
+  // replacing Ddc with a zero matrix for the ApplyInverse method only.
 
   // Our algorithm is then:
-  // Y2 = X2
-  // Y1 = X1 - F*Y2
+  // Y2 = Ddd \ X2
+  // Y1 = Dcc \ (X1 - F*Y2)
 
 
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
@@ -156,12 +158,12 @@ int dft_PolyA22Bsor_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, E
   Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view first numCmsElements elements of X
   Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
 
-  /*
-  Y2 = X2;
-  Y1 = X1;
-  cmsOnDensityMatrix_.Apply(Y2, Y1);
-  Y1.Update(1.0, X1, -1.0);
-  */
+  Epetra_MultiVector Y1tmp(Y1);
+  Y2.ReciprocalMultiply(1.0, densityOnDensityMatrix_, X2, 0.0);
+  cmsOnDensityMatrix_.Apply(Y2, Y1tmp);
+  Y1.Update(1.0, X1, -1.0, Y1tmp, 0.0);
+  Y1.ReciprocalMultiply(1.0, cmsOnCmsMatrix_, Y1, 0.0);
+
   delete [] Y2ptr;
   delete [] X2ptr;
   return(0);
@@ -191,12 +193,38 @@ int dft_PolyA22Bsor_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_M
   Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
 
   cmsOnDensityMatrix_.Apply(X2, Y1);
-  Y1.Update(1.0, X1, 1.0);
+  Y1.Multiply(1.0, cmsOnCmsMatrix_, X1, 1.0);
   Y2.Multiply(1.0, densityOnCmsMatrix_, X1, 0.0);
-  Y2.Update(1.0, X2, 1.0);
+  Y2.Multiply(1.0, densityOnDensityMatrix_, X2, 1.0);
   delete [] X2ptr;
   delete [] Y2ptr;
 
 
+  return(0);
+}
+//==============================================================================
+int dft_PolyA22Bsor_Epetra_Operator::Check(bool verbose) const {
+
+  Epetra_Vector x(OperatorDomainMap());
+  Epetra_Vector b(OperatorRangeMap());
+  x.Random(); // Fill x with random numbers
+  Epetra_Vector x1(View, densityMap_, x.Values()); // Start x1 to view first numCmsElements elements of x
+  Epetra_Vector b2(View, densityMap_, b.Values()+cmsMap_.NumMyElements()); // Start b2 to view last numDensity elements of b
+  Apply(x, b); // Forward operation
+
+  // Inverse is not exact, so we must modify b2 first:
+  b2.Multiply(-1.0, densityOnCmsMatrix_, x1, 1.0);
+
+  ApplyInverse(b, b); // Reverse operation
+
+  b.Update(-1.0, x, 1.0); // Should be zero
+
+  double resid = 0.0;
+  b.Norm2(&resid);
+
+  if (verbose) 
+    std::cout << "A22 self-check residual = " << resid << endl;
+
+  if (resid > 1.0E-12) return(-1); // Bad residual
   return(0);
 }
