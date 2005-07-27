@@ -166,11 +166,12 @@ int newton_solver(double** x, void* con_ptr) {
     
     /* I am assuming getLhs returns box coordinates (e.g. Column Map)!! */
     (void) dft_linprobmgr_getlhs(LinProbMgr_manager, delta_x);
-    for (iunk=0; iunk<Nunk_per_node; iunk++)
+    /*
+      for (iunk=0; iunk<Nunk_per_node; iunk++)
       for (ibox=0; ibox<Nnodes_box; ibox++) {
-	printf("delta_x[%d][%d] = %g\n", iunk, ibox,delta_x[iunk][ibox]);
-    }
-
+      printf("delta_x[%d][%d] = %g\n", iunk, ibox,delta_x[iunk][ibox]);
+      }
+    */
 #ifdef NUMERICAL_JACOBIAN
     do_numerical_jacobian(x);
 #endif
