@@ -124,13 +124,13 @@
 #define NEQ_TYPE       8 
 #define NO_UNK        -888
 
-#define DENSITY        1
+#define DENSITY        0
 #define RHOBAR_ROSEN   4
 #define DIFFUSION      5
 #define CAVITY_WTC     6
 #define BOND_WTC       7
 
-#define CMS_FIELD      0
+#define CMS_FIELD      1
 #define CMS_G          2 
 #define POISSON        3
 
