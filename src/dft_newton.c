@@ -149,6 +149,7 @@ int newton_solver(double** x, void* con_ptr) {
   int converged=FALSE, converged2=TRUE;
   double** delta_x;
   delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
+  char filename[20]="matrix.dat";
 
   do {
     iter++;
@@ -175,6 +176,7 @@ int newton_solver(double** x, void* con_ptr) {
 #ifdef NUMERICAL_JACOBIAN
     do_numerical_jacobian(x);
 #endif
+  dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);
     
     if (con_ptr != NULL) converged2 =
       continuation_hook_conwrap(x, delta_x, con_ptr, Newton_rel_tol, Newton_abs_tol);
@@ -187,11 +189,11 @@ int newton_solver(double** x, void* con_ptr) {
   } while (iter < Max_Newton_iter && (!converged || !converged2));
 
   if (!converged || !converged2) {
-    printf("\tNewton Solver: Failed to converge in %d iterations\n",iter);
+    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tNewton Solver: Failed to converge in %d iterations\n",iter);
     iter = -iter;
   }
   else
-    printf("\tNewton Solver: Successful convergence in %d iterations\n",iter);
+    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tNewton Solver: Successful convergence in %d iterations\n",iter);
 
   safe_free((void **) &delta_x);
   return iter;

@@ -1019,7 +1019,6 @@ static void read_in_a_file(int iguess,char *filename)
 
                     /* open the dft_dens.dat file */
    fp5=fopen(filename,"r");
-   printf("IN READ IN A FILE !!\n");
 
                    /* identify which unknowns are found in this file and in what order */
     header=0;

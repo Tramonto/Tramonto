@@ -1291,6 +1291,7 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
   safe_free((void *) &dots);
   safe_free((void *) &treept);
 
+  MPI_Barrier(MPI_COMM_WORLD);
   if (Proc == 0 && Iwrite==VERBOSE) {
     printf("+++++++++++++++++++++++++++++++++++++");
     printf("+++++++++++++++++++++++++++++++++++++++\n");

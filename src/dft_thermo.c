@@ -20,7 +20,6 @@ double int_stencil_bulk(int,int,int);
 double   coexistence();
 double dp_drho_hs(double *);
 double dp_drho_att(double *);
-double calc_y_bulk(int, double *);
 void print_thermo(char *,double,double *);
 void compute_bulk_nonlocal_properties(char *);
 void sum_rhobar(double,int, double *);
@@ -190,7 +189,8 @@ void  thermodynamics( char *output_file1, int print_flag)
             for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
                 jseg=Bonds_SegAll[iseg][ibond];
                 jcomp=Unk2Comp[jseg];
-                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+/*                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);*/
+                y = y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
                   Betamu_seg[iseg] += 0.5*(1.0-log(y)-log(Rho_seg_b[jseg])  
                                       - Rho_seg_b[jseg]/Rho_seg_b[iseg]);
                   Betamu_wtc[iseg] += 0.5*(1.0-log(y)-log(Rho_seg_b[jseg])     
@@ -210,40 +210,17 @@ void  thermodynamics( char *output_file1, int print_flag)
               for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
                 jseg=Bonds_SegAll[iseg][ibond];
                 jcomp=Unk2Comp[jseg];
-                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+/*                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
                 dydxi2 = dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-                dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+                dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);*/
+                y = y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+                dydxi2 = dy_dxi2_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+                dydxi3 = dy_dxi3_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
                 Betamu_seg[kseg] -= (PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
                 Betamu_wtc[kseg] -= (PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
               }
            }
          }
-     
-
-/*************old code implemented by Sandeep .... modified above to parallel fill routines *************
-         for (i=0;i<Ncomp;i++) sum_all[i]=0.0;
-         for (i=0;i<Nbonds;i++){
-             y[i]=calc_y_bulk(i,sum_all);
-         }
-         for (ipol=0; ipol<Npol_comp; ipol++){
-           for (iseg=0; iseg<Nmer[ipol];iseg++){
-              rho_iseg_b=(Rho_b[Type_mer[ipol][iseg]]/Nmer_t_total[Type_mer[ipol][iseg]]);
-              sum_ab=0.0;
-              for (ibond=0; ibond<Nbond[ipol][iseg]; ibond++){
-                  if (Bonds[ipol][iseg][ibond] != -1){
-                    jseg=Bonds[ipol][iseg][ibond];
-                    rho_jseg_b=(Rho_b[Type_mer[ipol][jseg]]/
-                                 Nmer_t_total[Type_mer[ipol][jseg]]);
-                    sum_ab+=0.5*(1.0-log(y[Poly_to_Unk[ipol][iseg][ibond]])
-                                                  -rho_jseg_b/rho_iseg_b);
-                  }
-              }
-              Betamu_ex_bondTC[ipol][iseg]= sum_ab-sum_all[Type_mer[ipol][iseg]];
-              Betamu_seg[ipol][iseg]=Betamu[Type_mer[ipol][iseg]]
-                     -log(Nmer_t_total[Type_mer[ipol][iseg]])+Betamu_ex_bondTC[ipol][iseg];
-           }
-         }
-**********************************************************************************************/
       }
    }
 
@@ -270,44 +247,6 @@ void  thermodynamics( char *output_file1, int print_flag)
    
 }
 /****************************************************************************/
-/*calc_y_bulk: This computes the cavity correlation function in the bulk for each
-  bond in the problem of interest.  Note that these could be computed rigorously
-  for bond types, but this would introduce more bookkeeping into the code */
-double calc_y_bulk(int ibond, double *sum)
-{
-  int iseg,pol_number, jseg,type_jseg,type_iseg,i;
-  double sigma, sigma_prime, xi_3, xi_2, one_minus_xi_3_cubed,y;
-  double rho_seg_alpha,rho_seg_alpha_prime;
-  double sig2,sig3;
-  double deriv2,deriv3;
-
-      iseg=Unk_to_Seg[ibond];
-      pol_number=Unk_to_Poly[ibond];
-      jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]];
-      type_jseg=Type_mer[pol_number][jseg];
-      type_iseg=Type_mer[pol_number][iseg];
-      sigma=Sigma_ff[type_iseg][type_iseg];
-      sigma_prime=Sigma_ff[type_jseg][type_jseg];
-
-      xi_3=Xi_cav_b[3];
-      xi_2=Xi_cav_b[2];
-
-      y=y_cav(sigma,sigma_prime,xi_2,xi_3);
-      deriv2= dy_dxi2_cav(sigma,sigma_prime,xi_2,xi_3);
-      deriv3= dy_dxi3_cav(sigma,sigma_prime,xi_2,xi_3);
-
-      rho_seg_alpha=(Rho_b[type_iseg]/Nmer_t_total[type_iseg]);
-      rho_seg_alpha_prime=(Rho_b[type_jseg]/Nmer_t_total[type_jseg]);
-
-      for (i=0;i<Ncomp;i++){
-         sig2=Sigma_ff[i][i]*Sigma_ff[i][i];
-         sig3=Sigma_ff[i][i]*Sigma_ff[i][i]*Sigma_ff[i][i];
-         sum[i] += (PI/12.)*(Rho_b[i]/Nmer_t_total[i])*
-                   rho_seg_alpha*(1.0/y)*(deriv2*sig2 + deriv3*sig3);
-      }
-      return (y);
-}
-/********************************************************************************************/
    double y_cav(double sigma_1,double sigma_2,double xi_2, double xi_3)
 {           
    double one_m_xi3_sq,one_m_xi3_cb,sig_sum,sig_m,y;
@@ -709,7 +648,7 @@ void pot_parameters(char *output_file1)
 
  for (i=0; i<Ncomp; i++){
      if (Ipot_ff_n==IDEAL_GAS) Sigma_ff[i][i]=0.0;
-     if (Type_poly <0) Bond_ff[i][i]=0.0;
+     if (Type_poly <0 && !Type_poly_TC) Bond_ff[i][i]=0.0;
 
      for (j=0; j<Ncomp; j++){
 

@@ -928,8 +928,6 @@ static void renormalize_stencil(struct Stencil_Struct *sten, double vol_sten)
 
    /* renormalize stencil */
 
-   if (Iwrite==VERBOSE) printf("\tProc: %d Renormalizing stencil from %g to known volume of %g\n",
-            Proc,sum, vol_sten);
    ratio = vol_sten/sum;
  
    for (i=0; i < sten->Length; i++) sten->Weight[i] *= ratio;
@@ -1092,6 +1090,7 @@ static double calc_sten_rad(int isten, int icomp, int jcomp)
         return (1.5*Sigma_ff[icomp][icomp]);   /* fix this later */
     case THETA_FN_SIG:
         return (Sigma_ff[icomp][icomp]);
+/*        return (Bond_ff[icomp][icomp]);*/
     case DELTA_FN_BOND:
         return (Bond_ff[icomp][jcomp]);
   }

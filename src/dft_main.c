@@ -469,10 +469,10 @@ void setup_polymer_cr()
          }
       }
   /* }*/
-   if (Ncr_files == 1) printf("crfac1=%9.6f  ",crfac1);
-   if (Ncr_files == 2) printf("crfac2=%9.6f  ",crfac2);
-   if (Ncr_files == 3) printf("crfac3=%9.6f  ",crfac3);
-   if (Ncr_files == 4) printf("crfac4=%9.6f  ",crfac4);
+   if (Ncr_files == 1 && Proc==0 && Iwrite==VERBOSE) printf("crfac1=%9.6f  ",crfac1);
+   if (Ncr_files == 2 && Proc==0 && Iwrite==VERBOSE) printf("crfac2=%9.6f  ",crfac2);
+   if (Ncr_files == 3 && Proc==0 && Iwrite==VERBOSE) printf("crfac3=%9.6f  ",crfac3);
+   if (Ncr_files == 4 && Proc==0 && Iwrite==VERBOSE) printf("crfac4=%9.6f  ",crfac4);
    printf("\n");
 
    /* reading in c(r) file */
@@ -738,8 +738,6 @@ void setup_nunk_per_node(char *output_file1)
   FILE *fp2=NULL;
 
   if (Proc==0) fp2 = fopen(output_file1,"a+");
-
-printf("in setup_nunk_per_node...\n");
 
 /*in Makefile set switch for a polymer run an set unknowns accordingly*/
    

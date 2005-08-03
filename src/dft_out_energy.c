@@ -1112,14 +1112,14 @@ double calc_free_energy_polymer(FILE *fp,double **x,double fac_area,double fac_v
      made for the excess adsorption terms in dft_out_ads.c */
   for (icomp=0; icomp<Ncomp; icomp++){
      if (icomp >= Ntype_mer){ free_energy -= Ads_ex[icomp][0];
-        if (Proc==0) printf("adsorption contribution of icomp=%d is %9.6f\n",icomp,Ads_ex[icomp][0]);
+/*        if (Proc==0) printf("adsorption contribution of icomp=%d is %9.6f\n",icomp,Ads_ex[icomp][0]);*/
      }
      else{
         pol_number = 0;
         while (Nmer_t[pol_number][icomp]==0) pol_number++;
         free_energy -= Ads_ex[icomp][0]/Nmer[pol_number];
-        if (Proc==0) printf("adsorption contribution of icomp=%d is %9.6f  and Nmer is %d\n",icomp,
-                     Ads_ex[icomp][0]/Nmer[pol_number],Nmer[pol_number]);
+/*        if (Proc==0) printf("adsorption contribution of icomp=%d is %9.6f  and Nmer is %d\n",icomp,
+                     Ads_ex[icomp][0]/Nmer[pol_number],Nmer[pol_number]);*/
      }
   }
 
@@ -1130,7 +1130,7 @@ double calc_free_energy_polymer(FILE *fp,double **x,double fac_area,double fac_v
         vol = Size_x[0];
         for (idim=1; idim < Ndim; idim++) vol *= Size_x[idim];
         if (Iwrite==VERBOSE){
-          printf("Delta(Free energy)/%lf = %lf\n",vol,free_energy/vol);
+          printf("Delta(Free energy)/Volume (where Vol=%lf) = %lf\n",vol,free_energy/vol);
           printf("Delta(Free energy) = %lf\n",free_energy);
         }
      }

@@ -77,7 +77,6 @@ void post_process (double **x,char *output_file3,int *niters,
     Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
   }
 
-  printf("calling collect_x_old in order to be ready to shift the profile !\n");
   collect_x_old(x);
   collect_vext_old();
 
@@ -159,10 +158,8 @@ void post_process (double **x,char *output_file3,int *niters,
 
    if (!Sten_Type[POLYMER_CR]) (void)calc_free_energy(fp,x,fac_area,fac_vol,TRUE); 
 
-   printf("before calc_ads\n"); 
    if (Ipot_ff_c > 0 || Type_coul==LIKE_LJ) calc_surface_charge(fp,x,fac_area,fac_vol); 
    (void)calc_adsorption(fp,x,fac_area,fac_vol);    
-   printf("after calc_ads\n"); 
 
    if (Sten_Type[POLYMER_CR]) calc_free_energy_polymer(fp,x,fac_area,fac_vol); 
 

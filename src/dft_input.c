@@ -915,7 +915,6 @@ printf("SegChain2SegAll...pol_number=%d seg=%d seg_tot=%d\n",pol_number,seg,seg_
 	}
 	nbond_tot[pol_number] += (Nbond[pol_number][iseg]-end_count);
         Unk2Comp[seg_tot]=Type_mer[pol_number][iseg];
-printf("Proc=%d  iseg=%d  Unk2Comp=%d\n",Proc,seg_tot,Unk2Comp[seg_tot]);
         seg_tot++;
       }
     }
