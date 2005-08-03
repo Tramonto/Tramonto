@@ -306,9 +306,9 @@ protected:
 
   inline int ownedToSolverGID(int ownedPhysicsID, int ownedNode) const { 
     if (groupByPhysics_) 
-      return(ownedPhysicsID*numGlobalNodes_ + ownedNode);
+      return(ownedPhysicsID*numGlobalNodes_ + ownedMap_->GID(ownedNode));
     else
-      return(ownedPhysicsID + numUnknownsPerNode_*ownedNode);
+      return(ownedPhysicsID + numUnknownsPerNode_*ownedMap_->GID(ownedNode));
   }
 	     
   inline int ownedToSolverLID(int ownedPhysicsID, int ownedNode) const {
@@ -323,9 +323,9 @@ protected:
 	     
   inline int boxToSolverGID(int boxPhysicsID, int boxNode) const { 
     if (groupByPhysics_) 
-      return(boxPhysicsID*numGlobalNodes_ + boxNode);
+      return(boxPhysicsID*numGlobalNodes_ + boxMap_->GID(boxNode));
     else
-      return(boxPhysicsID + numUnknownsPerNode_*boxNode);
+      return(boxPhysicsID + numUnknownsPerNode_*boxMap_->GID(boxNode));
   }
 	     
   int numUnknownsPerNode_;

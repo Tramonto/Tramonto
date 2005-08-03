@@ -60,6 +60,9 @@ dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOpt
     groupByPhysics_(true),
     firstTime_(true) {
 
+  //int tmp;
+  //if (comm_.MyPID()==0) std::cin>>tmp;
+  //comm_.Barrier();
   return;
 }
 //=============================================================================

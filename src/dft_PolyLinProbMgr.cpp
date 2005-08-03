@@ -185,7 +185,7 @@ int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int
   int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   int colGID = boxToSolverGID(boxPhysicsID, boxNode);
   if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
-    A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedNode, rowGID, colGID, value); 
+    A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->GID(ownedNode), rowGID, colGID, value); 
   }
   else if (schurBlockRow==2 && schurBlockCol==2) { // A22 block
     A22_->insertMatrixValue(rowGID, colGID, value); 
