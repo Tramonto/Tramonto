@@ -379,7 +379,8 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
   nunk=0;
   for (ibond=0; ibond<Nbond[pol_num][jseg];ibond++){
       if (Bonds[pol_num][jseg][ibond] != seg_num){
-        unk[nunk++]     = Poly_to_Unk[pol_num][jseg][ibond]+Phys2Unk_first[CMS_G];
+        unk[nunk++]     = Poly_to_Unk[pol_num][jseg][ibond]+
+                          Geqn_start[pol_num]+Phys2Unk_first[CMS_G];
       }
   }
   /* don't forget Boltzman factor */
