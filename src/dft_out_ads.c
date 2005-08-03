@@ -52,7 +52,8 @@ double calc_adsorption(FILE *fp,double **x,double fac_area,double fac_vol)
       for (i=0; i<Imax; i++){
 
 	 iunk = Phys2Unk_first[DENSITY]+iloop;
-         icomp = Unk2Comp[iloop];
+         if (Type_poly_TC) icomp = Unk2Comp[iloop];
+         else              icomp = iloop;
 
 	 /* Note: if change def. of ads, must change polymer free energy also */
           Ads_ex[icomp][i] += (x[iunk][inode_box]*Nel_hit2[i][iunk][inode_box]-Rho_b[icomp]*Nel_hit[i][iunk][inode_box])
@@ -163,7 +164,8 @@ void calc_surface_charge(FILE *fp, double **x,double fac_area,double fac_vol)
       node_to_ijk(inode,ijk);
 
       for (iloop=0; iloop<nloop; iloop++){
-         icomp=Unk2Comp[iloop];
+         if (Type_poly_TC) icomp=Unk2Comp[iloop];
+         else icomp=iloop;
 
          if (Nlists_HW==1 || Nlists_HW==2) ilist = 0;
          else                              ilist = icomp;
