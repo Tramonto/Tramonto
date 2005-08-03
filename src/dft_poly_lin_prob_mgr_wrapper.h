@@ -44,6 +44,9 @@ extern "C" {
   void * dft_poly_lin_prob_mgr_create(int numUnks,
 				      int* solverOptions, double* solverParams, MPI_Comm comm);
 
+  void * dft_poly_lin_prob_mgr_create_debug(int numUnks,
+					    int* solverOptions, double* solverParams, MPI_Comm comm);
+
   void dft_poly_lin_prob_mgr_destruct(void * linprobmgr);
 
   int dft_poly_lin_prob_mgr_setgequationids(void * linprobmgr, int numgids, int * gids);

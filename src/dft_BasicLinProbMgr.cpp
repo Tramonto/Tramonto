@@ -173,6 +173,11 @@ int dft_BasicLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, in
 //=============================================================================
 double dft_BasicLinProbMgr::getMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode) {
 
+  if (globalMatrix_==Teuchos::null) {
+    std::cerr << "Global Matrix is not constructed, must set debug flag to enable this feature." << std::endl;
+    abort();
+  }
+  
   int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   int colGID = boxToSolverGID(boxPhysicsID, boxNode);
   int numEntries;

@@ -47,6 +47,14 @@ extern "C" {
     return((void *)linprobmgr_);
   }
 
+  void * dft_poly_lin_prob_mgr_create_debug(int numUnks,
+                        int* solverOptions, double* solverParams, MPI_Comm comm) {
+    dft_PolyLinProbMgr * tmp = new dft_PolyLinProbMgr(numUnks, solverOptions,
+						      solverParams, comm, true);
+    dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
+    return((void *)linprobmgr_);
+  }
+
   void dft_poly_lin_prob_mgr_destruct(void * linprobmgr) {
     dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
     dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_PolyLinProbMgr *>(tmp);

@@ -106,6 +106,12 @@ extern "C" {
     return(linprobmgr_->setBlockMatrixReadOnly(iunk, junk, readonly_));
   }
 
+  double dft_linprobmgr_getmatrixvalue (void * linprobmgr, int iunk, int ownednode,
+                                                      int junk, int boxnode) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->getMatrixValue(iunk, ownednode, junk, boxnode));
+  }
+  
   int dft_linprobmgr_setrhs(void * linprobmgr, double** x) {
     dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
     return(linprobmgr_->setRhs((const double**) x));

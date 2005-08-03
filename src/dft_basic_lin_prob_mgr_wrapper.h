@@ -69,6 +69,9 @@ extern "C" {
   
   int dft_linprobmgr_setblockmatrixreadonly(void * linprobmgr, int iunk, int junk, int readOnly);
   
+  double dft_linprobmgr_getmatrixvalue(void * linprobmgr, int iunk, int ownednode,
+                                                     int junk, int boxnode);
+
   int dft_linprobmgr_setrhs(void * linprobmgr, double** b);
 
   int dft_linprobmgr_getlhs(void * linprobmgr, double** x);

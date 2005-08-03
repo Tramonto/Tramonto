@@ -291,7 +291,7 @@ int dft_PolyLinProbMgr::solve() {
       writeLhs("x.dat");
       writeRhs("b.dat");
       writePermutation("p.dat");
-      abort();
+      //abort();
     }
   }
   //std::cout << "Global RHS = " << *globalRhs_.get() << std::endl

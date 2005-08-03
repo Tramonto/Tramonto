@@ -53,9 +53,9 @@ int main(int argc, char *argv[])
   Epetra_MpiComm comm( MPI_COMM_WORLD );
 
   //if (comm.NumProc()>1) { cout << "Can only use a single processor for now!!" << endl; exit(1);}
-  int tmp;
-  if (comm.MyPID()==0) std::cin >> tmp;
-  comm.Barrier();
+  //int tmp;
+  //if (comm.MyPID()==0) std::cin >> tmp;
+  //comm.Barrier();
 
   int numOwnedNodes = 4;
   int cmsIntegrationRange = 5; // Number of grid points involved in "F" block stencil.
@@ -93,17 +93,8 @@ int main(int argc, char *argv[])
   Epetra_CrsMatrix(Copy, globalRowMap, 0);
   
 
-  // For now we are on a single processor
-asdfaf
-
-  int numLess = nodalRowMap.MinMyGID() - cmsIntegrationRange;
-  
+  // For now we have a trivial box
   int numBoxNodes = numOwnedNodes;
-  int numMyUnknowns = numOwnedNodes*numUnknownsPerNode;
-  Epetra_IntSerialDenseVector globalGids(numMyUnknowns);
-  int * ptr = globalGids.Values();
-  for (int i=0; i<numUnknownsPerNode; i++) 
-    for (int j=0; j<numOwnedNodes; j++) *ptr++ = numGlobalNodes*i + j;
   Epetra_Map nodalColMap(nodalRowMap);
 
   dft_BasicLinProbMgr * basicMgr = new dft_BasicLinProbMgr(numUnknownsPerNode, 0, 0, MPI_COMM_WORLD);
@@ -137,7 +128,7 @@ asdfaf
     assert(numG==numGinv && numDensity==numCms);  // Sanity test for assumptions below
     int irhs = 0;
     for (int i=0; i<numOwnedNodes; i++) {
-      int ownedNode = nodalRowMap.GID(i);
+      int ownedNode = i;
 
       // Density Equations
       for (int j=0; j<numDensity; j++) {
@@ -183,7 +174,7 @@ asdfaf
 	boxPhysicsID = densityequ[j];  // cms on density
 	for (int k=-cmsIntegrationRange; k<=cmsIntegrationRange; k++) {
 	  boxNode = ownedNode + k;
-	  if (boxNode>=0 && boxNode<numGlobalNodes) {
+	  if (boxNode>=0 && boxNode<numOwnedNodes) {
 	    double value = 1 - 0.5*((double) abs(k))/((double) cmsIntegrationRange); // 1 on diagonal, taper off away from diagonal
 	    mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, value);
 	    assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==value);
@@ -253,7 +244,7 @@ asdfaf
   mgr->getRhs(b);
   double * tmp = bptr;
   for (int i=0; i<numUnknownsPerNode; i++)
-    for (int j=0; j<numOwnedNodes; j++) std::cout << "b[physics="<<i<<"][node="<<ownedMap.GID(j)<<"] = " << *tmp++ << std::endl;
+    for (int j=0; j<numOwnedNodes; j++) std::cout << "b[physics="<<i<<"][node="<<nodalRowMap.GID(j)<<"] = " << *tmp++ << std::endl;
 
   mgr->setupSolver();
   for (int i=0; i<numUnknownsPerNode*numBoxNodes; i++) xptr[i] = 0.0 ;
@@ -263,7 +254,7 @@ asdfaf
   mgr->getLhs(x);
   tmp = xptr;
   for (int i=0; i<numUnknownsPerNode; i++)
-    for (int j=0; j<numBoxNodes; j++) std::cout << "x[physics="<<i<<"][node="<<ownedMap.GID(j)<<"] = " << *tmp++ << std::endl;
+    for (int j=0; j<numBoxNodes; j++) std::cout << "x[physics="<<i<<"][node="<<nodalColMap.GID(j)<<"] = " << *tmp++ << std::endl;
 
   delete[] x;
   delete [] xptr;
