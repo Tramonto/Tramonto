@@ -826,7 +826,6 @@ void read_input_file(char *input_file, char *output_file1)
 	  Nmer_t_total[block_type[i]] += block[pol_number][i];
 	  for (j=0; j<block[pol_number][i]; j++) {
 	    Type_mer[pol_number][seg] = block_type[i];
-printf("SegChain2SegAll...pol_number=%d seg=%d seg_tot=%d\n",pol_number,seg,seg_tot);
             SegChain2SegAll[pol_number][seg]=seg_tot;
             seg++; seg_tot++;
           }
@@ -920,7 +919,7 @@ printf("SegChain2SegAll...pol_number=%d seg=%d seg_tot=%d\n",pol_number,seg,seg_
     }
     for (icomp=0;icomp<Ncomp;icomp++) Nseg_type[icomp]=0;
     for (iseg=0;iseg<Nseg_tot;iseg++) Nseg_type[Unk2Comp[iseg]]++;
-    if (Proc==0){
+    if (Proc==0 && Iwrite==VERBOSE){
        fprintf(fp2,"\n********************\n BOND DETAILS \n **********************\n");
        fprintf(fp2,"\t total number of bonds is %d\n",Nbonds);
        for (ibond=0;ibond<Nbonds; ibond++){
@@ -966,9 +965,9 @@ printf("SegChain2SegAll...pol_number=%d seg=%d seg_tot=%d\n",pol_number,seg,seg_
               Geqn_start[pol_number] += (nbond_tot[pol_num2]);
        }
        safe_free((void *)  &nbond_tot); 
-       if (Proc==0) printf("The total number of g equations will be %d\n",Ngeqn_tot);
+       if (Proc==0 && Iwrite==VERBOSE) printf("The total number of g equations will be %d\n",Ngeqn_tot);
        for (pol_number=0; pol_number<Npol_comp; ++pol_number)
-       if (Proc==0) printf("The start unknown for polymer %d is %d \n",
+       if (Proc==0 && Iwrite==VERBOSE) printf("The start unknown for polymer %d is %d \n",
                                     pol_number,Geqn_start[pol_number]);
     
        if (Proc==0) {
@@ -1548,7 +1547,7 @@ printf("SegChain2SegAll...pol_number=%d seg=%d seg_tot=%d\n",pol_number,seg,seg_
   }
   MPI_Bcast(&Iwrite,1,MPI_INT,0,MPI_COMM_WORLD);
 
-  if (Proc==0 && Iwrite !=NO_SCREEN) printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
+  if (Proc==0 && Iwrite ==VERBOSE) printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
   /* COARSENING Switches */
 
   if (Proc==0) {
