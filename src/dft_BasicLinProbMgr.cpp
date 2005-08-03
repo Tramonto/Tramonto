@@ -40,6 +40,8 @@
 #include "Epetra_Import.h"
 #include "AztecOO.h"
 #include "EpetraExt_RowMatrixOut.h"
+#include "EpetraExt_MultiVectorOut.h"
+#include "EpetraExt_BlockMapOut.h"
 
 
 //=============================================================================
@@ -290,6 +292,14 @@ int dft_BasicLinProbMgr::solve() {
   const double * params = solver_->GetAllAztecParams();
 
   solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
+    bool writeMatrixNow = false;
+    if (writeMatrixNow) {
+      writeMatrix("A_ref.dat", "GlobalMatrix", "GlobalMatrix");
+      writeLhs("x_ref.dat");
+      writeRhs("b_ref.dat");
+      writePermutation("p_ref.dat");
+      //abort();
+    }
   //solver_->AdaptiveIterate(solverOptions_[AZ_max_iter], 5, solverParams_[AZ_tol]); // Try to solve
   return(0);
 }
@@ -334,4 +344,14 @@ int dft_BasicLinProbMgr::writeMatrix(const char * filename, const char * matrixN
     return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_.get(), matrixName, matrixDescription));
 }
 //=============================================================================
-
+int dft_BasicLinProbMgr::writeLhs(const char * filename) const  {
+    return(EpetraExt::MultiVectorToMatlabFile(filename, *globalLhs_.get()));
+}
+//=============================================================================
+int dft_BasicLinProbMgr::writeRhs(const char * filename) const  {
+    return(EpetraExt::MultiVectorToMatlabFile(filename, *globalRhs_.get()));
+}
+//=============================================================================
+int dft_BasicLinProbMgr::writePermutation(const char * filename) const  {
+  return(EpetraExt::BlockMapToMatrixMarketFile(filename, *globalRowMap_.get(), " ", " ", false));
+}

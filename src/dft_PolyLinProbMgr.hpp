@@ -187,15 +187,6 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
     \return Returns 0 if no error, -1 of any problems with the file system.
   */
   virtual int writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const;
-
-  //! Write right hand side to specified filename in Matlab-compatible format.
-  virtual int writeRhs(const char * filename) const;
-
-  //! Write left hand side to specified filename in Matlab-compatible format.
-  virtual int writeLhs(const char * filename) const;
-
-  //! Write the permutation applied to the problem in Matlab-compatible format.
-  virtual int writePermutation(const char * filename) const;
   //@}
 
   //@{ \name Miscellaneous support methods (used by the application, or by LOCA, or both)

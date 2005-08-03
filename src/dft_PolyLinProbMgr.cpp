@@ -285,12 +285,14 @@ int dft_PolyLinProbMgr::solve() {
     double resid=0.0;
     tmpRhs.Norm2(&resid);
     std::cout << "Global Residual for solution = " << resid << std::endl;
-
-    writeMatrix("A.dat", "GlobalMatrix", "GlobalMatrix");
-    writeLhs("x.dat");
-    writeRhs("b.dat");
-    writePermutation("p.dat");
-    abort();
+    bool writeMatrixNow = false;
+    if (writeMatrixNow) {
+      writeMatrix("A.dat", "GlobalMatrix", "GlobalMatrix");
+      writeLhs("x.dat");
+      writeRhs("b.dat");
+      writePermutation("p.dat");
+      abort();
+    }
   }
   //std::cout << "Global RHS = " << *globalRhs_.get() << std::endl
   //          << "Global LHS = " << *globalLhs_.get() << std::endl;
@@ -308,25 +310,6 @@ int dft_PolyLinProbMgr::applyMatrix(const double** x, double** b) const {
   return(0);
 }
 //=============================================================================
-int dft_PolyLinProbMgr::writeLhs(const char * filename) const  {
-    return(EpetraExt::MultiVectorToMatlabFile(filename, *globalLhs_.get()));
-}
-//=============================================================================
-int dft_PolyLinProbMgr::writeRhs(const char * filename) const  {
-    return(EpetraExt::MultiVectorToMatlabFile(filename, *globalRhs_.get()));
-}
-//=============================================================================
-int dft_PolyLinProbMgr::writePermutation(const char * filename) const  {
-  return(EpetraExt::BlockMapToMatrixMarketFile(filename, *globalRowMap_.get(), " ", " ", false));
-}
-//=============================================================================
-int dft_PolyLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
-  if (debug_)
-    return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_.get(), matrixName, matrixDescription));
-  else
-    return(-1); // Not available if not in debug mode
-}
-//=============================================================================
   int dft_PolyLinProbMgr::Check(bool verbose) const {
 
   int ierr1 = A11_->Check(verbose);
@@ -335,3 +318,10 @@ int dft_PolyLinProbMgr::writeMatrix(const char * filename, const char * matrixNa
   return(0);
     
   }
+//=============================================================================
+int dft_PolyLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
+  if (debug_)
+    return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_.get(), matrixName, matrixDescription));
+  else
+    return(-1); // Not available if not in debug mode
+}

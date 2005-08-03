@@ -52,28 +52,33 @@ int main(int argc, char *argv[])
   MPI_Init(&argc,&argv);
   Epetra_MpiComm comm( MPI_COMM_WORLD );
 
-  if (comm.NumProc()>1) { cout << "Can only use a single processor for now!!" << endl; exit(1);}
+  //if (comm.NumProc()>1) { cout << "Can only use a single processor for now!!" << endl; exit(1);}
+  int tmp;
+  if (comm.MyPID()==0) std::cin >> tmp;
+  comm.Barrier();
 
-  int numUnknownsPerNode = 12;
   int numOwnedNodes = 4;
   int cmsIntegrationRange = 5; // Number of grid points involved in "F" block stencil.
 
   
-  /*
-    int densityequ[] = {0}; int numDensity = 1;
-    int cmsequ[] = {1}; int numCms = 1;
-    int gequ[] = {4, 2}; int numG = 2;
-    int ginvequ[] = {5, 3}; int numGinv = 2;
-  */
+  
+  int numUnknownsPerNode = 12;
   int densityequ[] = {0, 1}; int numDensity = 2;
   int cmsequ[] = {2, 3}; int numCms = 2;
   int gequ[] = {4, 6, 8, 10}; int numG = 4;
   int ginvequ[] = {11, 9, 7, 5}; int numGinv = 4;
-  /*
-    int densityequ[] = {5}; int numDensity = 1;
-    int cmsequ[] = {4}; int numCms = 1;
-    int gequ[] = {0, 1}; int numG = 2;
-    int ginvequ[] = {2, 3}; int numGinv = 2;
+  /*  
+      int numUnknownsPerNode = 6;
+      int densityequ[] = {0}; int numDensity = 1;
+      int cmsequ[] = {1}; int numCms = 1;
+      int gequ[] = {2, 4}; int numG = 2;
+      int ginvequ[] = {5, 3}; int numGinv = 2;
+      
+      int numUnknownsPerNode = 6;
+      int densityequ[] = {5}; int numDensity = 1;
+      int cmsequ[] = {4}; int numCms = 1;
+      int gequ[] = {0, 1}; int numG = 2;
+      int ginvequ[] = {2, 3}; int numGinv = 2;
   */
   Epetra_Map nodalRowMap(-1, numOwnedNodes, 0, comm);
   int numGlobalNodes = nodalRowMap.NumGlobalElements();
@@ -89,12 +94,24 @@ int main(int argc, char *argv[])
   
 
   // For now we are on a single processor
+asdfaf
+
+  int numLess = nodalRowMap.MinMyGID() - cmsIntegrationRange;
+  
   int numBoxNodes = numOwnedNodes;
+  int numMyUnknowns = numOwnedNodes*numUnknownsPerNode;
+  Epetra_IntSerialDenseVector globalGids(numMyUnknowns);
+  int * ptr = globalGids.Values();
+  for (int i=0; i<numUnknownsPerNode; i++) 
+    for (int j=0; j<numOwnedNodes; j++) *ptr++ = numGlobalNodes*i + j;
   Epetra_Map nodalColMap(nodalRowMap);
 
   dft_BasicLinProbMgr * basicMgr = new dft_BasicLinProbMgr(numUnknownsPerNode, 0, 0, MPI_COMM_WORLD);
   dft_PolyLinProbMgr * polyMgr = new dft_PolyLinProbMgr(numUnknownsPerNode, 0, 0, MPI_COMM_WORLD, true);  // debug=true, build globalmatrix also.
 
+  Epetra_SerialDenseVector densityDiagonalValues(numDensity); densityDiagonalValues.Random();
+  Epetra_SerialDenseVector cmsDiagonalValues(numDensity); cmsDiagonalValues.Random();
+  Epetra_SerialDenseVector offdiagvalues(numDensity); offdiagvalues.Random();
   for (int imgr = 0; imgr < 2; imgr++) {
     dft_BasicLinProbMgr * mgr;
     if (imgr==0)
@@ -123,18 +140,21 @@ int main(int argc, char *argv[])
       int ownedNode = nodalRowMap.GID(i);
 
       // Density Equations
-
       for (int j=0; j<numDensity; j++) {
 	int ownedPhysicsID = densityequ[j];
 	mgr->insertRhsValue(ownedPhysicsID, ownedNode, (double) irhs++); // rhs
 	int boxPhysicsID = ownedPhysicsID; // density on density
 	int boxNode = ownedNode;
-	mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
-	assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==1.0);
+	mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, densityDiagonalValues[j]);
+	assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==densityDiagonalValues[j]);
+	//mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
+	//assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==1.0);
       
 	boxPhysicsID = cmsequ[j];  // density on cms
-	mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0e-11);
-	assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==1.0e-11);
+	//mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0e-11);
+	//assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==(1.0e-11));
+	mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, offdiagvalues[j]*1.0e-11);
+	assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==(offdiagvalues[j]*1.0e-11));
 
 	int ratioGtoDensity = numGinv/numDensity;
 	for (int k=0; k<ratioGtoDensity; k++) {
@@ -155,13 +175,15 @@ int main(int argc, char *argv[])
 	mgr->insertRhsValue(ownedPhysicsID, ownedNode, (double) irhs++); // rhs
 	int boxPhysicsID = ownedPhysicsID; // cms on cms
 	int boxNode = ownedNode;
-	mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
-	assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==1.0);
+	//mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, 1.0);
+	//assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==1.0);
+	mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, cmsDiagonalValues[j]);
+	assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==cmsDiagonalValues[j]);
 
+	boxPhysicsID = densityequ[j];  // cms on density
 	for (int k=-cmsIntegrationRange; k<=cmsIntegrationRange; k++) {
 	  boxNode = ownedNode + k;
-	  boxPhysicsID = densityequ[j];  // cms on density
-	  if (boxNode>=0 && boxNode<numOwnedNodes) {
+	  if (boxNode>=0 && boxNode<numGlobalNodes) {
 	    double value = 1 - 0.5*((double) abs(k))/((double) cmsIntegrationRange); // 1 on diagonal, taper off away from diagonal
 	    mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, value);
 	    assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==value);
@@ -231,7 +253,7 @@ int main(int argc, char *argv[])
   mgr->getRhs(b);
   double * tmp = bptr;
   for (int i=0; i<numUnknownsPerNode; i++)
-    for (int j=0; j<numOwnedNodes; j++) std::cout << "b[physics="<<i<<"][node="<<j<<"] = " << *tmp++ << std::endl;
+    for (int j=0; j<numOwnedNodes; j++) std::cout << "b[physics="<<i<<"][node="<<ownedMap.GID(j)<<"] = " << *tmp++ << std::endl;
 
   mgr->setupSolver();
   for (int i=0; i<numUnknownsPerNode*numBoxNodes; i++) xptr[i] = 0.0 ;
@@ -241,7 +263,7 @@ int main(int argc, char *argv[])
   mgr->getLhs(x);
   tmp = xptr;
   for (int i=0; i<numUnknownsPerNode; i++)
-    for (int j=0; j<numBoxNodes; j++) std::cout << "x[physics="<<i<<"][node="<<j<<"] = " << *tmp++ << std::endl;
+    for (int j=0; j<numBoxNodes; j++) std::cout << "x[physics="<<i<<"][node="<<ownedMap.GID(j)<<"] = " << *tmp++ << std::endl;
 
   delete[] x;
   delete [] xptr;
