@@ -23,7 +23,7 @@
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
-double load_polymer_cr(int, int,int, int, int, int, int *, double **);
+double load_polymer_cr(int, int,int, int, int, int, int *, double **,int);
 double load_polymer_G(int,int,int,int,int,int,int,int *,double **);
 
 /****************************************************************************/
@@ -142,7 +142,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                /**************************************************************/
          if (Unk2Phys[iunk] == CMS_FIELD){             /*BOLTZMANN EQNS*/
 
-             resid_B = load_polymer_cr(POLYMER_CR,iunk,loc_inode,inode_box,itype_mer,izone,ijk_box,x); 
+             resid_B = load_polymer_cr(POLYMER_CR,iunk,loc_inode,inode_box,itype_mer,izone,ijk_box,x,iter); 
              resid = Vext[loc_inode][itype_mer]+log(x[iunk][inode_box]);
              resid_B+=resid;
              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
@@ -457,7 +457,7 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
              In this routine we load the residual and Jacobian for 
              the polymer fields.                      */
 double load_polymer_cr(int sten_type,int iunk,int loc_inode,int inode_box,int itype_mer, 
-                int izone, int *ijk_box, double **x)
+                int izone, int *ijk_box, double **x,int iter)
 {
   int   **sten_offset, *offset, isten;
   double *sten_weight,  weight, weight_bulk;
@@ -499,8 +499,10 @@ double load_polymer_cr(int sten_type,int iunk,int loc_inode,int inode_box,int it
 
                                             /* density of this component type */
              resid =  -sign*(weight*x[junk][jnode_box]- weight_bulk*Rho_b[jtype_mer]);
-             mat_val = -sign*weight;
-             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_box,mat_val);
+             if (iter==0){
+                  mat_val = -sign*weight;
+                  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_box,mat_val);
+             }
          }
          else if ( jnode_box == -2){  /*in wall*/
               resid =  sign*weight_bulk*Rho_b[jtype_mer];

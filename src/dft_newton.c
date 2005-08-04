@@ -86,6 +86,7 @@ int solve_problem(double **x, double **x2)
    dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, Ngeqn_tot/2, ginveq);
    dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmseq);
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
+   dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);
  }
  else   
    LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
@@ -376,14 +377,20 @@ static void print_resid_norm(int iter)
   int iunk, j;
   double norm=0.0;
   double **f;
+  FILE *ifp;
+  char filename[20]="Resid2.dat";
+
+  if (Proc==3) ifp=fopen(filename,"w+");
   f = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   dft_linprobmgr_getrhs(LinProbMgr_manager, f);
 
   for (j=0; j< Nnodes_per_proc; j++) {
     for (iunk=0; iunk<Nunk_per_node; iunk++) {
        norm += f[iunk][j] * f[iunk][j];
+       if(Proc==3) fprintf(ifp," %d  %d  %14.11f\n",iunk,L2G_node[j],f[iunk][j]);
     }
   }
+  if (Proc==3) fclose(ifp);
 
   safe_free((void **) &f);
   norm = gsum_double(norm);
