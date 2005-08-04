@@ -40,6 +40,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   int     loc_i, loc_inode;
   struct  RB_Struct *dphi_drb=NULL, dphi_drb_bulk,
                      dphi_drb_bulk_left, dphi_drb_bulk_right;
+  FILE *ifp;
+  char filename[20]="resid.out";
 
    double resid,mat_value,values[3];
    int numEntries,nodeIndices[3],iloop;
@@ -68,6 +70,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   /********************** BEGIN EXECUTION ************************************/
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
+
+  if (Proc==3) ifp=fopen(filename,"w+");
 
   if (Ipot_ff_n != IDEAL_GAS){
      dphi_drb = (struct RB_Struct *) array_alloc
@@ -409,7 +413,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /***********************************************/
       /*** LOAD CAVITY EQUATIONS OF WTC FUNCTIONALS***/
       /***********************************************/
-         resid=x[iunk][loc_inode];
+         resid=x[iunk][inode_box];
          mat_value=1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
          resid += load_cavity_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
@@ -421,7 +425,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /********************************************/
       /*** LOAD BOND EQUATIONS OF WTC FUNCTIONS ***/
       /********************************************/
-         resid=x[iunk][loc_inode];
+         resid=x[iunk][inode_box];
          mat_value=1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
          resid += load_bond_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
@@ -456,10 +460,17 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          printf(" loc_inode=%d  iunk_bondwtc=%d  resid=%9.6f",loc_inode,iunk,resid_bondwtc);
     printf("  \n");*/
 
+/*    if (Unk2Phys[iunk]==DENSITY){if (Proc==3) fprintf(ifp," %d  %d  %g\n", iunk,L2G_node[loc_inode],resid_ig + resid_vext + resid_mu + resid_charge+
+                                             resid_hs1+resid_hs2+resid_WTC1);}
+    else if(Unk2Phys[iunk]==RHOBAR_ROSEN){if (Proc==3) fprintf(ifp," %d  %d  %g\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
+    else if(Unk2Phys[iunk]==CAVITY_WTC){if (Proc==3) fprintf(ifp," %d  %d  %g\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
+    else if(Unk2Phys[iunk]==BOND_WTC){if (Proc==3) fprintf(ifp," %d  %d  %g\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}*/
+
     } /* end of loop over # of unknowns per node */
 
   } /* end of loop over local nodes */
 
+  if (Proc==3) fclose(ifp);
 
 
 /*** resid is no longer a vector so this won't work.
