@@ -52,6 +52,7 @@
 //=============================================================================
 dft_PolyLinProbMgr::dft_PolyLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug) 
   : dft_BasicLinProbMgr(numUnknownsPerNode, solverOptions, solverParams, comm),
+    isLinear_(false),
     debug_(debug) {
   
 

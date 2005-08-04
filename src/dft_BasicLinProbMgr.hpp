@@ -171,17 +171,6 @@ class dft_BasicLinProbMgr {
   //! Method that must be called each time matrix value insertion is complete (usually once per nonlinear iteration).
   virtual int finalizeProblemValues();
 
-  //! Declare a block matrix to be read-only or read-write.
-  /*! Change the read-only mode of a matrix block i,j.  Initially all blocks are read-write (not read-only).
-     \param rowPhysicsID (In) ith physics block (row).
-     \param colPhysicsID (In) jth physics block (column).
-     \param readOnly (In) Bool:  If true, then the i,j block of the matrix will not be further modified.  
-     Thus the method initializeProblemValues() will not zero out this block of the matrix.  Calling this method
-     with readOnly set to false will allow initializeProblemValues() and insertMatrixValues() to change the contents
-     of the i,j block.
-  */
-  virtual int setBlockMatrixReadOnly(int rowPhysicsID, int colPhysicsID, bool readOnly);
-
   //@}
 
   //@{ \name Single-call modifier and accessor methods

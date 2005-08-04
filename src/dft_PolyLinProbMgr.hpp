@@ -121,6 +121,18 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
     return(0);
   }
 
+  //! Assert that field dependence on primitive densities is linear; manager will not reset values between nonlinear solves.
+  /*! This method can be called to assert that the field variable dependence on primitive densities does change from one linear solve to the next.
+      In this case, we can avoid filling the associated matrix coefficients.  Calling this method with "true" will cause the problem manager not reset
+      the matrix coefficients for this block and to ignore any values that are submitted for entry in this block.
+     \param isLinear (In) Set to true if the field dependence is linear on primitive densities.
+     \warning This method can be called at any time, but should be called before the initializeValues() method is called for the second solve; By default the manager assumes that the relationship is non-linear, so values will be reset to zero and must be refilled before each linear solve.
+  */
+  int setFieldOnDensityIsLinear(bool isLinear) { 
+    isLinear_ = isLinear;
+    return(0);
+  }
+
   //! Method that must be called once, when all row and column maps are set.
   /*! This method constructs all of the Epetra_CrsGraph objects and the lhs and rhs vectors. 
    \pre All "set" methods must be called: setNodalRowMap(), setNodalColMap(), setGEquationIDs(), setGInvEquationIDs(), setCmsEquationIDs() and setDensityEquationIDs() 
@@ -225,6 +237,7 @@ protected:
   Teuchos::RefCountPtr<Epetra_Vector> rhsSchur_;
   Teuchos::RefCountPtr<Epetra_Vector> lhs1_;
   Teuchos::RefCountPtr<Epetra_Vector> lhs2_;
+  bool isLinear_;
   bool debug_;
 	     
 };

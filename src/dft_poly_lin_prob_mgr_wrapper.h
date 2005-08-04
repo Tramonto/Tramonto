@@ -56,6 +56,7 @@ extern "C" {
   int dft_poly_lin_prob_mgr_setcmsequationids(void * linprobmgr, int numgids, int * gids);
   
   int dft_poly_lin_prob_mgr_setdensityequationids(void * linprobmgr, int numgids, int * gids);
+  int dft_poly_lin_prob_mgr_setfieldondensityislinear(void * linprobmgr, int isLinear);
 
 #ifdef __cplusplus
 }

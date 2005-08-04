@@ -85,6 +85,13 @@ extern "C" {
     return(linprobmgr_->setDensityEquationIDs(numgids, gids));
   }
 
+  int dft_poly_lin_prob_mgr_setfieldondensityislinear(void * linprobmgr, int isLinear) {
+    dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
+    dft_PolyLinProbMgr * linprobmgr_  = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
+    bool isLinear1 = (isLinear!=0);
+    return(linprobmgr_->setFieldOnDensityIsLinear(isLinear1));
+  }
+
 #ifdef __cplusplus
 }
 #endif

@@ -173,7 +173,7 @@ int dft_BasicLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, in
 //=============================================================================
 double dft_BasicLinProbMgr::getMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode) {
 
-  if (globalMatrix_==Teuchos::null) {
+  if (globalMatrix_.get()==0) {
     std::cerr << "Global Matrix is not constructed, must set debug flag to enable this feature." << std::endl;
     abort();
   }
@@ -222,11 +222,6 @@ int dft_BasicLinProbMgr::finalizeProblemValues() {
   isLinearProblemSet_ = true;
   firstTime_ = false;
   return(0);
-}
-//=============================================================================
-int dft_BasicLinProbMgr::setBlockMatrixReadOnly(int rowPhysicsID, int colPhysicsID, bool readOnly) {
-  
-  return(-1);  // Not implemented yet.
 }
 //=============================================================================
 int dft_BasicLinProbMgr::setRhs(const double ** b) {

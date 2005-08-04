@@ -100,12 +100,6 @@ extern "C" {
     return(linprobmgr_->finalizeProblemValues());
   }
   
-  int dft_linprobmgr_setblockmatrixreadonly(void * linprobmgr, int iunk, int junk, int readOnly) {
-    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
-    bool readonly_ = !(readOnly==0);
-    return(linprobmgr_->setBlockMatrixReadOnly(iunk, junk, readonly_));
-  }
-
   double dft_linprobmgr_getmatrixvalue (void * linprobmgr, int iunk, int ownednode,
                                                       int junk, int boxnode) {
     dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
