@@ -50,6 +50,7 @@ dft_PolyA22Bsor_Epetra_Operator::dft_PolyA22Bsor_Epetra_Operator(const Epetra_Ma
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
+    isFLinear_(false),
     firstTime_(true) {
 
   Label_ = "dft_PolyA22Bsor_Epetra_Operator";
@@ -64,7 +65,7 @@ int dft_PolyA22Bsor_Epetra_Operator::initializeProblemValues() {
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_) {
-    cmsOnDensityMatrix_.PutScalar(0.0);
+    if (!isFLinear_) cmsOnDensityMatrix_.PutScalar(0.0);
     cmsOnCmsMatrix_.PutScalar(0.0);
     densityOnDensityMatrix_.PutScalar(0.0);
     densityOnCmsMatrix_.PutScalar(0.0);
@@ -83,7 +84,7 @@ int dft_PolyA22Bsor_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, d
       int newRowGID = densityMap_.GID(cmsMap_.LID(rowGID));
       if (firstTime_)
 	cmsOnDensityMatrix_.InsertGlobalValues(newRowGID, 1, &value, &colGID);
-      else
+      else if (!isFLinear_)
 	cmsOnDensityMatrix_.SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
     }
   }
@@ -101,8 +102,10 @@ int dft_PolyA22Bsor_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   //cmsOnDensityMatrix_.FillComplete(densityMap_, cmsMap_);
-  cmsOnDensityMatrix_.FillComplete();
-  cmsOnDensityMatrix_.OptimizeStorage();
+  if (!isFLinear_) {
+    cmsOnDensityMatrix_.FillComplete();
+    cmsOnDensityMatrix_.OptimizeStorage();
+  }
   
   /*  std::cout << cmsOnDensityMatrix_<< std::endl;
   */

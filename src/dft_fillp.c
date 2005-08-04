@@ -499,10 +499,10 @@ double load_polymer_cr(int sten_type,int iunk,int loc_inode,int inode_box,int it
 
                                             /* density of this component type */
              resid =  -sign*(weight*x[junk][jnode_box]- weight_bulk*Rho_b[jtype_mer]);
-             if (iter==0){
+             /*if (iter==0){*/
                   mat_val = -sign*weight;
                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_box,mat_val);
-             }
+             /*}*/
          }
          else if ( jnode_box == -2){  /*in wall*/
               resid =  sign*weight_bulk*Rho_b[jtype_mer];

@@ -56,6 +56,19 @@ class dft_PolyA22Bsor_Epetra_Operator: public virtual Epetra_Operator {
   dft_PolyA22Bsor_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map);
   //@}
   //@{ \name Assembly methods.
+
+  //! Assert that field dependence on primitive densities is linear; manager will not reset values between nonlinear solves.
+  /*! This method can be called to assert that the field variable dependence on primitive densities does change from one linear solve to the next.
+      In this case, we can avoid filling the associated matrix coefficients.  Calling this method with "true" will cause the problem manager not reset
+      the matrix coefficients for this block and to ignore any values that are submitted for entry in this block.
+     \param isLinear (In) Set to true if the field dependence is linear on primitive densities.
+     \warning This method can be called at any time, but should be called before the initializeValues() method is called for the second solve; By default the manager assumes that the relationship is non-linear, so values will be reset to zero and must be refilled before each linear solve.
+  */
+  int setFieldOnDensityIsLinear(bool isLinear) { 
+    isFLinear_ = isLinear;
+    return(0);
+  }
+
   int initializeProblemValues();
   int insertMatrixValue(int rowGID, int colGID, double value);
   int finalizeProblemValues();
@@ -153,6 +166,7 @@ private:
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
+  bool isFLinear_;
   bool firstTime_;
   Ifpack factory_;
 };

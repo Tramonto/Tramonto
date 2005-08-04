@@ -174,6 +174,7 @@ int dft_PolyLinProbMgr::initializeProblemValues() {
   }
 
   A11_->initializeProblemValues();
+  A22_->setFieldOnDensityIsLinear(isLinear_);  // Set current state of linearity for F
   A22_->initializeProblemValues();
   
   return(0);
