@@ -425,7 +425,7 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
         if (Lhard_surf) {
            if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
            weight = HW_boundary_weight 
-                    (itype_mer+Ncomp*jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+                    (jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
         }
         /* first load the Boltzman factor derivatives */
         fac1=weight; 
