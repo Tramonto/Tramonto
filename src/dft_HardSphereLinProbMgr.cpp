@@ -26,7 +26,7 @@
 //@HEADER
 */
 
-#include "dft_PolyLinProbMgr.hpp"
+#include "dft_HardSphereLinProbMgr.hpp"
 #include "Epetra_RowMatrix.h"
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_VbrMatrix.h"
@@ -42,36 +42,32 @@
 #include "EpetraExt_RowMatrixOut.h"
 #include "EpetraExt_MultiVectorOut.h"
 #include "EpetraExt_BlockMapOut.h"
-#include "dft_PolyA11_Epetra_Operator.hpp"
-#include "dft_PolyA22_Epetra_Operator.hpp"
-#include "dft_PolyA22Full_Epetra_Operator.hpp"
-#include "dft_PolyA22Bsor_Epetra_Operator.hpp"
+#include "dft_HardSphereA11_Epetra_Operator.hpp"
+#include "dft_HardSphereA22_Epetra_Operator.hpp"
 #include "dft_Schur_Epetra_Operator.hpp"
 
 
 //=============================================================================
-dft_PolyLinProbMgr::dft_PolyLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug) 
+dft_HardSphereLinProbMgr::dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug) 
   : dft_BasicLinProbMgr(numUnknownsPerNode, solverOptions, solverParams, comm),
-    isLinear_(false),
     debug_(debug) {
   
 
   return;
 }
 //=============================================================================
-dft_PolyLinProbMgr::~dft_PolyLinProbMgr() {
+dft_HardSphereLinProbMgr::~dft_HardSphereLinProbMgr() {
    return;
 }
 //=============================================================================
-int dft_PolyLinProbMgr::finalizeBlockStructure() {
+int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
 
   if (isBlockStructureSet_) return(1); // Already been here, return warning
 
   if (numGlobalNodes_==0 ||
       numGlobalBoxNodes_==0 ||
-      gEquations_.Length()==0 ||
-      gInvEquations_.Length()==0 ||
-      cmsEquations_.Length()==0 ||
+      indNonLocalEquations_.Length()==0 ||
+      depNonLocalEquations_.Length()==0 ||
       densityEquations_.Length()==0) return(-1); // Error: One or more set methods not called
       
   
@@ -80,17 +76,13 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   physicsOrdering_.Size(numUnknownsPerNode_);
   physicsIdToSchurBlockId_.Size(numUnknownsPerNode_);
   int * ptr = physicsOrdering_.Values();
-  for (int i=0; i<gEquations_.Length(); i++) {
-    *ptr++ = gEquations_[i];
-    physicsIdToSchurBlockId_[gEquations_[i]] = 1;
+  for (int i=0; i<indNonLocalEquations_.Length(); i++) {
+    *ptr++ = indNonLocalEquations_[i];
+    physicsIdToSchurBlockId_[indNonLocalEquations_[i]] = 1;
   }
-  for (int i=0; i<gInvEquations_.Length(); i++) {
-    *ptr++ = gInvEquations_[i];
-    physicsIdToSchurBlockId_[gInvEquations_[i]] = 1;
-  }
-  for (int i=0; i<cmsEquations_.Length(); i++) {
-    *ptr++ = cmsEquations_[i];
-    physicsIdToSchurBlockId_[cmsEquations_[i]] = 2;
+  for (int i=0; i<depNonLocalEquations_.Length(); i++) {
+    *ptr++ = depNonLocalEquations_[i];
+    physicsIdToSchurBlockId_[depNonLocalEquations_[i]] = 1;
   }
   for (int i=0; i<densityEquations_.Length(); i++) {
     *ptr++ = densityEquations_[i];
@@ -102,10 +94,11 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   for (int i=0; i<physicsOrdering_.Length(); i++) solverOrdering_[physicsOrdering_[i]]=i;
 
   const int numUnks = numOwnedNodes_*numUnknownsPerNode_;
-  const int numUnks1 = numOwnedNodes_*(gEquations_.Length()+gInvEquations_.Length());
-  const int numUnks2 = numOwnedNodes_*(cmsEquations_.Length()+densityEquations_.Length());
+  const int numUnks1 = numOwnedNodes_*(indNonLocalEquations_.Length()+depNonLocalEquations_.Length());
+  const int numUnks2 = numOwnedNodes_*(densityEquations_.Length());
   assert(numUnks==(numUnks1+numUnks2));  // Sanity test
-  const int numCms = numOwnedNodes_*(cmsEquations_.Length());
+  const int numIndNonLocal = numOwnedNodes_*(indNonLocalEquations_.Length());
+  const int numDepNonLocal = numOwnedNodes_*(depNonLocalEquations_.Length());
   const int numDensity = numOwnedNodes_*(densityEquations_.Length());
   Epetra_IntSerialDenseVector globalGIDList(numUnks);
 
@@ -121,21 +114,20 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, ptr, 0, comm_));
   block1RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks1, ptr, 0, comm_));
   block2RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks2, ptr+numUnks1, 0, comm_));
-  cmsRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numCms, ptr+numUnks1, 0, comm_));
-  densityRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numDensity, ptr+numUnks1+numCms, 0, comm_));
+  if (depNonLocalEquations_.Length()>0) 
+    depNonLocalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numDepNonLocal, ptr+numIndNonLocal, 0, comm_));
+  else
+    depNonLocalRowMap_ = Teuchos::null; // no dependent equations
   /*
     std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl
-    << " Block 1 Row Map " << *block1RowMap_.get() << std::endl
-    << " Block 2 Row Map " << *block2RowMap_.get() << std::endl
-    << " CMS     Row Map " << *cmsRowMap_.get() << std::endl
-    << " Density Row Map " << *densityRowMap_.get() << std::endl;
+    << " Block 1     Row Map " << *block1RowMap_.get() << std::endl
+    << " Block 2     Row Map " << *block2RowMap_.get() << std::endl
+    << " DepNonLocal Row Map " << *depNonLocalRowMap_.get() << std::endl;
   */
-  A11_ = Teuchos::rcp(new dft_PolyA11_Epetra_Operator(*(ownedMap_.get()), *(block1RowMap_.get())));
+  A11_ = Teuchos::rcp(new dft_HardSphereA11_Epetra_Operator(*(block1RowMap_.get()), depNonLocalRowMap_.get()));
   A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block1RowMap_.get()), 0));
   A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block2RowMap_.get()), 0));
-  //A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
-  //A22_ = Teuchos::rcp(new dft_PolyA22Full_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
-  A22_ = Teuchos::rcp(new dft_PolyA22Bsor_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
+  A22_ = Teuchos::rcp(new dft_HardSphereA22_Epetra_Operator(*(block2RowMap_.get())));
   if (debug_) 
     globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
   else
@@ -160,7 +152,7 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   return(0);
 }
 //=============================================================================
-int dft_PolyLinProbMgr::initializeProblemValues() {
+int dft_HardSphereLinProbMgr::initializeProblemValues() {
   
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
@@ -174,20 +166,19 @@ int dft_PolyLinProbMgr::initializeProblemValues() {
   }
 
   A11_->initializeProblemValues();
-  A22_->setFieldOnDensityIsLinear(isLinear_);  // Set current state of linearity for F
   A22_->initializeProblemValues();
   
   return(0);
 }
 //=============================================================================
-int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode, double value) {
+int dft_HardSphereLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode, double value) {
 
   int schurBlockRow = physicsIdToSchurBlockId_[ownedPhysicsID];
   int schurBlockCol = physicsIdToSchurBlockId_[boxPhysicsID];
   int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   int colGID = boxToSolverGID(boxPhysicsID, boxNode);
   if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
-    A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->GID(ownedNode), rowGID, colGID, value); 
+    A11_->insertMatrixValue(rowGID, colGID, value); 
   }
   else if (schurBlockRow==2 && schurBlockCol==2) { // A22 block
     A22_->insertMatrixValue(rowGID, colGID, value); 
@@ -210,7 +201,7 @@ int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int
   return(0);
 }
 //=============================================================================
-int dft_PolyLinProbMgr::finalizeProblemValues() {
+int dft_HardSphereLinProbMgr::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   if (firstTime_) {
@@ -233,7 +224,7 @@ int dft_PolyLinProbMgr::finalizeProblemValues() {
   return(0);
 }
 //=============================================================================
-int dft_PolyLinProbMgr::setupSolver() {
+int dft_HardSphereLinProbMgr::setupSolver() {
 
   if (!isLinearProblemSet_) return(-1);
 
@@ -265,9 +256,9 @@ int dft_PolyLinProbMgr::setupSolver() {
   return(0);
 }
 //=============================================================================
-int dft_PolyLinProbMgr::solve() {
+int dft_HardSphereLinProbMgr::solve() {
   
-  //writeMatrix("2D.mm", "Small Polymer Matrix", "Global Matrix from Small Polymer Problem");
+  //writeMatrix("2D.mm", "Small HardSpheremer Matrix", "Global Matrix from Small HardSpheremer Problem");
   //abort();
 
   const int * options = solver_->GetAllAztecOptions();
@@ -303,7 +294,7 @@ int dft_PolyLinProbMgr::solve() {
   return(0);
 }
 //=============================================================================
-int dft_PolyLinProbMgr::applyMatrix(const double** x, double** b) const {
+int dft_HardSphereLinProbMgr::applyMatrix(const double** x, double** b) const {
   
   setLhs(x);
   schurOperator_->ApplyGlobal(*lhs1_.get(), *lhs2_.get(), *rhs1_.get(), *rhs2_.get());
@@ -312,7 +303,7 @@ int dft_PolyLinProbMgr::applyMatrix(const double** x, double** b) const {
   return(0);
 }
 //=============================================================================
-  int dft_PolyLinProbMgr::Check(bool verbose) const {
+  int dft_HardSphereLinProbMgr::Check(bool verbose) const {
 
   int ierr1 = A11_->Check(verbose);
   int ierr2 = A22_->Check(verbose);
@@ -321,7 +312,7 @@ int dft_PolyLinProbMgr::applyMatrix(const double** x, double** b) const {
     
   }
 //=============================================================================
-int dft_PolyLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
+int dft_HardSphereLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
   if (debug_)
     return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_.get(), matrixName, matrixDescription));
   else
