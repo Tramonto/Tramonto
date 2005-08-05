@@ -33,9 +33,12 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box, int icomp,
      xi_2=x[unk_xi2][inode_box];
      xi_3=x[unk_xi3][inode_box];
 
-     y=y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3);
+/*     y=y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3);
      dy_dxi2=dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3);
-     dy_dxi3=dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3);
+     dy_dxi3=dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3);*/
+     y=y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);
+     dy_dxi2=dy_dxi2_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);
+     dy_dxi3=dy_dxi3_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);
      unk_bond = Phys2Unk_first[BOND_WTC]+Poly_to_Unk_SegAll[iseg][ibond];
      n=x[unk_bond][inode_box];
 
@@ -189,7 +192,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
     for (jseg=0;jseg<Nseg_tot;jseg++){
        unk_rho = Phys2Unk_first[DENSITY]+jseg; 
        jcomp=Unk2Comp[unk_rho];
-       s1=Sigma_ff[jcomp][jcomp];
+/*       s1=Sigma_ff[jcomp][jcomp];*/
+       s1=Bond_ff[jcomp][jcomp];
        if (Nlists_HW <= 2) jlist = 0;
        else                jlist = jcomp;
        
@@ -202,7 +206,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
             kseg = Bonds_SegAll[jseg][kbond];
             kunk_rho = Phys2Unk_first[DENSITY]+kseg;
             kcomp=Unk2Comp[kunk_rho];
-            s2=Sigma_ff[kcomp][kcomp];
+/*            s2=Sigma_ff[kcomp][kcomp];*/
+            s2=Bond_ff[kcomp][kcomp];
 
             y = y_cav(s1,s2,xi_2,xi_3);
             dy_dxi2=dy_dxi2_cav(s1,s2,xi_2,xi_3);
@@ -239,7 +244,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
           for (jseg=0;jseg<Nseg_tot;jseg++){
               unk_rho = Phys2Unk_first[DENSITY]+jseg; 
               jcomp=Unk2Comp[unk_rho];
-              s1=Sigma_ff[jcomp][jcomp];
+/*              s1=Sigma_ff[jcomp][jcomp];*/
+              s1=Bond_ff[jcomp][jcomp];
               if (Nlists_HW <= 2) jlist = 0;
               else                jlist = jcomp;
 
@@ -254,7 +260,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
                   kseg = Bonds_SegAll[jseg][kbond];
                   kunk_rho = Phys2Unk_first[DENSITY]+kseg;
                   kcomp=Unk2Comp[kunk_rho];
-                  s2=Sigma_ff[kcomp][kcomp];
+/*                  s2=Sigma_ff[kcomp][kcomp];*/
+                  s2=Bond_ff[kcomp][kcomp];
  
                   y = y_cav(s1,s2,xi_2,xi_3);
                   dy_dxi2=dy_dxi2_cav(s1,s2,xi_2,xi_3);
@@ -368,8 +375,8 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
   iseg = Unk_to_Seg[unk_bond];
   bond_num = Unk_to_Bond[unk_bond];
   jseg = Bonds[pol_num][iseg][bond_num];
-  jcomp = Type_mer[pol_num][jseg];
-  icomp = Type_mer[pol_num][iseg];
+  jcomp = Unk2Comp[jseg];
+  icomp = Unk2Comp[iseg];
   junk = SegChain2SegAll[pol_num][jseg]+Phys2Unk_first[DENSITY];
 
   if (Nlists_HW <= 2) jlist = 0;
@@ -390,7 +397,7 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
         if (Lhard_surf) {
            if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
            weight = HW_boundary_weight 
-                    (icomp+Ncomp*jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+                    (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
         }
 
         resid_sum -= weight*x[junk][jnode_box]; 
