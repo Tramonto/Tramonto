@@ -27,8 +27,8 @@
 // ***********************************************************************
 //@HEADER
 
-#ifndef DFT_POLYA11_EPETRA_OPERATOR_H
-#define DFT_POLYA11_EPETRA_OPERATOR_H
+#ifndef DFT_HARDSPHEREA11_EPETRA_OPERATOR_H
+#define DFT_HARDSPHEREA11_EPETRA_OPERATOR_H
 
 class Epetra_MultiVector;
 class Epetra_Map;
@@ -40,18 +40,18 @@ class Epetra_Comm;
 #include "Epetra_Operator.h"
 #include "Teuchos_RefCountPtr.hpp"
 
-//! dft_PolyA11_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
+//! dft_HardSphereA11_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
 */    
 
-class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
+class dft_HardSphereA11_Epetra_Operator: public virtual Epetra_Operator {
       
  public:
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
-  dft_PolyA11_Epetra_Operator(const Epetra_Map & block1Map const Epetra_Map * depNonLocalRowMap);
+  dft_HardSphereA11_Epetra_Operator(const Epetra_Map & indNonLocalRowMap, const Epetra_Map & depNonLocalRowMap, const Epetra_Map & block1Map);
   //@}
   //@{ \name Assembly methods.
   int initializeProblemValues();
@@ -60,7 +60,7 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   //@}
   //@{ \name Destructor.
     //! Destructor
-  ~dft_PolyA11_Epetra_Operator();
+  ~dft_HardSphereA11_Epetra_Operator();
   //@}
   
   //@{ \name Atribute set methods.
@@ -71,7 +71,7 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   
   //@{ \name Mathematical functions.
 
-    //! Returns the result of a dft_PolyA11_Epetra_Operator applied to a Epetra_MultiVector X in Y.
+    //! Returns the result of a dft_HardSphereA11_Epetra_Operator applied to a Epetra_MultiVector X in Y.
     /*! 
     \param In
 	   X - An Epetra_MultiVector of dimension NumVectors to multiply with matrix.
@@ -80,9 +80,9 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
 
     \return Integer error code, set to 0 if successful.
   */
-  int Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
+  int Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const{return(doApply(X, Y, false));}
 
-  //! Returns the result of an inverse dft_PolyA11_Epetra_Operator applied to a Epetra_MultiVector X in Y.
+  //! Returns the result of an inverse dft_HardSphereA11_Epetra_Operator applied to a Epetra_MultiVector X in Y.
   /*! 
     \param In
     X - An Epetra_MultiVector of dimension NumVectors to multiply with matrix.
@@ -91,7 +91,7 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
     
     \return Integer error code, set to 0 if successful.
   */
-  int ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
+  int ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {return(doApply(X, Y, true));}
   
   
   //! Returns the infinity norm of the global matrix.
@@ -131,9 +131,13 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   //! Returns the Epetra_Map object associated with the range of this operator.
   const Epetra_Map & OperatorRangeMap() const {return(block1Map_);};
   //@}
-  
 
-  Epetra_Map * depNonLocalMap_;
+protected:
+
+  int doApply(const Epetra_MultiVector& X, Epetra_MultiVector& Y, bool inverse) const;
+
+  Epetra_Map indNonLocalMap_;
+  Epetra_Map depNonLocalMap_;
   Epetra_Map block1Map_;
   Epetra_CrsMatrix * matrix_;
   char * Label_; /*!< Description of object */
@@ -142,4 +146,4 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   bool firstTime_;
 };
 
-#endif /* DFT_POLYA11_EPETRA_OPERATOR_H */
+#endif /* DFT_HARDSPHEREA11_EPETRA_OPERATOR_H */

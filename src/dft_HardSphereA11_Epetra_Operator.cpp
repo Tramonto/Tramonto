@@ -26,7 +26,7 @@
 // ***********************************************************************
 //@HEADER
 
-#include "dft_PolyA11_Epetra_Operator.hpp"
+#include "dft_HardSphereA11_Epetra_Operator.hpp"
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_Map.h"
 #include "Epetra_Import.h"
@@ -39,9 +39,10 @@
 #include "Teuchos_TestForException.hpp"
 
 //==============================================================================
-dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & block1Map, const Epetra_Map * depNonLocalMap) 
-  : block1Map_(block1Map),
+dft_HardSphereA11_Epetra_Operator::dft_HardSphereA11_Epetra_Operator(const Epetra_Map & indNonLocalMap, const Epetra_Map & depNonLocalMap, const Epetra_Map & block1Map) 
+  : indNonLocalMap_(indNonLocalMap),
     depNonLocalMap_(depNonLocalMap),
+    block1Map_(block1Map),
     matrix_(0),
     Label_(0),
     isGraphStructureSet_(false),
@@ -49,17 +50,17 @@ dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & bloc
     firstTime_(true) {
 
   Label_ = "dft_HardSphereA11_Epetra_Operator";
-  if (depNonLocalMap_!=0)
-    matrix_ = new Epetra_CrsMatrix(Copy, *depNonLocalMap_, 0);
+  if (depNonLocalMap_.NumGlobalElements()>0)
+    matrix_ = new Epetra_CrsMatrix(Copy, depNonLocalMap_, 0);
   
 
 }
 //==============================================================================
-dft_PolyA11_Epetra_Operator::~dft_PolyA11_Epetra_Operator() {
-  if (depNonLocalMap_!=0) delete matrix_;
+dft_HardSphereA11_Epetra_Operator::~dft_HardSphereA11_Epetra_Operator() {
+  if (matrix_!=0) delete matrix_;
 }
 //=============================================================================
-int dft_PolyA11_Epetra_Operator::initializeProblemValues() {
+int dft_HardSphereA11_Epetra_Operator::initializeProblemValues() {
   
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
@@ -71,12 +72,12 @@ int dft_PolyA11_Epetra_Operator::initializeProblemValues() {
   return(0);
 }
 //=============================================================================
-int dft_PolyA11_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
+int dft_HardSphereA11_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
 
-  if (matrix_==0) return(0); // All ind NonLocal entries are diagonal values and 1, so we don't store them
-  if (!depNonLocalMap_->MyGID(rowGID)) return(0);
 
-  if (rowGID!=colGID) value = -value; // negate off-diagonal values to explicitly form inverse matrix
+ // All ind NonLocal entries are diagonal values and 1, so we don't store them
+  if (matrix_==0) return(0); // No dependent nonlocal entries at all
+  if (!depNonLocalMap_.MyGID(rowGID)) return(0); // Isn't dependent nonlocal
 
   if (firstTime_)
     return(matrix_->InsertGlobalValues(rowGID, 1, &value, &colGID));
@@ -86,12 +87,12 @@ int dft_PolyA11_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
   return(0);
 }
 //=============================================================================
-int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
+int dft_HardSphereA11_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   if (firstTime_) 
     if (matrix_!=0) {
-      matrix_->FillComplete(block1Map_, *depNonLocalMap_);
+      matrix_->FillComplete(indNonLocalMap_, depNonLocalMap_);
       matrix_->OptimizeStorage();
     }
   
@@ -101,74 +102,75 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
   return(0);
 }
 //==============================================================================
-int dft_PolyA11_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+int dft_HardSphereA11_Epetra_Operator::doApply(const Epetra_MultiVector& X, Epetra_MultiVector& Y, bool inverse) const {
 
 
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
   TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
 
-  Y=X; // We can safely do this
+  // Matrix is of the form 
+  // 
+  // | I  0 |
+  // | B  I | 
 
-  if (matrix_!=0) { // Non-trivial depNonLocalMatrix
+  // We store only the X portion
 
-    int NumVectors = Y.NumVectors();
-    int numMyElements = matrix_->NumMyRows();
-    int offset = X.Length() - numMyElements; // We need to skip elements of Y associated with ind nonlocals
+  // The exact inverse is 
+  // 
+  // |  I  0 |
+  // | -B  I | 
+
+
+  if (matrix_==0) {
+    Y=X;
+    return(0);  // Nothing else to do
+  }
+
+  int NumVectors = Y.NumVectors();
+  int numMyElements = matrix_->NumMyRows();
+  int offset = Y.MyLength() - numMyElements; // We need to skip elements of Y associated with ind nonlocals
+  assert(numMyElements==offset); // The two by two blocks should have the same dimension
   
 
-    double ** curY = new double *[NumVectors];
-    double ** Yptr;
-    
-    Y.ExtractView(&Yptr); // Get array of pointers to columns of Y
-    for (int i=0; i<NumVectors; i++) curY[i] = Yptr[i]+offset;
-    Epetra_MultiVector Ytmp(View, ownedMap_, curY, NumVectors); // Start Ytmp to view first numNodes elements of Y
-
-    int ierr = matrix_->Multiply(false, X, Ytmp);
-    delete [] curY;
+  double ** curY = new double *[NumVectors];
+  double ** Yptr;
+  Y.ExtractView(&Yptr); // Get array of pointers to columns of Y
+  Epetra_MultiVector Y1(View, indNonLocalMap_, curY, NumVectors); // Start Y1 to view first block of Y elements
+  for (int i=0; i<NumVectors; i++) curY[i] = Yptr[i]+offset;
+  Epetra_MultiVector Y2(View, depNonLocalMap_, curY, NumVectors); // Start Y2 to view second block of Y elements
+  
+  double ** curX = new double *[NumVectors];
+  double ** Xptr;
+  X.ExtractView(&Xptr); // Get array of pointers to columns of X
+  Epetra_MultiVector X1(View, indNonLocalMap_, curX, NumVectors); // Start X1 to view first block of X elements
+  for (int i=0; i<NumVectors; i++) curX[i] = Xptr[i]+offset;
+  Epetra_MultiVector X2(View, depNonLocalMap_, curX, NumVectors); // Start X2 to view second block of X elements
+  
+  int ierr = 0;
+  if (&X[0]==&Y[0]) { // X and Y are the same
+    // Y1 = X1 // Not needed
+    Epetra_MultiVector Y2tmp(depNonLocalMap_, NumVectors); // Need space for multiplication result
+    ierr = matrix_->Multiply(false, X1, Y2tmp); // Gives Y2tmp = B*X1
+    if (inverse)
+      Y2.Update(-1.0, Y2tmp, 1.0, X2, 0.0); // Gives us Y2 = X2 - B*X1
+    else 
+      Y2.Update(1.0, Y2tmp, 1.0, X2, 0.0); // Gives us Y2 = X2 + B*X1
   }
+  else {
+    Y1=X1;
+    ierr = matrix_->Multiply(false, X1, Y2);// Gives Y2 = B*X1
+    if (inverse) 
+      Y2.Update(1.0, X2, -1.0); // Gives us Y2 = X2 - B*X1
+    else
+      Y2.Update(1.0, X2, 1.0); // Gives us Y2 = X2 + B*X1
+  }
+  delete [] curY;
+
   return(ierr);
 }
 //==============================================================================
-int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
-
-
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
-  int NumVectors = Y.NumVectors();
-  int numMyElements = ownedMap_.NumMyElements();
-
-  double ** curY = new double *[NumVectors];
-  double ** curX = new double *[NumVectors];
-  double ** Yptr;
-  double ** Xptr;
-
-  Y.ExtractView(&Yptr); // Get array of pointers to columns of Y
-  for (int i=0; i<NumVectors; i++) curY[i] = Yptr[i];
-  Epetra_MultiVector Ytmp(View, ownedMap_, curY, NumVectors); // Start Ytmp to view first numNodes elements of Y
-  X.ExtractView(&Xptr); // Get array of pointers to columns of X
-  for (int i=0; i<NumVectors; i++) curX[i] = Xptr[i];
-  Epetra_MultiVector Xtmp(View, ownedMap_, curX, NumVectors); // Start Xtmp to view first numNodes elements of X
-
-  for (int i=0; i< numBlocks_; i++) {
-    matrix_[i]->Multiply(false, X, Ytmp); // This gives a result that is X - off-diagonal-matrix*X
-    Ytmp.Update(-2.0, Xtmp, 1.0); // This gives a result of -X - off-diagonal-matrix*X
-    Ytmp.Scale(-1.0); // Finally negate to get the desired result
-    for (int j=0; j<NumVectors; j++) {
-      curY[j]+=numMyElements; // Increment pointers to next block
-      curX[j]+=numMyElements; // Increment pointers to next block
-    }
-    Ytmp.ResetView(curY); // Reset view to next block
-    Xtmp.ResetView(curX); // Reset view to next block
-  }
-  delete [] curY;
-  delete [] curX;
-
-  return(0);
-}
-//==============================================================================
-int dft_PolyA11_Epetra_Operator::Check(bool verbose) const {
+int dft_HardSphereA11_Epetra_Operator::Check(bool verbose) const {
 
   Epetra_Vector x(OperatorDomainMap());
   Epetra_Vector b(OperatorRangeMap());

@@ -109,7 +109,6 @@ int main(int argc, char *argv[])
     for (int iters=0; iters<2; iters++) {
 
       mgr->initializeProblemValues();
-      assert(numG==numGinv && numDensity==numCms);  // Sanity test for assumptions below
       int irhs = 0;
       for (int i=0; i<numOwnedNodes; i++) {
 	int ownedNode = i;
@@ -167,7 +166,7 @@ int main(int argc, char *argv[])
 	    boxPhysicsID = indnonlocalequ[j];  // dep on ind nonlocal
 	    mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, -0.5);
 	  }
-	  boxPhysicsID = densityequ[jnumDensity/numDepNonLocal]; // g on cms
+	  boxPhysicsID = densityequ[numDensity/numDepNonLocal]; // g on cms
 	  double value = 1 - 0.5*((double) abs(j))/((double) numDepNonLocal);
 	  mgr->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, value);
 	  assert(mgr->getMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode)==value);

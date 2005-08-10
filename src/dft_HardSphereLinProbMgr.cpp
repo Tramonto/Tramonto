@@ -114,20 +114,18 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
   globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, ptr, 0, comm_));
   block1RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks1, ptr, 0, comm_));
   block2RowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks2, ptr+numUnks1, 0, comm_));
-  if (depNonLocalEquations_.Length()>0) 
-    depNonLocalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numDepNonLocal, ptr+numIndNonLocal, 0, comm_));
-  else
-    depNonLocalRowMap_ = Teuchos::null; // no dependent equations
+  indNonLocalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numIndNonLocal, ptr, 0, comm_));
+  depNonLocalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numDepNonLocal, ptr+numIndNonLocal, 0, comm_));
   /*
     std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl
     << " Block 1     Row Map " << *block1RowMap_.get() << std::endl
     << " Block 2     Row Map " << *block2RowMap_.get() << std::endl
     << " DepNonLocal Row Map " << *depNonLocalRowMap_.get() << std::endl;
   */
-  A11_ = Teuchos::rcp(new dft_HardSphereA11_Epetra_Operator(*(block1RowMap_.get()), depNonLocalRowMap_.get()));
-  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block1RowMap_.get()), 0));
-  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block2RowMap_.get()), 0));
-  A22_ = Teuchos::rcp(new dft_HardSphereA22_Epetra_Operator(*(block2RowMap_.get())));
+  A11_ = Teuchos::rcp(new dft_HardSphereA11_Epetra_Operator(*indNonLocalRowMap_, *depNonLocalRowMap_, *block1RowMap_));
+  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block1RowMap_, 0));
+  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block2RowMap_, 0));
+  A22_ = Teuchos::rcp(new dft_HardSphereA22_Epetra_Operator(*block2RowMap_));
   if (debug_) 
     globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
   else
@@ -136,11 +134,11 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
 
-  rhs1_ = Teuchos::rcp(new Epetra_Vector(View, *(block1RowMap_.get()), globalRhs_->Values()));
-  rhs2_ = Teuchos::rcp(new Epetra_Vector(View, *(block2RowMap_.get()), globalRhs_->Values()+numUnks1));
+  rhs1_ = Teuchos::rcp(new Epetra_Vector(View, *block1RowMap_, globalRhs_->Values()));
+  rhs2_ = Teuchos::rcp(new Epetra_Vector(View, *block2RowMap_, globalRhs_->Values()+numUnks1));
   rhsSchur_ = Teuchos::rcp(new Epetra_Vector(*(rhs2_.get())));
-  lhs1_ = Teuchos::rcp(new Epetra_Vector(View, *(block1RowMap_.get()), globalLhs_->Values()));
-  lhs2_ = Teuchos::rcp(new Epetra_Vector(View, *(block2RowMap_.get()), globalLhs_->Values()+numUnks1));
+  lhs1_ = Teuchos::rcp(new Epetra_Vector(View, *block1RowMap_, globalLhs_->Values()));
+  lhs2_ = Teuchos::rcp(new Epetra_Vector(View, *block2RowMap_, globalLhs_->Values()+numUnks1));
 
   schurOperator_ = Teuchos::rcp(new dft_Schur_Epetra_Operator(A11_.get(), A12_.get(), A21_.get(), A22_.get()));
   implicitProblem_ = Teuchos::rcp(new Epetra_LinearProblem(schurOperator_.get(), lhs2_.get(), rhsSchur_.get()));

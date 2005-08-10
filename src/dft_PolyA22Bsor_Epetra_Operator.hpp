@@ -158,7 +158,6 @@ private:
   Epetra_Map cmsMap_;
   Epetra_Map densityMap_;
   Epetra_Map block2Map_;
-  int numBlocks_;
   Epetra_CrsMatrix cmsOnDensityMatrix_;
   Epetra_Vector cmsOnCmsMatrix_;
   Epetra_Vector densityOnDensityMatrix_;

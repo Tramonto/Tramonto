@@ -201,6 +201,7 @@ protected:
   Teuchos::RefCountPtr<dft_HardSphereA22_Epetra_Operator> A22_;
   Teuchos::RefCountPtr<Epetra_Map> block1RowMap_;
   Teuchos::RefCountPtr<Epetra_Map> block2RowMap_;
+  Teuchos::RefCountPtr<Epetra_Map> indNonLocalRowMap_;
   Teuchos::RefCountPtr<Epetra_Map> depNonLocalRowMap_;
   Epetra_IntSerialDenseVector physicsIdToSchurBlockId_;
   Teuchos::RefCountPtr<dft_Schur_Epetra_Operator> schurOperator_;

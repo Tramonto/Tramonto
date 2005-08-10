@@ -45,13 +45,17 @@ COMMON_C_SOURCES= \
 COMMON_CXX_SOURCES = \
 	${srcdir}/dft_BasicLinProbMgr.cpp \
 	${srcdir}/dft_PolyLinProbMgr.cpp \
+	${srcdir}/dft_HardSphereLinProbMgr.cpp \
 	${srcdir}/dft_PolyA11_Epetra_Operator.cpp \
 	${srcdir}/dft_PolyA22_Epetra_Operator.cpp \
 	${srcdir}/dft_PolyA22Full_Epetra_Operator.cpp \
 	${srcdir}/dft_PolyA22Bsor_Epetra_Operator.cpp \
+	${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp \
+	${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp \
 	${srcdir}/dft_Schur_Epetra_Operator.cpp \
 	${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp \
-	${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp
+	${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp \
+	${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp
 
 COMMON_HEADERS = \
 	${srcdir}/dft_globals.h \
@@ -64,13 +68,17 @@ COMMON_HEADERS = \
 	${srcdir}/az_aztec_defs.h \
 	${srcdir}/dft_BasicLinProbMgr.hpp \
 	${srcdir}/dft_PolyLinProbMgr.hpp \
+	${srcdir}/dft_HardSphereLinProbMgr.hpp \
 	${srcdir}/dft_PolyA11_Epetra_Operator.hpp \
 	${srcdir}/dft_PolyA22_Epetra_Operator.hpp \
 	${srcdir}/dft_PolyA22Full_Epetra_Operator.hpp \
 	${srcdir}/dft_PolyA22Bsor_Epetra_Operator.hpp \
+	${srcdir}/dft_HardSphereA11_Epetra_Operator.hpp \
+	${srcdir}/dft_HardSphereA22_Epetra_Operator.hpp \
 	${srcdir}/dft_Schur_Epetra_Operator.hpp \
 	${srcdir}/dft_basic_lin_prob_mgr_wrapper.h \
-	${srcdir}/dft_poly_lin_prob_mgr_wrapper.h
+	${srcdir}/dft_poly_lin_prob_mgr_wrapper.h \
+	${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.h
 
 libdft_a_SOURCES=${COMMON_C_SOURCES} ${COMMON_CXX_SOURCES}
 dft_SOURCES= dft_maindriver.c ${COMMON_C_SOURCES} ${COMMON_CXX_SOURCES}
