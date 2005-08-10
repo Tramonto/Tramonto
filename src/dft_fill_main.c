@@ -71,7 +71,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
 
-  if (Proc==3) ifp=fopen(filename,"w+");
+/*  if (Proc==0) ifp=fopen(filename,"w+");*/
 
   if (Ipot_ff_n != IDEAL_GAS){
      dphi_drb = (struct RB_Struct *) array_alloc
@@ -231,7 +231,10 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                if (Lsteady_state == FALSE) { 
                   if (Iliq_vap < 10 ){
                      if (Type_poly_TC)  resid_mu -= log(Rho_seg_b[iseg]);
-                     else               resid_mu -= log(Rho_b[icomp]);
+                     else{               resid_mu -= log(Rho_b[icomp]);
+/*printf("ideal contribution to chem pot...=%9.6f\n",-log(Rho_b[icomp]));*/
+                     }
+
                   
                    if (Ipot_ff_n != IDEAL_GAS) resid_mu -= Betamu_hs_ex[icomp];
                    if (Ipot_ff_n == LJ12_6)    resid_mu -= Betamu_att[icomp];
@@ -460,17 +463,16 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          printf(" loc_inode=%d  iunk_bondwtc=%d  resid=%9.6f",loc_inode,iunk,resid_bondwtc);
     printf("  \n");*/
 
-/*    if (Unk2Phys[iunk]==DENSITY){if (Proc==3) fprintf(ifp," %d  %d  %g\n", iunk,L2G_node[loc_inode],resid_ig + resid_vext + resid_mu + resid_charge+
-                                             resid_hs1+resid_hs2+resid_WTC1);}
-    else if(Unk2Phys[iunk]==RHOBAR_ROSEN){if (Proc==3) fprintf(ifp," %d  %d  %g\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
-    else if(Unk2Phys[iunk]==CAVITY_WTC){if (Proc==3) fprintf(ifp," %d  %d  %g\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
-    else if(Unk2Phys[iunk]==BOND_WTC){if (Proc==3) fprintf(ifp," %d  %d  %g\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}*/
+/*    if (Unk2Phys[iunk]==DENSITY){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_ig + resid_vext + resid_mu + resid_charge+ resid_hs1+resid_hs2+resid_WTC1);}
+    else if(Unk2Phys[iunk]==RHOBAR_ROSEN){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
+    else if(Unk2Phys[iunk]==CAVITY_WTC){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
+    else if(Unk2Phys[iunk]==BOND_WTC){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}*/
 
     } /* end of loop over # of unknowns per node */
 
   } /* end of loop over local nodes */
 
-  if (Proc==3) fclose(ifp);
+/*  if (Proc==0) fclose(ifp);*/
 
 
 /*** resid is no longer a vector so this won't work.

@@ -1129,10 +1129,8 @@ double calc_free_energy_polymer(FILE *fp,double **x,double fac_area,double fac_v
      if (Nwall == 0 || Ndim == 1) {
         vol = Size_x[0];
         for (idim=1; idim < Ndim; idim++) vol *= Size_x[idim];
-        if (Iwrite==VERBOSE){
           printf("Delta(Free energy)/Volume (where Vol=%lf) = %lf\n",vol,free_energy/vol);
           printf("Delta(Free energy) = %lf\n",free_energy);
-        }
      }
      else
         printf("Delta(Free energy) = %lf \n",free_energy);

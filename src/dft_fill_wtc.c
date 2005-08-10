@@ -33,27 +33,29 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box, int icomp,
      xi_2=x[unk_xi2][inode_box];
      xi_3=x[unk_xi3][inode_box];
 
-/*     y=y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3);
+     y=y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3);
      dy_dxi2=dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3);
-     dy_dxi3=dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3);*/
-     y=y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);
+     dy_dxi3=dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3);
+/*     y=y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);
      dy_dxi2=dy_dxi2_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);
-     dy_dxi3=dy_dxi3_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);
+     dy_dxi3=dy_dxi3_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);*/
      unk_bond = Phys2Unk_first[BOND_WTC]+Poly_to_Unk_SegAll[iseg][ibond];
      n=x[unk_bond][inode_box];
 
                         /* FIRST ADD TERMS THAT ARE ON DIAGONAL WITH REPECT TO POSITION. 
                           (ALL JACOBIAN ENTRIES FOUND AT INODE_BOX...)*/
-     resid = 0.5*(1.-log(y)-log(n));
+     /*resid = 0.5*Fac_overlap[icomp][jcomp]*(1.-log(y)-log(n));*/
+     resid = 0.5*(1.-Fac_overlap[icomp][jcomp]*log(y)-log(n));
      resid_sum+=resid;
      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
-     mat_val = -0.5*(1./y)*dy_dxi2;
+     mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./y)*dy_dxi2;
      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_xi2,inode_box,mat_val);
 
-     mat_val = -0.5*(1./y)*dy_dxi3;
+     mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./y)*dy_dxi3;
      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_xi3,inode_box,mat_val);
 
+     /*mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./n);*/
      mat_val = -0.5*(1./n);
      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_bond,inode_box,mat_val);
    }
@@ -192,8 +194,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
     for (jseg=0;jseg<Nseg_tot;jseg++){
        unk_rho = Phys2Unk_first[DENSITY]+jseg; 
        jcomp=Unk2Comp[unk_rho];
-/*       s1=Sigma_ff[jcomp][jcomp];*/
-       s1=Bond_ff[jcomp][jcomp];
+       s1=Sigma_ff[jcomp][jcomp];
+/*       s1=Bond_ff[jcomp][jcomp];*/
        if (Nlists_HW <= 2) jlist = 0;
        else                jlist = jcomp;
        
@@ -206,8 +208,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
             kseg = Bonds_SegAll[jseg][kbond];
             kunk_rho = Phys2Unk_first[DENSITY]+kseg;
             kcomp=Unk2Comp[kunk_rho];
-/*            s2=Sigma_ff[kcomp][kcomp];*/
-            s2=Bond_ff[kcomp][kcomp];
+            s2=Sigma_ff[kcomp][kcomp];
+/*            s2=Bond_ff[kcomp][kcomp];*/
 
             y = y_cav(s1,s2,xi_2,xi_3);
             dy_dxi2=dy_dxi2_cav(s1,s2,xi_2,xi_3);
@@ -220,7 +222,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
             else if (jnode_box==-1 ||jnode_box==-3 ||jnode_box==-4)  dens = constant_boundary(unk_rho,jnode_box);
             else                                                     dens=0.0;
 
-            resid = -0.5*weight*dens*(1./y)*(prefac2*dy_dxi2 + prefac3*dy_dxi3);
+            resid = -0.5*Fac_overlap[jcomp][kcomp]*weight*dens*(1./y)*(prefac2*dy_dxi2 + prefac3*dy_dxi3);
             dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
             resid_sum += resid;
 
@@ -244,8 +246,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
           for (jseg=0;jseg<Nseg_tot;jseg++){
               unk_rho = Phys2Unk_first[DENSITY]+jseg; 
               jcomp=Unk2Comp[unk_rho];
-/*              s1=Sigma_ff[jcomp][jcomp];*/
-              s1=Bond_ff[jcomp][jcomp];
+              s1=Sigma_ff[jcomp][jcomp];
+/*              s1=Bond_ff[jcomp][jcomp];*/
               if (Nlists_HW <= 2) jlist = 0;
               else                jlist = jcomp;
 
@@ -260,8 +262,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
                   kseg = Bonds_SegAll[jseg][kbond];
                   kunk_rho = Phys2Unk_first[DENSITY]+kseg;
                   kcomp=Unk2Comp[kunk_rho];
-/*                  s2=Sigma_ff[kcomp][kcomp];*/
-                  s2=Bond_ff[kcomp][kcomp];
+                  s2=Sigma_ff[kcomp][kcomp];
+/*                  s2=Bond_ff[kcomp][kcomp];*/
  
                   y = y_cav(s1,s2,xi_2,xi_3);
                   dy_dxi2=dy_dxi2_cav(s1,s2,xi_2,xi_3);
@@ -278,18 +280,18 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
                       dens = x[unk_rho][jnode_boxJ];
                       first_deriv = (prefac2*dy_dxi2 + prefac3*dy_dxi3)/y;
   
-                      mat_val = -0.5*weight*first_deriv;
+                      mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weight*first_deriv;
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                 unk_rho,jnode_boxJ,mat_val);
   
-                      mat_val = -0.5*weight*dens* ( 
+                      mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weight*dens* ( 
                                 (prefac2*d2y_dxi2_2 + prefac3*d2y_dxi2_dxi3)/y 
                                 - first_deriv*dy_dxi2/y );
   
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                 unk_xi2,jnode_boxJ,mat_val);
   
-                      mat_val = -0.5*weight*dens* (
+                      mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weight*dens* (
                                  (prefac2*d2y_dxi2_dxi3 + prefac3*d2y_dxi3_2)/y
                                  - first_deriv*dy_dxi3/y );
   

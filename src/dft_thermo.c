@@ -43,12 +43,34 @@ void  thermodynamics( char *output_file1, int print_flag)
    for (i=0;i<Ncomp;i++) Betamu_att[i]=0.0;
    betap_att=0.0;
 
- /*  if (Type_poly_TC){
-         for (icomp=0; icomp<Ncomp; icomp++)
-             for (i=0;i<Nbonds;i++)  Betamu_ex_bondTC[icomp][i]=0.0;
-   }*/
    if (Type_poly_TC){
       for (iseg=0;iseg<Nseg_tot;iseg++) Betamu_wtc[iseg]=0.0;
+
+      /* adjust theory for overlapping bonded spheres */
+      for (icomp=0;icomp<Ncomp;icomp++){
+        for (jcomp=0;jcomp<Ncomp;jcomp++){
+          if (Sigma_ff[icomp][icomp]>=Sigma_ff[jcomp][jcomp]){
+            if (Bond_ff[icomp][jcomp] >= 0.5*(Sigma_ff[icomp][icomp]+Sigma_ff[jcomp][jcomp])){
+               Fac_overlap[icomp][jcomp]=1.0;
+            }
+            else if (Bond_ff[icomp][jcomp] <= 0.5*(Sigma_ff[icomp][icomp]-Sigma_ff[jcomp][jcomp])){
+               Fac_overlap[icomp][jcomp]=0.0;
+            }
+            else{
+               Fac_overlap[icomp][jcomp]=(Bond_ff[icomp][jcomp]/Sigma_ff[jcomp][jcomp]
+                                          -0.5*(Sigma_ff[icomp][icomp]-Sigma_ff[jcomp][jcomp])/Sigma_ff[jcomp][jcomp]);
+            }
+            printf("icomp=%d jcomp=%d Fac_overlap=%9.6f\n",icomp,jcomp,Fac_overlap[icomp][jcomp]);
+          }
+        }    
+      }
+      for (icomp=0;icomp<Ncomp;icomp++)
+        for (jcomp=0;jcomp<Ncomp;jcomp++)
+          if (Sigma_ff[icomp][icomp]<Sigma_ff[jcomp][jcomp]){ 
+            Fac_overlap[icomp][jcomp]=Fac_overlap[jcomp][icomp];
+            printf("icomp=%d jcomp=%d Fac_overlap=%9.6f\n",icomp,jcomp,Fac_overlap[icomp][jcomp]);
+          }
+        Fac_overlap[1][1]=0.058081;
    }
 
    /* Find bulk coexistence  for a very special case of only one atomistic component with
@@ -118,6 +140,7 @@ void  thermodynamics( char *output_file1, int print_flag)
    /* Now find pressure and chemical potential contributions for the fluid of interest */
 
      /* start with ideal gas contributions - need this for all fluids. */ 
+
    Betap=calc_ideal_gas(Rho_b,Betamu);
    for (icomp=0;icomp<Ncomp;icomp++) Betamu_id[icomp]=Betamu[icomp];
    if (Lsteady_state){
@@ -129,8 +152,7 @@ void  thermodynamics( char *output_file1, int print_flag)
       }
    }
 
-
-     /* now add in the hard sphere contributions */
+   /* now add in the hard sphere contributions */
   
    if (Type_func==ROSENFELD || Type_func==ROSENFELD2){
       if (Lsteady_state){
@@ -143,7 +165,9 @@ void  thermodynamics( char *output_file1, int print_flag)
       else{
          betap_hs = calc_hs_properties(betamu_hs,Rho_b);
          Betap += betap_hs;
-         for (icomp=0; icomp<Ncomp; icomp++) Betamu[icomp] += betamu_hs[icomp];
+         for (icomp=0; icomp<Ncomp; icomp++){ Betamu[icomp] += betamu_hs[icomp];
+             Betap-=Rho_b[icomp]; /* note that the calculation of betap_hs apparantly includes ideal terms .... check this */
+         }
      }
    }
 
@@ -189,11 +213,11 @@ void  thermodynamics( char *output_file1, int print_flag)
             for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
                 jseg=Bonds_SegAll[iseg][ibond];
                 jcomp=Unk2Comp[jseg];
-/*                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);*/
-                y = y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-                  Betamu_seg[iseg] += 0.5*(1.0-log(y)-log(Rho_seg_b[jseg])  
+                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+/*                y = y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);*/
+                  Betamu_seg[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(Rho_seg_b[jseg])  
                                       - Rho_seg_b[jseg]/Rho_seg_b[iseg]);
-                  Betamu_wtc[iseg] += 0.5*(1.0-log(y)-log(Rho_seg_b[jseg])     
+                  Betamu_wtc[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(Rho_seg_b[jseg])     
                                        -Rho_seg_b[jseg]/Rho_seg_b[iseg]);
             }
          }
@@ -210,14 +234,14 @@ void  thermodynamics( char *output_file1, int print_flag)
               for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
                 jseg=Bonds_SegAll[iseg][ibond];
                 jcomp=Unk2Comp[jseg];
-/*                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
                 dydxi2 = dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-                dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);*/
-                y = y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+                dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+/*                y = y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
                 dydxi2 = dy_dxi2_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-                dydxi3 = dy_dxi3_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-                Betamu_seg[kseg] -= (PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
-                Betamu_wtc[kseg] -= (PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
+                dydxi3 = dy_dxi3_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);*/
+                Betamu_seg[kseg] -= Fac_overlap[icomp][jcomp]*(PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
+                Betamu_wtc[kseg] -= Fac_overlap[icomp][jcomp]*(PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
               }
            }
          }
@@ -360,7 +384,7 @@ double calc_hs_properties(double *betamu_hs,double *rho)
    /* the excess hard sphere chemical potential in units of kT */
 
    for (icomp=0; icomp<Ncomp; ++icomp) 
-      Betamu_hs_ex[icomp] = - log(y1) + 
+      Betamu_hs_ex[icomp] = - log(y1) +
               pi6 * betap_hs * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3) +
               3.0 * xsi2 * Sigma_ff[icomp][icomp]/y1 +
               3.0 * xsi1 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2)/y1 +

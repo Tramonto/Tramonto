@@ -244,6 +244,7 @@ int     Mix_type;     /* Type of mixing rules */
 double  Mass[NCOMP_MAX];           /* Array of the mass of each specie*/
 double  Sigma_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f interaction diameters */
 double  Bond_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
+double  Fac_overlap[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
 double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
 double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
 double  Charge_f[NCOMP_MAX];           /* Array of the valence of each specie*/
