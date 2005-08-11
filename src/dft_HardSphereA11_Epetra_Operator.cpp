@@ -139,14 +139,14 @@ int dft_HardSphereA11_Epetra_Operator::doApply(const Epetra_MultiVector& X, Epet
   double ** curY = new double *[NumVectors];
   double ** Yptr;
   Y.ExtractView(&Yptr); // Get array of pointers to columns of Y
-  Epetra_MultiVector Y1(View, indNonLocalMap_, curY, NumVectors); // Start Y1 to view first block of Y elements
+  Epetra_MultiVector Y1(View, indNonLocalMap_, Yptr, NumVectors); // Start Y1 to view first block of Y elements
   for (int i=0; i<NumVectors; i++) curY[i] = Yptr[i]+offset;
   Epetra_MultiVector Y2(View, depNonLocalMap_, curY, NumVectors); // Start Y2 to view second block of Y elements
   
   double ** curX = new double *[NumVectors];
   double ** Xptr;
   X.ExtractView(&Xptr); // Get array of pointers to columns of X
-  Epetra_MultiVector X1(View, indNonLocalMap_, curX, NumVectors); // Start X1 to view first block of X elements
+  Epetra_MultiVector X1(View, indNonLocalMap_, Xptr, NumVectors); // Start X1 to view first block of X elements
   for (int i=0; i<NumVectors; i++) curX[i] = Xptr[i]+offset;
   Epetra_MultiVector X2(View, depNonLocalMap_, curX, NumVectors); // Start X2 to view second block of X elements
   
@@ -169,6 +169,7 @@ int dft_HardSphereA11_Epetra_Operator::doApply(const Epetra_MultiVector& X, Epet
       Y2.Update(1.0, X2, 1.0); // Gives us Y2 = X2 + B*X1
   }
   delete [] curY;
+  delete [] curX;
 
   return(ierr);
 }
