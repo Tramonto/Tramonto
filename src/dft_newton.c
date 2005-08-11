@@ -55,6 +55,7 @@ int solve_problem(double **x, double **x2)
   int cmsequ[] = {0, 1, 2};
   int densityequ[] = { 3, 4, 5};*/
   int count_density,count_cms_field,count_geqn,count_ginv_eqn,count_indnonlocal,count_depnonlocal,index_save;
+  int one_particle_size;
 
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
@@ -90,17 +91,28 @@ int solve_problem(double **x, double **x2)
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
  }
- else if (1==0) {
+ else if (Type_func >= 0) {
    count_density=count_indnonlocal=count_depnonlocal=0;
+   one_particle_size=FALSE;
+   if ((Lhard_surf && Nlists_HW == 2) || (!Lhard_surf && Nlists_HW == 1)) one_particle_size=TRUE;
    for (iunk=0;iunk<Nunk_per_node;iunk++){
      switch(Unk2Phys[iunk]){
      case DENSITY:
        densityeq[count_density++]=iunk; break; 
      case RHOBAR_ROSEN:                  
-       if (1==0)
-	 indnonlocaleq[count_indnonlocal++]=iunk; 
-       else
+       if (one_particle_size && (
+             (iunk > Phys2Unk_first[RHOBAR_ROSEN]+1 && 
+              iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s)  ||
+              iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim) )
 	 depnonlocaleq[count_depnonlocal++]=iunk; 
+       else
+	 indnonlocaleq[count_indnonlocal++]=iunk; 
+       break;
+     case BOND_WTC:
+       indnonlocaleq[count_indnonlocal++]=iunk; 
+       break;
+     case CAVITY_WTC:
+       indnonlocaleq[count_indnonlocal++]=iunk; 
        break;
      } 
    }

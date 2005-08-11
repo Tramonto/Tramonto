@@ -214,7 +214,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
  
-/*  if (iunk > Phys2Unk_first[RHOBAR_ROSEN]+1 && ((Lhard_surf && Nlists_HW == 2) ||
+  if (iunk > Phys2Unk_first[RHOBAR_ROSEN]+1 && ((Lhard_surf && Nlists_HW == 2) ||
                                                (!Lhard_surf && Nlists_HW == 1))){
      junk=Phys2Unk_first[RHOBAR_ROSEN]+1;
      if (iunk == Phys2Unk_first[RHOBAR_ROSEN]+ 2){
@@ -229,7 +229,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
      resid_sum+=resid;
   }
-  else {*/
+  else {
   if (Type_poly_TC) loop_max=Nseg_tot;
   else              loop_max=Ncomp;
   for (jloop=0; jloop<loop_max; jloop++){
@@ -297,7 +297,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
 
       }
   }
- /* }*/
+  }
   return(resid_sum);
 }
 /*****************************************************************************/
