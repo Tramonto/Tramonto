@@ -87,7 +87,7 @@ class dft_Schur_Epetra_Operator: public virtual Epetra_Operator {
   int ComputeX1(const Epetra_MultiVector& B1, const Epetra_MultiVector& X2, Epetra_MultiVector& X1) const;
   
   //! Apply global operator.
-  int ApplyGlobal(const Epetra_MultiVector& X1, const Epetra_MultiVector& X2, Epetra_MultiVector& B1, Epetra_MultiVector& B1) const;
+  int ApplyGlobal(const Epetra_MultiVector& X1, const Epetra_MultiVector& X2, Epetra_MultiVector& Y1, Epetra_MultiVector& Y2) const;
 
   //! Returns the infinity norm of the global matrix.
   /* Returns the quantity \f$ \| A \|_\infty\f$ such that
