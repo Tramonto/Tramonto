@@ -49,15 +49,17 @@ int solve_problem(double **x, double **x2)
   int iter,iunk,i;
   double **xOwned;
   int geq[NMER_MAX], ginveq[NMER_MAX], cmseq[NCOMP_MAX], densityeq[NCOMP_MAX] ;
+  int indnonlocaleq[NMER_MAX], depnonlocaleq[NMER_MAX];
 /*  int gequ[] = {6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42};
   int ginvequ[] = {43, 41, 39, 37, 35, 33, 31, 29, 27, 25, 23, 21, 19, 17, 15, 13, 11, 9, 7};
   int cmsequ[] = {0, 1, 2};
   int densityequ[] = { 3, 4, 5};*/
-  int count_density,count_cms_field,count_geqn,count_ginv_eqn,index_save;
+  int count_density,count_cms_field,count_geqn,count_ginv_eqn,count_indnonlocal,count_depnonlocal,index_save;
 
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
   int is_poly = 0;
+  int debug = 0;
  if (Type_poly != NONE) {
    
    count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
@@ -88,7 +90,26 @@ int solve_problem(double **x, double **x2)
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
  }
- else   
+ else if (1==0) {
+   count_density=count_indnonlocal=count_depnonlocal=0;
+   for (iunk=0;iunk<Nunk_per_node;iunk++){
+     switch(Unk2Phys[iunk]){
+     case DENSITY:
+       densityeq[count_density++]=iunk; break; 
+     case RHOBAR_ROSEN:                  
+       if (1==0)
+	 indnonlocaleq[count_indnonlocal++]=iunk; 
+       else
+	 depnonlocaleq[count_depnonlocal++]=iunk; 
+       break;
+     } 
+   }
+   LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   dft_hardsphere_lin_prob_mgr_setindnonlocalequationids(LinProbMgr_manager, count_indnonlocal, indnonlocaleq);
+   dft_hardsphere_lin_prob_mgr_setdepnonlocalequationids(LinProbMgr_manager, count_depnonlocal, depnonlocaleq);
+   dft_hardsphere_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, count_density, densityeq);
+ }
+ else
    LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
 
   /* Give Nodal Row and Column maps */
