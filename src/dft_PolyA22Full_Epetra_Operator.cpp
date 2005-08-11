@@ -48,6 +48,7 @@ dft_PolyA22Full_Epetra_Operator::dft_PolyA22Full_Epetra_Operator(const Epetra_Ma
     firstTime_(true) {
 
   Label_ = "dft_PolyA22Full_Epetra_Operator";
+  A22Matrix_.SetLabel("PolyA22Full::A22Matrix");
 
   // Build permBlock2Map such that the density equations are ordered first, followed by the CMS equations
   Epetra_IntSerialDenseVector permBlock2Gids(block2Map.NumMyElements());

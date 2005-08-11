@@ -27,10 +27,7 @@
 */
 
 #include "dft_HardSphereLinProbMgr.hpp"
-#include "Epetra_RowMatrix.h"
 #include "Epetra_CrsMatrix.h"
-#include "Epetra_VbrMatrix.h"
-#include "Epetra_BlockMap.h"
 #include "Epetra_Map.h"
 #include "Epetra_Vector.h"
 #include "Epetra_IntVector.h"
@@ -123,11 +120,13 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
     << " DepNonLocal Row Map " << *depNonLocalRowMap_.get() << std::endl;
   */
   A11_ = Teuchos::rcp(new dft_HardSphereA11_Epetra_Operator(*indNonLocalRowMap_, *depNonLocalRowMap_, *block1RowMap_));
-  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block1RowMap_, 0));
-  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block2RowMap_, 0));
+  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block1RowMap_, 0)); A12_->SetLabel("HardSphere::A12");
+  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block2RowMap_, 0)); A21_->SetLabel("HardSphere::A21");
   A22_ = Teuchos::rcp(new dft_HardSphereA22_Epetra_Operator(*block2RowMap_));
-  if (debug_) 
+  if (debug_) {
     globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
+    globalMatrix_->SetLabel("HardSphere::globalMatrix");
+    }
   else
     globalMatrix_ = Teuchos::null; // not used by this solver
   

@@ -27,10 +27,7 @@
 */
 
 #include "dft_PolyLinProbMgr.hpp"
-#include "Epetra_RowMatrix.h"
 #include "Epetra_CrsMatrix.h"
-#include "Epetra_VbrMatrix.h"
-#include "Epetra_BlockMap.h"
 #include "Epetra_Map.h"
 #include "Epetra_Vector.h"
 #include "Epetra_IntVector.h"
@@ -131,13 +128,15 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
     << " Density Row Map " << *densityRowMap_.get() << std::endl;
   */
   A11_ = Teuchos::rcp(new dft_PolyA11_Epetra_Operator(*(ownedMap_.get()), *(block1RowMap_.get())));
-  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block1RowMap_.get()), 0));
-  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block2RowMap_.get()), 0));
+  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block1RowMap_.get()), 0)); A12_->SetLabel("PolyLinProbMgr::A12");
+  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block2RowMap_.get()), 0)); A21_->SetLabel("PolyLinProbMgr::A21");
   //A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
   //A22_ = Teuchos::rcp(new dft_PolyA22Full_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
   A22_ = Teuchos::rcp(new dft_PolyA22Bsor_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
-  if (debug_) 
+  if (debug_) {
     globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
+    globalMatrix_->SetLabel("PolyLinProbMgr::globalMatrix");
+  }
   else
     globalMatrix_ = Teuchos::null; // not used by this solver
   

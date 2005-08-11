@@ -27,15 +27,11 @@
 //@HEADER
 
 #include "dft_HardSphereA22_Epetra_Operator.hpp"
-#include "Epetra_CrsMatrix.h"
 #include "Epetra_Map.h"
 #include "Epetra_Import.h"
 #include "Epetra_Vector.h"
 #include "Epetra_MultiVector.h"
 #include "Epetra_Comm.h"
-#include "Epetra_Distributor.h"
-#include "EpetraExt_RowMatrixOut.h"
-#include "Epetra_IntSerialDenseVector.h"
 #include "Teuchos_TestForException.hpp"
 
 //==============================================================================

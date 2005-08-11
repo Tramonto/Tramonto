@@ -51,6 +51,7 @@ dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsM
     firstTime_(true) {
 
   Label_ = "dft_PolyA22_Epetra_Operator";
+  cmsOnDensityMatrix_.SetLabel("PolyA22::cmsOnDensityMatrix");
 }
 //==============================================================================
 dft_PolyA22_Epetra_Operator::~dft_PolyA22_Epetra_Operator() {

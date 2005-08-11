@@ -51,8 +51,10 @@ dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & owne
 
   Label_ = "dft_PolyA11_Epetra_Operator";
   matrix_ = new Epetra_CrsMatrix*[numBlocks_];
-  for (int i=0; i<numBlocks_; i++) matrix_[i] = new Epetra_CrsMatrix(Copy, ownedMap, 0);
-  
+  for (int i=0; i<numBlocks_; i++) {
+    matrix_[i] = new Epetra_CrsMatrix(Copy, ownedMap, 0);
+    matrix_[i]->SetLabel("PolyA11::matrix[i]");
+  }
 
 }
 //==============================================================================

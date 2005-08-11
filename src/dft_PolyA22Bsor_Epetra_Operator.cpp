@@ -54,6 +54,7 @@ dft_PolyA22Bsor_Epetra_Operator::dft_PolyA22Bsor_Epetra_Operator(const Epetra_Ma
     firstTime_(true) {
 
   Label_ = "dft_PolyA22Bsor_Epetra_Operator";
+  cmsOnDensityMatrix_.SetLabel("PolyA22Bsor::cmsOnDensityMatrix");
 }
 //==============================================================================
 dft_PolyA22Bsor_Epetra_Operator::~dft_PolyA22Bsor_Epetra_Operator() {

@@ -128,6 +128,7 @@ int dft_BasicLinProbMgr::finalizeBlockStructure() {
   //std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl;
 
   globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
+  globalMatrix_->SetLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   implicitProblem_ = Teuchos::rcp(new Epetra_LinearProblem(globalMatrix_.get(), globalLhs_.get(), globalRhs_.get()));
