@@ -48,7 +48,8 @@
 dft_HardSphereLinProbMgr::dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug) 
   : dft_BasicLinProbMgr(numUnknownsPerNode, solverOptions, solverParams, comm),
     debug_(debug) {
-  
+  //debug_=true;
+
 
   return;
 }
@@ -263,7 +264,6 @@ int dft_HardSphereLinProbMgr::solve() {
 
   solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
   schurOperator_->ComputeX1(*rhs1_.get(), *lhs2_.get(), *lhs1_.get()); // Compute rest of solution
-
   if (debug_) {
     Epetra_Vector tmpRhs(*globalRowMap_);
     Epetra_Vector tmprhs1(View, *(block1RowMap_.get()), tmpRhs.Values());
@@ -275,13 +275,13 @@ int dft_HardSphereLinProbMgr::solve() {
     double resid=0.0;
     tmpRhs.Norm2(&resid);
     std::cout << "Global Residual for solution = " << resid << std::endl;
-    bool writeMatrixNow = false;
+    bool writeMatrixNow = true;
     if (writeMatrixNow) {
       writeMatrix("A.dat", "GlobalMatrix", "GlobalMatrix");
       writeLhs("x.dat");
       writeRhs("b.dat");
       writePermutation("p.dat");
-      //abort();
+      abort();
     }
   }
   //std::cout << "Global RHS = " << *globalRhs_.get() << std::endl

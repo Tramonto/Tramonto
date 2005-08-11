@@ -115,19 +115,19 @@ int dft_HardSphereA11_Epetra_Operator::doApply(const Epetra_MultiVector& X, Epet
 
   // Matrix is of the form 
   // 
-  // | I  0 |
-  // | B  I | 
+  // | -I  0 |
+  // | B  -I | 
 
   // We store only the X portion
 
   // The exact inverse is 
   // 
-  // |  I  0 |
-  // | -B  I | 
+  // |  -I  0 |
+  // | -B  -I | 
 
 
   if (matrix_==0) {
-    Y=X;
+    Y.Scale(-1.0, X); // Y = -X
     return(0);  // Nothing else to do
   }
 
@@ -153,21 +153,21 @@ int dft_HardSphereA11_Epetra_Operator::doApply(const Epetra_MultiVector& X, Epet
   
   int ierr = 0;
   if (&X[0]==&Y[0]) { // X and Y are the same
-    // Y1 = X1 // Not needed
     Epetra_MultiVector Y2tmp(depNonLocalMap_, NumVectors); // Need space for multiplication result
     ierr = matrix_->Multiply(false, X1, Y2tmp); // Gives Y2tmp = B*X1
     if (inverse)
-      Y2.Update(-1.0, Y2tmp, 1.0, X2, 0.0); // Gives us Y2 = X2 - B*X1
+      Y2.Update(-1.0, Y2tmp, -1.0, X2, 0.0); // Gives us Y2 = -X2 - B*X1
     else 
-      Y2.Update(1.0, Y2tmp, 1.0, X2, 0.0); // Gives us Y2 = X2 + B*X1
+      Y2.Update(1.0, Y2tmp, -1.0, X2, 0.0); // Gives us Y2 = -X2 + B*X1
+    Y1.Scale(-1.0,X1); // Y1 = -X1 
   }
   else {
-    Y1=X1;
+    Y1.Scale(-1.0, X1);
     ierr = matrix_->Multiply(false, X1, Y2);// Gives Y2 = B*X1
     if (inverse) 
-      Y2.Update(1.0, X2, -1.0); // Gives us Y2 = X2 - B*X1
+      Y2.Update(-1.0, X2, -1.0); // Gives us Y2 = -X2 - B*X1
     else
-      Y2.Update(1.0, X2, 1.0); // Gives us Y2 = X2 + B*X1
+      Y2.Update(-1.0, X2, 1.0); // Gives us Y2 = -X2 + B*X1
   }
   delete [] curY;
   delete [] curX;
