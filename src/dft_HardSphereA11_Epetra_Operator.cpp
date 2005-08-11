@@ -78,7 +78,9 @@ int dft_HardSphereA11_Epetra_Operator::insertMatrixValue(int rowGID, int colGID,
 
  // All ind NonLocal entries are diagonal values and 1, so we don't store them
   if (matrix_==0) return(0); // No dependent nonlocal entries at all
+  if (rowGID==colGID) return(0); // Don't keep diagonals
   if (!depNonLocalMap_.MyGID(rowGID)) return(0); // Isn't dependent nonlocal
+  
 
   if (firstTime_)
     return(matrix_->InsertGlobalValues(rowGID, 1, &value, &colGID));
