@@ -64,7 +64,7 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
   if (numGlobalNodes_==0 ||
       numGlobalBoxNodes_==0 ||
       indNonLocalEquations_.Length()==0 ||
-      depNonLocalEquations_.Length()==0 ||
+      depNonLocalEquations_.Length()<0  ||
       densityEquations_.Length()==0) return(-1); // Error: One or more set methods not called
       
   

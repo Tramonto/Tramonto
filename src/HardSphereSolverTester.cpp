@@ -61,10 +61,11 @@ int main(int argc, char *argv[])
 
   
   
-  int numUnknownsPerNode = 8;
+  int numUnknownsPerNode = 5;
   int densityequ[] = {0, 1}; int numDensity = 2;
-  int indnonlocalequ[] = {7, 5, 3}; int numIndNonLocal = 3;
-  int depnonlocalequ[] = {2, 4, 6}; int numDepNonLocal = 3;
+  int indnonlocalequ[] = {2, 3, 4}; int numIndNonLocal = 3;
+  int depnonlocalequ[] = {5, 6, 7}; int numDepNonLocal = 0;
+  //int depnonlocalequ[] = {2, 4, 6}; int numDepNonLocal = 3;
   Epetra_Map nodalRowMap(-1, numOwnedNodes, 0, comm);
   int numGlobalNodes = nodalRowMap.NumGlobalElements();
   int * nodalElements = nodalRowMap.MyGlobalElements();

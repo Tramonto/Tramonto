@@ -57,7 +57,7 @@ extern "C" {
 
   void dft_poly_lin_prob_mgr_destruct(void * linprobmgr) {
     dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
-    dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
+    dft_PolyLinProbMgr * linprobmgr_ = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
     delete linprobmgr_;
   }
 

@@ -283,7 +283,7 @@ int dft_BasicLinProbMgr::setupSolver() {
   solver_->SetAztecOption(AZ_max_iter, maxiter);
   solver_->SetAztecOption(AZ_kspace, maxiter); 
   //solver_->SetAztecOption(AZ_conv, AZ_noscaled); 
-  //solver_->SetAztecOption(AZ_precond, AZ_none);
+  solver_->SetAztecOption(AZ_precond, AZ_none);
 
   return(0);
 }

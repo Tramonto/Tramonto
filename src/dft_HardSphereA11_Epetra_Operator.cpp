@@ -50,9 +50,10 @@ dft_HardSphereA11_Epetra_Operator::dft_HardSphereA11_Epetra_Operator(const Epetr
     firstTime_(true) {
 
   Label_ = "dft_HardSphereA11_Epetra_Operator";
-  if (depNonLocalMap_.NumGlobalElements()>0)
+  if (depNonLocalMap_.NumGlobalElements()>0) {
     matrix_ = new Epetra_CrsMatrix(Copy, depNonLocalMap_, 0);
     matrix_->SetLabel("HardSphere::A11::matrix");
+  }
   
 
 }
