@@ -276,14 +276,14 @@ int dft_BasicLinProbMgr::setupSolver() {
   if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);
   if (solverParams_!=0) solver_->SetAllAztecParams(solverParams_);
 
-  const int * options = solver_->GetAllAztecOptions();
-  const double * params = solver_->GetAllAztecParams();
-  solver_->SetAztecOption(AZ_scaling, AZ_none); 
-  int maxiter = 500;
-  solver_->SetAztecOption(AZ_max_iter, maxiter);
-  solver_->SetAztecOption(AZ_kspace, maxiter); 
+  //const int * options = solver_->GetAllAztecOptions();
+  //const double * params = solver_->GetAllAztecParams();
+  //solver_->SetAztecOption(AZ_scaling, AZ_none); 
+  //int maxiter = 500;
+  //solver_->SetAztecOption(AZ_max_iter, maxiter);
+  //solver_->SetAztecOption(AZ_kspace, maxiter); 
   //solver_->SetAztecOption(AZ_conv, AZ_noscaled); 
-  solver_->SetAztecOption(AZ_precond, AZ_none);
+  //solver_->SetAztecOption(AZ_precond, AZ_none);
 
   return(0);
 }

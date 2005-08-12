@@ -210,7 +210,7 @@ int newton_solver(double** x, void* con_ptr) {
 #ifdef NUMERICAL_JACOBIAN
     do_numerical_jacobian(x);
 #endif
-  dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);
+  //dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);
     
     if (con_ptr != NULL) converged2 =
       continuation_hook_conwrap(x, delta_x, con_ptr, Newton_rel_tol, Newton_abs_tol);
