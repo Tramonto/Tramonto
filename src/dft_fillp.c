@@ -383,7 +383,7 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
       }
   }
   /* don't forget Boltzman factor */
-  unk[nunk++]=jtype_mer;
+  unk[nunk++]=jtype_mer+Phys2Unk_first[CMS_FIELD];
 
   if (Type_poly == 0 || Type_poly == 3) {
       boltz_pow_R = -(Nbond[pol_num][jseg]-2);
