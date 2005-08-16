@@ -158,10 +158,10 @@ private:
   Epetra_Map cmsMap_;
   Epetra_Map densityMap_;
   Epetra_Map block2Map_;
-  Epetra_CrsMatrix cmsOnDensityMatrix_;
-  Epetra_Vector cmsOnCmsMatrix_;
-  Epetra_Vector densityOnDensityMatrix_;
-  Epetra_Vector densityOnCmsMatrix_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnDensityMatrix_;
+  Teuchos::RefCountPtr<Epetra_Vector> cmsOnCmsMatrix_;
+  Teuchos::RefCountPtr<Epetra_Vector> densityOnDensityMatrix_;
+  Teuchos::RefCountPtr<Epetra_Vector> densityOnCmsMatrix_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
