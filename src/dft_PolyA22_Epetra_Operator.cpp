@@ -43,15 +43,15 @@ dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsM
   : cmsMap_(cmsMap),
     densityMap_(densityMap),
     block2Map_(block2Map),
-    cmsOnDensityMatrix_(Epetra_CrsMatrix(Copy, densityMap, 0)),
-    densityOnCmsMatrix_(Epetra_Vector(cmsMap)),
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
     firstTime_(true) {
 
+  cmsOnDensityMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, densityMap, 0));
+  densityOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(cmsMap));
   Label_ = "dft_PolyA22_Epetra_Operator";
-  cmsOnDensityMatrix_.SetLabel("PolyA22::cmsOnDensityMatrix");
+  cmsOnDensityMatrix_->SetLabel("PolyA22::cmsOnDensityMatrix");
 }
 //==============================================================================
 dft_PolyA22_Epetra_Operator::~dft_PolyA22_Epetra_Operator() {
@@ -63,8 +63,8 @@ int dft_PolyA22_Epetra_Operator::initializeProblemValues() {
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_) {
-    cmsOnDensityMatrix_.PutScalar(0.0);
-    densityOnCmsMatrix_.PutScalar(0.0);
+    cmsOnDensityMatrix_->PutScalar(0.0);
+    densityOnCmsMatrix_->PutScalar(0.0);
   }
   
   return(0);
@@ -82,9 +82,9 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
   if (cmsMap_.MyGID(rowGID)) {
     int newRowGID = densityMap_.GID(cmsMap_.LID(rowGID));
     if (firstTime_)
-      cmsOnDensityMatrix_.InsertGlobalValues(newRowGID, 1, &value, &colGID);
+      cmsOnDensityMatrix_->InsertGlobalValues(newRowGID, 1, &value, &colGID);
     else
-      cmsOnDensityMatrix_.SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
+      cmsOnDensityMatrix_->SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
   }
   else {
     if (densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)) 
@@ -92,7 +92,7 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
                 << "    cmsMap_.LID(" << colGID <<") = " << cmsMap_.LID(colGID) << std::endl
                 << "          value = " << value << std::endl;;
     TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // This should be a diagonal in the densityOnCmsMatrix block
-    densityOnCmsMatrix_[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
+    (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
   }
 
   return(0);
@@ -101,8 +101,8 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
 int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
-  cmsOnDensityMatrix_.FillComplete();
-  cmsOnDensityMatrix_.OptimizeStorage();
+  cmsOnDensityMatrix_->FillComplete();
+  cmsOnDensityMatrix_->OptimizeStorage();
   
   /*  std::cout << cmsOnDensityMatrix_<< std::endl;
   */
@@ -114,7 +114,7 @@ int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
     int OverlapLevel = 1; // must be >= 0. If Comm.NumProc() == 1,
     // it is ignored.
     
-    cmsOnDensityInverse_  = Teuchos::rcp(factory_.Create(PrecType, &cmsOnDensityMatrix_, OverlapLevel));
+    cmsOnDensityInverse_  = Teuchos::rcp(factory_.Create(PrecType, cmsOnDensityMatrix_.get(), OverlapLevel));
     assert(cmsOnDensityInverse_.get()!=0);
     
     // specify parameters for ILU
@@ -161,7 +161,7 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
   Epetra_MultiVector X1(View, cmsMap_, X1ptr, NumVectors); // Start X1 to view first numCmsElements elements of X
   Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
 
-  Y2.ReciprocalMultiply(1.0, densityOnCmsMatrix_, X1, 0.0);
+  Y2.ReciprocalMultiply(1.0, *densityOnCmsMatrix_, X1, 0.0);
   cmsOnDensityInverse_->ApplyInverse(X2, Y1);
   delete [] Y2ptr;
   delete [] X2ptr;
@@ -193,9 +193,9 @@ int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
   Epetra_MultiVector Y1(View, densityMap_, Y1ptr, NumVectors); // Start Y1 to view first numCmsElements elements of Y
   Epetra_MultiVector Y2(View, cmsMap_, Y2ptr, NumVectors); // Start Y2 to view last numDensity elements of Y
 
-  cmsOnDensityMatrix_.Apply(X2b, Y1);
+  cmsOnDensityMatrix_->Apply(X2b, Y1);
   Y1.Update(1.0, X1a, 1.0);
-  Y2.Multiply(1.0, densityOnCmsMatrix_, X1b, 0.0);
+  Y2.Multiply(1.0, *densityOnCmsMatrix_, X1b, 0.0);
   Y2.Update(1.0, X2a, 1.0);
   delete [] X2ptr;
   delete [] Y2ptr;

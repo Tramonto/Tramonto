@@ -136,9 +136,9 @@ private:
   Epetra_Map densityMap_;
   Epetra_Map block2Map_;
   int numBlocks_;
-  Epetra_CrsMatrix cmsOnDensityMatrix_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnDensityMatrix_;
   Teuchos::RefCountPtr<Ifpack_Preconditioner> cmsOnDensityInverse_;
-  Epetra_Vector densityOnCmsMatrix_;
+  Teuchos::RefCountPtr<Epetra_Vector> densityOnCmsMatrix_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
