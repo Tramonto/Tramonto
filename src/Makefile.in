@@ -48,8 +48,7 @@ COMMON_CXX_SOURCES = \
 	${srcdir}/dft_HardSphereLinProbMgr.cpp \
 	${srcdir}/dft_PolyA11_Epetra_Operator.cpp \
 	${srcdir}/dft_PolyA22_Epetra_Operator.cpp \
-	${srcdir}/dft_PolyA22Full_Epetra_Operator.cpp \
-	${srcdir}/dft_PolyA22Bsor_Epetra_Operator.cpp \
+	${srcdir}/dft_A22Matrix_Epetra_Operator.cpp \
 	${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp \
 	${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp \
 	${srcdir}/dft_Schur_Epetra_Operator.cpp \
@@ -71,8 +70,7 @@ COMMON_HEADERS = \
 	${srcdir}/dft_HardSphereLinProbMgr.hpp \
 	${srcdir}/dft_PolyA11_Epetra_Operator.hpp \
 	${srcdir}/dft_PolyA22_Epetra_Operator.hpp \
-	${srcdir}/dft_PolyA22Full_Epetra_Operator.hpp \
-	${srcdir}/dft_PolyA22Bsor_Epetra_Operator.hpp \
+	${srcdir}/dft_A22Matrix_Epetra_Operator.hpp \
 	${srcdir}/dft_HardSphereA11_Epetra_Operator.hpp \
 	${srcdir}/dft_HardSphereA22_Epetra_Operator.hpp \
 	${srcdir}/dft_Schur_Epetra_Operator.hpp \
