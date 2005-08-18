@@ -76,7 +76,7 @@ int dft_BasicLinProbMgr::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx, i
   comm_.SumAll(&numOwnedNodes_, &numGlobalNodes_, 1);
 
   ownedMap_ = Teuchos::rcp(new Epetra_Map(-1, numOwnedNodes, GIDs, 0, comm_));
-  //std::cout << " Owned Map" << *ownedMap_.get() << std::endl;
+  //std::cout << " Owned Map" << *ownedMap_ << std::endl;
   return(0);
 }
 //=============================================================================
@@ -86,7 +86,7 @@ int dft_BasicLinProbMgr::setNodalColMap(int numBoxNodes, int * GIDs, int nx, int
   comm_.SumAll(&numBoxNodes_, &numGlobalBoxNodes_, 1);
 
   boxMap_ = Teuchos::rcp(new Epetra_Map(-1, numBoxNodes, GIDs, 0, comm_));
-  //std::cout << " Box Map" << *boxMap_.get() << std::endl;
+  //std::cout << " Box Map" << *boxMap_ << std::endl;
 
   return(0);
 }
@@ -125,7 +125,7 @@ int dft_BasicLinProbMgr::finalizeBlockStructure() {
   
   globalRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numUnks, globalGIDList.Values(), 0, comm_));
 
-  //std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl;
+  //std::cout << " Global Row Map" << *globalRowMap_ << std::endl;
 
   globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
   globalMatrix_->SetLabel("BasicLinProbMgr::globalMatrix");
@@ -133,7 +133,7 @@ int dft_BasicLinProbMgr::finalizeBlockStructure() {
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   implicitProblem_ = Teuchos::rcp(new Epetra_LinearProblem(globalMatrix_.get(), globalLhs_.get(), globalRhs_.get()));
     
-  ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*(boxMap_.get()), *(ownedMap_.get())));
+  ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*boxMap_, *ownedMap_));
 
   isBlockStructureSet_ = true;
   return(0);
@@ -218,7 +218,7 @@ int dft_BasicLinProbMgr::finalizeProblemValues() {
   globalMatrix_->FillComplete();
   globalMatrix_->OptimizeStorage();
 
-  //std::cout << *globalMatrix_.get();
+  //std::cout << *globalMatrix_;
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -272,7 +272,7 @@ int dft_BasicLinProbMgr::getRhs(double ** b) const {
 //=============================================================================
 int dft_BasicLinProbMgr::setupSolver() {
 
-  solver_ = Teuchos::rcp(new AztecOO(*(implicitProblem_.get())));
+  solver_ = Teuchos::rcp(new AztecOO(*implicitProblem_));
   if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);
   if (solverParams_!=0) solver_->SetAllAztecParams(solverParams_);
 
@@ -311,7 +311,7 @@ int dft_BasicLinProbMgr::solve() {
 int dft_BasicLinProbMgr::applyMatrix(const double** x, double** b) const {
   
   setLhs(x);
-  globalMatrix_->Apply(*globalLhs_.get(), *globalRhs_.get());
+  globalMatrix_->Apply(*globalLhs_, *globalRhs_);
   getRhs(b);
   
   return(0);
@@ -326,36 +326,36 @@ int dft_BasicLinProbMgr::importR2C(const double** xOwned, double** xBox) const {
 //=============================================================================
 int dft_BasicLinProbMgr::importR2C(const double* aOwned, double* aBox) const {
   
-  Epetra_Vector owned(View, *ownedMap_.get(), (double *) aOwned);
-  Epetra_Vector box(View, *boxMap_.get(), aBox);
+  Epetra_Vector owned(View, *ownedMap_, (double *) aOwned);
+  Epetra_Vector box(View, *boxMap_, aBox);
   
-  box.Import(owned, *ownedToBoxImporter_.get(), Insert);
+  box.Import(owned, *ownedToBoxImporter_, Insert);
 
   return(0);
 }
 //=============================================================================
 int dft_BasicLinProbMgr::exportC2R(const double* aBox, double* aOwned) const {
   
-  Epetra_Vector owned(View, *ownedMap_.get(), aOwned);
-  Epetra_Vector box(View, *boxMap_.get(), (double *) aBox);
+  Epetra_Vector owned(View, *ownedMap_, aOwned);
+  Epetra_Vector box(View, *boxMap_, (double *) aBox);
   
-  owned.Export(box, *ownedToBoxImporter_.get(), Zero); // Use importer, but zero out off-processor contributions.
+  owned.Export(box, *ownedToBoxImporter_, Zero); // Use importer, but zero out off-processor contributions.
 
   return(0);
 }
 //=============================================================================
 int dft_BasicLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
-    return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_.get(), matrixName, matrixDescription));
+    return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_, matrixName, matrixDescription));
 }
 //=============================================================================
 int dft_BasicLinProbMgr::writeLhs(const char * filename) const  {
-    return(EpetraExt::MultiVectorToMatlabFile(filename, *globalLhs_.get()));
+    return(EpetraExt::MultiVectorToMatlabFile(filename, *globalLhs_));
 }
 //=============================================================================
 int dft_BasicLinProbMgr::writeRhs(const char * filename) const  {
-    return(EpetraExt::MultiVectorToMatlabFile(filename, *globalRhs_.get()));
+    return(EpetraExt::MultiVectorToMatlabFile(filename, *globalRhs_));
 }
 //=============================================================================
 int dft_BasicLinProbMgr::writePermutation(const char * filename) const  {
-  return(EpetraExt::BlockMapToMatrixMarketFile(filename, *globalRowMap_.get(), " ", " ", false));
+  return(EpetraExt::BlockMapToMatrixMarketFile(filename, *globalRowMap_, " ", " ", false));
 }

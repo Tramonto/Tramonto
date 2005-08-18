@@ -27,8 +27,8 @@
 // ***********************************************************************
 //@HEADER
 
-#ifndef DFT_POLYA22FULL_EPETRA_OPERATOR_H
-#define DFT_POLYA22FULL_EPETRA_OPERATOR_H
+#ifndef DFT_A22MATRIX_EPETRA_OPERATOR_H
+#define DFT_A22MATRIX_EPETRA_OPERATOR_H
 
 class Epetra_MultiVector;
 class Epetra_Map;
@@ -42,18 +42,18 @@ class Epetra_Comm;
 #include "Ifpack.h"
 #include "Teuchos_RefCountPtr.hpp"
 
-//! dft_PolyA22Full_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
+//! dft_A22Matrix_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
 */    
 
-class dft_PolyA22Full_Epetra_Operator: public virtual Epetra_Operator {
+class dft_A22Matrix_Epetra_Operator: public virtual Epetra_Operator {
       
  public:
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
-  dft_PolyA22Full_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map);
+  dft_A22Matrix_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map);
   //@}
   //@{ \name Assembly methods.
   int initializeProblemValues();
@@ -62,7 +62,7 @@ class dft_PolyA22Full_Epetra_Operator: public virtual Epetra_Operator {
   //@}
   //@{ \name Destructor.
     //! Destructor
-  ~dft_PolyA22Full_Epetra_Operator();
+  ~dft_A22Matrix_Epetra_Operator();
   //@}
   
   //@{ \name Atribute set methods.
@@ -73,7 +73,7 @@ class dft_PolyA22Full_Epetra_Operator: public virtual Epetra_Operator {
   
   //@{ \name Mathematical functions.
 
-    //! Returns the result of a dft_PolyA22Full_Epetra_Operator applied to a Epetra_MultiVector X in Y.
+    //! Returns the result of a dft_A22Matrix_Epetra_Operator applied to a Epetra_MultiVector X in Y.
     /*! 
     \param In
 	   X - An Epetra_MultiVector of dimension NumVectors to multiply with matrix.
@@ -84,7 +84,7 @@ class dft_PolyA22Full_Epetra_Operator: public virtual Epetra_Operator {
   */
   int Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
 
-  //! Returns the result of an inverse dft_PolyA22Full_Epetra_Operator applied to a Epetra_MultiVector X in Y.
+  //! Returns the result of an inverse dft_A22Matrix_Epetra_Operator applied to a Epetra_MultiVector X in Y.
   /*! 
     \param In
     X - An Epetra_MultiVector of dimension NumVectors to multiply with matrix.
@@ -140,4 +140,4 @@ private:
   Ifpack factory_;
 };
 
-#endif /* DFT_POLYA22FULL_EPETRA_OPERATOR_H */
+#endif /* DFT_A22MATRIX_EPETRA_OPERATOR_H */

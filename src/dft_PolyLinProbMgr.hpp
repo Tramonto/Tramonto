@@ -36,8 +36,6 @@ class Epetra_LinearProblem;
 class AztecOO;
 class dft_PolyA11_Epetra_Operator;
 class dft_PolyA22_Epetra_Operator;
-class dft_PolyA22Full_Epetra_Operator;
-class dft_PolyA22Bsor_Epetra_Operator;
 class dft_Schur_Epetra_Operator;
 
 #include "dft_BasicLinProbMgr.hpp"
@@ -223,9 +221,7 @@ protected:
   Teuchos::RefCountPtr<dft_PolyA11_Epetra_Operator> A11_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A12_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A21_;
-  //Teuchos::RefCountPtr<dft_PolyA22_Epetra_Operator> A22_;
-  //Teuchos::RefCountPtr<dft_PolyA22Full_Epetra_Operator> A22_;
-  Teuchos::RefCountPtr<dft_PolyA22Bsor_Epetra_Operator> A22_;
+  Teuchos::RefCountPtr<dft_PolyA22_Epetra_Operator> A22_;
   Teuchos::RefCountPtr<Epetra_Map> block1RowMap_;
   Teuchos::RefCountPtr<Epetra_Map> block2RowMap_;
   Teuchos::RefCountPtr<Epetra_Map> cmsRowMap_;

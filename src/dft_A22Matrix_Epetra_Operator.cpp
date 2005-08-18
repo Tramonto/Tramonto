@@ -26,7 +26,7 @@
 // ***********************************************************************
 //@HEADER
 
-#include "dft_PolyA22Full_Epetra_Operator.hpp"
+#include "dft_A22Matrix_Epetra_Operator.hpp"
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_Map.h"
 #include "Epetra_Import.h"
@@ -39,7 +39,7 @@
 #include "Teuchos_TestForException.hpp"
 
 //==============================================================================
-dft_PolyA22Full_Epetra_Operator::dft_PolyA22Full_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map) 
+dft_A22Matrix_Epetra_Operator::dft_A22Matrix_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map) 
   : block2Map_(block2Map),
     A22Matrix_(Epetra_CrsMatrix(Copy, block2Map, 0)),
     Label_(0),
@@ -47,8 +47,8 @@ dft_PolyA22Full_Epetra_Operator::dft_PolyA22Full_Epetra_Operator(const Epetra_Ma
     isLinearProblemSet_(false),
     firstTime_(true) {
 
-  Label_ = "dft_PolyA22Full_Epetra_Operator";
-  A22Matrix_.SetLabel("PolyA22Full::A22Matrix");
+  Label_ = "dft_A22Matrix_Epetra_Operator";
+  A22Matrix_.SetLabel("A22Matrix::A22Matrix");
 
   // Build permBlock2Map such that the density equations are ordered first, followed by the CMS equations
   Epetra_IntSerialDenseVector permBlock2Gids(block2Map.NumMyElements());
@@ -57,13 +57,13 @@ dft_PolyA22Full_Epetra_Operator::dft_PolyA22Full_Epetra_Operator(const Epetra_Ma
   ptr += densityMap.NumMyElements();
   cmsMap.MyGlobalElements(ptr);
   permBlock2Map_ = Teuchos::rcp(new Epetra_Map(-1, block2Map.NumMyElements(), permBlock2Gids.Values(), 0, block2Map.Comm()));
-  permToStandardImport_ = Teuchos::rcp(new Epetra_Import(block2Map_, *permBlock2Map_.get()));
+  permToStandardImport_ = Teuchos::rcp(new Epetra_Import(block2Map_, *permBlock2Map_));
 }
 //==============================================================================
-dft_PolyA22Full_Epetra_Operator::~dft_PolyA22Full_Epetra_Operator() {
+dft_A22Matrix_Epetra_Operator::~dft_A22Matrix_Epetra_Operator() {
 }
 //=============================================================================
-int dft_PolyA22Full_Epetra_Operator::initializeProblemValues() {
+int dft_A22Matrix_Epetra_Operator::initializeProblemValues() {
   
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
@@ -74,7 +74,7 @@ int dft_PolyA22Full_Epetra_Operator::initializeProblemValues() {
   return(0);
 }
 //=============================================================================
-int dft_PolyA22Full_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
+int dft_A22Matrix_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
   
   
   int newRowGID; // Swap cms and density variables to effect a block row permutation
@@ -88,7 +88,7 @@ int dft_PolyA22Full_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, d
   return(0);
 }
 //=============================================================================
-int dft_PolyA22Full_Epetra_Operator::finalizeProblemValues() {
+int dft_A22Matrix_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   A22Matrix_.FillComplete();
@@ -134,7 +134,7 @@ int dft_PolyA22Full_Epetra_Operator::finalizeProblemValues() {
   return(0);
 }
 //==============================================================================
-int dft_PolyA22Full_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+int dft_A22Matrix_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
 
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
@@ -145,13 +145,13 @@ int dft_PolyA22Full_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, E
 
   double ** Y1ptrs;
   Y1.ExtractView(&Y1ptrs);
-  Epetra_MultiVector Y2(View, *permBlock2Map_.get(), Y1ptrs, Y1.NumVectors());
-  Y.Import(Y2, *permToStandardImport_.get(), Insert);
+  Epetra_MultiVector Y2(View, *permBlock2Map_, Y1ptrs, Y1.NumVectors());
+  Y.Import(Y2, *permToStandardImport_, Insert);
 
   return(0);
 }
 //==============================================================================
-int dft_PolyA22Full_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+int dft_A22Matrix_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
   TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
@@ -163,8 +163,8 @@ int dft_PolyA22Full_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_M
   double ** Y1ptrs;
   Y1.ExtractView(&Y1ptrs);
 
-  Epetra_MultiVector Y2(View, *permBlock2Map_.get(), Y1ptrs, Y1.NumVectors());
-  Y.Import(Y2, *permToStandardImport_.get(), Insert);
+  Epetra_MultiVector Y2(View, *permBlock2Map_, Y1ptrs, Y1.NumVectors());
+  Y.Import(Y2, *permToStandardImport_, Insert);
 
 
   return(0);

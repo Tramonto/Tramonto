@@ -41,8 +41,6 @@
 #include "EpetraExt_BlockMapOut.h"
 #include "dft_PolyA11_Epetra_Operator.hpp"
 #include "dft_PolyA22_Epetra_Operator.hpp"
-#include "dft_PolyA22Full_Epetra_Operator.hpp"
-#include "dft_PolyA22Bsor_Epetra_Operator.hpp"
 #include "dft_Schur_Epetra_Operator.hpp"
 
 
@@ -121,18 +119,16 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   cmsRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numCms, ptr+numUnks1, 0, comm_));
   densityRowMap_ = Teuchos::rcp(new Epetra_Map(-1, numDensity, ptr+numUnks1+numCms, 0, comm_));
   /*
-    std::cout << " Global Row Map" << *globalRowMap_.get() << std::endl
-    << " Block 1 Row Map " << *block1RowMap_.get() << std::endl
-    << " Block 2 Row Map " << *block2RowMap_.get() << std::endl
-    << " CMS     Row Map " << *cmsRowMap_.get() << std::endl
-    << " Density Row Map " << *densityRowMap_.get() << std::endl;
+    std::cout << " Global Row Map" << *globalRowMap_ << std::endl
+    << " Block 1 Row Map " << *block1RowMap_ << std::endl
+    << " Block 2 Row Map " << *block2RowMap_ << std::endl
+    << " CMS     Row Map " << *cmsRowMap_ << std::endl
+    << " Density Row Map " << *densityRowMap_ << std::endl;
   */
-  A11_ = Teuchos::rcp(new dft_PolyA11_Epetra_Operator(*(ownedMap_.get()), *(block1RowMap_.get())));
-  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block1RowMap_.get()), 0)); A12_->SetLabel("PolyLinProbMgr::A12");
-  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *(block2RowMap_.get()), 0)); A21_->SetLabel("PolyLinProbMgr::A21");
-  //A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
-  //A22_ = Teuchos::rcp(new dft_PolyA22Full_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
-  A22_ = Teuchos::rcp(new dft_PolyA22Bsor_Epetra_Operator(*(cmsRowMap_.get()), *(densityRowMap_.get()), *(block2RowMap_.get())));
+  A11_ = Teuchos::rcp(new dft_PolyA11_Epetra_Operator(*ownedMap_, *block1RowMap_));
+  A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block1RowMap_, 0)); A12_->SetLabel("PolyLinProbMgr::A12");
+  A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block2RowMap_, 0)); A21_->SetLabel("PolyLinProbMgr::A21");
+  A22_ = Teuchos::rcp(new dft_PolyA22_Epetra_Operator(*cmsRowMap_, *densityRowMap_, *block2RowMap_));
   if (debug_) {
     globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
     globalMatrix_->SetLabel("PolyLinProbMgr::globalMatrix");
@@ -143,17 +139,17 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   globalRhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
   globalLhs_ = Teuchos::rcp(new Epetra_Vector(*globalRowMap_));
 
-  rhs1_ = Teuchos::rcp(new Epetra_Vector(View, *(block1RowMap_.get()), globalRhs_->Values()));
-  rhs2_ = Teuchos::rcp(new Epetra_Vector(View, *(block2RowMap_.get()), globalRhs_->Values()+numUnks1));
-  rhsSchur_ = Teuchos::rcp(new Epetra_Vector(*(rhs2_.get())));
-  lhs1_ = Teuchos::rcp(new Epetra_Vector(View, *(block1RowMap_.get()), globalLhs_->Values()));
-  lhs2_ = Teuchos::rcp(new Epetra_Vector(View, *(block2RowMap_.get()), globalLhs_->Values()+numUnks1));
+  rhs1_ = Teuchos::rcp(new Epetra_Vector(View, *block1RowMap_, globalRhs_->Values()));
+  rhs2_ = Teuchos::rcp(new Epetra_Vector(View, *block2RowMap_, globalRhs_->Values()+numUnks1));
+  rhsSchur_ = Teuchos::rcp(new Epetra_Vector(*rhs2_));
+  lhs1_ = Teuchos::rcp(new Epetra_Vector(View, *block1RowMap_, globalLhs_->Values()));
+  lhs2_ = Teuchos::rcp(new Epetra_Vector(View, *block2RowMap_, globalLhs_->Values()+numUnks1));
 
   schurOperator_ = Teuchos::rcp(new dft_Schur_Epetra_Operator(A11_.get(), A12_.get(), A21_.get(), A22_.get()));
   implicitProblem_ = Teuchos::rcp(new Epetra_LinearProblem(schurOperator_.get(), lhs2_.get(), rhsSchur_.get()));
 
     
-  ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*(boxMap_.get()), *(ownedMap_.get())));
+  ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*boxMap_, *ownedMap_));
 
   isBlockStructureSet_ = true;
   return(0);
@@ -213,15 +209,15 @@ int dft_PolyLinProbMgr::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   if (firstTime_) {
-    A12_->FillComplete(*(block2RowMap_.get()),*(block1RowMap_.get()));
+    A12_->FillComplete(*block2RowMap_,*block1RowMap_);
     A12_->OptimizeStorage();
-    A21_->FillComplete(*(block1RowMap_.get()),*(block2RowMap_.get()));
+    A21_->FillComplete(*block1RowMap_,*block2RowMap_);
     A21_->OptimizeStorage();
 
     if (debug_) globalMatrix_->FillComplete();
   }
-  //std::cout << *A12_.get() << endl 
-  //          << *A21_.get() << endl;
+  //std::cout << *A12_ << endl 
+  //          << *A21_ << endl;
 
   A11_->finalizeProblemValues();
   A22_->finalizeProblemValues();
@@ -236,9 +232,9 @@ int dft_PolyLinProbMgr::setupSolver() {
 
   if (!isLinearProblemSet_) return(-1);
 
-  schurOperator_->ComputeRHS(*rhs1_.get(), *rhs2_.get(), *rhsSchur_.get());
+  schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
   
-  solver_ = Teuchos::rcp(new AztecOO(*(implicitProblem_.get())));
+  solver_ = Teuchos::rcp(new AztecOO(*implicitProblem_));
 
   if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);
   if (solverParams_!=0) solver_->SetAllAztecParams(solverParams_);
@@ -273,16 +269,16 @@ int dft_PolyLinProbMgr::solve() {
   const double * params = solver_->GetAllAztecParams();
 
   solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
-  schurOperator_->ComputeX1(*rhs1_.get(), *lhs2_.get(), *lhs1_.get()); // Compute rest of solution
+  schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_); // Compute rest of solution
 
   if (debug_) {
     Epetra_Vector tmpRhs(*globalRowMap_);
-    Epetra_Vector tmprhs1(View, *(block1RowMap_.get()), tmpRhs.Values());
-    Epetra_Vector tmprhs2(View, *(block2RowMap_.get()), tmpRhs.Values()+block1RowMap_->NumMyElements());
+    Epetra_Vector tmprhs1(View, *block1RowMap_, tmpRhs.Values());
+    Epetra_Vector tmprhs2(View, *block2RowMap_, tmpRhs.Values()+block1RowMap_->NumMyElements());
     
-    schurOperator_->ApplyGlobal(*lhs1_.get(), *lhs2_.get(), tmprhs1, tmprhs2);
+    schurOperator_->ApplyGlobal(*lhs1_, *lhs2_, tmprhs1, tmprhs2);
     
-    tmpRhs.Update(-1.0, *globalRhs_.get(), 1.0);
+    tmpRhs.Update(-1.0, *globalRhs_, 1.0);
     double resid=0.0;
     tmpRhs.Norm2(&resid);
     std::cout << "Global Residual for solution = " << resid << std::endl;
@@ -295,8 +291,8 @@ int dft_PolyLinProbMgr::solve() {
       //abort();
     }
   }
-  //std::cout << "Global RHS = " << *globalRhs_.get() << std::endl
-  //          << "Global LHS = " << *globalLhs_.get() << std::endl;
+  //std::cout << "Global RHS = " << *globalRhs_ << std::endl
+  //          << "Global LHS = " << *globalLhs_ << std::endl;
 
   //solver_->AdaptiveIterate(solverOptions_[AZ_max_iter], 5, solverParams_[AZ_tol]); // Try to solve
   return(0);
@@ -305,7 +301,7 @@ int dft_PolyLinProbMgr::solve() {
 int dft_PolyLinProbMgr::applyMatrix(const double** x, double** b) const {
   
   setLhs(x);
-  schurOperator_->ApplyGlobal(*lhs1_.get(), *lhs2_.get(), *rhs1_.get(), *rhs2_.get());
+  schurOperator_->ApplyGlobal(*lhs1_, *lhs2_, *rhs1_, *rhs2_);
   getRhs(b);
   
   return(0);
@@ -322,7 +318,7 @@ int dft_PolyLinProbMgr::applyMatrix(const double** x, double** b) const {
 //=============================================================================
 int dft_PolyLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
   if (debug_)
-    return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_.get(), matrixName, matrixDescription));
+    return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_, matrixName, matrixDescription));
   else
     return(-1); // Not available if not in debug mode
 }

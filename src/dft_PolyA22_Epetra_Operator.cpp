@@ -26,7 +26,7 @@
 // ***********************************************************************
 //@HEADER
 
-#include "dft_PolyA22Bsor_Epetra_Operator.hpp"
+#include "dft_PolyA22_Epetra_Operator.hpp"
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_Map.h"
 #include "Epetra_Import.h"
@@ -39,7 +39,7 @@
 #include "Teuchos_TestForException.hpp"
 
 //==============================================================================
-dft_PolyA22Bsor_Epetra_Operator::dft_PolyA22Bsor_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map) 
+dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map) 
   : cmsMap_(cmsMap),
     densityMap_(densityMap),
     block2Map_(block2Map),
@@ -53,14 +53,14 @@ dft_PolyA22Bsor_Epetra_Operator::dft_PolyA22Bsor_Epetra_Operator(const Epetra_Ma
   cmsOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
   densityOnDensityMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
   densityOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
-  Label_ = "dft_PolyA22Bsor_Epetra_Operator";
-  cmsOnDensityMatrix_->SetLabel("PolyA22Bsor::cmsOnDensityMatrix");
+  Label_ = "dft_PolyA22_Epetra_Operator";
+  cmsOnDensityMatrix_->SetLabel("PolyA22::cmsOnDensityMatrix");
 }
 //==============================================================================
-dft_PolyA22Bsor_Epetra_Operator::~dft_PolyA22Bsor_Epetra_Operator() {
+dft_PolyA22_Epetra_Operator::~dft_PolyA22_Epetra_Operator() {
 }
 //=============================================================================
-int dft_PolyA22Bsor_Epetra_Operator::initializeProblemValues() {
+int dft_PolyA22_Epetra_Operator::initializeProblemValues() {
   
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
@@ -75,7 +75,7 @@ int dft_PolyA22Bsor_Epetra_Operator::initializeProblemValues() {
   return(0);
 }
 //=============================================================================
-int dft_PolyA22Bsor_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
+int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
 
   
   if (cmsMap_.MyGID(rowGID)) {
@@ -99,7 +99,7 @@ int dft_PolyA22Bsor_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, d
   return(0);
 }
 //=============================================================================
-int dft_PolyA22Bsor_Epetra_Operator::finalizeProblemValues() {
+int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   //cmsOnDensityMatrix_->FillComplete(densityMap_, cmsMap_);
@@ -116,7 +116,7 @@ int dft_PolyA22Bsor_Epetra_Operator::finalizeProblemValues() {
   return(0);
 }
 //==============================================================================
-int dft_PolyA22Bsor_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
   // The true A22 block is of the form:
 
   // |  Dcc     F    |
@@ -173,7 +173,7 @@ int dft_PolyA22Bsor_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, E
   return(0);
 }
 //==============================================================================
-int dft_PolyA22Bsor_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
   TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
@@ -207,7 +207,7 @@ int dft_PolyA22Bsor_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_M
   return(0);
 }
 //==============================================================================
-int dft_PolyA22Bsor_Epetra_Operator::Check(bool verbose) const {
+int dft_PolyA22_Epetra_Operator::Check(bool verbose) const {
 
   Epetra_Vector x(OperatorDomainMap());
   Epetra_Vector b(OperatorRangeMap());
