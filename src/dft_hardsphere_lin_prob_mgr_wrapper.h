@@ -55,6 +55,8 @@ extern "C" {
   
   int dft_hardsphere_lin_prob_mgr_setdensityequationids(void * linprobmgr, int numgids, int * gids);
 
+  int dft_hardsphere_lin_prob_mgr_seta22blockisdiagona(void * linprobmgr, int isa22diagonal);
+
 #ifdef __cplusplus
 }
 #endif

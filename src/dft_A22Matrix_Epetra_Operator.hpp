@@ -53,7 +53,7 @@ class dft_A22Matrix_Epetra_Operator: public virtual Epetra_Operator {
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
-  dft_A22Matrix_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map);
+  dft_A22Matrix_Epetra_Operator(const Epetra_Map & block2Map);
   //@}
   //@{ \name Assembly methods.
   int initializeProblemValues();
@@ -129,9 +129,7 @@ class dft_A22Matrix_Epetra_Operator: public virtual Epetra_Operator {
 private:
 
   Epetra_Map block2Map_;
-  Teuchos::RefCountPtr<Epetra_Map> permBlock2Map_;
-  Teuchos::RefCountPtr<Epetra_Import> permToStandardImport_;
-  Epetra_CrsMatrix A22Matrix_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> A22Matrix_;
   Teuchos::RefCountPtr<Ifpack_Preconditioner> A22Inverse_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;

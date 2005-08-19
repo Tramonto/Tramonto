@@ -41,12 +41,14 @@
 #include "EpetraExt_BlockMapOut.h"
 #include "dft_HardSphereA11_Epetra_Operator.hpp"
 #include "dft_HardSphereA22_Epetra_Operator.hpp"
+#include "dft_A22Matrix_Epetra_Operator.hpp"
 #include "dft_Schur_Epetra_Operator.hpp"
 
 
 //=============================================================================
 dft_HardSphereLinProbMgr::dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug) 
   : dft_BasicLinProbMgr(numUnknownsPerNode, solverOptions, solverParams, comm),
+    isA22Diagonal_(false),
     debug_(debug) {
   //debug_=true;
 
@@ -123,7 +125,12 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
   A11_ = Teuchos::rcp(new dft_HardSphereA11_Epetra_Operator(*indNonLocalRowMap_, *depNonLocalRowMap_, *block1RowMap_));
   A12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block1RowMap_, 0)); A12_->SetLabel("HardSphere::A12");
   A21_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *block2RowMap_, 0)); A21_->SetLabel("HardSphere::A21");
-  A22_ = Teuchos::rcp(new dft_HardSphereA22_Epetra_Operator(*block2RowMap_));
+  if (isA22Diagonal_) {
+    A22Diagonal_ = Teuchos::rcp(new dft_HardSphereA22_Epetra_Operator(*block2RowMap_));
+  }
+  else {
+    A22Matrix_ = Teuchos::rcp(new dft_A22Matrix_Epetra_Operator(*block2RowMap_));
+  }
   if (debug_) {
     globalMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, *globalRowMap_, 0));
     globalMatrix_->SetLabel("HardSphere::globalMatrix");
@@ -140,7 +147,11 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
   lhs1_ = Teuchos::rcp(new Epetra_Vector(View, *block1RowMap_, globalLhs_->Values()));
   lhs2_ = Teuchos::rcp(new Epetra_Vector(View, *block2RowMap_, globalLhs_->Values()+numUnks1));
 
-  schurOperator_ = Teuchos::rcp(new dft_Schur_Epetra_Operator(A11_.get(), A12_.get(), A21_.get(), A22_.get()));
+  if (isA22Diagonal_) 
+    schurOperator_ = Teuchos::rcp(new dft_Schur_Epetra_Operator(A11_.get(), A12_.get(), A21_.get(), A22Diagonal_.get()));
+  else
+    schurOperator_ = Teuchos::rcp(new dft_Schur_Epetra_Operator(A11_.get(), A12_.get(), A21_.get(), A22Matrix_.get()));
+
   implicitProblem_ = Teuchos::rcp(new Epetra_LinearProblem(schurOperator_.get(), lhs2_.get(), rhsSchur_.get()));
 
     
@@ -164,7 +175,10 @@ int dft_HardSphereLinProbMgr::initializeProblemValues() {
   }
 
   A11_->initializeProblemValues();
-  A22_->initializeProblemValues();
+  if (isA22Diagonal_)
+    A22Diagonal_->initializeProblemValues();
+  else
+    A22Matrix_->initializeProblemValues();
   
   return(0);
 }
@@ -179,7 +193,10 @@ int dft_HardSphereLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNod
     A11_->insertMatrixValue(rowGID, colGID, value); 
   }
   else if (schurBlockRow==2 && schurBlockCol==2) { // A22 block
-    A22_->insertMatrixValue(rowGID, colGID, value); 
+    if (isA22Diagonal_)
+      A22Diagonal_->insertMatrixValue(rowGID, colGID, value); 
+    else
+     A22Matrix_->insertMatrixValue(rowGID, colGID, value); 
   }
   else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
     if (firstTime_)
@@ -214,7 +231,10 @@ int dft_HardSphereLinProbMgr::finalizeProblemValues() {
   //          << *A21_ << endl;
 
   A11_->finalizeProblemValues();
-  A22_->finalizeProblemValues();
+  if (isA22Diagonal_)
+    A22Diagonal_->finalizeProblemValues();
+  else
+    A22Matrix_->finalizeProblemValues();
 
   //Check(true);
   isLinearProblemSet_ = true;
@@ -242,7 +262,10 @@ int dft_HardSphereLinProbMgr::setupSolver() {
   solver_->SetAztecOption(AZ_kspace, maxiter); 
   //solver_->SetAztecParam(AZ_tol, 1.0e-12); 
   //solver_->SetAztecOption(AZ_conv, AZ_noscaled); 
-  solver_->SetPrecOperator(A22_.get());
+  if (isA22Diagonal_)
+    solver_->SetPrecOperator(A22Diagonal_.get());
+  else
+    solver_->SetPrecOperator(A22Matrix_.get());
   //solver_->SetAztecParam(AZ_ill_cond_thresh, 0.0);
   //solver_->SetAztecOption(AZ_precond, AZ_none);
   //solver_->SetAztecOption(AZ_solver, AZ_bicgstab);
@@ -303,7 +326,11 @@ int dft_HardSphereLinProbMgr::applyMatrix(const double** x, double** b) const {
   int dft_HardSphereLinProbMgr::Check(bool verbose) const {
 
   int ierr1 = A11_->Check(verbose);
-  int ierr2 = A22_->Check(verbose);
+  int ierr2;
+  if (isA22Diagonal_)
+    ierr2 = A22Diagonal_->Check(verbose);
+  else
+    ierr2 = A22Diagonal_->Check(verbose);
   if (ierr1!=0 || ierr2!=0) return(-1);
   return(0);
     

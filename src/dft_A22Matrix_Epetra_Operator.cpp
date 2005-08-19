@@ -39,25 +39,16 @@
 #include "Teuchos_TestForException.hpp"
 
 //==============================================================================
-dft_A22Matrix_Epetra_Operator::dft_A22Matrix_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map) 
+dft_A22Matrix_Epetra_Operator::dft_A22Matrix_Epetra_Operator(const Epetra_Map & block2Map) 
   : block2Map_(block2Map),
-    A22Matrix_(Epetra_CrsMatrix(Copy, block2Map, 0)),
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
     firstTime_(true) {
 
+  A22Matrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, block2Map, 0));
   Label_ = "dft_A22Matrix_Epetra_Operator";
-  A22Matrix_.SetLabel("A22Matrix::A22Matrix");
-
-  // Build permBlock2Map such that the density equations are ordered first, followed by the CMS equations
-  Epetra_IntSerialDenseVector permBlock2Gids(block2Map.NumMyElements());
-  int * ptr = permBlock2Gids.Values();
-  densityMap.MyGlobalElements(ptr);
-  ptr += densityMap.NumMyElements();
-  cmsMap.MyGlobalElements(ptr);
-  permBlock2Map_ = Teuchos::rcp(new Epetra_Map(-1, block2Map.NumMyElements(), permBlock2Gids.Values(), 0, block2Map.Comm()));
-  permToStandardImport_ = Teuchos::rcp(new Epetra_Import(block2Map_, *permBlock2Map_));
+  A22Matrix_->SetLabel("dft_A22Matrix_Epetra_Operator::A22Matrix");
 }
 //==============================================================================
 dft_A22Matrix_Epetra_Operator::~dft_A22Matrix_Epetra_Operator() {
@@ -69,7 +60,7 @@ int dft_A22Matrix_Epetra_Operator::initializeProblemValues() {
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_)
-    A22Matrix_.PutScalar(0.0);
+    A22Matrix_->PutScalar(0.0);
   
   return(0);
 }
@@ -77,13 +68,10 @@ int dft_A22Matrix_Epetra_Operator::initializeProblemValues() {
 int dft_A22Matrix_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
   
   
-  int newRowGID; // Swap cms and density variables to effect a block row permutation
-  newRowGID = block2Map_.GID(permBlock2Map_->LID(rowGID));
-
   if (firstTime_)
-    A22Matrix_.InsertGlobalValues(newRowGID, 1, &value, &colGID);
+    A22Matrix_->InsertGlobalValues(rowGID, 1, &value, &colGID);
   else
-    A22Matrix_.SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
+    A22Matrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
 
   return(0);
 }
@@ -91,10 +79,10 @@ int dft_A22Matrix_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, dou
 int dft_A22Matrix_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
-  A22Matrix_.FillComplete();
-  A22Matrix_.OptimizeStorage();
-  //EpetraExt::RowMatrixToMatrixMarketFile( "CmsDensityA22.dat", A22Matrix_, "CMS and Density blocks", 
-  //				  "The 2,2 block of 2D polymer problem: 2d.tar.gz",
+  A22Matrix_->FillComplete();
+  A22Matrix_->OptimizeStorage();
+  //EpetraExt::RowMatrixToMatrixMarketFile( "A22.dat", A22Matrix_, "CMS and Density blocks", 
+  //				  "The 2,2 block of  problem",
   //				  true);
  // abort();
   
@@ -105,18 +93,18 @@ int dft_A22Matrix_Epetra_Operator::finalizeProblemValues() {
     Teuchos::ParameterList list;
     // create the preconditioner. For valid PrecType values,
     // please check the documentation
-    //string PrecType = "ILU"; // incomplete LU
-    string PrecType = "point relaxation"; // incomplete LU
+    string PrecType = "ILU"; // incomplete LU
+    //string PrecType = "point relaxation"; // Gauss-Seidel
     int OverlapLevel = 0; // must be >= 0. If Comm.NumProc() == 1,
     // it is ignored.
     
-    A22Inverse_  = Teuchos::rcp(factory_.Create(PrecType, &A22Matrix_, OverlapLevel));
+    A22Inverse_  = Teuchos::rcp(factory_.Create(PrecType, A22Matrix_.get(), OverlapLevel));
     assert(A22Inverse_.get()!=0);
     
     // specify parameters for ILU
-    //list.set("fact: drop tolerance", 1e-9);  // these should be input parameters from Tramonto
-    //list.set("fact: level-of-fill", 2);
-    list.set("relaxation: type", "Gauss-Seidel");
+    list.set("fact: drop tolerance", 1e-9);  // these should be input parameters from Tramonto
+    list.set("fact: level-of-fill", 2);
+    //list.set("relaxation: type", "Gauss-Seidel");
     
     // sets the parameters
     IFPACK_CHK_ERR(A22Inverse_->SetParameters(list));
@@ -139,16 +127,8 @@ int dft_A22Matrix_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epe
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
   TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
-  Epetra_MultiVector Y1(Y);
 
-  A22Inverse_->ApplyInverse(X, Y1);
-
-  double ** Y1ptrs;
-  Y1.ExtractView(&Y1ptrs);
-  Epetra_MultiVector Y2(View, *permBlock2Map_, Y1ptrs, Y1.NumVectors());
-  Y.Import(Y2, *permToStandardImport_, Insert);
-
-  return(0);
+  return(A22Inverse_->ApplyInverse(X, Y));
 }
 //==============================================================================
 int dft_A22Matrix_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
@@ -156,16 +136,5 @@ int dft_A22Matrix_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Mul
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
   TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
 
-  Epetra_MultiVector Y1(Y);
-
-  A22Matrix_.Apply(X, Y1);
-
-  double ** Y1ptrs;
-  Y1.ExtractView(&Y1ptrs);
-
-  Epetra_MultiVector Y2(View, *permBlock2Map_, Y1ptrs, Y1.NumVectors());
-  Y.Import(Y2, *permToStandardImport_, Insert);
-
-
-  return(0);
+  return(A22Matrix_->Apply(X, Y));
 }

@@ -36,8 +36,7 @@ class Epetra_LinearProblem;
 class AztecOO;
 class dft_HardSphereA11_Epetra_Operator;
 class dft_HardSphereA22_Epetra_Operator;
-class dft_HardSphereA22Full_Epetra_Operator;
-class dft_HardSphereA22Bsor_Epetra_Operator;
+class dft_A22Matrix_Epetra_Operator;
 class dft_Schur_Epetra_Operator;
 
 #include "dft_BasicLinProbMgr.hpp"
@@ -108,6 +107,14 @@ class dft_HardSphereLinProbMgr: public virtual dft_BasicLinProbMgr {
     for (int i=0; i<numDensityEquations; i++) densityEquations_[i] = physicsIDs[i];
     return(0);
   }
+
+  //! Method that allows assertion that A22 block will be diagonal matrix.
+  /*! Sets a bool that allows assertion that the A22 block will be strictly diagonal.  By default, we assume a general A22 block. 
+    \param isDiagonal (In) Set to true if you know that A22 is diagonal. Otherwise, set it false, or do not call this method since the default is false.
+  */
+  int setA22BlockIsDiagonal(bool isA22Diagonal) {
+    if (isBlockStructureSet_) return(-1); // Block structure is already set, calling this method is not effective.
+    isA22Diagonal_ = isA22Diagonal; return(0);}
 
   //! Method that must be called once, when all row and column maps are set.
   /*! This method constructs all of the Epetra_CrsGraph objects and the lhs and rhs vectors. 
@@ -198,7 +205,8 @@ protected:
   Teuchos::RefCountPtr<dft_HardSphereA11_Epetra_Operator> A11_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A12_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A21_;
-  Teuchos::RefCountPtr<dft_HardSphereA22_Epetra_Operator> A22_;
+  Teuchos::RefCountPtr<dft_A22Matrix_Epetra_Operator> A22Matrix_;
+  Teuchos::RefCountPtr<dft_HardSphereA22_Epetra_Operator> A22Diagonal_;
   Teuchos::RefCountPtr<Epetra_Map> block1RowMap_;
   Teuchos::RefCountPtr<Epetra_Map> block2RowMap_;
   Teuchos::RefCountPtr<Epetra_Map> indNonLocalRowMap_;
@@ -210,6 +218,7 @@ protected:
   Teuchos::RefCountPtr<Epetra_Vector> rhsSchur_;
   Teuchos::RefCountPtr<Epetra_Vector> lhs1_;
   Teuchos::RefCountPtr<Epetra_Vector> lhs2_;
+  bool isA22Diagonal_;
   bool debug_;
 	     
 };

@@ -78,6 +78,13 @@ extern "C" {
     return(linprobmgr_->setDensityEquationIDs(numgids, gids));
   }
 
+  int dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(void * linprobmgr, int isa22diagonal) {
+    dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
+    dft_HardSphereLinProbMgr * linprobmgr_  = dynamic_cast<dft_HardSphereLinProbMgr *>(tmp);
+    bool isA22Diagonal = (isa22diagonal!=0);
+    return(linprobmgr_->setA22BlockIsDiagonal(isA22Diagonal));
+  }
+
 #ifdef __cplusplus
 }
 #endif
