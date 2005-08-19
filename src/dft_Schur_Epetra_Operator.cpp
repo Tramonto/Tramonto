@@ -162,3 +162,12 @@ int dft_Schur_Epetra_Operator::ApplyGlobal(const Epetra_MultiVector& X1, const E
   Y2.Update(1.0, Y21, 1.0, Y22, 0.0);
   return(0);
 }
+//==============================================================================
+Teuchos::RefCountPtr<Epetra_CrsMatrix> dft_Schur_Epetra_Operator::getSchurComplement() {
+
+  if (S_.get()!=0) { // Form S
+    
+  }
+  abort(); // Not implemented
+  return(S_);
+}

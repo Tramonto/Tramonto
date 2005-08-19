@@ -37,6 +37,8 @@ class Epetra_BlockMap;
 class Epetra_Comm;
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_Operator.h"
+#include "Teuchos_RefCountPtr.hpp"
+#include "EpetraExt_MatrixMatrix.h"
 
 //! dft_Schur_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
 /*! Special 2-by-2 block operator for Tramonto polymer and explicit non-local density problems.
@@ -89,6 +91,9 @@ class dft_Schur_Epetra_Operator: public virtual Epetra_Operator {
   //! Apply global operator.
   int ApplyGlobal(const Epetra_MultiVector& X1, const Epetra_MultiVector& X2, Epetra_MultiVector& Y1, Epetra_MultiVector& Y2) const;
 
+  //! Explicitly form Schur complement as an Epetra_CrsMatrix and return a pointer to it.
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> getSchurComplement();
+
   //! Returns the infinity norm of the global matrix.
   /* Returns the quantity \f$ \| A \|_\infty\f$ such that
      \f[\| A \|_\infty = \max_{1\lei\lem} \sum_{j=1}^n |a_{ij}| \f].
@@ -124,6 +129,7 @@ class dft_Schur_Epetra_Operator: public virtual Epetra_Operator {
   Epetra_CrsMatrix * A12_; /*!< The 1,2 block of the 2 by 2 block matrix */
   Epetra_CrsMatrix * A21_; /*!< The 2,1 block of the 2 by 2 block matrix */
   Epetra_Operator * A22_; /*!< The 2,2 block of the 2 by 2 block matrix */
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> S_; /* Schur complement, if formed */
   char * Label_; /*!< Description of object */
 };
 
