@@ -38,7 +38,6 @@ class Epetra_Comm;
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_Map.h"
 #include "Epetra_Operator.h"
-#include "Teuchos_RefCountPtr.hpp"
 
 //! dft_PolyA11_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
