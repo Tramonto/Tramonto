@@ -124,6 +124,9 @@ class dft_A22Matrix_Epetra_Operator: public virtual Epetra_Operator {
   
   //! Returns the Epetra_Map object associated with the range of this operator.
   const Epetra_Map & OperatorRangeMap() const {return(block2Map_);};
+
+  //! Returns a pointer to the Epetra_CrsMatrix object that is the A22 matrix
+  Epetra_CrsMatrix * getA22Matrix() { return(A22Matrix_.get());}
   //@}
   
 private:

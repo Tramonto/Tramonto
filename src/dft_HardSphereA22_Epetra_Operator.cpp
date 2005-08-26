@@ -124,3 +124,25 @@ int dft_HardSphereA22_Epetra_Operator::Check(bool verbose) const {
   if (resid > 1.0E-12) return(-1); // Bad residual
   return(0);
 }
+//==============================================================================
+int dft_HardSphereA22_Epetra_Operator::formA22Matrix() {
+
+  if (A22Matrix_.get()==0) {
+    A22Matrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, OperatorRangeMap(), 1)); 
+    A22Matrix_->SetLabel("HardSphereA22::A22Matrix");
+
+    int numRows = OperatorRangeMap().NumMyElements();
+    for (int i=0; i<numRows; i++) {
+      int row = A22Matrix_->GRID(i);
+      double value = densityOnDensityMatrix_[i];
+      int col = row;
+      A22Matrix_->InsertGlobalValues(row, 1, &value, &col);
+    }
+  }
+  else 
+    A22Matrix_->ReplaceDiagonalValues(densityOnDensityMatrix_); 
+  
+  A22Matrix_->FillComplete();
+
+  return(0);
+}

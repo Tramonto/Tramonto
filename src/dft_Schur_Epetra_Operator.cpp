@@ -35,6 +35,7 @@
 #include "Epetra_Comm.h"
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
+#include "EpetraExt_MatrixMatrix.h"
 #include "Teuchos_TestForException.hpp"
 
 //==============================================================================
@@ -163,11 +164,61 @@ int dft_Schur_Epetra_Operator::ApplyGlobal(const Epetra_MultiVector& X1, const E
   return(0);
 }
 //==============================================================================
-Teuchos::RefCountPtr<Epetra_CrsMatrix> dft_Schur_Epetra_Operator::getSchurComplement() {
+Epetra_CrsMatrix * dft_Schur_Epetra_Operator::getSchurComplement() {
 
-  if (S_.get()!=0) { // Form S
-    
+  if (A11invMatrix_==0 || A22Matrix_==0) return(0);  // We cannot form S without the component matrices
+  if (S_.get()==0) { // Form S
+    A11invA12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, A12_->RowMap(), 0)); A11invA12_->SetLabel("SchurComplement::A11invA12");
+    A21A11invA12_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, A21_->RowMap(), 0)); A21A11invA12_->SetLabel("SchurComplement::A21A11invA12");
+    S_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, A21_->RowMap(), 0)); S_->SetLabel("SchurComplement::S");
   }
-  abort(); // Not implemented
-  return(S_);
+  
+  
+  
+  // Compute inv(A11)*A12
+  EpetraExt::MatrixMatrix::Multiply(*A11invMatrix_, false, *A12_, false, *A11invA12_);
+  // Compute A21A11invA12
+  EpetraExt::MatrixMatrix::Multiply(*A21_, false, *A11invA12_, false, *A21A11invA12_);
+  // Finally compute S = A22 - A21A11invA12, do this manually since EpetraExt does not have a kernel for this
+
+  //Initialize if S already filled
+  bool sfilled = S_->Filled();
+  if (sfilled) S_->PutScalar(0.0);
+
+  //Loop over rows and sum into
+  int maxNumEntries = EPETRA_MAX(A22Matrix_->MaxNumEntries(), A21A11invA12_->MaxNumEntries());
+  int NumEntries;
+  int * Indices = new int[maxNumEntries];
+  double * Values = new double[maxNumEntries];
+
+  int NumMyRows = S_->NumMyRows();
+  int Row, err;
+
+  for( int i = 0; i < NumMyRows; ++i ) {
+    Row = S_->GRID(i);
+    A22Matrix_->ExtractGlobalRowCopy( Row, maxNumEntries, NumEntries, Values, Indices );
+    if( sfilled ) {//Sum In Values
+      err = S_->SumIntoGlobalValues( Row, NumEntries, Values, Indices ); assert( err == 0 );
+    }
+    else {
+      err = S_->InsertGlobalValues( Row, NumEntries, Values, Indices ); assert( err == 0 || err == 1 );
+    }
+    A21A11invA12_->ExtractGlobalRowCopy( Row, maxNumEntries, NumEntries, Values, Indices );
+    for( int j = 0; j < NumEntries; ++j ) Values[j] = - Values[j];
+    if( sfilled ) {//Sum In Values
+      err = S_->SumIntoGlobalValues( Row, NumEntries, Values, Indices ); assert( err == 0 );
+    }
+    else {
+      err = S_->InsertGlobalValues( Row, NumEntries, Values, Indices ); assert( err == 0 || err == 1 );
+    }
+  }
+
+  delete [] Indices;
+  delete [] Values;
+
+
+  if( !sfilled )S_->FillComplete();
+  
+
+  return(S_.get());
 }

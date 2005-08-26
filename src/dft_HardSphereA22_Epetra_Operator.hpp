@@ -138,17 +138,25 @@ class dft_HardSphereA22_Epetra_Operator: public virtual Epetra_Operator {
   
   //! Returns the Epetra_Map object associated with the range of this operator.
   const Epetra_Map & OperatorRangeMap() const {return(block2Map_);};
+
+  //! Returns a pointer to the Epetra_CrsMatrix object that is the A22 matrix
+  Epetra_CrsMatrix * getA22Matrix() { 
+    formA22Matrix();
+    return(A22Matrix_.get());
+  }
   //@}
   
 private:
 
   Epetra_Map block2Map_;
   Epetra_Vector densityOnDensityMatrix_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> A22Matrix_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool firstTime_;
   Ifpack factory_;
+  int formA22Matrix();
 };
 
 #endif /* DFT_HARDSPHEREA22_EPETRA_OPERATOR_H */

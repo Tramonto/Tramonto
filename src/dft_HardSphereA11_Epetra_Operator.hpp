@@ -130,6 +130,12 @@ class dft_HardSphereA11_Epetra_Operator: public virtual Epetra_Operator {
   
   //! Returns the Epetra_Map object associated with the range of this operator.
   const Epetra_Map & OperatorRangeMap() const {return(block1Map_);};
+
+  //! Returns a pointer to the Epetra_CrsMatrix object that is the A22 matrix
+  Epetra_CrsMatrix * getA11invMatrix() { 
+    formA11invMatrix();
+    return(A11invMatrix_.get());
+  }
   //@}
 
 protected:
@@ -139,11 +145,13 @@ protected:
   Epetra_Map indNonLocalMap_;
   Epetra_Map depNonLocalMap_;
   Epetra_Map block1Map_;
-  Epetra_CrsMatrix * matrix_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> matrix_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> A11invMatrix_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool firstTime_;
+  int formA11invMatrix();
 };
 
 #endif /* DFT_HARDSPHEREA11_EPETRA_OPERATOR_H */

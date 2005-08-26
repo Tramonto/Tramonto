@@ -43,7 +43,6 @@ dft_HardSphereA11_Epetra_Operator::dft_HardSphereA11_Epetra_Operator(const Epetr
   : indNonLocalMap_(indNonLocalMap),
     depNonLocalMap_(depNonLocalMap),
     block1Map_(block1Map),
-    matrix_(0),
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
@@ -51,7 +50,7 @@ dft_HardSphereA11_Epetra_Operator::dft_HardSphereA11_Epetra_Operator(const Epetr
 
   Label_ = "dft_HardSphereA11_Epetra_Operator";
   if (depNonLocalMap_.NumGlobalElements()>0) {
-    matrix_ = new Epetra_CrsMatrix(Copy, depNonLocalMap_, 0);
+    matrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, depNonLocalMap_, 0));
     matrix_->SetLabel("HardSphere::A11::matrix");
   }
   
@@ -59,7 +58,6 @@ dft_HardSphereA11_Epetra_Operator::dft_HardSphereA11_Epetra_Operator(const Epetr
 }
 //==============================================================================
 dft_HardSphereA11_Epetra_Operator::~dft_HardSphereA11_Epetra_Operator() {
-  if (matrix_!=0) delete matrix_;
 }
 //=============================================================================
 int dft_HardSphereA11_Epetra_Operator::initializeProblemValues() {
@@ -68,7 +66,7 @@ int dft_HardSphereA11_Epetra_Operator::initializeProblemValues() {
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_)
-    if (matrix_!=0) 
+    if (matrix_.get()!=0) 
       return(matrix_->PutScalar(0.0));
   
   return(0);
@@ -78,7 +76,7 @@ int dft_HardSphereA11_Epetra_Operator::insertMatrixValue(int rowGID, int colGID,
 
 
  // All ind NonLocal entries are diagonal values and 1, so we don't store them
-  if (matrix_==0) return(0); // No dependent nonlocal entries at all
+  if (matrix_.get()==0) return(0); // No dependent nonlocal entries at all
   if (rowGID==colGID) return(0); // Don't keep diagonals
   if (!depNonLocalMap_.MyGID(rowGID)) return(0); // Isn't dependent nonlocal
   
@@ -95,7 +93,7 @@ int dft_HardSphereA11_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   if (firstTime_) 
-    if (matrix_!=0) {
+    if (matrix_.get()!=0) {
       matrix_->FillComplete(indNonLocalMap_, depNonLocalMap_);
       matrix_->OptimizeStorage();
     }
@@ -126,7 +124,7 @@ int dft_HardSphereA11_Epetra_Operator::doApply(const Epetra_MultiVector& X, Epet
   // | -B  -I | 
 
 
-  if (matrix_==0) {
+  if (matrix_.get()==0) {
     Y.Scale(-1.0, X); // Y = -X
     return(0);  // Nothing else to do
   }
@@ -192,5 +190,53 @@ int dft_HardSphereA11_Epetra_Operator::Check(bool verbose) const {
     std::cout << "A11 self-check residual = " << resid << endl;
 
   if (resid > 1.0E-12) return(-1); // Bad residual
+  return(0);
+}
+//==============================================================================
+int dft_HardSphereA11_Epetra_Operator::formA11invMatrix() {
+
+  bool firstTime = false;
+  if (A11invMatrix_.get()==0) {
+    A11invMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, OperatorRangeMap(), 0)); 
+    A11invMatrix_->SetLabel("HardSphereA11::A11invMatrix");
+    firstTime = true;
+  }
+  else A11invMatrix_->PutScalar(0.0); // reset values
+
+  // insert -I for diagonal first
+
+  int numRows = OperatorRangeMap().NumMyElements();
+  double value = -1.0;
+  for (int i=0; i<numRows; i++) {
+    int row = A11invMatrix_->GRID(i);
+    int col = row;
+    if (firstTime)
+      A11invMatrix_->InsertGlobalValues(row, 1, &value, &col);
+    else
+      A11invMatrix_->SumIntoGlobalValues(row, 1, &value, &col);
+  }
+  // Now insert lower triangle
+  numRows = depNonLocalMap_.NumMyElements(); // number of rows in lower triangle
+  if (numRows>0) {
+    int MaxNumEntries = matrix_->MaxNumEntries();
+    int NumEntries;
+    int * Indices = new int[MaxNumEntries];
+    double * Values = new double[MaxNumEntries];
+    for (int i=0; i<numRows; i++) {
+      int Row = matrix_->GRID(i);
+      EPETRA_CHK_ERR( matrix_->ExtractGlobalRowCopy( Row, MaxNumEntries, NumEntries, Values, Indices ) );
+      for( int j = 0; j < NumEntries; ++j ) Values[j] = - Values[j];
+      if( firstTime ) {//Sum In Values
+	int err = A11invMatrix_->InsertGlobalValues( Row, NumEntries, Values, Indices ); assert( err == 0 );
+      }
+      else {
+	int err = A11invMatrix_->SumIntoGlobalValues( Row, NumEntries, Values, Indices ); assert( err == 0 || err == 1 );
+      }
+    }
+    
+    delete [] Indices;
+    delete [] Values;
+  }
+  A11invMatrix_->FillComplete();
   return(0);
 }

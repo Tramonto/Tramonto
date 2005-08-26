@@ -60,9 +60,11 @@ class dft_HardSphereLinProbMgr: public virtual dft_BasicLinProbMgr {
                                guide and report solver status.
      \param comm (In) MPI communicator that should be used by the solver.
 
+     \param formSchurMatrix (In) Forces explicit construction of S = A22 - A21*inv(A11)*A12, if true.  Otherwise S is only applied implicitly.
+
      \param debug (In) Turns debug mode on if set to true, false by default.
   */
-  dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug = false);
+  dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool formSchurMatrix = false, bool debug = false);
 
   //! dft_HardSphereLinProbMgr Destructor.
   /*! Completely deletes a dft_HardSphereLinProbMgr object.
@@ -219,6 +221,7 @@ protected:
   Teuchos::RefCountPtr<Epetra_Vector> lhs1_;
   Teuchos::RefCountPtr<Epetra_Vector> lhs2_;
   bool isA22Diagonal_;
+  bool formSchurMatrix_;
   bool debug_;
 	     
 };

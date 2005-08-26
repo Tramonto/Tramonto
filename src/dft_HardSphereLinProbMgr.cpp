@@ -46,9 +46,10 @@
 
 
 //=============================================================================
-dft_HardSphereLinProbMgr::dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug) 
+dft_HardSphereLinProbMgr::dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool formSchurMatrix, bool debug) 
   : dft_BasicLinProbMgr(numUnknownsPerNode, solverOptions, solverParams, comm),
     isA22Diagonal_(false),
+    formSchurMatrix_(formSchurMatrix),
     debug_(debug) {
   //debug_=true;
 
@@ -247,7 +248,14 @@ int dft_HardSphereLinProbMgr::setupSolver() {
   if (!isLinearProblemSet_) return(-1);
 
   schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
-  
+
+  if (formSchurMatrix_) {// We have S explicitly available, so let's use it
+    if (isA22Diagonal_)
+      schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Diagonal_->getA22Matrix());
+    else
+      schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Matrix_->getA22Matrix());
+    implicitProblem_->SetOperator(schurOperator_->getSchurComplement());
+  }
   solver_ = Teuchos::rcp(new AztecOO(*implicitProblem_));
 
   if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);
