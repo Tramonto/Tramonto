@@ -391,10 +391,10 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
          /* to do --- every processor - loop through list - convert box unit elements to global elements */
          /* pass the global wall element array to processor zero.  For each entry in the passed array - proc 0 must look 
             for matches with other processor and discard duplicates - alternatively, we could allocate a global array, copy
-            all versions into this global array and then cound the wall element entries. */
+            all versions into this global array and then count the wall element entries. */
 
 
-          for (ilist=0;ilist<Nlists_HW;ilist++){
+/*          for (ilist=0;ilist<Nlists_HW;ilist++){
              Vol_in_surfs[ilist]=0.0;
 
              ntot_per_list=0;
@@ -434,12 +434,12 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
              safe_free((void *) &comm_offset_icount);
 
              if (Proc==0){
-                 ncount=ntot_per_list_all_procs; /*(start out assuming all entries are unique)*/
+                 ncount=ntot_per_list_all_procs; *(start out assuming all entries are unique)*
                  for (i=1;i<ntot_per_list_all_procs;i++){
                     j=0;
-                                                          /* increment j if no match is found */
+                                                          * increment j if no match is found *
                     while (j<i && elems_w_per_w_proc_0_tmp[i]!=elems_w_per_w_proc_0_tmp[j]){j++;} 
-                    if (j != i) ncount--;  /* deincrement the counter if there was a match */
+                    if (j != i) ncount--;  * deincrement the counter if there was a match *
                  }
                  safe_free((void *) &elems_w_per_w_proc_0_tmp);
              }
@@ -450,6 +450,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
                          ilist,Vol_in_surfs[ilist],ncount);
              }
           }
+*/
 
      }
 
