@@ -395,7 +395,7 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
   int i, j, resid_only_flag;
   double l2_resid;
 
-  if (matflag == RHS_ONLY || matflag == RHS_MATRIX_SAVE) {
+  if (matflag == RHS_ONLY) {
       resid_only_flag = TRUE;
       (void) dft_linprobmgr_setrhs(LinProbMgr_manager, passdown.zerovec);
   }
