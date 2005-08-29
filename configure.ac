@@ -38,6 +38,41 @@ dnl
 AC_INIT(Tramonto, 1.0, ljfrink@sandia.gov, tramonto)
 AC_PREREQ(2.57)
 AC_CONFIG_SRCDIR([src/dft_main.c])
+AM_CONFIG_HEADER([src/Tramonto_config.h:src/Tramonto_config.h.in])
+
+dnl Specify directory for auxillary build tools (e.g., install-sh,
+dnl config.sub, config.guess) and M4 files.
+AC_CONFIG_AUX_DIR(config)
+dnl Allow users to specify their own "install" command.  If none is specified,
+dnl the default is install-sh found in the config subdirectory.
+                                                                                
+AC_ARG_WITH(install,
+ [AC_HELP_STRING([--with-install=INSTALL_PROGRAM],
+ [Use the installation program INSTALL_PROGRAM rather the default that is provided.  For example --with-install="/path/install -p"])],
+ [
+   INSTALL=$withval
+   INSTALL_PROGRAM=$withval
+   INSTALL_SCRIPT=$withval
+   INSTALL_DATA="$withval -m 644"
+ ],)
+                                                                                
+dnl AM_MAINTAINER_MODE turns off maintainer-only makefile targets by
+dnl default, and changes configure to understand a
+dnl --enable-maintainer-mode option. --enable-maintainer-mode turns the
+dnl maintainer-only targets back on. The maintainer-only makefile
+dnl targets permit end users to clean automatically-generated files such
+dnl as configure, which means they have to have autoconf and automake
+dnl installed to repair the damage. AM_MAINTAINER_MODE makes it a bit
+dnl harder for users to shoot themselves in the foot.
+                                                                                
+AM_MAINTAINER_MODE
+                                                                                
+dnl Define $build, $host, $target, etc
+                                                                                
+AC_CANONICAL_TARGET
+                                                                                
+dnl  Required version of automake.
+AM_INIT_AUTOMAKE(1.8.2)
 
 dnl
 dnl see if a specifc C compiler was specified
@@ -82,11 +117,6 @@ AC_ARG_WITH( [ldflags],
                [LIBS="${LIBS} ${withval}"])
 
 dnl
-dnl set up to use make
-dnl
-AC_PROG_MAKE_SET
-
-dnl
 dnl check for ranlib incase uses wants to build library
 dnl
 AC_PROG_RANLIB
@@ -102,6 +132,32 @@ dnl
 dnl check for fortran to C libraries
 dnl
 AC_F77_LIBRARY_LDFLAGS
+
+dnl ------------------------------------------------------------------------
+dnl Checks if examples and GUI support should be built
+dnl ------------------------------------------------------------------------
+                                                               
+dnl If a test directory is ever added, add a check for tests to the
+dnl Checks for libraries section below.                 
+dnl TAC_ARG_ENABLE_FEATURE(tests, [Build Tramonto tests], TESTS, yes)
+dnl AM_CONDITIONAL(BUILD_TESTS, test "X$ac_cv_use_tests" != "Xno")                                                                                
+TAC_ARG_ENABLE_FEATURE(examples, [Build Tramonto examples], EXAMPLES, yes)
+AM_CONDITIONAL(BUILD_EXAMPLES, test "X$ac_cv_use_examples" != "Xno")
+
+TAC_ARG_ENABLE_FEATURE(gui, [Build Tramonto GUI], GUI, yes)
+AM_CONDITIONAL(BUILD_GUI, test "X$ac_cv_use_gui" != "Xno")
+
+dnl Option to turn off checks for third-party libraries                                                                                
+TAC_ARG_ENABLE_FEATURE(libcheck, [Check for some third-party libraries including BLAS and LAPACK.  (Cannot be disabled unless tests and examples are also disabled.)], LIBCHECK, yes)
+
+dnl ------------------------------------------------------------------------
+dnl Checks for libraries
+dnl ------------------------------------------------------------------------
+                                                                                
+dnl If a test directory is ever added, add a check for tests here
+dnl If examples and libcheck are disabled, we don't have to check
+dnl for these libraries.
+if test "X$ac_cv_use_examples" != "Xno" || test "X$ac_cv_use_libcheck" != "Xno"; then
 
 dnl
 dnl check for math library
@@ -132,8 +188,10 @@ AC_LANG_CPLUSPLUS
 AC_CHECK_LIB( [aztecoo], 
               [AZ_iterate],
               [LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos ${FLIBS} $LIBS"],
-              [AC_MSG_FAILURE([Cannot link to AztecOO library.])], 
+              [AC_MSG_FAILURE([Cannot link to AztecOO, Triutils, Ifpack, EpetraExt, Epetra, or Teuchos library.])], 
               [-ltriutils -lifpack -lepetraext -lepetra -lteuchos ${FLIBS}])
+
+fi
 
 dnl
 dnl If we're not using an mpi compiler, then see if we can find
@@ -150,7 +208,10 @@ fi;
 dnl
 dnl piont to the make files
 dnl
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([
+		Makefile
+		src/Makefile
+		Examples/Makefile])
 
 dnl
 dnl make the output
