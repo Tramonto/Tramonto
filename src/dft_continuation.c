@@ -341,10 +341,12 @@ int linear_solver_conwrap(double *x, int jac_flag, double *tmp)
  *    Negative value means linear solver didn't converge.
  */
 {
-  int i;
+  int i,j;
 
-  translate_1dOwned_2dBox(x, passdown.xBox);
-  (void) dft_linprobmgr_setrhs(LinProbMgr_manager, passdown.xBox);
+  for (i=0; i<Nunk_per_node; i++)
+    for (j=0; j<Nnodes_per_proc; j++)
+      passdown.xOwned[i][j] = x[i*Nnodes_per_proc + j];
+  (void) dft_linprobmgr_setrhs(LinProbMgr_manager, passdown.xOwned);
 
   if (jac_flag == OLD_JACOBIAN || jac_flag == CHECK_JACOBIAN) {
     /* reuse the preconditioner for this same matrix */
