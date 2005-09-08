@@ -42,6 +42,9 @@ class dft_Schur_Epetra_Operator;
 #include "dft_BasicLinProbMgr.hpp"
 #include "Epetra_MpiComm.h"
 #include "Teuchos_RefCountPtr.hpp"
+#include <map>
+#include "Epetra_IntSerialDenseVector.h"
+#include "Epetra_SerialDenseVector.h"
 
 //! dft_HardSphereLinProbMgr:  Solver manager class for Tramonto using Trilinos.
 /*! The dft_HardSphereLinProbMgr class supports solver capabilities for Tramonto.
@@ -201,6 +204,8 @@ class dft_HardSphereLinProbMgr: public virtual dft_BasicLinProbMgr {
 
 protected:
 
+  int insertRowA12();
+  int insertRowA21();
   Epetra_IntSerialDenseVector indNonLocalEquations_;
   Epetra_IntSerialDenseVector depNonLocalEquations_;
   Epetra_IntSerialDenseVector densityEquations_;  
@@ -223,6 +228,14 @@ protected:
   bool isA22Diagonal_;
   bool formSchurMatrix_;
   bool debug_;
+  int curRowA12_;
+  std::map<int, double> curRowValuesA12_;
+  Epetra_IntSerialDenseVector indicesA12_;
+  Epetra_SerialDenseVector valuesA12_;
+  int curRowA21_;
+  std::map<int, double> curRowValuesA21_;
+  Epetra_IntSerialDenseVector indicesA21_;
+  Epetra_SerialDenseVector valuesA21_;
 	     
 };
 

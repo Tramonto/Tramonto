@@ -44,7 +44,8 @@ dft_A22Matrix_Epetra_Operator::dft_A22Matrix_Epetra_Operator(const Epetra_Map & 
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
-    firstTime_(true) {
+    firstTime_(true),
+    curRow_(-1) {
 
   A22Matrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, block2Map, 0));
   Label_ = "dft_A22Matrix_Epetra_Operator";
@@ -68,17 +69,42 @@ int dft_A22Matrix_Epetra_Operator::initializeProblemValues() {
 int dft_A22Matrix_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
   
   
-  if (firstTime_)
-    A22Matrix_->InsertGlobalValues(rowGID, 1, &value, &colGID);
+  if (firstTime_) {
+    if (rowGID!=curRow_) { 
+      insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+      curRow_=rowGID;
+    }
+    curRowValues_[colGID] += value;
+  }
   else
     A22Matrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
 
   return(0);
 }
 //=============================================================================
+int dft_A22Matrix_Epetra_Operator::insertRow() {
+  if (curRowValues_.empty()) return(0);
+  int numEntries = curRowValues_.size();
+  if (numEntries>indices_.Length()) {
+    indices_.Resize(numEntries);
+    values_.Resize(numEntries);
+  }
+  int i=0;
+  std::map<int, double>::iterator pos;
+  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
+    indices_[i] = pos->first;
+    values_[i++] = pos->second;
+  }
+  A22Matrix_->InsertGlobalValues(curRow_, numEntries, values_.Values(), indices_.Values());
+
+  curRowValues_.clear();
+  return(0);
+}
+//=============================================================================
 int dft_A22Matrix_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
+  insertRow(); // Dump any remaining entries
   A22Matrix_->FillComplete();
   A22Matrix_->OptimizeStorage();
   //EpetraExt::RowMatrixToMatrixMarketFile( "A22.dat", A22Matrix_, "CMS and Density blocks", 

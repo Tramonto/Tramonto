@@ -58,7 +58,8 @@ dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOpt
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
     groupByPhysics_(true),
-    firstTime_(true) {
+    firstTime_(true),
+    curRow_(-1) {
 
   //int tmp;
   //if (comm_.MyPID()==0) std::cin>>tmp;
@@ -164,11 +165,35 @@ int dft_BasicLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, in
 
   int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   int colGID = boxToSolverGID(boxPhysicsID, boxNode);
-  if (firstTime_)
-    globalMatrix_->InsertGlobalValues(rowGID, 1, &value, &colGID);
+  if (firstTime_) {
+    if (rowGID!=curRow_) { 
+      insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+      curRow_=rowGID;
+    }
+    curRowValues_[colGID] += value;
+  }
   else
     globalMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
   
+  return(0);
+}
+//=============================================================================
+int dft_BasicLinProbMgr::insertRow() {
+  if (curRowValues_.empty()) return(0);
+  int numEntries = curRowValues_.size();
+  if (numEntries>indices_.Length()) {
+    indices_.Resize(numEntries);
+    values_.Resize(numEntries);
+  }
+  int i=0;
+  std::map<int, double>::iterator pos;
+  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
+    indices_[i] = pos->first;
+    values_[i++] = pos->second;
+  }
+  globalMatrix_->InsertGlobalValues(curRow_, numEntries, values_.Values(), indices_.Values());
+
+  curRowValues_.clear();
   return(0);
 }
 //=============================================================================

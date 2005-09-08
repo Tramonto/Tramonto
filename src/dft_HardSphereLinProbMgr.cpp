@@ -50,7 +50,9 @@ dft_HardSphereLinProbMgr::dft_HardSphereLinProbMgr(int numUnknownsPerNode, int *
   : dft_BasicLinProbMgr(numUnknownsPerNode, solverOptions, solverParams, comm),
     isA22Diagonal_(false),
     formSchurMatrix_(formSchurMatrix),
-    debug_(debug) {
+    debug_(debug),
+    curRowA12_(-1),
+    curRowA21_(-1) {
   //debug_=true;
 
 
@@ -200,14 +202,24 @@ int dft_HardSphereLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNod
      A22Matrix_->insertMatrixValue(rowGID, colGID, value); 
   }
   else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
-    if (firstTime_)
-      A21_->InsertGlobalValues(rowGID, 1, &value, &colGID);
+    if (firstTime_) {
+      if (rowGID!=curRowA21_) { 
+	insertRowA21();  // Dump the current contents of curRowValues_ into matrix and clear map
+	curRowA21_=rowGID;
+      }
+      curRowValuesA21_[colGID] += value;
+    }
     else
       A21_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
   }
   else { // A12 block
-    if (firstTime_)
-      A12_->InsertGlobalValues(rowGID, 1, &value, &colGID);
+    if (firstTime_) {
+      if (rowGID!=curRowA12_) { 
+	insertRowA12();  // Dump the current contents of curRowValues_ into matrix and clear map
+	curRowA12_=rowGID;
+      }
+      curRowValuesA12_[colGID] += value;
+    } 
     else
       A12_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
   }
@@ -217,12 +229,52 @@ int dft_HardSphereLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNod
   return(0);
 }
 //=============================================================================
+int dft_HardSphereLinProbMgr::insertRowA12() {
+  if (curRowValuesA12_.empty()) return(0);
+  int numEntries = curRowValuesA12_.size();
+  if (numEntries>indicesA12_.Length()) {
+    indicesA12_.Resize(numEntries);
+    valuesA12_.Resize(numEntries);
+  }
+  int i=0;
+  std::map<int, double>::iterator pos;
+  for (pos = curRowValuesA12_.begin(); pos != curRowValuesA12_.end(); ++pos) {
+    indicesA12_[i] = pos->first;
+    valuesA12_[i++] = pos->second;
+  }
+   A12_->InsertGlobalValues(curRowA12_, numEntries, valuesA12_.Values(), indicesA12_.Values());
+
+  curRowValuesA12_.clear();
+  return(0);
+}
+//=============================================================================
+int dft_HardSphereLinProbMgr::insertRowA21() {
+  if (curRowValuesA21_.empty()) return(0);
+  int numEntries = curRowValuesA21_.size();
+  if (numEntries>indicesA21_.Length()) {
+    indicesA21_.Resize(numEntries);
+    valuesA21_.Resize(numEntries);
+  }
+  int i=0;
+  std::map<int, double>::iterator pos;
+  for (pos = curRowValuesA21_.begin(); pos != curRowValuesA21_.end(); ++pos) {
+    indicesA21_[i] = pos->first;
+    valuesA21_[i++] = pos->second;
+  }
+   A21_->InsertGlobalValues(curRowA21_, numEntries, valuesA21_.Values(), indicesA21_.Values());
+
+  curRowValuesA21_.clear();
+  return(0);
+}
+//=============================================================================
 int dft_HardSphereLinProbMgr::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   if (firstTime_) {
+    insertRowA12(); // Dump any remaining entrie
     A12_->FillComplete(*block2RowMap_,*block1RowMap_);
     A12_->OptimizeStorage();
+    insertRowA21(); // Dump any remaining entrie
     A21_->FillComplete(*block1RowMap_,*block2RowMap_);
     A21_->OptimizeStorage();
 

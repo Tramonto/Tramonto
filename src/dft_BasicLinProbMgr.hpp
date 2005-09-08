@@ -37,6 +37,9 @@ class Epetra_Operator;
 class AztecOO;
 #include "Epetra_MpiComm.h"
 #include "Teuchos_RefCountPtr.hpp"
+#include <map>
+#include "Epetra_IntSerialDenseVector.h"
+#include "Epetra_SerialDenseVector.h"
 
 //! dft_BasicLinProbMgr:  Solver manager class for Tramonto using Trilinos.
 /*! The dft_BasicLinProbMgr class supports solver capabilities for Tramonto.
@@ -316,7 +319,9 @@ protected:
     else
       return(boxPhysicsID + numUnknownsPerNode_*boxMap_->GID(boxNode));
   }
-	     
+
+protected:	     
+  int insertRow();
   int numUnknownsPerNode_;
   int * solverOptions_;
   double * solverParams_;
@@ -341,6 +346,10 @@ protected:
   bool isLinearProblemSet_;
   bool groupByPhysics_;
   bool firstTime_;
+  int curRow_;
+  std::map<int, double> curRowValues_;
+  Epetra_IntSerialDenseVector indices_;
+  Epetra_SerialDenseVector values_;
 
 
 

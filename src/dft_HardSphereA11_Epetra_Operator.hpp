@@ -39,6 +39,9 @@ class Epetra_Comm;
 #include "Epetra_Map.h"
 #include "Epetra_Operator.h"
 #include "Teuchos_RefCountPtr.hpp"
+#include <map>
+#include "Epetra_IntSerialDenseVector.h"
+#include "Epetra_SerialDenseVector.h"
 
 //! dft_HardSphereA11_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
@@ -140,6 +143,7 @@ class dft_HardSphereA11_Epetra_Operator: public virtual Epetra_Operator {
 
 protected:
 
+  int insertRow();
   int doApply(const Epetra_MultiVector& X, Epetra_MultiVector& Y, bool inverse) const;
 
   Epetra_Map indNonLocalMap_;
@@ -151,6 +155,10 @@ protected:
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool firstTime_;
+  int curRow_;
+  std::map<int, double> curRowValues_;
+  Epetra_IntSerialDenseVector indices_;
+  Epetra_SerialDenseVector values_;
   int formA11invMatrix();
 };
 

@@ -41,6 +41,9 @@ class Epetra_Comm;
 #include "Epetra_Operator.h"
 #include "Ifpack.h"
 #include "Teuchos_RefCountPtr.hpp"
+#include <map>
+#include "Epetra_IntSerialDenseVector.h"
+#include "Epetra_SerialDenseVector.h"
 
 //! dft_A22Matrix_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
@@ -131,6 +134,7 @@ class dft_A22Matrix_Epetra_Operator: public virtual Epetra_Operator {
   
 private:
 
+  int insertRow();
   Epetra_Map block2Map_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A22Matrix_;
   Teuchos::RefCountPtr<Ifpack_Preconditioner> A22Inverse_;
@@ -138,6 +142,10 @@ private:
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool firstTime_;
+  int curRow_;
+  std::map<int, double> curRowValues_;
+  Epetra_IntSerialDenseVector indices_;
+  Epetra_SerialDenseVector values_;
   Ifpack factory_;
 };
 

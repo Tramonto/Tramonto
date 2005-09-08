@@ -46,7 +46,8 @@ dft_HardSphereA11_Epetra_Operator::dft_HardSphereA11_Epetra_Operator(const Epetr
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
-    firstTime_(true) {
+    firstTime_(true),
+    curRow_(-1) {
 
   Label_ = "dft_HardSphereA11_Epetra_Operator";
   if (depNonLocalMap_.NumGlobalElements()>0) {
@@ -81,11 +82,35 @@ int dft_HardSphereA11_Epetra_Operator::insertMatrixValue(int rowGID, int colGID,
   if (!depNonLocalMap_.MyGID(rowGID)) return(0); // Isn't dependent nonlocal
   
 
-  if (firstTime_)
-    return(matrix_->InsertGlobalValues(rowGID, 1, &value, &colGID));
+  if (firstTime_) {
+    if (rowGID!=curRow_) { 
+      insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+      curRow_=rowGID;
+    }
+    curRowValues_[colGID] += value;
+  }
   else
     return(matrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID));
   
+  return(0);
+}
+//=============================================================================
+int dft_HardSphereA11_Epetra_Operator::insertRow() {
+  if (curRowValues_.empty()) return(0);
+  int numEntries = curRowValues_.size();
+  if (numEntries>indices_.Length()) {
+    indices_.Resize(numEntries);
+    values_.Resize(numEntries);
+  }
+  int i=0;
+  std::map<int, double>::iterator pos;
+  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
+    indices_[i] = pos->first;
+    values_[i++] = pos->second;
+  }
+  matrix_->InsertGlobalValues(curRow_, numEntries, values_.Values(), indices_.Values());
+
+  curRowValues_.clear();
   return(0);
 }
 //=============================================================================
@@ -94,6 +119,7 @@ int dft_HardSphereA11_Epetra_Operator::finalizeProblemValues() {
 
   if (firstTime_) 
     if (matrix_.get()!=0) {
+      insertRow(); // Dump any remaining entries
       matrix_->FillComplete(indNonLocalMap_, depNonLocalMap_);
       matrix_->OptimizeStorage();
     }
