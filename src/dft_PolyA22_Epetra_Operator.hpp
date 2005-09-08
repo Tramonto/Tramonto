@@ -41,6 +41,9 @@ class Epetra_Comm;
 #include "Epetra_Operator.h"
 #include "Ifpack.h"
 #include "Teuchos_RefCountPtr.hpp"
+#include <map>
+#include "Epetra_IntSerialDenseVector.h"
+#include "Epetra_SerialDenseVector.h"
 
 //! dft_PolyA22_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
@@ -155,6 +158,7 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
   
 private:
 
+  int insertRow();
   Epetra_Map cmsMap_;
   Epetra_Map densityMap_;
   Epetra_Map block2Map_;
@@ -167,6 +171,10 @@ private:
   bool isLinearProblemSet_;
   bool isFLinear_;
   bool firstTime_;
+  int curRow_;
+  std::map<int, double> curRowValues_;
+  Epetra_IntSerialDenseVector indices_;
+  Epetra_SerialDenseVector values_;
   Ifpack factory_;
 };
 

@@ -47,7 +47,8 @@ dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsM
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
     isFLinear_(false),
-    firstTime_(true) {
+    firstTime_(true),
+    curRow_(-1) {
 
   cmsOnDensityMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, densityMap, 0));
   cmsOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
@@ -82,11 +83,17 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
     if (rowGID==colGID)
       (*cmsOnCmsMatrix_)[cmsMap_.LID(rowGID)] += value; // Storing this cms block in a vector since it is diagonal
     else {
-      int newRowGID = densityMap_.GID(cmsMap_.LID(rowGID));
-      if (firstTime_)
-	cmsOnDensityMatrix_->InsertGlobalValues(newRowGID, 1, &value, &colGID);
-      else if (!isFLinear_)
+      if (firstTime_) {
+	if (rowGID!=curRow_) { 
+	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+	  curRow_=rowGID;
+	}
+	curRowValues_[colGID] += value;
+      }
+      else if (!isFLinear_) {
+	int newRowGID = densityMap_.GID(cmsMap_.LID(rowGID));
 	cmsOnDensityMatrix_->SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
+      }
     }
   }
   else {
@@ -99,11 +106,32 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
   return(0);
 }
 //=============================================================================
+int dft_PolyA22_Epetra_Operator::insertRow() {
+  if (curRowValues_.empty()) return(0);
+  int numEntries = curRowValues_.size();
+  if (numEntries>indices_.Length()) {
+    indices_.Resize(numEntries);
+    values_.Resize(numEntries);
+  }
+  int i=0;
+  std::map<int, double>::iterator pos;
+  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
+    indices_[i] = pos->first;
+    values_[i++] = pos->second;
+  }
+  int newRowGID = densityMap_.GID(cmsMap_.LID(curRow_));
+  cmsOnDensityMatrix_->InsertGlobalValues(newRowGID, numEntries, values_.Values(), indices_.Values());
+
+  curRowValues_.clear();
+  return(0);
+}
+//=============================================================================
 int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   //cmsOnDensityMatrix_->FillComplete(densityMap_, cmsMap_);
   if (!isFLinear_) {
+    insertRow(); // Dump any remaining entries
     cmsOnDensityMatrix_->FillComplete();
     cmsOnDensityMatrix_->OptimizeStorage();
   }
