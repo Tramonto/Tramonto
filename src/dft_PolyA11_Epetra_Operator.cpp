@@ -47,7 +47,10 @@ dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & owne
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
-    firstTime_(true) {
+    firstTime_(true),
+    curRow_(-1),
+    curOwnedPhysicsID_(-1),
+    curOwnedNode_(-1) {
 
   Label_ = "dft_PolyA11_Epetra_Operator";
   matrix_ = new Epetra_CrsMatrix*[numBlocks_];
@@ -79,11 +82,37 @@ int dft_PolyA11_Epetra_Operator::insertMatrixValue(int ownedPhysicsID, int owned
 
   if (rowGID!=colGID) value = -value; // negate off-diagonal values to simplify kernel calls
 
-  if (firstTime_)
-    matrix_[ownedPhysicsID]->InsertGlobalValues(ownedNode, 1, &value, &colGID);
+  if (firstTime_) {
+    if (rowGID!=curRow_) { 
+      insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+      curRow_=rowGID;
+      curOwnedPhysicsID_ = ownedPhysicsID;
+      curOwnedNode_ = ownedNode;
+    }
+    curRowValues_[colGID] += value;
+  }
   else
     matrix_[ownedPhysicsID]->SumIntoGlobalValues(ownedNode, 1, &value, &colGID);
   
+  return(0);
+}
+//=============================================================================
+int dft_PolyA11_Epetra_Operator::insertRow() {
+  if (curRowValues_.empty()) return(0);
+  int numEntries = curRowValues_.size();
+  if (numEntries>indices_.Length()) {
+    indices_.Resize(numEntries);
+    values_.Resize(numEntries);
+  }
+  int i=0;
+  std::map<int, double>::iterator pos;
+  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
+    indices_[i] = pos->first;
+    values_[i++] = pos->second;
+  }
+  matrix_[curOwnedPhysicsID_]->InsertGlobalValues(curOwnedNode_, numEntries, values_.Values(), indices_.Values());
+
+  curRowValues_.clear();
   return(0);
 }
 //=============================================================================
@@ -91,6 +120,7 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   if (firstTime_) 
+    insertRow(); // Dump any remaining entries
     for (int i=0; i<numBlocks_; i++) {
       matrix_[i]->FillComplete(block1Map_, ownedMap_);
       matrix_[i]->OptimizeStorage();

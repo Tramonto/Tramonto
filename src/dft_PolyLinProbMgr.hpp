@@ -41,6 +41,9 @@ class dft_Schur_Epetra_Operator;
 #include "dft_BasicLinProbMgr.hpp"
 #include "Epetra_MpiComm.h"
 #include "Teuchos_RefCountPtr.hpp"
+#include <map>
+#include "Epetra_IntSerialDenseVector.h"
+#include "Epetra_SerialDenseVector.h"
 
 //! dft_PolyLinProbMgr:  Solver manager class for Tramonto using Trilinos.
 /*! The dft_PolyLinProbMgr class supports solver capabilities for Tramonto.
@@ -214,6 +217,8 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
 
 protected:
 
+  int insertRowA12();
+  int insertRowA21();
   Epetra_IntSerialDenseVector gEquations_;
   Epetra_IntSerialDenseVector gInvEquations_;
   Epetra_IntSerialDenseVector cmsEquations_;
@@ -235,6 +240,14 @@ protected:
   Teuchos::RefCountPtr<Epetra_Vector> lhs2_;
   bool isLinear_;
   bool debug_;
+  int curRowA12_;
+  std::map<int, double> curRowValuesA12_;
+  Epetra_IntSerialDenseVector indicesA12_;
+  Epetra_SerialDenseVector valuesA12_;
+  int curRowA21_;
+  std::map<int, double> curRowValuesA21_;
+  Epetra_IntSerialDenseVector indicesA21_;
+  Epetra_SerialDenseVector valuesA21_;
 	     
 };
 

@@ -38,6 +38,9 @@ class Epetra_Comm;
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_Map.h"
 #include "Epetra_Operator.h"
+#include <map>
+#include "Epetra_IntSerialDenseVector.h"
+#include "Epetra_SerialDenseVector.h"
 
 //! dft_PolyA11_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
@@ -131,7 +134,9 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   const Epetra_Map & OperatorRangeMap() const {return(block1Map_);};
   //@}
   
+private:
 
+  int insertRow();
   Epetra_Map ownedMap_;
   Epetra_Map block1Map_;
   int numBlocks_;
@@ -139,6 +144,12 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
+  int curRow_;
+  int curOwnedPhysicsID_;
+  int curOwnedNode_;
+  std::map<int, double> curRowValues_;
+  Epetra_IntSerialDenseVector indices_;
+  Epetra_SerialDenseVector values_;
   bool firstTime_;
 };
 
