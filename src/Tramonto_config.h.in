@@ -3,9 +3,6 @@
 /* Define if want to build examples */
 #undef HAVE_EXAMPLES
 
-/* Define if want to build gui */
-#undef HAVE_GUI
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 

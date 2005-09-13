@@ -87,7 +87,7 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	uninstall-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = src Examples TramontoGUI
+DIST_SUBDIRS = src Examples
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -109,8 +109,6 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BUILD_EXAMPLES_FALSE = @BUILD_EXAMPLES_FALSE@
 BUILD_EXAMPLES_TRUE = @BUILD_EXAMPLES_TRUE@
-BUILD_GUI_FALSE = @BUILD_GUI_FALSE@
-BUILD_GUI_TRUE = @BUILD_GUI_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -227,8 +225,11 @@ MAINTAINERCLEANFILES = Makefile.in aclocal.m4 autom4te.cache/* \
 #TEST_SUBDIR=TEST
 #endif
 @BUILD_EXAMPLES_TRUE@EXAMPLE_SUBDIR = Examples
-@BUILD_GUI_TRUE@GUI_SUBDIR = TramontoGUI
-SUBDIRS = src $(EXAMPLE_SUBDIR) $(GUI_SUBDIR)
+
+#if BUILD_GUI
+#GUI_SUBDIR=TramontoGUI
+#endif
+SUBDIRS = src $(EXAMPLE_SUBDIR)
 all: all-recursive
 
 .SUFFIXES:

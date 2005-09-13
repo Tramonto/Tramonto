@@ -144,8 +144,8 @@ dnl AM_CONDITIONAL(BUILD_TESTS, test "X$ac_cv_use_tests" != "Xno")
 TAC_ARG_ENABLE_FEATURE(examples, [Build Tramonto examples], EXAMPLES, yes)
 AM_CONDITIONAL(BUILD_EXAMPLES, test "X$ac_cv_use_examples" != "Xno")
 
-TAC_ARG_ENABLE_FEATURE(gui, [Build Tramonto GUI], GUI, yes)
-AM_CONDITIONAL(BUILD_GUI, test "X$ac_cv_use_gui" != "Xno")
+#TAC_ARG_ENABLE_FEATURE(gui, [Build Tramonto GUI], GUI, yes)
+#AM_CONDITIONAL(BUILD_GUI, test "X$ac_cv_use_gui" != "Xno")
 
 dnl Option to turn off checks for third-party libraries                                                                                
 TAC_ARG_ENABLE_FEATURE(libcheck, [Check for some third-party libraries including BLAS and LAPACK.  (Cannot be disabled unless tests and examples are also disabled.)], LIBCHECK, yes)
