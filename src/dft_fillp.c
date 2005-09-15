@@ -86,7 +86,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
     if (Mesh_coarsening && Nwall_type >0) mesh_coarsen_flag_i = Mesh_coarsen_flag[inode_box];
     else                                  mesh_coarsen_flag_i = 0;
 
-    for (iunk=iunk_start; iunk<iunk_end; iunk++) {               
+    for (iunk=iunk_start; iunk<iunk_end; iunk++) {          
 
     resid_B=0.0;resid_R=0.0;resid_G=0.0;resid_P=0.0;
 
@@ -326,7 +326,8 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
       }      /* end of else (not Zero_density and mesh_coarsen_flag_i >= 0) */
 
 /*     if (fabs(resid_B)>1.e-3 ||fabs(resid_R)>1.e-3 ||fabs(resid_G)>1.e-3){
-       printf("%d %d %d  %9.6f %9.6f %9.6f %9.6f \n",iunk+Nunk_per_node*loc_inode,inode_box,iunk, resid_B,resid_R,resid_G,resid_P);
+       printf("Proc:%d loc_i:%d inode_box:%d iunk: %d B2G_n:%d L2G_node:%d  %9.6f %9.6f %9.6f %9.6f \n",
+                Proc,iunk+Nunk_per_node*loc_inode,inode_box,iunk, B2G_node[inode_box],L2G_node[loc_inode],resid_B,resid_R,resid_G,resid_P);
      } */
 
     } /* end ofloop over number of unknowns per node */
@@ -421,7 +422,7 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
 
      /* Find the Stencil point */
      jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-     if (jnode_box >= 0 && !Zero_density_TF[jnode_box][unk[nunk-1]]) {
+     if (jnode_box >= 0 && !Zero_density_TF[jnode_box][unk[nunk-1]-Phys2Unk_first[CMS_FIELD]]) {
         if (Lhard_surf) {
            if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
            weight = HW_boundary_weight 
@@ -490,9 +491,10 @@ double load_polymer_cr(int sten_type,int iunk,int loc_inode,int inode_box,int it
          resid=0.0;
          if (jnode_box >= 0 ) {
             if (Lhard_surf) {
-                if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
+                if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) {
                    weight = HW_boundary_weight 
                     (jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+                }
                 else weight = weight_bulk;
             }
             else weight = weight_bulk;
