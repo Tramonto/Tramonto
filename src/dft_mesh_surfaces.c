@@ -498,7 +498,7 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
                             double **image_pos)
 {
    int iel, iel_box,inode, idim, ilist;
-   double xtest[3], node_pos[3];
+   double xtest[3], node_pos[3],length;
    double r12_sq_sum, r12, dx, radius,sten,delr,roff=0.00000000001;
 
    sten=0.0;
@@ -522,6 +522,7 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
          }
    
          radius = WallParam[itype];
+         length = WallParam_2[itype];
          if(Lhard_surf && ilist != Nlists_HW-1)  
                      radius += 0.5*Sigma_wf[ilist][itype];
 
@@ -535,7 +536,8 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
          }
          r12 = sqrt(r12_sq_sum);
 
-         if (r12 <= radius ) 
+         if (r12 <= radius && 
+             fabs(xtest[Orientation[itype]]-image_pos[iwall][Orientation[itype]])<=length) 
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
