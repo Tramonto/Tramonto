@@ -109,7 +109,6 @@ double temp_previous; /* Save old value of Temp for rescaling external field*/
 double chg_scale_previous;
 double **xBox;
 double **xOwned;
-double **zerovec;
 } passdown;
 
 static double get_init_param_value(int cont_type);
@@ -136,7 +135,6 @@ int solve_continuation( double **xx, double **xx2)
   /* xOwned and xBox are always temp storage space */
   passdown.xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   passdown.xBox   = (double **) array_alloc(2, Nunk_per_node, Nnodes_box,      sizeof(double));
-  passdown.zerovec= (double **) array_alloc(2, Nunk_per_node, Nnodes_box,      sizeof(double));
   x               = (double * ) array_alloc(1, Nunk_per_node*Nnodes_per_proc,  sizeof(double));
 
   /* Translate from 2d to 1d data structure */
@@ -273,7 +271,6 @@ int solve_continuation( double **xx, double **xx2)
   /* Free temporary memory */
   safe_free((void **) &passdown.xOwned);
   safe_free((void **) &passdown.xBox);
-  safe_free((void **) &passdown.zerovec);
   safe_free((void **) &x);
   if (con.general_info.method==PHASE_TRANSITION_CONTINUATION)
     safe_free((void **) &x2);
@@ -399,7 +396,7 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
 
   if (matflag == RHS_ONLY) {
       resid_only_flag = TRUE;
-      (void) dft_linprobmgr_setrhs(LinProbMgr_manager, passdown.zerovec);
+      (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
   }
   else { 
       resid_only_flag = FALSE;
