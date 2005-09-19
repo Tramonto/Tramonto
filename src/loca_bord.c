@@ -1171,7 +1171,7 @@ int phase_transition_alg(double *x, double *delta_x,
 
   x2_update = 0.0;
   for (i=0; i < cgi->numUnks; i++) {
-    tmp      += delta_x[i]/(fabs(x2[i])*reltol + abstol);
+    tmp      = delta_x[i]/(fabs(x2[i])*reltol + abstol);
     x2_update += tmp*tmp;
   }
   gnum_unks = gsum_double_conwrap(1.0*cgi->numOwnedUnks);
@@ -1372,7 +1372,7 @@ void calc_rhs_continuation(int rhs_type, double *x, double *resid_vector,
 
     assign_parameter_conwrap(param + dc_p);
 
-    matrix_residual_fill_conwrap(x, resid_delta, RHS_ONLY);
+    matrix_residual_fill_conwrap(x, resid_delta, RHS_ONLY); 
 
     assign_parameter_conwrap(param);
 

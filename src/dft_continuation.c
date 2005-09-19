@@ -140,11 +140,6 @@ int solve_continuation( double **xx, double **xx2)
   /* Translate from 2d to 1d data structure */
   translate_2dBox_1dOwned(xx, x);
 
-  if (con.general_info.method==PHASE_TRANSITION_CONTINUATION) {
-    x2              = (double * ) array_alloc(1, Nunk_per_node*Nnodes_per_proc,  sizeof(double));
-    translate_2dBox_1dOwned(xx2, x2);
-  }
-
   /* 
    * Set passdown structure -- variables needed in the argument
    * lists to wrapped routines but not needed in the continuation
@@ -174,6 +169,12 @@ int solve_continuation( double **xx, double **xx2)
        exit(-1);
   }
  
+  /* Allocate second solution vector for phase transitions */
+  if (con.general_info.method==PHASE_TRANSITION_CONTINUATION) {
+    x2              = (double * ) array_alloc(1, Nunk_per_node*Nnodes_per_proc,  sizeof(double));
+    translate_2dBox_1dOwned(xx2, x2);
+  }
+
   printf("\n###\nPROC = %d\n\n",Proc);
 
   con.general_info.param        = get_init_param_value(Loca.cont_type1);
