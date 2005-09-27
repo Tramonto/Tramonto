@@ -278,10 +278,12 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
      ideal_sum[i] *= prefac; 
      vext_sum[i] *= prefac; 
      lj_sum[i] *= prefac; 
-     psi_rho_sum[i] *= prefac; 
-     vext_c_sum[i] *= prefac; 
-     deltac_sum[i] *= prefac; 
-     wtc_sum[i] *= prefac; 
+     if (Type_coul>-1){ 
+        psi_rho_sum[i] *= prefac; 
+        vext_c_sum[i] *= prefac; 
+        deltac_sum[i] *= prefac; 
+     }	         
+     if (Type_poly_TC) wtc_sum[i] *= prefac; 
      
   }
   if (fp !=NULL && Proc==0 && print_flag){
