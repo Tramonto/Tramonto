@@ -66,7 +66,8 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
   double resid,mat_val,resid_sum=0.0;
   int numEntries, indexUnks[4];
   double values[4];
-
+  
+  for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
   jzone = find_jzone(izone);
 
   sten = &(Stencil[sten_type][izone][icomp]);
@@ -195,7 +196,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
                      int loc_inode, int inode_box, int izone,int *ijk_box,
                      int resid_only_flag)
 {
-  int   **sten_offset, *offset, isten;
+  int   **sten_offset, *offset, isten,idim;
   int   **sten_offsetJ, *offsetJ;
   double *sten_weightJ,weightJ;
   double *sten_weight,  weight,fac;
@@ -207,6 +208,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
   int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
 
+  for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
 /*Jac coarsening does not work well for rho bar equations */
      jzone = find_jzone(izone);
      jzone = izone;
@@ -327,6 +329,7 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
   int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
 
+  for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
   jzone = find_jzone(izone);
   jzone = izone;  /* Turn off Jacobian coarsening always */
 

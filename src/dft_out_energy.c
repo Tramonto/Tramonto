@@ -67,7 +67,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
          vext_c_sum[2],hs_energy,ideal_sum[2],lj_sum[2],deltac_sum[2],vext_sum[2],
          ideal,ljterm,deltacterm,vext,ideal_b,lj_b,deltac_b,
          charging_free_energy,energy_charge,rr_omega_s[2],rr_omega_s2[2];
-  double elec_energy_vol, elec_energy_vol_vext;
+  double elec_energy_vol, elec_energy_vol_vext,prefac;
   double omega_b1,omega_b2,omega_b3;
   double o_id,o_v,o_att,o_mu,Uww_sum,fac_coulomb,vext_c;
   int ilink,jlink;
@@ -269,22 +269,19 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
            }
      }
 
-     if (Lper_area && area>0.0) {
-         grand_free_energy[i] *= (fac_vol/fac_area)/area;
-         surface_free_energy[i] *= (fac_vol/fac_area)/area;
-     }
-     else{
-         grand_free_energy[i] *= fac_vol;
-         surface_free_energy[i] *= fac_vol;
-         hs_energy = (sum_phispt-sum_phispt_b)*fac_vol;
-         ideal_sum[i] *= fac_vol;
-         vext_sum[i] *= fac_vol;
-         lj_sum[i] *= fac_vol;
-         psi_rho_sum[i] *= fac_vol;
-         vext_c_sum[i] *= fac_vol;
-         deltac_sum[i] *= fac_vol;
-         wtc_sum[i] *= fac_vol;
-     }
+     if (Lper_area && area >0.0) prefac = (fac_vol/fac_area)/area;
+     else                        prefac = fac_vol;
+
+     grand_free_energy[i] *= prefac; 
+     surface_free_energy[i] *= prefac; 
+     hs_energy = (sum_phispt-sum_phispt_b)*prefac; 
+     ideal_sum[i] *= prefac; 
+     vext_sum[i] *= prefac; 
+     lj_sum[i] *= prefac; 
+     psi_rho_sum[i] *= prefac; 
+     vext_c_sum[i] *= prefac; 
+     deltac_sum[i] *= prefac; 
+     wtc_sum[i] *= prefac; 
      
   }
   if (fp !=NULL && Proc==0 && print_flag){
@@ -439,8 +436,6 @@ void assemble_HS_free_energy(double **x, double *sum_phispt, double *sum_phispt_
          sum_phi_b     += (phispt_bulk()*fac);
          sum_phi_b_old += (phispt_bulk()*fac_b);
       } 
-      printf("loc_inode=%d  nel_hit=%d  term=%9.6f phispt_b=%9.6f\n",loc_inode,nel_hit,
-               (phispt_bulk()*fac),sum_phi_b);
   }    /* end of loop over local nodes */
 
 

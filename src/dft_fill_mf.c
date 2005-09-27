@@ -40,12 +40,13 @@ double load_mean_field(int sten_type, int iunk, int loc_inode,
   struct Stencil_Struct *stenJ;
 
   double sign,resid_sum,mat_val,resid;
-  int jcomp, jlist,junk;
+  int jcomp, jlist,junk,idim;
   int reflect_flag[NDIM_MAX];
   int j_box, jnode_box;
   int jzone=0;
   int jnode_boxJ;
 
+  for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
   sign = 1.0;
   if (sten_type == THETA_CHARGE) sign = -1.0;
   resid_sum=0.0;
