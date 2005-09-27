@@ -126,6 +126,9 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
           else if (sten_type == THETA_FN) resid = weight*dphi_drb_bulk_right->S3;
        }
       }
+      else if (jnode_box==-2){ /* in the wall */
+        resid=0.0;
+      }
       dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       resid_sum+=resid;
   
@@ -276,6 +279,9 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
          else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) {
             resid = weight*fac*constant_boundary(junk,jnode_box);
          }
+         else if (jnode_box==-2){
+            resid=0.0;
+         }
          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
          resid_sum+=resid;
 
@@ -393,6 +399,9 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
           }
           else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
              resid =  weight*fac*vector[idim]*constant_boundary(junk,jnode_box);
+          }
+          else if (jnode_box=-2){
+             resid=0.0;
           }
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           resid_sum+=resid;

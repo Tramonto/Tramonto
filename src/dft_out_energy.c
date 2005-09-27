@@ -55,6 +55,9 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
 
   int    iwall,ijk[3],jwall;
 
+  int    unk_xi2,unk_xi3,iseg,ibond,jseg,jcomp,unk_bond;
+  double  wtc_term,y,wtc_b,wtc_sum[2];
+
   double rho_i,psi_i=0.0,omega_i,omega_i_b,area,stress_tensor,
          stress_tensor_p,energy_psi_q,int_psi_q,
          stress_in_wall,stress_in_wall_p,
@@ -103,12 +106,12 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
       inode_box = L2B_node[loc_inode];
       inode = L2G_node[loc_inode];
       node_to_ijk(inode,ijk);
-
-      for (icomp=0; icomp<Ncomp; icomp++){
+   
+      for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++){ 
+         icomp=Unk2Comp[iunk];
          for (i=0; i<Imax; i++){
             ilist = List[i];
 
-	    iunk = Phys2Unk_first[DENSITY]+icomp;
 	    if (Lsteady_state) muunk = Phys2Unk_first[DIFFUSION]+icomp;
 	    if (Ipot_ff_c == 1) psiunk = Phys2Unk_first[POISSON];
 
@@ -131,11 +134,28 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
                }
                vext = Vext[loc_inode][icomp];
 
-              if (Ipot_ff_n == LJ12_6) {  /* LJ fluid case */
+               if (Ipot_ff_n == LJ12_6) {  /* LJ fluid case */
                     ljterm = 0.5*rho_i*int_stencil(x,inode_box,icomp,U_ATTRACT);
                     omega_i += ljterm;
                }
                else ljterm=0.0;
+
+              if (Type_poly_TC){
+                    unk_xi2 = Phys2Unk_first[CAVITY_WTC];
+                    unk_xi3 = Phys2Unk_first[CAVITY_WTC]+1;
+                    iseg = iunk-Phys2Unk_first[DENSITY];
+                    wtc_term=0.0;
+                    for (ibond=0;ibond<Nbonds_SegAll[iunk];ibond++){
+                         jseg = Bonds_SegAll[iunk][ibond];
+                         jcomp = Unk2Comp[jseg+Phys2Unk_first[DENSITY]];
+                         y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],
+                                   x[unk_xi2][inode_box],x[unk_xi3][inode_box]);
+                         unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+Phys2Unk_first[BOND_WTC];
+                         wtc_term += 0.5*rho_i*(1.0-log(y*x[unk_bond][inode_box])) ;
+                    }
+                    omega_i += wtc_term;
+              }
+              else wtc_term=0.0;
 
    
                if (Ipot_ff_c == 1){ /* Coulomb fluid */
@@ -177,6 +197,11 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
             }
             else lj_b=0.0;
 
+            if (Type_poly_TC){
+                wtc_b += 0.5*Rho_b[iseg]*Betamu_wtc[iseg];
+            }
+            else wtc_b=0.0;
+
             if (Ipot_ff_c == 1 && Sten_Type[THETA_CHARGE] == TRUE){
                 if(Lsteady_state) deltac_b = -0.5*Rho_b_RTF[icomp]*Deltac_b[icomp];
                 else deltac_b = -0.5*Rho_b[icomp]*Deltac_b[icomp];
@@ -194,6 +219,9 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
             lj_sum[i]  +=  (ljterm*Nel_hit2[i][iunk][inode_box]-lj_b*Nel_hit[i][iunk][inode_box])
                                    * Vol_el/((double)Nnodes_per_el_V);
             vext_sum[i]  +=  vext*Nel_hit2[i][iunk][inode_box]
+                                   * Vol_el/((double)Nnodes_per_el_V);
+            if (Type_poly_TC)
+               wtc_sum[i]  +=  wtc_term*Nel_hit2[i][iunk][inode_box]
                                    * Vol_el/((double)Nnodes_per_el_V);
             if (Type_coul > -1){
             psi_rho_sum[i]   +=  psi_rho*Nel_hit2[i][iunk][inode_box]
@@ -214,6 +242,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
     ideal_sum[i] = gsum_double(ideal_sum[i]);
     lj_sum[i] = gsum_double(lj_sum[i]);
     vext_sum[i] = gsum_double(vext_sum[i]);
+    if (Type_poly_TC) wtc_sum[i]=gsum_double(wtc_sum[i]);
     if (Type_coul > -1){
       psi_rho_sum[i] = gsum_double(psi_rho_sum[i]);
       vext_c_sum[i] = gsum_double(vext_c_sum[i]);
@@ -254,6 +283,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
          psi_rho_sum[i] *= fac_vol;
          vext_c_sum[i] *= fac_vol;
          deltac_sum[i] *= fac_vol;
+         wtc_sum[i] *= fac_vol;
      }
      
   }
@@ -273,6 +303,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
        printf("\t\t Ideal Gas and Chem.pot term: %9.6f\n",ideal_sum[i]); 
        if (Type_func >=0) printf("\t\t Hard Sphere term: %9.6f\n",hs_energy); 
        if (Type_attr >=0) printf("\t\t Lennard-Jones term: %9.6f\n",lj_sum[i]); 
+       if (Type_poly_TC) printf("\t\t WTC bond term: %9.6f\n",wtc_sum[i]);
        printf("\t\t External field (non-Coulomb) term: %9.6f\n",vext_sum[i]); 
        if (Type_coul > -1) {
          printf("\t\t Poisson-electrostatics term: %9.6f\n",psi_rho_sum[i]); 
@@ -353,6 +384,7 @@ void assemble_HS_free_energy(double **x, double *sum_phispt, double *sum_phispt_
   sum_phi       = 0.0;
   sum_phi_b     = 0.0;
   sum_phi_b_old = 0.0;
+  for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 
@@ -407,6 +439,8 @@ void assemble_HS_free_energy(double **x, double *sum_phispt, double *sum_phispt_
          sum_phi_b     += (phispt_bulk()*fac);
          sum_phi_b_old += (phispt_bulk()*fac_b);
       } 
+      printf("loc_inode=%d  nel_hit=%d  term=%9.6f phispt_b=%9.6f\n",loc_inode,nel_hit,
+               (phispt_bulk()*fac),sum_phi_b);
   }    /* end of loop over local nodes */
 
 
@@ -794,7 +828,7 @@ int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
  double int_stencil(double **x,int inode_box,int icomp,int sten_type)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
-  int j,jcomp;
+  int j,jcomp,junk;
   double weight, sum;
   struct Stencil_Struct *current_sten;
   int **current_sten_offset, reflect_flag[NDIM_MAX];
@@ -807,7 +841,9 @@ int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
   sum = 0.0;
   node_box_to_ijk_box(inode_box,ijk_box);
 
-  for (jcomp=0; jcomp<Ncomp; jcomp++){
+  for (junk=Phys2Unk_first[DENSITY];junk<Phys2Unk_last[DENSITY];junk++){
+     jcomp=Unk2Comp[junk];
+
      current_sten = &(Stencil[sten_type][izone][icomp+Ncomp*jcomp]);
      current_sten_offset = current_sten->Offset;
      current_sten_weight = current_sten->Weight;
@@ -828,11 +864,11 @@ int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
            }
 
            if (inode_sten<Nnodes_box && inode_sten >=0){
-               sum +=  weight*x[Phys2Unk_first[DENSITY]+jcomp][inode_sten];
+               sum +=  weight*x[junk][inode_sten];
            }
         }
         else if (inode_sten<0){
-             sum += weight*constant_boundary(jcomp+Phys2Unk_first[DENSITY],inode_sten);
+             sum += weight*constant_boundary(junk,inode_sten);
         }
 
      }  /* end of loop over isten */ 
