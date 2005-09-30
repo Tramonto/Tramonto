@@ -240,8 +240,11 @@ int dft_BasicLinProbMgr::insertMatrixValues(int ownedPhysicsID, int ownedNode, i
 int dft_BasicLinProbMgr::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
-  globalMatrix_->FillComplete();
-  globalMatrix_->OptimizeStorage();
+  if (firstTime_) {
+    insertRow();
+    globalMatrix_->FillComplete();
+    globalMatrix_->OptimizeStorage();
+  }
 
   //std::cout << *globalMatrix_;
 
