@@ -1105,6 +1105,20 @@ extern
 double Min_update_frac; /* Minimum fraction to update solution to slow down
                            Newton's method */
 
+/* Timers */
+extern
+double Time_linsolver_first;
+extern
+double Time_linsolver_av;
+extern
+double Time_manager_first;
+extern
+double Time_manager_av;
+extern
+double Time_fill_first;
+extern
+double Time_fill_av;
+
 /* Linear Solver info */
 extern
 int Az_solver;

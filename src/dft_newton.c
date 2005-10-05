@@ -61,14 +61,13 @@ int solve_problem(double **x, double **x2)
   /* Construct dft_Linprobmgr with information on number of unknowns*/
   int is_poly = 0;
   int debug = 0;
- if (Type_poly != NONE) {
+ if (Type_poly != NONE  && Type_coul==NONE) {
    
    count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
    for (iunk=0;iunk<Nunk_per_node;iunk++){
      switch(Unk2Phys[iunk]){
      case DENSITY:
        densityeq[count_density++]=iunk; break; 
-     case POISSON:
      case CMS_FIELD:                  
        cmseq[count_cms_field++]=iunk; break; 
      case CMS_G:                  
@@ -92,7 +91,7 @@ int solve_problem(double **x, double **x2)
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
  }
- else if (Type_func > NONE) {
+ else if (Type_func != NONE) {
 
    count_density=count_indnonlocal=count_depnonlocal=0;
    one_particle_size=FALSE;
@@ -190,6 +189,7 @@ int newton_solver(double** x, void* con_ptr) {
   double** delta_x;
   delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
   char filename[20]="matrix.dat";
+  double start_t;
 
   do {
     iter++;
@@ -197,13 +197,25 @@ int newton_solver(double** x, void* con_ptr) {
     (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
 
     /* Call Matrix and Residual Fill routine, resid_only_flag=FALSE)*/
+    start_t=MPI_Wtime();
     fill_resid_and_matrix_control(x, iter,FALSE); 
+    if (iter==1) Time_fill_first=MPI_Wtime()-start_t;
+    else         Time_fill_av+=(MPI_Wtime()-start_t);
     /*fill_test(x, FALSE);*/
 
+    start_t=MPI_Wtime();
     (void) dft_linprobmgr_finalizeproblemvalues(LinProbMgr_manager);
     if (Iwrite != NO_SCREEN) print_resid_norm(iter);
     (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
+    if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
+    else         Time_manager_av+=(MPI_Wtime()-start_t);
+#ifdef NUMERICAL_JACOBIAN
+    do_numerical_jacobian(x);
+#endif
+    start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
+    if (iter==1) Time_linsolver_first=MPI_Wtime()-start_t;
+    else         Time_linsolver_av+=(MPI_Wtime()-start_t);
     
     /* I am assuming getLhs returns box coordinates (e.g. Column Map)!! */
     (void) dft_linprobmgr_getlhs(LinProbMgr_manager, delta_x);
@@ -213,9 +225,6 @@ int newton_solver(double** x, void* con_ptr) {
       printf("delta_x[%d][%d] = %g\n", iunk, ibox,delta_x[iunk][ibox]);
       }
     */
-#ifdef NUMERICAL_JACOBIAN
-    do_numerical_jacobian(x);
-#endif
   //dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);
     
     if (con_ptr != NULL) converged2 =
@@ -380,33 +389,11 @@ static void do_numerical_jacobian(double **x)
     }
   }
   fclose(ifp);
+  printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
+  exit(0);
 }
 #endif
 
-/*
-  / compute and print the difference between the two jacobans /
-  sprintf(filename, "jd%0d",Proc);
-  ifp = fopen(filename,"w");
-  for (i=0; i< N; i++) {
-     full[i][i] -= Aztec.val[i];
-     for (j= Aztec.bindx[i]; j<Aztec.bindx[i+1]; j++) {
-       full[i][Aztec.bindx[j]] -= Aztec.val[j];
-     }
-   }
-
-  for (i=0; i<N; i++) {
-    for (j=0; j<N; j++) {
-      if (fabs(full[i][j]) > 1.e-4)
-       fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
-    }
-  }
-  fclose(ifp);
-  safe_free((void *) &full);
-  if (Num_Proc>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (Iwrite != NO_SCREEN)printf("Proc: %d KILLING CODE AT END OF NUMERICAL JACOBIAN PRINT\n",Proc);
-  exit(-1);
-}
- endif*/
 /****************************************************************************/
 
 

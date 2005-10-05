@@ -53,11 +53,21 @@ void dftmain(double * engptr)
   double    t_preprocess=0.0,t_solve=0.0,t_postprocess=0.0,t_total=0.0;
   double    t_pre_max,t_solve_max,t_post_max,t_total_max;
   double    t_pre_min,t_solve_min,t_post_min,t_total_min;
+  double    t_linsolv_first_min,t_linsolv_av_min,t_linsolv_first_max,t_linsolv_av_max;
+  double    t_manager_first_min,t_manager_av_min,t_manager_first_max,t_manager_av_max;
+  double    t_fill_first_min,t_fill_av_min,t_fill_first_max,t_fill_av_max;
   int izone,isten,jcomp,jmax;
   struct Stencil_Struct *sten;
   char line[100],linecwd[100];
   int *dummy,proper_bc;
   int argc=1;
+
+  Time_linsolver_first=0.0;
+  Time_linsolver_av=0.0;
+  Time_manager_first=0.0;
+  Time_manager_av=0.0;
+  Time_fill_first=0.0;
+  Time_fill_av=0.0;
 
   gethostname(line,100);
   getcwd(linecwd,100);
@@ -267,6 +277,31 @@ void dftmain(double * engptr)
       t_post_min=gmin_double(t_postprocess);
       t_total_min=gmin_double(t_total);
 
+      t_linsolv_first_min=gmin_double(Time_linsolver_first);
+      t_linsolv_first_max=gmax_double(Time_linsolver_first);
+      t_manager_first_min=gmin_double(Time_manager_first);
+      t_manager_first_max=gmax_double(Time_manager_first);
+      t_fill_first_min=gmin_double(Time_fill_first);
+      t_fill_first_max=gmax_double(Time_fill_first);
+
+      if(niters > 1){
+        t_linsolv_av_min=gmin_double(Time_linsolver_av/((double)niters-1.0));
+        t_linsolv_av_max=gmax_double(Time_linsolver_av/((double)niters-1.0));
+        t_manager_av_min=gmin_double(Time_manager_av/((double)niters-1.0));
+        t_manager_av_max=gmax_double(Time_manager_av/((double)niters-1.0));
+        t_fill_av_min=gmin_double(Time_fill_av/((double)niters-1.0));
+        t_fill_av_max=gmax_double(Time_fill_av/((double)niters-1.0));
+      }
+      else{
+        t_linsolv_av_min = t_linsolv_first_min;
+        t_linsolv_av_max = t_linsolv_first_max;
+        t_manager_av_min = t_manager_first_min;
+        t_manager_av_max = t_manager_first_max;
+        t_fill_av_min = t_fill_first_min;
+        t_fill_av_max = t_fill_first_max;
+      }
+
+
       if (Proc == 0 &&Iwrite !=NO_SCREEN) {
         printf ("\n\n\n\n");
         printf ("===================================================\n");
@@ -279,6 +314,21 @@ void dftmain(double * engptr)
         printf ("---------------------------------------------------\n");
         printf ("TOTAL SOLVE              %g         %g       \n",
                                                 t_solve_min,t_solve_max);
+        printf ("---------------------------------------------------\n");
+        printf ("---------------------------------------------------\n");
+        printf ("First fill time          %g         %g       \n",
+                                                t_fill_first_min,t_fill_first_max);
+        printf ("2-niter avg fill time    %g         %g       \n",
+                                                t_fill_av_min,t_fill_av_max);
+        printf ("First manager time       %g         %g       \n",
+                                                t_manager_first_min,t_manager_first_max);
+        printf ("2-niter avg manager time %g         %g       \n",
+                                                t_manager_av_min,t_manager_av_max);
+        printf ("First linsolv time       %g         %g       \n",
+                                                t_linsolv_first_min,t_linsolv_first_max);
+        printf ("2-niter avg linsolv time %g         %g       \n",
+                                                t_linsolv_av_min,t_linsolv_av_max);
+        printf ("---------------------------------------------------\n");
         printf ("---------------------------------------------------\n");
         printf ("POST-PROCESSING          %g         %g       \n",
                                                   t_post_min,t_post_max);

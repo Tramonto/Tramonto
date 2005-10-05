@@ -364,6 +364,15 @@ double Newton_abs_tol,Newton_rel_tol; /* Convergence tolerances (update_soln)*/
 double Min_update_frac; /* Minimum fraction to update solution to slow down
                            Newton's method */
 
+/* Timers */
+double Time_linsolver_first;
+double Time_linsolver_av;
+double Time_manager_first;
+double Time_manager_av;
+double Time_fill_first;
+double Time_fill_av;
+
+
 /* Linear Solver info */
 int Az_solver;
 int Az_kspace;
