@@ -205,7 +205,7 @@ int newton_solver(double** x, void* con_ptr) {
 
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_finalizeproblemvalues(LinProbMgr_manager);
-    if (Iwrite != NO_SCREEN) print_resid_norm(iter);
+    if (Iwrite == VERBOSE) print_resid_norm(iter);
     (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);

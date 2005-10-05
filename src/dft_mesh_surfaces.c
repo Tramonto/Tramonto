@@ -447,10 +447,10 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
                                                                 /* compute surface for a cylindrical wedge */
          angle_test=TRUE;
          if (Ndim==2 && (fabs(WallParam_2[itype]-0.0)>=1.e-12 || fabs(WallParam_3[itype]-360.0)>1.e-12)){
-               vecB[0]=xtest[0]; vecB[1]=xtest[1]; idim_permute=1;
+               vecB[0]=xtest[0]-WallPos[0][iwall]; vecB[1]=xtest[1]-WallPos[1][iwall]; idim_permute=1;
                cos_theta=vecB[0]/(sqrt(vecB[0]*vecB[0]+vecB[1]*vecB[1]));
                angle = acos(cos_theta);
-               if (vecB[1] <WallPos[idim_permute][iwall]) shift=2.0*(PI-angle);
+               if (xtest[idim_permute] <WallPos[idim_permute][iwall]) shift=2.0*(PI-angle);
                else shift=0.0;
                angle+=shift;
                angle_deg=180.*angle/PI;
@@ -575,20 +575,26 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
 
          angle_test=TRUE;
          if ((fabs(WallParam_3[itype]-0.0)>=1.e-12 || fabs(WallParam_4[itype]-360.0)>1.e-12)){
-               if (Orientation[itype]==0){ vecB[0]=xtest[1];vecB[1]=xtest[2];idim_permute=2;}
-               else if (Orientation[itype]==1){ vecB[0]=xtest[2];vecB[1]=xtest[0];idim_permute=0;}
-               else if (Orientation[itype]==2){ vecB[0]=xtest[0]; vecB[1]=xtest[1]; idim_permute=1;}
+               if (Orientation[itype]==0){ vecB[0]=xtest[1]-WallPos[1][iwall];
+                                           vecB[1]=xtest[2]-WallPos[2][iwall];
+                                           idim_permute=2;}
+               else if (Orientation[itype]==1){ vecB[0]=xtest[2]-WallPos[2][iwall];
+                                                vecB[1]=xtest[0]-WallPos[0][iwall];
+                                                idim_permute=0;}
+               else if (Orientation[itype]==2){ vecB[0]=xtest[0]-WallPos[0][iwall]; 
+                                                vecB[1]=xtest[1]-WallPos[1][iwall]; 
+                                                idim_permute=1;}
                cos_theta=vecB[0]/(sqrt(vecB[0]*vecB[0]+vecB[1]*vecB[1]));
                angle = acos(cos_theta);
-               if (vecB[1] <WallPos[idim_permute][iwall]) shift=2.0*(PI-angle);
+               if (xtest[idim_permute] <WallPos[idim_permute][iwall]) shift=2.0*(PI-angle);
                else shift=0.0;
                angle+=shift;
                angle_deg=180.*angle/PI;
-               if(WallParam_3[itype]>WallParam_2[itype]){
-                      if(angle_deg <WallParam_2[itype] || angle_deg > WallParam_3[itype]) angle_test=FALSE;
+               if(WallParam_4[itype]>WallParam_3[itype]){
+                      if(angle_deg <WallParam_3[itype] || angle_deg > WallParam_4[itype]) angle_test=FALSE;
                }
-               else if(WallParam_3[itype]<WallParam_2[itype]){
-                      if(angle_deg <WallParam_2[itype] && angle_deg > WallParam_3[itype]) angle_test=FALSE;
+               else if(WallParam_4[itype]<WallParam_3[itype]){
+                      if(angle_deg <WallParam_3[itype] && angle_deg > WallParam_4[itype]) angle_test=FALSE;
                }
          }
 
