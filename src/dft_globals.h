@@ -173,6 +173,10 @@ int     Orientation[NWALL_MAX_TYPE];  /* Orientation of planar/bumpy infinite wa
 double  WallParam[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
 double  WallParam_2[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
 double  WallParam_3[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
+double  WallParam_4[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
+int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
+double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
+double  Rough_length[NWALL_MAX_TYPE];
 double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
 
 /* Fluid Physics info */

@@ -433,7 +433,6 @@ if (icomp==0 && loc_inode>53+(i*117) && loc_inode<63+(i*117))
     }     /* end of fluid local node loop */
 
 
-   printf("finshed computation of Vext\n");
    /* LOGIC FOR VEXT_DASH */
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {

@@ -65,6 +65,8 @@ void read_input_file(char *input_file, char *output_file1)
        ***pol_sym_tmp,dim_tmp,Lauto_center,Lauto_size,Lcompare_fastram,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
    double r,rho_tmp[NCOMP_MAX],dxdx,dtmp,charge_sum,minpos[3],maxpos[3];
+   double rough_param_max[NWALL_MAX_TYPE],rough_length_scale[NWALL_MAX_TYPE];
+   int iblock,jblock;
 
   
   /********************** BEGIN EXECUTION ************************************/
@@ -332,10 +334,11 @@ void read_input_file(char *input_file, char *output_file1)
   if (Nwall_type > 0) 
     MPI_Bcast(Orientation,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
 
+
   charge_sum=0.0;
+  srandom(135649);
   if (Nwall_type != 0){
     if ( Proc==0) {
-      srandom(135649);
       for (idim=0; idim<Ndim; idim++){ minpos[idim] = 1000.; maxpos[idim]=-1000.;}
       /* ALF: add error checking */
       if( (fp3  = fopen("dft_surfaces.dat","r")) == NULL) {
@@ -445,6 +448,68 @@ void read_input_file(char *input_file, char *output_file1)
   }
   if (Nwall_type > 0) 
     MPI_Bcast(WallParam_3,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+	fscanf(fp,"%lf", &WallParam_4[iwall_type]);
+	fprintf(fp2,"%f  ",WallParam_4[iwall_type]);
+        if (Length_ref >0.0) WallParam_4[iwall_type]/=Length_ref;
+      }
+    else fprintf(fp2,"n/a");
+  }
+  if (Nwall_type > 0) 
+    MPI_Bcast(WallParam_4,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+	fscanf(fp,"%d", &Lrough_surf[iwall_type]);
+	fprintf(fp2,"%d  ",Lrough_surf[iwall_type]);
+      }
+    else fprintf(fp2,"n/a");
+  }
+  if (Nwall_type > 0) 
+    MPI_Bcast(Lrough_surf,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+	fscanf(fp,"%lf", &rough_param_max[iwall_type]);
+	fprintf(fp2,"%f  ",rough_param_max[iwall_type]);
+      }
+    else fprintf(fp2,"n/a");
+  }
+  if (Nwall_type > 0) 
+    MPI_Bcast(rough_param_max,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+	fscanf(fp,"%lf", &Rough_length[iwall_type]);
+	fprintf(fp2,"%l  ",Rough_length[iwall_type]);
+      }
+    else fprintf(fp2,"n/a");
+  }
+  if (Nwall_type > 0) 
+    MPI_Bcast(Rough_length,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+         /* we don't really know the correct number of rouch tiles (blocks) 
+           for any problem at this point .... so we will just populate the random roughness array fully */
+  for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
+      for (iblock=0;iblock<MAX_ROUGH_BLOCK;iblock++){
+         for (jblock=0;jblock<MAX_ROUGH_BLOCK;jblock++){
+            irand = random();
+            irand_range = POW_INT(2,31)-1;
+            Rough_precalc[iwall_type][iblock][jblock]= rough_param_max[iwall_type]*(-0.5+( ((double)irand)/((double)irand_range)));
+         }
+      }
+  }
 
   /* switches for types of wall-fluid and wall-wall interaction parameters */
   Lhard_surf=FALSE;

@@ -68,6 +68,7 @@ int solve_problem(double **x, double **x2)
      switch(Unk2Phys[iunk]){
      case DENSITY:
        densityeq[count_density++]=iunk; break; 
+     case POISSON:
      case CMS_FIELD:                  
        cmseq[count_cms_field++]=iunk; break; 
      case CMS_G:                  
@@ -91,13 +92,14 @@ int solve_problem(double **x, double **x2)
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
  }
- else if (Type_func >= 100) {
+ else if (Type_func > NONE) {
 
    count_density=count_indnonlocal=count_depnonlocal=0;
    one_particle_size=FALSE;
    if ((Lhard_surf && Nlists_HW == 2) || (!Lhard_surf && Nlists_HW == 1)) one_particle_size=TRUE;
    for (iunk=0;iunk<Nunk_per_node;iunk++){
      switch(Unk2Phys[iunk]){
+     case POISSON:
      case DENSITY:
        densityeq[count_density++]=iunk; break; 
      case RHOBAR_ROSEN:                  
@@ -110,22 +112,22 @@ int solve_problem(double **x, double **x2)
 	 indnonlocaleq[count_indnonlocal++]=iunk; 
        break;
      case BOND_WTC:
-       indnonlocaleq[count_indnonlocal++]=iunk; 
-       break;
      case CAVITY_WTC:
-       indnonlocaleq[count_indnonlocal++]=iunk; 
-       break;
+       indnonlocaleq[count_indnonlocal++]=iunk; break;
      } 
    }
    LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
    dft_hardsphere_lin_prob_mgr_setindnonlocalequationids(LinProbMgr_manager, count_indnonlocal, indnonlocaleq);
    dft_hardsphere_lin_prob_mgr_setdepnonlocalequationids(LinProbMgr_manager, count_depnonlocal, depnonlocaleq);
    dft_hardsphere_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, count_density, densityeq);
-   if (Type_attr==NONE && Type_poly_TC==FALSE && Mesh_coarsening==FALSE) dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(LinProbMgr_manager, TRUE);
-   else                                                                  dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(LinProbMgr_manager, FALSE);
+   if (Type_attr != NONE || Type_poly_TC || Mesh_coarsening || Type_coul != NONE)
+                dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(LinProbMgr_manager, FALSE);
+   else         dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(LinProbMgr_manager, TRUE);
  }
- else
+ else{
    LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+ }
+
 
   /* Give Nodal Row and Column maps */
   (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
@@ -137,6 +139,7 @@ int solve_problem(double **x, double **x2)
   /* Set initial guess on owned nodes and reconcile ghost nodes using importr2c */
   xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   set_initial_guess(Iguess1, xOwned);
+
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
   /* If requested, write out initial guess */
@@ -416,17 +419,17 @@ static void print_resid_norm(int iter)
   FILE *ifp;
   char filename[20]="Resid2.dat";
 
-  if (Proc==3) ifp=fopen(filename,"w+");
+  if (Proc==0 && Iwrite==VERBOSE) ifp=fopen(filename,"w+");
   f = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   dft_linprobmgr_getrhs(LinProbMgr_manager, f);
 
   for (j=0; j< Nnodes_per_proc; j++) {
     for (iunk=0; iunk<Nunk_per_node; iunk++) {
        norm += f[iunk][j] * f[iunk][j];
-       if(Proc==3) fprintf(ifp," %d  %d  %14.11f\n",iunk,L2G_node[j],f[iunk][j]);
+       if(Proc==0 && Iwrite==VERBOSE) fprintf(ifp," %d  %d  %14.11f  %14.11f\n",iunk,L2G_node[j],f[iunk][j],norm);
     }
   }
-  if (Proc==3) fclose(ifp);
+  if (Proc==0 && Iwrite==VERBOSE) fclose(ifp);
 
   safe_free((void **) &f);
   norm = gsum_double(norm);

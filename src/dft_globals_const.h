@@ -93,6 +93,8 @@
 
 #define NSTEPS_MAX 10
 
+#define MAX_ROUGH_BLOCK 100
+
 /* a constat flag to indicate that there is no bond between a pair of segments in 
    a polymer problems */
 #define NO_BOND_PAIR -962.0
@@ -761,6 +763,14 @@ extern
 double  WallParam_2[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
 extern
 double  WallParam_3[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
+extern
+double  WallParam_4[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
+extern
+int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
+extern
+double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
+extern
+double  Rough_length[NWALL_MAX_TYPE];
 extern
 double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
 

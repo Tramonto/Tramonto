@@ -147,7 +147,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
       /* do mesh coarsening if indicated .... for all unknowns ! */
       else if (mesh_coarsen_flag_i < 0 && mesh_coarsen_flag_i != FLAG_BULK) {
-
          resid= x[iunk][inode_box];
          mat_value=1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
@@ -461,7 +460,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          printf(" loc_inode=%d  iunk_cavity=%d  resid=%9.6f",loc_inode,iunk,resid_cavity);
     else if (Unk2Phys[iunk]==BOND_WTC) 
          printf(" loc_inode=%d  iunk_bondwtc=%d  resid=%9.6f",loc_inode,iunk,resid_bondwtc);
-    printf("  \n");*/
+    printf("  \n");
+*/
 
 /*    if (Unk2Phys[iunk]==DENSITY){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_ig + resid_vext + resid_mu + resid_charge+ resid_hs1+resid_hs2+resid_WTC1);}
     else if(Unk2Phys[iunk]==RHOBAR_ROSEN){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}

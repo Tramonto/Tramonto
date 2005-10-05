@@ -1,11 +1,7 @@
 #
 # For a Macintosh running OS X
 #
-# Note: mpi compilers and g77 are installed in /sw using fink.
-# /sw/bin is already on my path.  Trilinos and liby12m.a are
-# installed in /Users/rlschie/arch/MacOsXParallel.
-# 
 ./configure \
   FLIBS="-lg2c" \
-  --with-ldflags="-Wl,-framework -Wl,vecLib -L/sw/lib -L/Users/rlschie/arch/MacOsXParallel/lib" \
-  --with-cxxflags="-I/Users/rlschie/arch/MacOsXParallel/include"
+  --with-ldflags="-Wl,-framework -Wl,vecLib -L/sw/lib -L/Users/ljfrink/src/trilinos-5.0/MAC_LINUX/lib"
+  --with-cxxflags="-I/Users/ljfrink/src/trilinos-5.0/MAC_LINUX/include -L/Users/ljfrink/src/trilinos-5.0/MAC_LINUX/lib"

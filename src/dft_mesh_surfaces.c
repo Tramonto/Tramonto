@@ -420,6 +420,8 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
    int iel, iel_box,inode, idim, ilist,L1el_charge;
    double xtest[3], node_pos[3];
    double r12_sq_sum, r12, dx, radius,sten,delr,roff=0.00000000001;
+   double vecB[2],angle_block,angle,roughness,shift,cos_theta,angle_deg;
+   int iblock,rough_block[2],idim_permute,angle_test;
 
    sten=0.0;
    for (idim=0; idim<Ndim; idim++)
@@ -441,8 +443,56 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
             case 2:  xtest[1] = node_pos[1] + 0.5*Esize_x[1];
             default: xtest[0] = node_pos[0] + 0.5*Esize_x[0];   
          }
+
+                                                                /* compute surface for a cylindrical wedge */
+         angle_test=TRUE;
+         if (Ndim==2 && (fabs(WallParam_2[itype]-0.0)>=1.e-12 || fabs(WallParam_3[itype]-360.0)>1.e-12)){
+               vecB[0]=xtest[0]; vecB[1]=xtest[1]; idim_permute=1;
+               cos_theta=vecB[0]/(sqrt(vecB[0]*vecB[0]+vecB[1]*vecB[1]));
+               angle = acos(cos_theta);
+               if (vecB[1] <WallPos[idim_permute][iwall]) shift=2.0*(PI-angle);
+               else shift=0.0;
+               angle+=shift;
+               angle_deg=180.*angle/PI;
+               if(WallParam_3[itype]>WallParam_2[itype]){
+                      if(angle_deg <WallParam_2[itype] || angle_deg > WallParam_3[itype]) angle_test=FALSE;
+               }
+               else if(WallParam_3[itype]<WallParam_2[itype]){
+                      if(angle_deg <WallParam_2[itype] && angle_deg > WallParam_3[itype]) angle_test=FALSE;
+               }
+         }
+
+         if (Lrough_surf[itype] && Ndim==2){
+               for (iblock=0;iblock<2;iblock++) rough_block[iblock]=0;
+
+               rough_block[1] = 0;
+
+               if (Rough_length[itype] > WallParam[itype]){
+                  printf("ERROR IN LENGTH SCALE FOR ROUGHNESS...Rough length larger than 1/4 of cylinder\n");
+                  exit(-1);
+               }
+               angle_block = asin(Rough_length[itype]/WallParam[itype]);
+               vecB[0]=xtest[0];
+               vecB[1]=xtest[1];
+               idim_permute=1;
+               cos_theta=vecB[0]/(sqrt(vecB[0]*vecB[0]+vecB[1]*vecB[1]));
+               angle = acos(cos_theta);
+               if (vecB[1] <WallPos[idim_permute][iwall]) shift=2.0*(PI-angle);
+               else shift=0.0;
+               angle+=shift;
+               rough_block[0]= (int)(angle/angle_block);
+
+               if (rough_block[0] >= MAX_ROUGH_BLOCK || rough_block[1]>=MAX_ROUGH_BLOCK) {
+                    printf("ERROR with rough cylinder - number of rough patches exceeds maximum of MAX_ROUGH_BLOCK=%d\n",
+                            MAX_ROUGH_BLOCK);
+                    exit(-1);
+               }
+               roughness = Rough_precalc[itype][rough_block[0]][rough_block[1]];
+         }
+         else roughness=0.0;
+
    
-         radius = WallParam[itype];
+         radius = WallParam[itype]+roughness;
          if(Lhard_surf && ilist != Nlists_HW-1 && (Type_func >= 0 || Type_poly >= 0) )  
                      radius += 0.5*Sigma_ff[ilist][ilist];
 
@@ -460,7 +510,7 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
          if (Ipot_ff_c==COULOMB && Surface_type[WallType[iwall]]==point_surface &&
                 nelems_w_per_w[ilist][iwall]==1) L1el_charge=TRUE;
 
-         if (r12 <= radius && !L1el_charge) 
+         if (r12 <= radius && angle_test && !L1el_charge) 
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
@@ -500,6 +550,8 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
    int iel, iel_box,inode, idim, ilist;
    double xtest[3], node_pos[3],length;
    double r12_sq_sum, r12, dx, radius,sten,delr,roff=0.00000000001;
+   double vecB[2],angle_block,angle,roughness,shift,cos_theta,angle_deg;
+   int iblock,rough_block[2],idim_permute,angle_test;
 
    sten=0.0;
    for (idim=0; idim<Ndim; idim++)
@@ -520,8 +572,56 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
             case 2:  xtest[1] = node_pos[1] + 0.5*Esize_x[1];
             default: xtest[0] = node_pos[0] + 0.5*Esize_x[0];   
          }
+
+         angle_test=TRUE;
+         if ((fabs(WallParam_3[itype]-0.0)>=1.e-12 || fabs(WallParam_4[itype]-360.0)>1.e-12)){
+               if (Orientation[itype]==0){ vecB[0]=xtest[1];vecB[1]=xtest[2];idim_permute=2;}
+               else if (Orientation[itype]==1){ vecB[0]=xtest[2];vecB[1]=xtest[0];idim_permute=0;}
+               else if (Orientation[itype]==2){ vecB[0]=xtest[0]; vecB[1]=xtest[1]; idim_permute=1;}
+               cos_theta=vecB[0]/(sqrt(vecB[0]*vecB[0]+vecB[1]*vecB[1]));
+               angle = acos(cos_theta);
+               if (vecB[1] <WallPos[idim_permute][iwall]) shift=2.0*(PI-angle);
+               else shift=0.0;
+               angle+=shift;
+               angle_deg=180.*angle/PI;
+               if(WallParam_3[itype]>WallParam_2[itype]){
+                      if(angle_deg <WallParam_2[itype] || angle_deg > WallParam_3[itype]) angle_test=FALSE;
+               }
+               else if(WallParam_3[itype]<WallParam_2[itype]){
+                      if(angle_deg <WallParam_2[itype] && angle_deg > WallParam_3[itype]) angle_test=FALSE;
+               }
+         }
+
+         if (Lrough_surf[itype]){
+               for (iblock=0;iblock<2;iblock++) rough_block[iblock]=0;
+
+               rough_block[1] = (int) ((xtest[Orientation[itype]]+0.5*Size_x[Orientation[itype]])/Rough_length[itype]);
+
+               if (Rough_length[itype] > WallParam[itype]){
+                  printf("ERROR IN LENGTH SCALE FOR ROUGHNESS...Rough length larger than 1/4 of cylinder\n");
+                  exit(-1);
+               }
+               angle_block = asin(Rough_length[itype]/WallParam[itype]);
+               if (Orientation[itype]==0){ vecB[0]=xtest[1];vecB[1]=xtest[2];idim_permute=2;}
+               else if (Orientation[itype]==1){ vecB[0]=xtest[2];vecB[1]=xtest[0];idim_permute=0;}
+               else if (Orientation[itype]==2){ vecB[0]=xtest[0];vecB[1]=xtest[1];idim_permute=1;}
+               cos_theta=vecB[0]/(sqrt(vecB[0]*vecB[0]+vecB[1]*vecB[1]));
+               angle = acos(cos_theta);
+               if (vecB[1]<WallPos[idim_permute][iwall]) shift=2.0*(PI-angle);
+               else shift=0.0;
+               angle+=shift;
+               rough_block[0]= (int)(angle/angle_block);
+               
+               if (rough_block[0] >= MAX_ROUGH_BLOCK || rough_block[1]>=MAX_ROUGH_BLOCK) {
+                    printf("ERROR with rough cylinder - number of rough patches exceeds maximum of MAX_ROUGH_BLOCK=%d\n",
+                            MAX_ROUGH_BLOCK);
+                    exit(-1);
+               }
+               roughness = Rough_precalc[itype][rough_block[0]][rough_block[1]];
+         }
+         else roughness=0.0;
    
-         radius = WallParam[itype];
+         radius = WallParam[itype]+roughness;
          length = WallParam_2[itype];
          if(Lhard_surf && ilist != Nlists_HW-1)  
                      radius += 0.5*Sigma_wf[ilist][itype];
@@ -537,7 +637,7 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
          r12 = sqrt(r12_sq_sum);
 
          if (r12 <= radius && 
-             fabs(xtest[Orientation[itype]]-image_pos[iwall][Orientation[itype]])<=length) 
+             fabs(xtest[Orientation[itype]]-image_pos[iwall][Orientation[itype]])<=length && angle_test) 
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
@@ -1211,6 +1311,8 @@ void els_planar(int iwall, int real_wall, int itype,
   double x, x12, wall_thick,sten,diam,delx;
   double node_pos[3];
   double roff=0.00000000001;
+  double roughness;
+  int iblock,rough_block[2];
 
    /*
     * Find the number of fluid and wall elements based on the 
@@ -1225,8 +1327,31 @@ void els_planar(int iwall, int real_wall, int itype,
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
 
+         if (Lrough_surf[itype]){
+              if (Ndim==1) roughness=0.0; /* sanity check */
+              else{
+                  for (iblock=0;iblock<2;iblock++) rough_block[iblock]=0;
+                  iblock=0;
+                  for (idim=0;idim<Ndim;idim++){
+                     if (idim != Orientation[itype]) {
+                         rough_block[iblock] = (int) ((node_pos[idim]+0.5*Size_x[idim])/Rough_length[itype]);
+                         printf("idim=%d  node_pos[idim]=%9.6f  Rough_length=%9.6f  iblock=%d  rough_block=%d  roughness=%9.6f\n",idim,node_pos[idim],
+                                 Rough_length[itype],iblock,rough_block[iblock],Rough_precalc[itype][rough_block[0]][0]);
+                         if (rough_block[iblock] >= MAX_ROUGH_BLOCK) {
+                             printf("ERROR with rough surfacess - number of rough patches exceeds maximum of MAX_ROUGH_BLOCK=%d\n",
+                                      MAX_ROUGH_BLOCK);
+                             exit(-1);
+                         }
+                         iblock++;
+                     }
+                  }
+                  roughness = Rough_precalc[itype][rough_block[0]][rough_block[1]];
+              }
+         }
+         else roughness=0.0;
+
    
-         wall_thick = 2.0*WallParam[itype] - 2.0*roff;
+         wall_thick = 2.0*(WallParam[itype]+roughness) - 2.0*roff;
          if (Lhard_surf && ilist !=Nlists_HW-1) wall_thick += diam;
 
          if      (Orientation[itype] == 0) idim = 0;

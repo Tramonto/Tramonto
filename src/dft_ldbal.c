@@ -1253,8 +1253,8 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
   }
 
   /* print out bounding boxes */
-  if (Iwrite == VERBOSE) {
-    if (Num_Proc>1) MPI_Barrier(MPI_COMM_WORLD);
+  if (Iwrite == VERBOSE && Num_Proc>1) {
+    MPI_Barrier(MPI_COMM_WORLD);
     printf("Proc %2d: Position x: %g = %g  y: %g = %g\n",Proc,
             rcbbox.lo[0], rcbbox.hi[0], rcbbox.lo[1], rcbbox.hi[1]);
 

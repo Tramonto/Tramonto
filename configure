@@ -4393,7 +4393,8 @@ else
 See \`config.log' for more details." >&5
 echo "$as_me: error: Cannot link to AztecOO, Triutils, Ifpack, EpetraExt, Epetra, or Teuchos library.
 See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }
+#   { (exit 1); exit 1; }; 
+}
 fi
 
 

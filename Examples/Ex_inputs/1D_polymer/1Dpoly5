@@ -34,6 +34,12 @@
 @   0.      WallParam[iwall_type], iwall_type=1,Nwall_type
 @   0.       WallParm2[iwall_type]: iwall_type=1,Nwall_type
 @   0.       WallParm3[iwall_type]: iwall_type=1,Nwall_type
+@   0.       WallParm4[iwall_type]: iwall_type=1,Nwall_type
+@   0        Lrough_surf[iwall_type]: iwall_type=1,Nwall_type
+@   0        rough_param_max[iwall_type]: iwall_type=1,Nwall_type
+@   0        Rough_length[iwall_type]: iwall_type=1,Nwall_type
+
+
                       
 ************** WALL-FLUID AND WALL-WALL  INTERACTION TYPE PARAMETERS  ************************************
 @ 0       Type of neutral surface-fluid interactions (param. Ipot_wf_n[iwall_type])

@@ -764,6 +764,9 @@ static void setup_exp_density(double **xOwned, double *rho,int nloop,int index)
         }
         else xOwned[iunk][loc_inode] = 0.0;
 
+        if (xOwned[iunk][loc_inode]>1.0) xOwned[iunk][loc_inode] = 0.99;   /* may need this to make sure that rb3<1 always */
+
+
          /* set up initial guess if chemical potential is an unknown */
          if (Lsteady_state) {
 	    iunk = i+Phys2Unk_first[DIFFUSION];

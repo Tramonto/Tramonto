@@ -34,6 +34,12 @@
 @   0.5      WallParam[iwall_type], iwall_type=1,Nwall_type
 @   0.       WallParm2[iwall_type]: iwall_type=1,Nwall_type
 @   0.       WallParm3[iwall_type]: iwall_type=1,Nwall_type
+@   0.       WallParm4[iwall_type]: iwall_type=1,Nwall_type
+@   0        Lrough_surf[iwall_type]: iwall_type=1,Nwall_type
+@   0        rough_param_max[iwall_type]: iwall_type=1,Nwall_type
+@   0        Rough_length[iwall_type]: iwall_type=1,Nwall_type
+
+
                       
 ************** WALL-FLUID AND WALL-WALL  INTERACTION TYPE PARAMETERS  ************************************
 @ 1       Type of neutral surface-fluid interactions (param. Ipot_wf_n[iwall_type])
@@ -210,12 +216,6 @@
                          4 =use 2nd coarsest zone in all but coarsest zone 
                          5 =use Esize_jacobian for all Jacobian integrals
 @  0   100.      Ljac_cut   Jac_threshold
-@  0             Matrix_fill_flag 
-                    0= Exact Jacobian, 
-                    1= Jac_Save1 (only rhobar2 and rhobar 3)
-                    2= Jac_Save2 (rhobar 2,3 exact: rhobar 0,1 estimated)
-                    3= Enumerated rhobar equations (all of them)
-                    4= Enumerated rhobar equations (no vector terms)
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
 @ 50             Maximum # of Newton Iterations
