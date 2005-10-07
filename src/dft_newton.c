@@ -91,7 +91,7 @@ int solve_problem(double **x, double **x2)
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
  }
- else if (Type_func != NONE) {
+ else if (Type_func != NONE && Type_poly==NONE) {
 
    count_density=count_indnonlocal=count_depnonlocal=0;
    one_particle_size=FALSE;
@@ -112,7 +112,8 @@ int solve_problem(double **x, double **x2)
        break;
      case BOND_WTC:
      case CAVITY_WTC:
-       indnonlocaleq[count_indnonlocal++]=iunk; break;
+      /* indnonlocaleq[count_indnonlocal++]=iunk; break; A11 Block doesn't work*/
+       densityeq[count_density++]=iunk; break; 
      } 
    }
    LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);

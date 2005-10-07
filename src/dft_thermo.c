@@ -28,7 +28,7 @@ void  thermodynamics( char *output_file1, int print_flag)
 {
    int icomp,jcomp,kcomp,i,ipol,iseg,ibond,jseg,kseg;
    double betap_hs=0, betamu_hs[NCOMP_MAX],betap_att,p_coex=0.0,betap_TC=0.0;
-   double y,dydxi2,dydxi3,sig2,sig3,sum;
+   double y,dydxi2,dydxi3,sig2,sig3;
    char *yo = "thermodynamics";
 
  if (!Sten_Type[POLYMER_CR]){
@@ -214,7 +214,6 @@ void  thermodynamics( char *output_file1, int print_flag)
                 jseg=Bonds_SegAll[iseg][ibond];
                 jcomp=Unk2Comp[jseg];
                 y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-/*                y = y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);*/
                   Betamu_seg[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(Rho_seg_b[jseg])  
                                       - Rho_seg_b[jseg]/Rho_seg_b[iseg]);
                   Betamu_wtc[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(Rho_seg_b[jseg])     
@@ -225,7 +224,6 @@ void  thermodynamics( char *output_file1, int print_flag)
             correlation function.  Note that this term is nonzero even for bond pairs on different polymer
             components than the one where the iseg segment is found ! */
          for (kseg=0; kseg<Nseg_tot;kseg++){
- sum=0.0;
            kcomp = Unk2Comp[kseg];
            sig2=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
            sig3=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
@@ -237,9 +235,6 @@ void  thermodynamics( char *output_file1, int print_flag)
                 y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
                 dydxi2 = dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
                 dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-/*                y = y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-                dydxi2 = dy_dxi2_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-                dydxi3 = dy_dxi3_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);*/
                 Betamu_seg[kseg] -= Fac_overlap[icomp][jcomp]*(PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
                 Betamu_wtc[kseg] -= Fac_overlap[icomp][jcomp]*(PI/12.0)*(Rho_seg_b[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
               }
@@ -342,10 +337,7 @@ double calc_hs_properties(double *betamu_hs,double *rho)
    double pi6, hs_diam_cubed, xsi0, xsi1, xsi2, xsi3, y1, y2, y3,
           betap_hs;
 
-   xsi0 = 0.0;
-   xsi1 = 0.0;
-   xsi2 = 0.0;
-   xsi3 = 0.0;
+   xsi0=xsi1=xsi2=xsi3=0.0;
    pi6 = PI/6.0;                 /* shorthand  for pi/6                 */
 
    /*  Determine the effective hard sphere diameters 
@@ -974,8 +966,13 @@ void print_thermo(char *output_file1, double betap_hs,
       fprintf(fp2,"     *** THAT INCLUDE THE CONTRIBUTIONS OF THE BONDS !!       ***\n");
       fprintf(fp2,"     ***********************************************************\n");
       for (iseg=0; iseg<Nseg_tot;iseg++){
+          fprintf(fp2,"\t\t Betamu_wtc[iseg=%d] = %9.6f\n", iseg, Betamu_wtc[iseg]);
+      }
+      fprintf(fp2,"\n    ******* TOTAL SEGMENT BASED CHEMICAL POTENTIALS !!!*******\n");
+      for (iseg=0; iseg<Nseg_tot;iseg++){
           fprintf(fp2,"\t\t Betamu_seg[iseg=%d] = %9.6f\n", iseg, Betamu_seg[iseg]);
       }
+      fprintf(fp2,"           *********************************\n");
    }
 
    fprintf(fp2,"\n!!!!!!!!!!!!! end of dft_thermo.c output !!!!!!!!!!!!!!!!!!\n");

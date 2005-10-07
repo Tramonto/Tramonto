@@ -231,7 +231,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                   if (Iliq_vap < 10 ){
                      if (Type_poly==WTC)  resid_mu -= log(Rho_seg_b[iseg]);
                      else{               resid_mu -= log(Rho_b[icomp]);
-/*printf("ideal contribution to chem pot...=%9.6f\n",-log(Rho_b[icomp]));*/
                      }
 
                   
@@ -316,7 +315,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                             &dphi_drb_bulk, &dphi_drb_bulk_left,
                             &dphi_drb_bulk_right,
                             resid_only_flag);
-
 
               if (Sten_Type[U_ATTRACT]) {  /* load attractions */
                  resid_uatt=load_mean_field(U_ATTRACT,iunk,loc_inode,
@@ -460,8 +458,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          printf(" loc_inode=%d  iunk_cavity=%d  resid=%9.6f",loc_inode,iunk,resid_cavity);
     else if (Unk2Phys[iunk]==BOND_WTC) 
          printf(" loc_inode=%d  iunk_bondwtc=%d  resid=%9.6f",loc_inode,iunk,resid_bondwtc);
-    printf("  \n");
-*/
+    printf("  \n");*/
+
 
 /*    if (Unk2Phys[iunk]==DENSITY){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_ig + resid_vext + resid_mu + resid_charge+ resid_hs1+resid_hs2+resid_WTC1);}
     else if(Unk2Phys[iunk]==RHOBAR_ROSEN){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}

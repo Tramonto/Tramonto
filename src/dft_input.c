@@ -940,7 +940,7 @@ void read_input_file(char *input_file, char *output_file1)
         end_count=0;
 	if (Proc==0) fscanf(fp4,"%d", &Nbond[pol_number][iseg]);
 	MPI_Bcast(&Nbond[pol_number][iseg],1,MPI_INT,0,MPI_COMM_WORLD);
-        Nbonds_SegAll[seg_tot]=Nbond[pol_number][iseg];
+        Nbonds_SegAll[seg_tot]=0;
 
 	for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
 	  if (Proc==0) {
@@ -948,10 +948,10 @@ void read_input_file(char *input_file, char *output_file1)
 	    fprintf(fp2,"%d  ",Bonds[pol_number][iseg][ibond]);
 	  }
 	  MPI_Bcast(&Bonds[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
-          Bonds_SegAll[seg_tot][ibond]=Bonds[pol_number][iseg][ibond];
 	  MPI_Bcast(&pol_sym_tmp[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
           if (Type_poly!=WTC || (Type_poly==WTC && Bonds[pol_number][iseg][ibond] != -1)){
                                   /* note we don't want to include ends for the WTC polymers!*/
+            Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond];
 	    Unk_to_Poly[nbond_all] = pol_number;
   	    Unk_to_Seg[nbond_all]  = iseg;
 	    Unk_to_Bond[nbond_all] = ibond;
@@ -961,6 +961,7 @@ void read_input_file(char *input_file, char *output_file1)
 	    nbond_all++;
 	    nunk++;
             Nbonds++; 
+            Nbonds_SegAll[seg_tot]++;
           }
           else if (Type_poly==WTC && Bonds[pol_number][iseg][ibond] == -1){
               end_count++;
