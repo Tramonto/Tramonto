@@ -112,8 +112,8 @@ int solve_problem(double **x, double **x2)
        break;
      case BOND_WTC:
      case CAVITY_WTC:
-      /* indnonlocaleq[count_indnonlocal++]=iunk; break; A11 Block doesn't work*/
-       densityeq[count_density++]=iunk; break; 
+       indnonlocaleq[count_indnonlocal++]=iunk; break;   /*....putting in A11 Block doesn't work*/
+      /* densityeq[count_density++]=iunk; break;*/  /* putting them in A22 block doesn't work either */
      } 
    }
    LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
