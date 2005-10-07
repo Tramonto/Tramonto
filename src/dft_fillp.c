@@ -164,23 +164,14 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
 	   /* Boltzmann factor for this i */
             unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
 
-            if (Type_poly == 2 || Type_poly == 1) {
-              resid = x[iunk][inode_box];
-              resid_R+=resid;
-              mat_val = 1.;
-              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
-            }
-            else{
-              resid = x[iunk][inode_box]*x[unk_B][inode_box];
-              resid_R+=resid;
-              values[0]=x[iunk][inode_box]; values[1]=x[unk_B][inode_box];
-              unkIndex[0]=unk_B; unkIndex[1]=iunk;
-              numEntries=2;
-              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-              dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                   unkIndex, inode_box, values, numEntries);
-            }
+            resid = x[iunk][inode_box]*x[unk_B][inode_box];
+            resid_R+=resid;
+            values[0]=x[iunk][inode_box]; values[1]=x[unk_B][inode_box];
+            unkIndex[0]=unk_B; unkIndex[1]=iunk;
+            numEntries=2;
+            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+            dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                 unkIndex, inode_box, values, numEntries);
 
             npol = 0;
             while (Nmer_t[npol][itype_mer]==0) npol++;
@@ -189,18 +180,8 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
             for (i=0; i<Nmer[npol]; i++){
               if (Type_mer[npol][i] == itype_mer) {
 
-                 if (Type_poly == 0 ||Type_poly==3){
-                      boltz_pow = -(Nbond[npol][i]-2);
-                      boltz_pow_J = -(Nbond[npol][i]-1);
-                 }
-                 else if (Type_poly == 1){
-                      boltz_pow = -(Nbond[npol][i]-1);
-                      boltz_pow_J = -(Nbond[npol][i]);
-                 }
-                 else {
-                      boltz_pow = 1;
-                      boltz_pow_J = 0;
-                 }
+                 boltz_pow = -(Nbond[npol][i]-2);
+                 boltz_pow_J = -(Nbond[npol][i]-1);
                  fac1= k_poly;
                  for (ibond=0; ibond<Nbond[npol][i]; ibond++) {
                     unk_GQ  = Geqn_start[npol] + Poly_to_Unk[npol][i][ibond]; 
@@ -246,69 +227,35 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
              else{                                                  /* FILL IN G's FOR UNIQUE BONDS */
 
                if (Bonds[pol_num][seg_num][bond_num] == -1){        /* fill end segment equation */
-                  if (Type_poly == 0 || Type_poly == 1 || Type_poly == 3){
-                     node_to_position(B2G_node[inode_box],nodepos);
-                                                         /* Boltz unk for 1st seg */
-                        unk_B = Phys2Unk_first[CMS_FIELD] + Type_mer[npol][seg_num];     
-                        resid = x[iunk][inode_box]-x[unk_B][inode_box];
-                        resid_G+=resid;
-                        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                        unkIndex[0]=iunk; unkIndex[1]=unk_B;
-                        values[0]=1.0; values[1]=-1.0;
-                        numEntries=2;
-                        dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                             unkIndex, inode_box, values, numEntries);
-                  }
-                  else{
-                        resid = x[iunk][inode_box]-1.0;
-                        resid_G+=resid;
-                        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                        mat_val = 1.0;
-                        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
-                  }
-
+                  node_to_position(B2G_node[inode_box],nodepos);
+                                                      /* Boltz unk for 1st seg */
+                  unk_B = Phys2Unk_first[CMS_FIELD] + Type_mer[npol][seg_num];     
+                  resid = x[iunk][inode_box]-x[unk_B][inode_box];
+                  resid_G+=resid;
+                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                  unkIndex[0]=iunk; unkIndex[1]=unk_B;
+                  values[0]=1.0; values[1]=-1.0;
+                  numEntries=2;
+                  dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                       unkIndex, inode_box, values, numEntries);
                }
                else{                                            /* fill G_seg eqns */
 
                                  /* First calculate the residual contributions */
 
                   unk_B = Phys2Unk_first[CMS_FIELD] + itype_mer;   /* Boltz unk for this seg */
-                  if (Type_poly == 0 || Type_poly == 3 ){
-                     boltz = x[unk_B][inode_box];
-                     resid = x[iunk][inode_box]; 
-                     resid_G+=resid;
-                     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                     mat_val = 1.;
-                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
-                  }
-                  else if (Type_poly == 1) {
-                     boltz = 1.0;
-                     resid = x[iunk][inode_box]/x[unk_B][inode_box];
-                     resid_G+=resid;
-                     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                     values[0] += 1./x[unk_B][inode_box];
-                     values[1] -= x[iunk][inode_box]/(x[unk_B][inode_box]*x[unk_B][inode_box]);
-                     unkIndex[0]=iunk; unkIndex[1]=unk_B;
-                     numEntries=2;
-                     dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                             unkIndex, inode_box, values, numEntries);
-                   }
-                   else if (Type_poly == 2) {
-                     boltz = 1.0;
-                     resid = x[iunk][inode_box];
-                     resid_G+=resid;
-                     mat_val = 1.;
-                     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
-                   }
+                  boltz = x[unk_B][inode_box];
+                  resid = x[iunk][inode_box]; 
+                  resid_G+=resid;
+                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                  mat_val = 1.;
+                  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
 
                   /* Now Finish loading the Jacobian... */
                   gint_tmp = load_polymer_G(sten,iunk,loc_inode,inode_box,unk_B,itype_mer,izone,ijk_box,x);
                   resid_G += gint_tmp;
-                  if (Type_poly==0 || Type_poly==3){
-                     mat_val = gint_tmp / boltz;
-                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
-                  }
+                  mat_val = gint_tmp / boltz;
+                  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
 
                }
              }
@@ -386,30 +333,12 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
   /* don't forget Boltzman factor */
   unk[nunk++]=jtype_mer+Phys2Unk_first[CMS_FIELD];
 
-  if (Type_poly == 0 || Type_poly == 3) {
-      boltz_pow_R = -(Nbond[pol_num][jseg]-2);
-      boltz_prefac_R = -x[unk_B][inode_box];
-      boltz_pow_1 = -(Nbond[pol_num][jseg]-1);
-      boltz_prefac_1 = x[unk_B][inode_box]*(Nbond[pol_num][jseg]-2);
-      boltz_pow_2 = -(Nbond[pol_num][jseg]-2);
-      boltz_prefac_2 = -x[unk_B][inode_box];
-  }
-  else if (Type_poly == 1){
-      boltz_pow_R = -(Nbond[pol_num][jseg]-2);
-      boltz_prefac_R = -1.0;
-      boltz_pow_1 = -(Nbond[pol_num][jseg]-1);
-      boltz_prefac_1 = (Nbond[pol_num][jseg]-2);
-      boltz_pow_2 = -(Nbond[pol_num][jseg]-2);
-      boltz_prefac_2 = -1.0;
-  }
-  else{
-       boltz_pow_R= 1;
-       boltz_prefac_R = -1.0;
-       boltz_pow_1 = 0;
-       boltz_prefac_1 = -1.0;
-       boltz_pow_2 = 1;
-       boltz_prefac_2 = -1.0;
-  }
+  boltz_pow_R = -(Nbond[pol_num][jseg]-2);
+  boltz_prefac_R = -x[unk_B][inode_box];
+  boltz_pow_1 = -(Nbond[pol_num][jseg]-1);
+  boltz_prefac_1 = x[unk_B][inode_box]*(Nbond[pol_num][jseg]-2);
+  boltz_pow_2 = -(Nbond[pol_num][jseg]-2);
+  boltz_prefac_2 = -x[unk_B][inode_box];
 
   sten = &(Stencil[sten_type][izone][itype_mer+Ncomp*jtype_mer]);
   sten_offset = sten->Offset;

@@ -148,9 +148,9 @@ void calc_stencils(void)
 
     /* here we split stencils into those that depend only on one species and those that
        depend on pairs of species */
-    if ((isten == DELTA_FN && Type_poly==-1) || isten==THETA_FN ||isten==THETA_FN_SIG) jmax=1;
+    if ((isten == DELTA_FN && (Type_poly==NONE || Type_poly==WTC)) || isten==THETA_FN ||isten==THETA_FN_SIG) jmax=1;
     else if (isten == U_ATTRACT || isten == THETA_CHARGE || isten == POLYMER_CR ||
-        (isten == DELTA_FN && Sten_Type[POLYMER_CR]) || isten==DELTA_FN_BOND) jmax = Ncomp;
+        (isten == DELTA_FN && Type_poly!=NONE && Type_poly != WTC) || isten==DELTA_FN_BOND) jmax = Ncomp;
     else {
        printf("problems defining the number of stencil functions to compute for the chosen type\n!");
        exit(-1);

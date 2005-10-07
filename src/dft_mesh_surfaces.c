@@ -493,7 +493,7 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
 
    
          radius = WallParam[itype]+roughness;
-         if(Lhard_surf && ilist != Nlists_HW-1 && (Type_func >= 0 || Type_poly >= 0) )  
+         if(Lhard_surf && ilist != Nlists_HW-1 && (Type_func != NONE || Type_poly !=NONE) )  
                      radius += 0.5*Sigma_ff[ilist][ilist];
 
          radius -= roff; /* adjust for round-off errors */
@@ -769,7 +769,7 @@ void els_atomic_centers(int iwall, int real_wall,int itype, int **L_wall, double
 
        if (Lhard_surf){ 
           radius = 0.5*Sigma_ww[itype][itype];
-          if (ilist != Nlists_HW-1 && (Type_func >=0 || Type_poly >=0) )  
+          if (ilist != Nlists_HW-1 && (Type_func !=NONE || Type_poly !=NONE) )  
                    radius += 0.5*Sigma_ff[ilist][ilist];
        }
        else{

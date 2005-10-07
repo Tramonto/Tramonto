@@ -223,41 +223,32 @@ void read_input_file(char *input_file, char *output_file1)
   }
 
   /* polymer functionals */
-  Type_poly_TC=FALSE;
   if ( Proc==0 ) {
     read_junk(fp,fp2);
     fscanf(fp,"%d",&Type_poly);
     fprintf(fp2,"%d",Type_poly);
   }
   MPI_Bcast(&Type_poly,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_poly == TC_FR_JNT_CHN) {
-    Type_poly_TC = TRUE;
-    Type_poly = NONE;
+  if (Type_poly == WTC) {
     Sten_Type[THETA_FN_SIG]=TRUE;
     Sten_Type[DELTA_FN_BOND]=TRUE;
   }
-  MPI_Bcast(&Type_poly_TC,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_poly != NONE){
+  else if (Type_poly == CMS || Type_poly==CMS_SCFT){
       Sten_Type[DELTA_FN]=TRUE;
       Sten_Type[U_ATTRACT]=FALSE;   /* attractions handled differently for polymers */
+      Sten_Type[POLYMER_CR]=TRUE;
+      if (Type_poly==CMS_SCFT){
+        printf ("To do SCFT with CMS theory, we need to test and debug all code !\n");
+        exit(-1);
+      }
   }
-
-
-  /* ALF: modify for new SCF Type_poly == CMS_SCFT */
-  if (Type_poly==CMS_FR_JNT_CHN1 || Type_poly==CMS_FR_JNT_CHN2 || Type_poly==CMS_FR_JNT_CHN3) 
-           Sten_Type[POLYMER_CR]=TRUE;
-  else if (Type_poly==CMS_GAUSSIAN){
+  if (Type_poly == CMS_GAUSSIAN){
       Sten_Type[POLYMER_CR]=2;
       printf ("To do CMS Gaussian chains, we need to test and debug all code !\n");
       exit(-1);
   }
-  else if (Type_poly==CMS_SCFT){
-      printf ("To do SCFT with CMS theory, we need to test and debug all code !\n");
-      exit(-1);
-  } 
-
-  else if (Type_poly >TC_FR_JNT_CHN || Type_poly<NONE){
-     if (Proc==0) printf("ERROR Type_poly out of range - should be -1,0,1,2,3,4,6\n");
+  else if (Type_poly >WTC || Type_poly<NONE){
+     if (Proc==0) printf("ERROR Type_poly out of range (bounds are %d,%d)\n",NONE,WTC);
      exit(-1);
   }
 
@@ -270,11 +261,9 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&Lcompare_fastram,1,MPI_INT,0,MPI_COMM_WORLD);
 
   /* Read in or set if known the Potential Type Paramters */
-  if (Type_func == -1 && Type_poly==NONE ) Ipot_ff_n = 0; /* Ideal Gas */
-  else if (Type_func >=0 && Type_attr == -1) Ipot_ff_n =1; /* Hard Sphere Fluid */
-  else if (Type_func >=0 && Type_attr == 0) Ipot_ff_n =2; /* Lennard-Jones Fluid */
-  else if (Type_poly > NONE && Type_attr == 0) Ipot_ff_n =2; /* Lennard-Jones Chains */
-  else if (Type_poly > NONE && Type_attr == -1) Ipot_ff_n =1; /* Hard Chain Fluid */
+  if (Type_func == -1 && (Type_poly==NONE || Type_poly==WTC)  ) Ipot_ff_n = IDEAL_GAS;
+  else if (Type_attr == -1)                                     Ipot_ff_n = HARD_SPHERE;
+  else if (Type_attr == 0)                                      Ipot_ff_n = LJ12_6;
   else {
      printf("ERROR WITH Type_func and Type_attr selections and conversion to Ipot_ff_n parameter \n");
      exit (-1);
@@ -687,7 +676,7 @@ void read_input_file(char *input_file, char *output_file1)
                        /* Bond_ff */
   if (Proc==0) {
     read_junk(fp,fp2);
-    if (Type_poly>NONE ||Type_poly_TC){
+    if (Type_poly!=NONE){
       for (i=0; i<Ncomp; i++){
         if (Mix_type==0) {jmin=i; jmax=i+1;}
         else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
@@ -841,7 +830,7 @@ void read_input_file(char *input_file, char *output_file1)
        Unk2Comp[icomp]=icomp;
   }
 
-  if (Sten_Type[POLYMER_CR] || Type_poly_TC){
+  if (Type_poly != NONE){
 
     if (Proc==0) {
       printf("\n");
@@ -961,7 +950,7 @@ void read_input_file(char *input_file, char *output_file1)
 	  MPI_Bcast(&Bonds[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
           Bonds_SegAll[seg_tot][ibond]=Bonds[pol_number][iseg][ibond];
 	  MPI_Bcast(&pol_sym_tmp[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
-          if (!Type_poly_TC || (Type_poly_TC && Bonds[pol_number][iseg][ibond] != -1)){
+          if (Type_poly!=WTC || (Type_poly==WTC && Bonds[pol_number][iseg][ibond] != -1)){
                                   /* note we don't want to include ends for the WTC polymers!*/
 	    Unk_to_Poly[nbond_all] = pol_number;
   	    Unk_to_Seg[nbond_all]  = iseg;
@@ -973,7 +962,7 @@ void read_input_file(char *input_file, char *output_file1)
 	    nunk++;
             Nbonds++; 
           }
-          else if (Type_poly_TC && Bonds[pol_number][iseg][ibond] == -1){
+          else if (Type_poly==WTC && Bonds[pol_number][iseg][ibond] == -1){
               end_count++;
           }
 	}
@@ -1186,7 +1175,7 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    if ((Type_poly==NONE && !Type_poly_TC) || Ntype_mer == 1)
+    if (Type_poly==NONE || Ntype_mer == 1)
       for (icomp=0; icomp<Ncomp; ++icomp){
         fscanf(fp,"%lf", &Rho_b[icomp]);
         fprintf(fp2,"%f  ",Rho_b[icomp]);
@@ -1803,7 +1792,7 @@ void read_input_file(char *input_file, char *output_file1)
     }
     else if ( Loca.cont_type1 == CONT_RHO_0 || Loca.cont_type1 == CONT_RHO_ALL ||
               Loca.cont_type1 == CONT_LOG_RHO_0 || Loca.cont_type1 == CONT_LOG_RHO_ALL ||  Loca.cont_type1 ==CONT_SCALE_RHO){
-           if (Type_poly >NONE){
+           if (Type_poly !=NONE && Type_poly !=WTC){
                printf("WARNING: density continuation may be incorrect with polymer code\n");
                printf("...... you really need a new c(r) for the hard chain part\n");
                printf("...... for each new density.\n");
@@ -1988,8 +1977,7 @@ void error_check(void)
      exit (-1);
   }
 
-  /* ALF: modify for new polymer type; also check above error checks! */
-  if (Type_poly > TC_FR_JNT_CHN || Type_poly < NONE){
+  if (Type_poly > WTC || Type_poly < NONE){
      printf ("\nSorry, your choice for the type of polymer functional\n");
      printf ("Type_poly: %d is not available\n", Type_poly);
      exit (-1);

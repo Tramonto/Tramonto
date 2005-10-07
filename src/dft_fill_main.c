@@ -179,7 +179,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /**** LOAD EULER-LAGRANGE EQUATIONS *****/
       if (Unk2Phys[iunk]==DENSITY) {      
         i = iunk-Phys2Unk_first[DENSITY];
-        if (Type_poly_TC){
+        if (Type_poly==WTC){
                           iseg=i;
                           icomp=Unk2Comp[iseg];
         }
@@ -187,7 +187,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
         /* Do trivial fill if it is a zero-density node */
         zero_density_bond_check=FALSE;
-        if (Type_poly_TC){
+        if (Type_poly==WTC){
             for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
                 unk_bond = Phys2Unk_first[BOND_WTC]+Poly_to_Unk_SegAll[iseg][ibond];
                 n=x[unk_bond][inode_box];
@@ -210,7 +210,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
 
              if (mesh_coarsen_flag_i == FLAG_BULK){
-                  if (Type_poly_TC)   resid = -log(Rho_seg_b[iseg]);
+                  if (Type_poly==WTC)   resid = -log(Rho_seg_b[iseg]);
                   else                resid = -log(Rho_b[icomp]);
                   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              }
@@ -229,7 +229,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                resid_mu = 0.0; 
                if (Lsteady_state == FALSE) { 
                   if (Iliq_vap < 10 ){
-                     if (Type_poly_TC)  resid_mu -= log(Rho_seg_b[iseg]);
+                     if (Type_poly==WTC)  resid_mu -= log(Rho_seg_b[iseg]);
                      else{               resid_mu -= log(Rho_b[icomp]);
 /*printf("ideal contribution to chem pot...=%9.6f\n",-log(Rho_b[icomp]));*/
                      }
@@ -237,16 +237,16 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                   
                    if (Ipot_ff_n != IDEAL_GAS) resid_mu -= Betamu_hs_ex[icomp];
                    if (Ipot_ff_n == LJ12_6)    resid_mu -= Betamu_att[icomp];
-                   if (Type_poly_TC)           resid_mu -= Betamu_wtc[iseg];
+                   if (Type_poly==WTC)           resid_mu -= Betamu_wtc[iseg];
                    if (Ipot_ff_c == COULOMB && Sten_Type[THETA_CHARGE]) resid_mu += Deltac_b[icomp];
                   }
                   else{
-                      if (Type_poly_TC) resid_mu = -Betamu_seg[iseg];
+                      if (Type_poly==WTC) resid_mu = -Betamu_seg[iseg];
                       else              resid_mu = -Betamu[icomp];
                   }
                }
                else{                             /* Lsteady_state == TRUE */
-                  if(Type_poly_TC)  junk=Phys2Unk_first[DIFFUSION] + iseg;
+                  if(Type_poly==WTC)  junk=Phys2Unk_first[DIFFUSION] + iseg;
                   else              junk=Phys2Unk_first[DIFFUSION] + icomp;
                   resid_mu = -x[junk][inode_box];
                   mat_value=-1.0;
@@ -328,7 +328,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                                  icomp,izone,ijk_box,x, resid_only_flag);
               }   
 
-              if (Type_poly_TC){
+              if (Type_poly==WTC){
                    resid_WTC1+=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
                                                  izone,ijk_box,x,resid_only_flag);
                    resid_WTC1+=load_polyTC_bondEL(iunk,loc_inode,inode_box,icomp,

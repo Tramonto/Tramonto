@@ -82,14 +82,8 @@ void post_process (double **x,char *output_file3,int *niters,
 
 
    if (Proc == 0 && Iwrite != MINIMAL) {
-        if (Print_rho_type != PRINT_RHO_0) {
-           print_profile(output_file5);
-/*           if (Type_poly !=-1) print_site_densities(output_file8);*/
-        }
-        else{
-           print_profile(output_file4);
-/*           if (Type_poly !=-1) print_site_densities(output_file7);*/
-        }
+        if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5);
+        else                                print_profile(output_file4);
    }
    if (Lprint_gofr && Nlink==1) print_gofr(output_file6);
 
@@ -190,8 +184,8 @@ void setup_integrals()
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
 
-  if (Type_poly_TC) nloop=Nseg_tot;
-  else              nloop=Ncomp;
+  if (Type_poly==WTC) nloop=Nseg_tot;
+  else                nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       inode = L2G_node[loc_inode];

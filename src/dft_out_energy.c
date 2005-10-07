@@ -140,7 +140,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
                }
                else ljterm=0.0;
 
-              if (Type_poly_TC){
+              if (Type_poly==WTC){
                     unk_xi2 = Phys2Unk_first[CAVITY_WTC];
                     unk_xi3 = Phys2Unk_first[CAVITY_WTC]+1;
                     iseg = iunk-Phys2Unk_first[DENSITY];
@@ -197,7 +197,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
             }
             else lj_b=0.0;
 
-            if (Type_poly_TC){
+            if (Type_poly==WTC){
                 wtc_b += 0.5*Rho_b[iseg]*Betamu_wtc[iseg];
             }
             else wtc_b=0.0;
@@ -220,7 +220,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
                                    * Vol_el/((double)Nnodes_per_el_V);
             vext_sum[i]  +=  vext*Nel_hit2[i][iunk][inode_box]
                                    * Vol_el/((double)Nnodes_per_el_V);
-            if (Type_poly_TC)
+            if (Type_poly==WTC)
                wtc_sum[i]  +=  wtc_term*Nel_hit2[i][iunk][inode_box]
                                    * Vol_el/((double)Nnodes_per_el_V);
             if (Type_coul > -1){
@@ -242,7 +242,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
     ideal_sum[i] = gsum_double(ideal_sum[i]);
     lj_sum[i] = gsum_double(lj_sum[i]);
     vext_sum[i] = gsum_double(vext_sum[i]);
-    if (Type_poly_TC) wtc_sum[i]=gsum_double(wtc_sum[i]);
+    if (Type_poly==WTC) wtc_sum[i]=gsum_double(wtc_sum[i]);
     if (Type_coul > -1){
       psi_rho_sum[i] = gsum_double(psi_rho_sum[i]);
       vext_c_sum[i] = gsum_double(vext_c_sum[i]);
@@ -283,7 +283,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
         vext_c_sum[i] *= prefac; 
         deltac_sum[i] *= prefac; 
      }	         
-     if (Type_poly_TC) wtc_sum[i] *= prefac; 
+     if (Type_poly==WTC) wtc_sum[i] *= prefac; 
      
   }
   if (fp !=NULL && Proc==0 && print_flag){
@@ -302,7 +302,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
        printf("\t\t Ideal Gas and Chem.pot term: %9.6f\n",ideal_sum[i]); 
        if (Type_func >=0) printf("\t\t Hard Sphere term: %9.6f\n",hs_energy); 
        if (Type_attr >=0) printf("\t\t Lennard-Jones term: %9.6f\n",lj_sum[i]); 
-       if (Type_poly_TC) printf("\t\t WTC bond term: %9.6f\n",wtc_sum[i]);
+       if (Type_poly==WTC) printf("\t\t WTC bond term: %9.6f\n",wtc_sum[i]);
        printf("\t\t External field (non-Coulomb) term: %9.6f\n",vext_sum[i]); 
        if (Type_coul > -1) {
          printf("\t\t Poisson-electrostatics term: %9.6f\n",psi_rho_sum[i]); 

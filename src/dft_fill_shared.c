@@ -78,7 +78,7 @@ double constant_boundary(int iunk,int jnode_box)
     double bcval;
     switch(Unk2Phys[iunk]){
        case DENSITY:
-          if (Type_poly_TC){
+          if (Type_poly==WTC){
              if (jnode_box==-1) bcval=Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
              if (jnode_box==-2) bcval=0.0;
              else if (jnode_box==-3) 

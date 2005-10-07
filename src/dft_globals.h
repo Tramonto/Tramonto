@@ -340,7 +340,6 @@ int     Type_func;    /* Type of functional for the calculation              */
 int     Type_attr;    /* Type for handling attractions                       */
 int     Type_coul;    /* Type for handling Coulombics                        */
 int     Type_poly;    /* Type for handling polymers                          */
-int     Type_poly_TC; /* Type for Werthein-Tripathi-Chapman polymers         */
 
 /* Startup Info */
 int     Restart;      /* Logical that switches between new prof & restart file*/

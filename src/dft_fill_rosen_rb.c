@@ -235,10 +235,10 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      resid_sum+=resid;
   }
   else {
-  if (Type_poly_TC) loop_max=Nseg_tot;
+  if (Type_poly==WTC) loop_max=Nseg_tot;
   else              loop_max=Ncomp;
   for (jloop=0; jloop<loop_max; jloop++){
-      if (Type_poly_TC) {
+      if (Type_poly==WTC) {
          jseg=jloop;
          jcomp=Unk2Comp[jseg];
          junk=Phys2Unk_first[DENSITY]+jseg;
@@ -357,10 +357,10 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
      else
         idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s - Ndim;
 
-     if (Type_poly_TC) loop_max=Nseg_tot;
+     if (Type_poly==WTC) loop_max=Nseg_tot;
      else              loop_max=Ncomp;
       for (jloop=0; jloop<loop_max; jloop++){
-       if (Type_poly_TC) {
+       if (Type_poly==WTC) {
           jseg=jloop;
           jcomp=Unk2Comp[jseg];
           junk=Phys2Unk_first[DENSITY]+jseg;

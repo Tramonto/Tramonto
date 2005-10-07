@@ -12,7 +12,7 @@
 @  0		Type_func (-1=No HS functional, 0=Rosen1, 1=Rosen2, 2=LDA-Rosen, 3=LDA-CS 4=Lattice)
 @ 0 		Type_attr (-1=No attractions, 0=strict MF)
 @ -1 		Type_coul (-1=No coulomb, 0=strict MF, 1=include 2nd order corrections)
-@ -1            Type_poly (-1=No polymer, 0-3 different polymer formulations)
+@ -1            Type_poly (-1=No polymer, 0=CMS, 1=CMS_GAUSSIAN, 2=CMS_SCFT, 3=WTC)
 @ 0             Lcompare_fastram
 
 ************** SURFACE PARAMETERS **********************************************

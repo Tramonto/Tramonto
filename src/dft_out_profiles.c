@@ -196,15 +196,15 @@ void print_profile(char *output_file4)
      ifp = fopen(output_file4,"w");
 
            /* open file for CMS_G variables ... */
-     if (Type_poly != -1){
+     if (Type_poly == CMS || Type_poly==CMS_SCFT){
        sprintf(gfile,"%sg",output_file4);
        fp6 = fopen(gfile,"w");
      } 
 
            /* open file for segment densities */
-     if (Type_poly != NONE || Type_poly_TC){
+     if (Type_poly == CMS || Type_poly==CMS_SCFT){
        sprintf(gfile2,"%s_site",output_file4);
-       fp7 = fopen(gfile2,"w");
+       if (Iwrite==VERBOSE) fp7 = fopen(gfile2,"w");
      }
 
            /* print order of unknowns at the top of the file */
@@ -273,8 +273,8 @@ void print_profile(char *output_file4)
                          /* print ijk coordinates of this node in the files */ 
         for (idim=0; idim<Ndim; idim++) {
                                     fprintf(ifp,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
-            if (Type_poly != NONE)  fprintf(fp6,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
-            if (Type_poly != NONE || Type_poly_TC) fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
+            if (Type_poly == CMS || Type_poly==CMS_SCFT)  fprintf(fp6,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
+            if ((Type_poly == CMS  || Type_poly==CMS_SCFT) && Iwrite==VERBOSE) fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
         }
 
         for (iunk=0; iunk<Nunk_per_node; iunk++){
@@ -304,14 +304,7 @@ void print_profile(char *output_file4)
                    break;
 
                 case CMS_G:
-                   if (Type_poly == 2){
-                      ipol=Unk_to_Poly[iunk-Phys2Unk_first[CMS_G]];
-                      iseg=Unk_to_Seg[iunk-Phys2Unk_first[CMS_G]];
-                      itype_mer=Type_mer[ipol][iseg];
-                      unk_field = Phys2Unk_first[CMS_FIELD]+itype_mer;
-                         fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]*X_old[unk_field+node_start]);
-                   }
-                   else  fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]);
+                   fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]);
                    break;
                 case CAVITY_WTC:
                   fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
@@ -332,7 +325,8 @@ void print_profile(char *output_file4)
         }
  
                /* print segment densities for a CMS polymer run */
-        if (Type_poly != NONE && Iwrite==VERBOSE){
+        if (Iwrite==VERBOSE){
+        if ((Type_poly == CMS || Type_poly==CMS_SCFT)){
            for (itype_mer=0;itype_mer<Ncomp;itype_mer++) sumsegdens[itype_mer]=0.0;
            for (ipol=0; ipol<Npol_comp; ipol++){
                for(iseg=0;iseg<Nmer[ipol];iseg++){
@@ -343,10 +337,7 @@ void print_profile(char *output_file4)
                          bondproduct *= X_old[unk_GQ+node_start];
                     }  
                    unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
-                   if (Type_poly==2)
-                      site_dens=bondproduct*X_old[unk_B+node_start]*Rho_b[itype_mer];
-                   else
-                      site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[ipol][iseg]-1))
+                   site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[ipol][iseg]-1))
                                            *Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
 
                    sumsegdens[itype_mer]+=site_dens;
@@ -355,11 +346,12 @@ void print_profile(char *output_file4)
            }
            for (itype_mer=0; itype_mer<Ntype_mer; itype_mer++) fprintf(fp7,"%22.17f\t", sumsegdens[itype_mer]);
         }
+        }
  
                 /* add a carriage return to the file to start a new line */
         fprintf(ifp,"\n");
-        if (Type_poly != NONE) fprintf(fp6,"\n");
-        if (Type_poly != NONE || Type_poly_TC) fprintf(fp7,"\n");
+        if (Type_poly == CMS || Type_poly==CMS_SCFT) fprintf(fp6,"\n");
+        if ((Type_poly == CMS || Type_poly==CMS_SCFT)&&Iwrite==VERBOSE) fprintf(fp7,"\n");
 
                 /* add some blank lines for improved graphics in 2D and 3D gnuplot */
         if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
@@ -368,8 +360,8 @@ void print_profile(char *output_file4)
 
           /* close files */
      fclose(ifp);
-     if (Type_poly != NONE) fclose(fp6);
-     if (Type_poly != NONE || Type_poly_TC) fclose(fp7);
+     if (Type_poly == CMS || Type_poly==CMS_SCFT) fclose(fp6);
+     if ((Type_poly == CMS || Type_poly==CMS_SCFT)&&Iwrite==VERBOSE) fclose(fp7);
 
   return;
 }
@@ -389,7 +381,7 @@ void print_gofr(char *output_file6)
 
      ifp = fopen(output_file6,"w");
 
-     if (Type_poly==NONE) nunk_print = Nunk_per_node;
+     if (Type_poly==NONE || Type_poly==WTC) nunk_print = Nunk_per_node;
      else nunk_print = 2*Ncomp;
 
      for (iwall=0; iwall<Nwall; iwall++){  /*compute g(r) for different atoms

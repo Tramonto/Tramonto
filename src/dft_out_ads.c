@@ -44,7 +44,7 @@ double calc_adsorption(FILE *fp,double **x,double fac_area,double fac_vol)
   }
 
   nloop=Ncomp;
-  if (Type_poly_TC) nloop=Nseg_tot;
+  if (Type_poly==WTC) nloop=Nseg_tot;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
     inode_box = L2B_node[loc_inode];
@@ -52,7 +52,7 @@ double calc_adsorption(FILE *fp,double **x,double fac_area,double fac_vol)
       for (i=0; i<Imax; i++){
 
 	 iunk = Phys2Unk_first[DENSITY]+iloop;
-         if (Type_poly_TC) icomp = Unk2Comp[iloop];
+         if (Type_poly==WTC) icomp = Unk2Comp[iloop];
          else              icomp = iloop;
 
 	 /* Note: if change def. of ads, must change polymer free energy also */
@@ -155,7 +155,7 @@ void calc_surface_charge(FILE *fp, double **x,double fac_area,double fac_vol)
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
 
   nloop=Ncomp;
-  if (Type_poly_TC) nloop=Nseg_tot;
+  if (Type_poly==WTC) nloop=Nseg_tot;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       /* convert local node to global */
@@ -164,7 +164,7 @@ void calc_surface_charge(FILE *fp, double **x,double fac_area,double fac_vol)
       node_to_ijk(inode,ijk);
 
       for (iloop=0; iloop<nloop; iloop++){
-         if (Type_poly_TC) icomp=Unk2Comp[iloop];
+         if (Type_poly==WTC) icomp=Unk2Comp[iloop];
          else icomp=iloop;
 
          if (Nlists_HW==1 || Nlists_HW==2) ilist = 0;

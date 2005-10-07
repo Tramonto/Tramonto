@@ -61,7 +61,7 @@ int solve_problem(double **x, double **x2)
   /* Construct dft_Linprobmgr with information on number of unknowns*/
   int is_poly = 0;
   int debug = 0;
- if (Type_poly != NONE  && Type_coul==NONE) {
+ if (Type_poly == CMS && Type_coul==NONE) {
    
    count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
    for (iunk=0;iunk<Nunk_per_node;iunk++){
@@ -119,7 +119,7 @@ int solve_problem(double **x, double **x2)
    dft_hardsphere_lin_prob_mgr_setindnonlocalequationids(LinProbMgr_manager, count_indnonlocal, indnonlocaleq);
    dft_hardsphere_lin_prob_mgr_setdepnonlocalequationids(LinProbMgr_manager, count_depnonlocal, depnonlocaleq);
    dft_hardsphere_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, count_density, densityeq);
-   if (Type_attr != NONE || Type_poly_TC || Mesh_coarsening || Type_coul != NONE)
+   if (Type_attr != NONE || Type_poly==WTC || Mesh_coarsening || Type_coul != NONE)
                 dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(LinProbMgr_manager, FALSE);
    else         dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(LinProbMgr_manager, TRUE);
  }
@@ -205,7 +205,7 @@ int newton_solver(double** x, void* con_ptr) {
 
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_finalizeproblemvalues(LinProbMgr_manager);
-    if (Iwrite == VERBOSE) print_resid_norm(iter);
+    if (Iwrite != NO_SCREEN) print_resid_norm(iter);
     (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);

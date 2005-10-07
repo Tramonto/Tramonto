@@ -193,13 +193,13 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
             communicate_profile(x_new,xOwned);
             check_zero_densities(xOwned);
             if (Lsteady_state && (Restart==3 || Restart_field[DIFFUSION]==FALSE))   setup_chem_pot(xOwned);
-            if (Type_poly==NONE &&
+            if ((Type_poly==NONE||Type_poly==WTC) &&
                   (Restart==3 || Restart_field[RHOBAR_ROSEN]==FALSE)) setup_rho_bar(xOwned);
             if (Ipot_ff_c == COULOMB && (Restart==3 || Restart_field[POISSON]==FALSE)){
                    printf("setting up electrostatic potential guess....\n");
                    setup_elec_pot(xOwned,iguess);
             }
-            if (Type_poly != NONE && Restart_field[CMS_FIELD]==FALSE) setup_polymer_field(xOwned,iguess);   
+            if ((Type_poly != NONE && Type_poly!=WTC) && Restart_field[CMS_FIELD]==FALSE) setup_polymer_field(xOwned,iguess);   
             if (Restart == 2) chop_profile(xOwned,iguess);
         /*    if (Restart ==6 && Nwall>0) setup_exp_density_with_profile(xOwned);*/
         }
@@ -212,10 +212,13 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
 
   if (start_no_info) {  /* START FROM A SPECIFIED INITIAL GUESS */
 
- if (Type_poly==NONE) {
+ if ((Type_poly==NONE || Type_poly==WTC)) {
     switch(iguess){
       case CONST_RHO:    
-            if (Type_poly_TC) setup_const_density(xOwned,Rho_seg_b,Nseg_tot,0);
+            if (Type_poly==WTC){
+printf("lets try to set up a constant density guess %g %g %g %d \n",Rho_b[0],Rho_b[1],Rho_b[2],Nseg_tot);
+                 setup_const_density(xOwned,Rho_seg_b,Nseg_tot,0);
+            }
             else              setup_const_density(xOwned,Rho_b,Ncomp,0);
             break;
 
@@ -253,7 +256,7 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
 
     setup_rho_bar(xOwned);
     if (Lsteady_state)   setup_chem_pot(xOwned);
-    if (Type_poly_TC){ 
+    if (Type_poly==WTC){ 
          setup_BondWTC(xOwned);
          setup_Xi_cavWTC(xOwned);
     }
@@ -261,7 +264,7 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
  else{
     /*setup_polymer(x);*/
 
-   if (Type_poly == 3)
+   if (Type_poly == CMS_SCFT)
      setup_polymer_simple(xOwned,iguess);
    else
      setup_polymer_rho(xOwned,iguess);
@@ -432,8 +435,7 @@ static void setup_polymer_G(double **xOwned)
                  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
                      inode_box = L2B_node[loc_inode];
                      node_box_to_ijk_box(inode_box, ijk_box);
-                     if (Type_poly == 2) xOwned[iunk][loc_inode] = 1.0;  
-                     else xOwned[iunk][loc_inode] = xOwned[Phys2Unk_first[CMS_FIELD]+itype_mer][loc_inode];
+                     xOwned[iunk][loc_inode] = xOwned[Phys2Unk_first[CMS_FIELD]+itype_mer][loc_inode];
                   }
              }
              else{
@@ -480,9 +482,6 @@ static void setup_polymer_G(double **xOwned)
 
                   xOwned[iunk][loc_inode] *= xOwned[Phys2Unk_first[CMS_FIELD]+itype_mer][loc_inode];
 
-                   /* simpler guess for debugging purposes LJDF*/
-                  if (Type_poly == 2)  xOwned[iunk][loc_inode] = 1.0;
-                    
 	           } /*end of Zero_dens_TF test */
                    } /* end of loop over loc_inode */
                }  /* end of test on whether the jtype_mer guess exists */
@@ -555,7 +554,6 @@ static void setup_polymer_G_2(double **xOwned)
 	  if(Bonds[poln][iseg][ibond]== -1){
             unk_B = Phys2Unk_first[CMS_FIELD] + Type_mer[poln][iseg];
 	    xOwned[iunk][loc_inode] = xOwned[unk_B][loc_inode];
-	    if (Type_poly == 2) xOwned[iunk][loc_inode] = 1.0; 
 	    MPI_Barrier(MPI_COMM_WORLD);
 	  }
 	  else{
@@ -591,9 +589,6 @@ static void setup_polymer_G_2(double **xOwned)
 	      /* Boltzmann factor */
 	      xOwned[iunk][loc_inode] *= xOwned[Phys2Unk_first[CMS_FIELD] + itype_mer][loc_inode];
 
-	      /* simpler guess for debugging purposes LJDF*/
-	      if (Type_poly == 2)  xOwned[iunk][loc_inode] = 1.0;
-                    
 	      /* } end of Zero_dens_TF test */
 	  } /* end of if Bond test */
 	  iunk++;
@@ -609,7 +604,6 @@ static void setup_polymer_G_2(double **xOwned)
                              /* TREAT THE END SEGMENTS */
 	  if(Bonds[poln][iseg][ibond]== -1){
 	    xOwned[Phys2Unk_first[CMS_G]+iunk][loc_inode] = xOwned[Phys2Unk_first[CMS_FIELD]+Type_mer[poln][iseg]][loc_inode];
-	    if (Type_poly == 2) xOwned[Phys2Unk_first[CMS_G]+iunk][loc_inode] = 1.0; 
 	    MPI_Barrier(MPI_COMM_WORLD);
 	  }
 	  else{
@@ -645,9 +639,6 @@ static void setup_polymer_G_2(double **xOwned)
 	      /* Boltzmann factor */
 	      xOwned[Phys2Unk_first[CMS_G]+iunk][loc_inode] *= xOwned[Phys2Unk_first[CMS_FIELD]+itype_mer][loc_inode];
 
-	      /* simpler guess for debugging purposes LJDF*/
-	      if (Type_poly == 2)  xOwned[Phys2Unk_first[CMS_G]+iunk][loc_inode] = 1.0;
-                    
 	    } /*end of Zero_dens_TF test */
 	  } /* end of if Bond test */
 	  iunk--;
@@ -666,13 +657,15 @@ static void setup_polymer_G_2(double **xOwned)
         density profile wherever Zero_density_TF = FALSE */
 static void setup_const_density(double **xOwned, double *rho,int nloop,int index)
 {
-  int loc_inode,i,inode_box,iunk;
+  int loc_inode,i,inode_box,iunk,zeroTF;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box = L2B_node[loc_inode];
      for (i=0; i<nloop; i++){
 	 iunk = i+Phys2Unk_first[DENSITY];
-         if (!Zero_density_TF[inode_box][Unk2Comp[i]]){
+         if (Type_poly==WTC) zeroTF=Zero_density_TF[inode_box][Unk2Comp[i]];
+         else                zeroTF=Zero_density_TF[inode_box][i];
+         if (!zeroTF){
             if (nloop > 1) xOwned[iunk][loc_inode] = rho[i];
             else           xOwned[iunk][loc_inode] = rho[index];
          }
@@ -681,7 +674,7 @@ static void setup_const_density(double **xOwned, double *rho,int nloop,int index
          /* set up initial guess if chemical potential is an unknown */
          if (Lsteady_state) {
 	     iunk = i+Phys2Unk_first[DIFFUSION];
-             if (!Zero_density_TF[inode_box][i]){
+             if (!zeroTF){
                 if (nloop > 1) xOwned[iunk][loc_inode] = Betamu[i];
                 else           xOwned[iunk][loc_inode] = Betamu[index];
              }
@@ -738,7 +731,7 @@ static void setup_exp_density_with_profile(double **xOwned)
         iunk = icomp+Phys2Unk_first[DENSITY];
         if (Vext[loc_inode][icomp]>0.0) xOwned[iunk][loc_inode] *= exp(-Vext[loc_inode][i]);
 
-/*        if (Type_poly!=NONE)
+/*        if (Type_poly!=NONE && Type_poly!=WTC)
         xOwned[i+Phys2Unk_first[CMS_FIELD]][loc_inode] = exp(-log(xOwned[i+Phys2Unk_first[CMS_FIELD]][loc_inode])+Vext[loc_inode][i]);*/
      }
   }
@@ -1032,10 +1025,10 @@ static void read_in_a_file(int iguess,char *filename)
        if (strncmp(unk_char,"DENSITY",5)==0) {
              Restart_field[DENSITY]=TRUE;
              header++;
-             if (Type_poly_TC) unk_in_file+=Nseg_tot;
+             if (Type_poly==WTC) unk_in_file+=Nseg_tot;
              else              unk_in_file+=Ncomp;
              unk_start_in_file[DENSITY]=iunk;
-             if (Type_poly_TC)
+             if (Type_poly==WTC)
                   for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DENSITY;
              else for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DENSITY;
        }
@@ -1077,10 +1070,10 @@ static void read_in_a_file(int iguess,char *filename)
        else if (strncmp(unk_char,"CHEMPOT",5)==0){
              Restart_field[DIFFUSION]=TRUE;
              header++;
-             if (Type_poly_TC) unk_in_file+=Nseg_tot;
+             if (Type_poly==WTC) unk_in_file+=Nseg_tot;
              else              unk_in_file+=Ncomp;
              unk_start_in_file[DIFFUSION]=iunk;
-             if (Type_poly_TC)
+             if (Type_poly==WTC)
                  for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
              else
                  for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
@@ -1094,9 +1087,9 @@ static void read_in_a_file(int iguess,char *filename)
            printf("there is no chemical potential data in the restart file\n");
     if (Type_coul != NONE && Restart_field[POISSON]==FALSE)
            printf("there is no electrostatic potential data in the restart file\n");
-    if (Type_poly != NONE && Restart_field[CMS_FIELD]==FALSE)
+    if (Type_poly != NONE && Type_poly!=WTC && Restart_field[CMS_FIELD]==FALSE)
            printf("there is no CMS field data in the restart file\n");
-    if (Type_poly==NONE  && Restart_field[RHOBAR_ROSEN]==FALSE)
+    if ((Type_poly==NONE || Type_poly==WTC)  && Restart_field[RHOBAR_ROSEN]==FALSE)
            printf("there is no Rosenfeld nonlocal density data in the restart file\n");
     if (Restart_field[DENSITY]==FALSE)
            printf("there is no density data in the restart file\n");
@@ -1114,7 +1107,7 @@ static void read_in_a_file(int iguess,char *filename)
 
     if (open_now){
        fp5=fopen(filename,"r");
-       if (Type_poly != NONE){
+       if (Type_poly != NONE && Type_poly!=WTC){
          sprintf(filename2,"%sg",filename);
          fp6=fopen(filename2,"r");
        }
@@ -1139,7 +1132,7 @@ static void read_in_a_file(int iguess,char *filename)
 
       dim_tmp=idim;
       ijk_old[dim_tmp] = round_to_int(pos_old/Esize_x[dim_tmp]);
-      if (Type_poly!=NONE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
+      if (Type_poly!=NONE && Type_poly!=WTC)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
 
       if (ijk_old[dim_tmp] > ijk_old_max[dim_tmp]) ijk_old_max[dim_tmp] = ijk_old[dim_tmp];
     }
@@ -1183,7 +1176,7 @@ static void read_in_a_file(int iguess,char *filename)
        else                                  X_old[iunk+node_start]=tmp;
     }
  
-    if (Type_poly != NONE){
+    if (Type_poly != NONE && Type_poly!=WTC){
         for (iunk=Phys2Unk_first[CMS_G];iunk<Phys2Unk_last[CMS_G];iunk++) {
 
          fscanf(fp6,"%lf",&tmp);
@@ -1191,11 +1184,6 @@ static void read_in_a_file(int iguess,char *filename)
          iseg=Unk_to_Seg[iunk-Phys2Unk_first[CMS_G]];
          itype_mer=Phys2Unk_first[CMS_FIELD]+Type_mer[ipol][iseg];
 
-         if (Type_poly == 2){
-           if (Lbinodal && iguess==BINODAL_FLAG) tmp /= X2_old[node_start+itype_mer];
-           else                                  tmp /= X_old[node_start+itype_mer];
-         }
-     
          if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
          else                                  X_old[iunk+node_start]=tmp;
 
@@ -1208,7 +1196,7 @@ static void read_in_a_file(int iguess,char *filename)
     while ((c=getc(fp5)) != EOF && c !='\n') ;
     if (Restart==5 && ijk_old[0]==Nodes_x[0]-1){
        fclose(fp5);
-       if (Type_poly != NONE) fclose(fp6);
+       if (Type_poly != NONE && Type_poly !=WTC) fclose(fp6);
        open_now=TRUE;
 /* if (Proc==0) printf("closing files to read again!\n");*/
     }
@@ -1357,7 +1345,7 @@ void check_zero_densities(double **xOwned)
 
   int loc_inode,icomp,inode_box,iunk,iloop,nloop;
 
-  if (Type_poly_TC) nloop=Nseg_tot;
+  if (Type_poly==WTC) nloop=Nseg_tot;
   else nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
@@ -1368,7 +1356,7 @@ void check_zero_densities(double **xOwned)
          if (Zero_density_TF[inode_box][icomp])
                  xOwned[iunk][loc_inode] = 0.0;
          else{
-           if (Type_poly_TC)
+           if (Type_poly==WTC)
               if (xOwned[iunk][loc_inode] < Rho_seg_b[iunk]*exp(-VEXT_MAX)) {
                   xOwned[iunk][loc_inode] = Rho_seg_b[iunk]*exp(-VEXT_MAX); /*DENSITY_MIN*/
               }

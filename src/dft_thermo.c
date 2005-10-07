@@ -43,7 +43,7 @@ void  thermodynamics( char *output_file1, int print_flag)
    for (i=0;i<Ncomp;i++) Betamu_att[i]=0.0;
    betap_att=0.0;
 
-   if (Type_poly_TC){
+   if (Type_poly==WTC){
       for (iseg=0;iseg<Nseg_tot;iseg++) Betamu_wtc[iseg]=0.0;
 
       /* adjust theory for overlapping bonded spheres */
@@ -125,7 +125,7 @@ void  thermodynamics( char *output_file1, int print_flag)
      }
   }
 
-  if (Type_poly_TC){
+  if (Type_poly==WTC){
      for (iseg=0;iseg<Nseg_tot;iseg++){
          Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
          if (Lsteady_state){
@@ -198,7 +198,7 @@ void  thermodynamics( char *output_file1, int print_flag)
    }
 
     /* now add in the WTC polymer contributions */
-   if (Type_poly_TC){
+   if (Type_poly==WTC){
       if (Lsteady_state){
           printf("have not implemented the thermodynamics for diffusion plus Wertheim-Tripathi-Chapman functionals yet....please debug.\n");
           exit(-1);
@@ -533,14 +533,14 @@ void compute_bulk_nonlocal_properties(char *output_file1)
        Rhobar_b_RTF[iunk] = 0.0;
      }
 
-    if (Type_poly_TC) nloop=Nseg_tot;
+    if (Type_poly==WTC) nloop=Nseg_tot;
     else             nloop=Ncomp;
 
      for (iloop=0; iloop<nloop; iloop++){
-       if (Type_poly_TC) icomp=Unk2Comp[iloop];
+       if (Type_poly==WTC) icomp=Unk2Comp[iloop];
        else             icomp=iloop;
 
-       if (Type_poly_TC){
+       if (Type_poly==WTC){
            sum_rhobar(Rho_seg_b[iloop],icomp,Rhobar_b);
        }
        else{
@@ -573,7 +573,7 @@ void compute_bulk_nonlocal_properties(char *output_file1)
   }
 
   /* compute bulk nonlocal densities needed for Wertheim-Tripathi-Chapman functionals */
-  if (Type_poly_TC){  
+  if (Type_poly==WTC){  
      for (i=0; i<4; i++){
         Xi_cav_b[i]=0.0;
         Xi_cav_LBB[i]=0.0;
@@ -632,7 +632,7 @@ void compute_bulk_nonlocal_properties(char *output_file1)
        fclose(fp2);
      }
 
-  } /* end of Type_poly_TC rhobars (bulk)*/
+  } /* end of Type_poly_WTC rhobars (bulk)*/
 
 
 }
@@ -672,7 +672,7 @@ void pot_parameters(char *output_file1)
 
  for (i=0; i<Ncomp; i++){
      if (Ipot_ff_n==IDEAL_GAS) Sigma_ff[i][i]=0.0;
-     if (Type_poly <0 && !Type_poly_TC) Bond_ff[i][i]=0.0;
+     if (Type_poly ==NONE) Bond_ff[i][i]=0.0;
 
      for (j=0; j<Ncomp; j++){
 
@@ -967,7 +967,7 @@ void print_thermo(char *output_file1, double betap_hs,
     fprintf(fp2,"\t\t\t Betamu[%d] = %9.6f\n",icomp, Betamu[icomp]);
       fprintf(fp2,"           *********************************\n");
 
-   if (Type_poly_TC){
+   if (Type_poly==WTC){
       fprintf(fp2,"\n     ***********************************************************\n");
       fprintf(fp2,"     *** NOTE THE ABOVE IS NOT APPROPRIATE FOR BONDED SYSTEMS ***\n");
       fprintf(fp2,"     *** INSTEAD WE REQUIRE SEGMENT BASED CHEMICAL POTENTIALS ***\n");

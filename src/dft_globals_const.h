@@ -178,6 +178,13 @@
 #define GHRM       3
 #define GVDWM      4
 
+/*
+ *  These constants identify the type of polymer to be studied (Type_poly).
+ */
+#define CMS          0
+#define CMS_GAUSSIAN 1
+#define CMS_SCFT     2
+#define WTC          3
 
 /*
  * These constants identify attraction functional choices (Type_attr).
@@ -195,20 +202,8 @@
 #define LIKE_LJ    3
 
 /*
- *  These constants identify choice for polymers.
- */
-#define NONE           -1
-#define CMS_FR_JNT_CHN1     0
-#define CMS_FR_JNT_CHN2 1
-#define CMS_FR_JNT_CHN3 2
-#define CMS_GAUSSIAN    3
-#define CMS_SCFT        4
-#define TC_FR_JNT_CHN   5
-
-/*
  * The following are choices for the neutral fluid-fluid interactions (Ipot_ff_n)
  */
-
 #define IDEAL_GAS    0
 #define HARD_SPHERE  1
 #define LJ12_6       2
@@ -216,7 +211,6 @@
 /*
  * The following are choices for the charge fluid-fluid interactions (Ipot_ff_c)
  */
-
 #define NO_CHARGE    0
 #define COULOMB      1
 #define YUKAWA       2
@@ -231,23 +225,19 @@
 /*
  * The following are choices for the initial guess (Iguess)
  */
-
 #define CONST_RHO       -3 
 #define CONST_RHO_L     -2 
 #define CONST_RHO_V     -1 
-
 #define EXP_RHO          0
 #define EXP_RHO_L        1
 #define EXP_RHO_V        2
-
 #define STEP_PROFILE     3
-
 #define CHOP_RHO         4
 #define CHOP_RHO_L       5
 #define CHOP_RHO_V       6
 #define CHOP_RHO_STEP    7
-
 #define LINEAR           8
+
 /*
  * The following are the various fields for continuuation 
  */
@@ -258,23 +248,18 @@
 #define CONT_LOG_RHO_0   4 
 #define CONT_LOG_RHO_ALL 5 
 #define CONT_SCALE_RHO   6
-
 #define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
 #define CONT_EPSW_ALL    8
 #define CONT_SCALE_EPSW  9
-
 #define CONT_EPSWF00     10    /* Wall-Fluid Energy Params */
 #define CONT_EPSWF_ALL_0 11 
 #define CONT_SCALE_EPSWF 12
-
 #define CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
 #define CONT_EPSFF_ALL   14   
 #define CONT_SCALE_EPSFF 15
-
 #define CONT_SCALE_CHG   16  /* Charged surface params */
 #define CONT_SEMIPERM   17  /* Vext_membrane */
 #define CONT_WALLPARAM  18  /* Vext_membrane */
-
 #define CONT_CRFAC  19  /* continuous mixing of two cr files */
 
 
@@ -1074,8 +1059,6 @@ extern
 int     Type_coul;    /* Type for handling coulomb interactions              */
 extern
 int     Type_poly;    /* Type for handling polymers                          */
-extern
-int     Type_poly_TC;  /* Type for Wertheim-Tripathi-Chapman polymers */
 
 /* Startup Info */
 extern
