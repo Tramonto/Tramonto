@@ -268,7 +268,6 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
         weight = sten_weight[isten];
 
          jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-
          resid=0;
          if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
             if (Lhard_surf) {
@@ -302,7 +301,6 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
             }
          }
-
       }
   }
   }

@@ -49,7 +49,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
    double resid_ig,resid_vext,resid_mu,resid_charge,resid_deltac;
    double resid_poisson,resid_transport,resid_el,resid_cavity,resid_bondwtc,resid_WTC1;
 
-  double fac_temp,gradphi,fac;
+  double fac_temp,gradphi,fac,fac_a11;
 
   double  nodepos[3];
 
@@ -115,8 +115,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
     for (iunk=iunk_start; iunk<iunk_end; iunk++) {
 
 /*if (mesh_coarsen_flag_i != FLAG_BULK && !Zero_density_TF[inode_box][iunk]){
-        printf("Proc: %d loc_inode: %d of %d : inode_box=%d and mesh_coarsen_flag: %d\n",
-                 Proc,loc_inode,Nnodes_per_proc,inode_box,mesh_coarsen_flag_i);
+        printf("Proc: %d iunk=%d loc_inode: %d of %d : inode_box=%d and mesh_coarsen_flag: %d\n",
+                 Proc,iunk,loc_inode,Nnodes_per_proc,inode_box,mesh_coarsen_flag_i);
 }*/
        resid_ig = resid_vext = resid_hs1 = resid_hs2 = resid_uatt = resid_mu = resid_charge
                 = resid_poisson = resid_deltac = resid_transport = resid_rhobars = resid_rhobarv 
@@ -146,8 +146,12 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
       /* do mesh coarsening if indicated .... for all unknowns ! */
       else if (mesh_coarsen_flag_i < 0 && mesh_coarsen_flag_i != FLAG_BULK) {
-         resid= x[iunk][inode_box];
-         mat_value=1.0;
+
+         if (Unk2Phys[iunk] ==DENSITY || POISSON) fac_a11=1.0; /* temporary factor to keep -1 on diagonal of A11 block */
+         else fac_a11=-1.0;
+
+         resid= fac_a11*x[iunk][inode_box];
+         mat_value=fac_a11*1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
 
          for (iloop=0;iloop<2;iloop++){
@@ -158,11 +162,11 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
           jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
 
           if (jnode_box >= 0) {
-             resid-= 0.5*x[iunk][jnode_box];
-             mat_value=-0.5;
+             resid-= fac_a11*0.5*x[iunk][jnode_box];
+             mat_value=-fac_a11*0.5;
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,jnode_box,mat_value);         
           }
-          else{  resid-= 0.5*constant_boundary(iunk,jnode_box); }
+          else{  resid-= fac_a11*0.5*constant_boundary(iunk,jnode_box); }
         }
         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      }
@@ -344,12 +348,14 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /*********************************/
       else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
 
-          if (iunk == Phys2Unk_first[RHOBAR_ROSEN])
+          if (iunk == Phys2Unk_first[RHOBAR_ROSEN]){
              resid_rhobars+=load_rho_bar_s(THETA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, 
                             resid_only_flag);
-          else if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s)
+          }
+          else if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s){
              resid_rhobars+=load_rho_bar_s(DELTA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, 
                             resid_only_flag);
+          }
 
           if (iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s){
               resid_rhobarv+=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
