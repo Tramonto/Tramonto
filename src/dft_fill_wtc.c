@@ -402,13 +402,13 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
                     (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
         }
 
-        resid_sum -= weight*x[junk][jnode_box]; 
-        mat_val = -weight;
+        resid_sum += weight*x[junk][jnode_box]; 
+        mat_val = weight;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_box,mat_val);
            
      }
      else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) 
-             resid_sum -= weight*constant_boundary(junk,jnode_box);
+             resid_sum += weight*constant_boundary(junk,jnode_box);
   }
   return(resid_sum);
 }
@@ -456,12 +456,12 @@ double load_cavity_wtc(int iunk, int loc_inode, int inode_box,
              weight = HW_boundary_weight(icomp,ilist,sten->HW_Weight[isten], jnode_box, reflect_flag);
             }
 
-        resid_sum -= (PI/6.0)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow)*weight*x[unk_rho][jnode_box]; 
-        mat_val = -(PI/6.0)*weight*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow);
+        resid_sum += (PI/6.0)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow)*weight*x[unk_rho][jnode_box]; 
+        mat_val = (PI/6.0)*weight*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow);
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_rho,jnode_box,mat_val);
      }
      else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) {
-        resid_sum -= (PI/6.0)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow)*weight*constant_boundary(unk_rho,jnode_box);
+        resid_sum += (PI/6.0)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow)*weight*constant_boundary(unk_rho,jnode_box);
      }
   }
   }  

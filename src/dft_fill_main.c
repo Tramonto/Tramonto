@@ -413,8 +413,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /***********************************************/
       /*** LOAD CAVITY EQUATIONS OF WTC FUNCTIONALS***/
       /***********************************************/
-         resid=x[iunk][inode_box];
-         mat_value=1.0;
+         resid=-x[iunk][inode_box];
+         mat_value=-1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
          resid += load_cavity_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
          resid_cavity=resid;
@@ -425,8 +425,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /********************************************/
       /*** LOAD BOND EQUATIONS OF WTC FUNCTIONS ***/
       /********************************************/
-         resid=x[iunk][inode_box];
-         mat_value=1.0;
+         resid=-x[iunk][inode_box];
+         mat_value=-1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
          resid += load_bond_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
          resid_bondwtc=resid;
