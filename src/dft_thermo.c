@@ -60,7 +60,6 @@ void  thermodynamics( char *output_file1, int print_flag)
                Fac_overlap[icomp][jcomp]=(Bond_ff[icomp][jcomp]/Sigma_ff[jcomp][jcomp]
                                           -0.5*(Sigma_ff[icomp][icomp]-Sigma_ff[jcomp][jcomp])/Sigma_ff[jcomp][jcomp]);
             }
-            printf("icomp=%d jcomp=%d Fac_overlap=%9.6f\n",icomp,jcomp,Fac_overlap[icomp][jcomp]);
           }
         }    
       }
@@ -68,9 +67,7 @@ void  thermodynamics( char *output_file1, int print_flag)
         for (jcomp=0;jcomp<Ncomp;jcomp++)
           if (Sigma_ff[icomp][icomp]<Sigma_ff[jcomp][jcomp]){ 
             Fac_overlap[icomp][jcomp]=Fac_overlap[jcomp][icomp];
-            printf("icomp=%d jcomp=%d Fac_overlap=%9.6f\n",icomp,jcomp,Fac_overlap[icomp][jcomp]);
           }
-        Fac_overlap[1][1]=0.058081;
    }
 
    /* Find bulk coexistence  for a very special case of only one atomistic component with
@@ -972,6 +969,13 @@ void print_thermo(char *output_file1, double betap_hs,
       for (iseg=0; iseg<Nseg_tot;iseg++){
           fprintf(fp2,"\t\t Betamu_seg[iseg=%d] = %9.6f\n", iseg, Betamu_seg[iseg]);
       }
+      fprintf(fp2,"           *********************************\n");
+   }
+   if (Type_poly==WTC){
+      fprintf(fp2,"correcting for overlapping particles in WTC bonded systems\n");
+      for (icomp=0;icomp<Ncomp;icomp++)
+         for (jcomp=0;jcomp<Ncomp;jcomp++)
+           fprintf(fp2,"icomp=%d jcomp=%d Fac_overlap=%9.6f\n",icomp,jcomp,Fac_overlap[icomp][jcomp]);
       fprintf(fp2,"           *********************************\n");
    }
 

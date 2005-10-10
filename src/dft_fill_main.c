@@ -99,7 +99,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   }
 
   /* Load residuals and matrix */
-
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
 
     /* convert local node to global */

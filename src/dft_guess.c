@@ -216,7 +216,6 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
     switch(iguess){
       case CONST_RHO:    
             if (Type_poly==WTC){
-printf("lets try to set up a constant density guess %g %g %g %d \n",Rho_b[0],Rho_b[1],Rho_b[2],Nseg_tot);
                  setup_const_density(xOwned,Rho_seg_b,Nseg_tot,0);
             }
             else              setup_const_density(xOwned,Rho_b,Ncomp,0);

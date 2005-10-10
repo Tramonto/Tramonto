@@ -91,7 +91,7 @@ int solve_problem(double **x, double **x2)
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
  }
- else if (Type_func != NONE && Type_poly==NONE) {
+ else if (Type_func != NONE) {
 
    count_density=count_indnonlocal=count_depnonlocal=0;
    one_particle_size=FALSE;

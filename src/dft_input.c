@@ -951,12 +951,12 @@ void read_input_file(char *input_file, char *output_file1)
 	  MPI_Bcast(&pol_sym_tmp[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
           if (Type_poly!=WTC || (Type_poly==WTC && Bonds[pol_number][iseg][ibond] != -1)){
                                   /* note we don't want to include ends for the WTC polymers!*/
-            Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond];
 	    Unk_to_Poly[nbond_all] = pol_number;
   	    Unk_to_Seg[nbond_all]  = iseg;
 	    Unk_to_Bond[nbond_all] = ibond;
 	    Poly_to_Unk[pol_number][iseg][ibond] = nunk;
-	    Poly_to_Unk_SegAll[seg_tot][ibond] = nunk;
+            Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond];
+	    Poly_to_Unk_SegAll[seg_tot][Nbonds_SegAll[seg_tot]] = nunk;
 	    Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond];
 	    nbond_all++;
 	    nunk++;

@@ -56,6 +56,10 @@ void dftmain(double * engptr)
   double    t_linsolv_first_min,t_linsolv_av_min,t_linsolv_first_max,t_linsolv_av_max;
   double    t_manager_first_min,t_manager_av_min,t_manager_first_max,t_manager_av_max;
   double    t_fill_first_min,t_fill_av_min,t_fill_first_max,t_fill_av_max;
+  double    *t_linsolv_first_array,*t_linsolv_av_array;
+  double    *t_manager_first_array,*t_manager_av_array;
+  double    *t_fill_first_array,*t_fill_av_array;
+  FILE      *fp;
   int izone,isten,jcomp,jmax;
   struct Stencil_Struct *sten;
   char line[100],linecwd[100];
@@ -135,6 +139,14 @@ void dftmain(double * engptr)
   }
 
   for (Imain_loop=0; Imain_loop<Nruns; Imain_loop++){
+    if (Proc==0){  
+         t_fill_first_array = (double *) array_alloc (1, Num_Proc,sizeof(double));
+         t_fill_av_array = (double *) array_alloc (1, Num_Proc,sizeof(double));
+         t_manager_first_array = (double *) array_alloc (1, Num_Proc,sizeof(double));
+         t_manager_av_array = (double *) array_alloc (1, Num_Proc,sizeof(double));
+         t_linsolv_first_array = (double *) array_alloc (1, Num_Proc,sizeof(double));
+         t_linsolv_av_array = (double *) array_alloc (1, Num_Proc,sizeof(double));
+     }
 
    if (Imain_loop > 0)  continuation_shift(); /* only mesh continuation is now possible outside of loca */ 
 
@@ -277,6 +289,31 @@ void dftmain(double * engptr)
       t_post_min=gmin_double(t_postprocess);
       t_total_min=gmin_double(t_total);
 
+      MPI_Gather(&Time_linsolver_first,1,MPI_DOUBLE,t_linsolv_first_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+      MPI_Gather(&Time_linsolver_av,1,MPI_DOUBLE,t_linsolv_av_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+      MPI_Gather(&Time_manager_first,1,MPI_DOUBLE,t_manager_first_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+      MPI_Gather(&Time_manager_av,1,MPI_DOUBLE,t_manager_av_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+      MPI_Gather(&Time_fill_first,1,MPI_DOUBLE,t_fill_first_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+      MPI_Gather(&Time_fill_av,1,MPI_DOUBLE,t_fill_av_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+      if (Proc==0){
+         fp  = fopen("dft_time.out","w");
+            fprintf(fp,"\n Time histogram for the fill on the first iteration\n\n");
+            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_fill_first_array[i]);
+            fprintf(fp,"\n Time histogram for the fill averaging the 2-%d iterations\n\n",niters);
+            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_fill_av_array[i]/((double)niters-1.0));
+
+            fprintf(fp,"\n Time histogram for the linear solver manager on the first iteration\n\n");
+            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_manager_first_array[i]);
+            fprintf(fp,"\n Time histogram for the linear solver manager averaging the 2-%d iterations\n\n",niters);
+            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_manager_av_array[i]/((double)niters-1.0));
+
+            fprintf(fp,"\n Time histogram for the linear solve on the first iteration\n\n");
+            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_linsolv_first_array[i]);
+            fprintf(fp,"\n Time histogram for the linear solve averaging the 2-%d iterations\n\n",niters);
+            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_linsolv_av_array[i]/((double)niters-1.0));
+         fclose(fp); 
+      }
+
       t_linsolv_first_min=gmin_double(Time_linsolver_first);
       t_linsolv_first_max=gmax_double(Time_linsolver_first);
       t_manager_first_min=gmin_double(Time_manager_first);
@@ -360,6 +397,14 @@ void dftmain(double * engptr)
       safe_free((void *) &x); 
       if (Lbinodal) safe_free((void *) &x2); 
 
+    if (Proc==0){  
+         safe_free((void *)&t_fill_first_array);
+         safe_free((void *)&t_fill_av_array);
+         safe_free((void *)&t_manager_first_array);
+         safe_free((void *)&t_manager_av_array);
+         safe_free((void *)&t_linsolv_first_array);
+         safe_free((void *)&t_linsolv_av_array);
+     }
   } /* end of loop over continuation field #1 */
 
   if (Nwall_type !=0){
