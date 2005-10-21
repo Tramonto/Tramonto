@@ -1198,11 +1198,11 @@ double free_energy_diff_conwrap(double *x, double *x2)
   }
   else {
     translate_1dOwned_2dBox(x, passdown.xBox);
-    calc_adsorption(NULL,passdown.xBox,1.0,1.0);
+    calc_adsorption(NULL,passdown.xBox);
     energy1=calc_free_energy_polymer(NULL,passdown.xBox,1.0,1.0);
 
     translate_1dOwned_2dBox(x2, passdown.xBox);
-    calc_adsorption(NULL,passdown.xBox,1.0,1.0);
+    calc_adsorption(NULL,passdown.xBox);
     energy2=calc_free_energy_polymer(NULL,passdown.xBox,1.0,1.0);
   }
 

@@ -249,6 +249,7 @@ double  Mass[NCOMP_MAX];           /* Array of the mass of each specie*/
 double  Sigma_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f interaction diameters */
 double  Bond_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
 double  Fac_overlap[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
+double  Fac_overlap_hs[NCOMP_MAX];/* Array of f-f bond lengths for polymers */
 double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
 double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
 double  Charge_f[NCOMP_MAX];           /* Array of the valence of each specie*/
@@ -329,6 +330,10 @@ int    ***Nel_hit;      /* number of elements hit by a given node in a given lis
 int    ***Nel_hit2;     /* same as prev. for a bulk fluid */
 int    List[2];       /* which list numbers we care about for integrals*/
 int    Imax;          /* how many lists are relevent to the case at hand 1 or 2 */
+double Area;
+double Fac_vol;
+double Fac_area;
+ 
 
 /* SOME CONSTANTS */
 double Inv_4pi;               /* Precalculated value of 1/(4*pi)                    */
@@ -421,3 +426,4 @@ int Ngeqn_tot, Nbonds, **Nbond,***Bonds;
 int *Pol_Sym;
 int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
 
+double Temporary_sum;

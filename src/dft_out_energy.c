@@ -1,5 +1,4 @@
-/*====================================================================
- * ------------------------
+ /* ------------------------
  * | CVS File Information |
  * ------------------------
  *
@@ -29,7 +28,6 @@
 #define CFD 2
 
 double phispt_i(double *);
-double phispt_bulk();
 double int_stencil(double **,int, int,int);
 void assemble_HS_free_energy(double **, double *, double *,double *);
 double free_energy_charging_up(double **);
@@ -397,7 +395,7 @@ void assemble_HS_free_energy(double **x, double *sum_phispt, double *sum_phispt_
       for(i=0; i<Phys2Nunk[RHOBAR_ROSEN]; i++)
 	      rho_bar[i] = x[i+Phys2Unk_first[RHOBAR_ROSEN]][inode_box];
 
-      phi = phispt_i(rho_bar);
+      phi = phispt(rho_bar);
 
       nel_hit = Nnodes_per_el_V;
       for (iel=0; iel<Nnodes_per_el_V; iel++){
@@ -435,8 +433,14 @@ void assemble_HS_free_energy(double **x, double *sum_phispt, double *sum_phispt_
 
       if (nel_hit > 0){
          sum_phi       += (phi*fac);
-         sum_phi_b     += (phispt_bulk()*fac);
-         sum_phi_b_old += (phispt_bulk()*fac_b);
+         if (Lsteady_state){
+            sum_phi_b     += (phispt(Rhobar_b_RTF)*fac);
+            sum_phi_b_old += (phispt(Rhobar_b_RTF)*fac_b);
+         }
+         else {
+            sum_phi_b     += (phispt(Rhobar_b)*fac);
+            sum_phi_b_old += (phispt(Rhobar_b)*fac_b);
+         }
       } 
   }    /* end of loop over local nodes */
 
@@ -821,141 +825,6 @@ double free_energy_charging_up(double **x)
   /* collate all the charging_int values from the different processors */
 }
 /****************************************************************************
-int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
- double int_stencil(double **x,int inode_box,int icomp,int sten_type)
-{
-  int isten,*offset,inode_sten,ijk_box[3],izone,idim;
-  int j,jcomp,junk;
-  double weight, sum;
-  struct Stencil_Struct *current_sten;
-  int **current_sten_offset, reflect_flag[NDIM_MAX];
-  double *current_sten_weight;
-  for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
-
-/*  izone = Nodes_to_zone_box[inode_box];*/
-  izone = 0;
-
-  sum = 0.0;
-  node_box_to_ijk_box(inode_box,ijk_box);
-
-  for (junk=Phys2Unk_first[DENSITY];junk<Phys2Unk_last[DENSITY];junk++){
-     jcomp=Unk2Comp[junk];
-
-     current_sten = &(Stencil[sten_type][izone][icomp+Ncomp*jcomp]);
-     current_sten_offset = current_sten->Offset;
-     current_sten_weight = current_sten->Weight;
-
-     for (isten = 0; isten < current_sten->Length; isten++) {
-        offset = current_sten_offset[isten];
-        weight = current_sten_weight[isten];
-
-         /* Find in the Stencil position on overall mesh */ 
-        inode_sten =offset_to_node_box(ijk_box, offset, reflect_flag);
-
-        if (inode_sten >= 0 && !Zero_density_TF[inode_sten][jcomp]) {
-           if (Lhard_surf) {
-               if (Nodes_2_boundary_wall[Nlists_HW-1][inode_sten]!=-1)
-                  weight = HW_boundary_weight
-                    (jcomp,Nlists_HW-1,current_sten->HW_Weight[isten], 
-                                      inode_sten, reflect_flag);
-           }
-
-           if (inode_sten<Nnodes_box && inode_sten >=0){
-               sum +=  weight*x[junk][inode_sten];
-           }
-        }
-        else if (inode_sten<0){
-             sum += weight*constant_boundary(junk,inode_sten);
-        }
-
-     }  /* end of loop over isten */ 
-  }     /* end of loop over jcomp */ 
-  return (sum);
-}
-/***************************************************************************
-phispt_i: Calculate the hard sphere free energy contribution from 
-           scaled particle theory at a given node i.                      */
-double phispt_i(double *rho_bar)
-{
-  int idim;
-  double rb0,rb1,rb2,rb3,rb2v[3],rb1v[3];
-  double phi_s,phi_v,dot_12,dot_22;
-
-  rb0 = rho_bar[3];
-  rb1 = rho_bar[2];
-  rb2 = rho_bar[1];
-  rb3 = rho_bar[0];
-  for (idim=0; idim<Ndim; idim++){
-    rb1v[idim] = rho_bar[Nrho_bar_s+Ndim+idim];
-    rb2v[idim] = rho_bar[Nrho_bar_s+idim];
-  }
-
-  if (rb3 < 1.0 && rb2 > 0.0){
-
-     if (Type_func==0)
-        phi_s = -rb0*log(1.0-rb3) + (rb1*rb2)/(1.0-rb3) +
-                 (rb2*rb2*rb2)/(24.0*PI*(1.0-rb3)*(1.0-rb3));
-     else
-        phi_s = -rb0*log(1.0-rb3) + (rb1*rb2)/(1.0-rb3); 
-   
-     dot_12 = 0.0;
-     dot_22 = 0.0;
-     for (idim = 0; idim<Ndim; idim++){
-         dot_12 += rb1v[idim]*rb2v[idim];
-         dot_22 += rb2v[idim]*rb2v[idim];
-     }
-     if (Type_func==0)
-        phi_v = - dot_12/(1.0-rb3) 
-                - rb2*dot_22/(8.0*PI*(1.0-rb3)*(1.0-rb3));
-     else
-        phi_v = - dot_12/(1.0-rb3) 
-                + POW_DOUBLE_INT(rb2-dot_22/rb2,3)/(24.0*PI*(1.0-rb3)*(1.0-rb3));
-     return(phi_s + phi_v);
-  }
-
-  else return(0.0);
-
-}
-/***************************************************************************
-phispt_bulk: Calculate the hard sphere free energy contribution from 
-              scaled particle theory in a bulk fluid.                      */
-double phispt_bulk()
-{
-  int icomp;
-  double four_pi_R[NCOMP_MAX],four_pi_RSQ[NCOMP_MAX],pi_six_dCBD[NCOMP_MAX];
-  double rb0=0.0,rb1=0.0,rb2=0.0,rb3=0.0,phi_s;
- 
-  /* 
-   * first calculate the rho_bars at all the nodes 
-   * rho_bar vectors are zero in a homogeneous bulk fluid 
-   */
-  for (icomp=0; icomp<Ncomp; icomp++){
-     four_pi_R[icomp]   =  2.0 * PI *  Sigma_ff[icomp][icomp];
-     four_pi_RSQ[icomp] =  PI * Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp];
-     pi_six_dCBD[icomp] =  (PI/6.0) * Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp]
-                                    * Sigma_ff[icomp][icomp];
-
-     if (Lsteady_state){
-        rb3 += pi_six_dCBD[icomp]*Rho_b_RTF[icomp];
-        rb2 += four_pi_RSQ[icomp]*Rho_b_RTF[icomp];
-        rb1 += Sigma_ff[icomp][icomp]*Rho_b_RTF[icomp]/2.0;
-        rb0 += Rho_b_RTF[icomp];
-     }
-     else{
-        rb3 += pi_six_dCBD[icomp]*Rho_b[icomp];
-        rb2 += four_pi_RSQ[icomp]*Rho_b[icomp];
-        rb1 += Sigma_ff[icomp][icomp]*Rho_b[icomp]/2.0;
-        rb0 += Rho_b[icomp];
-     }
-  }
-
-  /* given the rho_bars, calculate dphi_s */  
-  phi_s = -rb0*log(1.0-rb3) + (rb1*rb2)/(1.0-rb3) +
-           rb2*rb2*rb2/(24.0*PI*(1.0-rb3)*(1.0-rb3));
-
-  return phi_s;
-}
-/*********************************************************************
  * calc_deriv_e : calculate a derivative of the electric potential!!   */
 
 double calc_deriv_e(int idim,int inode0,int flag,int *blocked, double **x, 

@@ -297,7 +297,6 @@ void calc_stencils(void)
                     case DELTA_FN_BOND: npt = 150; break;
                  }
                  inv_npt = 1.0 / (double) npt;
-
                  for (ig=0; ig < npt; ig++) {
                    
                    qp[0] =  (ig + 0.5) * inv_npt;
@@ -316,7 +315,7 @@ void calc_stencils(void)
                        weight = get_weight_from_stencil(isten, icomp, jcomp, 
                                             radius,sten_rad, ngpu, gpu, gwu);
                      }
-                     if (radius_sq == 1.0) weight *= 0.5;
+                     if (radius_sq-1.0 <= 1.e-8) weight *= 0.5;
                      weight *= inv_npt * el_vol; 
 
                      el_weights[0] += weight * (1.0-qp[0]); 
@@ -456,7 +455,7 @@ void calc_stencils(void)
                      weight = get_weight_from_stencil(isten, icomp, jcomp, 
                                           radius,sten_rad, ngpu, gpu, gwu);
                    }
-                       if (radius_sq == 1.0) weight *= 0.5;
+                       if (radius_sq-1.0 <= 1.e-8) weight *= 0.5;
                        weight *= inv_npt * inv_npt * el_vol; 
   
                        el_weights[0] += weight * (1.0-qp[0]) * (1.0-qp[1]); 
@@ -659,7 +658,7 @@ void calc_stencils(void)
                                           radius,sten_rad, ngpu, gpu, gwu);
                    }
 
-                         if (radius_sq == 1.0 && isten != DELTA_FN) weight *= 0.5;
+                         if (radius_sq-1.0 <= 1.e-8 && isten != DELTA_FN) weight *= 0.5;
 
                          weight *=  (inv_npt*inv_npt*inv_npt) * el_vol; 
     

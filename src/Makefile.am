@@ -62,6 +62,12 @@ COMMON_C = \
         ${srcdir}/dft_fill_pde.c \
         ${srcdir}/dft_stencil.c \
         ${srcdir}/dft_thermo.c \
+        ${srcdir}/dft_thermo_hs.c \
+        ${srcdir}/dft_thermo_att.c \
+        ${srcdir}/dft_thermo_cms.c \
+        ${srcdir}/dft_thermo_elec_MSA.c \
+        ${srcdir}/dft_thermo_id.c \
+        ${srcdir}/dft_thermo_wtc.c \
         ${srcdir}/dft_out_main.c \
         ${srcdir}/dft_out_ads.c \
         ${srcdir}/dft_out_energy.c \
@@ -72,7 +78,7 @@ COMMON_C = \
         ${srcdir}/dft_guess.c \
         ${srcdir}/dft_comm.c \
         ${srcdir}/dft_continuation.c \
-        ${srcdir}/dft_fill_shared.c \
+        ${srcdir}/dft_utils.c \
         ${srcdir}/dft_fill_control.c \
         ${srcdir}/dft_fill_main.c \
         ${srcdir}/dft_fillp.c \

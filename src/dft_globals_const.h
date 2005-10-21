@@ -890,6 +890,8 @@ double  Bond_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers 
 extern
 double  Fac_overlap[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
 extern
+double  Fac_overlap_hs[NCOMP_MAX];/* Array of f-f bond lengths for polymers */
+extern
 double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
 extern
 double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
@@ -1040,6 +1042,12 @@ extern
 int    List[2];       /* which list numbers we care about for integrals*/
 extern
 int    Imax;          /* how many lists are relevent to the case at hand 1 or 2 */
+extern
+double Area;
+extern
+double Fac_vol;
+extern
+double Fac_area;
 
 /* SOME CONSTANTS */
 extern
@@ -1170,7 +1178,7 @@ extern int ***Poly_to_Unk,**Poly_to_Unk_SegAll;
 extern int Ngeqn_tot, Nbonds, **Nbond,***Bonds;
 extern int *Pol_Sym;
 extern int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
-
+extern double Temporary_sum;
 
 /*********************************************************************/
 extern
@@ -1329,7 +1337,22 @@ extern double deltaC_MSA_int(double,int,int);
 extern double y_cav(double,double,double,double);
 extern double dy_dxi2_cav(double,double,double,double);
 extern double dy_dxi3_cav(double,double,double,double);
+extern double phispt(double *);
+extern double calc_ideal_gas(double *,double *);
+extern double calc_hs_properties(double *,double *);
+extern double calc_att_properties(double *, double *);
+extern void calc_poly_TC_properties(double *,double *);
+extern void   calc_charge_correlations_b();
+extern double dp_drho_hs(double *);
+extern double dp_drho_att(double *);
+extern void compute_bulk_nonlocal_hs_properties(char *);
+extern void compute_bulk_nonlocal_wtc_properties(char *);
 
+/* SETUP UTILITIES (functions commonly applied in more than one place *
+extern double int_stencil_bulk(int,int,int);
+extern double int_stencil(double **,int, int,int);
+extern void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,int,double **),int,double **);
+extern void integrateInSpace(double(*fp_integrand)(int,int,int,double **),int,int,double **);
 
 
 /* COMMUNICATIONS ROUTINES */
@@ -1343,8 +1366,11 @@ extern void   gsum_int_vec(int *, int *, int);
 
 /* POSTPROCESSING ROUTINES*/
 extern void post_process(double **,char *,int *,double *,int, int);
-extern double calc_adsorption(FILE *, double **,double,double);
-extern void calc_surface_charge(FILE *, double **,double,double);
+extern void calc_adsorption(FILE *,double **);
+extern void calc_fluid_charge(FILE *, double **);
+extern double integrand_adsorption(int,int,int,double **);
+extern double integrand_excess_adsorption(int,int,int,double **);
+extern double integrand_fluid_charge(int,int,int,double **);
 extern double calc_free_energy(FILE *, double **,double,double, int);
 extern void calc_flux(FILE *,char *,double *);
 extern void calc_force(FILE *, double **,double);
@@ -1364,6 +1390,8 @@ extern void print_freen_profile_1D(double *, char *);
 extern void print_Nodes_to_zone(int *, char *);
 extern void print_time_histogram(int *,int *);
 extern void setup_integrals(void);
+extern void print_to_screen_comp(int,int,double, char *);
+extern void print_to_screen(int,double, char *);
 /****************************************************************************/
 
 /* 

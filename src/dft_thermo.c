@@ -11,18 +11,9 @@ Output:	1) hard sphere pressure:  p sigma_ff[1]^3 / kT
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
-double calc_ideal_gas(double *,double *);
-double calc_hs_properties(double *,double *);
-double calc_att_properties(double *, double *);
-void calc_poly_TC_properties(double *,double *);
-void   calc_charge_correlations_b();
-double int_stencil_bulk(int,int,int);
+
 double   coexistence();
-double dp_drho_hs(double *);
-double dp_drho_att(double *);
 void print_thermo(char *,double,double *);
-void compute_bulk_nonlocal_properties(char *);
-void sum_rhobar(double,int, double *);
 
 void  thermodynamics( char *output_file1, int print_flag)
 {
@@ -53,7 +44,7 @@ void  thermodynamics( char *output_file1, int print_flag)
             if (Bond_ff[icomp][jcomp] >= 0.5*(Sigma_ff[icomp][icomp]+Sigma_ff[jcomp][jcomp])){
                Fac_overlap[icomp][jcomp]=1.0;
             }
-            else if (Bond_ff[icomp][jcomp] <= 0.5*(Sigma_ff[icomp][icomp]-Sigma_ff[jcomp][jcomp])){
+            else if (Bond_ff[icomp][jcomp] <= 0.5*fabs(Sigma_ff[icomp][icomp]-Sigma_ff[jcomp][jcomp])){
                Fac_overlap[icomp][jcomp]=0.0;
             }
             else{
@@ -63,12 +54,27 @@ void  thermodynamics( char *output_file1, int print_flag)
           }
         }    
       }
-      for (icomp=0;icomp<Ncomp;icomp++)
-        for (jcomp=0;jcomp<Ncomp;jcomp++)
-          if (Sigma_ff[icomp][icomp]<Sigma_ff[jcomp][jcomp]){ 
-            Fac_overlap[icomp][jcomp]=Fac_overlap[jcomp][icomp];
-          }
+      Fac_overlap[1][1]=Fac_overlap[0][1]*Fac_overlap[0][1];
+
+      for (icomp=0;icomp<Ncomp;icomp++){
+        Fac_overlap_hs[icomp]=0.0;
+        for (jcomp=0;jcomp<Ncomp;jcomp++){
+          if (Sigma_ff[icomp][icomp]<Sigma_ff[jcomp][jcomp]) Fac_overlap[icomp][jcomp]=Fac_overlap[jcomp][icomp];
+          if (Fac_overlap[icomp][jcomp]> Fac_overlap_hs[icomp]) Fac_overlap_hs[icomp]=Fac_overlap[icomp][jcomp];
+        }
+        }
    }
+   else{
+      for (icomp=0;icomp<Ncomp;icomp++) Fac_overlap_hs[icomp]=1.0;
+   }
+/*      Fac_overlap[1][1]=0.0; Fac_overlap[0][1]=0;Fac_overlap[1][0]=0;*/
+Fac_overlap[0][0]=1.;
+Fac_overlap[0][1]=1.;
+Fac_overlap[1][0]=1.;
+Fac_overlap[1][1]=1.;
+Fac_overlap_hs[0]=1.;
+Fac_overlap_hs[1]=1.;
+
 
    /* Find bulk coexistence  for a very special case of only one atomistic component with
       mean field attractions turned on !! */
@@ -130,9 +136,10 @@ void  thermodynamics( char *output_file1, int print_flag)
             Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
          }
      }
+     compute_bulk_nonlocal_wtc_properties(output_file1);
   }
 
-   compute_bulk_nonlocal_properties(output_file1);
+  if (Type_func != NONE) compute_bulk_nonlocal_hs_properties(output_file1);
 
    /* Now find pressure and chemical potential contributions for the fluid of interest */
 
@@ -162,7 +169,8 @@ void  thermodynamics( char *output_file1, int print_flag)
       else{
          betap_hs = calc_hs_properties(betamu_hs,Rho_b);
          Betap += betap_hs;
-         for (icomp=0; icomp<Ncomp; icomp++){ Betamu[icomp] += betamu_hs[icomp];
+         for (icomp=0; icomp<Ncomp; icomp++){ 
+             Betamu[icomp] += betamu_hs[icomp];
              Betap-=Rho_b[icomp]; /* note that the calculation of betap_hs apparantly includes ideal terms .... check this */
          }
      }
@@ -263,389 +271,6 @@ void  thermodynamics( char *output_file1, int print_flag)
    
 }
 /****************************************************************************/
-   double y_cav(double sigma_1,double sigma_2,double xi_2, double xi_3)
-{           
-   double one_m_xi3_sq,one_m_xi3_cb,sig_sum,sig_m,y;
-                   
-   one_m_xi3_sq= (1.-xi_3)*(1.-xi_3); 
-   one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3);
-   sig_sum=sigma_1+sigma_2;
-   sig_m=sigma_1*sigma_2;
-              
-   y = 1./(1.-xi_3) +(3.*sig_m/sig_sum)*(xi_2/one_m_xi3_sq)+
-       2.*(sig_m/sig_sum)*(sig_m/sig_sum)*(xi_2*xi_2/one_m_xi3_cb);
-                 
-   return y;     
-}
-/********************************************************************************************/
-   double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2, double xi_3)
-{                
-   double one_m_xi3_sq,one_m_xi3_cb,sig_sum,sig_m,dy_dxi2;
-
-   one_m_xi3_sq= (1.-xi_3)*(1.-xi_3); 
-   one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3); 
-   sig_sum=sigma_1+sigma_2;
-   sig_m=sigma_1*sigma_2;
-                 
-  dy_dxi2 = (3.*sig_m/sig_sum)*(1.0/one_m_xi3_sq)+
-       4.*(sig_m/sig_sum)*(sig_m/sig_sum)*(xi_2/one_m_xi3_cb);
-                 
-   return dy_dxi2;
-}
-/********************************************************************************************/
-   double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2, double xi_3)
-{
-   double one_m_xi3_sq,one_m_xi3_cb,sig_sum,sig_m,dy_dxi3,one_m_xi3_4th;
-
-   one_m_xi3_sq= (1.-xi_3)*(1.-xi_3);
-   one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3);
-   one_m_xi3_4th= (1.-xi_3)*one_m_xi3_cb;
-   sig_sum=sigma_1+sigma_2;
-   sig_m=sigma_1*sigma_2;
-
-  dy_dxi3 = 1./one_m_xi3_sq +(6.*sig_m/sig_sum)*(xi_2/one_m_xi3_cb)+
-       6.*(sig_m/sig_sum)*(sig_m/sig_sum)*(xi_2*xi_2/one_m_xi3_4th);
-
-   return dy_dxi3;
-}
-/******************************************************************************/
-/* calc_ideal_gas: This routine computes ideal gas properties at a density of interest */
-double calc_ideal_gas(double *rho,double *betamu)
-{
-   double betap=0.0;
-   int i;
-   
-   for (i=0;i<Ncomp;i++){
-       betamu[i] = log(rho[i]);
-                  /*           - 3.0*log(Sigma_ff[icomp][icomp]) -
-                               1.5*log(Mass[icomp]*Temp); */
-       betap+=rho[i];
-   }
-   return(betap);
-}
-/********************************************************************************
-calc_hs_properties:  This routine calculates the pressure and excess chemical 
-                     potential for hard spheres at the density of interest 
-                     using the PY equations.            */
-
-double calc_hs_properties(double *betamu_hs,double *rho)
-{
-   int icomp;
-   double pi6, hs_diam_cubed, xsi0, xsi1, xsi2, xsi3, y1, y2, y3,
-          betap_hs;
-
-   xsi0=xsi1=xsi2=xsi3=0.0;
-   pi6 = PI/6.0;                 /* shorthand  for pi/6                 */
-
-   /*  Determine the effective hard sphere diameters 
-    For now we will set these to unity, but in the future we
-    can define a temperature dependent diameter. Doing so
-    offers a way to provide a better mean field equation of
-    state. In essence, for  an attractive (e.g LJ) fluid (mixture)
-    we can use the effective hard sphere diameter to off set the 
-    shortcomings of the PY + mean field approximation. See the
-    work by Telo da Gama et al.. 
-   */
-
-   /* calculate the hard sphere diamtere ... this can be 
-      turned into a T-dependent diameter */
-
-   for (icomp=0; icomp<Ncomp; ++icomp) Hs_diam[icomp] = 1.0;  
-
-   /*  calculate the constants xsi and introduce some shorthand */
-
-   for (icomp=0; icomp<Ncomp; ++icomp) {
-      hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
-      xsi0 +=pi6 * rho[icomp] * hs_diam_cubed;
-      xsi1 +=pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
-      xsi2 +=pi6 * rho[icomp] * hs_diam_cubed * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
-      xsi3 +=pi6 * rho[icomp] * hs_diam_cubed * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
-   }
-   y1 = 1.0 - xsi3;
-   y2 = y1 * y1;
-   y3 = y1 * y1 * y1;
-
-   /* the hard sphere pressure in units of kT and Sigma_ff[1]^3 */
-
-   betap_hs = (1.0/pi6) * (xsi0/y1 + 3.0 * xsi1 * xsi2/y2 +
-                                     3.0 * POW_DOUBLE_INT(xsi2,3)/y3  );
-
-   /* the excess hard sphere chemical potential in units of kT */
-
-   for (icomp=0; icomp<Ncomp; ++icomp) 
-      Betamu_hs_ex[icomp] = - log(y1) +
-              pi6 * betap_hs * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3) +
-              3.0 * xsi2 * Sigma_ff[icomp][icomp]/y1 +
-              3.0 * xsi1 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2)/y1 +
-              4.5 * POW_DOUBLE_INT((xsi2 * Sigma_ff[icomp][icomp]),2)/y2 ;
-
-   /* 
-    * add the ideal gas term to give
-    * the hard sphere chemical potential in units of kT 
-    */
-   for (icomp=0; icomp<Ncomp; ++icomp) {
-      betamu_hs[icomp]  =  Betamu_hs_ex[icomp]; 
-   }
-
-   return (betap_hs);
-}
-/*************************************************************
-calc_att_properties: In this routine calculate the strict mean field
-                     attraction contribution to the pressure and
-                     chemical potential */
-double calc_att_properties(double *betamu_att, double *rho)
-{
-  int icomp,jcomp;
-  double betap_att;
-
-  betap_att = 0.0; 
-  for (icomp=0; icomp<Ncomp; icomp++) betamu_att[icomp] = 0.0;
-
-  for (icomp=0; icomp<Ncomp; icomp++) {
-     for (jcomp=0; jcomp<Ncomp;jcomp++){
-       Avdw[icomp][jcomp] = int_stencil_bulk(U_ATTRACT,icomp,jcomp);
-       betamu_att[icomp] += rho[jcomp]*Avdw[icomp][jcomp];
-       betap_att += 0.5*Avdw[icomp][jcomp]*rho[icomp]*rho[jcomp];
-     }
-  }
-  return(betap_att);
-}
-/********************************************************************
-calc_charge_correlations_b: Here we set up the bulk cross correlations
-      between the hard sphere and coulomb parts of the potential*/
-void calc_charge_correlations_b()
-{
-   int icomp,jcomp;
-
-   Deltac_b = (double *) array_alloc (1, Ncomp, sizeof(double));
-   for (icomp=0; icomp<Ncomp; icomp++) Deltac_b[icomp] = 0.0;
-
-   for (icomp=0; icomp<Ncomp; icomp++) 
-      for (jcomp=0; jcomp<Ncomp;jcomp++)
-          Deltac_b[icomp]+= Rho_b[jcomp]*
-                            int_stencil_bulk(THETA_CHARGE,icomp,jcomp);
-   return;
-}
-/***********************************************************************
-int_stencil_bulk: this routine sums the appropriate stencil to get
-                  the bulk contributions to various terms in the E-L
-                  equation. */
-double int_stencil_bulk(int sten_type,int icomp,int jcomp)
-{
-  int izone, isten;
-  double sum, weight, *sten_weight;
-  struct Stencil_Struct *sten;
-
-  sum = 0.0;
-  izone = 0;
-  sten = &(Stencil[sten_type][izone][icomp+Ncomp*jcomp]);
-  sten_weight = sten->Weight;
-
-  for (isten = 0; isten<sten->Length; isten++){
-     weight = sten_weight[isten];
-     sum += weight;
-  }
-  return(sum);
-}
-/*******************************************************************************/
-/* deltaC_MSA:  given r12, calculate the attractive part of a cut and
-           shifted 12-6 LJ potential. */
-
-double deltaC_MSA(double r,int i, int j)
-{
-  double deltac,B,kappa,kappa_sq;
-  int icomp;
-
-  kappa_sq = 0.0;
-  for(icomp = 0; icomp<Ncomp; icomp++)
-     kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
-                  Charge_f[icomp]*Charge_f[icomp];
-  kappa = sqrt(kappa_sq);
-  B = (kappa + 1.0 - sqrt(1.0+2.0*kappa))/kappa;
-
-/*  printf("\t r: %9.6f icomp: %d  jcomp: %d  kappa: %9.6f  B: %9.6f  Sigma_ff: %9.6f\n",
-          r,i,j,kappa,B,Sigma_ff[i][j]);*/
-
-  if (r == 0.0) printf("trouble with deltaC term .... r=0");
-  if (r <= Sigma_ff[i][j] && r>0) {
-
-     deltac = -Charge_f[i]*Charge_f[j]/Temp_elec*
-              (  2*B/Sigma_ff[i][j] - 1.0/r
-               - POW_DOUBLE_INT(B/Sigma_ff[i][j],2)*r );
-  }
-  else deltac = 0.0;
-
-  return deltac;
-}
-/*******************************************************************************/
-/* deltaC_MSA_int:  given range of integrattion, r, calculate the definite
-           integral of deltac_MSA over all space */
-
-double deltaC_MSA_int(double r,int i, int j)
-{
-  double deltac_int,B,kappa,kappa_sq;
-  int icomp;
-
-  kappa_sq = 0.0;
-  for(icomp = 0; icomp<Ncomp; icomp++)
-     kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
-                  Charge_f[icomp]*Charge_f[icomp];
-  kappa = sqrt(kappa_sq);
-  B = (kappa + 1.0 - sqrt(1.0+2.0*kappa))/kappa;
-
-  deltac_int = -(4*PI*Charge_f[i]*Charge_f[j]/Temp_elec)*
-                r*r*
-               (  2*B*r/(3.0*Sigma_ff[i][j]) - 0.5
-               - 0.25*POW_DOUBLE_INT(B/Sigma_ff[i][j],2)*r*r );
-
-  return deltac_int;
-}
-/*******************************************************************************/
-/* compute_bulk_nonlocal_properties: compute some additional bulk properties we
-   need to carry around the calculation. These are based on the input densities
-   and particle sizes. */
-void compute_bulk_nonlocal_properties(char *output_file1)
-{
-  int i,loc_inode,loc_i,inode_box,inode,ijk[3],icomp,idim,iunk,printproc;
-  int ibond,iseg,jseg,pol_number,type_jseg,nloop,iloop;
-  double vol,area,x_dist;
-  FILE *fp2=NULL;
-  if (Proc==0) printproc = TRUE;
-  else printproc=FALSE;
-  if (printproc) fp2 = fopen(output_file1,"a+");
-
-   /* compute bulk nonlocal densities needed for Rosenfeld terms */
-  if (Type_func != NONE){   
-     for (iunk=0; iunk<Nrho_bar; iunk++){
-       Rhobar_b[iunk] = 0.0;
-       Rhobar_b_LBB[iunk] = 0.0;
-       Rhobar_b_RTF[iunk] = 0.0;
-     }
-
-    if (Type_poly==WTC) nloop=Nseg_tot;
-    else             nloop=Ncomp;
-
-     for (iloop=0; iloop<nloop; iloop++){
-       if (Type_poly==WTC) icomp=Unk2Comp[iloop];
-       else             icomp=iloop;
-
-       if (Type_poly==WTC){
-           sum_rhobar(Rho_seg_b[iloop],icomp,Rhobar_b);
-       }
-       else{
-          if (Lsteady_state){
-                 sum_rhobar(Rho_b_LBB[icomp],icomp,Rhobar_b_LBB);
-                 sum_rhobar(Rho_b_RTF[icomp],icomp,Rhobar_b_RTF);
-          }
-          else if (Nwall ==0 && Iliq_vap==3){
-                 sum_rhobar(Rho_coex[1],icomp,Rhobar_b_LBB);
-                 sum_rhobar(Rho_coex[0],icomp,Rhobar_b_RTF);
-          }
-          else sum_rhobar(Rho_b[icomp],icomp,Rhobar_b);
-   
-       }
-     }
-     if (printproc){
-        fprintf(fp2,"Rhobar_bulk, LBB, and RTF variables for Rosenfeld HS functionals:\n");
-        fprintf(fp2,"Note that vector terms are strictly zero in the bulk!\n");
-        fprintf(fp2,"\t i  Rhobar_b[i]  Rhobar_b_LBB[i]  Rhobar_b_RTF[i]\n");
-        for (i=0;i<4;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 Rhobar_b[i], Rhobar_b_LBB[i], Rhobar_b_RTF[i]);
-        if (Iwrite==VERBOSE){
-           printf("Rhobar_bulk, LBB, and RTF variables for Rosenfeld HS functionals:\n");
-           printf("Note that vector terms are strictly zero in the bulk!\n");
-           printf("\t i  Rhobar_b[i]  Rhobar_b_LBB[i]  Rhobar_b_RTF[i]\n");
-           for (i=0;i<4;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 Rhobar_b[i], Rhobar_b_LBB[i], Rhobar_b_RTF[i]);
-        }
-     }
-  }
-
-  /* compute bulk nonlocal densities needed for Wertheim-Tripathi-Chapman functionals */
-  if (Type_poly==WTC){  
-     for (i=0; i<4; i++){
-        Xi_cav_b[i]=0.0;
-        Xi_cav_LBB[i]=0.0;
-        Xi_cav_RTF[i]=0.0;
-     }
-     for (icomp=0;icomp<Ncomp;icomp++){
-        for (i=0;i<4;i++){
-           Xi_cav_b[i]+=(PI/6.0)*Rho_b[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
-           if (Lsteady_state){
-             Xi_cav_LBB[i]+=(PI/6.0)*Rho_b_LBB[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
-             Xi_cav_RTF[i]+=(PI/6.0)*Rho_b_RTF[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
-           }
-        }
-     }
-     if (printproc){
-        fprintf(fp2,"Xi_cavity_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-        fprintf(fp2,"\t i  Xi_cav_b[i]  Xi_cav_LBB[i]  Xi_cav_RTF[i]\n");
-        for (i=0;i<4;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 Xi_cav_b[i], Xi_cav_LBB[i], Xi_cav_RTF[i]);
-        if (Iwrite==VERBOSE){
-           printf("Xi_cav_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-           printf("\t i  Xi_cav_b[i]  Xi_cav_LBB[i]  Xi_cav_RTF[i]\n");
-            for (i=0;i<4;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 Xi_cav_b[i], Xi_cav_LBB[i], Xi_cav_RTF[i]);
-        }
-     }
-
-     for (ibond=0; ibond<Nbonds; ibond++){
-       BondWTC_b[ibond]=NO_BOND_PAIR;
-       BondWTC_LBB[ibond]=NO_BOND_PAIR;
-       BondWTC_RTF[ibond]=NO_BOND_PAIR;
-    }
-
-    for (ibond=0; ibond<Nbonds; ibond++){
-        iseg=Unk_to_Seg[ibond];
-        pol_number=Unk_to_Poly[ibond];
-        jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]];
-        type_jseg=Type_mer[pol_number][jseg];
-        BondWTC_b[ibond]=Rho_seg_b[jseg];
-        if (Lsteady_state){
-           BondWTC_LBB[ibond]=Rho_seg_LBB[jseg];
-           BondWTC_RTF[ibond]=Rho_seg_RTF[jseg];
-        }
-    }
-    if (printproc){
-        fprintf(fp2,"BondWTC_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-        fprintf(fp2,"\t i  BondWTC_b[i]  BondWTC_LBB[i]  BondWTC_RTF[i]\n");
-        for (i=0;i<Nbonds;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 BondWTC_b[i], BondWTC_LBB[i], BondWTC_RTF[i]);
-        if (Iwrite==VERBOSE){
-           printf("BondWTC_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-           printf("\t i  BondWTC_b[i]  BondWTC_LBB[i]  BondWTC_RTF[i]\n");
-           for (i=0;i<Nbonds;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 BondWTC_b[i], BondWTC_LBB[i], BondWTC_RTF[i]);
-        }
-       fclose(fp2);
-     }
-
-  } /* end of Type_poly_WTC rhobars (bulk)*/
-
-
-}
-/*********************************************************************************************/
-void sum_rhobar(double rho,int icomp, double *rhobar)
-{
-   double vol,area;
-   int idim;
-
-   vol = PI*Sigma_ff[icomp][icomp]*
-           Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp]/6.0;
-   area = PI*Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp];
-
-   rhobar[0] += vol*rho;
-   rhobar[1] += area*rho;
-   rhobar[2] += area*rho*Inv_4pir[icomp];
-   rhobar[3] += area*rho*Inv_4pirsq[icomp];
-   for (idim=0; idim<Ndim; idim++){
-       rhobar[4+idim] = 0.0;
-       rhobar[4+Ndim+idim] = 0.0;
-   }
-   return;
-}
-/*******************************************************************************/
 /* pot_parameters: calculate the cross terms (sigmaij,epsilonij,cutoffij)
    for this potential */
 void pot_parameters(char *output_file1)
@@ -800,110 +425,6 @@ if (niter==0) printf("Jac: %9.6f  %9.6f  %9.6f  %9.6f\n",Jac_inv[0][0],Jac_inv[0
                       + calc_att_properties(betamu_att_l,&(Rho_coex[0])) ;
    return(p_coex);
 }
-/*************************************************************************
-dp_drho_hs: the derivative of the hard sphere pressure with respect to rho*/
-double dp_drho_hs(double *rho)
-{
-   int icomp;
-   double Hs_diam[NCOMP_MAX],hs_diam_cubed,pi6;
-   double xsi0,xsi1,xsi2,xsi3,y1,y2,y3,dy1_drho,dy2_drho,dy3_drho;
-   double dp_drho;
-
-   xsi0 = xsi1 = xsi2 = xsi3 = 0.0;
-   pi6 = PI/6.0;                 /* shorthand  for pi/6                 */
-
-   for (icomp=0; icomp<Ncomp; ++icomp) Hs_diam[icomp] = 1.0;  
-
-   /*  calculate the constants xsi and introduce some shorthand */
-
-   for (icomp=0; icomp<Ncomp; ++icomp) {
-      hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
-      xsi0 +=pi6 * rho[icomp] * hs_diam_cubed;
-      xsi1 +=pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
-      xsi2 +=pi6 * rho[icomp] * hs_diam_cubed 
-                 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
-      xsi3 +=pi6 * rho[icomp] * hs_diam_cubed 
-                 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
-   }
-   y1 = 1.0 - xsi3;
-   y2 = y1 * y1;
-   y3 = y1 * y1 * y1;
-
-   dy1_drho = xsi3/rho[0];
-   dy2_drho = 2*y1*dy1_drho;
-   dy3_drho = 3*y1*y1*dy1_drho;
-
-   dp_drho = (1.0/pi6) * (  xsi0/(rho[0]*y1) - xsi0*dy1_drho/(y1*y1) +
-                           (3.0*xsi1*xsi2/y2)*( 2.0/rho[0] - dy2_drho/y2) +
-                           (3.0*xsi2*xsi2*xsi2/y3) *(3.0/(rho[0]) - dy3_drho/y3) );
-   return (dp_drho);
-}
-/*************************************************************************
-dp_drho_att: the derivative of the attractive part of the pressure 
-             with respect to rho*/
-double dp_drho_att(double *rho)
-{
- double dp_drho;
-
- dp_drho = Avdw[0][0]*rho[0];
- return (dp_drho);
-}
-/*************************************************************************
-dmu_drho_hs: the derivative of the hard sphere chemical potential 
-             with respect to rho*/
-double dmu_drho_hs(double *rho)
-{
-   int icomp;
-   double Hs_diam[NCOMP_MAX],hs_diam_cubed,pi6;
-   double xsi0,xsi1,xsi2,xsi3,y1,y2,y3,dy1_drho,dy2_drho,dy3_drho;
-   double dmu_drho;
-
-   xsi0 = xsi1 = xsi2 = xsi3 = 0.0;
-   pi6 = PI/6.0;                 /* shorthand  for pi/6                 */
-
-   for (icomp=0; icomp<Ncomp; ++icomp) Hs_diam[icomp] = 1.0;  
-
-   /*  calculate the constants xsi and introduce some shorthand */
-
-   for (icomp=0; icomp<Ncomp; ++icomp) {
-      hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
-      xsi0 +=pi6 * rho[icomp] * hs_diam_cubed;
-      xsi1 +=pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
-      xsi2 +=pi6 * rho[icomp] * hs_diam_cubed 
-                 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
-      xsi3 +=pi6 * rho[icomp] * hs_diam_cubed 
-                 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
-   }
-   y1 = 1.0 - xsi3;
-   y2 = y1 * y1;
-   y3 = y1 * y1 * y1;
-
-   dy1_drho = xsi3/rho[0];
-   dy2_drho = 2*y1*dy1_drho;
-   dy3_drho = 3*y1*y1*dy1_drho;
-
-   dmu_drho = - dy1_drho/y1 + 
-        pi6 * dp_drho_hs(rho) * POW_DOUBLE_INT(Sigma_ff[0][0],3) +
-       (3.0 * xsi2 * Sigma_ff[0][0]/y1)
-                                 *( 1.0/rho[0] - dy1_drho/y1) +
-       (3.0 * xsi1 * POW_DOUBLE_INT(Sigma_ff[0][0],2)/y1)
-                                 *( 1.0/rho[0] - dy1_drho/y1) +
-       (9.0 * POW_DOUBLE_INT((xsi2 * Sigma_ff[0][0]),2)/y2)
-                                 *( 1.0/rho[0] - 0.5*dy2_drho/y2) +
-       (1.0/rho[0]);
-
-   return(dmu_drho);
-}
-/*************************************************************************
-dmu_drho_att: the derivative of the attractive part of the chemical potential 
-               with respect to rho*/
-double dmu_drho_att(double *rho)
-{
-   double dmu_drho;
-
-   dmu_drho = Avdw[0][0];
-   return (dmu_drho);
-}
 /******************************************************************************
 print_thermo_properties:  do all the file printing here.*/
 void print_thermo(char *output_file1, double betap_hs, 
@@ -973,11 +494,15 @@ void print_thermo(char *output_file1, double betap_hs,
    }
    if (Type_poly==WTC){
       fprintf(fp2,"correcting for overlapping particles in WTC bonded systems\n");
+      fprintf(fp2,"\t\t cavity correlation corrections\n");
       for (icomp=0;icomp<Ncomp;icomp++)
          for (jcomp=0;jcomp<Ncomp;jcomp++)
            fprintf(fp2,"icomp=%d jcomp=%d Fac_overlap=%9.6f\n",icomp,jcomp,Fac_overlap[icomp][jcomp]);
-      fprintf(fp2,"           *********************************\n");
    }
+   fprintf(fp2,"\t\t checking hard sphere corrections\n");
+   for (icomp=0;icomp<Ncomp;icomp++)
+        fprintf(fp2,"icomp=%d Fac_overlap_hs=%9.6f\n",icomp,Fac_overlap_hs[icomp]);
+   fprintf(fp2,"           *********************************\n");
 
    fprintf(fp2,"\n!!!!!!!!!!!!! end of dft_thermo.c output !!!!!!!!!!!!!!!!!!\n");
    fclose(fp2);

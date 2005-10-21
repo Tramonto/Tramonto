@@ -26,6 +26,7 @@
 
 void print_cont_type(int,FILE *);
 void print_cont_variable(int,FILE *);
+void setup_domain_multipliers();
 
 void post_process (double **x,char *output_file3,int *niters,
                    double *time_save, int loop1, int binodal_flag)
@@ -40,7 +41,7 @@ void post_process (double **x,char *output_file3,int *niters,
              *output_file6="dft_gofr.dat", *output_flux= "dft_flux.dat",
              *output_file7="dft_dens_site.dat",*output_file8=NULL;
   char filename[20];
-
+  int icomp,iunk;
   double t1;
   double fac_area,fac_vol;
   int i,iwall,idim;
@@ -105,7 +106,9 @@ void post_process (double **x,char *output_file3,int *niters,
       else fprintf(fp,"%d  %9.4f  ",*niters,*time_save);
    }
 
-   /* calculate multiplicative factors that result
+   setup_domain_multipliers();
+
+   /* calculate multiplicative factors that result         !!!!!!!!!!!remove this chuck ASAP
       from the presence of reflective boundaries...
       use the area of the 0th wall for an area basis calculation. */
 
@@ -143,6 +146,8 @@ void post_process (double **x,char *output_file3,int *niters,
    if (Area==0.0){printf("trouble .... Area=0.0\n"); exit(-1);}
 */
    setup_integrals();
+   calc_adsorption(fp,x);
+   if (Type_coul != NONE) calc_fluid_charge(fp,x); 
 
 /*   if (Ipot_wf_n != LJ12_6_WALL &&  
          Ipot_wf_n != LJ_CHARGED_ATOMS && Ipot_wf_n != LJ_ATOMIC) */
@@ -152,8 +157,6 @@ void post_process (double **x,char *output_file3,int *niters,
 
    if (!Sten_Type[POLYMER_CR]) (void)calc_free_energy(fp,x,fac_area,fac_vol,TRUE); 
 
-   if (Ipot_ff_c > 0 || Type_coul==LIKE_LJ) calc_surface_charge(fp,x,fac_area,fac_vol); 
-   (void)calc_adsorption(fp,x,fac_area,fac_vol);    
 
    if (Sten_Type[POLYMER_CR]) calc_free_energy_polymer(fp,x,fac_area,fac_vol); 
 
@@ -194,7 +197,8 @@ void setup_integrals()
 
       for (iloop=0; iloop<nloop; iloop++){
 
-         icomp=Unk2Comp[iloop];
+         if (Type_poly==WTC) icomp=Unk2Comp[iloop];
+         else icomp=iloop;
 
          if (Nlists_HW==1 || Nlists_HW==2) List[0] = 0;
          else                              List[0] = icomp;
@@ -255,6 +259,47 @@ void setup_integrals()
         }
       }
     }
+}
+/******************************************************************************/
+/*setup_domain_multipliers: Here compute area and Fac_vol and Fac_area that
+  are needed for all integrals */
+void setup_domain_multipliers()
+{
+  int idim,iwall;
+
+  /* compute Fac_vol and Fac_area */
+   Fac_area = 1.0;
+   Fac_vol = 1.0;
+   for (idim = 0; idim<Ndim; idim++) {
+       if (!(Type_bc[idim][0] == REFLECT && Type_bc[idim][1] == REFLECT) && Lcount_reflect){
+
+       if (Type_bc[idim][0] == REFLECT){
+
+          Fac_vol *= 2.0;
+          if (WallPos[idim][0] == -0.5*Size_x[idim]) Fac_area *= 2.0;
+       }
+       else if (Type_bc[idim][1] == REFLECT) {
+
+          Fac_vol *= 2.0;
+          if (WallPos[idim][0] == 0.5*Size_x[idim]) Fac_area *= 2.0;
+       }
+       }
+   }
+
+
+  /* compute surface area */
+  Area = 0.0;
+  if (Nwall == 0) Area = 1.0;
+  else{
+     if (Nlink == Nwall) Area = S_area_tot[Nlists_HW-1][0];
+     else
+        for (iwall=0; iwall<Nwall; iwall++){
+           if (Link[iwall]==0)
+           Area += S_area_tot[Nlists_HW-1][iwall];
+        }
+  }
+
+  return;
 }
 /******************************************************************************/
 /*print_cont_variable: Here print the value of the variable that
