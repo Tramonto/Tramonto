@@ -1351,8 +1351,8 @@ extern void compute_bulk_nonlocal_wtc_properties(char *);
 /* SETUP UTILITIES (functions commonly applied in more than one place *
 extern double int_stencil_bulk(int,int,int);
 extern double int_stencil(double **,int, int,int);
-extern void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,int,double **),int,double **);
-extern void integrateInSpace(double(*fp_integrand)(int,int,int,double **),int,int,double **);
+extern void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int,int ***,double **);
+extern void integrateInSpace(double(*fp_integrand)(int,int,double **),int,int,int ***,double **);
 
 
 /* COMMUNICATIONS ROUTINES */
@@ -1368,9 +1368,9 @@ extern void   gsum_int_vec(int *, int *, int);
 extern void post_process(double **,char *,int *,double *,int, int);
 extern void calc_adsorption(FILE *,double **);
 extern void calc_fluid_charge(FILE *, double **);
-extern double integrand_adsorption(int,int,int,double **);
-extern double integrand_excess_adsorption(int,int,int,double **);
-extern double integrand_fluid_charge(int,int,int,double **);
+extern double integrand_adsorption(int,int,double **);
+extern double integrand_adsorption_bulk(int,int,double **);
+extern double integrand_fluid_charge(int,int,double **);
 extern double calc_free_energy(FILE *, double **,double,double, int);
 extern void calc_flux(FILE *,char *,double *);
 extern void calc_force(FILE *, double **,double);

@@ -34,7 +34,7 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp)
  double int_stencil(double **x,int inode_box,int iunk,int sten_type)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
-  int j,jcomp,junk;
+  int j,jcomp,junk,icomp;
   double weight, sum;
   struct Stencil_Struct *current_sten;
   int **current_sten_offset, reflect_flag[NDIM_MAX];
@@ -287,7 +287,7 @@ void print_to_screen(int i,double val,char *var_label)
   if ((i==0 && !Lhard_surf) || (i==1 && Lhard_surf)){
        printf("\t===== Integrating over domain volume =====\n");
   }
-  else{
+  else if(i==0){
        printf("\t===== Integrating over fluid volume only =====\n");
   }
   printf("\t\t %s=%9.6f\n",var_label,val);
