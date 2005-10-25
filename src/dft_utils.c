@@ -31,7 +31,7 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp)
 }
 /*******************************************************************************/
 /*int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
- double int_stencil(double **x,int inode_box,int icomp,int sten_type)
+ double int_stencil(double **x,int inode_box,int iunk,int sten_type)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
   int j,jcomp,junk;
@@ -46,9 +46,12 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp)
 
   sum = 0.0;
   node_box_to_ijk_box(inode_box,ijk_box);
+  if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+  else                icomp=iunk-Phys2Unk_first[DENSITY];
 
   for (junk=Phys2Unk_first[DENSITY];junk<Phys2Unk_last[DENSITY];junk++){
-     jcomp=Unk2Comp[junk];
+     if (Type_poly==WTC) jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
+     else                jcomp=junk-Phys2Unk_first[DENSITY];
 
      current_sten = &(Stencil[sten_type][izone][icomp+Ncomp*jcomp]);
      current_sten_offset = current_sten->Offset;
@@ -211,7 +214,8 @@ int loc_find(int iunk,int inode,int flag)
   return loc_i;
 }
 /*****************************************************************************************************/
-void integrateInSpace(double(*fp_integrand)(int,int,int,double **),int iunk,int i, double **x)
+void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int i, 
+                                                int ***nelhit,double **x)
 {
 
    double sum,sum_i;
@@ -222,7 +226,8 @@ void integrateInSpace(double(*fp_integrand)(int,int,int,double **),int iunk,int 
 
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       inode_box = L2B_node[loc_inode];
-      sum_i += (*fp_integrand)(iunk,i,inode_box,x)*Vol_el/((double)Nnodes_per_el_V);
+      sum_i += (*fp_integrand)(iunk,inode_box,x)*
+                 nelhit[i][iunk][inode_box]*Vol_el/((double)Nnodes_per_el_V);
   }       /* end of loc_inode loop */
 
   sum=gsum_double(sum_i);
@@ -237,7 +242,8 @@ void integrateInSpace(double(*fp_integrand)(int,int,int,double **),int iunk,int 
   return;
 }
 /*****************************************************************************************************/
-void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,int,double**),int i,double **x)
+void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),int i,
+                                                int ***nelhit,double **x)
 {
 
    double sum,sum_i;
@@ -253,7 +259,8 @@ void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,int,double**),int 
     for (iloop=0; iloop<nloop; iloop++){
 
          iunk = Phys2Unk_first[DENSITY]+iloop;
-         sum_i += (*fp_integrand)(iunk,i,inode_box,x)*Vol_el/((double)Nnodes_per_el_V);
+         sum_i += (*fp_integrand)(iunk,inode_box,x)*
+                   nelhit[i][iunk][inode_box]*Vol_el/((double)Nnodes_per_el_V);
 
     }   
   }       /* end of loc_inode loop */

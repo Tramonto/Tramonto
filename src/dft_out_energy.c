@@ -82,6 +82,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
      vext_c_sum[i] = 0.0;
      vext_sum[i] = 0.0;
   }
+  vext_c=0.0;
 
   if (Proc==0 &&Iwrite!=NO_SCREEN) printf ("\n Energy Calculation summary before taking area/volume factors into account:\n");
   if (Ipot_ff_n != IDEAL_GAS){
