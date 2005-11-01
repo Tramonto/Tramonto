@@ -1191,19 +1191,19 @@ double free_energy_diff_conwrap(double *x, double *x2)
 
   if (!Sten_Type[POLYMER_CR]){
     translate_1dOwned_2dBox(x, passdown.xBox);
-    energy1 = calc_free_energy(NULL,passdown.xBox,1.0,1.0,FALSE);
+    energy1 = calc_free_energy(NULL,passdown.xBox);
 
     translate_1dOwned_2dBox(x2, passdown.xBox);
-    energy2 = calc_free_energy(NULL,passdown.xBox,1.0,1.0,FALSE);
+    energy2 = calc_free_energy(NULL,passdown.xBox);
   }
   else {
     translate_1dOwned_2dBox(x, passdown.xBox);
     calc_adsorption(NULL,passdown.xBox);
-    energy1=calc_free_energy_polymer(NULL,passdown.xBox,1.0,1.0);
+/*    energy1=calc_free_energy_polymer(NULL,passdown.xBox,1.0,1.0);*/
 
     translate_1dOwned_2dBox(x2, passdown.xBox);
     calc_adsorption(NULL,passdown.xBox);
-    energy2=calc_free_energy_polymer(NULL,passdown.xBox,1.0,1.0);
+/*    energy2=calc_free_energy_polymer(NULL,passdown.xBox,1.0,1.0);*/
   }
 
   safe_free((void *)&Nel_hit);

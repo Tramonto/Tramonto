@@ -27,12 +27,6 @@ void  thermodynamics( char *output_file1, int print_flag)
           printf("\n-------------------------------------------------------------------------------\n");
           printf("%s: Doing Thermo precalculations\n",yo);
    }
-   if (Ipot_ff_n == LJ12_6) {
-      Avdw = (double **) array_alloc(2, Ncomp, Ncomp, sizeof(double));
-   }
-   Betamu_att = (double *) array_alloc(1, Ncomp, sizeof(double));
-   for (i=0;i<Ncomp;i++) Betamu_att[i]=0.0;
-   betap_att=0.0;
 
    if (Type_poly==WTC){
       for (iseg=0;iseg<Nseg_tot;iseg++) Betamu_wtc[iseg]=0.0;

@@ -16,9 +16,10 @@ void calc_charge_correlations_b()
    for (icomp=0; icomp<Ncomp; icomp++) Deltac_b[icomp] = 0.0;
 
    for (icomp=0; icomp<Ncomp; icomp++) 
-      for (jcomp=0; jcomp<Ncomp;jcomp++)
-          Deltac_b[icomp]+= Rho_b[jcomp]*
-                            int_stencil_bulk(THETA_CHARGE,icomp,jcomp);
+      for (jcomp=0; jcomp<Ncomp;jcomp++){
+          int_stencil_bulk(THETA_CHARGE,icomp,jcomp);
+          Deltac_b[icomp]+= Rho_b[jcomp]*Temporary_sum;
+      }
    return;
 }
 /*******************************************************************************/

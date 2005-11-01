@@ -153,7 +153,15 @@ COMMON_C = \
         ${srcdir}/dft_thermo_wtc.c \
         ${srcdir}/dft_out_main.c \
         ${srcdir}/dft_out_ads.c \
-        ${srcdir}/dft_out_energy.c \
+        ${srcdir}/out_energy_new.c \
+        ${srcdir}/dft_energy_id.c \
+        ${srcdir}/dft_energy_hs.c \
+        ${srcdir}/dft_energy_att.c \
+        ${srcdir}/dft_energy_wtc.c \
+        ${srcdir}/dft_energy_elec.c \
+        ${srcdir}/dft_energy_vext.c \
+        ${srcdir}/dft_energy_mu.c \
+        ${srcdir}/dft_energy_cms.c \
         ${srcdir}/dft_out_force.c \
         ${srcdir}/dft_out_flux.c \
         ${srcdir}/dft_out_profiles.c \
@@ -282,7 +290,11 @@ am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_thermo_att.$(OBJEXT) dft_thermo_cms.$(OBJEXT) \
 	dft_thermo_elec_MSA.$(OBJEXT) dft_thermo_id.$(OBJEXT) \
 	dft_thermo_wtc.$(OBJEXT) dft_out_main.$(OBJEXT) \
-	dft_out_ads.$(OBJEXT) dft_out_energy.$(OBJEXT) \
+	dft_out_ads.$(OBJEXT) out_energy_new.$(OBJEXT) \
+	dft_energy_id.$(OBJEXT) dft_energy_hs.$(OBJEXT) \
+	dft_energy_att.$(OBJEXT) dft_energy_wtc.$(OBJEXT) \
+	dft_energy_elec.$(OBJEXT) dft_energy_vext.$(OBJEXT) \
+	dft_energy_mu.$(OBJEXT) dft_energy_cms.$(OBJEXT) \
 	dft_out_force.$(OBJEXT) dft_out_flux.$(OBJEXT) \
 	dft_out_profiles.$(OBJEXT) dft_vext.$(OBJEXT) \
 	dft_guess.$(OBJEXT) dft_comm.$(OBJEXT) \
@@ -357,6 +369,14 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_basic_lin_prob_mgr_wrapper.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_comm.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_continuation.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_energy_att.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_energy_cms.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_energy_elec.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_energy_hs.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_energy_id.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_energy_mu.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_energy_vext.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_energy_wtc.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_fill_control.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_fill_main.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_fill_mf.Po \
@@ -372,7 +392,6 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_mesh_surfaces.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_newton.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_out_ads.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft_out_energy.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_out_flux.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_out_force.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_out_main.Po \
@@ -391,7 +410,9 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_vext.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_vext_coul.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/loca_bord.Po ./$(DEPDIR)/loca_lib.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/loca_util.Po ./$(DEPDIR)/rf_allo.Po
+@AMDEP_TRUE@	./$(DEPDIR)/loca_util.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/out_energy_new.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/rf_allo.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -487,7 +508,15 @@ dft_thermo_id.$(OBJEXT): ${srcdir}/dft_thermo_id.c
 dft_thermo_wtc.$(OBJEXT): ${srcdir}/dft_thermo_wtc.c
 dft_out_main.$(OBJEXT): ${srcdir}/dft_out_main.c
 dft_out_ads.$(OBJEXT): ${srcdir}/dft_out_ads.c
-dft_out_energy.$(OBJEXT): ${srcdir}/dft_out_energy.c
+out_energy_new.$(OBJEXT): ${srcdir}/out_energy_new.c
+dft_energy_id.$(OBJEXT): ${srcdir}/dft_energy_id.c
+dft_energy_hs.$(OBJEXT): ${srcdir}/dft_energy_hs.c
+dft_energy_att.$(OBJEXT): ${srcdir}/dft_energy_att.c
+dft_energy_wtc.$(OBJEXT): ${srcdir}/dft_energy_wtc.c
+dft_energy_elec.$(OBJEXT): ${srcdir}/dft_energy_elec.c
+dft_energy_vext.$(OBJEXT): ${srcdir}/dft_energy_vext.c
+dft_energy_mu.$(OBJEXT): ${srcdir}/dft_energy_mu.c
+dft_energy_cms.$(OBJEXT): ${srcdir}/dft_energy_cms.c
 dft_out_force.$(OBJEXT): ${srcdir}/dft_out_force.c
 dft_out_flux.$(OBJEXT): ${srcdir}/dft_out_flux.c
 dft_out_profiles.$(OBJEXT): ${srcdir}/dft_out_profiles.c
@@ -617,6 +646,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_basic_lin_prob_mgr_wrapper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_comm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_continuation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_att.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_cms.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_elec.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_hs.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_id.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_mu.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_vext.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_wtc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_fill_control.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_fill_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_fill_mf.Po@am__quote@
@@ -636,7 +673,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_mesh_surfaces.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_newton.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_out_ads.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_out_energy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_out_flux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_out_force.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_out_main.Po@am__quote@
@@ -658,6 +694,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_bord.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/out_energy_new.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rf_allo.Po@am__quote@
 
 distclean-depend:
@@ -891,17 +928,113 @@ dft_out_ads.obj: ${srcdir}/dft_out_ads.c
 @AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_out_ads.obj `cygpath -w ${srcdir}/dft_out_ads.c`
 
-dft_out_energy.o: ${srcdir}/dft_out_energy.c
-@AMDEP_TRUE@	source='${srcdir}/dft_out_energy.c' object='dft_out_energy.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_out_energy.Po' tmpdepfile='$(DEPDIR)/dft_out_energy.TPo' @AMDEPBACKSLASH@
+out_energy_new.o: ${srcdir}/out_energy_new.c
+@AMDEP_TRUE@	source='${srcdir}/out_energy_new.c' object='out_energy_new.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/out_energy_new.Po' tmpdepfile='$(DEPDIR)/out_energy_new.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_out_energy.o `test -f '${srcdir}/dft_out_energy.c' || echo '$(srcdir)/'`${srcdir}/dft_out_energy.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o out_energy_new.o `test -f '${srcdir}/out_energy_new.c' || echo '$(srcdir)/'`${srcdir}/out_energy_new.c
 
-dft_out_energy.obj: ${srcdir}/dft_out_energy.c
-@AMDEP_TRUE@	source='${srcdir}/dft_out_energy.c' object='dft_out_energy.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_out_energy.Po' tmpdepfile='$(DEPDIR)/dft_out_energy.TPo' @AMDEPBACKSLASH@
+out_energy_new.obj: ${srcdir}/out_energy_new.c
+@AMDEP_TRUE@	source='${srcdir}/out_energy_new.c' object='out_energy_new.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/out_energy_new.Po' tmpdepfile='$(DEPDIR)/out_energy_new.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_out_energy.obj `cygpath -w ${srcdir}/dft_out_energy.c`
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o out_energy_new.obj `cygpath -w ${srcdir}/out_energy_new.c`
+
+dft_energy_id.o: ${srcdir}/dft_energy_id.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_id.c' object='dft_energy_id.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_id.Po' tmpdepfile='$(DEPDIR)/dft_energy_id.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_id.o `test -f '${srcdir}/dft_energy_id.c' || echo '$(srcdir)/'`${srcdir}/dft_energy_id.c
+
+dft_energy_id.obj: ${srcdir}/dft_energy_id.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_id.c' object='dft_energy_id.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_id.Po' tmpdepfile='$(DEPDIR)/dft_energy_id.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_id.obj `cygpath -w ${srcdir}/dft_energy_id.c`
+
+dft_energy_hs.o: ${srcdir}/dft_energy_hs.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_hs.c' object='dft_energy_hs.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_hs.Po' tmpdepfile='$(DEPDIR)/dft_energy_hs.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_hs.o `test -f '${srcdir}/dft_energy_hs.c' || echo '$(srcdir)/'`${srcdir}/dft_energy_hs.c
+
+dft_energy_hs.obj: ${srcdir}/dft_energy_hs.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_hs.c' object='dft_energy_hs.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_hs.Po' tmpdepfile='$(DEPDIR)/dft_energy_hs.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_hs.obj `cygpath -w ${srcdir}/dft_energy_hs.c`
+
+dft_energy_att.o: ${srcdir}/dft_energy_att.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_att.c' object='dft_energy_att.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_att.Po' tmpdepfile='$(DEPDIR)/dft_energy_att.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_att.o `test -f '${srcdir}/dft_energy_att.c' || echo '$(srcdir)/'`${srcdir}/dft_energy_att.c
+
+dft_energy_att.obj: ${srcdir}/dft_energy_att.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_att.c' object='dft_energy_att.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_att.Po' tmpdepfile='$(DEPDIR)/dft_energy_att.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_att.obj `cygpath -w ${srcdir}/dft_energy_att.c`
+
+dft_energy_wtc.o: ${srcdir}/dft_energy_wtc.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_wtc.c' object='dft_energy_wtc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_wtc.Po' tmpdepfile='$(DEPDIR)/dft_energy_wtc.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_wtc.o `test -f '${srcdir}/dft_energy_wtc.c' || echo '$(srcdir)/'`${srcdir}/dft_energy_wtc.c
+
+dft_energy_wtc.obj: ${srcdir}/dft_energy_wtc.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_wtc.c' object='dft_energy_wtc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_wtc.Po' tmpdepfile='$(DEPDIR)/dft_energy_wtc.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_wtc.obj `cygpath -w ${srcdir}/dft_energy_wtc.c`
+
+dft_energy_elec.o: ${srcdir}/dft_energy_elec.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_elec.c' object='dft_energy_elec.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_elec.Po' tmpdepfile='$(DEPDIR)/dft_energy_elec.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_elec.o `test -f '${srcdir}/dft_energy_elec.c' || echo '$(srcdir)/'`${srcdir}/dft_energy_elec.c
+
+dft_energy_elec.obj: ${srcdir}/dft_energy_elec.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_elec.c' object='dft_energy_elec.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_elec.Po' tmpdepfile='$(DEPDIR)/dft_energy_elec.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_elec.obj `cygpath -w ${srcdir}/dft_energy_elec.c`
+
+dft_energy_vext.o: ${srcdir}/dft_energy_vext.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_vext.c' object='dft_energy_vext.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_vext.Po' tmpdepfile='$(DEPDIR)/dft_energy_vext.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_vext.o `test -f '${srcdir}/dft_energy_vext.c' || echo '$(srcdir)/'`${srcdir}/dft_energy_vext.c
+
+dft_energy_vext.obj: ${srcdir}/dft_energy_vext.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_vext.c' object='dft_energy_vext.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_vext.Po' tmpdepfile='$(DEPDIR)/dft_energy_vext.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_vext.obj `cygpath -w ${srcdir}/dft_energy_vext.c`
+
+dft_energy_mu.o: ${srcdir}/dft_energy_mu.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_mu.c' object='dft_energy_mu.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_mu.Po' tmpdepfile='$(DEPDIR)/dft_energy_mu.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_mu.o `test -f '${srcdir}/dft_energy_mu.c' || echo '$(srcdir)/'`${srcdir}/dft_energy_mu.c
+
+dft_energy_mu.obj: ${srcdir}/dft_energy_mu.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_mu.c' object='dft_energy_mu.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_mu.Po' tmpdepfile='$(DEPDIR)/dft_energy_mu.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_mu.obj `cygpath -w ${srcdir}/dft_energy_mu.c`
+
+dft_energy_cms.o: ${srcdir}/dft_energy_cms.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_cms.c' object='dft_energy_cms.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_cms.Po' tmpdepfile='$(DEPDIR)/dft_energy_cms.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_cms.o `test -f '${srcdir}/dft_energy_cms.c' || echo '$(srcdir)/'`${srcdir}/dft_energy_cms.c
+
+dft_energy_cms.obj: ${srcdir}/dft_energy_cms.c
+@AMDEP_TRUE@	source='${srcdir}/dft_energy_cms.c' object='dft_energy_cms.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/dft_energy_cms.Po' tmpdepfile='$(DEPDIR)/dft_energy_cms.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy_cms.obj `cygpath -w ${srcdir}/dft_energy_cms.c`
 
 dft_out_force.o: ${srcdir}/dft_out_force.c
 @AMDEP_TRUE@	source='${srcdir}/dft_out_force.c' object='dft_out_force.o' libtool=no @AMDEPBACKSLASH@

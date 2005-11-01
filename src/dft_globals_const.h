@@ -935,9 +935,9 @@ double **X_wall2;  /* Distance from inode to iwall [Nnodes][Nwall]    */
 extern
 int    **Zero_density_TF; /* array [Nnodes][icomp] indicates where VEXT_MAX */
 extern
-double  *Betamu_att;   /* sum over jcomp of Van der waals constant a(icomp,jcomp)*/
+double  Betamu_att[NCOMP_MAX];   /* sum over jcomp of Van der waals constant a(icomp,jcomp)*/
 extern
-double  **Avdw;    /*  Van der waals constant a(icomp,jcomp)*/
+double  Avdw[NCOMP_MAX][NCOMP_MAX];    /*  Van der waals constant a(icomp,jcomp)*/
 
 extern
 double  Sigma_w[NWALL_MAX_TYPE];  /* Array[Nwall] of w-w interaction diameters    */
@@ -1035,9 +1035,9 @@ int   Geom_flag;    /* geometry flag for ion chan. see OPTION_ definitions*/
 
 /* OUTPUT INTEGRAL PARAMETERS */
 extern
-int    ***Nel_hit;      /* number of elements hit by a given node in a given list */
+int    **Nel_hit;      /* number of elements hit by a given node in a given list */
 extern
-int    ***Nel_hit2;     /* same as prev. for a bulk fluid */
+int    **Nel_hit2;     /* same as prev. for a bulk fluid */
 extern
 int    List[2];       /* which list numbers we care about for integrals*/
 extern
@@ -1185,6 +1185,8 @@ extern
 double Ads[NCOMP_MAX][2];
 extern
 double Ads_ex[NCOMP_MAX][2];
+extern 
+double *Integration_profile; /* a place to put the integrand as a function of position */
 
 /****************************************************************************/
 
@@ -1349,10 +1351,10 @@ extern void compute_bulk_nonlocal_hs_properties(char *);
 extern void compute_bulk_nonlocal_wtc_properties(char *);
 
 /* SETUP UTILITIES (functions commonly applied in more than one place *
-extern double int_stencil_bulk(int,int,int);
-extern double int_stencil(double **,int, int,int);
-extern void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int,int ***,double **);
-extern void integrateInSpace(double(*fp_integrand)(int,int,double **),int,int,int ***,double **);
+extern void int_stencil_bulk(int,int,int);
+extern void int_stencil(double **,int, int,int);
+extern void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **,double **);
+extern void integrateInSpace(double(*fp_integrand)(int,int,double **),int,int **,double **);
 
 
 /* COMMUNICATIONS ROUTINES */
@@ -1371,10 +1373,28 @@ extern void calc_fluid_charge(FILE *, double **);
 extern double integrand_adsorption(int,int,double **);
 extern double integrand_adsorption_bulk(int,int,double **);
 extern double integrand_fluid_charge(int,int,double **);
-extern double calc_free_energy(FILE *, double **,double,double, int);
+
+extern double calc_free_energy(FILE *, double **);
+extern double integrand_ideal_gas_freen(int,int,double **);
+extern double integrand_ideal_gas_freen_bulk(int,int,double **);
+extern double integrand_hs_freen(int,int,double **);
+extern double integrand_hs_freen_bulk(int,int,double **);
+extern double integrand_att_freen(int,int,double **);
+extern double integrand_att_freen_bulk(int,int,double **);
+extern double integrand_vext_freen(int,int,double **);
+extern double integrand_vext_elec_freen(int,int,double **);
+extern double integrand_mu_freen(int,int,double **);
+extern double integrand_mu_freen_bulk(int,int,double **);
+extern double integrand_elec_PB_freen(int,int,double **);
+extern double integrand_elec_MSAcorr_freen(int,int,double **);
+extern double integrand_elec_MSAcorr_freen_bulk(int,int,double **);
+extern double integrand_WTC_freen(int,int,double **);
+extern double integrand_WTC_freen_bulk(int,int,double **);
+extern double integrand_CMS_freen(int,int,double **);
+extern double integrand_CMS_freen_bulk(int,int,double **);
 extern void calc_flux(FILE *,char *,double *);
 extern void calc_force(FILE *, double **,double);
-extern double calc_free_energy_polymer(FILE *,double **,double,double);
+/*extern double calc_free_energy_polymer(FILE *,double **,double,double);*/
 
 /* PRINTING - OUTPUT ROUTINES */
 extern void collect_x_old(double **);
@@ -1390,8 +1410,10 @@ extern void print_freen_profile_1D(double *, char *);
 extern void print_Nodes_to_zone(int *, char *);
 extern void print_time_histogram(int *,int *);
 extern void setup_integrals(void);
-extern void print_to_screen_comp(int,int,double, char *);
-extern void print_to_screen(int,double, char *);
+extern void print_to_screen_comp(int,double, char *);
+extern void print_to_screen(double, char *);
+extern void print_to_file_comp(FILE *,int,double, char *,int);
+extern void print_to_file(FILE *,double, char *,int);
 /****************************************************************************/
 
 /* 

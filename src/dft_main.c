@@ -197,6 +197,7 @@ void dftmain(double * engptr)
      /* check boudary conditions to see Coulomb external field can be computed
         for this run ..... we can't do it with periodic, multiply reflecting, or
         in wall boundary conditions due to need for infinite ewald sums */
+     Vext_coul=NULL;
      if (Vol_charge_flag && Ndim==3){
          proper_bc = TRUE;
          for (idim=0; idim<Ndim; idim++){
@@ -385,10 +386,6 @@ void dftmain(double * engptr)
 
 
       /* thermo arrays */
-      if ((Ipot_ff_n == LJ12_6) && !Sten_Type[POLYMER_CR]) {
-        safe_free((void *) &Avdw);
-        safe_free((void *) &Betamu_att);
-      }
       if (Ipot_ff_c == COULOMB) 
            safe_free((void *) &Deltac_b);
 

@@ -3,16 +3,13 @@ Here are some useful routines that are used many times in
 different places in the DFT code - 
 ------------------------------------------------------------*/
 #include <stdio.h>
-#include <assert.h>
 #include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"
 /***********************************************************************
 int_stencil_bulk: this routine sums the appropriate stencil to get
                   the bulk contributions to various terms in the E-L
                   equation. Note that some terms (attractions, WCA electrostatics,
                   CMS polymers bury a multiplier function with the stencil weight function.*/
-double int_stencil_bulk(int sten_type,int icomp,int jcomp)
+void int_stencil_bulk(int sten_type,int icomp,int jcomp)
 {
   int izone, isten;
   double sum, weight, *sten_weight;
@@ -27,14 +24,15 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp)
      weight = sten_weight[isten];
      sum += weight;
   }
-  return(sum);
+  Temporary_sum=sum;
+  return;
 }
 /*******************************************************************************/
 /*int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
- double int_stencil(double **x,int inode_box,int iunk,int sten_type)
+ void int_stencil(double **x,int inode_box,int iunk,int sten_type)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
-  int j,jcomp,junk,icomp;
+  int j,jcomp,junk,icomp,jlist;
   double weight, sum;
   struct Stencil_Struct *current_sten;
   int **current_sten_offset, reflect_flag[NDIM_MAX];
@@ -53,6 +51,9 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp)
      if (Type_poly==WTC) jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
      else                jcomp=junk-Phys2Unk_first[DENSITY];
 
+     if (Nlists_HW <= 2) jlist = 0;
+     else                jlist = jcomp;
+
      current_sten = &(Stencil[sten_type][izone][icomp+Ncomp*jcomp]);
      current_sten_offset = current_sten->Offset;
      current_sten_weight = current_sten->Weight;
@@ -66,12 +67,10 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp)
 
         if (inode_sten >= 0 && !Zero_density_TF[inode_sten][jcomp]) {
            if (Lhard_surf) {
-               if (Nodes_2_boundary_wall[Nlists_HW-1][inode_sten]!=-1)
+               if (Nodes_2_boundary_wall[jlist][inode_sten]!=-1)
                   weight = HW_boundary_weight
-                    (jcomp,Nlists_HW-1,current_sten->HW_Weight[isten],
-                                      inode_sten, reflect_flag);
+                    (jcomp,jlist,current_sten->HW_Weight[isten], inode_sten, reflect_flag);
            }
-
            if (inode_sten<Nnodes_box && inode_sten >=0){
                sum +=  weight*x[junk][inode_sten];
            }
@@ -82,7 +81,8 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp)
 
      }  /* end of loop over isten */
   }     /* end of loop over jcomp */
-  return (sum);
+  Temporary_sum=sum;
+  return;
 }
 /****************************************************************************/
 double  HW_boundary_weight(int icomp,int ilist, double *hw_weight,
@@ -214,11 +214,11 @@ int loc_find(int iunk,int inode,int flag)
   return loc_i;
 }
 /*****************************************************************************************************/
-void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int i, 
-                                                int ***nelhit,double **x)
+void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,
+                                                int **nelhit,double **x,double *profile)
 {
 
-   double sum,sum_i;
+   double sum,sum_i,integrand;
    int loc_inode,inode_box,iwall;
    double area;
 
@@ -226,8 +226,9 @@ void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int i,
 
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       inode_box = L2B_node[loc_inode];
-      sum_i += (*fp_integrand)(iunk,inode_box,x)*
-                 nelhit[i][iunk][inode_box]*Vol_el/((double)Nnodes_per_el_V);
+      integrand = (*fp_integrand)(iunk,inode_box,x);
+      sum_i += integrand*nelhit[iunk][inode_box]*Vol_el/((double)Nnodes_per_el_V);
+      if (profile != NULL) profile[loc_inode]+=integrand;
   }       /* end of loc_inode loop */
 
   sum=gsum_double(sum_i);
@@ -242,11 +243,11 @@ void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int i,
   return;
 }
 /*****************************************************************************************************/
-void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),int i,
-                                                int ***nelhit,double **x)
+void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),
+                                                int **nelhit,double **x,double *profile)
 {
 
-   double sum,sum_i;
+   double sum,sum_i,integrand;
    int loc_inode,inode_box,iloop,nloop,iunk;
 
    sum_i=0.0,sum=0.0;
@@ -259,9 +260,11 @@ void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),int i,
     for (iloop=0; iloop<nloop; iloop++){
 
          iunk = Phys2Unk_first[DENSITY]+iloop;
-         sum_i += (*fp_integrand)(iunk,inode_box,x)*
-                   nelhit[i][iunk][inode_box]*Vol_el/((double)Nnodes_per_el_V);
+         integrand = (*fp_integrand)(iunk,inode_box,x);
+         sum_i += integrand*
+                   nelhit[iunk][inode_box]*Vol_el/((double)Nnodes_per_el_V);
 
+         if (profile != NULL) profile[loc_inode]+=integrand;
     }   
   }       /* end of loc_inode loop */
 
@@ -275,41 +278,37 @@ void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),int i,
       sum*= Fac_vol;
   }
   Temporary_sum=sum;
-  return;
-}
-/**************************************************************************************/
-void print_to_screen(int i,double val,char *var_label)
-{
-
-  if (i==0)printf("\t=========================================\n");
-  printf("\n \t Summary of %s RESULTS Results\n",var_label);
-
-  if ((i==0 && !Lhard_surf) || (i==1 && Lhard_surf)){
-       printf("\t===== Integrating over domain volume =====\n");
-  }
-  else if(i==0){
-       printf("\t===== Integrating over fluid volume only =====\n");
-  }
-  printf("\t\t %s=%9.6f\n",var_label,val);
 
   return;
 }
 /**************************************************************************************/
-/**************************************************************************************/
-void print_to_screen_comp(int i,int icomp,double val,char *var_label)
+void print_to_screen(double val,char *var_label)
 {
-
-  if (icomp==0 && i==0)printf("\t=========================================\n");
-  if (icomp==0) printf("\n \t Summary of %s RESULTS Results\n",var_label);
-
-  if ((i==0 && !Lhard_surf) || (i==1 && Lhard_surf)){
-        if (icomp==0) printf("\t===== Integrating over domain volume =====\n");
+  printf("\t\t %s=%9.6f\n",var_label,val); return;
+}
+/**************************************************************************************/
+void print_to_screen_comp(int icomp,double val,char *var_label)
+{
+  printf("\t\t %s[icomp=%d]=%9.6f\n",var_label,icomp,val); return;
+}
+/**************************************************************************************/
+void print_to_file(FILE *fp,double val,char *var_label,int first)
+{
+  if (first){ 
+              fprintf(fp,"%s=%9.6f  ",var_label,val); 
+  }
+  else{       fprintf(fp,"%9.6f  ",val); }
+  return;
+}
+/**************************************************************************************/
+void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first)
+{
+  if (first){
+     fprintf(fp,"%s[%d]=%9.6f  ",var_label,icomp,val); return;
   }
   else{
-       printf("\t===== Integrating over fluid volume only =====\n");
+     fprintf(fp,"%9.6f  ",val); return;
   }
-  printf("\t\t %s[icomp=%d]=%9.6f\n",var_label,icomp,val);
-
   return;
 }
 /**************************************************************************************/

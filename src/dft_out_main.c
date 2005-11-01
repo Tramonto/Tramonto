@@ -155,10 +155,10 @@ void post_process (double **x,char *output_file3,int *niters,
                             /* haven't implemented V_dash 
                                for 12-6 integrated wall yet */
 
-   if (!Sten_Type[POLYMER_CR]) (void)calc_free_energy(fp,x,fac_area,fac_vol,TRUE); 
+   (void)calc_free_energy(fp,x); 
 
 
-   if (Sten_Type[POLYMER_CR]) calc_free_energy_polymer(fp,x,fac_area,fac_vol); 
+/*   if (Sten_Type[POLYMER_CR]) calc_free_energy_polymer(fp,x,fac_area,fac_vol); */
 
    if (Lsteady_state && Proc==0) calc_flux(fp,output_flux,X_old);
    
@@ -182,13 +182,16 @@ void setup_integrals()
       nel_hit2,ilist,idim,ielement,semiperm,iwall,jcomp;
   int reflect_flag[3],ijk[3],i,nloop,iloop;
 
-  Nel_hit = (int ***) array_alloc (3, 2, Nunk_per_node, Nnodes_box, sizeof(int));
-  Nel_hit2 = (int ***) array_alloc (3, 2, Nunk_per_node, Nnodes_box, sizeof(int));
+  Nel_hit = (int **) array_alloc (2,Nunk_per_node, Nnodes_box, sizeof(int));
+  Nel_hit2 = (int **) array_alloc (2,Nunk_per_node, Nnodes_box, sizeof(int));
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
 
-  if (Type_poly==WTC) nloop=Nseg_tot;
-  else                nloop=Ncomp;
+  if (Lhard_surf){
+    if (Type_poly==WTC) nloop=Nseg_tot;
+    else                nloop=Ncomp;
+  }
+  else nloop=1;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       inode = L2G_node[loc_inode];
@@ -198,66 +201,75 @@ void setup_integrals()
       for (iloop=0; iloop<nloop; iloop++){
 
          if (Type_poly==WTC) icomp=Unk2Comp[iloop];
-         else icomp=iloop;
+         else                icomp=iloop;
 
-         if (Nlists_HW==1 || Nlists_HW==2) List[0] = 0;
-         else                              List[0] = icomp;
-
-         if (Lhard_surf) List[1] = Nlists_HW-1;
-         else            List[1] = icomp;
+         if (Lhard_surf){
+            if (Nlists_HW==1 || Nlists_HW==2) List[0] = 0;
+            else                              List[0] = icomp;
+            List[1] = Nlists_HW-1;
+         }
+         else{
+             List[0]=0;
+             List[1]=0;
+         }
 
          if (Lhard_surf && Nwall>0) Imax = 2;
          else Imax = 1;
 
-         for (i=0; i<Imax; i++){
-            ilist = List[i];
+         /* define integration rules to density discontinuities */
+         nel_hit = Nnodes_per_el_V;
+         for (iel=0; iel<Nnodes_per_el_V; iel++){
+             ielement = node_to_elem(inode,iel,reflect_flag);
+             iel_box = el_to_el_box(ielement);
+             if (ielement == -1) nel_hit--;
+             else if (ielement != -2){
+                iwall =  Wall_elems[List[1]][iel_box];
+                semiperm=FALSE;
+                for (jcomp=0; jcomp<Ncomp; jcomp++)
+                  if (iwall>=0 && Lsemiperm[WallType[iwall]][jcomp]) semiperm=TRUE; 
+                if (iwall !=-1 && !semiperm) nel_hit--;
+             }
+         }
 
-            nel_hit = Nnodes_per_el_V;
-            for (iel=0; iel<Nnodes_per_el_V; iel++){
-                ielement = node_to_elem(inode,iel,reflect_flag);
-                iel_box = el_to_el_box(ielement);
-                if (ielement == -1) nel_hit--;
-                else if (ielement != -2){
-                   iwall =  Wall_elems[ilist][iel_box];
-                   semiperm=FALSE;
-                   for (jcomp=0; jcomp<Ncomp; jcomp++)
-                     if (iwall>=0 && Lsemiperm[WallType[iwall]][jcomp]) semiperm=TRUE; 
-                   if (iwall !=-1 && !semiperm) nel_hit--;
-                }
-            }
-            nel_hit2 = Nnodes_per_el_V;
-            for (iel=0; iel<Nnodes_per_el_V; iel++){
-                ielement = node_to_elem(inode,iel,reflect_flag);
-                iel_box = el_to_el_box(ielement);
-                if (ielement == -1) nel_hit2--;
-                else if (ielement != -2){
-                   iwall =  Wall_elems[List[0]][iel_box];
-                   semiperm=FALSE;
-                   for (jcomp=0; jcomp<Ncomp; jcomp++)
-                     if (iwall>=0 && Lsemiperm[WallType[iwall]][jcomp]) semiperm=TRUE; 
-                   if (iwall!=-1 && !semiperm) nel_hit2--;
-                }
-            }
+         /* define integration rules to core surfaces */
+         nel_hit2 = Nnodes_per_el_V;
+         for (iel=0; iel<Nnodes_per_el_V; iel++){
+             ielement = node_to_elem(inode,iel,reflect_flag);
+             iel_box = el_to_el_box(ielement);
+             if (ielement == -1) nel_hit2--;
+             else if (ielement != -2){
+                iwall =  Wall_elems[List[0]][iel_box];
+                semiperm=FALSE;
+                for (jcomp=0; jcomp<Ncomp; jcomp++)
+                  if (iwall>=0 && Lsemiperm[WallType[iwall]][jcomp]) semiperm=TRUE; 
+                if (iwall!=-1 && !semiperm) nel_hit2--;
+             }
+         }
 
-            for (idim=0; idim<Ndim; idim++){
-               if ( (Type_bc[idim][0] == REFLECT || Type_bc[idim][0] == IN_BULK || Type_bc[idim][0]==LAST_NODE)
-                                                             &&  ijk[idim] == 0)  {
-                     nel_hit /= 2;
-                     nel_hit2 /= 2;
-               }
-               if ( (Type_bc[idim][1] == REFLECT || Type_bc[idim][1] == IN_BULK || Type_bc[idim][0]==LAST_NODE)
-                                               &&  ijk[idim] == Nodes_x[idim]-1)  {
-                     nel_hit /= 2;
-                     nel_hit2 /= 2;
-               }
+         for (idim=0; idim<Ndim; idim++){
+            if ( (Type_bc[idim][0] == REFLECT || Type_bc[idim][0] == IN_BULK || Type_bc[idim][0]==LAST_NODE)
+                                                          &&  ijk[idim] == 0)  {
+                  nel_hit /= 2;
+                  nel_hit2 /= 2;
             }
- 
-	    iunk = Phys2Unk_first[DENSITY]+iloop;
+            if ( (Type_bc[idim][1] == REFLECT || Type_bc[idim][1] == IN_BULK || Type_bc[idim][0]==LAST_NODE)
+                                            &&  ijk[idim] == Nodes_x[idim]-1)  {
+                  nel_hit /= 2;
+                  nel_hit2 /= 2;
+            }
+         }
 
-            Nel_hit[i][iunk][inode_box]=nel_hit;
-            Nel_hit2[i][iunk][inode_box]=nel_hit2;
-        }
-      }
+         if (Lhard_surf){
+             Nel_hit[iloop][inode_box]=nel_hit;
+             Nel_hit2[iloop][inode_box]=nel_hit2;
+         }
+         else{
+             for (i=0;i<Ncomp;i++){
+                Nel_hit[i][inode_box]=nel_hit;
+                Nel_hit2[i][inode_box]=nel_hit2;
+             }
+         }
+      } /* end iloop loop */
     }
 }
 /******************************************************************************/

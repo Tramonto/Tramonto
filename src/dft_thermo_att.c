@@ -14,11 +14,15 @@ double calc_att_properties(double *betamu_att, double *rho)
   double betap_att;
 
   betap_att = 0.0; 
-  for (icomp=0; icomp<Ncomp; icomp++) betamu_att[icomp] = 0.0;
+  for (icomp=0; icomp<Ncomp; icomp++){
+      betamu_att[icomp] = 0.0;
+      for (jcomp=0; jcomp<Ncomp; jcomp++) Avdw[icomp][jcomp]=0.0;
+  }
 
   for (icomp=0; icomp<Ncomp; icomp++) {
      for (jcomp=0; jcomp<Ncomp;jcomp++){
-       Avdw[icomp][jcomp] = int_stencil_bulk(U_ATTRACT,icomp,jcomp);
+       int_stencil_bulk(U_ATTRACT,icomp,jcomp);
+       Avdw[icomp][jcomp] = Temporary_sum;
        betamu_att[icomp] += rho[jcomp]*Avdw[icomp][jcomp];
        betap_att += 0.5*Avdw[icomp][jcomp]*rho[icomp]*rho[jcomp];
      }

@@ -271,8 +271,8 @@ double  **Uww_link; /* wall-wall interactions [Nlink-1][Nlink-1]  */
 double  **X_wall; /* Distance from inode to iwall [Nnodes][Nwall]    */
 double  **X_wall2; /* Distance from inode to iwall [Nnodes][Nwall]    */
 int    **Zero_density_TF; /* array [Nnodes][icomp] indicates where VEXT_MAX */
-double  *Betamu_att;  /* sum over jcomp of Van der waals constant a(icomp,jcomp)*/
-double  **Avdw;    /* Van der waals constant a(icomp,jcomp)*/
+double  Betamu_att[NCOMP_MAX];  /* sum over jcomp of Van der waals constant a(icomp,jcomp)*/
+double  Avdw[NCOMP_MAX][NCOMP_MAX];    /* Van der waals constant a(icomp,jcomp)*/
 
 double  Sigma_w[NWALL_MAX_TYPE];  /* Array[Nwall] of w-w interaction diameters    */
 double  Eps_w[NWALL_MAX_TYPE];    /* Array[Nwall] of w-w interaction energies     */
@@ -326,8 +326,8 @@ double    *Area_IC;      /* 1D ion channel area per node (box units)*/
 int   Geom_flag;   /* geometry flag for ion chann. see OPTION_ definitions*/
 
 /* OUTPUT INTEGRAL PARAMETERS */
-int    ***Nel_hit;      /* number of elements hit by a given node in a given list */
-int    ***Nel_hit2;     /* same as prev. for a bulk fluid */
+int    **Nel_hit;      /* number of elements hit by a given node in a given list */
+int    **Nel_hit2;     /* same as prev. for a bulk fluid */
 int    List[2];       /* which list numbers we care about for integrals*/
 int    Imax;          /* how many lists are relevent to the case at hand 1 or 2 */
 double Area;
@@ -404,6 +404,7 @@ int Sten_Choice_R[NSTEN][NZONE_MAX]; /* # Radial Gauss points for THETA_FNCs */
 /****************************************************************************/
 double Ads[NCOMP_MAX][2];
 double Ads_ex[NCOMP_MAX][2];
+double *Integration_profile; /* a place to put the integrand as a function of position */
 /****************************************************************************/
 
 /* Polymer variables */

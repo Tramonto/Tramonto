@@ -70,7 +70,15 @@ COMMON_C = \
         ${srcdir}/dft_thermo_wtc.c \
         ${srcdir}/dft_out_main.c \
         ${srcdir}/dft_out_ads.c \
-        ${srcdir}/dft_out_energy.c \
+        ${srcdir}/out_energy_new.c \
+        ${srcdir}/dft_energy_id.c \
+        ${srcdir}/dft_energy_hs.c \
+        ${srcdir}/dft_energy_att.c \
+        ${srcdir}/dft_energy_wtc.c \
+        ${srcdir}/dft_energy_elec.c \
+        ${srcdir}/dft_energy_vext.c \
+        ${srcdir}/dft_energy_mu.c \
+        ${srcdir}/dft_energy_cms.c \
         ${srcdir}/dft_out_force.c \
         ${srcdir}/dft_out_flux.c \
         ${srcdir}/dft_out_profiles.c \
