@@ -254,6 +254,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                   /* Now Finish loading the Jacobian... */
                   gint_tmp = load_polymer_G(sten,iunk,loc_inode,inode_box,unk_B,itype_mer,izone,ijk_box,x);
                   resid_G += gint_tmp;
+    
                   mat_val = gint_tmp / boltz;
                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
 
@@ -360,9 +361,9 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
         /* first load the Boltzman factor derivatives */
         fac1=weight; 
         for(i=0;i<nunk-1;i++) fac1 *=x[unk[i]][jnode_box];  /*Gs or Qs*/
-
         resid = fac1*boltz_prefac_R*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_R); /* Boltz Term */
         resid_sum += resid;
+
         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
         mat_val = fac1*boltz_prefac_1*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_1); /* Boltz Term */
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[nunk-1],jnode_box,mat_val);

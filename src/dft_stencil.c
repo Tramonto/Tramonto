@@ -61,6 +61,9 @@ void calc_stencils(void)
   int max_sten_nodes, el_in_radius[3], t1=0, in_out_on_flag;
   int nsten_max;
   double vol_sten, sten_rad, el_vol;
+
+  int ix;
+  double sum_w;
  
   /* quadrature and interpolation stuff */
   double weight, x_left[3], x_right[3];
@@ -315,7 +318,7 @@ void calc_stencils(void)
                        weight = get_weight_from_stencil(isten, icomp, jcomp, 
                                             radius,sten_rad, ngpu, gpu, gwu);
                      }
-                     if (radius_sq-1.0 <= 1.e-8) weight *= 0.5;
+                     if (fabs(radius_sq-1.0) <= 1.e-8) weight *= 0.5;
                      weight *= inv_npt * el_vol; 
 
                      el_weights[0] += weight * (1.0-qp[0]); 
@@ -712,7 +715,6 @@ void calc_stencils(void)
       if (Lcut_jac /*&& izone>0*/ && isten==U_ATTRACT){
          shorten_stencil(sten);
       }
-
 
       if (isten != POLYMER_CR){   /* take care of this later */
         renormalize_stencil(sten, vol_sten);

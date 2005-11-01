@@ -200,7 +200,7 @@ static int first=TRUE,loc_inode;
        if (Proc==0 && Iwrite != NO_SCREEN){
            printf("\t----------------------------------------\n");
            print_to_screen(omega_s_sum,"FREE ENERGY REL TO BULK");
-           print_to_file(fp,omega_s_sum,"omega_s",first);
+           print_to_file(fp,omega_s_sum,"del_omega",first);
            printf("---------------------------------------------------------------\n");
        }
     }
