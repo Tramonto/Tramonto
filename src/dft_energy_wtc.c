@@ -13,11 +13,10 @@ double integrand_WTC_freen(int iunk,int inode_box, double **x)
      iseg = iunk-Phys2Unk_first[DENSITY];
      rho_i = x[iunk][inode_box];
 
-     if (rho_i > Rho_seg_b[icomp]*exp(-VEXT_MAX) && Vext[B2L_node[inode_box]][icomp] < VEXT_MAX){
+     if (rho_i > 0.){
 
          unk_xi2 = Phys2Unk_first[CAVITY_WTC];
          unk_xi3 = Phys2Unk_first[CAVITY_WTC]+1;
-         iseg = iunk-Phys2Unk_first[DENSITY];
          for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
                jseg = Bonds_SegAll[iseg][ibond];
                jcomp = Unk2Comp[jseg];
@@ -25,19 +24,32 @@ double integrand_WTC_freen(int iunk,int inode_box, double **x)
                           x[unk_xi2][inode_box],x[unk_xi3][inode_box]);
                unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+Phys2Unk_first[BOND_WTC];
 
-               integrand += 0.5*rho_i*(1.0-log(y*x[unk_bond][inode_box])) ;
+               integrand += 1.0-log(Fac_overlap[icomp][jcomp]*y)-log(x[unk_bond][inode_box]) ;
          }
+         integrand *= 0.5*rho_i;
      }
      return(integrand);
 }
 /****************************************************************************/
 double integrand_WTC_freen_bulk(int iunk,int inode_box, double **x)
 {
-     double integrand;
-     int iseg;
+     double integrand,rho_i,wtc_term,y;
+     int icomp,iseg,ibond,jseg,jcomp;
+     integrand=0.0;
 
+     icomp = Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
      iseg = iunk-Phys2Unk_first[DENSITY];
-     integrand = 0.5*Rho_seg_b[iseg]*Betamu_wtc[iseg];
+     rho_i = Rho_seg_b[iseg];
+
+     for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
+           jseg = Bonds_SegAll[iseg][ibond];
+           jcomp = Unk2Comp[jseg];
+           y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],
+                        Xi_cav_b[2],Xi_cav_b[3]);
+
+           integrand += 1.0-log(Fac_overlap[icomp][jcomp]*y)-log(BondWTC_b[Poly_to_Unk_SegAll[iseg][ibond]]) ;
+     }
+     integrand *= 0.5*rho_i;
 
      return(integrand);
 }

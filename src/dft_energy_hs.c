@@ -31,7 +31,7 @@ double phispt(double *rho_bar)
 {  
   int idim;
   double rb0,rb1,rb2,rb3,rb2v[3],rb1v[3];
-  double phi_s,phi_v,dot_12,dot_22;
+  double phi_s=0.0,phi_v=0.0,dot_12,dot_22;
     
   rb0 = rho_bar[3];
   rb1 = rho_bar[2]; 
@@ -41,7 +41,7 @@ double phispt(double *rho_bar)
     rb1v[idim] = rho_bar[Nrho_bar_s+Ndim+idim];
     rb2v[idim] = rho_bar[Nrho_bar_s+idim];
   }
-   
+
   if (rb3 < 1.0 && rb2 > 0.0){
 
      if (Type_func==0)
@@ -68,7 +68,7 @@ double phispt(double *rho_bar)
      }
      return(phi_s + phi_v);
   }
-  else return(0.0);
+  else  return(0.0);
 }
 /****************************************************************************/
 

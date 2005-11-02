@@ -86,7 +86,7 @@ static int first=TRUE,loc_inode;
                print_to_screen(omega_hs,"HARD SPHERE TERM");
           }
 
-          integrateInSpace(&integrand_hs_freen_bulk,0,Nel_hit,x);
+          integrateInSpace(&integrand_hs_freen_bulk,0,Nel_hit,x,Integration_profile);
           omega_hs_b=Temporary_sum;
           omega_hs_surf_ex = omega_hs-omega_hs_b;
           if (Proc==0 && Iwrite != NO_SCREEN){

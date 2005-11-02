@@ -131,20 +131,6 @@ void post_process (double **x,char *output_file3,int *niters,
        }
    }
 
-   /* calculate the area used to normalize the computed adsorption force etc */
-/*
-   Area = 0.0;
-   if (Per_area == -1 || Nwall==0) Area = 1.0;  * don't divide by a surface *
-   else if (Per_area == 0){
-       for (iwall=0; iwall<Nwall; iwall++){   * count area of surface 1 only *
-           if (Link[iwall]==0) Area += S_area_tot[Nlists_HW-1][iwall];
-       }
-   }
-   else if (Per_area == 1){  * count area of all surfaces *
-       for (iwall=0; iwall<Nwall; iwall++) Area += S_area_tot[Nlists_HW-1][iwall];
-   }
-   if (Area==0.0){printf("trouble .... Area=0.0\n"); exit(-1);}
-*/
    setup_integrals();
    calc_adsorption(fp,x);
    if (Type_coul != NONE) calc_fluid_charge(fp,x); 
@@ -156,9 +142,6 @@ void post_process (double **x,char *output_file3,int *niters,
                                for 12-6 integrated wall yet */
 
    (void)calc_free_energy(fp,x); 
-
-
-/*   if (Sten_Type[POLYMER_CR]) calc_free_energy_polymer(fp,x,fac_area,fac_vol); */
 
    if (Lsteady_state && Proc==0) calc_flux(fp,output_flux,X_old);
    
