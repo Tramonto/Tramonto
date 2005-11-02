@@ -360,17 +360,10 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
              In this routine we load the Jacobian entries for
              freely-jointed polymer bonds - WTC theory.                      */
 double load_bond_wtc(int iunk, int loc_inode, int inode_box,
-                    int izone,int *ijk_box, double **x)
+                    int izone,int *ijk_box, double **x,int resid_only_flag)
 {
-  int   **sten_offset, *offset, isten;
-  double *sten_weight,  weight;
-  struct Stencil_Struct *sten;
-
-  int jlist,junk;
-  int reflect_flag[NDIM_MAX];
-  int i,j,jnode_box;
-  int unk_bond,pol_num,iseg,bond_num,jseg,jcomp,icomp;
-  double resid,resid_sum,mat_val;
+  int junk,unk_bond,pol_num,iseg,bond_num,jseg,jcomp,icomp,jzone_flag;
+  double resid_sum;
 
   unk_bond=iunk-Phys2Unk_first[BOND_WTC];
   pol_num = Unk_to_Poly[unk_bond];
@@ -381,89 +374,47 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
   icomp = Unk2Comp[iseg];
   junk = SegChain2SegAll[pol_num][jseg]+Phys2Unk_first[DENSITY];
 
-  if (Nlists_HW <= 2) jlist = 0;
-  else                jlist = jcomp; 
+  jzone_flag=FALSE;
 
-  sten = &(Stencil[DELTA_FN_BOND][izone][icomp+Ncomp*jcomp]);
-  sten_offset = sten->Offset;
-  sten_weight = sten->Weight;
+  resid_and_Jac_sten_fill(DELTA_FN_BOND,x,iunk,junk,
+                   icomp,jcomp,loc_inode,inode_box,izone,
+                   ijk_box,resid_only_flag,jzone_flag,
+                    NULL, &resid_rho_bar,&jac_rho_bar);
 
-  resid_sum=0.0;
-  for (isten = 0; isten < sten->Length; isten++) {
-     offset = sten_offset[isten];
-     weight = sten_weight[isten];
+  resid_sum=Temporary_sum;
 
-     /* Find the Stencil point */
-     jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-     if (jnode_box >= 0 && !Zero_density_TF[jnode_box][junk-Phys2Unk_first[DENSITY]]) {
-        if (Lhard_surf) {
-           if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
-           weight = HW_boundary_weight 
-                    (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
-        }
-
-        resid_sum += weight*x[junk][jnode_box]; 
-        mat_val = weight;
-        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_box,mat_val);
-           
-     }
-     else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) 
-             resid_sum += weight*constant_boundary(junk,jnode_box);
-  }
   return(resid_sum);
 }
-/**********************************************************************************************/
+/*********************************************************************************************/
 /* load_cavity_wtc: 
              In this routine we load the Jacobian entries for
              the cavity correlation function xi variables....WTC theory   */
 double load_cavity_wtc(int iunk, int loc_inode, int inode_box,
-                    int izone,int *ijk_box, double **x)
+                    int izone,int *ijk_box, double **x,int resid_only_flag)
 {
-  int ipow,iseg,unk_rho;
-  int   **sten_offset, *offset, isten;
-  double *sten_weight,  weight;
-  struct Stencil_Struct *sten;
+  double resid_sum;
+  int jzone_flag;
 
-  int ilist,icomp;
-  int reflect_flag[NDIM_MAX];
-  int i,j,jnode_box;
-  double resid,resid_sum,mat_val;
+  jzone_flag=FALSE;
+
+  resid_and_Jac_sten_fill_sum_Ncomp(THETA_FN_SIG,x,iunk,loc_inode,inode_box,izone,
+                   ijk_box,resid_only_flag,jzone_flag,
+                    &prefactor_cavity_wtc, &resid_rho_bar,&jac_rho_bar);
+  resid_sum=Temporary_sum;
+  return(resid_sum);
+}
+/*****************************************************************************/
+double prefactor_cavity_wtc(int iunk,int icomp,int *offset)
+{
+  double fac;
+  int ipow;
 
   if (iunk-Phys2Unk_first[CAVITY_WTC]==0) ipow=2;
   else                                    ipow=3;
 
-  resid_sum=0.0;
-  for (iseg=0; iseg<Nseg_tot; iseg++){
-      unk_rho = iseg+Phys2Unk_first[DENSITY];
+  fac=(PI/6.0)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow);
 
-      icomp = Unk2Comp[iseg];
-      if (Nlists_HW <= 2) ilist = 0;
-      else                ilist = icomp;
-
-     sten = &(Stencil[THETA_FN_SIG][izone][icomp]);
-     sten_offset = sten->Offset;
-     sten_weight = sten->Weight;
-
-     for (isten = 0; isten < sten->Length; isten++) {
-        offset = sten_offset[isten];
-        weight = sten_weight[isten];
-
-        /* Find the Stencil point */
-        jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-        if (jnode_box >= 0 && !Zero_density_TF[jnode_box][icomp]) {
-           if (Lhard_surf) {
-             if (Nodes_2_boundary_wall[ilist][jnode_box]!=-1) 
-             weight = HW_boundary_weight(icomp,ilist,sten->HW_Weight[isten], jnode_box, reflect_flag);
-            }
-
-        resid_sum += (PI/6.0)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow)*weight*x[unk_rho][jnode_box]; 
-        mat_val = (PI/6.0)*weight*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow);
-        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_rho,jnode_box,mat_val);
-     }
-     else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) {
-        resid_sum += (PI/6.0)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow)*weight*constant_boundary(unk_rho,jnode_box);
-     }
-  }
-  }  
-  return(resid_sum);
+  return (fac);
 }
+/*****************************************************************************/
+

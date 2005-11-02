@@ -58,41 +58,25 @@
                              1 : Compute interactions of atom centers LJ+COULOMB)
 
 ************** FLUID INTERACTION PARAMETERS  ************************************
-@  5  1           Ncomp  Mix_type (0=L-B Rules, 1=manual input)
+@  2  1           Ncomp  Mix_type (0=L-B Rules, 1=manual input)
 
-@  1. 1. 1. 1. 1.          Mass[i] i=1,Ncomp
-@  0. 0. 0. 0. 0.          Charge[i] i=1,Ncomp
-@  0. 0. 0. 0. 0.          Pol[i] i=1,Ncomp
+@  1. 1.           Mass[i] i=1,Ncomp
+@  0. 0.           Charge[i] i=1,Ncomp
+@  0. 0.           Pol[i] i=1,Ncomp
 
-@  2. 1.5 1.5 1.5 2.  
-   1.5 1. 1. 1. 1.5          
-   1.5 1. 1. 1. 1.5
-   1.5 1. 1. 1. 1.5
-   2. 1.5 1.5 1.5 2.        Sigma_ff[i][j]
-@  1. 1. 1. 1. 1.            
-  1. 1. 1. 1. 1.             
-  1. 1. 1. 1. 1.             
-  1. 1. 1. 1. 1.            
-  1. 1. 1. 1. 1.             Eps_ff[i][j]
-@  1. 1. 1. 1. 1.            
-  1. 1. 1. 1. 1.           
-  1. 1. 1. 1. 1.          
-  1. 1. 1. 1. 1.         
-  1. 1. 1. 1. 1.            Cut_ff[i][j] 
-@  2. 1.5 1.5 1.5 2.  
-   1.5 1. 1. 1. 1.5          
-   1.5 1. 1. 1. 1.5
-   1.5 1. 1. 1. 1.5
-   2. 1.5 1.5 1.5 2.        Bond_ff[i][j]
+@  2. 1.5 1.5 1.  Sigma_ff[i][j]
+@  1. 1. 1. 1.                 Eps_ff[i][j]
+@  1. 1. 1. 1.             Cut_ff[i][j] 
+@  2. 1.5 1.5 1.   Bond_ff[i][j]
 
 @  1.             Rho_w[i] [i=0,Nwall_type]
 @  1.            Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1]
 @  1.            Eps_ww[i][j]
 @  1.           Cut_ww[i][j]
 
-@  2. 1. 1. 1. 2.         Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1]
-@  1. 1. 1. 1. 1.          Eps_wf[i][j]
-@  1. 1. 1. 1. 1.          Cut_wf[i][j]
+@  2. 1.         Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1]
+@  1. 1.          Eps_wf[i][j]
+@  1. 1.           Cut_wf[i][j]
 
    *Note for polymers: --- treat each segment (or block) TYPE as a distinct 
      component in this section (& MIX section below).
@@ -101,9 +85,9 @@
 
 ************* POLYMER INPUT PARAMETERS ****************************************
 @ 1             Npol_comp:                 Number of (co)polymer components
-@ 5             Nblock[pol_number]:        Number of blocks in each copolymer
-@ 1 1 1 1 1             block[pol_number][iblock]: Number of segments in each block 
-@ 0 1 2 3 4           block_type[iblock_tot]:    Segment types in each block (start w/0, must not skip)
+@ 3             Nblock[pol_number]:        Number of blocks in each copolymer
+@ 1 3 1              block[pol_number][iblock]: Number of segments in each block 
+@ 0 1 0            block_type[iblock_tot]:    Segment types in each block (start w/0, must not skip)
 @ lin_5mer           poly_file:                 File containing polymer connectivity
 @  1 1. n/a           NCrfiles  Crfac  Cr_file  Cr_file2 Cr_file3 Cr_file4:
                  NCrfiles (number of cr files - up to 4 to be read in)

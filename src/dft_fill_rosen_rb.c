@@ -199,28 +199,16 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
                      int loc_inode, int inode_box, int izone,int *ijk_box,
                      int resid_only_flag)
 {
-  int   **sten_offset, *offset, isten,idim;
-  int   **sten_offsetJ, *offsetJ;
-  double *sten_weightJ,weightJ;
-  double *sten_weight,  weight,fac;
-  struct Stencil_Struct *sten;
-  struct Stencil_Struct *stenJ;
-  double resid,mat_val,resid_sum=0.0;
+  double resid_sum=0.0,resid,mat_val;
+  int jzone_flag,junk;
 
-  int jzone, jnode_box, jcomp,jlist,junk,loop_max,jloop,jseg;
-  int jnode_boxJ;
-  int reflect_flag[NDIM_MAX];
+  jzone_flag=FALSE;
 
-  for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
-/*Jac coarsening does not work well for rho bar equations */
-     jzone = find_jzone(izone);
-     jzone = izone;
-
-     resid =-x[iunk][inode_box];
-     resid_sum+=resid;
-     mat_val=-1.0;
-     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  resid =-x[iunk][inode_box];
+  resid_sum+=resid;
+  mat_val=-1.0;
+  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
  
   if (iunk > Phys2Unk_first[RHOBAR_ROSEN]+1 && ((Lhard_surf && Nlists_HW == 2) ||
                                                (!Lhard_surf && Nwall>0 && Nlists_HW == 1))){
@@ -237,80 +225,55 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
      resid_sum+=resid;
   }
-  else {
-  if (Type_poly==WTC) loop_max=Nseg_tot;
-  else              loop_max=Ncomp;
-  for (jloop=0; jloop<loop_max; jloop++){
-      if (Type_poly==WTC) {
-         jseg=jloop;
-         jcomp=Unk2Comp[jseg];
-         junk=Phys2Unk_first[DENSITY]+jseg;
-      }
-      else{
-         jcomp=jloop;
-         junk=Phys2Unk_first[DENSITY]+jcomp;
-      }
-
-/*      if (Fac_overlap_hs[jcomp] >1.e-8){*/
-
-      if (Nlists_HW <= 2) jlist = 0;
-      else                jlist = jcomp;
-
-      if      (iunk <= Phys2Unk_first[RHOBAR_ROSEN]+1) fac = 1.0;
-      else if (iunk == Phys2Unk_first[RHOBAR_ROSEN]+2) fac = Inv_4pir[jcomp];
-      else                                             fac = Inv_4pirsq[jcomp];
-
-      sten = &(Stencil[sten_type][izone][jcomp]);
-      sten_offset = sten->Offset;
-      sten_weight = sten->Weight;
-
-      stenJ = &(Stencil[sten_type][jzone][jcomp]);
-      sten_offsetJ = stenJ->Offset;
-      sten_weightJ = stenJ->Weight;
-
-      for (isten = 0; isten < sten->Length; isten++) {
-        offset = sten_offset[isten];
-        weight = sten_weight[isten];
-
-         jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-         resid=0;
-         if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
-            if (Lhard_surf) {
-                if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
-                   weight = HW_boundary_weight 
-                    (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
-            }
-            resid =  Fac_overlap_hs[jcomp]*weight*fac*x[junk][jnode_box];
-         }
-         else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4) {
-            resid = Fac_overlap_hs[jcomp]*weight*fac*constant_boundary(junk,jnode_box);
-         }
-         else if (jnode_box==-2){
-            resid=0.0;
-         }
-         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-         resid_sum+=resid;
-
-         if (!resid_only_flag)
-         if (isten < stenJ->Length){
-            offsetJ = sten_offsetJ[isten];
-            weightJ = sten_weightJ[isten];
-            jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
-            if (jnode_boxJ >=0 && !Zero_density_TF[jnode_boxJ][jcomp]){
-                  if (Lhard_surf) {
-                     if (Nodes_2_boundary_wall[jlist][jnode_boxJ]!=-1) 
-                        weightJ = HW_boundary_weight 
-                         (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
-                   }
-                   mat_val = Fac_overlap_hs[jcomp]*weightJ*fac;
-                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
-            }
-         }
-      }
-   /* }*/
+  else{
+    resid_and_Jac_sten_fill_sum_Ncomp(sten_type,x,iunk,loc_inode,inode_box,izone,
+                     ijk_box,resid_only_flag,jzone_flag,
+                      &prefactor_rho_bar_s, &resid_rho_bar,&jac_rho_bar);
   }
-  }
+  resid_sum+=Temporary_sum;
   return(resid_sum);
+}
+/*****************************************************************************/
+double prefactor_rho_bar_s(int iunk,int jcomp,int *offset)
+{
+  double fac;
+  if      (iunk <= Phys2Unk_first[RHOBAR_ROSEN]+1) fac = 1.0;
+  else if (iunk == Phys2Unk_first[RHOBAR_ROSEN]+2) fac = Inv_4pir[jcomp];
+  else                                             fac = Inv_4pirsq[jcomp];
+  fac *= Fac_overlap_hs[jcomp];
+
+  return (fac);
+}
+/*****************************************************************************/
+double resid_rho_bar(int junk,int jnode_box,double **x)
+{
+  int jcomp;
+  double resid;
+
+  if (Type_poly==WTC)  jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
+  else                 jcomp=junk-Phys2Unk_first[DENSITY];
+
+  if (jnode_box >=0 && !Zero_density_TF[jnode_box][jcomp]){
+       resid = x[junk][jnode_box];
+  }
+  else if (jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
+       resid = constant_boundary(junk,jnode_box);
+  }
+  else resid=0.0;
+
+  return (resid);
+}
+/*****************************************************************************/
+double jac_rho_bar(int junk,int jnode_box,double **x)
+{
+  int jcomp;
+  double jac;
+
+  if (Type_poly==WTC)  jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
+  else                 jcomp=junk-Phys2Unk_first[DENSITY];
+
+  jac = 1.0;
+  return (jac);
 }
 /*****************************************************************************/
 /* load_rho_bar_v:  Load vector rho_bar definition equations  
@@ -320,22 +283,10 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
                     int izone,int *ijk_box, 
                     int resid_only_flag)
 {
-  int   **sten_offset, *offset, isten;
-  int   **sten_offsetJ, *offsetJ;
-  double *sten_weightJ,weightJ;
-  double *sten_weight,  weight,fac,vector[3];
   double resid,resid_sum=0.0,mat_val;
-  struct Stencil_Struct *sten;
-  struct Stencil_Struct *stenJ;
-  int junk,loop_max,jseg,jloop;
+  int junk,jzone_flag,idim;
 
-  int jzone, jnode_box, idim,jcomp,jlist;
-  int jnode_boxJ;
-  int reflect_flag[NDIM_MAX];
-
-  for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
-  jzone = find_jzone(izone);
-  jzone = izone;  /* Turn off Jacobian coarsening always */
+  jzone_flag=FALSE;
 
   resid =-x[iunk][inode_box]; 
   resid_sum+=resid;
@@ -356,85 +307,32 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
   }
   else { 
-     if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim)
-        idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s;
-     else
-        idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s - Ndim;
-
-     if (Type_poly==WTC) loop_max=Nseg_tot;
-     else              loop_max=Ncomp;
-      for (jloop=0; jloop<loop_max; jloop++){
-       if (Type_poly==WTC) {
-          jseg=jloop;
-          jcomp=Unk2Comp[jseg];
-          junk=Phys2Unk_first[DENSITY]+jseg;
-       }
-       else{
-          jcomp=jloop;
-          junk=Phys2Unk_first[DENSITY]+jcomp;
-       }
- 
-/*       if (Fac_overlap_hs[jcomp]>1.e-8){*/
-
-       if (Nlists_HW <= 2) jlist = 0;
-       else                jlist = jcomp;
-
-       if (iunk < Phys2Unk_first[RHOBAR_ROSEN] + Nrho_bar_s + Ndim) fac = 1.0;
-       else                                                         fac = Inv_4pir[jcomp];
-
-       sten = &(Stencil[DELTA_FN][izone][jcomp]);
-       sten_offset = sten->Offset;
-       sten_weight = sten->Weight;
-
-       stenJ = &(Stencil[DELTA_FN][jzone][jcomp]);
-       sten_offsetJ = stenJ->Offset;
-       sten_weightJ = stenJ->Weight;
-
-       for (isten = 0; isten < sten->Length; isten++) {
-          offset = sten_offset[isten];
-          weight = sten_weight[isten];
-          vector[idim] = offset[idim] * Esize_x[idim] * Inv_rad[jcomp];
-
-          jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-
-          resid=0;
-          if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
-             if (Lhard_surf) {
-               if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
-                  weight = HW_boundary_weight 
-                  (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
-             }
-             resid = Fac_overlap_hs[jcomp]*weight*fac*vector[idim]*x[junk][jnode_box];
-          }
-          else if ( jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
-             resid =  Fac_overlap_hs[jcomp]*weight*fac*vector[idim]*constant_boundary(junk,jnode_box);
-          }
-          else if (jnode_box=-2){
-             resid=0.0;
-          }
-          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-          resid_sum+=resid;
-
-          if (!resid_only_flag)
-          if (isten < stenJ->Length){
-             offsetJ = sten_offsetJ[isten];
-             weightJ = sten_weightJ[isten];
-             jnode_boxJ = offset_to_node_box(ijk_box, offsetJ, reflect_flag);
-             if (jnode_boxJ >= 0 && !Zero_density_TF[jnode_boxJ][jcomp]){
-                if (Lhard_surf) {
-                     if (Nodes_2_boundary_wall[jlist][jnode_boxJ]!=-1) 
-                        weightJ = HW_boundary_weight 
-                         (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
-                }
-                mat_val = Fac_overlap_hs[jcomp]*weightJ*fac*vector[idim];
-                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
-             }
-          }
-      }
-    /* }*/
-    }
+    resid_and_Jac_sten_fill_sum_Ncomp(DELTA_FN,x,iunk,loc_inode,inode_box,izone,
+                     ijk_box,resid_only_flag,jzone_flag,
+                      &prefactor_rho_bar_v, &resid_rho_bar,&jac_rho_bar);
   }
+
+  resid_sum+=Temporary_sum;
   return(resid_sum);
+}
+/*****************************************************************************/
+double prefactor_rho_bar_v(int iunk,int jcomp,int *offset)
+{
+  double fac,vector[3];
+  int idim;
+
+  if (iunk < Phys2Unk_first[RHOBAR_ROSEN] + Nrho_bar_s + Ndim) fac = 1.0;
+  else                                                         fac = Inv_4pir[jcomp];
+
+  if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim)
+          idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s;
+  else    idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s - Ndim;
+
+  vector[idim] = (double)offset[idim]*Esize_x[idim]*Inv_rad[jcomp];
+
+  fac *= Fac_overlap_hs[jcomp]*vector[idim];
+
+  return (fac);
 }
 /*****************************************************************************/
 /* pre_calc_dphi_drb_rb1: rho_bars are calculated at each wall & fluid node

@@ -142,7 +142,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                /**************************************************************/
          if (Unk2Phys[iunk] == CMS_FIELD){             /*BOLTZMANN EQNS*/
 
-             resid_B = load_polymer_cr(POLYMER_CR,iunk,loc_inode,inode_box,itype_mer,izone,ijk_box,x,iter); 
+             resid_B = load_polymer_cr(POLYMER_CR,iunk,loc_inode,inode_box,itype_mer,izone,ijk_box,x,resid_only_flag); 
              resid = Vext[loc_inode][itype_mer]+log(x[iunk][inode_box]);
              resid_B+=resid;
              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
@@ -384,67 +384,20 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
   return(resid_sum);
 }
 /*****************************************************************************/
-/* load_polymer_cr: 
-             In this routine we load the residual and Jacobian for 
-             the polymer fields.                      */
-double load_polymer_cr(int sten_type,int iunk,int loc_inode,int inode_box,int itype_mer, 
-                int izone, int *ijk_box, double **x,int iter)
+double load_polymer_cr(int sten_type, int iunk, int loc_inode,int inode_box,
+                     int icomp, int izone, int *ijk_box,
+                     double **x, int resid_only_flag)
 {
-  int   **sten_offset, *offset, isten;
-  double *sten_weight,  weight, weight_bulk;
-  struct Stencil_Struct *sten;
+   double resid_sum;
+   int inode_box,jzone_flag;
+   inode_box=L2B_node[loc_inode];
 
-  double sign,resid_sum,resid,mat_val;
-  int jtype_mer, jlist,junk;
-  int reflect_flag[NDIM_MAX];
-  int jnode_box,node_start;
+   jzone_flag=FALSE;
 
-  sign = 1.0;
-  resid_sum=0.0;
-
-  for (jtype_mer=0; jtype_mer<Ncomp; jtype_mer++){
-      junk=Phys2Unk_first[DENSITY]+jtype_mer;
-      if (Nlists_HW <= 2) jlist = 0;
-      else                jlist = jtype_mer;
-           
-      sten = &(Stencil[sten_type][izone][itype_mer+Ncomp*jtype_mer]);
-      sten_offset = sten->Offset;
-      sten_weight = sten->Weight;
-
-      for (isten = 0; isten < sten->Length; isten++) {
-        offset = sten_offset[isten];
-        weight_bulk = sten_weight[isten];
-
-         /* Find the Stencil point */
-         jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-
-         resid=0.0;
-         if (jnode_box >= 0 ) {
-            if (Lhard_surf) {
-                if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) {
-                   weight = HW_boundary_weight 
-                    (jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
-                }
-                else weight = weight_bulk;
-            }
-            else weight = weight_bulk;
-
-                                            /* density of this component type */
-             resid =  -sign*(weight*x[junk][jnode_box]- weight_bulk*Rho_b[jtype_mer]);
-             /*if (iter==0){*/
-                  mat_val = -sign*weight;
-                  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_box,mat_val);
-             /*}*/
-         }
-         else if ( jnode_box == -2){  /*in wall*/
-              resid =  sign*weight_bulk*Rho_b[jtype_mer];
-         }
-         resid_sum+=resid;
-         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-         /* jnode_box == -1 = in bulk contributes nothing  */
-      }
-  }
-
-  return(resid_sum);
+   resid_and_Jac_sten_fill_sum_Ncomp(sten_type,x,iunk,loc_inode,inode_box,izone,
+                     ijk_box,resid_only_flag,jzone_flag,
+                     NULL, &resid_rho_bar,&jac_rho_bar);
+   resid_sum=Temporary_sum;
+   return(resid_sum);
 }
 /*****************************************************************************/

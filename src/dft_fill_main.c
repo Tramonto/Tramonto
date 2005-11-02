@@ -421,9 +421,9 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          resid=-x[iunk][inode_box];
          mat_value=-1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
-         resid += load_cavity_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
-         resid_cavity=resid;
          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+         resid += load_cavity_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x,resid_only_flag);
+         resid_cavity=resid;
       }
       else if (Unk2Phys[iunk]==BOND_WTC){
 
@@ -432,10 +432,10 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       /********************************************/
          resid=-x[iunk][inode_box];
          mat_value=-1.0;
-         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
-         resid += load_bond_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x);
-         resid_bondwtc=resid;
          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
+         resid += load_bond_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x,resid_only_flag);
+         resid_bondwtc=resid;
       }
 
       else {

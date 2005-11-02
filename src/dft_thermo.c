@@ -62,10 +62,6 @@ void  thermodynamics( char *output_file1, int print_flag)
       for (icomp=0;icomp<Ncomp;icomp++) Fac_overlap_hs[icomp]=1.0;
    }
 /*      Fac_overlap[1][1]=0.0; Fac_overlap[0][1]=0;Fac_overlap[1][0]=0;*/
-Fac_overlap[0][0]=1.;
-Fac_overlap[0][1]=1.;
-Fac_overlap[1][0]=1.;
-Fac_overlap[1][1]=1.;
 Fac_overlap_hs[0]=1.;
 Fac_overlap_hs[1]=1.;
 
@@ -124,7 +120,9 @@ Fac_overlap_hs[1]=1.;
 
   if (Type_poly==WTC){
      for (iseg=0;iseg<Nseg_tot;iseg++){
-         Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
+         Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
+printf("iseg=%d  icomp=%d Nmer_t_total=%d Rho_b=%9.6f Rho_seg_b=%9.6f\n",
+  iseg,Unk2Comp[iseg],Nmer_t_total[Unk2Comp[iseg]],Rho_b[Unk2Comp[iseg]],Rho_seg_b[iseg]);
          if (Lsteady_state){
             Rho_seg_LBB[iseg]=Rho_b_LBB[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
             Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];

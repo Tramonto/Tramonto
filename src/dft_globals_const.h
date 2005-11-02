@@ -1275,8 +1275,24 @@ extern double load_nonlocal_hs_rosen_rb(int, int, int,int,int, int,
                        struct RB_Struct *,struct RB_Struct *, int);
 
 extern double load_rho_bar_s(int,double **,int, int,int,int,int *,int);
-
+extern double prefactor_rho_bar_s(int,int,int *);
+extern double resid_rho_bar(int,int,double **);
+extern double jac_rho_bar(int,int,double **);
 extern double load_rho_bar_v(double **,int,int,int,int,int *,int);
+extern double prefactor_rho_bar_v(int,int,int *);
+extern double prefactor_cavity_wtc(int,int,int *);
+
+void resid_and_Jac_sten_fill_sum_Ncomp (int, double **,int,int,int,int,
+                                        int *,int,int, double(*fp_prefactor)(int,int,int *), 
+                                        double(*fp_resid)(int,int,double **), 
+                                        double(*fp_jacobian)(int,int,double **));
+
+void resid_and_Jac_sten_fill (int, double **,int,int,int,int,int,int,int,
+                              int *,int,int, double(*fp_prefactor)(int,int,int *), 
+                               double(*fp_resid)(int,int,double **), 
+                               double(*fp_jacobian)(int,int,double **));
+
+
 
 extern double load_mean_field(int, int, int, int, int, int *, double **, int);
 
@@ -1285,8 +1301,8 @@ extern double load_polarize_poissons_eqn(int, int, int, int *, double **);
 extern double load_nonlinear_transport_eqn(int,int,int,int *, double **);
 extern double load_linear_transport_eqn(int,int,int,int *, double **);
 extern double load_poisson_bc(int,int,int);
-extern double load_cavity_wtc(int,int,int,int,int *,double **);
-extern double load_bond_wtc(int,int,int,int,int *,double **);
+extern double load_cavity_wtc(int,int,int,int,int *,double **,int);
+extern double load_bond_wtc(int,int,int,int,int *,double **,int);
 extern double load_polyTC_diagEL(int,int,int,int,int,int *,double **,int);
 extern double load_polyTC_bondEL(int,int,int,int,int,int *,double **,int);
 extern double load_polyTC_cavityEL(int,int,int,int,int,int *,double **,int);

@@ -24,7 +24,7 @@ double integrand_WTC_freen(int iunk,int inode_box, double **x)
                           x[unk_xi2][inode_box],x[unk_xi3][inode_box]);
                unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+Phys2Unk_first[BOND_WTC];
 
-               integrand += 1.0-log(Fac_overlap[icomp][jcomp]*y)-log(x[unk_bond][inode_box]) ;
+               integrand += 1.0-Fac_overlap[icomp][jcomp]*log(y)-log(x[unk_bond][inode_box]) ;
          }
          integrand *= 0.5*rho_i;
      }
@@ -47,7 +47,7 @@ double integrand_WTC_freen_bulk(int iunk,int inode_box, double **x)
            y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],
                         Xi_cav_b[2],Xi_cav_b[3]);
 
-           integrand += 1.0-log(Fac_overlap[icomp][jcomp]*y)-log(BondWTC_b[Poly_to_Unk_SegAll[iseg][ibond]]) ;
+           integrand += 1.0-Fac_overlap[icomp][jcomp]*log(y)-log(BondWTC_b[Poly_to_Unk_SegAll[iseg][ibond]]) ;
      }
      integrand *= 0.5*rho_i;
 

@@ -51,8 +51,9 @@ void calc_fluid_charge(FILE *fp,double **x)
 {
  static int first=TRUE;
  if (Proc==0&&Iwrite != NO_SCREEN) printf("-------------------- CHARGE     -------------------------------\n");
+  Integration_profile=NULL;
 
- integrateInSpace_SumInComp(&integrand_fluid_charge,Nel_hit2,x);
+ integrateInSpace_SumInComp(&integrand_fluid_charge,Nel_hit2,x,Integration_profile);
 
  if (Proc==0 && Iwrite != NO_SCREEN){
       print_to_screen(Temporary_sum,"CHARGE IN FLUID");

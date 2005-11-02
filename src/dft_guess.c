@@ -937,7 +937,7 @@ static void setup_elec_pot(double **xOwned,int iguess)
                                       (Elec_pot_RTF-Elec_pot_LBB)*
                                       x_dist/Size_x[Grad_dim];
        }
-       else xOwned[iunk][loc_inode] = 1.0;
+       else xOwned[iunk][loc_inode] = 0.0;
   }
   return;
 }
