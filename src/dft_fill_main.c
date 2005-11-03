@@ -38,8 +38,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   int     reflect_flag[3];
   int     izone, mesh_coarsen_flag_i;
   int     loc_i, loc_inode;
-  struct  RB_Struct *dphi_drb=NULL, dphi_drb_bulk,
-                     dphi_drb_bulk_left, dphi_drb_bulk_right;
+  struct  RB_Struct *dphi_drb=NULL;
   FILE *ifp;
   char filename[20]="resid.out";
 
@@ -77,13 +76,9 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
      dphi_drb = (struct RB_Struct *) array_alloc
                     (1, Nnodes_box, sizeof(struct RB_Struct));
      if (Type_func==0)
-        pre_calc_dphi_drb_rb1(dphi_drb, x, &dphi_drb_bulk, 
-                    &dphi_drb_bulk_left,
-                    &dphi_drb_bulk_right);
+        pre_calc_dphi_drb_rb1(dphi_drb, x);
      else
-        pre_calc_dphi_drb_rb2(dphi_drb, x, &dphi_drb_bulk, 
-                    &dphi_drb_bulk_left,
-                    &dphi_drb_bulk_right);
+        pre_calc_dphi_drb_rb2(dphi_drb, x);
   }
 
   /* for debugging print out profiles on each iteration */
@@ -306,18 +301,10 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
            if (Ipot_ff_n != IDEAL_GAS && mesh_coarsen_flag_i != FLAG_BULK) {
 
               resid_hs1 =load_nonlocal_hs_rosen_rb(DELTA_FN,iunk,loc_inode,inode_box,
-                            icomp,izone,
-                            ijk_box,x,dphi_drb,
-                            &dphi_drb_bulk, &dphi_drb_bulk_left,
-                            &dphi_drb_bulk_right,
-                            resid_only_flag);
+                            icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
 
               resid_hs2=load_nonlocal_hs_rosen_rb(THETA_FN,iunk,loc_inode,inode_box,
-                            icomp,izone,
-                            ijk_box,x,dphi_drb,
-                            &dphi_drb_bulk, &dphi_drb_bulk_left,
-                            &dphi_drb_bulk_right,
-                            resid_only_flag);
+                            icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
 
               if (Sten_Type[U_ATTRACT]) {  /* load attractions */
                  resid_uatt=load_mean_field(U_ATTRACT,iunk,loc_inode,

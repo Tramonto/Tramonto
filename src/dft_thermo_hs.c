@@ -10,6 +10,8 @@ in the code.  These should give the same results.
 #include "mpi.h"
 
 void sum_rhobar(double,int, double *);
+void dphi_drb_bulk_thermo(double *,double *);
+
 
 /********************************************************************************
 calc_hs_properties_new:  This routine calculates the pressure and excess chemical 
@@ -54,6 +56,8 @@ calc_hs_properties_new:  This routine calculates the pressure and excess chemica
    for (icomp=0; icomp<Ncomp;icomp++){
       Betamu_hs_ex[icomp] = -log(1-n3)-(n0/y1)+(n2/y1)+(n1/y1)+(n1*n2)/(y2)+1/(24.*PI*y2)+ n2/
    }
+
+  
 
 
    * the hard sphere pressure in units of kT and Sigma_ff[1]^3 *
@@ -164,6 +168,9 @@ void compute_bulk_nonlocal_hs_properties(char *output_file1)
      Rhobar_b[iunk] = 0.0;
      Rhobar_b_LBB[iunk] = 0.0;
      Rhobar_b_RTF[iunk] = 0.0;
+     Dphi_Drhobar_b[iunk]=0.0;
+     Dphi_Drhobar_LBB[iunk]=0.0;
+     Dphi_Drhobar_RTF[iunk]=0.0;
   }
 
   if (Type_poly==WTC) nloop=Nseg_tot;
@@ -188,6 +195,11 @@ void compute_bulk_nonlocal_hs_properties(char *output_file1)
           else sum_rhobar(Rho_b[icomp],icomp,Rhobar_b);
    
        }
+  }
+  dphi_drb_bulk_thermo(Rhobar_b,Dphi_Drhobar_b);
+  if (Lsteady_state || (Nwall==0&&Iliq_vap==3)){
+     dphi_drb_bulk_thermo(Rhobar_b_LBB,Dphi_Drhobar_LBB);
+     dphi_drb_bulk_thermo(Rhobar_b_RTF,Dphi_Drhobar_RTF);
   }
   if (printproc){
         fprintf(fp2,"Rhobar_bulk, LBB, and RTF variables for Rosenfeld HS functionals:\n");
@@ -224,6 +236,28 @@ void sum_rhobar(double rho,int icomp, double *rhobar)
        rhobar[4+Ndim+idim] = 0.0;
    }
    return;
+}
+/*****************************************************************************/
+void dphi_drb_bulk_thermo(double *rhobar,double *dphi_drb)
+{
+ double rb0,rb1,rb2,rb3,rb1v[3],rb2v[3],inv_one_m_rb3,inv_one_m_rb3_sq,
+        inv_one_m_rb3_3rd,DOT_rho12;
+
+  rb3=rhobar[0]; rb2=rhobar[1];
+  rb1=rhobar[2]; rb0=rhobar[3];
+
+  inv_one_m_rb3 = 1.0 / (1.0 - rb3);
+  inv_one_m_rb3_sq = inv_one_m_rb3*inv_one_m_rb3;
+  inv_one_m_rb3_3rd = inv_one_m_rb3_sq*inv_one_m_rb3;
+
+  dphi_drb[0] = log(inv_one_m_rb3);
+  dphi_drb[1] = rb2*inv_one_m_rb3;
+  dphi_drb[2] = rb1*inv_one_m_rb3 +
+                     rb2*rb2*inv_one_m_rb3_sq / (8.0*PI);
+  dphi_drb[3] = rb0*inv_one_m_rb3 +
+                     rb1*rb2 * inv_one_m_rb3_sq +
+                     rb2*rb2*rb2*inv_one_m_rb3_3rd / (12.0*PI);
+  return;
 }
 /*************************************************************************
 dp_drho_hs: the derivative of the hard sphere pressure with respect to rho*/

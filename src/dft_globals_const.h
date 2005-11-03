@@ -813,6 +813,12 @@ double  Rhobar_b_LBB[10]; /* Array[Nrho_bar] of bulk rhobars LBB  */
 extern
 double  Rhobar_b_RTF[10]; /* Array[Nrho_bar] of bulk rhobars RTF  */
 extern
+double  Dphi_Drhobar_b[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars      */
+extern
+double  Dphi_Drhobar_LBB[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars LBB  */
+extern
+double  Dphi_Drhobar_RTF[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars RTF  */
+extern
 double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
 extern
 double  Rho_seg_LBB[NMER_MAX];
@@ -1244,35 +1250,13 @@ extern void fill_resid_and_matrix_rb(double *, double *,
                                   int **, double *, int, int);
 extern void fill_resid_and_matrix_P(double **, int, int, int);
 extern int  get_integration_pts(int, int, double ***, double **);
-extern void pre_calc_rho_bar(struct RB_Struct *, double *, int,int,
-                             double ***, int ***,double *);
-extern void pre_calc_coarse_rho_bar(struct RB_Struct *);
-extern void  pre_calc_dphi_drb(struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *);
-extern void  pre_calc_dphi_drb1(struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *);
-extern void  pre_calc_dphi_drb2(struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *);
-extern void  pre_calc_dphi_drb_rb(struct RB_Struct *, double *,
-                        struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *, struct RB_Struct *,
-                        double *);
 
-extern void  pre_calc_dphi_drb_rb1(struct RB_Struct *, double **,
-                        struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *);
+extern void  pre_calc_dphi_drb_rb1(struct RB_Struct *, double **);
 
-extern void  pre_calc_dphi_drb_rb2(struct RB_Struct *, double **,
-                        struct RB_Struct *, struct RB_Struct *,
-                        struct RB_Struct *);
+extern void  pre_calc_dphi_drb_rb2(struct RB_Struct *, double **);
 
 extern double load_nonlocal_hs_rosen_rb(int, int, int,int,int, int,
-                       int *,double **,
-                       struct RB_Struct *,struct RB_Struct *,
-                       struct RB_Struct *,struct RB_Struct *, int);
+                       int *,double **, struct RB_Struct *, int);
 
 extern double load_rho_bar_s(int,double **,int, int,int,int,int *,int);
 extern double prefactor_rho_bar_s(int,int,int *);

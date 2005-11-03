@@ -207,6 +207,9 @@ double  Rho_b[NCOMP_MAX];   /* Array[Ncomp] of component bulk values         */
 double  Rhobar_b[10];   /* Array[Nrho_bar] of bulk rhobars        */
 double  Rhobar_b_LBB[10];   /* Array[Nrho_bar] of bulk rhobars LBB    */
 double  Rhobar_b_RTF[10];   /* Array[Nrho_bar] of bulk rhobars RTF    */
+double  Dphi_Drhobar_b[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars      */
+double  Dphi_Drhobar_LBB[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars LBB  */
+double  Dphi_Drhobar_RTF[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars RTF  */
 double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
 double  Rho_seg_LBB[NMER_MAX];
 double  Rho_seg_RTF[NMER_MAX];

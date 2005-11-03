@@ -36,19 +36,13 @@ static struct RB_Struct d2phi_drb2_delta2_rb(int, int, double **,double,
 static struct RB_Struct d2phi_drb2_theta2_rb(int, int, double **,double,int *);
 
 
-
 /**********************************************************************/
 /* load_nonlocal_hs_rosen_rb: Here we load all the dphi_drb terms for the 
                         Rosenfeld functional.                         */
 
 double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode, 
-                       int inode_box, int icomp,
-                       int izone, int *ijk_box, 
-                       double **x,
-                       struct RB_Struct *dphi_drb,
-                       struct RB_Struct *dphi_drb_bulk,
-                       struct RB_Struct *dphi_drb_bulk_left,
-                       struct RB_Struct *dphi_drb_bulk_right,
+                       int inode_box, int icomp, int izone, int *ijk_box, 
+                       double **x, struct RB_Struct *dphi_drb,
                        int resid_only_flag)
 {
   int   **sten_offset, *offset, isten;
@@ -70,8 +64,6 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
   for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
   jzone = find_jzone(izone);
 
-/*  if (Fac_overlap_hs[icomp] >1.e-8){*/
-
   sten = &(Stencil[sten_type][izone][icomp]);
   sten_offset = sten->Offset;
   sten_weight = sten->Weight;
@@ -90,7 +82,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
       if (jnode_box >= 0) {
 
         if (sten_type == DELTA_FN) {
-           resid = Fac_overlap_hs[icomp]*weight*
+           resid = weight*
                   (dphi_drb[jnode_box].S0*Inv_4pirsq[icomp] +
                    dphi_drb[jnode_box].S1*Inv_4pir[icomp] +
                    dphi_drb[jnode_box].S2 );
@@ -98,7 +90,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
            for (idim = 0; idim<Ndim; idim++){
               sign[idim]=1.0;
               if (reflect_flag[idim]) sign[idim]=-1.0;
-              resid -= Fac_overlap_hs[icomp]*sign[idim]*weight * 
+              resid -= sign[idim]*weight * 
                       (  dphi_drb[jnode_box].V1[idim]*Inv_4pir[icomp]
                        + dphi_drb[jnode_box].V2[idim] ) *
                       (offset[idim] * Esize_x[idim]*Inv_rad[icomp]); 
@@ -108,25 +100,25 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
       }
       else if (jnode_box == -1 || jnode_box == -3 || jnode_box == -4 ){
        if (jnode_box == -1) {
-          if (sten_type == DELTA_FN) resid = Fac_overlap_hs[icomp]*weight*
-                                      (dphi_drb_bulk->S0*Inv_4pirsq[icomp] +
-                                       dphi_drb_bulk->S1*Inv_4pir[icomp] +
-                                       dphi_drb_bulk->S2 );
-          else if (sten_type == THETA_FN) resid = Fac_overlap_hs[icomp]*weight*dphi_drb_bulk->S3;
+          if (sten_type == DELTA_FN) resid = weight*
+                                      (Dphi_Drhobar_b[0]*Inv_4pirsq[icomp] +
+                                       Dphi_Drhobar_b[1]*Inv_4pir[icomp] +
+                                       Dphi_Drhobar_b[2] );
+          else if (sten_type == THETA_FN) resid = weight*Dphi_Drhobar_b[3];
        }
        else if (jnode_box == -3) {
-          if (sten_type == DELTA_FN) resid = Fac_overlap_hs[icomp]*weight*
-                                      (dphi_drb_bulk_left->S0*Inv_4pirsq[icomp] +
-                                       dphi_drb_bulk_left->S1*Inv_4pir[icomp] +
-                                       dphi_drb_bulk_left->S2 );
-          else if (sten_type == THETA_FN) resid = Fac_overlap_hs[icomp]*weight*dphi_drb_bulk_left->S3;
+          if (sten_type == DELTA_FN) resid = weight*
+                                      (Dphi_Drhobar_LBB[0]*Inv_4pirsq[icomp] +
+                                       Dphi_Drhobar_LBB[1]*Inv_4pir[icomp] +
+                                       Dphi_Drhobar_LBB[2] );
+          else if (sten_type == THETA_FN) resid = weight*Dphi_Drhobar_LBB[3];
        }
        else if (jnode_box == -4) {
-          if (sten_type == DELTA_FN) resid = Fac_overlap_hs[icomp]*weight*
-                                       (dphi_drb_bulk_right->S0*Inv_4pirsq[icomp] +
-                                        dphi_drb_bulk_right->S1*Inv_4pir[icomp] +
-                                        dphi_drb_bulk_right->S2 );
-          else if (sten_type == THETA_FN) resid = Fac_overlap_hs[icomp]*weight*dphi_drb_bulk_right->S3;
+          if (sten_type == DELTA_FN) resid = weight*
+                                       (Dphi_Drhobar_RTF[0]*Inv_4pirsq[icomp] +
+                                        Dphi_Drhobar_RTF[1]*Inv_4pir[icomp] +
+                                        Dphi_Drhobar_RTF[2] );
+          else if (sten_type == THETA_FN) resid = weight*Dphi_Drhobar_RTF[3];
        }
       }
       else if (jnode_box==-2){ /* in the wall */
@@ -187,7 +179,6 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
        }  
     }
   }
- /* }*/
   return (resid_sum);
 } 
 /*****************************************************************************/
@@ -338,11 +329,7 @@ double prefactor_rho_bar_v(int iunk,int jcomp,int *offset)
 /* pre_calc_dphi_drb_rb1: rho_bars are calculated at each wall & fluid node
    		original rosenfeld functionals. */
 
-void pre_calc_dphi_drb_rb1(struct RB_Struct *dphi_drb, 
-                       double **x,
-                       struct RB_Struct *dphi_drb_bulk_ptr,
-                       struct RB_Struct *dphi_drb_bulk_left_ptr,
-                       struct RB_Struct *dphi_drb_bulk_right_ptr)
+void pre_calc_dphi_drb_rb1(struct RB_Struct *dphi_drb, double **x)
 {
  double rb0,rb1,rb2,rb3,rb1v[3],rb2v[3],inv_one_m_rb3,inv_one_m_rb3_sq,
         inv_one_m_rb3_3rd,DOT_rho12,DOT_rho22;
@@ -394,94 +381,13 @@ void pre_calc_dphi_drb_rb1(struct RB_Struct *dphi_drb,
 
   }
 
-  /* Calculate dphi_drb_bulk, values in the bulk */
-
-  rb0 = rb1 = rb2 = rb3 = 0.0;
-  for (icomp=0; icomp<Ncomp; icomp++) {
-    rb0 += Fac_overlap_hs[icomp]*Rho_b[icomp];
-    rb1 += Fac_overlap_hs[icomp]*Rho_b[icomp]* Sigma_ff[icomp][icomp]/2.0;
-    rb2 += Fac_overlap_hs[icomp]*Rho_b[icomp]* PI* Sigma_ff[icomp][icomp] * Sigma_ff[icomp][icomp];
-    rb3 += Fac_overlap_hs[icomp]*Rho_b[icomp]* (PI / 6.0) * Sigma_ff[icomp][icomp] 
-           * Sigma_ff[icomp][icomp] * Sigma_ff[icomp][icomp];
-  }
-  if (Iliq_vap == 3 || Lsteady_state == TRUE){
-     if (Lsteady_state == TRUE) imax = Ncomp;
-     else                       imax = 1;
-
-     rb0_l = rb1_l = rb2_l = rb3_l = 0.0;
-     rb0_r = rb1_r = rb2_r = rb3_r = 0.0;
-
-     for (i=0;i<imax; i++){
-        if (Lsteady_state) rho = Rho_b_LBB[i];
-        else               rho = Rho_coex[1];
-
-        rb0_l += Fac_overlap_hs[i]*rho;
-        rb1_l += Fac_overlap_hs[i]*rho * Sigma_ff[i][i]/2.0;
-        rb2_l += Fac_overlap_hs[i]*rho * PI* Sigma_ff[i][i] * Sigma_ff[i][i];
-        rb3_l += Fac_overlap_hs[i]*rho * (PI / 6.0) * Sigma_ff[i][i] 
-                    * Sigma_ff[i][i] * Sigma_ff[i][i];
-
-        if (Lsteady_state) rho = Rho_b_RTF[i];
-        else               rho = Rho_coex[0];
-
-        rb0_r += Fac_overlap_hs[i]*rho;
-        rb1_r += Fac_overlap_hs[i]*rho * Sigma_ff[i][i]/2.0;
-        rb2_r += Fac_overlap_hs[i]*rho * PI* Sigma_ff[i][i] * Sigma_ff[i][i];
-        rb3_r += Fac_overlap_hs[i]*rho * (PI / 6.0) * Sigma_ff[i][i] 
-               * Sigma_ff[i][i] * Sigma_ff[i][i];
-     }
-  }
-
-  inv_one_m_rb3 = 1.0 / (1.0 - rb3);
-  inv_one_m_rb3_sq = inv_one_m_rb3*inv_one_m_rb3;
-  inv_one_m_rb3_3rd = inv_one_m_rb3_sq*inv_one_m_rb3;
-
-  dphi_drb_bulk_ptr->S0 =  log(inv_one_m_rb3);
-  dphi_drb_bulk_ptr->S1 =  rb2*inv_one_m_rb3;
-  dphi_drb_bulk_ptr->S2 =  rb1*inv_one_m_rb3 +
-                                rb2*rb2*inv_one_m_rb3_sq / (8.0*PI);
-  dphi_drb_bulk_ptr->S3 = rb0*inv_one_m_rb3 +
-                               rb1*rb2 * inv_one_m_rb3_sq +
-                               rb2*rb2*rb2*inv_one_m_rb3_3rd / (12.0*PI);
-
- /* dphi_drb_bulk_ptr->V1 = dphi_drb_bulk_ptr->V2 = 0 in the bulk */
- /* -- not calculated */
-
-  if (Iliq_vap == 3 || Lsteady_state) {
-     inv_one_m_rb3 = 1.0 / (1.0 - rb3_l);
-     inv_one_m_rb3_sq = inv_one_m_rb3*inv_one_m_rb3;
-     inv_one_m_rb3_3rd = inv_one_m_rb3_sq*inv_one_m_rb3;
-
-     dphi_drb_bulk_left_ptr->S0 =  log(inv_one_m_rb3);
-     dphi_drb_bulk_left_ptr->S1 =  rb2_l*inv_one_m_rb3;
-     dphi_drb_bulk_left_ptr->S2 =  rb1_l*inv_one_m_rb3 +
-                                   rb2_l*rb2_l*inv_one_m_rb3_sq / (8.0*PI);
-     dphi_drb_bulk_left_ptr->S3 = rb0_l*inv_one_m_rb3 +
-                                  rb1_l*rb2_l * inv_one_m_rb3_sq +
-                                  rb2_l*rb2_l*rb2_l*inv_one_m_rb3_3rd / (12.0*PI);
-
-     inv_one_m_rb3 = 1.0 / (1.0 - rb3_r);
-     inv_one_m_rb3_sq = inv_one_m_rb3*inv_one_m_rb3;
-     inv_one_m_rb3_3rd = inv_one_m_rb3_sq*inv_one_m_rb3;
-
-     dphi_drb_bulk_right_ptr->S0 =  log(inv_one_m_rb3);
-     dphi_drb_bulk_right_ptr->S1 =  rb2_r*inv_one_m_rb3;
-     dphi_drb_bulk_right_ptr->S2 =  rb1_r*inv_one_m_rb3 +
-                                   rb2_r*rb2_r*inv_one_m_rb3_sq / (8.0*PI);
-     dphi_drb_bulk_right_ptr->S3 = rb0_r*inv_one_m_rb3 +
-                                  rb1_r*rb2_r * inv_one_m_rb3_sq +
-                                  rb2_r*rb2_r*rb2_r*inv_one_m_rb3_3rd / (12.0*PI);
-  }
+  return;
 }
 /*****************************************************************************/
 /* pre_calc_dphi_drb_rb2: rho_bars are calculated at each wall & fluid node
         more recent FM functional with better 0D crossover.*/
 
-void pre_calc_dphi_drb_rb2(struct RB_Struct *dphi_drb,
-                       double **x,
-                       struct RB_Struct *dphi_drb_bulk_ptr,
-                       struct RB_Struct *dphi_drb_bulk_left_ptr,
-                       struct RB_Struct *dphi_drb_bulk_right_ptr)
+void pre_calc_dphi_drb_rb2(struct RB_Struct *dphi_drb, double **x)
 {
  double rb0,rb1,rb2,rb3,rb1v[3],rb2v[3],inv_one_m_rb3,inv_one_m_rb3_sq,
         inv_one_m_rb3_3rd,DOT_rho12,DOT_rho22;
@@ -553,86 +459,9 @@ void pre_calc_dphi_drb_rb2(struct RB_Struct *dphi_drb,
 
   }
 
-  /* Calculate dphi_drb_bulk, values in the bulk */
-
-  rb0 = rb1 = rb2 = rb3 = 0.0;
-  for (icomp=0; icomp<Ncomp; icomp++) {
-    rb0 += Fac_overlap_hs[icomp]*Rho_b[icomp];
-    rb1 += Fac_overlap_hs[icomp]*Rho_b[icomp]* Sigma_ff[icomp][icomp]/2.0;
-    rb2 += Fac_overlap_hs[icomp]*Rho_b[icomp]* PI* Sigma_ff[icomp][icomp] * Sigma_ff[icomp][icomp];
-    rb3 += Fac_overlap_hs[icomp]*Rho_b[icomp]* (PI / 6.0) * Sigma_ff[icomp][icomp]
-           * Sigma_ff[icomp][icomp] * Sigma_ff[icomp][icomp];
-  }
-  if (Iliq_vap == 3 || Lsteady_state == TRUE){
-     if (Lsteady_state == TRUE) imax = Ncomp;
-     else                       imax = 1;
-
-     rb0_l = rb1_l = rb2_l = rb3_l = 0.0;
-     rb0_r = rb1_r = rb2_r = rb3_r = 0.0;
-
-     for (i=0;i<imax; i++){
-        if (Lsteady_state) rho = Rho_b_LBB[i];
-        else               rho = Rho_coex[1];
-
-        rb0_l += Fac_overlap_hs[i]*rho;
-        rb1_l += Fac_overlap_hs[i]*rho * Sigma_ff[i][i]/2.0;
-        rb2_l += Fac_overlap_hs[i]*rho * PI* Sigma_ff[i][i] * Sigma_ff[i][i];
-        rb3_l += Fac_overlap_hs[i]*rho * (PI / 6.0) * Sigma_ff[i][i]
-                    * Sigma_ff[i][i] * Sigma_ff[i][i];
-
-        if (Lsteady_state) rho = Rho_b_RTF[i];
-        else               rho = Rho_coex[0];
-
-        rb0_r += Fac_overlap_hs[i]*rho;
-        rb1_r += Fac_overlap_hs[i]*rho * Sigma_ff[i][i]/2.0;
-        rb2_r += Fac_overlap_hs[i]*rho * PI* Sigma_ff[i][i] * Sigma_ff[i][i];
-        rb3_r += Fac_overlap_hs[i]*rho * (PI / 6.0) * Sigma_ff[i][i]
-               * Sigma_ff[i][i] * Sigma_ff[i][i];
-     }
-  }
-
-  inv_one_m_rb3 = 1.0 / (1.0 - rb3);
-  inv_one_m_rb3_sq = inv_one_m_rb3*inv_one_m_rb3;
-  inv_one_m_rb3_3rd = inv_one_m_rb3_sq*inv_one_m_rb3;
-
-  dphi_drb_bulk_ptr->S0 =  log(inv_one_m_rb3);
-  dphi_drb_bulk_ptr->S1 =  rb2*inv_one_m_rb3;
-  dphi_drb_bulk_ptr->S2 =  rb1*inv_one_m_rb3 +
-                                rb2*rb2*inv_one_m_rb3_sq / (8.0*PI);
-  dphi_drb_bulk_ptr->S3 = rb0*inv_one_m_rb3 +
-                               rb1*rb2 * inv_one_m_rb3_sq +
-                               rb2*rb2*rb2*inv_one_m_rb3_3rd / (12.0*PI);
-
- /* dphi_drb_bulk_ptr->V1 = dphi_drb_bulk_ptr->V2 = 0 in the bulk */
- /* -- not calculated */
-
-  if (Iliq_vap == 3 || Lsteady_state) {
-     inv_one_m_rb3 = 1.0 / (1.0 - rb3_l);
-     inv_one_m_rb3_sq = inv_one_m_rb3*inv_one_m_rb3;
-     inv_one_m_rb3_3rd = inv_one_m_rb3_sq*inv_one_m_rb3;
-
-     dphi_drb_bulk_left_ptr->S0 =  log(inv_one_m_rb3);
-     dphi_drb_bulk_left_ptr->S1 =  rb2_l*inv_one_m_rb3;
-     dphi_drb_bulk_left_ptr->S2 =  rb1_l*inv_one_m_rb3 +
-                                   rb2_l*rb2_l*inv_one_m_rb3_sq / (8.0*PI);
-     dphi_drb_bulk_left_ptr->S3 = rb0_l*inv_one_m_rb3 +
-                                  rb1_l*rb2_l * inv_one_m_rb3_sq +
-                                  rb2_l*rb2_l*rb2_l*inv_one_m_rb3_3rd / (12.0*PI);
-
-     inv_one_m_rb3 = 1.0 / (1.0 - rb3_r);
-     inv_one_m_rb3_sq = inv_one_m_rb3*inv_one_m_rb3;
-     inv_one_m_rb3_3rd = inv_one_m_rb3_sq*inv_one_m_rb3;
-
-     dphi_drb_bulk_right_ptr->S0 =  log(inv_one_m_rb3);
-     dphi_drb_bulk_right_ptr->S1 =  rb2_r*inv_one_m_rb3;
-     dphi_drb_bulk_right_ptr->S2 =  rb1_r*inv_one_m_rb3 +
-                                   rb2_r*rb2_r*inv_one_m_rb3_sq / (8.0*PI);
-     dphi_drb_bulk_right_ptr->S3 = rb0_r*inv_one_m_rb3 +
-                                  rb1_r*rb2_r * inv_one_m_rb3_sq +
-                                  rb2_r*rb2_r*rb2_r*inv_one_m_rb3_3rd / (12.0*PI);
-  }
+  return;
 }
-/****************************************************************************/
+/*****************************************************************************/
 /* d2phi_drb2_delta_rb:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                 for the dphi_drb that use Delta_Fn Stencils (all but S3) */
 
