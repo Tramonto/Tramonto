@@ -1342,6 +1342,7 @@ extern double dy_dxi3_cav(double,double,double,double);
 extern double phispt(double *);
 extern double calc_ideal_gas(double *,double *);
 extern double calc_hs_properties(double *,double *);
+extern double calc_hs_properties_new(double *,double *);
 extern double calc_att_properties(double *, double *);
 extern void calc_poly_TC_properties(double *,double *);
 extern void   calc_charge_correlations_b();

@@ -100,7 +100,7 @@ void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
   double resid,mat_val,resid_sum=0.0,weight_bulk,bulk_term;
 
   int icomp,jzone, jnode_box, jcomp,jlist,junk,loop_max,jloop,jseg,index;
-  int jnode_boxJ;
+  int jnode_boxJ,i;
   int reflect_flag[NDIM_MAX];
 
   for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
@@ -127,7 +127,9 @@ void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
 
 
       if (sten_type==U_ATTRACT || sten_type==THETA_CHARGE) {
-            icomp=iunk-Phys2Unk_first[DENSITY];
+            i=iunk-Phys2Unk_first[DENSITY];
+            if (Type_poly==WTC) icomp=Unk2Comp[i];
+            else icomp=i;
             index=icomp+Ncomp*jcomp;
       }
       else if (sten_type==POLYMER_CR){

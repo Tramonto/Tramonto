@@ -82,7 +82,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
       if (jnode_box >= 0) {
 
         if (sten_type == DELTA_FN) {
-           resid = weight*
+           resid = Fac_overlap_hs[icomp]*weight*
                   (dphi_drb[jnode_box].S0*Inv_4pirsq[icomp] +
                    dphi_drb[jnode_box].S1*Inv_4pir[icomp] +
                    dphi_drb[jnode_box].S2 );
@@ -90,35 +90,35 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
            for (idim = 0; idim<Ndim; idim++){
               sign[idim]=1.0;
               if (reflect_flag[idim]) sign[idim]=-1.0;
-              resid -= sign[idim]*weight * 
+              resid -= Fac_overlap_hs[icomp]*sign[idim]*weight * 
                       (  dphi_drb[jnode_box].V1[idim]*Inv_4pir[icomp]
                        + dphi_drb[jnode_box].V2[idim] ) *
                       (offset[idim] * Esize_x[idim]*Inv_rad[icomp]); 
            }
         }
-        else if (sten_type == THETA_FN) resid = weight * dphi_drb[jnode_box].S3; 
+        else if (sten_type == THETA_FN) resid = Fac_overlap_hs[icomp]*weight * dphi_drb[jnode_box].S3; 
       }
       else if (jnode_box == -1 || jnode_box == -3 || jnode_box == -4 ){
        if (jnode_box == -1) {
-          if (sten_type == DELTA_FN) resid = weight*
+          if (sten_type == DELTA_FN) resid = Fac_overlap_hs[icomp]*weight*
                                       (Dphi_Drhobar_b[0]*Inv_4pirsq[icomp] +
                                        Dphi_Drhobar_b[1]*Inv_4pir[icomp] +
                                        Dphi_Drhobar_b[2] );
-          else if (sten_type == THETA_FN) resid = weight*Dphi_Drhobar_b[3];
+          else if (sten_type == THETA_FN) resid = Fac_overlap_hs[icomp]*weight*Dphi_Drhobar_b[3];
        }
        else if (jnode_box == -3) {
-          if (sten_type == DELTA_FN) resid = weight*
+          if (sten_type == DELTA_FN) resid = Fac_overlap_hs[icomp]*weight*
                                       (Dphi_Drhobar_LBB[0]*Inv_4pirsq[icomp] +
                                        Dphi_Drhobar_LBB[1]*Inv_4pir[icomp] +
                                        Dphi_Drhobar_LBB[2] );
-          else if (sten_type == THETA_FN) resid = weight*Dphi_Drhobar_LBB[3];
+          else if (sten_type == THETA_FN) resid = Fac_overlap_hs[icomp]*weight*Dphi_Drhobar_LBB[3];
        }
        else if (jnode_box == -4) {
-          if (sten_type == DELTA_FN) resid = weight*
+          if (sten_type == DELTA_FN) resid = Fac_overlap_hs[icomp]*weight*
                                        (Dphi_Drhobar_RTF[0]*Inv_4pirsq[icomp] +
                                         Dphi_Drhobar_RTF[1]*Inv_4pir[icomp] +
                                         Dphi_Drhobar_RTF[2] );
-          else if (sten_type == THETA_FN) resid = weight*Dphi_Drhobar_RTF[3];
+          else if (sten_type == THETA_FN) resid = Fac_overlap_hs[icomp]*weight*Dphi_Drhobar_RTF[3];
        }
       }
       else if (jnode_box==-2){ /* in the wall */
@@ -164,7 +164,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
                else    tmp = d2phi_drb2_theta2_rb(junk,jnode_boxJ,x,weightJ,offsetJ);
             }
             numEntries=4;
-            values[0]=tmp.S3; values[1]=tmp.S2; values[2]=tmp.S1; values[3]=tmp.S0;
+            values[0]=Fac_overlap_hs[icomp]*tmp.S3; values[1]=Fac_overlap_hs[icomp]*tmp.S2; values[2]=Fac_overlap_hs[icomp]*tmp.S1; values[3]=Fac_overlap_hs[icomp]*tmp.S0;
             indexUnks[0]=junk; indexUnks[1]=junk+1; indexUnks[2]=junk+2; indexUnks[3]=junk+3;
             dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                    indexUnks, jnode_boxJ, values, numEntries);

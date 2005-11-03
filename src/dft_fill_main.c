@@ -433,7 +433,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
     
 
       /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-/*    if (Unk2Phys[iunk]==DENSITY){
+/*  if (inode_box==50){
+    if (Unk2Phys[iunk]==DENSITY){
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge;
           printf("loc_inode=%d  iunk=%d  resid_el=%9.6f (%9.6f %9.6f %9.6f %9.6f) resid_hs1=%9.6f resid_hs2=%9.6f  resid_WTC1=%9.6f",
                                  loc_inode,iunk,resid_el,resid_ig,resid_vext,resid_mu,resid_charge,resid_hs1,resid_hs2,resid_WTC1);
@@ -450,7 +451,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          printf(" loc_inode=%d  iunk_cavity=%d  resid=%9.6f",loc_inode,iunk,resid_cavity);
     else if (Unk2Phys[iunk]==BOND_WTC) 
          printf(" loc_inode=%d  iunk_bondwtc=%d  resid=%9.6f",loc_inode,iunk,resid_bondwtc);
-    printf("  \n");*/
+    printf("  \n");}*/
 
 
 /*    if (Unk2Phys[iunk]==DENSITY){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_ig + resid_vext + resid_mu + resid_charge+ resid_hs1+resid_hs2+resid_WTC1);}

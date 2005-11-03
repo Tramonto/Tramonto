@@ -18,72 +18,31 @@ calc_hs_properties_new:  This routine calculates the pressure and excess chemica
                          potential for hard spheres at the density of interest 
                          using notation consistent with the DFT code PY equations. */
 
-/*double calc_hs_properties_new(double *betamu_hs,double *rho)
+double calc_hs_properties_new(double *betamu_hs,double *rho)
 {
-   int icomp;
-   double hs_diam_cubed, n_o,n_1,n_2,n_3;
-          betap_hs;
+   int icomp,i;
+   double sten_sum[4],betap_hs;
 
-   *  Determine the effective hard sphere diameters 
-    For now we will set these to unity, but in the future we
-    can define a temperature dependent diameter. Doing so
-    offers a way to provide a better mean field equation of
-    state. In essence, for  an attractive (e.g LJ) fluid (mixture)
-    we can use the effective hard sphere diameter to off set the 
-    shortcomings of the PY + mean field approximation. See the
-    work by Telo da Gama et al.. 
-   *
-
-   * calculate the hard sphere diamtere ... this can be 
-      turned into a T-dependent diameter *
-
-   for (icomp=0; icomp<Ncomp; ++icomp) Hs_diam[icomp] = 1.0;   * note that the HS_diam parameter should be d/sigma_ref since
-                                                                  all bulk densities are in rho*sigma_ref^3. *
-
-   *  calculate the constants xsi and introduce some shorthand *
-
-   hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
-   n3 = Rhobar_b[0]*hs_diam_cubed;  * note that in the code the order of the nonlocal densities is reversed *
-   n2 = Rhobar_b[1]*hs_diam_cubed;
-   n1 = Rhobar_b[2]*hs_diam_cubed;
-   n0 = Rhobar_b[3]*hs_diam_cubed;
-
-   y1 = 1.0 - n3;
-   y2 = y1 * y1;
-   y3 = y1 * y1 * y1;
-
-   * the hard sphere excess chemical potential in units of kT *
    for (icomp=0; icomp<Ncomp;icomp++){
-      Betamu_hs_ex[icomp] = -log(1-n3)-(n0/y1)+(n2/y1)+(n1/y1)+(n1*n2)/(y2)+1/(24.*PI*y2)+ n2/
-   }
-
+      sten_sum[0]=1.;
+      sten_sum[1]= Sigma_ff[icomp][icomp]/2.;
+      sten_sum[2]=(4.*PI)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp]/2.,2);
+      sten_sum[3]=(4.*PI/3.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp]/2.,3);
   
+      Betamu_hs_ex[icomp]=0.0; 
+      for (i=0;i<4;i++){
+        Betamu_hs_ex[icomp] += Dphi_Drhobar_b[i]*sten_sum[i]*Fac_overlap_hs[icomp];
+      }
+   }
+  
+   betap_hs = phispt(Rhobar_b);
 
-
-   * the hard sphere pressure in units of kT and Sigma_ff[1]^3 *
-
-   betap_hs = (1.0/pi6) * (xsi0/y1 + 3.0 * xsi1 * xsi2/y2 +
-                                     3.0 * POW_DOUBLE_INT(xsi2,3)/y3  );
-
-
-   for (icomp=0; icomp<Ncomp; ++icomp) 
-      Betamu_hs_ex[icomp] = - log(y1) +
-              pi6 * betap_hs * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3) +
-              3.0 * xsi2 * Sigma_ff[icomp][icomp]/y1 +
-              3.0 * xsi1 * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2)/y1 +
-              4.5 * POW_DOUBLE_INT((xsi2 * Sigma_ff[icomp][icomp]),2)/y2 ;
-
-   * 
-    * add the ideal gas term to give
-    * the hard sphere chemical potential in units of kT 
-    *
    for (icomp=0; icomp<Ncomp; ++icomp) {
       betamu_hs[icomp]  =  Betamu_hs_ex[icomp]; 
    }
 
    return (betap_hs);
-}*/
-/*************************************************************
+}
 /********************************************************************************
 calc_hs_properties:  This routine calculates the pressure and excess chemical 
                      potential for hard spheres at the density of interest 
@@ -117,10 +76,10 @@ double calc_hs_properties(double *betamu_hs,double *rho)
 
    for (icomp=0; icomp<Ncomp; ++icomp) {
       hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
-      xsi0 +=Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed;
-      xsi1 +=Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
-      xsi2 +=Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
-      xsi3 +=Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
+      xsi0 += Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed;
+      xsi1 += Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
+      xsi2 += Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
+      xsi3 += Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
    }
    y1 = 1.0 - xsi3;
    y2 = y1 * y1;
@@ -226,6 +185,8 @@ void sum_rhobar(double rho,int icomp, double *rhobar)
    vol = PI*Sigma_ff[icomp][icomp]*
            Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp]/6.0;
    area = PI*Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp];
+
+printf("COMPUTING RHOBARS WITH Fac_overlap_hs[%d]=%9.6f\n",icomp,Fac_overlap_hs[icomp]);
 
    rhobar[0] += Fac_overlap_hs[icomp]*vol*rho;
    rhobar[1] += Fac_overlap_hs[icomp]*area*rho;

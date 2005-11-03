@@ -18,7 +18,7 @@ void print_thermo(char *,double,double *);
 void  thermodynamics( char *output_file1, int print_flag)
 {
    int icomp,jcomp,kcomp,i,ipol,iseg,ibond,jseg,kseg;
-   double betap_hs=0, betamu_hs[NCOMP_MAX],betap_att,p_coex=0.0,betap_TC=0.0;
+   double betap_hs=0., betap_hs_tmp=0.,betamu_hs[NCOMP_MAX],betap_att,p_coex=0.0,betap_TC=0.0;
    double y,dydxi2,dydxi3,sig2,sig3;
    char *yo = "thermodynamics";
 
@@ -160,6 +160,7 @@ printf("iseg=%d  icomp=%d Nmer_t_total=%d Rho_b=%9.6f Rho_seg_b=%9.6f\n",
       }
       else{
          betap_hs = calc_hs_properties(betamu_hs,Rho_b);
+         betap_hs_tmp = calc_hs_properties_new(betamu_hs,Rho_b);
          Betap += betap_hs;
          for (icomp=0; icomp<Ncomp; icomp++){ 
              Betamu[icomp] += betamu_hs[icomp];
