@@ -61,9 +61,13 @@ void  thermodynamics( char *output_file1, int print_flag)
    else{
       for (icomp=0;icomp<Ncomp;icomp++) Fac_overlap_hs[icomp]=1.0;
    }
-/*      Fac_overlap[1][1]=0.0; Fac_overlap[0][1]=0;Fac_overlap[1][0]=0;*/
-/*Fac_overlap_hs[0]=1.;
-Fac_overlap_hs[1]=1.;*/
+
+Fac_overlap_hs[0]=1.;
+Fac_overlap_hs[1]=1.;
+/*    Fac_overlap[0][0]=1.0;
+    Fac_overlap[1][0]=1.0;
+    Fac_overlap[0][1]=1.0;
+    Fac_overlap[1][1]=1.0;*/
 
 
    /* Find bulk coexistence  for a very special case of only one atomistic component with
@@ -150,7 +154,7 @@ printf("iseg=%d  icomp=%d Nmer_t_total=%d Rho_b=%9.6f Rho_seg_b=%9.6f\n",
 
    /* now add in the hard sphere contributions */
   
-   if (Type_func==ROSENFELD || Type_func==ROSENFELD2){
+   if (Type_func!= NONE){
       if (Lsteady_state){
          betap_hs = calc_hs_properties(betamu_hs,Rho_b_LBB);
          for (icomp=0; icomp<Ncomp; icomp++) Betamu_LBB[icomp] += betamu_hs[icomp];    
@@ -160,7 +164,9 @@ printf("iseg=%d  icomp=%d Nmer_t_total=%d Rho_b=%9.6f Rho_seg_b=%9.6f\n",
       }
       else{
          betap_hs = calc_hs_properties(betamu_hs,Rho_b);
+printf("old pressure calculates %9.6f\n",betap_hs);
          betap_hs_tmp = calc_hs_properties_new(betamu_hs,Rho_b);
+printf("new pressure calculates %9.6f\n",betap_hs_tmp);
          Betap += betap_hs;
          for (icomp=0; icomp<Ncomp; icomp++){ 
              Betamu[icomp] += betamu_hs[icomp];

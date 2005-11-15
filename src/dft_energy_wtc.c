@@ -13,7 +13,7 @@ double integrand_WTC_freen(int iunk,int inode_box, double **x)
      iseg = iunk-Phys2Unk_first[DENSITY];
      rho_i = x[iunk][inode_box];
 
-     if (rho_i > 0.){
+     if (rho_i > 1.e-9){
 
          unk_xi2 = Phys2Unk_first[CAVITY_WTC];
          unk_xi3 = Phys2Unk_first[CAVITY_WTC]+1;

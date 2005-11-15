@@ -24,16 +24,16 @@
 #include "rf_allo.h"
 #include "mpi.h"
 
-static struct RB_Struct d2phi_drb2_delta_rb(int, int, double **,double, 
+static struct RB_Struct d2phi_drb2_delta_rb_FMT1(int, int, double **,double, 
 					    int *,double *,double,double,
 					    double);
-
-static struct RB_Struct d2phi_drb2_theta_rb(int, int, double **,double,int *);
-
-static struct RB_Struct d2phi_drb2_delta2_rb(int, int, double **,double, 
+static struct RB_Struct d2phi_drb2_theta_rb_FMT1(int, int, double **,double,int *);
+static struct RB_Struct d2phi_drb2_delta_rb_FMT2(int, int, double **,double, 
 				      int *,double *,double, double,double);
-
-static struct RB_Struct d2phi_drb2_theta2_rb(int, int, double **,double,int *);
+static struct RB_Struct d2phi_drb2_theta_rb_FMT2(int, int, double **,double,int *);
+static struct RB_Struct d2phi_drb2_delta_rb_FMT3(int, int, double **,double, 
+				      int *,double *,double, double,double);
+static struct RB_Struct d2phi_drb2_theta_rb_FMT3(int, int, double **,double,int *);
 
 
 /**********************************************************************/
@@ -148,20 +148,27 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
             }
 
             if (sten_type == DELTA_FN) {
-               if (Type_func == 0) tmp = 
-                          d2phi_drb2_delta_rb(junk,jnode_boxJ,x,weightJ,offsetJ, 
+               if (Type_func == FMT1) tmp = 
+                          d2phi_drb2_delta_rb_FMT1(junk,jnode_boxJ,x,weightJ,offsetJ, 
 			  sign,Inv_rad[icomp],Inv_4pir[icomp], 
 			  Inv_4pirsq[icomp]);
 
-               else       tmp = 
-                          d2phi_drb2_delta2_rb(junk,jnode_boxJ,x,weightJ,offsetJ, 
+               else if (Type_func ==FMT2)      tmp = 
+                          d2phi_drb2_delta_rb_FMT2(junk,jnode_boxJ,x,weightJ,offsetJ, 
+			  sign,Inv_rad[icomp],Inv_4pir[icomp], 
+			  Inv_4pirsq[icomp]);
+               else if (Type_func==FMT3) tmp=
+                          d2phi_drb2_delta_rb_FMT1(junk,jnode_boxJ,x,weightJ,offsetJ, 
 			  sign,Inv_rad[icomp],Inv_4pir[icomp], 
 			  Inv_4pirsq[icomp]);
             }
             else if (sten_type == THETA_FN) {
-               if (Type_func == 0) tmp = 
-                             d2phi_drb2_theta_rb(junk,jnode_boxJ,x,weightJ,offsetJ);
-               else    tmp = d2phi_drb2_theta2_rb(junk,jnode_boxJ,x,weightJ,offsetJ);
+               if (Type_func == FMT1) 
+                       tmp = d2phi_drb2_theta_rb_FMT1(junk,jnode_boxJ,x,weightJ,offsetJ);
+               else if (Type_func==FMT2)
+                       tmp = d2phi_drb2_theta_rb_FMT2(junk,jnode_boxJ,x,weightJ,offsetJ);
+               else if (Type_func==FMT3)
+                       tmp = d2phi_drb2_theta_rb_FMT3(junk,jnode_boxJ,x,weightJ,offsetJ);
             }
             numEntries=4;
             values[0]=Fac_overlap_hs[icomp]*tmp.S3; values[1]=Fac_overlap_hs[icomp]*tmp.S2; values[2]=Fac_overlap_hs[icomp]*tmp.S1; values[3]=Fac_overlap_hs[icomp]*tmp.S0;
@@ -326,146 +333,10 @@ double prefactor_rho_bar_v(int iunk,int jcomp,int *offset)
   return (fac);
 }
 /*****************************************************************************/
-/* pre_calc_dphi_drb_rb1: rho_bars are calculated at each wall & fluid node
-   		original rosenfeld functionals. */
-
-void pre_calc_dphi_drb_rb1(struct RB_Struct *dphi_drb, double **x)
-{
- double rb0,rb1,rb2,rb3,rb1v[3],rb2v[3],inv_one_m_rb3,inv_one_m_rb3_sq,
-        inv_one_m_rb3_3rd,DOT_rho12,DOT_rho22;
- double rb0_l=0.0, rb1_l=0.0, rb2_l=0.0, rb3_l=0.0;
- double rb0_r=0.0, rb1_r=0.0, rb2_r=0.0, rb3_r=0.0;
- int idim, icomp, loc_inode;
- int inode_box;
- int i,imax,loc_i,loc_iv,junk;
- double rho;
-
- for (inode_box=0; inode_box < Nnodes_box; inode_box++) {
-
-       junk = Phys2Unk_first[RHOBAR_ROSEN];
-       rb3 = x[junk][inode_box];
-       rb2 = x[junk+1][inode_box];
-       rb1 = x[junk+2][inode_box];
-       rb0 = x[junk+3][inode_box];
-
-       for (idim = 0; idim<Ndim; idim++) {
-          rb2v[idim] = x[junk+Nrho_bar_s+idim][inode_box];
-          rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][inode_box];
-       }
-
-       inv_one_m_rb3 = 1.0 / (1.0 - rb3);
-       inv_one_m_rb3_sq = inv_one_m_rb3*inv_one_m_rb3;
-       inv_one_m_rb3_3rd = inv_one_m_rb3_sq*inv_one_m_rb3;
-
-       dphi_drb[inode_box].S0 =  log(inv_one_m_rb3);
-       dphi_drb[inode_box].S1 =  rb2*inv_one_m_rb3;
-       dphi_drb[inode_box].S2 =  rb1*inv_one_m_rb3 +
-                             rb2*rb2*inv_one_m_rb3_sq / (8.0*PI);
-       dphi_drb[inode_box].S3 = rb0*inv_one_m_rb3 +
-                            rb1*rb2 * inv_one_m_rb3_sq +
-                            rb2*rb2*rb2*inv_one_m_rb3_3rd / (12.0*PI);
-       DOT_rho12 = 0.0;
-       DOT_rho22 = 0.0;
-       for (idim = 0; idim < Ndim; idim++) {
-           DOT_rho12 += rb1v[idim] * rb2v[idim];
-           DOT_rho22 += rb2v[idim] * rb2v[idim];
-   
-           dphi_drb[inode_box].V1[idim] = -rb2v[idim]*inv_one_m_rb3;
-           dphi_drb[inode_box].V2[idim] = -rb1v[idim]*inv_one_m_rb3 -
-                                    rb2*rb2v[idim]*inv_one_m_rb3_sq/(4.0*PI);
-       }
-
-       dphi_drb[inode_box].S2 += -DOT_rho22*inv_one_m_rb3_sq/(8.0*PI);
-       dphi_drb[inode_box].S3 += -DOT_rho12*inv_one_m_rb3_sq -
-                                 rb2*DOT_rho22*inv_one_m_rb3_3rd/(4.0*PI);
-
-  }
-
-  return;
-}
-/*****************************************************************************/
-/* pre_calc_dphi_drb_rb2: rho_bars are calculated at each wall & fluid node
-        more recent FM functional with better 0D crossover.*/
-
-void pre_calc_dphi_drb_rb2(struct RB_Struct *dphi_drb, double **x)
-{
- double rb0,rb1,rb2,rb3,rb1v[3],rb2v[3],inv_one_m_rb3,inv_one_m_rb3_sq,
-        inv_one_m_rb3_3rd,DOT_rho12,DOT_rho22;
- double rb0_l=0.0,rb1_l=0.0,rb2_l=0.0,rb3_l=0.0;
- double rb0_r=0.0,rb1_r=0.0,rb2_r=0.0,rb3_r=0.0;
- int idim, icomp, loc_inode;
- int inode_box;
- int i,imax,loc_i,loc_iv,junk;
- double rho,alpha,alpha_sq,alpha_cb,beta,gamma[3];
-
- for (inode_box=0; inode_box < Nnodes_box; inode_box++) {
-
-       junk = Phys2Unk_first[RHOBAR_ROSEN];
-       rb3 = x[junk][inode_box];
-       rb2 = x[junk+1][inode_box];
-       rb1 = x[junk+2][inode_box];
-       rb0 = x[junk+3][inode_box];
-
-       for (idim = 0; idim<Ndim; idim++) {
-         rb2v[idim] = x[junk+Nrho_bar_s+idim][inode_box];
-         rb1v[idim] = x[junk+Nrho_bar_s+Ndim+idim][inode_box];
-       }
-
-       DOT_rho12 = 0.0;
-       DOT_rho22 = 0.0;
-       for (idim = 0; idim < Ndim; idim++) {
-           DOT_rho12 += rb1v[idim] * rb2v[idim];
-           DOT_rho22 += rb2v[idim] * rb2v[idim];
-       }
-
-       inv_one_m_rb3 = 1.0 / (1.0 - rb3);
-       inv_one_m_rb3_sq = inv_one_m_rb3*inv_one_m_rb3;
-       inv_one_m_rb3_3rd = inv_one_m_rb3_sq*inv_one_m_rb3;
-
-       /* same as all old rosenfeld functional contributions */
-       dphi_drb[inode_box].S0 =  log(inv_one_m_rb3);
-       dphi_drb[inode_box].S1 =  rb2*inv_one_m_rb3;
-       dphi_drb[inode_box].S2 =  rb1*inv_one_m_rb3;
-       dphi_drb[inode_box].S3 = rb0*inv_one_m_rb3 +
-                                (rb1*rb2-DOT_rho12) * inv_one_m_rb3_sq;
-
-       for (idim = 0; idim < Ndim; idim++) {
-           dphi_drb[inode_box].V1[idim] = -rb2v[idim]*inv_one_m_rb3;
-           dphi_drb[inode_box].V2[idim] = -rb1v[idim]*inv_one_m_rb3;
-       }
-
-       /* new rosenfeld functional contributions */
-       if (rb2 > 1.e-15){
-             alpha=rb2-DOT_rho22/rb2;
-             beta = 1.0+DOT_rho22/(rb2*rb2);
-             for (idim = 0; idim < Ndim; idim++){
-                 gamma[idim] = rb2v[idim]/rb2;
-             }
-       }
-       else{
-           alpha=rb2;
-           beta = 1.0;
-           for (idim = 0; idim < Ndim; idim++) gamma[idim] = 0.0;
-       }
-       alpha_sq=alpha*alpha;
-       alpha_cb=alpha_sq*alpha;
-  
-       dphi_drb[inode_box].S2 += alpha_sq*beta*inv_one_m_rb3_sq/(8.0*PI);
-       dphi_drb[inode_box].S3 += alpha_cb*inv_one_m_rb3_3rd/(12.0*PI);
-
-       for (idim = 0; idim < Ndim; idim++) 
-           dphi_drb[inode_box].V2[idim] -= 
-                inv_one_m_rb3_sq*alpha_sq*gamma[idim]/(4.0*PI);
-
-  }
-
-  return;
-}
-/*****************************************************************************/
-/* d2phi_drb2_delta_rb:  calculate the derivatives of the dphi_drb w.r.t. rb   */
+/* d2phi_drb2_delta_rb_FMT1:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                 for the dphi_drb that use Delta_Fn Stencils (all but S3) */
 
-static struct RB_Struct d2phi_drb2_delta_rb(int junk, int jnode_box,double **x, 
+static struct RB_Struct d2phi_drb2_delta_rb_FMT1(int junk, int jnode_box,double **x, 
 					    double weight, int *offset, double *sign,
 					    double inv_rad, double inv_4pir, 
 					    double inv_4pirsq)
@@ -523,10 +394,10 @@ static struct RB_Struct d2phi_drb2_delta_rb(int junk, int jnode_box,double **x,
   return(tmp);
 }
 /****************************************************************************/
-/* d2phi_drb2_delta2_rb:  calculate the derivatives of the dphi_drb w.r.t. rb   */
+/* d2phi_drb2_delta_rb_FMT2:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                 for the dphi_drb that use Delta_Fn Stencils (all but S3) */
 
-static struct RB_Struct d2phi_drb2_delta2_rb(int junk, int jnode_box,double **x, 
+static struct RB_Struct d2phi_drb2_delta_rb_FMT2(int junk, int jnode_box,double **x, 
 					     double weight, int *offset, double *sign,
 					     double inv_rad, double inv_4pir, 
 					     double inv_4pirsq)
@@ -619,11 +490,115 @@ static struct RB_Struct d2phi_drb2_delta2_rb(int junk, int jnode_box,double **x,
   }
   return(tmp);
 }
+/*****************************************************************************/
+/* d2phi_drb2_delta_rb_FMT3:  calculate the derivatives of the dphi_drb w.r.t. rb   */
+/*                 for the dphi_drb that use Delta_Fn Stencils (all but S3) */
+
+static struct RB_Struct d2phi_drb2_delta_rb_FMT3(int junk, int jnode_box,double **x, 
+					    double weight, int *offset, double *sign,
+					    double inv_rad, double inv_4pir, 
+					    double inv_4pirsq)
+
+{
+  struct RB_Struct tmp;
+  double n[4+NDIM_MAX],n3sq,n3cb,n3_4th,n2sq,n2cb;
+  double inv_n3[5],DOT_22,DOT_12,fac1,fac2,fac3,vector[NDIM_MAX];
+  int idim,i2v,i1v;
+
+
+  n[3] = x[junk][jnode_box];
+  n[2] = x[junk+1][jnode_box];
+  n[1] = x[junk+2][jnode_box];
+  n[0] = x[junk+3][jnode_box];
+  
+  DOT_22 = 0.0;
+  DOT_12 = 0.0;
+  for (idim = 0; idim<Ndim; idim++) {
+    i2v=Nrho_bar_s+Ndim+idim;
+    i1v=Nrho_bar_s+idim;
+    n[i2v] = x[junk+Nrho_bar_s+idim][jnode_box];   
+    n[i1v]= x[junk+Nrho_bar_s+Ndim+idim][jnode_box];   
+    DOT_22 += n[i2v] * n[i2v];
+    DOT_12 += n[i1v] * n[i2v];
+  }
+
+  inv_n3[0] = (1.-n[3]);
+  inv_n3[1] = 1.0 / (1.0 - n[3]);
+  inv_n3[2] = inv_n3[1]*inv_n3[1];
+  inv_n3[3] = inv_n3[2]*inv_n3[1];
+  inv_n3[4] = inv_n3[3]*inv_n3[1];
+
+  n3sq=n[3]*n[3];
+  n3cb=n3sq*n[3];
+  n3_4th=n3cb*n[3];
+
+  n2sq=n[2]*n[2];
+  n2cb=n2sq*n[2];
+
+  if (n[3]>1.e-10){
+     fac1 = n[3]-2*(1.-n[3])*log(1.-n[3]);
+     fac2 = n[3]+(1.-n[3])*(1.-n[3])*log(1.-n[3]);
+     fac3 = -(inv_n3[2]/n3cb) + (inv_n3[3]/n3sq);
+
+     for (idim = 0; idim<Ndim; idim++) 
+       vector[idim] = offset[idim] * Esize_x[idim] * inv_rad;
+
+     tmp.S2 = weight*(inv_n3[1]*inv_4pir
+         + n[2]*fac2*Inv_4pi*inv_n3[2]/(6.*PI*n3sq));
+
+     for (idim = 0; idim<Ndim; idim++){
+        i2v=Nrho_bar_s+Ndim+idim;
+        tmp.S2 += weight * vector[idim]
+              *n[i2v]*fac2*Inv_4pi*inv_n3[2]/(6.*PI*n3sq);
+     }
+
+     tmp.S3 = weight * (inv_4pirsq*inv_n3[1] 
+         + inv_4pir*n[2]*inv_n3[2]
+         + Inv_4pi*n[1]*inv_n3[2]+(n2sq-DOT_22)*(
+      (-2.*fac2*fac3) + (fac1*inv_n3[2]/n3sq))/(12.*PI)  );
+
+     for (idim = 0; idim<Ndim; idim++){
+        i2v=Nrho_bar_s+Ndim+idim;
+        i1v=Nrho_bar_s+idim;
+        tmp.S3 += weight * inv_n3[2] * vector[idim] * ( 
+               n[i2v]*inv_4pir + n[i1v]
+              + n[2]*n[i2v]*( 
+              (-2.*fac2*fac3) + (fac1*inv_n3[2]/n3sq))/(6.*PI) ) ;
+     }
+
+     tmp.S0 = 0.0;  
+     tmp.S1 = weight*inv_n3[1];  
+
+     for (idim = 0; idim<Ndim; idim++){
+       tmp.V1[idim] = sign[idim]*(weight * inv_n3[1]) * vector[idim];
+     }
+
+     for (idim = 0; idim<Ndim; idim++){
+       i2v=Nrho_bar_s+Ndim+idim;
+       i1v=Nrho_bar_s+idim;
+       tmp.V2[idim] = sign[idim]*weight *
+                    ( 2.*n[i2v]*Inv_4pi*inv_n3[2]*fac2/(12.*PI*n3sq)
+                    - (-inv_4pir*inv_n3[1] - n[2]*Inv_4pi*fac2*inv_n3[2]/(6.*PI*n3sq))*vector[idim]);
+     }
+  }
+  else{
+    tmp.S2 = 0.0;
+    tmp.S3 = 0.0;
+    tmp.S0 = 0.0;
+    tmp.S1 = 0.0;
+    
+    for (idim = 0; idim<Ndim; idim++){
+      tmp.V1[idim] = 0.0;
+      tmp.V2[idim] = 0.0;
+    }
+  }
+  return(tmp);
+}
 /****************************************************************************/
-/* d2phi_drb2_theta_rb:  calculate the derivatives of the dphi_drb w.r.t. rb   */
+/* d2phi_drb2_theta_rb_FMT1:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                    for the dphi_drb that use Theta_Fn Stencils (S3)      */
 
-static struct RB_Struct d2phi_drb2_theta_rb(int junk, int jnode_box,double **x,double weight,
+static struct RB_Struct d2phi_drb2_theta_rb_FMT1(int junk, int jnode_box,double **x,double weight,
 					    int *offset)
 {
   struct RB_Struct tmp;
@@ -670,10 +645,10 @@ static struct RB_Struct d2phi_drb2_theta_rb(int junk, int jnode_box,double **x,d
   return (tmp);
 }
 /****************************************************************************/
-/* d2phi_drb2_theta2_rb:  calculate the derivatives of the dphi_drb w.r.t. rb   */
+/* d2phi_drb2_theta_rb_FMT2:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                    for the dphi_drb that use Theta_Fn Stencils (S3)      */
 
-static struct RB_Struct d2phi_drb2_theta2_rb(int junk, int jnode_box,double **x,double weight,
+static struct RB_Struct d2phi_drb2_theta_rb_FMT2(int junk, int jnode_box,double **x,double weight,
 					     int *offset)
 {
   struct RB_Struct tmp;
@@ -740,3 +715,236 @@ static struct RB_Struct d2phi_drb2_theta2_rb(int junk, int jnode_box,double **x,
   return (tmp);
 }
 /****************************************************************************/
+/* d2phi_drb2_theta_rb_FMT3:  calculate the derivatives of the dphi_drb w.r.t. rb   */
+/*                    for the dphi_drb that use Theta_Fn Stencils (S3)      */
+
+static struct RB_Struct d2phi_drb2_theta_rb_FMT3(int junk, int jnode_box,double **x,double weight,
+					    int *offset)
+{
+  struct RB_Struct tmp;
+  double n[4+NDIM_MAX],n3sq,n3cb,n3_4th,n2sq,n2cb;
+  double inv_n3[5],DOT_22,DOT_12,fac1,fac2,fac3;
+  int idim,i2v,i1v;
+
+
+  n[3] = x[junk][jnode_box];
+  n[2] = x[junk+1][jnode_box];
+  n[1] = x[junk+2][jnode_box];
+  n[0] = x[junk+3][jnode_box];
+  
+  DOT_22 = 0.0;
+  DOT_12 = 0.0;
+  for (idim = 0; idim<Ndim; idim++) {
+    i2v=Nrho_bar_s+Ndim+idim;
+    i1v=Nrho_bar_s+idim;
+    n[i2v] = x[junk+Nrho_bar_s+idim][jnode_box];   
+    n[i1v]= x[junk+Nrho_bar_s+Ndim+idim][jnode_box];   
+    DOT_22 += n[i2v] * n[i2v];
+    DOT_12 += n[i1v] * n[i2v];
+  }
+
+  inv_n3[0] = (1.-n[3]);
+  inv_n3[1] = 1.0 / (1.0 - n[3]);
+  inv_n3[2] = inv_n3[1]*inv_n3[1];
+  inv_n3[3] = inv_n3[2]*inv_n3[1];
+  inv_n3[4] = inv_n3[3]*inv_n3[1];
+
+  n3sq=n[3]*n[3];
+  n3cb=n3sq*n[3];
+  n3_4th=n3cb*n[3];
+
+  n2sq=n[2]*n[2];
+  n2cb=n2sq*n[2];
+
+  if (n[3]>1.e-10){
+    fac1 = n[3]-2*(1.-n[3])*log(1.-n[3]);
+    fac2 = n[3]+(1.-n[3])*(1.-n[3])*log(1.-n[3]);
+    fac3 = -(inv_n3[2]/n3cb) + (inv_n3[3]/n3sq);
+
+    tmp.S2 = weight * (
+           n[1]*inv_n3[2] 
+         + (n[2]*n[2]-DOT_22)*(fac1*inv_n3[2]/n3sq + 2.*fac2*fac3)/(12*PI));
+
+    tmp.S3 = weight * (
+           n[1]*inv_n3[2] 
+           + 2*(n[1]*n[2]-DOT_12)*inv_n3[3]
+           + ((n2cb-3.*n[2]*DOT_22)/(36.*PI))*(
+           + (((2.*log(1.-n[3])+1)*inv_n3[2])/n3sq) 
+           + (4.*fac1*fac3) + (6.*fac2*inv_n3[2]/n3_4th) 
+           + (inv_n3[4]/n3sq) )  );
+
+    tmp.S0 = weight * inv_n3[1];             
+    tmp.S1 = weight * n[2] * inv_n3[2];    
+
+    for (idim = 0; idim<Ndim; idim++){
+      i2v=Nrho_bar_s+idim+Ndim;
+      tmp.V1[idim] = - weight * n[i2v]*inv_n3[2];
+    }
+
+    for (idim = 0; idim<Ndim; idim++){
+      i1v=Nrho_bar_s+idim;
+      i2v=Nrho_bar_s+idim+Ndim;
+      tmp.V2[idim] = - weight * (n[i1v]*inv_n3[2]
+        + n[2]*n[i2v]*((fac1*inv_n3[2]/n3sq)+(2.*fac2*fac3))/(6.*PI) );
+    }
+  }
+  else{
+    tmp.S2 = 0.0;
+    tmp.S3 = 0.0;
+    tmp.S0 = 0.0;
+    tmp.S1 = 0.0;
+    
+    for (idim = 0; idim<Ndim; idim++){
+      tmp.V1[idim] = 0.0;
+      tmp.V2[idim] = 0.0;
+    }
+  }
+  return (tmp);
+}
+/****************************************************************************/
+void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,double *),
+                     int deriv_type,int sten_type,int inode_box,double **x,double weight, int *offset,
+                     struct RB_Struct *dphi_drb)
+{
+  double n[4+NDIM_MAX], inv_n3[5],dphi_drb_loc[4+NDIM_MAX];
+  double DOT_22,DOT_12;
+  int iunk,idim;
+
+  iunk = Phys2Unk_first[RHOBAR_ROSEN];
+  n[3] = x[iunk][inode_box];
+  n[2] = x[iunk+1][inode_box];
+  n[1] = x[iunk+2][inode_box];
+  n[0] = x[iunk+3][inode_box];
+  
+  for (idim = 0; idim<Ndim; idim++) {
+    n[4+idim+Ndim] = x[iunk+Nrho_bar_s+idim][inode_box];   
+    n[4+idim] = x[iunk+Nrho_bar_s+Ndim+idim][inode_box];   
+  }
+
+  inv_n3[0]= (1.0 - n[3]);
+  inv_n3[1] = 1.0 / inv_n3[0];
+  inv_n3[2] = inv_n3[1]*inv_n3[1];
+  inv_n3[3] = inv_n3[2]*inv_n3[1];
+  inv_n3[4] = inv_n3[3]*inv_n3[1];
+
+  DOT_22 = 0.0;
+  DOT_12 = 0.0;
+  for (idim = 0; idim < Ndim; idim++) {
+      DOT_22 += n[Nrho_bar_s+Ndim+idim] * n[Nrho_bar_s+Ndim+idim];
+      DOT_12 += n[Nrho_bar_s+idim] * n[Nrho_bar_s+Ndim+idim];
+  }
+
+  if (deriv_type=FIRST){
+       (*fp_FMTderiv)(n,DOT_12,DOT_22,inv_n3,dphi_drb_loc);
+        dphi_drb[inode_box].S0=dphi_drb_loc[0];
+        dphi_drb[inode_box].S1=dphi_drb_loc[1];
+        dphi_drb[inode_box].S2=dphi_drb_loc[2];
+        dphi_drb[inode_box].S3=dphi_drb_loc[3];
+        for (idim=0;idim<Ndim;idim++){
+           dphi_drb[inode_box].V1[idim]=dphi_drb_loc[4+idim];
+           dphi_drb[inode_box].V2[idim]=dphi_drb_loc[4+Ndim+idim];
+        }
+  }
+  else if (deriv_type=SECOND){
+/*     if (sten_type==DELTA_FN)
+     else if (sten_type==THETA_FN)*/
+  }
+  return;
+}
+/*********************************************************************/
+void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3, double *dphi_drb_loc)
+{
+   int idim;
+
+   dphi_drb_loc[0] = log(inv_n3[1]);
+   dphi_drb_loc[1] = n[2]*inv_n3[1];
+   dphi_drb_loc[2] = n[1]*inv_n3[1] + (n[2]*n[2]-DOT_22)*inv_n3[2] / (8.0*PI);
+   dphi_drb_loc[3] = n[0]*inv_n3[1] + n[1]*n[2]*inv_n3[2] +
+                            (n[2]*n[2]*n[2]-3.*n[2]*DOT_22 )*inv_n3[3]/(12.0*PI);
+
+   for (idim=0;idim<Ndim;idim++){
+       dphi_drb_loc[Nrho_bar_s+idim]= -n[Nrho_bar_s+Ndim+idim]*inv_n3[1];
+       dphi_drb_loc[Nrho_bar_s+idim+Ndim] = -n[Nrho_bar_s+idim]*inv_n3[1] -
+                           n[2]*n[Nrho_bar_s+Ndim+idim]*inv_n3[2]/(4.0*PI);
+   }
+   return;
+}
+/*******************************************************************************************/
+void FMT2_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3, double *dphi_drb_loc)
+{
+   int idim;
+   double alpha, gamma[NDIM_MAX],alpha_sq,alpha_cb,beta;
+
+   /* same as FMT1 contributions */
+   dphi_drb_loc[0] =  log(inv_n3[1]);
+   dphi_drb_loc[1] =  n[2]*inv_n3[1];
+   dphi_drb_loc[2] =  n[1]*inv_n3[1];
+   dphi_drb_loc[3] = n[0]*inv_n3[1] + (n[1]*n[2]-DOT_12) * inv_n3[2];
+
+   for (idim = 0; idim < Ndim; idim++) {
+       dphi_drb_loc[Nrho_bar_s+idim] = -n[Nrho_bar_s+Ndim+idim]*inv_n3[1];
+       dphi_drb_loc[Nrho_bar_s+Ndim+idim] = -n[Nrho_bar_s+idim]*inv_n3[1];
+   }
+
+   /* new contributions */
+   if (n[2] > 1.e-15){
+         alpha=n[2]-DOT_22/n[2];
+         beta = 1.0+DOT_22/(n[2]*n[2]);
+         for (idim = 0; idim < Ndim; idim++){
+             gamma[idim] = n[Nrho_bar_s+Ndim+idim]/n[2];
+         }
+   }
+   else{
+       alpha=n[2];
+       beta = 1.0;
+       for (idim = 0; idim < Ndim; idim++) gamma[idim] = 0.0;
+   }
+   alpha_sq=alpha*alpha;
+   alpha_cb=alpha_sq*alpha;
+
+   dphi_drb_loc[2] += alpha_sq*beta*inv_n3[2]/(8.0*PI);
+   dphi_drb_loc[3] += alpha_cb*inv_n3[3]/(12.0*PI);
+
+   for (idim = 0; idim < Ndim; idim++) {
+       dphi_drb_loc[Nrho_bar_s+Ndim+idim] -= inv_n3[2]*alpha_sq*gamma[idim]/(4.0*PI);
+   }
+   return;
+}
+/*******************************************************************************************/
+void FMT3_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3, double *dphi_drb_loc)
+{
+   int idim,iv1,iv2;
+;
+   dphi_drb_loc[0] =  log(inv_n3[1]);
+   dphi_drb_loc[1] =  n[2]*inv_n3[1];
+
+   if (n[3]>1.e-10){
+   dphi_drb_loc[2] =  n[1]*inv_n3[1] +
+                    (n[2]*n[2]-DOT_22)*inv_n3[2]*
+                    (n[3]+(1.-n[3])*(1.-n[3])*log(1.-n[3]))/(12.0*PI*n[3]*n[3]);
+
+
+   dphi_drb_loc[3] = n[0]*inv_n3[1] + (n[1]*n[2] - DOT_12)*inv_n3[2] 
+                + (((n[2]*n[2]*n[2]-3.0*n[2]*DOT_22)*inv_n3[2])/(36.*PI*n[3]*n[3]))* 
+           (   + 2.*(n[3]+(1.-n[3])*(1.-n[3])*log(1.-n[3]))*inv_n3[1] 
+               + (-2.*(1.-n[3])*log(1.-n[3])+n[3])
+               -2.*((n[3]+(1.-n[3])*(1.-n[3])*log(1.-n[3]))/n[3]) );
+  }
+  else{
+     dphi_drb_loc[2]=0.0;
+     dphi_drb_loc[3]=0.0;
+  } 
+  
+   for (idim=0;idim<Ndim;idim++){ 
+      iv1=Nrho_bar_s+idim;
+      iv2=Nrho_bar_s+Ndim+idim;
+      dphi_drb_loc[iv1] = -n[iv2]*inv_n3[1];
+      if (n[3]>1.e-10) 
+           dphi_drb_loc[iv2] = -n[iv1]*inv_n3[1] -
+                     n[2]*n[iv2]*inv_n3[2]*(n[3]+(1.0-n[3])*(1.0-n[3])*log(1.0-n[3]))/
+                                                                    (6.0*PI*n[3]*n[3]);
+      else dphi_drb_loc[iv2]=0.0;
+   }
+   return;
+}
+/*******************************************************************************************/

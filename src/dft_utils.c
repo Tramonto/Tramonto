@@ -151,7 +151,6 @@ void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
         weight = sten_weight[isten];
         weight_bulk=weight;
       
-
         if (fp_prefactor!=NULL) fac = (*fp_prefactor)(iunk,jcomp,offset);
         else fac=1.0;
         if (sten_type==THETA_CHARGE || sten_type==POLYMER_CR) fac=-1.0;

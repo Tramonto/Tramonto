@@ -29,44 +29,49 @@ double integrand_hs_freen_bulk(int iunk, int inode_box,double **x)
            scaled particle theory at a given node i.                      */
 double phispt(double *rho_bar)
 {  
-  int idim;
-  double rb0,rb1,rb2,rb3,rb2v[3],rb1v[3];
-  double phi_s=0.0,phi_v=0.0,dot_12,dot_22;
+  int idim,iv1,iv2;
+  double n[4+NDIM_MAX];
+  double phi_1=0.0,phi_2=0.0,phi_3,dot_12,dot_22;
     
-  rb0 = rho_bar[3];
-  rb1 = rho_bar[2]; 
-  rb2 = rho_bar[1];
-  rb3 = rho_bar[0];
+  n[0] = rho_bar[3];
+  n[1] = rho_bar[2]; 
+  n[2] = rho_bar[1];
+  n[3] = rho_bar[0];
   for (idim=0; idim<Ndim; idim++){
-    rb1v[idim] = rho_bar[Nrho_bar_s+Ndim+idim];
-    rb2v[idim] = rho_bar[Nrho_bar_s+idim];
+    iv1=Nrho_bar_s+idim;
+    iv2=Nrho_bar_s+Ndim+idim;
+    n[iv1] = rho_bar[iv2];
+    n[iv2] = rho_bar[iv1];
+  }
+  dot_12 = 0.0;
+  dot_22 = 0.0;
+  for (idim = 0; idim<Ndim; idim++){
+    iv1=Nrho_bar_s+idim;
+    iv2=Nrho_bar_s+Ndim+idim;
+    dot_12 += n[iv1]*n[iv2];
+    dot_22 += n[iv2]*n[iv2];
   }
 
-  if (rb3 < 1.0 && rb2 > 0.0){
+  if (n[3] < 1.0 && n[2] > 0.0 && n[3]>1.e-10){
 
-     if (Type_func==0)
-        phi_s = -rb0*log(1.0-rb3) + (rb1*rb2)/(1.0-rb3) +         
-                 (rb2*rb2*rb2)/(24.0*PI*(1.0-rb3)*(1.0-rb3));
-     else
-        phi_s = -rb0*log(1.0-rb3) + (rb1*rb2)/(1.0-rb3);
-   
-     dot_12 = 0.0;
-     dot_22 = 0.0;
-     for (idim = 0; idim<Ndim; idim++){
-         dot_12 += rb1v[idim]*rb2v[idim];
-         dot_22 += rb2v[idim]*rb2v[idim];
+     phi_1 = -n[0]*log(1.0-n[3]);
+     phi_2 = (n[1]*n[2] - dot_12)/(1.0-n[3]);
+     if (Type_func==FMT1){
+        phi_3 = (n[2]*n[2]*n[2] - 3.0*n[2]*dot_22)/(24.0*PI*(1.0-n[3])*(1.0-n[3]));
      }
-     if (Type_func==ROSENFELD)
-        phi_v = - dot_12/(1.0-rb3)
-                - rb2*dot_22/(8.0*PI*(1.0-rb3)*(1.0-rb3));
-     else if (Type_func==ROSENFELD2) 
-        phi_v = - dot_12/(1.0-rb3)
-                + POW_DOUBLE_INT(rb2-dot_22/rb2,3)/(24.0*PI*(1.0-rb3)*(1.0-rb3));
+     else if (Type_func==FMT2){
+        phi_3 = POW_DOUBLE_INT(n[2]-dot_22/n[2],3)/(24.0*PI*(1.0-n[3])*(1.0-n[3]));
+     }
+     else if (Type_func==FMT3){
+        phi_3 = (n[2]*n[2]*n[2] - 3.0*n[2]*dot_22)*
+                 (n[3]+(1.0-n[3])*(1.0-n[3])*log(1.0-n[3]))/
+                    (36.0*PI*n[3]*n[3]*(1.0-n[3])*(1.0-n[3]));
+     }
      else{
-       printf("problem with type of HS / ROSENFELD FUNCTIONAL");
+       printf("problem with type of HS FUNCTIONAL");
        exit(-1);
      }
-     return(phi_s + phi_v);
+     return(phi_1 + phi_2 + phi_3);
   }
   else  return(0.0);
 }

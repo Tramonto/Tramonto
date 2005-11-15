@@ -101,6 +101,11 @@
 
 /* a constant flag for the share_global_vec routine */
 #define UNINIT_VEC -200.0
+
+/* constants for first and second derivatives */
+#define FIRST  1
+#define SECOND 2
+
 /*
  * Stencil types refer to the integration schemes needed for different
  * non-local physics. 
@@ -172,11 +177,12 @@
  * These constants identify the functional choices (Type_func).
  */
 #define NONE       -1
-#define ROSENFELD  0
-#define ROSENFELD2 1
-#define LDA        2
-#define GHRM       3
-#define GVDWM      4
+#define FMT1       0
+#define FMT2       1
+#define FMT3       2
+#define LDA        3
+#define GHRM       4
+#define GVDWM      5
 
 /*
  *  These constants identify the type of polymer to be studied (Type_poly).
@@ -1252,8 +1258,15 @@ extern void fill_resid_and_matrix_P(double **, int, int, int);
 extern int  get_integration_pts(int, int, double ***, double **);
 
 extern void  pre_calc_dphi_drb_rb1(struct RB_Struct *, double **);
-
 extern void  pre_calc_dphi_drb_rb2(struct RB_Struct *, double **);
+extern void  pre_calc_dphi_drb_rb3(struct RB_Struct *, double **);
+
+extern void FMT1_1stderiv(double *,double,double,double *,double *);
+extern void FMT2_1stderiv(double *,double,double,double *,double *);
+extern void FMT3_1stderiv(double *,double,double,double *,double *);
+extern void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,double *),
+                     int,int,int,double **,double,int *,struct RB_Struct *);
+
 
 extern double load_nonlocal_hs_rosen_rb(int, int, int,int,int, int,
                        int *,double **, struct RB_Struct *, int);

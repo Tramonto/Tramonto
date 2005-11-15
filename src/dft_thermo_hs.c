@@ -21,7 +21,10 @@ calc_hs_properties_new:  This routine calculates the pressure and excess chemica
 double calc_hs_properties_new(double *betamu_hs,double *rho)
 {
    int icomp,i;
-   double sten_sum[4],betap_hs;
+   double sten_sum[4],betap_hs,n[4+NDIM_MAX];
+  
+   n[0]=Rhobar_b[3];  n[1]=Rhobar_b[2];
+   n[2]=Rhobar_b[1]; n[3]=Rhobar_b[0];
 
    for (icomp=0; icomp<Ncomp;icomp++){
       sten_sum[0]=1.;
@@ -35,7 +38,9 @@ double calc_hs_properties_new(double *betamu_hs,double *rho)
       }
    }
   
-   betap_hs = phispt(Rhobar_b);
+   betap_hs = -phispt(Rhobar_b);
+   for (i=0;i<4;i++) betap_hs += Dphi_Drhobar_b[i]*n[i];
+   betap_hs +=n[0];
 
    for (icomp=0; icomp<Ncomp; ++icomp) {
       betamu_hs[icomp]  =  Betamu_hs_ex[icomp]; 
@@ -186,8 +191,6 @@ void sum_rhobar(double rho,int icomp, double *rhobar)
            Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp]/6.0;
    area = PI*Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp];
 
-printf("COMPUTING RHOBARS WITH Fac_overlap_hs[%d]=%9.6f\n",icomp,Fac_overlap_hs[icomp]);
-
    rhobar[0] += Fac_overlap_hs[icomp]*vol*rho;
    rhobar[1] += Fac_overlap_hs[icomp]*area*rho;
    rhobar[2] += Fac_overlap_hs[icomp]*area*rho*Inv_4pir[icomp];
@@ -201,23 +204,32 @@ printf("COMPUTING RHOBARS WITH Fac_overlap_hs[%d]=%9.6f\n",icomp,Fac_overlap_hs[
 /*****************************************************************************/
 void dphi_drb_bulk_thermo(double *rhobar,double *dphi_drb)
 {
- double rb0,rb1,rb2,rb3,rb1v[3],rb2v[3],inv_one_m_rb3,inv_one_m_rb3_sq,
-        inv_one_m_rb3_3rd,DOT_rho12;
+ double n[4+NDIM_MAX], inv_n3[5],DOT_12,DOT_22;
+ int idim;
 
-  rb3=rhobar[0]; rb2=rhobar[1];
-  rb1=rhobar[2]; rb0=rhobar[3];
+  n[3]=rhobar[0]; n[2]=rhobar[1];
+  n[1]=rhobar[2]; n[0]=rhobar[3];
+  for (idim=0;idim<Ndim;idim++){
+        n[Nrho_bar_s+Ndim+idim]=0.;
+        n[Nrho_bar_s+idim]=0.;
+  }
 
-  inv_one_m_rb3 = 1.0 / (1.0 - rb3);
-  inv_one_m_rb3_sq = inv_one_m_rb3*inv_one_m_rb3;
-  inv_one_m_rb3_3rd = inv_one_m_rb3_sq*inv_one_m_rb3;
+  inv_n3[0] = (1.0 - n[3]);
+  inv_n3[1] = 1.0 / inv_n3[0];
+  inv_n3[2] = inv_n3[1]*inv_n3[1];
+  inv_n3[3] = inv_n3[2]*inv_n3[1];
+  inv_n3[4] = inv_n3[3]*inv_n3[1];
 
-  dphi_drb[0] = log(inv_one_m_rb3);
-  dphi_drb[1] = rb2*inv_one_m_rb3;
-  dphi_drb[2] = rb1*inv_one_m_rb3 +
-                     rb2*rb2*inv_one_m_rb3_sq / (8.0*PI);
-  dphi_drb[3] = rb0*inv_one_m_rb3 +
-                     rb1*rb2 * inv_one_m_rb3_sq +
-                     rb2*rb2*rb2*inv_one_m_rb3_3rd / (12.0*PI);
+  DOT_22=0.;
+  DOT_12=0.;
+
+  if (Type_func==FMT1)
+         FMT1_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
+  else if (Type_func==FMT2)
+         FMT2_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
+  else if (Type_func==FMT3)
+         FMT3_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
+
   return;
 }
 /*************************************************************************

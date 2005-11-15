@@ -188,10 +188,10 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_func);
   }
   MPI_Bcast(&Type_func,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_func ==0 || Type_func == 1){
+  if (Type_func >=0 && Type_func <= 2){
     Sten_Type[DELTA_FN]=Sten_Type[THETA_FN]=TRUE;
   }
-  else if (Type_func >1 || Type_func<-1){
+  else if (Type_func >2 || Type_func<-1){
     if (Proc==0) printf("ERROR Type_hs out of range - should be -1,0,1\n");
     exit(-1);
   }
@@ -1958,7 +1958,7 @@ void error_check(void)
      }
   }
 
-  if ((Type_func > 1) || (Type_func < -1)){
+  if ((Type_func > 2) || (Type_func < -1)){
      printf ("\nSorry, your choice for the hs functional is not yet available\n");
      printf ("Type_func: %d\n", Type_func);
      printf ("Reset Type_func to 0 for the Rosenfeld functional\n");
