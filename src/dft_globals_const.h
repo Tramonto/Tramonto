@@ -1097,6 +1097,7 @@ extern
 struct  Aztec_Struct Aztec; /* Structure to hold all the Aztec info          */
 extern
 int     Load_Bal_Flag; /* Flag specifying type of laod balancing to do       */
+extern int L_Schur; /* Switch to turn on Schur solvers */
 
 
 /* Nonlinear Solver info */
@@ -1265,7 +1266,7 @@ extern void FMT1_1stderiv(double *,double,double,double *,double *);
 extern void FMT2_1stderiv(double *,double,double,double *,double *);
 extern void FMT3_1stderiv(double *,double,double,double *,double *);
 extern void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,double *),
-                     int,int,int,double **,double,int *,struct RB_Struct *);
+                                 int,double **,struct RB_Struct *);
 
 
 extern double load_nonlocal_hs_rosen_rb(int, int, int,int,int, int,
@@ -1306,7 +1307,7 @@ extern double load_polyTC_cavityEL(int,int,int,int,int,int *,double **,int);
 extern void setup_polymer_cr(void);
 
 extern double constant_boundary(int, int);
-extern int find_jzone(int);
+extern int find_jzone(int,int);
 
 /*  MESH TRANSLATION ROUTINES */
 extern int  map_0th_plane(int, int);

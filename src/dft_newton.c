@@ -61,7 +61,7 @@ int solve_problem(double **x, double **x2)
   /* Construct dft_Linprobmgr with information on number of unknowns*/
   int is_poly = 0;
   int debug = 0;
- if (Type_poly == CMS && Type_coul==NONE) {
+ if (L_Schur && Type_poly == CMS && Type_coul==NONE) {
    
    count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
    for (iunk=0;iunk<Nunk_per_node;iunk++){
@@ -91,7 +91,7 @@ int solve_problem(double **x, double **x2)
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
  }
- else if (Type_func != NONE && !Mesh_coarsening) {
+ else if (L_Schur && Type_func != NONE && !Mesh_coarsening) {
 
    count_density=count_indnonlocal=count_depnonlocal=0;
    one_particle_size=FALSE;
@@ -225,7 +225,7 @@ int newton_solver(double** x, void* con_ptr) {
       printf("delta_x[%d][%d] = %g\n", iunk, ibox,delta_x[iunk][ibox]);
       }
     */
-  //dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);
+  /*dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);*/
     
     if (con_ptr != NULL) converged2 =
       continuation_hook_conwrap(x, delta_x, con_ptr, Newton_rel_tol, Newton_abs_tol);

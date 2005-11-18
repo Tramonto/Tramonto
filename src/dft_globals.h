@@ -364,6 +364,8 @@ int     Num_Proc; /* The total number of processors used in this calculation */
 int     Proc;     /* The unique  processor number (from 0 to Num_Proc-1)     */
 struct  Aztec_Struct Aztec; /* Structure to hold all the Aztec info          */
 int     Load_Bal_Flag; /* Flag specifying type of laod balancing to do       */
+int L_Schur; /* Switch to turn on Schur solvers */
+
 
 /* Nonlinear Solver info */
 int Max_Newton_iter;    /* Maximum # of Newton iterations (10 - 30)          */

@@ -136,6 +136,8 @@ void compute_bulk_nonlocal_hs_properties(char *output_file1)
      Dphi_Drhobar_LBB[iunk]=0.0;
      Dphi_Drhobar_RTF[iunk]=0.0;
   }
+if (Proc==30) printf("Proc 30 sets Rhobar array to %g %g %g %g %g %g %g %g %g %g  Nrho_bar=%d\n",
+       Rhobar_b[0],Rhobar_b[1],Rhobar_b[2],Rhobar_b[3],Rhobar_b[4],Rhobar_b[5],Rhobar_b[6],Rhobar_b[7],Rhobar_b[8],Rhobar_b[9],Nrho_bar);
 
   if (Type_poly==WTC) nloop=Nseg_tot;
   else             nloop=Ncomp;

@@ -217,7 +217,7 @@ void free_mesh_arrays(void)
    safe_free((void *) &Nwall_owners);
    safe_free((void *) &Wall_owners);
 
-   if (Mesh_coarsening != FALSE || L1D_bc) safe_free((void *) &Mesh_coarsen_flag);
+   /*if (Mesh_coarsening != FALSE || L1D_bc)*/ safe_free((void *) &Mesh_coarsen_flag);
 
    safe_free((void *) &Fast_fill_TF);
    if (Ipot_ff_c == COULOMB) safe_free((void *) &Dielec);
@@ -480,7 +480,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
      /* set mesh coarsening flag for residual zones */
 
-     if (Mesh_coarsening !=FALSE || L1D_bc) set_mesh_coarsen_flag();
+     /*if (Mesh_coarsening !=FALSE || L1D_bc)*/ set_mesh_coarsen_flag();
 
      safe_free((void *) &elem_zones);
 

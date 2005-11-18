@@ -1683,11 +1683,13 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
+    fscanf(fp,"%d ", &L_Schur);
     fscanf(fp,"%d ", &Az_solver);
     if (Az_solver == 0) fscanf(fp,"%d ", &Az_kspace);
     else Az_kspace=-1;
     fprintf(fp2,"%d  %d ",Az_solver, Az_kspace);
   }
+  MPI_Bcast(&L_Schur,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Az_solver,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Az_kspace,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Proc==0) {

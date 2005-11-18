@@ -77,15 +77,16 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                     (1, Nnodes_box, sizeof(struct RB_Struct));
 
      if (Type_func==FMT1){
-        for (inode_box=0;inode_box<Nnodes_box; inode_box++)
-          calc_FMT_derivatives(&FMT1_1stderiv,FIRST,0,inode_box,x,0., NULL,dphi_drb);
+        for (inode_box=0;inode_box<Nnodes_box; inode_box++){
+          calc_FMT_derivatives(&FMT1_1stderiv,inode_box,x,dphi_drb);
+        }
      }
      else if (Type_func==FMT2)
         for (inode_box=0;inode_box<Nnodes_box; inode_box++)
-          calc_FMT_derivatives(&FMT2_1stderiv,FIRST,0,inode_box,x,0., NULL,dphi_drb);
+          calc_FMT_derivatives(&FMT2_1stderiv,inode_box,x,dphi_drb);
      else if (Type_func==FMT3)
         for (inode_box=0;inode_box<Nnodes_box; inode_box++)
-          calc_FMT_derivatives(&FMT3_1stderiv,FIRST,0,inode_box,x,0., NULL,dphi_drb);
+          calc_FMT_derivatives(&FMT3_1stderiv,inode_box,x,dphi_drb);
   }
 
 
@@ -116,6 +117,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       mesh_coarsen_flag_i = 0;
 
     for (iunk=iunk_start; iunk<iunk_end; iunk++) {
+
 
 /*if (mesh_coarsen_flag_i != FLAG_BULK && !Zero_density_TF[inode_box][iunk]){
         printf("Proc: %d iunk=%d loc_inode: %d of %d : inode_box=%d and mesh_coarsen_flag: %d\n",
@@ -441,11 +443,11 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
     
 
       /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-/*  if (inode_box==50){
+/*  if (Proc==30 && loc_inode==20){
     if (Unk2Phys[iunk]==DENSITY){
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge;
-          printf("loc_inode=%d  iunk=%d  resid_el=%9.6f (%9.6f %9.6f %9.6f %9.6f) resid_hs1=%9.6f resid_hs2=%9.6f  resid_WTC1=%9.6f",
-                                 loc_inode,iunk,resid_el,resid_ig,resid_vext,resid_mu,resid_charge,resid_hs1,resid_hs2,resid_WTC1);
+          printf("loc_inode=%d  global_node=%d iunk=%d  resid_el=%9.6f (%9.6f %9.6f %9.6f %9.6f) resid_hs1=%9.6f resid_hs2=%9.6f  resid_WTC1=%9.6f",
+                                 loc_inode,L2G_node[loc_inode],iunk,resid_el,resid_ig,resid_vext,resid_mu,resid_charge,resid_hs1,resid_hs2,resid_WTC1);
     }
     else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
        printf("loc_inode=%d : iunk_rbar=%d resid_rhobars=%9.6f  resid_rhobarv=%9.6f ",

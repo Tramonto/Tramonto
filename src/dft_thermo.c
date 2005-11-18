@@ -164,9 +164,9 @@ printf("iseg=%d  icomp=%d Nmer_t_total=%d Rho_b=%9.6f Rho_seg_b=%9.6f\n",
       }
       else{
          betap_hs = calc_hs_properties(betamu_hs,Rho_b);
-printf("old pressure calculates %9.6f\n",betap_hs);
+if (Proc==0) printf("old pressure calculates %9.6f\n",betap_hs);
          betap_hs_tmp = calc_hs_properties_new(betamu_hs,Rho_b);
-printf("new pressure calculates %9.6f\n",betap_hs_tmp);
+if (Proc==0) printf("new pressure calculates %9.6f\n",betap_hs_tmp);
          Betap += betap_hs;
          for (icomp=0; icomp<Ncomp; icomp++){ 
              Betamu[icomp] += betamu_hs[icomp];

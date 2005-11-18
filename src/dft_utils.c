@@ -105,7 +105,7 @@ void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
 
   for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
 
-  if (jzone_flag) jzone = find_jzone(izone);
+  if (jzone_flag) jzone = find_jzone(izone,inode_box);
   else            jzone = izone;
 
   if (Type_poly==WTC) loop_max=Nseg_tot;
@@ -208,7 +208,7 @@ void resid_and_Jac_sten_fill (int sten_type, double **x, int iunk, int junk,
 
   for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
 
-  if (jzone_flag) jzone = find_jzone(izone);
+  if (jzone_flag) jzone = find_jzone(izone,inode_box);
   else            jzone = izone;
 
   if (Nlists_HW <= 2) jlist = 0;
@@ -287,7 +287,7 @@ double  HW_boundary_weight(int icomp,int ilist, double *hw_weight,
 /* find_jzone:  this little subroutine sets jzone for any izone given the options in the
 code.  Previously this little piece of code appeared in many places making it rather
 bug prone. */
-int find_jzone(int izone)
+int find_jzone(int izone,int inode_box)
 {
   int jzone;
   if (Coarser_jac > 0 && izone<Nzone-1){
@@ -300,7 +300,13 @@ int find_jzone(int izone)
       else if (Coarser_jac == 4) jzone = Nzone-2;
       else if (Coarser_jac == 5) jzone = Nzone-1;
   }
-  else                         jzone = izone;
+  else if (Coarser_jac==0){
+     if (Mesh_coarsening) jzone = izone;
+     else                 jzone = Mesh_coarsen_flag[inode_box];
+  }
+  else{
+    jzone=izone;
+  }
   return jzone;
 }
 /****************************************************************************/

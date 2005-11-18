@@ -389,8 +389,7 @@ double load_polymer_cr(int sten_type, int iunk, int loc_inode,int inode_box,
                      double **x, int resid_only_flag)
 {
    double resid_sum;
-   int inode_box,jzone_flag;
-   inode_box=L2B_node[loc_inode];
+   int jzone_flag;
 
    jzone_flag=FALSE;
 
