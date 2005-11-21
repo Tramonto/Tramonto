@@ -805,7 +805,7 @@ static struct RB_Struct d2phi_drb2_theta_rb_FMT3(int junk, int jnode_box,double 
 void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,double *),
                      int inode_box,double **x, struct RB_Struct *dphi_drb)
 {
-  double n[4+2*NDIM_MAX], inv_n3[5],dphi_drb_loc[4+NDIM_MAX];
+  double n[4+2*NDIM_MAX], inv_n3[5],dphi_drb_loc[4+2*NDIM_MAX];
   double DOT_22,DOT_12;
   int iunk,idim;
 
