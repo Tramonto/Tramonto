@@ -177,8 +177,8 @@ static int first=TRUE,loc_inode;
         printf("\t----------------------------------------\n");
         print_to_screen(omega_sum,"TOTAL GRAND POTENTIAL");
         print_to_screen(omega_s_sum,"TOTAL SURF EX FREE ENERGY");
-        print_to_file(fp,omega_sum,"omega",first);
-        print_to_file(fp,omega_s_sum,"omega_s",first);
+        if (fp !=NULL) print_to_file(fp,omega_sum,"omega",first);
+        if (fp !=NULL) print_to_file(fp,omega_s_sum,"omega_s",first);
         printf("---------------------------------------------------------------\n");
       }
     }
@@ -200,7 +200,7 @@ static int first=TRUE,loc_inode;
        if (Proc==0 && Iwrite != NO_SCREEN){
            printf("\t----------------------------------------\n");
            print_to_screen(omega_s_sum,"FREE ENERGY REL TO BULK");
-           print_to_file(fp,omega_s_sum,"del_omega",first);
+           if (fp !=NULL) print_to_file(fp,omega_s_sum,"del_omega",first);
            printf("---------------------------------------------------------------\n");
        }
     }

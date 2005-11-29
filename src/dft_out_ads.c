@@ -24,7 +24,7 @@ void calc_adsorption(FILE *fp,double **x)
  if (Proc==0 && Iwrite != NO_SCREEN){
      for (icomp=0;icomp<Ncomp;icomp++){
           print_to_screen_comp(icomp,ads[icomp],"ADSORPTION");
-          print_to_file_comp(fp,icomp,ads[icomp],"ads",first);
+          if (fp !=NULL) print_to_file_comp(fp,icomp,ads[icomp],"ads",first);
       }
   }    
 
@@ -39,7 +39,7 @@ void calc_adsorption(FILE *fp,double **x)
   if (Proc==0 && Iwrite != NO_SCREEN){
      for (icomp=0;icomp<Ncomp;icomp++){
         print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
-        print_to_file_comp(fp,icomp,ads_ex[icomp],"ads_ex",first);
+        if (fp !=NULL) print_to_file_comp(fp,icomp,ads_ex[icomp],"ads_ex",first);
      }    
   }
   if (first) first=FALSE;
@@ -57,7 +57,7 @@ void calc_fluid_charge(FILE *fp,double **x)
 
  if (Proc==0 && Iwrite != NO_SCREEN){
       print_to_screen(Temporary_sum,"CHARGE IN FLUID");
-      print_to_file(fp,Temporary_sum,"charge",first);
+      if (fp !=NULL) print_to_file(fp,Temporary_sum,"charge",first);
       printf("---------------------------------------------------------------\n");
  }
  if (first) first=FALSE;
