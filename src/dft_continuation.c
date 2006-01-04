@@ -642,7 +642,14 @@ void assign_parameter_tramonto(int cont_type, double param)
                          if (Type_poly != NONE && Type_poly != WTC) setup_polymer_cr();
                          recalculate_stencils();
                          break;
-      case CONT_RHO_ALL: for (i=0; i<Ncomp;i++)  Rho_b[i]= param;    break;
+      case CONT_RHO_ALL: 
+             if (Type_poly==NONE)    for (i=0; i<Ncomp;i++)  Rho_b[i]= param;   
+             else if (Npol_comp ==1){
+                  for (i=0; i<Ncomp;i++)  Rho_b[i]= 0.;   
+                  for (i=0; i<Nseg_tot;i++) Rho_b[Unk2Comp[i]] += param/Nseg_tot;    
+             }
+             break; 
+                 
       case CONT_LOG_RHO_0: Rho_b[0]        = exp(param);    break;
       case CONT_LOG_RHO_ALL: for (i=0;i<Ncomp;i++) Rho_b[i]= exp(param);    break;
       case CONT_SCALE_RHO: scale_save = Scale_fac;
@@ -923,6 +930,8 @@ void assign_bif_parameter_conwrap(double tp_param)
 static double get_init_param_value(int cont_type)
 {
   int i,j; 
+  double param,sum;
+
   switch(cont_type){
       case CONT_MESH: 
        printf("ERROR: Continuation Library cannot do mesh changes\n");
@@ -932,11 +941,24 @@ static double get_init_param_value(int cont_type)
 
       case CONT_RHO_0:   return Rho_b[2];
       case CONT_RHO_ALL:   
-             for (i=0;i<Ncomp;i++) if (Rho_b[i] != Rho_b[0]){
-                 printf("ERROR: need all Rho_b to be the same for CONT_RHO_ALL\n"); 
-                 exit(-1);
+             if (Type_poly ==NONE){
+                for (i=0;i<Ncomp;i++) if (Rho_b[i] != Rho_b[0]){
+                   printf("ERROR: need all Rho_b to be the same for CONT_RHO_ALL\n"); 
+                   exit(-1);
+                }
+                param=Rho_b[0];
              }
-             return Rho_b[0];
+             else if (Npol_comp ==1){ /* assume we are continuing in one molecular density */
+                sum=0.;
+                for (i=0;i<Ncomp;i++) sum += Rho_seg_b[i];
+                param=sum;
+printf("SETTING INITIAL PARAMETER TO %9.6f\n",sum);
+             }
+             else{
+                printf("ERROR: continue either with identical initial densities or with a single molecule\n");
+                exit(-1);
+             }
+             return param;
 
       case CONT_LOG_RHO_0: return log(Rho_b[0]);
 

@@ -642,12 +642,10 @@ double calc_local_pressure(double **x, int iden_first, int inode_box)
    /* calculate the hard sphere diamtere ... this can be 
       turned into a T-dependent diameter */
 
-   for (icomp=0; icomp<Ncomp; ++icomp) Hs_diam[icomp] = 1.0;  
-
    /*  calculate the constants xsi and introduce some shorthand */
 
    for (icomp=0; icomp<Ncomp; ++icomp) {
-      hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
+      hs_diam_cubed = POW_DOUBLE_INT(HS_diam[icomp],3);
       rho = x[iden_first+icomp][inode_box];
       xsi0 +=pi6 * rho * hs_diam_cubed;
       xsi1 +=pi6 * rho * hs_diam_cubed * Sigma_ff[icomp][icomp];

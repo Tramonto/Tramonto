@@ -30,7 +30,7 @@ double integrand_CMS_freen_bulk(int iunk,int inode_box, double **x)
 
      sum=0;
      for (jcomp=0;jcomp<Ncomp;jcomp++){
-       int_stencil_bulk(POLYMER_CR,icomp,jcomp);
+       int_stencil_bulk(POLYMER_CR,icomp,jcomp,NULL);
        sum+=Temporary_sum*Rho_b[jcomp];
      }
 

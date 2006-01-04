@@ -349,6 +349,9 @@ int     Type_attr;    /* Type for handling attractions                       */
 int     Type_coul;    /* Type for handling Coulombics                        */
 int     Type_poly;    /* Type for handling polymers                          */
 
+/* Hard core type */
+double   HS_diam[NCOMP_MAX];  /* Hard sphere diameters for the calculation */
+
 /* Startup Info */
 int     Restart;      /* Logical that switches between new prof & restart file*/
 int     Restart_field[NEQ_TYPE];

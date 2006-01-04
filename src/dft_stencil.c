@@ -1074,13 +1074,10 @@ static double calc_sten_rad(int isten, int icomp, int jcomp)
 {
   switch (isten) {
     case DELTA_FN:
-        if (Sten_Type[POLYMER_CR])
-/*          return (Sigma_ff[icomp][jcomp]);*/
-          return (Bond_ff[icomp][jcomp]);
-        else
-          return (Sigma_ff[icomp][icomp]/2.0);
+        if (Sten_Type[POLYMER_CR]) return (Bond_ff[icomp][jcomp]);
+        else                       return (HS_diam[icomp]/2.0);
     case THETA_FN:
-        return (Sigma_ff[icomp][icomp]/2.0);
+        return (HS_diam[icomp]/2.0);
     case U_ATTRACT:
         return (Cut_ff[icomp][jcomp]);
     case THETA_CHARGE:
@@ -1091,7 +1088,6 @@ static double calc_sten_rad(int isten, int icomp, int jcomp)
         return (1.5*Sigma_ff[icomp][icomp]);   /* fix this later */
     case THETA_FN_SIG:
         return (Sigma_ff[icomp][icomp]);
-/*        return (Bond_ff[icomp][icomp]);*/
     case DELTA_FN_BOND:
         return (Bond_ff[icomp][jcomp]);
   }
@@ -1103,12 +1099,10 @@ static double calc_sten_vol(int isten, int i, int j)
   double r_min,r_cut,vol_sten,r_max;
   switch (isten) {
     case DELTA_FN:
-        if (Sten_Type[POLYMER_CR])
-          return (1.0);
-        else
-          return (PI * POW_DOUBLE_INT(Sigma_ff[i][i],2));
+        if (Sten_Type[POLYMER_CR]) return (1.0);
+        else                       return (PI * POW_DOUBLE_INT(HS_diam[i],2));
     case THETA_FN:
-        return (PI * POW_DOUBLE_INT(Sigma_ff[i][i],3)/6.0);
+         return (PI * POW_DOUBLE_INT(HS_diam[i],3)/6.0);
     case U_ATTRACT:
         r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
         r_cut = Cut_ff[i][j];

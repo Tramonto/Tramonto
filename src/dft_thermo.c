@@ -62,9 +62,9 @@ void  thermodynamics( char *output_file1, int print_flag)
       for (icomp=0;icomp<Ncomp;icomp++) Fac_overlap_hs[icomp]=1.0;
    }
 
-Fac_overlap_hs[0]=1.;
+/*Fac_overlap_hs[0]=1.;
 Fac_overlap_hs[1]=1.;
-/*    Fac_overlap[0][0]=1.0;
+    Fac_overlap[0][0]=1.0;
     Fac_overlap[1][0]=1.0;
     Fac_overlap[0][1]=1.0;
     Fac_overlap[1][1]=1.0;*/
@@ -116,7 +116,7 @@ Fac_overlap_hs[1]=1.;
                     icomp,icomp,icomp,Sigma_ff[icomp][icomp]);
          exit(-1);
      }
-        Inv_rad[icomp] = 2.0 / Sigma_ff[icomp][icomp];
+        Inv_rad[icomp] = 2.0 / HS_diam[icomp];
         Inv_4pir[icomp] = Inv_4pi * Inv_rad[icomp];
         Inv_4pirsq[icomp] = Inv_4pir[icomp] * Inv_rad[icomp];
      }
@@ -135,11 +135,15 @@ printf("iseg=%d  icomp=%d Nmer_t_total=%d Rho_b=%9.6f Rho_seg_b=%9.6f\n",
      compute_bulk_nonlocal_wtc_properties(output_file1);
   }
 
-  if (Type_func != NONE) compute_bulk_nonlocal_hs_properties(output_file1);
 
-   /* Now find pressure and chemical potential contributions for the fluid of interest */
+  if(Type_func != NONE){
+      compute_bulk_nonlocal_hs_properties(output_file1);
+  }
 
-     /* start with ideal gas contributions - need this for all fluids. */ 
+
+  /* Now find pressure and chemical potential contributions for the fluid of interest */
+
+  /* start with ideal gas contributions - need this for all fluids. */ 
 
    Betap=calc_ideal_gas(Rho_b,Betamu);
    for (icomp=0;icomp<Ncomp;icomp++) Betamu_id[icomp]=Betamu[icomp];
@@ -155,6 +159,8 @@ printf("iseg=%d  icomp=%d Nmer_t_total=%d Rho_b=%9.6f Rho_seg_b=%9.6f\n",
    /* now add in the hard sphere contributions */
   
    if (Type_func!= NONE){
+
+
       if (Lsteady_state){
          betap_hs = calc_hs_properties(betamu_hs,Rho_b_LBB);
          for (icomp=0; icomp<Ncomp; icomp++) Betamu_LBB[icomp] += betamu_hs[icomp];    
@@ -176,7 +182,7 @@ if (Proc==0) printf("new pressure calculates %9.6f\n",betap_hs_tmp);
    }
 
      /* now add in the mean field attraction contributions */
-   if (Type_attr == LJ_WCA_CS){
+   if (Type_attr != NONE){
       if (Lsteady_state){
          betap_att = calc_att_properties(Betamu_att,Rho_b_LBB);
          for (icomp=0; icomp<Ncomp; icomp++) 

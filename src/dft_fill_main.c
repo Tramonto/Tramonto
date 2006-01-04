@@ -46,7 +46,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
    int numEntries,nodeIndices[3],iloop;
    double resid_hs1,resid_hs2,resid_rhobars,resid_rhobarv,resid_uatt;
    double resid_ig,resid_vext,resid_mu,resid_charge,resid_deltac;
-   double resid_poisson,resid_transport,resid_el,resid_cavity,resid_bondwtc,resid_WTC1;
+   double resid_poisson,resid_transport,resid_el,resid_cavity,resid_bondwtc,resid_WTC;
 
   double fac_temp,gradphi,fac,fac_a11;
 
@@ -125,7 +125,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 }*/
        resid_ig = resid_vext = resid_hs1 = resid_hs2 = resid_uatt = resid_mu = resid_charge
                 = resid_poisson = resid_deltac = resid_transport = resid_rhobars = resid_rhobarv 
-                = resid_cavity= resid_bondwtc=resid_WTC1=0.0;
+                = resid_cavity= resid_bondwtc=resid_WTC=0.0;
 
       if (mesh_coarsen_flag_i == FLAG_1DBC){
          node_box_to_ijk_box(inode_box,ijk_box);
@@ -238,23 +238,21 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                if (Lsteady_state == FALSE) { 
                   if (Iliq_vap < 10 ){
                      if (Type_poly==WTC)  resid_mu -= log(Rho_seg_b[iseg]);
-                     else{               resid_mu -= log(Rho_b[icomp]);
-                     }
-
-                  
+                     else                resid_mu -= log(Rho_b[icomp]);
+                     
                    if (Ipot_ff_n != IDEAL_GAS) resid_mu -= Betamu_hs_ex[icomp];
                    if (Ipot_ff_n == LJ12_6)    resid_mu -= Betamu_att[icomp];
-                   if (Type_poly==WTC)           resid_mu -= Betamu_wtc[iseg];
+                   if (Type_poly==WTC)         resid_mu -= Betamu_wtc[iseg];
                    if (Ipot_ff_c == COULOMB && Sten_Type[THETA_CHARGE]) resid_mu += Deltac_b[icomp];
                   }
                   else{
                       if (Type_poly==WTC) resid_mu = -Betamu_seg[iseg];
-                      else              resid_mu = -Betamu[icomp];
+                      else                resid_mu = -Betamu[icomp];
                   }
                }
                else{                             /* Lsteady_state == TRUE */
                   if(Type_poly==WTC)  junk=Phys2Unk_first[DIFFUSION] + iseg;
-                  else              junk=Phys2Unk_first[DIFFUSION] + icomp;
+                  else                junk=Phys2Unk_first[DIFFUSION] + icomp;
                   resid_mu = -x[junk][inode_box];
                   mat_value=-1.0;
                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_value);         
@@ -327,11 +325,11 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
               }   
 
               if (Type_poly==WTC){
-                   resid_WTC1+=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
+                   resid_WTC+=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
                                                  izone,ijk_box,x,resid_only_flag);
-                   resid_WTC1+=load_polyTC_bondEL(iunk,loc_inode,inode_box,icomp,
+                   resid_WTC+=load_polyTC_bondEL(iunk,loc_inode,inode_box,icomp,
                                                  izone,ijk_box,x,resid_only_flag);
-                   resid_WTC1+=load_polyTC_cavityEL(iunk,loc_inode,inode_box,icomp,
+                   resid_WTC+=load_polyTC_cavityEL(iunk,loc_inode,inode_box,icomp,
                                                  izone,ijk_box,x,resid_only_flag);
               }
 
@@ -443,11 +441,10 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
     
 
       /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-/*  if (Proc==30 && loc_inode==20){
+/*if (loc_inode==0 && iunk<3){
     if (Unk2Phys[iunk]==DENSITY){
-       resid_el = resid_ig + resid_vext + resid_mu + resid_charge;
-          printf("loc_inode=%d  global_node=%d iunk=%d  resid_el=%9.6f (%9.6f %9.6f %9.6f %9.6f) resid_hs1=%9.6f resid_hs2=%9.6f  resid_WTC1=%9.6f",
-                                 loc_inode,L2G_node[loc_inode],iunk,resid_el,resid_ig,resid_vext,resid_mu,resid_charge,resid_hs1,resid_hs2,resid_WTC1);
+       resid_el = resid_ig + resid_vext + resid_mu + resid_charge + resid_WTC +resid_uatt +resid_hs1+resid_hs2;
+          printf("loc_inode=%d  global_node=%d iunk=%d  resid_el=%9.6f (log=%9.6f vext=%9.6f mu=%9.6f hs1=%9.6f hs2=%9.6f att=%9.6f WTC=%9.6f charge=%9.6f)", loc_inode,L2G_node[loc_inode],iunk,resid_el,resid_ig,resid_vext,resid_mu,resid_hs1,resid_hs2,resid_uatt,resid_WTC,resid_charge);
     }
     else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
        printf("loc_inode=%d : iunk_rbar=%d resid_rhobars=%9.6f  resid_rhobarv=%9.6f ",
@@ -464,7 +461,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
     printf("  \n");}*/
 
 
-/*    if (Unk2Phys[iunk]==DENSITY){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_ig + resid_vext + resid_mu + resid_charge+ resid_hs1+resid_hs2+resid_WTC1);}
+/*    if (Unk2Phys[iunk]==DENSITY){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_ig + resid_vext + resid_mu + resid_charge+ resid_hs1+resid_hs2+resid_WTC);}
     else if(Unk2Phys[iunk]==RHOBAR_ROSEN){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
     else if(Unk2Phys[iunk]==CAVITY_WTC){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
     else if(Unk2Phys[iunk]==BOND_WTC){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}*/

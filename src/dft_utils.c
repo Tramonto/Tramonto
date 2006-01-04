@@ -9,19 +9,29 @@ int_stencil_bulk: this routine sums the appropriate stencil to get
                   the bulk contributions to various terms in the E-L
                   equation. Note that some terms (attractions, WCA electrostatics,
                   CMS polymers bury a multiplier function with the stencil weight function.*/
-void int_stencil_bulk(int sten_type,int icomp,int jcomp)
+void int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int))
 {
-  int izone, isten;
-  double sum, weight, *sten_weight;
+  int izone, isten,*offset,**sten_offset,idim;
+  double sum, weight, *sten_weight,integrand,rsq;
   struct Stencil_Struct *sten;
 
   sum = 0.0;
   izone = 0;
   sten = &(Stencil[sten_type][izone][icomp+Ncomp*jcomp]);
   sten_weight = sten->Weight;
+  sten_offset = sten->Offset;
 
   for (isten = 0; isten<sten->Length; isten++){
-     weight = sten_weight[isten];
+     
+     if (fp_integrand!=NULL){
+          offset = sten_offset[isten];
+          rsq=0.;
+          for (idim=0;idim<Ndim;idim++) rsq+=offset[idim]*offset[idim]*Esize_x[idim]*Esize_x[idim];
+          if (rsq>1.e-8) integrand = (*fp_integrand)(rsq,icomp,jcomp);
+          else integrand=1.0;
+     }
+     else integrand=1.0;
+     weight = integrand*sten_weight[isten];
      sum += weight;
   }
   Temporary_sum=sum;
@@ -301,7 +311,7 @@ int find_jzone(int izone,int inode_box)
       else if (Coarser_jac == 5) jzone = Nzone-1;
   }
   else if (Coarser_jac==0){
-     if (Mesh_coarsening) jzone = izone;
+     if (Mesh_coarsening || Nwall==0) jzone = izone;
      else                 jzone = Mesh_coarsen_flag[inode_box];
   }
   else{
@@ -318,7 +328,9 @@ double constant_boundary(int iunk,int jnode_box)
     switch(Unk2Phys[iunk]){
        case DENSITY:
           if (Type_poly==WTC){
-             if (jnode_box==-1) bcval=Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
+             if (jnode_box==-1) {
+                 bcval=Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
+             }
              if (jnode_box==-2) bcval=0.0;
              else if (jnode_box==-3)
                  if(Lsteady_state) bcval=Rho_seg_LBB[iunk-Phys2Unk_first[DENSITY]];

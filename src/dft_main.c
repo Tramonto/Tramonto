@@ -159,6 +159,10 @@ void dftmain(double * engptr)
      while (iend==0) {
 
      t_mesh = MPI_Wtime();
+
+    /* we need the HS diameters before we compute the integration stencils. */
+     if (Type_func != NONE) calc_HS_diams();
+
     /*
      * Stencils for non-local interactions are assembled next, and are
      * dependent on choice for integration schemes
@@ -230,6 +234,7 @@ void dftmain(double * engptr)
 
       t_preprocess += MPI_Wtime();
       t_solve = -MPI_Wtime();
+printf("0 Rho_seg_b[0]=%9.6f\n",Rho_seg_b[0]);
       niters = solve_problem(x, x2);
       t_solve += MPI_Wtime();
      /*

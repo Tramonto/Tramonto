@@ -203,9 +203,9 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_attr);
   }
   MPI_Bcast(&Type_attr,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_attr==0) Sten_Type[U_ATTRACT]=TRUE;
-  else if (Type_attr >0 || Type_attr<-1){
-     if (Proc==0) printf("ERROR Type_attr out of range - should be -1 or 0\n");
+  if (Type_attr==0 || Type_attr==1) Sten_Type[U_ATTRACT]=TRUE;
+  else if (Type_attr >1 || Type_attr<-1){
+     if (Proc==0) printf("ERROR Type_attr=%d out of range - should be -1, 0, or 1\n",Type_attr);
      exit(-1);
   }
 
@@ -263,7 +263,7 @@ void read_input_file(char *input_file, char *output_file1)
   /* Read in or set if known the Potential Type Paramters */
   if (Type_func == -1 && (Type_poly==NONE || Type_poly==WTC)  ) Ipot_ff_n = IDEAL_GAS;
   else if (Type_attr == -1)                                     Ipot_ff_n = HARD_SPHERE;
-  else if (Type_attr == 0)                                      Ipot_ff_n = LJ12_6;
+  else if (Type_attr == 0 || Type_attr==1)                                      Ipot_ff_n = LJ12_6;
   else {
      printf("ERROR WITH Type_func and Type_attr selections and conversion to Ipot_ff_n parameter \n");
      exit (-1);
@@ -1176,12 +1176,13 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    if (Type_poly==NONE || Ntype_mer == 1)
+    if (Type_poly==NONE || Ntype_mer == 1){
       for (icomp=0; icomp<Ncomp; ++icomp){
         fscanf(fp,"%lf", &Rho_b[icomp]);
         fprintf(fp2,"%f  ",Rho_b[icomp]);
         if (Density_ref > 0.0) Rho_b[icomp] /= Density_ref;
       }
+    }
     else{
       /*first scan in polymer densities */
       for (i=0; i<Npol_comp; i++){

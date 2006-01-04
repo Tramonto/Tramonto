@@ -196,7 +196,8 @@
  * These constants identify attraction functional choices (Type_attr).
  */
 #define NONE -1
-#define LJ_WCA_CS 0
+#define LJ_WCA_MF 0
+#define LJ_BH_MF  1
 
 /* 
  * These constants identify the functional choices (Type_coul).
@@ -807,8 +808,6 @@ double  Betap_att;      /* Attractive Presseure in units of kT sigma_ff[1]^3   *
 extern
 double  P_over_po;
 extern
-double  Hs_diam[NCOMP_MAX]; /* Array of effective hard sphere diameters      */
-extern
 int     L_isotherm; /* Logical for isotherm vs. force per distance data */
 extern
 double  Rho_b[NCOMP_MAX];   /* Array[Ncomp] of component bulk densities      */
@@ -1079,6 +1078,10 @@ extern
 int     Type_coul;    /* Type for handling coulomb interactions              */
 extern
 int     Type_poly;    /* Type for handling polymers                          */
+
+/* Hard core type */
+extern
+double      HS_diam[NCOMP_MAX];  /* Hard sphere diameters for the calculation */
 
 /* Startup Info */
 extern
@@ -1364,9 +1367,11 @@ extern double dp_drho_hs(double *);
 extern double dp_drho_att(double *);
 extern void compute_bulk_nonlocal_hs_properties(char *);
 extern void compute_bulk_nonlocal_wtc_properties(char *);
+extern void calc_HS_diams();
+extern double integrand_BH(double,int);
 
 /* SETUP UTILITIES (functions commonly applied in more than one place *
-extern void int_stencil_bulk(int,int,int);
+extern void int_stencil_bulk(int,int,int,double(*fp_integrand)(double,int,int));
 extern void int_stencil(double **,int, int,int);
 extern void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **,double **);
 extern void integrateInSpace(double(*fp_integrand)(int,int,double **),int,int **,double **);

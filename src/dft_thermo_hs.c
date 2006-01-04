@@ -12,7 +12,39 @@ in the code.  These should give the same results.
 void sum_rhobar(double,int, double *);
 void dphi_drb_bulk_thermo(double *,double *);
 
+/********************************************************************************
+calc_HS_diams: This routine computes diameter to use in hard sphere functionals */
+void calc_HS_diams()
+{
+  int icomp,i;
+  double del,r,sum;
+  for (icomp=0;icomp<Ncomp;icomp++){
+     if (Type_attr==LJ_BH_MF){ /* Barker-Henderson Treatment of hard core diameters */
+        del=Sigma_ff[icomp][icomp]/1000.;
+        r=sum=0.0;
+        for (i=0;i<1000;i++){
+          if (i==0 || i==999) sum+=0.5*integrand_BH(r,icomp)*del;
+          else sum+=integrand_BH(r,icomp)*del;
+          r+=del;
+        }
+        HS_diam[icomp]=sum;
+     }
+     else HS_diam[icomp]=Sigma_ff[icomp][icomp];
 
+     printf("icomp=%d  Sigma_ff=%9.6f  eps/kT=%9.6f HS_diam=%9.6f\n",
+             icomp,Sigma_ff[icomp][icomp],Eps_ff[icomp][icomp],HS_diam[icomp]);
+  }
+  return;
+}
+/********************************************************************************/
+double integrand_BH(double r,int icomp)
+{
+  double integrand,rcut;
+  rcut=1.e6;  /* set very large to eliminate the cut and shift for the BH diameters */
+  if (r>.01) integrand = 1.-exp(-uLJ12_6_cut(r,Sigma_ff[icomp][icomp],Eps_ff[icomp][icomp],rcut));
+  else integrand = 1.0;
+  return(integrand);
+}
 /********************************************************************************
 calc_hs_properties_new:  This routine calculates the pressure and excess chemical 
                          potential for hard spheres at the density of interest 
@@ -26,11 +58,12 @@ double calc_hs_properties_new(double *betamu_hs,double *rho)
    n[0]=Rhobar_b[3];  n[1]=Rhobar_b[2];
    n[2]=Rhobar_b[1]; n[3]=Rhobar_b[0];
 
+
    for (icomp=0; icomp<Ncomp;icomp++){
       sten_sum[0]=1.;
-      sten_sum[1]= Sigma_ff[icomp][icomp]/2.;
-      sten_sum[2]=(4.*PI)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp]/2.,2);
-      sten_sum[3]=(4.*PI/3.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp]/2.,3);
+      sten_sum[1]= HS_diam[icomp]/2.;
+      sten_sum[2]=(4.*PI)*POW_DOUBLE_INT(HS_diam[icomp]/2.,2);
+      sten_sum[3]=(4.*PI/3.)*POW_DOUBLE_INT(HS_diam[icomp]/2.,3);
   
       Betamu_hs_ex[icomp]=0.0; 
       for (i=0;i<4;i++){
@@ -39,13 +72,13 @@ double calc_hs_properties_new(double *betamu_hs,double *rho)
    }
   
    betap_hs = -phispt(Rhobar_b);
+   printf("phispt term=%9.6f\n",betap_hs);
    for (i=0;i<4;i++) betap_hs += Dphi_Drhobar_b[i]*n[i];
    betap_hs +=n[0];
 
    for (icomp=0; icomp<Ncomp; ++icomp) {
       betamu_hs[icomp]  =  Betamu_hs_ex[icomp]; 
    }
-
    return (betap_hs);
 }
 /********************************************************************************
@@ -72,15 +105,10 @@ double calc_hs_properties(double *betamu_hs,double *rho)
     work by Telo da Gama et al.. 
    */
 
-   /* calculate the hard sphere diamtere ... this can be 
-      turned into a T-dependent diameter */
-
-   for (icomp=0; icomp<Ncomp; ++icomp) Hs_diam[icomp] = 1.0;  
-
    /*  calculate the constants xsi and introduce some shorthand */
 
    for (icomp=0; icomp<Ncomp; ++icomp) {
-      hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
+      hs_diam_cubed = POW_DOUBLE_INT(HS_diam[icomp],3);
       xsi0 += Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed;
       xsi1 += Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
       xsi2 += Fac_overlap_hs[icomp]*pi6 * rho[icomp] * hs_diam_cubed * POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
@@ -136,8 +164,6 @@ void compute_bulk_nonlocal_hs_properties(char *output_file1)
      Dphi_Drhobar_LBB[iunk]=0.0;
      Dphi_Drhobar_RTF[iunk]=0.0;
   }
-if (Proc==30) printf("Proc 30 sets Rhobar array to %g %g %g %g %g %g %g %g %g %g  Nrho_bar=%d\n",
-       Rhobar_b[0],Rhobar_b[1],Rhobar_b[2],Rhobar_b[3],Rhobar_b[4],Rhobar_b[5],Rhobar_b[6],Rhobar_b[7],Rhobar_b[8],Rhobar_b[9],Nrho_bar);
 
   if (Type_poly==WTC) nloop=Nseg_tot;
   else             nloop=Ncomp;
@@ -186,12 +212,13 @@ if (Proc==30) printf("Proc 30 sets Rhobar array to %g %g %g %g %g %g %g %g %g %g
 /*********************************************************************************************/
 void sum_rhobar(double rho,int icomp, double *rhobar)
 {
-   double vol,area;
+   double vol,area,hs_diam;
    int idim;
 
-   vol = PI*Sigma_ff[icomp][icomp]*
-           Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp]/6.0;
-   area = PI*Sigma_ff[icomp][icomp]*Sigma_ff[icomp][icomp];
+   hs_diam = HS_diam[icomp];
+
+   vol = PI*hs_diam*hs_diam*hs_diam/6.0;
+   area = PI*hs_diam*hs_diam;
 
    rhobar[0] += Fac_overlap_hs[icomp]*vol*rho;
    rhobar[1] += Fac_overlap_hs[icomp]*area*rho;
@@ -239,19 +266,17 @@ dp_drho_hs: the derivative of the hard sphere pressure with respect to rho*/
 double dp_drho_hs(double *rho)
 {
    int icomp;
-   double Hs_diam[NCOMP_MAX],hs_diam_cubed,pi6;
+   double hs_diam_cubed,pi6;
    double xsi0,xsi1,xsi2,xsi3,y1,y2,y3,dy1_drho,dy2_drho,dy3_drho;
    double dp_drho;
 
    xsi0 = xsi1 = xsi2 = xsi3 = 0.0;
    pi6 = PI/6.0;                 /* shorthand  for pi/6                 */
 
-   for (icomp=0; icomp<Ncomp; ++icomp) Hs_diam[icomp] = 1.0;  
-
    /*  calculate the constants xsi and introduce some shorthand */
 
    for (icomp=0; icomp<Ncomp; ++icomp) {
-      hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
+      hs_diam_cubed = POW_DOUBLE_INT(HS_diam[icomp],3);
       xsi0 +=pi6 * rho[icomp] * hs_diam_cubed;
       xsi1 +=pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
       xsi2 +=pi6 * rho[icomp] * hs_diam_cubed 
@@ -278,19 +303,17 @@ dmu_drho_hs: the derivative of the hard sphere chemical potential
 double dmu_drho_hs(double *rho)
 {
    int icomp;
-   double Hs_diam[NCOMP_MAX],hs_diam_cubed,pi6;
+   double hs_diam_cubed,pi6;
    double xsi0,xsi1,xsi2,xsi3,y1,y2,y3,dy1_drho,dy2_drho,dy3_drho;
    double dmu_drho;
 
    xsi0 = xsi1 = xsi2 = xsi3 = 0.0;
    pi6 = PI/6.0;                 /* shorthand  for pi/6                 */
 
-   for (icomp=0; icomp<Ncomp; ++icomp) Hs_diam[icomp] = 1.0;  
-
    /*  calculate the constants xsi and introduce some shorthand */
 
    for (icomp=0; icomp<Ncomp; ++icomp) {
-      hs_diam_cubed = POW_DOUBLE_INT(Hs_diam[icomp],3);
+      hs_diam_cubed = POW_DOUBLE_INT(HS_diam[icomp],3);
       xsi0 +=pi6 * rho[icomp] * hs_diam_cubed;
       xsi1 +=pi6 * rho[icomp] * hs_diam_cubed * Sigma_ff[icomp][icomp];
       xsi2 +=pi6 * rho[icomp] * hs_diam_cubed 

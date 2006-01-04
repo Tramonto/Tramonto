@@ -60,6 +60,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
   double resid,mat_val,resid_sum=0.0;
   int numEntries, indexUnks[4];
   double values[4];
+
   
   for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
   jzone = find_jzone(izone,inode_box);
