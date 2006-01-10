@@ -2027,8 +2027,7 @@ void error_check(void)
 
   if ( Iliq_vap > -1 ) { 
     if (Ncomp > 1){
-       printf("\nERROR: Can only do liquid-vapor equilibria for one species\n");
-       exit(-1);
+       printf("\nWarning: Can only do liquid-vapor equilibria for one species....will turn off coexistence calcs\n");
     }
     if (Ipot_ff_n == HARD_SPHERE){
        printf("\nERROR: There is no liquid-vapor transition for hard spheres\n");

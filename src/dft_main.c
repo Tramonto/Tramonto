@@ -234,7 +234,6 @@ void dftmain(double * engptr)
 
       t_preprocess += MPI_Wtime();
       t_solve = -MPI_Wtime();
-printf("0 Rho_seg_b[0]=%9.6f\n",Rho_seg_b[0]);
       niters = solve_problem(x, x2);
       t_solve += MPI_Wtime();
      /*

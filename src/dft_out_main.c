@@ -170,11 +170,8 @@ void setup_integrals()
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
 
-  if (Lhard_surf){
-    if (Type_poly==WTC) nloop=Nseg_tot;
-    else                nloop=Ncomp;
-  }
-  else nloop=1;
+  if (Type_poly==WTC) nloop=Nseg_tot;
+  else                nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       inode = L2G_node[loc_inode];
@@ -242,16 +239,9 @@ void setup_integrals()
             }
          }
 
-         if (Lhard_surf){
-             Nel_hit[iloop][inode_box]=nel_hit;
-             Nel_hit2[iloop][inode_box]=nel_hit2;
-         }
-         else{
-             for (i=0;i<Ncomp;i++){
-                Nel_hit[i][inode_box]=nel_hit;
-                Nel_hit2[i][inode_box]=nel_hit2;
-             }
-         }
+         Nel_hit[iloop][inode_box]=nel_hit;
+         Nel_hit2[iloop][inode_box]=nel_hit2;
+
       } /* end iloop loop */
     }
 }
@@ -301,7 +291,7 @@ void setup_domain_multipliers()
                      is changing in a given run */
 void print_cont_variable(int cont_type,FILE *fp)
 {
-   int i,idim,icomp,iwall,iwall_type;
+   int i,idim,icomp,iwall,iwall_type,nloop;
    double kappa,kappa_sq,rhosum;
 
 
@@ -360,23 +350,25 @@ void print_cont_variable(int cont_type,FILE *fp)
       case CONT_LOG_RHO_0:
       case CONT_LOG_RHO_ALL:
          rhosum=0.0;
-         for (i=0; i<Ncomp; i++){
+         nloop=Ncomp;
+         if (Type_poly==WTC) nloop=Nseg_tot;
+         for (i=0; i<nloop; i++){
                  fprintf(fp,"%11.8f  ", Rho_b[i]); 
                  rhosum+=Rho_b[i];
          }
-         for (i=0;i<Ncomp;i++) fprintf(fp,"%9.6f  ",Rho_b[i]/rhosum);
-         if (Print_rho_switch == SWITCH_RELP && Ncomp == 1)
+         for (i=0;i<nloop;i++) fprintf(fp,"%9.6f  ",Rho_b[i]/rhosum);
+         if (Print_rho_switch == SWITCH_RELP && nloop == 1)
               fprintf(fp,"%11.8f   ", P_over_po); 
          else if (Print_rho_switch == SWITCH_ION && Ipot_ff_c == COULOMB) {
              kappa_sq = 0.0;
-             for(icomp = 0; icomp<Ncomp; icomp++)
+             for(icomp = 0; icomp<nloop; icomp++)
                 kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
                            Charge_f[icomp]*Charge_f[icomp];
              kappa = sqrt(kappa_sq);
              fprintf(fp,"%11.8f   ", kappa); 
          }
          else if (Print_rho_switch == SWITCH_MU)
-           for (i=0; i<Ncomp; i++) fprintf(fp,"%11.8f   ", Betamu[i]); 
+           for (i=0; i<nloop; i++) fprintf(fp,"%11.8f   ", Betamu[i]); 
          break;
 
       case CONT_SCALE_EPSW:
