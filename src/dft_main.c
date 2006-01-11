@@ -138,7 +138,7 @@ void dftmain(double * engptr)
                         "Tramonto continuation loops\n");
   }
 
-  for (Imain_loop=0; Imain_loop<Nruns; Imain_loop++){
+  for (Imain_loop=0; Imain_loop<Nruns; Imain_loop++){ /*only does mesh continuation now */
     if (Proc==0){  
          t_fill_first_array = (double *) array_alloc (1, Num_Proc,sizeof(double));
          t_fill_av_array = (double *) array_alloc (1, Num_Proc,sizeof(double));
@@ -188,9 +188,12 @@ void dftmain(double * engptr)
            safe_free((void *) &Comm_unk_proc);
            safe_free((void *) &Comm_offset_node);
            safe_free((void *) &Comm_offset_unk);
-
+           safe_free((void *)&Nel_hit);
+           safe_free((void *)&Nel_hit2);
      }
      set_up_mesh(output_file1,output_file2);
+     if (Imain_loop==0) setup_domain_multipliers();
+     setup_integrals();
 
     /*
      * Set up boundary and surface charge information -- this must come
@@ -406,6 +409,9 @@ void dftmain(double * engptr)
          safe_free((void *)&t_linsolv_first_array);
          safe_free((void *)&t_linsolv_av_array);
      }
+
+     safe_free((void *)&Nel_hit);
+     safe_free((void *)&Nel_hit2);
   } /* end of loop over continuation field #1 */
 
   if (Nwall_type !=0){

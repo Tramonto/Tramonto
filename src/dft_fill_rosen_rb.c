@@ -249,8 +249,10 @@ double resid_rho_bar(int junk,int jnode_box,double **x)
   int jcomp;
   double resid;
 
+
   if (Type_poly==WTC)  jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
   else                 jcomp=junk-Phys2Unk_first[DENSITY];
+
 
   if (jnode_box >=0 && !Zero_density_TF[jnode_box][jcomp]){
        resid = x[junk][jnode_box];

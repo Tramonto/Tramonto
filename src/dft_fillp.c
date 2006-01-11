@@ -57,7 +57,6 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
 
   int i_box, inode_box,jnode_box, ijk_box[3];
   int npol=0,sten;
-
   int inode,ijk[3];
 
   /********************** BEGIN EXECUTION ************************************/
@@ -273,10 +272,15 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
          }
       }      /* end of else (not Zero_density and mesh_coarsen_flag_i >= 0) */
 
-/*     if (fabs(resid_B)>1.e-3 ||fabs(resid_R)>1.e-3 ||fabs(resid_G)>1.e-3){
-       printf("Proc:%d loc_i:%d inode_box:%d iunk: %d B2G_n:%d L2G_node:%d  %9.6f %9.6f %9.6f %9.6f \n",
-                Proc,iunk+Nunk_per_node*loc_inode,inode_box,iunk, B2G_node[inode_box],L2G_node[loc_inode],resid_B,resid_R,resid_G,resid_P);
-     } */
+     node_to_ijk(L2G_node[loc_inode],ijk);
+     node_to_position(L2G_node[loc_inode],nodepos);
+     if (ijk[1]==0){
+/*       printf(" %d %d %9.6f %9.6f  %9.6f %9.6f %9.6f %9.6f \n", 
+                iunk,L2G_node[loc_inode],nodepos[0]+0.5*Size_x[0],nodepos[1],resid_B,resid_R,resid_G,resid_P);*/
+
+/*       printf("Proc:%d loc_i:%d inode_box:%d iunk: %d B2G_n:%d L2G_node:%d  %9.6f %9.6f %9.6f %9.6f \n",
+                Proc,iunk+Nunk_per_node*loc_inode,inode_box,iunk, B2G_node[inode_box],L2G_node[loc_inode],resid_B,resid_R,resid_G,resid_P);*/
+     } 
 
     } /* end ofloop over number of unknowns per node */
   } /* end of loop over local nodes */

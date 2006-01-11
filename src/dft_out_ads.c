@@ -7,16 +7,16 @@
 /**************************************************************************************/
 void calc_adsorption(FILE *fp,double **x)
 {
-  int icomp,iunk,ncomp;
+  int icomp,iunk,nloop;
   double ads[NCOMP_MAX],ads_ex[NCOMP_MAX],ads_b[NCOMP_MAX];
   static int first=TRUE;
 
   Integration_profile=NULL;
-  if (Type_poly==WTC) ncomp=Nseg_tot;
-  ncomp=Ncomp;
+  if (Type_poly==WTC) nloop=Nseg_tot;
+  nloop=Ncomp;
 
   if (Proc==0 &&Iwrite != NO_SCREEN) printf("-------------------- ADSORPTION -------------------------------\n");
-  for (icomp=0;icomp<ncomp;icomp++) ads[icomp]=0.0;
+  for (icomp=0;icomp<nloop;icomp++) ads[icomp]=0.0;
   for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
      if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
      else icomp = iunk-Phys2Unk_first[DENSITY];
@@ -24,13 +24,13 @@ void calc_adsorption(FILE *fp,double **x)
      ads[icomp]+=Temporary_sum;
   }
  if (Proc==0 && Iwrite != NO_SCREEN){
-     for (icomp=0;icomp<ncomp;icomp++){
+     for (icomp=0;icomp<nloop;icomp++){
           print_to_screen_comp(icomp,ads[icomp],"ADSORPTION");
           if (fp !=NULL) print_to_file_comp(fp,icomp,ads[icomp],"ads",first);
       }
   }    
 
-  for (icomp=0;icomp<ncomp;icomp++) ads_b[icomp]=0.0;
+  for (icomp=0;icomp<nloop;icomp++) ads_b[icomp]=0.0;
   for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
      if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
      else icomp = iunk-Phys2Unk_first[DENSITY];
@@ -39,7 +39,7 @@ void calc_adsorption(FILE *fp,double **x)
      ads_ex[icomp]=ads[icomp]-ads_b[icomp];
   }
   if (Proc==0 && Iwrite != NO_SCREEN){
-     for (icomp=0;icomp<ncomp;icomp++){
+     for (icomp=0;icomp<nloop;icomp++){
         print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
         if (fp !=NULL) print_to_file_comp(fp,icomp,ads_ex[icomp],"ads_ex",first);
      }    

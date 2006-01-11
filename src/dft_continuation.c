@@ -634,8 +634,8 @@ void assign_parameter_tramonto(int cont_type, double param)
                          /*Rho_b[0] = (16./18.)*(Rho_b[2]);
                          Rho_b[1] = (2./18.)*(Rho_b[2]);*/
 
-                         Rho_b[0] = (16./18.)*(0.59-Rho_b[2]);
-                         Rho_b[1] = (2./18.)*(0.59-Rho_b[2]);
+                         Rho_b[0] = (16./18.)*(0.68-Rho_b[2]);
+                         Rho_b[1] = (2./18.)*(0.68-Rho_b[2]);
 
                          /*Rho_b[0] = (16./18.)*(0.825-Rho_b[2]);
                          Rho_b[1] = (2./18.)*(0.825-Rho_b[2]);*/
@@ -1216,13 +1216,6 @@ double free_energy_diff_conwrap(double *x, double *x2)
 
   translate_1dOwned_2dBox(x2, passdown.xBox);
   energy2 = calc_free_energy(NULL,passdown.xBox);
-
-  safe_free((void *)&Nel_hit);
-  safe_free((void *)&Nel_hit2);
-
-  if (Proc==0)  printf("In energy calc: e1,e2,e1-e2 = %g %g %g\n",
-        energy1, energy2, energy1-energy2);
-  
 
   return energy1-energy2;
 }

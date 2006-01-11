@@ -17,6 +17,7 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
        omega_CMS,omega_CMS_b,omega_CMS_surf_ex,
        omega_mu,omega_mu_b,omega_mu_surf_ex;
 static int first=TRUE,loc_inode;
+double energy;
 
   if (Ndim==1 && Iwrite==VERBOSE){
     Integration_profile = (double *) array_alloc(1, Nnodes_per_proc, sizeof(double));
@@ -204,6 +205,7 @@ static int first=TRUE,loc_inode;
            printf("---------------------------------------------------------------\n");
        }
     }
+    energy= omega_s_sum;
 
     if (first) first=FALSE;
 
@@ -211,5 +213,5 @@ static int first=TRUE,loc_inode;
       print_freen_profile_1D(Integration_profile,"dft_freen_prof.dat");
       safe_free ((void *)&Integration_profile);
     }
-  return;
+  return(energy);
 }

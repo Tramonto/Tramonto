@@ -267,7 +267,7 @@ if (Proc==0) printf("new pressure calculates %9.6f\n",betap_hs_tmp);
    
    /* the stencil has already been calculated at this point. attractions
       need to be added to c(r) earlier in the code */
-   if (Proc==0 && print_flag && Iwrite!=NO_SCREEN) printf("\n%s: No polymer thermo precalculations\n",yo);
+   if (Proc==0 && print_flag && Iwrite==VERBOSE) printf("\n%s: No polymer thermo precalculations\n",yo);
 
    if (Ipot_ff_c == COULOMB && Sten_Type[THETA_CHARGE])
       calc_charge_correlations_b();

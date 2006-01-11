@@ -1387,6 +1387,8 @@ extern int    gmin_int(int);
 extern void   gsum_int_vec(int *, int *, int);
 
 /* POSTPROCESSING ROUTINES*/
+extern void setup_integrals();
+extern void setup_domain_multipliers();
 extern void post_process(double **,char *,int *,double *,int, int);
 extern void calc_adsorption(FILE *,double **);
 extern void calc_fluid_charge(FILE *, double **);
@@ -1429,7 +1431,7 @@ extern void print_charge_surf(double **, char *);
 extern void print_freen_profile_1D(double *, char *);
 extern void print_Nodes_to_zone(int *, char *);
 extern void print_time_histogram(int *,int *);
-extern void setup_integrals(void);
+extern void setup_integrals();
 extern void print_to_screen_comp(int,double, char *);
 extern void print_to_screen(double, char *);
 extern void print_to_file_comp(FILE *,int,double, char *,int);

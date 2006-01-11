@@ -441,7 +441,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
     
 
       /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-/*if (loc_inode==0 && iunk<3){
+/*  if (L2G_node[loc_inode]==0){
     if (Unk2Phys[iunk]==DENSITY){
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge + resid_WTC +resid_uatt +resid_hs1+resid_hs2;
           printf("loc_inode=%d  global_node=%d iunk=%d  resid_el=%9.6f (log=%9.6f vext=%9.6f mu=%9.6f hs1=%9.6f hs2=%9.6f att=%9.6f WTC=%9.6f charge=%9.6f)", loc_inode,L2G_node[loc_inode],iunk,resid_el,resid_ig,resid_vext,resid_mu,resid_hs1,resid_hs2,resid_uatt,resid_WTC,resid_charge);
