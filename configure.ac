@@ -36,7 +36,7 @@ dnl
 dnl Initialize autoconf
 dnl
 AC_INIT(Tramonto, 1.0, ljfrink@sandia.gov, tramonto)
-AC_PREREQ(2.57)
+AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR([src/dft_main.c])
 AM_CONFIG_HEADER([src/Tramonto_config.h:src/Tramonto_config.h.in])
 
@@ -75,79 +75,131 @@ dnl  Required version of automake.
 AM_INIT_AUTOMAKE(1.8.2)
 
 dnl
-dnl see if a specifc C compiler was specified
-dnl
-AC_ARG_WITH( [cc],
-               [AC_HELP_STRING([--with-cc=...], [use specified c compiler])], 
-               [CC="${withval}", CC=""])
-
-dnl
-dnl see if a specifc C++ compiler was specified
-dnl
-AC_ARG_WITH( [cxx],
-               [AC_HELP_STRING([--with-cxx=...], [use specified c++ compiler])], 
-               [CXX="${withval}", CXX=""])
-
-dnl
-dnl see if a specifc F77 compiler was specified
-dnl
-AC_ARG_WITH( [f77],
-               [AC_HELP_STRING([--with-f77=...], [use specified f77 compiler])], 
-               [F77="${withval}", F77=""])
-
-dnl
-dnl see if any extra c compiler flags were specified
-dnl
-AC_ARG_WITH( [cflags],
-               [AC_HELP_STRING([--with-cflags=...], [use cflags flags ... with c compiler])], 
-               [CFLAGS="${CFLAGS} ${withval}", C_FLAGS=""])
-
-dnl
-dnl see if any extra c++ compiler flags were specified
-dnl
-AC_ARG_WITH( [cxxflags],
-               [AC_HELP_STRING([--with-cxxflags=...], [use cxxflags flags ... with c++ compiler])],
-               [CXXFLAGS="${CXXFLAGS} ${withval}"])
-
-dnl
-dnl see if any extra linker flags were specified
-dnl
-AC_ARG_WITH( [ldflags], 
-               [AC_HELP_STRING([--with-ldflags=...], [use linker flags ...])], 
-               [LIBS="${LIBS} ${withval}"])
-
-dnl
 dnl check for ranlib incase uses wants to build library
 dnl
 AC_PROG_RANLIB
 
+AC_ARG_WITH(mpi,
+[AC_HELP_STRING([--with-mpi=MPIROOT],[use MPI root directory])],
+[
+  HAVE_PKG_MPI=yes
+  MPI_DIR=${withval}
+  AC_MSG_CHECKING(MPI directory)
+  AC_MSG_RESULT([${MPI_DIR}])
+]
+)
+
+AC_ARG_WITH(mpi-libs,
+[AC_HELP_STRING([--with-mpi-libs="LIBS"],[MPI libraries @<:@"-lmpi"@:>@])],
+[
+  MPI_LIBS=${withval}
+  AC_MSG_CHECKING(user-defined MPI libraries)
+  AC_MSG_RESULT([${MPI_LIBS}])
+]
+)
+
+AC_ARG_WITH(mpi-incdir,
+[AC_HELP_STRING([--with-mpi-incdir=DIR],[MPI include directory @<:@MPIROOT/include@:>@  Do not use -I])],
+[
+  MPI_INC=${withval}
+  AC_MSG_CHECKING(user-defined MPI includes)
+  AC_MSG_RESULT([${MPI_INC}])
+]
+)
+
+AC_ARG_WITH(mpi-libdir,
+[AC_HELP_STRING([--with-mpi-libdir=DIR],[MPI library directory @<:@MPIROOT/lib@:>@  Do not use -L])],
+[
+  MPI_LIBDIR=${withval}
+  AC_MSG_CHECKING(user-defined MPI library directory)
+  AC_MSG_RESULT([${MPI_LIBDIR}])
+]
+)
+
 dnl
 dnl check for C++, C and Fotran compilers
 dnl
-AC_PROG_CXX( [mpic++ mpiCC c++ g++] )
+AC_PROG_CXX( [mpicxx mpic++ mpiCC c++ g++ cxx CC] )
 AC_PROG_CC( [mpicc cc gcc] )
-AC_PROG_F77( [mpif77 f77 g77] )
+AC_PROG_F77( [mpif77 f77 g77 f90 xlf90 f95] )
+
+TAC_ARG_WITH_FLAGS(cxxflags, CXXFLAGS)
+TAC_ARG_WITH_FLAGS(cflags, CFLAGS)
+TAC_ARG_WITH_FLAGS(ldflags, LDFLAGS)
 
 dnl
 dnl check for fortran to C libraries
 dnl
 AC_F77_LIBRARY_LDFLAGS
 
+if test -n "${MPI_DIR}" && test -z "${MPI_INC}"; then
+  MPI_INC="${MPI_DIR}/include"
+fi
+
+if test -n "${MPI_INC}"; then
+  CPPFLAGS="${CPPFLAGS} -I${MPI_INC}"
+fi
+
+if test ${CC} != "mpicc"
+then
+  AC_CHECK_HEADER( [mpi.h],,
+                   [AC_MSG_FAILURE([Cannot find mpi.h.  Please inlude its location using --with-cflags and --with-cxxflags])])
+fi;
+
+AC_LANG_CPLUSPLUS
+AC_MSG_CHECKING(for mpi.h)
+AC_TRY_CPP([#include "mpi.h"],
+  [AC_MSG_RESULT(yes)],
+  [
+   AC_MSG_RESULT(no)
+   echo "-----"
+   echo "Cannot link simple MPI program."
+   echo "Try --with-mpi-libs, --with-mpi-incdir, --with-mpi-libdir"
+   echo "to specify all the specific MPI compile options."
+   echo "-----"
+   AC_MSG_ERROR(MPI cannot link)
+  ])
+
+#Process any mpi directory information that was passed on the configure line
+if test -n "${MPI_DIR}" && test -z "${MPI_LIBDIR}"; then
+  MPI_LIBDIR="${MPI_DIR}/lib"
+fi
+
+if test -n "${MPI_LIBDIR}"; then
+  LDFLAGS="${LDFLAGS} -L${MPI_LIBDIR}"
+fi
+
+if test -z "${MPI_LIBS}" && test -n "${MPI_LIBDIR}"; then
+  MPI_LIBS="-lmpi"
+fi
+
+
 dnl ------------------------------------------------------------------------
 dnl Checks if examples and GUI support should be built
 dnl ------------------------------------------------------------------------
-                                                               
+
 dnl If a test directory is ever added, add a check for tests to the
 dnl Checks for libraries section below.                 
 dnl TAC_ARG_ENABLE_FEATURE(tests, [Build Tramonto tests], TESTS, yes)
-dnl AM_CONDITIONAL(BUILD_TESTS, test "X$ac_cv_use_tests" != "Xno")                                                                                
+dnl AM_CONDITIONAL(BUILD_TESTS, test "X$ac_cv_use_tests" != "Xno")
 TAC_ARG_ENABLE_FEATURE(examples, [Build Tramonto examples], EXAMPLES, yes)
 AM_CONDITIONAL(BUILD_EXAMPLES, test "X$ac_cv_use_examples" != "Xno")
 
 #TAC_ARG_ENABLE_FEATURE(gui, [Build Tramonto GUI], GUI, yes)
 #AM_CONDITIONAL(BUILD_GUI, test "X$ac_cv_use_gui" != "Xno")
 
-dnl Option to turn off checks for third-party libraries                                                                                
+# ------------------------------------------------------------------------
+# Specify other directories
+# ------------------------------------------------------------------------
+
+# enable use of --with-libdirs="-Llibdir1 -Llibdir2 ..." to prepend to LDFLAGS
+TAC_ARG_WITH_LIBDIRS
+# enable use of --with-incdirs="-Lincdir1 -Lincdir2 ..." to prepend to CPPFLAGS
+TAC_ARG_WITH_INCDIRS
+
+
+dnl Option to turn off checks for third-party libraries
+
 TAC_ARG_ENABLE_FEATURE(libcheck, [Check for some third-party libraries including BLAS and LAPACK.  (Cannot be disabled unless tests and examples are also disabled.)], LIBCHECK, yes)
 
 dnl ------------------------------------------------------------------------
@@ -166,20 +218,8 @@ AC_SEARCH_LIBS( [pow],
                 [dxml m],,
                 [AC_MSG_FAILURE([Cannot link to math library functions.])] )
 
-dnl
-dnl check for blas library
-dnl
-AC_LANG_FORTRAN77
-AC_SEARCH_LIBS( [idamax], 
-                [blas dxml cxml csmath complib.sgimath],,
-                [AC_MSG_FAILURE([Cannot link to blas library functions.])] )
-
-dnl
-dnl check for lapack library
-dnl
-AC_SEARCH_LIBS( [DGETRF], 
-                [lapack dxml cxml csmath complib.sgimath],,
-                [AC_MSG_FAILURE([Cannot link to lapack library functions.])] )
+  ACX_BLAS([], [AC_MSG_ERROR([[Cannot find blas library, specify a path using --with-ldflags=-I<DIR> (ex. --with-ldflags=-I/usr/path/lib) or a specific library using --with-blas=DIR/LIB (for example --with-blas=/usr/path/lib/libcxml.a)]])])
+  ACX_LAPACK([], [AC_MSG_ERROR([[Cannot find lapack library, specify a path using --with-ldflags=-I<DIR> (ex. --with-dlflags=-I/usr/path/lib) or a specific library using --with-lapack=DIR/LIB (ex. --with-lapack=/usr/path/lib/libcxml.a)]])])
 
 dnl
 dnl check for AztecOO library
@@ -198,12 +238,6 @@ dnl If we're not using an mpi compiler, then see if we can find
 dnl the mpi.h  mpi compilers automatically include the right
 dnl path to find mpi.h
 dnl
-if test ${CC} != "mpicc"
-then
-  AC_CHECK_HEADER( [mpi.h],,
-                   [AC_MSG_FAILURE([Cannot find mpi.h.  Please inlude its location using --with-cflags and --with-cxxflags])])
-fi;
-
 
 dnl
 dnl piont to the make files
