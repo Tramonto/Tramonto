@@ -1,0 +1,15 @@
+#
+# for reddish (cross compile for Red Storm)
+#
+module load PrgEnv-pgi;
+../configure --host=i686-intel-linux \
+--with-libs="-L/dev/null" \
+CC="cc -tp k8-64 -fast" \
+CXX="CC -tp k8-64 -fast" \
+F77="ftn -tp k8-64 -fast" \
+CPPFLAGS="-DMPICH_SKIP_MPICXX -DNDEBUG" \
+--with-cflags="-I/home/jmwille/TramontosTrilinos/reddish/include" \
+CXXFLAGS="-I/home/jmwille/TramontosTrilinos/reddish/include" \
+--with-ldflags="-L/home/jmwille/TramontosTrilinos/reddish/lib -L/home/jmwille/TPL/lapackblas/3.0/lib/opt_storm -llapack -lblas -L/dev/null" \
+FLIBS="-lpgf90 -lpgf90_rpm1 -lpgf902 -lpgf90rtl -lpgftnrtl" \
+--with-ar="ar rcv"
