@@ -13,6 +13,7 @@ dnl   CXX      = the c++ compiler
 dnl   F77      = the fortran compiler
 dnl   CFLAGS   = c compiler flags
 dnl   CXXFLAGS = c++ compiler flags
+dnl   FFLAGS   = F77 compiler flags (used for determining FLIBS)
 dnl   LDFLAGS  = linker flags
 dnl   FLIBS    = libraries to link fortran to c/c++
 dnl   RANLIB   = ranlib command if available
@@ -125,6 +126,7 @@ AC_PROG_F77( [mpif77 f77 g77 f90 xlf90 f95] )
 
 TAC_ARG_WITH_FLAGS(cxxflags, CXXFLAGS)
 TAC_ARG_WITH_FLAGS(cflags, CFLAGS)
+TAC_ARG_WITH_FLAGS(fflags, FFLAGS)
 TAC_ARG_WITH_FLAGS(ldflags, LDFLAGS)
 
 dnl
@@ -227,9 +229,9 @@ dnl
 AC_LANG_CPLUSPLUS
 AC_CHECK_LIB( [aztecoo], 
               [AZ_iterate],
-              [LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos ${FLIBS} $LIBS"],
+              [LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos $LAPACK_LIBS  $BLAS_LIBS $LIBS $FLIBS"],
               [AC_MSG_FAILURE([Cannot link to AztecOO, Triutils, Ifpack, EpetraExt, Epetra, or Teuchos library.])], 
-              [-ltriutils -lifpack -lepetraext -lepetra -lteuchos ${FLIBS}])
+              [-ltriutils -lifpack -lepetraext -lepetra -lteuchos ${LAPACK_LIBS} ${BLAS_LIBS} ${LIBS} ${FLIBS}])
 
 fi
 

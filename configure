@@ -900,6 +900,8 @@ Optional Packages:
                           prepend to CXXFLAGS
   --with-cflags           additional CFLAGS flags to be added: will prepend
                           to CFLAGS
+  --with-fflags           additional FFLAGS flags to be added: will prepend
+                          to FFLAGS
   --with-ldflags          additional LDFLAGS flags to be added: will prepend
                           to LDFLAGS
   --with-libdirs          OBSOLETE use --with-ldflags instead. (ex.
@@ -3494,7 +3496,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3497:" \
+echo "$as_me:3499:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3676,6 +3678,24 @@ echo "${ECHO_T}no" >&6
 fi;
 
 
+echo "$as_me:$LINENO: checking whether additional FFLAGS flags should be added" >&5
+echo $ECHO_N "checking whether additional FFLAGS flags should be added... $ECHO_C" >&6
+
+# Check whether --with-fflags or --without-fflags was given.
+if test "${with_fflags+set}" = set; then
+  withval="$with_fflags"
+
+FFLAGS="${withval} ${FFLAGS}"
+echo "$as_me:$LINENO: result: FFLAGS = ${FFLAGS}" >&5
+echo "${ECHO_T}FFLAGS = ${FFLAGS}" >&6
+
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+
+fi;
+
+
 echo "$as_me:$LINENO: checking whether additional LDFLAGS flags should be added" >&5
 echo $ECHO_N "checking whether additional LDFLAGS flags should be added... $ECHO_C" >&6
 
@@ -3746,7 +3766,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:3749: \"$ac_link\") >&5
+(eval echo $as_me:3769: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -3824,7 +3844,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:3827: \"$ac_link\") >&5
+(eval echo $as_me:3847: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -7406,7 +7426,7 @@ if test "${ac_cv_lib_aztecoo_AZ_iterate+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos ${FLIBS} $LIBS"
+LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos ${LAPACK_LIBS} ${BLAS_LIBS} ${LIBS} ${FLIBS} $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -7473,7 +7493,7 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_aztecoo_AZ_iterate" >&5
 echo "${ECHO_T}$ac_cv_lib_aztecoo_AZ_iterate" >&6
 if test $ac_cv_lib_aztecoo_AZ_iterate = yes; then
-  LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos ${FLIBS} $LIBS"
+  LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos $LAPACK_LIBS  $BLAS_LIBS $LIBS $FLIBS"
 else
   { { echo "$as_me:$LINENO: error: Cannot link to AztecOO, Triutils, Ifpack, EpetraExt, Epetra, or Teuchos library.
 See \`config.log' for more details." >&5
