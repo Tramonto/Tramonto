@@ -7426,7 +7426,7 @@ if test "${ac_cv_lib_aztecoo_AZ_iterate+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos ${LAPACK_LIBS} ${BLAS_LIBS} ${LIBS} ${FLIBS} $LIBS"
+LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos ${MPI_LIBS} ${LAPACK_LIBS} ${BLAS_LIBS} ${LIBS} ${FLIBS} $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -7493,7 +7493,7 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_aztecoo_AZ_iterate" >&5
 echo "${ECHO_T}$ac_cv_lib_aztecoo_AZ_iterate" >&6
 if test $ac_cv_lib_aztecoo_AZ_iterate = yes; then
-  LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos $LAPACK_LIBS  $BLAS_LIBS $LIBS $FLIBS"
+  LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos $MPI_LIBS $LAPACK_LIBS  $BLAS_LIBS $LIBS $FLIBS"
 else
   { { echo "$as_me:$LINENO: error: Cannot link to AztecOO, Triutils, Ifpack, EpetraExt, Epetra, or Teuchos library.
 See \`config.log' for more details." >&5

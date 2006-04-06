@@ -229,9 +229,9 @@ dnl
 AC_LANG_CPLUSPLUS
 AC_CHECK_LIB( [aztecoo], 
               [AZ_iterate],
-              [LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos $LAPACK_LIBS  $BLAS_LIBS $LIBS $FLIBS"],
+              [LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos $MPI_LIBS $LAPACK_LIBS  $BLAS_LIBS $LIBS $FLIBS"],
               [AC_MSG_FAILURE([Cannot link to AztecOO, Triutils, Ifpack, EpetraExt, Epetra, or Teuchos library.])], 
-              [-ltriutils -lifpack -lepetraext -lepetra -lteuchos ${LAPACK_LIBS} ${BLAS_LIBS} ${LIBS} ${FLIBS}])
+              [-ltriutils -lifpack -lepetraext -lepetra -lteuchos ${MPI_LIBS} ${LAPACK_LIBS} ${BLAS_LIBS} ${LIBS} ${FLIBS}])
 
 fi
 
