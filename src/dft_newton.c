@@ -206,10 +206,10 @@ int newton_solver(double** x, void* con_ptr) {
   int iter=0;
   int iunk, ibox;
   int converged=FALSE, converged2=TRUE;
-  double** delta_x;
-  delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
   char filename[20]="matrix.dat";
   double start_t;
+  double** delta_x;
+  delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
 
   do {
     iter++;
