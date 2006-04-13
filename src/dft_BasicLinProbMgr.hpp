@@ -52,8 +52,6 @@ class dft_BasicLinProbMgr {
   //! dft_BasicLinProbMgr Constructor.
   /*! Initialize a linear problem manager for Tramonto
      \param numUnknownsPerNode (In) The number of unknowns tracked per node of the mesh.
-     \param unknownToPhysicsType (In) An array of length numUnknownsPerNode, such that unknownToPhysicsType[i] 
-            describes the ith physics type.
      \param solverOptions (In) An array of ints defined in dft_solver_defs.h containing information to 
                                guide and report solver status.
      \param solverParams (In) An array of doubles defined in dft_solver_defs.h containing information to 
