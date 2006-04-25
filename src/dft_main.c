@@ -192,14 +192,20 @@ void dftmain(double * engptr)
            safe_free((void *)&Nel_hit2);
      }
      set_up_mesh(output_file1,output_file2);
-     if (Imain_loop==0) setup_domain_multipliers();
-     setup_integrals();
 
     /*
      * Set up boundary and surface charge information -- this must come
      * after load-balancing because quantities are local on a Proc
      */
+     
      boundary_setup(output_file1);
+
+     /*
+      * bvbw moved setup_integral after boundary_setup to eliminate seg fault
+      */
+
+     if (Imain_loop==0) setup_domain_multipliers();
+     setup_integrals();
 
      /* check boudary conditions to see Coulomb external field can be computed
         for this run ..... we can't do it with periodic, multiply reflecting, or
