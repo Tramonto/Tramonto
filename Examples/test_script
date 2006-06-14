@@ -4,7 +4,7 @@
 # This is the command we use to run tramonto. 
 # change this as needed for your environment
 #
-TramontoCommand="mpirun -np 2 ./xdft_intel_linux"
+TramontoCommand="mpirun -np 2 ../TEST/src/dft"
 #TramontoCommand="echo mpirun -np 2 ./xdft_intel_linux"   # use this for debuging the script
 
 
@@ -12,530 +12,492 @@ TramontoCommand="mpirun -np 2 ./xdft_intel_linux"
 rm -f dft_force.dat
 
 ###########################
-#variation with Esize - 1D
-#1 wall (left) bulk (right)
-#8 sigma of fluid.
+# 1D Continuation examples
 ###########################
 
-echo "TEST 1: 0.025 mesh "
+echo "TEST 1: 1Dcont1 "
 # check that needed files are there
-if [ -f dft_surf/surf1 -a -f dft_in/in1 ]
+if [ -f Ex_surfs/1D_continuation/1Dcont1s -a -f Ex_inputs/1D_continuation/1Dcont1 ]
 then
-    cp dft_surf/surf1 dft_surfaces.dat
-    cp dft_in/in1 dft_input.dat 
+    cp Ex_surfs/1D_continuation/1Dcont1s dft_surfaces.dat
+    cp Ex_inputs/1D_continuation/1Dcont1 dft_input.dat 
     ${TramontoCommand}
 else
     echo "TEST 1 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 2: 0.05 mesh"
-if [ -f dft_surf/surf1 -a -f dft_in/in2 ]
+echo "TEST s: 1Dcont2 "
+# check that needed files are there
+if [ -f Ex_surfs/1D_continuation/1Dcont2s -a -f Ex_inputs/1D_continuation/1Dcont2 ]
 then
-    cp dft_surf/surf1 dft_surfaces.dat
-    cp dft_in/in2 dft_input.dat 
+    cp Ex_surfs/1D_continuation/1Dcont2s dft_surfaces.dat
+    cp Ex_inputs/1D_continuation/1Dcont2 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 2 ERROR -- could not find needed files.  Skipping this test"
 fi
  
-echo "TEST 3: 0.1 mesh "
-if [ -f dft_surf/surf1 -a -f dft_in/in3 ]
+echo "TEST 3: 1Dcont3 "
+if [ -f Ex_surfs/1D_continuation/1Dcont3s -a -f Ex_inputs/1D_continuation/1Dcont3 ]
 then
-    cp dft_surf/surf1 dft_surfaces.dat
-    cp dft_in/in3 dft_input.dat 
+    cp Ex_surfs/1D_continuation/1Dcont3s dft_surfaces.dat
+    cp Ex_inputs/1D_continuation/1Dcont3 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 3 ERROR -- could not find needed files.  Skipping this test"
 fi
 
 
-echo "TEST 4: 0.25 mesh "
-if [ -f dft_surf/surf1 -a -f dft_in/in4 ]
+echo "TEST 4: 1Dcont4 "
+if [ -f Ex_surfs/1D_continuation/1Dcont4s -a -f Ex_inputs/1D_continuation/1Dcont4 ]
 then
-    cp dft_surf/surf1 dft_surfaces.dat
-    cp dft_in/in4 dft_input.dat 
+    cp Ex_surfs/1D_continuation/1Dcont4s dft_surfaces.dat
+    cp Ex_inputs/1D_continuation/1Dcont4 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 4 ERROR -- could not find needed files.  Skipping this test"
 fi
 
 ###########################
-# reflective boundaries 1D
-# 1 wall & 1 reflect boundary (not 6)
-# 0.1 mesh
+# 1D Hard Neutral Examples 
 ###########################
 
-echo "TEST 5: wall(Left) 8 sig fluid."
-if [ -f dft_surf/surf1.5 -a -f dft_in/in5 ]
+echo "TEST 5: 1Dhn1 "
+if [ -f Ex_surfs/1D_hard_neutral/1Dhn1s -a -f Ex_inputs/1D_hard_neutral/1Dhn1 ]
 then
-    cp dft_surf/surf1.5 dft_surfaces.dat
-    cp dft_in/in5 dft_input.dat 
+    cp Ex_surfs/1D_hard_neutral/1Dhn1s dft_surfaces.dat
+    cp Ex_inputs/1D_hard_neutral/1Dhn1 dft_input.dat 
     ${TramontoCommand}
 else
     echo "TEST 5 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 6: wall(Left and Right) 5 sig fluid."
-if [ -f dft_surf/surf2 -a -f dft_in/in6 ]
+echo "TEST 6: 1Dhn2"
+if [ -f Ex_surfs/1D_hard_neutral/1Dhn2s -a -f Ex_inputs/1D_hard_neutral/1Dhn2 ]
 then
-    cp dft_surf/surf2 dft_surfaces.dat
-    cp dft_in/in6 dft_input.dat 
+    cp Ex_surfs/1D_hard_neutral/1Dhn2s dft_surfaces.dat
+    cp Ex_inputs/1D_hard_neutral/1Dhn2 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 6 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 7: wall(Left) 2.5 sig fluid."
-if [ -f dft_surf/surf3 -a -f dft_in/in7 ]
+echo "TEST 7: 1Dhn3"
+if [ -f Ex_surfs/1D_hard_neutral/1Dhn3s -a -f Ex_inputs/1D_hard_neutral/1Dhn3 ]
 then
-    cp dft_surf/surf3 dft_surfaces.dat
-    cp dft_in/in7 dft_input.dat 
+    cp Ex_surfs/1D_hard_neutral/1Dhn3s dft_surfaces.dat
+    cp Ex_inputs/1D_hard_neutral/1Dhn3 dft_input.dat 
     ${TramontoCommand}
 else
     echo "TEST 7 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 8: wall(Right) 2.5 sig fluid."
-if [ -f dft_surf/surf4 -a -f dft_in/in8 ]
+echo "TEST 8: 1Dhn4"
+if [ -f Ex_surfs/1D_hard_neutral/1Dhn4s -a -f Ex_inputs/1D_hard_neutral/1Dhn4 ]
 then
-    cp dft_surf/surf4 dft_surfaces.dat
-    cp dft_in/in8 dft_input.dat 
+    cp Ex_surfs/1D_hard_neutral/1Dhn4s dft_surfaces.dat
+    cp Ex_inputs/1D_hard_neutral/1Dhn4 dft_input.dat 
     ${TramontoCommand}
 else
     echo "TEST 8 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-###########################
-# Matrix fill flag tests
-# 1 wall(lft) & 1 bulk(rt) 
-# 0.1 mesh - 8 sigma fluid
-# compare with TEST 3 
-# where Matrix_fill_flag=0
-###########################
-
-echo "TEST 9: Matrix_fill_flag=1."
-if [ -f dft_surf/surf5 -a -f dft_in/in9 ]
+echo "TEST 9: 1Dhn5"
+if [ -f Ex_surfs/1D_hard_neutral/1Dhn5s -a -f Ex_inputs/1D_hard_neutral/1Dhn5 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in9 dft_input.dat 
+    cp Ex_surfs/1D_hard_neutral/1Dhn5s dft_surfaces.dat
+    cp Ex_inputs/1D_hard_neutral/1Dhn5 dft_input.dat 
     ${TramontoCommand}
 else
     echo "TEST 9 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 10: Matrix_fill_flag=2."
-if [ -f dft_surf/surf5 -a -f dft_in/in10 ]
+echo "TEST 10: 1Dhn6"
+if [ -f Ex_surfs/1D_hard_neutral/1Dhn6s -a -f Ex_inputs/1D_hard_neutral/1Dhn6 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in10 dft_input.dat 
+    cp Ex_surfs/1D_hard_neutral/1Dhn6s dft_surfaces.dat
+    cp Ex_inputs/1D_hard_neutral/1Dhn6 dft_input.dat 
     ${TramontoCommand}
 else
     echo "TEST 10 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 11: Matrix_fill_flag=3."
-if [ -f dft_surf/surf5 -a -f dft_in/in11 ]
+echo "TEST 11: 1Dhn7"
+if [ -f Ex_surfs/1D_hard_neutral/1Dhn7s -a -f Ex_inputs/1D_hard_neutral/1Dhn7 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in11 dft_input.dat 
+    cp Ex_surfs/1D_hard_neutral/1Dhn7s dft_surfaces.dat
+    cp Ex_inputs/1D_hard_neutral/1Dhn7 dft_input.dat 
     ${TramontoCommand}
 else
     echo "TEST 11 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 12: Matrix_fill_flag=4."
-if [ -f dft_surf/surf5 -a -f dft_in/in12 ]
+###########################
+# 1D LJ Neutral Examples
+###########################
+
+echo "TEST 12: 1Dljn1"
+if [ -f Ex_surfs/1D_LJ_neutral/1Dljn1s -a -f Ex_inputs/1D_LJ_neutral/1Dljn1 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in12 dft_input.dat 
+    cp Ex_surfs/1D_LJ_neutral/1Dljn1s dft_surfaces.dat
+    cp Ex_inputs/1D_LJ_neutral/1Dljn1 dft_input.dat 
     ${TramontoCommand}
 else
     echo "TEST 12 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-###########################
-# Zone options
-# 1 wall(lft) & 1 bulk(rt)
-# 0.1 mesh - 8 sigma fluid
-# base mesh 0.025 sigma
-# 4 zones (0-2,2-4,4-6,6-8)
-# compare with TEST 1
-###########################
-echo "TEST 13: Jac_coarse=0"
-if [ -f dft_surf/surf5 -a -f dft_in/in13 ]
+echo "TEST 13: 1Dljn2"
+if [ -f Ex_surfs/1D_LJ_neutral/1Dljn2s -a -f Ex_inputs/1D_LJ_neutral/1Dljn2 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in13 dft_input.dat 
+    cp Ex_surfs/1D_LJ_neutral/1Dljn2s dft_surfaces.dat
+    cp Ex_inputs/1D_LJ_neutral/1Dljn2 dft_input.dat 
     ${TramontoCommand}
 else
     echo "TEST 13 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 14: Jac_coarse=1"
-if [ -f dft_surf/surf5 -a -f dft_in/in14 ]
+echo "TEST 14: 1Dljn3"
+if [ -f Ex_surfs/1D_LJ_neutral/1Dljn3s -a -f Ex_inputs/1D_LJ_neutral/1Dljn3 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in14 dft_input.dat 
+    cp Ex_surfs/1D_LJ_neutral/1Dljn3s dft_surfaces.dat
+    cp Ex_inputs/1D_LJ_neutral/1Dljn3 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 14 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-#########################
-# Test Physics: LJ fluid
-# near LJ wall
-# 1 wall(lft) & 1 bulk(rt)
-# 0.1 mesh - 8 sigma fluid
-#########################
-echo "TEST 15: Ipot_ff=2; rcut=3sigma"
-#         fluid and wall params (LB rules)
-if [ -f dft_surf/surf5 -a -f dft_in/in15 ]
+echo "TEST 15: 1Dljn4"
+if [ -f Ex_surfs/1D_LJ_neutral/1Dljn4s -a -f Ex_inputs/1D_LJ_neutral/1Dljn4 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in15 dft_input.dat 
+    cp Ex_surfs/1D_LJ_neutral/1Dljn4s dft_surfaces.dat
+    cp Ex_inputs/1D_LJ_neutral/1Dljn4 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 15 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 16: Ipot_ff=2; rcut=3sigma"
-#         (manual mix params)
-if [ -f dft_surf/surf5 -a -f dft_in/in16 ]
+#########################
+# 1D Mixture Examples
+#########################
+
+echo "TEST 16: 1Dmix1"
+if [ -f Ex_surfs/1D_mixtures/1Dmix1s -a -f Ex_inputs/1D_mixtures/1Dmix1 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in16 dft_input.dat 
+    cp Ex_surfs/1D_mixtures/1Dmix1s dft_surfaces.dat
+    cp Ex_inputs/1D_mixtures/1Dmix1 dft_input.dat 
     ${TramontoCommand}
 else
     echo "TEST 16 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 17: Ipot_ff=2; rcut=20 sigma"
-if [ -f dft_surf/surf5 -a -f dft_in/in17 ]
+echo "TEST 17: 1Dmix2"
+if [ -f Ex_surfs/1D_mixtures/1Dmix2s -a -f Ex_inputs/1D_mixtures/1Dmix2 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in17 dft_input.dat 
+    cp Ex_surfs/1D_mixtures/1Dmix2s dft_surfaces.dat
+    cp Ex_inputs/1D_mixtures/1Dmix2 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 17 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 18: Ipot_ff=4; rcut=20 sigma"
-if [ -f dft_surf/surf5 -a -f dft_in/in18 ]
+echo "TEST 18: 1Dmix3"
+if [ -f Ex_surfs/1D_mixtures/1Dmix3s -a -f Ex_inputs/1D_mixtures/1Dmix3 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in18 dft_input.dat 
+    cp Ex_surfs/1D_mixtures/1Dmix3s dft_surfaces.dat
+    cp Ex_inputs/1D_mixtures/1Dmix3 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 18 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 19: Ipot_ff=3; rcut=20 sigma"
-if [ -f dft_surf/surf5 -a -f dft_in/in19 ]
+echo "TEST 19: 1Dmix4"
+if [ -f Ex_surfs/1D_mixtures/1Dmix4s -a -f Ex_inputs/1D_mixtures/1Dmix4 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in19 dft_input.dat 
+    cp Ex_surfs/1D_mixtures/1Dmix4s dft_surfaces.dat
+    cp Ex_inputs/1D_mixtures/1Dmix4 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 19 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-#########################
-# Test Physics: Mixtures
-# Hard Sphere/Hard Wall
-# & LJ Spheres/LJ Wall
-#########################
-echo "TEST 20: 2 component version of 3"
-if [ -f dft_surf/surf5 -a -f dft_in/in20 ]
+echo "TEST 20: 1Dmix5"
+if [ -f Ex_surfs/1D_mixtures/1Dmix5s -a -f Ex_inputs/1D_mixtures/1Dmix5 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in20 dft_input.dat 
+    cp Ex_surfs/1D_mixtures/1Dmix5s dft_surfaces.dat
+    cp Ex_inputs/1D_mixtures/1Dmix5 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 20 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 21: 2 component version of 19"
-if [ -f dft_surf/surf5 -a -f dft_in/in21 ]
+echo "TEST 21: 1Dmix6"
+if [ -f Ex_surfs/1D_mixtures/1Dmix6s -a -f Ex_inputs/1D_mixtures/1Dmix6 ]
 then
-    cp dft_surf/surf5 dft_surfaces.dat
-    cp dft_in/in21 dft_input.dat 
+    cp Ex_surfs/1D_mixtures/1Dmix6s dft_surfaces.dat
+    cp Ex_inputs/1D_mixtures/1Dmix6 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 21 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-#########################
-# Test Physics: Coulomb systems 
-#########################
-
-echo "TEST 22: 2 component PB electrolyte"
-if [ -f dft_surf/surf6 -a -f dft_in/in22 ]
+echo "TEST 22: 1Dmix7"
+if [ -f Ex_surfs/1D_mixtures/1Dmix7s -a -f Ex_inputs/1D_mixtures/1Dmix7 ]
 then
-    cp dft_surf/surf6 ./dft_surfaces.dat
-    cp dft_in/in22 dft_input.dat 
+    cp Ex_surfs/1D_mixtures/1Dmix7s dft_surfaces.dat
+    cp Ex_inputs/1D_mixtures/1Dmix7 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 22 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 23: 2 component electrolyte"
-#         no delta c term
-if [ -f dft_surf/surf6 -a -f dft_in/in23 ]
+echo "TEST 23: 1Dmix8"
+if [ -f Ex_surfs/1D_mixtures/1Dmix8s -a -f Ex_inputs/1D_mixtures/1Dmix8 ]
 then
-    cp dft_surf/surf6 ./dft_surfaces.dat
-    cp dft_in/in23 dft_input.dat 
+    cp Ex_surfs/1D_mixtures/1Dmix8s dft_surfaces.dat
+    cp Ex_inputs/1D_mixtures/1Dmix8 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 23 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 24: 2 component electrolyte"
-#         with delta c term
-if [ -f dft_surf/surf6 -a -f dft_in/in24 ]
+echo "TEST 24: 1Dmix9"
+if [ -f Ex_surfs/1D_mixtures/1Dmix9s -a -f Ex_inputs/1D_mixtures/1Dmix9 ]
 then
-    cp dft_surf/surf6 ./dft_surfaces.dat
-    cp dft_in/in24 dft_input.dat 
+    cp Ex_surfs/1D_mixtures/1Dmix9s dft_surfaces.dat
+    cp Ex_inputs/1D_mixtures/1Dmix9 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 24 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 25: 3 component electrolyte"
-#         no delta c term
-if [ -f dft_surf/surf6 -a -f dft_in/in25 ]
+#########################
+# 1D Polymer Examples
+#########################
+
+echo "TEST 25: 1Dpoly1"
+if [ -f Ex_surfs/1D_polymer/1Dpoly1s -a -f Ex_inputs/1D_polymer/1Dpoly1 -a -f Ex_polyfiles/lin_18 -a -f Ex_crfiles/cr8.2.8_0.711eff1 ]
 then
-    cp dft_surf/surf6 ./dft_surfaces.dat
-    cp dft_in/in25 dft_input.dat 
+    cp Ex_surfs/1D_polymer/1Dpoly1s dft_surfaces.dat
+    cp Ex_inputs/1D_polymer/1Dpoly1 dft_input.dat 
+    cp Ex_polyfiles/lin_18 lin_18
+    cp Ex_crfiles/cr8.2.8_0.711eff1 cr8.2.8_0.711eff1
     ${TramontoCommand}
 else
     echo "TEST 25 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 26: 3 component electrolyte"
-#         with delta c term
-if [ -f dft_surf/surf6 -a -f dft_in/in26 ]
+echo "TEST 26: 1Dpoly2"
+if [ -f Ex_surfs/1D_polymer/1Dpoly2s -a -f Ex_inputs/1D_polymer/1Dpoly2 -a -f Ex_polyfiles/lin_18 -a -f Ex_crfiles/cr8.2.8_0.711eff1 ]
 then
-    cp dft_surf/surf6 ./dft_surfaces.dat
-    cp dft_in/in26 dft_input.dat 
+    cp Ex_surfs/1D_polymer/1Dpoly2s dft_surfaces.dat
+    cp Ex_inputs/1D_polymer/1Dpoly2 dft_input.dat
+    cp Ex_polyfiles/lin_18 lin_18
+    cp Ex_crfiles/cr8.2.8_0.711eff1 cr8.2.8_0.711eff1
     ${TramontoCommand}
 else
     echo "TEST 26 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-#########################
-# Test Boundary Conditions
-# 2D Hard sphere problems
-#########################
-
-echo "TEST 27: 1D reference problem"
-if [ -f dft_surf/surf7 -a -f dft_in/in27 ]
+echo "TEST 27: 1Dpoly3"
+if [ -f Ex_surfs/1D_polymer/1Dpoly3s -a -f Ex_inputs/1D_polymer/1Dpoly3 -a -f Ex_polyfiles/lin_18_1 -a -f Ex_crfiles/cr8.2.8_0.375_1_0.375 ]
 then
-    cp dft_surf/surf7 dft_surfaces.dat
-    cp dft_in/in27 dft_input.dat 
+    cp Ex_surfs/1D_polymer/1Dpoly3s dft_surfaces.dat
+    cp Ex_inputs/1D_polymer/1Dpoly3 dft_input.dat
+    cp Ex_polyfiles/lin_18_1 lin_18_1
+    cp Ex_crfiles/cr8.2.8_0.375_1_0.375 cr8.2.8_0.375_1_0.375
     ${TramontoCommand}
 else
     echo "TEST 27 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 28: same 2D problem (L=2sigma)"
-#         y=reflect b.c.
-if [ -f dft_surf/surf8 -a -f dft_in/in28 ]
+echo "TEST 28: 1Dpoly4"
+if [ -f Ex_surfs/1D_polymer/1Dpoly4s -a -f Ex_inputs/1D_polymer/1Dpoly4 -a -f Ex_polyfiles/lin_18_1 -a -f Ex_crfiles/cr8.2.8_0.375_1_0.375 ]
 then
-    cp dft_surf/surf8 dft_surfaces.dat
-    cp dft_in/in28 dft_input.dat 
+    cp Ex_surfs/1D_polymer/1Dpoly4s dft_surfaces.dat
+    cp Ex_inputs/1D_polymer/1Dpoly4 dft_input.dat
+    cp Ex_polyfiles/lin_18_1 lin_18_1
+    cp Ex_crfiles/cr8.2.8_0.375_1_0.375 cr8.2.8_0.375_1_0.375
     ${TramontoCommand}
+    rm lin_18_1
 else
     echo "TEST 28 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 29: Reflect B.C. on right"
-#         y=reflect b.c.
-if [ -f dft_surf/surf9 -a -f dft_in/in29 ]
+echo "TEST 29: 1Dpoly5"
+if [ -f Ex_surfs/1D_polymer/1Dpoly5s -a -f Ex_inputs/1D_polymer/1Dpoly5 -a -f Ex_polyfiles/lin_3mer -a -f Ex_crfiles/cr8.2.8_0.375_1_0.375 ]
 then
-    cp dft_surf/surf9 dft_surfaces.dat
-    cp dft_in/in29 dft_input.dat 
+    cp Ex_surfs/1D_polymer/1Dpoly5s dft_surfaces.dat
+    cp Ex_inputs/1D_polymer/1Dpoly5 dft_input.dat
+    cp Ex_polyfiles/lin_3mer lin_3mer
+    cp Ex_crfiles/cr8.2.8_0.375_1_0.375 cr8.2.8_0.375_1_0.375
     ${TramontoCommand}
+    rm lin_3mer
 else
     echo "TEST 29 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 30: Reflect B.C. on right"
-#         y=periodic b.c.
-if [ -f dft_surf/surf9 -a -f dft_in/in30 ]
+echo "TEST 30: 1Dpoly6"
+if [ -f Ex_surfs/1D_polymer/1Dpoly6s -a -f Ex_inputs/1D_polymer/1Dpoly6 -a -f Ex_polyfiles/lin_5mer -a -f Ex_crfiles/cr8.2.8_0.375_1_0.375 ]
 then
-    cp dft_surf/surf9 dft_surfaces.dat
-    cp dft_in/in30 dft_input.dat 
+    cp Ex_surfs/1D_polymer/1Dpoly6s dft_surfaces.dat
+    cp Ex_inputs/1D_polymer/1Dpoly6 dft_input.dat
+    cp Ex_polyfiles/lin_5mer lin_5mer
+    cp Ex_crfiles/cr8.2.8_0.375_1_0.375 cr8.2.8_0.375_1_0.375
     ${TramontoCommand}
 else
     echo "TEST 30 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 31: Reflect B.C. on top"
-#         x=periodic b.c.
-if [ -f dft_surf/surf10 -a -f dft_in/in31 ]
+echo "TEST 31: 1Dpoly7"
+if [ -f Ex_surfs/1D_polymer/1Dpoly7s -a -f Ex_inputs/1D_polymer/1Dpoly7 -a -f Ex_polyfiles/lin_5mer -a -f Ex_crfiles/cr8.2.8_0.375_1_0.375 ]
 then
-    cp dft_surf/surf10 dft_surfaces.dat
-    cp dft_in/in31 dft_input.dat 
+    cp Ex_surfs/1D_polymer/1Dpoly7s dft_surfaces.dat
+    cp Ex_inputs/1D_polymer/1Dpoly7 dft_input.dat
+    cp Ex_polyfiles/lin_5mer lin_5mer
+    cp Ex_crfiles/cr8.2.8_0.375_1_0.375 cr8.2.8_0.375_1_0.375
     ${TramontoCommand}
 else
     echo "TEST 31 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-#POLYMER TEST PROBLEMS
-
-echo "TEST 32: hard chain homopolymer at hard wall: 1 component: no symmetry"
-if [ -f dft_surf/surf11 -a -f dft_in/in32 -a -f prism_cr/crf20_0.7 -a -f prism_cr/lin_20 ]
+echo "TEST 32: 1Dpoly8"
+if [ -f Ex_surfs/1D_polymer/1Dpoly8s -a -f Ex_inputs/1D_polymer/1Dpoly8 -a -f Ex_polyfiles/lin_5mer -a -f Ex_crfiles/cr8.2.8_0.375_1_0.375 ]
 then
-    cp dft_surf/surf11 dft_surfaces.dat
-    cp dft_in/in32 dft_input.dat 
-    cp prism_cr/crf20_0.7 crf20_0.7
-    cp prism_cr/lin_20 lin_20
+    cp Ex_surfs/1D_polymer/1Dpoly8s dft_surfaces.dat
+    cp Ex_inputs/1D_polymer/1Dpoly8 dft_input.dat
+    cp Ex_polyfiles/lin_5mer lin_5mer
+    cp Ex_crfiles/cr8.2.8_0.375_1_0.375 cr8.2.8_0.375_1_0.375
     ${TramontoCommand}
-    rm lin_20
+    rm lin_5mer
+    rm cr8.2.8_0.375_1_0.375
 else
     echo "TEST 32 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 33: hard chain homopolymer at hard wall: 1 component: with symmetry"
-if [ -f dft_surf/surf11 -a -f dft_in/in33 -a -f prism_cr/crf20_0.7 -a -f prism_cr/lin_20_sym ]
+#########################
+# 2D3D Atomic Examples
+#########################
+
+echo "TEST 33: 2D3Datomic1"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic1s -a -f Ex_inputs/2D3D_atomic/2D3Datomic1 ]
 then
-    cp dft_surf/surf11 dft_surfaces.dat
-    cp dft_in/in33 dft_input.dat 
-    cp prism_cr/crf20_0.7 crf20_0.7
-    cp prism_cr/lin_20_sym lin_20_sym
+    cp Ex_surfs/2D3D_atomic/2D3Datomic1s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic1 dft_input.dat
     ${TramontoCommand}
-    rm lin_20_sym
-    rm crf20_0.7
 else
     echo "TEST 33 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 34: a 4-4-4-4 star polymer at an attractive wall: "
-#          1 polymer comp; 1 block; no symmetry
-#          note that the c(r) file is not correct.
-if [ -f dft_surf/surf12 -a -f dft_in/in34 -a -f prism_cr/crf8.8_0.7 -a -f prism_cr/star_4444 ]
+echo "TEST 34: 2D3Datomic2"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic2s -a -f Ex_inputs/2D3D_atomic/2D3Datomic2 ]
 then
-    cp dft_surf/surf12 dft_surfaces.dat
-    cp dft_in/in34 dft_input.dat 
-    cp prism_cr/crf8.8_0.7 crf8.8_0.7
-    cp prism_cr/star_4444 star_4444
+    cp Ex_surfs/2D3D_atomic/2D3Datomic2s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic2 dft_input.dat
     ${TramontoCommand}
-    rm star_4444
 else
     echo "TEST 34 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 35: a 4-4-4-4 star polymer at an attractive wall: "
-#          1 polymer comp; 1 block; with symmetry
-if [ -f dft_surf/surf12 -a -f dft_in/in35  -a -f prism_cr/star_4444_sym -a -f prism_cr/crf8.8_0.7 ]
+echo "TEST 35: 2D3Datomic3"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic3s -a -f Ex_inputs/2D3D_atomic/2D3Datomic3 ]
 then
-    cp dft_surf/surf12 dft_surfaces.dat
-    cp dft_in/in35 dft_input.dat 
-    cp prism_cr/star_4444_sym star_4444_sym
-    cp prism_cr/crf8.8_0.7 crf8.8_0.7
+    cp Ex_surfs/2D3D_atomic/2D3Datomic3s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic3 dft_input.dat
     ${TramontoCommand}
-    rm star_4444_sym
 else
     echo "TEST 35 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 36: diblock copolymers at attractive (to one component) wall: 1 polymer comp; 2 blocks"
-if [ -f dft_in/in36 -a -f prism_cr/crf8.8_0.7 -a -f prism_cr/lin_16 ]
+echo "TEST 36: 2D3Datomic4"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic4s -a -f Ex_inputs/2D3D_atomic/2D3Datomic4 ]
 then
-    cp dft_in/in36 dft_input.dat 
-    cp prism_cr/crf8.8_0.7 crf8.8_0.7
-    cp prism_cr/lin_16 lin_16
+    cp Ex_surfs/2D3D_atomic/2D3Datomic4s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic4 dft_input.dat
     ${TramontoCommand}
-    rm crf8.8_0.7
-    rm lin_16
 else
     echo "TEST 36 ERROR -- could not find needed files.  Skipping this test"
 fi
 
 
-echo "TEST 37 TRANSPORT EXAMPLES "
-if [ -f dft_surf/surf13 -a -f dft_in/in37 ]
+echo "TEST 37: 2D3Datomic5"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic5s -a -f Ex_inputs/2D3D_atomic/2D3Datomic5 ]
 then
-    cp dft_surf/surf13 dft_surfaces.dat
-    cp dft_in/in37 dft_input.dat 
+    cp Ex_surfs/2D3D_atomic/2D3Datomic5s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic5 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 37 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 38 TRANSPORT EXAMPLES "
-if [ -f dft_surf/surf13 -a -f dft_in/in38 ]
+echo "TEST 38: 2D3Datomic6"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic6s -a -f Ex_inputs/2D3D_atomic/2D3Datomic6 ]
 then
-    cp dft_surf/surf13 dft_surfaces.dat
-    cp dft_in/in38 dft_input.dat 
+    cp Ex_surfs/2D3D_atomic/2D3Datomic6s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic6 dft_input.dat
     ${TramontoCommand}
-    rm -f dft_flux.dat
 else
     echo "TEST 38 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 39 2D TAPERED PORES / EQUILIBRIUM SYSTEMS"
-#this is a long run .... use an old solution
-if [ -f dft_dens/dens36 -a -f dft_surf/surf14 -a -f dft_in/in39 ]
+echo "TEST 39: 2D3Datomic7"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic7s -a -f Ex_inputs/2D3D_atomic/2D3Datomic7 ]
 then
-    cp dft_dens/dens36 dft_dens.dat
-    cp dft_surf/surf14 dft_surfaces.dat
-    cp dft_in/in39 dft_input.dat
+    cp Ex_surfs/2D3D_atomic/2D3Datomic7s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic7 dft_input.dat
     ${TramontoCommand}
-    cp dft_dens.dat dens36save
 else
     echo "TEST 39 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-echo "TEST 40 "
-if [ -f dft_dens/dens37 -a -f dft_surf/surf15 -a -f dft_in/in40 ]
+echo "TEST 40: 2D3Datomic8"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic8s -a -f Ex_inputs/2D3D_atomic/2D3Datomic8 ]
 then
-    cp dft_dens/dens37 dft_dens.dat
-    cp dft_surf/surf15 dft_surfaces.dat
-    cp dft_in/in40 dft_input.dat
+    cp Ex_surfs/2D3D_atomic/2D3Datomic8s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic8 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 40 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-
-#LOCA CONTINUATION LIBRARY EXAMPLES
-# capillary condensation of LJ fluid in slit pore
-#arc_length (generates 10 lines in dft_force.dat)
-echo "TEST 41"
-if [ -f dft_surf/surf16 -a -f dft_in/in41 ]
+echo "TEST 41: 2D3Datomic9"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic9s -a -f Ex_inputs/2D3D_atomic/2D3Datomic9 ]
 then
-    cp dft_surf/surf16 dft_surfaces.dat
-    cp dft_in/in41 dft_input.dat
+    cp Ex_surfs/2D3D_atomic/2D3Datomic9s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic9 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 41 ERROR -- could not find needed files.  Skipping this test"
 fi
 
 #turning point tracking (generates 2 lines in dft_force.dat)
-echo "TEST 42"
-if [ -f dft_dens/dens39 -a -f dft_surf/surf16 -a -f dft_in/in42 ]
+echo "TEST 42: 2D3Datomic10"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic10s -a -f Ex_inputs/2D3D_atomic/2D3Datomic10 ]
 then
-    cp dft_dens/dens39 dft_dens.dat
-    cp dft_surf/surf16 dft_surfaces.dat
-    cp dft_in/in42 dft_input.dat
+    cp Ex_surfs/2D3D_atomic/2D3Datomic10s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic10 dft_input.dat
     ${TramontoCommand}
 else
     echo "TEST 42 ERROR -- could not find needed files.  Skipping this test"
 fi
 
-#phase transition tracking (generates 6 lines in dft_force.dat)
-echo "TEST 43"
-if [ -f dft_dens/dens40.0 -a -f dft_dens/dens40.1 -a -f dft_surf/surf16 -a -f dft_in/in43 ]
+echo "TEST 43: 2D3Datomic11"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic11s -a -f Ex_inputs/2D3D_atomic/2D3Datomic11 ]
 then
-    cp dft_dens/dens40.0 dft_dens.dat
-    cp dft_dens/dens40.1 dft_dens2.dat
-    cp dft_surf/surf16 dft_surfaces.dat
-    cp dft_in/in43 dft_input.dat
+    cp Ex_surfs/2D3D_atomic/2D3Datomic11s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic11 dft_input.dat
     ${TramontoCommand}
-    rm dft_dens2.dat
 else
     echo "TEST 43 ERROR -- could not find needed files.  Skipping this test"
+fi
+
+echo "TEST 44: 2D3Datomic12"
+if [ -f Ex_surfs/2D3D_atomic/2D3Datomic12s -a -f Ex_inputs/2D3D_atomic/2D3Datomic12 ]
+then
+    cp Ex_surfs/2D3D_atomic/2D3Datomic12s dft_surfaces.dat
+    cp Ex_inputs/2D3D_atomic/2D3Datomic12 dft_input.dat
+    ${TramontoCommand}
+else
+    echo "TEST 44 ERROR -- could not find needed files.  Skipping this test"
 fi
 
 ############

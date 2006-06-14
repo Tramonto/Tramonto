@@ -30,6 +30,7 @@
 # list is also used to package the distribution.
 
 COMMON_H = \
+	${srcdir}/Tramonto_ConfigDefs.h \
         ${srcdir}/dft_globals.h \
         ${srcdir}/dft_globals_const.h \
         ${srcdir}/dft_ldbal.h \
@@ -116,6 +117,25 @@ COMMON_CXX = \
         ${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp \
         ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp
 
+EXTRA_NOXLOCA_CXX =
+
+EXTRA_NOXLOCA_H =
+
+if HAVE_NOXLOCA
+
+NOXLOCA_CXX = \
+	$(EXTRA_NOXLOCA_CXX)
+
+NOXLOCA_H = \
+	$(EXTRA_NOXLOCA_H)
+
+else
+
+NOXLOCA_CXX =
+NOXLOCA_H =
+
+endif
+
 # ------------------------------------------------------------------------
 # Tramonto library specifications
 # ------------------------------------------------------------------------
@@ -123,11 +143,17 @@ COMMON_CXX = \
 DFT_LIB = libdft.a
 
 DFT_H = \
-	$(COMMON_H)
+	$(COMMON_H) \
+	$(NOXLOCA_H)
 
 libdft_a_SOURCES = \
 	$(COMMON_C) \
-	$(COMMON_CXX)
+	$(COMMON_CXX) \
+	$(NOXLOCA_CXX)
+
+EXTRA_libdft_a_SOURCES = \
+	$(NOXLOCA_H) \
+	$(NOXLOCA_CXX)
 
 #Trilinos has a solution for selecting alternate ar's if that is a problem
 

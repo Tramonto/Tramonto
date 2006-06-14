@@ -122,7 +122,7 @@ dnl check for C++, C and Fotran compilers
 dnl
 AC_PROG_CXX( [mpicxx mpic++ mpiCC c++ g++ cxx CC] )
 AC_PROG_CC( [mpicc cc gcc] )
-AC_PROG_F77( [mpif77 f77 g77 f90 xlf90 f95] )
+AC_PROG_F77( [mpif77 f77 g77 gfortran f90 xlf90 f95] )
 
 TAC_ARG_WITH_FLAGS(cxxflags, CXXFLAGS)
 TAC_ARG_WITH_FLAGS(cflags, CFLAGS)
@@ -199,6 +199,8 @@ TAC_ARG_WITH_LIBDIRS
 # enable use of --with-incdirs="-Lincdir1 -Lincdir2 ..." to prepend to CPPFLAGS
 TAC_ARG_WITH_INCDIRS
 
+TAC_ARG_WITH_PACKAGE(noxloca, [Enable NOX and LOCA interface support], NOXLOCA, no)
+AM_CONDITIONAL(HAVE_NOXLOCA, test "X$ac_cv_use_noxloca" != "Xno")
 
 dnl Option to turn off checks for third-party libraries
 
@@ -232,6 +234,22 @@ AC_CHECK_LIB( [aztecoo],
               [LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos $MPI_LIBS $LAPACK_LIBS  $BLAS_LIBS $LIBS $FLIBS"],
               [AC_MSG_FAILURE([Cannot link to AztecOO, Triutils, Ifpack, EpetraExt, Epetra, or Teuchos library.])], 
               [-ltriutils -lifpack -lepetraext -lepetra -lteuchos ${MPI_LIBS} ${LAPACK_LIBS} ${BLAS_LIBS} ${LIBS} ${FLIBS}])
+
+if test "X$ac_cv_use_noxloca" != "Xno"; then
+
+  AC_CHECK_HEADER( [LOCA.H], [LIBS="-lnox -lloca $LIBS"],
+	      [AC_MSG_FAILURE([Cannot find LOCA header file.])])
+fi
+
+else
+
+LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos $MPI_LIBS $LAPACK_LIBS  $BLAS_LIBS $LIBS $FLIBS"
+
+if test "X$ac_cv_use_noxloca" != "Xno"; then
+
+  LIBS="-lnox -lloca $LIBS"
+
+fi
 
 fi
 

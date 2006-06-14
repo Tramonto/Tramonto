@@ -47,7 +47,7 @@
 
 
 
-SOURCES = $(libdft_a_SOURCES) $(dft_SOURCES)
+SOURCES = $(libdft_a_SOURCES) $(EXTRA_libdft_a_SOURCES) $(dft_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -81,6 +81,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/acx_blas.m4 \
 	$(top_srcdir)/config/tac_arg_with_flags.m4 \
 	$(top_srcdir)/config/tac_arg_with_incdirs.m4 \
 	$(top_srcdir)/config/tac_arg_with_libdirs.m4 \
+	$(top_srcdir)/config/tac_arg_with_package.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -129,11 +130,14 @@ am__objects_2 = dft_BasicLinProbMgr.$(OBJEXT) \
 	dft_basic_lin_prob_mgr_wrapper.$(OBJEXT) \
 	dft_poly_lin_prob_mgr_wrapper.$(OBJEXT) \
 	dft_hardsphere_lin_prob_mgr_wrapper.$(OBJEXT)
-am_libdft_a_OBJECTS = $(am__objects_1) $(am__objects_2)
+am__objects_3 =
+@HAVE_NOXLOCA_TRUE@am__objects_4 = $(am__objects_3)
+am_libdft_a_OBJECTS = $(am__objects_1) $(am__objects_2) \
+	$(am__objects_4)
 libdft_a_OBJECTS = $(am_libdft_a_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_3 = dft-dft_BasicLinProbMgr.$(OBJEXT) \
+am__objects_5 = dft-dft_BasicLinProbMgr.$(OBJEXT) \
 	dft-dft_PolyLinProbMgr.$(OBJEXT) \
 	dft-dft_HardSphereLinProbMgr.$(OBJEXT) \
 	dft-dft_PolyA11_Epetra_Operator.$(OBJEXT) \
@@ -145,7 +149,7 @@ am__objects_3 = dft-dft_BasicLinProbMgr.$(OBJEXT) \
 	dft-dft_basic_lin_prob_mgr_wrapper.$(OBJEXT) \
 	dft-dft_poly_lin_prob_mgr_wrapper.$(OBJEXT) \
 	dft-dft_hardsphere_lin_prob_mgr_wrapper.$(OBJEXT)
-am_dft_OBJECTS = dft_maindriver.$(OBJEXT) $(am__objects_3) \
+am_dft_OBJECTS = dft_maindriver.$(OBJEXT) $(am__objects_5) \
 	$(am__objects_1)
 dft_OBJECTS = $(am_dft_OBJECTS)
 am__DEPENDENCIES_1 =
@@ -231,8 +235,9 @@ CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
-SOURCES = $(libdft_a_SOURCES) $(dft_SOURCES)
-DIST_SOURCES = $(libdft_a_SOURCES) $(dft_SOURCES)
+SOURCES = $(libdft_a_SOURCES) $(EXTRA_libdft_a_SOURCES) $(dft_SOURCES)
+DIST_SOURCES = $(libdft_a_SOURCES) $(EXTRA_libdft_a_SOURCES) \
+	$(dft_SOURCES)
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 nodist_execincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS) $(nodist_execinclude_HEADERS)
@@ -270,6 +275,8 @@ EXEEXT = @EXEEXT@
 F77 = @F77@
 FFLAGS = @FFLAGS@
 FLIBS = @FLIBS@
+HAVE_NOXLOCA_FALSE = @HAVE_NOXLOCA_FALSE@
+HAVE_NOXLOCA_TRUE = @HAVE_NOXLOCA_TRUE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -341,6 +348,7 @@ target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
 COMMON_H = \
+	${srcdir}/Tramonto_ConfigDefs.h \
         ${srcdir}/dft_globals.h \
         ${srcdir}/dft_globals_const.h \
         ${srcdir}/dft_ldbal.h \
@@ -427,17 +435,33 @@ COMMON_CXX = \
         ${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp \
         ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp
 
+EXTRA_NOXLOCA_CXX = 
+EXTRA_NOXLOCA_H = 
+@HAVE_NOXLOCA_FALSE@NOXLOCA_CXX = 
+@HAVE_NOXLOCA_TRUE@NOXLOCA_CXX = \
+@HAVE_NOXLOCA_TRUE@	$(EXTRA_NOXLOCA_CXX)
+
+@HAVE_NOXLOCA_FALSE@NOXLOCA_H = 
+@HAVE_NOXLOCA_TRUE@NOXLOCA_H = \
+@HAVE_NOXLOCA_TRUE@	$(EXTRA_NOXLOCA_H)
+
 
 # ------------------------------------------------------------------------
 # Tramonto library specifications
 # ------------------------------------------------------------------------
 DFT_LIB = libdft.a
 DFT_H = \
-	$(COMMON_H)
+	$(COMMON_H) \
+	$(NOXLOCA_H)
 
 libdft_a_SOURCES = \
 	$(COMMON_C) \
-	$(COMMON_CXX)
+	$(COMMON_CXX) \
+	$(NOXLOCA_CXX)
+
+EXTRA_libdft_a_SOURCES = \
+	$(NOXLOCA_H) \
+	$(NOXLOCA_CXX)
 
 
 #Trilinos has a solution for selecting alternate ar's if that is a problem
