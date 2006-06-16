@@ -1079,6 +1079,15 @@ double gsum_double_conwrap(double sum)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+double gmax_double_conwrap(double sum)
+{ return gmax_double(sum); }
+
+/* This worked calling the C code from C++. Probably not needed. */
+void fill_resid_and_matrix_control_conwrap(double** xBox, int ii, int jj)
+{  fill_resid_and_matrix_control(xBox, ii, jj); }
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 int gmax_int_conwrap(int max)
 /* Put the call to a routine to calculate a global sum.
  * Just return sum for single processor jobs.

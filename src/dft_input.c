@@ -1754,7 +1754,7 @@ void read_input_file(char *input_file, char *output_file1)
   else{ read_junk(fp,fp2); read_junk(fp,fp2); read_junk(fp,fp2);}
 
     /* FINALLY READ IN LOCA PARAMETERS */
-#ifdef LOCA
+#ifdef USE_LOCA
   if (Proc==0) {
     read_junk(fp,fp2);
     fscanf(fp,"%d", &itmp);

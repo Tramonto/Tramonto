@@ -42,6 +42,8 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 
+#include "Tramonto_ConfigDefs.h"
+
 /****************************************************************************/
 /* Machine specific definitions */
 
@@ -129,7 +131,7 @@
  * unknown number straightforward.  This became necessary with the introduction
  * of the WTC polymers where we now have 6 types of equations to fill.
  */
-#define NEQ_TYPE       8 
+#define NEQ_TYPE       8
 #define NO_UNK        -888
 
 #define DENSITY        0
@@ -471,7 +473,7 @@ struct Aztec_Struct {
  *  Information for the continuation library is held here.
  */
 
-#define LOCA
+#define USE_LOCA
 struct Loca_Struct {
   int    method;      /* Continuation method                          */
   int    cont_type1;  /* flag specifying the continuation parameter   */

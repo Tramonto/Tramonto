@@ -117,9 +117,14 @@ COMMON_CXX = \
         ${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp \
         ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp
 
-EXTRA_NOXLOCA_CXX =
+EXTRA_NOXLOCA_CXX = \
+        ${srcdir}/NOXLOCA_Solver.cpp \
+        ${srcdir}/NOXLOCA_Tramonto_Group.cpp \
+        ${srcdir}/NOXLOCA_Tramonto_Vector.cpp
 
-EXTRA_NOXLOCA_H =
+EXTRA_NOXLOCA_H = \
+        ${srcdir}/NOXLOCA_Tramonto_Group.hpp \
+        ${srcdir}/NOXLOCA_Tramonto_Vector.hpp
 
 if HAVE_NOXLOCA
 

@@ -32,6 +32,10 @@
 
 static void print_resid_norm(int iter);
 void fill_test(double **x, int flag);
+#ifdef HAVE_NOXLOCA
+void NOXLOCA_Solver(double** xBox, double **xOwned);
+#endif
+
 
 #ifdef NUMERICAL_JACOBIAN
 static void do_numerical_jacobian(double **x);
@@ -170,12 +174,18 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x2);
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
-  safe_free((void **) &xOwned);
 
+#ifdef HAVE_NOXLOCA
+  if (Loca.method == -2)
+    NOXLOCA_Solver(x, xOwned);
+  else 
+#endif
   if (Loca.method != -1)
     iter = solve_continuation(x, x2);
   else
      iter = newton_solver(x, NULL);
+
+  safe_free((void **) &xOwned);
 
   /* Call the destructor for the dft_Linprobmgr */
   dft_linprobmgr_destruct(LinProbMgr_manager);
@@ -239,6 +249,7 @@ int newton_solver(double** x, void* con_ptr) {
     
     /* I am assuming getLhs returns box coordinates (e.g. Column Map)!! */
     (void) dft_linprobmgr_getlhs(LinProbMgr_manager, delta_x);
+
     /*
       for (iunk=0; iunk<Nunk_per_node; iunk++)
       for (ibox=0; ibox<Nnodes_box; ibox++) {
@@ -429,6 +440,7 @@ static void print_resid_norm(int iter)
   if (Proc==0 && Iwrite==VERBOSE) ifp=fopen(filename,"w+");
   f = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   dft_linprobmgr_getrhs(LinProbMgr_manager, f);
+
 
   for (j=0; j< Nnodes_per_proc; j++) {
     for (iunk=0; iunk<Nunk_per_node; iunk++) {
