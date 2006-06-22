@@ -45,8 +45,8 @@ class dft_Schur_Epetra_Operator;
 #include "Epetra_IntSerialDenseVector.h"
 #include "Epetra_SerialDenseVector.h"
 
-//! dft_PolyLinProbMgr:  Solver manager class for Tramonto using Trilinos.
-/*! The dft_PolyLinProbMgr class supports solver capabilities for Tramonto.
+//! dft_PolyLinProbMgr:  Problem manager class for polymer problems.
+/*! The dft_PolyLinProbMgr class supports polymer solver capabilities for Tramonto.
   
 */
 class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
