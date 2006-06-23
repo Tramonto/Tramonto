@@ -6,15 +6,12 @@ Dimensions: 1
 Diffusion: No
 Notes: Basic Test Problem; high resolution grid.
 
-\begin{table}[h]
-\begin{tabular}{|l|c|}
-\hline
-Output  & value \\ \hline
-niter & 6 \\
-ads  & 3.527692  \\
-energy &  2.287919 \\
-force & 5.231941867 
-\hline
-\end{tabular}
-\end{table}
+Key Output Parameters:
+\f{eqnarray*}
+niter &=& 6  \\
+adsorption &=& 3.527692  \\
+energy &=&  2.287919 \\
+force &=& 5.231941867 
+\f}
+
 */
