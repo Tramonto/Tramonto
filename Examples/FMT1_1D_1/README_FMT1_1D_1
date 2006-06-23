@@ -1,4 +1,6 @@
-Physics Problem: Hard sphere fluid in a Hard wall slit
+/*! \file
+\brief Hard sphere fluid in a Hard wall slit.
+
 Functionals: FMT_1
 Dimensions: 1
 Diffusion: No
@@ -15,5 +17,4 @@ force & 5.231941867
 \hline
 \end{tabular}
 \end{table}
-
-
+*/
