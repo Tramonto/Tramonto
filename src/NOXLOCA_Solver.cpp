@@ -27,9 +27,6 @@
 // ************************************************************************
 //@HEADER
 
-//Avoid conflicting blas wrappers in aztec and Teuchos
-#define _TEUCHOS_BLAS_WRAPPERS_HPP_
-
 #include "LOCA.H"
 #include "NOX_Parameter_List.H"
 #include "NOXLOCA_Tramonto_Group.hpp"

@@ -1289,7 +1289,7 @@ static void shift_the_profile(double *x_new,double fac)
 
      /* check a few limiting values ... and finally set initial guess*/
      if (Unk2Phys[iunk]==DENSITY){
-        x_test = min(Rho_max,fac*(unk_old-Rho_b[iunk-Phys2Unk_first[DENSITY]])+ Rho_b[iunk-Phys2Unk_first[DENSITY]]);
+        x_test = AZ_MIN(Rho_max,fac*(unk_old-Rho_b[iunk-Phys2Unk_first[DENSITY]])+ Rho_b[iunk-Phys2Unk_first[DENSITY]]);
      }
      else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
         x_test = fac*(unk_old-Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]])+ Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]];

@@ -37,8 +37,6 @@ COMMON_H = \
         ${srcdir}/rf_allo.h \
         ${srcdir}/loca_const.h \
         ${srcdir}/loca_util_const.h \
-        ${srcdir}/az_aztec.h \
-        ${srcdir}/az_aztec_defs.h \
         ${srcdir}/dft_BasicLinProbMgr.hpp \
         ${srcdir}/dft_PolyLinProbMgr.hpp \
         ${srcdir}/dft_HardSphereLinProbMgr.hpp \

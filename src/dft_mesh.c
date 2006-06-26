@@ -2389,7 +2389,7 @@ void setup_volume_charge1(int iwall)
   double r,x[3],charge_per_el, esize_x_min = 10.;
 
   nmax = Nwall;
-  for (idim=0; idim<Ndim; idim++) esize_x_min = min(Esize_x[idim],esize_x_min);
+  for (idim=0; idim<Ndim; idim++) esize_x_min = AZ_MIN(Esize_x[idim],esize_x_min);
 
   elems = (int *) array_alloc(1, Nelements_box, sizeof(int));
 
@@ -2431,7 +2431,7 @@ void setup_volume_charge2(void)
   double r,x[3],charge_per_el, esize_x_min = 10.;
 
   nmax = Nlocal_charge;
-  for (idim=0; idim<Ndim; idim++) esize_x_min = min(Esize_x[idim],esize_x_min);
+  for (idim=0; idim<Ndim; idim++) esize_x_min = AZ_MIN(Esize_x[idim],esize_x_min);
 
   elems = (int *) array_alloc(1, Nelements_box, sizeof(int));
 
@@ -2481,7 +2481,7 @@ void els_charge_spheres(double radius,double *x,int *nelems,
    double r12_sq_sum,r12,dx,r12min=1000.,esize_x_min=1000.;
    int image_flag, ijk[3], ijk_box[3],image_flag_save=0;
 
-   for (idim=0; idim<Ndim; idim++) esize_x_min = min(Esize_x[idim],esize_x_min);
+   for (idim=0; idim<Ndim; idim++) esize_x_min = AZ_MIN(Esize_x[idim],esize_x_min);
    for (iel_box = 0; iel_box < Nelements_box; iel_box++){
 
        inode_box = element_box_to_node_box(iel_box);

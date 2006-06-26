@@ -302,8 +302,8 @@ int update_solution(double** x, double** delta_x, int iter) {
     for (iunk=0; iunk<Nunk_per_node; iunk++){
       if (Unk2Phys[iunk]==CMS_G || Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==CMS_FIELD){
          if(x[iunk][ibox]+delta_x[iunk][ibox]<0.0){
-             frac = min(1.0,x[iunk][ibox]/(-delta_x[iunk][ibox]));
-             frac = max(frac,Min_update_frac);
+             frac = AZ_MIN(1.0,x[iunk][ibox]/(-delta_x[iunk][ibox]));
+             frac = AZ_MAX(frac,Min_update_frac);
          } 
          else frac=1.0;
 

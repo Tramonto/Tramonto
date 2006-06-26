@@ -33,10 +33,6 @@
 #ifndef NOXLOCA_TRAMONTO_GROUP_H
 #define NOXLOCA_TRAMONTO_GROUP_H
 
-                                                                                                                          
-//Avoid multiple binding wrappers in teuchos and aztec
-#define _TEUCHOS_BLAS_WRAPPERS_HPP_
-
 #include "LOCA_MultiContinuation_AbstractGroup.H"  // base class
 
 #include "NOX_Common.H"             // class data element (string)

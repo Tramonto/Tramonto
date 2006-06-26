@@ -30,9 +30,6 @@
 #ifndef NOXLOCA_TRAMONTO_VECTOR_H
 #define NOXLOCA_TRAMONTO_VECTOR_H
 
-//Avoid multiple binding wrappers in teuchos and aztec
-#define _TEUCHOS_BLAS_WRAPPERS_HPP_
-
 #include "NOX_Abstract_Vector.H" // base class
 #include "NOX_Common.H" // for #include<vector>
 

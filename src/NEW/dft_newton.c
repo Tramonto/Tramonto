@@ -786,8 +786,8 @@ int update_solution(int iter,double *x, double *delta_x)
         for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
            loc_i=Aztec.update_index[icomp+Nunk_per_node*loc_inode];
            if (x[loc_i]+delta_x[loc_i]<0.0){
-                frac = min(1.0,x[loc_i]/(-delta_x[loc_i]));
-                frac = max(frac,Min_update_frac);
+                frac = AZ_MIN(1.0,x[loc_i]/(-delta_x[loc_i]));
+                frac = AZ_MAX(frac,Min_update_frac);
            }
            else frac = 1.0;
            if (Sten_Type[U_ATTRACT] && icomp<Ncomp && !Sten_Type[POLYMER_CR]

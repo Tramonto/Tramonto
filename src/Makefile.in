@@ -291,7 +291,6 @@ am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
 	${srcdir}/dft_globals.h ${srcdir}/dft_globals_const.h \
 	${srcdir}/dft_ldbal.h ${srcdir}/rf_allo.h \
 	${srcdir}/loca_const.h ${srcdir}/loca_util_const.h \
-	${srcdir}/az_aztec.h ${srcdir}/az_aztec_defs.h \
 	${srcdir}/dft_BasicLinProbMgr.hpp \
 	${srcdir}/dft_PolyLinProbMgr.hpp \
 	${srcdir}/dft_HardSphereLinProbMgr.hpp \
@@ -423,8 +422,6 @@ COMMON_H = \
         ${srcdir}/rf_allo.h \
         ${srcdir}/loca_const.h \
         ${srcdir}/loca_util_const.h \
-        ${srcdir}/az_aztec.h \
-        ${srcdir}/az_aztec_defs.h \
         ${srcdir}/dft_BasicLinProbMgr.hpp \
         ${srcdir}/dft_PolyLinProbMgr.hpp \
         ${srcdir}/dft_HardSphereLinProbMgr.hpp \

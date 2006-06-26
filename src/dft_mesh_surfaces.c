@@ -530,7 +530,7 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
 
          if (ilist == Nlists_HW-1){
              delr = r12-radius;
-             if (delr > 0.0 ) x_min[iel_box] = min(delr,x_min[iel_box]);
+             if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
       }     /* end of loop over elements       */
@@ -663,7 +663,7 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
 
          if (ilist == Nlists_HW-1){
              delr = r12-radius;
-             if (delr > 0.0 ) x_min[iel_box] = min(delr,x_min[iel_box]);
+             if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
       }     /* end of loop over elements       */
@@ -739,7 +739,7 @@ void els_cyls_cos_3D(int iwall, int real_wall, int itype, int **L_wall, double *
 
          if (ilist == Nlists_HW-1){
              delr = r12-radius;
-             if (delr > 0.0 ) x_min[iel_box] = min(delr,x_min[iel_box]);
+             if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
       }     /* end of loop over elements       */
@@ -826,7 +826,7 @@ void els_atomic_centers(int iwall, int real_wall,int itype, int **L_wall, double
 
          if (ilist == Nlists_HW-1){
              delr = r12-radius;
-             if (delr > 0.0 ) x_min[iel_box] = min(delr,x_min[iel_box]);
+             if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
       }     /* end of loop over elements       */
@@ -922,7 +922,7 @@ void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
 
          if (ilist == Nlists_HW-1) {
              delr = WallParam[itype] - r12;
-             if (delr > 0.0 ) x_min[iel_box] = min(delr,x_min[iel_box]);
+             if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
 
@@ -1014,7 +1014,7 @@ void els_cyl_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *
 
          if (ilist == Nlists_HW-1) {
              delr = x12 - WallParam_2[itype];
-             if (delr > 0.0 ) x_min[iel_box] = min(delr,x_min[iel_box]);
+             if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
 
@@ -1124,7 +1124,7 @@ void els_cone_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
 
          if (ilist == Nlists_HW-1) {
              delr = radius - r12;
-             if (delr > 0.0 ) x_min[iel_box] = min(delr,x_min[iel_box]);
+             if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
 
@@ -1222,7 +1222,7 @@ void els_cone_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double 
          }
          if (ilist == Nlists_HW-1) {
              delr = radius - r12;
-             if (delr > 0.0 ) x_min[iel_box] = min(delr,x_min[iel_box]);
+             if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
 
@@ -1296,7 +1296,7 @@ void els_cyl_pores(int iwall,int real_wall, int itype, int **L_wall, double *x_m
 
          if (ilist == Nlists_HW-1) {
              delr = WallParam[itype] - r12;
-             if (delr > 0.0 ) x_min[iel_box] = min(delr,x_min[iel_box]);
+             if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
 
@@ -1397,7 +1397,7 @@ void els_planar(int iwall, int real_wall, int itype,
 
          if (ilist == Nlists_HW-1){
            delx = x12 - WallParam[itype];
-           if (delx > 0.0) x_min[iel_box] = min(delx,x_min[iel_box]);
+           if (delx > 0.0) x_min[iel_box] = AZ_MIN(delx,x_min[iel_box]);
            else            x_min[iel_box] = 0.0;
          }
 
@@ -1500,13 +1500,13 @@ void els_finite_planar(int iwall, int real_wall, int itype,
 	       }
              else if (npos >= 2)
 	       {
-                 x_this_wall = max(xsave[0],xsave[1]);
+                 x_this_wall = AZ_MAX(xsave[0],xsave[1]);
                  if (npos == 3) 
 		   {
-		     x_this_wall = max(x_this_wall,xsave[2]);
+		     x_this_wall = AZ_MAX(x_this_wall,xsave[2]);
 		   }
 	       }
-             x_min[iel_box] = min(x_min[iel_box],x_this_wall); 
+             x_min[iel_box] = AZ_MIN(x_min[iel_box],x_this_wall); 
          }
 
 

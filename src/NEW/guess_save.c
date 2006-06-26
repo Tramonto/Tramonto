@@ -1286,7 +1286,7 @@ void shift_the_profile(double *x_new,double fac)
 
      /* check a few limiting values ... and finally set initial guess*/
      if (iunk <Ncomp )
-        x_test = min(Rho_max,fac*(unk_old-Rho_b[iunk])+ Rho_b[iunk]);
+        x_test = AZ_MIN(Rho_max,fac*(unk_old-Rho_b[iunk])+ Rho_b[iunk]);
 
      else if (iunk<Ncomp+Nrho_bar){
         x_test = fac*(unk_old-Rhobar_b[iunk-Ncomp])+ Rhobar_b[iunk-Ncomp];
