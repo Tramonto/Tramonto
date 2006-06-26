@@ -237,8 +237,9 @@ AC_CHECK_LIB( [aztecoo],
 
 if test "X$ac_cv_use_noxloca" != "Xno"; then
 
-  AC_CHECK_HEADER( [LOCA.H], [LIBS="-lnox -lloca $LIBS"],
-	      [AC_MSG_FAILURE([Cannot find LOCA header file.])])
+  HEADER_INCLUDE(LOCA.H)
+  LIBS="-lnox -lloca $LIBS"
+
 fi
 
 else
