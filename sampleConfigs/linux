@@ -4,4 +4,4 @@
 #
 ./configure \
   --with-ldflags="-L/home/rlschie/arch/intelLinuxParallel/lib" \
-  --with-cxxflags="-I/home/rlschie/arch/intelLinuxParallel/include"
+  --with-incdirs="-I/home/rlschie/arch/intelLinuxParallel/include"
