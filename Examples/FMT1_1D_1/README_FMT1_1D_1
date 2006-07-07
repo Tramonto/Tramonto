@@ -1,17 +1,18 @@
-/*! \file
-\brief Hard sphere fluid in a Hard wall slit.
+/*! \file 
+ \brief Hard sphere fluid in a Hard wall slit.
 
 Functionals: FMT_1
+
 Dimensions: 1
+
 Diffusion: No
+
 Notes: Basic Test Problem; high resolution grid.
 
 Key Output Parameters:
-\f{eqnarray*}
-niter &=& 6  \\
-adsorption &=& 3.527692  \\
-energy &=&  2.287919 \\
-force &=& 5.231941867 
-\f}
-
+   - niter=6 
+   - adsorption=3.527692  
+   - energy=2.287919 
+   - force=5.231941867 
+   .
 */
