@@ -1,0 +1,18 @@
+/*! \file 
+ \brief Hard sphere fluid near one hard wall.
+
+Functionals: FMT_1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Test for bulk boundary conditions on right side of box.
+
+Key Output Parameters:
+   - niter=6 
+   - adsorption=7.008964
+   - energy=1.198788
+   - force=4.956897154
+   .
+*/

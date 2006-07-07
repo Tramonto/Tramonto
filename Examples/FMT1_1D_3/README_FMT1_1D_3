@@ -1,0 +1,18 @@
+/*! \file 
+ \brief Hard sphere fluid in a hard wall slit (left reflecting boundary).
+
+Functionals: FMT_1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Test for reflecting boundary conditions in 1D on right side of box.  Should get same results as in FMT1_1D_2.
+
+Key Output Parameters:
+   - niter=6 
+   - adsorption=3.525616
+   - energy=2.393064
+   - force=5.022083086
+   .
+*/

@@ -1,5 +1,5 @@
 /*! \file 
- \brief Hard sphere fluid in a Hard wall slit.
+ \brief Hard sphere fluid in a hard wall slit (high resolution).
 
 Functionals: FMT_1
 
