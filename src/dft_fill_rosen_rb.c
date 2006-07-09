@@ -857,7 +857,7 @@ void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3, double 
    dphi_drb_loc[0] = log(inv_n3[1]);
    dphi_drb_loc[1] = n[2]*inv_n3[1];
    dphi_drb_loc[2] = n[1]*inv_n3[1] + (n[2]*n[2]-DOT_22)*inv_n3[2] / (8.0*PI);
-   dphi_drb_loc[3] = n[0]*inv_n3[1] + n[1]*n[2]*inv_n3[2] +
+   dphi_drb_loc[3] = n[0]*inv_n3[1] + (n[1]*n[2]-DOT_12)*inv_n3[2] +
                             (n[2]*n[2]*n[2]-3.*n[2]*DOT_22 )*inv_n3[3]/(12.0*PI);
 
    for (idim=0;idim<Ndim;idim++){

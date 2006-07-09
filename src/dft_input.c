@@ -926,6 +926,8 @@ void read_input_file(char *input_file, char *output_file1)
     Poly_to_Unk = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
     Poly_to_Unk_SegAll = (int **) array_alloc (2, NMER_MAX,NBOND_MAX,sizeof(int));
     Pol_Sym = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
+    BondAll_to_isegAll = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
+    BondAll_to_ibond = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
     nbond_tot = (int *) array_alloc (1, Npol_comp, sizeof(int));
 
     nbond_all = 0; 
@@ -955,9 +957,11 @@ void read_input_file(char *input_file, char *output_file1)
   	    Unk_to_Seg[nbond_all]  = iseg;
 	    Unk_to_Bond[nbond_all] = ibond;
 	    Poly_to_Unk[pol_number][iseg][ibond] = nunk;
-            Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond];
+            Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond]+SegChain2SegAll[pol_number][0];
 	    Poly_to_Unk_SegAll[seg_tot][Nbonds_SegAll[seg_tot]] = nunk;
 	    Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond];
+            BondAll_to_isegAll[nbond_all]=seg_tot;
+            BondAll_to_ibond[nbond_all]=ibond;
 	    nbond_all++;
 	    nunk++;
             Nbonds++; 
@@ -974,7 +978,7 @@ void read_input_file(char *input_file, char *output_file1)
     }
     for (icomp=0;icomp<Ncomp;icomp++) Nseg_type[icomp]=0;
     for (iseg=0;iseg<Nseg_tot;iseg++) Nseg_type[Unk2Comp[iseg]]++;
-    if (Proc==0 && Iwrite==VERBOSE){
+    if (Proc==0){
        fprintf(fp2,"\n********************\n BOND DETAILS \n **********************\n");
        fprintf(fp2,"\t total number of bonds is %d\n",Nbonds);
        for (ibond=0;ibond<Nbonds; ibond++){
@@ -1020,9 +1024,9 @@ void read_input_file(char *input_file, char *output_file1)
               Geqn_start[pol_number] += (nbond_tot[pol_num2]);
        }
        safe_free((void *)  &nbond_tot); 
-       if (Proc==0 && Iwrite==VERBOSE) printf("The total number of g equations will be %d\n",Ngeqn_tot);
+       if (Proc==0) printf("The total number of g equations will be %d\n",Ngeqn_tot);
        for (pol_number=0; pol_number<Npol_comp; ++pol_number)
-       if (Proc==0 && Iwrite==VERBOSE) printf("The start unknown for polymer %d is %d \n",
+       if (Proc==0) printf("The start unknown for polymer %d is %d \n",
                                     pol_number,Geqn_start[pol_number]);
     
        if (Proc==0) {
@@ -1603,7 +1607,7 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(&Iwrite,1,MPI_INT,0,MPI_COMM_WORLD);
 
-  if (Proc==0 && Iwrite ==VERBOSE) printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
+  if (Proc==0) printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
   /* COARSENING Switches */
 
   if (Proc==0) {

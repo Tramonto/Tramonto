@@ -362,17 +362,23 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
 double load_bond_wtc(int iunk, int loc_inode, int inode_box,
                     int izone,int *ijk_box, double **x,int resid_only_flag)
 {
-  int junk,unk_bond,pol_num,iseg,bond_num,jseg,jcomp,icomp,jzone_flag;
+  int junk,unk_bond,pol_num,iseg,bond_num,jseg,jcomp,icomp,jzone_flag,ibond;
   double resid_sum;
 
   unk_bond=iunk-Phys2Unk_first[BOND_WTC];
-  pol_num = Unk_to_Poly[unk_bond];
+  iseg=BondAll_to_isegAll[unk_bond];
+  ibond=BondAll_to_ibond[unk_bond];
+  jseg=Bonds_SegAll[iseg][ibond];
+
+/*  pol_num = Unk_to_Poly[unk_bond];
   iseg = Unk_to_Seg[unk_bond];
   bond_num = Unk_to_Bond[unk_bond];
-  jseg = Bonds[pol_num][iseg][bond_num];
+  jseg = Bonds[pol_num][iseg][bond_num]+SegChain2SegAll[pol_num][0];
+  iseg=iseg+SegChain2SegAll[pol_num][0];*/
+
   jcomp = Unk2Comp[jseg];
   icomp = Unk2Comp[iseg];
-  junk = SegChain2SegAll[pol_num][jseg]+Phys2Unk_first[DENSITY];
+  junk = jseg+Phys2Unk_first[DENSITY];
 
   jzone_flag=FALSE;
 

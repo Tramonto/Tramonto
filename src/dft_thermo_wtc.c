@@ -103,8 +103,9 @@ void compute_bulk_nonlocal_wtc_properties(char *output_file1)
     for (ibond=0; ibond<Nbonds; ibond++){
         iseg=Unk_to_Seg[ibond];
         pol_number=Unk_to_Poly[ibond];
-        jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]];
+        jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]]/*+SegChain2SegAll[pol_number][0]*/;
         type_jseg=Type_mer[pol_number][jseg];
+        jseg=SegChain2SegAll[pol_number][jseg];
         BondWTC_b[ibond]=Rho_seg_b[jseg];
         if (Lsteady_state){
            BondWTC_LBB[ibond]=Rho_seg_LBB[jseg];
