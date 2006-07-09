@@ -9,6 +9,10 @@ Diffusion: No
 
 Notes: Basic Test Problem; modest resolution grid.
 
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
 Key Output Parameters:
    - niter=6 
    - adsorption=3.525616

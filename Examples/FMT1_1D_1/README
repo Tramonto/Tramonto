@@ -7,7 +7,11 @@ Dimensions: 1
 
 Diffusion: No
 
-Notes: Basic Test Problem; high resolution grid.
+Notes: Basic Test Problem; high resolution grid.  
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
 
 Key Output Parameters:
    - niter=6 

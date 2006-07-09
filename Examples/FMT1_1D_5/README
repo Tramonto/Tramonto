@@ -9,6 +9,10 @@ Diffusion: No
 
 Notes: Test for bulk boundary conditions on right side of box.
 
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
 Key Output Parameters:
    - niter=6 
    - adsorption=7.008964

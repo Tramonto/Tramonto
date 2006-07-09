@@ -10,6 +10,10 @@ Diffusion: No
 Notes: Test for mesh coarsening in 1D.  Similar results as test problem FMT1_1D_5.
 The coarsening zones are found at 2, 4, and 6 sigma from the surface.
 
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
 Key Output Parameters:
    - niter=6 
    - adsorption=7.009097
