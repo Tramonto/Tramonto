@@ -433,6 +433,8 @@ int  Ncr_files;
 int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk, **Poly_to_Unk_SegAll;
 int Ngeqn_tot, Nbonds, **Nbond,***Bonds; 
 int *Pol_Sym;
+int *BondAll_to_isegAll;
+int *BondAll_to_ibond;
 int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
 
 double Temporary_sum;
