@@ -1,0 +1,26 @@
+/*! \file 
+ \brief Lennard-Jones electrolyte (3 components).
+
+Functionals: FMT1,WCA,ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: 1-1 electrolyte composed of two charged components (ions) and finite sized neutral solvent. Lennard-Jones
+attractions are also included via the Weeks-Chandler-Anderson approximation. Note that the two surfaces 
+each carry a charge per unit area of 0.3, and the difference in adsorption between species 1 and 0 (the ions) is
+0.6 indicating a charge neutral system.  This solution may be compared to MIX6_FMT1_ELEC_1D to see the effect
+of adding the Lennard-Jones (dispersion) effects in the functionals.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=12
+   - adsorption[0]= 0.284918  
+   - adsorption[1]= 0.884918  
+   - adsorption[2]= 5.242333
+   .
+*/

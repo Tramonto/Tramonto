@@ -1,0 +1,25 @@
+/*! \file 
+ \brief Primitive model electrolyte (2 components).
+
+Functionals: FMT1,ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: 1-1 electrolyte composed of two charged components (ions) and a dielectric continuum solvent. In this case the ions
+are of finite and equal sizes. The DFT includes both hard sphere and electrostatic contributions to the functional. There
+are two surfaces in the problem, each with a charge per unit area of 0.3.  Note that the difference in the adsorption of the
+two ionic species is 0.6 indicating a charge neutral system overall.  Compare with MIX4_FMT1_ELEC_1D to see the effect
+of the hard sphere funtional on the density profiles.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=10
+   - adsorption[0]= 0.264168  
+   - adsorption[1]= 0.864168
+   .
+*/

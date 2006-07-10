@@ -1,0 +1,25 @@
+/*! \file 
+ \brief Poisson-Boltzmann electrolyte (2 components).
+
+Functionals: IDEAL ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Electrolyte composed of two charged components (ions) and a dielectric continuum solvent.
+The ions are treated as point particles so this is the ideal (Poisson-Boltzmann) limit
+of the Density Functional Theory.  There are two surfaces in this problem each with
+a surface charge per unit area of 0.6.  Note that adsorption[1]-adsorption[0]=0.6 so the electrolyte 
+perfectly neutralizes the surface charge.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=9
+   - adsorption[0]= 0.342487  
+   - adsorption[1]= 0.942487
+   .
+*/

@@ -1,0 +1,23 @@
+/*! \file 
+ \brief Lennard-Jones mixture (2 components).
+
+Functionals: FMT1, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Two component neutral Lennard-Jones system.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=10 
+   - adsorption[0]= 3.495444  
+   - adsorption[1]= 3.495444
+   - energy=-3.578393   
+   - force=1.635907510
+   .
+*/

@@ -1,0 +1,25 @@
+/*! \file 
+ \brief Primitive model electrolyte (2 components) with corrections.
+
+Functionals: FMT1,ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: 1-1 electrolyte composed of two charged components (ions) and a dielectric continuum solvent. In this case the ions
+are of finite and equal sizes. In addition second order corrections to the free energy functional via the direct correlation 
+function are included in this calcualtion (Tang and Davis, 1992).  Each of the two planar surfaces has a charge of 0.3 per unit 
+area.  The difference in adsorption is 0.6 indicating a charge neutral surface.  Compare with MIX4_FMT1_ELEC_1D to see the 
+effect of the liquid state corrections.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=8
+   - adsorption[0]= 0.289621  
+   - adsorption[1]= 0.889621
+   .
+*/
