@@ -73,7 +73,7 @@ Fac_overlap_hs[1]=1.;
    /* Find bulk coexistence  for a very special case of only one atomistic component with
       mean field attractions turned on !! */
 
-   if (Ncomp == 1 && Ipot_ff_n==2 && Iliq_vap != -2){ 
+/*   if (Ncomp == 1 && Ipot_ff_n==2 && Iliq_vap != -2){ 
       p_coex = coexistence();
       if (Proc==0 &&Iwrite!=NO_SCREEN) {
          if (print_flag) {
@@ -103,7 +103,7 @@ Fac_overlap_hs[1]=1.;
            printf("          setting density to rho_vapor    \n ");
            Rho_b[0] = Rho_coex[1];
       }
-   }
+   }*/
 
   /* for lack of a better place, precalc these quantities here */
  

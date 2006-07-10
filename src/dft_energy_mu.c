@@ -24,6 +24,7 @@ double integrand_mu_freen(int iunk,int inode_box, double **x)
      rho_i = x[iunk][inode_box];
 
      if (rho_i > DENSITY_MIN) integrand = -rho_i*mu_i;
+     else integrand=0.0;
 
      return(integrand);
 }
