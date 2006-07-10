@@ -1,0 +1,21 @@
+/*! \file 
+ \brief Lennard-Jones fluid at high density - Test numerical integration of wall potential.
+
+Functionals: FMT1, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Same as case WCA_FMT1_3 except wall-fluid potentials are computed numerically rather than analytically.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=6 
+   - adsorption=6.987059  
+   - energy=-3.527798
+   .
+*/

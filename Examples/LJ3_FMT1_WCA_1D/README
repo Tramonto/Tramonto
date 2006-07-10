@@ -1,0 +1,22 @@
+/*! \file 
+ \brief Lennard-Jones fluid at high density - Long range wall-fluid potential.
+
+Functionals: FMT1, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Same as case WCA_FMT1_1 except wall-fluid energy cutoff parameter is increased from 3 to 20 sigmas.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=6 
+   - adsorption=6.990887  
+   - energy=-3.578393
+   - force=1.635907510
+   .
+*/

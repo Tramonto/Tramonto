@@ -1,0 +1,23 @@
+/*! \file 
+ \brief Lennard-Jones fluid at high density - Test mixing rule.
+
+Functionals: FMT1, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Same as case WCA_FMT1_1 except interaction parmeters are entered manually rather than using the
+assumed mixing rule.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=6 
+   - adsorption=6.946833  
+   - energy=-2.861495 
+   - force=1.625346852
+   .
+*/

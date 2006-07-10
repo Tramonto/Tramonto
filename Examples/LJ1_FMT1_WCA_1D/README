@@ -1,0 +1,23 @@
+/*! \file 
+ \brief Lennard-Jones fluid at high density.
+
+Functionals: FMT_1, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: 12-6 Lennard-Jones atomistic fluid near a 9-3 Lennard-Jones wall.  Note that
+the 9-3 wall-fluid potential is cut and shifted.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=6 
+   - adsorption=6.946833  
+   - energy=-2.861495 
+   - force=1.625346852
+   .
+*/
