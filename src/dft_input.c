@@ -958,10 +958,10 @@ void read_input_file(char *input_file, char *output_file1)
 	    Unk_to_Bond[nbond_all] = ibond;
 	    Poly_to_Unk[pol_number][iseg][ibond] = nunk;
             Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond]+SegChain2SegAll[pol_number][0];
-	    Poly_to_Unk_SegAll[seg_tot][Nbonds_SegAll[seg_tot]] = nunk;
+	    Poly_to_Unk_SegAll[seg_tot][Nbonds_SegAll[seg_tot]] = nbond_all;
 	    Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond];
             BondAll_to_isegAll[nbond_all]=seg_tot;
-            BondAll_to_ibond[nbond_all]=ibond;
+            BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
 	    nbond_all++;
 	    nunk++;
             Nbonds++; 

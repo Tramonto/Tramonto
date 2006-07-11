@@ -15,6 +15,8 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
        omega_vext_elec,omega_vext_elec_surf_ex,
        omega_WTC,omega_WTC_b,omega_WTC_surf_ex,
        omega_CMS,omega_CMS_b,omega_CMS_surf_ex,
+       omega_maxwell_stress,omega_surface_charge,
+       omega_osmotic, omega_osmotic_b,omega_osmotic_surf_ex,
        omega_mu,omega_mu_b,omega_mu_surf_ex;
 static int first=TRUE,loc_inode;
 double energy;
@@ -31,6 +33,7 @@ double energy;
 
     omega_sum=0.0;
     omega_s_sum=0.0;
+
 
     if (Type_poly==NONE || Type_poly ==WTC){
                                     /* IDEAL GAS CONTRIBUTIONS */
@@ -60,6 +63,7 @@ double energy;
        omega_mu_b=Temporary_sum;
        omega_mu_surf_ex = omega_mu-omega_mu_b;
        if (Proc==0 && Iwrite != NO_SCREEN){
+            print_to_screen(-omega_mu_b,"BULK TERM: CHEM.POTENTIAL");
             print_to_screen(omega_mu_surf_ex,"SURF.EX.: CHEM.POTENTIAL");
        }
        omega_sum += omega_mu_b;
@@ -118,18 +122,59 @@ double energy;
 
                                     /* COULOMB SYSTEMS */
       if (Type_coul != NONE){
+         /* Reiner and Radke method for computing the free energy of a PB electrolyte near a charged surface */
+
+                /* Maxwell Stress Term */
+         integrateInSpace(&integrand_maxwell_stress_freen,0,Nel_hit,x,Integration_profile); 
+         omega_maxwell_stress = Temporary_sum;
+         if (Proc==0 && Iwrite != NO_SCREEN){
+             print_to_screen(omega_maxwell_stress,"MAXWELL STRESS TERM");
+         }
+         omega_sum += omega_maxwell_stress;
+         omega_s_sum += omega_maxwell_stress;  /* note that the maxwell stress in the bulk is 0 */
+
+                /* osmotic pressure contribution */
+         integrateInSpace_SumInComp(&integrand_adsorption,Nel_hit2,x,Integration_profile);
+         omega_osmotic=Temporary_sum;
+         if (Proc==0 && Iwrite != NO_SCREEN){
+             print_to_screen(omega_osmotic,"OSMOTIC PRESSURE TERM");
+         }
+
+         integrateInSpace_SumInComp(&integrand_adsorption_bulk,Nel_hit2,x,Integration_profile);
+         omega_osmotic_b=Temporary_sum;
+         omega_osmotic_surf_ex=omega_osmotic-omega_osmotic_b;
+         if (Proc==0 && Iwrite != NO_SCREEN){
+               print_to_screen(omega_osmotic_surf_ex,"SURF.EX.: OSMOTIC PRESSURE");
+         }
+
+         omega_sum += omega_osmotic;
+         omega_s_sum += omega_osmotic_surf_ex;
+
+                /* surface charge term */
+         /* for now, to test this approach, just do a kludge.....need to implement surface integrals rigorously in dft_utils to get forces properly*/
+         omega_surface_charge=0.6*x[Phys2Unk_first[POISSON]][20];
+
+         if (Proc==0 && Iwrite != NO_SCREEN){
+               print_to_screen(omega_surface_charge,"SURFACE CHARGE TERM");
+         }
+         omega_sum += omega_surface_charge;
+         omega_s_sum += omega_surface_charge;
+
                                     /* POINT CHARGE CONTRIBUTIONS */
+         /* term 1 based on Tang and Davis papers for electrostatics 
          integrateInSpace_SumInComp(&integrand_elec_PB_freen,Nel_hit2,x,Integration_profile);
          omega_psirho = Temporary_sum;
-         omega_psirho_surf_ex = omega_psirho; /* note elec. pot.=0 in the bulk */
+         omega_psirho_surf_ex = omega_psirho; * note elec. pot.=0 in the bulk *
          if (Proc==0 && Iwrite != NO_SCREEN){
              print_to_screen(omega_psirho,"PSI*RHO ELEC TERM");
          }
 
          omega_sum += omega_psirho;
          omega_s_sum += omega_psirho_surf_ex;
+         */
 
                                  /* CHARGED EXTERNAL FIELD CONTRIBUTIONS */
+         /* term 2 based on Tang and Davis papers for electrostatics 
          if (Vext_coul != NULL){
          integrateInSpace_SumInComp(&integrand_vext_elec_freen,Nel_hit2,x,Integration_profile);
          omega_vext_elec=Temporary_sum;
@@ -137,15 +182,17 @@ double energy;
               print_to_screen(omega_vext_elec,"CHARGED EXT.FIELD");
          }
 
-         omega_vext_elec_surf_ex = omega_vext_elec; /* note Vext=0 in the bulk */
+         omega_vext_elec_surf_ex = omega_vext_elec; * note Vext=0 in the bulk *
          if (Proc==0 && Iwrite != NO_SCREEN){
               print_to_screen(omega_vext_elec_surf_ex,"SURF.EX.: CHARGED EXT.FIELD");
          }
          omega_sum += omega_vext_elec;
          omega_s_sum += omega_vext_elec_surf_ex;
          }
+         */
 
-         if (Type_coul == DELTAC){     /* MSA CORRECTIONS FOR ELECTROLYTES */
+         /* term 3 based on Tang and Davis papers for electrostatics 
+         if (Type_coul == DELTAC){     * MSA CORRECTIONS FOR ELECTROLYTES *
             integrateInSpace_SumInComp(&integrand_elec_MSAcorr_freen,Nel_hit2,x,Integration_profile);
             omega_MSA = Temporary_sum;
             if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_MSA,"MSA CORRECTIONS");
@@ -158,6 +205,7 @@ double energy;
             omega_sum += omega_MSA;
             omega_s_sum += omega_MSA_surf_ex;
          }
+         */
       }
 
                                     /* WTC CONTRIBUTIONS */
@@ -174,6 +222,7 @@ double energy;
           omega_sum += omega_WTC;
           omega_s_sum += omega_WTC_surf_ex;
        }
+
       if (Proc==0 && Iwrite != NO_SCREEN){
         printf("\t----------------------------------------\n");
         print_to_screen(omega_sum,"TOTAL GRAND POTENTIAL");

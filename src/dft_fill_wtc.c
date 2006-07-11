@@ -23,6 +23,7 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box, int icomp,
 
   iseg = iunk-Phys2Unk_first[DENSITY];
 
+
   resid_sum=0.0;
   for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
      jseg = Bonds_SegAll[iseg][ibond];
@@ -82,7 +83,7 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
      jseg = Bonds_SegAll[iseg][ibond];
      junk_rho = jseg+Phys2Unk_first[DENSITY];
      unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+Phys2Unk_first[BOND_WTC];
-     jcomp = Unk2Comp[junk_rho];
+     jcomp = Unk2Comp[jseg];
 
      if (Nlists_HW <= 2) jlist = 0;
      else                jlist = jcomp;
@@ -193,7 +194,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
     resid=0.0;
     for (jseg=0;jseg<Nseg_tot;jseg++){
        unk_rho = Phys2Unk_first[DENSITY]+jseg; 
-       jcomp=Unk2Comp[unk_rho];
+       jcomp=Unk2Comp[jseg];
        s1=Sigma_ff[jcomp][jcomp];
 /*       s1=Bond_ff[jcomp][jcomp];*/
        if (Nlists_HW <= 2) jlist = 0;
@@ -207,7 +208,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
        for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
             kseg = Bonds_SegAll[jseg][kbond];
             kunk_rho = Phys2Unk_first[DENSITY]+kseg;
-            kcomp=Unk2Comp[kunk_rho];
+            kcomp=Unk2Comp[kseg];
             s2=Sigma_ff[kcomp][kcomp];
 /*            s2=Bond_ff[kcomp][kcomp];*/
 
@@ -245,7 +246,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
 
           for (jseg=0;jseg<Nseg_tot;jseg++){
               unk_rho = Phys2Unk_first[DENSITY]+jseg; 
-              jcomp=Unk2Comp[unk_rho];
+              jcomp=Unk2Comp[jseg];
               s1=Sigma_ff[jcomp][jcomp];
 /*              s1=Bond_ff[jcomp][jcomp];*/
               if (Nlists_HW <= 2) jlist = 0;
@@ -261,7 +262,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
                 for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
                   kseg = Bonds_SegAll[jseg][kbond];
                   kunk_rho = Phys2Unk_first[DENSITY]+kseg;
-                  kcomp=Unk2Comp[kunk_rho];
+                  kcomp=Unk2Comp[kseg];
                   s2=Sigma_ff[kcomp][kcomp];
 /*                  s2=Bond_ff[kcomp][kcomp];*/
  
@@ -369,12 +370,6 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
   iseg=BondAll_to_isegAll[unk_bond];
   ibond=BondAll_to_ibond[unk_bond];
   jseg=Bonds_SegAll[iseg][ibond];
-
-/*  pol_num = Unk_to_Poly[unk_bond];
-  iseg = Unk_to_Seg[unk_bond];
-  bond_num = Unk_to_Bond[unk_bond];
-  jseg = Bonds[pol_num][iseg][bond_num]+SegChain2SegAll[pol_num][0];
-  iseg=iseg+SegChain2SegAll[pol_num][0];*/
 
   jcomp = Unk2Comp[jseg];
   icomp = Unk2Comp[iseg];

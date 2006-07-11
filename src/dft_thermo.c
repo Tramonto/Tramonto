@@ -62,12 +62,13 @@ void  thermodynamics( char *output_file1, int print_flag)
       for (icomp=0;icomp<Ncomp;icomp++) Fac_overlap_hs[icomp]=1.0;
    }
 
-/*Fac_overlap_hs[0]=1.;
+   /* use this to turn off all of the overlap nonsense */
+Fac_overlap_hs[0]=1.;
 Fac_overlap_hs[1]=1.;
     Fac_overlap[0][0]=1.0;
     Fac_overlap[1][0]=1.0;
     Fac_overlap[0][1]=1.0;
-    Fac_overlap[1][1]=1.0;*/
+    Fac_overlap[1][1]=1.0;
 
 
    /* Find bulk coexistence  for a very special case of only one atomistic component with

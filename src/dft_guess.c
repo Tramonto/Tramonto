@@ -135,43 +135,18 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
              iwall = 0;
              iwall_type = WallType[iwall];
 
-             if (Nwall > 0 && Nwall < 3){
-             if (Nwall == 1) {
-               if (Type_bc[idim][0] == REFLECT)
-                   sep = 2.0*(WallPos[idim][iwall] + 0.5*Size_x[0]);
-               else if (Type_bc[idim][1] == REFLECT) 
-                   sep = 2.0*(0.5*Size_x[0] - WallPos[idim][iwall]);
-               else sep = Guess_range[1]; /* use old guess */
-             }
-             else if (Nwall == 2){
-                   sep = (fabs(WallPos[idim][1] - WallPos[idim][0]));
-             }
-             else sep = Guess_range[1]; /* use old guess */
 
-             if (sep < Guess_range[0])      start_no_info = TRUE;
-             else if (sep > Guess_range[1]) fac = 1.0;
-             else if (Guess_range[0]==Guess_range[1] || Guess_range[0]<0.0 || Guess_range[1]<0.0) fac=1.0;
-             else fac = (sep - Guess_range[0])/(Guess_range[1]-Guess_range[0]);
+             /* fix up to allow for some mixing of a bulk solution with a previously
+                converged solution either with input parameter or as some smart guess, but
+                can't be dependent on 2 surfaces in 1D */
+/*             fac=Guess_range[0];*/
+             fac=1.0;
 
-             if (start_no_info) {
-                 if(Iwrite != NO_SCREEN)printf("Starting from bulk intial guess everywhere\n");
-             }
-             else{
-                 if(Iwrite != NO_SCREEN)printf("Mixing old soln and bulk with %9.6f percent of old profile\n",
-                          fac*100.);
-             }
-             }
-             else fac=1.0;
-
-             if (!start_no_info){
-                shift_the_profile(x_new,fac); 
-             }
+             if (!start_no_info) shift_the_profile(x_new,fac); 
            }
            else{ 
              if (iguess==Iguess1){
-               for (iunk=0; iunk<Nunknowns; iunk++){
-                   x_new[iunk] = X_old[iunk];
-               }
+               for (iunk=0; iunk<Nunknowns; iunk++) x_new[iunk] = X_old[iunk];
              }
              else if (iguess==BINODAL_FLAG && Lbinodal)
                for (iunk=0; iunk<Nunknowns; iunk++) x_new[iunk] = X2_old[iunk];
