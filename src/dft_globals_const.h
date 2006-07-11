@@ -1414,6 +1414,7 @@ extern double integrand_mu_freen_bulk(int,int,double **);
 extern double integrand_elec_PB_freen(int,int,double **);
 extern double integrand_elec_MSAcorr_freen(int,int,double **);
 extern double integrand_elec_MSAcorr_freen_bulk(int,int,double **);
+extern double integrand_maxwell_stress_freen(int,int,double **);
 extern double integrand_WTC_freen(int,int,double **);
 extern double integrand_WTC_freen_bulk(int,int,double **);
 extern double integrand_CMS_freen(int,int,double **);
