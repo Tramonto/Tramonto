@@ -1,0 +1,29 @@
+/*! \file 
+ \brief Lipid bilayer: 8-2-8 lipid plus solvent.
+
+Functionals: CMS
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example problem uses a previously converged solution as an initial guess.  It tests the
+restart functionality in the code.  It should be converged on the first iteration.   Note that the stoichiometry
+on the lipid chain is: ads[0]/ads[1]/=8.000000 as expected. 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - cr8.2.8_0.375_1_0.375   
+   - lin_18_1
+   - dft_dens.dat            
+   - dft_dens.datg
+
+Key Output Parameters:
+   - niter=1
+   - adsorption[0]=3.525595 
+   - adsorption[1]=0.440699 
+   - adsorption[2]=27.666943 
+   - energy=-26.314314
+   .
+*/

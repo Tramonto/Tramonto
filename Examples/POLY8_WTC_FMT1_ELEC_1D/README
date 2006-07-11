@@ -1,0 +1,25 @@
+/*! \file 
+ \brief WTC functionals: 5-mer at a hard wall with electrostatics.
+
+Functionals: WTC,FMT1,ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case is the same as POLY6_WTC_FMT1_1D except we introduce a small amount of charge as a global constraint on the stoichiometry.
+An ilu preconditioner is used, and becomes necessary when the electrostatics are added to the problem.  The error in the stoichiometry is 
+reduced from 3% to 0.1%.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_5mer
+
+Key Output Parameters:
+   - niter=13
+   - adsorption[0,4]=0.587382
+   - adsorption[1,3]=0.587105
+   - adsorption[2]=0.587942
+   .
+*/

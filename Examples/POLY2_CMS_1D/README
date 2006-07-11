@@ -1,0 +1,27 @@
+/*! \file 
+ \brief 8-2-8 attractive polymer at a 9-3 Lennard-Jones wall.
+
+Functionals: CMS
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Total polymer density in the bulk is 0.711.   Note that the stoichiometry
+is now: ads[0]/ads[1]/=8.000000. 
+This shows that the polymer chain equations are implemented correctly.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - cr8.2.8_0.711eff1 
+   - lin_18
+
+
+Key Output Parameters:
+   - niter=10
+   - adsorption[0]=19.335233 
+   - adsorption[1]=2.416904 
+   - energy=-4.371163 
+   .
+*/

@@ -1,0 +1,31 @@
+/*! \file 
+ \brief Charged Lipid bilayer: 8-2-8 lipid plus solvent.
+
+Functionals: CMS
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: The tail (8) segments of the polymer carry a charge of -0.0125 while the head (2) segements of the polymer
+carry a charge of +0.1.  A previously converged neutral bilayer is used as the initial guess with the electrostatic field set to 1 everywhere initially.
+This case demonstrates Restart option 3 where only some of the restart information is available in the files.
+The stoichiometry computed for the lipid chains is: ads[0]/ads[1]/=8.000000.  Note that the area per lipid increases when the lipids are charged up 
+as expected (compare with case POLY3_CMS_1D).
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - cr8.2.8_0.375_1_0.375   
+   - dft_dens.dat            
+   - dft_dens.datg           
+   - lin_18_1
+
+Key Output Parameters:
+   - niter=4
+   - adsorption[0]=3.489207  
+   - adsorption[1]=0.436151
+   - adsorption[2]=27.700605 
+   - energy=-26.254261
+   .
+*/

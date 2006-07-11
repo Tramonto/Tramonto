@@ -1,0 +1,24 @@
+/*! \file 
+ \brief WTC functionals: 3-mer at a hard wall.
+
+Functionals: WTC, FMT1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This is a simple initial test problem for the Tripathi-Chapman functionals for bonded systems based on Wertheim's theory of associating fluids.
+Note that the adsorptions of all species should be identical for the stoichiometry of the bonded system.  The observed error is 25%.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_3mer
+
+Key Output Parameters:
+   - niter=13
+   - adsorption[0,2]=0.457427
+   - adsorption[1]=0.579423
+   - energy=-2.380944
+   .
+*/

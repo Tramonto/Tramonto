@@ -1,0 +1,27 @@
+/*! \file 
+ \brief 8-2-8 hard polymer at a hard wall.
+
+Functionals: CMS
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Total polymer density in the bulk is 0.711.   Note that the stoichiometry
+is: ads[0]/ads[1]/=8.28. This is a 2% error in stoichiometry, and seems to be associated
+with the hard wall. 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - cr8.2.8_0.711eff1
+   - lin_18
+
+
+Key Output Parameters:
+   - niter=8 
+   - adsorption[0]=19.597248 
+   - adsorption[1]=2.366678  
+   - energy=-5.427785   
+   .
+*/

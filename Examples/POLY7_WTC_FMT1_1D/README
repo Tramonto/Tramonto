@@ -1,0 +1,24 @@
+/*! \file 
+ \brief WTC functionals: blocked 5-mer at a hard wall.
+
+Functionals: WTC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case treats the polymer as a blocked system where we have 2 components on the 5-mer, and where the segment densities are summed into site type
+densities.  The expected stoichiometric ratio is ads[0]/ads[1]=2/3.  We find 0.6865
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_5mer
+
+Key Output Parameters:
+   - niter=8
+   - adsorption[0]=1.1826391
+   - adsorption[1]=1.722557
+   - energy=0.401681 
+   .
+*/

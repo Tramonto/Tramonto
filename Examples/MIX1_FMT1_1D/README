@@ -15,8 +15,8 @@ Input Files for Test problem:
 
 Key Output Parameters:
    - niter=5 
-   - excess adsorption[0]=3.504482
-   - excess adsorption[1]=3.504482  
+   - adsorption[0]=3.504482
+   - adsorption[1]=3.504482  
    - energy=1.198788   
    - force=4.956897154
    .
