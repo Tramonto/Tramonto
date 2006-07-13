@@ -1,0 +1,16 @@
+#
+# Cygwin
+#
+# This script does not use compiler wrappers.
+# It shows what options to use for linking with MPICH.
+#
+../configure \
+CXX=g++ \
+CC=gcc \
+F77=g77 \
+--with-ldflags=-L/home/jmwille/work/TraInstall/lib \
+--with-incdirs=-I/home/jmwille/work/TraInstall/include \
+CPPFLAGS=-DMPICH_IGNORE_CXX_SEEK \
+--with-mpi-libs=-lmpich \
+--with-mpi=/home/jmwille/MPICH/SDK.gcc
+
