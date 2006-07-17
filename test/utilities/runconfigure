@@ -1,0 +1,524 @@
+#!/usr/bin/perl -w
+# /Tramonto/test/utilities/runconfigure
+
+################################################################################
+# The Tramonto Project - runconfigure
+# 
+# Mike Phenow, Jim Willenbring
+#
+# This is a utility for configuring Tramonto.  It requires you to provide a
+# complete invoke-configure file.  It is of limited value by itself.  It is
+# best used in conjunction with runmake, as in the utility runbuild.
+#
+################################################################################
+
+use strict;
+
+# Variable Declarations ========================================================
+
+# Command line arguments:
+
+my $tramontoDir;        # Trilinos directory        (required argument) 
+my $buildDir;           # build directory           (required argument) 
+my $invokeConfigure;    # complete invoke-configure (required argument)
+
+my $outputDir;          # output directory          (default: .)
+my $verbosity;          # verbosity level           (default: 1)
+my $logVerbosity;       # log file verbosity level  (default: 0)
+
+my $resultsDir;         # absolute path to results directory
+
+my $runStartTime;
+my $runStartTimeForFilename;
+
+# Constants
+my $v0 = "0";           # quiet
+my $v1 = "1";           # normal verbosity
+my $v2 = "2";           # level 2 verbosity
+my $v3 = "4";           # level 3 verbosity
+        
+################################################################################
+# Execution ####################################################################
+################################################################################
+
+getArgs();
+init();
+
+my $exitStatus = run();
+cleanUp();
+exit $exitStatus;
+
+################################################################################
+# Subroutines ##################################################################
+################################################################################
+
+    ############################################################################
+    # getArgs()
+    #
+    # Parse command line arguments.
+    #
+    #   - args:     NONE
+    #
+    #   - returns:  NONE
+    #
+
+    sub getArgs {
+        
+        # Argument variables that don't need to be global.
+        my $quiet;
+        my $help;
+
+        # Gather command line arguments.
+        use Getopt::Long;
+        GetOptions( "tramonto-dir=s" => \$tramontoDir,
+                    "build-dir=s" => \$buildDir,
+                    "invoke-configure=s" => \$invokeConfigure,
+                    "output-dir=s" => \$outputDir,
+                    "verbosity=i" => \$verbosity,
+                    "log-verbosity=i" => \$logVerbosity,
+                    "quiet" => \$quiet,
+                    "help" => \$help );
+        
+        # Print help and exit.
+        if ($help) { 
+            printHelp();
+            exit;
+        }
+        
+        # Enforce and/or prepare arguments.
+        
+        # check for existance of tramonto-dir argument and actual directory
+        if (!$tramontoDir) {
+            die "tramonto-dir value required, see --help for more information\n"; 
+        } else {
+            if (!stat($tramontoDir)) {
+                die "cannot stat tramonto-dir: $tramontoDir\n";
+            }
+        }
+        
+        # Check for existance of build-dir argument and actual directory.
+        # If it isn't given as an absolute path, prepend the Tramonto path.
+        # Blow it away and create it.
+        if (!$buildDir) {
+            die "build-dir value required, see --help for more information\n"; 
+        } else {
+            if ($buildDir !~ m/^\//) {
+                $buildDir = "$tramontoDir/$buildDir";
+            }
+            system ("rm -rf $buildDir");
+            system("mkdir $buildDir") == 0 or die "cannot create build-dir: $buildDir\n";
+        }
+        
+        # Check for existance of invoke-configure argument and actual file
+        if (!$invokeConfigure) {
+            die "invoke-configure value required, see --help for more information\n"; 
+        } else {
+            if ($invokeConfigure !~ m/^\//) {
+                $invokeConfigure = "$tramontoDir/test/utilities/$invokeConfigure";
+            }
+            if (!stat($invokeConfigure)) {
+                die "cannot stat invoke-configure: $invokeConfigure\n";
+            } 
+        }
+        
+        # Check for existance of output directory, use it to create the
+        # complete path for the results directory, and create the results
+        # directory.
+        if (!$outputDir) {
+            $outputDir = "";
+            $resultsDir = "$tramontoDir/test/utilities/results"; 
+        } else {
+            if ($outputDir =~ m/^\//) {
+                $resultsDir = $outputDir;
+            } else {
+                $resultsDir = "$tramontoDir/test/utilities/$outputDir";
+            }
+        }
+        if (!stat($resultsDir)) {
+            system("mkdir $resultsDir") == 0 or die "cannot create $resultsDir, died";
+        }
+        
+        # Set verbosity level to corresponding constant.  0, 1, 2, and 3 are
+        # used for the levels the user may specify, but they are stored as 0,
+        # 1, 2, and 4 so they can be combined and processed with bitwise
+        # operations.
+        if ($verbosity) {
+            if      ($verbosity == 0) { $verbosity = $v0; }
+            elsif   ($verbosity == 1) { $verbosity = $v1; }
+            elsif   ($verbosity == 2) { $verbosity = $v2; }
+            elsif   ($verbosity == 3) { $verbosity = $v3; }
+        } else {
+            $verbosity = $v1; 
+        }
+        
+        # Set log verbosity level to corresponding constant.  Numbering scheme
+        # is the same for the log verbosity as it is for the standard verbosity.
+        # There is not distinct output and log output, the if a log verbosity
+        # is given, then that level of output is written to a file instead of
+        # to standard out.  
+        if ($logVerbosity) {
+            if      ($logVerbosity == 0) { $logVerbosity = $v0; }
+            elsif   ($logVerbosity == 1) { $logVerbosity = $v1; }
+            elsif   ($logVerbosity == 2) { $logVerbosity = $v2; }
+            elsif   ($logVerbosity == 3) { $logVerbosity = $v3; }        
+        } else {
+            $logVerbosity = $v1; 
+        }
+        
+        # Set quiet mode--same as passing --verbosity=0.
+        if ($quiet) {
+            $verbosity = $v0; 
+        }
+        
+    } # getArgs()
+
+    ############################################################################
+    # init()
+    #
+    # Prepares varibles.
+    #
+    #   - args:     NONE
+    #
+    #   - returns:  NONE
+    #
+
+    sub init {
+    
+        # Capture and format make start time.
+        (my $se, my $mn, my $hr, my $da, my $mo, my $yr) = (localtime)[0..5];
+        $yr = sprintf("%02d", $yr % 100);
+        $mo = sprintf("%02d", $mo+1);
+        $da = sprintf("%02d", $da);
+        $hr = sprintf("%02d", $hr);
+        $mn = sprintf("%02d", $mn);
+        $se = sprintf("%02d", $se);
+        $runStartTime = $yr."-".$mo."-".$da." ".$hr.":".$mn.":".$se;
+        $runStartTimeForFilename = $yr."-".$mo."-".$da."_".$hr.".".$mn.".".$se;
+        
+        # Print list of variables for debugging.
+        my $message = "";
+        $message .= "init():\n";
+        $message .= "  \$tramontoDir = $tramontoDir\n";
+        $message .= "  \$buildDir = $buildDir\n";     
+        $message .= "  \$invokeConfigure = $invokeConfigure\n";        
+        $message .= "  \$outputDir = $outputDir\n";
+        $message .= "  \$verbosity = $verbosity\n";
+        $message .= "  \$logVerbosity = $logVerbosity\n";
+        $message .= "  \$resultsDir = $resultsDir\n";
+        $message .= "  \n";
+        printMessage($message, $v3);
+        
+    } # init()
+    
+    ############################################################################
+    # run()
+    #
+    # Moves into build-dir/ and configures.
+    #
+    #   - args:     NONE
+    #
+    #   - returns:  NONE
+    #
+
+    sub run {
+        
+        # Copy invoke-configure
+        system("cp $invokeConfigure $buildDir/invoke-configure") == 0
+            or die "cannot copy invoke-configure, died";
+        
+        chdir $buildDir or die "cannot chdir to $buildDir, died";
+            
+        # grab contents of invoke-configure for reporting purposes.
+        my $invokeConfigureString = "";              
+        open (INVOKE_CONFIGURE, "<invoke-configure");
+        undef $/;                           # undefine input record separator
+        $invokeConfigureString=<INVOKE_CONFIGURE>;      # copy entire file
+        $/ = "\n";                          # restore it to default newline
+        close INVOKE_CONFIGURE;
+            
+        my $configLog = "";
+        
+        # Configure
+    
+        # Capture and format make start time.
+        (my $se, my $mn, my $hr, my $da, my $mo, my $yr) = (localtime)[0..5];
+        $yr = sprintf("%02d", $yr % 100);
+        $mo = sprintf("%02d", $mo+1);
+        $da = sprintf("%02d", $da);
+        $hr = sprintf("%02d", $hr);
+        $mn = sprintf("%02d", $mn);
+        $se = sprintf("%02d", $se);
+        $runStartTime = $yr."-".$mo."-".$da." ".$hr.":".$mn.":".$se;
+        $runStartTimeForFilename = $yr."-".$mo."-".$da."_".$hr.".".$mn.".".$se;
+        
+        # Print progress message.
+        my $message = "Configuring Tramonto...";
+        $message = sprintf("%-25s", $message);
+        printMessage($message, $v1+$v2+$v3);
+        
+        # Capture start time.
+        my $startSeconds = time();
+    
+        # Run configure.  
+        my $configureOutput = `./invoke-configure 2>&1`;
+        my $configureExitStatus = $?;
+    
+        # Capture and format make stop time.
+        ($se, $mn, $hr, $da, $mo, $yr) = (localtime)[0..5];
+        $yr = sprintf("%02d", $yr % 100);
+        $mo = sprintf("%02d", $mo+1);
+        $da = sprintf("%02d", $da);
+        $hr = sprintf("%02d", $hr);
+        $mn = sprintf("%02d", $mn);
+        $se = sprintf("%02d", $se);
+        my $configureStopTime = $yr."-".$mo."-".$da." ".$hr.":".$mn.":".$se;
+        my $stopSeconds = time();            
+        my $runSeconds = $stopSeconds - $startSeconds;
+        
+        # Broken or not?
+        if ($configureExitStatus) {
+            
+            open (CONFIG_LOG, "<$buildDir/config.log");
+            undef $/;               # undefine input record separator
+            $configLog=<CONFIG_LOG>;    # copy entire file
+            $/ = "\n";              # restore it to default newline
+            close CONFIG_LOG;
+        
+            $message = sprintf("%-30s", "");
+            printMessage($message, $v1+$v2+$v3);
+            $message = "! FAILED ";
+            printMessage($message, $v1+$v2+$v3);
+        } else {
+            $message = sprintf("%-30s", "");
+            printMessage($message, $v1+$v2+$v3);
+            $message = "  passed ";
+            printMessage($message, $v1+$v2+$v3);
+        }
+        
+        # Trim $configureOutput.
+        $configureOutput = substr ($configureOutput, -1000000);
+                            
+        # Finish printing pass/fail message.
+        $message = ($runSeconds==0?"<1":$runSeconds);
+        $message = sprintf("%6s", $message);
+        printMessage($message, $v1+$v2+$v3);
+        $message = " second".($runSeconds>1?"s":"")."\n";
+        printMessage($message, $v1+$v2+$v3);
+                                            
+        # Grab general information values for inclusion in machine info 
+        # file. 
+        my $hostName = "";          
+        my $dnsName = "";           
+        my $ipAddress = "";     
+        my $operatingSystem = "";   
+        my $kernelName = "";        
+        my $kernelRelease = "";
+        my $kernelVersion = "";     
+        my $processor = "";         
+        my $machineHardware = "";
+        my $hardwarePlatform = "";  
+        my $badCmd = 0;          
+        $badCmd = system('hostname -s > /dev/null 2>&1');
+        if (!$badCmd) { 
+            chomp($hostName=`hostname -s`); 
+        } else { 
+            $badCmd = system('uname -n > /dev/null 2>&1');
+            if (!$badCmd) { chomp($hostName=`uname -n`); }
+        }
+        $badCmd = system('hostname -d > /dev/null 2>&1');
+        if (!$badCmd) { chomp($dnsName=`hostname -d`); }
+        $badCmd = system('hostname -i > /dev/null 2>&1');
+        if (!$badCmd) { chomp($ipAddress=`hostname -i`); }
+        $badCmd = system('uname -o > /dev/null 2>&1');
+        if (!$badCmd) { chomp($operatingSystem=`uname -o`); }
+        $badCmd = system('uname -s > /dev/null 2>&1');
+        if (!$badCmd) { chomp($kernelName=`uname -s`); }
+        $badCmd = system('uname -r > /dev/null 2>&1');
+        if (!$badCmd) { chomp($kernelRelease=`uname -r`); }
+        $badCmd = system('uname -v > /dev/null 2>&1');
+        if (!$badCmd) { chomp($kernelVersion=`uname -v`); }
+        $badCmd = system('uname -p > /dev/null 2>&1');
+        if (!$badCmd) { chomp($processor=`uname -p`); }
+        $badCmd = system('uname -m > /dev/null 2>&1');
+        if (!$badCmd) { chomp($machineHardware=`uname -m`); }
+        $badCmd = system('uname -i > /dev/null 2>&1');
+        if (!$badCmd) { chomp($hardwarePlatform=`uname -i`); }
+        
+        # Grab the repository branch tag.
+        my $branchTag = "";
+        my $homeDirContents = `ls $tramontoDir`;
+        if ($homeDirContents =~ m/CVS/) {
+            my $cvsDirContents = `ls $tramontoDir/CVS`;
+            if ($cvsDirContents =~ m/Tag/) {
+                $branchTag = `cat $tramontoDir/CVS/Tag`;
+                $branchTag =~ s/^T//;
+            } else {
+                $branchTag = "development";
+            }      
+        } else {
+            $branchTag = "unknown";
+        }
+        
+        # Create results file.
+        my $resultsFile = "$resultsDir/$runStartTimeForFilename-configure.txt";
+        open (RESULTS, ">$resultsFile")
+            or die "can't open configure result file $resultsFile for writing, died";
+            
+        my $resultsString = "";
+        
+        $resultsString .= "HOST_NAME            = $hostName\n";
+        $resultsString .= "DNS_NAME             = $dnsName\n";
+        $resultsString .= "IP_ADDRESS           = $ipAddress\n";
+        $resultsString .= "OPERATING_SYSTEM     = $operatingSystem\n";
+        $resultsString .= "KERNEL_NAME          = $kernelName\n";
+        $resultsString .= "KERNEL_RELEASE       = $kernelRelease\n";
+        $resultsString .= "KERNEL_VERSION       = $kernelVersion\n";
+        $resultsString .= "PROCESSOR            = $processor\n";
+        $resultsString .= "MACHINE_HARDWARE     = $machineHardware\n";
+        $resultsString .= "HARDWARE_PLATFORM    = $hardwarePlatform\n";
+        $resultsString .= "\n";
+        $resultsString .= "TRAMONTO_DIR         = $tramontoDir\n";
+        $resultsString .= "BRANCH_TAG           = $branchTag\n";
+        $resultsString .= "\n";
+        $resultsString .= "BUILD_DIR            = $buildDir\n";
+        $resultsString .= "\n";
+        $resultsString .= "START_TIME           = $runStartTime\n";
+        $resultsString .= "STOP_TIME            = $configureStopTime\n";
+        $resultsString .= "RUN_TIME             = ".($runSeconds==0?"<1":$runSeconds)." seconds\n";
+        $resultsString .= "\n";
+        $resultsString .= "EXIT_STATUS          = $configureExitStatus\n";
+        $resultsString .= "RESULT               = ".($configureExitStatus==0?"pass":"fail")."\n";
+        $resultsString .= "\n";
+        $resultsString .= "CONFIGURE_OUTPUT {{{\n\n$configureOutput\n\n}}}\n";
+        $resultsString .= "\n";
+        $resultsString .= "CONFIG_LOG {{{\n\n$configLog\n\n}}}\n";
+        $resultsString .= "\n";
+        $resultsString .= "INVOKE_CONFIGURE {{{\n\n$invokeConfigureString\n\n}}}\n";
+        
+        print RESULTS $resultsString;
+        
+        close RESULTS;
+        
+        # Append to build info file for database.
+        my $buildInfoFile = "$resultsDir/build.txt.tmp1";
+        if (stat $buildInfoFile) {
+            open (BUILD_FILE, ">>$buildInfoFile")
+                or die "can't open build info file $buildInfoFile for writing, died";            
+            my $string = "";          
+            $string .= "BRANCH_TAG           = $branchTag\n\n";
+            print BUILD_FILE $string;        
+            close BUILD_FILE;
+            system("mv $buildInfoFile $resultsDir/build.txt.tmp2 > /dev/null 2>&1");
+        }
+            
+        if ($configureExitStatus) {
+            return 1;
+        } else {
+            return 0;
+        }
+        
+    } # run()
+    
+    ############################################################################
+    # cleanUp()
+    #
+    # Clean up environment variables, temp files, etc.
+    #
+    #   - args:     NONE
+    #
+    #   - returns:  NONE
+    #
+
+    sub cleanUp {
+    
+        # Currently, there is nothing to clean up, but I will leave this
+        # subroutine here for potential future use.
+           
+    } # cleanUp()
+    
+    ############################################################################
+    # printMessage()
+    #
+    # Prints an event if the verbosity is set.
+    #
+    #   - args:     $message        (message to be printed)
+    #               $level          (verbosity level of message)
+    #
+    #   - returns:  NONE
+    #
+
+    sub printMessage {
+        my $message = $_[0];
+        my $level = $_[1];
+        
+        if ($verbosity & $level) {
+            print $message;
+        }
+        
+        if ($logVerbosity & $level) {
+            my $log = $resultsDir."/log.txt";
+            open (LOG, ">>$log")
+                or die "can't open $log";
+            print LOG $message;
+            close LOG;
+        }
+    } # printMessage()
+
+    ############################################################################
+    # printHelp()
+    #
+    # Prints help output.
+    #
+    #   - args:     NONE
+    #
+    #   - returns:  NONE
+    #
+
+    sub printHelp {
+        print "runconfigure - The Tramonto Configure Utility\n";
+        print "\n";
+        print "Usage:  perl runconfigure --tramonto-dir=/home/user/Tramonto --build-dir=BUILD\n";
+        print "\n";
+        print "Options:\n";
+        print "\n";
+        print "  --tramonto-dir=DIR         Specify the absolute path to the top-level\n";
+        print "                             Tramonto directory that contains this program.\n";
+        print "                             Example: /home/user/Tramonto\n";
+        print "                             REQUIRED.\n";
+        print "\n";
+        print "  --build-dir=DIR            Specify the name of the build directory where you\n";
+        print "                             would like to configure Tramonto.  If a relative\n";
+        print "                             path is given, it is assumed to be in the given\n";
+        print "                             Tramonto directory.  IMPORTANT: regardless of\n";
+        print "                             whether this is a relative or absolute path,\n";
+        print "                             runconfigure will do an 'rm -rf' on this direcotry\n";
+        print "                             to blow it away before creating it and proceeding.\n";
+        print "                             REQUIRED.\n";
+        print "\n";
+        print "  --invoke-configure=FILE    Relative paths to a complete invoke-configure file.\n";
+        print "                             REQUIRED.\n";
+        print "\n";
+        print "  --output-dir=DIR           Specify the directory in which to create the\n";
+        print "                             directory containing the results.\n";
+        print "                             Default: \".\"\n";
+        print "\n";
+        print "  --verbosity=LEVEL          0 = no non-fatal ouput (same as --quiet)\n";
+        print "                             1 = normal output (default)\n";
+        print "                             2 = level 2 verbosity\n";
+        print "                             3 = level 3 verbosity\n";
+        print "\n";
+        print "  --log-verbosity=LEVEL      0 = no log\n";
+        print "                             1 = normal output (default)\n";
+        print "                             2 = level 2 verbosity\n";
+        print "                             3 = level 3 verbosity\n";
+        print "\n";
+        print "  --quiet                    Produce no non-fatal output.\n";
+        print "\n";
+        print "  --help                     Print this help output and exit.\n";
+        print "\n";
+        print "Notes:\n";
+        print "  - For more information, see the README in\n";
+        print "    Tramonto/test/utilities/\n";
+        print "    or visit http://software.sandia.gov/Tramonto/\n";
+        print "\n";
+    } # printHelp()

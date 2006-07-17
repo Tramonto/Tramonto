@@ -1,0 +1,3 @@
+../configure \
+--with-incdirs="-I/common/TramontoTestHarness/Trilinos/MPI_INSTALL/include" \
+--with-ldflags="-L/common/TramontoTestHarness/Trilinos/MPI_INSTALL/lib -L/usr/local/lib -llapack -lcblas -lf77blas -latlas -lg2c"
