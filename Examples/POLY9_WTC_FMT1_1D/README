@@ -1,0 +1,25 @@
+/*! \file 
+ \brief WTC functionals: blocked polymer blend.
+
+Functionals: WTC,FMT1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case is a polymer blend with two polymer components.  It reproduces figure 7 of Tripathi and Chapman, J Chem. Phys. 2005.  The
+first component is an 8-mer, the second component is a 4-mer.  The two species are homopolymers and the adsorption reported is a sum over the site
+adsorptions for each of the 12 segments in the system.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_5mer
+
+Key Output Parameters:
+   - niter=7
+   - adsorption[0]=11.340340
+   - adsorption[1]=10.268783
+   - energy=1.063667 
+   .
+*/
