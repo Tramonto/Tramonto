@@ -43,7 +43,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   char filename[20]="resid.out";
 
    double resid,mat_value,values[3];
-   int numEntries,nodeIndices[3],iloop;
+   int numEntries,nodeIndices[3],unkIndex[3],iloop;
    double resid_hs1,resid_hs2,resid_rhobars,resid_rhobarv,resid_uatt;
    double resid_ig,resid_vext,resid_mu,resid_charge,resid_deltac;
    double resid_poisson,resid_transport,resid_el,resid_cavity,resid_bondwtc,resid_WTC;
@@ -150,7 +150,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
       } 
 
       /* do mesh coarsening if indicated .... for all unknowns ! */
-      else if (mesh_coarsen_flag_i < 0 && mesh_coarsen_flag_i != FLAG_BULK) {
+      else if (mesh_coarsen_flag_i < 0 && mesh_coarsen_flag_i != FLAG_BULK  && mesh_coarsen_flag_i != FLAG_PBELEC) {
 
          if (Unk2Phys[iunk] ==DENSITY || POISSON) fac_a11=1.0; /* temporary factor to keep -1 on diagonal of A11 block */
          else fac_a11=-1.0;
@@ -193,33 +193,54 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
         }
         else              icomp=i;
 
-        /* Do trivial fill if it is a zero-density node */
+        /* set a flag for zero density of bond parameters */
         zero_density_bond_check=FALSE;
         if (Type_poly==WTC){
             for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
-                unk_bond = Phys2Unk_first[BOND_WTC]+Poly_to_Unk_SegAll[iseg][ibond];
+                unk_bond = Poly_to_Unk_SegAll[iseg][ibond];
+                if (Pol_Sym[unk_bond] != -1) unk_bond=Pol_Sym[Poly_to_Unk_SegAll[iseg][ibond]];
+                unk_bond += Phys2Unk_first[BOND_WTC];
                 n=x[unk_bond][inode_box];
                 if (fabs(n)<1.e-8) zero_density_bond_check=TRUE;
             }
         }
-        if (Zero_density_TF[inode_box][icomp] || Vext[loc_inode][icomp] == VEXT_MAX ||zero_density_bond_check) {
+
+        if (Type_poly==WTC && Pol_Sym_Seg[iseg] != -1){           /* set up segment symmetry equations */
+           junk = Pol_Sym_Seg[iseg]+Phys2Unk_first[DENSITY];
+           resid = x[iunk][inode_box]-x[junk][inode_box];
+           resid = x[iunk][inode_box];
+           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+           unkIndex[0]=iunk; unkIndex[1]=junk;
+           values[0]=1.0; values[1]=-1.0;
+           numEntries=1;
+           dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                unkIndex, inode_box, values, numEntries); 
+        }
+                                                                   /* Do trivial fill if it is a zero-density node */
+        else if (Zero_density_TF[inode_box][icomp] || Vext[loc_inode][icomp] == VEXT_MAX ||zero_density_bond_check) {
              resid= x[iunk][inode_box];
              mat_value = 1.0;
              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
         }
-        else {
+        else {   /* load real residual */
 
              /* First load diagonal and constant terms to the residual */
-             resid = log(x[iunk][inode_box]) ; 
-             mat_value = 1.0/x[iunk][inode_box];
+             if (Type_coul==DEBYE_HUCKEL){
+                resid = (x[iunk][inode_box]/Rho_b[icomp]); 
+                mat_value = 1.0/Rho_b[icomp];
+             }
+             else{
+                resid = log(x[iunk][inode_box]) ; 
+                mat_value = 1.0/x[iunk][inode_box];
+             }
              resid_ig=resid;
              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
 
              if (mesh_coarsen_flag_i == FLAG_BULK){
                   if (Type_poly==WTC)   resid = -log(Rho_seg_b[iseg]);
-                  else                resid = -log(Rho_b[icomp]);
+                  else                  resid = -log(Rho_b[icomp]);
                   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              }
              else {
@@ -236,6 +257,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                
                resid_mu = 0.0; 
                if (Lsteady_state == FALSE) { 
+                  if (Type_coul != DEBYE_HUCKEL){
                   if (Iliq_vap < 10 ){
                      if (Type_poly==WTC)  resid_mu -= log(Rho_seg_b[iseg]);
                      else                resid_mu -= log(Rho_b[icomp]);
@@ -249,6 +271,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                       if (Type_poly==WTC) resid_mu = -Betamu_seg[iseg];
                       else                resid_mu = -Betamu[icomp];
                   }
+                  }
                }
                else{                             /* Lsteady_state == TRUE */
                   if(Type_poly==WTC)  junk=Phys2Unk_first[DIFFUSION] + iseg;
@@ -257,56 +280,56 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                   mat_value=-1.0;
                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_value);         
                }
-               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_mu);
-             }
+               if (Type_coul != DEBYE_HUCKEL) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_mu);
 
-             if (Ipot_ff_c == COULOMB){
-                junk = Phys2Unk_first[POISSON];
-                resid_charge = Charge_f[icomp]*x[junk][inode_box];
-                dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_charge);
-                mat_value = Charge_f[icomp];
-                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_value);         
+                if (Ipot_ff_c == COULOMB){
+                   junk = Phys2Unk_first[POISSON];
+                   resid_charge = Charge_f[icomp]*x[junk][inode_box];
+                   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_charge);
+                   mat_value = Charge_f[icomp];
+                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_value);         
+   
+                   if (Lpolarize[icomp] && Ndim==1){
 
-                if (Lpolarize[icomp] && Ndim==1){
-
-                 fac_temp=Temp_elec/(4.0*PI*KAPPA_H2O);
-                 if (Nodes_2_boundary_wall[0][inode_box] != -1){
-                    if (Surf_normal[0][loc_inode][0] < 0){
-                        gradphi = 0.5*(3.0*x[junk][inode_box]-4.0*x[junk][inode_box-1]+x[junk][inode_box-2])/Esize_x[0];
-                        fac=Pol[icomp]*gradphi*fac_temp/Esize_x[0];
-
-                        numEntries=3;
-                        nodeIndices[0]=inode_box; nodeIndices[1]=inode_box-1; nodeIndices[2]=inode_box-2;
-                        values[0]=1.5*fac; values[1]=-2.0*fac; values[2]=0.5*fac;
-                    }
-                    else{
-                        gradphi = 0.5*(-3.0*x[junk][inode_box]+4.0*x[junk][inode_box+1]-x[junk][inode_box+2])/Esize_x[0];
-                        fac=Pol[icomp]*gradphi*fac_temp/Esize_x[0];
-
-                        numEntries=3;
-                        nodeIndices[0]=inode_box; nodeIndices[1]=inode_box+1; nodeIndices[2]=inode_box+2;
-                        values[0]=-1.5*fac; values[1]=2.0*fac; values[2]=-0.5*fac;
-                    }
-                  }
-                  else{
-                      gradphi = 0.5*(x[junk][inode_box+1]-x[junk][inode_box-1])/Esize_x[0];
-                      fac=Pol[icomp]*gradphi*fac_temp/Esize_x[0];
-                      numEntries=2;
-                      nodeIndices[0]=inode_box+1; nodeIndices[1]=inode_box-1; 
-                      values[0]=0.5*fac; values[1]=-0.5*fac; 
-                  }
-                  resid = 0.5*Pol[icomp]*gradphi*gradphi*fac_temp;
-                  resid_charge += resid;
-                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                  dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                       junk,nodeIndices,values,numEntries);
-                } 
-             }
+                    fac_temp=Temp_elec/(4.0*PI*KAPPA_H2O);
+                    if (Nodes_2_boundary_wall[0][inode_box] != -1){
+                       if (Surf_normal[0][loc_inode][0] < 0){
+                           gradphi = 0.5*(3.0*x[junk][inode_box]-4.0*x[junk][inode_box-1]+x[junk][inode_box-2])/Esize_x[0];
+                           fac=Pol[icomp]*gradphi*fac_temp/Esize_x[0];
+   
+                           numEntries=3;
+                           nodeIndices[0]=inode_box; nodeIndices[1]=inode_box-1; nodeIndices[2]=inode_box-2;
+                           values[0]=1.5*fac; values[1]=-2.0*fac; values[2]=0.5*fac;
+                       }
+                       else{
+                           gradphi = 0.5*(-3.0*x[junk][inode_box]+4.0*x[junk][inode_box+1]-x[junk][inode_box+2])/Esize_x[0];
+                           fac=Pol[icomp]*gradphi*fac_temp/Esize_x[0];
+   
+                           numEntries=3;
+                           nodeIndices[0]=inode_box; nodeIndices[1]=inode_box+1; nodeIndices[2]=inode_box+2;
+                           values[0]=-1.5*fac; values[1]=2.0*fac; values[2]=-0.5*fac;
+                       }
+                     }
+                     else{
+                         gradphi = 0.5*(x[junk][inode_box+1]-x[junk][inode_box-1])/Esize_x[0];
+                         fac=Pol[icomp]*gradphi*fac_temp/Esize_x[0];
+                         numEntries=2;
+                         nodeIndices[0]=inode_box+1; nodeIndices[1]=inode_box-1; 
+                         values[0]=0.5*fac; values[1]=-0.5*fac; 
+                     }
+                     resid = 0.5*Pol[icomp]*gradphi*gradphi*fac_temp;
+                     resid_charge += resid;
+                     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                     dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                          junk,nodeIndices,values,numEntries);
+                   } 
+                }
+           }
         
         /* Now loop over all the stencils to load hard sphere and mean field 
            (off diagonal)  contributions to the Euler-Lagrange equations in the Jacobian. */
 
-           if (Ipot_ff_n != IDEAL_GAS && mesh_coarsen_flag_i != FLAG_BULK) {
+           if (Ipot_ff_n != IDEAL_GAS && mesh_coarsen_flag_i != FLAG_BULK && mesh_coarsen_flag_i != FLAG_PBELEC) {
 
               resid_hs1 =load_nonlocal_hs_rosen_rb(DELTA_FN,iunk,loc_inode,inode_box,
                             icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
@@ -441,7 +464,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
     
 
       /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-/*  if (L2G_node[loc_inode]==0){
+/*  if (L2G_node[loc_inode]==15){
     if (Unk2Phys[iunk]==DENSITY){
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge + resid_WTC +resid_uatt +resid_hs1+resid_hs2;
           printf("loc_inode=%d  global_node=%d iunk=%d  resid_el=%9.6f (log=%9.6f vext=%9.6f mu=%9.6f hs1=%9.6f hs2=%9.6f att=%9.6f WTC=%9.6f charge=%9.6f)", loc_inode,L2G_node[loc_inode],iunk,resid_el,resid_ig,resid_vext,resid_mu,resid_hs1,resid_hs2,resid_uatt,resid_WTC,resid_charge);
@@ -458,7 +481,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          printf(" loc_inode=%d  iunk_cavity=%d  resid=%9.6f",loc_inode,iunk,resid_cavity);
     else if (Unk2Phys[iunk]==BOND_WTC) 
          printf(" loc_inode=%d  iunk_bondwtc=%d  resid=%9.6f",loc_inode,iunk,resid_bondwtc);
-    printf("  \n");}*/
+    printf("  \n"); 
+    }*/
 
 
 /*    if (Unk2Phys[iunk]==DENSITY){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_ig + resid_vext + resid_mu + resid_charge+ resid_hs1+resid_hs2+resid_WTC);}

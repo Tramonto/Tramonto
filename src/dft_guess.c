@@ -1266,15 +1266,16 @@ static void shift_the_profile(double *x_new,double fac)
      if (Unk2Phys[iunk]==DENSITY){
         x_test = AZ_MIN(Rho_max,fac*(unk_old-Rho_b[iunk-Phys2Unk_first[DENSITY]])+ Rho_b[iunk-Phys2Unk_first[DENSITY]]);
      }
-     else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
+     else x_test=unk_old;
+
+/*     else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
         x_test = fac*(unk_old-Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]])+ Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
         if (iunk == Ncomp && x_test >= 1.0) x_test = Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
      }
      else if (Unk2Phys[iunk]==POISSON){
         x_test = fac*(unk_old-1.0) + 1.0;
      }
-     else 
-        x_test = unk_old;
+     else x_test = unk_old;*/
 
      x_new[inode*Nunk_per_node+iunk] = x_test;
 

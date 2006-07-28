@@ -47,7 +47,7 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
   int ipol,iseg,numEntries,unkIndex[2];
   int boltz_pow,boltz_pow_J;
   double fac1,fac2;
-  int jbond,unk_GQ_j,node_start;
+  int jbond,unk_GQ_j,node_start,unk_GQ_j_test,unk_GQ_test;
 
   double  resid_tmp=0.0,resid,mat_val,values[2];
 
@@ -183,13 +183,17 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
                  boltz_pow_J = -(Nbond[npol][i]-1);
                  fac1= k_poly;
                  for (ibond=0; ibond<Nbond[npol][i]; ibond++) {
-                    unk_GQ  = Geqn_start[npol] + Poly_to_Unk[npol][i][ibond]; 
+                    unk_GQ  = Geqn_start[npol] + Poly_to_Unk[npol][i][ibond];
+                    unk_GQ_test = unk_GQ-Phys2Unk_first[CMS_G];
+                    if (Pol_Sym[unk_GQ_test] != -1) unk_GQ=Pol_Sym[unk_GQ_test] + Phys2Unk_first[CMS_G]; 
                     fac1 *= x[unk_GQ][inode_box];
  
                     fac2= k_poly;
                     for (jbond=0; jbond<Nbond[npol][i]; jbond++) {
                       if (jbond != ibond){       
                         unk_GQ_j  = Geqn_start[npol] + Poly_to_Unk[npol][i][jbond]; 
+                        unk_GQ_j_test=unk_GQ_j-Phys2Unk_first[CMS_G];
+                        if (Pol_Sym[unk_GQ_j_test] != -1) unk_GQ_j=Pol_Sym[unk_GQ_j_test] + Phys2Unk_first[CMS_G];
                         fac2 *= x[unk_GQ_j][inode_box];
                       }
                     }
@@ -215,11 +219,12 @@ void fill_resid_and_matrix_P (double **x, int iter, int resid_only_flag, int unk
              if (Pol_Sym[unk_GQ] != -1){                            /* FILL IN G's FOR SYMMETRIC BONDS */
                 junk = Pol_Sym[unk_GQ] + Phys2Unk_first[CMS_G];
                 resid = x[iunk][inode_box]-x[junk][inode_box];
+                resid = x[iunk][inode_box];
                 resid_G+=resid;
                 dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                 unkIndex[0]=iunk; unkIndex[1]=junk;
                 values[0]=1.0; values[1]=-1.0;
-                numEntries=2;
+                numEntries=1;
                 dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                    unkIndex, inode_box, values, numEntries);
              } 
@@ -302,7 +307,7 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
   double boltz_prefac_1,boltz_prefac_2,boltz_prefac_R,fac1,fac2;
   int reflect_flag[NDIM_MAX];
   int i,j,jnode_box;
-  int pol_num,seg_num,bond_num,ibond;
+  int pol_num,seg_num,bond_num,ibond,unk_test;
   double resid,resid_sum,mat_val;
 
   if (Nlists_HW <= 2) jlist = 0;
@@ -332,7 +337,10 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
   nunk=0;
   for (ibond=0; ibond<Nbond[pol_num][jseg];ibond++){
       if (Bonds[pol_num][jseg][ibond] != seg_num){
-        unk[nunk++]     = Poly_to_Unk[pol_num][jseg][ibond]+Geqn_start[pol_num];
+        unk[nunk]     = Poly_to_Unk[pol_num][jseg][ibond]+Geqn_start[pol_num];
+        unk_test=unk[nunk]-Phys2Unk_first[CMS_G];
+        if (Pol_Sym[unk_test] != -1) unk[nunk]= Pol_Sym[unk_test]+Phys2Unk_first[CMS_G];
+        nunk++;
       }
   }
   /* don't forget Boltzman factor */

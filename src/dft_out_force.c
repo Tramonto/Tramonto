@@ -50,8 +50,11 @@ void calc_force(FILE *fp, double **x,double fac_area)
    int idim,iwall,i;
 
    p_tilde = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
-   if (Ipot_wf_c == 1) 
+   if (Ipot_wf_c == 1) {
       f_elec = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
+      for (iwall=0;iwall<Nwall;iwall++)
+      for (idim=0;idim<Ndim;idim++)  f_elec[iwall][idim]=0.0;
+   }
 
     if (!Lhard_surf && Restart != 4) integrate_rho_vdash(x,p_tilde);
     else{
@@ -61,7 +64,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
     }
 
     /* calculate the electrostatic contribution to the force */
-    if (Ipot_wf_c == 1) force_elec(x,f_elec);
+/*    if (Ipot_wf_c == 1) force_elec(x,f_elec);*/
 
     /* deal with linked surfaces */
     p_tilde_L = (double **) array_alloc (2, Nlink, Ndim, sizeof(double));

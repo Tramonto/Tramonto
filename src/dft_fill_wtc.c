@@ -40,7 +40,9 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box, int icomp,
 /*     y=y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);
      dy_dxi2=dy_dxi2_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);
      dy_dxi3=dy_dxi3_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);*/
-     unk_bond = Phys2Unk_first[BOND_WTC]+Poly_to_Unk_SegAll[iseg][ibond];
+     unk_bond = Poly_to_Unk_SegAll[iseg][ibond];
+     if (Pol_Sym[unk_bond] != -1) unk_bond=Pol_Sym[Poly_to_Unk_SegAll[iseg][ibond]];
+     unk_bond += Phys2Unk_first[BOND_WTC];
      n=x[unk_bond][inode_box];
 
                         /* FIRST ADD TERMS THAT ARE ON DIAGONAL WITH REPECT TO POSITION. 
@@ -81,8 +83,13 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
 
   for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
      jseg = Bonds_SegAll[iseg][ibond];
-     junk_rho = jseg+Phys2Unk_first[DENSITY];
-     unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+Phys2Unk_first[BOND_WTC];
+     junk_rho = jseg;
+     if (Pol_Sym_Seg[jseg] != -1) junk_rho = Pol_Sym_Seg[jseg];
+     junk_rho += Phys2Unk_first[DENSITY];
+     unk_bond = Poly_to_Unk_SegAll[iseg][ibond];
+     if (Pol_Sym[unk_bond] != -1) unk_bond=Pol_Sym[Poly_to_Unk_SegAll[iseg][ibond]];
+     unk_bond += Phys2Unk_first[BOND_WTC];
+ 
      jcomp = Unk2Comp[jseg];
 
      if (Nlists_HW <= 2) jlist = 0;
@@ -193,7 +200,10 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
 
     resid=0.0;
     for (jseg=0;jseg<Nseg_tot;jseg++){
-       unk_rho = Phys2Unk_first[DENSITY]+jseg; 
+       unk_rho = jseg; 
+       if (Pol_Sym_Seg[jseg] != -1) unk_rho=Pol_Sym_Seg[jseg];
+       unk_rho += Phys2Unk_first[DENSITY]; 
+
        jcomp=Unk2Comp[jseg];
        s1=Sigma_ff[jcomp][jcomp];
 /*       s1=Bond_ff[jcomp][jcomp];*/
@@ -207,7 +217,9 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
        }
        for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
             kseg = Bonds_SegAll[jseg][kbond];
-            kunk_rho = Phys2Unk_first[DENSITY]+kseg;
+            kunk_rho = kseg;
+            if (Pol_Sym_Seg[kseg] != -1) kunk_rho=Pol_Sym_Seg[kseg];
+            kunk_rho += Phys2Unk_first[DENSITY];
             kcomp=Unk2Comp[kseg];
             s2=Sigma_ff[kcomp][kcomp];
 /*            s2=Bond_ff[kcomp][kcomp];*/
@@ -245,7 +257,9 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
           }
 
           for (jseg=0;jseg<Nseg_tot;jseg++){
-              unk_rho = Phys2Unk_first[DENSITY]+jseg; 
+              unk_rho = jseg; 
+              if (Pol_Sym_Seg[jseg] != -1) unk_rho = Pol_Sym_Seg[jseg];
+              unk_rho += Phys2Unk_first[DENSITY]; 
               jcomp=Unk2Comp[jseg];
               s1=Sigma_ff[jcomp][jcomp];
 /*              s1=Bond_ff[jcomp][jcomp];*/
@@ -261,7 +275,9 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
 
                 for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
                   kseg = Bonds_SegAll[jseg][kbond];
-                  kunk_rho = Phys2Unk_first[DENSITY]+kseg;
+                  kunk_rho = kseg;
+                  if (Pol_Sym_Seg[kseg] != -1) kunk_rho = Pol_Sym_Seg[kseg];
+                  kunk_rho += Phys2Unk_first[DENSITY];
                   kcomp=Unk2Comp[kseg];
                   s2=Sigma_ff[kcomp][kcomp];
 /*                  s2=Bond_ff[kcomp][kcomp];*/
@@ -364,23 +380,41 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
                     int izone,int *ijk_box, double **x,int resid_only_flag)
 {
   int junk,unk_bond,pol_num,iseg,bond_num,jseg,jcomp,icomp,jzone_flag,ibond;
-  double resid_sum;
+  double resid_sum,resid,mat_val;
 
   unk_bond=iunk-Phys2Unk_first[BOND_WTC];
   iseg=BondAll_to_isegAll[unk_bond];
-  ibond=BondAll_to_ibond[unk_bond];
-  jseg=Bonds_SegAll[iseg][ibond];
 
-  jcomp = Unk2Comp[jseg];
-  icomp = Unk2Comp[iseg];
-  junk = jseg+Phys2Unk_first[DENSITY];
+  if (Pol_Sym[unk_bond]==-1){
 
-  jzone_flag=FALSE;
+     ibond=BondAll_to_ibond[unk_bond];
+     jseg=Bonds_SegAll[iseg][ibond];
 
-  resid_and_Jac_sten_fill(DELTA_FN_BOND,x,iunk,junk,
+     jcomp = Unk2Comp[jseg];
+     icomp = Unk2Comp[iseg];
+     junk = jseg;
+     if (Pol_Sym_Seg[jseg] != -1) junk=Pol_Sym_Seg[jseg];
+     junk += Phys2Unk_first[DENSITY];
+
+     jzone_flag=FALSE;
+
+     resid_and_Jac_sten_fill(DELTA_FN_BOND,x,iunk,junk,
                    icomp,jcomp,loc_inode,inode_box,izone,
                    ijk_box,resid_only_flag,jzone_flag,
                     NULL, &resid_rho_bar,&jac_rho_bar);
+  }
+  else{
+/*      if (Proc==0){
+         printf("Polymer symmetries not working for WTC functionals: see code in load_bond_wtc\n");
+         exit(-1);
+      }*/
+      junk=Pol_Sym[unk_bond]+Phys2Unk_first[BOND_WTC];
+      resid = x[junk][inode_box];
+      Temporary_sum=resid;
+      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+      mat_val=1.0; 
+      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+  }
 
   resid_sum=Temporary_sum;
 

@@ -114,9 +114,17 @@ void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
   int reflect_flag[NDIM_MAX];
 
   for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
-
   if (jzone_flag) jzone = find_jzone(izone,inode_box);
-  else            jzone = izone;
+  else{
+      if (izone >= 0) jzone = izone;
+      else{
+         if (izone=FLAG_BULK || izone==FLAG_PBELEC) jzone=0;
+         else {
+             printf("I'm confused about the zones see dft_utils.c\n");
+             exit(-1);
+         }
+      }
+  }    
 
   if (Type_poly==WTC) loop_max=Nseg_tot;
   else                loop_max=Ncomp;
@@ -125,7 +133,9 @@ void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
       if (Type_poly==WTC) {
          jseg=jloop;
          jcomp=Unk2Comp[jseg];
-         junk=Phys2Unk_first[DENSITY]+jseg;
+         junk=jseg;
+         if (Pol_Sym_Seg[jseg] != -1) junk=Pol_Sym_Seg[jseg];
+         junk+=Phys2Unk_first[DENSITY];
       }
       else{
          jcomp=jloop;
@@ -221,6 +231,7 @@ void resid_and_Jac_sten_fill (int sten_type, double **x, int iunk, int junk,
   if (jzone_flag) jzone = find_jzone(izone,inode_box);
   else            jzone = izone;
 
+
   if (Nlists_HW <= 2) jlist = 0;
   else                jlist = jcomp;
 
@@ -312,11 +323,9 @@ int find_jzone(int izone,int inode_box)
   }
   else if (Coarser_jac==0){
      if (Mesh_coarsening || Nwall==0) jzone = izone;
-     else                 jzone = Mesh_coarsen_flag[inode_box];
+     else jzone = Mesh_coarsen_flag[inode_box];
   }
-  else{
-    jzone=izone;
-  }
+  else jzone=izone;
   return jzone;
 }
 /****************************************************************************/

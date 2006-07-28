@@ -209,6 +209,7 @@
 #define DELTAC     1 
 #define POLARIZE   2
 #define LIKE_LJ    3
+#define DEBYE_HUCKEL    4
 
 /*
  * The following are choices for the neutral fluid-fluid interactions (Ipot_ff_n)
@@ -394,9 +395,11 @@
 
 /* The following is a flag for 1D boundary conditions in a 2D or
     3D domain --- only set up for steady state problems now */
-#define FLAG_1DBC -999
-#define FLAG_BULK -888
+#define FLAG_1DBC   -999
+#define FLAG_BULK   -888
+#define FLAG_PBELEC -777
 #define BULK_ZONE    2 
+#define PB_ZONE      3 
 
 /* Polymer constants */
 #define N_NZCR_MAX   200   /* maximum # of non-zero's in direct correlation fn */
@@ -681,6 +684,10 @@ int     Mesh_coarsening;  /* Flag indicating whether mesh coarsening is on */
 extern
 int    *Mesh_coarsen_flag;/* Flag (Nnodes) telling how much coarsening for
                              a given node, or negative values telling which*/
+extern
+int     Nnodes_coarse_loc; /* Number of coarse nodes local to a processor */
+extern
+int   *List_coarse_nodes; /* List of coarse nodes local to a processor */
 extern
 int     Coarser_jac;     /* Flag to switch on coarser jacobian than residual */
 extern
@@ -1195,6 +1202,7 @@ extern int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond;
 extern int ***Poly_to_Unk,**Poly_to_Unk_SegAll;
 extern int Ngeqn_tot, Nbonds, **Nbond,***Bonds;
 extern int *Pol_Sym;
+extern int *Pol_Sym_Seg;
 extern int *BondAll_to_isegAll;
 extern int *BondAll_to_ibond;
 extern int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;

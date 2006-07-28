@@ -19,7 +19,7 @@ void calc_adsorption(FILE *fp,double **x)
   for (icomp=0;icomp<nloop;icomp++) ads[icomp]=0.0;
   for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
      if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
-     else icomp = iunk-Phys2Unk_first[DENSITY];
+     else                icomp = iunk-Phys2Unk_first[DENSITY];
      integrateInSpace(&integrand_adsorption,iunk,Nel_hit2,x,Integration_profile);
      ads[icomp]+=Temporary_sum;
   }
@@ -32,8 +32,9 @@ void calc_adsorption(FILE *fp,double **x)
 
   for (icomp=0;icomp<nloop;icomp++) ads_b[icomp]=0.0;
   for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
-     if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
-     else icomp = iunk-Phys2Unk_first[DENSITY];
+     if (Type_poly==WTC)
+           icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+     else  icomp = iunk-Phys2Unk_first[DENSITY];
      integrateInSpace(&integrand_adsorption_bulk,iunk,Nel_hit,x,Integration_profile);
      ads_b[icomp]+=Temporary_sum;
      ads_ex[icomp]=ads[icomp]-ads_b[icomp];

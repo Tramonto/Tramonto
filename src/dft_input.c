@@ -58,7 +58,7 @@ void read_input_file(char *input_file, char *output_file1)
    char *yo = "read_input_file";
    char poly_file[20];
    int isten, icomp, jcomp, iwall,iwall_save,iwall_type, idim, 
-       i, izone, j, jwall,end_count,
+       i, izone, j, jwall,end_count,end_count_all,
        new_wall,logical,ncharge, seg, block[NCOMP_MAX][NBLOCK_MAX],
        block_type[NBLOCK_MAX],pol_number, nlink_chk,irand,irand_range,itmp,
        *nbond_tot,nbond_all,iseg,nseg,nmer_max,ibond,pol_num2,nunk,
@@ -217,7 +217,7 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(&Type_coul,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Type_coul==1) Sten_Type[THETA_CHARGE]=TRUE;
-  else if (Type_coul >2 || Type_coul<-1){
+  else if (Type_coul >4 || Type_coul<-1){
     if (Proc==0) printf("ERROR Type_coul out of range - should be -1,0,1\n");
     exit(-1);
   }
@@ -926,6 +926,7 @@ void read_input_file(char *input_file, char *output_file1)
     Poly_to_Unk = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
     Poly_to_Unk_SegAll = (int **) array_alloc (2, NMER_MAX,NBOND_MAX,sizeof(int));
     Pol_Sym = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
+    Pol_Sym_Seg = (int *) array_alloc (1, nseg,sizeof(int));
     BondAll_to_isegAll = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
     BondAll_to_ibond = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
     nbond_tot = (int *) array_alloc (1, Npol_comp, sizeof(int));
@@ -934,11 +935,13 @@ void read_input_file(char *input_file, char *output_file1)
     Nbonds=0;
     Nseg_tot=0;
     seg_tot=0;
+    end_count_all=0;
     for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       Nseg_tot += Nmer[pol_number];
       nbond_tot[pol_number]=0;
       nunk=0; 
       for (iseg=0; iseg<Nmer[pol_number]; iseg++){
+        Pol_Sym_Seg[seg_tot]=-1;
         end_count=0;
 	if (Proc==0) fscanf(fp4,"%d", &Nbond[pol_number][iseg]);
 	MPI_Bcast(&Nbond[pol_number][iseg],1,MPI_INT,0,MPI_COMM_WORLD);
@@ -959,7 +962,19 @@ void read_input_file(char *input_file, char *output_file1)
 	    Poly_to_Unk[pol_number][iseg][ibond] = nunk;
             Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond]+SegChain2SegAll[pol_number][0];
 	    Poly_to_Unk_SegAll[seg_tot][Nbonds_SegAll[seg_tot]] = nbond_all;
-	    Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond];
+	    if (pol_sym_tmp[pol_number][iseg][ibond] != -1) Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond]-end_count_all;
+            else Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond];
+            if (Pol_Sym[nbond_all]!= -1){
+                if(Pol_Sym_Seg[seg_tot]==-1 || Pol_Sym_Seg[seg_tot]==BondAll_to_isegAll[nbond_all]) {
+                  Pol_Sym_Seg[seg_tot] = BondAll_to_isegAll[nbond_all];
+if (Proc==0) printf("tagging symmetric segments on the chain for removal from the linear system:  seg=%d symmetric with %d\n",seg_tot,Pol_Sym_Seg[seg_tot]);
+                }
+                else{
+                 if (Proc==0) printf("problem with setting polymer symmetries: seg_sym=%d Pol_Sym_seg=%d nbond=%d BondAll_to_isegAll=%d\n",
+                      seg_tot,Pol_Sym_Seg[seg_tot],nbond_all,BondAll_to_isegAll[nbond_all]); 
+                 exit(-1);
+                }
+            }
             BondAll_to_isegAll[nbond_all]=seg_tot;
             BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
 	    nbond_all++;
@@ -969,6 +984,7 @@ void read_input_file(char *input_file, char *output_file1)
           }
           else if (Type_poly==WTC && Bonds[pol_number][iseg][ibond] == -1){
               end_count++;
+              end_count_all++;
           }
 	}
 	nbond_tot[pol_number] += (Nbond[pol_number][iseg]-end_count);
@@ -1979,9 +1995,9 @@ void error_check(void)
      exit (-1);
   }
 
-  if (Type_coul > 1 && Type_coul < -1){
+  if (Type_coul > 4 && Type_coul < -1){
      printf ("\nSorry, your choice for the Coulomb functionals\n");
-     printf ("Type_coul: %d\n", Type_coul);
+     printf ("Type_coul: %d is not available \n", Type_coul);
      exit (-1);
   }
 

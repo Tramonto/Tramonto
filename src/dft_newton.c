@@ -32,6 +32,7 @@
 
 static void print_resid_norm(int iter);
 void fill_test(double **x, int flag);
+void fix_symmetries(double **x);
 #ifdef HAVE_NOXLOCA
 void NOXLOCA_Solver(double** xBox, double **xOwned);
 #endif
@@ -115,6 +116,11 @@ int loc_inode,inode_box;
 	 indnonlocaleq[count_indnonlocal++]=iunk; 
        break;
      case BOND_WTC:
+/*       if (Pol_Sym[iunk-Phys2Unk_first[BOND_WTC]] == -1)
+          indnonlocaleq[count_indnonlocal++]=iunk; 
+       else 
+	  depnonlocaleq[count_depnonlocal++]=iunk; 
+       break;*/
      case CAVITY_WTC:
        indnonlocaleq[count_indnonlocal++]=iunk; break;   
      } 
@@ -263,6 +269,8 @@ int newton_solver(double** x, void* con_ptr) {
 
     /* Do: x += delta_x, and check for convergence */
     converged = update_solution(x, delta_x, iter);
+    if (converged) fix_symmetries(x);
+
 
 
 
@@ -300,7 +308,8 @@ int update_solution(double** x, double** delta_x, int iter) {
   frac_min=1.0;
   for (ibox=0; ibox<Nnodes_box; ibox++) { /* find minimum update fraction in entire domain */
     for (iunk=0; iunk<Nunk_per_node; iunk++){
-      if (Unk2Phys[iunk]==CMS_G || Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==CMS_FIELD){
+      if ( (Unk2Phys[iunk]==CMS_G  && Pol_Sym[iunk-Phys2Unk_first[CMS_G]] == -1) || 
+           (Unk2Phys[iunk]==DENSITY && (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) ){
          if(x[iunk][ibox]+delta_x[iunk][ibox]<0.0){
              frac = AZ_MIN(1.0,x[iunk][ibox]/(-delta_x[iunk][ibox]));
              frac = AZ_MAX(frac,Min_update_frac);
@@ -329,8 +338,13 @@ int update_solution(double** x, double** delta_x, int iter) {
 
     /* Update all solution componenets */
     for (iunk=0; iunk<Nunk_per_node; iunk++){
-      if ((Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==CMS_G || Unk2Phys[iunk]==CMS_FIELD || Unk2Phys[iunk]==BOND_WTC || Unk2Phys[iunk]==CAVITY_WTC) && 
+      if ((  (Unk2Phys[iunk]==DENSITY && (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) || 
+            (Unk2Phys[iunk]==CMS_G && Pol_Sym[iunk-Phys2Unk_first[CMS_G]] == -1) || 
+            Unk2Phys[iunk]==CMS_FIELD || 
+            (Unk2Phys[iunk]==BOND_WTC  && Pol_Sym[iunk-Phys2Unk_first[BOND_WTC]] == -1 )|| 
+             Unk2Phys[iunk]==CAVITY_WTC) && 
             x[iunk][ibox]+frac_min*delta_x[iunk][ibox] <1.e-15){
+
             x[iunk][ibox]=0.1*x[iunk][ibox];
       }
       else if ((iunk==Phys2Unk_first[RHOBAR_ROSEN] || iunk==(Phys2Unk_first[CAVITY_WTC]+1)) && 
@@ -351,6 +365,27 @@ int update_solution(double** x, double** delta_x, int iter) {
   if (updateNorm > 1.0) return(FALSE);
   else                  return(TRUE);
 
+}
+/*****************************************************************************************************/
+void fix_symmetries(double **x)
+{
+  int ibox,iunk;
+  for (ibox=0; ibox<Nnodes_box; ibox++) {
+    for (iunk=0; iunk<Nunk_per_node; iunk++){
+
+      if (Type_poly==WTC && Unk2Phys[iunk]==DENSITY && Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] != -1){
+         x[iunk][ibox] = x[Phys2Unk_first[DENSITY]+Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]]][ibox];
+      }
+      else if (Type_poly==WTC && Unk2Phys[iunk]==BOND_WTC && Pol_Sym[iunk-Phys2Unk_first[BOND_WTC]] != -1){
+         x[iunk][ibox] = x[Phys2Unk_first[BOND_WTC]+Pol_Sym_Seg[iunk-Phys2Unk_first[BOND_WTC]]][ibox];
+      }
+      else if (Type_poly==CMS && Unk2Phys[iunk]==CMS_G && Pol_Sym[iunk-Phys2Unk_first[CMS_G]] != -1){
+         x[iunk][ibox] = x[Phys2Unk_first[CMS_G]+Pol_Sym[iunk-Phys2Unk_first[CMS_G]]][ibox];
+      }
+
+    }
+  }
+return;
 }
 /*****************************************************************************************************/
 #ifdef NUMERICAL_JACOBIAN

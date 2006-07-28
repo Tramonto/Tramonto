@@ -131,6 +131,8 @@ int     Nzone;          /* Number of diff. quadrature zones on the mesh      */
 int    *Nodes_to_zone;   /* Array[Nnodes] of quadrature zones */
 double  Rmax_zone[5];    /* Array distances from surfaces in quadrature zones */
 int     Mesh_coarsening;  /* Flag indicating whether mesh coarsening is on */
+int     Nnodes_coarse_loc; /* Number of coarse nodes local to a processor */
+int    *List_coarse_nodes; /* List of coarse nodes local to a processor */
 int    *Mesh_coarsen_flag;/* Flag (Nnodes) telling how much coarsening for a
                              given node, or negative values telling which
                              dimension to average over */
@@ -433,6 +435,7 @@ int  Ncr_files;
 int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk, **Poly_to_Unk_SegAll;
 int Ngeqn_tot, Nbonds, **Nbond,***Bonds; 
 int *Pol_Sym;
+int *Pol_Sym_Seg;
 int *BondAll_to_isegAll;
 int *BondAll_to_ibond;
 int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;

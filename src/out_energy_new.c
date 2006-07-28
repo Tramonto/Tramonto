@@ -20,6 +20,10 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
        omega_mu,omega_mu_b,omega_mu_surf_ex;
 static int first=TRUE,loc_inode;
 double energy;
+int iunk;
+
+       double L,L1,L2,sum,energy_RR,energy_RR_plus,energy_RR_minus,derivative_neg,lambda;
+       int icomp;
 
   if (Ndim==1 && Iwrite==VERBOSE){
     Integration_profile = (double *) array_alloc(1, Nnodes_per_proc, sizeof(double));
@@ -37,6 +41,27 @@ double energy;
 
     if (Type_poly==NONE || Type_poly ==WTC){
                                     /* IDEAL GAS CONTRIBUTIONS */
+
+       omega_id=omega_id_b=0.0;
+       for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
+          if (fabs(Charge_f[iunk-Phys2Unk_first[DENSITY]])<1.e-15){
+              integrateInSpace(&integrand_ideal_gas_freen,iunk,Nel_hit2,x,Integration_profile);
+              omega_id+=Temporary_sum;
+
+              integrateInSpace(&integrand_ideal_gas_freen_bulk,iunk,Nel_hit,x,Integration_profile);
+              omega_id_b+=Temporary_sum;
+          }
+        }
+       omega_id_surf_ex = omega_id-omega_id_b;
+       if (Proc==0 && Iwrite != NO_SCREEN){
+             print_to_screen(omega_id,"IDEAL GAS");
+             print_to_screen(omega_id_b,"BULK TERM: IDEAL GAS");
+             print_to_screen(omega_id_surf_ex,"SURF.EX.: IDEAL GAS");
+        }
+       omega_sum += omega_id;
+       omega_s_sum += omega_id_surf_ex;
+
+/*       if (Type_coul ==NONE){
        integrateInSpace_SumInComp(&integrand_ideal_gas_freen,Nel_hit2,x,Integration_profile);
        omega_id=Temporary_sum;
        if (Proc==0 && Iwrite != NO_SCREEN){
@@ -47,12 +72,16 @@ double energy;
        omega_id_b=Temporary_sum;
        omega_id_surf_ex = omega_id-omega_id_b;
        if (Proc==0 && Iwrite != NO_SCREEN){
+              print_to_screen(omega_id_b,"BULK TERM: IDEAL GAS");
               print_to_screen(omega_id_surf_ex,"SURF.EX.: IDEAL GAS");
        }
-       omega_sum += omega_id_b;
+       omega_sum += omega_id;
        omega_s_sum += omega_id_surf_ex;
+       }*/
     
                                     /* CHEMICAL POTENTIAL CONTRIBUTIONS */
+/*       if (Type_coul==NONE){*/
+
        integrateInSpace_SumInComp(&integrand_mu_freen,Nel_hit2,x,Integration_profile);
        omega_mu=Temporary_sum;
        if (Proc==0 && Iwrite != NO_SCREEN){
@@ -63,10 +92,10 @@ double energy;
        omega_mu_b=Temporary_sum;
        omega_mu_surf_ex = omega_mu-omega_mu_b;
        if (Proc==0 && Iwrite != NO_SCREEN){
-            print_to_screen(-omega_mu_b,"BULK TERM: CHEM.POTENTIAL");
+            print_to_screen(omega_mu_b,"BULK TERM: CHEM.POTENTIAL");
             print_to_screen(omega_mu_surf_ex,"SURF.EX.: CHEM.POTENTIAL");
        }
-       omega_sum += omega_mu_b;
+       omega_sum += omega_mu;
        omega_s_sum += omega_mu_surf_ex;
 
                                     /* NEUTRAL EXTERNAL FIELD CONTRIBUTIONS */
@@ -122,37 +151,71 @@ double energy;
 
                                     /* COULOMB SYSTEMS */
       if (Type_coul != NONE){
+
+         /* Here we do some very simple analytical things to see if we can reproduce the sum rule of the most
+            simple electrostatic systems */
+
+            sum=0;
+            for (icomp=0; icomp<Ncomp;icomp++) sum+=Charge_f[icomp]*Charge_f[icomp]*Rho_b[icomp];
+            lambda = sqrt(Temp_elec/(4*PI*sum));
+            printf("Debye wave length: lambda=%9.6f\n",lambda);
+
+
+/* simple implementation of the electrostatic free energy in the Debye-Huckel limit according to Reiner and Radke.  Don't 
+ * have the DH solution working yet - don't really want it anyway..... */
+/*            L=Size_x[0]-2*WallParam[0];
+            L1=L-0.001;
+            L2=L+0.001;
+            printf("cosh_L=%9.6f  cosh_L1=%9.6f  cosh_L2=%9.6f\n",cosh(L/(2*lambda)),cosh(L2/(2*lambda)),cosh(L1/(2*lambda)));
+            printf("sinh_L=%9.6f  sinh_L1=%9.6f  sinh_L2=%9.6f\n",sinh(L/(2*lambda)),sinh(L2/(2*lambda)),sinh(L1/(2*lambda)));
+            printf("coth_L=%9.6f  coth_L1=%9.6f  coth_L2=%9.6f\n",
+                cosh(L/(2*lambda))/sinh(L/(2*lambda)),cosh(L2/(2*lambda))/sinh(L2/(2*lambda)),cosh(L1/(2*lambda))/sinh(L1/(2*lambda)));
+    
+            energy_RR=(PI*lambda*(4*Elec_param_w[0]*Elec_param_w[0])*(cosh(L/(2*lambda))/sinh(L/(2*lambda)) ))/(2*Temp_elec);
+            energy_RR_plus=(PI*lambda*(4*Elec_param_w[0]*Elec_param_w[0])*(cosh(L2/(2*lambda))/sinh(L2/(2*lambda)) ))/(2*Temp_elec);
+            energy_RR_minus=(PI*lambda*(4*Elec_param_w[0]*Elec_param_w[0])*(cosh(L1/(2*lambda))/sinh(L1/(2*lambda)) ))/(2*Temp_elec);
+            derivative_neg= -(energy_RR_plus-energy_RR_minus)/(L2-L1);
+
+             printf("L=%9.6f L1=%9.6f L2=%9.6f  energy_RR=%g energy_RR_plus=%g energy_RR_minus=%g derivative=%g\n",
+                      L,L1,L2,energy_RR,energy_RR_plus,energy_RR_minus,derivative_neg);*/
+  
          /* Reiner and Radke method for computing the free energy of a PB electrolyte near a charged surface */
 
                 /* Maxwell Stress Term */
          integrateInSpace(&integrand_maxwell_stress_freen,0,Nel_hit,x,Integration_profile); 
-         omega_maxwell_stress = Temporary_sum;
+         omega_maxwell_stress = Temporary_sum/4.;
          if (Proc==0 && Iwrite != NO_SCREEN){
              print_to_screen(omega_maxwell_stress,"MAXWELL STRESS TERM");
          }
          omega_sum += omega_maxwell_stress;
-         omega_s_sum += omega_maxwell_stress;  /* note that the maxwell stress in the bulk is 0 */
+         omega_s_sum += omega_maxwell_stress;             /* note that the maxwell stress in the bulk is 0 */
 
-                /* osmotic pressure contribution */
-         integrateInSpace_SumInComp(&integrand_adsorption,Nel_hit2,x,Integration_profile);
-         omega_osmotic=Temporary_sum;
+                /* osmotic pressure contribution ...only for charged species */
+
+         omega_osmotic=0.;
+         omega_osmotic_b=0.;
+         for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
+           if (fabs(Charge_f[iunk-Phys2Unk_first[DENSITY]])>1.e-15){
+              integrateInSpace(&integrand_adsorption,iunk,Nel_hit2,x,Integration_profile);
+              omega_osmotic-=Temporary_sum;
+
+              integrateInSpace(&integrand_adsorption_bulk,iunk,Nel_hit,x,Integration_profile);
+              omega_osmotic_b-=Temporary_sum;
+           }
+         }
+         omega_osmotic_surf_ex=omega_osmotic-omega_osmotic_b;
+
          if (Proc==0 && Iwrite != NO_SCREEN){
              print_to_screen(omega_osmotic,"OSMOTIC PRESSURE TERM");
+             print_to_screen(omega_osmotic_surf_ex,"SURF.EX.: OSMOTIC PRESSURE");
          }
-
-         integrateInSpace_SumInComp(&integrand_adsorption_bulk,Nel_hit2,x,Integration_profile);
-         omega_osmotic_b=Temporary_sum;
-         omega_osmotic_surf_ex=omega_osmotic-omega_osmotic_b;
-         if (Proc==0 && Iwrite != NO_SCREEN){
-               print_to_screen(omega_osmotic_surf_ex,"SURF.EX.: OSMOTIC PRESSURE");
-         }
-
          omega_sum += omega_osmotic;
          omega_s_sum += omega_osmotic_surf_ex;
 
                 /* surface charge term */
          /* for now, to test this approach, just do a kludge.....need to implement surface integrals rigorously in dft_utils to get forces properly*/
-         omega_surface_charge=0.6*x[Phys2Unk_first[POISSON]][20];
+/*         omega_surface_charge=1.58*x[Phys2Unk_first[POISSON]][20];*/
+         omega_surface_charge=2*(-0.0903125)*x[Phys2Unk_first[POISSON]][10];
 
          if (Proc==0 && Iwrite != NO_SCREEN){
                print_to_screen(omega_surface_charge,"SURFACE CHARGE TERM");

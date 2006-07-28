@@ -22,8 +22,7 @@ double integrand_WTC_freen(int iunk,int inode_box, double **x)
                jcomp = Unk2Comp[jseg];
                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],
                           x[unk_xi2][inode_box],x[unk_xi3][inode_box]);
-               unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+Phys2Unk_first[BOND_WTC];
-
+               unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+ Phys2Unk_first[BOND_WTC];
                integrand += 1.0-Fac_overlap[icomp][jcomp]*log(y)-log(x[unk_bond][inode_box]) ;
          }
          integrand *= 0.5*rho_i;
