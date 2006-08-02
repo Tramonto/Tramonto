@@ -24,6 +24,7 @@
 #include "rf_allo.h"
 #include "mpi.h"
 #define HIT_FLAG 999
+double load_coarse_variable(double **,int,double,int,int);
 /****************************************************************************/
 void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_flag)
 {
@@ -43,18 +44,18 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   char filename[20]="resid.out";
 
    double resid,mat_value,values[3];
-   int numEntries,nodeIndices[3],unkIndex[3],iloop;
+   int numEntries,nodeIndices[3],unkIndex[3],iloop,jloop,kloop;
    double resid_hs1,resid_hs2,resid_rhobars,resid_rhobarv,resid_uatt;
    double resid_ig,resid_vext,resid_mu,resid_charge,resid_deltac;
    double resid_poisson,resid_transport,resid_el,resid_cavity,resid_bondwtc,resid_WTC;
 
-  double fac_temp,gradphi,fac,fac_a11;
+  double fac_temp,gradphi,fac,fac_a11,fac_coarse;
 
   double  nodepos[3];
 
   /* the 6 offset patterns for nearest neighbors */
   int offset_idim_pm[18] = {1,0,0,  0,1,0,  0,0,1,  -1,0,0,  0,-1,0,  0,0,-1};
-  int *offset_ptr; /* pointer into above */
+  int *offset_ptr, *offset_ptr_j,*offset_ptr_k; /* pointer into above */
   /* Jacobian weight precalc stuff */
 
   static double ***jac_weights_hs=NULL;
@@ -63,7 +64,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   int node_count=0;
   int l_elec_RTF, l_elec_LBB;
 
-  int i_box, inode_box,jnode_box, ijk_box[3], ijk[3],ijk_tmp[3],loc_jnode;
+  int i_box, inode_box,jnode_box, knode_box,lnode_box,ijk_box[3], ijk_box_j[3],ijk_box_k[3],ijk[3],ijk_tmp[3],loc_jnode;
 
 
   /********************** BEGIN EXECUTION ************************************/
@@ -158,7 +159,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          resid= fac_a11*x[iunk][inode_box];
          mat_value=fac_a11*1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
-
+         
          for (iloop=0;iloop<2;iloop++){
 
           if (iloop==0) offset_ptr = &offset_idim_pm[3*(-mesh_coarsen_flag_i - 1)];  /* one node higher */
@@ -166,14 +167,40 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
           jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
 
-          if (jnode_box >= 0) {
-             resid-= fac_a11*0.5*x[iunk][jnode_box];
-             mat_value=-fac_a11*0.5;
-             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,jnode_box,mat_value);         
-          }
-          else{  resid-= fac_a11*0.5*constant_boundary(iunk,jnode_box); }
+          if (jnode_box >=0 && Ndim >1 && Mesh_coarsen_flag[jnode_box]<0 && Nzone == 2){  /* note that when Nzone =2 we have implemented this
+   											     code to cast all the coarsened variables in terms
+ 											     of the independent variables only - this allows
+ 										             these algebraic equations to be moved into the
+											     A11 block of the solver. */
+              for (jloop=0;jloop<2;jloop++){
+                  if (jloop==0) offset_ptr_j = &offset_idim_pm[3*(-Mesh_coarsen_flag[jnode_box] - 1)];  /* one node higher */
+                  else          offset_ptr_j += 9;                                                      /* one node lower */
+
+                  node_box_to_ijk_box(jnode_box,ijk_box_j);
+                  knode_box = offset_to_node_box(ijk_box_j, offset_ptr_j, reflect_flag);
+
+                  if (knode_box >=0 && Ndim > 2 && Mesh_coarsen_flag[knode_box]<0){
+                       for (kloop=0;kloop<2;kloop++){
+                          if (kloop==0) offset_ptr_k = &offset_idim_pm[3*(-Mesh_coarsen_flag[knode_box] - 1)];  /* one node higher */
+                          else          offset_ptr_k += 9;                                                      /* one node lower */
+                          node_box_to_ijk_box(knode_box,ijk_box_k);
+                          lnode_box = offset_to_node_box(ijk_box_k, offset_ptr_k, reflect_flag);
+                          fac_coarse = fac_a11*0.5*0.5*0.5;
+                          resid += load_coarse_variable(x,lnode_box,fac_coarse,iunk,loc_inode);
+                       }
+                 }
+                 else{
+                     fac_coarse = fac_a11*0.5*0.5;
+                     resid += load_coarse_variable(x,knode_box,fac_coarse,iunk,loc_inode);
+                 }
+             }
         }
-        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+        else{  
+            fac_coarse = fac_a11*0.5;
+            resid += load_coarse_variable(x,jnode_box,fac_coarse,iunk,loc_inode);
+        }
+       }
+       dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      }
      else{
 
@@ -521,3 +548,16 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   }
 }
 /****************************************************************************/
+double load_coarse_variable(double **x,int jnode_box,double fac,int iunk,int loc_inode)
+{
+  double mat_value,resid;
+  if (jnode_box<0) resid = -fac*constant_boundary(iunk,jnode_box);
+  else {                 
+      resid = -fac*x[iunk][jnode_box];
+      mat_value=-fac;
+      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,jnode_box,mat_value);
+  }
+  return resid;
+}
+/****************************************************************************/
+
