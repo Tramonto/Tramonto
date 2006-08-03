@@ -25,6 +25,7 @@
 #include "mpi.h"
 #define HIT_FLAG 999
 double load_coarse_variable(double **,int,double,int,int);
+void locate_neighbor_unks(double **,int, int, int,double,double *);
 /****************************************************************************/
 void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_flag)
 {
@@ -159,48 +160,11 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
          resid= fac_a11*x[iunk][inode_box];
          mat_value=fac_a11*1.0;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
-         
-         for (iloop=0;iloop<2;iloop++){
 
-          if (iloop==0) offset_ptr = &offset_idim_pm[3*(-mesh_coarsen_flag_i - 1)];  /* one node higher */
-          else          offset_ptr += 9;                                             /* one node lower */
+         fac_coarse=0.5*fac_a11;
+         locate_neighbor_unks(x,iunk,loc_inode,inode_box,fac_coarse,&resid);
+         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
-          jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
-
-          if (jnode_box >=0 && Ndim >1 && Mesh_coarsen_flag[jnode_box]<0 && Nzone == 2){  /* note that when Nzone =2 we have implemented this
-   											     code to cast all the coarsened variables in terms
- 											     of the independent variables only - this allows
- 										             these algebraic equations to be moved into the
-											     A11 block of the solver. */
-              for (jloop=0;jloop<2;jloop++){
-                  if (jloop==0) offset_ptr_j = &offset_idim_pm[3*(-Mesh_coarsen_flag[jnode_box] - 1)];  /* one node higher */
-                  else          offset_ptr_j += 9;                                                      /* one node lower */
-
-                  node_box_to_ijk_box(jnode_box,ijk_box_j);
-                  knode_box = offset_to_node_box(ijk_box_j, offset_ptr_j, reflect_flag);
-
-                  if (knode_box >=0 && Ndim > 2 && Mesh_coarsen_flag[knode_box]<0){
-                       for (kloop=0;kloop<2;kloop++){
-                          if (kloop==0) offset_ptr_k = &offset_idim_pm[3*(-Mesh_coarsen_flag[knode_box] - 1)];  /* one node higher */
-                          else          offset_ptr_k += 9;                                                      /* one node lower */
-                          node_box_to_ijk_box(knode_box,ijk_box_k);
-                          lnode_box = offset_to_node_box(ijk_box_k, offset_ptr_k, reflect_flag);
-                          fac_coarse = fac_a11*0.5*0.5*0.5;
-                          resid += load_coarse_variable(x,lnode_box,fac_coarse,iunk,loc_inode);
-                       }
-                 }
-                 else{
-                     fac_coarse = fac_a11*0.5*0.5;
-                     resid += load_coarse_variable(x,knode_box,fac_coarse,iunk,loc_inode);
-                 }
-             }
-        }
-        else{  
-            fac_coarse = fac_a11*0.5;
-            resid += load_coarse_variable(x,jnode_box,fac_coarse,iunk,loc_inode);
-        }
-       }
-       dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      }
      else{
 
@@ -560,4 +524,29 @@ double load_coarse_variable(double **x,int jnode_box,double fac,int iunk,int loc
   return resid;
 }
 /****************************************************************************/
+void locate_neighbor_unks(double **x,int iunk, int loc_inode, int node_box,double fac,double *resid)
+{
+  /* identify the neighboring nodes that contribute to a particular coarsened node.  For
+     the special case of only two zones (one possible coarsening level), the recursive code
+     casts the coarsened node values in terms of independent nodes only */ 
 
+                                   /* the 6 offset patterns for nearest neighbors */
+  int offset_idim_pm[18] = {1,0,0,  0,1,0,  0,0,1,  -1,0,0,  0,-1,0,  0,0,-1};
+  int *offset_ptr; /* pointer into above */
+  int ijk_box[3],loop,jnode_box;
+  int     reflect_flag[3];
+
+   node_box_to_ijk_box(node_box,ijk_box);
+   for (loop=0;loop<2;loop++){
+       if (loop==0) offset_ptr = &offset_idim_pm[3*(-Mesh_coarsen_flag[node_box] - 1)];  /* one node higher */
+       else         offset_ptr += 9;                                             /* one node lower */
+       jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
+
+       if (jnode_box >=0 && Mesh_coarsen_flag[jnode_box]<0 && Nzone == 2){
+           locate_neighbor_unks(x,iunk,loc_inode,jnode_box,fac*0.5,resid);
+       }
+       else *resid += load_coarse_variable(x,jnode_box,fac,iunk,loc_inode);
+   }
+   return;
+}
+/****************************************************************************/
