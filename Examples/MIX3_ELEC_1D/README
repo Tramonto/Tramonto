@@ -11,7 +11,8 @@ Notes: Electrolyte composed of two charged components (ions) and a dielectric co
 The ions are treated as point particles so this is the ideal (Poisson-Boltzmann) limit
 of the Density Functional Theory.  There are two surfaces in this problem each with
 a surface charge per unit area of 0.6.  Note that adsorption[1]-adsorption[0]=0.6 so the electrolyte 
-perfectly neutralizes the surface charge.
+perfectly neutralizes the surface charge.  Finally, the sum rules associated with the force (ptilde)
+and free energies have been confirmed for this case.
 
 Input Files for Test problem:
    - dft_input.dat
@@ -21,5 +22,7 @@ Key Output Parameters:
    - niter=9
    - adsorption[0]= 0.342487  
    - adsorption[1]= 0.942487
+   - ptilde = 1.048839229
+   - surface_energy = 1.064881
    .
 */
