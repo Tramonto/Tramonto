@@ -61,6 +61,11 @@ extern "C" {
     return(linprobmgr_->setNodalColMap(numgids, gids));
   }
 
+  int dft_linprobmgr_setcoarsenednodeslist(void * linprobmgr, int numgids, int * gids) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->setCoarsenedNodesList(numgids, gids));
+  }
+
   int dft_linprobmgr_finalizeblockstructure(void * linprobmgr) {
     dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
     return(linprobmgr_->finalizeBlockStructure());

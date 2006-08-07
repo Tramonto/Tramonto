@@ -53,6 +53,8 @@ dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOpt
     numBoxNodes_(0),
     numGlobalNodes_(0),
     numGlobalBoxNodes_(0),
+    numCoarsenedNodes_(0),
+    numGlobalCoarsenedNodes_(0),
     comm_(Epetra_MpiComm(comm)),
     isBlockStructureSet_(false),
     isGraphStructureSet_(false),
@@ -88,6 +90,17 @@ int dft_BasicLinProbMgr::setNodalColMap(int numBoxNodes, int * GIDs, int nx, int
 
   boxMap_ = Teuchos::rcp(new Epetra_Map(-1, numBoxNodes, GIDs, 0, comm_));
   //std::cout << " Box Map" << *boxMap_ << std::endl;
+
+  return(0);
+}
+//=============================================================================
+int dft_BasicLinProbMgr::setCoarsenedNodesList(int numCoarsenedNodes, int * GIDs) {
+  
+  numCoarsenedNodes_ = numCoarsenedNodes;
+  comm_.SumAll(&numCoarsenedNodes_, &numGlobalCoarsenedNodes_, 1);
+
+  coarsenedNodesMap_ = Teuchos::rcp(new Epetra_Map(-1, numCoarsenedNodes, GIDs, 0, comm_));
+  //std::cout << " Coarsened Nodes Map" << *coarsenedNodesMap_ << std::endl;
 
   return(0);
 }

@@ -29,6 +29,7 @@
 #define DFT_BASICLINPROBMGR_HPP
 
 class Epetra_Vector;
+class Epetra_IntVector;
 class Epetra_Map;
 class Epetra_Import;
 class Epetra_CrsMatrix;
@@ -94,6 +95,17 @@ class dft_BasicLinProbMgr {
 
   */
   int setNodalColMap(int numBoxNodes, int * GIDs, int nx=0, int ny = 1, int nz = 1);
+
+  //! Define the nodes on this processor that will be mesh-coarsened, must be nodes set as part of setNodalRowMap().
+  /*! Define the list of global node IDs that will be algebraically defined as an average of neighbors.  The exact definition
+      of the averaging formula is not important. 
+     \param numCoarsenedNodes (In) Number of coarsened node global IDs.  
+     \param GIDs (In) List of global IDs that are flagged for coarsening.
+
+     \warning If one processor calls this function, then ALL must call it.
+
+  */
+  virtual int setCoarsenedNodesList(int numCoarsenedNodes, int * GIDs);
 
   //! Method that must be called once, when all row and column maps are set.
   /*! This method constructs all of the Epetra_CrsGraph objects and the lhs and rhs vectors. */
@@ -327,11 +339,16 @@ protected:
   int numBoxNodes_;
   int numGlobalNodes_;
   int numGlobalBoxNodes_;
+  int numCoarsenedNodes_;
+  int numGlobalCoarsenedNodes_;
   Epetra_MpiComm comm_;
   Epetra_IntSerialDenseVector physicsOrdering_;
   Epetra_IntSerialDenseVector solverOrdering_;
   Teuchos::RefCountPtr<Epetra_Map> ownedMap_;
   Teuchos::RefCountPtr<Epetra_Map> boxMap_;
+  Teuchos::RefCountPtr<Epetra_Map> coarsenedNodesMap_;
+  Teuchos::RefCountPtr<Epetra_IntVector> ownedNodeIsCoarsened_;
+  Teuchos::RefCountPtr<Epetra_IntVector> boxNodeIsCoarsened_;
   Teuchos::RefCountPtr<Epetra_Import> ownedToBoxImporter_;
   Teuchos::RefCountPtr<Epetra_Map> globalRowMap_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> globalMatrix_;

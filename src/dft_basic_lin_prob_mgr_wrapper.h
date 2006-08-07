@@ -50,6 +50,8 @@ extern "C" {
 
   int dft_linprobmgr_setnodalcolmap(void * linprobmgr, int numgids, int * gids);
 
+  int dft_linprobmgr_setcoarsenednodeslist(void * linprobmgr, int numgids, int * gids);
+
   int dft_linprobmgr_finalizeblockstructure(void * linprobmgr);
 
   int dft_linprobmgr_initializeproblemvalues(void * linprobmgr);

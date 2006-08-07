@@ -96,21 +96,45 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
   solverOrdering_.Size(numUnknownsPerNode_);
   for (int i=0; i<physicsOrdering_.Length(); i++) solverOrdering_[physicsOrdering_[i]]=i;
 
+  // Special setup for coarsened nodes
+  // Build int vector of with 1 if node is coarsened
+  ownedNodeIsCoarsened_ = Teuchos::rcp(new Epetra_IntVector(*ownedMap_)); // Assume no nodes are coarsened
+  boxNodeIsCoarsened_ = Teuchos::rcp(new Epetra_IntVector(*boxMap_)); // Assume no nodes are coarsened
+  
+  if (numGlobalCoarsenedNodes_>0) {
+    setA22BlockIsDiagonal(false); // A22 block is not diagonal when some nodes are coarsened
+    for (int i=0; i<numCoarsenedNodes_; i++)
+      (*ownedNodeIsCoarsened_)[ownedMap_->LID(coarsenedNodesMap_->GID(i))] = 1;
+    boxNodeIsCoarsened_->Import(*ownedNodeIsCoarsened_, *ownedToBoxImporter_, Insert); // Now each processor knows which of its box nodes is coarsened
+  }
   const int numUnks = numOwnedNodes_*numUnknownsPerNode_;
-  const int numUnks1 = numOwnedNodes_*(indNonLocalEquations_.Length()+depNonLocalEquations_.Length());
-  const int numUnks2 = numOwnedNodes_*(densityEquations_.Length());
+  const int numRealNodes = numOwnedNodes_ - numCoarsenedNodes_;
+  const int numUnks1 = numRealNodes*(indNonLocalEquations_.Length()+depNonLocalEquations_.Length());
+  const int numUnks2 = numRealNodes*(densityEquations_.Length()) + numCoarsenedNodes_ * numUnknownsPerNode_;
   assert(numUnks==(numUnks1+numUnks2));  // Sanity test
-  const int numIndNonLocal = numOwnedNodes_*(indNonLocalEquations_.Length());
-  const int numDepNonLocal = numOwnedNodes_*(depNonLocalEquations_.Length());
-  const int numDensity = numOwnedNodes_*(densityEquations_.Length());
+  const int numIndNonLocal = numRealNodes*(indNonLocalEquations_.Length());
+  const int numDepNonLocal = numRealNodes*(depNonLocalEquations_.Length());
+  const int numDensity = numRealNodes*(densityEquations_.Length());
   Epetra_IntSerialDenseVector globalGIDList(numUnks);
 
   int * GIDs = ownedMap_->MyGlobalElements();
   int k=0;
+  int k1 = (numOwnedNodes_ - numCoarsenedNodes_) * numUnknownsPerNode_; // starting point for coarsened variables
   for (int i=0; i<numUnknownsPerNode_; i++) {
     int ii=physicsOrdering_[i];
-    for (int j=0; j<numOwnedNodes_; j++) 
-      globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
+    if (numCoarsenedNodes_==0) {
+      for (int j=0; j<numOwnedNodes_; j++) 
+	globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
+    }
+    else {
+      for (int j=0; j<numOwnedNodes_; j++) {
+	int curGID = GIDs[j];
+	if (coarsenedNodesMap_->MyGID(curGID))
+	  globalGIDList[k1++] = ii*numGlobalNodes_ + GIDs[j];
+	else
+	  globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
+      }
+    }
   }
 
   ptr = globalGIDList.Values();
@@ -188,20 +212,20 @@ int dft_HardSphereLinProbMgr::initializeProblemValues() {
 //=============================================================================
 int dft_HardSphereLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int boxPhysicsID, int boxNode, double value) {
 
-  int schurBlockRow = physicsIdToSchurBlockId_[ownedPhysicsID];
-  int schurBlockCol = physicsIdToSchurBlockId_[boxPhysicsID];
+  bool schurBlockRow1 = (physicsIdToSchurBlockId_[ownedPhysicsID]==1 && (*ownedNodeIsCoarsened_)[ownedNode]==0);
+  bool schurBlockCol1 = (physicsIdToSchurBlockId_[boxPhysicsID]==1 && (*boxNodeIsCoarsened_)[boxNode]==0);
   int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   int colGID = boxToSolverGID(boxPhysicsID, boxNode);
-  if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
+  if (schurBlockRow1 && schurBlockCol1) { // A11 block
     A11_->insertMatrixValue(rowGID, colGID, value); 
   }
-  else if (schurBlockRow==2 && schurBlockCol==2) { // A22 block
-    if (isA22Diagonal_)
+  else if (!schurBlockRow1 && !schurBlockCol1) { // A22 block
+    if (isA22Diagonal_ && numCoarsenedNodes_==0)
       A22Diagonal_->insertMatrixValue(rowGID, colGID, value); 
     else
      A22Matrix_->insertMatrixValue(rowGID, colGID, value); 
   }
-  else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
+  else if (!schurBlockRow1 && schurBlockCol1) { // A21 block
     if (firstTime_) {
       if (rowGID!=curRowA21_) { 
 	insertRowA21();  // Dump the current contents of curRowValues_ into matrix and clear map
