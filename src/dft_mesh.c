@@ -2692,7 +2692,7 @@ void set_mesh_coarsen_flag(void)
          else if (ijk[1]%coarse_fac) Mesh_coarsen_flag[i] = -2;
          else if (ijk[2]%coarse_fac) Mesh_coarsen_flag[i] = -3;
          }
-         if (B2L_node[i] >=0 && Mesh_coarsen_flag[i] < 0) List_coarse_nodes[count_coarse++]=B2L_node[i];
+         if (B2L_node[i] >=0 && Mesh_coarsen_flag[i] < 0) List_coarse_nodes[count_coarse++]=B2G_node[i];
                
       }
       if (L1D_bc){

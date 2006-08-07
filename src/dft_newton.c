@@ -96,7 +96,8 @@ int loc_inode,inode_box;
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
  }
- else if (L_Schur && Type_func != NONE && !Mesh_coarsening) {
+ else if (L_Schur && Type_func != NONE) {
+   
 
    count_density=count_indnonlocal=count_depnonlocal=0;
    one_particle_size=FALSE;
@@ -141,6 +142,9 @@ int loc_inode,inode_box;
   /* Give Nodal Row and Column maps */
   (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
   (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
+
+  /* send solver manager information about mesh coarsening */
+  dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);
 
   /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
   (void) dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
