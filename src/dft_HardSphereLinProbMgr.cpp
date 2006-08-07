@@ -67,6 +67,11 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
 
   if (isBlockStructureSet_) return(1); // Already been here, return warning
 
+  // Create importer to map from owned nodes to box nodes
+
+  ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*boxMap_, *ownedMap_));
+
+
   if (numGlobalNodes_==0 ||
       numGlobalBoxNodes_==0 ||
       indNonLocalEquations_.Length()==0 ||
@@ -182,7 +187,6 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
   implicitProblem_ = Teuchos::rcp(new Epetra_LinearProblem(schurOperator_.get(), lhs2_.get(), rhsSchur_.get()));
 
     
-  ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*boxMap_, *ownedMap_));
 
   isBlockStructureSet_ = true;
   return(0);
