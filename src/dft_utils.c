@@ -481,7 +481,39 @@ void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),
   Temporary_sum=sum;
   return;
 }
-/******************************************************************************/
+/*****************************************************************************************************/
+void integrateOverSurface(double(*fp_integrand)(int,int,double **),int iunk,double **x,double *profile)
+{
+
+  double sum,sum_i,integrand;
+  int loc_inode,inode_box,iwall;
+
+  sum_i=0.0,sum=0.0;
+
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+
+      inode_box = L2B_node[loc_inode];     
+      if  (Nodes_2_boundary_wall[Nlists_HW-1][inode_box] != -1){ /* identify surface nodes */
+printf("found surface node at=%d --- calling the integrand\n",loc_inode);
+
+         integrand = (*fp_integrand)(iunk,inode_box,x);
+         sum_i += integrand;
+         if (profile != NULL) profile[loc_inode]+=integrand;
+      }       /* end of loc_inode loop */
+  }
+
+  sum=gsum_double(sum_i);
+
+  if (Lper_area && Area>0.0) {
+      sum /= Area;
+      sum *= (Fac_vol/Fac_area);
+  }
+  else sum *= Fac_vol;
+
+  Temporary_sum=sum;
+  return;
+}
+/*****************************************************************************************************/
 /*setup_domain_multipliers: Here compute area and Fac_vol and Fac_area that
   are needed for all integrals */
 void setup_domain_multipliers()

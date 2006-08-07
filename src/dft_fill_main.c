@@ -130,6 +130,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                 = resid_cavity= resid_bondwtc=resid_WTC=0.0;
 
       if (mesh_coarsen_flag_i == FLAG_1DBC){
+printf("trouble we shouldn't be here\n");
          node_box_to_ijk_box(inode_box,ijk_box);
          for (idim=0; idim<Ndim; idim++) ijk_tmp[idim]=0;
          ijk_tmp[Grad_dim]=ijk_box[Grad_dim];
@@ -153,6 +154,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
       /* do mesh coarsening if indicated .... for all unknowns ! */
       else if (mesh_coarsen_flag_i < 0 && mesh_coarsen_flag_i != FLAG_BULK  && mesh_coarsen_flag_i != FLAG_PBELEC) {
+printf("trouble we shouldn't be here");
 
          if (Unk2Phys[iunk] ==DENSITY || POISSON) fac_a11=1.0; /* temporary factor to keep -1 on diagonal of A11 block */
          else fac_a11=-1.0;
@@ -217,14 +219,8 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
         else {   /* load real residual */
 
              /* First load diagonal and constant terms to the residual */
-             if (Type_coul==DEBYE_HUCKEL){
-                resid = (x[iunk][inode_box]/Rho_b[icomp]); 
-                mat_value = 1.0/Rho_b[icomp];
-             }
-             else{
-                resid = log(x[iunk][inode_box]) ; 
-                mat_value = 1.0/x[iunk][inode_box];
-             }
+             resid = log(x[iunk][inode_box]) ; 
+             mat_value = 1.0/x[iunk][inode_box];
              resid_ig=resid;
              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);         
@@ -245,23 +241,23 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                  resid_vext=resid;
                }
-               
+              
                resid_mu = 0.0; 
                if (Lsteady_state == FALSE) { 
-                  if (Type_coul != DEBYE_HUCKEL){
                   if (Iliq_vap < 10 ){
                      if (Type_poly==WTC)  resid_mu -= log(Rho_seg_b[iseg]);
                      else                resid_mu -= log(Rho_b[icomp]);
                      
+               if (mesh_coarsen_flag_i != FLAG_PBELEC){ 
                    if (Ipot_ff_n != IDEAL_GAS) resid_mu -= Betamu_hs_ex[icomp];
                    if (Ipot_ff_n == LJ12_6)    resid_mu -= Betamu_att[icomp];
                    if (Type_poly==WTC)         resid_mu -= Betamu_wtc[iseg];
                    if (Ipot_ff_c == COULOMB && Sten_Type[THETA_CHARGE]) resid_mu += Deltac_b[icomp];
+               }
                   }
                   else{
                       if (Type_poly==WTC) resid_mu = -Betamu_seg[iseg];
                       else                resid_mu = -Betamu[icomp];
-                  }
                   }
                }
                else{                             /* Lsteady_state == TRUE */
@@ -271,7 +267,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                   mat_value=-1.0;
                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_value);         
                }
-               if (Type_coul != DEBYE_HUCKEL) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_mu);
+               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_mu);
 
                 if (Ipot_ff_c == COULOMB){
                    junk = Phys2Unk_first[POISSON];
@@ -455,7 +451,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
     
 
       /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-/*  if (L2G_node[loc_inode]==15){
+/*  if (L2G_node[loc_inode]==120){
     if (Unk2Phys[iunk]==DENSITY){
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge + resid_WTC +resid_uatt +resid_hs1+resid_hs2;
           printf("loc_inode=%d  global_node=%d iunk=%d  resid_el=%9.6f (log=%9.6f vext=%9.6f mu=%9.6f hs1=%9.6f hs2=%9.6f att=%9.6f WTC=%9.6f charge=%9.6f)", loc_inode,L2G_node[loc_inode],iunk,resid_el,resid_ig,resid_vext,resid_mu,resid_hs1,resid_hs2,resid_uatt,resid_WTC,resid_charge);

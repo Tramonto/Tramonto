@@ -92,6 +92,53 @@ double integrand_maxwell_stress_freen(int iunk,int inode_box, double **x)
      integrand=-(Temp_elec/(8.0*PI))*sum_stress;
      return(integrand);
 }
+/****************************************************************************
+ * integrand_surface_charge:  In this routine we calculate the surface       *
+ *                           integral that gives the free energy due to     *
+ *                           charging up the surfaces (see the first        *
+ *                           term in Eq. 6 of Reiner and Radke 1991         *
+ *                           Note that we compute surface charge based on   *
+ *                           the gradient of the electrostatic field rather *
+ *                           than using the surface charge arrays so that   *
+ *                           this code will work for constant surface charge*
+ *                           or constant surface potential boundaries       */
+double integrand_surface_charge(int iunk,int inode_box,double **x)
+{
+  int loc_inode,idim,iel_w,surf_norm,ilist,int_type[3];
+  double integrand,charge_i,prefac,deriv;
+
+  iunk = Phys2Unk_first[POISSON];
+  loc_inode=B2L_node[inode_box];
+  int_type[0]=int_type[1]=int_type[2]=CFD;
+
+  ilist = Nlists_HW - 1;
+  for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++){
+
+              surf_norm = Surf_normal[ilist][loc_inode][iel_w];
+              idim = abs(surf_norm) - 1;
+
+              prefac = (double)(surf_norm/abs(surf_norm))*Area_surf_el[idim]/Nelems_S[ilist][loc_inode];
+
+              if (surf_norm <0) int_type[idim]=BFD;
+              else              int_type[idim]=FFD;
+              deriv=calc_deriv_epot(idim,inode_box,int_type,x);
+
+              charge_i = prefac*(Temp_elec/(8.0*PI))*deriv;
+
+ printf("iel_w=%d Nelems_S=%d idim=%d  deriv=%9.6f  prefac=%9.6f other=%9.6f \n",iel_w,Nelems_S[ilist][loc_inode],idim,deriv,prefac,Temp_elec/(8.*PI));
+          
+  } /* end of surface element loop */
+
+/*         charge_i = 0.0;
+         for (idim=0; idim<Ndim; idim++){
+             charge_i -= Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
+         }
+ */
+  integrand = -(charge_i*x[iunk][inode_box]);
+
+  return integrand;
+  
+}
 /****************************************************************************/
 /* calc_deriv_epot : calculate a derivative of the electric potential!!   */
 
@@ -122,7 +169,7 @@ double calc_deriv_epot(int idim,int inode0,int *int_type, double **x)
       case FFD: deriv = -3*x[iunk][inode0] + 4*x[iunk][inode1] - x[iunk][inode2];break;
       case BFD: deriv =  3*x[iunk][inode0] - 4*x[iunk][inode1] + x[iunk][inode2];break;
    }
-   deriv /= (Esize_x[idim]);
+   deriv /= (2*Esize_x[idim]);
 
    return deriv;
 }

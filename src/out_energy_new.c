@@ -183,7 +183,7 @@ int iunk;
 
                 /* Maxwell Stress Term */
          integrateInSpace(&integrand_maxwell_stress_freen,0,Nel_hit,x,Integration_profile); 
-         omega_maxwell_stress = Temporary_sum/4.;
+         omega_maxwell_stress = Temporary_sum;
          if (Proc==0 && Iwrite != NO_SCREEN){
              print_to_screen(omega_maxwell_stress,"MAXWELL STRESS TERM");
          }
@@ -215,7 +215,12 @@ int iunk;
                 /* surface charge term */
          /* for now, to test this approach, just do a kludge.....need to implement surface integrals rigorously in dft_utils to get forces properly*/
 /*         omega_surface_charge=1.58*x[Phys2Unk_first[POISSON]][20];*/
-         omega_surface_charge=2*(-0.0903125)*x[Phys2Unk_first[POISSON]][10];
+/*         omega_surface_charge=2*(-0.0903125)*x[Phys2Unk_first[POISSON]][10];*/
+
+         printf("trying to call integrate in space for the surface charge integral\n");
+         integrateOverSurface(&integrand_surface_charge,iunk,x,Integration_profile);
+         printf("after call integrate in space for the surface charge integral\n");
+         omega_surface_charge=Temporary_sum;
 
          if (Proc==0 && Iwrite != NO_SCREEN){
                print_to_screen(omega_surface_charge,"SURFACE CHARGE TERM");

@@ -1387,6 +1387,7 @@ extern void int_stencil_bulk(int,int,int,double(*fp_integrand)(double,int,int));
 extern void int_stencil(double **,int, int,int);
 extern void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **,double **);
 extern void integrateInSpace(double(*fp_integrand)(int,int,double **),int,int **,double **);
+extern void integrateOverSurface(double(*fp_integrand)(int,int,double **),int,int **,double **);
 
 
 /* COMMUNICATIONS ROUTINES */
@@ -1423,6 +1424,7 @@ extern double integrand_elec_PB_freen(int,int,double **);
 extern double integrand_elec_MSAcorr_freen(int,int,double **);
 extern double integrand_elec_MSAcorr_freen_bulk(int,int,double **);
 extern double integrand_maxwell_stress_freen(int,int,double **);
+extern double integrand_surface_charge(int,int,double **);
 extern double integrand_WTC_freen(int,int,double **);
 extern double integrand_WTC_freen_bulk(int,int,double **);
 extern double integrand_CMS_freen(int,int,double **);
