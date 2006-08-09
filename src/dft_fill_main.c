@@ -154,7 +154,6 @@ printf("trouble we shouldn't be here\n");
 
       /* do mesh coarsening if indicated .... for all unknowns ! */
       else if (mesh_coarsen_flag_i < 0 && mesh_coarsen_flag_i != FLAG_BULK  && mesh_coarsen_flag_i != FLAG_PBELEC) {
-printf("trouble we shouldn't be here");
 
          if (Unk2Phys[iunk] ==DENSITY || POISSON) fac_a11=1.0; /* temporary factor to keep -1 on diagonal of A11 block */
          else fac_a11=-1.0;
