@@ -8,8 +8,8 @@ RUN (beowulf-nightly) {
     
     BUILD-LABEL         = default;
     BUILD-DIR           = BUILD;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = linux-beowulf;
+    BUILD-ONLY          = YES;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 16;
     MPI-START           = lamboot /home/mnphenow/.lamhosts;
@@ -30,15 +30,36 @@ RUN (herouxsmp-nightly) {
     
     BUILD-LABEL         = default;
     BUILD-DIR           = BUILD;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = linux-herouxsmp;
-    MAKE-COMMAND        = make -j4;
+    MAKE-COMMAND        = make -j2;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 4;
     MPI-START           = lamboot;
     MPI-PING            = mpitask;
     MPI-STOP            = lamhalt;    
     TTR-DIR             = /u/TramontoTestHarness/TramontoTestResults;
+    SSG-USERNAME        = mnpheno;
+
+}
+
+###############################################################################
+#
+# hrothgar nightly
+#
+###############################################################################
+
+RUN (hrothgar-nightly) {
+    
+    BUILD-LABEL         = default;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = linux-hrothgar;
+    MAKE-COMMAND        = make -j2;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 4;
+    MPI-START           = lamboot;
+    MPI-PING            = mpitask;
+    MPI-STOP            = lamhalt;
+    TTR-DIR             = /usr/people/faculty/other/mphenow/TramontoTestHarness/TramontoTestResults;
     SSG-USERNAME        = mnpheno;
 
 }
@@ -53,7 +74,6 @@ RUN (paunchy-nightly) {
     
     BUILD-LABEL         = default;
     BUILD-DIR           = BUILD;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = sunos-paunchy;
     MAKE-COMMAND        = /Net/local/gnu/bin/gmake;
     TEST-CATEGORY       = FRAMEWORK;
@@ -68,25 +88,6 @@ RUN (paunchy-nightly) {
 
 ###############################################################################
 #
-# atlantis nightly
-#
-###############################################################################
-
-RUN (atlantis-nightly) {
-
-    BUILD-LABEL         = default;
-    BUILD-DIR           = BUILD;
-    COMM                = mpi;
-    INVOKE-CONFIGURE    = sgi-atlantis;
-    MAKE-COMMAND        = gmake;
-    TEST-CATEGORY       = FRAMEWORK;
-    MAX-PROC            = 5;
-    TTR-DIR             = /scratch1/mnpheno/TramontoTestResults;
-    SSG-USERNAME        = mnpheno;
-
-}
-###############################################################################
-#
 # redstorm X compile nightly
 #
 ###############################################################################
@@ -95,7 +96,6 @@ RUN (redstormXcompile-nightly) {
                               
     BUILD-LABEL         = default;                                                  
     BUILD-DIR           = redstormXcompileTH;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = redstormXcompile-reddish1;
     TEST-CATEGORY       = FRAMEWORK;
 #    MAX-PROC            = 16;
@@ -118,7 +118,6 @@ RUN (redstorm-nightly) {
     
     BUILD-LABEL         = default;
     BUILD-DIR           = redstorm;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = redstorm;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 16;
@@ -142,7 +141,6 @@ RUN (s858352-nightly) {
 
     BUILD-LABEL         = default;
     BUILD-DIR           = BUILD;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = darwin-s858352;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 2;
@@ -164,7 +162,6 @@ RUN (sass2889-nightly) {
                              
     BUILD-LABEL         = default;                                                   
     BUILD-DIR           = sass2889;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = sunos-sass2889;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 16;
@@ -187,7 +184,6 @@ RUN (sasg1099-nightly) {
                              
     BUILD-LABEL         = default;                                                   
     BUILD-DIR           = sasg1099;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = sgi-sasg1099;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 16;
@@ -209,7 +205,6 @@ RUN (nwcc-nightly) {
                                
     BUILD-LABEL         = default;                                                 
     BUILD-DIR           = nwcc;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = nwcc-spirit;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 16;
@@ -231,7 +226,6 @@ RUN (qt) {
 
     BUILD-LABEL         = default;
     BUILD-DIR           = BUILD;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = qt;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 2;
@@ -250,11 +244,10 @@ RUN (sais028) {
 
     BUILD-LABEL         = default;                                                                  
     BUILD-DIR           = sais028;
-    COMM                = mpi;
     INVOKE-CONFIGURE    = aix-sais028;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 2;
     TTR-DIR             = /home/jmwille/TramontoTestHarness/TramontoTestResults;
     SSG-USERNAME        = jmwille;
 
-
+}
