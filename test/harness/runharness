@@ -364,7 +364,6 @@ exit $exitStatus;
         $string .= "BUILD_END_TIME       = $buildEndTime\n";       
         $string .= "TIME_ZONE            = ".`date +%Z`."\n";    
         $string .= "BUILD_DIR            = ".$buildOptions{'BUILD-DIR'}."\n";
-        $string .= "COMM                 = ".$buildOptions{'COMM'}."\n";  
         print BUILD_FILE $string;        
         close BUILD_FILE;
         $cmd = "mv $buildInfoFile $tramontoDir/test/harness";
