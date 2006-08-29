@@ -626,12 +626,6 @@ exit $exitStatus;
             $errorString .= "! Malformed test group:  no BUILD-DIR property.\n";
         }
         
-        # Enforce existance of COMM property.
-        if (!$runGroup{'COMM'}) {
-            $status++;            
-            $errorString .= "! Malformed test group:  no COMM property.\n";
-        }
-        
         # Enforce existance of INVOKE-CONFIGURE property.
         if (!$runGroup{'INVOKE-CONFIGURE'}) {
             $status++;            
