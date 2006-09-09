@@ -38,8 +38,8 @@ double integrand_elec_PB_freen(int iunk,int inode_box, double **x)
      psiunk = Phys2Unk_first[POISSON];
      psi_i = x[psiunk][inode_box];
 
-     
      if (rho_i > 0.) integrand = 0.5*rho_i*Charge_f[icomp]*psi_i;
+     else integrand=0.0;
      return(integrand);
 }
 /****************************************************************************/
@@ -51,6 +51,7 @@ double integrand_elec_MSAcorr_freen(int iunk,int inode_box, double **x)
 
      int_stencil(x,inode_box,iunk,THETA_CHARGE);
      if (rho_i > 0.0) integrand = -0.5*rho_i*Temporary_sum;
+     else integrand = 0.0;
      return(integrand);
 }
 /****************************************************************************/
@@ -89,7 +90,6 @@ double integrand_maxwell_stress_freen(int iunk,int inode_box, double **x)
      psiunk = Phys2Unk_first[POISSON];
      psi_i = x[psiunk][inode_box];
 
-
      node_to_ijk(B2G_node[inode_box],ijk);
      sum_stress=0.0;
 
@@ -97,8 +97,8 @@ double integrand_maxwell_stress_freen(int iunk,int inode_box, double **x)
 
         /* identify type of finite difference to use */
         int_type[idim]=CFD; 
-        if (ijk[0] == Nodes_x[0]-1) int_type[idim]=BFD;
-        else if (ijk[0] == 0) int_type[idim]=FFD;
+        if (ijk[idim] == Nodes_x[idim]-1) int_type[idim]=BFD;
+        else if (ijk[idim] == 0) int_type[idim]=FFD;
 
         deriv=calc_deriv_epot(idim,inode_box,int_type,x);
         sum_stress += (deriv*deriv);
@@ -117,16 +117,18 @@ double integrand_maxwell_stress_freen(int iunk,int inode_box, double **x)
  *                           than using the surface charge arrays so that   *
  *                           this code will work for constant surface charge*
  *                           or constant surface potential boundaries       */
-double integrand_surface_charge(int iunk,int inode_box,double **x)
+double integrand_surface_charge(int iunk,int inode_box,int iwall,double **x)
 {
   int loc_inode,idim,iel_w,surf_norm,ilist,int_type[3];
   double integrand,charge_i,prefac,deriv;
 
+  integrand=0.0;
   iunk = Phys2Unk_first[POISSON];
   loc_inode=B2L_node[inode_box];
   int_type[0]=int_type[1]=int_type[2]=CFD;
 
   ilist = Nlists_HW - 1;
+  if (Type_bc_elec[WallType[iwall]] != CONST_POTENTIAL){
   for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++){
 
               surf_norm = Surf_normal[ilist][loc_inode][iel_w];
@@ -138,10 +140,9 @@ double integrand_surface_charge(int iunk,int inode_box,double **x)
               else              int_type[idim]=FFD;
               deriv=calc_deriv_epot(idim,inode_box,int_type,x);
 
-              charge_i = prefac*(Temp_elec/(8.0*PI))*deriv;
+              charge_i = prefac*(Temp_elec/(4.0*PI))*deriv;
+              integrand -= (charge_i*x[iunk][inode_box]);
 
- printf("iel_w=%d Nelems_S=%d idim=%d  deriv=%9.6f  prefac=%9.6f other=%9.6f \n",iel_w,Nelems_S[ilist][loc_inode],idim,deriv,prefac,Temp_elec/(8.*PI));
-          
   } /* end of surface element loop */
 
 /*         charge_i = 0.0;
@@ -149,7 +150,8 @@ double integrand_surface_charge(int iunk,int inode_box,double **x)
              charge_i -= Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
          }
  */
-  integrand = -(charge_i*x[iunk][inode_box]);
+  }
+  else integrand=0.0;
 
   return integrand;
   
@@ -160,10 +162,14 @@ double integrand_surface_charge(int iunk,int inode_box,double **x)
 double calc_deriv_epot(int idim,int inode0,int *int_type, double **x)
 {
    int inode1,inode2,offset1[3],offset2[3],
-       ijk_box[3],reflect_flag[3],iunk;
+       ijk_box[3],reflect_flag[3],iunk,kdim;
    double deriv=0.0;
 
    node_box_to_ijk_box(inode0,ijk_box);
+
+   for (kdim=0;kdim<Ndim;kdim++){
+       offset1[kdim]=0; offset2[kdim]=0;
+   }
 
    switch(int_type[idim])
    {
@@ -178,6 +184,7 @@ double calc_deriv_epot(int idim,int inode0,int *int_type, double **x)
    inode1 = offset_to_node_box(ijk_box,offset1,reflect_flag);
    inode2 = offset_to_node_box(ijk_box,offset2,reflect_flag);
    iunk = Phys2Unk_first[POISSON];
+
 
    switch(int_type[idim]){
       case CFD: deriv =    x[iunk][inode2] - x[iunk][inode1];break;

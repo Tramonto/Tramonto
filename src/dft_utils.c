@@ -439,7 +439,6 @@ void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,
    double area;
 
    sum_i=0.0,sum=0.0;
-
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       inode_box = L2B_node[loc_inode];
       integrand = (*fp_integrand)(iunk,inode_box,x);
@@ -497,22 +496,28 @@ void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),
   return;
 }
 /*****************************************************************************************************/
-void integrateOverSurface(double(*fp_integrand)(int,int,double **),int iunk,double **x,double *profile)
+void integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iunk,double **x,double *profile)
 {
 
-  double sum,sum_i,integrand;
-  int loc_inode,inode_box,iwall;
+  double sum,sum_i,integrand,fac;
+  int loc_inode,inode_box,iwall,ijk[3],idim;
 
   sum_i=0.0,sum=0.0;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 
       inode_box = L2B_node[loc_inode];     
-      if  (Nodes_2_boundary_wall[Nlists_HW-1][inode_box] != -1){ /* identify surface nodes */
-printf("found surface node at=%d --- calling the integrand\n",loc_inode);
+      iwall=Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
+      if  (iwall != -1){ /* identify surface nodes */
 
-         integrand = (*fp_integrand)(iunk,inode_box,x);
-         sum_i += integrand;
+         integrand = (*fp_integrand)(iunk,inode_box,iwall,x);
+
+         fac=1.0;
+         node_to_ijk(L2G_node[loc_inode],ijk);
+         for (idim=0;idim<Ndim;idim++){ 
+            if ((ijk[idim]==0 || ijk[idim]==Nodes_x[idim]-1)  && Type_bc[idim][1] != PERIODIC ) fac*=0.5;
+         } 
+         sum_i += integrand*fac;
          if (profile != NULL) profile[loc_inode]+=integrand;
       }       /* end of loc_inode loop */
   }
