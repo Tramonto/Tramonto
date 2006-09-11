@@ -38,7 +38,24 @@
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
+/*****************************************************************************/
+int fill_HSRHOBAR_DENSITY(int inode,int iunk,int resid_only_flag)
+{
 
+   if (iunk == Phys2Unk_first[HSRHOBAR]){
+        resid_rhobars+=load_rho_bar_s(THETA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box,
+                       resid_only_flag);
+   }
+   else if (iunk < Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
+       resid_rhobars+=load_rho_bar_s(DELTA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box,
+                      resid_only_flag);
+   }
+   else if (iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
+        resid_rhobarv+=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
+   }
+
+   return (FILL_BLOCK_FLAG);
+}
 /*****************************************************************************/
 /* load_rho_bar_s:  Load scalar rho_bar definition equations  
 
