@@ -1,7 +1,37 @@
-This package contains routines associated with the matrix fill for excess hard sphere contributions to perturbation style density functional theories.  There are three hard sphere functionals represented in this package to date.
+This package contains routines associated with the matrix fill for excess hard sphere contributions to 
+perturbation style density functional theories.  There are three hard sphere functionals 
+represented in this package to date.
 
 1. FMT1 is the fundamental measures theory of Rosenfeld (cite 1)
 
 2. FMT2 is the a corrected theory the better treats the crossover to zero dimensions in the 3D functionals (cite 2)
 
 3. FMT3 is an improved functional at high densities knowns as "the White Bear" functional (cite 3)
+
+The files in this package are:
+
+    dft_fill_HSRHOBAR_DENSITY.c : fill new matrix rows associated with the new equations introduced in this package.
+                                  Specifically filling the IJ matrix block associated with I=nonlocal densities of the
+ 			          hard sphere functional of choice, and J=the density variable.
+
+    dft_fill_EL_HSRHOBAR.c : fill the columns associated with the new variables introduced by this package.  Specifically 
+                             filling the IJ matrix blocks where I=the euler-lagrange equation and J=the nonlocal densities
+ 			     associated with the hard sphere functionals.
+
+    dft_fill_HS_trivial.c : placeholder routines that fill zero or identity blocks of the matrix.
+
+    dft_fill_HS_precalc.c : a routine that contains necessary logic for the precalculation of the hard sphere energy
+                            density derivatives everywhere on the mesh.
+
+    dft_func_HS1.c, dft_func_HS2.c, and dft_func_HS3.c : routines containing particulars of the three 
+                             different FMTs that have been implemented so far.
+ 
+    HSpkg.h : header file for this package. 
+
+
+Additional routines that should eventually find their way to the package are
+
+    dft_thermo_HS.c : preprocessing of equation of state.
+
+    dft_energy_HS.c : postprocessing of free energies.
+
