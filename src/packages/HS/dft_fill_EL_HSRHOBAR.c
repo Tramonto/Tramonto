@@ -29,37 +29,30 @@
  *====================================================================*/
 
 /*
- *  FILE: dft_fill_rosen_rb.c
+ *  FILE: dft_fill_EL_HSRHOBAR.c
  *
- *  This file contains the fill for the rho and rhobar implementation
- *  of the rosenfeld functional.
+ *  This file implements the fill of the hard sphere terms in the 
+ *  Euler-Lagrange Equations
+ *
  */
 
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
-
-static struct RB_Struct d2phi_drb2_delta_rb_FMT1(int, int, double **,double,
-                                            int *,double *,double,double,
-                                            double);
-static struct RB_Struct d2phi_drb2_theta_rb_FMT1(int, int, double **,double,int *);
-static struct RB_Struct d2phi_drb2_delta_rb_FMT2(int, int, double **,double,
-                                      int *,double *,double, double,double);
-static struct RB_Struct d2phi_drb2_theta_rb_FMT2(int, int, double **,double,int *);
-static struct RB_Struct d2phi_drb2_delta_rb_FMT3(int, int, double **,double,
-                                      int *,double *,double, double,double);
-static struct RB_Struct d2phi_drb2_theta_rb_FMT3(int, int, double **,double,int *);
+#include "HSpkg.h"
 
 /**********************************************************************/
-int fill_EL_HSRHOBAR(inode,iunk,resid_only_flag)
+int fill_el_hsrhobar(int inode,int iunk,int resid_only_flag,double **x,double resid)
 {
     resid_hs1 =load_nonlocal_hs_rosen_rb(DELTA_FN,iunk,loc_inode,inode_box,
                          icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
  
     resid_hs2=load_nonlocal_hs_rosen_rb(THETA_FN,iunk,loc_inode,inode_box,
                          icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
+ 
+    resid=resid_hs1+resid_hs2;
 
-   return(FILL_BLOCK_FLAG);
+    return(FILL_BLOCK_FLAG);
 }
 /**********************************************************************/
 /* load_nonlocal_hs_rosen_rb: Here we load all the dphi_drb terms for the

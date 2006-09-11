@@ -1,3 +1,50 @@
+/*
+//@HEADER
+// ********************************************************************
+// Copyright (2006) Sandia Corporation. Under the terms of Contract
+// DE-AC04-94AL85000, there is a non-exclusive license for use of this
+// work by or on behalf of the U.S. Government. Export of this program
+// may require a license from the United States Government.
+//
+// This software is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// ********************************************************************
+//@HEADER
+*/
+
+
+
+/*
+ *  FILE: dft_func_HS_precalc.c
+ *
+ *  This file implements calculations that are needed before the matrix fill 
+ *  associated with hard sphere terms can be completed.
+ *
+ */
+
+#include "dft_globals_const.h"
+#include "rf_allo.h"
+#include "mpi.h"
+#include "HSpkg.h"
+
+void precalc_HS(struct RB_Struct *dphi_drb)
+{
+  if (Type_func==FMT1){
+     for (inode_box=0;inode_box<Nnodes_box; inode_box++){
+       calc_FMT_derivatives(&FMT1_1stderiv,inode_box,x,dphi_drb);
+     }
+  }
+  else if (Type_func==FMT2){
+     for (inode_box=0;inode_box<Nnodes_box; inode_box++)
+       calc_FMT_derivatives(&FMT2_1stderiv,inode_box,x,dphi_drb);
+  }
+  else if (Type_func==FMT3){
+    for (inode_box=0;inode_box<Nnodes_box; inode_box++)
+      calc_FMT_derivatives(&FMT3_1stderiv,inode_box,x,dphi_drb);
+  }
+   return;
+}
 /****************************************************************************/
 void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,double *),
                      int inode_box,double **x, struct RB_Struct *dphi_drb)

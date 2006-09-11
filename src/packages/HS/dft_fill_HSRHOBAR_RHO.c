@@ -29,17 +29,18 @@
  *====================================================================*/
 
 /*
- *  FILE: dft_fill_rosen_rb.c
+ *  FILE: dft_HSRHOBAR_RHO.c
  *
- *  This file contains the fill for the rho and rhobar implementation
- *  of the rosenfeld functional.
+ *  This file performs the fill of the density terms in the nonlocal density
+ *  definition equations of various hard sphere (fundamental measures theory) functionals.
+ *
  */
 
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
 /*****************************************************************************/
-int fill_HSRHOBAR_DENSITY(int inode,int iunk,int resid_only_flag)
+int fill_hsrhobar_density(int inode,int iunk,int resid_only_flag,double **x, double resid)
 {
 
    if (iunk == Phys2Unk_first[HSRHOBAR]){
@@ -49,9 +50,11 @@ int fill_HSRHOBAR_DENSITY(int inode,int iunk,int resid_only_flag)
    else if (iunk < Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
        resid_rhobars+=load_rho_bar_s(DELTA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box,
                       resid_only_flag);
+       resid=resid_rhobars;
    }
    else if (iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
         resid_rhobarv+=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
+        resid=resid_rhobarv;
    }
 
    return (FILL_BLOCK_FLAG);
