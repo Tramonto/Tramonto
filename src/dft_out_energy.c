@@ -155,8 +155,8 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
                else ljterm=0.0;
 
               if (Type_poly==WTC){
-                    unk_xi2 = Phys2Unk_first[CAVITY_WTC];
-                    unk_xi3 = Phys2Unk_first[CAVITY_WTC]+1;
+                    unk_xi2 = Phys2Unk_first[CAVWTC];
+                    unk_xi3 = Phys2Unk_first[CAVWTC]+1;
                     iseg = iunk-Phys2Unk_first[DENSITY];
                     wtc_term=0.0;
                     for (ibond=0;ibond<Nbonds_SegAll[iunk];ibond++){
@@ -164,7 +164,7 @@ double calc_free_energy(FILE *fp, double **x, double fac_area,
                          jcomp = Unk2Comp[jseg+Phys2Unk_first[DENSITY]];
                          y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],
                                    x[unk_xi2][inode_box],x[unk_xi3][inode_box]);
-                         unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+Phys2Unk_first[BOND_WTC];
+                         unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+Phys2Unk_first[BONDWTC];
                          wtc_term += 0.5*rho_i*(1.0-log(y*x[unk_bond][inode_box])) ;
                     }
                     omega_i += wtc_term;
@@ -408,8 +408,8 @@ void assemble_HS_free_energy(double **x, double *sum_phispt, double *sum_phispt_
       node_to_ijk(inode,ijk);
 
       /* Load rho-bar's into a single array*/
-      for(i=0; i<Phys2Nunk[RHOBAR_ROSEN]; i++)
-	      rho_bar[i] = x[i+Phys2Unk_first[RHOBAR_ROSEN]][inode_box];
+      for(i=0; i<Phys2Nunk[HSRHOBAR]; i++)
+	      rho_bar[i] = x[i+Phys2Unk_first[HSRHOBAR]][inode_box];
 
       phi = phispt(rho_bar);
 

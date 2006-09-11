@@ -249,20 +249,20 @@ void print_profile(char *output_file4)
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
                }
-            case RHOBAR_ROSEN: 
-               unk_char="RHOBAR_ROSEN";
+            case HSRHOBAR: 
+               unk_char="HSRHOBAR";
                if (Phys2Nunk[i] > 0){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
                }
-            case CAVITY_WTC:
-               unk_char="CAVITY_WTC";
+            case CAVWTC:
+               unk_char="CAVWTC";
                if (Phys2Nunk[i] > 0){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
                }
-            case BOND_WTC:
-               unk_char="BOND_WTC";
+            case BONDWTC:
+               unk_char="BONDWTC";
                if (Phys2Nunk[i] > 0){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
@@ -307,7 +307,7 @@ void print_profile(char *output_file4)
                        fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]
                             + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );*/
                 case POISSON:
-                case RHOBAR_ROSEN:
+                case HSRHOBAR:
                   fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
                   break;
 
@@ -321,10 +321,10 @@ void print_profile(char *output_file4)
                 case CMS_G:
                    fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]);
                    break;
-                case CAVITY_WTC:
+                case CAVWTC:
                   fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
                   break;
-                case BOND_WTC:
+                case BONDWTC:
                   fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
                   break;
             }

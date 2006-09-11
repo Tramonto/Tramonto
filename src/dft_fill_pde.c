@@ -455,12 +455,13 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
   int off_ref[2][2]; /*= { {0,1}, {-1,0}};*/
   int jnode_box,junk,junkP;
   int reflect_flag[3];
-  double resid,mat_val,resid_sum=0.0;
+  double resid,mat_val,resid_sum=0.0,mat_val_sum;
   off_ref[0][0]=0;
   off_ref[0][1]=1;
   off_ref[1][0]=-1;
   off_ref[1][1]=0;
 
+   mat_val_sum=0.0;
   /* First time through, load weights appropriate for this Ndim */
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
@@ -481,6 +482,8 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                       iunk,inode_box,mat_val);
+/*printf("1 load matrix value - diagaonal: iunk=%d loc_inode=%d iunk=%d inode_box=%d mat_val=%11.8f\n",
+        iunk,loc_inode,iunk,inode_box,mat_val);*/
    }
    else {
        for (iln=0; iln< Nnodes_per_el_V; iln++) {
@@ -526,6 +529,9 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
                    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                junkP,jnode_box,mat_val);
+                   mat_val_sum +=mat_val;
+/*printf("2 load matrix value : iunk=%d loc_inode=%d junkP=%d jnode_box=%d mat_val=%11.8f mat_val_sum=%11.8f\n",
+        iunk,loc_inode,junkP,jnode_box,mat_val,mat_val_sum);*/
                    resid_sum+=resid;
              }
 
@@ -548,6 +554,9 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
                        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                   junk,jnode_box,mat_val);
+                   mat_val_sum +=mat_val;
+/*printf("3 load matrix value : iunk=%d loc_inode=%d junk=%d jnode_box=%d mat_val=%11.8f  mat_val_sum=%11.8f\n",
+        iunk,loc_inode,junk,jnode_box,mat_val,mat_val_sum);*/
                        resid_sum+=resid;
                     
                   } /* End if (Charge_f[icomp] != 0.0) */

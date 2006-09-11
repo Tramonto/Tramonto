@@ -73,7 +73,7 @@ double calc_hs_properties_new(double *betamu_hs,double *rho)
    n[0]=Rhobar_b[3];  n[1]=Rhobar_b[2];
    n[2]=Rhobar_b[1]; n[3]=Rhobar_b[0];
 
-
+printf("n: %9.6f %9.6f %9.6f %9.6f\n",n[0],n[1],n[2],n[3]);
    for (icomp=0; icomp<Ncomp;icomp++){
       sten_sum[0]=1.;
       sten_sum[1]= HS_diam[icomp]/2.;
@@ -85,6 +85,7 @@ double calc_hs_properties_new(double *betamu_hs,double *rho)
         Betamu_hs_ex[icomp] += Dphi_Drhobar_b[i]*sten_sum[i]*Fac_overlap_hs[icomp];
       }
    }
+printf("after loop \n");
   
    betap_hs = -phispt(Rhobar_b);
    printf("phispt term=%9.6f\n",betap_hs);

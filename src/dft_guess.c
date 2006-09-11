@@ -184,7 +184,7 @@ if (Proc==0 && Iwrite != NO_SCREEN) printf("Nodes_old=%d  Nnodes=%d\n",Nodes_old
             check_zero_densities(xOwned);
             if (Lsteady_state && (Restart==3 || Restart_field[DIFFUSION]==FALSE))   setup_chem_pot(xOwned);
             if ((Type_poly==NONE||Type_poly==WTC) &&
-                  (Restart==3 || Restart_field[RHOBAR_ROSEN]==FALSE)) setup_rho_bar(xOwned);
+                  (Restart==3 || Restart_field[HSRHOBAR]==FALSE)) setup_rho_bar(xOwned);
             if (Ipot_ff_c == COULOMB && (Restart==3 || Restart_field[POISSON]==FALSE)){
                    printf("setting up electrostatic potential guess....\n");
                    setup_elec_pot(xOwned,iguess);
@@ -854,7 +854,7 @@ static void setup_rho_bar(double **xOwned)
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (irb = 0; irb < Nrho_bar; irb++){
-       iunk = Phys2Unk_first[RHOBAR_ROSEN] + irb;
+       iunk = Phys2Unk_first[HSRHOBAR] + irb;
        if (Lsteady_state || (Nwall == 0 && Iliq_vap == 3)){
            inode_box = L2B_node[loc_inode];
            inode     = B2G_node[inode_box];
@@ -883,8 +883,8 @@ static void setup_Xi_cavWTC(double **xOwned)
   double vol,area,x_dist;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     for (icav = 0; icav < Phys2Nunk[CAVITY_WTC]; icav++){
-       iunk = Phys2Unk_first[CAVITY_WTC] + icav;
+     for (icav = 0; icav < Phys2Nunk[CAVWTC]; icav++){
+       iunk = Phys2Unk_first[CAVWTC] + icav;
        xOwned[iunk][loc_inode] = Xi_cav_b[icav+2];
      }
   }
@@ -902,7 +902,7 @@ static void setup_BondWTC(double **xOwned)
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (ibond = 0; ibond < Nbonds; ibond++){
-       iunk = Phys2Unk_first[BOND_WTC] + ibond;
+       iunk = Phys2Unk_first[BONDWTC] + ibond;
        xOwned[iunk][loc_inode] = BondWTC_b[ibond];
      }
   }
@@ -1028,12 +1028,12 @@ static void read_in_a_file(int iguess,char *filename)
              unk_start_in_file[POISSON]=iunk;
              unk_to_eq_in_file[iunk++]=POISSON;
        }
-       else if (strncmp(unk_char,"RHOBAR_ROSEN",5)==0){
-             Restart_field[RHOBAR_ROSEN]=TRUE;
+       else if (strncmp(unk_char,"HSRHOBAR",5)==0){
+             Restart_field[HSRHOBAR]=TRUE;
              header++;
              unk_in_file+=Nrho_bar;
-             unk_start_in_file[RHOBAR_ROSEN]=iunk;
-             for (i=0;i<Nrho_bar;i++) unk_to_eq_in_file[iunk++]=RHOBAR_ROSEN;
+             unk_start_in_file[HSRHOBAR]=iunk;
+             for (i=0;i<Nrho_bar;i++) unk_to_eq_in_file[iunk++]=HSRHOBAR;
        }
        else if (strncmp(unk_char,"CMSFIELD",5)==0){
              Restart_field[CMS_FIELD]=TRUE;
@@ -1042,19 +1042,19 @@ static void read_in_a_file(int iguess,char *filename)
              unk_start_in_file[CMS_FIELD]=iunk;
              for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=CMS_FIELD;
        }
-       else if (strncmp(unk_char,"CAVITY_WTC",5)==0){
-             Restart_field[CAVITY_WTC]=TRUE;
+       else if (strncmp(unk_char,"CAVWTC",5)==0){
+             Restart_field[CAVWTC]=TRUE;
              header++;
              unk_in_file+=2;
-             unk_start_in_file[CAVITY_WTC]=iunk;
-             for (i=0;i<2;i++) unk_to_eq_in_file[iunk++]=CAVITY_WTC;
+             unk_start_in_file[CAVWTC]=iunk;
+             for (i=0;i<2;i++) unk_to_eq_in_file[iunk++]=CAVWTC;
        }
-       else if (strncmp(unk_char,"BOND_WTC",5)==0){
-             Restart_field[BOND_WTC]=TRUE;
+       else if (strncmp(unk_char,"BONDWTC",5)==0){
+             Restart_field[BONDWTC]=TRUE;
              header++;
              unk_in_file+=Nbonds;
-             unk_start_in_file[BOND_WTC]=iunk;
-             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=BOND_WTC;
+             unk_start_in_file[BONDWTC]=iunk;
+             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=BONDWTC;
        }
        else if (strncmp(unk_char,"CHEMPOT",5)==0){
              Restart_field[DIFFUSION]=TRUE;
@@ -1078,7 +1078,7 @@ static void read_in_a_file(int iguess,char *filename)
            printf("there is no electrostatic potential data in the restart file\n");
     if (Type_poly != NONE && Type_poly!=WTC && Restart_field[CMS_FIELD]==FALSE)
            printf("there is no CMS field data in the restart file\n");
-    if ((Type_poly==NONE || Type_poly==WTC)  && Restart_field[RHOBAR_ROSEN]==FALSE)
+    if ((Type_poly==NONE || Type_poly==WTC)  && Restart_field[HSRHOBAR]==FALSE)
            printf("there is no Rosenfeld nonlocal density data in the restart file\n");
     if (Restart_field[DENSITY]==FALSE)
            printf("there is no density data in the restart file\n");
@@ -1147,10 +1147,10 @@ static void read_in_a_file(int iguess,char *filename)
    	         fscanf(fp5,"%lf",&tmp); 
                  break;
 
-              case RHOBAR_ROSEN:
+              case HSRHOBAR:
               case POISSON:
-              case CAVITY_WTC:
-              case BOND_WTC:
+              case CAVWTC:
+              case BONDWTC:
    	         fscanf(fp5,"%lf",&tmp); 
                  break;
 
@@ -1283,9 +1283,9 @@ static void shift_the_profile(double *x_new,double fac)
      }
      else x_test=unk_old;
 
-/*     else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
-        x_test = fac*(unk_old-Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]])+ Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
-        if (iunk == Ncomp && x_test >= 1.0) x_test = Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
+/*     else if (Unk2Phys[iunk]==HSRHOBAR){
+        x_test = fac*(unk_old-Rhobar_b[iunk-Phys2Unk_first[HSRHOBAR]])+ Rhobar_b[iunk-Phys2Unk_first[HSRHOBAR]];
+        if (iunk == Ncomp && x_test >= 1.0) x_test = Rhobar_b[iunk-Phys2Unk_first[HSRHOBAR]];
      }
      else if (Unk2Phys[iunk]==POISSON){
         x_test = fac*(unk_old-1.0) + 1.0;

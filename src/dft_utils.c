@@ -374,12 +374,12 @@ double constant_boundary(int iunk,int jnode_box)
               }
            }
            break;
-       case RHOBAR_ROSEN:
-           if (jnode_box==-1)       bcval = Rhobar_b[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
+       case HSRHOBAR:
+           if (jnode_box==-1)       bcval = Rhobar_b[iunk-Phys2Unk_first[HSRHOBAR]];
            if (jnode_box==-2)       bcval = 0.0;  /* assuming wall begins in domain and rhobars
                                                      have decayed beyond the boundary */
-           else if (jnode_box==-3)  bcval = Rhobar_b_LBB[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
-           else if (jnode_box==-4)  bcval = Rhobar_b_RTF[iunk-Phys2Unk_first[RHOBAR_ROSEN]];
+           else if (jnode_box==-3)  bcval = Rhobar_b_LBB[iunk-Phys2Unk_first[HSRHOBAR]];
+           else if (jnode_box==-4)  bcval = Rhobar_b_RTF[iunk-Phys2Unk_first[HSRHOBAR]];
            break;
        case POISSON:
            if (jnode_box==-1)       bcval = 0.;
@@ -395,15 +395,15 @@ double constant_boundary(int iunk,int jnode_box)
            else if (jnode_box==-3)  bcval = Betamu_LBB[iunk - Phys2Unk_first[DIFFUSION]];
            else if (jnode_box==-4)  bcval = Betamu_RTF[iunk - Phys2Unk_first[DIFFUSION]];
            break;
-       case CAVITY_WTC:
-           if (jnode_box==-1)      bcval=Xi_cav_b[iunk-Phys2Unk_first[CAVITY_WTC]+2];
-           else if (jnode_box==-3) bcval=Xi_cav_LBB[iunk-Phys2Unk_first[CAVITY_WTC]+2];
-           else if (jnode_box==-4) bcval=Xi_cav_RTF[iunk-Phys2Unk_first[CAVITY_WTC]+2];
+       case CAVWTC:
+           if (jnode_box==-1)      bcval=Xi_cav_b[iunk-Phys2Unk_first[CAVWTC]+2];
+           else if (jnode_box==-3) bcval=Xi_cav_LBB[iunk-Phys2Unk_first[CAVWTC]+2];
+           else if (jnode_box==-4) bcval=Xi_cav_RTF[iunk-Phys2Unk_first[CAVWTC]+2];
            break;
-       case BOND_WTC:
-           if (jnode_box==-1)      bcval=BondWTC_b[iunk-Phys2Unk_first[BOND_WTC]];
-           else if (jnode_box==-3) bcval=BondWTC_LBB[iunk-Phys2Unk_first[BOND_WTC]];
-           else if (jnode_box==-4) bcval=BondWTC_RTF[iunk-Phys2Unk_first[BOND_WTC]];
+       case BONDWTC:
+           if (jnode_box==-1)      bcval=BondWTC_b[iunk-Phys2Unk_first[BONDWTC]];
+           else if (jnode_box==-3) bcval=BondWTC_LBB[iunk-Phys2Unk_first[BONDWTC]];
+           else if (jnode_box==-4) bcval=BondWTC_RTF[iunk-Phys2Unk_first[BONDWTC]];
            break;
        case CMS_FIELD:
            bcval=0.0;

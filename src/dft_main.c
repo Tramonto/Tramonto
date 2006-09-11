@@ -557,13 +557,13 @@ void setup_nunk_per_node(char *output_file1)
             else                Phys2Nunk[DENSITY]=Ncomp;
             break;
 
-         case RHOBAR_ROSEN:     /* unknowns of Nonlocal Density Eqns for Rosenfeld Functionals */
+         case HSRHOBAR:     /* unknowns of Nonlocal Density Eqns for Rosenfeld Functionals */
             Nrho_bar = 0;
             if (Ipot_ff_n != IDEAL_GAS &&( Type_poly == NONE || Type_poly ==WTC)){
                  Nrho_bar = 4 + 2*Ndim;
                  Nrho_bar_s = 4;
             }
-            Phys2Nunk[RHOBAR_ROSEN]=Nrho_bar;
+            Phys2Nunk[HSRHOBAR]=Nrho_bar;
             break; 
 
          case POISSON:                             /* unknowns of Poisson Equation */
@@ -583,21 +583,21 @@ void setup_nunk_per_node(char *output_file1)
             Phys2Nunk[DIFFUSION]=Ndiffusion;
             break;
 
-         case CAVITY_WTC:
+         case CAVWTC:
             Nrho_bar_cavity=0;
             if (Type_poly==WTC){
                  Nrho_bar_cavity = 4;
-                 Phys2Nunk[CAVITY_WTC]=Nrho_bar_cavity-2;  
+                 Phys2Nunk[CAVWTC]=Nrho_bar_cavity-2;  
                                    /* strange case because y function only uses two of the 
                                       defined xi's.  But, I'm leaving a placeholder for 4 */
             }
-            else Phys2Nunk[CAVITY_WTC]=0;
+            else Phys2Nunk[CAVWTC]=0;
             break;
 
-         case BOND_WTC:
+         case BONDWTC:
             Nrho_bar_bond=0;
             if (Type_poly==WTC) Nrho_bar_bond = Nbonds;
-            Phys2Nunk[BOND_WTC]=Nrho_bar_bond;
+            Phys2Nunk[BONDWTC]=Nrho_bar_bond;
             break;
 
          case CMS_FIELD:

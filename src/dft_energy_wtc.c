@@ -30,14 +30,14 @@ double integrand_WTC_freen(int iunk,int inode_box, double **x)
 
      if (rho_i > 1.e-9){
 
-         unk_xi2 = Phys2Unk_first[CAVITY_WTC];
-         unk_xi3 = Phys2Unk_first[CAVITY_WTC]+1;
+         unk_xi2 = Phys2Unk_first[CAVWTC];
+         unk_xi3 = Phys2Unk_first[CAVWTC]+1;
          for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
                jseg = Bonds_SegAll[iseg][ibond];
                jcomp = Unk2Comp[jseg];
                y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],
                           x[unk_xi2][inode_box],x[unk_xi3][inode_box]);
-               unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+ Phys2Unk_first[BOND_WTC];
+               unk_bond = Poly_to_Unk_SegAll[iseg][ibond]+ Phys2Unk_first[BONDWTC];
                integrand += 1.0-Fac_overlap[icomp][jcomp]*log(y)-log(x[unk_bond][inode_box]) ;
          }
          integrand *= 0.5*rho_i;

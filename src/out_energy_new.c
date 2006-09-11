@@ -76,26 +76,7 @@ int iunk;
        omega_sum += omega_id;
        omega_s_sum += omega_id_surf_ex;
 
-/*       if (Type_coul ==NONE){
-       integrateInSpace_SumInComp(&integrand_ideal_gas_freen,Nel_hit2,x,Integration_profile);
-       omega_id=Temporary_sum;
-       if (Proc==0 && Iwrite != NO_SCREEN){
-             print_to_screen(omega_id,"IDEAL GAS");
-        }
-
-       integrateInSpace_SumInComp(&integrand_ideal_gas_freen_bulk,Nel_hit,x,Integration_profile);
-       omega_id_b=Temporary_sum;
-       omega_id_surf_ex = omega_id-omega_id_b;
-       if (Proc==0 && Iwrite != NO_SCREEN){
-              print_to_screen(omega_id_b,"BULK TERM: IDEAL GAS");
-              print_to_screen(omega_id_surf_ex,"SURF.EX.: IDEAL GAS");
-       }
-       omega_sum += omega_id;
-       omega_s_sum += omega_id_surf_ex;
-       }*/
-    
                                     /* CHEMICAL POTENTIAL CONTRIBUTIONS */
-/*       if (Type_coul==NONE){*/
 
        integrateInSpace_SumInComp(&integrand_mu_freen,Nel_hit2,x,Integration_profile);
        omega_mu=Temporary_sum;
@@ -175,25 +156,6 @@ int iunk;
             lambda = sqrt(Temp_elec/(4*PI*sum));
             printf("Debye wave length: lambda=%9.6f\n",lambda);
 
-
-/* simple implementation of the electrostatic free energy in the Debye-Huckel limit according to Reiner and Radke.  Don't 
- * have the DH solution working yet - don't really want it anyway..... */
-/*            L=Size_x[0]-2*WallParam[0];
-            L1=L-0.001;
-            L2=L+0.001;
-            printf("cosh_L=%9.6f  cosh_L1=%9.6f  cosh_L2=%9.6f\n",cosh(L/(2*lambda)),cosh(L2/(2*lambda)),cosh(L1/(2*lambda)));
-            printf("sinh_L=%9.6f  sinh_L1=%9.6f  sinh_L2=%9.6f\n",sinh(L/(2*lambda)),sinh(L2/(2*lambda)),sinh(L1/(2*lambda)));
-            printf("coth_L=%9.6f  coth_L1=%9.6f  coth_L2=%9.6f\n",
-                cosh(L/(2*lambda))/sinh(L/(2*lambda)),cosh(L2/(2*lambda))/sinh(L2/(2*lambda)),cosh(L1/(2*lambda))/sinh(L1/(2*lambda)));
-    
-            energy_RR=(PI*lambda*(4*Elec_param_w[0]*Elec_param_w[0])*(cosh(L/(2*lambda))/sinh(L/(2*lambda)) ))/(2*Temp_elec);
-            energy_RR_plus=(PI*lambda*(4*Elec_param_w[0]*Elec_param_w[0])*(cosh(L2/(2*lambda))/sinh(L2/(2*lambda)) ))/(2*Temp_elec);
-            energy_RR_minus=(PI*lambda*(4*Elec_param_w[0]*Elec_param_w[0])*(cosh(L1/(2*lambda))/sinh(L1/(2*lambda)) ))/(2*Temp_elec);
-            derivative_neg= -(energy_RR_plus-energy_RR_minus)/(L2-L1);
-
-             printf("L=%9.6f L1=%9.6f L2=%9.6f  energy_RR=%g energy_RR_plus=%g energy_RR_minus=%g derivative=%g\n",
-                      L,L1,L2,energy_RR,energy_RR_plus,energy_RR_minus,derivative_neg);*/
-  
          /* Reiner and Radke method for computing the free energy of a PB electrolyte near a charged surface */
 
                 /* Maxwell Stress Term */
@@ -225,16 +187,11 @@ int iunk;
              print_to_screen(omega_osmotic_surf_ex,"SURF.EX.: OSMOTIC PRESSURE");
          }
          omega_sum += omega_osmotic;
-         omega_s_sum += omega_osmotic_surf_ex;
+         omega_s_sum += omega_osmotic_surf_ex; 
 
                 /* surface charge term */
-         /* for now, to test this approach, just do a kludge.....need to implement surface integrals rigorously in dft_utils to get forces properly*/
-/*         omega_surface_charge=1.58*x[Phys2Unk_first[POISSON]][20];*/
-/*         omega_surface_charge=2*(-0.0903125)*x[Phys2Unk_first[POISSON]][10];*/
 
-         printf("trying to call integrate in space for the surface charge integral\n");
          integrateOverSurface(&integrand_surface_charge,iunk,x,Integration_profile);
-         printf("after call integrate in space for the surface charge integral\n");
          omega_surface_charge=Temporary_sum;
 
          if (Proc==0 && Iwrite != NO_SCREEN){
@@ -243,18 +200,16 @@ int iunk;
          omega_sum += omega_surface_charge;
          omega_s_sum += omega_surface_charge;
 
-                                    /* POINT CHARGE CONTRIBUTIONS */
-         /* term 1 based on Tang and Davis papers for electrostatics 
-         integrateInSpace_SumInComp(&integrand_elec_PB_freen,Nel_hit2,x,Integration_profile);
-         omega_psirho = Temporary_sum;
-         omega_psirho_surf_ex = omega_psirho; * note elec. pot.=0 in the bulk *
+                                    /* PSI-RHO TERM FROM TANG-DAVIS PAPER */
+/*         integrateInSpace_SumInComp(&integrand_elec_PB_freen,Nel_hit2,x,Integration_profile);
+         omega_psirho = 0.5*Temporary_sum;
+         omega_psirho_surf_ex = omega_psirho; 
          if (Proc==0 && Iwrite != NO_SCREEN){
              print_to_screen(omega_psirho,"PSI*RHO ELEC TERM");
          }
 
          omega_sum += omega_psirho;
-         omega_s_sum += omega_psirho_surf_ex;
-         */
+         omega_s_sum += omega_psirho_surf_ex;*/
 
                                  /* CHARGED EXTERNAL FIELD CONTRIBUTIONS */
          /* term 2 based on Tang and Davis papers for electrostatics 

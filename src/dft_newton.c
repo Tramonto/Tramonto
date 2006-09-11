@@ -122,22 +122,22 @@ int loc_inode,inode_box;
      case POISSON:
      case DENSITY:
        densityeq[count_density++]=iunk; break; 
-     case RHOBAR_ROSEN:                  
+     case HSRHOBAR:                  
        if (one_particle_size && (
-             (iunk > Phys2Unk_first[RHOBAR_ROSEN]+1 && 
-              iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s)  ||
-              iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim) )
+             (iunk > Phys2Unk_first[HSRHOBAR]+1 && 
+              iunk < Phys2Unk_first[HSRHOBAR]+Nrho_bar_s)  ||
+              iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s+Ndim) )
 	 depnonlocaleq[count_depnonlocal++]=iunk; 
        else
 	 indnonlocaleq[count_indnonlocal++]=iunk; 
        break;
-     case BOND_WTC:
-/*       if (Pol_Sym[iunk-Phys2Unk_first[BOND_WTC]] == -1)
+     case BONDWTC:
+/*       if (Pol_Sym[iunk-Phys2Unk_first[BONDWTC]] == -1)
           indnonlocaleq[count_indnonlocal++]=iunk; 
        else 
 	  depnonlocaleq[count_depnonlocal++]=iunk; 
        break;*/
-     case CAVITY_WTC:
+     case CAVWTC:
        indnonlocaleq[count_indnonlocal++]=iunk; break;   
      } 
    }
@@ -360,13 +360,13 @@ int update_solution(double** x, double** delta_x, int iter) {
       if ((  (Unk2Phys[iunk]==DENSITY && (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) || 
             (Unk2Phys[iunk]==CMS_G && Pol_Sym[iunk-Phys2Unk_first[CMS_G]] == -1) || 
             Unk2Phys[iunk]==CMS_FIELD || 
-            (Unk2Phys[iunk]==BOND_WTC  && Pol_Sym[iunk-Phys2Unk_first[BOND_WTC]] == -1 )|| 
-             Unk2Phys[iunk]==CAVITY_WTC) && 
+            (Unk2Phys[iunk]==BONDWTC  && Pol_Sym[iunk-Phys2Unk_first[BONDWTC]] == -1 )|| 
+             Unk2Phys[iunk]==CAVWTC) && 
             x[iunk][ibox]+frac_min*delta_x[iunk][ibox] <1.e-15){
 
             x[iunk][ibox]=0.1*x[iunk][ibox];
       }
-      else if ((iunk==Phys2Unk_first[RHOBAR_ROSEN] || iunk==(Phys2Unk_first[CAVITY_WTC]+1)) && 
+      else if ((iunk==Phys2Unk_first[HSRHOBAR] || iunk==(Phys2Unk_first[CAVWTC]+1)) && 
               x[iunk][ibox]+frac_min*delta_x[iunk][ibox] > 1.0){
               x[iunk][ibox]+=0.5*(1.0-x[iunk][ibox]);
       }
@@ -395,8 +395,8 @@ void fix_symmetries(double **x)
       if (Type_poly==WTC && Unk2Phys[iunk]==DENSITY && Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] != -1){
          x[iunk][ibox] = x[Phys2Unk_first[DENSITY]+Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]]][ibox];
       }
-      else if (Type_poly==WTC && Unk2Phys[iunk]==BOND_WTC && Pol_Sym[iunk-Phys2Unk_first[BOND_WTC]] != -1){
-         x[iunk][ibox] = x[Phys2Unk_first[BOND_WTC]+Pol_Sym_Seg[iunk-Phys2Unk_first[BOND_WTC]]][ibox];
+      else if (Type_poly==WTC && Unk2Phys[iunk]==BONDWTC && Pol_Sym[iunk-Phys2Unk_first[BONDWTC]] != -1){
+         x[iunk][ibox] = x[Phys2Unk_first[BONDWTC]+Pol_Sym_Seg[iunk-Phys2Unk_first[BONDWTC]]][ibox];
       }
       else if (Type_poly==CMS && Unk2Phys[iunk]==CMS_G && Pol_Sym[iunk-Phys2Unk_first[CMS_G]] != -1){
          x[iunk][ibox] = x[Phys2Unk_first[CMS_G]+Pol_Sym[iunk-Phys2Unk_first[CMS_G]]][ibox];

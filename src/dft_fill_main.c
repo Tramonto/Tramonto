@@ -206,7 +206,7 @@ printf("trouble we shouldn't be here\n");
             for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
                 unk_bond = Poly_to_Unk_SegAll[iseg][ibond];
                 if (Pol_Sym[unk_bond] != -1) unk_bond=Pol_Sym[Poly_to_Unk_SegAll[iseg][ibond]];
-                unk_bond += Phys2Unk_first[BOND_WTC];
+                unk_bond += Phys2Unk_first[BONDWTC];
                 n=x[unk_bond][inode_box];
                 if (fabs(n)<1.e-8) zero_density_bond_check=TRUE;
             }
@@ -365,18 +365,18 @@ printf("trouble we shouldn't be here\n");
       /*********************************/
       /**** LOAD RHO_BAR EQUATIONS *****/
       /*********************************/
-      else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
+      else if (Unk2Phys[iunk]==HSRHOBAR){
 
-          if (iunk == Phys2Unk_first[RHOBAR_ROSEN]){
+          if (iunk == Phys2Unk_first[HSRHOBAR]){
              resid_rhobars+=load_rho_bar_s(THETA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, 
                             resid_only_flag);
           }
-          else if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s){
+          else if (iunk < Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
              resid_rhobars+=load_rho_bar_s(DELTA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, 
                             resid_only_flag);
           }
 
-          if (iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s){
+          if (iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
               resid_rhobarv+=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
           }
       }
@@ -433,7 +433,7 @@ printf("trouble we shouldn't be here\n");
                 resid_transport=load_nonlinear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x);
       }
       /******** END TRANSPORT ********/
-      else if (Unk2Phys[iunk]==CAVITY_WTC){
+      else if (Unk2Phys[iunk]==CAVWTC){
       /***********************************************/
       /*** LOAD CAVITY EQUATIONS OF WTC FUNCTIONALS***/
       /***********************************************/
@@ -444,7 +444,7 @@ printf("trouble we shouldn't be here\n");
          resid += load_cavity_wtc(iunk,loc_inode,inode_box,izone,ijk_box,x,resid_only_flag);
          resid_cavity=resid;
       }
-      else if (Unk2Phys[iunk]==BOND_WTC){
+      else if (Unk2Phys[iunk]==BONDWTC){
 
       /********************************************/
       /*** LOAD BOND EQUATIONS OF WTC FUNCTIONS ***/
@@ -470,7 +470,7 @@ printf("trouble we shouldn't be here\n");
        resid_el = resid_ig + resid_vext + resid_mu + resid_charge + resid_WTC +resid_uatt +resid_hs1+resid_hs2;
           printf("loc_inode=%d  global_node=%d iunk=%d  resid_el=%9.6f (log=%9.6f vext=%9.6f mu=%9.6f hs1=%9.6f hs2=%9.6f att=%9.6f WTC=%9.6f charge=%9.6f)", loc_inode,L2G_node[loc_inode],iunk,resid_el,resid_ig,resid_vext,resid_mu,resid_hs1,resid_hs2,resid_uatt,resid_WTC,resid_charge);
     }
-    else if (Unk2Phys[iunk]==RHOBAR_ROSEN){
+    else if (Unk2Phys[iunk]==HSRHOBAR){
        printf("loc_inode=%d : iunk_rbar=%d resid_rhobars=%9.6f  resid_rhobarv=%9.6f ",
                  loc_inode,iunk,resid_rhobars,resid_rhobarv);
     }
@@ -478,18 +478,18 @@ printf("trouble we shouldn't be here\n");
          printf(" loc_inode=%d  iunk_poisson=%d   resid=%9.6f", loc_inode,iunk,resid_poisson);
     else if (Unk2Phys[iunk]==DIFFUSION) 
          printf(" loc_inode=%d  iunk_diffusion=%d  resid=%9.6f",loc_inode,iunk,resid_transport);
-    else if (Unk2Phys[iunk]==CAVITY_WTC) 
+    else if (Unk2Phys[iunk]==CAVWTC) 
          printf(" loc_inode=%d  iunk_cavity=%d  resid=%9.6f",loc_inode,iunk,resid_cavity);
-    else if (Unk2Phys[iunk]==BOND_WTC) 
+    else if (Unk2Phys[iunk]==BONDWTC) 
          printf(" loc_inode=%d  iunk_bondwtc=%d  resid=%9.6f",loc_inode,iunk,resid_bondwtc);
     printf("  \n"); 
     }*/
 
 
 /*    if (Unk2Phys[iunk]==DENSITY){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_ig + resid_vext + resid_mu + resid_charge+ resid_hs1+resid_hs2+resid_WTC);}
-    else if(Unk2Phys[iunk]==RHOBAR_ROSEN){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
-    else if(Unk2Phys[iunk]==CAVITY_WTC){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
-    else if(Unk2Phys[iunk]==BOND_WTC){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}*/
+    else if(Unk2Phys[iunk]==HSRHOBAR){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
+    else if(Unk2Phys[iunk]==CAVWTC){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}
+    else if(Unk2Phys[iunk]==BONDWTC){if (Proc==0) fprintf(ifp," %d  %d  %14.11f\n", iunk,L2G_node[loc_inode],resid_rhobarv+resid_rhobars);}*/
 
     } /* end of loop over # of unknowns per node */
 

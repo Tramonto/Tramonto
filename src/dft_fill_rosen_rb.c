@@ -156,7 +156,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
             jnode_boxJ = jnode_box;
         }
         if (jnode_boxJ >=0){
-            junk=Phys2Unk_first[RHOBAR_ROSEN];
+            junk=Phys2Unk_first[HSRHOBAR];
 
             for (idim = 0; idim<Ndim; idim++){
                if (reflect_flag[idim] == FALSE) sign[idim] = 1.0;
@@ -224,10 +224,10 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
  
-  if (iunk > Phys2Unk_first[RHOBAR_ROSEN]+1 && ((Lhard_surf && Nlists_HW == 2) ||
+  if (iunk > Phys2Unk_first[HSRHOBAR]+1 && ((Lhard_surf && Nlists_HW == 2) ||
                                                (!Lhard_surf && Nwall>0 && Nlists_HW == 1))){
-     junk=Phys2Unk_first[RHOBAR_ROSEN]+1;
-     if (iunk == Phys2Unk_first[RHOBAR_ROSEN]+ 2){
+     junk=Phys2Unk_first[HSRHOBAR]+1;
+     if (iunk == Phys2Unk_first[HSRHOBAR]+ 2){
         resid = x[junk][inode_box]*Inv_4pir[0];
         mat_val = Inv_4pir[0];
      }
@@ -251,8 +251,8 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
 double prefactor_rho_bar_s(int iunk,int jcomp,int *offset)
 {
   double fac;
-  if      (iunk <= Phys2Unk_first[RHOBAR_ROSEN]+1) fac = 1.0;
-  else if (iunk == Phys2Unk_first[RHOBAR_ROSEN]+2) fac = Inv_4pir[jcomp];
+  if      (iunk <= Phys2Unk_first[HSRHOBAR]+1) fac = 1.0;
+  else if (iunk == Phys2Unk_first[HSRHOBAR]+2) fac = Inv_4pir[jcomp];
   else                                             fac = Inv_4pirsq[jcomp];
   fac *= Fac_overlap_hs[jcomp];
 
@@ -310,11 +310,11 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
 
-  if (iunk >= Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim && (
+  if (iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s+Ndim && (
                                 (Lhard_surf && Nlists_HW == 2) ||
                                 (!Lhard_surf && Nwall>0 && Nlists_HW == 1))){
-     idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s - Ndim;
-     junk = Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+idim;
+     idim = iunk - Phys2Unk_first[HSRHOBAR] - Nrho_bar_s - Ndim;
+     junk = Phys2Unk_first[HSRHOBAR]+Nrho_bar_s+idim;
 
      resid = x[junk][inode_box]*Inv_4pir[0];
      resid_sum+=resid;
@@ -337,12 +337,12 @@ double prefactor_rho_bar_v(int iunk,int jcomp,int *offset)
   double fac,vector[3];
   int idim;
 
-  if (iunk < Phys2Unk_first[RHOBAR_ROSEN] + Nrho_bar_s + Ndim) fac = 1.0;
+  if (iunk < Phys2Unk_first[HSRHOBAR] + Nrho_bar_s + Ndim) fac = 1.0;
   else                                                         fac = Inv_4pir[jcomp];
 
-  if (iunk < Phys2Unk_first[RHOBAR_ROSEN]+Nrho_bar_s+Ndim)
-          idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s;
-  else    idim = iunk - Phys2Unk_first[RHOBAR_ROSEN] - Nrho_bar_s - Ndim;
+  if (iunk < Phys2Unk_first[HSRHOBAR]+Nrho_bar_s+Ndim)
+          idim = iunk - Phys2Unk_first[HSRHOBAR] - Nrho_bar_s;
+  else    idim = iunk - Phys2Unk_first[HSRHOBAR] - Nrho_bar_s - Ndim;
 
   vector[idim] = (double)offset[idim]*Esize_x[idim]*Inv_rad[jcomp];
 
@@ -829,7 +829,7 @@ void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,dou
 
   inv_n3[0]=inv_n3[1]=inv_n3[2]=inv_n3[3]=inv_n3[4]=0.0;
 
-  iunk = Phys2Unk_first[RHOBAR_ROSEN];
+  iunk = Phys2Unk_first[HSRHOBAR];
   n[3] = x[iunk][inode_box];
   n[2] = x[iunk+1][inode_box];
   n[1] = x[iunk+2][inode_box];

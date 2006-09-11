@@ -242,7 +242,8 @@ int offset_to_node_box(int *ijk_box, int *offset,
                     case IN_WALL:                            return(-2); 
                     case REFLECT:   
                         printf("Problems with multiple reflections\n");
-                        printf("Check domain size and maximum stencil size \n");
+                        printf("(1) Check domain size and maximum stencil size \n");
+                        printf("ijk_sten_box[i=%d]=%d ijk_box=%d offset=%d Nodes_x_box=%d Max_IJK_box=%d  Max_IJK=%d\n",i,ijk_sten_box[i],ijk_box[i],offset[i],Nodes_x_box[i],Max_IJK_box[i],Max_IJK[i]);
                         exit(-1);
                  }
                }
@@ -273,7 +274,8 @@ int offset_to_node_box(int *ijk_box, int *offset,
                     case IN_WALL:                      return(-2);
                     case REFLECT:
                         printf("Problems with multiple reflections\n");
-                        printf("Check domain size and maximum stencil size \n");
+                        printf("(2) Check domain size and maximum stencil size \n");
+                        printf("ijk_sten_box[i=%d]=%d (min=0) Min_IJK_box=%d  Min_IJK=%d\n",i,ijk_sten_box[i],Min_IJK_box[i],Min_IJK[i]);
                         exit(-1);
                   }
                }

@@ -23,8 +23,8 @@ double integrand_hs_freen(int iunk, int inode_box,double **x)
   int i;
   double integrand,rho_bar[10];
 
-  for(i=0; i<Phys2Nunk[RHOBAR_ROSEN]; i++)
-      rho_bar[i] = x[i+Phys2Unk_first[RHOBAR_ROSEN]][inode_box];
+  for(i=0; i<Phys2Nunk[HSRHOBAR]; i++)
+      rho_bar[i] = x[i+Phys2Unk_first[HSRHOBAR]][inode_box];
 
   integrand = phispt(rho_bar);
   return(integrand);
@@ -47,7 +47,7 @@ double phispt(double *rho_bar)
   int idim,iv1,iv2;
   double n[4+NDIM_MAX];
   double phi_1=0.0,phi_2=0.0,phi_3,dot_12,dot_22;
-    
+   printf("in phistp\n"); 
   n[0] = rho_bar[3];
   n[1] = rho_bar[2]; 
   n[2] = rho_bar[1];
@@ -67,6 +67,7 @@ double phispt(double *rho_bar)
     dot_22 += n[iv2]*n[iv2];
   }
 
+   printf("point 2 in phistp\n"); 
   if (n[3] < 1.0 && n[2] > 0.0 && n[3]>1.e-10){
 
      phi_1 = -n[0]*log(1.0-n[3]);
@@ -86,9 +87,13 @@ double phispt(double *rho_bar)
        printf("problem with type of HS FUNCTIONAL");
        exit(-1);
      }
+/*   printf("point 3 in phistp  %9.6f %9.6f %9.6f \n",phi_1,phi_2,phi_3); */
      return(phi_1 + phi_2 + phi_3);
   }
-  else  return(0.0);
+  else {
+/*   printf("point 4 in phistp\n"); */
+ return(0.0);
+  }
 }
 /****************************************************************************/
 

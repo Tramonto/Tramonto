@@ -197,6 +197,7 @@ if (Proc==0) printf("new pressure calculates %9.6f\n",betap_hs_tmp);
      }
    }
 
+printf("start mean field attractions calculation\n");
      /* now add in the mean field attraction contributions */
    if (Type_attr != NONE){
       if (Lsteady_state){
@@ -215,6 +216,7 @@ if (Proc==0) printf("new pressure calculates %9.6f\n",betap_hs_tmp);
       }
    }
 
+printf("start mean coulomb calculation\n");
      /* now add in an applied electric field if one exists */
    if (Lsteady_state && Type_coul != NONE){
       for (icomp=0; icomp<Ncomp; icomp++){
@@ -223,6 +225,7 @@ if (Proc==0) printf("new pressure calculates %9.6f\n",betap_hs_tmp);
       }
    }
 
+printf("start WTC calculations\n");
     /* now add in the WTC polymer contributions */
    if (Type_poly==WTC){
       if (Lsteady_state){

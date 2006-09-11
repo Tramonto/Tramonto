@@ -1,0 +1,7 @@
+This package contains routines associated with the matrix fill for excess hard sphere contributions to perturbation style density functional theories.  There are three hard sphere functionals represented in this package to date.
+
+1. FMT1 is the fundamental measures theory of Rosenfeld (cite 1)
+
+2. FMT2 is the a corrected theory the better treats the crossover to zero dimensions in the 3D functionals (cite 2)
+
+3. FMT3 is an improved functional at high densities knowns as "the White Bear" functional (cite 3)

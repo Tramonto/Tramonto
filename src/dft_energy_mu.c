@@ -60,7 +60,7 @@ double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
      if (Lsteady_state){
         if (Type_poly==WTC){
                icomp = Unk2Comp[i];
-/*               mu_i = Betamu_seg_RTF[i];*/ /* note we need to fix up WTC for diffusion */
+               /*mu_i = Betamu_seg_RTF[i];*/ /* note we need to fix up WTC for diffusion */
                mu_i = Betamu_RTF[i];
                if (Type_coul != NONE) mu_i -= log(Rho_seg_RTF[i]);
                rho_i = Rho_seg_RTF[i];

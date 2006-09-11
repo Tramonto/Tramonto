@@ -43,8 +43,8 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box, int icomp,
   for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
      jseg = Bonds_SegAll[iseg][ibond];
      jcomp = Unk2Comp[jseg];
-     unk_xi2=Phys2Unk_first[CAVITY_WTC];
-     unk_xi3=Phys2Unk_first[CAVITY_WTC]+1;
+     unk_xi2=Phys2Unk_first[CAVWTC];
+     unk_xi3=Phys2Unk_first[CAVWTC]+1;
 
      xi_2=x[unk_xi2][inode_box];
      xi_3=x[unk_xi3][inode_box];
@@ -57,7 +57,7 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box, int icomp,
      dy_dxi3=dy_dxi3_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2,xi_3);*/
      unk_bond = Poly_to_Unk_SegAll[iseg][ibond];
      if (Pol_Sym[unk_bond] != -1) unk_bond=Pol_Sym[Poly_to_Unk_SegAll[iseg][ibond]];
-     unk_bond += Phys2Unk_first[BOND_WTC];
+     unk_bond += Phys2Unk_first[BONDWTC];
      n=x[unk_bond][inode_box];
 
                         /* FIRST ADD TERMS THAT ARE ON DIAGONAL WITH REPECT TO POSITION. 
@@ -103,7 +103,7 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
      junk_rho += Phys2Unk_first[DENSITY];
      unk_bond = Poly_to_Unk_SegAll[iseg][ibond];
      if (Pol_Sym[unk_bond] != -1) unk_bond=Pol_Sym[Poly_to_Unk_SegAll[iseg][ibond]];
-     unk_bond += Phys2Unk_first[BOND_WTC];
+     unk_bond += Phys2Unk_first[BONDWTC];
  
      jcomp = Unk2Comp[jseg];
 
@@ -188,8 +188,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
   iseg = iunk - Phys2Unk_first[DENSITY];
 
   resid_sum=0.0;
-  unk_xi2 = Phys2Unk_first[CAVITY_WTC];
-  unk_xi3 = Phys2Unk_first[CAVITY_WTC]+1;
+  unk_xi2 = Phys2Unk_first[CAVWTC];
+  unk_xi3 = Phys2Unk_first[CAVWTC]+1;
   jzone=izone;
 
   sten = &(Stencil[THETA_FN_SIG][izone][icomp]);
@@ -397,7 +397,7 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
   int junk,unk_bond,pol_num,iseg,bond_num,jseg,jcomp,icomp,jzone_flag,ibond;
   double resid_sum,resid,mat_val;
 
-  unk_bond=iunk-Phys2Unk_first[BOND_WTC];
+  unk_bond=iunk-Phys2Unk_first[BONDWTC];
   iseg=BondAll_to_isegAll[unk_bond];
 
   if (Pol_Sym[unk_bond]==-1){
@@ -423,7 +423,7 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
          printf("Polymer symmetries not working for WTC functionals: see code in load_bond_wtc\n");
          exit(-1);
       }*/
-      junk=Pol_Sym[unk_bond]+Phys2Unk_first[BOND_WTC];
+      junk=Pol_Sym[unk_bond]+Phys2Unk_first[BONDWTC];
       resid = x[junk][inode_box];
       Temporary_sum=resid;
       dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
@@ -459,7 +459,7 @@ double prefactor_cavity_wtc(int iunk,int icomp,int *offset)
   double fac;
   int ipow;
 
-  if (iunk-Phys2Unk_first[CAVITY_WTC]==0) ipow=2;
+  if (iunk-Phys2Unk_first[CAVWTC]==0) ipow=2;
   else                                    ipow=3;
 
   fac=(PI/6.0)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],ipow);

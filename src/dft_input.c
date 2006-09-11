@@ -218,7 +218,7 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_attr);
   }
   MPI_Bcast(&Type_attr,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_attr==0 || Type_attr==1) Sten_Type[U_ATTRACT]=TRUE;
+  if (Type_attr>=0) Sten_Type[U_ATTRACT]=TRUE;
   else if (Type_attr >1 || Type_attr<-1){
      if (Proc==0) printf("ERROR Type_attr=%d out of range - should be -1, 0, or 1\n",Type_attr);
      exit(-1);

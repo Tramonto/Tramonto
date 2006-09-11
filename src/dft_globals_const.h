@@ -150,10 +150,10 @@
 #define NO_UNK        -888
 
 #define DENSITY        0
-#define RHOBAR_ROSEN   4
+#define HSRHOBAR       4
 #define DIFFUSION      5
-#define CAVITY_WTC     6
-#define BOND_WTC       7
+#define CAVWTC     6
+#define BONDWTC       7
 
 #define CMS_FIELD      1
 #define CMS_G          2 
@@ -1439,7 +1439,7 @@ extern double integrand_elec_PB_freen(int,int,double **);
 extern double integrand_elec_MSAcorr_freen(int,int,double **);
 extern double integrand_elec_MSAcorr_freen_bulk(int,int,double **);
 extern double integrand_maxwell_stress_freen(int,int,double **);
-extern double integrand_surface_charge(int,int,double **);
+extern double integrand_surface_charge(int,int,int,double **);
 extern double integrand_WTC_freen(int,int,double **);
 extern double integrand_WTC_freen_bulk(int,int,double **);
 extern double integrand_CMS_freen(int,int,double **);
