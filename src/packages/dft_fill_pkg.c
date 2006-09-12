@@ -1,26 +1,5 @@
 /****************************************************************************/
 
-/* entries for a header file */
-/* structure of function pointers */
-
-typedef int (*phys_type_fill)(int,int,int,int,int,int,int *,double **,double);
-typedef struct {
-  phys_type_fill density_fill;
-  phys_type_fill hsrhobar_fill;
-  phys_type_fill poisson_fill;
-  phys_type_fill diffusion_fill;
-  phys_type_fill cavwtc_fill;
-  phys_type_fill bondwtc_fill;
-  phys_type_fill cmsfield_fill;
-  phys_type_fill cmsgeqn_fill;
-  phys_type_fill usrvar1_fill;
-  phys_type_fill usrvar2_fill;
-  phys_type_fill usrvar3_fill;
-} fill_phys;  
-
-fill_phys eq_el,eq_hsrhobar,eq_poisson,eq_diffusion,eq_cavwtc,eq_bondwtc,eq_usrvar1,eq_usrvar2,eq_usrvar3;
-/****************************************************************************/
-
 /* top level routine - dft_fill_main.c */
 
 in if (Unk2Phys[]==XXX) loop of dft_fill_main.c we will need to change logic to read (for example)
