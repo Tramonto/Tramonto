@@ -1,3 +1,45 @@
+/*
+//@HEADER
+// ********************************************************************
+// Copyright (2006) Sandia Corporation. Under the terms of Contract
+// DE-AC04-94AL85000, there is a non-exclusive license for use of this
+// work by or on behalf of the U.S. Government. Export of this program
+// may require a license from the United States Government.
+//
+// This software is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// ********************************************************************
+//@HEADER
+*/
+
+
+/*
+ *  FILE: dft_func_HS1.c
+ *
+ *  This file contains first and second derivatives of the free energy densities
+ *  of Rosenfeld's Fundamental Measures Theory
+ *
+ */
+
+/*********************************************************************/
+void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3, double *dphi_drb_loc)
+{
+   int idim;
+
+   dphi_drb_loc[0] = log(inv_n3[1]);
+   dphi_drb_loc[1] = n[2]*inv_n3[1];
+   dphi_drb_loc[2] = n[1]*inv_n3[1] + (n[2]*n[2]-DOT_22)*inv_n3[2] / (8.0*PI);
+   dphi_drb_loc[3] = n[0]*inv_n3[1] + (n[1]*n[2]-DOT_12)*inv_n3[2] +
+                            (n[2]*n[2]*n[2]-3.*n[2]*DOT_22 )*inv_n3[3]/(12.0*PI);
+
+   for (idim=0;idim<Ndim;idim++){
+       dphi_drb_loc[Nrho_bar_s+idim]= -n[Nrho_bar_s+Ndim+idim]*inv_n3[1];
+       dphi_drb_loc[Nrho_bar_s+idim+Ndim] = -n[Nrho_bar_s+idim]*inv_n3[1] -
+                           n[2]*n[Nrho_bar_s+Ndim+idim]*inv_n3[2]/(4.0*PI);
+   }
+   return;
+}
 /*****************************************************************************/
 /* d2phi_drb2_delta_rb_FMT1:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                 for the dphi_drb that use Delta_Fn Stencils (all but S3) */
@@ -108,22 +150,4 @@ static struct RB_Struct d2phi_drb2_theta_rb_FMT1(int junk, int jnode_box,double 
       tmp.V2[idim] = - weight * (rb1v[idim]*inv_one_m_rb3_sq
                      + rb2*rb2v[idim]*inv_one_m_rb3_3rd/(2.0*PI) );
   return (tmp);
-}
-/*********************************************************************/
-void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3, double *dphi_drb_loc)
-{
-   int idim;
-
-   dphi_drb_loc[0] = log(inv_n3[1]);
-   dphi_drb_loc[1] = n[2]*inv_n3[1];
-   dphi_drb_loc[2] = n[1]*inv_n3[1] + (n[2]*n[2]-DOT_22)*inv_n3[2] / (8.0*PI);
-   dphi_drb_loc[3] = n[0]*inv_n3[1] + (n[1]*n[2]-DOT_12)*inv_n3[2] +
-                            (n[2]*n[2]*n[2]-3.*n[2]*DOT_22 )*inv_n3[3]/(12.0*PI);
-
-   for (idim=0;idim<Ndim;idim++){
-       dphi_drb_loc[Nrho_bar_s+idim]= -n[Nrho_bar_s+Ndim+idim]*inv_n3[1];
-       dphi_drb_loc[Nrho_bar_s+idim+Ndim] = -n[Nrho_bar_s+idim]*inv_n3[1] -
-                           n[2]*n[Nrho_bar_s+Ndim+idim]*inv_n3[2]/(4.0*PI);
-   }
-   return;
 }

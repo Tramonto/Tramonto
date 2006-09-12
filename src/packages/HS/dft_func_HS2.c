@@ -1,3 +1,69 @@
+/*
+//@HEADER
+// ********************************************************************
+// Copyright (2006) Sandia Corporation. Under the terms of Contract
+// DE-AC04-94AL85000, there is a non-exclusive license for use of this
+// work by or on behalf of the U.S. Government. Export of this program
+// may require a license from the United States Government.
+//
+// This software is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// ********************************************************************
+//@HEADER
+*/
+
+/*
+ *  FILE: dft_func_HS2.c
+ *
+ *  This file contains first and second derivatives of the free energy densities
+ *  of a modified Fundamental Measures Theory that correct for crossover to zero-dimensions
+ *  i.e. freezing.
+ *
+ */
+
+
+/*******************************************************************************************/
+void FMT2_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3, double *dphi_drb_loc)
+{
+   int idim;
+   double alpha, gamma[NDIM_MAX],alpha_sq,alpha_cb,beta;
+
+   /* same as FMT1 contributions */
+   dphi_drb_loc[0] =  log(inv_n3[1]);
+   dphi_drb_loc[1] =  n[2]*inv_n3[1];
+   dphi_drb_loc[2] =  n[1]*inv_n3[1];
+   dphi_drb_loc[3] = n[0]*inv_n3[1] + (n[1]*n[2]-DOT_12) * inv_n3[2];
+
+   for (idim = 0; idim < Ndim; idim++) {
+       dphi_drb_loc[Nrho_bar_s+idim] = -n[Nrho_bar_s+Ndim+idim]*inv_n3[1];
+       dphi_drb_loc[Nrho_bar_s+Ndim+idim] = -n[Nrho_bar_s+idim]*inv_n3[1];
+   }
+
+   /* new contributions */
+   if (n[2] > 1.e-15){
+         alpha=n[2]-DOT_22/n[2];
+         beta = 1.0+DOT_22/(n[2]*n[2]);
+         for (idim = 0; idim < Ndim; idim++){
+             gamma[idim] = n[Nrho_bar_s+Ndim+idim]/n[2];
+         }
+   }
+   else{
+       alpha=n[2];
+       beta = 1.0;
+       for (idim = 0; idim < Ndim; idim++) gamma[idim] = 0.0;
+   }
+   alpha_sq=alpha*alpha;
+   alpha_cb=alpha_sq*alpha;
+
+   dphi_drb_loc[2] += alpha_sq*beta*inv_n3[2]/(8.0*PI);
+   dphi_drb_loc[3] += alpha_cb*inv_n3[3]/(12.0*PI);
+
+   for (idim = 0; idim < Ndim; idim++) {
+       dphi_drb_loc[Nrho_bar_s+Ndim+idim] -= inv_n3[2]*alpha_sq*gamma[idim]/(4.0*PI);
+   }
+   return;
+}
 /****************************************************************************/
 /* d2phi_drb2_delta_rb_FMT2:  calculate the derivatives of the dphi_drb w.r.t. rb   */
 /*                 for the dphi_drb that use Delta_Fn Stencils (all but S3) */
@@ -164,46 +230,5 @@ static struct RB_Struct d2phi_drb2_theta_rb_FMT2(int junk, int jnode_box,double 
       tmp.V2[idim] -= weight * 2.0*Inv_4pi*inv_one_m_rb3_3rd*alpha_sq*gamma[idim];
 
   return (tmp);
-}
-/*******************************************************************************************/
-void FMT2_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3, double *dphi_drb_loc)
-{
-   int idim;
-   double alpha, gamma[NDIM_MAX],alpha_sq,alpha_cb,beta;
-
-   /* same as FMT1 contributions */
-   dphi_drb_loc[0] =  log(inv_n3[1]);
-   dphi_drb_loc[1] =  n[2]*inv_n3[1];
-   dphi_drb_loc[2] =  n[1]*inv_n3[1];
-   dphi_drb_loc[3] = n[0]*inv_n3[1] + (n[1]*n[2]-DOT_12) * inv_n3[2];
-
-   for (idim = 0; idim < Ndim; idim++) {
-       dphi_drb_loc[Nrho_bar_s+idim] = -n[Nrho_bar_s+Ndim+idim]*inv_n3[1];
-       dphi_drb_loc[Nrho_bar_s+Ndim+idim] = -n[Nrho_bar_s+idim]*inv_n3[1];
-   }
-
-   /* new contributions */
-   if (n[2] > 1.e-15){
-         alpha=n[2]-DOT_22/n[2];
-         beta = 1.0+DOT_22/(n[2]*n[2]);
-         for (idim = 0; idim < Ndim; idim++){
-             gamma[idim] = n[Nrho_bar_s+Ndim+idim]/n[2];
-         }
-   }
-   else{
-       alpha=n[2];
-       beta = 1.0;
-       for (idim = 0; idim < Ndim; idim++) gamma[idim] = 0.0;
-   }
-   alpha_sq=alpha*alpha;
-   alpha_cb=alpha_sq*alpha;
-
-   dphi_drb_loc[2] += alpha_sq*beta*inv_n3[2]/(8.0*PI);
-   dphi_drb_loc[3] += alpha_cb*inv_n3[3]/(12.0*PI);
-
-   for (idim = 0; idim < Ndim; idim++) {
-       dphi_drb_loc[Nrho_bar_s+Ndim+idim] -= inv_n3[2]*alpha_sq*gamma[idim]/(4.0*PI);
-   }
-   return;
 }
 

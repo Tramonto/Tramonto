@@ -39,9 +39,21 @@
 #include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
+
+double load_rho_bar_s(int,double **,int, int,int,int,int *,int);
+double prefactor_rho_bar_s(int,int,int *);
+double resid_rho_bar(int,int,double **);
+double jac_rho_bar(int,int,double **);
+double load_rho_bar_v(double **,int,int,int,int,int *,int);
+double prefactor_rho_bar_v(int,int,int *);
+
+
 /*****************************************************************************/
-int fill_hsrhobar_density(int inode,int iunk,int resid_only_flag,double **x, double resid)
+int fill_hsrhobar_density(int loc_inode,int iunk,int icomp, int inode_box, int izone, int *ijk_box,
+                     int resid_only_flag,double **x,double *resid)
+
 {
+   double resid_rhobars,resid_rhobarv;
 
    if (iunk == Phys2Unk_first[HSRHOBAR]){
         resid_rhobars+=load_rho_bar_s(THETA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box,
@@ -50,11 +62,11 @@ int fill_hsrhobar_density(int inode,int iunk,int resid_only_flag,double **x, dou
    else if (iunk < Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
        resid_rhobars+=load_rho_bar_s(DELTA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box,
                       resid_only_flag);
-       resid=resid_rhobars;
+       *resid=resid_rhobars;
    }
    else if (iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
         resid_rhobarv+=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
-        resid=resid_rhobarv;
+        *resid=resid_rhobarv;
    }
 
    return (FILL_BLOCK_FLAG);
@@ -113,10 +125,8 @@ double resid_rho_bar(int junk,int jnode_box,double **x)
   int jcomp;
   double resid;
 
-
   if (Type_poly==WTC)  jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
   else                 jcomp=junk-Phys2Unk_first[DENSITY];
-
 
   if (jnode_box >=0 && !Zero_density_TF[jnode_box][jcomp]){
        resid = x[junk][jnode_box];

@@ -3,8 +3,7 @@
 /* entries for a header file */
 /* structure of function pointers */
 
-typedef int (*phys_type_fill)(int,int,int,double**,double);
-
+typedef int (*phys_type_fill)(int,int,int,int,int,int,int *,double **,double);
 typedef struct {
   phys_type_fill density_fill;
   phys_type_fill hsrhobar_fill;
@@ -74,43 +73,44 @@ need to
 /****************************************************************************/
 /* fill_package: routine that takes a fill_phys struct, puts it into a generic name, eq_type, and then
    calls the necessary associated functions to fill a given row of the matrix */
-double fill_package(fill_phys eq_type,int inode,int iunk,int resid_only_flag,double **x,double resid)
+double fill_package(fill_phys eq_type,int loc_inode,int iunk,int icomp,int inode_box, int izone, int *ijk_box,
+                     int resid_only_flag,double **x,double *resid)
 {
-  int iphys;
+  int iphys,flag;
 
    for(iphys=0;iphys<NEQ_TYPE;iphys++){
-      if (Block_flag[Unk2Phys[iunk]][iphys] != ZERO_BLOCK_FLAG){
       if (Phys2Nunk[iphys] !=0) {
+      if (Block_flag[Unk2Phys[iunk]][iphys] != ZERO_BLOCK_FLAG){
          switch(iphys){
             case DENSITY:     
-                 Block_flag[Unk2Phys[iunk]][iphys]=eq_type->(*density_fill)(inode,iunk,resid_only_flag,x,resid);
+                 flag=eq_type->(*density_fill)(loc_inode,inode_box,iunk,icomp,inode_box,izone,ijk_box,resid_only_flag,x,resid);
                  break;
             case HSRHOBAR:    
-                 Block_flag[Unk2Phys[iunk]][iphys]=eq_type->(*hsrhobar_fill)(inode,iunk,resid_only_flag,x,resid);
+                 flag=eq_type->(*hsrhobar_fill)(loc_inode,inode_box,iunk,icomp,inode_box,izone,ijk_box,resid_only_flag,x,resid);
                  break;
             case POISSON:     
-                 Block_flag[Unk2Phys[iunk]][iphys]=eq_type->(*poisson_fill)(inode,iunk,resid_only_flag,x,resid);
+                 flag=eq_type->(*poisson_fill)(loc_inode,inode_box,iunk,icomp,inode_box,izone,ijk_box,resid_only_flag,x,resid);
                  break;
             case DIFFUSION:   
-                 Block_flag[Unk2Phys[iunk]][iphys]=eq_type->(*diffusion_fill)(inode,iunk,resid_only_flag,x,resid);
+                 flag=eq_type->(*diffusion_fill)(loc_inode,inode_box,iunk,icomp,inode_box,izone,ijk_box,resid_only_flag,x,resid);
                  break;
             case CAVITY_WTC:  
-                 Block_flag[Unk2Phys[iunk]][iphys]=eq_type->(*cavwtc_fill)(inode,iunk,resid_only_flag,x,resid);
+                 flag=eq_type->(*cavwtc_fill)(loc_inode,inode_box,iunk,icomp,inode_box,izone,ijk_box,resid_only_flag,x,resid);
                  break;
             case BOND_WTC:    
-                 Block_flag[Unk2Phys[iunk]][iphys]=eq_type->(*bondwtc_fill)(inode,iunk,resid_only_flag,x,resid);
+                 flag=eq_type->(*bondwtc_fill)(loc_inode,inode_box,iunk,icomp,inode_box,izone,ijk_box,resid_only_flag,x,resid);
                  break;
             case USR_VAR1:    
-                 Block_flag[Unk2Phys[iunk]][iphys]=eq_type->(*usrvar1_fill)(inode,iunk,resid_only_flag,x,resid);
+                 flag=eq_type->(*usrvar1_fill)(loc_inode,inode_box,iunk,icomp,inode_box,izone,ijk_box,resid_only_flag,x,resid);
                  break;
             case USR_VAR2:    
-                 Block_flag[Unk2Phys[iunk]][iphys]=eq_type->(*usrvar2_fill)(inode,iunk,resid_only_flag,x,resid);
+                 flag=eq_type->(*usrvar2_fill)(loc_inode,inode_box,iunk,icomp,inode_box,izone,ijk_box,resid_only_flag,x,resid);
                  break;
             case USR_VAR3:    
-                 Block_flag[Unk2Phys[iunk]][iphys]=eq_type->(*usrvar3_fill)(inode,iunk,resid_only_flag,x,resid);
-                 Block_flag[Unk2Phys[iunk]][iphys]= fill_phys_USRVAR3(inode,iunk,resid_only_flag,x,resid); 
+                 flag=eq_type->(*usrvar3_fill)(loc_inode,inode_box,iunk,icomp,inode_box,izone,ijk_box,resid_only_flag,x,resid);
                  break;
          }
+         Block_flag[Unk2Phys[iunk]][iphys]=flag;
        }
      }
    }

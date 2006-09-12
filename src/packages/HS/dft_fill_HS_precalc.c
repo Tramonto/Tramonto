@@ -28,6 +28,7 @@
 #include "mpi.h"
 #include "HSpkg.h"
 
+/****************************************************************************/
 void precalc_HS(struct RB_Struct *dphi_drb)
 {
   if (Type_func==FMT1){

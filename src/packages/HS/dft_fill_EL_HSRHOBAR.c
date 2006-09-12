@@ -41,16 +41,22 @@
 #include "mpi.h"
 #include "HSpkg.h"
 
+double load_nonlocal_hs_rosen_rb(int, int, int,int,int, int,
+                       int *,double **, struct RB_Struct *, int);
+
 /**********************************************************************/
-int fill_el_hsrhobar(int inode,int iunk,int resid_only_flag,double **x,double resid)
+int fill_el_hsrhobar(int loc_inode,int iunk, int icomp, int inode_box, int izone, int *ijk_box,
+                     int resid_only_flag,double **x,double resid)
 {
+    double resid_hs1,resid_hs2;
+
     resid_hs1 =load_nonlocal_hs_rosen_rb(DELTA_FN,iunk,loc_inode,inode_box,
                          icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
  
     resid_hs2=load_nonlocal_hs_rosen_rb(THETA_FN,iunk,loc_inode,inode_box,
                          icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
  
-    resid=resid_hs1+resid_hs2;
+    *resid=resid_hs1+resid_hs2;
 
     return(FILL_BLOCK_FLAG);
 }

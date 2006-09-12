@@ -54,6 +54,11 @@ int fill_hsrhobar_cavwtc(int inode,int iunk,int resid_only_flag,double **x,doubl
    return (ZERO_BLOCK_FLAG);
 }
 /*****************************************************************************/
+int fill_hsrhobar_bondwtc(int inode,int iunk,int resid_only_flag,double **x,double resid)
+{
+   return (ZERO_BLOCK_FLAG);
+}
+/*****************************************************************************/
 int fill_hsrhobar_usrvar1(int inode,int iunk,int resid_only_flag,double **x,double resid)
 {
    return (ZERO_BLOCK_FLAG);
