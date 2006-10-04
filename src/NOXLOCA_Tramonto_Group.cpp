@@ -177,7 +177,7 @@ NOX::Abstract::Group::ReturnType NOXLOCA::Tramonto::Group::computeJacobian()
   return (NOX::Abstract::Group::Ok);
 }
 
-NOX::Abstract::Group::ReturnType NOXLOCA::Tramonto::Group::computeNewton(NOX::Parameter::List& p) 
+NOX::Abstract::Group::ReturnType NOXLOCA::Tramonto::Group::computeNewton(Teuchos::ParameterList& p) 
 {
   if (isNewton())
     return NOX::Abstract::Group::Ok;
@@ -227,7 +227,7 @@ NOXLOCA::Tramonto::Group::applyJacobian(const NOXLOCA::Tramonto::Vector& input, 
 }
 
 NOX::Abstract::Group::ReturnType 
-NOXLOCA::Tramonto::Group::applyJacobianInverse(NOX::Parameter::List& p, 
+NOXLOCA::Tramonto::Group::applyJacobianInverse(Teuchos::ParameterList& p, 
 					 const NOX::Abstract::Vector& input, 
 					 NOX::Abstract::Vector& result) const 
 {
@@ -237,7 +237,7 @@ NOXLOCA::Tramonto::Group::applyJacobianInverse(NOX::Parameter::List& p,
 }
 
 NOX::Abstract::Group::ReturnType 
-NOXLOCA::Tramonto::Group::applyJacobianInverse(NOX::Parameter::List& p, 
+NOXLOCA::Tramonto::Group::applyJacobianInverse(Teuchos::ParameterList& p, 
 					 const NOXLOCA::Tramonto::Vector& input, 
 					 NOXLOCA::Tramonto::Vector& result) const 
 {

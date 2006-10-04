@@ -69,7 +69,7 @@ namespace NOXLOCA {
 
       NOX::Abstract::Group::ReturnType computeJacobian();
 
-      NOX::Abstract::Group::ReturnType computeNewton(NOX::Parameter::List& params);
+      NOX::Abstract::Group::ReturnType computeNewton(Teuchos::ParameterList& params);
 
       //@}
 
@@ -87,11 +87,11 @@ namespace NOXLOCA {
       NOX::Abstract::Group::ReturnType applyJacobian(const NOX::Abstract::Vector& input, 
 						     NOX::Abstract::Vector& result) const;
 
-      NOX::Abstract::Group::ReturnType applyJacobianInverse(NOX::Parameter::List& params, 
+      NOX::Abstract::Group::ReturnType applyJacobianInverse(Teuchos::ParameterList& params, 
 							    const NOXLOCA::Tramonto::Vector& input, 
 				Vector& result) const;
 
-      NOX::Abstract::Group::ReturnType applyJacobianInverse(NOX::Parameter::List& params, 
+      NOX::Abstract::Group::ReturnType applyJacobianInverse(Teuchos::ParameterList& params, 
 							    const NOX::Abstract::Vector& input, 
 							    NOX::Abstract::Vector& result) const;
 
