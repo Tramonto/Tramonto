@@ -5347,8 +5347,8 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 SAVE_CPPFLAGS=${CPPFLAGS}
 CPPFLAGS="${CPPFLAGS} ${TRILINOS_INC}"
 
-echo "$as_me:$LINENO: checking for LOCA.H" >&5
-echo $ECHO_N "checking for LOCA.H... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking for several Trilinos header files" >&5
+echo $ECHO_N "checking for several Trilinos header files... $ECHO_C" >&6
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF

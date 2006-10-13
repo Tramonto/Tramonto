@@ -235,7 +235,7 @@ AC_LANG_CPLUSPLUS
 SAVE_CPPFLAGS=${CPPFLAGS}
 CPPFLAGS="${CPPFLAGS} ${TRILINOS_INC}"
 
-AC_MSG_CHECKING(for LOCA.H)
+AC_MSG_CHECKING(for several Trilinos header files)
 AC_TRY_CPP([#include "AztecOO.h" #include "Ifpack.h" #include "EpetraExt_ConfigDefs.h" #include "Epetra_ConfigDefs.h" #include "Teuchos_Version.hpp"],
   [AC_MSG_RESULT(yes)],
   [
