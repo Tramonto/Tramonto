@@ -1,3 +1,2 @@
 ../configure \
---with-incdirs="-I/usr/people/faculty/other/mphenow/TramontoTestHarness/Trilinos/MPI_INSTALL/include" \
---with-ldflags="-L/usr/people/faculty/other/mphenow/TramontoTestHarness/Trilinos/MPI_INSTALL/lib -L/usr/local/lib -llapack -lcblas -lf77blas -latlas -lg2c"
+--with-trilinos="/usr/people/faculty/other/mphenow/TramontoTestHarness/Trilinos/MPI_INSTALL"

@@ -163,10 +163,21 @@ dft_SOURCES = \
         $(COMMON_C)
                                                                                 
 dft_DEPENDENCIES = $(top_builddir)/src/libdft.a
-                                                                                
-dft_CXXFLAGS = -I$(srcdir)
 
-dft_LDADD = $(top_builddir)/src/libdft.a $(LDFLAGS) $(LIBS) $(FLIBS)
+include $(top_builddir)/Makefile.export.tramonto
+
+if USING_GNUMAKE
+EXPORT_INCLUDES = $(shell $(PERL_EXE) $(top_srcdir)/config/strip_dup_incl_paths.pl $(TRAMONTO_INCLUDES))
+EXPORT_LIBS = $(shell $(PERL_EXE) $(top_srcdir)/config/strip_dup_libs.pl $(TRAMONTO_LIBS))
+else
+EXPORT_INCLUDES = $(TRAMONTO_INCLUDES)
+EXPORT_LIBS = $(TRAMONTO_LIBS)
+endif
+
+AM_CPPFLAGS = $(EXPORT_INCLUDES)
+#dft_CXXFLAGS = -I$(srcdir)
+
+dft_LDADD = $(EXPORT_LIBS)
 
 # ------------------------------------------------------------------------
 # List of all libraries to install in $(libexecdir)

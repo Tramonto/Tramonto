@@ -5,8 +5,9 @@
 
 ../configure \
 CXX=CC CC=cc F77=f77 \
-CFLAGS="-O2 -64 -I/scratch1/jmwille/TramontosTrilinos/include" \
+CFLAGS="-O2 -64" \
 FFLAGS="-O2 -64" \
-CXXFLAGS="-O2 -64 -LANG:std  -LANG:ansi-for-init-scope=ON -ptused -DMPI_NO_CPPBIND -I/scratch1/jmwille/TramontosTrilinos/include" \
-LDFLAGS=" -64 -L/scratch1/jmwille/TramontosTrilinos/lib -L/usr/lib64/mips4/r10000 -L/usr/lib64/mips4 -L/usr/lib64 -LANG:std" \
+CXXFLAGS="-O2 -64 -LANG:std  -LANG:ansi-for-init-scope=ON -ptused -DMPI_NO_CPPBIND" \
+--with-trilinos=/scratch1/jmwille/TramontosTrilinos \
+LDFLAGS=" -64 -L/usr/lib64/mips4/r10000 -L/usr/lib64/mips4 -L/usr/lib64 -LANG:std" \
 --with-mpi-libs=-lmpi

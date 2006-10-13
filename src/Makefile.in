@@ -58,14 +58,14 @@ subdir = src
 DIST_COMMON = $(am__include_HEADERS_DIST) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/Tramonto_config.h.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/config/acx_blas.m4 \
-	$(top_srcdir)/config/acx_lapack.m4 \
+am__aclocal_m4_deps =  \
+	$(top_srcdir)/config/tac_arg_enable_export-makefiles.m4 \
 	$(top_srcdir)/config/tac_arg_enable_feature.m4 \
-	$(top_srcdir)/config/tac_arg_header_check.m4 \
 	$(top_srcdir)/config/tac_arg_with_flags.m4 \
 	$(top_srcdir)/config/tac_arg_with_incdirs.m4 \
 	$(top_srcdir)/config/tac_arg_with_libdirs.m4 \
 	$(top_srcdir)/config/tac_arg_with_package.m4 \
+	$(top_srcdir)/config/tac_arg_with_perl.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -168,40 +168,19 @@ am__EXTRA_libdft_a_SOURCES_DIST =  \
 libdft_a_OBJECTS = $(am_libdft_a_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_7 = dft-dft_BasicLinProbMgr.$(OBJEXT) \
-	dft-dft_PolyLinProbMgr.$(OBJEXT) \
-	dft-dft_HardSphereLinProbMgr.$(OBJEXT) \
-	dft-dft_PolyA11_Epetra_Operator.$(OBJEXT) \
-	dft-dft_PolyA22_Epetra_Operator.$(OBJEXT) \
-	dft-dft_A22Matrix_Epetra_Operator.$(OBJEXT) \
-	dft-dft_HardSphereA11_Epetra_Operator.$(OBJEXT) \
-	dft-dft_HardSphereA22_Epetra_Operator.$(OBJEXT) \
-	dft-dft_Schur_Epetra_Operator.$(OBJEXT) \
-	dft-dft_basic_lin_prob_mgr_wrapper.$(OBJEXT) \
-	dft-dft_poly_lin_prob_mgr_wrapper.$(OBJEXT) \
-	dft-dft_hardsphere_lin_prob_mgr_wrapper.$(OBJEXT)
-am_dft_OBJECTS = dft_maindriver.$(OBJEXT) $(am__objects_7) \
+am_dft_OBJECTS = dft_maindriver.$(OBJEXT) $(am__objects_2) \
 	$(am__objects_1)
 dft_OBJECTS = $(am_dft_OBJECTS)
 am__DEPENDENCIES_1 =
+@USING_GNUMAKE_TRUE@am__DEPENDENCIES_2 = $(shell $(am__DEPENDENCIES_1) \
+@USING_GNUMAKE_TRUE@	$(top_srcdir)/config/strip_dup_libs.pl \
+@USING_GNUMAKE_TRUE@	$(TRAMONTO_LIBS))
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I.
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/NOXLOCA_Solver.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/NOXLOCA_Tramonto_Group.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/NOXLOCA_Tramonto_Vector.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_BasicLinProbMgr.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_PolyLinProbMgr.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_A22Matrix_Epetra_Operator.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_BasicLinProbMgr.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_HardSphereA11_Epetra_Operator.Po \
@@ -303,7 +282,6 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BLAS_LIBS = @BLAS_LIBS@
 BUILD_EXAMPLES_FALSE = @BUILD_EXAMPLES_FALSE@
 BUILD_EXAMPLES_TRUE = @BUILD_EXAMPLES_TRUE@
 CC = @CC@
@@ -328,11 +306,11 @@ FFLAGS = @FFLAGS@
 FLIBS = @FLIBS@
 HAVE_NOXLOCA_FALSE = @HAVE_NOXLOCA_FALSE@
 HAVE_NOXLOCA_TRUE = @HAVE_NOXLOCA_TRUE@
+HAVE_PERL = @HAVE_PERL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-LAPACK_LIBS = @LAPACK_LIBS@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
@@ -349,10 +327,17 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PERL_EXE = @PERL_EXE@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
+USING_EXPORT_MAKEFILES_FALSE = @USING_EXPORT_MAKEFILES_FALSE@
+USING_EXPORT_MAKEFILES_TRUE = @USING_EXPORT_MAKEFILES_TRUE@
+USING_GNUMAKE_FALSE = @USING_GNUMAKE_FALSE@
+USING_GNUMAKE_TRUE = @USING_GNUMAKE_TRUE@
+USING_PERL_FALSE = @USING_PERL_FALSE@
+USING_PERL_TRUE = @USING_PERL_TRUE@
 VERSION = @VERSION@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
@@ -398,6 +383,7 @@ target_alias = @target_alias@
 target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
+trilinos_installdir = @trilinos_installdir@
 COMMON_H = \
 	${srcdir}/Tramonto_ConfigDefs.h \
         ${srcdir}/dft_globals.h \
@@ -535,8 +521,13 @@ dft_SOURCES = \
         $(COMMON_C)
 
 dft_DEPENDENCIES = $(top_builddir)/src/libdft.a
-dft_CXXFLAGS = -I$(srcdir)
-dft_LDADD = $(top_builddir)/src/libdft.a $(LDFLAGS) $(LIBS) $(FLIBS)
+@USING_GNUMAKE_FALSE@EXPORT_INCLUDES = $(TRAMONTO_INCLUDES)
+@USING_GNUMAKE_TRUE@EXPORT_INCLUDES = $(shell $(PERL_EXE) $(top_srcdir)/config/strip_dup_incl_paths.pl $(TRAMONTO_INCLUDES))
+@USING_GNUMAKE_FALSE@EXPORT_LIBS = $(TRAMONTO_LIBS)
+@USING_GNUMAKE_TRUE@EXPORT_LIBS = $(shell $(PERL_EXE) $(top_srcdir)/config/strip_dup_libs.pl $(TRAMONTO_LIBS))
+AM_CPPFLAGS = $(EXPORT_INCLUDES)
+#dft_CXXFLAGS = -I$(srcdir)
+dft_LDADD = $(EXPORT_LIBS)
 
 # ------------------------------------------------------------------------
 # List of all libraries to install in $(libexecdir)
@@ -683,18 +674,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NOXLOCA_Solver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NOXLOCA_Tramonto_Group.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NOXLOCA_Tramonto_Vector.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_BasicLinProbMgr.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_PolyLinProbMgr.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_A22Matrix_Epetra_Operator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_BasicLinProbMgr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_HardSphereA11_Epetra_Operator.Po@am__quote@
@@ -1829,198 +1808,6 @@ NOXLOCA_Tramonto_Vector.obj: ${srcdir}/NOXLOCA_Tramonto_Vector.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/NOXLOCA_Tramonto_Vector.Po' tmpdepfile='$(DEPDIR)/NOXLOCA_Tramonto_Vector.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NOXLOCA_Tramonto_Vector.obj `if test -f '${srcdir}/NOXLOCA_Tramonto_Vector.cpp'; then $(CYGPATH_W) '${srcdir}/NOXLOCA_Tramonto_Vector.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/NOXLOCA_Tramonto_Vector.cpp'; fi`
-
-dft-dft_BasicLinProbMgr.o: ${srcdir}/dft_BasicLinProbMgr.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_BasicLinProbMgr.o -MD -MP -MF "$(DEPDIR)/dft-dft_BasicLinProbMgr.Tpo" -c -o dft-dft_BasicLinProbMgr.o `test -f '${srcdir}/dft_BasicLinProbMgr.cpp' || echo '$(srcdir)/'`${srcdir}/dft_BasicLinProbMgr.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_BasicLinProbMgr.Tpo" "$(DEPDIR)/dft-dft_BasicLinProbMgr.Po"; else rm -f "$(DEPDIR)/dft-dft_BasicLinProbMgr.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_BasicLinProbMgr.cpp' object='dft-dft_BasicLinProbMgr.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_BasicLinProbMgr.Po' tmpdepfile='$(DEPDIR)/dft-dft_BasicLinProbMgr.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_BasicLinProbMgr.o `test -f '${srcdir}/dft_BasicLinProbMgr.cpp' || echo '$(srcdir)/'`${srcdir}/dft_BasicLinProbMgr.cpp
-
-dft-dft_BasicLinProbMgr.obj: ${srcdir}/dft_BasicLinProbMgr.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_BasicLinProbMgr.obj -MD -MP -MF "$(DEPDIR)/dft-dft_BasicLinProbMgr.Tpo" -c -o dft-dft_BasicLinProbMgr.obj `if test -f '${srcdir}/dft_BasicLinProbMgr.cpp'; then $(CYGPATH_W) '${srcdir}/dft_BasicLinProbMgr.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_BasicLinProbMgr.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_BasicLinProbMgr.Tpo" "$(DEPDIR)/dft-dft_BasicLinProbMgr.Po"; else rm -f "$(DEPDIR)/dft-dft_BasicLinProbMgr.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_BasicLinProbMgr.cpp' object='dft-dft_BasicLinProbMgr.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_BasicLinProbMgr.Po' tmpdepfile='$(DEPDIR)/dft-dft_BasicLinProbMgr.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_BasicLinProbMgr.obj `if test -f '${srcdir}/dft_BasicLinProbMgr.cpp'; then $(CYGPATH_W) '${srcdir}/dft_BasicLinProbMgr.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_BasicLinProbMgr.cpp'; fi`
-
-dft-dft_PolyLinProbMgr.o: ${srcdir}/dft_PolyLinProbMgr.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_PolyLinProbMgr.o -MD -MP -MF "$(DEPDIR)/dft-dft_PolyLinProbMgr.Tpo" -c -o dft-dft_PolyLinProbMgr.o `test -f '${srcdir}/dft_PolyLinProbMgr.cpp' || echo '$(srcdir)/'`${srcdir}/dft_PolyLinProbMgr.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_PolyLinProbMgr.Tpo" "$(DEPDIR)/dft-dft_PolyLinProbMgr.Po"; else rm -f "$(DEPDIR)/dft-dft_PolyLinProbMgr.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_PolyLinProbMgr.cpp' object='dft-dft_PolyLinProbMgr.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_PolyLinProbMgr.Po' tmpdepfile='$(DEPDIR)/dft-dft_PolyLinProbMgr.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_PolyLinProbMgr.o `test -f '${srcdir}/dft_PolyLinProbMgr.cpp' || echo '$(srcdir)/'`${srcdir}/dft_PolyLinProbMgr.cpp
-
-dft-dft_PolyLinProbMgr.obj: ${srcdir}/dft_PolyLinProbMgr.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_PolyLinProbMgr.obj -MD -MP -MF "$(DEPDIR)/dft-dft_PolyLinProbMgr.Tpo" -c -o dft-dft_PolyLinProbMgr.obj `if test -f '${srcdir}/dft_PolyLinProbMgr.cpp'; then $(CYGPATH_W) '${srcdir}/dft_PolyLinProbMgr.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_PolyLinProbMgr.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_PolyLinProbMgr.Tpo" "$(DEPDIR)/dft-dft_PolyLinProbMgr.Po"; else rm -f "$(DEPDIR)/dft-dft_PolyLinProbMgr.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_PolyLinProbMgr.cpp' object='dft-dft_PolyLinProbMgr.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_PolyLinProbMgr.Po' tmpdepfile='$(DEPDIR)/dft-dft_PolyLinProbMgr.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_PolyLinProbMgr.obj `if test -f '${srcdir}/dft_PolyLinProbMgr.cpp'; then $(CYGPATH_W) '${srcdir}/dft_PolyLinProbMgr.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_PolyLinProbMgr.cpp'; fi`
-
-dft-dft_HardSphereLinProbMgr.o: ${srcdir}/dft_HardSphereLinProbMgr.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_HardSphereLinProbMgr.o -MD -MP -MF "$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Tpo" -c -o dft-dft_HardSphereLinProbMgr.o `test -f '${srcdir}/dft_HardSphereLinProbMgr.cpp' || echo '$(srcdir)/'`${srcdir}/dft_HardSphereLinProbMgr.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Tpo" "$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Po"; else rm -f "$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_HardSphereLinProbMgr.cpp' object='dft-dft_HardSphereLinProbMgr.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Po' tmpdepfile='$(DEPDIR)/dft-dft_HardSphereLinProbMgr.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_HardSphereLinProbMgr.o `test -f '${srcdir}/dft_HardSphereLinProbMgr.cpp' || echo '$(srcdir)/'`${srcdir}/dft_HardSphereLinProbMgr.cpp
-
-dft-dft_HardSphereLinProbMgr.obj: ${srcdir}/dft_HardSphereLinProbMgr.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_HardSphereLinProbMgr.obj -MD -MP -MF "$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Tpo" -c -o dft-dft_HardSphereLinProbMgr.obj `if test -f '${srcdir}/dft_HardSphereLinProbMgr.cpp'; then $(CYGPATH_W) '${srcdir}/dft_HardSphereLinProbMgr.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_HardSphereLinProbMgr.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Tpo" "$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Po"; else rm -f "$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_HardSphereLinProbMgr.cpp' object='dft-dft_HardSphereLinProbMgr.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_HardSphereLinProbMgr.Po' tmpdepfile='$(DEPDIR)/dft-dft_HardSphereLinProbMgr.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_HardSphereLinProbMgr.obj `if test -f '${srcdir}/dft_HardSphereLinProbMgr.cpp'; then $(CYGPATH_W) '${srcdir}/dft_HardSphereLinProbMgr.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_HardSphereLinProbMgr.cpp'; fi`
-
-dft-dft_PolyA11_Epetra_Operator.o: ${srcdir}/dft_PolyA11_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_PolyA11_Epetra_Operator.o -MD -MP -MF "$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Tpo" -c -o dft-dft_PolyA11_Epetra_Operator.o `test -f '${srcdir}/dft_PolyA11_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_PolyA11_Epetra_Operator.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_PolyA11_Epetra_Operator.cpp' object='dft-dft_PolyA11_Epetra_Operator.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_PolyA11_Epetra_Operator.o `test -f '${srcdir}/dft_PolyA11_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_PolyA11_Epetra_Operator.cpp
-
-dft-dft_PolyA11_Epetra_Operator.obj: ${srcdir}/dft_PolyA11_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_PolyA11_Epetra_Operator.obj -MD -MP -MF "$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Tpo" -c -o dft-dft_PolyA11_Epetra_Operator.obj `if test -f '${srcdir}/dft_PolyA11_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_PolyA11_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_PolyA11_Epetra_Operator.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_PolyA11_Epetra_Operator.cpp' object='dft-dft_PolyA11_Epetra_Operator.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_PolyA11_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_PolyA11_Epetra_Operator.obj `if test -f '${srcdir}/dft_PolyA11_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_PolyA11_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_PolyA11_Epetra_Operator.cpp'; fi`
-
-dft-dft_PolyA22_Epetra_Operator.o: ${srcdir}/dft_PolyA22_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_PolyA22_Epetra_Operator.o -MD -MP -MF "$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Tpo" -c -o dft-dft_PolyA22_Epetra_Operator.o `test -f '${srcdir}/dft_PolyA22_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_PolyA22_Epetra_Operator.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_PolyA22_Epetra_Operator.cpp' object='dft-dft_PolyA22_Epetra_Operator.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_PolyA22_Epetra_Operator.o `test -f '${srcdir}/dft_PolyA22_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_PolyA22_Epetra_Operator.cpp
-
-dft-dft_PolyA22_Epetra_Operator.obj: ${srcdir}/dft_PolyA22_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_PolyA22_Epetra_Operator.obj -MD -MP -MF "$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Tpo" -c -o dft-dft_PolyA22_Epetra_Operator.obj `if test -f '${srcdir}/dft_PolyA22_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_PolyA22_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_PolyA22_Epetra_Operator.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_PolyA22_Epetra_Operator.cpp' object='dft-dft_PolyA22_Epetra_Operator.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_PolyA22_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_PolyA22_Epetra_Operator.obj `if test -f '${srcdir}/dft_PolyA22_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_PolyA22_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_PolyA22_Epetra_Operator.cpp'; fi`
-
-dft-dft_A22Matrix_Epetra_Operator.o: ${srcdir}/dft_A22Matrix_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_A22Matrix_Epetra_Operator.o -MD -MP -MF "$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Tpo" -c -o dft-dft_A22Matrix_Epetra_Operator.o `test -f '${srcdir}/dft_A22Matrix_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_A22Matrix_Epetra_Operator.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_A22Matrix_Epetra_Operator.cpp' object='dft-dft_A22Matrix_Epetra_Operator.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_A22Matrix_Epetra_Operator.o `test -f '${srcdir}/dft_A22Matrix_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_A22Matrix_Epetra_Operator.cpp
-
-dft-dft_A22Matrix_Epetra_Operator.obj: ${srcdir}/dft_A22Matrix_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_A22Matrix_Epetra_Operator.obj -MD -MP -MF "$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Tpo" -c -o dft-dft_A22Matrix_Epetra_Operator.obj `if test -f '${srcdir}/dft_A22Matrix_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_A22Matrix_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_A22Matrix_Epetra_Operator.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_A22Matrix_Epetra_Operator.cpp' object='dft-dft_A22Matrix_Epetra_Operator.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_A22Matrix_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_A22Matrix_Epetra_Operator.obj `if test -f '${srcdir}/dft_A22Matrix_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_A22Matrix_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_A22Matrix_Epetra_Operator.cpp'; fi`
-
-dft-dft_HardSphereA11_Epetra_Operator.o: ${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_HardSphereA11_Epetra_Operator.o -MD -MP -MF "$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Tpo" -c -o dft-dft_HardSphereA11_Epetra_Operator.o `test -f '${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp' object='dft-dft_HardSphereA11_Epetra_Operator.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_HardSphereA11_Epetra_Operator.o `test -f '${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp
-
-dft-dft_HardSphereA11_Epetra_Operator.obj: ${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_HardSphereA11_Epetra_Operator.obj -MD -MP -MF "$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Tpo" -c -o dft-dft_HardSphereA11_Epetra_Operator.obj `if test -f '${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp' object='dft-dft_HardSphereA11_Epetra_Operator.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_HardSphereA11_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_HardSphereA11_Epetra_Operator.obj `if test -f '${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp'; fi`
-
-dft-dft_HardSphereA22_Epetra_Operator.o: ${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_HardSphereA22_Epetra_Operator.o -MD -MP -MF "$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Tpo" -c -o dft-dft_HardSphereA22_Epetra_Operator.o `test -f '${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp' object='dft-dft_HardSphereA22_Epetra_Operator.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_HardSphereA22_Epetra_Operator.o `test -f '${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp
-
-dft-dft_HardSphereA22_Epetra_Operator.obj: ${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_HardSphereA22_Epetra_Operator.obj -MD -MP -MF "$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Tpo" -c -o dft-dft_HardSphereA22_Epetra_Operator.obj `if test -f '${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp' object='dft-dft_HardSphereA22_Epetra_Operator.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_HardSphereA22_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_HardSphereA22_Epetra_Operator.obj `if test -f '${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp'; fi`
-
-dft-dft_Schur_Epetra_Operator.o: ${srcdir}/dft_Schur_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_Schur_Epetra_Operator.o -MD -MP -MF "$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Tpo" -c -o dft-dft_Schur_Epetra_Operator.o `test -f '${srcdir}/dft_Schur_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_Schur_Epetra_Operator.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_Schur_Epetra_Operator.cpp' object='dft-dft_Schur_Epetra_Operator.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_Schur_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_Schur_Epetra_Operator.o `test -f '${srcdir}/dft_Schur_Epetra_Operator.cpp' || echo '$(srcdir)/'`${srcdir}/dft_Schur_Epetra_Operator.cpp
-
-dft-dft_Schur_Epetra_Operator.obj: ${srcdir}/dft_Schur_Epetra_Operator.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_Schur_Epetra_Operator.obj -MD -MP -MF "$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Tpo" -c -o dft-dft_Schur_Epetra_Operator.obj `if test -f '${srcdir}/dft_Schur_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_Schur_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_Schur_Epetra_Operator.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Tpo" "$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Po"; else rm -f "$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_Schur_Epetra_Operator.cpp' object='dft-dft_Schur_Epetra_Operator.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_Schur_Epetra_Operator.Po' tmpdepfile='$(DEPDIR)/dft-dft_Schur_Epetra_Operator.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_Schur_Epetra_Operator.obj `if test -f '${srcdir}/dft_Schur_Epetra_Operator.cpp'; then $(CYGPATH_W) '${srcdir}/dft_Schur_Epetra_Operator.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_Schur_Epetra_Operator.cpp'; fi`
-
-dft-dft_basic_lin_prob_mgr_wrapper.o: ${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_basic_lin_prob_mgr_wrapper.o -MD -MP -MF "$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Tpo" -c -o dft-dft_basic_lin_prob_mgr_wrapper.o `test -f '${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp' || echo '$(srcdir)/'`${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Tpo" "$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Po"; else rm -f "$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp' object='dft-dft_basic_lin_prob_mgr_wrapper.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Po' tmpdepfile='$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_basic_lin_prob_mgr_wrapper.o `test -f '${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp' || echo '$(srcdir)/'`${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp
-
-dft-dft_basic_lin_prob_mgr_wrapper.obj: ${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_basic_lin_prob_mgr_wrapper.obj -MD -MP -MF "$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Tpo" -c -o dft-dft_basic_lin_prob_mgr_wrapper.obj `if test -f '${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp'; then $(CYGPATH_W) '${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Tpo" "$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Po"; else rm -f "$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp' object='dft-dft_basic_lin_prob_mgr_wrapper.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.Po' tmpdepfile='$(DEPDIR)/dft-dft_basic_lin_prob_mgr_wrapper.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_basic_lin_prob_mgr_wrapper.obj `if test -f '${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp'; then $(CYGPATH_W) '${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp'; fi`
-
-dft-dft_poly_lin_prob_mgr_wrapper.o: ${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_poly_lin_prob_mgr_wrapper.o -MD -MP -MF "$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Tpo" -c -o dft-dft_poly_lin_prob_mgr_wrapper.o `test -f '${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp' || echo '$(srcdir)/'`${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Tpo" "$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Po"; else rm -f "$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp' object='dft-dft_poly_lin_prob_mgr_wrapper.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Po' tmpdepfile='$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_poly_lin_prob_mgr_wrapper.o `test -f '${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp' || echo '$(srcdir)/'`${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp
-
-dft-dft_poly_lin_prob_mgr_wrapper.obj: ${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_poly_lin_prob_mgr_wrapper.obj -MD -MP -MF "$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Tpo" -c -o dft-dft_poly_lin_prob_mgr_wrapper.obj `if test -f '${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp'; then $(CYGPATH_W) '${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Tpo" "$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Po"; else rm -f "$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp' object='dft-dft_poly_lin_prob_mgr_wrapper.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.Po' tmpdepfile='$(DEPDIR)/dft-dft_poly_lin_prob_mgr_wrapper.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_poly_lin_prob_mgr_wrapper.obj `if test -f '${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp'; then $(CYGPATH_W) '${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp'; fi`
-
-dft-dft_hardsphere_lin_prob_mgr_wrapper.o: ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_hardsphere_lin_prob_mgr_wrapper.o -MD -MP -MF "$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Tpo" -c -o dft-dft_hardsphere_lin_prob_mgr_wrapper.o `test -f '${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp' || echo '$(srcdir)/'`${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Tpo" "$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Po"; else rm -f "$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp' object='dft-dft_hardsphere_lin_prob_mgr_wrapper.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Po' tmpdepfile='$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_hardsphere_lin_prob_mgr_wrapper.o `test -f '${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp' || echo '$(srcdir)/'`${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp
-
-dft-dft_hardsphere_lin_prob_mgr_wrapper.obj: ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -MT dft-dft_hardsphere_lin_prob_mgr_wrapper.obj -MD -MP -MF "$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Tpo" -c -o dft-dft_hardsphere_lin_prob_mgr_wrapper.obj `if test -f '${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp'; then $(CYGPATH_W) '${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Tpo" "$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Po"; else rm -f "$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp' object='dft-dft_hardsphere_lin_prob_mgr_wrapper.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.Po' tmpdepfile='$(DEPDIR)/dft-dft_hardsphere_lin_prob_mgr_wrapper.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dft_CXXFLAGS) $(CXXFLAGS) -c -o dft-dft_hardsphere_lin_prob_mgr_wrapper.obj `if test -f '${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp'; then $(CYGPATH_W) '${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp'; fi`
 uninstall-info-am:
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
@@ -2230,6 +2017,8 @@ uninstall-am: uninstall-binPROGRAMS uninstall-includeHEADERS \
 	uninstall-info-am uninstall-libLIBRARIES \
 	uninstall-nodist_execincludeHEADERS
 
+
+include $(top_builddir)/Makefile.export.tramonto
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

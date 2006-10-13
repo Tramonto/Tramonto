@@ -199,60 +199,76 @@ TAC_ARG_WITH_LIBDIRS
 # enable use of --with-incdirs="-Lincdir1 -Lincdir2 ..." to prepend to CPPFLAGS
 TAC_ARG_WITH_INCDIRS
 
+#Read in the path to the Trilinos installation
+AC_ARG_WITH(trilinos,
+AC_HELP_STRING([--with-trilinos=PATH],[Specify the base path of the intalled version of Trilinos (this will be the same as the value of the --prefix option used when configuring Trilinos).  REQUIRED.  (ex --with-trilinos=/home/user/TrilinosInstall)]),
+ac_cv_use_trilinos=$withval, ac_cv_use_trilinos=no)
+
+AC_MSG_CHECKING(where to find Trilinos installation)
+
+if test "X$ac_cv_use_trilinos" != "Xno"; then
+  AC_MSG_RESULT($ac_cv_use_trilinos)
+  trilinos_installdir=$ac_cv_use_trilinos 
+else
+  AC_MSG_RESULT(Not found)
+  AC_MSG_ERROR([[--with-trilinos=PATH is a required argument.  Specify the base path of the intalled version of Trilinos (this will be the same as the value of the --prefix option used when configuring Trilinos).  ex --with-trilinos=/home/user/TrilinosInstall]])
+fi
+
+TRILINOS_INC="-I${trilinos_installdir}/include"
+TRILINOS_LIB="-L${trilinos_installdir}/lib"
+
 TAC_ARG_WITH_PACKAGE(noxloca, [Enable NOX and LOCA interface support], NOXLOCA, no)
 AM_CONDITIONAL(HAVE_NOXLOCA, test "X$ac_cv_use_noxloca" != "Xno")
 
-dnl Option to turn off checks for third-party libraries
-
-TAC_ARG_ENABLE_FEATURE(libcheck, [Check for some third-party libraries including BLAS and LAPACK.  (Cannot be disabled unless tests and examples are also disabled.)], LIBCHECK, yes)
+TAC_ARG_ENABLE_EXPORT_MAKEFILES(yes)
 
 dnl ------------------------------------------------------------------------
-dnl Checks for libraries
+dnl Checks for Trilinos header files
 dnl ------------------------------------------------------------------------
                                                                                 
-dnl If a test directory is ever added, add a check for tests here
-dnl If examples and libcheck are disabled, we don't have to check
-dnl for these libraries.
-if test "X$ac_cv_use_examples" != "Xno" || test "X$ac_cv_use_libcheck" != "Xno"; then
-
 dnl
-dnl check for math library
-dnl
-AC_SEARCH_LIBS( [pow], 
-                [dxml m],,
-                [AC_MSG_FAILURE([Cannot link to math library functions.])] )
-
-  ACX_BLAS([], [AC_MSG_ERROR([[Cannot find blas library, specify a path using --with-ldflags=-I<DIR> (ex. --with-ldflags=-I/usr/path/lib) or a specific library using --with-blas=DIR/LIB (for example --with-blas=/usr/path/lib/libcxml.a)]])])
-  ACX_LAPACK([], [AC_MSG_ERROR([[Cannot find lapack library, specify a path using --with-ldflags=-I<DIR> (ex. --with-dlflags=-I/usr/path/lib) or a specific library using --with-lapack=DIR/LIB (ex. --with-lapack=/usr/path/lib/libcxml.a)]])])
-
-dnl
-dnl check for AztecOO library
+dnl check for AztecOO, Ifpack, EpetraExt, Epetra, Teuchos, and (conditionally)
+dnl LOCA header files.
 dnl
 AC_LANG_CPLUSPLUS
-AC_CHECK_LIB( [aztecoo], 
-              [AZ_iterate],
-              [LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos $MPI_LIBS $LAPACK_LIBS  $BLAS_LIBS $LIBS $FLIBS"],
-              [AC_MSG_FAILURE([Cannot link to AztecOO, Triutils, Ifpack, EpetraExt, Epetra, or Teuchos library.])], 
-              [-ltriutils -lifpack -lepetraext -lepetra -lteuchos ${MPI_LIBS} ${LAPACK_LIBS} ${BLAS_LIBS} ${LIBS} ${FLIBS}])
+
+SAVE_CPPFLAGS=${CPPFLAGS}
+CPPFLAGS="${CPPFLAGS} ${TRILINOS_INC}"
+
+AC_MSG_CHECKING(for LOCA.H)
+AC_TRY_CPP([#include "AztecOO.h" #include "Ifpack.h" #include "EpetraExt_ConfigDefs.h" #include "Epetra_ConfigDefs.h" #include "Teuchos_Version.hpp"],
+  [AC_MSG_RESULT(yes)],
+  [
+   AC_MSG_RESULT(no)
+   echo "-----"
+   echo "Cannot find AztecOO, Ifpack, EpetraExt, Epetra, or" 
+   echo "Teuchos header file.  Make sure the Trilinos configuration"
+   echo "includes all of those packages.  (Include --enable-aztecoo,"
+   echo "--enable-ifpack, --enable-epetraext, --enable-epetra, and"
+   echo "--enable-teuchos in the list of configuration arguments.)"
+   echo "-----"
+   AC_MSG_ERROR(Cannot find required Trilinos header file)
+  ])
 
 if test "X$ac_cv_use_noxloca" != "Xno"; then
 
-  HEADER_INCLUDE(LOCA.H)
-  LIBS="-lnox -lloca $LIBS"
+  AC_MSG_CHECKING(for LOCA.H)
+  AC_TRY_CPP([#include "LOCA.H"],
+    [AC_MSG_RESULT(yes)],
+    [
+     AC_MSG_RESULT(no)
+     echo "-----"
+     echo "Cannot find LOCA header file."
+     echo "Make sure the Trilinos configuration includes NOX and LOCA."
+     echo "(Include --enable-nox and --enable-loca in the list of"
+     echo "configuration arguments.)"
+     echo "-----"
+     AC_MSG_ERROR(Cannot find required Trilinos header file)
+    ])
 
 fi
 
-else
-
-LIBS="-laztecoo -ltriutils -lifpack -lepetraext -lepetra -lteuchos $MPI_LIBS $LAPACK_LIBS  $BLAS_LIBS $LIBS $FLIBS"
-
-if test "X$ac_cv_use_noxloca" != "Xno"; then
-
-  LIBS="-lnox -lloca $LIBS"
-
-fi
-
-fi
+CPPFLAGS=${SAVE_CPPFLAGS}
 
 dnl
 dnl If we're not using an mpi compiler, then see if we can find
@@ -260,11 +276,14 @@ dnl the mpi.h  mpi compilers automatically include the right
 dnl path to find mpi.h
 dnl
 
+AC_SUBST(trilinos_installdir)
+
 dnl
 dnl piont to the make files
 dnl
 AC_CONFIG_FILES([
 		Makefile
+		Makefile.export.tramonto
 		src/Makefile
 		Examples/Makefile])
 

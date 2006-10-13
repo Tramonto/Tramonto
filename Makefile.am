@@ -44,7 +44,7 @@ ACLOCAL	= aclocal -I config
 ## #######################################################################
 ## Additional files to be included in distribution for 'make dist'
 ## #######################################################################
-#EXTRA_DIST =
+EXTRA_DIST = config/strip_dup_incl_paths.pl config/strip_dup_libs.pl
  
 #
 #       I believe that by switching to AUX_DIR(../../config) one 

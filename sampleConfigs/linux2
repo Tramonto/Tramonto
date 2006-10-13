@@ -2,13 +2,9 @@
 # This configure script is used on a machine running Fedora Core 4.
 # It is meant to illustrate the use of some options that are not
 # always necessary.  The 'linux' script is a minimal base case,
-# this script enables the noxloca option, and points to blas and
-# lapack libraries that are not found by default.
+# this script enables the noxloca option.
 #
 ../configure  \
 --with-noxloca \
---with-incdirs=-I/home/jmwille/work/TramontosTrilinos/include \
---with-blas="-L/home/jmwille/lib/ATLAS/lib/Linux_UNKNOWNSSE2_2 -lcblas -lf77blas -latlas" \
---with-lapack="-L/home/jmwille/lib/LAPACK -llapack" \
---with-ldflags="-L/home/jmwille/work/TramontosTrilinos/lib"
+--with-trilinos=/home/jmwille/work/TramontosTrilinos
 

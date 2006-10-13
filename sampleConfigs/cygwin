@@ -6,6 +6,6 @@
 # lapack support and Trilinos
 #
 ./configure \
-  --with-ldflags="-L/home/rlschie/arch/cygwinParallel/lib -lf77blas -latlas -lg2c" \
-  --with-cxxflags="-I/home/rlschie/arch/cygwinParallel/include"
+  --with-ldflags="-lf77blas -latlas -lg2c" \
+  --with-trilinos=/home/rlschie/arch/cygwinParallel
 

@@ -4,8 +4,6 @@
 # when building Tramonto.
 #
 .././configure \
---with-ldflags="-L/home/jmwille/TramontosTrilinos/liberty/lib -L/mnt_projects/sysapps/intel/mkl72/lib/32 -lmkl_lapack -lmkl_ia32 -L/mnt_projects/sysapps/intel/mkl72/lib/32 -lmkl_ia32 -lguide" \
 CXX=mpicxx CC=mpicc F77=mpif77 \
-CFLAGS=-I/home/jmwille/TramontosTrilinos/liberty/include \
-CXXFLAGS=-I/home/jmwille/TramontosTrilinos/liberty/include \
+--with-trilinos=/home/jmwille/TramontosTrilinos/liberty \
 FFLAGS=-O3 CPPFLAGS=-DCODE_MP

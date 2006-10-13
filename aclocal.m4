@@ -955,11 +955,10 @@ fi
 INSTALL_STRIP_PROGRAM="\${SHELL} \$(install_sh) -c -s"
 AC_SUBST([INSTALL_STRIP_PROGRAM])])
 
-m4_include([config/acx_blas.m4])
-m4_include([config/acx_lapack.m4])
+m4_include([config/tac_arg_enable_export-makefiles.m4])
 m4_include([config/tac_arg_enable_feature.m4])
-m4_include([config/tac_arg_header_check.m4])
 m4_include([config/tac_arg_with_flags.m4])
 m4_include([config/tac_arg_with_incdirs.m4])
 m4_include([config/tac_arg_with_libdirs.m4])
 m4_include([config/tac_arg_with_package.m4])
+m4_include([config/tac_arg_with_perl.m4])

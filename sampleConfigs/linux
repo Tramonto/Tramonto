@@ -3,5 +3,4 @@
 # with Trilinos installed in /home/rlschie/arch/intelLinuxParallel
 #
 ./configure \
-  --with-ldflags="-L/home/rlschie/arch/intelLinuxParallel/lib" \
-  --with-incdirs="-I/home/rlschie/arch/intelLinuxParallel/include"
+  --with-trilinos=/home/rlschie/arch/intelLinuxParallel

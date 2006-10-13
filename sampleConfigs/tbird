@@ -6,7 +6,7 @@
 
 .././configure \
 --with-mpi-libs=-lmpich \
---with-ldflags="-L/home/jmwille/TramontosTrilinos/tbird/lib -L/apps/intel/mkl721/lib/em64t -lmkl_lapack -lmkl_em64t -lguide" \
-CFLAGS="-O3 -I/home/jmwille/TramontosTrilinos/tbird/include" \
-CXXFLAGS="-O3 -I/home/jmwille/TramontosTrilinos/tbird/include" \
+--with-trilinos=/home/jmwille/TramontosTrilinos/tbird \
+CFLAGS="-O3" \
+CXXFLAGS="-O3" \
 FFLAGS=-O3 CPPFLAGS="-DCODE_MP"

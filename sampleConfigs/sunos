@@ -4,10 +4,11 @@
 #
 ../configure \
 CXX=CC CC=cc F77=f77 \
-LDFLAGS="-L/local/homes/jmwille/TramontosTrilinos/lib -xlic_lib=sunperf" \
+LDFLAGS="-xlic_lib=sunperf" \
 CXXFLAGS="-g -pto" \
 --with-mpi-libs="-lmpich -lnsl -lsocket -lrt" \
 --with-mpi-incdir=/local/arch/sun/sunos/mpi/mpich/include \
 --with-mpi-libdir=/local/arch/sun/solaris/mpi/build/solaris/ch_p4/lib \
-CPPFLAGS="-I/local/homes/jmwille/TramontosTrilinos/include -I/local/arch/sun/sunos/mpi/mpich/lib/sun4/ch_p4 -I/local/arch/sun/sunos/mpi/mpich/lib/sun4/ch_p4"
+--with-trilinos=/local/homes/jmwille/TramontosTrilinos \
+CPPFLAGS="-I/local/arch/sun/sunos/mpi/mpich/lib/sun4/ch_p4 -I/local/arch/sun/sunos/mpi/mpich/lib/sun4/ch_p4"
  
