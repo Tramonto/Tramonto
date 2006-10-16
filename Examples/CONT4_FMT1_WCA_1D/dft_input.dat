@@ -108,7 +108,7 @@
     *Note for polymers: --- see note above.  Again replace Ncomp with Nblock_tot.
 
 ************** STATE POINT PARAMETERS ******************************************
-@  0.000001          Rho_b[Icomp], Icomp = 1,Ncomp  (or Npol_comp for polymers)
+@  0.0039          Rho_b[Icomp], Icomp = 1,Ncomp  (or Npol_comp for polymers)
 
    *Note for polymers:  
     Rho_b is indexed Npol_comp rather than Nblock_tot.  The code automatically
@@ -183,7 +183,7 @@
 @ 0.0           Xend_step[istep]
 @ 0.0           Rho_step[icomp][istep]
 
-@ 0    	        Restart:  0=no - use Iguess to determine initial guess, 
+@ 1    	        Restart:  0=no - use Iguess to determine initial guess, 
                           1=yes - use guess from dft_dens.dat, 
                           2=yes, but w/ step function at Xstart_step[0] 
                           3=yes for densities but not elec.pot or chem.pot.
@@ -219,7 +219,7 @@
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
 @ 10          Maximum # of Newton Iterations
-@ 1.0e-3  1.0e-8  0.1  Relative and Absolute convergence tolerances &  min_update
+@ 1.0e-3  1.0e-8  1.0  Relative and Absolute convergence tolerances &  min_update
 @ 2             Load balance switch (0=linear,1=box,2=weights,3=timings)
 ************ LINEAR SOLVER PARAMETERS ****************************************
 @   0   50         Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab)
@@ -238,9 +238,9 @@
                 Guess_range[0] is the surf separation to stop using 100% Rho_b
                 Guess_range[1] is the surf separation to start using 100% X_old
 ************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
-@  2      Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length
+@  4      Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length
                          3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
-@  3   1.0    Continuation parameter :  Scale_fac (for CONT_SCALE cases only)
+@  1   1.0    Continuation parameter :  Scale_fac (for CONT_SCALE cases only)
                         CONT_TEMP        1   /* State Parameters */
                         CONT_RHO_0       2
                         CONT_RHO_ALL     3
@@ -267,7 +267,7 @@
                                                                                                  
                         CONT_CRFAC        19      /* Miximg parameter for 2 cr files */
                                                                                                  
-@  0.0001  Parameter initial step size
-@  30  0.30  N Steps,  Step Control Aggressiveness  (0.0 = constant step)
-@  2       Second parameter for Spinodal and Binodal Calculations (Same list).
+@  0.03  Parameter initial step size
+@  10  0.00  N Steps,  Step Control Aggressiveness  (0.0 = constant step)
+@  3       Second parameter for Spinodal and Binodal Calculations (Same list).
 *********** END OF INPUT FILE ******************************************

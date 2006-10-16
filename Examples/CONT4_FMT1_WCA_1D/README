@@ -1,0 +1,45 @@
+/*! \file 
+ \brief 1D case - testing binodal continuation (LOCA library).
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case tests binodal continuation algorithms.  It finds the thermodynamic equilibrium point using density profiles generated with the CONT2 example. The example finds the phase transition  as a function of temperature and density. The run requests 10 steps and generates 11 solutions. Note that a restart with two density profiles is required for this case.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - dft_dens.dat
+   - dft_dens2.dat
+
+Key Output Parameters (Solution 1):
+   - niter=8
+   - temperature=0.7692308
+   - density=0.00345787
+   - adsorption[0]=2.045434
+   - adsorption2[0]=4.415472
+   - surf_ex_energy=-3.012769
+   .
+
+Key Output Parameters (Solution 5):
+   - niter=5
+   - temperature=0.8892308
+   - density=0.01050491
+   - adsorption[0]=2.218157
+   - adsorption2[0]=3.845895
+   - surf_ex_energy=-2.854336
+   .
+
+Key Output Parameters (Solution 10):
+   - niter=6
+   - temperature=1.0392308
+   - density=0.02880778
+   - adsorption[0]=2.445099
+   - adsorption[0]=3.154910
+   - surf_ex_energy=-2.606365
+   .
+
+*/
