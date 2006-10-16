@@ -1,0 +1,35 @@
+/*! \file 
+ \brief 1D case - testing continuation algorithms (LOCA library).
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: This case tests 0th order continuation varying all densities simultaneously.  The fluid is a 1-component Lennard-Jones fluid.  The run is set to compute 30 steps, but actually generates 23 solutions.  Data for the first, tenth, and last solution generated are provided here
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters (Solution 1):
+   - niter=9
+   - density=0.000001
+   - adsorption[0]=0.000422
+   - surf_ex_energy=-0.000415
+   .
+
+Key Output Parameters (Solution 10):
+   - niter=4
+   - density=0.00118464
+   - adsorption[0]=1.307014
+   - surf_ex_energy=-1.430849
+   .
+
+Key Output Parameters (Solution 23):
+   - niter=4
+   - density=0.00506405
+   - adsorption[0]=2.949208
+   - surf_ex_energy=-3.908667
+*/

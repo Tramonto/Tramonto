@@ -1,0 +1,35 @@
+/*! \file 
+ \brief 1D case - testing continuation algorithms (LOCA library).
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: This case tests arc length continuation algorithms, but is otherwise identical to the CONT1 case.  The run requests 30 steps, and in this case generates 29 solutions.  Note that this case captures a liquid-vapor transition.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters (Solution 1):
+   - niter=9
+   - density=0.000001
+   - adsorption[0]=0.000422
+   - surf_ex_energy=-0.000415
+   .
+
+Key Output Parameters (Solution 10):
+   - niter=4
+   - density=0.00042956
+   - adsorption[0]=0.817498
+   - surf_ex_energy=-0.317378
+   .
+
+Key Output Parameters (Solution 29):
+   - niter=4
+   - density=0.02578820
+   - adsorption[0]=5.085183
+   - surf_ex_energy=-11.082154
+*/
