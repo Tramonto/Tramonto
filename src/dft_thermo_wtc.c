@@ -76,7 +76,7 @@ void compute_bulk_nonlocal_wtc_properties(char *output_file1)
   int ibond,iseg,jseg,pol_number,type_jseg,nloop,iloop;
   double vol,area,x_dist;
   FILE *fp2=NULL;
-  if (Proc==0) printproc = TRUE;
+  if (Proc==0 && output_file1 !=NULL) printproc = TRUE;
   else printproc=FALSE;
   if (printproc) fp2 = fopen(output_file1,"a+");
 

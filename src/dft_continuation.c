@@ -614,7 +614,7 @@ void assign_parameter_tramonto(int cont_type, double param)
   output_file1 = "dft_out.lis";
   switch(cont_type){
      case CONT_MESH: 
-       printf("ERROR: Continuation Library cannot do mesh changes\n");
+       printf("ERROR: Continuation Library cannot do mesh size changes\n");
        exit(-1); break;
 
       case CONT_TEMP: 
@@ -949,7 +949,7 @@ static double get_init_param_value(int cont_type)
 
   switch(cont_type){
       case CONT_MESH: 
-       printf("ERROR: Continuation Library cannot do mesh changes\n");
+       printf("ERROR: Continuation Library cannot do mesh size changes\n");
        exit(-1); break;
 
       case CONT_TEMP: return Temp;

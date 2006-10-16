@@ -270,7 +270,7 @@ Fac_overlap_hs[1]=1.;
    if (Ipot_ff_c == COULOMB && Sten_Type[THETA_CHARGE])
       calc_charge_correlations_b();
 
-   if (Ncomp == 1 && Ipot_ff_n==2 && Iliq_vap != -2) P_over_po=Betap/p_coex;
+/*   if (Ncomp == 1 && Ipot_ff_n==2 && Iliq_vap != -2) P_over_po=Betap/p_coex;*/
    if (Proc==0 && print_flag && Iwrite!=NO_SCREEN){
       print_thermo(output_file1,betap_hs_DFT,betamu_hs);
       printf("-------------------------------------------------------------------------------\n");
@@ -287,7 +287,7 @@ Fac_overlap_hs[1]=1.;
       calc_charge_correlations_b();
 
  } /* end of   if (!Sten_Type[POLYMER_CR])   */
-   
+  return; 
 }
 /****************************************************************************/
 /* pot_parameters: calculate the cross terms (sigmaij,epsilonij,cutoffij)
