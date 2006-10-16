@@ -1,0 +1,23 @@
+/*! \file 
+ \brief 3D case - testing reflective boundaries in x and y and LHS of z.
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: Testing electrostatics hard sphere functionals and attractions simultaneously.  The resolution is rather low in order to facilitate a reasonably fast test even on a relatively slow platform.  The problem has one explicit charged surfaces with a surface charge density of qe/A=0.3, and one implicit reflected charged surface across a reflective boundary.  This is identical to BC7 except that the surface is in the x-y rather than the y-z plane.  This test is part of a series designed to test various boundary conditions.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=7
+   - adsorption[0]=0.089830
+   - adsorption[1]=0.689830
+   - adsorption[2]=2.583995
+   - surf_ex_energy=-1.886449
+   .
+*/
