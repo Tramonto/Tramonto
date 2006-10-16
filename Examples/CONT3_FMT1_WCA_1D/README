@@ -1,0 +1,39 @@
+/*! \file 
+ \brief 1D case - testing spinodal continuation (LOCA library).
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: This case tests spinodal continuation algorithms.  It finds the vapor phase spinodal from CONT2 as a function of temperature and density. The run requests 12 steps; and generates 12 solutions. Note that a restart is required for this case.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - dft_dens.dat
+
+Key Output Parameters (Solution 1):
+   - niter=9
+   - temperature=0.7692308
+   - density=0.00506755
+   - adsorption[0]=2.968585
+   - surf_ex_energy=-3.910545
+   .
+
+Key Output Parameters (Solution 5):
+   - niter=5
+   - temperature=0.8592142
+   - density=0.01015475
+   - adsorption[0]=2.779077
+   - surf_ex_energy=-3.347018
+   .
+
+Key Output Parameters (Solution 12):
+   - niter=5
+   - temperature=1.0691789
+   - density=0.03407212
+   - adsorption[0]=2.668835
+   - surf_ex_energy=-2.553416
+*/
