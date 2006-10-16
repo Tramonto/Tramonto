@@ -219,6 +219,7 @@ void compute_bulk_nonlocal_hs_properties(char *output_file1)
            for (i=0;i<4;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
                  Rhobar_b[i], Rhobar_b_LBB[i], Rhobar_b_RTF[i]);
         }
+        fclose(fp2);
   }
   return;
 }
