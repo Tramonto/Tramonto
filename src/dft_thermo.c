@@ -33,7 +33,7 @@ void print_thermo(char *,double,double *);
 void  thermodynamics( char *output_file1, int print_flag)
 {
    int icomp,jcomp,kcomp,i,ipol,iseg,ibond,jseg,kseg;
-   double betap_hs=0., betap_hs_tmp=0.,betamu_hs[NCOMP_MAX],betap_att,p_coex=0.0,betap_TC=0.0;
+   double betap_hs_PY=0., betap_hs_DFT=0.,betamu_hs[NCOMP_MAX],betap_att,p_coex=0.0,betap_TC=0.0;
    double y,dydxi2,dydxi3,sig2,sig3;
    char *yo = "thermodynamics";
 
@@ -141,8 +141,6 @@ Fac_overlap_hs[1]=1.;
   if (Type_poly==WTC){
      for (iseg=0;iseg<Nseg_tot;iseg++){
          Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
-printf("iseg=%d  icomp=%d Nmer_t_total=%d Rho_b=%9.6f Rho_seg_b=%9.6f\n",
-  iseg,Unk2Comp[iseg],Nmer_t_total[Unk2Comp[iseg]],Rho_b[Unk2Comp[iseg]],Rho_seg_b[iseg]);
          if (Lsteady_state){
             Rho_seg_LBB[iseg]=Rho_b_LBB[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
             Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
@@ -178,26 +176,25 @@ printf("iseg=%d  icomp=%d Nmer_t_total=%d Rho_b=%9.6f Rho_seg_b=%9.6f\n",
 
 
       if (Lsteady_state){
-         betap_hs = calc_hs_properties(betamu_hs,Rho_b_LBB);
+         betap_hs_DFT = calc_hs_properties_new(betamu_hs,Rho_b_LBB);
          for (icomp=0; icomp<Ncomp; icomp++) Betamu_LBB[icomp] += betamu_hs[icomp];    
 
-         betap_hs = calc_hs_properties(betamu_hs,Rho_b_RTF);
+         betap_hs_DFT = calc_hs_properties_new(betamu_hs,Rho_b_RTF);
          for (icomp=0; icomp<Ncomp; icomp++) Betamu_RTF[icomp] += betamu_hs[icomp];
       }
       else{
-         betap_hs = calc_hs_properties(betamu_hs,Rho_b);
-if (Proc==0) printf("PY pressure is %9.6f\n",betap_hs);
-         betap_hs_tmp = calc_hs_properties_new(betamu_hs,Rho_b);
-if (Proc==0) printf("pressure for this functional is %9.6f\n",betap_hs_tmp);
-         Betap += betap_hs;
+         betap_hs_PY = calc_hs_properties(betamu_hs,Rho_b);
+             if (Proc==0 && Iwrite != NO_SCREEN) printf("\tPY pressure is %9.6f\n",betap_hs_PY);
+         betap_hs_DFT = calc_hs_properties_new(betamu_hs,Rho_b);
+             if (Proc==0 && Iwrite != NO_SCREEN) printf("\tDF pressure is %9.6f\n",betap_hs_DFT);
+         Betap += betap_hs_DFT;
          for (icomp=0; icomp<Ncomp; icomp++){ 
              Betamu[icomp] += betamu_hs[icomp];
-             Betap-=Rho_b[icomp]; /* note that the calculation of betap_hs apparantly includes ideal terms .... check this */
+             Betap-=Rho_b[icomp]; /* calculation of betap_hs includes ideal terms */
          }
      }
    }
 
-printf("start mean field attractions calculation\n");
      /* now add in the mean field attraction contributions */
    if (Type_attr != NONE){
       if (Lsteady_state){
@@ -216,7 +213,6 @@ printf("start mean field attractions calculation\n");
       }
    }
 
-printf("start mean coulomb calculation\n");
      /* now add in an applied electric field if one exists */
    if (Lsteady_state && Type_coul != NONE){
       for (icomp=0; icomp<Ncomp; icomp++){
@@ -225,7 +221,6 @@ printf("start mean coulomb calculation\n");
       }
    }
 
-printf("start WTC calculations\n");
     /* now add in the WTC polymer contributions */
    if (Type_poly==WTC){
       if (Lsteady_state){
@@ -277,7 +272,7 @@ printf("start WTC calculations\n");
 
    if (Ncomp == 1 && Ipot_ff_n==2 && Iliq_vap != -2) P_over_po=Betap/p_coex;
    if (Proc==0 && print_flag && Iwrite!=NO_SCREEN){
-      print_thermo(output_file1,betap_hs,betamu_hs);
+      print_thermo(output_file1,betap_hs_DFT,betamu_hs);
       printf("-------------------------------------------------------------------------------\n");
    }
  
@@ -302,7 +297,7 @@ void pot_parameters(char *output_file1)
  int i,j,iw,jw, printproc=FALSE;
  double cut=0.0;
  FILE *fp2=NULL;
- if (Proc==0) printproc = TRUE;
+ if (Proc==0 && output_file1 != NULL) printproc = TRUE;
  else printproc=FALSE;
  if (printproc) fp2 = fopen(output_file1,"a+");
 
