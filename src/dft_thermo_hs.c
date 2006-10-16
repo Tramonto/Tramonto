@@ -68,7 +68,7 @@ calc_hs_properties_new:  This routine calculates the pressure and excess chemica
 double calc_hs_properties_new(double *betamu_hs,double *rho)
 {
    int icomp,i;
-   double sten_sum[4],betap_hs,n[4+NDIM_MAX];
+   double sten_sum[4],betap_hs,n[4+2*NDIM_MAX];
   
    n[0]=Rhobar_b[3];  n[1]=Rhobar_b[2];
    n[2]=Rhobar_b[1]; n[3]=Rhobar_b[0];
@@ -249,7 +249,7 @@ void sum_rhobar(double rho,int icomp, double *rhobar)
 /*****************************************************************************/
 void dphi_drb_bulk_thermo(double *rhobar,double *dphi_drb)
 {
- double n[4+NDIM_MAX], inv_n3[5],DOT_12,DOT_22;
+ double n[4+2*NDIM_MAX], inv_n3[5],DOT_12,DOT_22;
  int idim;
 
   n[3]=rhobar[0]; n[2]=rhobar[1];

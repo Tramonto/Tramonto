@@ -519,7 +519,7 @@ static struct RB_Struct d2phi_drb2_delta_rb_FMT3(int junk, int jnode_box,double 
 
 {
   struct RB_Struct tmp;
-  double n[4+NDIM_MAX],n3sq,n3cb,n3_4th,n2sq,n2cb;
+  double n[4+2*NDIM_MAX],n3sq,n3cb,n3_4th,n2sq,n2cb;
   double inv_n3[5],DOT_22,DOT_12,fac1,fac2,fac3,vector[NDIM_MAX];
   int idim,i2v,i1v;
 
@@ -740,7 +740,7 @@ static struct RB_Struct d2phi_drb2_theta_rb_FMT3(int junk, int jnode_box,double 
 					    int *offset)
 {
   struct RB_Struct tmp;
-  double n[4+NDIM_MAX],n3sq,n3cb,n3_4th,n2sq,n2cb;
+  double n[4+2*NDIM_MAX],n3sq,n3cb,n3_4th,n2sq,n2cb;
   double inv_n3[5],DOT_22,DOT_12,fac1,fac2,fac3;
   int idim,i2v,i1v;
 

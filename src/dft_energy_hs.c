@@ -45,7 +45,7 @@ double integrand_hs_freen_bulk(int iunk, int inode_box,double **x)
 double phispt(double *rho_bar)
 {  
   int idim,iv1,iv2;
-  double n[4+NDIM_MAX];
+  double n[4+2*NDIM_MAX];
   double phi_1=0.0,phi_2=0.0,phi_3,dot_12,dot_22;
    printf("in phistp\n"); 
   n[0] = rho_bar[3];
