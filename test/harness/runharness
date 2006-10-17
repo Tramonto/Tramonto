@@ -431,7 +431,6 @@ exit $exitStatus;
             $cmd  = "perl runtests ";
             $cmd .= "--tramonto-dir=$tramontoDir ";
             $cmd .= "--build-dir=".$buildOptions{'BUILD-DIR'}." ";
-            $cmd .= "--comm=".$buildOptions{'COMM'}." ";
             $cmd .= "--category=".$buildOptions{'TEST-CATEGORY'}." ";
             if ($buildOptions{'MAX-PROC'}) {    
                 $cmd .= "--max-proc=".$buildOptions{'MAX-PROC'}." ";   
