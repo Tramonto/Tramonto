@@ -90,7 +90,12 @@ void set_up_mesh (char *output_file1,char *output_file2)
        printf("%s: Setting up the mesh ... \n",yo);
   }
   t1 = MPI_Wtime();
-  if (Proc==0) fp1 = fopen(output_file1,"a+");
+  if (Proc==0) {
+    if( (fp1 = fopen(output_file1,"a+")) == NULL) {
+      printf("Can't open file %s\n", output_file1);
+      exit(1);
+    }
+  }
   
   /*
    * set up all the basic domain parameters for this run:
@@ -697,7 +702,12 @@ void setup_basic_box(FILE *fp1, int *update)
   int ijk_1D=0;
   FILE *fp2;
 
-  if (Iwrite==VERBOSE) fp2 = fopen("proc_mesh.dat","w+");
+  if (Iwrite==VERBOSE) {
+    if( (fp2 = fopen("proc_mesh.dat","w+")) == NULL) {
+      printf("Can't open file proc_mesh.dat\n");
+      exit(1);
+    }
+  }
   if (Ipot_ff_n > HARD_SPHERE) 
     {
      for (icomp=0; icomp<Ncomp; icomp++)
@@ -889,7 +899,12 @@ void boundary_setup(char *output_file1)
 {
   FILE *fp1=NULL;
 
-  if (Proc==0) fp1 = fopen(output_file1,"a+");
+  if (Proc==0) {
+    if( (fp1 = fopen(output_file1,"a+")) == NULL) {
+      printf("Can't open file %s\n", output_file1);
+      exit(1);
+    }
+  }
   if (Nwall != 0) {
 
     /*

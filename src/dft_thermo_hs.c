@@ -166,8 +166,12 @@ void compute_bulk_nonlocal_hs_properties(char *output_file1)
   FILE *fp2=NULL;
   if (Proc==0) printproc = TRUE;
   else printproc=FALSE;
-  if (printproc) fp2 = fopen(output_file1,"a+");
-
+  if (printproc) {
+    if( (fp2 = fopen(output_file1,"a+"))==NULL) {
+      printf("Can't open file %s\n", output_file1);
+      exit(1);
+    }
+  }
    /* compute bulk nonlocal densities needed for Rosenfeld terms */
   for (iunk=0; iunk<Nrho_bar; iunk++){
      Rhobar_b[iunk] = 0.0;

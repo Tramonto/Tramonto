@@ -104,7 +104,10 @@ void post_process (double **x,char *output_file3,int *niters,
    if (Proc==0) safe_free((void *) &Vext_old);
 
    if (Proc ==0){
-      fp = fopen(output_file3,"a");
+      if( (fp = fopen(output_file3,"a"))==NULL) {
+	printf("Can't open file %s\n", output_file3);
+	exit(1);
+      }
 
       if (Loca.method != -1) print_cont_variable(Loca.cont_type1,fp);
       if (Loca.method == 3 || Loca.method == 4) print_cont_variable(Loca.cont_type2,fp);

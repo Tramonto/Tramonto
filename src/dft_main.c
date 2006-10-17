@@ -546,7 +546,12 @@ void setup_nunk_per_node(char *output_file1)
   int NCMSField_unk;
   FILE *fp2=NULL;
 
-  if (Proc==0) fp2 = fopen(output_file1,"a+");
+  if (Proc==0) {
+    if( (fp2 = fopen(output_file1,"a+"))==NULL){
+      printf("Can't open file %s\n", output_file1);
+      exit(1);
+    }
+  }	
 
 /*in Makefile set switch for a polymer run an set unknowns accordingly*/
    

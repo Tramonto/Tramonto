@@ -299,8 +299,12 @@ void pot_parameters(char *output_file1)
  FILE *fp2=NULL;
  if (Proc==0 && output_file1 != NULL) printproc = TRUE;
  else printproc=FALSE;
- if (printproc) fp2 = fopen(output_file1,"a+");
-
+ if (printproc) {
+   if( (fp2 = fopen(output_file1,"a+")) == NULL) {
+     printf("Can't open file %s\n", output_file1);
+     exit(1);
+   }
+ }
  if (printproc) fprintf(fp2,"****** SUMMARY OF POTENTIAL PARAMETERS ************\n");
 
  for (i=0; i<Ncomp; i++){
@@ -454,7 +458,10 @@ void print_thermo(char *output_file1, double betap_hs,
   int icomp,jcomp,ipol,iseg;
    double betap_id;
 
-  fp2 = fopen(output_file1,"a+");
+  if( (fp2 = fopen(output_file1,"a+")) == NULL) {
+    printf("Can't open file %s\n", output_file1);
+    exit(1);
+  }
   fprintf(fp2,"\n!!!!!!!!!!!!! output from dft_thermo.c !!!!!!!!!!!!!!!!!!\n");
 
       fprintf(fp2,"\n     ********** component sphere based contributions ***********\n");

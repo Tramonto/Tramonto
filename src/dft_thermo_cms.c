@@ -153,10 +153,28 @@ void setup_polymer_cr()
 
    Last_nz_cr = lines;
    if (Proc==0) {
-     fp7  = fopen(Cr_file,"r");
-     if (Ncr_files>=2) fp8  = fopen(Cr_file2,"r");
-     if (Ncr_files>=3) fp9  = fopen(Cr_file3,"r");
-     if (Ncr_files==4) fp10  = fopen(Cr_file4,"r");
+     if( (fp7  = fopen(Cr_file,"r")) == NULL){
+       printf("Can't open file %s\n", Cr_file);
+	 exit(1);
+     }
+     if (Ncr_files>=2) {
+       if( (fp8  = fopen(Cr_file2,"r")) == NULL){
+	 printf("Can't open file %s\n", Cr_file2);
+	 exit(1); 
+       }
+     }
+     if (Ncr_files>=3) {
+       if( (fp9  = fopen(Cr_file3,"r")) == NULL){
+	 printf("Can't open file %s\n", Cr_file3);
+	 exit(1); 
+       }
+     }
+     if (Ncr_files==4) {
+       if( (fp10  = fopen(Cr_file4,"r")) == NULL){
+	 printf("Can't open file %s\n", Cr_file4);
+	 exit(1); 
+       }
+     }
 
      for (ir=1; ir<=lines; ir++){
        fscanf(fp7,"%lf",&r );
@@ -249,7 +267,10 @@ void setup_polymer_cr()
   /* add attractions to polymer c(r)  */
 
    if (Iwrite == VERBOSE && Proc==0){
-      fp7  = fopen("cr.out","w");
+      if( (fp7  = fopen("cr.out","w")) == NULL) {
+	printf("Can't open file cr.out\n");
+	exit(1);
+      }
       for (ir=0; ir <= Last_nz_cr; ++ir){
          fprintf(fp7,"%lf   ",ir*Deltar_cr);
          for (i=0; i < Ncomp; ++i)
@@ -288,7 +309,10 @@ void setup_polymer_cr()
        }
    }
    if (Iwrite == VERBOSE && Proc==0){
-      fp7  = fopen("cr.lj.out","w");
+      if( (fp7  = fopen("cr.lj.out","w"))==NULL) {
+	printf("Can't open file cr.lj.out\n");
+	exit(1);
+      }
       for (ir=0; ir <= Last_nz_cr; ++ir){
          fprintf(fp7,"%lf   ",ir*Deltar_cr);
          for (i=0; i < Ncomp; ++i)

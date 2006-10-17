@@ -77,8 +77,14 @@ void setup_wall_wall_potentials( int **nelems_w_per_w,
    * Allocate and zero the arrays we will calculate here
    */
 
-  fp10  = fopen("dft_uww.dat","w");
-  fp11  = fopen("dft_uww_link.dat","w");
+  if( (fp10  = fopen("dft_uww.dat","w")) == NULL) {
+    printf("Can't open file dft_uww.dat\n");
+    exit(1);
+  }
+  if( (fp11  = fopen("dft_uww_link.dat","w")) == NULL) {
+    printf("Can't open file dft_uww.dat\n");
+    exit(1);
+  }
 
    Uww = (double **) array_alloc (2,Nwall,Nwall, sizeof(double));
    Uww_link = (double **) array_alloc (2,Nlink,Nlink, sizeof(double));

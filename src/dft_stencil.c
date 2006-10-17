@@ -111,7 +111,10 @@ void calc_stencils(void)
     }
     t1 = MPI_Wtime();
     if (Iwrite == VERBOSE) ifp = fopen("stencil.out", "w");
-    ifp2 = fopen("dft_out.lis","a+");
+    if( (ifp2 = fopen("dft_out.lis","a+")) ==NULL){
+      printf("Can't open file dft_out.lis\n");
+      exit(1);
+    }
   }
 
  /*

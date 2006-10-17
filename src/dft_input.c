@@ -98,7 +98,7 @@ void read_input_file(char *input_file, char *output_file1)
 
      The input file is copied to the output file dft_out.lis */
 
-  /* Open the Files ALF also check for errors! */
+  /* Open the Files */
   if (Proc==0) {
     if( (fp  = fopen(input_file,"r")) == NULL) {
       printf("Can't open file %s\n", input_file);
@@ -344,7 +344,6 @@ void read_input_file(char *input_file, char *output_file1)
   if (Nwall_type != 0){
     if ( Proc==0) {
       for (idim=0; idim<Ndim; idim++){ minpos[idim] = 1000.; maxpos[idim]=-1000.;}
-      /* ALF: add error checking */
       if( (fp3  = fopen("dft_surfaces.dat","r")) == NULL) {
 	printf("Can't open file dft_surfaces.dat\n");
 	exit(1);

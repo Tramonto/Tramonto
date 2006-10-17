@@ -973,7 +973,10 @@ int find_length_of_file(char *filename)
   int c,nodes_old=0;
   FILE *fp;
   if (Proc==0) {
-    fp=fopen(filename,"r");
+    if( (fp=fopen(filename,"r")) == NULL){
+      printf("Can't open file %s\n", filename);
+      exit(1);
+    }
 
     nodes_old=0;
     while ( (c=getc(fp)) != EOF){
@@ -1003,7 +1006,10 @@ static void read_in_a_file(int iguess,char *filename)
 
 
                     /* open the dft_dens.dat file */
-   fp5=fopen(filename,"r");
+   if( (fp5=fopen(filename,"r")) == NULL){
+     printf("Can't open file %s\n", filename);
+     exit(1);
+   }
 
                    /* identify which unknowns are found in this file and in what order */
     header=0;
@@ -1095,10 +1101,16 @@ static void read_in_a_file(int iguess,char *filename)
   for (index=0; index<Nodes_old; index++) {
 
     if (open_now){
-       fp5=fopen(filename,"r");
+      if( (fp5=fopen(filename,"r")) == NULL){
+	printf("Can't open file %s\n", filename);
+	exit(1);
+      }
        if (Type_poly != NONE && Type_poly!=WTC){
          sprintf(filename2,"%sg",filename);
-         fp6=fopen(filename2,"r");
+	 if( (fp6=fopen(filename2,"r")) == NULL){
+	   printf("Can't open file %s\n", filename2);
+	   exit(1);
+	 }
        }
        open_now=FALSE;
                                       /* discard header when ready to read */
