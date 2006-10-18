@@ -31,7 +31,6 @@ RUN (hrothgar-nightly) {
     BUILD-LABEL         = default;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = linux-hrothgar;
-    MAKE-COMMAND        = make -j2;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 4;
     MPI-START           = lamboot;
