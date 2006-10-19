@@ -36,7 +36,7 @@ RUN (hrothgar-nightly) {
     MPI-START           = lamboot;
     MPI-PING            = mpitask;
     MPI-STOP            = lamhalt;
-    TTR-DIR             = /usr/people/faculty/other/mphenow/TramontoTestHarness/TramontoTestResults;
+    TTR-DIR             = /common/TramontoTestHarness/TramontoTestResults;
     SSG-USERNAME        = mnpheno;
 
 }
