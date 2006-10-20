@@ -24,7 +24,7 @@ Prerequisites:
         MPI                       http://www.lam-mpi.org
                                   http://www-unix.mcs.anl.gov/mpi/mpich2
                                   http://www.open-mpi.org
-        Trilinos (6.0.0 or later) http://software.sandia.gov/trilinos
+        Trilinos (7.0.0 or later) http://software.sandia.gov/trilinos
     
     While BLAS, LAPACK and MPI could be available on your system, you will
     most likely have to build Trilinos yourself.  Trilinos contains several
