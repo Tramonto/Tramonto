@@ -63,6 +63,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
    double p_tilde_iwall_idim,
      f_elec_iwall_idim,force;
    int idim,iwall,i;
+   static int first=TRUE;
 
    p_tilde = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
    if (Ipot_wf_c == 1) {
@@ -71,13 +72,15 @@ void calc_force(FILE *fp, double **x,double fac_area)
       for (idim=0;idim<Ndim;idim++)  f_elec[iwall][idim]=0.0;
    }
 
+   if(!first) {
+
     if (!Lhard_surf && Restart != 4) integrate_rho_vdash(x,p_tilde);
     else{
        sum_rho_wall(x, p_tilde);
 /*       rho_sum_mid = sum_rho_midplane(x);
          rho_sum_tot = gsum_double(rho_sum_mid);*/
     }
-
+   }
     /* calculate the electrostatic contribution to the force */
 /*    if (Ipot_wf_c == 1) force_elec(x,f_elec);*/
 
@@ -103,11 +106,12 @@ void calc_force(FILE *fp, double **x,double fac_area)
    divide the sum total by the surface area of iwall */
 
   /* get sum of p_tilde[iwall][idim] and if you're proc #0 print it !! */
-  if (Proc == 0 && Iwrite != NO_SCREEN)
+  if (!first && Proc == 0 && Iwrite != NO_SCREEN)
       printf("\n----------------------------------------------------------\n");
         
   for (i=0; i<Nlink; i++){
      for (idim=0; idim<Ndim; idim++){
+       if(!first) {
 
          f_elec_iwall_idim = 0.0; 
          if (Ipot_wf_c == 1) 
@@ -144,17 +148,21 @@ void calc_force(FILE *fp, double **x,double fac_area)
             printf("\t\t f_elec [][]: %9.6f\n",f_elec_iwall_idim);
             printf("\t\t total force: %9.6f\n",force);
             }
-
-            if (i==0 && idim == Orientation[WallType[0]]) 
-                   fprintf(fp,"%12.9f  ", force);
+	 } 
+       } /* end of if(!first) */
+       if(Proc==0) {
+	 if (i==0 && idim == Orientation[WallType[0]]) 
+	   print_to_file(fp,force,"force",first);
+	   /* fprintf(fp,"%12.9f  ", force);
 /*                   fprintf(fp,"%12.9f  %12.9f  %12.9f  ",
                           force,
                           p_tilde_iwall_idim/area,
                           f_elec_iwall_idim/area);*/
-         }
+       }
      }
   }
 
+  if(first) first = FALSE;
 
   if (Proc == 0 &&Iwrite != NO_SCREEN){
         printf("----------------------------------------------------------\n");

@@ -51,7 +51,9 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
   int inode_minus1,inode_plus1,ijk_minus1[3],ijk_plus1[3];
   double grad_mu[NCOMP_MAX],current,flux[NCOMP_MAX];
   FILE *ifp;
+  static int first=TRUE;
 
+  if(!first) {
   ifp = fopen(output_flux,"w");
   for (inode=0; inode < Nnodes; inode++ ){
       node_to_ijk(inode,ijk);
@@ -111,8 +113,9 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
     } /* end of test for boundary node */
   }
   fclose(ifp);
-  printf("got through first part of calculations\n");
+  if(Proc==0) printf("got through first part of calculations\n");
 
+  } 
 /*
   for (idim=0; idim<Ndim; idim++) ijk[idim] = 0.5*Nodes_x[idim];
   loc_inode = ijk_to_node(ijk);

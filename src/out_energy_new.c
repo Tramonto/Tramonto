@@ -36,9 +36,12 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
 static int first=TRUE,loc_inode;
 double energy;
 int iunk;
+int lfirst;
 
        double L,L1,L2,sum,energy_RR,energy_RR_plus,energy_RR_minus,derivative_neg,lambda;
        int icomp;
+
+     
 
   if (Ndim==1 && Iwrite==VERBOSE){
     Integration_profile = (double *) array_alloc(1, Nnodes_per_proc, sizeof(double));
@@ -48,7 +51,7 @@ int iunk;
   }
   else Integration_profile=NULL;
 
-  if (Proc==0&&Iwrite != NO_SCREEN) printf("---------------------- FREE ENERGY ----------------------------\n");
+  if (!first && Proc==0 && Iwrite != NO_SCREEN) printf("---------------------- FREE ENERGY ----------------------------\n");
 
     omega_sum=0.0;
     omega_s_sum=0.0;
@@ -57,6 +60,7 @@ int iunk;
     if (Type_poly==NONE || Type_poly ==WTC){
                                     /* IDEAL GAS CONTRIBUTIONS */
 
+        if(!first) {
        omega_id=omega_id_b=0.0;
        for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
           if (fabs(Charge_f[iunk-Phys2Unk_first[DENSITY]])<1.e-15){
@@ -154,7 +158,10 @@ int iunk;
             sum=0;
             for (icomp=0; icomp<Ncomp;icomp++) sum+=Charge_f[icomp]*Charge_f[icomp]*Rho_b[icomp];
             lambda = sqrt(Temp_elec/(4*PI*sum));
-            printf("Debye wave length: lambda=%9.6f\n",lambda);
+	    if (Proc==0 && Iwrite != NO_SCREEN) {
+	      print_to_screen(lambda, "Debye wave length");
+	    }
+            /* printf("Debye wave length: lambda=%9.6f\n",lambda);*/
 
          /* Reiner and Radke method for computing the free energy of a PB electrolyte near a charged surface */
 
@@ -265,14 +272,18 @@ int iunk;
         printf("\t----------------------------------------\n");
         print_to_screen(omega_sum,"TOTAL GRAND POTENTIAL");
         print_to_screen(omega_s_sum,"TOTAL SURF EX FREE ENERGY");
-        if (fp !=NULL) print_to_file(fp,omega_sum,"omega",first);
-        if (fp !=NULL) print_to_file(fp,omega_s_sum,"omega_s",first);
         printf("---------------------------------------------------------------\n");
       }
+	} /*end of if(!first) */
+	if (Proc==0 && Iwrite != NO_SCREEN){
+	        if (fp !=NULL) print_to_file(fp,omega_sum,"omega",first);
+		if (fp !=NULL) print_to_file(fp,omega_s_sum,"omega_s",first);
+	}
     }
 
                                     /* CMS FREE ENERGY */
     if (Type_poly == CMS || Type_poly==CMS_GAUSSIAN || Type_poly==CMS_SCFT){
+      if(!first) {
        integrateInSpace_SumInComp(&integrand_CMS_freen,Nel_hit2,x,Integration_profile);
        omega_CMS = Temporary_sum;
        if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_CMS,"CMS FREE ENERGY");
@@ -288,13 +299,20 @@ int iunk;
        if (Proc==0 && Iwrite != NO_SCREEN){
            printf("\t----------------------------------------\n");
            print_to_screen(omega_s_sum,"FREE ENERGY REL TO BULK");
-           if (fp !=NULL) print_to_file(fp,omega_s_sum,"del_omega",first);
            printf("---------------------------------------------------------------\n");
        }
+      }
+      if (Proc==0 && Iwrite != NO_SCREEN){
+	if (fp !=NULL) print_to_file(fp,omega_s_sum,"del_omega",first);
+      }
     }
-    energy= omega_s_sum;
+    energy = omega_s_sum;
 
-    if (first) first=FALSE;
+    lfirst = FALSE;
+    if (Proc==0 && fp!=NULL) lfirst = TRUE;
+    
+    MPI_Bcast(&lfirst,1,MPI_INT,0,MPI_COMM_WORLD);
+    if (first && lfirst) first=FALSE;
 
     if (Integration_profile != NULL){
       print_freen_profile_1D(Integration_profile,"dft_freen_prof.dat");

@@ -26,9 +26,12 @@ void calc_adsorption(FILE *fp,double **x)
   double ads[NCOMP_MAX],ads_ex[NCOMP_MAX],ads_b[NCOMP_MAX];
   static int first=TRUE;
 
+
   Integration_profile=NULL;
   if (Type_poly==WTC) nloop=Nseg_tot;
   nloop=Ncomp;
+
+  if(!first) {
 
   if (Proc==0 &&Iwrite != NO_SCREEN) printf("-------------------- ADSORPTION -------------------------------\n");
   for (icomp=0;icomp<nloop;icomp++) ads[icomp]=0.0;
@@ -38,13 +41,16 @@ void calc_adsorption(FILE *fp,double **x)
      integrateInSpace(&integrand_adsorption,iunk,Nel_hit2,x,Integration_profile);
      ads[icomp]+=Temporary_sum;
   }
+  }
+
  if (Proc==0 && Iwrite != NO_SCREEN){
      for (icomp=0;icomp<nloop;icomp++){
-          print_to_screen_comp(icomp,ads[icomp],"ADSORPTION");
+          if(!first) print_to_screen_comp(icomp,ads[icomp],"ADSORPTION");
           if (fp !=NULL) print_to_file_comp(fp,icomp,ads[icomp],"ads",first);
       }
   }    
 
+ if(!first) {
   for (icomp=0;icomp<nloop;icomp++) ads_b[icomp]=0.0;
   for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
      if (Type_poly==WTC)
@@ -54,9 +60,11 @@ void calc_adsorption(FILE *fp,double **x)
      ads_b[icomp]+=Temporary_sum;
      ads_ex[icomp]=ads[icomp]-ads_b[icomp];
   }
+ }
+
   if (Proc==0 && Iwrite != NO_SCREEN){
      for (icomp=0;icomp<nloop;icomp++){
-        print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
+        if(!first) print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
         if (fp !=NULL) print_to_file_comp(fp,icomp,ads_ex[icomp],"ads_ex",first);
      }    
   }
@@ -69,15 +77,17 @@ void calc_fluid_charge(FILE *fp,double **x)
 {
  static int first=TRUE;
 
- if (Proc==0&&Iwrite != NO_SCREEN) printf("-------------------- CHARGE     -------------------------------\n");
-  Integration_profile=NULL;
+ if(!first) {
+   if (Proc==0&&Iwrite != NO_SCREEN) printf("-------------------- CHARGE     -------------------------------\n");
+   Integration_profile=NULL;
 
- integrateInSpace_SumInComp(&integrand_fluid_charge,Nel_hit2,x,Integration_profile);
+   integrateInSpace_SumInComp(&integrand_fluid_charge,Nel_hit2,x,Integration_profile);
+ }
 
  if (Proc==0 && Iwrite != NO_SCREEN){
-      print_to_screen(Temporary_sum,"CHARGE IN FLUID");
+      if(!first) print_to_screen(Temporary_sum,"CHARGE IN FLUID");
       if (fp !=NULL) print_to_file(fp,Temporary_sum,"charge",first);
-      printf("---------------------------------------------------------------\n");
+      if(!first) printf("---------------------------------------------------------------\n");
  }
  if (first) first=FALSE;
  return;

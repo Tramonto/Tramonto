@@ -679,7 +679,7 @@ void print_to_screen_comp(int icomp,double val,char *var_label)
 void print_to_file(FILE *fp,double val,char *var_label,int first)
 {
   if (first){ 
-              fprintf(fp,"%s=%9.6f  ",var_label,val); 
+              fprintf(fp,"%s  ",var_label); 
   }
   else{       fprintf(fp,"%9.6f  ",val); }
   return;
@@ -688,7 +688,7 @@ void print_to_file(FILE *fp,double val,char *var_label,int first)
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first)
 {
   if (first){
-     fprintf(fp,"%s[%d]=%9.6f  ",var_label,icomp,val); return;
+     fprintf(fp,"%s[%d]  ",var_label,icomp); return;
   }
   else{
      fprintf(fp,"%9.6f  ",val); return;

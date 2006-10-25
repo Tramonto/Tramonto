@@ -59,6 +59,7 @@ void post_process (double **x,char *output_file3,int *niters,
   double t1,energy;
   double fac_area,fac_vol;
   int i,iwall,idim;
+  int out_loop;
   FILE *fp=NULL;
   static int first=TRUE;
 
@@ -103,26 +104,45 @@ void post_process (double **x,char *output_file3,int *niters,
 
    if (Proc==0) safe_free((void *) &Vext_old);
 
+
+   /* open dft_output.dat file */
    if (Proc ==0){
       if( (fp = fopen(output_file3,"a"))==NULL) {
 	printf("Can't open file %s\n", output_file3);
 	exit(1);
       }
+   }
 
-      if (Loca.method != -1) print_cont_variable(Loca.cont_type1,fp);
-      if (Loca.method == 3 || Loca.method == 4) print_cont_variable(Loca.cont_type2,fp);
-      if (Nruns > 1)  print_cont_variable(0,fp);
+  /* begin extra loop here */
+   if (first) out_loop = 2;
+   else  out_loop = 1;
+
+   for(i=0; i<out_loop; i++) {
+
+   if (Proc == 0) {
+      if (Loca.method != -1) {
+	if(first) print_cont_type(Loca.cont_type1,fp);
+	else print_cont_variable(Loca.cont_type1,fp);
+      }
+      if (Loca.method == 3 || Loca.method == 4) {
+	if(first) print_cont_type(Loca.cont_type2,fp);
+	else print_cont_variable(Loca.cont_type2,fp);
+      }
+      if (Nruns > 1) {
+	if(first) print_cont_type(0,fp);
+	else print_cont_variable(0,fp);
+      }
    }
 
    if (Proc==0){
       if (first){
-           fprintf(fp,"niters=%d   time=%9.4f   ",*niters,*time_save);
-           first=FALSE;
+           fprintf(fp,"niters  time  ");
       }
       else fprintf(fp,"%d  %9.4f  ",*niters,*time_save);
    }
 
-   setup_domain_multipliers();
+   if(!first) 
+     setup_domain_multipliers();
 
    /* calculate multiplicative factors that result         !!!!!!!!!!!remove this chuck ASAP
       from the presence of reflective boundaries...
@@ -146,21 +166,28 @@ void post_process (double **x,char *output_file3,int *niters,
        }
        }
    }
+
    calc_adsorption(fp,x);
+   
    if (Type_coul != NONE) calc_fluid_charge(fp,x); 
 
 /*   if (Ipot_wf_n != LJ12_6_WALL &&  
          Ipot_wf_n != LJ_CHARGED_ATOMS && Ipot_wf_n != LJ_ATOMIC) */
-        calc_force(fp,x,fac_area);   
+   calc_force(fp,x,fac_area);   
                             /* haven't implemented V_dash 
                                for 12-6 integrated wall yet */
 
    energy=calc_free_energy(fp,x); 
 
    if (Lsteady_state && Proc==0) calc_flux(fp,output_flux,X_old);
+
+   if (Proc==0) fprintf(fp,"  \n");
+
+   if(first) first = FALSE;
+
+   } /* end of loop over out_loop */
    
    if (Proc==0) {
-      fprintf(fp,"  \n");
       fclose(fp);
    }
 
@@ -295,16 +322,33 @@ void print_cont_variable(int cont_type,FILE *fp)
 }
 /******************************************************************************/
 /*print_cont_type: Here print the type of the variable that
-                     is changing in a given run */
+                     is changing in a given run 
+		     Note the logic here should mirror that in print_cont_variable() above
+*/
 void print_cont_type(int cont_type,FILE *fp)
 {
+  int i,idim,icomp,iwall,nloop;
 
    switch(cont_type){
       case CONT_MESH: 
-         if (Print_mesh_switch == SWITCH_SURFACE_SEP) 
-                fprintf(fp,"SURF SEP:  ");
-         else if (Nwall > 0)   fprintf(fp,"WALL COORDS:  ");
-         else fprintf(fp,"DOMAIN SIZE:   ");
+	if (Print_mesh_switch == SWITCH_SURFACE_SEP && (Nwall==1 || Nwall==2)) {
+	  idim = Plane_new_nodes;
+	  if(Nwall==1 && Type_bc[idim][0] != REFLECT && Type_bc[idim][1] != REFLECT) {
+	    for(idim=0; idim<Ndim; idim++)
+                fprintf(fp,"WallPos[%d][0]  ", idim);
+	  }
+	  else fprintf(fp, "Surf_sep  ");
+	}
+	else if (Nwall > 0) {  
+	   for (iwall=0; iwall<Nwall; iwall++) {
+	     for(idim=0; idim<Ndim; idim++)
+	       fprintf(fp,"WallPos[%d][%d]  ", idim,iwall);
+	   }
+	 }
+	 else {
+	   for(idim=0; idim<Ndim; idim++)
+	     fprintf(fp,"Size[idim=%d]  ",idim);
+	 }
 
          break;
 
@@ -313,32 +357,38 @@ void print_cont_type(int cont_type,FILE *fp)
 	 else fprintf(fp,"TEMP_ELEC  "); 
          break;
 
+      case CONT_CRFAC:
+	fprintf(fp, "Crfac  "); break;
       case CONT_SCALE_RHO:
-         fprintf(fp,"Scale_fac_rho:  "); break;
+         fprintf(fp,"Scale_fac_rho  "); break;
       case CONT_RHO_0:
       case CONT_RHO_ALL:
       case CONT_LOG_RHO_0:
       case CONT_LOG_RHO_ALL:
+	nloop=Ncomp;
+	if (Type_poly==WTC) nloop=Nseg_tot;
+	for (i=0; i<nloop; i++) fprintf(fp,"Rho_b[%d]  ", i);
+	for (i=0; i<nloop; i++) fprintf(fp, "Rho_b[%d]/Rho_sum  ", i);
          if (Print_rho_switch == SWITCH_RELP && Ncomp == 1)
-              fprintf(fp,"P_over_Po:   "); 
+              fprintf(fp,"P_over_Po  "); 
          else if (Print_rho_switch == SWITCH_ION && Ipot_ff_c == COULOMB) 
-              fprintf(fp,"KAPPA:   "); 
+              for(i=0; i<nloop; i++) fprintf(fp,"KAPPA[%d]   ",i); 
          else if (Print_rho_switch == SWITCH_MU)
-              fprintf(fp,"CHEM.POTS:  ");
-         else fprintf(fp,"RHO(S):   "); 
-
+              for(i=0; i<nloop; i++) fprintf(fp,"CHEM_POT[%d]  ",i);
          break;
 
       case CONT_SCALE_EPSW:
          fprintf(fp,"Scale_fac_epsw:  "); break;
       case CONT_EPSW_0:
       case CONT_EPSW_ALL:
-         if (Mix_type==0) fprintf(fp,"Eps_w[0]:  ");
-         else              fprintf(fp,"Eps_ww[0][0]:  "); 
+         if (Mix_type==0) fprintf(fp,"Eps_w[0]  ");
+         else              fprintf(fp,"Eps_ww[0][0]  "); 
          break;
 
       case CONT_SCALE_EPSWF:
-         fprintf(fp,"Scale_fac_epswf:  "); break;
+         fprintf(fp,"Scale_fac_epswf  "); 
+	 for(i=0; i<Ncomp; i++) fprintf(fp, "Eps_wf[%d][0]  ",i);
+	 break;
       case CONT_EPSWF00:
       case CONT_EPSWF_ALL_0:
 /*         fprintf(fp,"Eps_wf[0][0]:  "); break;*/
@@ -353,6 +403,11 @@ void print_cont_type(int cont_type,FILE *fp)
       case CONT_SCALE_CHG:
          fprintf(fp,"Scale_fac_chg:  "); break;
 
+   case CONT_SEMIPERM:
+     fprintf(fp, "Vext_membrane[0][0]  "); break;
+
+   case CONT_WALLPARAM:
+     fprintf(fp, "WallParam[1]  "); break;
 
    }
    return;
