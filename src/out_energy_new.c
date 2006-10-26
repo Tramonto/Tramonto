@@ -41,7 +41,6 @@ int lfirst;
        double L,L1,L2,sum,energy_RR,energy_RR_plus,energy_RR_minus,derivative_neg,lambda;
        int icomp;
 
-     
 
   if (Ndim==1 && Iwrite==VERBOSE){
     Integration_profile = (double *) array_alloc(1, Nnodes_per_proc, sizeof(double));
@@ -56,11 +55,18 @@ int lfirst;
     omega_sum=0.0;
     omega_s_sum=0.0;
 
+    /* lfirst: extra flag to keep track when we call this routine from somewhere 
+       other than dft_out_main.c, in which case fp == NULL */
+    lfirst = FALSE;
+    if (Proc==0 && fp!=NULL) lfirst = TRUE;
+    MPI_Bcast(&lfirst,1,MPI_INT,0,MPI_COMM_WORLD);
 
     if (Type_poly==NONE || Type_poly ==WTC){
                                     /* IDEAL GAS CONTRIBUTIONS */
 
-        if(!first) {
+      /* if we are calling this for the first time from the post-processing, don't
+	 calculate all the integrals; otherwise do calculate */
+      if(!first || !lfirst) {
        omega_id=omega_id_b=0.0;
        for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
           if (fabs(Charge_f[iunk-Phys2Unk_first[DENSITY]])<1.e-15){
@@ -268,13 +274,15 @@ int lfirst;
           omega_s_sum += omega_WTC_surf_ex;
        }
 
+      } /* end of if(!first || !lfirst) */
+
       if (Proc==0 && Iwrite != NO_SCREEN){
         printf("\t----------------------------------------\n");
         print_to_screen(omega_sum,"TOTAL GRAND POTENTIAL");
         print_to_screen(omega_s_sum,"TOTAL SURF EX FREE ENERGY");
         printf("---------------------------------------------------------------\n");
       }
-	} /*end of if(!first) */
+
 	if (Proc==0 && Iwrite != NO_SCREEN){
 	        if (fp !=NULL) print_to_file(fp,omega_sum,"omega",first);
 		if (fp !=NULL) print_to_file(fp,omega_s_sum,"omega_s",first);
@@ -283,7 +291,7 @@ int lfirst;
 
                                     /* CMS FREE ENERGY */
     if (Type_poly == CMS || Type_poly==CMS_GAUSSIAN || Type_poly==CMS_SCFT){
-      if(!first) {
+      if(!first || !lfirst) {
        integrateInSpace_SumInComp(&integrand_CMS_freen,Nel_hit2,x,Integration_profile);
        omega_CMS = Temporary_sum;
        if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_CMS,"CMS FREE ENERGY");
@@ -295,28 +303,28 @@ int lfirst;
 
        omega_sum += omega_CMS;
        omega_s_sum += omega_CMS_surf_ex;
+      }
 
        if (Proc==0 && Iwrite != NO_SCREEN){
            printf("\t----------------------------------------\n");
            print_to_screen(omega_s_sum,"FREE ENERGY REL TO BULK");
            printf("---------------------------------------------------------------\n");
        }
-      }
-      if (Proc==0 && Iwrite != NO_SCREEN){
-	if (fp !=NULL) print_to_file(fp,omega_s_sum,"del_omega",first);
-      }
+    
+       if (Proc==0 && Iwrite != NO_SCREEN){
+	 if (fp !=NULL) print_to_file(fp,omega_s_sum,"del_omega",first);
+       }
     }
+
     energy = omega_s_sum;
 
-    lfirst = FALSE;
-    if (Proc==0 && fp!=NULL) lfirst = TRUE;
-    
-    MPI_Bcast(&lfirst,1,MPI_INT,0,MPI_COMM_WORLD);
     if (first && lfirst) first=FALSE;
+ 
 
     if (Integration_profile != NULL){
       print_freen_profile_1D(Integration_profile,"dft_freen_prof.dat");
       safe_free ((void *)&Integration_profile);
     }
+
   return(energy);
 }

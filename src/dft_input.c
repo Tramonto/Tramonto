@@ -1674,7 +1674,7 @@ if (Proc==0) printf("tagging symmetric segments on the chain for removal from th
   if (Proc==0) {
     read_junk(fp,fp2);
     fscanf(fp,"%d %lf",&Coarser_jac,&Jac_grid);
-    fprintf(fp2,"%d %f",Coarser_jac,Jac_grid);
+    fprintf(fp2,"%d %f ",Coarser_jac,Jac_grid);
   }
   MPI_Bcast(&Coarser_jac,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Jac_grid,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -1682,7 +1682,7 @@ if (Proc==0) printf("tagging symmetric segments on the chain for removal from th
   if (Proc==0) {
     read_junk(fp,fp2);
     fscanf(fp,"%d %lf",&Lcut_jac,&Jac_threshold);
-    fprintf(fp2,"%d %f",Lcut_jac,Jac_threshold);
+    fprintf(fp2,"%d %f ",Lcut_jac,Jac_threshold);
   }
   MPI_Bcast(&Lcut_jac,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Jac_threshold,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -1714,7 +1714,7 @@ if (Proc==0) printf("tagging symmetric segments on the chain for removal from th
   }
   MPI_Bcast(&Load_Bal_Flag,1,MPI_INT,0,MPI_COMM_WORLD);
 
-  /* Nonlinear Solver Parameters */
+  /* Linear Solver Parameters */
 
   if (Proc==0) {
     read_junk(fp,fp2);
@@ -1722,7 +1722,7 @@ if (Proc==0) printf("tagging symmetric segments on the chain for removal from th
     fscanf(fp,"%d ", &Az_solver);
     if (Az_solver == 0) fscanf(fp,"%d ", &Az_kspace);
     else Az_kspace=-1;
-    fprintf(fp2,"%d  %d ",Az_solver, Az_kspace);
+    fprintf(fp2,"%d  %d  %d ", L_Schur, Az_solver, Az_kspace);
   }
   MPI_Bcast(&L_Schur,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Az_solver,1,MPI_INT,0,MPI_COMM_WORLD);
@@ -1736,7 +1736,7 @@ if (Proc==0) printf("tagging symmetric segments on the chain for removal from th
   if (Proc==0) {
     read_junk(fp,fp2);
     fscanf(fp,"%d  %lf", &Az_preconditioner, &Az_ilut_fill_param);
-    fprintf(fp2,"%d  %f",Az_preconditioner, Az_ilut_fill_param);
+    fprintf(fp2,"%d  %f ",Az_preconditioner, Az_ilut_fill_param);
   }
   MPI_Bcast(&Az_preconditioner,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Az_ilut_fill_param,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -1772,7 +1772,7 @@ if (Proc==0) printf("tagging symmetric segments on the chain for removal from th
          read_junk(fp,fp2);
          fscanf(fp,"%d",&Plane_new_nodes);
          fscanf(fp,"%d",&Pos_new_nodes);
-         fprintf(fp2,"%d  %d",Plane_new_nodes,Pos_new_nodes);
+         fprintf(fp2,"%d  %d ",Plane_new_nodes,Pos_new_nodes);
        }
        MPI_Bcast(&Plane_new_nodes,1,MPI_INT,0,MPI_COMM_WORLD);
        MPI_Bcast(&Pos_new_nodes,1,MPI_INT,0,MPI_COMM_WORLD);
@@ -1780,7 +1780,7 @@ if (Proc==0) printf("tagging symmetric segments on the chain for removal from th
          read_junk(fp,fp2);
            fscanf(fp,"%lf",&Guess_range[0]);
            fscanf(fp,"%lf",&Guess_range[1]);
-	   fprintf(fp2,"%f  %f",Guess_range[0],Guess_range[1]);
+	   fprintf(fp2,"%f  %f ",Guess_range[0],Guess_range[1]);
        }
       MPI_Bcast(Guess_range,2,MPI_DOUBLE,0,MPI_COMM_WORLD);
       
@@ -1817,7 +1817,6 @@ if (Proc==0) printf("tagging symmetric segments on the chain for removal from th
   Loca.cont_type1 = itmp;
   if (Proc==0) fprintf(fp2,"%d  %g",Loca.cont_type1,Scale_fac);
 
-  /* ALF: fix reading of input */
   if (Proc==0) {
     read_junk(fp,fp2);
     fscanf(fp,"%lf", &dtmp);
@@ -1980,7 +1979,6 @@ void error_check(void)
   }
 
 
-
   if (Ipot_ff_n > 2){
      printf ("\nSorry, your choice for the fluid-fluid interaction is not available\n");
      printf ("Ipot_ff_n: %d\n", Ipot_ff_n);
@@ -1992,6 +1990,11 @@ void error_check(void)
         printf ("\nSorry, your choice for the wall-fluid interaction is not available\n");
         printf ("Ipot_wf_n[%d]: %d\n", i,Ipot_wf_n[i]);
         exit (-1);
+     }
+     if(Lhard_surf && Ipot_wf_n[i] != VEXT_HARD) {
+       printf ("\nSorry, you cannot have both hard and soft walls at the same time\n");
+       printf ("Ipot_wf_n[%d]: %d\n", i, Ipot_wf_n[i]);
+       exit (-1);
      }
   }
 
@@ -2077,7 +2080,7 @@ void error_check(void)
     }
   }
 
-  /* ALF: temporary change for polymers */
+
   if (Iguess1 == 6 && Iliq_vap !=3 && Lsteady_state == FALSE && !Sten_Type[POLYMER_CR]){
     printf("\nERROR: If Iguess = 6 then Iliq_vap should be 3\n");
     exit(-1);
