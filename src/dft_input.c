@@ -102,11 +102,11 @@ void read_input_file(char *input_file, char *output_file1)
   if (Proc==0) {
     if( (fp  = fopen(input_file,"r")) == NULL) {
       printf("Can't open file %s\n", input_file);
-      exit(1);
+      exit(-1);
     }
     if( (fp2 = fopen(output_file1,"w+")) == NULL) {
       printf("Can't open file %s\n", output_file1);
-      exit(1);
+      exit(-1);
     }
     fprintf(fp2,"test out the printing %s\n",output_file1);
   }
@@ -346,7 +346,7 @@ void read_input_file(char *input_file, char *output_file1)
       for (idim=0; idim<Ndim; idim++){ minpos[idim] = 1000.; maxpos[idim]=-1000.;}
       if( (fp3  = fopen("dft_surfaces.dat","r")) == NULL) {
 	printf("Can't open file dft_surfaces.dat\n");
-	exit(1);
+	exit(-1);
       }
       for (iwall=0; iwall<Nwall; iwall++){
 	fscanf(fp3,"%d  %d",&WallType[iwall], &Link[iwall]);
@@ -916,7 +916,7 @@ void read_input_file(char *input_file, char *output_file1)
       fprintf(fp2,"%s  ",poly_file);
       if( (fp4  = fopen(poly_file,"r")) == NULL) {
 	printf("Can't open file %s\n", poly_file);
-	exit(1);
+	exit(-1);
       }
     }
 
@@ -974,14 +974,19 @@ void read_input_file(char *input_file, char *output_file1)
   	    Unk_to_Seg[nbond_all]  = iseg;
 	    Unk_to_Bond[nbond_all] = ibond;
 	    Poly_to_Unk[pol_number][iseg][ibond] = nunk;
-            Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond]+SegChain2SegAll[pol_number][0];
+	    if(Bonds[pol_number][iseg][ibond] != -1)
+	      Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond]+SegChain2SegAll[pol_number][0];
+	    else
+	      Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond];
 	    Poly_to_Unk_SegAll[seg_tot][Nbonds_SegAll[seg_tot]] = nbond_all;
 	    if (pol_sym_tmp[pol_number][iseg][ibond] != -1) Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond]-end_count_all;
             else Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond];
-            if (Pol_Sym[nbond_all]!= -1){
-                if(Pol_Sym_Seg[seg_tot]==-1 || Pol_Sym_Seg[seg_tot]==BondAll_to_isegAll[nbond_all]) {
-                  Pol_Sym_Seg[seg_tot] = BondAll_to_isegAll[nbond_all];
-if (Proc==0) printf("tagging symmetric segments on the chain for removal from the linear system:  seg=%d symmetric with %d\n",seg_tot,Pol_Sym_Seg[seg_tot]);
+
+	    /* will this bit of code work with branched polymers? note that BondAll_to_isegAll only defined sequentially */
+            if (Pol_Sym[nbond_all]!= -1 && Type_poly==WTC){
+                if(Pol_Sym_Seg[seg_tot]==-1 || Pol_Sym_Seg[seg_tot]==BondAll_to_isegAll[Pol_Sym[nbond_all]]) {
+                  Pol_Sym_Seg[seg_tot] = BondAll_to_isegAll[Pol_Sym[nbond_all]];
+		  if (Proc==0) printf("tagging symmetric segments on the chain for removal from the linear system:  seg=%d symmetric with %d\n",seg_tot,Pol_Sym_Seg[seg_tot]);
                 }
                 else{
                  if (Proc==0) printf("problem with setting polymer symmetries: seg_sym=%d Pol_Sym_seg=%d nbond=%d BondAll_to_isegAll=%d\n",
@@ -990,7 +995,7 @@ if (Proc==0) printf("tagging symmetric segments on the chain for removal from th
                 }
             }
             BondAll_to_isegAll[nbond_all]=seg_tot;
-            BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
+	    BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
 	    nbond_all++;
 	    nunk++;
             Nbonds++; 
@@ -1000,11 +1005,11 @@ if (Proc==0) printf("tagging symmetric segments on the chain for removal from th
               end_count++;
               end_count_all++;
           }
-	}
+	} /* end of loop over ibond */
 	nbond_tot[pol_number] += (Nbond[pol_number][iseg]-end_count);
         Unk2Comp[seg_tot]=Type_mer[pol_number][iseg];
         seg_tot++;
-      }
+      } /* end of loop over iseg */
     }
     for (icomp=0;icomp<Ncomp;icomp++) Nseg_type[icomp]=0;
     for (iseg=0;iseg<Nseg_tot;iseg++) Nseg_type[Unk2Comp[iseg]]++;

@@ -396,7 +396,7 @@ void fix_symmetries(double **x)
          x[iunk][ibox] = x[Phys2Unk_first[DENSITY]+Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]]][ibox];
       }
       else if (Type_poly==WTC && Unk2Phys[iunk]==BONDWTC && Pol_Sym[iunk-Phys2Unk_first[BONDWTC]] != -1){
-         x[iunk][ibox] = x[Phys2Unk_first[BONDWTC]+Pol_Sym_Seg[iunk-Phys2Unk_first[BONDWTC]]][ibox];
+         x[iunk][ibox] = x[Phys2Unk_first[BONDWTC]+Pol_Sym[iunk-Phys2Unk_first[BONDWTC]]][ibox];
       }
       else if (Type_poly==CMS && Unk2Phys[iunk]==CMS_G && Pol_Sym[iunk-Phys2Unk_first[CMS_G]] != -1){
          x[iunk][ibox] = x[Phys2Unk_first[CMS_G]+Pol_Sym[iunk-Phys2Unk_first[CMS_G]]][ibox];
