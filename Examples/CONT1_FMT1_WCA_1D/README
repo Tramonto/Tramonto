@@ -7,7 +7,7 @@ Dimensions: 1
 
 Diffusion: No
 
-Notes: This case tests 0th order continuation varying all densities simultaneously.  The fluid is a 1-component Lennard-Jones fluid.  The run is set to compute 30 steps, but actually generates 23 solutions.  Data for the first, tenth, and last solution generated are provided here
+Notes: This case tests 0th order continuation varying all densities simultaneously.  The fluid is a 1-component Lennard-Jones fluid.  The run is set to compute 30 steps, but actually generates 23 solutions.  Data for the first, tenth, and last solution generated are provided here for a single processor run.  Note that on multiple processors the continuation may proceed slightly differently.
 
 Input Files for Test problem:
    - dft_input.dat

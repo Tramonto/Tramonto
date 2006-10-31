@@ -7,7 +7,7 @@ Dimensions: 1
 
 Diffusion: No
 
-Notes: This case tests binodal continuation algorithms.  It finds the thermodynamic equilibrium point using density profiles generated with the CONT2 example. The example finds the phase transition  as a function of temperature and density. The run requests 10 steps and generates 11 solutions. Note that a restart with two density profiles is required for this case.
+Notes: This case tests binodal continuation algorithms.  It finds the thermodynamic equilibrium point using density profiles generated with the CONT2 example. The example finds the phase transition  as a function of temperature and density. The run requests 10 steps and generates 11 solutions. Note that a restart with two density profiles is required for this case.  Note that these results are reported for a single processor run. Continuation algorithms vary with the number of processors.
 
 Input Files for Test problem:
    - dft_input.dat
