@@ -1526,9 +1526,8 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
          for (inode_box=0; inode_box<Nnodes_box; inode_box++){
              node_to_ijk(B2G_node[inode_box],ijk);
              if (Nodes_2_boundary_wall[ilist][inode_box] != -1)
-                fprintf(fp1,"ilist: %d   inode: %d  ijk: %d %d  iwall: %d\n",
-                           ilist,B2G_node[inode_box],ijk[0],ijk[1],
-                           Nodes_2_boundary_wall[ilist][inode_box]);
+                fprintf(fp1,"ilist: %d   inode: %d   iwall: %d\n",
+                           ilist,B2G_node[inode_box], Nodes_2_boundary_wall[ilist][inode_box]);
          }
     }
     fprintf (fp1,"\n---------------------------------------------------------------\n");

@@ -1023,6 +1023,7 @@ void read_input_file(char *input_file, char *output_file1)
        for (pol_number=0; pol_number<Npol_comp; ++pol_number){
           for (iseg=0;iseg<Nmer[pol_number];iseg++){
               for (ibond=0;ibond<Nbond[pol_number][iseg];ibond++){
+	        if(Bonds[pol_number][iseg][ibond] != -1)
                   fprintf(fp2,"Poly_to_Unk[%d][%d][%d]=%d\n",
                      pol_number, iseg,ibond,Poly_to_Unk[pol_number][iseg][ibond]);
               }
