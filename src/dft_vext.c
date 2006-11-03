@@ -354,7 +354,7 @@ void setup_semiperm(int **nelems_w_per_w, int ***elems_w_per_w)
                    walls in 1D */
 void setup_1Dvext(int iwall)
 {
-   int icomp,iwall_type, inode_box,iunk,i;
+   int icomp,iwall_type, inode_box,iunk,i,idim;
    int loc_inode,inode;
    int maximum,image;
    double max_cut,**image_pos,node_pos_w[3],
@@ -376,9 +376,13 @@ void setup_1Dvext(int iwall)
         if (max_cut < Cut_wf[icomp][iwall_type])
             max_cut = Cut_wf[icomp][iwall_type];
 
-  maximum = 1 + 2*((int)max_cut/Size_x[0]+1);  
+  maximum = 1 + 2*((int)max_cut/Size_x[Orientation[iwall_type]]+1);  
   image_pos = (double **) array_alloc (2, maximum, Ndim, sizeof(double));
 
+  for (idim=0;idim<Ndim;idim++){
+      node_pos_w[idim]=0.0;
+      for (i=0;i<maximum;i++) image_pos[i][idim]=0.0;
+  }
 
    /* LOGIC FOR VEXT */
 
