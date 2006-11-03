@@ -43,25 +43,23 @@
 
 /* Prototypes for functions found in this file */
 
-void els_planar(int, int, int, int **, double *, int **, int ***,int *,int ***,double **);
-void els_finite_planar(int,int, int,int **,double *, int **, int ***,int*,int ***,double **);
-void els_spheres(int, int, int, int **, double *, int **, int ***, int *,int ***,double **);
-void els_cyls_3D(int, int, int, int **, double *, int **, int ***, int *,int ***,double **);
-void els_cyls_cos_3D(int, int, int, int **, double *, int **, int ***, int *,int ***,double **);
-void els_atomic_centers(int, int, int, int **, double *, int **, int ***, int *,int ***,double **);
-void els_cyl_pores(int, int, int, int **, double *, int **, int ***, int *,int ***,double **);
-void els_slit_pore_2D(int, int, int, int **,double *,int **,int ***,int *,int ***,double **);
-void els_cyl_pore_3D(int, int, int, int **,double *, int **, int ***, int *,int ***,double **);
-void els_cone_pore_2D(int, int,int,  int **,double *,int **,int ***,int *,int ***,double **);
-void els_cone_pore_3D(int, int,int,  int **,double *,int **,int ***,int *,int ***,double **);
+void els_planar(int, int, int, int **, double *, int **, int ***,int ***,double **);
+void els_finite_planar(int,int, int,int **,double *, int **, int ***,int ***,double **);
+void els_spheres(int, int, int, int **, double *, int **, int ***, int ***,double **);
+void els_cyls_3D(int, int, int, int **, double *, int **, int ***, int ***,double **);
+void els_cyls_cos_3D(int, int, int, int **, double *, int **, int ***, int ***,double **);
+void els_atomic_centers(int, int, int, int **, double *, int **, int ***, int ***,double **);
+void els_cyl_pores(int, int, int, int **, double *, int **, int ***, int ***,double **);
+void els_slit_pore_2D(int, int, int, int **,double *,int **,int ***,int ***,double **);
+void els_cyl_pore_3D(int, int, int, int **,double *, int **, int ***, int ***,double **);
+void els_cone_pore_2D(int, int,int,  int **,double *,int **,int ***,int ***,double **);
+void els_cone_pore_3D(int, int,int,  int **,double *,int **,int ***,int ***,double **);
 void flag_wall_el(int,int,int,int, int **,int **,int ***,int ***);
 void find_wall_images(int, int *, double **, double *);
 
 void setup_surface (FILE *fp2, int *nelems_f,  
-                    int **nelems_w_per_w, 
-                    int **elems_f, 
-                    int ***elems_w_per_w, int *elem_zones,
-                    int *fast_fill_elem_TF,int ***el_type)
+                    int **nelems_w_per_w, int **elems_f, 
+                    int ***elems_w_per_w, int *elem_zones, int ***el_type)
 {
  /* Local variable declarations */
   int itype,iwall,ilist,iel_box,izone, **L_wall,idim,loc_inode,real_wall,*imagetype,flag;
@@ -89,7 +87,6 @@ void setup_surface (FILE *fp2, int *nelems_f,
   }
 
   for (iel_box=0; iel_box<Nelements_box; iel_box++){
-     fast_fill_elem_TF[iel_box] = TRUE;
      if (Coarser_jac != 5) elem_zones[iel_box] = Nzone - 1;
      else                  elem_zones[iel_box] = Nzone - 2;
      x_min[iel_box] = 1000.;
@@ -184,79 +181,68 @@ void setup_surface (FILE *fp2, int *nelems_f,
      case smooth_planar_wall:
        els_planar(iwall,real_wall,itype, L_wall,x_min,
                   nelems_w_per_w, elems_w_per_w,
-                  fast_fill_elem_TF,el_type,
-                  image_pos);
+                  el_type, image_pos);
        break;
 
      case finite_planar_wall:
        els_finite_planar(iwall,real_wall,itype, L_wall,x_min,
                          nelems_w_per_w, elems_w_per_w,
-                         fast_fill_elem_TF,el_type,
-                         image_pos);
+                         el_type, image_pos);
        break; 
 
      case colloids_cyl_sphere:
      case point_surface:
        els_spheres(iwall,real_wall,itype,L_wall,x_min,
                    nelems_w_per_w, elems_w_per_w,
-                   fast_fill_elem_TF,el_type,
-                   image_pos);
+                   el_type, image_pos);
        break;
 
      case finite_cyl_3D:
        els_cyls_3D(iwall,real_wall,itype,L_wall,x_min,
                    nelems_w_per_w, elems_w_per_w,
-                   fast_fill_elem_TF,el_type,
-                   image_pos);
+                   el_type, image_pos);
        break;
 
      case cyl_periodic_3D:
        els_cyls_cos_3D(iwall,real_wall,itype,L_wall,x_min,
                      nelems_w_per_w, elems_w_per_w,
-                     fast_fill_elem_TF,el_type,
-                     image_pos);
+                     el_type, image_pos);
        break;
 
 
      case atomic_centers:
        els_atomic_centers(iwall,real_wall,itype,L_wall,x_min,
                    nelems_w_per_w, elems_w_per_w,
-                   fast_fill_elem_TF,el_type,
-                   image_pos);
+                   el_type, image_pos);
        break;
      
      case cyl2D_sphere3D_pore: 
        els_cyl_pores(iwall,real_wall,itype,L_wall,x_min,
                      nelems_w_per_w, elems_w_per_w,
-                     fast_fill_elem_TF,el_type,
-                     image_pos);
+                     el_type, image_pos);
        break;
 
      case cyl3D_slit2D_pore:            
        if (Ndim == 2)
           els_slit_pore_2D(iwall,real_wall,itype,L_wall,x_min,
                           nelems_w_per_w,elems_w_per_w,
-                          fast_fill_elem_TF,el_type,
-                          image_pos);
+                          el_type, image_pos);
 
        else if (Ndim == 3)
           els_cyl_pore_3D(iwall,real_wall,itype,L_wall,x_min,
                           nelems_w_per_w,elems_w_per_w,
-                          fast_fill_elem_TF,el_type,
-                          image_pos);
+                          el_type, image_pos);
        break;
 
      case tapered_pore:            
        if (Ndim == 2)
           els_cone_pore_2D(iwall,real_wall,itype,L_wall,x_min,
                           nelems_w_per_w,elems_w_per_w,
-                          fast_fill_elem_TF,el_type,
-                          image_pos);
+                          el_type, image_pos);
        else if (Ndim == 3)
           els_cone_pore_3D(iwall,real_wall,itype,L_wall,x_min,
                           nelems_w_per_w,elems_w_per_w,
-                          fast_fill_elem_TF,el_type,
-                          image_pos);
+                          el_type, image_pos);
        break;
 
      default:		/* No surfaces */
@@ -429,20 +415,14 @@ void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
 
 void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_min,
                             int **nelems_w_per_w, int ***elems_w_per_w,
-                            int *fast_fill_elem_TF,int ***el_type,
+                            int ***el_type,
                             double **image_pos)
 {
    int iel, iel_box,inode, idim, ilist,L1el_charge;
    double xtest[3], node_pos[3];
-   double r12_sq_sum, r12, dx, radius,sten,delr,roff=0.00000000001;
+   double r12_sq_sum, r12, dx, radius,delr,roff=0.00000000001;
    double vecB[2],angle_block,angle,roughness,shift,cos_theta,angle_deg;
    int iblock,rough_block[2],idim_permute,angle_test;
-
-   sten=0.0;
-   for (idim=0; idim<Ndim; idim++)
-       if (Esize_x[idim]*Sten_length_hs[idim] > sten)
-          sten = Esize_x[idim]*Sten_length_hs[idim];
-
 
    for (ilist=0; ilist<Nlists_HW; ilist++){
 
@@ -529,9 +509,6 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
-            /* in fluid ... flag slow fill regions */
-              if (Lhard_surf && r12 <= radius + sten)
-                              fast_fill_elem_TF[iel_box] = FALSE; 
 
             /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
@@ -559,19 +536,14 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
 
 void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_min,
                             int **nelems_w_per_w, int ***elems_w_per_w,
-                            int *fast_fill_elem_TF,int ***el_type,
+                            int ***el_type,
                             double **image_pos)
 {
    int iel, iel_box,inode, idim, ilist;
    double xtest[3], node_pos[3],length;
-   double r12_sq_sum, r12, dx, radius,sten,delr,roff=0.00000000001;
+   double r12_sq_sum, r12, dx, radius,delr,roff=0.00000000001;
    double vecB[2],angle_block,angle,roughness,shift,cos_theta,angle_deg;
    int iblock,rough_block[2],idim_permute,angle_test;
-
-   sten=0.0;
-   for (idim=0; idim<Ndim; idim++)
-       if (Esize_x[idim]*Sten_length_hs[idim] > sten)
-          sten = Esize_x[idim]*Sten_length_hs[idim];
 
    for (ilist=0; ilist<Nlists_HW; ilist++){
 
@@ -662,10 +634,6 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
-            /* in fluid ... flag slow fill regions */
-              if (Lhard_surf && r12 <= radius + sten)
-                              fast_fill_elem_TF[iel_box] = FALSE; 
-
             /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
                   if (Type_dielec == DIELEC_WF_PORE &&
@@ -690,17 +658,12 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
 
 void els_cyls_cos_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_min,
                             int **nelems_w_per_w, int ***elems_w_per_w,
-                            int *fast_fill_elem_TF,int ***el_type,
+                            int ***el_type,
                             double **image_pos)
 {
    int iel, iel_box,inode, idim, ilist;
    double xtest[3], node_pos[3];
-   double r12_sq_sum, r12, dx, radius,sten,delr,roff=0.00000000001;
-
-   sten=0.0;
-   for (idim=0; idim<Ndim; idim++)
-       if (Esize_x[idim]*Sten_length_hs[idim] > sten)
-          sten = Esize_x[idim]*Sten_length_hs[idim];
+   double r12_sq_sum, r12, dx, radius,delr,roff=0.00000000001;
 
    for (ilist=0; ilist<Nlists_HW; ilist++){
 
@@ -738,10 +701,6 @@ void els_cyls_cos_3D(int iwall, int real_wall, int itype, int **L_wall, double *
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
-            /* in fluid ... flag slow fill regions */
-              if (Lhard_surf && r12 <= radius + sten)
-                              fast_fill_elem_TF[iel_box] = FALSE; 
-
             /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
                   if (Type_dielec == DIELEC_WF_PORE &&
@@ -766,19 +725,14 @@ void els_cyls_cos_3D(int iwall, int real_wall, int itype, int **L_wall, double *
 
 void els_atomic_centers(int iwall, int real_wall,int itype, int **L_wall, double *x_min,
                             int **nelems_w_per_w, int ***elems_w_per_w,
-                            int *fast_fill_elem_TF,int ***el_type,
+                            int ***el_type,
                             double **image_pos)
 {
    int iel, iel_box,inode, idim, ilist;
    double xtest[3], node_pos[3];
-   double r12_sq_sum, r12, dx, radius,sten,delr,rsq;
+   double r12_sq_sum, r12, dx, radius,delr,rsq;
    double roff=0.00000000001;
 
-
-   sten=0.0;
-   for (idim=0; idim<Ndim; idim++)
-       if (Esize_x[idim]*Sten_length_hs[idim] > sten)
-          sten = Esize_x[idim]*Sten_length_hs[idim];
 
    for (ilist=0; ilist<Nlists_HW; ilist++){
 
@@ -826,10 +780,6 @@ void els_atomic_centers(int iwall, int real_wall,int itype, int **L_wall, double
                           nelems_w_per_w, elems_w_per_w,el_type);
          }
          else{
-             /* in fluid ... flag slow fill regions */
-              if (Lhard_surf && r12 <= radius + sten)
-                              fast_fill_elem_TF[iel_box] = FALSE; 
-
             /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
                   if (Type_dielec == DIELEC_WF_PORE &&
@@ -855,19 +805,14 @@ void els_atomic_centers(int iwall, int real_wall,int itype, int **L_wall, double
 
 void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double *x_min,
 		      int **nelems_w_per_w, int ***elems_w_per_w,
-		      int *fast_fill_elem_TF,int ***el_type,
+		      int ***el_type,
 		      double **image_pos)
 {
    int iel, iel_box, inode, idim, ilist,dim[3],loc_inode;
    double xtest[3];
    double node_pos[3];
-   double r12, radius,sten,x12,length,delr,x12new,r12new;
+   double r12, radius,x12,length,delr,x12new,r12new;
    double roff=0.00000000001;
-
-   sten=0.0;
-   for (idim=0; idim<Ndim; idim++)
-       if (Esize_x[idim]*Sten_length_hs[idim] > sten)
-          sten = Esize_x[idim]*Sten_length_hs[idim];
 
    for (ilist = 0; ilist<Nlists_HW; ilist++){
 
@@ -903,10 +848,6 @@ void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
                           nelems_w_per_w, elems_w_per_w,el_type);
          }
          else{
-             /* in fluid ... flag slow fill regions */
-             if (Lhard_surf && r12 >= radius-sten)
-                          fast_fill_elem_TF[iel_box] = FALSE; 
-
             /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
                   if (Type_dielec == DIELEC_WF_PORE &&
@@ -952,19 +893,14 @@ void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
 
 void els_cyl_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_min,
                               int **nelems_w_per_w, int ***elems_w_per_w,
-                              int *fast_fill_elem_TF,int ***el_type,
+                              int ***el_type,
                               double **image_pos)
 {
    int iel, iel_box, inode, idim, ilist,dim[3];
    double xtest[3];
    double node_pos[3];
-   double r12_sq_sum, r12, dx,radius,sten,x12,length,delr;
+   double r12_sq_sum, r12, dx,radius,x12,length,delr;
    double roff=0.00000000001;
-
-   sten=0.0;
-   for (idim=0; idim<Ndim; idim++)
-       if (Esize_x[idim]*Sten_length_hs[idim] > sten)
-          sten = Esize_x[idim]*Sten_length_hs[idim];
 
    for (ilist = 0; ilist<Nlists_HW; ilist++){
 
@@ -1014,10 +950,6 @@ void els_cyl_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
-            /* in fluid ... flag slow fill regions */
-             if (Lhard_surf && r12 >= radius-sten)
-                           fast_fill_elem_TF[iel_box] = FALSE; 
-
             /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
                   if (Type_dielec == DIELEC_WF_PORE &&
@@ -1045,21 +977,15 @@ void els_cyl_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *
 
 void els_cone_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double *x_min,
 		      int **nelems_w_per_w, int ***elems_w_per_w,
-		      int *fast_fill_elem_TF,int ***el_type,
-		      double **image_pos)
+		      int ***el_type, double **image_pos)
 {
    int iel, iel_box, inode, idim, ilist,dim[3],loc_inode,operp;
    double xtest[3];
    double node_pos[3];
    double r12, delr,
-          radius,radius1,radius2,sten,
+          radius,radius1,radius2,
           x12,length,r12new,x12new,radiusnew;
    double roff=0.00000000001;
-
-   sten=0.0;
-   for (idim=0; idim<Ndim; idim++)
-       if (Esize_x[idim]*Sten_length_hs[idim] > sten)
-          sten = Esize_x[idim]*Sten_length_hs[idim];
 
    for (ilist = 0; ilist<Nlists_HW; ilist++){
 
@@ -1102,10 +1028,6 @@ void els_cone_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
-             /* in fluid ... flag slow fill regions */
-             if (Lhard_surf && r12 >= radius - sten)
-                             fast_fill_elem_TF[iel_box] = FALSE;  
-
              /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
                   if (Type_dielec == DIELEC_WF_PORE && 
@@ -1155,21 +1077,15 @@ void els_cone_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
 
 void els_cone_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_min,
                               int **nelems_w_per_w, int ***elems_w_per_w,
-                              int *fast_fill_elem_TF,int ***el_type,
-                              double **image_pos)
+                              int ***el_type, double **image_pos)
 {
    int iel, iel_box, inode, idim, ilist,dim[3];
    double xtest[3];
    double node_pos[3];
    double r12_sq_sum, r12, delr,dx, 
-          radius,radius1,radius2,sten,
+          radius,radius1,radius2,
           x12,length;
    double roff=0.00000000001;
-
-   sten=0.0;
-   for (idim=0; idim<Ndim; idim++)
-       if (Esize_x[idim]*Sten_length_hs[idim] > sten)
-          sten = Esize_x[idim]*Sten_length_hs[idim];
 
    for (ilist = 0; ilist<Nlists_HW; ilist++){
 
@@ -1224,10 +1140,6 @@ void els_cone_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double 
                           nelems_w_per_w, elems_w_per_w,el_type);
          }
          else{
-             /* in fluid ... flag slow fill regions */
-             if (Lhard_surf && r12 >= radius - sten)
-                               fast_fill_elem_TF[iel_box] = FALSE;   
-
             /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
                   if (Type_dielec == DIELEC_WF_PORE &&
@@ -1250,18 +1162,12 @@ void els_cone_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double 
 
 void els_cyl_pores(int iwall,int real_wall, int itype, int **L_wall, double *x_min,
                               int **nelems_w_per_w, int ***elems_w_per_w,
-                              int *fast_fill_elem_TF,int ***el_type,
-                              double **image_pos)
+                              int ***el_type, double **image_pos)
 {
    int iel, iel_box, inode, idim, ilist,count;
    double xtest[3],node_pos[3];
-   double r12_sq_sum, r12, delr,dx,radius,sten;
+   double r12_sq_sum, r12, delr,dx,radius;
    double roff=0.00000000001;
-
-   sten=0.0;
-   for (idim=0; idim<Ndim; idim++)
-       if (Esize_x[idim]*Sten_length_hs[idim] > sten)
-          sten = Esize_x[idim]*Sten_length_hs[idim];
 
    count = 0;
 
@@ -1296,10 +1202,6 @@ void els_cyl_pores(int iwall,int real_wall, int itype, int **L_wall, double *x_m
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
-            /* in fluid ... flag slow fill regions */
-              if (Lhard_surf && r12 >= radius - sten)
-                              fast_fill_elem_TF[iel_box] = FALSE;   
-
             /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
                   if (Type_dielec == DIELEC_WF_PORE &&
@@ -1325,11 +1227,10 @@ void els_cyl_pores(int iwall,int real_wall, int itype, int **L_wall, double *x_m
 void els_planar(int iwall, int real_wall, int itype, 
                 int **L_wall, double *x_min,
                 int **nelems_w_per_w, int ***elems_w_per_w,
-                int *fast_fill_elem_TF,int ***el_type,
-                double **image_pos)
+                int ***el_type, double **image_pos)
 {
   int iel, iel_box,inode, idim, ilist;
-  double x, x12, wall_thick,sten,diam,delx;
+  double x, x12, wall_thick,diam,delx;
   double node_pos[3];
   double roff=0.00000000001;
   double roughness;
@@ -1379,15 +1280,6 @@ void els_planar(int iwall, int real_wall, int itype,
          else if (Orientation[itype] == 1) idim = 1;
          else                              idim = 2;
 
-         if (Lhard_surf) 
-	   {
-	     sten = Esize_x[idim]*Sten_length_hs[idim];
-	   }
-	 else 
-	   {
-	     sten = 0;
-	   }
-
          /* get center of element in appropriate dimension */
          x = node_pos[idim] + 0.5*Esize_x[idim];
          x12 = fabs(image_pos[iwall][idim] - x);
@@ -1396,10 +1288,6 @@ void els_planar(int iwall, int real_wall, int itype,
                           nelems_w_per_w, elems_w_per_w,el_type);
          }
          else{
-            /* in fluid ... flag fast fill regions */
-              if (Lhard_surf && x12 <= (0.5*wall_thick + sten))
-                                      fast_fill_elem_TF[iel_box] = FALSE; 
-
             /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
 
@@ -1426,18 +1314,13 @@ void els_planar(int iwall, int real_wall, int itype,
 void els_finite_planar(int iwall, int real_wall, int itype,
                        int **L_wall, double *x_min,
                        int **nelems_w_per_w, int ***elems_w_per_w,
-                       int *fast_fill_elem_TF,int ***el_type,
-                       double **image_pos)
+                       int ***el_type, double **image_pos)
 {
    int iel, iel_box,inode, idim, 
-       ilist,in_wall,in_sten,near_wall,npos;
-   double xtest[3], xsave[3],x12[3],length[3],diam,sten[3];
+       ilist,in_wall,near_wall,npos;
+   double xtest[3], xsave[3],x12[3],length[3],diam;
    double node_pos[3],x[3],x_this_wall=0.0,roff=0.00000000001;
    
-
-   for (idim=0; idim<Ndim; idim++)
-        sten[idim] = Esize_x[idim]* Sten_length_hs[idim];
-
    /*
     * Find the number of fluid and wall elements based on the 
     * center of the element 
@@ -1464,14 +1347,12 @@ void els_finite_planar(int iwall, int real_wall, int itype,
          
 
          in_wall = TRUE;
-         in_sten = TRUE;
          near_wall = TRUE;
 
          for (idim=0; idim<Ndim; idim++){
              x[idim] = node_pos[idim] + 0.5*Esize_x[idim];
              x12[idim] = fabs(image_pos[iwall][idim] - x[idim]);
              if (x12[idim] > 0.5*length[idim])    in_wall = FALSE;
-             if (x12[idim] > 0.5*length[idim]+sten[idim]) in_sten = FALSE;
              if (Ipot_ff_c==COULOMB && x12[idim] > 
                   0.5*length[idim]+ Dielec_X)  near_wall = FALSE;
          }
@@ -1480,10 +1361,6 @@ void els_finite_planar(int iwall, int real_wall, int itype,
             flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                                    nelems_w_per_w, elems_w_per_w,el_type);
          else{
-            /* in fluid ... flag fast fill regions */
-              if (in_sten && Lhard_surf)
-                      fast_fill_elem_TF[iel_box] = FALSE; /*flag slow fills*/
-
             /* in fluid ... set up dielectric constants */
               if (ilist == Nlists_HW-1 && Ipot_ff_c==COULOMB){
                   if (Type_dielec == DIELEC_WF_PORE && near_wall)

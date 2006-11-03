@@ -46,8 +46,6 @@
 /* Prototypes for functions found in this file */
 
 void setup_basic_box(FILE *, int *);
-void initialize_fast_fill_flag(void);
-void fast_fill_el_to_nodes(int *);
 void boundary_properties(FILE *);
    void find_local_els(int,int *, int *,int);
    void surf_el_to_list (int, int, int *,int,
@@ -239,7 +237,6 @@ void free_mesh_arrays(void)
 
    /*if (Mesh_coarsening != FALSE || L1D_bc)*/ safe_free((void *) &Mesh_coarsen_flag);
 
-   safe_free((void *) &Fast_fill_TF);
    if (Ipot_ff_c == COULOMB) safe_free((void *) &Dielec);
 
    /* external field arrays */
@@ -284,7 +281,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
   int  ***el_type;
 
   int  *elem_zones;
-  int  *fast_fill_elem_TF;
 
   int icomp,ilist,iwall,inode;
   double sigma_test;
@@ -292,9 +288,8 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
   int inode_box,iel,reflect_flag[3],j,k; 
 
   int count_zero,count_zero_all,count_coarse_resid,count_coarse_r_all,
-      count_coarse_jac,count_coarse_jac_all,count_fast,count_fast_all,
-      count_check_hw,count_check_hw_all,count_check_both,count_check_both_all,
-      count_check_bc,count_check_bc_all;
+      count_coarse_jac,count_coarse_jac_all;
+   
 
   char *output_TF="dft_zeroTF.dat";
 
@@ -312,14 +307,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
    * Nunknowns_box. 
    */
   setup_basic_box(fp1, update);
-
-  /* determine which nodes need to be treated carefully 
-   * in the jacobian fill, and which are easy.  Anything 
-   * near a boundary or hard wall must be treated carefully. 
-   * The boundaries are checked here, the surfaces are checked 
-   * in dft_mesh_surfaces.c 
-   */
-  initialize_fast_fill_flag();
 
   /*
    * Set up all arrays for surface geometry, external fields, and
@@ -359,7 +346,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
      elem_zones = (int *) array_alloc (1, Nelements_box, sizeof(int));
      for (iel_box=0; iel_box<Nelements_box; iel_box++) elem_zones[iel_box] = 0;
 
-     fast_fill_elem_TF = (int *) array_alloc (1, Nelements_box, sizeof(int));
      Wall_elems = (int **) array_alloc(2, Nlists_HW, Nelements_box, sizeof(int));
      el_type = (int ***) array_alloc(3, Nwall,Nlists_HW, Nelements_box, sizeof(int));
      if (Ipot_ff_c == COULOMB){
@@ -404,7 +390,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
          setup_surface(fp1,nelems_f, nelems_w_per_w, elems_f,
                                    elems_w_per_w,elem_zones,
-                                   fast_fill_elem_TF,el_type);
+                                   el_type);
 
          /* gather the elems_w_per_w array into a global list of wall elements on processor zero */
          /* first gather and sum the nelems_w_per_w on processor zero -- this gives a maximum possible number of wall elements */
@@ -504,9 +490,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
      safe_free((void *) &elem_zones);
 
-     fast_fill_el_to_nodes(fast_fill_elem_TF);
-     safe_free((void *) &fast_fill_elem_TF);
-
     /* 
      * From the Elem arrays, assemble lists of wall, fluid, and Boundary nodes.
      * Each processor sets up the arrays that pertain to the nodes it owns only.
@@ -545,26 +528,17 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
        count_zero=0;
        count_coarse_resid=0;
        count_coarse_jac=0;
-       count_fast=0; count_check_hw=0; count_check_both=0; count_check_bc=0;
 
         for (i=0; i<Nnodes_per_proc; i++){
      
             if (Zero_density_TF[L2B_node[i]][icomp]) count_zero++;
             if (Mesh_coarsening !=FALSE || L1D_bc) if (Mesh_coarsen_flag[L2B_node[i]] < 0) count_coarse_resid++;
             if (Nodes_to_zone[L2B_node[i]] > 0 || Coarser_jac>0) count_coarse_jac++;
-            if (Fast_fill_TF[L2B_node[i]] ==CHECK_NONE) count_fast++;
-            else if (Fast_fill_TF[L2B_node[i]] ==CHECK_HW) count_check_hw++;
-            else if (Fast_fill_TF[L2B_node[i]] ==CHECK_BC) count_check_bc++;
-            else if (Fast_fill_TF[L2B_node[i]] ==CHECK_BOTH) count_check_both++;
         }
         count_zero_all=gsum_int(count_zero);
         if (icomp==0){
           count_coarse_r_all=gsum_int(count_coarse_resid);
           count_coarse_jac_all=gsum_int(count_coarse_jac);
-          count_fast_all=gsum_int(count_fast);
-          count_check_hw_all=gsum_int(count_check_hw);
-          count_check_bc_all=gsum_int(count_check_bc);
-          count_check_both_all=gsum_int(count_check_both);
           if (Proc==0 && Iwrite != NO_SCREEN && print_flag) {
               printf("**************************************************************\n");
               printf("..............MESH SUMMARY..........\n");     
@@ -573,14 +547,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
                         count_coarse_r_all,100.*count_coarse_r_all/Nnodes);
               printf("Number of coarsened jacobian nodes = \t %d \t  or %g percent \n",
                         count_coarse_jac_all,100.*count_coarse_jac_all/Nnodes);
-              printf("Number of fast fill nodes = \t \t %d \t or %g percent\n",
-                        count_fast_all,100.*count_fast_all/Nnodes);
-              printf("Number of check boundary nodes = \t %d \t or %g percent\n",
-                        count_check_bc_all,100.*count_check_bc_all/Nnodes);
-              printf("Number of check hard wall nodes = \t %d \t or %g percent \n",
-                        count_check_hw_all,100.*count_check_hw_all/Nnodes);
-              printf("Number of check both (bc and hw) nodes = \t %d \t or %g percent \n",
-                        count_check_both_all,100.*count_check_both_all/Nnodes);
            
               printf("--------------------------------------------------------------\n");
           }
@@ -860,35 +826,6 @@ void setup_basic_box(FILE *fp1, int *update)
     L2G_node[loc_inode] = inode;
   }
   if (Iwrite==VERBOSE) fclose(fp2);
-  return;
-}
-/************************************************************
-initialize_fast_fill_flag: In this routine initialize the fast fill
-                 array, and set up the slow fill regions
-                 based on proximity to domain boundaries.*/
-void initialize_fast_fill_flag(void)
-{
-  int inode_box,idim,inode,ijk[3];
-
-  Fast_fill_TF = (int *) array_alloc (1, Nnodes_box, sizeof(int));
-
-  for (inode_box=0; inode_box <Nnodes_box; inode_box++){
-     Fast_fill_TF[inode_box] = CHECK_NONE;
-
-     inode = node_box_to_node(inode_box);  
-     node_to_ijk(inode,ijk);
-
-     for(idim=0; idim<Ndim; idim++) {
-         if (Type_bc[idim][0] != PERIODIC || Pflag[idim] ){
-
-            if ( (ijk[idim] - Sten_length_hs[idim] <=0) ||
-                 (ijk[idim]+Sten_length_hs[idim] >=Nodes_x[idim]-1) )
-
-               Fast_fill_TF[inode_box] = CHECK_BC;
-         }
-     }
-
-  }
   return;
 }
 /*****************************************************************************
@@ -2635,46 +2572,6 @@ void zones_el_to_nodes(int *elem_zones)
      }
   }
   if (Iwrite == VERBOSE) print_Nodes_to_zone(Nodes_to_zone,"dft_zones.dat");
-}
-/******************************************************************
-fast_fill_el_to_nodes: here we translate slow fill elements to slow
-                      fill nodes for the fill */
-void fast_fill_el_to_nodes(int *fast_fill_el_TF)
-{
-  int iel_box,inode_box,ijk_box[3],maxx[3],ioff[3],idim,
-      ijk_tmp[3],inode_box_tmp;
-
-  maxx[0] = maxx[1] = maxx[2] = 1;
-  if (Ndim >= 1) {
-      maxx[0] = 2;
-      if (Ndim >=2) {
-         maxx[1] = 2;
-         if (Ndim == 3) maxx[2] = 2;
-      }
-  }
-      
-  for (iel_box=0; iel_box< Nelements_box; iel_box++){
-     if (!fast_fill_el_TF[iel_box]) {
-        inode_box = element_box_to_node_box(iel_box);
-        node_box_to_ijk_box(inode_box,ijk_box);
-
-        for (ioff[2]=0; ioff[2]<maxx[2]; ioff[2]++) 
-          for (ioff[1]=0; ioff[1]<maxx[1]; ioff[1]++) 
-             for (ioff[0]=0; ioff[0]<maxx[0]; ioff[0]++) {
-
-                 for (idim=0; idim<Ndim; idim++) 
-                      ijk_tmp[idim]=ijk_box[idim]+ioff[idim];
-
-                 inode_box_tmp = ijk_box_to_node_box(ijk_tmp);
-                 if (Fast_fill_TF[inode_box_tmp] == CHECK_BC)
-                    Fast_fill_TF[inode_box_tmp] = CHECK_BOTH;
-                 else if (Fast_fill_TF[inode_box_tmp] == CHECK_NONE)
-                    Fast_fill_TF[inode_box_tmp] = CHECK_HW;
-             }
-
-     }
-  }
-  return;
 }
 /****************************************************************************/
 void set_mesh_coarsen_flag(void)

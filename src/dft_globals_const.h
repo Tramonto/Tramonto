@@ -341,12 +341,6 @@
 #define LB_NON0      4
 #define LB_MIXED     5
 
- /* The following is a choice for the Fast_fill_flag */
-#define CHECK_NONE   0
-#define CHECK_BC     1
-#define CHECK_HW     2
-#define CHECK_BOTH   3
-
 /* The following is a choice for the treatment of dielectric_constants */
 #define DIELEC_CONST       0
 #define DIELEC_WF          1
@@ -712,8 +706,6 @@ extern
 int     Lcut_jac;  /* Logical to indicate if Jacobian stencils will be cut off */
 extern
 double  Jac_threshold; /* Threshold level for Jacobian stencils ... max/Jac_threshold */
-extern  
-int    *Fast_fill_TF;    /* Flag for fast Jacobian fill */
 
 /* Continuation info */
 extern
@@ -1363,7 +1355,7 @@ extern int  element_to_node(int);
 extern int  element_box_to_node_box(int);
 extern void element_to_nodes(int,int *);
 extern void boundary_condition (int *);
-extern void setup_surface(FILE *,int *, int **, int **, int ***, int *,int*,int ***);
+extern void setup_surface(FILE *,int *, int **, int **, int ***, int *,int ***);
 extern int  node_to_elem(int, int, int *);
 extern int  node_to_elem_return_dim(int, int, int *,int *, int *,int *);
 extern int  node_box_to_elem_box_reflect(int, int, int *);
