@@ -69,11 +69,15 @@ int lfirst;
       if(!first || !lfirst) {
        omega_id=omega_id_b=0.0;
        for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
-          if (fabs(Charge_f[iunk-Phys2Unk_first[DENSITY]])<1.e-15){
+	  if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+	  else                icomp=iunk-Phys2Unk_first[DENSITY];
+          if (fabs(Charge_f[icomp])<1.e-12){
               integrateInSpace(&integrand_ideal_gas_freen,iunk,Nel_hit2,x,Integration_profile);
+	      printf("iunk=%d  Temporary_sum=%9.6f\n",iunk,Temporary_sum);
               omega_id+=Temporary_sum;
 
               integrateInSpace(&integrand_ideal_gas_freen_bulk,iunk,Nel_hit,x,Integration_profile);
+	      printf("bulk iunk=%d  Temporary_sum=%9.6f\n",iunk,Temporary_sum);
               omega_id_b+=Temporary_sum;
           }
         }
