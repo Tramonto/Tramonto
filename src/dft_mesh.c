@@ -1306,7 +1306,7 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
 
        for (ilist=0;ilist<Nlists_HW; ilist++){
               counted_list[ilist]=FALSE;
-             for (ilink<0;ilink<Nlink;ilink++) counted_link[ilist+Nlists_HW*ilink]=FALSE;
+             for (ilink=0;ilink<Nlink;ilink++) counted_link[ilist+Nlists_HW*ilink]=FALSE;
        }
 
        for (index_w=0; index_w<Nwall_touch_node[index]; index_w++){
