@@ -208,7 +208,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
     if (jnode_box >= 0) {
          xi_2=x[unk_xi2][jnode_box]; xi_3=x[unk_xi3][jnode_box];
     }
-    else if (jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
+    else{
          xi_2=constant_boundary(unk_xi2,jnode_box);
          xi_3=constant_boundary(unk_xi3,jnode_box);
     }
@@ -266,7 +266,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
           if (jnode_boxJ >= 0) {
                xi_2=x[unk_xi2][jnode_boxJ]; xi_3=x[unk_xi3][jnode_boxJ];
           }
-          else if (jnode_box == -1 || jnode_box ==-3 || jnode_box == -4){
+          else {
                xi_2=constant_boundary(unk_xi2,jnode_boxJ);
                xi_3=constant_boundary(unk_xi3,jnode_boxJ);
           }

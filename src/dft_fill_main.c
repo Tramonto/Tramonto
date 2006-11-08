@@ -145,7 +145,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                 = resid_cavity= resid_bondwtc=resid_WTC=0.0;
 
       if (mesh_coarsen_flag_i == FLAG_1DBC){
-printf("trouble we shouldn't be here\n");
          node_box_to_ijk_box(inode_box,ijk_box);
          for (idim=0; idim<Ndim; idim++) ijk_tmp[idim]=0;
          ijk_tmp[Grad_dim]=ijk_box[Grad_dim];

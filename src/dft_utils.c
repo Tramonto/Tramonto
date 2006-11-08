@@ -397,6 +397,7 @@ double constant_boundary(int iunk,int jnode_box)
            break;
        case CAVWTC:
            if (jnode_box==-1)      bcval=Xi_cav_b[iunk-Phys2Unk_first[CAVWTC]+2];
+	   else if (jnode_box==-2) bcval=0.0;
            else if (jnode_box==-3) bcval=Xi_cav_LBB[iunk-Phys2Unk_first[CAVWTC]+2];
            else if (jnode_box==-4) bcval=Xi_cav_RTF[iunk-Phys2Unk_first[CAVWTC]+2];
            break;

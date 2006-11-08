@@ -73,11 +73,9 @@ int lfirst;
 	  else                icomp=iunk-Phys2Unk_first[DENSITY];
           if (fabs(Charge_f[icomp])<1.e-12){
               integrateInSpace(&integrand_ideal_gas_freen,iunk,Nel_hit2,x,Integration_profile);
-	      printf("iunk=%d  Temporary_sum=%9.6f\n",iunk,Temporary_sum);
               omega_id+=Temporary_sum;
 
               integrateInSpace(&integrand_ideal_gas_freen_bulk,iunk,Nel_hit,x,Integration_profile);
-	      printf("bulk iunk=%d  Temporary_sum=%9.6f\n",iunk,Temporary_sum);
               omega_id_b+=Temporary_sum;
           }
         }
