@@ -229,7 +229,7 @@ void print_cont_variable(int cont_type,FILE *fp)
                     (fabs(WallPos[idim][1] - WallPos[idim][0]) - 2.0*WallParam[iwall_type]));
              }
          }
-         else if (Nwall > 0) {
+         else if (Nwall > 1) {
             for (iwall=0; iwall<Nwall; iwall++){
                 for (idim=0; idim<Ndim; idim++)
                     fprintf(fp,"%11.8f   ",WallPos[idim][iwall]);
@@ -258,7 +258,6 @@ void print_cont_variable(int cont_type,FILE *fp)
       case CONT_LOG_RHO_ALL:
          rhosum=0.0;
          nloop=Ncomp;
-         if (Type_poly==WTC) nloop=Nseg_tot;
          for (i=0; i<nloop; i++){
                  fprintf(fp,"%11.8f  ", Rho_b[i]); 
                  rhosum+=Rho_b[i];
@@ -293,8 +292,8 @@ void print_cont_variable(int cont_type,FILE *fp)
          break;
       case CONT_EPSWF00:
       case CONT_EPSWF_ALL_0:
-/*         fprintf(fp,"%11.8f   ", Eps_wf[0][0]); */
-         fprintf(fp,"%11.8f   ", Eps_wf[2][0]); 
+         fprintf(fp,"%11.8f   ", Eps_wf[0][0]); 
+	 /*        fprintf(fp,"%11.8f   ", Eps_wf[2][0]); */
          break;
 
       case CONT_SCALE_EPSFF:
@@ -339,7 +338,7 @@ void print_cont_type(int cont_type,FILE *fp)
 	  }
 	  else fprintf(fp, "Surf_sep  ");
 	}
-	else if (Nwall > 0) {  
+	else if (Nwall > 1) {  
 	   for (iwall=0; iwall<Nwall; iwall++) {
 	     for(idim=0; idim<Ndim; idim++)
 	       fprintf(fp,"WallPos[%d][%d]  ", idim,iwall);
@@ -366,7 +365,6 @@ void print_cont_type(int cont_type,FILE *fp)
       case CONT_LOG_RHO_0:
       case CONT_LOG_RHO_ALL:
 	nloop=Ncomp;
-	if (Type_poly==WTC) nloop=Nseg_tot;
 	for (i=0; i<nloop; i++) fprintf(fp,"Rho_b[%d]  ", i);
 	for (i=0; i<nloop; i++) fprintf(fp, "Rho_b[%d]/Rho_sum  ", i);
          if (Print_rho_switch == SWITCH_RELP && Ncomp == 1)
@@ -391,8 +389,8 @@ void print_cont_type(int cont_type,FILE *fp)
 	 break;
       case CONT_EPSWF00:
       case CONT_EPSWF_ALL_0:
-/*         fprintf(fp,"Eps_wf[0][0]:  "); break;*/
-         fprintf(fp,"Eps_wf[2][0]:  "); break;
+         fprintf(fp,"Eps_wf[0][0]:  "); break;
+	 /*         fprintf(fp,"Eps_wf[2][0]:  "); break;*/
 
       case CONT_SCALE_EPSFF:
          fprintf(fp,"Scale_fac_epsff:  "); break;
