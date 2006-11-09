@@ -407,11 +407,13 @@ double constant_boundary(int iunk,int jnode_box)
            else if (jnode_box==-4) bcval=BondWTC_RTF[iunk-Phys2Unk_first[BONDWTC]];
            break;
        case CMS_FIELD:
-           bcval=0.0;
-           break;
+           if (jnode_box==-2) bcval=0.0;
+	   else bcval=1.0; 
+	   break;
        case CMS_G:
-           bcval=1.0;
-           break;
+           if (jnode_box==-2) bcval=0.0;
+	   else bcval=1.0; 
+	   break;
    }
    return(bcval);
 }

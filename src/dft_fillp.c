@@ -379,34 +379,41 @@ double load_polymer_G(int sten_type,int iunk,int loc_inode, int inode_box,
 
      /* Find the Stencil point */
      jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-     if (jnode_box >= 0 && !Zero_density_TF[jnode_box][unk[nunk-1]-Phys2Unk_first[CMS_FIELD]]) {
-        if (Lhard_surf) {
+     /*if (!Zero_density_TF[jnode_box][unk[nunk-1]-Phys2Unk_first[CMS_FIELD]]) {*/
+        if (Lhard_surf && jnode_box>=0) {
            if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
            weight = HW_boundary_weight 
                     (jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
         }
         /* first load the Boltzman factor derivatives */
         fac1=weight; 
-        for(i=0;i<nunk-1;i++) fac1 *=x[unk[i]][jnode_box];  /*Gs or Qs*/
-        resid = fac1*boltz_prefac_R*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_R); /* Boltz Term */
+	if (jnode_box >=0){
+          for(i=0;i<nunk-1;i++)  fac1 *=x[unk[i]][jnode_box];  /*Gs or Qs*/
+          resid = fac1*boltz_prefac_R*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_R); /* Boltz Term */
+          mat_val = fac1*boltz_prefac_1*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_1); /* Boltz Term */
+          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[nunk-1],jnode_box,mat_val);
+        }
+	else{ 
+	  if (jnode_box != -2) resid = fac1*boltz_prefac_R*POW_DOUBLE_INT(constant_boundary(unk[nunk-1],jnode_box),boltz_pow_R); /* Boltz Term */
+	  else resid=0.0;
+	}
         resid_sum += resid;
-
         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-        mat_val = fac1*boltz_prefac_1*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_1); /* Boltz Term */
-        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[nunk-1],jnode_box,mat_val);
            
           
         /* now load the G/Q derivatives */
 
+        if (jnode_box>=0){
         for (i=0;i < nunk-1; i++){
            fac2=weight;
            for (j=0; j<nunk-1; j++){
               if (j != i)  fac2 *= x[unk[j]][jnode_box];  /*Gs or Qs*/
            }
-           mat_val = fac2*boltz_prefac_2*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_2); /*Boltz Term*/
+	   mat_val = fac2*boltz_prefac_2*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],boltz_pow_2); /*Boltz Term*/
            dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[i],jnode_box,mat_val);
         }
-     }
+	}
+     /*}*/
   }
   return(resid_sum);
 }
