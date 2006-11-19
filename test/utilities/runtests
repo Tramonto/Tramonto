@@ -373,6 +373,7 @@ cleanUp();
         my $examplesFailed = 0;
         
         # run examples
+        unshift @exampleDirs, "BC1_FMT1_WCA_ELEC_2D";
         foreach my $exampleDir (@exampleDirs) {
             chdir $exampleDir or die "cannot chdir to $exampleDir, died";
 
@@ -411,27 +412,82 @@ cleanUp();
             # trim ouput
             $exampleOutput = substr ($exampleOutput, -1000000);
             
-            # EXIT-STATUS is neither compareTestOutput or STRING-COMPARISON,
-            # so use the actual exit status...unless it is 0 and there is
-            # obvious fatal output.
-            if (!$exampleExitStatus) { 
-            
-                #  On some platforms, mpirun returns 0 when run on 
-                #  non-binary files, such as scripts.  The following 
-                #  hack tests for this and changes the exit status from 
-                #  0 to 13.
-                if ($exampleOutput =~ m/process did not invoke MPI_INIT/) {
-                    $exampleExitStatus = 13;
-                }
+            # parse output for real pass/fail status
+            if (!$exampleExitStatus) {
+
+                # Open README for reading.
+                open (README, "<README") 
+                  or die "Can't open README, died";
+                    
+                # Read README into one string.
+                undef $/;               # undefine input record separator
+                my $readme=<README>;    # copy entire file
+                $/ = "\n";              # restore it to default newline
+                close README;
                 
+                # grab "Key Output Parameters section
+                if ($readme =~ m/Key Output Parameters {(.*)}/s) {
+                    my $keyParamsString = $1;
+                    $keyParamsString =~ s/#.*$//mg;  # remove comments
+                    my @pairs = ();
+                    my @lines = $keyParamsString =~ m/^(.*)$/mg;
+                    foreach my $line (@lines) {
+                      if ($line =~ m/:\s*"\s*(.+)\s*=\s*(.+)\s*";/) {
+                        my %pair = ();
+                        $pair{'key'} = $1;
+                        $pair{'val'} = $2;
+                        push(@pairs, { %pair });
+                      }
+                    }
+                    #foreach my $i (0 .. $#pairs) {
+                      #print "key: ".$pairs[$i]{'key'}."; ";
+                      #print "val: ".$pairs[$i]{'val'}."\n";
+                    #}
+
+                    # Open dft_output.dat for reading.
+                    open (DFT_OUTPUT, "<dft_output.dat")
+                      or die "Can't open dft_output.dat, died";
+
+                    # Read dft_output.dat into one string.
+                    undef $/;
+                    my $dftOutput=<DFT_OUTPUT>;
+                    $/ = "\n";
+                    close DFT_OUTPUT;
+
+                    my $passes = 0;
+                    my $correct = 0;
+                    my $discrepancies = 0;
+                    foreach my $i (0 .. $#pairs) {
+                      my $key = $pairs[$i]{'key'};
+                      my $val = $pairs[$i]{'val'};
+
+                      $key =~ s/\[/\\[/g;
+                      $key =~ s/\]/\\]/g;
+                      my @matches = $dftOutput =~ m/$key\s*=\s*(-?[0-9.]+)/g;
+                      foreach my $match (@matches) {
+                        #print "$key : $val : $match\n";
+                        $passes++;
+                        if ($match eq $val) { $correct++; }
+                        if ($match ne $val) { $discrepancies++; }
+                      }                      
+                    }
+
+                    #print "\n";
+                    #print "passes: $passes\n";
+                    #print "correct: $correct\n";
+                    #print "discrepancies: $discrepancies\n\n";
+                    if ($discrepancies) {
+                      $exampleExitStatus = $discrepancies;
+                    }
+                    
+                } else {
+                    $exampleExitStatus = -1;    
+                    $message = "no \"Key Output Parameters\" section";
+                    printMessage($message, $v1+$v2,$v3);
+                }
+
             }
-            
-            if (!defined $exampleOutput) { 
-                print "\n\n";
-                print "example: ".$example."\n";
-                print "\n";                
-            }
-            
+                
             # Tally result
             $examplesTotal++;
             if ($exampleExitStatus) { $examplesFailed++; }
