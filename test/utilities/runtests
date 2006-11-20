@@ -580,7 +580,7 @@ cleanUp();
             $resultsString .= "\n";
             $resultsString .= "README {{{\n\n$exampleReadme\n\n}}}\n";
             $resultsString .= "\n";
-            $resultsString .= "DFT_OUTPUT{{{\n\n$dftOutput\n\n}}}\n";
+            $resultsString .= "DFT_OUTPUT {{{\n\n$dftOutput\n\n}}}\n";
             
             print RESULTS $resultsString;
             
