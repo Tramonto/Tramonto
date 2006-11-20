@@ -143,7 +143,7 @@ int dft_HardSphereA11_Epetra_Operator::doApply(const Epetra_MultiVector& X, Epet
   int NumVectors = Y.NumVectors();
   int numMyElements = matrix_->NumMyRows();
   int offset = Y.MyLength() - numMyElements; // We need to skip elements of Y associated with ind nonlocals
-  assert(numMyElements==offset); // The two by two blocks should have the same dimension
+  //assert(numMyElements==offset); // The two by two blocks should have the same dimension
   
 
   double ** curY = new double *[NumVectors];
