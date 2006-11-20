@@ -373,7 +373,6 @@ cleanUp();
         my $examplesFailed = 0;
         
         # run examples
-        unshift @exampleDirs, "BC1_FMT1_WCA_ELEC_2D";
         foreach my $exampleDir (@exampleDirs) {
             chdir $exampleDir or die "cannot chdir to $exampleDir, died";
 
@@ -513,6 +512,26 @@ cleanUp();
             printMessage($message, $v1+$v2+$v3);
             $message = " second".($runSeconds>1?"s":"")."\n";
             printMessage($message, $v1+$v2+$v3);
+
+            # Open README for reading.
+            open (README, "<README") 
+              or die "Can't open README, died";
+    
+            # Read README into one string.
+            undef $/;                      # undefine input record separator
+            my $exampleReadme=<README>;    # copy entire file
+            $/ = "\n";                     # restore it to default newline
+            close README;
+                
+	    # Open dft_output.dat for reading.
+	    open (DFT_OUTPUT, "<dft_output.dat")
+	      or die "Can't open dft_output.dat, died";
+
+	    # Read dft_output.dat into one string.
+	    undef $/;
+	    my $dftOutput=<DFT_OUTPUT>;
+	    $/ = "\n";
+	    close DFT_OUTPUT;
             
             # Create results file.
             my $resultsFile = "$resultsDir/";
@@ -558,6 +577,10 @@ cleanUp();
             $resultsString .= "RESULT               = ".($exampleExitStatus==0?"pass":"fail")."\n";
             $resultsString .= "\n";
             $resultsString .= "TEST_OUTPUT {{{\n\n$exampleOutput\n\n}}}\n";
+            $resultsString .= "\n";
+            $resultsString .= "README {{{\n\n$exampleReadme\n\n}}}\n";
+            $resultsString .= "\n";
+            $resultsString .= "DFT_OUTPUT{{{\n\n$dftOutput\n\n}}}\n";
             
             print RESULTS $resultsString;
             
