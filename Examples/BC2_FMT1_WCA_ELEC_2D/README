@@ -15,12 +15,12 @@ Input Files for Test problem:
    - dft_input.dat
    - dft_surfaces.dat
 
-Key Output Parameters {
-   Number of Iterations: "niters=7";
-   Adsorption[comp=1]: "ads[0]=0.046164";
-   Adsorption[comp=1]: "ads[1]=0.646164";
-   Adsorption[comp=1]: "ads[2]=1.877272";
-   Surface Ex. Energy: "omega_s=-2.337443";
-}
+Key Output Parameters:
+   - niter=7
+   - adsorption[0]=0.046164
+   - adsorption[1]=0.646164 
+   - adsorption[2]=1.877272  
+   - surf_ex_energy=-2.337443 
+   .
 */
 
