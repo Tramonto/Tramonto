@@ -45,6 +45,7 @@ my @testListAoH;        # test list array of hash
                         #   'masterFile'    =>  my_master_file
 
 my $resultsDir;         # absolute path to results directory
+my $runStartTime;       # time runtests started
 
 # Constants
 my $v0 = "0";           # quiet
@@ -266,11 +267,11 @@ cleanUp();
         $hr = sprintf("%02d", $hr);
         $mn = sprintf("%02d", $mn);
         $se = sprintf("%02d", $se);
-        my $startTime = $yr."-".$mo."-".$da."_".$hr.".".$mn.".".$se;
+        $runStartTime = $yr."-".$mo."-".$da."_".$hr.".".$mn.".".$se;
         
         # Create results directory.
         if (!$simpleDirName) {
-            $resultsDir .= "/$startTime-test";
+            $resultsDir .= "/$runStartTime-test";
         } else {
             $resultsDir .= "/test";
         }
@@ -290,7 +291,7 @@ cleanUp();
         $message .= "  \$outputDir = $outputDir\n";
         $message .= "  \$verbosity = $verbosity\n";
         $message .= "  \$logVerbosity = $logVerbosity\n";
-        $message .= "  \$startTime = $startTime\n";
+        $message .= "  \$runStartTime = $runStartTime\n";
         $message .= "  \$resultsDir = $resultsDir\n";
         $message .= "  \n";
         printMessage($message, $v3);
@@ -373,6 +374,7 @@ cleanUp();
         my $examplesFailed = 0;
         
         # run examples
+        @exampleDirs = sort(@exampleDirs);
         foreach my $exampleDir (@exampleDirs) {
             chdir $exampleDir or die "cannot chdir to $exampleDir, died";
 
@@ -390,6 +392,9 @@ cleanUp();
             $message = $example."...";
             $message = sprintf("%-55s", $message);
             printMessage($message, $v1+$v2+$v3);
+
+            # Blow away dft_output.dat if it exists
+            system("rm -rf dft_output.dat");
         
             # Capture and format test start time.
             (my $se, my $mn, my $hr, my $da, my $mo, my $yr) = (localtime)[0..5];
@@ -425,23 +430,17 @@ cleanUp();
                 close README;
                 
                 # grab "Key Output Parameters section
-                if ($readme =~ m/Key Output Parameters {(.*)}/s) {
+                if ($readme =~ m/Key Output Parameters:(.*)$/s) {
                     my $keyParamsString = $1;
                     $keyParamsString =~ s/#.*$//mg;  # remove comments
-                    my @pairs = ();
+                    my @keyParams = ();
                     my @lines = $keyParamsString =~ m/^(.*)$/mg;
                     foreach my $line (@lines) {
-                      if ($line =~ m/:\s*"\s*(.+)\s*=\s*(.+)\s*";/) {
-                        my %pair = ();
-                        $pair{'key'} = $1;
-                        $pair{'val'} = $2;
-                        push(@pairs, { %pair });
+                      if ($line =~ m/^\s*-\s*\S+\s*=\s*(-?[0-9.]+)\s*$/) {
+                        my $keyParam = $1;
+                        push(@keyParams, $keyParam);
                       }
                     }
-                    #foreach my $i (0 .. $#pairs) {
-                      #print "key: ".$pairs[$i]{'key'}."; ";
-                      #print "val: ".$pairs[$i]{'val'}."\n";
-                    #}
 
                     # Open dft_output.dat for reading.
                     open (DFT_OUTPUT, "<dft_output.dat")
@@ -453,30 +452,15 @@ cleanUp();
                     $/ = "\n";
                     close DFT_OUTPUT;
 
-                    my $passes = 0;
-                    my $correct = 0;
-                    my $discrepancies = 0;
-                    foreach my $i (0 .. $#pairs) {
-                      my $key = $pairs[$i]{'key'};
-                      my $val = $pairs[$i]{'val'};
-
-                      $key =~ s/\[/\\[/g;
-                      $key =~ s/\]/\\]/g;
-                      my @matches = $dftOutput =~ m/$key\s*=\s*(-?[0-9.]+)/g;
-                      foreach my $match (@matches) {
-                        #print "$key : $val : $match\n";
-                        $passes++;
-                        if ($match eq $val) { $correct++; }
-                        if ($match ne $val) { $discrepancies++; }
-                      }                      
+                    my $misses = 0;
+                    foreach my $keyParam (@keyParams) {
+                      if ($dftOutput !~ m/\s$keyParam\s/) {
+                        $misses++;
+                      }
                     }
 
-                    #print "\n";
-                    #print "passes: $passes\n";
-                    #print "correct: $correct\n";
-                    #print "discrepancies: $discrepancies\n\n";
-                    if ($discrepancies) {
-                      $exampleExitStatus = $discrepancies;
+                    if ($misses) {
+                      $exampleExitStatus = $misses;
                     }
                     
                 } else {
@@ -523,15 +507,22 @@ cleanUp();
             $/ = "\n";                     # restore it to default newline
             close README;
                 
-	    # Open dft_output.dat for reading.
-	    open (DFT_OUTPUT, "<dft_output.dat")
-	      or die "Can't open dft_output.dat, died";
+	        # Open dft_output.dat for reading.
+	        open (DFT_OUTPUT, "<dft_output.dat")
+	          or die "Can't open dft_output.dat, died";
 
-	    # Read dft_output.dat into one string.
-	    undef $/;
-	    my $dftOutput=<DFT_OUTPUT>;
-	    $/ = "\n";
-	    close DFT_OUTPUT;
+	        # Read dft_output.dat into one string.
+	        undef $/;
+	        my $dftOutput=<DFT_OUTPUT>;
+	        $/ = "\n";
+	        close DFT_OUTPUT;
+
+            # Rename dft_output.dat file for archival purposes
+            system("mv dft_output.dat dft_output_$exampleStartTimeForFilename.dat");
+
+            # Grab timing info
+            $exampleOutput =~ m/^TOTAL TIME\s+\S+\s+([0-9.]+)\s*$/m;
+            my $exampleTiming = $1;
             
             # Create results file.
             my $resultsFile = "$resultsDir/";
@@ -572,6 +563,7 @@ cleanUp();
             $resultsString .= "START_TIME           = $exampleStartTime\n";
             $resultsString .= "STOP_TIME            = $exampleStopTime\n";
             $resultsString .= "RUN_TIME             = ".($runSeconds==0?"<1":$runSeconds)." seconds\n";
+            $resultsString .= "TEST_TIMING          = $exampleTiming\n";
             $resultsString .= "\n";
             $resultsString .= "EXIT_STATUS          = $exampleExitStatus\n";
             $resultsString .= "RESULT               = ".($exampleExitStatus==0?"pass":"fail")."\n";
@@ -581,11 +573,53 @@ cleanUp();
             $resultsString .= "README {{{\n\n$exampleReadme\n\n}}}\n";
             $resultsString .= "\n";
             $resultsString .= "DFT_OUTPUT {{{\n\n$dftOutput\n\n}}}\n";
-            
+
             print RESULTS $resultsString;
             
             close RESULTS;
             
+            # Create timings file if it doesn't already exist.
+            my $timingsFile = "$resultsDir/timings.txt";
+            
+            my $timingsString = "";
+            
+            if (! -e $timingsFile) {
+                
+                open (TIMINGS, ">$timingsFile") 
+                    or die "can't open file $timingsFile for writing, died";
+                
+                $timingsString .= "HOST_NAME            = $hostName\n";
+                $timingsString .= "DNS_NAME             = $dnsName\n";
+                $timingsString .= "IP_ADDRESS           = $ipAddress\n";
+                $timingsString .= "OPERATING_SYSTEM     = $operatingSystem\n";
+                $timingsString .= "KERNEL_NAME          = $kernelName\n";
+                $timingsString .= "KERNEL_RELEASE       = $kernelRelease\n";
+                $timingsString .= "KERNEL_VERSION       = $kernelVersion\n";
+                $timingsString .= "PROCESSOR            = $processor\n";
+                $timingsString .= "MACHINE_HARDWARE     = $machineHardware\n";
+                $timingsString .= "HARDWARE_PLATFORM    = $hardwarePlatform\n";
+                $timingsString .= "\n";
+                $timingsString .= "BRANCH_TAG           = $branchTag\n";
+                $timingsString .= "TRAMONTO_DIR         = $tramontoDir\n";
+                $timingsString .= "BUILD_DIR            = $buildDir\n";
+                $timingsString .= "RUNTESTS_START_TIME  = $runStartTime\n";
+                $timingsString .= "NUM_PROCESSORS       = $maxProc\n";
+                $timingsString .= "\n";
+                $timingsString .= "\n";
+
+            } else { 
+                open (TIMINGS, ">>$timingsFile") 
+                    or die "can't open file $timingsFile for writing, died";
+            }
+
+            $timingsString .= sprintf("%-40s", $example);
+            $timingsString .= "$exampleTiming\n";
+
+            print TIMINGS $timingsString;
+            
+            close TIMINGS;
+            
+            # Bail if there's a failure and we're in short-circuit mode.
             if ($shortCircuit && $exampleExitStatus) {
                 print "short-circuit mode:  test failed:  quitting.\n";
                 return 77;
