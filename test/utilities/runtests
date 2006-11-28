@@ -430,8 +430,8 @@ cleanUp();
                 close README;
                 
                 # grab "Key Output Parameters section
-                if ($readme =~ m/Key Output Parameters:(.*)$/s) {
-                    my $keyParamsString = $1;
+                if ($readme =~ m/Key Output Parameters( \(Solution \d\))?:(.*)$/s) {
+                    my $keyParamsString = $2;
                     $keyParamsString =~ s/#.*$//mg;  # remove comments
                     my @keyParams = ();
                     my @lines = $keyParamsString =~ m/^(.*)$/mg;
