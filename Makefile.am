@@ -104,11 +104,6 @@ EXTRA_DIST = config/strip_dup_incl_paths.pl config/strip_dup_libs.pl \
 	Examples/CONT4_FMT1_WCA_1D/dft_input.dat \
 	Examples/CONT4_FMT1_WCA_1D/dft_surfaces.dat \
 	Examples/CONT4_FMT1_WCA_1D/README \
-	Examples/Ex_polyfiles/lin_18 \
-	Examples/Ex_polyfiles/lin_18_1 \
-	Examples/Ex_polyfiles/lin_18_1sym \
-	Examples/Ex_polyfiles/lin_3mer \
-	Examples/Ex_polyfiles/lin_5mer \
 	Examples/HS1_FMT1_1D/dft_input.dat \
 	Examples/HS1_FMT1_1D/dft_surfaces.dat \
 	Examples/HS1_FMT1_1D/README \
