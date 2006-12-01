@@ -885,7 +885,7 @@ static void merge_load_stencil(struct Stencil_Struct *sten,
        else {
          sten->Weight[index_sten[isten]] += el_weights[j];
          if (Lhard_surf)
-           sten->HW_Weight[index_sten[isten]][j] = el_weights[j];
+           sten->HW_Weight[index_sten[isten]][j] += el_weights[j];
        }
 
     } /* End of if statement checking for non-zero weight */
