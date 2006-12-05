@@ -1,0 +1,22 @@
+Tramonto v2.0 Release Notes
+
+* This version is a limited release version of Tramonto being implemented in 
+preparation for the v2.1 public release in early 2007.
+
+* Computation of Electrostatic Free Energy is implemented only approximately 
+except for the special case of the Poissson-Boltzmann electrolyte where the 
+implementation is exact.
+
+* The pressure for WTC functionals (Tripathi-Chapman functionals using 
+Werthiem's theory) has not been implemented.
+
+* Computation of bulk two phase coexistence is currently disabled and has not
+been implemented generally.
+
+* Stoichiometry errors (usually small) can be observed in CMS 
+(Chandler-McCoy-Singer) functionals when hard surfaces are used.
+
+* Stoichiometry errors (of varying severity) are often observed with WTC 
+functionals - to our knowledge, this is a short-coming of the theoretical 
+approach and not related to errors in implementation.
+
