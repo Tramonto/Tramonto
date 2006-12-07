@@ -236,8 +236,6 @@ exit $exitStatus;
         $/ = "\n";                          # restore it to default newline
         close INVOKE_CONFIGURE;
             
-        my $configLog = "";
-        
         # Configure
     
         # Capture and format make start time.
@@ -260,8 +258,10 @@ exit $exitStatus;
         my $startSeconds = time();
     
         # Run configure.  
-        my $configureOutput = `./invoke-configure 2>&1`;
-        my $configureExitStatus = $?;
+        my $configureOutput = "";
+        my $configureExitStatus = 0;
+        $configureOutput = `./invoke-configure 2>&1`;
+        $configureExitStatus = $?;
     
         # Capture and format make stop time.
         ($se, $mn, $hr, $da, $mo, $yr) = (localtime)[0..5];
@@ -275,14 +275,19 @@ exit $exitStatus;
         my $stopSeconds = time();            
         my $runSeconds = $stopSeconds - $startSeconds;
         
+        my $configLog = "";
+        
         # Broken or not?
         if ($configureExitStatus) {
             
-            open (CONFIG_LOG, "<$buildDir/config.log");
-            undef $/;               # undefine input record separator
-            $configLog=<CONFIG_LOG>;    # copy entire file
-            $/ = "\n";              # restore it to default newline
-            close CONFIG_LOG;
+            if (!open (CONFIG_LOG, "<$buildDir/config.log")) {
+                undef $/;               # undefine input record separator
+                $configLog=<CONFIG_LOG>;    # copy entire file
+                $/ = "\n";              # restore it to default newline
+                close CONFIG_LOG;
+            } else {
+                printMessage("unable to open config.log", $vi+$v2+$v3);
+            }
         
             $message = sprintf("%-30s", "");
             printMessage($message, $v1+$v2+$v3);
