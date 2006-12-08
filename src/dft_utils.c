@@ -36,7 +36,7 @@ int_stencil_bulk: this routine sums the appropriate stencil to get
                   the bulk contributions to various terms in the E-L
                   equation. Note that some terms (attractions, WCA electrostatics,
                   CMS polymers bury a multiplier function with the stencil weight function.*/
-void int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int))
+double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int))
 {
   int izone, isten,*offset,**sten_offset,idim;
   double sum, weight, *sten_weight,integrand,rsq;
@@ -61,8 +61,7 @@ void int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(do
      weight = integrand*sten_weight[isten];
      sum += weight;
   }
-  Temporary_sum=sum;
-  return;
+  return(sum);
 }
 /*******************************************************************************/
 /*int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
@@ -122,10 +121,10 @@ void int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(do
   return;
 }
 /****************************************************************************/
-void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk, 
+double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk, 
   int loc_inode, int inode_box, int izone,
   int *ijk_box, int resid_only_flag, int jzone_flag,
-  double(*fp_prefactor)(int,int,int *), double(*fp_resid)(int,int,double **), 
+  double (*fp_prefactor)(int,int,int *), double (*fp_resid)(int,int,double **), 
   double (*fp_jacobian)(int,int,double **))
 {
   int   **sten_offset, *offset, isten,idim;
@@ -134,7 +133,7 @@ void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
   double *sten_weight,  weight,fac;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
-  double resid,mat_val,resid_sum=0.0,weight_bulk,bulk_term;
+  double resid=0.0,mat_val,resid_sum=0.0,weight_bulk,bulk_term;
 
   int icomp,jzone, jnode_box, jcomp,jlist,junk,loop_max,jloop,jseg,index;
   int jnode_boxJ,i;
@@ -171,7 +170,6 @@ void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
 
       if (Nlists_HW <= 2) jlist = 0;
       else                jlist = jcomp;
-
 
       if (sten_type==U_ATTRACT || sten_type==THETA_CHARGE) {
             i=iunk-Phys2Unk_first[DENSITY];
@@ -210,7 +208,7 @@ void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
                 weight = HW_boundary_weight
                  (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
          }
-         resid =  fac*(weight*((*fp_resid)(junk,jnode_box,x)) - bulk_term);
+         resid =  fac*(weight*(*fp_resid)(junk,jnode_box,x) - bulk_term);
          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
          resid_sum+=resid;
 
@@ -231,11 +229,10 @@ void resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
          }
       }
   }
-  Temporary_sum=resid_sum;
-  return;
+  return(resid_sum);
 }
 /****************************************************************************/
-void resid_and_Jac_sten_fill (int sten_type, double **x, int iunk, int junk,
+double resid_and_Jac_sten_fill (int sten_type, double **x, int iunk, int junk,
   int icomp, int jcomp, int loc_inode, int inode_box, int izone,
   int *ijk_box, int resid_only_flag, int jzone_flag,
   double(*fp_prefactor)(int,int,int *), double(*fp_resid)(int,int,double **), 
@@ -303,8 +300,7 @@ void resid_and_Jac_sten_fill (int sten_type, double **x, int iunk, int junk,
         }
      }
   }
-  Temporary_sum=resid_sum;
-  return;
+  return(resid_sum);
 }
 /****************************************************************************/
 double  HW_boundary_weight(int icomp,int ilist, double *hw_weight,
@@ -511,7 +507,7 @@ void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),
   return;
 }
 /*****************************************************************************************************/
-void integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iunk,double **x,double *profile)
+void integrateOverSurface(double(*fp_integrand)(int,int,int,double **), int iunk, double **x, double *profile)
 {
 
   double sum,sum_i,integrand,fac;

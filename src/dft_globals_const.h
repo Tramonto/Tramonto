@@ -1,26 +1,14 @@
 /*
 //@HEADER
 // ******************************************************************** 
-// Tramonto: A molecular theory code for structured and uniform fluids
-//                 Copyright (2006) Sandia Corporation
+// Copyright (2006) Sandia Corporation. Under the terms of Contract
+// DE-AC04-94AL85000, there is a non-exclusive license for use of this
+// work by or on behalf of the U.S. Government. Export of this program
+// may require a license from the United States Government.
 //
-// Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-// license for use of this work by or on behalf of the U.S. Government.
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
+// This software is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-// 02110-1301, USA.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // ********************************************************************
 //@HEADER
 */
@@ -1315,34 +1303,32 @@ extern double load_rho_bar_v(double **,int,int,int,int,int *,int);
 extern double prefactor_rho_bar_v(int,int,int *);
 extern double prefactor_cavity_wtc(int,int,int *);
 
-void resid_and_Jac_sten_fill_sum_Ncomp (int, double **,int,int,int,int,
+extern double resid_and_Jac_sten_fill_sum_Ncomp (int, double **,int,int,int,int,
                                         int *,int,int, double(*fp_prefactor)(int,int,int *), 
                                         double(*fp_resid)(int,int,double **), 
                                         double(*fp_jacobian)(int,int,double **));
 
-void resid_and_Jac_sten_fill (int, double **,int,int,int,int,int,int,int,
+extern double resid_and_Jac_sten_fill (int, double **,int,int,int,int,int,int,int,
                               int *,int,int, double(*fp_prefactor)(int,int,int *), 
                                double(*fp_resid)(int,int,double **), 
                                double(*fp_jacobian)(int,int,double **));
 
-
-
+/* FUNCTIONS INVOLVED IN SETTING UP PHYSICS OF MATRIX PROBLEM */
 extern double load_mean_field(int, int, int, int, int, int *, double **, int);
-
-extern double load_poissons_eqn(int, int, int, int *, double **);
-extern double load_polarize_poissons_eqn(int, int, int, int *, double **);
 extern double load_nonlinear_transport_eqn(int,int,int,int *, double **);
 extern double load_linear_transport_eqn(int,int,int,int *, double **);
-extern double load_poisson_bc(int,int,int);
-extern double load_cavity_wtc(int,int,int,int,int *,double **,int);
-extern double load_bond_wtc(int,int,int,int,int *,double **,int);
+extern double load_cavity_wtc(int,int,int,int *,int,double **,int);
+extern double load_bond_wtc(int,int,int,int *,int,double **,int);
 extern double load_polyTC_diagEL(int,int,int,int,int,int *,double **,int);
 extern double load_polyTC_bondEL(int,int,int,int,int,int *,double **,int);
 extern double load_polyTC_cavityEL(int,int,int,int,int,int *,double **,int);
-extern void setup_polymer_cr(void);
-
-extern double constant_boundary(int, int);
-extern int find_jzone(int,int);
+extern double load_euler_lagrange(int,int,int,int *,int,double **,struct RB_Struct *,int,int);
+extern double load_poisson_control(int,int,int,int *,double **);
+extern void load_coarse_node_1dim(int,int,int *,int,double **);
+extern double load_coarse_node_Ndim(int,int,int,double **);
+extern double load_CMS_field(int,int,int,int *,int,double **,int);
+extern double load_CMS_density(int,int,int,double **,int);
+extern double load_CMS_Geqns(int,int,int,int *,int,double **,int);
 
 /*  MESH TRANSLATION ROUTINES */
 extern int  map_0th_plane(int, int);
@@ -1401,14 +1387,17 @@ extern void compute_bulk_nonlocal_hs_properties(char *);
 extern void compute_bulk_nonlocal_wtc_properties(char *);
 extern void calc_HS_diams();
 extern double integrand_BH(double,int);
+extern void setup_polymer_cr(void);
+extern double fill_zero_value(int,int,int,double **);
 
-/* SETUP UTILITIES (functions commonly applied in more than one place *
-extern void int_stencil_bulk(int,int,int,double(*fp_integrand)(double,int,int));
+/* UTILITY FUNCTIONS USED TO INTEGRATE OR APPLY BOUNDARY CONDITIONS */
+extern double int_stencil_bulk(int,int,int,double(*fp_integrand)(double,int,int));
 extern void int_stencil(double **,int, int,int);
-extern void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **,double **);
-extern void integrateInSpace(double(*fp_integrand)(int,int,double **),int,int **,double **);
-extern void integrateOverSurface(double(*fp_integrand)(int,int,double **),int,int **,double **);
-
+extern void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **,double **,double *);
+extern void integrateInSpace(double(*fp_integrand)(int,int,double **),int,int **,double **,double *);
+extern void integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int,double **,double *);
+extern double constant_boundary(int, int);
+extern int find_jzone(int,int);
 
 /* COMMUNICATIONS ROUTINES */
 extern double gsum_double(double);
@@ -1428,7 +1417,10 @@ extern void calc_fluid_charge(FILE *, double **);
 extern double integrand_adsorption(int,int,double **);
 extern double integrand_adsorption_bulk(int,int,double **);
 extern double integrand_fluid_charge(int,int,double **);
+extern void calc_flux(FILE *,char *,double *);
+extern void calc_force(FILE *, double **,double);
 
+/* ROUTINES FOR COMPUTING FREE ENERGY */
 extern double calc_free_energy(FILE *, double **);
 extern double integrand_ideal_gas_freen(int,int,double **);
 extern double integrand_ideal_gas_freen_bulk(int,int,double **);
@@ -1449,9 +1441,7 @@ extern double integrand_WTC_freen(int,int,double **);
 extern double integrand_WTC_freen_bulk(int,int,double **);
 extern double integrand_CMS_freen(int,int,double **);
 extern double integrand_CMS_freen_bulk(int,int,double **);
-extern void calc_flux(FILE *,char *,double *);
-extern void calc_force(FILE *, double **,double);
-/*extern double calc_free_energy_polymer(FILE *,double **,double,double);*/
+
 
 /* PRINTING - OUTPUT ROUTINES */
 extern void collect_x_old(double **);
@@ -1472,48 +1462,3 @@ extern void print_to_screen(double, char *);
 extern void print_to_file_comp(FILE *,int,double, char *,int);
 extern void print_to_file(FILE *,double, char *,int);
 /****************************************************************************/
-
-/* 
-   read all prototypes from the dft_*.c files to verify 
-   that all routines are called with the correct signature
-*/
-#ifdef AGSGETRIDOFTHIS
-  #include "include/dft_fill_shared.h"
-  #include "include/dft_out_energy.h"
-#ifdef PARALLEL
-  #include "include/dft_comm.h"
-#endif
-  #include "include/dft_guess.h"
-  #include "include/dft_out_flux.h"
-  #include "include/dft_continuation.h"
-  #include "include/dft_input.h"
-  #include "include/dft_out_force.h"
-  #include "include/dft_fill_main.h"
-#ifdef RCB_LOAD_BALANCE
-  #include "include/dft_ldbal.h"
-#endif
-  #include "include/dft_out_main.h"
-  #include "include/dft_fill_mf.h"
-  #include "include/dft_main.h"
-  #include "include/dft_out_profiles.h"
-  #include "include/dft_fill_msr.h"
-  #include "include/dft_mesh.h"       
-  #include "include/dft_fill_pde.h"
-  #include "include/dft_mesh_lib.h"
-  #include "include/dft_quadratue.h"
-  #include "include/dft_fillp.h"
-  #include "include/dft_mesh_surfaces.h"
-  #include "include/dft_stencil.h"
-  #include "include/dft_fill_rosen.h"
-  #include "include/dft_newton.h"
-  #include "include/dft_thermo.h"
-  #include "include/dft_fill_rosen_rb.h"
-  #include "include/dft_out_ads.h"
-  #include "include/dft_vext.h"
-  #include "include/dft_uww.h"
-  #include "include/dft_images.h"
-  #include "include/dft_potentials.h"
-  #include "include/loca_con_bord.h"
-  #include "include/loca_util.h"
-#endif
-

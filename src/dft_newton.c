@@ -457,8 +457,7 @@ static void do_numerical_jacobian(double **x)
           for (jnode=0; jnode<Nnodes_per_proc; jnode++) resid_tmp[junk][jnode] = 0.0;
 
       (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
-      if (Sten_Type[POLYMER_CR]) fill_resid_and_matrix_P(x,1,TRUE,NODAL_FLAG);
-      else                       fill_resid_and_matrix(x,1,TRUE,NODAL_FLAG);
+      fill_resid_and_matrix(x,1,TRUE,NODAL_FLAG);
 
       dft_linprobmgr_getrhs(LinProbMgr_manager, resid_tmp);
 

@@ -48,8 +48,7 @@ double calc_att_properties(double *betamu_att, double *rho)
 
   for (icomp=0; icomp<Ncomp; icomp++) {
      for (jcomp=0; jcomp<Ncomp;jcomp++){
-       int_stencil_bulk(U_ATTRACT,icomp,jcomp,NULL);
-       Avdw[icomp][jcomp] = Temporary_sum;
+       Avdw[icomp][jcomp] =int_stencil_bulk(U_ATTRACT,icomp,jcomp,NULL);
        betamu_att[icomp] += rho[jcomp]*Avdw[icomp][jcomp];
        betap_att += 0.5*Avdw[icomp][jcomp]*rho[icomp]*rho[jcomp];
      }

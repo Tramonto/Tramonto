@@ -61,9 +61,8 @@ double load_mean_field(int sten_type, int iunk, int loc_inode,
 
    jzone_flag=FALSE;
 
-   resid_and_Jac_sten_fill_sum_Ncomp(sten_type,x,iunk,loc_inode,inode_box,izone,
+   resid_sum=resid_and_Jac_sten_fill_sum_Ncomp(sten_type,x,iunk,loc_inode,inode_box,izone,
                      ijk_box,resid_only_flag,jzone_flag,
                      NULL, &resid_rho_bar,&jac_rho_bar);
-   resid_sum=Temporary_sum;
    return(resid_sum);
 }

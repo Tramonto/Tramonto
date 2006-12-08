@@ -1,26 +1,14 @@
 /*
 //@HEADER
 // ******************************************************************** 
-// Tramonto: A molecular theory code for structured and uniform fluids
-//                 Copyright (2006) Sandia Corporation
+// Copyright (2006) Sandia Corporation. Under the terms of Contract
+// DE-AC04-94AL85000, there is a non-exclusive license for use of this
+// work by or on behalf of the U.S. Government. Export of this program
+// may require a license from the United States Government.
 //
-// Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-// license for use of this work by or on behalf of the U.S. Government.
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
+// This software is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-// 02110-1301, USA.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // ********************************************************************
 //@HEADER
 */
@@ -52,6 +40,10 @@
 
 void set_fem_1el_weights(double **, double **, int ***);
 void set_fem_weights(double **, double **);
+double load_polarize_poissons_eqn(int,int,int,int *, double **);
+double load_poissons_eqn(int,int,int,int *,double **);
+double load_poisson_bc(int,int,int);
+void basis_fn_calc(double **,double ***,double *);
 
 /****************************************************************************/
 void set_fem_weights(double **wt_laplace_ptr, double **wt_source_ptr)
@@ -258,6 +250,41 @@ void set_fem_1el_weights(double **wt_lp_1el_ptr, double **wt_s_1el_ptr,
        (*elem_permute)[iln][3] = (*elem_permute)[iln-4][3+4] = 7- (iln-4); 
     }
   }
+}
+/*****************************************************************************/
+double load_poisson_control(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x)
+{
+  int idim,l_elec_RTF=FALSE,l_elec_LBB=FALSE;
+  double nodepos[3],resid_poisson,resid,mat_value;
+
+  if (Lsteady_state){
+     node_to_position(node_box_to_node(inode_box),nodepos);
+     idim = Grad_dim;
+     if ( nodepos[idim] +0.5*Size_x[idim] - X_const_mu <= 0.00000001) l_elec_LBB=TRUE;
+     else if (nodepos[idim] - 0.5*Size_x[idim] + X_const_mu >=-0.00000001) l_elec_RTF=TRUE;
+  }
+
+  if (l_elec_LBB){
+     resid = x[iunk][inode_box]-Elec_pot_LBB;
+     mat_value = 1.0;
+     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
+     resid_poisson = resid;
+  }
+  else if (l_elec_RTF){
+     resid = x[iunk][inode_box]-Elec_pot_RTF;
+     mat_value = 1.0;
+     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
+     resid_poisson = resid;
+  }
+  else if (!l_elec_LBB && !l_elec_RTF) {
+     if(Type_coul==POLARIZE) resid_poisson=load_polarize_poissons_eqn(iunk,loc_inode, inode_box,ijk_box,x);
+     else                    resid_poisson=load_poissons_eqn(iunk,loc_inode,inode_box,ijk_box,x);
+
+     resid_poisson+=load_poisson_bc(iunk,loc_inode,inode_box);
+  }
+  return resid_poisson;
 }
 /****************************************************************************/
 double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x)

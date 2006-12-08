@@ -54,6 +54,9 @@ COMMON_C = \
         ${srcdir}/dft_newton.c \
         ${srcdir}/dft_ldbal.c \
         ${srcdir}/dft_fill_pde.c \
+        ${srcdir}/dft_fill_coarse.c \
+        ${srcdir}/dft_fill_EL.c \
+        ${srcdir}/dft_fill_CMS.c \
         ${srcdir}/dft_stencil.c \
         ${srcdir}/dft_thermo.c \
         ${srcdir}/dft_thermo_hs.c \
@@ -83,7 +86,6 @@ COMMON_C = \
         ${srcdir}/dft_utils.c \
         ${srcdir}/dft_fill_control.c \
         ${srcdir}/dft_fill_main.c \
-        ${srcdir}/dft_fillp.c \
         ${srcdir}/dft_fill_rosen_rb.c \
         ${srcdir}/dft_fill_mf.c \
         ${srcdir}/dft_fill_wtc.c \

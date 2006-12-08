@@ -1,26 +1,14 @@
 /*
 //@HEADER
 // ******************************************************************** 
-// Tramonto: A molecular theory code for structured and uniform fluids
-//                 Copyright (2006) Sandia Corporation
+// Copyright (2006) Sandia Corporation. Under the terms of Contract
+// DE-AC04-94AL85000, there is a non-exclusive license for use of this
+// work by or on behalf of the U.S. Government. Export of this program
+// may require a license from the United States Government.
 //
-// Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-// license for use of this work by or on behalf of the U.S. Government.
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
+// This software is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-// 02110-1301, USA.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // ********************************************************************
 //@HEADER
 */
@@ -403,11 +391,17 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
 /* load_bond_wtc: 
              In this routine we load the Jacobian entries for
              freely-jointed polymer bonds - WTC theory.                      */
-double load_bond_wtc(int iunk, int loc_inode, int inode_box,
-                    int izone,int *ijk_box, double **x,int resid_only_flag)
+double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
+                    int izone, double **x,int resid_only_flag)
 {
   int junk,unk_bond,pol_num,iseg,bond_num,jseg,jcomp,icomp,jzone_flag,ibond;
-  double resid_sum,resid,mat_val;
+  double resid,mat_val,resid_bondwtc;
+
+  resid=-x[iunk][inode_box];
+  mat_val=-1.0;
+  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  resid_bondwtc=resid;
 
   unk_bond=iunk-Phys2Unk_first[BONDWTC];
   iseg=BondAll_to_isegAll[unk_bond];
@@ -425,7 +419,7 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
 
      jzone_flag=FALSE;
 
-     resid_and_Jac_sten_fill(DELTA_FN_BOND,x,iunk,junk,
+     resid_bondwtc+= resid_and_Jac_sten_fill(DELTA_FN_BOND,x,iunk,junk,
                    icomp,jcomp,loc_inode,inode_box,izone,
                    ijk_box,resid_only_flag,jzone_flag,
                     NULL, &resid_rho_bar,&jac_rho_bar);
@@ -437,33 +431,37 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,
       }*/
       junk=Pol_Sym[unk_bond]+Phys2Unk_first[BONDWTC];
       resid = x[junk][inode_box];
-      Temporary_sum=resid;
+      resid_bondwtc+=resid;
       dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       mat_val=1.0; 
       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
   }
 
-  resid_sum=Temporary_sum;
-
-  return(resid_sum);
+  return(resid_bondwtc);
 }
 /*********************************************************************************************/
 /* load_cavity_wtc: 
              In this routine we load the Jacobian entries for
              the cavity correlation function xi variables....WTC theory   */
-double load_cavity_wtc(int iunk, int loc_inode, int inode_box,
-                    int izone,int *ijk_box, double **x,int resid_only_flag)
+double load_cavity_wtc(int iunk, int loc_inode, int inode_box, int *ijk_box,
+                    int izone, double **x,int resid_only_flag)
 {
-  double resid_sum;
+  double resid,mat_val,resid_cavity;
   int jzone_flag;
 
   jzone_flag=FALSE;
 
-  resid_and_Jac_sten_fill_sum_Ncomp(THETA_FN_SIG,x,iunk,loc_inode,inode_box,izone,
+  resid=-x[iunk][inode_box];
+  mat_val=-1.0;
+  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+  resid_cavity=resid;
+
+  resid_cavity+=resid_and_Jac_sten_fill_sum_Ncomp(THETA_FN_SIG,x,iunk,loc_inode,inode_box,izone,
                    ijk_box,resid_only_flag,jzone_flag,
                     &prefactor_cavity_wtc, &resid_rho_bar,&jac_rho_bar);
-  resid_sum=Temporary_sum;
-  return(resid_sum);
+
+  return(resid_cavity);
 }
 /*****************************************************************************/
 double prefactor_cavity_wtc(int iunk,int icomp,int *offset)

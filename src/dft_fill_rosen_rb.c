@@ -252,11 +252,10 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      resid_sum+=resid;
   }
   else{
-    resid_and_Jac_sten_fill_sum_Ncomp(sten_type,x,iunk,loc_inode,inode_box,izone,
+    resid_sum+=resid_and_Jac_sten_fill_sum_Ncomp(sten_type,x,iunk,loc_inode,inode_box,izone,
                      ijk_box,resid_only_flag,jzone_flag,
                       &prefactor_rho_bar_s, &resid_rho_bar,&jac_rho_bar);
   }
-  resid_sum+=Temporary_sum;
   return(resid_sum);
 }
 /*****************************************************************************/
@@ -335,12 +334,11 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
   }
   else { 
-    resid_and_Jac_sten_fill_sum_Ncomp(DELTA_FN,x,iunk,loc_inode,inode_box,izone,
+    resid_sum+=resid_and_Jac_sten_fill_sum_Ncomp(DELTA_FN,x,iunk,loc_inode,inode_box,izone,
                      ijk_box,resid_only_flag,jzone_flag,
                       &prefactor_rho_bar_v, &resid_rho_bar,&jac_rho_bar);
   }
 
-  resid_sum+=Temporary_sum;
   return(resid_sum);
 }
 /*****************************************************************************/
