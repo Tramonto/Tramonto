@@ -286,7 +286,7 @@ exit $exitStatus;
                 $/ = "\n";              # restore it to default newline
                 close CONFIG_LOG;
             } else {
-                printMessage("unable to open config.log", $vi+$v2+$v3);
+                printMessage("unable to open config.log", $v1+$v2+$v3);
             }
         
             $message = sprintf("%-30s", "");
