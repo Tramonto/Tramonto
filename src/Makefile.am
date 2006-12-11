@@ -81,6 +81,13 @@ COMMON_C = \
         ${srcdir}/dft_out_profiles.c \
         ${srcdir}/dft_vext.c \
         ${srcdir}/dft_guess.c \
+        ${srcdir}/dft_guess_CHEMPOT.c \
+        ${srcdir}/dft_guess_EL_DENSITY.c \
+        ${srcdir}/dft_guess_HSFMT.c \
+        ${srcdir}/dft_guess_WTC.c \
+        ${srcdir}/dft_guess_restart.c \
+        ${srcdir}/dft_guess_CMS.c \
+        ${srcdir}/dft_guess_ELECPOT.c \
         ${srcdir}/dft_comm.c \
         ${srcdir}/dft_continuation.c \
         ${srcdir}/dft_utils.c \

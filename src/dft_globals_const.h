@@ -1245,7 +1245,33 @@ extern void setup_external_field_n(int **, int ***);
 extern void  setup_vext_coulomb_vol();
 extern void read_external_field_n(char *);
 extern void read_zero_density_TF(char *);
+
+/********** set guess **********************/
 extern void set_initial_guess(int,double **);
+extern void setup_rho_bar(double **);
+extern void setup_chem_pot(double **);
+extern void setup_polymer_rho(double **,int);
+extern void setup_polymer_field(double **,int);
+extern void setup_polymer_simple(double **, int);
+extern void setup_polymer_G(double **);
+extern void setup_polymer_G_2(double **);
+extern void setup_step_2consts(double **);
+extern void setup_linear_profile(double **);
+extern void setup_exp_density(double **, double *,int,int);
+extern void setup_const_density(double **, double *,int,int);
+extern void setup_stepped_profile(double **);
+extern void chop_profile(double **x, int);
+extern void check_zero_densities(double **);
+extern void communicate_profile(double *,double **);
+extern void shift_the_profile(double *,double);
+extern int  find_length_of_file(char *);
+extern void read_in_a_file(int,char *);
+extern int locate_inode_old(int *);
+extern void setup_exp_density_with_profile(double **);
+extern void setup_BondWTC(double **);
+extern void setup_Xi_cavWTC(double **);
+extern void setup_elec_pot(double **,int);
+
 extern int  solve_problem(double **, double **);
 extern int  newton_solver(double **x, void *con_ptr);
 
