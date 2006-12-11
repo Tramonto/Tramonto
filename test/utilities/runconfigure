@@ -280,7 +280,7 @@ exit $exitStatus;
         # Broken or not?
         if ($configureExitStatus) {
             
-            if (!open (CONFIG_LOG, "<$buildDir/config.log")) {
+            if (open (CONFIG_LOG, "<$buildDir/config.log")) {
                 undef $/;               # undefine input record separator
                 $configLog=<CONFIG_LOG>;    # copy entire file
                 $/ = "\n";              # restore it to default newline
