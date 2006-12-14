@@ -47,25 +47,7 @@
  *  variety of cases.
  */
 
-#include <stdio.h>
-#include "mpi.h"
-#include "dft_globals_const.h"
-#include "rf_allo.h"
-
-/* Prototypes for functions found in this file */
-void setup_zero();
-void setup_vext_max();
-void setup_semiperm(int **, int ***);
-void setup_1Dvext(int);
-void setup_1Dvext_xmin(int);
-void setup_integrated_LJ_walls(int,int *,int **);
-void setup_vext_LJ_atomic(int);
-void setup_vext_HS_atomic(int);
-
-void comm_wall_els(int,int **, int ***, int *, int**);
-void comm_vext_max(int *, int **);
-void comm_loc_to_glob_vec(int *,int *,int *);
-void correct_zeroTF_array();
+#include "dft_vext.h"
 
 #define FLAG_LJ 0
 #define FLAG_COULOMB 1

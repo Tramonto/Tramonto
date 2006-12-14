@@ -19,12 +19,11 @@
  *  into the matrix problem as averages of surrounding nodal values
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
+#include "mpi.h"*/
+#include "dft_fill_coarse.h"
 
-double load_coarse_variable(double **,int,double,int,int);
-void locate_neighbor_unks(double **,int, int, int,double,double *);
 /********************************************************************/
 void load_coarse_node_1dim(int loc_inode, int inode_box, int *ijk_box,int iunk, double **x)
 {

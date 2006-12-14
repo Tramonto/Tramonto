@@ -26,9 +26,8 @@
 
 COMMON_H = \
 	${srcdir}/Tramonto_ConfigDefs.h \
-        ${srcdir}/dft_globals.h \
-        ${srcdir}/dft_globals_const.h \
         ${srcdir}/dft_ldbal.h \
+        ${srcdir}/include_global/dft_globals.h \
         ${srcdir}/rf_allo.h \
         ${srcdir}/loca_const.h \
         ${srcdir}/loca_util_const.h \
@@ -43,7 +42,61 @@ COMMON_H = \
         ${srcdir}/dft_Schur_Epetra_Operator.hpp \
         ${srcdir}/dft_basic_lin_prob_mgr_wrapper.h \
         ${srcdir}/dft_poly_lin_prob_mgr_wrapper.h \
-        ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.h
+        ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.h \
+        ${srcdir}/dft_input.h \
+        ${srcdir}/dft_main.h \
+        ${srcdir}/dft_mesh.h \
+        ${srcdir}/dft_mesh_surfaces.h \
+        ${srcdir}/dft_mesh_lib.h \
+        ${srcdir}/dft_newton.h \
+        ${srcdir}/dft_ldbal.h \
+        ${srcdir}/dft_fill_pde.h \
+        ${srcdir}/dft_fill_coarse.h \
+        ${srcdir}/dft_fill_EL.h \
+        ${srcdir}/dft_fill_CMS.h \
+        ${srcdir}/dft_stencil.h \
+        ${srcdir}/dft_thermo.h \
+        ${srcdir}/dft_thermo_hs.h \
+        ${srcdir}/dft_thermo_att.h \
+        ${srcdir}/dft_thermo_cms.h \
+        ${srcdir}/dft_thermo_elec_MSA.h \
+        ${srcdir}/dft_thermo_id.h \
+        ${srcdir}/dft_thermo_wtc.h \
+        ${srcdir}/dft_out_main.h \
+        ${srcdir}/dft_out_ads.h \
+        ${srcdir}/dft_energy.h \
+        ${srcdir}/dft_energy_id.h \
+        ${srcdir}/dft_energy_hs.h \
+        ${srcdir}/dft_energy_att.h \
+        ${srcdir}/dft_energy_wtc.h \
+        ${srcdir}/dft_energy_elec.h \
+        ${srcdir}/dft_energy_vext.h \
+        ${srcdir}/dft_energy_mu.h \
+        ${srcdir}/dft_energy_cms.h \
+        ${srcdir}/dft_out_force.h \
+        ${srcdir}/dft_out_flux.h \
+        ${srcdir}/dft_out_profiles.h \
+        ${srcdir}/dft_vext.h \
+        ${srcdir}/dft_guess.h \
+        ${srcdir}/dft_guess_CHEMPOT.h \
+        ${srcdir}/dft_guess_EL_DENSITY.h \
+        ${srcdir}/dft_guess_HSFMT.h \
+        ${srcdir}/dft_guess_WTC.h \
+        ${srcdir}/dft_guess_restart.h \
+        ${srcdir}/dft_guess_CMS.h \
+        ${srcdir}/dft_guess_ELECPOT.h \
+        ${srcdir}/dft_comm.h \
+        ${srcdir}/dft_continuation.h \
+        ${srcdir}/dft_utils.h \
+        ${srcdir}/dft_fill_control.h \
+        ${srcdir}/dft_fill_main.h \
+        ${srcdir}/dft_fill_rosen_rb.h \
+        ${srcdir}/dft_fill_mf.h \
+        ${srcdir}/dft_fill_wtc.h \
+        ${srcdir}/dft_vext_coul.h \
+        ${srcdir}/dft_uww.h \
+        ${srcdir}/dft_images.h \
+        ${srcdir}/dft_potentials.h 
 
 COMMON_C = \
         ${srcdir}/dft_input.c \
@@ -67,7 +120,7 @@ COMMON_C = \
         ${srcdir}/dft_thermo_wtc.c \
         ${srcdir}/dft_out_main.c \
         ${srcdir}/dft_out_ads.c \
-        ${srcdir}/out_energy_new.c \
+        ${srcdir}/dft_energy.c \
         ${srcdir}/dft_energy_id.c \
         ${srcdir}/dft_energy_hs.c \
         ${srcdir}/dft_energy_att.c \

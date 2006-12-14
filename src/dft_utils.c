@@ -29,8 +29,9 @@
 Here are some useful routines that are used many times in 
 different places in the DFT code - 
 ------------------------------------------------------------*/
-#include <stdio.h>
-#include "dft_globals_const.h"
+#include "dft_utils.h"
+/*#include <stdio.h>
+#include "dft_globals_const.h"*/
 /***********************************************************************
 int_stencil_bulk: this routine sums the appropriate stencil to get
                   the bulk contributions to various terms in the E-L
@@ -431,7 +432,7 @@ int loc_find(int iunk,int inode,int flag)
   int loc_i;
   if (MATRIX_FILL_NODAL) loc_i = iunk + Nunk_per_node * inode;
   else{
-     if (flag == LOCAL)
+     if (flag == LOCAL_N)
         loc_i = inode + Nnodes_per_proc*iunk;
      else if (flag == BOX)
         loc_i = inode + Nnodes_box*iunk;

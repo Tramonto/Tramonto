@@ -27,6 +27,8 @@
 
 /* File for simple global communication operations, e.g. gmax_double */
 #include "mpi.h"
+/*#include "dft_globals_const.h"*/
+#include "dft_comm.h"
 
 MPI_Comm Comm=MPI_COMM_WORLD;
 

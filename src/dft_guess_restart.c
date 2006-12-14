@@ -32,12 +32,82 @@
  *
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
-#include <string.h>
+#include <string.h>*/
+#include "dft_guess_restart.h"
  
 /************************************************************/
+void guess_restart_from_files(int start_no_info,int iguess,double **xOwned)
+{
+  char filename[20];
+  double *x_new,fac;
+  int iunk,i;
+
+  x_new = (double *) array_alloc(1, Nnodes*Nunk_per_node, sizeof(double));
+
+  if (Proc == 0) {  /* Proc 0 reads in the data file */
+
+     if ( Imain_loop == 0){
+
+         /* START FROM AN OLD FILE - otherwise if on second or greater step in a 
+                                    continuation run, all of the _old variables
+                                    were set in collect_xold (dft_output.c) */
+
+         if (Lbinodal && iguess==BINODAL_FLAG) sprintf(filename,"dft_dens2.dat");
+         else                                  sprintf(filename,"dft_dens.dat");
+
+         Nodes_old = find_length_of_file(filename);
+
+                     /* Modify Nodes_old for the special case where we will read in a 1D file, but set up an initial
+                         guess for a 2D or 3D system */
+         if (Restart==5)  Nodes_old=Nnodes;
+
+         if (Lbinodal && iguess==BINODAL_FLAG)
+                  X2_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
+         else     X_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
+
+         read_in_a_file(iguess,filename); /* Get X_old from the file! */
+     }
+     else{ 
+                      /* Here we are on n>first continuation step.  Have all necessary fields */
+         for (i=0;i<NEQ_TYPE;i++) Restart_field[i]=TRUE;
+     }
+
+     if (Nodes_old != Nnodes) {     /* Profile must be modified in some way.  Number of nodes in file does
+                                       not match number of nodes in the current problem */
+
+          /* fix up to allow for some mixing of a bulk solution with a previously
+                               converged solution --this has been disabled with fac=1*/
+         fac=1.0;
+         shift_the_profile(x_new,fac);
+     }
+     else{
+         for (iunk=0; iunk<Nunknowns; iunk++){
+              if (iguess==Iguess1)                       x_new[iunk] = X_old[iunk];
+              else if (iguess==BINODAL_FLAG && Lbinodal) x_new[iunk] = X2_old[iunk];
+         }
+     }
+     if (iguess==Iguess1) safe_free((void *) &X_old);
+     else if (iguess==BINODAL_FLAG && Lbinodal) safe_free((void *) &X2_old);
+
+  }
+
+  MPI_Bcast (Restart_field,NEQ_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast (&start_no_info,1,MPI_INT,0,MPI_COMM_WORLD);
+
+  if (Restart_field[DENSITY]==FALSE) {
+      printf("can't do automatic restart without density fields yet\n");
+      exit(-1);
+  }
+  communicate_profile(x_new,xOwned);
+  check_zero_densities(xOwned);
+
+  safe_free((void *) &x_new);
+  return;
+}
+/**********************************************************/
 /*find_length_of_file: here just establish a file length.*/
 int find_length_of_file(char *filename)
 {
@@ -179,9 +249,12 @@ void read_in_a_file(int iguess,char *filename)
        if (Type_poly != NONE && Type_poly!=WTC){
          sprintf(filename2,"%sg",filename);
 	 if( (fp6=fopen(filename2,"r")) == NULL){
-	   printf("Can't open file %s\n", filename2);
-	   exit(1);
+/*	   printf("Can't open file %s\n", filename2);
+	   exit(1);*/
+           printf("I can't find the file dft_dens.datg... will try simple initial guess for G equations\n");
+           Restart_field[CMS_G]=FALSE;
 	 }
+         else  Restart_field[CMS_G]=TRUE;
        }
        open_now=FALSE;
                                       /* discard header when ready to read */
@@ -204,7 +277,7 @@ void read_in_a_file(int iguess,char *filename)
 
       dim_tmp=idim;
       ijk_old[dim_tmp] = round_to_int(pos_old/Esize_x[dim_tmp]);
-      if (Type_poly!=NONE && Type_poly!=WTC)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
+      if (Type_poly!=NONE && Type_poly!=WTC && Restart_field[CMS_G]==TRUE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
 
       if (ijk_old[dim_tmp] > ijk_old_max[dim_tmp]) ijk_old_max[dim_tmp] = ijk_old[dim_tmp];
     }
@@ -248,7 +321,7 @@ void read_in_a_file(int iguess,char *filename)
        else                                  X_old[iunk+node_start]=tmp;
     }
  
-    if (Type_poly != NONE && Type_poly!=WTC){
+    if (Type_poly != NONE && Type_poly!=WTC && Restart_field[CMS_G]==TRUE){
         for (iunk=Phys2Unk_first[CMS_G];iunk<Phys2Unk_last[CMS_G];iunk++) {
 
          fscanf(fp6,"%lf",&tmp);
@@ -268,7 +341,7 @@ void read_in_a_file(int iguess,char *filename)
     while ((c=getc(fp5)) != EOF && c !='\n') ;
     if (Restart==5 && ijk_old[0]==Nodes_x[0]-1){
        fclose(fp5);
-       if (Type_poly != NONE && Type_poly !=WTC) fclose(fp6);
+       if (Type_poly != NONE && Type_poly !=WTC && Restart_field[CMS_G]==TRUE) fclose(fp6);
        open_now=TRUE;
 /* if (Proc==0) printf("closing files to read again!\n");*/
     }
@@ -278,7 +351,7 @@ void read_in_a_file(int iguess,char *filename)
   }
   if (Restart!=5){
        fclose(fp5);
-       if (Sten_Type[POLYMER_CR]) fclose(fp6);
+       if (Type_poly != NONE && Type_poly !=WTC && Restart_field[CMS_G]==TRUE) fclose(fp6);
   }
   return;
 }

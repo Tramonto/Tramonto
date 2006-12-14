@@ -47,9 +47,10 @@
  *  of the rosenfeld functional.
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
+#include "mpi.h"*/
+#include "dft_fill_rosen_rb.h"
 
 static struct RB_Struct d2phi_drb2_delta_rb_FMT1(int, int, double **,double, 
 					    int *,double *,double,double,

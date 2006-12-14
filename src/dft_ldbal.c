@@ -39,13 +39,15 @@
    set RCB_CHECK and RCB_STATS at top of rcb.c as desired
 */
 
-#include <stdio.h>
+/*#include <stdio.h>
 #include <math.h>
 #include <memory.h>
 #include "mpi.h"
 #include "dft_ldbal.h"
 #include "rf_allo.h"
-#include "dft_globals_const.h"
+#include "dft_globals_const.h"*/
+
+#include "dft_ldbal.h"
 
 #define MYHUGE 1.0e30
 #define TINY   1.0e-6
@@ -1030,7 +1032,7 @@ void rcb_stats(double timetotal, struct rcb_dot *dotpt,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-static void sort_int_array(int n, int ra[])
+void sort_int_array(int n, int ra[])
 /*
 *       Numerical Recipies in C source code
 *       modified to have first argument an integer array (JS)
@@ -1266,8 +1268,8 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
      inode = position_to_node(dots[loc_inode].x);
 
      for (iunk = 0; iunk < Nunk_per_node; iunk++){
-        if (MATRIX_FILL_NODAL) (*update)[loc_find(iunk,loc_inode,LOCAL)] = inode * Nunk_per_node + iunk;
-        else                   (*update)[loc_find(iunk,loc_inode,LOCAL)] = inode + Nnodes_per_proc*iunk;
+        if (MATRIX_FILL_NODAL) (*update)[loc_find(iunk,loc_inode,LOCAL_N)] = inode * Nunk_per_node + iunk;
+        else                   (*update)[loc_find(iunk,loc_inode,LOCAL_N)] = inode + Nnodes_per_proc*iunk;
      }
 
      /* Calculate max 'n min range of nodes for each dimension */

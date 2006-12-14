@@ -20,12 +20,10 @@
  *  bonded systems
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
-double d2y_dxi3_sq(double,double,double,double);
-double d2y_dxi2_sq(double,double,double,double);
-double d2y_dxi3_dxi2(double,double,double,double);
+#include "mpi.h"*/
+#include "dft_fill_wtc.h"
 
 /***********************************************************************************************/
 /*load_polyTC_diagEL:  Here add the position diagonals of the WTC association/bonding contribution 

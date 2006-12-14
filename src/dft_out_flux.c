@@ -41,15 +41,17 @@
  *====================================================================*/
 
 /*
- *  FILE: dft_output.c
+ *  FILE: dft_out_flux.c
  *
- *  This file contains routines that post-process the density profiles.
+ *  This file contains routines that post-process a flux for the special
+ *  case of diffusion where diffusion coefficients have been provided.
  *
  */
 
-#include "mpi.h"
+/*#include "mpi.h"
 #include "dft_globals_const.h"
-#include "rf_allo.h"
+#include "rf_allo.h"*/
+#include "dft_out_flux.h"
 
 /*********************************************************************************
 calc_flux:  This routine calculates and prints out the flux

@@ -20,10 +20,10 @@
  *  physics functionals.
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
-double load_polymer_recursion(int,int,int,int,int,int,int,int *,double **);
+#include "mpi.h"*/
+#include "dft_fill_CMS.h"
 
 /****************************************************************************/
 double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int izone, double **x,int resid_only_flag)

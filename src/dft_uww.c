@@ -47,10 +47,12 @@
  *  variety of cases.
  */
 
-#include <stdio.h>
+/*#include <stdio.h>
 #include "mpi.h"
 #include "dft_globals_const.h"
-#include "rf_allo.h"
+#include "rf_allo.h"*/
+
+#include "dft_uww.h"
 
 #define FLAG_LJ 0
 #define FLAG_COULOMB 1
@@ -58,9 +60,9 @@
 
 /* Prototypes for functions found in this file */
 
-void setup_lj_atomic(int,int);
+/*void setup_lj_atomic(int,int);
 void setup_coulomb_atomic(int,int);
-void setup_ww_integrated(int,int *,int **,int,int);
+void setup_ww_integrated(int,int *,int **,int,int);*/
 
 
 /******************************************************************************/

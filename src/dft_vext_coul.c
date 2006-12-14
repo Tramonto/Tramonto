@@ -41,21 +41,21 @@
  *====================================================================*/
 
 /*
- *  FILE: dft_vext.c
+ *  FILE: dft_vext_coul.c
  *
- *  This file contains routines to set up an external field for a 
- *  variety of cases.
+ *  This file contains routines to set up the Coulombic contributions to the external field. 
+ *  
  */
 
-#include <stdio.h>
+/*#include <stdio.h>
 #include "mpi.h"
 #include "dft_globals_const.h"
-#include "rf_allo.h"
+#include "rf_allo.h"*/
 
-
+#include "dft_vext_coul.h"
 
 /* Prototypes for functions found in this file */
-void comm_loc_to_glob_vec(int *,int *,int *);
+/*void comm_loc_to_glob_vec(int *,int *,int *);*/
 
 #define FLAG_COULOMB 1
 

@@ -51,13 +51,15 @@
  *  
  */
 
-#include "mpi.h"
+#include "dft_mesh.h"
+
+/*#include "mpi.h"
 #include "dft_globals_const.h"
-#include "rf_allo.h"
+#include "rf_allo.h"*/
 
 /* Prototypes for functions found in this file */
 
-void setup_basic_box(FILE *, int *);
+/*void setup_basic_box(FILE *, int *);
 void boundary_properties(FILE *);
    void find_local_els(int,int *, int *,int);
    void surf_el_to_list (int, int, int *,int,
@@ -79,7 +81,7 @@ void bc_setup_const_charge(int,int);
 void els_charge_spheres(double,double *, int *,int *, int *,int);
 void setup_volume_charge1(int);
 void setup_volume_charge2(void);
-void setup_linear_grad_of_charge(void);
+void setup_linear_grad_of_charge(void);*/
 
 /*void bc_setup_local_charge(void);*/
 /*void find_lbb_node(int **,double *);*/

@@ -29,9 +29,127 @@
 Calculate the thermodynamic properties of chain contributions for a 
 Wertheim-Tripathi-Chapman bonded fluid.
 ------------------------------------------------------------*/
-#include "dft_globals_const.h"
+#include "dft_thermo_wtc.h"
+
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
+#include "mpi.h"*/
+/****************************************************************************/
+/* WTC_thermo_precalc: call all routines needed to process bulk properties of 
+                          WTC functionals */
+void WTC_thermo_precalc(char *output_file1)
+{
+  int iseg;
+
+  WTC_overlap();
+
+  /* compute bulk segment densities from polymer component densities */
+  for (iseg=0;iseg<Nseg_tot;iseg++){
+     Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
+     if (Lsteady_state){
+        Rho_seg_LBB[iseg]=Rho_b_LBB[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
+        Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
+     }
+  }
+  compute_bulk_nonlocal_wtc_properties(output_file1);
+
+  return;
+}
+/****************************************************************************/
+/* chempot_WTC: compute the excess chemical potential contributions due to WTC
+   functionals */
+void chempot_WTC(double *rho_seg,double *betamu)
+{
+   int icomp,jcomp,kcomp,i,ipol,iseg,ibond,jseg,kseg;
+   double y,dydxi2,dydxi3,sig2,sig3;
+
+
+   for (iseg=0;iseg<Nseg_tot;iseg++) {
+        Betamu_wtc[iseg]=0.0;
+        Betamu_seg[iseg]=0.0;
+   }
+
+   /* first compute terms that are based on bond pairs starting from segment iseg*/
+   /* note that in the bulk the BondWTC is identical to the site density of the jth segment */
+   for (iseg=0; iseg<Nseg_tot;iseg++){
+      icomp=Unk2Comp[iseg];
+      Betamu_seg[iseg]=betamu[icomp]-log(Nmer_t_total[icomp]); /* correct the ideal gas term for segments */
+      for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
+          jseg=Bonds_SegAll[iseg][ibond];
+          jcomp=Unk2Comp[jseg];
+          y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+            Betamu_seg[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
+                                - rho_seg[jseg]/rho_seg[iseg]);
+            Betamu_wtc[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
+                                 -rho_seg[jseg]/rho_seg[iseg]);
+      }
+   }
+   /* now add in the term that involves _all_ the bond pairs in the system for each segment via that cavity
+      correlation function.  Note that this term is nonzero even for bond pairs on different polymer
+      components than the one where the iseg segment is found ! */
+   for (kseg=0; kseg<Nseg_tot;kseg++){
+     kcomp = Unk2Comp[kseg];
+     sig2=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
+     sig3=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
+     for (iseg=0; iseg<Nseg_tot;iseg++){
+        icomp=Unk2Comp[iseg];
+        for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
+          jseg=Bonds_SegAll[iseg][ibond];
+          jcomp=Unk2Comp[jseg];
+          y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+          dydxi2 = dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+          dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+          Betamu_seg[kseg] -= Fac_overlap[icomp][jcomp]*(PI/12.0)*(rho_seg[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
+          Betamu_wtc[kseg] -= Fac_overlap[icomp][jcomp]*(PI/12.0)*(rho_seg[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
+        }
+     }
+   }
+   return;
+}
+/****************************************************************************/
+/* WTC_overlap: compute some heuristic scaling constants for WTC functionals when
+      bond lengths are shorter than Sigmas and the particles are overlapping */
+void WTC_overlap()
+{
+   int icomp,jcomp;
+
+   /* adjust theory for overlapping bonded spheres */
+   for (icomp=0;icomp<Ncomp;icomp++){
+     for (jcomp=0;jcomp<Ncomp;jcomp++){
+       if (Sigma_ff[icomp][icomp]>=Sigma_ff[jcomp][jcomp]){
+         if (Bond_ff[icomp][jcomp] >= 0.5*(Sigma_ff[icomp][icomp]+Sigma_ff[jcomp][jcomp])){
+            Fac_overlap[icomp][jcomp]=1.0;
+         }
+         else if (Bond_ff[icomp][jcomp] <= 0.5*fabs(Sigma_ff[icomp][icomp]-Sigma_ff[jcomp][jcomp])){
+            Fac_overlap[icomp][jcomp]=0.0;
+         }
+         else{
+            Fac_overlap[icomp][jcomp]=(Bond_ff[icomp][jcomp]/Sigma_ff[jcomp][jcomp]
+                                       -0.5*(Sigma_ff[icomp][icomp]-Sigma_ff[jcomp][jcomp])/Sigma_ff[jcomp][jcomp]);
+         }
+       }
+     }
+   }
+   Fac_overlap[1][1]=Fac_overlap[0][1]*Fac_overlap[0][1];
+
+   for (icomp=0;icomp<Ncomp;icomp++){
+     Fac_overlap_hs[icomp]=0.0;
+     for (jcomp=0;jcomp<Ncomp;jcomp++){
+       if (Sigma_ff[icomp][icomp]<Sigma_ff[jcomp][jcomp]) Fac_overlap[icomp][jcomp]=Fac_overlap[jcomp][icomp];
+       if (Fac_overlap[icomp][jcomp]> Fac_overlap_hs[icomp]) Fac_overlap_hs[icomp]=Fac_overlap[icomp][jcomp];
+     }
+   }
+
+   /* use this to turn off all of the overlap nonsense */
+   Fac_overlap_hs[0]=1.;
+   Fac_overlap_hs[1]=1.;
+   Fac_overlap[0][0]=1.0;
+   Fac_overlap[1][0]=1.0;
+   Fac_overlap[0][1]=1.0;
+   Fac_overlap[1][1]=1.0;
+
+    return;
+}
 /****************************************************************************/
    double y_cav(double sigma_1,double sigma_2,double xi_2, double xi_3)
 {           

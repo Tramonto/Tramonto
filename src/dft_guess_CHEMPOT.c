@@ -33,16 +33,18 @@
  *
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "mpi.h"
-#include <string.h>
+#include <string.h>*/
+
+#include "dft_guess_CHEMPOT.h"
  
 /************************************************************/
 /* setup_chem_pot: for cases with steady state profiles,
    set up an initial guess for (electro)chemical potentials */
 void setup_chem_pot(double **xOwned)
 {
-  int loc_inode,inode_box,inode,ijk[3],icomp,iunk,loc_i;
+  int loc_inode,inode_box,inode,ijk[3],icomp,iunk;
   double x_dist,x_tot;
 
   x_tot = Size_x[Grad_dim]-2.*X_const_mu;

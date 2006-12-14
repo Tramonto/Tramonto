@@ -25,9 +25,10 @@
 //@HEADER
 */
 
-#include "mpi.h"
+/*#include "mpi.h"
 #include "dft_globals_const.h"
-#include "rf_allo.h"
+#include "rf_allo.h"*/
+#include "dft_energy_id.h"
 
 /****************************************************************************/
 double integrand_ideal_gas_freen(int iunk,int inode_box, double **x)

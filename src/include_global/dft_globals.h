@@ -255,9 +255,13 @@ double  Rho_coex[2];   /* Liquid-vapor coexisting densities         */
 double  Betamu_hs_ex[NCOMP_MAX];/* Array of excess hardsphere chemical potentials*/
 double  Betamu_ex_bondTC[NCOMP_MAX][NMER_MAX*NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 double  Betamu_seg[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
+double  Betamu_seg_LBB[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
+double  Betamu_seg_RTF[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 double  Betamu[NCOMP_MAX]; /*Array[Ncomp] of chemical potentials */
 double  Betamu_id[NCOMP_MAX]; /*Array[Ncomp] of ideal gas chemical potentials */
 double  Betamu_wtc[NMER_MAX];
+double  Betamu_wtc_LBB[NMER_MAX];
+double  Betamu_wtc_RTF[NMER_MAX];
 
 int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
 int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */

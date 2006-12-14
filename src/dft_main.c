@@ -45,12 +45,14 @@
  */
 #include <mpi.h>
 #include <unistd.h>
-#include "dft_globals.h"
+#include "include_global/dft_globals.h"
 #include "rf_allo.h"
+
+#include "dft_main.h"
 /*****************************************************************************/
-void continuation_shift();
+/*void continuation_shift();
 void setup_nunk_per_node(char *);
-void dftmain(double *);
+void dftmain(double *);*/
 
 void dftmain(double * engptr)
 
@@ -199,7 +201,7 @@ void dftmain(double * engptr)
     /*
      * do all the thermodynamics for the bulk fluid mixture
      */
-     thermodynamics(output_file1, TRUE);
+     thermodynamics(output_file1);
 
     /*
      * Set up the mesh based on input info, and allocate the solution vector

@@ -50,7 +50,9 @@
  *
  */
 
-#include "dft_globals_const.h"
+#include "dft_quadrature.h"
+
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
 void get_radial_quadrature(double *, double *, int);
 void delta_tetrahedron(double **, double *);
@@ -61,7 +63,7 @@ void delta_dodecahedron(double **, double *);
 void delta_seventy_two(double **, double *);
 void delta_one_D_twelve(double **, double *);
 void delta_midpoint(double **, double *, int);
-void theta_midpoint(double **, double *, int, int);
+void theta_midpoint(double **, double *, int, int);*/
 
 
 

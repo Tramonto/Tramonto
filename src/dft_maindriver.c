@@ -33,8 +33,9 @@
  * is a stand alone binary and won't requie the library
  * version
  */
-#include <mpi.h>
-void dftmain (double *);
+/*#include <mpi.h>
+void dftmain (double *);*/
+#include "dft_maindriver.h"
 
 int
 main (int argc, char *argv[])

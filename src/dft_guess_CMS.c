@@ -33,9 +33,10 @@
  *
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "mpi.h"
-#include <string.h>
+#include <string.h>*/
+#include "dft_guess_CMS.h"
  
 /*********************************************************/
 /*setup_polymer_field: in this routine sets up the initial guess for the CMS field variable */
@@ -267,142 +268,4 @@ void setup_polymer_G(double **xOwned)
 
   return;
 }
-
 /*********************************************************/
-/*setup_polymer_G_2: in this routine set up guess for the G's   */
-/* version 2: calculate G's from initial field guess
-   linear polymers only for now!!! */
-#ifdef OLDCODE
-/* THIS ROUTINE DOES NOT WORK AS WRITTEN IN PARALLEL BECAUSE THE
- * INTEGRATION CAN ACCESS ELEMENTS OFF PROCESSOR. THE OFFENDING
- * COMMANDS ARE   xOwned[][B2L_node()] AND WOULD HAVE A -1 ARGUMENT
- * FOR THE SECOND INDEX. NOT FIXING RIGHT NOW BECAUSE THE CALL TO
- * THIS ROUTINE IS COMMENTED OUT ANYWAY.  AGS 4/05 */
-void setup_polymer_G_2(double **xOwned)
-{
-  int loc_inode,inode_box,ijk_box[3],loc_i;
-  int reflect_flag[NDIM_MAX];
-  int   **sten_offset, *offset, isten;
-  double *sten_weight,  weight;
-  struct Stencil_Struct *sten;
-  int sten_type,izone,jlist,jnode_box,itype_mer,jtype_mer;
-  int iunk,poln,iseg,ibond,j_box,unk_B;
-
-  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     inode_box = L2B_node[loc_inode];
-     node_box_to_ijk_box(inode_box, ijk_box);
-
-     if (Sten_Type[POLYMER_GAUSS]) sten_type = POLYMER_GAUSS;
-     else                          sten_type = DELTA_FN;
-     izone = 0;
-
-     for (poln=0; poln < Npol_comp; poln++){
-       /* do G's first in forward direction */
-        iunk = Geqn_start[poln];
-	ibond = 0;  /* only doing one set of bonds at a time */
-        for (iseg=0; iseg<Nmer[poln]; iseg++){
-	  itype_mer = Type_mer[poln][iseg];
-	  xOwned[iunk][loc_inode] = 0.;
-
-                             /* TREAT THE END SEGMENTS */
-	  if(Bonds[poln][iseg][ibond]== -1){
-            unk_B = Phys2Unk_first[CMS_FIELD] + Type_mer[poln][iseg];
-	    xOwned[iunk][loc_inode] = xOwned[unk_B][loc_inode];
-	    MPI_Barrier(MPI_COMM_WORLD);
-	  }
-	  else{
-	    jtype_mer = Type_mer[poln][Bonds[poln][iseg][ibond]];
-	    /* if (!Zero_density_TF[inode_box][jtype_mer]){ */
-	      if (Nlists_HW <= 2) jlist = 0;
-	      else                jlist = itype_mer;
-           
-	      /* generalized for != bond lengths */
-	      sten = &(Stencil[sten_type][izone][itype_mer+Ncomp*jtype_mer]);
-	      sten_offset = sten->Offset;
-	      sten_weight = sten->Weight;
-
-	      for (isten = 0; isten < sten->Length; isten++) {
-		offset = sten_offset[isten];
-		weight = sten_weight[isten];
-
-		/* Find the Stencil point */
-		jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-
-		if (jnode_box >= 0 ) {  
-		  if (Lhard_surf) {
-		    if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
-		      weight = HW_boundary_weight 
-			(jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
-		  }
-		  xOwned[iunk][loc_inode] +=  weight*xOwned[iunk][B2L_node[jnode_box]]; 
-		}
-		else if (jnode_box == -1 )
-		  xOwned[iunk][loc_inode] += weight;
-	      } /* end loop over stencil */
-
-	      /* Boltzmann factor */
-	      xOwned[iunk][loc_inode] *= xOwned[Phys2Unk_first[CMS_FIELD] + itype_mer][loc_inode];
-
-	      /* } end of Zero_dens_TF test */
-	  } /* end of if Bond test */
-	  iunk++;
-        } /* end of loop over each segment on poln */
-
-	/* now do G's in backward direction */
-        iunk = Ngeqn_tot-1;
-	ibond = 1;  /* only doing one set of bonds at a time */
-        for (iseg=Nmer[poln]-1; iseg>-1; iseg--){
-	  itype_mer = Type_mer[poln][iseg];
-	  xOwned[Phys2Unk_first[CMS_G]+iunk][loc_inode] = 0.;
-
-                             /* TREAT THE END SEGMENTS */
-	  if(Bonds[poln][iseg][ibond]== -1){
-	    xOwned[Phys2Unk_first[CMS_G]+iunk][loc_inode] = xOwned[Phys2Unk_first[CMS_FIELD]+Type_mer[poln][iseg]][loc_inode];
-	    MPI_Barrier(MPI_COMM_WORLD);
-	  }
-	  else{
-	    jtype_mer = Type_mer[poln][Bonds[poln][iseg][ibond]];
-	    if (!Zero_density_TF[inode_box][jtype_mer]){
-	      if (Nlists_HW <= 2) jlist = 0;
-	      else                jlist = jtype_mer;
-           
-	      /* generalized for != bond lengths */
-	      sten = &(Stencil[sten_type][izone][itype_mer+Ncomp*jtype_mer]);
-	      sten_offset = sten->Offset;
-	      sten_weight = sten->Weight;
-
-	      for (isten = 0; isten < sten->Length; isten++) {
-		offset = sten_offset[isten];
-		weight = sten_weight[isten];
-
-		/* Find the Stencil point */
-		jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-
-		if (jnode_box >= 0 ) {  
-		  if (Lhard_surf) {
-		    if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
-		      weight = HW_boundary_weight 
-			(jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
-		  }
-		  xOwned[Phys2Unk_first[CMS_G]+iunk][loc_inode] +=  weight*xOwned[iunk][B2L_node[jnode_box]]; 
-		}
-		else if (jnode_box == -1 )
-		  xOwned[Phys2Unk_first[CMS_G]+iunk][loc_inode] += weight;
-	      } /* end loop over stencil */
-
-	      /* Boltzmann factor */
-	      xOwned[Phys2Unk_first[CMS_G]+iunk][loc_inode] *= xOwned[Phys2Unk_first[CMS_FIELD]+itype_mer][loc_inode];
-
-	    } /*end of Zero_dens_TF test */
-	  } /* end of if Bond test */
-	  iunk--;
-	  MPI_Barrier(MPI_COMM_WORLD);
-        } /* end of loop over each segment on poln */
-
-     } /* end of loop over polymer chains */
-  }  /* end of loop over nodes */
-
-  return;
-}
-#endif
-

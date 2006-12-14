@@ -41,17 +41,20 @@
  *====================================================================*/
 
 /*
- *  FILE: dft_guess.c
+ *  FILE: dft_guess_WTC.c
  *
- *  This file contains routines that allocate and pick an initial
- *  guess for the solution vector.
+ *  This file contains routines that to set up an initial guess for 
+ *  bonding and cavity function variables associated with the 
+ *  Tripathi-Chapman functionals (based on Wertheim's theory).
  *
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
-#include <string.h>
+#include <string.h>*/
+
+#include "dft_guess_WTC.h"
  
 /************************************************************/
 /*setup_Xi_cavWTC: set up the cavity function initial guesses for 
@@ -60,8 +63,7 @@
                 based on rho initial guess. */
 void setup_Xi_cavWTC(double **xOwned)
 {
-  int loc_inode,inode_box,inode,ijk[3],iunk,icav;
-  double vol,area,x_dist;
+  int loc_inode,iunk,icav;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (icav = 0; icav < Phys2Nunk[CAVWTC]; icav++){
@@ -78,8 +80,7 @@ void setup_Xi_cavWTC(double **xOwned)
                 based on rho initial guess. */
 void setup_BondWTC(double **xOwned)
 {
-  int loc_inode,inode_box,inode,ijk[3],iunk,ibond;
-  double vol,area,x_dist;
+  int loc_inode,iunk,ibond;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (ibond = 0; ibond < Nbonds; ibond++){

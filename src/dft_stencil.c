@@ -50,12 +50,14 @@
  *
  */
 
-#include "dft_globals_const.h"
+#include "dft_stencil.h"
+
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
+#include "mpi.h"*/
 
 /* Prototypes for functions found in this file */
-static void merge_load_stencil(struct Stencil_Struct *, int **, double *,int *, int *);
+/*static void merge_load_stencil(struct Stencil_Struct *, int **, double *,int *, int *);
 static void print_out_stencil(int, int,int, int, FILE *);
 static void sort_stencil(struct Stencil_Struct *);
 static double calc_sten_rad(int , int , int);
@@ -67,7 +69,7 @@ static void renormalize_stencil(struct Stencil_Struct *, double);
 double int_cr(double,double,double,int,int, int, double, double *);
 double gauss(double, int, int);
 int ijk_to_isten_index(int *,int *);
-void shorten_stencil(struct Stencil_Struct *);
+void shorten_stencil(struct Stencil_Struct *);*/
 
 
 
@@ -851,7 +853,7 @@ return;
 }
 /****************************************************************************/
 
-static void merge_load_stencil(struct Stencil_Struct *sten,
+void merge_load_stencil(struct Stencil_Struct *sten,
 			       int **el_offsets, double *el_weights,
 			       int *el_in_radius,int *index_sten)
 /*
@@ -938,7 +940,7 @@ int ijk_to_isten_index(int *ijk,int *el_in_radius)
 }
 /****************************************************************************/
 
-static void renormalize_stencil(struct Stencil_Struct *sten, double vol_sten)
+void renormalize_stencil(struct Stencil_Struct *sten, double vol_sten)
 {
    double sum = 0, ratio;
    int i,j;
@@ -971,7 +973,7 @@ static void renormalize_stencil(struct Stencil_Struct *sten, double vol_sten)
 }
 /****************************************************************************/
 
-static void print_out_stencil(int isten, int izone,
+void print_out_stencil(int isten, int izone,
 			      int icomp, int jcomp, FILE *ifp)
 {
   int i,j;
@@ -1076,7 +1078,7 @@ void sort2_int_double_array(int n, int ra[], double rb[],
 
 /****************************************************************************/
 
-static void sort_stencil (struct Stencil_Struct *sten)
+void sort_stencil (struct Stencil_Struct *sten)
 {
 #define MAX_NODES_DIM 10000
   int i, *value;
@@ -1100,7 +1102,7 @@ static void sort_stencil (struct Stencil_Struct *sten)
 }
 
 /****************************************************************************/
-static double calc_sten_rad(int isten, int icomp, int jcomp)
+double calc_sten_rad(int isten, int icomp, int jcomp)
 {
   switch (isten) {
     case DELTA_FN:
@@ -1124,7 +1126,7 @@ static double calc_sten_rad(int isten, int icomp, int jcomp)
   return 0;
 }
 /****************************************************************************/
-static double calc_sten_vol(int isten, int i, int j)
+double calc_sten_vol(int isten, int i, int j)
 {
   double r_min,r_cut,vol_sten,r_max;
   switch (isten) {
@@ -1301,7 +1303,7 @@ void set_gauss_quad(int ngp, double *gp, double *gw)
 }
 /****************************************************************************/
 
-static double get_weight_from_stencil(int isten, int icomp, int jcomp, double rsq,
+double get_weight_from_stencil(int isten, int icomp, int jcomp, double rsq,
 				      double R, int ngpu, double *gpu, double *gwu)
 {
   double temp, zmax, z, rho, rmin, rlast_nz, r_upp,slope_dr,r_low,zsq,rx_low;
@@ -1614,7 +1616,7 @@ double gammln(double xx)
 }
   
 /****************************************************************************/
-static int calc_in_out_on(double *x_l, double *x_r, double sten_rad)
+int calc_in_out_on(double *x_l, double *x_r, double sten_rad)
 {
   int inflag = FALSE, outflag = FALSE;
   double r;

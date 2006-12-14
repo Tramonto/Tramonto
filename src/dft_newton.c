@@ -45,29 +45,32 @@
  *
  *  This file solves the dft problem using Newton's method.
  */
-#include "mpi.h" 
+#include "dft_newton.h"
+/*#include "mpi.h" */
 
 
-#ifdef HAVE_DFT_SCHUR_SOLVER
+
+/*#ifdef HAVE_DFT_SCHUR_SOLVER
 #include "dft_schur_solver.h"
 #endif
 
 #include "dft_globals_const.h" 
-#include "rf_allo.h"
+#include "rf_allo.h"*/
 /* #include "dft_basic_lin_prob_mgr_wrapper.h"
    #include "dft_poly_lin_prob_mgr_wrapper.h" */
 
-static void print_resid_norm(int iter);
+/*static void print_resid_norm(int iter);
 void fill_test(double **x, int flag);
-void fix_symmetries(double **x);
-#ifdef HAVE_NOXLOCA
+void fix_symmetries(double **x);*/
+
+/*#ifdef HAVE_NOXLOCA
 void NOXLOCA_Solver(double** xBox, double **xOwned);
-#endif
+#endif*/
 
 
-#ifdef NUMERICAL_JACOBIAN
+/*#ifdef NUMERICAL_JACOBIAN
 static void do_numerical_jacobian(double **x);
-#endif
+#endif*/
 
 
 /* NEWTON SOLVER using dft_Linprobmgr */
@@ -420,7 +423,7 @@ return;
 }
 /*****************************************************************************************************/
 #ifdef NUMERICAL_JACOBIAN
-static void do_numerical_jacobian(double **x)
+void do_numerical_jacobian(double **x)
 /* This routine compares the analytic and numerical jacobians for the     */
 /* purpose of checking the accuracy of an analytic Jacobian. It is only   */
 /* written for serial runs and will be slow, so only for small problems.  */
@@ -494,7 +497,7 @@ static void do_numerical_jacobian(double **x)
 
 
 /*****************************************************************************************************/
-static void print_resid_norm(int iter)
+void print_resid_norm(int iter)
 {
   int iunk, j;
   double norm=0.0;

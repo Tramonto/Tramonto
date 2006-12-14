@@ -46,15 +46,16 @@
  *
  */
 
-#include "mpi.h"
+/*#include "mpi.h"
 #include "dft_globals_const.h"
-#include "rf_allo.h"
+#include "rf_allo.h"*/
+#include "dft_out_energy.h"
 
 #define BFD 0
 #define FFD 1
 #define CFD 2
 
-double phispt_i(double *);
+/*double phispt_i(double *);
 double int_stencil(double **,int, int,int);
 void assemble_HS_free_energy(double **, double *, double *,double *);
 double free_energy_charging_up(double **);
@@ -63,9 +64,8 @@ double charge_stress(double **,double *);
 double calc_deriv_e(int,int,int,int *,double **,int);
 double calc_deriv2(int,int,int,double **);
 double calc_u_ideal(int, int *, double **, double *, double *);
-double energy_elec_vext_vol(double **);
+double energy_elec_vext_vol(double **);*/
 
-/****************************************************************************/
 /****************************************************************************
  *calc_free_energy:  This routine calculates the contribution of processor  *
  *                   Nproc to the grand potential (omega) and the surface   *

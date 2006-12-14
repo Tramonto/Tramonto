@@ -28,32 +28,69 @@
 /* ---------------------------------------------------------
 Calculate the thermodynamic properties for attractions in the bulk fluid.
 ------------------------------------------------------------*/
-#include "dft_globals_const.h"
+#include "dft_thermo_att.h"
+
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
+#include "mpi.h"*/
 /*************************************************************
-calc_att_properties: In this routine calculate the strict mean field
-                     attraction contribution to the pressure and
-                     chemical potential */
-double calc_att_properties(double *betamu_att, double *rho)
+ATT_thermo_precalc: Call any functions to precalculate useful global
+                    bulk parameters. */
+void ATT_thermo_precalc()
+{
+   calc_Avdw_att();
+   return;
+}
+/*************************************************************
+calc_Avdw_att: In this routine calculate the strict mean field
+              attraction contribution to the pressure */
+void calc_Avdw_att()
+{
+  int icomp,jcomp;
+
+  for (icomp=0; icomp<Ncomp; icomp++)
+      for (jcomp=0; jcomp<Ncomp; jcomp++) Avdw[icomp][jcomp]=0.0;
+
+  for (icomp=0; icomp<Ncomp; icomp++) {
+     for (jcomp=0; jcomp<Ncomp;jcomp++){
+       Avdw[icomp][jcomp] = int_stencil_bulk(U_ATTRACT,icomp,jcomp,NULL);
+     }
+  }
+  return;
+}
+/*************************************************************
+pressure_att: In this routine calculate the strict mean field
+              attraction contribution to the pressure */
+double pressure_att(double *rho)
 {
   int icomp,jcomp;
   double betap_att;
 
   betap_att = 0.0; 
-  for (icomp=0; icomp<Ncomp; icomp++){
-      betamu_att[icomp] = 0.0;
-      for (jcomp=0; jcomp<Ncomp; jcomp++) Avdw[icomp][jcomp]=0.0;
-  }
 
   for (icomp=0; icomp<Ncomp; icomp++) {
      for (jcomp=0; jcomp<Ncomp;jcomp++){
-       Avdw[icomp][jcomp] =int_stencil_bulk(U_ATTRACT,icomp,jcomp,NULL);
-       betamu_att[icomp] += rho[jcomp]*Avdw[icomp][jcomp];
        betap_att += 0.5*Avdw[icomp][jcomp]*rho[icomp]*rho[jcomp];
      }
   }
   return(betap_att);
+}
+/*************************************************************
+chempot_att: In this routine calculate the strict mean field
+                     attraction contribution to the pressure and
+                     chemical potential */
+void chempot_att(double *rho)
+{
+  int icomp,jcomp;
+
+  for (icomp=0; icomp<Ncomp; icomp++) Betamu_att[icomp] = 0.0;
+
+  for (icomp=0; icomp<Ncomp; icomp++) {
+     for (jcomp=0; jcomp<Ncomp;jcomp++){
+       Betamu_att[icomp] += rho[jcomp]*Avdw[icomp][jcomp];
+     }
+  }
+  return;
 }
 /*************************************************************************
 dp_drho_att: the derivative of the attractive part of the pressure 

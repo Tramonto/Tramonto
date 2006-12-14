@@ -101,7 +101,7 @@ am__libdft_a_SOURCES_DIST = ${srcdir}/dft_input.c ${srcdir}/dft_main.c \
 	${srcdir}/dft_thermo_att.c ${srcdir}/dft_thermo_cms.c \
 	${srcdir}/dft_thermo_elec_MSA.c ${srcdir}/dft_thermo_id.c \
 	${srcdir}/dft_thermo_wtc.c ${srcdir}/dft_out_main.c \
-	${srcdir}/dft_out_ads.c ${srcdir}/out_energy_new.c \
+	${srcdir}/dft_out_ads.c ${srcdir}/dft_energy.c \
 	${srcdir}/dft_energy_id.c ${srcdir}/dft_energy_hs.c \
 	${srcdir}/dft_energy_att.c ${srcdir}/dft_energy_wtc.c \
 	${srcdir}/dft_energy_elec.c ${srcdir}/dft_energy_vext.c \
@@ -144,7 +144,7 @@ am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_thermo_att.$(OBJEXT) dft_thermo_cms.$(OBJEXT) \
 	dft_thermo_elec_MSA.$(OBJEXT) dft_thermo_id.$(OBJEXT) \
 	dft_thermo_wtc.$(OBJEXT) dft_out_main.$(OBJEXT) \
-	dft_out_ads.$(OBJEXT) out_energy_new.$(OBJEXT) \
+	dft_out_ads.$(OBJEXT) dft_energy.$(OBJEXT) \
 	dft_energy_id.$(OBJEXT) dft_energy_hs.$(OBJEXT) \
 	dft_energy_att.$(OBJEXT) dft_energy_wtc.$(OBJEXT) \
 	dft_energy_elec.$(OBJEXT) dft_energy_vext.$(OBJEXT) \
@@ -214,6 +214,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_basic_lin_prob_mgr_wrapper.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_comm.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_continuation.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_energy.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_energy_att.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_energy_cms.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_energy_elec.Po \
@@ -266,9 +267,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_vext.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_vext_coul.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/loca_bord.Po ./$(DEPDIR)/loca_lib.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/loca_util.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/out_energy_new.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/rf_allo.Po
+@AMDEP_TRUE@	./$(DEPDIR)/loca_util.Po ./$(DEPDIR)/rf_allo.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -282,10 +281,9 @@ SOURCES = $(libdft_a_SOURCES) $(EXTRA_libdft_a_SOURCES) $(dft_SOURCES)
 DIST_SOURCES = $(am__libdft_a_SOURCES_DIST) \
 	$(am__EXTRA_libdft_a_SOURCES_DIST) $(dft_SOURCES)
 am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
-	${srcdir}/dft_globals.h ${srcdir}/dft_globals_const.h \
-	${srcdir}/dft_ldbal.h ${srcdir}/rf_allo.h \
-	${srcdir}/loca_const.h ${srcdir}/loca_util_const.h \
-	${srcdir}/dft_BasicLinProbMgr.hpp \
+	${srcdir}/dft_ldbal.h ${srcdir}/include_global/dft_globals.h \
+	${srcdir}/rf_allo.h ${srcdir}/loca_const.h \
+	${srcdir}/loca_util_const.h ${srcdir}/dft_BasicLinProbMgr.hpp \
 	${srcdir}/dft_PolyLinProbMgr.hpp \
 	${srcdir}/dft_HardSphereLinProbMgr.hpp \
 	${srcdir}/dft_PolyA11_Epetra_Operator.hpp \
@@ -297,6 +295,33 @@ am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
 	${srcdir}/dft_basic_lin_prob_mgr_wrapper.h \
 	${srcdir}/dft_poly_lin_prob_mgr_wrapper.h \
 	${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.h \
+	${srcdir}/dft_input.h ${srcdir}/dft_main.h \
+	${srcdir}/dft_mesh.h ${srcdir}/dft_mesh_surfaces.h \
+	${srcdir}/dft_mesh_lib.h ${srcdir}/dft_newton.h \
+	${srcdir}/dft_fill_pde.h ${srcdir}/dft_fill_coarse.h \
+	${srcdir}/dft_fill_EL.h ${srcdir}/dft_fill_CMS.h \
+	${srcdir}/dft_stencil.h ${srcdir}/dft_thermo.h \
+	${srcdir}/dft_thermo_hs.h ${srcdir}/dft_thermo_att.h \
+	${srcdir}/dft_thermo_cms.h ${srcdir}/dft_thermo_elec_MSA.h \
+	${srcdir}/dft_thermo_id.h ${srcdir}/dft_thermo_wtc.h \
+	${srcdir}/dft_out_main.h ${srcdir}/dft_out_ads.h \
+	${srcdir}/dft_energy.h ${srcdir}/dft_energy_id.h \
+	${srcdir}/dft_energy_hs.h ${srcdir}/dft_energy_att.h \
+	${srcdir}/dft_energy_wtc.h ${srcdir}/dft_energy_elec.h \
+	${srcdir}/dft_energy_vext.h ${srcdir}/dft_energy_mu.h \
+	${srcdir}/dft_energy_cms.h ${srcdir}/dft_out_force.h \
+	${srcdir}/dft_out_flux.h ${srcdir}/dft_out_profiles.h \
+	${srcdir}/dft_vext.h ${srcdir}/dft_guess.h \
+	${srcdir}/dft_guess_CHEMPOT.h ${srcdir}/dft_guess_EL_DENSITY.h \
+	${srcdir}/dft_guess_HSFMT.h ${srcdir}/dft_guess_WTC.h \
+	${srcdir}/dft_guess_restart.h ${srcdir}/dft_guess_CMS.h \
+	${srcdir}/dft_guess_ELECPOT.h ${srcdir}/dft_comm.h \
+	${srcdir}/dft_continuation.h ${srcdir}/dft_utils.h \
+	${srcdir}/dft_fill_control.h ${srcdir}/dft_fill_main.h \
+	${srcdir}/dft_fill_rosen_rb.h ${srcdir}/dft_fill_mf.h \
+	${srcdir}/dft_fill_wtc.h ${srcdir}/dft_vext_coul.h \
+	${srcdir}/dft_uww.h ${srcdir}/dft_images.h \
+	${srcdir}/dft_potentials.h \
 	${srcdir}/NOXLOCA_Tramonto_Group.hpp \
 	${srcdir}/NOXLOCA_Tramonto_Vector.hpp
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
@@ -417,9 +442,8 @@ target_vendor = @target_vendor@
 trilinos_installdir = @trilinos_installdir@
 COMMON_H = \
 	${srcdir}/Tramonto_ConfigDefs.h \
-        ${srcdir}/dft_globals.h \
-        ${srcdir}/dft_globals_const.h \
         ${srcdir}/dft_ldbal.h \
+        ${srcdir}/include_global/dft_globals.h \
         ${srcdir}/rf_allo.h \
         ${srcdir}/loca_const.h \
         ${srcdir}/loca_util_const.h \
@@ -434,7 +458,61 @@ COMMON_H = \
         ${srcdir}/dft_Schur_Epetra_Operator.hpp \
         ${srcdir}/dft_basic_lin_prob_mgr_wrapper.h \
         ${srcdir}/dft_poly_lin_prob_mgr_wrapper.h \
-        ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.h
+        ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.h \
+        ${srcdir}/dft_input.h \
+        ${srcdir}/dft_main.h \
+        ${srcdir}/dft_mesh.h \
+        ${srcdir}/dft_mesh_surfaces.h \
+        ${srcdir}/dft_mesh_lib.h \
+        ${srcdir}/dft_newton.h \
+        ${srcdir}/dft_ldbal.h \
+        ${srcdir}/dft_fill_pde.h \
+        ${srcdir}/dft_fill_coarse.h \
+        ${srcdir}/dft_fill_EL.h \
+        ${srcdir}/dft_fill_CMS.h \
+        ${srcdir}/dft_stencil.h \
+        ${srcdir}/dft_thermo.h \
+        ${srcdir}/dft_thermo_hs.h \
+        ${srcdir}/dft_thermo_att.h \
+        ${srcdir}/dft_thermo_cms.h \
+        ${srcdir}/dft_thermo_elec_MSA.h \
+        ${srcdir}/dft_thermo_id.h \
+        ${srcdir}/dft_thermo_wtc.h \
+        ${srcdir}/dft_out_main.h \
+        ${srcdir}/dft_out_ads.h \
+        ${srcdir}/dft_energy.h \
+        ${srcdir}/dft_energy_id.h \
+        ${srcdir}/dft_energy_hs.h \
+        ${srcdir}/dft_energy_att.h \
+        ${srcdir}/dft_energy_wtc.h \
+        ${srcdir}/dft_energy_elec.h \
+        ${srcdir}/dft_energy_vext.h \
+        ${srcdir}/dft_energy_mu.h \
+        ${srcdir}/dft_energy_cms.h \
+        ${srcdir}/dft_out_force.h \
+        ${srcdir}/dft_out_flux.h \
+        ${srcdir}/dft_out_profiles.h \
+        ${srcdir}/dft_vext.h \
+        ${srcdir}/dft_guess.h \
+        ${srcdir}/dft_guess_CHEMPOT.h \
+        ${srcdir}/dft_guess_EL_DENSITY.h \
+        ${srcdir}/dft_guess_HSFMT.h \
+        ${srcdir}/dft_guess_WTC.h \
+        ${srcdir}/dft_guess_restart.h \
+        ${srcdir}/dft_guess_CMS.h \
+        ${srcdir}/dft_guess_ELECPOT.h \
+        ${srcdir}/dft_comm.h \
+        ${srcdir}/dft_continuation.h \
+        ${srcdir}/dft_utils.h \
+        ${srcdir}/dft_fill_control.h \
+        ${srcdir}/dft_fill_main.h \
+        ${srcdir}/dft_fill_rosen_rb.h \
+        ${srcdir}/dft_fill_mf.h \
+        ${srcdir}/dft_fill_wtc.h \
+        ${srcdir}/dft_vext_coul.h \
+        ${srcdir}/dft_uww.h \
+        ${srcdir}/dft_images.h \
+        ${srcdir}/dft_potentials.h 
 
 COMMON_C = \
         ${srcdir}/dft_input.c \
@@ -458,7 +536,7 @@ COMMON_C = \
         ${srcdir}/dft_thermo_wtc.c \
         ${srcdir}/dft_out_main.c \
         ${srcdir}/dft_out_ads.c \
-        ${srcdir}/out_energy_new.c \
+        ${srcdir}/dft_energy.c \
         ${srcdir}/dft_energy_id.c \
         ${srcdir}/dft_energy_hs.c \
         ${srcdir}/dft_energy_att.c \
@@ -726,6 +804,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_basic_lin_prob_mgr_wrapper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_comm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_continuation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_att.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_cms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_energy_elec.Po@am__quote@
@@ -783,7 +862,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_bord.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_util.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/out_energy_new.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rf_allo.Po@am__quote@
 
 .c.o:
@@ -1138,21 +1216,21 @@ dft_out_ads.obj: ${srcdir}/dft_out_ads.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_out_ads.obj `if test -f '${srcdir}/dft_out_ads.c'; then $(CYGPATH_W) '${srcdir}/dft_out_ads.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_out_ads.c'; fi`
 
-out_energy_new.o: ${srcdir}/out_energy_new.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT out_energy_new.o -MD -MP -MF "$(DEPDIR)/out_energy_new.Tpo" -c -o out_energy_new.o `test -f '${srcdir}/out_energy_new.c' || echo '$(srcdir)/'`${srcdir}/out_energy_new.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/out_energy_new.Tpo" "$(DEPDIR)/out_energy_new.Po"; else rm -f "$(DEPDIR)/out_energy_new.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/out_energy_new.c' object='out_energy_new.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/out_energy_new.Po' tmpdepfile='$(DEPDIR)/out_energy_new.TPo' @AMDEPBACKSLASH@
+dft_energy.o: ${srcdir}/dft_energy.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_energy.o -MD -MP -MF "$(DEPDIR)/dft_energy.Tpo" -c -o dft_energy.o `test -f '${srcdir}/dft_energy.c' || echo '$(srcdir)/'`${srcdir}/dft_energy.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_energy.Tpo" "$(DEPDIR)/dft_energy.Po"; else rm -f "$(DEPDIR)/dft_energy.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_energy.c' object='dft_energy.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_energy.Po' tmpdepfile='$(DEPDIR)/dft_energy.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o out_energy_new.o `test -f '${srcdir}/out_energy_new.c' || echo '$(srcdir)/'`${srcdir}/out_energy_new.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy.o `test -f '${srcdir}/dft_energy.c' || echo '$(srcdir)/'`${srcdir}/dft_energy.c
 
-out_energy_new.obj: ${srcdir}/out_energy_new.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT out_energy_new.obj -MD -MP -MF "$(DEPDIR)/out_energy_new.Tpo" -c -o out_energy_new.obj `if test -f '${srcdir}/out_energy_new.c'; then $(CYGPATH_W) '${srcdir}/out_energy_new.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/out_energy_new.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/out_energy_new.Tpo" "$(DEPDIR)/out_energy_new.Po"; else rm -f "$(DEPDIR)/out_energy_new.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/out_energy_new.c' object='out_energy_new.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/out_energy_new.Po' tmpdepfile='$(DEPDIR)/out_energy_new.TPo' @AMDEPBACKSLASH@
+dft_energy.obj: ${srcdir}/dft_energy.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_energy.obj -MD -MP -MF "$(DEPDIR)/dft_energy.Tpo" -c -o dft_energy.obj `if test -f '${srcdir}/dft_energy.c'; then $(CYGPATH_W) '${srcdir}/dft_energy.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_energy.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_energy.Tpo" "$(DEPDIR)/dft_energy.Po"; else rm -f "$(DEPDIR)/dft_energy.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_energy.c' object='dft_energy.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_energy.Po' tmpdepfile='$(DEPDIR)/dft_energy.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o out_energy_new.obj `if test -f '${srcdir}/out_energy_new.c'; then $(CYGPATH_W) '${srcdir}/out_energy_new.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/out_energy_new.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_energy.obj `if test -f '${srcdir}/dft_energy.c'; then $(CYGPATH_W) '${srcdir}/dft_energy.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_energy.c'; fi`
 
 dft_energy_id.o: ${srcdir}/dft_energy_id.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_energy_id.o -MD -MP -MF "$(DEPDIR)/dft_energy_id.Tpo" -c -o dft_energy_id.o `test -f '${srcdir}/dft_energy_id.c' || echo '$(srcdir)/'`${srcdir}/dft_energy_id.c; \
@@ -2084,7 +2162,7 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(DISTFILES)
-	$(mkdir_p) $(distdir)/${srcdir}
+	$(mkdir_p) $(distdir)/${srcdir} $(distdir)/${srcdir}/include_global
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \

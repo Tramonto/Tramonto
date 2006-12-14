@@ -27,9 +27,10 @@
 
 /* New version of dft_out_ads.c ---- testing a function pointer approach for the output */
 
-#include "mpi.h"
+/*#include "mpi.h"
 #include "dft_globals_const.h"
-#include "rf_allo.h"
+#include "rf_allo.h"*/
+#include "dft_out_ads.h"
 
 /**************************************************************************************/
 void calc_adsorption(FILE *fp,double **x)

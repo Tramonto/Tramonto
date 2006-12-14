@@ -103,21 +103,25 @@
  *     application code. Each has its own comments.
  */
 
-#include <stdio.h>
+/*#include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <math.h>*/
 
 /* Put include statements for your code here. */
-#include "dft_globals_const.h"
+
+/*#include "dft_globals_const.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
-#include "rf_allo.h"
+#include "rf_allo.h"*/
+
 
 /*****************************************************************************/
 
 /* This include file is for the continuation structures, defines, prototypes */
 
 #include "loca_const.h"
+#include "dft_continuation.h"
+
 static void print_con_struct(const struct con_struct* con);
 
 /* Define passdown structure: this structure is global to this file, and
@@ -914,7 +918,7 @@ void assign_parameter_tramonto(int cont_type, double param)
   }
 
   /* recalculate thermo based on new parameter */
-  thermodynamics(output_file1, TRUE);
+  thermodynamics(output_file1);
 }
 /*****************************************************************************/
 /*****************************************************************************/

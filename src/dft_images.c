@@ -47,10 +47,11 @@
  *  so that external fields will correctly include all images.
  */
 
-#include <stdio.h>
+/*#include <stdio.h>
 #include "mpi.h"
 #include "dft_globals_const.h"
-#include "rf_allo.h"
+#include "rf_allo.h"*/
+#include "dft_images.h"
 
 /******************************************************************/
 /*find_images: here we take all the element positions in image_pos

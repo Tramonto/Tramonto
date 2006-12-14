@@ -28,9 +28,11 @@
 /* ---------------------------------------------------------
 Calculate relevant thermodynamic properties for CMS polymer fluid.
 ------------------------------------------------------------*/
-#include "dft_globals_const.h"
+#include "dft_thermo_cms.h"
+
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
+#include "mpi.h"*/
 /***************************************************************
 /*setup_polymer_cr: read in c(r) from file and add attractions*/
 void setup_polymer_cr()

@@ -29,13 +29,17 @@
 Calculate the thermodynamic properties for a charged system where MSA
 corrections are turned on.
 ------------------------------------------------------------*/
-#include "dft_globals_const.h"
+#include "dft_thermo_elec_MSA.h"
+
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
+#include "mpi.h"*/
 /********************************************************************
-calc_charge_correlations_b: Here we set up the bulk cross correlations
-      between the hard sphere and coulomb parts of the potential*/
-void calc_charge_correlations_b()
+chempot_ELEC_MSA: Here we compute the chemical potential contribution due
+      to cross correlations between the hard sphere and coulomb parts of 
+      the potential for the restricted primitive model based using the 
+      mean spherical approximation (following the work of Tang and Davis)*/
+void chempot_ELEC_MSA(double *rho)
 {
    int icomp,jcomp;
 
@@ -44,7 +48,7 @@ void calc_charge_correlations_b()
 
    for (icomp=0; icomp<Ncomp; icomp++) 
       for (jcomp=0; jcomp<Ncomp;jcomp++){
-          Deltac_b[icomp]+= Rho_b[jcomp]*int_stencil_bulk(THETA_CHARGE,icomp,jcomp,NULL);
+          Deltac_b[icomp]+= rho[jcomp]*int_stencil_bulk(THETA_CHARGE,icomp,jcomp,NULL);
       }
    return;
 }

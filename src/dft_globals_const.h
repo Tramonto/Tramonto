@@ -53,7 +53,9 @@
 #include <unistd.h>
 #endif
 
+#include "mpi.h"
 #include "az_aztec.h"
+#include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
@@ -165,7 +167,7 @@
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 #define NODAL_FLAG -999
 #define BOX 0
-#define LOCAL 1
+#define LOCAL_N 1
 #define GLOBAL 2
 
 /*
@@ -501,10 +503,8 @@ struct Loca_Struct {
 /*** extern statements for globals ***/
 
 
-/*extern
-int    count_zero;
-extern
-int    count_nonzero;
+/*extern int    count_zero;
+extern int    count_nonzero;
 */
 
 /* Basic Equation info */
@@ -519,972 +519,422 @@ extern int Unk2Phys[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gi
 
 /*************** Global Mesh ********************************/
 
-extern
-int     Ndim;            /* # of spatial dimensions of the problem      */
-extern
-int     Nnodes;          /* # of nodes in the mesh                */
-extern
-int     Nunknowns;       /* # of unknowns in the problem          */
-extern
-int     Nelements;       /* # of elements in the mesh             */
-extern
-int     Elements_plane;  /* # of elements in the x1-x2 plane      */
-extern
-int     Nodes_plane;     /* # of nodes in the x1-x2 plane          */
-extern
-int Nodes_x[NDIM_MAX];   /* Array[Ndim]: # nodes in each dimension */
-extern
-int Elements_x[NDIM_MAX];/* Array[Ndim]: # elements in each dim    */
-extern
-int     Max_sten_length[3];  /* The number of nodes in the longest stencil */
-extern
-int     Sten_length_hs[3];  /* The number of nodes in the h.s. stencil */
+extern int     Ndim;            /* # of spatial dimensions of the problem      */
+extern int     Nnodes;          /* # of nodes in the mesh                */
+extern int     Nunknowns;       /* # of unknowns in the problem          */
+extern int     Nelements;       /* # of elements in the mesh             */
+extern int     Elements_plane;  /* # of elements in the x1-x2 plane      */
+extern int     Nodes_plane;     /* # of nodes in the x1-x2 plane          */
+extern int Nodes_x[NDIM_MAX];   /* Array[Ndim]: # nodes in each dimension */
+extern int Elements_x[NDIM_MAX];/* Array[Ndim]: # elements in each dim    */
+extern int     Max_sten_length[3];  /* The number of nodes in the longest stencil */
+extern int     Sten_length_hs[3];  /* The number of nodes in the h.s. stencil */
 
 /*************** Reference Variables ***********************/
-extern
-double Length_ref;
-extern
-double Density_ref;
-extern
-double Dielec_ref;
-extern
-double Potential_ref;
-extern
-double VEXT_MAX;
+extern double Length_ref;
+extern double Density_ref;
+extern double Dielec_ref;
+extern double Potential_ref;
+extern double VEXT_MAX;
 
 /*************** Extended Local Mesh ************************/
-extern
-int     Nnodes_box;          /* # of nodes in the extended local mesh   */
-extern
-int     Nunknowns_box;       /* # of unknowns in the extended local mesh */
-extern
-int     Nelements_box;       /* # of elements in the extended local mesh */
-extern
-int     Elements_plane_box;  /* # of el in x1-x2 plane  of extended local mesh  */
-extern
-int     Nodes_plane_box;     /* # of nodes in x1-x2 plane of extended local mesh*/
-extern
-int Nodes_x_box[NDIM_MAX];   /* Array[Ndim]: # nodes in idim on extended local mesh */
-extern
-int Elements_x_box[NDIM_MAX];/* Array[Ndim]: # elements in idim on extended local mesh */
-extern
-int     Min_IJK_box[3]; /* The minimum IJK of the extended internals on this procesor */
-extern
-int     Max_IJK_box[3];  /* The maximum IJK of the extended internals on this procesor */
-extern
-int     Pflag[3];   /* PERIODIC flag array[Ndim]: TRUE Nodes_x_box=Nodes_x */
+extern int     Nnodes_box;          /* # of nodes in the extended local mesh   */
+extern int     Nunknowns_box;       /* # of unknowns in the extended local mesh */
+extern int     Nelements_box;       /* # of elements in the extended local mesh */
+extern int     Elements_plane_box;  /* # of el in x1-x2 plane  of extended local mesh  */
+extern int     Nodes_plane_box;     /* # of nodes in x1-x2 plane of extended local mesh*/
+extern int Nodes_x_box[NDIM_MAX];   /* Array[Ndim]: # nodes in idim on extended local mesh */
+extern int Elements_x_box[NDIM_MAX];/* Array[Ndim]: # elements in idim on extended local mesh */
+extern int     Min_IJK_box[3]; /* The minimum IJK of the extended internals on this procesor */
+extern int     Max_IJK_box[3];  /* The maximum IJK of the extended internals on this procesor */
+extern int     Pflag[3];   /* PERIODIC flag array[Ndim]: TRUE Nodes_x_box=Nodes_x */
 
 /************** Local Mesh **********************************/
-extern
-int     Min_IJK[3];      /* The minimum IJK of the internals on this procesor */
-extern
-int     Max_IJK[3];      /* The maximum IJK of the internals on this procesor */
+extern int     Min_IJK[3];      /* The minimum IJK of the internals on this procesor */
+extern int     Max_IJK[3];      /* The maximum IJK of the internals on this procesor */
 
 /************** Communications arrays for Gather vectors ******/
-extern
-int *Comm_node_proc;   /* array on proc 0 of nodes per processors */
-extern
-int *Comm_unk_proc;   /* array on proc 0 of unknowns per processors */
-extern
-int *Comm_offset_node; /* array on proc 0 of offsets of nodes  MPI_Gatherv*/
-extern
-int *Comm_offset_unk;  /* array on proc 0 of offsets of unknowns MPI_Gatherv*/
+extern int *Comm_node_proc;   /* array on proc 0 of nodes per processors */
+extern int *Comm_unk_proc;   /* array on proc 0 of unknowns per processors */
+extern int *Comm_offset_node; /* array on proc 0 of offsets of nodes  MPI_Gatherv*/
+extern int *Comm_offset_unk;  /* array on proc 0 of offsets of unknowns MPI_Gatherv*/
 
 /************** Other **************************************/
-extern
-double  Vol_el;          /* Volume of one element of our regular mesh        */
-extern
-double  Area_surf_el[3]; /*Area of surface element with normal in idim direction*/
-extern
-double Vol_in_surfs[NCOMP_MAX];  /* volume in all of the surfaces for each list */
-extern  
-int     Nlists_HW;       /* Number of lists needed if hard walls (for mixtures)*/
-extern
-int     Nel_wall_count;  /* Number of elements in the 0.5sigma of wall:rhobars*/
-extern
-int    **Nelems_per_wall;   /* Number of elements in a given [iwall] wall        */
-extern
-int     Nnodes_per_proc;  /* Number of nodes owned by this processor         */
-extern
-int     Nunk_int_and_ext; /* Number of unknownsneeded on this processor      */
-extern
-int     *B2L_unknowns;     /* Box to Local array for all unknowns */
-extern
-int     *B2G_node;         /* Box to global array for all box nodes */
-extern
-int     *B2G_unk;          /* Box to global array for all box unknowns */
-extern
-int     *L2B_node;         /* Local to box array for all local nodes */
-extern
-int     *B2L_node;         /* Box to local array for all local nodes */
-extern
-int     *L2G_node;         /* Local to global coordinates */
-extern
-int     Nunk_per_node;   /* Number of unknowns per node (usually Ncomp       */
-extern
-int     Nrho_bar;        /* Number of rhobar equations per node */
-extern
-int     Nrho_bar_s;      /* Number of scalar rhobar equations per node */
-extern
-int     Npoisson;        /* Number of rhobar equations per node */
-extern
-int     Ndiffusion;        /* Number of rhobar equations per node */
-extern
-int     Ndensity_unk;         /* Number of unknowns for the Euler-Lagrange equation */
-extern
-int     Ntype_unk;       /* Number of equations defining segment types for polymer TC cases */
-extern
-int     Nrho_bar_cavity; /* Number of nonlocal densities for the cavity function - WTC polymers */
-extern
-int     Nrho_bar_bond; /* Number of nonlocal densities for the bond functionals - WTC polymers */
-extern
-int     Nnodes_per_el_V;  /* Number of nodes per volume element              */
-extern
-int     Nnodes_per_el_S;  /* Number of nodes per surface element            */
-extern
-int     Plane_new_nodes; /* Indicates in which plane (xy,yz,xz)nodes are added*/
-extern
-int     Pos_new_nodes;   /* Indicates where nodes are added                  */
-extern
-double  Size_x[NDIM_MAX];    /*Array of the size of the domain in each dim. */
-extern
-double  Esize_x[NDIM_MAX];   /*Array of the size of an element in each dim. */
-extern
-int     Lmesh_refine;       /*Switch for auto mesh refinement               */
-extern
-int     Type_bc[NDIM_MAX][2];/*Array of boundary conditions in each dim.    */
-extern
-int     Non_unique_G2B[4];   /* Flag indicating which box dimensions       
-                                wrap around completely, resulting in a
-                                non-unique G2B mapping */
-extern
-int   **Nodes_2_boundary_wall;  /*Array[Nlists_HW][Nnodes] -1 if nod b.n. else b.n.  */
-extern
-int   **Wall_elems;     /*Array[Nlists_HW][Nelements] TRUE for wall elements */
-extern
-int   ****Touch_domain_boundary; /*Array[Nwall][Nlists_HW][[Ndim][2] =0 if surface hits left
+extern double  Vol_el;          /* Volume of one element of our regular mesh        */
+extern double  Area_surf_el[3]; /*Area of surface element with normal in idim direction*/
+extern double Vol_in_surfs[NCOMP_MAX];  /* volume in all of the surfaces for each list */
+extern  int     Nlists_HW;       /* Number of lists needed if hard walls (for mixtures)*/
+extern int     Nel_wall_count;  /* Number of elements in the 0.5sigma of wall:rhobars*/
+extern int    **Nelems_per_wall;   /* Number of elements in a given [iwall] wall        */
+extern int     Nnodes_per_proc;  /* Number of nodes owned by this processor         */
+extern int     Nunk_int_and_ext; /* Number of unknownsneeded on this processor      */
+extern int     *B2L_unknowns;     /* Box to Local array for all unknowns */
+extern int     *B2G_node;         /* Box to global array for all box nodes */
+extern int     *B2G_unk;          /* Box to global array for all box unknowns */
+extern int     *L2B_node;         /* Local to box array for all local nodes */
+extern int     *B2L_node;         /* Box to local array for all local nodes */
+extern int     *L2G_node;         /* Local to global coordinates */
+extern int     Nunk_per_node;   /* Number of unknowns per node (usually Ncomp       */
+extern int     Nrho_bar;        /* Number of rhobar equations per node */
+extern int     Nrho_bar_s;      /* Number of scalar rhobar equations per node */
+extern int     Npoisson;        /* Number of rhobar equations per node */
+extern int     Ndiffusion;        /* Number of rhobar equations per node */
+extern int     Ndensity_unk;         /* Number of unknowns for the Euler-Lagrange equation */
+extern int     Ntype_unk;       /* Number of equations defining segment types for polymer TC cases */
+extern int     Nrho_bar_cavity; /* Number of nonlocal densities for the cavity function - WTC polymers */
+extern int     Nrho_bar_bond; /* Number of nonlocal densities for the bond functionals - WTC polymers */
+extern int     Nnodes_per_el_V;  /* Number of nodes per volume element              */
+extern int     Nnodes_per_el_S;  /* Number of nodes per surface element            */
+extern int     Plane_new_nodes; /* Indicates in which plane (xy,yz,xz)nodes are added*/
+extern int     Pos_new_nodes;   /* Indicates where nodes are added                  */
+extern double  Size_x[NDIM_MAX];    /*Array of the size of the domain in each dim. */
+extern double  Esize_x[NDIM_MAX];   /*Array of the size of an element in each dim. */
+extern int     Lmesh_refine;       /*Switch for auto mesh refinement               */
+extern int     Type_bc[NDIM_MAX][2];/*Array of boundary conditions in each dim.    */
+extern int     Non_unique_G2B[4];   /* Flag indicating which box dimensions       
+                                wrap around completely, resulting in a non-unique G2B mapping */
+extern int   **Nodes_2_boundary_wall;  /*Array[Nlists_HW][Nnodes] -1 if nod b.n. else b.n.  */
+extern int   **Wall_elems;     /*Array[Nlists_HW][Nelements] TRUE for wall elements */
+extern int   ****Touch_domain_boundary; /*Array[Nwall][Nlists_HW][[Ndim][2] =0 if surface hits left
                                   boundary = 1 if hits right domain boundary else -1 */
-extern
-int   **Xtest_reflect_TF; /* Array[Nwall][Ndim] for reflections/wall-wall boundaries */
+extern int   **Xtest_reflect_TF; /* Array[Nwall][Ndim] for reflections/wall-wall boundaries */
 /* these are used to set up the Nodes_2_boundary_wall array then discarded*/
-extern
-int   Nnodes_wall_box; /* Count number of nodes in box that touch a wall */
-extern
-int  *Nodes_wall_box; /* Array to store which nodes touch a wall */
-extern
-int  *Nwall_touch_node; /* Array to store number of walls touching a given node */
-extern
-int  **Wall_touch_node; /*Array to store which walls touch a given node */
-extern
-int  **List_wall_node; /*Array to store which walls touch a given node */
-extern
-int  *Index_wall_nodes; /* ArraY to store indexing in these mesh arrays */
+extern int   Nnodes_wall_box; /* Count number of nodes in box that touch a wall */
+extern int  *Nodes_wall_box; /* Array to store which nodes touch a wall */
+extern int  *Nwall_touch_node; /* Array to store number of walls touching a given node */
+extern int  **Wall_touch_node; /*Array to store which walls touch a given node */
+extern int  **List_wall_node; /*Array to store which walls touch a given node */
+extern int  *Index_wall_nodes; /* ArraY to store indexing in these mesh arrays */
 
-extern
-int First_time; /* for MSR preprocessing */
+extern int First_time; /* for MSR preprocessing */
 
-extern
-int     Nzone;          /* Number of diff. quadrature zones on the mesh      */
-extern
-int    *Nodes_to_zone;   /* Array[Nnodes] of quadrature zones */
-extern
-double  Rmax_zone[5];    /* Array distances from surfaces in quadrature zones */
-extern
-int     Mesh_coarsening;  /* Flag indicating whether mesh coarsening is on */
-extern
-int    *Mesh_coarsen_flag;/* Flag (Nnodes) telling how much coarsening for
+extern int     Nzone;          /* Number of diff. quadrature zones on the mesh      */
+extern int    *Nodes_to_zone;   /* Array[Nnodes] of quadrature zones */
+extern double  Rmax_zone[5];    /* Array distances from surfaces in quadrature zones */
+extern int     Mesh_coarsening;  /* Flag indicating whether mesh coarsening is on */
+extern int    *Mesh_coarsen_flag;/* Flag (Nnodes) telling how much coarsening for
                              a given node, or negative values telling which*/
-extern
-int     Nnodes_coarse_loc; /* Number of coarse nodes local to a processor */
-extern
-int   *List_coarse_nodes; /* List of coarse nodes local to a processor */
-extern
-int     Coarser_jac;     /* Flag to switch on coarser jacobian than residual */
-extern
-double  Jac_grid;     /* Flag to switch on coarser jacobian than residual */
-extern
-int     Lcut_jac;  /* Logical to indicate if Jacobian stencils will be cut off */
-extern
-double  Jac_threshold; /* Threshold level for Jacobian stencils ... max/Jac_threshold */
+extern int     Nnodes_coarse_loc; /* Number of coarse nodes local to a processor */
+extern int   *List_coarse_nodes; /* List of coarse nodes local to a processor */
+extern int     Coarser_jac;     /* Flag to switch on coarser jacobian than residual */
+extern double  Jac_grid;     /* Flag to switch on coarser jacobian than residual */
+extern int     Lcut_jac;  /* Logical to indicate if Jacobian stencils will be cut off */
+extern double  Jac_threshold; /* Threshold level for Jacobian stencils ... max/Jac_threshold */
 
 /* Continuation info */
-extern
-int     Nodes_old;         /* # of nodes in the mesh of the previous run */
-extern
-int Nodes_x_old[NDIM_MAX];/* Array[Ndim]: # nodes in idim of previous run */
-extern
-double  *X_old;           /* Array of unknowns from previous run */
-extern
-double  *X2_old;           /* Array of unknowns from previous run */
+extern int     Nodes_old;         /* # of nodes in the mesh of the previous run */
+extern int Nodes_x_old[NDIM_MAX];/* Array[Ndim]: # nodes in idim of previous run */
+extern double  *X_old;           /* Array of unknowns from previous run */
+extern double  *X2_old;           /* Array of unknowns from previous run */
 
-extern
-int     Print_force_type;  /* flag for printing of force */
-extern
-int     Print_rho_type;  /* flag for file type for printing of densities */
-extern
-int     Print_rho_switch; /* flag for printing densities -- format */
-extern
-int     Lprint_gofr; /* flag for printing radial distribution functions */
-extern
-int     Lprint_pmf; /* flag for printing radial distribution functions */
-extern
-int     Print_mesh_switch; /* flag for printing densities -- format */
-extern
-int     Lper_area;  /*logical for per unit are outputs of params */ 
-extern
-int     Lcount_reflect;  /*logical for per unit are outputs of params */ 
-extern
-int     Nruns;           /* Number of runs to perform (varying the mesh)     */
-extern
-double  Del_1[NWALL_MAX_TYPE];    /*Stepping parameter for field #1  */
-extern
-double  Guess_range[2];   /* surf sep to switch between using Rho_b and X_old */
-extern
-double  Rho_max;         /* max rho when using an old solution for mesh contin*/
-extern
-int     Imain_loop;    /* Couter on the number of times through the program  */
-extern
-double  Scale_fac; /* for continuation in arrays !*/
+extern int     Print_force_type;  /* flag for printing of force */
+extern int     Print_rho_type;  /* flag for file type for printing of densities */
+extern int     Print_rho_switch; /* flag for printing densities -- format */
+extern int     Lprint_gofr; /* flag for printing radial distribution functions */
+extern int     Lprint_pmf; /* flag for printing radial distribution functions */
+extern int     Print_mesh_switch; /* flag for printing densities -- format */
+extern int     Lper_area;  /*logical for per unit are outputs of params */ 
+extern int     Lcount_reflect;  /*logical for per unit are outputs of params */ 
+extern int     Nruns;           /* Number of runs to perform (varying the mesh)     */
+extern double  Del_1[NWALL_MAX_TYPE];    /*Stepping parameter for field #1  */
+extern double  Guess_range[2];   /* surf sep to switch between using Rho_b and X_old */
+extern double  Rho_max;         /* max rho when using an old solution for mesh contin*/
+extern int     Imain_loop;    /* Couter on the number of times through the program  */
+extern double  Scale_fac; /* for continuation in arrays !*/
 
 
 /* Surface Physics info */
-extern
-int     Nwall;           /* Number of surfaces in the calculation            */
-extern 
-int     Nwall_type;       /* Number of surface types in the problem */
-extern
-int     WallType[NWALL_MAX]; /* array containing type number for each surface */
-extern
-int     Nlink;           /* Number of macro-surfaces */
-extern
-int     Link[NWALL_MAX]; /* Index iwall to a particular macro-surface */
-extern
-int     *Nwall_this_link; /* Number of walls linked together in a particular macro-surface */
-extern
-int     **Link_list; /* List of walls linked in a particular macro-surface */
-extern
-int     Surface_type[NWALL_MAX_TYPE];    /* Type of surfaces of interest                     */
-extern
-int     Orientation[NWALL_MAX_TYPE];  /* Orientation of planar/bumpy infinite walls*/
-extern
-double  WallParam[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
-extern
-double  WallParam_2[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
-extern
-double  WallParam_3[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
-extern
-double  WallParam_4[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
-extern
-int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
-extern
-double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
-extern
-double  Rough_length[NWALL_MAX_TYPE];
-extern
-double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
+extern int     Nwall;           /* Number of surfaces in the calculation            */
+extern int     Nwall_type;       /* Number of surface types in the problem */
+extern int     WallType[NWALL_MAX]; /* array containing type number for each surface */
+extern int     Nlink;           /* Number of macro-surfaces */
+extern int     Link[NWALL_MAX]; /* Index iwall to a particular macro-surface */
+extern int     *Nwall_this_link; /* Number of walls linked together in a particular macro-surface */
+extern int     **Link_list; /* List of walls linked in a particular macro-surface */
+extern int     Surface_type[NWALL_MAX_TYPE];    /* Type of surfaces of interest                     */
+extern int     Orientation[NWALL_MAX_TYPE];  /* Orientation of planar/bumpy infinite walls*/
+extern double  WallParam[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
+extern double  WallParam_2[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
+extern double  WallParam_3[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
+extern double  WallParam_4[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
+extern int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
+extern double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
+extern double  Rough_length[NWALL_MAX_TYPE];
+extern double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
 
 /* Fluid Physics info */
-extern
-int     Ncomp;           /* Number of components in the current problem      */
-extern
-double  Temp;            /* Reduced Temperature for LJ interactions          */
-extern
-double  Temp_elec;       /* Reduced Temperature for Poisson's equation       */
-extern
-double  charge_fluid;    /* the charge in the fluid ... post processing */
-extern  
-int     Type_dielec;      /* choose how to handle dielectric constants in system */
-extern
-double  Dielec_bulk;     /* the dielectric constant in the bulk fluid */
-extern
-double  Dielec_pore;     /* the dielectric constant in the "pore" fluid */
-extern
-double  Dielec_X;        /* distance from a surface defines the "pore" fluid */
-extern
-double *Dielec_wall;     /* the dielectric constant as function of wall type */
-extern
-double *Dielec;     /* dielectric constant as function of ielement_box */
-extern
-int     Lpolarize[NCOMP_MAX]; /* logical for if a species is polarizeable */
-extern
-double  Pol[NCOMP_MAX];  /* bulk polarizeability for each species */
-extern
-double  Energy;   /* Surface free energy to return to Towhee */
+extern int     Ncomp;           /* Number of components in the current problem      */
+extern double  Temp;            /* Reduced Temperature for LJ interactions          */
+extern double  Temp_elec;       /* Reduced Temperature for Poisson's equation       */
+extern double  charge_fluid;    /* the charge in the fluid ... post processing */
+extern  int     Type_dielec;      /* choose how to handle dielectric constants in system */
+extern double  Dielec_bulk;     /* the dielectric constant in the bulk fluid */
+extern double  Dielec_pore;     /* the dielectric constant in the "pore" fluid */
+extern double  Dielec_X;        /* distance from a surface defines the "pore" fluid */
+extern double *Dielec_wall;     /* the dielectric constant as function of wall type */
+extern double *Dielec;     /* dielectric constant as function of ielement_box */
+extern int     Lpolarize[NCOMP_MAX]; /* logical for if a species is polarizeable */
+extern double  Pol[NCOMP_MAX];  /* bulk polarizeability for each species */
+extern double  Energy;   /* Surface free energy to return to Towhee */
 
 
-extern
-double  Betap;           /* Pressure in units of kT sigma_ff[1]^3           */
-extern
-double Betap_LBB;       /* Pressure calculated for LBB of domain */
-extern
-double Betap_RTF;       /* Pressure calculated for RTF of domain */
-extern
-double  Betap_id;       /* Ideal gas Presseure in units of kT sigma_ff[1]^3   */
-extern
-double  Betap_att;      /* Attractive Presseure in units of kT sigma_ff[1]^3   */
-extern
-double  P_over_po;
-extern
-int     L_isotherm; /* Logical for isotherm vs. force per distance data */
-extern
-double  Rho_b[NCOMP_MAX];   /* Array[Ncomp] of component bulk densities      */
-extern
-double  Rhobar_b[10]; /* Array[Nrho_bar] of bulk rhobars      */
-extern
-double  Rhobar_b_LBB[10]; /* Array[Nrho_bar] of bulk rhobars LBB  */
-extern
-double  Rhobar_b_RTF[10]; /* Array[Nrho_bar] of bulk rhobars RTF  */
-extern
-double  Dphi_Drhobar_b[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars      */
-extern
-double  Dphi_Drhobar_LBB[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars LBB  */
-extern
-double  Dphi_Drhobar_RTF[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars RTF  */
-extern
-double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
-extern
-double  Rho_seg_LBB[NMER_MAX];
-extern
-double  Rho_seg_RTF[NMER_MAX];
-extern
-double  *Rhobar3_old;   /* Array[Nnodes_box] of old values of rhobar 3*/
-extern
-double Xi_cav_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
-extern
-double Xi_cav_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
-extern
-double Xi_cav_RTF[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
-extern
-double BondWTC_b[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
-extern
-double BondWTC_LBB[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
-extern
-double BondWTC_RTF[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
-extern
-double  Rho_coex[2];   /* Liquid and Vapor Coexisting Densities         */
-extern
-double  Betamu_hs_ex[NCOMP_MAX];/* Array of excess hardsphere chemical potentials*/
-extern
-double  Betamu[NCOMP_MAX];   /* Array[Ncomp] of chemical potentials*/
-extern
-double  Betamu_id[NCOMP_MAX];   /* Array[Ncomp] of ideal gas chemical potentials*/
-extern
-double Betamu_wtc[NMER_MAX];
-extern
-double  Betamu_ex_bondTC[NCOMP_MAX][NMER_MAX*NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
-extern
-double  Betamu_seg[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
-extern
-int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
-extern
-int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
-extern
-int     Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
-extern
-int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
-extern
-int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */
-extern 
-int     Lhard_surf;   /* Logical indicating if the surfaces have hard cores */
-extern  
-int     Iliq_vap;     /* Type of liquid vapor profile */
-extern
-int     Iguess1;        /* Type of initial guess */
-extern
-int     Nsteps;         /* Number of steps for a step profile initial guess */
-extern
-int     Orientation_step[NSTEPS_MAX]; /* orientation of the step profile */
-extern
-double  Xstart_step[NSTEPS_MAX];  /* start position array for the step profile */
-extern
-double  Xend_step[NSTEPS_MAX];  /* end position array for the step profile */
-extern
-double  Rho_step[NCOMP_MAX][NSTEPS_MAX];  /* density array for a step profile */
-extern
-int     Lbinodal;        /* Logical TF for binodal calculation */
-extern
-double  Thickness;    /* Thickness parameter for doing wetting studies */
+extern double  Betap;           /* Pressure in units of kT sigma_ff[1]^3           */
+extern double Betap_LBB;       /* Pressure calculated for LBB of domain */
+extern double Betap_RTF;       /* Pressure calculated for RTF of domain */
+extern double  Betap_id;       /* Ideal gas Presseure in units of kT sigma_ff[1]^3   */
+extern double  Betap_att;      /* Attractive Presseure in units of kT sigma_ff[1]^3   */
+extern double  P_over_po;
+extern int     L_isotherm; /* Logical for isotherm vs. force per distance data */
+extern double  Rho_b[NCOMP_MAX];   /* Array[Ncomp] of component bulk densities      */
+extern double  Rhobar_b[10]; /* Array[Nrho_bar] of bulk rhobars      */
+extern double  Rhobar_b_LBB[10]; /* Array[Nrho_bar] of bulk rhobars LBB  */
+extern double  Rhobar_b_RTF[10]; /* Array[Nrho_bar] of bulk rhobars RTF  */
+extern double  Dphi_Drhobar_b[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars      */
+extern double  Dphi_Drhobar_LBB[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars LBB  */
+extern double  Dphi_Drhobar_RTF[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rhobars RTF  */
+extern double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
+extern double  Rho_seg_LBB[NMER_MAX];
+extern double  Rho_seg_RTF[NMER_MAX];
+extern double  *Rhobar3_old;   /* Array[Nnodes_box] of old values of rhobar 3*/
+extern double Xi_cav_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+extern double Xi_cav_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+extern double Xi_cav_RTF[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
+extern double BondWTC_b[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
+extern double BondWTC_LBB[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
+extern double BondWTC_RTF[NMER_MAX*NMER_MAX]; /*Array of bulk rhobars for bonds in WTC functionals*/
+extern double  Rho_coex[2];   /* Liquid and Vapor Coexisting Densities         */
+extern double  Betamu_hs_ex[NCOMP_MAX];/* Array of excess hardsphere chemical potentials*/
+extern double  Betamu[NCOMP_MAX];   /* Array[Ncomp] of chemical potentials*/
+extern double  Betamu_id[NCOMP_MAX];   /* Array[Ncomp] of ideal gas chemical potentials*/
+extern double Betamu_wtc[NMER_MAX];
+extern double Betamu_wtc_LBB[NMER_MAX];
+extern double Betamu_wtc_RTF[NMER_MAX];
+extern double  Betamu_ex_bondTC[NCOMP_MAX][NMER_MAX*NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
+extern double  Betamu_seg[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
+extern double  Betamu_seg_LBB[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
+extern double  Betamu_seg_RTF[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
+extern int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
+extern int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
+extern int     Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
+extern int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
+extern int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */
+extern int     Lhard_surf;   /* Logical indicating if the surfaces have hard cores */
+extern  int     Iliq_vap;     /* Type of liquid vapor profile */
+extern int     Iguess1;        /* Type of initial guess */
+extern int     Nsteps;         /* Number of steps for a step profile initial guess */
+extern int     Orientation_step[NSTEPS_MAX]; /* orientation of the step profile */
+extern double  Xstart_step[NSTEPS_MAX];  /* start position array for the step profile */
+extern double  Xend_step[NSTEPS_MAX];  /* end position array for the step profile */
+extern double  Rho_step[NCOMP_MAX][NSTEPS_MAX];  /* density array for a step profile */
+extern int     Lbinodal;        /* Logical TF for binodal calculation */
+extern double  Thickness;    /* Thickness parameter for doing wetting studies */
+extern double  Alpha;        /* Yukawa decay parameter                              */
+extern int     Mix_type;  /* Choice of Mixing Rules */
+extern double  Mass[NCOMP_MAX];           /* Array of the mass of each specie*/
+extern double  Sigma_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f interaction diameters */
+extern double  Bond_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
+extern double  Fac_overlap[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
+extern double  Fac_overlap_hs[NCOMP_MAX];/* Array of f-f bond lengths for polymers */
+extern double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
+extern double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
+extern double  Charge_f[NCOMP_MAX];           /* Array of the valence of each specie*/
+extern double  Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];/* Array of w-f interaction diameters */
+extern double  Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];  /* Array of w-f interaction energies  */
+extern double  Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];  /* Array of w-f cutoff distances      */
+extern double  Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];/* Array of w-w interaction diameters */
+extern double  Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w interaction energies  */
+extern double  Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w cutoff distances      */
 
-extern
-double  Alpha;        /* Yukawa decay parameter                              */
-extern
-int     Mix_type;  /* Choice of Mixing Rules */
-extern
-double  Mass[NCOMP_MAX];           /* Array of the mass of each specie*/
-extern
-double  Sigma_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f interaction diameters */
-extern
-double  Bond_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
-extern
-double  Fac_overlap[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polymers */
-extern
-double  Fac_overlap_hs[NCOMP_MAX];/* Array of f-f bond lengths for polymers */
-extern
-double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
-extern
-double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
-extern
-double  Charge_f[NCOMP_MAX];           /* Array of the valence of each specie*/
-extern
-double  Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];/* Array of w-f interaction diameters */
-extern
-double  Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];  /* Array of w-f interaction energies  */
-extern
-double  Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];  /* Array of w-f cutoff distances      */
-extern
-double  Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];/* Array of w-w interaction diameters */
-extern
-double  Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w interaction energies  */
-extern
-double  Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w cutoff distances      */
+extern int     **Lsemiperm; /*Array of logicals for semi-permeable surfaces */
+extern double  **Vext_membrane; /*Array potentials for semi-perm surfaces */
+extern double  **Vext_set;      /*Array of maximum set points for ext potentials */
+extern double **Vext;        /* External field array [Nnodes][Ncomp]           */
+extern double **Vext_coul;        /* Coulomb External field array [Nnodes]           */
+extern double *Vext_old;        /* for post processing: ext field array           */
+extern double ***Vext_dash;  /* derivative of external field [Nnodes][Ncomp][Nwall]*/
+extern double **Uww;        /* Wall-Wall interactions [Nwall-1][Nwall-1]           */
+extern double **Uww_link;        /* Wall-Wall interactions [Nlink-1][Nlink-1]           */
+extern double **X_wall;  /* Distance from inode to iwall [Nnodes][Nwall]    */
+extern double **X_wall2;  /* Distance from inode to iwall [Nnodes][Nwall]    */
+extern int    **Zero_density_TF; /* array [Nnodes][icomp] indicates where VEXT_MAX */
+extern double  Betamu_att[NCOMP_MAX];   /* sum over jcomp of Van der waals constant a(icomp,jcomp)*/
+extern double  Avdw[NCOMP_MAX][NCOMP_MAX];    /*  Van der waals constant a(icomp,jcomp)*/
 
-extern
-int     **Lsemiperm; /*Array of logicals for semi-permeable surfaces */
-extern
-double  **Vext_membrane; /*Array potentials for semi-perm surfaces */
-extern
-double  **Vext_set;      /*Array of maximum set points for ext potentials */
-extern
-double **Vext;        /* External field array [Nnodes][Ncomp]           */
-extern
-double **Vext_coul;        /* Coulomb External field array [Nnodes]           */
-extern
-double *Vext_old;        /* for post processing: ext field array           */
-extern
-double ***Vext_dash;  /* derivative of external field [Nnodes][Ncomp][Nwall]*/
-extern
-double **Uww;        /* Wall-Wall interactions [Nwall-1][Nwall-1]           */
-extern
-double **Uww_link;        /* Wall-Wall interactions [Nlink-1][Nlink-1]           */
-extern
-double **X_wall;  /* Distance from inode to iwall [Nnodes][Nwall]    */
-extern
-double **X_wall2;  /* Distance from inode to iwall [Nnodes][Nwall]    */
-extern
-int    **Zero_density_TF; /* array [Nnodes][icomp] indicates where VEXT_MAX */
-extern
-double  Betamu_att[NCOMP_MAX];   /* sum over jcomp of Van der waals constant a(icomp,jcomp)*/
-extern
-double  Avdw[NCOMP_MAX][NCOMP_MAX];    /*  Van der waals constant a(icomp,jcomp)*/
-
-extern
-double  Sigma_w[NWALL_MAX_TYPE];  /* Array[Nwall] of w-w interaction diameters    */
-extern
-double  Eps_w[NWALL_MAX_TYPE];    /* Array[Nwall] of w-w interaction energies     */
-extern
-double  Rho_w[NWALL_MAX_TYPE];    /* Array[Nwall] of w-w interaction energies     */
-extern
-double  Elec_param_w[NWALL_MAX]; /* Array: surf charge(potential) per area  */
-extern
-int     Type_bc_elec[NWALL_MAX_TYPE];/* Array of surface b.c.'s for charged systems    */
-extern 
-int     Nlocal_charge; /*Number of localized surface charges in the system */
-extern
-double  **Charge_x;    /*Position of a given local charge [Nlocal_charge][Ndim]*/
-extern
-double  *Charge_Diam;  /*Diameter of a given local charge [Nlocal_charge]*/
-extern
-double  *Charge;  /*Value of the local charge [Nlocal_charge]*/
-extern
-int     Charge_type_atoms; /* Type of charge distribution on the atoms */
-extern
-int     Charge_type_local; /* Type of charge distribution on the added local charge */
-extern
-double  *Deltac_b;   /* Array [icomp] of electrostatic correlations in bulk*/
-extern
-double  **Charge_w_sum_els; /*Array[Nnodes_b][Ndim] of surface charge per area*/
-extern
-double  *Charge_vol_els; /*Array[Nelemts_box] of volume charge per element */
-extern
-int     Vol_charge_flag; /* Flag for volumetric charges */
-extern
-int     Surf_charge_flag; /* Flag for volumetric charges */
-extern
-int     **Nelems_S; /* Array[Nlists_HW][Nnode_per_proc] of # surf elems the b.node touches*/
-extern
-int     ***Surf_normal; /*Array[Nlists][Nnodes_per_proc][Nelems_S] of unit normal vectors */
-extern
-int     ***Surf_elem_to_wall; /*Array of wall to which a given surface element belongs...
+extern double  Sigma_w[NWALL_MAX_TYPE];  /* Array[Nwall] of w-w interaction diameters    */
+extern double  Eps_w[NWALL_MAX_TYPE];    /* Array[Nwall] of w-w interaction energies     */
+extern double  Rho_w[NWALL_MAX_TYPE];    /* Array[Nwall] of w-w interaction energies     */
+extern double  Elec_param_w[NWALL_MAX]; /* Array: surf charge(potential) per area  */
+extern int     Type_bc_elec[NWALL_MAX_TYPE];/* Array of surface b.c.'s for charged systems    */
+extern int     Nlocal_charge; /*Number of localized surface charges in the system */
+extern double  **Charge_x;    /*Position of a given local charge [Nlocal_charge][Ndim]*/
+extern double  *Charge_Diam;  /*Diameter of a given local charge [Nlocal_charge]*/
+extern double  *Charge;  /*Value of the local charge [Nlocal_charge]*/
+extern int     Charge_type_atoms; /* Type of charge distribution on the atoms */
+extern int     Charge_type_local; /* Type of charge distribution on the added local charge */
+extern double  *Deltac_b;   /* Array [icomp] of electrostatic correlations in bulk*/
+extern double  **Charge_w_sum_els; /*Array[Nnodes_b][Ndim] of surface charge per area*/
+extern double  *Charge_vol_els; /*Array[Nelemts_box] of volume charge per element */
+extern int     Vol_charge_flag; /* Flag for volumetric charges */
+extern int     Surf_charge_flag; /* Flag for volumetric charges */
+extern int     **Nelems_S; /* Array[Nlists_HW][Nnode_per_proc] of # surf elems the b.node touches*/
+extern int     ***Surf_normal; /*Array[Nlists][Nnodes_per_proc][Nelems_S] of unit normal vectors */
+extern int     ***Surf_elem_to_wall; /*Array of wall to which a given surface element belongs...
                                  a given node may belong to more than one wall !! */
-extern
-int     **Surf_elem_type; /*Array[Nnodes_per_proc][Nelems_S] of surf elem type */
-extern
-double  ***S_area; /*Array[Nlists][Nwall][Ndim] of total surf. area in idim on iwall*/ 
-extern
-double  **S_area_tot; /*Array[Nlists][Nwall] total surf. area on iwall*/ 
-extern
-int     **Nwall_owners; /*Array[Nilists][el_box] of number of walls 
+extern int     **Surf_elem_type; /*Array[Nnodes_per_proc][Nelems_S] of surf elem type */
+extern double  ***S_area; /*Array[Nlists][Nwall][Ndim] of total surf. area in idim on iwall*/ 
+extern double  **S_area_tot; /*Array[Nlists][Nwall] total surf. area on iwall*/ 
+extern int     **Nwall_owners; /*Array[Nilists][el_box] of number of walls 
                          (including images) that own a given element */
-extern
-int     ***Wall_owners; /*Array[ilist][iel_box][Nwall_owners] that stores
+extern int     ***Wall_owners; /*Array[ilist][iel_box][Nwall_owners] that stores
                           all of the wall owners of a given element */ 
 
 /* Steady State Solutions Info */
-extern
-int    Lsteady_state;          /*True-False Steady State or Equilibrium Run*/
-extern
-int    Linear_transport;       /*True-False Steady State or Equilibrium Run*/
-extern
-double Velocity;               /*Constant Convective Velocity over Diffusion coefficient*/
-extern
-int    Grad_dim;               /*direction where gradient is implemented*/
-extern
-int    L1D_bc;               /*logical for 1D boundary condition in Grad_dim direction */
-extern
-double X_1D_bc;               /*distance where 1D boundary is applied */
-extern
-double X_const_mu;             /*length where constant mu applies @ edges of domain*/
-extern
-double Rho_b_LBB[NCOMP_MAX];   /*Rho_b boundary condition left-bottom-back*/
-extern
-double Rho_b_RTF[NCOMP_MAX];   /*Rho_b boundary condition right-top-front*/
-extern
-double Elec_pot_LBB;           /*Electric potential boundary condition LBB*/
-extern
-double Elec_pot_RTF;           /*Electric potential boundary condition RTF */
-extern
-double Betamu_LBB[NCOMP_MAX];  /*Chemical Potential Boundary Condition LBB */
-extern
-double Betamu_RTF[NCOMP_MAX];  /*Chemical Potential Boudary Condition RTF*/
-extern
-double D_coef[NCOMP_MAX];  /*Diffusion Coefficients for ion species */
-extern
-double *Pore_rad_L_IC;    /* array of left  Radii of ion chan pore segments (1D) */
-extern
-double *Pore_rad_R_IC;    /* array of right Radii of ion chan pore segments(1D) */
-extern
-double *Lseg_IC;          /* array of length of ion chan pore segments (1D) */
-extern
-int    Nseg_IC;           /* number of pore segments in a given ion channel */
-extern
-double    *Area_IC;      /* 1D ion channel area per node (box units)*/
-extern
-int   Geom_flag;    /* geometry flag for ion chan. see OPTION_ definitions*/
+extern int    Lsteady_state;          /*True-False Steady State or Equilibrium Run*/
+extern int    Linear_transport;       /*True-False Steady State or Equilibrium Run*/
+extern double Velocity;               /*Constant Convective Velocity over Diffusion coefficient*/
+extern int    Grad_dim;               /*direction where gradient is implemented*/
+extern int    L1D_bc;               /*logical for 1D boundary condition in Grad_dim direction */
+extern double X_1D_bc;               /*distance where 1D boundary is applied */
+extern double X_const_mu;             /*length where constant mu applies @ edges of domain*/
+extern double Rho_b_LBB[NCOMP_MAX];   /*Rho_b boundary condition left-bottom-back*/
+extern double Rho_b_RTF[NCOMP_MAX];   /*Rho_b boundary condition right-top-front*/
+extern double Elec_pot_LBB;           /*Electric potential boundary condition LBB*/
+extern double Elec_pot_RTF;           /*Electric potential boundary condition RTF */
+extern double Betamu_LBB[NCOMP_MAX];  /*Chemical Potential Boundary Condition LBB */
+extern double Betamu_RTF[NCOMP_MAX];  /*Chemical Potential Boudary Condition RTF*/
+extern double D_coef[NCOMP_MAX];  /*Diffusion Coefficients for ion species */
+extern double *Pore_rad_L_IC;    /* array of left  Radii of ion chan pore segments (1D) */
+extern double *Pore_rad_R_IC;    /* array of right Radii of ion chan pore segments(1D) */
+extern double *Lseg_IC;          /* array of length of ion chan pore segments (1D) */
+extern int    Nseg_IC;           /* number of pore segments in a given ion channel */
+extern double    *Area_IC;      /* 1D ion channel area per node (box units)*/
+extern int   Geom_flag;    /* geometry flag for ion chan. see OPTION_ definitions*/
 
 /* OUTPUT INTEGRAL PARAMETERS */
-extern
-int    **Nel_hit;      /* number of elements hit by a given node in a given list */
-extern
-int    **Nel_hit2;     /* same as prev. for a bulk fluid */
-extern
-int    List[2];       /* which list numbers we care about for integrals*/
-extern
-int    Imax;          /* how many lists are relevent to the case at hand 1 or 2 */
-extern
-double Area;
-extern
-double Fac_vol;
-extern
-double Fac_area;
+extern int    **Nel_hit;      /* number of elements hit by a given node in a given list */
+extern int    **Nel_hit2;     /* same as prev. for a bulk fluid */
+extern int    List[2];       /* which list numbers we care about for integrals*/
+extern int    Imax;          /* how many lists are relevent to the case at hand 1 or 2 */
+extern double Area;
+extern double Fac_vol;
+extern double Fac_area;
 
 /* SOME CONSTANTS */
-extern
-double Inv_4pi;               /* Precalculated value of 1/(4*pi)                    */
-extern
-double Inv_rad[NCOMP_MAX];    /* Precalculated inverse of component radius          */
-extern
-double Inv_4pir[NCOMP_MAX];   /* Precalculated inverse of component's 4 pi Radius   */
-extern
-double Inv_4pirsq[NCOMP_MAX]; /* Precalculated inverse of component's 4 pi Radius^2 */
+extern double Inv_4pi;               /* Precalculated value of 1/(4*pi)                    */
+extern double Inv_rad[NCOMP_MAX];    /* Precalculated inverse of component radius          */
+extern double Inv_4pir[NCOMP_MAX];   /* Precalculated inverse of component's 4 pi Radius   */
+extern double Inv_4pirsq[NCOMP_MAX]; /* Precalculated inverse of component's 4 pi Radius^2 */
 
-extern
-int     Type_func;    /* Type of functional for the calculation              */
-extern
-int     Type_attr;    /* Type for handling attractions                       */
-extern
-int     Type_coul;    /* Type for handling coulomb interactions              */
-extern
-int     Type_poly;    /* Type for handling polymers                          */
+extern int     Type_func;    /* Type of functional for the calculation              */
+extern int     Type_attr;    /* Type for handling attractions                       */
+extern int     Type_coul;    /* Type for handling coulomb interactions              */
+extern int     Type_poly;    /* Type for handling polymers                          */
 
 /* Hard core type */
-extern
-double      HS_diam[NCOMP_MAX];  /* Hard sphere diameters for the calculation */
+extern double      HS_diam[NCOMP_MAX];  /* Hard sphere diameters for the calculation */
 
 /* Startup Info */
-extern
-int     Restart;     /* Logical that switches between new prof & restart file*/
-extern
-int     Restart_field[NEQ_TYPE];
-extern
-int     Iwrite;       /* Do we want a complete or modified set of output data*/
+extern int     Restart;     /* Logical that switches between new prof & restart file*/
+extern int     Restart_field[NEQ_TYPE];
+extern int     Iwrite;       /* Do we want a complete or modified set of output data*/
 
 /* Parallel Info, Aztec info */
-extern
-int     Num_Proc; /* The total number of processors used in this calculation */
-extern
-int     Proc;     /* The unique  processor number (from 0 to Num_Proc-1)     */
-extern
-struct  Aztec_Struct Aztec; /* Structure to hold all the Aztec info          */
-extern
-int     Load_Bal_Flag; /* Flag specifying type of laod balancing to do       */
+extern int     Num_Proc; /* The total number of processors used in this calculation */
+extern int     Proc;     /* The unique  processor number (from 0 to Num_Proc-1)     */
+extern struct  Aztec_Struct Aztec; /* Structure to hold all the Aztec info          */
+extern int     Load_Bal_Flag; /* Flag specifying type of laod balancing to do       */
 extern int L_Schur; /* Switch to turn on Schur solvers */
 
 
 /* Nonlinear Solver info */
-extern
-int Max_Newton_iter;    /* Maximum # of Newton iterations (10 - 30)          */
-extern
-double Newton_abs_tol,Newton_rel_tol; /* Convergence tolerances (update_soln)*/
-extern
-double Min_update_frac; /* Minimum fraction to update solution to slow down
+extern int Max_Newton_iter;    /* Maximum # of Newton iterations (10 - 30)          */
+extern double Newton_abs_tol,Newton_rel_tol; /* Convergence tolerances (update_soln)*/
+extern double Min_update_frac; /* Minimum fraction to update solution to slow down
                            Newton's method */
 
 /* Timers */
-extern
-double Time_linsolver_first;
-extern
-double Time_linsolver_av;
-extern
-double Time_manager_first;
-extern
-double Time_manager_av;
-extern
-double Time_fill_first;
-extern
-double Time_fill_av;
+extern double Time_linsolver_first;
+extern double Time_linsolver_av;
+extern double Time_manager_first;
+extern double Time_manager_av;
+extern double Time_fill_first;
+extern double Time_fill_av;
 
 /* Linear Solver info */
-extern
-int Az_solver;
-extern
-int Az_kspace;
-extern
-int Az_scaling;
-extern
-int Az_preconditioner;
-extern
-double Az_ilut_fill_param;
-extern
-double Az_tolerance;
-extern
-int    Max_gmres_iter;
+extern int Az_solver;
+extern int Az_kspace;
+extern int Az_scaling;
+extern int Az_preconditioner;
+extern double Az_ilut_fill_param;
+extern double Az_tolerance;
+extern int    Max_gmres_iter;
 
 
-extern
-struct  Loca_Struct Loca; /* Information for continuation library */
+extern struct  Loca_Struct Loca; /* Information for continuation library */
 /*
  * The global variable Stencil is a 3D array of Stencil_Struct
  * (for hard spheres of size [Nsten][Ncomp][Ncomp] ). This variable is
  * defined in dft_stencil.h, and the extern statement is found here.
  */
 
-extern 
-struct Stencil_Struct ***Stencil;
-extern                    
-int MPsten_Npts_R[NZONE_MAX];  /* # radial gauss pts. in MIDPOINT rule */
-extern                    
-int MPsten_Npts_arc[NZONE_MAX]; /* # theta gauss pts. in MIDPOINT rule */
-extern                    
-int MPsten_Npts_phi[NZONE_MAX]; /* # phi gauss pts. in MIDPOINT rule */
-extern 
-int Sten_Type[NSTEN]; /* on/off Flag for stencil types  */
-extern
-int Sten_Choice_S[NSTEN][NZONE_MAX]; /* Quadrature type fore each stencil   */
-extern
-int Sten_Choice_R[NSTEN][NZONE_MAX]; /* # Radial Gauss points for THETA_FNCs */
+extern struct Stencil_Struct ***Stencil;
+extern int MPsten_Npts_R[NZONE_MAX];  /* # radial gauss pts. in MIDPOINT rule */
+extern int MPsten_Npts_arc[NZONE_MAX]; /* # theta gauss pts. in MIDPOINT rule */
+extern int MPsten_Npts_phi[NZONE_MAX]; /* # phi gauss pts. in MIDPOINT rule */
+extern int Sten_Type[NSTEN]; /* on/off Flag for stencil types  */
+extern int Sten_Choice_S[NSTEN][NZONE_MAX]; /* Quadrature type fore each stencil   */
+extern int Sten_Choice_R[NSTEN][NZONE_MAX]; /* # Radial Gauss points for THETA_FNCs */
 
 /* Polymer variables */
-extern
-double Deltar_cr,Gauss_a,Gauss_k,***Rism_cr;
-extern
-double Crfac;
-extern
-double Cr_rad[NCOMP_MAX][NCOMP_MAX];
-extern
-double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
-extern 
-double Bupdate_fact;
-extern
-int Bupdate_iters,Geqn_start[NCOMP_MAX];
-extern
-int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
-extern
-int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
+extern double Deltar_cr;
+extern double Gauss_k;
+extern double ***Rism_cr;
+extern double Gauss_a;
+extern double Crfac;
+extern double Cr_rad[NCOMP_MAX][NCOMP_MAX];
+extern double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
+extern double Bupdate_fact;
+extern int Bupdate_iters;
+extern int Geqn_start[NCOMP_MAX];
+extern int Nblock[NCOMP_MAX];
+extern int Ntype_mer;
+extern int Nmer[NCOMP_MAX];
+extern int Type_mer[NCOMP_MAX][NMER_MAX];
+extern int Npol_comp;
+extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
+extern int Last_nz_cr;
 extern int Nmer_t_total[NBLOCK_MAX];
 extern int Nseg_tot;
 extern int Nseg_type[NCOMP_MAX];
-extern char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
+extern char Cr_file[40];
+extern char Cr_file2[40];
+extern char Cr_file3[40];
+extern char Cr_file4[40];
 extern double Cr_break[2];
 extern int Ncr_files;
-extern int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond;
-extern int ***Poly_to_Unk,**Poly_to_Unk_SegAll;
-extern int Ngeqn_tot, Nbonds, **Nbond,***Bonds;
+extern int *Unk_to_Poly;
+extern int *Unk_to_Seg;
+extern int *Unk_to_Bond;
+extern int ***Poly_to_Unk;
+extern int **Poly_to_Unk_SegAll;
+extern int Ngeqn_tot;
+extern int Nbonds;
+extern int **Nbond;
+extern int ***Bonds;
 extern int *Pol_Sym;
 extern int *Pol_Sym_Seg;
 extern int *BondAll_to_isegAll;
 extern int *BondAll_to_ibond;
-extern int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
+extern int Unk2Comp[NMER_MAX];
+extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
+extern int **Bonds_SegAll;
+extern int *Nbonds_SegAll;
 extern double Temporary_sum;
 
 /*********************************************************************/
-extern
-double Ads[NCOMP_MAX][2];
-extern
-double Ads_ex[NCOMP_MAX][2];
-extern 
-double *Integration_profile; /* a place to put the integrand as a function of position */
+extern double Ads[NCOMP_MAX][2];
+extern double Ads_ex[NCOMP_MAX][2];
+extern double *Integration_profile; /* a place to put the integrand as a function of position */
 
 /****************************************************************************/
 
-/*** prototypes for function calls to another file  ***/
-extern double second(void);
-
-extern void read_input_file(char *,char *);
-extern void thermodynamics(char *, int);
-extern double dmu_drho_hs(double *);
-extern double dmu_drho_att(double *);
-extern void calc_stencils(void);
-extern void set_gauss_quad(int , double *, double *);
-extern void set_up_mesh(char *,char *);
-extern void load_balance(int, double *, int *, int **);
-extern void boundary_setup(char *);
-extern void boundary_free(void);
-extern void control_mesh(FILE *, char *,int, int *);
-extern void free_mesh_arrays(void);
-extern void setup_external_field_n(int **, int ***);
-extern void  setup_vext_coulomb_vol();
-extern void read_external_field_n(char *);
-extern void read_zero_density_TF(char *);
-
-/********** set guess **********************/
-extern void set_initial_guess(int,double **);
-extern void setup_rho_bar(double **);
-extern void setup_chem_pot(double **);
-extern void setup_polymer_rho(double **,int);
-extern void setup_polymer_field(double **,int);
-extern void setup_polymer_simple(double **, int);
-extern void setup_polymer_G(double **);
-extern void setup_polymer_G_2(double **);
-extern void setup_step_2consts(double **);
-extern void setup_linear_profile(double **);
-extern void setup_exp_density(double **, double *,int,int);
-extern void setup_const_density(double **, double *,int,int);
-extern void setup_stepped_profile(double **);
-extern void chop_profile(double **x, int);
-extern void check_zero_densities(double **);
-extern void communicate_profile(double *,double **);
-extern void shift_the_profile(double *,double);
-extern int  find_length_of_file(char *);
-extern void read_in_a_file(int,char *);
-extern int locate_inode_old(int *);
-extern void setup_exp_density_with_profile(double **);
-extern void setup_BondWTC(double **);
-extern void setup_Xi_cavWTC(double **);
-extern void setup_elec_pot(double **,int);
-
-extern int  solve_problem(double **, double **);
-extern int  newton_solver(double **x, void *con_ptr);
-
-/*EXTERNAL FIELD AND WALL_WALL INTERACTION ROUTINES */
-extern double integrate_potential(int, double, double, double, int, int, 
-                      double *, double *, double *, double *,
-                      double *, double *);
-
-extern double uLJ12_6_cut(double,double, double, double);
-extern double uderiv_LJ12_6(double,double,double,double,double);
-extern double uLJ_wp(double,int,int);
-extern double Vext_1D(double,int,int);
-extern double Vext_1D_dash(double,int,int);
-extern double uCOULOMB(double,double,double);
-extern void   setup_wall_wall_potentials(int **, int ***);
-extern void find_images(int, double, int *, double **,
-                 double *, double *);
-extern void find_images_1D(int, double, int *, double **,
-                 double *, double *);
-extern void find_images2(int, double, int *, double **,
-                  double *, int,int);
-extern void find_images_coulomb(int,int *, double **, double *);
-
-
-
-
-/* RESIDUAL AND MATRIX FILL ROUTINES */
-extern int loc_find(int,int,int);
-extern void fill_resid_and_matrix_control(double **, int, int);
-extern void fill_resid_and_matrix(double **, int, int, int);
-extern void fill_resid_and_matrix_rb(double *, double *, 
-                                  int **, double *, int, int);
-extern void fill_resid_and_matrix_P(double **, int, int, int);
-extern int  get_integration_pts(int, int, double ***, double **);
-
-extern void  pre_calc_dphi_drb_rb1(struct RB_Struct *, double **);
-extern void  pre_calc_dphi_drb_rb2(struct RB_Struct *, double **);
-extern void  pre_calc_dphi_drb_rb3(struct RB_Struct *, double **);
-
-extern void FMT1_1stderiv(double *,double,double,double *,double *);
-extern void FMT2_1stderiv(double *,double,double,double *,double *);
-extern void FMT3_1stderiv(double *,double,double,double *,double *);
-extern void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,double *),
-                                 int,double **,struct RB_Struct *);
-
-
-extern double load_nonlocal_hs_rosen_rb(int, int, int,int,int, int,
-                       int *,double **, struct RB_Struct *, int);
-
-extern double load_rho_bar_s(int,double **,int, int,int,int,int *,int);
-extern double prefactor_rho_bar_s(int,int,int *);
-extern double resid_rho_bar(int,int,double **);
-extern double jac_rho_bar(int,int,double **);
-extern double load_rho_bar_v(double **,int,int,int,int,int *,int);
-extern double prefactor_rho_bar_v(int,int,int *);
-extern double prefactor_cavity_wtc(int,int,int *);
-
-extern double resid_and_Jac_sten_fill_sum_Ncomp (int, double **,int,int,int,int,
-                                        int *,int,int, double(*fp_prefactor)(int,int,int *), 
-                                        double(*fp_resid)(int,int,double **), 
-                                        double(*fp_jacobian)(int,int,double **));
-
-extern double resid_and_Jac_sten_fill (int, double **,int,int,int,int,int,int,int,
-                              int *,int,int, double(*fp_prefactor)(int,int,int *), 
-                               double(*fp_resid)(int,int,double **), 
-                               double(*fp_jacobian)(int,int,double **));
-
-/* FUNCTIONS INVOLVED IN SETTING UP PHYSICS OF MATRIX PROBLEM */
-extern double load_mean_field(int, int, int, int, int, int *, double **, int);
-extern double load_nonlinear_transport_eqn(int,int,int,int *, double **);
-extern double load_linear_transport_eqn(int,int,int,int *, double **);
-extern double load_cavity_wtc(int,int,int,int *,int,double **,int);
-extern double load_bond_wtc(int,int,int,int *,int,double **,int);
-extern double load_polyTC_diagEL(int,int,int,int,int,int *,double **,int);
-extern double load_polyTC_bondEL(int,int,int,int,int,int *,double **,int);
-extern double load_polyTC_cavityEL(int,int,int,int,int,int *,double **,int);
-extern double load_euler_lagrange(int,int,int,int *,int,double **,struct RB_Struct *,int,int);
-extern double load_poisson_control(int,int,int,int *,double **);
-extern void load_coarse_node_1dim(int,int,int *,int,double **);
-extern double load_coarse_node_Ndim(int,int,int,double **);
-extern double load_CMS_field(int,int,int,int *,int,double **,int);
-extern double load_CMS_density(int,int,int,double **,int);
-extern double load_CMS_Geqns(int,int,int,int *,int,double **,int);
-
-/*  MESH TRANSLATION ROUTINES */
-extern int  map_0th_plane(int, int);
-extern int  offset_to_node(int *,int *, int *);
-extern int  offset_to_node_box(int *,int *, int *);
-extern void node_to_ijk(int, int *);
-extern int  ijk_to_node(int *);
-extern void node_box_to_ijk_box(int, int *);
-extern int  ijk_box_to_node_box(int *);
-extern void ijk_to_ijk_box(int *,int*);
-extern void ijk_box_to_ijk(int *,int*);
-extern int  node_box_to_node(int);
-extern int  unk_box_to_unk(int);
-extern int  el_box_to_el(int);
-extern int  el_to_el_box(int);
-extern int  node_to_node_box(int);
-extern int  node_to_node_box_no_bound(int);
-extern int  unk_to_unk_box(int);
-extern int  round_to_int(double);
-extern void node_to_position(int,double *);
-extern int  element_to_node(int);
-extern int  element_box_to_node_box(int);
-extern void element_to_nodes(int,int *);
-extern void boundary_condition (int *);
-extern void setup_surface(FILE *,int *, int **, int **, int ***, int *,int ***);
-extern int  node_to_elem(int, int, int *);
-extern int  node_to_elem_return_dim(int, int, int *,int *, int *,int *);
-extern int  node_box_to_elem_box_reflect(int, int, int *);
-extern int  node_to_elem_v2(int, int);
-extern void rescale_vext_max(void);
-extern double HW_boundary_weight(int,int, double *, int, int *);
-extern void find_match_dim(int,int, int **,int *,int ***);
-
-/* SETUP THERMO ROUTINES */
-extern void pot_parameters(char *);
-extern double uLJatt_n(double,int,int);
-extern double uLJatt_n_int(double,int, int);
-extern double uLJatt_n_noshift(double,int, int);
-extern double uCOULOMB_att(double,int, int);
-extern double uCOULOMB_att_int(double,int, int);
-extern double deltaC_MSA(double,int,int);
-extern double deltaC_MSA_int(double,int,int);
-extern double y_cav(double,double,double,double);
-extern double dy_dxi2_cav(double,double,double,double);
-extern double dy_dxi3_cav(double,double,double,double);
-extern double phispt(double *);
-extern double calc_ideal_gas(double *,double *);
-extern double calc_hs_properties(double *,double *);
-extern double calc_hs_properties_new(double *,double *);
-extern double calc_att_properties(double *, double *);
-extern void calc_poly_TC_properties(double *,double *);
-extern void   calc_charge_correlations_b();
-extern double dp_drho_hs(double *);
-extern double dp_drho_att(double *);
-extern void compute_bulk_nonlocal_hs_properties(char *);
-extern void compute_bulk_nonlocal_wtc_properties(char *);
-extern void calc_HS_diams();
-extern double integrand_BH(double,int);
-extern void setup_polymer_cr(void);
-extern double fill_zero_value(int,int,int,double **);
-
-/* UTILITY FUNCTIONS USED TO INTEGRATE OR APPLY BOUNDARY CONDITIONS */
-extern double int_stencil_bulk(int,int,int,double(*fp_integrand)(double,int,int));
-extern void int_stencil(double **,int, int,int);
-extern void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **,double **,double *);
-extern void integrateInSpace(double(*fp_integrand)(int,int,double **),int,int **,double **,double *);
-extern void integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int,double **,double *);
-extern double constant_boundary(int, int);
-extern int find_jzone(int,int);
-
-/* COMMUNICATIONS ROUTINES */
-extern double gsum_double(double);
-extern double gmax_double(double);
-extern double gmin_double(double);
-extern int    gsum_int(int);
-extern int    gmax_int(int);
-extern int    gmin_int(int);
-extern void   gsum_int_vec(int *, int *, int);
-
-/* POSTPROCESSING ROUTINES*/
-extern void setup_integrals();
-extern void setup_domain_multipliers();
-extern void post_process(double **,char *,int *,double *,int, int);
-extern void calc_adsorption(FILE *,double **);
-extern void calc_fluid_charge(FILE *, double **);
-extern double integrand_adsorption(int,int,double **);
-extern double integrand_adsorption_bulk(int,int,double **);
-extern double integrand_fluid_charge(int,int,double **);
-extern void calc_flux(FILE *,char *,double *);
-extern void calc_force(FILE *, double **,double);
-
-/* ROUTINES FOR COMPUTING FREE ENERGY */
-extern double calc_free_energy(FILE *, double **);
-extern double integrand_ideal_gas_freen(int,int,double **);
-extern double integrand_ideal_gas_freen_bulk(int,int,double **);
-extern double integrand_hs_freen(int,int,double **);
-extern double integrand_hs_freen_bulk(int,int,double **);
-extern double integrand_att_freen(int,int,double **);
-extern double integrand_att_freen_bulk(int,int,double **);
-extern double integrand_vext_freen(int,int,double **);
-extern double integrand_vext_elec_freen(int,int,double **);
-extern double integrand_mu_freen(int,int,double **);
-extern double integrand_mu_freen_bulk(int,int,double **);
-extern double integrand_elec_PB_freen(int,int,double **);
-extern double integrand_elec_MSAcorr_freen(int,int,double **);
-extern double integrand_elec_MSAcorr_freen_bulk(int,int,double **);
-extern double integrand_maxwell_stress_freen(int,int,double **);
-extern double integrand_surface_charge(int,int,int,double **);
-extern double integrand_WTC_freen(int,int,double **);
-extern double integrand_WTC_freen_bulk(int,int,double **);
-extern double integrand_CMS_freen(int,int,double **);
-extern double integrand_CMS_freen_bulk(int,int,double **);
-
-
-/* PRINTING - OUTPUT ROUTINES */
-extern void collect_x_old(double **);
-extern void collect_vext_old(void);
-extern void print_profile_box(double **,char *);
-extern void print_profile(char *);
-extern void print_gofr(char *);
-extern void print_vext(double **, char *);
-extern void print_zeroTF(int **, char *);
-extern void print_charge_vol(double *, char *);
-extern void print_charge_surf(double **, char *);
-extern void print_freen_profile_1D(double *, char *);
-extern void print_Nodes_to_zone(int *, char *);
-extern void print_time_histogram(int *,int *);
-extern void setup_integrals();
-extern void print_to_screen_comp(int,double, char *);
-extern void print_to_screen(double, char *);
-extern void print_to_file_comp(FILE *,int,double, char *,int);
-extern void print_to_file(FILE *,double, char *,int);
-/****************************************************************************/

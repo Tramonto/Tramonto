@@ -48,11 +48,56 @@
  *
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
 #include "mpi.h"
-#include <string.h>
- 
+#include <string.h>*/
+
+#include "dft_guess_EL_DENSITY.h"
+
+void setup_density(double **xOwned,int iguess)
+{
+    switch(iguess){
+      case CONST_RHO:
+            if (Type_poly==WTC){
+                 setup_const_density(xOwned,Rho_seg_b,Nseg_tot,0);
+            }
+            else              setup_const_density(xOwned,Rho_b,Ncomp,0);
+            break;
+
+      case CONST_RHO_V:
+            setup_const_density(xOwned,Rho_coex,1,1);
+            break;
+      case CONST_RHO_L:
+            setup_const_density(xOwned,Rho_coex,1,0);
+            break;
+
+      case EXP_RHO:
+            setup_exp_density(xOwned,Rho_b,Ncomp,0);
+            break;
+      case EXP_RHO_V:
+            setup_exp_density(xOwned,Rho_coex,1,1);
+            break;
+      case EXP_RHO_L:
+            setup_exp_density(xOwned,Rho_coex,1,0);
+            break;
+
+      case STEP_PROFILE:
+            setup_stepped_profile(xOwned);
+
+      case CHOP_RHO_L:
+            setup_exp_density(xOwned,Rho_coex,1,1);
+            chop_profile(xOwned,iguess);
+            break;
+      case CHOP_RHO_V:
+            setup_exp_density(xOwned,Rho_coex,1,0);
+            chop_profile(xOwned,iguess);
+            break;
+      case LINEAR:
+            setup_linear_profile(xOwned);
+    }  /* end of iguess switch */
+    return;
+}
 /*********************************************************/
 /*setup_const_density: in this routine set up a constant
         density profile wherever Zero_density_TF = FALSE */

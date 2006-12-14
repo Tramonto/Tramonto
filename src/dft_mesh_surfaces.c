@@ -49,13 +49,13 @@
  *  
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
+#include "mpi.h"*/
 
 /* Prototypes for functions found in this file */
 
-void els_planar(int, int, int, int **, double *, int **, int ***,int ***,double **);
+/*void els_planar(int, int, int, int **, double *, int **, int ***,int ***,double **);
 void els_finite_planar(int,int, int,int **,double *, int **, int ***,int ***,double **);
 void els_spheres(int, int, int, int **, double *, int **, int ***, int ***,double **);
 void els_cyls_3D(int, int, int, int **, double *, int **, int ***, int ***,double **);
@@ -67,7 +67,9 @@ void els_cyl_pore_3D(int, int, int, int **,double *, int **, int ***, int ***,do
 void els_cone_pore_2D(int, int,int,  int **,double *,int **,int ***,int ***,double **);
 void els_cone_pore_3D(int, int,int,  int **,double *,int **,int ***,int ***,double **);
 void flag_wall_el(int,int,int,int, int **,int **,int ***,int ***);
-void find_wall_images(int, int *, double **, double *);
+void find_wall_images(int, int *, double **, double *);*/
+
+#include "dft_mesh_surfaces.h"
 
 void setup_surface (FILE *fp2, int *nelems_f,  
                     int **nelems_w_per_w, int **elems_f, 

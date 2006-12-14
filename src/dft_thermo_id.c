@@ -28,23 +28,32 @@
 /* ---------------------------------------------------------
 Calculate the thermodynamic properties of an ideal gas fluid.
 ------------------------------------------------------------*/
-#include "dft_globals_const.h"
+#include "dft_thermo_id.h"
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
+#include "mpi.h"*/
 
 /******************************************************************************/
-/* calc_ideal_gas: This routine computes ideal gas properties at a density of interest */
-double calc_ideal_gas(double *rho,double *betamu)
+/* pressure_ideal_gas: This routine computes the pressure of an ideal gas at the density of interest */
+double pressure_ideal_gas(double *rho)
 {
    double betap=0.0;
+   int i;
+   
+   for (i=0;i<Ncomp;i++) betap+=rho[i];
+   return(betap);
+}
+/******************************************************************************/
+/* chempot_ideal_gas: This routine computes the chemical potential(s) of an ideal gas (mixture) at a density of interest */
+void chempot_ideal_gas(double *rho,double *betamu)
+{
    int i;
    
    for (i=0;i<Ncomp;i++){
        betamu[i] = log(rho[i]);
                   /*           - 3.0*log(Sigma_ff[icomp][icomp]) -
                                1.5*log(Mass[icomp]*Temp); */
-       betap+=rho[i];
    }
-   return(betap);
+   return;
 }
 /******************************************************************************/

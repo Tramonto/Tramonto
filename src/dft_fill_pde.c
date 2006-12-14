@@ -35,15 +35,10 @@
  *  for electrostatics and transport.
  */
 
-#include "dft_globals_const.h"
-#include "rf_allo.h"
+/*#include "dft_globals_const.h"
+#include "rf_allo.h"*/
 
-void set_fem_1el_weights(double **, double **, int ***);
-void set_fem_weights(double **, double **);
-double load_polarize_poissons_eqn(int,int,int,int *, double **);
-double load_poissons_eqn(int,int,int,int *,double **);
-double load_poisson_bc(int,int,int);
-void basis_fn_calc(double **,double ***,double *);
+#include "dft_fill_pde.h"
 
 /****************************************************************************/
 void set_fem_weights(double **wt_laplace_ptr, double **wt_source_ptr)

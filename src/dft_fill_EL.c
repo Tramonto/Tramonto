@@ -20,17 +20,10 @@
  *  Jacobian  matrix entries for the euler-lagrange equation.
  */
 
-#include "dft_globals_const.h"
+/*#include "dft_globals_const.h"
 #include "rf_allo.h"
-#include "mpi.h"
-
-int check_zero_density_EL(int,int,int,int,int,double **);
-double fill_sym_WTC(int,int,int,int,double **);
-double fill_bulk_density(int,int,int,int,int,double **);
-double fill_EL_ideal_gas(int,int,int,int,double **);
-double fill_EL_chem_pot(int,int,int,int,int,int,double **);
-double fill_EL_ext_field(int,int,int);
-double fill_EL_elec_field(int,int,int,int,double **);
+#include "mpi.h"*/
+#include "dft_fill_EL.h"
 
 /******************************************************************************************/
 double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, int izone,
