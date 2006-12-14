@@ -68,16 +68,16 @@ extern double Betap_LBB;
 extern int Lsteady_state;
 void calc_chempot(char *output_file1);
 void calc_pressure(char *output_file1);
-void WTC_thermo_precalc(char *output_file1);
-#define WTC          3
-extern int Type_poly;
 void ATT_thermo_precalc();
 extern int Type_attr;
 void HS_thermo_precalc(char *output_file1);
+extern int Type_func;
+void WTC_thermo_precalc(char *output_file1);
+#define WTC          3
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
-extern int Type_func;
+extern int Type_poly;
 #define NO_SCREEN    2 
 extern int Iwrite;
 extern int Proc;

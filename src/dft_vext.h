@@ -29,23 +29,24 @@ void set_gauss_quad(int ngp,double *gp,double *gw);
 extern double Vol_el;
 #define NCOMP_MAX 5
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
+#define NWALL_MAX_TYPE 50 
+extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define point_surface                   4
 #define atomic_centers                  3
-#define NWALL_MAX_TYPE 50 
 extern int Surface_type[NWALL_MAX_TYPE];
 void setup_vext_HS_atomic(int iwall);
 double uderiv_LJ12_6(double r,double x,double sigma,double eps,double rcut);
+extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 double uLJ12_6_cut(double r,double sigma,double eps,double rcut);
 extern int *B2G_node;
-extern double **X_wall2;
-extern double **X_wall;
-extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
+extern double **X_wall2;
+extern double **X_wall;
 double Vext_1D_dash(double x,int icomp,int iwall_type);
 void find_images(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
 double Vext_1D(double x,int icomp,int iwall_type);
@@ -55,8 +56,6 @@ void find_images_1D(int idim,double cut,int *image,double **image_pos,double *no
 #define REFLECT      2
 #define PERIODIC     1
 extern int Type_bc[NDIM_MAX][2];
-extern double Rho_w[NWALL_MAX_TYPE];
-extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Orientation[NWALL_MAX_TYPE];

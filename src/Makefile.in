@@ -108,16 +108,17 @@ am__libdft_a_SOURCES_DIST = ${srcdir}/dft_input.c ${srcdir}/dft_main.c \
 	${srcdir}/dft_energy_mu.c ${srcdir}/dft_energy_cms.c \
 	${srcdir}/dft_out_force.c ${srcdir}/dft_out_flux.c \
 	${srcdir}/dft_out_profiles.c ${srcdir}/dft_vext.c \
-	${srcdir}/dft_guess.c ${srcdir}/dft_guess_CHEMPOT.c \
-	${srcdir}/dft_guess_EL_DENSITY.c ${srcdir}/dft_guess_HSFMT.c \
-	${srcdir}/dft_guess_WTC.c ${srcdir}/dft_guess_restart.c \
-	${srcdir}/dft_guess_CMS.c ${srcdir}/dft_guess_ELECPOT.c \
-	${srcdir}/dft_comm.c ${srcdir}/dft_continuation.c \
-	${srcdir}/dft_utils.c ${srcdir}/dft_fill_control.c \
-	${srcdir}/dft_fill_main.c ${srcdir}/dft_fill_rosen_rb.c \
-	${srcdir}/dft_fill_mf.c ${srcdir}/dft_fill_wtc.c \
-	${srcdir}/dft_vext_coul.c ${srcdir}/dft_uww.c \
-	${srcdir}/dft_images.c ${srcdir}/dft_potentials.c \
+	${srcdir}/dft_vext1D.c ${srcdir}/dft_guess.c \
+	${srcdir}/dft_guess_CHEMPOT.c ${srcdir}/dft_guess_EL_DENSITY.c \
+	${srcdir}/dft_guess_HSFMT.c ${srcdir}/dft_guess_WTC.c \
+	${srcdir}/dft_guess_restart.c ${srcdir}/dft_guess_CMS.c \
+	${srcdir}/dft_guess_ELECPOT.c ${srcdir}/dft_comm.c \
+	${srcdir}/dft_continuation.c ${srcdir}/dft_utils.c \
+	${srcdir}/dft_fill_control.c ${srcdir}/dft_fill_main.c \
+	${srcdir}/dft_fill_rosen_rb.c ${srcdir}/dft_fill_mf.c \
+	${srcdir}/dft_fill_wtc.c ${srcdir}/dft_vext_coul.c \
+	${srcdir}/dft_uww.c ${srcdir}/dft_images.c \
+	${srcdir}/dft_potentials.c ${srcdir}/dft_potentials_vext.c \
 	${srcdir}/rf_allo.c ${srcdir}/loca_lib.c ${srcdir}/loca_bord.c \
 	${srcdir}/loca_util.c ${srcdir}/dft_BasicLinProbMgr.cpp \
 	${srcdir}/dft_PolyLinProbMgr.cpp \
@@ -151,17 +152,19 @@ am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_energy_mu.$(OBJEXT) dft_energy_cms.$(OBJEXT) \
 	dft_out_force.$(OBJEXT) dft_out_flux.$(OBJEXT) \
 	dft_out_profiles.$(OBJEXT) dft_vext.$(OBJEXT) \
-	dft_guess.$(OBJEXT) dft_guess_CHEMPOT.$(OBJEXT) \
-	dft_guess_EL_DENSITY.$(OBJEXT) dft_guess_HSFMT.$(OBJEXT) \
-	dft_guess_WTC.$(OBJEXT) dft_guess_restart.$(OBJEXT) \
-	dft_guess_CMS.$(OBJEXT) dft_guess_ELECPOT.$(OBJEXT) \
-	dft_comm.$(OBJEXT) dft_continuation.$(OBJEXT) \
-	dft_utils.$(OBJEXT) dft_fill_control.$(OBJEXT) \
-	dft_fill_main.$(OBJEXT) dft_fill_rosen_rb.$(OBJEXT) \
-	dft_fill_mf.$(OBJEXT) dft_fill_wtc.$(OBJEXT) \
-	dft_vext_coul.$(OBJEXT) dft_uww.$(OBJEXT) dft_images.$(OBJEXT) \
-	dft_potentials.$(OBJEXT) rf_allo.$(OBJEXT) loca_lib.$(OBJEXT) \
-	loca_bord.$(OBJEXT) loca_util.$(OBJEXT)
+	dft_vext1D.$(OBJEXT) dft_guess.$(OBJEXT) \
+	dft_guess_CHEMPOT.$(OBJEXT) dft_guess_EL_DENSITY.$(OBJEXT) \
+	dft_guess_HSFMT.$(OBJEXT) dft_guess_WTC.$(OBJEXT) \
+	dft_guess_restart.$(OBJEXT) dft_guess_CMS.$(OBJEXT) \
+	dft_guess_ELECPOT.$(OBJEXT) dft_comm.$(OBJEXT) \
+	dft_continuation.$(OBJEXT) dft_utils.$(OBJEXT) \
+	dft_fill_control.$(OBJEXT) dft_fill_main.$(OBJEXT) \
+	dft_fill_rosen_rb.$(OBJEXT) dft_fill_mf.$(OBJEXT) \
+	dft_fill_wtc.$(OBJEXT) dft_vext_coul.$(OBJEXT) \
+	dft_uww.$(OBJEXT) dft_images.$(OBJEXT) \
+	dft_potentials.$(OBJEXT) dft_potentials_vext.$(OBJEXT) \
+	rf_allo.$(OBJEXT) loca_lib.$(OBJEXT) loca_bord.$(OBJEXT) \
+	loca_util.$(OBJEXT)
 am__objects_2 = dft_BasicLinProbMgr.$(OBJEXT) \
 	dft_PolyLinProbMgr.$(OBJEXT) \
 	dft_HardSphereLinProbMgr.$(OBJEXT) \
@@ -255,6 +258,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_out_profiles.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_poly_lin_prob_mgr_wrapper.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_potentials.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_potentials_vext.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_stencil.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_thermo.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_thermo_att.Po \
@@ -264,7 +268,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_thermo_id.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_thermo_wtc.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_utils.Po ./$(DEPDIR)/dft_uww.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft_vext.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_vext.Po ./$(DEPDIR)/dft_vext1D.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_vext_coul.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/loca_bord.Po ./$(DEPDIR)/loca_lib.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/loca_util.Po ./$(DEPDIR)/rf_allo.Po
@@ -311,17 +315,18 @@ am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
 	${srcdir}/dft_energy_vext.h ${srcdir}/dft_energy_mu.h \
 	${srcdir}/dft_energy_cms.h ${srcdir}/dft_out_force.h \
 	${srcdir}/dft_out_flux.h ${srcdir}/dft_out_profiles.h \
-	${srcdir}/dft_vext.h ${srcdir}/dft_guess.h \
-	${srcdir}/dft_guess_CHEMPOT.h ${srcdir}/dft_guess_EL_DENSITY.h \
-	${srcdir}/dft_guess_HSFMT.h ${srcdir}/dft_guess_WTC.h \
-	${srcdir}/dft_guess_restart.h ${srcdir}/dft_guess_CMS.h \
-	${srcdir}/dft_guess_ELECPOT.h ${srcdir}/dft_comm.h \
-	${srcdir}/dft_continuation.h ${srcdir}/dft_utils.h \
-	${srcdir}/dft_fill_control.h ${srcdir}/dft_fill_main.h \
-	${srcdir}/dft_fill_rosen_rb.h ${srcdir}/dft_fill_mf.h \
-	${srcdir}/dft_fill_wtc.h ${srcdir}/dft_vext_coul.h \
-	${srcdir}/dft_uww.h ${srcdir}/dft_images.h \
-	${srcdir}/dft_potentials.h \
+	${srcdir}/dft_vext.h ${srcdir}/dft_vext1D.h \
+	${srcdir}/dft_guess.h ${srcdir}/dft_guess_CHEMPOT.h \
+	${srcdir}/dft_guess_EL_DENSITY.h ${srcdir}/dft_guess_HSFMT.h \
+	${srcdir}/dft_guess_WTC.h ${srcdir}/dft_guess_restart.h \
+	${srcdir}/dft_guess_CMS.h ${srcdir}/dft_guess_ELECPOT.h \
+	${srcdir}/dft_comm.h ${srcdir}/dft_continuation.h \
+	${srcdir}/dft_utils.h ${srcdir}/dft_fill_control.h \
+	${srcdir}/dft_fill_main.h ${srcdir}/dft_fill_rosen_rb.h \
+	${srcdir}/dft_fill_mf.h ${srcdir}/dft_fill_wtc.h \
+	${srcdir}/dft_vext_coul.h ${srcdir}/dft_uww.h \
+	${srcdir}/dft_images.h ${srcdir}/dft_potentials.h \
+	${srcdir}/dft_potentials_vext.h \
 	${srcdir}/NOXLOCA_Tramonto_Group.hpp \
 	${srcdir}/NOXLOCA_Tramonto_Vector.hpp
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
@@ -493,6 +498,7 @@ COMMON_H = \
         ${srcdir}/dft_out_flux.h \
         ${srcdir}/dft_out_profiles.h \
         ${srcdir}/dft_vext.h \
+        ${srcdir}/dft_vext1D.h \
         ${srcdir}/dft_guess.h \
         ${srcdir}/dft_guess_CHEMPOT.h \
         ${srcdir}/dft_guess_EL_DENSITY.h \
@@ -512,7 +518,8 @@ COMMON_H = \
         ${srcdir}/dft_vext_coul.h \
         ${srcdir}/dft_uww.h \
         ${srcdir}/dft_images.h \
-        ${srcdir}/dft_potentials.h 
+        ${srcdir}/dft_potentials.h \
+        ${srcdir}/dft_potentials_vext.h 
 
 COMMON_C = \
         ${srcdir}/dft_input.c \
@@ -549,6 +556,7 @@ COMMON_C = \
         ${srcdir}/dft_out_flux.c \
         ${srcdir}/dft_out_profiles.c \
         ${srcdir}/dft_vext.c \
+        ${srcdir}/dft_vext1D.c \
         ${srcdir}/dft_guess.c \
         ${srcdir}/dft_guess_CHEMPOT.c \
         ${srcdir}/dft_guess_EL_DENSITY.c \
@@ -569,6 +577,7 @@ COMMON_C = \
         ${srcdir}/dft_uww.c \
         ${srcdir}/dft_images.c \
         ${srcdir}/dft_potentials.c \
+        ${srcdir}/dft_potentials_vext.c \
         ${srcdir}/rf_allo.c \
         ${srcdir}/loca_lib.c \
         ${srcdir}/loca_bord.c \
@@ -847,6 +856,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_out_profiles.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_poly_lin_prob_mgr_wrapper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_potentials.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_potentials_vext.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_thermo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_thermo_att.Po@am__quote@
@@ -858,6 +868,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_uww.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_vext.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_vext1D.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_vext_coul.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_bord.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loca_lib.Po@am__quote@
@@ -1424,6 +1435,22 @@ dft_vext.obj: ${srcdir}/dft_vext.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_vext.obj `if test -f '${srcdir}/dft_vext.c'; then $(CYGPATH_W) '${srcdir}/dft_vext.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_vext.c'; fi`
 
+dft_vext1D.o: ${srcdir}/dft_vext1D.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_vext1D.o -MD -MP -MF "$(DEPDIR)/dft_vext1D.Tpo" -c -o dft_vext1D.o `test -f '${srcdir}/dft_vext1D.c' || echo '$(srcdir)/'`${srcdir}/dft_vext1D.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_vext1D.Tpo" "$(DEPDIR)/dft_vext1D.Po"; else rm -f "$(DEPDIR)/dft_vext1D.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_vext1D.c' object='dft_vext1D.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_vext1D.Po' tmpdepfile='$(DEPDIR)/dft_vext1D.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_vext1D.o `test -f '${srcdir}/dft_vext1D.c' || echo '$(srcdir)/'`${srcdir}/dft_vext1D.c
+
+dft_vext1D.obj: ${srcdir}/dft_vext1D.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_vext1D.obj -MD -MP -MF "$(DEPDIR)/dft_vext1D.Tpo" -c -o dft_vext1D.obj `if test -f '${srcdir}/dft_vext1D.c'; then $(CYGPATH_W) '${srcdir}/dft_vext1D.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_vext1D.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_vext1D.Tpo" "$(DEPDIR)/dft_vext1D.Po"; else rm -f "$(DEPDIR)/dft_vext1D.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_vext1D.c' object='dft_vext1D.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_vext1D.Po' tmpdepfile='$(DEPDIR)/dft_vext1D.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_vext1D.obj `if test -f '${srcdir}/dft_vext1D.c'; then $(CYGPATH_W) '${srcdir}/dft_vext1D.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_vext1D.c'; fi`
+
 dft_guess.o: ${srcdir}/dft_guess.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_guess.o -MD -MP -MF "$(DEPDIR)/dft_guess.Tpo" -c -o dft_guess.o `test -f '${srcdir}/dft_guess.c' || echo '$(srcdir)/'`${srcdir}/dft_guess.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_guess.Tpo" "$(DEPDIR)/dft_guess.Po"; else rm -f "$(DEPDIR)/dft_guess.Tpo"; exit 1; fi
@@ -1743,6 +1770,22 @@ dft_potentials.obj: ${srcdir}/dft_potentials.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_potentials.Po' tmpdepfile='$(DEPDIR)/dft_potentials.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_potentials.obj `if test -f '${srcdir}/dft_potentials.c'; then $(CYGPATH_W) '${srcdir}/dft_potentials.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_potentials.c'; fi`
+
+dft_potentials_vext.o: ${srcdir}/dft_potentials_vext.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_potentials_vext.o -MD -MP -MF "$(DEPDIR)/dft_potentials_vext.Tpo" -c -o dft_potentials_vext.o `test -f '${srcdir}/dft_potentials_vext.c' || echo '$(srcdir)/'`${srcdir}/dft_potentials_vext.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_potentials_vext.Tpo" "$(DEPDIR)/dft_potentials_vext.Po"; else rm -f "$(DEPDIR)/dft_potentials_vext.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_potentials_vext.c' object='dft_potentials_vext.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_potentials_vext.Po' tmpdepfile='$(DEPDIR)/dft_potentials_vext.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_potentials_vext.o `test -f '${srcdir}/dft_potentials_vext.c' || echo '$(srcdir)/'`${srcdir}/dft_potentials_vext.c
+
+dft_potentials_vext.obj: ${srcdir}/dft_potentials_vext.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_potentials_vext.obj -MD -MP -MF "$(DEPDIR)/dft_potentials_vext.Tpo" -c -o dft_potentials_vext.obj `if test -f '${srcdir}/dft_potentials_vext.c'; then $(CYGPATH_W) '${srcdir}/dft_potentials_vext.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_potentials_vext.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_potentials_vext.Tpo" "$(DEPDIR)/dft_potentials_vext.Po"; else rm -f "$(DEPDIR)/dft_potentials_vext.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_potentials_vext.c' object='dft_potentials_vext.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_potentials_vext.Po' tmpdepfile='$(DEPDIR)/dft_potentials_vext.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_potentials_vext.obj `if test -f '${srcdir}/dft_potentials_vext.c'; then $(CYGPATH_W) '${srcdir}/dft_potentials_vext.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_potentials_vext.c'; fi`
 
 rf_allo.o: ${srcdir}/rf_allo.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT rf_allo.o -MD -MP -MF "$(DEPDIR)/rf_allo.Tpo" -c -o rf_allo.o `test -f '${srcdir}/rf_allo.c' || echo '$(srcdir)/'`${srcdir}/rf_allo.c; \

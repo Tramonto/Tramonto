@@ -312,68 +312,6 @@ double uderiv_LJ12_6(double r,double x,double sigma, double eps, double rcut)
   return (4.0*eps*vext_dash);
 }
 /******************************************************************************/
-/* Vext_1D:  given a wall-fluid point separation, calculate the 
-           9-3 Lennard Jones potential (note that prefactors are
-           calculated in calling routine)                           */
-double Vext_1D(double x,int icomp, int iwall_type)
-{
-  double vext,xmin;
-
-  if (x <= Cut_wf[icomp][iwall_type]) {
-
-
-     /* cut and shifted 9-3 LJ potential */
-     vext = (2.0*PI/3.0)*(POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type],3))* (
-       (2.0/15.0) * ( POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type]/x,9) -
-       POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type]/Cut_wf[icomp][iwall_type],9) ) -
-       ( POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type]/x,3) -
-       POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type]/Cut_wf[icomp][iwall_type],3) ));
-    
-      /* repulsive 9 potential (no cut and shift) */
-      /*vext = (2.0*PI/3.0)*( (2.0/15.0)*POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type],12)/ POW_DOUBLE_INT(x,9));*/
-
-      /* 9-3 potential (no cut and shift) */
-     /*    vext = (2.0*PI/3.0)*( (2.0/15.0)*POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type],12)/ POW_DOUBLE_INT(x,9)
-                    -POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type],6)/POW_DOUBLE_INT(x,3));*/
-
-       /* exponential attractive potential */
-       /*vext = -exp(-x/Sigma_wf[icomp][iwall_type]);*/
-
-  }
-  else vext = 0.0;
-  return vext;
-}
-
-/******************************************************************************/
-/* Vext_1D_dash:  given a wall-fluid point separation, calculate the derivative of
-               the 9-3 Lennard Jones potential (note that prefactors are
-               calculated in calling routine)                           */
-/* ALF: modified to have min. start at wall surface */
-double Vext_1D_dash(double x,int icomp, int iwall_type)
-{
-  double vdash,xmin;
-  xmin = pow(2./5.,1./6.);
-  if (x <= Cut_wf[icomp][iwall_type]) {
-/*    x += xmin;*/
-
-     /* LJ 9-3 potential (with or without cut and shift) */
-     vdash = (2.0*PI/3.0)*(POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type],2))* (
-             -(9.0/5.0) * POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type]/x,10)
-             +(9.0/2.0) * POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type]/x,4) );
-
-      /* LJ 9 repulsive potential */
-/*      vdash = (1.0/Sigma_wf[icomp][iwall_type])* (
-    -(9.0/5.0) * POW_DOUBLE_INT(Sigma_wf[icomp][iwall_type]/x,10) );*/
-
-     /* exponential attractive potential */
-     /*vext_dash =  exp(-x/Sigma_wf[icomp][iwall_type])/
-                          (x*Sigma_wf[icomp][iwall_type]);*/
-
-  }
-  else vdash = 0.0;
-  return vdash;
-}
-/******************************************************************************/
 /* uLJ_wp: The external field contributions in 3-dimensions                   */
 
 double uLJ_wp(double r,int icomp, int iwall_type)

@@ -244,6 +244,16 @@
 #define YUKAWA       2
 
 /*
+ * The following are choices for external field potentials.  
+ */
+#define LJ9_3_CS          0
+#define LJ9_3_v2_CS       1
+#define LJ9_3_noCS        2
+#define LJ9_3_shiftX_CS   3
+#define REPULSIVE9_noCS   4
+#define EXP_ATT_noCS      5
+
+/*
  *  The following define ways to distribute charge in the system 
  */
 #define POINT_CHARGE 0
@@ -715,6 +725,7 @@ extern double  Betamu_seg_LBB[NMER_MAX];/* Array of excess segment chemical pote
 extern double  Betamu_seg_RTF[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 extern int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
 extern int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
+extern int     Type_vext;  /* Interaction potential to choose for external field calculations */
 extern int     Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
 extern int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
 extern int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */

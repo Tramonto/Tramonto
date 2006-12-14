@@ -352,7 +352,7 @@ void setup_1Dvext(int iwall)
    int loc_inode,inode;
    int maximum,image;
    double max_cut,**image_pos,node_pos_w[3],
-          node_pos_f[3],x,prefac,sign;
+          node_pos_f[3],x,sign;
 
    /*
     * 	The tricky part is dealing with the images that result from
@@ -391,7 +391,6 @@ void setup_1Dvext(int iwall)
       for (icomp=0; icomp<Ncomp; icomp++) {
          image = 1;
         if (!Zero_density_TF[inode_box][icomp]) {
-           prefac = Eps_wf[icomp][iwall_type] * Rho_w[iwall_type];
 
           inode = L2G_node[loc_inode];
           node_to_position(inode,node_pos_f);
@@ -423,7 +422,7 @@ void setup_1Dvext(int iwall)
                 }
 
                 if (x > 0.00001) {
-                    Vext[loc_inode][icomp]+= prefac*Vext_1D(x,icomp,iwall_type); 
+                    Vext[loc_inode][icomp]+= Vext_1D(x,icomp,iwall_type); 
                 }
                 else {
                     Vext[loc_inode][icomp]= Vext_set[loc_inode][icomp];
@@ -461,8 +460,6 @@ if (icomp==0 && loc_inode>53+(i*117) && loc_inode<63+(i*117))
      image = 1;
         iunk = iwall*Ncomp + icomp;
   
-        prefac = Eps_wf[icomp][iwall_type]*Rho_w[iwall_type];
-
         if (!Zero_density_TF[inode_box][icomp]) {
           if (Vext[loc_inode][icomp] != Vext_set[loc_inode][icomp]) {
 
@@ -487,7 +484,7 @@ if (icomp==0 && loc_inode>53+(i*117) && loc_inode<63+(i*117))
                         fabs(image_pos[i][Orientation[iwall_type]] - node_pos_w[Orientation[iwall_type]]);
  
                 Vext_dash[loc_inode][iunk][Orientation[iwall_type]] += 
-                      sign*prefac*Vext_1D_dash(x,icomp,iwall_type);
+                      sign*Vext_1D_dash(x,icomp,iwall_type);
                 }
  
             }    /* end of images loop */
@@ -508,7 +505,7 @@ void setup_1Dvext_xmin(int iwall)
    int loc_inode,inode;
    int maximum,image;
    double max_cut,**image_pos,node_pos_w[3],
-          node_pos_f[3],x,prefac,eps,x2;
+          node_pos_f[3],x,x2;
 
    /*
     * 	The tricky part is dealing with the images that result from
@@ -543,9 +540,6 @@ void setup_1Dvext_xmin(int iwall)
 
       for (icomp=0; icomp<Ncomp; icomp++) {
         if (!Zero_density_TF[inode_box][icomp]) {
-           eps = Eps_wf[icomp][iwall_type];
-           prefac = eps* Rho_w[iwall_type] * POW_DOUBLE_INT(
-                           Sigma_wf[icomp][iwall_type]/Sigma_ww[iwall_type][iwall_type],3);
 
           inode = L2G_node[loc_inode];
           node_to_position(inode,node_pos_f);
@@ -580,8 +574,7 @@ void setup_1Dvext_xmin(int iwall)
                 if (x==-999.0) 
                    Vext[loc_inode][icomp]+=0.0;
                 else if (x > 0.00001) 
-                   Vext[loc_inode][icomp]+= prefac*
-                       (Vext_1D(x,icomp,iwall_type)+Vext_1D(x2,icomp,iwall_type)); 
+                   Vext[loc_inode][icomp]+= (Vext_1D(x,icomp,iwall_type)+Vext_1D(x2,icomp,iwall_type)); 
                 else {
                     Vext[loc_inode][icomp]= Vext_set[loc_inode][icomp];
                     break;
@@ -613,9 +606,6 @@ void setup_1Dvext_xmin(int iwall)
 
      for (icomp=0; icomp<Ncomp; icomp++) {
         iunk = iwall*Ncomp + icomp;
-        eps = Eps_wf[icomp][iwall_type];
-        prefac = eps* Rho_w[iwall_type] * POW_DOUBLE_INT(
-                        Sigma_wf[icomp][iwall_type]/Sigma_ww[iwall_type][iwall_type],3);
 
         if (!Zero_density_TF[inode_box][icomp]) {
           if (Vext[loc_inode][icomp] != Vext_set[loc_inode][icomp]) {
@@ -637,7 +627,7 @@ void setup_1Dvext_xmin(int iwall)
                         fabs(image_pos[i][0] - node_pos_w[0]);
  
                 Vext_dash[loc_inode][iunk][0] += 
-                      sign*prefac* (Vext_1D_dash(x,icomp,iwall_type)+
+                      sign* (Vext_1D_dash(x,icomp,iwall_type)+
                                     Vext_1D_dash(x2,icomp,iwall_type));
                 }
             }    * end of images loop *

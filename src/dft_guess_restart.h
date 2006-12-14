@@ -44,9 +44,6 @@ void node_to_ijk(int node,int *ijk);
 #define NWALL_MAX_TYPE 50 
 extern double Del_1[NWALL_MAX_TYPE];
 extern int Plane_new_nodes;
-#define POLYMER_CR     4
-#define NSTEN        8
-extern int Sten_Type[NSTEN];
 #define NDIM_MAX  3
 extern int Nodes_x_old[NDIM_MAX];
 extern int Nodes_x[NDIM_MAX];
@@ -55,11 +52,11 @@ extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
 #define NEQ_TYPE       8
 extern int Phys2Unk_last[NEQ_TYPE];
-#define CMS_G          2 
 extern int Phys2Unk_first[NEQ_TYPE];
 int ijk_to_node(int *ijk);
 extern double Esize_x[NDIM_MAX];
 int round_to_int(double x);
+#define CMS_G          2 
 extern int Ndim;
 #define NONE       -1
 #define NONE      -1

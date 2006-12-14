@@ -22,8 +22,6 @@ double uLJatt_n_int(double r,int i,int j);
 double uLJatt_n(double r,int i,int j);
 extern double Temp_elec;
 double uLJ_wp(double r,int icomp,int iwall_type);
-double Vext_1D_dash(double x,int icomp,int iwall_type);
-double Vext_1D(double x,int icomp,int iwall_type);
 double uderiv_LJ12_6(double r,double x,double sigma,double eps,double rcut);
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
