@@ -361,7 +361,7 @@ void print_profile(char *output_file4)
                     itype_mer=Type_mer[ipol][iseg];
                     bondproduct=1.0;
                     for(ibond=0;ibond<Nbond[ipol][iseg];ibond++){
-                         unk_GQ  = Phys2Unk_first[CMS_G] + Poly_to_Unk[ipol][iseg][ibond];
+			 unk_GQ  = Geqn_start[ipol] + Poly_to_Unk[ipol][iseg][ibond];
                          bondproduct *= X_old[unk_GQ+node_start];
                     }  
                    unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
