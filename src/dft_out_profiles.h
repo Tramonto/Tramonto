@@ -129,3 +129,4 @@ extern int Ndim;
 extern int Nnodes;
 extern int Nodes_old;
 void collect_x_old(double **x);
+extern int Geqn_start[NCOMP_MAX];
