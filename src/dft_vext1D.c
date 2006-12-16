@@ -76,7 +76,7 @@ double Vext_1D(double x,int icomp, int iwall_type)
         vext = Vext_REPULSIVE9_noCS(x,icomp,iwall_type);
         break;
       case EXP_ATT_noCS:
-        vext = VextEXP_ATT_noCS(x,icomp,iwall_type);
+        vext = Vext_EXP_ATT_noCS(x,icomp,iwall_type);
         break;
       default:
          printf ("problems with your selection of Type_vext");
@@ -106,7 +106,7 @@ double Vext_1D_dash(double x,int icomp, int iwall_type)
         vdash = Vextderiv_REPULSIVE9(x,icomp,iwall_type);
         break;
       case EXP_ATT_noCS:
-        vdash = VextEXP_ATT(x,icomp,iwall_type);
+        vdash = Vextderiv_EXP_ATT(x,icomp,iwall_type);
         break;
       case LJ9_3_shiftX_CS:
          vdash=0.0;  /* vdash code not yet written */
