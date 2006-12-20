@@ -1239,7 +1239,6 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
  int link_chk,ilink;
  int jw,index,index_w,turn_off;
  double node_pos[3];
- FILE *fp11,*fp12;
 
  Nodes_2_boundary_wall = (int **) array_alloc(2, Nlists_HW, Nnodes_box, sizeof(int));
  Zero_density_TF = (int **) array_alloc (2, Nnodes_box,Ncomp+1,sizeof(int));
@@ -1514,22 +1513,6 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
     }        /* end of x-tra checks for the hard wall cases */
 
  }        /* End of loop over nodes in local box coordinates */
-
-  if (Num_Proc==1 && Iwrite==VERBOSE){
-     fp11 = fopen("bound_wf.dat","w+");
-     fp12 = fopen("bound_ww.dat","w+");
-     ilist=1;
-     for (inode_box=0; inode_box<Nnodes_box; inode_box++){
-        inode=B2G_node[inode_box];
-        node_to_position(inode,node_pos);
-        if (Nodes_2_boundary_wall[ilist][inode_box] >=0 && fabs(node_pos[2]-Esize_x[2]/2)<1.e-6) 
-             fprintf(fp11," %9.6f  %9.6f  %9.6f  %d  %d \n",node_pos[0],node_pos[1],node_pos[2],Proc,inode_box);
-        else if (Nodes_2_boundary_wall[ilist][inode_box] == -2 && node_pos[2]<1.e-6) 
-             fprintf(fp12," %9.6f  %9.6f  %9.6f\n",node_pos[0],node_pos[1],node_pos[2]);
-     }
-     fclose(fp11);
-     fclose(fp12);
-   }
 
  if (Imain_loop==0 && Proc==0 && Iwrite==VERBOSE) {
     fprintf (fp1,"\n---------------------------------------------------------------\n");

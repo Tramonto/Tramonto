@@ -201,7 +201,7 @@ void read_in_a_file(int iguess,char *filename)
              header++;
              unk_in_file+=Nbonds;
              unk_start_in_file[BONDWTC]=iunk;
-             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=BONDWTC;
+             for (i=0;i<Nbonds;i++) unk_to_eq_in_file[iunk++]=BONDWTC;
        }
        else if (strncmp(unk_char,"CHEMPOT",5)==0){
              Restart_field[DIFFUSION]=TRUE;
