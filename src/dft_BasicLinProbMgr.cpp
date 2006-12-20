@@ -119,6 +119,9 @@ int dft_BasicLinProbMgr::finalizeBlockStructure() {
   for (int i=0; i<physicsOrdering_.Length(); i++) solverOrdering_[physicsOrdering_[i]]=i;
 
 
+  // Sanity check of physics ordering
+  checkPhysicsOrdering();
+
   int * GIDs = ownedMap_->MyGlobalElements();
   int k=0;
   if (groupByPhysics_) 
@@ -396,4 +399,42 @@ int dft_BasicLinProbMgr::writeRhs(const char * filename) const  {
 //=============================================================================
 int dft_BasicLinProbMgr::writePermutation(const char * filename) const  {
   return(EpetraExt::BlockMapToMatrixMarketFile(filename, *globalRowMap_, " ", " ", false));
+}
+//=============================================================================
+int dft_BasicLinProbMgr::checkPhysicsOrdering() const  {
+  if (physicsOrdering_.Length()==0) {
+    std::cerr << "No unknowns are registered with this problem manager." << std::endl;
+    return (-1);
+  }
+
+  bool fatalError = false;
+
+  int numUnks = physicsOrdering_.Length();
+  Epetra_SerialDenseVector tmp(numUnks);
+  for (int i=0; i<numUnks; i++) {
+    int curID = physicsOrdering_[i];
+    if (curID <0) {
+      fatalError = true;
+      std::cerr << "Invalid unknown number " << curID << " is less than 0." << std::endl;
+    }
+    else if (curID>=numUnks) {
+      fatalError = true;
+      std::cerr << "Invalid unknown number " << curID << " is greater than or equal to the number of unknowns (" << numUnks << ")." << std::endl;
+    }
+    else tmp(curID)++; // Increment counter for this ID (at the end each ID should appear exactly one time).
+  }
+
+  for (int i=0; i<numUnks; i++) {
+    if (tmp[i]==0) {
+      fatalError = true;
+      std::cerr << "Unknown number " << i << " is not present and should be." << std::endl;
+    }
+    if (tmp[i]>1) {
+      fatalError = true;
+      std::cerr << "Unknown number " << i << " is present " << tmp[i] << " times and should be present only once." << std::endl;
+    }
+  }
+
+  if (fatalError) throw tmp.ReportError("Fatal Error in specification of unknowns", -1);
+  return(0);
 }

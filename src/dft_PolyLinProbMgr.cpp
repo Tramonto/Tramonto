@@ -91,6 +91,9 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
     physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
   }
 
+  // Sanity check of physics ordering
+  checkPhysicsOrdering();
+
   // create inverse mapping of where each physics unknown is ordered for the solver
   solverOrdering_.Size(numUnknownsPerNode_);
   for (int i=0; i<physicsOrdering_.Length(); i++) solverOrdering_[physicsOrdering_[i]]=i;

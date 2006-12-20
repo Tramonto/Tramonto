@@ -304,6 +304,8 @@ class dft_BasicLinProbMgr {
 
 protected:
 
+  int checkPhysicsOrdering() const;
+
   inline int ownedToSolverGID(int ownedPhysicsID, int ownedNode) const { 
     if (groupByPhysics_) 
       return(ownedPhysicsID*numGlobalNodes_ + ownedMap_->GID(ownedNode));
