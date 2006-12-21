@@ -83,8 +83,7 @@ int solve_problem(double **x, double **x2)
 {
   int iter,iunk,i;
   double **xOwned;
-  int geq[NMER_MAX], ginveq[NMER_MAX], cmseq[NCOMP_MAX], densityeq[NMER_MAX] ;
-  int indnonlocaleq[NMER_MAX], depnonlocaleq[NMER_MAX];
+  int *geq, *ginveq, *cmseq, *densityeq, *indnonlocaleq, *depnonlocaleq;
 /*  int gequ[] = {6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42};
   int ginvequ[] = {43, 41, 39, 37, 35, 33, 31, 29, 27, 25, 23, 21, 19, 17, 15, 13, 11, 9, 7};
   int cmsequ[] = {0, 1, 2};
@@ -95,6 +94,10 @@ int loc_inode,inode_box,itmp;
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
  if (L_Schur && Type_poly == CMS && Type_coul==NONE) {
+   densityeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
+   cmseq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
+   geq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
+   ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
    
    count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
    for (iunk=0;iunk<Nunk_per_node;iunk++){
@@ -127,9 +130,16 @@ int loc_inode,inode_box,itmp;
    dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmseq);
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
+   safe_free((void *) &densityeq);
+   safe_free((void *) &cmseq);
+   safe_free((void *) &geq);
+   safe_free((void *) &ginveq);
  }
  else if (L_Schur && Type_func != NONE) {
-   
+
+   densityeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
+   indnonlocaleq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
+   depnonlocaleq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
 
    count_density=count_indnonlocal=count_depnonlocal=0;
    one_particle_size=FALSE;
@@ -169,6 +179,9 @@ int loc_inode,inode_box,itmp;
    if (Type_attr != NONE || Type_poly==WTC || Mesh_coarsening || Type_coul != NONE)
                 dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(LinProbMgr_manager, FALSE);
    else         dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(LinProbMgr_manager, TRUE);
+   safe_free((void *) &densityeq);
+   safe_free((void *) &indnonlocaleq);
+   safe_free((void *) &depnonlocaleq);
  }
  else{
    LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
@@ -183,9 +196,7 @@ int loc_inode,inode_box,itmp;
   dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);
 
   /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
-  printf("calling finalizeblockstructure!!!!\n");
   (void) dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
-  printf("after finalizeblockstructure!!!!\n");
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
 /*for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
