@@ -91,6 +91,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
   /* Load residuals and matrix */
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
+printf("in fill main loc_inode=%d\n",loc_inode);
 
     /* convert local node to global */
 
@@ -206,11 +207,12 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
 
     /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
     switch(Unk2Phys[iunk]){
-       case DENSITY:  printf("loc_inode=%d iunk_rho=%d ", loc_inode,iunk); break;
+       case DENSITY:  printf("loc_inode=%d of %d iunk_rho=%d ", loc_inode,Nnodes_per_proc,iunk); break;
        case HSRHOBAR: printf("loc_inode=%d iunk_rbar=%d resid=%9.6f ", loc_inode,iunk); break;
        case POISSON:  printf("loc_inode=%d iunk_poisson=%d ", loc_inode,iunk); break;
        case DIFFUSION: printf(" loc_inode=%d  iunk_diffusion=%d ",loc_inode,iunk); break;
        case CAVWTC: printf(" loc_inode=%d  iunk_cavity=%d ",loc_inode,iunk); break;
+       case BONDWTC: printf(" loc_inode=%d  iunk_bondwtc=%d ",loc_inode,iunk); break;
        case CMS_FIELD: printf(" loc_inode=%d  iunk_cmsfield=%d ",loc_inode,iunk); break;
        case CMS_G: printf(" loc_inode=%d  iunk_cmsG=%d ",loc_inode,iunk); break;
     }
