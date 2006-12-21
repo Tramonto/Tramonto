@@ -53,7 +53,7 @@ extern int **Nel_hit2;
 double integrand_ideal_gas_freen(int iunk,int inode_box,double **x);
 void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
 extern double Charge_f[NCOMP_MAX];
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 #define NEQ_TYPE       8
 extern int Phys2Unk_last[NEQ_TYPE];

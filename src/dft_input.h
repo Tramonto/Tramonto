@@ -173,7 +173,7 @@ extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 #define NBOND_MAX 4
 extern int *Unk_to_Poly;
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 #define NBLOCK_MAX   5

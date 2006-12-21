@@ -42,7 +42,7 @@ double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int
 extern int Type_poly;
 #define DENSITY        0
 #define NCOMP_MAX 5
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 void safe_free(void **ptr);
 void safe_free(void **ptr);

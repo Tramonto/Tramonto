@@ -16,7 +16,7 @@
 #define NCOMP_MAX 5
 extern double Charge_f[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 void print_to_screen(double val,char *var_label);

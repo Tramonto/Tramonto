@@ -1,6 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-/*void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
-void print_to_file(FILE *fp,double val,char *var_label,int first);*/
 void print_to_screen_comp(int icomp,double val,char *var_label);
 void print_to_screen(double val,char *var_label);
 #include <stdio.h>
@@ -74,7 +72,7 @@ extern int Nunk_per_node;
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 int loc_find(int iunk,int inode,int flag);
 #define CMS_G          2 
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern double BondWTC_RTF[NMER_MAX *NMER_MAX];
 extern double BondWTC_LBB[NMER_MAX *NMER_MAX];
 extern double BondWTC_b[NMER_MAX *NMER_MAX];

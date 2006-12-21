@@ -28,7 +28,7 @@ extern double **X_wall;
 extern int Nwall;
 void chop_profile(double **xOwned,int iguess);
 extern double VEXT_MAX;
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
 extern int **Zero_density_TF;
 extern int Unk2Comp[NMER_MAX];

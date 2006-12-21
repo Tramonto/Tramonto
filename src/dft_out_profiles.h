@@ -58,8 +58,9 @@ extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #define POW_DOUBLE_INT pow
 #endif
 extern int ***Poly_to_Unk;
+extern int Geqn_start[NCOMP_MAX];
 extern int **Nbond;
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Nmer[NCOMP_MAX];
 extern int Npol_comp;
@@ -129,4 +130,3 @@ extern int Ndim;
 extern int Nnodes;
 extern int Nodes_old;
 void collect_x_old(double **x);
-extern int Geqn_start[NCOMP_MAX];

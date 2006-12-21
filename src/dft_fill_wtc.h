@@ -78,7 +78,7 @@ double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CAVWTC     6
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;

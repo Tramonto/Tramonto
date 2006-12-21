@@ -2,7 +2,6 @@
 int continuation_hook(double *x,double *delta_x,void *con_void,double reltol,double abstol);
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 void box2owned(double **xBox,double **xOwned);
-/*double calc_free_energy(FILE *fp,double **x);*/
 void setup_integrals();
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -57,7 +56,7 @@ void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
 void assign_bif_parameter_conwrap(double tp_param);
 #if !defined(_CON_CONST_H_)

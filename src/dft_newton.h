@@ -132,7 +132,7 @@ extern int Geqn_start[NCOMP_MAX];
 #define CMS_G          2 
 #define CMS_FIELD      1
 #define DENSITY        0
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int Nunk_per_node;
 #define NONE       -1

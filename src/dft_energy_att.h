@@ -17,7 +17,7 @@
 extern double Betamu_att[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_b_RTF[NCOMP_MAX];
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 extern int Lsteady_state;

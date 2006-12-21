@@ -30,7 +30,7 @@ extern struct Stencil_Struct ***Stencil;
 extern int Nlists_HW;
 extern int ***Bonds;
 #define NCOMP_MAX 5
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)

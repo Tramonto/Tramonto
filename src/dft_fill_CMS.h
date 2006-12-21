@@ -58,7 +58,7 @@ extern int ***Poly_to_Unk;
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
 extern int **Nbond;
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Nmer[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];

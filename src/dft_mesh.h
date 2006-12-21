@@ -58,6 +58,7 @@ extern int *List_coarse_nodes;
 void print_Nodes_to_zone(int *node_to_zone,char *output_file);
 int ijk_box_to_node_box(int *ijk_box);
 extern int Nzone;
+void node_to_position(int inode,double *NodePos);
 int element_to_node(int ielement);
 int el_box_to_el(int iel_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
@@ -99,7 +100,6 @@ double gsum_double(double c);
 void surf_el_to_list(int loc_inode,int ilist,int *iel_box,int el,int type,int normal,int idim,double esize1,double esize2);
 void find_local_els(int inode,int *iel,int *iel_box,int flag);
 extern int Nnodes_per_el_S;
-void node_to_position(int inode,double *NodePos);
 extern int Link[NWALL_MAX];
 #define NDIM_MAX  3
 extern double WallPos[NDIM_MAX][NWALL_MAX];

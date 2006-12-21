@@ -35,7 +35,7 @@ extern int *L2G_node;
 extern double Betamu[NCOMP_MAX];
 #define DIFFUSION      5
 extern int Lsteady_state;
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int **Zero_density_TF;
 #define DENSITY        0

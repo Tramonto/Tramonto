@@ -18,7 +18,7 @@ double integrand_vext_elec_freen(int iunk,int inode_box,double **x);
 extern int *B2L_node;
 extern double **Vext;
 #define DENSITY_MIN  1.e-20
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 #define WTC          3
 extern int Type_poly;

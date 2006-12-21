@@ -39,7 +39,7 @@ extern int Lpolarize[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
 extern int **Lsemiperm;
 extern int **Wall_elems;
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 #define WTC          3
 extern int Type_poly;

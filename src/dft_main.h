@@ -17,7 +17,7 @@
 extern int Geqn_start[NCOMP_MAX];
 extern int Npol_comp;
 #define NO_UNK        -888
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 #define NEQ_TYPE       8
 extern int Phys2Unk_last[NEQ_TYPE];

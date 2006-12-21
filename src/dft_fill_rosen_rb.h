@@ -25,7 +25,7 @@ double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,
 double constant_boundary(int iunk,int jnode_box);
 extern int **Zero_density_TF;
 #define DENSITY        0
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 #define WTC          3
 extern int Type_poly;

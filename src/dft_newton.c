@@ -83,7 +83,7 @@ int solve_problem(double **x, double **x2)
 {
   int iter,iunk,i;
   double **xOwned;
-  int geq[NMER_MAX], ginveq[NMER_MAX], cmseq[NCOMP_MAX], densityeq[NCOMP_MAX] ;
+  int geq[NMER_MAX], ginveq[NMER_MAX], cmseq[NCOMP_MAX], densityeq[NMER_MAX] ;
   int indnonlocaleq[NMER_MAX], depnonlocaleq[NMER_MAX];
 /*  int gequ[] = {6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42};
   int ginvequ[] = {43, 41, 39, 37, 35, 33, 31, 29, 27, 25, 23, 21, 19, 17, 15, 13, 11, 9, 7};
@@ -91,11 +91,9 @@ int solve_problem(double **x, double **x2)
   int densityequ[] = { 3, 4, 5};*/
   int count_density,count_cms_field,count_geqn,count_ginv_eqn,count_indnonlocal,count_depnonlocal,index_save;
   int one_particle_size;
-int loc_inode,inode_box;
+int loc_inode,inode_box,itmp;
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
-  int is_poly = 0;
-  int debug = 0;
  if (L_Schur && Type_poly == CMS && Type_coul==NONE) {
    
    count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
@@ -111,6 +109,10 @@ int loc_inode,inode_box;
        else
 	 ginveq[count_ginv_eqn++]=iunk; 
        break;
+     default:
+        printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
+	exit(-1);
+	break;
      } 
    }
    /* now invert the order of the ginverse equations ! */
@@ -154,6 +156,10 @@ int loc_inode,inode_box;
        break;*/
      case CAVWTC:
        indnonlocaleq[count_indnonlocal++]=iunk; break;   
+      default:
+        printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
+	exit(-1);
+	break;
      } 
    }
    LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
@@ -177,7 +183,9 @@ int loc_inode,inode_box;
   dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);
 
   /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
+  printf("calling finalizeblockstructure!!!!\n");
   (void) dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
+  printf("after finalizeblockstructure!!!!\n");
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
 /*for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){

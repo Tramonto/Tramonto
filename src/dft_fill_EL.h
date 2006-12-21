@@ -29,7 +29,7 @@ extern double Charge_f[NCOMP_MAX];
 extern int Nwall;
 #define DIFFUSION      5
 extern double Betamu[NCOMP_MAX];
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern double Betamu_seg[NMER_MAX];
 extern double *Deltac_b;
 extern double Betamu_wtc[NMER_MAX];

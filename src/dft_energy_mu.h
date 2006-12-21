@@ -15,7 +15,7 @@
 #include "Tramonto_ConfigDefs.h"
 #define NCOMP_MAX 5
 extern double Rho_b_RTF[NCOMP_MAX];
-#define NMER_MAX     40
+#define NMER_MAX     100
 extern double Rho_seg_RTF[NMER_MAX];
 extern double Betamu_RTF[NCOMP_MAX];
 double integrand_mu_freen_bulk(int iunk,int inode_box,double **x);
