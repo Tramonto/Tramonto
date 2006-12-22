@@ -19,6 +19,7 @@ void safe_free(void **ptr);
 #define NWALL_MAX_TYPE 50 
 extern int Type_bc_elec[NWALL_MAX_TYPE];
 double integrate_potential(int flag,double param1,double param2,double param3,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
+double integrate_potential(int flag,double param1,double param2,double param3,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
 void find_images(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
 extern double VEXT_MAX;
 void find_images2(int idim,double cut,int *image,double **image_pos,double *node_image,int iwall,int iside);
@@ -45,14 +46,13 @@ extern int Nwall_type;
 void setup_ww_integrated(int iwall,int *nelems_w_per_w,int **elems_w_per_w,int L_LJ,int L_COULOMB);
 #define NWALL_MAX 600 
 extern double Elec_param_w[NWALL_MAX];
-double uCOULOMB(double r,double z1,double z2);
 #define REFLECT      2
 extern int Type_bc[NDIM_MAX][2];
 extern double Size_x[NDIM_MAX];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-double uLJ12_6_cut(double r,double sigma,double eps,double rcut);
+double pairPot_switch(double r,double param1,double param2,double param3);
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Ndim;
 void setup_coulomb_atomic(int iwall,int jwall);

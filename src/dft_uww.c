@@ -234,9 +234,9 @@ void setup_lj_atomic(int iwall, int jwall){
   r = sqrt (rsq);
 
   /* add in Lennard-Jones Contributions */
-  Uww[iwall][jwall] += uLJ12_6_cut(r,Sigma_ww[WallType[iwall]][WallType[jwall]],
-                                   Eps_ww[WallType[iwall]][WallType[jwall]],
-                                   Cut_ww[WallType[iwall]][WallType[jwall]]);
+  Uww[iwall][jwall] += pairPot_switch(r,Sigma_ww[WallType[iwall]][WallType[jwall]],
+                                      Eps_ww[WallType[iwall]][WallType[jwall]],
+                                      Cut_ww[WallType[iwall]][WallType[jwall]]);
   return;
 }
 /******************************************************************************/
@@ -248,6 +248,7 @@ void setup_coulomb_atomic(int iwall,int jwall){
 
   int idim,index1,index2;
   double xi,xj,rsq,r,faci,facj;
+  double zero_param=0.0;
 
   faci = 1.0; facj=1.0;
   for (idim = 0; idim<Ndim; idim++) {
@@ -267,7 +268,7 @@ void setup_coulomb_atomic(int iwall,int jwall){
 
          /* add in Coulomb Contributions */
 
-   Uww[iwall][jwall] += uCOULOMB(r,faci*Elec_param_w[iwall],facj*Elec_param_w[jwall]);
+   Uww[iwall][jwall] += pairPot_switch(r,faci*Elec_param_w[iwall],facj*Elec_param_w[jwall],zero_param);
 
   return;
 }

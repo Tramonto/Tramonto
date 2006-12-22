@@ -77,7 +77,6 @@ COMMON_H = \
         ${srcdir}/dft_out_flux.h \
         ${srcdir}/dft_out_profiles.h \
         ${srcdir}/dft_vext.h \
-        ${srcdir}/dft_vext1D.h \
         ${srcdir}/dft_guess.h \
         ${srcdir}/dft_guess_CHEMPOT.h \
         ${srcdir}/dft_guess_EL_DENSITY.h \
@@ -97,8 +96,13 @@ COMMON_H = \
         ${srcdir}/dft_vext_coul.h \
         ${srcdir}/dft_uww.h \
         ${srcdir}/dft_images.h \
-        ${srcdir}/dft_potentials.h \
-        ${srcdir}/dft_potentials_vext.h 
+        ${srcdir}/dft_potential_params.h \
+        ${srcdir}/dft_pairPot_LJ12_6.h \
+        ${srcdir}/dft_pairPot_COULOMB.h \
+        ${srcdir}/dft_switch_pairPot.h \
+        ${srcdir}/dft_switch_vext1D.h \
+        ${srcdir}/dft_vext_1D.h \
+        ${srcdir}/dft_vext_integrated.h 
 
 COMMON_C = \
         ${srcdir}/dft_input.c \
@@ -135,7 +139,6 @@ COMMON_C = \
         ${srcdir}/dft_out_flux.c \
         ${srcdir}/dft_out_profiles.c \
         ${srcdir}/dft_vext.c \
-        ${srcdir}/dft_vext1D.c \
         ${srcdir}/dft_guess.c \
         ${srcdir}/dft_guess_CHEMPOT.c \
         ${srcdir}/dft_guess_EL_DENSITY.c \
@@ -155,8 +158,13 @@ COMMON_C = \
         ${srcdir}/dft_vext_coul.c \
         ${srcdir}/dft_uww.c \
         ${srcdir}/dft_images.c \
-        ${srcdir}/dft_potentials.c \
-        ${srcdir}/dft_potentials_vext.c \
+        ${srcdir}/dft_potential_params.c \
+        ${srcdir}/dft_pairPot_LJ12_6.c \
+        ${srcdir}/dft_pairPot_COULOMB.c \
+        ${srcdir}/dft_switch_pairPot.c \
+        ${srcdir}/dft_switch_vext1D.c \
+        ${srcdir}/dft_vext_1D.c \
+        ${srcdir}/dft_vext_integrated.c \
         ${srcdir}/rf_allo.c \
         ${srcdir}/loca_lib.c \
         ${srcdir}/loca_bord.c \

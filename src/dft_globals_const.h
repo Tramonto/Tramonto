@@ -244,6 +244,12 @@
 #define YUKAWA       2
 
 /*
+ * The following are choices for pair interacton potentials.  
+ */
+#define PAIR_LJ12_6_CS  0
+#define PAIR_COULOMB    1
+
+/*
  * The following are choices for external field potentials.  
  */
 #define LJ9_3_CS          0

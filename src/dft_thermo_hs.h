@@ -69,7 +69,7 @@ double phispt(double *rho_bar);
 extern double Rhobar_b[10];
 #define NDIM_MAX  3
 double pressure_FMT_hs(double *rho);
-double uLJ12_6_cut(double r,double sigma,double eps,double rcut);
+double pairPot_switch(double r,double param1,double param2,double param3);
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Proc;
 #if defined(DEBUG)

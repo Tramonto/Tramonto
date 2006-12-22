@@ -48,7 +48,7 @@
  *
  */
 
-#include "dft_vext1D.h"
+#include "dft_switch_vext1D.h"
 
 /******************************************************************************/
 /* Vext_1D:  given a wall-fluid point separation, calculate the 
@@ -76,10 +76,10 @@ double Vext_1D(double x,int icomp, int iwall_type)
         vext = Vext_REPULSIVE9_noCS(x,icomp,iwall_type);
         break;
       case EXP_ATT_noCS:
-        vext = Vext_EXP_ATT_noCS(x,icomp,iwall_type);
+        vext = VextEXP_ATT_noCS(x,icomp,iwall_type);
         break;
       default:
-         printf ("problems with your selection of Type_vext");
+         print ("problems with your selection of Type_vext");
          exit(-1);
          break;
   }
@@ -106,13 +106,13 @@ double Vext_1D_dash(double x,int icomp, int iwall_type)
         vdash = Vextderiv_REPULSIVE9(x,icomp,iwall_type);
         break;
       case EXP_ATT_noCS:
-        vdash = Vextderiv_EXP_ATT(x,icomp,iwall_type);
+        vdash = VextEXP_ATT(x,icomp,iwall_type);
         break;
       case LJ9_3_shiftX_CS:
          vdash=0.0;  /* vdash code not yet written */
          break;
       default:
-         printf ("problems with your selection of Type_vext");
+         print ("problems with your selection of Type_vext");
          exit(-1);
          break;
   }

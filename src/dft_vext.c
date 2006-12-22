@@ -754,8 +754,8 @@ void setup_vext_LJ_atomic(int iwall)
                 }
 
                 if (r > 0.00001){
-                   Vext[loc_inode][icomp] += uLJ12_6_cut(r,Sigma_wf[icomp][iwall_type],
-                                                       Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type]);
+                   Vext[loc_inode][icomp] += pairPot_switch(r,Sigma_wf[icomp][iwall_type],
+                                                  Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type]);
                 }
                 else {
                    Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; break;
@@ -860,7 +860,7 @@ void setup_vext_LJ_atomic(int iwall)
                     else sign = 1.0;
 
                     Vext_dash[loc_inode][iunk][idim] +=
-                         sign*uderiv_LJ12_6(r,x[idim],Sigma_wf[icomp][iwall_type],
+                         sign*pairPot_deriv_switch(r,x[idim],Sigma_wf[icomp][iwall_type],
                              Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type]);
                     }
                 }

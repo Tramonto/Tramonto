@@ -35,10 +35,10 @@ extern double ***Rism_cr;
 extern int Last_nz_cr;
 extern double Deltar_cr;
 double deltaC_MSA(double r,int i,int j);
-double uLJatt_n(double r,int i,int j);
+double pairPot_ATT_CS_switch(double r,int icomp,int jcomp);
 double deltaC_MSA_int(double r,int i,int j);
-double uLJatt_n_int(double r,int i,int j);
-double uLJatt_n_noshift(double r,int i,int j);
+double pairPot_integral_switch(double r,int icomp,int jcomp);
+double pairPot_ATT_noCS_switch(double r,int icomp,int jcomp);
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif

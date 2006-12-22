@@ -1135,14 +1135,14 @@ double calc_sten_vol(int isten, int i, int j)
         else                       return (PI * POW_DOUBLE_INT(HS_diam[i],2));
     case THETA_FN:
          return (PI * POW_DOUBLE_INT(HS_diam[i],3)/6.0);
-    case U_ATTRACT:
+    case U_ATTRACT:  /* volume of cut and shifted potential */
         r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
         r_cut = Cut_ff[i][j];
 
-        vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*uLJatt_n_noshift(r_min,i,j)
-                      - (4.0/3.0)*PI*pow(r_cut,3.0)*uLJatt_n_noshift(r_cut,i,j)
-                      + uLJatt_n_int(r_cut,i,j) - uLJatt_n_int(r_min,i,j);
- 
+        vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j)
+                      - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j)
+                      + pairPot_integral_switch(r_cut,i,j) - pairPot_integral_switch(r_min,i,j);
+
         return(vol_sten);
 
     case THETA_CHARGE:
@@ -1342,10 +1342,7 @@ double get_weight_from_stencil(int isten, int icomp, int jcomp, double rsq,
 
                   z = zmax * gpu[i];
                   rho = sqrt(rsq + z*z) * Cut_ff[icomp][jcomp];
-                  temp += gwu[i] * z * uLJatt_n(rho, icomp, jcomp);
-                  if (uLJatt_n(rho,icomp,jcomp) > 0.)
-                       printf("rij: %f  uLJ: %f\n",rho,
-                              uLJatt_n(rho,icomp,jcomp));
+                  temp += gwu[i] * z * pairPot_ATT_CS_switch(rho, icomp, jcomp);
                }
                return(2.0 * PI * temp * Cut_ff[icomp][jcomp]
                                       * Cut_ff[icomp][jcomp] * zmax);
@@ -1356,13 +1353,13 @@ double get_weight_from_stencil(int isten, int icomp, int jcomp, double rsq,
                for (i=0; i < ngpu; i++) {
                   z = zmax * gpu[i];
                   rho = sqrt(rsq + z*z) * Cut_ff[icomp][jcomp];
-                  temp += gwu[i] * uLJatt_n(rho, icomp, jcomp);
+                  temp += gwu[i] * pairPot_ATT_CS_switch(rho, icomp, jcomp);
                }
                return(2.0 * temp * Cut_ff[icomp][jcomp] * zmax);
             }
             else {
               rho = sqrt(rsq) * Cut_ff[icomp][jcomp];
-              temp = uLJatt_n(rho, icomp, jcomp);
+              temp = pairPot_ATT_CS_switch(rho, icomp, jcomp);
               return(temp);
             }
 

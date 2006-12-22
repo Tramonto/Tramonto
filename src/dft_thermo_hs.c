@@ -30,7 +30,7 @@ Routines to Calculate the thermodynamic properties of hard sphere fluids.
 Two routines are included for hard sphere properties -
 (1) is based on the Percus-Yevick compressibilty equation of state.
 the other (2) uses the same notation as the DFT Euler-Lagrange fill later 
-in the code.  These should give the same results for the FMT1 functional.
+in the code.  These should give the same results.
 ------------------------------------------------------------*/
 #include "dft_thermo_hs.h"
 
@@ -109,7 +109,7 @@ double integrand_BH(double r,int icomp)
 {
   double integrand,rcut;
   rcut=1.e6;  /* set very large to eliminate the cut and shift for the BH diameters */
-  if (r>.01) integrand = 1.-exp(-uLJ12_6_cut(r,Sigma_ff[icomp][icomp],Eps_ff[icomp][icomp],rcut));
+  if (r>.01) integrand = 1.-exp(pairPot_switch(r,Sigma_ff[icomp][icomp],Eps_ff[icomp][icomp],rcut));
   else integrand = 1.0;
   return(integrand);
 }

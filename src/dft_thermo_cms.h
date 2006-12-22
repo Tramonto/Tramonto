@@ -14,7 +14,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define CMS_SCFT     2
-double uLJatt_n(double r,int i,int j);
+double pairPot_ATT_CS_switch(double r,int icomp,int jcomp);
 #define NCOMP_MAX 5
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cr_rad[NCOMP_MAX][NCOMP_MAX];

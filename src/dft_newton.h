@@ -46,8 +46,6 @@ extern double Time_fill_first;
 void fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
 extern int *B2L_node;
 void box2owned(double **xBox,double **xOwned);
-void safe_free(void **ptr);
-void safe_free(void **ptr);
 int newton_solver(double **x,void *con_ptr);
 int solve_continuation(double **xx,double **xx2);
 typedef struct Loca_Struct Loca_Struct;
@@ -67,13 +65,6 @@ void print_profile_box(double **x,char *outfile);
 extern int Iwrite;
 extern int Iguess1;
 void set_initial_guess(int iguess,double **xOwned);
-#if defined(__STDC__)
-void *array_alloc(int numdim,...);
-#endif
-void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern int *List_coarse_nodes;
 extern int Nnodes_coarse_loc;
 extern int *B2G_node;
@@ -105,6 +96,8 @@ extern int Lhard_surf;
 #define FALSE 0
 #endif
 extern int Type_func;
+void safe_free(void **ptr);
+void safe_free(void **ptr);
 extern int Ncomp;
 extern int Ngeqn_tot;
 typedef struct Aztec_Struct Aztec_Struct;
@@ -135,6 +128,13 @@ extern int Geqn_start[NCOMP_MAX];
 #define NMER_MAX     100
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int Nunk_per_node;
+#if defined(__STDC__)
+void *array_alloc(int numdim,...);
+#endif
+void *array_alloc(int numdim,...);
+#if !(defined(__STDC__))
+void *array_alloc(...);
+#endif
 #define NONE       -1
 #define NONE      -1
 #define NONE -1

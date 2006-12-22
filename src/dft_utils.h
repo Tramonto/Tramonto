@@ -1,4 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
+/*void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
+void print_to_file(FILE *fp,double val,char *var_label,int first);*/
 void print_to_screen_comp(int icomp,double val,char *var_label);
 void print_to_screen(double val,char *var_label);
 #include <stdio.h>

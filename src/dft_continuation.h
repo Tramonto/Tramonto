@@ -2,6 +2,7 @@
 int continuation_hook(double *x,double *delta_x,void *con_void,double reltol,double abstol);
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 void box2owned(double **xBox,double **xOwned);
+/*double calc_free_energy(FILE *fp,double **x);*/
 void setup_integrals();
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -119,6 +120,7 @@ void setup_polymer_cr();
 extern int Type_poly;
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+void pot_parameters(char *output_file1);
 void pot_parameters(char *output_file1);
 extern double Eps_w[NWALL_MAX_TYPE];
 #define VEXT_HARD        1
