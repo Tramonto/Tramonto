@@ -51,4 +51,3 @@ extern int Proc;
 #define FALSE 0
 #endif
 void pot_parameters(char *output_file1);
-void pot_parameters(char *output_file1);

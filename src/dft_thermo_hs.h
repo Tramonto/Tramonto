@@ -22,8 +22,6 @@ void FMT2_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *
 void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
 #define FMT1       0
 extern int Type_func;
-extern int Nrho_bar_s;
-extern int Ndim;
 void dphi_drb_bulk(double *rhobar,double *dphi_drb);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
@@ -65,8 +63,11 @@ extern double Betamu_hs_ex[NCOMP_MAX];
 #endif
 void chempot_FMT_hs(double *rho);
 extern double Dphi_Drhobar_b[10];
-double phispt(double *rho_bar);
+double phispt_switch(double *n);
+void solutionVec_to_nOrdering(double *rhoBar_SVOrdering,double *n);
+extern int Ndim;
 extern double Rhobar_b[10];
+extern int Nrho_bar_s;
 #define NDIM_MAX  3
 double pressure_FMT_hs(double *rho);
 double pairPot_switch(double r,double param1,double param2,double param3);

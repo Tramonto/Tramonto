@@ -158,7 +158,6 @@ extern double ***Rism_cr;
 #define POLYMER_CR     4
 extern int Sten_Type[NSTEN];
 void pot_parameters(char *output_file1);
-void pot_parameters(char *output_file1);
 extern int Mix_type;
 void setup_nunk_per_node(char *output_file1);
 void read_input_file(char *input_file,char *output_file1);

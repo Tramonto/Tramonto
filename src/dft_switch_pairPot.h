@@ -11,7 +11,6 @@ double uCOULOMB_DERIV1D(double r,double x,double z1,double z2);
 double uLJ12_6_DERIV1D(double r,double x,double sigma,double eps,double rcut);
 double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3);
 double uCOULOMB(double r,double z1,double z2);
-double uCOULOMB(double r,double z1,double z2);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

@@ -120,12 +120,13 @@ pressure_FMT_hs  This routine calculates the pressure contribution for
 double pressure_FMT_hs(double *rho)
 {
    int i;
-   double betap_hs,n[4+2*NDIM_MAX];
-  
-   n[0]=Rhobar_b[3];  n[1]=Rhobar_b[2];
-   n[2]=Rhobar_b[1]; n[3]=Rhobar_b[0];
+   double betap_hs,n[4+2*NDIM_MAX],rho_bar[4+2*NDIM_MAX];
+ 
+   for (i=0;i<Nrho_bar_s;i++) rho_bar[i]=Rhobar_b[i];
+   for (i=0;i<2*Ndim;i++) rho_bar[Nrho_bar_s+i]=0.0; 
+   solutionVec_to_nOrdering(rho_bar,n);
 
-   betap_hs = -phispt(Rhobar_b);
+   betap_hs = -phispt_switch(n);
    for (i=0;i<4;i++) {
       betap_hs += Dphi_Drhobar_b[i]*n[i];
    }

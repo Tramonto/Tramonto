@@ -63,18 +63,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   if (Type_func !=NONE){
      dphi_drb = (struct RB_Struct *) array_alloc
                     (1, Nnodes_box, sizeof(struct RB_Struct));
-
-     if (Type_func==FMT1){
-        for (inode_box=0;inode_box<Nnodes_box; inode_box++){
-          calc_FMT_derivatives(&FMT1_1stderiv,inode_box,x,dphi_drb);
-        }
-     }
-     else if (Type_func==FMT2)
-        for (inode_box=0;inode_box<Nnodes_box; inode_box++)
-          calc_FMT_derivatives(&FMT2_1stderiv,inode_box,x,dphi_drb);
-     else if (Type_func==FMT3)
-        for (inode_box=0;inode_box<Nnodes_box; inode_box++)
-          calc_FMT_derivatives(&FMT3_1stderiv,inode_box,x,dphi_drb);
+     FMT1stDeriv_switch(inode_box,x,dphi_drb);
   }
 
   /* for debugging print out profiles on each iteration */

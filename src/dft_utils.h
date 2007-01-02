@@ -65,6 +65,8 @@ double gsum_double(double c);
 extern double Vol_el;
 extern int *L2B_node;
 void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
+extern int Nrho_bar_s;
+void solutionVec_to_nOrdering(double *rhoBar_SVOrdering,double *n);
 extern int Nnodes;
 #define GLOBAL 2
 #define BOX 0

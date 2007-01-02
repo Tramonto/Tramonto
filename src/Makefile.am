@@ -54,6 +54,9 @@ COMMON_H = \
         ${srcdir}/dft_fill_coarse.h \
         ${srcdir}/dft_fill_EL.h \
         ${srcdir}/dft_fill_CMS.h \
+        ${srcdir}/dft_physics_FMT1.h \
+        ${srcdir}/dft_physics_FMT2.h \
+        ${srcdir}/dft_physics_FMT3.h \
         ${srcdir}/dft_stencil.h \
         ${srcdir}/dft_thermo.h \
         ${srcdir}/dft_thermo_hs.h \
@@ -90,7 +93,7 @@ COMMON_H = \
         ${srcdir}/dft_utils.h \
         ${srcdir}/dft_fill_control.h \
         ${srcdir}/dft_fill_main.h \
-        ${srcdir}/dft_fill_rosen_rb.h \
+        ${srcdir}/dft_fill_FMT.h \
         ${srcdir}/dft_fill_mf.h \
         ${srcdir}/dft_fill_wtc.h \
         ${srcdir}/dft_vext_coul.h \
@@ -101,6 +104,7 @@ COMMON_H = \
         ${srcdir}/dft_pairPot_COULOMB.h \
         ${srcdir}/dft_switch_pairPot.h \
         ${srcdir}/dft_switch_vext1D.h \
+        ${srcdir}/dft_switch_FMT.h \
         ${srcdir}/dft_vext_1D.h \
         ${srcdir}/dft_vext_integrated.h 
 
@@ -116,6 +120,9 @@ COMMON_C = \
         ${srcdir}/dft_fill_coarse.c \
         ${srcdir}/dft_fill_EL.c \
         ${srcdir}/dft_fill_CMS.c \
+        ${srcdir}/dft_physics_FMT1.c \
+        ${srcdir}/dft_physics_FMT2.c \
+        ${srcdir}/dft_physics_FMT3.c \
         ${srcdir}/dft_stencil.c \
         ${srcdir}/dft_thermo.c \
         ${srcdir}/dft_thermo_hs.c \
@@ -152,7 +159,7 @@ COMMON_C = \
         ${srcdir}/dft_utils.c \
         ${srcdir}/dft_fill_control.c \
         ${srcdir}/dft_fill_main.c \
-        ${srcdir}/dft_fill_rosen_rb.c \
+        ${srcdir}/dft_fill_FMT.c \
         ${srcdir}/dft_fill_mf.c \
         ${srcdir}/dft_fill_wtc.c \
         ${srcdir}/dft_vext_coul.c \
@@ -163,6 +170,7 @@ COMMON_C = \
         ${srcdir}/dft_pairPot_COULOMB.c \
         ${srcdir}/dft_switch_pairPot.c \
         ${srcdir}/dft_switch_vext1D.c \
+        ${srcdir}/dft_switch_FMT.c \
         ${srcdir}/dft_vext_1D.c \
         ${srcdir}/dft_vext_integrated.c \
         ${srcdir}/rf_allo.c \

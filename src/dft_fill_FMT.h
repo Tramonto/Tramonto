@@ -1,9 +1,9 @@
 /* This file was automatically generated.  Do not edit! */
-void FMT3_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
-void FMT2_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
-void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
 typedef struct RB_Struct RB_Struct;
 void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,double *),int inode_box,double **x,struct RB_Struct *dphi_drb);
+double prefactor_rho_bar_v(int iunk,int jcomp,int *offset);
+double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
+double constant_boundary(int iunk,int jnode_box);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -18,11 +18,6 @@ void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,dou
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define PI    M_PI
-extern double Inv_4pi;
-double prefactor_rho_bar_v(int iunk,int jcomp,int *offset);
-double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
-double constant_boundary(int iunk,int jnode_box);
 extern int **Zero_density_TF;
 #define DENSITY        0
 #define NMER_MAX     100
@@ -37,11 +32,19 @@ extern int Nwall;
 extern int Nlists_HW;
 extern int Lhard_surf;
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
+#define NDIM_MAX  3
+struct RB_Struct {
+  double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */
+  double    S1;      /*   1/(4*pi*Ri)    * Delta_fn   */
+  double    S2;      /*                    Delta_fn   */
+  double    S3;      /*                    Theta_fn   */
+  double    V1[NDIM_MAX];      /*  1/(4*pi*Ri) * unit_vec * Delta_Fn   */
+  double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
+};
+struct RB_Struct FMT2ndDerivTheta_switch(double *n);
+struct RB_Struct FMT2ndDerivDelta_switch(double *n,int *offset,double *sign,int icomp);
+void solutionVec_to_nOrdering(double *rhoBar_SVOrdering,double *n);
 extern int Nrho_bar_s;
-#define FMT3       2
-#define FMT2       1
-#define FMT1       0
-extern int Type_func;
 #define HSRHOBAR       4
 #define NEQ_TYPE       8
 extern int Phys2Unk_first[NEQ_TYPE];
@@ -52,7 +55,6 @@ extern double Dphi_Drhobar_b[10];
 #define THETA_FN       1
 #define NCOMP_MAX 5
 extern double Inv_rad[NCOMP_MAX];
-#define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 extern double Inv_4pir[NCOMP_MAX];
 extern double Inv_4pirsq[NCOMP_MAX];
@@ -83,11 +85,3 @@ struct Stencil_Struct {
                              Walls when stencil point is a boundary node  */
 };
 double load_nonlocal_hs_rosen_rb(int sten_type,int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,struct RB_Struct *dphi_drb,int resid_only_flag);
-struct RB_Struct {
-  double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */
-  double    S1;      /*   1/(4*pi*Ri)    * Delta_fn   */
-  double    S2;      /*                    Delta_fn   */
-  double    S3;      /*                    Theta_fn   */
-  double    V1[NDIM_MAX];      /*  1/(4*pi*Ri) * unit_vec * Delta_Fn   */
-  double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
-};

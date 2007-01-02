@@ -441,6 +441,24 @@ int loc_find(int iunk,int inode,int flag)
   }
   return loc_i;
 }
+/****************************************************************************/
+void solutionVec_to_nOrdering(double *rhoBar_SVOrdering, double *n)
+{
+  int idim,iv1,iv2;
+
+  n[0] = rhoBar_SVOrdering[3];
+  n[1] = rhoBar_SVOrdering[2];
+  n[2] = rhoBar_SVOrdering[1];
+  n[3] = rhoBar_SVOrdering[0];
+
+  for (idim=0; idim<Ndim; idim++){
+    iv1=Nrho_bar_s+idim;
+    iv2=Nrho_bar_s+Ndim+idim;
+    n[iv1] = rhoBar_SVOrdering[iv2];
+    n[iv2] = rhoBar_SVOrdering[iv1];
+  }
+  return;
+}
 /*****************************************************************************************************/
 void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,
                                                 int **nelhit,double **x,double *profile)

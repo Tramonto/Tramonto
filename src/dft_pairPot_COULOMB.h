@@ -23,4 +23,3 @@ double uCOULOMB_ATT_noCS(double r,int i,int j);
 double uCOULOMB_DERIV1D(double r,double x,double z1,double z2);
 extern double Temp_elec;
 double uCOULOMB(double r,double z1,double z2);
-double uCOULOMB(double r,double z1,double z2);

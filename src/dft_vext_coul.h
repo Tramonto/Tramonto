@@ -19,7 +19,6 @@ extern int Type_coul;
 #define NCOMP_MAX 5
 extern double Charge_f[NCOMP_MAX];
 double integrate_potential(int flag,double param1,double param2,double param3,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
-double integrate_potential(int flag,double param1,double param2,double param3,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
 extern int **Zero_density_TF;
 extern int *L2B_node;
 void find_images_coulomb(int idim,int *image,double **image_pos,double *node_image);

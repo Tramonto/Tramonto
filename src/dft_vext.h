@@ -22,7 +22,6 @@ extern int *Comm_node_proc;
 void comm_loc_to_glob_vec(int *n_loc,int *in_loc_vec,int *out_glob_vec);
 int el_box_to_el(int iel_box);
 double integrate_potential(int flag,double param1,double param2,double param3,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
-double integrate_potential(int flag,double param1,double param2,double param3,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 int element_to_node(int ielement);

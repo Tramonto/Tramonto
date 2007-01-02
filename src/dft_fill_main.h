@@ -68,13 +68,7 @@ extern int Nnodes_per_proc;
 #define NODAL_FLAG -999
 void print_profile_box(double **x,char *outfile);
 #define VERBOSE      3 
-void FMT3_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
-#define FMT3       2
-void FMT2_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
-#define FMT2       1
-void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
-void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,double *),int inode_box,double **x,struct RB_Struct *dphi_drb);
-#define FMT1       0
+void FMT1stDeriv_switch(int inode_box,double **x,struct RB_Struct *dphi_drb);
 extern int Nnodes_box;
 #define NONE       -1
 #define NONE      -1

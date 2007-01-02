@@ -121,7 +121,6 @@ extern int Type_poly;
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 void pot_parameters(char *output_file1);
-void pot_parameters(char *output_file1);
 extern double Eps_w[NWALL_MAX_TYPE];
 #define VEXT_HARD        1
 extern int Ipot_wf_n[NWALL_MAX_TYPE];

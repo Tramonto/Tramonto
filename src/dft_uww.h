@@ -19,7 +19,6 @@ void safe_free(void **ptr);
 #define NWALL_MAX_TYPE 50 
 extern int Type_bc_elec[NWALL_MAX_TYPE];
 double integrate_potential(int flag,double param1,double param2,double param3,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
-double integrate_potential(int flag,double param1,double param2,double param3,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
 void find_images(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
 extern double VEXT_MAX;
 void find_images2(int idim,double cut,int *image,double **image_pos,double *node_image,int iwall,int iside);
