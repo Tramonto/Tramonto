@@ -58,14 +58,14 @@ NOXLOCA::Tramonto::Vector::Vector(const NOXLOCA::Tramonto::Vector& source,
   x(0),
   needToDelete(true)
 {
-   x2d = (double **) array_alloc(2, n1, n2, sizeof(double));
+   x2d = (double **) array_alloc_2d_conwrap(n1, n2, sizeof(double));
    x = x2d[0];
    for (int i=0; i < n; i++) x[i] = source.x[i];
 }
 
 NOXLOCA::Tramonto::Vector::~Vector()
 {
-   if (needToDelete) safe_free((void**)&x2d);
+   if (needToDelete) safe_free_conwrap((void**)&x2d);
 }
 
 NOX::Abstract::Vector& NOXLOCA::Tramonto::Vector::operator=(

@@ -3,42 +3,28 @@
 
 //@HEADER
 // ********************************************************************
-// Tramonto: A molecular theory code for structured and uniform fluids
-//                 Copyright (2006) Sandia Corporation
+// Copyright (2006) Sandia Corporation. Under the terms of Contract
+// DE-AC04-94AL85000, there is a non-exclusive license for use of this
+// work by or on behalf of the U.S. Government. Export of this program
+// may require a license from the United States Government.
 //
-// Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive
-// license for use of this work by or on behalf of the U.S. Government.
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
+// This software is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-// 02110-1301, USA.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // ********************************************************************
 //@HEADER
 
-#ifndef NOXLOCA_TRAMONTO_GROUP_H
-#define NOXLOCA_TRAMONTO_GROUP_H
+#ifndef NOXLOCA_TRAMONTO_PTGROUP_H
+#define NOXLOCA_TRAMONTO_PTGROUP_H
 
 #include "LOCA_Abstract_Group.H"  // base class
 #include "LOCA_Parameter_Vector.H"
-#include "Teuchos_ParameterList.hpp"
 
 #include "NOX_Common.H"             // class data element (string)
-#include "NOXLOCA_Tramonto_Vector.hpp"	    // class data element
+#include "NOXLOCA_Tramonto_PTVector.hpp"
+#include "NOXLOCA_Tramonto_Group.hpp"
 
-extern "C" {
-double calc_free_energy_conwrap(double **xBox);
-}
+//extern "C" {void fill_resid_and_matrix_control(double **, int, int);}
 
 // Forward declares
 namespace NOX {
@@ -51,37 +37,37 @@ namespace NOXLOCA {
   namespace Tramonto {
 
     //class Group : public virtual NOX::Abstract::Group {
-    class Group : public virtual LOCA::Abstract::Group {
+    class PTGroup : public virtual LOCA::Abstract::Group {
 
     public:
 
       //! Constructor
-      Group(const Teuchos::RefCountPtr<LOCA::GlobalData>& gD, NOXLOCA::Tramonto::Vector& xOwned,
-            double** xBox, const LOCA::ParameterVector& pVec,
-            const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList);
+      PTGroup(const Teuchos::RefCountPtr<LOCA::GlobalData> gD,
+              const Teuchos::RefCountPtr<NOXLOCA::Tramonto::Group>& grp_,
+              const NOXLOCA::Tramonto::PTVector& ptVec);
 
       //! Copy constructor
-      Group(const NOXLOCA::Tramonto::Group& source, NOX::CopyType type = NOX::DeepCopy);
+      PTGroup(const NOXLOCA::Tramonto::PTGroup& source, NOX::CopyType type = NOX::DeepCopy);
 
       //! Destructor.
-      ~Group();
+      ~PTGroup();
 
       //Start methods for NOX::ABstract::Group
 
       NOX::Abstract::Group& operator=(const NOX::Abstract::Group& source);
       //! See above.
-      NOX::Abstract::Group& operator=(const NOXLOCA::Tramonto::Group& source);
+      NOX::Abstract::Group& operator=(const NOXLOCA::Tramonto::PTGroup& source);
 
       /** @name "Compute" functions. */
       //@{
 
       void setX(const NOX::Abstract::Vector& y);
       //! See above
-      void setX(const NOXLOCA::Tramonto::Vector& y);
+      void setX(const NOXLOCA::Tramonto::PTVector& y);
 
       void computeX(const NOX::Abstract::Group& grp, const NOX::Abstract::Vector& d, double step);
       //! See above.
-      void computeX(const NOXLOCA::Tramonto::Group& grp, const NOXLOCA::Tramonto::Vector& d, double step);
+      void computeX(const NOXLOCA::Tramonto::PTGroup& grp, const NOXLOCA::Tramonto::PTVector& d, double step);
 
       NOX::Abstract::Group::ReturnType computeF();
 
@@ -98,16 +84,16 @@ namespace NOXLOCA {
 
       //@{
   
-      NOX::Abstract::Group::ReturnType applyJacobian(const NOXLOCA::Tramonto::Vector& input, 
-						     NOXLOCA::Tramonto::Vector& result) const;
+      NOX::Abstract::Group::ReturnType applyJacobian(const NOXLOCA::Tramonto::PTVector& input, 
+						     NOXLOCA::Tramonto::PTVector& result) const;
 
       //! See above
       NOX::Abstract::Group::ReturnType applyJacobian(const NOX::Abstract::Vector& input, 
 						     NOX::Abstract::Vector& result) const;
 
       NOX::Abstract::Group::ReturnType applyJacobianInverse(Teuchos::ParameterList& params, 
-							    const NOXLOCA::Tramonto::Vector& input, 
-				Vector& result) const;
+						const NOXLOCA::Tramonto::PTVector& input, 
+			              		NOXLOCA::Tramonto::PTVector& result) const;
 
       NOX::Abstract::Group::ReturnType applyJacobianInverse(Teuchos::ParameterList& params, 
 							    const NOX::Abstract::Vector& input, 
@@ -176,13 +162,10 @@ namespace NOXLOCA {
       //! Return copy of parameter indexed by (string) paramID
       double getParam(string paramID) const;
 
-      //! Print Solution method for ouytput. printSolution2 is for x2 of phase trans
-      void printSolution(const double param) const;
+      //! Set parameter indexed by (string) paramID
       void printSolution(const NOX::Abstract::Vector& solution, const double param) const;
-      void printSolution2(const NOX::Abstract::Vector& solution, const double param) const;
+      void printSolution(const double param) const;
 
-      //! Calculate the free energy at the given X and Param
-      double calcFreeEnergy() const;
       //@}
 
     protected:
@@ -192,16 +175,17 @@ namespace NOXLOCA {
 
     protected:
 
+      //! Solution vector.
+      Teuchos::RefCountPtr<NOXLOCA::Tramonto::Group> trGrp;
+
       /** @name Vectors */
       //@{
       //! Solution vector.
-      NOXLOCA::Tramonto::Vector xVector;
+      NOXLOCA::Tramonto::PTVector xVector;
       //! Right-hand-side vector (function evaluation).
-      NOXLOCA::Tramonto::Vector fVector;
+      NOXLOCA::Tramonto::PTVector fVector;
       //! Newton direction vector.
-      NOXLOCA::Tramonto::Vector newtonVector;
-      //! Tramonto Overlap Vector
-      double **xBox;
+      NOXLOCA::Tramonto::PTVector newtonVector;
       //@}
 
       /** @name IsValid flags 
@@ -213,15 +197,10 @@ namespace NOXLOCA {
       bool isValidJacobian;
       bool isValidNewton;
       //@}
-  
-      //! Norm of F
-      double normF;
 
-      LOCA::ParameterVector paramVec;
-      mutable int contStep; // Printing index
-      mutable bool secondSolution;
+      double normF;
       const Teuchos::RefCountPtr<LOCA::GlobalData> globalData;
-      const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList;
+
     };
 
   } // namespace Tramonto

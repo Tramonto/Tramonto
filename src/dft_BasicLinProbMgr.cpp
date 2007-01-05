@@ -158,11 +158,15 @@ int dft_BasicLinProbMgr::initializeProblemValues() {
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
-  if (!firstTime_) {
+ // AGS: I found that we needed to initialize the matrix even the 
+ // first time a matrix was filled, because matrix entries are being put
+ // in on residual-only fills, which can occur before matrix fills.
+
+ // if (!firstTime_) {
     globalMatrix_->PutScalar(0.0);
     globalRhs_->PutScalar(0.0);
     globalLhs_->PutScalar(0.0);
-  }
+//  }
   
   return(0);
 }

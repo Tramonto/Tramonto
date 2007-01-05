@@ -32,31 +32,21 @@
 #include "dft_globals_const.h"
 
 extern "C" {
-#include "rf_allo.h"
 //work-arounds for C++ C linkage problems
 double gmax_double_conwrap(double);
 double gsum_double_conwrap(double);
 void fill_resid_and_matrix_control_conwrap(double**, int, int);
+double** array_alloc_2d_conwrap(unsigned int, unsigned int, unsigned int);
+void safe_free_conwrap(void **);
 }
 
 
 namespace NOXLOCA {
 
-  //! NOX BLAS/Tramonto support
+  //! NOX Tramonto Vector support
   namespace Tramonto {
 
-  //! 1.0
-  const double d_one = 1.0;
-  //! -1.0
-  const double d_mone = -1.0;
-  //! 0.0
-  const double d_zero = 0.0;
-  //! 1
-  const int i_one = 1;
-  //! 0
-  const int i_zero = 0;
-  
-    //! Implementation of NOX::Abstract::Vector for STL vector<double> (using Tramonto for some computations)
+    //! Implementation of NOX::Abstract::Vector 
     class Vector : public NOX::Abstract::Vector {
 
     public:	

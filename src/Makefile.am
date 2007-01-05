@@ -195,11 +195,15 @@ COMMON_CXX = \
 EXTRA_NOXLOCA_CXX = \
         ${srcdir}/NOXLOCA_Solver.cpp \
         ${srcdir}/NOXLOCA_Tramonto_Group.cpp \
-        ${srcdir}/NOXLOCA_Tramonto_Vector.cpp
+        ${srcdir}/NOXLOCA_Tramonto_Vector.cpp \
+        ${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp \
+        ${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
 
 EXTRA_NOXLOCA_H = \
         ${srcdir}/NOXLOCA_Tramonto_Group.hpp \
-        ${srcdir}/NOXLOCA_Tramonto_Vector.hpp
+        ${srcdir}/NOXLOCA_Tramonto_Vector.hpp \
+        ${srcdir}/NOXLOCA_Tramonto_PTGroup.hpp \
+        ${srcdir}/NOXLOCA_Tramonto_PTVector.hpp
 
 if HAVE_NOXLOCA
 

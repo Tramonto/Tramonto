@@ -142,7 +142,7 @@ double **xBox;
 double **xOwned;
 } passdown;
 
-static double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type);
 static void print_final(double param, int step_num);
 static void translate_2dBox_1dOwned(double **xBox, double *x);
 static void translate_1dOwned_2dBox(double *x, double **xBox);
@@ -454,7 +454,7 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
   for (i=0; i<Nunk_per_node*Nnodes_per_proc; i++) l2_resid += rhs[i]*rhs[i];
 
   l2_resid= sqrt(gsum_double_conwrap(l2_resid));
-  if (Proc==0) printf("\t\tNorm of resid vector = %g\n", l2_resid);
+  if (Proc==0) printf("\t\tNorm of resid vector = %20.15g\n", l2_resid);
 
 }
 /*****************************************************************************/
@@ -950,7 +950,7 @@ void assign_bif_parameter_conwrap(double tp_param)
  * Return Value:
  */
 {
-  if (Proc==0) printf("\tSecond (floating) parameter #%d set to %g\n",
+  if (Proc==0) printf("\tSecond (floating) parameter #%d set to %20.15g\n",
                          Loca.cont_type2, tp_param);
   assign_parameter_tramonto(Loca.cont_type2, tp_param);
 
@@ -958,7 +958,7 @@ void assign_bif_parameter_conwrap(double tp_param)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-static double get_init_param_value(int cont_type)
+double get_init_param_value(int cont_type)
 {
   int i,j; 
   double param,sum;
@@ -1116,6 +1116,12 @@ double gmax_double_conwrap(double sum)
 /* This worked calling the C code from C++. Probably not needed. */
 void fill_resid_and_matrix_control_conwrap(double** xBox, int ii, int jj)
 {  fill_resid_and_matrix_control(xBox, ii, jj); }
+
+void safe_free_conwrap(void** p)
+{  safe_free(p); }
+
+double** array_alloc_2d_conwrap(unsigned int ii, unsigned int jj, unsigned int kk)
+{  return (double **) array_alloc_2d(ii, jj, kk); }
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -1235,6 +1241,11 @@ void solution_output_conwrap(int num_soln_flag, double *x, double param,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+// Get around some C++ vs C linkage issue
+double calc_free_energy_conwrap(double **xB)
+{ return calc_free_energy(NULL, xB); }
+
+
 double free_energy_diff_conwrap(double *x, double *x2)
 /* Call to return the free energy difference betwen two solutions
  * Input:
@@ -1257,6 +1268,7 @@ double free_energy_diff_conwrap(double *x, double *x2)
   translate_1dOwned_2dBox(x2, passdown.xBox);
   energy2 = calc_free_energy(NULL,passdown.xBox);
 
+printf("energy1 %12.8g energy2  %12.8g\n",energy1, energy2);
   return energy1-energy2;
 }
 /*****************************************************************************/

@@ -82,7 +82,7 @@ int solve_problem(double **x, double **x2)
 
 {
   int iter,iunk,i;
-  double **xOwned;
+  double **xOwned, **x2Owned;
   int *geq, *ginveq, *cmseq, *densityeq, *indnonlocaleq, *depnonlocaleq;
 /*  int gequ[] = {6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42};
   int ginvequ[] = {43, 41, 39, 37, 35, 33, 31, 29, 27, 25, 23, 21, 19, 17, 15, 13, 11, 9, 7};
@@ -229,22 +229,23 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
 
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
-    set_initial_guess(BINODAL_FLAG, xOwned);
-    (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x2);
+    x2Owned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
+    set_initial_guess(BINODAL_FLAG, x2Owned);
+    (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
 #ifdef HAVE_NOXLOCA
-  if (Loca.method == -2)
-    NOXLOCA_Solver(x, xOwned);
-  else 
-#endif
+  NOXLOCA_Solver(x, xOwned, x2Owned);
+#else
   if (Loca.method != -1)
     iter = solve_continuation(x, x2);
   else
      iter = newton_solver(x, NULL);
+#endif
 
   safe_free((void **) &xOwned);
+  if (Lbinodal)  safe_free((void **) &x2Owned);
 
   /* Call the destructor for the dft_Linprobmgr */
   dft_linprobmgr_destruct(LinProbMgr_manager);

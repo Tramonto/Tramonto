@@ -25,15 +25,17 @@
 
 #include "LOCA.H"
 #include "NOXLOCA_Tramonto_Group.hpp"
+#include "NOXLOCA_Tramonto_PTGroup.hpp"
 
 extern "C" {
+#include "loca_const.h"
 
-void NOXLOCA_Solver(double ** xBox, double **xOwned)
+void NOXLOCA_Solver(double **xBox, double **xOwned, double **x2Owned)
 {
-  double alpha = 0.0;
-  double beta = 0.0;
-
   try {
+  
+    // Create a solution vector of NOX's known type
+    NOXLOCA::Tramonto::Vector xTV(Nunk_per_node, Nnodes_per_proc, xOwned);
 
     // Create parameter list
     Teuchos::RefCountPtr<Teuchos::ParameterList> paramList = 
@@ -44,13 +46,41 @@ void NOXLOCA_Solver(double ** xBox, double **xOwned)
 
     // Create the stepper sublist and set the stepper parameters
     Teuchos::ParameterList& stepperList = locaParamsList.sublist("Stepper");
-    //stepperList.set("Continuation Method", "Natural");
-    stepperList.set("Continuation Method", "Arc Length");
-    stepperList.set("Continuation Parameter", "alpha");
-    stepperList.set("Initial Value", alpha);
-    stepperList.set("Max Value", 5.0);
-    stepperList.set("Min Value", 0.0);
-    stepperList.set("Max Steps", 50);
+    
+    if (Loca.method == 2)  stepperList.set("Continuation Method", "Arc Length");
+    else  stepperList.set("Continuation Method", "Natural");
+
+
+    // Set up the problem interface
+    LOCA::ParameterVector p;
+    double init_bif_param = -1.0;
+
+    // Newton solve -- create dummy parameter that is ignored
+    if (Loca.method < 0) {
+      p.addParameter("NoParam", 0.0);
+      stepperList.set("Continuation Parameter", "NoParam");
+      stepperList.set("Initial Value", 0.0);
+      stepperList.set("Max Steps", 0);
+    }
+    // Continuation run
+    else {
+      double init_param =  get_init_param_value(Loca.cont_type1);
+      p.addParameter("ConParam", init_param);
+      stepperList.set("Continuation Parameter", "ConParam");
+      stepperList.set("Initial Value", init_param);
+      stepperList.set("Max Steps", Loca.num_steps);
+
+      // Truning point (spinodal) run or phase transition tracking run
+      if (Loca.method == 3 || Loca.method == 4) {
+        init_bif_param = get_init_param_value(Loca.cont_type2);
+        p.addParameter("BifParam", init_bif_param);
+      }
+
+if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so far!" << endl; }
+    }
+
+    stepperList.set("Max Value", 1.0e8);
+    stepperList.set("Min Value", -1.0e8);
     stepperList.set("Max Nonlinear Iterations", Max_Newton_iter);
     stepperList.set("Enable Arc Length Scaling", true);
     stepperList.set("Goal Arc Length Parameter Contribution", 0.5);
@@ -66,26 +96,40 @@ void NOXLOCA_Solver(double ** xBox, double **xOwned)
     // Create bifurcation sublist
     Teuchos::ParameterList& bifurcationList = 
       locaParamsList.sublist("Bifurcation");
-    bifurcationList.set("Type", "None");
+    if (Loca.method == 3) {
+       bifurcationList.set("Type", "Turning Point");
+       bifurcationList.set("Bifurcation Parameter", "BifParam");
+       Teuchos::RefCountPtr<NOX::Abstract::Vector> nullVec =
+         Teuchos::rcp(new NOXLOCA::Tramonto::Vector(xTV));
+       nullVec->init(1.0);
+       bifurcationList.set("Length Normalization Vector", nullVec);
+       bifurcationList.set("Initial Null Vector", nullVec);
+       bifurcationList.set("Update Null Vectors Every Continuation Step", true);
+   }
+    else bifurcationList.set("Type", "None");
 
     // Create predictor sublist
     Teuchos::ParameterList& predictorList = locaParamsList.sublist("Predictor");
-    //predictorList.set("Method", "Constant");
-    predictorList.set("Method", "Tangent");
+    if (Loca.method == 0 )
+      predictorList.set("Method", "Constant");
+    else if (Loca.method == 4  || Loca.method == 3)
+      predictorList.set("Method", "Secant");
+    else
+      predictorList.set("Method", "Tangent");
     //predictorList.set("Method", "Secant");
 
-    Teuchos::ParameterList& firstStepPredictorList = 
-      predictorList.sublist("First Step Predictor");
-    firstStepPredictorList.set("Method", "Constant");
+    //Teuchos::ParameterList& firstStepPredictorList = 
+    //  predictorList.sublist("First Step Predictor");
+    //firstStepPredictorList.set("Method", "Tangent");
 
     // Create step size sublist
     Teuchos::ParameterList& stepSizeList = locaParamsList.sublist("Step Size");
     //stepSizeList.set("Method", "Constant");
     stepSizeList.set("Method", "Adaptive");
-    stepSizeList.set("Initial Step Size", 0.1);
-    stepSizeList.set("Min Step Size", 1.0e-3);
-    stepSizeList.set("Max Step Size", 10.0);
-    stepSizeList.set("Aggressiveness", 0.5); // for adaptive
+    stepSizeList.set("Initial Step Size", Loca.step_size);
+    //stepSizeList.set("Min Step Size", 1.0e-9);
+    //stepSizeList.set("Max Step Size", 1.0e5);
+    stepSizeList.set("Aggressiveness", Loca.aggr); // for adaptive
     stepSizeList.set("Failed Step Reduction Factor", 0.5);
     stepSizeList.set("Successful Step Increase Factor", 1.26); // for constant
 
@@ -93,7 +137,10 @@ void NOXLOCA_Solver(double ** xBox, double **xOwned)
     Teuchos::ParameterList& nlParams = paramList->sublist("NOX");
     nlParams.set("Nonlinear Solver", "Line Search Based");
       Teuchos::ParameterList& lineSearchParameters = nlParams.sublist("Line Search");
-      lineSearchParameters.set("Method","Backtrack"); //Cuts step for NANs
+        lineSearchParameters.set("Method","Backtrack"); //Cuts step for NANs
+        Teuchos::ParameterList& backtrackParameters = 
+            lineSearchParameters.sublist("Backtrack");
+        backtrackParameters.set("Minimum Step", 0.005);
 
     Teuchos::ParameterList& nlPrintParams = nlParams.sublist("Printing");
     nlPrintParams.set("Output Information", 
@@ -106,33 +153,33 @@ void NOXLOCA_Solver(double ** xBox, double **xOwned)
 
 
     // Create global data object
-    /*
     Teuchos::RefCountPtr<LOCA::GlobalData> globalData =
-      LOCA::createGlobalData(paramList, lapackFactory);
-    */
+      LOCA::createGlobalData(paramList);
 
-    // Set up the problem interface
-    LOCA::ParameterVector p;
-    p.addParameter("alpha",alpha);
-    p.addParameter("beta",beta);
-  
-    // Create a group which uses that problem interface. The group will
-    // be initialized to contain the default initial guess for the
-    // specified problem.
+    // Create the Group -- this is the main guy
+    Teuchos::RefCountPtr<NOXLOCA::Tramonto::Group> grp = 
+      Teuchos::rcp(new NOXLOCA::Tramonto::Group(globalData, xTV, xBox, p, paramList));
 
-    NOXLOCA::Tramonto::Vector xTV(Nunk_per_node, Nnodes_per_proc, xOwned);
+    Teuchos::RefCountPtr<LOCA::Abstract::Group> solveGrp; // Pointer, set in if block
 
-    for (int i=0; i< 111; i++) cout << "xOwned " << xOwned[0][i] << "xTV  " << xTV(i) << endl;
+    if (Loca.method == 4) {
+      NOXLOCA::Tramonto::Vector x2TV(Nunk_per_node, Nnodes_per_proc, x2Owned);
 
-    //Teuchos::RefCountPtr<LOCA::MultiContinuation::AbstractGroup> grp = 
-    Teuchos::RefCountPtr<NOX::Abstract::Group> grp = 
-      Teuchos::rcp(new NOXLOCA::Tramonto::Group(xTV, xBox));
+      NOXLOCA::Tramonto::PTVector ptVec(xTV, x2TV, init_bif_param);
+      Teuchos::RefCountPtr<NOXLOCA::Tramonto::PTGroup> ptgrp = 
+        Teuchos::rcp(new NOXLOCA::Tramonto::PTGroup(globalData, grp, ptVec));
+ 
+      solveGrp = ptgrp;
+    }
+    else {
+      solveGrp = grp; // All execpt phase transitions
+    }
     
-    //grp->setParams(p);
-
     // Set up the status tests
+    double tol=1.0e-9; if (Loca.method==3) tol=1.0e-6;
+
     Teuchos::RefCountPtr<NOX::StatusTest::NormF> normF = 
-      Teuchos::rcp(new NOX::StatusTest::NormF(1.0e-12));
+      Teuchos::rcp(new NOX::StatusTest::NormF(tol));
     Teuchos::RefCountPtr<NOX::StatusTest::MaxIters> maxIters = 
       Teuchos::rcp(new NOX::StatusTest::MaxIters(Max_Newton_iter));
     Teuchos::RefCountPtr<NOX::StatusTest::Generic> comboOR = 
@@ -140,17 +187,11 @@ void NOXLOCA_Solver(double ** xBox, double **xOwned)
 					      normF, 
 					      maxIters));
 
-
     Teuchos::RefCountPtr<Teuchos::ParameterList> nlParamsRCP =
 	    Teuchos::rcp(&nlParams, false);
 
-    NOX::Solver::Manager solver(grp, comboOR, nlParamsRCP);
-    NOX::StatusTest::StatusType status = solver.solve();
-
-
-    /*
     // Create the stepper  
-    LOCA::NewStepper stepper(globalData, grp, comboOR, paramList);
+    LOCA::Stepper stepper(globalData, solveGrp, comboOR, paramList);
 
     // Perform continuation run
     LOCA::Abstract::Iterator::IteratorStatus status = stepper.run();
@@ -162,23 +203,16 @@ void NOXLOCA_Solver(double ** xBox, double **xOwned)
 	  << "Stepper failed to converge!" << std::endl;
     }
 
-    // Get the final solution from the stepper
-    Teuchos::RefCountPtr<const LOCA::LAPACK::Group> finalGroup = 
-      Teuchos::rcp_dynamic_cast<const LOCA::LAPACK::Group>(stepper.getSolutionGroup());
-    const NOX::LAPACK::Vector& finalSolution = 
-      dynamic_cast<const NOX::LAPACK::Vector&>(finalGroup->getX());
-
     // Output the parameter list
     if (globalData->locaUtils->isPrintType(NOX::Utils::Parameters)) {
       globalData->locaUtils->out() 
 	<< std::endl << "Final Parameters" << std::endl
 	<< "****************" << std::endl;
-      stepper.getParameterList()->print(globalData->locaUtils->out());
+      paramList->print(globalData->locaUtils->out());
       globalData->locaUtils->out() << std::endl;
     }
 
     destroyGlobalData(globalData);
-    */
   }
 
   catch (std::exception& e) {

@@ -139,7 +139,9 @@ am__libdft_a_SOURCES_DIST = ${srcdir}/dft_input.c ${srcdir}/dft_main.c \
 	${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp \
 	${srcdir}/NOXLOCA_Solver.cpp \
 	${srcdir}/NOXLOCA_Tramonto_Group.cpp \
-	${srcdir}/NOXLOCA_Tramonto_Vector.cpp
+	${srcdir}/NOXLOCA_Tramonto_Vector.cpp \
+	${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp \
+	${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
 am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_mesh.$(OBJEXT) dft_mesh_surfaces.$(OBJEXT) \
 	dft_mesh_lib.$(OBJEXT) dft_newton.$(OBJEXT) \
@@ -188,16 +190,22 @@ am__objects_2 = dft_BasicLinProbMgr.$(OBJEXT) \
 	dft_hardsphere_lin_prob_mgr_wrapper.$(OBJEXT)
 am__objects_3 = NOXLOCA_Solver.$(OBJEXT) \
 	NOXLOCA_Tramonto_Group.$(OBJEXT) \
-	NOXLOCA_Tramonto_Vector.$(OBJEXT)
+	NOXLOCA_Tramonto_Vector.$(OBJEXT) \
+	NOXLOCA_Tramonto_PTGroup.$(OBJEXT) \
+	NOXLOCA_Tramonto_PTVector.$(OBJEXT)
 @HAVE_NOXLOCA_TRUE@am__objects_4 = $(am__objects_3)
 am_libdft_a_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	$(am__objects_4)
 am__EXTRA_libdft_a_SOURCES_DIST =  \
 	${srcdir}/NOXLOCA_Tramonto_Group.hpp \
 	${srcdir}/NOXLOCA_Tramonto_Vector.hpp \
+	${srcdir}/NOXLOCA_Tramonto_PTGroup.hpp \
+	${srcdir}/NOXLOCA_Tramonto_PTVector.hpp \
 	${srcdir}/NOXLOCA_Solver.cpp \
 	${srcdir}/NOXLOCA_Tramonto_Group.cpp \
-	${srcdir}/NOXLOCA_Tramonto_Vector.cpp
+	${srcdir}/NOXLOCA_Tramonto_Vector.cpp \
+	${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp \
+	${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
 libdft_a_OBJECTS = $(am_libdft_a_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -213,6 +221,8 @@ depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/NOXLOCA_Solver.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/NOXLOCA_Tramonto_Group.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/NOXLOCA_Tramonto_Vector.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_A22Matrix_Epetra_Operator.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_BasicLinProbMgr.Po \
@@ -349,7 +359,9 @@ am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
 	${srcdir}/dft_switch_FMT.h ${srcdir}/dft_vext_1D.h \
 	${srcdir}/dft_vext_integrated.h \
 	${srcdir}/NOXLOCA_Tramonto_Group.hpp \
-	${srcdir}/NOXLOCA_Tramonto_Vector.hpp
+	${srcdir}/NOXLOCA_Tramonto_Vector.hpp \
+	${srcdir}/NOXLOCA_Tramonto_PTGroup.hpp \
+	${srcdir}/NOXLOCA_Tramonto_PTVector.hpp
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 nodist_execincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS) $(nodist_execinclude_HEADERS)
@@ -637,11 +649,15 @@ COMMON_CXX = \
 EXTRA_NOXLOCA_CXX = \
         ${srcdir}/NOXLOCA_Solver.cpp \
         ${srcdir}/NOXLOCA_Tramonto_Group.cpp \
-        ${srcdir}/NOXLOCA_Tramonto_Vector.cpp
+        ${srcdir}/NOXLOCA_Tramonto_Vector.cpp \
+        ${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp \
+        ${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
 
 EXTRA_NOXLOCA_H = \
         ${srcdir}/NOXLOCA_Tramonto_Group.hpp \
-        ${srcdir}/NOXLOCA_Tramonto_Vector.hpp
+        ${srcdir}/NOXLOCA_Tramonto_Vector.hpp \
+        ${srcdir}/NOXLOCA_Tramonto_PTGroup.hpp \
+        ${srcdir}/NOXLOCA_Tramonto_PTVector.hpp
 
 @HAVE_NOXLOCA_FALSE@NOXLOCA_CXX = 
 @HAVE_NOXLOCA_TRUE@NOXLOCA_CXX = \
@@ -837,6 +853,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NOXLOCA_Solver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NOXLOCA_Tramonto_Group.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NOXLOCA_Tramonto_Vector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_A22Matrix_Epetra_Operator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_BasicLinProbMgr.Po@am__quote@
@@ -2295,6 +2313,38 @@ NOXLOCA_Tramonto_Vector.obj: ${srcdir}/NOXLOCA_Tramonto_Vector.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/NOXLOCA_Tramonto_Vector.Po' tmpdepfile='$(DEPDIR)/NOXLOCA_Tramonto_Vector.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NOXLOCA_Tramonto_Vector.obj `if test -f '${srcdir}/NOXLOCA_Tramonto_Vector.cpp'; then $(CYGPATH_W) '${srcdir}/NOXLOCA_Tramonto_Vector.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/NOXLOCA_Tramonto_Vector.cpp'; fi`
+
+NOXLOCA_Tramonto_PTGroup.o: ${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT NOXLOCA_Tramonto_PTGroup.o -MD -MP -MF "$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Tpo" -c -o NOXLOCA_Tramonto_PTGroup.o `test -f '${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp' || echo '$(srcdir)/'`${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Tpo" "$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Po"; else rm -f "$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp' object='NOXLOCA_Tramonto_PTGroup.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Po' tmpdepfile='$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NOXLOCA_Tramonto_PTGroup.o `test -f '${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp' || echo '$(srcdir)/'`${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp
+
+NOXLOCA_Tramonto_PTGroup.obj: ${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT NOXLOCA_Tramonto_PTGroup.obj -MD -MP -MF "$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Tpo" -c -o NOXLOCA_Tramonto_PTGroup.obj `if test -f '${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp'; then $(CYGPATH_W) '${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Tpo" "$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Po"; else rm -f "$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp' object='NOXLOCA_Tramonto_PTGroup.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.Po' tmpdepfile='$(DEPDIR)/NOXLOCA_Tramonto_PTGroup.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NOXLOCA_Tramonto_PTGroup.obj `if test -f '${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp'; then $(CYGPATH_W) '${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp'; fi`
+
+NOXLOCA_Tramonto_PTVector.o: ${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT NOXLOCA_Tramonto_PTVector.o -MD -MP -MF "$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Tpo" -c -o NOXLOCA_Tramonto_PTVector.o `test -f '${srcdir}/NOXLOCA_Tramonto_PTVector.cpp' || echo '$(srcdir)/'`${srcdir}/NOXLOCA_Tramonto_PTVector.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Tpo" "$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Po"; else rm -f "$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/NOXLOCA_Tramonto_PTVector.cpp' object='NOXLOCA_Tramonto_PTVector.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Po' tmpdepfile='$(DEPDIR)/NOXLOCA_Tramonto_PTVector.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NOXLOCA_Tramonto_PTVector.o `test -f '${srcdir}/NOXLOCA_Tramonto_PTVector.cpp' || echo '$(srcdir)/'`${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
+
+NOXLOCA_Tramonto_PTVector.obj: ${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT NOXLOCA_Tramonto_PTVector.obj -MD -MP -MF "$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Tpo" -c -o NOXLOCA_Tramonto_PTVector.obj `if test -f '${srcdir}/NOXLOCA_Tramonto_PTVector.cpp'; then $(CYGPATH_W) '${srcdir}/NOXLOCA_Tramonto_PTVector.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/NOXLOCA_Tramonto_PTVector.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Tpo" "$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Po"; else rm -f "$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='${srcdir}/NOXLOCA_Tramonto_PTVector.cpp' object='NOXLOCA_Tramonto_PTVector.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/NOXLOCA_Tramonto_PTVector.Po' tmpdepfile='$(DEPDIR)/NOXLOCA_Tramonto_PTVector.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NOXLOCA_Tramonto_PTVector.obj `if test -f '${srcdir}/NOXLOCA_Tramonto_PTVector.cpp'; then $(CYGPATH_W) '${srcdir}/NOXLOCA_Tramonto_PTVector.cpp'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/NOXLOCA_Tramonto_PTVector.cpp'; fi`
 uninstall-info-am:
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
