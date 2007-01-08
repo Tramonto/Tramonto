@@ -1,8 +1,10 @@
 /* This file was automatically generated.  Do not edit! */
+double Vextderiv_EXP_ATT(double x,int icomp,int iwall_type);
 double Vextderiv_REPULSIVE9(double x,int icomp,int iwall_type);
 double Vextderiv_LJ9_3_v2(double x,int icomp,int iwall_type);
 double Vextderiv_LJ9_3(double x,int icomp,int iwall_type);
 double Vext_1D_dash(double x,int icomp,int iwall_type);
+double Vext_EXP_ATT_noCS(double x,int icomp,int iwall_type);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

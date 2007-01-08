@@ -46,33 +46,33 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                       of these cases first.  If none are true, the full EL residual is filled */
    zero_TF=check_zero_density_EL(iunk,icomp,iseg,loc_inode,inode_box,x);
    if (zero_TF) {
-       resid=fill_zero_value(iunk,loc_inode,inode_box,x);
+       resid=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
        return(resid);
    }
 
    bulk_TF=FALSE;
    if (mesh_coarsen_flag_i == FLAG_BULK) bulk_TF=TRUE;
    if (bulk_TF){
-       resid=fill_bulk_density(iunk,icomp,iseg,loc_inode,inode_box,x);
+       resid=fill_bulk_density(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
        return(resid);
    } 
 
    sym_WTC_TF=FALSE;
    if (Type_poly==WTC && Pol_Sym_Seg[iseg] != -1) sym_WTC_TF=TRUE;
    if (sym_WTC_TF){
-       resid=fill_sym_WTC(iunk,iseg,loc_inode,inode_box,x);
+       resid=fill_sym_WTC(iunk,iseg,loc_inode,inode_box,x,resid_only_flag);
        return(resid);
    }
 
    /* now fill EL physics dependent terms */ 
   
    resid=0.0; 
-   resid+=fill_EL_ideal_gas(iunk,icomp,loc_inode,inode_box,x);
-   resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x);
+   resid+=fill_EL_ideal_gas(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
+   resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode);
 
    if (Type_coul != NONE){
-         resid+=fill_EL_elec_field(iunk,icomp,loc_inode,inode_box,x);
+         resid+=fill_EL_elec_field(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
    }
 
    if (mesh_coarsen_flag_i != FLAG_PBELEC){
@@ -133,19 +133,22 @@ int check_zero_density_EL(int iunk, int icomp, int iseg, int loc_inode, int inod
    return zero_TF;
 }
 /******************************************************************************************/
-double fill_zero_value(int iunk, int loc_inode, int inode_box, double **x)
+double fill_zero_value(int iunk, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
    double resid,mat_val;
    
    resid= x[iunk][inode_box];
-   mat_val = 1.0;
    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
+
+   if (!resid_only_flag){
+      mat_val = 1.0;
+      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
+   }
     
    return(resid);
 }
 /******************************************************************************************/
-double fill_sym_WTC(int iunk, int iseg, int loc_inode, int inode_box, double **x)
+double fill_sym_WTC(int iunk, int iseg, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
    int junk,unkIndex[2],numEntries;
    double values[2],resid;
@@ -154,15 +157,17 @@ double fill_sym_WTC(int iunk, int iseg, int loc_inode, int inode_box, double **x
     resid = x[iunk][inode_box]-x[junk][inode_box];
     resid = x[iunk][inode_box];
     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-    unkIndex[0]=iunk; unkIndex[1]=junk;
-    values[0]=1.0; values[1]=-1.0;
-    numEntries=1;
-    dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+    if (!resid_only_flag){
+       unkIndex[0]=iunk; unkIndex[1]=junk;
+       values[0]=1.0; values[1]=-1.0;
+       numEntries=1;
+       dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                          unkIndex, inode_box, values, numEntries); 
+    }
     return(resid);
 }
 /******************************************************************************************/
-double fill_bulk_density(int iunk, int icomp, int iseg, int loc_inode, int inode_box, double **x)
+double fill_bulk_density(int iunk, int icomp, int iseg, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
   double resid,mat_val,resid_ig;
 
@@ -170,7 +175,9 @@ double fill_bulk_density(int iunk, int icomp, int iseg, int loc_inode, int inode
   mat_val = 1.0/x[iunk][inode_box];
   resid_ig=resid;
   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
+  if (!resid_only_flag){
+     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
+  }
 
    if (Type_poly==WTC)   resid = -log(Rho_seg_b[iseg]);
    else                  resid = -log(Rho_b[icomp]);
@@ -179,15 +186,17 @@ double fill_bulk_density(int iunk, int icomp, int iseg, int loc_inode, int inode
    return resid;
 }
 /******************************************************************************************/
-double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, double **x)
+double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
    double resid,resid_ig,mat_val;
 
    resid = log(x[iunk][inode_box]) ; 
-   mat_val = 1.0/x[iunk][inode_box];
    resid_ig=resid;
    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
+   if (!resid_only_flag){
+      mat_val = 1.0/x[iunk][inode_box];
+      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
+   }
 
 /* if(Lsteady_state){
        resid = (- 3.0*log(Sigma_ff[icomp][icomp]) -1.5*log(Mass[icomp]*Temp));
@@ -198,7 +207,8 @@ double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, doub
    return(resid_ig);
 }
 /******************************************************************************************/
-double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_box, int mesh_coarsen_flag_i, double **x)
+double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_box, 
+                        int mesh_coarsen_flag_i, double **x,int resid_only_flag)
 {
    double resid_mu,mat_val;
    int junk;
@@ -225,8 +235,10 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
       if(Type_poly==WTC)  junk=Phys2Unk_first[DIFFUSION] + iseg;
       else                junk=Phys2Unk_first[DIFFUSION] + icomp;
       resid_mu = -x[junk][inode_box];
-      mat_val=-1.0;
-      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+      if (!resid_only_flag){
+         mat_val=-1.0;
+         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+      }
    }
    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_mu);
  
@@ -243,7 +255,7 @@ double fill_EL_ext_field(int iunk, int icomp, int loc_inode)
    return (resid_vext);
 }
 /******************************************************************************************/
-double fill_EL_elec_field(int iunk, int icomp, int loc_inode, int inode_box, double **x)
+double fill_EL_elec_field(int iunk, int icomp, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
    int junk,numEntries, nodeIndices[3];
    double resid_charge,mat_val,resid,fac_temp,gradphi,fac,values[3];
@@ -251,8 +263,10 @@ double fill_EL_elec_field(int iunk, int icomp, int loc_inode, int inode_box, dou
    junk = Phys2Unk_first[POISSON];
    resid_charge = Charge_f[icomp]*x[junk][inode_box];
    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_charge);
-   mat_val = Charge_f[icomp];
-   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+   if (!resid_only_flag){
+      mat_val = Charge_f[icomp];
+      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+   }
 
    if (Lpolarize[icomp] && Ndim==1){
 
@@ -285,8 +299,10 @@ double fill_EL_elec_field(int iunk, int icomp, int loc_inode, int inode_box, dou
    resid = 0.5*Pol[icomp]*gradphi*gradphi*fac_temp;
    resid_charge += resid;
    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-   dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+   if (!resid_only_flag){
+      dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                     junk,nodeIndices,values,numEntries);
+   }
    }
    return(resid_charge);
 }

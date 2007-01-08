@@ -93,11 +93,11 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
       resid_unk[iunk]=0.0;
 
-      if (mesh_coarsen_flag_i == FLAG_1DBC) load_coarse_node_1dim(loc_inode,inode_box,ijk_box,iunk,x);
+      if (mesh_coarsen_flag_i == FLAG_1DBC) load_coarse_node_1dim(loc_inode,inode_box,ijk_box,iunk,x,resid_only_flag);
 
       else if (mesh_coarsen_flag_i < 0 && 
                mesh_coarsen_flag_i != FLAG_BULK && 
-               mesh_coarsen_flag_i != FLAG_PBELEC) load_coarse_node_Ndim(loc_inode,inode_box,iunk,x);
+               mesh_coarsen_flag_i != FLAG_PBELEC) load_coarse_node_Ndim(loc_inode,inode_box,iunk,x,resid_only_flag);
 
       else load_standard_node(loc_inode,inode_box,ijk_box,iunk,x,dphi_drb,
                                resid_unk,mesh_coarsen_flag_i,resid_only_flag);
@@ -136,25 +136,23 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
 
        case HSRHOBAR: 
           if (iunk == Phys2Unk_first[HSRHOBAR]){
-             resid_unk[iunk]=load_rho_bar_s(THETA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box,
-                            resid_only_flag);
+             resid_unk[iunk]=load_rho_bar_s(THETA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
           }
           else if (iunk < Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
-             resid_unk[iunk]=load_rho_bar_s(DELTA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box,
-                            resid_only_flag);
+             resid_unk[iunk]=load_rho_bar_s(DELTA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
           }
           else if (iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
               resid_unk[iunk]=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
           }
         break;
 
-       case POISSON: resid_unk[iunk]=load_poisson_control(iunk,loc_inode,inode_box,ijk_box,x); break;
+       case POISSON: resid_unk[iunk]=load_poisson_control(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag); break;
 
        case DIFFUSION:
             if (Linear_transport)
-                resid_unk[iunk]=load_linear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x);
+                resid_unk[iunk]=load_linear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag);
             else
-                resid_unk[iunk]=load_nonlinear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x);
+                resid_unk[iunk]=load_nonlinear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag);
             break;
 
        case CAVWTC: 
@@ -195,14 +193,14 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
 
     /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
     switch(Unk2Phys[iunk]){
-       case DENSITY:  printf("loc_inode=%d of %d iunk_rho=%d ", loc_inode,Nnodes_per_proc,iunk); break;
-       case HSRHOBAR: printf("loc_inode=%d iunk_rbar=%d resid=%9.6f ", loc_inode,iunk); break;
-       case POISSON:  printf("loc_inode=%d iunk_poisson=%d ", loc_inode,iunk); break;
-       case DIFFUSION: printf(" loc_inode=%d  iunk_diffusion=%d ",loc_inode,iunk); break;
-       case CAVWTC: printf(" loc_inode=%d  iunk_cavity=%d ",loc_inode,iunk); break;
-       case BONDWTC: printf(" loc_inode=%d  iunk_bondwtc=%d ",loc_inode,iunk); break;
-       case CMS_FIELD: printf(" loc_inode=%d  iunk_cmsfield=%d ",loc_inode,iunk); break;
-       case CMS_G: printf(" loc_inode=%d  iunk_cmsG=%d ",loc_inode,iunk); break;
+       case DENSITY:  printf("Proc=%d: loc_inode=%d of %d (Global val=%d) iunk_rho=%d ", Proc,loc_inode,Nnodes_per_proc,L2G_node[loc_inode],iunk); break;
+       case HSRHOBAR: printf("Proc=%d: loc_inode=%d iunk_rbar=%d resid=%9.6f ", Proc,loc_inode,iunk); break;
+       case POISSON:  printf("Proc=%d: loc_inode=%d iunk_poisson=%d ", Proc,loc_inode,iunk); break;
+       case DIFFUSION: printf("Proc=%d: loc_inode=%d  iunk_diffusion=%d ",Proc,loc_inode,iunk); break;
+       case CAVWTC: printf("Proc=%d: loc_inode=%d  iunk_cavity=%d ",Proc,loc_inode,iunk); break;
+       case BONDWTC: printf("Proc=%d: loc_inode=%d  iunk_bondwtc=%d ",Proc,loc_inode,iunk); break;
+       case CMS_FIELD: printf("Proc=%d: loc_inode=%d  iunk_cmsfield=%d ",Proc,loc_inode,iunk); break;
+       case CMS_G: printf("Proc=%d: loc_inode=%d  iunk_cmsG=%d ",Proc,loc_inode,iunk); break;
     }
     printf(" resid=%9.6f \n",resid_unk[iunk]); 
 

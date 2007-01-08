@@ -190,9 +190,11 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
 
   resid =-x[iunk][inode_box];
   resid_sum+=resid;
-  mat_val=-1.0;
   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  if (!resid_only_flag){
+     mat_val=-1.0;
+     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  }
  
   if (iunk > Phys2Unk_first[HSRHOBAR]+1 && ((Lhard_surf && Nlists_HW == 2) ||
                                                (!Lhard_surf && Nwall>0 && Nlists_HW == 1))){
@@ -206,7 +208,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
         mat_val = Inv_4pirsq[0];
      }
      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+     if (!resid_only_flag) dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
      resid_sum+=resid;
   }
   else{
@@ -275,9 +277,11 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
 
   resid =-x[iunk][inode_box]; 
   resid_sum+=resid;
-  mat_val=-1.0;
   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  if (!resid_only_flag){
+    mat_val=-1.0;
+    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  }
 
   if (iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s+Ndim && (
                                 (Lhard_surf && Nlists_HW == 2) ||
@@ -287,9 +291,11 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
 
      resid = x[junk][inode_box]*Inv_4pir[0];
      resid_sum+=resid;
-     mat_val = Inv_4pir[0];
      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+     if (!resid_only_flag){
+        mat_val = Inv_4pir[0];
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+     }
   }
   else { 
     resid_sum+=resid_and_Jac_sten_fill_sum_Ncomp(DELTA_FN,x,iunk,loc_inode,inode_box,izone,

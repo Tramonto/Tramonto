@@ -25,7 +25,7 @@
 #include "dft_fill_coarse.h"
 
 /********************************************************************/
-void load_coarse_node_1dim(int loc_inode, int inode_box, int *ijk_box,int iunk, double **x)
+void load_coarse_node_1dim(int loc_inode, int inode_box, int *ijk_box,int iunk, double **x,int resid_only_flag)
 {
     int idim,ijk_tmp[3],jnode_box,loc_jnode,numEntries,
         nodeIndices[2];
@@ -44,15 +44,17 @@ void load_coarse_node_1dim(int loc_inode, int inode_box, int *ijk_box,int iunk, 
 
     resid = x[iunk][inode_box]-x[iunk][jnode_box];
     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-    numEntries=2;
-    values[0]=1.0; values[1]=-1.0;
-    nodeIndices[0]=inode_box; nodeIndices[1]=jnode_box;
-    dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+    if (!resid_only_flag){
+       numEntries=2;
+       values[0]=1.0; values[1]=-1.0;
+       nodeIndices[0]=inode_box; nodeIndices[1]=jnode_box;
+       dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                iunk, nodeIndices,values,numEntries);
+    }
     return;
 }
 /********************************************************************/
-double load_coarse_node_Ndim(int loc_inode, int inode_box, int iunk, double **x)
+double load_coarse_node_Ndim(int loc_inode, int inode_box, int iunk, double **x,int resid_only_flag)
 {
     double fac_a11,resid,mat_value,fac_coarse;
 
@@ -60,29 +62,33 @@ double load_coarse_node_Ndim(int loc_inode, int inode_box, int iunk, double **x)
     else fac_a11=-1.0;
 
     resid= fac_a11*x[iunk][inode_box];
-    mat_value=fac_a11*1.0;
-    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
+    if (!resid_only_flag){
+       mat_value=fac_a11*1.0;
+       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
+    }
 
     fac_coarse=0.5*fac_a11;
-    locate_neighbor_unks(x,iunk,loc_inode,inode_box,fac_coarse,&resid);
+    locate_neighbor_unks(x,iunk,loc_inode,inode_box,fac_coarse,&resid,resid_only_flag);
     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
     return(resid);
 }
 /****************************************************************************/
-double load_coarse_variable(double **x,int jnode_box,double fac,int iunk,int loc_inode)
+double load_coarse_variable(double **x,int jnode_box,double fac,int iunk,int loc_inode,int resid_only_flag)
 {
   double mat_value,resid;
   if (jnode_box<0) resid = -fac*constant_boundary(iunk,jnode_box);
   else {                 
       resid = -fac*x[iunk][jnode_box];
-      mat_value=-fac;
-      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,jnode_box,mat_value);
+      if (!resid_only_flag){
+         mat_value=-fac;
+         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,jnode_box,mat_value);
+      }
   }
   return resid;
 }
 /****************************************************************************/
-void locate_neighbor_unks(double **x,int iunk, int loc_inode, int node_box,double fac,double *resid)
+void locate_neighbor_unks(double **x,int iunk, int loc_inode, int node_box,double fac,double *resid,int resid_only_flag)
 {
   /* identify the neighboring nodes that contribute to a particular coarsened node.  For
      the special case of only two zones (one possible coarsening level), the recursive code
@@ -101,9 +107,9 @@ void locate_neighbor_unks(double **x,int iunk, int loc_inode, int node_box,doubl
        jnode_box = offset_to_node_box(ijk_box, offset_ptr, reflect_flag);
 
        if (jnode_box >=0 && Mesh_coarsen_flag[jnode_box]<0 && Nzone == 2){
-           locate_neighbor_unks(x,iunk,loc_inode,jnode_box,fac*0.5,resid);
+           locate_neighbor_unks(x,iunk,loc_inode,jnode_box,fac*0.5,resid,resid_only_flag);
        }
-       else *resid += load_coarse_variable(x,jnode_box,fac,iunk,loc_inode);
+       else *resid += load_coarse_variable(x,jnode_box,fac,iunk,loc_inode,resid_only_flag);
    }
    return;
 }

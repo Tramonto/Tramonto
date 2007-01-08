@@ -19,7 +19,6 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define CMS_SCFT     2
-#define CMS_GAUSSIAN 1
 #define CMS          0
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 double integrand_WTC_freen_bulk(int iunk,int inode_box,double **x);

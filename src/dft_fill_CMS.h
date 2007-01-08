@@ -34,7 +34,8 @@ struct Stencil_Struct {
                              are being contributed from. Only used for Hard
                              Walls when stencil point is a boundary node  */
 };
-double load_polymer_recursion(int sten_type,int iunk,int loc_inode,int inode_box,int unk_B,int itype_mer,int izone,int *ijk_box,double **x);
+double load_polymer_recursion(int sten_type,int iunk,int loc_inode,int inode_box,int unk_B,int itype_mer,int izone,int *ijk_box,double **x,int resid_only_flag);
+extern int *L2G_node;
 extern int *B2G_node;
 void node_to_position(int inode,double *NodePos);
 extern int ***Bonds;
@@ -72,7 +73,7 @@ extern int Type_coul;
 extern void *LinProbMgr_manager;
 #define POLYMER_CR     4
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
-double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x);
+double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double VEXT_MAX;
 extern double **Vext;
 extern int **Zero_density_TF;

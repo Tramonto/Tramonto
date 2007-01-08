@@ -1,4 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
+#include <stdio.h>
 int continuation_hook(double *x,double *delta_x,void *con_void,double reltol,double abstol);
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 void box2owned(double **xBox,double **xOwned);
@@ -13,6 +14,8 @@ double free_energy_diff_conwrap(double *x,double *x2);
 #if !defined(_CON_CONST_H_)
 double free_energy_diff_conwrap(double *x,double *x2);
 #endif
+double calc_free_energy(FILE *fp,double **x);
+double calc_free_energy_conwrap(double **xB);
 void post_process(double **x,char *output_file3,int *niters,double *time_save,int loop1,int binodal_flag);
 #if !defined(_CON_CONST_H_)
 typedef struct con_struct con_struct;
@@ -34,17 +37,18 @@ int gmax_int_conwrap(int max);
 #if !defined(_CON_CONST_H_)
 int gmax_int_conwrap(int sum);
 #endif
+void *array_alloc_2d(size_t n1,size_t n2,size_t size);
+void *array_alloc_2d(size_t n1,size_t n2,size_t size);
+double **array_alloc_2d_conwrap(unsigned int ii,unsigned int jj,unsigned int kk);
+void safe_free_conwrap(void **p);
 void fill_resid_and_matrix_control_conwrap(double **xBox,int ii,int jj);
 double gmax_double(double c);
 double gmax_double_conwrap(double sum);
 double gsum_double(double c);
-void  safe_free_conwrap(void **p);
-double** array_alloc_2d_conwrap(unsigned int ii, unsigned int jj, unsigned int kk);
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #if !defined(_CON_CONST_H_)
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #endif
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)
@@ -58,7 +62,6 @@ void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-double calc_free_energy(FILE *fp, double **x);
 #define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
 void assign_bif_parameter_conwrap(double tp_param);
@@ -292,6 +295,11 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 int solve_continuation(double **xx,double **xx2);
+double get_init_param_value(int cont_type);
+#if !defined(_CON_CONST_H_)
+double get_init_param_value(int cont_type);
+#endif
+double get_init_param_value(int cont_type);
 #if !defined(_CON_CONST_H_)
 typedef struct general_info_struct general_info_struct;
 struct general_info_struct {

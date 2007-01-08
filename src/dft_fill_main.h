@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -14,6 +13,8 @@ double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izon
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int *L2G_node;
+double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define CMS_G          2 
 double load_CMS_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define CMS_FIELD      1
@@ -21,11 +22,11 @@ double load_bond_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone
 #define BONDWTC       7
 double load_cavity_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define CAVWTC     6
-double load_nonlinear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x);
-double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x);
+double load_nonlinear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
+double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 extern int Linear_transport;
 #define DIFFUSION      5
-double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x);
+double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 #define POISSON        3
 double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
 #define DELTA_FN       0
@@ -46,10 +47,10 @@ extern int Type_poly;
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-double load_coarse_node_Ndim(int loc_inode,int inode_box,int iunk,double **x);
+double load_coarse_node_Ndim(int loc_inode,int inode_box,int iunk,double **x,int resid_only_flag);
 #define FLAG_PBELEC -777
 #define FLAG_BULK   -888
-void load_coarse_node_1dim(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x);
+void load_coarse_node_1dim(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,int resid_only_flag);
 #define FLAG_1DBC   -999
 extern int *Mesh_coarsen_flag;
 extern int L1D_bc;

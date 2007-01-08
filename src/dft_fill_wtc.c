@@ -65,15 +65,17 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box, int icomp,
      resid_sum+=resid;
      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
-     mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./y)*dy_dxi2;
-     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_xi2,inode_box,mat_val);
+     if (!resid_only_flag){
+        mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./y)*dy_dxi2;
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_xi2,inode_box,mat_val);
 
-     mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./y)*dy_dxi3;
-     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_xi3,inode_box,mat_val);
+        mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./y)*dy_dxi3;
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_xi3,inode_box,mat_val);
 
-     /*mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./n);*/
-     mat_val = -0.5*(1./n);
-     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_bond,inode_box,mat_val);
+        /*mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./n);*/
+        mat_val = -0.5*(1./n);
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_bond,inode_box,mat_val);
+     }
    }
    return resid_sum;
 }
@@ -396,9 +398,11 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
   double resid,mat_val,resid_bondwtc;
 
   resid=-x[iunk][inode_box];
-  mat_val=-1.0;
   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  if (!resid_only_flag){
+     mat_val=-1.0;
+     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  }
   resid_bondwtc=resid;
 
   unk_bond=iunk-Phys2Unk_first[BONDWTC];
@@ -431,8 +435,10 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
       resid = x[junk][inode_box];
       resid_bondwtc+=resid;
       dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-      mat_val=1.0; 
-      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+      if (!resid_only_flag){
+         mat_val=1.0; 
+         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+      }
   }
 
   return(resid_bondwtc);
@@ -450,9 +456,11 @@ double load_cavity_wtc(int iunk, int loc_inode, int inode_box, int *ijk_box,
   jzone_flag=FALSE;
 
   resid=-x[iunk][inode_box];
-  mat_val=-1.0;
-  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+  if (!resid_only_flag){
+     mat_val=-1.0;
+     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  }
   resid_cavity=resid;
 
   resid_cavity+=resid_and_Jac_sten_fill_sum_Ncomp(THETA_FN_SIG,x,iunk,loc_inode,inode_box,izone,

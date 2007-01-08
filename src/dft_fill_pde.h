@@ -1,5 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
-double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x);
+double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -24,7 +24,7 @@ extern double VEXT_MAX;
 void node_to_ijk(int node,int *ijk);
 #define DIFFUSION      5
 extern int *B2G_node;
-double load_nonlinear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x);
+double load_nonlinear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
@@ -67,8 +67,8 @@ extern int Type_bc_elec[NWALL_MAX_TYPE];
 extern int Nlists_HW;
 extern int **Nodes_2_boundary_wall;
 double load_poisson_bc(int iunk,int loc_inode,int inode_box);
-double load_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x);
-double load_polarize_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x);
+double load_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
+double load_polarize_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 #define POLARIZE   2
 extern int Type_coul;
 extern double Elec_pot_RTF;
@@ -92,7 +92,7 @@ extern int Lsteady_state;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x);
+double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 extern int Nnodes_per_el_V;
 void set_fem_1el_weights(double **wt_lp_1el_ptr,double **wt_s_1el_ptr,int ***elem_permute);
 extern double Esize_x[NDIM_MAX];

@@ -229,7 +229,8 @@ void setup_polymer_G(double **xOwned)
                               xOwned[iunk][loc_inode] +=  weight; 
                            } /* check that node is in domain */
                            else{  /* use the value at loc_inode ... an approximation */
-                              xOwned[iunk][loc_inode] +=  weight*xOwned[junk][loc_inode]; 
+                              /*xOwned[iunk][loc_inode] +=  weight*xOwned[junk][loc_inode]; */
+                              xOwned[iunk][loc_inode] +=  weight; 
                            }
                          }
                       }

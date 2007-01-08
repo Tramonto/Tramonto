@@ -64,17 +64,17 @@ typedef struct RB_Struct RB_Struct;
 double load_nonlocal_hs_rosen_rb(int sten_type,int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,struct RB_Struct *dphi_drb,int resid_only_flag);
 extern int Type_func;
 #define FLAG_PBELEC -777
-double fill_EL_elec_field(int iunk,int icomp,int loc_inode,int inode_box,double **x);
+double fill_EL_elec_field(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
 extern int Type_coul;
 double fill_EL_ext_field(int iunk,int icomp,int loc_inode);
-double fill_EL_chem_pot(int iunk,int icomp,int iseg,int loc_inode,int inode_box,int mesh_coarsen_flag_i,double **x);
-double fill_EL_ideal_gas(int iunk,int icomp,int loc_inode,int inode_box,double **x);
-double fill_sym_WTC(int iunk,int iseg,int loc_inode,int inode_box,double **x);
+double fill_EL_chem_pot(int iunk,int icomp,int iseg,int loc_inode,int inode_box,int mesh_coarsen_flag_i,double **x,int resid_only_flag);
+double fill_EL_ideal_gas(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
+double fill_sym_WTC(int iunk,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern int *Pol_Sym_Seg;
-double fill_bulk_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x);
+double fill_bulk_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -87,7 +87,7 @@ double fill_bulk_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x);
+double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 int check_zero_density_EL(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x);
 extern int Unk2Comp[NMER_MAX];
 #define WTC          3
