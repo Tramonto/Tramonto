@@ -1106,8 +1106,8 @@ double calc_sten_rad(int isten, int icomp, int jcomp)
 {
   switch (isten) {
     case DELTA_FN:
-        if (Sten_Type[POLYMER_CR]) return (Bond_ff[icomp][jcomp]);
-        else                       return (HS_diam[icomp]/2.0);
+        if (Type_poly!=NONE && Type_poly!=WTC) return (Bond_ff[icomp][jcomp]);
+        else                                   return (HS_diam[icomp]/2.0);
     case THETA_FN:
         return (HS_diam[icomp]/2.0);
     case U_ATTRACT:
@@ -1131,7 +1131,7 @@ double calc_sten_vol(int isten, int i, int j)
   double r_min,r_cut,vol_sten,r_max;
   switch (isten) {
     case DELTA_FN:
-        if (Sten_Type[POLYMER_CR]) return (1.0);
+        if (Type_poly!=NONE && Type_poly!=WTC) return (1.0);
         else                       return (PI * POW_DOUBLE_INT(HS_diam[i],2));
     case THETA_FN:
          return (PI * POW_DOUBLE_INT(HS_diam[i],3)/6.0);
@@ -1314,12 +1314,11 @@ double get_weight_from_stencil(int isten, int icomp, int jcomp, double rsq,
 
     case DELTA_FN:
     case DELTA_FN_BOND:
-          if (!Sten_Type[POLYMER_CR]){
+          if (Type_poly==NONE || Type_poly==WTC){
             if (Ndim == 1)       return(2.0 * PI * R);
             else if (Ndim == 2)  return(2.0 / sqrt(1.0-rsq));
             else                 return(1.0);
           }
-	  /* ALF: fixed normalization of delta funcs */
           else{
 	    sigsq = Sigma_ff[icomp][jcomp]*Sigma_ff[icomp][jcomp];
             if (Ndim == 1)       return(R / (2.0*sigsq));

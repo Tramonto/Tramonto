@@ -43,9 +43,6 @@ extern double Size_x[NDIM_MAX];
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Nwall;
 #define WTC          3
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
 void print_gofr(char *output_file6);
 extern int Ntype_mer;
 #define NCOMP_MAX 5
@@ -64,9 +61,9 @@ extern int **Nbond;
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Nmer[NCOMP_MAX];
 extern int Npol_comp;
-#define POLYMER_CR     4
-#define NSTEN        8
-extern int Sten_Type[NSTEN];
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
 #define CMS_G          2 
 extern double VEXT_MAX;
 #define NEQ_TYPE       8

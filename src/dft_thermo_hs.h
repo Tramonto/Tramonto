@@ -1,7 +1,8 @@
 /* This file was automatically generated.  Do not edit! */
 double dmu_drho_hs_PY(double *rho);
 double dp_drho_hs_PY(double *rho);
-void FMT3_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
+void FMT1stDerivBulk_switch(double *n,double *inv_n3,double *dphi_drb);
+void dphi_drb_bulk(double *rhobar,double *dphi_drb);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -16,13 +17,6 @@ void FMT3_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define FMT3       2
-void FMT2_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
-#define FMT2       1
-void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
-#define FMT1       0
-extern int Type_func;
-void dphi_drb_bulk(double *rhobar,double *dphi_drb);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_coex[2];

@@ -345,7 +345,7 @@ void print_profile(char *output_file4)
         }    /* end loop over unknowns in the run */
 
                 /* print the Poisson-Boltzmann solution based on the computed electrostatic field */
-        if (Ipot_ff_c == 1 && !Sten_Type[POLYMER_CR]){
+        if (Ipot_ff_c == 1 && Type_poly==NONE){
         for (icomp=0; icomp<Ncomp; icomp++)
           fprintf(ifp,"%20.15f\t",
                   Rho_b[icomp]*exp(-Charge_f[icomp]*X_old[Phys2Unk_first[POISSON]+node_start]

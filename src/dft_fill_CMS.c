@@ -142,8 +142,7 @@ double load_CMS_Geqns(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
     seg_num = Unk_to_Seg[unk_GQ];
     bond_num = Unk_to_Bond[unk_GQ];
 
-    if (Sten_Type[POLYMER_GAUSS]) sten=POLYMER_GAUSS;
-    else                          sten=DELTA_FN;
+    sten=DELTA_FN;
 
     if (Zero_density_TF[inode_box][itype_mer] || Vext[loc_inode][itype_mer] == VEXT_MAX){
          resid_G=fill_zero_value(iunk,loc_inode,inode_box,x);

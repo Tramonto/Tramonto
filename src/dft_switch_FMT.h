@@ -31,6 +31,7 @@ struct RB_Struct d2phi_drb2_delta_rb_FMT3(double *n,int *offset,double *sign,int
 struct RB_Struct d2phi_drb2_delta_rb_FMT2(double *n,int *offset,double *sign,int icomp);
 struct RB_Struct d2phi_drb2_delta_rb_FMT1(double *n,int *offset,double *sign,int icomp);
 struct RB_Struct FMT2ndDerivDelta_switch(double *n,int *offset,double *sign,int icomp);
+void FMT1stDerivBulk_switch(double *n,double *inv_n3,double *dphi_drb);
 void FMT3_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
 void FMT2_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
 void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);

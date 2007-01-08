@@ -47,7 +47,7 @@ void  thermodynamics(char *output_file1)
        if (Type_poly == WTC) WTC_thermo_precalc(output_file1);   /* do this first to set up segment densities */
        if (Type_func != NONE) HS_thermo_precalc(output_file1); 
        if (Type_attr != NONE ) ATT_thermo_precalc();
-       /* if (Type_coul != NONE && Sten_Type[THETA_CHARGE])  nothing to do here... */
+       /* if (Type_coul == DELTAC)  nothing to do here... */
     }
     /*else { } no CMS precalculations implemented here yet */
 
@@ -204,7 +204,7 @@ void calc_chempot(char *output_file1)
                Betamu_LBB[icomp] += Charge_f[icomp]*(Elec_pot_LBB);
                Betamu_RTF[icomp] += Charge_f[icomp]*(Elec_pot_RTF);
              }
-             if (Sten_Type[THETA_CHARGE]) {
+             if (Type_coul==DELTAC) {
                  chempot_ELEC_MSA(Rho_b_LBB);
                  for (icomp=0;icomp<Ncomp;icomp++) Betamu_LBB[icomp]+=Deltac_b[icomp];
                  chempot_ELEC_MSA(Rho_b_RTF);
@@ -271,7 +271,7 @@ void calc_chempot(char *output_file1)
           if (Type_coul != NONE){
               /* note that the current assumption is that electrostatic potential is zero in the bulk */
               /* also note that Betamu_deltaC = Deltac_b (for the case of the RPM/MSA electrolyte) */
-              if (Sten_Type[THETA_CHARGE]) {
+              if (Type_coul==DELTAC) {
                  chempot_ELEC_MSA(Rho_b);
                  for (icomp=0;icomp<Ncomp;icomp++) Betamu[icomp]+=Deltac_b[icomp];
               }

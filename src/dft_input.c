@@ -1062,7 +1062,7 @@ void read_input_file(char *input_file, char *output_file1)
     
     if (Proc==0) fclose(fp4);
 
-    if (Sten_Type[POLYMER_CR]){  /*POLYMER INPUT FOR ONLY CMS FUNCTIONAL */
+    if (Type_poly != NONE && Type_poly != WTC){  /*POLYMER INPUT FOR ONLY CMS FUNCTIONAL */
     /* set start value of Geqns for each of the polymers in the system.  
        It is necessary to account for Ncomp Boltz and Ncomp Rho eqns */
    
@@ -1441,7 +1441,7 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&Linear_transport,1,MPI_INT,0,MPI_COMM_WORLD);
 
   /* ALF: temporary fix for polymer initial guesses */
-  if (Lsteady_state || Sten_Type[POLYMER_CR]) {
+  if (Lsteady_state || (Type_poly != NONE && Type_poly !=WTC)) {
     if (Proc==0) {
       read_junk(fp,fp2);
       fscanf(fp,"%d  %d  %lf", &Grad_dim, &L1D_bc,&X_1D_bc );
@@ -2056,19 +2056,6 @@ void error_check(void)
      }
   }
 
-  if (Ipot_ff_n == LJ12_6 && !Sten_Type[U_ATTRACT] && !Sten_Type[POLYMER_CR]) {
-      printf("\nERROR: the u_attract func Sten_Type cannot be turned off\n");
-      printf("if you wish to do an attracting fluid. Ipot_ff_n: %d\n", Ipot_ff_n);
-      exit (-1);
-  } 
-
-  if (Ipot_ff_n != LJ12_6 && Sten_Type[U_ATTRACT] != FALSE) {
-      printf("\nERROR: the u_attract func Sten_Type must be turned off\n");
-      printf("if you don't want attractions in your calculation\n");
-      printf("Ipot_ff_n=%d  Sten_Type[UATTRACT]=%d\n",Ipot_ff_n,Sten_Type[U_ATTRACT]);
-      exit (-1);
-  } 
-
   if (Load_Bal_Flag < 0 || Load_Bal_Flag > 5) {
       printf("\nERROR: the Load_Bal_Flag (%d) must 0-5 \n", Load_Bal_Flag);
       exit (-1);
@@ -2098,12 +2085,6 @@ void error_check(void)
        printf("\nERROR: If Iliq_vap = 3 then Iguess should be 6\n");
        exit(-1);
     }
-  }
-
-
-  if (Iguess1 == 6 && Iliq_vap !=3 && Lsteady_state == FALSE && !Sten_Type[POLYMER_CR]){
-    printf("\nERROR: If Iguess = 6 then Iliq_vap should be 3\n");
-    exit(-1);
   }
 
   if (Ncomp > 1) {

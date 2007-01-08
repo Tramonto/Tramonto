@@ -98,7 +98,7 @@ void setup_polymer_simple(double **xOwned, int iguess)
 	   /* ALF: add Vext to initial guess for field */
 	   temp += Vext[loc_inode][itype_mer];
            /* if (temp > 1.0) temp=1.0;*/
-           if ((Sten_Type[POLYMER_CR]) || (temp > 0.5)) xOwned[iunk][loc_inode] = exp(temp);
+           if ((Type_poly != NONE && Type_poly != WTC) || (temp > 0.5)) xOwned[iunk][loc_inode] = exp(temp);
            else                             xOwned[iunk][loc_inode] = exp(1. - sqrt(1.-2.*temp));
         } /* end if i not zero density  */
         else   xOwned[iunk][loc_inode] = DENSITY_MIN; /* zero density - Boltzmann probability = 0 */
@@ -158,8 +158,7 @@ void setup_polymer_G(double **xOwned)
   int sten_type,izone,jlist,jnode_box,jtype_mer,itype_mer;
   int iunk,poln,iseg,ibond,not_done,junk,cycle,loc_B;
 
-     if (Sten_Type[POLYMER_GAUSS]) sten_type = POLYMER_GAUSS;
-     else                          sten_type = DELTA_FN;
+     sten_type = DELTA_FN;
      izone = 0;
 
      loc_inode=0;

@@ -307,7 +307,7 @@ int lfirst;
     }
 
                                     /* CMS FREE ENERGY */
-    if (Type_poly == CMS || Type_poly==CMS_GAUSSIAN || Type_poly==CMS_SCFT){
+    if (Type_poly == CMS || Type_poly==CMS_SCFT){
       if(!first || !lfirst) {
        integrateInSpace_SumInComp(&integrand_CMS_freen,Nel_hit2,x,Integration_profile);
        omega_CMS = Temporary_sum;

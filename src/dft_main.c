@@ -152,7 +152,7 @@ void dftmain(double * engptr)
   setup_nunk_per_node(output_file1);
 
   if (Mix_type == 0) pot_parameters(output_file1);
-  if (Sten_Type[POLYMER_CR]){
+  if (Type_poly != NONE && Type_poly != WTC){
       Rism_cr = (double ***) array_alloc (3, Ncomp,Ncomp,N_NZCR_MAX,sizeof(double));
       setup_polymer_cr();
   }
@@ -477,9 +477,9 @@ void dftmain(double * engptr)
   /* ALF: fixed for changed stencils */
   for (izone=0; izone<Nzone; izone++){
   for (isten=0; isten<NSTEN; isten++)
-   if (Sten_Type[isten]==1) {
+   if (Sten_Type[isten]==TRUE) {
      if (isten == U_ATTRACT || isten == THETA_CHARGE || isten == POLYMER_CR) jmax = Ncomp;
-     else if (isten == DELTA_FN && Sten_Type[POLYMER_CR]) jmax = Ncomp;
+     else if (isten == DELTA_FN && Type_poly != NONE && Type_poly != WTC) jmax = Ncomp;
      else  jmax = 1;
 
      for (icomp=0; icomp<Ncomp; icomp++) {
@@ -494,7 +494,7 @@ void dftmain(double * engptr)
   }
   safe_free((void **) &Stencil);
 
-  if (Sten_Type[POLYMER_CR]) safe_free((void **) &Rism_cr);
+  if (Type_poly != NONE && Type_poly != WTC) safe_free((void **) &Rism_cr);
 
 
   if (Proc == 0)

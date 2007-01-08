@@ -84,6 +84,28 @@ void FMT1stDeriv_switch(int inode_box, double **x, struct RB_Struct *dphi_drb)
   return;
 }
 /****************************************************************************/
+/*FMT1stDerivBulk_switch: Logic controlling type of FMT functional used in bulk thermo calculations.     */
+void FMT1stDerivBulk_switch(double *n,double *inv_n3, double *dphi_drb)
+{ 
+  double DOT_12,DOT_22;
+  DOT_12=0.0; DOT_22=0.0;  /* vector terms are zero in bulk */
+  switch(Type_func){
+     case FMT1:
+        FMT1_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
+        break;
+     case FMT2: 
+        FMT2_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
+        break;
+     case FMT3: 
+        FMT3_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
+        break;
+      default:
+         printf("problem with type of HS FUNCTIONAL: FMT1stDeriv_switch");
+         exit(-1); break;
+  }
+  return;
+}
+/****************************************************************************/
 struct RB_Struct FMT2ndDerivDelta_switch(double *n, int *offset, double *sign, int icomp)
 { 
    struct  RB_Struct tmp;

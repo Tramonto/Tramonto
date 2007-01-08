@@ -1100,8 +1100,8 @@ double set_weight_for_node(int inode)
 
   for (icomp=0; icomp<Ncomp; icomp++){
 
-     if (Sten_Type[U_ATTRACT]) max = Cut_ff[icomp][icomp];
-     else                      max = 0.5*Sigma_ff[icomp][icomp];
+     if (Type_attr != NONE) max = Cut_ff[icomp][icomp];
+     else                  max = 0.5*Sigma_ff[icomp][icomp];
 
      for (idim=0; idim<Ndim; idim++){
        if (  ( Type_bc[idim][0] == REFLECT && ijk[idim]*Esize_x[idim] <= max )   ||   

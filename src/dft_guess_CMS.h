@@ -41,7 +41,6 @@ extern int Nmer[NCOMP_MAX];
 extern int Geqn_start[NCOMP_MAX];
 extern int Npol_comp;
 #define DELTA_FN       0
-#define POLYMER_GAUSS  5
 struct Stencil_Struct {
   int        Length;      /* Number of nodes that interact with current 
                              node through this stencil                    */
@@ -62,9 +61,11 @@ extern int Proc;
 #endif
 void setup_polymer_rho(double **xOwned,int iguess);
 #define DENSITY_MIN  1.e-20
-#define POLYMER_CR     4
-#define NSTEN        8
-extern int Sten_Type[NSTEN];
+#define WTC          3
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
+extern int Type_poly;
 extern double **Vext;
 #define NSTEPS_MAX 10
 extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];

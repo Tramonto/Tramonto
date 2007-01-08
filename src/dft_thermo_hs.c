@@ -321,7 +321,7 @@ void rhobar_icomp(double rho,int icomp, double *rhobar)
 /*****************************************************************************/
 void dphi_drb_bulk(double *rhobar,double *dphi_drb)
 {
- double n[4+2*NDIM_MAX], inv_n3[5],DOT_12,DOT_22;
+ double n[4+2*NDIM_MAX], inv_n3[5];
  int idim;
 
   n[3]=rhobar[0]; n[2]=rhobar[1];
@@ -337,15 +337,7 @@ void dphi_drb_bulk(double *rhobar,double *dphi_drb)
   inv_n3[3] = inv_n3[2]*inv_n3[1];
   inv_n3[4] = inv_n3[3]*inv_n3[1];
 
-  DOT_22=0.;
-  DOT_12=0.;
-
-  if (Type_func==FMT1)
-         FMT1_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
-  else if (Type_func==FMT2)
-         FMT2_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
-  else if (Type_func==FMT3)
-         FMT3_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
+  FMT1stDerivBulk_switch(n,inv_n3,dphi_drb);
 
   return;
 }

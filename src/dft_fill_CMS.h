@@ -39,9 +39,6 @@ extern int *B2G_node;
 void node_to_position(int inode,double *NodePos);
 extern int ***Bonds;
 #define DELTA_FN       0
-#define POLYMER_GAUSS  5
-#define NSTEN        8
-extern int Sten_Type[NSTEN];
 extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;

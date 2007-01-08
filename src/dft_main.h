@@ -44,8 +44,6 @@ extern int Nrho_bar;
 #define HSRHOBAR       4
 extern int Nseg_tot;
 extern int Phys2Nunk[NEQ_TYPE];
-#define WTC          3
-extern int Type_poly;
 #define DENSITY        0
 extern double **Charge_x;
 extern int Nlocal_charge;
@@ -63,9 +61,11 @@ extern int Lhard_surf;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 #define DELTA_FN       0
+#define POLYMER_CR     4
 #define THETA_CHARGE   3
 #define U_ATTRACT      2
 #define NSTEN        8
+extern int Sten_Type[NSTEN];
 extern int Nzone;
 extern double **Vext_membrane;
 extern int **Lsemiperm;
@@ -126,9 +126,6 @@ void free_mesh_arrays(void);
 void thermodynamics(char *output_file1);
 void calc_stencils(void);
 void calc_HS_diams();
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
 extern int Type_func;
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
@@ -155,8 +152,11 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 extern double ***Rism_cr;
-#define POLYMER_CR     4
-extern int Sten_Type[NSTEN];
+#define WTC          3
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
+extern int Type_poly;
 void pot_parameters(char *output_file1);
 extern int Mix_type;
 void setup_nunk_per_node(char *output_file1);

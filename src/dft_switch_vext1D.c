@@ -79,7 +79,7 @@ double Vext_1D(double x,int icomp, int iwall_type)
         vext = VextEXP_ATT_noCS(x,icomp,iwall_type);
         break;
       default:
-         print ("problems with your selection of Type_vext");
+         printf("problems with your selection of Type_vext");
          exit(-1);
          break;
   }
@@ -112,7 +112,7 @@ double Vext_1D_dash(double x,int icomp, int iwall_type)
          vdash=0.0;  /* vdash code not yet written */
          break;
       default:
-         print ("problems with your selection of Type_vext");
+         printf("problems with your selection of Type_vext");
          exit(-1);
          break;
   }

@@ -517,7 +517,7 @@ static void recalculate_stencils()
      for (isten=0; isten<NSTEN; isten++)
        if (Sten_Type[isten]) {
           if (isten == U_ATTRACT || isten == THETA_CHARGE 
-             || isten == POLYMER_CR || (isten==DELTA_FN && Sten_Type[POLYMER_CR])) jmax = Ncomp;
+             || isten == POLYMER_CR || (isten==DELTA_FN && (Type_poly != NONE && Type_poly != WTC))) jmax = Ncomp;
           else                                                                     jmax = 1;
                          
           for (icomp=0; icomp<Ncomp; icomp++) {

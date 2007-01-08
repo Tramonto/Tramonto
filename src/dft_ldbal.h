@@ -66,9 +66,10 @@ extern int Ndim;
 #define NCOMP_MAX 5
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
-#define U_ATTRACT      2
-#define NSTEN        8
-extern int Sten_Type[NSTEN];
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
+extern int Type_attr;
 extern int Ncomp;
 int node_to_node_box(int inode);
 void node_to_ijk(int node,int *ijk);

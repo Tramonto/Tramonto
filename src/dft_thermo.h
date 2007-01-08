@@ -31,9 +31,7 @@ extern double Rho_seg_LBB[NMER_MAX];
 void chempot_WTC(double *rho_seg,double *betamu);
 extern double *Deltac_b;
 void chempot_ELEC_MSA(double *rho);
-#define THETA_CHARGE   3
-#define NSTEN        8
-extern int Sten_Type[NSTEN];
+#define DELTAC     1 
 extern double Elec_pot_RTF;
 extern double Elec_pot_LBB;
 extern double Charge_f[NCOMP_MAX];

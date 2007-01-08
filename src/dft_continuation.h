@@ -115,11 +115,6 @@ extern int Npol_comp;
 extern double Rho_b[NCOMP_MAX];
 #define CONT_RHO_0       2
 void setup_polymer_cr();
-#define WTC          3
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
-extern int Type_poly;
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 void pot_parameters(char *output_file1);
@@ -147,6 +142,11 @@ extern int Lhard_surf;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Ncomp;
+#define WTC          3
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
+extern int Type_poly;
 #define DELTA_FN       0
 #define POLYMER_CR     4
 #define THETA_CHARGE   3
