@@ -268,6 +268,6 @@
                         CONT_CRFAC        19      /* Miximg parameter for 2 cr files */
                                                                                                  
 @  0.0001  Parameter initial step size
-@  4  0.30  N Steps,  Step Control Aggressiveness  (0.0 = constant step)
+@  30  0.30  N Steps,  Step Control Aggressiveness  (0.0 = constant step)
 @  2       Second parameter for Spinodal and Binodal Calculations (Same list).
 *********** END OF INPUT FILE ******************************************
