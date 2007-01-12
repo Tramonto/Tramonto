@@ -148,7 +148,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
                else sign[idim] = -1.0;
             }
 
-            for (i=0;i<Nrho_bar_s+2*Ndim;i++) rho_bar[i]=x[junk+i][jnode_box];
+            for (i=0;i<Nrho_bar_s+2*Ndim;i++) rho_bar[i]=x[junk+i][jnode_boxJ];
             solutionVec_to_nOrdering(rho_bar,n);
 
             if (sten_type == DELTA_FN)       tmp = FMT2ndDerivDelta_switch(n,offsetJ,sign,icomp);

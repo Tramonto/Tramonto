@@ -57,7 +57,18 @@ COMMON_H = \
         ${srcdir}/dft_physics_FMT1.h \
         ${srcdir}/dft_physics_FMT2.h \
         ${srcdir}/dft_physics_FMT3.h \
+        ${srcdir}/dft_defs_stencil.h \
+        ${srcdir}/dft_defs_unknowns.h \
+        ${srcdir}/dft_quadrature.h \
         ${srcdir}/dft_stencil.h \
+        ${srcdir}/dft_stencil_delta_Bond.h \
+        ${srcdir}/dft_stencil_delta_R.h \
+        ${srcdir}/dft_stencil_delta_bondCMS.h \
+        ${srcdir}/dft_stencil_theta_CrCMS.h \
+        ${srcdir}/dft_stencil_theta_R.h \
+        ${srcdir}/dft_stencil_theta_RPMmsa.h \
+        ${srcdir}/dft_stencil_theta_Sigma.h \
+        ${srcdir}/dft_stencil_theta_uattr.h \
         ${srcdir}/dft_thermo.h \
         ${srcdir}/dft_thermo_hs.h \
         ${srcdir}/dft_thermo_att.h \
@@ -105,6 +116,7 @@ COMMON_H = \
         ${srcdir}/dft_switch_pairPot.h \
         ${srcdir}/dft_switch_vext1D.h \
         ${srcdir}/dft_switch_FMT.h \
+        ${srcdir}/dft_switch_stencil.h \
         ${srcdir}/dft_vext_1D.h \
         ${srcdir}/dft_vext_integrated.h 
 
@@ -123,7 +135,18 @@ COMMON_C = \
         ${srcdir}/dft_physics_FMT1.c \
         ${srcdir}/dft_physics_FMT2.c \
         ${srcdir}/dft_physics_FMT3.c \
+        ${srcdir}/dft_defs_stencil.c \
+        ${srcdir}/dft_defs_unknowns.c \
+        ${srcdir}/dft_quadrature.c \
         ${srcdir}/dft_stencil.c \
+        ${srcdir}/dft_stencil_delta_Bond.c \
+        ${srcdir}/dft_stencil_delta_R.c \
+        ${srcdir}/dft_stencil_delta_bondCMS.c \
+        ${srcdir}/dft_stencil_theta_CrCMS.c \
+        ${srcdir}/dft_stencil_theta_R.c \
+        ${srcdir}/dft_stencil_theta_RPMmsa.c \
+        ${srcdir}/dft_stencil_theta_Sigma.c \
+        ${srcdir}/dft_stencil_theta_uattr.c \
         ${srcdir}/dft_thermo.c \
         ${srcdir}/dft_thermo_hs.c \
         ${srcdir}/dft_thermo_att.c \
@@ -171,6 +194,7 @@ COMMON_C = \
         ${srcdir}/dft_switch_pairPot.c \
         ${srcdir}/dft_switch_vext1D.c \
         ${srcdir}/dft_switch_FMT.c \
+        ${srcdir}/dft_switch_stencil.c \
         ${srcdir}/dft_vext_1D.c \
         ${srcdir}/dft_vext_integrated.c \
         ${srcdir}/rf_allo.c \

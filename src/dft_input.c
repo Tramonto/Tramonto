@@ -207,9 +207,6 @@ void read_input_file(char *input_file, char *output_file1)
   }
 
 
-  /* Read in Functional Switches  and set up the Sten_Type array.*/
-  for (isten=0; isten<NSTEN; ++isten) Sten_Type[isten]=FALSE;
-
   /* hard sphere functionals */
   if ( Proc==0 ) {
     read_junk(fp,fp2);
@@ -217,11 +214,8 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_func);
   }
   MPI_Bcast(&Type_func,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_func >=0 && Type_func <= 2){
-    Sten_Type[DELTA_FN]=Sten_Type[THETA_FN]=TRUE;
-  }
-  else if (Type_func >2 || Type_func<-1){
-    if (Proc==0) printf("ERROR Type_hs out of range - should be -1,0,1\n");
+  if (Type_func >2 || Type_func<-1){
+    if (Proc==0) printf("ERROR Type_hs out of range - should be -1,0,1, or 2\n");
     exit(-1);
   }
 
@@ -232,8 +226,7 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_attr);
   }
   MPI_Bcast(&Type_attr,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_attr>=0) Sten_Type[U_ATTRACT]=TRUE;
-  else if (Type_attr >1 || Type_attr<-1){
+  if (Type_attr >1 || Type_attr<-1){
      if (Proc==0) printf("ERROR Type_attr=%d out of range - should be -1, 0, or 1\n",Type_attr);
      exit(-1);
   }
@@ -245,8 +238,7 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_coul);
   }
   MPI_Bcast(&Type_coul,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_coul==1) Sten_Type[THETA_CHARGE]=TRUE;
-  else if (Type_coul >4 || Type_coul<-1){
+  if (Type_coul >4 || Type_coul<-1){
     if (Proc==0) printf("ERROR Type_coul out of range - should be -1,0,1\n");
     exit(-1);
   }
@@ -258,21 +250,7 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_poly);
   }
   MPI_Bcast(&Type_poly,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_poly == WTC) {
-    Sten_Type[THETA_FN_SIG]=TRUE;
-    Sten_Type[DELTA_FN_BOND]=TRUE;
-  }
-  else if (Type_poly == CMS || Type_poly==CMS_SCFT){
-      Sten_Type[DELTA_FN]=TRUE;
-      Sten_Type[U_ATTRACT]=FALSE;   /* attractions handled differently for polymers */
-      Sten_Type[POLYMER_CR]=TRUE;
-      if (Type_poly==CMS_SCFT){
-        printf ("To do SCFT with CMS theory, we need to test and debug all code !\n");
-        exit(-1);
-      }
-  }
   if (Type_poly == CMS_GAUSSIAN){
-      Sten_Type[POLYMER_CR]=2;
       printf ("To do CMS Gaussian chains, we need to test and debug all code !\n");
       exit(-1);
   }

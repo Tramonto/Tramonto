@@ -144,6 +144,8 @@
 #define THETA_FN_SIG   6
 #define DELTA_FN_BOND  7
 
+#define NO_RENORMALIZATION_FLAG -888
+
 /*
  * An equation type list is given here to make identification of a particular
  * unknown number straightforward.  This became necessary with the introduction
@@ -544,7 +546,6 @@ extern int     Nodes_plane;     /* # of nodes in the x1-x2 plane          */
 extern int Nodes_x[NDIM_MAX];   /* Array[Ndim]: # nodes in each dimension */
 extern int Elements_x[NDIM_MAX];/* Array[Ndim]: # elements in each dim    */
 extern int     Max_sten_length[3];  /* The number of nodes in the longest stencil */
-extern int     Sten_length_hs[3];  /* The number of nodes in the h.s. stencil */
 
 /*************** Reference Variables ***********************/
 extern double Length_ref;

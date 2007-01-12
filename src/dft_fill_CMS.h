@@ -35,7 +35,6 @@ struct Stencil_Struct {
                              Walls when stencil point is a boundary node  */
 };
 double load_polymer_recursion(int sten_type,int iunk,int loc_inode,int inode_box,int unk_B,int itype_mer,int izone,int *ijk_box,double **x,int resid_only_flag);
-extern int *L2G_node;
 extern int *B2G_node;
 void node_to_position(int inode,double *NodePos);
 extern int ***Bonds;

@@ -221,6 +221,13 @@ extern double WallParam_2[NWALL_MAX_TYPE];
 extern double WallParam[NWALL_MAX_TYPE];
 extern int *Nwall_this_link;
 extern int **Link_list;
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
 #define NWALL_MAX 600 
 extern double Elec_param_w[NWALL_MAX];
 #if defined(DEC_ALPHA)
@@ -254,30 +261,12 @@ extern int Ipot_ff_n;
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
-#define CMS_GAUSSIAN 1
-#define POLYMER_CR     4
-#define CMS_SCFT     2
-#define CMS          0
-#define DELTA_FN_BOND  7
-#define THETA_FN_SIG   6
 #define WTC          3
+#define CMS_GAUSSIAN 1
 extern int Type_poly;
-#define THETA_CHARGE   3
 extern int Type_coul;
-#define U_ATTRACT      2
 extern int Type_attr;
-#define TRUE  1
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(TRUE) && !defined(_CON_CONST_H_)
-#define TRUE  1
-#endif
-#define THETA_FN       1
-#define DELTA_FN       0
 extern int Type_func;
-#define NSTEN        8
-extern int Sten_Type[NSTEN];
 #define PERIODIC     1
 extern int Type_bc[NDIM_MAX][2];
 #define FALSE 0

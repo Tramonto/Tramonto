@@ -52,3 +52,4 @@ void *array_alloc(...);
 extern int Sten_Choice_S[NSTEN][NZONE_MAX];
 #define DELTA_FN       0
 int get_integration_pts(int isten,int izone,double ***point_ptr,double **wt_ptr);
+void set_gauss_quad(int ngp,double *gp,double *gw);

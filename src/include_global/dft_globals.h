@@ -71,7 +71,6 @@ int     Nodes_plane;     /* # of nodes in the x1-x2 plane      */
 int Nodes_x[NDIM_MAX];   /* Array[Ndim]: # nodes in idim       */
 int Elements_x[NDIM_MAX];/* Array[Ndim]: # elements in idim    */
 int     Max_sten_length[3];  /* The number of nodes in the longest stencil */
-int     Sten_length_hs[3];  /* The number of nodes in the h.s. stencil */
 
 /************** Reference Variables *************************/
 double Length_ref;
