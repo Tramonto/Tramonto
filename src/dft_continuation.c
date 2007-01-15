@@ -505,11 +505,10 @@ static void recalculate_stencils()
 
    for (izone=0; izone<Nzone; izone++){
      for (isten=0; isten<NSTEN; isten++)
+
        if (Sten_Type[isten]) {
-          if (isten == U_ATTRACT || isten == THETA_CHARGE 
-             || isten == POLYMER_CR || (isten==DELTA_FN && (Type_poly==CMS || Type_poly==CMS_SCFT))) jmax = Ncomp;
-          else                                                                     jmax = 1;
-                         
+          jmax = stencil_Njcomp_switch(isten);
+
           for (icomp=0; icomp<Ncomp; icomp++) {
             for (jcomp=0; jcomp<jmax; jcomp++) {
                sten = &(Stencil[isten][izone][icomp+Ncomp*jcomp]);

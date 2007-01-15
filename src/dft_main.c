@@ -479,9 +479,7 @@ void dftmain(double * engptr)
   for (izone=0; izone<Nzone; izone++){
   for (isten=0; isten<NSTEN; isten++)
    if (Sten_Type[isten]==TRUE) {
-     if (isten == U_ATTRACT || isten == THETA_CHARGE || isten == POLYMER_CR) jmax = Ncomp;
-     else if (isten == DELTA_FN && (Type_poly == CMS || Type_poly==CMS_SCFT)) jmax = Ncomp;
-     else  jmax = 1;
+     jmax=stencil_Njcomp_switch(isten);
 
      for (icomp=0; icomp<Ncomp; icomp++) {
        for (jcomp=0; jcomp<jmax; jcomp++) {
