@@ -62,7 +62,6 @@ extern double Rho_b[NCOMP_MAX];
 extern int Nseg_tot;
 extern double Rho_seg_b[NMER_MAX];
 void setup_const_density(double **xOwned,double *rho,int nloop,int index);
-#define WTC          3
-extern int Type_poly;
+extern int Lseg_densities;
 #define CONST_RHO       -3 
 void setup_density(double **xOwned,int iguess);

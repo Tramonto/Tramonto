@@ -34,7 +34,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
 
                   /* set icomp and iseg(WTC) */
    i = iunk-Phys2Unk_first[DENSITY];
-   if (Type_poly==WTC){
+   if (Lseg_densities){
                 iseg=i;
                 icomp=Unk2Comp[iseg];
    }
@@ -115,7 +115,7 @@ int check_zero_density_EL(int iunk, int icomp, int iseg, int loc_inode, int inod
    int zero_density_bond_check,ibond,unk_bond,junk,zero_TF;
    double n;
 
-   /* set a flag for zero density of bond parameters */
+   /* set a flag for zero density of bond parameters only applies when WTC functionals are present.*/
    zero_density_bond_check=FALSE;
    if (Type_poly==WTC){
         for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
@@ -179,7 +179,7 @@ double fill_bulk_density(int iunk, int icomp, int iseg, int loc_inode, int inode
      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
   }
 
-   if (Type_poly==WTC)   resid = -log(Rho_seg_b[iseg]);
+   if (Lseg_densities)   resid = -log(Rho_seg_b[iseg]);
    else                  resid = -log(Rho_b[icomp]);
    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
@@ -216,7 +216,7 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
    resid_mu = 0.0;
    if (Lsteady_state == FALSE) {
       if (Iliq_vap < 10 ){
-         if (Type_poly==WTC)  resid_mu -= log(Rho_seg_b[iseg]);
+         if (Lseg_densities) resid_mu -= log(Rho_seg_b[iseg]);
          else                resid_mu -= log(Rho_b[icomp]);
 
          if (mesh_coarsen_flag_i != FLAG_PBELEC){
@@ -227,12 +227,12 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
          }
       }
       else{
-          if (Type_poly==WTC) resid_mu = -Betamu_seg[iseg];
+          if (Lseg_densities) resid_mu = -Betamu_seg[iseg];
           else                resid_mu = -Betamu[icomp];
       }
    }
    else{                             /* Lsteady_state == TRUE */
-      if(Type_poly==WTC)  junk=Phys2Unk_first[DIFFUSION] + iseg;
+      if(Lseg_densities)  junk=Phys2Unk_first[DIFFUSION] + iseg;
       else                junk=Phys2Unk_first[DIFFUSION] + icomp;
       resid_mu = -x[junk][inode_box];
       if (!resid_only_flag){

@@ -30,6 +30,7 @@ extern double Rho_seg_b[NMER_MAX];
 void rhobar_icomp(double rho,int icomp,double *rhobar);
 extern int Unk2Comp[NMER_MAX];
 extern int Nseg_tot;
+extern int Lseg_densities;
 extern double Dphi_Drhobar_RTF[10];
 extern double Dphi_Drhobar_LBB[10];
 extern double Rhobar_b_RTF[10];

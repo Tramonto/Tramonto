@@ -98,7 +98,7 @@ void setup_polymer_simple(double **xOwned, int iguess)
 	   /* ALF: add Vext to initial guess for field */
 	   temp += Vext[loc_inode][itype_mer];
            /* if (temp > 1.0) temp=1.0;*/
-           if ((Type_poly != NONE && Type_poly != WTC) || (temp > 0.5)) xOwned[iunk][loc_inode] = exp(temp);
+           if ((Type_poly == CMS || Type_poly == CMS_SCFT) || (temp > 0.5)) xOwned[iunk][loc_inode] = exp(temp);
            else                             xOwned[iunk][loc_inode] = exp(1. - sqrt(1.-2.*temp));
         } /* end if i not zero density  */
         else   xOwned[iunk][loc_inode] = DENSITY_MIN; /* zero density - Boltzmann probability = 0 */

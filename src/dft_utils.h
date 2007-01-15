@@ -141,8 +141,7 @@ extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Comp[NMER_MAX];
-#define WTC          3
-extern int Type_poly;
+extern int Lseg_densities;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)

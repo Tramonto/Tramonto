@@ -43,7 +43,7 @@ void  thermodynamics(char *output_file1)
    }
 
     /* first call any functions needed to preprocess global bulk variables associated with the functionals chosen for this run */
-    if (Type_poly==NONE || Type_poly==WTC){
+    if (L_HSperturbation){
        if (Type_poly == WTC) WTC_thermo_precalc(output_file1);   /* do this first to set up segment densities */
        if (Type_func != NONE) HS_thermo_precalc(output_file1); 
        if (Type_attr != NONE ) ATT_thermo_precalc();
@@ -86,7 +86,7 @@ void calc_pressure(char *output_file1)
    fprintf(fp,"\n!!!!!!!!!!!!! output from dft_thermo.c !!!!!!!!!!!!!!!!!!\n");
  
    if (Lsteady_state){          /* CASE WITH DIFFUSION */
-      if (Type_poly ==NONE || Type_poly==WTC){
+      if (L_HSperturbation){
 				/* IDEAL contributions */
           Betap_LBB=pressure_ideal_gas(Rho_b_LBB);
           Betap_RTF=pressure_ideal_gas(Rho_b_RTF);
@@ -124,7 +124,7 @@ void calc_pressure(char *output_file1)
        }    
    }
    else{          		/* CASE WITH NO DIFFUSION */
-      if (Type_poly ==NONE || Type_poly==WTC){
+      if (L_HSperturbation){
 				/* IDEAL contributions */
           Betap=pressure_ideal_gas(Rho_b);
 
@@ -178,7 +178,7 @@ void calc_chempot(char *output_file1)
    }
  
    if (Lsteady_state){          /* CASE WITH DIFFUSION */
-      if (Type_poly ==NONE || Type_poly==WTC){
+      if (L_HSperturbation){
 
 				/* IDEAL contributions */
           chempot_ideal_gas(Rho_b_LBB,Betamu_LBB);
@@ -252,7 +252,7 @@ void calc_chempot(char *output_file1)
        }
    }
    else{          		/* CASE WITH NO DIFFUSION */
-      if (Type_poly ==NONE || Type_poly==WTC){
+      if (L_HSperturbation){
 				/* IDEAL contributions */
           chempot_ideal_gas(Rho_b,Betamu);
           for (icomp=0;icomp<Ncomp;icomp++) Betamu_id[icomp]=Betamu[icomp];

@@ -127,7 +127,7 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
 
    switch(Unk2Phys[iunk]){
        case DENSITY: 
-             if (Type_poly==NONE || Type_poly==WTC) 
+             if (L_HSperturbation) 
                 resid_unk[iunk]=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,x,
                                                     dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
              else                              

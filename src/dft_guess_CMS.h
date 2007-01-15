@@ -61,10 +61,8 @@ extern int Proc;
 #endif
 void setup_polymer_rho(double **xOwned,int iguess);
 #define DENSITY_MIN  1.e-20
-#define WTC          3
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
+#define CMS_SCFT     2
+#define CMS          0
 extern int Type_poly;
 extern double **Vext;
 #define NSTEPS_MAX 10

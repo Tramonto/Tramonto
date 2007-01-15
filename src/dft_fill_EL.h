@@ -74,6 +74,8 @@ double fill_EL_chem_pot(int iunk,int icomp,int iseg,int loc_inode,int inode_box,
 double fill_EL_ideal_gas(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double fill_sym_WTC(int iunk,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern int *Pol_Sym_Seg;
+#define WTC          3
+extern int Type_poly;
 double fill_bulk_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
@@ -90,8 +92,7 @@ double fill_bulk_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 int check_zero_density_EL(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x);
 extern int Unk2Comp[NMER_MAX];
-#define WTC          3
-extern int Type_poly;
+extern int Lseg_densities;
 #define DENSITY        0
 #define NEQ_TYPE       8
 extern int Phys2Unk_first[NEQ_TYPE];

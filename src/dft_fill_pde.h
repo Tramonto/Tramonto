@@ -41,8 +41,7 @@ extern int **Lsemiperm;
 extern int **Wall_elems;
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
-#define WTC          3
-extern int Type_poly;
+extern int Lseg_densities;
 #define NEQ_TYPE       8
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0

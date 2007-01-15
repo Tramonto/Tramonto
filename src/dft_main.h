@@ -94,6 +94,9 @@ void free_mesh_arrays(void);
 void thermodynamics(char *output_file1);
 void calc_stencils(void);
 void calc_HS_diams();
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
 extern int Type_func;
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
@@ -120,10 +123,8 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 extern double ***Rism_cr;
-#define WTC          3
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
+#define CMS_SCFT     2
+#define CMS          0
 extern int Type_poly;
 void pot_parameters(char *output_file1);
 extern int Mix_type;

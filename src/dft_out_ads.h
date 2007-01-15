@@ -50,8 +50,7 @@ extern int Proc;
 #endif
 extern int Ncomp;
 extern int Nseg_tot;
-#define WTC          3
-extern int Type_poly;
+extern int Lseg_densities;
 extern double *Integration_profile;
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)

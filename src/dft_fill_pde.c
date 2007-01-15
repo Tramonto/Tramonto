@@ -392,7 +392,7 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
               * add in source term (electroneutrality sum) 
               */
              for (junk=Phys2Unk_first[DENSITY]; junk<Phys2Unk_last[DENSITY]; junk++){
-               if (Type_poly==WTC) icomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
+               if (Lseg_densities) icomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
                else                icomp=junk-Phys2Unk_first[DENSITY];
  
                if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
@@ -582,7 +582,7 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
               * add in source term (electroneutrality sum) 
               */
              for (junk=Phys2Unk_first[DENSITY]; junk<Phys2Unk_last[DENSITY]; junk++){
-               if (Type_poly==WTC) icomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
+               if (Lseg_densities) icomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
                else                icomp=junk-Phys2Unk_first[DENSITY];
 
                if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;

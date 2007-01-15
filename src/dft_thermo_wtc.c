@@ -216,67 +216,65 @@ void compute_bulk_nonlocal_wtc_properties(char *output_file1)
   }
 
   /* compute bulk nonlocal densities needed for Wertheim-Tripathi-Chapman functionals */
-  if (Type_poly==WTC){  
-     for (i=0; i<4; i++){
-        Xi_cav_b[i]=0.0;
-        Xi_cav_LBB[i]=0.0;
-        Xi_cav_RTF[i]=0.0;
-     }
-     for (icomp=0;icomp<Ncomp;icomp++){
-        for (i=0;i<4;i++){
-           Xi_cav_b[i]+=(PI/6.0)*Rho_b[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
-           if (Lsteady_state){
-             Xi_cav_LBB[i]+=(PI/6.0)*Rho_b_LBB[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
-             Xi_cav_RTF[i]+=(PI/6.0)*Rho_b_RTF[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
-           }
-        }
-     }
-     if (printproc){
-        fprintf(fp2,"Xi_cavity_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-        fprintf(fp2,"\t i  Xi_cav_b[i]  Xi_cav_LBB[i]  Xi_cav_RTF[i]\n");
-        for (i=0;i<4;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 Xi_cav_b[i], Xi_cav_LBB[i], Xi_cav_RTF[i]);
-        if (Iwrite==VERBOSE){
-           printf("Xi_cav_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-           printf("\t i  Xi_cav_b[i]  Xi_cav_LBB[i]  Xi_cav_RTF[i]\n");
-            for (i=0;i<4;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 Xi_cav_b[i], Xi_cav_LBB[i], Xi_cav_RTF[i]);
-        }
-     }
-
-     for (ibond=0; ibond<Nbonds; ibond++){
-       BondWTC_b[ibond]=NO_BOND_PAIR;
-       BondWTC_LBB[ibond]=NO_BOND_PAIR;
-       BondWTC_RTF[ibond]=NO_BOND_PAIR;
-    }
-
-    for (ibond=0; ibond<Nbonds; ibond++){
-        iseg=Unk_to_Seg[ibond];
-        pol_number=Unk_to_Poly[ibond];
-        jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]]/*+SegChain2SegAll[pol_number][0]*/;
-        type_jseg=Type_mer[pol_number][jseg];
-        jseg=SegChain2SegAll[pol_number][jseg];
-        BondWTC_b[ibond]=Rho_seg_b[jseg];
+  for (i=0; i<4; i++){
+     Xi_cav_b[i]=0.0;
+     Xi_cav_LBB[i]=0.0;
+     Xi_cav_RTF[i]=0.0;
+  }
+  for (icomp=0;icomp<Ncomp;icomp++){
+     for (i=0;i<4;i++){
+        Xi_cav_b[i]+=(PI/6.0)*Rho_b[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
         if (Lsteady_state){
-           BondWTC_LBB[ibond]=Rho_seg_LBB[jseg];
-           BondWTC_RTF[ibond]=Rho_seg_RTF[jseg];
+          Xi_cav_LBB[i]+=(PI/6.0)*Rho_b_LBB[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
+          Xi_cav_RTF[i]+=(PI/6.0)*Rho_b_RTF[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
         }
-    }
-    if (printproc){
-        fprintf(fp2,"BondWTC_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-        fprintf(fp2,"\t i  BondWTC_b[i]  BondWTC_LBB[i]  BondWTC_RTF[i]\n");
-        for (i=0;i<Nbonds;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 BondWTC_b[i], BondWTC_LBB[i], BondWTC_RTF[i]);
-        if (Iwrite==VERBOSE){
-           printf("BondWTC_bulk, LBB, and RTF variables for WTC polymer run are:\n");
-           printf("\t i  BondWTC_b[i]  BondWTC_LBB[i]  BondWTC_RTF[i]\n");
-           for (i=0;i<Nbonds;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
-                 BondWTC_b[i], BondWTC_LBB[i], BondWTC_RTF[i]);
-        }
-       fclose(fp2);
      }
+  }
+  if (printproc){
+     fprintf(fp2,"Xi_cavity_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+     fprintf(fp2,"\t i  Xi_cav_b[i]  Xi_cav_LBB[i]  Xi_cav_RTF[i]\n");
+     for (i=0;i<4;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
+              Xi_cav_b[i], Xi_cav_LBB[i], Xi_cav_RTF[i]);
+     if (Iwrite==VERBOSE){
+        printf("Xi_cav_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+        printf("\t i  Xi_cav_b[i]  Xi_cav_LBB[i]  Xi_cav_RTF[i]\n");
+         for (i=0;i<4;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
+              Xi_cav_b[i], Xi_cav_LBB[i], Xi_cav_RTF[i]);
+     }
+  }
 
-  } /* end of Type_poly_WTC rhobars (bulk)*/
+  for (ibond=0; ibond<Nbonds; ibond++){
+    BondWTC_b[ibond]=NO_BOND_PAIR;
+    BondWTC_LBB[ibond]=NO_BOND_PAIR;
+    BondWTC_RTF[ibond]=NO_BOND_PAIR;
+  }
+
+  for (ibond=0; ibond<Nbonds; ibond++){
+     iseg=Unk_to_Seg[ibond];
+     pol_number=Unk_to_Poly[ibond];
+     jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]]/*+SegChain2SegAll[pol_number][0]*/;
+     type_jseg=Type_mer[pol_number][jseg];
+     jseg=SegChain2SegAll[pol_number][jseg];
+     BondWTC_b[ibond]=Rho_seg_b[jseg];
+     if (Lsteady_state){
+        BondWTC_LBB[ibond]=Rho_seg_LBB[jseg];
+        BondWTC_RTF[ibond]=Rho_seg_RTF[jseg];
+     }
+  }
+  if (printproc){
+     fprintf(fp2,"BondWTC_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+     fprintf(fp2,"\t i  BondWTC_b[i]  BondWTC_LBB[i]  BondWTC_RTF[i]\n");
+     for (i=0;i<Nbonds;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
+              BondWTC_b[i], BondWTC_LBB[i], BondWTC_RTF[i]);
+     if (Iwrite==VERBOSE){
+        printf("BondWTC_bulk, LBB, and RTF variables for WTC polymer run are:\n");
+        printf("\t i  BondWTC_b[i]  BondWTC_LBB[i]  BondWTC_RTF[i]\n");
+        for (i=0;i<Nbonds;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
+              BondWTC_b[i], BondWTC_LBB[i], BondWTC_RTF[i]);
+     }
+    fclose(fp2);
+  }
+
   return;
 }
 /*********************************************************************************************/

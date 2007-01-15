@@ -58,6 +58,10 @@ extern double Esize_x[NDIM_MAX];
 int round_to_int(double x);
 #define CMS_G          2 
 extern int Ndim;
+extern int L_HSperturbation;
+#define CMS_SCFT     2
+#define CMS          0
+extern int Type_poly;
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
@@ -75,8 +79,7 @@ extern int Nrho_bar;
 #define POISSON        3
 extern int Ncomp;
 extern int Nseg_tot;
-#define WTC          3
-extern int Type_poly;
+extern int Lseg_densities;
 void check_zero_densities(double **xOwned);
 void communicate_profile(double *x_new,double **xOwned);
 #define FALSE 0

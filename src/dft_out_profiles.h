@@ -42,7 +42,7 @@ extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Nwall;
-#define WTC          3
+extern int L_HSperturbation;
 void print_gofr(char *output_file6);
 extern int Ntype_mer;
 #define NCOMP_MAX 5

@@ -23,6 +23,8 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 double integrand_WTC_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_WTC_freen(int iunk,int inode_box,double **x);
+#define WTC          3
+extern int Type_poly;
 double integrand_surface_charge(int iunk,int inode_box,int iwall,double **x);
 double integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iunk,double **x,double *profile);
 double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
@@ -39,6 +41,9 @@ double integrand_att_freen(int iunk,int inode_box,double **x);
 extern int Type_attr;
 double integrand_hs_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_hs_freen(int iunk,int inode_box,double **x);
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
 extern int Type_func;
 double integrand_vext_freen(int iunk,int inode_box,double **x);
 double integrand_mu_freen_bulk(int iunk,int inode_box,double **x);
@@ -53,15 +58,12 @@ double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **
 extern double Charge_f[NCOMP_MAX];
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
+extern int Lseg_densities;
 #define NEQ_TYPE       8
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];
-#define WTC          3
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
-extern int Type_poly;
+extern int L_HSperturbation;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

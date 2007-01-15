@@ -517,7 +517,7 @@ static void recalculate_stencils()
      for (isten=0; isten<NSTEN; isten++)
        if (Sten_Type[isten]) {
           if (isten == U_ATTRACT || isten == THETA_CHARGE 
-             || isten == POLYMER_CR || (isten==DELTA_FN && (Type_poly != NONE && Type_poly != WTC))) jmax = Ncomp;
+             || isten == POLYMER_CR || (isten==DELTA_FN && (Type_poly==CMS || Type_poly==CMS_SCFT))) jmax = Ncomp;
           else                                                                     jmax = 1;
                          
           for (icomp=0; icomp<Ncomp; icomp++) {
@@ -656,7 +656,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                               for (j=0;j<Nwall_type;j++) Eps_ww[i][j] /= ratio;
                            }
                       }
-                      if (Type_poly !=NONE && Type_poly != WTC) setup_polymer_cr();
+                      if (Type_poly ==CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
                       recalculate_stencils();
                       scale_vext_temp(ratio);
                       break;
@@ -670,7 +670,7 @@ void assign_parameter_tramonto(int cont_type, double param)
 
                          /*Rho_b[0] = (16./18.)*(0.825-Rho_b[2]);
                          Rho_b[1] = (2./18.)*(0.825-Rho_b[2]);*/
-                         if (Type_poly != NONE && Type_poly != WTC) setup_polymer_cr();
+                         if (Type_poly == CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
                          recalculate_stencils();
                          break;
       case CONT_RHO_ALL: 
@@ -823,7 +823,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                                  scale_vext_epswf(ratio,0,iw); 
                              }
                          }
-                         if (Type_poly != NONE && Type_poly != WTC) setup_polymer_cr();
+                         if (Type_poly == CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
                          recalculate_stencils();
                          break;
 
@@ -844,7 +844,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                              }
                            }
                          }
-                         if (Type_poly !=NONE && Type_poly !=WTC) setup_polymer_cr();
+                         if (Type_poly==CMS && Type_poly==CMS_SCFT) setup_polymer_cr();
                          recalculate_stencils();
                          break;
 
@@ -866,7 +866,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                              }
                            }
                          }
-                         if (Type_poly !=NONE && Type_poly !=WTC) setup_polymer_cr();
+                         if (Type_poly==CMS && Type_poly==CMS_SCFT) setup_polymer_cr();
                          recalculate_stencils();
                          break;
 

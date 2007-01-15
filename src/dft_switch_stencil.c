@@ -44,8 +44,8 @@ int stencil_Njcomp_switch(int sten)
 
   switch(sten){
      case DELTA_FN:
-         if (Type_poly!=NONE && Type_poly != WTC) njcomp=StenDelta_BondCMS_Njcomp();
-         else                                     njcomp=StenDelta_R_Njcomp();
+         if (L_HSperturbation) njcomp=StenDelta_R_Njcomp();
+         else                  njcomp=StenDelta_BondCMS_Njcomp();
          break;
      case THETA_FN:
          njcomp=StenTheta_R_Njcomp();
@@ -78,9 +78,9 @@ double stencil_radius_switch(int sten,int icomp,int jcomp)
   double sten_rad;
 
   switch(sten){
-     case DELTA_FN:
-         if (Type_poly!=NONE && Type_poly != WTC) sten_rad=StenDelta_BondCMS_sten_rad(icomp,jcomp);
-         else                                     sten_rad=StenDelta_R_sten_rad(icomp);
+     case DELTA_FN: 
+         if (L_HSperturbation) sten_rad=StenDelta_R_sten_rad(icomp);
+         else                  sten_rad=StenDelta_BondCMS_sten_rad(icomp,jcomp);
          break;
      case THETA_FN:
          sten_rad=StenTheta_R_sten_rad(icomp);
@@ -115,8 +115,8 @@ double stencil_volume_switch(int sten,int icomp,int jcomp)
 
   switch(sten){
      case DELTA_FN:
-         if (Type_poly!=NONE && Type_poly != WTC) sten_vol=StenDelta_BondCMS_sten_vol(icomp,jcomp);
-         else                                     sten_vol=StenDelta_R_sten_vol(icomp);
+         if (L_HSperturbation) sten_vol=StenDelta_R_sten_vol(icomp);
+         else                  sten_vol=StenDelta_BondCMS_sten_vol(icomp,jcomp);
          break;
      case THETA_FN:
          sten_vol=StenTheta_R_sten_vol(icomp);
@@ -155,8 +155,8 @@ double stencil_GetWeight_switch(int sten, int icomp, int jcomp, double rsq,
 
   switch(sten){
      case DELTA_FN:
-         if (Type_poly!=NONE && Type_poly != WTC) weight=StenDelta_BondCMS_GetWeightFromSten(icomp,jcomp,rsq,sten_rad);
-         else                                     weight=StenDelta_R_GetWeightFromSten(rsq,sten_rad);
+         if (L_HSperturbation) weight=StenDelta_R_GetWeightFromSten(rsq,sten_rad);
+         else                  weight=StenDelta_BondCMS_GetWeightFromSten(icomp,jcomp,rsq,sten_rad);
          break;
      case THETA_FN:
          weight=StenTheta_R_GetWeightFromSten(rsq,sten_rad);
@@ -192,8 +192,8 @@ int stencil_quadBoundaryEl_switch(int sten)
 
   switch(sten){
      case DELTA_FN:
-         if (Type_poly!=NONE && Type_poly != WTC) num_quad_pts=StenDelta_BondCMS_NquadPtsBoundary();
-         else                                     num_quad_pts=StenDelta_R_NquadPtsBoundary();
+         if (L_HSperturbation) num_quad_pts=StenDelta_R_NquadPtsBoundary();
+         else                  num_quad_pts=StenDelta_BondCMS_NquadPtsBoundary();
          break;
      case THETA_FN:
          num_quad_pts=StenTheta_R_NquadPtsBoundary();
@@ -229,8 +229,8 @@ int stencil_quadGauss_switch(int sten,double r)
 
   switch(sten){
      case DELTA_FN:
-         if (Type_poly!=NONE && Type_poly != WTC) num_quad_pts=StenDelta_BondCMS_NquadPtsGauss(r);
-         else                                     num_quad_pts=StenDelta_R_NquadPtsGauss(r);
+         if (L_HSperturbation) num_quad_pts=StenDelta_R_NquadPtsGauss(r);
+         else                  num_quad_pts=StenDelta_BondCMS_NquadPtsGauss(r);
          break;
      case THETA_FN:
          num_quad_pts=StenTheta_R_NquadPtsGauss(r);

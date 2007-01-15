@@ -18,6 +18,7 @@ void fill_test(double **x,int flag);
 #define NODAL_FLAG -999
 void fill_resid_and_matrix(double **x,int iter,int resid_only_flag,int unk_flag);
 extern int Nnodes;
+extern int Lseg_densities;
 double gsum_double(double c);
 double gmin_double(double c);
 extern double Min_update_frac;

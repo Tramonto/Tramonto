@@ -409,7 +409,7 @@ void print_gofr(char *output_file6)
 
      ifp = fopen(output_file6,"w");
 
-     if (Type_poly==NONE || Type_poly==WTC) nunk_print = Nunk_per_node;
+     if (L_HSperturbation) nunk_print = Nunk_per_node;
      else nunk_print = 2*Ncomp;
 
      for (iwall=0; iwall<Nwall; iwall++){  /*compute g(r) for different atoms

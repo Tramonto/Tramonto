@@ -81,11 +81,11 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(
 
   sum = 0.0;
   node_box_to_ijk_box(inode_box,ijk_box);
-  if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+  if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
   else                icomp=iunk-Phys2Unk_first[DENSITY];
 
   for (junk=Phys2Unk_first[DENSITY];junk<Phys2Unk_last[DENSITY];junk++){
-     if (Type_poly==WTC) jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
+     if (Lseg_densities) jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
      else                jcomp=junk-Phys2Unk_first[DENSITY];
 
      if (Nlists_HW <= 2) jlist = 0;
@@ -152,11 +152,11 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
       }
   }    
 
-  if (Type_poly==WTC) loop_max=Nseg_tot;
+  if (Lseg_densities) loop_max=Nseg_tot;
   else                loop_max=Ncomp;
 
   for (jloop=0; jloop<loop_max; jloop++){
-      if (Type_poly==WTC) {
+      if (Lseg_densities) {
          jseg=jloop;
          jcomp=Unk2Comp[jseg];
          junk=jseg;
@@ -173,7 +173,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
 
       if (sten_type==U_ATTRACT || sten_type==THETA_CHARGE) {
             i=iunk-Phys2Unk_first[DENSITY];
-            if (Type_poly==WTC) icomp=Unk2Comp[i];
+            if (Lseg_densities) icomp=Unk2Comp[i];
             else icomp=i;
             index=icomp+Ncomp*jcomp;
       }
@@ -359,7 +359,7 @@ double constant_boundary(int iunk,int jnode_box)
     double bcval;
     switch(Unk2Phys[iunk]){
        case DENSITY:
-          if (Type_poly==WTC){
+          if (Lseg_densities){
              if (jnode_box==-1) {
                  bcval=Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
              }
@@ -496,7 +496,7 @@ double integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),
    sum_i=0.0,sum=0.0;
 
    nloop=Ncomp;
-   if (Type_poly==WTC) nloop=Nseg_tot;
+   if (Lseg_densities) nloop=Nseg_tot;
 
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
     inode_box = L2B_node[loc_inode];
@@ -613,7 +613,7 @@ void setup_integrals()
   
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
   
-  if (Type_poly==WTC) nloop=Nseg_tot;
+  if (Lseg_densities) nloop=Nseg_tot;
   else                nloop=Ncomp;
 
   Nel_hit = (int **) array_alloc (2,nloop, Nnodes_box, sizeof(int));
@@ -626,7 +626,7 @@ void setup_integrals()
       
       for (iloop=0; iloop<nloop; iloop++){
       
-         if (Type_poly==WTC) icomp=Unk2Comp[iloop];
+         if (Lseg_densities) icomp=Unk2Comp[iloop];
          else                icomp=iloop;
          
          if (Lhard_surf){

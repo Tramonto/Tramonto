@@ -31,10 +31,8 @@ void setup_rho_bar(double **xOwned);
 #define HSRHOBAR       4
 void setup_density(double **xOwned,int iguess);
 void setup_polymer_rho(double **xOwned,int iguess);
-#define WTC          3
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
+#define CMS_SCFT     2
+#define CMS          0
 extern int Type_poly;
 #define NEQ_TYPE       8
 extern int Phys2Nunk[NEQ_TYPE];

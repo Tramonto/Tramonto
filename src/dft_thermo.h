@@ -69,13 +69,14 @@ void calc_pressure(char *output_file1);
 void ATT_thermo_precalc();
 extern int Type_attr;
 void HS_thermo_precalc(char *output_file1);
-extern int Type_func;
-void WTC_thermo_precalc(char *output_file1);
-#define WTC          3
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+extern int Type_func;
+void WTC_thermo_precalc(char *output_file1);
+#define WTC          3
 extern int Type_poly;
+extern int L_HSperturbation;
 #define NO_SCREEN    2 
 extern int Iwrite;
 extern int Proc;

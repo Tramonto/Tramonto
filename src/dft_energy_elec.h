@@ -53,8 +53,7 @@ extern double Charge_f[NCOMP_MAX];
 #define NEQ_TYPE       8
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Comp[NMER_MAX];
-#define WTC          3
-extern int Type_poly;
+extern int Lseg_densities;
 double integrand_elec_PB_freen(int iunk,int inode_box,double **x);
 double calc_deriv_epot(int,int,int *,double **);
 double calc_deriv_epot(int idim,int inode0,int *int_type,double **x);

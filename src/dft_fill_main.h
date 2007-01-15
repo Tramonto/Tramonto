@@ -39,8 +39,7 @@ extern int Phys2Unk_first[NEQ_TYPE];
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 typedef struct RB_Struct RB_Struct;
 double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
-#define WTC          3
-extern int Type_poly;
+extern int L_HSperturbation;
 #define DENSITY        0
 #define NCOMP_MAX 5
 #define NMER_MAX     100

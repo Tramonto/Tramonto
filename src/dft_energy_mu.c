@@ -43,7 +43,7 @@ double integrand_mu_freen(int iunk,int inode_box, double **x)
         mu_i = x[unk_mu][inode_box];
      }
      else {
-        if (Type_poly==WTC){
+        if (Lseg_densities){
                icomp = Unk2Comp[i];
                mu_i = Betamu_seg[i];
                if (Type_coul != NONE) mu_i -= log(Rho_seg_b[i]);
@@ -71,7 +71,7 @@ double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
      i = iunk-Phys2Unk_first[DENSITY];
 
      if (Lsteady_state){
-        if (Type_poly==WTC){
+        if (Lseg_densities){
                icomp = Unk2Comp[i];
                /*mu_i = Betamu_seg_RTF[i];*/ /* note we need to fix up WTC for diffusion */
                mu_i = Betamu_RTF[i];

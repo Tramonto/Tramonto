@@ -41,7 +41,7 @@ void calc_adsorption(FILE *fp,double **x)
 
 
   Integration_profile=NULL;
-  if (Type_poly==WTC) nloop=Nseg_tot;
+  if (Lseg_densities) nloop=Nseg_tot;
   nloop=Ncomp;
 
   if(!first) {
@@ -49,7 +49,7 @@ void calc_adsorption(FILE *fp,double **x)
   if (Proc==0 &&Iwrite != NO_SCREEN) printf("-------------------- ADSORPTION -------------------------------\n");
   for (icomp=0;icomp<nloop;icomp++) ads[icomp]=0.0;
   for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
-     if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+     if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
      else                icomp = iunk-Phys2Unk_first[DENSITY];
      ads[icomp]+=integrateInSpace(&integrand_adsorption,iunk,Nel_hit2,x,Integration_profile);
   }
@@ -65,9 +65,8 @@ void calc_adsorption(FILE *fp,double **x)
  if(!first) {
   for (icomp=0;icomp<nloop;icomp++) ads_b[icomp]=0.0;
   for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
-     if (Type_poly==WTC)
-           icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
-     else  icomp = iunk-Phys2Unk_first[DENSITY];
+     if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+     else                icomp = iunk-Phys2Unk_first[DENSITY];
      ads_b[icomp]+=integrateInSpace(&integrand_adsorption_bulk,iunk,Nel_hit,x,Integration_profile);
      ads_ex[icomp]=ads[icomp]-ads_b[icomp];
   }
@@ -116,7 +115,7 @@ double integrand_adsorption_bulk(int iunk,int inode_box, double **x)
 {
      double integrand,rho_bulk;
 
-     if (Type_poly==WTC) rho_bulk = Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
+     if (Lseg_densities) rho_bulk = Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
      else                rho_bulk = Rho_b[iunk-Phys2Unk_first[DENSITY]];
 
      integrand = rho_bulk;
@@ -128,7 +127,7 @@ double integrand_fluid_charge(int iunk, int inode_box, double **x)
      double integrand;
      int icomp;
 
-     if (Type_poly==WTC) icomp = Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+     if (Lseg_densities) icomp = Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
      else                icomp = iunk-Phys2Unk_first[DENSITY];
 
      integrand = Charge_f[icomp]*x[iunk][inode_box];

@@ -44,7 +44,7 @@ double integrand_elec_PB_freen(int iunk,int inode_box, double **x)
      double integrand,rho_i,psi_i;
      int icomp,psiunk;
 
-     if (Type_poly==WTC) icomp = Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+     if (Lseg_densities) icomp = Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
      else icomp = iunk-Phys2Unk_first[DENSITY];
      
      rho_i = x[iunk][inode_box];
@@ -72,7 +72,7 @@ double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box, double **x)
      double integrand,rho_bulk;
      int icomp,iseg;
 
-     if (Type_poly==WTC){
+     if (Lseg_densities){
          iseg = iunk-Phys2Unk_first[DENSITY];
          icomp = Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
          if(Lsteady_state) rho_bulk = Rho_seg_RTF[iseg];

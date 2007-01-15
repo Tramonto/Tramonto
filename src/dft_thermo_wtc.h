@@ -36,8 +36,6 @@ extern int Iwrite;
 #endif
 extern double Xi_cav_RTF[4];
 extern double Xi_cav_LBB[4];
-#define WTC          3
-extern int Type_poly;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

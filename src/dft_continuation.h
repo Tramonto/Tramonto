@@ -113,6 +113,9 @@ extern int WallType[NWALL_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int Nseg_tot;
 extern int Npol_comp;
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
 #define CONT_RHO_ALL     3
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
@@ -145,10 +148,8 @@ extern int Lhard_surf;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Ncomp;
-#define WTC          3
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
+#define CMS_SCFT     2
+#define CMS          0
 extern int Type_poly;
 #define DELTA_FN       0
 #define POLYMER_CR     4

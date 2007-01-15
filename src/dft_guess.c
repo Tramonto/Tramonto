@@ -87,7 +87,7 @@ void set_initial_guess (int iguess, double** xOwned)
      switch(i){
          case DENSITY:
            if (Phys2Nunk[DENSITY]>0 && start_no_info){
-               if (Type_poly != NONE && Type_poly !=WTC){
+               if (Type_poly == CMS || Type_poly ==CMS_SCFT){
                    setup_polymer_rho(xOwned,iguess);
                }
                else{

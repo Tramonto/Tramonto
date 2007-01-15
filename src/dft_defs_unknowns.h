@@ -27,8 +27,6 @@ extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ngeqn_tot;
 #define CMS_G          2 
-#define CMS_SCFT     2
-#define CMS          0
 #define CMS_FIELD      1
 extern int Nbonds;
 extern int Nrho_bar_bond;
@@ -38,14 +36,14 @@ extern int Nrho_bar_cavity;
 extern int Lsteady_state;
 extern int Ndiffusion;
 #define DIFFUSION      5
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
 extern int Type_coul;
 extern int Npoisson;
 #define POISSON        3
 extern int Nrho_bar_s;
 extern int Ndim;
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
 extern int Nrho_bar;
@@ -53,9 +51,24 @@ extern int Nrho_bar;
 extern int Ncomp;
 extern int Nseg_tot;
 extern int Phys2Nunk[NEQ_TYPE];
+#define DENSITY        0
+extern int L_HSperturbation;
+#define CMS_SCFT     2
+#define CMS          0
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+#define TRUE  1
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
+extern int Lseg_densities;
 #define WTC          3
 extern int Type_poly;
-#define DENSITY        0
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

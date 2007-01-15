@@ -161,10 +161,10 @@ void read_in_a_file(int iguess,char *filename)
        if (strncmp(unk_char,"DENSITY",5)==0) {
              Restart_field[DENSITY]=TRUE;
              header++;
-             if (Type_poly==WTC) unk_in_file+=Nseg_tot;
+             if (Lseg_densities) unk_in_file+=Nseg_tot;
              else              unk_in_file+=Ncomp;
              unk_start_in_file[DENSITY]=iunk;
-             if (Type_poly==WTC)
+             if (Lseg_densities)
                   for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DENSITY;
              else for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DENSITY;
        }
@@ -206,13 +206,11 @@ void read_in_a_file(int iguess,char *filename)
        else if (strncmp(unk_char,"CHEMPOT",5)==0){
              Restart_field[DIFFUSION]=TRUE;
              header++;
-             if (Type_poly==WTC) unk_in_file+=Nseg_tot;
+             if (Lseg_densities) unk_in_file+=Nseg_tot;
              else              unk_in_file+=Ncomp;
              unk_start_in_file[DIFFUSION]=iunk;
-             if (Type_poly==WTC)
-                 for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
-             else
-                 for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
+             if (Lseg_densities) for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
+             else                for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
        }
        else eq_type=NEQ_TYPE;  /* end loop */
     }
@@ -223,9 +221,9 @@ void read_in_a_file(int iguess,char *filename)
            printf("there is no chemical potential data in the restart file\n");
     if (Type_coul != NONE && Restart_field[POISSON]==FALSE)
            printf("there is no electrostatic potential data in the restart file\n");
-    if (Type_poly != NONE && Type_poly!=WTC && Restart_field[CMS_FIELD]==FALSE)
+    if (Type_poly == CMS || Type_poly==CMS_SCFT && Restart_field[CMS_FIELD]==FALSE)
            printf("there is no CMS field data in the restart file\n");
-    if ((Type_poly==NONE || Type_poly==WTC)  && Restart_field[HSRHOBAR]==FALSE)
+    if (L_HSperturbation && Restart_field[HSRHOBAR]==FALSE)
            printf("there is no Rosenfeld nonlocal density data in the restart file\n");
     if (Restart_field[DENSITY]==FALSE)
            printf("there is no density data in the restart file\n");
@@ -246,7 +244,7 @@ void read_in_a_file(int iguess,char *filename)
 	printf("Can't open file %s\n", filename);
 	exit(1);
       }
-       if (Type_poly != NONE && Type_poly!=WTC){
+       if (Type_poly == CMS || Type_poly==CMS_SCFT){
          sprintf(filename2,"%sg",filename);
 	 if( (fp6=fopen(filename2,"r")) == NULL){
 /*	   printf("Can't open file %s\n", filename2);
@@ -277,7 +275,7 @@ void read_in_a_file(int iguess,char *filename)
 
       dim_tmp=idim;
       ijk_old[dim_tmp] = round_to_int(pos_old/Esize_x[dim_tmp]);
-      if (Type_poly!=NONE && Type_poly!=WTC && Restart_field[CMS_G]==TRUE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
+      if ((Type_poly==CMS || Type_poly==CMS_SCFT) && Restart_field[CMS_G]==TRUE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
 
       if (ijk_old[dim_tmp] > ijk_old_max[dim_tmp]) ijk_old_max[dim_tmp] = ijk_old[dim_tmp];
     }
@@ -321,7 +319,7 @@ void read_in_a_file(int iguess,char *filename)
        else                                  X_old[iunk+node_start]=tmp;
     }
  
-    if (Type_poly != NONE && Type_poly!=WTC && Restart_field[CMS_G]==TRUE){
+    if ( (Type_poly == CMS || Type_poly==CMS_SCFT) && Restart_field[CMS_G]==TRUE){
         for (iunk=Phys2Unk_first[CMS_G];iunk<Phys2Unk_last[CMS_G];iunk++) {
 
          fscanf(fp6,"%lf",&tmp);
@@ -341,7 +339,7 @@ void read_in_a_file(int iguess,char *filename)
     while ((c=getc(fp5)) != EOF && c !='\n') ;
     if (Restart==5 && ijk_old[0]==Nodes_x[0]-1){
        fclose(fp5);
-       if (Type_poly != NONE && Type_poly !=WTC && Restart_field[CMS_G]==TRUE) fclose(fp6);
+       if ((Type_poly == CMS || Type_poly ==CMS_SCFT) && Restart_field[CMS_G]==TRUE) fclose(fp6);
        open_now=TRUE;
 /* if (Proc==0) printf("closing files to read again!\n");*/
     }
@@ -351,7 +349,7 @@ void read_in_a_file(int iguess,char *filename)
   }
   if (Restart!=5){
        fclose(fp5);
-       if (Type_poly != NONE && Type_poly !=WTC && Restart_field[CMS_G]==TRUE) fclose(fp6);
+       if ((Type_poly == CMS || Type_poly ==CMS_SCFT) && Restart_field[CMS_G]==TRUE) fclose(fp6);
   }
   return;
 }
@@ -491,7 +489,7 @@ void check_zero_densities(double **xOwned)
 
   int loc_inode,icomp,inode_box,iunk,iloop,nloop;
 
-  if (Type_poly==WTC) nloop=Nseg_tot;
+  if (Lseg_densities) nloop=Nseg_tot;
   else nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
@@ -502,7 +500,7 @@ void check_zero_densities(double **xOwned)
          if (Zero_density_TF[inode_box][icomp])
                  xOwned[iunk][loc_inode] = 0.0;
          else{
-           if (Type_poly==WTC)
+           if (Lseg_densities)
               if (xOwned[iunk][loc_inode] < Rho_seg_b[iunk]*exp(-VEXT_MAX)) {
                   xOwned[iunk][loc_inode] = Rho_seg_b[iunk]*exp(-VEXT_MAX); /*DENSITY_MIN*/
               }
@@ -550,7 +548,7 @@ void setup_exp_density_with_profile(double **xOwned)
         iunk = icomp+Phys2Unk_first[DENSITY];
         if (Vext[loc_inode][icomp]>0.0) xOwned[iunk][loc_inode] *= exp(-Vext[loc_inode][i]);
 
-/*        if (Type_poly!=NONE && Type_poly!=WTC)
+/*        if (Type_poly==CMS || Type_poly==CMS_SCFT)
         xOwned[i+Phys2Unk_first[CMS_FIELD]][loc_inode] = exp(-log(xOwned[i+Phys2Unk_first[CMS_FIELD]][loc_inode])+Vext[loc_inode][i]);*/
      }
   }

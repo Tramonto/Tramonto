@@ -47,7 +47,7 @@ double integrand_ideal_gas_freen_bulk(int iunk,int inode_box, double **x)
 {
      double integrand,rho_bulk;
 
-     if (Type_poly==WTC) rho_bulk = Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
+     if (Lseg_densities) rho_bulk = Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
      else                rho_bulk = Rho_b[iunk-Phys2Unk_first[DENSITY]];
 
      integrand = rho_bulk*(log(rho_bulk)-1.0);

@@ -22,8 +22,7 @@ extern int **Zero_density_TF;
 #define DENSITY        0
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
-#define WTC          3
-extern int Type_poly;
+extern int Lseg_densities;
 double jac_rho_bar(int junk,int jnode_box,double **x);
 double resid_rho_bar(int junk,int jnode_box,double **x);
 double prefactor_rho_bar_s(int iunk,int jcomp,int *offset);

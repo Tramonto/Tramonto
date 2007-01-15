@@ -236,7 +236,7 @@ double resid_rho_bar(int junk,int jnode_box,double **x)
   double resid;
 
 
-  if (Type_poly==WTC)  jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
+  if (Lseg_densities)  jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
   else                 jcomp=junk-Phys2Unk_first[DENSITY];
 
 
@@ -256,7 +256,7 @@ double jac_rho_bar(int junk,int jnode_box,double **x)
   int jcomp;
   double jac;
 
-  if (Type_poly==WTC)  jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
+  if (Lseg_densities)  jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
   else                 jcomp=junk-Phys2Unk_first[DENSITY];
 
   jac = 1.0;

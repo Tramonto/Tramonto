@@ -36,7 +36,7 @@ double integrand_vext_freen(int iunk,int inode_box, double **x)
      int icomp,iseg,i;
 
      i = iunk-Phys2Unk_first[DENSITY];
-     if (Type_poly==WTC) icomp = Unk2Comp[i];
+     if (Lseg_densities) icomp = Unk2Comp[i];
      else                icomp = i;
 
      rho_i = x[iunk][inode_box];
@@ -52,7 +52,7 @@ double integrand_vext_elec_freen(int iunk,int inode_box, double **x)
      int icomp,iseg,i;
 
      i = iunk-Phys2Unk_first[DENSITY];
-     if (Type_poly==WTC) icomp = Unk2Comp[i];
+     if (Lseg_densities) icomp = Unk2Comp[i];
      else                icomp = i;
 
      rho_i = x[iunk][inode_box];

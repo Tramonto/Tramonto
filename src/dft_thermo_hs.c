@@ -252,14 +252,14 @@ void compute_bulk_FMT_properties(char *output_file1)
      Dphi_Drhobar_RTF[iunk]=0.0;
   }
 
-  if (Type_poly==WTC) nloop=Nseg_tot;
-  else             nloop=Ncomp;
+  if (Lseg_densities) nloop=Nseg_tot;
+  else                nloop=Ncomp;
 
   for (iloop=0; iloop<nloop; iloop++){
-       if (Type_poly==WTC) icomp=Unk2Comp[iloop];
-       else             icomp=iloop;
+       if (Lseg_densities) icomp=Unk2Comp[iloop];
+       else                icomp=iloop;
 
-       if (Type_poly==WTC){
+       if (Lseg_densities){
            rhobar_icomp(Rho_seg_b[iloop],icomp,Rhobar_b);
        }
        else{

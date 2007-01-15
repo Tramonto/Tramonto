@@ -22,8 +22,7 @@ extern double Rho_seg_b[NMER_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 extern int Lsteady_state;
 extern int Unk2Comp[NMER_MAX];
-#define WTC          3
-extern int Type_poly;
+extern int Lseg_densities;
 #define DENSITY        0
 #define NEQ_TYPE       8
 extern int Phys2Unk_first[NEQ_TYPE];

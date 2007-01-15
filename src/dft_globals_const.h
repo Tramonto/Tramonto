@@ -847,6 +847,8 @@ extern int     Type_func;    /* Type of functional for the calculation          
 extern int     Type_attr;    /* Type for handling attractions                       */
 extern int     Type_coul;    /* Type for handling coulomb interactions              */
 extern int     Type_poly;    /* Type for handling polymers                          */
+extern int     Lseg_densities; /* Logical to indicate that segement (rather than component) densities are treated in the code */
+extern int     L_HSperturbation; /* Logical to indicate whether the run is base on perturbation of hard spheres */
 
 /* Hard core type */
 extern double      HS_diam[NCOMP_MAX];  /* Hard sphere diameters for the calculation */

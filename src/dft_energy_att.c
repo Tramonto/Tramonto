@@ -46,7 +46,7 @@ double integrand_att_freen_bulk(int iunk,int inode_box, double **x)
      int icomp,i;
 
      i= iunk-Phys2Unk_first[DENSITY];
-     if (Type_poly==WTC){
+     if (Lseg_densities){
            icomp = Unk2Comp[i];
            if (Lsteady_state) rho_bulk = Rho_seg_RTF[i];
            else rho_bulk = rho_bulk = Rho_seg_b[i];

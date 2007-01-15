@@ -46,16 +46,27 @@ void setup_nunk_per_node(char *output_file1)
     }
   }	
 
+
+  /* seg a couple generic logicals that can be used to toggle between 
+     component and segment densities (Lseg_densities), and Hard-Sphere
+     perturbation DFTs and other types of DFTs (L_HSperturbation) */
+
+  if (Type_poly==WTC) Lseg_densities=TRUE;
+  else Lseg_densities=FALSE;
+
+  if (Type_poly == CMS || Type_poly==CMS_SCFT) L_HSperturbation=FALSE;
+  else L_HSperturbation=TRUE;
+
   for (i=0;i<NEQ_TYPE;i++){
      switch(i){
          case DENSITY:                  /* unknowns of Euler-Lagrange equation */
-            if (Type_poly==WTC) Phys2Nunk[DENSITY]=Nseg_tot;
-            else                Phys2Nunk[DENSITY]=Ncomp;
+            if (Lseg_densities){ Phys2Nunk[DENSITY]=Nseg_tot; }
+            else{                Phys2Nunk[DENSITY]=Ncomp; }
             break;
 
          case HSRHOBAR:     /* unknowns of Nonlocal Density Eqns for Rosenfeld Functionals */
             Nrho_bar = 0;
-            if (Ipot_ff_n != IDEAL_GAS &&( Type_poly == NONE || Type_poly ==WTC)){
+            if (Ipot_ff_n != IDEAL_GAS && L_HSperturbation){
                  Nrho_bar = 4 + 2*Ndim;
                  Nrho_bar_s = 4;
             }
@@ -72,8 +83,8 @@ void setup_nunk_per_node(char *output_file1)
 
          case DIFFUSION:                            /* unknowns of Diffusion Equation */
             Ndiffusion=0;
-            if ( Lsteady_state && (Type_poly==NONE || Type_poly==WTC)){
-              if (Type_poly==WTC) Ndiffusion=Nseg_tot; 
+            if ( Lsteady_state && L_HSperturbation){
+              if (Lseg_densities) Ndiffusion=Nseg_tot; 
               else                Ndiffusion=Ncomp;
             }
             Phys2Nunk[DIFFUSION]=Ndiffusion;

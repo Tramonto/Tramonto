@@ -59,7 +59,7 @@ void setup_density(double **xOwned,int iguess)
 {
     switch(iguess){
       case CONST_RHO:
-            if (Type_poly==WTC){
+            if (Lseg_densities){
                  setup_const_density(xOwned,Rho_seg_b,Nseg_tot,0);
             }
             else              setup_const_density(xOwned,Rho_b,Ncomp,0);
@@ -109,7 +109,7 @@ void setup_const_density(double **xOwned, double *rho,int nloop,int index)
      inode_box = L2B_node[loc_inode];
      for (i=0; i<nloop; i++){
 	 iunk = i+Phys2Unk_first[DENSITY];
-         if (Type_poly==WTC) zeroTF=Zero_density_TF[inode_box][Unk2Comp[i]];
+         if (Lseg_densities) zeroTF=Zero_density_TF[inode_box][Unk2Comp[i]];
          else                zeroTF=Zero_density_TF[inode_box][i];
          if (!zeroTF){
             if (nloop > 1) xOwned[iunk][loc_inode] = rho[i];

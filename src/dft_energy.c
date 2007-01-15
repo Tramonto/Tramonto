@@ -74,7 +74,7 @@ int lfirst;
     if (Proc==0 && fp!=NULL) lfirst = TRUE;
     MPI_Bcast(&lfirst,1,MPI_INT,0,MPI_COMM_WORLD);
 
-    if (Type_poly==NONE || Type_poly ==WTC){
+    if (L_HSperturbation){
                                     /* IDEAL GAS CONTRIBUTIONS */
 
       /* if we are calling this for the first time from the post-processing, don't
@@ -82,7 +82,7 @@ int lfirst;
       if(!first || !lfirst) {
        omega_id=omega_id_b=0.0;
        for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
-	  if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+	  if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
 	  else                icomp=iunk-Phys2Unk_first[DENSITY];
           if (fabs(Charge_f[icomp])<1.e-12){
               omega_id+=integrateInSpace(&integrand_ideal_gas_freen,iunk,Nel_hit2,x,Integration_profile);
