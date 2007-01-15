@@ -103,17 +103,7 @@
  *     application code. Each has its own comments.
  */
 
-/*#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>*/
-
 /* Put include statements for your code here. */
-
-/*#include "dft_globals_const.h"
-#include "dft_basic_lin_prob_mgr_wrapper.h"
-#include "dft_poly_lin_prob_mgr_wrapper.h"
-#include "rf_allo.h"*/
-
 
 /*****************************************************************************/
 

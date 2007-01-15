@@ -47,19 +47,7 @@
  *  initializes some flags based on the input.
  */
 
-
-/*#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
-#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include <mpi.h>*/
-
 #include "dft_input.h"
-
-/* Prototypes for functions found in this file */
-/*void read_junk(FILE *fp, FILE *fp2);  
-void error_check(void);*/
 
 /************** R O U T I N E S   I N   T H E   F I L E ***********************
 *

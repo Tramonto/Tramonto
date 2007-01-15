@@ -26,12 +26,14 @@
 */
 
 /* ---------------------------------------------------------
+dft_utils.c:
+
 Here are some useful routines that are used many times in 
 different places in the DFT code - 
 ------------------------------------------------------------*/
+
 #include "dft_utils.h"
-/*#include <stdio.h>
-#include "dft_globals_const.h"*/
+
 /***********************************************************************
 int_stencil_bulk: this routine sums the appropriate stencil to get
                   the bulk contributions to various terms in the E-L

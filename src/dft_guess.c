@@ -48,10 +48,6 @@
  *
  */
 
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"
-#include <string.h>*/
 #include "dft_guess.h"
  
 void set_initial_guess (int iguess, double** xOwned)

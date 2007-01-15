@@ -19,9 +19,6 @@
  *  into the matrix problem as averages of surrounding nodal values
  */
 
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"*/
 #include "dft_fill_coarse.h"
 
 /********************************************************************/

@@ -48,11 +48,6 @@
  *
  */
 
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"
-#include <string.h>*/
-
 #include "dft_guess_EL_DENSITY.h"
 
 void setup_density(double **xOwned,int iguess)

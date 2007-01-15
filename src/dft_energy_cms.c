@@ -25,10 +25,7 @@
 //@HEADER
 */
 
-/*#include "mpi.h"*/
 #include "dft_energy_cms.h"
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"*/
 
 /****************************************************************************/
 double integrand_CMS_freen(int iunk,int inode_box, double **x)

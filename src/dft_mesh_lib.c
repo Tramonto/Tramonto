@@ -66,17 +66,6 @@
  * ijk_to_node:       given the ijk indexes, find the node number.
  */
 
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"*/
-
-/* Prototypes for functions found in this file (see dft_globals_const.h for
-   remaining prototypes ... they are external functions called from multiple
-   files */
-
-/*int position_to_node(double *);
-int node_box_to_elem_box(int, int);
-void ijk_to_ijk_box_no_bound(int *, int *);*/
-
 #include "dft_mesh_lib.h"
 
 /****************************************************************************/

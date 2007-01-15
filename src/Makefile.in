@@ -95,12 +95,13 @@ am__libdft_a_SOURCES_DIST = ${srcdir}/dft_input.c ${srcdir}/dft_main.c \
 	${srcdir}/dft_mesh.c ${srcdir}/dft_mesh_surfaces.c \
 	${srcdir}/dft_mesh_lib.c ${srcdir}/dft_newton.c \
 	${srcdir}/dft_ldbal.c ${srcdir}/dft_fill_pde.c \
-	${srcdir}/dft_fill_coarse.c ${srcdir}/dft_fill_EL.c \
-	${srcdir}/dft_fill_CMS.c ${srcdir}/dft_physics_FMT1.c \
-	${srcdir}/dft_physics_FMT2.c ${srcdir}/dft_physics_FMT3.c \
-	${srcdir}/dft_defs_stencil.c ${srcdir}/dft_defs_unknowns.c \
-	${srcdir}/dft_quadrature.c ${srcdir}/dft_stencil.c \
-	${srcdir}/dft_stencil_delta_Bond.c \
+	${srcdir}/dft_fill_pde_elec.c \
+	${srcdir}/dft_fill_pde_diffusion.c ${srcdir}/dft_fill_coarse.c \
+	${srcdir}/dft_fill_EL.c ${srcdir}/dft_fill_CMS.c \
+	${srcdir}/dft_physics_FMT1.c ${srcdir}/dft_physics_FMT2.c \
+	${srcdir}/dft_physics_FMT3.c ${srcdir}/dft_defs_stencil.c \
+	${srcdir}/dft_defs_unknowns.c ${srcdir}/dft_quadrature.c \
+	${srcdir}/dft_stencil.c ${srcdir}/dft_stencil_delta_Bond.c \
 	${srcdir}/dft_stencil_delta_R.c \
 	${srcdir}/dft_stencil_delta_bondCMS.c \
 	${srcdir}/dft_stencil_theta_CrCMS.c \
@@ -155,6 +156,7 @@ am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_mesh.$(OBJEXT) dft_mesh_surfaces.$(OBJEXT) \
 	dft_mesh_lib.$(OBJEXT) dft_newton.$(OBJEXT) \
 	dft_ldbal.$(OBJEXT) dft_fill_pde.$(OBJEXT) \
+	dft_fill_pde_elec.$(OBJEXT) dft_fill_pde_diffusion.$(OBJEXT) \
 	dft_fill_coarse.$(OBJEXT) dft_fill_EL.$(OBJEXT) \
 	dft_fill_CMS.$(OBJEXT) dft_physics_FMT1.$(OBJEXT) \
 	dft_physics_FMT2.$(OBJEXT) dft_physics_FMT3.$(OBJEXT) \
@@ -272,6 +274,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_fill_main.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_fill_mf.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_fill_pde.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_fill_pde_diffusion.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_fill_pde_elec.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_fill_wtc.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_guess.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_guess_CHEMPOT.Po \
@@ -358,7 +362,8 @@ am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
 	${srcdir}/dft_input.h ${srcdir}/dft_main.h \
 	${srcdir}/dft_mesh.h ${srcdir}/dft_mesh_surfaces.h \
 	${srcdir}/dft_mesh_lib.h ${srcdir}/dft_newton.h \
-	${srcdir}/dft_fill_pde.h ${srcdir}/dft_fill_coarse.h \
+	${srcdir}/dft_fill_pde.h ${srcdir}/dft_fill_pde_elec.h \
+	${srcdir}/dft_fill_pde_diffusion.h ${srcdir}/dft_fill_coarse.h \
 	${srcdir}/dft_fill_EL.h ${srcdir}/dft_fill_CMS.h \
 	${srcdir}/dft_physics_FMT1.h ${srcdir}/dft_physics_FMT2.h \
 	${srcdir}/dft_physics_FMT3.h ${srcdir}/dft_defs_stencil.h \
@@ -543,6 +548,8 @@ COMMON_H = \
         ${srcdir}/dft_newton.h \
         ${srcdir}/dft_ldbal.h \
         ${srcdir}/dft_fill_pde.h \
+        ${srcdir}/dft_fill_pde_elec.h \
+        ${srcdir}/dft_fill_pde_diffusion.h \
         ${srcdir}/dft_fill_coarse.h \
         ${srcdir}/dft_fill_EL.h \
         ${srcdir}/dft_fill_CMS.h \
@@ -621,6 +628,8 @@ COMMON_C = \
         ${srcdir}/dft_newton.c \
         ${srcdir}/dft_ldbal.c \
         ${srcdir}/dft_fill_pde.c \
+        ${srcdir}/dft_fill_pde_elec.c \
+        ${srcdir}/dft_fill_pde_diffusion.c \
         ${srcdir}/dft_fill_coarse.c \
         ${srcdir}/dft_fill_EL.c \
         ${srcdir}/dft_fill_CMS.c \
@@ -949,6 +958,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_fill_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_fill_mf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_fill_pde.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_fill_pde_diffusion.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_fill_pde_elec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_fill_wtc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_guess.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_guess_CHEMPOT.Po@am__quote@
@@ -1155,6 +1166,38 @@ dft_fill_pde.obj: ${srcdir}/dft_fill_pde.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_fill_pde.Po' tmpdepfile='$(DEPDIR)/dft_fill_pde.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_fill_pde.obj `if test -f '${srcdir}/dft_fill_pde.c'; then $(CYGPATH_W) '${srcdir}/dft_fill_pde.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_fill_pde.c'; fi`
+
+dft_fill_pde_elec.o: ${srcdir}/dft_fill_pde_elec.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_fill_pde_elec.o -MD -MP -MF "$(DEPDIR)/dft_fill_pde_elec.Tpo" -c -o dft_fill_pde_elec.o `test -f '${srcdir}/dft_fill_pde_elec.c' || echo '$(srcdir)/'`${srcdir}/dft_fill_pde_elec.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_fill_pde_elec.Tpo" "$(DEPDIR)/dft_fill_pde_elec.Po"; else rm -f "$(DEPDIR)/dft_fill_pde_elec.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_fill_pde_elec.c' object='dft_fill_pde_elec.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_fill_pde_elec.Po' tmpdepfile='$(DEPDIR)/dft_fill_pde_elec.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_fill_pde_elec.o `test -f '${srcdir}/dft_fill_pde_elec.c' || echo '$(srcdir)/'`${srcdir}/dft_fill_pde_elec.c
+
+dft_fill_pde_elec.obj: ${srcdir}/dft_fill_pde_elec.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_fill_pde_elec.obj -MD -MP -MF "$(DEPDIR)/dft_fill_pde_elec.Tpo" -c -o dft_fill_pde_elec.obj `if test -f '${srcdir}/dft_fill_pde_elec.c'; then $(CYGPATH_W) '${srcdir}/dft_fill_pde_elec.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_fill_pde_elec.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_fill_pde_elec.Tpo" "$(DEPDIR)/dft_fill_pde_elec.Po"; else rm -f "$(DEPDIR)/dft_fill_pde_elec.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_fill_pde_elec.c' object='dft_fill_pde_elec.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_fill_pde_elec.Po' tmpdepfile='$(DEPDIR)/dft_fill_pde_elec.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_fill_pde_elec.obj `if test -f '${srcdir}/dft_fill_pde_elec.c'; then $(CYGPATH_W) '${srcdir}/dft_fill_pde_elec.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_fill_pde_elec.c'; fi`
+
+dft_fill_pde_diffusion.o: ${srcdir}/dft_fill_pde_diffusion.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_fill_pde_diffusion.o -MD -MP -MF "$(DEPDIR)/dft_fill_pde_diffusion.Tpo" -c -o dft_fill_pde_diffusion.o `test -f '${srcdir}/dft_fill_pde_diffusion.c' || echo '$(srcdir)/'`${srcdir}/dft_fill_pde_diffusion.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_fill_pde_diffusion.Tpo" "$(DEPDIR)/dft_fill_pde_diffusion.Po"; else rm -f "$(DEPDIR)/dft_fill_pde_diffusion.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_fill_pde_diffusion.c' object='dft_fill_pde_diffusion.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_fill_pde_diffusion.Po' tmpdepfile='$(DEPDIR)/dft_fill_pde_diffusion.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_fill_pde_diffusion.o `test -f '${srcdir}/dft_fill_pde_diffusion.c' || echo '$(srcdir)/'`${srcdir}/dft_fill_pde_diffusion.c
+
+dft_fill_pde_diffusion.obj: ${srcdir}/dft_fill_pde_diffusion.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_fill_pde_diffusion.obj -MD -MP -MF "$(DEPDIR)/dft_fill_pde_diffusion.Tpo" -c -o dft_fill_pde_diffusion.obj `if test -f '${srcdir}/dft_fill_pde_diffusion.c'; then $(CYGPATH_W) '${srcdir}/dft_fill_pde_diffusion.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_fill_pde_diffusion.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_fill_pde_diffusion.Tpo" "$(DEPDIR)/dft_fill_pde_diffusion.Po"; else rm -f "$(DEPDIR)/dft_fill_pde_diffusion.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_fill_pde_diffusion.c' object='dft_fill_pde_diffusion.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_fill_pde_diffusion.Po' tmpdepfile='$(DEPDIR)/dft_fill_pde_diffusion.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_fill_pde_diffusion.obj `if test -f '${srcdir}/dft_fill_pde_diffusion.c'; then $(CYGPATH_W) '${srcdir}/dft_fill_pde_diffusion.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_fill_pde_diffusion.c'; fi`
 
 dft_fill_coarse.o: ${srcdir}/dft_fill_coarse.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_fill_coarse.o -MD -MP -MF "$(DEPDIR)/dft_fill_coarse.Tpo" -c -o dft_fill_coarse.o `test -f '${srcdir}/dft_fill_coarse.c' || echo '$(srcdir)/'`${srcdir}/dft_fill_coarse.c; \

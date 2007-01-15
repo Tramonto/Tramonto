@@ -47,8 +47,6 @@
  *  matrix for mean field attractions and electrostatics.
  */
 
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"*/
 #include "dft_fill_mf.h"
 
 

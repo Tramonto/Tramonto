@@ -25,15 +25,12 @@
 //@HEADER
 */
 
-/* ---------------------------------------------------------
-Calculate the thermodynamic properties for a charged system where MSA
+/* -----------------------------------------------------------------------------------------
+dft_thermo_elec_MSA.c: Calculate the thermodynamic properties for a charged system where MSA
 corrections are turned on.
-------------------------------------------------------------*/
+--------------------------------------------------------------------------------------------*/
 #include "dft_thermo_elec_MSA.h"
 
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"*/
 /********************************************************************
 chempot_ELEC_MSA: Here we compute the chemical potential contribution due
       to cross correlations between the hard sphere and coulomb parts of 

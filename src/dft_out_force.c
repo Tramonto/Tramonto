@@ -47,23 +47,11 @@
  *
  */
 
-/*#include "mpi.h"
-#include "dft_globals_const.h"
-#include "rf_allo.h"*/
 #include "dft_out_force.h"
 
 #define BFD 0
 #define FFD 1
 #define CFD 2
-
-/*void sum_rho_wall(double **, double **);
-void force_elec(double **, double **);
-void find_pot_derivs(double **,double *);
-double sum_rho_midplane(double **);
-double calc_local_pressure(double **, int, int);
-double calc_deriv(int,int,int,int *,double **,int);
-void find_offset(int, int, int *);
-void integrate_rho_vdash(double **, double **);*/
 
 /**************************************************************************** 
  * calc_force: This routine calculates the contribution to the solvation 

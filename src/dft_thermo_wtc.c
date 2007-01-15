@@ -25,15 +25,13 @@
 //@HEADER
 */
 
-/* ---------------------------------------------------------
+/* ----------------------------------------------------------------------
+dft_thermo_wtc.c:
 Calculate the thermodynamic properties of chain contributions for a 
 Wertheim-Tripathi-Chapman bonded fluid.
-------------------------------------------------------------*/
+-------------------------------------------------------------------------*/
 #include "dft_thermo_wtc.h"
 
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"*/
 /****************************************************************************/
 /* WTC_thermo_precalc: call all routines needed to process bulk properties of 
                           WTC functionals */

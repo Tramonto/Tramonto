@@ -25,10 +25,7 @@
 //@HEADER
 */
 
-/*#include "mpi.h"*/
 #include "dft_energy_elec.h"
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"*/
 
 #define BFD 0
 #define FFD 1

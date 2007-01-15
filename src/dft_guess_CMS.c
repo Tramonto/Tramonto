@@ -33,9 +33,6 @@
  *
  */
 
-/*#include "dft_globals_const.h"
-#include "mpi.h"
-#include <string.h>*/
 #include "dft_guess_CMS.h"
  
 /*********************************************************/

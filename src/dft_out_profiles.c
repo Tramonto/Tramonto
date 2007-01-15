@@ -47,9 +47,6 @@
  *
  */
 
-/*#include "mpi.h"
-#include "dft_globals_const.h"
-#include "rf_allo.h"*/
 #include "dft_out_profiles.h"
 
 /*******************************************************************************

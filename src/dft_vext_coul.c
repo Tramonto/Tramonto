@@ -47,15 +47,7 @@
  *  
  */
 
-/*#include <stdio.h>
-#include "mpi.h"
-#include "dft_globals_const.h"
-#include "rf_allo.h"*/
-
 #include "dft_vext_coul.h"
-
-/* Prototypes for functions found in this file */
-/*void comm_loc_to_glob_vec(int *,int *,int *);*/
 
 #define FLAG_COULOMB 1
 

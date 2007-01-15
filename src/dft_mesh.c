@@ -53,39 +53,6 @@
 
 #include "dft_mesh.h"
 
-/*#include "mpi.h"
-#include "dft_globals_const.h"
-#include "rf_allo.h"*/
-
-/* Prototypes for functions found in this file */
-
-/*void setup_basic_box(FILE *, int *);
-void boundary_properties(FILE *);
-   void find_local_els(int,int *, int *,int);
-   void surf_el_to_list (int, int, int *,int,
-                int, int, int,double,double);
-void setup_surface_charge(FILE *);
-void setup_zeroTF_and_Node2bound (FILE *,int ***);
-void setup_zeroTF_and_Node2bound_new (FILE *,int ***);
-void setup_basic_domain(FILE *);
-
-void zones_el_to_nodes(int *);  
-void set_mesh_coarsen_flag(void);  
-void setup_area_IC(void);
-
-void initialize_Aztec(int *, int *update[]);        
-void MY_read_update(int *N_update, int *update[], int N,
-		    int *nodes_x, int chunk, int input_option);
-
-void bc_setup_const_charge(int,int);
-void els_charge_spheres(double,double *, int *,int *, int *,int);
-void setup_volume_charge1(int);
-void setup_volume_charge2(void);
-void setup_linear_grad_of_charge(void);*/
-
-/*void bc_setup_local_charge(void);*/
-/*void find_lbb_node(int **,double *);*/
-
 /********************** BEGIN EXECUTION ************************************/
 void set_up_mesh (char *output_file1,char *output_file2)
 {

@@ -26,11 +26,6 @@
 */
 
 #include "dft_thermo.h"
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"*/
-
-/*void print_thermo(char *,double,double *);*/
 
 /***************************************************************************************/
 void  thermodynamics(char *output_file1)

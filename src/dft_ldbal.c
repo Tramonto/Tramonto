@@ -39,14 +39,6 @@
    set RCB_CHECK and RCB_STATS at top of rcb.c as desired
 */
 
-/*#include <stdio.h>
-#include <math.h>
-#include <memory.h>
-#include "mpi.h"
-#include "dft_ldbal.h"
-#include "rf_allo.h"
-#include "dft_globals_const.h"*/
-
 #include "dft_ldbal.h"
 
 #define MYHUGE 1.0e30

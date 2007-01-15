@@ -25,14 +25,11 @@
 //@HEADER
 */
 
-/* ---------------------------------------------------------
-Calculate the thermodynamic properties for attractions in the bulk fluid.
-------------------------------------------------------------*/
+/* --------------------------------------------------------------------------------------
+dft_thermo_att.c: Calculate the thermodynamic properties for attractions in the bulk fluid.
+---------------------------------------------------------------------------------------*/
 #include "dft_thermo_att.h"
 
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"*/
 /*************************************************************
 ATT_thermo_precalc: Call any functions to precalculate useful global
                     bulk parameters. */

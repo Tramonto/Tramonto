@@ -51,6 +51,8 @@ COMMON_H = \
         ${srcdir}/dft_newton.h \
         ${srcdir}/dft_ldbal.h \
         ${srcdir}/dft_fill_pde.h \
+        ${srcdir}/dft_fill_pde_elec.h \
+        ${srcdir}/dft_fill_pde_diffusion.h \
         ${srcdir}/dft_fill_coarse.h \
         ${srcdir}/dft_fill_EL.h \
         ${srcdir}/dft_fill_CMS.h \
@@ -129,6 +131,8 @@ COMMON_C = \
         ${srcdir}/dft_newton.c \
         ${srcdir}/dft_ldbal.c \
         ${srcdir}/dft_fill_pde.c \
+        ${srcdir}/dft_fill_pde_elec.c \
+        ${srcdir}/dft_fill_pde_diffusion.c \
         ${srcdir}/dft_fill_coarse.c \
         ${srcdir}/dft_fill_EL.c \
         ${srcdir}/dft_fill_CMS.c \

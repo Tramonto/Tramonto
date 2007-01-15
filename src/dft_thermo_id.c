@@ -25,13 +25,10 @@
 //@HEADER
 */
 
-/* ---------------------------------------------------------
-Calculate the thermodynamic properties of an ideal gas fluid.
-------------------------------------------------------------*/
+/* --------------------------------------------------------------------------
+dft_thermo_id.c: Calculate the thermodynamic properties of an ideal gas fluid.
+-----------------------------------------------------------------------------*/
 #include "dft_thermo_id.h"
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"*/
 
 /******************************************************************************/
 /* pressure_ideal_gas: This routine computes the pressure of an ideal gas at the density of interest */

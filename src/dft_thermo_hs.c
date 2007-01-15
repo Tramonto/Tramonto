@@ -26,6 +26,8 @@
 */
 
 /* ---------------------------------------------------------
+dft_thermo_hs.c:
+
 Routines to Calculate the thermodynamic properties of hard sphere fluids.
 Two routines are included for hard sphere properties -
 (1) is based on the Percus-Yevick compressibilty equation of state.
@@ -33,15 +35,6 @@ the other (2) uses the same notation as the DFT Euler-Lagrange fill later
 in the code.  These should give the same results.
 ------------------------------------------------------------*/
 #include "dft_thermo_hs.h"
-
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"
-
-void rhobar_icomp(double,int, double *);
-void dphi_drb_bulk(double *,double *);*/
-
-
 
 /********************************************************************************
 /*HS_thermo_precalc: logic to control preprocessing of needed parameters when 

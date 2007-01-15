@@ -46,40 +46,13 @@
  *  This file solves the dft problem using Newton's method.
  */
 #include "dft_newton.h"
-/*#include "mpi.h" */
 
-
-
-/*#ifdef HAVE_DFT_SCHUR_SOLVER
-#include "dft_schur_solver.h"
-#endif
-
-#include "dft_globals_const.h" 
-#include "rf_allo.h"*/
-/* #include "dft_basic_lin_prob_mgr_wrapper.h"
-   #include "dft_poly_lin_prob_mgr_wrapper.h" */
-
-/*static void print_resid_norm(int iter);
-void fill_test(double **x, int flag);
-void fix_symmetries(double **x);*/
-
-/*#ifdef HAVE_NOXLOCA
-void NOXLOCA_Solver(double** xBox, double **xOwned);
-#endif*/
-
-
-/*#ifdef NUMERICAL_JACOBIAN
-static void do_numerical_jacobian(double **x);
-#endif*/
-
-
-/* NEWTON SOLVER using dft_Linprobmgr */
+/*******************************************************************************/
 int solve_problem(double **x, double **x2)
 /*
  * x and x2 in dft_main are allocated [Nunk_per_node][Nnodes_box]
  * x2 only relevent for Lbinodal calculations, so can mostly be ignored
  */
-
 {
   int iter,iunk,i;
   double **xOwned, **x2Owned;

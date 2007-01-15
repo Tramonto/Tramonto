@@ -47,14 +47,8 @@
  *
  */
 
-/*#include "mpi.h"
-#include "dft_globals_const.h"
-#include "rf_allo.h"*/
 #include "dft_out_main.h"
-
-/*void print_cont_type(int,FILE *);
-void print_cont_variable(int,FILE *);*/
-
+/*************************************************************************/
 void post_process (double **x,char *output_file3,int *niters,
                    double *time_save, int loop1, int binodal_flag)
 {

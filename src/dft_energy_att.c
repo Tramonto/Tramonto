@@ -25,10 +25,7 @@
 //@HEADER
 */
 
-/*#include "mpi.h"*/
 #include "dft_energy_att.h"
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"*/
 
 /****************************************************************************/
 double integrand_att_freen(int iunk,int inode_box, double **x)

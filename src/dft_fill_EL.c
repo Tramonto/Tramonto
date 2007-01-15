@@ -20,9 +20,6 @@
  *  Jacobian  matrix entries for the euler-lagrange equation.
  */
 
-/*#include "dft_globals_const.h"
-#include "rf_allo.h"
-#include "mpi.h"*/
 #include "dft_fill_EL.h"
 
 /******************************************************************************************/
