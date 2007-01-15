@@ -28,7 +28,6 @@ extern int Type_poly;
 #define NEQ_TYPE       8
 extern int Phys2Unk_first[NEQ_TYPE];
 double integrand_att_freen_bulk(int iunk,int inode_box,double **x);
-extern double Temporary_sum;
 #define U_ATTRACT      2
-void int_stencil(double **x,int inode_box,int iunk,int sten_type);
+double int_stencil(double **x,int inode_box,int iunk,int sten_type);
 double integrand_att_freen(int iunk,int inode_box,double **x);

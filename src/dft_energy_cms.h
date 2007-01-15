@@ -19,11 +19,10 @@ extern int Ncomp;
 extern double Rho_b[NCOMP_MAX];
 double integrand_CMS_freen_bulk(int iunk,int inode_box,double **x);
 extern int Nmer[NCOMP_MAX];
-extern double Temporary_sum;
+#define POLYMER_CR     4
+double int_stencil(double **x,int inode_box,int iunk,int sten_type);
 #define NBLOCK_MAX   5
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
-#define POLYMER_CR     4
-void int_stencil(double **x,int inode_box,int iunk,int sten_type);
 #define DENSITY        0
 #define NEQ_TYPE       8
 extern int Phys2Unk_first[NEQ_TYPE];

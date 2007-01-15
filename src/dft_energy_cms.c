@@ -39,12 +39,12 @@ double integrand_CMS_freen(int iunk,int inode_box, double **x)
      icomp= iunk-Phys2Unk_first[DENSITY];
      rho_i = x[iunk][inode_box];
 
-     int_stencil(x,inode_box,iunk,POLYMER_CR);
-
                                             /* note second term is old adsorption */ 
      pol_number=0;
      while (Nmer_t[pol_number][icomp]==0) pol_number++;
-     if (rho_i > 0.) integrand = 0.5*rho_i*Temporary_sum-rho_i/Nmer[pol_number];
+
+     if (rho_i > 0.) integrand = 0.5*rho_i*int_stencil(x,inode_box,iunk,POLYMER_CR)-rho_i/Nmer[pol_number];
+
      return(integrand);
 }
 /****************************************************************************/

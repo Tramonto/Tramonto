@@ -85,11 +85,9 @@ int lfirst;
 	  if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
 	  else                icomp=iunk-Phys2Unk_first[DENSITY];
           if (fabs(Charge_f[icomp])<1.e-12){
-              integrateInSpace(&integrand_ideal_gas_freen,iunk,Nel_hit2,x,Integration_profile);
-              omega_id+=Temporary_sum;
+              omega_id+=integrateInSpace(&integrand_ideal_gas_freen,iunk,Nel_hit2,x,Integration_profile);
 
-              integrateInSpace(&integrand_ideal_gas_freen_bulk,iunk,Nel_hit,x,Integration_profile);
-              omega_id_b+=Temporary_sum;
+              omega_id_b+=integrateInSpace(&integrand_ideal_gas_freen_bulk,iunk,Nel_hit,x,Integration_profile);
           }
         }
        omega_id_surf_ex = omega_id-omega_id_b;
@@ -103,14 +101,12 @@ int lfirst;
 
                                     /* CHEMICAL POTENTIAL CONTRIBUTIONS */
 
-       integrateInSpace_SumInComp(&integrand_mu_freen,Nel_hit2,x,Integration_profile);
-       omega_mu=Temporary_sum;
+       omega_mu=integrateInSpace_SumInComp(&integrand_mu_freen,Nel_hit2,x,Integration_profile);
        if (Proc==0 && Iwrite != NO_SCREEN){
            print_to_screen(omega_mu,"CHEM.POTENTIAL");
        }
 
-       integrateInSpace_SumInComp(&integrand_mu_freen_bulk,Nel_hit,x,Integration_profile);
-       omega_mu_b=Temporary_sum;
+       omega_mu_b=integrateInSpace_SumInComp(&integrand_mu_freen_bulk,Nel_hit,x,Integration_profile);
        omega_mu_surf_ex = omega_mu-omega_mu_b;
        if (Proc==0 && Iwrite != NO_SCREEN){
             print_to_screen(omega_mu_b,"BULK TERM: CHEM.POTENTIAL");
@@ -120,8 +116,7 @@ int lfirst;
        omega_s_sum += omega_mu_surf_ex;
 
                                     /* NEUTRAL EXTERNAL FIELD CONTRIBUTIONS */
-       integrateInSpace_SumInComp(&integrand_vext_freen,Nel_hit2,x,Integration_profile);
-       omega_vext=Temporary_sum;
+       omega_vext=integrateInSpace_SumInComp(&integrand_vext_freen,Nel_hit2,x,Integration_profile);
        if (Proc==0 && Iwrite != NO_SCREEN){
              print_to_screen(omega_vext,"NEUTRAL EXT.FIELD");
        }
@@ -135,14 +130,12 @@ int lfirst;
 
                                     /* HARD SPHERE CONTRIBUTIONS */
        if (Type_func != NONE){
-          integrateInSpace(&integrand_hs_freen,0,Nel_hit,x,Integration_profile);
-          omega_hs=Temporary_sum;
+          omega_hs=integrateInSpace(&integrand_hs_freen,0,Nel_hit,x,Integration_profile);
           if (Proc==0 && Iwrite != NO_SCREEN){
                print_to_screen(omega_hs,"HARD SPHERE TERM");
           }
 
-          integrateInSpace(&integrand_hs_freen_bulk,0,Nel_hit,x,Integration_profile);
-          omega_hs_b=Temporary_sum;
+          omega_hs_b=integrateInSpace(&integrand_hs_freen_bulk,0,Nel_hit,x,Integration_profile);
           omega_hs_surf_ex = omega_hs-omega_hs_b;
           if (Proc==0 && Iwrite != NO_SCREEN){
               print_to_screen(omega_hs_surf_ex,"SURF.EX.: HARD SPHERE TERM");
@@ -153,14 +146,12 @@ int lfirst;
 
                                     /* ATTRACTION CONTRIBUTIONS */
       if (Type_attr != NONE){
-         integrateInSpace_SumInComp(&integrand_att_freen,Nel_hit2,x,Integration_profile);
-         omega_att = Temporary_sum;
+         omega_att=integrateInSpace_SumInComp(&integrand_att_freen,Nel_hit2,x,Integration_profile);
          if (Proc==0 && Iwrite != NO_SCREEN){
                print_to_screen(omega_att,"ATTRACTIONS");
          }
 
-         integrateInSpace_SumInComp(&integrand_att_freen_bulk,Nel_hit,x,Integration_profile);
-         omega_att_b = Temporary_sum;
+         omega_att_b=integrateInSpace_SumInComp(&integrand_att_freen_bulk,Nel_hit,x,Integration_profile);
          omega_att_surf_ex = omega_att-omega_att_b;
          if (Proc==0 && Iwrite != NO_SCREEN){
                print_to_screen(omega_att_surf_ex,"SURF.EX.: ATTRACTIONS");
@@ -187,8 +178,7 @@ int lfirst;
          /* Reiner and Radke method for computing the free energy of a PB electrolyte near a charged surface */
 
                 /* Maxwell Stress Term */
-         integrateInSpace(&integrand_maxwell_stress_freen,0,Nel_hit,x,Integration_profile); 
-         omega_maxwell_stress = Temporary_sum;
+         omega_maxwell_stress=integrateInSpace(&integrand_maxwell_stress_freen,0,Nel_hit,x,Integration_profile); 
          if (Proc==0 && Iwrite != NO_SCREEN){
              print_to_screen(omega_maxwell_stress,"MAXWELL STRESS TERM");
          }
@@ -201,11 +191,9 @@ int lfirst;
          omega_osmotic_b=0.;
          for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
            if (fabs(Charge_f[iunk-Phys2Unk_first[DENSITY]])>1.e-15){
-              integrateInSpace(&integrand_adsorption,iunk,Nel_hit2,x,Integration_profile);
-              omega_osmotic-=Temporary_sum;
+              omega_osmotic-=integrateInSpace(&integrand_adsorption,iunk,Nel_hit2,x,Integration_profile);
 
-              integrateInSpace(&integrand_adsorption_bulk,iunk,Nel_hit,x,Integration_profile);
-              omega_osmotic_b-=Temporary_sum;
+              omega_osmotic_b-=integrateInSpace(&integrand_adsorption_bulk,iunk,Nel_hit,x,Integration_profile);
            }
          }
          omega_osmotic_surf_ex=omega_osmotic-omega_osmotic_b;
@@ -219,8 +207,7 @@ int lfirst;
 
                 /* surface charge term */
 
-         integrateOverSurface(&integrand_surface_charge,iunk,x,Integration_profile);
-         omega_surface_charge=Temporary_sum;
+         omega_surface_charge=integrateOverSurface(&integrand_surface_charge,iunk,x,Integration_profile);
 
          if (Proc==0 && Iwrite != NO_SCREEN){
                print_to_screen(omega_surface_charge,"SURFACE CHARGE TERM");
@@ -229,8 +216,7 @@ int lfirst;
          omega_s_sum += omega_surface_charge;
 
                                     /* PSI-RHO TERM FROM TANG-DAVIS PAPER */
-/*         integrateInSpace_SumInComp(&integrand_elec_PB_freen,Nel_hit2,x,Integration_profile);
-         omega_psirho = 0.5*Temporary_sum;
+/*       omega_psirho=0.5*integrateInSpace_SumInComp(&integrand_elec_PB_freen,Nel_hit2,x,Integration_profile);
          omega_psirho_surf_ex = omega_psirho; 
          if (Proc==0 && Iwrite != NO_SCREEN){
              print_to_screen(omega_psirho,"PSI*RHO ELEC TERM");
@@ -242,8 +228,7 @@ int lfirst;
                                  /* CHARGED EXTERNAL FIELD CONTRIBUTIONS */
          /* term 2 based on Tang and Davis papers for electrostatics 
          if (Vext_coul != NULL){
-         integrateInSpace_SumInComp(&integrand_vext_elec_freen,Nel_hit2,x,Integration_profile);
-         omega_vext_elec=Temporary_sum;
+         omega_vext_elec=integrateInSpace_SumInComp(&integrand_vext_elec_freen,Nel_hit2,x,Integration_profile);
          if (Proc==0 && Iwrite != NO_SCREEN){
               print_to_screen(omega_vext_elec,"CHARGED EXT.FIELD");
          }
@@ -259,12 +244,10 @@ int lfirst;
 
          /* term 3 based on Tang and Davis papers for electrostatics 
          if (Type_coul == DELTAC){     * MSA CORRECTIONS FOR ELECTROLYTES *
-            integrateInSpace_SumInComp(&integrand_elec_MSAcorr_freen,Nel_hit2,x,Integration_profile);
-            omega_MSA = Temporary_sum;
+            omega_MSA=integrateInSpace_SumInComp(&integrand_elec_MSAcorr_freen,Nel_hit2,x,Integration_profile);
             if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_MSA,"MSA CORRECTIONS");
   
-            integrateInSpace_SumInComp(&integrand_elec_MSAcorr_freen_bulk,Nel_hit,x,Integration_profile);
-            omega_MSA_b = Temporary_sum;
+            omega_MSA_b=integrateInSpace_SumInComp(&integrand_elec_MSAcorr_freen_bulk,Nel_hit,x,Integration_profile);
             omega_MSA_surf_ex = omega_MSA-omega_MSA_b;
             if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_MSA_surf_ex,"SURF.EX.: MSA CORRECTIONS");
   
@@ -276,12 +259,10 @@ int lfirst;
 
                                     /* WTC CONTRIBUTIONS */
        if (Type_poly == WTC){
-          integrateInSpace_SumInComp(&integrand_WTC_freen,Nel_hit2,x,Integration_profile);
-          omega_WTC = Temporary_sum;
+          omega_WTC=integrateInSpace_SumInComp(&integrand_WTC_freen,Nel_hit2,x,Integration_profile);
           if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WTC,"WTC BONDS");
 
-          integrateInSpace_SumInComp(&integrand_WTC_freen_bulk,Nel_hit,x,Integration_profile);
-          omega_WTC_b = Temporary_sum;
+          omega_WTC_b=integrateInSpace_SumInComp(&integrand_WTC_freen_bulk,Nel_hit,x,Integration_profile);
           omega_WTC_surf_ex = omega_WTC-omega_WTC_b;
           if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WTC_surf_ex,"SURF.EX.: WTC BONDS");
 
@@ -309,12 +290,10 @@ int lfirst;
                                     /* CMS FREE ENERGY */
     if (Type_poly == CMS || Type_poly==CMS_SCFT){
       if(!first || !lfirst) {
-       integrateInSpace_SumInComp(&integrand_CMS_freen,Nel_hit2,x,Integration_profile);
-       omega_CMS = Temporary_sum;
+       omega_CMS=integrateInSpace_SumInComp(&integrand_CMS_freen,Nel_hit2,x,Integration_profile);
        if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_CMS,"CMS FREE ENERGY");
 
-       integrateInSpace_SumInComp(&integrand_CMS_freen_bulk,Nel_hit2,x,Integration_profile);
-       omega_CMS_b = Temporary_sum;
+       omega_CMS_b=integrateInSpace_SumInComp(&integrand_CMS_freen_bulk,Nel_hit2,x,Integration_profile);
        omega_CMS_surf_ex = omega_CMS-omega_CMS_b;
        if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_CMS_surf_ex,"CMS FREE ENERGY DELTA");
 

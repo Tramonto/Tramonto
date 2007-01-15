@@ -21,7 +21,7 @@ extern double Rho_seg_b[NMER_MAX];
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 void print_to_screen(double val,char *var_label);
 double integrand_fluid_charge(int iunk,int inode_box,double **x);
-void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **nelhit,double **x,double *profile);
+double integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **nelhit,double **x,double *profile);
 void calc_fluid_charge(FILE *fp,double **x);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
@@ -34,10 +34,9 @@ extern int **Nel_hit;
 double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
 void print_to_screen_comp(int icomp,double val,char *var_label);
-extern double Temporary_sum;
 extern int **Nel_hit2;
 double integrand_adsorption(int iunk,int inode_box,double **x);
-void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
+double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
 extern int Unk2Comp[NMER_MAX];
 #define NEQ_TYPE       8
 extern int Phys2Unk_last[NEQ_TYPE];

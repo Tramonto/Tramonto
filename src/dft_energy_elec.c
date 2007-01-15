@@ -62,8 +62,7 @@ double integrand_elec_MSAcorr_freen(int iunk,int inode_box, double **x)
 
      rho_i = x[iunk][inode_box];
 
-     int_stencil(x,inode_box,iunk,THETA_CHARGE);
-     if (rho_i > 0.0) integrand = -0.5*rho_i*Temporary_sum;
+     if (rho_i > 0.0) integrand = -0.5*rho_i*int_stencil(x,inode_box,iunk,THETA_CHARGE);
      else integrand = 0.0;
      return(integrand);
 }

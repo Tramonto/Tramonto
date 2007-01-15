@@ -44,9 +44,8 @@ extern double Rho_seg_b[NMER_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 extern int Lsteady_state;
 double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box,double **x);
-extern double Temporary_sum;
 #define THETA_CHARGE   3
-void int_stencil(double **x,int inode_box,int iunk,int sten_type);
+double int_stencil(double **x,int inode_box,int iunk,int sten_type);
 double integrand_elec_MSAcorr_freen(int iunk,int inode_box,double **x);
 extern double Charge_f[NCOMP_MAX];
 #define POISSON        3

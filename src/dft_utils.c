@@ -66,7 +66,7 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(
 }
 /*******************************************************************************/
 /*int_stencil: Perform the integral sum(j)int rho_j(r')*weight[sten] */
- void int_stencil(double **x,int inode_box,int iunk,int sten_type)
+ double int_stencil(double **x,int inode_box,int iunk,int sten_type)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
   int j,jcomp,junk,icomp,jlist;
@@ -118,8 +118,7 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(
 
      }  /* end of loop over isten */
   }     /* end of loop over jcomp */
-  Temporary_sum=sum;
-  return;
+  return(sum);
 }
 /****************************************************************************/
 double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk, 
@@ -460,7 +459,7 @@ void solutionVec_to_nOrdering(double *rhoBar_SVOrdering, double *n)
   return;
 }
 /*****************************************************************************************************/
-void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,
+double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,
                                                 int **nelhit,double **x,double *profile)
 {
 
@@ -484,11 +483,10 @@ void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,
   }
   else sum *= Fac_vol;
 
-  Temporary_sum=sum;
-  return;
+  return(sum);
 }
 /*****************************************************************************************************/
-void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),
+double integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),
                                                 int **nelhit,double **x,double *profile)
 {
 
@@ -522,11 +520,10 @@ void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double**),
   else{
       sum*= Fac_vol;
   }
-  Temporary_sum=sum;
-  return;
+  return(sum);
 }
 /*****************************************************************************************************/
-void integrateOverSurface(double(*fp_integrand)(int,int,int,double **), int iunk, double **x, double *profile)
+double integrateOverSurface(double(*fp_integrand)(int,int,int,double **), int iunk, double **x, double *profile)
 {
 
   double sum,sum_i,integrand,fac;
@@ -560,8 +557,7 @@ void integrateOverSurface(double(*fp_integrand)(int,int,int,double **), int iunk
   }
   else sum *= Fac_vol;
 
-  Temporary_sum=sum;
-  return;
+  return(sum);
 }
 /*****************************************************************************************************/
 /*setup_domain_multipliers: Here compute area and Fac_vol and Fac_area that

@@ -51,8 +51,7 @@ void calc_adsorption(FILE *fp,double **x)
   for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
      if (Type_poly==WTC) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
      else                icomp = iunk-Phys2Unk_first[DENSITY];
-     integrateInSpace(&integrand_adsorption,iunk,Nel_hit2,x,Integration_profile);
-     ads[icomp]+=Temporary_sum;
+     ads[icomp]+=integrateInSpace(&integrand_adsorption,iunk,Nel_hit2,x,Integration_profile);
   }
   }
 
@@ -69,8 +68,7 @@ void calc_adsorption(FILE *fp,double **x)
      if (Type_poly==WTC)
            icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
      else  icomp = iunk-Phys2Unk_first[DENSITY];
-     integrateInSpace(&integrand_adsorption_bulk,iunk,Nel_hit,x,Integration_profile);
-     ads_b[icomp]+=Temporary_sum;
+     ads_b[icomp]+=integrateInSpace(&integrand_adsorption_bulk,iunk,Nel_hit,x,Integration_profile);
      ads_ex[icomp]=ads[icomp]-ads_b[icomp];
   }
  }
@@ -89,17 +87,18 @@ void calc_adsorption(FILE *fp,double **x)
 void calc_fluid_charge(FILE *fp,double **x)
 {
  static int first=TRUE;
+ double charge;
 
  if(!first) {
    if (Proc==0&&Iwrite != NO_SCREEN) printf("-------------------- CHARGE     -------------------------------\n");
    Integration_profile=NULL;
 
-   integrateInSpace_SumInComp(&integrand_fluid_charge,Nel_hit2,x,Integration_profile);
+   charge=integrateInSpace_SumInComp(&integrand_fluid_charge,Nel_hit2,x,Integration_profile);
  }
 
  if (Proc==0 && Iwrite != NO_SCREEN){
-      if(!first) print_to_screen(Temporary_sum,"CHARGE IN FLUID");
-      if (fp !=NULL) print_to_file(fp,Temporary_sum,"charge",first);
+      if(!first) print_to_screen(charge,"CHARGE IN FLUID");
+      if (fp !=NULL) print_to_file(fp,charge,"charge",first);
       if(!first) printf("---------------------------------------------------------------\n");
  }
  if (first) first=FALSE;

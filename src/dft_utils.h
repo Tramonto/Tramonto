@@ -55,8 +55,8 @@ extern int Type_bc[NDIM_MAX][2];
 extern int Nodes_x[NDIM_MAX];
 extern int *L2G_node;
 void node_to_ijk(int node,int *ijk);
-void integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iunk,double **x,double *profile);
-void integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **nelhit,double **x,double *profile);
+double integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iunk,double **x,double *profile);
+double integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **nelhit,double **x,double *profile);
 extern double Fac_area;
 extern double Fac_vol;
 extern double Area;
@@ -64,7 +64,7 @@ extern int Lper_area;
 double gsum_double(double c);
 extern double Vol_el;
 extern int *L2B_node;
-void integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
+double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
 extern int Nrho_bar_s;
 void solutionVec_to_nOrdering(double *rhoBar_SVOrdering,double *n);
 extern int Nnodes;
@@ -128,7 +128,6 @@ extern int Nseg_tot;
 #define FLAG_BULK   -888
 int find_jzone(int izone,int inode_box);
 double resid_and_Jac_sten_fill_sum_Ncomp(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag,int jzone_flag,double(*fp_prefactor)(int,int,int *),double(*fp_resid)(int,int,double **),double(*fp_jacobian)(int,int,double **));
-extern double Temporary_sum;
 double constant_boundary(int iunk,int jnode_box);
 extern int Nnodes_box;
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
@@ -149,7 +148,7 @@ void node_box_to_ijk_box(int node_box,int *ijk_box);
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-void int_stencil(double **x,int inode_box,int iunk,int sten_type);
+double int_stencil(double **x,int inode_box,int iunk,int sten_type);
 extern double Esize_x[NDIM_MAX];
 extern int Ndim;
 extern int Ncomp;

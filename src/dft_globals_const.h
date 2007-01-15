@@ -947,7 +947,6 @@ extern int Unk2Comp[NMER_MAX];
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
-extern double Temporary_sum;
 
 /*********************************************************************/
 extern double Ads[NCOMP_MAX][2];

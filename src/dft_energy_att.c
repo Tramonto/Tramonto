@@ -36,8 +36,7 @@ double integrand_att_freen(int iunk,int inode_box, double **x)
      double integrand=0.0,rho_i;
      rho_i = x[iunk][inode_box];
 
-     int_stencil(x,inode_box,iunk,U_ATTRACT);
-     if (rho_i > 0.) integrand = 0.5*rho_i*Temporary_sum;
+     if (rho_i > 0.) integrand = 0.5*rho_i*int_stencil(x,inode_box,iunk,U_ATTRACT);
      return(integrand);
 }
 /****************************************************************************/
