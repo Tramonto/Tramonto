@@ -430,8 +430,8 @@ cleanUp();
                 close README;
                 
                 # grab "Key Output Parameters section
-                if ($readme =~ m/Key Output Parameters( \(Solution \d\))?:(.*)$/s) {
-                    my $keyParamsString = $2;
+                if ($readme =~ m/Key Output Parameters.*?:(.*?)(Key Output Parameters.*)?$/s) {
+                    my $keyParamsString = $1;
                     $keyParamsString =~ s/#.*$//mg;  # remove comments
                     my @keyParams = ();
                     my @lines = $keyParamsString =~ m/^(.*)$/mg;
@@ -446,18 +446,52 @@ cleanUp();
                     open (DFT_OUTPUT, "<dft_output.dat")
                       or die "Can't open dft_output.dat, died";
 
-                    # Read dft_output.dat into one string.
-                    undef $/;
+                    # Skip the first line of dft_output.dat and grab the 
+                    # second.
                     my $dftOutput=<DFT_OUTPUT>;
-                    $/ = "\n";
+                    $dftOutput=<DFT_OUTPUT>;
                     close DFT_OUTPUT;
+
+                    my @outputValues = $dftOutput =~ m/(-?[0-9.]+)/g;
 
                     my $misses = 0;
                     foreach my $keyParam (@keyParams) {
-                      if ($dftOutput !~ m/\s$keyParam\s/) {
-                        $misses++;
+
+                      # keyParam is an integer, so assume it is
+                      # niters and require its presence in the first
+                      # line of dft_output.dat to anything under +2.
+                      if ($keyParam !~ m/\./) {
+                        my $found = 0;
+                        foreach my $outputValue (@outputValues) {
+                          # only compare against an integer
+                          if ($outputValue !~ m/\./) {
+                            if ($keyParam < ($outputValue+2)) {
+                              $found++;
+                            }
+                          }
+                        }
+                        if (!$found) { $misses++; }
                       }
-                    }
+
+                      # keyParam is not an integer, so compare it to each of 
+                      # the non-integers in the first line of output in 
+                      # dft_output.dat and ensure it matches one of them 
+                      # within 10e-5.
+                      else {
+                        my $found = 0;
+                        foreach my $outputValue (@outputValues) {
+                          # only compare against non-integers
+                          if ($outputValue =~ m/\./) {
+                            my $diff = abs($keyParam - $outputValue);
+                            if ($diff < 0.00001) {
+                              $found++;
+                            }
+                          }
+                        }
+                        if (!$found) { $misses++; }
+                      }
+
+                    } # foreach keyParam
 
                     if ($misses) {
                       $exampleExitStatus = $misses;
