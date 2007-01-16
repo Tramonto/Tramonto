@@ -25,11 +25,11 @@
 //@HEADER
 */
 
-/*  file dft_stencil_delta_BondCMS.c: contains functions that set up properties
+/*  file dft_stencil_delta_bondCMS.c: contains functions that set up properties
     of a delta function stencil with a range of the bond length of the polymers
     in a CMS DFT calculations */
 
-#include "dft_stencil_delta_BondCMS.h"
+#include "dft_stencil_delta_bondCMS.h"
 /*********************************************************************/
 double StenDelta_BondCMS_sten_rad(int icomp,int jcomp)
 { return(Bond_ff[icomp][jcomp]); }
