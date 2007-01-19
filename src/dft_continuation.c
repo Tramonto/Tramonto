@@ -1230,7 +1230,7 @@ void solution_output_conwrap(int num_soln_flag, double *x, double param,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-// Get around some C++ vs C linkage issue
+/* Get around some C++ vs C linkage issue */
 double calc_free_energy_conwrap(double **xB)
 { return calc_free_energy(NULL, xB); }
 
