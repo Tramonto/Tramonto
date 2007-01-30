@@ -21,6 +21,27 @@ RUN (beowulf-nightly) {
 
 ###############################################################################
 #
+# beowulf coverage 
+#
+###############################################################################
+
+RUN (beowulf-coverage) {
+    
+    BUILD-LABEL         = coverage;
+    BUILD-DIR           = COVERAGE;
+    INVOKE-CONFIGURE    = linux-beowulf-coverage;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 16;
+    MPI-START           = lamboot /home/mnphenow/.lamhosts;
+    MPI-PING            = mpitask;
+    MPI-STOP            = lamhalt;    
+    TTR-DIR             = /common/TramontoTestHarness/TramontoTestResults;
+    SSG-USERNAME        = mnpheno;
+
+}
+
+###############################################################################
+#
 # macOSX-intel on command
 #
 ###############################################################################
