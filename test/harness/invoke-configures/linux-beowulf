@@ -1,2 +1,2 @@
 ../configure \
---with-trilinos="/common/TramontoTestHarness/Trilinos/MPI_INSTALL"
+--with-trilinos="/common/TramontoTestHarness/trilinos-7.0.4/MPI_INSTALL"
