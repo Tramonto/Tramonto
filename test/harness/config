@@ -9,7 +9,6 @@ RUN (beowulf-nightly) {
     BUILD-LABEL         = default;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = linux-beowulf;
-    BUILD-ONLY          = YES;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 16;
     MPI-START           = lamboot /home/mnphenow/.lamhosts;
