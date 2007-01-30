@@ -443,59 +443,70 @@ cleanUp();
                     }
 
                     # Open dft_output.dat for reading.
-                    open (DFT_OUTPUT, "<dft_output.dat")
-                      or die "Can't open dft_output.dat, died";
+		    #
+		    # If there is no dft_output.dat file, we have to assume that
+		    # the example terminated in a non-standard (read: 
+		    # catastrophic) way.  Gracefully handle the fact that there
+		    # is no dft_output.dat file.
+                    if (!open (DFT_OUTPUT, "<dft_output.dat")) {
+                      $message = "\n\n! Can't open dft_output.dat !\n\n";
+                      printMessage($message, $v1+$v2+$v3);
+		    }
 
-                    # Skip the first line of dft_output.dat and grab the 
-                    # second.
-                    my $dftOutput=<DFT_OUTPUT>;
-                    $dftOutput=<DFT_OUTPUT>;
-                    close DFT_OUTPUT;
+		    # If there IS a dft_output.dat file, proceed normally:
+		    else { 
 
-                    my @outputValues = $dftOutput =~ m/(-?[0-9.]+)/g;
+		      # Skip the first line of dft_output.dat and grab the 
+		      # second.
+		      my $dftOutput=<DFT_OUTPUT>;
+		      $dftOutput=<DFT_OUTPUT>;
+		      close DFT_OUTPUT;
 
-                    my $misses = 0;
-                    foreach my $keyParam (@keyParams) {
+		      my @outputValues = $dftOutput =~ m/(-?[0-9.]+)/g;
 
-                      # keyParam is an integer, so assume it is
-                      # niters and require its presence in the first
-                      # line of dft_output.dat to anything under +2.
-                      if ($keyParam !~ m/\./) {
-                        my $found = 0;
-                        foreach my $outputValue (@outputValues) {
-                          # only compare against an integer
-                          if ($outputValue !~ m/\./) {
-                            if ($keyParam < ($outputValue+2)) {
-                              $found++;
-                            }
-                          }
-                        }
-                        if (!$found) { $misses++; }
-                      }
+		      my $misses = 0;
+		      foreach my $keyParam (@keyParams) {
 
-                      # keyParam is not an integer, so compare it to each of 
-                      # the non-integers in the first line of output in 
-                      # dft_output.dat and ensure it matches one of them 
-                      # within 10e-5.
-                      else {
-                        my $found = 0;
-                        foreach my $outputValue (@outputValues) {
-                          # only compare against non-integers
-                          if ($outputValue =~ m/\./) {
-                            my $diff = abs($keyParam - $outputValue);
-                            if ($diff < 0.00001) {
-                              $found++;
-                            }
-                          }
-                        }
-                        if (!$found) { $misses++; }
-                      }
+			# keyParam is an integer, so assume it is
+			# niters and require its presence in the first
+			# line of dft_output.dat to anything under +2.
+			if ($keyParam !~ m/\./) {
+			  my $found = 0;
+			  foreach my $outputValue (@outputValues) {
+			    # only compare against an integer
+			    if ($outputValue !~ m/\./) {
+			      if ($keyParam < ($outputValue+2)) {
+				$found++;
+			      }
+			    }
+			  }
+			  if (!$found) { $misses++; }
+			}
 
-                    } # foreach keyParam
+			# keyParam is not an integer, so compare it to each of 
+			# the non-integers in the first line of output in 
+			# dft_output.dat and ensure it matches one of them 
+			# within 10e-5.
+			else {
+			  my $found = 0;
+			  foreach my $outputValue (@outputValues) {
+			    # only compare against non-integers
+			    if ($outputValue =~ m/\./) {
+			      my $diff = abs($keyParam - $outputValue);
+			      if ($diff < 0.00001) {
+				$found++;
+			      }
+			    }
+			  }
+			  if (!$found) { $misses++; }
+			}
 
-                    if ($misses) {
-                      $exampleExitStatus = $misses;
-                    }
+		      } # foreach keyParam
+
+		      if ($misses) {
+			$exampleExitStatus = $misses;
+		      }
+		    } # else (dft_output.dat)
                     
                 } else {
                     $exampleExitStatus = -1;    
@@ -541,18 +552,18 @@ cleanUp();
             $/ = "\n";                     # restore it to default newline
             close README;
                 
-	        # Open dft_output.dat for reading.
-	        open (DFT_OUTPUT, "<dft_output.dat")
-	          or die "Can't open dft_output.dat, died";
+	    # Open dft_output.dat for reading (if present).
+	    my $dftOutput = "";
+	    if (open (DFT_OUTPUT, "<dft_output.dat")) {
+	      # Read dft_output.dat into one string.
+	      undef $/;
+	      $dftOutput=<DFT_OUTPUT>;
+	      $/ = "\n";
+	      close DFT_OUTPUT;
 
-	        # Read dft_output.dat into one string.
-	        undef $/;
-	        my $dftOutput=<DFT_OUTPUT>;
-	        $/ = "\n";
-	        close DFT_OUTPUT;
-
-            # Rename dft_output.dat file for archival purposes
-            system("mv dft_output.dat dft_output_$exampleStartTimeForFilename.dat");
+	      # Rename dft_output.dat file for archival purposes
+	      system("mv dft_output.dat dft_output_$exampleStartTimeForFilename.dat");
+	    }
 
             # Grab timing info
             $exampleOutput =~ m/^TOTAL TIME\s+\S+\s+([0-9.]+)\s*$/m;
