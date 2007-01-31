@@ -17,6 +17,6 @@ Key Output Parameters:
    - niter=5 
    - adsorption=3.525616
    - energy=2.393064
-   - force=5.022083
+   - force=-5.022083
    .
 */
