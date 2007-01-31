@@ -10,9 +10,11 @@
 
 ************ FUNCTIONAL SWITCHES *********************************************
 @ -1 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) 
-@ 0 	Type_attr (-1=No attractions, 0=strict MF) 
+@ 0 0 	Type_attr Type_pairPot 
+            (Type_attr options: -1=No attractions, 0=strict MF) 
+            (Type_pairPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
 @ -1 	Type_coul (-1=No coulomb, 0=strict MF, 1=include 2nd order corrections) 
-@ 0 	Type_poly (-1=No polymer, 0=CMS, 1=CMS_GAUSSIAN, 2=CMS_SCFT, 3=WTC) 
+@ 0 	Type_poly (-1=No polymer, 0=CMS, 1=CMS_SCFT, 2=WTC) 
 @ 0 	Lcompare_fastram 
 
 ************** SURFACE PARAMETERS **********************************************
@@ -49,11 +51,19 @@
                            5=numerically integrated LJ12_6 interactions, 
                            6=ATOMIC potential (e.g. LJ12-6)
 
+@  0 0    Type_vext1D,  Type_vext3D
+          (Type_vext1D options: 0=LJ9_3_CS,  1=LJ9_3_v2_CS, 2=LJ9_3_noCS, 3=LJ9_3_shiftX_CS
+           4=REPULSIVE9_noCS, 5=EXP_ATT_noCS)
+          (Type_vext3D options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
+
 @ 0 	Type of wall-wall interactions::Ipot_ww_n[iwall_type][jwall_type] 
                            (-2 : set all array to 0
                             -1 : set all array to 1
                              0 : No interactions
                              1 : Compute interactions of atom centers LJ+COULOMB)
+
+@  0     Type_uwwPot  
+          (Type_uwwPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
 
 ************** FLUID INTERACTION PARAMETERS  ************************************
 @ 3 1 	Ncomp Mix_type (0=L-B Rules, 1=manual input) 
@@ -88,7 +98,7 @@
 @ 8 2 8 1 	block[pol_number][iblock]: Number of segments in each block 
 @ 0 1 0 2 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
 @ lin_18_1	poly_file: File containing polymer connectivity 
-@ 1 1.0 cr8.2.8_0.375_1_0.375	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
+@ 1 1.0 	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
                  NCrfiles (number of cr files - up to 4 to be read in)
                  Crfac (multiplicative factor for the first c(r).
                         The second c(r) is multiplied by (1.-crfac)
