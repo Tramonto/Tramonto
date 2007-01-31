@@ -15,7 +15,6 @@
             (Type_pairPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
 @ -1 	Type_coul (-1=No coulomb, 0=strict MF, 1=include 2nd order corrections) 
 @ -1 	Type_poly (-1=No polymer, 0=CMS, 1=CMS_SCFT, 2=WTC) 
-@ 0 	Lcompare_fastram 
 
 ************** SURFACE PARAMETERS **********************************************
 @ 1 2 2 0 0 	Nwall_types Nwall Nlink Lauto_center Lauto_size 
@@ -51,7 +50,10 @@
                            5=numerically integrated LJ12_6 interactions, 
                            6=ATOMIC potential (e.g. LJ12-6)
 
-@  0 0    Type_vext1D,  Type_vext3D
+@  0    Lhard_surf (Logical that controls application of integration stencil at the boundaries. If
+                   TRUE (1), the step function at the boundary is treated carefully).
+
+@ 0 0 	Type_vext1D, Type_vext3D 
           (Type_vext1D options: 0=LJ9_3_CS,  1=LJ9_3_v2_CS, 2=LJ9_3_noCS, 3=LJ9_3_shiftX_CS
            4=REPULSIVE9_noCS, 5=EXP_ATT_noCS)
           (Type_vext3D options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
@@ -62,7 +64,7 @@
                              0 : No interactions
                              1 : Compute interactions of atom centers LJ+COULOMB)
 
-@  0     Type_uwwPot  
+@ 0 	Type_uwwPot 
           (Type_uwwPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
 
 ************** FLUID INTERACTION PARAMETERS  ************************************

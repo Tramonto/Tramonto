@@ -10,12 +10,11 @@
 
 ************ FUNCTIONAL SWITCHES *********************************************
 @ -1 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) 
-@ 0 0 0 	Type_attr Type_pairPot 
+@ 0 0 	Type_attr Type_pairPot 
             (Type_attr options: -1=No attractions, 0=strict MF) 
             (Type_pairPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
 @ 0 	Type_coul (-1=No coulomb, 0=strict MF, 1=include 2nd order corrections) 
 @ 0 	Type_poly (-1=No polymer, 0=CMS, 1=CMS_SCFT, 2=WTC) 
-@ 0 	Lcompare_fastram 
 
 ************** SURFACE PARAMETERS **********************************************
 @ 0 0 0 0 0 	Nwall_types Nwall Nlink Lauto_center Lauto_size 
@@ -51,35 +50,38 @@
                            5=numerically integrated LJ12_6 interactions, 
                            6=ATOMIC potential (e.g. LJ12-6)
 
-@  0 0    Type_vext1D,  Type_vext3D
+@  0    Lhard_surf (Logical that controls application of integration stencil at the boundaries. If
+                   TRUE (1), the step function at the boundary is treated carefully).
+
+@ 0 0 	Type_vext1D, Type_vext3D 
           (Type_vext1D options: 0=LJ9_3_CS,  1=LJ9_3_v2_CS, 2=LJ9_3_noCS, 3=LJ9_3_shiftX_CS
            4=REPULSIVE9_noCS, 5=EXP_ATT_noCS)
           (Type_vext3D options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
 
-@ 0 0 	Type of wall-wall interactions::Ipot_ww_n[iwall_type][jwall_type] 
+@ 0 	Type of wall-wall interactions::Ipot_ww_n[iwall_type][jwall_type] 
                            (-2 : set all array to 0
                             -1 : set all array to 1
                              0 : No interactions
                              1 : Compute interactions of atom centers LJ+COULOMB)
 
-@  0     Type_uwwPot  
+@ 0 	Type_uwwPot 
           (Type_uwwPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB)
 
 ************** FLUID INTERACTION PARAMETERS  ************************************
-@ 0 	Ncomp Mix_type (0=L-B Rules, 1=manual input) 
+@ 3 1 	Ncomp Mix_type (0=L-B Rules, 1=manual input) 
 
-@ 0 	Mass[i] i=0,Ncomp-1 
-@ 3 1 	Charge[i] i=0,Ncomp-1 
-@ 1. 1. 1. 	Pol[i] i=0,Ncomp-1 
+@ 1. 1. 1. 	Mass[i] i=0,Ncomp-1 
+@ -0.0125 0.1 0. 	Charge[i] i=0,Ncomp-1 
+@ 0. 0. 0. 	Pol[i] i=0,Ncomp-1 
 
-@ -0.0125 0.1 0. 	Sigma_ff[i][j], [0][1]...[0][Ncomp-1]; 
-@ 0. 0. 0. 	Eps_ff[i][j] 
-@ 1. 1.22 1. 1.22 1.44 1.22 1. 1.22 1. 	Cut_ff[i][j] 
-@ 0.77 0. 0. 0. 0.77 0.77 0. 0.77 0.77 	Bond_ff[i][j] 
+@ 1. 1.22 1. 1.22 1.44 1.22 1. 1.22 1. 	Sigma_ff[i][j], [0][1]...[0][Ncomp-1]; 
+@ 0.77 0. 0. 0. 0.77 0.77 0. 0.77 0.77 	Eps_ff[i][j] 
+@ 3.5 3.5 3.5 3.5 3.5 3.5 3.5 3.5 3.5 	Cut_ff[i][j] 
+@ 1. 1.22 1. 1.22 1.44 1.22 1. 1.22 1. 	Bond_ff[i][j] 
 
 
-@ 3.5 3.5 3.5 3.5 3.5 3.5 3.5 3.5 3.5 	Rho_w[i] [i=0,Nwall_type-1] 
-@ 1. 1.22 1. 1.22 1.44 1.22 1. 1.22 1. 	Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1] 
+@ 1. 	Rho_w[i] [i=0,Nwall_type-1] 
+@ 1. 	Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1] 
 @ 1. 	Eps_ww[i][j] 
 @ 1. 	Cut_ww[i][j] 
 
@@ -93,31 +95,31 @@
      3 for diblock with solvent, etc.
 
 ************* POLYMER INPUT PARAMETERS ****************************************
-@ 1. 	Npol_comp: Number of (co)polymer components 
-@ 1. 	Nblock[pol_number]: Number of blocks in each copolymer 
-@ 2 	block[pol_number][iblock]: Number of segments in each block 
-@ 3 1 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
-@ 8 2 8 1 	poly_file: File containing polymer connectivity 
-@ 0 1 0 2 	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
+@ 2 	Npol_comp: Number of (co)polymer components 
+@ 3 1 	Nblock[pol_number]: Number of blocks in each copolymer 
+@ 8 2 8 1 	block[pol_number][iblock]: Number of segments in each block 
+@ 0 1 0 2 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
+@ lin_18_1	poly_file: File containing polymer connectivity 
+@ 1 1.0 	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
                  NCrfiles (number of cr files - up to 4 to be read in)
                  Crfac (multiplicative factor for the first c(r).
                         The second c(r) is multiplied by (1.-crfac)
-@ lin_18_1	Cr_break[i=0;NCr_files-2] 
-@ 1 1.0 	Cr_rad: c(r) radius (units of sigma) 
-@ n/a 	Gauss_a: Aspect ratio ( gauss bl/sigma) 
+@ n/a 	Cr_break[i=0;NCr_files-2] 
+@ 1.1 1.35 1.1 1.35 1.625 1.35 1.1 1.35 1.1 	Cr_rad: c(r) radius (units of sigma) 
+@ 0.9814 	Gauss_a: Aspect ratio ( gauss bl/sigma) 
 
 ************** SEMI-PERMEABLE SURFACE PARAMETERS *******************************
-@ 1.1 1.35 1.1 1.35 1.625 1.35 1.1 1.35 1.1 	Lsemiperm[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]... 
+@ -2 	Lsemiperm[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]... 
                  (-2 in first entry all array set to zero : FALSE
                   -1 in first entry all array set to one : TRUE)
 
-@ 0.9814 	Vext_membrane[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]... 
+@ 0. 	Vext_membrane[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]... 
                   if (first entry of Lsemiperm is -2 then all array set to zero).
 
     *Note for polymers: --- see note above.  Again replace Ncomp with Nblock_tot.
 
 ************** STATE POINT PARAMETERS ******************************************
-@ -2 	Rho_b[icomp], icomp = 0,Ncomp-1 (or Npol_comp-1 for polymers) 
+@ 0.375 0.375 	Rho_b[icomp], icomp = 0,Ncomp-1 (or Npol_comp-1 for polymers) 
 
    *Note for polymers:  
     Rho_b is indexed Npol_comp rather than Nblock_tot.  The code automatically
@@ -129,52 +131,52 @@
 
 *************** CHARGED SURFACE BOUNDARY CONDITIONS ***************************
 
-@ 0. 	Type_bc_elec[iwall_type]: 0=neutral surface, 
+@ 0 	Type_bc_elec[iwall_type]: 0=neutral surface, 
                         	   1=const potential,
                                    2=const surface charge,
                                    3=atomic charges
 
-@ 0.375 0.375 	Nlocal_charge, # of local charges on surfaces 
+@ 0 	Nlocal_charge, # of local charges on surfaces 
                         not necessarily on every atom of a given type.  Or
                         to approximate a local charge on a non-atomic surface.
                         (-1 indicates linear profile of point charges between
                             two points aligned with principle axes.  !!!)
 
-@ 0 	Charge_loc[i]: i=0,Nlocal_charge-1 : Value of charge 
-@ 0 	Charge_Diam[i] : diameter or spread of charge (=0 for point charge) 
-@ 0. 	Charge_x[i][idim] : position of charge 
-@ 0. 	Charge_type_atoms Charge_type_local 
+@ 0. 	Charge_loc[i]: i=0,Nlocal_charge-1 : Value of charge 
+@ 0. 	Charge_Diam[i] : diameter or spread of charge (=0 for point charge) 
+@ 0. 0. -2. 	Charge_x[i][idim] : position of charge 
+@ 0 0 	Charge_type_atoms Charge_type_local 
 			point charge=0, smeared charge over sigma=1, background charge=2
                                for either Type_elec=3 or Nlocal_charge !=0.
 ************** DIELECTRIC CONSTANTS ************************************
-@ 0. 0. -2. 	Type_dielec 
+@ 0 	Type_dielec 
                     (0 = all the same; 1 = fluid/walls different;
                      2 = bulk fluid/wall fluid/pore fluid;
                      3 = constant in walls; varies with density in fluid !)
 
-@ 0 0 	Dielec_bulk Dielec_pore Dielec_X 
-@ 0 	Dielec_wall[i] i=0,Nwall_type-1 
+@ 1. 0. 0. 	Dielec_bulk Dielec_pore Dielec_X 
+@ 0. 	Dielec_wall[i] i=0,Nwall_type-1 
 
 ************* DIFFUSION PARAMETERS *******************************************
-@ 1. 0. 0. 	Lsteady_state 
-@ 0. 	Grad_dim (direction of gradient, 0=x,1=y,2=z), L1D_bc, X_1D_bc 
-@ 0 	x_const_mu (on both sides of domain). 
-@ 0 0 0. 	Geom_Flag (0=unit area;1=cyl pore;2=vary pore), Nseg (# pore segments) 
-@ 0. 	Radius_L, Radius_R, Length 
-@ 0 0 	Rho_b_Left[icomp] (B.C. on left or bottom or back) 
-@ 0. 0. 0. 	Rho_b_Right[icomp] (B.C. on right or top or front) 
+@ 0 	Lsteady_state 
+@ 0 0 0. 	Grad_dim (direction of gradient, 0=x,1=y,2=z), L1D_bc, X_1D_bc 
+@ 0. 	x_const_mu (on both sides of domain). 
+@ 0 0 	Geom_Flag (0=unit area;1=cyl pore;2=vary pore), Nseg (# pore segments) 
+@ 0. 0. 0. 	Radius_L, Radius_R, Length 
+@ 0. 	Rho_b_Left[icomp] (B.C. on left or bottom or back) 
+@ 0. 	Rho_b_Right[icomp] (B.C. on right or top or front) 
 @ 0. 	D_coef[icomp] (Diffusion Coefficients per component (cm^2/sec)) 
-@ 0. 	Elec_pot_L, Elec_pot_R (B.C. on elec. potential lbb and rtf) 
-@ 0. 	Velocity 
+@ 0. 0. 	Elec_pot_L, Elec_pot_R (B.C. on elec. potential lbb and rtf) 
+@ 0.0 	Velocity 
 
 ************** STARTUP CONTROL PARAMETERS ********************************
-@ 0. 0. 	Iliq_vap (-2=don't compute coexistence 
+@ -1 	Iliq_vap (-2=don't compute coexistence 
                                       -1=compute coexistence,
                                         1=compute a Wall-Vapor profile, 
                                         2=compute a Wall-Liquid profile
                                         3=compute a Liquid-Vapor profile) 
 		       (LJ only .... wetting output)
-@ 0.0 	Iguess 
+@ 3 	Iguess 
                      -3: Constant Bulk Density
                      -2: Constant liquid coexistence density
                      -1: Constant vapor coexistence density
@@ -188,73 +190,73 @@
                       7: chopped profile: to rho_step
                       8: linear profile (for diffusion cases)
 
-@ -1 	Nsteps 
-@ 3 	Orientation[istep] 
-@ 7 	Xstart_step[istep] 
-@ 0 0 0 0 0 0 0 	Xend_step[istep] 
-@ -20. 14.5 15.5 16. 16.5 17.0 17.5 	Rho_step[icomp][istep] 
+@ 7 	Nsteps 
+@ 0 0 0 0 0 0 0 	Orientation[istep] 
+@ -20. 14.5 15.5 16. 16.5 17.0 17.5 	Xstart_step[istep] 
+@ 14.5 15.5 16.0 16.5 17.0 17.5 20.0 	Xend_step[istep] 
+@ 1.e-7 1.e-7 0.05 0.1 0.1 0.1 .6 
 
-@ 14.5 15.5 16.0 16.5 17.0 17.5 20.0 	Restart: 0=no - use Iguess to determine initial guess 
+@ 3 	Restart: 0=no - use Iguess to determine initial guess 
                           1=yes - use guess from dft_dens.dat 
                           2=yes, but w/ step function at Xstart_step[0] 
                           3=yes for densities but not elec.pot or chem.pot.
                           4=yes also restart external field from file
 			  5=use 1D profile as initial guess for 2 or 3D calculation
 
-@ 1.e-7 1.e-7 0.05 0.1 0.1 0.1 .6 	Rho_max maximum density allowed from restart file 
+@ 1.1 	Rho_max maximum density allowed from restart file 
 
 ************* OUTPUT FORMAT PARAMETERS ****************************************
                *************************************************************
                **** set how you would like all of the output to print ******
                *************************************************************
-@ 3 	Lper_area Lcount_reflect Lprint_gofr Lprint_uww 
-@ 1.1 	Print_rho_type (0= all output in dft_dens.dat, 
+@ 1 1 0 0 	Lper_area Lcount_reflect Lprint_gofr Lprint_uww 
+@ 0 	Print_rho_type (0= all output in dft_dens.dat, 
                                1= each run gets a different file)
-@ 1 1 0 0 	Print_rho_switch Print_mesh_switch 
+@ 0 0 	Print_rho_switch Print_mesh_switch 
                switches to determine how output will look in dft_force file
                rho: (0 - all densities, 1=p/po, 2=kappa, 3=all betamu)
                mesh: (0=surface separations, 1=wall positions)
-@ 0 	IWRITE (0=MINIMAL, 1=DENSITY_PROF, 2=NO_SCREEN, 3=VERBOSE) 
+@ 1 	IWRITE (0=MINIMAL, 1=DENSITY_PROF, 2=NO_SCREEN, 3=VERBOSE) 
 
 *********** COARSENING SWITCHES ************************************************
-@ 0 0 	Nzone (Coarsens Mesh/Jacobian by factor of 2) 
-@ 1 	Rmax_zone[Nzone-1] [0.0 for complete coarsening] 
-@ 1 	Mesh_coarsening (0=NO, 1=YES) 
-@ 0. 	Coarser_jac Esize_jacobian 
+@ 1 	Nzone (Coarsens Mesh/Jacobian by factor of 2) 
+@ 0. 	Rmax_zone[Nzone-1] [0.0 for complete coarsening] 
+@ 0 	Mesh_coarsening (0=NO, 1=YES) 
+@ 0 0.25 	Coarser_jac Esize_jacobian 
                          0 =Jac. zones are the same as resid zones.
                          1 =coarsen finest Jacobian zone by fac of 2 
                          2 =coarsen all but coarsest zone by fac of 2
                          3 =use coarsest zone everywhere
                          4 =use 2nd coarsest zone in all but coarsest zone 
                          5 =use Esize_jacobian for all Jacobian integrals
-@ 0 	Ljac_cut Jac_threshold 
+@ 0 100. 	Ljac_cut Jac_threshold 
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 0 0.25 	Maximum # of Newton Iterations 
-@ 0 100. 	Newton_rel_tol Newton_abs_tol Min_update_frac 
+@ 5 	Maximum # of Newton Iterations 
+@ 1.0e-3 1.0e-8 0.25 	Newton_rel_tol Newton_abs_tol Min_update_frac 
 			(relative and absolute convergence tolerances
 			  min. update fractions for mixing)
-@ 10 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
+@ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
-@ 1.0e-3 1.0e-8 1.0 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
-@ 2 	Scaling (0=row_sum, 1=Jacobi, 2=symrow_sum, -1=none) 
-@ 1 200 	Preconditioner (0=ilu, 1=Jacobi, 2=symGS, 3=LSpoly3, -1=none), level 
-@ 0 	Max iterations and Convergence Tolerance for Linear Solver 
+@ 0 200 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
+@ 0 	Scaling (0=row_sum, 1=Jacobi, 2=symrow_sum, -1=none) 
+@ 4 4 	Preconditioner (0=ilu, 1=Jacobi, 2=symGS, 3=LSpoly3, -1=none), level 
+@ 200 1.e-6 	Max iterations and Convergence Tolerance for Linear Solver 
 
 ************* MESH CONTINUATION PARAMETERS ************************************
                Here you enter information for mesh continuation.
                All other types are handled by LOCA
-@ 4 4 	N_runs 
-@ 200 1.e-6 	Del_1[idim=0;Ndim-1] (How much to change parameter) 
-@ 1 	Plane_new_nodes Pos_new_nodes 
+@ 1 	N_runs 
+@ 0. 	Del_1[idim=0;Ndim-1] (How much to change parameter) 
+@ 0 0 	Plane_new_nodes Pos_new_nodes 
                   (0=yz,1=xz,2=xy)   (-1=lbb,0=center,1=rtf)
-@ 0. 	Guess_range[0,1] 
+@ 0. 0. 	Guess_range[0,1] 
                 Guess_range[0] is the surf separation to stop using 100% Rho_b
                 Guess_range[1] is the surf separation to start using 100% X_old
 ************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
-@ 0 0 	Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length 
+@ -1 	Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length 
                          3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
-@ 0. 0. 	Continuation parameter Scale_fac (for CONT_SCALE cases only) 
+@ 2 1.0 	Continuation parameter Scale_fac (for CONT_SCALE cases only) 
                         CONT_TEMP        1   /* State Parameters */
                         CONT_RHO_0       2
                         CONT_RHO_ALL     3
@@ -282,7 +284,7 @@
                         CONT_CRFAC       19      /* Miximg parameter for 2 cr files */
                                                                                                  
 
-@ -1 	Parameter initial step size 
-@ 2 1.0 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
-@ 1.e-7 	Second parameter for Spinodal and Binoadal Calculations (Same list). 
+@ 1.e-7 	Parameter initial step size 
+@ 1 0.25 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
+@ 2 	Second parameter for Spinodal and Binoadal Calculations (Same list). 
 *********** END OF INPUT FILE ******************************************
