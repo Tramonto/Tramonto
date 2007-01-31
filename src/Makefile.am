@@ -65,7 +65,6 @@ COMMON_H = \
         ${srcdir}/dft_stencil.h \
         ${srcdir}/dft_stencil_delta_Bond.h \
         ${srcdir}/dft_stencil_delta_R.h \
-        ${srcdir}/dft_stencil_delta_bondCMS.h \
         ${srcdir}/dft_stencil_theta_CrCMS.h \
         ${srcdir}/dft_stencil_theta_R.h \
         ${srcdir}/dft_stencil_theta_RPMmsa.h \
@@ -145,7 +144,6 @@ COMMON_C = \
         ${srcdir}/dft_stencil.c \
         ${srcdir}/dft_stencil_delta_Bond.c \
         ${srcdir}/dft_stencil_delta_R.c \
-        ${srcdir}/dft_stencil_delta_bondCMS.c \
         ${srcdir}/dft_stencil_theta_CrCMS.c \
         ${srcdir}/dft_stencil_theta_R.c \
         ${srcdir}/dft_stencil_theta_RPMmsa.c \

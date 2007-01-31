@@ -196,7 +196,7 @@ int  get_integration_pts(int isten, int izone,
 
   /********************** BEGIN EXECUTION ************************************/
 
-  if (isten==DELTA_FN) {
+  if (isten==DELTA_FN_R || isten==DELTA_FN_BOND) {
 
     switch (Sten_Choice_S[isten][izone]) {
 
@@ -277,7 +277,7 @@ int  get_integration_pts(int isten, int izone,
     }
   }
 
-  else if (isten==THETA_FN || isten==U_ATTRACT || isten==THETA_CHARGE) {
+  else if (isten==THETA_FN_R || isten==THETA_PAIRPOT_RCUT || isten==THETA_CR_RPM_MSA) {
 
     switch (Sten_Choice_S[isten][izone]) {
 
@@ -428,7 +428,7 @@ int  get_integration_pts(int isten, int izone,
 
       case MIDPOINT_RULE:
 
-         if (isten==THETA_FN) { 
+         if (isten==THETA_FN_R) { 
            if (Ndim==1) 
               num_int_pts = MPsten_Npts_R[izone];
            else if (Ndim==2) 
@@ -437,14 +437,14 @@ int  get_integration_pts(int isten, int izone,
               num_int_pts = MPsten_Npts_R[izone] * MPsten_Npts_arc[izone] 
                                                  * MPsten_Npts_phi[izone];
          }
-         else if (isten==U_ATTRACT || isten==THETA_CHARGE)
+         else if (isten==THETA_PAIRPOT_RCUT || isten==THETA_CR_RPM_MSA)
            num_int_pts = MPsten_Npts_R[izone] * MPsten_Npts_arc[izone] 
                                               * MPsten_Npts_phi[izone];
         *point_ptr = (double **) array_alloc(2, num_int_pts, 3, sizeof(double));
         *wt_ptr    = (double *)  array_alloc(1, num_int_pts,    sizeof(double));
-         if (isten==THETA_FN) 
+         if (isten==THETA_FN_R) 
            theta_midpoint(*point_ptr, *wt_ptr, izone, Ndim);
-         else if (isten==U_ATTRACT || isten==THETA_CHARGE)
+         else if (isten==THETA_PAIRPOT_RCUT || isten==THETA_CR_RPM_MSA)
            theta_midpoint(*point_ptr, *wt_ptr, izone, 3);
          return (num_int_pts);
 

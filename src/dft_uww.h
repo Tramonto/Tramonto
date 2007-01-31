@@ -48,10 +48,11 @@ extern double Elec_param_w[NWALL_MAX];
 #define REFLECT      2
 extern int Type_bc[NDIM_MAX][2];
 extern double Size_x[NDIM_MAX];
+extern int Type_uwwPot;
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-double pairPot_switch(double r,double param1,double param2,double param3);
+double pairPot_switch(double r,double param1,double param2,double param3,int typePairPot);
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Ndim;
 void setup_coulomb_atomic(int iwall,int jwall);

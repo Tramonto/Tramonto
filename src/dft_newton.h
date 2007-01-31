@@ -73,7 +73,7 @@ extern int Nnodes_box;
 extern int *L2G_node;
 extern int Nnodes_per_proc;
 extern int Mesh_coarsening;
-#define WTC          3
+#define WTC          2
 extern int Type_attr;
 #define CAVWTC     6
 #define BONDWTC       7
@@ -139,6 +139,7 @@ void *array_alloc(...);
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_coul;
 #define CMS          0
 extern int Type_poly;

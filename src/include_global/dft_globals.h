@@ -264,7 +264,10 @@ double  Betamu_wtc_RTF[NMER_MAX];
 
 int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
 int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
-int     Type_vext;  /* Interaction potential to choose for external field calculations */
+int     Type_pairPot;  /* Interaction potential to use for strict mean field DFT calculations*/
+int     Type_vext1D;  /* Interaction potential to choose for external field calculations based on 1D potentials*/
+int     Type_vext3D;  /* Interaction potential to choose for external field calculations based on 3D potentials*/
+int     Type_uwwPot;  /* potential to use for computation of wall-wall interactions.  Used in 3D-atomic surface calculations */
 int     Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
 int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
 int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */

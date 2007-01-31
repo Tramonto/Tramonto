@@ -40,7 +40,7 @@ double integrand_CMS_freen(int iunk,int inode_box, double **x)
      pol_number=0;
      while (Nmer_t[pol_number][icomp]==0) pol_number++;
 
-     if (rho_i > 0.) integrand = 0.5*rho_i*int_stencil(x,inode_box,iunk,POLYMER_CR)-rho_i/Nmer[pol_number];
+     if (rho_i > 0.) integrand = 0.5*rho_i*int_stencil(x,inode_box,iunk,THETA_CR_DATA)-rho_i/Nmer[pol_number];
 
      return(integrand);
 }
@@ -55,7 +55,7 @@ double integrand_CMS_freen_bulk(int iunk,int inode_box, double **x)
 
      sum=0;
      for (jcomp=0;jcomp<Ncomp;jcomp++){
-       sum+=int_stencil_bulk(POLYMER_CR,icomp,jcomp,NULL)*Rho_b[jcomp];
+       sum+=int_stencil_bulk(THETA_CR_DATA,icomp,jcomp,NULL)*Rho_b[jcomp];
      }
 
      pol_number=0;

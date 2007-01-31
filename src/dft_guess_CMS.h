@@ -40,7 +40,7 @@ extern int **Nbond;
 extern int Nmer[NCOMP_MAX];
 extern int Geqn_start[NCOMP_MAX];
 extern int Npol_comp;
-#define DELTA_FN       0
+#define DELTA_FN_BOND         6
 struct Stencil_Struct {
   int        Length;      /* Number of nodes that interact with current 
                              node through this stencil                    */
@@ -61,7 +61,7 @@ extern int Proc;
 #endif
 void setup_polymer_rho(double **xOwned,int iguess);
 #define DENSITY_MIN  1.e-20
-#define CMS_SCFT     2
+#define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
 extern double **Vext;

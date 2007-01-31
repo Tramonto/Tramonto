@@ -38,7 +38,7 @@ double load_polymer_recursion(int sten_type,int iunk,int loc_inode,int inode_box
 extern int *B2G_node;
 void node_to_position(int inode,double *NodePos);
 extern int ***Bonds;
-#define DELTA_FN       0
+#define DELTA_FN_BOND         6
 extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
@@ -68,9 +68,10 @@ extern double Charge_f[NCOMP_MAX];
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_coul;
 extern void *LinProbMgr_manager;
-#define POLYMER_CR     4
+#define THETA_CR_DATA         4
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double VEXT_MAX;

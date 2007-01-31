@@ -545,7 +545,7 @@ static void scale_att_stencil_temp(double temp)
    for (izone=0; izone < Nzone; izone++){
       for (icomp=0; icomp<Ncomp; icomp++){
       for (jcomp=0; jcomp<Ncomp; jcomp++){
-          sten = &(Stencil[U_ATTRACT][izone][icomp+Ncomp*jcomp]);
+          sten = &(Stencil[THETA_PAIRPOT_RCUT][izone][icomp+Ncomp*jcomp]);
           for (isten = 0; isten < sten->Length; isten++) {
               sten->Weight[isten] *= ratio;
 /*              if (Iwrite==VERBOSE) print_out_stencil(isten, izone,icomp, jcomp, ifp);*/

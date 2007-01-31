@@ -133,16 +133,15 @@
  * The following are the current acceptable values for Stencil types.
  */
 
-#define NSTEN        8
+#define NSTEN        7
 
-#define DELTA_FN       0
-#define THETA_FN       1
-#define U_ATTRACT      2
-#define THETA_CHARGE   3
-#define POLYMER_CR     4
-#define POLYMER_GAUSS  5
-#define THETA_FN_SIG   6
-#define DELTA_FN_BOND  7
+#define DELTA_FN_R            0
+#define THETA_FN_R            1
+#define THETA_PAIRPOT_RCUT    2
+#define THETA_CR_RPM_MSA      3
+#define THETA_CR_DATA         4
+#define THETA_FN_SIG          5
+#define DELTA_FN_BOND         6
 
 #define NO_RENORMALIZATION_FLAG -888
 
@@ -209,10 +208,10 @@
 /*
  *  These constants identify the type of polymer to be studied (Type_poly).
  */
+#define NONE        -1
 #define CMS          0
-#define CMS_GAUSSIAN 1
-#define CMS_SCFT     2
-#define WTC          3
+#define CMS_SCFT     1
+#define WTC          2
 
 /*
  * These constants identify attraction functional choices (Type_attr).
@@ -246,13 +245,17 @@
 #define YUKAWA       2
 
 /*
- * The following are choices for pair interacton potentials.  
+ * The following are choices for pair interacton potentials.  Note that these
+ * options can be used to set stencil functions for strict mean field attractions,
+ * set external fields based on 3D interaction potentials, and set wall-wall
+ * interactions for 3D atomistic surfaces.  They are used by Type_pairPot,
+ * Type_vext3D, and Type_uwwPot parameters which may be set independently.  
  */
 #define PAIR_LJ12_6_CS  0
 #define PAIR_COULOMB    1
 
 /*
- * The following are choices for external field potentials.  
+ * The following are choices for 1D external field potentials.  
  */
 #define LJ9_3_CS          0
 #define LJ9_3_v2_CS       1
@@ -732,7 +735,10 @@ extern double  Betamu_seg_LBB[NMER_MAX];/* Array of excess segment chemical pote
 extern double  Betamu_seg_RTF[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 extern int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
 extern int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
-extern int     Type_vext;  /* Interaction potential to choose for external field calculations */
+extern int     Type_pairPot;  /* Interaction potential to use for strict mean field DFT calculations*/
+extern int     Type_vext1D;  /* Interaction potential to choose for external field calculations based on 1D potentials*/
+extern int     Type_vext3D;  /* Interaction potential to choose for external field calculations based on 3D potentials*/
+extern int     Type_uwwPot;  /* potential to use for computation of wall-wall interactions.  Used in 3D-atomic surface calculations */
 extern int     Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
 extern int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
 extern int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */

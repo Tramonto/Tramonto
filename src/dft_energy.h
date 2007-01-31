@@ -18,12 +18,12 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define CMS_SCFT     2
+#define CMS_SCFT     1
 #define CMS          0
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 double integrand_WTC_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_WTC_freen(int iunk,int inode_box,double **x);
-#define WTC          3
+#define WTC          2
 extern int Type_poly;
 double integrand_surface_charge(int iunk,int inode_box,int iwall,double **x);
 double integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iunk,double **x,double *profile);
@@ -44,6 +44,7 @@ double integrand_hs_freen(int iunk,int inode_box,double **x);
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_func;
 double integrand_vext_freen(int iunk,int inode_box,double **x);
 double integrand_mu_freen_bulk(int iunk,int inode_box,double **x);

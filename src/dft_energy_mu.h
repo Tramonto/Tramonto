@@ -13,7 +13,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define WTC          3
+#define WTC          2
 extern int Type_poly;
 #define NCOMP_MAX 5
 extern double Rho_b_RTF[NCOMP_MAX];
@@ -29,6 +29,7 @@ extern double Rho_seg_b[NMER_MAX];
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_coul;
 extern double Betamu_seg[NMER_MAX];
 extern int Unk2Comp[NMER_MAX];

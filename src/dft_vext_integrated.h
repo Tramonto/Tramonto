@@ -15,7 +15,8 @@ double uCOULOMB(double r,double z1,double z2);
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define PI    M_PI
-double pairPot_switch(double r,double param1,double param2,double param3);
+extern int Type_vext3D;
+double pairPot_switch(double r,double param1,double param2,double param3,int typePairPot);
 double get_wt_from_sten_coul3D(double r,double z1,double z2);
 extern double Vol_el;
 double get_wt_from_sten(double r,double sigma,double eps,double rcut,int ngpu,double *gpu,double *gwu);

@@ -72,9 +72,10 @@ void HS_thermo_precalc(char *output_file1);
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_func;
 void WTC_thermo_precalc(char *output_file1);
-#define WTC          3
+#define WTC          2
 extern int Type_poly;
 extern int L_HSperturbation;
 #define NO_SCREEN    2 

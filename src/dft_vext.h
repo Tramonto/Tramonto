@@ -35,9 +35,10 @@ extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define atomic_centers                  3
 extern int Surface_type[NWALL_MAX_TYPE];
 void setup_vext_HS_atomic(int iwall);
-double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3);
+double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3,int typePairPot);
+extern int Type_vext3D;
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
-double pairPot_switch(double r,double param1,double param2,double param3);
+double pairPot_switch(double r,double param1,double param2,double param3,int typePairPot);
 extern int *B2G_node;
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi

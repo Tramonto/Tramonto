@@ -35,7 +35,7 @@ double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
     }
     else{
 
-       resid_B = load_mean_field(POLYMER_CR,iunk,loc_inode,itype_mer,izone,ijk_box,x,resid_only_flag); 
+       resid_B = load_mean_field(THETA_CR_DATA,iunk,loc_inode,itype_mer,izone,ijk_box,x,resid_only_flag); 
        resid = Vext[loc_inode][itype_mer]+log(x[iunk][inode_box]);
        resid_B+=resid;
        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
@@ -149,7 +149,7 @@ double load_CMS_Geqns(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
     seg_num = Unk_to_Seg[unk_GQ];
     bond_num = Unk_to_Bond[unk_GQ];
 
-    sten=DELTA_FN;
+    sten=DELTA_FN_BOND;
 
     if (Zero_density_TF[inode_box][itype_mer] || Vext[loc_inode][itype_mer] == VEXT_MAX){
          resid_G=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);

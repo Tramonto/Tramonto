@@ -156,7 +156,7 @@ double get_wt_from_sten(double r,double sigma, double eps, double rcut,
      for (i=0; i < ngpu; i++) {
         z = zmax * gpu[i];
         rho = sqrt(r*r + z*z) * rcut;
-        temp += gwu[i] * z * pairPot_switch(rho, sigma,eps,rcut);
+        temp += gwu[i] * z * pairPot_switch(rho, sigma,eps,rcut,Type_vext3D);
      }
      return(2.0 * PI * temp * rcut *rcut * zmax);
   }
@@ -166,13 +166,13 @@ double get_wt_from_sten(double r,double sigma, double eps, double rcut,
      for (i=0; i < ngpu; i++) {
         z = zmax * gpu[i];
         rho = sqrt(r*r + z*z) * rcut;
-        temp += gwu[i] * pairPot_switch(rho,sigma,eps,rcut);
+        temp += gwu[i] * pairPot_switch(rho,sigma,eps,rcut,Type_vext3D);
      }
      return(2.0 * temp * rcut * zmax);
   }
   else {
     rho = r * rcut;
-    temp = pairPot_switch(rho,sigma,eps,rcut);
+    temp = pairPot_switch(rho,sigma,eps,rcut,Type_vext3D);
     return(temp);
   }
 

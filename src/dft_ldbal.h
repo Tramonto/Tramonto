@@ -69,6 +69,7 @@ extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_attr;
 extern int Ncomp;
 int node_to_node_box(int inode);

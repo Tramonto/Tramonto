@@ -65,7 +65,8 @@ extern double Rhobar_b[10];
 extern int Nrho_bar_s;
 #define NDIM_MAX  3
 double pressure_FMT_hs(double *rho);
-double pairPot_switch(double r,double param1,double param2,double param3);
+extern int Type_pairPot;
+double pairPot_switch(double r,double param1,double param2,double param3,int typePairPot);
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Proc;
 #if defined(DEBUG)
@@ -88,6 +89,6 @@ void compute_bulk_FMT_properties(char *output_file1);
 void calc_InvR_params();
 extern double Fac_overlap_hs[NCOMP_MAX];
 extern int Ncomp;
-#define WTC          3
+#define WTC          2
 extern int Type_poly;
 void HS_thermo_precalc(char *output_file1);

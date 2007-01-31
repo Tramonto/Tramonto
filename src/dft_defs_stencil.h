@@ -14,20 +14,21 @@ int stencil_deltaLogical(int sten);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define DELTA_FN_BOND  7
-#define THETA_FN_SIG   6
-#define WTC          3
-#define THETA_CHARGE   3
+#define THETA_FN_SIG          5
+#define WTC          2
+#define THETA_CR_RPM_MSA      3
 #define DELTAC     1 
 extern int Type_coul;
+#define THETA_PAIRPOT_RCUT    2
 extern int Type_attr;
-#define THETA_FN       1
+#define THETA_FN_R            1
+#define DELTA_FN_R            0
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_func;
-#define POLYMER_CR     4
-#define U_ATTRACT      2
+#define THETA_CR_DATA         4
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -35,14 +36,14 @@ extern int Type_func;
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-#define DELTA_FN       0
-#define CMS_SCFT     2
+#define DELTA_FN_BOND         6
+#define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-#define NSTEN        8
+#define NSTEN        7
 extern int Sten_Type[NSTEN];
 void setup_stencil_logicals();

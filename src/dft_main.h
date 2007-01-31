@@ -28,11 +28,8 @@ extern double Energy;
 extern int Lhard_surf;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
-#define DELTA_FN       0
-#define POLYMER_CR     4
-#define THETA_CHARGE   3
-#define U_ATTRACT      2
-#define NSTEN        8
+int stencil_Njcomp_switch(int sten);
+#define NSTEN        7
 extern int Sten_Type[NSTEN];
 extern int Nzone;
 extern double **Vext_membrane;
@@ -97,6 +94,7 @@ void calc_HS_diams();
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_func;
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
@@ -123,7 +121,7 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 extern double ***Rism_cr;
-#define CMS_SCFT     2
+#define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
 void pot_parameters(char *output_file1);

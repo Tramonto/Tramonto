@@ -40,7 +40,7 @@ double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #endif
 #define PI    M_PI
 extern int Nseg_tot;
-#define THETA_FN_SIG   6
+#define THETA_FN_SIG          5
 double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double constant_boundary(int iunk,int jnode_box);
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
@@ -49,7 +49,7 @@ extern int Lhard_surf;
 extern int **Zero_density_TF;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern int Ncomp;
-#define DELTA_FN_BOND  7
+#define DELTA_FN_BOND         6
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Nlists_HW;

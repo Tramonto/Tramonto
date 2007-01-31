@@ -16,12 +16,12 @@
 #define PI    M_PI
 void theta_midpoint(double **point,double *wt,int izone,int num_dim);
 void get_radial_quadrature(double gauss_pt[],double gauss_wt[],int num_gp);
-#define NSTEN        8
+#define NSTEN        7
 #define NZONE_MAX  10 
 extern int Sten_Choice_R[NSTEN][NZONE_MAX];
-#define THETA_CHARGE   3
-#define U_ATTRACT      2
-#define THETA_FN       1
+#define THETA_CR_RPM_MSA      3
+#define THETA_PAIRPOT_RCUT    2
+#define THETA_FN_R            1
 void delta_midpoint(double **point,double *wt,int izone);
 extern int MPsten_Npts_phi[NZONE_MAX];
 extern int MPsten_Npts_arc[NZONE_MAX];
@@ -50,6 +50,7 @@ void *array_alloc(...);
 #endif
 #define TETRAHEDRON   1
 extern int Sten_Choice_S[NSTEN][NZONE_MAX];
-#define DELTA_FN       0
+#define DELTA_FN_BOND         6
+#define DELTA_FN_R            0
 int get_integration_pts(int isten,int izone,double ***point_ptr,double **wt_ptr);
 void set_gauss_quad(int ngp,double *gp,double *gw);

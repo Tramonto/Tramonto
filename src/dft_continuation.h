@@ -116,11 +116,15 @@ extern int Npol_comp;
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 #define CONT_RHO_ALL     3
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 #define CONT_RHO_0       2
 void setup_polymer_cr();
+#define CMS_SCFT     1
+#define CMS          0
+extern int Type_poly;
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 void pot_parameters(char *output_file1);
@@ -143,19 +147,14 @@ void print_vext(double **vext,char *output_file);
 extern double ***Vext_dash;
 extern int Restart;
 extern double **Vext;
+#define THETA_PAIRPOT_RCUT    2
 void calc_stencils(void);
 extern int Lhard_surf;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Ncomp;
-#define CMS_SCFT     2
-#define CMS          0
-extern int Type_poly;
-#define DELTA_FN       0
-#define POLYMER_CR     4
-#define THETA_CHARGE   3
-#define U_ATTRACT      2
-#define NSTEN        8
+int stencil_Njcomp_switch(int sten);
+#define NSTEN        7
 extern int Sten_Type[NSTEN];
 extern int Nzone;
 struct Stencil_Struct {

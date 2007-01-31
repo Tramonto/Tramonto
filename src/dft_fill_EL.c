@@ -74,20 +74,20 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
 
    if (mesh_coarsen_flag_i != FLAG_PBELEC){
    if (Type_func !=NONE) {
-         resid +=load_nonlocal_hs_rosen_rb(DELTA_FN,iunk,loc_inode,inode_box,
+         resid +=load_nonlocal_hs_rosen_rb(DELTA_FN_R,iunk,loc_inode,inode_box,
                               icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
 
-         resid +=load_nonlocal_hs_rosen_rb(THETA_FN,iunk,loc_inode,inode_box,
+         resid +=load_nonlocal_hs_rosen_rb(THETA_FN_R,iunk,loc_inode,inode_box,
                                icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
    }
 
    if (Type_attr !=NONE) 
-         resid+=load_mean_field(U_ATTRACT,iunk,loc_inode,
+         resid+=load_mean_field(THETA_PAIRPOT_RCUT,iunk,loc_inode,
                                 icomp,izone,ijk_box, x, resid_only_flag);
    }
 
    if (Type_coul==DELTAC) {   /* load electrostatics deltac correlations - RPM for now*/
-         resid+=load_mean_field(THETA_CHARGE,iunk,loc_inode,
+         resid+=load_mean_field(THETA_CR_RPM_MSA,iunk,loc_inode,
                           icomp,izone,ijk_box,x, resid_only_flag);
    }
 

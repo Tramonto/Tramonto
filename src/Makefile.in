@@ -103,7 +103,6 @@ am__libdft_a_SOURCES_DIST = ${srcdir}/dft_input.c ${srcdir}/dft_main.c \
 	${srcdir}/dft_defs_unknowns.c ${srcdir}/dft_quadrature.c \
 	${srcdir}/dft_stencil.c ${srcdir}/dft_stencil_delta_Bond.c \
 	${srcdir}/dft_stencil_delta_R.c \
-	${srcdir}/dft_stencil_delta_bondCMS.c \
 	${srcdir}/dft_stencil_theta_CrCMS.c \
 	${srcdir}/dft_stencil_theta_R.c \
 	${srcdir}/dft_stencil_theta_RPMmsa.c \
@@ -163,7 +162,6 @@ am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_defs_stencil.$(OBJEXT) dft_defs_unknowns.$(OBJEXT) \
 	dft_quadrature.$(OBJEXT) dft_stencil.$(OBJEXT) \
 	dft_stencil_delta_Bond.$(OBJEXT) dft_stencil_delta_R.$(OBJEXT) \
-	dft_stencil_delta_bondCMS.$(OBJEXT) \
 	dft_stencil_theta_CrCMS.$(OBJEXT) \
 	dft_stencil_theta_R.$(OBJEXT) \
 	dft_stencil_theta_RPMmsa.$(OBJEXT) \
@@ -309,7 +307,6 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_stencil.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_stencil_delta_Bond.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_stencil_delta_R.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dft_stencil_delta_bondCMS.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_stencil_theta_CrCMS.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_stencil_theta_R.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_stencil_theta_RPMmsa.Po \
@@ -370,7 +367,6 @@ am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
 	${srcdir}/dft_defs_unknowns.h ${srcdir}/dft_quadrature.h \
 	${srcdir}/dft_stencil.h ${srcdir}/dft_stencil_delta_Bond.h \
 	${srcdir}/dft_stencil_delta_R.h \
-	${srcdir}/dft_stencil_delta_bondCMS.h \
 	${srcdir}/dft_stencil_theta_CrCMS.h \
 	${srcdir}/dft_stencil_theta_R.h \
 	${srcdir}/dft_stencil_theta_RPMmsa.h \
@@ -562,7 +558,6 @@ COMMON_H = \
         ${srcdir}/dft_stencil.h \
         ${srcdir}/dft_stencil_delta_Bond.h \
         ${srcdir}/dft_stencil_delta_R.h \
-        ${srcdir}/dft_stencil_delta_bondCMS.h \
         ${srcdir}/dft_stencil_theta_CrCMS.h \
         ${srcdir}/dft_stencil_theta_R.h \
         ${srcdir}/dft_stencil_theta_RPMmsa.h \
@@ -642,7 +637,6 @@ COMMON_C = \
         ${srcdir}/dft_stencil.c \
         ${srcdir}/dft_stencil_delta_Bond.c \
         ${srcdir}/dft_stencil_delta_R.c \
-        ${srcdir}/dft_stencil_delta_bondCMS.c \
         ${srcdir}/dft_stencil_theta_CrCMS.c \
         ${srcdir}/dft_stencil_theta_R.c \
         ${srcdir}/dft_stencil_theta_RPMmsa.c \
@@ -995,7 +989,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_delta_Bond.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_delta_R.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_delta_bondCMS.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_theta_CrCMS.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_theta_R.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_theta_RPMmsa.Po@am__quote@
@@ -1390,22 +1383,6 @@ dft_stencil_delta_R.obj: ${srcdir}/dft_stencil_delta_R.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_stencil_delta_R.Po' tmpdepfile='$(DEPDIR)/dft_stencil_delta_R.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_stencil_delta_R.obj `if test -f '${srcdir}/dft_stencil_delta_R.c'; then $(CYGPATH_W) '${srcdir}/dft_stencil_delta_R.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_stencil_delta_R.c'; fi`
-
-dft_stencil_delta_bondCMS.o: ${srcdir}/dft_stencil_delta_bondCMS.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_stencil_delta_bondCMS.o -MD -MP -MF "$(DEPDIR)/dft_stencil_delta_bondCMS.Tpo" -c -o dft_stencil_delta_bondCMS.o `test -f '${srcdir}/dft_stencil_delta_bondCMS.c' || echo '$(srcdir)/'`${srcdir}/dft_stencil_delta_bondCMS.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_stencil_delta_bondCMS.Tpo" "$(DEPDIR)/dft_stencil_delta_bondCMS.Po"; else rm -f "$(DEPDIR)/dft_stencil_delta_bondCMS.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_stencil_delta_bondCMS.c' object='dft_stencil_delta_bondCMS.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_stencil_delta_bondCMS.Po' tmpdepfile='$(DEPDIR)/dft_stencil_delta_bondCMS.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_stencil_delta_bondCMS.o `test -f '${srcdir}/dft_stencil_delta_bondCMS.c' || echo '$(srcdir)/'`${srcdir}/dft_stencil_delta_bondCMS.c
-
-dft_stencil_delta_bondCMS.obj: ${srcdir}/dft_stencil_delta_bondCMS.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_stencil_delta_bondCMS.obj -MD -MP -MF "$(DEPDIR)/dft_stencil_delta_bondCMS.Tpo" -c -o dft_stencil_delta_bondCMS.obj `if test -f '${srcdir}/dft_stencil_delta_bondCMS.c'; then $(CYGPATH_W) '${srcdir}/dft_stencil_delta_bondCMS.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_stencil_delta_bondCMS.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_stencil_delta_bondCMS.Tpo" "$(DEPDIR)/dft_stencil_delta_bondCMS.Po"; else rm -f "$(DEPDIR)/dft_stencil_delta_bondCMS.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_stencil_delta_bondCMS.c' object='dft_stencil_delta_bondCMS.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_stencil_delta_bondCMS.Po' tmpdepfile='$(DEPDIR)/dft_stencil_delta_bondCMS.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_stencil_delta_bondCMS.obj `if test -f '${srcdir}/dft_stencil_delta_bondCMS.c'; then $(CYGPATH_W) '${srcdir}/dft_stencil_delta_bondCMS.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_stencil_delta_bondCMS.c'; fi`
 
 dft_stencil_theta_CrCMS.o: ${srcdir}/dft_stencil_theta_CrCMS.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_stencil_theta_CrCMS.o -MD -MP -MF "$(DEPDIR)/dft_stencil_theta_CrCMS.Tpo" -c -o dft_stencil_theta_CrCMS.o `test -f '${srcdir}/dft_stencil_theta_CrCMS.c' || echo '$(srcdir)/'`${srcdir}/dft_stencil_theta_CrCMS.c; \

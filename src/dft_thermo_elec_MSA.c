@@ -45,7 +45,7 @@ void chempot_ELEC_MSA(double *rho)
 
    for (icomp=0; icomp<Ncomp; icomp++) 
       for (jcomp=0; jcomp<Ncomp;jcomp++){
-          Deltac_b[icomp]+= rho[jcomp]*int_stencil_bulk(THETA_CHARGE,icomp,jcomp,NULL);
+          Deltac_b[icomp]+= rho[jcomp]*int_stencil_bulk(THETA_CR_RPM_MSA,icomp,jcomp,NULL);
       }
    return;
 }

@@ -1,5 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
-double pairPot_ATT_CS_switch(double r,int icomp,int jcomp);
+double pairPot_ATT_CS_switch(double r,int icomp,int jcomp,int typePairPot);
 double StenTheta_uattr_GetWeightFromSten(int icomp,int jcomp,double rsq,int ngpu,double *gpu,double *gwu);
 int StenTheta_uattr_NquadPtsGaussIntegrand(double r);
 int StenTheta_uattr_NquadPtsGauss(double r);
@@ -21,8 +21,9 @@ extern int Ndim;
 int StenTheta_uattr_NquadPtsBoundary();
 extern int Ncomp;
 int StenTheta_uattr_Njcomp();
-double pairPot_integral_switch(double r,int icomp,int jcomp);
-double pairPot_ATT_noCS_switch(double r,int icomp,int jcomp);
+double pairPot_integral_switch(double r,int icomp,int jcomp,int typePairPot);
+extern int Type_pairPot;
+double pairPot_ATT_noCS_switch(double r,int icomp,int jcomp,int typePairPot);
 #define PI    M_PI
 #define NCOMP_MAX 5
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];

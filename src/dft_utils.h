@@ -119,9 +119,9 @@ double resid_and_Jac_sten_fill(int sten_type,double **x,int iunk,int junk,int ic
 extern void *LinProbMgr_manager;
 extern double Rho_b[NCOMP_MAX];
 #define CMS_FIELD      1
-#define POLYMER_CR     4
-#define THETA_CHARGE   3
-#define U_ATTRACT      2
+#define THETA_CR_DATA         4
+#define THETA_CR_RPM_MSA      3
+#define THETA_PAIRPOT_RCUT    2
 extern int *Pol_Sym_Seg;
 extern int Nseg_tot;
 #define FLAG_PBELEC -777

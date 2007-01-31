@@ -39,6 +39,7 @@ extern int Ndiffusion;
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_coul;
 extern int Npoisson;
 #define POISSON        3
@@ -53,7 +54,7 @@ extern int Nseg_tot;
 extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 extern int L_HSperturbation;
-#define CMS_SCFT     2
+#define CMS_SCFT     1
 #define CMS          0
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
@@ -67,7 +68,7 @@ extern int L_HSperturbation;
 #define TRUE  1
 #endif
 extern int Lseg_densities;
-#define WTC          3
+#define WTC          2
 extern int Type_poly;
 extern int Proc;
 #if defined(DEBUG)

@@ -51,14 +51,14 @@ extern void *LinProbMgr_manager;
 extern double Dphi_Drhobar_RTF[10];
 extern double Dphi_Drhobar_LBB[10];
 extern double Dphi_Drhobar_b[10];
-#define THETA_FN       1
+#define THETA_FN_R            1
 #define NCOMP_MAX 5
 extern double Inv_rad[NCOMP_MAX];
 extern double Esize_x[NDIM_MAX];
 extern double Inv_4pir[NCOMP_MAX];
 extern double Inv_4pirsq[NCOMP_MAX];
 extern double Fac_overlap_hs[NCOMP_MAX];
-#define DELTA_FN       0
+#define DELTA_FN_R            0
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;

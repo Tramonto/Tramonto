@@ -224,7 +224,7 @@ void setup_lj_atomic(int iwall, int jwall){
   /* add in Lennard-Jones Contributions */
   Uww[iwall][jwall] += pairPot_switch(r,Sigma_ww[WallType[iwall]][WallType[jwall]],
                                       Eps_ww[WallType[iwall]][WallType[jwall]],
-                                      Cut_ww[WallType[iwall]][WallType[jwall]]);
+                                      Cut_ww[WallType[iwall]][WallType[jwall]],Type_uwwPot);
   return;
 }
 /******************************************************************************/
@@ -256,7 +256,7 @@ void setup_coulomb_atomic(int iwall,int jwall){
 
          /* add in Coulomb Contributions */
 
-   Uww[iwall][jwall] += pairPot_switch(r,faci*Elec_param_w[iwall],facj*Elec_param_w[jwall],zero_param);
+   Uww[iwall][jwall] += pairPot_switch(r,faci*Elec_param_w[iwall],facj*Elec_param_w[jwall],zero_param,Type_uwwPot);
 
   return;
 }

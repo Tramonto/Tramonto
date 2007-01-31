@@ -206,7 +206,10 @@ extern double Charge_f[NCOMP_MAX];
 extern double Mass[NCOMP_MAX];
 extern int Mix_type;
 extern int Ncomp;
+extern int Type_uwwPot;
 extern int Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
+extern int Type_vext3D;
+extern int Type_vext1D;
 #define VEXT_HARD        1
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Lhard_surf;
@@ -261,10 +264,11 @@ extern int Ipot_ff_n;
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
-#define WTC          3
-#define CMS_GAUSSIAN 1
+#define NONE        -1
+#define WTC          2
 extern int Type_poly;
 extern int Type_coul;
+extern int Type_pairPot;
 extern int Type_attr;
 extern int Type_func;
 #define PERIODIC     1

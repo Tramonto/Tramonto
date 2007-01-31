@@ -241,7 +241,7 @@ void calc_stencils(void)
       }
     
        
-      if (Lcut_jac /*&& izone>0*/ && isten==U_ATTRACT){
+      if (Lcut_jac /*&& izone>0*/ && isten==THETA_PAIRPOT_RCUT){
          shorten_stencil(sten);
       }
 
@@ -519,7 +519,7 @@ void distribute_weight_to_nodes(double weight,double *qp,double *el_weights,int 
 void shorten_stencil(struct Stencil_Struct *sten)
 {
 /* eliminate small tail contributions from the
-   U_ATTRACT stencil for Jacobian terms */
+   THETA_PAIRPOT_RCUT stencil for Jacobian terms */
 
 int i,j,k,length_tmp,count; 
 double max_len;

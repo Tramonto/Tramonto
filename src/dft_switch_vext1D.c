@@ -58,8 +58,7 @@ double Vext_1D(double x,int icomp, int iwall_type)
 {
   double vext,xmin;
 
-  Type_vext=0;
-  switch(Type_vext){
+  switch(Type_vext1D){
       case LJ9_3_CS:
         vext = Vext_LJ9_3_CS(x,icomp,iwall_type);
         break;
@@ -79,7 +78,7 @@ double Vext_1D(double x,int icomp, int iwall_type)
         vext = Vext_EXP_ATT_noCS(x,icomp,iwall_type);
         break;
       default:
-         printf("problems with your selection of Type_vext");
+         printf("problems with your selection of Type_vext1D");
          exit(-1);
          break;
   }
@@ -93,8 +92,7 @@ double Vext_1D_dash(double x,int icomp, int iwall_type)
 {
   double vdash;
 
-  Type_vext=0;
-  switch(Type_vext){
+  switch(Type_vext1D){
       case LJ9_3_CS:
       case LJ9_3_noCS:
         vdash = Vextderiv_LJ9_3(x,icomp,iwall_type);
@@ -112,7 +110,7 @@ double Vext_1D_dash(double x,int icomp, int iwall_type)
          vdash=0.0;  /* vdash code not yet written */
          break;
       default:
-         printf("problems with your selection of Type_vext");
+         printf("problems with your selection of Type_vext1D");
          exit(-1);
          break;
   }

@@ -29,9 +29,9 @@ extern int Linear_transport;
 double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 #define POISSON        3
 double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
-#define DELTA_FN       0
+#define DELTA_FN_R            0
 extern int Nrho_bar_s;
-#define THETA_FN       1
+#define THETA_FN_R            1
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
 #define NEQ_TYPE       8
 extern int Phys2Unk_first[NEQ_TYPE];
@@ -73,6 +73,7 @@ extern int Nnodes_box;
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_func;
 extern int Nunk_per_node;
 #if defined(__STDC__)

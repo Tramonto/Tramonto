@@ -44,7 +44,7 @@ extern double Rho_seg_b[NMER_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 extern int Lsteady_state;
 double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box,double **x);
-#define THETA_CHARGE   3
+#define THETA_CR_RPM_MSA      3
 double int_stencil(double **x,int inode_box,int iunk,int sten_type);
 double integrand_elec_MSAcorr_freen(int iunk,int inode_box,double **x);
 extern double Charge_f[NCOMP_MAX];

@@ -312,7 +312,7 @@ void setup_polymer_cr()
          for (ir=0; ir<=lines; ir++){
            r = ir*Deltar_cr;
            if (r-1.e-8 > Sigma_ff[i][j]*1.122462) { /* watch roundoffs*/
-             u = pairPot_ATT_CS_switch(r,i,j);
+             u = pairPot_ATT_CS_switch(r,i,j,Type_pairPot);
              Rism_cr[i][j][ir] -= u;
              if (i != j) Rism_cr[j][i][ir] -= u;
            }

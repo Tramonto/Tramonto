@@ -42,7 +42,7 @@ typedef struct Stencil_Struct Stencil_Struct;
 void renormalize_stencil(struct Stencil_Struct *sten,double vol_sten);
 #define NO_RENORMALIZATION_FLAG -888
 void shorten_stencil(struct Stencil_Struct *sten);
-#define U_ATTRACT      2
+#define THETA_PAIRPOT_RCUT    2
 extern int Lcut_jac;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
@@ -56,7 +56,7 @@ extern int Lhard_surf;
 double stencil_radius_switch(int sten,int icomp,int jcomp);
 double stencil_volume_switch(int sten,int icomp,int jcomp);
 int stencil_Njcomp_switch(int sten);
-#define NSTEN        8
+#define NSTEN        7
 extern int Sten_Type[NSTEN];
 #if defined(DEC_ALPHA)
 #define POW_INT powii

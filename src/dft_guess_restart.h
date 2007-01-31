@@ -59,12 +59,13 @@ int round_to_int(double x);
 #define CMS_G          2 
 extern int Ndim;
 extern int L_HSperturbation;
-#define CMS_SCFT     2
+#define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_coul;
 extern int Lsteady_state;
 #define NO_SCREEN    2 

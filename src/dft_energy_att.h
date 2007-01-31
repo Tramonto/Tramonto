@@ -27,6 +27,6 @@ extern int Lseg_densities;
 #define NEQ_TYPE       8
 extern int Phys2Unk_first[NEQ_TYPE];
 double integrand_att_freen_bulk(int iunk,int inode_box,double **x);
-#define U_ATTRACT      2
+#define THETA_PAIRPOT_RCUT    2
 double int_stencil(double **x,int inode_box,int iunk,int sten_type);
 double integrand_att_freen(int iunk,int inode_box,double **x);

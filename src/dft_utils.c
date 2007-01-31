@@ -173,13 +173,13 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
       if (Nlists_HW <= 2) jlist = 0;
       else                jlist = jcomp;
 
-      if (sten_type==U_ATTRACT || sten_type==THETA_CHARGE) {
+      if (sten_type==THETA_PAIRPOT_RCUT || sten_type==THETA_CR_RPM_MSA) {
             i=iunk-Phys2Unk_first[DENSITY];
             if (Lseg_densities) icomp=Unk2Comp[i];
             else icomp=i;
             index=icomp+Ncomp*jcomp;
       }
-      else if (sten_type==POLYMER_CR){
+      else if (sten_type==THETA_CR_DATA){
             icomp=iunk-Phys2Unk_first[CMS_FIELD];
             index=icomp+Ncomp*jcomp;
       }
@@ -200,8 +200,8 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
       
         if (fp_prefactor!=NULL) fac = (*fp_prefactor)(iunk,jcomp,offset);
         else fac=1.0;
-        if (sten_type==THETA_CHARGE || sten_type==POLYMER_CR) fac=-1.0;
-        if (sten_type==POLYMER_CR) bulk_term= weight_bulk*Rho_b[jcomp];
+        if (sten_type==THETA_CR_RPM_MSA || sten_type==THETA_CR_DATA) fac=-1.0;
+        if (sten_type==THETA_CR_DATA) bulk_term= weight_bulk*Rho_b[jcomp];
         else bulk_term=0.0;
 
          jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);

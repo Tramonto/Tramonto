@@ -19,7 +19,7 @@ double dp_drho_att(double *rho);
 extern double Betamu_att[NCOMP_MAX];
 void chempot_att(double *rho);
 double pressure_att(double *rho);
-#define U_ATTRACT      2
+#define THETA_PAIRPOT_RCUT    2
 double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int));
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;

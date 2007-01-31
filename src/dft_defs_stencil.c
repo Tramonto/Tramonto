@@ -41,9 +41,8 @@ void setup_stencil_logicals()
   for (isten=0; isten<NSTEN; ++isten) Sten_Type[isten]=FALSE;
 
   if (Type_poly == CMS || Type_poly == CMS_SCFT){
-      Sten_Type[DELTA_FN]=TRUE;
-      Sten_Type[U_ATTRACT]=FALSE;   /* attractions handled differently for polymers */
-      Sten_Type[POLYMER_CR]=TRUE;
+      Sten_Type[DELTA_FN_BOND]=TRUE;
+      Sten_Type[THETA_CR_DATA]=TRUE;
       if (Type_poly==CMS_SCFT){
         printf ("To do SCFT with CMS theory, we need to test and debug all code !\n");
         exit(-1);
@@ -51,11 +50,11 @@ void setup_stencil_logicals()
   }
   else{
      if (Type_func !=NONE){
-        Sten_Type[DELTA_FN]=TRUE;
-        Sten_Type[THETA_FN]=TRUE;
+        Sten_Type[DELTA_FN_R]=TRUE;
+        Sten_Type[THETA_FN_R]=TRUE;
       }
-      if (Type_attr != NONE) Sten_Type[U_ATTRACT]=TRUE;
-      if (Type_coul == DELTAC) Sten_Type[THETA_CHARGE]=TRUE;
+      if (Type_attr != NONE) Sten_Type[THETA_PAIRPOT_RCUT]=TRUE;
+      if (Type_coul == DELTAC) Sten_Type[THETA_CR_RPM_MSA]=TRUE;
       if (Type_poly == WTC) {
         Sten_Type[THETA_FN_SIG]=TRUE;
         Sten_Type[DELTA_FN_BOND]=TRUE;
@@ -70,12 +69,12 @@ int stencil_deltaLogical(int sten)
 {
 
   switch(sten){
-     case DELTA_FN:      return TRUE;
-     case THETA_FN:      return FALSE;
+     case DELTA_FN_R:      return TRUE;
+     case THETA_FN_R:      return FALSE;
      case THETA_FN_SIG:  return FALSE;
-     case U_ATTRACT:     return FALSE;
-     case THETA_CHARGE:  return FALSE;
-     case POLYMER_CR:    return FALSE;
+     case THETA_PAIRPOT_RCUT:     return FALSE;
+     case THETA_CR_RPM_MSA:  return FALSE;
+     case THETA_CR_DATA:    return FALSE;
      case DELTA_FN_BOND: return TRUE;
      default:
          printf("problem with stencil definitions: stencil_deltaLogical");

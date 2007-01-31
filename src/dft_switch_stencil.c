@@ -43,23 +43,22 @@ int stencil_Njcomp_switch(int sten)
   int njcomp;
 
   switch(sten){
-     case DELTA_FN:
-         if (L_HSperturbation) njcomp=StenDelta_R_Njcomp();
-         else                  njcomp=StenDelta_BondCMS_Njcomp();
+     case DELTA_FN_R:
+         njcomp=StenDelta_R_Njcomp();
          break;
-     case THETA_FN:
+     case THETA_FN_R:
          njcomp=StenTheta_R_Njcomp();
          break;
      case THETA_FN_SIG:
          njcomp=StenTheta_Sigma_Njcomp();
          break;
-     case U_ATTRACT:
+     case THETA_PAIRPOT_RCUT:
          njcomp=StenTheta_uattr_Njcomp();
          break;
-     case THETA_CHARGE:
+     case THETA_CR_RPM_MSA:
          njcomp=StenTheta_RPMmsa_Njcomp();
          break;
-     case POLYMER_CR:
+     case THETA_CR_DATA:
          njcomp=StenTheta_CrCMS_Njcomp();
          break;
      case DELTA_FN_BOND:
@@ -78,23 +77,22 @@ double stencil_radius_switch(int sten,int icomp,int jcomp)
   double sten_rad;
 
   switch(sten){
-     case DELTA_FN: 
-         if (L_HSperturbation) sten_rad=StenDelta_R_sten_rad(icomp);
-         else                  sten_rad=StenDelta_BondCMS_sten_rad(icomp,jcomp);
+     case DELTA_FN_R: 
+         sten_rad=StenDelta_R_sten_rad(icomp);
          break;
-     case THETA_FN:
+     case THETA_FN_R:
          sten_rad=StenTheta_R_sten_rad(icomp);
          break;
      case THETA_FN_SIG:
          sten_rad=StenTheta_Sigma_sten_rad(icomp);
          break;
-     case U_ATTRACT:
+     case THETA_PAIRPOT_RCUT:
          sten_rad=StenTheta_uattr_sten_rad(icomp,jcomp);
          break;
-     case THETA_CHARGE:
+     case THETA_CR_RPM_MSA:
          sten_rad=StenTheta_RPMmsa_sten_rad(icomp); /* approximation is for a one component system only */
          break;
-     case POLYMER_CR:
+     case THETA_CR_DATA:
          sten_rad=StenTheta_CrCMS_sten_rad(icomp,jcomp);
          break;
      case DELTA_FN_BOND:
@@ -114,23 +112,22 @@ double stencil_volume_switch(int sten,int icomp,int jcomp)
   double sten_vol;
 
   switch(sten){
-     case DELTA_FN:
-         if (L_HSperturbation) sten_vol=StenDelta_R_sten_vol(icomp);
-         else                  sten_vol=StenDelta_BondCMS_sten_vol(icomp,jcomp);
+     case DELTA_FN_R:
+         sten_vol=StenDelta_R_sten_vol(icomp);
          break;
-     case THETA_FN:
+     case THETA_FN_R:
          sten_vol=StenTheta_R_sten_vol(icomp);
          break;
      case THETA_FN_SIG:
          sten_vol=StenTheta_Sigma_sten_vol(icomp);
          break;
-     case U_ATTRACT:
+     case THETA_PAIRPOT_RCUT:
          sten_vol=StenTheta_uattr_sten_vol(icomp,jcomp);
          break;
-     case THETA_CHARGE:
+     case THETA_CR_RPM_MSA:
          sten_vol=StenTheta_RPMmsa_sten_vol(icomp,jcomp); /* approximation is for a one component system only */
          break;
-     case POLYMER_CR:
+     case THETA_CR_DATA:
          sten_vol=StenTheta_CrCMS_sten_vol(icomp,jcomp);
          break;
      case DELTA_FN_BOND:
@@ -154,27 +151,26 @@ double stencil_GetWeight_switch(int sten, int icomp, int jcomp, double rsq,
   double weight;
 
   switch(sten){
-     case DELTA_FN:
-         if (L_HSperturbation) weight=StenDelta_R_GetWeightFromSten(rsq,sten_rad);
-         else                  weight=StenDelta_BondCMS_GetWeightFromSten(icomp,jcomp,rsq,sten_rad);
+     case DELTA_FN_R:
+         weight=StenDelta_R_GetWeightFromSten(rsq,sten_rad);
          break;
-     case THETA_FN:
+     case THETA_FN_R:
          weight=StenTheta_R_GetWeightFromSten(rsq,sten_rad);
          break;
      case THETA_FN_SIG:
          weight=StenTheta_Sigma_GetWeightFromSten(rsq,sten_rad);
          break;
-     case U_ATTRACT:
+     case THETA_PAIRPOT_RCUT:
          weight=StenTheta_uattr_GetWeightFromSten(icomp,jcomp,rsq,ngpu,gpu,gwu);
          break;
-     case THETA_CHARGE:
+     case THETA_CR_RPM_MSA:
          weight=StenTheta_RPMmsa_GetWeightFromSten(icomp,jcomp,rsq,ngpu,gpu,gwu);
          break;
-     case POLYMER_CR:
+     case THETA_CR_DATA:
          weight=StenTheta_CrCMS_GetWeightFromSten(icomp,jcomp,rsq,sten_rad);
          break;
      case DELTA_FN_BOND:
-         weight=StenDelta_Bond_GetWeightFromSten(rsq,sten_rad);
+         weight=StenDelta_Bond_GetWeightFromSten(icomp,jcomp,rsq,sten_rad);
          break;
      default:
          printf("problem with stencil definitions: stencil_volume_switch ");
@@ -191,23 +187,22 @@ int stencil_quadBoundaryEl_switch(int sten)
  int num_quad_pts;
 
   switch(sten){
-     case DELTA_FN:
-         if (L_HSperturbation) num_quad_pts=StenDelta_R_NquadPtsBoundary();
-         else                  num_quad_pts=StenDelta_BondCMS_NquadPtsBoundary();
+     case DELTA_FN_R:
+         num_quad_pts=StenDelta_R_NquadPtsBoundary();
          break;
-     case THETA_FN:
+     case THETA_FN_R:
          num_quad_pts=StenTheta_R_NquadPtsBoundary();
          break;
      case THETA_FN_SIG:
          num_quad_pts=StenTheta_Sigma_NquadPtsBoundary();
          break;
-     case U_ATTRACT:
+     case THETA_PAIRPOT_RCUT:
          num_quad_pts=StenTheta_uattr_NquadPtsBoundary();
          break;
-     case THETA_CHARGE:
+     case THETA_CR_RPM_MSA:
          num_quad_pts=StenTheta_RPMmsa_NquadPtsBoundary();
          break;
-     case POLYMER_CR:
+     case THETA_CR_DATA:
          num_quad_pts=StenTheta_CrCMS_NquadPtsBoundary();
          break;
      case DELTA_FN_BOND:
@@ -228,23 +223,22 @@ int stencil_quadGauss_switch(int sten,double r)
  int num_quad_pts;
 
   switch(sten){
-     case DELTA_FN:
-         if (L_HSperturbation) num_quad_pts=StenDelta_R_NquadPtsGauss(r);
-         else                  num_quad_pts=StenDelta_BondCMS_NquadPtsGauss(r);
+     case DELTA_FN_R:
+         num_quad_pts=StenDelta_R_NquadPtsGauss(r);
          break;
-     case THETA_FN:
+     case THETA_FN_R:
          num_quad_pts=StenTheta_R_NquadPtsGauss(r);
          break;
      case THETA_FN_SIG:
          num_quad_pts=StenTheta_Sigma_NquadPtsGauss(r);
          break;
-     case U_ATTRACT:
+     case THETA_PAIRPOT_RCUT:
          num_quad_pts=StenTheta_uattr_NquadPtsGauss(r);
          break;
-     case THETA_CHARGE:
+     case THETA_CR_RPM_MSA:
          num_quad_pts=StenTheta_RPMmsa_NquadPtsGauss(r);
          break;
-     case POLYMER_CR:
+     case THETA_CR_DATA:
          num_quad_pts=StenTheta_CrCMS_NquadPtsGauss(r);
          break;
      case DELTA_FN_BOND:
@@ -265,14 +259,14 @@ int stencil_quadGaussIntegrand_switch(int sten,double r)
  int num_quad_pts=0;
 
   switch(sten){
-     case DELTA_FN: break;
-     case THETA_FN: break;
+     case DELTA_FN_R: break;
+     case THETA_FN_R: break;
      case THETA_FN_SIG: break;
-     case U_ATTRACT:
+     case THETA_PAIRPOT_RCUT:
          num_quad_pts=StenTheta_uattr_NquadPtsGaussIntegrand(r); break;
-     case THETA_CHARGE:
+     case THETA_CR_RPM_MSA:
          num_quad_pts=StenTheta_RPMmsa_NquadPtsGaussIntegrand(r); break;
-     case POLYMER_CR: break;
+     case THETA_CR_DATA: break;
      case DELTA_FN_BOND: break;
      default:
          printf("problem with stencil definitions: stencil_quadGaussIntegrand_switch ");

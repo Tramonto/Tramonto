@@ -84,6 +84,7 @@ void read_input_file(char *input_file, char *output_file1)
    double r,rho_tmp[NCOMP_MAX],dxdx,dtmp,charge_sum,minpos[3],maxpos[3];
    double rough_param_max[NWALL_MAX_TYPE],rough_length_scale[NWALL_MAX_TYPE];
    int iblock,jblock;
+   int Lvext1D;
 
   
   /********************** BEGIN EXECUTION ************************************/
@@ -210,10 +211,11 @@ void read_input_file(char *input_file, char *output_file1)
   /* attractive functionals */
   if ( Proc==0 ) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d",&Type_attr);
-    fprintf(fp2,"%d",Type_attr);
+    fscanf(fp,"%d  %d",&Type_attr,&Type_pairPot);
+    fprintf(fp2,"%d  %d",Type_attr,Type_pairPot);
   }
   MPI_Bcast(&Type_attr,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Type_pairPot,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Type_attr >1 || Type_attr<-1){
      if (Proc==0) printf("ERROR Type_attr=%d out of range - should be -1, 0, or 1\n",Type_attr);
      exit(-1);
@@ -238,11 +240,7 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_poly);
   }
   MPI_Bcast(&Type_poly,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_poly == CMS_GAUSSIAN){
-      printf ("To do CMS Gaussian chains, we need to test and debug all code !\n");
-      exit(-1);
-  }
-  else if (Type_poly >WTC || Type_poly<NONE){
+  if (Type_poly >WTC || Type_poly<NONE){
      if (Proc==0) printf("ERROR Type_poly out of range (bounds are %d,%d)\n",NONE,WTC);
      exit(-1);
   }
@@ -511,6 +509,14 @@ void read_input_file(char *input_file, char *output_file1)
   if (Lcompare_fastram) Lhard_surf=FALSE;
   MPI_Bcast(Ipot_wf_n,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Lhard_surf,1,MPI_INT,0,MPI_COMM_WORLD);
+ 
+  if (Proc==0){
+     read_junk(fp,fp2);
+     fscanf(fp,"%d  %d",&Type_vext1D,&Type_vext3D);
+     fprintf(fp2,"%d  %d",Type_vext1D,Type_vext3D);
+  }
+  MPI_Bcast(&Type_vext1D,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Type_vext3D,1,MPI_INT,0,MPI_COMM_WORLD);
 
   if (Proc==0) {
     read_junk(fp,fp2);
@@ -534,7 +540,12 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(Ipot_wf_n,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
 
-
+  if (Proc==0){
+     read_junk(fp,fp2);
+     fscanf(fp,"%d",&Type_uwwPot);
+     fprintf(fp2,"%d",Type_uwwPot);
+  }
+  MPI_Bcast(&Type_uwwPot,1,MPI_INT,0,MPI_COMM_WORLD);
 
   /* Fluid Particle Parameters */
 
@@ -1115,7 +1126,7 @@ void read_input_file(char *input_file, char *output_file1)
 */
        Bupdate_fact = 0.0;
        Bupdate_iters = -1;
-    } /* ends the section on Geqns that is only used if POLYMER_CR stencil is on */
+    } /* ends the section on Geqns that is only used if THETA_CR_DATA stencil is on */
     else{
        if (Proc==0) {
           read_junk(fp,fp2);

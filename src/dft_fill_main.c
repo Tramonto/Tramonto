@@ -133,10 +133,10 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
 
        case HSRHOBAR: 
           if (iunk == Phys2Unk_first[HSRHOBAR]){
-             resid_unk[iunk]=load_rho_bar_s(THETA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
+             resid_unk[iunk]=load_rho_bar_s(THETA_FN_R,x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
           }
           else if (iunk < Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
-             resid_unk[iunk]=load_rho_bar_s(DELTA_FN,x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
+             resid_unk[iunk]=load_rho_bar_s(DELTA_FN_R,x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
           }
           else if (iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s){
               resid_unk[iunk]=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);

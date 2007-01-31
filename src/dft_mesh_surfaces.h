@@ -28,6 +28,7 @@ extern int Type_poly;
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 extern int Type_func;
 extern int Lhard_surf;
 #define MAX_ROUGH_BLOCK 100

@@ -37,15 +37,15 @@
 #include "dft_switch_pairPot.h"
 
 /******************************************************************************/
-/* pairPot_switch:  switch to choose the correct pair potential when using
-           integrated potential surfaces, atomistic surface, or when computing
+/* pairPot_switch:  switch to choose the correct pair potential to use in an
+           external field calculation when using integrated potential surfaces
+           or atomistic surface. This routine is also used when computing
            Barker-Henderson diameters */
-double pairPot_switch(double r,double param1, double param2, double param3)
+double pairPot_switch(double r,double param1, double param2, double param3,int typePairPot)
 {
   double u;
-  int Type_pairPot=0;
 
-  switch(Type_pairPot){
+  switch(typePairPot){
       case PAIR_LJ12_6_CS:
         u= uLJ12_6_CS(r,param1,param2,param3);
         break;
@@ -53,7 +53,7 @@ double pairPot_switch(double r,double param1, double param2, double param3)
         u = uCOULOMB(r,param1,param2);
         break;
       default:
-         printf("problems with your selection of Type_pairPot\n");
+         printf("problems with your selection of typePairPot\n");
          exit(-1);
          break;
   }
@@ -62,12 +62,11 @@ double pairPot_switch(double r,double param1, double param2, double param3)
 /******************************************************************************/
 /* pairPot_deriv_switch:  switch to choose the correct pair potential derivative
            needed for force calculations */
-double pairPot_deriv_switch(double r, double x, double param1, double param2, double param3)
+double pairPot_deriv_switch(double r, double x, double param1, double param2, double param3,int typePairPot)
 {
   double uderiv;
-  int Type_pairPot=0;
 
-  switch(Type_pairPot){
+  switch(typePairPot){
       case PAIR_LJ12_6_CS:
         uderiv= uLJ12_6_DERIV1D(r,x,param1,param2,param3);
         break;
@@ -75,7 +74,7 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
         uderiv = uCOULOMB_DERIV1D(r,x,param1,param2);
         break;
       default:
-         printf("problems with your selection of Type_pairPot\n");
+         printf("problems with your selection of typePairPot\n");
          exit(-1);
          break;
   }
@@ -84,13 +83,13 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
 /******************************************************************************/
 /* pairPot_ATT_CS_switch:  switch to choose the correct pair potential for
            mean field perturbation DFT calculations with a hard sphere
-           reference fluid */
-double pairPot_ATT_CS_switch(double r, int icomp, int jcomp)
+           reference fluid.  This is the core function used to compute integration
+           stencils.  It is also used in computing bulk thermodynamics for these terms.*/
+double pairPot_ATT_CS_switch(double r, int icomp, int jcomp,int typePairPot)
 {
   double u;
-  int Type_pairPot=0;
 
-  switch(Type_pairPot){
+  switch(typePairPot){
       case PAIR_LJ12_6_CS:
         u= uLJ12_6_ATT_CS(r,icomp,jcomp);
         break;
@@ -98,22 +97,21 @@ double pairPot_ATT_CS_switch(double r, int icomp, int jcomp)
         u = uCOULOMB_ATT_noCS(r,icomp,jcomp);   /* no cut and shift implemented at this time */
         break;
       default:
-         printf("problems with your selection of Type_pairPot\n");
+         printf("problems with your selection of typePairPot\n");
          exit(-1);
          break;
   }
   return u;
 }
 /******************************************************************************/
-/* pairPot_ATT_noCS_switch:  switch to choose the correct integrated MFDFT 
-           pair potential (e.g. only the attractive part of the 12-6 potential)
-           for setting up the integration stencils for DFT calculations. */
-double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp)
+/* pairPot_ATT_noCS_switch:  switch to choose the correct full pair 
+          potential (no cut and shift) used in setting up integration stencils 
+          for mean field DFT calculations. */
+double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp,int typePairPot)
 {
   double u;
-  int Type_pairPot=0;
 
-  switch(Type_pairPot){
+  switch(typePairPot){
       case PAIR_LJ12_6_CS:
         u= uLJ12_6_ATT_noCS(r,icomp,jcomp);
         break;
@@ -121,7 +119,7 @@ double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp)
         u = uCOULOMB_ATT_noCS(r,icomp,jcomp);
         break;
       default:
-         printf("problems with your selection of Type_pairPot\n");
+         printf("problems with your selection of typePairPot\n");
          exit(-1);
          break;
   }
@@ -131,12 +129,11 @@ double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp)
 /* pairPot_integral_switch:  switch to choose the correct integrated MFDFT 
            pair potential (e.g. only the attractive part of the 12-6 potential)
            for setting up the integration stencils for DFT calculations. */
-double pairPot_integral_switch(double r, int icomp, int jcomp)
+double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
 {
   double u;
-  int Type_pairPot=0;
 
-  switch(Type_pairPot){
+  switch(typePairPot){
       case PAIR_LJ12_6_CS:
         u= uLJ12_6_Integral(r,icomp,jcomp);
         break;
@@ -144,7 +141,7 @@ double pairPot_integral_switch(double r, int icomp, int jcomp)
         u = uCOULOMB_Integral(r,icomp,jcomp);
         break;
       default:
-         printf("problems with your selection of Type_pairPot\n");
+         printf("problems with your selection of typePairPot\n");
          exit(-1);
          break;
   }

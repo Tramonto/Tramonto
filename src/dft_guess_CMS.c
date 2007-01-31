@@ -155,7 +155,7 @@ void setup_polymer_G(double **xOwned)
   int sten_type,izone,jlist,jnode_box,jtype_mer,itype_mer;
   int iunk,poln,iseg,ibond,not_done,junk,cycle,loc_B;
 
-     sten_type = DELTA_FN;
+     sten_type = DELTA_FN_BOND;
      izone = 0;
 
      loc_inode=0;

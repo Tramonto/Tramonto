@@ -27,7 +27,7 @@ extern double Rho_b[NCOMP_MAX];
 extern double Temp_elec;
 #define PI    M_PI
 double deltaC_MSA(double r,int i,int j);
-#define THETA_CHARGE   3
+#define THETA_CR_RPM_MSA      3
 double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int));
 extern int Ncomp;
 #if defined(__STDC__)

@@ -44,9 +44,9 @@ double StenTheta_uattr_sten_vol(int i,int j)
    r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
    r_cut = Cut_ff[i][j];
 
-   vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j)
-              - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j)
-              + pairPot_integral_switch(r_cut,i,j) - pairPot_integral_switch(r_min,i,j);
+   vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)
+              - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
+              + pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
 
    return(vol_sten);
 }
@@ -99,7 +99,7 @@ double StenTheta_uattr_GetWeightFromSten(int icomp, int jcomp, double rsq,
          for (i=0; i < ngpu; i++) {
             z = zmax * gpu[i];
             rho = sqrt(rsq + z*z) * Cut_ff[icomp][jcomp];
-            weight += gwu[i] * z * pairPot_ATT_CS_switch(rho, icomp, jcomp);
+            weight += gwu[i] * z * pairPot_ATT_CS_switch(rho, icomp, jcomp,Type_pairPot);
          }
          return(2.0 * PI * weight * Cut_ff[icomp][jcomp] * Cut_ff[icomp][jcomp] * zmax);
          break;
@@ -108,14 +108,14 @@ double StenTheta_uattr_GetWeightFromSten(int icomp, int jcomp, double rsq,
          for (i=0; i < ngpu; i++) {
              z = zmax * gpu[i];
              rho = sqrt(rsq + z*z) * Cut_ff[icomp][jcomp];
-             weight += gwu[i] * pairPot_ATT_CS_switch(rho, icomp, jcomp);
+             weight += gwu[i] * pairPot_ATT_CS_switch(rho, icomp, jcomp,Type_pairPot);
          }
          return(2.0 * weight * Cut_ff[icomp][jcomp] * zmax);
          break;
 
       case 3:
          rho = sqrt(rsq) * Cut_ff[icomp][jcomp];
-         weight = pairPot_ATT_CS_switch(rho, icomp, jcomp);
+         weight = pairPot_ATT_CS_switch(rho, icomp, jcomp,Type_pairPot);
          return(weight);
          break;
   }

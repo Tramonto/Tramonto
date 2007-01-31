@@ -755,7 +755,7 @@ void setup_vext_LJ_atomic(int iwall)
 
                 if (r > 0.00001){
                    Vext[loc_inode][icomp] += pairPot_switch(r,Sigma_wf[icomp][iwall_type],
-                                                  Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type]);
+                                                  Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type],Type_vext3D);
                 }
                 else {
                    Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; break;
@@ -861,7 +861,7 @@ void setup_vext_LJ_atomic(int iwall)
 
                     Vext_dash[loc_inode][iunk][idim] +=
                          sign*pairPot_deriv_switch(r,x[idim],Sigma_wf[icomp][iwall_type],
-                             Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type]);
+                             Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type],Type_vext3D);
                     }
                 }
 

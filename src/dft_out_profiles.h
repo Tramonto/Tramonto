@@ -64,6 +64,7 @@ extern int Npol_comp;
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
+#define NONE        -1
 #define CMS_G          2 
 extern double VEXT_MAX;
 #define NEQ_TYPE       8
@@ -88,7 +89,7 @@ extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 #define VERBOSE      3 
 extern int Iwrite;
-#define CMS_SCFT     2
+#define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
 void print_profile(char *output_file4);
