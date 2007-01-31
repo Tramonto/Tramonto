@@ -143,9 +143,7 @@ extern double **Vext_membrane;
 extern int **Lsemiperm;
 extern int Bupdate_iters;
 extern double Bupdate_fact;
-extern double Gauss_k;
 #define PI    M_PI
-extern double Gauss_a;
 extern double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 extern double Cr_break[2];
 extern char Cr_file4[40];
@@ -210,9 +208,8 @@ extern int Type_uwwPot;
 extern int Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern int Type_vext3D;
 extern int Type_vext1D;
-#define VEXT_HARD        1
-extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Lhard_surf;
+extern int Ipot_wf_n[NWALL_MAX_TYPE];
 #define MAX_ROUGH_BLOCK 100
 extern double Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 extern double Rough_length[NWALL_MAX_TYPE];

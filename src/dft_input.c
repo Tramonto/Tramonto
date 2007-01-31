@@ -25,21 +25,6 @@
 //@HEADER
 */
 
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile$
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- *
- *====================================================================*/
-
 /*
  *  FILE: dft_input.c
  *
@@ -79,7 +64,7 @@ void read_input_file(char *input_file, char *output_file1)
        new_wall,logical,ncharge, seg, block[NCOMP_MAX][NBLOCK_MAX],
        block_type[NBLOCK_MAX],pol_number, nlink_chk,irand,irand_range,itmp,
        *nbond_tot,nbond_all,iseg,nseg,nmer_max,ibond,pol_num2,nunk,
-       ***pol_sym_tmp,dim_tmp,Lauto_center,Lauto_size,Lcompare_fastram,jmin=0,jmax=0,
+       ***pol_sym_tmp,dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
    double r,rho_tmp[NCOMP_MAX],dxdx,dtmp,charge_sum,minpos[3],maxpos[3];
    double rough_param_max[NWALL_MAX_TYPE],rough_length_scale[NWALL_MAX_TYPE];
@@ -188,7 +173,8 @@ void read_input_file(char *input_file, char *output_file1)
     }
   }
   for (idim=0; idim < Ndim; ++idim) {
-    if ((Type_bc[idim][0]==PERIODIC)-(Type_bc[idim][1]==PERIODIC)) {
+    if ( ((Type_bc[idim][0]==PERIODIC)&&(Type_bc[idim][1]!=PERIODIC))
+         || ((Type_bc[idim][0]!=PERIODIC)&&(Type_bc[idim][1]==PERIODIC)) ) {
          printf("%s: ERROR: Both BC in dimension %d must be periodic if one is\n",
               yo, idim);
          exit(-1); 
@@ -244,14 +230,6 @@ void read_input_file(char *input_file, char *output_file1)
      if (Proc==0) printf("ERROR Type_poly out of range (bounds are %d,%d)\n",NONE,WTC);
      exit(-1);
   }
-
-/* check if we are trying to compare with FasTram -- for hard systems */
-  if ( Proc==0 ) {
-    read_junk(fp,fp2);
-    fscanf(fp,"%d ",&Lcompare_fastram);
-    fprintf(fp2,"%d ",Lcompare_fastram);
-  }
-  MPI_Bcast(&Lcompare_fastram,1,MPI_INT,0,MPI_COMM_WORLD);
 
   /* Read in or set if known the Potential Type Paramters */
   if (Type_func == -1 && (Type_poly==NONE || Type_poly==WTC)  ) Ipot_ff_n = IDEAL_GAS;
@@ -473,7 +451,7 @@ void read_input_file(char *input_file, char *output_file1)
     if (Nwall_type > 0) 
       for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
 	fscanf(fp,"%lf", &Rough_length[iwall_type]);
-	fprintf(fp2,"%l  ",Rough_length[iwall_type]);
+	fprintf(fp2,"%f  ",Rough_length[iwall_type]);
       }
     else fprintf(fp2,"n/a");
   }
@@ -493,27 +471,37 @@ void read_input_file(char *input_file, char *output_file1)
   }
 
   /* switches for types of wall-fluid and wall-wall interaction parameters */
-  Lhard_surf=FALSE;
   if (Proc==0) {
     read_junk(fp,fp2);
     if (Nwall_type > 0) 
       for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
          fscanf(fp,"%d",&Ipot_wf_n[iwall_type]);
          fprintf(fp2,"%d",Ipot_wf_n[iwall_type]);
-         if (Ipot_wf_n[iwall_type]==VEXT_HARD) Lhard_surf=TRUE;
-          /* set logical indicating if any of the surfaces have hard cores - if so, we
-              will need be careful with rosenfeld integrals */
       }
     else fprintf(fp2,"n/a");
   }
-  if (Lcompare_fastram) Lhard_surf=FALSE;
   MPI_Bcast(Ipot_wf_n,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
-  MPI_Bcast(&Lhard_surf,1,MPI_INT,0,MPI_COMM_WORLD);
  
+          /* set logical indicating if any of the surfaces have hard cores - if so, we
+              will need be careful with rosenfeld integrals */
   if (Proc==0){
      read_junk(fp,fp2);
-     fscanf(fp,"%d  %d",&Type_vext1D,&Type_vext3D);
-     fprintf(fp2,"%d  %d",Type_vext1D,Type_vext3D);
+     Lhard_surf=FALSE;
+     if (Nwall_type>0){
+        fscanf(fp,"%d",&Lhard_surf);
+        fprintf(fp2,"%d ",Lhard_surf);
+      }
+      else fprintf(fp2,"n/a");
+  }
+  MPI_Bcast(&Lhard_surf,1,MPI_INT,0,MPI_COMM_WORLD);
+
+  if (Proc==0){
+     read_junk(fp,fp2);
+     if (Nwall_type>0){
+        fscanf(fp,"%d  %d",&Type_vext1D,&Type_vext3D);
+        fprintf(fp2,"%d  %d",Type_vext1D,Type_vext3D);
+      }
+      else fprintf(fp2,"n/a");
   }
   MPI_Bcast(&Type_vext1D,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Type_vext3D,1,MPI_INT,0,MPI_COMM_WORLD);
@@ -521,7 +509,7 @@ void read_input_file(char *input_file, char *output_file1)
   if (Proc==0) {
     read_junk(fp,fp2);
     lzeros=FALSE; latoms=FALSE;
-    if (Nwall_type > 0) 
+    if (Nwall_type > 0 && Ndim==3) 
       for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
         for (jwall_type=0; jwall_type < Nwall_type;++jwall_type){
            if (!lzeros && !latoms){
@@ -542,8 +530,11 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0){
      read_junk(fp,fp2);
-     fscanf(fp,"%d",&Type_uwwPot);
-     fprintf(fp2,"%d",Type_uwwPot);
+     if (Nwall_type > 0 && Ndim==3) {
+        fscanf(fp,"%d",&Type_uwwPot);
+        fprintf(fp2,"%d",Type_uwwPot);
+     }
+     else fprintf(fp2,"n/a");
   }
   MPI_Bcast(&Type_uwwPot,1,MPI_INT,0,MPI_COMM_WORLD);
 
@@ -849,9 +840,11 @@ void read_input_file(char *input_file, char *output_file1)
       for (i=0; i<Npol_comp; ++i){
 	fscanf(fp,"%d",&Nblock[i]);
 	fprintf(fp2,"%d",Nblock[i]);
+	/* ALF: make a change here to better catch errors */
 	if (Nblock[i] > NBLOCK_MAX) {
-	  if (Proc==0) printf("Must increase NBLOCK_MAX");
-	  Nblock[i] = NBLOCK_MAX;
+	  if (Proc==0) printf("Error: Must increase NBLOCK_MAX");
+	  exit(-1);
+	/*  Nblock[i] = NBLOCK_MAX;*/
 	}
       }
     }
@@ -943,6 +936,10 @@ void read_input_file(char *input_file, char *output_file1)
     end_count_all=0;
     for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       Nseg_tot += Nmer[pol_number];
+      if(Nseg_tot > NMER_MAX) {
+      	printf("Error: too many polymer segments, must increase NMER_MAX\n");
+      	exit(-1);
+      }
       nbond_tot[pol_number]=0;
       nunk=0; 
       for (iseg=0; iseg<Nmer[pol_number]; iseg++){
@@ -1096,14 +1093,7 @@ void read_input_file(char *input_file, char *output_file1)
        MPI_Bcast(&Crfac,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
     /* Note: the value of Cr_rad_hs may get reset to Cutoff_ff if Ipot_ff_n=2 
        see setup_polymer_cr in dft_main.c */
-       if (Proc==0) {
-          read_junk(fp,fp2);
-          fscanf(fp,"%lf", &Gauss_a);
-          if (Proc==0) fprintf(fp2,"%f  ",Gauss_a);
-       }
-       MPI_Bcast(&Gauss_a,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
-       r = 3./(2.*PI*Gauss_a*Gauss_a);
-       Gauss_k = pow(r,1.5);
+       
 
 /* This is a debugging tool used to enter a real and an
    integer to try various things out.  Generally, we would
@@ -1132,7 +1122,7 @@ void read_input_file(char *input_file, char *output_file1)
           read_junk(fp,fp2);
           fprintf(fp2,"\n NO LIQUID STATE INPUT FOR WERTHEIM-TRIPATHI-CHAPMAN RUN\n");
           fprintf(fp2,"not read   ");
-          for (i=0; i<3; i++) {
+          for (i=0; i<2; i++) {
              read_junk(fp,fp2);
              fprintf(fp2,"not read   ");
           }       
@@ -1144,7 +1134,7 @@ void read_input_file(char *input_file, char *output_file1)
       read_junk(fp,fp2);
       fprintf(fp2,"\n POLYMER INPUT NOT RELEVENT FOR THIS RUN\n");
       fprintf(fp2,"not read   ");
-      for (i=0; i<8; i++) {
+      for (i=0; i<7; i++) {
              read_junk(fp,fp2);
              fprintf(fp2,"not read   ");
       }
@@ -1987,11 +1977,6 @@ void error_check(void)
         printf ("\nSorry, your choice for the wall-fluid interaction is not available\n");
         printf ("Ipot_wf_n[%d]: %d\n", i,Ipot_wf_n[i]);
         exit (-1);
-     }
-     if(Lhard_surf && Ipot_wf_n[i] != VEXT_HARD) {
-       printf ("\nSorry, you cannot have both hard and soft walls at the same time\n");
-       printf ("Ipot_wf_n[%d]: %d\n", i, Ipot_wf_n[i]);
-       exit (-1);
      }
   }
 

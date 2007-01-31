@@ -13,21 +13,6 @@
 //@HEADER
 */
 
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile$
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- *
- *====================================================================*/
-
 /*
  *  File:  dft_globals_const.h
  *
@@ -743,6 +728,7 @@ extern int     Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];    /* Potential Type f
 extern int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
 extern int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */
 extern int     Lhard_surf;   /* Logical indicating if the surfaces have hard cores */
+extern int     Lvext_dash;   /* Logical indicating if the Vext_dash array should be set up */
 extern  int     Iliq_vap;     /* Type of liquid vapor profile */
 extern int     Iguess1;        /* Type of initial guess */
 extern int     Nsteps;         /* Number of steps for a step profile initial guess */
@@ -913,9 +899,7 @@ extern int Sten_Choice_R[NSTEN][NZONE_MAX]; /* # Radial Gauss points for THETA_F
 
 /* Polymer variables */
 extern double Deltar_cr;
-extern double Gauss_k;
 extern double ***Rism_cr;
-extern double Gauss_a;
 extern double Crfac;
 extern double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 extern double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
