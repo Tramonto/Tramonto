@@ -34,7 +34,6 @@
 /*********************************************************************/
 double StenTheta_CrCMS_sten_rad(int icomp,int jcomp)
 { 
-  printf("returning sten_rad=%9.6f  for icomp=%d jcomp=%d\n",Cr_rad[icomp][jcomp],icomp,jcomp);
   return(Cr_rad[icomp][jcomp]); 
 }
 
