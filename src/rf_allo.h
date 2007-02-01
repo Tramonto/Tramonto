@@ -25,22 +25,6 @@
 //@HEADER
 */
 
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile$
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- *
- *====================================================================*/
-
-
 /* function declarations for dynamic array allocation */
 
 extern void *array_alloc (

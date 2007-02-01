@@ -146,6 +146,7 @@ void assign_parameter_tramonto(int cont_type,double param);
 void print_vext(double **vext,char *output_file);
 extern double ***Vext_dash;
 extern int Restart;
+extern int Lvext_dash;
 extern double **Vext;
 #define THETA_PAIRPOT_RCUT    2
 void calc_stencils(void);

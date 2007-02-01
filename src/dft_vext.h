@@ -72,13 +72,6 @@ int element_box_to_node_box(int iel_box);
 extern int **Lsemiperm;
 void node_to_position(int inode,double *NodePos);
 extern int *L2G_node;
-#define FALSE 0
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
-#endif
 extern double VEXT_MAX;
 extern int *L2B_node;
 extern int Nnodes;
@@ -89,10 +82,6 @@ double gmin_double(double c);
 double gmax_double(double c);
 void correct_zeroTF_array();
 extern int Num_Proc;
-#define TRUE  1
-#if !defined(TRUE) && !defined(_CON_CONST_H_)
-#define TRUE  1
-#endif
 extern int **Zero_density_TF;
 int node_to_node_box_no_bound(int inode);
 void node_to_ijk(int node,int *ijk);
@@ -110,18 +99,29 @@ void setup_1Dvext_xmin(int iwall);
 #define VEXT_1D_XMIN     3  /* crude 1D-like treatment of funny geometries */
 void setup_1Dvext(int iwall);
 #define VEXT_1D          2  /* 1D potential for 1D systems */
-#define VEXT_HARD        1
-#define VEXT_NONE          0
-extern int WallType[NWALL_MAX];
-extern int Ipot_wf_n[NWALL_MAX_TYPE];
 void setup_zero();
 void setup_vext_max();
 void setup_semiperm(int **nelems_w_per_w,int ***elems_w_per_w);
 #define UNINIT_VEC -200.0
 extern int Ndim;
 extern double ***Vext_dash;
-extern int Lhard_surf;
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
+#define VEXT_HARD        1
+#define VEXT_NONE          0
+extern int WallType[NWALL_MAX];
+extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Nwall;
+#define FALSE 0
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+extern int Lvext_dash;
 extern double **Vext_set;
 extern int Ncomp;
 extern int Nnodes_per_proc;

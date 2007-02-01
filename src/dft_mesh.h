@@ -195,6 +195,7 @@ extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
+extern int Lhard_surf;
 extern int Nlists_HW;
 extern int Nwall;
 void setup_basic_box(FILE *fp1,int *update);
@@ -212,7 +213,7 @@ extern int Nwall_type;
 extern int **Zero_density_TF;
 extern double ***Vext_dash;
 extern int Restart;
-extern int Lhard_surf;
+extern int Lvext_dash;
 extern double **Vext;
 extern double *Dielec;
 #define COULOMB      1

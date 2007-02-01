@@ -25,22 +25,6 @@
 //@HEADER
 */
 
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile$
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- *
- * $Name$
- *====================================================================*/
-
 /* DOCUMENTATION FOR CONTINUATION LIBRARY:    10/26/1999
  *    Andrew Salinger  Org. 9221, MS-1111, 845-3523
  *
@@ -567,7 +551,7 @@ static void scale_vext_temp(double ratio)
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       for (icomp=0; icomp<Ncomp; icomp++){
          Vext[loc_inode][icomp] /= ratio;
-         if (!Lhard_surf && Restart !=4 ){
+         if (Lvext_dash && Restart !=4 ){
          for (iwall=0; iwall<Nwall; iwall++)
          for (idim=0; idim<Ndim; idim++){
             iunk = iwall*Ncomp + icomp;
@@ -594,7 +578,7 @@ static void scale_vext_epswf(double ratio, int icomp,int iwall)
    int loc_inode,idim,iunk;
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
        Vext[loc_inode][icomp] *= ratio;
-       if (!Lhard_surf && Restart !=4){
+       if (Lvext_dash && Restart !=4){
        iunk = iwall*Ncomp+icomp;
        for (idim=0; idim<Ndim; idim++) Vext_dash[loc_inode][iunk][idim] *= ratio;
        }

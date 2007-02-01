@@ -25,21 +25,6 @@
 //@HEADER
 */
 
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile$
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- *
- *====================================================================*/
-
 /*
  *  FILE: dft_mesh.c
  *
@@ -222,7 +207,7 @@ void free_mesh_arrays(void)
 
    /* external field arrays */
    safe_free((void *) &Vext);
-   if (!Lhard_surf && Restart != 4) safe_free((void *) &Vext_dash);
+   if (Lvext_dash && Restart != 4) safe_free((void *) &Vext_dash);
    safe_free((void *) &Zero_density_TF);
    flag=FALSE;
    for (i=0;i<Nwall_type;i++)if (Ipot_wf_n[i]==VEXT_1D_XMIN) flag=TRUE;

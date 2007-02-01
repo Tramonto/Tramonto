@@ -25,21 +25,6 @@
 //@HEADER
 */
 
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile$
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- *
- *====================================================================*/
-
 /*
  *  FILE: dft_vext.c
  *
@@ -84,7 +69,13 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
 
    Vext = (double **) array_alloc (2,Nnodes_per_proc,Ncomp, sizeof(double));
    Vext_set = (double **) array_alloc (2,Nnodes_per_proc,Ncomp, sizeof(double));
-   if (Nwall>0 && !Lhard_surf) 
+
+   /* set up the Vext_dash array if we will need it */
+   Lvext_dash=FALSE;
+   for (iwall=0;iwall<Nwall;iwall++){
+      if (Ipot_wf_n[WallType[iwall]] != VEXT_NONE && Ipot_wf_n[WallType[iwall]] != VEXT_HARD) Lvext_dash=TRUE;
+   }
+   if (Nwall>0 && Lvext_dash) 
          Vext_dash =  (double ***) array_alloc (3, Nnodes_per_proc,Ncomp*Nwall, 
                                           Ndim, sizeof(double));
 
@@ -93,7 +84,7 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
 
         Vext[loc_inode][icomp] = UNINIT_VEC;
 
-        if (!Lhard_surf){
+        if (Lvext_dash){
         for (iwall=0; iwall<Nwall; iwall++){
           for (idim=0; idim<Ndim; idim++){
              iunk = iwall*Ncomp + icomp;
@@ -252,7 +243,7 @@ void setup_zero()
 
           if (!Zero_density_TF[inode_box][icomp]){
             Vext[loc_inode][icomp] = 0.0;
-            if (!Lhard_surf){
+            if (Lvext_dash){
             for (iwall=0; iwall<Nwall; iwall++) {
                 iunk = iwall*Ncomp + icomp;
                 for (idim=0; idim<Ndim; idim++) 
@@ -286,7 +277,7 @@ void setup_vext_max()
          node_to_position(inode,xpos);
          if (Zero_density_TF[inode_box][icomp]) {
             Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp];
-            if (!Lhard_surf){
+            if (Lvext_dash){
             for (iwall=0; iwall<Nwall; iwall++) {
                 iunk = iwall*Ncomp + icomp;
                 for (idim=0; idim<Ndim; idim++) Vext_dash[loc_inode][iunk][idim] = 0.0;
@@ -483,8 +474,7 @@ if (icomp==0 && loc_inode>53+(i*117) && loc_inode<63+(i*117))
                 sign = (image_pos[i][Orientation[iwall_type]] - node_pos_w[Orientation[iwall_type]])/
                         fabs(image_pos[i][Orientation[iwall_type]] - node_pos_w[Orientation[iwall_type]]);
  
-                Vext_dash[loc_inode][iunk][Orientation[iwall_type]] += 
-                      sign*Vext_1D_dash(x,icomp,iwall_type);
+                Vext_dash[loc_inode][iunk][Orientation[iwall_type]] += sign*Vext_1D_dash(x,icomp,iwall_type);
                 }
  
             }    /* end of images loop */
@@ -626,9 +616,8 @@ void setup_1Dvext_xmin(int iwall)
                 sign = (image_pos[i][0] - node_pos_w[0])/
                         fabs(image_pos[i][0] - node_pos_w[0]);
  
-                Vext_dash[loc_inode][iunk][0] += 
-                      sign* (Vext_1D_dash(x,icomp,iwall_type)+
-                                    Vext_1D_dash(x2,icomp,iwall_type));
+                Vext_dash[loc_inode][iunk][0] += sign* (Vext_1D_dash(x,icomp,iwall_type)+
+                                                        Vext_1D_dash(x2,icomp,iwall_type));
                 }
             }    * end of images loop *
           }     * end of vext check *

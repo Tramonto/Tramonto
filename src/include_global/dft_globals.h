@@ -25,21 +25,6 @@
 //@HEADER
 */
 
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile$
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- *
- *====================================================================*/
-
 /*
  *  File:  dft_globals.h
  *
@@ -272,6 +257,7 @@ int     Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];    /* Potential Type for neut
 int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
 int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */
 int     Lhard_surf;   /* Logical indicating if surfaces are hard core */
+int     Lvext_dash;   /* Logical indicating if the Vext_dash array should be set up */
 int     Iliq_vap;     /* Type of Liquid-vapro profile                        */
 int     Iguess1;        /* Type of initial guess */
 int     Nsteps;         /* Number of steps for a step profile initial guess */

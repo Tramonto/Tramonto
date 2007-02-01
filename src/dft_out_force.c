@@ -25,21 +25,6 @@
 //@HEADER
 */
 
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile$
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- *
- *====================================================================*/
-
 /*
  *  FILE: dft_outforce.c
  *
@@ -59,28 +44,36 @@
 
 void calc_force(FILE *fp, double **x,double fac_area)
 {
-   double **p_tilde,**f_elec,area;
+   double **p_tilde_vdash,**p_tilde_sumwall,**f_elec,area;
    double **p_tilde_L,**f_elec_L;
    double p_tilde_iwall_idim,
      f_elec_iwall_idim,force;
    int idim,iwall,i;
    static int first=TRUE;
 
-   p_tilde = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
+   p_tilde_vdash = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
+   p_tilde_sumwall = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
+   for (iwall=0;iwall<Nwall;iwall++)
+       for (idim=0;idim<Ndim;idim++){
+        p_tilde_vdash[iwall][idim]=0.0;
+        p_tilde_sumwall[iwall][idim]=0.0;
+   }
+
    if (Ipot_wf_c == 1) {
       f_elec = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
       for (iwall=0;iwall<Nwall;iwall++)
-      for (idim=0;idim<Ndim;idim++)  f_elec[iwall][idim]=0.0;
+         for (idim=0;idim<Ndim;idim++)  f_elec[iwall][idim]=0.0;
+ 
    }
 
    if(!first) {
 
-    if (!Lhard_surf && Restart != 4) integrate_rho_vdash(x,p_tilde);
-    else{
-       sum_rho_wall(x, p_tilde);
+    if (Lvext_dash && Restart != 4) integrate_rho_vdash(x,p_tilde_vdash);
+    if (Lhard_surf) sum_rho_wall(x, p_tilde_sumwall);
+
+
 /*       rho_sum_mid = sum_rho_midplane(x);
          rho_sum_tot = gsum_double(rho_sum_mid);*/
-    }
    }
     /* calculate the electrostatic contribution to the force */
 /*    if (Ipot_wf_c == 1) force_elec(x,f_elec);*/
@@ -93,10 +86,10 @@ void calc_force(FILE *fp, double **x,double fac_area)
     for (idim=0; idim<Ndim; idim++){
        for (i=0; i<Nlink; i++){
          p_tilde_L[i][idim] = 0.0;
-         if (Ipot_wf_c == 1)f_elec_L[i][idim] = 0.0;
+         if (Ipot_wf_c == 1) f_elec_L[i][idim] = 0.0;
          for (iwall=0; iwall<Nwall; iwall++){
             if (Link[iwall] == i){
-                p_tilde_L[i][idim] += p_tilde[iwall][idim];
+                p_tilde_L[i][idim] += (p_tilde_vdash[iwall][idim] + p_tilde_sumwall[iwall][idim]);
                 if (Ipot_wf_c == 1)f_elec_L[i][idim] += f_elec[iwall][idim];
             }
          }
@@ -118,8 +111,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
          if (Ipot_wf_c == 1) 
              f_elec_iwall_idim = gsum_double(f_elec_L[i][idim])*Temp_elec/(4.0*PI);
 
-         p_tilde_iwall_idim = 
-             gsum_double(p_tilde_L[i][idim]);
+         p_tilde_iwall_idim = gsum_double(p_tilde_L[i][idim]);
 
          force = p_tilde_iwall_idim + f_elec_iwall_idim;
 
@@ -168,7 +160,8 @@ void calc_force(FILE *fp, double **x,double fac_area)
   if (Proc == 0 &&Iwrite != NO_SCREEN){
         printf("----------------------------------------------------------\n");
   }
-  safe_free((void *) &p_tilde);
+  safe_free((void *) &p_tilde_vdash);
+  safe_free((void *) &p_tilde_sumwall);
   safe_free((void *) &p_tilde_L);
   if (Ipot_wf_c == 1) { safe_free((void *) &f_elec);
                         safe_free((void *) &f_elec_L);

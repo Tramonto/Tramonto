@@ -25,28 +25,11 @@
 //@HEADER
 */
 
-/*====================================================================
- * ------------------------
- * | CVS File Information |
- * ------------------------
- *
- * $RCSfile$
- *
- * $Author$
- *
- * $Date$
- *
- * $Revision$
- *
- *====================================================================*/
-
 /*
  *  FILE: dft_quadrature.c
  *
  *  This file contains the quadrature schemes for the non-local
  *  interactions.  
- *
- *
  *
  */
 
