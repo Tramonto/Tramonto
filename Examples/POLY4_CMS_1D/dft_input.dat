@@ -50,7 +50,7 @@
                            5=numerically integrated LJ12_6 interactions, 
                            6=ATOMIC potential (e.g. LJ12-6)
 
-@  0    Lhard_surf (Logical that controls application of integration stencil at the boundaries. If
+@ 0 	Lhard_surf (Logical that controls application of integration stencil at the boundaries. If 
                    TRUE (1), the step function at the boundary is treated carefully).
 
 @ 0 0 	Type_vext1D, Type_vext3D 
@@ -100,13 +100,12 @@
 @ 8 2 8 1 	block[pol_number][iblock]: Number of segments in each block 
 @ 0 1 0 2 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
 @ lin_18_1	poly_file: File containing polymer connectivity 
-@ 1 1.0 	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
+@ 1 1.0 cr8.2.8_0.375_1_0.375	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
                  NCrfiles (number of cr files - up to 4 to be read in)
                  Crfac (multiplicative factor for the first c(r).
                         The second c(r) is multiplied by (1.-crfac)
 @ n/a 	Cr_break[i=0;NCr_files-2] 
 @ 1.1 1.35 1.1 1.35 1.625 1.35 1.1 1.35 1.1 	Cr_rad: c(r) radius (units of sigma) 
-@ 0.9814 	Gauss_a: Aspect ratio ( gauss bl/sigma) 
 
 ************** SEMI-PERMEABLE SURFACE PARAMETERS *******************************
 @ -2 	Lsemiperm[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]... 

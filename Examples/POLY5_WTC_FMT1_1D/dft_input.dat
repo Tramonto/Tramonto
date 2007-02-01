@@ -50,7 +50,7 @@
                            5=numerically integrated LJ12_6 interactions, 
                            6=ATOMIC potential (e.g. LJ12-6)
 
-@  0    Lhard_surf (Logical that controls application of integration stencil at the boundaries. If
+@ 0 	Lhard_surf (Logical that controls application of integration stencil at the boundaries. If 
                    TRUE (1), the step function at the boundary is treated carefully).
 
 @ 0 0 	Type_vext1D, Type_vext3D 
@@ -106,7 +106,6 @@
                         The second c(r) is multiplied by (1.-crfac)
 @ n/a 	Cr_break[i=0;NCr_files-2] 
 @ 1. 	Cr_rad: c(r) radius (units of sigma) 
-@ 0.9814 	Gauss_a: Aspect ratio ( gauss bl/sigma) 
 
 ************** SEMI-PERMEABLE SURFACE PARAMETERS *******************************
 @ -2 	Lsemiperm[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]... 
