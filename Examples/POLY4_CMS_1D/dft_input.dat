@@ -231,7 +231,7 @@
 @ 0 100. 	Ljac_cut Jac_threshold 
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 5 	Maximum # of Newton Iterations 
+@ 10 	Maximum # of Newton Iterations 
 @ 1.0e-3 1.0e-8 0.25 	Newton_rel_tol Newton_abs_tol Min_update_frac 
 			(relative and absolute convergence tolerances
 			  min. update fractions for mixing)

@@ -14,7 +14,7 @@ adsorptions for each of the 12 segments in the system.
 Input Files for Test problem:
    - dft_input.dat
    - dft_surfaces.dat
-   - lin_5mer
+   - lin_8_lin_4
 
 Key Output Parameters:
    - niter=7
