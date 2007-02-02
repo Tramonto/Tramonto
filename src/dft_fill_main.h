@@ -14,6 +14,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern int *L2G_node;
+void print_residuals(int loc_inode,int iunk,double *resid_unk);
 double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define CMS_G          2 
 double load_CMS_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
@@ -46,6 +47,7 @@ extern int L_HSperturbation;
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 void safe_free(void **ptr);
 void safe_free(void **ptr);
+void load_standard_node(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,struct RB_Struct *dphi_drb,double *resid_unk,int mesh_coarsen_flag_i,int resid_only_flag);
 double load_coarse_node_Ndim(int loc_inode,int inode_box,int iunk,double **x,int resid_only_flag);
 #define FLAG_PBELEC -777
 #define FLAG_BULK   -888
@@ -89,7 +91,6 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-void fill_resid_and_matrix(double **x,int iter,int resid_only_flag,int unk_flag);
 #define NDIM_MAX  3
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */
@@ -99,7 +100,4 @@ struct RB_Struct {
   double    V1[NDIM_MAX];      /*  1/(4*pi*Ri) * unit_vec * Delta_Fn   */
   double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
 };
-void load_standard_node(int,int,int *,int,double **,struct RB_Struct *,double *,int,int);
-void load_standard_node(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,struct RB_Struct *dphi_drb,double *resid_unk,int mesh_coarsen_flag_i,int resid_only_flag);
-void print_residuals(int,int,double *);
-void print_residuals(int loc_inode,int iunk,double *resid_unk);
+void fill_resid_and_matrix(double **x,int iter,int resid_only_flag,int unk_flag);

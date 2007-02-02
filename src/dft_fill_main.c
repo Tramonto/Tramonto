@@ -22,8 +22,6 @@
 
 #include "dft_fill_main.h"
 
-void print_residuals(int,int,double *);
-void load_standard_node(int,int,int *,int,double **,struct  RB_Struct *, double *,int,int);
 /****************************************************************************/
 void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_flag)
 {

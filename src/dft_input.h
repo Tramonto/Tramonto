@@ -126,6 +126,7 @@ extern double Dielec_bulk;
 #define DIELEC_WF_PORE     2
 #define KAPPA_H2O 78.5
 #define EPSILON_0  8.85419e-12  /* C^2 J^-1 m^-1 */
+#define PI    M_PI
 extern double Temp_elec;
 extern int Type_dielec;
 extern int Charge_type_local;
@@ -143,7 +144,6 @@ extern double **Vext_membrane;
 extern int **Lsemiperm;
 extern int Bupdate_iters;
 extern double Bupdate_fact;
-#define PI    M_PI
 extern double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 extern double Cr_break[2];
 extern char Cr_file4[40];

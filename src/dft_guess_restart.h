@@ -53,6 +53,7 @@ extern int *Unk_to_Poly;
 #define NEQ_TYPE       8
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
+extern int Nrho_bar_s;
 int ijk_to_node(int *ijk);
 extern double Esize_x[NDIM_MAX];
 int round_to_int(double x);
