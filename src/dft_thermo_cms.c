@@ -154,13 +154,14 @@ void setup_polymer_cr()
       for (j=0; j<Ncomp; ++j){
          if (Cr_rad_hs[i][j] > cr_rad_max) cr_rad_max = Cr_rad_hs[i][j];
       }
-   lines=(int)(cr_rad_max/Deltar_cr);
+   lines=(int)((cr_rad_max+0.000000001)/Deltar_cr);
 
    if (Proc==0 && lines >= N_NZCR_MAX) {
       printf("Warning: Rism_cr array may be truncated :: Max Cr_rad_hs > allowed\n");
       lines = N_NZCR_MAX-1;
     }
-    /*printf("Proc=%d lines=%d\n",Proc,lines); */
+/*    printf("cr_rad_max=%11.8f  Deltar_cr=%11.8f\n",cr_rad_max,Deltar_cr);
+    printf("Proc=%d lines=%d\n",Proc,lines); */
 
    Last_nz_cr = lines;
    if (Proc==0) {

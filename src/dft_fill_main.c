@@ -184,7 +184,7 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
        case CMS_FIELD: printf("Proc=%d: loc_inode=%d  iunk_cmsfield=%d ",Proc,loc_inode,iunk); break;
        case CMS_G: printf("Proc=%d: loc_inode=%d  iunk_cmsG=%d ",Proc,loc_inode,iunk); break;
     }
-    printf(" resid=%9.6f \n",resid_unk[iunk]); 
+    printf(" resid=%11.8f \n",resid_unk[iunk]); 
 
     return;
 }
