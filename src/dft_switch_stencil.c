@@ -170,7 +170,7 @@ double stencil_GetWeight_switch(int sten, int icomp, int jcomp, double rsq,
          weight=StenTheta_CrCMS_GetWeightFromSten(icomp,jcomp,rsq,sten_rad);
          break;
      case DELTA_FN_BOND:
-         weight=StenDelta_Bond_GetWeightFromSten(icomp,jcomp,rsq,sten_rad);
+         weight=StenDelta_Bond_GetWeightFromSten(rsq,sten_rad);
          break;
      default:
          printf("problem with stencil definitions: stencil_volume_switch ");

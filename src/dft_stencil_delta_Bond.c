@@ -70,9 +70,9 @@ int StenDelta_Bond_NquadPtsGauss(double r)
    return(npt);
 }
 /*********************************************************************/
-double StenDelta_Bond_GetWeightFromSten(int icomp,int jcomp,double rsq,double R)
+double StenDelta_Bond_GetWeightFromSten(double rsq,double R)
 {
-   double weight,sigsq;
+   double weight;
 
     switch(Ndim){
       case 1:  weight=2.0 * PI * R;        break;
@@ -80,16 +80,6 @@ double StenDelta_Bond_GetWeightFromSten(int icomp,int jcomp,double rsq,double R)
       case 3:  weight=1.0;                 break;
     }
 
-    if (Type_poly==CMS || Type_poly==CMS_SCFT){
-
-         sigsq = Sigma_ff[icomp][jcomp]*Sigma_ff[icomp][jcomp];
-         /*  sigsq = Bond_ff[icomp][jcomp]*Bond_ff[icomp][jcomp];*/
-         /* note need to check which of these should be used - if Bond_ff, note
-            that Bond_ff[i][j]=sten_rad=R in this function so the equations
-            below can be cast in terms of R and rsq only....the icomp,jcomp*/
-
-       weight /= 4.0*PI*sigsq;
-    }
     return(weight);
 }
 /*********************************************************************/

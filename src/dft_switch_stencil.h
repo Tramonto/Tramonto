@@ -18,7 +18,7 @@ int StenTheta_Sigma_NquadPtsBoundary();
 int StenTheta_R_NquadPtsBoundary();
 int StenDelta_R_NquadPtsBoundary();
 int stencil_quadBoundaryEl_switch(int sten);
-double StenDelta_Bond_GetWeightFromSten(int icomp,int jcomp,double rsq,double R);
+double StenDelta_Bond_GetWeightFromSten(double rsq,double R);
 double StenTheta_CrCMS_GetWeightFromSten(int icomp,int jcomp,double rsq,double R);
 double StenTheta_RPMmsa_GetWeightFromSten(int icomp,int jcomp,double rsq,int ngpu,double *gpu,double *gwu);
 double StenTheta_uattr_GetWeightFromSten(int icomp,int jcomp,double rsq,int ngpu,double *gpu,double *gwu);
