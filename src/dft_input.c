@@ -65,7 +65,7 @@ void read_input_file(char *input_file, char *output_file1)
        block_type[NBLOCK_MAX],pol_number, nlink_chk,irand,irand_range,itmp,
        *nbond_tot,nbond_all,iseg,nseg,nmer_max,ibond,pol_num2,nunk,
        ***pol_sym_tmp,dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
-       lzeros,latoms,ltrues,jwall_type,seg_tot;
+       lzeros,latoms,ltrues,jwall_type,seg_tot,seg_id;
    double r,rho_tmp[NCOMP_MAX],dxdx,dtmp,charge_sum,minpos[3],maxpos[3];
    double rough_param_max[NWALL_MAX_TYPE],rough_length_scale[NWALL_MAX_TYPE];
    int iblock,jblock;
@@ -945,7 +945,13 @@ void read_input_file(char *input_file, char *output_file1)
       for (iseg=0; iseg<Nmer[pol_number]; iseg++){
         Pol_Sym_Seg[seg_tot]=-1;
         end_count=0;
-	if (Proc==0) fscanf(fp4,"%d", &Nbond[pol_number][iseg]);
+	if (Proc==0){ 
+          fscanf(fp4,"%d %d",&seg_id, &Nbond[pol_number][iseg]);
+          if (seg_id != iseg){
+             printf("something is wrong with the segment ids in the poly_file\n");
+             exit(-1);
+          }
+        }
 	MPI_Bcast(&Nbond[pol_number][iseg],1,MPI_INT,0,MPI_COMM_WORLD);
         Nbonds_SegAll[seg_tot]=0;
 
