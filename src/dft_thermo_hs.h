@@ -75,7 +75,7 @@ extern int Proc;
 #define VERBOSE      3 
 extern int Iwrite;
 double integrand_BH(double r,int icomp);
-#define LJ_BH_MF  1
+#define MFPAIR2 1
 extern int Type_attr;
 void calc_HS_diams();
 extern double Inv_4pirsq[NCOMP_MAX];

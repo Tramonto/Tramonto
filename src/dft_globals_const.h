@@ -213,8 +213,8 @@
  * These constants identify attraction functional choices (Type_attr).
  */
 #define NONE -1
-#define LJ_WCA_MF 0
-#define LJ_BH_MF  1
+#define MFPAIR1 0
+#define MFPAIR2 1
 
 /* 
  * These constants identify the functional choices (Type_coul).
@@ -223,8 +223,6 @@
 #define BARE       0
 #define DELTAC     1 
 #define POLARIZE   2
-#define LIKE_LJ    3
-#define DEBYE_HUCKEL    4
 
 /*
  * The following are choices for the neutral fluid-fluid interactions (Ipot_ff_n)

@@ -80,7 +80,7 @@ void calc_HS_diams()
   int icomp,i;
   double del,r,sum;
   for (icomp=0;icomp<Ncomp;icomp++){
-     if (Type_attr==LJ_BH_MF){ /* Barker-Henderson Treatment of hard core diameters */
+     if (Type_attr==MFPAIR2){ /* Barker-Henderson Treatment of hard core diameters */
         del=Sigma_ff[icomp][icomp]/1000.;
         r=sum=0.0;
         for (i=0;i<1000;i++){

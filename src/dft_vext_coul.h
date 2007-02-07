@@ -14,8 +14,13 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern double **Vext;
-#define LIKE_LJ    3
-extern int Type_coul;
+#define PAIR_COULOMB    1
+extern int Type_pairPot;
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
+#define NONE        -1
+extern int Type_attr;
 #define NCOMP_MAX 5
 extern double Charge_f[NCOMP_MAX];
 double integrate_potential(int flag,double param1,double param2,double param3,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
