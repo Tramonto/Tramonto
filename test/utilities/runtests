@@ -457,9 +457,10 @@ cleanUp();
 		    else { 
 
 		      # Skip the first line of dft_output.dat and grab the 
-		      # second.
+		      # second and third.
 		      my $dftOutput=<DFT_OUTPUT>;
 		      $dftOutput=<DFT_OUTPUT>;
+		      $dftOutput.=<DFT_OUTPUT>;
 		      close DFT_OUTPUT;
 
 		      my @outputValues = $dftOutput =~ m/(-?[0-9.]+)/g;
