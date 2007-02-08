@@ -487,14 +487,14 @@ cleanUp();
 			# keyParam is not an integer, so compare it to each of 
 			# the non-integers in the first line of output in 
 			# dft_output.dat and ensure it matches one of them 
-			# within 10e-5.
+			# within 10e-4.
 			else {
 			  my $found = 0;
 			  foreach my $outputValue (@outputValues) {
 			    # only compare against non-integers
 			    if ($outputValue =~ m/\./) {
 			      my $diff = abs($keyParam - $outputValue);
-			      if ($diff < 0.00001) {
+			      if ($diff < 0.0001) {
 				$found++;
 			      }
 			    }
