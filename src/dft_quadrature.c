@@ -776,7 +776,7 @@ void get_radial_quadrature(double gauss_pt[], double gauss_wt[], int num_gp)
      break;
 
    default:
-     printf("%s: Error! Number of radial Gauss Pts for Theta_fn must be 1-7\n",
+     printf("%s: Error! Number of radial Gauss Pts for Theta_fn must be 1-7...it is %d\n",
              yo, num_gp);
      if (num_gp>7) printf
           ("\t\tWhat, a 14th order polynomial isn't good enough for you???\n");

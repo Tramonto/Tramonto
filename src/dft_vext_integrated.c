@@ -67,7 +67,7 @@ double integrate_potential(double param1, double param2, double param3, int ngp,
               radius /= cut;
               weight = get_wt_from_sten(radius, param1, param2, param3, ngpu, gpu, gwu);
            }
-           else if (Type_vext3D=PAIR_COULOMB){
+           else if (Type_vext3D==PAIR_COULOMB){
               printf("Error - we can't compute coulomb external fields or wall-wall potentials\n");
               printf("        in 1 dimension...would require Ewald summation.\n");
               exit(-1);

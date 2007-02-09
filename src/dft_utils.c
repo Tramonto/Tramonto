@@ -380,7 +380,7 @@ double constant_boundary(int iunk,int jnode_box)
               }
               else if (jnode_box==-4){
                   if (Lsteady_state) bcval = Rho_b_RTF[iunk-Phys2Unk_first[DENSITY]];
-                  else               bcval = Rho_coex[2];
+                  else               bcval = Rho_coex[0];
               }
            }
            break;

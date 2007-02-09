@@ -83,7 +83,7 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
   int in_wall,numEntries, nodeIndices[2];
   double values[2];
   double pol_wall,wt;
-  double resid,resid_sum=0.0,mat_val;
+  double resid,resid_sum=0.0,mat_val,resid_poisson_polarize=0.0;
 
   /* static variables keep their value for every time the function is called*/
   static double *wt_lp_1el, *wt_s_1el;
@@ -273,7 +273,7 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
          }       /* end of test to be sure element is in fluid */
        }         /* end of possible local node positions */
    }
-
+   return(resid_poisson_polarize);
 }
 /****************************************************************************/
 double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x,int resid_only_flag)
