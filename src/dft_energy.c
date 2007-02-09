@@ -81,7 +81,7 @@ int lfirst;
        for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
 	  if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
 	  else                icomp=iunk-Phys2Unk_first[DENSITY];
-          if (fabs(Charge_f[icomp])<1.e-12){
+          if (fabs(Charge_f[icomp])<1.e-12 || Type_coul==NONE){
               omega_id+=integrateInSpace(&integrand_ideal_gas_freen,iunk,Nel_hit2,x,Integration_profile);
 
               omega_id_b+=integrateInSpace(&integrand_ideal_gas_freen_bulk,iunk,Nel_hit,x,Integration_profile);
@@ -145,13 +145,16 @@ int lfirst;
       if (Type_attr != NONE){
          omega_att=integrateInSpace_SumInComp(&integrand_att_freen,Nel_hit2,x,Integration_profile);
          if (Proc==0 && Iwrite != NO_SCREEN){
-               print_to_screen(omega_att,"ATTRACTIONS");
+               print_to_screen(omega_att,"MEAN_FIELD_POTENTIAL");
          }
 
          omega_att_b=integrateInSpace_SumInComp(&integrand_att_freen_bulk,Nel_hit,x,Integration_profile);
+         if (Proc==0 && Iwrite != NO_SCREEN){
+               print_to_screen(omega_att_b,"BULK: MEAN_FIELD_POTENTIAL");
+         }
          omega_att_surf_ex = omega_att-omega_att_b;
          if (Proc==0 && Iwrite != NO_SCREEN){
-               print_to_screen(omega_att_surf_ex,"SURF.EX.: ATTRACTIONS");
+               print_to_screen(omega_att_surf_ex,"SURF.EX.: MEAN_FIELD_POTENTIAL");
          }
 
          omega_sum += omega_att;

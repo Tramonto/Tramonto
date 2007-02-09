@@ -71,6 +71,7 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xOwned)
          for (i=0;i<NEQ_TYPE;i++) Restart_field[i]=TRUE;
      }
 
+printf("Imain_loop=%d\n  Nodes_old=%d  Nodes=%d\n",Imain_loop,Nodes_old,Nnodes);
      if (Nodes_old != Nnodes) {     /* Profile must be modified in some way.  Number of nodes in file does
                                        not match number of nodes in the current problem */
 
@@ -299,8 +300,9 @@ void read_in_a_file(int iguess,char *filename)
 
               case HSRHOBAR:
                  if (Restart == 5 && iunk_file-unk_start_in_file[HSRHOBAR]-Nrho_bar_s>0) tmp=0.0;
-                 else fscanf(fp5,"%lf",&tmp);
+                 else fscanf(fp5,"%lf",&tmp); 
                  break;
+
               case POISSON:
               case CAVWTC:
               case BONDWTC:
@@ -360,6 +362,8 @@ void shift_the_profile(double *x_new,double fac)
 
   int idim,jdim,iunk,inode,inode_old,ijk[3],ijk_tmp[3],Nadd;
   double x_test,unk_old,unk_1,unk_2;
+
+  printf("try to fix up profile in idim=%d in position=%d\n",Plane_new_nodes,Pos_new_nodes);
 
   idim = Plane_new_nodes;
   Nadd = round_to_int(Del_1[idim]/Esize_x[idim]);
@@ -430,13 +434,14 @@ void shift_the_profile(double *x_new,double fac)
  
      }
 
+     x_test=unk_old;
      /* check a few limiting values ... and finally set initial guess*/
-     if (Unk2Phys[iunk]==DENSITY){
+/*     if (Unk2Phys[iunk]==DENSITY){
         x_test = AZ_MIN(Rho_max,fac*(unk_old-Rho_b[iunk-Phys2Unk_first[DENSITY]])+ Rho_b[iunk-Phys2Unk_first[DENSITY]]);
      }
      else x_test=unk_old;
 
-/*     else if (Unk2Phys[iunk]==HSRHOBAR){
+     else if (Unk2Phys[iunk]==HSRHOBAR){
         x_test = fac*(unk_old-Rhobar_b[iunk-Phys2Unk_first[HSRHOBAR]])+ Rhobar_b[iunk-Phys2Unk_first[HSRHOBAR]];
         if (iunk == Ncomp && x_test >= 1.0) x_test = Rhobar_b[iunk-Phys2Unk_first[HSRHOBAR]];
      }

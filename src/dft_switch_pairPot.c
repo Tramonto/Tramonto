@@ -49,6 +49,9 @@ double pairPot_switch(double r,double param1, double param2, double param3,int t
       case PAIR_LJ12_6_CS:
         u= uLJ12_6_CS(r,param1,param2,param3);
         break;
+      case PAIR_COULOMB_CS:
+        u = uCOULOMB_CS(r,param1,param2,param3);
+        break;
       case PAIR_COULOMB:
         u = uCOULOMB(r,param1,param2);
         break;
@@ -69,6 +72,9 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
   switch(typePairPot){
       case PAIR_LJ12_6_CS:
         uderiv= uLJ12_6_DERIV1D(r,x,param1,param2,param3);
+        break;
+      case PAIR_COULOMB_CS:
+        uderiv = uCOULOMB_CS_DERIV1D(r,x,param1,param2,param3);
         break;
       case PAIR_COULOMB:
         uderiv = uCOULOMB_DERIV1D(r,x,param1,param2);
@@ -93,8 +99,11 @@ double pairPot_ATT_CS_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_LJ12_6_CS:
         u= uLJ12_6_ATT_CS(r,icomp,jcomp);
         break;
+      case PAIR_COULOMB_CS:
+        u = uCOULOMB_ATT_CS(r,icomp,jcomp);  
+        break;
       case PAIR_COULOMB:
-        u = uCOULOMB_ATT_noCS(r,icomp,jcomp);   /* no cut and shift implemented at this time */
+        u = uCOULOMB_ATT_CnoS(r,icomp,jcomp);  
         break;
       default:
          printf("problems with your selection of typePairPot\n");
@@ -116,6 +125,7 @@ double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp,int typePairPot)
         u= uLJ12_6_ATT_noCS(r,icomp,jcomp);
         break;
       case PAIR_COULOMB:
+      case PAIR_COULOMB_CS:
         u = uCOULOMB_ATT_noCS(r,icomp,jcomp);
         break;
       default:
@@ -138,6 +148,7 @@ double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
         u= uLJ12_6_Integral(r,icomp,jcomp);
         break;
       case PAIR_COULOMB:
+      case PAIR_COULOMB_CS:
         u = uCOULOMB_Integral(r,icomp,jcomp);
         break;
       default:

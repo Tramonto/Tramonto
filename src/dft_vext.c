@@ -34,9 +34,6 @@
 
 #include "dft_vext.h"
 
-#define FLAG_LJ 0
-#define FLAG_COULOMB 1
-
 /******************************************************************************/
 void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w) 
 
@@ -641,6 +638,7 @@ void setup_vext_LJ_atomic(int iwall)
    double max_cut,sign,**image_pos,node_pos_w[3],
           node_pos_f[3],node_pos_w2[3],r_center_sq,r,x[3],
           node_pos_f2[3];
+   double param1,param2,param3;
 
    iwall_type = WallType[iwall];
    max_cut = 0.0;
@@ -743,8 +741,14 @@ void setup_vext_LJ_atomic(int iwall)
                 }
 
                 if (r > 0.00001){
-                   Vext[loc_inode][icomp] += pairPot_switch(r,Sigma_wf[icomp][iwall_type],
+                   if (Type_vext3D == PAIR_LJ12_6_CS)
+                        Vext[loc_inode][icomp] += pairPot_switch(r,Sigma_wf[icomp][iwall_type],
                                                   Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type],Type_vext3D);
+                   else if (Type_vext3D == PAIR_COULOMB_CS)
+                        Vext[loc_inode][icomp] += pairPot_switch(r,Charge_f[icomp],
+                                                  Elec_param_w[iwall],Cut_wf[icomp][iwall_type],Type_vext3D);
+                   else if (Type_vext3D == PAIR_COULOMB)
+                        Vext[loc_inode][icomp] += pairPot_switch(r,Charge_f[icomp],Elec_param_w[iwall],0.0,Type_vext3D);
                 }
                 else {
                    Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; break;
@@ -848,9 +852,24 @@ void setup_vext_LJ_atomic(int iwall)
                     sign = (image_pos[i][idim] - node_pos_w[idim])/x[idim];
                     else sign = 1.0;
 
+                    if (Type_vext3D==PAIR_LJ12_6_CS){
+                        param1=Sigma_wf[icomp][iwall_type];
+                        param2=Eps_wf[icomp][iwall_type];
+                        param3=Cut_wf[icomp][iwall_type];
+                    }
+                    else if (Type_vext3D==PAIR_COULOMB_CS){
+                        param1=Charge_f[icomp];
+                        param2=Elec_param_w[iwall];
+                        param3=Cut_wf[icomp][iwall_type];
+                    }
+                    else if (Type_vext3D==PAIR_COULOMB){
+                        param1=Charge_f[icomp];
+                        param2=Elec_param_w[iwall];
+                        param3=0.0;
+                    }
+ 
                     Vext_dash[loc_inode][iunk][idim] +=
-                         sign*pairPot_deriv_switch(r,x[idim],Sigma_wf[icomp][iwall_type],
-                             Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type],Type_vext3D);
+                         sign*pairPot_deriv_switch(r,x[idim],param1,param2,param3,Type_vext3D);
                     }
                 }
 
@@ -1048,9 +1067,14 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
                 gw = &gw3[0]; gwu = &gwu3[0];
              }
 
-             vext = integrate_potential(FLAG_LJ,Sigma_wf[icomp][iwall_type],
-                    Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type],
-                    ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
+             if (Type_vext3D==PAIR_LJ12_6_CS)
+                vext = integrate_potential(Sigma_wf[icomp][iwall_type],
+                       Eps_wf[icomp][iwall_type], Cut_wf[icomp][iwall_type],
+                       ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
+             else if(Type_vext3D==PAIR_COULOMB_CS || Type_vext3D==PAIR_COULOMB)
+                vext = integrate_potential(Charge_f[icomp],Elec_param_w[iwall],
+                       Cut_wf[icomp][iwall_type], 
+                       ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
 
              if (r_center_sq<Cut_wf[icomp][iwall_type] && icomp!=0){
                  vext=0.5;

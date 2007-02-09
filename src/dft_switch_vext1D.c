@@ -62,6 +62,9 @@ double Vext_1D(double x,int icomp, int iwall_type)
       case EXP_ATT_noCS:
         vext = Vext_EXP_ATT_noCS(x,icomp,iwall_type);
         break;
+      case LINEAR_noCS:
+        vext = Vext_LINEAR_noCS(x,icomp,iwall_type);
+        break;
       default:
          printf("problems with your selection of Type_vext1D");
          exit(-1);
@@ -90,6 +93,9 @@ double Vext_1D_dash(double x,int icomp, int iwall_type)
         break;
       case EXP_ATT_noCS:
         vdash = Vextderiv_EXP_ATT(x,icomp,iwall_type);
+        break;
+      case LINEAR_noCS:
+        vdash = Vextderiv_LINEAR(x,icomp,iwall_type);
         break;
       case LJ9_3_shiftX_CS:
          vdash=0.0;  /* vdash code not yet written */

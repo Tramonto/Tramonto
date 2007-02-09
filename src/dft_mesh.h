@@ -169,7 +169,7 @@ extern int Lsteady_state;
 extern int Nnodes;
 int gsum_int(int c);
 extern int Coarser_jac;
-void setup_wall_wall_potentials(int **nelems_w_per_w,int ***elems_w_per_w);
+void setup_wall_wall_potentials();
 extern int Lprint_pmf;
 void setup_external_field_n(int **nelems_w_per_w,int ***elems_w_per_w);
 void read_zero_density_TF(char *filename);

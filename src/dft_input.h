@@ -254,6 +254,8 @@ extern int Nlink;
 extern int Nwall;
 extern int Nwall_type;
 extern int Ipot_ff_c;
+#define PAIR_COULOMB       2
+#define PAIR_COULOMB_CS    1
 #define LJ12_6       2
 #define HARD_SPHERE  1
 #define IDEAL_GAS    0

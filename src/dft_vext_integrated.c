@@ -34,32 +34,27 @@
 
 #include "dft_vext_integrated.h"
 
-#define FLAG_LJ 0
-#define FLAG_COULOMB 1
- 
-
 /***********************************************************************/
 /*integrate_potential: In this routine we use gauss quadrature
                     (same logic as in stencil routine) to calculate
                     the potential energy at a give fluid position
                     due to a given wall element.*/
-double integrate_potential(int flag, double param1, double param2, double param3, int ngp, int ngpu,
+double integrate_potential(double param1, double param2, double param3, int ngp, int ngpu,
                       double *gp, double *gpu, double *gw, double *gwu,
                       double *node_pos, double *node_pos_f)
 { 
    int ig,jg,kg,jwall_type=0; 
-   double weight, vext=0.0, radius, point[3],cut,z1,z2,sigma,eps;
+   double weight, vext=0.0, radius, point[3],cut,z1,z2,eps;
 
-   if (flag == FLAG_LJ){
-     sigma=param1;
-     eps=param2;
-     cut=param3;
-   }
-   else if (flag == FLAG_COULOMB){
-     z1=param1;
-     z2=param2;
-     cut=param3;
-   }
+   cut=param3;
+   /* note that the parameters that come to this file are as follows*/
+   /**** LJ type potential ****/
+   /*  param1=sigma           */
+   /*  param2=eps             */
+   /**** COULOMB paramters ****/
+   /*  z1=param1=z1           */
+   /*  z2=param2;             */
+   /***************************/
 
    switch(Ndim){
        case 1:
@@ -68,11 +63,11 @@ double integrate_potential(int flag, double param1, double param2, double param3
            point[0] = node_pos[0] + gp[ig] * Esize_x[0];
            radius = fabs(node_pos_f[0]-point[0]);
 
-           if (flag==FLAG_LJ){
+           if (Type_vext3D==PAIR_LJ12_6_CS || Type_vext3D==PAIR_COULOMB_CS){
               radius /= cut;
-              weight = get_wt_from_sten(radius, sigma, eps, cut, ngpu, gpu, gwu);
+              weight = get_wt_from_sten(radius, param1, param2, param3, ngpu, gpu, gwu);
            }
-           else{
+           else if (Type_vext3D=PAIR_COULOMB){
               printf("Error - we can't compute coulomb external fields or wall-wall potentials\n");
               printf("        in 1 dimension...would require Ewald summation.\n");
               exit(-1);
@@ -94,11 +89,11 @@ double integrate_potential(int flag, double param1, double param2, double param3
                             (node_pos_f[0] - point[0]) + 
                             (node_pos_f[1] - point[1])*
                             (node_pos_f[1] - point[1]) );
-              if (flag==FLAG_LJ){
+              if (Type_vext3D==PAIR_LJ12_6_CS || Type_vext3D==PAIR_COULOMB_CS){
                     radius /= cut;
-                    weight = get_wt_from_sten(radius, sigma,eps,cut, ngpu, gpu, gwu);
+                    weight = get_wt_from_sten(radius, param1,param2,param3, ngpu, gpu, gwu);
               }
-              else {
+              else if(Type_vext3D==PAIR_COULOMB){
                  printf("Error - we can't compute coulomb external fields or wall-wall potentials\n");
                  printf("        in 2 dimensions...would require Ewald summation.\n");
                  exit(-1);
@@ -126,11 +121,7 @@ double integrate_potential(int flag, double param1, double param2, double param3
                             (node_pos_f[2] - point[2])*
                             (node_pos_f[2] - point[2]) );
 
-                 if (flag==FLAG_LJ){
-                            radius /= cut;
-                            weight = get_wt_from_sten(radius, sigma,eps,cut,ngpu, gpu, gwu); 
-                 }
-                 else   weight = get_wt_from_sten_coul3D(radius, z1,z2);
+                weight = get_wt_from_sten(radius,param1,param2,param3,ngpu, gpu, gwu); 
 
                 vext += weight * gw[ig] * gw[jg] * gw[kg] /* * Vol_el*/;
              }
@@ -143,7 +134,7 @@ double integrate_potential(int flag, double param1, double param2, double param3
 /***********************************************************************/
 /*get_wt_from_sten: here we do the integrations out of the plane*/
 
-double get_wt_from_sten(double r,double sigma, double eps, double rcut,
+double get_wt_from_sten(double r,double param1, double param2, double rcut,
 				    int ngpu, double *gpu, double *gwu)
 {
   double temp, zmax, z, rho;
@@ -156,7 +147,7 @@ double get_wt_from_sten(double r,double sigma, double eps, double rcut,
      for (i=0; i < ngpu; i++) {
         z = zmax * gpu[i];
         rho = sqrt(r*r + z*z) * rcut;
-        temp += gwu[i] * z * pairPot_switch(rho, sigma,eps,rcut,Type_vext3D);
+        temp += gwu[i] * z * pairPot_switch(rho, param1,param2,rcut,Type_vext3D);
      }
      return(2.0 * PI * temp * rcut *rcut * zmax);
   }
@@ -166,22 +157,13 @@ double get_wt_from_sten(double r,double sigma, double eps, double rcut,
      for (i=0; i < ngpu; i++) {
         z = zmax * gpu[i];
         rho = sqrt(r*r + z*z) * rcut;
-        temp += gwu[i] * pairPot_switch(rho,sigma,eps,rcut,Type_vext3D);
+        temp += gwu[i] * pairPot_switch(rho,param1,param2,rcut,Type_vext3D);
      }
      return(2.0 * temp * rcut * zmax);
   }
   else {
-    rho = r * rcut;
-    temp = pairPot_switch(rho,sigma,eps,rcut,Type_vext3D);
+    temp = pairPot_switch(rho,param1,param2,rcut,Type_vext3D);
     return(temp);
   }
-
 }
 /***********************************************************************/
-/*get_wt_from_sten_coul: here we do the integrations out of the plane*/
-
-double get_wt_from_sten_coul3D(double r,double z1, double z2)
-{
-  return (uCOULOMB(r,z1,z2));
-}
-/******************************************************************************/

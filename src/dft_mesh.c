@@ -482,7 +482,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
                        read_zero_density_TF(output_TF);
      }
      else              setup_external_field_n(nelems_w_per_w,elems_w_per_w);
-     if (Nwall > 1 && Lprint_pmf) setup_wall_wall_potentials(nelems_w_per_w,elems_w_per_w);
+     if (Nwall > 1 && Lprint_pmf) setup_wall_wall_potentials();
 
 
      /* the temporary list arrays can be trashed now */

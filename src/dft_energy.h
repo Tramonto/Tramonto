@@ -35,16 +35,11 @@ extern double Temp_elec;
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 extern int Ncomp;
-extern int Type_coul;
 double integrand_att_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_att_freen(int iunk,int inode_box,double **x);
 extern int Type_attr;
 double integrand_hs_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_hs_freen(int iunk,int inode_box,double **x);
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
-#define NONE        -1
 extern int Type_func;
 double integrand_vext_freen(int iunk,int inode_box,double **x);
 double integrand_mu_freen_bulk(int iunk,int inode_box,double **x);
@@ -56,6 +51,11 @@ double integrand_ideal_gas_freen_bulk(int iunk,int inode_box,double **x);
 extern int **Nel_hit2;
 double integrand_ideal_gas_freen(int iunk,int inode_box,double **x);
 double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
+#define NONE        -1
+extern int Type_coul;
 extern double Charge_f[NCOMP_MAX];
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];

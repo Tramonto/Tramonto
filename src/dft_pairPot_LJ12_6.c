@@ -39,7 +39,6 @@
 /******************************************************************************/
 /* uLJ12_6_CS: The cut and shifted LJ 12-6 potential                         */
 
-/*double uLJ12_6_cut(double r,double sigma, double eps, double rcut)*/
 double uLJ12_6_CS(double r,double sigma, double eps, double rcut)
 {
   double u;
@@ -54,7 +53,6 @@ double uLJ12_6_CS(double r,double sigma, double eps, double rcut)
 /*******************************************************************************/
 /* uLJ12_6_DERIV1D: The derivative of a 12-6 potential in the x (or y or z) direction */
 
-/*double uderiv_LJ12_6(double r,double x,double sigma, double eps, double rcut)*/
 double uLJ12_6_DERIV1D(double r,double x,double sigma, double eps, double rcut)
 {
   double uderiv;
@@ -70,7 +68,6 @@ double uLJ12_6_DERIV1D(double r,double x,double sigma, double eps, double rcut)
 /* uLJ12_6_ATT_CS: the pair potential (based on a 12-6 LJ fluid) that will be used 
                   as the attractive perturbation to a hard sphere reference fluid
                   in strict mean field DFT calculations */
-/*double uLJatt_n(double r,int i, int j)*/
 double uLJ12_6_ATT_CS(double r,int i, int j)
 {
   double uatt,r_min,sigma2,sigma6;
@@ -107,7 +104,6 @@ double uLJ12_6_ATT_CS(double r,int i, int j)
 /* uLJ12_6_ATT_noCS:  calculate the attractive part of
                   12-6 LJ potential at the minimum. */
 
-/*double uLJatt_n_noshift(double r,int i, int j)*/
 double uLJ12_6_ATT_noCS(double r,int i, int j)
 {
   double uatt,r_min,sigma2,sigma6;
@@ -134,7 +130,6 @@ double uLJ12_6_ATT_noCS(double r,int i, int j)
                         to define the magnitude of the DFTMFT UATTRACT
                         integration stencil. */
 
-/*double uLJatt_n_int(double r,int i, int j)*/
 double uLJ12_6_Integral(double r,int i, int j)
 {
   double uatt_int, sigma2,sigma6;

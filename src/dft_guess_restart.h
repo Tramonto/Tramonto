@@ -27,6 +27,7 @@ extern double Xstart_step[NSTEPS_MAX];
 extern double **X_wall;
 extern int Nwall;
 void chop_profile(double **xOwned,int iguess);
+extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
@@ -35,14 +36,11 @@ extern int Unk2Comp[NMER_MAX];
 extern int *L2B_node;
 extern int *L2G_node;
 extern int Nnodes_per_proc;
-extern double Rho_b[NCOMP_MAX];
-extern double Rho_max;
-extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 int locate_inode_old(int *ijk);
-extern int Pos_new_nodes;
 void node_to_ijk(int node,int *ijk);
 #define NWALL_MAX_TYPE 50 
 extern double Del_1[NWALL_MAX_TYPE];
+extern int Pos_new_nodes;
 extern int Plane_new_nodes;
 #define NDIM_MAX  3
 extern int Nodes_x_old[NDIM_MAX];

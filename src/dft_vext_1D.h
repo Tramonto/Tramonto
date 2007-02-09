@@ -1,8 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
-double Vextderiv_EXP_ATT(double x,int icomp,int iwall_type);
-double Vext_EXP_ATT_noCS(double x,int icomp,int iwall_type);
-double Vextderiv_REPULSIVE9(double x,int icomp,int iwall_type);
-double Vext_REPULSIVE9_noCS(double x,int icomp,int iwall_type);
+double Vextderiv_LINEAR(double x,int icomp,int iwall_type);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -17,8 +14,17 @@ double Vext_REPULSIVE9_noCS(double x,int icomp,int iwall_type);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-extern double VEXT_MAX;
+#define NWALL_MAX 600 
+extern double Elec_param_w[NWALL_MAX];
 #define NCOMP_MAX 5
+extern double Charge_f[NCOMP_MAX];
+extern double Temp_elec;
+double Vext_LINEAR_noCS(double x,int icomp,int iwall_type);
+double Vextderiv_EXP_ATT(double x,int icomp,int iwall_type);
+double Vext_EXP_ATT_noCS(double x,int icomp,int iwall_type);
+double Vextderiv_REPULSIVE9(double x,int icomp,int iwall_type);
+double Vext_REPULSIVE9_noCS(double x,int icomp,int iwall_type);
+extern double VEXT_MAX;
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double Vext_LJ9_3_shiftX_CS(double x,int icomp,int iwall_type);
 double Vext_LJ9_3_noCS(double x,int icomp,int iwall_type);

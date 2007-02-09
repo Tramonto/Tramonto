@@ -34,9 +34,11 @@ double integrand_ideal_gas_freen(int iunk,int inode_box, double **x)
 
      rho_i = x[iunk][inode_box];
 
+
      if (rho_i > DENSITY_MIN)
           integrand = rho_i*(log(rho_i)-1.0);
      else integrand=0.0;
+
      return(integrand);
 }
 /****************************************************************************/

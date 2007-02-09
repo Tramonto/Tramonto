@@ -242,7 +242,7 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&Ipot_ff_n,1,MPI_INT,0,MPI_COMM_WORLD);
 
  
-  if (Type_coul >=0)  Ipot_ff_c =1; /* Coulombic Fluid */
+  if (Type_coul >=0 || Type_pairPot==PAIR_COULOMB_CS || Type_pairPot==PAIR_COULOMB)  Ipot_ff_c =1; /* Coulombic Fluid */
   else Ipot_ff_c=0;  /* Neutral Fluid */
   MPI_Bcast(&Ipot_ff_c,1,MPI_INT,0,MPI_COMM_WORLD);
 
@@ -1236,7 +1236,7 @@ void read_input_file(char *input_file, char *output_file1)
 
   /* Read in Charged surface parameters */
   Ipot_wf_c = 0;
-  if (Type_coul != -1) {
+  if (Type_coul != NONE || Type_pairPot==PAIR_COULOMB_CS || Type_pairPot==PAIR_COULOMB) {
     if (Proc==0) {
       read_junk(fp,fp2);
       for (iwall_type=0; iwall_type <  Nwall_type; ++iwall_type){

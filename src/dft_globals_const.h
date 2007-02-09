@@ -245,8 +245,10 @@
  * interactions for 3D atomistic surfaces.  They are used by Type_pairPot,
  * Type_vext3D, and Type_uwwPot parameters which may be set independently.  
  */
-#define PAIR_LJ12_6_CS  0
-#define PAIR_COULOMB    1
+#define PAIR_HARD         -1 
+#define PAIR_LJ12_6_CS     0
+#define PAIR_COULOMB_CS    1
+#define PAIR_COULOMB       2
 
 /*
  * The following are choices for 1D external field potentials.  
@@ -257,6 +259,7 @@
 #define LJ9_3_shiftX_CS   3
 #define REPULSIVE9_noCS   4
 #define EXP_ATT_noCS      5
+#define LINEAR_noCS       6 
 
 /*
  *  The following define ways to distribute charge in the system 

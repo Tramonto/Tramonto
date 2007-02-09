@@ -15,11 +15,15 @@
 #include "Tramonto_ConfigDefs.h"
 #define PI    M_PI
 double uCOULOMB_Integral(double r,int i,int j);
+double uCOULOMB_ATT_CnoS(double r,int i,int j);
+double uCOULOMB_DERIV1D(double r,double x,double z1,double z2);
+double uCOULOMB(double r,double z1,double z2);
+double uCOULOMB_ATT_noCS(double r,int i,int j);
 #define NCOMP_MAX 5
 extern double Charge_f[NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
-double uCOULOMB_ATT_noCS(double r,int i,int j);
-double uCOULOMB_DERIV1D(double r,double x,double z1,double z2);
+double uCOULOMB_ATT_CS(double r,int i,int j);
+double uCOULOMB_CS_DERIV1D(double r,double x,double z1,double z2,double rcut);
 extern double Temp_elec;
-double uCOULOMB(double r,double z1,double z2);
+double uCOULOMB_CS(double r,double z1,double z2,double rcut);
