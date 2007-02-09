@@ -1,0 +1,27 @@
+/*! \file 
+ \brief Primitive model electrolyte (2 components).
+
+Functionals: FMT1,SMF
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: 1-1 electrolyte composed of two charged components (ions) dielectric continuum solvent. In this case the ions
+are of finite and equal sizes. The DFT includes both hard sphere and strict mean field contributions to the functional
+where a Coulomb potential with a long cutoff (no shift) is used as the interaction potential. There
+are two surfaces in the problem, each with a charge per unit area of 0.3.  Note that the difference in the adsorption of the
+two ionic species is 0.49 indicating that charge neutrality is not perfect for this system.  This demonstrates why 
+charged systems should be treated with a coupled Poisson solve. 
+Compare with MIX4_FMT1_ELEC_1D where a Poisson solve is performed.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=9
+   - adsorption[0]= 0.300677  
+   - adsorption[1]= 0.797593
+   .
+*/
