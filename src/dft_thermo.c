@@ -234,11 +234,11 @@ void calc_chempot(char *output_file1)
                }
                else{
                   if (Iwrite != NO_SCREEN) {
-                      for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(iseg,Betamu_LBB[icomp],"Betamu_LBB");
-                      for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(iseg,Betamu_RTF[icomp],"Betamu_RTF");
+                      for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu_LBB[icomp],"Betamu_LBB");
+                      for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu_RTF[icomp],"Betamu_RTF");
                   }
-                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,iseg,Betamu_LBB[icomp],"Betamu_LBB",TRUE);
-                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,iseg,Betamu_RTF[icomp],"Betamu_RTF",TRUE);
+                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_LBB[icomp],"Betamu_LBB",TRUE);
+                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_RTF[icomp],"Betamu_RTF",TRUE);
                }
           }    
        }
@@ -284,8 +284,8 @@ void calc_chempot(char *output_file1)
                   for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg[iseg],"Betamu_seg",TRUE);
                }
                else{
-                  if (Iwrite != NO_SCREEN) for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(iseg,Betamu[icomp],"Betamu");
-                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,iseg,Betamu[icomp],"Betamu",TRUE);
+                  if (Iwrite != NO_SCREEN) for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu[icomp],"Betamu");
+                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu[icomp],"Betamu",TRUE);
                }
           }    
       }
