@@ -358,7 +358,7 @@ void setup_1Dvext(int iwall)
         if (max_cut < Cut_wf[icomp][iwall_type])
             max_cut = Cut_wf[icomp][iwall_type];
 
-  maximum = 1 + 2*((int)max_cut/Size_x[Orientation[iwall_type]]+1);  
+  maximum = 1 + 2*((int)max_cut/Size_x[Orientation[iwall_type]]+2);  
   image_pos = (double **) array_alloc (2, maximum, Ndim, sizeof(double));
 
   for (idim=0;idim<Ndim;idim++){
@@ -510,7 +510,7 @@ void setup_1Dvext_xmin(int iwall)
         if (max_cut < Cut_wf[icomp][iwall_type])
             max_cut = Cut_wf[icomp][iwall_type];
 
-  maximum = 1 + 2*((int)max_cut/Size_x[0]+1);  
+  maximum = 1 + 2*((int)max_cut/Size_x[0]+2);  
   image_pos = (double **) array_alloc (2, maximum, Ndim, sizeof(double));
 
 
@@ -646,7 +646,7 @@ void setup_vext_LJ_atomic(int iwall)
          if (max_cut < Cut_wf[icomp][iwall_type]) 
              max_cut = Cut_wf[icomp][iwall_type];
   
-   maximum = 1 + (int)POW_DOUBLE_INT(2*max_cut/Size_x[0]+1,Ndim);
+   maximum = 1 + (int)POW_DOUBLE_INT(2*max_cut/Size_x[0]+2,Ndim);
    image_pos = (double **) array_alloc (2, maximum, Ndim, sizeof(double));
 
    ilist = Nlists_HW-1; /* only add the contributions of the solid*/
