@@ -47,6 +47,7 @@
 #ifdef HAS_VALUES_H
 #include <values.h> /* for PI called (M_PI) */
 #include <unistd.h>
+#include <string.h>
 #endif
 
 #include "mpi.h"
