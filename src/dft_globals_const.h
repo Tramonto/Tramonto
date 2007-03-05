@@ -143,6 +143,13 @@
 #define NO_RENORMALIZATION_FLAG -888
 
 /*
+ * Options for the context flag that is used to assign potential parameters
+ */
+#define FLUID_FLUID 0
+#define WALL_FLUID  1
+#define WALL_WALL   2
+
+/*
  * An equation type list is given here to make identification of a particular
  * unknown number straightforward.  This became necessary with the introduction
  * of the WTC polymers where we now have 6 types of equations to fill.
@@ -214,8 +221,8 @@
  * These constants identify attraction functional choices (Type_attr).
  */
 #define NONE -1
-#define MFPAIR1 0
-#define MFPAIR2 1
+#define MFPAIR1  0
+#define MFPAIR2  1
 
 /* 
  * These constants identify the functional choices (Type_coul).

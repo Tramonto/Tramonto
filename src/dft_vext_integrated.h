@@ -5,6 +5,7 @@
 #if defined(HAS_VALUES_H)
 #include <values.h>
 #include <unistd.h>
+#include <string.h>
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
@@ -16,10 +17,8 @@
 #define PI    M_PI
 double pairPot_switch(double r,double param1,double param2,double param3,int typePairPot);
 extern double Vol_el;
-#define PAIR_COULOMB       2
 double get_wt_from_sten(double r,double param1,double param2,double rcut,int ngpu,double *gpu,double *gwu);
-#define PAIR_COULOMB_CS    1
-#define PAIR_LJ12_6_CS     0
+#define PAIR_COULOMB       2
 extern int Type_vext3D;
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];

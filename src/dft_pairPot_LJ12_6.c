@@ -51,6 +51,32 @@ double uLJ12_6_CS(double r,double sigma, double eps, double rcut)
   return (4.0*eps*u);
 }
 /*******************************************************************************/
+/* uLJ12_6_CS_setparams: The parameters for the cut and shifted LJ12_6 potential */
+void uLJ12_6_CS_setparams(int context, int i, int j, double *param1,double *param2, double *param3)
+{
+  switch (context){
+     case FLUID_FLUID:
+        *param1 = Sigma_ff[i][j];
+        *param2 = Eps_ff[i][j];
+        *param3 = Cut_ff[i][j];
+        break;
+     case WALL_FLUID:
+        *param1 = Sigma_wf[i][WallType[j]];
+        *param2 = Eps_wf[i][WallType[j]];
+        *param3 = Cut_wf[i][WallType[j]];
+        break;
+     case WALL_WALL:
+        *param1 = Sigma_ww[WallType[i]][WallType[j]];
+        *param2 = Eps_ww[WallType[i]][WallType[j]];
+        *param3 = Cut_ww[WallType[i]][WallType[j]];
+        break;
+     default:
+        printf("problem with potential context uLJ12_6_CS_setparams\n");
+        exit(-1);
+   }
+   return;
+}
+/*******************************************************************************/
 /* uLJ12_6_DERIV1D: The derivative of a 12-6 potential in the x (or y or z) direction */
 
 double uLJ12_6_DERIV1D(double r,double x,double sigma, double eps, double rcut)

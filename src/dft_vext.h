@@ -9,6 +9,7 @@ void read_external_field_n(char *filename);
 #if defined(HAS_VALUES_H)
 #include <values.h>
 #include <unistd.h>
+#include <string.h>
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
@@ -36,15 +37,10 @@ extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern int Surface_type[NWALL_MAX_TYPE];
 void setup_vext_HS_atomic(int iwall);
 double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3,int typePairPot);
-#define PAIR_COULOMB       2
-#define NWALL_MAX 600 
-extern double Elec_param_w[NWALL_MAX];
-extern double Charge_f[NCOMP_MAX];
-#define PAIR_COULOMB_CS    1
-extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 double pairPot_switch(double r,double param1,double param2,double param3,int typePairPot);
-#define PAIR_LJ12_6_CS     0
+#define WALL_FLUID  1
 extern int Type_vext3D;
+double pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3);
 extern int *B2G_node;
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
@@ -63,6 +59,7 @@ void find_images_1D(int idim,double cut,int *image,double **image_pos,double *no
 #define REFLECT      2
 #define PERIODIC     1
 extern int Type_bc[NDIM_MAX][2];
+#define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Orientation[NWALL_MAX_TYPE];
 extern double Size_x[NDIM_MAX];

@@ -63,6 +63,28 @@ double pairPot_switch(double r,double param1, double param2, double param3,int t
   return u;
 }
 /******************************************************************************/
+/* pairPotparams_switch:  switch to set the correct parameters for a given choice of potential.
+           Note that these parameters must map correctly to the potential functions (i.e. uLJ12_6_CS). */
+double pairPotparams_switch(int typePairPot,int context, int i, int j,double *param1, double *param2, double *param3)
+{
+  switch(typePairPot){
+      case PAIR_LJ12_6_CS:
+        uLJ12_6_CS_setparams(context,i,j,param1,param2,param3);
+        break;
+      case PAIR_COULOMB_CS:
+        uCOULOMB_CS_setparams(context,i,j,param1,param2,param3);
+        break;
+      case PAIR_COULOMB:
+        uCOULOMB_setparams(context,i,j,param1,param2,param3);
+        break;
+      default:
+        printf("problems with your selection of typePairPot\n");
+        exit(-1);
+        break;
+  }
+  return;
+}
+/******************************************************************************/
 /* pairPot_deriv_switch:  switch to choose the correct pair potential derivative
            needed for force calculations */
 double pairPot_deriv_switch(double r, double x, double param1, double param2, double param3,int typePairPot)

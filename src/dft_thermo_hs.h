@@ -9,6 +9,7 @@ void dphi_drb_bulk(double *rhobar,double *dphi_drb);
 #if defined(HAS_VALUES_H)
 #include <values.h>
 #include <unistd.h>
+#include <string.h>
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
@@ -75,7 +76,7 @@ extern int Proc;
 #define VERBOSE      3 
 extern int Iwrite;
 double integrand_BH(double r,int icomp);
-#define MFPAIR2 1
+#define MFPAIR2  1
 extern int Type_attr;
 void calc_HS_diams();
 extern double Inv_4pirsq[NCOMP_MAX];

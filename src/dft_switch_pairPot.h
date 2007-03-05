@@ -13,6 +13,10 @@ double uCOULOMB_DERIV1D(double r,double x,double z1,double z2);
 double uCOULOMB_CS_DERIV1D(double r,double x,double z1,double z2,double rcut);
 double uLJ12_6_DERIV1D(double r,double x,double sigma,double eps,double rcut);
 double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3,int typePairPot);
+void uCOULOMB_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
+void uCOULOMB_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
+void uLJ12_6_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
+double pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3);
 double uCOULOMB(double r,double z1,double z2);
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +24,7 @@ double uCOULOMB(double r,double z1,double z2);
 #if defined(HAS_VALUES_H)
 #include <values.h>
 #include <unistd.h>
+#include <string.h>
 #endif
 #include "mpi.h"
 #include "az_aztec.h"

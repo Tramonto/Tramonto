@@ -6,6 +6,7 @@ double pairPot_switch(double r,double param1,double param2,double param3,int typ
 #if defined(HAS_VALUES_H)
 #include <values.h>
 #include <unistd.h>
+#include <string.h>
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
@@ -18,19 +19,15 @@ double pairPot_switch(double r,double param1,double param2,double param3,int typ
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Ndim;
-extern double Elec_param_w[NWALL_MAX];
-#define PAIR_COULOMB_CS    1
-#define NWALL_MAX_TYPE 50 
-extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-#define PAIR_LJ12_6_CS     0
+#define WALL_WALL   2
+double pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3);
 #define PAIR_COULOMB       2
 extern int Type_coul;
 void setup_atomic_ww(int iwall,int jwall,int type_uwwpot);
 #define PAIR_HARD         -1 
 extern int Type_uwwPot;
 #define ATOM_CENTERS_WW    1 
+#define NWALL_MAX_TYPE 50 
 extern int Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern int WallType[NWALL_MAX];
 extern int Link[NWALL_MAX];

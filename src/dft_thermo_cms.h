@@ -5,6 +5,7 @@
 #if defined(HAS_VALUES_H)
 #include <values.h>
 #include <unistd.h>
+#include <string.h>
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
@@ -20,8 +21,11 @@ double pairPot_ATT_CS_switch(double r,int icomp,int jcomp,int typePairPot);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
-#define LJ12_6       2
-extern int Ipot_ff_n;
+#define NONE       -1
+#define NONE      -1
+#define NONE -1
+#define NONE        -1
+extern int Type_attr;
 extern double ***Rism_cr;
 extern int Last_nz_cr;
 #define N_NZCR_MAX   200   /* maximum # of non-zero's in direct correlation fn */

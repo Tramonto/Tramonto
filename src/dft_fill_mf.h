@@ -8,6 +8,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp(int sten_type,double **x,int iunk,int l
 #if defined(HAS_VALUES_H)
 #include <values.h>
 #include <unistd.h>
+#include <string.h>
 #endif
 #include "mpi.h"
 #include "az_aztec.h"

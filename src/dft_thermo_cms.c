@@ -293,7 +293,7 @@ void setup_polymer_cr()
       fclose(fp7);
    }
 
-   if (Ipot_ff_n == LJ12_6){
+   if (Type_attr != NONE){
      for (i=0; i < Ncomp; ++i)
        for (j=0; j<Ncomp; ++j){
          if (Cut_ff[i][j] > Cr_rad_hs[i][j]) Cr_rad[i][j] = Cut_ff[i][j];

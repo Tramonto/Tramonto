@@ -129,21 +129,7 @@ void setup_atomic_ww(int iwall, int jwall,int type_uwwpot){
   double xi,xj,rsq,r;
   double param1,param2,param3;
 
-  if (type_uwwpot==PAIR_LJ12_6_CS){
-     param1=Sigma_ww[WallType[iwall]][WallType[jwall]];
-     param2=Eps_ww[WallType[iwall]][WallType[jwall]];
-     param3=Cut_ww[WallType[iwall]][WallType[jwall]];
-  }
-  else if (type_uwwpot==PAIR_COULOMB_CS){
-     param1=Elec_param_w[iwall];
-     param2=Elec_param_w[jwall];
-     param3=Cut_ww[WallType[iwall]][WallType[jwall]];
-  }
-  else if (type_uwwpot==PAIR_COULOMB){
-     param1=Elec_param_w[iwall];
-     param2=Elec_param_w[jwall];
-     param3=0.;
-  }
+  pairPotparams_switch(type_uwwpot,WALL_WALL,iwall,jwall,&param1,&param2,&param3);
 
   rsq = 0.0;
   for (idim=0; idim<Ndim; idim++){
@@ -157,3 +143,4 @@ void setup_atomic_ww(int iwall, int jwall,int type_uwwpot){
   return;
 }
 /******************************************************************************/
+

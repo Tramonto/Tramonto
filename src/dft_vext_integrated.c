@@ -52,8 +52,8 @@ double integrate_potential(double param1, double param2, double param3, int ngp,
    /*  param1=sigma           */
    /*  param2=eps             */
    /**** COULOMB paramters ****/
-   /*  z1=param1=z1           */
-   /*  z2=param2;             */
+   /*  param1=z1           */
+   /*  param2=z2;             */
    /***************************/
 
    switch(Ndim){
@@ -63,14 +63,14 @@ double integrate_potential(double param1, double param2, double param3, int ngp,
            point[0] = node_pos[0] + gp[ig] * Esize_x[0];
            radius = fabs(node_pos_f[0]-point[0]);
 
-           if (Type_vext3D==PAIR_LJ12_6_CS || Type_vext3D==PAIR_COULOMB_CS){
-              radius /= cut;
-              weight = get_wt_from_sten(radius, param1, param2, param3, ngpu, gpu, gwu);
-           }
-           else if (Type_vext3D==PAIR_COULOMB){
+           if (Type_vext3D==PAIR_COULOMB){
               printf("Error - we can't compute coulomb external fields or wall-wall potentials\n");
               printf("        in 1 dimension...would require Ewald summation.\n");
               exit(-1);
+           }
+           else{
+              radius /= cut;
+              weight = get_wt_from_sten(radius, param1, param2, param3, ngpu, gpu, gwu);
            }
            
            vext += weight * gw[ig] * Vol_el;
@@ -89,14 +89,14 @@ double integrate_potential(double param1, double param2, double param3, int ngp,
                             (node_pos_f[0] - point[0]) + 
                             (node_pos_f[1] - point[1])*
                             (node_pos_f[1] - point[1]) );
-              if (Type_vext3D==PAIR_LJ12_6_CS || Type_vext3D==PAIR_COULOMB_CS){
-                    radius /= cut;
-                    weight = get_wt_from_sten(radius, param1,param2,param3, ngpu, gpu, gwu);
-              }
-              else if(Type_vext3D==PAIR_COULOMB){
+              if(Type_vext3D==PAIR_COULOMB){
                  printf("Error - we can't compute coulomb external fields or wall-wall potentials\n");
                  printf("        in 2 dimensions...would require Ewald summation.\n");
                  exit(-1);
+              }
+              else{
+                 radius /= cut;
+                 weight = get_wt_from_sten(radius, param1,param2,param3, ngpu, gpu, gwu);
               }
 
              vext += weight * gw[ig] * gw[jg] *Vol_el;

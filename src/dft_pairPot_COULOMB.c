@@ -45,6 +45,68 @@ double uCOULOMB_CS(double r,double z1,double z2,double rcut)
   return (u);
 }
 /******************************************************************************/
+/* uCOULOMB: The Coulomb potential                   */
+
+double uCOULOMB(double r,double z1,double z2)
+{
+  double u;
+
+  u = z1*z2/(Temp_elec*r);
+  return (u);
+}
+/*******************************************************************************/
+/* uCOULOMB_CS_setparams: The parameters for the cut and shifted Coulomb potential */
+void uCOULOMB_CS_setparams(int context, int i, int j, double *param1,double *param2, double *param3)
+{
+  switch (context){
+     case FLUID_FLUID:
+        *param1 = Charge[i];
+        *param2 = Charge[j];
+        *param3 = Cut_ff[i][j];
+        break;
+     case WALL_FLUID:
+        *param1 = Charge_f[i];
+        *param2 = Elec_param_w[j];
+        *param3 = Cut_wf[i][WallType[j]];
+        break;
+     case WALL_WALL:
+        *param1 = Elec_param_w[i];
+        *param2 = Elec_param_w[j];
+        *param3 = Cut_ww[WallType[i]][WallType[j]];
+        break;
+     default:
+        printf("problem with potential context uCOULOMB_CS_setparams\n");
+        exit(-1);
+   }
+   return;
+}
+/*******************************************************************************/
+/* uCOULOMB_setparams: The parameters for the full Coulomb potential */
+void uCOULOMB_setparams(int context, int i, int j, double *param1,double *param2, double *param3)
+{
+  switch (context){
+     case FLUID_FLUID:
+        *param1 = Charge[i];
+        *param2 = Charge_f[j];
+        *param3 = 1.e6;
+        break;
+     case WALL_FLUID:
+        *param1 = Charge_f[i];
+        *param2 = Elec_param_w[j];
+        *param3 = 1.e6;   
+        break;
+     case WALL_WALL:
+        *param1 = Elec_param_w[i];
+        *param2 = Elec_param_w[j];
+        *param3 = 1.e6;
+        break;
+     default:
+        printf("problem with potential context uCOULOMB_setparams\n");
+        exit(-1);
+   }
+   return;
+}
+/******************************************************************************/
 /* uCOULOMB_CS_DERIV1D: The derivative of the Coulomb potential in the x (or y or z)
                    direction....                                            */
 
@@ -84,8 +146,7 @@ double uCOULOMB_ATT_CS(double r,int i, int j)
 
 double uCOULOMB_ATT_noCS(double r,int i, int j)
 {
-  double uatt,r_min,rcut;
-  rcut=Cut_ff[i][j];
+  double uatt,r_min;
 
   r_min = Sigma_ff[i][j];
   if (r < r_min) r = r_min;
@@ -93,16 +154,6 @@ double uCOULOMB_ATT_noCS(double r,int i, int j)
   uatt = Charge_f[i]*Charge_f[j]/(r*Temp_elec);
 
   return uatt;
-}
-/******************************************************************************/
-/* uCOULOMB: The Coulomb potential                   */
-
-double uCOULOMB(double r,double z1,double z2)
-{
-  double u;
-
-  u = z1*z2/(Temp_elec*r);
-  return (u);
 }
 /******************************************************************************/
 /* uCOULOMB_DERIV1D: The derivative of the Coulomb potential in the x (or y or z)

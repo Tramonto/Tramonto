@@ -8,6 +8,7 @@ void setup_polymer_G(double **xOwned);
 #if defined(HAS_VALUES_H)
 #include <values.h>
 #include <unistd.h>
+#include <string.h>
 #endif
 #include "mpi.h"
 #include "az_aztec.h"

@@ -10,6 +10,7 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 #if defined(HAS_VALUES_H)
 #include <values.h>
 #include <unistd.h>
+#include <string.h>
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
