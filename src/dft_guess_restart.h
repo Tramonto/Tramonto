@@ -1,5 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)

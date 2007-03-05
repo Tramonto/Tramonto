@@ -154,6 +154,7 @@ void read_in_a_file(int iguess,char *filename)
     iunk=0;
     unk_in_file=0;
     for (eq_type=0;eq_type<NEQ_TYPE;eq_type++){
+
        fgets(unk_char,20,fp5);
        if (strncmp(unk_char,"DENSITY",5)==0) {
              Restart_field[DENSITY]=TRUE;
@@ -218,7 +219,7 @@ void read_in_a_file(int iguess,char *filename)
            printf("there is no chemical potential data in the restart file\n");
     if (Type_coul != NONE && Restart_field[POISSON]==FALSE)
            printf("there is no electrostatic potential data in the restart file\n");
-    if (Type_poly == CMS || Type_poly==CMS_SCFT && Restart_field[CMS_FIELD]==FALSE)
+    if ((Type_poly == CMS || Type_poly==CMS_SCFT) && Restart_field[CMS_FIELD]==FALSE)
            printf("there is no CMS field data in the restart file\n");
     if (L_HSperturbation && Restart_field[HSRHOBAR]==FALSE)
            printf("there is no Rosenfeld nonlocal density data in the restart file\n");
