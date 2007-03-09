@@ -26,14 +26,14 @@
 */
 
 /*
- *  FILE: dft_pairPot_YUKAWA.c
+ *  FILE: dft_pairPot_Yukawa.c
  *
  *  This file contains routines specific to a strict mean field implementation of
  *  a Yukawa fluid .
  *
  */
 
-#include "dft_pairPot_YUKAWA.h"
+#include "dft_pairPot_Yukawa.h"
 
 /******************************************************************************/
 /* uYUKAWA_CS: The cut and shifted YUKAWA potential                         */
