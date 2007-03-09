@@ -1,4 +1,8 @@
 /* This file was automatically generated.  Do not edit! */
+void print_vext(double **vext,char *output_file);
+int element_to_node(int ielement);
+int node_box_to_elem_box_reflect(int inode_box,int local_node,int *reflect_flag);
+int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -14,11 +18,6 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-extern int Lprint_gofr;
-void print_vext(double **vext,char *output_file);
-int element_to_node(int ielement);
-int node_box_to_elem_box_reflect(int inode_box,int local_node,int *reflect_flag);
-int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -39,6 +38,7 @@ void print_freen_profile_1D(double *freen_profile_1D,char *output_file);
 void print_charge_surf(double **charge_w_sum,char *output_file);
 void print_Nodes_to_zone(int *node_to_zone,char *output_file);
 void print_zeroTF(int **zero_TF,char *output_file);
+extern int Lprint_gofr;
 extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];

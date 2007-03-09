@@ -22,7 +22,7 @@ extern int *Comm_offset_node;
 extern int *Comm_node_proc;
 void comm_loc_to_glob_vec(int *n_loc,int *in_loc_vec,int *out_glob_vec);
 int el_box_to_el(int iel_box);
-double integrate_potential(double param1,double param2,double param3,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
+double integrate_potential(double param1,double param2,double param3,double param4,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 int element_to_node(int ielement);
@@ -36,11 +36,11 @@ extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define atomic_centers                  3
 extern int Surface_type[NWALL_MAX_TYPE];
 void setup_vext_HS_atomic(int iwall);
-double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3,int typePairPot);
-double pairPot_switch(double r,double param1,double param2,double param3,int typePairPot);
+double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3,double param4,int typePairPot);
+double pairPot_switch(double r,double param1,double param2,double param3,double param4,int typePairPot);
 #define WALL_FLUID  1
 extern int Type_vext3D;
-double pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3);
+double pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
 extern int *B2G_node;
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi

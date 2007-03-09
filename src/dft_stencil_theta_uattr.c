@@ -41,7 +41,8 @@ double StenTheta_uattr_sten_vol(int i,int j)
 
    double r_min,r_cut,vol_sten;
 
-   r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
+   if (Type_pairPot==PAIR_LJ12_6_CS) r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
+   else                         r_min = Sigma_ff[i][j];
    r_cut = Cut_ff[i][j];
 
    vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)

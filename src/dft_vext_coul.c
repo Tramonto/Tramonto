@@ -193,7 +193,7 @@ void setup_vext_coulomb_vol()
 
                   Vext_coul[loc_inode][icomp] += integrate_potential(
                           Charge_f[icomp],charge_el_vol_global[iel],
-                          1., ngp, 1, gp, NULL, gw, NULL, pos, node_pos_f);
+                          1.,1., ngp, 1, gp, NULL, gw, NULL, pos, node_pos_f);
                }
                }
                   if(Type_attr != NONE && Type_pairPot == PAIR_COULOMB) Vext[loc_inode][icomp] += Vext_coul[loc_inode][icomp];

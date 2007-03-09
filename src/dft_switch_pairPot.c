@@ -41,7 +41,7 @@
            external field calculation when using integrated potential surfaces
            or atomistic surface. This routine is also used when computing
            Barker-Henderson diameters */
-double pairPot_switch(double r,double param1, double param2, double param3,int typePairPot)
+double pairPot_switch(double r,double param1, double param2, double param3,double param4,int typePairPot)
 {
   double u;
 
@@ -55,6 +55,9 @@ double pairPot_switch(double r,double param1, double param2, double param3,int t
       case PAIR_COULOMB:
         u = uCOULOMB(r,param1,param2);
         break;
+      case PAIR_YUKAWA_CS:
+        u = uYUKAWA_CS(r,param1,param2,param3,param4);
+        break;
       default:
          printf("problems with your selection of typePairPot\n");
          exit(-1);
@@ -65,7 +68,7 @@ double pairPot_switch(double r,double param1, double param2, double param3,int t
 /******************************************************************************/
 /* pairPotparams_switch:  switch to set the correct parameters for a given choice of potential.
            Note that these parameters must map correctly to the potential functions (i.e. uLJ12_6_CS). */
-double pairPotparams_switch(int typePairPot,int context, int i, int j,double *param1, double *param2, double *param3)
+double pairPotparams_switch(int typePairPot,int context, int i, int j,double *param1, double *param2, double *param3,double *param4)
 {
   switch(typePairPot){
       case PAIR_LJ12_6_CS:
@@ -77,6 +80,9 @@ double pairPotparams_switch(int typePairPot,int context, int i, int j,double *pa
       case PAIR_COULOMB:
         uCOULOMB_setparams(context,i,j,param1,param2,param3);
         break;
+      case PAIR_YUKAWA_CS:
+        uYUKAWA_CS_setparams(context,i,j,param1,param2,param3,param4);
+        break;
       default:
         printf("problems with your selection of typePairPot\n");
         exit(-1);
@@ -87,7 +93,7 @@ double pairPotparams_switch(int typePairPot,int context, int i, int j,double *pa
 /******************************************************************************/
 /* pairPot_deriv_switch:  switch to choose the correct pair potential derivative
            needed for force calculations */
-double pairPot_deriv_switch(double r, double x, double param1, double param2, double param3,int typePairPot)
+double pairPot_deriv_switch(double r, double x, double param1, double param2, double param3,double param4,int typePairPot)
 {
   double uderiv;
 
@@ -100,6 +106,9 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
         break;
       case PAIR_COULOMB:
         uderiv = uCOULOMB_DERIV1D(r,x,param1,param2);
+        break;
+      case PAIR_YUKAWA_CS:
+        uderiv = uYUKAWA_DERIV1D(r,x,param1,param2,param3,param4);
         break;
       default:
          printf("problems with your selection of typePairPot\n");
@@ -127,6 +136,9 @@ double pairPot_ATT_CS_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_COULOMB:
         u = uCOULOMB_ATT_CnoS(r,icomp,jcomp);  
         break;
+      case PAIR_YUKAWA_CS:
+        u = uYUKAWA_ATT_CS(r,icomp,jcomp);  
+        break;
       default:
          printf("problems with your selection of typePairPot\n");
          exit(-1);
@@ -150,6 +162,9 @@ double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_COULOMB_CS:
         u = uCOULOMB_ATT_noCS(r,icomp,jcomp);
         break;
+      case PAIR_YUKAWA_CS:
+        u = uYUKAWA_ATT_noCS(r,icomp,jcomp);
+        break;
       default:
          printf("problems with your selection of typePairPot\n");
          exit(-1);
@@ -172,6 +187,9 @@ double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_COULOMB:
       case PAIR_COULOMB_CS:
         u = uCOULOMB_Integral(r,icomp,jcomp);
+        break;
+      case PAIR_YUKAWA_CS:
+        u = uYUKAWA_Integral(r,icomp,jcomp);
         break;
       default:
          printf("problems with your selection of typePairPot\n");

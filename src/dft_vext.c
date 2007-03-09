@@ -638,7 +638,7 @@ void setup_vext_LJ_atomic(int iwall)
    double max_cut,sign,**image_pos,node_pos_w[3],
           node_pos_f[3],node_pos_w2[3],r_center_sq,r,x[3],
           node_pos_f2[3];
-   double param1,param2,param3;
+   double param1,param2,param3,param4;
 
    iwall_type = WallType[iwall];
    max_cut = 0.0;
@@ -741,8 +741,8 @@ void setup_vext_LJ_atomic(int iwall)
                 }
 
                 if (r > 0.00001){
-                   pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3);
-                   Vext[loc_inode][icomp] += pairPot_switch(r,param1,param2,param3,Type_vext3D);
+                   pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4);
+                   Vext[loc_inode][icomp] += pairPot_switch(r,param1,param2,param3,param4,Type_vext3D);
                 }
                 else {
                    Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; break;
@@ -846,9 +846,9 @@ void setup_vext_LJ_atomic(int iwall)
                     sign = (image_pos[i][idim] - node_pos_w[idim])/x[idim];
                     else sign = 1.0;
 
-                    pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3);
+                    pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4);
                     Vext_dash[loc_inode][iunk][idim] +=
-                         sign*pairPot_deriv_switch(r,x[idim],param1,param2,param3,Type_vext3D);
+                         sign*pairPot_deriv_switch(r,x[idim],param1,param2,param3,param4,Type_vext3D);
                     }
                 }
 
@@ -935,7 +935,7 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
    double gp3[12],gw3[12],gpu3[12],gwu3[12];
    double max_cut,**image_pos,node_pos[3],node_pos_w[3],
           node_pos_f[3],node_pos_w2[3],vext,r_center_sq;
-   double param1,param2,param3;
+   double param1,param2,param3,param4;
 
    iwall_type = WallType[iwall];
    max_cut = 0.0;
@@ -1047,8 +1047,8 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
                 gw = &gw3[0]; gwu = &gwu3[0];
              }
 
-             pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3);
-             vext = integrate_potential(param1,param2,param3,
+             pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4);
+             vext = integrate_potential(param1,param2,param3,param4,
                        ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
 
              if (r_center_sq<Cut_wf[icomp][iwall_type] && icomp!=0){

@@ -16,15 +16,23 @@
 #include "Tramonto_ConfigDefs.h"
 #define NCOMP_MAX 5
 #define NWALL_MAX_TYPE 50 
+extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
+extern double YukawaK_w[NWALL_MAX_TYPE];
+extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
+extern int Type_uwwPot;
+extern int Type_vext3D;
 extern double Eps_w[NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Sigma_w[NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern int Nwall_type;
+extern double YukawaK_ff[NCOMP_MAX][NCOMP_MAX];
+#define PAIR_YUKAWA_CS     3
+extern int Type_pairPot;
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];

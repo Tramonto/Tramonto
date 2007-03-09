@@ -130,10 +130,11 @@ am__libdft_a_SOURCES_DIST = ${srcdir}/dft_input.c ${srcdir}/dft_main.c \
 	${srcdir}/dft_uww.c ${srcdir}/dft_images.c \
 	${srcdir}/dft_potential_params.c \
 	${srcdir}/dft_pairPot_LJ12_6.c ${srcdir}/dft_pairPot_COULOMB.c \
-	${srcdir}/dft_switch_pairPot.c ${srcdir}/dft_switch_vext1D.c \
-	${srcdir}/dft_switch_FMT.c ${srcdir}/dft_switch_stencil.c \
-	${srcdir}/dft_vext_1D.c ${srcdir}/dft_vext_integrated.c \
-	${srcdir}/rf_allo.c ${srcdir}/loca_lib.c ${srcdir}/loca_bord.c \
+	${srcdir}/dft_pairPot_Yukawa.c ${srcdir}/dft_switch_pairPot.c \
+	${srcdir}/dft_switch_vext1D.c ${srcdir}/dft_switch_FMT.c \
+	${srcdir}/dft_switch_stencil.c ${srcdir}/dft_vext_1D.c \
+	${srcdir}/dft_vext_integrated.c ${srcdir}/rf_allo.c \
+	${srcdir}/loca_lib.c ${srcdir}/loca_bord.c \
 	${srcdir}/loca_util.c ${srcdir}/dft_BasicLinProbMgr.cpp \
 	${srcdir}/dft_PolyLinProbMgr.cpp \
 	${srcdir}/dft_HardSphereLinProbMgr.cpp \
@@ -188,11 +189,12 @@ am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_fill_wtc.$(OBJEXT) dft_vext_coul.$(OBJEXT) \
 	dft_uww.$(OBJEXT) dft_images.$(OBJEXT) \
 	dft_potential_params.$(OBJEXT) dft_pairPot_LJ12_6.$(OBJEXT) \
-	dft_pairPot_COULOMB.$(OBJEXT) dft_switch_pairPot.$(OBJEXT) \
-	dft_switch_vext1D.$(OBJEXT) dft_switch_FMT.$(OBJEXT) \
-	dft_switch_stencil.$(OBJEXT) dft_vext_1D.$(OBJEXT) \
-	dft_vext_integrated.$(OBJEXT) rf_allo.$(OBJEXT) \
-	loca_lib.$(OBJEXT) loca_bord.$(OBJEXT) loca_util.$(OBJEXT)
+	dft_pairPot_COULOMB.$(OBJEXT) dft_pairPot_Yukawa.$(OBJEXT) \
+	dft_switch_pairPot.$(OBJEXT) dft_switch_vext1D.$(OBJEXT) \
+	dft_switch_FMT.$(OBJEXT) dft_switch_stencil.$(OBJEXT) \
+	dft_vext_1D.$(OBJEXT) dft_vext_integrated.$(OBJEXT) \
+	rf_allo.$(OBJEXT) loca_lib.$(OBJEXT) loca_bord.$(OBJEXT) \
+	loca_util.$(OBJEXT)
 am__objects_2 = dft_BasicLinProbMgr.$(OBJEXT) \
 	dft_PolyLinProbMgr.$(OBJEXT) \
 	dft_HardSphereLinProbMgr.$(OBJEXT) \
@@ -298,6 +300,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/dft_out_profiles.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_pairPot_COULOMB.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_pairPot_LJ12_6.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dft_pairPot_Yukawa.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_physics_FMT1.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_physics_FMT2.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dft_physics_FMT3.Po \
@@ -394,9 +397,10 @@ am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
 	${srcdir}/dft_uww.h ${srcdir}/dft_images.h \
 	${srcdir}/dft_potential_params.h \
 	${srcdir}/dft_pairPot_LJ12_6.h ${srcdir}/dft_pairPot_COULOMB.h \
-	${srcdir}/dft_switch_pairPot.h ${srcdir}/dft_switch_vext1D.h \
-	${srcdir}/dft_switch_FMT.h ${srcdir}/dft_switch_stencil.h \
-	${srcdir}/dft_vext_1D.h ${srcdir}/dft_vext_integrated.h \
+	${srcdir}/dft_pairPot_Yukawa.h ${srcdir}/dft_switch_pairPot.h \
+	${srcdir}/dft_switch_vext1D.h ${srcdir}/dft_switch_FMT.h \
+	${srcdir}/dft_switch_stencil.h ${srcdir}/dft_vext_1D.h \
+	${srcdir}/dft_vext_integrated.h \
 	${srcdir}/NOXLOCA_Tramonto_Group.hpp \
 	${srcdir}/NOXLOCA_Tramonto_Vector.hpp \
 	${srcdir}/NOXLOCA_Tramonto_PTGroup.hpp \
@@ -607,6 +611,7 @@ COMMON_H = \
         ${srcdir}/dft_potential_params.h \
         ${srcdir}/dft_pairPot_LJ12_6.h \
         ${srcdir}/dft_pairPot_COULOMB.h \
+        ${srcdir}/dft_pairPot_Yukawa.h \
         ${srcdir}/dft_switch_pairPot.h \
         ${srcdir}/dft_switch_vext1D.h \
         ${srcdir}/dft_switch_FMT.h \
@@ -686,6 +691,7 @@ COMMON_C = \
         ${srcdir}/dft_potential_params.c \
         ${srcdir}/dft_pairPot_LJ12_6.c \
         ${srcdir}/dft_pairPot_COULOMB.c \
+        ${srcdir}/dft_pairPot_Yukawa.c \
         ${srcdir}/dft_switch_pairPot.c \
         ${srcdir}/dft_switch_vext1D.c \
         ${srcdir}/dft_switch_FMT.c \
@@ -980,6 +986,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_out_profiles.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_pairPot_COULOMB.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_pairPot_LJ12_6.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_pairPot_Yukawa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_physics_FMT1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_physics_FMT2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_physics_FMT3.Po@am__quote@
@@ -2167,6 +2174,22 @@ dft_pairPot_COULOMB.obj: ${srcdir}/dft_pairPot_COULOMB.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_pairPot_COULOMB.Po' tmpdepfile='$(DEPDIR)/dft_pairPot_COULOMB.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_pairPot_COULOMB.obj `if test -f '${srcdir}/dft_pairPot_COULOMB.c'; then $(CYGPATH_W) '${srcdir}/dft_pairPot_COULOMB.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_pairPot_COULOMB.c'; fi`
+
+dft_pairPot_Yukawa.o: ${srcdir}/dft_pairPot_Yukawa.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_pairPot_Yukawa.o -MD -MP -MF "$(DEPDIR)/dft_pairPot_Yukawa.Tpo" -c -o dft_pairPot_Yukawa.o `test -f '${srcdir}/dft_pairPot_Yukawa.c' || echo '$(srcdir)/'`${srcdir}/dft_pairPot_Yukawa.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_pairPot_Yukawa.Tpo" "$(DEPDIR)/dft_pairPot_Yukawa.Po"; else rm -f "$(DEPDIR)/dft_pairPot_Yukawa.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_pairPot_Yukawa.c' object='dft_pairPot_Yukawa.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_pairPot_Yukawa.Po' tmpdepfile='$(DEPDIR)/dft_pairPot_Yukawa.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_pairPot_Yukawa.o `test -f '${srcdir}/dft_pairPot_Yukawa.c' || echo '$(srcdir)/'`${srcdir}/dft_pairPot_Yukawa.c
+
+dft_pairPot_Yukawa.obj: ${srcdir}/dft_pairPot_Yukawa.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_pairPot_Yukawa.obj -MD -MP -MF "$(DEPDIR)/dft_pairPot_Yukawa.Tpo" -c -o dft_pairPot_Yukawa.obj `if test -f '${srcdir}/dft_pairPot_Yukawa.c'; then $(CYGPATH_W) '${srcdir}/dft_pairPot_Yukawa.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_pairPot_Yukawa.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/dft_pairPot_Yukawa.Tpo" "$(DEPDIR)/dft_pairPot_Yukawa.Po"; else rm -f "$(DEPDIR)/dft_pairPot_Yukawa.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_pairPot_Yukawa.c' object='dft_pairPot_Yukawa.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/dft_pairPot_Yukawa.Po' tmpdepfile='$(DEPDIR)/dft_pairPot_Yukawa.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_pairPot_Yukawa.obj `if test -f '${srcdir}/dft_pairPot_Yukawa.c'; then $(CYGPATH_W) '${srcdir}/dft_pairPot_Yukawa.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_pairPot_Yukawa.c'; fi`
 
 dft_switch_pairPot.o: ${srcdir}/dft_switch_pairPot.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_switch_pairPot.o -MD -MP -MF "$(DEPDIR)/dft_switch_pairPot.Tpo" -c -o dft_switch_pairPot.o `test -f '${srcdir}/dft_switch_pairPot.c' || echo '$(srcdir)/'`${srcdir}/dft_switch_pairPot.c; \

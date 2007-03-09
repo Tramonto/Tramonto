@@ -23,11 +23,12 @@ int StenTheta_uattr_NquadPtsBoundary();
 extern int Ncomp;
 int StenTheta_uattr_Njcomp();
 double pairPot_integral_switch(double r,int icomp,int jcomp,int typePairPot);
-extern int Type_pairPot;
 double pairPot_ATT_noCS_switch(double r,int icomp,int jcomp,int typePairPot);
 #define PI    M_PI
 #define NCOMP_MAX 5
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
+#define PAIR_LJ12_6_CS     0
+extern int Type_pairPot;
 double StenTheta_uattr_sten_vol(int i,int j);
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 double StenTheta_uattr_sten_rad(int icomp,int jcomp);

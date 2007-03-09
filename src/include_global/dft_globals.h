@@ -267,7 +267,6 @@ double  Xend_step[NSTEPS_MAX];  /* end position array for the step profile */
 double  Rho_step[NCOMP_MAX][NSTEPS_MAX];  /* density array for a step profile */
 int     Lbinodal;        /* Logical TF for binodal calculation */
 double  Thickness;    /* Thickness parameter for wetting studies */
-double  Alpha;        /* Yukawa decay parameter                              */
 int     Mix_type;     /* Type of mixing rules */
 double  Mass[NCOMP_MAX];           /* Array of the mass of each specie*/
 double  Sigma_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f interaction diameters */
@@ -283,6 +282,12 @@ double  Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];  /* Array of w-f cutoff distances    
 double  Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];/* Array of w-w interaction diameters */
 double  Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w interaction energies  */
 double  Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w cutoff distances      */
+double  YukawaK_ff[NCOMP_MAX][NCOMP_MAX]; /* Yukawa decay constant on fluid-fluid interactions */
+double  YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
+double  YukawaK_w[NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
+double  YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
+
+
 int     **Lsemiperm;  /* Array of logicals for semipermeable surfaces */
 double  **Vext_membrane; /*Array potentials for semi-perm surfaces */
 double  **Vext_set;      /*Array of maximum set points for ext potentials */

@@ -39,7 +39,7 @@
                     (same logic as in stencil routine) to calculate
                     the potential energy at a give fluid position
                     due to a given wall element.*/
-double integrate_potential(double param1, double param2, double param3, int ngp, int ngpu,
+double integrate_potential(double param1, double param2, double param3, double param4, int ngp, int ngpu,
                       double *gp, double *gpu, double *gw, double *gwu,
                       double *node_pos, double *node_pos_f)
 { 
@@ -70,7 +70,7 @@ double integrate_potential(double param1, double param2, double param3, int ngp,
            }
            else{
               radius /= cut;
-              weight = get_wt_from_sten(radius, param1, param2, param3, ngpu, gpu, gwu);
+              weight = get_wt_from_sten(radius, param1, param2, param3, param4, ngpu, gpu, gwu);
            }
            
            vext += weight * gw[ig] * Vol_el;
@@ -96,7 +96,7 @@ double integrate_potential(double param1, double param2, double param3, int ngp,
               }
               else{
                  radius /= cut;
-                 weight = get_wt_from_sten(radius, param1,param2,param3, ngpu, gpu, gwu);
+                 weight = get_wt_from_sten(radius, param1,param2,param3, param4,ngpu, gpu, gwu);
               }
 
              vext += weight * gw[ig] * gw[jg] *Vol_el;
@@ -121,7 +121,7 @@ double integrate_potential(double param1, double param2, double param3, int ngp,
                             (node_pos_f[2] - point[2])*
                             (node_pos_f[2] - point[2]) );
 
-                weight = get_wt_from_sten(radius,param1,param2,param3,ngpu, gpu, gwu); 
+                weight = get_wt_from_sten(radius,param1,param2,param3,param4,ngpu, gpu, gwu); 
 
                 vext += weight * gw[ig] * gw[jg] * gw[kg] /* * Vol_el*/;
              }
@@ -134,11 +134,12 @@ double integrate_potential(double param1, double param2, double param3, int ngp,
 /***********************************************************************/
 /*get_wt_from_sten: here we do the integrations out of the plane*/
 
-double get_wt_from_sten(double r,double param1, double param2, double rcut,
-				    int ngpu, double *gpu, double *gwu)
+double get_wt_from_sten(double r,double param1, double param2, double param3,
+				    double param4, int ngpu, double *gpu, double *gwu)
 {
-  double temp, zmax, z, rho;
+  double temp, zmax, z, rho,rcut;
   int i;
+  rcut=param3;
 
   if (r >= 1.0) return(0.0);
   if (Ndim == 1) {
@@ -147,7 +148,7 @@ double get_wt_from_sten(double r,double param1, double param2, double rcut,
      for (i=0; i < ngpu; i++) {
         z = zmax * gpu[i];
         rho = sqrt(r*r + z*z) * rcut;
-        temp += gwu[i] * z * pairPot_switch(rho, param1,param2,rcut,Type_vext3D);
+        temp += gwu[i] * z * pairPot_switch(rho, param1,param2,param3,param4,Type_vext3D);
      }
      return(2.0 * PI * temp * rcut *rcut * zmax);
   }
@@ -157,12 +158,12 @@ double get_wt_from_sten(double r,double param1, double param2, double rcut,
      for (i=0; i < ngpu; i++) {
         z = zmax * gpu[i];
         rho = sqrt(r*r + z*z) * rcut;
-        temp += gwu[i] * pairPot_switch(rho,param1,param2,rcut,Type_vext3D);
+        temp += gwu[i] * pairPot_switch(rho,param1,param2,param3,param4,Type_vext3D);
      }
      return(2.0 * temp * rcut * zmax);
   }
   else {
-    temp = pairPot_switch(rho,param1,param2,rcut,Type_vext3D);
+    temp = pairPot_switch(rho,param1,param2,param3,param4,Type_vext3D);
     return(temp);
   }
 }

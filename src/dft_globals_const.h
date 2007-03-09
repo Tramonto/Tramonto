@@ -257,6 +257,7 @@
 #define PAIR_LJ12_6_CS     0
 #define PAIR_COULOMB_CS    1
 #define PAIR_COULOMB       2
+#define PAIR_YUKAWA_CS     3
 
 /*
  * The following are choices for 1D external field potentials.  
@@ -758,7 +759,6 @@ extern double  Xend_step[NSTEPS_MAX];  /* end position array for the step profil
 extern double  Rho_step[NCOMP_MAX][NSTEPS_MAX];  /* density array for a step profile */
 extern int     Lbinodal;        /* Logical TF for binodal calculation */
 extern double  Thickness;    /* Thickness parameter for doing wetting studies */
-extern double  Alpha;        /* Yukawa decay parameter                              */
 extern int     Mix_type;  /* Choice of Mixing Rules */
 extern double  Mass[NCOMP_MAX];           /* Array of the mass of each specie*/
 extern double  Sigma_ff[NCOMP_MAX][NCOMP_MAX];/* Array of f-f interaction diameters */
@@ -774,6 +774,10 @@ extern double  Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];  /* Array of w-f cutoff distan
 extern double  Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];/* Array of w-w interaction diameters */
 extern double  Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w interaction energies  */
 extern double  Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w cutoff distances      */
+extern double  YukawaK_ff[NCOMP_MAX][NCOMP_MAX]; /* Yukawa decay constant on fluid-fluid interactions */
+extern double  YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
+extern double  YukawaK_w[NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
+extern double  YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
 
 extern int     **Lsemiperm; /*Array of logicals for semi-permeable surfaces */
 extern double  **Vext_membrane; /*Array potentials for semi-perm surfaces */

@@ -67,7 +67,7 @@ extern int Nrho_bar_s;
 #define NDIM_MAX  3
 double pressure_FMT_hs(double *rho);
 extern int Type_pairPot;
-double pairPot_switch(double r,double param1,double param2,double param3,int typePairPot);
+double pairPot_switch(double r,double param1,double param2,double param3,double param4,int typePairPot);
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Proc;
 #if defined(DEBUG)

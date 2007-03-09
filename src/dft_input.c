@@ -592,6 +592,7 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(Pol,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
   MPI_Bcast(Lpolarize,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
 
+
                        /* FLUID-FLUID PARAMS */
 
                        /* Sigma_ff */
@@ -694,6 +695,32 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(Bond_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
+                       /* Yukawa parameters - the Debye length */
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Type_pairPot == PAIR_YUKAWA_CS){
+      for (i=0; i<Ncomp; i++){
+        if (Mix_type==0) {jmin=i; jmax=i+1;}
+        else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
+        for (j=jmin; j<jmax; j++){
+	  fscanf(fp,"%lf",&YukawaK_ff[i][j]);
+	  fprintf(fp2,"%f  ",YukawaK_ff[i][j]);
+          if (Length_ref > 0.0) YukawaK_ff[i][j]*=Length_ref;
+        }
+      }
+    }
+    else  {
+      for (i=0; i<Ncomp; i++){
+         if (Mix_type==0) {jmin=i; jmax=i+1;}
+         else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
+         for(j=jmin;j<jmax;j++) YukawaK_ff[i][j] = 0.0;
+      }
+      fprintf(fp2,"n/a");
+    }
+  }
+  if (Type_pairPot==PAIR_YUKAWA_CS) MPI_Bcast(YukawaK_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+
                        /* WALL-WALL PARAMS */
 
                        /* Density of atoms in the surfaces */
@@ -768,6 +795,31 @@ void read_input_file(char *input_file, char *output_file1)
   }
     MPI_Bcast(Cut_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
+                       /* Yukawa parameters - the Debye length */
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Type_uwwPot==PAIR_YUKAWA_CS){
+      for (i=0; i<Nwall_type; i++){
+        if (Mix_type==0) {jmin=i; jmax=i+1;}
+        else if (Mix_type==1) {jmin=0;jmax=Nwall_type;}
+        for (j=jmin; j<jmax; j++){
+	  if (Mix_type==1){ fscanf(fp,"%lf",&YukawaK_ww[i][j]);
+	                    fprintf(fp2,"%f  ",YukawaK_ww[i][j]);
+                            if (Length_ref > 0.0) YukawaK_ww[i][j]*=Length_ref;
+                          }
+          else            { fscanf(fp,"%lf",&YukawaK_w[i]);
+	                    fprintf(fp2,"%f  ",YukawaK_w[i]);
+                            if (Length_ref > 0.0) YukawaK_w[i]*=Length_ref;
+                          }
+        }
+      }
+    }
+    else fprintf(fp2,"n/a");
+  }
+  if (Type_uwwPot==PAIR_YUKAWA_CS){
+     if (Mix_type==1) MPI_Bcast(YukawaK_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+     else MPI_Bcast(YukawaK_w,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  }
 
                        /* WALL-FLUID PARAMS -- ONLY IF MIX_TYPE == 1 */
 
@@ -801,10 +853,23 @@ void read_input_file(char *input_file, char *output_file1)
              if (Length_ref > 0.0) Cut_wf[i][j]/=Length_ref;
            }
          }
+                       /* Yukawa paramter */
+       read_junk(fp,fp2);
+       if (Type_pairPot==PAIR_YUKAWA_CS){
+         for (i=0; i<Ncomp; i++){
+           for (j=0; j<Nwall_type; j++){
+   	  fscanf(fp,"%lf",&YukawaK_wf[i][j]);
+   	  fprintf(fp2,"%f  ",YukawaK_wf[i][j]);
+             if (Length_ref > 0.0) YukawaK_wf[i][j]*=Length_ref;
+           }
+         }
+       } 
+       else   fprintf(fp2,"n/a");
      }
     MPI_Bcast(Sigma_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(Eps_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(Cut_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    if (Type_pairPot==PAIR_YUKAWA_CS || Type_vext3D==PAIR_YUKAWA_CS) MPI_Bcast(YukawaK_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
   }
   else{
     if (Proc==0){
@@ -812,7 +877,7 @@ void read_input_file(char *input_file, char *output_file1)
          fprintf(fp2,"\n  USING L_B Mixing Rules --- WALL-FLUID INTERACTIONS COMPUTED BY CODE\n");
          fprintf(fp2,"........MANUAL INPUT DOES NOT APPLY \n");
          fprintf(fp2,"skipping this parameter  ");
-         for (i=0; i<2; i++){
+         for (i=0; i<3; i++){
                 read_junk(fp,fp2);
                 fprintf(fp2,"skipping this parameter  ");
          }

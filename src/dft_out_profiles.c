@@ -412,7 +412,11 @@ void print_gofr(char *output_file6)
         for (iunk=0; iunk<Nunk_per_node; iunk++){
             if (Unk2Phys[iunk]==DENSITY){
                 icomp = iunk-Phys2Unk_first[DENSITY];
-                fprintf(ifp,"%22.17f\t", -log(X_old[iunk]/Rho_b[icomp]));
+                if (Lprint_gofr==2) {
+                    if (X_old[iunk+Nunk_per_node*inode]>1.e-8) fprintf(ifp,"%22.17f\t", -log(X_old[iunk+Nunk_per_node*inode]/Rho_b[icomp]));
+                    else fprintf(ifp,"%22.17f\t",VEXT_MAX);
+                }
+                else fprintf(ifp,"%22.17f\t", X_old[iunk+Nunk_per_node*inode]/Rho_b[icomp]);
             }
         }
 

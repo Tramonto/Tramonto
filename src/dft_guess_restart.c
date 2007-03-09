@@ -303,7 +303,6 @@ void read_in_a_file(int iguess,char *filename)
                  if (Restart == 5 && iunk_file-unk_start_in_file[HSRHOBAR]-Nrho_bar_s>0) tmp=0.0;
                  else fscanf(fp5,"%lf",&tmp); 
                  break;
-
               case POISSON:
               case CAVWTC:
               case BONDWTC:

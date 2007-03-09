@@ -127,9 +127,9 @@ void setup_atomic_ww(int iwall, int jwall,int type_uwwpot){
 
   int idim;
   double xi,xj,rsq,r;
-  double param1,param2,param3;
+  double param1,param2,param3,param4;
 
-  pairPotparams_switch(type_uwwpot,WALL_WALL,iwall,jwall,&param1,&param2,&param3);
+  pairPotparams_switch(type_uwwpot,WALL_WALL,iwall,jwall,&param1,&param2,&param3,&param4);
 
   rsq = 0.0;
   for (idim=0; idim<Ndim; idim++){
@@ -139,7 +139,7 @@ void setup_atomic_ww(int iwall, int jwall,int type_uwwpot){
   }
   r = sqrt (rsq);
 
-  Uww[iwall][jwall] += pairPot_switch(r,param1,param2,param3,Type_uwwPot);
+  Uww[iwall][jwall] += pairPot_switch(r,param1,param2,param3,param4,Type_uwwPot);
   return;
 }
 /******************************************************************************/
