@@ -1,3 +1,17 @@
+---------------------------------------------------------------------------------------------------------
+Tramonto v2.1 Release Notes
+
+* Tramonto-2.1 is the first general release of the open source software Tramonto (available in March 2007).
+
+* Tramonto-2.1 has been significantly refactored from the v2.0 limited release to improve the ease with which new physics functionality can be implemented. (see the Making Physics Modifications page for details).
+
+* Tramonto-2.1 has a new implementation of Yukawa fluids for modeling colloidal systems.
+
+* An interface to NOX solvers exists in the Tramonto-v2.1 release, but NOX is not the default nonlinear solver at the time of the v2.1 release.
+
+* Some known shortcomings of the software are listed in the v2.0 release notes below.
+---------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
 Tramonto v2.0 Release Notes
 
 * This version is a limited release version of Tramonto being implemented in 
@@ -19,4 +33,4 @@ been implemented generally.
 * Stoichiometry errors (of varying severity) are often observed with WTC 
 functionals - to our knowledge, this is a short-coming of the theoretical 
 approach and not related to errors in implementation.
-
+---------------------------------------------------------------------------------------------------------
