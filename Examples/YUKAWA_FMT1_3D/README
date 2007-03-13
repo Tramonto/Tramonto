@@ -1,0 +1,24 @@
+/*! \file 
+ \brief Yukawa fluid around a larger Yukawa sphere.
+
+Functionals: FMT_1, YukawaMF
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: This test case repeats calculations from S.A. Egorov, Phys Rev E, v. 70, 031402 (2004). 
+See figure 2, System 5.  The parameters can be adjusted as in the table to generate the other
+figures.  The only significant discrepancy is at the surface where the coarse cartesian mesh
+is apparent in the density profiles. 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=7 
+   - adsorption=1.475156  
+   - energy=0.246570 
+   .
+*/
