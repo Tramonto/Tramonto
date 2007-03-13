@@ -28,6 +28,7 @@ COMMON_H = \
 	${srcdir}/Tramonto_ConfigDefs.h \
         ${srcdir}/dft_ldbal.h \
         ${srcdir}/include_global/dft_globals.h \
+	${srcdir}/dft_globals_const.h \
         ${srcdir}/rf_allo.h \
         ${srcdir}/loca_const.h \
         ${srcdir}/loca_util_const.h \
@@ -45,6 +46,7 @@ COMMON_H = \
         ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.h \
         ${srcdir}/dft_input.h \
         ${srcdir}/dft_main.h \
+	${srcdir}/dft_maindriver.h \
         ${srcdir}/dft_mesh.h \
         ${srcdir}/dft_mesh_surfaces.h \
         ${srcdir}/dft_mesh_lib.h \

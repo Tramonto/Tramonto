@@ -207,7 +207,10 @@ EXTRA_DIST = config/strip_dup_incl_paths.pl config/strip_dup_libs.pl \
 	Examples/POLY9_WTC_FMT1_1D/dft_input.dat \
 	Examples/POLY9_WTC_FMT1_1D/dft_surfaces.dat \
 	Examples/POLY9_WTC_FMT1_1D/lin_8_lin_4 \
-	Examples/POLY9_WTC_FMT1_1D/README
+	Examples/POLY9_WTC_FMT1_1D/README \
+	Examples/YUKAWA_FMT1_3D/dft_input.dat \
+	Examples/YUKAWA_FMT1_3D/dft_surfaces.dat \
+	Examples/YUKAWA_FMT1_3D/README
 
 #
 #       I believe that by switching to AUX_DIR(../../config) one 
