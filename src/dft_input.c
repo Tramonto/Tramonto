@@ -1834,16 +1834,8 @@ void read_input_file(char *input_file, char *output_file1)
        }
        MPI_Bcast(&Plane_new_nodes,1,MPI_INT,0,MPI_COMM_WORLD);
        MPI_Bcast(&Pos_new_nodes,1,MPI_INT,0,MPI_COMM_WORLD);
-       if (Proc==0) {
-         read_junk(fp,fp2);
-           fscanf(fp,"%lf",&Guess_range[0]);
-           fscanf(fp,"%lf",&Guess_range[1]);
-	   fprintf(fp2,"%f  %f ",Guess_range[0],Guess_range[1]);
-       }
-      MPI_Bcast(Guess_range,2,MPI_DOUBLE,0,MPI_COMM_WORLD);
-      
   }
-  else{ read_junk(fp,fp2); read_junk(fp,fp2); read_junk(fp,fp2);}
+  else{ read_junk(fp,fp2); read_junk(fp,fp2);}
 
     /* FINALLY READ IN LOCA PARAMETERS */
 #ifdef USE_LOCA

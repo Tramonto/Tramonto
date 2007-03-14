@@ -167,7 +167,6 @@ int     Lper_area;  /*logical for per unit are outputs of params */
 int     Lcount_reflect;  /*logical for per unit are outputs of params */ 
 int     Nruns;           /* Number of runs to perform (varying the mesh)     */
 double  Del_1[NWALL_MAX_TYPE];    /*Stepping parameter for field #1  */
-double	Guess_range[2];   /* surf sep to switch between using Rho_b and X_old */
 double	Rho_max;         /* max rho when using an old solution for mesh contin*/
 int     Imain_loop;   /* counter on the main loop of the program */
 double  Scale_fac; /* for continuation in arrays !*/

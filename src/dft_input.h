@@ -56,7 +56,6 @@ struct Loca_Struct {
 };
 extern struct Loca_Struct Loca;
 #define USE_LOCA
-extern double Guess_range[2];
 extern int Pos_new_nodes;
 extern int Plane_new_nodes;
 #define NWALL_MAX_TYPE 50 

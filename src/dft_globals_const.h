@@ -663,7 +663,6 @@ extern int     Lper_area;  /*logical for per unit are outputs of params */
 extern int     Lcount_reflect;  /*logical for per unit are outputs of params */ 
 extern int     Nruns;           /* Number of runs to perform (varying the mesh)     */
 extern double  Del_1[NWALL_MAX_TYPE];    /*Stepping parameter for field #1  */
-extern double  Guess_range[2];   /* surf sep to switch between using Rho_b and X_old */
 extern double  Rho_max;         /* max rho when using an old solution for mesh contin*/
 extern int     Imain_loop;    /* Couter on the number of times through the program  */
 extern double  Scale_fac; /* for continuation in arrays !*/

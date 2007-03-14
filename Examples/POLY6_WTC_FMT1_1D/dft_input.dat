@@ -267,9 +267,6 @@
 @ 0. 	Del_1[idim=0;Ndim-1] (How much to change parameter) 
 @ 0 0 	Plane_new_nodes Pos_new_nodes 
                   (0=yz,1=xz,2=xy)   (-1=lbb,0=center,1=rtf)
-@ 0. 0. 	Guess_range[0,1] 
-                Guess_range[0] is the surf separation to stop using 100% Rho_b
-                Guess_range[1] is the surf separation to start using 100% X_old
 ************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
 @ -1 	Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length 
                          3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
