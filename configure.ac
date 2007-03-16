@@ -36,7 +36,7 @@ dnl
 dnl
 dnl Initialize autoconf
 dnl
-AC_INIT(Tramonto, 2.1d, ljfrink@sandia.gov, tramonto)
+AC_INIT(Tramonto, 2.2d, ljfrink@sandia.gov, tramonto)
 AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR([src/dft_main.c])
 AM_CONFIG_HEADER([src/Tramonto_config.h:src/Tramonto_config.h.in])
