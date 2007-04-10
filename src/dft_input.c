@@ -260,12 +260,14 @@ void read_input_file(char *input_file, char *output_file1)
   if (Nwall>0) Xtest_reflect_TF = (int **) array_alloc (2, Nlink,Ndim, sizeof(int));
   if (Proc==0) {
     read_junk(fp,fp2);
-    if (Nwall > 0)
+    if (Nwall > 0){
       for (i=0; i < Nlink; i++)
 	for (idim=0; idim< Ndim; idim++){
 	  fscanf(fp,"%d",&Xtest_reflect_TF[i][idim]);
 	  fprintf(fp2,"%d  ",Xtest_reflect_TF[i][idim]);
 	}
+    }
+    else fprintf(fp2,"Xtest_reflect_TF n/a");
   }
   if (Nwall>0)
   MPI_Bcast(*Xtest_reflect_TF,Nlink*Ndim,MPI_INT,0,MPI_COMM_WORLD);
@@ -277,7 +279,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fscanf(fp,"%d", &Surface_type[iwall_type]);
 	fprintf(fp2,"%d  ",Surface_type[iwall_type]);
       }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"Surface_type n/a");
   }
   if(Nwall_type > 0) 
     MPI_Bcast(Surface_type,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
@@ -289,7 +291,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fscanf(fp,"%d", &Orientation[iwall_type]);
 	fprintf(fp2,"%d  ",Orientation[iwall_type]);
       }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"Orientation n/a");
   }
   if (Nwall_type > 0) 
     MPI_Bcast(Orientation,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
@@ -376,7 +378,7 @@ void read_input_file(char *input_file, char *output_file1)
         if (Length_ref >0.0) WallParam[iwall_type]/=Length_ref;
         if (Surface_type[iwall_type]==point_surface) WallParam[iwall_type]=Esize_x[0];
       }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"WallParam n/a");
   }
   if (Nwall_type > 0) 
     MPI_Bcast(WallParam,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -389,7 +391,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fprintf(fp2,"%f  ",WallParam_2[iwall_type]);
         if (Length_ref >0.0) WallParam_2[iwall_type]/=Length_ref;
       }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"WallParam_2 n/a");
   }
   
   if (Nwall_type > 0) 
@@ -403,7 +405,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fprintf(fp2,"%f  ",WallParam_3[iwall_type]);
         if (Length_ref >0.0) WallParam_3[iwall_type]/=Length_ref;
       }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"WallParam_3 n/a");
   }
   if (Nwall_type > 0) 
     MPI_Bcast(WallParam_3,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -416,7 +418,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fprintf(fp2,"%f  ",WallParam_4[iwall_type]);
         if (Length_ref >0.0) WallParam_4[iwall_type]/=Length_ref;
       }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"WallParam_4 n/a");
   }
   if (Nwall_type > 0) 
     MPI_Bcast(WallParam_4,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -429,7 +431,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fscanf(fp,"%d", &Lrough_surf[iwall_type]);
 	fprintf(fp2,"%d  ",Lrough_surf[iwall_type]);
       }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"Lrough_surf n/a");
   }
   if (Nwall_type > 0) 
     MPI_Bcast(Lrough_surf,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
@@ -441,7 +443,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fscanf(fp,"%lf", &rough_param_max[iwall_type]);
 	fprintf(fp2,"%f  ",rough_param_max[iwall_type]);
       }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"rough_param_max n/a");
   }
   if (Nwall_type > 0) 
     MPI_Bcast(rough_param_max,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -453,7 +455,7 @@ void read_input_file(char *input_file, char *output_file1)
 	fscanf(fp,"%lf", &Rough_length[iwall_type]);
 	fprintf(fp2,"%f  ",Rough_length[iwall_type]);
       }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"Rough_length n/a");
   }
   if (Nwall_type > 0) 
     MPI_Bcast(Rough_length,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -478,9 +480,9 @@ void read_input_file(char *input_file, char *output_file1)
          fscanf(fp,"%d",&Ipot_wf_n[iwall_type]);
          fprintf(fp2,"%d",Ipot_wf_n[iwall_type]);
       }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"Ipot_wf_n n/a");
   }
-  MPI_Bcast(Ipot_wf_n,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+  if (Nwall_type > 0) MPI_Bcast(Ipot_wf_n,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
  
           /* set logical indicating if any of the surfaces have hard cores - if so, we
               will need be careful with rosenfeld integrals */
@@ -491,9 +493,11 @@ void read_input_file(char *input_file, char *output_file1)
         fscanf(fp,"%d",&Lhard_surf);
         fprintf(fp2,"%d ",Lhard_surf);
       }
-      else fprintf(fp2,"n/a");
+      else fprintf(fp2,"Lhard_surf n/a");
   }
-  MPI_Bcast(&Lhard_surf,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Nwall_type>0){
+      MPI_Bcast(&Lhard_surf,1,MPI_INT,0,MPI_COMM_WORLD);
+  }
 
   if (Proc==0){
      read_junk(fp,fp2);
@@ -501,15 +505,17 @@ void read_input_file(char *input_file, char *output_file1)
         fscanf(fp,"%d  %d",&Type_vext1D,&Type_vext3D);
         fprintf(fp2,"%d  %d",Type_vext1D,Type_vext3D);
       }
-      else fprintf(fp2,"n/a");
+      else fprintf(fp2,"Type_vext1D and Type_vext3D n/a");
   }
-  MPI_Bcast(&Type_vext1D,1,MPI_INT,0,MPI_COMM_WORLD);
-  MPI_Bcast(&Type_vext3D,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Nwall_type>0){
+     MPI_Bcast(&Type_vext1D,1,MPI_INT,0,MPI_COMM_WORLD);
+     MPI_Bcast(&Type_vext3D,1,MPI_INT,0,MPI_COMM_WORLD);
+  }
 
   if (Proc==0) {
     read_junk(fp,fp2);
     lzeros=FALSE; latoms=FALSE;
-    if (Nwall_type > 0 && Ndim==3) 
+    if (Nwall_type > 0 && Ndim==3){ 
       for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
         for (jwall_type=0; jwall_type < Nwall_type;++jwall_type){
            if (!lzeros && !latoms){
@@ -524,7 +530,8 @@ void read_input_file(char *input_file, char *output_file1)
            else if (latoms) Ipot_ww_n[iwall_type][jwall_type]=1;
         }
       }
-    else fprintf(fp2,"n/a");
+    }
+    else fprintf(fp2,"Ipot_ww_n n/a");
   }
   MPI_Bcast(Ipot_wf_n,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
 
@@ -534,9 +541,9 @@ void read_input_file(char *input_file, char *output_file1)
         fscanf(fp,"%d",&Type_uwwPot);
         fprintf(fp2,"%d",Type_uwwPot);
      }
-     else fprintf(fp2,"n/a");
+     else fprintf(fp2,"Type_uwwPot n/a");
   }
-  MPI_Bcast(&Type_uwwPot,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Nwall_type > 0 && Ndim==3) MPI_Bcast(&Type_uwwPot,1,MPI_INT,0,MPI_COMM_WORLD);
 
   /* Fluid Particle Parameters */
 
@@ -570,7 +577,7 @@ void read_input_file(char *input_file, char *output_file1)
       }
     }
     else{ 
-      fprintf(fp2,"n/a");
+      fprintf(fp2,"Charge_f n/a");
       for (icomp=0; icomp < Ncomp; ++icomp)Charge_f[icomp]=0.0;
     }
   }
@@ -615,7 +622,7 @@ void read_input_file(char *input_file, char *output_file1)
          else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
          for(j=jmin;j<jmax;j++) Sigma_ff[i][j] = 0.0;
       }
-      fprintf(fp2,"n/a");
+      fprintf(fp2,"Sigma_ff n/a");
     }
   }
   MPI_Bcast(Sigma_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -715,7 +722,7 @@ void read_input_file(char *input_file, char *output_file1)
          else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
          for(j=jmin;j<jmax;j++) YukawaK_ff[i][j] = 0.0;
       }
-      fprintf(fp2,"n/a");
+      fprintf(fp2,"YukawaK_ff n/a");
     }
   }
   if (Type_pairPot==PAIR_YUKAWA_CS) MPI_Bcast(YukawaK_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -814,7 +821,7 @@ void read_input_file(char *input_file, char *output_file1)
         }
       }
     }
-    else fprintf(fp2,"n/a");
+    else fprintf(fp2,"YukawaK_ww n/a");
   }
   if (Type_uwwPot==PAIR_YUKAWA_CS){
      if (Mix_type==1) MPI_Bcast(YukawaK_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -864,7 +871,7 @@ void read_input_file(char *input_file, char *output_file1)
            }
          }
        } 
-       else   fprintf(fp2,"n/a");
+       else   fprintf(fp2,"YukawaK_wf n/a");
      }
     MPI_Bcast(Sigma_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(Eps_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
