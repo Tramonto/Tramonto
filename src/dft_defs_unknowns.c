@@ -36,7 +36,7 @@
 void setup_nunk_per_node(char *output_file1)
 {
   int i,iunk,icomp,unk_rel;
-  int NCMSField_unk;
+  int NCMSField_unk, NYW_Dens;
   FILE *fp2=NULL;
 
   if (Proc==0) {
@@ -47,7 +47,7 @@ void setup_nunk_per_node(char *output_file1)
   }	
 
 
-  /* seg a couple generic logicals that can be used to toggle between 
+  /* set a couple generic logicals that can be used to toggle between 
      component and segment densities (Lseg_densities), and Hard-Sphere
      perturbation DFTs and other types of DFTs (L_HSperturbation) */
 
@@ -120,6 +120,10 @@ void setup_nunk_per_node(char *output_file1)
                  Phys2Nunk[CMS_G] = Ngeqn_tot;
             }
             break;
+          case YW_DENS:
+	    NYW_Dens = 0;
+	    Phys2Nunk[YW_DENS] = 0;
+	    break;
 
          default:
             printf("problems with defining equation type %d\n",i);

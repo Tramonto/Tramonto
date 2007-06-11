@@ -46,7 +46,7 @@ struct RB_Struct FMT2ndDerivDelta_switch(double *n,int *offset,double *sign,int 
 void solutionVec_to_nOrdering(double *rhoBar_SVOrdering,double *n);
 extern int Nrho_bar_s;
 #define HSRHOBAR       4
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_first[NEQ_TYPE];
 extern void *LinProbMgr_manager;
 extern double Dphi_Drhobar_RTF[10];

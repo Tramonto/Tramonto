@@ -24,7 +24,7 @@ extern double Charge_f[NCOMP_MAX];
 extern int Ipot_ff_c;
 extern int **Zero_density_TF;
 #define DIFFUSION      5
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 #define NDIM_MAX  3

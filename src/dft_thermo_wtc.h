@@ -48,10 +48,6 @@ extern double Xi_cav_LBB[4];
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
 extern double Fac_overlap_hs[NCOMP_MAX];
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
@@ -59,14 +55,19 @@ extern int Ncomp;
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
+extern double Betamu_wtc[NMER_MAX];
+void chempot_WTC(double *rho_seg,double *betamu);
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
+extern double Betamu_seg[NMER_MAX];
 extern double Xi_cav_b[4];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
-extern double Betamu_seg[NMER_MAX];
-extern double Betamu_wtc[NMER_MAX];
-void chempot_WTC(double *rho_seg,double *betamu);
+double pressure_WTC(double *rho_seg_b,double betap_hs_bulk);
 void compute_bulk_nonlocal_wtc_properties(char *output_file1);
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_seg_RTF[NMER_MAX];

@@ -49,7 +49,7 @@ extern int Nodes_x[NDIM_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nrho_bar_s;

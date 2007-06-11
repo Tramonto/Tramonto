@@ -154,7 +154,7 @@
  * unknown number straightforward.  This became necessary with the introduction
  * of the WTC polymers where we now have 6 types of equations to fill.
  */
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 #define NO_UNK        -888
 
 #define DENSITY        0
@@ -166,6 +166,7 @@
 #define CMS_FIELD      1
 #define CMS_G          2 
 #define POISSON        3
+#define YW_DENS        8       /* densities for Yethiraj-Woodward polymer DFTs */
 
 /* Here are some constants needed to make the physics based ordering of the
    matrix an option in the code. */

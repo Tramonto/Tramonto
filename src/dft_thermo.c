@@ -61,8 +61,9 @@ void  thermodynamics(char *output_file1)
    /* }*/
 
     /* compute bulk pressure and chemical potentials for the DFT calculation */
-    calc_pressure(output_file1);
+    /* must calculate chemical potentials first because we use mu in the WTC calculation of the pressure */
     calc_chempot(output_file1);
+    calc_pressure(output_file1);
 
     return;
 }
@@ -70,9 +71,14 @@ void  thermodynamics(char *output_file1)
 /* calc_pressure: this routine contains the logic for assembly of the pressure */
 void calc_pressure(char *output_file1)
 {
-   double betap_hs_DFT,betap_hs_PY;
+   double betap_hs_DFT,betap_hs_PY,betap_hs_bulk,betap_att;
+   double betap_att_LBB, betap_att_RTF,betap_hs_bulk_LBB,betap_hs_bulk_RTF;
    int icomp;
    FILE *fp;
+
+   betap_att = 0.0;
+   betap_att_LBB = 0.0;
+     betap_att_RTF = 0.0;
 
    if( (fp = fopen(output_file1,"a+")) == NULL) {
       printf("Can't open file %s\n", output_file1);
@@ -89,21 +95,28 @@ void calc_pressure(char *output_file1)
 
 				/* HS FMT contributions */
           if (Type_func!= NONE){
-               Betap_LBB += pressure_FMT_hs(Rho_b_LBB);
-               Betap_RTF += pressure_FMT_hs(Rho_b_RTF);
+               Betap_LBB += pressure_FMT_hs(Rho_b_LBB,&betap_hs_bulk_LBB);
+               Betap_RTF += pressure_FMT_hs(Rho_b_RTF,&betap_hs_bulk_RTF);
           }
 				/* MF ATT contributions */
           if (Type_attr != NONE){
-               Betap_LBB += pressure_att(Rho_b_LBB);
-               Betap_RTF += pressure_att(Rho_b_RTF);
+	    betap_att_LBB = pressure_att(Rho_b_LBB);
+	    Betap_LBB += betap_att_LBB;
+	    betap_att_RTF = pressure_att(Rho_b_RTF); 
+	    Betap_RTF += betap_att_RTF;
           }
 				/* electrostatics contributions */
           if (Type_coul != NONE){
          /* please put call to electrostatic pressure function here */
           }
 				/* WTC contributions */
+	  /* note these aren't additive,instead we recalculate the HS, ideal terms here */
+	  /* must then add in contributions from attractions, Coulomb */
           if (Type_poly ==WTC){
-         /* please put call to WTC pressure function here */
+	    Betap_LBB = pressure_WTC(Rho_seg_LBB,betap_hs_bulk_LBB);
+	    Betap_LBB += betap_att_LBB;
+	    Betap_RTF = pressure_WTC(Rho_seg_RTF,betap_hs_bulk_RTF);
+	    Betap_RTF += betap_att_RTF;
           }
        }
        else{ 
@@ -125,24 +138,29 @@ void calc_pressure(char *output_file1)
 
 				/* HS FMT contributions */
           if (Type_func != NONE) {
-               betap_hs_DFT = pressure_FMT_hs(Rho_b);
-                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\tDF pressure is %9.6f\n",betap_hs_DFT);
+               betap_hs_DFT = pressure_FMT_hs(Rho_b,&betap_hs_bulk);
+                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\tDFT HS pressure is %9.6f\n",betap_hs_DFT);
                betap_hs_PY = pressure_PY_hs(Rho_b);
-                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\tPY pressure is %9.6f\n",betap_hs_PY);
+                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\tPY HS pressure is %9.6f\n",betap_hs_PY);
                Betap += betap_hs_DFT;
                for (icomp=0;icomp<Ncomp;icomp++) Betap-=Rho_b[icomp]; /* calculation of betap_hs includes ideal terms */
           }
 				/* MF ATT contributions */
           if (Type_attr != NONE){
-               Betap += pressure_att(Rho_b);
+               betap_att = pressure_att(Rho_b);
+	       Betap += betap_att;
           }
 				/* electrostatics contributions */
           if (Type_coul != NONE){
          /* please put call to electrostatic pressure function here */
           }
 				/* WTC contributions */
+	  /* note these aren't additive,instead we recalculate the HS, ideal terms here */
+	  /* must then add in contributions from attractions, Coulomb */
           if (Type_poly ==WTC){
-         /* please put call to WTC pressure function here */
+	    Betap = pressure_WTC(Rho_seg_b,betap_hs_bulk);
+	    Betap += betap_att;
+	    /* if (Proc==0 && Iwrite != NO_SCREEN) printf("\tWTC pressure is %9.6f\n",);*/
           }
          if (Proc==0){
               if (Iwrite != NO_SCREEN) {

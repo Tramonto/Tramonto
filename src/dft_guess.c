@@ -95,6 +95,8 @@ void set_initial_guess (int iguess, double** xOwned)
          case CMS_G:
            if (Phys2Nunk[CMS_G]>0 && (start_no_info || Restart_field[CMS_G]==FALSE)) setup_polymer_G(xOwned); 
            break;
+     case YW_DENS:
+       break;
          default:
            printf("problem with switch in initial guess\n");
            exit(-1);

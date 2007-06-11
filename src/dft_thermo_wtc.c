@@ -54,8 +54,46 @@ void WTC_thermo_precalc(char *output_file1)
   return;
 }
 /****************************************************************************/
+/* pressure_WTC: this routine calculates the pressure contribution 
+   for the WTC functional */
+double pressure_WTC(double *rho_seg_b, double betap_hs_bulk)
+{
+  int icomp,jcomp,iseg,jseg,ibond;
+  double betap_wtc, betap_inner, y;
+
+  betap_wtc = 0.0;
+
+  /* first calculate contribution from chain Helmholtz energy */
+  for (iseg=0; iseg<Nseg_tot; iseg++) {
+    icomp=Unk2Comp[iseg];
+    betap_inner = 0.0;
+    for(ibond=0;ibond<Nbonds_SegAll[iseg];ibond++) {
+      jseg=Bonds_SegAll[iseg][ibond];
+      jcomp=Unk2Comp[jseg];
+      y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+      betap_inner += (1 - log(y*rho_seg_b[jseg]));
+    }
+    betap_wtc += -0.5*rho_seg_b[iseg]*betap_inner;
+  }
+
+  /* add contribution from chemical potential terms in free energy Omega */
+  for(iseg=0; iseg<Nseg_tot; iseg++) 
+    betap_wtc += Betamu_seg[iseg]*rho_seg_b[iseg];
+
+  /* add HS bulk term */
+  betap_wtc += betap_hs_bulk;
+
+  /* add ideal gas free energy terms */
+  for(iseg=0; iseg<Nseg_tot; iseg++)
+    betap_wtc -= rho_seg_b[iseg]*(log(rho_seg_b[iseg])-1.0);
+
+  return(betap_wtc);
+}
+/****************************************************************************/
 /* chempot_WTC: compute the excess chemical potential contributions due to WTC
    functionals */
+/* note that: Betamu_seg = total chemical potential for each segment, including ideal, HS, and att contributions
+   Betamu_wtc = contribution to chem. potential from the chain part of the functional only */
 void chempot_WTC(double *rho_seg,double *betamu)
 {
    int icomp,jcomp,kcomp,i,ipol,iseg,ibond,jseg,kseg;

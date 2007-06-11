@@ -85,7 +85,7 @@ extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define CMS_FIELD      1
 #define DENSITY        0
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 extern int Nnodes_per_proc;

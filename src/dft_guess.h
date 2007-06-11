@@ -1,7 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
 void check_zero_densities(double **xOwned);
 void chop_profile(double **xOwned,int iguess);
-void setup_polymer_G(double **xOwned);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -17,6 +16,8 @@ void setup_polymer_G(double **xOwned);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define YW_DENS        8       /* densities for Yethiraj-Woodward polymer DFTs */
+void setup_polymer_G(double **xOwned);
 #define CMS_G          2 
 void setup_polymer_field(double **xOwned,int iguess);
 #define CMS_FIELD      1
@@ -35,7 +36,7 @@ void setup_polymer_rho(double **xOwned,int iguess);
 #define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 #define TRUE  1

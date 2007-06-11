@@ -110,7 +110,7 @@ double integrand_BH(double r,int icomp)
 pressure_FMT_hs  This routine calculates the pressure contribution for 
                  hard sphere fundamental measures theory based DFTs */
 
-double pressure_FMT_hs(double *rho)
+double pressure_FMT_hs(double *rho, double *betap_hs_bulk)
 {
    int i;
    double betap_hs,n[4+2*NDIM_MAX],rho_bar[4+2*NDIM_MAX];
@@ -120,6 +120,7 @@ double pressure_FMT_hs(double *rho)
    solutionVec_to_nOrdering(rho_bar,n);
 
    betap_hs = -phispt_switch(n);
+   *betap_hs_bulk = betap_hs;
    for (i=0;i<4;i++) {
       betap_hs += Dphi_Drhobar_b[i]*n[i];
    }

@@ -68,7 +68,7 @@ extern int Npol_comp;
 #define NONE        -1
 #define CMS_G          2 
 extern double VEXT_MAX;
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern double Esize_x[NDIM_MAX];
@@ -80,6 +80,7 @@ extern double Temp_elec;
 #define COULOMB      1
 extern int Ipot_ff_c;
 extern int Npoisson;
+#define YW_DENS        8       /* densities for Yethiraj-Woodward polymer DFTs */
 #define BONDWTC       7
 #define CAVWTC     6
 #define HSRHOBAR       4

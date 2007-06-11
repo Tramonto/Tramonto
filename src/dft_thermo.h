@@ -14,13 +14,12 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NMER_MAX     100
-extern double Rho_seg_b[NMER_MAX];
 #define NCOMP_MAX 5
 extern double Betamu_id[NCOMP_MAX];
 extern double Betamu[NCOMP_MAX];
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
 void print_to_screen_comp(int icomp,double val,char *var_label);
+#define NMER_MAX     100
 extern double Betamu_wtc_RTF[NMER_MAX];
 extern double Betamu_seg_RTF[NMER_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
@@ -43,6 +42,8 @@ void chempot_FMT_hs(double *rho);
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
 void chempot_ideal_gas(double *rho,double *betamu);
+extern double Rho_seg_b[NMER_MAX];
+double pressure_WTC(double *rho_seg_b,double betap_hs_bulk);
 extern int Ncomp;
 double pressure_PY_hs(double *rho);
 extern double Rho_b[NCOMP_MAX];
@@ -58,15 +59,15 @@ void print_to_file(FILE *fp,double val,char *var_label,int first);
 void print_to_screen(double val,char *var_label);
 extern int Type_coul;
 double pressure_att(double *rho);
-double pressure_FMT_hs(double *rho);
+double pressure_FMT_hs(double *rho,double *betap_hs_bulk);
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Betap_RTF;
 extern double Rho_b_LBB[NCOMP_MAX];
 double pressure_ideal_gas(double *rho);
 extern double Betap_LBB;
 extern int Lsteady_state;
-void calc_chempot(char *output_file1);
 void calc_pressure(char *output_file1);
+void calc_chempot(char *output_file1);
 void ATT_thermo_precalc();
 extern int Type_attr;
 void HS_thermo_precalc(char *output_file1);

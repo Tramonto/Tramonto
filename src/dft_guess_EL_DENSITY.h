@@ -40,7 +40,7 @@ extern int Lsteady_state;
 extern int Unk2Comp[NMER_MAX];
 extern int **Zero_density_TF;
 #define DENSITY        0
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *L2B_node;
 extern int Nnodes_per_proc;

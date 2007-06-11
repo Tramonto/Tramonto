@@ -35,7 +35,7 @@ double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,
 extern int Nrho_bar_s;
 #define THETA_FN_R            1
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       4
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);

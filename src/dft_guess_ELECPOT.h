@@ -26,7 +26,7 @@ extern int *L2B_node;
 #define LINEAR           8
 extern int Lsteady_state;
 #define POISSON        3
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nnodes_per_proc;
 void setup_elec_pot(double **xOwned,int iguess);

@@ -80,7 +80,7 @@ extern int Type_attr;
 #define BONDWTC       7
 extern int Ndim;
 extern int Nrho_bar_s;
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       4
 #define POISSON        3

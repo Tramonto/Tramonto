@@ -23,9 +23,10 @@ extern int Npol_comp;
 extern int Nunk_per_node;
 #define NMER_MAX     100
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
+#define YW_DENS        8       /* densities for Yethiraj-Woodward polymer DFTs */
 extern int Ngeqn_tot;
 #define CMS_G          2 
 #define CMS_FIELD      1

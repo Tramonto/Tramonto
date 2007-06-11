@@ -96,7 +96,7 @@ int check_zero_density_EL(int iunk,int icomp,int iseg,int loc_inode,int inode_bo
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
 #define DENSITY        0
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_first[NEQ_TYPE];
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */

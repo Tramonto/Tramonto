@@ -84,6 +84,6 @@ extern int Unk2Comp[NMER_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
 #define DENSITY        0
-#define NEQ_TYPE       8
+#define NEQ_TYPE       9
 extern int Phys2Unk_first[NEQ_TYPE];
 double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
