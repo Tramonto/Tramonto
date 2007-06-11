@@ -111,12 +111,13 @@ void calc_pressure(char *output_file1)
           }
 				/* WTC contributions */
 	  /* note these aren't additive,instead we recalculate the HS, ideal terms here */
-	  /* must then add in contributions from attractions, Coulomb */
+	  /* must then correct contributions from attractions, Coulomb */
+	  /* note chem. potential term gives twice the att. pressure, so subtract att. pressure term here */
           if (Type_poly ==WTC){
 	    Betap_LBB = pressure_WTC(Rho_seg_LBB,betap_hs_bulk_LBB);
-	    Betap_LBB += betap_att_LBB;
+	    Betap_LBB -= betap_att_LBB;
 	    Betap_RTF = pressure_WTC(Rho_seg_RTF,betap_hs_bulk_RTF);
-	    Betap_RTF += betap_att_RTF;
+	    Betap_RTF -= betap_att_RTF;
           }
        }
        else{ 
@@ -156,11 +157,11 @@ void calc_pressure(char *output_file1)
           }
 				/* WTC contributions */
 	  /* note these aren't additive,instead we recalculate the HS, ideal terms here */
-	  /* must then add in contributions from attractions, Coulomb */
-          if (Type_poly ==WTC){
+	  /* must then correct contributions from attractions, Coulomb */
+          if (Type_poly == WTC){
 	    Betap = pressure_WTC(Rho_seg_b,betap_hs_bulk);
-	    Betap += betap_att;
-	    /* if (Proc==0 && Iwrite != NO_SCREEN) printf("\tWTC pressure is %9.6f\n",);*/
+	    /* note chem. potential term is twice the pressure, so subtract att. pressure term here */
+	    Betap -= betap_att;
           }
          if (Proc==0){
               if (Iwrite != NO_SCREEN) {
