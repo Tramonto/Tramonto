@@ -59,9 +59,9 @@ class dft_PolyA11_Coulomb_Epetra_Operator: public virtual dft_PolyA11_Epetra_Ope
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads (plus Coulomb) system
-  dft_PolyA11_Coulomb_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map, const Epetra_Map & allGMap, const Epetra_Map & poissonMap, int * solverOptions, double * solverParams);
+  /*  dft_PolyA11_Coulomb_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map, const Epetra_Map & allGMap, const Epetra_Map & poissonMap, int * solverOptions, double * solverParams);*/
 
-  //  dft_PolyA11_Coulomb_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map, const Epetra_Map & allGMap, const Epetra_Map & poissonMap, Teuchos::ParameterList * parameterList);
+  dft_PolyA11_Coulomb_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map, const Epetra_Map & allGMap, const Epetra_Map & poissonMap, Teuchos::ParameterList * parameterList);
   //@}
   //@{ \name Assembly methods.
   int initializeProblemValues();
@@ -118,8 +118,8 @@ protected:
   Epetra_Map allGMap_;
   Epetra_Map poissonMap_;
   Teuchos::ParameterList * parameterList_;
-  int * solverOptions_;
-  double * solverParams_;
+  // int * solverOptions_;
+  // double * solverParams_;
   Epetra_CrsMatrix * poissonMatrix_;
   int curPoissonRow_;
   int curPoissonOwnedNode_;

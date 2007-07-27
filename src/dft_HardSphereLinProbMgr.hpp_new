@@ -23,8 +23,8 @@
 // ********************************************************************
 //@HEADER
 
-#ifndef DFT_POLYLINPROBMGR_HPP
-#define DFT_POLYLINPROBMGR_HPP
+#ifndef DFT_HARDSPHERELINPROBMGR_HPP
+#define DFT_HARDSPHERELINPROBMGR_HPP
 
 class Epetra_Vector;
 class Epetra_Map;
@@ -32,10 +32,9 @@ class Epetra_Import;
 class Epetra_CrsMatrix;
 class Epetra_LinearProblem;
 class AztecOO;
-class dft_PolyA11_Epetra_Operator;
-class dft_PolyA11_Coulomb_Epetra_Operator;
-class dft_PolyA22_Coulomb_Epetra_Operator;
-class dft_PolyA22_Epetra_Operator;
+class dft_HardSphereA11_Epetra_Operator;
+class dft_HardSphereA22_Epetra_Operator;
+class dft_A22Matrix_Epetra_Operator;
 class dft_Schur_Epetra_Operator;
 
 #include "dft_BasicLinProbMgr.hpp"
@@ -45,15 +44,15 @@ class dft_Schur_Epetra_Operator;
 #include "Epetra_IntSerialDenseVector.h"
 #include "Epetra_SerialDenseVector.h"
 
-//! dft_PolyLinProbMgr:  Problem manager class for polymer problems.
-/*! The dft_PolyLinProbMgr class supports polymer solver capabilities for Tramonto.
+//! dft_HardSphereLinProbMgr:  Solver manager class for Tramonto using Trilinos.
+/*! The dft_HardSphereLinProbMgr class supports solver capabilities for Tramonto.
   
 */
-class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
+class dft_HardSphereLinProbMgr: public virtual dft_BasicLinProbMgr {
     
   public:
   //@{ \name Constructors/destructor.
-  //! dft_PolyLinProbMgr Constructor.
+  //! dft_HardSphereLinProbMgr Constructor.
   /*! Initialize a linear problem manager for Tramonto
      \param numUnknownsPerNode (In) The number of unknowns tracked per node of the mesh.
      \param solverOptions (In) An array of ints defined in dft_solver_defs.h containing information to 
@@ -62,60 +61,54 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
                                guide and report solver status.
      \param comm (In) MPI communicator that should be used by the solver.
 
+     \param formSchurMatrix (In) Forces explicit construction of S = A22 - A21*inv(A11)*A12, if true.  Otherwise S is only applied implicitly.
+
      \param debug (In) Turns debug mode on if set to true, false by default.
   */
-  /*  dft_PolyLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug = false);*/
+  /* dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool formSchurMatrix = false, bool debug = false);*/
 
-  //! dft_PolyLinProbMgr Constructor.
+  //! dft_HardSphereLinProbMgr Constructor.
   /*! Initialize a linear problem manager for Tramonto
      \param numUnknownsPerNode (In) The number of unknowns tracked per node of the mesh.
      \param parameterList (In) A Teuchos::ParameterList containing information to guide and report solver status.
+
      \param comm (In) MPI communicator that should be used by the solver.
+
+     \param formSchurMatrix (In) Forces explicit construction of S = A22 - A21*inv(A11)*A12, if true.  Otherwise S is only applied implicitly.
+
      \param debug (In) Turns debug mode on if set to true, false by default.
   */
-   dft_PolyLinProbMgr(int numUnknownsPerNode, Teuchos::ParameterList * parameterList, MPI_Comm comm, bool debug = false);
+  dft_HardSphereLinProbMgr(int numUnknownsPerNode, Teuchos::ParameterList * parameterList, MPI_Comm comm, bool formSchurMatrix = false, bool debug = false);
 
-  //! dft_PolyLinProbMgr Destructor.
-  /*! Completely deletes a dft_PolyLinProbMgr object.
+  //! dft_HardSphereLinProbMgr Destructor.
+  /*! Completely deletes a dft_HardSphereLinProbMgr object.
   */
-  virtual ~dft_PolyLinProbMgr();
+  virtual ~dft_HardSphereLinProbMgr();
   //@}
 
   //@{ \name Block structure setup methods
 
-  //! Define G equation IDs
-  /*! Define the list of physics IDs associated with the G equations in ascending order..
-     \param numGEquations (In) Number of G equations per node.
-     \param physicsIDs (In) List of physics IDs associated with the G equations in ascending order.
+  //! Define independent non-local equation IDs
+  /*! Define the list of physics IDs associated with the non-local density equations that have no dependence on other non-local densities in ascending order.
+     \param numIndpNonLocalEquations (In) Number of independent non-local equations per node.
+     \param physicsIDs (In) List of physics IDs associated with the independent non-local density equations in ascending order.
   */
-  int setGEquationIDs(int numGEquations, int * physicsIDs) { 
-    if (gEquations_.Length()!=0) return(0); // Already been here
-    gEquations_.Size(numGEquations); 
-    for (int i=0; i<numGEquations; i++) gEquations_[i] = physicsIDs[i];
+  int setIndNonLocalEquationIDs(int numIndNonLocalEquations, int * physicsIDs) { 
+    if (indNonLocalEquations_.Length()!=0) return(0); // Already been here
+    indNonLocalEquations_.Size(numIndNonLocalEquations); 
+    for (int i=0; i<numIndNonLocalEquations; i++) indNonLocalEquations_[i] = physicsIDs[i];
     return(0);
   }
 
-  //! Define G inverse equation IDs
-  /*! Define the list of physics IDs associated with the G inverse equations in descending order.
-     \param numGInvEquations (In) Number of G inverse equations per node.
-     \param physicsIDs (In) List of physics IDs associated with the G equations in ascending order.
+  //! Define dependent non-local equation IDs
+  /*! Define the list of physics IDs associated with the non-local density equations that are dependent on other non-local densities in ascending order.
+     \param numDeppNonLocalEquations (In) Number of dependent non-local equations per node.
+     \param physicsIDs (In) List of physics IDs associated with the dependent non-local density equations in ascending order.
   */
-  int setGInvEquationIDs(int numGInvEquations, int * physicsIDs) {
-    if (gInvEquations_.Length()!=0) return(0); // Already been here
-    gInvEquations_.Size(numGInvEquations); 
-    for (int i=0; i<numGInvEquations; i++) gInvEquations_[i] = physicsIDs[i];
-    return(0);
-  }
-
-  //! Define CMS equation IDs
-  /*! Define the list of physics IDs associated with the CMS equations in ascending order.
-     \param numCmsEquations (In) Number of CMS equations per node.
-     \param physicsIDs (In) List of physics IDs associated with the CMS equations in ascending order.
-  */
-  int setCmsEquationIDs(int numCmsEquations, int * physicsIDs) { 
-    if (cmsEquations_.Length()!=0) return(0); // Already been here
-    cmsEquations_.Size(numCmsEquations); 
-    for (int i=0; i<numCmsEquations; i++) cmsEquations_[i] = physicsIDs[i];
+  int setDepNonLocalEquationIDs(int numDepNonLocalEquations, int * physicsIDs) { 
+    if (depNonLocalEquations_.Length()!=0) return(0); // Already been here
+    depNonLocalEquations_.Size(numDepNonLocalEquations); 
+    for (int i=0; i<numDepNonLocalEquations; i++) depNonLocalEquations_[i] = physicsIDs[i];
     return(0);
   }
 
@@ -131,29 +124,13 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
     return(0);
   }
 
-  //! Define Poisson equation IDs
-  /*! Define the list of physics IDs associated with the Poisson equations in ascending order.
-    \param numPoissonEquations (In) Number of Poisson equations per node. (should be 1)
-    \param physicsIDs (In) List of physics IDs associated with the Poisson equations.
+  //! Method that allows assertion that A22 block will be diagonal matrix.
+  /*! Sets a bool that allows assertion that the A22 block will be strictly diagonal.  By default, we assume a general A22 block. 
+    \param isDiagonal (In) Set to true if you know that A22 is diagonal. Otherwise, set it false, or do not call this method since the default is false.
   */
-  int setPoissonEquationIDs(int numPoissonEquations, int * physicsIDs) {
-    if (poissonEquations_.Length()!=0) return(0); //Already been here
-    poissonEquations_.Size(numPoissonEquations);
-    for (int i=0; i<numPoissonEquations; i++) poissonEquations_[i] = physicsIDs[i];
-    return(0);
-  }
-
-  //! Assert that field dependence on primitive densities is linear; manager will not reset values between nonlinear solves.
-  /*! This method can be called to assert that the field variable dependence on primitive densities does change from one linear solve to the next.
-      In this case, we can avoid filling the associated matrix coefficients.  Calling this method with "true" will cause the problem manager not reset
-      the matrix coefficients for this block and to ignore any values that are submitted for entry in this block.
-     \param isLinear (In) Set to true if the field dependence is linear on primitive densities.
-     \warning This method can be called at any time, but should be called before the initializeValues() method is called for the second solve; By default the manager assumes that the relationship is non-linear, so values will be reset to zero and must be refilled before each linear solve.
-  */
-  int setFieldOnDensityIsLinear(bool isLinear) { 
-    isLinear_ = isLinear;
-    return(0);
-  }
+  int setA22BlockIsDiagonal(bool isA22Diagonal) {
+    if (isBlockStructureSet_) return(-1); // Block structure is already set, calling this method is not effective.
+    isA22Diagonal_ = isA22Diagonal; return(0);}
 
   //! Method that must be called once, when all row and column maps are set.
   /*! This method constructs all of the Epetra_CrsGraph objects and the lhs and rhs vectors. 
@@ -237,24 +214,21 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
   //@}
 
 protected:
+
   int insertRowA12();
   int insertRowA21();
-  Epetra_IntSerialDenseVector gEquations_;
-  Epetra_IntSerialDenseVector gInvEquations_;
-  Epetra_IntSerialDenseVector cmsEquations_;
-  Epetra_IntSerialDenseVector densityEquations_; 
-  Epetra_IntSerialDenseVector poissonEquations_;
-  Teuchos::RefCountPtr<dft_PolyA11_Epetra_Operator> A11_;
+  Epetra_IntSerialDenseVector indNonLocalEquations_;
+  Epetra_IntSerialDenseVector depNonLocalEquations_;
+  Epetra_IntSerialDenseVector densityEquations_;  
+  Teuchos::RefCountPtr<dft_HardSphereA11_Epetra_Operator> A11_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A12_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A21_;
-  Teuchos::RefCountPtr<dft_PolyA22_Epetra_Operator> A22_;
+  Teuchos::RefCountPtr<dft_A22Matrix_Epetra_Operator> A22Matrix_;
+  Teuchos::RefCountPtr<dft_HardSphereA22_Epetra_Operator> A22Diagonal_;
   Teuchos::RefCountPtr<Epetra_Map> block1RowMap_;
   Teuchos::RefCountPtr<Epetra_Map> block2RowMap_;
-  Teuchos::RefCountPtr<Epetra_Map> cmsRowMap_;
-  Teuchos::RefCountPtr<Epetra_Map> densityRowMap_;
-  Teuchos::RefCountPtr<Epetra_Map> extraRowMap_;
-  Teuchos::RefCountPtr<Epetra_Map> poissonRowMap_;
-  bool hasPoisson_;
+  Teuchos::RefCountPtr<Epetra_Map> indNonLocalRowMap_;
+  Teuchos::RefCountPtr<Epetra_Map> depNonLocalRowMap_;
   Epetra_IntSerialDenseVector physicsIdToSchurBlockId_;
   Teuchos::RefCountPtr<dft_Schur_Epetra_Operator> schurOperator_;
   Teuchos::RefCountPtr<Epetra_Vector> rhs1_;
@@ -262,7 +236,8 @@ protected:
   Teuchos::RefCountPtr<Epetra_Vector> rhsSchur_;
   Teuchos::RefCountPtr<Epetra_Vector> lhs1_;
   Teuchos::RefCountPtr<Epetra_Vector> lhs2_;
-  bool isLinear_;
+  bool isA22Diagonal_;
+  bool formSchurMatrix_;
   bool debug_;
   int curRowA12_;
   std::map<int, double> curRowValuesA12_;
@@ -275,4 +250,4 @@ protected:
 	     
 };
 
-#endif /* DFT_POLYLINPROBMGR_HPP */
+#endif /* DFT_HARDSPHERELINPROBMGR_HPP */

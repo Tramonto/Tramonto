@@ -35,8 +35,8 @@
 #include "Epetra_IntSerialDenseVector.h"
 #include "Teuchos_TestForException.hpp"
 
-//==============================================================================
-dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, int * options, double * params ) 
+//=============================================================================
+/*dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, int * options, double * params ) 
   : cmsMap_(cmsMap),
     densityMap_(densityMap),
     block2Map_(block2Map),
@@ -55,12 +55,9 @@ dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsM
   densityOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
   Label_ = "dft_PolyA22_Epetra_Operator";
   cmsOnDensityMatrix_->SetLabel("PolyA22::cmsOnDensityMatrix");
-  // F_location_ = Teuchos::getParameter<int>(*parameterList_, "F_location");
-  F_location_ = 0; //CHANGE
-}
-
-//==============================================================================
-/*dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList) 
+  }*/
+//=============================================================================
+dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList) 
   : cmsMap_(cmsMap),
     densityMap_(densityMap),
     block2Map_(block2Map),
@@ -79,7 +76,7 @@ dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsM
   Label_ = "dft_PolyA22_Epetra_Operator";
   cmsOnDensityMatrix_->SetLabel("PolyA22::cmsOnDensityMatrix");
   F_location_ = Teuchos::getParameter<int>(*parameterList_, "F_location");
-  }*/
+  }
 //==============================================================================
 dft_PolyA22_Epetra_Operator::~dft_PolyA22_Epetra_Operator() {
 }

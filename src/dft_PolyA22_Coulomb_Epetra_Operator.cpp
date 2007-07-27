@@ -36,7 +36,7 @@
 #include "Teuchos_TestForException.hpp"
 
 //============================================================================
-dft_PolyA22_Coulomb_Epetra_Operator::dft_PolyA22_Coulomb_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & poissonMap, const Epetra_Map & cmsDensMap, const Epetra_Map & block2Map, int * options, double * params) 
+/*dft_PolyA22_Coulomb_Epetra_Operator::dft_PolyA22_Coulomb_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & poissonMap, const Epetra_Map & cmsDensMap, const Epetra_Map & block2Map, int * options, double * params) 
   : dft_PolyA22_Epetra_Operator(cmsMap, densityMap, cmsDensMap, options, params),
     poissonMap_(poissonMap),
     cmsDensMap_(cmsDensMap),
@@ -52,13 +52,16 @@ dft_PolyA22_Coulomb_Epetra_Operator::dft_PolyA22_Coulomb_Epetra_Operator(const E
   poissonOnDensityMatrix_->SetLabel("PolyA22Coulomb::poissonOnDensityMatrix");
   ML_Epetra::SetDefaults("SA",MLList_);
   MLList_.set("ML output", 0);
-}
-//==============================================================================
-/*dft_PolyA22_Coulomb_Epetra_Operator::dft_PolyA22_Coulomb_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & poissonMap, const Epetra_Map & cmsDensMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList) 
+  }*/
+//=============================================================================
+dft_PolyA22_Coulomb_Epetra_Operator::dft_PolyA22_Coulomb_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & poissonMap, const Epetra_Map & cmsDensMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList) 
   : dft_PolyA22_Epetra_Operator(cmsMap, densityMap, cmsDensMap, parameterList),
     poissonMap_(poissonMap),
     cmsDensMap_(cmsDensMap),
-    block2Map_(block2Map)
+    block2Map_(block2Map),
+    curPoissonRow_(-1),
+    curCPRow_(-1),
+    curPDRow_(-1)
  {
 
     poissonMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, poissonMap, 0));
@@ -71,7 +74,7 @@ dft_PolyA22_Coulomb_Epetra_Operator::dft_PolyA22_Coulomb_Epetra_Operator(const E
    poissonOnDensityMatrix_->SetLabel("PolyA22Coulomb::poissonOnDensityMatrix");
    ML_Epetra::SetDefaults("SA",MLList_);
    MLList_.set("ML output", 0);
-}*/
+}
 //==============================================================================
 dft_PolyA22_Coulomb_Epetra_Operator::~dft_PolyA22_Coulomb_Epetra_Operator() {
   return;
@@ -343,7 +346,7 @@ int dft_PolyA22_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
   Epetra_MultiVector Y1tmp2(Y1);
   Epetra_MultiVector Y2tmp(Y2);
   Epetra_MultiVector Y2tmp2(Y2);
-  
+
   if (F_location_ == 1) {
     Y2.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X2, 0.0);
     poissonOnDensityMatrix_->Apply(Y2, Y0tmp);
@@ -356,45 +359,45 @@ int dft_PolyA22_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
   }
 
   //now apply inverse of poissonMatrix_ to Y0
-    Epetra_LinearProblem implicitProblem(&(*poissonMatrix_), &Y0, &Y0);
-    Teuchos::RefCountPtr<AztecOO> solver = Teuchos::rcp(new AztecOO(implicitProblem));
-    ML_Epetra::MultiLevelPreconditioner* MLPrec = new ML_Epetra::MultiLevelPreconditioner(*poissonMatrix_, MLList_);
+  Epetra_LinearProblem implicitProblem(&(*poissonMatrix_), &Y0, &Y0);
+  Teuchos::RefCountPtr<AztecOO> solver = Teuchos::rcp(new AztecOO(implicitProblem));
+  ML_Epetra::MultiLevelPreconditioner* MLPrec = new ML_Epetra::MultiLevelPreconditioner(*poissonMatrix_, MLList_);
+  
+  solver->SetParameters(*parameterList_);
+  //if (options_!=0) solver->SetAllAztecOptions(options_);
+  // if (params_!=0) solver->SetAllAztecParams(params_);
+  
+  //const int * options = solver->GetAllAztecOptions();
+  //const double * params = solver->GetAllAztecParams();
+  solver->SetPrecOperator(MLPrec);
+  //solver->SetAztecOption(AZ_solver, AZ_cg); //change?
+  solver->SetAztecOption(AZ_solver, AZ_gmres);
+  solver->SetAztecOption(AZ_output, 1); //change?
+  solver->Iterate(Teuchos::getParameter<int>(*parameterList_, "Max_iter"), Teuchos::getParameter<double>(*parameterList_, "Tol")); //Try to solve
+  //solver->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
+  delete MLPrec;
+  
+  if (F_location_ == 1) {
+    cmsOnDensityMatrix_->Apply(Y2, Y1tmp);
+    cmsOnPoissonMatrix_->Apply(Y0, Y1tmp2);
+    Y1tmp.Update(1.0, Y1tmp2, 1.0);
+    Y1.Update(1.0, X1, -1.0, Y1tmp, 0.0);
+    Y1.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y1, 0.0);
+  }
+  else { 
+    cmsOnDensityMatrix_->Apply(Y1, Y2tmp);
+    cmsOnPoissonMatrix_->Apply(Y0, Y2tmp2);
+    Y2tmp.Update(1.0, Y2tmp2, 1.0);
+    Y2.Update(1.0, X2, -1.0, Y2tmp, 0.0);
+    Y2.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y2, 0.0);
+  }
+  
+  delete [] Y1ptr;
+  delete [] X1ptr;
+  delete [] Y2ptr;
+  delete [] X2ptr;
     
-    //   solver->SetParameters(*parameterList_);
-    if (options_!=0) solver->SetAllAztecOptions(options_);
-    if (params_!=0) solver->SetAllAztecParams(params_);
-    
-    const int * options = solver->GetAllAztecOptions();
-    const double * params = solver->GetAllAztecParams();
-    solver->SetPrecOperator(MLPrec);
-    solver->SetAztecOption(AZ_solver, AZ_cg); //change?
-    //  solver->SetAztecOption(AZ_solver, AZ_gmres);
-    solver->SetAztecOption(AZ_output, 1); //change?
-    // solver->Iterate(Teuchos::getParameter<int>(*parameterList_, "Max_iter"), Teuchos::getParameter<double>(*parameterList_, "Tol")); //Try to solve
-    solver->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
-    delete MLPrec;
-    
-    if (F_location_ == 1) {
-      cmsOnDensityMatrix_->Apply(Y2, Y1tmp);
-      cmsOnPoissonMatrix_->Apply(Y0, Y1tmp2);
-      Y1tmp.Update(1.0, Y1tmp2, 1.0);
-      Y1.Update(1.0, X1, -1.0, Y1tmp, 0.0);
-      Y1.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y1, 0.0);
-    }
-    else { 
-      cmsOnDensityMatrix_->Apply(Y1, Y2tmp);
-      cmsOnPoissonMatrix_->Apply(Y0, Y2tmp2);
-      Y2tmp.Update(1.0, Y2tmp2, 1.0);
-      Y2.Update(1.0, X2, -1.0, Y2tmp, 0.0);
-      Y2.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y2, 0.0);
-    }
-    
-    delete [] Y1ptr;
-    delete [] X1ptr;
-    delete [] Y2ptr;
-    delete [] X2ptr;
-    
-    return(0);
+  return(0);
 }
 //==============================================================================
 int dft_PolyA22_Coulomb_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {

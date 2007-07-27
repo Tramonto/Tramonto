@@ -25,8 +25,8 @@
 //@HEADER
 */
 
-#ifndef DFT_POLY_LIN_PROB_MGR_WRAPPER_H
-#define DFT_POLY_LIN_PROB_MGR_WRAPPER_H
+#ifndef DFT_PARAMETERLIST_WRAPPER_H
+#define DFT_PARAMETERLIST_WRAPPER_H
 #include <mpi.h>
 
 #ifdef __cplusplus
@@ -34,33 +34,25 @@ extern "C" {
 #endif
 
   /*****************************************************/
-  /**                  dft_PolyLinProbMgr             **/
+  /**                  dft_Parameterlist             **/
   /***************************************************/
 
-  /*   void * dft_poly_lin_prob_mgr_create(int numUnks, int* solverOptions, double* solverParams, MPI_Comm comm);*/
+  void * dft_parameterlist_create();
 
-  void * dft_poly_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm);
+  void dft_parameterlist_destruct(void * parameterlistptr);
 
-  /* void * dft_poly_lin_prob_mgr_create_debug(int numUnks, int* solverOptions, double* solverParams, MPI_Comm comm);*/
+  void dft_parameterlist_set_int(void * parameterlistptr, char * name, int value);
 
-  void * dft_poly_lin_prob_mgr_create_debug(int numUnks, void * Parameterlist_list, MPI_Comm comm);
+  void dft_parameterlist_set_double(void * parameterlistptr, char * name, double value);
 
-  void dft_poly_lin_prob_mgr_destruct(void * linprobmgr);
+  void dft_parameterlist_set_int_array(void * parameterlistptr, char * name, int * values);
 
-  int dft_poly_lin_prob_mgr_setgequationids(void * linprobmgr, int numgids, int * gids);
-  
-  int dft_poly_lin_prob_mgr_setginvequationids(void * linprobmgr, int numgids, int * gids);
-  
-  int dft_poly_lin_prob_mgr_setcmsequationids(void * linprobmgr, int numgids, int * gids);
-  
-  int dft_poly_lin_prob_mgr_setdensityequationids(void * linprobmgr, int numgids, int * gids);
+  void dft_parameterlist_set_double_array(void * parameterlistptr, char * name, double * values);
 
-  int dft_poly_lin_prob_mgr_setfieldondensityislinear(void * linprobmgr, int isLinear);
-
-  int dft_poly_lin_prob_mgr_setpoissonequationids(void * linprobmgr, int numgids, int * gids);
+  void dft_parameterlist_set_all_aztec(void * parameterlistptr, int * options, double * params);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* DFT_POLY_LIN_PROB_MGR_WRAPPER_H */
+#endif /* DFT_PARAMETERLIST_WRAPPER_H */

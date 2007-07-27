@@ -24,86 +24,73 @@
 //@HEADER
 
 
-#include "dft_poly_lin_prob_mgr_wrapper.h"
-#include "dft_PolyLinProbMgr.hpp"
+#include "dft_hardsphere_lin_prob_mgr_wrapper.h"
+#include "dft_HardSphereLinProbMgr.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
   /*****************************************************/
-  /**                  dft_BasicLinProbMgr             **/
+  /**                  dft_HardSphereLinProbMgr             **/
   /***************************************************/
-
-  /*    void * dft_poly_lin_prob_mgr_create(int numUnks,
+  /*  void * dft_hardsphere_lin_prob_mgr_create(int numUnks,
                         int* solverOptions, double* solverParams, MPI_Comm comm) {
-    dft_PolyLinProbMgr * tmp = new dft_PolyLinProbMgr(numUnks, solverOptions,
+    dft_HardSphereLinProbMgr * tmp = new dft_HardSphereLinProbMgr(numUnks, solverOptions,
 		                                               solverParams, comm);
     dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
     return((void *)linprobmgr_);
     }*/
 
-  void * dft_poly_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
-    dft_PolyLinProbMgr * tmp = new dft_PolyLinProbMgr(numUnks, (Teuchos::ParameterList *) Parameterlist_list, comm);
+  void * dft_hardsphere_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
+    dft_HardSphereLinProbMgr * tmp = new dft_HardSphereLinProbMgr(numUnks, (Teuchos::ParameterList *) Parameterlist_list, comm);
     dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
     return((void *)linprobmgr_);
-    }
+  }
 
-  /* void * dft_poly_lin_prob_mgr_create_debug(int numUnks,
+  /* void * dft_hardsphere_lin_prob_mgr_create_debug(int numUnks,
                         int* solverOptions, double* solverParams, MPI_Comm comm) {
-    dft_PolyLinProbMgr * tmp = new dft_PolyLinProbMgr(numUnks, solverOptions,
+    dft_HardSphereLinProbMgr * tmp = new dft_HardSphereLinProbMgr(numUnks, solverOptions,
 						      solverParams, comm, true);
     dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
     return((void *)linprobmgr_);
     }*/
 
-  void * dft_poly_lin_prob_mgr_create_debug(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
-    dft_PolyLinProbMgr * tmp = new dft_PolyLinProbMgr(numUnks, (Teuchos::ParameterList *) Parameterlist_list, comm, true);
+  void * dft_hardsphere_lin_prob_mgr_create_debug(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
+    dft_HardSphereLinProbMgr * tmp = new dft_HardSphereLinProbMgr(numUnks, (Teuchos::ParameterList *) Parameterlist_list, comm, true);
     dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
     return((void *)linprobmgr_);
-    }
+  }
 
-  void dft_poly_lin_prob_mgr_destruct(void * linprobmgr) {
+  void dft_hardsphere_lin_prob_mgr_destruct(void * linprobmgr) {
     dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
-    dft_PolyLinProbMgr * linprobmgr_ = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
+    dft_HardSphereLinProbMgr * linprobmgr_ = dynamic_cast<dft_HardSphereLinProbMgr *>(tmp);
     delete linprobmgr_;
   }
 
-  int dft_poly_lin_prob_mgr_setgequationids(void * linprobmgr, int numgids, int * gids) {
+  int dft_hardsphere_lin_prob_mgr_setindnonlocalequationids(void * linprobmgr, int numgids, int * gids) {
     dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
-    dft_PolyLinProbMgr * linprobmgr_  = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
-    return(linprobmgr_->setGEquationIDs(numgids, gids));
+    dft_HardSphereLinProbMgr * linprobmgr_  = dynamic_cast<dft_HardSphereLinProbMgr *>(tmp);
+    return(linprobmgr_->setIndNonLocalEquationIDs(numgids, gids));
   }
 
-  int dft_poly_lin_prob_mgr_setginvequationids(void * linprobmgr, int numgids, int * gids) {
+  int dft_hardsphere_lin_prob_mgr_setdepnonlocalequationids(void * linprobmgr, int numgids, int * gids) {
     dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
-    dft_PolyLinProbMgr * linprobmgr_  = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
-    return(linprobmgr_->setGInvEquationIDs(numgids, gids));
+    dft_HardSphereLinProbMgr * linprobmgr_  = dynamic_cast<dft_HardSphereLinProbMgr *>(tmp);
+    return(linprobmgr_->setDepNonLocalEquationIDs(numgids, gids));
   }
 
-  int dft_poly_lin_prob_mgr_setcmsequationids(void * linprobmgr, int numgids, int * gids) {
+  int dft_hardsphere_lin_prob_mgr_setdensityequationids(void * linprobmgr, int numgids, int * gids) {
     dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
-    dft_PolyLinProbMgr * linprobmgr_  = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
-    return(linprobmgr_->setCmsEquationIDs(numgids, gids));
-  }
-
-  int dft_poly_lin_prob_mgr_setdensityequationids(void * linprobmgr, int numgids, int * gids) {
-    dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
-    dft_PolyLinProbMgr * linprobmgr_  = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
+    dft_HardSphereLinProbMgr * linprobmgr_  = dynamic_cast<dft_HardSphereLinProbMgr *>(tmp);
     return(linprobmgr_->setDensityEquationIDs(numgids, gids));
   }
 
-  int dft_poly_lin_prob_mgr_setfieldondensityislinear(void * linprobmgr, int isLinear) {
+  int dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(void * linprobmgr, int isa22diagonal) {
     dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
-    dft_PolyLinProbMgr * linprobmgr_  = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
-    bool isLinear1 = (isLinear!=0);
-    return(linprobmgr_->setFieldOnDensityIsLinear(isLinear1));
-  }
-
-  int dft_poly_lin_prob_mgr_setpoissonequationids(void * linprobmgr, int numgids, int * gids) {
-    dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
-    dft_PolyLinProbMgr * linprobmgr_ = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
-    return(linprobmgr_->setPoissonEquationIDs(numgids, gids));
+    dft_HardSphereLinProbMgr * linprobmgr_  = dynamic_cast<dft_HardSphereLinProbMgr *>(tmp);
+    bool isA22Diagonal = (isa22diagonal!=0);
+    return(linprobmgr_->setA22BlockIsDiagonal(isA22Diagonal));
   }
 
 #ifdef __cplusplus

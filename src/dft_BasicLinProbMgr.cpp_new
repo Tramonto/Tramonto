@@ -42,7 +42,7 @@
 
 
 //=============================================================================
-dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm) 
+/*dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm) 
   : numUnknownsPerNode_(numUnknownsPerNode),
     solverOptions_(solverOptions),
     solverParams_(solverParams),
@@ -64,10 +64,9 @@ dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOpt
   //if (comm_.MyPID()==0) std::cin>>tmp;
   //comm_.Barrier();
   return;
-  }
-
+  }*/
 //=============================================================================
-/*dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, Teuchos::ParameterList * parameterList, MPI_Comm comm)
+dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, Teuchos::ParameterList * parameterList, MPI_Comm comm)
   : numUnknownsPerNode_(numUnknownsPerNode),
     parameterList_(parameterList),
     numOwnedNodes_(0),
@@ -84,8 +83,7 @@ dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOpt
     firstTime_(true),
     curRow_(-1) { 
     return;
-    }*/
-
+    }
 //=============================================================================
 dft_BasicLinProbMgr::~dft_BasicLinProbMgr() {
    return;
@@ -202,6 +200,7 @@ int dft_BasicLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, in
 
   int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   int colGID = boxToSolverGID(boxPhysicsID, boxNode);
+
   if (firstTime_) {
     if (rowGID!=curRow_) { 
       insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
@@ -285,6 +284,7 @@ int dft_BasicLinProbMgr::finalizeProblemValues() {
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
+
   return(0);
 }
 //=============================================================================
@@ -294,7 +294,6 @@ int dft_BasicLinProbMgr::setRhs(const double ** b) {
   for (int i=0; i<numUnknownsPerNode_; i++)
     for (int j=0; j<numOwnedNodes_; j++)
       tmp[ownedToSolverLID(i,j)] = b[i][j];
-  
   return(0);
 }
 //=============================================================================
@@ -334,9 +333,9 @@ int dft_BasicLinProbMgr::getRhs(double ** b) const {
 }
 //=============================================================================
 int dft_BasicLinProbMgr::setupSolver() {
-  
-  // int solverInt = Teuchos::getParameter<int>(*parameterList_, "Am_solver");
-  int solverInt = solverOptions_[AZ_solver]; //CHANGE BACK!!!
+
+  int solverInt = Teuchos::getParameter<int>(*parameterList_, "Solver");
+  // int solverInt = solverOptions_[AZ_solver];
   char * solverName;
 
   switch (solverInt) {
@@ -364,48 +363,14 @@ int dft_BasicLinProbMgr::setupSolver() {
 
   if (solverInt >= AM_lapack && solverInt <= AM_taucs) {
     Amesos Amesos_Factory;
-    directSolver_ = Teuchos::rcp(Amesos_Factory.Create(solverName, *implicitProblem_));
-    //remove this once parameterLists work right!
-    parameterList_->set("Solver", solverOptions_[AZ_solver]);
-    parameterList_->set("Scaling", solverOptions_[AZ_scaling]);
-    parameterList_->set("Precond", solverOptions_[AZ_precond]);
-    parameterList_->set("Conv", solverOptions_[AZ_conv]);
-    parameterList_->set("Output", solverOptions_[AZ_output]);
-    parameterList_->set("Pre_calc", solverOptions_[AZ_pre_calc]);
-    parameterList_->set("Max_iter", solverOptions_[AZ_max_iter]);
-    parameterList_->set("Poly_ord", solverOptions_[AZ_poly_ord]);
-    parameterList_->set("Overlap", solverOptions_[AZ_overlap]);
-    parameterList_->set("Type_overlap", solverOptions_[AZ_type_overlap]);
-    parameterList_->set("Kspace", solverOptions_[AZ_kspace]);
-    parameterList_->set("Orthog", solverOptions_[AZ_orthog]);
-    parameterList_->set("Aux_vec", solverOptions_[AZ_aux_vec]);
-    parameterList_->set("Reorder", solverOptions_[AZ_reorder]);
-    parameterList_->set("Keep_info", solverOptions_[AZ_keep_info]);
-    parameterList_->set("Subdomain_solve", solverOptions_[AZ_subdomain_solve]);
-    parameterList_->set("Graph_fill", solverOptions_[AZ_graph_fill]);
-    parameterList_->set("Init_guess", solverOptions_[AZ_init_guess]);
-    parameterList_->set("Keep_kvecs", solverOptions_[AZ_keep_kvecs]);
-    parameterList_->set("Apply_kvecs", solverOptions_[AZ_apply_kvecs]);
-    parameterList_->set("Orth_kvecs", solverOptions_[AZ_orth_kvecs]);
-    parameterList_->set("Ignore_scaling", solverOptions_[AZ_ignore_scaling]);
-    parameterList_->set("Check_update_size", solverOptions_[AZ_check_update_size]);
-    parameterList_->set("Extreme", solverOptions_[AZ_extreme]);
-    parameterList_->set("Diagnostics", solverOptions_[AZ_diagnostics]);
-    parameterList_->set("Tol", solverParams_[AZ_tol]);
-    parameterList_->set("Drop", solverParams_[AZ_drop]);
-    parameterList_->set("Ilut_fill", solverParams_[AZ_ilut_fill]);
-    parameterList_->set("Omega", solverParams_[AZ_omega]);
-    parameterList_->set("Rthresh", solverParams_[AZ_rthresh]);
-    parameterList_->set("Athresh", solverParams_[AZ_athresh]);
-    parameterList_->set("Update_reduction", solverParams_[AZ_update_reduction]);
-    parameterList_->set("Ill_cond_thresh", solverParams_[AZ_ill_cond_thresh]); 
+    directSolver_ = Teuchos::rcp(Amesos_Factory.Create(solverName, *implicitProblem_)); 
     directSolver_->SetParameters(*parameterList_);
     directSolver_->SymbolicFactorization();
   } else {
     solver_ = Teuchos::rcp(new AztecOO(*implicitProblem_));
-    if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);
-    if (solverParams_!=0) solver_->SetAllAztecParams(solverParams_);
-    //solver_->SetParameters(*parameterList_);
+    //   if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);
+    //    if (solverParams_!=0) solver_->SetAllAztecParams(solverParams_);
+    solver_->SetParameters(*parameterList_);
   }
   
   //const int * options = solver_->GetAllAztecOptions();
@@ -421,8 +386,9 @@ int dft_BasicLinProbMgr::setupSolver() {
 }
 //=============================================================================
 int dft_BasicLinProbMgr::solve() {
-  //  int solverInt = Teuchos::getParameter<int>(*parameterList_, "Am_solver");
-  int solverInt = solverOptions_[AZ_solver]; //CHANGE
+
+  int solverInt = Teuchos::getParameter<int>(*parameterList_, "Solver");
+  //  int solverInt = solverOptions_[AZ_solver];
   if (solverInt >= AM_lapack && solverInt <= AM_taucs) {
     directSolver_->NumericFactorization();
     directSolver_->Solve();
@@ -430,10 +396,10 @@ int dft_BasicLinProbMgr::solve() {
     //writeMatrix("2D.mm", "Small Polymer Matrix", "Global Matrix from Small Polymer Problem");
     //abort();
 
-    const int * options = solver_->GetAllAztecOptions();
-    const double * params = solver_->GetAllAztecParams();
-    solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
-    //  solver_->Iterate(Teuchos::getParameter<int>(*parameterList_, "Max_iter"), Teuchos::getParameter<double>(*parameterList_, "Tol")); // Try to solve
+    //   const int * options = solver_->GetAllAztecOptions();
+    //   const double * params = solver_->GetAllAztecParams();
+    //  solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
+    solver_->Iterate(Teuchos::getParameter<int>(*parameterList_, "Max_iter"), Teuchos::getParameter<double>(*parameterList_, "Tol")); // Try to solve
   }
 
     bool writeMatrixNow = false;
@@ -446,7 +412,6 @@ int dft_BasicLinProbMgr::solve() {
     }
   //solver_->AdaptiveIterate(solverOptions_[AZ_max_iter], 5, solverParams_[AZ_tol]); // Try to solve
 
-    // EpetraExt::MultiVectorToMatrixMarketFile("rhsBasic.dat", *globalRhs_, "", "");
     //abort();
 
   return(0);

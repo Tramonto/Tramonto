@@ -25,8 +25,8 @@
 //@HEADER
 */
 
-#ifndef DFT_POLY_LIN_PROB_MGR_WRAPPER_H
-#define DFT_POLY_LIN_PROB_MGR_WRAPPER_H
+#ifndef DFT_HARDSPHERE_LIN_PROB_MGR_WRAPPER_H
+#define DFT_HARDSPHERE_LIN_PROB_MGR_WRAPPER_H
 #include <mpi.h>
 
 #ifdef __cplusplus
@@ -34,33 +34,31 @@ extern "C" {
 #endif
 
   /*****************************************************/
-  /**                  dft_PolyLinProbMgr             **/
+  /**                  dft_HardSphereLinProbMgr             **/
   /***************************************************/
 
-  /*   void * dft_poly_lin_prob_mgr_create(int numUnks, int* solverOptions, double* solverParams, MPI_Comm comm);*/
+  /* void * dft_hardsphere_lin_prob_mgr_create(int numUnks,
+     int* solverOptions, double* solverParams, MPI_Comm comm);*/
 
-  void * dft_poly_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm);
+  void * dft_hardsphere_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm);
 
-  /* void * dft_poly_lin_prob_mgr_create_debug(int numUnks, int* solverOptions, double* solverParams, MPI_Comm comm);*/
+  /*  void * dft_hardsphere_lin_prob_mgr_create_debug(int numUnks,
+      int* solverOptions, double* solverParams, MPI_Comm comm);*/
 
-  void * dft_poly_lin_prob_mgr_create_debug(int numUnks, void * Parameterlist_list, MPI_Comm comm);
+  void * dft_hardsphere_lin_prob_mgr_create_debug(int numUnks, void * Parameterlist_list, MPI_Comm comm);
 
-  void dft_poly_lin_prob_mgr_destruct(void * linprobmgr);
+  void dft_hardsphere_lin_prob_mgr_destruct(void * linprobmgr);
 
-  int dft_poly_lin_prob_mgr_setgequationids(void * linprobmgr, int numgids, int * gids);
+  int dft_hardsphere_lin_prob_mgr_setindnonlocalequationids(void * linprobmgr, int numgids, int * gids);
   
-  int dft_poly_lin_prob_mgr_setginvequationids(void * linprobmgr, int numgids, int * gids);
+  int dft_hardsphere_lin_prob_mgr_setdepnonlocalequationids(void * linprobmgr, int numgids, int * gids);
   
-  int dft_poly_lin_prob_mgr_setcmsequationids(void * linprobmgr, int numgids, int * gids);
-  
-  int dft_poly_lin_prob_mgr_setdensityequationids(void * linprobmgr, int numgids, int * gids);
+  int dft_hardsphere_lin_prob_mgr_setdensityequationids(void * linprobmgr, int numgids, int * gids);
 
-  int dft_poly_lin_prob_mgr_setfieldondensityislinear(void * linprobmgr, int isLinear);
-
-  int dft_poly_lin_prob_mgr_setpoissonequationids(void * linprobmgr, int numgids, int * gids);
+  int dft_hardsphere_lin_prob_mgr_seta22blockisdiagona(void * linprobmgr, int isa22diagonal);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* DFT_POLY_LIN_PROB_MGR_WRAPPER_H */
+#endif /* DFT_HARDSPHERE_LIN_PROB_MGR_WRAPPER_H */

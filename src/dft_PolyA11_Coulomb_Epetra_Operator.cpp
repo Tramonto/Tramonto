@@ -36,7 +36,7 @@
 #include "Teuchos_TestForException.hpp"
 
 //=============================================================================
-dft_PolyA11_Coulomb_Epetra_Operator::dft_PolyA11_Coulomb_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map, const Epetra_Map & allGMap, const Epetra_Map & poissonMap, int * solverOptions, double * solverParams)
+/*dft_PolyA11_Coulomb_Epetra_Operator::dft_PolyA11_Coulomb_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map, const Epetra_Map & allGMap, const Epetra_Map & poissonMap, int * solverOptions, double * solverParams)
   : dft_PolyA11_Epetra_Operator(ownedMap, allGMap),
     solverOptions_(solverOptions),
     solverParams_(solverParams),
@@ -48,9 +48,9 @@ dft_PolyA11_Coulomb_Epetra_Operator::dft_PolyA11_Coulomb_Epetra_Operator(const E
   poissonMatrix_ = new Epetra_CrsMatrix(Copy, poissonMap, 0);
   poissonMatrix_->SetLabel("PolyA11Coulomb::poissonMatrix");
   return;
-}
+  }*/
 //=============================================================================
-/*dft_PolyA11_Coulomb_Epetra_Operator::dft_PolyA11_Coulomb_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map, const Epetra_Map & allGMap, const Epetra_Map & poissonMap, Teuchos::ParameterList * parameterList) 
+dft_PolyA11_Coulomb_Epetra_Operator::dft_PolyA11_Coulomb_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map, const Epetra_Map & allGMap, const Epetra_Map & poissonMap, Teuchos::ParameterList * parameterList) 
   : dft_PolyA11_Epetra_Operator(ownedMap, allGMap),
 //dft_PolyA11_Epetra_Operator(ownedMap, block1Map),
     parameterList_(parameterList),
@@ -63,7 +63,7 @@ dft_PolyA11_Coulomb_Epetra_Operator::dft_PolyA11_Coulomb_Epetra_Operator(const E
   poissonMatrix_ = new Epetra_CrsMatrix(Copy, poissonMap, 0); //or ownedMap??
   poissonMatrix_->SetLabel("PolyA11Coulomb::poissonMatrix");
   return;
-  }*/
+  }
 //==============================================================================
 dft_PolyA11_Coulomb_Epetra_Operator::~dft_PolyA11_Coulomb_Epetra_Operator() {
   /*  for (int i=0; i<numBlocks_; i++) if (matrix_[i]!=0) delete matrix_[i];
@@ -191,8 +191,8 @@ int dft_PolyA11_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
   //now to apply the inverse of poissonMatrix_ to Y2
   Epetra_LinearProblem implicitProblem(poissonMatrix_, &Y2, &Y2);
 
-  //  int solverInt = Teuchos::getParameter<int>(*parameterList_, "Am_solver");
-  int solverInt = solverOptions_[AZ_solver];
+  int solverInt = Teuchos::getParameter<int>(*parameterList_, "Solver");
+  //int solverInt = solverOptions_[AZ_solver];
   char * solverName;
   
   switch (solverInt) {
@@ -213,40 +213,6 @@ int dft_PolyA11_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
     Epetra_LinearProblem reindexedProblem = reindex(implicitProblem);
     Amesos Amesos_Factory;
     Teuchos::RefCountPtr<Amesos_BaseSolver> directSolver_ = Teuchos::rcp(Amesos_Factory.Create(solverName, reindexedProblem));
-    //remove this once parameterLists work right!
-    parameterList_->set("Solver", solverOptions_[AZ_solver]);
-    parameterList_->set("Scaling", solverOptions_[AZ_scaling]);
-    parameterList_->set("Precond", solverOptions_[AZ_precond]);
-    parameterList_->set("Conv", solverOptions_[AZ_conv]);
-    parameterList_->set("Output", solverOptions_[AZ_output]);
-    parameterList_->set("Pre_calc", solverOptions_[AZ_pre_calc]);
-    parameterList_->set("Max_iter", solverOptions_[AZ_max_iter]);
-    parameterList_->set("Poly_ord", solverOptions_[AZ_poly_ord]);
-    parameterList_->set("Overlap", solverOptions_[AZ_overlap]);
-    parameterList_->set("Type_overlap", solverOptions_[AZ_type_overlap]);
-    parameterList_->set("Kspace", solverOptions_[AZ_kspace]);
-    parameterList_->set("Orthog", solverOptions_[AZ_orthog]);
-    parameterList_->set("Aux_vec", solverOptions_[AZ_aux_vec]);
-    parameterList_->set("Reorder", solverOptions_[AZ_reorder]);
-    parameterList_->set("Keep_info", solverOptions_[AZ_keep_info]);
-    parameterList_->set("Subdomain_solve", solverOptions_[AZ_subdomain_solve]);
-    parameterList_->set("Graph_fill", solverOptions_[AZ_graph_fill]);
-    parameterList_->set("Init_guess", solverOptions_[AZ_init_guess]);
-    parameterList_->set("Keep_kvecs", solverOptions_[AZ_keep_kvecs]);
-    parameterList_->set("Apply_kvecs", solverOptions_[AZ_apply_kvecs]);
-    parameterList_->set("Orth_kvecs", solverOptions_[AZ_orth_kvecs]);
-    parameterList_->set("Ignore_scaling", solverOptions_[AZ_ignore_scaling]);
-    parameterList_->set("Check_update_size", solverOptions_[AZ_check_update_size]);
-    parameterList_->set("Extreme", solverOptions_[AZ_extreme]);
-    parameterList_->set("Diagnostics", solverOptions_[AZ_diagnostics]);
-    parameterList_->set("Tol", solverParams_[AZ_tol]);
-    parameterList_->set("Drop", solverParams_[AZ_drop]);
-    parameterList_->set("Ilut_fill", solverParams_[AZ_ilut_fill]);
-    parameterList_->set("Omega", solverParams_[AZ_omega]);
-    parameterList_->set("Rthresh", solverParams_[AZ_rthresh]);
-    parameterList_->set("Athresh", solverParams_[AZ_athresh]);
-    parameterList_->set("Update_reduction", solverParams_[AZ_update_reduction]);
-    parameterList_->set("Ill_cond_thresh", solverParams_[AZ_ill_cond_thresh]); 
     directSolver_->SetParameters(*parameterList_);
     directSolver_->SymbolicFactorization();
     directSolver_->NumericFactorization();
@@ -254,11 +220,11 @@ int dft_PolyA11_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
   } 
   else {
     Teuchos::RefCountPtr<AztecOO> solver_ = Teuchos::rcp(new AztecOO(implicitProblem));
-    //  solver_->SetParameters(*parameterList_);
-    solver_->SetAllAztecOptions(solverOptions_);
-    solver_->SetAllAztecParams(solverParams_);
-    //  solver_->Iterate(Teuchos::getParameter<int>(*parameterList_, "Max_iter"), Teuchos::getParameter<double>(*parameterList_, "Tol")); //Try to solve
-    solver_->Iterate(solverOptions_[AZ_max_iter], solverParams_[AZ_tol]);
+    solver_->SetParameters(*parameterList_);
+    //solver_->SetAllAztecOptions(solverOptions_);
+    //solver_->SetAllAztecParams(solverParams_);
+    solver_->Iterate(Teuchos::getParameter<int>(*parameterList_, "Max_iter"), Teuchos::getParameter<double>(*parameterList_, "Tol")); //Try to solve
+    //solver_->Iterate(solverOptions_[AZ_max_iter], solverParams_[AZ_tol]);
     }
 
   delete [] curY1;

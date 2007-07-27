@@ -53,10 +53,9 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
+  /* dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, int * options, double * params);*/
 
-  dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, int * options, double * params);
-
-  //  dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList);
+  dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList);
   //@}
   //@{ \name Assembly methods.
 
@@ -163,9 +162,9 @@ protected:
   Epetra_Map cmsMap_;
   Epetra_Map densityMap_;
   Epetra_Map block2Map_;
-  //  Teuchos::ParameterList * parameterList_;
-  int * options_;
-  double * params_;
+  Teuchos::ParameterList * parameterList_;
+  //int * options_;
+  //double * params_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnDensityMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> cmsOnCmsMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> densityOnDensityMatrix_;
