@@ -112,7 +112,6 @@ class dft_PolyA11_Coulomb_Epetra_Operator: public virtual dft_PolyA11_Epetra_Ope
 
 protected:
 
-  //int insertRow();
   int insertPoissonRow();
   Epetra_Map block1Map_;
   Epetra_Map allGMap_;

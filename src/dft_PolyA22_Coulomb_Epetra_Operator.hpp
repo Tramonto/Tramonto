@@ -83,7 +83,7 @@ class dft_PolyA22_Coulomb_Epetra_Operator: public virtual dft_PolyA22_Epetra_Ope
   //@{ \name Atribute get methods.
 
   //! Returns an Epetra_Operator pointer that is actually the \e this object, since this class implements Epetra_Operator.
-  Epetra_Operator * getA22Inv() {return(this);} //keep or comment??
+  Epetra_Operator * getA22Inv() {return(this);}
   //@}
   
   //@{ \name Mathematical functions.
@@ -115,7 +115,7 @@ class dft_PolyA22_Coulomb_Epetra_Operator: public virtual dft_PolyA22_Epetra_Ope
      
      \return Returns 0 if residual is "small", otherwise it returns -1.
   */ 
-  int Check(bool verbose) const; //leave or comment?
+  int Check(bool verbose) const; 
 
   //@}
   
@@ -139,11 +139,11 @@ protected:
   Epetra_Map poissonMap_;
   Epetra_Map cmsDensMap_;
   Epetra_Map block2Map_;
-  // Epetra_Map reindexedMap_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> poissonMatrix_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnPoissonMatrix_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> poissonOnDensityMatrix_;
   Teuchos::ParameterList MLList_;
+  ML_Epetra::MultiLevelPreconditioner * MLPrec;
   int curPoissonRow_;
   std::map<int, double> curPoissonRowValues_;
   int curCPRow_;

@@ -218,6 +218,9 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
   /* Call the destructor for the dft_Linprobmgr */
   dft_linprobmgr_destruct(LinProbMgr_manager);
 
+  /* Call the destructor for the dft_ParameterList */
+  dft_parameterlist_destruct(ParameterList_list);
+
   return(iter);
 }
 

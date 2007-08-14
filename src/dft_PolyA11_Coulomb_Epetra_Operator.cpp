@@ -32,6 +32,7 @@
 #include "Epetra_Comm.h"
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
+#include "EpetraExt_MultiVectorOut.h"
 #include "Epetra_IntSerialDenseVector.h"
 #include "Teuchos_TestForException.hpp"
 
@@ -60,14 +61,12 @@ dft_PolyA11_Coulomb_Epetra_Operator::dft_PolyA11_Coulomb_Epetra_Operator(const E
     curPoissonRow_(-1) {
 
   Label_ = "dft_PolyA11_Coulomb_Epetra_Operator";
-  poissonMatrix_ = new Epetra_CrsMatrix(Copy, poissonMap, 0); //or ownedMap??
+  poissonMatrix_ = new Epetra_CrsMatrix(Copy, poissonMap, 0);
   poissonMatrix_->SetLabel("PolyA11Coulomb::poissonMatrix");
   return;
   }
 //==============================================================================
 dft_PolyA11_Coulomb_Epetra_Operator::~dft_PolyA11_Coulomb_Epetra_Operator() {
-  /*  for (int i=0; i<numBlocks_; i++) if (matrix_[i]!=0) delete matrix_[i];
-      delete [] matrix_;*/ //dft_PolyA11_Epetra_Operator destructor deletes these
   delete poissonMatrix_;
   return;
 }
@@ -150,8 +149,17 @@ int dft_PolyA11_Coulomb_Epetra_Operator::finalizeProblemValues() {
     matrix_[i]->OptimizeStorage();
     //TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
   }
-  poissonMatrix_->FillComplete(poissonMap_, poissonMap_); //or FillComplete();?
+  poissonMatrix_->FillComplete(poissonMap_, poissonMap_); 
   poissonMatrix_->OptimizeStorage();
+
+  Epetra_Vector diag(poissonMap_);
+  double *ptr;
+  poissonMatrix_->ExtractDiagonalCopy(diag);
+  diag.ExtractView(&ptr);
+  for (int i = 0; i < poissonMap_.NumMyElements(); i++) {
+    ptr[i]+=10.0e-12;
+  }
+  poissonMatrix_->ReplaceDiagonalValues(diag);
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -172,26 +180,25 @@ int dft_PolyA11_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
   double ** Yptr;
   Y.ExtractView(&Yptr); //Get array of pointers to columns of Y
 
-   double ** curY2 = new double *[NumVectors];
+  double ** curY2 = new double *[NumVectors];
   for (int i = 0; i<NumVectors; i++) curY2[i] = Yptr[i]+numMyElements*numBlocks_;
   Epetra_MultiVector Y2(View, poissonMap_, curY2, NumVectors);
-
   Epetra_MultiVector Y1(View, allGMap_, Yptr, NumVectors);
   double ** curY1 = new double *[NumVectors];
-    for (int i=0; i<NumVectors; i++) curY1[i] = Yptr[i];
-    Epetra_MultiVector Y1tmp(View, ownedMap_, curY1, NumVectors); // Start Y1tmp to view first numNodes elements of Y1
-
+  for (int i=0; i<NumVectors; i++) curY1[i] = Yptr[i];
+  Epetra_MultiVector Y1tmp(View, ownedMap_, curY1, NumVectors); // Start Y1tmp to view first numNodes elements of Y1
+  
   for (int i=0; i< numBlocks_; i++) {
-        matrix_[i]->Multiply(false, Y1, Y1tmp);
-	//matrix_[i]->Multiply(false, Y, Y1tmp);
+    matrix_[i]->Multiply(false, Y1, Y1tmp);
     for (int j=0; j<NumVectors; j++) curY1[j]+=numMyElements; // Increment pointers to next block
     Y1tmp.ResetView(curY1); // Reset view to next block
   }
 
   //now to apply the inverse of poissonMatrix_ to Y2
   Epetra_LinearProblem implicitProblem(poissonMatrix_, &Y2, &Y2);
+  //  Epetra_LinearProblem implicitProblem(&poissonCopy, &Y2, &Y2);
 
-  int solverInt = Teuchos::getParameter<int>(*parameterList_, "Solver");
+  int solverInt = Teuchos::getParameter<int>(*parameterList_, "Solver"); //probably want to change it to "Direct Solver" or something
   //int solverInt = solverOptions_[AZ_solver];
   char * solverName;
   
@@ -225,7 +232,8 @@ int dft_PolyA11_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
     //solver_->SetAllAztecParams(solverParams_);
     solver_->Iterate(Teuchos::getParameter<int>(*parameterList_, "Max_iter"), Teuchos::getParameter<double>(*parameterList_, "Tol")); //Try to solve
     //solver_->Iterate(solverOptions_[AZ_max_iter], solverParams_[AZ_tol]);
-    }
+    //parameterList_->set("Solver", solverInt);
+  }
 
   delete [] curY1;
   delete [] curY2;

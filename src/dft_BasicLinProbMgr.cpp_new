@@ -285,6 +285,8 @@ int dft_BasicLinProbMgr::finalizeProblemValues() {
   isLinearProblemSet_ = true;
   firstTime_ = false;
 
+  //writeMatrix("basica.dat", "", "");
+
   return(0);
 }
 //=============================================================================
