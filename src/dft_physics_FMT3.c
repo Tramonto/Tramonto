@@ -258,8 +258,8 @@ struct RB_Struct d2phi_drb2_theta_rb_FMT3(double *n)
            + 2*(n[1]*n[2]-DOT_12)*inv_n3[3]
            + ((n2cb-3.*n[2]*DOT_22)/(36.*PI))*(
            + (((2.*log(1.-n[3])+3)*inv_n3[2])/n3sq) 
-           + (4.*fac1*fac3) + (6.*fac2*(inv_n3[2]/n3_4th 
-           + inv_n3[4]/n3sq)) )  );
+           + (4.*fac1*fac3) + (fac2*(6.*inv_n3[2]/n3_4th 
+           + 6.*inv_n3[4]/n3sq - 8.*inv_n3[3]/n3cb)) )  );
 
     tmp.S0 = inv_n3[1];             
     tmp.S1 = n[2] * inv_n3[2];    
