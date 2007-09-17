@@ -94,18 +94,22 @@
    1.5 1. 1. 1. 1.5
    1.5 1. 1. 1. 1.5
    2. 1.5 1.5 1.5 2.        Bond_ff[i][j]
-@  0.   YukawaK_ff[i][j]
+@ 0. 0. 0. 0. 0.
+  0. 0. 0. 0. 0.
+  0. 0. 0. 0. 0.
+  0. 0. 0. 0. 0.
+  0. 0. 0. 0. 0.  YukawaK_ff[i][j] 
 
 @ 1. 	Rho_w[i] [i=0,Nwall_type-1] 
 @ 1. 	Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1] 
 @ 1. 	Eps_ww[i][j] 
 @ 1. 	Cut_ww[i][j] 
-@  0.   YukawaK_ww[i][j]
+@ 0. 	YukawaK_ww[i][j] 
 
 @ 2. 1. 1. 1. 2. 	Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1] 
 @ 1. 1. 1. 1. 1. 	Eps_wf[i][j] 
 @ 1. 1. 1. 1. 1. 	Cut_wf[i][j] 
-@  0.   YukawaK_wf[i][j]  
+@ 0. 0. 0. 0. 0. 	YukawaK_wf[i][j] 
 
    *Note for polymers: --- treat each segment (or block) TYPE as a distinct 
      component in this section (& MIX section below).
@@ -117,7 +121,7 @@
 @ 5 	Nblock[pol_number]: Number of blocks in each copolymer 
 @ 1 1 1 1 1 	block[pol_number][iblock]: Number of segments in each block 
 @ 0 1 2 3 4 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
-@ lin_5mer	poly_file: File containing polymer connectivity 
+@ lin_5mer 	poly_file: File containing polymer connectivity 
 @ 1 1. n/a 	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
                  NCrfiles (number of cr files - up to 4 to be read in)
                  Crfac (multiplicative factor for the first c(r).
@@ -213,12 +217,21 @@
 @ 14.5 15.5 16.0 16.5 17.0 17.5 20.0 	Xend_step[istep] 
 @ 1.e-7 1.e-7 0.05 0.1 0.1 0.1 .6 	Rho_step[icomp][istep] 
 
-@ 0 	Restart: 0=no - use Iguess to determine initial guess 
-                          1=yes - use guess from dft_dens.dat 
-                          2=yes, but w/ step function at Xstart_step[0] 
-                          3=yes for densities but not elec.pot or chem.pot.
-                          4=yes also restart external field from file
+@ 0 0 	vext1.dat vext2.dat Restart Restart_Vext Vext_file1 Vext_file2 
+                       Restart options{
+                          0=don't restart from file. 
+                          1=restart using data in dft_dens.dat 
+                          2=restart with dft_dens.dat, but apply step function to defined constant at Xstart_step[0] 
+                          3=restart densities but not elec.pot or chem.pot.
 			  5=use 1D profile as initial guess for 2 or 3D calculation
+                       }
+                       Restart_Vext options{
+                          0=don't restart Vext from file.
+                          1=restart Vext using data in file Vext_file1 (any name you like)
+                          2=restart Vext by summing data in files Vext_file1 and Vext_file2
+                          3=restart Vext by summing two files, but treat data in Vext2_file
+                            as static with respect to continuation of Vext parameters.
+                       }
 
 @ 1.1 	Rho_max maximum density allowed from restart file 
 

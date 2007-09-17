@@ -78,18 +78,18 @@
 @ 1.3 	Eps_ff[i][j] 
 @ 2.5 	Cut_ff[i][j] 
 @ 1. 	Bond_ff[i][j] 
-@  0.   YukawaK_ff[i][j]
+@ 0. 	YukawaK_ff[i][j] 
 
 @ 1. 	Rho_w[i] [i=0,Nwall_type-1] 
 @ 1. 	Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1] 
 @ 9. 	Eps_ww[i][j] 
 @ 2.5 	Cut_ww[i][j] 
-@  0.   YukawaK_ww[i][j]
+@ 0. 	YukawaK_ww[i][j] 
 
 @ 1. 	Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1] 
 @ 4. 	Eps_wf[i][j] 
 @ 2.5 	Cut_wf[i][j] 
-@  0.   YukawaK_wf[i][j]  
+@ 0. 	YukawaK_wf[i][j] 
 
    *Note for polymers: --- treat each segment (or block) TYPE as a distinct 
      component in this section (& MIX section below).
@@ -197,12 +197,21 @@
 @ 0.0 	Xend_step[istep] 
 @ 0.0 	Rho_step[icomp][istep] 
 
-@ 1 	Restart: 0=no - use Iguess to determine initial guess 
-                          1=yes - use guess from dft_dens.dat 
-                          2=yes, but w/ step function at Xstart_step[0] 
-                          3=yes for densities but not elec.pot or chem.pot.
-                          4=yes also restart external field from file
+@ 1 0	vext1.dat vext2.dat Restart Restart_Vext Vext_file1 Vext_file2 
+                       Restart options{
+                          0=don't restart from file. 
+                          1=restart using data in dft_dens.dat 
+                          2=restart with dft_dens.dat, but apply step function to defined constant at Xstart_step[0] 
+                          3=restart densities but not elec.pot or chem.pot.
 			  5=use 1D profile as initial guess for 2 or 3D calculation
+                       }
+                       Restart_Vext options{
+                          0=don't restart Vext from file.
+                          1=restart Vext using data in file Vext_file1 (any name you like)
+                          2=restart Vext by summing data in files Vext_file1 and Vext_file2
+                          3=restart Vext by summing two files, but treat data in Vext2_file
+                            as static with respect to continuation of Vext parameters.
+                       }
 
 @ 0. 	Rho_max maximum density allowed from restart file 
 
