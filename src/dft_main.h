@@ -55,6 +55,9 @@ extern int Nnodes_box;
 extern int Nunk_per_node;
 extern int **Zero_density_TF;
 void print_zeroTF(int **zero_TF,char *output_file);
+extern double **Vext_static;
+#define READ_VEXT_STATIC     3
+extern int Restart_Vext;
 extern double **Vext;
 void print_vext(double **vext,char *output_file);
 #define VERBOSE      3 
@@ -141,5 +144,4 @@ extern double Time_manager_av;
 extern double Time_manager_first;
 extern double Time_linsolver_av;
 extern double Time_linsolver_first;
-
 void dftmain(double *engptr);

@@ -1664,10 +1664,19 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d",&Restart);
-    fprintf(fp2,"%d",Restart);
+    fscanf(fp,"%d %d",&Restart,&Restart_Vext);
+    fprintf(fp2,"%d  %d",Restart,Restart_Vext);
+    if (Restart_Vext != READ_VEXT_FALSE){
+        fscanf(fp,"%s", Vext_file);
+        fprintf(fp2,"  %s ", Vext_file);
+        if (Restart_Vext == READ_VEXT_SUMTWO || Restart_Vext == READ_VEXT_STATIC){
+           fscanf(fp,"%s", Vext_file2);
+           fprintf(fp2,"  %s ", Vext_file2);
+        }
+    }
   }
   MPI_Bcast(&Restart,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Restart_Vext,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Proc==0) {
     read_junk(fp,fp2);
 	fscanf(fp,"%lf",&Rho_max);

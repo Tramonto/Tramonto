@@ -477,9 +477,8 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
      * Set up the neutral part of the external field.
      */
  
-     if (Restart == 4) { 
-                       read_external_field_n(output_file2);
-                       read_zero_density_TF(output_TF);
+     if (Restart_Vext != READ_VEXT_FALSE) { 
+                       read_external_field_n();
      }
      else              setup_external_field_n(nelems_w_per_w,elems_w_per_w);
      if (Nwall > 1 && Lprint_pmf) setup_wall_wall_potentials();

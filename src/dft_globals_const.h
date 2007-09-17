@@ -446,6 +446,12 @@
 #define NBLOCK_MAX   5
 #define NMER_MAX     100
 
+/* options for reading external field */
+#define READ_VEXT_FALSE      0
+#define READ_VEXT_TRUE       1
+#define READ_VEXT_SUMTWO     2
+#define READ_VEXT_STATIC     3
+
 
 /****************************************************************************/
 
@@ -782,7 +788,8 @@ extern double  YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa decay const
 extern int     **Lsemiperm; /*Array of logicals for semi-permeable surfaces */
 extern double  **Vext_membrane; /*Array potentials for semi-perm surfaces */
 extern double  **Vext_set;      /*Array of maximum set points for ext potentials */
-extern double **Vext;        /* External field array [Nnodes][Ncomp]           */
+extern double **Vext;        /* External field array [Nnodes_local][Ncomp]           */
+extern double **Vext_static; /* Static part of external field [Nnodes_local][Ncomp] */
 extern double **Vext_coul;        /* Coulomb External field array [Nnodes]           */
 extern double *Vext_old;        /* for post processing: ext field array           */
 extern double ***Vext_dash;  /* derivative of external field [Nnodes][Ncomp][Nwall]*/
@@ -872,6 +879,9 @@ extern double      HS_diam[NCOMP_MAX];  /* Hard sphere diameters for the calcula
 /* Startup Info */
 extern int     Restart;     /* Logical that switches between new prof & restart file*/
 extern int     Restart_field[NEQ_TYPE];
+extern int     Restart_Vext;     /* Logical that defines reading of external field*/
+extern char Vext_file[40];       /* file name that contains external field to read in */
+extern char Vext_file2[40];       /* a second file name that contains another part of the external field to read in */
 extern int     Iwrite;       /* Do we want a complete or modified set of output data*/
 
 /* Parallel Info, Aztec info */

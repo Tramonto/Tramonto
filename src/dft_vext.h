@@ -1,8 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-void read_zero_density_TF(char *filename);
-int ijk_to_node(int *ijk);
-int round_to_int(double x);
-void read_external_field_n(char *filename);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -18,6 +14,15 @@ void read_external_field_n(char *filename);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern char Vext_file2[40];
+#define READ_VEXT_SUMTWO     2
+int ijk_to_node(int *ijk);
+int round_to_int(double x);
+extern char Vext_file[40];
+extern double **Vext_static;
+#define READ_VEXT_STATIC     3
+extern int Restart_Vext;
+void read_external_field_n();
 extern int *Comm_offset_node;
 extern int *Comm_node_proc;
 void comm_loc_to_glob_vec(int *n_loc,int *in_loc_vec,int *out_glob_vec);

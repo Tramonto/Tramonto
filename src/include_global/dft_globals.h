@@ -291,6 +291,7 @@ int     **Lsemiperm;  /* Array of logicals for semipermeable surfaces */
 double  **Vext_membrane; /*Array potentials for semi-perm surfaces */
 double  **Vext_set;      /*Array of maximum set points for ext potentials */
 double  **Vext;       /* External field array [Nnodes][Ncomp]           */
+double **Vext_static; /* Static part of external field [Nnodes_local][Ncomp] */
 double  **Vext_coul;       /* External Coulomb field array [Nnodes]           */
 double  *Vext_old;       /* For post processing External field array        */
 double  ***Vext_dash; /* Derivative of external field [Nnodes][Ncomp][Nwall]  */
@@ -384,6 +385,9 @@ double   HS_diam[NCOMP_MAX];  /* Hard sphere diameters for the calculation */
 /* Startup Info */
 int     Restart;      /* Logical that switches between new prof & restart file*/
 int     Restart_field[NEQ_TYPE];
+int     Restart_Vext;     /* Logical that defines reading of external field*/
+char Vext_file[40];       /* file name that contains external field to read in */
+char Vext_file2[40];       /* a second file name that contains another part of the external field to read in */
 int     Iprofile;     /* Specifies Liq-Solid,Vap-Solid,or Liq-Vap profile    */
 double  Toler;        /* Tolerance for Newton-Rhapson iterations             */
 int     Iwrite;       /* Do we want a complete or modified set of output data*/

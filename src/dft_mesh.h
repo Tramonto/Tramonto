@@ -173,8 +173,9 @@ extern int Coarser_jac;
 void setup_wall_wall_potentials();
 extern int Lprint_pmf;
 void setup_external_field_n(int **nelems_w_per_w,int ***elems_w_per_w);
-void read_zero_density_TF(char *filename);
-void read_external_field_n(char *filename);
+void read_external_field_n();
+#define READ_VEXT_FALSE      0
+extern int Restart_Vext;
 void setup_zeroTF_and_Node2bound_new(FILE *fp1,int ***el_type);
 void set_mesh_coarsen_flag(void);
 void zones_el_to_nodes(int *elem_zones);

@@ -146,9 +146,13 @@ extern double Temp;
 void assign_parameter_tramonto(int cont_type,double param);
 void print_vext(double **vext,char *output_file);
 extern double ***Vext_dash;
-extern int Restart;
+#define READ_VEXT_FALSE      0
 extern int Lvext_dash;
+extern double VEXT_MAX;
+extern double **Vext_static;
 extern double **Vext;
+#define READ_VEXT_STATIC     3
+extern int Restart_Vext;
 #define THETA_PAIRPOT_RCUT    2
 void calc_stencils(void);
 extern int Lhard_surf;

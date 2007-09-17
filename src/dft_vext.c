@@ -1267,25 +1267,31 @@ void comm_loc_to_glob_vec(int *n_loc, int *in_loc_vec,
 /***************************************************************/
 /* read_external_field_n ..... read in the external field from
   the file dft_vext.dat */
-void read_external_field_n(char *filename)
+void read_external_field_n()
 {
-
-   int idim, i,ijk[3],icomp,inode,loc_inode,c;
-   double **vext_tmp,pos_old0[3],pos_old;
-   FILE *fp7;
+   int idim, i,ijk[3],icomp,inode,loc_inode,c,inode_box;
+   double **vext_tmp,**vext_static_tmp,pos_old0[3],pos_old,vtmp;
+   FILE *fp,*fp2;
 
    Vext = (double **) array_alloc (2,Nnodes_per_proc,Ncomp, sizeof(double));
    vext_tmp = (double **) array_alloc (2,Nnodes,Ncomp, sizeof(double));
 
+   if (Restart_Vext == READ_VEXT_STATIC){
+       Vext_static = (double **) array_alloc (2,Nnodes_per_proc,Ncomp, sizeof(double));
+       vext_static_tmp = (double **) array_alloc (2,Nnodes,Ncomp, sizeof(double));
+   }
+
+   /* first read in the external field components found in the default file */
+ 
    if (Proc==0){
-      if (Iwrite==VERBOSE) printf("setting up the external field from an existing dft_vext.dat file\n");
-      if( (fp7=fopen(filename,"r"))==NULL){
-          printf("the file %s does not exist\n",filename);
+      if (Iwrite==VERBOSE) printf("setting up the external field from the file %s\n",Vext_file);
+      if( (fp=fopen(Vext_file,"r"))==NULL){
+          printf("the file %s does not exist\n",Vext_file);
       }
 
       for (i=0; i<Nnodes; i++) {
          for (idim=0;idim<Ndim;idim++)         {
-             fscanf(fp7,"%lf",&pos_old);
+             fscanf(fp,"%lf",&pos_old);
              if (i==0) pos_old0[idim]=pos_old;
              pos_old -= pos_old0[idim];
              ijk[idim] = round_to_int(pos_old/Esize_x[idim]);
@@ -1293,63 +1299,64 @@ void read_external_field_n(char *filename)
          inode=ijk_to_node(ijk);
 
              /* now read in the external field params */
-         for (icomp=0; icomp<Ncomp; icomp++) fscanf(fp7,"%lf",&vext_tmp[inode][icomp]);
-         while ((c=getc(fp7)) != EOF && c !='\n') ;
+         for (icomp=0; icomp<Ncomp; icomp++) fscanf(fp,"%lf",&vext_tmp[inode][icomp]);
+         while ((c=getc(fp)) != EOF && c !='\n') ;
       }
-      fclose (fp7);
+      fclose (fp);
    }
-   MPI_Bcast(*vext_tmp,Nnodes*Ncomp,MPI_DOUBLE,0,MPI_COMM_WORLD);
-   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
-       inode=L2G_node[loc_inode];
-       for (icomp=0;icomp<Ncomp;icomp++) Vext[loc_inode][icomp]=vext_tmp[inode][icomp];
-   }
-   safe_free((void *) &vext_tmp);
+
+   /* now if necessary read in the external field components found in file 2 */
+   if (Restart_Vext == READ_VEXT_SUMTWO || Restart_Vext == READ_VEXT_STATIC){
+      if (Proc==0){
+         if (Iwrite==VERBOSE) printf("setting up the external field from the file %s\n",Vext_file2);
+         if( (fp2=fopen(Vext_file2,"r"))==NULL){
+             printf("the file %s does not exist\n",Vext_file2);
+         }
+
+         for (i=0; i<Nnodes; i++) {
+            for (idim=0;idim<Ndim;idim++)         {
+                fscanf(fp2,"%lf",&pos_old);
+                if (i==0) pos_old0[idim]=pos_old;
+                pos_old -= pos_old0[idim];
+                ijk[idim] = round_to_int(pos_old/Esize_x[idim]);
+            }
+            inode=ijk_to_node(ijk);
    
+                /* now read in the external field params */
+            for (icomp=0; icomp<Ncomp; icomp++){ 
+               fscanf(fp2,"%lf",&vtmp);
+               if (vext_tmp[inode][icomp] >= VEXT_MAX || vtmp >= VEXT_MAX){
+                  vext_tmp[inode][icomp] = VEXT_MAX;
+               }
+               else{ vext_tmp[inode][icomp] += vtmp; }
+               if (Restart_Vext == READ_VEXT_STATIC) vext_static_tmp[inode][icomp] = vtmp;
+            }
+            while ((c=getc(fp2)) != EOF && c !='\n') ;
+         }
+         fclose (fp2);
+      }
+    }
+
+    MPI_Bcast(*vext_tmp,Nnodes*Ncomp,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
+        inode=L2G_node[loc_inode];
+        for (icomp=0;icomp<Ncomp;icomp++){
+             Vext[loc_inode][icomp]=vext_tmp[inode][icomp];
+                 /* now if we need to keep track of a static part, fill up the Vext_static array */
+             if (Restart_Vext == READ_VEXT_STATIC) Vext_static[loc_inode][icomp]=vext_static_tmp[inode][icomp];
+        }
+    }
+
+    /* finally take care of Zero_density_TF */
+    for (inode_box=0; inode_box<Nnodes_box; inode_box++) {
+       inode=B2G_node[inode_box];
+       for (icomp=0;icomp<Ncomp;icomp++){
+          if (vext_tmp[inode][icomp] >= VEXT_MAX) Zero_density_TF[inode_box][icomp]==TRUE;
+          else Zero_density_TF[inode_box][icomp]==TRUE;
+       }
+    }
+    safe_free((void *) &vext_tmp);
+    if (Restart_Vext == READ_VEXT_STATIC) safe_free((void *) &vext_static_tmp);
+    return;
 }
 /***************************************************************/
-/* read_zero_density_TF ..... read in the zero_density_TF array from
-  the file dft_zero_TF.dat */
-void read_zero_density_TF(char *filename)
-{
-
-   int idim, i,ijk[3],icomp,inode,inode_box,c;
-   int **zero_tmp;
-   double pos_old0[3],pos_old;
-   FILE *fp7;
-
-  MPI_Barrier(MPI_COMM_WORLD);
-   zero_tmp = (int **) array_alloc (2,Nnodes,Ncomp+1, sizeof(int));
-
-   if (Proc==0){
-      if (Iwrite==VERBOSE) printf("setting up the zero_density array from an existing %s file\n",filename);
-      if( (fp7=fopen(filename,"r"))==NULL){
-          printf("the file %s does not exist\n",filename);
-      }
-
-      for (i=0; i<Nnodes; i++) {
-         for (idim=0;idim<Ndim;idim++)         {
-             fscanf(fp7,"%lf",&pos_old);
-             if (i==0) pos_old0[idim]=pos_old;
-             pos_old -= pos_old0[idim];
-             ijk[idim] = round_to_int(pos_old/Esize_x[idim]);
-         }
-         inode=ijk_to_node(ijk);
-
-             /* now read in the zero_density_array params */
-         for (icomp=0; icomp<Ncomp+1; icomp++) {
-              fscanf(fp7,"%d",&zero_tmp[inode][icomp]);
-         }
-         while ((c=getc(fp7)) != EOF && c !='\n') ;
-      }
-      fclose (fp7);
-   }
-  MPI_Bcast(*zero_tmp,Nnodes*(Ncomp+1),MPI_INT,0,MPI_COMM_WORLD);
-   for (inode_box=0; inode_box<Nnodes_per_proc; inode_box++) {
-       inode=B2G_node[inode_box];
-       for (icomp=0;icomp<Ncomp+1;icomp++){
-           Zero_density_TF[inode_box][icomp]=zero_tmp[inode][icomp];
-       }
-   }
-   safe_free((void *) &zero_tmp);
-}
-   

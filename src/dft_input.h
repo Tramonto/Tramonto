@@ -89,6 +89,12 @@ extern int Lprint_gofr;
 extern int Lcount_reflect;
 extern int Lper_area;
 extern double Rho_max;
+extern char Vext_file2[40];
+#define READ_VEXT_STATIC     3
+#define READ_VEXT_SUMTWO     2
+extern char Vext_file[40];
+#define READ_VEXT_FALSE      0
+extern int Restart_Vext;
 extern int Restart;
 #define NCOMP_MAX 5
 #define NSTEPS_MAX 10

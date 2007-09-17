@@ -242,6 +242,7 @@ void dftmain(double * engptr)
      }
      if (Iwrite==VERBOSE) {
         print_vext(Vext,output_file2);
+        if (Restart_Vext == READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");
         print_zeroTF(Zero_density_TF,output_TF);
         if (Vol_charge_flag && Ndim==3) print_vext(Vext_coul,output_file4);
      }

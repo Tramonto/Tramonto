@@ -48,6 +48,10 @@ extern double Xi_cav_LBB[4];
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
 extern double Fac_overlap_hs[NCOMP_MAX];
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
@@ -57,10 +61,6 @@ double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 extern double Betamu_wtc[NMER_MAX];
 void chempot_WTC(double *rho_seg,double *betamu);
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
 extern double Betamu_seg[NMER_MAX];
 extern double Xi_cav_b[4];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];

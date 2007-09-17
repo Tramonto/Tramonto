@@ -550,8 +550,16 @@ static void scale_vext_temp(double ratio)
 
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       for (icomp=0; icomp<Ncomp; icomp++){
-         Vext[loc_inode][icomp] /= ratio;
-         if (Lvext_dash && Restart !=4 ){
+         if (Restart_Vext != READ_VEXT_STATIC){
+            Vext[loc_inode][icomp] /= ratio;
+         }
+         else{
+            Vext[loc_inode][icomp] -= Vext_static[loc_inode][icomp];
+            Vext[loc_inode][icomp] /= ratio;
+            Vext[loc_inode][icomp] += Vext_static[loc_inode][icomp];
+            if (Vext_static[loc_inode][icomp] >= VEXT_MAX) Vext[loc_inode][icomp]=VEXT_MAX;
+         }
+         if (Lvext_dash && Restart_Vext == READ_VEXT_FALSE){
          for (iwall=0; iwall<Nwall; iwall++)
          for (idim=0; idim<Ndim; idim++){
             iunk = iwall*Ncomp + icomp;
@@ -561,7 +569,8 @@ static void scale_vext_temp(double ratio)
       }
    }
    if (Iwrite==VERBOSE) {
-      print_vext(Vext,"dft_vext.dat");
+      print_vext(Vext,"dft_vext_cont2.dat");
+      if (Restart_Vext==READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");
    }
    return;
 }
@@ -572,23 +581,28 @@ static void scale_vext_temp(double ratio)
    first component, only a simple scaling is required. */
 
 static void scale_vext_epswf(double ratio, int icomp,int iwall)
-/* nc is the number of components whose parameter has changed,
- * and is either 1 or Ncomp */
 {
    int loc_inode,idim,iunk;
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-       Vext[loc_inode][icomp] *= ratio;
-       if (Lvext_dash && Restart !=4){
+       if (Restart_Vext != READ_VEXT_STATIC){
+            Vext[loc_inode][icomp] *= ratio;
+       }
+       else{
+           Vext[loc_inode][icomp] -= Vext_static[loc_inode][icomp];
+           Vext[loc_inode][icomp] *= ratio;
+           Vext[loc_inode][icomp] += Vext_static[loc_inode][icomp];
+       }
+       if (Lvext_dash && Restart_Vext == READ_VEXT_FALSE){
        iunk = iwall*Ncomp+icomp;
        for (idim=0; idim<Ndim; idim++) Vext_dash[loc_inode][iunk][idim] *= ratio;
        }
    }
    if (Iwrite==VERBOSE) {
-      print_vext(Vext,"dft_vext.dat");
+      print_vext(Vext,"dft_vext_cont1.dat");
+      if (Restart_Vext==READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");
    }
    return;
 }
-
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -726,16 +740,16 @@ void assign_parameter_tramonto(int cont_type, double param)
                         break;
 
       case CONT_EPSWF00: 
-/*                         ratio = param/Eps_wf[0][0];
+                         ratio = param/Eps_wf[0][0];
                          Eps_wf[0][0]    = param;
-                         scale_vext_epswf(ratio,0,0); break;*/
+                         scale_vext_epswf(ratio,0,0); break;
 
                           /* component 2 wall 0 */
 /*                         ratio = param/Eps_wf[2][0];
                          Eps_wf[2][0]    = param;
                          scale_vext_epswf(ratio,2,0); break;*/
 
-                         ratio = param/Eps_wf[1][0];
+/*                         ratio = param/Eps_wf[1][0];
                          Eps_wf[1][0]    = param;
                          Eps_wf[1][1]    = param;
                          Eps_wf[2][0]    = param;
@@ -743,7 +757,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                          scale_vext_epswf(ratio,1,0); break;
                          scale_vext_epswf(ratio,1,1); break;
                          scale_vext_epswf(ratio,2,0); break;
-                         scale_vext_epswf(ratio,2,1); break;
+                         scale_vext_epswf(ratio,2,1); break;*/
 
       case CONT_EPSWF_ALL_0: 
                          for (i=0; i<Ncomp-1; i++){ 
@@ -875,7 +889,7 @@ void assign_parameter_tramonto(int cont_type, double param)
            if (Iwrite==VERBOSE) {
                  print_vext(Vext,output_file2);
                  print_zeroTF(Zero_density_TF,output_TF);
-          }
+           }
 
            break;
 
@@ -956,7 +970,6 @@ double get_init_param_value(int cont_type)
                 sum=0.;
                 for (i=0;i<Ncomp;i++) sum += Rho_seg_b[i];
                 param=sum;
-printf("SETTING INITIAL PARAMETER TO %9.6f\n",sum);
              }
              else{
                 printf("ERROR: continue either with identical initial densities or with a single molecule\n");
@@ -996,7 +1009,7 @@ printf("SETTING INITIAL PARAMETER TO %9.6f\n",sum);
              }
       case CONT_SCALE_EPSW: return Scale_fac;
 
-      case CONT_EPSWF00: /*return Eps_wf[0][0];*/ return Eps_wf[2][0];
+      case CONT_EPSWF00: return Eps_wf[0][0]; /*return Eps_wf[2][0];*/
 
       case CONT_EPSWF_ALL_0: 
            for (i=0;i<Ncomp-1;i++) if (Eps_wf[i][0] != Eps_wf[0][0]) {
@@ -1241,7 +1254,7 @@ double free_energy_diff_conwrap(double *x, double *x2)
   translate_1dOwned_2dBox(x2, passdown.xBox);
   energy2 = calc_free_energy(NULL,passdown.xBox);
 
-printf("energy1 %12.8g energy2  %12.8g\n",energy1, energy2);
+/*printf("energy1 %12.8g energy2  %12.8g\n",energy1, energy2);*/
   return energy1-energy2;
 }
 /*****************************************************************************/
