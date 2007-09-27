@@ -74,7 +74,11 @@ void node_to_position(int inode,double *NodePos);
 extern int **Nodes_2_boundary_wall;
 extern int *L2B_node;
 extern int Nnodes_per_proc;
+#define NMER_MAX     100
+extern int Unk2Comp[NMER_MAX];
 extern int Ncomp;
+extern int Nseg_tot;
+extern int Lseg_densities;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 #define FALSE 0

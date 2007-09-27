@@ -176,6 +176,7 @@ void sum_rho_wall(double **x, double **Sum_rho)
 {
    int iunk,loc_inode,iwall,idim,icomp,ilist,
        iel_w, inode,surf_norm,inode_box,jwall;
+   int iloop, nloop;
    double prefac,nodepos[3];
 
     for (iwall=0; iwall<Nwall; iwall++) {
@@ -184,7 +185,13 @@ void sum_rho_wall(double **x, double **Sum_rho)
       }
     }
 
-    for (icomp=0; icomp<Ncomp; icomp++){
+    if(Lseg_densities) nloop = Nseg_tot;
+    else               nloop = Ncomp;
+          
+    for (iloop=0; iloop<nloop; iloop++){
+      if(Lseg_densities) icomp = Unk2Comp[iloop];
+      else               icomp = iloop;
+
        if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
        else                                  ilist = icomp;
 
@@ -196,7 +203,7 @@ void sum_rho_wall(double **x, double **Sum_rho)
           if (iwall != -1){
 
              node_to_position(inode,nodepos); 
-	     iunk = Phys2Unk_first[DENSITY]+icomp;
+	     iunk = Phys2Unk_first[DENSITY]+iloop;
 
              for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++){
 
