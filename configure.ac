@@ -37,7 +37,7 @@ dnl
 dnl Initialize autoconf
 dnl
 AC_INIT(Tramonto, 2.2d, ljfrink@sandia.gov, tramonto)
-AC_PREREQ(2.59)
+AC_PREREQ(2.61)
 AC_CONFIG_SRCDIR([src/dft_main.c])
 AM_CONFIG_HEADER([src/Tramonto_config.h:src/Tramonto_config.h.in])
 
@@ -73,7 +73,7 @@ dnl Define $build, $host, $target, etc
 AC_CANONICAL_TARGET
                                                                                 
 dnl  Required version of automake.
-AM_INIT_AUTOMAKE(1.8.2)
+AM_INIT_AUTOMAKE(1.10 no-define tar-ustar)
 
 dnl
 dnl check for ranlib incase uses wants to build library
