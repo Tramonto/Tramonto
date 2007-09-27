@@ -104,8 +104,8 @@ extern int Ncomp;
 extern int Ngeqn_tot;
 typedef struct Aztec_Struct Aztec_Struct;
 struct Aztec_Struct {
-  int    options[AZ_OPTIONS_SIZE]; /* Array used to select solver options.  */
-  double params[AZ_PARAMS_SIZE];   /* User selected solver paramters.       */
+  /*  int    options[AZ_OPTIONS_SIZE];  Array used to select solver options.  */
+  /*  double params[AZ_PARAMS_SIZE];    User selected solver paramters.       */
 #ifdef DONE_WITH_THESE
   int    proc_config[AZ_PROC_SIZE];/* Processor information.                */
   int    *data_org;                /* Array to specify data layout          */
@@ -145,4 +145,5 @@ extern int Type_coul;
 #define CMS          0
 extern int Type_poly;
 extern int L_Schur;
+extern void * ParameterList_list;
 int solve_problem(double **x,double **x2);

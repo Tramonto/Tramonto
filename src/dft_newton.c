@@ -49,13 +49,17 @@ int solve_problem(double **x, double **x2)
   int count_density,count_cms_field,count_geqn,count_ginv_eqn,count_indnonlocal,count_depnonlocal,index_save;
   int one_particle_size;
 int loc_inode,inode_box,itmp;
+ int count_poisson;
+ int *poissoneq;
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
- if (L_Schur && Type_poly == CMS && Type_coul==NONE) {
+  if (L_Schur && Type_poly == CMS) { //took out Type_coul == NONE
    densityeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    cmseq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    geq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
+   poissoneq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
+   count_poisson = 0;
    
    count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
    for (iunk=0;iunk<Nunk_per_node;iunk++){
@@ -70,6 +74,8 @@ int loc_inode,inode_box,itmp;
        else
 	 ginveq[count_ginv_eqn++]=iunk; 
        break;
+     case POISSON:
+       poissoneq[count_poisson++]=iunk; break;
      default:
         printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
 	exit(-1);
@@ -82,16 +88,19 @@ int loc_inode,inode_box,itmp;
      ginveq[i] = ginveq[count_ginv_eqn-1-i];
      ginveq[count_ginv_eqn-1-i]=index_save;
    }
-   LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   // LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, Ngeqn_tot/2, geq);
    dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, Ngeqn_tot/2, ginveq);
    dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmseq);
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
+   dft_poly_lin_prob_mgr_setpoissonequationids(LinProbMgr_manager, count_poisson, poissoneq);
    /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
    safe_free((void *) &densityeq);
    safe_free((void *) &cmseq);
    safe_free((void *) &geq);
    safe_free((void *) &ginveq);
+   safe_free((void *) &poissoneq);
  }
  else if (L_Schur && Type_func != NONE) {
 
@@ -130,7 +139,8 @@ int loc_inode,inode_box,itmp;
 	break;
      } 
    }
-   LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   // LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
    dft_hardsphere_lin_prob_mgr_setindnonlocalequationids(LinProbMgr_manager, count_indnonlocal, indnonlocaleq);
    dft_hardsphere_lin_prob_mgr_setdepnonlocalequationids(LinProbMgr_manager, count_depnonlocal, depnonlocaleq);
    dft_hardsphere_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, count_density, densityeq);
@@ -142,9 +152,9 @@ int loc_inode,inode_box,itmp;
    safe_free((void *) &depnonlocaleq);
  }
  else{
-   LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   //   LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
  }
-
 
   /* Give Nodal Row and Column maps */
   (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
@@ -207,6 +217,9 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
 
   /* Call the destructor for the dft_Linprobmgr */
   dft_linprobmgr_destruct(LinProbMgr_manager);
+
+  /* Call the destructor for the dft_ParameterList */
+  dft_parameterlist_destruct(ParameterList_list);
 
   return(iter);
 }
@@ -439,7 +452,6 @@ void do_numerical_jacobian(double **x)
 
       (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
       fill_resid_and_matrix(x,1,TRUE,NODAL_FLAG);
-
       dft_linprobmgr_getrhs(LinProbMgr_manager, resid_tmp);
 
       for (junk=0; junk<Nunk_per_node; junk++){ 

@@ -43,7 +43,7 @@
 
 
 //=============================================================================
-dft_HardSphereLinProbMgr::dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool formSchurMatrix, bool debug) 
+/*dft_HardSphereLinProbMgr::dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool formSchurMatrix, bool debug) 
   : dft_BasicLinProbMgr(numUnknownsPerNode, solverOptions, solverParams, comm),
     isA22Diagonal_(false),
     formSchurMatrix_(formSchurMatrix),
@@ -51,8 +51,16 @@ dft_HardSphereLinProbMgr::dft_HardSphereLinProbMgr(int numUnknownsPerNode, int *
     curRowA12_(-1),
     curRowA21_(-1) {
   //debug_=true;
-
-
+  return;
+  }*/
+//=============================================================================
+dft_HardSphereLinProbMgr::dft_HardSphereLinProbMgr(int numUnknownsPerNode, Teuchos::ParameterList * parameterList, MPI_Comm comm, bool formSchurMatrix, bool debug)
+  : dft_BasicLinProbMgr(numUnknownsPerNode, parameterList, comm),
+    isA22Diagonal_(false),
+    formSchurMatrix_(formSchurMatrix),
+    debug_(debug),
+    curRowA12_(-1),
+    curRowA21_(-1) {
   return;
 }
 //=============================================================================
@@ -68,13 +76,11 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
 
   ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*boxMap_, *ownedMap_));
 
-
   if (numGlobalNodes_==0 ||
       numGlobalBoxNodes_==0 ||
       indNonLocalEquations_.Length()==0 ||
       depNonLocalEquations_.Length()<0  ||
       densityEquations_.Length()==0) return(-1); // Error: One or more set methods not called
-      
   
   // Fill physics ordering vector with the concatenated contents of the IDs for all physics types
   // Load Schur block mappings
@@ -299,10 +305,10 @@ int dft_HardSphereLinProbMgr::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
 
   if (firstTime_) {
-    insertRowA12(); // Dump any remaining entrie
+    insertRowA12(); // Dump any remaining entries
     A12_->FillComplete(*block2RowMap_,*block1RowMap_);
     A12_->OptimizeStorage();
-    insertRowA21(); // Dump any remaining entrie
+    insertRowA21(); // Dump any remaining entries
     A21_->FillComplete(*block1RowMap_,*block2RowMap_);
     A21_->OptimizeStorage();
 
@@ -338,11 +344,12 @@ int dft_HardSphereLinProbMgr::setupSolver() {
   }
   solver_ = Teuchos::rcp(new AztecOO(*implicitProblem_));
 
-  if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);
-  if (solverParams_!=0) solver_->SetAllAztecParams(solverParams_);
+  solver_->SetParameters(*parameterList_);
+  //  if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);
+  //  if (solverParams_!=0) solver_->SetAllAztecParams(solverParams_);
 
-  const int * options = solver_->GetAllAztecOptions();
-  const double * params = solver_->GetAllAztecParams();
+  //  const int * options = solver_->GetAllAztecOptions();
+  //  const double * params = solver_->GetAllAztecParams();
 
   solver_->SetAztecOption(AZ_scaling, AZ_none); 
   int maxiter = 500;
@@ -370,10 +377,11 @@ int dft_HardSphereLinProbMgr::solve() {
   //writeMatrix("2D.mm", "Small HardSpheremer Matrix", "Global Matrix from Small HardSpheremer Problem");
   //abort();
 
-  const int * options = solver_->GetAllAztecOptions();
-  const double * params = solver_->GetAllAztecParams();
+  //  const int * options = solver_->GetAllAztecOptions();
+  //  const double * params = solver_->GetAllAztecParams();
 
-  solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
+  // solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
+  solver_->Iterate(Teuchos::getParameter<int>(*parameterList_, "Max_iter"), Teuchos::getParameter<double>(*parameterList_, "Tol")); // Try to solve
   schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_); // Compute rest of solution
   if (debug_) {
     Epetra_Vector tmpRhs(*globalRowMap_);

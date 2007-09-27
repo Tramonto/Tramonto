@@ -34,18 +34,30 @@ extern "C" {
   /*****************************************************/
   /**                  dft_HardSphereLinProbMgr             **/
   /***************************************************/
-  void * dft_hardsphere_lin_prob_mgr_create(int numUnks,
+  /*  void * dft_hardsphere_lin_prob_mgr_create(int numUnks,
                         int* solverOptions, double* solverParams, MPI_Comm comm) {
     dft_HardSphereLinProbMgr * tmp = new dft_HardSphereLinProbMgr(numUnks, solverOptions,
 		                                               solverParams, comm);
     dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
     return((void *)linprobmgr_);
+    }*/
+
+  void * dft_hardsphere_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
+    dft_HardSphereLinProbMgr * tmp = new dft_HardSphereLinProbMgr(numUnks, (Teuchos::ParameterList *) Parameterlist_list, comm);
+    dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
+    return((void *)linprobmgr_);
   }
 
-  void * dft_hardsphere_lin_prob_mgr_create_debug(int numUnks,
+  /* void * dft_hardsphere_lin_prob_mgr_create_debug(int numUnks,
                         int* solverOptions, double* solverParams, MPI_Comm comm) {
     dft_HardSphereLinProbMgr * tmp = new dft_HardSphereLinProbMgr(numUnks, solverOptions,
 						      solverParams, comm, true);
+    dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
+    return((void *)linprobmgr_);
+    }*/
+
+  void * dft_hardsphere_lin_prob_mgr_create_debug(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
+    dft_HardSphereLinProbMgr * tmp = new dft_HardSphereLinProbMgr(numUnks, (Teuchos::ParameterList *) Parameterlist_list, comm, true);
     dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
     return((void *)linprobmgr_);
   }

@@ -52,13 +52,13 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map);
   //@}
   //@{ \name Assembly methods.
-  int initializeProblemValues();
-  int insertMatrixValue(int ownedPhysicsID, int ownedNode, int rowGID, int colGID, double value);
-  int finalizeProblemValues();
+  virtual int initializeProblemValues();
+  virtual int insertMatrixValue(int ownedPhysicsID, int ownedNode, int rowGID, int colGID, double value);
+  virtual int finalizeProblemValues();
   //@}
   //@{ \name Destructor.
     //! Destructor
-  ~dft_PolyA11_Epetra_Operator();
+  virtual ~dft_PolyA11_Epetra_Operator();
   //@}
   
   //@{ \name Atribute set methods.
@@ -78,7 +78,7 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
 
     \return Integer error code, set to 0 if successful.
   */
-  int Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
+  virtual int Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
 
   //! Returns the result of an inverse dft_PolyA11_Epetra_Operator applied to a Epetra_MultiVector X in Y.
   /*! 
@@ -89,7 +89,7 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
     
     \return Integer error code, set to 0 if successful.
   */
-  int ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
+  virtual int ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
   
   
   //! Returns the infinity norm of the global matrix.
@@ -121,16 +121,16 @@ class dft_PolyA11_Epetra_Operator: public virtual Epetra_Operator {
   bool HasNormInf() const{return(false);};
   
   //! Returns a pointer to the Epetra_Comm communicator associated with this operator.
-  const Epetra_Comm & Comm() const{return(block1Map_.Comm());};
+  virtual const Epetra_Comm & Comm() const{return(block1Map_.Comm());};
   
   //! Returns the Epetra_Map object associated with the domain of this operator.
-  const Epetra_Map & OperatorDomainMap() const {return(block1Map_);};
+  virtual const Epetra_Map & OperatorDomainMap() const {return(block1Map_);};
   
   //! Returns the Epetra_Map object associated with the range of this operator.
-  const Epetra_Map & OperatorRangeMap() const {return(block1Map_);};
+  virtual const Epetra_Map & OperatorRangeMap() const {return(block1Map_);};
   //@}
   
-private:
+protected:
 
   int insertRow();
   Epetra_Map ownedMap_;

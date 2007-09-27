@@ -37,11 +37,13 @@ extern "C" {
   /**                  dft_PolyLinProbMgr             **/
   /***************************************************/
 
-  void * dft_poly_lin_prob_mgr_create(int numUnks,
-				      int* solverOptions, double* solverParams, MPI_Comm comm);
+  /*   void * dft_poly_lin_prob_mgr_create(int numUnks, int* solverOptions, double* solverParams, MPI_Comm comm);*/
 
-  void * dft_poly_lin_prob_mgr_create_debug(int numUnks,
-					    int* solverOptions, double* solverParams, MPI_Comm comm);
+  void * dft_poly_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm);
+
+  /* void * dft_poly_lin_prob_mgr_create_debug(int numUnks, int* solverOptions, double* solverParams, MPI_Comm comm);*/
+
+  void * dft_poly_lin_prob_mgr_create_debug(int numUnks, void * Parameterlist_list, MPI_Comm comm);
 
   void dft_poly_lin_prob_mgr_destruct(void * linprobmgr);
 
@@ -52,7 +54,10 @@ extern "C" {
   int dft_poly_lin_prob_mgr_setcmsequationids(void * linprobmgr, int numgids, int * gids);
   
   int dft_poly_lin_prob_mgr_setdensityequationids(void * linprobmgr, int numgids, int * gids);
+
   int dft_poly_lin_prob_mgr_setfieldondensityislinear(void * linprobmgr, int isLinear);
+
+  int dft_poly_lin_prob_mgr_setpoissonequationids(void * linprobmgr, int numgids, int * gids);
 
 #ifdef __cplusplus
 }

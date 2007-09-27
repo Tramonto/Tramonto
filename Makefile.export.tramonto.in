@@ -16,7 +16,15 @@ include @trilinos_installdir@/include/Makefile.export.ifpack
 ## Required Dependency on AztecOO
 include @trilinos_installdir@/include/Makefile.export.aztecoo
 
+## Required Dependency on Amesos
+include @trilinos_installdir@/include/Makefile.export.amesos
+
+## Required Dependency on ML
+include @trilinos_installdir@/include/Makefile.export.ml
+
 _TRAMONTO_INCLUDES = -I@abs_top_builddir@/src -I@abs_top_srcdir@/src \
+		     $(ML_INCLUDES) \
+		     $(AMESOS_INCLUDES) \
 		     $(LOCA_INCLUDES) \
 		     $(NOX_INCLUDES) \
 		     $(AZTECOO_INCLUDES) \
@@ -30,7 +38,7 @@ _TRAMONTO_INCLUDES = -I@abs_top_builddir@/src -I@abs_top_srcdir@/src \
 ## Tramonto does not have any of its own BLAS or LAPACK calls.  This is a
 ## good strategy in general because we won't risk finding different versions
 ## of those libraries during the configure process.
-_TRAMONTO_LIBS = @LDFLAGS@  @abs_top_builddir@/src/libdft.a $(LOCA_LIBS) $(NOX_LIBS) $(AZTECOO_LIBS) $(IFPACK_LIBS) $(EPETRAEXT_LIBS) $(EPETRA_LIBS) $(TEUCHOS_LIBS) @LIBS@ @FLIBS@
+_TRAMONTO_LIBS = @LDFLAGS@  @abs_top_builddir@/src/libdft.a $(ML_LIBS) $(AMESOS_LIBS) $(LOCA_LIBS) $(NOX_LIBS) $(AZTECOO_LIBS) $(IFPACK_LIBS) $(EPETRAEXT_LIBS) $(EPETRA_LIBS) $(TEUCHOS_LIBS) @LIBS@ @FLIBS@
 
 @USING_GNUMAKE_TRUE@TRAMONTO_INCLUDES  = $(shell @PERL_EXE@ @abs_top_srcdir@/config/strip_dup_incl_paths.pl $(_TRAMONTO_INCLUDES))
 @USING_GNUMAKE_TRUE@TRAMONTO_LIBS      = $(shell @PERL_EXE@ @abs_top_srcdir@/config/strip_dup_libs.pl $(_TRAMONTO_LIBS))

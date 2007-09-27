@@ -65,7 +65,20 @@ class dft_HardSphereLinProbMgr: public virtual dft_BasicLinProbMgr {
 
      \param debug (In) Turns debug mode on if set to true, false by default.
   */
-  dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool formSchurMatrix = false, bool debug = false);
+  /* dft_HardSphereLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool formSchurMatrix = false, bool debug = false);*/
+
+  //! dft_HardSphereLinProbMgr Constructor.
+  /*! Initialize a linear problem manager for Tramonto
+     \param numUnknownsPerNode (In) The number of unknowns tracked per node of the mesh.
+     \param parameterList (In) A Teuchos::ParameterList containing information to guide and report solver status.
+
+     \param comm (In) MPI communicator that should be used by the solver.
+
+     \param formSchurMatrix (In) Forces explicit construction of S = A22 - A21*inv(A11)*A12, if true.  Otherwise S is only applied implicitly.
+
+     \param debug (In) Turns debug mode on if set to true, false by default.
+  */
+  dft_HardSphereLinProbMgr(int numUnknownsPerNode, Teuchos::ParameterList * parameterList, MPI_Comm comm, bool formSchurMatrix = false, bool debug = false);
 
   //! dft_HardSphereLinProbMgr Destructor.
   /*! Completely deletes a dft_HardSphereLinProbMgr object.

@@ -478,7 +478,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
      */
  
      if (Restart_Vext != READ_VEXT_FALSE) { 
-                       read_external_field_n();
+       read_external_field_n();     
      }
      else              setup_external_field_n(nelems_w_per_w,elems_w_per_w);
      if (Nwall > 1 && Lprint_pmf) setup_wall_wall_potentials();
@@ -2843,60 +2843,72 @@ void initialize_Aztec(int* N_update, int *update[])
   * input file for more user control.
   */
 
-  AZ_defaults(Aztec.options, Aztec.params);
+  int options[AZ_OPTIONS_SIZE]; 
+  double params[AZ_PARAMS_SIZE]; 
+  AZ_defaults(options, params); 
 
   switch (Az_solver) {
-    case 1:  Aztec.options[AZ_solver]   = AZ_cg; break;
-    case 2:  Aztec.options[AZ_solver]   = AZ_tfqmr; break;
-    case 3:  Aztec.options[AZ_solver]   = AZ_cgs; break;
-    case 4:  Aztec.options[AZ_solver]   = AZ_bicgstab; break;
-    default: Aztec.options[AZ_solver]   = AZ_gmres;
+    case 1:  options[AZ_solver]   = AZ_cg; break;
+    case 2:  options[AZ_solver]   = AZ_tfqmr; break;
+    case 3:  options[AZ_solver]   = AZ_cgs; break;
+    case 4:  options[AZ_solver]   = AZ_bicgstab; break;
+    case 5:  options[AZ_solver]   = AM_lapack; break;
+    case 6:  options[AZ_solver]   = AM_klu; break;
+    case 7:  options[AZ_solver]   = AM_mumps; break;
+    case 8:  options[AZ_solver]   = AM_umfpack; break;
+    case 9:  options[AZ_solver]   = AM_superlu; break;
+    case 10: options[AZ_solver]   = AM_superludist; break;
+    case 11: options[AZ_solver]   = AM_pardiso; break;
+    case 12: options[AZ_solver]   = AM_taucs; break;
+    default: options[AZ_solver]   = AZ_gmres;
   }
   switch (Az_scaling) {
-    case 1:  Aztec.options[AZ_scaling]   = AZ_Jacobi; break;
-    case 2:  Aztec.options[AZ_scaling]   = AZ_sym_row_sum; break;
-    case -1: Aztec.options[AZ_scaling]   = AZ_none; break;
-    default: Aztec.options[AZ_scaling]   = AZ_row_sum;
+    case 1:  options[AZ_scaling]   = AZ_Jacobi; break;
+    case 2:  options[AZ_scaling]   = AZ_sym_row_sum; break;
+    case -1: options[AZ_scaling]   = AZ_none; break;
+    default: options[AZ_scaling]   = AZ_row_sum;
   }
   switch (Az_preconditioner) {
-    case 1:  Aztec.options[AZ_precond]   = AZ_Jacobi; break;
-    case 2:  Aztec.options[AZ_precond]   = AZ_sym_GS; break;
-    case 3:  Aztec.options[AZ_precond]   = AZ_ls; break;
+    case 1:  options[AZ_precond]   = AZ_Jacobi; break;
+    case 2:  options[AZ_precond]   = AZ_sym_GS; break;
+    case 3:  options[AZ_precond]   = AZ_ls; break;
 
-    case 4:  Aztec.options[AZ_precond]   = AZ_dom_decomp; 
-             Aztec.options[AZ_subdomain_solve]=AZ_ilut; 
-             Aztec.params[AZ_ilut_fill]  = Az_ilut_fill_param;    break;
+    case 4:  options[AZ_precond]   = AZ_dom_decomp; 
+             options[AZ_subdomain_solve]=AZ_ilut; 
+             params[AZ_ilut_fill]  = Az_ilut_fill_param;    break;
 
-    case 5:  Aztec.options[AZ_precond]   = AZ_dom_decomp; 
-             Aztec.options[AZ_subdomain_solve]=AZ_ilut; 
-             Aztec.params[AZ_ilut_fill]  = Az_ilut_fill_param;  
-	     /* Parameters to improve condition numer of preconditioner */
-             Aztec.params[AZ_athresh]  = 1.0e-5;  
-             Aztec.params[AZ_rthresh]  = 1.01;    break;
+    case 5:  options[AZ_precond]   = AZ_dom_decomp; 
+             options[AZ_subdomain_solve]=AZ_ilut; 
+             params[AZ_ilut_fill]  = Az_ilut_fill_param;  
+	     /* Parameters to improve condition number of preconditioner */
+             params[AZ_athresh]  = 1.0e-5;  
+             params[AZ_rthresh]  = 1.01;    break;
 
-    case -1: Aztec.options[AZ_precond]   = AZ_none; break;
-    default: Aztec.options[AZ_precond]   = AZ_dom_decomp;
-             Aztec.options[AZ_subdomain_solve]   = AZ_ilu;
+    case -1: options[AZ_precond]   = AZ_none; break;
+    default: options[AZ_precond]   = AZ_dom_decomp;
+             options[AZ_subdomain_solve]   = AZ_ilu;
   }
-  Aztec.params[AZ_tol]  = Az_tolerance; /* This is linear solver convergence */
+  params[AZ_tol]  = Az_tolerance; /* This is linear solver convergence */
                                         /* criterion (often called eta_k)    */
 
-  Aztec.options[AZ_conv]     = AZ_r0;
-  if (Iwrite==NO_SCREEN)  Aztec.options[AZ_output]   = 0;  /* no output */
-  else  Aztec.options[AZ_output]   = 10;  /* lots of output */
-  if (Iwrite == NO_SCREEN)   Aztec.options[AZ_output]   = AZ_none;
-  Aztec.options[AZ_pre_calc] = AZ_calc;
-  Aztec.options[AZ_max_iter] = Max_gmres_iter;
-  Aztec.options[AZ_poly_ord] = 3;
-  Aztec.options[AZ_overlap]  = AZ_none;
-  if (Az_kspace < 1) Aztec.options[AZ_kspace]   = Max_gmres_iter;
-  else               Aztec.options[AZ_kspace]   = Az_kspace;
-  Aztec.options[AZ_orthog]   = AZ_classic;
-  Aztec.options[AZ_aux_vec]  = AZ_resid;
+  options[AZ_conv] = AZ_r0;
+  if (Iwrite==NO_SCREEN)  options[AZ_output] = 0; /* no output */
+  else options[AZ_output] = 10; /* lots of output */
+  options[AZ_pre_calc] = AZ_calc;
+  options[AZ_max_iter] = Max_gmres_iter;
+  options[AZ_poly_ord] = 3;
+  options[AZ_overlap]  = AZ_none;
+  if (Az_kspace < 1) options[AZ_kspace] = Max_gmres_iter;
+  else options[AZ_kspace] = Az_kspace;
 
-  Aztec.options[AZ_keep_info] = TRUE;
+  options[AZ_orthog]   = AZ_classic;
+  options[AZ_aux_vec]  = AZ_resid;
+  options[AZ_keep_info] = TRUE;
+  params[AZ_drop] = 0.0;
 
-  Aztec.params[AZ_drop] = 0.0;
+  ParameterList_list = dft_parameterlist_create();
+  dft_parameterlist_set_all_aztec(ParameterList_list, options, params);
+
 }
 /****************************************************************************/
 /****************************************************************************/

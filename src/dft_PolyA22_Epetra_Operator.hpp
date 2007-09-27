@@ -38,6 +38,7 @@ class Epetra_Comm;
 #include "Epetra_Operator.h"
 #include "Ifpack.h"
 #include "Teuchos_RefCountPtr.hpp"
+#include "Teuchos_ParameterList.hpp"
 #include <map>
 #include "Epetra_IntSerialDenseVector.h"
 #include "Epetra_SerialDenseVector.h"
@@ -52,8 +53,9 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
+  /* dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, int * options, double * params);*/
 
-  dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map);
+  dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList);
   //@}
   //@{ \name Assembly methods.
 
@@ -69,19 +71,19 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
     return(0);
   }
 
-  int initializeProblemValues();
-  int insertMatrixValue(int rowGID, int colGID, double value);
-  int finalizeProblemValues();
+  virtual int initializeProblemValues();
+  virtual int insertMatrixValue(int rowGID, int colGID, double value);
+  virtual int finalizeProblemValues();
   //@}
   //@{ \name Destructor.
     //! Destructor
-  ~dft_PolyA22_Epetra_Operator();
+  virtual ~dft_PolyA22_Epetra_Operator();
   //@}
   
   //@{ \name Atribute get methods.
 
   //! Returns an Epetra_Operator pointer that is actually the \e this object, since this class implements Epetra_Operator.
-  Epetra_Operator * getA22Inv() {return(this);}
+  virtual Epetra_Operator * getA22Inv() {return(this);}
   //@}
   
   //@{ \name Atribute set methods.
@@ -101,7 +103,7 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
 
     \return Integer error code, set to 0 if successful.
   */
-  int Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
+  virtual int Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
 
   //! Returns the result of an inverse dft_PolyA22_Epetra_Operator applied to a Epetra_MultiVector X in Y.
   /*! 
@@ -112,7 +114,7 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
     
     \return Integer error code, set to 0 if successful.
   */
-  int ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
+  virtual int ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const;
   
   
   //! Returns the infinity norm of the global matrix.
@@ -144,21 +146,25 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
   bool HasNormInf() const{return(false);};
   
   //! Returns a pointer to the Epetra_Comm communicator associated with this operator.
-  const Epetra_Comm & Comm() const{return(block2Map_.Comm());};
+  virtual const Epetra_Comm & Comm() const{return(block2Map_.Comm());};
   
   //! Returns the Epetra_Map object associated with the domain of this operator.
-  const Epetra_Map & OperatorDomainMap() const {return(block2Map_);};
+  virtual const Epetra_Map & OperatorDomainMap() const {return(block2Map_);};
   
   //! Returns the Epetra_Map object associated with the range of this operator.
-  const Epetra_Map & OperatorRangeMap() const {return(block2Map_);};
+  virtual const Epetra_Map & OperatorRangeMap() const {return(block2Map_);};
   //@}
   
-private:
+protected:
 
+  int F_location_;
   int insertRow();
   Epetra_Map cmsMap_;
   Epetra_Map densityMap_;
   Epetra_Map block2Map_;
+  Teuchos::ParameterList * parameterList_;
+  //int * options_;
+  //double * params_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnDensityMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> cmsOnCmsMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> densityOnDensityMatrix_;

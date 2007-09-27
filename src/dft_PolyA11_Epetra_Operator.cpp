@@ -55,12 +55,13 @@ dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & owne
     matrix_[i] = new Epetra_CrsMatrix(Copy, ownedMap, 0);
     matrix_[i]->SetLabel("PolyA11::matrix[i]");
   }
-
+  return;
 }
 //==============================================================================
 dft_PolyA11_Epetra_Operator::~dft_PolyA11_Epetra_Operator() {
   for (int i=0; i<numBlocks_; i++) if (matrix_[i]!=0) delete matrix_[i];
   delete [] matrix_;
+  return;
 }
 //=============================================================================
 int dft_PolyA11_Epetra_Operator::initializeProblemValues() {
@@ -76,7 +77,6 @@ int dft_PolyA11_Epetra_Operator::initializeProblemValues() {
 }
 //=============================================================================
 int dft_PolyA11_Epetra_Operator::insertMatrixValue(int ownedPhysicsID, int ownedNode, int rowGID, int colGID, double value) {
-
   if (rowGID!=colGID) value = -value; // negate off-diagonal values to simplify kernel calls
 
   if (firstTime_) {
@@ -123,10 +123,10 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
       matrix_[i]->OptimizeStorage();
       //TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
     }
-  
-  /*  for (int i=0; i<numBlocks_; i++) {
-      std::cout << *matrix_[i];
-  */
+
+    /*    for (int i=0; i<numBlocks_; i++) {
+      std::cout << "matrix " << i << *matrix_[i];
+      }*/
   isLinearProblemSet_ = true;
   firstTime_ = false;
   return(0);
@@ -155,12 +155,12 @@ int dft_PolyA11_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
     for (int j=0; j<NumVectors; j++) curY[j]+=numMyElements; // Increment pointers to next block
     Ytmp.ResetView(curY); // Reset view to next block
   }
+
   delete [] curY;
   return(0);
 }
 //==============================================================================
 int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
-
 
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
@@ -191,9 +191,9 @@ int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
     Ytmp.ResetView(curY); // Reset view to next block
     Xtmp.ResetView(curX); // Reset view to next block
   }
+
   delete [] curY;
   delete [] curX;
-
   return(0);
 }
 //==============================================================================

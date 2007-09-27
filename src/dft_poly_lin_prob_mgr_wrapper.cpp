@@ -35,21 +35,33 @@ extern "C" {
   /**                  dft_BasicLinProbMgr             **/
   /***************************************************/
 
-  void * dft_poly_lin_prob_mgr_create(int numUnks,
+  /*    void * dft_poly_lin_prob_mgr_create(int numUnks,
                         int* solverOptions, double* solverParams, MPI_Comm comm) {
     dft_PolyLinProbMgr * tmp = new dft_PolyLinProbMgr(numUnks, solverOptions,
 		                                               solverParams, comm);
     dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
     return((void *)linprobmgr_);
-  }
+    }*/
 
-  void * dft_poly_lin_prob_mgr_create_debug(int numUnks,
+  void * dft_poly_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
+    dft_PolyLinProbMgr * tmp = new dft_PolyLinProbMgr(numUnks, (Teuchos::ParameterList *) Parameterlist_list, comm);
+    dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
+    return((void *)linprobmgr_);
+    }
+
+  /* void * dft_poly_lin_prob_mgr_create_debug(int numUnks,
                         int* solverOptions, double* solverParams, MPI_Comm comm) {
     dft_PolyLinProbMgr * tmp = new dft_PolyLinProbMgr(numUnks, solverOptions,
 						      solverParams, comm, true);
     dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
     return((void *)linprobmgr_);
-  }
+    }*/
+
+  void * dft_poly_lin_prob_mgr_create_debug(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
+    dft_PolyLinProbMgr * tmp = new dft_PolyLinProbMgr(numUnks, (Teuchos::ParameterList *) Parameterlist_list, comm, true);
+    dft_BasicLinProbMgr * linprobmgr_ = dynamic_cast<dft_BasicLinProbMgr *>(tmp);
+    return((void *)linprobmgr_);
+    }
 
   void dft_poly_lin_prob_mgr_destruct(void * linprobmgr) {
     dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
@@ -86,6 +98,12 @@ extern "C" {
     dft_PolyLinProbMgr * linprobmgr_  = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
     bool isLinear1 = (isLinear!=0);
     return(linprobmgr_->setFieldOnDensityIsLinear(isLinear1));
+  }
+
+  int dft_poly_lin_prob_mgr_setpoissonequationids(void * linprobmgr, int numgids, int * gids) {
+    dft_BasicLinProbMgr * tmp = (dft_BasicLinProbMgr *) linprobmgr;
+    dft_PolyLinProbMgr * linprobmgr_ = dynamic_cast<dft_PolyLinProbMgr *>(tmp);
+    return(linprobmgr_->setPoissonEquationIDs(numgids, gids));
   }
 
 #ifdef __cplusplus

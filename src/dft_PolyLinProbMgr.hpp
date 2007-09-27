@@ -33,6 +33,8 @@ class Epetra_CrsMatrix;
 class Epetra_LinearProblem;
 class AztecOO;
 class dft_PolyA11_Epetra_Operator;
+class dft_PolyA11_Coulomb_Epetra_Operator;
+class dft_PolyA22_Coulomb_Epetra_Operator;
 class dft_PolyA22_Epetra_Operator;
 class dft_Schur_Epetra_Operator;
 
@@ -62,7 +64,16 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
 
      \param debug (In) Turns debug mode on if set to true, false by default.
   */
-  dft_PolyLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug = false);
+  /*  dft_PolyLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm, bool debug = false);*/
+
+  //! dft_PolyLinProbMgr Constructor.
+  /*! Initialize a linear problem manager for Tramonto
+     \param numUnknownsPerNode (In) The number of unknowns tracked per node of the mesh.
+     \param parameterList (In) A Teuchos::ParameterList containing information to guide and report solver status.
+     \param comm (In) MPI communicator that should be used by the solver.
+     \param debug (In) Turns debug mode on if set to true, false by default.
+  */
+   dft_PolyLinProbMgr(int numUnknownsPerNode, Teuchos::ParameterList * parameterList, MPI_Comm comm, bool debug = false);
 
   //! dft_PolyLinProbMgr Destructor.
   /*! Completely deletes a dft_PolyLinProbMgr object.
@@ -117,6 +128,18 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
     if (densityEquations_.Length()!=0) return(0); // Already been here
     densityEquations_.Size(numDensityEquations); 
     for (int i=0; i<numDensityEquations; i++) densityEquations_[i] = physicsIDs[i];
+    return(0);
+  }
+
+  //! Define Poisson equation IDs
+  /*! Define the list of physics IDs associated with the Poisson equations in ascending order.
+    \param numPoissonEquations (In) Number of Poisson equations per node. (should be 1)
+    \param physicsIDs (In) List of physics IDs associated with the Poisson equations.
+  */
+  int setPoissonEquationIDs(int numPoissonEquations, int * physicsIDs) {
+    if (poissonEquations_.Length()!=0) return(0); //Already been here
+    poissonEquations_.Size(numPoissonEquations);
+    for (int i=0; i<numPoissonEquations; i++) poissonEquations_[i] = physicsIDs[i];
     return(0);
   }
 
@@ -214,13 +237,13 @@ class dft_PolyLinProbMgr: public virtual dft_BasicLinProbMgr {
   //@}
 
 protected:
-
   int insertRowA12();
   int insertRowA21();
   Epetra_IntSerialDenseVector gEquations_;
   Epetra_IntSerialDenseVector gInvEquations_;
   Epetra_IntSerialDenseVector cmsEquations_;
-  Epetra_IntSerialDenseVector densityEquations_;  
+  Epetra_IntSerialDenseVector densityEquations_; 
+  Epetra_IntSerialDenseVector poissonEquations_;
   Teuchos::RefCountPtr<dft_PolyA11_Epetra_Operator> A11_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A12_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A21_;
@@ -229,6 +252,9 @@ protected:
   Teuchos::RefCountPtr<Epetra_Map> block2RowMap_;
   Teuchos::RefCountPtr<Epetra_Map> cmsRowMap_;
   Teuchos::RefCountPtr<Epetra_Map> densityRowMap_;
+  Teuchos::RefCountPtr<Epetra_Map> extraRowMap_;
+  Teuchos::RefCountPtr<Epetra_Map> poissonRowMap_;
+  bool hasPoisson_;
   Epetra_IntSerialDenseVector physicsIdToSchurBlockId_;
   Teuchos::RefCountPtr<dft_Schur_Epetra_Operator> schurOperator_;
   Teuchos::RefCountPtr<Epetra_Vector> rhs1_;

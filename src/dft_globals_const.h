@@ -500,8 +500,8 @@ extern void * LinProbMgr_manager;
  */
 
 struct Aztec_Struct {
-  int    options[AZ_OPTIONS_SIZE]; /* Array used to select solver options.  */
-  double params[AZ_PARAMS_SIZE];   /* User selected solver paramters.       */
+  /* int    options[AZ_OPTIONS_SIZE]; Array used to select solver options.  */
+  /* double params[AZ_PARAMS_SIZE];    User selected solver paramters.       */
 #ifdef DONE_WITH_THESE
   int    proc_config[AZ_PROC_SIZE];/* Processor information.                */
   int    *data_org;                /* Array to specify data layout          */
@@ -890,6 +890,7 @@ extern int     Proc;     /* The unique  processor number (from 0 to Num_Proc-1) 
 extern struct  Aztec_Struct Aztec; /* Structure to hold all the Aztec info          */
 extern int     Load_Bal_Flag; /* Flag specifying type of laod balancing to do       */
 extern int L_Schur; /* Switch to turn on Schur solvers */
+extern void * ParameterList_list; /* Parameterlist to hold Aztec options and params info */
 
 
 /* Nonlinear Solver info */

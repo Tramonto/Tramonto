@@ -14,6 +14,8 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#include "dft_parameterlist_wrapper.h"
+#include "dft_direct_solver_const.h"
 extern int Az_kspace;
 extern int Max_gmres_iter;
 extern double Az_tolerance;
@@ -21,10 +23,15 @@ extern double Az_ilut_fill_param;
 extern int Az_preconditioner;
 extern int Az_scaling;
 extern int Az_solver;
+extern int Am_solver;
+extern int F_location;
+extern int P_location;
+extern int L_Schur;
+extern int Type_poly;
 typedef struct Aztec_Struct Aztec_Struct;
 struct Aztec_Struct {
-  int    options[AZ_OPTIONS_SIZE]; /* Array used to select solver options.  */
-  double params[AZ_PARAMS_SIZE];   /* User selected solver paramters.       */
+  /*    int    options[AZ_OPTIONS_SIZE];  Array used to select solver options.  */
+  /*    double params[AZ_PARAMS_SIZE];    User selected solver paramters.       */
 #ifdef DONE_WITH_THESE
   int    proc_config[AZ_PROC_SIZE];/* Processor information.                */
   int    *data_org;                /* Array to specify data layout          */
@@ -40,6 +47,7 @@ struct Aztec_Struct {
 #endif
 };
 extern struct Aztec_Struct Aztec;
+void *ParameterList_list;
 void MY_read_update(int *N_update,int *update[],int N,int *nodes_x,int chunk,int input_option);
 extern double *Lseg_IC;
 extern int Nseg_IC;

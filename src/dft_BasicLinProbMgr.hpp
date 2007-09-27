@@ -39,6 +39,10 @@ class AztecOO;
 #include <map>
 #include "Epetra_IntSerialDenseVector.h"
 #include "Epetra_SerialDenseVector.h"
+#include "Amesos.h"
+#include "Amesos_BaseSolver.h"
+#include "Teuchos_ParameterList.hpp"
+#include "dft_direct_solver_const.h"
 
 //! dft_BasicLinProbMgr:  Solver manager class for Tramonto using Trilinos.
 /*! The dft_BasicLinProbMgr class supports solver capabilities for Tramonto.
@@ -57,7 +61,15 @@ class dft_BasicLinProbMgr {
                                guide and report solver status.
      \param comm (In) MPI communicator that should be used by the solver.
   */
-  dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm);
+  /*  dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm);*/
+
+  //! dft_BasicLinProbMgr Constructor.
+  /*! Initialize a linear problem manager for Tramonto
+     \param numUnknownsPerNode (In) The number of unknowns tracked per node of the mesh.
+     \param parameterList (In) A Teuchos::ParameterList containing information to guide and report solver status.
+     \param comm (In) MPI communicator that should be used by the solver.
+  */
+  dft_BasicLinProbMgr(int numUnknownsPerNode, Teuchos::ParameterList * parameterList, MPI_Comm comm);
 
   //! dft_BasicLinProbMgr Destructor.
   /*! Completely deletes a dft_BasicLinProbMgr object.
@@ -330,11 +342,11 @@ protected:
       return(boxPhysicsID + numUnknownsPerNode_*boxMap_->GID(boxNode));
   }
 
-protected:	     
+protected:	 
   int insertRow();
   int numUnknownsPerNode_;
-  int * solverOptions_;
-  double * solverParams_;
+  // int * solverOptions_;
+  // double * solverParams_;
   int numOwnedNodes_;
   int numBoxNodes_;
   int numGlobalNodes_;
@@ -356,6 +368,8 @@ protected:
   Teuchos::RefCountPtr<Epetra_Vector> globalLhs_;
   Teuchos::RefCountPtr<Epetra_LinearProblem> implicitProblem_;
   Teuchos::RefCountPtr<AztecOO> solver_;
+  Teuchos::ParameterList * parameterList_; 
+  Teuchos::RefCountPtr<Amesos_BaseSolver> directSolver_;
   bool isBlockStructureSet_;
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
@@ -365,8 +379,6 @@ protected:
   std::map<int, double> curRowValues_;
   Epetra_IntSerialDenseVector indices_;
   Epetra_SerialDenseVector values_;
-
-
 
 };
 

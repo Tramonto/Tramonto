@@ -37,6 +37,8 @@ COMMON_H = \
         ${srcdir}/dft_HardSphereLinProbMgr.hpp \
         ${srcdir}/dft_PolyA11_Epetra_Operator.hpp \
         ${srcdir}/dft_PolyA22_Epetra_Operator.hpp \
+        ${srcdir}/dft_PolyA11_Coulomb_Epetra_Operator.hpp \
+        ${srcdir}/dft_PolyA22_Coulomb_Epetra_Operator.hpp \
         ${srcdir}/dft_A22Matrix_Epetra_Operator.hpp \
         ${srcdir}/dft_HardSphereA11_Epetra_Operator.hpp \
         ${srcdir}/dft_HardSphereA22_Epetra_Operator.hpp \
@@ -44,6 +46,8 @@ COMMON_H = \
         ${srcdir}/dft_basic_lin_prob_mgr_wrapper.h \
         ${srcdir}/dft_poly_lin_prob_mgr_wrapper.h \
         ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.h \
+        ${srcdir}/dft_parameterlist_wrapper.h \
+        ${srcdir}/dft_direct_solver_const.h \
         ${srcdir}/dft_input.h \
         ${srcdir}/dft_main.h \
 	${srcdir}/dft_maindriver.h \
@@ -214,13 +218,16 @@ COMMON_CXX = \
         ${srcdir}/dft_HardSphereLinProbMgr.cpp \
         ${srcdir}/dft_PolyA11_Epetra_Operator.cpp \
         ${srcdir}/dft_PolyA22_Epetra_Operator.cpp \
+        ${srcdir}/dft_PolyA11_Coulomb_Epetra_Operator.cpp \
+        ${srcdir}/dft_PolyA22_Coulomb_Epetra_Operator.cpp \
         ${srcdir}/dft_A22Matrix_Epetra_Operator.cpp \
         ${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp \
         ${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp \
         ${srcdir}/dft_Schur_Epetra_Operator.cpp \
         ${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp \
         ${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp \
-        ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp
+        ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp \
+        ${srcdir}/dft_parameterlist_wrapper.cpp
 
 EXTRA_NOXLOCA_CXX = \
         ${srcdir}/NOXLOCA_Solver.cpp \

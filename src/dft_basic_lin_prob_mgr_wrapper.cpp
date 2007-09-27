@@ -36,10 +36,15 @@ extern "C" {
   /**                  dft_BasicLinProbMgr             **/
   /***************************************************/
 
-  void * dft_basic_lin_prob_mgr_create(int numUnks,
+  /*  void * dft_basic_lin_prob_mgr_create(int numUnks,
                         int* solverOptions, double* solverParams, MPI_Comm comm) {
     dft_BasicLinProbMgr * linprobmgr_ = new dft_BasicLinProbMgr(numUnks, solverOptions,
 		                                               solverParams, comm);
+    return((void *)linprobmgr_);
+    }*/
+
+  void * dft_basic_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
+    dft_BasicLinProbMgr * linprobmgr_ = new dft_BasicLinProbMgr(numUnks, (Teuchos::ParameterList *) Parameterlist_list, comm);
     return((void *)linprobmgr_);
   }
 
@@ -72,7 +77,6 @@ extern "C" {
     dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
     return(linprobmgr_->initializeProblemValues());
   }
-
 
   int dft_linprobmgr_insertrhsvalue (void * linprobmgr, int iunk, int inode, double value) {
     dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;

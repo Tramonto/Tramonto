@@ -38,8 +38,10 @@ extern "C" {
   /**                  dft_Linprobmgr             **/
   /***************************************************/
 
-  void * dft_basic_lin_prob_mgr_create(int numUnks,
-		        int* solverOptions, double* solverParams, MPI_Comm comm);
+  /*  void * dft_basic_lin_prob_mgr_create(int numUnks,
+      int* solverOptions, double* solverParams, MPI_Comm comm);*/
+
+  void * dft_basic_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm);
 
   void dft_linprobmgr_destruct(void * linprobmgrptr);
 

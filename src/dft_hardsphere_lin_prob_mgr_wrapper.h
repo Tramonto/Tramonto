@@ -37,11 +37,15 @@ extern "C" {
   /**                  dft_HardSphereLinProbMgr             **/
   /***************************************************/
 
-  void * dft_hardsphere_lin_prob_mgr_create(int numUnks,
-				      int* solverOptions, double* solverParams, MPI_Comm comm);
+  /* void * dft_hardsphere_lin_prob_mgr_create(int numUnks,
+     int* solverOptions, double* solverParams, MPI_Comm comm);*/
 
-  void * dft_hardsphere_lin_prob_mgr_create_debug(int numUnks,
-					    int* solverOptions, double* solverParams, MPI_Comm comm);
+  void * dft_hardsphere_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm);
+
+  /*  void * dft_hardsphere_lin_prob_mgr_create_debug(int numUnks,
+      int* solverOptions, double* solverParams, MPI_Comm comm);*/
+
+  void * dft_hardsphere_lin_prob_mgr_create_debug(int numUnks, void * Parameterlist_list, MPI_Comm comm);
 
   void dft_hardsphere_lin_prob_mgr_destruct(void * linprobmgr);
 
