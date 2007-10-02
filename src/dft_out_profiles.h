@@ -18,23 +18,12 @@ int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define TRUE  1
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(TRUE) && !defined(_CON_CONST_H_)
-#define TRUE  1
-#endif
 #define PERIODIC     1
 #define NDIM_MAX  3
 extern int Type_bc[NDIM_MAX][2];
 extern int Nelements;
 void print_charge_vol(double *charge_els,char *output_file);
 void print_freen_profile_1D(double *freen_profile_1D,char *output_file);
-#define FALSE 0
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
-#endif
 void print_charge_surf(double **charge_w_sum,char *output_file);
 void print_Nodes_to_zone(int *node_to_zone,char *output_file);
 void print_zeroTF(int **zero_TF,char *output_file);
@@ -45,8 +34,21 @@ extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Nwall;
 extern int L_HSperturbation;
 void print_gofr(char *output_file6);
-extern int Ntype_mer;
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
 #define NCOMP_MAX 5
+#define NMER_MAX     100
+extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
+#define FALSE 0
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+extern int Ntype_mer;
 #define NBLOCK_MAX   5
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #if defined(DEC_ALPHA)
@@ -58,7 +60,6 @@ extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 extern int ***Poly_to_Unk;
 extern int Geqn_start[NCOMP_MAX];
 extern int **Nbond;
-#define NMER_MAX     100
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Nmer[NCOMP_MAX];
 extern int Npol_comp;
@@ -91,6 +92,7 @@ extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 #define VERBOSE      3 
 extern int Iwrite;
+#define WTC          2
 #define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;

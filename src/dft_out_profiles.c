@@ -192,7 +192,7 @@ void print_profile(char *output_file4)
 {
   int icomp,iunk,i,inode,ijk[3],idim,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
   int unk_field, node_start;
-  double kappa_sq,kappa,r,rsq,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX];
+  double kappa_sq,kappa,r,rsq,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX];
   char *unk_char;
   
   char gfile[20],gfile2[20];
@@ -209,6 +209,11 @@ void print_profile(char *output_file4)
      if (Type_poly == CMS || Type_poly==CMS_SCFT){
        sprintf(gfile,"%sg",output_file4);
        fp6 = fopen(gfile,"w");
+     } 
+
+           /* open file for segment type densities per chain ... */
+     if (Type_poly == WTC){
+       fp7 = fopen("dft_dens_comp.dat","w");
      } 
 
            /* open file for segment densities */
@@ -286,7 +291,8 @@ void print_profile(char *output_file4)
         for (idim=0; idim<Ndim; idim++) {
                                     fprintf(ifp,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
             if (Type_poly == CMS || Type_poly==CMS_SCFT)  fprintf(fp6,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
-            if ((Type_poly == CMS  || Type_poly==CMS_SCFT) && Iwrite==VERBOSE) fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
+            if (Type_poly==WTC || ((Type_poly == CMS  || Type_poly==CMS_SCFT) && Iwrite==VERBOSE)) 
+                 fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
         }
 
         for (iunk=0; iunk<Nunk_per_node; iunk++){
@@ -336,12 +342,12 @@ void print_profile(char *output_file4)
                                                               -Vext_old[inode*Ncomp+icomp]));
         }
  
-               /* print segment densities for a CMS polymer run */
+               /* print segment densities for a CMS polymer run ... print component densities in WTC run*/
         if (Iwrite==VERBOSE){
-        if ((Type_poly == CMS || Type_poly==CMS_SCFT)){
-           for (itype_mer=0;itype_mer<Ncomp;itype_mer++) sumsegdens[itype_mer]=0.0;
-           for (ipol=0; ipol<Npol_comp; ipol++){
-               for(iseg=0;iseg<Nmer[ipol];iseg++){
+           if ((Type_poly == CMS || Type_poly==CMS_SCFT)){
+              for (itype_mer=0;itype_mer<Ncomp;itype_mer++) sumsegdens[itype_mer]=0.0;
+              for (ipol=0; ipol<Npol_comp; ipol++){
+                 for(iseg=0;iseg<Nmer[ipol];iseg++){
                     itype_mer=Type_mer[ipol][iseg];
                     bondproduct=1.0;
                     for(ibond=0;ibond<Nbond[ipol][iseg];ibond++){
@@ -354,16 +360,32 @@ void print_profile(char *output_file4)
 
                    sumsegdens[itype_mer]+=site_dens;
                    fprintf(fp7,"%22.17f\t", site_dens);
+                 }
+              }
+              for (itype_mer=0; itype_mer<Ntype_mer; itype_mer++) fprintf(fp7,"%22.17f\t", sumsegdens[itype_mer]);
+           }
+           else if (Type_poly==WTC){
+              for (ipol=0; ipol<Npol_comp; ipol++){
+                for (itype_mer=0;itype_mer<Ncomp;itype_mer++) {
+                     sumsegdens[itype_mer]=0.0;
+                     flag_type_mer[itype_mer]=FALSE;
+                }
+                for (iseg=0; iseg<Nmer[ipol]; iseg++){
+                   iunk=Phys2Unk_first[DENSITY]+SegChain2SegAll[ipol][iseg];
+                   sumsegdens[Type_mer[ipol][iseg]]+=X_old[iunk+node_start];
+                   flag_type_mer[Type_mer[ipol][iseg]]=TRUE;
+                }
+                for (itype_mer=0;itype_mer<Ncomp;itype_mer++){
+                   if (flag_type_mer[itype_mer]==TRUE)  fprintf(fp7,"%22.17f\t",sumsegdens[itype_mer]);
+                }
               }
            }
-           for (itype_mer=0; itype_mer<Ntype_mer; itype_mer++) fprintf(fp7,"%22.17f\t", sumsegdens[itype_mer]);
-        }
         }
  
                 /* add a carriage return to the file to start a new line */
         fprintf(ifp,"\n");
         if (Type_poly == CMS || Type_poly==CMS_SCFT) fprintf(fp6,"\n");
-        if ((Type_poly == CMS || Type_poly==CMS_SCFT)&&Iwrite==VERBOSE) fprintf(fp7,"\n");
+        if (Type_poly==WTC ||((Type_poly == CMS || Type_poly==CMS_SCFT)&&Iwrite==VERBOSE)) fprintf(fp7,"\n");
 
                 /* add some blank lines for improved graphics in 2D and 3D gnuplot */
         if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
@@ -373,7 +395,7 @@ void print_profile(char *output_file4)
           /* close files */
      fclose(ifp);
      if (Type_poly == CMS || Type_poly==CMS_SCFT) fclose(fp6);
-     if ((Type_poly == CMS || Type_poly==CMS_SCFT)&&Iwrite==VERBOSE) fclose(fp7);
+     if (Type_poly==WTC || ((Type_poly == CMS || Type_poly==CMS_SCFT)&&Iwrite==VERBOSE)) fclose(fp7);
 
   return;
 }
