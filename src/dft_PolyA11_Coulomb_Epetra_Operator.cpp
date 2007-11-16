@@ -215,8 +215,11 @@ int dft_PolyA11_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
   }
   
   if (solverInt >= AM_lapack && solverInt <= AM_taucs) {
-    EpetraExt::LinearProblem_Reindex::LinearProblem_Reindex(*ownedMap_);
-    EpetraExt::LinearProblem_Reindex reindex(NULL);
+
+    //EpetraExt::LinearProblem_Reindex::LinearProblem_Reindex(&ownedMap_);
+    //EpetraExt::LinearProblem_Reindex reindex(NULL);
+    Epetra_Map StdIndexMap( ownedMap_.NumGlobalElements(), ownedMap_.NumMyElements(), 0, ownedMap_.Comm() );
+    EpetraExt::LinearProblem_Reindex reindex(&StdIndexMap);
     Epetra_LinearProblem reindexedProblem = reindex(implicitProblem);
     Amesos Amesos_Factory;
     Teuchos::RefCountPtr<Amesos_BaseSolver> directSolver_ = Teuchos::rcp(Amesos_Factory.Create(solverName, reindexedProblem));
