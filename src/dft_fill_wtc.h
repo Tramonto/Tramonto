@@ -42,6 +42,9 @@ double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define PI    M_PI
 extern int Nseg_tot;
 #define THETA_FN_SIG          5
+#define WJDC_FIELD     8
+#define WJDC         3
+extern int Type_poly;
 double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double constant_boundary(int iunk,int jnode_box);
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
@@ -71,19 +74,19 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
 extern void *LinProbMgr_manager;
 #define NCOMP_MAX 5
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
-#define BONDWTC       7
+#define BONDWTC        7
 extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
-#define CAVWTC     6
+#define CAVWTC         6
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
 #define DENSITY        0
-#define NEQ_TYPE       9
+#define NEQ_TYPE       10 
 extern int Phys2Unk_first[NEQ_TYPE];
 double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);

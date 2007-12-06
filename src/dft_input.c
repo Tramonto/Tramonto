@@ -226,7 +226,7 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_poly);
   }
   MPI_Bcast(&Type_poly,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_poly >WTC || Type_poly<NONE){
+  if (Type_poly >WJDC || Type_poly<NONE){
      if (Proc==0) printf("ERROR Type_poly out of range (bounds are %d,%d)\n",NONE,WTC);
      exit(-1);
   }
@@ -1114,7 +1114,7 @@ void read_input_file(char *input_file, char *output_file1)
     
     if (Proc==0) fclose(fp4);
 
-    if (Type_poly != NONE && Type_poly != WTC){  /*POLYMER INPUT FOR ONLY CMS FUNCTIONAL */
+    if (Type_poly != NONE && Type_poly != WTC){  /*POLYMER INPUT FOR EITHER CMS OR WJDC FUNCTIONAL */
     /* set start value of Geqns for each of the polymers in the system.  
        It is necessary to account for Ncomp Boltz and Ncomp Rho eqns */
    
@@ -1130,7 +1130,8 @@ void read_input_file(char *input_file, char *output_file1)
        for (pol_number=0; pol_number<Npol_comp; ++pol_number)
        if (Proc==0) printf("The start unknown for polymer %d is %d \n",
                                     pol_number,Geqn_start[pol_number]);
-    
+   
+       if (Type_poly == CMS){  /* this bit only applies to the CMS functional */
        if (Proc==0) {
           read_junk(fp,fp2);
           fscanf(fp,"%d",&Ncr_files);
@@ -1171,6 +1172,18 @@ void read_input_file(char *input_file, char *output_file1)
        MPI_Bcast(&Crfac,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
     /* Note: the value of Cr_rad_hs may get reset to Cutoff_ff if Ipot_ff_n=2 
        see setup_polymer_cr in dft_main.c */
+       }
+       else{
+          if (Proc==0) {
+             read_junk(fp,fp2);
+             fprintf(fp2,"\n NO LIQUID STATE INPUT FOR WERTHEIM-JAIN/DOMINIK-CHAPMAN RUN\n");
+             fprintf(fp2,"not read   ");
+             for (i=0; i<2; i++) {
+                read_junk(fp,fp2);
+                fprintf(fp2,"not read   ");
+             }       
+          }       
+       }
        
 
 /* This is a debugging tool used to enter a real and an
@@ -2079,7 +2092,7 @@ void error_check(void)
      exit (-1);
   }
 
-  if (Type_poly > WTC || Type_poly < NONE){
+  if (Type_poly > WJDC || Type_poly < NONE){
      printf ("\nSorry, your choice for the type of polymer functional\n");
      printf ("Type_poly: %d is not available\n", Type_poly);
      exit (-1);

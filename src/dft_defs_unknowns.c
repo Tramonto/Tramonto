@@ -36,7 +36,7 @@
 void setup_nunk_per_node(char *output_file1)
 {
   int i,iunk,icomp,unk_rel;
-  int NCMSField_unk, NYW_Dens;
+  int NCMSField_unk, NYW_Dens, NWJDCField_unk;
   FILE *fp2=NULL;
 
   if (Proc==0) {
@@ -51,7 +51,7 @@ void setup_nunk_per_node(char *output_file1)
      component and segment densities (Lseg_densities), and Hard-Sphere
      perturbation DFTs and other types of DFTs (L_HSperturbation) */
 
-  if (Type_poly==WTC) Lseg_densities=TRUE;
+  if (Type_poly==WTC || Type_poly==WJDC) Lseg_densities=TRUE;
   else Lseg_densities=FALSE;
 
   if (Type_poly == CMS || Type_poly==CMS_SCFT) L_HSperturbation=FALSE;
@@ -92,7 +92,7 @@ void setup_nunk_per_node(char *output_file1)
 
          case CAVWTC:
             Nrho_bar_cavity=0;
-            if (Type_poly==WTC){
+            if (Type_poly==WTC || Type_poly==WJDC){
                  Nrho_bar_cavity = 4;
                  Phys2Nunk[CAVWTC]=Nrho_bar_cavity-2;  
                                    /* strange case because y function only uses two of the 
@@ -102,24 +102,36 @@ void setup_nunk_per_node(char *output_file1)
             break;
 
          case BONDWTC:
-            Nrho_bar_bond=0;
-            if (Type_poly==WTC) Nrho_bar_bond = Nbonds;
+            if (Type_poly==WTC){
+                Nrho_bar_bond = Nbonds;
+            }
+            else Nrho_bar_bond=0;
             Phys2Nunk[BONDWTC]=Nrho_bar_bond;
             break;
 
          case CMS_FIELD:
-            NCMSField_unk = 0;
             if (Type_poly == CMS || Type_poly==CMS_SCFT){
                  NCMSField_unk=Ncomp;
             }
+            else NCMSField_unk = 0;
             Phys2Nunk[CMS_FIELD]=NCMSField_unk;
             break;
 
-         case CMS_G:
-            if (Type_poly == CMS || Type_poly==CMS_SCFT){
-                 Phys2Nunk[CMS_G] = Ngeqn_tot;
+         case WJDC_FIELD:
+            if (Type_poly == WJDC){
+                 NWJDCField_unk=Nseg_tot;
             }
+            else NWJDCField_unk = 0;
+            Phys2Nunk[WJDC_FIELD]=NWJDCField_unk;
             break;
+
+         case G_CHAIN:
+            if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC){
+                 Phys2Nunk[G_CHAIN] = Ngeqn_tot;
+            }
+            else Phys2Nunk[G_CHAIN]=0;
+            break;
+
           case YW_DENS:
 	    NYW_Dens = 0;
 	    Phys2Nunk[YW_DENS] = 0;
@@ -141,21 +153,10 @@ void setup_nunk_per_node(char *output_file1)
         Phys2Unk_first[i]=NO_UNK;
         Phys2Unk_last[i]=NO_UNK;
      }
-     if (i==CMS_G && (Type_poly == CMS || Type_poly==CMS_SCFT)){
+     if ( (i==G_CHAIN && (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC))){
         for (icomp=0;icomp<Npol_comp;icomp++) Geqn_start[icomp]+=Phys2Unk_first[i];
      }
   }
-
-/*   for (iunk=0;i<Nunk_per_node;iunk++){
-     if (Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==DIFFUSION){
-         if(Type_poly==WTC){ 
-            unk_rel=iunk-Phys2Unk_first[Unk2Phys[iunk]];
-            icomp = Unk2Comp[unk_rel];
-         }
-         else icomp=iunk-Phys2Unk_first[Unk2Phys[iunk]];
-         Unk2Comp[iunk]=icomp;
-     }
-   }*/
 
    if (Proc==0){
    if (Iwrite==VERBOSE){

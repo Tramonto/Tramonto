@@ -22,10 +22,11 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 #define CMS_SCFT     1
 #define CMS          0
 void print_to_file(FILE *fp,double val,char *var_label,int first);
+double integrand_WJDC_freen_bulk(int iunk,int inode_box,double **x);
+double integrand_WJDC_freen(int iunk,int inode_box,double **x);
 double integrand_WTC_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_WTC_freen(int iunk,int inode_box,double **x);
 #define WTC          2
-extern int Type_poly;
 double integrand_surface_charge(int iunk,int inode_box,int iwall,double **x);
 double integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iunk,double **x,double *profile);
 double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
@@ -61,10 +62,12 @@ extern double Charge_f[NCOMP_MAX];
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
-#define NEQ_TYPE       9
+#define NEQ_TYPE       10 
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];
+#define WJDC         3
+extern int Type_poly;
 extern int L_HSperturbation;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)

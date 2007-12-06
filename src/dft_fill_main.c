@@ -95,7 +95,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                                resid_unk,mesh_coarsen_flag_i,resid_only_flag);
 
      /* print for debugging purposes call this print routine */ 
-     /*print_residuals(loc_inode,iunk,resid_unk);*/
+/*    print_residuals(loc_inode,iunk,resid_unk);*/
 
     } /* end of loop over # of unknowns per node */
   } /* end of loop over local nodes */
@@ -119,11 +119,13 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
 
    switch(Unk2Phys[iunk]){
        case DENSITY: 
-             if (L_HSperturbation) 
+             if (L_HSperturbation && Type_poly != WJDC)
                 resid_unk[iunk]=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,x,
                                                     dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
-             else                              
+             else if(Type_poly==CMS)                              
                 resid_unk[iunk]=load_CMS_density(iunk,loc_inode,inode_box,x,resid_only_flag);
+             else if(Type_poly==WJDC)
+                resid_unk[iunk]=load_WJDC_density(iunk,loc_inode,inode_box,x,resid_only_flag);
              break;
 
        case HSRHOBAR: 
@@ -159,8 +161,17 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
             resid_unk[iunk]=load_CMS_field(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
             break;
 
-       case CMS_G:
-            resid_unk[iunk]=load_CMS_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+       case WJDC_FIELD: 
+            resid_unk[iunk]=load_WJDC_field(iunk,loc_inode,inode_box,ijk_box,izone,x,                                                    dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
+            break;
+
+       case G_CHAIN:
+            if (Type_poly==CMS){
+               resid_unk[iunk]=load_CMS_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+            }
+            else if (Type_poly==WJDC){
+               resid_unk[iunk]=load_WJDC_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+            }
             break;
 
    }  /* end of physics switch */
@@ -192,7 +203,8 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
        case CAVWTC: printf("Proc=%d: loc_inode=%d  iunk_cavity=%d ",Proc,loc_inode,iunk); break;
        case BONDWTC: printf("Proc=%d: loc_inode=%d  iunk_bondwtc=%d ",Proc,loc_inode,iunk); break;
        case CMS_FIELD: printf("Proc=%d: loc_inode=%d  iunk_cmsfield=%d ",Proc,loc_inode,iunk); break;
-       case CMS_G: printf("Proc=%d: loc_inode=%d  iunk_cmsG=%d ",Proc,loc_inode,iunk); break;
+       case WJDC_FIELD: printf("Proc=%d: loc_inode=%d  iunk_wjdc_field=%d ",Proc,loc_inode,iunk); break;
+       case G_CHAIN: printf("Proc=%d: loc_inode=%d  iunk_Gchain=%d ",Proc,loc_inode,iunk); break;
     }
     printf(" resid=%11.8f \n",resid_unk[iunk]); 
 

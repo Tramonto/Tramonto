@@ -61,7 +61,6 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
   double n[4+2*NDIM_MAX];
   double rho_bar[4+2*NDIM_MAX];
 
-  
   for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
   jzone = find_jzone(izone,inode_box);
 
@@ -253,11 +252,7 @@ double resid_rho_bar(int junk,int jnode_box,double **x)
 /*****************************************************************************/
 double jac_rho_bar(int junk,int jnode_box,double **x)
 {
-  int jcomp;
   double jac;
-
-  if (Lseg_densities)  jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
-  else                 jcomp=junk-Phys2Unk_first[DENSITY];
 
   jac = 1.0;
   return (jac);

@@ -36,8 +36,13 @@ double pressure_ideal_gas(double *rho)
 {
    double betap=0.0;
    int i;
-   
-   for (i=0;i<Ncomp;i++) betap+=rho[i];
+
+   if (Lseg_densities) {
+      for (i=0;i<Nseg_tot;i++) betap+=rho[i];
+   }
+   else{
+      for (i=0;i<Ncomp;i++) betap+=rho[i];
+   }
    return(betap);
 }
 /******************************************************************************/

@@ -1,0 +1,25 @@
+/*! \file 
+ \brief WTC functionals: 5-mer at a hard wall.
+
+Functionals: WJDC, FMT1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This is a simple initial test problem for the Jain-Dominik-Chapman functionals 
+for bonded systems based on Wertheim's theory of associating fluids.  This case is similar to the POLY6_WTC_FMT1_1D 
+test case that was set up for WTC functionals.
+The adsorptions of all segments should be and in fact are identical for correct stoichiometry.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_5mer
+
+Key Output Parameters:
+   - niter=16
+   - adsorption[0,1,2,3,4]=0.579151
+   - energy=-1.286653
+   .
+*/

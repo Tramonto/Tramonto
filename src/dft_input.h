@@ -158,6 +158,7 @@ extern char Cr_file2[40];
 extern char Cr_file[40];
 extern double Crfac;
 extern int Ncr_files;
+#define CMS          0
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern int Geqn_start[NCOMP_MAX];
@@ -271,11 +272,12 @@ extern int Ipot_ff_c;
 #define HARD_SPHERE  1
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
+#define WTC          2
 #define NONE       -1
 #define NONE      -1
 #define NONE -1
 #define NONE        -1
-#define WTC          2
+#define WJDC         3
 extern int Type_poly;
 extern int Type_coul;
 extern int Type_pairPot;

@@ -1,0 +1,27 @@
+/*! \file 
+ \brief WJDC functionals: blocked polymer blend.
+
+Functionals: WJDC,FMT1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case is a polymer blend with two polymer components.  Like the POLY9 test case, it is based on 
+parameters used to generate  figure 7 of Tripathi and Chapman, J Chem. Phys. 2005.  The
+first component is an 8-mer, the second component is a 4-mer.  
+The two species are homopolymers and the adsorption reported is a sum over the segment
+adsorptions for the segments on the 8-mer (adsorption[0]) and the 4-mer (adsorption[1]).
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_8_lin_4
+
+Key Output Parameters:
+   - niter=9
+   - adsorption[0]=11.376882
+   - adsorption[1]=10.238604
+   - energy=13.871382
+   .
+*/

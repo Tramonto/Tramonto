@@ -53,7 +53,10 @@ void setup_density(double **xOwned,int iguess)
             break;
 
       case EXP_RHO:
-            setup_exp_density(xOwned,Rho_b,Ncomp,0);
+            if (Lseg_densities){
+                 setup_exp_density(xOwned,Rho_seg_b,Nseg_tot,0);
+            }
+            else setup_exp_density(xOwned,Rho_b,Ncomp,0);
             break;
       case EXP_RHO_V:
             setup_exp_density(xOwned,Rho_coex,1,1);
@@ -96,16 +99,6 @@ void setup_const_density(double **xOwned, double *rho,int nloop,int index)
             else           xOwned[iunk][loc_inode] = rho[index];
          }
          else xOwned[iunk][loc_inode] = 0.0;
-
-         /* set up initial guess if chemical potential is an unknown */
-         if (Lsteady_state) {
-	     iunk = i+Phys2Unk_first[DIFFUSION];
-             if (!zeroTF){
-                if (nloop > 1) xOwned[iunk][loc_inode] = Betamu[i];
-                else           xOwned[iunk][loc_inode] = Betamu[index];
-             }
-             else xOwned[iunk][loc_inode] = -10.0; /* zero density == -infinite chem.pot*/
-         }
       }
   }
   return;
@@ -115,8 +108,11 @@ void setup_const_density(double **xOwned, double *rho,int nloop,int index)
         density profile wherever Zero_density_TF = FALSE */
 void setup_stepped_profile(double **xOwned)
 {
-  int loc_inode,i,inode_box,iunk,icomp,inode;
+  int loc_inode,i,j,nloop,inode_box,iunk,icomp,inode;
   double nodepos[3];
+
+  if (Lseg_densities) nloop=Nseg_tot;
+  else                nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box = L2B_node[loc_inode];
@@ -126,12 +122,17 @@ void setup_stepped_profile(double **xOwned)
      for (i=0;i<Nsteps;i++){
        if (nodepos[Orientation_step[i]] >= Xstart_step[i] &&
            nodepos[Orientation_step[i]] <= Xend_step[i]){
+
            for (icomp=0; icomp<Ncomp; icomp++){
-	       iunk = Phys2Unk_first[DENSITY]+icomp;
+           for (j=0; j<nloop; j++){
+               if (Lseg_densities) icomp=Unk2Comp[j];
+               else                icomp=j;
+	       iunk = Phys2Unk_first[DENSITY]+j;
                if (!Zero_density_TF[inode_box][icomp]){
-                   xOwned[iunk][loc_inode]=Rho_step[icomp][i];
+                   xOwned[iunk][loc_inode]=Rho_step[j][i];
                }
                else xOwned[iunk][loc_inode]=0.0;
+           }
            }
        }
     }
@@ -149,31 +150,24 @@ void setup_stepped_profile(double **xOwned)
 void setup_exp_density(double **xOwned, double *rho,int nloop,int index)
 {
 
-  int loc_inode,i,inode_box,iunk;
+  int loc_inode,i,inode_box,iunk,icomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box = L2B_node[loc_inode];
      for (i=0; i<nloop; i++) {
 
+        if (Lseg_densities) icomp=Unk2Comp[i];
+        else icomp=i;
+
 	iunk = i+Phys2Unk_first[DENSITY];
-        if (!Zero_density_TF[inode_box][i]){
-            if (nloop > 1) xOwned[iunk][loc_inode] = rho[i] * exp(-Vext[loc_inode][i]);
-            else           xOwned[iunk][loc_inode] = rho[index] * exp(-Vext[loc_inode][i]);
+        if (!Zero_density_TF[inode_box][icomp]){
+            if (nloop > 1) xOwned[iunk][loc_inode] = rho[i] * exp(-Vext[loc_inode][icomp]);
+            else           xOwned[iunk][loc_inode] = rho[index] * exp(-Vext[loc_inode][icomp]);
         }
         else xOwned[iunk][loc_inode] = 0.0;
 
         if (xOwned[iunk][loc_inode]>1.0) xOwned[iunk][loc_inode] = 0.99;   /* may need this to make sure that rb3<1 always */
 
-
-         /* set up initial guess if chemical potential is an unknown */
-         if (Lsteady_state) {
-	    iunk = i+Phys2Unk_first[DIFFUSION];
-             if (!Zero_density_TF[inode_box][i]){
-                if (nloop > 1) xOwned[iunk][loc_inode] = Betamu[i];
-                else           xOwned[iunk][loc_inode] = Betamu[index];
-             }
-             else xOwned[iunk][loc_inode] = -10.0; /* zero density == -infinite chem.pot*/
-         }
      }
   }
   return;
@@ -188,8 +182,11 @@ void setup_step_2consts(double **xOwned)
 {
 
   int loc_inode,icomp,inode_box,ijk[3],inode;
-  int iunk;
+  int iunk,nloop,i;
   double x_dist;
+
+  if (Lseg_densities) nloop=Nseg_tot;
+  else                nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box = L2B_node[loc_inode];
@@ -197,24 +194,17 @@ void setup_step_2consts(double **xOwned)
      node_to_ijk(inode,ijk); 
      x_dist = Esize_x[0]*ijk[0] - 0.5*Size_x[0];
 
-     for (icomp=0; icomp<Ncomp; icomp++) {
+     for (i=0; i<nloop; i++) {
+        if (Lseg_densities) icomp=Unk2Comp[i];
+        else                icomp=i;
 
-        iunk = icomp+Phys2Unk_first[DENSITY];
+        iunk = i+Phys2Unk_first[DENSITY];
         if (!Zero_density_TF[inode_box][icomp]){
            if (x_dist< 0.0)  xOwned[iunk][loc_inode] = constant_boundary(iunk,-3);
            else              xOwned[iunk][loc_inode] = constant_boundary(iunk,-4);
         }
         else xOwned[iunk][loc_inode] = 0.0;
 
-       /* set up initial guess if chemical potential is an unknown */
-        if (Lsteady_state) {
-            iunk = icomp+Phys2Unk_first[DIFFUSION];
-            if (!Zero_density_TF[inode_box][icomp]){
-               if (x_dist< 0.0) xOwned[iunk][loc_inode] = constant_boundary(iunk,-3);
-               else             xOwned[iunk][loc_inode] = constant_boundary(iunk,-4);
-            }
-            else xOwned[iunk][loc_inode] = -10.0;  /*zero density == -infinite chem.pot*/
-        }
      }
   }
   return;
@@ -230,8 +220,11 @@ void setup_linear_profile(double **xOwned)
 {
 
   int loc_inode,icomp,inode_box,ijk[3],inode;
-  int iunk;
+  int iunk,i,nloop;
   double x_dist,x_tot,rho_LBB, rho_RTF;
+  
+  if (Lseg_densities) nloop=Nseg_tot;
+  else                nloop=Ncomp;
 
   if (Lsteady_state) x_tot=Size_x[Grad_dim]-2.0*X_const_mu;
   else x_tot = Size_x[Grad_dim];
@@ -242,9 +235,11 @@ void setup_linear_profile(double **xOwned)
      node_to_ijk(inode,ijk); 
      x_dist = Esize_x[0]*ijk[0]-X_const_mu;
 
-     for (icomp=0; icomp<Ncomp; icomp++) {
+     for (i=0; i<nloop; i++) {
+        if (Lseg_densities) icomp=Unk2Comp[i];
+        else                icomp=i;
 
-        iunk = Phys2Unk_first[DENSITY]+icomp;
+        iunk = Phys2Unk_first[DENSITY]+i;
         if (!Zero_density_TF[inode_box][icomp]){
            rho_LBB = constant_boundary(iunk,-3);
            rho_RTF = constant_boundary(iunk,-4);

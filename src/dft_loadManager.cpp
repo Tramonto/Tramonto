@@ -70,8 +70,8 @@ void dft_loadManager::allocatePhysLoader(int iBlock, int iPhys)
         physLoader_[iBlock] = new dft_eqLoader_BondWTC(iBlock, numBlocks_, block2Phys_); break;
      case CMS_FIELD:
         physLoader_[iBlock] = new dft_eqLoader_CMSField(iBlock, numBlocks_, block2Phys_); break;
-     case CMS_G:
-        physLoader_[iBlock] = new dft_eqLoader_CMSG(iBlock, numBlocks_, block2Phys_); break;
+     case G_CHAIN:
+        physLoader_[iBlock] = new dft_eqLoader_GCHAIN(iBlock, numBlocks_, block2Phys_); break;
      case NEWPHYS:
         physLoader_[iBlock] = new dft_eqLoader_NewPhys(iBlock, numBlocks_, block2Phys_); break;
      default:  cerr << "dft_loadManager::allocatePhysLoader:  Unknown Phys type "

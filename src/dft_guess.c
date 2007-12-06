@@ -90,10 +90,16 @@ void set_initial_guess (int iguess, double** xOwned)
            if (Phys2Nunk[CAVWTC]>0 && (start_no_info || Restart_field[CAVWTC]==FALSE)) setup_Xi_cavWTC(xOwned); break;
          case BONDWTC:
            if (Phys2Nunk[BONDWTC]>0 && (start_no_info || Restart_field[BONDWTC]==FALSE)) setup_BondWTC(xOwned); break;
+
+         case WJDC_FIELD:
+           if (Phys2Nunk[WJDC_FIELD]>0 && (start_no_info || Restart_field[WJDC_FIELD]==FALSE)) setup_polymer_field_wjdc(xOwned); break;
          case CMS_FIELD:
            if (Phys2Nunk[CMS_FIELD]>0 && (start_no_info || Restart_field[CMS_FIELD]==FALSE)) setup_polymer_field(xOwned,iguess); break;
-         case CMS_G:
-           if (Phys2Nunk[CMS_G]>0 && (start_no_info || Restart_field[CMS_G]==FALSE)) setup_polymer_G(xOwned); 
+         case G_CHAIN:
+           if (Phys2Nunk[G_CHAIN]>0 && (start_no_info || Restart_field[G_CHAIN]==FALSE)){
+                if (Type_poly==CMS) setup_polymer_G(xOwned); 
+                else if (Type_poly==WJDC) setup_polymer_G_wjdc(xOwned);
+           }
            break;
      case YW_DENS:
        break;

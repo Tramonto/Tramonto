@@ -39,6 +39,7 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
        omega_vext,omega_vext_surf_ex,
        omega_vext_elec,omega_vext_elec_surf_ex,
        omega_WTC,omega_WTC_b,omega_WTC_surf_ex,
+       omega_WJDC,omega_WJDC_b,omega_WJDC_surf_ex,
        omega_CMS,omega_CMS_b,omega_CMS_surf_ex,
        omega_maxwell_stress,omega_surface_charge,
        omega_osmotic, omega_osmotic_b,omega_osmotic_surf_ex,
@@ -77,53 +78,56 @@ int lfirst;
       /* if we are calling this for the first time from the post-processing, don't
 	 calculate all the integrals; otherwise do calculate */
       if(!first || !lfirst) {
-       omega_id=omega_id_b=0.0;
-       for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
-	  if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
-	  else                icomp=iunk-Phys2Unk_first[DENSITY];
-          if (fabs(Charge_f[icomp])<1.e-12 || Type_coul==NONE){
-              omega_id+=integrateInSpace(&integrand_ideal_gas_freen,iunk,Nel_hit2,x,Integration_profile);
 
-              omega_id_b+=integrateInSpace(&integrand_ideal_gas_freen_bulk,iunk,Nel_hit,x,Integration_profile);
-          }
-        }
-       omega_id_surf_ex = omega_id-omega_id_b;
-       if (Proc==0 && Iwrite != NO_SCREEN){
-             print_to_screen(omega_id,"IDEAL GAS");
-             print_to_screen(omega_id_b,"BULK TERM: IDEAL GAS");
-             print_to_screen(omega_id_surf_ex,"SURF.EX.: IDEAL GAS");
-        }
-       omega_sum += omega_id;
-       omega_s_sum += omega_id_surf_ex;
+       if (Type_poly != WJDC){
+          omega_id=omega_id_b=0.0;
+          for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
+   	     if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+   	     else                icomp=iunk-Phys2Unk_first[DENSITY];
+             if (fabs(Charge_f[icomp])<1.e-12 || Type_coul==NONE){
+                 omega_id+=integrateInSpace(&integrand_ideal_gas_freen,iunk,Nel_hit2,x,Integration_profile);
+
+                 omega_id_b+=integrateInSpace(&integrand_ideal_gas_freen_bulk,iunk,Nel_hit,x,Integration_profile);
+             }
+           }
+          omega_id_surf_ex = omega_id-omega_id_b;
+          if (Proc==0 && Iwrite != NO_SCREEN){
+                print_to_screen(omega_id,"IDEAL GAS");
+                print_to_screen(omega_id_b,"BULK TERM: IDEAL GAS");
+                print_to_screen(omega_id_surf_ex,"SURF.EX.: IDEAL GAS");
+           }
+          omega_sum += omega_id;
+          omega_s_sum += omega_id_surf_ex;
 
                                     /* CHEMICAL POTENTIAL CONTRIBUTIONS */
 
-       omega_mu=integrateInSpace_SumInComp(&integrand_mu_freen,Nel_hit2,x,Integration_profile);
-       if (Proc==0 && Iwrite != NO_SCREEN){
-           print_to_screen(omega_mu,"CHEM.POTENTIAL");
-       }
+          omega_mu=integrateInSpace_SumInComp(&integrand_mu_freen,Nel_hit2,x,Integration_profile);
+          if (Proc==0 && Iwrite != NO_SCREEN){
+              print_to_screen(omega_mu,"CHEM.POTENTIAL");
+          }
 
-       omega_mu_b=integrateInSpace_SumInComp(&integrand_mu_freen_bulk,Nel_hit,x,Integration_profile);
-       omega_mu_surf_ex = omega_mu-omega_mu_b;
-       if (Proc==0 && Iwrite != NO_SCREEN){
-            print_to_screen(omega_mu_b,"BULK TERM: CHEM.POTENTIAL");
-            print_to_screen(omega_mu_surf_ex,"SURF.EX.: CHEM.POTENTIAL");
-       }
-       omega_sum += omega_mu;
-       omega_s_sum += omega_mu_surf_ex;
+          omega_mu_b=integrateInSpace_SumInComp(&integrand_mu_freen_bulk,Nel_hit,x,Integration_profile);
+          omega_mu_surf_ex = omega_mu-omega_mu_b;
+          if (Proc==0 && Iwrite != NO_SCREEN){
+               print_to_screen(omega_mu_b,"BULK TERM: CHEM.POTENTIAL");
+               print_to_screen(omega_mu_surf_ex,"SURF.EX.: CHEM.POTENTIAL");
+          }
+          omega_sum += omega_mu;
+          omega_s_sum += omega_mu_surf_ex;
 
                                     /* NEUTRAL EXTERNAL FIELD CONTRIBUTIONS */
-       omega_vext=integrateInSpace_SumInComp(&integrand_vext_freen,Nel_hit2,x,Integration_profile);
-       if (Proc==0 && Iwrite != NO_SCREEN){
-             print_to_screen(omega_vext,"NEUTRAL EXT.FIELD");
-       }
+          omega_vext=integrateInSpace_SumInComp(&integrand_vext_freen,Nel_hit2,x,Integration_profile);
+          if (Proc==0 && Iwrite != NO_SCREEN){
+                print_to_screen(omega_vext,"NEUTRAL EXT.FIELD");
+          }
 
-       omega_vext_surf_ex = omega_vext; /* note Vext=0 in the bulk */
-       if (Proc==0 && Iwrite != NO_SCREEN){
-             print_to_screen(omega_vext_surf_ex,"SURF.EX.: NEUTRAL EXT.FIELD");
+          omega_vext_surf_ex = omega_vext; /* note Vext=0 in the bulk */
+          if (Proc==0 && Iwrite != NO_SCREEN){
+                print_to_screen(omega_vext_surf_ex,"SURF.EX.: NEUTRAL EXT.FIELD");
+          }
+          omega_sum += omega_vext;
+          omega_s_sum += omega_vext_surf_ex;
        }
-       omega_sum += omega_vext;
-       omega_s_sum += omega_vext_surf_ex;
 
                                     /* HARD SPHERE CONTRIBUTIONS */
        if (Type_func != NONE){
@@ -268,6 +272,18 @@ int lfirst;
 
           omega_sum += omega_WTC;
           omega_s_sum += omega_WTC_surf_ex;
+       }
+
+       if (Type_poly == WJDC){
+           omega_WJDC=integrateInSpace_SumInComp(&integrand_WJDC_freen,Nel_hit2,x,Integration_profile);
+          if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WJDC,"WJDC BONDS");
+
+          omega_WJDC_b=integrateInSpace_SumInComp(&integrand_WJDC_freen_bulk,Nel_hit,x,Integration_profile);
+          omega_WJDC_surf_ex = omega_WJDC-omega_WJDC_b;
+          if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WJDC_surf_ex,"SURF.EX.: WJDC-DTERM");
+
+          omega_sum += omega_WJDC;
+          omega_s_sum += omega_WJDC_surf_ex;
        }
 
       } /* end of if(!first || !lfirst) */

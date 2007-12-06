@@ -43,6 +43,7 @@ void setup_stencil_logicals()
   if (Type_poly == CMS || Type_poly == CMS_SCFT){
       Sten_Type[DELTA_FN_BOND]=TRUE;
       Sten_Type[THETA_CR_DATA]=TRUE;
+
       if (Type_poly==CMS_SCFT){
         printf ("To do SCFT with CMS theory, we need to test and debug all code !\n");
         exit(-1);
@@ -55,7 +56,8 @@ void setup_stencil_logicals()
       }
       if (Type_attr != NONE) Sten_Type[THETA_PAIRPOT_RCUT]=TRUE;
       if (Type_coul == DELTAC) Sten_Type[THETA_CR_RPM_MSA]=TRUE;
-      if (Type_poly == WTC) {
+
+      if (Type_poly == WTC || Type_poly==WJDC) {
         Sten_Type[THETA_FN_SIG]=TRUE;
         Sten_Type[DELTA_FN_BOND]=TRUE;
       }

@@ -62,6 +62,9 @@ COMMON_H = \
         ${srcdir}/dft_fill_coarse.h \
         ${srcdir}/dft_fill_EL.h \
         ${srcdir}/dft_fill_CMS.h \
+        ${srcdir}/dft_fill_wjdc.h \
+        ${srcdir}/dft_fill_CLSchain.h \
+        ${srcdir}/dft_fill_CLSmf.h \
         ${srcdir}/dft_physics_FMT1.h \
         ${srcdir}/dft_physics_FMT2.h \
         ${srcdir}/dft_physics_FMT3.h \
@@ -83,17 +86,21 @@ COMMON_H = \
         ${srcdir}/dft_thermo_elec_MSA.h \
         ${srcdir}/dft_thermo_id.h \
         ${srcdir}/dft_thermo_wtc.h \
+        ${srcdir}/dft_thermo_wjdc.h \
         ${srcdir}/dft_out_main.h \
         ${srcdir}/dft_out_ads.h \
+        ${srcdir}/dft_out_utils.h \
         ${srcdir}/dft_energy.h \
         ${srcdir}/dft_energy_id.h \
         ${srcdir}/dft_energy_hs.h \
         ${srcdir}/dft_energy_att.h \
         ${srcdir}/dft_energy_wtc.h \
+        ${srcdir}/dft_energy_wjdc.h \
         ${srcdir}/dft_energy_elec.h \
         ${srcdir}/dft_energy_vext.h \
         ${srcdir}/dft_energy_mu.h \
         ${srcdir}/dft_energy_cms.h \
+        ${srcdir}/dft_energy_CLSintsten.h \
         ${srcdir}/dft_out_force.h \
         ${srcdir}/dft_out_flux.h \
         ${srcdir}/dft_out_profiles.h \
@@ -105,6 +112,7 @@ COMMON_H = \
         ${srcdir}/dft_guess_WTC.h \
         ${srcdir}/dft_guess_restart.h \
         ${srcdir}/dft_guess_CMS.h \
+        ${srcdir}/dft_guess_WJDC.h \
         ${srcdir}/dft_guess_ELECPOT.h \
         ${srcdir}/dft_comm.h \
         ${srcdir}/dft_continuation.h \
@@ -142,6 +150,9 @@ COMMON_C = \
         ${srcdir}/dft_fill_coarse.c \
         ${srcdir}/dft_fill_EL.c \
         ${srcdir}/dft_fill_CMS.c \
+        ${srcdir}/dft_fill_wjdc.c \
+        ${srcdir}/dft_fill_CLSchain.c \
+        ${srcdir}/dft_fill_CLSmf.c \
         ${srcdir}/dft_physics_FMT1.c \
         ${srcdir}/dft_physics_FMT2.c \
         ${srcdir}/dft_physics_FMT3.c \
@@ -163,17 +174,21 @@ COMMON_C = \
         ${srcdir}/dft_thermo_elec_MSA.c \
         ${srcdir}/dft_thermo_id.c \
         ${srcdir}/dft_thermo_wtc.c \
+        ${srcdir}/dft_thermo_wjdc.c \
         ${srcdir}/dft_out_main.c \
         ${srcdir}/dft_out_ads.c \
+        ${srcdir}/dft_out_utils.c \
         ${srcdir}/dft_energy.c \
         ${srcdir}/dft_energy_id.c \
         ${srcdir}/dft_energy_hs.c \
         ${srcdir}/dft_energy_att.c \
-        ${srcdir}/dft_energy_wtc.c \
         ${srcdir}/dft_energy_elec.c \
+        ${srcdir}/dft_energy_wtc.c \
+        ${srcdir}/dft_energy_wjdc.c \
         ${srcdir}/dft_energy_vext.c \
         ${srcdir}/dft_energy_mu.c \
         ${srcdir}/dft_energy_cms.c \
+        ${srcdir}/dft_energy_CLSintsten.c \
         ${srcdir}/dft_out_force.c \
         ${srcdir}/dft_out_flux.c \
         ${srcdir}/dft_out_profiles.c \
@@ -185,6 +200,7 @@ COMMON_C = \
         ${srcdir}/dft_guess_WTC.c \
         ${srcdir}/dft_guess_restart.c \
         ${srcdir}/dft_guess_CMS.c \
+        ${srcdir}/dft_guess_WJDC.c \
         ${srcdir}/dft_guess_ELECPOT.c \
         ${srcdir}/dft_comm.c \
         ${srcdir}/dft_continuation.c \

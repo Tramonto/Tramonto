@@ -194,7 +194,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
   struct Stencil_Struct *stenJ;
   double resid,mat_val,resid_sum,first_deriv,dens;
 
-  iseg = iunk - Phys2Unk_first[DENSITY];
+  if (Type_poly==WJDC) iseg = iunk-Phys2Unk_first[WJDC_FIELD];
+  else                 iseg = iunk - Phys2Unk_first[DENSITY];
 
   resid_sum=0.0;
   unk_xi2 = Phys2Unk_first[CAVWTC];
@@ -241,27 +242,29 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
        }
        for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
             kseg = Bonds_SegAll[jseg][kbond];
-            kunk_rho = kseg;
-            if (Pol_Sym_Seg[kseg] != -1) kunk_rho=Pol_Sym_Seg[kseg];
-            kunk_rho += Phys2Unk_first[DENSITY];
-            kcomp=Unk2Comp[kseg];
-            s2=Sigma_ff[kcomp][kcomp];
-/*            s2=Bond_ff[kcomp][kcomp];*/
+            if (Bonds_SegAll[jseg][kbond] !=-1){
+               kunk_rho = kseg;
+               if (Pol_Sym_Seg[kseg] != -1) kunk_rho=Pol_Sym_Seg[kseg];
+               kunk_rho += Phys2Unk_first[DENSITY];
+               kcomp=Unk2Comp[kseg];
+               s2=Sigma_ff[kcomp][kcomp];
+/*               s2=Bond_ff[kcomp][kcomp];*/
 
-            y = y_cav(s1,s2,xi_2,xi_3);
-            dy_dxi2=dy_dxi2_cav(s1,s2,xi_2,xi_3);
-            dy_dxi3=dy_dxi3_cav(s1,s2,xi_2,xi_3);
-             
-            prefac2 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
-            prefac3 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
+               y = y_cav(s1,s2,xi_2,xi_3);
+               dy_dxi2=dy_dxi2_cav(s1,s2,xi_2,xi_3);
+               dy_dxi3=dy_dxi3_cav(s1,s2,xi_2,xi_3);
+                
+               prefac2 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],2);
+               prefac3 = (PI/6.)*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],3);
 
-            if (jnode_box >=0 && !Zero_density_TF[jnode_box][jcomp]) dens = x[unk_rho][jnode_box];
-            else if (jnode_box==-1 ||jnode_box==-3 ||jnode_box==-4)  dens = constant_boundary(unk_rho,jnode_box);
-            else                                                     dens=0.0;
+               if (jnode_box >=0 && !Zero_density_TF[jnode_box][jcomp]) dens = x[unk_rho][jnode_box];
+               else if (jnode_box==-1 ||jnode_box==-3 ||jnode_box==-4)  dens = constant_boundary(unk_rho,jnode_box);
+               else                                                     dens=0.0;
 
-            resid = -0.5*Fac_overlap[jcomp][kcomp]*weight*dens*(1./y)*(prefac2*dy_dxi2 + prefac3*dy_dxi3);
-            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-            resid_sum += resid;
+               resid = -0.5*Fac_overlap[jcomp][kcomp]*weight*dens*(1./y)*(prefac2*dy_dxi2 + prefac3*dy_dxi3);
+               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               resid_sum += resid;
+            }
 
         } /* end of bond pair loop */
     }        /* end of jseg loop */
@@ -299,6 +302,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
 
                 for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
                   kseg = Bonds_SegAll[jseg][kbond];
+                  if (Bonds_SegAll[jseg][kbond] != -1){
                   kunk_rho = kseg;
                   if (Pol_Sym_Seg[kseg] != -1) kunk_rho = Pol_Sym_Seg[kseg];
                   kunk_rho += Phys2Unk_first[DENSITY];
@@ -338,6 +342,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
   
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                 unk_xi3,jnode_boxJ,mat_val);
+                  }
                   }
                 }  /*loop over kbonds */
             }  /* check that the node has nonzero density */
@@ -461,6 +466,7 @@ double load_cavity_wtc(int iunk, int loc_inode, int inode_box, int *ijk_box,
 {
   double resid,mat_val,resid_cavity;
   int jzone_flag;
+  int icav;
 
   jzone_flag=FALSE;
 

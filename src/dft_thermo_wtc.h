@@ -27,6 +27,8 @@ extern double BondWTC_LBB[NMER_MAX *NMER_MAX];
 #define NO_BOND_PAIR -962.0
 extern double BondWTC_b[NMER_MAX *NMER_MAX];
 extern int Nbonds;
+#define WTC          2
+extern int Type_poly;
 #define VERBOSE      3 
 extern int Iwrite;
 #if defined(DEC_ALPHA)
@@ -59,15 +61,16 @@ extern int Ncomp;
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
-extern double Betamu_wtc[NMER_MAX];
-void chempot_WTC(double *rho_seg,double *betamu);
-extern double Betamu_seg[NMER_MAX];
 extern double Xi_cav_b[4];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
+extern double Betamu_seg[NMER_MAX];
+extern double Betamu_wtc[NMER_MAX];
+void chempot_WTC(double *rho_seg,double *betamu);
+double chain_term(int kseg,int kcomp,double *rho_seg);
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
-double pressure_WTC(double *rho_seg_b,double betap_hs_bulk);
+double pressure_WTC(double *rho_seg);
 void compute_bulk_nonlocal_wtc_properties(char *output_file1);
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_seg_RTF[NMER_MAX];

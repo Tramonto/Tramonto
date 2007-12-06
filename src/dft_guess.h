@@ -16,15 +16,21 @@ void chop_profile(double **xOwned,int iguess);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define YW_DENS        8       /* densities for Yethiraj-Woodward polymer DFTs */
+#define YW_DENS        9       /* densities for Yethiraj-Woodward polymer DFTs */
+void setup_polymer_G_wjdc(double **xOwned);
+#define WJDC         3
 void setup_polymer_G(double **xOwned);
-#define CMS_G          2 
+void setup_polymer_G(double **xOwned);
+#define G_CHAIN        2 
+void setup_polymer_field(double **xOwned,int iguess);
 void setup_polymer_field(double **xOwned,int iguess);
 #define CMS_FIELD      1
+void setup_polymer_field_wjdc(double **xOwned);
+#define WJDC_FIELD     8
 void setup_BondWTC(double **xOwned);
-#define BONDWTC       7
+#define BONDWTC        7
 void setup_Xi_cavWTC(double **xOwned);
-#define CAVWTC     6
+#define CAVWTC         6
 void setup_chem_pot(double **xOwned);
 #define DIFFUSION      5
 void setup_elec_pot(double **xOwned,int iguess);
@@ -33,10 +39,11 @@ void setup_rho_bar(double **xOwned);
 #define HSRHOBAR       4
 void setup_density(double **xOwned,int iguess);
 void setup_polymer_rho(double **xOwned,int iguess);
+void setup_polymer_rho(double **xOwned,int iguess);
 #define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
-#define NEQ_TYPE       9
+#define NEQ_TYPE       10 
 extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 #define TRUE  1

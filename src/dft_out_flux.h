@@ -34,7 +34,7 @@ int ijk_to_node(int *ijk);
 extern int Nunk_per_node;
 #define DENSITY        0
 #define DIFFUSION      5
-#define NEQ_TYPE       9
+#define NEQ_TYPE       10 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 #define NDIM_MAX  3

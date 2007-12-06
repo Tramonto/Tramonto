@@ -41,13 +41,14 @@ extern double Betamu_hs_ex[NCOMP_MAX];
 extern int Ipot_ff_n;
 extern int Iliq_vap;
 extern int Lsteady_state;
+extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_b[NMER_MAX];
 extern void *LinProbMgr_manager;
 extern double VEXT_MAX;
 extern double **Vext;
 extern int **Zero_density_TF;
-#define BONDWTC       7
+#define BONDWTC        7
 extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
 extern int *Nbonds_SegAll;
@@ -77,8 +78,8 @@ double fill_EL_ideal_gas(int iunk,int icomp,int loc_inode,int inode_box,double *
 double fill_sym_WTC(int iunk,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern int *Pol_Sym_Seg;
 #define WTC          2
-extern int Type_poly;
 double fill_bulk_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
+double fill_bulk_field(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -96,8 +97,11 @@ int check_zero_density_EL(int iunk,int icomp,int iseg,int loc_inode,int inode_bo
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
 #define DENSITY        0
-#define NEQ_TYPE       9
+#define WJDC_FIELD     8
+#define NEQ_TYPE       10 
 extern int Phys2Unk_first[NEQ_TYPE];
+#define WJDC         3
+extern int Type_poly;
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */
   double    S1;      /*   1/(4*pi*Ri)    * Delta_fn   */

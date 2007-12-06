@@ -224,6 +224,8 @@ double  Dphi_Drhobar_RTF[10]; /* Array[Nrho_bar] of bulk energy derivs w/r/to rh
 double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
 double  Rho_seg_LBB[NMER_MAX];
 double  Rho_seg_RTF[NMER_MAX];
+double Field_WJDC_b[NMER_MAX];
+double G_WJDC_b[NMER_MAX*NBOND_MAX];
 double *Rhobar3_old;      /* Array[Nodes_box] of old values of rhobar3 */
 double Xi_cav_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
 double Xi_cav_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
@@ -245,6 +247,10 @@ double  Betamu_id[NCOMP_MAX]; /*Array[Ncomp] of ideal gas chemical potentials */
 double  Betamu_wtc[NMER_MAX];
 double  Betamu_wtc_LBB[NMER_MAX];
 double  Betamu_wtc_RTF[NMER_MAX];
+double  Betamu_chain[NMER_MAX]; 
+double  Betamu_chain_LBB[NMER_MAX];
+double  Betamu_chain_RTF[NMER_MAX];
+
 
 int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
 int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */

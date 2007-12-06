@@ -52,6 +52,7 @@ int loc_inode,inode_box,itmp;
  int count_poisson;
  int *poissoneq;
 
+
   /* Construct dft_Linprobmgr with information on number of unknowns*/
   if (L_Schur && Type_poly == CMS) { //took out Type_coul == NONE
    densityeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
@@ -68,7 +69,7 @@ int loc_inode,inode_box,itmp;
        densityeq[count_density++]=iunk; break; 
      case CMS_FIELD:                  
        cmseq[count_cms_field++]=iunk; break; 
-     case CMS_G:                  
+     case G_CHAIN:                  
        if ((iunk-Geqn_start[0])%2 == 0)
 	 geq[count_geqn++]=iunk; 
        else
@@ -156,6 +157,7 @@ int loc_inode,inode_box,itmp;
    LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
  }
 
+
   /* Give Nodal Row and Column maps */
   (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
   (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
@@ -173,7 +175,6 @@ if (L2G_node[loc_inode]==254) printf("Proc=%d owns global node 254 (local coord=
 for (inode_box=0;inode_box<Nnodes_box;inode_box++){
 if (B2G_node[inode_box]==254) printf("Proc=%d sees global node 254 (box coord=%d ) \n", Proc,inode_box);
 }*/
-
   /* Set initial guess on owned nodes and reconcile ghost nodes using importr2c */
   xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   set_initial_guess(Iguess1, xOwned);
@@ -183,7 +184,6 @@ if (B2G_node[inode_box]==254) printf("Proc=%d sees global node 254 (box coord=%d
 if (B2G_node[inode_box]==254) printf("after calling set_inital guess: Proc=%d inode_box=%d B2G_node=%d xOwned=%g\n",
   Proc,inode_box,B2G_node[inode_box],xOwned[0][inode_box]);
 }*/
-
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
@@ -333,7 +333,7 @@ int update_solution(double** x, double** delta_x, int iter) {
   frac_min=1.0;
   for (ibox=0; ibox<Nnodes_box; ibox++) { /* find minimum update fraction in entire domain */
     for (iunk=0; iunk<Nunk_per_node; iunk++){
-      if ( (Unk2Phys[iunk]==CMS_G  && Pol_Sym[iunk-Phys2Unk_first[CMS_G]] == -1) || 
+      if ( (Unk2Phys[iunk]==G_CHAIN  && Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]] == -1) || 
            (Unk2Phys[iunk]==DENSITY && (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) ){
          if(x[iunk][ibox]+delta_x[iunk][ibox]<0.0){
              frac = AZ_MIN(1.0,x[iunk][ibox]/(-delta_x[iunk][ibox]));
@@ -363,9 +363,10 @@ int update_solution(double** x, double** delta_x, int iter) {
 
     /* Update all solution componenets */
     for (iunk=0; iunk<Nunk_per_node; iunk++){
-      if ((  (Unk2Phys[iunk]==DENSITY && (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) || 
-            (Unk2Phys[iunk]==CMS_G && Pol_Sym[iunk-Phys2Unk_first[CMS_G]] == -1) || 
-            Unk2Phys[iunk]==CMS_FIELD || 
+      if ((  (Unk2Phys[iunk]==DENSITY && 
+                  (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) || 
+            (Unk2Phys[iunk]==G_CHAIN && Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]] == -1) || 
+            Unk2Phys[iunk]==CMS_FIELD || Unk2Phys[iunk]==WJDC_FIELD ||
             (Unk2Phys[iunk]==BONDWTC  && Pol_Sym[iunk-Phys2Unk_first[BONDWTC]] == -1 )|| 
              Unk2Phys[iunk]==CAVWTC) && 
             x[iunk][ibox]+frac_min*delta_x[iunk][ibox] <1.e-15){
@@ -404,8 +405,8 @@ void fix_symmetries(double **x)
       else if (Lseg_densities && Unk2Phys[iunk]==BONDWTC && Pol_Sym[iunk-Phys2Unk_first[BONDWTC]] != -1){
          x[iunk][ibox] = x[Phys2Unk_first[BONDWTC]+Pol_Sym[iunk-Phys2Unk_first[BONDWTC]]][ibox];
       }
-      else if (!Lseg_densities && Unk2Phys[iunk]==CMS_G && Pol_Sym[iunk-Phys2Unk_first[CMS_G]] != -1){
-         x[iunk][ibox] = x[Phys2Unk_first[CMS_G]+Pol_Sym[iunk-Phys2Unk_first[CMS_G]]][ibox];
+      else if (!Lseg_densities && Unk2Phys[iunk]==G_CHAIN && Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]] != -1){
+         x[iunk][ibox] = x[Phys2Unk_first[G_CHAIN]+Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]]][ibox];
       }
 
     }
@@ -473,7 +474,7 @@ void do_numerical_jacobian(double **x)
   ifp = fopen(filename,"w");
   for (i=0; i<Nnodes*Nunk_per_node; i++) {
     for (j=0; j<Nnodes*Nunk_per_node; j++) {
-      if (fabs(full[i][j]) > 1.0e-10)
+      if (fabs(full[i][j]) > 1.0e-15)
        fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
     }
   }

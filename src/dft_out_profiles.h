@@ -67,9 +67,9 @@ extern int Npol_comp;
 #define NONE      -1
 #define NONE -1
 #define NONE        -1
-#define CMS_G          2 
+#define G_CHAIN        2 
 extern double VEXT_MAX;
-#define NEQ_TYPE       9
+#define NEQ_TYPE       10 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern double Esize_x[NDIM_MAX];
@@ -81,10 +81,11 @@ extern double Temp_elec;
 #define COULOMB      1
 extern int Ipot_ff_c;
 extern int Npoisson;
-#define YW_DENS        8       /* densities for Yethiraj-Woodward polymer DFTs */
-#define BONDWTC       7
-#define CAVWTC     6
+#define YW_DENS        9       /* densities for Yethiraj-Woodward polymer DFTs */
+#define BONDWTC        7
+#define CAVWTC         6
 #define HSRHOBAR       4
+#define WJDC_FIELD     8
 #define CMS_FIELD      1
 #define DIFFUSION      5
 #define POISSON        3
@@ -93,6 +94,7 @@ extern int Phys2Nunk[NEQ_TYPE];
 #define VERBOSE      3 
 extern int Iwrite;
 #define WTC          2
+#define WJDC         3
 #define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;

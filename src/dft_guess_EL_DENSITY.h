@@ -24,6 +24,7 @@ void node_to_ijk(int node,int *ijk);
 extern int *B2G_node;
 void setup_step_2consts(double **xOwned);
 extern double **Vext;
+extern int Lsteady_state;
 #define NCOMP_MAX 5
 #define NSTEPS_MAX 10
 extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];
@@ -33,14 +34,11 @@ extern int Orientation_step[NSTEPS_MAX];
 extern int Nsteps;
 void node_to_position(int inode,double *NodePos);
 extern int *L2G_node;
-extern double Betamu[NCOMP_MAX];
-#define DIFFUSION      5
-extern int Lsteady_state;
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int **Zero_density_TF;
 #define DENSITY        0
-#define NEQ_TYPE       9
+#define NEQ_TYPE       10 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *L2B_node;
 extern int Nnodes_per_proc;

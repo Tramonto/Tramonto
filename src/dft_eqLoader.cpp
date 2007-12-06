@@ -51,7 +51,7 @@ void dft_eqLoader::loadAll(double **x_, int iter_, int resid_only_flag_)
      case CAVITY_WTC:   loadCavityWTC();   break;
      case BOND_WTC:     loadBondWTC();     break;
      case CMS_FIELD:    loadCMSField();    break;
-     case CMS_G:        loadCMSG();        break;
+     case G_CHAIN:        loadGCHAIN();        break;
      case NEWPHYS:      loadNewPhys();     break;
     }
   }

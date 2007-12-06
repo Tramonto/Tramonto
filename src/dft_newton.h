@@ -17,6 +17,7 @@
 extern int *L2B_node;
 void fill_test(double **x,int flag);
 #define NODAL_FLAG -999
+#define WJDC_FIELD 8
 void fill_resid_and_matrix(double **x,int iter,int resid_only_flag,int unk_flag);
 extern int Nnodes;
 extern int Lseg_densities;
@@ -124,7 +125,7 @@ extern struct Aztec_Struct Aztec;
 extern void *LinProbMgr_manager;
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
-#define CMS_G          2 
+#define G_CHAIN          2 
 #define CMS_FIELD      1
 #define DENSITY        0
 #define NMER_MAX     100

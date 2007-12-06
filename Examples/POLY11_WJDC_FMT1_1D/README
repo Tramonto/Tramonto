@@ -1,0 +1,26 @@
+/*! \file 
+ \brief WTC functionals: 5-mer at a hard wall.
+
+Functionals: WJDC, FMT1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This is indentical to POLY10 except that the polymer architechture is entered in block format rather
+than treating every segment as a different component.
+This case is similar to the POLY7_WTC_FMT1_1D test case that was set up for WTC functionals.
+The ratio of adsorption[1]/adsorption[0]=3/2 is correct.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_5mer
+
+Key Output Parameters:
+   - niter=16
+   - adsorption[0]=1.158301
+   - adsorption[1]=1.737452
+   - energy=-1.286653
+   .
+*/

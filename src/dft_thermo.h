@@ -17,11 +17,15 @@
 #define NCOMP_MAX 5
 extern double Betamu_id[NCOMP_MAX];
 extern double Betamu[NCOMP_MAX];
+#define NMER_MAX     100
+extern double Betamu_chain[NMER_MAX];
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
 void print_to_screen_comp(int icomp,double val,char *var_label);
-#define NMER_MAX     100
 extern double Betamu_wtc_RTF[NMER_MAX];
 extern double Betamu_seg_RTF[NMER_MAX];
+extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
+extern int Nmer[NCOMP_MAX];
+extern int Npol_comp;
 extern double Betamu_wtc_LBB[NMER_MAX];
 extern double Betamu_seg[NMER_MAX];
 extern double Betamu_seg_LBB[NMER_MAX];
@@ -36,14 +40,17 @@ extern double Charge_f[NCOMP_MAX];
 extern double Betamu_att[NCOMP_MAX];
 void chempot_att(double *rho);
 extern double Betamu_hs_ex[NCOMP_MAX];
+extern int Ncomp;
 void chempot_FMT_hs(double *rho);
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
 void chempot_ideal_gas(double *rho,double *betamu);
-extern double Rho_seg_b[NMER_MAX];
-extern int Ncomp;
+extern double Betamu_chain_RTF[NMER_MAX];
+extern double Betamu_chain_LBB[NMER_MAX];
+void chempot_chain_wjdc(double *rho,double *betamu_chain);
 double pressure_PY_hs(double *rho);
 extern double Rho_b[NCOMP_MAX];
+extern double Rho_seg_b[NMER_MAX];
 extern double Betap;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
@@ -54,20 +61,22 @@ extern double Betap;
 #endif
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 void print_to_screen(double val,char *var_label);
-extern double Rho_seg_RTF[NMER_MAX];
-extern double Rho_seg_LBB[NMER_MAX];
-double pressure_WTC(double *rho_seg_b,double betap_hs_bulk);
+double pressure_WTC(double *rho_seg);
 extern int Type_coul;
 double pressure_att(double *rho);
-double pressure_FMT_hs(double *rho,double *betap_hs_bulk);
+double pressure_FMT_hs(double *rho);
 extern double Rho_b_RTF[NCOMP_MAX];
-extern double Betap_RTF;
 extern double Rho_b_LBB[NCOMP_MAX];
+extern double Rho_seg_RTF[NMER_MAX];
+extern double Betap_RTF;
+extern double Rho_seg_LBB[NMER_MAX];
 double pressure_ideal_gas(double *rho);
 extern double Betap_LBB;
+extern int Lseg_densities;
 extern int Lsteady_state;
 void calc_pressure(char *output_file1);
 void calc_chempot(char *output_file1);
+void WJDC_thermo_precalc(char *output_file1);
 void ATT_thermo_precalc();
 extern int Type_attr;
 void HS_thermo_precalc(char *output_file1);
@@ -77,6 +86,7 @@ void HS_thermo_precalc(char *output_file1);
 #define NONE        -1
 extern int Type_func;
 void WTC_thermo_precalc(char *output_file1);
+#define WJDC         3
 #define WTC          2
 extern int Type_poly;
 extern int L_HSperturbation;

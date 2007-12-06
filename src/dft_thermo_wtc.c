@@ -49,43 +49,36 @@ void WTC_thermo_precalc(char *output_file1)
         Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
      }
   }
-  compute_bulk_nonlocal_wtc_properties(output_file1);
+  compute_bulk_nonlocal_wtc_properties(output_file1); 
 
   return;
 }
 /****************************************************************************/
 /* pressure_WTC: this routine calculates the pressure contribution 
    for the WTC functional */
-double pressure_WTC(double *rho_seg_b, double betap_hs_bulk)
+double pressure_WTC(double *rho_seg)
 {
-  int icomp,jcomp,iseg,jseg,ibond;
-  double betap_wtc, betap_inner, y;
+  int iseg,icomp,count_bond,ibond;
+  double betap_wtc,term_iseg;
 
   betap_wtc = 0.0;
 
-  /* first calculate contribution from chain Helmholtz energy */
-  for (iseg=0; iseg<Nseg_tot; iseg++) {
-    icomp=Unk2Comp[iseg];
-    betap_inner = 0.0;
-    for(ibond=0;ibond<Nbonds_SegAll[iseg];ibond++) {
-      jseg=Bonds_SegAll[iseg][ibond];
-      jcomp=Unk2Comp[jseg];
-      y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-      betap_inner += (1 - log(y*rho_seg_b[jseg]));
-    }
-    betap_wtc += -0.5*rho_seg_b[iseg]*betap_inner;
+  /* first include the term for the number of bonds per segment */
+
+  for (iseg=0;iseg<Nseg_tot;iseg++){
+     count_bond=0;
+     for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
+        if (Bonds_SegAll[iseg][ibond]!=-1) count_bond++;
+     }  
+     betap_wtc -= 0.5*rho_seg[iseg]*count_bond;
   }
 
-  /* add contribution from chemical potential terms in free energy Omega */
-  for(iseg=0; iseg<Nseg_tot; iseg++) 
-    betap_wtc += Betamu_seg[iseg]*rho_seg_b[iseg];
-
-  /* add HS bulk term */
-  betap_wtc += betap_hs_bulk;
-
-  /* add ideal gas free energy terms */
-  for(iseg=0; iseg<Nseg_tot; iseg++)
-    betap_wtc -= rho_seg_b[iseg]*(log(rho_seg_b[iseg])-1.0);
+  /* now calculate the chain term for the pressure */
+  for (iseg=0;iseg<Nseg_tot;iseg++){
+     icomp = Unk2Comp[iseg];
+     term_iseg=chain_term(iseg,icomp,rho_seg);
+     betap_wtc -= term_iseg*rho_seg[iseg];
+  }
 
   return(betap_wtc);
 }
@@ -96,8 +89,8 @@ double pressure_WTC(double *rho_seg_b, double betap_hs_bulk)
    Betamu_wtc = contribution to chem. potential from the chain part of the functional only */
 void chempot_WTC(double *rho_seg,double *betamu)
 {
-   int icomp,jcomp,kcomp,i,ipol,iseg,ibond,jseg,kseg;
-   double y,dydxi2,dydxi3,sig2,sig3;
+   int icomp,jcomp,kcomp,i,iseg,ibond,jseg,kseg;
+   double y,term_kseg;
 
 
    for (iseg=0;iseg<Nseg_tot;iseg++) {
@@ -105,19 +98,24 @@ void chempot_WTC(double *rho_seg,double *betamu)
         Betamu_seg[iseg]=0.0;
    }
 
+      /* first do ideal gas correction for segment densities rather than component densities */ 
+   for (iseg=0; iseg<Nseg_tot;iseg++){
+      icomp=Unk2Comp[iseg];
+      Betamu_seg[iseg]=betamu[icomp]-log(Nmer_t_total[icomp]); 
+   }
+
    /* first compute terms that are based on bond pairs starting from segment iseg*/
    /* note that in the bulk the BondWTC is identical to the site density of the jth segment */
    for (iseg=0; iseg<Nseg_tot;iseg++){
       icomp=Unk2Comp[iseg];
-      Betamu_seg[iseg]=betamu[icomp]-log(Nmer_t_total[icomp]); /* correct the ideal gas term for segments */
       for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
           jseg=Bonds_SegAll[iseg][ibond];
           jcomp=Unk2Comp[jseg];
           y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-            Betamu_seg[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
-                                - rho_seg[jseg]/rho_seg[iseg]);
-            Betamu_wtc[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
-                                 -rho_seg[jseg]/rho_seg[iseg]);
+          Betamu_seg[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
+                              - rho_seg[jseg]/rho_seg[iseg]);
+          Betamu_wtc[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
+                              -rho_seg[jseg]/rho_seg[iseg]);
       }
    }
    /* now add in the term that involves _all_ the bond pairs in the system for each segment via that cavity
@@ -125,22 +123,37 @@ void chempot_WTC(double *rho_seg,double *betamu)
       components than the one where the iseg segment is found ! */
    for (kseg=0; kseg<Nseg_tot;kseg++){
      kcomp = Unk2Comp[kseg];
-     sig2=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
-     sig3=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
-     for (iseg=0; iseg<Nseg_tot;iseg++){
-        icomp=Unk2Comp[iseg];
-        for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
-          jseg=Bonds_SegAll[iseg][ibond];
-          jcomp=Unk2Comp[jseg];
-          y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-          dydxi2 = dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-          dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-          Betamu_seg[kseg] -= Fac_overlap[icomp][jcomp]*(PI/12.0)*(rho_seg[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
-          Betamu_wtc[kseg] -= Fac_overlap[icomp][jcomp]*(PI/12.0)*(rho_seg[iseg]/y)*(dydxi2*sig2+dydxi3*sig3);
-        }
-     }
+     term_kseg=chain_term(kseg,kcomp,rho_seg);
+     Betamu_seg[kseg] -= term_kseg;
+     Betamu_wtc[kseg] -= term_kseg;
    }
    return;
+}
+/****************************************************************************/
+/* chain_term:  This routine compute the "chain" part of the chemical potential
+   that involves _all_ the bond pairs in the system for each segment.  This computation
+   is done both for chemical potential and pressure so we separate this part here.*/
+double chain_term(int kseg,int kcomp,double *rho_seg)
+{
+  double sig2,sig3,y,dydxi2,dydxi3,term_kseg=0.0;
+  int iseg,icomp,ibond,jseg,jcomp;
+
+  sig2=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
+  sig3=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
+  for (iseg=0; iseg<Nseg_tot;iseg++){
+        icomp=Unk2Comp[iseg];
+        for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
+          if(Bonds_SegAll[iseg][ibond] != -1){
+             jseg=Bonds_SegAll[iseg][ibond];
+             jcomp=Unk2Comp[jseg];
+             y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+             dydxi2 = dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+             dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+             term_kseg += Fac_overlap[icomp][jcomp]*(PI/12.0)*(rho_seg[iseg]/y)*(dydxi2*sig2+dydxi3*sig3); 
+          }
+        }
+  }
+  return(term_kseg);
 }
 /****************************************************************************/
 /* WTC_overlap: compute some heuristic scaling constants for WTC functionals when
@@ -279,25 +292,27 @@ void compute_bulk_nonlocal_wtc_properties(char *output_file1)
      }
   }
 
-  for (ibond=0; ibond<Nbonds; ibond++){
-    BondWTC_b[ibond]=NO_BOND_PAIR;
-    BondWTC_LBB[ibond]=NO_BOND_PAIR;
-    BondWTC_RTF[ibond]=NO_BOND_PAIR;
-  }
+  if (Type_poly==WTC){  /* don't need these for WJDC functionals */
+     for (ibond=0; ibond<Nbonds; ibond++){
+       BondWTC_b[ibond]=NO_BOND_PAIR;
+       BondWTC_LBB[ibond]=NO_BOND_PAIR;
+       BondWTC_RTF[ibond]=NO_BOND_PAIR;
+     }
 
-  for (ibond=0; ibond<Nbonds; ibond++){
-     iseg=Unk_to_Seg[ibond];
-     pol_number=Unk_to_Poly[ibond];
-     jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]]/*+SegChain2SegAll[pol_number][0]*/;
-     type_jseg=Type_mer[pol_number][jseg];
-     jseg=SegChain2SegAll[pol_number][jseg];
-     BondWTC_b[ibond]=Rho_seg_b[jseg];
-     if (Lsteady_state){
-        BondWTC_LBB[ibond]=Rho_seg_LBB[jseg];
-        BondWTC_RTF[ibond]=Rho_seg_RTF[jseg];
+     for (ibond=0; ibond<Nbonds; ibond++){
+        iseg=Unk_to_Seg[ibond];
+        pol_number=Unk_to_Poly[ibond];
+        jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]]/*+SegChain2SegAll[pol_number][0]*/;
+        type_jseg=Type_mer[pol_number][jseg];
+        jseg=SegChain2SegAll[pol_number][jseg];
+        BondWTC_b[ibond]=Rho_seg_b[jseg];
+        if (Lsteady_state){
+           BondWTC_LBB[ibond]=Rho_seg_LBB[jseg];
+           BondWTC_RTF[ibond]=Rho_seg_RTF[jseg];
+        }
      }
   }
-  if (printproc){
+  if (Type_poly==WTC && printproc){
      fprintf(fp2,"BondWTC_bulk, LBB, and RTF variables for WTC polymer run are:\n");
      fprintf(fp2,"\t i  BondWTC_b[i]  BondWTC_LBB[i]  BondWTC_RTF[i]\n");
      for (i=0;i<Nbonds;i++) fprintf(fp2,"\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
@@ -308,8 +323,8 @@ void compute_bulk_nonlocal_wtc_properties(char *output_file1)
         for (i=0;i<Nbonds;i++) printf("\t %d \t %9.6f \t %9.6f \t %9.6f\n", i,
               BondWTC_b[i], BondWTC_LBB[i], BondWTC_RTF[i]);
      }
-    fclose(fp2);
   }
+  if (printproc) fclose(fp2);
 
   return;
 }

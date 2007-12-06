@@ -21,9 +21,12 @@ double constant_boundary(int iunk,int jnode_box);
 #include "Tramonto_ConfigDefs.h"
 extern int **Zero_density_TF;
 #define DENSITY        0
+extern int Lseg_densities;
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
-extern int Lseg_densities;
+#define WJDC_FIELD     8
+#define NCOMP_MAX 5
+extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 double jac_rho_bar(int junk,int jnode_box,double **x);
 double resid_rho_bar(int junk,int jnode_box,double **x);
 double prefactor_rho_bar_s(int iunk,int jcomp,int *offset);
@@ -46,14 +49,13 @@ struct RB_Struct FMT2ndDerivDelta_switch(double *n,int *offset,double *sign,int 
 void solutionVec_to_nOrdering(double *rhoBar_SVOrdering,double *n);
 extern int Nrho_bar_s;
 #define HSRHOBAR       4
-#define NEQ_TYPE       9
+#define NEQ_TYPE       10 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern void *LinProbMgr_manager;
 extern double Dphi_Drhobar_RTF[10];
 extern double Dphi_Drhobar_LBB[10];
 extern double Dphi_Drhobar_b[10];
 #define THETA_FN_R            1
-#define NCOMP_MAX 5
 extern double Inv_rad[NCOMP_MAX];
 extern double Esize_x[NDIM_MAX];
 extern double Inv_4pir[NCOMP_MAX];

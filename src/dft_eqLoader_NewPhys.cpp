@@ -65,9 +65,9 @@ void dft_eqLoader_NewPhys::loadCMSField()
    printBlockInfo("CMSField");
 }
 
-void dft_eqLoader_NewPhys::loadCMSG()
+void dft_eqLoader_NewPhys::loadGCHAIN()
 {
-   printBlockInfo("CMSG");
+   printBlockInfo("GCHAIN");
 }
 
 void dft_eqLoader_NewPhys::loadNewPhys()

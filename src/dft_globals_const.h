@@ -154,19 +154,21 @@
  * unknown number straightforward.  This became necessary with the introduction
  * of the WTC polymers where we now have 6 types of equations to fill.
  */
-#define NEQ_TYPE       9
+#define NEQ_TYPE       10 
 #define NO_UNK        -888
 
 #define DENSITY        0
 #define HSRHOBAR       4
 #define DIFFUSION      5
-#define CAVWTC     6
-#define BONDWTC       7
+#define CAVWTC         6
+#define BONDWTC        7
 
 #define CMS_FIELD      1
-#define CMS_G          2 
+#define G_CHAIN        2 
 #define POISSON        3
-#define YW_DENS        8       /* densities for Yethiraj-Woodward polymer DFTs */
+#define WJDC_FIELD     8
+
+#define YW_DENS        9       /* densities for Yethiraj-Woodward polymer DFTs */
 
 /* Here are some constants needed to make the physics based ordering of the
    matrix an option in the code. */
@@ -217,6 +219,7 @@
 #define CMS          0
 #define CMS_SCFT     1
 #define WTC          2
+#define WJDC         3
 
 /*
  * These constants identify attraction functional choices (Type_attr).
@@ -727,6 +730,8 @@ extern double  Dphi_Drhobar_RTF[10]; /* Array[Nrho_bar] of bulk energy derivs w/
 extern double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
 extern double  Rho_seg_LBB[NMER_MAX];
 extern double  Rho_seg_RTF[NMER_MAX];
+extern double Field_WJDC_b[NMER_MAX];
+extern double G_WJDC_b[NMER_MAX*NBOND_MAX];
 extern double  *Rhobar3_old;   /* Array[Nnodes_box] of old values of rhobar 3*/
 extern double Xi_cav_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
 extern double Xi_cav_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
@@ -738,9 +743,12 @@ extern double  Rho_coex[2];   /* Liquid and Vapor Coexisting Densities         *
 extern double  Betamu_hs_ex[NCOMP_MAX];/* Array of excess hardsphere chemical potentials*/
 extern double  Betamu[NCOMP_MAX];   /* Array[Ncomp] of chemical potentials*/
 extern double  Betamu_id[NCOMP_MAX];   /* Array[Ncomp] of ideal gas chemical potentials*/
-extern double Betamu_wtc[NMER_MAX];
-extern double Betamu_wtc_LBB[NMER_MAX];
-extern double Betamu_wtc_RTF[NMER_MAX];
+extern double  Betamu_wtc[NMER_MAX];
+extern double  Betamu_wtc_LBB[NMER_MAX];
+extern double  Betamu_wtc_RTF[NMER_MAX];
+extern double  Betamu_chain[NMER_MAX];
+extern double  Betamu_chain_LBB[NMER_MAX];
+extern double  Betamu_chain_RTF[NMER_MAX];
 extern double  Betamu_ex_bondTC[NCOMP_MAX][NMER_MAX*NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 extern double  Betamu_seg[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/
 extern double  Betamu_seg_LBB[NMER_MAX];/* Array of excess segment chemical potentials - WTC poolymer*/

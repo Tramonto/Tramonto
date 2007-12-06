@@ -38,9 +38,10 @@ double StenTheta_Sigma_sten_rad(int icomp)
 double StenTheta_Sigma_sten_vol(int icomp)
 { 
   /*        return (4.0 * PI * POW_DOUBLE_INT(Sigma_ff[i][i],3)/3.0);*/
-  /*        in order to avoid having to carry prefactors in WTC functionals, we will set the
-            stencil volume to 1.0.  This will effectively perform the multiplication
-            of 3/(4PI Sigma^3) times the native stencil.*/
+  /*        in order to avoid having to carry prefactors in WTC and WJDC 
+            functionals, we will set the stencil volume to 1.0.  This will 
+            effectively perform the multiplication of 3/(4PI Sigma^3) times 
+            the native stencil.*/
 
    return (1.0);
 }

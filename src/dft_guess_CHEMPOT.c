@@ -37,11 +37,14 @@
  
 /************************************************************/
 /* setup_chem_pot: for cases with steady state profiles,
-   set up an initial guess for (electro)chemical potentials */
+   set up regions of constant (electro)chemical potentials */
 void setup_chem_pot(double **xOwned)
 {
-  int loc_inode,inode_box,inode,ijk[3],icomp,iunk;
+  int loc_inode,inode_box,inode,ijk[3],icomp,iunk,i,nloop;
   double x_dist,x_tot;
+
+  if (Lseg_densities) nloop=Nseg_tot;
+  else                nloop=Ncomp;
 
   x_tot = Size_x[Grad_dim]-2.*X_const_mu;
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
@@ -50,23 +53,25 @@ void setup_chem_pot(double **xOwned)
      node_to_ijk(inode,ijk); 
      x_dist = Esize_x[Grad_dim]*ijk[Grad_dim]-X_const_mu;
 
-     for (icomp=0; icomp<Ncomp; icomp++){
-        iunk = Phys2Unk_first[DIFFUSION]+icomp;
+     for (i=0; i<nloop; i++){
+        iunk = i+Phys2Unk_first[DIFFUSION];
+        if (Lseg_densities) icomp=Unk2Comp[i];
+        else                icomp=i;
+
         if (!Zero_density_TF[inode_box][icomp]){
            if (Ipot_ff_c == 1){
-             xOwned[iunk][loc_inode] = log(xOwned[Phys2Unk_first[DENSITY]+icomp][loc_inode])
+             xOwned[iunk][loc_inode] = log(xOwned[Phys2Unk_first[DENSITY]+i][loc_inode])
                            + Charge_f[icomp]*(xOwned[Phys2Unk_first[POISSON]][loc_inode]);
 
            }
            else{
-               if (x_dist<0.) xOwned[iunk][loc_inode]=Betamu_LBB[icomp];
-               else if (x_dist > x_tot) xOwned[iunk][loc_inode]=Betamu_RTF[icomp];
-               else  xOwned[iunk][loc_inode] = Betamu_LBB[icomp] + (Betamu_RTF[icomp]-Betamu_LBB[icomp])* x_dist/x_tot;
+               if (x_dist<0.)           xOwned[iunk][loc_inode]=Betamu_LBB[i];
+               else if (x_dist > x_tot) xOwned[iunk][loc_inode]=Betamu_RTF[i];
+               else  xOwned[iunk][loc_inode] = Betamu_LBB[i] + (Betamu_RTF[i]-Betamu_LBB[i])* x_dist/x_tot;
            }
        }
        else xOwned[iunk][loc_inode] = -VEXT_MAX;
      }
-   
   }
   return;
 }

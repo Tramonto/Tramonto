@@ -31,7 +31,7 @@
 void  thermodynamics(char *output_file1)
 {
    char *yo = "thermodynamics";
-
+   int iseg,ibond;
    if (Proc==0 && Iwrite!=NO_SCREEN){
           printf("\n-------------------------------------------------------------------------------\n");
           printf("%s: Doing Thermo precalculations\n",yo);
@@ -39,9 +39,12 @@ void  thermodynamics(char *output_file1)
 
     /* first call any functions needed to preprocess global bulk variables associated with the functionals chosen for this run */
     if (L_HSperturbation){
-       if (Type_poly == WTC) WTC_thermo_precalc(output_file1);   /* do this first to set up segment densities */
+                                                                    /* set up segment densities */
+       if (Type_poly == WTC || Type_poly==WJDC) WTC_thermo_precalc(output_file1);   
+                                                                    /* set up bulk WJDC_field and G values */
        if (Type_func != NONE) HS_thermo_precalc(output_file1); 
        if (Type_attr != NONE ) ATT_thermo_precalc();
+       if (Type_poly == WJDC) WJDC_thermo_precalc(output_file1);
        /* if (Type_coul == DELTAC)  nothing to do here... */
     }
     /*else { } no CMS precalculations implemented here yet */
@@ -71,7 +74,7 @@ void  thermodynamics(char *output_file1)
 /* calc_pressure: this routine contains the logic for assembly of the pressure */
 void calc_pressure(char *output_file1)
 {
-   double betap_hs_DFT,betap_hs_PY,betap_hs_bulk,betap_att;
+   double betap_hs_DFT,betap_hs_PY,betap_hs_bulk,betap_att,betap_chain;
    double betap_att_LBB, betap_att_RTF,betap_hs_bulk_LBB,betap_hs_bulk_RTF;
    int icomp;
    FILE *fp;
@@ -89,14 +92,19 @@ void calc_pressure(char *output_file1)
    if (Lsteady_state){          /* CASE WITH DIFFUSION */
       if (L_HSperturbation){
 				/* IDEAL contributions */
-          Betap_LBB=pressure_ideal_gas(Rho_b_LBB);
-          Betap_RTF=pressure_ideal_gas(Rho_b_RTF);
-          
+          if (Lseg_densities){
+             Betap_LBB=pressure_ideal_gas(Rho_seg_LBB);
+             Betap_RTF=pressure_ideal_gas(Rho_seg_RTF);
+          }
+          else{
+             Betap_LBB=pressure_ideal_gas(Rho_b_LBB);
+             Betap_RTF=pressure_ideal_gas(Rho_b_RTF);
+          }
 
 				/* HS FMT contributions */
           if (Type_func!= NONE){
-               Betap_LBB += pressure_FMT_hs(Rho_b_LBB,&betap_hs_bulk_LBB);
-               Betap_RTF += pressure_FMT_hs(Rho_b_RTF,&betap_hs_bulk_RTF);
+               Betap_LBB += pressure_FMT_hs(Rho_b_LBB);
+               Betap_RTF += pressure_FMT_hs(Rho_b_RTF);
           }
 				/* MF ATT contributions */
           if (Type_attr != NONE){
@@ -114,10 +122,8 @@ void calc_pressure(char *output_file1)
 	  /* must then correct contributions from attractions, Coulomb */
 	  /* note chem. potential term gives twice the att. pressure, so subtract att. pressure term here */
           if (Type_poly ==WTC){
-	    Betap_LBB = pressure_WTC(Rho_seg_LBB,betap_hs_bulk_LBB);
-	    Betap_LBB -= betap_att_LBB;
-	    Betap_RTF = pressure_WTC(Rho_seg_RTF,betap_hs_bulk_RTF);
-	    Betap_RTF -= betap_att_RTF;
+	    Betap_LBB += pressure_WTC(Rho_seg_LBB);
+	    Betap_RTF += pressure_WTC(Rho_seg_RTF);
           }
        }
        else{ 
@@ -135,20 +141,22 @@ void calc_pressure(char *output_file1)
    else{          		/* CASE WITH NO DIFFUSION */
       if (L_HSperturbation){
 				/* IDEAL contributions */
-          Betap=pressure_ideal_gas(Rho_b);
+          if (Lseg_densities)  Betap=pressure_ideal_gas(Rho_seg_b);
+          else                 Betap=pressure_ideal_gas(Rho_b);
+                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\t ideal gas pressure is %9.6f\n",Betap);
 
 				/* HS FMT contributions */
           if (Type_func != NONE) {
-               betap_hs_DFT = pressure_FMT_hs(Rho_b,&betap_hs_bulk);
+               betap_hs_DFT = pressure_FMT_hs(Rho_b);
                    if (Proc==0 && Iwrite != NO_SCREEN) printf("\tDFT HS pressure is %9.6f\n",betap_hs_DFT);
                betap_hs_PY = pressure_PY_hs(Rho_b);
                    if (Proc==0 && Iwrite != NO_SCREEN) printf("\tPY HS pressure is %9.6f\n",betap_hs_PY);
                Betap += betap_hs_DFT;
-               for (icomp=0;icomp<Ncomp;icomp++) Betap-=Rho_b[icomp]; /* calculation of betap_hs includes ideal terms */
           }
 				/* MF ATT contributions */
           if (Type_attr != NONE){
                betap_att = pressure_att(Rho_b);
+                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\t att pressure is %9.6f\n",betap_att);
 	       Betap += betap_att;
           }
 				/* electrostatics contributions */
@@ -158,10 +166,10 @@ void calc_pressure(char *output_file1)
 				/* WTC contributions */
 	  /* note these aren't additive,instead we recalculate the HS, ideal terms here */
 	  /* must then correct contributions from attractions, Coulomb */
-          if (Type_poly == WTC){
-	    Betap = pressure_WTC(Rho_seg_b,betap_hs_bulk);
-	    /* note chem. potential term is twice the pressure, so subtract att. pressure term here */
-	    Betap -= betap_att;
+          if (Type_poly == WTC || Type_poly==WJDC){
+	    betap_chain = pressure_WTC(Rho_seg_b);
+                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\t chain pressure is %9.6f\n",betap_chain);
+            Betap += betap_chain;
           }
          if (Proc==0){
               if (Iwrite != NO_SCREEN) {
@@ -183,7 +191,7 @@ void calc_chempot(char *output_file1)
 {
 
    double betamu_hs[NCOMP_MAX];
-   int icomp,iseg;
+   int icomp,iseg,ipol,i;
    FILE *fp;
 
    if( (fp = fopen(output_file1,"a+")) == NULL) {
@@ -193,6 +201,13 @@ void calc_chempot(char *output_file1)
  
    if (Lsteady_state){          /* CASE WITH DIFFUSION */
       if (L_HSperturbation){
+          if (Type_poly==WJDC){  /* this is different than all the others because we compute
+                                    chain chemical potentials.  Note that a segment chemical potential
+                                    should also be implemented. */
+             chempot_chain_wjdc(Rho_seg_LBB,Betamu_chain_LBB);
+             chempot_chain_wjdc(Rho_seg_RTF,Betamu_chain_RTF);
+          }
+          else{
 
 				/* IDEAL contributions */
           chempot_ideal_gas(Rho_b_LBB,Betamu_LBB);
@@ -227,7 +242,7 @@ void calc_chempot(char *output_file1)
              }
           }
 				/* WTC contributions */
-          if (Type_poly ==WTC){
+          if (Type_poly ==WTC || Type_poly==WJDC){
                                  /* note that this should come last because the segment 
                                     chemical potentials are built using the component chemical potentials
                                     for other physics types */
@@ -236,20 +251,40 @@ void calc_chempot(char *output_file1)
                      Betamu_seg_LBB[iseg]=Betamu_seg[iseg];
                      Betamu_wtc_LBB[iseg]=Betamu_wtc_LBB[iseg];
                }
+               for (ipol=0;ipol<Npol_comp;ipol++){
+                  Betamu_chain_LBB[ipol]=0.0;
+                  for (iseg=0;iseg<Nmer[ipol];iseg++){
+                     Betamu_chain_LBB[ipol]+= Betamu_seg_LBB[SegChain2SegAll[ipol][iseg]];
+                  }
+               }
                chempot_WTC(Rho_seg_RTF,Betamu_RTF);
                for (iseg=0;iseg<Nseg_tot;iseg++){ 
                      Betamu_seg_RTF[iseg]=Betamu_seg[iseg];
                      Betamu_wtc_RTF[iseg]=Betamu_wtc_RTF[iseg];
                }
+               for (ipol=0;ipol<Npol_comp;ipol++){
+                  Betamu_chain_RTF[ipol]=0.0;
+                  for (iseg=0;iseg<Nmer[ipol];iseg++){
+                     Betamu_chain_RTF[ipol]+= Betamu_seg_RTF[SegChain2SegAll[ipol][iseg]];
+                  }
+               }
           }
           if (Proc==0){
-               if (Type_poly==WTC){
+               if (Lseg_densities){
+                  if (Type_poly==WTC){
                   if (Iwrite != NO_SCREEN) {
                       for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg_LBB[iseg],"Betamu_seg_LBB");
                       for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg_RTF[iseg],"Betamu_seg_RTF");
                   }
                   for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg_LBB[iseg],"Betamu_seg_LBB",TRUE);
                   for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg_RTF[iseg],"Betamu_seg_RTF",TRUE);
+                  }
+                  if (Iwrite != NO_SCREEN){
+                      for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");
+                      for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");
+                  }
+                  for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",TRUE);
+                  for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",TRUE);
                }
                else{
                   if (Iwrite != NO_SCREEN) {
@@ -261,12 +296,19 @@ void calc_chempot(char *output_file1)
                }
           }    
        }
+       }
        else{ 
            /* CMS chemical potentials with diffusion would go here */
        }
    }
    else{          		/* CASE WITH NO DIFFUSION */
       if (L_HSperturbation){
+
+          if (Type_poly==WJDC){  /* this is different than all the others because we compute
+                                    chain chemical potentials.  Note that a segment chemical potential
+                                    should also be implemented. */
+             chempot_chain_wjdc(Rho_seg_b,Betamu_chain);
+          }
 				/* IDEAL contributions */
           chempot_ideal_gas(Rho_b,Betamu);
           for (icomp=0;icomp<Ncomp;icomp++) Betamu_id[icomp]=Betamu[icomp];
@@ -296,11 +338,23 @@ void calc_chempot(char *output_file1)
                                     chemical potentials are built using the component chemical potentials
                                     for other physics types */
                chempot_WTC(Rho_seg_b,Betamu);
+               for (ipol=0;ipol<Npol_comp;ipol++){
+                  Betamu_chain[ipol]=0.0;
+                  for (iseg=0;iseg<Nmer[ipol];iseg++){
+                     Betamu_chain[ipol]+= Betamu_seg[SegChain2SegAll[ipol][iseg]];
+                  }
+               }
           }
           if (Proc==0){
-               if (Type_poly==WTC){
-                  if (Iwrite != NO_SCREEN) for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg[iseg],"Betamu_seg");
-                  for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg[iseg],"Betamu_seg",TRUE);
+               if (Lseg_densities){
+                  if (Type_poly==WTC){
+                     if (Iwrite != NO_SCREEN) for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg[iseg],"Betamu_seg");
+                     for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg[iseg],"Betamu_seg",TRUE);
+                  }
+                  if (Iwrite != NO_SCREEN) for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain[ipol],"Betamu_chain");
+                  for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain[ipol],"Betamu_chain",TRUE);
+
+                 
                }
                else{
                   if (Iwrite != NO_SCREEN) for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu[icomp],"Betamu");

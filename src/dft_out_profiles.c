@@ -205,14 +205,14 @@ void print_profile(char *output_file4)
            /* open primary output file .... densities, electrostatic potential, and CMS fields */
      ifp = fopen(output_file4,"w");
 
-           /* open file for CMS_G variables ... */
-     if (Type_poly == CMS || Type_poly==CMS_SCFT){
+           /* open file for G_CHAIN variables ... */
+     if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC){
        sprintf(gfile,"%sg",output_file4);
        fp6 = fopen(gfile,"w");
      } 
 
            /* open file for segment type densities per chain ... */
-     if (Type_poly == WTC){
+     if (Type_poly == WTC || Type_poly==WJDC){
        fp7 = fopen("dft_dens_comp.dat","w");
      } 
 
@@ -245,6 +245,12 @@ void print_profile(char *output_file4)
                }
             case CMS_FIELD: 
                unk_char = "CMSFIELD";
+               if (Phys2Nunk[i] > 0){
+                 fputs (unk_char,ifp); 
+                 fprintf(ifp,"\n"); break;
+               }
+            case WJDC_FIELD: 
+               unk_char = "WJDCFIELD";
                if (Phys2Nunk[i] > 0){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
@@ -290,8 +296,8 @@ void print_profile(char *output_file4)
                          /* print ijk coordinates of this node in the files */ 
         for (idim=0; idim<Ndim; idim++) {
                                     fprintf(ifp,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
-            if (Type_poly == CMS || Type_poly==CMS_SCFT)  fprintf(fp6,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
-            if (Type_poly==WTC || ((Type_poly == CMS  || Type_poly==CMS_SCFT) && Iwrite==VERBOSE)) 
+            if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC)  fprintf(fp6,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
+            if (Type_poly==WTC || Type_poly==WJDC || ((Type_poly == CMS  || Type_poly==CMS_SCFT) && Iwrite==VERBOSE)) 
                  fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
         }
 
@@ -315,13 +321,14 @@ void print_profile(char *output_file4)
                   break;
 
                 case CMS_FIELD:
+                case WJDC_FIELD:
                    if (X_old[iunk+node_start] > 0.0 /*DENSITY_MIN*/ /*Rho_b[icomp]*exp(-VEXT_MAX)*/){
                       fprintf(ifp,"%22.17f\t", -log(X_old[iunk+node_start]));
                    }
                    else fprintf(ifp,"%22.17f\t", VEXT_MAX);
                    break;
 
-                case CMS_G:
+                case G_CHAIN:
                    fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]);
                    break;
                 case CAVWTC:
@@ -364,7 +371,8 @@ void print_profile(char *output_file4)
               }
               for (itype_mer=0; itype_mer<Ntype_mer; itype_mer++) fprintf(fp7,"%22.17f\t", sumsegdens[itype_mer]);
            }
-           else if (Type_poly==WTC){
+        }
+        if (Type_poly==WTC || Type_poly==WJDC){
               for (ipol=0; ipol<Npol_comp; ipol++){
                 for (itype_mer=0;itype_mer<Ncomp;itype_mer++) {
                      sumsegdens[itype_mer]=0.0;
@@ -379,13 +387,12 @@ void print_profile(char *output_file4)
                    if (flag_type_mer[itype_mer]==TRUE)  fprintf(fp7,"%22.17f\t",sumsegdens[itype_mer]);
                 }
               }
-           }
         }
  
                 /* add a carriage return to the file to start a new line */
         fprintf(ifp,"\n");
-        if (Type_poly == CMS || Type_poly==CMS_SCFT) fprintf(fp6,"\n");
-        if (Type_poly==WTC ||((Type_poly == CMS || Type_poly==CMS_SCFT)&&Iwrite==VERBOSE)) fprintf(fp7,"\n");
+        if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC) fprintf(fp6,"\n");
+        if (Type_poly==WTC || Type_poly==WJDC || ((Type_poly == CMS || Type_poly==CMS_SCFT)&&Iwrite==VERBOSE)) fprintf(fp7,"\n");
 
                 /* add some blank lines for improved graphics in 2D and 3D gnuplot */
         if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
@@ -394,7 +401,7 @@ void print_profile(char *output_file4)
 
           /* close files */
      fclose(ifp);
-     if (Type_poly == CMS || Type_poly==CMS_SCFT) fclose(fp6);
+     if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC) fclose(fp6);
      if (Type_poly==WTC || ((Type_poly == CMS || Type_poly==CMS_SCFT)&&Iwrite==VERBOSE)) fclose(fp7);
 
   return;

@@ -212,7 +212,6 @@ void dftmain(double * engptr)
      * Set up boundary and surface charge information -- this must come
      * after load-balancing because quantities are local on a Proc
      */
-     
      boundary_setup(output_file1);
 
      /*
@@ -255,6 +254,7 @@ void dftmain(double * engptr)
       */
       x = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
       if (Lbinodal) x2 = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
+
 
 
       t_preprocess += MPI_Wtime();

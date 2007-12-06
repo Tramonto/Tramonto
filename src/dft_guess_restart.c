@@ -187,6 +187,13 @@ void read_in_a_file(int iguess,char *filename)
              unk_start_in_file[CMS_FIELD]=iunk;
              for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=CMS_FIELD;
        }
+       else if (strncmp(unk_char,"WJDCFIELD",5)==0){
+             Restart_field[WJDC_FIELD]=TRUE;
+             header++;
+             unk_in_file+=Ncomp;
+             unk_start_in_file[WJDC_FIELD]=iunk;
+             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=WJDC_FIELD;
+       }
        else if (strncmp(unk_char,"CAVWTC",5)==0){
              Restart_field[CAVWTC]=TRUE;
              header++;
@@ -221,6 +228,8 @@ void read_in_a_file(int iguess,char *filename)
            printf("there is no electrostatic potential data in the restart file\n");
     if ((Type_poly == CMS || Type_poly==CMS_SCFT) && Restart_field[CMS_FIELD]==FALSE)
            printf("there is no CMS field data in the restart file\n");
+    if ((Type_poly == WJDC) && Restart_field[WJDC_FIELD]==FALSE)
+           printf("there is no WJDC field data in the restart file\n");
     if (L_HSperturbation && Restart_field[HSRHOBAR]==FALSE)
            printf("there is no Rosenfeld nonlocal density data in the restart file\n");
     if (Restart_field[DENSITY]==FALSE)
@@ -242,15 +251,15 @@ void read_in_a_file(int iguess,char *filename)
 	printf("Can't open file %s\n", filename);
 	exit(1);
       }
-       if (Type_poly == CMS || Type_poly==CMS_SCFT){
+       if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC){
          sprintf(filename2,"%sg",filename);
 	 if( (fp6=fopen(filename2,"r")) == NULL){
 /*	   printf("Can't open file %s\n", filename2);
 	   exit(1);*/
            printf("I can't find the file dft_dens.datg... will try simple initial guess for G equations\n");
-           Restart_field[CMS_G]=FALSE;
+           Restart_field[G_CHAIN]=FALSE;
 	 }
-         else  Restart_field[CMS_G]=TRUE;
+         else  Restart_field[G_CHAIN]=TRUE;
        }
        open_now=FALSE;
                                       /* discard header when ready to read */
@@ -273,7 +282,7 @@ void read_in_a_file(int iguess,char *filename)
 
       dim_tmp=idim;
       ijk_old[dim_tmp] = round_to_int(pos_old/Esize_x[dim_tmp]);
-      if ((Type_poly==CMS || Type_poly==CMS_SCFT) && Restart_field[CMS_G]==TRUE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
+      if ((Type_poly==CMS || Type_poly==CMS_SCFT || Type_poly==WJDC) && Restart_field[G_CHAIN]==TRUE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
 
       if (ijk_old[dim_tmp] > ijk_old_max[dim_tmp]) ijk_old_max[dim_tmp] = ijk_old[dim_tmp];
     }
@@ -289,6 +298,7 @@ void read_in_a_file(int iguess,char *filename)
 
           switch (eq_type){
               case CMS_FIELD: 
+              case WJDC_FIELD: 
    	         fscanf(fp5,"%lf",&tmp);
                  tmp = exp(-tmp); 
                  break;
@@ -320,14 +330,14 @@ void read_in_a_file(int iguess,char *filename)
        else                                  X_old[iunk+node_start]=tmp;
     }
  
-    if ( (Type_poly == CMS || Type_poly==CMS_SCFT) && Restart_field[CMS_G]==TRUE){
-        for (iunk=Phys2Unk_first[CMS_G];iunk<Phys2Unk_last[CMS_G];iunk++) {
+    if ( (Type_poly==WJDC || Type_poly == CMS || Type_poly==CMS_SCFT) && Restart_field[G_CHAIN]==TRUE){
+        for (iunk=Phys2Unk_first[G_CHAIN];iunk<Phys2Unk_last[G_CHAIN];iunk++) {
+
+         /*ipol=Unk_to_Poly[iunk-Phys2Unk_first[G_CHAIN]];  * debugging - CMS ? *
+         iseg=Unk_to_Seg[iunk-Phys2Unk_first[G_CHAIN]];
+         itype_mer=Phys2Unk_first[CMS_FIELD]+Type_mer[ipol][iseg];*/
 
          fscanf(fp6,"%lf",&tmp);
-         ipol=Unk_to_Poly[iunk-Phys2Unk_first[CMS_G]];
-         iseg=Unk_to_Seg[iunk-Phys2Unk_first[CMS_G]];
-         itype_mer=Phys2Unk_first[CMS_FIELD]+Type_mer[ipol][iseg];
-
          if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
          else                                  X_old[iunk+node_start]=tmp;
 
@@ -340,7 +350,7 @@ void read_in_a_file(int iguess,char *filename)
     while ((c=getc(fp5)) != EOF && c !='\n') ;
     if (Restart==5 && ijk_old[0]==Nodes_x[0]-1){
        fclose(fp5);
-       if ((Type_poly == CMS || Type_poly ==CMS_SCFT) && Restart_field[CMS_G]==TRUE) fclose(fp6);
+       if ((Type_poly == CMS || Type_poly ==CMS_SCFT || Type_poly==WJDC) && Restart_field[G_CHAIN]==TRUE) fclose(fp6);
        open_now=TRUE;
 /* if (Proc==0) printf("closing files to read again!\n");*/
     }
@@ -350,7 +360,7 @@ void read_in_a_file(int iguess,char *filename)
   }
   if (Restart!=5){
        fclose(fp5);
-       if ((Type_poly == CMS || Type_poly ==CMS_SCFT) && Restart_field[CMS_G]==TRUE) fclose(fp6);
+       if ((Type_poly == CMS || Type_poly ==CMS_SCFT || Type_poly==WJDC) && Restart_field[G_CHAIN]==TRUE) fclose(fp6);
   }
   return;
 }

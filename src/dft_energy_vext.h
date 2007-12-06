@@ -23,6 +23,6 @@ extern double **Vext;
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
 #define DENSITY        0
-#define NEQ_TYPE       9
+#define NEQ_TYPE       10 
 extern int Phys2Unk_first[NEQ_TYPE];
 double integrand_vext_freen(int iunk,int inode_box,double **x);

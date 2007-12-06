@@ -56,10 +56,12 @@ struct Stencil_Struct {
 };
 #define NDIM_MAX  3
 void setup_polymer_G(double **xOwned);
+void setup_polymer_G(double **xOwned);
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+void setup_polymer_rho(double **xOwned,int iguess);
 void setup_polymer_rho(double **xOwned,int iguess);
 #define DENSITY_MIN  1.e-20
 #define CMS_SCFT     1
@@ -81,12 +83,14 @@ extern int **Zero_density_TF;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 extern int *L2B_node;
 void setup_polymer_simple(double **xOwned,int iguess);
+void setup_polymer_simple(double **xOwned,int iguess);
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define CMS_FIELD      1
 #define DENSITY        0
-#define NEQ_TYPE       9
+#define NEQ_TYPE       10 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 extern int Nnodes_per_proc;
+void setup_polymer_field(double **xOwned,int iguess);
 void setup_polymer_field(double **xOwned,int iguess);

@@ -39,10 +39,15 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                     double **x,struct  RB_Struct *dphi_drb,int mesh_coarsen_flag_i, int resid_only_flag)
 {
    int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF;
-   double resid=0.0;
+   double resid=0.0,resid_ig,resid_att,resid_hs,resid_chain,resid_old;
 
                   /* set icomp and iseg(WTC) */
-   i = iunk-Phys2Unk_first[DENSITY];
+   if (Type_poly==WJDC) {                  /* note that this routine fills the _field_variable rather than
+                                              the density variable for a WJDC DFT problem */
+             i=iunk-Phys2Unk_first[WJDC_FIELD];               
+   } 
+   else      i = iunk-Phys2Unk_first[DENSITY];
+
    if (Lseg_densities){
                 iseg=i;
                 icomp=Unk2Comp[iseg];
@@ -62,12 +67,17 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    bulk_TF=FALSE;
    if (mesh_coarsen_flag_i == FLAG_BULK) bulk_TF=TRUE;
    if (bulk_TF){
-       resid=fill_bulk_density(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
+       if (Type_poly==WJDC){
+          resid=fill_bulk_field(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
+       }
+       else{
+          resid=fill_bulk_density(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
+       }
        return(resid);
    } 
 
    sym_WTC_TF=FALSE;
-   if (Type_poly==WTC && Pol_Sym_Seg[iseg] != -1) sym_WTC_TF=TRUE;
+   if ((Type_poly==WTC || Type_poly==WJDC) && Pol_Sym_Seg[iseg] != -1) sym_WTC_TF=TRUE;
    if (sym_WTC_TF){
        resid=fill_sym_WTC(iunk,iseg,loc_inode,inode_box,x,resid_only_flag);
        return(resid);
@@ -77,7 +87,11 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
   
    resid=0.0; 
    resid+=fill_EL_ideal_gas(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
-   resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
+
+   
+   if (Type_poly != WJDC){
+      resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
+   }
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode);
 
    if (Type_coul != NONE){
@@ -103,13 +117,14 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                           icomp,izone,ijk_box,x, resid_only_flag);
    }
 
-
-   if (Type_poly==WTC){
+   if (Type_poly==WTC || Type_poly==WJDC){
+       if (Type_poly==WTC){
          resid+=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
                                                  izone,ijk_box,x,resid_only_flag);
          resid+=load_polyTC_bondEL(iunk,loc_inode,inode_box,icomp,
                                                  izone,ijk_box,x,resid_only_flag);
-         resid+=load_polyTC_cavityEL(iunk,loc_inode,inode_box,icomp,
+       }
+       resid+=load_polyTC_cavityEL(iunk,loc_inode,inode_box,icomp,
                                                  izone,ijk_box,x,resid_only_flag);
    }
 
@@ -195,6 +210,24 @@ double fill_bulk_density(int iunk, int icomp, int iseg, int loc_inode, int inode
    return resid;
 }
 /******************************************************************************************/
+double fill_bulk_field(int iunk, int icomp, int iseg, int loc_inode, int inode_box, double **x,int resid_only_flag)
+{
+  double resid,mat_val,resid_ig;
+
+  resid = log(x[iunk][inode_box]) ; 
+  mat_val = 1.0/x[iunk][inode_box];
+  resid_ig=resid;
+  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+  if (!resid_only_flag){
+     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
+  }
+
+  resid = -log(Field_WJDC_b[iseg]);
+  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+
+  return resid;
+}
+/******************************************************************************************/
 double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
    double resid,resid_ig,mat_val;
@@ -220,20 +253,20 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
                         int mesh_coarsen_flag_i, double **x,int resid_only_flag)
 {
    double resid_mu,mat_val;
-   int junk;
+   int junk,pol_num;
 
    resid_mu = 0.0;
    if (Lsteady_state == FALSE) {
       if (Iliq_vap < 10 ){
-         if (Lseg_densities) resid_mu -= log(Rho_seg_b[iseg]);
-         else                resid_mu -= log(Rho_b[icomp]);
+        if (Lseg_densities) resid_mu -= log(Rho_seg_b[iseg]);
+        else                resid_mu -= log(Rho_b[icomp]);
 
-         if (mesh_coarsen_flag_i != FLAG_PBELEC){
-             if (Ipot_ff_n != IDEAL_GAS) resid_mu -= Betamu_hs_ex[icomp];
-             if (Ipot_ff_n == LJ12_6)    resid_mu -= Betamu_att[icomp];
-             if (Type_poly==WTC)         resid_mu -= Betamu_wtc[iseg];
-             if (Type_coul == DELTAC) resid_mu += Deltac_b[icomp];
-         }
+        if (mesh_coarsen_flag_i != FLAG_PBELEC){
+            if (Ipot_ff_n != IDEAL_GAS) resid_mu -= Betamu_hs_ex[icomp];
+            if (Ipot_ff_n == LJ12_6)    resid_mu -= Betamu_att[icomp];
+            if (Type_poly==WTC)         resid_mu -= Betamu_wtc[iseg];
+            if (Type_coul == DELTAC) resid_mu += Deltac_b[icomp];
+        }
       }
       else{
           if (Lseg_densities) resid_mu = -Betamu_seg[iseg];
@@ -261,6 +294,7 @@ double fill_EL_ext_field(int iunk, int icomp, int loc_inode)
       resid_vext = Vext[loc_inode][icomp];
       dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_vext);
    }
+   else resid_vext=0.0;
    return (resid_vext);
 }
 /******************************************************************************************/
