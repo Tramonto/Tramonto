@@ -67,6 +67,7 @@ void setup_density(double **xOwned,int iguess)
 
       case STEP_PROFILE:
             setup_stepped_profile(xOwned);
+            break;
 
       case CHOP_RHO_L:
             setup_exp_density(xOwned,Rho_coex,1,1);
@@ -123,16 +124,14 @@ void setup_stepped_profile(double **xOwned)
        if (nodepos[Orientation_step[i]] >= Xstart_step[i] &&
            nodepos[Orientation_step[i]] <= Xend_step[i]){
 
-           for (icomp=0; icomp<Ncomp; icomp++){
            for (j=0; j<nloop; j++){
                if (Lseg_densities) icomp=Unk2Comp[j];
                else                icomp=j;
 	       iunk = Phys2Unk_first[DENSITY]+j;
                if (!Zero_density_TF[inode_box][icomp]){
-                   xOwned[iunk][loc_inode]=Rho_step[j][i];
+                   xOwned[iunk][loc_inode]=Rho_step[icomp][i];
                }
                else xOwned[iunk][loc_inode]=0.0;
-           }
            }
        }
     }
