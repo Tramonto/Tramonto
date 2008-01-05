@@ -20,6 +20,7 @@ extern double Rho_seg_b[NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
 double integrand_WJDC_freen_bulk(int iunk,int inode_box,double **x);
 extern int *Nbonds_SegAll;
+extern int **Bonds_SegAll;
 #define WJDC_FIELD     8
 #define DENSITY        0
 #define NEQ_TYPE       10 
