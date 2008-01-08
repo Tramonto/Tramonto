@@ -243,7 +243,7 @@
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
 @ 50 	Maximum # of Newton Iterations 
-@ 1.0e-3 1.0e-8 0.5 	Newton_rel_tol Newton_abs_tol Min_update_frac 
+@ 1.0e-3 1.0e-8 0.4 	Newton_rel_tol Newton_abs_tol Min_update_frac 
 			(relative and absolute convergence tolerances
 			  min. update fractions for mixing)
 @ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
