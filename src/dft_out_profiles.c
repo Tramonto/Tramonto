@@ -322,7 +322,7 @@ void print_profile(char *output_file4)
 
                 case CMS_FIELD:
                 case WJDC_FIELD:
-                   if (X_old[iunk+node_start] > 0.0 /*DENSITY_MIN*/ /*Rho_b[icomp]*exp(-VEXT_MAX)*/){
+                   if (X_old[iunk+node_start] > 1.e-12 /*DENSITY_MIN*/ /*0.0*/ /*Rho_b[icomp]*exp(-VEXT_MAX)*/){
                       fprintf(ifp,"%22.17f\t", -log(X_old[iunk+node_start]));
                    }
                    else fprintf(ifp,"%22.17f\t", VEXT_MAX);

@@ -664,7 +664,10 @@ void assign_parameter_tramonto(int cont_type, double param)
              if (Type_poly==NONE)    for (i=0; i<Ncomp;i++)  Rho_b[i]= param;   
              else if (Npol_comp ==1){
                   for (i=0; i<Ncomp;i++)  Rho_b[i]= 0.;   
-                  for (i=0; i<Nseg_tot;i++) Rho_b[Unk2Comp[i]] += param/Nseg_tot;    
+                  for (i=0; i<Nseg_tot;i++){
+                      Rho_b[Unk2Comp[i]] += param;    
+                      Rho_seg_b[i]=param; 
+                  }
              }
              break; 
                  
@@ -967,9 +970,10 @@ double get_init_param_value(int cont_type)
                 param=Rho_b[0];
              }
              else if (Npol_comp ==1){ /* assume we are continuing in one molecular density */
-                sum=0.;
-                for (i=0;i<Ncomp;i++) sum += Rho_seg_b[i];
-                param=sum;
+                /*sum=0.;
+                for (i=0;i<Nseg_tot;i++) sum += Rho_seg_b[i];
+                param=sum;*/
+                param=Rho_seg_b[0];  /*segment densities are identical = Rho_b/Nmer */
              }
              else{
                 printf("ERROR: continue either with identical initial densities or with a single molecule\n");

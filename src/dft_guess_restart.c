@@ -190,9 +190,11 @@ void read_in_a_file(int iguess,char *filename)
        else if (strncmp(unk_char,"WJDCFIELD",5)==0){
              Restart_field[WJDC_FIELD]=TRUE;
              header++;
-             unk_in_file+=Ncomp;
+             if (Lseg_densities) unk_in_file+=Nseg_tot;
+             else              unk_in_file+=Ncomp;
              unk_start_in_file[WJDC_FIELD]=iunk;
-             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=WJDC_FIELD;
+             if (Lseg_densities) for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=WJDC_FIELD;
+             else                for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=WJDC_FIELD;
        }
        else if (strncmp(unk_char,"CAVWTC",5)==0){
              Restart_field[CAVWTC]=TRUE;
