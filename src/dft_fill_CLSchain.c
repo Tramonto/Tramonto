@@ -211,6 +211,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
                   unkIndex[0]=iunk; unkIndex[1]=unk_B; unkIndex[2]=unk_xi2; unkIndex[3]=unk_xi3;
                   values[0]=1.0/(ysqrt*x[unk_B][inode_box]); 
                   values[1]=-x[iunk][inode_box]/(ysqrt*x[unk_B][inode_box]*x[unk_B][inode_box]);
+
                   dydxi=dy_dxi2_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
                   values[2]=-(dydxi/(y*ysqrt))*((x[iunk][inode_box]/x[unk_B][inode_box]) -1.0);
                   dydxi=dy_dxi3_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
@@ -247,7 +248,8 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
             }
             }
             else if (Type_poly==WJDC){
-               unk_xi2=Phys2Unk_first[CAVWTC]; unk_xi3=Phys2Unk_first[CAVWTC]+1;
+               unk_xi2=Phys2Unk_first[CAVWTC]; 
+               unk_xi3=Phys2Unk_first[CAVWTC]+1;
                xi_2=x[unk_xi2][inode_box]; xi_3=x[unk_xi3][inode_box];
                y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
                ysqrt=sqrt(y);
@@ -260,9 +262,9 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
                   values[0]=1.0/(ysqrt*x[unk_B][inode_box]); 
                   values[1]=-x[iunk][inode_box]/(ysqrt*x[unk_B][inode_box]*x[unk_B][inode_box]);
                   dydxi=dy_dxi2_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
-                  values[2]=-x[iunk][inode_box]*dydxi/(y*ysqrt*x[unk_B][inode_box]);
+                  values[2]=-0.5*x[iunk][inode_box]*dydxi/(y*ysqrt*x[unk_B][inode_box]);
                   dydxi=dy_dxi3_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
-                  values[3]=-x[iunk][inode_box]*dydxi/(y*ysqrt*x[unk_B][inode_box]);
+                  values[3]=-0.5*x[iunk][inode_box]*dydxi/(y*ysqrt*x[unk_B][inode_box]);
                   numEntries=4;
                   dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                  unkIndex, inode_box, values, numEntries);

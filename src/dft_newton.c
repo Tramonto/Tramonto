@@ -31,6 +31,7 @@
  *  This file solves the dft problem using Newton's method.
  */
 #include "dft_newton.h"
+void do_numerical_jacobian(double **);
 
 /*******************************************************************************/
 int solve_problem(double **x, double **x2)
@@ -424,9 +425,11 @@ void do_numerical_jacobian(double **x)
 /* row, column, and value.                                                */
 {
   double **full=NULL, del;
-  int i, j, N=Nunk_per_node*Nnodes, count=0,iunk,junk,jnode,inode;
+  int i, j, N=Nunk_per_node*Nnodes, count=0,iunk,junk,jnode,inode,c,read_next;
   char filename[20];
-  FILE *ifp;
+  FILE *ifp, *ifp2, *ifp3;
+  int ia,ja,count_same=0,count_diff=0;
+  double coef_ij,diff;
   double **resid, **resid_tmp;
   resid = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   resid_tmp = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
@@ -444,7 +447,8 @@ void do_numerical_jacobian(double **x)
 
   for (iunk=0;iunk<Nunk_per_node;iunk++){
     for (inode=0; inode<Nnodes; inode++) {
-      i=inode+Nnodes*iunk;
+      i=inode+Nnodes*iunk; /* Physics Based Ordering */
+      /*i=iunk+Nunk_per_node*inode;*/  /* Nodal Based Ordering */
       del=1.e-6*fabs(x[iunk][inode])+1.e-12;
       x[iunk][inode] += del;
 
@@ -456,8 +460,9 @@ void do_numerical_jacobian(double **x)
       dft_linprobmgr_getrhs(LinProbMgr_manager, resid_tmp);
 
       for (junk=0; junk<Nunk_per_node; junk++){ 
-          for (jnode=0; jnode<Nnodes_per_proc; jnode++){ 
-          j=jnode+Nnodes*junk;
+      for (jnode=0; jnode<Nnodes_per_proc; jnode++){ 
+          j=jnode+Nnodes*junk; /* Physics Based Ordering */
+          /*j=junk+Nunk_per_node*jnode;*/  /* Nodal Based Ordering */
           full[j][i] = (resid[junk][jnode] - resid_tmp[junk][jnode])/del;
       }}
       x[iunk][inode] -= del;
@@ -472,13 +477,48 @@ void do_numerical_jacobian(double **x)
   /* print out nonzero entries of numerical jacobian */
   sprintf(filename, "jn%0d",Proc);
   ifp = fopen(filename,"w");
+
+  sprintf(filename, "ja%0d",Proc);
+  ifp2 = fopen(filename,"r");
+  for (i=0;i<2;i++) while ((c=getc(ifp2)) != EOF && c !='\n') ; /* skip first two lines of ja0 */
+
+
+  sprintf(filename, "jdiff%0d",Proc);
+  ifp3 = fopen(filename,"w");
+
+  read_next=TRUE;
   for (i=0; i<Nnodes*Nunk_per_node; i++) {
     for (j=0; j<Nnodes*Nunk_per_node; j++) {
-      if (fabs(full[i][j]) > 1.0e-15)
-       fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
+      if (read_next){
+            fscanf(ifp2,"%d %d %lf",&ia,&ja,&coef_ij);
+            read_next=FALSE;
+      }
+      if (ia-1==i && ja-1==j){
+          diff=full[i][j]-coef_ij;
+          if (diff > 1.0e-3){ 
+               fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) |  %g\n",
+               i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff);
+               count_diff++;
+          }
+          else count_same++;
+          read_next=TRUE;
+      }
+      else{
+         if (fabs(full[i][j])>1.0e-8){
+            printf("nonzero matrix coefficient only in numerical jacobian: i=%d  j=%d coefficient=%g\n",i,j,full[i][j]);
+            count_diff++;
+         }
+         else count_same++;
+      }
+      if (fabs(full[i][j]) > 1.0e-8) fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
     }
   }
   fclose(ifp);
+  fclose(ifp2);
+  fclose(ifp3);
+  printf("numerical jacobian statistics:\n");
+  printf("number of matrix coefficients that are the same=%d\n",count_same);
+  printf("number of matrix coefficients that are different=%d\n",count_diff);
   printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
   exit(0);
 }
