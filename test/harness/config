@@ -11,11 +11,11 @@ RUN (beowulf-nightly) {
     INVOKE-CONFIGURE    = linux-beowulf;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 16;
-    MPI-START           = lamboot /home/mnphenow/.lamhosts;
+    MPI-START           = lamboot;
     MPI-PING            = mpitask;
     MPI-STOP            = lamhalt;    
     TTR-DIR             = /common/TramontoTestHarness/TramontoTestResults;
-    SSG-USERNAME        = mnpheno;
+    SSG-USERNAME        = jmwille;
 
 }
 
@@ -32,11 +32,11 @@ RUN (beowulf-coverage) {
     INVOKE-CONFIGURE    = linux-beowulf-coverage;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 16;
-    MPI-START           = lamboot /home/mnphenow/.lamhosts;
+    MPI-START           = lamboot;
     MPI-PING            = mpitask;
     MPI-STOP            = lamhalt;    
     TTR-DIR             = /common/TramontoTestHarness/TramontoTestResults;
-    SSG-USERNAME        = mnpheno;
+    SSG-USERNAME        = jmwille;
 
 }
 
@@ -142,8 +142,8 @@ RUN (s858352-nightly) {
     MPI-START           = lamboot;
     MPI-PING            = mpitask;
     MPI-STOP            = lamhalt;
-    TTR-DIR             = /Users/mnpheno/TramontoTestHarness/TramontoTestResults;
-    SSG-USERNAME        = mnpheno;
+    TTR-DIR             = /Users/jmwille/TramontoTestHarness/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
 
 }
 
