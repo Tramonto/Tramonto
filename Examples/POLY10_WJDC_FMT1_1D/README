@@ -18,8 +18,8 @@ Input Files for Test problem:
    - lin_5mer
 
 Key Output Parameters:
-   - niter=16
+   - niter=13
    - adsorption[0,1,2,3,4]=0.579151
-   - energy=-1.286653
+   - energy=0.540969
    .
 */
