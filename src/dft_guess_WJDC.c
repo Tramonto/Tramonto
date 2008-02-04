@@ -36,18 +36,19 @@
 #include "dft_guess_WJDC.h"
  
 /*********************************************************/
-/*setup_polymer_field: in this routine sets up the initial guess for the CMS field variable */
+/*setup_polymer_field: in this routine sets up the initial guess for the WJDC field variable */
 void setup_polymer_field_wjdc(double **xOwned)
 {
   int loc_inode,itype_mer,irho, iunk,i,Nloop;
   double field;
 
-  Nloop=Nseg_tot;
+  Nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (i=0; i<Nloop; i++){
          iunk=Phys2Unk_first[WJDC_FIELD]+i;
-         xOwned[iunk][loc_inode]=Field_WJDC_b[i];
+        /* if (Field_WJDC_b[i]<10.) */ xOwned[iunk][loc_inode]=Field_WJDC_b[i];
+/*         else xOwned[iunk][loc_inode]=1.;*/
      }
    }
    return;
@@ -63,7 +64,8 @@ void setup_polymer_G_wjdc(double **xOwned)
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (i=0; i<Nbonds; i++){
          iunk=Phys2Unk_first[G_CHAIN]+i;
-         xOwned[iunk][loc_inode]=G_WJDC_b[i];
+        /* if (G_WJDC_b[i]<10.)*/ xOwned[iunk][loc_inode]=G_WJDC_b[i];
+/*         else xOwned[iunk][loc_inode]=1.;*/
      }
    }
    return;

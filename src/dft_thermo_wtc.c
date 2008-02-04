@@ -208,7 +208,7 @@ void WTC_overlap()
    one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3);
    sig_sum=sigma_1+sigma_2;
    sig_m=sigma_1*sigma_2;
-              
+          
    y = 1./(1.-xi_3) +(3.*sig_m/sig_sum)*(xi_2/one_m_xi3_sq)+
        2.*(sig_m/sig_sum)*(sig_m/sig_sum)*(xi_2*xi_2/one_m_xi3_cb);
                  
@@ -223,7 +223,7 @@ void WTC_overlap()
    one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3); 
    sig_sum=sigma_1+sigma_2;
    sig_m=sigma_1*sigma_2;
-                 
+ 
   dy_dxi2 = (3.*sig_m/sig_sum)*(1.0/one_m_xi3_sq)+
        4.*(sig_m/sig_sum)*(sig_m/sig_sum)*(xi_2/one_m_xi3_cb);
                  

@@ -48,11 +48,11 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    } 
    else      i = iunk-Phys2Unk_first[DENSITY];
 
-   if (Lseg_densities){
+   if (Type_poly==WTC){
                 iseg=i;
                 icomp=Unk2Comp[iseg];
    }
-   else              icomp=i;
+   else         icomp=i;
 
 
                    /* note that there are several cases where the euler-lagrange fill
@@ -84,19 +84,21 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    }
 
    /* now fill EL physics dependent terms */ 
-  
+ 
    resid=0.0; 
    resid+=fill_EL_ideal_gas(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
 
-   
+ 
    if (Type_poly != WJDC){
       resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
    }
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode);
 
+
    if (Type_coul != NONE){
          resid+=fill_EL_elec_field(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
    }
+
 
    if (mesh_coarsen_flag_i != FLAG_PBELEC){
    if (Type_func !=NONE) {
@@ -107,10 +109,12 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                                icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
    }
 
+
    if (Type_attr !=NONE) 
          resid+=load_mean_field(THETA_PAIRPOT_RCUT,iunk,loc_inode,
                                 icomp,izone,ijk_box, x, resid_only_flag);
    }
+
 
    if (Type_coul==DELTAC) {   /* load electrostatics deltac correlations - RPM for now*/
          resid+=load_mean_field(THETA_CR_RPM_MSA,iunk,loc_inode,
@@ -222,7 +226,7 @@ double fill_bulk_field(int iunk, int icomp, int iseg, int loc_inode, int inode_b
      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
   }
 
-  resid = -log(Field_WJDC_b[iseg]);
+  resid = -log(Field_WJDC_b[icomp]);
   dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
   return resid;

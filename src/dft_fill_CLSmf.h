@@ -35,6 +35,7 @@ extern int Nlists_HW;
 extern int Phys2Unk_first[NEQ_TYPE];
 #define THETA_PAIRPOT_RCUT    2
 #define WJDC         3
+#define WTC         2
 extern int Type_poly;
 extern int *Pol_Sym_Seg;
 #define NMER_MAX     100

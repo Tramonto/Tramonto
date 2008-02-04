@@ -95,7 +95,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                                resid_unk,mesh_coarsen_flag_i,resid_only_flag);
 
      /* print for debugging purposes call this print routine */ 
-/*    print_residuals(loc_inode,iunk,resid_unk);*/
+     /*print_residuals(loc_inode,iunk,resid_unk);*/
 
     } /* end of loop over # of unknowns per node */
   } /* end of loop over local nodes */

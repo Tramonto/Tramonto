@@ -92,8 +92,8 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
   /* Now include Bonding terms - note that this is identical to WTC theory */
      field += chain_term(iseg,icomp,Rho_seg_b);
 
-     Field_WJDC_b[iseg]=exp(field);
-     if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_WJDC=%9.6f\n",iseg,field,Field_WJDC_b[iseg]);
+     Field_WJDC_b[icomp]=exp(field);
+     if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_WJDC=%9.6f\n",iseg,field,Field_WJDC_b[icomp]);
   } /* end of bulk field calculations */
 
   /* (2) compute bulk G - chain propogator values.  Note that we need to start at the ends of 
@@ -106,6 +106,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
   while (array_fill==FALSE){
      for (ibond=0;ibond<Nbonds;ibond++){
         iseg=Unk_to_Seg[ibond];
+        icomp=Unk2Comp[iseg];
         pol_num=Unk_to_Poly[ibond];
         bond_num=Unk_to_Bond[ibond];
         if (array_val[ibond]==FALSE){
@@ -122,12 +123,12 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
            }
            if (test==TRUE){     /* compute a bulk G */
               if (jseg == -1){
-                  G_WJDC_b[ibond]=Field_WJDC_b[iseg]; /* end segment is simple */
+                  G_WJDC_b[ibond]=Field_WJDC_b[icomp]; /* end segment is simple */
               }
               else{
                   icomp=Unk2Comp[iseg];
                   jcomp=Unk2Comp[jseg];
-                  G_WJDC_b[ibond]=Field_WJDC_b[iseg]*
+                  G_WJDC_b[ibond]=Field_WJDC_b[icomp]*
                                   y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
            
                   for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
@@ -137,7 +138,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
                   }
                   power=-(Nbond[pol_num][jseg]-2); /* this is 0 for a linear chain for all interal segments */
                   if (power != 0){
-                         G_WJDC_b[ibond]*=POW_DOUBLE_INT(Field_WJDC_b[jseg],power);
+                         G_WJDC_b[ibond]*=POW_DOUBLE_INT(Field_WJDC_b[jcomp],power);
                   }
               }
               count_fill++;
@@ -157,7 +158,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
 /*chempot_chain_wjdc- Here compute "Chain" chemical potentials for use with WJDC functionals.  */
 void chempot_chain_wjdc(double *rho,double *betamu_chain)
 {
-   int iseg,ibond,unk_G,pol_num,printproc;
+   int iseg,ibond,unk_G,pol_num,printproc,icomp;
    double mu_chain,gproduct;
  
    if (Proc==0 && Iwrite==VERBOSE) printproc = TRUE;
@@ -169,13 +170,14 @@ void chempot_chain_wjdc(double *rho,double *betamu_chain)
    }
 
    for (iseg=0;iseg<Nseg_tot;iseg++){
+      icomp=Unk2Comp[iseg];
       mu_chain=0.0;
 
       /* density term */
       mu_chain += log(rho[iseg]);
 
       /* field term */
-      mu_chain += log(Field_WJDC_b[iseg]);
+      mu_chain += log(Field_WJDC_b[icomp]);
 
       /* bonding term */
       gproduct=1.0;

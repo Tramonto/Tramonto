@@ -194,8 +194,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
   struct Stencil_Struct *stenJ;
   double resid,mat_val,resid_sum,first_deriv,dens;
 
-  if (Type_poly==WJDC) iseg = iunk-Phys2Unk_first[WJDC_FIELD];
-  else                 iseg = iunk - Phys2Unk_first[DENSITY];
+/*  if (Type_poly==WJDC) iseg = iunk-Phys2Unk_first[WJDC_FIELD];
+  else                 iseg = iunk - Phys2Unk_first[DENSITY];*/
 
   resid_sum=0.0;
   unk_xi2 = Phys2Unk_first[CAVWTC];

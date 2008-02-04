@@ -144,19 +144,6 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
     resid_G=0.0;
     
     sten=DELTA_FN_BOND;
-
-/*   if(Type_poly==WJDC){
-            resid = x[iunk][inode_box];
-            resid_G+=resid;
-            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-            mat_val = 1.;
-            dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
-            resid = -G_WJDC_b[iunk-Phys2Unk_first[G_CHAIN]];
-            resid_G+=resid;
-            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-   }
-   else{*/
-    
     if (Zero_density_TF[inode_box][itype_mer] || Vext[loc_inode][itype_mer] == VEXT_MAX){
          resid_G=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
     }
@@ -179,12 +166,8 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
 
          if (Bonds[pol_num][seg_num][bond_num] == -1){        /* fill end segment equation */
                                                 /* Boltz unk for 1st seg */
-            if (Lseg_densities){
-               unk_B = Phys2Unk_first[func_type_field] + SegChain2SegAll[pol_num][seg_num];
-            }
-            else{
-               unk_B = Phys2Unk_first[func_type_field] + itype_mer;
-            }
+            unk_B = Phys2Unk_first[func_type_field] + itype_mer;
+
             if (Type_poly==CMS){
                resid = x[iunk][inode_box]/x[unk_B][inode_box]-1.0;
                resid_G+=resid;
@@ -225,13 +208,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
          else{                                            /* fill G_seg eqns */
 
                         /* First calculate the residual contributions */
-
-            if (Lseg_densities){
-               unk_B = Phys2Unk_first[func_type_field] + SegChain2SegAll[pol_num][seg_num];
-            }
-            else{
-               unk_B = Phys2Unk_first[func_type_field] + itype_mer;   /* Boltz unk for this seg */
-            }
+            unk_B = Phys2Unk_first[func_type_field] + itype_mer;   /* Boltz unk for this seg */
 
             if (Type_poly==CMS){
             resid = x[iunk][inode_box]/x[unk_B][inode_box];
@@ -281,7 +258,6 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
          }
        }
     }  /* end of fill something */
-   /* }*/
     return(resid_G);
 }   
 /****************************************************************************/
@@ -338,12 +314,7 @@ double load_polymer_recursion(int sten_type,int func_type_field, int Njacobian_t
       }
   }
   /* don't forget Boltzman factor */
-  if (Lseg_densities){
-     unk[nunk++]=Phys2Unk_first[func_type_field]+SegChain2SegAll[pol_num][jseg];
-  }
-  else{
-     unk[nunk++]=Phys2Unk_first[func_type_field]+jtype_mer;
-  }
+  unk[nunk++]=Phys2Unk_first[func_type_field]+jtype_mer;
 
   sten = &(Stencil[sten_type][izone][itype_mer+Ncomp*jtype_mer]);
   sten_offset = sten->Offset;
@@ -357,12 +328,7 @@ double load_polymer_recursion(int sten_type,int func_type_field, int Njacobian_t
 
      /* Find the Stencil point */
      jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
-     if (Lseg_densities){
-       jcomp=Unk2Comp[SegChain2SegAll[pol_num][jseg]];
-     }
-     else{
-       jcomp=jtype_mer;
-     }
+     jcomp=jtype_mer;
      if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
         if (Lhard_surf) {
            if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1)

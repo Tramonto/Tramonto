@@ -30,12 +30,13 @@
 /****************************************************************************/
 double integrand_WJDC_freen(int iunk,int inode_box, double **x)
 {
-     double integrand=0.0,rho_i;
+     double integrand=0.0,rho_i,icomp;
      int iseg,unk_field,ibond,count_ends;
 
      iseg = iunk-Phys2Unk_first[DENSITY];
+     icomp = Unk2Comp[iseg];
      rho_i = x[iunk][inode_box];
-     unk_field=Phys2Unk_first[WJDC_FIELD]+iseg;
+     unk_field=Phys2Unk_first[WJDC_FIELD]+icomp;
 
      count_ends=0;
      for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
@@ -65,7 +66,7 @@ double integrand_WJDC_freen_bulk(int iunk,int inode_box, double **x)
      }
 
      if (rho_i > 1.e-9){
-        integrand = log(Field_WJDC_b[iseg]) 
+        integrand = log(Field_WJDC_b[icomp]) 
                      + 0.5*(Nbonds_SegAll[iseg]-count_ends)-1.0;
         integrand *= rho_i;
      }

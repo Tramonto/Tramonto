@@ -69,7 +69,7 @@ double load_WJDC_density(int iunk, int loc_inode, int inode_box, double **x,int 
          resid_R=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
    }
    else{
-      unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; /* Boltzmann factor for this segment */
+      unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer; /* Boltzmann factor for this segment */
       resid_R+=resid_and_Jac_ChainDensity (G_CHAIN,x,iunk,unk_B,loc_inode,inode_box,
                                            resid_only_flag, &prefactor_rho_wjdc);
    }
@@ -126,7 +126,7 @@ void WJDC_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int
     prefac= -1.0;
     power = -(Nbond[pol_num][jseg]-2);
 
-    icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]];
+    icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
     jcomp=Unk2Comp[jseg];
 
     for (i=0;i < nunk-1; i++){
@@ -148,7 +148,7 @@ void WJDC_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg
     prefac = (Nbond[pol_num][jseg]-2);
     power = -(Nbond[pol_num][jseg]-1);
 
-    icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]];
+    icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
     jcomp=Unk2Comp[jseg];
     fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
 
@@ -167,7 +167,7 @@ void WJDC_Jacobian_GCHAIN_derivCAVITY(int iunk,int loc_inode,int pol_num,int jse
     prefac_R = -1.0;
     power_R = -(Nbond[pol_num][jseg]-2);
 
-    icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]];
+    icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
     jcomp=Unk2Comp[jseg];
 
     yterm=0.5/yterm_wjdc(icomp,jcomp,jnode_box,x);
@@ -201,7 +201,7 @@ double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    prefac_R = -1.0;
    power_R = -(Nbond[pol_num][jseg]-2);
 
-   icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]];
+   icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
    jcomp=Unk2Comp[jseg];
    fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
    for(i=0;i<nunk-1;i++) fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
@@ -218,7 +218,7 @@ double WJDC_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    prefac_R = -1.0;
    power_R = -(Nbond[pol_num][jseg]-2);
 
-   icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]];
+   icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
    jcomp=Unk2Comp[jseg];
    fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
    for(i=0;i<nunk-1;i++){
