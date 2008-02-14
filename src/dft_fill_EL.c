@@ -77,7 +77,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    } 
 
    sym_WTC_TF=FALSE;
-   if ((Type_poly==WTC || Type_poly==WJDC) && Pol_Sym_Seg[iseg] != -1) sym_WTC_TF=TRUE;
+   if (Type_poly==WTC && Pol_Sym_Seg[iseg] != -1) sym_WTC_TF=TRUE;
    if (sym_WTC_TF){
        resid=fill_sym_WTC(iunk,iseg,loc_inode,inode_box,x,resid_only_flag);
        return(resid);
