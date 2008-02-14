@@ -163,7 +163,7 @@ double get_wt_from_sten(double r,double param1, double param2, double param3,
      return(2.0 * temp * rcut * zmax);
   }
   else {
-    temp = pairPot_switch(rho,param1,param2,param3,param4,Type_vext3D);
+    temp = pairPot_switch(r,param1,param2,param3,param4,Type_vext3D);
     return(temp);
   }
 }
