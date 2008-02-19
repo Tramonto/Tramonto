@@ -67,7 +67,7 @@ extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 extern double Rho_seg_LBB[NMER_MAX];
 extern int Lsteady_state;
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern double Rho_seg_b[NMER_MAX];
 extern int Lseg_densities;
@@ -84,6 +84,7 @@ int find_jzone(int izone,int inode_box);
 extern int WallType[NWALL_MAX];
 extern int **Lsemiperm;
 extern int **Wall_elems;
+int node_box_to_elem_box_reflect(int inode_box,int local_node,int *reflect_flag);
 int node_box_to_elem_box_reflect(int inode_box,int local_node,int *reflect_flag);
 extern int Nnodes_per_el_V;
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);

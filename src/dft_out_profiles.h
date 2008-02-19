@@ -1,7 +1,10 @@
 /* This file was automatically generated.  Do not edit! */
 void print_vext(double **vext,char *output_file);
 int element_to_node(int ielement);
+int element_to_node(int ielement);
 int node_box_to_elem_box_reflect(int inode_box,int local_node,int *reflect_flag);
+int node_box_to_elem_box_reflect(int inode_box,int local_node,int *reflect_flag);
+int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,14 +68,15 @@ extern int Nmer[NCOMP_MAX];
 extern int Npol_comp;
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 #define G_CHAIN        2 
 extern double VEXT_MAX;
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern double Esize_x[NDIM_MAX];
+void node_to_ijk(int node,int *ijk);
 void node_to_ijk(int node,int *ijk);
 extern double Charge_f[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
@@ -81,7 +85,7 @@ extern double Temp_elec;
 #define COULOMB      1
 extern int Ipot_ff_c;
 extern int Npoisson;
-#define YW_DENS        9       /* densities for Yethiraj-Woodward polymer DFTs */
+#define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
 #define BONDWTC        7
 #define CAVWTC         6
 #define HSRHOBAR       4
@@ -89,6 +93,7 @@ extern int Npoisson;
 #define CMS_FIELD      1
 #define DIFFUSION      5
 #define POISSON        3
+#define MF_EQ          9
 extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 #define VERBOSE      3 

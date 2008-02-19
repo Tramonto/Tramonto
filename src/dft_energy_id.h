@@ -17,7 +17,7 @@
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 #define DENSITY        0
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];

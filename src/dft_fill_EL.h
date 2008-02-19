@@ -44,7 +44,7 @@ extern int Lsteady_state;
 extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_b[NMER_MAX];
-extern void *LinProbMgr_manager;
+extern int Lseg_densities;
 extern double VEXT_MAX;
 extern double **Vext;
 extern int **Zero_density_TF;
@@ -52,6 +52,7 @@ extern int **Zero_density_TF;
 extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
 extern int *Nbonds_SegAll;
+double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
@@ -59,6 +60,9 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
 #define DELTAC     1 
 #define THETA_PAIRPOT_RCUT    2
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
+extern void *LinProbMgr_manager;
+#define MF_EQ          9
+#define MF_VARIABLE  2
 extern int Type_attr;
 #define THETA_FN_R            1
 #define DELTA_FN_R            0
@@ -69,7 +73,7 @@ extern int Type_func;
 double fill_EL_elec_field(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_coul;
 double fill_EL_ext_field(int iunk,int icomp,int loc_inode);
@@ -77,7 +81,6 @@ double fill_EL_chem_pot(int iunk,int icomp,int iseg,int loc_inode,int inode_box,
 double fill_EL_ideal_gas(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double fill_sym_WTC(int iunk,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern int *Pol_Sym_Seg;
-#define WTC          2
 double fill_bulk_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double fill_bulk_field(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define TRUE  1
@@ -95,10 +98,10 @@ double fill_bulk_field(int iunk,int icomp,int iseg,int loc_inode,int inode_box,d
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 int check_zero_density_EL(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x);
 extern int Unk2Comp[NMER_MAX];
-extern int Lseg_densities;
+#define WTC          2
 #define DENSITY        0
 #define WJDC_FIELD     8
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define WJDC         3
 extern int Type_poly;

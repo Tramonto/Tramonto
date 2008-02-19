@@ -111,7 +111,7 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
                         struct  RB_Struct *dphi_drb, double *resid_unk,
                         int mesh_coarsen_flag_i,int resid_only_flag)
 {
-   int izone,i;
+   int izone,i,icomp;
                                            
    /* IZONE: izone is the zone number that controls the quadrature scheme to be used. */
 
@@ -139,6 +139,12 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
               resid_unk[iunk]=load_rho_bar_v(x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
           }
         break;
+
+       case MF_EQ: 
+           icomp=iunk-Phys2Unk_first[MF_EQ];
+           resid_unk[iunk]=load_mean_field(THETA_PAIRPOT_RCUT,iunk,loc_inode,
+                                                   icomp,izone,ijk_box, x, resid_only_flag);
+           break;
 
        case POISSON: resid_unk[iunk]=load_poisson_control(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag); break;
 

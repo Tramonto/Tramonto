@@ -21,14 +21,16 @@ extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
 extern int **Zero_density_TF;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
+int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern int Nlists_HW;
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
+void node_box_to_ijk_box(int node_box,int *ijk_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)

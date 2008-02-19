@@ -23,10 +23,10 @@ extern int Npol_comp;
 extern int Nunk_per_node;
 #define NMER_MAX     100
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
-#define YW_DENS        9       /* densities for Yethiraj-Woodward polymer DFTs */
+#define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
 extern int Ngeqn_tot;
 #define G_CHAIN        2 
 #define WJDC_FIELD     8
@@ -41,11 +41,15 @@ extern int Ndiffusion;
 #define DIFFUSION      5
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_coul;
 extern int Npoisson;
 #define POISSON        3
+#define MF_VARIABLE  2
+extern int Type_attr;
+extern int Nmf_eqns;
+#define MF_EQ          9
 extern int Nrho_bar_s;
 extern int Ndim;
 #define IDEAL_GAS    0

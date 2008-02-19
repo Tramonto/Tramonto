@@ -17,6 +17,8 @@
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
+int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
+void node_box_to_ijk_box(int node_box,int *ijk_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 extern double Area_surf_el[3];
 extern int ***Surf_normal;
@@ -35,6 +37,7 @@ extern int Nodes_x[NDIM_MAX];
 extern int Ndim;
 extern int *B2G_node;
 void node_to_ijk(int node,int *ijk);
+void node_to_ijk(int node,int *ijk);
 double integrand_maxwell_stress_freen(int iunk,int inode_box,double **x);
 extern double *Deltac_b;
 #define NCOMP_MAX 5
@@ -51,7 +54,7 @@ double integrand_elec_MSAcorr_freen(int iunk,int inode_box,double **x);
 extern double Charge_f[NCOMP_MAX];
 #define POISSON        3
 #define DENSITY        0
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;

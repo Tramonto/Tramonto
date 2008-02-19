@@ -17,6 +17,9 @@ double resid_and_Jac_sten_fill_sum_Ncomp(int sten_type,double **x,int iunk,int l
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern void *LinProbMgr_manager;
+#define MF_VARIABLE  2
+extern int Type_attr;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

@@ -21,6 +21,7 @@ double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,in
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
+int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 typedef struct Stencil_Struct Stencil_Struct;
@@ -28,15 +29,18 @@ extern struct Stencil_Struct ***Stencil;
 #define CMS_FIELD      1
 #define THETA_CR_DATA         4
 #define THETA_CR_RPM_MSA      3
+#define WTC          2
+#define WJDC_FIELD     8
+#define WJDC         3
+extern int Type_poly;
+#define MF_EQ          9
+#define MF_VARIABLE  2
+extern int Type_attr;
+#define THETA_PAIRPOT_RCUT    2
 extern int Nlists_HW;
 #define DENSITY        0
-#define WJDC_FIELD     8
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
-#define THETA_PAIRPOT_RCUT    2
-#define WJDC         3
-#define WTC         2
-extern int Type_poly;
 extern int *Pol_Sym_Seg;
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];

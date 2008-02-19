@@ -82,7 +82,7 @@ extern int Type_attr;
 void HS_thermo_precalc(char *output_file1);
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_func;
 void WTC_thermo_precalc(char *output_file1);

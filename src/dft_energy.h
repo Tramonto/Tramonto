@@ -55,14 +55,14 @@ double integrand_ideal_gas_freen(int iunk,int inode_box,double **x);
 double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_coul;
 extern double Charge_f[NCOMP_MAX];
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];

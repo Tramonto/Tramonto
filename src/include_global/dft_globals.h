@@ -104,6 +104,7 @@ int     *B2L_node;         /* Box to local  array for all local nodes */
 int     *L2G_node;         /* Local to global coordinates  */
 int     Nnodes_1stencil;  /* Number of nodes on proc where rho_bar is needed */
 int     Nunk_per_node;   /* Number of unknowns per node (usually Ncomp       */
+int     Nmf_eqns;        /* Number of mean field - attraction equations */
 int     Nrho_bar;        /* Number of rhobar equations per node */
 int     Nrho_bar_s;      /* Number of scalar rhobar equations per node */
 int     Npoisson;      /* Number of scalar rhobar equations per node */

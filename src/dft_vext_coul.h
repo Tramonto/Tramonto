@@ -19,7 +19,7 @@ extern double **Vext;
 extern int Type_pairPot;
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_attr;
 #define NCOMP_MAX 5
@@ -31,9 +31,12 @@ void find_images_coulomb(int idim,int *image,double **image_pos,double *node_ima
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 void node_to_position(int inode,double *NodePos);
+void node_to_position(int inode,double *NodePos);
+int element_to_node(int ielement);
 int element_to_node(int ielement);
 void set_gauss_quad(int ngp,double *gp,double *gw);
 extern int Ndim;
+int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 void safe_free(void **ptr);
 void safe_free(void **ptr);
@@ -42,6 +45,7 @@ extern int *Comm_node_proc;
 extern int *L2G_node;
 extern double *Charge_vol_els;
 extern int *B2L_node;
+int element_box_to_node_box(int iel_box);
 int element_box_to_node_box(int iel_box);
 extern int Nelements_box;
 extern int Nnodes;

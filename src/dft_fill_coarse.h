@@ -16,7 +16,9 @@
 #include "Tramonto_ConfigDefs.h"
 extern int Nzone;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
+int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern int *Mesh_coarsen_flag;
+void node_box_to_ijk_box(int node_box,int *ijk_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 double constant_boundary(int iunk,int jnode_box);
 double load_coarse_variable(double **x,int jnode_box,double fac,int iunk,int loc_inode,int resid_only_flag);
@@ -33,6 +35,7 @@ extern int Proc;
 extern int Proc;
 #endif
 extern int *B2L_node;
+int ijk_box_to_node_box(int *ijk_box);
 int ijk_box_to_node_box(int *ijk_box);
 extern int Grad_dim;
 extern int Ndim;

@@ -275,7 +275,7 @@ extern int Ipot_ff_n;
 #define WTC          2
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 #define WJDC         3
 extern int Type_poly;

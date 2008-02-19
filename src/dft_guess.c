@@ -80,6 +80,8 @@ void set_initial_guess (int iguess, double** xOwned)
                 exit(-1);
            }
            break;
+         case MF_EQ:
+           if (Phys2Nunk[MF_EQ]>0 && (start_no_info || Restart_field[MF_EQ]==FALSE ||Restart==3)) setup_mf_attract(xOwned); break;
          case HSRHOBAR:
            if (Phys2Nunk[HSRHOBAR]>0 && (start_no_info || Restart_field[HSRHOBAR]==FALSE ||Restart==3)) setup_rho_bar(xOwned); break;
          case POISSON:

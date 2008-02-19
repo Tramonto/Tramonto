@@ -18,6 +18,7 @@ double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,in
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
+int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern int Ncomp;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
@@ -74,7 +75,7 @@ extern int Nmer[NCOMP_MAX];
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #define CMS          0
 #define DENSITY        0
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Comp[NMER_MAX];
 #define WJDC         3

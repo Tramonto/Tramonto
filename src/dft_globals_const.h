@@ -154,7 +154,7 @@
  * unknown number straightforward.  This became necessary with the introduction
  * of the WTC polymers where we now have 6 types of equations to fill.
  */
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 #define NO_UNK        -888
 
 #define DENSITY        0
@@ -167,8 +167,9 @@
 #define G_CHAIN        2 
 #define POISSON        3
 #define WJDC_FIELD     8
+#define MF_EQ          9
 
-#define YW_DENS        9       /* densities for Yethiraj-Woodward polymer DFTs */
+#define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
 
 /* Here are some constants needed to make the physics based ordering of the
    matrix an option in the code. */
@@ -224,9 +225,10 @@
 /*
  * These constants identify attraction functional choices (Type_attr).
  */
-#define NONE -1
-#define MFPAIR1  0
-#define MFPAIR2  1
+#define NONE        -1
+#define MFPAIR1      0
+#define MFPAIR2      1
+#define MF_VARIABLE  2
 
 /* 
  * These constants identify the functional choices (Type_coul).
@@ -611,6 +613,7 @@ extern int     *L2B_node;         /* Local to box array for all local nodes */
 extern int     *B2L_node;         /* Box to local array for all local nodes */
 extern int     *L2G_node;         /* Local to global coordinates */
 extern int     Nunk_per_node;   /* Number of unknowns per node (usually Ncomp       */
+extern int     Nmf_eqns;        /* Number of mean field - attraction equations */
 extern int     Nrho_bar;        /* Number of rhobar equations per node */
 extern int     Nrho_bar_s;      /* Number of scalar rhobar equations per node */
 extern int     Npoisson;        /* Number of rhobar equations per node */

@@ -1,5 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
 int node_to_node_box(int inode);
+int node_to_node_box(int inode);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -28,7 +29,7 @@ extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Type_poly;
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_func;
 extern int Lhard_surf;
@@ -43,7 +44,10 @@ extern double WallParam_2[NWALL_MAX_TYPE];
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 void node_to_position(int inode,double *NodePos);
+void node_to_position(int inode,double *NodePos);
 int element_to_node(int ielement);
+int element_to_node(int ielement);
+int el_box_to_el(int iel_box);
 int el_box_to_el(int iel_box);
 extern int **List_wall_node;
 extern int **Wall_touch_node;
@@ -51,10 +55,14 @@ extern int *Nwall_touch_node;
 extern int *Nodes_wall_box;
 extern int *Index_wall_nodes;
 int ijk_box_to_node_box(int *ijk_box);
+int ijk_box_to_node_box(int *ijk_box);
 extern int Pflag[3];
 void node_box_to_ijk_box(int node_box,int *ijk_box);
+void node_box_to_ijk_box(int node_box,int *ijk_box);
+int element_box_to_node_box(int iel_box);
 int element_box_to_node_box(int iel_box);
 extern int Nodes_x[NDIM_MAX];
+void node_to_ijk(int node,int *ijk);
 void node_to_ijk(int node,int *ijk);
 extern double *Dielec_wall;
 extern double *Dielec;

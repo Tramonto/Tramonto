@@ -91,12 +91,11 @@ double load_CMS_density(int iunk, int loc_inode, int inode_box, double **x,int r
    return(resid_R);
 }                                  
 /****************************************************************************/
-double prefactor_rho_cms(int iunk)
+double prefactor_rho_cms(int itype_mer)
 {
-  int itype_mer,npol;
+  int npol;
   double fac;
 
-  itype_mer = iunk-Phys2Unk_first[DENSITY];
   npol = 0;
   while (Nmer_t[npol][itype_mer]==0) npol++;
   fac = Rho_b[itype_mer]/Nmer_t[npol][itype_mer];

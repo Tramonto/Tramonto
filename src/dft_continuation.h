@@ -49,6 +49,15 @@ void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #if !defined(_CON_CONST_H_)
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #endif
+void assign_bif_parameter_conwrap(double tp_param);
+#if !defined(_CON_CONST_H_)
+void assign_bif_parameter_conwrap(double bif_param);
+#endif
+void assign_parameter_conwrap(double param);
+#if !defined(_CON_CONST_H_)
+void assign_parameter_conwrap(double param);
+#endif
+void thermodynamics(char *output_file1);
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)
@@ -63,17 +72,6 @@ void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NMER_MAX     100
-extern double Rho_seg_b[NMER_MAX];
-void assign_bif_parameter_conwrap(double tp_param);
-#if !defined(_CON_CONST_H_)
-void assign_bif_parameter_conwrap(double bif_param);
-#endif
-void assign_parameter_conwrap(double param);
-#if !defined(_CON_CONST_H_)
-void assign_parameter_conwrap(double param);
-#endif
-void thermodynamics(char *output_file1);
 extern double Crfac;
 #define CONT_CRFAC  19  /* continuous mixing of two cr files */
 extern int **Zero_density_TF;
@@ -111,12 +109,14 @@ extern int WallType[NWALL_MAX];
 #define CONT_SCALE_RHO   6
 #define CONT_LOG_RHO_ALL 5 
 #define CONT_LOG_RHO_0   4 
+#define NMER_MAX     100
+extern double Rho_seg_b[NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int Nseg_tot;
 extern int Npol_comp;
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 #define CONT_RHO_ALL     3
 #define NCOMP_MAX 5

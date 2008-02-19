@@ -15,6 +15,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern int *L2G_node;
+void print_residuals(int loc_inode,int iunk,double *resid_unk);
 double load_WJDC_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define G_CHAIN        2 
@@ -33,12 +34,15 @@ extern int Linear_transport;
 #define DIFFUSION      5
 double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 #define POISSON        3
+#define THETA_PAIRPOT_RCUT    2
+double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
+#define MF_EQ          9
 double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
 #define DELTA_FN_R            0
 extern int Nrho_bar_s;
 #define THETA_FN_R            1
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       4
 double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
@@ -54,7 +58,6 @@ extern int L_HSperturbation;
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-void print_residuals(int loc_inode,int iunk,double *resid_unk);
 void load_standard_node(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,struct RB_Struct *dphi_drb,double *resid_unk,int mesh_coarsen_flag_i,int resid_only_flag);
 double load_coarse_node_Ndim(int loc_inode,int inode_box,int iunk,double **x,int resid_only_flag);
 #define FLAG_PBELEC -777
@@ -73,6 +76,7 @@ extern int Nwall_type;
 #endif
 extern int Mesh_coarsening;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
+void node_box_to_ijk_box(int node_box,int *ijk_box);
 extern int *L2B_node;
 extern int Nnodes_per_proc;
 #define NODAL_FLAG -999
@@ -82,7 +86,7 @@ void FMT1stDeriv_switch(int inode_box,double **x,struct RB_Struct *dphi_drb);
 extern int Nnodes_box;
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_func;
 extern int Nunk_per_node;

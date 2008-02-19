@@ -38,7 +38,7 @@ extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_poly;
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];

@@ -109,6 +109,7 @@ COMMON_H = \
         ${srcdir}/dft_guess_CHEMPOT.h \
         ${srcdir}/dft_guess_EL_DENSITY.h \
         ${srcdir}/dft_guess_HSFMT.h \
+        ${srcdir}/dft_guess_MFATT.h \
         ${srcdir}/dft_guess_WTC.h \
         ${srcdir}/dft_guess_restart.h \
         ${srcdir}/dft_guess_CMS.h \
@@ -197,6 +198,7 @@ COMMON_C = \
         ${srcdir}/dft_guess_CHEMPOT.c \
         ${srcdir}/dft_guess_EL_DENSITY.c \
         ${srcdir}/dft_guess_HSFMT.c \
+        ${srcdir}/dft_guess_MFATT.c \
         ${srcdir}/dft_guess_WTC.c \
         ${srcdir}/dft_guess_restart.c \
         ${srcdir}/dft_guess_CMS.c \

@@ -29,7 +29,7 @@ extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
 #define CAVWTC         6
 #define DENSITY        0
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Comp[NMER_MAX];
 double integrand_WTC_freen(int iunk,int inode_box,double **x);

@@ -166,6 +166,13 @@ void read_in_a_file(int iguess,char *filename)
                   for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DENSITY;
              else for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DENSITY;
        }
+       if (strncmp(unk_char,"MFEQ",5)==0) {
+             Restart_field[MF_EQ]=TRUE;
+             header++;
+             unk_in_file+=Ncomp;
+             unk_start_in_file[MF_EQ]=iunk;
+             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=MF_EQ;
+       }
        else if (strncmp(unk_char,"POISSON",5)==0){
              Restart_field[POISSON]=TRUE;
              header++;
@@ -232,6 +239,8 @@ void read_in_a_file(int iguess,char *filename)
            printf("there is no WJDC field data in the restart file\n");
     if (L_HSperturbation && Restart_field[HSRHOBAR]==FALSE)
            printf("there is no Rosenfeld nonlocal density data in the restart file\n");
+    if (Type_attr==MF_VARIABLE && Restart_field[MF_EQ]==FALSE)
+           printf("there is no mean field attractive variable data in the restart file \n");
     if (Restart_field[DENSITY]==FALSE)
            printf("there is no density data in the restart file\n");
 

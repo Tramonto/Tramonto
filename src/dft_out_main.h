@@ -79,7 +79,7 @@ void calc_force(FILE *fp,double **x,double fac_area);
 void calc_fluid_charge(FILE *fp,double **x);
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_coul;
 void calc_adsorption(FILE *fp,double **x);

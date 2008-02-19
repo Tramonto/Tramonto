@@ -21,6 +21,7 @@ double constant_boundary(int iunk,int jnode_box);
 extern double Size_x[NDIM_MAX];
 extern double Esize_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
+void node_to_ijk(int node,int *ijk);
 extern int *B2G_node;
 void setup_step_2consts(double **xOwned);
 extern double **Vext;
@@ -33,12 +34,13 @@ extern double Xstart_step[NSTEPS_MAX];
 extern int Orientation_step[NSTEPS_MAX];
 extern int Nsteps;
 void node_to_position(int inode,double *NodePos);
+void node_to_position(int inode,double *NodePos);
 extern int *L2G_node;
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int **Zero_density_TF;
 #define DENSITY        0
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *L2B_node;
 extern int Nnodes_per_proc;

@@ -97,7 +97,7 @@ void calc_stencils(void);
 void calc_HS_diams();
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_func;
 #define TRUE  1

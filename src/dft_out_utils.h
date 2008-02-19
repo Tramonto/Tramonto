@@ -28,6 +28,8 @@ extern int WallType[NWALL_MAX];
 extern int **Lsemiperm;
 extern int **Wall_elems;
 int el_to_el_box(int iel);
+int el_to_el_box(int iel);
+int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 extern int Imax;
 extern int List[2];
@@ -65,6 +67,7 @@ extern int Nodes_x[NDIM_MAX];
 extern int Ndim;
 extern int *L2G_node;
 void node_to_ijk(int node,int *ijk);
+void node_to_ijk(int node,int *ijk);
 extern int Nlists_HW;
 extern int **Nodes_2_boundary_wall;
 double integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iunk,double **x,double *profile);
@@ -80,7 +83,7 @@ double gsum_double(double c);
 extern int Nnodes_per_el_V;
 extern double Vol_el;
 #define DENSITY        0
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *L2B_node;
 extern int Nnodes_per_proc;

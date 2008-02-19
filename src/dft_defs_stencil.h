@@ -27,7 +27,7 @@ extern int Type_attr;
 #define DELTA_FN_R            0
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_func;
 #define THETA_CR_DATA         4

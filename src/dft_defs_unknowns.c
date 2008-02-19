@@ -73,6 +73,15 @@ void setup_nunk_per_node(char *output_file1)
             Phys2Nunk[HSRHOBAR]=Nrho_bar;
             break; 
 
+         case MF_EQ:  /* unknowns for mean field attractions - a new way to separate constant matrix
+                               coefficients from density unknowns */
+            Nmf_eqns=0;
+            if (Type_attr==MF_VARIABLE){
+               Nmf_eqns=Ncomp;
+            }
+            Phys2Nunk[MF_EQ]=Nmf_eqns;
+            break; 
+
          case POISSON:                             /* unknowns of Poisson Equation */
             Npoisson=0;
             if ( Type_coul !=NONE){

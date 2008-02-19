@@ -22,9 +22,8 @@ extern int Nbonds;
 void setup_polymer_G_wjdc(double **xOwned);
 extern double Field_WJDC_b[NMER_MAX];
 #define WJDC_FIELD     8
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nnodes_per_proc;
-extern int Nseg_tot;
 extern int Ncomp;
 void setup_polymer_field_wjdc(double **xOwned);

@@ -26,6 +26,7 @@ double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,in
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
+int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Nlists_HW;
@@ -76,10 +77,12 @@ extern double Xstart_step[NSTEPS_MAX];
 extern int Orientation_step[NSTEPS_MAX];
 extern int Nsteps;
 void node_to_position(int inode,double *NodePos);
+void node_to_position(int inode,double *NodePos);
 extern int *B2G_node;
 #define STEP_PROFILE     3
 #define CONST_RHO       -3 
 extern int **Zero_density_TF;
+void node_box_to_ijk_box(int node_box,int *ijk_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 extern int *L2B_node;
 void setup_polymer_simple(double **xOwned,int iguess);
@@ -88,7 +91,7 @@ extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define CMS_FIELD      1
 #define DENSITY        0
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 extern int Nnodes_per_proc;

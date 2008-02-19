@@ -39,6 +39,7 @@ extern int *L2G_node;
 extern int Nnodes_per_proc;
 int locate_inode_old(int *ijk);
 void node_to_ijk(int node,int *ijk);
+void node_to_ijk(int node,int *ijk);
 #define NWALL_MAX_TYPE 50 
 extern double Del_1[NWALL_MAX_TYPE];
 extern int Pos_new_nodes;
@@ -46,15 +47,19 @@ extern int Plane_new_nodes;
 #define NDIM_MAX  3
 extern int Nodes_x_old[NDIM_MAX];
 extern int Nodes_x[NDIM_MAX];
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nrho_bar_s;
 int ijk_to_node(int *ijk);
+int ijk_to_node(int *ijk);
 extern double Esize_x[NDIM_MAX];
+int round_to_int(double x);
 int round_to_int(double x);
 #define G_CHAIN        2 
 extern int Ndim;
+#define MF_VARIABLE  2
+extern int Type_attr;
 extern int L_HSperturbation;
 #define WJDC         3
 #define CMS_SCFT     1
@@ -62,7 +67,7 @@ extern int L_HSperturbation;
 extern int Type_poly;
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_coul;
 extern int Lsteady_state;
@@ -77,6 +82,7 @@ extern int Nbonds;
 extern int Nrho_bar;
 #define HSRHOBAR       4
 #define POISSON        3
+#define MF_EQ          9
 extern int Ncomp;
 extern int Nseg_tot;
 extern int Lseg_densities;

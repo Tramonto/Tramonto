@@ -39,7 +39,7 @@ is being loaded -
 double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_B,
   int loc_inode, int inode_box, int resid_only_flag, double (*fp_prefactor)(int))
 {
-  int i,loop_start,loop_end,itype_mer,npol,iseg,unk_GQ,unk_GQ_test;
+  int i,loop_start,loop_end,itype_mer,npol,iseg,unk_GQ,unk_GQ_test,iref;
   int boltz_pow,boltz_pow_J,jbond,ibond,unkIndex[2],numEntries,unk_GQ_j,unk_GQ_j_test;
   double fac1,fac2,mat_val,resid,resid_sum=0.0,values[2];
 
@@ -79,7 +79,11 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
         boltz_pow = -(Nbonds_SegAll[iseg]-2);
         boltz_pow_J = -(Nbonds_SegAll[iseg]-1);
 
-        if (fp_prefactor!=NULL) fac1 = (*fp_prefactor)(iunk);
+        if (fp_prefactor!=NULL) {
+             if (Type_poly==CMS) iref=itype_mer;
+             if (Type_poly==WJDC) iref=iseg;
+             fac1 = (*fp_prefactor)(iref);
+        }
         else                     fac1=1.0;
 
         for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {

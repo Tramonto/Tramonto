@@ -85,9 +85,20 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
       if (Nlists_HW <= 2) jlist = 0;
       else                jlist = jcomp;
 
-      if (sten_type==THETA_PAIRPOT_RCUT || sten_type==THETA_CR_RPM_MSA) {
-            if (Type_poly==WJDC) i=iunk-Phys2Unk_first[WJDC_FIELD];
-            else                 i=iunk-Phys2Unk_first[DENSITY];
+      if (sten_type==THETA_PAIRPOT_RCUT) {
+
+            if (Type_attr==MF_VARIABLE) i=iunk-Phys2Unk_first[MF_EQ];
+            else{
+               if (Type_poly==WJDC) i=iunk-Phys2Unk_first[WJDC_FIELD];
+               else i=iunk-Phys2Unk_first[DENSITY];
+            }
+
+            if (Type_poly==WTC) icomp=Unk2Comp[i];
+            else icomp=i;
+            index=icomp+Ncomp*jcomp;
+      }
+      if (sten_type==THETA_CR_RPM_MSA){
+            i=iunk-Phys2Unk_first[DENSITY];
             if (Type_poly==WTC) icomp=Unk2Comp[i];
             else icomp=i;
             index=icomp+Ncomp*jcomp;

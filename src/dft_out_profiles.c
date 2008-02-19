@@ -231,6 +231,12 @@ void print_profile(char *output_file4)
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
                }
+            case MF_EQ: 
+               unk_char = "MFEQ"; 
+               if (Phys2Nunk[i] > 0){
+                 fputs (unk_char,ifp); 
+                 fprintf(ifp,"\n"); break;
+               }
             case POISSON: 
                unk_char = "POISSON"; 
                if (Phys2Nunk[i] > 0){
@@ -305,6 +311,7 @@ void print_profile(char *output_file4)
             
             switch(Unk2Phys[iunk]){
                case DENSITY:   icomp = iunk-Phys2Unk_first[DENSITY]; break;
+               case MF_EQ:     icomp = iunk-Phys2Unk_first[MF_EQ]; break;
                case DIFFUSION: icomp = iunk-Phys2Unk_first[DIFFUSION]; break;
                case CMS_FIELD: icomp = iunk-Phys2Unk_first[CMS_FIELD]; break;
             }
@@ -315,6 +322,7 @@ void print_profile(char *output_file4)
 /*                if (Ipot_ff_n != IDEAL_GAS)
                        fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]
                             + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );*/
+                case MF_EQ:
                 case POISSON:
                 case HSRHOBAR:
                   fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);

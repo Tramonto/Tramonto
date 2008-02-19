@@ -38,10 +38,11 @@
 double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, int izone,
                     double **x,struct  RB_Struct *dphi_drb,int mesh_coarsen_flag_i, int resid_only_flag)
 {
-   int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF;
-   double resid=0.0,resid_ig,resid_att,resid_hs,resid_chain,resid_old;
+   int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF,iunk_att;
+   double resid=0.0,resid_ig,resid_att,resid_hs,resid_chain,resid_old,mat_val;
 
                   /* set icomp and iseg(WTC) */
+   iseg=-1;
    if (Type_poly==WJDC) {                  /* note that this routine fills the _field_variable rather than
                                               the density variable for a WJDC DFT problem */
              i=iunk-Phys2Unk_first[WJDC_FIELD];               
@@ -76,6 +77,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
        return(resid);
    } 
 
+
    sym_WTC_TF=FALSE;
    if (Type_poly==WTC && Pol_Sym_Seg[iseg] != -1) sym_WTC_TF=TRUE;
    if (sym_WTC_TF){
@@ -109,10 +111,18 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                                icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
    }
 
-
    if (Type_attr !=NONE) 
-         resid+=load_mean_field(THETA_PAIRPOT_RCUT,iunk,loc_inode,
+         if (Type_attr==MF_VARIABLE){
+           iunk_att=Phys2Unk_first[MF_EQ]+icomp;
+           resid += x[iunk_att][inode_box];
+           mat_val=1.0;
+           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk_att,inode_box,mat_val);
+         }
+         else{
+            resid+=load_mean_field(THETA_PAIRPOT_RCUT,iunk,loc_inode,
                                 icomp,izone,ijk_box, x, resid_only_flag);
+         }
    }
 
 
@@ -121,15 +131,17 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                           icomp,izone,ijk_box,x, resid_only_flag);
    }
 
-   if (Type_poly==WTC || Type_poly==WJDC){
-       if (Type_poly==WTC){
-         resid+=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
-                                                 izone,ijk_box,x,resid_only_flag);
-         resid+=load_polyTC_bondEL(iunk,loc_inode,inode_box,icomp,
-                                                 izone,ijk_box,x,resid_only_flag);
-       }
+   if (Type_poly==WTC){
+       resid+=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
+                                 izone,ijk_box,x,resid_only_flag);
+       resid+=load_polyTC_bondEL(iunk,loc_inode,inode_box,icomp,
+                                 izone,ijk_box,x,resid_only_flag);
        resid+=load_polyTC_cavityEL(iunk,loc_inode,inode_box,icomp,
-                                                 izone,ijk_box,x,resid_only_flag);
+                                  izone,ijk_box,x,resid_only_flag);
+   }
+   else if (Type_poly==WJDC){
+       resid+=load_polyWJDC_cavityEL(iunk,loc_inode,inode_box,icomp,
+                                  izone,ijk_box,x,resid_only_flag);
    }
 
    return(resid);

@@ -41,7 +41,7 @@ extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
 #define NONE       -1
 #define NONE      -1
-#define NONE -1
+#define NONE        -1
 #define NONE        -1
 extern int Type_attr;
 extern double Fac_overlap_hs[NCOMP_MAX];

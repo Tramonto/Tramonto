@@ -127,15 +127,16 @@ am__libdft_a_SOURCES_DIST = ${srcdir}/dft_input.c ${srcdir}/dft_main.c \
 	${srcdir}/dft_out_flux.c ${srcdir}/dft_out_profiles.c \
 	${srcdir}/dft_vext.c ${srcdir}/dft_guess.c \
 	${srcdir}/dft_guess_CHEMPOT.c ${srcdir}/dft_guess_EL_DENSITY.c \
-	${srcdir}/dft_guess_HSFMT.c ${srcdir}/dft_guess_WTC.c \
-	${srcdir}/dft_guess_restart.c ${srcdir}/dft_guess_CMS.c \
-	${srcdir}/dft_guess_WJDC.c ${srcdir}/dft_guess_ELECPOT.c \
-	${srcdir}/dft_comm.c ${srcdir}/dft_continuation.c \
-	${srcdir}/dft_utils.c ${srcdir}/dft_fill_control.c \
-	${srcdir}/dft_fill_main.c ${srcdir}/dft_fill_FMT.c \
-	${srcdir}/dft_fill_mf.c ${srcdir}/dft_fill_wtc.c \
-	${srcdir}/dft_vext_coul.c ${srcdir}/dft_uww.c \
-	${srcdir}/dft_images.c ${srcdir}/dft_potential_params.c \
+	${srcdir}/dft_guess_HSFMT.c ${srcdir}/dft_guess_MFATT.c \
+	${srcdir}/dft_guess_WTC.c ${srcdir}/dft_guess_restart.c \
+	${srcdir}/dft_guess_CMS.c ${srcdir}/dft_guess_WJDC.c \
+	${srcdir}/dft_guess_ELECPOT.c ${srcdir}/dft_comm.c \
+	${srcdir}/dft_continuation.c ${srcdir}/dft_utils.c \
+	${srcdir}/dft_fill_control.c ${srcdir}/dft_fill_main.c \
+	${srcdir}/dft_fill_FMT.c ${srcdir}/dft_fill_mf.c \
+	${srcdir}/dft_fill_wtc.c ${srcdir}/dft_vext_coul.c \
+	${srcdir}/dft_uww.c ${srcdir}/dft_images.c \
+	${srcdir}/dft_potential_params.c \
 	${srcdir}/dft_pairPot_LJ12_6.c ${srcdir}/dft_pairPot_COULOMB.c \
 	${srcdir}/dft_pairPot_Yukawa.c ${srcdir}/dft_switch_pairPot.c \
 	${srcdir}/dft_switch_vext1D.c ${srcdir}/dft_switch_FMT.c \
@@ -194,14 +195,15 @@ am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_out_flux.$(OBJEXT) dft_out_profiles.$(OBJEXT) \
 	dft_vext.$(OBJEXT) dft_guess.$(OBJEXT) \
 	dft_guess_CHEMPOT.$(OBJEXT) dft_guess_EL_DENSITY.$(OBJEXT) \
-	dft_guess_HSFMT.$(OBJEXT) dft_guess_WTC.$(OBJEXT) \
-	dft_guess_restart.$(OBJEXT) dft_guess_CMS.$(OBJEXT) \
-	dft_guess_WJDC.$(OBJEXT) dft_guess_ELECPOT.$(OBJEXT) \
-	dft_comm.$(OBJEXT) dft_continuation.$(OBJEXT) \
-	dft_utils.$(OBJEXT) dft_fill_control.$(OBJEXT) \
-	dft_fill_main.$(OBJEXT) dft_fill_FMT.$(OBJEXT) \
-	dft_fill_mf.$(OBJEXT) dft_fill_wtc.$(OBJEXT) \
-	dft_vext_coul.$(OBJEXT) dft_uww.$(OBJEXT) dft_images.$(OBJEXT) \
+	dft_guess_HSFMT.$(OBJEXT) dft_guess_MFATT.$(OBJEXT) \
+	dft_guess_WTC.$(OBJEXT) dft_guess_restart.$(OBJEXT) \
+	dft_guess_CMS.$(OBJEXT) dft_guess_WJDC.$(OBJEXT) \
+	dft_guess_ELECPOT.$(OBJEXT) dft_comm.$(OBJEXT) \
+	dft_continuation.$(OBJEXT) dft_utils.$(OBJEXT) \
+	dft_fill_control.$(OBJEXT) dft_fill_main.$(OBJEXT) \
+	dft_fill_FMT.$(OBJEXT) dft_fill_mf.$(OBJEXT) \
+	dft_fill_wtc.$(OBJEXT) dft_vext_coul.$(OBJEXT) \
+	dft_uww.$(OBJEXT) dft_images.$(OBJEXT) \
 	dft_potential_params.$(OBJEXT) dft_pairPot_LJ12_6.$(OBJEXT) \
 	dft_pairPot_COULOMB.$(OBJEXT) dft_pairPot_Yukawa.$(OBJEXT) \
 	dft_switch_pairPot.$(OBJEXT) dft_switch_vext1D.$(OBJEXT) \
@@ -319,15 +321,16 @@ am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
 	${srcdir}/dft_out_flux.h ${srcdir}/dft_out_profiles.h \
 	${srcdir}/dft_vext.h ${srcdir}/dft_guess.h \
 	${srcdir}/dft_guess_CHEMPOT.h ${srcdir}/dft_guess_EL_DENSITY.h \
-	${srcdir}/dft_guess_HSFMT.h ${srcdir}/dft_guess_WTC.h \
-	${srcdir}/dft_guess_restart.h ${srcdir}/dft_guess_CMS.h \
-	${srcdir}/dft_guess_WJDC.h ${srcdir}/dft_guess_ELECPOT.h \
-	${srcdir}/dft_comm.h ${srcdir}/dft_continuation.h \
-	${srcdir}/dft_utils.h ${srcdir}/dft_fill_control.h \
-	${srcdir}/dft_fill_main.h ${srcdir}/dft_fill_FMT.h \
-	${srcdir}/dft_fill_mf.h ${srcdir}/dft_fill_wtc.h \
-	${srcdir}/dft_vext_coul.h ${srcdir}/dft_uww.h \
-	${srcdir}/dft_images.h ${srcdir}/dft_potential_params.h \
+	${srcdir}/dft_guess_HSFMT.h ${srcdir}/dft_guess_MFATT.h \
+	${srcdir}/dft_guess_WTC.h ${srcdir}/dft_guess_restart.h \
+	${srcdir}/dft_guess_CMS.h ${srcdir}/dft_guess_WJDC.h \
+	${srcdir}/dft_guess_ELECPOT.h ${srcdir}/dft_comm.h \
+	${srcdir}/dft_continuation.h ${srcdir}/dft_utils.h \
+	${srcdir}/dft_fill_control.h ${srcdir}/dft_fill_main.h \
+	${srcdir}/dft_fill_FMT.h ${srcdir}/dft_fill_mf.h \
+	${srcdir}/dft_fill_wtc.h ${srcdir}/dft_vext_coul.h \
+	${srcdir}/dft_uww.h ${srcdir}/dft_images.h \
+	${srcdir}/dft_potential_params.h \
 	${srcdir}/dft_pairPot_LJ12_6.h ${srcdir}/dft_pairPot_COULOMB.h \
 	${srcdir}/dft_pairPot_Yukawa.h ${srcdir}/dft_switch_pairPot.h \
 	${srcdir}/dft_switch_vext1D.h ${srcdir}/dft_switch_FMT.h \
@@ -538,6 +541,7 @@ COMMON_H = \
         ${srcdir}/dft_guess_CHEMPOT.h \
         ${srcdir}/dft_guess_EL_DENSITY.h \
         ${srcdir}/dft_guess_HSFMT.h \
+        ${srcdir}/dft_guess_MFATT.h \
         ${srcdir}/dft_guess_WTC.h \
         ${srcdir}/dft_guess_restart.h \
         ${srcdir}/dft_guess_CMS.h \
@@ -626,6 +630,7 @@ COMMON_C = \
         ${srcdir}/dft_guess_CHEMPOT.c \
         ${srcdir}/dft_guess_EL_DENSITY.c \
         ${srcdir}/dft_guess_HSFMT.c \
+        ${srcdir}/dft_guess_MFATT.c \
         ${srcdir}/dft_guess_WTC.c \
         ${srcdir}/dft_guess_restart.c \
         ${srcdir}/dft_guess_CMS.c \
@@ -931,6 +936,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_guess_ELECPOT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_guess_EL_DENSITY.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_guess_HSFMT.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_guess_MFATT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_guess_WJDC.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_guess_WTC.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_guess_restart.Po@am__quote@
@@ -1844,6 +1850,20 @@ dft_guess_HSFMT.obj: ${srcdir}/dft_guess_HSFMT.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_guess_HSFMT.c' object='dft_guess_HSFMT.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_guess_HSFMT.obj `if test -f '${srcdir}/dft_guess_HSFMT.c'; then $(CYGPATH_W) '${srcdir}/dft_guess_HSFMT.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_guess_HSFMT.c'; fi`
+
+dft_guess_MFATT.o: ${srcdir}/dft_guess_MFATT.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_guess_MFATT.o -MD -MP -MF $(DEPDIR)/dft_guess_MFATT.Tpo -c -o dft_guess_MFATT.o `test -f '${srcdir}/dft_guess_MFATT.c' || echo '$(srcdir)/'`${srcdir}/dft_guess_MFATT.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_guess_MFATT.Tpo $(DEPDIR)/dft_guess_MFATT.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_guess_MFATT.c' object='dft_guess_MFATT.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_guess_MFATT.o `test -f '${srcdir}/dft_guess_MFATT.c' || echo '$(srcdir)/'`${srcdir}/dft_guess_MFATT.c
+
+dft_guess_MFATT.obj: ${srcdir}/dft_guess_MFATT.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_guess_MFATT.obj -MD -MP -MF $(DEPDIR)/dft_guess_MFATT.Tpo -c -o dft_guess_MFATT.obj `if test -f '${srcdir}/dft_guess_MFATT.c'; then $(CYGPATH_W) '${srcdir}/dft_guess_MFATT.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_guess_MFATT.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_guess_MFATT.Tpo $(DEPDIR)/dft_guess_MFATT.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_guess_MFATT.c' object='dft_guess_MFATT.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_guess_MFATT.obj `if test -f '${srcdir}/dft_guess_MFATT.c'; then $(CYGPATH_W) '${srcdir}/dft_guess_MFATT.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_guess_MFATT.c'; fi`
 
 dft_guess_WTC.o: ${srcdir}/dft_guess_WTC.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_guess_WTC.o -MD -MP -MF $(DEPDIR)/dft_guess_WTC.Tpo -c -o dft_guess_WTC.o `test -f '${srcdir}/dft_guess_WTC.c' || echo '$(srcdir)/'`${srcdir}/dft_guess_WTC.c

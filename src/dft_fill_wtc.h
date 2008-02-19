@@ -42,15 +42,13 @@ double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define PI    M_PI
 extern int Nseg_tot;
 #define THETA_FN_SIG          5
-#define WJDC_FIELD     8
-#define WJDC         3
-extern int Type_poly;
 double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double constant_boundary(int iunk,int jnode_box);
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
 extern int **Zero_density_TF;
+int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern int Ncomp;
 #define DELTA_FN_BOND         6
@@ -87,6 +85,6 @@ extern int Unk2Comp[NMER_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
 #define DENSITY        0
-#define NEQ_TYPE       10 
+#define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
