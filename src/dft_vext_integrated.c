@@ -120,6 +120,7 @@ double integrate_potential(double param1, double param2, double param3, double p
                             (node_pos_f[1] - point[1]) +
                             (node_pos_f[2] - point[2])*
                             (node_pos_f[2] - point[2]) );
+		radius /= cut;
 
                 weight = get_wt_from_sten(radius,param1,param2,param3,param4,ngpu, gpu, gwu); 
 
@@ -141,7 +142,10 @@ double get_wt_from_sten(double r,double param1, double param2, double param3,
   int i;
   rcut=param3;
 
+  /* if r is larger than the cutoff, return 0
+      assumes r = radius/rcut */
   if (r >= 1.0) return(0.0);
+
   if (Ndim == 1) {
      temp = 0.0;
      zmax = sqrt(1.0 - r*r);
@@ -163,7 +167,8 @@ double get_wt_from_sten(double r,double param1, double param2, double param3,
      return(2.0 * temp * rcut * zmax);
   }
   else {
-    temp = pairPot_switch(r,param1,param2,param3,param4,Type_vext3D);
+    rho = r * rcut;
+    temp = pairPot_switch(rho,param1,param2,param3,param4,Type_vext3D);
     return(temp);
   }
 }
