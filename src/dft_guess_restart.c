@@ -224,7 +224,6 @@ void read_in_a_file(int iguess,char *filename)
              if (Lseg_densities) for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
              else                for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
        }
-       else eq_type=NEQ_TYPE;  /* end loop */
     }
     if (Iwrite != NO_SCREEN) printf("Number of unknowns in the file=%d\n",unk_in_file);
 
