@@ -37,7 +37,7 @@
 /***********************************************************************/
 /*integrate_potential: In this routine we use gauss quadrature
                     (same logic as in stencil routine) to calculate
-                    the potential energy at a give fluid position
+                    the potential energy at a given fluid position
                     due to a given wall element.*/
 double integrate_potential(double param1, double param2, double param3, double param4, int ngp, int ngpu,
                       double *gp, double *gpu, double *gw, double *gwu,
@@ -124,7 +124,7 @@ double integrate_potential(double param1, double param2, double param3, double p
 
                 weight = get_wt_from_sten(radius,param1,param2,param3,param4,ngpu, gpu, gwu); 
 
-                vext += weight * gw[ig] * gw[jg] * gw[kg] /* * Vol_el*/;
+                vext += weight * gw[ig] * gw[jg] * gw[kg] * Vol_el;
              }
            }
          }

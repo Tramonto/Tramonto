@@ -1050,10 +1050,7 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
              pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4);
              vext = integrate_potential(param1,param2,param3,param4,
                        ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
-
-             if (r_center_sq<Cut_wf[icomp][iwall_type] && icomp!=0){
-                 vext=0.5;
-             }
+	     
 
              Vext[loc_inode][icomp] += vext;
 
