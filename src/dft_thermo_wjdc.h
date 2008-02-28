@@ -21,10 +21,12 @@ extern int Iwrite;
 void chempot_chain_wjdc(double *rho,double *betamu_chain);
 extern double Xi_cav_b[4];
 #define NCOMP_MAX 5
+extern int Geqn_start[NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define NMER_MAX     100
 #define NBOND_MAX 4
+extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 extern int ***Poly_to_Unk;
 extern int **Nbond;

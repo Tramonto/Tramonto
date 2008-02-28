@@ -105,9 +105,9 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
 
   while (array_fill==FALSE){
      for (ibond=0;ibond<Nbonds;ibond++){
+        pol_num=Unk_to_Poly[ibond];
         iseg=Unk_to_Seg[ibond];
         icomp=Unk2Comp[iseg];
-        pol_num=Unk_to_Poly[ibond];
         bond_num=Unk_to_Bond[ibond];
         if (array_val[ibond]==FALSE){
            test=TRUE;  /* assume we will compute a bulk G */
@@ -116,7 +116,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
                                   always compute G for end segments flagged with -1 value */
               for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
                  if (Bonds[pol_num][jseg][jbond] != iseg){ /* check all jbonds to see if we have necessary info */
-                    index=Poly_to_Unk[pol_num][jseg][jbond];
+                    index=Poly_to_Unk[pol_num][jseg][jbond]+Geqn_start[pol_num]-Geqn_start[0];
                     if (array_val[index]==FALSE) test=FALSE;
                  }
               }
@@ -126,14 +126,14 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
                   G_WJDC_b[ibond]=Field_WJDC_b[icomp]; /* end segment is simple */
               }
               else{
-                  icomp=Unk2Comp[iseg];
-                  jcomp=Unk2Comp[jseg];
+                  icomp=Unk2Comp[SegChain2SegAll[pol_num][iseg]];
+                  jcomp=Unk2Comp[SegChain2SegAll[pol_num][jseg]];
                   G_WJDC_b[ibond]=Field_WJDC_b[icomp]*
                                   y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
            
                   for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
                      if (Bonds[pol_num][jseg][jbond] != iseg){ 
-                          G_WJDC_b[ibond]*=G_WJDC_b[Poly_to_Unk[pol_num][jseg][jbond]];
+                          G_WJDC_b[ibond]*=G_WJDC_b[Poly_to_Unk[pol_num][jseg][jbond]+Geqn_start[pol_num]-Geqn_start[0]];
                      }
                   }
                   power=-(Nbond[pol_num][jseg]-2); /* this is 0 for a linear chain for all interal segments */
@@ -143,7 +143,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
               }
               count_fill++;
               array_val[ibond]=TRUE;
-              if (printproc)  fprintf(fp2,"ibond=%d  G_b=%9.6f\n",ibond,G_WJDC_b[ibond]);
+              if (printproc)  fprintf(fp2,"ibond=%d  G_b=%gf\n",ibond,G_WJDC_b[ibond]);
            }
         }
      }

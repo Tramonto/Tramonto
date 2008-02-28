@@ -429,7 +429,7 @@ void do_numerical_jacobian(double **x)
   char filename[20];
   FILE *ifp, *ifp2, *ifp3;
   int ia,ja,count_same=0,count_diff=0;
-  double coef_ij,diff;
+  double coef_ij,diff,error,fac;
   double **resid, **resid_tmp;
   resid = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   resid_tmp = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
@@ -449,7 +449,9 @@ void do_numerical_jacobian(double **x)
     for (inode=0; inode<Nnodes; inode++) {
       i=inode+Nnodes*iunk; /* Physics Based Ordering */
       /*i=iunk+Nunk_per_node*inode;*/  /* Nodal Based Ordering */
-      del=1.e-6*fabs(x[iunk][inode])+1.e-12;
+/*      del=1.e-6*fabs(x[iunk][inode])+1.e-12;*/
+      fac=1.e-8;
+      del=fac*fabs(x[iunk][inode])+1.e-12;
       x[iunk][inode] += del;
 
       for (junk=0; junk<Nunk_per_node; junk++) 
@@ -494,10 +496,11 @@ void do_numerical_jacobian(double **x)
             read_next=FALSE;
       }
       if (ia-1==i && ja-1==j){
-          diff=full[i][j]-coef_ij;
-          if (diff > 1.0e-3){ 
-               fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) |  %g\n",
-               i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff);
+          diff=fabs((full[i][j]-coef_ij));
+          error=100*fabs((full[i][j]-coef_ij)/full[i][j]);
+          if (diff > 0.001 && error>1.){ 
+               fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
+               i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
                count_diff++;
           }
           else count_same++;
@@ -506,11 +509,14 @@ void do_numerical_jacobian(double **x)
       else{
          if (fabs(full[i][j])>1.0e-8){
             printf("nonzero matrix coefficient only in numerical jacobian: i=%d  j=%d coefficient=%g\n",i,j,full[i][j]);
+            diff=fabs((full[i][j]-coef_ij));
+            fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=100%\n",
+               i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff);
             count_diff++;
          }
          else count_same++;
       }
-      if (fabs(full[i][j]) > 1.0e-8) fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
+      if (fabs(full[i][j]) > 1.0e-8) fprintf(ifp,"%d  %d   %lf\n",i,j,full[i][j]);
     }
   }
   fclose(ifp);
@@ -519,6 +525,8 @@ void do_numerical_jacobian(double **x)
   printf("numerical jacobian statistics:\n");
   printf("number of matrix coefficients that are the same=%d\n",count_same);
   printf("number of matrix coefficients that are different=%d\n",count_diff);
+  printf("See jdiff0 for summary of matrix coefficients where differences\n");
+  printf("between analytical and numerical results are greater than 1%. \n\n");
   printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
   exit(0);
 }
