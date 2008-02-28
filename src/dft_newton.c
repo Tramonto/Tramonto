@@ -272,7 +272,7 @@ int newton_solver(double** x, void* con_ptr) {
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);
 #ifdef NUMERICAL_JACOBIAN
-    do_numerical_jacobian(x);
+   do_numerical_jacobian(x);
 #endif
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
@@ -507,16 +507,17 @@ void do_numerical_jacobian(double **x)
           read_next=TRUE;
       }
       else{
-         if (fabs(full[i][j])>1.0e-8){
+         if (fabs(full[i][j])>1.0e-6){
+if (i==2) printf("i=%d j=%d  full[i][j]=%g\n",i,j,full[i][j]);
             printf("nonzero matrix coefficient only in numerical jacobian: i=%d  j=%d coefficient=%g\n",i,j,full[i][j]);
-            diff=fabs((full[i][j]-coef_ij));
+            diff=fabs((full[i][j]));
             fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=100%\n",
                i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff);
             count_diff++;
          }
          else count_same++;
       }
-      if (fabs(full[i][j]) > 1.0e-8) fprintf(ifp,"%d  %d   %lf\n",i,j,full[i][j]);
+      if (fabs(full[i][j]) > 1.0e-6) fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
     }
   }
   fclose(ifp);
