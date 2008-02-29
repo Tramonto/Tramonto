@@ -75,7 +75,6 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
         if (!Lseg_densities) iseg=SegChain2SegAll[npol][i];
         else                 iseg=iunk-Phys2Unk_first[DENSITY];
 
-
         boltz_pow = -(Nbonds_SegAll[iseg]-2);
         boltz_pow_J = -(Nbonds_SegAll[iseg]-1);
 

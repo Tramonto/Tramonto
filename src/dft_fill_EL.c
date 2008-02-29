@@ -94,6 +94,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    if (Type_poly != WJDC){
       resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
    }
+
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode);
 
 
@@ -111,7 +112,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                                icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
    }
 
-   if (Type_attr !=NONE) 
+  if (Type_attr !=NONE) 
          if (Type_attr==MF_VARIABLE){
            iunk_att=Phys2Unk_first[MF_EQ]+icomp;
            resid += x[iunk_att][inode_box];

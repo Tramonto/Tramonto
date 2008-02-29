@@ -97,8 +97,8 @@ libdft_a_DEPENDENCIES =
 am__libdft_a_SOURCES_DIST = ${srcdir}/dft_input.c ${srcdir}/dft_main.c \
 	${srcdir}/dft_mesh.c ${srcdir}/dft_mesh_surfaces.c \
 	${srcdir}/dft_mesh_lib.c ${srcdir}/dft_newton.c \
-	${srcdir}/dft_ldbal.c ${srcdir}/dft_fill_pde.c \
-	${srcdir}/dft_fill_pde_elec.c \
+	${srcdir}/dft_linsolver_setup.c ${srcdir}/dft_ldbal.c \
+	${srcdir}/dft_fill_pde.c ${srcdir}/dft_fill_pde_elec.c \
 	${srcdir}/dft_fill_pde_diffusion.c ${srcdir}/dft_fill_coarse.c \
 	${srcdir}/dft_fill_EL.c ${srcdir}/dft_fill_CMS.c \
 	${srcdir}/dft_fill_wjdc.c ${srcdir}/dft_fill_CLSchain.c \
@@ -166,16 +166,16 @@ am__libdft_a_SOURCES_DIST = ${srcdir}/dft_input.c ${srcdir}/dft_main.c \
 am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_mesh.$(OBJEXT) dft_mesh_surfaces.$(OBJEXT) \
 	dft_mesh_lib.$(OBJEXT) dft_newton.$(OBJEXT) \
-	dft_ldbal.$(OBJEXT) dft_fill_pde.$(OBJEXT) \
-	dft_fill_pde_elec.$(OBJEXT) dft_fill_pde_diffusion.$(OBJEXT) \
-	dft_fill_coarse.$(OBJEXT) dft_fill_EL.$(OBJEXT) \
-	dft_fill_CMS.$(OBJEXT) dft_fill_wjdc.$(OBJEXT) \
-	dft_fill_CLSchain.$(OBJEXT) dft_fill_CLSmf.$(OBJEXT) \
-	dft_physics_FMT1.$(OBJEXT) dft_physics_FMT2.$(OBJEXT) \
-	dft_physics_FMT3.$(OBJEXT) dft_defs_stencil.$(OBJEXT) \
-	dft_defs_unknowns.$(OBJEXT) dft_quadrature.$(OBJEXT) \
-	dft_stencil.$(OBJEXT) dft_stencil_delta_Bond.$(OBJEXT) \
-	dft_stencil_delta_R.$(OBJEXT) \
+	dft_linsolver_setup.$(OBJEXT) dft_ldbal.$(OBJEXT) \
+	dft_fill_pde.$(OBJEXT) dft_fill_pde_elec.$(OBJEXT) \
+	dft_fill_pde_diffusion.$(OBJEXT) dft_fill_coarse.$(OBJEXT) \
+	dft_fill_EL.$(OBJEXT) dft_fill_CMS.$(OBJEXT) \
+	dft_fill_wjdc.$(OBJEXT) dft_fill_CLSchain.$(OBJEXT) \
+	dft_fill_CLSmf.$(OBJEXT) dft_physics_FMT1.$(OBJEXT) \
+	dft_physics_FMT2.$(OBJEXT) dft_physics_FMT3.$(OBJEXT) \
+	dft_defs_stencil.$(OBJEXT) dft_defs_unknowns.$(OBJEXT) \
+	dft_quadrature.$(OBJEXT) dft_stencil.$(OBJEXT) \
+	dft_stencil_delta_Bond.$(OBJEXT) dft_stencil_delta_R.$(OBJEXT) \
 	dft_stencil_theta_CrCMS.$(OBJEXT) \
 	dft_stencil_theta_R.$(OBJEXT) \
 	dft_stencil_theta_RPMmsa.$(OBJEXT) \
@@ -292,7 +292,8 @@ am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
 	${srcdir}/dft_main.h ${srcdir}/dft_maindriver.h \
 	${srcdir}/dft_mesh.h ${srcdir}/dft_mesh_surfaces.h \
 	${srcdir}/dft_mesh_lib.h ${srcdir}/dft_newton.h \
-	${srcdir}/dft_fill_pde.h ${srcdir}/dft_fill_pde_elec.h \
+	${srcdir}/dft_linsolver_setup.h ${srcdir}/dft_fill_pde.h \
+	${srcdir}/dft_fill_pde_elec.h \
 	${srcdir}/dft_fill_pde_diffusion.h ${srcdir}/dft_fill_coarse.h \
 	${srcdir}/dft_fill_EL.h ${srcdir}/dft_fill_CMS.h \
 	${srcdir}/dft_fill_wjdc.h ${srcdir}/dft_fill_CLSchain.h \
@@ -487,6 +488,7 @@ COMMON_H = \
         ${srcdir}/dft_mesh_surfaces.h \
         ${srcdir}/dft_mesh_lib.h \
         ${srcdir}/dft_newton.h \
+        ${srcdir}/dft_linsolver_setup.h \
         ${srcdir}/dft_ldbal.h \
         ${srcdir}/dft_fill_pde.h \
         ${srcdir}/dft_fill_pde_elec.h \
@@ -576,6 +578,7 @@ COMMON_C = \
         ${srcdir}/dft_mesh_surfaces.c \
         ${srcdir}/dft_mesh_lib.c \
         ${srcdir}/dft_newton.c \
+        ${srcdir}/dft_linsolver_setup.c \
         ${srcdir}/dft_ldbal.c \
         ${srcdir}/dft_fill_pde.c \
         ${srcdir}/dft_fill_pde_elec.c \
@@ -944,6 +947,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_images.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_input.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_ldbal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_linsolver_setup.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_maindriver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_mesh.Po@am__quote@
@@ -1094,6 +1098,20 @@ dft_newton.obj: ${srcdir}/dft_newton.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_newton.c' object='dft_newton.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_newton.obj `if test -f '${srcdir}/dft_newton.c'; then $(CYGPATH_W) '${srcdir}/dft_newton.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_newton.c'; fi`
+
+dft_linsolver_setup.o: ${srcdir}/dft_linsolver_setup.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_linsolver_setup.o -MD -MP -MF $(DEPDIR)/dft_linsolver_setup.Tpo -c -o dft_linsolver_setup.o `test -f '${srcdir}/dft_linsolver_setup.c' || echo '$(srcdir)/'`${srcdir}/dft_linsolver_setup.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_linsolver_setup.Tpo $(DEPDIR)/dft_linsolver_setup.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_linsolver_setup.c' object='dft_linsolver_setup.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_linsolver_setup.o `test -f '${srcdir}/dft_linsolver_setup.c' || echo '$(srcdir)/'`${srcdir}/dft_linsolver_setup.c
+
+dft_linsolver_setup.obj: ${srcdir}/dft_linsolver_setup.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_linsolver_setup.obj -MD -MP -MF $(DEPDIR)/dft_linsolver_setup.Tpo -c -o dft_linsolver_setup.obj `if test -f '${srcdir}/dft_linsolver_setup.c'; then $(CYGPATH_W) '${srcdir}/dft_linsolver_setup.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_linsolver_setup.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_linsolver_setup.Tpo $(DEPDIR)/dft_linsolver_setup.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_linsolver_setup.c' object='dft_linsolver_setup.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_linsolver_setup.obj `if test -f '${srcdir}/dft_linsolver_setup.c'; then $(CYGPATH_W) '${srcdir}/dft_linsolver_setup.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_linsolver_setup.c'; fi`
 
 dft_ldbal.o: ${srcdir}/dft_ldbal.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_ldbal.o -MD -MP -MF $(DEPDIR)/dft_ldbal.Tpo -c -o dft_ldbal.o `test -f '${srcdir}/dft_ldbal.c' || echo '$(srcdir)/'`${srcdir}/dft_ldbal.c

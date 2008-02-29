@@ -17,15 +17,28 @@
 extern int *L2B_node;
 void fill_test(double **x,int flag);
 #define NODAL_FLAG -999
-#define WJDC_FIELD 8
 void fill_resid_and_matrix(double **x,int iter,int resid_only_flag,int unk_flag);
 extern int Nnodes;
 extern int Lseg_densities;
 double gsum_double(double c);
+#define HSRHOBAR       4
+#define CAVWTC         6
+#define BONDWTC        7
+#define WJDC_FIELD     8
+#define CMS_FIELD      1
 double gmin_double(double c);
 extern double Min_update_frac;
 extern int *Pol_Sym_Seg;
+#define WTC          2
+extern int Type_poly;
+#define DENSITY        0
+#define NEQ_TYPE       11 
+extern int Phys2Unk_first[NEQ_TYPE];
 extern int *Pol_Sym;
+#define G_CHAIN        2 
+#define NCOMP_MAX 5
+#define NMER_MAX     100
+extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
@@ -37,9 +50,6 @@ extern double Newton_abs_tol,Newton_rel_tol;
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 extern double Time_linsolver_av;
 extern double Time_linsolver_first;
-#if defined(NUMERICAL_JACOBIAN)
-void do_numerical_jacobian(double **x);
-#endif
 extern double Time_manager_av;
 extern double Time_manager_first;
 void print_resid_norm(int iter);
@@ -47,8 +57,22 @@ void print_resid_norm(int iter);
 extern double Time_fill_av;
 extern double Time_fill_first;
 void fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
+#define FALSE 0
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
 extern int *B2L_node;
 void box2owned(double **xBox,double **xOwned);
+extern void *ParameterList_list;
+void safe_free(void **ptr);
+void safe_free(void **ptr);
 int newton_solver(double **x,void *con_ptr);
 int solve_continuation(double **xx,double **xx2);
 typedef struct Loca_Struct Loca_Struct;
@@ -68,42 +92,20 @@ void print_profile_box(double **x,char *outfile);
 extern int Iwrite;
 extern int Iguess1;
 void set_initial_guess(int iguess,double **xOwned);
+extern int Nunk_per_node;
+#if defined(__STDC__)
+void *array_alloc(int numdim,...);
+#endif
+void *array_alloc(int numdim,...);
+#if !(defined(__STDC__))
+void *array_alloc(...);
+#endif
 extern int *List_coarse_nodes;
 extern int Nnodes_coarse_loc;
 extern int *B2G_node;
 extern int Nnodes_box;
 extern int *L2G_node;
 extern int Nnodes_per_proc;
-extern int Mesh_coarsening;
-#define WTC          2
-extern int Type_attr;
-#define CAVWTC     6
-#define BONDWTC       7
-extern int Ndim;
-extern int Nrho_bar_s;
-#define NEQ_TYPE       9
-extern int Phys2Unk_first[NEQ_TYPE];
-#define HSRHOBAR       4
-#define POISSON        3
-#define TRUE  1
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(TRUE) && !defined(_CON_CONST_H_)
-#define TRUE  1
-#endif
-extern int Nlists_HW;
-extern int Lhard_surf;
-#define FALSE 0
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
-#endif
-extern int Type_func;
-void safe_free(void **ptr);
-void safe_free(void **ptr);
-extern int Ncomp;
-extern int Ngeqn_tot;
-typedef struct Aztec_Struct Aztec_Struct;
 struct Aztec_Struct {
   /*  int    options[AZ_OPTIONS_SIZE];  Array used to select solver options.  */
   /*  double params[AZ_PARAMS_SIZE];    User selected solver paramters.       */
@@ -123,28 +125,9 @@ struct Aztec_Struct {
 };
 extern struct Aztec_Struct Aztec;
 extern void *LinProbMgr_manager;
-#define NCOMP_MAX 5
-extern int Geqn_start[NCOMP_MAX];
-#define G_CHAIN          2 
-#define CMS_FIELD      1
-#define DENSITY        0
-#define NMER_MAX     100
-extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
-extern int Nunk_per_node;
-#if defined(__STDC__)
-void *array_alloc(int numdim,...);
-#endif
-void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
-#define NONE       -1
-#define NONE      -1
-#define NONE -1
-#define NONE        -1
-extern int Type_coul;
-#define CMS          0
-extern int Type_poly;
-extern int L_Schur;
-extern void * ParameterList_list;
+void linsolver_setup_control();
 int solve_problem(double **x,double **x2);
+void do_numerical_jacobian(double **);
+#if defined(NUMERICAL_JACOBIAN)
+void do_numerical_jacobian(double **x);
+#endif

@@ -14,7 +14,6 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
 double d2y_dxi3_dxi2(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double d2y_dxi3_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);

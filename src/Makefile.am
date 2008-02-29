@@ -55,6 +55,7 @@ COMMON_H = \
         ${srcdir}/dft_mesh_surfaces.h \
         ${srcdir}/dft_mesh_lib.h \
         ${srcdir}/dft_newton.h \
+        ${srcdir}/dft_linsolver_setup.h \
         ${srcdir}/dft_ldbal.h \
         ${srcdir}/dft_fill_pde.h \
         ${srcdir}/dft_fill_pde_elec.h \
@@ -144,6 +145,7 @@ COMMON_C = \
         ${srcdir}/dft_mesh_surfaces.c \
         ${srcdir}/dft_mesh_lib.c \
         ${srcdir}/dft_newton.c \
+        ${srcdir}/dft_linsolver_setup.c \
         ${srcdir}/dft_ldbal.c \
         ${srcdir}/dft_fill_pde.c \
         ${srcdir}/dft_fill_pde_elec.c \
