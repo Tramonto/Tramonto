@@ -230,7 +230,8 @@ void linsolver_setup_WJDCTYPE()
 
    // LinProbMgr_manager = dft_wjdc_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
 
-/*  Turn on these calls when the routines existt */
+/*  Turn on these calls when the routines exist */
+/*
    LinProbMgr_manager = dft_wjdctype_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
   dft_wjdctype_lin_prob_mgr_setindnonlocalequationids(LinProbMgr_manager, count_indnonlocal, indnonlocaleq);
   dft_wjdctype_lin_prob_mgr_setdepnonlocalequationids(LinProbMgr_manager, count_depnonlocal, depnonlocaleq);
