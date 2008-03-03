@@ -86,7 +86,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    }
 
    /* now fill EL physics dependent terms */ 
- 
    resid=0.0; 
    resid+=fill_EL_ideal_gas(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
 
@@ -115,10 +114,13 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
   if (Type_attr !=NONE) 
          if (Type_attr==MF_VARIABLE){
            iunk_att=Phys2Unk_first[MF_EQ]+icomp;
-           resid += x[iunk_att][inode_box];
-           mat_val=1.0;
-           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk_att,inode_box,mat_val);
+           resid_att = x[iunk_att][inode_box];
+           resid += resid_att;
+           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_att);
+           if (!resid_only_flag){
+              mat_val=1.0;
+              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk_att,inode_box,mat_val);
+           }
          }
          else{
             resid+=load_mean_field(THETA_PAIRPOT_RCUT,iunk,loc_inode,

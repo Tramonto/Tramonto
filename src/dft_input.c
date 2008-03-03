@@ -203,7 +203,7 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&Type_attr,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Type_pairPot,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Type_attr >2 || Type_attr<-1){
-     if (Proc==0) printf("ERROR Type_attr=%d out of range - should be -1, 0, or 1\n",Type_attr);
+     if (Proc==0) printf("ERROR Type_attr=%d out of range - should be -1, 0, 1, or 2\n",Type_attr);
      exit(-1);
   }
 
@@ -1709,6 +1709,10 @@ void read_input_file(char *input_file, char *output_file1)
     read_junk(fp,fp2);
     fscanf(fp,"%d",&Print_rho_type);
     fprintf(fp2,"%d",Print_rho_type);
+    if (Print_rho_type==0 && Restart != 0){
+      printf("WARNING: Print_rho_type is being set to 1 so that restart files will not be overwritten\n");
+      Print_rho_type=1;
+    }
   }
   MPI_Bcast(&Print_rho_type,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Proc==0) {

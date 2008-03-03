@@ -338,8 +338,9 @@ void do_numerical_jacobian(double **x)
       i=inode+Nnodes*iunk; /* Physics Based Ordering */
       /*i=iunk+Nunk_per_node*inode;*/  /* Nodal Based Ordering */
 /*      del=1.e-6*fabs(x[iunk][inode])+1.e-12;*/
-      fac=1.e-8;
-      del=fac*fabs(x[iunk][inode])+1.e-12;
+      fac=1.e-6;
+      del=fac*fabs(x[iunk][inode]);
+      if (del<1.e-12) del+= 1.e-12;
       x[iunk][inode] += del;
 
       for (junk=0; junk<Nunk_per_node; junk++) 
