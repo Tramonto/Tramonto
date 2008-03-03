@@ -1,0 +1,24 @@
+/*! \file 
+ \brief Lennard-Jones mixture (2 components).
+
+Functionals: FMT1, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Two component neutral Lennard-Jones system.  This tests the Type_attr=2 case where
+the attractions are separated from the Euler-Lagrange equation.  Results are identical to the MIX2 case.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=11 
+   - adsorption[0]= 3.495444  
+   - adsorption[1]= 3.495444
+   - energy=-3.578393   
+   - force=1.635908
+   .
+*/
