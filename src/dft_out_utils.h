@@ -14,8 +14,9 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define LAST_NODE    3
-#define IN_BULK      0
+#define LAST_NODE_RESTART    4
+#define LAST_NODE            3
+#define IN_BULK              0
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -59,9 +60,9 @@ extern int Nwall;
 extern double Size_x[NDIM_MAX];
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Lcount_reflect;
-#define REFLECT      2
+#define REFLECT              2
 void setup_domain_multipliers();
-#define PERIODIC     1
+#define PERIODIC             1
 extern int Type_bc[NDIM_MAX][2];
 extern int Nodes_x[NDIM_MAX];
 extern int Ndim;

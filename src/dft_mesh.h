@@ -97,6 +97,7 @@ extern int Nlocal_charge;
 #define CONST_CHARGE     2
 extern int Type_bc_elec[NWALL_MAX_TYPE];
 #define LAST_NODE    3
+#define LAST_NODE_RESTART    4
 double gsum_double(double c);
 #define DOWN_FRONT   7
 #define DOWN_BACK    3

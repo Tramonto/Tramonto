@@ -623,11 +623,13 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
         for (idim=0; idim<Ndim; idim++){
            if ( ijk[idim]==0 &&   (Type_bc[idim][0] == REFLECT || 
                                    Type_bc[idim][0] == IN_BULK ||
-                                   Type_bc[idim][0] == LAST_NODE ) ) nel_hit /= 2;
+                                   Type_bc[idim][0] == LAST_NODE ||
+                                   Type_bc[idim][0] == LAST_NODE_RESTART ) ) nel_hit /= 2;
            else if ( ijk[idim]==Nodes_x[idim]-1 && 
                      (Type_bc[idim][1] == REFLECT ||
                       Type_bc[idim][1] == IN_BULK ||
-                      Type_bc[idim][1] == LAST_NODE )              ) nel_hit /= 2;
+                      Type_bc[idim][1] == LAST_NODE ||
+                      Type_bc[idim][1] == LAST_NODE_RESTART )              ) nel_hit /= 2;
 
 	   iunk = Phys2Unk_first[DENSITY]+icomp;
            iwunk = iwall*Ncomp + icomp; 

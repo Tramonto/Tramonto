@@ -26,6 +26,13 @@ double gsum_double(double c);
 #define BONDWTC        7
 #define WJDC_FIELD     8
 #define CMS_FIELD      1
+#define NDIM_MAX  3
+extern int Nodes_x[NDIM_MAX];
+#define LAST_NODE_RESTART    4
+extern int Type_bc[NDIM_MAX][2];
+extern int Ndim;
+void node_to_ijk(int node,int *ijk);
+void node_to_ijk(int node,int *ijk);
 double gmin_double(double c);
 extern double Min_update_frac;
 extern int *Pol_Sym_Seg;
@@ -109,7 +116,7 @@ extern int Nnodes_per_proc;
 struct Aztec_Struct {
   /*  int    options[AZ_OPTIONS_SIZE];  Array used to select solver options.  */
   /*  double params[AZ_PARAMS_SIZE];    User selected solver paramters.       */
-#ifdef DONE_WITH_THESE
+#ifdef DONE_WITH_THESE 
   int    proc_config[AZ_PROC_SIZE];/* Processor information.                */
   int    *data_org;                /* Array to specify data layout          */
   double status[AZ_STATUS_SIZE];   /* Information returned from AZ_solve(). */
@@ -121,7 +128,7 @@ struct Aztec_Struct {
   double *val;                     /* in these MSR arrays.                  */
   int    N_update;                 /* # of unknowns updated on this node    */
   int    nonzeros;                 /* # of nonzeros in sparse matrix        */
-#endif
+#endif 
 };
 extern struct Aztec_Struct Aztec;
 extern void *LinProbMgr_manager;

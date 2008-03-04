@@ -25,7 +25,7 @@
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-#define PERIODIC     1
+#define PERIODIC             1
 #define NDIM_MAX  3
 extern int Type_bc[NDIM_MAX][2];
 extern double Size_x[NDIM_MAX];

@@ -65,8 +65,8 @@ double Vext_1D(double x,int icomp,int iwall_type);
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double WallParam[NWALL_MAX_TYPE];
 void find_images_1D(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
-#define REFLECT      2
-#define PERIODIC     1
+#define REFLECT              2
+#define PERIODIC             1
 extern int Type_bc[NDIM_MAX][2];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];

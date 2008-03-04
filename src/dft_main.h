@@ -69,10 +69,10 @@ void setup_vext_coulomb_vol();
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-#define IN_WALL     -1
-#define IN_BULK      0
-#define REFLECT      2
-#define PERIODIC     1
+#define IN_WALL             -1
+#define IN_BULK              0
+#define REFLECT              2
+#define PERIODIC             1
 extern int Type_bc[NDIM_MAX][2];
 extern int Vol_charge_flag;
 extern double **Vext_coul;

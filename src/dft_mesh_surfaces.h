@@ -75,8 +75,8 @@ extern int ***Wall_owners;
 extern int **Nwall_owners;
 void flag_wall_el(int inode,int ilist,int iwall,int iel_box,int **L_wall,int **nelems_w_per_w,int ***elems_w_per_w,int ***el_type);
 extern double Size_x[NDIM_MAX];
-#define REFLECT      2
-#define PERIODIC     1
+#define REFLECT              2
+#define PERIODIC             1
 extern int Type_bc[NDIM_MAX][2];
 void safe_free(void **ptr);
 void safe_free(void **ptr);

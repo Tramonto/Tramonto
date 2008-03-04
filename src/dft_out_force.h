@@ -25,9 +25,10 @@ extern double HS_diam[NCOMP_MAX];
 #endif
 extern double Vol_el;
 extern double ***Vext_dash;
-#define LAST_NODE    3
-#define IN_BULK      0
-#define REFLECT      2
+#define LAST_NODE_RESTART    4
+#define LAST_NODE            3
+#define IN_BULK              0
+#define REFLECT              2
 #define NDIM_MAX  3
 extern int Type_bc[NDIM_MAX][2];
 extern int **Wall_elems;

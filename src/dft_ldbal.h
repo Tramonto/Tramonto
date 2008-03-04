@@ -58,12 +58,12 @@ extern int *Mesh_coarsen_flag;
 extern int L1D_bc;
 extern int Mesh_coarsening;
 extern int **Zero_density_TF;
-#define IN_WALL     -1
-#define PERIODIC     1
+#define IN_WALL             -1
+#define PERIODIC             1
 #define NDIM_MAX  3
 extern int Nodes_x[NDIM_MAX];
 extern double Esize_x[NDIM_MAX];
-#define REFLECT      2
+#define REFLECT              2
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 #define NCOMP_MAX 5

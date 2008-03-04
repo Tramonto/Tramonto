@@ -87,7 +87,7 @@ void calc_adsorption(FILE *fp,double **x);
 extern double Size_x[NDIM_MAX];
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Lcount_reflect;
-#define REFLECT      2
+#define REFLECT              2
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void setup_domain_multipliers();

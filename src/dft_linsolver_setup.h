@@ -19,9 +19,9 @@ extern int Type_coul;
 extern int Mesh_coarsening;
 #define WTC          2
 extern int Type_attr;
+#define MF_EQ          9
 #define CAVWTC         6
 #define BONDWTC        7
-#define MF_EQ        9
 extern int Ndim;
 extern int Nrho_bar_s;
 #define NEQ_TYPE       11 

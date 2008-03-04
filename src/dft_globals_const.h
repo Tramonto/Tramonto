@@ -356,17 +356,18 @@
 #define ATOM_CENTERS_WW    1 
 
  /* The following is a choice for the BC type */
-#define IN_WALL     -1
-#define IN_BULK      0
-#define PERIODIC     1
-#define REFLECT      2
-#define LAST_NODE    3
+#define IN_WALL             -1
+#define IN_BULK              0
+#define PERIODIC             1
+#define REFLECT              2
+#define LAST_NODE            3
+#define LAST_NODE_RESTART    4
 
 /* These choices are for types of boundary conditions for
     charged systems                                    */
 #define CONST_POTENTIAL  1
 #define CONST_CHARGE     2
-#define ATOMIC_CHARGE     3
+#define ATOMIC_CHARGE    3
 
  /* The following is a choice for the load balance flag */
 #define LB_LINEAR    0

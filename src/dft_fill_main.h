@@ -44,7 +44,6 @@ extern int Nrho_bar_s;
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
-extern int Constant_row_flag[NEQ_TYPE]; 
 #define HSRHOBAR       4
 double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
@@ -69,7 +68,6 @@ extern int *Mesh_coarsen_flag;
 extern int L1D_bc;
 extern int Nwall_type;
 #define FALSE 0
-#define TRUE 1 
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
 #endif

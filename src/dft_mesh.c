@@ -2055,7 +2055,9 @@ void find_local_els(int inode,int *iel, int *iel_box,int flag)
   node_to_ijk(inode,ijk);
 
   for (idim=0; idim<Ndim; idim++){
-     if ((Type_bc[idim][0] == REFLECT || Type_bc[idim][0]==LAST_NODE) && ijk[idim]==0){
+     if ((Type_bc[idim][0] == REFLECT || 
+          Type_bc[idim][0]==LAST_NODE || 
+          Type_bc[idim][0]==LAST_NODE_RESTART) && ijk[idim]==0){
         if (idim == 0){
            if      (Ndim == 1) iel[1] = flag;
            else if (Ndim == 2) iel[1] = iel[3] = flag;
@@ -2067,7 +2069,9 @@ void find_local_els(int inode,int *iel, int *iel_box,int flag)
         }
         else if (idim == 2)    iel[4] = iel[5] = iel[6] = iel[7] = flag;
      }
-     else if ((Type_bc[idim][1] == REFLECT|| Type_bc[idim][0]==LAST_NODE)  && ijk[idim]==Nodes_x[idim]-1){
+     else if ((Type_bc[idim][1] == REFLECT|| 
+               Type_bc[idim][1]==LAST_NODE || 
+               Type_bc[idim][1]==LAST_NODE_RESTART)  && ijk[idim]==Nodes_x[idim]-1){
         if (idim == 0){
            if      (Ndim == 1) iel[0] = flag;
            else if (Ndim == 2) iel[0] = iel[2] = flag;

@@ -137,7 +137,7 @@ extern double Temp_elec;
 extern int Type_dielec;
 extern int Charge_type_local;
 extern int Charge_type_atoms;
-#define ATOMIC_CHARGE     3
+#define ATOMIC_CHARGE    3
 extern double **Charge_x;
 extern double *Charge_Diam;
 extern double *Charge;
@@ -283,7 +283,7 @@ extern int Type_coul;
 extern int Type_pairPot;
 extern int Type_attr;
 extern int Type_func;
-#define PERIODIC     1
+#define PERIODIC             1
 extern int Type_bc[NDIM_MAX][2];
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)

@@ -212,9 +212,11 @@ int update_solution(double** x, double** delta_x, int iter) {
  *       iter  value may be used in some damping methods
  */
 
-  int iunk, ibox, inode;
+  int iunk, ibox, inode,inodeG,ijk[3],go_update,idim;
   double updateNorm=0.0, temp,frac_min,frac;
   char *yo = "newupdate solution";
+     
+
 
    /* Certain unknowns - specifically densities and Gs in CMS DFT cannot be less than 0.
       Here we locate problems, and scale the entire update vector to prevent this from 
@@ -250,7 +252,19 @@ int update_solution(double** x, double** delta_x, int iter) {
       }
     }
 
+  /* For some cases, we need to be able to keep the solution values at the boundaries constant
+     and set equal to the values that are read in from a file.  Do not update the solution 
+     vector at these points */
+    inodeG=L2G_node[inode]; 
+    node_to_ijk(inodeG,ijk);
+    go_update=TRUE;
+    for (idim=0; idim<Ndim;idim++){
+       if (  (ijk[idim]==0 && Type_bc[idim][0] == LAST_NODE_RESTART) ||
+          (ijk[idim]==Nodes_x[idim]-1 && Type_bc[idim][1] == LAST_NODE_RESTART)) go_update=FALSE;
+    }
+   
     /* Update all solution componenets */
+    if (go_update){
     for (iunk=0; iunk<Nunk_per_node; iunk++){
       if ((  (Unk2Phys[iunk]==DENSITY && 
                   (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) || 
@@ -269,6 +283,7 @@ int update_solution(double** x, double** delta_x, int iter) {
       else{
          x[iunk][ibox] += frac_min*delta_x[iunk][ibox];
       }
+    }
     }
   }
 

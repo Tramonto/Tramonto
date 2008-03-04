@@ -21,7 +21,7 @@ int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define PERIODIC     1
+#define PERIODIC             1
 #define NDIM_MAX  3
 extern int Type_bc[NDIM_MAX][2];
 extern int Nelements;

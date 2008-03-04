@@ -36,9 +36,9 @@ void find_images_1D(int idim,double cut,int *image,double **image_pos,double *no
 #endif
 extern double Esize_x[NDIM_MAX];
 extern double Size_x[NDIM_MAX];
-#define IN_WALL     -1
-#define REFLECT      2
-#define PERIODIC     1
+#define IN_WALL             -1
+#define REFLECT              2
+#define PERIODIC             1
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void find_images(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);

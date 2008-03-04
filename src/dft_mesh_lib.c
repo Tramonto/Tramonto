@@ -108,6 +108,7 @@ int offset_to_node(int *inode_ijk, int *offset_node,
                    }
                }
           case LAST_NODE:
+          case LAST_NODE_RESTART:
                inode_sten[i]=0;break;
         }
       }
@@ -132,6 +133,7 @@ int offset_to_node(int *inode_ijk, int *offset_node,
                   }
                }
           case LAST_NODE:
+          case LAST_NODE_RESTART:
                inode_sten[i]=Nodes_x[i]-1;break;
         }
       }
@@ -238,6 +240,7 @@ int offset_to_node_box(int *ijk_box, int *offset,
           case PERIODIC:
                if (Pflag[i]) ijk_sten_box[i] += Nodes_x[i]; break; 
           case LAST_NODE:
+          case LAST_NODE_RESTART:
                ijk_sten_box[i]=0;break;
         }
       }
@@ -270,6 +273,7 @@ int offset_to_node_box(int *ijk_box, int *offset,
           case PERIODIC:
                if (Pflag[i]) ijk_sten_box[i] -= Nodes_x[i]; break; 
           case LAST_NODE:
+          case LAST_NODE_RESTART:
                ijk_sten_box[i]=Nodes_x_box[i]-1;break;
         }
       }
@@ -383,14 +387,14 @@ int node_to_elem(int inode_all, int local_node, int *reflect_flag)
        else if (Type_bc[idim][0] == REFLECT) ijk[idim] = 0;
        else if (Type_bc[idim][0] == IN_BULK)  iel = -2;
        else if (Type_bc[idim][0] == IN_WALL)  iel = -1;
-       else if (Type_bc[idim][0] == LAST_NODE) ijk[idim] = 0;
+       else if (Type_bc[idim][0] == LAST_NODE || Type_bc[idim][0] == LAST_NODE_RESTART) ijk[idim] = 0;
     }
     else if (ijk[idim] == Elements_x[idim]) {
       if (Type_bc[idim][1] == PERIODIC) ijk[idim] = 0; 
       else if (Type_bc[idim][1] == REFLECT) ijk[idim] = Elements_x[idim]-1; 
       else if (Type_bc[idim][1] == IN_BULK)  iel = -2;
       else if (Type_bc[idim][1] == IN_WALL)  iel = -1;
-      else if (Type_bc[idim][1] == LAST_NODE) ijk[idim] = Elements_x[idim]-1;
+      else if (Type_bc[idim][1] == LAST_NODE || Type_bc[idim][1] == LAST_NODE_RESTART) ijk[idim] = Elements_x[idim]-1;
     }
   }
 
@@ -474,7 +478,7 @@ int node_to_elem_return_dim(int inode_all, int local_node, int *reflect_flag,
        else if (Type_bc[idim][0] == IN_WALL)  {
            iel = -1; *idim_return = idim; *iside = 0;
        }
-       else if (Type_bc[idim][0] == LAST_NODE) ijk[idim]=0; 
+       else if (Type_bc[idim][0] == LAST_NODE || Type_bc[idim][0] == LAST_NODE_RESTART) ijk[idim]=0; 
     }
     else if (ijk[idim] == Elements_x[idim]) {
       if (Type_bc[idim][1] == PERIODIC) {
@@ -486,7 +490,7 @@ int node_to_elem_return_dim(int inode_all, int local_node, int *reflect_flag,
       else if (Type_bc[idim][1] == IN_WALL) {
            iel = -1; *idim_return = idim; *iside = 1;
       }
-      else if (Type_bc[idim][1] == LAST_NODE) ijk[idim]=Elements_x[idim]-1; 
+      else if (Type_bc[idim][1] == LAST_NODE || Type_bc[idim][1] == LAST_NODE_RESTART) ijk[idim]=Elements_x[idim]-1; 
     }
   }
 
@@ -542,14 +546,14 @@ int node_to_elem_v2(int inode_all, int local_node)
        else if (Type_bc[idim][0] == REFLECT)  iel = -2;
        else if (Type_bc[idim][0] == IN_BULK)  iel = -2;
        else if (Type_bc[idim][0] == IN_WALL)  iel = -1;
-       else if (Type_bc[idim][0] == LAST_NODE)  iel = -2;
+       else if (Type_bc[idim][0] == LAST_NODE || Type_bc[idim][0] == LAST_NODE_RESTART)  iel = -2;
     }
     else if (ijk[idim] == Elements_x[idim]) {
       if (Type_bc[idim][1] == PERIODIC) ijk[idim] = 0;
       else if (Type_bc[idim][1] == REFLECT)  iel = -2;
       else if (Type_bc[idim][1] == IN_BULK)  iel = -2;
       else if (Type_bc[idim][1] == IN_WALL)  iel = -1;
-      else if (Type_bc[idim][1] == LAST_NODE)  iel = -2;
+      else if (Type_bc[idim][1] == LAST_NODE || Type_bc[idim][1] == LAST_NODE_RESTART)  iel = -2;
     }
   }
 
@@ -922,7 +926,7 @@ int node_box_to_elem_box_reflect(int inode_box, int local_node, int *reflect_fla
           (ijk_box[2])--;
           if (ijk_box[2] == -1) {
             if (Type_bc[2][0] == REFLECT) ijk_box[2] = 0;
-            else if (Type_bc[2][0] == LAST_NODE) ijk_box[2] = 0;
+            else if (Type_bc[2][0] == LAST_NODE || Type_bc[2][0] == LAST_NODE_RESTART) ijk_box[2] = 0;
             else if (Type_bc[2][0] == PERIODIC && Pflag[2]) 
                                           ijk_box[2] = Elements_x[2]-1;
             else     return (-1); /* out of domain -- no contribution */
@@ -930,7 +934,7 @@ int node_box_to_elem_box_reflect(int inode_box, int local_node, int *reflect_fla
        }
        else if (ijk_box[2] == Elements_x_box[2]) {
             if (Type_bc[2][1] == REFLECT) ijk_box[2] = Elements_x_box[2]-1;
-            else if (Type_bc[2][1] == LAST_NODE) ijk_box[2] = Elements_x_box[2]-1;
+            else if (Type_bc[2][1] == LAST_NODE || Type_bc[2][1] == LAST_NODE_RESTART) ijk_box[2] = Elements_x_box[2]-1;
             else if (Type_bc[2][1] == PERIODIC && Pflag[2]) ijk_box[2] = 0;
             else     return (-1); /* out of domain -- no contribution */
        }
@@ -941,7 +945,7 @@ int node_box_to_elem_box_reflect(int inode_box, int local_node, int *reflect_fla
           (ijk_box[1])--;
           if (ijk_box[1] == -1) {
             if (Type_bc[1][0] == REFLECT) ijk_box[1] = 0;
-            else if (Type_bc[1][0] == LAST_NODE) ijk_box[1] = 0;
+            else if (Type_bc[1][0] == LAST_NODE || Type_bc[1][0] == LAST_NODE_RESTART) ijk_box[1] = 0;
             else if (Type_bc[1][0] == PERIODIC && Pflag[1]) 
                                           ijk_box[1] = Elements_x[1]-1;
             else     return (-1); /* out of domain -- no contribution */
@@ -949,7 +953,7 @@ int node_box_to_elem_box_reflect(int inode_box, int local_node, int *reflect_fla
        }
        else if (ijk_box[1] == Elements_x_box[1]) {
             if (Type_bc[1][1] == REFLECT) ijk_box[1] = Elements_x_box[1]-1;
-            else if (Type_bc[1][1] == LAST_NODE) ijk_box[1] = Elements_x_box[1]-1;
+            else if (Type_bc[1][1] == LAST_NODE || Type_bc[1][1] == LAST_NODE_RESTART) ijk_box[1] = Elements_x_box[1]-1;
             else if (Type_bc[1][1] == PERIODIC && Pflag[1]) ijk_box[1] = 0;
             else     return (-1); /* out of domain -- no contribution */
        }
@@ -960,7 +964,7 @@ int node_box_to_elem_box_reflect(int inode_box, int local_node, int *reflect_fla
           (ijk_box[0])--;
           if (ijk_box[0] == -1) {
             if (Type_bc[0][0] == REFLECT) ijk_box[0] = 0;
-            else if (Type_bc[0][0] == LAST_NODE) ijk_box[0] = 0;
+            else if (Type_bc[0][0] == LAST_NODE || Type_bc[0][0] == LAST_NODE_RESTART) ijk_box[0] = 0;
             else if (Type_bc[0][0] == PERIODIC && Pflag[0]) 
                                           ijk_box[0] = Elements_x[0]-1;
             else     return (-1); /* out of domain -- no contribution */
@@ -968,7 +972,7 @@ int node_box_to_elem_box_reflect(int inode_box, int local_node, int *reflect_fla
        }
        else if (ijk_box[0] == Elements_x_box[0]) {
             if (Type_bc[0][1] == REFLECT) ijk_box[0] = Elements_x_box[0]-1;
-            else if (Type_bc[0][1] == LAST_NODE) ijk_box[0] = Elements_x_box[0]-1;
+            else if (Type_bc[0][1] == LAST_NODE || Type_bc[0][1] == LAST_NODE_RESTART) ijk_box[0] = Elements_x_box[0]-1;
             else if (Type_bc[0][1] == PERIODIC && Pflag[0]) ijk_box[0] = 0;
             else     return (-1); /* out of domain -- no contribution */
        }

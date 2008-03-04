@@ -249,13 +249,17 @@ void setup_integrals()
          }
 
          for (idim=0; idim<Ndim; idim++){
-            if ( (Type_bc[idim][0] == REFLECT || Type_bc[idim][0] == IN_BULK || Type_bc[idim][0]==LAST_NODE)
-                                                          &&  ijk[idim] == 0)  {
+            if ( (Type_bc[idim][0] == REFLECT || 
+                  Type_bc[idim][0] == IN_BULK || 
+                  Type_bc[idim][0]==LAST_NODE ||
+                  Type_bc[idim][0]==LAST_NODE_RESTART) &&  ijk[idim] == 0)  {
                   nel_hit /= 2;
                   nel_hit2 /= 2;
             }
-            if ( (Type_bc[idim][1] == REFLECT || Type_bc[idim][1] == IN_BULK || Type_bc[idim][0]==LAST_NODE)
-                                            &&  ijk[idim] == Nodes_x[idim]-1)  {
+            if ( (Type_bc[idim][1] == REFLECT || 
+                  Type_bc[idim][1] == IN_BULK || 
+                  Type_bc[idim][0]==LAST_NODE ||
+                  Type_bc[idim][0]==LAST_NODE_RESTART) &&  ijk[idim] == Nodes_x[idim]-1)  {
                   nel_hit /= 2;
                   nel_hit2 /= 2;
             }
