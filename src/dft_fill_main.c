@@ -43,7 +43,7 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
 
   char   *yo = "fill_resid_and_matrix";
   int     loc_inode, inode_box,ijk_box[3],iunk,junk,iunk_start,iunk_end;
-  int     mesh_coarsen_flag_i;
+  int     mesh_coarsen_flag_i,switch_constmatrix;
   struct  RB_Struct *dphi_drb=NULL;
   double *resid_unk;
 
@@ -91,8 +91,15 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
                mesh_coarsen_flag_i != FLAG_BULK && 
                mesh_coarsen_flag_i != FLAG_PBELEC) load_coarse_node_Ndim(loc_inode,inode_box,iunk,x,resid_only_flag);
 
-      else load_standard_node(loc_inode,inode_box,ijk_box,iunk,x,dphi_drb,
+      else{
+          /*switch_constmatrix=FALSE;
+          if (iter>1 && resid_only_flag==FALSE && Constant_row_flag[Unk2Phys[iunk]]==TRUE) {
+             resid_only_flag=TRUE; switch_constmatrix=TRUE;
+          }*/
+          load_standard_node(loc_inode,inode_box,ijk_box,iunk,x,dphi_drb,
                                resid_unk,mesh_coarsen_flag_i,resid_only_flag);
+/*          if (switch_constmatrix) resid_only_flag=FALSE;*/
+      }
 
      /* print for debugging purposes call this print routine */ 
      /*print_residuals(loc_inode,iunk,resid_unk);*/

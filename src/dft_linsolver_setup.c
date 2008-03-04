@@ -141,6 +141,7 @@ void linsolver_setup_HSTYPE()
           depnonlocaleq[count_depnonlocal++]=iunk; 
        break;*/
      case CAVWTC:
+     case MF_EQ:
        indnonlocaleq[count_indnonlocal++]=iunk; break;   
       default:
         printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);

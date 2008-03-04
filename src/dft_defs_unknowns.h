@@ -26,6 +26,7 @@ extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 #define NEQ_TYPE       11 
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
+extern int Constant_row_flag[NEQ_TYPE]; 
 #define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
 extern int Ngeqn_tot;
 #define G_CHAIN        2 

@@ -29,6 +29,7 @@
  *   dft_defs_unknowns.c: set up basic unknown types for the problem of interest.
  */
 #include "dft_defs_unknowns.h"
+void setup_matrix_constant_blocks();
 /*****************************************************************************/
 /*setup_nunk_per_node:  here we just set up the basic parameters for the number
   of unknowns per node for the run of interest, and some arrays to move between
@@ -183,7 +184,46 @@ void setup_nunk_per_node(char *output_file1)
    for (iunk=0;iunk<Nunk_per_node;iunk++) fprintf(fp2,"iunk=%d equation_type=%d\n",iunk,Unk2Phys[iunk]);
    fprintf(fp2,"******************************************************\n");
    }
+   setup_matrix_constant_blocks();
    if (Proc==0)fclose(fp2);
    return;
+}
+/*******************************************************************************/
+/*setup_matrix_constant_blocks:  In this routine an array is set up to keep track
+   of which blocks of the matrix are constant.  This blocks can be computed once
+   and then just reused */
+void setup_matrix_constant_blocks()
+{
+  int iphys;
+  for (iphys=0;iphys<NEQ_TYPE;iphys++) Constant_row_flag[iphys]=FALSE;
+
+  /* for each type of equation identify any constant blocks in the matrix */
+  for (iphys=0;iphys<NEQ_TYPE;iphys++)
+    if (Phys2Nunk[iphys] >0){
+       switch(iphys){
+           case DENSITY:  
+                break;                /* Euler-Lagrange equation */
+           case HSRHOBAR: 
+                Constant_row_flag[iphys]=TRUE;
+                break;
+           case DIFFUSION: break;
+           case CAVWTC:
+                Constant_row_flag[iphys]=TRUE;
+                break;
+           case BONDWTC:
+                Constant_row_flag[iphys]=TRUE;
+                break;
+           case CMS_FIELD: break;
+           case G_CHAIN: break;
+           case POISSON: break;
+           case WJDC_FIELD: break;
+           case MF_EQ:
+                Constant_row_flag[iphys]=TRUE;
+                break;
+           case YW_DENS: break;
+           default: break;
+    }
+  }
+  return;
 }
 /*******************************************************************************/

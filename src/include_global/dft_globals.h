@@ -152,6 +152,8 @@ int     Coarser_jac;      /* Flag to switch on coarser jacobian than residual*/
 double  Jac_grid;      /* Flag to switch on coarser jacobian than residual*/
 int     Lcut_jac;  /* Logical to indicate if Jacobian stencils will be cut off */
 double  Jac_threshold; /* Threshold level for Jacobian stencils ... max/Jac_threshold */
+int    Constant_row_flag[NEQ_TYPE]; /* A flag to turn off calculation of constant coefficients after first fill */
+
 
 /* Continuation info */
 int     Nodes_old;         /* # of nodes in the mesh of the previous run */
