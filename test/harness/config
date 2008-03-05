@@ -63,66 +63,19 @@ RUN (mac-tiger-intel) {
 
 ###############################################################################
 #
-# hrothgar nightly
+# walbert nightly - built against Trilinos 8.0.5
 #
 ###############################################################################
 
-RUN (hrothgar-nightly) {
+RUN (walbert-nightly) {
     
-    BUILD-LABEL         = default;
+    BUILD-LABEL         = t8.0.5;
     BUILD-DIR           = BUILD;
-    INVOKE-CONFIGURE    = linux-hrothgar;
+    INVOKE-CONFIGURE    = linux-walbert;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 4;
-    MPI-START           = lamboot;
-    MPI-PING            = mpitask;
-    MPI-STOP            = lamhalt;
-    TTR-DIR             = /common/TramontoTestHarness/TramontoTestResults;
-    SSG-USERNAME        = mnpheno;
-
-}
-
-###############################################################################
-#
-# paunchy nightly
-#
-###############################################################################
-
-RUN (paunchy-nightly) {
-    
-    BUILD-LABEL         = default;
-    BUILD-DIR           = BUILD;
-    INVOKE-CONFIGURE    = sunos-paunchy;
-    MAKE-COMMAND        = /Net/local/gnu/bin/gmake;
-    TEST-CATEGORY       = FRAMEWORK;
-    MAX-PROC            = 4;
-    MPI-START           = lamboot;
-    MPI-PING            = mpitask;
-    MPI-STOP            = lamhalt; 
-    TTR-DIR             = /local/proj/tramonto/TramontoTestResults;
-    SSG-USERNAME        = mnpheno;
-
-}
-
-###############################################################################
-#
-# herouxsmp nightly
-#
-###############################################################################
-
-RUN (herouxsmp-nightly) {
-    
-    BUILD-LABEL         = default;
-    BUILD-DIR           = BUILD;
-    INVOKE-CONFIGURE    = linux-herouxsmp;
-    MAKE-COMMAND        = make -j2;
-    TEST-CATEGORY       = FRAMEWORK;
-    MAX-PROC            = 4;
-    MPI-START           = lamboot;
-    MPI-PING            = mpitask;
-    MPI-STOP            = lamhalt;    
-    TTR-DIR             = /u/TramontoTestHarness/TramontoTestResults;
-    SSG-USERNAME        = mnpheno;
+    TTR-DIR             = /home/jmwille/TramontoTestHarness/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
 
 }
 
@@ -194,49 +147,6 @@ RUN (redstorm-nightly) {
 
 ###############################################################################
 #
-# sass2889 nightly
-#
-###############################################################################
-                                                                                
-RUN (sass2889-nightly) {
-                             
-    BUILD-LABEL         = default;                                                   
-    BUILD-DIR           = sass2889;
-    INVOKE-CONFIGURE    = sunos-sass2889;
-    TEST-CATEGORY       = FRAMEWORK;
-    MAX-PROC            = 16;
-#    BUILD-ONLY          = YES;
-#    MPI-START           = lamboot;
-#    MPI-PING            = mpitask;
-#    MPI-STOP            = lamhalt;
-    TTR-DIR             = /home/jmwille/TramontoTestHarness/TramontoTestResults;
-    SSG-USERNAME        = jmwille;
-                                                                                
-}
-
-###############################################################################
-#
-# sasg1099 nightly
-#
-###############################################################################
-                                                                                
-RUN (sasg1099-nightly) {
-                             
-    BUILD-LABEL         = default;                                                   
-    BUILD-DIR           = sasg1099;
-    INVOKE-CONFIGURE    = sgi-sasg1099;
-    TEST-CATEGORY       = FRAMEWORK;
-    MAX-PROC            = 16;
-#    BUILD-ONLY          = YES;
-#    MPI-START           = lamboot;
-#    MPI-PING            = mpitask;
-#    MPI-STOP            = lamhalt;
-    TTR-DIR             = /home/jmwille/TramontoTestHarness/TramontoTestResults;    SSG-USERNAME        = jmwille;
-                                                                                
-}
-
-###############################################################################
-#
 # nwcc nightly
 #
 ###############################################################################
@@ -256,24 +166,6 @@ RUN (nwcc-nightly) {
                                                                                 
 }
                                                                                 
-###############################################################################
-#
-# qt
-#
-###############################################################################
-
-RUN (qt) {
-
-    BUILD-LABEL         = default;
-    BUILD-DIR           = BUILD;
-    INVOKE-CONFIGURE    = qt;
-    TEST-CATEGORY       = FRAMEWORK;
-    MAX-PROC            = 2;
-    TTR-DIR             = /scratch_qt/jmwille/TramontoTestHarness/TramontoTestResults;
-    SSG-USERNAME        = jmwille;
-
-}
-
 ###############################################################################
 #
 # sais028
