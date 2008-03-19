@@ -233,10 +233,10 @@ void print_profile(char *output_file4)
                }
             case MF_EQ: 
                unk_char = "MFEQ"; 
-               if (Phys2Nunk[i] > 0){
+               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
                  fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); break;
-               }
+                 fprintf(ifp,"\n"); 
+               } break;
             case POISSON: 
                unk_char = "POISSON"; 
                if (Phys2Nunk[i] > 0){
@@ -263,22 +263,22 @@ void print_profile(char *output_file4)
                }
             case HSRHOBAR: 
                unk_char="HSRHOBAR";
-               if (Phys2Nunk[i] > 0){
+               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
                  fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); break;
-               }
+                 fprintf(ifp,"\n"); 
+               }break;
             case CAVWTC:
                unk_char="CAVWTC";
-               if (Phys2Nunk[i] > 0){
+               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
                  fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); break;
-               }
+                 fprintf(ifp,"\n"); 
+               } break;
             case BONDWTC:
                unk_char="BONDWTC";
-               if (Phys2Nunk[i] > 0){
+               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
                  fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); break;
-               }
+                 fprintf(ifp,"\n"); 
+               } break;
 	 case YW_DENS:
 	   break;
          }
@@ -322,10 +322,15 @@ void print_profile(char *output_file4)
 /*                if (Ipot_ff_n != IDEAL_GAS)
                        fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]
                             + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );*/
-                case MF_EQ:
                 case POISSON:
-                case HSRHOBAR:
                   fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
+                  break;
+
+                case MF_EQ:
+                case HSRHOBAR:
+                case CAVWTC:
+                case BONDWTC:
+                  if (Iwrite==VERBOSE) fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
                   break;
 
                 case CMS_FIELD:
@@ -339,12 +344,6 @@ void print_profile(char *output_file4)
                 case G_CHAIN:
                    fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]);
                    break;
-                case CAVWTC:
-                  fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
-                  break;
-                case BONDWTC:
-                  fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
-                  break;
             }
 
         }    /* end loop over unknowns in the run */

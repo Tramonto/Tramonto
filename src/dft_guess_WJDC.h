@@ -19,11 +19,12 @@
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 #define G_CHAIN        2 
 extern int Nbonds;
-void setup_polymer_G_wjdc(double **xOwned);
+void setup_polymer_G_wjdc(double **xInBox);
 extern double Field_WJDC_b[NMER_MAX];
 #define WJDC_FIELD     8
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
+extern int *L2B_node;
 extern int Nnodes_per_proc;
 extern int Ncomp;
-void setup_polymer_field_wjdc(double **xOwned);
+void setup_polymer_field_wjdc(double **xInBox);

@@ -55,7 +55,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
   int reflect_flag[NDIM_MAX];
   double  sign[3];
   struct  RB_Struct tmp;
-  double resid,mat_val,resid_sum=0.0;
+  double resid=0.0,mat_val,resid_sum=0.0;
   int numEntries, indexUnks[4];
   double values[4];
   double n[4+2*NDIM_MAX];
@@ -150,8 +150,8 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
             for (i=0;i<Nrho_bar_s+2*Ndim;i++) rho_bar[i]=x[junk+i][jnode_boxJ];
             solutionVec_to_nOrdering(rho_bar,n);
 
-            if (sten_type == DELTA_FN_R)       tmp = FMT2ndDerivDelta_switch(n,offsetJ,sign,icomp);
-            else if (sten_type == THETA_FN_R)  tmp = FMT2ndDerivTheta_switch(n);
+           if (sten_type == DELTA_FN_R)       tmp = FMT2ndDerivDelta_switch(n,offsetJ,sign,icomp);
+           else if (sten_type == THETA_FN_R)  tmp = FMT2ndDerivTheta_switch(n);
 
             numEntries=4;
             values[0]=Fac_overlap_hs[icomp]*weightJ*tmp.S3; values[1]=Fac_overlap_hs[icomp]*weightJ*tmp.S2; 
@@ -163,8 +163,10 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
 
             for (idim = 0; idim<Ndim; idim++){
                numEntries=2;
-               values[0]=weightJ*tmp.V2[idim]; values[1]=weightJ*tmp.V1[idim];
-               indexUnks[0]=junk+Nrho_bar_s+idim; indexUnks[1]=indexUnks[0]+Ndim; 
+               values[0]=Fac_overlap_hs[icomp]*weightJ*tmp.V2[idim]; 
+               values[1]=Fac_overlap_hs[icomp]*weightJ*tmp.V1[idim];
+               indexUnks[0]=junk+Nrho_bar_s+idim; 
+               indexUnks[1]=indexUnks[0]+Ndim; 
                dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                     indexUnks, jnode_boxJ, values, numEntries);
             }

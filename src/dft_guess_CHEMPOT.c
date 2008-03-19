@@ -38,7 +38,7 @@
 /************************************************************/
 /* setup_chem_pot: for cases with steady state profiles,
    set up regions of constant (electro)chemical potentials */
-void setup_chem_pot(double **xOwned)
+void setup_chem_pot(double **xInBox)
 {
   int loc_inode,inode_box,inode,ijk[3],icomp,iunk,i,nloop;
   double x_dist,x_tot;
@@ -60,17 +60,17 @@ void setup_chem_pot(double **xOwned)
 
         if (!Zero_density_TF[inode_box][icomp]){
            if (Ipot_ff_c == 1){
-             xOwned[iunk][loc_inode] = log(xOwned[Phys2Unk_first[DENSITY]+i][loc_inode])
-                           + Charge_f[icomp]*(xOwned[Phys2Unk_first[POISSON]][loc_inode]);
+             xInBox[iunk][inode_box] = log(xInBox[Phys2Unk_first[DENSITY]+i][inode_box])
+                           + Charge_f[icomp]*(xInBox[Phys2Unk_first[POISSON]][inode_box]);
 
            }
            else{
-               if (x_dist<0.)           xOwned[iunk][loc_inode]=Betamu_LBB[i];
-               else if (x_dist > x_tot) xOwned[iunk][loc_inode]=Betamu_RTF[i];
-               else  xOwned[iunk][loc_inode] = Betamu_LBB[i] + (Betamu_RTF[i]-Betamu_LBB[i])* x_dist/x_tot;
+               if (x_dist<0.)           xInBox[iunk][inode_box]=Betamu_LBB[i];
+               else if (x_dist > x_tot) xInBox[iunk][inode_box]=Betamu_RTF[i];
+               else  xInBox[iunk][inode_box] = Betamu_LBB[i] + (Betamu_RTF[i]-Betamu_LBB[i])* x_dist/x_tot;
            }
        }
-       else xOwned[iunk][loc_inode] = -VEXT_MAX;
+       else xInBox[iunk][inode_box] = -VEXT_MAX;
      }
   }
   return;

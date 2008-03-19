@@ -37,18 +37,19 @@
  
 /*********************************************************/
 /*setup_polymer_field: in this routine sets up the initial guess for the CMS field variable */
-void setup_polymer_field(double **xOwned, int iguess)
+void setup_polymer_field(double **xInBox, int iguess)
 {
-  int loc_inode,itype_mer,irho, iunk;
+  int loc_inode,itype_mer,irho, iunk,inode_box;
   double field;
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     inode_box=L2B_node[loc_inode];
 
      for (itype_mer=0; itype_mer<Ncomp; itype_mer++){
 	 irho = Phys2Unk_first[DENSITY]+itype_mer;
 	 iunk = Phys2Unk_first[CMS_FIELD]+itype_mer;
-         if (xOwned[irho][loc_inode]<1.e-6) field=VEXT_MAX-1.;
-         else field=-log(xOwned[irho][loc_inode]/Rho_b[itype_mer]);
-         xOwned[iunk][loc_inode]=exp(-field);
+         if (xInBox[irho][inode_box]<1.e-6) field=VEXT_MAX-1.;
+         else field=-log(xInBox[irho][inode_box]/Rho_b[itype_mer]);
+         xInBox[iunk][inode_box]=exp(-field);
      }
    }
    return;
@@ -56,7 +57,7 @@ void setup_polymer_field(double **xOwned, int iguess)
 /*********************************************************/
 /*setup_polymer_simple: in this routine set up the field guesses
                        for the polymers variables for SCF case    */
-void setup_polymer_simple(double **xOwned, int iguess)
+void setup_polymer_simple(double **xInBox, int iguess)
 {
   int loc_inode,inode_box,ijk_box[3],i, iunk,junk;
   double temp;
@@ -95,17 +96,17 @@ void setup_polymer_simple(double **xOwned, int iguess)
 	   /* ALF: add Vext to initial guess for field */
 	   temp += Vext[loc_inode][itype_mer];
            /* if (temp > 1.0) temp=1.0;*/
-           if ((Type_poly == CMS || Type_poly == CMS_SCFT) || (temp > 0.5)) xOwned[iunk][loc_inode] = exp(temp);
-           else                             xOwned[iunk][loc_inode] = exp(1. - sqrt(1.-2.*temp));
+           if ((Type_poly == CMS || Type_poly == CMS_SCFT) || (temp > 0.5)) xInBox[iunk][inode_box] = exp(temp);
+           else                             xInBox[iunk][inode_box] = exp(1. - sqrt(1.-2.*temp));
         } /* end if i not zero density  */
-        else   xOwned[iunk][loc_inode] = DENSITY_MIN; /* zero density - Boltzmann probability = 0 */
+        else   xInBox[iunk][inode_box] = DENSITY_MIN; /* zero density - Boltzmann probability = 0 */
      } /* end loop over itype_mer */
   } /* end loop over loc_inode */
   return;
 }
 /*********************************************************/
 /*setup_polymer_rho: in this routine set up polymer density profiles    */
-void setup_polymer_rho(double **xOwned, int iguess)
+void setup_polymer_rho(double **xInBox, int iguess)
 {
   int loc_inode,i,inode_box,ijk_box[3],iunk,icomp;
   int inode;
@@ -117,8 +118,8 @@ void setup_polymer_rho(double **xOwned, int iguess)
      if (iguess == CONST_RHO) {
        for (icomp=0; icomp<Ncomp; icomp++){
 	 iunk = Phys2Unk_first[DENSITY]+icomp;
-         if (!Zero_density_TF[inode_box][icomp]) xOwned[iunk][loc_inode] = Rho_b[icomp];
-         else                                    xOwned[iunk][loc_inode] = 0.0;
+         if (!Zero_density_TF[inode_box][icomp]) xInBox[iunk][inode_box] = Rho_b[icomp];
+         else                                    xInBox[iunk][inode_box] = 0.0;
        }
      }
      else if (iguess == STEP_PROFILE) {
@@ -129,8 +130,8 @@ void setup_polymer_rho(double **xOwned, int iguess)
                 nodepos[Orientation_step[i]]<=Xend_step[i]){
                 for (icomp=0;icomp<Ncomp;icomp++){
 	           iunk = Phys2Unk_first[DENSITY]+icomp;
-       		   if (!Zero_density_TF[inode_box][icomp]) xOwned[iunk][loc_inode]= Rho_step[icomp][i];
-		   else xOwned[iunk][loc_inode]=0.0;
+       		   if (!Zero_density_TF[inode_box][icomp]) xInBox[iunk][inode_box]= Rho_step[icomp][i];
+		   else xInBox[iunk][inode_box]=0.0;
                 }
             }
        }
@@ -145,7 +146,7 @@ void setup_polymer_rho(double **xOwned, int iguess)
 /*********************************************************/
 /*setup_polymer_G: in this routine set up guess for the G's   */
 /* in this version, guess is simply the Boltzmann factors, with some account taken of hard walls*/
-void setup_polymer_G(double **xOwned)
+void setup_polymer_G(double **xInBox)
 {
   int loc_inode,inode_box,ijk_box[3],loc_i;
   int reflect_flag[NDIM_MAX];
@@ -159,11 +160,12 @@ void setup_polymer_G(double **xOwned)
      izone = 0;
 
      loc_inode=0;
+     inode_box=L2B_node[inode_box];
      for (poln=0; poln < Npol_comp; poln++){
         iunk = Geqn_start[poln];
         for (iseg=0; iseg<Nmer[poln]; iseg++){
              for (ibond=0; ibond<Nbond[poln][iseg]; ibond++){
-                 xOwned[iunk][loc_inode] =999.0;
+                 xInBox[iunk][inode_box] =999.0;
                  iunk++;
              }
         }
@@ -180,13 +182,13 @@ void setup_polymer_G(double **xOwned)
 
                              /* TREAT THE END SEGMENTS */
              /* only try to generate the iunk guess if not already filled in */
-             if (fabs(xOwned[iunk][0]-999.0)<1.e-6){
+             if (fabs(xInBox[iunk][L2B_node[0]]-999.0)<1.e-6){
 
              if(Bonds[poln][iseg][ibond]== -1){
                  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
                      inode_box = L2B_node[loc_inode];
                      node_box_to_ijk_box(inode_box, ijk_box);
-                     xOwned[iunk][loc_inode] = xOwned[Phys2Unk_first[CMS_FIELD]+itype_mer][loc_inode];
+                     xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
                   }
              }
              else{
@@ -194,11 +196,11 @@ void setup_polymer_G(double **xOwned)
                junk = Geqn_start[poln]+2*Bonds[poln][iseg][ibond];
                if (iseg<Bonds[poln][iseg][ibond]) junk += 1;
                /* test if this G equation has been generated yet ... if not, go on */
-               if (fabs(xOwned[junk][0]-999.0)>1.e-6){
+               if (fabs(xInBox[junk][L2B_node[0]]-999.0)>1.e-6){
                    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
                        inode_box = L2B_node[loc_inode];
                        node_box_to_ijk_box(inode_box, ijk_box);
-                       xOwned[iunk][loc_inode] = 0.;
+                       xInBox[iunk][inode_box] = 0.;
 
                    if (!Zero_density_TF[inode_box][jtype_mer]){ 
                        if (Nlists_HW <= 2) jlist = 0;
@@ -222,17 +224,17 @@ void setup_polymer_G(double **xOwned)
                                    (jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
                            }
                            if (B2L_node[jnode_box] >-1){ /* node in domain */
-                              /*xOwned[iunk][loc_inode] +=  weight * xOwned[junk][B2L_node[jnode_box]]; */
-                              xOwned[iunk][loc_inode] +=  weight; 
+                              /*xInBox[iunk][inode_box] +=  weight * xInBox[junk][jnode_box]; */
+                              xInBox[iunk][inode_box] +=  weight; 
                            } /* check that node is in domain */
                            else{  /* use the value at loc_inode ... an approximation */
-                              /*xOwned[iunk][loc_inode] +=  weight*xOwned[junk][loc_inode]; */
-                              xOwned[iunk][loc_inode] +=  weight; 
+                              /*xInBox[iunk][inode_box] +=  weight*xInBox[junk][inode_box]; */
+                              xInBox[iunk][inode_box] +=  weight; 
                            }
                          }
                       }
 
-                  xOwned[iunk][loc_inode] *= xOwned[Phys2Unk_first[CMS_FIELD]+itype_mer][loc_inode];
+                  xInBox[iunk][inode_box] *= xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
 
 	           } /*end of Zero_dens_TF test */
                    } /* end of loop over loc_inode */
@@ -250,7 +252,7 @@ void setup_polymer_G(double **xOwned)
         iunk = Geqn_start[poln];
         for (iseg=0; iseg<Nmer[poln]; iseg++){
              for (ibond=0; ibond<Nbond[poln][iseg]; ibond++){
-                 if (fabs(xOwned[iunk][0]-999.0)<1.e-6) not_done=TRUE;
+                 if (fabs(xInBox[iunk][L2B_node[0]]-999.0)<1.e-6) not_done=TRUE;
                 /* else{
                     printf("poln=%d iseg=%d ibond=%d is done \n",poln,iseg,ibond);
                  }*/

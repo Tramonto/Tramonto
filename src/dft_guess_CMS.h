@@ -56,14 +56,14 @@ struct Stencil_Struct {
                              Walls when stencil point is a boundary node  */
 };
 #define NDIM_MAX  3
-void setup_polymer_G(double **xOwned);
-void setup_polymer_G(double **xOwned);
+void setup_polymer_G(double **xInBox);
+void setup_polymer_G(double **xInBox);
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-void setup_polymer_rho(double **xOwned,int iguess);
-void setup_polymer_rho(double **xOwned,int iguess);
+void setup_polymer_rho(double **xInBox,int iguess);
+void setup_polymer_rho(double **xInBox,int iguess);
 #define DENSITY_MIN  1.e-20
 #define CMS_SCFT     1
 #define CMS          0
@@ -84,9 +84,8 @@ extern int *B2G_node;
 extern int **Zero_density_TF;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
-extern int *L2B_node;
-void setup_polymer_simple(double **xOwned,int iguess);
-void setup_polymer_simple(double **xOwned,int iguess);
+void setup_polymer_simple(double **xInBox,int iguess);
+void setup_polymer_simple(double **xInBox,int iguess);
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define CMS_FIELD      1
@@ -94,6 +93,7 @@ extern double VEXT_MAX;
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
+extern int *L2B_node;
 extern int Nnodes_per_proc;
-void setup_polymer_field(double **xOwned,int iguess);
-void setup_polymer_field(double **xOwned,int iguess);
+void setup_polymer_field(double **xInBox,int iguess);
+void setup_polymer_field(double **xInBox,int iguess);

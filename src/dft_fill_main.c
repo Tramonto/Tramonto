@@ -35,7 +35,7 @@
 #include "dft_fill_main.h"
 
 /****************************************************************************/
-void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_flag)
+void fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, int resid_only_flag,int unk_flag)
 {
  /*
   * Local variable declarations
@@ -44,19 +44,10 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
   char   *yo = "fill_resid_and_matrix";
   int     loc_inode, inode_box,ijk_box[3],iunk,junk,iunk_start,iunk_end;
   int     mesh_coarsen_flag_i,switch_constmatrix;
-  struct  RB_Struct *dphi_drb=NULL;
   double *resid_unk;
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
   resid_unk = (double *) array_alloc (1, Nunk_per_node, sizeof(double));
-
-  /* pre calculations required for the Hard sphere (FMT) functionals only*/
-
-  if (Type_func !=NONE){
-     dphi_drb = (struct RB_Struct *) array_alloc
-                    (1, Nnodes_box, sizeof(struct RB_Struct));
-     FMT1stDeriv_switch(inode_box,x,dphi_drb);
-  }
 
   /* for debugging print out profiles on each iteration */
   if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");
@@ -107,7 +98,6 @@ void fill_resid_and_matrix (double **x, int iter, int resid_only_flag,int unk_fl
     } /* end of loop over # of unknowns per node */
   } /* end of loop over local nodes */
 
-  if (Type_func != NONE) safe_free((void *) &dphi_drb);
   safe_free((void *) &resid_unk);
   return;
 }
@@ -218,6 +208,7 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
        case CMS_FIELD: printf("Proc=%d: loc_inode=%d  iunk_cmsfield=%d ",Proc,loc_inode,iunk); break;
        case WJDC_FIELD: printf("Proc=%d: loc_inode=%d  iunk_wjdc_field=%d ",Proc,loc_inode,iunk); break;
        case G_CHAIN: printf("Proc=%d: loc_inode=%d  iunk_Gchain=%d ",Proc,loc_inode,iunk); break;
+       case MF_EQ: printf("Proc=%d: loc_inode=%d  iunk_MFeq=%d ",Proc,loc_inode,iunk); break;
     }
     printf(" resid=%11.8f \n",resid_unk[iunk]); 
 

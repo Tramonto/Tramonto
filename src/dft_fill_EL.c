@@ -96,7 +96,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
 
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode);
 
-
    if (Type_coul != NONE){
          resid+=fill_EL_elec_field(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
    }

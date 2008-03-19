@@ -39,15 +39,24 @@
 void fill_resid_and_matrix_control (double **x, int iter, int resid_only_flag)
 {
    int i,iter_tmp;
+   struct  RB_Struct *dphi_drb=NULL;
    if (resid_only_flag) iter_tmp=1;
    else iter_tmp=iter;
 
-   if (MATRIX_FILL_NODAL) fill_resid_and_matrix(x,iter,resid_only_flag,NODAL_FLAG);
+  /* pre calculations required for the Hard sphere (FMT) functionals only*/
+
+  if (Type_func !=NONE){
+     dphi_drb = (struct RB_Struct *) array_alloc (1, Nnodes_box, sizeof(struct RB_Struct));
+     FMT1stDeriv_switch(i,x,dphi_drb);
+  }
+
+   if (MATRIX_FILL_NODAL) fill_resid_and_matrix(x,dphi_drb,iter,resid_only_flag,NODAL_FLAG);
    else{
       for (i=0;i<Nunk_per_node;i++){
-         fill_resid_and_matrix(x,iter_tmp,resid_only_flag,i);
+         fill_resid_and_matrix(x,dphi_drb,iter_tmp,resid_only_flag,i);
       }
    }
+   if (Type_func != NONE) safe_free((void *) &dphi_drb);
    return;
 }
 /*****************************************************************************************************/

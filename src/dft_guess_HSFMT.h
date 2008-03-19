@@ -1,4 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
+double int_stencil_HSFMT(double **x,int inode_box,int iunk);
+void calc_init_rho_bar(double **xInBox);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -24,7 +26,6 @@ extern double Esize_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
 void node_to_ijk(int node,int *ijk);
 extern int *B2G_node;
-extern int *L2B_node;
 extern int Iliq_vap;
 extern int Nwall;
 extern int Lsteady_state;
@@ -32,5 +33,6 @@ extern int Lsteady_state;
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nrho_bar;
+extern int *L2B_node;
 extern int Nnodes_per_proc;
-void setup_rho_bar(double **xOwned);
+void setup_rho_bar(double **xInBox);

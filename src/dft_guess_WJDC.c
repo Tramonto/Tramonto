@@ -37,18 +37,19 @@
  
 /*********************************************************/
 /*setup_polymer_field: in this routine sets up the initial guess for the WJDC field variable */
-void setup_polymer_field_wjdc(double **xOwned)
+void setup_polymer_field_wjdc(double **xInBox)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop;
+  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box;
   double field;
 
   Nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     inode_box=L2B_node[loc_inode];
      for (i=0; i<Nloop; i++){
          iunk=Phys2Unk_first[WJDC_FIELD]+i;
-        /* if (Field_WJDC_b[i]<10.) */ xOwned[iunk][loc_inode]=Field_WJDC_b[i];
-/*         else xOwned[iunk][loc_inode]=1.;*/
+        /* if (Field_WJDC_b[i]<10.) */ xInBox[iunk][inode_box]=Field_WJDC_b[i];
+/*         else xInBox[iunk][inode_box]=1.;*/
      }
    }
    return;
@@ -56,16 +57,17 @@ void setup_polymer_field_wjdc(double **xOwned)
 /*********************************************************/
 /*setup_polymer_G_wjdc: in this routine sets up the initial guess for the chain variable
 in the wjdc functional */
-void setup_polymer_G_wjdc(double **xOwned)
+void setup_polymer_G_wjdc(double **xInBox)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop;
+  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box;
   double field;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     inode_box=L2B_node[loc_inode];
      for (i=0; i<Nbonds; i++){
          iunk=Phys2Unk_first[G_CHAIN]+i;
-        /* if (G_WJDC_b[i]<10.)*/ xOwned[iunk][loc_inode]=G_WJDC_b[i];
-/*         else xOwned[iunk][loc_inode]=1.;*/
+        /* if (G_WJDC_b[i]<10.)*/ xInBox[iunk][inode_box]=G_WJDC_b[i];
+/*         else xInBox[iunk][inode_box]=1.;*/
      }
    }
    return;

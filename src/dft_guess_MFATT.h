@@ -14,6 +14,11 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define THETA_PAIRPOT_RCUT    2
+#define DENSITY        0
+double int_stencil(double **x,int inode_box,int iunk,int sten_type);
+extern int *L2B_node;
+void calc_init_mf_attract(double **xInBox);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
@@ -25,4 +30,4 @@ extern int Lsteady_state;
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 extern int Nnodes_per_proc;
-void setup_mf_attract(double **xOwned);
+void setup_mf_attract(double **xInBox);

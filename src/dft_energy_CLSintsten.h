@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-double constant_boundary(int iunk,int jnode_box);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,6 +14,23 @@ double constant_boundary(int iunk,int jnode_box);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int **Bonds_SegAll;
+extern int *BondAll_to_ibond;
+extern int *BondAll_to_isegAll;
+#define BONDWTC        7
+#define DELTA_FN_BOND         6
+double int_stencil_BondWTC(double **x,int inode_box,int iunk);
+double prefactor_cavity_wtc(int iunk,int icomp,int *offset);
+#define THETA_FN_SIG          5
+double int_stencil_CAV(double **x,int inode_box,int iunk);
+double prefactor_rho_bar_v(int iunk,int jcomp,int *offset);
+double prefactor_rho_bar_s(int iunk,int jcomp,int *offset);
+extern int Nrho_bar_s;
+#define DELTA_FN_R            0
+#define THETA_FN_R            1
+#define HSRHOBAR       4
+double int_stencil_HSFMT(double **x,int inode_box,int iunk);
+double constant_boundary(int iunk,int jnode_box);
 extern int Nnodes_box;
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
 extern int **Nodes_2_boundary_wall;

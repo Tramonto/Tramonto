@@ -41,4 +41,4 @@ extern double Size_x[NDIM_MAX];
 extern int Ncomp;
 extern int Nseg_tot;
 extern int Lseg_densities;
-void setup_chem_pot(double **xOwned);
+void setup_chem_pot(double **xInBox);

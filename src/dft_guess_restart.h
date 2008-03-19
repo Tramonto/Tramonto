@@ -15,7 +15,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern double **Vext;
-void setup_exp_density_with_profile(double **xOwned);
+void setup_exp_density_with_profile(double **xInBox);
 #define NCOMP_MAX 5
 #define NSTEPS_MAX 10
 extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];
@@ -27,16 +27,17 @@ extern double Rho_coex[2];
 extern double Xstart_step[NSTEPS_MAX];
 extern double **X_wall;
 extern int Nwall;
-void chop_profile(double **xOwned,int iguess);
+extern int *L2B_node;
+extern int Nnodes_per_proc;
+void chop_profile(double **xInBox,int iguess);
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
 extern int **Zero_density_TF;
 extern int Unk2Comp[NMER_MAX];
-extern int *L2B_node;
-extern int *L2G_node;
-extern int Nnodes_per_proc;
+extern int *B2G_node;
+extern int Nnodes_box;
 int locate_inode_old(int *ijk);
 void node_to_ijk(int node,int *ijk);
 void node_to_ijk(int node,int *ijk);
@@ -86,8 +87,8 @@ extern int Nrho_bar;
 extern int Ncomp;
 extern int Nseg_tot;
 extern int Lseg_densities;
-void check_zero_densities(double **xOwned);
-void communicate_profile(double *x_new,double **xOwned);
+void check_zero_densities(double **xInBox);
+void communicate_profile(double *x_new,double **xInBox);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -128,4 +129,4 @@ void *array_alloc(int numdim,...);
 #if !(defined(__STDC__))
 void *array_alloc(...);
 #endif
-void guess_restart_from_files(int start_no_info,int iguess,double **xOwned);
+void guess_restart_from_files(int start_no_info,int iguess,double **xInBox);

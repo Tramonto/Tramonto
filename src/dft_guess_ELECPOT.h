@@ -30,4 +30,4 @@ extern int Lsteady_state;
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nnodes_per_proc;
-void setup_elec_pot(double **xOwned,int iguess);
+void setup_elec_pot(double **xInBox,int iguess);

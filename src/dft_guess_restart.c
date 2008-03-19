@@ -35,7 +35,7 @@
 #include "dft_guess_restart.h"
  
 /************************************************************/
-void guess_restart_from_files(int start_no_info,int iguess,double **xOwned)
+void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
 {
   char filename[20];
   double *x_new,fac;
@@ -98,8 +98,8 @@ printf("Imain_loop=%d\n  Nodes_old=%d  Nodes=%d\n",Imain_loop,Nodes_old,Nnodes);
       printf("can't do automatic restart without density fields yet\n");
       exit(-1);
   }
-  communicate_profile(x_new,xOwned);
-  check_zero_densities(xOwned);
+  communicate_profile(x_new,xInBox);
+  check_zero_densities(xInBox);
 
   safe_free((void *) &x_new);
   return;
@@ -489,16 +489,16 @@ int locate_inode_old(int *ijk)
 /**********************************************************************/
 /* communicate profile: broadcast the x_new profile to all processors,
                         and let each of them pick out the needed entries.*/
-void communicate_profile(double *x_new, double** xOwned)
+void communicate_profile(double *x_new, double** xInBox)
 {
-   int loc_inode,inode,iunk;   
+   int inode,iunk,inode_box;   
    
     MPI_Bcast (x_new, Nnodes*Nunk_per_node,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-       inode = L2G_node[loc_inode];
+    for (inode_box=0; inode_box<Nnodes_box; inode_box++){
+       inode = B2G_node[inode_box];
        for (iunk=0; iunk<Nunk_per_node; iunk++){
-           xOwned[iunk][loc_inode] = x_new[inode*Nunk_per_node+iunk];
+           xInBox[iunk][inode_box] = x_new[inode*Nunk_per_node+iunk];
        }
     }
     return;
@@ -506,7 +506,7 @@ void communicate_profile(double *x_new, double** xOwned)
 /*********************************************************************/
 /*check_zero_densities: here just remove zero densities where 
          not appropriate, and make sure x=0 where needed */
-void check_zero_densities(double **xOwned)
+void check_zero_densities(double **xInBox)
 {
 
   int loc_inode,icomp,inode_box,iunk,iloop,nloop;
@@ -514,21 +514,20 @@ void check_zero_densities(double **xOwned)
   if (Lseg_densities) nloop=Nseg_tot;
   else nloop=Ncomp;
 
-  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-      inode_box = L2B_node[loc_inode];
+  for (inode_box=0; inode_box<Nnodes_box; inode_box++){
       for (iloop=0; iloop<nloop; iloop++){
          icomp=Unk2Comp[iloop];
 	 iunk = Phys2Unk_first[DENSITY]+iloop;
          if (Zero_density_TF[inode_box][icomp])
-                 xOwned[iunk][loc_inode] = 0.0;
+                 xInBox[iunk][inode_box] = 0.0;
          else{
            if (Lseg_densities)
-              if (xOwned[iunk][loc_inode] < Rho_seg_b[iunk]*exp(-VEXT_MAX)) {
-                  xOwned[iunk][loc_inode] = Rho_seg_b[iunk]*exp(-VEXT_MAX); /*DENSITY_MIN*/
+              if (xInBox[iunk][inode_box] < Rho_seg_b[iunk]*exp(-VEXT_MAX)) {
+                  xInBox[iunk][inode_box] = Rho_seg_b[iunk]*exp(-VEXT_MAX); /*DENSITY_MIN*/
               }
            else
-              if (xOwned[iunk][loc_inode] < Rho_b[icomp]*exp(-VEXT_MAX)) {
-                  xOwned[iunk][loc_inode] = Rho_b[icomp]*exp(-VEXT_MAX); /*DENSITY_MIN*/
+              if (xInBox[iunk][inode_box] < Rho_b[icomp]*exp(-VEXT_MAX)) {
+                  xInBox[iunk][inode_box] = Rho_b[icomp]*exp(-VEXT_MAX); /*DENSITY_MIN*/
               }
          }
       }
@@ -537,21 +536,22 @@ void check_zero_densities(double **xOwned)
 }
 /**********************************************************************/
 /*chop_profile: do the profile chop here. */
-void chop_profile(double **xOwned, int iguess)
+void chop_profile(double **xInBox, int iguess)
 {
-  int loc_inode,icomp,iwall,check,iunk;
+  int loc_inode,icomp,iwall,check,iunk,inode_box;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++)
+    inode_box=L2B_node[loc_inode];
     for (icomp=0; icomp<Ncomp; icomp++) {
         check = 0;
         for (iwall=0; iwall<Nwall; iwall++)
               if (X_wall[loc_inode][iwall] > Xstart_step[0]) check++;
         if (check == Nwall){
 	      iunk = Phys2Unk_first[DENSITY]+icomp;
-              if (iguess==CHOP_RHO_L) xOwned[iunk][loc_inode] = Rho_coex[1];
-              else if (iguess==CHOP_RHO_V) xOwned[iunk][loc_inode] = Rho_coex[0];
-              else if (iguess==CHOP_RHO) xOwned[iunk][loc_inode] = Rho_b[icomp];
-              else if (iguess==CHOP_RHO_STEP) xOwned[iunk][loc_inode] = Rho_step[icomp][0];
+              if (iguess==CHOP_RHO_L) xInBox[iunk][inode_box] = Rho_coex[1];
+              else if (iguess==CHOP_RHO_V) xInBox[iunk][inode_box] = Rho_coex[0];
+              else if (iguess==CHOP_RHO) xInBox[iunk][inode_box] = Rho_b[icomp];
+              else if (iguess==CHOP_RHO_STEP) xInBox[iunk][inode_box] = Rho_step[icomp][0];
         }
     }
   return;
@@ -559,7 +559,7 @@ void chop_profile(double **xOwned, int iguess)
 /****************************************************************************/
 /*setup_exp_density_with_profile: in this routine set up a density
                      profile as rho(x)*exp(-Vext/kT)*/
-void setup_exp_density_with_profile(double **xOwned)
+void setup_exp_density_with_profile(double **xInBox)
 {
 
   int loc_inode,i,inode_box,iunk,icomp;
@@ -568,10 +568,10 @@ void setup_exp_density_with_profile(double **xOwned)
      inode_box = L2B_node[loc_inode];
      for (i=0;i<Ncomp;i++){
         iunk = icomp+Phys2Unk_first[DENSITY];
-        if (Vext[loc_inode][icomp]>0.0) xOwned[iunk][loc_inode] *= exp(-Vext[loc_inode][i]);
+        if (Vext[loc_inode][icomp]>0.0) xInBox[iunk][inode_box] *= exp(-Vext[loc_inode][i]);
 
 /*        if (Type_poly==CMS || Type_poly==CMS_SCFT)
-        xOwned[i+Phys2Unk_first[CMS_FIELD]][loc_inode] = exp(-log(xOwned[i+Phys2Unk_first[CMS_FIELD]][loc_inode])+Vext[loc_inode][i]);*/
+        xInBox[i+Phys2Unk_first[CMS_FIELD]][inode_box] = exp(-log(xInBox[i+Phys2Unk_first[CMS_FIELD]][inode_box])+Vext[loc_inode][i]);*/
      }
   }
 

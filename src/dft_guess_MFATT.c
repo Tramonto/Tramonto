@@ -37,12 +37,13 @@
  
 /************************************************************/
 /*setup_mf_attract: set up variables for mean field attractions. */
-void setup_mf_attract(double **xOwned)
+void setup_mf_attract(double **xInBox)
 {
   int loc_inode,inode_box,inode,ijk[3],iunk,icomp,jcomp;
   double vol,area,x_dist,sum;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     inode_box=L2B_node[loc_inode];
      for (icomp = 0; icomp < Ncomp; icomp++){
        iunk = Phys2Unk_first[MF_EQ] + icomp;
        if (Lsteady_state || (Nwall == 0 && Iliq_vap == 3)){
@@ -54,10 +55,25 @@ void setup_mf_attract(double **xOwned)
           for (jcomp=0; jcomp<Ncomp;jcomp++){
             sum += Avdw[icomp][jcomp]*Rho_b[jcomp];
           }
-          xOwned[iunk][loc_inode] = sum;
+          xInBox[iunk][inode_box] = sum;
        }
      }
   }
   return;
 }
 /************************************************************/
+/*calc_init_mf_attract: set up the variables for mean field attractions.*/
+void calc_init_mf_attract(double **xInBox)
+{
+  int loc_inode,inode_box,inode,ijk[3],iunk,icomp;
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     inode_box=L2B_node[loc_inode];
+     for (icomp = 0; icomp < Ncomp; icomp++){
+       iunk = Phys2Unk_first[MF_EQ] + icomp;
+       xInBox[iunk][inode_box]=int_stencil(xInBox,inode_box,Phys2Unk_first[DENSITY]+icomp,THETA_PAIRPOT_RCUT);
+     }
+  }
+  return;
+}
+/************************************************************/
+

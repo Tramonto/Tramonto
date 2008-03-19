@@ -37,7 +37,7 @@
  
 /*********************************************************/
 /*setup_elec_pot: set up the electrostatic potential initial guess*/
-void setup_elec_pot(double **xOwned,int iguess)
+void setup_elec_pot(double **xInBox,int iguess)
 {
   int loc_inode,iunk,inode_box,inode,ijk[3];
   double x_dist;
@@ -50,11 +50,11 @@ void setup_elec_pot(double **xOwned,int iguess)
            node_to_ijk(inode,ijk); 
            x_dist = Esize_x[Grad_dim]*ijk[Grad_dim];
 
-           xOwned[iunk][loc_inode]  = Elec_pot_LBB + 
+           xInBox[iunk][inode_box]  = Elec_pot_LBB + 
                                       (Elec_pot_RTF-Elec_pot_LBB)*
                                       x_dist/Size_x[Grad_dim];
        }
-       else xOwned[iunk][loc_inode] = 0.0;
+       else xInBox[iunk][inode_box] = 0.0;
   }
   return;
 }

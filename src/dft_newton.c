@@ -362,7 +362,7 @@ void do_numerical_jacobian(double **x)
           for (jnode=0; jnode<Nnodes_per_proc; jnode++) resid_tmp[junk][jnode] = 0.0;
 
       (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
-      fill_resid_and_matrix(x,1,TRUE,NODAL_FLAG);
+      fill_resid_and_matrix_control(x,1,TRUE);
       dft_linprobmgr_getrhs(LinProbMgr_manager, resid_tmp);
 
       for (junk=0; junk<Nunk_per_node; junk++){ 
@@ -370,6 +370,10 @@ void do_numerical_jacobian(double **x)
           j=jnode+Nnodes*junk; /* Physics Based Ordering */
           /*j=junk+Nunk_per_node*jnode;*/  /* Nodal Based Ordering */
           full[j][i] = (resid[junk][jnode] - resid_tmp[junk][jnode])/del;
+/*if (iunk==5 && junk==0 && inode==49 && jnode==47){
+   printf("del=%g  x_shift=%g  x=%g  resid_tmp=%g  resid=%g  full=%g\n",
+           del,x[iunk][inode],x[iunk][inode]-del,resid_tmp[junk][jnode],resid[junk][jnode],full[j][i]);
+}*/
       }}
       x[iunk][inode] -= del;
       if (count==100 || i==N-1){
