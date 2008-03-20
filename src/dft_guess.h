@@ -27,13 +27,11 @@ void setup_polymer_G_wjdc(double **xInBox);
 void setup_polymer_G(double **xInBox);
 void setup_polymer_G(double **xInBox);
 #define G_CHAIN        2 
-void setup_polymer_field(double **xInBox,int iguess);
-void setup_polymer_field(double **xInBox,int iguess);
+void calc_init_CMSfield(double **xInBox);
 #define CMS_FIELD      1
 void setup_polymer_field_wjdc(double **xInBox);
 #define WJDC_FIELD     8
 void calc_init_BondWTC(double **xInBox);
-void calc_init_mf_attract(double **xInBox);
 #define BONDWTC        7
 void calc_init_Xi_cavWTC(double **xInBox);
 #define CAVWTC         6
@@ -43,7 +41,7 @@ void setup_elec_pot(double **xInBox,int iguess);
 #define POISSON        3
 void calc_init_rho_bar(double **xInBox);
 #define HSRHOBAR       4
-void setup_mf_attract(double **xInBox);
+void calc_init_mf_attract(double **xInBox);
 #define MF_EQ          9
 void setup_density(double **xInBox,int iguess);
 void setup_polymer_rho(double **xInBox,int iguess);

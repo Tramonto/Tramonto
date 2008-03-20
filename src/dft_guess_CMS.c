@@ -55,6 +55,29 @@ void setup_polymer_field(double **xInBox, int iguess)
    return;
 }
 /*********************************************************/
+/*calc_init_CMSfield: in this routine sets up the initial guess for the CMS field variable */
+void calc_init_CMSfield(double **xInBox)
+{
+  int loc_inode,icomp,irho, iunk,inode_box,jcomp;
+  double field,int_bulk;
+
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     inode_box=L2B_node[loc_inode];
+
+     for (icomp=0; icomp<Ncomp; icomp++){
+	 irho = Phys2Unk_first[DENSITY]+icomp;
+	 iunk = Phys2Unk_first[CMS_FIELD]+icomp;
+         if (!Zero_density_TF[inode_box][icomp]){
+         field= Vext[loc_inode][icomp]-int_stencil_CMSField(xInBox,inode_box,irho,THETA_CR_DATA);
+         }
+         else field=VEXT_MAX;
+         xInBox[iunk][inode_box]=exp(-field);
+        
+     }
+   }
+   return;
+}
+/*********************************************************/
 /*setup_polymer_simple: in this routine set up the field guesses
                        for the polymers variables for SCF case    */
 void setup_polymer_simple(double **xInBox, int iguess)
@@ -112,8 +135,7 @@ void setup_polymer_rho(double **xInBox, int iguess)
   int inode;
   double nodepos[3];
 
-  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     inode_box = L2B_node[loc_inode];
+  for (inode_box=0; inode_box<Nnodes_box; inode_box++){
      node_box_to_ijk_box(inode_box, ijk_box);
      if (iguess == CONST_RHO) {
        for (icomp=0; icomp<Ncomp; icomp++){
@@ -160,7 +182,7 @@ void setup_polymer_G(double **xInBox)
      izone = 0;
 
      loc_inode=0;
-     inode_box=L2B_node[inode_box];
+     inode_box=L2B_node[loc_inode];
      for (poln=0; poln < Npol_comp; poln++){
         iunk = Geqn_start[poln];
         for (iseg=0; iseg<Nmer[poln]; iseg++){

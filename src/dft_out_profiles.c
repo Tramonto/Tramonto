@@ -251,10 +251,10 @@ void print_profile(char *output_file4)
                }
             case CMS_FIELD: 
                unk_char = "CMSFIELD";
-               if (Phys2Nunk[i] > 0){
+               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
                  fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); break;
-               }
+                 fprintf(ifp,"\n"); 
+               }break;
             case WJDC_FIELD: 
                unk_char = "WJDCFIELD";
                if (Phys2Nunk[i] > 0){
@@ -334,6 +334,13 @@ void print_profile(char *output_file4)
                   break;
 
                 case CMS_FIELD:
+                   if (Iwrite==VERBOSE){
+                   if (X_old[iunk+node_start] > 1.e-12 /*DENSITY_MIN*/ /*0.0*/ /*Rho_b[icomp]*exp(-VEXT_MAX)*/){
+                      fprintf(ifp,"%22.17f\t", -log(X_old[iunk+node_start]));
+                   }
+                   else fprintf(ifp,"%22.17f\t", VEXT_MAX);
+                   }
+                   break;
                 case WJDC_FIELD:
                    if (X_old[iunk+node_start] > 1.e-12 /*DENSITY_MIN*/ /*0.0*/ /*Rho_b[icomp]*exp(-VEXT_MAX)*/){
                       fprintf(ifp,"%22.17f\t", -log(X_old[iunk+node_start]));
