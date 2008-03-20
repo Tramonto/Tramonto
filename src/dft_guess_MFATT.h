@@ -24,7 +24,7 @@ extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 extern int Iliq_vap;
 extern int Nwall;
 extern int Lsteady_state;
-#define MF_EQ          9
+#define MF_EQ          3
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;

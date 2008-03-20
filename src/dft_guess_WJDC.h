@@ -1,4 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
+void communicate_to_fill_in_box_values(double **xInBox);
+double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -14,10 +16,32 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NMER_MAX     100
+#define NCOMP_MAX 5
+extern int Geqn_start[NCOMP_MAX];
+extern int ***Poly_to_Unk;
+extern int **Nbond;
+extern int ***Bonds;
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
+extern int *Unk_to_Bond;
+extern int *Unk_to_Seg;
+extern int *Unk_to_Poly;
+#define FALSE 0
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+double WJDC_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
+double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 #define NBOND_MAX 4
+#define NMER_MAX     100
+void calc_init_polymer_G_wjdc(double **xInBox);
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
-#define G_CHAIN        2 
+#define G_CHAIN        9 
 extern int Nbonds;
 void setup_polymer_G_wjdc(double **xInBox);
 void safe_free(void **ptr);

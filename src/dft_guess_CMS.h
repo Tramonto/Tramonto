@@ -92,7 +92,7 @@ extern int **Zero_density_TF;
 void calc_init_CMSfield(double **xInBox);
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
-#define CMS_FIELD      1
+#define CMS_FIELD      7
 #define DENSITY        0
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];

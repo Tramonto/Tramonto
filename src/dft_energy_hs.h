@@ -24,7 +24,7 @@ double phispt_switch(double *n);
 void solutionVec_to_nOrdering(double *rhoBar_SVOrdering,double *n);
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
-#define HSRHOBAR       4
+#define HSRHOBAR       2
 extern int Phys2Nunk[NEQ_TYPE];
 #define NDIM_MAX  3
 double integrand_hs_freen(int iunk,int inode_box,double **x);

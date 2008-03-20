@@ -19,14 +19,14 @@ extern int Type_coul;
 extern int Mesh_coarsening;
 #define WTC          2
 extern int Type_attr;
-#define MF_EQ          9
-#define CAVWTC         6
-#define BONDWTC        7
+#define MF_EQ          3
+#define CAVWTC         4
+#define BONDWTC        5
 extern int Ndim;
 extern int Nrho_bar_s;
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
-#define HSRHOBAR       4
+#define HSRHOBAR       2
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -44,11 +44,11 @@ void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern int Ncomp;
 extern int Ngeqn_tot;
-#define POISSON        3
+#define POISSON        1
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
-#define G_CHAIN        2 
-#define CMS_FIELD      1
+#define G_CHAIN        9 
+#define CMS_FIELD      7
 #define DENSITY        0
 #define NMER_MAX     100
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];

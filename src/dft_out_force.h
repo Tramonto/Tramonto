@@ -63,7 +63,7 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 void find_offset(int el_type,int jdim,int *offset);
 double calc_deriv(int idim,int inode0,int flag,int *blocked,double **x,int ilist);
 extern int **Surf_elem_type;
-#define POISSON        3
+#define POISSON        1
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 extern int *L2G_node;

@@ -27,14 +27,14 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern double Rho_b[NCOMP_MAX];
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
-#define CMS_FIELD      1
+#define CMS_FIELD      7
 #define THETA_CR_DATA         4
 #define THETA_CR_RPM_MSA      3
 #define WTC          2
 #define WJDC_FIELD     8
 #define WJDC         3
 extern int Type_poly;
-#define MF_EQ          9
+#define MF_EQ          3
 #define MF_VARIABLE  2
 extern int Type_attr;
 #define THETA_PAIRPOT_RCUT    2

@@ -61,7 +61,7 @@ double constant_boundary(int iunk,int jnode_box);
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
-#define CAVWTC         6
+#define CAVWTC         4
 extern void *LinProbMgr_manager;
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
@@ -84,7 +84,7 @@ extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Nmer[NCOMP_MAX];
 extern int Npol_comp;
 double prefactor_rho_wjdc(int iseg);
-#define G_CHAIN        2 
+#define G_CHAIN        9 
 double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
 #define WJDC_FIELD     8
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);

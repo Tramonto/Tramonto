@@ -23,7 +23,7 @@ void node_box_to_ijk_box(int node_box,int *ijk_box);
 double constant_boundary(int iunk,int jnode_box);
 double load_coarse_variable(double **x,int jnode_box,double fac,int iunk,int loc_inode,int resid_only_flag);
 void locate_neighbor_unks(double **x,int iunk,int loc_inode,int node_box,double fac,double *resid,int resid_only_flag);
-#define POISSON        3
+#define POISSON        1
 #define DENSITY        0
 #define NCOMP_MAX 5
 #define NMER_MAX     100

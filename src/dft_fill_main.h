@@ -18,25 +18,25 @@ extern int *L2G_node;
 void print_residuals(int loc_inode,int iunk,double *resid_unk);
 double load_WJDC_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define G_CHAIN        2 
+#define G_CHAIN        9 
 typedef struct RB_Struct RB_Struct;
 double load_WJDC_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
 #define WJDC_FIELD     8
 double load_CMS_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define CMS_FIELD      1
+#define CMS_FIELD      7
 double load_bond_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define BONDWTC        7
+#define BONDWTC        5
 double load_cavity_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define CAVWTC         6
+#define CAVWTC         4
 double load_nonlinear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 extern int Linear_transport;
-#define DIFFUSION      5
+#define DIFFUSION      6
 double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
-#define POISSON        3
+#define POISSON        1
 #define THETA_PAIRPOT_RCUT    2
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
-#define MF_EQ          9
+#define MF_EQ          3
 double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
 #define DELTA_FN_R            0
 extern int Nrho_bar_s;
@@ -44,7 +44,7 @@ extern int Nrho_bar_s;
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
-#define HSRHOBAR       4
+#define HSRHOBAR       2
 double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define CMS          0

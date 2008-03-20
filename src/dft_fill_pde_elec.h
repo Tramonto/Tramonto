@@ -35,7 +35,7 @@ extern int Phys2Unk_last[NEQ_TYPE];
 #define KAPPA_H2O 78.5
 extern int **Zero_density_TF;
 extern int Ncomp;
-#define POISSON        3
+#define POISSON        1
 extern int Phys2Unk_first[NEQ_TYPE];
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);

@@ -18,7 +18,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp(int sten_type,double **x,int iunk,int l
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern void *LinProbMgr_manager;
-#define MF_EQ          9
+#define MF_EQ          3
 #define NCOMP_MAX 5
 #define NMER_MAX     100
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];

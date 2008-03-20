@@ -26,9 +26,9 @@ extern double Temp_elec;
 extern int Ndim;
 extern int Lpolarize[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
-#define POISSON        3
+#define POISSON        1
 extern int Nwall;
-#define DIFFUSION      5
+#define DIFFUSION      6
 extern double Betamu[NCOMP_MAX];
 #define NMER_MAX     100
 extern double Betamu_seg[NMER_MAX];
@@ -48,7 +48,7 @@ extern int Lseg_densities;
 extern double VEXT_MAX;
 extern double **Vext;
 extern int **Zero_density_TF;
-#define BONDWTC        7
+#define BONDWTC        5
 extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
 extern int *Nbonds_SegAll;
@@ -61,7 +61,7 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 extern void *LinProbMgr_manager;
 #define INIT_GUESS_FLAG  2
-#define MF_EQ          9
+#define MF_EQ          3
 #define MF_VARIABLE  2
 extern int Type_attr;
 #define THETA_FN_R            1

@@ -33,12 +33,12 @@ extern double Rho_b[NCOMP_MAX];
 #define NBLOCK_MAX   5
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 double prefactor_rho_cms(int itype_mer);
-#define G_CHAIN        2 
+#define G_CHAIN        9 
 double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
 #define DENSITY        0
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double Charge_f[NCOMP_MAX];
-#define POISSON        3
+#define POISSON        1
 #define NONE       -1
 #define NONE      -1
 #define NONE        -1
@@ -51,7 +51,7 @@ double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid
 extern double VEXT_MAX;
 extern double **Vext;
 extern int **Zero_density_TF;
-#define CMS_FIELD      1
+#define CMS_FIELD      7
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 double load_CMS_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);

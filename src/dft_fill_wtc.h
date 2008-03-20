@@ -73,14 +73,14 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
 extern void *LinProbMgr_manager;
 #define NCOMP_MAX 5
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
-#define BONDWTC        7
+#define BONDWTC        5
 extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
-#define CAVWTC         6
+#define CAVWTC         4
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int **Bonds_SegAll;

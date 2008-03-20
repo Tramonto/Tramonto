@@ -18,14 +18,14 @@ extern double VEXT_MAX;
 #define NCOMP_MAX 5
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
-#define POISSON        3
+#define POISSON        1
 extern double Charge_f[NCOMP_MAX];
 #define DENSITY        0
 extern int Ipot_ff_c;
 extern int **Zero_density_TF;
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
-#define DIFFUSION      5
+#define DIFFUSION      6
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define NDIM_MAX  3

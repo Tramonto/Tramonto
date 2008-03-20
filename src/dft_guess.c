@@ -115,7 +115,8 @@ void set_initial_guess (int iguess, double** xOwned)
          case WJDC_FIELD:
            if (Phys2Nunk[WJDC_FIELD]>0 && (start_no_info || Restart_field[WJDC_FIELD]==FALSE)){
                  calc_init_WJDC_field(xInBox);
-                 /*setup_polymer_field_wjdc(xInBox); */
+                 communicate_to_fill_in_box_values(xInBox);
+              /*   setup_polymer_field_wjdc(xInBox); */
            } break;
          case CMS_FIELD:
            if (Phys2Nunk[CMS_FIELD]>0 && (start_no_info || Restart_field[CMS_FIELD]==FALSE)) {
@@ -126,7 +127,10 @@ void set_initial_guess (int iguess, double** xOwned)
          case G_CHAIN:
            if (Phys2Nunk[G_CHAIN]>0 && (start_no_info || Restart_field[G_CHAIN]==FALSE)){
                 if (Type_poly==CMS) setup_polymer_G(xInBox); 
-                else if (Type_poly==WJDC) setup_polymer_G_wjdc(xInBox);
+                else if (Type_poly==WJDC){
+              /*     calc_init_polymer_G_wjdc(xInBox);*/
+                   setup_polymer_G_wjdc(xInBox);
+                }
            }
            break;
      case YW_DENS:

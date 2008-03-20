@@ -52,7 +52,7 @@ double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box,double **x);
 double int_stencil(double **x,int inode_box,int iunk,int sten_type);
 double integrand_elec_MSAcorr_freen(int iunk,int inode_box,double **x);
 extern double Charge_f[NCOMP_MAX];
-#define POISSON        3
+#define POISSON        1
 #define DENSITY        0
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];

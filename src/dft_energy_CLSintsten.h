@@ -17,7 +17,7 @@
 extern int **Bonds_SegAll;
 extern int *BondAll_to_ibond;
 extern int *BondAll_to_isegAll;
-#define BONDWTC        7
+#define BONDWTC        5
 #define DELTA_FN_BOND         6
 double int_stencil_BondWTC(double **x,int inode_box,int iunk);
 double prefactor_cavity_wtc(int iunk,int icomp,int *offset);
@@ -28,7 +28,7 @@ double prefactor_rho_bar_s(int iunk,int jcomp,int *offset);
 extern int Nrho_bar_s;
 #define DELTA_FN_R            0
 #define THETA_FN_R            1
-#define HSRHOBAR       4
+#define HSRHOBAR       2
 double int_stencil_HSFMT(double **x,int inode_box,int iunk);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];

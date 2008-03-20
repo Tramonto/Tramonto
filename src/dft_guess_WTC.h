@@ -20,13 +20,13 @@ void calc_init_Xi_cavWTC(double **xInBox);
 #include "Tramonto_ConfigDefs.h"
 #define NMER_MAX     100
 extern double BondWTC_b[NMER_MAX *NMER_MAX];
-#define BONDWTC        7
+#define BONDWTC        5
 extern int Nbonds;
 void setup_BondWTC(double **xInBox);
 extern double Xi_cav_b[4];
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
-#define CAVWTC         6
+#define CAVWTC         4
 extern int Phys2Nunk[NEQ_TYPE];
 extern int *L2B_node;
 extern int Nnodes_per_proc;

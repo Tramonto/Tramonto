@@ -36,30 +36,30 @@ extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 #define WJDC         3
 #define CMS          0
 extern int Type_poly;
-#define G_CHAIN        2 
+#define G_CHAIN        9 
 extern double Field_WJDC_b[NMER_MAX];
 #define WJDC_FIELD     8
-#define CMS_FIELD      1
+#define CMS_FIELD      7
 extern double BondWTC_RTF[NMER_MAX *NMER_MAX];
 extern double BondWTC_LBB[NMER_MAX *NMER_MAX];
 extern double BondWTC_b[NMER_MAX *NMER_MAX];
-#define BONDWTC        7
+#define BONDWTC        5
 extern double Xi_cav_RTF[4];
 extern double Xi_cav_LBB[4];
 extern double Xi_cav_b[4];
-#define CAVWTC         6
+#define CAVWTC         4
 #define NCOMP_MAX 5
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
 extern double VEXT_MAX;
-#define DIFFUSION      5
+#define DIFFUSION      6
 extern double Elec_pot_RTF;
 extern double Elec_pot_LBB;
-#define POISSON        3
+#define POISSON        1
 extern double Rhobar_b_RTF[10];
 extern double Rhobar_b_LBB[10];
 extern double Rhobar_b[10];
-#define HSRHOBAR       4
+#define HSRHOBAR       2
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_coex[2];
 extern double Rho_b_LBB[NCOMP_MAX];

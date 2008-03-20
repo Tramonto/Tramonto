@@ -53,7 +53,7 @@ int node_box_to_node(int inode_box);
 void node_to_ijk(int node,int *ijk);
 void node_to_ijk(int node,int *ijk);
 extern int Nlists_HW;
-#define DIFFUSION      5
+#define DIFFUSION      6
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *B2G_node;
