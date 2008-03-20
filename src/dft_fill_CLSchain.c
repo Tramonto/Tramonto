@@ -215,13 +215,14 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
                         /* First calculate the residual contributions */
             unk_B = Phys2Unk_first[func_type_field] + itype_mer;   /* Boltz unk for this seg */
 
-            if (resid_only_flag != INIT_GUESS_FLAG){
             if (Type_poly==CMS){
-            resid = x[iunk][inode_box]/x[unk_B][inode_box];
-            resid_G+=resid;
-            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+            if (resid_only_flag != INIT_GUESS_FLAG){
+               resid = x[iunk][inode_box]/x[unk_B][inode_box];
+               resid_G+=resid;
+               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+            }
 
-            if (!resid_only_flag){
+            if (resid_only_flag==FALSE){
                unkIndex[0]=iunk; unkIndex[1]=unk_B;
                values[0]=1.0/x[unk_B][inode_box]; 
                values[1]=-x[iunk][inode_box]/(x[unk_B][inode_box]*x[unk_B][inode_box]);
@@ -236,11 +237,13 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
                xi_2=x[unk_xi2][inode_box]; xi_3=x[unk_xi3][inode_box];
                y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
                ysqrt=sqrt(y);
-               resid = x[iunk][inode_box]/(x[unk_B][inode_box]*ysqrt);
-               resid_G+=resid;
-               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               if (resid_only_flag != INIT_GUESS_FLAG){
+                  resid = x[iunk][inode_box]/(x[unk_B][inode_box]*ysqrt);
+                  resid_G+=resid;
+                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               }
 
-               if (!resid_only_flag){
+               if (resid_only_flag==FALSE){
                   unkIndex[0]=iunk; unkIndex[1]=unk_B; unkIndex[2]=unk_xi2; unkIndex[3]=unk_xi3;
                   values[0]=1.0/(ysqrt*x[unk_B][inode_box]); 
                   values[1]=-x[iunk][inode_box]/(ysqrt*x[unk_B][inode_box]*x[unk_B][inode_box]);
@@ -252,7 +255,6 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
                   dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                  unkIndex, inode_box, values, numEntries);
                }
-            }
             }
 
             /* Now Finish loading the Jacobian... */

@@ -128,8 +128,8 @@ void set_initial_guess (int iguess, double** xOwned)
            if (Phys2Nunk[G_CHAIN]>0 && (start_no_info || Restart_field[G_CHAIN]==FALSE)){
                 if (Type_poly==CMS) setup_polymer_G(xInBox); 
                 else if (Type_poly==WJDC){
-              /*     calc_init_polymer_G_wjdc(xInBox);*/
-                   setup_polymer_G_wjdc(xInBox);
+                   calc_init_polymer_G_wjdc(xInBox);
+                   /*setup_polymer_G_wjdc(xInBox);*/
                 }
            }
            break;
