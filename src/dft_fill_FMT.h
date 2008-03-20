@@ -49,6 +49,7 @@ extern int Nrho_bar_s;
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern void *LinProbMgr_manager;
+#define INIT_GUESS_FLAG  2
 extern double Dphi_Drhobar_RTF[10];
 extern double Dphi_Drhobar_LBB[10];
 extern double Dphi_Drhobar_b[10];

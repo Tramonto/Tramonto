@@ -47,7 +47,7 @@ void fill_resid_and_matrix_control (double **x, int iter, int resid_only_flag)
 
   if (Type_func !=NONE){
      dphi_drb = (struct RB_Struct *) array_alloc (1, Nnodes_box, sizeof(struct RB_Struct));
-     FMT1stDeriv_switch(i,x,dphi_drb);
+     FMT1stDeriv_switch(x,dphi_drb);
   }
 
    if (MATRIX_FILL_NODAL) fill_resid_and_matrix(x,dphi_drb,iter,resid_only_flag,NODAL_FLAG);

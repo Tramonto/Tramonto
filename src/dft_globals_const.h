@@ -300,6 +300,12 @@
 #define LINEAR           8
 
 /*
+ * This constant is a flag that allows us to use the fill routines to set up
+ * the initial guess.  We need to do this for some of the more complex variables 
+ */
+#define INIT_GUESS_FLAG  2
+
+/*
  * The following are the various fields for continuuation 
  */
 #define CONT_MESH        0   /* mesh size */

@@ -60,6 +60,7 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
 #define THETA_PAIRPOT_RCUT    2
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 extern void *LinProbMgr_manager;
+#define INIT_GUESS_FLAG  2
 #define MF_EQ          9
 #define MF_VARIABLE  2
 extern int Type_attr;
@@ -75,7 +76,7 @@ double fill_EL_elec_field(int iunk,int icomp,int loc_inode,int inode_box,double 
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;
-double fill_EL_ext_field(int iunk,int icomp,int loc_inode);
+double fill_EL_ext_field(int iunk,int icomp,int loc_inode,int resid_only_flag);
 double fill_EL_chem_pot(int iunk,int icomp,int iseg,int loc_inode,int inode_box,int mesh_coarsen_flag_i,double **x,int resid_only_flag);
 double fill_EL_ideal_gas(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double fill_sym_WTC(int iunk,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);

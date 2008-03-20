@@ -165,7 +165,7 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
             break;
 
        case WJDC_FIELD: 
-            resid_unk[iunk]=load_WJDC_field(iunk,loc_inode,inode_box,ijk_box,izone,x,                                                    dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
+            resid_unk[iunk]=load_WJDC_field(iunk,loc_inode,inode_box,ijk_box,izone,x,dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
             break;
 
        case G_CHAIN:

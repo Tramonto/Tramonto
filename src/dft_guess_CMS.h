@@ -30,7 +30,6 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Nlists_HW;
-extern int Nnodes_box;
 extern int ***Bonds;
 #define NCOMP_MAX 5
 #define NMER_MAX     100
@@ -63,6 +62,7 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+extern int Nnodes_box;
 void setup_polymer_rho(double **xInBox,int iguess);
 void setup_polymer_rho(double **xInBox,int iguess);
 #define DENSITY_MIN  1.e-20
@@ -81,7 +81,6 @@ void node_to_position(int inode,double *NodePos);
 extern int *B2G_node;
 #define STEP_PROFILE     3
 #define CONST_RHO       -3 
-extern int **Zero_density_TF;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 void setup_polymer_simple(double **xInBox,int iguess);
@@ -89,6 +88,7 @@ void setup_polymer_simple(double **xInBox,int iguess);
 #define THETA_CR_DATA         4
 double int_stencil_CMSField(double **x,int inode_box,int iunk,int sten_type);
 extern double **Vext;
+extern int **Zero_density_TF;
 void calc_init_CMSfield(double **xInBox);
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;

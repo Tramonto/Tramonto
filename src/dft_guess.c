@@ -114,10 +114,13 @@ void set_initial_guess (int iguess, double** xOwned)
 
          case WJDC_FIELD:
            if (Phys2Nunk[WJDC_FIELD]>0 && (start_no_info || Restart_field[WJDC_FIELD]==FALSE)){
-                 setup_polymer_field_wjdc(xInBox); } break;
+                 calc_init_WJDC_field(xInBox);
+                 /*setup_polymer_field_wjdc(xInBox); */
+           } break;
          case CMS_FIELD:
            if (Phys2Nunk[CMS_FIELD]>0 && (start_no_info || Restart_field[CMS_FIELD]==FALSE)) {
               calc_init_CMSfield(xInBox);
+              communicate_to_fill_in_box_values(xInBox);
               /*setup_polymer_field(xInBox,iguess); */
            } break;
          case G_CHAIN:
@@ -154,5 +157,20 @@ void translate_xInBox_to_xOwned(double **xInBox,double **xOwned)
          if (L2B_node[loc_inode]>=0) xOwned[iunk][loc_inode]=xInBox[iunk][L2B_node[loc_inode]];
       }
    return;
+}
+/********************************************************************************************************/
+/*void communicate_to_fill_in_box_values: this routine is needed for CMS and WJDC functionals where the
+  field variables can only be computed on local nodes, but need to be known on all of the box coordinates
+  in order to enable computation of the chain variables on the local nodes*/
+void communicate_to_fill_in_box_values(double **xInBox)
+{
+
+  if (Proc == 0) {
+    X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
+  }
+  collect_x_old(xInBox);
+  communicate_profile(X_old,xInBox);
+  safe_free((void *) &X_old);
+  return;
 }
 /********************************************************************************************************/

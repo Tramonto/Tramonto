@@ -45,7 +45,7 @@ double load_mean_field(int sten_type, int iunk, int loc_inode,
 
    jzone_flag=FALSE;
 
-   if (Type_attr==MF_VARIABLE){  /* in this case we fill attractions as independent variables - this is the
+   if (Type_attr==MF_VARIABLE && Unk2Phys[iunk]==MF_EQ){  /* in this case we fill attractions as independent variables - this is the
                                     first step to setting these matrix coefficients to be constant.  otherwise, the
                                     mean field terms are just summed into the Euler-Lagrange Equation. */
            resid_sum = -x[iunk][inode_box];

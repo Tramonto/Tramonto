@@ -20,6 +20,12 @@ double resid_and_Jac_sten_fill(int sten_type,double **x,int iunk,int junk,int ic
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int *BondAll_to_ibond;
+extern int *BondAll_to_isegAll;
+double load_bond_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+double d2y_dxi3_dxi2(double sigma_1,double sigma_2,double xi_2,double xi_3);
+double d2y_dxi3_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
+double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -27,12 +33,7 @@ double resid_and_Jac_sten_fill(int sten_type,double **x,int iunk,int junk,int ic
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-extern int *BondAll_to_ibond;
-extern int *BondAll_to_isegAll;
-double load_bond_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-double d2y_dxi3_dxi2(double sigma_1,double sigma_2,double xi_2,double xi_3);
-double d2y_dxi3_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
-double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
+#define INIT_GUESS_FLAG  2
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif

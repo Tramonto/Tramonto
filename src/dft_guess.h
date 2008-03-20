@@ -1,4 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
+void communicate_profile(double *x_new,double **xInBox);
+void collect_x_old(double **x);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -14,6 +16,8 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int Nnodes;
+extern double *X_old;
 extern int *L2B_node;
 extern int Nnodes_per_proc;
 void safe_free(void **ptr);
@@ -27,9 +31,10 @@ void setup_polymer_G_wjdc(double **xInBox);
 void setup_polymer_G(double **xInBox);
 void setup_polymer_G(double **xInBox);
 #define G_CHAIN        2 
+void communicate_to_fill_in_box_values(double **xInBox);
 void calc_init_CMSfield(double **xInBox);
 #define CMS_FIELD      1
-void setup_polymer_field_wjdc(double **xInBox);
+void calc_init_WJDC_field(double **xInBox);
 #define WJDC_FIELD     8
 void calc_init_BondWTC(double **xInBox);
 #define BONDWTC        7

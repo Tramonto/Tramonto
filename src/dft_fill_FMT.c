@@ -124,10 +124,10 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
       else if (jnode_box==-2){ /* in the wall */
         resid=0.0;
       }
-      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+      if (resid_only_flag != INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       resid_sum+=resid;
   
-    if (!resid_only_flag)
+    if (resid_only_flag==FALSE)
     if (isten < stenJ->Length){
         if (jzone != izone){
            offsetJ = sten_offsetJ[isten];

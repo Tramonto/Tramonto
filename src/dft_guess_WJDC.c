@@ -55,6 +55,38 @@ void setup_polymer_field_wjdc(double **xInBox)
    return;
 }
 /*********************************************************/
+/*calc_init_WJDC_field: in this routine sets up the initial guess for the WJDC field variable */
+void calc_init_WJDC_field(double **xInBox)
+{
+  int loc_inode,inode_box,ijk_box[3],icomp,iunk,izone,mesh_coarsen_flag_i;
+  double resid_EL;
+  struct  RB_Struct *dphi_drb=NULL;
+  izone=0;
+  mesh_coarsen_flag_i=0;
+
+  if (Type_func !=NONE){
+     dphi_drb = (struct RB_Struct *) array_alloc (1, Nnodes_box, sizeof(struct RB_Struct));
+     FMT1stDeriv_switch(xInBox,dphi_drb);
+  }
+
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     inode_box=L2B_node[loc_inode];
+     node_box_to_ijk_box(inode_box, ijk_box);
+
+     for (icomp=0; icomp<Ncomp; icomp++){
+        iunk=Phys2Unk_first[WJDC_FIELD]+icomp;
+        if (!Zero_density_TF[inode_box][icomp]){
+          resid_EL=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,
+                          xInBox,dphi_drb,mesh_coarsen_flag_i,INIT_GUESS_FLAG);
+          xInBox[iunk][inode_box]=exp(-resid_EL);
+       }
+       else xInBox[iunk][inode_box]=exp(-VEXT_MAX);
+     }
+  }
+  if (Type_func != NONE) safe_free((void *) &dphi_drb);
+  return;
+}
+/*********************************************************/
 /*setup_polymer_G_wjdc: in this routine sets up the initial guess for the chain variable
 in the wjdc functional */
 void setup_polymer_G_wjdc(double **xInBox)

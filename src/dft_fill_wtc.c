@@ -262,7 +262,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
                else                                                     dens=0.0;
 
                resid = -0.5*Fac_overlap[jcomp][kcomp]*weight*dens*(1./y)*(prefac2*dy_dxi2 + prefac3*dy_dxi3);
-               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               if (resid_only_flag != INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                resid_sum += resid;
             }
 
@@ -270,7 +270,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
     }        /* end of jseg loop */
 
 
-    if (!resid_only_flag) {
+    if (resid_only_flag==FALSE) {
        if (isten < stenJ->Length){
           offsetJ = sten_offsetJ[isten];
           weightJ = sten_weightJ[isten];

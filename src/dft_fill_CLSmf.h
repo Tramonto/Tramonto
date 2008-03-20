@@ -17,6 +17,7 @@ double resid_and_Jac_sten_fill(int sten_type,double **x,int iunk,int junk,int ic
 #include "Tramonto_ConfigDefs.h"
 extern int **Zero_density_TF;
 extern void *LinProbMgr_manager;
+#define INIT_GUESS_FLAG  2
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;

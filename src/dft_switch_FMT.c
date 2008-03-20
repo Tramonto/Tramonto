@@ -62,8 +62,9 @@ double phispt_switch(double *n)
 }
 /****************************************************************************/
 /*FMT1stDeriv_switch: Logic controlling type of FMT functional used.             */
-void FMT1stDeriv_switch(int inode_box, double **x, struct RB_Struct *dphi_drb)
+void FMT1stDeriv_switch(double **x, struct RB_Struct *dphi_drb)
 { 
+  int inode_box;
   switch(Type_func){
      case FMT1:
         for (inode_box=0;inode_box<Nnodes_box; inode_box++)
