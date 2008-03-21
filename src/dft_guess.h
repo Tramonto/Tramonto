@@ -26,27 +26,28 @@ void translate_xInBox_to_xOwned(double **xInBox,double **xOwned);
 void check_zero_densities(double **xInBox);
 void chop_profile(double **xInBox,int iguess);
 #define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
-void calc_init_polymer_G_wjdc(double **xInBox);
+void setup_polymer_G_wjdc(double **xInBox);
 #define WJDC         3
 void setup_polymer_G(double **xInBox);
 void setup_polymer_G(double **xInBox);
 #define G_CHAIN        9 
-void calc_init_CMSfield(double **xInBox);
+void setup_polymer_field(double **xInBox,int iguess);
+void setup_polymer_field(double **xInBox,int iguess);
 #define CMS_FIELD      7
 void communicate_to_fill_in_box_values(double **xInBox);
-void calc_init_WJDC_field(double **xInBox);
+void setup_polymer_field_wjdc(double **xInBox);
 #define WJDC_FIELD     8
-void calc_init_BondWTC(double **xInBox);
+void setup_BondWTC(double **xInBox);
 #define BONDWTC        5
-void calc_init_Xi_cavWTC(double **xInBox);
+void setup_Xi_cavWTC(double **xInBox);
 #define CAVWTC         4
 void setup_chem_pot(double **xInBox);
 #define DIFFUSION      6
 void setup_elec_pot(double **xInBox,int iguess);
 #define POISSON        1
-void calc_init_rho_bar(double **xInBox);
+void setup_rho_bar(double **xInBox);
 #define HSRHOBAR       2
-void calc_init_mf_attract(double **xInBox);
+void setup_mf_attract(double **xInBox);
 #define MF_EQ          3
 void setup_density(double **xInBox,int iguess);
 void setup_polymer_rho(double **xInBox,int iguess);

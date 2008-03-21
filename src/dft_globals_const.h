@@ -169,20 +169,6 @@
 #define G_CHAIN        9 
 #define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
 
-/*#define DENSITY        0
-#define HSRHOBAR       4
-#define DIFFUSION      5
-#define CAVWTC         6
-#define BONDWTC        7
-
-#define CMS_FIELD      1
-#define G_CHAIN        2 
-#define POISSON        3
-#define WJDC_FIELD     8
-#define MF_EQ          9
-
-#define YW_DENS        10 */      /* densities for Yethiraj-Woodward polymer DFTs */
-
 /* Here are some constants needed to make the physics based ordering of the
    matrix an option in the code. */
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */

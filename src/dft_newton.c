@@ -224,13 +224,15 @@ int update_solution(double** x, double** delta_x, int iter) {
   frac_min=1.0;
   for (ibox=0; ibox<Nnodes_box; ibox++) { /* find minimum update fraction in entire domain */
     for (iunk=0; iunk<Nunk_per_node; iunk++){
-      if ( (Unk2Phys[iunk]==G_CHAIN  && Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]] == -1) || 
+      if ( (Unk2Phys[iunk]==G_CHAIN  && Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]] == -1) ||
            (Unk2Phys[iunk]==DENSITY && (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) ){
          if(x[iunk][ibox]+delta_x[iunk][ibox]<0.0){
              frac = AZ_MIN(1.0,x[iunk][ibox]/(-delta_x[iunk][ibox]));
              frac = AZ_MAX(frac,Min_update_frac);
          } 
-         else frac=1.0;
+         else{
+             frac=1.0;
+         }
 
          if (frac<frac_min) frac_min=frac;
       }
@@ -468,6 +470,7 @@ void print_resid_norm(int iter)
   safe_free((void **) &f);
   norm = gsum_double(norm);
   if (Proc==0) printf("\t\tResidual norm at iteration %d = %g\n",iter, sqrt(norm));
+  return;
 }
 /*****************************************************************************************************/
 
