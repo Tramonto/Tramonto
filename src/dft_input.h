@@ -14,14 +14,14 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define CHOP_RHO_V       6
-#define CHOP_RHO_L       5
-#define EXP_RHO          0
-#define EXP_RHO_V        2
-#define EXP_RHO_L        1
-#define CONST_RHO       -3 
-#define CONST_RHO_V     -1 
-#define CONST_RHO_L     -2 
+#define CHOP_RHO_V      11
+#define CHOP_RHO_L      10 
+#define EXP_RHO          1
+#define EXP_RHO_V        9
+#define EXP_RHO_L        8
+#define CONST_RHO        0 
+#define CONST_RHO_V      7 
+#define CONST_RHO_L      6 
 #define NZONE_MAX  10 
 extern int Num_Proc;
 void error_check(void);
@@ -103,9 +103,10 @@ extern double Xend_step[NSTEPS_MAX];
 extern double Xstart_step[NSTEPS_MAX];
 extern int Orientation_step[NSTEPS_MAX];
 extern int Nsteps;
-#define CHOP_RHO_STEP    7
-#define CHOP_RHO         4
-#define STEP_PROFILE     3
+#define CHOP_RHO_STEP    4
+#define CHOP_RHO         3
+#define STEP_PROFILE     2
+extern int Iguess_fields;
 extern int Iguess1;
 extern int Iliq_vap;
 extern double Velocity;

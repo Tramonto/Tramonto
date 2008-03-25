@@ -29,7 +29,6 @@ extern int ***Bonds;
 #define TRUE  1
 #endif
 extern int *Unk_to_Bond;
-extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
@@ -42,15 +41,15 @@ double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,i
 void calc_init_polymer_G_wjdc(double **xInBox);
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 #define G_CHAIN        9 
+extern int Unk2Comp[NMER_MAX];
+extern int *Unk_to_Seg;
 extern int Nbonds;
 void setup_polymer_G_wjdc(double **xInBox);
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-extern double VEXT_MAX;
 #define INIT_GUESS_FLAG  2
 typedef struct RB_Struct RB_Struct;
 double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
-extern int **Zero_density_TF;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
@@ -78,6 +77,7 @@ struct RB_Struct {
 };
 void calc_init_WJDC_field(double **xInBox);
 extern double Field_WJDC_b[NMER_MAX];
+extern int **Zero_density_TF;
 #define WJDC_FIELD     8
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];

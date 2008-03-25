@@ -166,6 +166,7 @@ void setup_exp_density(double **xInBox, double *rho,int nloop,int index)
                if (nloop > 1) xInBox[iunk][inode_box] = rho[i];
                else           xInBox[iunk][inode_box] = rho[index];
            }
+           if (xInBox[iunk][inode_box]>=1.0) xInBox[iunk][inode_box]=0.99;
         }
         else xInBox[iunk][inode_box] = 0.0;
 

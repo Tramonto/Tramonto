@@ -1621,10 +1621,11 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d",&Iguess1);
-    fprintf(fp2,"%d   ",Iguess1);
+    fscanf(fp,"%d %d",&Iguess1,&Iguess_fields);
+    fprintf(fp2,"%d   ",Iguess1,Iguess_fields);
   }
   MPI_Bcast(&Iguess1,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Iguess_fields,1,MPI_INT,0,MPI_COMM_WORLD);
 
   if (Iguess1==STEP_PROFILE || (Iguess1>=CHOP_RHO && Iguess1<= CHOP_RHO_STEP)){
     if (Proc==0) {

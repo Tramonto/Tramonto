@@ -19,11 +19,11 @@ void setup_exp_density_with_profile(double **xInBox);
 #define NCOMP_MAX 5
 #define NSTEPS_MAX 10
 extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];
-#define CHOP_RHO_STEP    7
-#define CHOP_RHO         4
-#define CHOP_RHO_V       6
+#define CHOP_RHO_STEP    4
+#define CHOP_RHO         3
+#define CHOP_RHO_V      11
 extern double Rho_coex[2];
-#define CHOP_RHO_L       5
+#define CHOP_RHO_L      10 
 extern double Xstart_step[NSTEPS_MAX];
 extern double **X_wall;
 extern int Nwall;

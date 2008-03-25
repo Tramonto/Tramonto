@@ -96,13 +96,13 @@ extern int Npoisson;
 #define MF_EQ          3
 extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
-#define VERBOSE      3 
-extern int Iwrite;
 #define WTC          2
 #define WJDC         3
 #define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
+#define VERBOSE      3 
+extern int Iwrite;
 void print_profile(char *output_file4);
 void print_profile_box(double **x,char *outfile);
 extern double *Vext_old;

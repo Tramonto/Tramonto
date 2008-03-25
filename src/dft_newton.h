@@ -16,16 +16,14 @@
 #include "Tramonto_ConfigDefs.h"
 extern int *L2B_node;
 void fill_test(double **x,int flag);
-#define NODAL_FLAG -999
-void fill_resid_and_matrix(double **x,int iter,int resid_only_flag,int unk_flag);
 extern int Nnodes;
 extern int Lseg_densities;
 double gsum_double(double c);
-#define HSRHOBAR       4
-#define CAVWTC         6
-#define BONDWTC        7
+#define HSRHOBAR       2
+#define CAVWTC         4
+#define BONDWTC        5
 #define WJDC_FIELD     8
-#define CMS_FIELD      1
+#define CMS_FIELD      7
 #define NDIM_MAX  3
 extern int Nodes_x[NDIM_MAX];
 #define LAST_NODE_RESTART    4
@@ -107,12 +105,6 @@ void *array_alloc(int numdim,...);
 #if !(defined(__STDC__))
 void *array_alloc(...);
 #endif
-extern int *List_coarse_nodes;
-extern int Nnodes_coarse_loc;
-extern int *B2G_node;
-extern int Nnodes_box;
-extern int *L2G_node;
-extern int Nnodes_per_proc;
 struct Aztec_Struct {
   /*  int    options[AZ_OPTIONS_SIZE];  Array used to select solver options.  */
   /*  double params[AZ_PARAMS_SIZE];    User selected solver paramters.       */
@@ -131,6 +123,12 @@ struct Aztec_Struct {
 #endif 
 };
 extern struct Aztec_Struct Aztec;
+extern int *List_coarse_nodes;
+extern int Nnodes_coarse_loc;
+extern int *B2G_node;
+extern int Nnodes_box;
+extern int *L2G_node;
+extern int Nnodes_per_proc;
 extern void *LinProbMgr_manager;
 void linsolver_setup_control();
 int solve_problem(double **x,double **x2);

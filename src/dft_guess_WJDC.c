@@ -48,8 +48,8 @@ void setup_polymer_field_wjdc(double **xInBox)
      inode_box=L2B_node[loc_inode];
      for (i=0; i<Nloop; i++){
          iunk=Phys2Unk_first[WJDC_FIELD]+i;
-        /* if (Field_WJDC_b[i]<10.) */ xInBox[iunk][inode_box]=Field_WJDC_b[i];
-/*         else xInBox[iunk][inode_box]=1.;*/
+         if (!Zero_density_TF[inode_box][i]) xInBox[iunk][inode_box]=Field_WJDC_b[i];
+             else                            xInBox[iunk][inode_box]=0.;
      }
    }
    return;
@@ -80,7 +80,7 @@ void calc_init_WJDC_field(double **xInBox)
                           xInBox,dphi_drb,mesh_coarsen_flag_i,INIT_GUESS_FLAG);
           xInBox[iunk][inode_box]=exp(-resid_EL);
        }
-       else xInBox[iunk][inode_box]=exp(-VEXT_MAX);
+       else xInBox[iunk][inode_box]=0.0;
      }
   }
   if (Type_func != NONE) safe_free((void *) &dphi_drb);
@@ -91,14 +91,16 @@ void calc_init_WJDC_field(double **xInBox)
 in the wjdc functional */
 void setup_polymer_G_wjdc(double **xInBox)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box;
+  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,iseg,icomp_iseg;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];
      for (i=0; i<Nbonds; i++){
+         iseg=Unk_to_Seg[i];
+         icomp_iseg=Unk2Comp[iseg];
          iunk=Phys2Unk_first[G_CHAIN]+i;
-        /* if (G_WJDC_b[i]<10.)*/ xInBox[iunk][inode_box]=G_WJDC_b[i];
-/*         else xInBox[iunk][inode_box]=1.;*/
+         if (!Zero_density_TF[inode_box][icomp_iseg]) xInBox[iunk][inode_box]=G_WJDC_b[i];
+         else xInBox[iunk][inode_box]=0.0;
      }
    }
    return;
@@ -108,7 +110,7 @@ void setup_polymer_G_wjdc(double **xInBox)
 in the wjdc functional */
 void calc_init_polymer_G_wjdc(double **xInBox)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box;
+  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,icomp_iseg;
   int ibond,jbond,index,iseg,jseg,pol_num,bond_num,test,ijk_box[3];
   double resid_G;
   int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill;
@@ -129,7 +131,9 @@ void calc_init_polymer_G_wjdc(double **xInBox)
      for (ibond=0;ibond<Nbonds;ibond++){
         pol_num=Unk_to_Poly[ibond];
         iseg=Unk_to_Seg[ibond];
+        icomp_iseg=Unk2Comp[iseg];
         bond_num=Unk_to_Bond[ibond];
+
         if (array_val[ibond]==FALSE){
            test=TRUE;  /* assume we will compute a bulk G */
            jseg=Bonds[pol_num][iseg][bond_num];
@@ -151,6 +155,7 @@ void calc_init_polymer_G_wjdc(double **xInBox)
                                              NULL,fp_ResidG,fp_ResidG_Bulk,
                                              iunk,loc_inode,inode_box,
                                              ijk_box,0,xInBox, INIT_GUESS_FLAG);
+                
                      xInBox[iunk][inode_box]=resid_G;
                }
                communicate_to_fill_in_box_values(xInBox);  /* we need every G to be updated for all nodes in box as we

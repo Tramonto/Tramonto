@@ -44,24 +44,24 @@ extern int **Zero_density_TF;
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nnodes_box;
 void setup_linear_profile(double **xInBox);
-#define LINEAR           8
-#define CHOP_RHO_V       6
+#define LINEAR           5
+#define CHOP_RHO_V      11
 void chop_profile(double **xInBox,int iguess);
-#define CHOP_RHO_L       5
+#define CHOP_RHO_L      10 
 void setup_stepped_profile(double **xInBox);
-#define STEP_PROFILE     3
-#define EXP_RHO_L        1
-#define EXP_RHO_V        2
+#define STEP_PROFILE     2
+#define EXP_RHO_L        8
+#define EXP_RHO_V        9
 void setup_exp_density(double **xInBox,double *rho,int nloop,int index);
-#define EXP_RHO          0
-#define CONST_RHO_L     -2 
+#define EXP_RHO          1
+#define CONST_RHO_L      6 
 extern double Rho_coex[2];
-#define CONST_RHO_V     -1 
+#define CONST_RHO_V      7 
 extern int Ncomp;
 extern double Rho_b[NCOMP_MAX];
 extern int Nseg_tot;
 extern double Rho_seg_b[NMER_MAX];
 void setup_const_density(double **xInBox,double *rho,int nloop,int index);
 extern int Lseg_densities;
-#define CONST_RHO       -3 
+#define CONST_RHO        0 
 void setup_density(double **xInBox,int iguess);

@@ -282,20 +282,31 @@
 #define BACKGROUND   2
 
 /*
+ * The following are choices for the initial guess (Iguess_fields)
+ */
+#define BULK              0
+#define CALC_ALL_FIELDS   1
+#define CALC_RHOBAR_ONLY  2
+#define CALC_RHOBAR_AND_G 3
+
+/*
  * The following are choices for the initial guess (Iguess)
  */
-#define CONST_RHO       -3 
-#define CONST_RHO_L     -2 
-#define CONST_RHO_V     -1 
-#define EXP_RHO          0
-#define EXP_RHO_L        1
-#define EXP_RHO_V        2
-#define STEP_PROFILE     3
-#define CHOP_RHO         4
-#define CHOP_RHO_L       5
-#define CHOP_RHO_V       6
-#define CHOP_RHO_STEP    7
-#define LINEAR           8
+#define CONST_RHO        0 
+#define EXP_RHO          1
+#define STEP_PROFILE     2
+#define CHOP_RHO         3
+#define CHOP_RHO_STEP    4
+#define LINEAR           5
+                           /* these options are currently disabled
+                              since Tramonto is not able to compute 
+                              bulk liquid-vapor data at this time. */
+#define CONST_RHO_L      6 
+#define CONST_RHO_V      7 
+#define EXP_RHO_L        8
+#define EXP_RHO_V        9
+#define CHOP_RHO_L      10 
+#define CHOP_RHO_V      11
 
 /*
  * This constant is a flag that allows us to use the fill routines to set up
@@ -775,6 +786,7 @@ extern int     Lhard_surf;   /* Logical indicating if the surfaces have hard cor
 extern int     Lvext_dash;   /* Logical indicating if the Vext_dash array should be set up */
 extern  int     Iliq_vap;     /* Type of liquid vapor profile */
 extern int     Iguess1;        /* Type of initial guess */
+extern int     Iguess_fields;        /* Type of initial guess */
 extern int     Nsteps;         /* Number of steps for a step profile initial guess */
 extern int     Orientation_step[NSTEPS_MAX]; /* orientation of the step profile */
 extern double  Xstart_step[NSTEPS_MAX];  /* start position array for the step profile */

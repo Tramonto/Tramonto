@@ -268,6 +268,7 @@ int     Lhard_surf;   /* Logical indicating if surfaces are hard core */
 int     Lvext_dash;   /* Logical indicating if the Vext_dash array should be set up */
 int     Iliq_vap;     /* Type of Liquid-vapro profile                        */
 int     Iguess1;        /* Type of initial guess */
+int     Iguess_fields;        /* Type of initial guess */
 int     Nsteps;         /* Number of steps for a step profile initial guess */
 int     Orientation_step[NSTEPS_MAX]; /* orientation of the step profile */
 double  Xstart_step[NSTEPS_MAX];  /* start position array for the step profile */

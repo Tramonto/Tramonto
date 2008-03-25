@@ -87,13 +87,13 @@ void set_initial_guess (int iguess, double** xOwned)
            break;
          case MF_EQ:
            if (Phys2Nunk[MF_EQ]>0 && (start_no_info || Restart_field[MF_EQ]==FALSE ||Restart==3)){
-               /*calc_init_mf_attract(xInBox); */
-               setup_mf_attract(xInBox); 
+               if (Iguess_fields!=BULK)  calc_init_mf_attract(xInBox); 
+               else                      setup_mf_attract(xInBox); 
            } break;
          case HSRHOBAR:
            if (Phys2Nunk[HSRHOBAR]>0 && (start_no_info || Restart_field[HSRHOBAR]==FALSE ||Restart==3)) {
-                /* calc_init_rho_bar(xInBox);*/
-                 setup_rho_bar(xInBox); /* bulk setup disabled for now */
+                 if (Iguess_fields!=BULK) calc_init_rho_bar(xInBox);
+                 else                     setup_rho_bar(xInBox);
            } break;
          case POISSON:
            if (Phys2Nunk[POISSON]>0 && (start_no_info || Restart_field[POISSON]==FALSE ||Restart==3)) setup_elec_pot(xInBox,iguess); break;
@@ -102,34 +102,41 @@ void set_initial_guess (int iguess, double** xOwned)
 
          case CAVWTC:
            if (Phys2Nunk[CAVWTC]>0 && (start_no_info || Restart_field[CAVWTC]==FALSE)){
-              /*calc_init_Xi_cavWTC(xInBox);*/
-              setup_Xi_cavWTC(xInBox);
+              if (Iguess_fields!=BULK) calc_init_Xi_cavWTC(xInBox);
+              else                     setup_Xi_cavWTC(xInBox);
            }  break;
 
          case BONDWTC:
            if (Phys2Nunk[BONDWTC]>0 && (start_no_info || Restart_field[BONDWTC]==FALSE)){
-/*              calc_init_BondWTC(xInBox);*/
-              setup_BondWTC(xInBox);
+              if (Iguess_fields!=BULK) calc_init_BondWTC(xInBox);
+              else                     setup_BondWTC(xInBox);
            } break;
 
          case WJDC_FIELD:
            if (Phys2Nunk[WJDC_FIELD]>0 && (start_no_info || Restart_field[WJDC_FIELD]==FALSE)){
-/*                 calc_init_WJDC_field(xInBox);*/
-                 setup_polymer_field_wjdc(xInBox); 
+                 if (Iguess_fields==CALC_ALL_FIELDS) calc_init_WJDC_field(xInBox);
+                 else                            setup_polymer_field_wjdc(xInBox); 
                  communicate_to_fill_in_box_values(xInBox);
            } break;
          case CMS_FIELD:
            if (Phys2Nunk[CMS_FIELD]>0 && (start_no_info || Restart_field[CMS_FIELD]==FALSE)) {
-              /*calc_init_CMSfield(xInBox);*/
-              setup_polymer_field(xInBox,iguess); 
+              if (Iguess_fields==CALC_ALL_FIELDS) calc_init_CMSfield(xInBox);
+              else setup_polymer_field(xInBox,iguess); 
               communicate_to_fill_in_box_values(xInBox);
            } break;
          case G_CHAIN:
            if (Phys2Nunk[G_CHAIN]>0 && (start_no_info || Restart_field[G_CHAIN]==FALSE)){
-                if (Type_poly==CMS) setup_polymer_G(xInBox); 
+                if (Type_poly==CMS){
+                    if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
+                                                       calc_init_polymer_G_CMS(xInBox);
+                    }
+                    else                                setup_polymer_G(xInBox); 
+                }
                 else if (Type_poly==WJDC){
-                   /*calc_init_polymer_G_wjdc(xInBox);*/
-                   setup_polymer_G_wjdc(xInBox);
+                   if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
+                          calc_init_polymer_G_wjdc(xInBox);
+                   }
+                   else   setup_polymer_G_wjdc(xInBox);
                 }
            }
            break;

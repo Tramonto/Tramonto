@@ -68,7 +68,7 @@ void calc_init_CMSfield(double **xInBox)
 	 irho = Phys2Unk_first[DENSITY]+icomp;
 	 iunk = Phys2Unk_first[CMS_FIELD]+icomp;
          if (!Zero_density_TF[inode_box][icomp]){
-         field= Vext[loc_inode][icomp]-int_stencil_CMSField(xInBox,inode_box,irho,THETA_CR_DATA);
+            field= Vext[loc_inode][icomp]-int_stencil_CMSField(xInBox,inode_box,irho,THETA_CR_DATA);
          }
          else field=VEXT_MAX;
          xInBox[iunk][inode_box]=exp(-field);
@@ -290,3 +290,70 @@ void setup_polymer_G(double **xInBox)
   return;
 }
 /*********************************************************/
+/*********************************************************/
+/*calc_init_polymer_G_CMS: in this routine sets up the initial guess for the chain variable
+in the wjdc functional */
+void calc_init_polymer_G_CMS(double **xInBox)
+{
+  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,icomp_iseg;
+  int ibond,jbond,index,iseg,jseg,pol_num,bond_num,test,ijk_box[3];
+  double resid_G;
+  int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill;
+  double (*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **);
+  double (*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **);
+
+  fp_ResidG=&CMS_Resid_GCHAIN;
+  fp_ResidG_Bulk=&CMS_Resid_Bulk_GCHAIN;
+
+  /* need to be careful to generate the G's in the order dictated
+     by the chain architecture.  Use same strategy as in dft_thermo_wjdc */
+
+  for (ibond=0;ibond<Nbonds;ibond++) array_val[ibond]=FALSE;
+  array_fill=FALSE;
+  count_fill=0;
+
+  while (array_fill==FALSE){
+     for (ibond=0;ibond<Nbonds;ibond++){
+        pol_num=Unk_to_Poly[ibond];
+        iseg=Unk_to_Seg[ibond];
+        icomp_iseg=Unk2Comp[iseg];
+        bond_num=Unk_to_Bond[ibond];
+
+        if (array_val[ibond]==FALSE){
+           test=TRUE;  /* assume we will compute a bulk G */
+           jseg=Bonds[pol_num][iseg][bond_num];
+           if (jseg != -1 ){   /* may need to skip this G if we don't have all information yet  -
+                                  always compute G for end segments flagged with -1 value */
+              for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
+                 if (Bonds[pol_num][jseg][jbond] != iseg){ /* check all jbonds to see if we have necessary info */
+                    index=Poly_to_Unk[pol_num][jseg][jbond]+Geqn_start[pol_num]-Geqn_start[0];
+                    if (array_val[index]==FALSE) test=FALSE;
+                 }
+              }
+           }
+           if (test==TRUE){     /* compute a bulk G */
+               for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
+                     inode_box=L2B_node[loc_inode];
+                     node_box_to_ijk_box(inode_box,ijk_box);
+                     iunk=Phys2Unk_first[G_CHAIN]+ibond;
+                     resid_G=load_Chain_Geqns(CMS_FIELD,0,0,
+                                             NULL,fp_ResidG,fp_ResidG_Bulk,
+                                             iunk,loc_inode,inode_box,
+                                             ijk_box,0,xInBox, INIT_GUESS_FLAG);
+
+                     xInBox[iunk][inode_box]=resid_G;
+               }
+               communicate_to_fill_in_box_values(xInBox);  /* we need every G to be updated for all nodes in box as we
+                                                             generate them so we will be able to perform the next integral */
+              count_fill++;
+              array_val[ibond]=TRUE;
+
+           } /*end of test=TRUE condition */
+        }
+     }
+     if (count_fill==Nbonds) array_fill=TRUE;
+   }
+   return;
+}
+/*********************************************************/
+
