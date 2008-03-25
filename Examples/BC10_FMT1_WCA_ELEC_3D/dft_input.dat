@@ -177,19 +177,20 @@
                                         2=compute a Wall-Liquid profile
                                         3=compute a Liquid-Vapor profile) 
 
-@ -3 	Iguess 
-                     -3: Constant Bulk Density
-                     -2: Constant liquid coexistence density
-                     -1: Constant vapor coexistence density
-                      0: rho_bulk*exp(-Vext/kT)
-                      1: rho_liq*exp(-Vext/kT)
-                      2: rho_vap*exp(-Vext/kT)
-                      3: step function profile
-                      4: chopped profile: to rho_bulk
-                      5: chopped profile: to rho_liq
-                      6: chopped profile: to rho_vap
-                      7: chopped profile: to rho_step
-                      8: linear profile (for diffusion cases)
+@ 0 0	Iguess Iguess_fields 
+           [Iguess options:  0: Constant Bulk Density
+                             1: rho_bulk*exp(-Vext/kT)
+                             2: step function profile
+                             3: chopped profile: to rho_bulk
+                             4: chopped profile: to rho_step
+                             5: linear profile (for diffusion cases)]
+           [Iguess_fields options: 0: use bulk values for all fields
+                                   1: compute fields based on density field
+                                   2: compute nonlocal density fields, but 
+                                      retain bulk fields for G chain eqn (CMS/WJDC cases) 
+                                      and CMS_FIELD or WJDC_FIELD variables
+                                   3: compute all variables from density field except
+                                      use a bulk approximation for CMS_FIELD and WJDC_FIELD
 
 @ 0 	Nsteps 
 @ 0 	Orientation[istep] 
