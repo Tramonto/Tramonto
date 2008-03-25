@@ -159,9 +159,9 @@ int newton_solver(double** x, void* con_ptr) {
     (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);
-/*#ifdef NUMERICAL_JACOBIAN*/
-   do_numerical_jacobian(x);
-/*#endif*/
+#ifdef NUMERICAL_JACOBIAN
+/*   do_numerical_jacobian(x);*/
+#endif
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
     if (iter==1) Time_linsolver_first=MPI_Wtime()-start_t;
@@ -320,7 +320,7 @@ void fix_symmetries(double **x)
 return;
 }
 /*****************************************************************************************************/
-/*#ifdef NUMERICAL_JACOBIAN*/
+#ifdef NUMERICAL_JACOBIAN
 void do_numerical_jacobian(double **x)
 /* This routine compares the analytic and numerical jacobians for the     */
 /* purpose of checking the accuracy of an analytic Jacobian. It is only   */
@@ -447,7 +447,7 @@ if (i==2) printf("i=%d j=%d  full[i][j]=%g\n",i,j,full[i][j]);
   printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
   exit(0);
 }
-/*#endif*/
+#endif
 /****************************************************************************/
 
 
