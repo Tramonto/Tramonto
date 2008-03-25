@@ -159,9 +159,9 @@ int newton_solver(double** x, void* con_ptr) {
     (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);
-#ifdef NUMERICAL_JACOBIAN
+/*#ifdef NUMERICAL_JACOBIAN*/
    do_numerical_jacobian(x);
-#endif
+/*#endif*/
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
     if (iter==1) Time_linsolver_first=MPI_Wtime()-start_t;
@@ -320,7 +320,7 @@ void fix_symmetries(double **x)
 return;
 }
 /*****************************************************************************************************/
-#ifdef NUMERICAL_JACOBIAN
+/*#ifdef NUMERICAL_JACOBIAN*/
 void do_numerical_jacobian(double **x)
 /* This routine compares the analytic and numerical jacobians for the     */
 /* purpose of checking the accuracy of an analytic Jacobian. It is only   */
@@ -355,9 +355,15 @@ void do_numerical_jacobian(double **x)
       i=inode+Nnodes*iunk; /* Physics Based Ordering */
       /*i=iunk+Nunk_per_node*inode;*/  /* Nodal Based Ordering */
 /*      del=1.e-6*fabs(x[iunk][inode])+1.e-12;*/
-      fac=1.e-6;
+
+      if (fabs(x[iunk][inode]) > 1.e-2) fac=1.e-6;
+      else if (fabs(x[iunk][inode]) > 1.e-3) fac=1.e-5;
+      else if (fabs(x[iunk][inode]) > 1.e-5) fac=1.e-3;
+      else if (fabs(x[iunk][inode]) > 1.e-7) fac=1.e-1;
+      else fac=1.0;
+
       del=fac*fabs(x[iunk][inode]);
-      if (del<1.e-12) del+= 1.e-12;
+      if (del<1.e-08) del+= 1.e-08;
       x[iunk][inode] += del;
 
       for (junk=0; junk<Nunk_per_node; junk++) 
@@ -372,7 +378,7 @@ void do_numerical_jacobian(double **x)
           j=jnode+Nnodes*junk; /* Physics Based Ordering */
           /*j=junk+Nunk_per_node*jnode;*/  /* Nodal Based Ordering */
           full[j][i] = (resid[junk][jnode] - resid_tmp[junk][jnode])/del;
-/*if (iunk==5 && junk==0 && inode==49 && jnode==47){
+/*if (junk==0 && iunk==3 && jnode==10 && inode==0){
    printf("del=%g  x_shift=%g  x=%g  resid_tmp=%g  resid=%g  full=%g\n",
            del,x[iunk][inode],x[iunk][inode]-del,resid_tmp[junk][jnode],resid[junk][jnode],full[j][i]);
 }*/
@@ -441,7 +447,7 @@ if (i==2) printf("i=%d j=%d  full[i][j]=%g\n",i,j,full[i][j]);
   printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
   exit(0);
 }
-#endif
+/*#endif*/
 /****************************************************************************/
 
 
