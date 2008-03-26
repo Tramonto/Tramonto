@@ -68,7 +68,7 @@ class dft_PolyA22_Coulomb_Epetra_Operator: public virtual dft_PolyA22_Epetra_Ope
 
   /* dft_PolyA22_Coulomb_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & densityMap, const Epetra_Map & cmsDensMap, const Epetra_Map & block2Map, int * options, double * params);*/
 
-  dft_PolyA22_Coulomb_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & densityMap, const Epetra_Map & cmsDensMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList);
+  dft_PolyA22_Coulomb_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & poissonMap, const Epetra_Map & cmsDensMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList);
   //@}
   //@{ \name Assembly methods.
   int initializeProblemValues();

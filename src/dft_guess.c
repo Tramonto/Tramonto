@@ -176,9 +176,7 @@ void translate_xInBox_to_xOwned(double **xInBox,double **xOwned)
 void communicate_to_fill_in_box_values(double **xInBox)
 {
 
-  if (Proc == 0) {
     X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
-  }
   collect_x_old(xInBox);
   communicate_profile(X_old,xInBox);
   safe_free((void *) &X_old);
