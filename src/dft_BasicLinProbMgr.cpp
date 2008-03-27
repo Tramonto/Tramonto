@@ -193,6 +193,9 @@ int dft_BasicLinProbMgr::insertRhsValue(int ownedPhysicsID, int ownedNode, doubl
 
   int rhsLID = ownedToSolverLID(ownedPhysicsID, ownedNode); // Get solver LID
   (*globalRhs_)[rhsLID] += value;
+  //cout << std::setprecision(2);
+  //cout << "b[ownedPhysicsID="<<ownedPhysicsID<<"][ownedNode="<<ownedNode<<"] = " << value << endl;
+
   return(0);
 }
 //=============================================================================
@@ -201,6 +204,11 @@ int dft_BasicLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, in
   int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   int colGID = boxToSolverGID(boxPhysicsID, boxNode);
 
+  //cout << std::setprecision(2);
+  //cout << "A[ownedPhysicsID="<<ownedPhysicsID<<"][ownedNode="<<ownedNode
+  //     << "][boxPhysicsID="  <<boxPhysicsID  <<"][boxNode="  <<boxNode
+  //     << "][rowGID="        <<rowGID        <<"][colGID="   <<colGID  
+  //     << "] = " << value << endl;
   if (firstTime_) {
     if (rowGID!=curRow_) { 
       insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
@@ -319,6 +327,8 @@ int dft_BasicLinProbMgr::getLhs(double ** x) const {
     for (int j=0; j<numOwnedNodes_; j++)
       xtmp[j] = tmp[ownedToSolverLID(i,j)];
     importR2C(xtmp.Values(), x[i]); // Use simple import
+    //cout << std::setprecision(2);
+    //for (int j=0; j<numOwnedNodes_; j++) cout << "x["<<i<<"]["<<j<<"] = " << x[i][j] << endl;
   }
   return(0);
 }

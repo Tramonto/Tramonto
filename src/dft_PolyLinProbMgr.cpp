@@ -261,6 +261,12 @@ int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int
   int rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   int colGID = boxToSolverGID(boxPhysicsID, boxNode);
 
+  //cout << std::setprecision(2);
+  //cout << "A[ownedPhysicsID="<<ownedPhysicsID<<"][ownedNode="<<ownedNode
+  //     << "][boxPhysicsID="  <<boxPhysicsID  <<"][boxNode="  <<boxNode
+  //     << "][rowGID="        <<rowGID        <<"][colGID="   <<colGID  
+  //     << "] = " << value << endl;
+
   if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
     A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->GID(ownedNode), rowGID, colGID, value); 
   }
@@ -354,6 +360,14 @@ int dft_PolyLinProbMgr::finalizeProblemValues() {
   A11_->finalizeProblemValues();
   A22_->finalizeProblemValues();
 
+  //cout << "Inf Norm of A12 = " << A12_->NormInf() << endl;
+  //cout << "Inf Norm of A21 = " << A21_->NormInf() << endl;
+  //cout << "Fro Norm of A12 = " << A12_->NormFrobenius() << endl;
+  //cout << "Fro Norm of A21 = " << A21_->NormFrobenius() << endl;
+  //Check(true);
+
+  //cout << *A21_ << endl;
+
   //Check(true);
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -404,6 +418,10 @@ int dft_PolyLinProbMgr::solve() {
   solver_->Iterate(Teuchos::getParameter<int>(*parameterList_, "Max_iter"), Teuchos::getParameter<double>(*parameterList_, "Tol")); // Try to solve
 
   schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_); // Compute rest of solution
+
+  //cout << "X1 = " << *lhs1_ << endl;
+  //cout << "X2 = " << *lhs2_ << endl;
+
   if (debug_) {
     Epetra_Vector tmpRhs(*globalRowMap_);
     Epetra_Vector tmprhs1(View, *block1RowMap_, tmpRhs.Values());

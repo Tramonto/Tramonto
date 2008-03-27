@@ -86,6 +86,10 @@ dft_Schur_Epetra_Operator::~dft_Schur_Epetra_Operator() {
 int dft_Schur_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
 
 
+  // double normvalue;
+  //X.NormInf(&normvalue);
+  //cout << "Norm of X in Schur Epetra Apply = " << normvalue << endl;
+
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
   TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
@@ -98,10 +102,19 @@ int dft_Schur_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVe
  
   Y.PutScalar(0.0);
   A12_->Apply(X, Y1);
+  //Y1.NormInf(&normvalue);
+  //cout << "Norm of Y1 in Schur Epetra Apply = " << normvalue << endl;
+  //cout << *A12_ << endl;
+  //exit(1);
   A11_->ApplyInverse(Y1, Y11);
   A21_->Apply(Y11, Y2);
+  //Y2.NormInf(&normvalue);
+  //cout << "Norm of Y2 in Schur Epetra Apply = " << normvalue << endl;
   A22_->Apply(X, Y);
   Y.Update(-1.0, Y2, 1.0);
+
+  //Y.NormInf(&normvalue);
+  //cout << "Norm of Y in Schur Epetra Apply = " << normvalue << endl;
   return(0);
 }
 //==============================================================================

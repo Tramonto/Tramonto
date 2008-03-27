@@ -137,6 +137,7 @@ protected:
   Epetra_Map block1Map_;
   int numBlocks_;
   Epetra_CrsMatrix ** matrix_;
+  Epetra_Vector * invDiagonal_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;

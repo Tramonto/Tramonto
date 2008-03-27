@@ -50,17 +50,20 @@ dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & owne
     curOwnedNode_(-1) {
 
   Label_ = "dft_PolyA11_Epetra_Operator";
-  matrix_ = new Epetra_CrsMatrix*[numBlocks_];
-  for (int i=0; i<numBlocks_; i++) {
+  matrix_ = new Epetra_CrsMatrix*[numBlocks_-1];
+  invDiagonal_ = new Epetra_Vector(block1Map);
+  for (int i=0; i<numBlocks_-1; i++) {
     matrix_[i] = new Epetra_CrsMatrix(Copy, ownedMap, 0);
     matrix_[i]->SetLabel("PolyA11::matrix[i]");
+    
   }
   return;
 }
 //==============================================================================
 dft_PolyA11_Epetra_Operator::~dft_PolyA11_Epetra_Operator() {
-  for (int i=0; i<numBlocks_; i++) if (matrix_[i]!=0) delete matrix_[i];
+  for (int i=0; i<numBlocks_-1; i++) if (matrix_[i]!=0) delete matrix_[i];
   delete [] matrix_;
+  delete invDiagonal_;
   return;
 }
 //=============================================================================
@@ -69,15 +72,20 @@ int dft_PolyA11_Epetra_Operator::initializeProblemValues() {
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
-  if (!firstTime_)
-    for (int i=0; i<numBlocks_; i++)
+  if (!firstTime_) {
+    for (int i=0; i<numBlocks_-1; i++)
       matrix_[i]->PutScalar(0.0);
-  
+    invDiagonal_->PutScalar(0.0);
+  }
   return(0);
 }
 //=============================================================================
 int dft_PolyA11_Epetra_Operator::insertMatrixValue(int ownedPhysicsID, int ownedNode, int rowGID, int colGID, double value) {
-  if (rowGID!=colGID) value = -value; // negate off-diagonal values to simplify kernel calls
+  if (rowGID==colGID) {
+    int locDiag = block1Map_.LID(colGID);
+    (*invDiagonal_)[locDiag] += value;
+    return(0);
+  }
 
   if (firstTime_) {
     if (rowGID!=curRow_) { 
@@ -89,7 +97,7 @@ int dft_PolyA11_Epetra_Operator::insertMatrixValue(int ownedPhysicsID, int owned
     curRowValues_[colGID] += value;
   }
   else
-    matrix_[ownedPhysicsID]->SumIntoGlobalValues(ownedNode, 1, &value, &colGID);
+    matrix_[ownedPhysicsID-1]->SumIntoGlobalValues(ownedNode, 1, &value, &colGID);
   
   return(0);
 }
@@ -107,7 +115,7 @@ int dft_PolyA11_Epetra_Operator::insertRow() {
     indices_[i] = pos->first;
     values_[i++] = pos->second;
   }
-  matrix_[curOwnedPhysicsID_]->InsertGlobalValues(curOwnedNode_, numEntries, values_.Values(), indices_.Values());
+  matrix_[curOwnedPhysicsID_-1]->InsertGlobalValues(curOwnedNode_, numEntries, values_.Values(), indices_.Values());
 
   curRowValues_.clear();
   return(0);
@@ -118,13 +126,15 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
 
   if (firstTime_) 
     insertRow(); // Dump any remaining entries
-    for (int i=0; i<numBlocks_; i++) {
+    for (int i=0; i<numBlocks_-1; i++) {
       matrix_[i]->FillComplete(block1Map_, ownedMap_);
       matrix_[i]->OptimizeStorage();
+      //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << endl;
       //TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
     }
+    invDiagonal_->Reciprocal(*invDiagonal_); // Invert diagonal values for faster ApplyInverse() method
 
-    /*    for (int i=0; i<numBlocks_; i++) {
+    /*    for (int i=0; i<numBlocks_-1; i++) {
       std::cout << "matrix " << i << *matrix_[i];
       }*/
   isLinearProblemSet_ = true;
@@ -134,33 +144,55 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
 //==============================================================================
 int dft_PolyA11_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
 
+  //double normvalue;
+  //X.NormInf(&normvalue);
+  //cout << "Norm of X in PolyA11 ApplyInverse = " << normvalue << endl;
 
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
   TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numMyElements = ownedMap_.NumMyElements();
+  Epetra_MultiVector Ytmp(ownedMap_,NumVectors);
 
   Y=X; // We can safely do this
 
-  double ** curY = new double *[NumVectors];
+  double ** curYptr = new double *[NumVectors];
   double ** Yptr;
-
   Y.ExtractView(&Yptr); // Get array of pointers to columns of Y
-  for (int i=0; i<NumVectors; i++) curY[i] = Yptr[i];
-  Epetra_MultiVector Ytmp(View, ownedMap_, curY, NumVectors); // Start Ytmp to view first numNodes elements of Y
+  for (int i=0; i<NumVectors; i++) curYptr[i] = Yptr[i];
+  Epetra_MultiVector curY(View, ownedMap_, curYptr, NumVectors); // Start Ytmp to view first numNodes elements of Y
 
-  for (int i=0; i< numBlocks_; i++) {
-    matrix_[i]->Multiply(false, Y, Ytmp);
-    for (int j=0; j<NumVectors; j++) curY[j]+=numMyElements; // Increment pointers to next block
-    Ytmp.ResetView(curY); // Reset view to next block
+  double * curDiagptr;
+  invDiagonal_->ExtractView(&curDiagptr); // Get pointer to first diagonal value
+  Epetra_Vector curDiag(View, ownedMap_, curDiagptr); // View into first numNodes elements of diagonal
+
+  curY.Multiply(1.0, curDiag, curY, 0.0); // Scale Y by the first block diagonal
+
+  for (int i=0; i< numBlocks_-1; i++) { // Loop over block 1 through numBlocks (indexing 0 to numBlocks-1)
+    // Update views of Y and diagonal blocks
+    for (int j=0; j<NumVectors; j++) curYptr[j]+=numMyElements; // Increment pointers to next block
+    curY.ResetView(curYptr); // Reset view to next block
+    curDiagptr += numMyElements;
+    curDiag.ResetView(curDiagptr); // Reset diagonal view to next block
+
+    matrix_[i]->Multiply(false, Y, Ytmp); // Multiply block lower triangular block
+    curY.Update(-1.0, Ytmp, 1.0); // curY = curX - Ytmp (Note that curX is in curY from initial copy Y = X)
+    curY.Multiply(1.0, curDiag, curY, 0.0); // Scale Y by the first block diagonal
   }
 
-  delete [] curY;
+  delete [] curYptr;
+
+  // Y.NormInf(&normvalue);
+  //cout << "Norm of Y in PolyA11 ApplyInverse = " << normvalue << endl;
   return(0);
 }
 //==============================================================================
 int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+
+  //double normvalue;
+  //X.NormInf(&normvalue);
+  //cout << "Norm of X in PolyA11 Apply = " << normvalue << endl;
 
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
@@ -168,32 +200,26 @@ int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
   int NumVectors = Y.NumVectors();
   int numMyElements = ownedMap_.NumMyElements();
 
-  double ** curY = new double *[NumVectors];
-  double ** curX = new double *[NumVectors];
+  double ** curYptr = new double *[NumVectors];
   double ** Yptr;
-  double ** Xptr;
 
   Y.ExtractView(&Yptr); // Get array of pointers to columns of Y
-  for (int i=0; i<NumVectors; i++) curY[i] = Yptr[i];
-  Epetra_MultiVector Ytmp(View, ownedMap_, curY, NumVectors); // Start Ytmp to view first numNodes elements of Y
-  X.ExtractView(&Xptr); // Get array of pointers to columns of X
-  for (int i=0; i<NumVectors; i++) curX[i] = Xptr[i];
-  Epetra_MultiVector Xtmp(View, ownedMap_, curX, NumVectors); // Start Xtmp to view first numNodes elements of X
+  for (int i=0; i<NumVectors; i++) curYptr[i] = Yptr[i];
+  Epetra_MultiVector curY(View, ownedMap_, curYptr, NumVectors); // Start curY to view first numNodes elements of Y
 
-  for (int i=0; i< numBlocks_; i++) {
-    matrix_[i]->Multiply(false, X, Ytmp); // This gives a result that is X - off-diagonal-matrix*X
-    Ytmp.Update(-2.0, Xtmp, 1.0); // This gives a result of -X - off-diagonal-matrix*X
-    Ytmp.Scale(-1.0); // Finally negate to get the desired result
-    for (int j=0; j<NumVectors; j++) {
-      curY[j]+=numMyElements; // Increment pointers to next block
-      curX[j]+=numMyElements; // Increment pointers to next block
-    }
-    Ytmp.ResetView(curY); // Reset view to next block
-    Xtmp.ResetView(curX); // Reset view to next block
+  for (int i=0; i< numBlocks_-1; i++) {
+    for (int j=0; j<NumVectors; j++) curY[j]+=numMyElements; // Increment pointers to next block
+    curY.ResetView(curYptr); // Reset view to next block
+    matrix_[i]->Multiply(false, X, curY); // This gives a result that is off-diagonal-matrix*X
   }
 
-  delete [] curY;
-  delete [] curX;
+  Y.ReciprocalMultiply(1.0,*invDiagonal_, X, 1.0); // Add diagonal contribution
+
+  delete [] curYptr;
+
+  //Y.NormInf(&normvalue);
+  //cout << "Norm of Y in PolyA11 Apply = " << normvalue << endl;
+
   return(0);
 }
 //==============================================================================

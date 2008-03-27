@@ -154,6 +154,12 @@ int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
     cmsOnDensityMatrix_->FillComplete();
     cmsOnDensityMatrix_->OptimizeStorage();
   }
+  //double normvalue;
+  //cout << "CmsOnDensityMatrix Inf Norm = " << cmsOnDensityMatrix_->NormInf() << endl;
+  //densityOnDensityMatrix_->NormInf(&normvalue);
+  //cout << "DensityOnDensityMatrix Inf Norm = " << normvalue << endl;
+  //densityOnCmsMatrix_->NormInf(&normvalue);
+  //cout << "DensityOnCmsMatrix Inf Norm = " << normvalue << endl;
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -207,6 +213,10 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
   // Y1 = Ddd \ X1
   // Y2 = Dcc \ (X2 - F*Y1)  
 
+  //double normvalue;
+  //X.NormInf(&normvalue);
+  //cout << "Norm of X in PolyA22 ApplyInverse = " << normvalue << endl;
+
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
   TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
@@ -256,10 +266,17 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
   
   delete [] Y2ptr;
   delete [] X2ptr;
+
+  //Y.NormInf(&normvalue);
+  //cout << "Norm of Y in PolyA22 ApplyInverse = " << normvalue << endl;
   return(0);
 }
 //==============================================================================
 int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+
+  //double normvalue;
+  //X.NormInf(&normvalue);
+  //cout << "Norm of X in PolyA22 Apply = " << normvalue << endl;
 
   TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
   TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
@@ -308,6 +325,9 @@ int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
   
   delete [] X2ptr;
   delete [] Y2ptr;
+
+  //Y.NormInf(&normvalue);
+  //cout << "Norm of Y in PolyA22 Apply = " << normvalue << endl;
   return(0);
 }
 //==============================================================================
