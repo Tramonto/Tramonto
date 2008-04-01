@@ -325,18 +325,18 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
                       dens = x[unk_rho][jnode_boxJ];
                       first_deriv = (prefac2*dy_dxi2 + prefac3*dy_dxi3)/y;
   
-                      mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weight*first_deriv;
+                      mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv;
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                 unk_rho,jnode_boxJ,mat_val);
   
-                      mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weight*dens* ( 
+                      mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*dens* ( 
                                 (prefac2*d2y_dxi2_2 + prefac3*d2y_dxi2_dxi3)/y 
                                 - first_deriv*dy_dxi2/y );
   
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                 unk_xi2,jnode_boxJ,mat_val);
   
-                      mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weight*dens* (
+                      mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*dens* (
                                  (prefac2*d2y_dxi2_dxi3 + prefac3*d2y_dxi3_2)/y
                                  - first_deriv*dy_dxi3/y );
   
