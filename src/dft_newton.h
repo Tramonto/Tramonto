@@ -133,6 +133,7 @@ extern void *LinProbMgr_manager;
 void linsolver_setup_control();
 int solve_problem(double **x,double **x2);
 void do_numerical_jacobian(double **);
+int find_length_of_file(char *filename);
 #if defined(NUMERICAL_JACOBIAN)
 void do_numerical_jacobian(double **x);
 #endif

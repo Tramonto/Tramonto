@@ -159,9 +159,9 @@ int newton_solver(double** x, void* con_ptr) {
     (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);
-#ifdef NUMERICAL_JACOBIAN
-/*   do_numerical_jacobian(x);*/
-#endif
+/*#ifdef NUMERICAL_JACOBIAN*/
+   do_numerical_jacobian(x);
+/*#endif*/
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
     if (iter==1) Time_linsolver_first=MPI_Wtime()-start_t;
@@ -170,13 +170,11 @@ int newton_solver(double** x, void* con_ptr) {
     /* I am assuming getLhs returns box coordinates (e.g. Column Map)!! */
     (void) dft_linprobmgr_getlhs(LinProbMgr_manager, delta_x);
 
-    /*
-      for (iunk=0; iunk<Nunk_per_node; iunk++)
+/*      for (iunk=0; iunk<Nunk_per_node; iunk++)
       for (ibox=0; ibox<Nnodes_box; ibox++) {
       printf("delta_x[%d][%d] = %g\n", iunk, ibox,delta_x[iunk][ibox]);
       }
-    */
-  /*dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);*/
+  dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);*/
     
     if (con_ptr != NULL) converged2 =
       continuation_hook_conwrap(x, delta_x, con_ptr, Newton_rel_tol, Newton_abs_tol);
@@ -320,7 +318,7 @@ void fix_symmetries(double **x)
 return;
 }
 /*****************************************************************************************************/
-#ifdef NUMERICAL_JACOBIAN
+/*#ifdef NUMERICAL_JACOBIAN*/
 void do_numerical_jacobian(double **x)
 /* This routine compares the analytic and numerical jacobians for the     */
 /* purpose of checking the accuracy of an analytic Jacobian. It is only   */
@@ -333,7 +331,7 @@ void do_numerical_jacobian(double **x)
   int i, j, N=Nunk_per_node*Nnodes, count=0,iunk,junk,jnode,inode,c,read_next;
   char filename[20];
   FILE *ifp, *ifp2, *ifp3;
-  int ia,ja,count_same=0,count_diff=0;
+  int ia,ja,count_same=0,count_diff=0,ilines,lines_jafile;
   double coef_ij,diff,error,fac;
   double **resid, **resid_tmp;
   resid = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
@@ -397,45 +395,29 @@ void do_numerical_jacobian(double **x)
   ifp = fopen(filename,"w");
 
   sprintf(filename, "ja%0d",Proc);
-  ifp2 = fopen(filename,"r");
-  for (i=0;i<2;i++) while ((c=getc(ifp2)) != EOF && c !='\n') ; /* skip first two lines of ja0 */
-
+  lines_jafile=find_length_of_file(filename);
 
   sprintf(filename, "jdiff%0d",Proc);
   ifp3 = fopen(filename,"w");
 
-  read_next=TRUE;
-  for (i=0; i<Nnodes*Nunk_per_node; i++) {
-    for (j=0; j<Nnodes*Nunk_per_node; j++) {
-      if (read_next){
-            fscanf(ifp2,"%d %d %lf",&ia,&ja,&coef_ij);
-            read_next=FALSE;
-      }
-      if (ia-1==i && ja-1==j){
-          diff=fabs((full[i][j]-coef_ij));
-          error=100*fabs((full[i][j]-coef_ij)/full[i][j]);
-          if (diff > 0.001 && error>1.){ 
+  sprintf(filename, "ja%0d",Proc);
+  ifp2 = fopen(filename,"r");
+  for (i=0;i<2;i++) while ((c=getc(ifp2)) != EOF && c !='\n'); /* skip first two lines of ja0 */
+
+  for (ilines=0;ilines<lines_jafile-2;ilines++){
+      fscanf(ifp2,"%d %d %lf",&ia,&ja,&coef_ij);
+      i=ia-1; j=ja-1;
+      diff=fabs((full[i][j]-coef_ij));
+      error=100*fabs((full[i][j]-coef_ij)/full[i][j]);
+      if (diff > 0.001 && error>1.){ 
                fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
                i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
                count_diff++;
-          }
-          else count_same++;
-          read_next=TRUE;
       }
-      else{
-         if (fabs(full[i][j])>1.0e-6){
-if (i==2) printf("i=%d j=%d  full[i][j]=%g\n",i,j,full[i][j]);
-            printf("nonzero matrix coefficient only in numerical jacobian: i=%d  j=%d coefficient=%g\n",i,j,full[i][j]);
-            diff=fabs((full[i][j]));
-            fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=100%\n",
-               i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff);
-            count_diff++;
-         }
-         else count_same++;
-      }
+      else count_same++;
       if (fabs(full[i][j]) > 1.0e-6) fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
-    }
   }
+
   fclose(ifp);
   fclose(ifp2);
   fclose(ifp3);
@@ -447,7 +429,7 @@ if (i==2) printf("i=%d j=%d  full[i][j]=%g\n",i,j,full[i][j]);
   printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
   exit(0);
 }
-#endif
+/*#endif*/
 /****************************************************************************/
 
 
