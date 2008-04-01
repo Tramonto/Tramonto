@@ -159,9 +159,9 @@ int newton_solver(double** x, void* con_ptr) {
     (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);
-#ifdef NUMERICAL_JACOBIAN
+/*#ifdef NUMERICAL_JACOBIAN*/
    do_numerical_jacobian(x);
-#endif
+/*#endif*/
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
     if (iter==1) Time_linsolver_first=MPI_Wtime()-start_t;
@@ -318,7 +318,7 @@ void fix_symmetries(double **x)
 return;
 }
 /*****************************************************************************************************/
-#ifdef NUMERICAL_JACOBIAN
+/*#ifdef NUMERICAL_JACOBIAN*/
 void do_numerical_jacobian(double **x)
 /* This routine compares the analytic and numerical jacobians for the     */
 /* purpose of checking the accuracy of an analytic Jacobian. It is only   */
@@ -359,14 +359,15 @@ void do_numerical_jacobian(double **x)
       /*i=iunk+Nunk_per_node*inode;*/  /* Nodal Based Ordering */
 /*      del=1.e-6*fabs(x[iunk][inode])+1.e-12;*/
 
-      if (fabs(x[iunk][inode]) > 1.e-2) fac=1.e-6;
-      else if (fabs(x[iunk][inode]) > 1.e-3) fac=1.e-5;
-      else if (fabs(x[iunk][inode]) > 1.e-5) fac=1.e-3;
-      else if (fabs(x[iunk][inode]) > 1.e-7) fac=1.e-1;
-      else fac=1.0;
+      if (fabs(x[iunk][inode]) > 1.e-2) fac=1.e-7;
+      else if (fabs(x[iunk][inode]) > 1.e-3) fac=1.e-6;
+      else if (fabs(x[iunk][inode]) > 1.e-5) fac=1.e-4;
+      else fac=1.e-3;
 
       del=fac*fabs(x[iunk][inode]);
-      if (del<1.e-08) del+= 1.e-08;
+      if (del<1.e-12) del+= 1.e-12;
+      if (del>0.01) del=0.01;
+if (iunk==22 && inode==151) printf("xinit=%g  del=%g resid=%g\n",x[iunk][inode],del,resid[iunk][inode]);
       x[iunk][inode] += del;
 
       for (junk=0; junk<Nunk_per_node; junk++) 
@@ -378,6 +379,7 @@ void do_numerical_jacobian(double **x)
 
       for (junk=0; junk<Nunk_per_node; junk++){ 
       for (jnode=0; jnode<Nnodes_per_proc; jnode++){ 
+if (iunk==22 && inode==151 && junk==27 && jnode==159) printf("resid_tmp=%g\n",resid_tmp[iunk][inode]);
           j=jnode+Nnodes*junk; /* Physics Based Ordering */
           /*j=junk+Nunk_per_node*jnode;*/  /* Nodal Based Ordering */
           full[j][i] = (resid[junk][jnode] - resid_tmp[junk][jnode])/del;
@@ -418,7 +420,7 @@ void do_numerical_jacobian(double **x)
       count_nonzeros_a[i][j]=TRUE; /* record all nonzero analytical jacobian entries */
       diff=fabs((full[i][j]-coef_ij));
       error=100.0*fabs((full[i][j]-coef_ij)/full[i][j]);
-      if (diff > 0.001 || error>1.){ 
+      if (diff > 1.e-6 && error>1. && x[j/Nnodes][j-Nnodes*(int)(j/Nnodes)] >1.e-10){ 
                fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
                i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
                count_diff++;
@@ -437,7 +439,7 @@ void do_numerical_jacobian(double **x)
           if (count_nonzeros[i][j]==TRUE && count_nonzeros_a[i][j]==FALSE){
              diff=fabs((full[i][j]));
              error=100.;
-             if (diff > 1.e-6 || error>1.){ 
+             if (diff > 1.e-6 && error>1. && x[junk][jnode]>1.e-10){ 
                fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
                i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
                count_diff++;
@@ -463,7 +465,7 @@ void do_numerical_jacobian(double **x)
   printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
   exit(0);
 }
-#endif
+/*#endif*/
 /****************************************************************************/
 
 
