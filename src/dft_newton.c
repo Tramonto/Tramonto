@@ -159,9 +159,9 @@ int newton_solver(double** x, void* con_ptr) {
     (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);
-/*#ifdef NUMERICAL_JACOBIAN*/
+#ifdef NUMERICAL_JACOBIAN
    do_numerical_jacobian(x);
-/*#endif*/
+#endif
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
     if (iter==1) Time_linsolver_first=MPI_Wtime()-start_t;
@@ -318,7 +318,7 @@ void fix_symmetries(double **x)
 return;
 }
 /*****************************************************************************************************/
-/*#ifdef NUMERICAL_JACOBIAN*/
+#ifdef NUMERICAL_JACOBIAN
 void do_numerical_jacobian(double **x)
 /* This routine compares the analytic and numerical jacobians for the     */
 /* purpose of checking the accuracy of an analytic Jacobian. It is only   */
@@ -329,6 +329,7 @@ void do_numerical_jacobian(double **x)
 {
   double **full=NULL, del;
   int i, j, N=Nunk_per_node*Nnodes, count=0,iunk,junk,jnode,inode,c,read_next;
+  int **count_nonzeros=NULL, **count_nonzeros_a, count_nonzeros_num;
   char filename[20];
   FILE *ifp, *ifp2, *ifp3;
   int ia,ja,count_same=0,count_diff=0,ilines,lines_jafile;
@@ -347,6 +348,10 @@ void do_numerical_jacobian(double **x)
 
   full = (double **) array_alloc(2,N,N,sizeof(double));
   if (full==NULL){printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
+  count_nonzeros = (int **) array_alloc(2,N,N,sizeof(int));
+  if (count_nonzeros==NULL){printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
+  count_nonzeros_a = (int **) array_alloc(2,N,N,sizeof(int));
+  if (count_nonzeros_a==NULL){printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
 
   for (iunk=0;iunk<Nunk_per_node;iunk++){
     for (inode=0; inode<Nnodes; inode++) {
@@ -376,6 +381,9 @@ void do_numerical_jacobian(double **x)
           j=jnode+Nnodes*junk; /* Physics Based Ordering */
           /*j=junk+Nunk_per_node*jnode;*/  /* Nodal Based Ordering */
           full[j][i] = (resid[junk][jnode] - resid_tmp[junk][jnode])/del;
+          if (full[j][i] > 1.e-6) count_nonzeros[j][i]=TRUE;
+          else count_nonzeros[j][i]=FALSE;
+          count_nonzeros_a[j][i]=FALSE; /*set all of the analytical jacobian to false */
 /*if (junk==0 && iunk==3 && jnode==10 && inode==0){
    printf("del=%g  x_shift=%g  x=%g  resid_tmp=%g  resid=%g  full=%g\n",
            del,x[iunk][inode],x[iunk][inode]-del,resid_tmp[junk][jnode],resid[junk][jnode],full[j][i]);
@@ -407,9 +415,10 @@ void do_numerical_jacobian(double **x)
   for (ilines=0;ilines<lines_jafile-2;ilines++){
       fscanf(ifp2,"%d %d %lf",&ia,&ja,&coef_ij);
       i=ia-1; j=ja-1;
+      count_nonzeros_a[i][j]=TRUE; /* record all nonzero analytical jacobian entries */
       diff=fabs((full[i][j]-coef_ij));
-      error=100*fabs((full[i][j]-coef_ij)/full[i][j]);
-      if (diff > 0.001 && error>1.){ 
+      error=100.0*fabs((full[i][j]-coef_ij)/full[i][j]);
+      if (diff > 0.001 || error>1.){ 
                fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
                i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
                count_diff++;
@@ -418,18 +427,43 @@ void do_numerical_jacobian(double **x)
       if (fabs(full[i][j]) > 1.0e-6) fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
   }
 
+  count_nonzeros_num=0;
+  for (iunk=0;iunk<Nunk_per_node;iunk++){
+    for (inode=0; inode<Nnodes; inode++) {
+      i=inode+Nnodes*iunk; /* Physics Based Ordering */
+      for (junk=0; junk<Nunk_per_node; junk++){ 
+      for (jnode=0; jnode<Nnodes_per_proc; jnode++){ 
+          j=jnode+Nnodes*junk; /* Physics Based Ordering */
+          if (count_nonzeros[i][j]==TRUE && count_nonzeros_a[i][j]==FALSE){
+             diff=fabs((full[i][j]));
+             error=100.;
+             if (diff > 1.e-6 || error>1.){ 
+               fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
+               i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
+               count_diff++;
+             }
+             fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
+             count_nonzeros_num++;
+             
+          }
+      }
+      }
+    }
+  }
+
   fclose(ifp);
   fclose(ifp2);
   fclose(ifp3);
   printf("numerical jacobian statistics:\n");
-  printf("number of matrix coefficients that are the same=%d\n",count_same);
-  printf("number of matrix coefficients that are different=%d\n",count_diff);
+  printf("number of matrix coefficients that are the same (nonzeros in ja0)=%d\n",count_same);
+  printf("number of matrix coefficients that are different (nonzeros in ja0)=%d\n",count_diff);
+  printf("number of matrix coefficients where nonzeros are only in numerical jacobian=%d\n",count_nonzeros_num);
   printf("See jdiff0 for summary of matrix coefficients where differences\n");
   printf("between analytical and numerical results are greater than 1%. \n\n");
   printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
   exit(0);
 }
-/*#endif*/
+#endif
 /****************************************************************************/
 
 
