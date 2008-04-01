@@ -167,17 +167,17 @@ void linsolver_setup_WJDCTYPE()
 {
   int iunk,i;
   double **xOwned, **x2Owned;
-  int *geq, *ginveq, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq;
+  int *geq, *ginveq, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,ginv_eq_start,first_time;
   int count_density,count_cms_field,count_geqn,count_ginv_eqn;
   int count_indnonlocal,count_depnonlocal,index_save;
   int one_particle_size;
   int count_poisson;
   int *poissoneq;
 
-  /* Construct dft_Linprobmgr with information on number of unknowns*/
+  /* Construct dft_Linprobmgr with information on number of unknowns - note that the CMS polymer
+     type has been hijacked for use with the WJDC functionals pending a rewrite of the solver interface
+     to a more general structure */
   densityeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
-  indnonlocaleq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
-  depnonlocaleq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   wjdceq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   geq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
@@ -186,6 +186,7 @@ void linsolver_setup_WJDCTYPE()
   count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
   count_indnonlocal=count_depnonlocal=0;
   count_poisson = 0;
+  first_time=TRUE;
 
   one_particle_size=FALSE;
   if ((Lhard_surf && Nlists_HW == 2) || (!Lhard_surf && Nlists_HW == 1)) one_particle_size=TRUE;
@@ -198,20 +199,28 @@ void linsolver_setup_WJDCTYPE()
        if (one_particle_size && (
              (iunk > Phys2Unk_first[HSRHOBAR]+1 &&
               iunk < Phys2Unk_first[HSRHOBAR]+Nrho_bar_s)  ||
-              iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s+Ndim) )
-         depnonlocaleq[count_depnonlocal++]=iunk;
-       else
-         indnonlocaleq[count_indnonlocal++]=iunk;
+              iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s+Ndim) ){
+         ginveq[count_ginv_eqn++]=iunk;
+       }
+       else{
+         geq[count_geqn++]=iunk;
+       }
        break;
      case CAVWTC:
-       indnonlocaleq[count_indnonlocal++]=iunk; break;
+         geq[count_geqn++]=iunk;break;
      case WJDC_FIELD:                  
        wjdceq[count_cms_field++]=iunk; break; 
      case G_CHAIN:                  
-       if ((iunk-Geqn_start[0])%2 == 0)
+       if ((iunk-Geqn_start[0])%2 == 0){
          geq[count_geqn++]=iunk; 
-       else
+       }
+       else{
+         if (first_time){
+            ginv_eq_start=count_ginv_eqn;
+            first_time=FALSE;
+         }
          ginveq[count_ginv_eqn++]=iunk; 
+       }
        break;
      case POISSON:
        poissoneq[count_poisson++]=iunk; break; 
@@ -222,35 +231,26 @@ void linsolver_setup_WJDCTYPE()
      } 
   }
   /* now invert the order of the ginverse equations ! */
-  for (i=0;i<count_ginv_eqn/2;i++){
+  for (i=ginv_eq_start;i<count_ginv_eqn/2;i++){
      index_save = ginveq[i];
-     ginveq[i] = ginveq[count_ginv_eqn-1-i];
-     ginveq[count_ginv_eqn-1-i]=index_save;
+     ginveq[i] = ginveq[count_ginv_eqn-1-(i-ginv_eq_start)];
+     ginveq[count_ginv_eqn-1-(i-ginv_eq_start)]=index_save;
   }
 
+   LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
+   dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
+   dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, count_ginv_eqn, ginveq);
+   dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, count_cms_field, wjdceq);
+   dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, count_density, densityeq);
+   dft_poly_lin_prob_mgr_setpoissonequationids(LinProbMgr_manager, count_poisson, poissoneq);
+   safe_free((void *) &densityeq);
+   safe_free((void *) &wjdceq);
+   safe_free((void *) &geq);
+   safe_free((void *) &ginveq);
+   safe_free((void *) &poissoneq);
 
    // LinProbMgr_manager = dft_wjdc_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
 
-/*  Turn on these calls when the routines exist */
-/*
-   LinProbMgr_manager = dft_wjdctype_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
-  dft_wjdctype_lin_prob_mgr_setindnonlocalequationids(LinProbMgr_manager, count_indnonlocal, indnonlocaleq);
-  dft_wjdctype_lin_prob_mgr_setdepnonlocalequationids(LinProbMgr_manager, count_depnonlocal, depnonlocaleq);
-  dft_wjdctype_lin_prob_mgr_setgequationids(LinProbMgr_manager, Ngeqn_tot/2, geq);
-  dft_wjdctype_lin_prob_mgr_setginvequationids(LinProbMgr_manager, Ngeqn_tot/2, ginveq);
-  dft_wjdctype_lin_prob_mgr_setwjdcequationids(LinProbMgr_manager, Ncomp, wjdceq);
-  dft_wjdctype_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
-  dft_wjdctype_lin_prob_mgr_setpoissonequationids(LinProbMgr_manager, count_poisson, poissoneq);
-*/
-
-   /*dft_poly_lin_prob_mgr_setfieldondensityislinear(LinProbMgr_manager,TRUE);*/
-  safe_free((void *) &densityeq);
-  safe_free((void *) &indnonlocaleq);
-  safe_free((void *) &depnonlocaleq);
-  safe_free((void *) &wjdceq);
-  safe_free((void *) &geq);
-  safe_free((void *) &ginveq);
-  safe_free((void *) &poissoneq);
   return;
 }
 /*******************************************************************************/
