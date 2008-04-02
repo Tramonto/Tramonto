@@ -367,7 +367,6 @@ void do_numerical_jacobian(double **x)
       del=fac*fabs(x[iunk][inode]);
       if (del<1.e-12) del+= 1.e-12;
       if (del>0.01) del=0.01;
-if (iunk==22 && inode==151) printf("xinit=%g  del=%g resid=%g\n",x[iunk][inode],del,resid[iunk][inode]);
       x[iunk][inode] += del;
 
       for (junk=0; junk<Nunk_per_node; junk++) 
@@ -379,17 +378,15 @@ if (iunk==22 && inode==151) printf("xinit=%g  del=%g resid=%g\n",x[iunk][inode],
 
       for (junk=0; junk<Nunk_per_node; junk++){ 
       for (jnode=0; jnode<Nnodes_per_proc; jnode++){ 
-if (iunk==22 && inode==151 && junk==27 && jnode==159) printf("resid_tmp=%g\n",resid_tmp[iunk][inode]);
           j=jnode+Nnodes*junk; /* Physics Based Ordering */
           /*j=junk+Nunk_per_node*jnode;*/  /* Nodal Based Ordering */
           full[j][i] = (resid[junk][jnode] - resid_tmp[junk][jnode])/del;
-          if (full[j][i] > 1.e-6) count_nonzeros[j][i]=TRUE;
+/*if (iunk==30 && inode==11 && junk==0 && jnode==10) 
+    printf("junk=%d jnode=%d resid=%20.12f  resid_tmp=%20.12f del=%20.12f full[j][i]=%20.12f\n", 
+           junk,jnode,resid[junk][jnode],resid_tmp[junk][jnode],del,full[j][i]);*/
+          if (full[j][i] > 1.e-6 && fabs(resid[junk][jnode] - resid_tmp[junk][jnode])>1.e-8) count_nonzeros[j][i]=TRUE;
           else count_nonzeros[j][i]=FALSE;
           count_nonzeros_a[j][i]=FALSE; /*set all of the analytical jacobian to false */
-/*if (junk==0 && iunk==3 && jnode==10 && inode==0){
-   printf("del=%g  x_shift=%g  x=%g  resid_tmp=%g  resid=%g  full=%g\n",
-           del,x[iunk][inode],x[iunk][inode]-del,resid_tmp[junk][jnode],resid[junk][jnode],full[j][i]);
-}*/
       }}
       x[iunk][inode] -= del;
       if (count==100 || i==N-1){
@@ -440,7 +437,7 @@ if (iunk==22 && inode==151 && junk==27 && jnode==159) printf("resid_tmp=%g\n",re
              diff=fabs((full[i][j]));
              error=100.;
              if (diff > 1.e-6 && error>1. && x[junk][jnode]>1.e-10){ 
-               fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
+               fprintf(ifp3,"NONZERO_NUM_ONLY %d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
                i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
                count_diff++;
              }
