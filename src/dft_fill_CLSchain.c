@@ -41,7 +41,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 {
   int i,loop_start,loop_end,itype_mer,npol,iseg,unk_GQ,unk_GQ_test,iref;
   int boltz_pow,boltz_pow_J,jbond,ibond,unkIndex[2],numEntries,unk_GQ_j,unk_GQ_j_test;
-  double fac1,fac2,mat_val,resid,resid_sum=0.0,values[2];
+  double fac1,fac2,mat_val,resid=0.0,resid_sum=0.0,values[2];
 
   resid = x[iunk][inode_box]*x[unk_B][inode_box];
   resid_sum=resid;
@@ -92,7 +92,11 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
               fac1 *= x[unk_GQ][inode_box];
 
               if(!resid_only_flag){
-                 if (fp_prefactor !=NULL) fac2= (*fp_prefactor)(iunk);
+                 if (fp_prefactor!=NULL) {
+                     if (Type_poly==CMS) iref=itype_mer;
+                     if (Type_poly==WJDC) iref=iseg;
+                     fac2 = (*fp_prefactor)(iref);
+                 }
                  else                     fac2=1.0;
                  for (jbond=0; jbond<Nbonds_SegAll[iseg]; jbond++) {
                    if (jbond != ibond){
@@ -102,15 +106,19 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                      fac2 *= x[unk_GQ_j][inode_box];
                    }
                  }
-                 mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
+                 if (boltz_pow > 0) mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
+                 else mat_val=-fac2;
                  dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
                }
            }
            if(!resid_only_flag){
-              mat_val = -fac1*((double) boltz_pow)*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow_J);
-              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
+              if (boltz_pow > 0){
+                mat_val = -fac1*((double) boltz_pow)*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow_J);
+                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
+              }
            }
-           resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
+           if (boltz_pow >0) resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
+           else resid = -fac1;
            resid_sum+=resid;
            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
         }
