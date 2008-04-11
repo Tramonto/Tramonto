@@ -33,16 +33,13 @@ extern double ***Vext_dash;
 extern int Type_bc[NDIM_MAX][2];
 extern int **Wall_elems;
 int node_to_elem(int inode_all,int local_node,int *reflect_flag);
-int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 extern int Nnodes_per_el_V;
 double calc_local_pressure(double **x,int iden_first,int inode_box);
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
 extern int Nodes_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
-void node_to_ijk(int node,int *ijk);
 double sum_rho_midplane(double **x);
-int node_to_node_box(int inode);
 int node_to_node_box(int inode);
 void find_pot_derivs(double **x,double *psi_deriv);
 #define DOWN_FRONT   7
@@ -59,12 +56,10 @@ void find_pot_derivs(double **x,double *psi_deriv);
 #define RIGHT_BACK   1
 extern double Esize_x[NDIM_MAX];
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
-int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 void find_offset(int el_type,int jdim,int *offset);
 double calc_deriv(int idim,int inode0,int flag,int *blocked,double **x,int ilist);
 extern int **Surf_elem_type;
 #define POISSON        1
-void node_box_to_ijk_box(int node_box,int *ijk_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 extern int *L2G_node;
 void force_elec(double **x,double **Sum_dphi_dx);
@@ -76,7 +71,6 @@ extern int **Nelems_S;
 #define DENSITY        0
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
-void node_to_position(int inode,double *NodePos);
 void node_to_position(int inode,double *NodePos);
 extern int **Nodes_2_boundary_wall;
 extern int *L2B_node;

@@ -30,11 +30,9 @@ void setup_polymer_G_wjdc(double **xInBox);
 void calc_init_polymer_G_wjdc(double **xInBox);
 #define WJDC         3
 void setup_polymer_G(double **xInBox);
-void setup_polymer_G(double **xInBox);
 void calc_init_polymer_G_CMS(double **xInBox);
 #define CALC_RHOBAR_AND_G 3
 #define G_CHAIN        9 
-void setup_polymer_field(double **xInBox,int iguess);
 void setup_polymer_field(double **xInBox,int iguess);
 void calc_init_CMSfield(double **xInBox);
 #define CMS_FIELD      7
@@ -62,7 +60,6 @@ void calc_init_mf_attract(double **xInBox);
 extern int Iguess_fields;
 #define MF_EQ          3
 void setup_density(double **xInBox,int iguess);
-void setup_polymer_rho(double **xInBox,int iguess);
 void setup_polymer_rho(double **xInBox,int iguess);
 #define CMS_SCFT     1
 #define CMS          0

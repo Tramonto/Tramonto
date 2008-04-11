@@ -195,7 +195,7 @@ double gsum_double_conwrap(double sum);
 #if !defined(_CON_CONST_H_)
 double gsum_double_conwrap(double sum);
 #endif
-void fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
+double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
@@ -259,7 +259,7 @@ int con_lib(struct con_struct *con,void *aux_info);
 #define HOPF_CONTINUATION              5
 #define PITCHFORK_CONTINUATION         4
 #endif
-extern int Max_Newton_iter;
+extern int Max_NL_iter;
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0

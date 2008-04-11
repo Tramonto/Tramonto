@@ -35,7 +35,7 @@
 #include "dft_fill_main.h"
 
 /****************************************************************************/
-void fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, int resid_only_flag,int unk_flag)
+double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, int resid_only_flag,int unk_flag)
 {
  /*
   * Local variable declarations
@@ -44,7 +44,7 @@ void fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, in
   char   *yo = "fill_resid_and_matrix";
   int     loc_inode, inode_box,ijk_box[3],iunk,junk,iunk_start,iunk_end;
   int     mesh_coarsen_flag_i,switch_constmatrix;
-  double *resid_unk;
+  double *resid_unk,resid_sum=0.0;
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
   resid_unk = (double *) array_alloc (1, Nunk_per_node, sizeof(double));
@@ -87,7 +87,7 @@ void fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, in
           if (iter>1 && resid_only_flag==FALSE && Constant_row_flag[Unk2Phys[iunk]]==TRUE) {
              resid_only_flag=TRUE; switch_constmatrix=TRUE;
           }*/
-          load_standard_node(loc_inode,inode_box,ijk_box,iunk,x,dphi_drb,
+          resid_sum+=load_standard_node(loc_inode,inode_box,ijk_box,iunk,x,dphi_drb,
                                resid_unk,mesh_coarsen_flag_i,resid_only_flag);
 /*          if (switch_constmatrix) resid_only_flag=FALSE;*/
       }
@@ -99,16 +99,17 @@ void fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, in
   } /* end of loop over local nodes */
 
   safe_free((void *) &resid_unk);
-  return;
+  return(resid_sum);
 }
 /*************************************************************************************************/
 /* load_standard_node:  this routine controls the invocation of different physics routines that load the 
                         matrix problem of interest.  */
-void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, double **x,
+double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, double **x,
                         struct  RB_Struct *dphi_drb, double *resid_unk,
                         int mesh_coarsen_flag_i,int resid_only_flag)
 {
    int izone,i,icomp;
+   double l2norm_term;
                                            
    /* IZONE: izone is the zone number that controls the quadrature scheme to be used. */
 
@@ -116,15 +117,15 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
 
    switch(Unk2Phys[iunk]){
        case DENSITY: 
-             if (L_HSperturbation && Type_poly != WJDC)
+             if (L_HSperturbation && Type_poly != WJDC){
                 resid_unk[iunk]=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,x,
                                                     dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
-             else if(Type_poly==CMS)                              
-                resid_unk[iunk]=load_CMS_density(iunk,loc_inode,inode_box,x,resid_only_flag);
-             else if(Type_poly==WJDC)
-                resid_unk[iunk]=load_WJDC_density(iunk,loc_inode,inode_box,x,resid_only_flag);
+             }
+             else if(Type_poly==CMS  || Type_poly==WJDC) {                              
+                if (Type_poly==CMS) resid_unk[iunk]=load_CMS_density(iunk,loc_inode,inode_box,x,resid_only_flag);
+                else                resid_unk[iunk]=load_WJDC_density(iunk,loc_inode,inode_box,x,resid_only_flag);
+             }
              break;
-
        case HSRHOBAR: 
           if (iunk == Phys2Unk_first[HSRHOBAR]){
              resid_unk[iunk]=load_rho_bar_s(THETA_FN_R,x,iunk,loc_inode,inode_box,izone,ijk_box, resid_only_flag);
@@ -146,39 +147,44 @@ void load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, dou
        case POISSON: resid_unk[iunk]=load_poisson_control(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag); break;
 
        case DIFFUSION:
-            if (Linear_transport)
-                resid_unk[iunk]=load_linear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag);
-            else
-                resid_unk[iunk]=load_nonlinear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag);
-            break;
+           if (Linear_transport)
+               resid_unk[iunk]=load_linear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag);
+           else
+               resid_unk[iunk]=load_nonlinear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag);
+           break;
 
        case CAVWTC: 
-            resid_unk[iunk]=load_cavity_wtc(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
-            break;
+          resid_unk[iunk]=load_cavity_wtc(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+          break;
 
        case BONDWTC:
-            resid_unk[iunk]=load_bond_wtc(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
-            break;
+          resid_unk[iunk]=load_bond_wtc(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+          break;
 
        case CMS_FIELD: 
-            resid_unk[iunk]=load_CMS_field(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
-            break;
+           resid_unk[iunk]=load_CMS_field(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+           break;
 
        case WJDC_FIELD: 
-            resid_unk[iunk]=load_WJDC_field(iunk,loc_inode,inode_box,ijk_box,izone,x,dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
-            break;
+          resid_unk[iunk]=load_WJDC_field(iunk,loc_inode,inode_box,ijk_box,izone,x,dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
+          break;
 
        case G_CHAIN:
-            if (Type_poly==CMS){
-               resid_unk[iunk]=load_CMS_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
-            }
-            else if (Type_poly==WJDC){
-               resid_unk[iunk]=load_WJDC_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
-            }
-            break;
+          if (Type_poly==CMS){
+             resid_unk[iunk]=load_CMS_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+          }
+          else if (Type_poly==WJDC){
+             resid_unk[iunk]=load_WJDC_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+          }
+          break;
 
    }  /* end of physics switch */
-   return;
+
+  /* l2norm_term=calc_l2norm_term(loc_inode,inode_box,iunk,x,resid_unk[iunk],resid_only_flag);*/
+   l2norm_term = -x[iunk][inode_box]+resid_unk[iunk];   
+   l2norm_term *= l2norm_term;
+
+   return(l2norm_term);    /*note that the l2norm term is used for convergence tests - picard iters */
 }
 /*************************************************************************************************/
 /* print_residuals: tool to assist in debugging residual fills.  This routine prints the

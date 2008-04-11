@@ -18,7 +18,6 @@ double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,in
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
-int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern int Ncomp;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
@@ -46,14 +45,6 @@ double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CAVWTC         4
-#define FALSE 0
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
-#endif
-#define INIT_GUESS_FLAG  2
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double VEXT_MAX;
 extern double **Vext;
@@ -65,6 +56,12 @@ extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
 #define G_CHAIN        9 
 double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+#define NMER_MAX     100
+extern double Field_WJDC_b[NMER_MAX];
+extern double Rho_seg_b[NMER_MAX];
+#define NBOND_MAX 4
+extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
+double resid_and_Jac_ChainDensity_WJDC2(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
@@ -74,7 +71,6 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_su
 extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
 extern int *Nbonds_SegAll;
-#define NMER_MAX     100
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Lseg_densities;
@@ -88,5 +84,13 @@ extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Comp[NMER_MAX];
 #define WJDC         3
 extern int Type_poly;
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
 extern void *LinProbMgr_manager;
+#define INIT_GUESS_FLAG  2
 double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));

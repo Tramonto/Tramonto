@@ -50,7 +50,6 @@ extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
 extern int **Zero_density_TF;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
-int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern int Ncomp;
 #define DELTA_FN_BOND         6
 typedef struct Stencil_Struct Stencil_Struct;

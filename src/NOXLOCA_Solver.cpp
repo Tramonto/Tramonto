@@ -81,7 +81,7 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
 
     stepperList.set("Max Value", 1.0e8);
     stepperList.set("Min Value", -1.0e8);
-    stepperList.set("Max Nonlinear Iterations", Max_Newton_iter);
+    stepperList.set("Max Nonlinear Iterations", Max_NL_iter);
     stepperList.set("Enable Arc Length Scaling", true);
     stepperList.set("Goal Arc Length Parameter Contribution", 0.5);
     stepperList.set("Max Arc Length Parameter Contribution", 0.7);
@@ -181,7 +181,7 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
     Teuchos::RefCountPtr<NOX::StatusTest::NormF> normF = 
       Teuchos::rcp(new NOX::StatusTest::NormF(tol));
     Teuchos::RefCountPtr<NOX::StatusTest::MaxIters> maxIters = 
-      Teuchos::rcp(new NOX::StatusTest::MaxIters(Max_Newton_iter));
+      Teuchos::rcp(new NOX::StatusTest::MaxIters(Max_NL_iter));
     Teuchos::RefCountPtr<NOX::StatusTest::Generic> comboOR = 
       Teuchos::rcp(new NOX::StatusTest::Combo(NOX::StatusTest::Combo::OR, 
 					      normF, 

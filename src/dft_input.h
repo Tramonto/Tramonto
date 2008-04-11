@@ -70,9 +70,12 @@ extern int Az_kspace;
 extern int Az_solver;
 extern int L_Schur;
 extern int Load_Bal_Flag;
-extern double Min_update_frac;
-extern double Newton_abs_tol,Newton_rel_tol;
-extern int Max_Newton_iter;
+extern double NL_update_scalingParam;
+extern double NL_abs_tol,NL_rel_tol;
+#define CALC_ALL_FIELDS   1
+#define PICARD_BUILT_IN       2
+extern int Max_NL_iter;
+extern int NL_Solver;
 extern double Jac_threshold;
 extern int Lcut_jac;
 extern double Jac_grid;

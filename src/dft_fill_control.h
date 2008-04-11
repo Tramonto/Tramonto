@@ -19,7 +19,7 @@ void safe_free(void **ptr);
 extern int Nunk_per_node;
 #define NODAL_FLAG -999
 typedef struct RB_Struct RB_Struct;
-void fill_resid_and_matrix(double **x,struct RB_Struct *dphi_drb,int iter,int resid_only_flag,int unk_flag);
+double fill_resid_and_matrix(double **x,struct RB_Struct *dphi_drb,int iter,int resid_only_flag,int unk_flag);
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
 extern int Nnodes_box;
@@ -44,4 +44,4 @@ struct RB_Struct {
   double    V1[NDIM_MAX];      /*  1/(4*pi*Ri) * unit_vec * Delta_Fn   */
   double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
 };
-void fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
+double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);

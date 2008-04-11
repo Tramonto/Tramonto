@@ -62,7 +62,6 @@ extern double Inv_4pirsq[NCOMP_MAX];
 extern double Fac_overlap_hs[NCOMP_MAX];
 #define DELTA_FN_R            0
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
-int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 int find_jzone(int izone,int inode_box);

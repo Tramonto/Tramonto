@@ -208,7 +208,7 @@ int solve_continuation( double **xx, double **xx2)
   con.stepping_info.max_delta_p    = 1.0e10;
   con.stepping_info.min_delta_p    = 1.0e-10;
   con.stepping_info.step_ctrl      = Loca.aggr;
-  con.stepping_info.max_newton_its = Max_Newton_iter;
+  con.stepping_info.max_newton_its = Max_NL_iter;
 
   /* Then load one of the method dependent structures */
 
@@ -398,7 +398,7 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
  */
 {
   int i, j, resid_only_flag;
-  double l2_resid;
+  double l2_resid,resid_sum;
 
   if (matflag == RHS_ONLY) {
       resid_only_flag = TRUE;
@@ -413,7 +413,7 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
   /*fill_time not currently plugged in, iter hardwire above 2 */
   translate_1dOwned_2dBox(x, passdown.xBox);
 
-  fill_resid_and_matrix_control(passdown.xBox, 0, resid_only_flag);
+  resid_sum=fill_resid_and_matrix_control(passdown.xBox, 0, resid_only_flag);
   (void) dft_linprobmgr_finalizeproblemvalues(LinProbMgr_manager);
 
   (void) dft_linprobmgr_getrhs(LinProbMgr_manager, passdown.xOwned);
@@ -1105,7 +1105,9 @@ double gmax_double_conwrap(double sum)
 
 /* This worked calling the C code from C++. Probably not needed. */
 void fill_resid_and_matrix_control_conwrap(double** xBox, int ii, int jj)
-{  fill_resid_and_matrix_control(xBox, ii, jj); }
+{  double r;
+   r= fill_resid_and_matrix_control(xBox, ii, jj); 
+}
 
 void safe_free_conwrap(void** p)
 {  safe_free(p); }

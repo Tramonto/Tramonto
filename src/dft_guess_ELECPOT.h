@@ -21,7 +21,6 @@ extern double Elec_pot_LBB;
 extern int Grad_dim;
 extern double Esize_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
-void node_to_ijk(int node,int *ijk);
 extern int *B2G_node;
 #define LINEAR           5
 extern int Lsteady_state;

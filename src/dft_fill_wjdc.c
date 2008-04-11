@@ -70,6 +70,8 @@ double load_WJDC_density(int iunk, int loc_inode, int inode_box, double **x,int 
    }
    else{
       unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer; /* Boltzmann factor for this segment */
+/*      resid_R+=resid_and_Jac_ChainDensity_WJDC2 (G_CHAIN,x,iunk,unk_B,loc_inode,inode_box,
+                                           resid_only_flag, &prefactor_rho_wjdc);*/
       resid_R+=resid_and_Jac_ChainDensity (G_CHAIN,x,iunk,unk_B,loc_inode,inode_box,
                                            resid_only_flag, &prefactor_rho_wjdc);
    }

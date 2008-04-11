@@ -259,7 +259,12 @@ void dftmain(double * engptr)
 
       t_preprocess += MPI_Wtime();
       t_solve = -MPI_Wtime();
-      niters = solve_problem(x, x2);
+      if (NL_Solver == PICARD_BUILT_IN) niters = solve_problem_picard(x, x2);
+      else if (NL_Solver == NEWTON_BUILT_IN || NEWTON_NOX) niters = solve_problem(x, x2);
+      else {
+         printf("Problem with solver type...set to %d\n",NL_Solver);
+         exit(-1);
+      }   
       t_solve += MPI_Wtime();
      /*
       * Post-Process the results
@@ -319,6 +324,7 @@ void dftmain(double * engptr)
       t_post_min=gmin_double(t_postprocess);
       t_total_min=gmin_double(t_total);
 
+      if (L_Schur != 2){
       MPI_Gather(&Time_linsolver_first,1,MPI_DOUBLE,t_linsolv_first_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
       MPI_Gather(&Time_linsolver_av,1,MPI_DOUBLE,t_linsolv_av_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
       MPI_Gather(&Time_manager_first,1,MPI_DOUBLE,t_manager_first_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -367,6 +373,7 @@ void dftmain(double * engptr)
         t_fill_av_min = t_fill_first_min;
         t_fill_av_max = t_fill_first_max;
       }
+      }
 
 
       if (Proc == 0 &&Iwrite !=NO_SCREEN) {
@@ -387,6 +394,7 @@ void dftmain(double * engptr)
                                                 t_fill_first_min,t_fill_first_max);
         printf ("2-niter avg fill time    %g         %g       \n",
                                                 t_fill_av_min,t_fill_av_max);
+        if (L_Schur != 2){
         printf ("First manager time       %g         %g       \n",
                                                 t_manager_first_min,t_manager_first_max);
         printf ("2-niter avg manager time %g         %g       \n",
@@ -395,6 +403,7 @@ void dftmain(double * engptr)
                                                 t_linsolv_first_min,t_linsolv_first_max);
         printf ("2-niter avg linsolv time %g         %g       \n",
                                                 t_linsolv_av_min,t_linsolv_av_max);
+        }
         printf ("---------------------------------------------------\n");
         printf ("---------------------------------------------------\n");
         printf ("POST-PROCESSING          %g         %g       \n",

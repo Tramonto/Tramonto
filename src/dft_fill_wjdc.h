@@ -39,7 +39,6 @@ extern int Nlists_HW;
 extern int *Pol_Sym_Seg;
 extern int Nseg_tot;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
-int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #define THETA_FN_SIG          5
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;

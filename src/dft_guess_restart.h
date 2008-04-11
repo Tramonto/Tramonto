@@ -40,7 +40,6 @@ extern int *B2G_node;
 extern int Nnodes_box;
 int locate_inode_old(int *ijk);
 void node_to_ijk(int node,int *ijk);
-void node_to_ijk(int node,int *ijk);
 #define NWALL_MAX_TYPE 50 
 extern double Del_1[NWALL_MAX_TYPE];
 extern int Pos_new_nodes;
@@ -53,9 +52,7 @@ extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nrho_bar_s;
 int ijk_to_node(int *ijk);
-int ijk_to_node(int *ijk);
 extern double Esize_x[NDIM_MAX];
-int round_to_int(double x);
 int round_to_int(double x);
 #define G_CHAIN        9 
 extern int Ndim;

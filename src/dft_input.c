@@ -1783,22 +1783,27 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d", &Max_Newton_iter);
-    fprintf(fp2,"%d  ",Max_Newton_iter);
+    fscanf(fp,"%d %d", &NL_Solver, &Max_NL_iter);
+    fprintf(fp2,"%d %d  ",NL_Solver,Max_NL_iter);
   }
-  MPI_Bcast(&Max_Newton_iter,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Max_NL_iter,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&NL_Solver,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (NL_Solver==PICARD_BUILT_IN && Iguess_fields !=CALC_ALL_FIELDS){
+     printf("Picard solver indicated so Iguess_fields is reset to %d\n",CALC_ALL_FIELDS);
+  }
+
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%lg", &Newton_rel_tol);
-    fprintf(fp2,"%lg  ",Newton_rel_tol);
-    fscanf(fp,"%lg", &Newton_abs_tol);
-    fprintf(fp2,"%lg  ",Newton_abs_tol);
-    fscanf(fp,"%lg", &Min_update_frac);
-    fprintf(fp2,"%lg  ",Min_update_frac);
+    fscanf(fp,"%lg", &NL_rel_tol);
+    fprintf(fp2,"%lg  ",NL_rel_tol);
+    fscanf(fp,"%lg", &NL_abs_tol);
+    fprintf(fp2,"%lg  ",NL_abs_tol);
+    fscanf(fp,"%lg", &NL_update_scalingParam);
+    fprintf(fp2,"%lg  ",NL_update_scalingParam);
   }
-  MPI_Bcast(&Newton_rel_tol,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
-  MPI_Bcast(&Newton_abs_tol,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
-  MPI_Bcast(&Min_update_frac,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  MPI_Bcast(&NL_rel_tol,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  MPI_Bcast(&NL_abs_tol,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  MPI_Bcast(&NL_update_scalingParam,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
   if (Proc==0) {
     read_junk(fp,fp2);
     fscanf(fp,"%d", &Load_Bal_Flag);

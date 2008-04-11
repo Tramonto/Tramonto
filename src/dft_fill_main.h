@@ -58,7 +58,7 @@ extern int L_HSperturbation;
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-void load_standard_node(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,struct RB_Struct *dphi_drb,double *resid_unk,int mesh_coarsen_flag_i,int resid_only_flag);
+double load_standard_node(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,struct RB_Struct *dphi_drb,double *resid_unk,int mesh_coarsen_flag_i,int resid_only_flag);
 double load_coarse_node_Ndim(int loc_inode,int inode_box,int iunk,double **x,int resid_only_flag);
 #define FLAG_PBELEC -777
 #define FLAG_BULK   -888
@@ -75,7 +75,6 @@ extern int Nwall_type;
 #define FALSE 0
 #endif
 extern int Mesh_coarsening;
-void node_box_to_ijk_box(int node_box,int *ijk_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 extern int *L2B_node;
 extern int Nnodes_per_proc;
@@ -105,4 +104,4 @@ struct RB_Struct {
   double    V1[NDIM_MAX];      /*  1/(4*pi*Ri) * unit_vec * Delta_Fn   */
   double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
 };
-void fill_resid_and_matrix(double **x,struct RB_Struct *dphi_drb,int iter,int resid_only_flag,int unk_flag);
+double fill_resid_and_matrix(double **x,struct RB_Struct *dphi_drb,int iter,int resid_only_flag,int unk_flag);

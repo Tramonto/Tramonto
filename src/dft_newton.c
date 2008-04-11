@@ -93,7 +93,7 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
   }
 
 #ifdef HAVE_NOXLOCA
-  NOXLOCA_Solver(x, xOwned, x2Owned);
+  if (NL_Solver==NEWTON_NOXLOCA) NOXLOCA_Solver(x, xOwned, x2Owned);
 #else
   if (Loca.method != -1)
     iter = solve_continuation(x, x2);
@@ -138,7 +138,7 @@ int newton_solver(double** x, void* con_ptr) {
   int converged=FALSE, converged2=TRUE;
   char filename[20]="matrix.dat";
   double start_t;
-  double** delta_x;
+  double** delta_x,resid_sum;
   delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
 
   do {
@@ -148,7 +148,7 @@ int newton_solver(double** x, void* con_ptr) {
 
     /* Call Matrix and Residual Fill routine, resid_only_flag=FALSE)*/
     start_t=MPI_Wtime();
-    fill_resid_and_matrix_control(x, iter,FALSE); 
+    resid_sum=fill_resid_and_matrix_control(x, iter,FALSE); 
     if (iter==1) Time_fill_first=MPI_Wtime()-start_t;
     else         Time_fill_av+=(MPI_Wtime()-start_t);
     /*fill_test(x, FALSE);*/
@@ -160,7 +160,7 @@ int newton_solver(double** x, void* con_ptr) {
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);
 /*#ifdef NUMERICAL_JACOBIAN*/
-   do_numerical_jacobian(x);
+/*   do_numerical_jacobian(x);*/
 /*#endif*/
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
@@ -177,7 +177,7 @@ int newton_solver(double** x, void* con_ptr) {
   dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);*/
     
     if (con_ptr != NULL) converged2 =
-      continuation_hook_conwrap(x, delta_x, con_ptr, Newton_rel_tol, Newton_abs_tol);
+      continuation_hook_conwrap(x, delta_x, con_ptr, NL_rel_tol, NL_abs_tol);
 
     /* Do: x += delta_x, and check for convergence */
     converged = update_solution(x, delta_x, iter);
@@ -186,7 +186,7 @@ int newton_solver(double** x, void* con_ptr) {
 
 
 
-  } while (iter < Max_Newton_iter && (!converged || !converged2));
+  } while (iter < Max_NL_iter && (!converged || !converged2));
 
   if (!converged || !converged2) {
     if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tNewton Solver: Failed to converge in %d iterations\n",iter);
@@ -211,6 +211,7 @@ int update_solution(double** x, double** delta_x, int iter) {
  */
 
   int iunk, ibox, inode,inodeG,ijk[3],go_update,idim;
+  int iseg,jbond,itype_mer,unk_GQ;
   double updateNorm=0.0, temp,frac_min,frac;
   char *yo = "newupdate solution";
      
@@ -226,8 +227,11 @@ int update_solution(double** x, double** delta_x, int iter) {
            (Unk2Phys[iunk]==DENSITY && (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) ){
          if(x[iunk][ibox]+delta_x[iunk][ibox]<0.0){
              frac = AZ_MIN(1.0,x[iunk][ibox]/(-delta_x[iunk][ibox]));
-             frac = AZ_MAX(frac,Min_update_frac);
+             frac = AZ_MAX(frac,NL_update_scalingParam);
          } 
+/*         else if (fabs(delta_x[iunk][ibox]/x[iunk][ibox]) >0.05){
+             frac=0.05*fabs(x[iunk][ibox]/delta_x[iunk][ibox]);
+         }*/
          else{
              frac=1.0;
          }
@@ -247,7 +251,7 @@ int update_solution(double** x, double** delta_x, int iter) {
     inode = B2L_node[ibox];
     if (inode != -1) {
       for (iunk=0; iunk<Nunk_per_node; iunk++) {
-        temp =(frac_min*delta_x[iunk][ibox])/(Newton_rel_tol*x[iunk][ibox] + Newton_abs_tol);
+        temp =(frac_min*delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
         updateNorm +=  temp*temp;
       }
     }
@@ -266,6 +270,19 @@ int update_solution(double** x, double** delta_x, int iter) {
     /* Update all solution componenets */
     if (go_update){
     for (iunk=0; iunk<Nunk_per_node; iunk++){
+/*      if (Type_poly==WJDC && Unk2Phys[iunk]==G_CHAIN && x[iunk][ibox] <1.e-12 && (iter%1)==0){
+          iseg=iunk-Phys2Unk_first[DENSITY];
+          itype_mer=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+
+          x[iunk][ibox]=x[Phys2Unk_first[DENSITY]+iseg][ibox]*x[Phys2Unk_first[WJDC_FIELD]+itype_mer][ibox]/prefactor_rho_wjdc(iseg);
+          for (jbond=0; jbond<Nbonds_SegAll[iseg]; jbond++) {
+              if (jbond != Unk_to_Bond[iunk-Phys2Unk_first[G_CHAIN]]){
+                  unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[iseg][jbond];
+                  x[iunk][ibox]/=x[unk_GQ][ibox];
+              }
+          } 
+      }
+      else{*/
       if ((  (Unk2Phys[iunk]==DENSITY && 
                   (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) || 
             (Unk2Phys[iunk]==G_CHAIN && Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]] == -1) || 
@@ -283,6 +300,7 @@ int update_solution(double** x, double** delta_x, int iter) {
       else{
          x[iunk][ibox] += frac_min*delta_x[iunk][ibox];
       }
+/*      }*/
     }
     }
   }
@@ -333,7 +351,7 @@ void do_numerical_jacobian(double **x)
   char filename[20];
   FILE *ifp, *ifp2, *ifp3;
   int ia,ja,count_same=0,count_diff=0,ilines,lines_jafile;
-  double coef_ij,diff,error,fac;
+  double coef_ij,diff,error,fac,resid_sum;
   double **resid, **resid_tmp;
   resid = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   resid_tmp = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
@@ -373,7 +391,7 @@ void do_numerical_jacobian(double **x)
           for (jnode=0; jnode<Nnodes_per_proc; jnode++) resid_tmp[junk][jnode] = 0.0;
 
       (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
-      fill_resid_and_matrix_control(x,1,TRUE);
+      resid_sum=fill_resid_and_matrix_control(x,1,TRUE);
       dft_linprobmgr_getrhs(LinProbMgr_manager, resid_tmp);
 
       for (junk=0; junk<Nunk_per_node; junk++){ 
@@ -470,7 +488,7 @@ void do_numerical_jacobian(double **x)
 void print_resid_norm(int iter)
 {
   int iunk, j;
-  double norm=0.0;
+  double norm=0.0,l2norm_term;
   double **f;
   FILE *ifp;
   char filename[20]="Resid2.dat";
@@ -482,7 +500,9 @@ void print_resid_norm(int iter)
 
   for (j=0; j< Nnodes_per_proc; j++) {
     for (iunk=0; iunk<Nunk_per_node; iunk++) {
+       l2norm_term=f[iunk][j]*f[iunk][j];
        norm += f[iunk][j] * f[iunk][j];
+
        if(Proc==0 && Iwrite==VERBOSE) fprintf(ifp," %d  %d  %14.11f  %14.11f\n",iunk,L2G_node[j],f[iunk][j],norm);
     }
   }

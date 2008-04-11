@@ -38,7 +38,6 @@ extern int Ncomp;
 #define POISSON        1
 extern int Phys2Unk_first[NEQ_TYPE];
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
-int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #if defined(DEC_ALPHA)
 #define POW_INT powii
 #endif
@@ -50,8 +49,6 @@ extern double Temp_elec;
 extern double *Charge_vol_els;
 extern int Vol_charge_flag;
 int el_to_el_box(int iel);
-int el_to_el_box(int iel);
-int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 extern int Nnodes_per_el_V;
 #define NWALL_MAX 600 
@@ -83,8 +80,6 @@ extern double X_const_mu;
 extern double Size_x[NDIM_MAX];
 extern int Grad_dim;
 int node_box_to_node(int inode_box);
-int node_box_to_node(int inode_box);
-void node_to_position(int inode,double *NodePos);
 void node_to_position(int inode,double *NodePos);
 extern int Lsteady_state;
 #define FALSE 0

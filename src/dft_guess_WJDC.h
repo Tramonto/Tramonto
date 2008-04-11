@@ -51,7 +51,6 @@ void safe_free(void **ptr);
 typedef struct RB_Struct RB_Struct;
 double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
-void node_box_to_ijk_box(int node_box,int *ijk_box);
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
 extern int Nnodes_box;
 #if defined(__STDC__)

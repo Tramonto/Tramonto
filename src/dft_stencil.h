@@ -30,7 +30,6 @@
 extern int Type_bc[NDIM_MAX][2];
 extern double Size_x[NDIM_MAX];
 int round_to_int(double x);
-int round_to_int(double x);
 int ijk_to_isten_index(int *ijk,int *el_in_radius);
 extern double Jac_threshold;
 int stencil_quadBoundaryEl_switch(int sten);

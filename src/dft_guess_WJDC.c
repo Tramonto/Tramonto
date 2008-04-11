@@ -78,7 +78,7 @@ void calc_init_WJDC_field(double **xInBox)
         if (!Zero_density_TF[inode_box][icomp]){
           resid_EL=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,
                           xInBox,dphi_drb,mesh_coarsen_flag_i,INIT_GUESS_FLAG);
-          xInBox[iunk][inode_box]=exp(-resid_EL);
+          xInBox[iunk][inode_box]=resid_EL;
        }
        else xInBox[iunk][inode_box]=0.0;
      }

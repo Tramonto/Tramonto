@@ -48,10 +48,12 @@ double load_mean_field(int sten_type, int iunk, int loc_inode,
    if (Type_attr==MF_VARIABLE && Unk2Phys[iunk]==MF_EQ){  /* in this case we fill attractions as independent variables - this is the
                                     first step to setting these matrix coefficients to be constant.  otherwise, the
                                     mean field terms are just summed into the Euler-Lagrange Equation. */
-           resid_sum = -x[iunk][inode_box];
-           mat_val=-1.0;
-           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_sum);
-           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+           if (resid_only_flag != INIT_GUESS_FLAG){
+              resid_sum = -x[iunk][inode_box];
+              mat_val=-1.0;
+              dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_sum);
+              if (resid_only_flag==FALSE) dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+           }
    }
 
    resid_sum+=resid_and_Jac_sten_fill_sum_Ncomp(sten_type,x,iunk,loc_inode,inode_box,izone,

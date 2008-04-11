@@ -85,6 +85,5 @@ extern int WallType[NWALL_MAX];
 extern int **Lsemiperm;
 extern int **Wall_elems;
 int node_box_to_elem_box_reflect(int inode_box,int local_node,int *reflect_flag);
-int node_box_to_elem_box_reflect(int inode_box,int local_node,int *reflect_flag);
 extern int Nnodes_per_el_V;
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);

@@ -16,6 +16,7 @@
 #include "Tramonto_ConfigDefs.h"
 extern int *L2B_node;
 void fill_test(double **x,int flag);
+int find_length_of_file(char *filename);
 extern int Nnodes;
 extern int Lseg_densities;
 double gsum_double(double c);
@@ -30,9 +31,8 @@ extern int Nodes_x[NDIM_MAX];
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void node_to_ijk(int node,int *ijk);
-void node_to_ijk(int node,int *ijk);
 double gmin_double(double c);
-extern double Min_update_frac;
+extern double NL_update_scalingParam;
 extern int *Pol_Sym_Seg;
 #define WTC          2
 extern int Type_poly;
@@ -48,10 +48,10 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-extern int Max_Newton_iter;
+extern int Max_NL_iter;
 void fix_symmetries(double **x);
 int update_solution(double **x,double **delta_x,int iter);
-extern double Newton_abs_tol,Newton_rel_tol;
+extern double NL_abs_tol,NL_rel_tol;
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 extern double Time_linsolver_av;
 extern double Time_linsolver_first;
@@ -61,7 +61,7 @@ void print_resid_norm(int iter);
 #define NO_SCREEN    2 
 extern double Time_fill_av;
 extern double Time_fill_first;
-void fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
+double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -90,6 +90,7 @@ struct Loca_Struct {
   double step_size;   /* initial continuation step size               */
 };
 extern struct Loca_Struct Loca;
+extern int NL_Solver;
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */
 extern int Lbinodal;
 void print_profile_box(double **x,char *outfile);
@@ -120,7 +121,7 @@ struct Aztec_Struct {
   double *val;                     /* in these MSR arrays.                  */
   int    N_update;                 /* # of unknowns updated on this node    */
   int    nonzeros;                 /* # of nonzeros in sparse matrix        */
-#endif 
+#endif  
 };
 extern struct Aztec_Struct Aztec;
 extern int *List_coarse_nodes;
@@ -133,7 +134,4 @@ extern void *LinProbMgr_manager;
 void linsolver_setup_control();
 int solve_problem(double **x,double **x2);
 void do_numerical_jacobian(double **);
-int find_length_of_file(char *filename);
-#if defined(NUMERICAL_JACOBIAN)
 void do_numerical_jacobian(double **x);
-#endif

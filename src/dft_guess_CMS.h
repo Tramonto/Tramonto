@@ -41,7 +41,6 @@ double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,in
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
-int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Nlists_HW;
@@ -71,13 +70,11 @@ struct Stencil_Struct {
 };
 #define NDIM_MAX  3
 void setup_polymer_G(double **xInBox);
-void setup_polymer_G(double **xInBox);
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
 extern int Nnodes_box;
-void setup_polymer_rho(double **xInBox,int iguess);
 void setup_polymer_rho(double **xInBox,int iguess);
 #define DENSITY_MIN  1.e-20
 #define CMS_SCFT     1
@@ -91,13 +88,10 @@ extern double Xstart_step[NSTEPS_MAX];
 extern int Orientation_step[NSTEPS_MAX];
 extern int Nsteps;
 void node_to_position(int inode,double *NodePos);
-void node_to_position(int inode,double *NodePos);
 extern int *B2G_node;
 #define STEP_PROFILE     2
 #define CONST_RHO        0 
 void node_box_to_ijk_box(int node_box,int *ijk_box);
-void node_box_to_ijk_box(int node_box,int *ijk_box);
-void setup_polymer_simple(double **xInBox,int iguess);
 void setup_polymer_simple(double **xInBox,int iguess);
 #define THETA_CR_DATA         4
 double int_stencil_CMSField(double **x,int inode_box,int iunk,int sten_type);
@@ -113,5 +107,4 @@ extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 extern int *L2B_node;
 extern int Nnodes_per_proc;
-void setup_polymer_field(double **xInBox,int iguess);
 void setup_polymer_field(double **xInBox,int iguess);

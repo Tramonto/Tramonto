@@ -189,12 +189,14 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
 
   jzone_flag=FALSE;
 
-  resid =-x[iunk][inode_box];
-  resid_sum+=resid;
-  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-  if (!resid_only_flag){
-     mat_val=-1.0;
-     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  if (resid_only_flag != INIT_GUESS_FLAG){
+     resid =-x[iunk][inode_box];
+     resid_sum+=resid;
+     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (!resid_only_flag){
+        mat_val=-1.0;
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+     }
   }
  
   if (iunk > Phys2Unk_first[HSRHOBAR]+1 && ((Lhard_surf && Nlists_HW == 2) ||
@@ -208,7 +210,8 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
         resid = x[junk][inode_box]*Inv_4pirsq[0];
         mat_val = Inv_4pirsq[0];
      }
-     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag != INIT_GUESS_FLAG) 
+                           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag) dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
      resid_sum+=resid;
   }
@@ -272,12 +275,14 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
 
   jzone_flag=FALSE;
 
-  resid =-x[iunk][inode_box]; 
-  resid_sum+=resid;
-  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-  if (!resid_only_flag){
-    mat_val=-1.0;
-    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  if (resid_only_flag != INIT_GUESS_FLAG){
+     resid =-x[iunk][inode_box]; 
+     resid_sum+=resid;
+     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag==FALSE){
+       mat_val=-1.0;
+       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+     }
   }
 
   if (iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s+Ndim && (
@@ -288,7 +293,8 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
 
      resid = x[junk][inode_box]*Inv_4pir[0];
      resid_sum+=resid;
-     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag != INIT_GUESS_FLAG) 
+               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag){
         mat_val = Inv_4pir[0];
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);

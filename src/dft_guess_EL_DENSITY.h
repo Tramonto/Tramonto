@@ -21,7 +21,6 @@ double constant_boundary(int iunk,int jnode_box);
 extern double Size_x[NDIM_MAX];
 extern double Esize_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
-void node_to_ijk(int node,int *ijk);
 void setup_step_2consts(double **xInBox);
 extern double **Vext;
 extern int *B2L_node;
@@ -33,7 +32,6 @@ extern double Xend_step[NSTEPS_MAX];
 extern double Xstart_step[NSTEPS_MAX];
 extern int Orientation_step[NSTEPS_MAX];
 extern int Nsteps;
-void node_to_position(int inode,double *NodePos);
 void node_to_position(int inode,double *NodePos);
 extern int *B2G_node;
 #define NMER_MAX     100

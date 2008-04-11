@@ -414,9 +414,10 @@ int L_Schur; /* Switch to turn on Schur solvers */
 
 
 /* Nonlinear Solver info */
-int Max_Newton_iter;    /* Maximum # of Newton iterations (10 - 30)          */
-double Newton_abs_tol,Newton_rel_tol; /* Convergence tolerances (update_soln)*/
-double Min_update_frac; /* Minimum fraction to update solution to slow down
+int NL_Solver;    /* select type of nonliear solver */
+int Max_NL_iter;    /* Maximum # of Newton iterations (10 - 30)          */
+double NL_abs_tol,NL_rel_tol; /* Convergence tolerances (update_soln)*/
+double NL_update_scalingParam; /* Minimum fraction to update solution to slow down
                            Newton's method */
 
 /* Timers */

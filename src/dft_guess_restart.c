@@ -492,7 +492,7 @@ int locate_inode_old(int *ijk)
 void communicate_profile(double *x_new, double** xInBox)
 {
    int inode,iunk,inode_box;   
-   
+  
     MPI_Bcast (x_new, Nnodes*Nunk_per_node,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
     for (inode_box=0; inode_box<Nnodes_box; inode_box++){

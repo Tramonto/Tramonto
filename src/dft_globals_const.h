@@ -124,6 +124,13 @@
 #define SECOND 2
 
 /*
+ * Types of Nonlinear Solvers available in Tramonto 
+ */
+#define NEWTON_BUILT_IN       0
+#define NEWTON_NOX            1
+#define PICARD_BUILT_IN       2
+
+/*
  * Stencil types refer to the integration schemes needed for different
  * non-local physics. 
  * NSTEN is the total number of stencil types.
@@ -923,9 +930,10 @@ extern void * ParameterList_list; /* Parameterlist to hold Aztec options and par
 
 
 /* Nonlinear Solver info */
-extern int Max_Newton_iter;    /* Maximum # of Newton iterations (10 - 30)          */
-extern double Newton_abs_tol,Newton_rel_tol; /* Convergence tolerances (update_soln)*/
-extern double Min_update_frac; /* Minimum fraction to update solution to slow down
+extern int NL_Solver;    /* select type of nonliear solver */
+extern int Max_NL_iter;    /* Maximum # of Newton iterations (10 - 30)          */
+extern double NL_abs_tol,NL_rel_tol; /* Convergence tolerances (update_soln)*/
+extern double NL_update_scalingParam; /* Minimum fraction to update solution to slow down
                            Newton's method */
 
 /* Timers */

@@ -36,9 +36,10 @@
 #include "dft_fill_control.h"
 
 /****************************************************************************/
-void fill_resid_and_matrix_control (double **x, int iter, int resid_only_flag)
+double fill_resid_and_matrix_control (double **x, int iter, int resid_only_flag)
 {
    int i,iter_tmp;
+   double l2norm=0.0;
    struct  RB_Struct *dphi_drb=NULL;
    if (resid_only_flag) iter_tmp=1;
    else iter_tmp=iter;
@@ -50,13 +51,13 @@ void fill_resid_and_matrix_control (double **x, int iter, int resid_only_flag)
      FMT1stDeriv_switch(x,dphi_drb);
   }
 
-   if (MATRIX_FILL_NODAL) fill_resid_and_matrix(x,dphi_drb,iter,resid_only_flag,NODAL_FLAG);
+   if (MATRIX_FILL_NODAL) l2norm+=fill_resid_and_matrix(x,dphi_drb,iter,resid_only_flag,NODAL_FLAG);
    else{
       for (i=0;i<Nunk_per_node;i++){
-         fill_resid_and_matrix(x,dphi_drb,iter_tmp,resid_only_flag,i);
+         l2norm+=fill_resid_and_matrix(x,dphi_drb,iter_tmp,resid_only_flag,i);
       }
    }
    if (Type_func != NONE) safe_free((void *) &dphi_drb);
-   return;
+   return(l2norm);
 }
 /*****************************************************************************************************/

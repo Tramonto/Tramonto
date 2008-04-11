@@ -17,7 +17,6 @@
 #define LOCAL_N 1
 int loc_find(int iunk,int inode,int flag);
 int position_to_node(double *NodePos);
-int position_to_node(double *NodePos);
 extern int Max_IJK[3];
 extern int Nnodes;
 extern int Min_IJK[3];
@@ -25,7 +24,6 @@ void safe_free(void **ptr);
 void safe_free(void **ptr);
 #define LB_LINEAR    0
 extern int Load_Bal_Flag;
-void node_to_position(int inode,double *NodePos);
 void node_to_position(int inode,double *NodePos);
 extern int Nunk_per_node;
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
@@ -76,8 +74,6 @@ extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Type_attr;
 extern int Ncomp;
 int node_to_node_box(int inode);
-int node_to_node_box(int inode);
-void node_to_ijk(int node,int *ijk);
 void node_to_ijk(int node,int *ijk);
 double set_weight_for_node(int inode);
 void sort_int_array(int n,int ra[]);

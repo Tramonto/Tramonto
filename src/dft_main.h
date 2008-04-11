@@ -43,6 +43,7 @@ extern int *B2L_unknowns;
 extern double *Deltac_b;
 #define COULOMB      1
 extern int Ipot_ff_c;
+extern int L_Schur;
 double gmin_double(double c);
 double gmax_double(double c);
 extern double *X_old;
@@ -50,6 +51,11 @@ extern int Nodes_old;
 extern double *X2_old;
 void post_process(double **x,char *output_file3,int *niters,double *time_save,int loop1,int binodal_flag);
 int solve_problem(double **x,double **x2);
+#define NEWTON_NOX            1
+#define NEWTON_BUILT_IN       0
+int solve_problem_picard(double **x,double **x2);
+#define PICARD_BUILT_IN       2
+extern int NL_Solver;
 extern int Lbinodal;
 extern int Nnodes_box;
 extern int Nunk_per_node;

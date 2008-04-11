@@ -409,13 +409,15 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
                     int izone, double **x,int resid_only_flag)
 {
   int junk,unk_bond,pol_num,iseg,bond_num,jseg,jcomp,icomp,jzone_flag,ibond;
-  double resid,mat_val,resid_bondwtc;
+  double resid=0.0,mat_val,resid_bondwtc=0.0;
 
-  resid=-x[iunk][inode_box];
-  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-  if (!resid_only_flag){
-     mat_val=-1.0;
-     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  if (resid_only_flag !=INIT_GUESS_FLAG){
+     resid=-x[iunk][inode_box];
+     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (!resid_only_flag){
+        mat_val=-1.0;
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+     }
   }
   resid_bondwtc=resid;
 
@@ -448,8 +450,9 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
       junk=Pol_Sym[unk_bond]+Phys2Unk_first[BONDWTC];
       resid = x[junk][inode_box];
       resid_bondwtc+=resid;
-      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-      if (!resid_only_flag){
+      if (resid_only_flag !=INIT_GUESS_FLAG)
+          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+      if (resid_only_flag==FALSE){
          mat_val=1.0; 
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
       }
@@ -464,17 +467,19 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
 double load_cavity_wtc(int iunk, int loc_inode, int inode_box, int *ijk_box,
                     int izone, double **x,int resid_only_flag)
 {
-  double resid,mat_val,resid_cavity;
+  double resid=0.0,mat_val,resid_cavity=0.0;
   int jzone_flag;
   int icav;
 
   jzone_flag=FALSE;
 
-  resid=-x[iunk][inode_box];
-  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-  if (!resid_only_flag){
-     mat_val=-1.0;
-     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+  if (resid_only_flag != INIT_GUESS_FLAG){
+     resid=-x[iunk][inode_box];
+     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (!resid_only_flag){
+        mat_val=-1.0;
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+     }
   }
   resid_cavity=resid;
 

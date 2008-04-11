@@ -31,7 +31,6 @@ extern double D_coef[NCOMP_MAX];
 extern int Linear_transport;
 extern double Velocity;
 int ijk_to_node(int *ijk);
-int ijk_to_node(int *ijk);
 extern int Nunk_per_node;
 #define DENSITY        0
 #define DIFFUSION      6
@@ -49,7 +48,6 @@ extern int Ndim;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-void node_to_ijk(int node,int *ijk);
 void node_to_ijk(int node,int *ijk);
 extern int Nnodes;
 #define TRUE  1

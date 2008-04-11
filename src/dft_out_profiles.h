@@ -1,10 +1,7 @@
 /* This file was automatically generated.  Do not edit! */
 void print_vext(double **vext,char *output_file);
 int element_to_node(int ielement);
-int element_to_node(int ielement);
 int node_box_to_elem_box_reflect(int inode_box,int local_node,int *reflect_flag);
-int node_box_to_elem_box_reflect(int inode_box,int local_node,int *reflect_flag);
-int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,7 +73,6 @@ extern double VEXT_MAX;
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern double Esize_x[NDIM_MAX];
-void node_to_ijk(int node,int *ijk);
 void node_to_ijk(int node,int *ijk);
 extern double Charge_f[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];

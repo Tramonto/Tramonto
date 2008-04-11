@@ -19,7 +19,6 @@ void set_fem_1el_weights(double **wt_lp_1el_ptr,double **wt_s_1el_ptr,int ***ele
 double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 extern double Velocity;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
-int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #if defined(DEC_ALPHA)
 #define POW_INT powii
 #endif
@@ -32,9 +31,7 @@ extern double *Area_IC;
 extern int WallType[NWALL_MAX];
 extern int **Lsemiperm;
 int el_to_el_box(int iel);
-int el_to_el_box(int iel);
 extern int **Wall_elems;
-int node_to_elem_v2(int inode_all,int local_node);
 int node_to_elem_v2(int inode_all,int local_node);
 extern int Nnodes_per_el_V;
 #define NCOMP_MAX 5
@@ -49,8 +46,6 @@ extern void *LinProbMgr_manager;
 extern double VEXT_MAX;
 extern int **Zero_density_TF;
 int node_box_to_node(int inode_box);
-int node_box_to_node(int inode_box);
-void node_to_ijk(int node,int *ijk);
 void node_to_ijk(int node,int *ijk);
 extern int Nlists_HW;
 #define DIFFUSION      6

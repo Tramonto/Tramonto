@@ -22,7 +22,6 @@ double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,in
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
-int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 typedef struct Stencil_Struct Stencil_Struct;
