@@ -1008,6 +1008,7 @@ extern int *Pol_Sym_Seg;
 extern int *BondAll_to_isegAll;
 extern int *BondAll_to_ibond;
 extern int Unk2Comp[NMER_MAX];
+extern int Nmer_comp[NCOMP_MAX];
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;

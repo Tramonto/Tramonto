@@ -1006,6 +1006,7 @@ void read_input_file(char *input_file, char *output_file1)
     Nseg_tot=0;
     seg_tot=0;
     end_count_all=0;
+    for (icomp=0;icomp<Ncomp;icomp++) Nmer_comp[icomp]=0;
     for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       Nseg_tot += Nmer[pol_number];
       if(Nseg_tot > NMER_MAX) {
@@ -1074,6 +1075,7 @@ void read_input_file(char *input_file, char *output_file1)
 	} /* end of loop over ibond */
 	nbond_tot[pol_number] += (Nbond[pol_number][iseg]-end_count);
         Unk2Comp[seg_tot]=Type_mer[pol_number][iseg];
+        Nmer_comp[Unk2Comp[seg_tot]]++;
         seg_tot++;
       } /* end of loop over iseg */
     }

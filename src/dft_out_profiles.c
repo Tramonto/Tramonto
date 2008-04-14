@@ -226,7 +226,8 @@ void print_profile(char *output_file4)
      for (i=0; i<NEQ_TYPE; i++){
          switch(i){
             case DENSITY: 
-               unk_char = "DENSITY"; 
+               if (Lseg_densities) unk_char = "DENSSEG"; 
+               else                unk_char = "DENSITY"; 
                if (Phys2Nunk[i] > 0){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); break;
@@ -295,6 +296,12 @@ void print_profile(char *output_file4)
         kappa = sqrt(kappa_sq);
      }
 
+     if (Type_poly==WTC || Type_poly==WJDC || ((Type_poly == CMS  || Type_poly==CMS_SCFT))) {
+        if (Lseg_densities) unk_char = "DENSITY"; 
+        else                unk_char = "DENSSEG"; 
+        fputs (unk_char,fp7); 
+        fprintf(fp7,"\n"); 
+     }
      for (inode=0; inode<Nnodes; inode++){
         node_to_ijk(inode,ijk);
         node_start = Nunk_per_node*inode;

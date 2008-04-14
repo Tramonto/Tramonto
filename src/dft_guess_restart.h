@@ -36,6 +36,7 @@ extern double VEXT_MAX;
 extern double Rho_seg_b[NMER_MAX];
 extern int **Zero_density_TF;
 extern int Unk2Comp[NMER_MAX];
+extern int Nmer_comp[NCOMP_MAX];
 extern int *B2G_node;
 extern int Nnodes_box;
 int locate_inode_old(int *ijk);

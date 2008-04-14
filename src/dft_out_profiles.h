@@ -33,6 +33,7 @@ extern double Size_x[NDIM_MAX];
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Nwall;
 extern int L_HSperturbation;
+extern int Lseg_densities;
 void print_gofr(char *output_file6);
 #define TRUE  1
 #if !defined(_CON_CONST_H_)

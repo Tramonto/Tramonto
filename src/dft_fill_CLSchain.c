@@ -110,11 +110,13 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                  }
                  if (boltz_pow > 0) mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
                  else mat_val=-fac2;
-/*                 if (x[unk_GQ][inode_box]>1.e-12)*/
-                 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
-/*else{ if (inode_box==100)        
-   printf("density row %d: eliminating column at unk_G=%d (node 100) because x[%d]=%g and mat_val=%g\n", 
-                    iunk,unk_GQ,unk_GQ,x[unk_GQ][inode_box],mat_val);}*/
+                 if (x[unk_GQ][inode_box]>1.e-12){
+                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
+                 }
+                 else{
+                    resid = mat_val*x[unk_GQ][inode_box];
+                    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                 }
               }
         }
         if(resid_only_flag==FALSE){
@@ -223,7 +225,6 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
          resid_G=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
     }
 /*    else if (fabs(x[iunk][inode_box]) < 1.e-12  && resid_only_flag==FALSE){    make G stationary 
-if (inode_box==100)        { printf("setting unk_G=%d to a constant (x=%g) at node %d\n",iunk,x[iunk][inode_box],inode_box); }
         resid = 0.0;
         if (resid_only_flag != INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
         if (!resid_only_flag){

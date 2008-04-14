@@ -193,6 +193,7 @@ extern int Nmer[NCOMP_MAX];
 extern int Nblock[NCOMP_MAX];
 extern int Npol_comp;
 extern int Unk2Comp[NMER_MAX];
+extern int Nmer_comp[NCOMP_MAX];
 extern int Nseg_type[NCOMP_MAX];
 extern int Nbonds;
 extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];

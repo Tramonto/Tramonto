@@ -60,9 +60,12 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
                          guess for a 2D or 3D system */
          if (Restart==5)  Nodes_old=Nnodes;
 
-         if (Lbinodal && iguess==BINODAL_FLAG)
+         if (Lbinodal && iguess==BINODAL_FLAG){
                   X2_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
-         else     X_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
+                  for (i=0;i<Nodes_old*Nunk_per_node;i++) X2_old[i]=0.0;
+         }
+         else     {X_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
+                  for (i=0;i<Nodes_old*Nunk_per_node;i++) X_old[i]=0.0;}
 
          read_in_a_file(iguess,filename); /* Get X_old from the file! */
      }
@@ -137,6 +140,7 @@ void read_in_a_file(int iguess,char *filename)
   int ijk_old[3],ijk_old_max[3],open_now,ndim_max,node_start;
   int unk_in_file, unk_start_in_file[NEQ_TYPE],header,eq_type;
   int unk_to_eq_in_file[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13];
+  int convert_to_comp_densities, convert_to_seg_densities,jseg,icomp;
   double pos_old,pos_old0[3],tmp,x_tmp;
   char filename2[20];
   char unk_char[20];
@@ -159,12 +163,20 @@ void read_in_a_file(int iguess,char *filename)
        if (strncmp(unk_char,"DENSITY",5)==0) {
              Restart_field[DENSITY]=TRUE;
              header++;
-             if (Lseg_densities) unk_in_file+=Nseg_tot;
-             else              unk_in_file+=Ncomp;
+             unk_in_file+=Ncomp;
              unk_start_in_file[DENSITY]=iunk;
-             if (Lseg_densities)
-                  for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DENSITY;
-             else for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DENSITY;
+             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DENSITY;
+             if (Lseg_densities) convert_to_seg_densities=TRUE;
+             else                convert_to_seg_densities=FALSE;
+       }
+       if (strncmp(unk_char,"DENSSEG",5)==0) {
+             Restart_field[DENSITY]=TRUE;
+             header++;
+             unk_in_file+=Nseg_tot;
+             unk_start_in_file[DENSITY]=iunk;
+             for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DENSITY;
+             if (Lseg_densities) convert_to_comp_densities=FALSE;
+             else                convert_to_comp_densities=TRUE;
        }
        if (strncmp(unk_char,"MFEQ",5)==0) {
              Restart_field[MF_EQ]=TRUE;
@@ -333,9 +345,30 @@ void read_in_a_file(int iguess,char *filename)
                                /* tmp -= 3.0*log(Sigma_ff[icomp][icomp]+1.5*log(Mass[icomp]*Temp));*/
    	         fscanf(fp5,"%lf",&tmp); break;
            }
-       iunk = Phys2Unk_first[eq_type]+iunk_file-unk_start_in_file[eq_type];
-       if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
-       else                                  X_old[iunk+node_start]=tmp;
+       if (eq_type==DENSITY && convert_to_comp_densities){
+            /* this is case where we have read in densities for all the segments and we need to collapse them to component densities */
+            icomp=Unk2Comp[iunk_file-unk_start_in_file[eq_type]];
+            iunk=Phys2Unk_first[eq_type]+icomp;
+            if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]+=tmp;
+            else                                  X_old[iunk+node_start]+=tmp;
+       }
+       else if (eq_type==DENSITY && convert_to_seg_densities){
+            /* this is case where we have read in densities for the components, but we need to expand them to the segment densities -
+               note that there is some loss of information here. */
+            icomp=iunk_file-unk_start_in_file[eq_type];
+            for (jseg=0; jseg<Nseg_tot;jseg++){
+               junk=Phys2Unk_first[eq_type]+jseg;
+               if (Unk2Comp[jseg]==icomp){
+                   if (Lbinodal && iguess==BINODAL_FLAG) X2_old[junk+node_start]+=tmp/Nmer_comp[icomp];
+                   else                                  X_old[junk+node_start]+=tmp/Nmer_comp[icomp];
+               }
+            }
+       }
+       else{
+          iunk = Phys2Unk_first[eq_type]+iunk_file-unk_start_in_file[eq_type];
+          if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
+          else                                  X_old[iunk+node_start]=tmp;
+       }
     }
  
     if ( (Type_poly==WJDC || Type_poly == CMS || Type_poly==CMS_SCFT) && Restart_field[G_CHAIN]==TRUE){

@@ -481,4 +481,6 @@ int *Pol_Sym_Seg;
 int *BondAll_to_isegAll;
 int *BondAll_to_ibond;
 int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
+int Nmer_comp[NCOMP_MAX];
+
 
