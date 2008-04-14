@@ -40,6 +40,8 @@ double** array_alloc_2d_conwrap(unsigned int, unsigned int, unsigned int);
 void safe_free_conwrap(void **);
 }
 
+//This works for Trilinos 7.0 or 8.0
+#include "Teuchos_RefCountPtr.hpp"
 
 namespace NOXLOCA {
 

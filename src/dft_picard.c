@@ -72,26 +72,40 @@ int solve_problem_picard(double **x, double **x2)
     communicate_to_fill_in_box_values(x2);
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
+
+#ifdef HAVE_NOXLOCA
+    NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
+#else
+    iter=picard_solver(x,-1);
+#endif
+
+
   safe_free((void **) &xOwned);
   if (Lbinodal)  safe_free((void **) &x2Owned);
 
-/*  if (Loca.method != -1)     * need to verify if we can do solve_continuation here -- e-mail sent to A Salinger*
-    iter = solve_continuation(x, x2);
-  else*/
-    iter=picard_solver(x,NULL);
 
   return(iter);
 }
 /****************************************************************************/
-int picard_solver(double **x,void *con_ptr){
-  int iter=0,i;
+int picard_solver(double **x, int subIters){
+  // subIters  of -1 means Picard is being called as the nonlinear solver alg.
+  // Otherwise, this is an inner iteration to another solver (NOX) and
+  // will just proceed for subIters iterations and return.
+  int iter=0,i, max_iters;
   int iunk, ibox;
-  int converged=FALSE, converged2=TRUE;
+  int converged=FALSE;
+  int skip_convergence_test=FALSE;
   double **x_old, **delta_x;
 
   x_old = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
   delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
 
+  if (Iwrite == VERBOSE) printf("In picard_solver  subIters = %d\n",subIters);
+  if (subIters == -1) max_iters = Max_NL_iter;
+  else {
+    max_iters = subIters;
+    skip_convergence_test = TRUE;
+  }
 
   do {
     iter++;
@@ -117,7 +131,7 @@ int picard_solver(double **x,void *con_ptr){
      }
  if (Iwrite==VERBOSE) print_profile_box(x, "deltax_iter.dat");
 
-    if (con_ptr != NULL) converged2 = continuation_hook_conwrap(x, delta_x, con_ptr, NL_rel_tol, NL_abs_tol);
+   // if (con_ptr != NULL) converged2 = continuation_hook_conwrap(x, delta_x, con_ptr, NL_rel_tol, NL_abs_tol);
 
     /* Do: x += delta_x, and check for convergence .... trying to reuse same update_solution strategies as in Newton solver*/
     converged = update_solution_picard(x_old, delta_x, iter);
@@ -206,15 +220,17 @@ int picard_solver(double **x,void *con_ptr){
      }
      }
 
+     // Ignore this convergence test if NOX is controlling convergence
+     if (skip_convergence_test) converged=FALSE;
+  } while (iter < max_iters && !converged);
 
-  } while (iter < Max_NL_iter && (!converged || !converged2));
-
-  if (!converged || !converged2) {
-    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tNewton Solver: Failed to converge in %d iterations\n",iter);
+  // Skip printing if NOX is controlling convergence
+  if (!converged && !skip_convergence_test) {
+    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tPicard Solver: Failed to converge in %d iterations\n",iter);
     iter = -iter;
   }
   else
-    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tNewton Solver: Successful convergence in %d iterations\n",iter);
+    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tPicard Solver: Successful convergence in %d iterations\n",iter);
 
   safe_free((void **) &x_old);
   return iter;
@@ -366,7 +382,7 @@ int update_solution_picard(double** x, double** delta_x, int iter) {
   updateNorm = sqrt(gsum_double(updateNorm));
   
   if (Proc==0 && Iwrite != NO_SCREEN)
-    printf("\n\t\t%s: Weighted norm of update vector =  %g\n", yo, updateNorm);
+    printf("\t\t%s: Weighted norm of update vector =  %g\n", yo, updateNorm);
 
   if (updateNorm > 1.0) return(FALSE);
   else                  return(TRUE);

@@ -28,6 +28,8 @@
 
 extern "C" {
 #include "loca_const.h"
+extern void communicate_to_fill_in_box_values(double **xInBox);
+extern void picard_solver(double** xBox, int iters);
 void box2owned(double**, double**);
 extern void post_process(double**, char*, int*, double*, int, int);
 }
@@ -35,7 +37,8 @@ extern void post_process(double**, char*, int*, double*, int, int);
 NOXLOCA::Tramonto::Group::Group(const Teuchos::RefCountPtr<LOCA::GlobalData>& gD,
                                 NOXLOCA::Tramonto::Vector& xVector_, double** xBox_,
                                 const LOCA::ParameterVector& paramVec_,
-                        const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList_):
+                        const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList_,
+                                bool doPicard_):
   LOCA::Abstract::Group(gD),
   xVector(xVector_),	// deep copy      
   fVector(xVector, NOX::ShapeCopy),	// new vector of same size
@@ -45,7 +48,8 @@ NOXLOCA::Tramonto::Group::Group(const Teuchos::RefCountPtr<LOCA::GlobalData>& gD
   contStep(0),
   globalData(gD),
   paramList(paramList_),
-  secondSolution (false)
+  secondSolution (false),
+  doPicard(doPicard_)
 {
   normF = 0;
   this->setParams(paramVec);
@@ -175,12 +179,21 @@ NOX::Abstract::Group::ReturnType NOXLOCA::Tramonto::Group::computeF()
     return NOX::Abstract::Group::Ok;
   }
 
-  fVector.init(0.0); (void) dft_linprobmgr_setrhs(LinProbMgr_manager, fVector.get());
+  if (!doPicard) {
+    fVector.init(0.0); (void) dft_linprobmgr_setrhs(LinProbMgr_manager, fVector.get());
 
-  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
-  fill_resid_and_matrix_control_conwrap(xBox, 0, 1);
-  (void) dft_linprobmgr_getrhs(LinProbMgr_manager, fVector.get());
-  fVector.scale(-1.0);
+    (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
+    fill_resid_and_matrix_control_conwrap(xBox, 0, 1);
+    (void) dft_linprobmgr_getrhs(LinProbMgr_manager, fVector.get());
+    fVector.scale(-1.0);
+  }
+  else {
+    fVector.init(0.0);
+    TV2Box(xVector, xBox);
+    picard_solver(xBox, 1);
+    Box2TV(xBox, fVector);
+    fVector.update(-1.0, xVector, 1.0); //resid = delta_x
+  }
 
   normF = fVector.norm();
 
@@ -190,11 +203,13 @@ NOX::Abstract::Group::ReturnType NOXLOCA::Tramonto::Group::computeF()
 
 NOX::Abstract::Group::ReturnType NOXLOCA::Tramonto::Group::computeJacobian() 
 {
-  // Skip if the Jacobian is already valid
+  // No matrix for Picard solves
+  if (doPicard) isValidJacobian=true;
+
+  // Skip if the Jacobian is already valid 
   if (isValidJacobian)
     return NOX::Abstract::Group::Ok;
 
-  //DO HERE
   (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
   fill_resid_and_matrix_control_conwrap(xBox, 1, 0);
@@ -230,7 +245,7 @@ NOX::Abstract::Group::ReturnType NOXLOCA::Tramonto::Group::computeNewton(Teuchos
 
   // Scale soln by -1
   newtonVector.scale(-1.0);
-
+      
   // Return solution
   return status;
 }
@@ -248,7 +263,7 @@ NOX::Abstract::Group::ReturnType
 NOXLOCA::Tramonto::Group::applyJacobian(const NOXLOCA::Tramonto::Vector& input, NOXLOCA::Tramonto::Vector& result) const
 {
   // Check validity of the Jacobian
-  if (!isJacobian()) 
+  if (!isJacobian() || doPicard) 
     return NOX::Abstract::Group::BadDependency;
 
   //DO MATVEC HERE
@@ -280,11 +295,20 @@ NOXLOCA::Tramonto::Group::applyJacobianInverse(Teuchos::ParameterList& p,
     throw "NOX Error";
   }
 
-  (void) dft_linprobmgr_setrhs(LinProbMgr_manager, input.get());
-  (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
-  (void) dft_linprobmgr_solve(LinProbMgr_manager);
-  (void) dft_linprobmgr_getlhs(LinProbMgr_manager, xBox);
-  (void) box2owned(xBox, result.get());
+  if (!doPicard) {
+    (void) dft_linprobmgr_setrhs(LinProbMgr_manager, input.get());
+    (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
+    (void) dft_linprobmgr_solve(LinProbMgr_manager);
+    (void) dft_linprobmgr_getlhs(LinProbMgr_manager, xBox);
+    (void) box2owned(xBox, result.get());
+  }
+  else {
+    result.init(0.0);
+    TV2Box(xVector, xBox);
+    picard_solver(xBox, 100); // 50 Picard steps per "Newton" iter
+    Box2TV(xBox, result);
+    result.update(1.0, xVector, -1.0); //result = -delta_x
+  }
 
   return NOX::Abstract::Group::Ok;
 }
@@ -376,8 +400,12 @@ void  NOXLOCA::Tramonto::Group::printSolution(const NOX::Abstract::Vector& sol_,
   char *output_file3 = "dft_output.dat";
 
   contStep++;
-  double **x = (dynamic_cast<const NOXLOCA::Tramonto::Vector&>(sol_)).get();
-  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x, xBox);
+
+  const NOXLOCA::Tramonto::Vector& solVector =
+      dynamic_cast<const NOXLOCA::Tramonto::Vector&>(sol_);
+  if (!doPicard) (void) dft_linprobmgr_importr2c(LinProbMgr_manager, solVector.get(), xBox);
+  else TV2Box(solVector, xBox);
+
   post_process(xBox, output_file3, &num_its, &time_save, contStep, secondSolution);
 }
 
@@ -397,14 +425,33 @@ void  NOXLOCA::Tramonto::Group::printSolution(const double param) const
   char *output_file3 = "dft_output.dat";
 
   contStep++;
-  double** x=xVector.get();
-  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
+  if (!doPicard) (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
+  else TV2Box(xVector, xBox);
+  
   post_process(xBox, output_file3, &num_its, &time_save, contStep, FALSE);
 
 }
 
 double  NOXLOCA::Tramonto::Group::calcFreeEnergy() const
 {
-  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
+  if (!doPicard) (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
+  else TV2Box(xVector, xBox);
   return calc_free_energy_conwrap(xBox);
 }
+
+void  NOXLOCA::Tramonto::Group::TV2Box(const NOXLOCA::Tramonto::Vector& xTV, double** xB) const
+{
+  for (int iunk=0;iunk<Nunk_per_node;iunk++){
+    for (int loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++)
+      xB[iunk][L2B_node[loc_inode]]=xTV.get()[iunk][loc_inode];
+  }
+  communicate_to_fill_in_box_values(xB);
+}
+void  NOXLOCA::Tramonto::Group::Box2TV(double** xB, NOXLOCA::Tramonto::Vector& xTV) const
+{
+  for (int iunk=0;iunk<Nunk_per_node;iunk++){
+    for (int loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++)
+      xTV.get()[iunk][loc_inode] = xB[iunk][L2B_node[loc_inode]];
+  }
+}
+

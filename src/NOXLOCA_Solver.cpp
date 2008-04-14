@@ -30,7 +30,7 @@
 extern "C" {
 #include "loca_const.h"
 
-void NOXLOCA_Solver(double **xBox, double **xOwned, double **x2Owned)
+void NOXLOCA_Solver(double **xBox, double **xOwned, double **x2Owned, bool doPicard)
 {
   try {
   
@@ -110,13 +110,12 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
 
     // Create predictor sublist
     Teuchos::ParameterList& predictorList = locaParamsList.sublist("Predictor");
-    if (Loca.method == 0 )
+    if (Loca.method == -1 || Loca.method == 0)
       predictorList.set("Method", "Constant");
     else if (Loca.method == 4  || Loca.method == 3)
       predictorList.set("Method", "Secant");
     else
       predictorList.set("Method", "Tangent");
-    //predictorList.set("Method", "Secant");
 
     //Teuchos::ParameterList& firstStepPredictorList = 
     //  predictorList.sublist("First Step Predictor");
@@ -137,10 +136,16 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
     Teuchos::ParameterList& nlParams = paramList->sublist("NOX");
     nlParams.set("Nonlinear Solver", "Line Search Based");
       Teuchos::ParameterList& lineSearchParameters = nlParams.sublist("Line Search");
+
+      if (!doPicard) {
         lineSearchParameters.set("Method","Backtrack"); //Cuts step for NANs
         Teuchos::ParameterList& backtrackParameters = 
             lineSearchParameters.sublist("Backtrack");
         backtrackParameters.set("Minimum Step", 0.005);
+      }
+      else {
+        lineSearchParameters.set("Method","Full Step");
+      }
 
     Teuchos::ParameterList& nlPrintParams = nlParams.sublist("Printing");
     nlPrintParams.set("Output Information", 
@@ -158,7 +163,7 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
 
     // Create the Group -- this is the main guy
     Teuchos::RefCountPtr<NOXLOCA::Tramonto::Group> grp = 
-      Teuchos::rcp(new NOXLOCA::Tramonto::Group(globalData, xTV, xBox, p, paramList));
+      Teuchos::rcp(new NOXLOCA::Tramonto::Group(globalData, xTV, xBox, p, paramList, doPicard));
 
     Teuchos::RefCountPtr<LOCA::Abstract::Group> solveGrp; // Pointer, set in if block
 

@@ -93,7 +93,8 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
   }
 
 #ifdef HAVE_NOXLOCA
-  if (NL_Solver==NEWTON_NOXLOCA) NOXLOCA_Solver(x, xOwned, x2Owned);
+  NOXLOCA_Solver(x, xOwned, x2Owned, FALSE);
+  //if (NL_Solver==NEWTON_NOXLOCA) NOXLOCA_Solver(x, xOwned, x2Owned);
 #else
   if (Loca.method != -1)
     iter = solve_continuation(x, x2);

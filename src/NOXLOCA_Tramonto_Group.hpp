@@ -58,7 +58,7 @@ namespace NOXLOCA {
       //! Constructor
       Group(const Teuchos::RefCountPtr<LOCA::GlobalData>& gD, NOXLOCA::Tramonto::Vector& xOwned,
             double** xBox, const LOCA::ParameterVector& pVec,
-            const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList);
+            const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList, bool doPicard);
 
       //! Copy constructor
       Group(const NOXLOCA::Tramonto::Group& source, NOX::CopyType type = NOX::DeepCopy);
@@ -190,6 +190,10 @@ namespace NOXLOCA {
       //! resets the isValid flags to false
       void resetIsValid();
 
+      // Box 2 Local conversions, not using linprob_mgr_importr2c()
+      void TV2Box(const NOXLOCA::Tramonto::Vector& xTV, double** xB) const;
+      void Box2TV(double** xB, NOXLOCA::Tramonto::Vector& xTV) const;
+
     protected:
 
       /** @name Vectors */
@@ -201,7 +205,7 @@ namespace NOXLOCA {
       //! Newton direction vector.
       NOXLOCA::Tramonto::Vector newtonVector;
       //! Tramonto Overlap Vector
-      double **xBox;
+      mutable double **xBox;
       //@}
 
       /** @name IsValid flags 
@@ -222,6 +226,8 @@ namespace NOXLOCA {
       mutable bool secondSolution;
       const Teuchos::RefCountPtr<LOCA::GlobalData> globalData;
       const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList;
+
+      bool doPicard;
     };
 
   } // namespace Tramonto

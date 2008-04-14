@@ -103,7 +103,7 @@ extern int Nnodes_box;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-int picard_solver(double **x,void *con_ptr);
+int picard_solver(double **x,int subIters);
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */
