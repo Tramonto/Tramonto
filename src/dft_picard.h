@@ -14,9 +14,6 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NCOMP_MAX 5
-#define NMER_MAX     100
-extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
 #define NDIM_MAX  3
 extern int Nodes_x[NDIM_MAX];
 #define LAST_NODE_RESTART    4
@@ -27,6 +24,7 @@ extern int *L2G_node;
 extern int *B2L_node;
 extern double NL_update_scalingParam;
 double gsum_double(double c);
+#define CALC_RESID_ONLY  3
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
 double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);

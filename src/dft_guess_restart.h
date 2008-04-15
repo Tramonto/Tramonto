@@ -35,8 +35,6 @@ extern double VEXT_MAX;
 #define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
 extern int **Zero_density_TF;
-extern int Unk2Comp[NMER_MAX];
-extern int Nmer_comp[NCOMP_MAX];
 extern int *B2G_node;
 extern int Nnodes_box;
 int locate_inode_old(int *ijk);
@@ -50,7 +48,9 @@ extern int Nodes_x_old[NDIM_MAX];
 extern int Nodes_x[NDIM_MAX];
 #define NEQ_TYPE       11 
 extern int Phys2Unk_last[NEQ_TYPE];
+extern int Nmer_comp[NCOMP_MAX];
 extern int Phys2Unk_first[NEQ_TYPE];
+extern int Unk2Comp[NMER_MAX];
 extern int Nrho_bar_s;
 int ijk_to_node(int *ijk);
 extern double Esize_x[NDIM_MAX];
@@ -82,9 +82,9 @@ extern int Nrho_bar;
 #define HSRHOBAR       2
 #define POISSON        1
 #define MF_EQ          3
-extern int Ncomp;
 extern int Nseg_tot;
 extern int Lseg_densities;
+extern int Ncomp;
 void check_zero_densities(double **xInBox);
 void communicate_profile(double *x_new,double **xInBox);
 #define FALSE 0
@@ -108,6 +108,7 @@ extern int Restart_field[NEQ_TYPE];
 void read_in_a_file(int iguess,char *filename);
 extern double *X_old;
 extern double *X2_old;
+#define RESTART_1DTOND     5
 extern int Restart;
 int find_length_of_file(char *filename);
 extern int Nodes_old;

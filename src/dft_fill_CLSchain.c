@@ -46,7 +46,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
   if (resid_only_flag !=INIT_GUESS_FLAG){
      resid = x[iunk][inode_box]*x[unk_B][inode_box];
      resid_sum=resid;
-     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if(resid_only_flag==FALSE){
          values[0]=x[iunk][inode_box]; values[1]=x[unk_B][inode_box];
          unkIndex[0]=unk_B; unkIndex[1]=iunk;
@@ -110,13 +110,13 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                  }
                  if (boltz_pow > 0) mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
                  else mat_val=-fac2;
-                 if (x[unk_GQ][inode_box]>1.e-12){
+/*                 if (x[unk_GQ][inode_box]>1.e-12){*/
                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
-                 }
+/*                 }
                  else{
                     resid = mat_val*x[unk_GQ][inode_box];
-                    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                 }
+                    if (resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                 }*/
               }
         }
         if(resid_only_flag==FALSE){
@@ -128,7 +128,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
         if (boltz_pow >0) resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
         else resid = -fac1;
         resid_sum+=resid;
-        if (resid_only_flag != INIT_GUESS_FLAG) 
+        if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
             dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      }
   }
@@ -226,7 +226,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
     }
 /*    else if (fabs(x[iunk][inode_box]) < 1.e-12  && resid_only_flag==FALSE){    make G stationary 
         resid = 0.0;
-        if (resid_only_flag != INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+        if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
         if (!resid_only_flag){
           mat_val =1.0; 
           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
@@ -238,7 +238,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
           junk = Pol_Sym[unk_GQ] + Phys2Unk_first[G_CHAIN];
           resid = x[iunk][inode_box]-x[junk][inode_box];
           resid_G+=resid;
-          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+          if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           if (!resid_only_flag){
              unkIndex[0]=iunk; unkIndex[1]=junk;
              values[0]=1.0; values[1]=-1.0;
@@ -257,7 +257,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
                if (resid_only_flag==INIT_GUESS_FLAG) resid=-1.0;
                else  resid = x[iunk][inode_box]/x[unk_B][inode_box]-1.0;
                resid_G+=resid;
-               if (resid_only_flag != INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                if (resid_only_flag==FALSE){
                   unkIndex[0]=iunk; unkIndex[1]=unk_B;
                   values[0]=1.0/x[unk_B][inode_box]; 
@@ -275,7 +275,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
                if (resid_only_flag==INIT_GUESS_FLAG) resid = -(1.0/ysqrt);
                else resid = x[iunk][inode_box]/(x[unk_B][inode_box]*ysqrt)-(1.0/ysqrt);
                resid_G+=resid;
-               if (resid_only_flag != INIT_GUESS_FLAG)dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY)dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
                if (resid_only_flag==FALSE){
                   unkIndex[0]=iunk; unkIndex[1]=unk_B; unkIndex[2]=unk_xi2; unkIndex[3]=unk_xi3;
@@ -301,7 +301,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
             if (resid_only_flag != INIT_GUESS_FLAG){
                resid = x[iunk][inode_box]/x[unk_B][inode_box];
                resid_G+=resid;
-               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
             }
 
             if (resid_only_flag==FALSE){
@@ -322,7 +322,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
                if (resid_only_flag != INIT_GUESS_FLAG){
                   resid = x[iunk][inode_box]/(x[unk_B][inode_box]*ysqrt);
                   resid_G+=resid;
-                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                  if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                }
 
                if (resid_only_flag==FALSE){
@@ -433,7 +433,7 @@ double load_polymer_recursion(int sten_type,int func_type_field, int Njacobian_t
         /* first compute the residual */
         resid=(*fp_ResidG)(iunk,pol_num,jseg,unk_B,inode_box,jnode_box,nunk,unk,weight,x);
         resid_sum+=resid;
-        if (resid_only_flag != INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+        if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
         if (resid_only_flag==FALSE){
 
@@ -447,7 +447,7 @@ double load_polymer_recursion(int sten_type,int func_type_field, int Njacobian_t
      else if (jnode_box <0){
          resid = (*fp_ResidG_Bulk)(iunk,pol_num,jseg,unk_B,inode_box,jnode_box,nunk,unk,weight,x);
          resid_sum+=resid;
-         if (resid_only_flag!=INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+         if (resid_only_flag!=INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      }
   }
 

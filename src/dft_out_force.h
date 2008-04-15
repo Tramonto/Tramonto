@@ -111,7 +111,6 @@ extern int Nlink;
 void sum_rho_wall(double **x,double **Sum_rho);
 extern int Lhard_surf;
 void integrate_rho_vdash(double **x,double **rho_vdash);
-extern int Restart;
 extern int Lvext_dash;
 extern int Ipot_wf_c;
 extern int Ndim;

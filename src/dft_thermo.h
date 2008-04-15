@@ -52,13 +52,6 @@ double pressure_PY_hs(double *rho);
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_b[NMER_MAX];
 extern double Betap;
-#define TRUE  1
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(TRUE) && !defined(_CON_CONST_H_)
-#define TRUE  1
-#endif
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 void print_to_screen(double val,char *var_label);
 double pressure_WTC(double *rho_seg);

@@ -60,6 +60,7 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
 #define THETA_PAIRPOT_RCUT    2
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 extern void *LinProbMgr_manager;
+#define CALC_RESID_ONLY  3
 #define MF_EQ          3
 #define MF_VARIABLE  2
 extern int Type_attr;

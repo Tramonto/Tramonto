@@ -26,14 +26,6 @@ double load_bond_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone
 double d2y_dxi3_dxi2(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double d2y_dxi3_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
-#define FALSE 0
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
-#endif
-#define INIT_GUESS_FLAG  2
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
@@ -69,7 +61,16 @@ struct Stencil_Struct {
                              Walls when stencil point is a boundary node  */
 };
 double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
 extern void *LinProbMgr_manager;
+#define INIT_GUESS_FLAG  2
+#define CALC_RESID_ONLY  3
 #define NCOMP_MAX 5
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 #define BONDWTC        5

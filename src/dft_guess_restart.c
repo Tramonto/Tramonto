@@ -58,7 +58,7 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
 
                      /* Modify Nodes_old for the special case where we will read in a 1D file, but set up an initial
                          guess for a 2D or 3D system */
-         if (Restart==5)  Nodes_old=Nnodes;
+         if (Restart==RESTART_1DTOND)  Nodes_old=Nnodes;
 
          if (Lbinodal && iguess==BINODAL_FLAG){
                   X2_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
@@ -256,7 +256,7 @@ void read_in_a_file(int iguess,char *filename)
            printf("there is no density data in the restart file\n");
 
     fclose(fp5);
-    if (Restart != 5) Nodes_old-=header;
+    if (Restart != RESTART_1DTOND) Nodes_old-=header;
     printf("skipping %d lines in the dft_dens.dat file\n",header);
 
   /* read positions from file find Nodes_x_old[idim] */
@@ -286,7 +286,7 @@ void read_in_a_file(int iguess,char *filename)
        for (i=0;i<header;i++) while ((c=getc(fp5)) != EOF && c !='\n') ; 
     }
 
-    if (Restart==5) ndim_max=1;  /* again for using 1D solution for 2D/3D guess */
+    if (Restart==RESTART_1DTOND) ndim_max=1;  /* again for using 1D solution for 2D/3D guess */
     else ndim_max=Ndim;
     /*printf("Proc=%d  ndim_max=%d\n",Proc,ndim_max);*/
 
@@ -308,7 +308,7 @@ void read_in_a_file(int iguess,char *filename)
     }
                                     /* identify the node and starting unknown number at that node */
     inode=ijk_to_node(ijk_old);
-    if (Restart==5) inode=index;
+    if (Restart==RESTART_1DTOND) inode=index;
     node_start=inode*Nunk_per_node;
 
                                    /* loop over unknows assume the order of input is correct */
@@ -330,7 +330,7 @@ void read_in_a_file(int iguess,char *filename)
                  break;
 
               case HSRHOBAR:
-                 if (Restart == 5 && iunk_file-unk_start_in_file[HSRHOBAR]-Nrho_bar_s>0) tmp=0.0;
+                 if (Restart == RESTART_1DTOND && iunk_file-unk_start_in_file[HSRHOBAR]-Nrho_bar_s>0) tmp=0.0;
                  else fscanf(fp5,"%lf",&tmp); 
                  break;
               case POISSON:
@@ -389,7 +389,7 @@ void read_in_a_file(int iguess,char *filename)
              /* read extra variables on the line and ignore them -
                 for example the Poisson-Boltzman electrolyte output */
     while ((c=getc(fp5)) != EOF && c !='\n') ;
-    if (Restart==5 && ijk_old[0]==Nodes_x[0]-1){
+    if (Restart==RESTART_1DTOND && ijk_old[0]==Nodes_x[0]-1){
        fclose(fp5);
        if ((Type_poly == CMS || Type_poly ==CMS_SCFT || Type_poly==WJDC) && Restart_field[G_CHAIN]==TRUE) fclose(fp6);
        open_now=TRUE;
@@ -399,7 +399,7 @@ void read_in_a_file(int iguess,char *filename)
   for (idim=0; idim<Ndim; idim++) {
     Nodes_x_old[idim] = ijk_old_max[idim] + 1;
   }
-  if (Restart!=5){
+  if (Restart!=RESTART_1DTOND){
        fclose(fp5);
        if ((Type_poly == CMS || Type_poly ==CMS_SCFT || Type_poly==WJDC) && Restart_field[G_CHAIN]==TRUE) fclose(fp6);
   }

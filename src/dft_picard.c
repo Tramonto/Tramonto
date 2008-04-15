@@ -319,7 +319,7 @@ void print_resid_norm_picard(double **x, int iter)
 {
   double sum_local,norm;
 
-  sum_local=fill_resid_and_matrix_control(x,iter,INIT_GUESS_FLAG);
+  sum_local=fill_resid_and_matrix_control(x,iter,CALC_RESID_ONLY);
   norm = gsum_double(sum_local);
 
   if (Proc==0) printf("\t\tResidual norm at iteration %d = %g\n",iter, sqrt(norm));

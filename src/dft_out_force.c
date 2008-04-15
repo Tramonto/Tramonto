@@ -68,7 +68,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
 
    if(!first) {
 
-    if (Lvext_dash && Restart != 4) integrate_rho_vdash(x,p_tilde_vdash);
+    if (Lvext_dash) integrate_rho_vdash(x,p_tilde_vdash);
     if (Lhard_surf) sum_rho_wall(x, p_tilde_sumwall);
 
 

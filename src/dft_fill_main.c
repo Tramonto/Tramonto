@@ -44,7 +44,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   char   *yo = "fill_resid_and_matrix";
   int     loc_inode, inode_box,ijk_box[3],iunk,junk,iunk_start,iunk_end;
   int     mesh_coarsen_flag_i,switch_constmatrix;
-  double *resid_unk,resid_sum=0.0;
+  double *resid_unk,resid_sum=0.0,resid_term;
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
   resid_unk = (double *) array_alloc (1, Nunk_per_node, sizeof(double));
@@ -73,6 +73,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
     else mesh_coarsen_flag_i = 0;
 
     for (iunk=iunk_start; iunk<iunk_end; iunk++) {
+      resid_term=0.0;
 
       resid_unk[iunk]=0.0;
 
@@ -87,8 +88,9 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
           if (iter>1 && resid_only_flag==FALSE && Constant_row_flag[Unk2Phys[iunk]]==TRUE) {
              resid_only_flag=TRUE; switch_constmatrix=TRUE;
           }*/
-          resid_sum+=load_standard_node(loc_inode,inode_box,ijk_box,iunk,x,dphi_drb,
+          resid_term=load_standard_node(loc_inode,inode_box,ijk_box,iunk,x,dphi_drb,
                                resid_unk,mesh_coarsen_flag_i,resid_only_flag);
+          resid_sum+=resid_term;
 /*          if (switch_constmatrix) resid_only_flag=FALSE;*/
       }
 
@@ -180,8 +182,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
 
    }  /* end of physics switch */
 
-  /* l2norm_term=calc_l2norm_term(loc_inode,inode_box,iunk,x,resid_unk[iunk],resid_only_flag);*/
-   l2norm_term = -x[iunk][inode_box]+resid_unk[iunk];   
+   l2norm_term = resid_unk[iunk];  
    l2norm_term *= l2norm_term;
 
    return(l2norm_term);    /*note that the l2norm term is used for convergence tests - picard iters */
@@ -204,6 +205,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                   kind of analysis may require multiple runs and so output to a file is recommended. */
 
     /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
+    if (fabs(resid_unk[iunk])>1.e-6){
     switch(Unk2Phys[iunk]){
        case DENSITY:  printf("Proc=%d: loc_inode=%d of %d (Global val=%d) iunk_rho=%d ", Proc,loc_inode,Nnodes_per_proc,L2G_node[loc_inode],iunk); break;
        case HSRHOBAR: printf("Proc=%d: loc_inode=%d iunk_rbar=%d ", Proc,loc_inode,iunk); break;
@@ -217,6 +219,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
        case MF_EQ: printf("Proc=%d: loc_inode=%d  iunk_MFeq=%d ",Proc,loc_inode,iunk); break;
     }
     printf(" resid=%11.8f \n",resid_unk[iunk]); 
+    }
 
     return;
 }

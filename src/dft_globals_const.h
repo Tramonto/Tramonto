@@ -316,10 +316,21 @@
 #define CHOP_RHO_V      11
 
 /*
+ * The following are choices for how to handle the density profile
+ * on a restart.
+ */
+#define NORESTART          0
+#define RESTART_BASIC      1
+#define RESTART_STEP       2
+#define RESTART_DENSONLY   3
+#define RESTART_1DTOND     5
+
+/*
  * This constant is a flag that allows us to use the fill routines to set up
  * the initial guess.  We need to do this for some of the more complex variables 
  */
 #define INIT_GUESS_FLAG  2
+#define CALC_RESID_ONLY  3
 
 /*
  * The following are the various fields for continuuation 

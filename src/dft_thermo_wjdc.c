@@ -143,7 +143,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
               }
               count_fill++;
               array_val[ibond]=TRUE;
-              if (printproc)  fprintf(fp2,"ibond=%d  G_b=%gf\n",ibond,G_WJDC_b[ibond]);
+              if (printproc)  fprintf(fp2,"ibond=%d  G_b=%g\n",ibond,G_WJDC_b[ibond]);
            }
         }
      }

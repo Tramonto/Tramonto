@@ -72,9 +72,9 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box, int icomp,
      /*resid = 0.5*Fac_overlap[icomp][jcomp]*(1.-log(y)-log(n));*/
      resid = 0.5*(1.-Fac_overlap[icomp][jcomp]*log(y)-log(n));
      resid_sum+=resid;
-     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag !=CALC_RESID_ONLY && resid_only_flag !=INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
-     if (!resid_only_flag){
+     if (resid_only_flag==FALSE){
         mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./y)*dy_dxi2;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_xi2,inode_box,mat_val);
 
@@ -147,10 +147,10 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
             resid = -0.5*weight*constant_boundary(junk_rho,jnode_box)/constant_boundary(unk_bond,jnode_box);
         }
         else resid = 0.0;
-        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+        if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
         resid_sum += resid;
 
-        if (!resid_only_flag) {
+        if (resid_only_flag==FALSE) {
            if (isten < stenJ->Length){
               offsetJ = sten_offsetJ[isten];
               weightJ = sten_weightJ[isten];
@@ -262,7 +262,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
                else                                                     dens=0.0;
 
                resid = -0.5*Fac_overlap[jcomp][kcomp]*weight*dens*(1./y)*(prefac2*dy_dxi2 + prefac3*dy_dxi3);
-               if (resid_only_flag != INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                resid_sum += resid;
             }
 
@@ -413,7 +413,7 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
 
   if (resid_only_flag !=INIT_GUESS_FLAG){
      resid=-x[iunk][inode_box];
-     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag){
         mat_val=-1.0;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
@@ -450,7 +450,7 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
       junk=Pol_Sym[unk_bond]+Phys2Unk_first[BONDWTC];
       resid = x[junk][inode_box];
       resid_bondwtc+=resid;
-      if (resid_only_flag !=INIT_GUESS_FLAG)
+      if (resid_only_flag !=INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY)
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       if (resid_only_flag==FALSE){
          mat_val=1.0; 
@@ -475,7 +475,7 @@ double load_cavity_wtc(int iunk, int loc_inode, int inode_box, int *ijk_box,
 
   if (resid_only_flag != INIT_GUESS_FLAG){
      resid=-x[iunk][inode_box];
-     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag){
         mat_val=-1.0;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);

@@ -52,7 +52,7 @@ void set_initial_guess (int iguess, double** xOwned)
   xInBox = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
 
   if (Proc==0 && Iwrite==VERBOSE){
-      if (Restart==0 && Imain_loop==0) printf("generating guess from scratch\n");  
+      if (Restart==NORESTART && Imain_loop==0) printf("generating guess from scratch\n");  
       else printf("setting up guess from existing files\n");
   } 
 
@@ -61,7 +61,7 @@ void set_initial_guess (int iguess, double** xOwned)
      be patched up in some cases. */
 
   for (i=0;i<NEQ_TYPE;i++) Restart_field[i]=FALSE;
-  if (Restart > 0 || Imain_loop > 0){
+  if (Restart != NORESTART || Imain_loop > 0){
        start_no_info = FALSE;
        guess_restart_from_files(start_no_info,iguess,xInBox);  
   } 
@@ -84,21 +84,23 @@ void set_initial_guess (int iguess, double** xOwned)
                 printf("we don't have the ability to restart without a density field at this time\n");
                 exit(-1);
            }
+           else{
+           }
            break;
          case MF_EQ:
-           if (Phys2Nunk[MF_EQ]>0 && (start_no_info || Restart_field[MF_EQ]==FALSE ||Restart==3)){
+           if (Phys2Nunk[MF_EQ]>0 && (start_no_info || Restart_field[MF_EQ]==FALSE ||Restart==RESTART_DENSONLY)){
                if (Iguess_fields!=BULK)  calc_init_mf_attract(xInBox); 
                else                      setup_mf_attract(xInBox); 
            } break;
          case HSRHOBAR:
-           if (Phys2Nunk[HSRHOBAR]>0 && (start_no_info || Restart_field[HSRHOBAR]==FALSE ||Restart==3)) {
+           if (Phys2Nunk[HSRHOBAR]>0 && (start_no_info || Restart_field[HSRHOBAR]==FALSE ||Restart==RESTART_DENSONLY)) {
                  if (Iguess_fields!=BULK) calc_init_rho_bar(xInBox);
                  else                     setup_rho_bar(xInBox);
            } break;
          case POISSON:
-           if (Phys2Nunk[POISSON]>0 && (start_no_info || Restart_field[POISSON]==FALSE ||Restart==3)) setup_elec_pot(xInBox,iguess); break;
+           if (Phys2Nunk[POISSON]>0 && (start_no_info || Restart_field[POISSON]==FALSE ||Restart==RESTART_DENSONLY)) setup_elec_pot(xInBox,iguess); break;
          case DIFFUSION: 
-           if (Phys2Nunk[DIFFUSION]>0 && (start_no_info || Restart_field[DIFFUSION]==FALSE ||Restart==3)) setup_chem_pot(xInBox); break;
+           if (Phys2Nunk[DIFFUSION]>0 && (start_no_info || Restart_field[DIFFUSION]==FALSE ||Restart==RESTART_DENSONLY)) setup_chem_pot(xInBox); break;
 
          case CAVWTC:
            if (Phys2Nunk[CAVWTC]>0 && (start_no_info || Restart_field[CAVWTC]==FALSE)){
@@ -116,13 +118,11 @@ void set_initial_guess (int iguess, double** xOwned)
            if (Phys2Nunk[WJDC_FIELD]>0 && (start_no_info || Restart_field[WJDC_FIELD]==FALSE)){
                  if (Iguess_fields==CALC_ALL_FIELDS) calc_init_WJDC_field(xInBox);
                  else                            setup_polymer_field_wjdc(xInBox); 
-                 communicate_to_fill_in_box_values(xInBox);
            } break;
          case CMS_FIELD:
            if (Phys2Nunk[CMS_FIELD]>0 && (start_no_info || Restart_field[CMS_FIELD]==FALSE)) {
               if (Iguess_fields==CALC_ALL_FIELDS) calc_init_CMSfield(xInBox);
               else setup_polymer_field(xInBox,iguess); 
-              communicate_to_fill_in_box_values(xInBox);
            } break;
          case G_CHAIN:
            if (Phys2Nunk[G_CHAIN]>0 && (start_no_info || Restart_field[G_CHAIN]==FALSE)){
@@ -147,8 +147,9 @@ void set_initial_guess (int iguess, double** xOwned)
            exit(-1);
            break;
      }
+     communicate_to_fill_in_box_values(xInBox);
   }
-  if (Restart == 2) chop_profile(xInBox,iguess);  /* special case for treating wetting problems */
+  if (Restart == RESTART_STEP) chop_profile(xInBox,iguess);  /* special case for treating wetting problems */
 
   check_zero_densities(xInBox);              
   translate_xInBox_to_xOwned(xInBox,xOwned);

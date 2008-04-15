@@ -220,21 +220,15 @@ void print_to_screen_comp(int icomp,double val,char *var_label)
 /**************************************************************************************/
 void print_to_file(FILE *fp,double val,char *var_label,int first)
 {
-  if (first){ 
-              fprintf(fp,"%s  ",var_label); 
-  }
-  else{       fprintf(fp,"%9.6f  ",val); }
+  if (first != FALSE)  fprintf(fp,"%s  ",var_label); 
+  if (first != TRUE)   fprintf(fp,"%9.6f  ",val); 
   return;
 }
 /**************************************************************************************/
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first)
 {
-  if (first){
-     fprintf(fp,"%s[%d]  ",var_label,icomp); return;
-  }
-  else{
-     fprintf(fp,"%9.6f  ",val); return;
-  }
+  if (first != FALSE) fprintf(fp,"%s[%d]  ",var_label,icomp); 
+  if (first != TRUE)  fprintf(fp,"%9.6f  ",val); 
   return;
 }
 /**************************************************************************************/

@@ -1,9 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
 #include <stdio.h>
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
-void print_to_file(FILE *fp,double val,char *var_label,int first);
-void print_to_screen_comp(int icomp,double val,char *var_label);
-void print_to_screen(double val,char *var_label);
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)
@@ -18,6 +15,20 @@ void print_to_screen(double val,char *var_label);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
+#define FALSE 0
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+void print_to_file(FILE *fp,double val,char *var_label,int first);
+void print_to_screen_comp(int icomp,double val,char *var_label);
+void print_to_screen(double val,char *var_label);
 extern int Nrho_bar_s;
 extern int Ndim;
 void solutionVec_to_nOrdering(double *rhoBar_SVOrdering,double *n);

@@ -27,13 +27,13 @@ void print_freen_profile_1D(double *freen_profile_1D,char *output_file);
 void print_charge_surf(double **charge_w_sum,char *output_file);
 void print_Nodes_to_zone(int *node_to_zone,char *output_file);
 void print_zeroTF(int **zero_TF,char *output_file);
+extern double VEXT_MAX;
 extern int Lprint_gofr;
 extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Nwall;
 extern int L_HSperturbation;
-extern int Lseg_densities;
 void print_gofr(char *output_file6);
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
@@ -69,7 +69,6 @@ extern int Npol_comp;
 #define NONE        -1
 #define NONE        -1
 #define G_CHAIN        9 
-extern double VEXT_MAX;
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
@@ -92,6 +91,7 @@ extern int Npoisson;
 #define POISSON        1
 #define MF_EQ          3
 extern int Phys2Nunk[NEQ_TYPE];
+extern int Lseg_densities;
 #define DENSITY        0
 #define WTC          2
 #define WJDC         3

@@ -25,6 +25,8 @@ void safe_free(void **ptr);
 void translate_xInBox_to_xOwned(double **xInBox,double **xOwned);
 void check_zero_densities(double **xInBox);
 void chop_profile(double **xInBox,int iguess);
+#define RESTART_STEP       2
+void communicate_to_fill_in_box_values(double **xInBox);
 #define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
 void setup_polymer_G_wjdc(double **xInBox);
 void calc_init_polymer_G_wjdc(double **xInBox);
@@ -36,7 +38,6 @@ void calc_init_polymer_G_CMS(double **xInBox);
 void setup_polymer_field(double **xInBox,int iguess);
 void calc_init_CMSfield(double **xInBox);
 #define CMS_FIELD      7
-void communicate_to_fill_in_box_values(double **xInBox);
 void setup_polymer_field_wjdc(double **xInBox);
 void calc_init_WJDC_field(double **xInBox);
 #define CALC_ALL_FIELDS   1
@@ -58,6 +59,7 @@ void setup_mf_attract(double **xInBox);
 void calc_init_mf_attract(double **xInBox);
 #define BULK              0
 extern int Iguess_fields;
+#define RESTART_DENSONLY   3
 #define MF_EQ          3
 void setup_density(double **xInBox,int iguess);
 void setup_polymer_rho(double **xInBox,int iguess);
@@ -81,6 +83,7 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xInBox);
 #endif
 extern int Restart_field[NEQ_TYPE];
 extern int Imain_loop;
+#define NORESTART          0
 extern int Restart;
 #define VERBOSE      3 
 extern int Iwrite;

@@ -87,6 +87,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
                    dphi_drb[jnode_box].S1*Inv_4pir[icomp] +
                    dphi_drb[jnode_box].S2 );
 
+
            for (idim = 0; idim<Ndim; idim++){
               sign[idim]=1.0;
               if (reflect_flag[idim]) sign[idim]=-1.0;
@@ -124,7 +125,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
       else if (jnode_box==-2){ /* in the wall */
         resid=0.0;
       }
-      if (resid_only_flag != INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+      if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       resid_sum+=resid;
   
     if (resid_only_flag==FALSE)
@@ -192,7 +193,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
   if (resid_only_flag != INIT_GUESS_FLAG){
      resid =-x[iunk][inode_box];
      resid_sum+=resid;
-     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag){
         mat_val=-1.0;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
@@ -210,7 +211,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
         resid = x[junk][inode_box]*Inv_4pirsq[0];
         mat_val = Inv_4pirsq[0];
      }
-     if (resid_only_flag != INIT_GUESS_FLAG) 
+     if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
                            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag) dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
      resid_sum+=resid;
@@ -278,7 +279,7 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
   if (resid_only_flag != INIT_GUESS_FLAG){
      resid =-x[iunk][inode_box]; 
      resid_sum+=resid;
-     dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (resid_only_flag==FALSE){
        mat_val=-1.0;
        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
@@ -293,7 +294,7 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
 
      resid = x[junk][inode_box]*Inv_4pir[0];
      resid_sum+=resid;
-     if (resid_only_flag != INIT_GUESS_FLAG) 
+     if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
                dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag){
         mat_val = Inv_4pir[0];

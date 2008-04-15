@@ -134,8 +134,8 @@ void calc_pressure(char *output_file1)
                 print_to_screen(Betap_LBB,"Betap_LBB");
                 print_to_screen(Betap_RTF,"Betap_RTF");
             }
-            print_to_file(fp,Betap_LBB,"Betap_LBB",TRUE);
-            print_to_file(fp,Betap_RTF,"Betap_RTF",TRUE);
+            print_to_file(fp,Betap_LBB,"Betap_LBB",2);
+            print_to_file(fp,Betap_RTF,"Betap_RTF",2);
        }    
    }
    else{          		/* CASE WITH NO DIFFUSION */
@@ -175,7 +175,7 @@ void calc_pressure(char *output_file1)
               if (Iwrite != NO_SCREEN) {
                   print_to_screen(Betap,"Betap");
               }
-              print_to_file(fp,Betap,"Betap",TRUE);
+              print_to_file(fp,Betap,"Betap",2);
          }    
       }
       else{
@@ -276,23 +276,23 @@ void calc_chempot(char *output_file1)
                       for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg_LBB[iseg],"Betamu_seg_LBB");
                       for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg_RTF[iseg],"Betamu_seg_RTF");
                   }
-                  for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg_LBB[iseg],"Betamu_seg_LBB",TRUE);
-                  for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg_RTF[iseg],"Betamu_seg_RTF",TRUE);
+                  for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg_LBB[iseg],"Betamu_seg_LBB",2);
+                  for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg_RTF[iseg],"Betamu_seg_RTF",2);
                   }
                   if (Iwrite != NO_SCREEN){
                       for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");
                       for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");
                   }
-                  for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",TRUE);
-                  for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",TRUE);
+                  for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);
+                  for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
                }
                else{
                   if (Iwrite != NO_SCREEN) {
                       for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu_LBB[icomp],"Betamu_LBB");
                       for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu_RTF[icomp],"Betamu_RTF");
                   }
-                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_LBB[icomp],"Betamu_LBB",TRUE);
-                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_RTF[icomp],"Betamu_RTF",TRUE);
+                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_LBB[icomp],"Betamu_LBB",2);
+                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_RTF[icomp],"Betamu_RTF",2);
                }
           }    
        }
@@ -349,16 +349,16 @@ void calc_chempot(char *output_file1)
                if (Lseg_densities){
                   if (Type_poly==WTC){
                      if (Iwrite != NO_SCREEN) for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg[iseg],"Betamu_seg");
-                     for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg[iseg],"Betamu_seg",TRUE);
+                     for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg[iseg],"Betamu_seg",2);
                   }
                   if (Iwrite != NO_SCREEN) for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain[ipol],"Betamu_chain");
-                  for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain[ipol],"Betamu_chain",TRUE);
+                  for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain[ipol],"Betamu_chain",2);
 
                  
                }
                else{
                   if (Iwrite != NO_SCREEN) for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu[icomp],"Betamu");
-                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu[icomp],"Betamu",TRUE);
+                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu[icomp],"Betamu",2);
                }
           }    
       }

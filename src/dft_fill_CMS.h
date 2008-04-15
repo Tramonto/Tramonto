@@ -45,6 +45,7 @@ extern double Charge_f[NCOMP_MAX];
 #define NONE        -1
 extern int Type_coul;
 extern void *LinProbMgr_manager;
+#define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
 #define THETA_CR_DATA         4
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);

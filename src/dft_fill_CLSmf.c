@@ -135,7 +135,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
                  (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
          }
          resid =  fac*(weight*(*fp_resid)(junk,jnode_box,x) - bulk_term);
-         if (resid_only_flag != INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+         if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
          resid_sum+=resid;
 
          if (resid_only_flag==FALSE)
@@ -207,7 +207,7 @@ double resid_and_Jac_sten_fill (int sten_type, double **x, int iunk, int junk,
              (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
      }
      resid =  weight*fac*(*fp_resid)(junk,jnode_box,x);
-     if (resid_only_flag != INIT_GUESS_FLAG) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      resid_sum+=resid;
 
      if (resid_only_flag==FALSE)
