@@ -15,10 +15,12 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define NDIM_MAX  3
+#define PICARD_NOX 3
 extern int Nodes_x[NDIM_MAX];
 #define LAST_NODE_RESTART    4
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
+extern int NL_Solver;
 void node_to_ijk(int node,int *ijk);
 extern int *L2G_node;
 extern int *B2L_node;

@@ -107,7 +107,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
      for (ibond=0;ibond<Nbonds;ibond++){
         pol_num=Unk_to_Poly[ibond];
         iseg=Unk_to_Seg[ibond];
-        icomp=Unk2Comp[iseg];
+        icomp=Unk2Comp[SegChain2SegAll[pol_num][iseg]];
         bond_num=Unk_to_Bond[ibond];
         if (array_val[ibond]==FALSE){
            test=TRUE;  /* assume we will compute a bulk G */

@@ -92,15 +92,17 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
-#ifdef HAVE_NOXLOCA
-  NOXLOCA_Solver(x, xOwned, x2Owned, FALSE);
-  //if (NL_Solver==NEWTON_NOXLOCA) NOXLOCA_Solver(x, xOwned, x2Owned);
-#else
+/*#ifdef HAVE_NOXLOCA*/
+  /*NOXLOCA_Solver(x, xOwned, x2Owned, FALSE);*/
+  if (NL_Solver==NEWTON_NOX) NOXLOCA_Solver(x, xOwned, x2Owned);
+/*#else*x*/
+  else{
   if (Loca.method != -1)
     iter = solve_continuation(x, x2);
   else
      iter = newton_solver(x, NULL);
-#endif
+   }
+/*#endif*/
 
   safe_free((void **) &xOwned);
   if (Lbinodal)  safe_free((void **) &x2Owned);

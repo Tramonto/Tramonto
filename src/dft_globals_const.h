@@ -129,6 +129,7 @@
 #define NEWTON_BUILT_IN       0
 #define NEWTON_NOX            1
 #define PICARD_BUILT_IN       2
+#define PICARD_NOX            3
 
 /*
  * Stencil types refer to the integration schemes needed for different

@@ -26,6 +26,7 @@ double gsum_double(double c);
 #define WJDC_FIELD     8
 #define CMS_FIELD      7
 #define NDIM_MAX  3
+#define NEWTON_NOX            1
 extern int Nodes_x[NDIM_MAX];
 #define LAST_NODE_RESTART    4
 extern int Type_bc[NDIM_MAX][2];
