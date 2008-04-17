@@ -193,8 +193,8 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
   if (resid_only_flag != INIT_GUESS_FLAG){
      resid =-x[iunk][inode_box];
      resid_sum+=resid;
-     if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-     if (!resid_only_flag){
+     if (resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag==FALSE){
         mat_val=-1.0;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
      }
@@ -213,7 +213,9 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      }
      if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
                            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-     if (!resid_only_flag) dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+     if (resid_only_flag==FALSE) {
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
+     }
      resid_sum+=resid;
   }
   else{

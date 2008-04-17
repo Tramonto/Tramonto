@@ -92,17 +92,13 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
-/*#ifdef HAVE_NOXLOCA*/
-  /*NOXLOCA_Solver(x, xOwned, x2Owned, FALSE);*/
   if (NL_Solver==NEWTON_NOX) NOXLOCA_Solver(x, xOwned, x2Owned);
-/*#else*x*/
   else{
   if (Loca.method != -1)
     iter = solve_continuation(x, x2);
   else
      iter = newton_solver(x, NULL);
    }
-/*#endif*/
 
   safe_free((void **) &xOwned);
   if (Lbinodal)  safe_free((void **) &x2Owned);
@@ -163,7 +159,7 @@ int newton_solver(double** x, void* con_ptr) {
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);
 /*#ifdef NUMERICAL_JACOBIAN*/
-/*   do_numerical_jacobian(x);*/
+   /*do_numerical_jacobian(x);*/
 /*#endif*/
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
@@ -235,7 +231,7 @@ int update_solution(double** x, double** delta_x, int iter) {
 /*         else if (fabs(delta_x[iunk][ibox]/x[iunk][ibox]) >0.05){
              frac=0.05*fabs(x[iunk][ibox]/delta_x[iunk][ibox]);
          }*/
-         else{
+        else{
              frac=1.0;
          }
 
@@ -256,12 +252,23 @@ int update_solution(double** x, double** delta_x, int iter) {
       for (iunk=0; iunk<Nunk_per_node; iunk++) {
         temp =(frac_min*delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
         updateNorm +=  temp*temp;
+/*  if (iter==0){
+         x[iunk][ibox] += 0.5*delta_x[iunk][ibox];
+        temp =(0.5*delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
+  }
+  else{
+         x[iunk][ibox] += delta_x[iunk][ibox];
+        temp =(delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
+  }
+        updateNorm +=  temp*temp;*/
       }
     }
 
   /* For some cases, we need to be able to keep the solution values at the boundaries constant
      and set equal to the values that are read in from a file.  Do not update the solution 
      vector at these points */
+
+
     inodeG=L2G_node[inode]; 
     node_to_ijk(inodeG,ijk);
     go_update=TRUE;
@@ -273,19 +280,9 @@ int update_solution(double** x, double** delta_x, int iter) {
     /* Update all solution componenets */
     if (go_update){
     for (iunk=0; iunk<Nunk_per_node; iunk++){
-/*      if (Type_poly==WJDC && Unk2Phys[iunk]==G_CHAIN && x[iunk][ibox] <1.e-12 && (iter%1)==0){
-          iseg=iunk-Phys2Unk_first[DENSITY];
-          itype_mer=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+/*  if (iter==0){ x[iunk][ibox] += 0.5*delta_x[iunk][ibox]; }
+  else{ x[iunk][ibox] += delta_x[iunk][ibox]; }*/
 
-          x[iunk][ibox]=x[Phys2Unk_first[DENSITY]+iseg][ibox]*x[Phys2Unk_first[WJDC_FIELD]+itype_mer][ibox]/prefactor_rho_wjdc(iseg);
-          for (jbond=0; jbond<Nbonds_SegAll[iseg]; jbond++) {
-              if (jbond != Unk_to_Bond[iunk-Phys2Unk_first[G_CHAIN]]){
-                  unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[iseg][jbond];
-                  x[iunk][ibox]/=x[unk_GQ][ibox];
-              }
-          } 
-      }
-      else{*/
       if ((  (Unk2Phys[iunk]==DENSITY && 
                   (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) || 
             (Unk2Phys[iunk]==G_CHAIN && Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]] == -1) || 
@@ -303,10 +300,10 @@ int update_solution(double** x, double** delta_x, int iter) {
       else{
          x[iunk][ibox] += frac_min*delta_x[iunk][ibox];
       }
-/*      }*/
     }
     }
   }
+  
 
   updateNorm = sqrt(gsum_double(updateNorm));
 
@@ -354,6 +351,7 @@ void do_numerical_jacobian(double **x)
   char filename[20];
   FILE *ifp, *ifp2, *ifp3;
   int ia,ja,count_same=0,count_diff=0,ilines,lines_jafile;
+  int count_warnings=0;
   double coef_ij,diff,error,fac,resid_sum;
   double **resid, **resid_tmp;
   resid = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
@@ -401,10 +399,9 @@ void do_numerical_jacobian(double **x)
       for (jnode=0; jnode<Nnodes_per_proc; jnode++){ 
           j=jnode+Nnodes*junk; /* Physics Based Ordering */
           /*j=junk+Nunk_per_node*jnode;*/  /* Nodal Based Ordering */
+          if ( (resid[junk][jnode]<10.*del && resid[junk][jnode]>del) || 
+               (resid_tmp[junk][jnode]<10.*del && resid_tmp[junk][jnode]>del)) count_warnings++;
           full[j][i] = (resid[junk][jnode] - resid_tmp[junk][jnode])/del;
-/*if (iunk==30 && inode==11 && junk==0 && jnode==10) 
-    printf("junk=%d jnode=%d resid=%20.12f  resid_tmp=%20.12f del=%20.12f full[j][i]=%20.12f\n", 
-           junk,jnode,resid[junk][jnode],resid_tmp[junk][jnode],del,full[j][i]);*/
           if (full[j][i] > 1.e-6 && fabs(resid[junk][jnode] - resid_tmp[junk][jnode])>1.e-8) count_nonzeros[j][i]=TRUE;
           else count_nonzeros[j][i]=FALSE;
           count_nonzeros_a[j][i]=FALSE; /*set all of the analytical jacobian to false */
@@ -439,9 +436,9 @@ void do_numerical_jacobian(double **x)
       diff=fabs((full[i][j]-coef_ij));
       error=100.0*fabs((full[i][j]-coef_ij)/full[i][j]);
       if (diff > 1.e-6 && error>1. && x[j/Nnodes][j-Nnodes*(int)(j/Nnodes)] >1.e-10){ 
-               fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
-               i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
-               count_diff++;
+          fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
+                  i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
+          count_diff++;
       }
       else count_same++;
       if (fabs(full[i][j]) > 1.0e-6) fprintf(ifp,"%d  %d   %g\n",i,j,full[i][j]);
@@ -478,6 +475,7 @@ void do_numerical_jacobian(double **x)
   printf("number of matrix coefficients that are the same (nonzeros in ja0)=%d\n",count_same);
   printf("number of matrix coefficients that are different (nonzeros in ja0)=%d\n",count_diff);
   printf("number of matrix coefficients where nonzeros are only in numerical jacobian=%d\n",count_nonzeros_num);
+  printf("number of warnings where differences between analytical and numerical results\n \t may not be real due to small residuals and resulting inaccurate jacobians=%d\n",count_warnings);
   printf("See jdiff0 for summary of matrix coefficients where differences\n");
   printf("between analytical and numerical results are greater than 1%. \n\n");
   printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");

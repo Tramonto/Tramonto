@@ -136,7 +136,9 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
          }
          resid =  fac*(weight*(*fp_resid)(junk,jnode_box,x) - bulk_term);
          resid_sum+=resid;
-         if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+         if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY){
+               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+         }
 
          if (resid_only_flag==FALSE)
          if (isten < stenJ->Length){

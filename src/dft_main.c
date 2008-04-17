@@ -259,8 +259,8 @@ void dftmain(double * engptr)
 
       t_preprocess += MPI_Wtime();
       t_solve = -MPI_Wtime();
-      if (NL_Solver == PICARD_BUILT_IN) niters = solve_problem_picard(x, x2);
-      else if (NL_Solver == NEWTON_BUILT_IN || NEWTON_NOX) niters = solve_problem(x, x2);
+      if (NL_Solver == NEWTON_BUILT_IN || NL_Solver==NEWTON_NOX) niters = solve_problem(x, x2);
+      else if (NL_Solver == PICARD_BUILT_IN || NL_Solver==PICARD_NOX) niters = solve_problem_picard(x, x2);
       else {
          printf("Problem with solver type...set to %d\n",NL_Solver);
          exit(-1);

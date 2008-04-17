@@ -73,12 +73,8 @@ int solve_problem_picard(double **x, double **x2)
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
-/*#ifdef HAVE_NOXLOCA*/
-    if (NL_Solver==PICARD_NOX) NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
-/*#else*/
-    else iter=picard_solver(x,-1);
-/*#endif*/
-
+  if (NL_Solver==PICARD_NOX) NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
+  else iter=picard_solver(x,-1);
 
   safe_free((void **) &xOwned);
   if (Lbinodal)  safe_free((void **) &x2Owned);
