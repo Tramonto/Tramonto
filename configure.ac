@@ -217,9 +217,6 @@ fi
 TRILINOS_INC="-I${trilinos_installdir}/include"
 TRILINOS_LIB="-L${trilinos_installdir}/lib"
 
-TAC_ARG_WITH_PACKAGE(noxloca, [Enable NOX and LOCA interface support], NOXLOCA, no)
-AM_CONDITIONAL(HAVE_NOXLOCA, test "X$ac_cv_use_noxloca" != "Xno")
-
 TAC_ARG_ENABLE_EXPORT_MAKEFILES(yes)
 
 dnl ------------------------------------------------------------------------
@@ -236,37 +233,20 @@ SAVE_CPPFLAGS=${CPPFLAGS}
 CPPFLAGS="${CPPFLAGS} ${TRILINOS_INC}"
 
 AC_MSG_CHECKING(for several Trilinos header files)
-AC_TRY_CPP([#include "AztecOO.h" #include "Ifpack.h" #include "EpetraExt_ConfigDefs.h" #include "Epetra_ConfigDefs.h" #include "Teuchos_Version.hpp"],
+AC_TRY_CPP([#include "AztecOO.h" #include "Ifpack.h" #include "EpetraExt_ConfigDefs.h" #include "Epetra_ConfigDefs.h" #include "Teuchos_Version.hpp" #include "LOCA.H"],
   [AC_MSG_RESULT(yes)],
   [
    AC_MSG_RESULT(no)
    echo "-----"
-   echo "Cannot find AztecOO, Ifpack, EpetraExt, Epetra, or" 
+   echo "Cannot find AztecOO, LOCA, Ifpack, EpetraExt, Epetra, or" 
    echo "Teuchos header file.  Make sure the Trilinos configuration"
    echo "includes all of those packages.  (Include --enable-aztecoo,"
-   echo "--enable-ifpack, --enable-epetraext, --enable-epetra, and"
-   echo "--enable-teuchos in the list of configuration arguments.)"
+   echo "--enable-loca, --enable-ifpack, --enable-epetraext,"
+   echo "--enable-epetra, and --enable-teuchos in the list of"
+   echo "configuration arguments.)"
    echo "-----"
    AC_MSG_ERROR(Cannot find required Trilinos header file)
   ])
-
-if test "X$ac_cv_use_noxloca" != "Xno"; then
-
-  AC_MSG_CHECKING(for LOCA.H)
-  AC_TRY_CPP([#include "LOCA.H"],
-    [AC_MSG_RESULT(yes)],
-    [
-     AC_MSG_RESULT(no)
-     echo "-----"
-     echo "Cannot find LOCA header file."
-     echo "Make sure the Trilinos configuration includes NOX and LOCA."
-     echo "(Include --enable-nox and --enable-loca in the list of"
-     echo "configuration arguments.)"
-     echo "-----"
-     AC_MSG_ERROR(Cannot find required Trilinos header file)
-    ])
-
-fi
 
 CPPFLAGS=${SAVE_CPPFLAGS}
 

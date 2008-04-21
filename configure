@@ -722,8 +722,6 @@ EGREP
 CXXCPP
 BUILD_EXAMPLES_TRUE
 BUILD_EXAMPLES_FALSE
-HAVE_NOXLOCA_TRUE
-HAVE_NOXLOCA_FALSE
 USING_EXPORT_MAKEFILES_TRUE
 USING_EXPORT_MAKEFILES_FALSE
 PERL_EXE
@@ -1375,8 +1373,6 @@ Optional Packages:
                           --prefix option used when configuring Trilinos).
                           REQUIRED. (ex
                           --with-trilinos=/home/user/TrilinosInstall)
-  --with-noxloca          Enable NOX and LOCA interface support (default is
-                          no)
   --with-perl             supply a perl executable. For example
                           --with-perl=/usr/bin/perl.
   --with-gnumake          Gnu's make has special functions we can use to
@@ -5935,41 +5931,6 @@ TRILINOS_INC="-I${trilinos_installdir}/include"
 TRILINOS_LIB="-L${trilinos_installdir}/lib"
 
 
-
-# Check whether --with-noxloca was given.
-if test "${with_noxloca+set}" = set; then
-  withval=$with_noxloca; ac_cv_use_noxloca=$withval
-else
-  ac_cv_use_noxloca=no
-fi
-
-
-{ echo "$as_me:$LINENO: checking whether to use noxloca" >&5
-echo $ECHO_N "checking whether to use noxloca... $ECHO_C" >&6; }
-
-if test "X$ac_cv_use_noxloca" != "Xno"; then
-  { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_NOXLOCA
-_ACEOF
-
-else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-fi
-
- if test "X$ac_cv_use_noxloca" != "Xno"; then
-  HAVE_NOXLOCA_TRUE=
-  HAVE_NOXLOCA_FALSE='#'
-else
-  HAVE_NOXLOCA_TRUE='#'
-  HAVE_NOXLOCA_FALSE=
-fi
-
-
-
 # Check whether --enable-export-makefiles was given.
 if test "${enable_export_makefiles+set}" = set; then
   enableval=$enable_export_makefiles; ac_cv_use_export_makefiles=$enableval
@@ -6186,7 +6147,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include "AztecOO.h" #include "Ifpack.h" #include "EpetraExt_ConfigDefs.h" #include "Epetra_ConfigDefs.h" #include "Teuchos_Version.hpp"
+#include "AztecOO.h" #include "Ifpack.h" #include "EpetraExt_ConfigDefs.h" #include "Epetra_ConfigDefs.h" #include "Teuchos_Version.hpp" #include "LOCA.H"
 _ACEOF
 if { (ac_try="$ac_cpp conftest.$ac_ext"
 case "(($ac_try" in
@@ -6214,11 +6175,12 @@ sed 's/^/| /' conftest.$ac_ext >&5
    { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
    echo "-----"
-   echo "Cannot find AztecOO, Ifpack, EpetraExt, Epetra, or"
+   echo "Cannot find AztecOO, LOCA, Ifpack, EpetraExt, Epetra, or"
    echo "Teuchos header file.  Make sure the Trilinos configuration"
    echo "includes all of those packages.  (Include --enable-aztecoo,"
-   echo "--enable-ifpack, --enable-epetraext, --enable-epetra, and"
-   echo "--enable-teuchos in the list of configuration arguments.)"
+   echo "--enable-loca, --enable-ifpack, --enable-epetraext,"
+   echo "--enable-epetra, and --enable-teuchos in the list of"
+   echo "configuration arguments.)"
    echo "-----"
    { { echo "$as_me:$LINENO: error: Cannot find required Trilinos header file" >&5
 echo "$as_me: error: Cannot find required Trilinos header file" >&2;}
@@ -6227,59 +6189,6 @@ echo "$as_me: error: Cannot find required Trilinos header file" >&2;}
 fi
 
 rm -f conftest.err conftest.$ac_ext
-
-if test "X$ac_cv_use_noxloca" != "Xno"; then
-
-  { echo "$as_me:$LINENO: checking for LOCA.H" >&5
-echo $ECHO_N "checking for LOCA.H... $ECHO_C" >&6; }
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include "LOCA.H"
-_ACEOF
-if { (ac_try="$ac_cpp conftest.$ac_ext"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null && {
-	 test -z "$ac_cxx_preproc_warn_flag$ac_cxx_werror_flag" ||
-	 test ! -s conftest.err
-       }; then
-  { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-
-     { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-     echo "-----"
-     echo "Cannot find LOCA header file."
-     echo "Make sure the Trilinos configuration includes NOX and LOCA."
-     echo "(Include --enable-nox and --enable-loca in the list of"
-     echo "configuration arguments.)"
-     echo "-----"
-     { { echo "$as_me:$LINENO: error: Cannot find required Trilinos header file" >&5
-echo "$as_me: error: Cannot find required Trilinos header file" >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-
-rm -f conftest.err conftest.$ac_ext
-
-fi
 
 CPPFLAGS=${SAVE_CPPFLAGS}
 
@@ -6417,13 +6326,6 @@ if test -z "${BUILD_EXAMPLES_TRUE}" && test -z "${BUILD_EXAMPLES_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"BUILD_EXAMPLES\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"BUILD_EXAMPLES\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${HAVE_NOXLOCA_TRUE}" && test -z "${HAVE_NOXLOCA_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_NOXLOCA\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_NOXLOCA\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -7131,8 +7033,6 @@ EGREP!$EGREP$ac_delim
 CXXCPP!$CXXCPP$ac_delim
 BUILD_EXAMPLES_TRUE!$BUILD_EXAMPLES_TRUE$ac_delim
 BUILD_EXAMPLES_FALSE!$BUILD_EXAMPLES_FALSE$ac_delim
-HAVE_NOXLOCA_TRUE!$HAVE_NOXLOCA_TRUE$ac_delim
-HAVE_NOXLOCA_FALSE!$HAVE_NOXLOCA_FALSE$ac_delim
 USING_EXPORT_MAKEFILES_TRUE!$USING_EXPORT_MAKEFILES_TRUE$ac_delim
 USING_EXPORT_MAKEFILES_FALSE!$USING_EXPORT_MAKEFILES_FALSE$ac_delim
 PERL_EXE!$PERL_EXE$ac_delim
@@ -7146,7 +7046,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 23; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 21; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

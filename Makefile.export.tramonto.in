@@ -1,6 +1,3 @@
-## Optional dependency on nox/loca
-@HAVE_NOXLOCA_TRUE@include @trilinos_installdir@/include/Makefile.export.nox
-
 ## Required Dependency on teuchos
 include @trilinos_installdir@/include/Makefile.export.teuchos
 
@@ -21,6 +18,9 @@ include @trilinos_installdir@/include/Makefile.export.amesos
 
 ## Required Dependency on ML
 include @trilinos_installdir@/include/Makefile.export.ml
+
+## Required dependency on nox/loca
+include @trilinos_installdir@/include/Makefile.export.nox
 
 _TRAMONTO_INCLUDES = -I@abs_top_builddir@/src -I@abs_top_srcdir@/src \
 		     $(ML_INCLUDES) \

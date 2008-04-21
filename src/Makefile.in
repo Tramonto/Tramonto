@@ -63,7 +63,7 @@ host_triplet = @host@
 target_triplet = @target@
 bin_PROGRAMS = dft$(EXEEXT)
 subdir = src
-DIST_COMMON = $(am__include_HEADERS_DIST) $(srcdir)/Makefile.am \
+DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/Tramonto_config.h.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps =  \
@@ -72,7 +72,6 @@ am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/tac_arg_with_flags.m4 \
 	$(top_srcdir)/config/tac_arg_with_incdirs.m4 \
 	$(top_srcdir)/config/tac_arg_with_libdirs.m4 \
-	$(top_srcdir)/config/tac_arg_with_package.m4 \
 	$(top_srcdir)/config/tac_arg_with_perl.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -94,76 +93,6 @@ AR = ar
 ARFLAGS = cru
 libdft_a_AR = $(AR) $(ARFLAGS)
 libdft_a_DEPENDENCIES =
-am__libdft_a_SOURCES_DIST = ${srcdir}/dft_input.c ${srcdir}/dft_main.c \
-	${srcdir}/dft_mesh.c ${srcdir}/dft_mesh_surfaces.c \
-	${srcdir}/dft_mesh_lib.c ${srcdir}/dft_newton.c \
-	${srcdir}/dft_picard.c ${srcdir}/dft_linsolver_setup.c \
-	${srcdir}/dft_ldbal.c ${srcdir}/dft_fill_pde.c \
-	${srcdir}/dft_fill_pde_elec.c \
-	${srcdir}/dft_fill_pde_diffusion.c ${srcdir}/dft_fill_coarse.c \
-	${srcdir}/dft_fill_EL.c ${srcdir}/dft_fill_CMS.c \
-	${srcdir}/dft_fill_wjdc.c ${srcdir}/dft_fill_CLSchain.c \
-	${srcdir}/dft_fill_CLSmf.c ${srcdir}/dft_physics_FMT1.c \
-	${srcdir}/dft_physics_FMT2.c ${srcdir}/dft_physics_FMT3.c \
-	${srcdir}/dft_defs_stencil.c ${srcdir}/dft_defs_unknowns.c \
-	${srcdir}/dft_quadrature.c ${srcdir}/dft_stencil.c \
-	${srcdir}/dft_stencil_delta_Bond.c \
-	${srcdir}/dft_stencil_delta_R.c \
-	${srcdir}/dft_stencil_theta_CrCMS.c \
-	${srcdir}/dft_stencil_theta_R.c \
-	${srcdir}/dft_stencil_theta_RPMmsa.c \
-	${srcdir}/dft_stencil_theta_Sigma.c \
-	${srcdir}/dft_stencil_theta_uattr.c ${srcdir}/dft_thermo.c \
-	${srcdir}/dft_thermo_hs.c ${srcdir}/dft_thermo_att.c \
-	${srcdir}/dft_thermo_cms.c ${srcdir}/dft_thermo_elec_MSA.c \
-	${srcdir}/dft_thermo_id.c ${srcdir}/dft_thermo_wtc.c \
-	${srcdir}/dft_thermo_wjdc.c ${srcdir}/dft_out_main.c \
-	${srcdir}/dft_out_ads.c ${srcdir}/dft_out_utils.c \
-	${srcdir}/dft_energy.c ${srcdir}/dft_energy_id.c \
-	${srcdir}/dft_energy_hs.c ${srcdir}/dft_energy_att.c \
-	${srcdir}/dft_energy_elec.c ${srcdir}/dft_energy_wtc.c \
-	${srcdir}/dft_energy_wjdc.c ${srcdir}/dft_energy_vext.c \
-	${srcdir}/dft_energy_mu.c ${srcdir}/dft_energy_cms.c \
-	${srcdir}/dft_energy_CLSintsten.c ${srcdir}/dft_out_force.c \
-	${srcdir}/dft_out_flux.c ${srcdir}/dft_out_profiles.c \
-	${srcdir}/dft_vext.c ${srcdir}/dft_guess.c \
-	${srcdir}/dft_guess_CHEMPOT.c ${srcdir}/dft_guess_EL_DENSITY.c \
-	${srcdir}/dft_guess_HSFMT.c ${srcdir}/dft_guess_MFATT.c \
-	${srcdir}/dft_guess_WTC.c ${srcdir}/dft_guess_restart.c \
-	${srcdir}/dft_guess_CMS.c ${srcdir}/dft_guess_WJDC.c \
-	${srcdir}/dft_guess_ELECPOT.c ${srcdir}/dft_comm.c \
-	${srcdir}/dft_continuation.c ${srcdir}/dft_utils.c \
-	${srcdir}/dft_fill_control.c ${srcdir}/dft_fill_main.c \
-	${srcdir}/dft_fill_FMT.c ${srcdir}/dft_fill_mf.c \
-	${srcdir}/dft_fill_wtc.c ${srcdir}/dft_vext_coul.c \
-	${srcdir}/dft_uww.c ${srcdir}/dft_images.c \
-	${srcdir}/dft_potential_params.c \
-	${srcdir}/dft_pairPot_LJ12_6.c ${srcdir}/dft_pairPot_COULOMB.c \
-	${srcdir}/dft_pairPot_Yukawa.c ${srcdir}/dft_switch_pairPot.c \
-	${srcdir}/dft_switch_vext1D.c ${srcdir}/dft_switch_FMT.c \
-	${srcdir}/dft_switch_stencil.c ${srcdir}/dft_vext_1D.c \
-	${srcdir}/dft_vext_integrated.c ${srcdir}/rf_allo.c \
-	${srcdir}/loca_lib.c ${srcdir}/loca_bord.c \
-	${srcdir}/loca_util.c ${srcdir}/dft_BasicLinProbMgr.cpp \
-	${srcdir}/dft_PolyLinProbMgr.cpp \
-	${srcdir}/dft_HardSphereLinProbMgr.cpp \
-	${srcdir}/dft_PolyA11_Epetra_Operator.cpp \
-	${srcdir}/dft_PolyA22_Epetra_Operator.cpp \
-	${srcdir}/dft_PolyA11_Coulomb_Epetra_Operator.cpp \
-	${srcdir}/dft_PolyA22_Coulomb_Epetra_Operator.cpp \
-	${srcdir}/dft_A22Matrix_Epetra_Operator.cpp \
-	${srcdir}/dft_HardSphereA11_Epetra_Operator.cpp \
-	${srcdir}/dft_HardSphereA22_Epetra_Operator.cpp \
-	${srcdir}/dft_Schur_Epetra_Operator.cpp \
-	${srcdir}/dft_basic_lin_prob_mgr_wrapper.cpp \
-	${srcdir}/dft_poly_lin_prob_mgr_wrapper.cpp \
-	${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp \
-	${srcdir}/dft_parameterlist_wrapper.cpp \
-	${srcdir}/NOXLOCA_Solver.cpp \
-	${srcdir}/NOXLOCA_Tramonto_Group.cpp \
-	${srcdir}/NOXLOCA_Tramonto_Vector.cpp \
-	${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp \
-	${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
 am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_mesh.$(OBJEXT) dft_mesh_surfaces.$(OBJEXT) \
 	dft_mesh_lib.$(OBJEXT) dft_newton.$(OBJEXT) \
@@ -233,19 +162,8 @@ am__objects_3 = NOXLOCA_Solver.$(OBJEXT) \
 	NOXLOCA_Tramonto_Vector.$(OBJEXT) \
 	NOXLOCA_Tramonto_PTGroup.$(OBJEXT) \
 	NOXLOCA_Tramonto_PTVector.$(OBJEXT)
-@HAVE_NOXLOCA_TRUE@am__objects_4 = $(am__objects_3)
 am_libdft_a_OBJECTS = $(am__objects_1) $(am__objects_2) \
-	$(am__objects_4)
-am__EXTRA_libdft_a_SOURCES_DIST =  \
-	${srcdir}/NOXLOCA_Tramonto_Group.hpp \
-	${srcdir}/NOXLOCA_Tramonto_Vector.hpp \
-	${srcdir}/NOXLOCA_Tramonto_PTGroup.hpp \
-	${srcdir}/NOXLOCA_Tramonto_PTVector.hpp \
-	${srcdir}/NOXLOCA_Solver.cpp \
-	${srcdir}/NOXLOCA_Tramonto_Group.cpp \
-	${srcdir}/NOXLOCA_Tramonto_Vector.cpp \
-	${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp \
-	${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
+	$(am__objects_3)
 libdft_a_OBJECTS = $(am_libdft_a_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -269,80 +187,8 @@ CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 SOURCES = $(libdft_a_SOURCES) $(EXTRA_libdft_a_SOURCES) $(dft_SOURCES)
-DIST_SOURCES = $(am__libdft_a_SOURCES_DIST) \
-	$(am__EXTRA_libdft_a_SOURCES_DIST) $(dft_SOURCES)
-am__include_HEADERS_DIST = ${srcdir}/Tramonto_ConfigDefs.h \
-	${srcdir}/dft_ldbal.h ${srcdir}/include_global/dft_globals.h \
-	${srcdir}/dft_globals_const.h ${srcdir}/rf_allo.h \
-	${srcdir}/loca_const.h ${srcdir}/loca_util_const.h \
-	${srcdir}/dft_BasicLinProbMgr.hpp \
-	${srcdir}/dft_PolyLinProbMgr.hpp \
-	${srcdir}/dft_HardSphereLinProbMgr.hpp \
-	${srcdir}/dft_PolyA11_Epetra_Operator.hpp \
-	${srcdir}/dft_PolyA22_Epetra_Operator.hpp \
-	${srcdir}/dft_PolyA11_Coulomb_Epetra_Operator.hpp \
-	${srcdir}/dft_PolyA22_Coulomb_Epetra_Operator.hpp \
-	${srcdir}/dft_A22Matrix_Epetra_Operator.hpp \
-	${srcdir}/dft_HardSphereA11_Epetra_Operator.hpp \
-	${srcdir}/dft_HardSphereA22_Epetra_Operator.hpp \
-	${srcdir}/dft_Schur_Epetra_Operator.hpp \
-	${srcdir}/dft_basic_lin_prob_mgr_wrapper.h \
-	${srcdir}/dft_poly_lin_prob_mgr_wrapper.h \
-	${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.h \
-	${srcdir}/dft_parameterlist_wrapper.h \
-	${srcdir}/dft_direct_solver_const.h ${srcdir}/dft_input.h \
-	${srcdir}/dft_main.h ${srcdir}/dft_maindriver.h \
-	${srcdir}/dft_mesh.h ${srcdir}/dft_mesh_surfaces.h \
-	${srcdir}/dft_mesh_lib.h ${srcdir}/dft_newton.h \
-	${srcdir}/dft_picard.h ${srcdir}/dft_linsolver_setup.h \
-	${srcdir}/dft_fill_pde.h ${srcdir}/dft_fill_pde_elec.h \
-	${srcdir}/dft_fill_pde_diffusion.h ${srcdir}/dft_fill_coarse.h \
-	${srcdir}/dft_fill_EL.h ${srcdir}/dft_fill_CMS.h \
-	${srcdir}/dft_fill_wjdc.h ${srcdir}/dft_fill_CLSchain.h \
-	${srcdir}/dft_fill_CLSmf.h ${srcdir}/dft_physics_FMT1.h \
-	${srcdir}/dft_physics_FMT2.h ${srcdir}/dft_physics_FMT3.h \
-	${srcdir}/dft_defs_stencil.h ${srcdir}/dft_defs_unknowns.h \
-	${srcdir}/dft_quadrature.h ${srcdir}/dft_stencil.h \
-	${srcdir}/dft_stencil_delta_Bond.h \
-	${srcdir}/dft_stencil_delta_R.h \
-	${srcdir}/dft_stencil_theta_CrCMS.h \
-	${srcdir}/dft_stencil_theta_R.h \
-	${srcdir}/dft_stencil_theta_RPMmsa.h \
-	${srcdir}/dft_stencil_theta_Sigma.h \
-	${srcdir}/dft_stencil_theta_uattr.h ${srcdir}/dft_thermo.h \
-	${srcdir}/dft_thermo_hs.h ${srcdir}/dft_thermo_att.h \
-	${srcdir}/dft_thermo_cms.h ${srcdir}/dft_thermo_elec_MSA.h \
-	${srcdir}/dft_thermo_id.h ${srcdir}/dft_thermo_wtc.h \
-	${srcdir}/dft_thermo_wjdc.h ${srcdir}/dft_out_main.h \
-	${srcdir}/dft_out_ads.h ${srcdir}/dft_out_utils.h \
-	${srcdir}/dft_energy.h ${srcdir}/dft_energy_id.h \
-	${srcdir}/dft_energy_hs.h ${srcdir}/dft_energy_att.h \
-	${srcdir}/dft_energy_wtc.h ${srcdir}/dft_energy_wjdc.h \
-	${srcdir}/dft_energy_elec.h ${srcdir}/dft_energy_vext.h \
-	${srcdir}/dft_energy_mu.h ${srcdir}/dft_energy_cms.h \
-	${srcdir}/dft_energy_CLSintsten.h ${srcdir}/dft_out_force.h \
-	${srcdir}/dft_out_flux.h ${srcdir}/dft_out_profiles.h \
-	${srcdir}/dft_vext.h ${srcdir}/dft_guess.h \
-	${srcdir}/dft_guess_CHEMPOT.h ${srcdir}/dft_guess_EL_DENSITY.h \
-	${srcdir}/dft_guess_HSFMT.h ${srcdir}/dft_guess_MFATT.h \
-	${srcdir}/dft_guess_WTC.h ${srcdir}/dft_guess_restart.h \
-	${srcdir}/dft_guess_CMS.h ${srcdir}/dft_guess_WJDC.h \
-	${srcdir}/dft_guess_ELECPOT.h ${srcdir}/dft_comm.h \
-	${srcdir}/dft_continuation.h ${srcdir}/dft_utils.h \
-	${srcdir}/dft_fill_control.h ${srcdir}/dft_fill_main.h \
-	${srcdir}/dft_fill_FMT.h ${srcdir}/dft_fill_mf.h \
-	${srcdir}/dft_fill_wtc.h ${srcdir}/dft_vext_coul.h \
-	${srcdir}/dft_uww.h ${srcdir}/dft_images.h \
-	${srcdir}/dft_potential_params.h \
-	${srcdir}/dft_pairPot_LJ12_6.h ${srcdir}/dft_pairPot_COULOMB.h \
-	${srcdir}/dft_pairPot_Yukawa.h ${srcdir}/dft_switch_pairPot.h \
-	${srcdir}/dft_switch_vext1D.h ${srcdir}/dft_switch_FMT.h \
-	${srcdir}/dft_switch_stencil.h ${srcdir}/dft_vext_1D.h \
-	${srcdir}/dft_vext_integrated.h \
-	${srcdir}/NOXLOCA_Tramonto_Group.hpp \
-	${srcdir}/NOXLOCA_Tramonto_Vector.hpp \
-	${srcdir}/NOXLOCA_Tramonto_PTGroup.hpp \
-	${srcdir}/NOXLOCA_Tramonto_PTVector.hpp
+DIST_SOURCES = $(libdft_a_SOURCES) $(EXTRA_libdft_a_SOURCES) \
+	$(dft_SOURCES)
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 nodist_execincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS) $(nodist_execinclude_HEADERS)
@@ -686,26 +532,18 @@ COMMON_CXX = \
         ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp \
         ${srcdir}/dft_parameterlist_wrapper.cpp
 
-EXTRA_NOXLOCA_CXX = \
+NOXLOCA_CXX = \
         ${srcdir}/NOXLOCA_Solver.cpp \
         ${srcdir}/NOXLOCA_Tramonto_Group.cpp \
         ${srcdir}/NOXLOCA_Tramonto_Vector.cpp \
         ${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp \
         ${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
 
-EXTRA_NOXLOCA_H = \
+NOXLOCA_H = \
         ${srcdir}/NOXLOCA_Tramonto_Group.hpp \
         ${srcdir}/NOXLOCA_Tramonto_Vector.hpp \
         ${srcdir}/NOXLOCA_Tramonto_PTGroup.hpp \
         ${srcdir}/NOXLOCA_Tramonto_PTVector.hpp
-
-@HAVE_NOXLOCA_FALSE@NOXLOCA_CXX = 
-@HAVE_NOXLOCA_TRUE@NOXLOCA_CXX = \
-@HAVE_NOXLOCA_TRUE@	$(EXTRA_NOXLOCA_CXX)
-
-@HAVE_NOXLOCA_FALSE@NOXLOCA_H = 
-@HAVE_NOXLOCA_TRUE@NOXLOCA_H = \
-@HAVE_NOXLOCA_TRUE@	$(EXTRA_NOXLOCA_H)
 
 
 # ------------------------------------------------------------------------

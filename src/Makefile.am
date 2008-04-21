@@ -251,33 +251,18 @@ COMMON_CXX = \
         ${srcdir}/dft_hardsphere_lin_prob_mgr_wrapper.cpp \
         ${srcdir}/dft_parameterlist_wrapper.cpp
 
-EXTRA_NOXLOCA_CXX = \
+NOXLOCA_CXX = \
         ${srcdir}/NOXLOCA_Solver.cpp \
         ${srcdir}/NOXLOCA_Tramonto_Group.cpp \
         ${srcdir}/NOXLOCA_Tramonto_Vector.cpp \
         ${srcdir}/NOXLOCA_Tramonto_PTGroup.cpp \
         ${srcdir}/NOXLOCA_Tramonto_PTVector.cpp
 
-EXTRA_NOXLOCA_H = \
+NOXLOCA_H = \
         ${srcdir}/NOXLOCA_Tramonto_Group.hpp \
         ${srcdir}/NOXLOCA_Tramonto_Vector.hpp \
         ${srcdir}/NOXLOCA_Tramonto_PTGroup.hpp \
         ${srcdir}/NOXLOCA_Tramonto_PTVector.hpp
-
-if HAVE_NOXLOCA
-
-NOXLOCA_CXX = \
-	$(EXTRA_NOXLOCA_CXX)
-
-NOXLOCA_H = \
-	$(EXTRA_NOXLOCA_H)
-
-else
-
-NOXLOCA_CXX =
-NOXLOCA_H =
-
-endif
 
 # ------------------------------------------------------------------------
 # Tramonto library specifications
