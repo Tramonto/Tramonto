@@ -49,7 +49,7 @@ EXTRA_DIST = config/strip_dup_incl_paths.pl config/strip_dup_libs.pl \
 	test/harness/config test/harness/invoke-configures/linux-beowulf \
 	test/harness/invoke-configures/linux-hrothgar sampleConfigs/cygwin \
 	sampleConfigs/cygwin2 sampleConfigs/irix64 sampleConfigs/liberty \
-	sampleConfigs/linux sampleConfigs/linux2 sampleConfigs/macOsX \
+	sampleConfigs/linux sampleConfigs/macOsX \
 	sampleConfigs/macOsX2 sampleConfigs/reddish sampleConfigs/sunos \
 	sampleConfigs/tbird Examples/BC10_FMT1_WCA_ELEC_3D/dft_input.dat \
 	COPYRIGHT LICENSE RELEASE_NOTES \

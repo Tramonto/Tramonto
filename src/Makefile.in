@@ -186,9 +186,8 @@ CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
-SOURCES = $(libdft_a_SOURCES) $(EXTRA_libdft_a_SOURCES) $(dft_SOURCES)
-DIST_SOURCES = $(libdft_a_SOURCES) $(EXTRA_libdft_a_SOURCES) \
-	$(dft_SOURCES)
+SOURCES = $(libdft_a_SOURCES) $(dft_SOURCES)
+DIST_SOURCES = $(libdft_a_SOURCES) $(dft_SOURCES)
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 nodist_execincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS) $(nodist_execinclude_HEADERS)
@@ -557,10 +556,6 @@ DFT_H = \
 libdft_a_SOURCES = \
 	$(COMMON_C) \
 	$(COMMON_CXX) \
-	$(NOXLOCA_CXX)
-
-EXTRA_libdft_a_SOURCES = \
-	$(NOXLOCA_H) \
 	$(NOXLOCA_CXX)
 
 

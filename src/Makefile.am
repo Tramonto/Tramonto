@@ -279,10 +279,6 @@ libdft_a_SOURCES = \
 	$(COMMON_CXX) \
 	$(NOXLOCA_CXX)
 
-EXTRA_libdft_a_SOURCES = \
-	$(NOXLOCA_H) \
-	$(NOXLOCA_CXX)
-
 #Trilinos has a solution for selecting alternate ar's if that is a problem
 
 # ------------------------------------------------------------------------
