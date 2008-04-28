@@ -56,6 +56,11 @@ int ijk_to_node(int *ijk);
 extern double Esize_x[NDIM_MAX];
 int round_to_int(double x);
 #define G_CHAIN        9 
+#define CALC_RHOBAR_ONLY  2
+#define BULK              0
+#define CALC_RHOBAR_AND_G 3
+#define CALC_ALL_FIELDS   1
+extern int Iguess_fields;
 extern int Ndim;
 #define MF_VARIABLE  2
 extern int Type_attr;

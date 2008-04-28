@@ -9,7 +9,7 @@
 @ 0 0 	Type_bc(x2,: back, front) 
 
 ************ FUNCTIONAL SWITCHES *********************************************
-@ 0 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) 
+@ 0 0 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) Type_hsdiam(0=SIGMA_DIAM 1=BH_DIAM)
 @ 0 0 	Type_attr Type_pairPot 
             (Type_attr options: -1=No attractions, 0=strict MF) 
             (Type_pairPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB_CS, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
@@ -241,7 +241,7 @@
 @ 0 100. 	Ljac_cut Jac_threshold 
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 0 20                  NL_Solver   Max_NL_iter
+@ 0 20 0                  NL_Solver   Max_NL_iter   Physics_scaling
 @ 1.0e-3 1.0e-8 1.0     NL_rel_tol NL_abs_tol NL_update_scalingParam
 @ 2     Load balance switch (0=linear,1=box,2=weights, 3=timings)
 ************ LINEAR SOLVER PARAMETERS ****************************************

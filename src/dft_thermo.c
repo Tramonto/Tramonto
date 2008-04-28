@@ -31,13 +31,17 @@
 void  thermodynamics(char *output_file1)
 {
    char *yo = "thermodynamics";
-   int iseg,ibond;
+   int iseg,ibond,pol_num,icomp;
    if (Proc==0 && Iwrite!=NO_SCREEN){
           printf("\n-------------------------------------------------------------------------------\n");
           printf("%s: Doing Thermo precalculations\n",yo);
    }
 
     /* first call any functions needed to preprocess global bulk variables associated with the functionals chosen for this run */
+
+    for (icomp=0; icomp<Ncomp;icomp++){
+        for (pol_num=0; pol_num<Npol_comp;pol_num++) Scale_fac_WJDC[pol_num][icomp]=0.0;
+    }
     if (L_HSperturbation){
                                                                     /* set up segment densities */
        if (Type_poly == WTC || Type_poly==WJDC) WTC_thermo_precalc(output_file1);   
@@ -67,6 +71,7 @@ void  thermodynamics(char *output_file1)
     /* must calculate chemical potentials first because we use mu in the WTC calculation of the pressure */
     calc_chempot(output_file1);
     calc_pressure(output_file1);
+    if  (Physics_scaling && Type_poly==WJDC) WJDC_thermo_precalc(output_file1); /*adjust bulk terms for scaling */
 
     return;
 }
@@ -191,7 +196,7 @@ void calc_chempot(char *output_file1)
 {
 
    double betamu_hs[NCOMP_MAX];
-   int icomp,iseg,ipol,i;
+   int icomp,iseg,ipol,i,pol_num;
    FILE *fp;
 
    if( (fp = fopen(output_file1,"a+")) == NULL) {
@@ -333,24 +338,26 @@ void calc_chempot(char *output_file1)
               }
           }
 				/* WTC contributions */
-          if (Type_poly==WTC){   
+          if (Type_poly==WTC || Type_poly==WJDC){   
                                  /* note that this should come last because the segment 
                                     chemical potentials are built using the component chemical potentials
                                     for other physics types */
-               chempot_WTC(Rho_seg_b,Betamu);
-               for (ipol=0;ipol<Npol_comp;ipol++){
-                  Betamu_chain[ipol]=0.0;
-                  for (iseg=0;iseg<Nmer[ipol];iseg++){
-                     Betamu_chain[ipol]+= Betamu_seg[SegChain2SegAll[ipol][iseg]];
+
+              if ((Physics_scaling && Type_poly==WJDC) || Type_poly==WTC) chempot_WTC(Rho_seg_b,Betamu);
+               if (Type_poly==WTC){
+                  for (ipol=0;ipol<Npol_comp;ipol++){
+                     Betamu_chain[ipol]=0.0;
+                     for (iseg=0;iseg<Nmer[ipol];iseg++){
+                        Betamu_chain[ipol]+= Betamu_seg[SegChain2SegAll[ipol][iseg]];
+                     }
                   }
                }
           }
           if (Proc==0){
                if (Lseg_densities){
-                  if (Type_poly==WTC){
-                     if (Iwrite != NO_SCREEN) for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg[iseg],"Betamu_seg");
-                     for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg[iseg],"Betamu_seg",2);
-                  }
+                  if (Iwrite != NO_SCREEN) for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg[iseg],"Betamu_seg");
+                  for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg[iseg],"Betamu_seg",2);
+                  printf("\n");
                   if (Iwrite != NO_SCREEN) for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain[ipol],"Betamu_chain");
                   for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain[ipol],"Betamu_chain",2);
 

@@ -92,6 +92,7 @@ extern int Type_poly;
 #define FALSE 0
 #endif
 extern void *LinProbMgr_manager;
+extern int Print_flag;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
 double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));

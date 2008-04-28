@@ -89,7 +89,7 @@ double pressure_WTC(double *rho_seg)
    Betamu_wtc = contribution to chem. potential from the chain part of the functional only */
 void chempot_WTC(double *rho_seg,double *betamu)
 {
-   int icomp,jcomp,kcomp,i,iseg,ibond,jseg,kseg;
+   int icomp,jcomp,kcomp,i,iseg,ibond,jseg,kseg,pol_num,count_comp;
    double y,term_kseg;
 
 
@@ -110,12 +110,14 @@ void chempot_WTC(double *rho_seg,double *betamu)
       icomp=Unk2Comp[iseg];
       for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
           jseg=Bonds_SegAll[iseg][ibond];
+          if (jseg >=0){
           jcomp=Unk2Comp[jseg];
           y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
           Betamu_seg[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
                               - rho_seg[jseg]/rho_seg[iseg]);
           Betamu_wtc[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
                               -rho_seg[jseg]/rho_seg[iseg]);
+         }
       }
    }
    /* now add in the term that involves _all_ the bond pairs in the system for each segment via that cavity
@@ -127,6 +129,22 @@ void chempot_WTC(double *rho_seg,double *betamu)
      Betamu_seg[kseg] -= term_kseg;
      Betamu_wtc[kseg] -= term_kseg;
    }
+
+
+   if (Type_poly==WJDC){
+      for (icomp=0; icomp<Ncomp;icomp++){ 
+         count_comp=0;
+         for (iseg=0; iseg<Nseg_tot;iseg++){
+            if (Unk2Comp[iseg]==icomp){  
+               count_comp++;
+               pol_num=SegAll_to_Poly[iseg];
+               Scale_fac_WJDC[pol_num][icomp]+=Betamu_seg[iseg];
+            }
+         }
+         Scale_fac_WJDC[pol_num][icomp]/=count_comp;
+      }
+   }
+
    return;
 }
 /****************************************************************************/

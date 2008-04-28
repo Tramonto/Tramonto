@@ -15,14 +15,13 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define NDIM_MAX  3
-#define PICARD_NOX 3
 extern int Nodes_x[NDIM_MAX];
 #define LAST_NODE_RESTART    4
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
-extern int NL_Solver;
 void node_to_ijk(int node,int *ijk);
 extern int *L2G_node;
+extern double NL_abs_tol,NL_rel_tol;
 extern int *B2L_node;
 extern double NL_update_scalingParam;
 double gsum_double(double c);
@@ -57,7 +56,6 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-extern int Max_NL_iter;
 #define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
 void calc_init_polymer_G_wjdc(double **xInBox);
 void calc_init_polymer_G_CMS(double **xInBox);
@@ -80,8 +78,6 @@ extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 void fix_symmetries(double **x);
 int update_solution_picard(double **x,double **delta_x,int iter);
-extern double NL_abs_tol,NL_rel_tol;
-int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 void calc_density_next_iter_WJDC(double **xInBox);
 void calc_density_next_iter_CMS(double **xInBox);
 #define CMS          0
@@ -91,21 +87,25 @@ extern int Type_poly;
 extern int L_HSperturbation;
 void print_resid_norm_picard(double **x,int iter);
 #define NO_SCREEN    2 
+extern int Max_NL_iter;
 extern int Nnodes_box;
-#define TRUE  1
+#define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
 #endif
-#if !defined(TRUE) && !defined(_CON_CONST_H_)
-#define TRUE  1
-#endif
-#define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+void safe_free(void **ptr);
+void safe_free(void **ptr);
 int picard_solver(double **x,int subIters);
-void safe_free(void **ptr);
-void safe_free(void **ptr);
+#define TRUE  1
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
+#define PICNEWTON_NOX         5
+#define PICARD_NOX            3
+extern int NL_Solver;
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */
 extern int Lbinodal;
 void print_profile_box(double **x,char *outfile);

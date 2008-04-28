@@ -46,7 +46,11 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
   if (resid_only_flag !=INIT_GUESS_FLAG){
      resid = x[iunk][inode_box]*x[unk_B][inode_box];
      resid_sum=resid;
-     if (resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag != CALC_RESID_ONLY) {
+ if ((iunk==1 || iunk==16)&& loc_inode==11 && Print_flag) printf("\n iunk=%d unk_B=%d x[iunk]=%g x[unk_B]=%g resid=%g\n",
+    iunk,unk_B,x[iunk][inode_box],x[unk_B][inode_box],resid);
+        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     }
      if(resid_only_flag==FALSE){
          values[0]=x[iunk][inode_box]; values[1]=x[unk_B][inode_box];
          unkIndex[0]=unk_B; unkIndex[1]=iunk;
@@ -84,6 +88,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
              if (Type_poly==CMS) iref=itype_mer;
              if (Type_poly==WJDC) iref=iseg;
              fac1 = (*fp_prefactor)(iref);
+ if ((iunk==1 || iunk==16)&& loc_inode==11 && Print_flag) printf("\n after call to prefactor...fac1=%g\n",fac1);
         }
         else                     fac1=1.0;
 
@@ -92,12 +97,14 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
               unk_GQ_test = unk_GQ-Phys2Unk_first[func_type];
               if (Pol_Sym[unk_GQ_test] != -1) unk_GQ=Pol_Sym[unk_GQ_test] + Phys2Unk_first[func_type];
               fac1 *= x[unk_GQ][inode_box];
+ if ((iunk==1 || iunk==16)&& loc_inode==11 && Print_flag) printf("\n multiply fac1 by x[unk_GQ=%d][inode_box=%d]=%g to get new fact1=%g\n",unk_GQ,inode_box,x[unk_GQ][inode_box],fac1);
 
               if(resid_only_flag==FALSE){
                  if (fp_prefactor!=NULL) {
                      if (Type_poly==CMS) iref=itype_mer;
                      if (Type_poly==WJDC) iref=iseg;
                      fac2 = (*fp_prefactor)(iref);
+/*if ((iunk==1 || iunk==16) && loc_inode==11) printf("\n \n iunk=%d computed prefactor=%g\n",iunk,fac2);*/
                  }
                  else                     fac2=1.0;
                  for (jbond=0; jbond<Nbonds_SegAll[iseg]; jbond++) {
@@ -106,8 +113,10 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                      unk_GQ_j_test=unk_GQ_j-Phys2Unk_first[func_type];
                      if (Pol_Sym[unk_GQ_j_test] != -1) unk_GQ_j=Pol_Sym[unk_GQ_j_test] + Phys2Unk_first[func_type];
                      fac2 *= x[unk_GQ_j][inode_box];
+/*if ((iunk==1 || iunk==16) && loc_inode==11) printf("iunk=%d unk_GQ_j=%d x[unk_GQ_j][inode_box]=%g fac2=%g \n",iunk,unk_GQ_j,x[unk_GQ_j][inode_box],fac2);*/
                    }
                  }
+/*if ((iunk==1 || iunk==16) && loc_inode==16) printf("iunk=%d -fac2=%g boltz_pow=%d (column #=)unk_GQ=%d\n",iunk,fac2,boltz_pow,unk_GQ);*/
                  if (boltz_pow > 0) mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
                  else mat_val=-fac2;
 /*                 if (x[unk_GQ][inode_box]>1.e-12){*/
@@ -122,12 +131,16 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
         if(resid_only_flag==FALSE){
            if (boltz_pow > 0){
              mat_val = -fac1*((double) boltz_pow)*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow_J);
+/*if ((iunk==1 || iunk==16) && loc_inode==11) printf("iunk=%d fac1=%g  boltz_pow=%d x[unk_B]=%g boltz_pow_J=%d\n",
+     iunk,fac1,boltz_pow,x[unk_B],boltz_pow_J);*/
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
            }
         }
         if (boltz_pow >0) resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
         else resid = -fac1;
         resid_sum+=resid;
+if ((iunk==1 || iunk==16) && loc_inode==11 && Print_flag) printf("iunk=%d boltz_pow=%d fac1=%g resid=%g resid_sum=%g\n",
+    iunk,boltz_pow,fac1,resid,resid_sum);
         if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
             dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      }

@@ -20,14 +20,13 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_su
 #define G_CHAIN        9 
 extern int ***Poly_to_Unk;
 extern int *Unk_to_Bond;
-#define NMER_MAX     100
-extern int Unk2Comp[NMER_MAX];
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
 extern int Nbonds;
 double CMS_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 double CMS_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 #define NBOND_MAX 4
+#define NMER_MAX     100
 void calc_init_polymer_G_CMS(double **xInBox);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)

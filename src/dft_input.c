@@ -185,12 +185,17 @@ void read_input_file(char *input_file, char *output_file1)
   /* hard sphere functionals */
   if ( Proc==0 ) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d",&Type_func);
-    fprintf(fp2,"%d",Type_func);
+    fscanf(fp,"%d %d",&Type_func,&Type_hsdiam);
+    fprintf(fp2,"%d %d",Type_func,Type_hsdiam);
   }
   MPI_Bcast(&Type_func,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Type_func >2 || Type_func<-1){
     if (Proc==0) printf("ERROR Type_hs out of range - should be -1,0,1, or 2\n");
+    exit(-1);
+  }
+  MPI_Bcast(&Type_hsdiam,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Type_hsdiam >1 || Type_hsdiam<0){
+    if (Proc==0) printf("ERROR Type_hsdiam out of range - should be 0 or 1\n");
     exit(-1);
   }
 
@@ -965,7 +970,6 @@ void read_input_file(char *input_file, char *output_file1)
     MPI_Bcast(SegChain2SegAll,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Type_mer,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
 
-
     if (Proc==0) {
       read_junk(fp,fp2);
       fscanf(fp,"%s", poly_file);
@@ -1000,13 +1004,20 @@ void read_input_file(char *input_file, char *output_file1)
     BondAll_to_isegAll = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
     BondAll_to_ibond = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
     nbond_tot = (int *) array_alloc (1, Npol_comp, sizeof(int));
+    Nseg_type_pol = (int **) array_alloc (2, Npol_comp,Ncomp,sizeof(int));
 
     nbond_all = 0; 
     Nbonds=0;
     Nseg_tot=0;
     seg_tot=0;
     end_count_all=0;
-    for (icomp=0;icomp<Ncomp;icomp++) Nmer_comp[icomp]=0;
+    for (icomp=0;icomp<Ncomp;icomp++){
+         Nmer_comp[icomp]=0;
+       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
+             Nseg_type_pol[pol_number][icomp]=0;
+       }
+    } 
+
     for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       Nseg_tot += Nmer[pol_number];
       if(Nseg_tot > NMER_MAX) {
@@ -1027,6 +1038,7 @@ void read_input_file(char *input_file, char *output_file1)
         }
 	MPI_Bcast(&Nbond[pol_number][iseg],1,MPI_INT,0,MPI_COMM_WORLD);
         Nbonds_SegAll[seg_tot]=0;
+        SegAll_to_Poly[seg_tot]=pol_number;
 
 	for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
 	  if (Proc==0) {
@@ -1077,6 +1089,7 @@ void read_input_file(char *input_file, char *output_file1)
         Unk2Comp[seg_tot]=Type_mer[pol_number][iseg];
         Nmer_comp[Unk2Comp[seg_tot]]++;
         seg_tot++;
+        Nseg_type_pol[pol_number][Type_mer[pol_number][iseg]]++;
       } /* end of loop over iseg */
     }
     for (icomp=0;icomp<Ncomp;icomp++) Nseg_type[icomp]=0;
@@ -1785,11 +1798,12 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d %d", &NL_Solver, &Max_NL_iter);
-    fprintf(fp2,"%d %d  ",NL_Solver,Max_NL_iter);
+    fscanf(fp,"%d %d %d", &NL_Solver, &Max_NL_iter, &Physics_scaling);
+    fprintf(fp2,"%d %d %d ",NL_Solver,Max_NL_iter,Physics_scaling);
   }
   MPI_Bcast(&Max_NL_iter,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&NL_Solver,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Physics_scaling,1,MPI_INT,0,MPI_COMM_WORLD);
   if (NL_Solver==PICARD_BUILT_IN && Iguess_fields !=CALC_ALL_FIELDS){
      printf("Picard solver indicated so Iguess_fields is reset to %d\n",CALC_ALL_FIELDS);
   }

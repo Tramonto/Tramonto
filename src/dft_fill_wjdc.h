@@ -80,9 +80,10 @@ void WJDC_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int
 double load_WJDC_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define NMER_MAX     100
 extern double Betamu_chain[NMER_MAX];
-extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
-extern int Nmer[NCOMP_MAX];
-extern int Npol_comp;
+extern int **Nseg_type_pol;
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
+extern int Ncomp;
+extern int SegAll_to_Poly[NMER_MAX];
 double prefactor_rho_wjdc(int iseg);
 #define G_CHAIN        9 
 double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));

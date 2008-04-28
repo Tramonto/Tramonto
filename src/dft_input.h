@@ -74,6 +74,7 @@ extern double NL_update_scalingParam;
 extern double NL_abs_tol,NL_rel_tol;
 #define CALC_ALL_FIELDS   1
 #define PICARD_BUILT_IN       2
+extern int Physics_scaling;
 extern int Max_NL_iter;
 extern int NL_Solver;
 extern double Jac_threshold;
@@ -167,8 +168,11 @@ void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern int Geqn_start[NCOMP_MAX];
 extern int Ngeqn_tot;
+#define NMER_MAX     100
+extern int SegAll_to_Poly[NMER_MAX];
 extern int Nmer_comp[NCOMP_MAX];
 extern int Nseg_tot;
+extern int **Nseg_type_pol;
 extern int *BondAll_to_ibond;
 extern int *BondAll_to_isegAll;
 extern int *Pol_Sym_Seg;
@@ -183,7 +187,6 @@ extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 #define NBOND_MAX 4
 extern int *Unk_to_Poly;
-#define NMER_MAX     100
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 #define NBLOCK_MAX   5
@@ -287,6 +290,7 @@ extern int Type_poly;
 extern int Type_coul;
 extern int Type_pairPot;
 extern int Type_attr;
+extern int Type_hsdiam;
 extern int Type_func;
 #define PERIODIC             1
 extern int Type_bc[NDIM_MAX][2];

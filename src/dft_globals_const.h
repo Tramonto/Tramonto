@@ -130,6 +130,8 @@
 #define NEWTON_NOX            1
 #define PICARD_BUILT_IN       2
 #define PICARD_NOX            3
+#define PICNEWTON_BUILT_IN    4
+#define PICNEWTON_NOX         5
 
 /*
  * Stencil types refer to the integration schemes needed for different
@@ -270,7 +272,11 @@
 #define PAIR_COULOMB_CS    1
 #define PAIR_COULOMB       2
 #define PAIR_YUKAWA_CS     3
+#define PAIR_LJ12_6_SIGTORCUT_CS   4 
 
+/* options for Type_hsdiam */
+#define SIGMA_DIAM          0
+#define BH_DIAM             1
 /*
  * The following are choices for 1D external field potentials.  
  */
@@ -332,6 +338,7 @@
  */
 #define INIT_GUESS_FLAG  2
 #define CALC_RESID_ONLY  3
+#define CALC_AND_FILL_RESID_ONLY  4
 
 /*
  * The following are the various fields for continuuation 
@@ -592,6 +599,7 @@ extern int Unk2Phys[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gi
 
 
 /*************** Global Mesh ********************************/
+extern int Print_flag;
 
 extern int     Ndim;            /* # of spatial dimensions of the problem      */
 extern int     Nnodes;          /* # of nodes in the mesh                */
@@ -770,6 +778,7 @@ extern double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
 extern double  Rho_seg_LBB[NMER_MAX];
 extern double  Rho_seg_RTF[NMER_MAX];
 extern double Field_WJDC_b[NMER_MAX];
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern double G_WJDC_b[NMER_MAX*NBOND_MAX];
 extern double  *Rhobar3_old;   /* Array[Nnodes_box] of old values of rhobar 3*/
 extern double Xi_cav_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
@@ -795,6 +804,7 @@ extern double  Betamu_seg_RTF[NMER_MAX];/* Array of excess segment chemical pote
 extern int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
 extern int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
 extern int     Type_pairPot;  /* Interaction potential to use for strict mean field DFT calculations*/
+extern int     Type_hsdiam;  /* How to calculate Hard-Sphere diamters - use Sigma or Barker-Henderson approach */
 extern int     Type_vext1D;  /* Interaction potential to choose for external field calculations based on 1D potentials*/
 extern int     Type_vext3D;  /* Interaction potential to choose for external field calculations based on 3D potentials*/
 extern int     Type_uwwPot;  /* potential to use for computation of wall-wall interactions.  Used in 3D-atomic surface calculations */
@@ -944,6 +954,7 @@ extern void * ParameterList_list; /* Parameterlist to hold Aztec options and par
 /* Nonlinear Solver info */
 extern int NL_Solver;    /* select type of nonliear solver */
 extern int Max_NL_iter;    /* Maximum # of Newton iterations (10 - 30)          */
+extern int Physics_scaling; /* do physical scaling of nonlinear problems */
 extern double NL_abs_tol,NL_rel_tol; /* Convergence tolerances (update_soln)*/
 extern double NL_update_scalingParam; /* Minimum fraction to update solution to slow down
                            Newton's method */
@@ -1000,12 +1011,14 @@ extern int Last_nz_cr;
 extern int Nmer_t_total[NBLOCK_MAX];
 extern int Nseg_tot;
 extern int Nseg_type[NCOMP_MAX];
+extern int **Nseg_type_pol;
 extern char Cr_file[40];
 extern char Cr_file2[40];
 extern char Cr_file3[40];
 extern char Cr_file4[40];
 extern double Cr_break[2];
 extern int Ncr_files;
+extern int SegAll_to_Poly[NMER_MAX];
 extern int *Unk_to_Poly;
 extern int *Unk_to_Seg;
 extern int *Unk_to_Bond;

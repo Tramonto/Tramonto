@@ -24,7 +24,6 @@ extern double Xi_cav_b[4];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define NMER_MAX     100
-extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 #define NBOND_MAX 4
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 extern int Geqn_start[NCOMP_MAX];
@@ -32,9 +31,11 @@ extern int ***Poly_to_Unk;
 extern int **Nbond;
 extern int ***Bonds;
 extern int *Unk_to_Bond;
+extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
 extern int Nbonds;
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_seg_b[NMER_MAX];
 double chain_term(int kseg,int kcomp,double *rho_seg);
@@ -57,6 +58,7 @@ extern double Dphi_Drhobar_b[10];
 #define PI    M_PI
 extern double HS_diam[NCOMP_MAX];
 extern int Unk2Comp[NMER_MAX];
+extern int SegAll_to_Poly[NMER_MAX];
 extern int Nseg_tot;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)

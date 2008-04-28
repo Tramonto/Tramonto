@@ -50,11 +50,14 @@ extern double *X_old;
 extern int Nodes_old;
 extern double *X2_old;
 void post_process(double **x,char *output_file3,int *niters,double *time_save,int loop1,int binodal_flag);
-int solve_problem(double **x,double **x2);
-#define PICARD_NOX            3
 #define NEWTON_NOX            1
 #define NEWTON_BUILT_IN       0
+int solve_problem(double **x,double **x2);
 int solve_problem_picard(double **x,double **x2);
+extern double NL_update_scalingParam;
+#define PICNEWTON_BUILT_IN    4
+#define PICNEWTON_NOX         5
+#define PICARD_NOX            3
 #define PICARD_BUILT_IN       2
 extern int NL_Solver;
 extern int Lbinodal;

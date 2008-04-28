@@ -92,7 +92,7 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
-  if (NL_Solver==NEWTON_NOX) NOXLOCA_Solver(x, xOwned, x2Owned, FALSE);
+  if (NL_Solver==NEWTON_NOX || NL_Solver==PICNEWTON_NOX) NOXLOCA_Solver(x, xOwned, x2Owned,FALSE);
   else{
   if (Loca.method != -1)
     iter = solve_continuation(x, x2);
@@ -200,7 +200,7 @@ int newton_solver(double** x, void* con_ptr) {
 
 /****************************************************************************/
 /****************************************************************************/
-int update_solution(double** x, double** delta_x, int iter) {
+int update_solution_new(double** x, double** delta_x, int iter) {
 /* Routine to update solution vector x using delta_x and 
  * to test for convergence of Newton's method.
  * 
@@ -215,7 +215,57 @@ int update_solution(double** x, double** delta_x, int iter) {
   char *yo = "newupdate solution";
      
 
+  if (iter==1) frac_min=0.5;
+  else frac_min=1.0;
 
+  frac_min=gmin_double(frac_min);
+  if (Proc==0 && Iwrite != NO_SCREEN)
+      printf("\tUPDATE FRAC = %g percent\n",frac_min*100);
+
+  for (ibox=0; ibox<Nnodes_box; ibox++) {
+
+    /* Increment updateNorm only for owned nodes (inode=-1 for ghosts) */
+    inode = B2L_node[ibox];
+    if (inode != -1) {
+      for (iunk=0; iunk<Nunk_per_node; iunk++) {
+        temp =(frac_min*delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
+        updateNorm +=  temp*temp;
+      }
+    }
+
+  /* For some cases, we need to be able to keep the solution values at the boundaries constant
+     and set equal to the values that are read in from a file.  Do not update the solution 
+     vector at these points */
+
+    for (iunk=0; iunk<Nunk_per_node; iunk++){
+         x[iunk][ibox] += frac_min*delta_x[iunk][ibox];
+    }
+  }
+  
+  updateNorm = sqrt(gsum_double(updateNorm));
+
+  if (Proc==0 && Iwrite != NO_SCREEN)
+    printf("\n\t\t%s: Weighted norm of update vector =  %g\n", yo, updateNorm);
+
+  if (updateNorm > 1.0) return(FALSE);
+  else                  return(TRUE);
+
+}
+/*****************************************************************************************************/
+int update_solution(double** x, double** delta_x, int iter) {
+/* Routine to update solution vector x using delta_x and 
+ * to test for convergence of Newton's method.
+ * 
+ * Note: Modifications to Newton's method, including damping, have not yet
+ *       been translated form previous update_solution.
+ *       iter  value may be used in some damping methods
+ */
+
+  int iunk, ibox, inode,inodeG,ijk[3],go_update,idim;
+  int iseg,jbond,itype_mer,unk_GQ;
+  double updateNorm=0.0, temp,frac_min,frac;
+  char *yo = "newupdate solution";
+     
    /* Certain unknowns - specifically densities and Gs in CMS DFT cannot be less than 0.
       Here we locate problems, and scale the entire update vector to prevent this from 
       happening. */
@@ -228,9 +278,6 @@ int update_solution(double** x, double** delta_x, int iter) {
              frac = AZ_MIN(1.0,x[iunk][ibox]/(-delta_x[iunk][ibox]));
              frac = AZ_MAX(frac,NL_update_scalingParam);
          } 
-/*         else if (fabs(delta_x[iunk][ibox]/x[iunk][ibox]) >0.05){
-             frac=0.05*fabs(x[iunk][ibox]/delta_x[iunk][ibox]);
-         }*/
         else{
              frac=1.0;
          }
@@ -252,15 +299,6 @@ int update_solution(double** x, double** delta_x, int iter) {
       for (iunk=0; iunk<Nunk_per_node; iunk++) {
         temp =(frac_min*delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
         updateNorm +=  temp*temp;
-/*  if (iter==0){
-         x[iunk][ibox] += 0.5*delta_x[iunk][ibox];
-        temp =(0.5*delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
-  }
-  else{
-         x[iunk][ibox] += delta_x[iunk][ibox];
-        temp =(delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
-  }
-        updateNorm +=  temp*temp;*/
       }
     }
 
@@ -280,8 +318,6 @@ int update_solution(double** x, double** delta_x, int iter) {
     /* Update all solution componenets */
     if (go_update){
     for (iunk=0; iunk<Nunk_per_node; iunk++){
-/*  if (iter==0){ x[iunk][ibox] += 0.5*delta_x[iunk][ibox]; }
-  else{ x[iunk][ibox] += delta_x[iunk][ibox]; }*/
 
       if ((  (Unk2Phys[iunk]==DENSITY && 
                   (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) || 
@@ -374,6 +410,7 @@ void do_numerical_jacobian(double **x)
 
   for (iunk=0;iunk<Nunk_per_node;iunk++){
     for (inode=0; inode<Nnodes; inode++) {
+/*      printf("iunk=%d inode=%d x[60][11]=%g\n",iunk,inode,x[60][11]);*/
       i=inode+Nnodes*iunk; /* Physics Based Ordering */
       /*i=iunk+Nunk_per_node*inode;*/  /* Nodal Based Ordering */
 /*      del=1.e-6*fabs(x[iunk][inode])+1.e-12;*/
@@ -392,17 +429,21 @@ void do_numerical_jacobian(double **x)
           for (jnode=0; jnode<Nnodes_per_proc; jnode++) resid_tmp[junk][jnode] = 0.0;
 
       (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
-      resid_sum=fill_resid_and_matrix_control(x,1,TRUE);
+if (i==9832 || i==4841) Print_flag=TRUE;
+else Print_flag=FALSE;
+      resid_sum=fill_resid_and_matrix_control(x,1,CALC_AND_FILL_RESID_ONLY);
       dft_linprobmgr_getrhs(LinProbMgr_manager, resid_tmp);
 
       for (junk=0; junk<Nunk_per_node; junk++){ 
       for (jnode=0; jnode<Nnodes_per_proc; jnode++){ 
           j=jnode+Nnodes*junk; /* Physics Based Ordering */
           /*j=junk+Nunk_per_node*jnode;*/  /* Nodal Based Ordering */
-          if ( (resid[junk][jnode]<10.*del && resid[junk][jnode]>del) || 
-               (resid_tmp[junk][jnode]<10.*del && resid_tmp[junk][jnode]>del)) count_warnings++;
           full[j][i] = (resid[junk][jnode] - resid_tmp[junk][jnode])/del;
+          if ( full[j][i]>1.e-6 &&((resid[junk][jnode]<10.*del && resid[junk][jnode]>del) || 
+               (resid_tmp[junk][jnode]<10.*del && resid_tmp[junk][jnode]>del))) count_warnings++;
           if (full[j][i] > 1.e-6 && fabs(resid[junk][jnode] - resid_tmp[junk][jnode])>1.e-8) count_nonzeros[j][i]=TRUE;
+if (j==2587 && i==9832) printf("seg 16 del=%g value to vary: (iunk=%d inode=%d x[iunk][inode]=%g)   resid=%g resid_tmp=%g  full[%d][%d]=%g\n", del,iunk,inode,x[iunk][inode],resid[junk][jnode],resid_tmp[junk][jnode],j,i,full[j][i]);
+if (j==172 && i==4841) printf("seg 1 del=%g value to vary: (iunk=%d inode=%d x[iunk][inode]=%g)   resid=%g resid_tmp=%g  full[%d][%d]=%g\n", del,iunk,inode,x[iunk][inode],resid[junk][jnode],resid_tmp[junk][jnode],j,i,full[j][i]);
           else count_nonzeros[j][i]=FALSE;
           count_nonzeros_a[j][i]=FALSE; /*set all of the analytical jacobian to false */
       }}

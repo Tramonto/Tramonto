@@ -41,6 +41,8 @@ extern double Betamu_hs_ex[NCOMP_MAX];
 extern int Ipot_ff_n;
 extern int Iliq_vap;
 extern int Lsteady_state;
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
+extern int SegAll_to_Poly[NMER_MAX];
 extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_b[NMER_MAX];

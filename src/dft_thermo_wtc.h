@@ -28,7 +28,6 @@ extern double BondWTC_LBB[NMER_MAX *NMER_MAX];
 extern double BondWTC_b[NMER_MAX *NMER_MAX];
 extern int Nbonds;
 #define WTC          2
-extern int Type_poly;
 #define VERBOSE      3 
 extern int Iwrite;
 #if defined(DEC_ALPHA)
@@ -56,10 +55,14 @@ extern int Proc;
 #endif
 extern double Fac_overlap_hs[NCOMP_MAX];
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
-extern int Ncomp;
 #define PI    M_PI
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
+extern int SegAll_to_Poly[NMER_MAX];
+extern int Ncomp;
+#define WJDC         3
+extern int Type_poly;
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 extern double Xi_cav_b[4];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];

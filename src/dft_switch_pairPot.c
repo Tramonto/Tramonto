@@ -47,6 +47,7 @@ double pairPot_switch(double r,double param1, double param2, double param3,doubl
 
   switch(typePairPot){
       case PAIR_LJ12_6_CS:
+      case PAIR_LJ12_6_SIGTORCUT_CS:
         u= uLJ12_6_CS(r,param1,param2,param3);
         break;
       case PAIR_COULOMB_CS:
@@ -72,6 +73,7 @@ double pairPotparams_switch(int typePairPot,int context, int i, int j,double *pa
 {
   switch(typePairPot){
       case PAIR_LJ12_6_CS:
+      case PAIR_LJ12_6_SIGTORCUT_CS:
         uLJ12_6_CS_setparams(context,i,j,param1,param2,param3);
         break;
       case PAIR_COULOMB_CS:
@@ -99,6 +101,7 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
 
   switch(typePairPot){
       case PAIR_LJ12_6_CS:
+      case PAIR_LJ12_6_SIGTORCUT_CS:
         uderiv= uLJ12_6_DERIV1D(r,x,param1,param2,param3);
         break;
       case PAIR_COULOMB_CS:
@@ -130,6 +133,9 @@ double pairPot_ATT_CS_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_LJ12_6_CS:
         u= uLJ12_6_ATT_CS(r,icomp,jcomp);
         break;
+      case PAIR_LJ12_6_SIGTORCUT_CS:
+        u= uLJ12_6_ATT_SIGTORCUT_CS(r,icomp,jcomp);
+        break;
       case PAIR_COULOMB_CS:
         u = uCOULOMB_ATT_CS(r,icomp,jcomp);  
         break;
@@ -158,6 +164,9 @@ double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_LJ12_6_CS:
         u= uLJ12_6_ATT_noCS(r,icomp,jcomp);
         break;
+      case PAIR_LJ12_6_SIGTORCUT_CS:
+        u= uLJ12_6_ATT_SIGTORCUT_noCS(r,icomp,jcomp);
+        break;
       case PAIR_COULOMB:
       case PAIR_COULOMB_CS:
         u = uCOULOMB_ATT_noCS(r,icomp,jcomp);
@@ -182,6 +191,7 @@ double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
 
   switch(typePairPot){
       case PAIR_LJ12_6_CS:
+      case PAIR_LJ12_6_SIGTORCUT_CS:
         u= uLJ12_6_Integral(r,icomp,jcomp);
         break;
       case PAIR_COULOMB:

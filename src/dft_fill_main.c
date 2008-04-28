@@ -86,7 +86,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
       else{
           /*switch_constmatrix=FALSE;
           if (iter>1 && resid_only_flag==FALSE && Constant_row_flag[Unk2Phys[iunk]]==TRUE) {
-             resid_only_flag=TRUE; switch_constmatrix=TRUE;
+             resid_only_flag=CALC_RESID_ONLY; switch_constmatrix=TRUE;
           }*/
           resid_term=load_standard_node(loc_inode,inode_box,ijk_box,iunk,x,dphi_drb,
                                resid_unk,mesh_coarsen_flag_i,resid_only_flag);

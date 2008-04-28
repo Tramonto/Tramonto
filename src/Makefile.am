@@ -130,6 +130,7 @@ COMMON_H = \
         ${srcdir}/dft_images.h \
         ${srcdir}/dft_potential_params.h \
         ${srcdir}/dft_pairPot_LJ12_6.h \
+        ${srcdir}/dft_pairPot_LJ12_6_SIGTORCUT.h \
         ${srcdir}/dft_pairPot_COULOMB.h \
         ${srcdir}/dft_pairPot_Yukawa.h \
         ${srcdir}/dft_switch_pairPot.h \
@@ -221,6 +222,7 @@ COMMON_C = \
         ${srcdir}/dft_images.c \
         ${srcdir}/dft_potential_params.c \
         ${srcdir}/dft_pairPot_LJ12_6.c \
+        ${srcdir}/dft_pairPot_LJ12_6_SIGTORCUT.c \
         ${srcdir}/dft_pairPot_COULOMB.c \
         ${srcdir}/dft_pairPot_Yukawa.c \
         ${srcdir}/dft_switch_pairPot.c \

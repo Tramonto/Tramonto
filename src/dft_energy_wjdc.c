@@ -30,13 +30,14 @@
 /****************************************************************************/
 double integrand_WJDC_freen(int iunk,int inode_box, double **x)
 {
-     double integrand=0.0,rho_i,icomp;
-     int iseg,unk_field,ibond,count_ends;
+     double integrand=0.0,rho_i;
+     int iseg,unk_field,ibond,count_ends,pol_num,icomp;
 
      iseg = iunk-Phys2Unk_first[DENSITY];
      icomp = Unk2Comp[iseg];
      rho_i = x[iunk][inode_box];
      unk_field=Phys2Unk_first[WJDC_FIELD]+icomp;
+     pol_num=SegAll_to_Poly[iseg];
 
      count_ends=0;
      for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
@@ -44,7 +45,7 @@ double integrand_WJDC_freen(int iunk,int inode_box, double **x)
      }
 
      if (rho_i > 1.e-9){
-        integrand = log(x[unk_field][inode_box]) 
+        integrand = log(x[unk_field][inode_box]/exp(Scale_fac_WJDC[pol_num][icomp])) 
                       + 0.5*(Nbonds_SegAll[iseg]-count_ends)-1.0;
         integrand *= rho_i;
      }
@@ -54,11 +55,12 @@ double integrand_WJDC_freen(int iunk,int inode_box, double **x)
 double integrand_WJDC_freen_bulk(int iunk,int inode_box, double **x)
 {
      double integrand=0.0,rho_i;
-     int iseg,icomp,ibond,count_ends;
+     int iseg,icomp,ibond,count_ends,pol_num;
 
      iseg = iunk-Phys2Unk_first[DENSITY];
      icomp=Unk2Comp[iseg];
      rho_i = Rho_seg_b[icomp];
+     pol_num=SegAll_to_Poly[iseg];
 
      count_ends=0;
      for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
@@ -66,7 +68,7 @@ double integrand_WJDC_freen_bulk(int iunk,int inode_box, double **x)
      }
 
      if (rho_i > 1.e-9){
-        integrand = log(Field_WJDC_b[icomp]) 
+        integrand = log(Field_WJDC_b[icomp]/exp(Scale_fac_WJDC[pol_num][icomp]) )
                      + 0.5*(Nbonds_SegAll[iseg]-count_ends)-1.0;
         integrand *= rho_i;
      }

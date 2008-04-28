@@ -67,6 +67,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
      equations is exp(D-beta*Vext) or exp(D) in the bulk. */
 
   for (iseg=0;iseg<Nseg_tot;iseg++){
+    pol_num=SegAll_to_Poly[iseg];
     field=0.0;
     icomp=Unk2Comp[iseg];
 
@@ -92,7 +93,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
   /* Now include Bonding terms - note that this is identical to WTC theory */
      field += chain_term(iseg,icomp,Rho_seg_b);
 
-     Field_WJDC_b[icomp]=exp(field);
+     Field_WJDC_b[icomp]=exp(field)*exp(Scale_fac_WJDC[pol_num][icomp]);
      if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_WJDC=%9.6f\n",iseg,field,Field_WJDC_b[icomp]);
   } /* end of bulk field calculations */
 
@@ -187,8 +188,9 @@ void chempot_chain_wjdc(double *rho,double *betamu_chain)
              gproduct *=G_WJDC_b[unk_G];
       }
       mu_chain -= log(gproduct);
-      if (printproc) printf("iseg=%d pol_num=%d  mu_chain=%9.6f\n",iseg,pol_num,mu_chain);
+
       betamu_chain[pol_num]=mu_chain;
+      if (printproc) printf("iseg=%d pol_num=%d  mu_chain=%9.6f\n",iseg,pol_num,mu_chain);
    } 
    return;
 }

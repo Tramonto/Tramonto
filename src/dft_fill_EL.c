@@ -264,9 +264,10 @@ double fill_bulk_field(int iunk, int icomp, int iseg, int loc_inode, int inode_b
 double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
    double resid,resid_ig=0.0,mat_val;
+   int pol_number,jseg;
 
    if (resid_only_flag != INIT_GUESS_FLAG){
-      resid = log(x[iunk][inode_box]) ; 
+      resid = log(x[iunk][inode_box]); 
       resid_ig=resid;
       if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       if (!resid_only_flag){
@@ -281,6 +282,15 @@ double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, doub
    }
 */
    }
+
+   if (Type_poly==WJDC){ 
+      pol_number = SegAll_to_Poly[iunk-Phys2Unk_first[WJDC_FIELD]];
+      resid = -Scale_fac_WJDC[pol_number][icomp];
+      resid_ig+=resid;
+      if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag !=CALC_RESID_ONLY)
+            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+   }
+
    return(resid_ig);
 }
 /******************************************************************************************/

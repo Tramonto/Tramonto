@@ -276,7 +276,10 @@ void read_in_a_file(int iguess,char *filename)
 	 if( (fp6=fopen(filename2,"r")) == NULL){
 /*	   printf("Can't open file %s\n", filename2);
 	   exit(1);*/
-           printf("I can't find the file dft_dens.datg... will try simple initial guess for G equations\n");
+           if (Iguess_fields=CALC_ALL_FIELDS || Iguess_fields==CALC_RHOBAR_AND_G) 
+              printf("I can't find the file dft_dens.datg... I will construct an initial guess for G equations\n");
+           else if (Iguess_fields=BULK || Iguess_fields==CALC_RHOBAR_ONLY) 
+              printf("I can't find the file dft_dens.datg... I will construct a simple bulk initial guess for G equations\n");
            Restart_field[G_CHAIN]=FALSE;
 	 }
          else  Restart_field[G_CHAIN]=TRUE;

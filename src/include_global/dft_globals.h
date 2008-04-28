@@ -47,6 +47,7 @@ int Unk2Phys[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equ
 /* Mesh info */
 
 /*************** Global Mesh ********************************/
+int     Print_flag;
 int     Ndim;            /* # of spatial dimensions of the problem      */
 int     Nnodes;          /* # of nodes in the mesh                */
 int     Nunknowns;       /* # of unknowns in the problem          */
@@ -228,6 +229,7 @@ double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
 double  Rho_seg_LBB[NMER_MAX];
 double  Rho_seg_RTF[NMER_MAX];
 double Field_WJDC_b[NMER_MAX];
+double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 double G_WJDC_b[NMER_MAX*NBOND_MAX];
 double *Rhobar3_old;      /* Array[Nodes_box] of old values of rhobar3 */
 double Xi_cav_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
@@ -258,6 +260,7 @@ double  Betamu_chain_RTF[NMER_MAX];
 int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
 int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
 int     Type_pairPot;  /* Interaction potential to use for strict mean field DFT calculations*/
+int     Type_hsdiam;  /* How to calculate hard sphere diameter - use sigma or Barker-Henderson approach */
 int     Type_vext1D;  /* Interaction potential to choose for external field calculations based on 1D potentials*/
 int     Type_vext3D;  /* Interaction potential to choose for external field calculations based on 3D potentials*/
 int     Type_uwwPot;  /* potential to use for computation of wall-wall interactions.  Used in 3D-atomic surface calculations */
@@ -416,6 +419,7 @@ int L_Schur; /* Switch to turn on Schur solvers */
 /* Nonlinear Solver info */
 int NL_Solver;    /* select type of nonliear solver */
 int Max_NL_iter;    /* Maximum # of Newton iterations (10 - 30)          */
+int Physics_scaling; /* do physical scaling of nonlinear problems */
 double NL_abs_tol,NL_rel_tol; /* Convergence tolerances (update_soln)*/
 double NL_update_scalingParam; /* Minimum fraction to update solution to slow down
                            Newton's method */
@@ -470,10 +474,12 @@ int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
 int Nmer_t_total[NBLOCK_MAX];
 int Nseg_tot;
 int Nseg_type[NCOMP_MAX];
+int **Nseg_type_pol;
 int Bupdate_iters,Geqn_start[NCOMP_MAX];
 char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
 double Cr_break[2];
 int  Ncr_files;
+int SegAll_to_Poly[NMER_MAX];
 int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk, **Poly_to_Unk_SegAll;
 int Ngeqn_tot, Nbonds, **Nbond,***Bonds; 
 int *Pol_Sym;

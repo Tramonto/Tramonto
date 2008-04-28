@@ -80,15 +80,18 @@ double load_WJDC_density(int iunk, int loc_inode, int inode_box, double **x,int 
 /****************************************************************************/
 double prefactor_rho_wjdc(int iseg)
 {
-  int pol_number,jseg;
-  double mu,fac;
+  int pol_number,jseg,icomp;
+  double mu,fac,scale_term;
 
-  for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-     for (jseg=0;jseg<Nmer[pol_number];jseg++){
-         if (SegChain2SegAll[pol_number][jseg]==iseg) mu=Betamu_chain[pol_number];
-     }
+  pol_number=SegAll_to_Poly[iseg];
+  scale_term=0.0;
+
+  for (icomp=0;icomp<Ncomp;icomp++){
+     scale_term-=Scale_fac_WJDC[pol_number][icomp]*Nseg_type_pol[pol_number][icomp];
   }
-  fac=exp(mu);
+  mu=Betamu_chain[pol_number];
+
+  fac=exp(mu+scale_term);
 
   return (fac);
 }

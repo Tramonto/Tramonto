@@ -5,11 +5,13 @@ double uLJ12_6_Integral(double r,int i,int j);
 double pairPot_integral_switch(double r,int icomp,int jcomp,int typePairPot);
 double uYUKAWA_ATT_noCS(double r,int i,int j);
 double uCOULOMB_ATT_noCS(double r,int i,int j);
+double uLJ12_6_ATT_SIGTORCUT_noCS(double r,int i,int j);
 double uLJ12_6_ATT_noCS(double r,int i,int j);
 double pairPot_ATT_noCS_switch(double r,int icomp,int jcomp,int typePairPot);
 double uYUKAWA_ATT_CS(double r,int i,int j);
 double uCOULOMB_ATT_CnoS(double r,int i,int j);
 double uCOULOMB_ATT_CS(double r,int i,int j);
+double uLJ12_6_ATT_SIGTORCUT_CS(double r,int i,int j);
 double uLJ12_6_ATT_CS(double r,int i,int j);
 double pairPot_ATT_CS_switch(double r,int icomp,int jcomp,int typePairPot);
 double uYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,double yukawaK);
@@ -44,5 +46,6 @@ double uCOULOMB(double r,double z1,double z2);
 double uCOULOMB_CS(double r,double z1,double z2,double rcut);
 #define PAIR_COULOMB_CS    1
 double uLJ12_6_CS(double r,double sigma,double eps,double rcut);
+#define PAIR_LJ12_6_SIGTORCUT_CS   4 
 #define PAIR_LJ12_6_CS     0
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,int typePairPot);
