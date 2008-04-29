@@ -66,7 +66,15 @@ if (B2G_node[inode_box]==254) printf("Proc=%d sees global node 254 (box coord=%d
 }*/
   /* Set initial guess on owned nodes and reconcile ghost nodes using importr2c */
   xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
-  set_initial_guess(Iguess1, xOwned);
+  if (NL_Solver==PICNEWTON_BUILT_IN || NL_Solver==PICNEWTON_NOX){
+     for (iunk=0;iunk<Nunk_per_node;iunk++){
+        for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++) {
+        inode_box=L2B_node[loc_inode];
+        xOwned[iunk][loc_inode]=x[iunk][inode_box];
+        }
+     }
+  }
+  else{ set_initial_guess(Iguess1, xOwned);}
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
 /*for (inode_box=0;inode_box<Nnodes_box;inode_box++){
@@ -87,7 +95,15 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
     x2Owned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
-    set_initial_guess(BINODAL_FLAG, x2Owned);
+    if (NL_Solver==PICNEWTON_BUILT_IN || NL_Solver==PICNEWTON_NOX){
+       for (iunk=0;iunk<Nunk_per_node;iunk++){
+          for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++) {
+          inode_box=L2B_node[loc_inode];
+          x2Owned[iunk][loc_inode]=x2[iunk][inode_box];
+          }
+       }
+    }
+    else{ set_initial_guess(BINODAL_FLAG, x2Owned);}
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
