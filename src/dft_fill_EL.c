@@ -263,7 +263,7 @@ double fill_bulk_field(int iunk, int icomp, int iseg, int loc_inode, int inode_b
 /******************************************************************************************/
 double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
-   double resid,resid_ig=0.0,mat_val;
+   double resid,resid_ig=0.0,mat_val,scalefac;
    int pol_number,jseg;
 
    if (resid_only_flag != INIT_GUESS_FLAG){
@@ -284,9 +284,13 @@ double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, doub
    }
 
    if (Type_poly==WJDC){ 
+      for (pol_number=0;pol_number<Npol_comp;pol_number++) {
+       if (Nseg_type_pol[pol_number][icomp] !=0) scalefac=Scale_fac_WJDC[pol_number][icomp];
+      }
       pol_number = SegAll_to_Poly[iunk-Phys2Unk_first[WJDC_FIELD]];
-      resid = -Scale_fac_WJDC[pol_number][icomp];
+      resid = -scalefac;
       resid_ig+=resid;
+if (iunk==21 && loc_inode==200) printf("trying to put scale factor into inital guess,pol_number=%d resid_ig=%g\n",pol_number,resid_ig);
       if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag !=CALC_RESID_ONLY)
             dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
    }

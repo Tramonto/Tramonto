@@ -24,6 +24,8 @@ extern int **Nodes_2_boundary_wall;
 #define PI    M_PI
 extern double Temp_elec;
 extern int Ndim;
+extern int Npol_comp;
+extern int **Nseg_type_pol;
 extern int Lpolarize[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
 #define POISSON        1
