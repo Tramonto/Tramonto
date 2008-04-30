@@ -342,7 +342,7 @@ void calc_chempot(char *output_file1)
                                  /* note that this should come last because the segment 
                                     chemical potentials are built using the component chemical potentials
                                     for other physics types */
-
+printf("Proc=%d  calling chempot_WTC Betamu[0]=%g\n",Proc,Betamu[0]);
               if ((Physics_scaling && Type_poly==WJDC) || Type_poly==WTC) chempot_WTC(Rho_seg_b,Betamu);
                if (Type_poly==WTC){
                   for (ipol=0;ipol<Npol_comp;ipol++){

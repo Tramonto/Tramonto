@@ -643,6 +643,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                               for (j=0;j<Nwall_type;j++) Eps_ww[i][j] /= ratio;
                            }
                       }
+                      if (Type_func != NONE) calc_HS_diams();
                       if (Type_poly ==CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
                       recalculate_stencils();
                       scale_vext_temp(ratio);
@@ -669,6 +670,8 @@ void assign_parameter_tramonto(int cont_type, double param)
                       Rho_seg_b[i]=param; 
                   }
              }
+             if (Type_poly == CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
+             recalculate_stencils();
              break; 
                  
       case CONT_LOG_RHO_0: Rho_b[0]        = exp(param);    break;
@@ -958,9 +961,9 @@ double get_init_param_value(int cont_type)
        printf("ERROR: Continuation Library cannot do mesh size changes\n");
        exit(-1); break;
 
-      case CONT_TEMP: return Temp;
+      case CONT_TEMP: return Temp; break;
 
-      case CONT_RHO_0:   return Rho_b[2];
+      case CONT_RHO_0:   return Rho_b[2]; break;
       case CONT_RHO_ALL:   
              if (Type_poly ==NONE){
                 for (i=0;i<Ncomp;i++) if (Rho_b[i] != Rho_b[0]){
@@ -979,21 +982,22 @@ double get_init_param_value(int cont_type)
                 printf("ERROR: continue either with identical initial densities or with a single molecule\n");
                 exit(-1);
              }
-             return param;
+             return param; break;
 
-      case CONT_LOG_RHO_0: return log(Rho_b[0]);
+      case CONT_LOG_RHO_0: return log(Rho_b[0]); break;
 
       case CONT_LOG_RHO_ALL:   
              for (i=0;i<Ncomp;i++) if (Rho_b[i] != Rho_b[0]){
                  printf("ERROR: need all Rho_b to be the same for CONT_LOG_RHO_ALL\n"); 
                  exit(-1);
              }
-             return log(Rho_b[0]);
+             return log(Rho_b[0]); break;
 
-      case CONT_SCALE_RHO: return Scale_fac;
+      case CONT_SCALE_RHO: return Scale_fac; break;
 
       case CONT_EPSW_0:   if (Mix_type==0) return Eps_w[0];
                           else             return Eps_ww[0][0];
+                          break;
 
       case CONT_EPSW_ALL: 
              if (Mix_type ==0 ){
@@ -1011,7 +1015,8 @@ double get_init_param_value(int cont_type)
                 }
                 return Eps_ww[0][0];
              }
-      case CONT_SCALE_EPSW: return Scale_fac;
+             break;
+      case CONT_SCALE_EPSW: return Scale_fac; break;
 
       case CONT_EPSWF00: return Eps_wf[0][0]; /*return Eps_wf[2][0];*/
 
@@ -1020,8 +1025,8 @@ double get_init_param_value(int cont_type)
                  printf("ERROR: all Eps_wf must be equal for CONT_EPSWF_ALL_0\n");
                  exit(-1);
            }
-           return Eps_wf[0][0];
-      case CONT_SCALE_EPSWF: return Scale_fac;
+           return Eps_wf[0][0]; break;
+      case CONT_SCALE_EPSWF: return Scale_fac; break;
 
       case CONT_EPSFF_00:   return Eps_ff[0][0]; /*Eps_ff[0][2];*/  /*Eps_ff[2][2];*/
       case CONT_EPSFF_ALL:
@@ -1029,17 +1034,17 @@ double get_init_param_value(int cont_type)
                  printf("ERROR: need all Eps_ff[i][i] to be equal for  (CONT_EPSFF_ALL)\n");
                  exit(-1);
            }
-           return Eps_ff[0][0];
-      case CONT_SCALE_EPSFF: return Scale_fac;
+           return Eps_ff[0][0]; break;
+      case CONT_SCALE_EPSFF: return Scale_fac; break;
 
-      case CONT_SCALE_CHG:  return Scale_fac;
+      case CONT_SCALE_CHG:  return Scale_fac; break;
 
-      case CONT_SEMIPERM: return Vext_membrane[0][0];
+      case CONT_SEMIPERM: return Vext_membrane[0][0]; break;
 
-      case CONT_WALLPARAM: return WallParam[WallType[1]];
+      case CONT_WALLPARAM: return WallParam[WallType[1]]; break;
 
       case CONT_CRFAC:
-              return Crfac;
+              return Crfac; break;
 
       default:
         printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
