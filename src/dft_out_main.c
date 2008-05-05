@@ -269,6 +269,9 @@ void print_cont_variable(int cont_type,FILE *fp)
            for (i=0; i<nloop; i++) fprintf(fp,"%11.8f   ", Betamu[i]); 
          break;
 
+      case CONT_BETAMU_0:
+         fprintf(fp,"%11.8f   ", Betamu[0]); 
+
       case CONT_SCALE_EPSW:
          fprintf(fp,"%11.8f   ", Scale_fac); 
       case CONT_EPSW_0:
@@ -366,6 +369,9 @@ void print_cont_type(int cont_type,FILE *fp)
          else if (Print_rho_switch == SWITCH_MU)
               for(i=0; i<nloop; i++) fprintf(fp,"CHEM_POT[%d]  ",i);
          break;
+   
+      case CONT_BETAMU_0:
+         fprintf(fp,"Betamu[0]:  "); break;
 
       case CONT_SCALE_EPSW:
          fprintf(fp,"Scale_fac_epsw:  "); break;

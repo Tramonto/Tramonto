@@ -363,6 +363,7 @@
 #define CONT_SEMIPERM   17  /* Vext_membrane */
 #define CONT_WALLPARAM  18  /* Vext_membrane */
 #define CONT_CRFAC  19  /* continuous mixing of two cr files */
+#define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
 
 
 #define PRINT_RHO_0      0

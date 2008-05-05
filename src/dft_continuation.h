@@ -104,6 +104,7 @@ extern double **Vext_membrane;
 #define CONT_EPSWF00     10    /* Wall-Fluid Energy Params */
 #define CONT_SCALE_EPSW  9
 #define CONT_EPSW_ALL    8
+#define CONT_BETAMU_0   20 
 extern int WallType[NWALL_MAX];
 #define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
 #define CONT_SCALE_RHO   6
@@ -120,6 +121,7 @@ extern int Npol_comp;
 #define NONE        -1
 #define CONT_RHO_ALL     3
 #define NCOMP_MAX 5
+extern double  Betamu[NCOMP_MAX];   /* Array[Ncomp] of chemical potentials*/
 extern double Rho_b[NCOMP_MAX];
 #define CONT_RHO_0       2
 void setup_polymer_cr();

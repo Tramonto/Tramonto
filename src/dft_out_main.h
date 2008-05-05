@@ -21,6 +21,7 @@ extern double **Vext_membrane;
 #define NCOMP_MAX 5
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 #define CONT_EPSFF_ALL   14   
+#define CONT_BETAMU_0    20   
 #define CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
 #define CONT_SCALE_EPSFF 15
 #define CONT_EPSWF_ALL_0 11 

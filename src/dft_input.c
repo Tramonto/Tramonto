@@ -1951,6 +1951,9 @@ void read_input_file(char *input_file, char *output_file1)
         printf("ERROR: Can't do continuation in Eps_wf when the Mix_type is 0\n");
         exit(-1);
     } 
+    if (Loca.cont_type1 == CONT_BETAMU_0 && Iliq_vap<10){
+       printf("error: for continuation type=%d Iliq_vap must be %d\n",Loca.cont_type1,10);
+    }
   }
 
     

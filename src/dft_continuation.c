@@ -646,18 +646,27 @@ void assign_parameter_tramonto(int cont_type, double param)
                       if (Type_func != NONE) calc_HS_diams();
                       if (Type_poly ==CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
                       recalculate_stencils();
-                      scale_vext_temp(ratio);
+                      if (Nwall>0) scale_vext_temp(ratio);
                       break;
 
-      case CONT_RHO_0:   Rho_b[2]= param;    
-                         /*Rho_b[0] = (16./18.)*(Rho_b[2]);
-                         Rho_b[1] = (2./18.)*(Rho_b[2]);*/
+      case CONT_RHO_0:   
+/*                      ratio=1./Rho_b[2];  vary rho tot at const x_s*/
+                      Rho_b[2]= param;    
+/*                      ratio*=Rho_b[2];
+                      Rho_b[0]*=ratio;
+                      Rho_b[1]*=ratio;  vary rho tot at const x_s*/
 
-                         Rho_b[0] = (16./18.)*(0.68-Rho_b[2]);
-                         Rho_b[1] = (2./18.)*(0.68-Rho_b[2]);
+                         Rho_b[0] = (16./18.)*(0.4775-Rho_b[2]);
+                         Rho_b[1] = (2./18.)*(0.4775-Rho_b[2]);
 
+                          /*continuation at constant rho_tot=0.68 */
+                         /*Rho_b[0] = (16./18.)*(0.68-Rho_b[2]);
+                         Rho_b[1] = (2./18.)*(0.68-Rho_b[2]);*/
+
+                          /*continuation at constant rho_tot=0.825 */
                          /*Rho_b[0] = (16./18.)*(0.825-Rho_b[2]);
                          Rho_b[1] = (2./18.)*(0.825-Rho_b[2]);*/
+
                          if (Type_poly == CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
                          recalculate_stencils();
                          break;
@@ -684,7 +693,9 @@ void assign_parameter_tramonto(int cont_type, double param)
                            for (i=0; i<Ncomp-1; i++) Rho_b[Ncomp-1] -= Rho_b[i];
                            recalculate_stencils();
                            break;
-                           
+
+      case CONT_BETAMU_0: Betamu[0]=param;
+                          break;
 
       case CONT_EPSW_0:  
                       if (Mix_type ==0) {
@@ -910,8 +921,9 @@ void assign_parameter_tramonto(int cont_type, double param)
         exit(-1); break;
   }
 
-  /* recalculate thermo based on new parameter */
-  thermodynamics(output_file1);
+  /* for most cases...recalculate thermo based on new parameter */
+printf("Loca.cont_type1=%d  Loca.cont_type2=%d\n",Loca.cont_type1,Loca.cont_type2);
+  if (Loca.cont_type1 != CONT_BETAMU_0 && Loca.cont_type2 != CONT_BETAMU_0) thermodynamics(output_file1);
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -994,6 +1006,8 @@ double get_init_param_value(int cont_type)
              return log(Rho_b[0]); break;
 
       case CONT_SCALE_RHO: return Scale_fac; break;
+
+      case CONT_BETAMU_0: return Betamu[0];break;
 
       case CONT_EPSW_0:   if (Mix_type==0) return Eps_w[0];
                           else             return Eps_ww[0][0];

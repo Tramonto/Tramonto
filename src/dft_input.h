@@ -38,6 +38,7 @@ extern int Nnodes_per_el_V;
 #define CONT_RHO_ALL     3
 #define CONT_RHO_0       2
 #define CONT_TEMP        1   /* State Parameters */
+#define CONT_BETAMU_0    20   /* chemical potential continaution for LV equilibria */
 extern double Scale_fac;
 #define CONT_SCALE_CHG   16  /* Charged surface params */
 #define CONT_SCALE_EPSFF 15
