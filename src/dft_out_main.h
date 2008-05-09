@@ -21,7 +21,6 @@ extern double **Vext_membrane;
 #define NCOMP_MAX 5
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 #define CONT_EPSFF_ALL   14   
-#define CONT_BETAMU_0    20   
 #define CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
 #define CONT_SCALE_EPSFF 15
 #define CONT_EPSWF_ALL_0 11 
@@ -35,6 +34,7 @@ extern int Mix_type;
 #define CONT_EPSW_ALL    8
 #define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
 #define CONT_SCALE_EPSW  9
+#define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
 extern double Betamu[NCOMP_MAX];
 #define SWITCH_MU    3
 extern double Charge_f[NCOMP_MAX];

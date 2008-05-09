@@ -290,7 +290,6 @@ double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, doub
       pol_number = SegAll_to_Poly[iunk-Phys2Unk_first[WJDC_FIELD]];
       resid = -scalefac;
       resid_ig+=resid;
-if (iunk==21 && loc_inode==200) printf("trying to put scale factor into inital guess,pol_number=%d resid_ig=%g\n",pol_number,resid_ig);
       if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag !=CALC_RESID_ONLY)
             dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
    }
@@ -319,7 +318,8 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
       }
       else{
           if (Lseg_densities) resid_mu = -Betamu_seg[iseg];
-          else                resid_mu = -Betamu[icomp];
+          else {               resid_mu = -Betamu[icomp];
+          }
       }
    }
    else{                             /* Lsteady_state == TRUE */

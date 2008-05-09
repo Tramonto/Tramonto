@@ -2,7 +2,6 @@
 double dmu_drho_hs_PY(double *rho);
 double dp_drho_hs_PY(double *rho);
 void FMT1stDerivBulk_switch(double *n,double *inv_n3,double *dphi_drb);
-void dphi_drb_bulk(double *rhobar,double *dphi_drb);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -18,6 +17,9 @@ void dphi_drb_bulk(double *rhobar,double *dphi_drb);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define VERBOSE      3 
+extern int Iwrite;
+void dphi_drb_bulk(double *rhobar,double *dphi_drb);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_coex[2];
@@ -73,8 +75,6 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-#define VERBOSE      3 
-extern int Iwrite;
 double integrand_BH(double r,int icomp);
 #define BH_DIAM             1
 extern int Type_hsdiam;

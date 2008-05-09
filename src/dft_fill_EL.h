@@ -24,8 +24,6 @@ extern int **Nodes_2_boundary_wall;
 #define PI    M_PI
 extern double Temp_elec;
 extern int Ndim;
-extern int Npol_comp;
-extern int **Nseg_type_pol;
 extern int Lpolarize[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
 #define POISSON        1
@@ -43,8 +41,10 @@ extern double Betamu_hs_ex[NCOMP_MAX];
 extern int Ipot_ff_n;
 extern int Iliq_vap;
 extern int Lsteady_state;
-extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int SegAll_to_Poly[NMER_MAX];
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
+extern int **Nseg_type_pol;
+extern int Npol_comp;
 extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_b[NMER_MAX];

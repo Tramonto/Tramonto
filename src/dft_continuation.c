@@ -643,7 +643,8 @@ void assign_parameter_tramonto(int cont_type, double param)
                               for (j=0;j<Nwall_type;j++) Eps_ww[i][j] /= ratio;
                            }
                       }
-                      if (Type_func != NONE) calc_HS_diams();
+                      if (Type_func != NONE){ calc_HS_diams(); 
+                                              calc_InvR_params();}
                       if (Type_poly ==CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
                       recalculate_stencils();
                       if (Nwall>0) scale_vext_temp(ratio);
@@ -656,8 +657,8 @@ void assign_parameter_tramonto(int cont_type, double param)
                       Rho_b[0]*=ratio;
                       Rho_b[1]*=ratio;  vary rho tot at const x_s*/
 
-                         Rho_b[0] = (16./18.)*(0.4775-Rho_b[2]);
-                         Rho_b[1] = (2./18.)*(0.4775-Rho_b[2]);
+                         /*Rho_b[0] = (16./18.)*(0.58-Rho_b[2]);
+                         Rho_b[1] = (2./18.)*(0.58-Rho_b[2]);*/
 
                           /*continuation at constant rho_tot=0.68 */
                          /*Rho_b[0] = (16./18.)*(0.68-Rho_b[2]);
@@ -671,14 +672,20 @@ void assign_parameter_tramonto(int cont_type, double param)
                          recalculate_stencils();
                          break;
       case CONT_RHO_ALL: 
-             if (Type_poly==NONE)    for (i=0; i<Ncomp;i++)  Rho_b[i]= param;   
+                      ratio=1./Rho_b[2];  /*vary rho tot at const x_s*/
+                      Rho_b[2]= param;    
+                      ratio*=Rho_b[2];
+                      Rho_b[0]*=ratio;
+                      Rho_b[1]*=ratio;  /*vary rho tot at const x_s*/
+
+/*             if (Type_poly==NONE)    for (i=0; i<Ncomp;i++)  Rho_b[i]= param;   
              else if (Npol_comp ==1){
                   for (i=0; i<Ncomp;i++)  Rho_b[i]= 0.;   
                   for (i=0; i<Nseg_tot;i++){
                       Rho_b[Unk2Comp[i]] += param;    
                       Rho_seg_b[i]=param; 
                   }
-             }
+             }*/
              if (Type_poly == CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
              recalculate_stencils();
              break; 
@@ -921,9 +928,9 @@ void assign_parameter_tramonto(int cont_type, double param)
         exit(-1); break;
   }
 
-  /* for most cases...recalculate thermo based on new parameter */
-printf("Loca.cont_type1=%d  Loca.cont_type2=%d\n",Loca.cont_type1,Loca.cont_type2);
-  if (Loca.cont_type1 != CONT_BETAMU_0 && Loca.cont_type2 != CONT_BETAMU_0) thermodynamics(output_file1);
+  /* for most cases...recalculate thermo based on new parameter.  However if
+     calculating bulk_coexistence or varying Betamu do not call thermo */
+  if (Iliq_vap<10 || cont_type != CONT_BETAMU_0) thermodynamics(output_file1); 
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -976,7 +983,7 @@ double get_init_param_value(int cont_type)
       case CONT_TEMP: return Temp; break;
 
       case CONT_RHO_0:   return Rho_b[2]; break;
-      case CONT_RHO_ALL:   
+      case CONT_RHO_ALL:  return Rho_b[2]; break; 
              if (Type_poly ==NONE){
                 for (i=0;i<Ncomp;i++) if (Rho_b[i] != Rho_b[0]){
                    printf("ERROR: need all Rho_b to be the same for CONT_RHO_ALL\n"); 

@@ -72,6 +72,7 @@ void thermodynamics(char *output_file1);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int Iliq_vap;
 extern double Crfac;
 #define CONT_CRFAC  19  /* continuous mixing of two cr files */
 extern int **Zero_density_TF;
@@ -104,9 +105,11 @@ extern double **Vext_membrane;
 #define CONT_EPSWF00     10    /* Wall-Fluid Energy Params */
 #define CONT_SCALE_EPSW  9
 #define CONT_EPSW_ALL    8
-#define CONT_BETAMU_0   20 
 extern int WallType[NWALL_MAX];
 #define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
+#define NCOMP_MAX 5
+extern double Betamu[NCOMP_MAX];
+#define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
 #define CONT_SCALE_RHO   6
 #define CONT_LOG_RHO_ALL 5 
 #define CONT_LOG_RHO_0   4 
@@ -115,19 +118,19 @@ extern double Rho_seg_b[NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int Nseg_tot;
 extern int Npol_comp;
-#define NONE       -1
-#define NONE      -1
-#define NONE        -1
-#define NONE        -1
 #define CONT_RHO_ALL     3
-#define NCOMP_MAX 5
-extern double  Betamu[NCOMP_MAX];   /* Array[Ncomp] of chemical potentials*/
 extern double Rho_b[NCOMP_MAX];
 #define CONT_RHO_0       2
 void setup_polymer_cr();
 #define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
+void calc_InvR_params();
+void calc_HS_diams();
+#define NONE       -1
+#define NONE      -1
+#define NONE        -1
+#define NONE        -1
 extern int Type_func;
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
