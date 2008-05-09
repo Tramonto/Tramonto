@@ -15,6 +15,10 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define CONT_WALLPARAM  18  /* Vext_membrane */
+#define NMER_MAX     100
+extern int Type_poly;
+extern double  Betamu_chain[NMER_MAX];
+#define WJDC         3
 extern double **Vext_membrane;
 #define CONT_SEMIPERM   17  /* Vext_membrane */
 #define CONT_SCALE_CHG   16  /* Charged surface params */
@@ -35,6 +39,7 @@ extern int Mix_type;
 #define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
 #define CONT_SCALE_EPSW  9
 #define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
+#define CONT_BETAMU_1 21  /* continuous mixing of two cr files */
 extern double Betamu[NCOMP_MAX];
 #define SWITCH_MU    3
 extern double Charge_f[NCOMP_MAX];

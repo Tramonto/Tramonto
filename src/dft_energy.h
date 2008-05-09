@@ -32,6 +32,7 @@ double integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iun
 double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
 double integrand_adsorption(int iunk,int inode_box,double **x);
 double integrand_maxwell_stress_freen(int iunk,int inode_box,double **x);
+extern int Iliq_vap;
 #define PI    M_PI
 extern double Temp_elec;
 #define NCOMP_MAX 5

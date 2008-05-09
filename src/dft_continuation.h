@@ -110,10 +110,12 @@ extern int WallType[NWALL_MAX];
 #define NCOMP_MAX 5
 extern double Betamu[NCOMP_MAX];
 #define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
+#define CONT_BETAMU_1 21  /* continuous mixing of two cr files */
 #define CONT_SCALE_RHO   6
 #define CONT_LOG_RHO_ALL 5 
 #define CONT_LOG_RHO_0   4 
 #define NMER_MAX     100
+extern double  Betamu_chain[NMER_MAX];
 extern double Rho_seg_b[NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int Nseg_tot;
@@ -124,6 +126,7 @@ extern double Rho_b[NCOMP_MAX];
 void setup_polymer_cr();
 #define CMS_SCFT     1
 #define CMS          0
+#define WJDC         3
 extern int Type_poly;
 void calc_InvR_params();
 void calc_HS_diams();

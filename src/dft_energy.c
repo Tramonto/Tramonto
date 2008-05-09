@@ -299,7 +299,7 @@ int lfirst;
 
 	if (Proc==0 && Iwrite != NO_SCREEN){
 	        if (fp !=NULL) print_to_file(fp,omega_sum,"omega",first);
-		if (fp !=NULL) print_to_file(fp,omega_s_sum,"omega_s",first);
+		if (fp !=NULL && Iliq_vap<10) print_to_file(fp,omega_s_sum,"omega_s",first);
 	}
     }
 

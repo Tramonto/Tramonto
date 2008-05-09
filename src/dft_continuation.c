@@ -701,7 +701,12 @@ void assign_parameter_tramonto(int cont_type, double param)
                            recalculate_stencils();
                            break;
 
-      case CONT_BETAMU_0: Betamu[0]=param;
+      case CONT_BETAMU_0: if (Type_poly==WJDC)  Betamu_chain[0]=param;
+                          else                 Betamu[0]=param;
+                          break;
+
+      case CONT_BETAMU_1: if (Type_poly==WJDC)  Betamu_chain[1]=param;
+                          else                 Betamu[1]=param;
                           break;
 
       case CONT_EPSW_0:  
@@ -930,7 +935,7 @@ void assign_parameter_tramonto(int cont_type, double param)
 
   /* for most cases...recalculate thermo based on new parameter.  However if
      calculating bulk_coexistence or varying Betamu do not call thermo */
-  if (Iliq_vap<10 || cont_type != CONT_BETAMU_0) thermodynamics(output_file1); 
+  if (Iliq_vap<10 || (cont_type != CONT_BETAMU_0 && cont_type != CONT_BETAMU_1)) thermodynamics(output_file1); 
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -1014,7 +1019,15 @@ double get_init_param_value(int cont_type)
 
       case CONT_SCALE_RHO: return Scale_fac; break;
 
-      case CONT_BETAMU_0: return Betamu[0];break;
+      case CONT_BETAMU_0: 
+           if (Type_poly==WJDC) return Betamu_chain[0];
+           else                 return Betamu[0];
+           break;
+
+      case CONT_BETAMU_1: 
+           if (Type_poly==WJDC) return Betamu_chain[1];
+           else                 return Betamu[1];
+           break;
 
       case CONT_EPSW_0:   if (Mix_type==0) return Eps_w[0];
                           else             return Eps_ww[0][0];

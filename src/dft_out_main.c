@@ -270,7 +270,14 @@ void print_cont_variable(int cont_type,FILE *fp)
          break;
 
       case CONT_BETAMU_0:
-         fprintf(fp,"%11.8f   ", Betamu[0]); 
+         if (Type_poly==WJDC) fprintf(fp,"%11.8f   ", Betamu_chain[0]); 
+         else                 fprintf(fp,"%11.8f   ", Betamu[0]); 
+         break;
+
+      case CONT_BETAMU_1:
+         if (Type_poly==WJDC) fprintf(fp,"%11.8f   ", Betamu_chain[1]); 
+         else                 fprintf(fp,"%11.8f   ", Betamu[1]); 
+         break;
 
       case CONT_SCALE_EPSW:
          fprintf(fp,"%11.8f   ", Scale_fac); 
@@ -372,6 +379,9 @@ void print_cont_type(int cont_type,FILE *fp)
    
       case CONT_BETAMU_0:
          fprintf(fp,"Betamu[0]:  "); break;
+
+      case CONT_BETAMU_1:
+         fprintf(fp,"Betamu[1]:  "); break;
 
       case CONT_SCALE_EPSW:
          fprintf(fp,"Scale_fac_epsw:  "); break;
