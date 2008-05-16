@@ -36,27 +36,6 @@
 #include "Teuchos_TestForException.hpp"
 
 //=============================================================================
-/*dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, int * options, double * params ) 
-  : cmsMap_(cmsMap),
-    densityMap_(densityMap),
-    block2Map_(block2Map),
-    options_(options),
-    params_(params),
-    Label_(0),
-    isGraphStructureSet_(false),
-    isLinearProblemSet_(false),
-    isFLinear_(false),
-    firstTime_(true),
-    curRow_(-1) {
-
-  cmsOnDensityMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, densityMap, 0));
-  cmsOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
-  densityOnDensityMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
-  densityOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
-  Label_ = "dft_PolyA22_Epetra_Operator";
-  cmsOnDensityMatrix_->SetLabel("PolyA22::cmsOnDensityMatrix");
-  }*/
-//=============================================================================
 dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList) 
   : cmsMap_(cmsMap),
     densityMap_(densityMap),
@@ -69,13 +48,13 @@ dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsM
     firstTime_(true),
     curRow_(-1) {
 
-  cmsOnDensityMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, densityMap, 0));
-  cmsOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
+  cmsOnDensityMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, cmsMap, 0));
+  cmsOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(cmsMap));
   densityOnDensityMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
   densityOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
   Label_ = "dft_PolyA22_Epetra_Operator";
   cmsOnDensityMatrix_->SetLabel("PolyA22::cmsOnDensityMatrix");
-  F_location_ = Teuchos::getParameter<int>(*parameterList_, "F_location");
+  F_location_ = Teuchos::getParameter<int>(*parameterList_, "F_location"); //F in NE if F_location = 1, F in SW otherwise
   }
 //==============================================================================
 dft_PolyA22_Epetra_Operator::~dft_PolyA22_Epetra_Operator() {
@@ -111,16 +90,17 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
 	curRowValues_[colGID] += value;
       }
       else if (!isFLinear_) { 
-	int newRowGID = densityMap_.GID(cmsMap_.LID(rowGID));
-	cmsOnDensityMatrix_->SumIntoGlobalValues(newRowGID, 1, &value, &colGID);
+	cmsOnDensityMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
       }
     }
   }
   else {
     if (rowGID==colGID)
       (*densityOnDensityMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
-    else
+    else {
+      TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // Confirm that this is a diagonal value
       (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
+    }
   }
 
   return(0);
@@ -139,8 +119,8 @@ int dft_PolyA22_Epetra_Operator::insertRow() {
     indices_[i] = pos->first;
     values_[i++] = pos->second;
   }
-  int newRowGID = densityMap_.GID(cmsMap_.LID(curRow_));
-  cmsOnDensityMatrix_->InsertGlobalValues(newRowGID, numEntries, values_.Values(), indices_.Values());
+  
+  cmsOnDensityMatrix_->InsertGlobalValues(curRow_, numEntries, values_.Values(), indices_.Values());
 
   curRowValues_.clear();
   return(0);
@@ -148,17 +128,23 @@ int dft_PolyA22_Epetra_Operator::insertRow() {
 //=============================================================================
 int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
   if (isLinearProblemSet_) return(0); // nothing to do
+  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
+  bool hasDensityOnCms = cmsMap_.NumGlobalElements()==densityMap_.NumGlobalElements(); 
 
   if (!isFLinear_) {
     insertRow(); // Dump any remaining entries
-    cmsOnDensityMatrix_->FillComplete();
+    cmsOnDensityMatrix_->FillComplete(densityMap_, cmsMap_);
     cmsOnDensityMatrix_->OptimizeStorage();
   }
-  //double normvalue;
+
+  if (!hasDensityOnCms) { // Confirm that densityOnCmsMatrix is zero
+    double normvalue;
+    densityOnCmsMatrix_->NormInf(&normvalue);
+    TEST_FOR_EXCEPT(normvalue!=0.0);
+  }
   //cout << "CmsOnDensityMatrix Inf Norm = " << cmsOnDensityMatrix_->NormInf() << endl;
   //densityOnDensityMatrix_->NormInf(&normvalue);
   //cout << "DensityOnDensityMatrix Inf Norm = " << normvalue << endl;
-  //densityOnCmsMatrix_->NormInf(&normvalue);
   //cout << "DensityOnCmsMatrix Inf Norm = " << normvalue << endl;
 
   isLinearProblemSet_ = true;
@@ -231,37 +217,37 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
 
   Y.ExtractView(&Y1ptr); // Get array of pointers to columns of Y
   X.ExtractView(&X1ptr); // Get array of pointers to columns of X
-  if (F_location_ == 1) {
+  if (F_location_ == 1) { //F in NE
     for (int i=0; i<NumVectors; i++) {
       Y2ptr[i] = Y1ptr[i]+numCmsElements;
       X2ptr[i] = X1ptr[i]+numCmsElements;
     }
+    Epetra_MultiVector Y1(View, cmsMap_, Y1ptr, NumVectors); // Y1 is a view of the first numCms elements of Y
+    Epetra_MultiVector Y2(View, densityMap_, Y2ptr, NumVectors); // Start Y2 to view last numDensity elements of Y
+    Epetra_MultiVector X1(View, cmsMap_, X1ptr, NumVectors); // Start X1 to view first numCms elements of X
+    Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
+    
+    Epetra_MultiVector Y1tmp(Y1);
+    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X2, 0.0)!=0);
+    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y2, Y1tmp)!=0);
+    TEST_FOR_EXCEPT(Y1.Update(1.0, X1, -1.0, Y1tmp, 0.0)!=0);
+    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y1, 0.0)!=0);
   }
   else {
     for (int i = 0;i<NumVectors; i++) {
       Y2ptr[i] = Y1ptr[i]+numDensityElements;
       X2ptr[i] = X1ptr[i]+numDensityElements;
     }
-  }
-  
-  Epetra_MultiVector Y1(View, densityMap_, Y1ptr, NumVectors); // Y1 is a view of the first numDensity/numCms elements of Y
-  Epetra_MultiVector Y2(View, densityMap_, Y2ptr, NumVectors); // Start Y2 to view last numDensity/numCms elements of Y
-  Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view first numCmsElements elements of X
-  Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
-
-  if (F_location_ == 1) {
-    Epetra_MultiVector Y1tmp(Y1);
-    Y2.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X2, 0.0);
-    cmsOnDensityMatrix_->Apply(Y2, Y1tmp);
-    Y1.Update(1.0, X1, -1.0, Y1tmp, 0.0);
-    Y1.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y1, 0.0);
-  }
-  else {
+    
+    Epetra_MultiVector Y1(View, densityMap_, Y1ptr, NumVectors); // Y1 is a view of the first numDensity elements of Y
+    Epetra_MultiVector Y2(View, cmsMap_, Y2ptr, NumVectors); // Start Y2 to view last numCms elements of Y
+    Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view first numDensity elements of X
+    Epetra_MultiVector X2(View, cmsMap_, X2ptr, NumVectors); // Start X2 to view last numCms elements of X
     Epetra_MultiVector Y2tmp(Y2);
-    Y1.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X1, 0.0);
-    cmsOnDensityMatrix_->Apply(Y1, Y2tmp);
-    Y2.Update(1.0, X2, -1.0, Y2tmp, 0.0);
-    Y2.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y2, 0.0);
+    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X1, 0.0)!=0);
+    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y1, Y2tmp)!=0);
+    TEST_FOR_EXCEPT(Y2.Update(1.0, X2, -1.0, Y2tmp, 0.0)!=0);
+    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y2, 0.0)!=0);
   }
   
   delete [] Y2ptr;
@@ -283,7 +269,10 @@ int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
   TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numCmsElements = cmsMap_.NumMyElements();
-  int numDensityElements = densityMap_.NumMyElements();  
+  int numDensityElements = densityMap_.NumMyElements(); 
+
+  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
+  bool hasDensityOnCms = cmsMap_.NumGlobalElements()==densityMap_.NumGlobalElements(); 
 
   double ** X1ptr;
   double ** Y1ptr;
@@ -292,35 +281,40 @@ int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
 
   X.ExtractView(&X1ptr); // Get array of pointers to columns of X
   Y.ExtractView(&Y1ptr); // Get array of pointers to columns of Y
-  if (F_location_ == 1) {
+  if (F_location_ == 1) {//F in NE
     for (int i=0; i<NumVectors; i++) {
       X2ptr[i] = X1ptr[i]+numCmsElements;
       Y2ptr[i] = Y1ptr[i]+numCmsElements;
     }
+  
+    Epetra_MultiVector Y1(View, cmsMap_, Y1ptr, NumVectors); // Y1 is a view of the first numCms elements of Y
+    Epetra_MultiVector Y2(View, densityMap_, Y2ptr, NumVectors); // Start Y2 to view last numDensity elements of Y
+    Epetra_MultiVector X1(View, cmsMap_, X1ptr, NumVectors); // Start X1 to view first numCms elements of X
+    Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
+
+    cmsOnDensityMatrix_->Apply(X2, Y1);
+    TEST_FOR_EXCEPT(Y1.Multiply(1.0, *cmsOnCmsMatrix_, X1, 1.0)!=0);
+    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0)!=0);
+    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0)!=0);
   }
   else {
     for (int i=0; i<NumVectors; i++) {
       X2ptr[i] = X1ptr[i]+numDensityElements;
       Y2ptr[i] = Y1ptr[i]+numDensityElements;
     }
-  }
   
-  Epetra_MultiVector Y1(View, densityMap_, Y1ptr, NumVectors); // Y1 is a view of the first numDensity/numCms elements of Y
-  Epetra_MultiVector Y2(View, densityMap_, Y2ptr, NumVectors); // Start Y2 to view last numDensity/numCms elements of Y
-  Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view first numCmsElements elements of X
-  Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
-  
-  if (F_location_ == 1) {
-    cmsOnDensityMatrix_->Apply(X2, Y1);
-    Y1.Multiply(1.0, *cmsOnCmsMatrix_, X1, 1.0);
-    Y2.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0);
-    Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0);
-  }
-  else {
-    Y1.Multiply(1.0, *densityOnCmsMatrix_, X2, 0.0);
-    Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 1.0);
-    cmsOnDensityMatrix_->Apply(X1, Y2);
-    Y2.Multiply(1.0, *cmsOnCmsMatrix_, X2, 1.0);
+    Epetra_MultiVector Y1(View, densityMap_, Y1ptr, NumVectors); // Y1 is a view of the first numDensity elements of Y
+    Epetra_MultiVector Y2(View, cmsMap_, Y2ptr, NumVectors); // Start Y2 to view last numCms elements of Y
+    Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view first numDensity elements of X
+    Epetra_MultiVector X2(View, cmsMap_, X2ptr, NumVectors); // Start X2 to view last numCms elements of X
+    if (hasDensityOnCms) {
+      // convert X2 map
+      Epetra_MultiVector X2tmp(View, densityMap_, X2ptr, NumVectors);
+      TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnCmsMatrix_, X2tmp, 0.0)!=0); // Momentarily make X2 compatible with densityMap_
+    }
+    TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 1.0)!=0);
+    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X1, Y2)!=0);
+    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *cmsOnCmsMatrix_, X2, 1.0)!=0);
   }
   
   delete [] X2ptr;
@@ -337,21 +331,25 @@ int dft_PolyA22_Epetra_Operator::Check(bool verbose) const {
   Epetra_Vector b(OperatorRangeMap());
   x.Random(); // Fill x with random numbers
 
-  Epetra_Vector x1(View, densityMap_, x.Values()); // Start x1 to view first numCmsElements elements of x
-  Epetra_Vector b2(View, densityMap_, b.Values()+cmsMap_.NumMyElements()); // Start b2 to view last numDensity elements of b
+  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
+  bool hasDensityOnCms = cmsMap_.NumGlobalElements()==densityMap_.NumGlobalElements(); 
 
-  Epetra_Vector x2(View, densityMap_, x.Values()+densityMap_.NumMyElements()); //Start x2 to view last numCms elements of x
-  Epetra_Vector b1(View, densityMap_, b.Values()); // Start b1 to view first numDensity elements of b
-  
   Apply(x, b); // Forward operation
 
-  if (F_location_ == 1) {
-    // Inverse is not exact, so we must modify b2 first:
-    b2.Multiply(-1.0, *densityOnCmsMatrix_, x1, 1.0);
-  }
-  else {
-    // Inverse is not exact, so we must modify b1 first:
-    b1.Multiply(-1.0, *densityOnCmsMatrix_, x2, 1.0);
+  if (hasDensityOnCms) {
+      
+    if (F_location_ == 1) {//F in NE
+      // Inverse is not exact, so we must modify b2 first:
+      Epetra_Vector x1(View, densityMap_, x.Values()); // Start x1 to view first numCmsElements elements of x
+      Epetra_Vector b2(View, densityMap_, b.Values()+cmsMap_.NumMyElements()); // Start b2 to view last numDensity elements of b
+      b2.Multiply(-1.0, *densityOnCmsMatrix_, x1, 1.0);
+    }
+    else {
+      // Inverse is not exact, so we must modify b1 first:
+      Epetra_Vector x2(View, densityMap_, x.Values()+densityMap_.NumMyElements()); //Start x2 to view last numCms elements of x
+      Epetra_Vector b1(View, densityMap_, b.Values()); // Start b1 to view first numDensity elements of b
+      b1.Multiply(-1.0, *densityOnCmsMatrix_, x2, 1.0);
+    }
   }
 
   ApplyInverse(b, b); // Reverse operation

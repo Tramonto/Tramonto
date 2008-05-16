@@ -86,6 +86,19 @@ int dft_PolyA11_Epetra_Operator::insertMatrixValue(int ownedPhysicsID, int owned
     (*invDiagonal_)[locDiag] += value;
     return(0);
   }
+  else if (block1Map_.LID(colGID)> block1Map_.LID(rowGID)) {
+    cout << "Encountered an illegal non-zero entry in dft_PolyA11_Epetra_Operator::insertMatrixValue." << endl
+	 << "The A11 block cannot have nonzero terms in the upper diagonal." << endl
+	 << "Input parameters:" << endl
+	 << "  ownedPhysicsID = " << ownedPhysicsID << endl
+	 << "  ownedNode      = " << ownedNode << endl
+	 << "  rowGID         = " << rowGID << endl
+	 << "  colGID         = " << colGID << endl
+	 << "  block1Map_.LID(rowGID)         = " << block1Map_.LID(rowGID) << endl
+	 << "  block1Map_.LID(colGID)         = " << block1Map_.LID(colGID) << endl
+	 << "  value          = " << value << endl;
+    return(-1);
+  }
 
   if (firstTime_) {
     if (rowGID!=curRow_) { 

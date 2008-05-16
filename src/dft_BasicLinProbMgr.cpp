@@ -405,7 +405,8 @@ int dft_BasicLinProbMgr::solve() {
     directSolver_->NumericFactorization();
     directSolver_->Solve();
   } else {
-    //writeMatrix("2D.mm", "Small Polymer Matrix", "Global Matrix from Small Polymer Problem");
+    //writeMatrix("POLY1_WJDC.mm", "Small Polymer Matrix with WJDC", "Global Matrix from Small Polymer Problem with WJDC");
+    //writePermutation("POLY1_WJDC_Perm.mm");
     //abort();
 
     //   const int * options = solver_->GetAllAztecOptions();
