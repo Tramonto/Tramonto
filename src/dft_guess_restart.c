@@ -146,6 +146,9 @@ void read_in_a_file(int iguess,char *filename)
   char unk_char[20];
   FILE *fp5=NULL,*fp6=NULL;
 
+  convert_to_seg_densities=FALSE; 
+  convert_to_comp_densities=FALSE; 
+
 
                     /* open the dft_dens.dat file */
    if( (fp5=fopen(filename,"r")) == NULL){
@@ -315,6 +318,7 @@ void read_in_a_file(int iguess,char *filename)
     node_start=inode*Nunk_per_node;
 
                                    /* loop over unknows assume the order of input is correct */
+printf("unk_in_file=%d\n",unk_in_file);
 
     for (iunk_file=0;iunk_file<unk_in_file;iunk_file++) {
           eq_type = unk_to_eq_in_file[iunk_file];
