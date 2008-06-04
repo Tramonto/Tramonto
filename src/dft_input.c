@@ -1637,7 +1637,7 @@ void read_input_file(char *input_file, char *output_file1)
   if (Proc==0) {
     read_junk(fp,fp2);
     fscanf(fp,"%d %d",&Iguess1,&Iguess_fields);
-    fprintf(fp2,"%d   ",Iguess1,Iguess_fields);
+    fprintf(fp2,"%d  %d ",Iguess1,Iguess_fields);
   }
   MPI_Bcast(&Iguess1,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Iguess_fields,1,MPI_INT,0,MPI_COMM_WORLD);
@@ -2038,7 +2038,7 @@ void read_input_file(char *input_file, char *output_file1)
      calculations */
     
      if (Ipot_ff_n <= HARD_SPHERE) Temp = 1.0;
-     else Temp = 1.0/Eps_ff[0][0];
+     else{ /*Temp = 1.0/Eps_ff[0][0];*/ Temp=1.0/Eps_ff[2][2];}
 
   return;
 }

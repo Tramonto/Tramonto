@@ -80,7 +80,7 @@ extern double Rho_seg_RTF[NMER_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
 extern double Rho_seg_LBB[NMER_MAX];
 extern int Lsteady_state;
-#define NBLOCK_MAX   5
+#define NBLOCK_MAX   20 
 extern int Nmer_t_total[NBLOCK_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern double Rho_b[NCOMP_MAX];

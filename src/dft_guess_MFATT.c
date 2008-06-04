@@ -70,7 +70,7 @@ void calc_init_mf_attract(double **xInBox)
      inode_box=L2B_node[loc_inode];
      for (icomp = 0; icomp < Ncomp; icomp++){
        iunk = Phys2Unk_first[MF_EQ] + icomp;
-       xInBox[iunk][inode_box]=int_stencil(xInBox,inode_box,Phys2Unk_first[DENSITY]+icomp,THETA_PAIRPOT_RCUT);
+       xInBox[iunk][inode_box]=int_stencil(xInBox,inode_box,Phys2Unk_first[MF_EQ]+icomp,THETA_PAIRPOT_RCUT);
      }
   }
   return;

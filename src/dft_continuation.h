@@ -2,6 +2,8 @@
 #include <stdio.h>
 int continuation_hook(double *x,double *delta_x,void *con_void,double reltol,double abstol);
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
+int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
+int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 void box2owned(double **xBox,double **xOwned);
 void setup_integrals();
 #if !defined(_CON_CONST_H_)
@@ -14,7 +16,11 @@ double free_energy_diff_conwrap(double *x,double *x2);
 #if !defined(_CON_CONST_H_)
 double free_energy_diff_conwrap(double *x,double *x2);
 #endif
+double free_energy_diff_conwrap(double *x,double *x2);
+double free_energy_diff_conwrap(double *x,double *x2);
 double calc_free_energy(FILE *fp,double **x);
+double calc_free_energy_conwrap(double **xB);
+double calc_free_energy_conwrap(double **xB);
 double calc_free_energy_conwrap(double **xB);
 void post_process(double **x,char *output_file3,int *niters,double *time_save,int loop1,int binodal_flag);
 #if !defined(_CON_CONST_H_)
@@ -24,40 +30,49 @@ void solution_output_conwrap(int num_soln_flag,double *x,double param,double *x2
 #if !defined(_CON_CONST_H_)
 void solution_output_conwrap(int type,double *x,double param,double *x2,double param2,double *x3,double param3,int stp,int nits,struct con_struct *con);
 #endif
+void solution_output_conwrap(int num_soln_flag,double *x,double param,double *x2,double param2,double *x3,double param3,int step_num,int num_its,struct con_struct *con);
+void solution_output_conwrap(int num_soln_flag,double *x,double param,double *x2,double param2,double *x3,double param3,int step_num,int num_its,struct con_struct *con);
 void perturb_solution_conwrap(double *x,double *x_old,double *scale_vec,int numOwnedUnks);
 #if !defined(_CON_CONST_H_)
 void perturb_solution_conwrap(double *x,double *p,double *s,int n);
 #endif
+void perturb_solution_conwrap(double *x,double *x_old,double *scale_vec,int numOwnedUnks);
+void perturb_solution_conwrap(double *x,double *x_old,double *scale_vec,int numOwnedUnks);
 void random_vector_conwrap(double *x,int numOwnedUnks);
 #if !defined(_CON_CONST_H_)
 void random_vector_conwrap(double *x,int n);
 #endif
+void random_vector_conwrap(double *x,int numOwnedUnks);
+void random_vector_conwrap(double *x,int numOwnedUnks);
 int gmax_int(int c);
 int gmax_int_conwrap(int max);
 #if !defined(_CON_CONST_H_)
 int gmax_int_conwrap(int sum);
 #endif
+int gmax_int_conwrap(int max);
+int gmax_int_conwrap(int max);
 void *array_alloc_2d(size_t n1,size_t n2,size_t size);
 void *array_alloc_2d(size_t n1,size_t n2,size_t size);
 double **array_alloc_2d_conwrap(unsigned int ii,unsigned int jj,unsigned int kk);
+double **array_alloc_2d_conwrap(unsigned int ii,unsigned int jj,unsigned int kk);
+double **array_alloc_2d_conwrap(unsigned int ii,unsigned int jj,unsigned int kk);
+void safe_free_conwrap(void **p);
+void safe_free_conwrap(void **p);
 void safe_free_conwrap(void **p);
 void fill_resid_and_matrix_control_conwrap(double **xBox,int ii,int jj);
+void fill_resid_and_matrix_control_conwrap(double **xBox,int ii,int jj);
+void fill_resid_and_matrix_control_conwrap(double **xBox,int ii,int jj);
 double gmax_double(double c);
+double gmax_double_conwrap(double sum);
+double gmax_double_conwrap(double sum);
 double gmax_double_conwrap(double sum);
 double gsum_double(double c);
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #if !defined(_CON_CONST_H_)
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #endif
-void assign_bif_parameter_conwrap(double tp_param);
-#if !defined(_CON_CONST_H_)
-void assign_bif_parameter_conwrap(double bif_param);
-#endif
-void assign_parameter_conwrap(double param);
-#if !defined(_CON_CONST_H_)
-void assign_parameter_conwrap(double param);
-#endif
-void thermodynamics(char *output_file1);
+void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
+void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)
@@ -72,6 +87,22 @@ void thermodynamics(char *output_file1);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define NMER_MAX     100
+extern double Rho_seg_b[NMER_MAX];
+extern int Npol_comp;
+void assign_bif_parameter_conwrap(double tp_param);
+#if !defined(_CON_CONST_H_)
+void assign_bif_parameter_conwrap(double bif_param);
+#endif
+void assign_bif_parameter_conwrap(double tp_param);
+void assign_bif_parameter_conwrap(double tp_param);
+void assign_parameter_conwrap(double param);
+#if !defined(_CON_CONST_H_)
+void assign_parameter_conwrap(double param);
+#endif
+void assign_parameter_conwrap(double param);
+void assign_parameter_conwrap(double param);
+void thermodynamics(char *output_file1);
 extern int Iliq_vap;
 extern double Crfac;
 #define CONT_CRFAC  19  /* continuous mixing of two cr files */
@@ -107,26 +138,21 @@ extern double **Vext_membrane;
 #define CONT_EPSW_ALL    8
 extern int WallType[NWALL_MAX];
 #define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
+#define CONT_BETAMU_1 21  /* continuous mixing of two cr files */
 #define NCOMP_MAX 5
 extern double Betamu[NCOMP_MAX];
+extern double Betamu_chain[NMER_MAX];
+#define WJDC         3
 #define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
-#define CONT_BETAMU_1 21  /* continuous mixing of two cr files */
 #define CONT_SCALE_RHO   6
 #define CONT_LOG_RHO_ALL 5 
 #define CONT_LOG_RHO_0   4 
-#define NMER_MAX     100
-extern double  Betamu_chain[NMER_MAX];
-extern double Rho_seg_b[NMER_MAX];
-extern int Unk2Comp[NMER_MAX];
-extern int Nseg_tot;
-extern int Npol_comp;
 #define CONT_RHO_ALL     3
 extern double Rho_b[NCOMP_MAX];
 #define CONT_RHO_0       2
 void setup_polymer_cr();
 #define CMS_SCFT     1
 #define CMS          0
-#define WJDC         3
 extern int Type_poly;
 void calc_InvR_params();
 void calc_HS_diams();
@@ -152,6 +178,8 @@ extern int Ipot_ff_c;
 extern double Temp;
 #define CONT_TEMP        1   /* State Parameters */
 #define CONT_MESH        0   /* mesh size */
+void assign_parameter_tramonto(int cont_type,double param);
+void assign_parameter_tramonto(int cont_type,double param);
 void assign_parameter_tramonto(int cont_type,double param);
 void print_vext(double **vext,char *output_file);
 extern double ***Vext_dash;
@@ -199,11 +227,15 @@ void matvec_mult_conwrap(double *x,double *y);
 #if !defined(_CON_CONST_H_)
 void matvec_mult_conwrap(double *x,double *y);
 #endif
+void matvec_mult_conwrap(double *x,double *y);
+void matvec_mult_conwrap(double *x,double *y);
 double gsum_double_conwrap(double sum);
 double gsum_double_conwrap(double sum);
 #if !defined(_CON_CONST_H_)
 double gsum_double_conwrap(double sum);
 #endif
+double gsum_double_conwrap(double sum);
+double gsum_double_conwrap(double sum);
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
@@ -216,33 +248,51 @@ void matrix_residual_fill_conwrap(double *x,double *rhs,int matflag);
 #if !defined(_CON_CONST_H_)
 void matrix_residual_fill_conwrap(double *x,double *rhs,int matflag);
 #endif
+void matrix_residual_fill_conwrap(double *x,double *rhs,int matflag);
+void matrix_residual_fill_conwrap(double *x,double *rhs,int matflag);
 void destroy_shifted_matrix_conwrap();
 #if !defined(_CON_CONST_H_)
 void destroy_shifted_matrix_conwrap();
 #endif
+void destroy_shifted_matrix_conwrap();
+void destroy_shifted_matrix_conwrap();
 void shifted_linear_solver_conwrap(double *x,double *y,int jac_flag,double tol);
 #if !defined(_CON_CONST_H_)
 void shifted_linear_solver_conwrap(double *x,double *y,int jac_flag,double tol);
 #endif
+void shifted_linear_solver_conwrap(double *x,double *y,int jac_flag,double tol);
+void shifted_linear_solver_conwrap(double *x,double *y,int jac_flag,double tol);
 void shifted_matrix_fill_conwrap(double sigma);
 #if !defined(_CON_CONST_H_)
 void shifted_matrix_fill_conwrap(double sigma);
 #endif
+void shifted_matrix_fill_conwrap(double sigma);
+void shifted_matrix_fill_conwrap(double sigma);
 void create_shifted_matrix_conwrap();
 #if !defined(_CON_CONST_H_)
 void create_shifted_matrix_conwrap();
 #endif
+void create_shifted_matrix_conwrap();
+void create_shifted_matrix_conwrap();
 void mass_matvec_mult_conwrap(double *x,double *y);
 #if !defined(_CON_CONST_H_)
 void mass_matvec_mult_conwrap(double *x,double *y);
 #endif
+void mass_matvec_mult_conwrap(double *x,double *y);
+void mass_matvec_mult_conwrap(double *x,double *y);
 void mass_matrix_fill_conwrap(double *x,double *rhs);
 #if !defined(_CON_CONST_H_)
 void mass_matrix_fill_conwrap(double *x,double *rhs);
 #endif
+void mass_matrix_fill_conwrap(double *x,double *rhs);
+void mass_matrix_fill_conwrap(double *x,double *rhs);
 int komplex_linear_solver_conwrap(double *c,double *d,int jac_flag,double *omega,double *tmp);
 #if !defined(_CON_CONST_H_)
 int komplex_linear_solver_conwrap(double *x,double *y,int jac_flag,double *omega,double *tmp);
+#endif
+int komplex_linear_solver_conwrap(double *c,double *d,int jac_flag,double *omega,double *tmp);
+int komplex_linear_solver_conwrap(double *c,double *d,int jac_flag,double *omega,double *tmp);
+#if !defined(_CON_CONST_H_)
 #define  NEW_JACOBIAN                200
 #define  SAME_BUT_UNSCALED_JACOBIAN  202
 #define  CHECK_JACOBIAN              204
@@ -253,11 +303,15 @@ int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
 #if !defined(_CON_CONST_H_)
 int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
 #endif
+int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
+int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
 int newton_solver(double **x,void *con_ptr);
 int nonlinear_solver_conwrap(double *x,void *con_ptr,int step_num,double lambda,double delta_s,void *aux_info);
 #if !defined(_CON_CONST_H_)
 int nonlinear_solver_conwrap(double *x,void *con,int step_num,double lambda,double delta_s,void *aux_info);
 #endif
+int nonlinear_solver_conwrap(double *x,void *con_ptr,int step_num,double lambda,double delta_s,void *aux_info);
+int nonlinear_solver_conwrap(double *x,void *con_ptr,int step_num,double lambda,double delta_s,void *aux_info);
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 #if !defined(_CON_CONST_H_)
@@ -310,10 +364,16 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 int solve_continuation(double **xx,double **xx2);
+int solve_continuation(double **xx,double **xx2);
+int solve_continuation(double **xx,double **xx2);
 double get_init_param_value(int cont_type);
 #if !defined(_CON_CONST_H_)
 double get_init_param_value(int cont_type);
 #endif
+double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type);
 double get_init_param_value(int cont_type);
 #if !defined(_CON_CONST_H_)
 typedef struct general_info_struct general_info_struct;

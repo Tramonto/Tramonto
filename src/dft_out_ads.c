@@ -56,7 +56,9 @@ void calc_adsorption(FILE *fp,double **x)
      for (icomp=0;icomp<nloop;icomp++){
           if(!first) print_to_screen_comp(icomp,ads[icomp],"ADSORPTION");
           if (fp !=NULL){
-               if (Iliq_vap==10 && Nwall==0) print_to_file_comp(fp,icomp,ads[icomp]/Size_x[0],"rho",first);
+               if (Iliq_vap==10 && Nwall==0 && Ndim==1) {print_to_file_comp(fp,icomp,ads[icomp]/Size_x[0],"rho",first);
+                          printf("Iliq_vap=%d\n",Iliq_vap);
+               }
                else              print_to_file_comp(fp,icomp,ads[icomp],"ads",first);
           }
       }
@@ -74,8 +76,8 @@ void calc_adsorption(FILE *fp,double **x)
 
   if (Proc==0 && Iwrite != NO_SCREEN){
      for (icomp=0;icomp<nloop;icomp++){
-        if(!first && Iliq_vap<10) print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
-        if (fp !=NULL && Iliq_vap<10) print_to_file_comp(fp,icomp,ads_ex[icomp],"ads_ex",first);
+        if(!first && Iliq_vap!=10) print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
+        if (fp !=NULL && Iliq_vap!=10) print_to_file_comp(fp,icomp,ads_ex[icomp],"ads_ex",first);
      }    
   }
   if (first) first=FALSE;

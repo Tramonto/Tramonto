@@ -15,20 +15,15 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define CONT_WALLPARAM  18  /* Vext_membrane */
-#define NMER_MAX     100
-extern int Type_poly;
-extern double  Betamu_chain[NMER_MAX];
-#define WJDC         3
 extern double **Vext_membrane;
 #define CONT_SEMIPERM   17  /* Vext_membrane */
 #define CONT_SCALE_CHG   16  /* Charged surface params */
-#define NCOMP_MAX 5
-extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 #define CONT_EPSFF_ALL   14   
 #define CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
 #define CONT_SCALE_EPSFF 15
 #define CONT_EPSWF_ALL_0 11 
 #define CONT_EPSWF00     10    /* Wall-Fluid Energy Params */
+#define NCOMP_MAX 5
 #define NWALL_MAX_TYPE 50 
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 #define CONT_SCALE_EPSWF 12
@@ -38,8 +33,12 @@ extern int Mix_type;
 #define CONT_EPSW_ALL    8
 #define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
 #define CONT_SCALE_EPSW  9
-#define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
 #define CONT_BETAMU_1 21  /* continuous mixing of two cr files */
+#define NMER_MAX     100
+extern double Betamu_chain[NMER_MAX];
+#define WJDC         3
+extern int Type_poly;
+#define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
 extern double Betamu[NCOMP_MAX];
 #define SWITCH_MU    3
 extern double Charge_f[NCOMP_MAX];
@@ -58,6 +57,8 @@ extern double Scale_fac;
 #define CONT_SCALE_RHO   6
 extern double Crfac;
 #define CONT_CRFAC  19  /* continuous mixing of two cr files */
+extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
+extern int Type_attr;
 extern double Temp_elec;
 extern double Temp;
 extern int Ipot_ff_c;

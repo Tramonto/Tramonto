@@ -190,7 +190,7 @@ void post_process (double **x,char *output_file3,int *niters,
                      is changing in a given run */
 void print_cont_variable(int cont_type,FILE *fp)
 {
-   int i,idim,icomp,iwall,iwall_type,nloop;
+   int i,idim,icomp,iwall,iwall_type,nloop,jcomp;
    double kappa,kappa_sq,rhosum;
 
 
@@ -237,6 +237,12 @@ void print_cont_variable(int cont_type,FILE *fp)
       case CONT_TEMP: 
          if (Ipot_ff_c == 0) fprintf(fp,"%10.7f   ", Temp); 
 	 else fprintf(fp,"%7.4f   ",Temp_elec);
+         if (Type_attr != NONE){
+           for (icomp=0;icomp<Ncomp;icomp++){
+              for (jcomp=0;jcomp<Ncomp;jcomp++)
+                  fprintf(fp,"%10.7f  ",Eps_ff[icomp][jcomp]);
+           }
+         }
          break;
 
       case CONT_CRFAC:
@@ -303,7 +309,7 @@ void print_cont_variable(int cont_type,FILE *fp)
       case CONT_EPSFF_00:
       case CONT_EPSFF_ALL:
          fprintf(fp,"%11.8f   ", Eps_ff[0][0]); 
-     /*    fprintf(fp,"%11.8f  ", Eps_ff[2][0]); */
+/*         fprintf(fp,"%11.8f  ", Eps_ff[0][2]); */
       /*   fprintf(fp,"%11.8f  ", Eps_ff[2][2]); */
          break;
 
@@ -328,7 +334,7 @@ void print_cont_variable(int cont_type,FILE *fp)
 */
 void print_cont_type(int cont_type,FILE *fp)
 {
-  int i,idim,icomp,iwall,nloop;
+  int i,idim,icomp,iwall,nloop,jcomp;
 
    switch(cont_type){
       case CONT_MESH: 
@@ -356,6 +362,11 @@ void print_cont_type(int cont_type,FILE *fp)
       case CONT_TEMP: 
          if (Ipot_ff_c == 0) fprintf(fp,"TEMP  "); 
 	 else fprintf(fp,"TEMP_ELEC  "); 
+         if (Type_attr != NONE){
+         for (icomp=0;icomp<Ncomp;icomp++)
+            for (jcomp=0;jcomp<Ncomp;jcomp++)
+                fprintf(fp,"EPS_ff[%d][%d]  ",icomp,jcomp);
+         }
          break;
 
       case CONT_CRFAC:
@@ -405,6 +416,7 @@ void print_cont_type(int cont_type,FILE *fp)
       case CONT_EPSFF_00:
       case CONT_EPSFF_ALL:
          fprintf(fp,"Eps_ff[0][0]:  "); break;
+/*         fprintf(fp,"Eps_ff[0][2]:  "); break;*/
 
       case CONT_SCALE_CHG:
          fprintf(fp,"Scale_fac_chg:  "); break;

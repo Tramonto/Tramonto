@@ -36,7 +36,8 @@ double integrand_WJDC_freen(int iunk,int inode_box, double **x)
      iseg = iunk-Phys2Unk_first[DENSITY];
      icomp = Unk2Comp[iseg];
      rho_i = x[iunk][inode_box];
-     unk_field=Phys2Unk_first[WJDC_FIELD]+icomp;
+     /*unk_field=Phys2Unk_first[WJDC_FIELD]+icomp;*/
+     unk_field=Phys2Unk_first[WJDC_FIELD]+iseg;    /* revert to previous when return to component */
      pol_num=SegAll_to_Poly[iseg];
 
      count_ends=0;

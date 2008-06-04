@@ -50,7 +50,7 @@ extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 #define FALSE 0
 #endif
 extern int Ntype_mer;
-#define NBLOCK_MAX   5
+#define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi

@@ -657,8 +657,8 @@ void assign_parameter_tramonto(int cont_type, double param)
                       Rho_b[0]*=ratio;
                       Rho_b[1]*=ratio;  vary rho tot at const x_s*/
 
-                         /*Rho_b[0] = (16./18.)*(0.58-Rho_b[2]);
-                         Rho_b[1] = (2./18.)*(0.58-Rho_b[2]);*/
+                         Rho_b[0] = (16./18.)*(0.3771-Rho_b[2]);
+                         Rho_b[1] = (2./18.)*(0.3771-Rho_b[2]);
 
                           /*continuation at constant rho_tot=0.68 */
                          /*Rho_b[0] = (16./18.)*(0.68-Rho_b[2]);
@@ -819,7 +819,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                           }
                           break;
 
-      case CONT_EPSFF_00: Eps_ff[0][0]=param;
+      case CONT_EPSFF_00: Eps_ff[0][0]=param;  
 /*now do a special case where we change two of them at once */
                 /*         Eps_ff[2][0]=param;
                          Eps_ff[0][2]=param;
@@ -831,14 +831,16 @@ void assign_parameter_tramonto(int cont_type, double param)
                          Eps_ff[2][1]=param;*/
 
                        /*  Eps_ff[2][0]=param;*/
-                         if (Mix_type==0) {
+                  /*       if (Mix_type==0) {
                              for (iw=0; iw<Nwall_type; iw++) eps_wf_save[0][iw]=Eps_wf[0][iw];
                              pot_parameters("dft_out.lis"); 
                              for (iw=0; iw<Nwall; iw++){
                                  ratio = Eps_wf[0][WallType[iw]]/eps_wf_save[0][WallType[iw]];
                                  scale_vext_epswf(ratio,0,iw); 
                              }
-                         }
+                         }*/
+                         if (Type_func != NONE){ calc_HS_diams(); 
+                                                 calc_InvR_params();}
                          if (Type_poly == CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
                          recalculate_stencils();
                          break;
@@ -1062,7 +1064,9 @@ double get_init_param_value(int cont_type)
            return Eps_wf[0][0]; break;
       case CONT_SCALE_EPSWF: return Scale_fac; break;
 
-      case CONT_EPSFF_00:   return Eps_ff[0][0]; /*Eps_ff[0][2];*/  /*Eps_ff[2][2];*/
+      case CONT_EPSFF_00:   
+           return Eps_ff[0][0]; 
+           break;
       case CONT_EPSFF_ALL:
            for (i=0; i<Ncomp; i++) if (Eps_ff[i][i] != Eps_ff[0][0]) {
                  printf("ERROR: need all Eps_ff[i][i] to be equal for  (CONT_EPSFF_ALL)\n");

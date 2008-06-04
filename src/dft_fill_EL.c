@@ -46,10 +46,12 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    if (Type_poly==WJDC) {                  /* note that this routine fills the _field_variable rather than
                                               the density variable for a WJDC DFT problem */
              i=iunk-Phys2Unk_first[WJDC_FIELD];               
+             iseg=i; /* remove if doing component fields */
    } 
    else      i = iunk-Phys2Unk_first[DENSITY];
 
-   if (Type_poly==WTC){
+   /*if (Type_poly==WTC){*/
+   if (Type_poly==WTC || Type_poly==WJDC){ /*use condition above for component field */
                 iseg=i;
                 icomp=Unk2Comp[iseg];
    }
@@ -126,9 +128,11 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
            }
          }
          else{
-            resid+=load_mean_field(THETA_PAIRPOT_RCUT,iunk,loc_inode,
+            resid_att=load_mean_field(THETA_PAIRPOT_RCUT,iunk,loc_inode,
                                 icomp,izone,ijk_box, x, resid_only_flag);
+            resid+=resid_att;
          }
+
    }
 
 

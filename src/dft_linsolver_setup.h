@@ -23,6 +23,7 @@ extern int Type_attr;
 #define CAVWTC         4
 #define BONDWTC        5
 extern int Ndim;
+extern int Proc;
 extern int Nrho_bar_s;
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];

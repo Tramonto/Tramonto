@@ -75,7 +75,7 @@ extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Lseg_densities;
 extern int Nmer[NCOMP_MAX];
-#define NBLOCK_MAX   5
+#define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #define CMS          0
 #define DENSITY        0

@@ -117,17 +117,19 @@ int lfirst;
        }
 
                                  /* NEUTRAL EXTERNAL FIELD CONTRIBUTIONS */
-       omega_vext=integrateInSpace_SumInComp(&integrand_vext_freen,Nel_hit2,x,Integration_profile);
-       if (Proc==0 && Iwrite != NO_SCREEN){
-             print_to_screen(omega_vext,"NEUTRAL EXT.FIELD");
-       }
+       if (Nwall!=0){
+          omega_vext=integrateInSpace_SumInComp(&integrand_vext_freen,Nel_hit2,x,Integration_profile);
+          if (Proc==0 && Iwrite != NO_SCREEN){
+                print_to_screen(omega_vext,"NEUTRAL EXT.FIELD");
+          }
 
-       omega_vext_surf_ex = omega_vext; /* note Vext=0 in the bulk */
-       if (Proc==0 && Iwrite != NO_SCREEN){
-             print_to_screen(omega_vext_surf_ex,"SURF.EX.: NEUTRAL EXT.FIELD");
+          omega_vext_surf_ex = omega_vext; /* note Vext=0 in the bulk */
+          if (Proc==0 && Iwrite != NO_SCREEN){
+                print_to_screen(omega_vext_surf_ex,"SURF.EX.: NEUTRAL EXT.FIELD");
+          }
+          omega_sum += omega_vext;
+          omega_s_sum += omega_vext_surf_ex;
        }
-       omega_sum += omega_vext;
-       omega_s_sum += omega_vext_surf_ex;
 
                                     /* HARD SPHERE CONTRIBUTIONS */
        if (Type_func != NONE){

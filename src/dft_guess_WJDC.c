@@ -42,13 +42,15 @@ void setup_polymer_field_wjdc(double **xInBox)
   int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box;
   double field;
 
-  Nloop=Ncomp;
+/*  Nloop=Ncomp;*/
+  Nloop=Nseg_tot;  /* go back to previous when we return to component treatment */
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];
      for (i=0; i<Nloop; i++){
          iunk=Phys2Unk_first[WJDC_FIELD]+i;
-         if (!Zero_density_TF[inode_box][i]) xInBox[iunk][inode_box]=Field_WJDC_b[i];
+/*         if (!Zero_density_TF[inode_box][i]) xInBox[iunk][inode_box]=Field_WJDC_b[i];*/
+         if (!Zero_density_TF[inode_box][i]) xInBox[iunk][inode_box]=Field_WJDC_b[Unk2Comp[i]]; /*revert to previous when possible */
              else                            xInBox[iunk][inode_box]=0.;
      }
    }
@@ -73,7 +75,8 @@ void calc_init_WJDC_field(double **xInBox)
      inode_box=L2B_node[loc_inode];
      node_box_to_ijk_box(inode_box, ijk_box);
 
-     for (icomp=0; icomp<Ncomp; icomp++){
+  /*   for (icomp=0; icomp<Ncomp; icomp++){*/
+     for (icomp=0; icomp<Nseg_tot; icomp++){   /* remove this one when we go back to components */
         iunk=Phys2Unk_first[WJDC_FIELD]+icomp;
         if (!Zero_density_TF[inode_box][icomp]){
           resid_EL=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,

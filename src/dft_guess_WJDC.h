@@ -21,6 +21,7 @@ extern int Geqn_start[NCOMP_MAX];
 extern int ***Poly_to_Unk;
 extern int **Nbond;
 extern int ***Bonds;
+extern int Nseg_tot;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

@@ -60,7 +60,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 
   if (Type_poly==WJDC){
      itype_mer=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
-     loop_start=iunk;  /* don't sum over segments of a given type for WJDC */
+     loop_start=iunk;   /* don't sum over segments of a given type for WJDC */
      loop_end=iunk+1;
   }
   else if (Type_poly==CMS){
@@ -245,7 +245,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
           if (!resid_only_flag){
              unkIndex[0]=iunk; unkIndex[1]=junk;
              values[0]=1.0; values[1]=-1.0;
-             numEntries=1;
+             numEntries=2;
              dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                              unkIndex, inode_box, values, numEntries);
           }
@@ -254,7 +254,8 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
 
          if (Bonds[pol_num][seg_num][bond_num] == -1){        /* fill end segment equation */
                                                 /* Boltz unk for 1st seg */
-            unk_B = Phys2Unk_first[func_type_field] + itype_mer;
+            /*unk_B = Phys2Unk_first[func_type_field] + itype_mer;*/
+            unk_B = Phys2Unk_first[func_type_field] + SegChain2SegAll[pol_num][seg_num]; /*revert to above when return to component treatment */
 
             if (Type_poly==CMS){
                if (resid_only_flag==INIT_GUESS_FLAG) resid=-1.0;
@@ -298,7 +299,8 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
          else{                                            /* fill G_seg eqns */
 
                         /* First calculate the residual contributions */
-            unk_B = Phys2Unk_first[func_type_field] + itype_mer;   /* Boltz unk for this seg */
+            /*unk_B = Phys2Unk_first[func_type_field] + itype_mer; */  /* Boltz unk for this seg */
+            unk_B = Phys2Unk_first[func_type_field] + SegChain2SegAll[pol_num][seg_num];   /* revert to above when return to component treatment */
 
             if (Type_poly==CMS){
             if (resid_only_flag != INIT_GUESS_FLAG){

@@ -196,6 +196,7 @@ void print_profile(char *output_file4)
   char *unk_char;
   
   char gfile[20],gfile2[20];
+  char compfile[20],compfile2[20];
   FILE *ifp=NULL,*fp6=NULL,*fp7=NULL;
   /* 
    *  print out the densities (and electrostatic potential)
@@ -213,7 +214,8 @@ void print_profile(char *output_file4)
 
            /* open file for segment type densities per chain ... */
      if (Type_poly == WTC || Type_poly==WJDC){
-       fp7 = fopen("dft_dens_comp.dat","w");
+       sprintf(compfile,"%s_comp",output_file4);
+       fp7 = fopen(compfile,"w");
      } 
 
            /* open file for segment densities */
@@ -326,34 +328,34 @@ void print_profile(char *output_file4)
             }
             switch(Unk2Phys[iunk]){
                 case DENSITY:
-/*                fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]/Rho_b[icomp]);*/
+/*                fprintf(ifp,"%g\t", X_old[iunk+node_start]/Rho_b[icomp]);*/
                 case DIFFUSION:
 /*                if (Ipot_ff_n != IDEAL_GAS)
-                       fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]
+                       fprintf(ifp,"%g\t", X_old[iunk+node_start]
                             + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );*/
                 case POISSON:
-                  fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
+                  fprintf(ifp,"%g\t", X_old[iunk+node_start]);
                   break;
 
                 case MF_EQ:
                 case HSRHOBAR:
                 case CAVWTC:
                 case BONDWTC:
-                  if (Iwrite==VERBOSE) fprintf(ifp,"%22.17f\t", X_old[iunk+node_start]);
+                  if (Iwrite==VERBOSE) fprintf(ifp,"%g\t", X_old[iunk+node_start]);
                   break;
 
                 case CMS_FIELD:
                 case WJDC_FIELD:
                    if(Iwrite==VERBOSE){
 /*                      if (X_old[iunk+node_start] > 1.e-12 && -log(X_old[iunk+node_start]) < VEXT_MAX){*/
-                          fprintf(ifp,"%22.17f\t", -log(X_old[iunk+node_start]));
+                          fprintf(ifp,"%g\t", -log(X_old[iunk+node_start]));
 /*                      }
-                      else fprintf(ifp,"%22.17f\t", VEXT_MAX);*/
+                      else fprintf(ifp,"%gf\t", VEXT_MAX);*/
                    }
                    break;
 
                 case G_CHAIN:
-                   if (Iwrite==VERBOSE) fprintf(fp6,"%22.17f\t", X_old[iunk+node_start]);
+                   if (Iwrite==VERBOSE) fprintf(fp6,"%g\t", X_old[iunk+node_start]);
                    break;
             }
 
@@ -362,7 +364,7 @@ void print_profile(char *output_file4)
                 /* print the Poisson-Boltzmann solution based on the computed electrostatic field */
         if (Ipot_ff_c == 1 && Type_poly==NONE){
         for (icomp=0; icomp<Ncomp; icomp++)
-          fprintf(ifp,"%20.15f\t",
+          fprintf(ifp,"%g\t",
                   Rho_b[icomp]*exp(-Charge_f[icomp]*X_old[Phys2Unk_first[POISSON]+node_start]
                                                               -Vext_old[inode*Ncomp+icomp]));
         }
@@ -383,10 +385,10 @@ void print_profile(char *output_file4)
                                            *Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
 
                    sumsegdens[itype_mer]+=site_dens;
-                   fprintf(fp7,"%22.17f\t", site_dens);
+                   fprintf(fp7,"%g\t", site_dens);
                  }
               }
-              for (itype_mer=0; itype_mer<Ntype_mer; itype_mer++) fprintf(fp7,"%22.17f\t", sumsegdens[itype_mer]);
+              for (itype_mer=0; itype_mer<Ntype_mer; itype_mer++) fprintf(fp7,"%g\t", sumsegdens[itype_mer]);
         }
 
         if (Type_poly==WTC || Type_poly==WJDC){
@@ -401,7 +403,7 @@ void print_profile(char *output_file4)
                    flag_type_mer[Type_mer[ipol][iseg]]=TRUE;
                 }
                 for (itype_mer=0;itype_mer<Ncomp;itype_mer++){
-                   if (flag_type_mer[itype_mer]==TRUE)  fprintf(fp7,"%22.17f\t",sumsegdens[itype_mer]);
+                   if (flag_type_mer[itype_mer]==TRUE)  fprintf(fp7,"%g\t",sumsegdens[itype_mer]);
                 }
               }
         }

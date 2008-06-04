@@ -22,7 +22,7 @@ double integrand_CMS_freen_bulk(int iunk,int inode_box,double **x);
 extern int Nmer[NCOMP_MAX];
 #define THETA_CR_DATA         4
 double int_stencil(double **x,int inode_box,int iunk,int sten_type);
-#define NBLOCK_MAX   5
+#define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #define DENSITY        0
 #define NEQ_TYPE       11 

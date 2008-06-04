@@ -210,25 +210,25 @@ void solutionVec_to_nOrdering(double *rhoBar_SVOrdering, double *n)
 /*****************************************************************************************************/
 void print_to_screen(double val,char *var_label)
 {
-  printf("\t\t %s=%9.6f\n",var_label,val); return;
+  printf("\t\t %s=%g\n",var_label,val); return;
 }
 /**************************************************************************************/
 void print_to_screen_comp(int icomp,double val,char *var_label)
 {
-  printf("\t\t %s[icomp=%d]=%9.6f\n",var_label,icomp,val); return;
+  printf("\t\t %s[icomp=%d]=%g\n",var_label,icomp,val); return;
 }
 /**************************************************************************************/
 void print_to_file(FILE *fp,double val,char *var_label,int first)
 {
   if (first != FALSE)  fprintf(fp,"%s  ",var_label); 
-  if (first != TRUE)   fprintf(fp,"%9.6f  ",val); 
+  if (first != TRUE)   fprintf(fp,"%g  ",val); 
   return;
 }
 /**************************************************************************************/
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first)
 {
   if (first != FALSE) fprintf(fp,"%s[%d]  ",var_label,icomp); 
-  if (first != TRUE)  fprintf(fp,"%9.6f  ",val); 
+  if (first != TRUE)  fprintf(fp,"%g  ",val); 
   return;
 }
 /**************************************************************************************/

@@ -30,7 +30,7 @@ void CMS_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int 
 double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
-#define NBLOCK_MAX   5
+#define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 double prefactor_rho_cms(int itype_mer);
 #define G_CHAIN        9 

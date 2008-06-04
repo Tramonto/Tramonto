@@ -168,7 +168,7 @@ void linsolver_setup_WJDCTYPE()
   int iunk,i;
   double **xOwned, **x2Owned;
   int *geq, *ginveq, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,ginv_eq_start,first_time;
-  int count_density,count_cms_field,count_geqn,count_ginv_eqn;
+  int count_density,count_wjdc_field,count_geqn,count_ginv_eqn;
   int count_indnonlocal,count_depnonlocal,index_save;
   int one_particle_size;
   int count_poisson;
@@ -183,7 +183,7 @@ void linsolver_setup_WJDCTYPE()
   ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
   poissoneq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    
-  count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
+  count_density=count_wjdc_field=count_geqn=count_ginv_eqn=0;
   count_indnonlocal=count_depnonlocal=0;
   count_poisson = 0;
   first_time=TRUE;
@@ -194,22 +194,20 @@ void linsolver_setup_WJDCTYPE()
   for (iunk=0;iunk<Nunk_per_node;iunk++){
      switch(Unk2Phys[iunk]){
      case DENSITY:
-       densityeq[count_density++]=iunk; break; 
+       densityeq[count_density++]=iunk; 
+       break; 
      case HSRHOBAR:
-       if (one_particle_size && (
-             (iunk > Phys2Unk_first[HSRHOBAR]+1 &&
-              iunk < Phys2Unk_first[HSRHOBAR]+Nrho_bar_s)  ||
-              iunk >= Phys2Unk_first[HSRHOBAR]+Nrho_bar_s+Ndim) ){
-         ginveq[count_ginv_eqn++]=iunk;
-       }
-       else{
          geq[count_geqn++]=iunk;
-       }
+       break;
+     case MF_EQ:
+         geq[count_geqn++]=iunk;
        break;
      case CAVWTC:
-         geq[count_geqn++]=iunk;break;
+         geq[count_geqn++]=iunk;
+         break;
      case WJDC_FIELD:                  
-       wjdceq[count_cms_field++]=iunk; break; 
+       wjdceq[count_wjdc_field++]=iunk; 
+         break; 
      case G_CHAIN:                  
        if ((iunk-Geqn_start[0])%2 == 0){
          geq[count_geqn++]=iunk; 
@@ -223,7 +221,8 @@ void linsolver_setup_WJDCTYPE()
        }
        break;
      case POISSON:
-       poissoneq[count_poisson++]=iunk; break; 
+       poissoneq[count_poisson++]=iunk; 
+       break; 
      default:
         printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
         exit(-1);
@@ -239,10 +238,15 @@ void linsolver_setup_WJDCTYPE()
 
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
+
    dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, count_ginv_eqn, ginveq);
-   dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, count_cms_field, wjdceq);
+
+   dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, count_wjdc_field, wjdceq);
+
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, count_density, densityeq);
+
    dft_poly_lin_prob_mgr_setpoissonequationids(LinProbMgr_manager, count_poisson, poissoneq);
+
    safe_free((void *) &densityeq);
    safe_free((void *) &wjdceq);
    safe_free((void *) &geq);

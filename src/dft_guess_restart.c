@@ -279,9 +279,9 @@ void read_in_a_file(int iguess,char *filename)
 	 if( (fp6=fopen(filename2,"r")) == NULL){
 /*	   printf("Can't open file %s\n", filename2);
 	   exit(1);*/
-           if ((Iguess_fields=CALC_ALL_FIELDS || Iguess_fields==CALC_RHOBAR_AND_G) && Proc==0) 
+           if ((Iguess_fields=CALC_ALL_FIELDS || Iguess_fields==CALC_RHOBAR_AND_G) && index==0) 
               printf("I can't find the file dft_dens.datg... I will construct an initial guess for G equations\n");
-           else if ((Iguess_fields=BULK || Iguess_fields==CALC_RHOBAR_ONLY)&& Proc==0) 
+           else if ((Iguess_fields=BULK || Iguess_fields==CALC_RHOBAR_ONLY)&&index==0) 
               printf("I can't find the file dft_dens.datg... I will construct a simple bulk initial guess for G equations\n");
            Restart_field[G_CHAIN]=FALSE;
 	 }
@@ -318,7 +318,6 @@ void read_in_a_file(int iguess,char *filename)
     node_start=inode*Nunk_per_node;
 
                                    /* loop over unknows assume the order of input is correct */
-
     for (iunk_file=0;iunk_file<unk_in_file;iunk_file++) {
           eq_type = unk_to_eq_in_file[iunk_file];
 

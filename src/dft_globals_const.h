@@ -492,7 +492,7 @@
 
 /* Polymer constants */
 #define N_NZCR_MAX   200   /* maximum # of non-zero's in direct correlation fn */
-#define NBLOCK_MAX   5
+#define NBLOCK_MAX   20 
 #define NMER_MAX     100
 
 /* options for reading external field */

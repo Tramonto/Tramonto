@@ -129,7 +129,8 @@ void setup_nunk_per_node(char *output_file1)
 
          case WJDC_FIELD:
             if (Type_poly == WJDC){
-                 NWJDCField_unk=Ncomp;
+                 /*NWJDCField_unk=Ncomp;*/
+                 NWJDCField_unk=Nseg_tot;
             }
             else NWJDCField_unk = 0;
             Phys2Nunk[WJDC_FIELD]=NWJDCField_unk;

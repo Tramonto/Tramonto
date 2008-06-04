@@ -21,6 +21,7 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 #include "Tramonto_ConfigDefs.h"
 #define CMS_SCFT     1
 #define CMS          0
+extern int Iliq_vap;
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 double integrand_WJDC_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_WJDC_freen(int iunk,int inode_box,double **x);
@@ -32,7 +33,6 @@ double integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iun
 double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
 double integrand_adsorption(int iunk,int inode_box,double **x);
 double integrand_maxwell_stress_freen(int iunk,int inode_box,double **x);
-extern int Iliq_vap;
 #define PI    M_PI
 extern double Temp_elec;
 #define NCOMP_MAX 5
@@ -45,6 +45,7 @@ double integrand_hs_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_hs_freen(int iunk,int inode_box,double **x);
 extern int Type_func;
 double integrand_vext_freen(int iunk,int inode_box,double **x);
+extern int Nwall;
 double integrand_mu_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_mu_freen(int iunk,int inode_box,double **x);
 double integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **nelhit,double **x,double *profile);

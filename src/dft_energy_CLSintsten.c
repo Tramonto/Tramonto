@@ -85,8 +85,11 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(
 
   sum = 0.0;
   node_box_to_ijk_box(inode_box,ijk_box);
-  if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
-  else                icomp=iunk-Phys2Unk_first[DENSITY];
+  if (Unk2Phys[iunk] !=MF_EQ){
+     if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+     else                icomp=iunk-Phys2Unk_first[DENSITY];
+  }
+  else icomp=iunk-Phys2Unk_first[MF_EQ];
 
   for (junk=Phys2Unk_first[DENSITY];junk<Phys2Unk_last[DENSITY];junk++){
      if (Lseg_densities) jcomp=Unk2Comp[junk-Phys2Unk_first[DENSITY]];
