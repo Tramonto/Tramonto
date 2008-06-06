@@ -157,7 +157,7 @@ void set_initial_guess (int iguess, double** xOwned)
 
 /* note need to put the setup_poymer_simple functionality inside the various setup_polymer_CMS routines....*/
 
-  if (Proc==0 && Iwrite==VERBOSE) printf("\n initial guess took %g secs\n",MPI_Wtime()-t1);
+  if (Proc==0 && Iwrite !=NO_SCREEN) printf("\n initial guess took %g secs\n",MPI_Wtime()-t1);
   return;
 }
 /********************************************************************************************************/

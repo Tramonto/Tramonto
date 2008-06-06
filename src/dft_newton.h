@@ -51,7 +51,7 @@ extern int *Pol_Sym;
 #define G_CHAIN        9 
 #define NCOMP_MAX 5
 #define NMER_MAX     100
-extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int Unk2Phys[3 *NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

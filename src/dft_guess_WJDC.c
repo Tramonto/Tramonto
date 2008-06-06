@@ -43,14 +43,14 @@ void setup_polymer_field_wjdc(double **xInBox)
   double field;
 
 /*  Nloop=Ncomp;*/
-  Nloop=Nseg_tot;  /* go back to previous when we return to component treatment */
+  Nloop=Nseg_tot;  /* revert go back to previous when we return to component treatment */
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];
      for (i=0; i<Nloop; i++){
          iunk=Phys2Unk_first[WJDC_FIELD]+i;
 /*         if (!Zero_density_TF[inode_box][i]) xInBox[iunk][inode_box]=Field_WJDC_b[i];*/
-         if (!Zero_density_TF[inode_box][i]) xInBox[iunk][inode_box]=Field_WJDC_b[Unk2Comp[i]]; /*revert to previous when possible */
+         if (!Zero_density_TF[inode_box][Unk2Comp[i]]) xInBox[iunk][inode_box]=Field_WJDC_b[Unk2Comp[i]]; /*revert to previous when possible */
              else                            xInBox[iunk][inode_box]=0.;
      }
    }

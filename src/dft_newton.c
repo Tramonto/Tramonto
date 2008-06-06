@@ -108,6 +108,7 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
   if (NL_Solver==NEWTON_NOX || NL_Solver==PICNEWTON_NOX) NOXLOCA_Solver(x, xOwned, x2Owned,FALSE);
   else{
   if (Loca.method != -1)

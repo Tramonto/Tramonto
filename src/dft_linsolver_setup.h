@@ -52,7 +52,7 @@ extern int Geqn_start[NCOMP_MAX];
 #define CMS_FIELD      7
 #define DENSITY        0
 #define NMER_MAX     100
-extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int Unk2Phys[3 *NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];
 #if defined(__STDC__)
 void *array_alloc(int numdim,...);
 #endif

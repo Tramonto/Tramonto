@@ -86,6 +86,7 @@ extern int Imain_loop;
 #define NORESTART          0
 extern int Restart;
 #define VERBOSE      3 
+#define NO_SCREEN    0 
 extern int Iwrite;
 extern int Nnodes_box;
 extern int Nunk_per_node;

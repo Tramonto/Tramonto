@@ -71,7 +71,7 @@ extern int Npol_comp;
 #define G_CHAIN        9 
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
-extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int Unk2Phys[3 *NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern double Esize_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
 extern double Charge_f[NCOMP_MAX];

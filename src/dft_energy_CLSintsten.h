@@ -48,7 +48,7 @@ extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
-extern int Unk2Phys[3 *NCOMP_MAX+NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int Unk2Phys[3*NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int Lseg_densities;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 #define FALSE 0

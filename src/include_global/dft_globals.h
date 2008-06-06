@@ -41,7 +41,7 @@
 int Phys2Nunk[NEQ_TYPE];  /* Number of unknowns of a particular equation type */
 int Phys2Unk_first[NEQ_TYPE]; /* starting unknown number for a given equation type */
 int Phys2Unk_last[NEQ_TYPE]; /* ending unknown number for a given equation type */
-int Unk2Phys[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equation type
+int Unk2Phys[3*NCOMP_MAX+2*NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equation type
                                                                          given an unknown index */
 
 /* Mesh info */
