@@ -9,8 +9,8 @@
 @ 0 0 	Type_bc(x2,: back, front) 
 
 ************ FUNCTIONAL SWITCHES *********************************************
-@ 0 1 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) Type_hsdiam(0=SIGMA_DIAM 1=BH_DIAM)
-@ 0 0 	Type_attr Type_pairPot 
+@ 0 0 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) Type_hsdiam(0=SIGMA_DIAM 1=BH_DIAM)
+@ 2 0 	Type_attr Type_pairPot 
             (Type_attr options: -1=No attractions, 0=strict MF) 
             (Type_pairPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB_CS, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
 @ -1 	Type_coul (-1=No coulomb, 0=strict MF, 1=include 2nd order corrections) 
