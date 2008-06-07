@@ -115,6 +115,8 @@ extern int *Comm_offset_node;
 extern int *Comm_unk_proc;
 extern int *Comm_node_proc;
 extern double *Area_IC;
+#define NMER_MAX 100
+extern int Unk2Comp[NMER_MAX];
 extern int Lsteady_state;
 void boundary_free(void);
 void free_mesh_arrays(void);
@@ -161,6 +163,7 @@ void calc_HS_diams();
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;
+extern int Nseg_tot;
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 void pot_parameters(char *output_file1);
