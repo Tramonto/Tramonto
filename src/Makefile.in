@@ -72,7 +72,6 @@ am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/tac_arg_with_flags.m4 \
 	$(top_srcdir)/config/tac_arg_with_incdirs.m4 \
 	$(top_srcdir)/config/tac_arg_with_libdirs.m4 \
-	$(top_srcdir)/config/tac_arg_with_package.m4 \
 	$(top_srcdir)/config/tac_arg_with_perl.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -577,7 +576,7 @@ dft_SOURCES = \
         $(COMMON_CXX) \
         $(COMMON_C)
 
-dft_DEPENDENCIES = $(top_builddir)/src/libdft.a
+dft_DEPENDENCIES = 
 @USING_GNUMAKE_FALSE@EXPORT_INCLUDES = $(TRAMONTO_INCLUDES)
 @USING_GNUMAKE_TRUE@EXPORT_INCLUDES = $(shell $(PERL_EXE) $(top_srcdir)/config/strip_dup_incl_paths.pl $(TRAMONTO_INCLUDES))
 @USING_GNUMAKE_FALSE@EXPORT_LIBS = $(TRAMONTO_LIBS)

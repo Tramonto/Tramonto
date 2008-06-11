@@ -302,7 +302,7 @@ dft_SOURCES = \
         $(COMMON_CXX) \
         $(COMMON_C)
                                                                                 
-dft_DEPENDENCIES = $(top_builddir)/src/libdft.a
+dft_DEPENDENCIES = 
 
 include $(top_builddir)/Makefile.export.tramonto
 
