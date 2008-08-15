@@ -43,6 +43,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
   int boltz_pow,boltz_pow_J,jbond,ibond,unkIndex[2],numEntries,unk_GQ_j,unk_GQ_j_test;
   double fac1,fac2,mat_val,resid=0.0,resid_sum=0.0,values[2];
 
+
   if (resid_only_flag !=INIT_GUESS_FLAG){
      resid = x[iunk][inode_box]*x[unk_B][inode_box];
      resid_sum=resid;
@@ -60,16 +61,18 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 
   if (Type_poly==WJDC || Type_poly==WJDC2){
      itype_mer=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
-     loop_start=iunk;   /* don't sum over segments of a given type for WJDC */
+     loop_start=iunk;   /* don't sum over segments of a given type for WJDC or WJDC2 where we track segment densities explicitly */
      loop_end=iunk+1;
   }
-  else if (Type_poly==CMS){
+  else if (Type_poly==CMS || Type_poly==WJDC3){
      itype_mer=iunk-Phys2Unk_first[DENSITY];
      npol = 0;
      while (Nmer_t[npol][itype_mer]==0){
          npol++;
      }
-     loop_start=0;      /* for CMS we _do_ sum over segment of a given type */
+                           /* for CMS or WJDC3 polymers where we are concerned with component densitie,  
+                           we need to perform a sum over segment of a given type */
+     loop_start=0;      
      loop_end=Nmer[npol];
   }
 
@@ -84,7 +87,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 
         if (fp_prefactor!=NULL) {
              if (Type_poly==CMS) iref=itype_mer;
-             if (Type_poly==WJDC || Type_poly==WJDC2) iref=iseg;
+             if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
              fac1 = (*fp_prefactor)(iref);
         }
         else                     fac1=1.0;
@@ -98,7 +101,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
               if(resid_only_flag==FALSE){
                  if (fp_prefactor!=NULL) {
                      if (Type_poly==CMS) iref=itype_mer;
-                     if (Type_poly==WJDC || Type_poly==WJDC2) iref=iseg;
+                     if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
                      fac2 = (*fp_prefactor)(iref);
                  }
                  else                     fac2=1.0;
@@ -272,7 +275,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
                                                  unkIndex, inode_box, values, numEntries);
                }
             }
-            else if (Type_poly==WJDC || Type_poly==WJDC2){
+            else if (Type_poly==WJDC || Type_poly==WJDC2  || Type_poly==WJDC3){
                unk_xi2=Phys2Unk_first[CAVWTC]; unk_xi3=Phys2Unk_first[CAVWTC]+1;
                xi_2=x[unk_xi2][inode_box]; xi_3=x[unk_xi3][inode_box];
                y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
@@ -320,7 +323,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
                                                  unkIndex, inode_box, values, numEntries);
             }
             }
-            else if (Type_poly==WJDC || Type_poly==WJDC2){
+            else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                unk_xi2=Phys2Unk_first[CAVWTC]; 
                unk_xi3=Phys2Unk_first[CAVWTC]+1;
                xi_2=x[unk_xi2][inode_box]; xi_3=x[unk_xi3][inode_box];
@@ -356,7 +359,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
          }
          if (resid_only_flag==INIT_GUESS_FLAG){
            if (Type_poly==CMS)       resid_G*=(-x[unk_B][inode_box]);
-           else if (Type_poly==WJDC || Type_poly==WJDC2) {
+           else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) {
                   resid_G*=(-x[unk_B][inode_box]*ysqrt);
            }
          }

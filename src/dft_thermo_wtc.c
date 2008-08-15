@@ -131,7 +131,7 @@ void chempot_WTC(double *rho_seg,double *betamu)
    }
 
 
-   if (Type_poly==WJDC){
+   if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
       for (icomp=0; icomp<Ncomp;icomp++){ 
          count_comp=0;
          for (iseg=0; iseg<Nseg_tot;iseg++){
