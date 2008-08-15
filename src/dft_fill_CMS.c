@@ -46,7 +46,7 @@ double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
          resid_B=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
     }
     else{
-
+		/* note: mean-field part of Jacobian gets filled in resid_and_Jac_sten_fill_sum_Ncomp in dft_fill_CLSmf.c */
        resid_B = load_mean_field(THETA_CR_DATA,iunk,loc_inode,itype_mer,izone,ijk_box,x,resid_only_flag); 
        resid = Vext[loc_inode][itype_mer]+log(x[iunk][inode_box]);
        resid_B+=resid;
@@ -107,6 +107,7 @@ double load_CMS_Geqns(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
 {
     int Njacobian_types;
     int Njacobian_sums;
+	int field;
     double resid_G;
     void (*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **);
     double (*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **);
@@ -119,8 +120,13 @@ double load_CMS_Geqns(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
     funcArray_Jac[1]=&CMS_Jacobian_GCHAIN_derivFIELD;
     fp_ResidG=&CMS_Resid_GCHAIN;
     fp_ResidG_Bulk=&CMS_Resid_Bulk_GCHAIN;
+	
+	if(Type_poly==CMS)
+		field=CMS_FIELD;
+	else if(Type_poly==CMS_SCFT)
+		field=SCF_FIELD;
 
-    resid_G=load_Chain_Geqns(CMS_FIELD,Njacobian_types,Njacobian_sums,
+    resid_G=load_Chain_Geqns(field,Njacobian_types,Njacobian_sums,
                              funcArray_Jac,fp_ResidG,fp_ResidG_Bulk,
                              iunk, loc_inode,inode_box, 
                              ijk_box,izone,x, resid_only_flag);

@@ -41,15 +41,18 @@ extern int Nnodes_per_proc;
 extern int Nunk_per_node;
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 int loc_find(int iunk,int inode,int flag);
+#define SCF_CONSTR	   9
+#define SCF_FIELD	  10
 #define NMER_MAX     100
 #define NBOND_MAX 4
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
-#define WJDC2         4
-#define WJDC3         5
+#define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
-#define G_CHAIN        9 
+#define G_CHAIN       11 
 extern double Field_WJDC_b[NMER_MAX];
 #define WJDC_FIELD     8
 #define CMS_FIELD      7
@@ -80,7 +83,7 @@ extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 extern double Rho_seg_LBB[NMER_MAX];
 extern int Lsteady_state;
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern double Rho_seg_b[NMER_MAX];
 extern int Lseg_densities;

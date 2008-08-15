@@ -219,6 +219,7 @@ double  P_over_po;
 double  Hs_diam[NCOMP_MAX]; /* Array of effective hard sphere diameters      */
 int     L_isotherm;       /* Logical for isother vs. force vs. h data */
 double  Rho_b[NCOMP_MAX];   /* Array[Ncomp] of component bulk values         */
+double	Rho_t;				/* sum of all Rho_b */
 double  Rhobar_b[10];   /* Array[Nrho_bar] of bulk rhobars        */
 double  Rhobar_b_LBB[10];   /* Array[Nrho_bar] of bulk rhobars LBB    */
 double  Rhobar_b_RTF[10];   /* Array[Nrho_bar] of bulk rhobars RTF    */
@@ -414,7 +415,7 @@ int     Proc;     /* The unique  processor number (from 0 to Num_Proc-1)     */
 struct  Aztec_Struct Aztec; /* Structure to hold all the Aztec info          */
 int     Load_Bal_Flag; /* Flag specifying type of laod balancing to do       */
 int L_Schur; /* Switch to turn on Schur solvers */
-
+void * ParameterList_list; /* Parameterlist to hold Aztec options and params info */
 
 /* Nonlinear Solver info */
 int NL_Solver;    /* select type of nonliear solver */
@@ -488,5 +489,6 @@ int *BondAll_to_isegAll;
 int *BondAll_to_ibond;
 int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
 int Nmer_comp[NCOMP_MAX];
+double *Gsum;
 
 

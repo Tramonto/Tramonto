@@ -55,7 +55,7 @@ void setup_nunk_per_node(char *output_file1)
   if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2) Lseg_densities=TRUE;
   else Lseg_densities=FALSE;
 
-  if (Type_poly == CMS || Type_poly==CMS_SCFT) L_HSperturbation=FALSE;
+  if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==SCFT) L_HSperturbation=FALSE;
   else L_HSperturbation=TRUE;
 
   for (i=0;i<NEQ_TYPE;i++){
@@ -120,7 +120,7 @@ void setup_nunk_per_node(char *output_file1)
             break;
 
          case CMS_FIELD:
-            if (Type_poly == CMS || Type_poly==CMS_SCFT){
+            if (Type_poly == CMS){
                  NCMSField_unk=Ncomp;
             }
             else NCMSField_unk = 0;
@@ -145,10 +145,26 @@ void setup_nunk_per_node(char *output_file1)
             else Phys2Nunk[G_CHAIN]=0;
             break;
 
-          case YW_DENS:
-	    NYW_Dens = 0;
-	    Phys2Nunk[YW_DENS] = 0;
-	    break;
+          case YW_DENS:			/* unknowns for weighted density in YW functional */
+			  if(Type_poly==YW)
+				Phys2Nunk[YW_DENS] = Ncomp;
+			  else
+				  Phys2Nunk[YW_DENS] = 0;
+			  break;
+		 
+		  case SCF_FIELD:
+			  if(Type_poly==SCFT || Type_poly==CMS_SCFT)
+				  Phys2Nunk[SCF_FIELD] = Ncomp;
+			  else
+				  Phys2Nunk[SCF_FIELD] = 0;
+			  break;
+			  
+		  case SCF_CONSTR:
+			  if(Type_poly==SCFT || Type_poly==CMS_SCFT)
+				  Phys2Nunk[SCF_CONSTR] = 1;
+			  else
+				  Phys2Nunk[SCF_CONSTR] = 0;
+			  break;
 
          default:
             printf("problems with defining equation type %d\n",i);
@@ -224,6 +240,8 @@ void setup_matrix_constant_blocks()
                 Constant_row_flag[iphys]=TRUE;
                 break;
            case YW_DENS: break;
+		   case SCF_FIELD: break;
+		   case SCF_CONSTR: break;
            default: break;
     }
   }

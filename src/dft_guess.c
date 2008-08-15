@@ -124,9 +124,19 @@ void set_initial_guess (int iguess, double** xOwned)
               if (Iguess_fields==CALC_ALL_FIELDS) calc_init_CMSfield(xInBox);
               else setup_polymer_field(xInBox,iguess); 
            } break;
+		 case SCF_FIELD:
+			 if (Phys2Nunk[SCF_FIELD]>0 && (start_no_info || Restart_field[SCF_FIELD]==FALSE)) {
+				 if (Iguess_fields==CALC_ALL_FIELDS) calc_init_SCFfield(xInBox);
+				 else setup_polymer_SCF_field(xInBox,iguess); 
+			 } 
+			 break;
+		 case SCF_CONSTR:
+			 if (Phys2Nunk[SCF_CONSTR]>0 && (start_no_info || Restart_field[SCF_CONSTR]==FALSE))
+				 calc_init_lambda(xInBox);
+			 break; 
          case G_CHAIN:
            if (Phys2Nunk[G_CHAIN]>0 && (start_no_info || Restart_field[G_CHAIN]==FALSE)){
-                if (Type_poly==CMS){
+                if (Type_poly==CMS || Type_poly==CMS_SCFT){
                     if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
                                                        calc_init_polymer_G_CMS(xInBox);
                     }
@@ -142,7 +152,9 @@ void set_initial_guess (int iguess, double** xOwned)
            break;
      case YW_DENS:
        break;
-         default:
+
+			
+	 default:
            printf("problem with switch in initial guess\n");
            exit(-1);
            break;

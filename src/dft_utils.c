@@ -147,8 +147,8 @@ double constant_boundary(int iunk,int jnode_box)
            break;
        case CMS_FIELD:
            if (jnode_box==-2) bcval=0.0;
-	   else bcval=1.0; 
-	   break;
+		   else bcval=1.0; 
+		   break;
        case WJDC_FIELD:
            if (jnode_box==-2) bcval=0.0;
            else if (jnode_box==-1)      
@@ -160,8 +160,9 @@ double constant_boundary(int iunk,int jnode_box)
             break;
        case G_CHAIN:
            if (jnode_box==-2) bcval=0.0;
+
 	   else{
-               if (Type_poly == CMS) bcval=1.0; 
+               if (Type_poly == CMS || Type_poly == CMS_SCFT) bcval=1.0; 
                else if (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                    if (jnode_box==-1) bcval = G_WJDC_b[iunk-Phys2Unk_first[G_CHAIN]];
                    else if (jnode_box==-3 || jnode_box==-4){
@@ -170,7 +171,15 @@ double constant_boundary(int iunk,int jnode_box)
                    }
                }
            }
-	   break;
+			   break;
+	   case SCF_FIELD:
+		   if (jnode_box==-2) bcval=0.0;
+		   else bcval=1.0; 
+		   break;
+		case SCF_CONSTR:
+			if (jnode_box==-2) bcval=0.0;
+			else bcval=1.0; 
+			break;
    }
    return(bcval);
 }

@@ -115,6 +115,7 @@ COMMON_H = \
         ${srcdir}/dft_guess_WTC.h \
         ${srcdir}/dft_guess_restart.h \
         ${srcdir}/dft_guess_CMS.h \
+		${srcdir}/dft_guess_SCF.h \
         ${srcdir}/dft_guess_WJDC.h \
         ${srcdir}/dft_guess_ELECPOT.h \
         ${srcdir}/dft_comm.h \
@@ -124,6 +125,7 @@ COMMON_H = \
         ${srcdir}/dft_fill_main.h \
         ${srcdir}/dft_fill_FMT.h \
         ${srcdir}/dft_fill_mf.h \
+		${srcdir}/dft_fill_SCF.h \
         ${srcdir}/dft_fill_wtc.h \
         ${srcdir}/dft_vext_coul.h \
         ${srcdir}/dft_uww.h \
@@ -207,6 +209,7 @@ COMMON_C = \
         ${srcdir}/dft_guess_WTC.c \
         ${srcdir}/dft_guess_restart.c \
         ${srcdir}/dft_guess_CMS.c \
+		${srcdir}/dft_guess_SCF.c \
         ${srcdir}/dft_guess_WJDC.c \
         ${srcdir}/dft_guess_ELECPOT.c \
         ${srcdir}/dft_comm.c \
@@ -216,6 +219,7 @@ COMMON_C = \
         ${srcdir}/dft_fill_main.c \
         ${srcdir}/dft_fill_FMT.c \
         ${srcdir}/dft_fill_mf.c \
+		${srcdir}/dft_fill_SCF.c \
         ${srcdir}/dft_fill_wtc.c \
         ${srcdir}/dft_vext_coul.c \
         ${srcdir}/dft_uww.c \

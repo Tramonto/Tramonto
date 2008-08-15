@@ -231,8 +231,9 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_poly);
   }
   MPI_Bcast(&Type_poly,1,MPI_INT,0,MPI_COMM_WORLD);
+
   if (Type_poly >WJDC3 || Type_poly<NONE){
-     if (Proc==0) printf("ERROR Type_poly out of range (bounds are %d,%d)\n",NONE,WTC);
+     if (Proc==0) printf("ERROR Type_poly out of range (bounds are %d,%d)\n",NONE,WJDC3);
      exit(-1);
   }
 
@@ -917,11 +918,9 @@ void read_input_file(char *input_file, char *output_file1)
       for (i=0; i<Npol_comp; ++i){
 	fscanf(fp,"%d",&Nblock[i]);
 	fprintf(fp2,"%d",Nblock[i]);
-	/* ALF: make a change here to better catch errors */
 	if (Nblock[i] > NBLOCK_MAX) {
 	  if (Proc==0) printf("Error: Must increase NBLOCK_MAX");
 	  exit(-1);
-	/*  Nblock[i] = NBLOCK_MAX;*/
 	}
       }
     }
@@ -969,6 +968,16 @@ void read_input_file(char *input_file, char *output_file1)
     MPI_Bcast(Nmer_t_total,NBLOCK_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(SegChain2SegAll,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Type_mer,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
+
+	/* read poly_file; don't need this for SCF */
+	if (Type_poly == SCFT) {
+		if (Proc==0) {
+			read_junk(fp,fp2);
+			fprintf(fp2,"\n poly_file not used for SCFT\n");
+			fprintf(fp2,"not read   ");
+		}
+	}
+	if (Type_poly != SCFT) {
 
     if (Proc==0) {
       read_junk(fp,fp2);
@@ -1128,8 +1137,9 @@ void read_input_file(char *input_file, char *output_file1)
     }
     
     if (Proc==0) fclose(fp4);
+	} /* end of if (Type_poly !=SCFT) */
 
-    if (Type_poly != NONE && Type_poly != WTC){  /*POLYMER INPUT FOR EITHER CMS OR WJDC FUNCTIONAL */
+    if (Type_poly != NONE && Type_poly != WTC && Type_poly != SCFT){  /*POLYMER INPUT FOR EITHER CMS OR WJDC FUNCTIONAL */
     /* set start value of Geqns for each of the polymers in the system.  
        It is necessary to account for Ncomp Boltz and Ncomp Rho eqns */
    
@@ -1191,7 +1201,7 @@ void read_input_file(char *input_file, char *output_file1)
        else{
           if (Proc==0) {
              read_junk(fp,fp2);
-             fprintf(fp2,"\n NO LIQUID STATE INPUT FOR WERTHEIM-JAIN/DOMINIK-CHAPMAN RUN\n");
+             fprintf(fp2,"\n NO LIQUID STATE INPUT FOR NON-CMS RUN\n");
              fprintf(fp2,"not read   ");
              for (i=0; i<2; i++) {
                 read_junk(fp,fp2);
@@ -1333,6 +1343,13 @@ void read_input_file(char *input_file, char *output_file1)
     }
   }
   MPI_Bcast(Rho_b,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+	/* calculate total sum of site densities */
+	Rho_t = 0.0;
+	for(icomp=0; icomp<Ncomp; icomp++)
+		Rho_t += Rho_b[icomp];
+
+	printf("Rho_t = %f\n", Rho_t);
 
   /* Read in Charged surface parameters */
   Ipot_wf_c = 0;

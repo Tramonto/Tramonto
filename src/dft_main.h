@@ -135,7 +135,6 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 extern double ***Rism_cr;
-#define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
 void pot_parameters(char *output_file1);

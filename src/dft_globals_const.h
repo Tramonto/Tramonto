@@ -164,7 +164,7 @@
  * unknown number straightforward.  This became necessary with the introduction
  * of the WTC polymers where we now have 6 types of equations to fill.
  */
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 #define NO_UNK        -888
 
 #define DENSITY        0
@@ -176,8 +176,12 @@
 #define DIFFUSION      6
 #define CMS_FIELD      7
 #define WJDC_FIELD     8
-#define G_CHAIN        9 
-#define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
+#define SCF_CONSTR	   9
+#define SCF_FIELD	  10
+#define G_CHAIN       11 
+#define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
+
+
 
 /* Here are some constants needed to make the physics based ordering of the
    matrix an option in the code. */
@@ -231,6 +235,9 @@
 #define WJDC         3
 #define WJDC2        4 
 #define WJDC3        5 
+#define SCFT		 6
+#define YW			 7
+
 
 /*
  * These constants identify attraction functional choices (Type_attr).
@@ -772,6 +779,7 @@ extern double  Betap_att;      /* Attractive Presseure in units of kT sigma_ff[1
 extern double  P_over_po;
 extern int     L_isotherm; /* Logical for isotherm vs. force per distance data */
 extern double  Rho_b[NCOMP_MAX];   /* Array[Ncomp] of component bulk densities      */
+extern double  Rho_t;
 extern double  Rhobar_b[10]; /* Array[Nrho_bar] of bulk rhobars      */
 extern double  Rhobar_b_LBB[10]; /* Array[Nrho_bar] of bulk rhobars LBB  */
 extern double  Rhobar_b_RTF[10]; /* Array[Nrho_bar] of bulk rhobars RTF  */
@@ -1041,6 +1049,7 @@ extern int Nmer_comp[NCOMP_MAX];
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
+extern double *Gsum;	/* chain partition func for CMS_SCFT */
 
 /*********************************************************************/
 extern double Ads[NCOMP_MAX][2];

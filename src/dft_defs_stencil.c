@@ -42,12 +42,7 @@ void setup_stencil_logicals()
 
   if (Type_poly == CMS || Type_poly == CMS_SCFT){
       Sten_Type[DELTA_FN_BOND]=TRUE;
-      Sten_Type[THETA_CR_DATA]=TRUE;
-
-      if (Type_poly==CMS_SCFT){
-        printf ("To do SCFT with CMS theory, we need to test and debug all code !\n");
-        exit(-1);
-      }
+      if (Type_poly == CMS) Sten_Type[THETA_CR_DATA]=TRUE;
   }
   else{
      if (Type_func !=NONE){

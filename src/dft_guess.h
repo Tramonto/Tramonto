@@ -28,7 +28,7 @@ void check_zero_densities(double **xInBox);
 void chop_profile(double **xInBox,int iguess);
 #define RESTART_STEP       2
 void communicate_to_fill_in_box_values(double **xInBox);
-#define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
+#define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
 void setup_polymer_G_wjdc(double **xInBox);
 void calc_init_polymer_G_wjdc(double **xInBox);
 #define WJDC3        5 
@@ -37,7 +37,12 @@ void calc_init_polymer_G_wjdc(double **xInBox);
 void setup_polymer_G(double **xInBox);
 void calc_init_polymer_G_CMS(double **xInBox);
 #define CALC_RHOBAR_AND_G 3
-#define G_CHAIN        9 
+#define G_CHAIN       11 
+void calc_init_lambda(double **xInBox);
+#define SCF_CONSTR	   9
+void setup_polymer_SCF_field(double **xInBox,int iguess);
+void calc_init_SCFfield(double **xInBox);
+#define SCF_FIELD	  10
 void setup_polymer_field(double **xInBox,int iguess);
 void calc_init_CMSfield(double **xInBox);
 #define CMS_FIELD      7
@@ -69,7 +74,7 @@ void setup_polymer_rho(double **xInBox,int iguess);
 #define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 #define TRUE  1

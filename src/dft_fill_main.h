@@ -16,9 +16,12 @@
 #include "Tramonto_ConfigDefs.h"
 extern int *L2G_node;
 void print_residuals(int loc_inode,int iunk,double *resid_unk);
+double load_lambda_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+#define SCF_CONSTR	   9
+double load_SCF_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+#define SCF_FIELD	  10
 double load_WJDC_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define G_CHAIN        9 
 typedef struct RB_Struct RB_Struct;
 double load_WJDC_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
 #define WJDC_FIELD     8
@@ -42,9 +45,10 @@ double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,
 extern int Nrho_bar_s;
 #define THETA_FN_R            1
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
-#define NEQ_TYPE       11 
-extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       2
+#define YW			 7
+#define SCFT		 6
+double load_SCF_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define CMS          0
@@ -52,7 +56,6 @@ double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int
 #define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
-extern int Type_poly;
 extern int L_HSperturbation;
 #define DENSITY        0
 #define NCOMP_MAX 5
@@ -78,8 +81,20 @@ extern int Nwall_type;
 #endif
 extern int Mesh_coarsening;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
+double gsum_double(double c);
+extern int Nnodes_per_el_V;
+extern double Vol_el;
+extern int **Nel_hit2;
 extern int *L2B_node;
 extern int Nnodes_per_proc;
+extern int Nmer[NCOMP_MAX];
+#define G_CHAIN       11 
+#define NEQ_TYPE       13 
+extern int Phys2Unk_first[NEQ_TYPE];
+extern int Npol_comp;
+extern double *Gsum;
+#define CMS_SCFT     1
+extern int Type_poly;
 #define NODAL_FLAG -999
 void print_profile_box(double **x,char *outfile);
 #define VERBOSE      3 

@@ -64,7 +64,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
      loop_start=iunk;   /* don't sum over segments of a given type for WJDC or WJDC2 where we track segment densities explicitly */
      loop_end=iunk+1;
   }
-  else if (Type_poly==CMS || Type_poly==WJDC3){
+  else if (Type_poly==CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3){
      itype_mer=iunk-Phys2Unk_first[DENSITY];
      npol = 0;
      while (Nmer_t[npol][itype_mer]==0){
@@ -86,9 +86,12 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
         boltz_pow_J = -(Nbonds_SegAll[iseg]-1);
 
         if (fp_prefactor!=NULL) {
-             if (Type_poly==CMS) iref=itype_mer;
+
+             if (Type_poly==CMS || Type_poly==CMS_SCFT) iref=itype_mer;
              if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
              fac1 = (*fp_prefactor)(iref);
+			 if (Type_poly==CMS_SCFT)
+				 fac1 /= Gsum[npol];
         }
         else                     fac1=1.0;
 
@@ -100,9 +103,12 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 
               if(resid_only_flag==FALSE){
                  if (fp_prefactor!=NULL) {
-                     if (Type_poly==CMS) iref=itype_mer;
+
+                     if (Type_poly==CMS || Type_poly==CMS_SCFT) iref=itype_mer;
                      if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
                      fac2 = (*fp_prefactor)(iref);
+					 if (Type_poly==CMS_SCFT)
+						 fac2 /=Gsum[npol];
                  }
                  else                     fac2=1.0;
                  for (jbond=0; jbond<Nbonds_SegAll[iseg]; jbond++) {
@@ -123,7 +129,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                     if (resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                  }*/
               }
-        }
+        } /* end loop over ibond */
         if(resid_only_flag==FALSE){
            if (boltz_pow > 0){
              mat_val = -fac1*((double) boltz_pow)*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow_J);
@@ -258,10 +264,10 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
 
          if (Bonds[pol_num][seg_num][bond_num] == -1){        /* fill end segment equation */
                                                 /* Boltz unk for 1st seg */
-            if (Type_poly==CMS || Type_poly==WJDC2 || Type_poly==WJDC3) unk_B = Phys2Unk_first[func_type_field] + itype_mer;
+            if (Type_poly==CMS || Type_poly==CMS_SCFT || Type_poly==WJDC2 || Type_poly==WJDC3) unk_B = Phys2Unk_first[func_type_field] + itype_mer;
             else if (Type_poly==WJDC) unk_B = Phys2Unk_first[func_type_field] + SegChain2SegAll[pol_num][seg_num]; 
 
-            if (Type_poly==CMS){
+            if (Type_poly==CMS || Type_poly==CMS_SCFT){
                if (resid_only_flag==INIT_GUESS_FLAG) resid=-1.0;
                else  resid = x[iunk][inode_box]/x[unk_B][inode_box]-1.0;
                resid_G+=resid;
@@ -303,10 +309,11 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
          else{                                            /* fill G_seg eqns */
 
                         /* First calculate the residual contributions */
-            if (Type_poly==CMS || Type_poly==WJDC2 || Type_poly==WJDC3) unk_B = Phys2Unk_first[func_type_field] + itype_mer;   /* Boltz unk for this seg */
+
+            if (Type_poly==CMS || Type_poly==CMS_SCFT || Type_poly==WJDC2 || Type_poly==WJDC3) unk_B = Phys2Unk_first[func_type_field] + itype_mer;   /* Boltz unk for this seg */
             else if (Type_poly==WJDC) unk_B = Phys2Unk_first[func_type_field] + SegChain2SegAll[pol_num][seg_num];  
 
-            if (Type_poly==CMS){
+            if (Type_poly==CMS || Type_poly==CMS_SCFT){
             if (resid_only_flag != INIT_GUESS_FLAG){
                resid = x[iunk][inode_box]/x[unk_B][inode_box];
 
@@ -358,7 +365,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
             resid_G += gint_tmp;
          }
          if (resid_only_flag==INIT_GUESS_FLAG){
-           if (Type_poly==CMS)       resid_G*=(-x[unk_B][inode_box]);
+           if (Type_poly==CMS || Type_poly==CMS_SCFT)       resid_G*=(-x[unk_B][inode_box]);
            else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) {
                   resid_G*=(-x[unk_B][inode_box]*ysqrt);
            }

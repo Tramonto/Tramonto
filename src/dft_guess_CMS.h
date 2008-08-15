@@ -17,7 +17,7 @@ void communicate_to_fill_in_box_values(double **xInBox);
 #include "Tramonto_ConfigDefs.h"
 #define INIT_GUESS_FLAG  2
 double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define G_CHAIN        9 
+#define G_CHAIN       11 
 extern int ***Poly_to_Unk;
 extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
@@ -43,6 +43,7 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Nlists_HW;
+#define SCF_FIELD	  10
 extern int ***Bonds;
 #define NCOMP_MAX 5
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
@@ -101,7 +102,7 @@ extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define CMS_FIELD      7
 #define DENSITY        0
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 extern int *L2B_node;

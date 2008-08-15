@@ -121,7 +121,6 @@ void dftmain(double * engptr)
   output_file2 = "dft_vext.dat";
   output_file3 = "dft_output.dat";
   output_file4 = "dft_vext_c.dat";
-  /* ALF */
   output_TF = "dft_zeroTF.dat";
 
   /*dummy = (int *) array_alloc (1, 500000000, sizeof(int));
@@ -138,7 +137,7 @@ void dftmain(double * engptr)
   setup_nunk_per_node(output_file1);
 
   if (Mix_type == 0) pot_parameters(output_file1);
-  if (Type_poly == CMS || Type_poly==CMS_SCFT){
+  if (Type_poly == CMS){
       Rism_cr = (double ***) array_alloc (3, Ncomp,Ncomp,N_NZCR_MAX,sizeof(double));
       setup_polymer_cr();
   }
@@ -254,8 +253,6 @@ void dftmain(double * engptr)
       */
       x = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
       if (Lbinodal) x2 = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
-
-
 
       t_preprocess += MPI_Wtime();
       t_solve = -MPI_Wtime();
@@ -483,7 +480,6 @@ void dftmain(double * engptr)
 
 
   /* free stencils */
-  /* ALF: fixed for changed stencils */
   for (izone=0; izone<Nzone; izone++){
   for (isten=0; isten<NSTEN; isten++)
    if (Sten_Type[isten]==TRUE) {
@@ -501,7 +497,7 @@ void dftmain(double * engptr)
   }
   safe_free((void **) &Stencil);
 
-  if (Type_poly == CMS || Type_poly==CMS_SCFT) safe_free((void **) &Rism_cr);
+  if (Type_poly == CMS) safe_free((void **) &Rism_cr);
 
 
   if (Proc == 0)

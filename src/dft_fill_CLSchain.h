@@ -55,7 +55,7 @@ extern int ***Bonds;
 extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
-#define G_CHAIN        9 
+#define G_CHAIN       11 
 double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define NMER_MAX     100
 extern double Field_WJDC_b[NMER_MAX];
@@ -71,6 +71,7 @@ double resid_and_Jac_ChainDensity_WJDC2(int func_type,double **x,int iunk,int un
 #endif
 extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
+extern double *Gsum;
 extern int *Nbonds_SegAll;
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
@@ -78,9 +79,10 @@ extern int Lseg_densities;
 extern int Nmer[NCOMP_MAX];
 #define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
+#define CMS_SCFT     1
 #define CMS          0
 #define DENSITY        0
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Comp[NMER_MAX];
 #define WJDC2        4 

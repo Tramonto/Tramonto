@@ -44,7 +44,9 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   char   *yo = "fill_resid_and_matrix";
   int     loc_inode, inode_box,ijk_box[3],iunk,junk,iunk_start,iunk_end;
   int     mesh_coarsen_flag_i,switch_constmatrix;
+  int	npol,unk_G;
   double *resid_unk,resid_sum=0.0,resid_term;
+  double sum_i;
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
   resid_unk = (double *) array_alloc (1, Nunk_per_node, sizeof(double));
@@ -60,7 +62,27 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
       iunk_start = unk_flag;
       iunk_end = unk_flag+1;
   }
-
+  
+  /* ALF: calculate all the single chain partition functions */
+  if(Type_poly == CMS_SCFT) {
+	  
+	  Gsum = (double *) array_alloc(1, Npol_comp, sizeof(double));
+	  
+	  /* loop over chains */
+	  for(npol=0; npol<Npol_comp; npol++){
+		  unk_G = Phys2Unk_first[G_CHAIN] + Nmer[npol] - 1;		// find G at j=N
+		  printf("unk_G=%d\n", unk_G);
+		  sum_i=0.0, Gsum[npol] = 0.0;
+		  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+			  inode_box = L2B_node[loc_inode];
+			  /* need to figure out correct index for Nel_hit2 */
+			  sum_i += x[unk_G][inode_box]*Nel_hit2[0][inode_box]*Vol_el/((double)Nnodes_per_el_V);
+			  printf("loc_inode=%d, x=%f\n", loc_inode,x[unk_G][inode_box]);
+		  }
+		  Gsum[npol] = gsum_double(sum_i);
+	  }
+  } 
+  
   /* Load residuals and matrix */
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
 
@@ -101,6 +123,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   } /* end of loop over local nodes */
 
   safe_free((void *) &resid_unk);
+	safe_free((double *) &Gsum);
   return(resid_sum);
 }
 /*************************************************************************************************/
@@ -127,6 +150,20 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                 if (Type_poly==CMS) resid_unk[iunk]=load_CMS_density(iunk,loc_inode,inode_box,x,resid_only_flag);
                 else                resid_unk[iunk]=load_WJDC_density(iunk,loc_inode,inode_box,x,resid_only_flag);
              }
+		     else if(Type_poly == CMS_SCFT) {
+				 resid_unk[iunk]=load_SCF_density(iunk,loc_inode,inode_box,x,resid_only_flag);
+				 /* resid_unk[iunk]/=Gsum;  // check initial value of G's! */
+				 /* printf("CMS_SCFT not yet implemented\n");
+				 exit(-1); */
+		     }
+		   else if(Type_poly == SCFT) {
+			   printf("SCFT not yet implemented\n");
+			   exit(-1);
+		   }
+		     else if(Type_poly==YW) {
+				 printf("YW not yet implemented\n");
+				 exit(-1);
+		     }
              break;
        case HSRHOBAR: 
           if (iunk == Phys2Unk_first[HSRHOBAR]){
@@ -172,13 +209,27 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
           break;
 
        case G_CHAIN:
-          if (Type_poly==CMS){
+          if (Type_poly==CMS || Type_poly==CMS_SCFT){
              resid_unk[iunk]=load_CMS_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
           }
           else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
              resid_unk[iunk]=load_WJDC_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
           }
           break;
+/*	   case YW_DENS:
+		   break; */
+	   case SCF_FIELD:
+		   if(Type_poly==CMS_SCFT){
+			   resid_unk[iunk]=load_SCF_field(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+		   }
+		   else{
+			   printf("SCFT not yet implemented\n");
+			   exit(-1);
+		   }
+		   break;
+	   case SCF_CONSTR:
+		   resid_unk[iunk]=load_lambda_field(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+		   break; 
 
    }  /* end of physics switch */
 

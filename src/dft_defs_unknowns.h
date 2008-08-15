@@ -14,7 +14,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Constant_row_flag[NEQ_TYPE];
 #define VERBOSE      3 
 extern int Iwrite;
@@ -27,9 +27,12 @@ extern int Nunk_per_node;
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
-#define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
+#define SCF_CONSTR	   9
+#define SCF_FIELD	  10
+#define YW			 7
+#define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
 extern int Ngeqn_tot;
-#define G_CHAIN        9 
+#define G_CHAIN       11 
 #define WJDC_FIELD     8
 #define CMS_FIELD      7
 extern int Nbonds;
@@ -63,6 +66,7 @@ extern int Nseg_tot;
 extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 extern int L_HSperturbation;
+#define SCFT		 6
 #define CMS_SCFT     1
 #define CMS          0
 #define FALSE 0

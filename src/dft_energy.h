@@ -64,13 +64,13 @@ extern double Charge_f[NCOMP_MAX];
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
-#define WJDC2         4
-#define WJDC3         5
 extern int Type_poly;
 extern int L_HSperturbation;
 #define FALSE 0

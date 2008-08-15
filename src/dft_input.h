@@ -151,6 +151,7 @@ extern int Nlocal_charge;
 #define COULOMB      1
 extern int Type_bc_elec[NWALL_MAX_TYPE];
 extern int Ipot_wf_c;
+extern double Rho_t;
 extern double Rho_b[NCOMP_MAX];
 extern double **Vext_membrane;
 extern int **Lsemiperm;
@@ -188,6 +189,7 @@ extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 #define NBOND_MAX 4
 extern int *Unk_to_Poly;
+#define SCFT		 6
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 #define NBLOCK_MAX   20 

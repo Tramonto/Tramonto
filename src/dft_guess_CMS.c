@@ -116,7 +116,7 @@ void setup_polymer_simple(double **xInBox, int iguess)
 	     }
 
            } /* end loop over jtype_mer */
-	   /* ALF: add Vext to initial guess for field */
+	   /*  add Vext to initial guess for field */
 	   temp += Vext[loc_inode][itype_mer];
            /* if (temp > 1.0) temp=1.0;*/
            if ((Type_poly == CMS || Type_poly == CMS_SCFT) || (temp > 0.5)) xInBox[iunk][inode_box] = exp(temp);
@@ -210,7 +210,10 @@ void setup_polymer_G(double **xInBox)
                  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
                      inode_box = L2B_node[loc_inode];
                      node_box_to_ijk_box(inode_box, ijk_box);
-                     xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
+					 if(Type_poly==CMS)
+						 xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
+					 else if (Type_poly==CMS_SCFT)
+						 xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[SCF_FIELD]+itype_mer][inode_box];
                   }
              }
              else{
@@ -255,8 +258,10 @@ void setup_polymer_G(double **xInBox)
                            }
                          }
                       }
-
-                  xInBox[iunk][inode_box] *= xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
+				  if(Type_poly==CMS)
+					  xInBox[iunk][inode_box] *= xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
+				  else if (Type_poly==CMS_SCFT)
+					  xInBox[iunk][inode_box] *= xInBox[Phys2Unk_first[SCF_FIELD]+itype_mer][inode_box];
 
 	           } /*end of Zero_dens_TF test */
                    } /* end of loop over loc_inode */
@@ -295,7 +300,7 @@ void setup_polymer_G(double **xInBox)
 in the wjdc functional */
 void calc_init_polymer_G_CMS(double **xInBox)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box;
+  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,field;
   int ibond,jbond,index,iseg,jseg,pol_num,bond_num,test,ijk_box[3];
   double resid_G;
   int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill;
@@ -307,6 +312,11 @@ void calc_init_polymer_G_CMS(double **xInBox)
 
   /* need to be careful to generate the G's in the order dictated
      by the chain architecture.  Use same strategy as in dft_thermo_wjdc */
+  
+  if(Type_poly==CMS)
+	  field=CMS_FIELD;
+  else if(Type_poly==CMS_SCFT)
+	  field=SCF_FIELD;
 
   for (ibond=0;ibond<Nbonds;ibond++) array_val[ibond]=FALSE;
   array_fill=FALSE;
@@ -335,7 +345,7 @@ void calc_init_polymer_G_CMS(double **xInBox)
                      inode_box=L2B_node[loc_inode];
                      node_box_to_ijk_box(inode_box,ijk_box);
                      iunk=Phys2Unk_first[G_CHAIN]+ibond;
-                     resid_G=load_Chain_Geqns(CMS_FIELD,0,0,
+                     resid_G=load_Chain_Geqns(field,0,0,
                                              NULL,fp_ResidG,fp_ResidG_Bulk,
                                              iunk,loc_inode,inode_box,
                                              ijk_box,0,xInBox, INIT_GUESS_FLAG);
