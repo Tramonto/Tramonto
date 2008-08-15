@@ -58,7 +58,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
      }
   }
 
-  if (Type_poly==WJDC){
+  if (Type_poly==WJDC || Type_poly==WJDC2){
      itype_mer=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
      loop_start=iunk;   /* don't sum over segments of a given type for WJDC */
      loop_end=iunk+1;
@@ -84,7 +84,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 
         if (fp_prefactor!=NULL) {
              if (Type_poly==CMS) iref=itype_mer;
-             if (Type_poly==WJDC) iref=iseg;
+             if (Type_poly==WJDC || Type_poly==WJDC2) iref=iseg;
              fac1 = (*fp_prefactor)(iref);
         }
         else                     fac1=1.0;
@@ -98,7 +98,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
               if(resid_only_flag==FALSE){
                  if (fp_prefactor!=NULL) {
                      if (Type_poly==CMS) iref=itype_mer;
-                     if (Type_poly==WJDC) iref=iseg;
+                     if (Type_poly==WJDC || Type_poly==WJDC2) iref=iseg;
                      fac2 = (*fp_prefactor)(iref);
                  }
                  else                     fac2=1.0;
@@ -227,7 +227,6 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
 
     if (Zero_density_TF[inode_box][itype_mer] || Vext[loc_inode][itype_mer] == VEXT_MAX){
          resid_G=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
-if (loc_inode==10 && iunk==24) printf("resid_G 1=%g\n",resid_G);
     }
 /*    else if (fabs(x[iunk][inode_box]) < 1.e-12  && resid_only_flag==FALSE){    make G stationary 
         resid = 0.0;
@@ -243,7 +242,6 @@ if (loc_inode==10 && iunk==24) printf("resid_G 1=%g\n",resid_G);
           junk = Pol_Sym[unk_GQ] + Phys2Unk_first[G_CHAIN];
           resid = x[iunk][inode_box]-x[junk][inode_box];
           resid_G+=resid;
-if (loc_inode==10 && iunk==24) printf("resid_G 2=%g\n",resid_G);
           if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           if (!resid_only_flag){
              unkIndex[0]=iunk; unkIndex[1]=junk;
@@ -257,14 +255,13 @@ if (loc_inode==10 && iunk==24) printf("resid_G 2=%g\n",resid_G);
 
          if (Bonds[pol_num][seg_num][bond_num] == -1){        /* fill end segment equation */
                                                 /* Boltz unk for 1st seg */
-            if (Type_poly==CMS) unk_B = Phys2Unk_first[func_type_field] + itype_mer;
-            else unk_B = Phys2Unk_first[func_type_field] + SegChain2SegAll[pol_num][seg_num]; /*revert to above when return to component treatment --- then remove this line */
+            if (Type_poly==CMS || Type_poly==WJDC2 || Type_poly==WJDC3) unk_B = Phys2Unk_first[func_type_field] + itype_mer;
+            else if (Type_poly==WJDC) unk_B = Phys2Unk_first[func_type_field] + SegChain2SegAll[pol_num][seg_num]; 
 
             if (Type_poly==CMS){
                if (resid_only_flag==INIT_GUESS_FLAG) resid=-1.0;
                else  resid = x[iunk][inode_box]/x[unk_B][inode_box]-1.0;
                resid_G+=resid;
-if (loc_inode==10 && iunk==24) printf("resid_G 3=%g\n",resid_G);
                if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                if (resid_only_flag==FALSE){
                   unkIndex[0]=iunk; unkIndex[1]=unk_B;
@@ -275,7 +272,7 @@ if (loc_inode==10 && iunk==24) printf("resid_G 3=%g\n",resid_G);
                                                  unkIndex, inode_box, values, numEntries);
                }
             }
-            else if (Type_poly==WJDC){
+            else if (Type_poly==WJDC || Type_poly==WJDC2){
                unk_xi2=Phys2Unk_first[CAVWTC]; unk_xi3=Phys2Unk_first[CAVWTC]+1;
                xi_2=x[unk_xi2][inode_box]; xi_3=x[unk_xi3][inode_box];
                y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
@@ -283,7 +280,6 @@ if (loc_inode==10 && iunk==24) printf("resid_G 3=%g\n",resid_G);
                if (resid_only_flag==INIT_GUESS_FLAG) resid = -(1.0/ysqrt);
                else resid = x[iunk][inode_box]/(x[unk_B][inode_box]*ysqrt)-(1.0/ysqrt);
                resid_G+=resid;
-if (loc_inode==10 && iunk==24) printf("resid_G 4=%g\n",resid_G);
                if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY)dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
                if (resid_only_flag==FALSE){
@@ -304,15 +300,14 @@ if (loc_inode==10 && iunk==24) printf("resid_G 4=%g\n",resid_G);
          else{                                            /* fill G_seg eqns */
 
                         /* First calculate the residual contributions */
-            if (Type_poly==CMS) unk_B = Phys2Unk_first[func_type_field] + itype_mer;   /* Boltz unk for this seg */
-            else unk_B = Phys2Unk_first[func_type_field] + SegChain2SegAll[pol_num][seg_num];   /* revert to above when return to component treatment for WJDC - then can remove this line*/
+            if (Type_poly==CMS || Type_poly==WJDC2 || Type_poly==WJDC3) unk_B = Phys2Unk_first[func_type_field] + itype_mer;   /* Boltz unk for this seg */
+            else if (Type_poly==WJDC) unk_B = Phys2Unk_first[func_type_field] + SegChain2SegAll[pol_num][seg_num];  
 
             if (Type_poly==CMS){
             if (resid_only_flag != INIT_GUESS_FLAG){
                resid = x[iunk][inode_box]/x[unk_B][inode_box];
 
                resid_G+=resid;
-if (loc_inode==10 && iunk==24) printf("resid_G 5=%g\n",resid_G);
                if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
             }
 
@@ -325,7 +320,7 @@ if (loc_inode==10 && iunk==24) printf("resid_G 5=%g\n",resid_G);
                                                  unkIndex, inode_box, values, numEntries);
             }
             }
-            else if (Type_poly==WJDC){
+            else if (Type_poly==WJDC || Type_poly==WJDC2){
                unk_xi2=Phys2Unk_first[CAVWTC]; 
                unk_xi3=Phys2Unk_first[CAVWTC]+1;
                xi_2=x[unk_xi2][inode_box]; xi_3=x[unk_xi3][inode_box];
@@ -333,9 +328,7 @@ if (loc_inode==10 && iunk==24) printf("resid_G 5=%g\n",resid_G);
                ysqrt=sqrt(y);
                if (resid_only_flag != INIT_GUESS_FLAG){
                   resid = x[iunk][inode_box]/(x[unk_B][inode_box]*ysqrt);
-
                   resid_G+=resid;
-if (loc_inode==10 && iunk==24) printf("resid_G 6=%g  unk_B=%d  x[unk_B]=%g  ysqrt=%g\n",resid_G,unk_B,x[unk_B][inode_box],ysqrt);
                   if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                }
 
@@ -360,12 +353,12 @@ if (loc_inode==10 && iunk==24) printf("resid_G 6=%g  unk_B=%d  x[unk_B]=%g  ysqr
                             iunk,loc_inode,inode_box,unk_B,
                             itype_mer,izone,ijk_box,x, resid_only_flag);
             resid_G += gint_tmp;
-if (loc_inode==10 && iunk==24) printf("resid_G 7=%g\n",resid_G);
          }
          if (resid_only_flag==INIT_GUESS_FLAG){
            if (Type_poly==CMS)       resid_G*=(-x[unk_B][inode_box]);
-           else if (Type_poly==WJDC) resid_G*=(-x[unk_B][inode_box]*ysqrt);
-if (loc_inode==10 && iunk==24) printf("resid_G 8=%g\n",resid_G);
+           else if (Type_poly==WJDC || Type_poly==WJDC2) {
+                  resid_G*=(-x[unk_B][inode_box]*ysqrt);
+           }
          }
        }
     }  /* end of fill something */

@@ -44,11 +44,11 @@ void  thermodynamics(char *output_file1)
     }
     if (L_HSperturbation){
                                                                     /* set up segment densities */
-       if (Type_poly == WTC || Type_poly==WJDC) WTC_thermo_precalc(output_file1);   
+       if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WTC_thermo_precalc(output_file1);   
                                                                     /* set up bulk WJDC_field and G values */
        if (Type_func != NONE) HS_thermo_precalc(output_file1); 
        if (Type_attr != NONE ) ATT_thermo_precalc();
-       if (Type_poly == WJDC) WJDC_thermo_precalc(output_file1);
+       if (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WJDC_thermo_precalc(output_file1);
        /* if (Type_coul == DELTAC)  nothing to do here... */
     }
     /*else { } no CMS precalculations implemented here yet */
@@ -71,7 +71,7 @@ void  thermodynamics(char *output_file1)
     /* must calculate chemical potentials first because we use mu in the WTC calculation of the pressure */
     calc_chempot(output_file1);
     calc_pressure(output_file1);
-    if  (Physics_scaling && Type_poly==WJDC) WJDC_thermo_precalc(output_file1); /*adjust bulk terms for scaling */
+    if  (Physics_scaling && Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WJDC_thermo_precalc(output_file1); /*adjust bulk terms for scaling */
 
     return;
 }
@@ -171,7 +171,7 @@ void calc_pressure(char *output_file1)
 				/* WTC contributions */
 	  /* note these aren't additive,instead we recalculate the HS, ideal terms here */
 	  /* must then correct contributions from attractions, Coulomb */
-          if (Type_poly == WTC || Type_poly==WJDC){
+          if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
 	    betap_chain = pressure_WTC(Rho_seg_b);
                    if (Proc==0 && Iwrite != NO_SCREEN) printf("\t chain pressure is %9.6f\n",betap_chain);
             Betap += betap_chain;
@@ -206,7 +206,7 @@ void calc_chempot(char *output_file1)
  
    if (Lsteady_state){          /* CASE WITH DIFFUSION */
       if (L_HSperturbation){
-          if (Type_poly==WJDC){  /* this is different than all the others because we compute
+          if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){  /* this is different than all the others because we compute
                                     chain chemical potentials.  Note that a segment chemical potential
                                     should also be implemented. */
              chempot_chain_wjdc(Rho_seg_LBB,Betamu_chain_LBB);
@@ -247,7 +247,7 @@ void calc_chempot(char *output_file1)
              }
           }
 				/* WTC contributions */
-          if (Type_poly ==WTC || Type_poly==WJDC){
+          if (Type_poly ==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                                  /* note that this should come last because the segment 
                                     chemical potentials are built using the component chemical potentials
                                     for other physics types */
@@ -309,7 +309,7 @@ void calc_chempot(char *output_file1)
    else{          		/* CASE WITH NO DIFFUSION */
       if (L_HSperturbation){
 
-          if (Type_poly==WJDC){  /* this is different than all the others because we compute
+          if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){  /* this is different than all the others because we compute
                                     chain chemical potentials.  Note that a segment chemical potential
                                     should also be implemented. */
              chempot_chain_wjdc(Rho_seg_b,Betamu_chain);
@@ -338,11 +338,11 @@ void calc_chempot(char *output_file1)
               }
           }
 				/* WTC contributions */
-          if (Type_poly==WTC || Type_poly==WJDC){   
+          if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){   
                                  /* note that this should come last because the segment 
                                     chemical potentials are built using the component chemical potentials
                                     for other physics types */
-              if ((Physics_scaling && Type_poly==WJDC) || Type_poly==WTC) chempot_WTC(Rho_seg_b,Betamu);
+              if ((Physics_scaling && (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) || Type_poly==WTC) chempot_WTC(Rho_seg_b,Betamu);
                if (Type_poly==WTC){
                   for (ipol=0;ipol<Npol_comp;ipol++){
                      Betamu_chain[ipol]=0.0;

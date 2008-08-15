@@ -23,7 +23,11 @@ extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
 extern int SegAll_to_Poly[NMER_MAX];
+#define WJDC         3
 #define WJDC_FIELD     8
+#define WJDC3        5 
+#define WJDC2        4 
+extern int Type_poly;
 extern int Unk2Comp[NMER_MAX];
 #define DENSITY        0
 #define NEQ_TYPE       11 

@@ -132,7 +132,7 @@ void set_initial_guess (int iguess, double** xOwned)
                     }
                     else                                setup_polymer_G(xInBox); 
                 }
-                else if (Type_poly==WJDC){
+                else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                    if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
                           calc_init_polymer_G_wjdc(xInBox);
                    }

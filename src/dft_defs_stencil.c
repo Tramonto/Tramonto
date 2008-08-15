@@ -57,7 +57,7 @@ void setup_stencil_logicals()
       if (Type_attr != NONE) Sten_Type[THETA_PAIRPOT_RCUT]=TRUE;
       if (Type_coul == DELTAC) Sten_Type[THETA_CR_RPM_MSA]=TRUE;
 
-      if (Type_poly == WTC || Type_poly==WJDC) {
+      if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) {
         Sten_Type[THETA_FN_SIG]=TRUE;
         Sten_Type[DELTA_FN_BOND]=TRUE;
       }

@@ -43,15 +43,13 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
 
                   /* set icomp and iseg(WTC) */
    iseg=-1;
-   if (Type_poly==WJDC) {                  /* note that this routine fills the _field_variable rather than
-                                              the density variable for a WJDC DFT problem */
+   if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) { /* note that this routine fills the _field_variable rather than
+                                                                   the density variable for a WJDC DFT problem */
              i=iunk-Phys2Unk_first[WJDC_FIELD];               
-             iseg=i; /* remove if doing component fields */
    } 
    else      i = iunk-Phys2Unk_first[DENSITY];
 
-   /*if (Type_poly==WTC){*/
-   if (Type_poly==WTC || Type_poly==WJDC){ /*use condition above for component field */
+   if (Type_poly==WTC || Type_poly==WJDC){    /*be careful when treating WTC densities or WJDC fields on segment basis */
                 iseg=i;
                 icomp=Unk2Comp[iseg];
    }
@@ -70,7 +68,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    bulk_TF=FALSE;
    if (mesh_coarsen_flag_i == FLAG_BULK) bulk_TF=TRUE;
    if (bulk_TF){
-       if (Type_poly==WJDC){
+       if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
           resid=fill_bulk_field(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
        }
        else{
@@ -79,7 +77,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
        if (resid_only_flag==INIT_GUESS_FLAG) return(-resid);
        else                                  return(resid);
    } 
-
 
    sym_WTC_TF=FALSE;
    if (Type_poly==WTC && Pol_Sym_Seg[iseg] != -1) sym_WTC_TF=TRUE;
@@ -92,8 +89,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    resid=0.0; 
    resid+=fill_EL_ideal_gas(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
 
- 
-   if (Type_poly != WJDC){
+   if (Type_poly != WJDC && Type_poly != WJDC2 && Type_poly != WJDC3){
       resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
    }
 
@@ -102,7 +98,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    if (Type_coul != NONE){
          resid+=fill_EL_elec_field(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
    }
-
 
    if (mesh_coarsen_flag_i != FLAG_PBELEC){
 
@@ -142,7 +137,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    }
 
 
-   if (Type_poly==WTC || Type_poly==WJDC){
+   if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2){
        if (Type_poly==WTC){
        resid+=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
                                  izone,ijk_box,x,resid_only_flag);
@@ -152,10 +147,10 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
        resid+=load_polyTC_cavityEL(iunk,loc_inode,inode_box,icomp,
                                   izone,ijk_box,x,resid_only_flag);
    }
-/*   else if (Type_poly==WJDC){
+   else if (Type_poly==WJDC3){
        resid+=load_polyWJDC_cavityEL(iunk,loc_inode,inode_box,icomp,
                                   izone,ijk_box,x,resid_only_flag);
-   }*/
+   }
 
    if (resid_only_flag==INIT_GUESS_FLAG) return(exp(-resid));
    else                                  return(resid);
@@ -287,7 +282,7 @@ double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, doub
 */
    }
 
-   if (Type_poly==WJDC){ 
+   if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){ 
       for (pol_number=0;pol_number<Npol_comp;pol_number++) {
        if (Nseg_type_pol[pol_number][icomp] !=0) scalefac=Scale_fac_WJDC[pol_number][icomp];
       }

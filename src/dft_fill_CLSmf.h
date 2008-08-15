@@ -19,9 +19,6 @@ extern int **Zero_density_TF;
 extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
-#define NCOMP_MAX 5
-#define NMER_MAX     100
-extern int Unk2Phys[3 *NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
@@ -35,18 +32,19 @@ extern struct Stencil_Struct ***Stencil;
 #define THETA_CR_RPM_MSA      3
 #define WTC          2
 #define WJDC_FIELD     8
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
 extern int Type_poly;
 #define MF_EQ          3
-#define MF_VARIABLE  2
-extern int Type_attr;
+#define NMER_MAX     100
+extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 #define THETA_PAIRPOT_RCUT    2
 extern int Nlists_HW;
 #define DENSITY        0
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *Pol_Sym_Seg;
-#define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 extern int Ncomp;
 extern int Nseg_tot;

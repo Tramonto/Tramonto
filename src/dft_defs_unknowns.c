@@ -52,7 +52,7 @@ void setup_nunk_per_node(char *output_file1)
      component and segment densities (Lseg_densities), and Hard-Sphere
      perturbation DFTs and other types of DFTs (L_HSperturbation) */
 
-  if (Type_poly==WTC || Type_poly==WJDC) Lseg_densities=TRUE;
+  if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2) Lseg_densities=TRUE;
   else Lseg_densities=FALSE;
 
   if (Type_poly == CMS || Type_poly==CMS_SCFT) L_HSperturbation=FALSE;
@@ -102,7 +102,7 @@ void setup_nunk_per_node(char *output_file1)
 
          case CAVWTC:
             Nrho_bar_cavity=0;
-            if (Type_poly==WTC || Type_poly==WJDC){
+            if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                  Nrho_bar_cavity = 4;
                  Phys2Nunk[CAVWTC]=Nrho_bar_cavity-2;  
                                    /* strange case because y function only uses two of the 
@@ -129,15 +129,17 @@ void setup_nunk_per_node(char *output_file1)
 
          case WJDC_FIELD:
             if (Type_poly == WJDC){
-                 /*NWJDCField_unk=Ncomp;*/
                  NWJDCField_unk=Nseg_tot;
+            }
+            else if (Type_poly==WJDC2 || Type_poly==WJDC3){
+                 NWJDCField_unk=Ncomp;
             }
             else NWJDCField_unk = 0;
             Phys2Nunk[WJDC_FIELD]=NWJDCField_unk;
             break;
 
          case G_CHAIN:
-            if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC){
+            if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                  Phys2Nunk[G_CHAIN] = Ngeqn_tot;
             }
             else Phys2Nunk[G_CHAIN]=0;
@@ -164,7 +166,7 @@ void setup_nunk_per_node(char *output_file1)
         Phys2Unk_first[i]=NO_UNK;
         Phys2Unk_last[i]=NO_UNK;
      }
-     if ( (i==G_CHAIN && (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC))){
+     if ( (i==G_CHAIN && (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2||Type_poly==WJDC3))){
         for (icomp=0;icomp<Npol_comp;icomp++) Geqn_start[icomp]+=Phys2Unk_first[i];
      }
   }

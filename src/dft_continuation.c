@@ -702,11 +702,11 @@ void assign_parameter_tramonto(int cont_type, double param)
                            recalculate_stencils();
                            break;
 
-      case CONT_BETAMU_0: if (Type_poly==WJDC)  Betamu_chain[0]=param;
+      case CONT_BETAMU_0: if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)  Betamu_chain[0]=param;
                           else                 Betamu[0]=param;
                           break;
 
-      case CONT_BETAMU_1: if (Type_poly==WJDC)  Betamu_chain[1]=param;
+      case CONT_BETAMU_1: if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)  Betamu_chain[1]=param;
                           else                 Betamu[1]=param;
                           break;
 
@@ -1023,12 +1023,12 @@ double get_init_param_value(int cont_type)
       case CONT_SCALE_RHO: return Scale_fac; break;
 
       case CONT_BETAMU_0: 
-           if (Type_poly==WJDC) return Betamu_chain[0];
+           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) return Betamu_chain[0];
            else                 return Betamu[0];
            break;
 
       case CONT_BETAMU_1: 
-           if (Type_poly==WJDC) return Betamu_chain[1];
+           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) return Betamu_chain[1];
            else                 return Betamu[1];
            break;
 

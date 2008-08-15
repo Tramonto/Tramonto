@@ -39,19 +39,24 @@
 /*setup_polymer_field: in this routine sets up the initial guess for the WJDC field variable */
 void setup_polymer_field_wjdc(double **xInBox)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box;
+  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,iref;
   double field;
 
-/*  Nloop=Ncomp;*/
-  Nloop=Nseg_tot;  /* revert go back to previous when we return to component treatment */
+  if (Type_poly==WJDC)                           Nloop=Nseg_tot; 
+  else if (Type_poly==WJDC2 || Type_poly==WJDC3) Nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];
      for (i=0; i<Nloop; i++){
          iunk=Phys2Unk_first[WJDC_FIELD]+i;
-/*         if (!Zero_density_TF[inode_box][i]) xInBox[iunk][inode_box]=Field_WJDC_b[i];*/
-         if (!Zero_density_TF[inode_box][Unk2Comp[i]]) xInBox[iunk][inode_box]=Field_WJDC_b[Unk2Comp[i]]; /*revert to previous when possible */
+         if (Type_poly==WJDC){
+             if (!Zero_density_TF[inode_box][Unk2Comp[i]]) xInBox[iunk][inode_box]=Field_WJDC_b[Unk2Comp[i]];
              else                            xInBox[iunk][inode_box]=0.;
+         }
+         else if (Type_poly==WJDC2 || Type_poly==WJDC3){
+             if (!Zero_density_TF[inode_box][i]) xInBox[iunk][inode_box]=Field_WJDC_b[i];
+             else                            xInBox[iunk][inode_box]=0.;
+         }
      }
    }
    return;
@@ -60,7 +65,7 @@ void setup_polymer_field_wjdc(double **xInBox)
 /*calc_init_WJDC_field: in this routine sets up the initial guess for the WJDC field variable */
 void calc_init_WJDC_field(double **xInBox)
 {
-  int loc_inode,inode_box,ijk_box[3],icomp,iunk,izone,mesh_coarsen_flag_i;
+  int loc_inode,inode_box,ijk_box[3],icomp,iunk,izone,mesh_coarsen_flag_i,i,Nloop;
   double resid_EL;
   struct  RB_Struct *dphi_drb=NULL;
   izone=0;
@@ -71,13 +76,18 @@ void calc_init_WJDC_field(double **xInBox)
      FMT1stDeriv_switch(xInBox,dphi_drb);
   }
 
+  if (Type_poly==WJDC) Nloop=Nseg_tot;
+  if (Type_poly==WJDC2 || Type_poly==WJDC3) Nloop=Ncomp;
+
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];
      node_box_to_ijk_box(inode_box, ijk_box);
 
-  /*   for (icomp=0; icomp<Ncomp; icomp++){*/
-     for (icomp=0; icomp<Nseg_tot; icomp++){   /* remove this one when we go back to components */
-        iunk=Phys2Unk_first[WJDC_FIELD]+icomp;
+     for (i=0; i<Nloop; i++){  
+        if (Type_poly==WJDC) icomp=Unk2Comp[i];
+        else icomp=i;
+        iunk=Phys2Unk_first[WJDC_FIELD]+i;
+
         if (!Zero_density_TF[inode_box][icomp]){
           resid_EL=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,
                           xInBox,dphi_drb,mesh_coarsen_flag_i,INIT_GUESS_FLAG);

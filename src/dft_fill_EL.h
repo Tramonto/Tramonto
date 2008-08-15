@@ -56,6 +56,7 @@ extern int **Zero_density_TF;
 extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
 extern int *Nbonds_SegAll;
+double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
@@ -108,6 +109,8 @@ extern int Unk2Comp[NMER_MAX];
 #define WJDC_FIELD     8
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
 extern int Type_poly;
 struct RB_Struct {

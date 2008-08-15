@@ -274,7 +274,7 @@ void read_in_a_file(int iguess,char *filename)
 	printf("Can't open file %s\n", filename);
 	exit(1);
       }
-       if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC){
+       if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
          sprintf(filename2,"%sg",filename);
 	 if( (fp6=fopen(filename2,"r")) == NULL){
 /*	   printf("Can't open file %s\n", filename2);
@@ -308,7 +308,7 @@ void read_in_a_file(int iguess,char *filename)
 
       dim_tmp=idim;
       ijk_old[dim_tmp] = round_to_int(pos_old/Esize_x[dim_tmp]);
-      if ((Type_poly==CMS || Type_poly==CMS_SCFT || Type_poly==WJDC) && Restart_field[G_CHAIN]==TRUE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
+      if ((Type_poly==CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[G_CHAIN]==TRUE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
 
       if (ijk_old[dim_tmp] > ijk_old_max[dim_tmp]) ijk_old_max[dim_tmp] = ijk_old[dim_tmp];
     }

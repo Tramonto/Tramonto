@@ -25,7 +25,7 @@ void locate_neighbor_unks(double **x,int iunk,int loc_inode,int node_box,double 
 #define DENSITY        0
 #define NCOMP_MAX 5
 #define NMER_MAX     100
-extern int Unk2Phys[3 *NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 double load_coarse_node_Ndim(int loc_inode,int inode_box,int iunk,double **x,int resid_only_flag);
 extern void *LinProbMgr_manager;
 extern int Proc;

@@ -87,7 +87,11 @@ extern int SegAll_to_Poly[NMER_MAX];
 double prefactor_rho_wjdc(int iseg);
 #define G_CHAIN        9 
 double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
+#define WJDC         3
 #define WJDC_FIELD     8
+#define WJDC3        5 
+#define WJDC2        4 
+extern int Type_poly;
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double VEXT_MAX;
 extern double **Vext;

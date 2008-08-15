@@ -229,6 +229,8 @@
 #define CMS_SCFT     1
 #define WTC          2
 #define WJDC         3
+#define WJDC2        4 
+#define WJDC3        5 
 
 /*
  * These constants identify attraction functional choices (Type_attr).

@@ -45,6 +45,7 @@ double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CAVWTC         4
+#define WJDC3        5 
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double VEXT_MAX;
 extern double **Vext;
@@ -82,6 +83,7 @@ extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Comp[NMER_MAX];
+#define WJDC2        4 
 #define WJDC         3
 extern int Type_poly;
 #define FALSE 0

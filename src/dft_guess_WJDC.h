@@ -21,7 +21,6 @@ extern int Geqn_start[NCOMP_MAX];
 extern int ***Poly_to_Unk;
 extern int **Nbond;
 extern int ***Bonds;
-extern int Nseg_tot;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -42,7 +41,6 @@ double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,i
 void calc_init_polymer_G_wjdc(double **xInBox);
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 #define G_CHAIN        9 
-extern int Unk2Comp[NMER_MAX];
 extern int *Unk_to_Seg;
 extern int Nbonds;
 void setup_polymer_G_wjdc(double **xInBox);
@@ -77,6 +75,7 @@ struct RB_Struct {
 };
 void calc_init_WJDC_field(double **xInBox);
 extern double Field_WJDC_b[NMER_MAX];
+extern int Unk2Comp[NMER_MAX];
 extern int **Zero_density_TF;
 #define WJDC_FIELD     8
 #define NEQ_TYPE       11 
@@ -84,4 +83,9 @@ extern int Phys2Unk_first[NEQ_TYPE];
 extern int *L2B_node;
 extern int Nnodes_per_proc;
 extern int Ncomp;
+#define WJDC3        5 
+#define WJDC2        4 
+extern int Nseg_tot;
+#define WJDC         3
+extern int Type_poly;
 void setup_polymer_field_wjdc(double **xInBox);

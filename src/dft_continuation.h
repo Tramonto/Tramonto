@@ -73,6 +73,19 @@ void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #endif
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
+void assign_bif_parameter_conwrap(double tp_param);
+#if !defined(_CON_CONST_H_)
+void assign_bif_parameter_conwrap(double bif_param);
+#endif
+void assign_bif_parameter_conwrap(double tp_param);
+void assign_bif_parameter_conwrap(double tp_param);
+void assign_parameter_conwrap(double param);
+#if !defined(_CON_CONST_H_)
+void assign_parameter_conwrap(double param);
+#endif
+void assign_parameter_conwrap(double param);
+void assign_parameter_conwrap(double param);
+void thermodynamics(char *output_file1);
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)
@@ -87,22 +100,6 @@ void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NMER_MAX     100
-extern double Rho_seg_b[NMER_MAX];
-extern int Npol_comp;
-void assign_bif_parameter_conwrap(double tp_param);
-#if !defined(_CON_CONST_H_)
-void assign_bif_parameter_conwrap(double bif_param);
-#endif
-void assign_bif_parameter_conwrap(double tp_param);
-void assign_bif_parameter_conwrap(double tp_param);
-void assign_parameter_conwrap(double param);
-#if !defined(_CON_CONST_H_)
-void assign_parameter_conwrap(double param);
-#endif
-void assign_parameter_conwrap(double param);
-void assign_parameter_conwrap(double param);
-void thermodynamics(char *output_file1);
 extern int Iliq_vap;
 extern double Crfac;
 #define CONT_CRFAC  19  /* continuous mixing of two cr files */
@@ -115,8 +112,6 @@ extern int *Comm_offset_node;
 extern int *Comm_unk_proc;
 extern int *Comm_node_proc;
 extern double *Area_IC;
-#define NMER_MAX 100
-extern int Unk2Comp[NMER_MAX];
 extern int Lsteady_state;
 void boundary_free(void);
 void free_mesh_arrays(void);
@@ -143,12 +138,19 @@ extern int WallType[NWALL_MAX];
 #define CONT_BETAMU_1 21  /* continuous mixing of two cr files */
 #define NCOMP_MAX 5
 extern double Betamu[NCOMP_MAX];
+#define NMER_MAX     100
 extern double Betamu_chain[NMER_MAX];
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
 #define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
 #define CONT_SCALE_RHO   6
 #define CONT_LOG_RHO_ALL 5 
 #define CONT_LOG_RHO_0   4 
+extern double Rho_seg_b[NMER_MAX];
+extern int Unk2Comp[NMER_MAX];
+extern int Nseg_tot;
+extern int Npol_comp;
 #define CONT_RHO_ALL     3
 extern double Rho_b[NCOMP_MAX];
 #define CONT_RHO_0       2
@@ -163,7 +165,6 @@ void calc_HS_diams();
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;
-extern int Nseg_tot;
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 void pot_parameters(char *output_file1);

@@ -79,7 +79,7 @@ int lfirst;
 	 calculate all the integrals; otherwise do calculate */
       if(!first || !lfirst) {
 
-       if (Type_poly != WJDC){
+       if (Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3){
           omega_id=omega_id_b=0.0;
           for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
    	     if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
@@ -276,7 +276,7 @@ int lfirst;
           omega_s_sum += omega_WTC_surf_ex;
        }
 
-       if (Type_poly == WJDC){
+       if (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
            omega_WJDC=integrateInSpace_SumInComp(&integrand_WJDC_freen,Nel_hit2,x,Integration_profile);
           if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WJDC,"WJDC BONDS");
 

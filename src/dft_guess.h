@@ -20,6 +20,7 @@ extern int Nnodes;
 extern double *X_old;
 extern int *L2B_node;
 extern int Nnodes_per_proc;
+#define NO_SCREEN    2 
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void translate_xInBox_to_xOwned(double **xInBox,double **xOwned);
@@ -30,6 +31,8 @@ void communicate_to_fill_in_box_values(double **xInBox);
 #define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
 void setup_polymer_G_wjdc(double **xInBox);
 void calc_init_polymer_G_wjdc(double **xInBox);
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
 void setup_polymer_G(double **xInBox);
 void calc_init_polymer_G_CMS(double **xInBox);
@@ -86,7 +89,6 @@ extern int Imain_loop;
 #define NORESTART          0
 extern int Restart;
 #define VERBOSE      3 
-#define NO_SCREEN    0 
 extern int Iwrite;
 extern int Nnodes_box;
 extern int Nunk_per_node;

@@ -231,7 +231,7 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"%d",Type_poly);
   }
   MPI_Bcast(&Type_poly,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_poly >WJDC || Type_poly<NONE){
+  if (Type_poly >WJDC3 || Type_poly<NONE){
      if (Proc==0) printf("ERROR Type_poly out of range (bounds are %d,%d)\n",NONE,WTC);
      exit(-1);
   }
@@ -2121,7 +2121,7 @@ void error_check(void)
      exit (-1);
   }
 
-  if (Type_poly > WJDC || Type_poly < NONE){
+  if (Type_poly > WJDC3 || Type_poly < NONE){
      printf ("\nSorry, your choice for the type of polymer functional\n");
      printf ("Type_poly: %d is not available\n", Type_poly);
      exit (-1);

@@ -45,6 +45,8 @@ int loc_find(int iunk,int inode,int flag);
 #define NBOND_MAX 4
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 #define WJDC         3
+#define WJDC2         4
+#define WJDC3         5
 #define CMS          0
 extern int Type_poly;
 #define G_CHAIN        9 
@@ -83,7 +85,7 @@ extern int Phys2Unk_first[NEQ_TYPE];
 extern double Rho_seg_b[NMER_MAX];
 extern int Lseg_densities;
 #define DENSITY        0
-extern int Unk2Phys[3 *NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 double constant_boundary(int iunk,int jnode_box);
 extern int *Mesh_coarsen_flag;
 extern int Nwall;

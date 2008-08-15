@@ -24,7 +24,7 @@ extern int Npol_comp;
 #define NO_UNK        -888
 extern int Nunk_per_node;
 #define NMER_MAX     100
-extern int Unk2Phys[3*NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
 #define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
@@ -35,6 +35,7 @@ extern int Ngeqn_tot;
 extern int Nbonds;
 extern int Nrho_bar_bond;
 #define BONDWTC        5
+#define WJDC3        5 
 extern int Nrho_bar_cavity;
 #define CAVWTC         4
 extern int Lsteady_state;
@@ -76,6 +77,7 @@ extern int L_HSperturbation;
 #define TRUE  1
 #endif
 extern int Lseg_densities;
+#define WJDC2        4 
 #define WJDC         3
 #define WTC          2
 extern int Type_poly;

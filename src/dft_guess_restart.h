@@ -61,6 +61,8 @@ int round_to_int(double x);
 #define CALC_RHOBAR_AND_G 3
 #define CALC_ALL_FIELDS   1
 extern int Iguess_fields;
+#define WJDC3        5 
+#define WJDC2        4 
 extern int Ndim;
 #define MF_VARIABLE  2
 extern int Type_attr;

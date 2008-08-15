@@ -16,6 +16,8 @@ int stencil_deltaLogical(int sten);
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define THETA_FN_SIG          5
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
 #define WTC          2
 #define THETA_CR_RPM_MSA      3

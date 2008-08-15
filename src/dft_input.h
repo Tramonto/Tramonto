@@ -286,7 +286,7 @@ extern int Ipot_ff_n;
 #define NONE      -1
 #define NONE        -1
 #define NONE        -1
-#define WJDC         3
+#define WJDC3        5 
 extern int Type_poly;
 extern int Type_coul;
 extern int Type_pairPot;

@@ -95,7 +95,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
       }
 
      /* print for debugging purposes call this print routine */ 
-     /*print_residuals(loc_inode,iunk,resid_unk);*/
+      /* print_residuals(loc_inode,iunk,resid_unk);*/
 
     } /* end of loop over # of unknowns per node */
   } /* end of loop over local nodes */
@@ -119,11 +119,11 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
 
    switch(Unk2Phys[iunk]){
        case DENSITY: 
-             if (L_HSperturbation && Type_poly != WJDC){
+             if (L_HSperturbation && Type_poly != WJDC && Type_poly != WJDC2 && Type_poly != WJDC3){
                 resid_unk[iunk]=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,x,
                                                     dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
              }
-             else if(Type_poly==CMS  || Type_poly==WJDC) {                              
+             else if(Type_poly==CMS  || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) {                              
                 if (Type_poly==CMS) resid_unk[iunk]=load_CMS_density(iunk,loc_inode,inode_box,x,resid_only_flag);
                 else                resid_unk[iunk]=load_WJDC_density(iunk,loc_inode,inode_box,x,resid_only_flag);
              }
@@ -175,7 +175,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
           if (Type_poly==CMS){
              resid_unk[iunk]=load_CMS_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
           }
-          else if (Type_poly==WJDC){
+          else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
              resid_unk[iunk]=load_WJDC_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
           }
           break;

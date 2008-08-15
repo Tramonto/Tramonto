@@ -162,7 +162,7 @@ double constant_boundary(int iunk,int jnode_box)
            if (jnode_box==-2) bcval=0.0;
 	   else{
                if (Type_poly == CMS) bcval=1.0; 
-               else if (Type_poly == WJDC){
+               else if (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                    if (jnode_box==-1) bcval = G_WJDC_b[iunk-Phys2Unk_first[G_CHAIN]];
                    else if (jnode_box==-3 || jnode_box==-4){
                       printf("diffusion boundaries not fully implemented for WJDC fluid \n");

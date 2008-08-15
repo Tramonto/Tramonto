@@ -69,8 +69,9 @@ double load_WJDC_density(int iunk, int loc_inode, int inode_box, double **x,int 
          resid_R=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
    }
    else{
-/*      unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;*/ /* Boltzmann factor for this segment */
-      unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; /* revert to line above when return to component fields */
+      if (Type_poly==WJDC2 || Type_poly==WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer; /* Boltzmann factor for this segment */
+      else if (Type_poly==WJDC)                 unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; 
+
 /*      resid_R+=resid_and_Jac_ChainDensity_WJDC2 (G_CHAIN,x,iunk,unk_B,loc_inode,inode_box,
                                            resid_only_flag, &prefactor_rho_wjdc);*/
       resid_R+=resid_and_Jac_ChainDensity (G_CHAIN,x,iunk,unk_B,loc_inode,inode_box,
@@ -131,8 +132,8 @@ void WJDC_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int
     prefac= -1.0;
     power = -(Nbond[pol_num][jseg]-2);
 
-/*    icomp=unk_B-Phys2Unk_first[WJDC_FIELD];*/
-    icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; /*revert to above when return to component fields */
+    if (Type_poly==WJDC2 || Type_poly==WJDC3) icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
+    else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
     jcomp=Unk2Comp[jseg];
 
     for (i=0;i < nunk-1; i++){
@@ -156,8 +157,8 @@ void WJDC_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg
        prefac = (Nbond[pol_num][jseg]-2);
        power = -(Nbond[pol_num][jseg]-1);
 
-/*    icomp=unk_B-Phys2Unk_first[WJDC_FIELD];*/
-    icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; /*revert to above when return to component fields */
+       if (Type_poly==WJDC2 || Type_poly==WJDC3)  icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
+       else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
        jcomp=Unk2Comp[jseg];
        fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
 
@@ -177,8 +178,8 @@ void WJDC_Jacobian_GCHAIN_derivCAVITY(int iunk,int loc_inode,int pol_num,int jse
     prefac_R = -1.0;
     power_R = -(Nbond[pol_num][jseg]-2);
 
-/*    icomp=unk_B-Phys2Unk_first[WJDC_FIELD];*/
-    icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; /*revert to above when return to component fields */
+    if (Type_poly==WJDC2 || Type_poly==WJDC3)  icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
+    else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
     jcomp=Unk2Comp[jseg];
 
     yterm=0.5/yterm_wjdc(icomp,jcomp,jnode_box,x);
@@ -212,11 +213,15 @@ double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    prefac_R = -1.0;
    power_R = -(Nbond[pol_num][jseg]-2);
 
-/*    icomp=unk_B-Phys2Unk_first[WJDC_FIELD];*/
-    icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; /*revert to above when return to component fields */
+   if (Type_poly==WJDC2 || Type_poly==WJDC3) icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
+   else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
+
    jcomp=Unk2Comp[jseg];
+
    fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
-   for(i=0;i<nunk-1;i++) fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
+   for(i=0;i<nunk-1;i++){
+        fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
+   }
    resid = fac*prefac_R*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power_R); /* Boltz Term */
    return(resid);
 }
@@ -230,8 +235,8 @@ double WJDC_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    prefac_R = -1.0;
    power_R = -(Nbond[pol_num][jseg]-2);
 
-/*    icomp=unk_B-Phys2Unk_first[WJDC_FIELD];*/
-    icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; /*revert to above when return to component fields */
+   if (Type_poly==WJDC2 || Type_poly==WJDC3) icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
+   else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
    jcomp=Unk2Comp[jseg];
    fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
    for(i=0;i<nunk-1;i++){
@@ -369,8 +374,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
               if (Pol_Sym_Seg[jseg] != -1) unk_rho = Pol_Sym_Seg[jseg];
               unk_rho += Phys2Unk_first[DENSITY];
               jcomp=Unk2Comp[jseg];
-              /*unk_B=Phys2Unk_first[WJDC_FIELD]+jcomp;*/ /* Boltzmann factor for this segment */
-              unk_B=Phys2Unk_first[WJDC_FIELD]+jseg; /* revert to above when return to components */
+              if (Type_poly==WJDC2 || Type_poly==WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+jcomp;
+              else if (Type_poly==WJDC) unk_B=Phys2Unk_first[WJDC_FIELD]+jseg; 
 
               s1=Sigma_ff[jcomp][jcomp];
 /*              s1=Bond_ff[jcomp][jcomp];*/
@@ -483,8 +488,8 @@ double calc_dens_seg(int iseg,int inode_box,double **x)
    boltz_pow = -(Nbonds_SegAll[iseg]-1);
 
    itype_mer=Unk2Comp[iseg]; /* note that itype_mer is also known as icomp */
-   /*unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;*/ /* Boltzmann factor for this segment */
-   unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; /* revert to above when return to component fields */
+   if (Type_poly==WJDC2 || Type_poly==WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;
+   else if (Type_poly==WJDC) unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; 
 
    fac1 = prefactor_rho_wjdc(iseg);
    for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {

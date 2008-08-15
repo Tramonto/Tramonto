@@ -23,7 +23,6 @@ extern int Type_attr;
 #define CAVWTC         4
 #define BONDWTC        5
 extern int Ndim;
-extern int Proc;
 extern int Nrho_bar_s;
 #define NEQ_TYPE       11 
 extern int Phys2Unk_first[NEQ_TYPE];
@@ -52,7 +51,7 @@ extern int Geqn_start[NCOMP_MAX];
 #define CMS_FIELD      7
 #define DENSITY        0
 #define NMER_MAX     100
-extern int Unk2Phys[3 *NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 #if defined(__STDC__)
 void *array_alloc(int numdim,...);
 #endif

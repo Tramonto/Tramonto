@@ -632,7 +632,7 @@ void setup_basic_box(FILE *fp1, int *update)
   FILE *fp2;
 
   if (Iwrite==VERBOSE) {
-    if( (fp2 = fopen("proc_mesh.dat","w+")) == NULL) {
+    if( (fp2 = fopen("proc_mesh.dat","a+")) == NULL) {
       printf("Can't open file proc_mesh.dat\n");
       exit(1);
     }
@@ -723,7 +723,7 @@ void setup_basic_box(FILE *fp1, int *update)
   if (Iwrite==VERBOSE){
      for (idim=0; idim<Ndim; idim++) fprintf(fp2, "Proc=%d Pflag[%d]=%d\n",Proc,idim,Pflag[idim]);
      fprintf(fp2,"Proc: %d  Nnodes_per_proc: %d  Nnodes_box: %d",Proc,Nnodes_per_proc,Nnodes_box); 
-     for (idim=0; idim<Ndim; idim++) fprintf(fp2,"Min_IJK[%d]: %d  Max_IJK[%d]:%d ",idim,Min_IJK[idim],idim,Max_IJK[idim]); 
+     for (idim=0; idim<Ndim; idim++) fprintf(fp2,"  Min_IJK[%d]: %d  Max_IJK[%d]:%d ",idim,Min_IJK[idim],idim,Max_IJK[idim]); 
      for (idim=0; idim<Ndim; idim++) 
           fprintf(fp2,"Min_IJK_box[%d]: %d  Max_IJK_box[%d]:%d \n",idim,Min_IJK_box[idim],idim,Max_IJK_box[idim]); 
   }

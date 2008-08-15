@@ -49,13 +49,15 @@ double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int res
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define CMS          0
 double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
 extern int Type_poly;
 extern int L_HSperturbation;
 #define DENSITY        0
 #define NCOMP_MAX 5
 #define NMER_MAX     100
-extern int Unk2Phys[3 *NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 double load_standard_node(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,struct RB_Struct *dphi_drb,double *resid_unk,int mesh_coarsen_flag_i,int resid_only_flag);

@@ -69,6 +69,8 @@ extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];
 #define WJDC         3
+#define WJDC2         4
+#define WJDC3         5
 extern int Type_poly;
 extern int L_HSperturbation;
 #define FALSE 0
