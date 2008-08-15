@@ -85,21 +85,21 @@ extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
 extern int SegAll_to_Poly[NMER_MAX];
 double prefactor_rho_wjdc(int iseg);
-#define G_CHAIN        9 
+#define G_CHAIN       11 
 double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
-#define WJDC         3
 #define WJDC_FIELD     8
-#define WJDC3        5 
-#define WJDC2        4 
-extern int Type_poly;
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double VEXT_MAX;
 extern double **Vext;
 extern int **Zero_density_TF;
+#define WJDC3        5 
 extern int Unk2Comp[NMER_MAX];
 #define DENSITY        0
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
+#define WJDC2        4 
+#define WJDC         3
+extern int Type_poly;
 double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 typedef struct RB_Struct RB_Struct;
 double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);

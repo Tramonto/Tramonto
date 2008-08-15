@@ -29,7 +29,7 @@ extern int Iliq_vap;
 extern int Nwall;
 extern int Lsteady_state;
 #define HSRHOBAR       2
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nrho_bar;
 extern int *L2B_node;

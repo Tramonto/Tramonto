@@ -61,9 +61,9 @@ double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int SegAll_to_Poly[NMER_MAX];
 extern int Ncomp;
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
-#define WJDC2       4 
-#define WJDC3       5 
 extern int Type_poly;
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 extern double Xi_cav_b[4];

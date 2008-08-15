@@ -78,9 +78,9 @@ void HS_thermo_precalc(char *output_file1);
 #define NONE        -1
 extern int Type_func;
 void WTC_thermo_precalc(char *output_file1);
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
-#define WJDC2         4
-#define WJDC3         5
 #define WTC          2
 extern int Type_poly;
 extern int L_HSperturbation;

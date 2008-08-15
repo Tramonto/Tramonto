@@ -107,7 +107,7 @@ extern int Unk2Comp[NMER_MAX];
 #define WTC          2
 #define DENSITY        0
 #define WJDC_FIELD     8
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define WJDC3        5 
 #define WJDC2        4 

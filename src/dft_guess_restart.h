@@ -46,7 +46,7 @@ extern int Plane_new_nodes;
 #define NDIM_MAX  3
 extern int Nodes_x_old[NDIM_MAX];
 extern int Nodes_x[NDIM_MAX];
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Nmer_comp[NCOMP_MAX];
 extern int Phys2Unk_first[NEQ_TYPE];
@@ -55,7 +55,7 @@ extern int Nrho_bar_s;
 int ijk_to_node(int *ijk);
 extern double Esize_x[NDIM_MAX];
 int round_to_int(double x);
-#define G_CHAIN        9 
+#define G_CHAIN       11 
 #define CALC_RHOBAR_ONLY  2
 #define BULK              0
 #define CALC_RHOBAR_AND_G 3

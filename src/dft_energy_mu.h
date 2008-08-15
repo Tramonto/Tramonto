@@ -38,6 +38,6 @@ extern int Lseg_densities;
 #define DIFFUSION      6
 extern int Lsteady_state;
 #define DENSITY        0
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 double integrand_mu_freen(int iunk,int inode_box,double **x);

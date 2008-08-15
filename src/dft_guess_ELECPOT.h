@@ -25,7 +25,7 @@ extern int *B2G_node;
 #define LINEAR           5
 extern int Lsteady_state;
 #define POISSON        1
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *L2B_node;
 extern int Nnodes_per_proc;

@@ -40,7 +40,7 @@ double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,i
 #define NMER_MAX     100
 void calc_init_polymer_G_wjdc(double **xInBox);
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
-#define G_CHAIN        9 
+#define G_CHAIN       11 
 extern int *Unk_to_Seg;
 extern int Nbonds;
 void setup_polymer_G_wjdc(double **xInBox);
@@ -78,7 +78,7 @@ extern double Field_WJDC_b[NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int **Zero_density_TF;
 #define WJDC_FIELD     8
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *L2B_node;
 extern int Nnodes_per_proc;

@@ -24,7 +24,7 @@ extern int Type_attr;
 #define BONDWTC        5
 extern int Ndim;
 extern int Nrho_bar_s;
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       2
 #define TRUE  1
@@ -47,7 +47,7 @@ extern int Ngeqn_tot;
 #define POISSON        1
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
-#define G_CHAIN        9 
+#define G_CHAIN       11 
 #define CMS_FIELD      7
 #define DENSITY        0
 #define NMER_MAX     100

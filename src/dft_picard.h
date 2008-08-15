@@ -32,7 +32,7 @@ double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resi
 #define INIT_GUESS_FLAG  2
 typedef struct RB_Struct RB_Struct;
 double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 extern int Ncomp;
@@ -56,10 +56,10 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-#define YW_DENS        10       /* densities for Yethiraj-Woodward polymer DFTs */
+#define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
 void calc_init_polymer_G_wjdc(double **xInBox);
 void calc_init_polymer_G_CMS(double **xInBox);
-#define G_CHAIN        9 
+#define G_CHAIN       11 
 void calc_init_CMSfield(double **xInBox);
 #define CMS_FIELD      7
 void calc_init_WJDC_field(double **xInBox);

@@ -24,7 +24,7 @@ extern int Iliq_vap;
 extern int Nwall;
 extern int Lsteady_state;
 #define MF_EQ          3
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 extern int *L2B_node;

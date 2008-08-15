@@ -26,7 +26,7 @@ extern int **Zero_density_TF;
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
 #define DIFFUSION      6
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];

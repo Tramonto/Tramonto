@@ -81,7 +81,7 @@ double gsum_double(double c);
 extern int Nnodes_per_el_V;
 extern double Vol_el;
 #define DENSITY        0
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *L2B_node;
 extern int Nnodes_per_proc;
