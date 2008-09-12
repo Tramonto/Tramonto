@@ -38,6 +38,7 @@ void  thermodynamics(char *output_file1)
    }
 
     /* first call any functions needed to preprocess global bulk variables associated with the functionals chosen for this run */
+printf("IN THERMO\n");
 
     for (icomp=0; icomp<Ncomp;icomp++){
         for (pol_num=0; pol_num<Npol_comp;pol_num++) Scale_fac_WJDC[pol_num][icomp]=0.0;

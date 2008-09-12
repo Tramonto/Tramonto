@@ -152,14 +152,14 @@ void setup_nunk_per_node(char *output_file1)
 				  Phys2Nunk[YW_DENS] = 0;
 			  break;
 		 
-		  case SCF_FIELD:
+         case SCF_FIELD:
 			  if(Type_poly==SCFT || Type_poly==CMS_SCFT)
 				  Phys2Nunk[SCF_FIELD] = Ncomp;
 			  else
 				  Phys2Nunk[SCF_FIELD] = 0;
 			  break;
 			  
-		  case SCF_CONSTR:
+	  case SCF_CONSTR:
 			  if(Type_poly==SCFT || Type_poly==CMS_SCFT)
 				  Phys2Nunk[SCF_CONSTR] = 1;
 			  else

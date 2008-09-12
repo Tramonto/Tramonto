@@ -123,7 +123,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   } /* end of loop over local nodes */
 
   safe_free((void *) &resid_unk);
-	safe_free((double *) &Gsum);
+  if (Type_poly==CMS_SCFT) safe_free((void *) &Gsum);
   return(resid_sum);
 }
 /*************************************************************************************************/
@@ -151,7 +151,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                 else                resid_unk[iunk]=load_WJDC_density(iunk,loc_inode,inode_box,x,resid_only_flag);
              }
 		     else if(Type_poly == CMS_SCFT) {
-				 resid_unk[iunk]=load_SCF_density(iunk,loc_inode,inode_box,x,resid_only_flag);
+				 resid_unk[iunk]=load_SCF_density(iunk,loc_inode,inode_box,x,resid_only_flag); 
 				 /* resid_unk[iunk]/=Gsum;  // check initial value of G's! */
 				 /* printf("CMS_SCFT not yet implemented\n");
 				 exit(-1); */
@@ -205,6 +205,8 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
            break;
 
        case WJDC_FIELD: 
+/*resid_unk[iunk]=0.0;
+dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,1.0);*/
           resid_unk[iunk]=load_WJDC_field(iunk,loc_inode,inode_box,ijk_box,izone,x,dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
           break;
 
@@ -256,7 +258,8 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                   kind of analysis may require multiple runs and so output to a file is recommended. */
 
     /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-    if (fabs(resid_unk[iunk])>1.e-6){
+/*    if (fabs(resid_unk[iunk])>1.e-6){*/
+    if (loc_inode==10){
     switch(Unk2Phys[iunk]){
        case DENSITY:  printf("Proc=%d: loc_inode=%d of %d (Global val=%d) iunk_rho=%d ", Proc,loc_inode,Nnodes_per_proc,L2G_node[loc_inode],iunk); break;
        case HSRHOBAR: printf("Proc=%d: loc_inode=%d iunk_rbar=%d ", Proc,loc_inode,iunk); break;

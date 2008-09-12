@@ -54,6 +54,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
   double field_hs,field_att,field_chain;
   FILE *fp2=NULL;
 
+
   if (Proc==0 && output_file1 !=NULL) printproc = TRUE;
   else printproc=FALSE;
   if (printproc) {

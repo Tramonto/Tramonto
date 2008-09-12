@@ -45,10 +45,10 @@ extern int *Pol_Sym_Seg;
 #define WTC          2
 extern int Type_poly;
 #define DENSITY        0
-#define NEQ_TYPE       11 
+#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *Pol_Sym;
-#define G_CHAIN        9 
+#define G_CHAIN        11 
 #define NCOMP_MAX 5
 #define NMER_MAX     100
 extern int Unk2Phys[3 *NCOMP_MAX+2*NMER_MAX+NMER_MAX *NMER_MAX+13];

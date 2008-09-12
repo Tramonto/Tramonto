@@ -90,8 +90,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
              if (Type_poly==CMS || Type_poly==CMS_SCFT) iref=itype_mer;
              if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
              fac1 = (*fp_prefactor)(iref);
-			 if (Type_poly==CMS_SCFT)
-				 fac1 /= Gsum[npol];
+	     if (Type_poly==CMS_SCFT) fac1 /= Gsum[npol];
         }
         else                     fac1=1.0;
 
@@ -103,12 +102,10 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 
               if(resid_only_flag==FALSE){
                  if (fp_prefactor!=NULL) {
-
                      if (Type_poly==CMS || Type_poly==CMS_SCFT) iref=itype_mer;
                      if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
                      fac2 = (*fp_prefactor)(iref);
-					 if (Type_poly==CMS_SCFT)
-						 fac2 /=Gsum[npol];
+		     if (Type_poly==CMS_SCFT) fac2 /=Gsum[npol];
                  }
                  else                     fac2=1.0;
                  for (jbond=0; jbond<Nbonds_SegAll[iseg]; jbond++) {
@@ -126,6 +123,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 /*                 }
                  else{
                     resid = mat_val*x[unk_GQ][inode_box];
+
                     if (resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                  }*/
               }

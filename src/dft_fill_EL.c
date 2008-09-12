@@ -88,10 +88,10 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    /* now fill EL physics dependent terms */ 
    resid=0.0; 
    resid+=fill_EL_ideal_gas(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
-
    if (Type_poly != WJDC && Type_poly != WJDC2 && Type_poly != WJDC3){
       resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
    }
+
 
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode,resid_only_flag);
 
@@ -130,13 +130,10 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
 
    }
 
-
    if (Type_coul==DELTAC) {   /* load electrostatics deltac correlations - RPM for now*/
          resid+=load_mean_field(THETA_CR_RPM_MSA,iunk,loc_inode,
                           icomp,izone,ijk_box,x, resid_only_flag);
    }
-
-
    if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2){
        if (Type_poly==WTC){
        resid+=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,
