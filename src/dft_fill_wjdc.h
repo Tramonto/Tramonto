@@ -28,6 +28,7 @@ double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
 #define NCOMP_MAX 5
+extern int Nseg_type[NCOMP_MAX];
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 #define PI    M_PI
 extern int **Bonds_SegAll;

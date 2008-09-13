@@ -17,6 +17,8 @@
 #define NMER_MAX     100
 extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_seg_b[NMER_MAX];
+#define NCOMP_MAX 5
+extern double Rho_b[NCOMP_MAX];
 double integrand_WJDC_freen_bulk(int iunk,int inode_box,double **x);
 #define NCOMP_MAX 5
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];

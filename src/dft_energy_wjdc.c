@@ -60,7 +60,8 @@ double integrand_WJDC_freen_bulk(int iunk,int inode_box, double **x)
 
      iseg = iunk-Phys2Unk_first[DENSITY];
      icomp=Unk2Comp[iseg];
-     rho_i = Rho_seg_b[icomp];
+     if (Type_poly==WJDC || Type_poly==WJDC2) rho_i=Rho_seg_b[iseg]; /*= Rho_seg_b[icomp];*/
+     else if (Type_poly==WJDC3) rho_i = Rho_b[icomp];
      pol_num=SegAll_to_Poly[iseg];
 
      count_ends=0;

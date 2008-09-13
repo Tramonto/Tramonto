@@ -322,7 +322,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
        
        unk_rho = jseg;
        if (Pol_Sym_Seg[jseg] != -1) unk_rho=Pol_Sym_Seg[jseg];
-       unk_rho += Phys2Unk_first[DENSITY];
+       unk_rho = Unk2Comp[unk_rho]+Phys2Unk_first[DENSITY];
 
        jcomp=Unk2Comp[jseg];
        s1=Sigma_ff[jcomp][jcomp];
@@ -335,8 +335,13 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                weight = HW_boundary_weight
                 (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
        }
-       if (jnode_box >=0 && !Zero_density_TF[jnode_box][jcomp]) dens=calc_dens_seg(jseg,jnode_box,x);
-       else if (jnode_box==-1 ||jnode_box==-3 ||jnode_box==-4)   dens = constant_boundary(unk_rho,jnode_box);
+       if (jnode_box >=0 && !Zero_density_TF[jnode_box][jcomp]) {
+               dens=x[unk_rho][jnode_box]/Nseg_type[jcomp];
+             /*dens=calc_dens_seg(jseg,jnode_box,x);*/
+       }
+       else if (jnode_box==-1 ||jnode_box==-3 ||jnode_box==-4)  {
+            dens = constant_boundary(unk_rho,jnode_box)/Nseg_type[jcomp];
+       }
        else                                                     dens=0.0;
 
        for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
@@ -377,7 +382,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
           for (jseg=0;jseg<Nseg_tot;jseg++){
               unk_rho = jseg;
               if (Pol_Sym_Seg[jseg] != -1) unk_rho = Pol_Sym_Seg[jseg];
-              unk_rho += Phys2Unk_first[DENSITY];
+              unk_rho = Unk2Comp[unk_rho]+Phys2Unk_first[DENSITY];
               jcomp=Unk2Comp[jseg];
               if (Type_poly==WJDC2 || Type_poly==WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+jcomp;
               else if (Type_poly==WJDC) unk_B=Phys2Unk_first[WJDC_FIELD]+jseg; 
@@ -397,7 +402,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
 
                 /* first compute density and first derivative terms 
                    that will be needed below */
-                dens = calc_dens_seg(jseg,jnode_boxJ,x);
+               /* dens = calc_dens_seg(jseg,jnode_boxJ,x);*/
+                dens=x[unk_rho][jnode_boxJ]/Nseg_type[jcomp];
                 first_deriv_sum=0.0;
                 for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
                   kseg = Bonds_SegAll[jseg][kbond];
@@ -421,18 +427,6 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                   }
                 }
  
-                /* GC derivatives */
-                for (kbond=0; kbond< Nbonds_SegAll[jseg];kbond++){
-                   unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[jseg][kbond];
-                   mat_val = -0.5*(dens/x[unk_GQ][jnode_boxJ])*weightJ*first_deriv_sum;
-                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                         unk_GQ,jnode_boxJ,mat_val);
-                }
-                /* WJDC_FIELD derivatives */
-                mat_val = +0.5*(dens/x[unk_B][jnode_boxJ])*weightJ*first_deriv_sum;
-                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                            unk_B,jnode_boxJ,mat_val);
-
                 /* CAVITY variable derivatives */
 
                 for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
@@ -455,11 +449,9 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
 
                   first_deriv = (prefac2*dy_dxi2 + prefac3*dy_dxi3)/y;
  
-/*
-                   mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv;
+                   mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv/Nseg_type[jcomp];
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_rho,jnode_boxJ,mat_val);
-*/
                    mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*dens* (
                              (prefac2*d2y_dxi2_2 + prefac3*d2y_dxi2_dxi3)/y
                              - first_deriv*dy_dxi2/y );

@@ -70,6 +70,7 @@ void linsolver_setup_HSTYPE();
 extern int Type_func;
 void linsolver_setup_WJDCTYPE();
 #define WJDC         3
+#define WJDC3         5
 void linsolver_setup_CMSTYPE();
 #define CMS          0
 extern int Type_poly;
