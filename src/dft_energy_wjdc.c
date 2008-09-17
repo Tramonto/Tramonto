@@ -149,6 +149,7 @@ double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box, double **x)
 
         iseg=SegChain2SegAll[npol][i];
         rho_i = Rho_seg_b[iseg];
+        pol_num=SegAll_to_Poly[iseg];
 
         count_ends=0;
         for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
