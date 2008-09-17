@@ -1,0 +1,30 @@
+/*! \file 
+ \brief 8-2-8 hard polymer at a hard wall.
+
+Functionals: WJDC, FMT3, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case is based on the POLY1_CMS_1D 
+test problem with stronger attractive interactions implemented.  The direct correlation function included in this
+test problem is _NOT_ needed for the WJDC functional, but is handy for running the problem using the CMS functional.  Note that a near identical case is found in POLY13_WJDC_FMT1_1D with the following 
+changes: the FMT3 functional is used here, the component version of the WJDC functional (Type_poly=5) is used here, the Schur solvers are turned on, and physics scaling is turned on in this case.
+The total polymer density in the bulk for this problem is 0.711.   The 
+ratio of ads[0]/ads[1] is 8.42.   
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - cr8.2.8_0.711eff1
+   - lin_18
+
+
+Key Output Parameters:
+   - niter=12 
+   - adsorption[0]=19.3029 
+   - adsorption[1]=2.31176   
+   - energy=2.27955   
+   .
+*/

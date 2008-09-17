@@ -1,0 +1,30 @@
+/*! \file 
+ \brief WJDC functionals: blocked polymer blend.
+
+Functionals: WJDC,FMT3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case is a polymer blend with two polymer components.  Like the POLY9 test case, it is based on 
+parameters used to generate  figure 7 of Tripathi and Chapman, J Chem. Phys. 2005.  The
+first component is an 8-mer, the second component is a 4-mer.  
+The two species are homopolymers and the adsorption reported is a sum over the segment
+adsorptions for the segments on the 8-mer (adsorption[0]) and the 4-mer (adsorption[1]).
+This case is identical to POLY12 with the following changes:  The FMT3 functional is used
+for hard sphere terms, the component version of WJDC (Type_poly=5) is solved, the Schur solvers
+are turned on, and physics scaling is turned on.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_8_lin_4
+
+Key Output Parameters:
+   - niter=7
+   - adsorption[0]=11.3726
+   - adsorption[1]=10.236
+   - energy=1.06402
+   .
+*/
