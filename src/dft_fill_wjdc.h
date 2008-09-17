@@ -15,6 +15,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern int **Poly_to_Unk_SegAll;
+double calc_dens_seg(int iseg,int inode_box,double **x);
 double d2y_dxi3_dxi2(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double d2y_dxi3_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
@@ -28,12 +29,11 @@ double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
 #define NCOMP_MAX 5
-extern int Nseg_type[NCOMP_MAX];
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 #define PI    M_PI
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
-double calc_dens_seg(int iseg,int inode_box,double **x);
+extern int Nseg_type[NCOMP_MAX];
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;

@@ -27,7 +27,6 @@ void print_freen_profile_1D(double *freen_profile_1D,char *output_file);
 void print_charge_surf(double **charge_w_sum,char *output_file);
 void print_Nodes_to_zone(int *node_to_zone,char *output_file);
 void print_zeroTF(int **zero_TF,char *output_file);
-extern double VEXT_MAX;
 extern int Lprint_gofr;
 extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
@@ -49,9 +48,9 @@ extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-extern int Ntype_mer;
 #define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
+extern double Betamu_chain[NMER_MAX];
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
@@ -69,6 +68,7 @@ extern int Npol_comp;
 #define NONE        -1
 #define NONE        -1
 #define G_CHAIN       11 
+extern double VEXT_MAX;
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];

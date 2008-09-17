@@ -14,40 +14,22 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#include "dft_parameterlist_wrapper.h"
-#include "dft_direct_solver_const.h"
+extern void *ParameterList_list;
 extern int Az_kspace;
 extern int Max_gmres_iter;
 extern double Az_tolerance;
 extern double Az_ilut_fill_param;
 extern int Az_preconditioner;
 extern int Az_scaling;
+#define AM_taucs     22
+#define AM_pardiso   21
+#define AM_superludist 20
+#define AM_superlu   19
+#define AM_umfpack   18
+#define AM_mumps     17
+#define AM_klu       16
+#define AM_lapack    15
 extern int Az_solver;
-extern int Am_solver;
-extern int F_location;
-extern int P_location;
-extern int L_Schur;
-extern int Type_poly;
-typedef struct Aztec_Struct Aztec_Struct;
-struct Aztec_Struct {
-  /*    int    options[AZ_OPTIONS_SIZE];  Array used to select solver options.  */
-  /*    double params[AZ_PARAMS_SIZE];    User selected solver paramters.       */
-#ifdef DONE_WITH_THESE
-  int    proc_config[AZ_PROC_SIZE];/* Processor information.                */
-  int    *data_org;                /* Array to specify data layout          */
-  double status[AZ_STATUS_SIZE];   /* Information returned from AZ_solve(). */
-  int    *update;                  /* vector elements updated on this node. */
-  int    *external;                /* vector elements needed by this node.  */
-  int    *update_index;            /* ordering of update[] and external[]   */
-  int    *extern_index;            /* locally on this processor.            */
-  int    *bindx;                   /* Sparse matrix to be solved is stored  */
-  double *val;                     /* in these MSR arrays.                  */
-  int    N_update;                 /* # of unknowns updated on this node    */
-  int    nonzeros;                 /* # of nonzeros in sparse matrix        */
-#endif
-};
-extern struct Aztec_Struct Aztec;
-void *ParameterList_list;
 void MY_read_update(int *N_update,int *update[],int N,int *nodes_x,int chunk,int input_option);
 extern double *Lseg_IC;
 extern int Nseg_IC;
@@ -93,11 +75,11 @@ void setup_linear_grad_of_charge(void);
 void setup_volume_charge1(int iwall);
 void bc_setup_const_charge(int iwall,int loc_inode);
 extern int Nlocal_charge;
-#define ATOMIC_CHARGE     3
+#define ATOMIC_CHARGE    3
 #define CONST_CHARGE     2
 extern int Type_bc_elec[NWALL_MAX_TYPE];
-#define LAST_NODE    3
 #define LAST_NODE_RESTART    4
+#define LAST_NODE            3
 double gsum_double(double c);
 #define DOWN_FRONT   7
 #define DOWN_BACK    3
@@ -196,8 +178,8 @@ extern int **Wall_touch_node;
 extern int *Nwall_touch_node;
 extern int *Nodes_wall_box;
 extern int *Index_wall_nodes;
-#define REFLECT      2
-#define PERIODIC     1
+#define REFLECT              2
+#define PERIODIC             1
 extern int Type_bc[NDIM_MAX][2];
 extern int Nlink;
 extern double Dielec_bulk;
@@ -223,7 +205,6 @@ extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Nwall_type;
 extern int **Zero_density_TF;
 extern double ***Vext_dash;
-extern int Restart;
 extern int Lvext_dash;
 extern double **Vext;
 extern double *Dielec;

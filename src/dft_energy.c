@@ -277,12 +277,23 @@ int lfirst;
        }
 
        if (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
-           omega_WJDC=integrateInSpace_SumInComp(&integrand_WJDC_freen,Nel_hit2,x,Integration_profile);
-          if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WJDC,"WJDC BONDS");
 
-          omega_WJDC_b=integrateInSpace_SumInComp(&integrand_WJDC_freen_bulk,Nel_hit,x,Integration_profile);
-          omega_WJDC_surf_ex = omega_WJDC-omega_WJDC_b;
-          if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WJDC_surf_ex,"SURF.EX.: WJDC-DTERM");
+          if (Lseg_densities){
+             omega_WJDC=integrateInSpace_SumInComp(&integrand_WJDC_freen,Nel_hit2,x,Integration_profile);
+             if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WJDC,"WJDC BONDS");
+
+             omega_WJDC_b=integrateInSpace_SumInComp(&integrand_WJDC_freen_bulk,Nel_hit,x,Integration_profile);
+             omega_WJDC_surf_ex = omega_WJDC-omega_WJDC_b;
+             if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WJDC_surf_ex,"SURF.EX.: WJDC-DTERM");
+          }
+          else{
+             omega_WJDC=integrateInSpace_SumInComp(&integrand_WJDCcomp_freen,Nel_hit2,x,Integration_profile);
+             if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WJDC,"WJDC BONDS");
+
+             omega_WJDC_b=integrateInSpace_SumInComp(&integrand_WJDCcomp_freen_bulk,Nel_hit,x,Integration_profile);
+             omega_WJDC_surf_ex = omega_WJDC-omega_WJDC_b;
+             if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_WJDC_surf_ex,"SURF.EX.: WJDC-DTERM");
+          }
 
           omega_sum += omega_WJDC;
           omega_s_sum += omega_WJDC_surf_ex;

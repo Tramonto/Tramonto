@@ -220,7 +220,7 @@ void print_profile(char *output_file4)
 
            /* open file for segment densities */
      if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3){
-       sprintf(gfile2,"%s_site",output_file4);
+       sprintf(gfile2,"%s_seg",output_file4);
        fp7 = fopen(gfile2,"w");
      }
 
@@ -347,10 +347,10 @@ void print_profile(char *output_file4)
                 case CMS_FIELD:
                 case WJDC_FIELD:
                    if(Iwrite==VERBOSE){
-/*                      if (X_old[iunk+node_start] > 1.e-12 && -log(X_old[iunk+node_start]) < VEXT_MAX){*/
+                      if (fabs(X_old[iunk+node_start]) > 1.e-12 && -log(X_old[iunk+node_start]) < VEXT_MAX){
                           fprintf(ifp,"%g\t", -log(X_old[iunk+node_start]));
-/*                      }
-                      else fprintf(ifp,"%gf\t", VEXT_MAX);*/
+                      }
+                      else fprintf(ifp,"%gf\t", VEXT_MAX);
                    }
                    break;
 
@@ -370,7 +370,7 @@ void print_profile(char *output_file4)
         }
  
                /* print segment densities for a CMS polymer run ... print component densities in WTC run*/
-        if ((Type_poly == CMS || Type_poly==CMS_SCFT)){
+        if ((Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)){
               for (itype_mer=0;itype_mer<Ncomp;itype_mer++) sumsegdens[itype_mer]=0.0;
               for (ipol=0; ipol<Npol_comp; ipol++){
                  for(iseg=0;iseg<Nmer[ipol];iseg++){
@@ -380,18 +380,27 @@ void print_profile(char *output_file4)
 			 unk_GQ  = Geqn_start[ipol] + Poly_to_Unk[ipol][iseg][ibond];
                          bondproduct *= X_old[unk_GQ+node_start];
                     }  
-                   unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
-                   site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[ipol][iseg]-1))
-                                           *Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
+                   if (Type_poly== WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;
+                   else                   unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
+                   if (fabs(X_old[unk_B+node_start])>1.e-12)
+                   site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[ipol][iseg]-1));
+                   else site_dens=0.0;
+ 
+                   if (Type_poly==WJDC3){
+/*                      site_dens*=prefactor_rho_wjdc(iseg);*/
+                      site_dens*=exp(Betamu_chain[ipol]);
+                   }
+                   else{
+                      site_dens*=Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
+                   }
 
                    sumsegdens[itype_mer]+=site_dens;
                    fprintf(fp7,"%g\t", site_dens);
                  }
               }
-              for (itype_mer=0; itype_mer<Ntype_mer; itype_mer++) fprintf(fp7,"%g\t", sumsegdens[itype_mer]);
+/*              for (itype_mer=0; itype_mer<Ntype_mer; itype_mer++) fprintf(fp7,"%g\t", sumsegdens[itype_mer]);*/
         }
-
-        if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2){
+        else if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2){
               for (ipol=0; ipol<Npol_comp; ipol++){
                 for (itype_mer=0;itype_mer<Ncomp;itype_mer++) {
                      sumsegdens[itype_mer]=0.0;
