@@ -92,7 +92,7 @@ double integrand_WJDCcomp_freen(int iunk,int inode_box, double **x)
      loop_end=Nmer[npol];
      integrand=0.0;
 
-     scale_term=0;
+     scale_term=0,0;
      for (jcomp=0;jcomp<Ncomp;jcomp++){
         scale_term-=Scale_fac_WJDC[npol][jcomp]*Nseg_type_pol[npol][jcomp];
      }

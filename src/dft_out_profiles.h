@@ -62,6 +62,8 @@ extern int Geqn_start[NCOMP_MAX];
 extern int **Nbond;
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Nmer[NCOMP_MAX];
+extern int **Nseg_type_pol;
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int Npol_comp;
 #define NONE       -1
 #define NONE      -1

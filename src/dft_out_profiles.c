@@ -191,8 +191,8 @@ this routine is only ever called by Proc 0                                    */
 void print_profile(char *output_file4)
 {
   int icomp,iunk,i,inode,ijk[3],idim,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
-  int unk_field, node_start;
-  double kappa_sq,kappa,r,rsq,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX];
+  int unk_field, node_start,jcomp;
+  double kappa_sq,kappa,r,rsq,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term;
   char *unk_char;
   
   char gfile[20],gfile2[20];
@@ -373,6 +373,12 @@ void print_profile(char *output_file4)
         if ((Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)){
               for (itype_mer=0;itype_mer<Ncomp;itype_mer++) sumsegdens[itype_mer]=0.0;
               for (ipol=0; ipol<Npol_comp; ipol++){
+                 if (Type_poly==WJDC3){
+                 scale_term=0.0;
+                 for (jcomp=0;jcomp<Ncomp;jcomp++) {
+                        scale_term-=Scale_fac_WJDC[ipol][jcomp]*Nseg_type_pol[ipol][jcomp];
+                 }
+                 }
                  for(iseg=0;iseg<Nmer[ipol];iseg++){
                     itype_mer=Type_mer[ipol][iseg];
                     bondproduct=1.0;
@@ -388,7 +394,7 @@ void print_profile(char *output_file4)
  
                    if (Type_poly==WJDC3){
 /*                      site_dens*=prefactor_rho_wjdc(iseg);*/
-                      site_dens*=exp(Betamu_chain[ipol]);
+                      site_dens*=exp(Betamu_chain[ipol]+scale_term);
                    }
                    else{
                       site_dens*=Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
