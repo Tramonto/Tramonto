@@ -41,6 +41,7 @@ extern int Nrho_bar_bond;
 #define WJDC3        5 
 extern int Nrho_bar_cavity;
 #define CAVWTC         4
+#define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;
 extern int Ndiffusion;
 #define DIFFUSION      6

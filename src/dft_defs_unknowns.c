@@ -93,7 +93,7 @@ void setup_nunk_per_node(char *output_file1)
 
          case DIFFUSION:                            /* unknowns of Diffusion Equation */
             Ndiffusion=0;
-            if ( Lsteady_state && L_HSperturbation){
+            if ( Lsteady_state==DIFFUSIVE_INTERFACE && L_HSperturbation){
               if (Lseg_densities) Ndiffusion=Nseg_tot; 
               else                Ndiffusion=Ncomp;
             }

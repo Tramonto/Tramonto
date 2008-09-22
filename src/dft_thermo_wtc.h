@@ -81,6 +81,7 @@ extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
 extern double Rho_seg_LBB[NMER_MAX];
+#define UNIFORM_INTERFACE  0
 extern int Lsteady_state;
 #define NBLOCK_MAX   20 
 extern int Nmer_t_total[NBLOCK_MAX];

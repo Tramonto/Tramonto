@@ -21,9 +21,6 @@ void setup_exp_density_with_profile(double **xInBox);
 extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];
 #define CHOP_RHO_STEP    4
 #define CHOP_RHO         3
-#define CHOP_RHO_V      11
-extern double Rho_coex[2];
-#define CHOP_RHO_L      10 
 extern double Xstart_step[NSTEPS_MAX];
 extern double **X_wall;
 extern int Nwall;
@@ -50,7 +47,11 @@ extern int Nodes_x[NDIM_MAX];
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Nmer_comp[NCOMP_MAX];
 extern int Phys2Unk_first[NEQ_TYPE];
+extern double Temp;
+extern double Mass[NCOMP_MAX];
+extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Unk2Comp[NMER_MAX];
+extern int LDeBroglie;
 extern int Nrho_bar_s;
 int ijk_to_node(int *ijk);
 extern double Esize_x[NDIM_MAX];
@@ -76,6 +77,7 @@ extern int Type_poly;
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;
+#define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;
 #define NO_SCREEN    2 
 extern int Iwrite;

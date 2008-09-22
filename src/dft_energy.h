@@ -21,7 +21,7 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 #include "Tramonto_ConfigDefs.h"
 #define CMS_SCFT     1
 #define CMS          0
-extern int Iliq_vap;
+extern int LBulk;
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_WJDCcomp_freen(int iunk,int inode_box,double **x);

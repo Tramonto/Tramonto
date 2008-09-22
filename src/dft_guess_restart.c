@@ -242,7 +242,7 @@ void read_in_a_file(int iguess,char *filename)
     }
     if (Iwrite != NO_SCREEN) printf("Number of unknowns in the file=%d\n",unk_in_file);
 
-    if (Lsteady_state && Restart_field[DIFFUSION]==FALSE) 
+    if (Lsteady_state==DIFFUSIVE_INTERFACE && Restart_field[DIFFUSION]==FALSE) 
          if (Proc==0 && Iwrite != NO_SCREEN)
            printf("there is no chemical potential data in the restart file\n");
     if (Type_coul != NONE && Restart_field[POISSON]==FALSE)
@@ -329,9 +329,12 @@ void read_in_a_file(int iguess,char *filename)
                  break;
 
               case DENSITY:
-                               /* icomp = iunk_file-unk_start_in_file[DENSITY]; */
-                               /* if (Lsteady_state) tmp *= Mass[icomp]; */
    	         fscanf(fp5,"%lf",&tmp); 
+/*                 if (LDeBroglie){
+                     if (Lseg_densities) icomp = Unk2Comp[iunk_file-unk_start_in_file[DENSITY]]; 
+                     else                icomp = iunk_file-unk_start_in_file[DENSITY]; 
+                     if (LDeBroglie) tmp *= Mass[icomp]; 
+                 }*/
                  break;
 
               case HSRHOBAR:
@@ -345,10 +348,13 @@ void read_in_a_file(int iguess,char *filename)
                  break;
 
               case DIFFUSION: 
-                               /* icomp = iunk_file-unk_start_in_file[DIFFUSION]; */
-                               /* if (Ipot_ff_n != IDEAL_GAS) */  /* Debroglie wavelength contribution */
-                               /* tmp -= 3.0*log(Sigma_ff[icomp][icomp]+1.5*log(Mass[icomp]*Temp));*/
-   	         fscanf(fp5,"%lf",&tmp); break;
+   	         fscanf(fp5,"%lf",&tmp); 
+                 if (LDeBroglie){
+                       if (Lseg_densities)icomp=Unk2Comp[iunk_file-unk_start_in_file[DIFFUSION]]; 
+                       else icomp = iunk_file-unk_start_in_file[DIFFUSION]; 
+                       tmp -= 3.0*log(Sigma_ff[icomp][icomp]+1.5*log(Mass[icomp]*Temp));
+                 }
+                 break;
            }
        if (eq_type==DENSITY && convert_to_comp_densities){
             /* this is case where we have read in densities for all the segments and we need to collapse them to component densities */
@@ -586,9 +592,7 @@ void chop_profile(double **xInBox, int iguess)
               if (X_wall[loc_inode][iwall] > Xstart_step[0]) check++;
         if (check == Nwall){
 	      iunk = Phys2Unk_first[DENSITY]+icomp;
-              if (iguess==CHOP_RHO_L) xInBox[iunk][inode_box] = Rho_coex[1];
-              else if (iguess==CHOP_RHO_V) xInBox[iunk][inode_box] = Rho_coex[0];
-              else if (iguess==CHOP_RHO) xInBox[iunk][inode_box] = Rho_b[icomp];
+              if (iguess==CHOP_RHO) xInBox[iunk][inode_box] = Rho_b[icomp];
               else if (iguess==CHOP_RHO_STEP) xInBox[iunk][inode_box] = Rho_step[icomp][0];
         }
     }

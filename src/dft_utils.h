@@ -77,12 +77,10 @@ extern double Rhobar_b_LBB[10];
 extern double Rhobar_b[10];
 #define HSRHOBAR       2
 extern double Rho_b_RTF[NCOMP_MAX];
-extern double Rho_coex[2];
 extern double Rho_b_LBB[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 extern double Rho_seg_LBB[NMER_MAX];
-extern int Lsteady_state;
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern double Rho_seg_b[NMER_MAX];

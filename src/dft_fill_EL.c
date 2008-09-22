@@ -273,12 +273,11 @@ double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, doub
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
       }
 
-/* if(Lsteady_state){
-       resid = (- 3.0*log(Sigma_ff[icomp][icomp]) -1.5*log(Mass[icomp]*Temp));
-       resid_ig += resid;
-       dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-   }
-*/
+      if(LDeBroglie){
+         resid = (- 3.0*log(Sigma_ff[icomp][icomp]) -1.5*log(Mass[icomp]*Temp));
+         resid_ig += resid;
+         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+      }
    }
 
    if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){ 
@@ -302,8 +301,8 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
    int junk,pol_num;
 
    resid_mu = 0.0;
-   if (Lsteady_state == FALSE) {
-      if (Iliq_vap < 10 ){
+   if (Lsteady_state != DIFFUSIVE_INTERFACE) {
+      if (Lsteady_state ==UNIFORM_INTERFACE ){
         if (Lseg_densities) resid_mu -= log(Rho_seg_b[iseg]);
         else                resid_mu -= log(Rho_b[icomp]);
 
@@ -314,13 +313,13 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
             if (Type_coul == DELTAC) resid_mu += Deltac_b[icomp];
         }
       }
-      else{
+      else if (Lsteady_state==PHASE_INTERFACE){
           if (Lseg_densities) resid_mu = -Betamu_seg[iseg];
-          else {               resid_mu = -Betamu[icomp];
+          else {              resid_mu = -Betamu[icomp];
           }
       }
    }
-   else{                             /* Lsteady_state == TRUE */
+   else if (Lsteady_state==DIFFUSIVE_INTERFACE){     
       if(Lseg_densities)  junk=Phys2Unk_first[DIFFUSION] + iseg;
       else                junk=Phys2Unk_first[DIFFUSION] + icomp;
       resid_mu = -x[junk][inode_box];

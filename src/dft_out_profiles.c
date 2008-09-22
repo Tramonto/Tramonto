@@ -329,10 +329,16 @@ void print_profile(char *output_file4)
             switch(Unk2Phys[iunk]){
                 case DENSITY:
 /*                fprintf(ifp,"%g\t", X_old[iunk+node_start]/Rho_b[icomp]);*/
+                  fprintf(ifp,"%g\t", X_old[iunk+node_start]);
+                  break;
+
                 case DIFFUSION:
-/*                if (Ipot_ff_n != IDEAL_GAS)
+                  if (LDeBroglie){
                        fprintf(ifp,"%g\t", X_old[iunk+node_start]
-                            + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );*/
+                            + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );
+                  }
+                  else fprintf(ifp,"%g\t", X_old[iunk+node_start]);
+
                 case POISSON:
                   fprintf(ifp,"%g\t", X_old[iunk+node_start]);
                   break;

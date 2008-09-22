@@ -100,7 +100,6 @@ void thermodynamics(char *output_file1);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-extern int Iliq_vap;
 extern double Crfac;
 #define CONT_CRFAC  19  /* continuous mixing of two cr files */
 extern int **Zero_density_TF;
@@ -112,6 +111,7 @@ extern int *Comm_offset_node;
 extern int *Comm_unk_proc;
 extern int *Comm_node_proc;
 extern double *Area_IC;
+#define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;
 void boundary_free(void);
 void free_mesh_arrays(void);

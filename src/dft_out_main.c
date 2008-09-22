@@ -171,7 +171,7 @@ void post_process (double **x,char *output_file3,int *niters,
 
    energy=calc_free_energy(fp,x); 
 
-   if (Lsteady_state && Proc==0) calc_flux(fp,output_flux,X_old);
+   if (Lsteady_state==DIFFUSIVE_INTERFACE && Proc==0) calc_flux(fp,output_flux,X_old);
 
    if (Proc==0) fprintf(fp,"  \n");
 

@@ -20,8 +20,8 @@ void calc_init_mf_attract(double **xInBox);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
-extern int Iliq_vap;
-extern int Nwall;
+#define PHASE_INTERFACE 2
+#define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;
 #define MF_EQ          3
 #define NEQ_TYPE       13 

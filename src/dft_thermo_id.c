@@ -49,12 +49,14 @@ double pressure_ideal_gas(double *rho)
 /* chempot_ideal_gas: This routine computes the chemical potential(s) of an ideal gas (mixture) at a density of interest */
 void chempot_ideal_gas(double *rho,double *betamu)
 {
-   int i;
+   int i,icomp;
    
    for (i=0;i<Ncomp;i++){
        betamu[i] = log(rho[i]);
-                  /*           - 3.0*log(Sigma_ff[icomp][icomp]) -
-                               1.5*log(Mass[icomp]*Temp); */
+       if (LDeBroglie){
+           betamu[i]+=  (- 3.0*log(Sigma_ff[icomp][icomp]) -
+                               1.5*log(Mass[icomp]*Temp)); 
+       }
    }
    return;
 }

@@ -43,6 +43,7 @@ extern double Rho_b_RTF[NCOMP_MAX];
 #define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
+#define UNIFORM_INTERFACE  0
 extern int Lsteady_state;
 double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box,double **x);
 #define THETA_CR_RPM_MSA      3

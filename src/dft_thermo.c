@@ -95,7 +95,7 @@ void calc_pressure(char *output_file1)
    }
    fprintf(fp,"\n!!!!!!!!!!!!! output from dft_thermo.c !!!!!!!!!!!!!!!!!!\n");
  
-   if (Lsteady_state){          /* CASE WITH DIFFUSION */
+   if (Lsteady_state!=UNIFORM_INTERFACE){      
       if (L_HSperturbation){
 				/* IDEAL contributions */
           if (Lseg_densities){
@@ -144,7 +144,7 @@ void calc_pressure(char *output_file1)
             print_to_file(fp,Betap_RTF,"Betap_RTF",2);
        }    
    }
-   else{          		/* CASE WITH NO DIFFUSION */
+   else if (Lsteady_state==UNIFORM_INTERFACE){ 
       if (L_HSperturbation){
 				/* IDEAL contributions */
           if (Lseg_densities)  Betap=pressure_ideal_gas(Rho_seg_b);
@@ -205,7 +205,7 @@ void calc_chempot(char *output_file1)
       exit(1);
    }
  
-   if (Lsteady_state){          /* CASE WITH DIFFUSION */
+   if (Lsteady_state !=UNIFORM_INTERFACE){          /* CASE WITH DIFFUSION */
       if (L_HSperturbation){
           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){  /* this is different than all the others because we compute
                                     chain chemical potentials.  Note that a segment chemical potential
@@ -307,7 +307,7 @@ void calc_chempot(char *output_file1)
            /* CMS chemical potentials with diffusion would go here */
        }
    }
-   else{          		/* CASE WITH NO DIFFUSION */
+   else if(Lsteady_state==UNIFORM_INTERFACE){          	
       if (L_HSperturbation){
 
           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){  /* this is different than all the others because we compute

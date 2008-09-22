@@ -24,6 +24,7 @@ void node_to_ijk(int node,int *ijk);
 void setup_step_2consts(double **xInBox);
 extern double **Vext;
 extern int *B2L_node;
+#define UNIFORM_INTERFACE  0
 extern int Lsteady_state;
 #define NCOMP_MAX 5
 #define NSTEPS_MAX 10
@@ -43,18 +44,10 @@ extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nnodes_box;
 void setup_linear_profile(double **xInBox);
 #define LINEAR           5
-#define CHOP_RHO_V      11
-void chop_profile(double **xInBox,int iguess);
-#define CHOP_RHO_L      10 
 void setup_stepped_profile(double **xInBox);
 #define STEP_PROFILE     2
-#define EXP_RHO_L        8
-#define EXP_RHO_V        9
 void setup_exp_density(double **xInBox,double *rho,int nloop,int index);
 #define EXP_RHO          1
-#define CONST_RHO_L      6 
-extern double Rho_coex[2];
-#define CONST_RHO_V      7 
 extern int Ncomp;
 extern double Rho_b[NCOMP_MAX];
 extern int Nseg_tot;

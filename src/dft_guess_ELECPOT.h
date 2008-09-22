@@ -23,6 +23,7 @@ extern double Esize_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
 extern int *B2G_node;
 #define LINEAR           5
+#define UNIFORM_INTERFACE  0
 extern int Lsteady_state;
 #define POISSON        1
 #define NEQ_TYPE       13 

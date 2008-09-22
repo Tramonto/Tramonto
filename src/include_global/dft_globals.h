@@ -270,7 +270,6 @@ int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
 int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */
 int     Lhard_surf;   /* Logical indicating if surfaces are hard core */
 int     Lvext_dash;   /* Logical indicating if the Vext_dash array should be set up */
-int     Iliq_vap;     /* Type of Liquid-vapro profile                        */
 int     Iguess1;        /* Type of initial guess */
 int     Iguess_fields;        /* Type of initial guess */
 int     Nsteps;         /* Number of steps for a step profile initial guess */
@@ -348,6 +347,7 @@ int     ***Wall_owners; /*Array[ilist][iel_box][Nwall_owners] that stores
 /* Steady State Solutions Info */
 
 int    Lsteady_state;          /*True-False Steady State or Equilibrium Run*/
+int    LBulk;          /*True-False Indicates a bulk run - changes output*/
 int    Linear_transport;       /*True-False Steady State or Equilibrium Run*/
 double Velocity;               /* Convective velocity over diffusion coefficient*/
 int    Grad_dim;               /*direction where gradient is implemented*/
@@ -390,6 +390,8 @@ int     Type_coul;    /* Type for handling Coulombics                        */
 int     Type_poly;    /* Type for handling polymers                          */
 int     Lseg_densities; /* Logical to indicate that segement (rather than component) densities are treated in the code */
 int     L_HSperturbation; /* Logical to indicate whether the run is base on perturbation of hard spheres */
+int     LDeBroglie; /* logical to turn on the DeBroglie wavelength contribution to the free energy functional */
+
 
 
 

@@ -32,6 +32,7 @@ extern int Nwall;
 extern double Betamu[NCOMP_MAX];
 #define NMER_MAX     100
 extern double Betamu_seg[NMER_MAX];
+#define PHASE_INTERFACE 2
 extern double *Deltac_b;
 extern double Betamu_wtc[NMER_MAX];
 extern double Betamu_att[NCOMP_MAX];
@@ -39,12 +40,17 @@ extern double Betamu_att[NCOMP_MAX];
 extern double Betamu_hs_ex[NCOMP_MAX];
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
-extern int Iliq_vap;
+#define UNIFORM_INTERFACE  0
+#define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;
 extern int SegAll_to_Poly[NMER_MAX];
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int **Nseg_type_pol;
 extern int Npol_comp;
+extern double Temp;
+extern double Mass[NCOMP_MAX];
+extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
+extern int LDeBroglie;
 extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_b[NMER_MAX];

@@ -99,6 +99,10 @@ void read_input_file(char *input_file, char *output_file1)
     fprintf(fp2,"test out the printing %s\n",output_file1);
   }
 
+  LDeBroglie=FALSE;
+  LBulk=FALSE;
+  Lsteady_state=UNIFORM_INTERFACE;
+
   /* Initialize and Read Dimension Parameters */
   if (Proc==0) {
     read_junk(fp,fp2);
@@ -1310,6 +1314,13 @@ void read_input_file(char *input_file, char *output_file1)
 
   /* State Point Parameters */
 
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    fscanf(fp,"%d  %d", &Lsteady_state, &Grad_dim);
+    fprintf(fp2,"%d  %d  ",Lsteady_state,Grad_dim);
+  }
+  MPI_Bcast(&Lsteady_state,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Grad_dim,1,MPI_INT,0,MPI_COMM_WORLD);
 
   if (Proc==0) {
     read_junk(fp,fp2);
@@ -1318,6 +1329,7 @@ void read_input_file(char *input_file, char *output_file1)
         fscanf(fp,"%lf", &Rho_b[icomp]);
         fprintf(fp2,"%f  ",Rho_b[icomp]);
         if (Density_ref > 0.0) Rho_b[icomp] /= Density_ref;
+        if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_LBB[icomp]=Rho_b[icomp];
       }
     }
     else{
@@ -1338,18 +1350,107 @@ void read_input_file(char *input_file, char *output_file1)
         }
         fprintf(fp2,"%f  ",Rho_b[i]);
       }
-      for (icomp=Ntype_mer; icomp<Ncomp; ++icomp)
+      for (icomp=Ntype_mer; icomp<Ncomp; ++icomp){
         fprintf(fp2,"%f  ",Rho_b[icomp]);
+        if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_LBB[icomp]=Rho_b[icomp];
+      }
     }
   }
-  MPI_Bcast(Rho_b,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  if (Lsteady_state==UNIFORM_INTERFACE) MPI_Bcast(Rho_b,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  else                                  MPI_Bcast(Rho_b_LBB,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-	/* calculate total sum of site densities */
-	Rho_t = 0.0;
-	for(icomp=0; icomp<Ncomp; icomp++)
-		Rho_t += Rho_b[icomp];
+  /* calculate total sum of site densities */
+  Rho_t = 0.0;
+  for(icomp=0; icomp<Ncomp; icomp++) Rho_t += Rho_b[icomp];
+  if (Lsteady_state==UNIFORM_INTERFACE) printf("Rho_t = %f\n", Rho_t);
+  else printf("Rho_t(left) = %f\n", Rho_t);
 
-	printf("Rho_t = %f\n", Rho_t);
+  if (Lsteady_state != UNIFORM_INTERFACE){
+     if (Proc==0) {
+       read_junk(fp,fp2);
+       if (Type_poly==NONE || Ntype_mer == 1){
+         for (icomp=0; icomp<Ncomp; ++icomp){
+           fscanf(fp,"%lf", &Rho_b[icomp]);
+           fprintf(fp2,"%f  ",Rho_b[icomp]);
+           if (Density_ref > 0.0) Rho_b[icomp] /= Density_ref;
+           if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_RTF[icomp]=Rho_b[icomp];
+         }
+       }
+       else{
+         /*first scan in polymer densities */
+         for (i=0; i<Npol_comp; i++){
+             fscanf(fp,"%lf", &rho_tmp[i]);
+             if (Density_ref > 0.0) rho_tmp[i] /= Density_ref;
+         }
+         /* now scan in solvent - atom densities */
+         for (icomp=Ntype_mer; icomp<Ncomp; ++icomp){
+           fscanf(fp,"%lf", &Rho_b[icomp]);
+           if (Density_ref > 0.0) Rho_b[icomp] /= Density_ref;
+         }
+         for (i=0; i<Ntype_mer; i++){
+           Rho_b[i] = 0.;
+           for (j=0; j<Npol_comp; j++) {
+             Rho_b[i] += (double)Nmer_t[j][i]*rho_tmp[j]/(double)Nmer[j];
+           }
+           fprintf(fp2,"%f  ",Rho_b[i]);
+         }
+         for (icomp=Ntype_mer; icomp<Ncomp; ++icomp){
+           fprintf(fp2,"%f  ",Rho_b[icomp]);
+           if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_RTF[icomp]=Rho_b[icomp];
+         }
+       }
+     }
+     MPI_Bcast(Rho_b_RTF,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+     /* calculate total sum of site densities */
+     Rho_t = 0.0;
+     for(icomp=0; icomp<Ncomp; icomp++) Rho_t += Rho_b[icomp];
+     printf("Rho_t(right) = %f\n", Rho_t);
+  }
+  else{
+    if (Proc==0) {
+      read_junk(fp,fp2);
+      fprintf(fp2,"n/a");
+    }
+  }
+
+  if (Ipot_ff_c == COULOMB && Lsteady_state != UNIFORM_INTERFACE) {
+      if (Proc==0) {
+	read_junk(fp,fp2);
+	fscanf(fp,"%lf", &Elec_pot_LBB);
+	fprintf(fp2,"%f  ",Elec_pot_LBB);
+        if (Potential_ref > 0.0) Elec_pot_LBB /= Potential_ref;
+      }
+      MPI_Bcast(&Elec_pot_LBB,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+      if (Proc==0) {
+	fscanf(fp,"%lf", &Elec_pot_RTF);
+	fprintf(fp2,"%f  ",Elec_pot_RTF);
+        if (Potential_ref > 0.0) Elec_pot_RTF /= Potential_ref;
+      }
+      MPI_Bcast(&Elec_pot_RTF,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  }
+  else{
+      if (Proc==0) {
+	read_junk(fp,fp2);
+	fprintf(fp2,"n/a");
+      }
+  }
+
+  if (Lsteady_state != UNIFORM_INTERFACE){
+     if (Proc==0) {
+         read_junk(fp,fp2);
+         fscanf(fp,"%lf", &X_const_mu);
+         fprintf(fp2,"%f  ",X_const_mu);
+         if (Length_ref > 0.0) X_const_mu /= Length_ref;
+     }
+     MPI_Bcast(&X_const_mu,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  }
+  else{
+      if (Proc==0) {
+	read_junk(fp,fp2);
+	fprintf(fp2,"n/a");
+      }
+  }
+
 
   /* Read in Charged surface parameters */
   Ipot_wf_c = 0;
@@ -1517,37 +1618,31 @@ void read_input_file(char *input_file, char *output_file1)
     }
   }
   
-  /* READ IN STEADY STATE BOUNDARY CONDITIONS */
+  /* READ IN DIFFUSION SPECIFIC PARAMETERS */
   L1D_bc = FALSE;
-  if (Proc==0) {
-    read_junk(fp,fp2);
-    fscanf(fp,"%d  ", &Lsteady_state);
-    fprintf(fp2,"%d  ",Lsteady_state);
-    Linear_transport=0;  
-                        /* only want generalized Fick's Law */
+  Linear_transport=0;   /* only want generalized Fick's Law */
                         /* can do J=-Dgrad mu, but doesn't work well */
-  }
-  MPI_Bcast(&Lsteady_state,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Linear_transport,1,MPI_INT,0,MPI_COMM_WORLD);
 
   /* ALF: temporary fix for polymer initial guesses */
-  if (Lsteady_state || (Type_poly != NONE && Type_poly !=WTC)) {
+  if (Lsteady_state==DIFFUSIVE_INTERFACE || (Type_poly != NONE && Type_poly !=WTC)) {
+
     if (Proc==0) {
       read_junk(fp,fp2);
-      fscanf(fp,"%d  %d  %lf", &Grad_dim, &L1D_bc,&X_1D_bc );
-      fprintf(fp2,"%d  %d  %f  ",Grad_dim, L1D_bc,X_1D_bc);
-      if (Length_ref > 0.0) X_1D_bc /= Length_ref;
+      for (icomp=0; icomp<Ncomp; ++icomp){
+	fscanf(fp,"%lf", &D_coef[icomp]);
+	fprintf(fp2,"%f  ",D_coef[icomp]);
+      }
     }
-    MPI_Bcast(&Grad_dim,1,MPI_INT,0,MPI_COMM_WORLD);
-    MPI_Bcast(&L1D_bc,1,MPI_INT,0,MPI_COMM_WORLD);
-    MPI_Bcast(&X_1D_bc,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(D_coef,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
     if (Proc==0) {
       read_junk(fp,fp2);
-      fscanf(fp,"%lf", &X_const_mu);
-      fprintf(fp2,"%f  ",X_const_mu);
-      if (Length_ref > 0.0) X_const_mu /= Length_ref;
+      fscanf(fp,"%lf ", &Velocity);
+      fprintf(fp2,"%f  ",Velocity);
     }
-    MPI_Bcast(&X_const_mu,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(&Velocity,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
     if (Proc==0) {
       read_junk(fp,fp2);
       fscanf(fp,"%d  %d", &Geom_flag, &Nseg_IC);
@@ -1573,67 +1668,14 @@ void read_input_file(char *input_file, char *output_file1)
     MPI_Bcast(Pore_rad_L_IC,Nseg_IC,MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(Pore_rad_R_IC,Nseg_IC,MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(Lseg_IC,Nseg_IC,MPI_DOUBLE,0,MPI_COMM_WORLD);
-    if (Proc==0) {
-      read_junk(fp,fp2);
-      for (icomp=0; icomp<Ncomp; ++icomp){
-	fscanf(fp,"%lf", &Rho_b_LBB[icomp]);
-	fprintf(fp2,"%f  ",Rho_b_LBB[icomp]);
-        if (Density_ref > 0.0) Rho_b_LBB[icomp] /= Density_ref;
-      }
-    }
-    MPI_Bcast(Rho_b_LBB,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
-    if (Proc==0) {
-      read_junk(fp,fp2);
-      for (icomp=0; icomp<Ncomp; ++icomp){
-	fscanf(fp,"%lf", &Rho_b_RTF[icomp]);
-	fprintf(fp2,"%f  ",Rho_b_RTF[icomp]);
-        if (Density_ref > 0.0) Rho_b_RTF[icomp] /= Density_ref;
-      }
-    }
-    MPI_Bcast(Rho_b_RTF,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
-    if (Proc==0) {
-      read_junk(fp,fp2);
-      for (icomp=0; icomp<Ncomp; ++icomp){
-	fscanf(fp,"%lf", &D_coef[icomp]);
-	fprintf(fp2,"%f  ",D_coef[icomp]);
-      }
-    }
-    MPI_Bcast(D_coef,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-    if (Ipot_ff_c == COULOMB) {
-      if (Proc==0) {
-	read_junk(fp,fp2);
-	fscanf(fp,"%lf", &Elec_pot_LBB);
-	fprintf(fp2,"%f  ",Elec_pot_LBB);
-        if (Potential_ref > 0.0) Elec_pot_LBB /= Potential_ref;
-      }
-      MPI_Bcast(&Elec_pot_LBB,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
-      if (Proc==0) {
-	fscanf(fp,"%lf", &Elec_pot_RTF);
-	fprintf(fp2,"%f  ",Elec_pot_RTF);
-        if (Potential_ref > 0.0) Elec_pot_RTF /= Potential_ref;
-      }
-      MPI_Bcast(&Elec_pot_RTF,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
-    }
-    else{
-      if (Proc==0) {
-	read_junk(fp,fp2);
-	fprintf(fp2,"n/a");
-      }
-    }
-    if (Proc==0) {
-      read_junk(fp,fp2);
-      fscanf(fp,"%lf ", &Velocity);
-      fprintf(fp2,"%f  ",Velocity);
-    }
-    MPI_Bcast(&Velocity,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
   }
   else{
     if (Proc==0) {
       read_junk(fp,fp2);
       fprintf(fp2,"TRANSPORT INPUT NOT RELEVENT FOR THIS RUN\n");
       fprintf(fp2,"n/a");
-      for (i=0; i<8; i++) {
+      for (i=0; i<3; i++) {
 	read_junk(fp,fp2);
 	fprintf(fp2,"n/a");
       }
@@ -1643,13 +1685,6 @@ void read_input_file(char *input_file, char *output_file1)
   /* ***********end of physics input .... now run control and numerics input ********/ 
 
   /* Run control parameters: initial guess type etc.*/
-
-  if (Proc==0) {
-    read_junk(fp,fp2);
-    fscanf(fp,"%d",&Iliq_vap);
-    fprintf(fp2,"%d",Iliq_vap);
-  }
-  MPI_Bcast(&Iliq_vap,1,MPI_INT,0,MPI_COMM_WORLD);
 
   if (Proc==0) {
     read_junk(fp,fp2);
@@ -1811,6 +1846,15 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&Lcut_jac,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Jac_threshold,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
+  if (Proc==0) {
+     read_junk(fp,fp2);
+     fscanf(fp,"%d  %lf", &L1D_bc,&X_1D_bc );
+     fprintf(fp2,"%d  %f  ",L1D_bc,X_1D_bc);
+     if (Length_ref > 0.0) X_1D_bc /= Length_ref;
+  }
+  MPI_Bcast(&L1D_bc,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&X_1D_bc,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
   /* Nonlinear Solver Parameters */
 
   if (Proc==0) {
@@ -1968,8 +2012,8 @@ void read_input_file(char *input_file, char *output_file1)
         printf("ERROR: Can't do continuation in Eps_wf when the Mix_type is 0\n");
         exit(-1);
     } 
-    if (Loca.cont_type1 == CONT_BETAMU_0 && Iliq_vap<10){
-       printf("error: for continuation type=%d Iliq_vap must be %d\n",Loca.cont_type1,10);
+    if (Loca.cont_type1 == CONT_BETAMU_0 && !LBulk){
+       printf("error: for continuation type=%d LBulk must be TRUE=%d\n",Loca.cont_type1,1);
     }
   }
 
@@ -2169,39 +2213,4 @@ void error_check(void)
   if (Coarser_jac == 5) nmax= Nzone-1;
   else                  nmax = Nzone;
 
-  if ( Iliq_vap > -1 ) { 
-    if (Ncomp > 1){
-       printf("\nWarning: Can only do liquid-vapor equilibria for one species....will turn off coexistence calcs\n");
-    }
-    if (Ipot_ff_n == HARD_SPHERE){
-       printf("\nERROR: There is no liquid-vapor transition for hard spheres\n");
-       exit(-1);
-    }
-    if (Ipot_ff_n == IDEAL_GAS){
-       printf("\nERROR: There is no liquid-vapor transition for the ideal gas\n");
-       exit(-1);
-    }
-    if (Iliq_vap == 3 && Iguess1 != 6 ){
-       printf("\nERROR: If Iliq_vap = 3 then Iguess should be 6\n");
-       exit(-1);
-    }
-  }
-
-  if (Ncomp > 1) {
-    if(Iguess1 == CONST_RHO_L || Iguess1 == CONST_RHO_V) {
-       printf("\nERROR: Can't do liquid-vapor equilibria for more than one species\n");
-       printf("\t Change Iguess type to %d  currently Iguess=%d\n",CONST_RHO,Iguess1);
-       exit(-1);
-    }
-    else if(Iguess1 == EXP_RHO_L || Iguess1 == EXP_RHO_V) {
-       printf("\nERROR: Can't do liquid-vapor equilibria for more than one species\n");
-       printf("\t Change Iguess type to %d\n",EXP_RHO);
-       exit(-1);
-    }
-    else if(Iguess1 == CHOP_RHO_L || Iguess1 == CHOP_RHO_V) {
-       printf("\nERROR: Can't do liquid-vapor equilibria for more than one species\n");
-       printf("\t Change Iguess type to %d\n",CHOP_RHO);
-       exit(-1);
-    }
-  }
 }

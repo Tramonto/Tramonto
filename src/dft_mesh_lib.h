@@ -59,10 +59,6 @@ void ijk_to_ijk_box(int *ijk,int *ijk_box);
 int ijk_to_node(int *ijk);
 #define LAST_NODE_RESTART    4
 #define LAST_NODE            3
-#define REFLECT              2
-extern int Nodes_x[NDIM_MAX];
-#define PERIODIC             1
-#define IN_WALL             -1
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -70,8 +66,13 @@ extern int Nodes_x[NDIM_MAX];
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
+#define REFLECT              2
+extern int Nodes_x[NDIM_MAX];
+#define PERIODIC             1
+#define IN_WALL             -1
+#define DIFFUSIVE_INTERFACE 1
+#define PHASE_INTERFACE 2
 extern int Lsteady_state;
-extern int Iliq_vap;
 extern int Nwall;
 #define IN_BULK              0
 extern int Type_bc[NDIM_MAX][2];

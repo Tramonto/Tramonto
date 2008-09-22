@@ -14,14 +14,6 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define CHOP_RHO_V      11
-#define CHOP_RHO_L      10 
-#define EXP_RHO          1
-#define EXP_RHO_V        9
-#define EXP_RHO_L        8
-#define CONST_RHO        0 
-#define CONST_RHO_V      7 
-#define CONST_RHO_L      6 
 #define NZONE_MAX  10 
 extern int Num_Proc;
 void error_check(void);
@@ -113,7 +105,6 @@ extern int Nsteps;
 #define STEP_PROFILE     2
 extern int Iguess_fields;
 extern int Iguess1;
-extern int Iliq_vap;
 extern double Velocity;
 extern double Elec_pot_RTF;
 extern double Elec_pot_LBB;
@@ -129,7 +120,6 @@ extern double X_const_mu;
 extern double X_1D_bc;
 extern int Grad_dim;
 extern int Linear_transport;
-extern int Lsteady_state;
 extern int L1D_bc;
 extern double *Dielec_wall;
 extern double Dielec_X;
@@ -297,10 +287,6 @@ extern int Type_hsdiam;
 extern int Type_func;
 #define PERIODIC             1
 extern int Type_bc[NDIM_MAX][2];
-#define FALSE 0
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
-#endif
 extern int Lmesh_refine;
 extern double Esize_x[NDIM_MAX];
 extern double Size_x[NDIM_MAX];
@@ -314,6 +300,15 @@ extern double Temp;
 extern double Density_ref;
 extern double Length_ref;
 void read_junk(FILE *fp,FILE *fp2);
+#define UNIFORM_INTERFACE  0
+#define DIFFUSIVE_INTERFACE  1
+extern int Lsteady_state;
+extern int LBulk;
+#define FALSE 0
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+extern int LDeBroglie;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

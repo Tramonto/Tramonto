@@ -157,6 +157,7 @@ int round_to_int(double x);
 extern int Nelements;
 void setup_area_IC(void);
 extern double *Area_IC;
+#define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;
 extern int Nnodes;
 int gsum_int(int c);

@@ -255,20 +255,16 @@ void compute_bulk_FMT_properties(char *output_file1)
            rhobar_icomp(Rho_seg_b[iloop],icomp,Rhobar_b);
        }
        else{
-          if (Lsteady_state){
+          if (Lsteady_state!=UNIFORM_INTERFACE){
                  rhobar_icomp(Rho_b_LBB[icomp],icomp,Rhobar_b_LBB);
                  rhobar_icomp(Rho_b_RTF[icomp],icomp,Rhobar_b_RTF);
-          }
-          else if (Nwall ==0 && Iliq_vap==3){
-                 rhobar_icomp(Rho_coex[1],icomp,Rhobar_b_LBB);
-                 rhobar_icomp(Rho_coex[0],icomp,Rhobar_b_RTF);
           }
           else rhobar_icomp(Rho_b[icomp],icomp,Rhobar_b);
    
        }
   }
   dphi_drb_bulk(Rhobar_b,Dphi_Drhobar_b);
-  if (Lsteady_state || (Nwall==0&&Iliq_vap==3)){
+  if (Lsteady_state != UNIFORM_INTERFACE){
      dphi_drb_bulk(Rhobar_b_LBB,Dphi_Drhobar_LBB);
      dphi_drb_bulk(Rhobar_b_RTF,Dphi_Drhobar_RTF);
   }

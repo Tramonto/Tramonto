@@ -71,6 +71,10 @@ extern int Npol_comp;
 #define NONE        -1
 #define G_CHAIN       11 
 extern double VEXT_MAX;
+extern double Temp;
+extern double Mass[NCOMP_MAX];
+extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
+extern int LDeBroglie;
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];

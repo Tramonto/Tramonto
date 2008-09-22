@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-void chempot_ideal_gas(double *rho,double *betamu);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,6 +14,12 @@ void chempot_ideal_gas(double *rho,double *betamu);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern double Temp;
+#define NCOMP_MAX 5
+extern double Mass[NCOMP_MAX];
+extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
+extern int LDeBroglie;
+void chempot_ideal_gas(double *rho,double *betamu);
 extern int Ncomp;
 extern int Nseg_tot;
 extern int Lseg_densities;

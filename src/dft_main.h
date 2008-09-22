@@ -99,6 +99,7 @@ extern int *Comm_node_proc;
 extern double *Area_IC;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
+#define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;
 void boundary_free(void);
 void free_mesh_arrays(void);

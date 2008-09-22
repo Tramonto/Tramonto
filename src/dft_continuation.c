@@ -909,7 +909,7 @@ void assign_parameter_tramonto(int cont_type, double param)
            WallPos[0][0] = 0.5*Size_x[0]-2.*WallParam[WallType[1]]-WallParam[WallType[0]]; 
            free_mesh_arrays();
            boundary_free();
-           if (Lsteady_state && Ndim==1) safe_free((void *) &Area_IC);
+           if (Lsteady_state==DIFFUSIVE_INTERFACE && Ndim==1) safe_free((void *) &Area_IC);
            safe_free((void *) &Comm_node_proc);
            safe_free((void *) &Comm_unk_proc);
            safe_free((void *) &Comm_offset_node);
@@ -938,7 +938,7 @@ void assign_parameter_tramonto(int cont_type, double param)
 
   /* for most cases...recalculate thermo based on new parameter.  However if
      calculating bulk_coexistence or varying Betamu do not call thermo */
-  if (Iliq_vap<10 || (cont_type != CONT_BETAMU_0 && cont_type != CONT_BETAMU_1)) thermodynamics(output_file1); 
+  if (/*Iliq_vap<10 ||*/ (cont_type != CONT_BETAMU_0 && cont_type != CONT_BETAMU_1)) thermodynamics(output_file1);
 }
 /*****************************************************************************/
 /*****************************************************************************/

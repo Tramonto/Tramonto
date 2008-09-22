@@ -22,11 +22,9 @@ extern int Iwrite;
 void dphi_drb_bulk(double *rhobar,double *dphi_drb);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
-extern double Rho_coex[2];
-extern int Iliq_vap;
-extern int Nwall;
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
+#define UNIFORM_INTERFACE  0
 extern int Lsteady_state;
 #define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];

@@ -44,7 +44,7 @@ void WTC_thermo_precalc(char *output_file1)
   /* compute bulk segment densities from polymer component densities */
   for (iseg=0;iseg<Nseg_tot;iseg++){
      Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
-     if (Lsteady_state){
+     if (Lsteady_state!=UNIFORM_INTERFACE){
         Rho_seg_LBB[iseg]=Rho_b_LBB[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
         Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
      }
@@ -291,7 +291,7 @@ void compute_bulk_nonlocal_wtc_properties(char *output_file1)
   for (icomp=0;icomp<Ncomp;icomp++){
      for (i=0;i<4;i++){
         Xi_cav_b[i]+=(PI/6.0)*Rho_b[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
-        if (Lsteady_state){
+        if (Lsteady_state!=UNIFORM_INTERFACE){
           Xi_cav_LBB[i]+=(PI/6.0)*Rho_b_LBB[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
           Xi_cav_RTF[i]+=(PI/6.0)*Rho_b_RTF[icomp]*POW_DOUBLE_INT(Sigma_ff[icomp][icomp],i);
         }
@@ -324,7 +324,7 @@ void compute_bulk_nonlocal_wtc_properties(char *output_file1)
         type_jseg=Type_mer[pol_number][jseg];
         jseg=SegChain2SegAll[pol_number][jseg];
         BondWTC_b[ibond]=Rho_seg_b[jseg];
-        if (Lsteady_state){
+        if (Lsteady_state!=UNIFORM_INTERFACE){
            BondWTC_LBB[ibond]=Rho_seg_LBB[jseg];
            BondWTC_RTF[ibond]=Rho_seg_RTF[jseg];
         }

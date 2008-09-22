@@ -36,6 +36,7 @@ extern double Betamu_seg[NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
 #define DIFFUSION      6
+#define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;
 #define DENSITY        0
 #define NEQ_TYPE       13 

@@ -80,6 +80,7 @@ extern int Print_mesh_switch;
 #endif
 extern double *X_old;
 void calc_flux(FILE *fp,char *output_flux,double *X_old);
+#define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;
 double calc_free_energy(FILE *fp,double **x);
 void calc_force(FILE *fp,double **x,double fac_area);

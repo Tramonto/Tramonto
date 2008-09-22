@@ -48,7 +48,7 @@ double integrand_hs_freen_bulk(int iunk, int inode_box,double **x)
   int iv1,iv2,i;
 
   for(i=0; i<Nrho_bar_s; i++){
-     if (Lsteady_state) rho_bar[i] = Rhobar_b_RTF[i];
+     if (Lsteady_state!=UNIFORM_INTERFACE) rho_bar[i] = Rhobar_b_RTF[i];
      else               rho_bar[i] = Rhobar_b[i];
   }
   for (i=0; i<2*Ndim; i++) rho_bar[Nrho_bar_s+i]=0.0;

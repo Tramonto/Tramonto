@@ -81,6 +81,7 @@ extern double Size_x[NDIM_MAX];
 extern int Grad_dim;
 int node_box_to_node(int inode_box);
 void node_to_position(int inode,double *NodePos);
+#define UNIFORM_INTERFACE  0
 extern int Lsteady_state;
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)

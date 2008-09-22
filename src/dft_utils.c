@@ -91,26 +91,16 @@ double constant_boundary(int iunk,int jnode_box)
     switch(Unk2Phys[iunk]){
        case DENSITY:
           if (Lseg_densities){
-             if (jnode_box==-1) {
-                 bcval=Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
-             }
-             if (jnode_box==-2) bcval=0.0;
-             else if (jnode_box==-3)
-                 if(Lsteady_state) bcval=Rho_seg_LBB[iunk-Phys2Unk_first[DENSITY]];
-             else if (jnode_box==-4)
-                 if(Lsteady_state) bcval=Rho_seg_RTF[iunk-Phys2Unk_first[DENSITY]];
+             if (jnode_box==-1)      bcval=Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
+             if (jnode_box==-2)      bcval=0.0;
+             else if (jnode_box==-3) bcval=Rho_seg_LBB[iunk-Phys2Unk_first[DENSITY]];
+             else if (jnode_box==-4) bcval=Rho_seg_RTF[iunk-Phys2Unk_first[DENSITY]];
            }
            else{
               if (jnode_box==-1)     bcval = Rho_b[iunk-Phys2Unk_first[DENSITY]];
               if (jnode_box==-2)     bcval = 0.0;
-              else if (jnode_box==-3){
-                  if (Lsteady_state) bcval = Rho_b_LBB[iunk-Phys2Unk_first[DENSITY]];
-                  else               bcval = Rho_coex[1];
-              }
-              else if (jnode_box==-4){
-                  if (Lsteady_state) bcval = Rho_b_RTF[iunk-Phys2Unk_first[DENSITY]];
-                  else               bcval = Rho_coex[0];
-              }
+              else if (jnode_box==-3)bcval = Rho_b_LBB[iunk-Phys2Unk_first[DENSITY]];
+              else if (jnode_box==-4)bcval = Rho_b_RTF[iunk-Phys2Unk_first[DENSITY]];
            }
            break;
        case HSRHOBAR:

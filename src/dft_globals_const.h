@@ -298,6 +298,17 @@
 #define LINEAR_noCS       6 
 
 /*
+ * The following are choices for Lsteady_state which indicates 
+ * there the interface requires boundary conditions that differ on
+ * two sides of the domain. Note that for a phase interface, density is different while
+ * chemical potential is constant (no diffusion).  For a diffusive interface, both density
+ * and chemical potential vary, and the diffusion equation must also be solved.
+ */
+#define UNIFORM_INTERFACE  0
+#define DIFFUSIVE_INTERFACE 1
+#define PHASE_INTERFACE 2
+
+/*
  *  The following define ways to distribute charge in the system 
  */
 #define POINT_CHARGE 0
@@ -321,15 +332,6 @@
 #define CHOP_RHO         3
 #define CHOP_RHO_STEP    4
 #define LINEAR           5
-                           /* these options are currently disabled
-                              since Tramonto is not able to compute 
-                              bulk liquid-vapor data at this time. */
-#define CONST_RHO_L      6 
-#define CONST_RHO_V      7 
-#define EXP_RHO_L        8
-#define EXP_RHO_V        9
-#define CHOP_RHO_L      10 
-#define CHOP_RHO_V      11
 
 /*
  * The following are choices for how to handle the density profile
@@ -825,7 +827,6 @@ extern int     Ipot_ff_c;    /* Potential Type for charged part of f-f interacti
 extern int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */
 extern int     Lhard_surf;   /* Logical indicating if the surfaces have hard cores */
 extern int     Lvext_dash;   /* Logical indicating if the Vext_dash array should be set up */
-extern  int     Iliq_vap;     /* Type of liquid vapor profile */
 extern int     Iguess1;        /* Type of initial guess */
 extern int     Iguess_fields;        /* Type of initial guess */
 extern int     Nsteps;         /* Number of steps for a step profile initial guess */
@@ -901,6 +902,7 @@ extern int     ***Wall_owners; /*Array[ilist][iel_box][Nwall_owners] that stores
 
 /* Steady State Solutions Info */
 extern int    Lsteady_state;          /*True-False Steady State or Equilibrium Run*/
+extern int    LBulk;          /*True-False Indicates a bulk run - changes output*/
 extern int    Linear_transport;       /*True-False Steady State or Equilibrium Run*/
 extern double Velocity;               /*Constant Convective Velocity over Diffusion coefficient*/
 extern int    Grad_dim;               /*direction where gradient is implemented*/
@@ -942,6 +944,7 @@ extern int     Type_coul;    /* Type for handling coulomb interactions          
 extern int     Type_poly;    /* Type for handling polymers                          */
 extern int     Lseg_densities; /* Logical to indicate that segement (rather than component) densities are treated in the code */
 extern int     L_HSperturbation; /* Logical to indicate whether the run is base on perturbation of hard spheres */
+extern int     LDeBroglie; /* logical to turn on the DeBroglie wavelength contribution to the free energy functional */
 
 /* Hard core type */
 extern double      HS_diam[NCOMP_MAX];  /* Hard sphere diameters for the calculation */

@@ -45,38 +45,17 @@ void setup_density(double **xInBox,int iguess)
             else              setup_const_density(xInBox,Rho_b,Ncomp,0);
             break;
 
-      case CONST_RHO_V:
-            setup_const_density(xInBox,Rho_coex,1,1);
-            break;
-      case CONST_RHO_L:
-            setup_const_density(xInBox,Rho_coex,1,0);
-            break;
-
       case EXP_RHO:
             if (Lseg_densities){
                  setup_exp_density(xInBox,Rho_seg_b,Nseg_tot,0);
             }
             else setup_exp_density(xInBox,Rho_b,Ncomp,0);
             break;
-      case EXP_RHO_V:
-            setup_exp_density(xInBox,Rho_coex,1,1);
-            break;
-      case EXP_RHO_L:
-            setup_exp_density(xInBox,Rho_coex,1,0);
-            break;
 
       case STEP_PROFILE:
             setup_stepped_profile(xInBox);
             break;
 
-      case CHOP_RHO_L:
-            setup_exp_density(xInBox,Rho_coex,1,1);
-            chop_profile(xInBox,iguess);
-            break;
-      case CHOP_RHO_V:
-            setup_exp_density(xInBox,Rho_coex,1,0);
-            chop_profile(xInBox,iguess);
-            break;
       case LINEAR:
             setup_linear_profile(xInBox);
     }  /* end of iguess switch */
@@ -135,7 +114,7 @@ void setup_stepped_profile(double **xInBox)
     }
   }
 
-  if (Lsteady_state){
+  if (Lsteady_state!=UNIFORM_INTERFACE){
      printf("stepped profile not set up for chemical potentials at this time\n");
      exit(-1);
   }
@@ -227,7 +206,7 @@ void setup_linear_profile(double **xInBox)
   if (Lseg_densities) nloop=Nseg_tot;
   else                nloop=Ncomp;
 
-  if (Lsteady_state) x_tot=Size_x[Grad_dim]-2.0*X_const_mu;
+  if (Lsteady_state!=UNIFORM_INTERFACE) x_tot=Size_x[Grad_dim]-2.0*X_const_mu;
   else x_tot = Size_x[Grad_dim];
 
   for (inode_box=0; inode_box<Nnodes_box; inode_box++){

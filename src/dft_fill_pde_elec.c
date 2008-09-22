@@ -40,7 +40,7 @@ double load_poisson_control(int iunk, int loc_inode, int inode_box, int *ijk_box
   int idim,l_elec_RTF=FALSE,l_elec_LBB=FALSE;
   double nodepos[3],resid_poisson,resid,mat_value;
 
-  if (Lsteady_state){
+  if (Lsteady_state != UNIFORM_INTERFACE){
      node_to_position(node_box_to_node(inode_box),nodepos);
      idim = Grad_dim;
      if ( nodepos[idim] +0.5*Size_x[idim] - X_const_mu <= 0.00000001) l_elec_LBB=TRUE;
