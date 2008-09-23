@@ -38,7 +38,6 @@ void  thermodynamics(char *output_file1)
    }
 
     /* first call any functions needed to preprocess global bulk variables associated with the functionals chosen for this run */
-printf("IN THERMO\n");
 
     for (icomp=0; icomp<Ncomp;icomp++){
         for (pol_num=0; pol_num<Npol_comp;pol_num++) Scale_fac_WJDC[pol_num][icomp]=0.0;
@@ -109,8 +108,8 @@ void calc_pressure(char *output_file1)
 
 				/* HS FMT contributions */
           if (Type_func!= NONE){
-               Betap_LBB += pressure_FMT_hs(Rho_b_LBB);
-               Betap_RTF += pressure_FMT_hs(Rho_b_RTF);
+               Betap_LBB += pressure_FMT_hs(Rhobar_b_LBB,Dphi_Drhobar_LBB);
+               Betap_RTF += pressure_FMT_hs(Rhobar_b_RTF,Dphi_Drhobar_RTF);
           }
 				/* MF ATT contributions */
           if (Type_attr != NONE){
@@ -153,7 +152,7 @@ void calc_pressure(char *output_file1)
 
 				/* HS FMT contributions */
           if (Type_func != NONE) {
-               betap_hs_DFT = pressure_FMT_hs(Rho_b);
+               betap_hs_DFT = pressure_FMT_hs(Rhobar_b,Dphi_Drhobar_b);
                    if (Proc==0 && Iwrite != NO_SCREEN) printf("\tDFT HS pressure is %9.6f\n",betap_hs_DFT);
                betap_hs_PY = pressure_PY_hs(Rho_b);
                    if (Proc==0 && Iwrite != NO_SCREEN) printf("\tPY HS pressure is %9.6f\n",betap_hs_PY);
@@ -221,9 +220,9 @@ void calc_chempot(char *output_file1)
 
 				/* HS FMT contributions */
           if (Type_func!= NONE){
-               chempot_FMT_hs(Rho_b_LBB);
+               chempot_FMT_hs(Dphi_Drhobar_LBB);
                for (icomp=0; icomp<Ncomp; icomp++) Betamu_LBB[icomp] += Betamu_hs_ex[icomp];    
-               chempot_FMT_hs(Rho_b_RTF);
+               chempot_FMT_hs(Dphi_Drhobar_RTF);
                for (icomp=0; icomp<Ncomp; icomp++) Betamu_RTF[icomp] += Betamu_hs_ex[icomp];    
           }
 				/* MF ATT contributions */
@@ -321,7 +320,7 @@ void calc_chempot(char *output_file1)
 
 				/* HS FMT contributions */
           if (Type_func != NONE) {
-               chempot_FMT_hs(Rho_b);
+               chempot_FMT_hs(Dphi_Drhobar_b);
                for (icomp=0; icomp<Ncomp; icomp++){ Betamu[icomp] += Betamu_hs_ex[icomp]; }
           }
 				/* MF ATT contributions */

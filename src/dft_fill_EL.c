@@ -302,7 +302,7 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
 
    resid_mu = 0.0;
    if (Lsteady_state != DIFFUSIVE_INTERFACE) {
-      if (Lsteady_state ==UNIFORM_INTERFACE ){
+      if (Lsteady_state ==UNIFORM_INTERFACE && !LBulk){
         if (Lseg_densities) resid_mu -= log(Rho_seg_b[iseg]);
         else                resid_mu -= log(Rho_b[icomp]);
 
@@ -313,7 +313,7 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
             if (Type_coul == DELTAC) resid_mu += Deltac_b[icomp];
         }
       }
-      else if (Lsteady_state==PHASE_INTERFACE){
+      else if (Lsteady_state==PHASE_INTERFACE || LBulk){
           if (Lseg_densities) resid_mu = -Betamu_seg[iseg];
           else {              resid_mu = -Betamu[icomp];
           }

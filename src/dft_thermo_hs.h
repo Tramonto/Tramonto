@@ -34,8 +34,10 @@ extern int Nseg_tot;
 extern int Lseg_densities;
 extern double Dphi_Drhobar_RTF[10];
 extern double Dphi_Drhobar_LBB[10];
+extern double Dphi_Drhobar_b[10];
 extern double Rhobar_b_RTF[10];
 extern double Rhobar_b_LBB[10];
+extern double Rhobar_b[10];
 extern int Nrho_bar;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
@@ -57,15 +59,13 @@ extern double Betamu_hs_ex[NCOMP_MAX];
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-void chempot_FMT_hs(double *rho);
-extern double Dphi_Drhobar_b[10];
+void chempot_FMT_hs(double *dphi_drhobar);
 double phispt_switch(double *n);
 void solutionVec_to_nOrdering(double *rhoBar_SVOrdering,double *n);
 extern int Ndim;
-extern double Rhobar_b[10];
 extern int Nrho_bar_s;
 #define NDIM_MAX  3
-double pressure_FMT_hs(double *rho);
+double pressure_FMT_hs(double *rhobar,double *dphi_drhobar);
 extern int Type_pairPot;
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,int typePairPot);
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];

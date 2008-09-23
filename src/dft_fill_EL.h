@@ -40,6 +40,7 @@ extern double Betamu_att[NCOMP_MAX];
 extern double Betamu_hs_ex[NCOMP_MAX];
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
+extern int LBulk;
 #define UNIFORM_INTERFACE  0
 #define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;

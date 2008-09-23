@@ -33,12 +33,12 @@ void calc_fluid_charge(FILE *fp,double **x);
 #endif
 extern int **Nel_hit;
 double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
+void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
+void print_to_screen_comp(int icomp,double val,char *var_label);
+extern int LBulk;
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
-void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
 extern int Ndim;
-extern int LBulk;
-void print_to_screen_comp(int icomp,double val,char *var_label);
 extern int **Nel_hit2;
 double integrand_adsorption(int iunk,int inode_box,double **x);
 double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);

@@ -374,8 +374,8 @@
 #define CONT_SEMIPERM   17  /* Vext_membrane */
 #define CONT_WALLPARAM  18  /* Vext_membrane */
 #define CONT_CRFAC  19  /* continuous mixing of two cr files */
-#define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
-#define CONT_BETAMU_1 21  /* continuous mixing of two cr files */
+#define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
+#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 
 
 #define PRINT_RHO_0      0

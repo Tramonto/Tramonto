@@ -45,8 +45,8 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
        omega_osmotic, omega_osmotic_b,omega_osmotic_surf_ex,
        omega_mu,omega_mu_b,omega_mu_surf_ex;
 static int first=TRUE,loc_inode;
-double energy;
-int iunk;
+double energy,volume;
+int iunk,idim;
 int lfirst;
 
        double L,L1,L2,sum,energy_RR,energy_RR_plus,energy_RR_minus,derivative_neg,lambda;
@@ -311,8 +311,13 @@ int lfirst;
       }
 
 	if (Proc==0 && Iwrite != NO_SCREEN){
-	        if (fp !=NULL) print_to_file(fp,omega_sum,"omega",first);
-		if (fp !=NULL && !LBulk) print_to_file(fp,omega_s_sum,"omega_s",first);
+                volume=1.0;
+                for (idim=0;idim<Ndim; idim++) volume*=Size_x[0];
+	        if (fp !=NULL && LBulk) print_to_file(fp,-omega_sum/volume,"pressure",first);
+	        if (fp !=NULL && !LBulk) { 
+                    print_to_file(fp,omega_sum,"omega",first);
+		    print_to_file(fp,omega_s_sum,"omega_s",first);
+                 }
 	}
     }
 

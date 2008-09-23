@@ -19,7 +19,10 @@ extern int Num_Proc;
 void error_check(void);
 extern int Nnodes_per_el_S;
 extern int Nnodes_per_el_V;
-#define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
+#define REFLECT              2
+#define LAST_NODE            3
+#define IN_BULK              0
+#define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
 #define CONT_EPSFF_ALL   14   
 #define CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
 #define CONT_EPSWF_ALL_0 11 
@@ -70,6 +73,7 @@ extern double NL_abs_tol,NL_rel_tol;
 extern int Physics_scaling;
 extern int Max_NL_iter;
 extern int NL_Solver;
+extern double X_1D_bc;
 extern double Jac_threshold;
 extern int Lcut_jac;
 extern double Jac_grid;
@@ -105,20 +109,14 @@ extern int Nsteps;
 #define STEP_PROFILE     2
 extern int Iguess_fields;
 extern int Iguess1;
-extern double Velocity;
-extern double Elec_pot_RTF;
-extern double Elec_pot_LBB;
-extern double D_coef[NCOMP_MAX];
-extern double Rho_b_RTF[NCOMP_MAX];
-extern double Rho_b_LBB[NCOMP_MAX];
 extern double *Lseg_IC;
 extern double *Pore_rad_R_IC;
 extern double *Pore_rad_L_IC;
 extern int Nseg_IC;
 extern int Geom_flag;
-extern double X_const_mu;
-extern double X_1D_bc;
-extern int Grad_dim;
+extern double Velocity;
+extern double D_coef[NCOMP_MAX];
+#define DIFFUSIVE_INTERFACE 1
 extern int Linear_transport;
 extern int L1D_bc;
 extern double *Dielec_wall;
@@ -138,11 +136,17 @@ extern double **Charge_x;
 extern double *Charge_Diam;
 extern double *Charge;
 extern int Nlocal_charge;
-#define COULOMB      1
 extern int Type_bc_elec[NWALL_MAX_TYPE];
 extern int Ipot_wf_c;
+extern double X_const_mu;
+extern double Elec_pot_RTF;
+extern double Elec_pot_LBB;
+#define COULOMB      1
+extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_t;
+extern double Rho_b_LBB[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
+extern int Grad_dim;
 extern double **Vext_membrane;
 extern int **Lsemiperm;
 extern int Bupdate_iters;
@@ -301,7 +305,6 @@ extern double Density_ref;
 extern double Length_ref;
 void read_junk(FILE *fp,FILE *fp2);
 #define UNIFORM_INTERFACE  0
-#define DIFFUSIVE_INTERFACE  1
 extern int Lsteady_state;
 extern int LBulk;
 #define FALSE 0

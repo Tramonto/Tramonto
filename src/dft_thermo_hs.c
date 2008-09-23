@@ -110,18 +110,18 @@ double integrand_BH(double r,int icomp)
 pressure_FMT_hs  This routine calculates the pressure contribution for 
                  hard sphere fundamental measures theory based DFTs */
 
-double pressure_FMT_hs(double *rho)
+double pressure_FMT_hs(double *rhobar, double *dphi_drhobar)
 {
    int i;
    double betap_hs,n[4+2*NDIM_MAX],rho_bar[4+2*NDIM_MAX];
  
-   for (i=0;i<Nrho_bar_s;i++) rho_bar[i]=Rhobar_b[i];
+   for (i=0;i<Nrho_bar_s;i++) rho_bar[i]=rhobar[i];
    for (i=0;i<2*Ndim;i++) rho_bar[Nrho_bar_s+i]=0.0; 
    solutionVec_to_nOrdering(rho_bar,n);
 
    betap_hs = -phispt_switch(n);
    for (i=0;i<4;i++) {
-      betap_hs += Dphi_Drhobar_b[i]*n[i];
+      betap_hs += dphi_drhobar[i]*n[i];
    }
 
    return (betap_hs);
@@ -130,10 +130,11 @@ double pressure_FMT_hs(double *rho)
 chempot_FMT_hs:  This routine calculates the excess chemical potential for 
                  hard sphere fundamental measures theory based DFTs */
 
-void chempot_FMT_hs(double *rho)
+void chempot_FMT_hs(double *dphi_drhobar)
 {
    int icomp,i;
    double sten_sum[4],n[4+2*NDIM_MAX];
+
   
    for (icomp=0; icomp<Ncomp;icomp++){
       sten_sum[0]=1.;
@@ -143,7 +144,7 @@ void chempot_FMT_hs(double *rho)
   
       Betamu_hs_ex[icomp]=0.0; 
       for (i=0;i<4;i++){
-        Betamu_hs_ex[icomp] += Dphi_Drhobar_b[i]*sten_sum[i]*Fac_overlap_hs[icomp];
+        Betamu_hs_ex[icomp] += dphi_drhobar[i]*sten_sum[i]*Fac_overlap_hs[icomp];
       }
    }
    return;

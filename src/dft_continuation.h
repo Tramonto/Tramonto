@@ -135,7 +135,7 @@ extern double **Vext_membrane;
 #define CONT_EPSW_ALL    8
 extern int WallType[NWALL_MAX];
 #define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
-#define CONT_BETAMU_1 21  /* continuous mixing of two cr files */
+#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 #define NCOMP_MAX 5
 extern double Betamu[NCOMP_MAX];
 #define NMER_MAX     100
@@ -143,7 +143,7 @@ extern double Betamu_chain[NMER_MAX];
 #define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
-#define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
+#define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
 #define CONT_SCALE_RHO   6
 #define CONT_LOG_RHO_ALL 5 
 #define CONT_LOG_RHO_0   4 

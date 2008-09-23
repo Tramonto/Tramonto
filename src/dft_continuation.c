@@ -938,7 +938,11 @@ void assign_parameter_tramonto(int cont_type, double param)
 
   /* for most cases...recalculate thermo based on new parameter.  However if
      calculating bulk_coexistence or varying Betamu do not call thermo */
-  if (/*Iliq_vap<10 ||*/ (cont_type != CONT_BETAMU_0 && cont_type != CONT_BETAMU_1)) thermodynamics(output_file1);
+  if (Loca.cont_type1 != CONT_BETAMU_0 && Loca.cont_type2 != CONT_BETAMU_1 &&
+     !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_0) &&
+     !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_1)){
+          thermodynamics(output_file1);
+  }
 }
 /*****************************************************************************/
 /*****************************************************************************/

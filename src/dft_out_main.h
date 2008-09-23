@@ -33,12 +33,12 @@ extern int Mix_type;
 #define CONT_EPSW_ALL    8
 #define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
 #define CONT_SCALE_EPSW  9
-#define CONT_BETAMU_1 21  /* continuous mixing of two cr files */
+#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 #define NMER_MAX     100
 extern double Betamu_chain[NMER_MAX];
 #define WJDC         3
 extern int Type_poly;
-#define CONT_BETAMU_0 20  /* continuous mixing of two cr files */
+#define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
 extern double Betamu[NCOMP_MAX];
 #define SWITCH_MU    3
 extern double Charge_f[NCOMP_MAX];
