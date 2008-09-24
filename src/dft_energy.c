@@ -316,7 +316,7 @@ int lfirst;
 	        if (fp !=NULL && LBulk) print_to_file(fp,-omega_sum/volume,"pressure",first);
 	        if (fp !=NULL && !LBulk) { 
                     print_to_file(fp,omega_sum,"omega",first);
-		    print_to_file(fp,omega_s_sum,"omega_s",first);
+		    if (Lsteady_state == UNIFORM_INTERFACE) print_to_file(fp,omega_s_sum,"omega_s",first);
                  }
 	}
     }

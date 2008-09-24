@@ -76,7 +76,7 @@ void calc_init_rho_bar(double **xInBox)
      for (irb = 0; irb < Nrho_bar; irb++){
        iunk = Phys2Unk_first[HSRHOBAR] + irb;
        xInBox[iunk][inode_box]=int_stencil_HSFMT(xInBox,inode_box,iunk);
-       if (irb==0 && xInBox[iunk][inode_box] >1.0) xInBox[iunk][inode_box]=Rhobar_b[irb];
+       if (irb==0 && xInBox[iunk][inode_box] >1.0) xInBox[iunk][inode_box]=0.98;
      }
   }
   return;

@@ -2118,7 +2118,7 @@ void read_input_file(char *input_file, char *output_file1)
      calculations */
     
      if (Ipot_ff_n <= HARD_SPHERE) Temp = 1.0;
-     else{ /*Temp = 1.0/Eps_ff[0][0];*/ Temp=1.0/Eps_ff[2][2];}
+     else{ Temp = 1.0/Eps_ff[0][0];}
 
   return;
 }

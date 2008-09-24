@@ -16,8 +16,6 @@
 #include "Tramonto_ConfigDefs.h"
 #define NCOMP_MAX 5
 extern double Pol[NCOMP_MAX];
-#define NDIM_MAX  3
-extern double Esize_x[NDIM_MAX];
 extern int ***Surf_normal;
 extern int **Nodes_2_boundary_wall;
 #define KAPPA_H2O 78.5
@@ -32,7 +30,6 @@ extern int Nwall;
 extern double Betamu[NCOMP_MAX];
 #define NMER_MAX     100
 extern double Betamu_seg[NMER_MAX];
-#define PHASE_INTERFACE 2
 extern double *Deltac_b;
 extern double Betamu_wtc[NMER_MAX];
 extern double Betamu_att[NCOMP_MAX];
@@ -43,7 +40,6 @@ extern int Ipot_ff_n;
 extern int LBulk;
 #define UNIFORM_INTERFACE  0
 #define DIFFUSIVE_INTERFACE 1
-extern int Lsteady_state;
 extern int SegAll_to_Poly[NMER_MAX];
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int **Nseg_type_pol;
@@ -53,6 +49,10 @@ extern double Mass[NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int LDeBroglie;
 extern double Field_WJDC_b[NMER_MAX];
+extern double Rho_b_RTF[NCOMP_MAX];
+extern double Rho_b_LBB[NCOMP_MAX];
+extern double Rho_seg_RTF[NMER_MAX];
+extern double Rho_seg_LBB[NMER_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_b[NMER_MAX];
 extern int Lseg_densities;
@@ -91,6 +91,14 @@ extern int Type_coul;
 double fill_EL_ext_field(int iunk,int icomp,int loc_inode,int resid_only_flag);
 double fill_EL_chem_pot(int iunk,int icomp,int iseg,int loc_inode,int inode_box,int mesh_coarsen_flag_i,double **x,int resid_only_flag);
 double fill_EL_ideal_gas(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
+double fill_constant_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
+#define NDIM_MAX  3
+extern double Esize_x[NDIM_MAX];
+extern int Grad_dim;
+extern double Size_x[NDIM_MAX];
+extern int *B2G_node;
+#define PHASE_INTERFACE 2
+extern int Lsteady_state;
 double fill_sym_WTC(int iunk,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern int *Pol_Sym_Seg;
 #define INIT_GUESS_FLAG  2

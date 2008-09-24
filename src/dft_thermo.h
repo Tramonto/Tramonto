@@ -16,7 +16,6 @@
 #include "Tramonto_ConfigDefs.h"
 #define NCOMP_MAX 5
 extern double Betamu_id[NCOMP_MAX];
-extern double Betamu[NCOMP_MAX];
 #define NMER_MAX     100
 extern double Betamu_chain[NMER_MAX];
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
@@ -30,6 +29,8 @@ extern double Betamu_seg[NMER_MAX];
 extern double Betamu_seg_LBB[NMER_MAX];
 extern int Nseg_tot;
 void chempot_WTC(double *rho_seg,double *betamu);
+extern double Betamu[NCOMP_MAX];
+#define PHASE_INTERFACE 2
 extern double *Deltac_b;
 void chempot_ELEC_MSA(double *rho);
 #define DELTAC     1 

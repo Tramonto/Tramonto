@@ -246,6 +246,9 @@ void calc_chempot(char *output_file1)
                  
              }
           }
+          if (Lsteady_state=PHASE_INTERFACE) {
+             for (icomp=0;icomp<Ncomp;icomp++) Betamu[icomp]=0.5*(Betamu_RTF[icomp]+Betamu_LBB[icomp]);
+          }
 				/* WTC contributions */
           if (Type_poly ==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                                  /* note that this should come last because the segment 

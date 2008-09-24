@@ -16,6 +16,7 @@
 #include "Tramonto_ConfigDefs.h"
 extern double X_const_mu;
 extern int Grad_dim;
+#define UNIFORM_INTERFACE  0
 double constant_boundary(int iunk,int jnode_box);
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
@@ -24,7 +25,7 @@ void node_to_ijk(int node,int *ijk);
 void setup_step_2consts(double **xInBox);
 extern double **Vext;
 extern int *B2L_node;
-#define UNIFORM_INTERFACE  0
+#define DIFFUSIVE_INTERFACE 1
 extern int Lsteady_state;
 #define NCOMP_MAX 5
 #define NSTEPS_MAX 10

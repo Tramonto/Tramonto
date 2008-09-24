@@ -85,6 +85,11 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
        return(resid);
    }
 
+   if (Lsteady_state==PHASE_INTERFACE && B2G_node[inode_box]==0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]){  /* pin density at this point at mean between left and right interface*/
+        resid=fill_constant_density(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
+        return(resid);
+   }
+
    /* now fill EL physics dependent terms */ 
    resid=0.0; 
    resid+=fill_EL_ideal_gas(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
@@ -234,6 +239,27 @@ double fill_bulk_density(int iunk, int icomp, int iseg, int loc_inode, int inode
 
    if (Lseg_densities)   resid = -log(Rho_seg_b[iseg]);
    else                  resid = -log(Rho_b[icomp]);
+   if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+
+   return resid;
+}
+/******************************************************************************************/
+double fill_constant_density(int iunk, int icomp, int iseg, int loc_inode, int inode_box, double **x,int resid_only_flag)
+{
+  double resid,mat_val,resid_ig;
+
+  if (resid_only_flag != INIT_GUESS_FLAG){
+     resid = log(x[iunk][inode_box]) ; 
+     mat_val = 1.0/x[iunk][inode_box];
+     resid_ig=resid;
+     if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag==FALSE){
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
+     }
+   }
+
+   if (Lseg_densities)   resid = -log(0.5*(Rho_seg_LBB[iseg]+Rho_seg_RTF[iseg]));
+   else                  resid = -log(0.5*(Rho_b_LBB[icomp]+Rho_b_RTF[icomp]));
    if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
    return resid;

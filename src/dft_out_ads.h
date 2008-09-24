@@ -31,6 +31,8 @@ void calc_fluid_charge(FILE *fp,double **x);
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+#define UNIFORM_INTERFACE  0
+extern int Lsteady_state;
 extern int **Nel_hit;
 double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
