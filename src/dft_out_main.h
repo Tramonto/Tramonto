@@ -36,6 +36,8 @@ extern int Mix_type;
 #define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 #define NMER_MAX     100
 extern double Betamu_chain[NMER_MAX];
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
 extern int Type_poly;
 #define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */

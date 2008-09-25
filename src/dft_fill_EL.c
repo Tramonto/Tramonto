@@ -324,11 +324,17 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
                         int mesh_coarsen_flag_i, double **x,int resid_only_flag)
 {
    double resid_mu,mat_val;
-   int junk,pol_num;
+   int junk,pol_num,usemu_test;
+
+   usemu_test=FALSE;
+   if (LBulk && Loca.cont_type1==CONT_BETAMU_0 && icomp==0) usemu_test=TRUE;
+   if (LBulk && Loca.cont_type1==CONT_BETAMU_1 && icomp==1) usemu_test=TRUE;
+   if (Loca.method==4 && LBulk && Loca.cont_type2==CONT_BETAMU_0 && icomp==0) usemu_test=TRUE;
+   if (Loca.method==4 && LBulk && Loca.cont_type2==CONT_BETAMU_1 && icomp==1) usemu_test=TRUE;
 
    resid_mu = 0.0;
    if (Lsteady_state != DIFFUSIVE_INTERFACE) {
-      if (Lsteady_state ==UNIFORM_INTERFACE && !LBulk){
+      if (Lsteady_state ==UNIFORM_INTERFACE && !usemu_test){
         if (Lseg_densities) resid_mu -= log(Rho_seg_b[iseg]);
         else                resid_mu -= log(Rho_b[icomp]);
 
@@ -339,7 +345,7 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
             if (Type_coul == DELTAC) resid_mu += Deltac_b[icomp];
         }
       }
-      else if (Lsteady_state==PHASE_INTERFACE || LBulk){
+      else if (Lsteady_state==PHASE_INTERFACE || usemu_test){
           if (Lseg_densities) resid_mu = -Betamu_seg[iseg];
           else {              resid_mu = -Betamu[icomp];
           }

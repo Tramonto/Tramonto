@@ -108,7 +108,6 @@ void setup_stepped_profile(double **xInBox)
 	       iunk = Phys2Unk_first[DENSITY]+j;
                if (!Zero_density_TF[inode_box][icomp]){
                    xInBox[iunk][inode_box]=Rho_step[icomp][i];
-if (inode==0) printf("step=%i Rho_step=%g\n",i,Rho_step[icomp][i]);
                }
                else xInBox[iunk][inode_box]=0.0;
            }

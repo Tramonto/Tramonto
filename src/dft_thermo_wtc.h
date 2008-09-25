@@ -38,6 +38,7 @@ extern int Iwrite;
 #endif
 extern double Xi_cav_RTF[4];
 extern double Xi_cav_LBB[4];
+extern double Xi_cav_b[4];
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -66,28 +67,27 @@ extern int Ncomp;
 #define WJDC         3
 extern int Type_poly;
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
-extern double Xi_cav_b[4];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Betamu_seg[NMER_MAX];
 extern double Betamu_wtc[NMER_MAX];
-void chempot_WTC(double *rho_seg,double *betamu);
-double chain_term(int kseg,int kcomp,double *rho_seg);
+void chempot_WTC(double *rho_seg,double *betamu,double *xi_cav);
+double chain_term(int kseg,int kcomp,double *rho_seg,double *xi_cav);
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
-double pressure_WTC(double *rho_seg);
+double pressure_WTC(double *rho_seg,double *xi_cav);
 void compute_bulk_nonlocal_wtc_properties(char *output_file1);
+extern double Rho_b[NCOMP_MAX];
+extern double Rho_seg_b[NMER_MAX];
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
+#define NBLOCK_MAX   20 
+extern int Nmer_t_total[NBLOCK_MAX];
+extern int Unk2Comp[NMER_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
 extern double Rho_seg_LBB[NMER_MAX];
 #define UNIFORM_INTERFACE  0
 extern int Lsteady_state;
-#define NBLOCK_MAX   20 
-extern int Nmer_t_total[NBLOCK_MAX];
-extern int Unk2Comp[NMER_MAX];
-extern double Rho_b[NCOMP_MAX];
-extern double Rho_seg_b[NMER_MAX];
 extern int Nseg_tot;
 void WTC_overlap();
 void WTC_thermo_precalc(char *output_file1);

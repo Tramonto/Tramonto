@@ -32,8 +32,8 @@
 /**************************************************************************************/
 void calc_adsorption(FILE *fp,double **x)
 {
-  int icomp,iunk,nloop,idim;
-  double ads[NCOMP_MAX],ads_ex[NCOMP_MAX],ads_b[NCOMP_MAX],volume;
+  int icomp,iunk,nloop,idim,jcomp;
+  double ads[NCOMP_MAX],ads_ex[NCOMP_MAX],ads_b[NCOMP_MAX],volume,total_ads;
   static int first=TRUE;
 
 
@@ -53,7 +53,10 @@ void calc_adsorption(FILE *fp,double **x)
   }
 
  if (Proc==0 && Iwrite != NO_SCREEN){
+     total_ads=0.0;
+     for (icomp=0;icomp<nloop;icomp++) total_ads+=ads[icomp];
      volume=1.0;
+
      for (idim=0;idim<Ndim;idim++) volume*=Size_x[idim];
      for (icomp=0;icomp<nloop;icomp++){
           if(!first){
@@ -61,7 +64,12 @@ void calc_adsorption(FILE *fp,double **x)
                else       print_to_screen_comp(icomp,ads[icomp],"ADSORPTION");
           }
           if (fp !=NULL){
-               if (LBulk) print_to_file_comp(fp,icomp,ads[icomp]/volume,"rho",first);
+               if (LBulk){ 
+                   print_to_file_comp(fp,icomp,ads[icomp]/volume,"rho",first);
+                   if (Ncomp >1){
+                       print_to_file_comp(fp,icomp,ads[icomp]/total_ads,"num_frac",first);
+                   }
+               }
                else       print_to_file_comp(fp,icomp,ads[icomp],"ads",first);
           }
       }

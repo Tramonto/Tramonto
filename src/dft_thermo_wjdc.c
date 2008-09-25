@@ -92,7 +92,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
     /*do this later*/
 
   /* Now include Bonding terms - note that this is identical to WTC theory */
-     field += chain_term(iseg,icomp,Rho_seg_b);
+     field += chain_term(iseg,icomp,Rho_seg_b,Xi_cav_b);
 
      Field_WJDC_b[icomp]=exp(field)*exp(Scale_fac_WJDC[pol_num][icomp]);
      if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_WJDC=%9.6f\n",iseg,field,Field_WJDC_b[icomp]);

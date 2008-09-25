@@ -276,12 +276,12 @@ void print_cont_variable(int cont_type,FILE *fp)
          break;
 
       case CONT_BETAMU_0:
-         if (Type_poly==WJDC) fprintf(fp,"%11.8f   ", Betamu_chain[0]); 
+         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) fprintf(fp,"%11.8f   ", Betamu_chain[0]); 
          else                 fprintf(fp,"%11.8f   ", Betamu[0]); 
          break;
 
       case CONT_BETAMU_1:
-         if (Type_poly==WJDC) fprintf(fp,"%11.8f   ", Betamu_chain[1]); 
+         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) fprintf(fp,"%11.8f   ", Betamu_chain[1]); 
          else                 fprintf(fp,"%11.8f   ", Betamu[1]); 
          break;
 

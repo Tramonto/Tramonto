@@ -126,9 +126,13 @@ void calc_pressure(char *output_file1)
 	  /* note these aren't additive,instead we recalculate the HS, ideal terms here */
 	  /* must then correct contributions from attractions, Coulomb */
 	  /* note chem. potential term gives twice the att. pressure, so subtract att. pressure term here */
-          if (Type_poly ==WTC){
-	    Betap_LBB += pressure_WTC(Rho_seg_LBB);
-	    Betap_RTF += pressure_WTC(Rho_seg_RTF);
+          if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
+	    betap_chain = pressure_WTC(Rho_seg_LBB,Xi_cav_LBB);
+                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\t LBB chain pressure is %9.6f\n",betap_chain);
+            Betap_LBB += betap_chain;
+	    betap_chain = pressure_WTC(Rho_seg_RTF,Xi_cav_RTF);
+                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\t RTF chain pressure is %9.6f\n",betap_chain);
+            Betap_RTF += betap_chain;
           }
        }
        else{ 
@@ -172,7 +176,7 @@ void calc_pressure(char *output_file1)
 	  /* note these aren't additive,instead we recalculate the HS, ideal terms here */
 	  /* must then correct contributions from attractions, Coulomb */
           if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
-	    betap_chain = pressure_WTC(Rho_seg_b);
+	    betap_chain = pressure_WTC(Rho_seg_b,Xi_cav_b);
                    if (Proc==0 && Iwrite != NO_SCREEN) printf("\t chain pressure is %9.6f\n",betap_chain);
             Betap += betap_chain;
           }
@@ -254,7 +258,7 @@ void calc_chempot(char *output_file1)
                                  /* note that this should come last because the segment 
                                     chemical potentials are built using the component chemical potentials
                                     for other physics types */
-               chempot_WTC(Rho_seg_LBB,Betamu_LBB);
+               chempot_WTC(Rho_seg_LBB,Betamu_LBB,Xi_cav_LBB);
                for (iseg=0;iseg<Nseg_tot;iseg++){ 
                      Betamu_seg_LBB[iseg]=Betamu_seg[iseg];
                      Betamu_wtc_LBB[iseg]=Betamu_wtc_LBB[iseg];
@@ -265,7 +269,7 @@ void calc_chempot(char *output_file1)
                      Betamu_chain_LBB[ipol]+= Betamu_seg_LBB[SegChain2SegAll[ipol][iseg]];
                   }
                }
-               chempot_WTC(Rho_seg_RTF,Betamu_RTF);
+               chempot_WTC(Rho_seg_RTF,Betamu_RTF,Xi_cav_RTF);
                for (iseg=0;iseg<Nseg_tot;iseg++){ 
                      Betamu_seg_RTF[iseg]=Betamu_seg[iseg];
                      Betamu_wtc_RTF[iseg]=Betamu_wtc_RTF[iseg];
@@ -345,7 +349,7 @@ void calc_chempot(char *output_file1)
                                  /* note that this should come last because the segment 
                                     chemical potentials are built using the component chemical potentials
                                     for other physics types */
-              if ((Physics_scaling && (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) || Type_poly==WTC) chempot_WTC(Rho_seg_b,Betamu);
+              if ((Physics_scaling && (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) || Type_poly==WTC) chempot_WTC(Rho_seg_b,Betamu,Xi_cav_b);
                if (Type_poly==WTC){
                   for (ipol=0;ipol<Npol_comp;ipol++){
                      Betamu_chain[ipol]=0.0;

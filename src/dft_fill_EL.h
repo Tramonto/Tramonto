@@ -37,9 +37,21 @@ extern double Betamu_att[NCOMP_MAX];
 extern double Betamu_hs_ex[NCOMP_MAX];
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
-extern int LBulk;
 #define UNIFORM_INTERFACE  0
 #define DIFFUSIVE_INTERFACE 1
+#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
+#define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
+typedef struct Loca_Struct Loca_Struct;
+struct Loca_Struct {
+  int    method;      /* Continuation method                          */
+  int    cont_type1;  /* flag specifying the continuation parameter   */
+  int    cont_type2;  /* flag specifying the second (free) parameter  */
+  int    num_steps;   /* maximum number of continuation steps to take */
+  double aggr;        /* step size control parameter                  */
+  double step_size;   /* initial continuation step size               */
+};
+extern struct Loca_Struct Loca;
+extern int LBulk;
 extern int SegAll_to_Poly[NMER_MAX];
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int **Nseg_type_pol;

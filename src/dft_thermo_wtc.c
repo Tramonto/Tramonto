@@ -43,11 +43,11 @@ void WTC_thermo_precalc(char *output_file1)
 
   /* compute bulk segment densities from polymer component densities */
   for (iseg=0;iseg<Nseg_tot;iseg++){
-     Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
      if (Lsteady_state!=UNIFORM_INTERFACE){
-        Rho_seg_LBB[iseg]=Rho_b_LBB[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
-        Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/Nmer_t_total[Unk2Comp[iseg]];
+        Rho_seg_LBB[iseg]=Rho_b_LBB[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
+        Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
      }
+     else Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
   }
   compute_bulk_nonlocal_wtc_properties(output_file1); 
 
@@ -56,7 +56,7 @@ void WTC_thermo_precalc(char *output_file1)
 /****************************************************************************/
 /* pressure_WTC: this routine calculates the pressure contribution 
    for the WTC functional */
-double pressure_WTC(double *rho_seg)
+double pressure_WTC(double *rho_seg,double *xi_cav)
 {
   int iseg,icomp,count_bond,ibond;
   double betap_wtc,term_iseg;
@@ -76,8 +76,10 @@ double pressure_WTC(double *rho_seg)
   /* now calculate the chain term for the pressure */
   for (iseg=0;iseg<Nseg_tot;iseg++){
      icomp = Unk2Comp[iseg];
-     term_iseg=chain_term(iseg,icomp,rho_seg);
+     term_iseg=chain_term(iseg,icomp,rho_seg,xi_cav);
      betap_wtc -= term_iseg*rho_seg[iseg];
+printf("iseg=%d icomp=%d rho_seg=%g %g %g betap_wtc=%g term_iseg=%g\n",
+      iseg,icomp,rho_seg[0],rho_seg[1],rho_seg[2],betap_wtc,term_iseg);
   }
 
   return(betap_wtc);
@@ -87,7 +89,7 @@ double pressure_WTC(double *rho_seg)
    functionals */
 /* note that: Betamu_seg = total chemical potential for each segment, including ideal, HS, and att contributions
    Betamu_wtc = contribution to chem. potential from the chain part of the functional only */
-void chempot_WTC(double *rho_seg,double *betamu)
+void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
 {
    int icomp,jcomp,kcomp,i,iseg,ibond,jseg,kseg,pol_num,count_comp;
    double y,term_kseg;
@@ -112,7 +114,7 @@ void chempot_WTC(double *rho_seg,double *betamu)
           jseg=Bonds_SegAll[iseg][ibond];
           if (jseg >=0){
           jcomp=Unk2Comp[jseg];
-          y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+          y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_cav[2],xi_cav[3]);
           Betamu_seg[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
                               - rho_seg[jseg]/rho_seg[iseg]);
           Betamu_wtc[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
@@ -125,7 +127,7 @@ void chempot_WTC(double *rho_seg,double *betamu)
       components than the one where the iseg segment is found ! */
    for (kseg=0; kseg<Nseg_tot;kseg++){
      kcomp = Unk2Comp[kseg];
-     term_kseg=chain_term(kseg,kcomp,rho_seg);
+     term_kseg=chain_term(kseg,kcomp,rho_seg,xi_cav);
      Betamu_seg[kseg] -= term_kseg;
      Betamu_wtc[kseg] -= term_kseg;
    }
@@ -151,7 +153,7 @@ void chempot_WTC(double *rho_seg,double *betamu)
 /* chain_term:  This routine compute the "chain" part of the chemical potential
    that involves _all_ the bond pairs in the system for each segment.  This computation
    is done both for chemical potential and pressure so we separate this part here.*/
-double chain_term(int kseg,int kcomp,double *rho_seg)
+double chain_term(int kseg,int kcomp,double *rho_seg,double *xi_cav)
 {
   double sig2,sig3,y,dydxi2,dydxi3,term_kseg=0.0;
   int iseg,icomp,ibond,jseg,jcomp;
@@ -164,9 +166,9 @@ double chain_term(int kseg,int kcomp,double *rho_seg)
           if(Bonds_SegAll[iseg][ibond] != -1){
              jseg=Bonds_SegAll[iseg][ibond];
              jcomp=Unk2Comp[jseg];
-             y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-             dydxi2 = dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
-             dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+             y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_cav[2],xi_cav[3]);
+             dydxi2 = dy_dxi2_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_cav[2],xi_cav[3]);
+             dydxi3 = dy_dxi3_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_cav[2],xi_cav[3]);
              term_kseg += Fac_overlap[icomp][jcomp]*(PI/12.0)*(rho_seg[iseg]/y)*(dydxi2*sig2+dydxi3*sig3); 
           }
         }

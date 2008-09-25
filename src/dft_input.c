@@ -1348,11 +1348,11 @@ void read_input_file(char *input_file, char *output_file1)
         for (j=0; j<Npol_comp; j++) {
           Rho_b[i] += (double)Nmer_t[j][i]*rho_tmp[j]/(double)Nmer[j];
         }
+        if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_LBB[i]=Rho_b[i];
         fprintf(fp2,"%f  ",Rho_b[i]);
       }
       for (icomp=Ntype_mer; icomp<Ncomp; ++icomp){
         fprintf(fp2,"%f  ",Rho_b[icomp]);
-        if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_LBB[icomp]=Rho_b[icomp];
       }
     }
   }
@@ -1392,11 +1392,11 @@ void read_input_file(char *input_file, char *output_file1)
            for (j=0; j<Npol_comp; j++) {
              Rho_b[i] += (double)Nmer_t[j][i]*rho_tmp[j]/(double)Nmer[j];
            }
+           if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_RTF[i]=Rho_b[i];
            fprintf(fp2,"%f  ",Rho_b[i]);
          }
          for (icomp=Ntype_mer; icomp<Ncomp; ++icomp){
            fprintf(fp2,"%f  ",Rho_b[icomp]);
-           if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_RTF[icomp]=Rho_b[icomp];
          }
        }
      }
@@ -2012,7 +2012,7 @@ void read_input_file(char *input_file, char *output_file1)
         printf("ERROR: Can't do continuation in Eps_wf when the Mix_type is 0\n");
         exit(-1);
     } 
-    if (Loca.cont_type1 == CONT_BETAMU_0 && !LBulk){
+    if ((Loca.cont_type1 == CONT_BETAMU_0 || Loca.cont_type1==CONT_BETAMU_1) && !LBulk){
        printf("error: for continuation type=%d LBulk must be TRUE=%d .... resetting LBulk\n",Loca.cont_type1,1);
        LBulk=TRUE;
     }

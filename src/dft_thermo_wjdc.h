@@ -38,7 +38,7 @@ extern int Nbonds;
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_seg_b[NMER_MAX];
-double chain_term(int kseg,int kcomp,double *rho_seg);
+double chain_term(int kseg,int kcomp,double *rho_seg,double *xi_cav);
 extern double Rho_b[NCOMP_MAX];
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
