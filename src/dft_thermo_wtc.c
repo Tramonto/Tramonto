@@ -78,8 +78,6 @@ double pressure_WTC(double *rho_seg,double *xi_cav)
      icomp = Unk2Comp[iseg];
      term_iseg=chain_term(iseg,icomp,rho_seg,xi_cav);
      betap_wtc -= term_iseg*rho_seg[iseg];
-printf("iseg=%d icomp=%d rho_seg=%g %g %g betap_wtc=%g term_iseg=%g\n",
-      iseg,icomp,rho_seg[0],rho_seg[1],rho_seg[2],betap_wtc,term_iseg);
   }
 
   return(betap_wtc);

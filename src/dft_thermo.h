@@ -17,7 +17,9 @@
 #define NCOMP_MAX 5
 extern double Betamu_id[NCOMP_MAX];
 #define NMER_MAX     100
-extern double Betamu_chain[NMER_MAX];
+#define NBOND_MAX 4
+extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
+extern double Field_WJDC_b[NMER_MAX];
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
 void print_to_screen_comp(int icomp,double val,char *var_label);
 extern double Betamu_wtc_RTF[NMER_MAX];
@@ -30,7 +32,6 @@ extern double Betamu_seg_LBB[NMER_MAX];
 extern int Nseg_tot;
 void chempot_WTC(double *rho_seg,double *betamu,double *xi_cav);
 extern double Betamu[NCOMP_MAX];
-#define PHASE_INTERFACE 2
 extern double *Deltac_b;
 void chempot_ELEC_MSA(double *rho);
 #define DELTAC     1 
@@ -44,9 +45,15 @@ void chempot_FMT_hs(double *dphi_drhobar);
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
 void chempot_ideal_gas(double *rho,double *betamu);
+extern double Betamu_chain[NMER_MAX];
+#define PHASE_INTERFACE 2
+extern double G_WJDC_RTF[NMER_MAX *NBOND_MAX];
+extern double Field_WJDC_RTF[NMER_MAX];
 extern double Betamu_chain_RTF[NMER_MAX];
+extern double G_WJDC_LBB[NMER_MAX *NBOND_MAX];
+extern double Field_WJDC_LBB[NMER_MAX];
 extern double Betamu_chain_LBB[NMER_MAX];
-void chempot_chain_wjdc(double *rho,double *betamu_chain);
+void chempot_chain_wjdc(double *rho,double *betamu_chain,double *field_WJDC,double *g_WJDC);
 extern double Xi_cav_b[4];
 double pressure_PY_hs(double *rho);
 extern double Dphi_Drhobar_b[10];

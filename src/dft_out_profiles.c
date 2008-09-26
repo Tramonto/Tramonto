@@ -353,10 +353,10 @@ void print_profile(char *output_file4)
                 case CMS_FIELD:
                 case WJDC_FIELD:
                    if(Iwrite==VERBOSE){
-                      if (fabs(X_old[iunk+node_start]) > 1.e-12 && -log(X_old[iunk+node_start]) < VEXT_MAX){
+                      /*if (fabs(X_old[iunk+node_start]) > 1.e-12 && -log(X_old[iunk+node_start]) < VEXT_MAX){*/
                           fprintf(ifp,"%g\t", -log(X_old[iunk+node_start]));
-                      }
-                      else fprintf(ifp,"%gf\t", VEXT_MAX);
+                      /*}
+                      else fprintf(ifp,"%gf\t", VEXT_MAX);*/
                    }
                    break;
 

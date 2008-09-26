@@ -85,9 +85,16 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
        return(resid);
    }
 
-   if (Lsteady_state==PHASE_INTERFACE && B2G_node[inode_box]==0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]){  /* pin density at this point at mean between left and right interface*/
-        resid=fill_constant_density(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
-        return(resid);
+/* pin one density (or field) at this point at mean between left and right interface*/
+   if (Lsteady_state==PHASE_INTERFACE && B2G_node[inode_box]==0.5*Size_x[Grad_dim]/Esize_x[Grad_dim] && icomp==0){  
+        if (Type_poly != WJDC && Type_poly != WJDC2 && Type_poly != WJDC3){
+           resid=fill_constant_density(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
+           return(resid);
+        }
+   /*     else{
+           resid=fill_constant_field(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
+           return(resid);
+        }*/
    }
 
    /* now fill EL physics dependent terms */ 
@@ -246,12 +253,11 @@ double fill_bulk_density(int iunk, int icomp, int iseg, int loc_inode, int inode
 /******************************************************************************************/
 double fill_constant_density(int iunk, int icomp, int iseg, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
-  double resid,mat_val,resid_ig;
+  double resid,mat_val;
 
   if (resid_only_flag != INIT_GUESS_FLAG){
      resid = log(x[iunk][inode_box]) ; 
      mat_val = 1.0/x[iunk][inode_box];
-     resid_ig=resid;
      if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (resid_only_flag==FALSE){
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
@@ -260,9 +266,33 @@ double fill_constant_density(int iunk, int icomp, int iseg, int loc_inode, int i
 
    if (Lseg_densities)   resid = -log(0.5*(Rho_seg_LBB[iseg]+Rho_seg_RTF[iseg]));
    else                  resid = -log(0.5*(Rho_b_LBB[icomp]+Rho_b_RTF[icomp]));
+
    if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
    return resid;
+}
+/******************************************************************************************/
+double fill_constant_field(int iunk, int icomp, int iseg, int loc_inode, int inode_box, double **x,int resid_only_flag)
+{
+  double resid,mat_val;
+
+  if(resid_only_flag != INIT_GUESS_FLAG){
+    resid = log(x[iunk][inode_box]) ; 
+  printf("inode_box=%d icomp=%d x=%g  term1_resid=%g\n",inode_box,icomp,x[iunk][inode_box],resid);
+    mat_val = 1.0/x[iunk][inode_box];
+    if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+    if (resid_only_flag==FALSE){
+       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
+    }
+  }
+  resid = -log((.05*Field_WJDC_LBB[icomp]+0.95*Field_WJDC_RTF[icomp]));
+  printf("mean constant term x=%g  (LEFT=%g RIGHT=%g) term_resid=%g\n",0.5*(Field_WJDC_LBB[icomp]+Field_WJDC_RTF[icomp]),
+          Field_WJDC_LBB[icomp],Field_WJDC_RTF[icomp],resid);
+
+  if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+
+  if (resid_only_flag==INIT_GUESS_FLAG) return(exp(-resid));
+  else                                  return resid;
 }
 /******************************************************************************************/
 double fill_bulk_field(int iunk, int icomp, int iseg, int loc_inode, int inode_box, double **x,int resid_only_flag)
@@ -282,7 +312,8 @@ double fill_bulk_field(int iunk, int icomp, int iseg, int loc_inode, int inode_b
   resid = -log(Field_WJDC_b[icomp]);
   if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
-  return resid;
+  if (resid_only_flag==INIT_GUESS_FLAG) return(exp(-resid));
+  else                                  return resid;
 }
 /******************************************************************************************/
 double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, double **x,int resid_only_flag)

@@ -93,6 +93,7 @@ double prefactor_rho_wjdc(int iseg)
   pol_number=SegAll_to_Poly[iseg];
   scale_term=0.0;
 
+
   for (icomp=0;icomp<Ncomp;icomp++){
      scale_term-=Scale_fac_WJDC[pol_number][icomp]*Nseg_type_pol[pol_number][icomp];
   }

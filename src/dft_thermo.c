@@ -213,8 +213,11 @@ void calc_chempot(char *output_file1)
           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){  /* this is different than all the others because we compute
                                     chain chemical potentials.  Note that a segment chemical potential
                                     should also be implemented. */
-             chempot_chain_wjdc(Rho_seg_LBB,Betamu_chain_LBB);
-             chempot_chain_wjdc(Rho_seg_RTF,Betamu_chain_RTF);
+             chempot_chain_wjdc(Rho_seg_LBB,Betamu_chain_LBB,Field_WJDC_LBB,G_WJDC_LBB);
+             chempot_chain_wjdc(Rho_seg_RTF,Betamu_chain_RTF,Field_WJDC_RTF,G_WJDC_RTF);
+             if (Lsteady_state==PHASE_INTERFACE){
+                for (icomp=0;icomp<Npol_comp;icomp++) Betamu_chain[icomp]=0.5*(Betamu_chain_LBB[icomp]+Betamu_chain_RTF[icomp]);
+             }
           }
           else{
 
@@ -319,7 +322,7 @@ void calc_chempot(char *output_file1)
           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){  /* this is different than all the others because we compute
                                     chain chemical potentials.  Note that a segment chemical potential
                                     should also be implemented. */
-             chempot_chain_wjdc(Rho_seg_b,Betamu_chain);
+             chempot_chain_wjdc(Rho_seg_b,Betamu_chain,Field_WJDC_b,G_WJDC_b);
           }
 				/* IDEAL contributions */
           chempot_ideal_gas(Rho_b,Betamu);

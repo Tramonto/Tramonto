@@ -61,6 +61,8 @@ extern double Mass[NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int LDeBroglie;
 extern double Field_WJDC_b[NMER_MAX];
+extern double Field_WJDC_RTF[NMER_MAX];
+extern double Field_WJDC_LBB[NMER_MAX];
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
@@ -104,6 +106,7 @@ double fill_EL_ext_field(int iunk,int icomp,int loc_inode,int resid_only_flag);
 double fill_EL_chem_pot(int iunk,int icomp,int iseg,int loc_inode,int inode_box,int mesh_coarsen_flag_i,double **x,int resid_only_flag);
 double fill_EL_ideal_gas(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double fill_constant_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
+double fill_constant_field(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 extern int Grad_dim;

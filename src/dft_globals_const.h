@@ -792,8 +792,12 @@ extern double  Rho_seg_b[NMER_MAX]; /* array of bulk segment densities */
 extern double  Rho_seg_LBB[NMER_MAX];
 extern double  Rho_seg_RTF[NMER_MAX];
 extern double Field_WJDC_b[NMER_MAX];
+extern double Field_WJDC_LBB[NMER_MAX];
+extern double Field_WJDC_RTF[NMER_MAX];
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern double G_WJDC_b[NMER_MAX*NBOND_MAX];
+extern double G_WJDC_LBB[NMER_MAX*NBOND_MAX];
+extern double G_WJDC_RTF[NMER_MAX*NBOND_MAX];
 extern double  *Rhobar3_old;   /* Array[Nnodes_box] of old values of rhobar 3*/
 extern double Xi_cav_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
 extern double Xi_cav_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */

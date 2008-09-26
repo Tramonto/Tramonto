@@ -92,7 +92,8 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
              fac1 = (*fp_prefactor)(iref);
 	     if (Type_poly==CMS_SCFT) fac1 /= Gsum[npol];
         }
-        else                     fac1=1.0;
+        else{                     fac1=1.0;
+        }
 
         for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
               unk_GQ  = Phys2Unk_first[func_type] + Poly_to_Unk_SegAll[iseg][ibond];

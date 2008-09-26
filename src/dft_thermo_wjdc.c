@@ -39,13 +39,22 @@ function variables .
                           WJDC functionals */
 void WJDC_thermo_precalc(char *output_file1)
 { 
-  compute_bulk_nonlocal_wjdc_properties(output_file1);
+  if (Lsteady_state==UNIFORM_INTERFACE) 
+     compute_bulk_nonlocal_wjdc_properties(output_file1,Dphi_Drhobar_b,Rho_b,Rho_seg_b,
+                                             	       Xi_cav_b,Field_WJDC_b,G_WJDC_b);
+  else{
+     compute_bulk_nonlocal_wjdc_properties(output_file1,Dphi_Drhobar_LBB,Rho_b_LBB,Rho_seg_LBB,
+                                             	       Xi_cav_LBB,Field_WJDC_LBB,G_WJDC_LBB);
+     compute_bulk_nonlocal_wjdc_properties(output_file1,Dphi_Drhobar_RTF,Rho_b_RTF,Rho_seg_RTF,
+                                             	       Xi_cav_RTF,Field_WJDC_RTF,G_WJDC_RTF);
+  }
   return;
 }
 /*******************************************************************************/
 /* compute_bulk_nonlocal_wjdc_properties: compute some additional bulk properties we
    need to carry around the calculation. */
-void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
+void compute_bulk_nonlocal_wjdc_properties(char *output_file1,double *dphi_drhobar, double *rho,
+     double *rho_seg, double *xi_cav, double *field_WJDC, double *g_WJDC)
 {
   int i,loc_inode,loc_i,inode_box,inode,ijk[3],icomp,jcomp,idim,iunk,printproc;
   int ibond,jbond,index,iseg,jseg,pol_num,bond_num,type_jseg,nloop,iloop;
@@ -78,13 +87,13 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
      sten_sum[2]=(4.*PI)*POW_DOUBLE_INT(HS_diam[icomp]/2.,2);      
      sten_sum[3]=(4.*PI/3.)*POW_DOUBLE_INT(HS_diam[icomp]/2.,3);       
      for (i=0;i<4;i++){         /* summing over terms in the FMT hs functional */
-        field -= Dphi_Drhobar_b[i]*sten_sum[i]*Fac_overlap_hs[icomp];      
+        field -= dphi_drhobar[i]*sten_sum[i]*Fac_overlap_hs[icomp];      
      }
 
   /* Now include Attractions */
     if (Type_attr != NONE){
        for (jcomp=0; jcomp<Ncomp;jcomp++){
-          field -= Avdw[icomp][jcomp]*Rho_b[jcomp];
+          field -= Avdw[icomp][jcomp]*rho[jcomp];
        }
     }
 
@@ -92,10 +101,10 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
     /*do this later*/
 
   /* Now include Bonding terms - note that this is identical to WTC theory */
-     field += chain_term(iseg,icomp,Rho_seg_b,Xi_cav_b);
+     field += chain_term(iseg,icomp,rho_seg,xi_cav);
 
-     Field_WJDC_b[icomp]=exp(field)*exp(Scale_fac_WJDC[pol_num][icomp]);
-     if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_WJDC=%9.6f\n",iseg,field,Field_WJDC_b[icomp]);
+     field_WJDC[icomp]=exp(field)*exp(Scale_fac_WJDC[pol_num][icomp]);
+     if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_WJDC=%9.6f\n",iseg,field,field_WJDC[icomp]);
   } /* end of bulk field calculations */
 
   /* (2) compute bulk G - chain propogator values.  Note that we need to start at the ends of 
@@ -125,27 +134,27 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
            }
            if (test==TRUE){     /* compute a bulk G */
               if (jseg == -1){
-                  G_WJDC_b[ibond]=Field_WJDC_b[icomp]; /* end segment is simple */
+                  g_WJDC[ibond]=field_WJDC[icomp]; /* end segment is simple */
               }
               else{
                   icomp=Unk2Comp[SegChain2SegAll[pol_num][iseg]];
                   jcomp=Unk2Comp[SegChain2SegAll[pol_num][jseg]];
-                  G_WJDC_b[ibond]=Field_WJDC_b[icomp]*
-                                  y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],Xi_cav_b[2],Xi_cav_b[3]);
+                  g_WJDC[ibond]=field_WJDC[icomp]*
+                                  y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_cav[2],xi_cav[3]);
            
                   for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
                      if (Bonds[pol_num][jseg][jbond] != iseg){ 
-                          G_WJDC_b[ibond]*=G_WJDC_b[Poly_to_Unk[pol_num][jseg][jbond]+Geqn_start[pol_num]-Geqn_start[0]];
+                          g_WJDC[ibond]*=g_WJDC[Poly_to_Unk[pol_num][jseg][jbond]+Geqn_start[pol_num]-Geqn_start[0]];
                      }
                   }
                   power=-(Nbond[pol_num][jseg]-2); /* this is 0 for a linear chain for all interal segments */
                   if (power != 0){
-                         G_WJDC_b[ibond]*=POW_DOUBLE_INT(Field_WJDC_b[jcomp],power);
+                         g_WJDC[ibond]*=POW_DOUBLE_INT(field_WJDC[jcomp],power);
                   }
               }
               count_fill++;
               array_val[ibond]=TRUE;
-              if (printproc)  fprintf(fp2,"ibond=%d  G_b=%g\n",ibond,G_WJDC_b[ibond]);
+              if (printproc)  fprintf(fp2,"ibond=%d  G=%g\n",ibond,g_WJDC[ibond]);
            }
         }
      }
@@ -158,7 +167,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1)
 }
 /*********************************************************************************************/
 /*chempot_chain_wjdc- Here compute "Chain" chemical potentials for use with WJDC functionals.  */
-void chempot_chain_wjdc(double *rho,double *betamu_chain)
+void chempot_chain_wjdc(double *rho,double *betamu_chain,double *field_WJDC, double *g_WJDC)
 {
    int iseg,ibond,unk_G,pol_num,printproc,icomp;
    double mu_chain,gproduct;
@@ -179,14 +188,14 @@ void chempot_chain_wjdc(double *rho,double *betamu_chain)
       mu_chain += log(rho[iseg]);
 
       /* field term */
-      mu_chain += log(Field_WJDC_b[icomp]);
+      mu_chain += log(field_WJDC[icomp]);
 
       /* bonding term */
       gproduct=1.0;
       for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
              unk_G=Poly_to_Unk_SegAll[iseg][ibond];
              pol_num=Unk_to_Poly[unk_G];
-             gproduct *=G_WJDC_b[unk_G];
+             gproduct *=g_WJDC[unk_G];
       }
       mu_chain -= log(gproduct);
 

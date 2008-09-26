@@ -141,35 +141,29 @@ double constant_boundary(int iunk,int jnode_box)
 		   break;
        case WJDC_FIELD:
            if (jnode_box==-2) bcval=0.0;
-           else if (jnode_box==-1)      
-                  bcval=Field_WJDC_b[iunk-Phys2Unk_first[WJDC_FIELD]];
-            else if (jnode_box==-3 || jnode_box==-4){
-               printf("diffusion boundaries not fully implemented for WJDC fluid \n");
-               exit(-1);
-            }
-            break;
+           else if (jnode_box==-1) bcval=Field_WJDC_b[iunk-Phys2Unk_first[WJDC_FIELD]];
+           else if (jnode_box==-3) bcval=Field_WJDC_LBB[iunk-Phys2Unk_first[WJDC_FIELD]];
+           else if (jnode_box==-4) bcval=Field_WJDC_RTF[iunk-Phys2Unk_first[WJDC_FIELD]];
+           break;
        case G_CHAIN:
            if (jnode_box==-2) bcval=0.0;
-
 	   else{
                if (Type_poly == CMS || Type_poly == CMS_SCFT) bcval=1.0; 
                else if (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                    if (jnode_box==-1) bcval = G_WJDC_b[iunk-Phys2Unk_first[G_CHAIN]];
-                   else if (jnode_box==-3 || jnode_box==-4){
-                      printf("diffusion boundaries not fully implemented for WJDC fluid \n");
-                      exit(-1);
-                   }
+                   if (jnode_box==-3) bcval = G_WJDC_LBB[iunk-Phys2Unk_first[G_CHAIN]];
+                   if (jnode_box==-4) bcval = G_WJDC_RTF[iunk-Phys2Unk_first[G_CHAIN]];
                }
            }
-			   break;
-	   case SCF_FIELD:
-		   if (jnode_box==-2) bcval=0.0;
-		   else bcval=1.0; 
-		   break;
-		case SCF_CONSTR:
-			if (jnode_box==-2) bcval=0.0;
-			else bcval=1.0; 
-			break;
+	   break;
+       case SCF_FIELD:
+	   if (jnode_box==-2) bcval=0.0;
+	   else bcval=1.0; 
+	   break;
+       case SCF_CONSTR:
+	   if (jnode_box==-2) bcval=0.0;
+	   else bcval=1.0; 
+	   break;
    }
    return(bcval);
 }

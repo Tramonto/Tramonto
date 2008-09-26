@@ -45,6 +45,8 @@ int loc_find(int iunk,int inode,int flag);
 #define SCF_FIELD	  10
 #define NMER_MAX     100
 #define NBOND_MAX 4
+extern double G_WJDC_RTF[NMER_MAX *NBOND_MAX];
+extern double G_WJDC_LBB[NMER_MAX *NBOND_MAX];
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 #define WJDC3        5 
 #define WJDC2        4 
@@ -53,6 +55,8 @@ extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 #define CMS          0
 extern int Type_poly;
 #define G_CHAIN       11 
+extern double Field_WJDC_RTF[NMER_MAX];
+extern double Field_WJDC_LBB[NMER_MAX];
 extern double Field_WJDC_b[NMER_MAX];
 #define WJDC_FIELD     8
 #define CMS_FIELD      7
