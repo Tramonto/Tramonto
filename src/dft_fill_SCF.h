@@ -39,3 +39,4 @@ extern int **Zero_density_TF;
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 double load_SCF_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
+extern int Phys2Nunk[NEQ_TYPE]; 

@@ -138,3 +138,5 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 void guess_restart_from_files(int start_no_info,int iguess,double **xInBox);
+#define SCF_CONSTR	9
+#define SCF_FIELD	10

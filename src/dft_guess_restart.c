@@ -209,6 +209,20 @@ void read_in_a_file(int iguess,char *filename)
              unk_start_in_file[CMS_FIELD]=iunk;
              for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=CMS_FIELD;
        }
+	   else if (strncmp(unk_char,"SCFFIELD",5)==0){
+		   Restart_field[SCF_FIELD]=TRUE;
+		   header++;
+		   unk_in_file+=Ncomp;
+		   unk_start_in_file[SCF_FIELD]=iunk;
+		   for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=SCF_FIELD;
+       }
+	   else if (strncmp(unk_char,"SCF_CONSTR",5)==0){
+		   Restart_field[SCF_CONSTR]=TRUE;
+		   header++;
+		   unk_in_file+=1;
+		   unk_start_in_file[SCF_CONSTR]=iunk;
+		   unk_to_eq_in_file[iunk++]=SCF_CONSTR;
+       }
        else if (strncmp(unk_char,"WJDCFIELD",5)==0){
              Restart_field[WJDC_FIELD]=TRUE;
              header++;
@@ -324,9 +338,14 @@ void read_in_a_file(int iguess,char *filename)
           switch (eq_type){
               case CMS_FIELD: 
               case WJDC_FIELD: 
+			  case SCF_FIELD:
    	         fscanf(fp5,"%lf",&tmp);
                  tmp = exp(-tmp); 
                  break;
+				  
+			  case SCF_CONSTR:
+				  fscanf(fp5,"%lf",&tmp);
+				  break;
 
               case DENSITY:
    	         fscanf(fp5,"%lf",&tmp); 

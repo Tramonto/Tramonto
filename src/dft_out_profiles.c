@@ -282,6 +282,18 @@ void print_profile(char *output_file4)
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); 
                } break;
+			case SCF_CONSTR:
+				unk_char="SCF_CONSTR";
+				if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
+					fputs (unk_char,ifp); 
+					fprintf(ifp,"\n"); 
+				} break;				
+			case SCF_FIELD:
+				unk_char="SCFFIELD";
+				if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
+					fputs (unk_char,ifp); 
+					fprintf(ifp,"\n"); 
+				} break;
 	 case YW_DENS:
 	   break;
          }
@@ -325,6 +337,8 @@ void print_profile(char *output_file4)
                case MF_EQ:     icomp = iunk-Phys2Unk_first[MF_EQ]; break;
                case DIFFUSION: icomp = iunk-Phys2Unk_first[DIFFUSION]; break;
                case CMS_FIELD: icomp = iunk-Phys2Unk_first[CMS_FIELD]; break;
+			   case SCF_FIELD: icomp = iunk-Phys2Unk_first[SCF_FIELD]; break;
+			   case SCF_CONSTR: icomp = iunk-Phys2Unk_first[SCF_CONSTR]; break;
             }
             switch(Unk2Phys[iunk]){
                 case DENSITY:
@@ -352,6 +366,7 @@ void print_profile(char *output_file4)
 
                 case CMS_FIELD:
                 case WJDC_FIELD:
+				case SCF_FIELD:
                    if(Iwrite==VERBOSE){
                       /*if (fabs(X_old[iunk+node_start]) > 1.e-12 && -log(X_old[iunk+node_start]) < VEXT_MAX){*/
                           fprintf(ifp,"%g\t", -log(X_old[iunk+node_start]));
@@ -359,6 +374,11 @@ void print_profile(char *output_file4)
                       else fprintf(ifp,"%gf\t", VEXT_MAX);*/
                    }
                    break;
+					
+				case SCF_CONSTR:
+					if(Iwrite==VERBOSE){
+						fprintf(ifp,"%g\t", X_old[iunk+node_start]);
+					}
 
                 case G_CHAIN:
                    if (Iwrite==VERBOSE) fprintf(fp6,"%g\t", X_old[iunk+node_start]);
@@ -392,6 +412,15 @@ void print_profile(char *output_file4)
 			 unk_GQ  = Geqn_start[ipol] + Poly_to_Unk[ipol][iseg][ibond];
                          bondproduct *= X_old[unk_GQ+node_start];
                     }  
+
+					/* check this code!!! needs fixing */
+				   if(Type_poly == CMS)
+					   unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
+					else if(Type_poly == CMS_SCFT)
+						unk_B=Phys2Unk_first[SCF_FIELD]+itype_mer;
+                   site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[ipol][iseg]-1))
+                                           *Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
+
                    if (Type_poly== WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;
                    else                   unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
                    if (fabs(X_old[unk_B+node_start])>1.e-12)

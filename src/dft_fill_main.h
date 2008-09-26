@@ -122,3 +122,8 @@ struct RB_Struct {
   double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
 };
 double fill_resid_and_matrix(double **x,struct RB_Struct *dphi_drb,int iter,int resid_only_flag,int unk_flag);
+extern int Geqn_start[NCOMP_MAX];
+extern int ***Poly_to_Unk;
+extern int ***Bonds;
+
+

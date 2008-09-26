@@ -125,3 +125,7 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 int solve_problem_picard(double **x,double **x2);
+#define SCF_CONSTR	9
+#define SCF_FIELD	10
+#define CMS_SCFT	1
+

@@ -117,6 +117,7 @@ int picard_solver(double **x, int subIters){
      if (L_HSperturbation && Type_poly != WJDC)
                               calc_density_next_iter_HSperturb(x);
      else if(Type_poly==CMS)  calc_density_next_iter_CMS(x);
+	 else if(Type_poly==CMS_SCFT)  calc_density_next_iter_SCF(x);
      else if(Type_poly==WJDC) calc_density_next_iter_WJDC(x);
      communicate_to_fill_in_box_values(x);
 
@@ -139,7 +140,7 @@ int picard_solver(double **x, int subIters){
      /* now update all other fields in the solution vector */
 
 
-     /* updated all other fields (other than density - based on new density profile) */
+     /* update all other fields (other than density - based on new density profile) */
      for (i=0;i<NEQ_TYPE;i++){
      switch(i){
          case DENSITY: /* don't do anything for density here */
@@ -200,16 +201,26 @@ int picard_solver(double **x, int subIters){
               communicate_to_fill_in_box_values(x);
             }
             break;
-
+		 case SCF_FIELD:
+			 if (Phys2Nunk[SCF_FIELD]>0){
+				 calc_init_SCFfield(x);
+				 communicate_to_fill_in_box_values(x);
+			 }
+			 break;
+		 case SCF_CONSTR:
+			 if (Phys2Nunk[SCF_CONSTR]>0){
+				 calc_init_lambda(x);
+				 communicate_to_fill_in_box_values(x);
+			 }
+			 break;
          case G_CHAIN:
             if (Phys2Nunk[G_CHAIN]>0){
-               if (Type_poly==CMS) calc_init_polymer_G_CMS(x);
+               if (Type_poly==CMS || Type_poly==CMS_SCFT) calc_init_polymer_G_CMS(x);
                else if (Type_poly==WJDC) calc_init_polymer_G_wjdc(x);
             }
             break;
-
-     case YW_DENS:
-       break;
+		 case YW_DENS:
+			 break;
          default:
            printf("problem with switch in initial guess\n");
            exit(-1);
@@ -311,6 +322,30 @@ void calc_density_next_iter_WJDC(double **xInBox)
   }
   return;
 }
+/****************************************************************************/
+/* calc_density_next_iter_SCF(x); compute a new density profile for cases where
+we are doing CMS-SCFT calculations */
+void calc_density_next_iter_SCF(double **xInBox)
+{
+	int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i;
+	double resid;
+	struct  RB_Struct *dphi_drb=NULL;
+	izone=0;
+	mesh_coarsen_flag_i=0;
+	
+	for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+		inode_box=L2B_node[loc_inode]; 
+		node_box_to_ijk_box(inode_box, ijk_box);
+		
+		for (iloop=0; iloop<Ncomp; iloop++){
+			iunk=Phys2Unk_first[DENSITY]+iloop;
+			resid=load_SCF_density(iunk,loc_inode,inode_box,xInBox,INIT_GUESS_FLAG);
+			xInBox[iunk][inode_box]=-resid;
+		}
+	}
+	return;
+}
+
 /*****************************************************************************************************/
 void print_resid_norm_picard(double **x, int iter)
 {

@@ -74,8 +74,8 @@ double prefactor_rho_scft(int itype_mer)
 /****************************************************************************/
 double load_SCF_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int izone, double **x,int resid_only_flag) 
 {
-	double resid_B,resid,mat_val,values[2];
-	int itype_mer,junk,unk_L,unk_rho,jcomp,numEntries;
+	double resid_B,mat_val,values[2];
+	int itype_mer,junk,unk_L,jcomp,numEntries;
 		
 	itype_mer = iunk - Phys2Unk_first[SCF_FIELD];
 	
@@ -83,34 +83,33 @@ double load_SCF_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
 		resid_B=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
     }
     else{
-		unk_L=Phys2Unk_first[SCF_CONSTR];  /* lambda field */
-		unk_rho=Phys2Unk_first[DENSITY] + itype_mer;	/* density that goes with this field*/
-		
+		resid_B=0.0;
 		for(jcomp=0; jcomp<Ncomp; jcomp++) {
 			junk = Phys2Unk_first[DENSITY] + jcomp;
-			if(junk != unk_rho)
-				resid_B = -Eps_ff[itype_mer][jcomp]*x[junk][inode_box]/Rho_t;
+				resid_B -= Eps_ff[itype_mer][jcomp]*x[junk][inode_box]/Rho_t;
 		}
-		resid_B += x[unk_L][inode_box];
-		resid = Vext[loc_inode][itype_mer]+log(x[iunk][inode_box]);
-		resid_B+=resid;
-		if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+		if(Phys2Nunk[SCF_CONSTR]) {
+			unk_L=Phys2Unk_first[SCF_CONSTR];  /* lambda field */
+			resid_B += x[unk_L][inode_box];
+		}
+		resid_B += Vext[loc_inode][itype_mer]+log(x[iunk][inode_box]);
+		if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+			dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_B);
 		if(!resid_only_flag){
 			mat_val = 1.0/x[iunk][inode_box];  /* delta R / delta field */
 			dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
 			for(jcomp=0; jcomp<Ncomp; jcomp++) {   /* delta R / delta rho */
 				junk = Phys2Unk_first[DENSITY] + jcomp;
-				if(junk != unk_rho) {
-					mat_val = -Eps_ff[itype_mer][jcomp]/Rho_t;
-					dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
-				}
+				mat_val = -Eps_ff[itype_mer][jcomp]/Rho_t;
+				dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
 			}
-			mat_val = 1.0;	/* delta R / delta lambda */
-			dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_L,inode_box,mat_val);
+			if(Phys2Nunk[SCF_CONSTR]) {
+				mat_val = 1.0;	/* delta R / delta lambda */
+				dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_L,inode_box,mat_val);
+			}
 		}		
     }
     return(resid_B);
-	
 }
 
 /****************************************************************************/
@@ -118,28 +117,33 @@ double load_SCF_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
 double load_lambda_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int izone, double **x,int resid_only_flag) 
 {
 	int icomp,unk_rho;
-	double resid_B, mat_val;
+	double resid_L, mat_val;
 	
-	resid_B = 0.0;
+	resid_L = 0.0;
 
 	for(icomp=0; icomp<Ncomp; icomp++){
 		/* decide how to treat surfaces! */
 		if(Zero_density_TF[inode_box][icomp] || Vext[loc_inode][icomp] == VEXT_MAX){
-			resid_B = 0.0;
-			return(resid_B);
+			resid_L=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
 		}
 		else{
 			unk_rho=Phys2Unk_first[DENSITY]+icomp;
-			resid_B += x[unk_rho][inode_box];
+			resid_L += x[unk_rho][inode_box];
 			if(!resid_only_flag){
 				mat_val = 1.0;
 				dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_rho,inode_box,mat_val);
 			}
 		}	
 	}
-	resid_B -= Rho_t;
 	
-	return(resid_B);
+	resid_L -= Rho_t;
+	
+	if(!Zero_density_TF[inode_box][icomp] && Vext[loc_inode][icomp] != VEXT_MAX) {
+		if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+			dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_L);
+	}
+	
+	return(resid_L);
 }
 
 /*******************************************************************************

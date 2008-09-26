@@ -44,7 +44,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   char   *yo = "fill_resid_and_matrix";
   int     loc_inode, inode_box,ijk_box[3],iunk,junk,iunk_start,iunk_end;
   int     mesh_coarsen_flag_i,switch_constmatrix;
-  int	npol,unk_G;
+  int	npol,iseg,unk_G;
   double *resid_unk,resid_sum=0.0,resid_term;
   double sum_i;
 
@@ -70,14 +70,13 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
 	  
 	  /* loop over chains */
 	  for(npol=0; npol<Npol_comp; npol++){
-		  unk_G = Phys2Unk_first[G_CHAIN] + Nmer[npol] - 1;		// find G at j=N
-		  printf("unk_G=%d\n", unk_G);
+		  iseg = Nmer[npol]-1;
+		  unk_G = Geqn_start[npol] + Poly_to_Unk[npol][iseg][0];		// find G_{N-1}^{N-2}
 		  sum_i=0.0, Gsum[npol] = 0.0;
 		  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 			  inode_box = L2B_node[loc_inode];
 			  /* need to figure out correct index for Nel_hit2 */
 			  sum_i += x[unk_G][inode_box]*Nel_hit2[0][inode_box]*Vol_el/((double)Nnodes_per_el_V);
-			  printf("loc_inode=%d, x=%f\n", loc_inode,x[unk_G][inode_box]);
 		  }
 		  Gsum[npol] = gsum_double(sum_i);
 	  }
@@ -266,6 +265,8 @@ dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode
        case CAVWTC: printf("Proc=%d: loc_inode=%d  iunk_cavity=%d ",Proc,loc_inode,iunk); break;
        case BONDWTC: printf("Proc=%d: loc_inode=%d  iunk_bondwtc=%d ",Proc,loc_inode,iunk); break;
        case CMS_FIELD: printf("Proc=%d: loc_inode=%d  iunk_cmsfield=%d ",Proc,loc_inode,iunk); break;
+	   case SCF_FIELD: printf("Proc=%d: loc_inode=%d  iunk_cmsfield=%d ",Proc,loc_inode,iunk); break;
+	   case SCF_CONSTR: printf("Proc=%d: loc_inode=%d  iunk_cmsfield=%d ",Proc,loc_inode,iunk); break;
        case WJDC_FIELD: printf("Proc=%d: loc_inode=%d  iunk_wjdc_field=%d ",Proc,loc_inode,iunk); break;
        case G_CHAIN: printf("Proc=%d: loc_inode=%d  iunk_Gchain=%d ",Proc,loc_inode,iunk); break;
        case MF_EQ: printf("Proc=%d: loc_inode=%d  iunk_MFeq=%d ",Proc,loc_inode,iunk); break;

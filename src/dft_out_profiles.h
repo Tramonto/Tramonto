@@ -144,3 +144,5 @@ extern int Ndim;
 extern int Nnodes;
 extern int Nodes_old;
 void collect_x_old(double **x);
+#define SCF_CONSTR	9
+#define SCF_FIELD	10

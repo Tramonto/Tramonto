@@ -159,6 +159,10 @@ void setup_nunk_per_node(char *output_file1)
 				  Phys2Nunk[SCF_FIELD] = 0;
 			  break;
 			  
+
+		 /* case SCF_CONSTR:			what was I doing here?
+			  if(Type_poly==CMS_SCFT && Eps_ff[0][0]<1.e-6)*/
+
 	  case SCF_CONSTR:
 			  if(Type_poly==SCFT || Type_poly==CMS_SCFT)
 				  Phys2Nunk[SCF_CONSTR] = 1;

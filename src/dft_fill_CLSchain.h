@@ -99,3 +99,12 @@ extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
 double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
+extern int Nnodes_per_proc;
+extern int *L2B_node;
+extern void node_to_position(int inode,double *NodePos);
+extern int     *L2G_node;    
+#define NWALL_MAX 600 
+#define NWALL_MAX_TYPE 50
+extern double  WallPos[NDIM_MAX][NWALL_MAX]; 
+extern double  WallParam[NWALL_MAX_TYPE];
+
