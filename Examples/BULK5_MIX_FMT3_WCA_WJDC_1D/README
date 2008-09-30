@@ -1,0 +1,37 @@
+/*! \file 
+ \brief 1D case - locate binodal precisely with binodal tracking algorithm (LOCA), and create Pxy data for two component liquid-vapor equilibrium. 
+
+Functionals: FMT3,WCA,WJDC3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case tests is the second of a series involving BULK liquid-vapor equilibrium for a TWO component fluid.  In this problem, an entire set of PXY data (constant temperature) is generated for liquid-vapor equilibrium in a 2 component system.  Note the mixture contains one bonded component and includes the WJDC functionals.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_dens.dat 
+   - dft_dens2.dat
+   - lin_2mer
+
+Key Output Parameters (Solution 1):
+   - niter=2
+   - betamu[0]=-13.84424569
+   - betamu[1]=-6.52295839
+   - rho[0]=3.76256e-05 
+   - rho[1]=0.682318 
+   - pressure=0.00151336
+   .
+
+Key Output Parameters (Solution 1):
+   - niter=2
+   - betamu[0]=-13.84424569
+   - betamu[1]=-6.52295839
+   - rho[0]=1.00538e-06 
+   - rho[1]=0.00311602
+   - pressure=0.00151336
+   .
+
+
+*/
