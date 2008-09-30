@@ -1,0 +1,31 @@
+/*! \file 
+ \brief 1D case - locate binodal precisely with binodal tracking algorithm (LOCA).  One component Liquid-Vapor equilibrium.
+
+Functionals: FMT1,WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case tests is the second of a series involving BULK liquid-vapor equilibrium for a single component fluid.  In this problem, the approximate results of the BULK1 calculation are used as input for a LOCA binodal calculation that precisely determines the point of liquid-vapor equilibrium to be mu=-4.62047795 and p=0.0105664.  
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_dens.dat 
+   - dft_dens2.dat
+
+Key Output Parameters (Solution 1):
+   - niter=7
+   - betamu=-4.62047795
+   - rho[0]=0.0113989 
+   - pressure=0.0105664
+   .
+
+Key Output Parameters (Solution 2):
+   - niter=7
+   - betamu=-4.62047795
+   - rho[0]=0.7084099 
+   - pressure=0.0105664
+   .
+
+*/

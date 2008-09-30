@@ -1,0 +1,35 @@
+/*! \file 
+ \brief 1D case - locate a binodal approximately with Arc-Length continuation.  One component Liquid-Vapor equilibrium.
+
+Functionals: FMT1,WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case tests is the first of a series involving BULK liquid-vapor equilibrium for a single component fluid.  In this problem, the chemical potential of the fluid is varied using arc length continuation and the density-pressure information is collected.  The phase transition can be found where there are two states if equal chemical potential and pressure (see dft_output.dat).  For this problem it occurs at approximately
+mu=-4.62 and p=0.01.  See BULK2 case for exact binodal.
+
+Input Files for Test problem:
+   - dft_input.dat
+
+Key Output Parameters (Solution 1):
+   - niter=1
+   - betamu=-6.92063501
+   - rho[0]=0.001
+   - pressure=0.000993561
+   .
+
+Key Output Parameters (Solution 10):
+   - niter=3
+   - betamu=-5.23969383
+   - rho[0]=0.00570553
+   - pressure=0.00549634
+   .
+
+Key Output Parameters (Solution 45):
+   - niter=3
+   - betamu=-5.29878643
+   - rho[0]=0.466156
+   - pressure=-0.448053
+*/

@@ -1,0 +1,21 @@
+/*! \file 
+ \brief 1D case - compute structure of liquid-vapor interface.
+
+Functionals: FMT1,WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case tests is the third of a series involving BULK liquid-vapor equilibrium for a single component fluid.  In this problem, the exact binodal found from the BULK2 calculation is used as boundary conditions for a calculation of a bulk two phase (liquid-vapor) interface.  This type of data is useful in wetting calculations.  Note that a step function initial guess profile is used here.  
+
+Input Files for Test problem:
+   - dft_input.dat
+
+Key Output Parameters (Solution 1):
+   - niter=11
+   - ads[0]=7.13339 
+   - omega=0.3462914
+   .
+
+*/
