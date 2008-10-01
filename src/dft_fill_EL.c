@@ -38,7 +38,7 @@
 double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, int izone,
                     double **x,struct  RB_Struct *dphi_drb,int mesh_coarsen_flag_i, int resid_only_flag)
 {
-   int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF,iunk_att;
+   int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF,iunk_att,first_unk;
    double resid=0.0,resid_ig,resid_att,resid_hs,resid_chain,resid_old,mat_val;
 
                   /* set icomp and iseg(WTC) */
@@ -86,15 +86,20 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    }
 
 /* pin one density (or field) at this point at mean between left and right interface*/
-   if (Lsteady_state==PHASE_INTERFACE && B2G_node[inode_box]==0.5*Size_x[Grad_dim]/Esize_x[Grad_dim] && icomp==0){  
+   first_unk=FALSE;
+   if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
+       if( iunk==Phys2Unk_first[WJDC_FIELD]) first_unk=TRUE;
+   }
+   else { if (iunk==Phys2Unk_first[DENSITY]) first_unk=TRUE;}
+   if (Lsteady_state==PHASE_INTERFACE && B2G_node[inode_box]==0.5*Size_x[Grad_dim]/Esize_x[Grad_dim] && first_unk){  
         if (Type_poly != WJDC && Type_poly != WJDC2 && Type_poly != WJDC3){
            resid=fill_constant_density(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
            return(resid);
         }
-   /*     else{
+        else{
            resid=fill_constant_field(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
            return(resid);
-        }*/
+        }
    }
 
    /* now fill EL physics dependent terms */ 
@@ -147,6 +152,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
          resid+=load_mean_field(THETA_CR_RPM_MSA,iunk,loc_inode,
                           icomp,izone,ijk_box,x, resid_only_flag);
    }
+
 
    if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2){
        if (Type_poly==WTC){
@@ -278,16 +284,13 @@ double fill_constant_field(int iunk, int icomp, int iseg, int loc_inode, int ino
 
   if(resid_only_flag != INIT_GUESS_FLAG){
     resid = log(x[iunk][inode_box]) ; 
-  printf("inode_box=%d icomp=%d x=%g  term1_resid=%g\n",inode_box,icomp,x[iunk][inode_box],resid);
     mat_val = 1.0/x[iunk][inode_box];
     if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
     if (resid_only_flag==FALSE){
        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
     }
   }
-  resid = -log((.05*Field_WJDC_LBB[icomp]+0.95*Field_WJDC_RTF[icomp]));
-  printf("mean constant term x=%g  (LEFT=%g RIGHT=%g) term_resid=%g\n",0.5*(Field_WJDC_LBB[icomp]+Field_WJDC_RTF[icomp]),
-          Field_WJDC_LBB[icomp],Field_WJDC_RTF[icomp],resid);
+  resid = -log((0.5*Field_WJDC_LBB[icomp]+0.5*Field_WJDC_RTF[icomp]));
 
   if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
