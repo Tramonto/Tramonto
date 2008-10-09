@@ -91,7 +91,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
        if( iunk==Phys2Unk_first[WJDC_FIELD]) first_unk=TRUE;
    }
    else { if (iunk==Phys2Unk_first[DENSITY]) first_unk=TRUE;}
-   if (Lsteady_state==PHASE_INTERFACE && B2G_node[inode_box]==0.5*Size_x[Grad_dim]/Esize_x[Grad_dim] && first_unk){  
+   if (Lsteady_state==PHASE_INTERFACE && B2G_node[inode_box]==(int)(0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]) && first_unk){  
         if (Type_poly != WJDC && Type_poly != WJDC2 && Type_poly != WJDC3){
            resid=fill_constant_density(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
            return(resid);
@@ -108,7 +108,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    if (Type_poly != WJDC && Type_poly != WJDC2 && Type_poly != WJDC3){
       resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
    }
-
 
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode,resid_only_flag);
 
@@ -344,7 +343,6 @@ double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, doub
       for (pol_number=0;pol_number<Npol_comp;pol_number++) {
        if (Nseg_type_pol[pol_number][icomp] !=0) scalefac=Scale_fac_WJDC[pol_number][icomp];
       }
-      pol_number = SegAll_to_Poly[iunk-Phys2Unk_first[WJDC_FIELD]];
       resid = -scalefac;
       resid_ig+=resid;
       if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag !=CALC_RESID_ONLY)
