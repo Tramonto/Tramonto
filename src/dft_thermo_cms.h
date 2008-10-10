@@ -14,7 +14,6 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define CMS_SCFT     1
 extern int Type_pairPot;
 double pairPot_ATT_CS_switch(double r,int icomp,int jcomp,int typePairPot);
 #define NCOMP_MAX 5

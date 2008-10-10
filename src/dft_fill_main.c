@@ -44,9 +44,9 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   char   *yo = "fill_resid_and_matrix";
   int     loc_inode, inode_box,ijk_box[3],iunk,junk,iunk_start,iunk_end;
   int     mesh_coarsen_flag_i,switch_constmatrix;
-  int	npol,iseg,unk_G;
+  int	npol,iseg,unk_G,idim;
   double *resid_unk,resid_sum=0.0,resid_term;
-  double sum_i;
+  double sum_i,vol;
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
   resid_unk = (double *) array_alloc (1, Nunk_per_node, sizeof(double));
@@ -67,6 +67,9 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   if(Type_poly == CMS_SCFT) {
 	  
 	  Gsum = (double *) array_alloc(1, Npol_comp, sizeof(double));
+	  vol = 1.0;
+	  for(idim=0; idim<Ndim; idim++)
+		vol *= Size_x[idim];
 	  
 	  /* loop over chains */
 	  for(npol=0; npol<Npol_comp; npol++){
@@ -75,10 +78,12 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
 		  sum_i=0.0, Gsum[npol] = 0.0;
 		  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 			  inode_box = L2B_node[loc_inode];
-			  /* need to figure out correct index for Nel_hit2 */
+			  /* need to figure out correct index for Nel_hit2: 1st index is over icomp */
+			  /* integrate by extended trapezoidal rule */
 			  sum_i += x[unk_G][inode_box]*Nel_hit2[0][inode_box]*Vol_el/((double)Nnodes_per_el_V);
 		  }
-		  Gsum[npol] = gsum_double(sum_i);
+		 Gsum[npol] = gsum_double(sum_i)/vol; 
+		  if(Gsum[npol] < 1.e-6) printf("error: Gsum small = %f\n",Gsum[npol]);
 	  }
   } 
   
@@ -209,9 +214,11 @@ dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode
           break;
 
        case G_CHAIN:
-          if (Type_poly==CMS || Type_poly==CMS_SCFT){
+          if (Type_poly==CMS){
              resid_unk[iunk]=load_CMS_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
           }
+		  else if (Type_poly==CMS_SCFT)
+			  resid_unk[iunk]=load_SCF_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
           else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
              resid_unk[iunk]=load_WJDC_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
           }

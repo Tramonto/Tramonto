@@ -645,7 +645,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                       }
                       if (Type_func != NONE){ calc_HS_diams(); 
                                               calc_InvR_params();}
-                      if (Type_poly ==CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
+                      if (Type_poly ==CMS) setup_polymer_cr();
                       recalculate_stencils();
                       if (Nwall>0) scale_vext_temp(ratio);
                       break;
@@ -653,7 +653,7 @@ void assign_parameter_tramonto(int cont_type, double param)
       case CONT_RHO_0:   
                        Rho_b[0]=param;
 /*                      ratio=1./Rho_b[2];  vary rho tot at const x_s*/
-                      Rho_b[2]= param;    
+                   /*   Rho_b[2]= param;    
 /*                      ratio*=Rho_b[2];
                       Rho_b[0]*=ratio;
                       Rho_b[1]*=ratio;  vary rho tot at const x_s*/
@@ -661,18 +661,20 @@ void assign_parameter_tramonto(int cont_type, double param)
 /*                         Rho_b[0] = (16./18.)*(0.3771-Rho_b[2]);
                          Rho_b[1] = (2./18.)*(0.3771-Rho_b[2]);*/
 
-                          /*continuation at constant rho_tot=0.68 */
-                         /*Rho_b[0] = (16./18.)*(0.68-Rho_b[2]);
-                         Rho_b[1] = (2./18.)*(0.68-Rho_b[2]);*/
+                          /*continuation at constant rho_tot=0.58 */
+                      /*   Rho_b[0] = (16./18.)*(0.58-Rho_b[2]);
+                         Rho_b[1] = (2./18.)*(0.58-Rho_b[2]);*/
 
                           /*continuation at constant rho_tot=0.825 */
                          /*Rho_b[0] = (16./18.)*(0.825-Rho_b[2]);
                          Rho_b[1] = (2./18.)*(0.825-Rho_b[2]);*/
 
-                         if (Type_poly == CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
+                         if (Type_poly == CMS) setup_polymer_cr();
                          recalculate_stencils();
                          break;
       case CONT_RHO_ALL: 
+		/*  Rho_b[0]=param;
+		  Rho_b[1]=param/8;
                      /* ratio=1./Rho_b[2];*/  /*vary rho tot at const x_s*/
                     /*  Rho_b[2]= param;    
                       ratio*=Rho_b[2];
@@ -686,8 +688,8 @@ void assign_parameter_tramonto(int cont_type, double param)
                       Rho_b[Unk2Comp[i]] += param;    
                       Rho_seg_b[i]=param; 
                   }
-             }
-             if (Type_poly == CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
+             } 
+             if (Type_poly == CMS) setup_polymer_cr();
              recalculate_stencils();
              break; 
                  
@@ -820,11 +822,12 @@ void assign_parameter_tramonto(int cont_type, double param)
                           }
                           break;
 
-      case CONT_EPSFF_00: Eps_ff[0][0]=param;  
+      case CONT_EPSFF_00: 
+		  /* Eps_ff[0][0]=param;  */
 /*now do a special case where we change two of them at once */
-                /*         Eps_ff[2][0]=param;
+                         Eps_ff[2][0]=param;
                          Eps_ff[0][2]=param;
-                         Eps_ff[1][2]=param;
+                  /*       Eps_ff[1][2]=param;
                          Eps_ff[2][1]=param;*/
 
                       /*   Eps_ff[2][2]=param;
@@ -842,7 +845,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                          }*/
                          if (Type_func != NONE){ calc_HS_diams(); 
                                                  calc_InvR_params();}
-                         if (Type_poly == CMS || Type_poly == CMS_SCFT) setup_polymer_cr();
+                         if (Type_poly == CMS) setup_polymer_cr();
                          recalculate_stencils();
                          break;
 
@@ -863,7 +866,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                              }
                            }
                          }
-                         if (Type_poly==CMS && Type_poly==CMS_SCFT) setup_polymer_cr();
+                         if (Type_poly==CMS) setup_polymer_cr();
                          recalculate_stencils();
                          break;
 
@@ -885,7 +888,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                              }
                            }
                          }
-                         if (Type_poly==CMS && Type_poly==CMS_SCFT) setup_polymer_cr();
+                         if (Type_poly==CMS) setup_polymer_cr();
                          recalculate_stencils();
                          break;
 
@@ -995,7 +998,7 @@ double get_init_param_value(int cont_type)
       case CONT_TEMP: return Temp; break;
 
       case CONT_RHO_0:   return Rho_b[0]; break;
-      case CONT_RHO_ALL:  /*return Rho_b[2]; break; */
+      case CONT_RHO_ALL:  /* return Rho_b[0]; break; */
              if (Type_poly ==NONE){
                 for (i=0;i<Ncomp;i++) if (Rho_b[i] != Rho_b[0]){
                    printf("ERROR: need all Rho_b to be the same for CONT_RHO_ALL\n"); 
@@ -1070,7 +1073,7 @@ double get_init_param_value(int cont_type)
       case CONT_SCALE_EPSWF: return Scale_fac; break;
 
       case CONT_EPSFF_00:   
-           return Eps_ff[0][0]; 
+           return Eps_ff[0][2]; 
            break;
       case CONT_EPSFF_ALL:
            for (i=0; i<Ncomp; i++) if (Eps_ff[i][i] != Eps_ff[0][0]) {

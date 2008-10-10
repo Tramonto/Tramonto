@@ -121,10 +121,7 @@ double load_CMS_Geqns(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
     fp_ResidG=&CMS_Resid_GCHAIN;
     fp_ResidG_Bulk=&CMS_Resid_Bulk_GCHAIN;
 	
-	if(Type_poly==CMS)
-		field=CMS_FIELD;
-	else if(Type_poly==CMS_SCFT)
-		field=SCF_FIELD;
+	field=CMS_FIELD;
 
     resid_G=load_Chain_Geqns(field,Njacobian_types,Njacobian_sums,
                              funcArray_Jac,fp_ResidG,fp_ResidG_Bulk,

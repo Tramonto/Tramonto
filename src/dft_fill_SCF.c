@@ -86,7 +86,7 @@ double load_SCF_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
 		resid_B=0.0;
 		for(jcomp=0; jcomp<Ncomp; jcomp++) {
 			junk = Phys2Unk_first[DENSITY] + jcomp;
-				resid_B -= Eps_ff[itype_mer][jcomp]*x[junk][inode_box]/Rho_t;
+			resid_B += Eps_ff[itype_mer][jcomp]*x[junk][inode_box]/Rho_t;
 		}
 		if(Phys2Nunk[SCF_CONSTR]) {
 			unk_L=Phys2Unk_first[SCF_CONSTR];  /* lambda field */
@@ -100,7 +100,7 @@ double load_SCF_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
 			dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
 			for(jcomp=0; jcomp<Ncomp; jcomp++) {   /* delta R / delta rho */
 				junk = Phys2Unk_first[DENSITY] + jcomp;
-				mat_val = -Eps_ff[itype_mer][jcomp]/Rho_t;
+				mat_val = Eps_ff[itype_mer][jcomp]/Rho_t;
 				dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
 			}
 			if(Phys2Nunk[SCF_CONSTR]) {
@@ -144,6 +144,34 @@ double load_lambda_field(int iunk, int loc_inode, int inode_box, int *ijk_box, i
 	}
 	
 	return(resid_L);
+}
+
+/****************************************************************************/
+double load_SCF_Geqns(int iunk, int loc_inode, int inode_box, int *ijk_box, int izone, double **x,int resid_only_flag)
+{
+    int Njacobian_types;
+    int Njacobian_sums;
+	int field;
+    double resid_G;
+    void (*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **);
+    double (*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **);
+    double (*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **);
+	
+    Njacobian_types=2;   /* derivatives with respect to field and G are needed */
+    Njacobian_sums=1;    /* a sum(integral) must be computed for the field derivatives */
+	
+    funcArray_Jac[0]=&CMS_Jacobian_GCHAIN_derivG;
+    funcArray_Jac[1]=&CMS_Jacobian_GCHAIN_derivFIELD;
+    fp_ResidG=&CMS_Resid_GCHAIN;
+    fp_ResidG_Bulk=&CMS_Resid_Bulk_GCHAIN;
+	
+	field=SCF_FIELD;
+	
+    resid_G=load_Chain_Geqns_SCF(field,Njacobian_types,Njacobian_sums,
+                             funcArray_Jac,fp_ResidG,fp_ResidG_Bulk,
+                             iunk, loc_inode,inode_box, 
+                             ijk_box,izone,x, resid_only_flag);
+    return(resid_G);
 }
 
 /*******************************************************************************

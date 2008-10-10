@@ -109,3 +109,5 @@ extern int Proc;
 extern int Proc;
 #endif
 void set_initial_guess(int iguess,double **xOwned);
+void calc_init_polymer_G_SCF(double **xInBox);
+

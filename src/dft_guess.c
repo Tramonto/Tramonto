@@ -136,12 +136,14 @@ void set_initial_guess (int iguess, double** xOwned)
 			 break; 
          case G_CHAIN:
            if (Phys2Nunk[G_CHAIN]>0 && (start_no_info || Restart_field[G_CHAIN]==FALSE)){
-                if (Type_poly==CMS || Type_poly==CMS_SCFT){
+                if (Type_poly==CMS){
                     if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
                                                        calc_init_polymer_G_CMS(xInBox);
                     }
                     else                                setup_polymer_G(xInBox); 
                 }
+			    else if (Type_poly==CMS_SCFT)
+					calc_init_polymer_G_SCF(xInBox);
                 else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                    if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
                           calc_init_polymer_G_wjdc(xInBox);
@@ -153,7 +155,6 @@ void set_initial_guess (int iguess, double** xOwned)
      case YW_DENS:
        break;
 
-			
 	 default:
            printf("problem with switch in initial guess\n");
            exit(-1);

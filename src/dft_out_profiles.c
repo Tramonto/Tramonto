@@ -194,7 +194,7 @@ void print_profile(char *output_file4)
   int unk_field, node_start,jcomp;
   double kappa_sq,kappa,r,rsq,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term;
   char *unk_char;
-  
+    
   char gfile[20],gfile2[20];
   char compfile[20],compfile2[20];
   FILE *ifp=NULL,*fp6=NULL,*fp7=NULL;
@@ -379,9 +379,10 @@ void print_profile(char *output_file4)
 					if(Iwrite==VERBOSE){
 						fprintf(ifp,"%g\t", X_old[iunk+node_start]);
 					}
-
+					break;
+					
                 case G_CHAIN:
-                   if (Iwrite==VERBOSE) fprintf(fp6,"%g\t", X_old[iunk+node_start]);
+					if (Iwrite==VERBOSE) fprintf(fp6,"%g\t", X_old[iunk+node_start]);
                    break;
             }
 

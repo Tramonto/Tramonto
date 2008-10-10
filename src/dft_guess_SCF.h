@@ -33,3 +33,30 @@ extern int Ncomp;
 extern int *L2B_node;
 extern int Nnodes_per_proc;
 void setup_polymer_SCF_field(double **xInBox,int iguess);
+extern int Phys2Nunk[NEQ_TYPE];
+void calc_init_polymer_G_SCF(double **xInBox);
+#define G_CHAIN       11 
+#define INIT_GUESS_FLAG  2
+extern int ***Poly_to_Unk;
+extern int *Unk_to_Bond;
+extern int *Unk_to_Seg;
+extern int *Unk_to_Poly;
+extern int Nbonds;
+double CMS_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
+double CMS_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
+#define NBOND_MAX 4
+#define NMER_MAX     100
+#define FALSE 0
+#define TRUE  1
+extern int **Nbond;
+extern int ***Bonds;
+extern int Nmer[NCOMP_MAX];
+extern int Geqn_start[NCOMP_MAX];
+void calc_init_polymer_G_SCF(double **xInBox);
+double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types, int Njacobian_sums,
+							void (*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),
+							double (*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),
+							double (*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),
+							int iunk, int loc_inode, int inode_box, 
+							int *ijk_box, int izone, double **x,
+							int resid_only_flag);

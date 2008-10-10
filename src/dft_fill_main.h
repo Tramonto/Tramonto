@@ -125,5 +125,7 @@ double fill_resid_and_matrix(double **x,struct RB_Struct *dphi_drb,int iter,int 
 extern int Geqn_start[NCOMP_MAX];
 extern int ***Poly_to_Unk;
 extern int ***Bonds;
-
+extern double  Size_x[NDIM_MAX];  
+extern int     Ndim;  
+double load_SCF_Geqns(int iunk, int loc_inode, int inode_box, int *ijk_box, int izone, double **x,int resid_only_flag);
 

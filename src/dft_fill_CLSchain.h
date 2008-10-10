@@ -55,7 +55,17 @@ extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
 #define G_CHAIN       11 
-double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,
+						void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),
+						double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),
+						double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,
+						int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types, int Njacobian_sums,
+							void (*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),
+							double (*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),
+							double (*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk, int loc_inode, 
+							int inode_box, int *ijk_box, int izone, double **x,
+							int resid_only_flag);
 #define NMER_MAX     100
 extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_seg_b[NMER_MAX];

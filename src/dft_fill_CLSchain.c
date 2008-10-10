@@ -228,7 +228,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
     double nodepos[3],xbound;
     double resid_G=0.0,resid,mat_val,values[4],gint_tmp; 
     double y,ysqrt,dydxi,xi_2,xi_3;
-   
+	   
        /* use arrays that are indexed with the geqns ordered starting at 0 */ 
     unk_GQ=iunk-Phys2Unk_first[G_CHAIN];
     pol_num = Unk_to_Poly[unk_GQ];
@@ -427,6 +427,176 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
     }  /* end of fill something */
     return(resid_G);
 }   
+/****************************************************************************/
+/* G eqtns for SCF theory--very similar to CMS */
+/* currently implementing only for polymer brushes grafted to the x=0 plane */
+double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types, int Njacobian_sums,
+       void (*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),
+       double (*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),
+       double (*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),
+       int iunk, int loc_inode, int inode_box, 
+       int *ijk_box, int izone, double **x,
+       int resid_only_flag)
+{
+    int unk_GQ,unk_B,pol_num,seg_num,bond_num,junk,unkIndex[4],numEntries,sten;
+    int itype_mer,jseg,jtype_mer,unk_xi2,unk_xi3,inode;
+    double nodepos[3],xbound;
+    double resid_G=0.0,resid,mat_val,values[4],gint_tmp; 
+    double y,ysqrt,dydxi,xi_2,xi_3;
+   
+       /* use arrays that are indexed with the geqns ordered starting at 0 */ 
+    unk_GQ=iunk-Phys2Unk_first[G_CHAIN];
+    pol_num = Unk_to_Poly[unk_GQ];
+    seg_num = Unk_to_Seg[unk_GQ];
+    bond_num = Unk_to_Bond[unk_GQ];
+    itype_mer = Type_mer[pol_num][seg_num];                   /*itype_mer=icomp*/
+
+     /* from iunk and the bond number find the jseg to which we are looking */
+
+    jseg = Bonds[pol_num][seg_num][bond_num];
+    if (jseg != -1) {jtype_mer = Type_mer[pol_num][jseg];}
+    else {jtype_mer=itype_mer;}
+
+    resid_G=0.0;
+
+    sten=DELTA_FN_BOND;
+	
+	inode = L2G_node[loc_inode];
+	node_to_position(inode,nodepos);
+	xbound = WallPos[0][0] + WallParam[0];
+
+    if (Zero_density_TF[inode_box][itype_mer] || Vext[loc_inode][itype_mer] == VEXT_MAX) {
+		resid_G=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
+    }
+/*    else if (fabs(x[iunk][inode_box]) < 1.e-12  && resid_only_flag==FALSE){    make G stationary 
+        resid = 0.0;
+        if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+        if (!resid_only_flag){
+          mat_val =1.0; 
+          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+        }
+    }*/
+	else {
+			/* need to modify for SCF */
+		if (Pol_Sym[unk_GQ] != -1 && resid_only_flag != INIT_GUESS_FLAG){  /* FILL IN G's FOR SYMMETRIC BONDS */
+			junk = Pol_Sym[unk_GQ] + Phys2Unk_first[G_CHAIN];
+			resid = x[iunk][inode_box]-x[junk][inode_box];
+			resid_G+=resid;
+			if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+			if (!resid_only_flag){
+				unkIndex[0]=iunk; unkIndex[1]=junk;
+				values[0]=1.0; values[1]=-1.0;
+				numEntries=2;
+				dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+															  unkIndex, inode_box, values, numEntries);
+			}
+		}
+		else {          /* FILL IN G's FOR UNIQUE BONDS */
+			if (Bonds[pol_num][seg_num][bond_num] == -1){        /* fill end segment equation */
+				/* Boltz unk for 1st seg */
+				unk_B = Phys2Unk_first[func_type_field] + itype_mer;
+
+				/* hard wall boundary condition, G = 0 on wall */
+				if(nodepos[0] == xbound) {
+					if (resid_only_flag==INIT_GUESS_FLAG) resid=0.0;
+					else resid = x[iunk][inode_box]/x[unk_B][inode_box];
+					resid_G+=resid;
+					if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+						dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+					if (resid_only_flag==FALSE){
+						mat_val=1.0/x[unk_B][inode_box]; 
+						dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+															iunk, inode_box, mat_val);
+					}										
+				}
+				else {
+					if (resid_only_flag==INIT_GUESS_FLAG) resid=-1.0;
+					else  resid = x[iunk][inode_box]/x[unk_B][inode_box]-1.0;
+					resid_G+=resid;
+					if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+						dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+					if (resid_only_flag==FALSE){
+						unkIndex[0]=iunk; unkIndex[1]=unk_B;
+						values[0]=1.0/x[unk_B][inode_box]; 
+						values[1]=-x[iunk][inode_box]/(x[unk_B][inode_box]*x[unk_B][inode_box]);
+						numEntries=2;
+						dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+																	  unkIndex, inode_box, values, numEntries);
+					}
+				}
+			}
+			else if (Bonds[pol_num][seg_num][bond_num] == -2) {		/* for grafted ends */
+				unk_B = Phys2Unk_first[func_type_field] + itype_mer;
+				if(nodepos[0] == xbound) {
+					if (resid_only_flag==INIT_GUESS_FLAG) resid=-1.0;
+					else resid = x[iunk][inode_box]/x[unk_B][inode_box] - 1.0;
+					resid_G+=resid;
+					if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+						dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+					if (resid_only_flag==FALSE){
+						unkIndex[0]=iunk; unkIndex[1]=unk_B;
+						values[0]=1.0/x[unk_B][inode_box]; 
+						values[1]=-(x[iunk][inode_box]-1.0)/(x[unk_B][inode_box]*x[unk_B][inode_box]);
+						numEntries=2;
+						dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+																	  unkIndex, inode_box, values, numEntries);
+					}
+				}
+				else {			/* for grafted end, G = 0 not on wall */
+					if (resid_only_flag==INIT_GUESS_FLAG) resid=0.0;
+					else resid = x[iunk][inode_box]/x[unk_B][inode_box];	
+					resid_G+=resid;
+					if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+						dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+					if (resid_only_flag==FALSE){
+						mat_val=1.0/x[unk_B][inode_box]; 
+						dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+																	  iunk, inode_box, mat_val);
+					}					
+				}
+			/*	printf("inode=%d, pos=%f, xbound=%f, resid_G=%f,unkB=%f\n", inode,nodepos[0],xbound,resid_G,x[unk_B][inode_box]);*/
+
+			}
+			else{                                            /* fill G_seg eqns */
+
+			/* First calculate the residual contributions */
+				unk_B = Phys2Unk_first[func_type_field] + itype_mer;   /* Boltz unk for this seg */
+
+				if (resid_only_flag != INIT_GUESS_FLAG){
+					resid = x[iunk][inode_box]/x[unk_B][inode_box];
+
+					resid_G+=resid;
+					if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+				}
+
+				if (resid_only_flag==FALSE){
+					unkIndex[0]=iunk; unkIndex[1]=unk_B;
+					values[0]=1.0/x[unk_B][inode_box]; 
+					values[1]=-x[iunk][inode_box]/(x[unk_B][inode_box]*x[unk_B][inode_box]);
+					numEntries=2;
+					dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+																  unkIndex, inode_box, values, numEntries);
+				}
+
+				if(nodepos[0] != xbound) {
+					/* Now Finish loading the Jacobian... */
+					gint_tmp = load_polymer_recursion(sten,func_type_field,
+                            Njacobian_types,Njacobian_sums,
+                            funcArray_Jac, fp_ResidG,fp_ResidG_Bulk,
+                            iunk,loc_inode,inode_box,unk_B,
+                            itype_mer,izone,ijk_box,x, resid_only_flag);
+					resid_G += gint_tmp;
+				}
+			}
+			if (resid_only_flag==INIT_GUESS_FLAG){
+				resid_G*=(-x[unk_B][inode_box]);			/* put Boltzmann factor in guess */
+			}
+		}
+    }  /* end of fill something */
+    return(resid_G);
+}   
+
+
 /****************************************************************************/
 /* load_polymer_recursion:
              In this routine we load the Jacobian for
