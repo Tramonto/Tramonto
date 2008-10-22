@@ -652,8 +652,9 @@ void assign_parameter_tramonto(int cont_type, double param)
 
       case CONT_RHO_0:   
                        Rho_b[0]=param;
-/*                      ratio=1./Rho_b[2];  vary rho tot at const x_s*/
-                   /*   Rho_b[2]= param;    
+/*                       Rho_b[1]=Rho_b[0]/8;*/
+/*                      ratio=1./Rho_b[0];  vary rho tot at const x_s
+                      Rho_b[2]= param;    */
 /*                      ratio*=Rho_b[2];
                       Rho_b[0]*=ratio;
                       Rho_b[1]*=ratio;  vary rho tot at const x_s*/
@@ -673,8 +674,10 @@ void assign_parameter_tramonto(int cont_type, double param)
                          recalculate_stencils();
                          break;
       case CONT_RHO_ALL: 
-		/*  Rho_b[0]=param;
-		  Rho_b[1]=param/8;
+               /*Rho_b[2]=param;
+		  Rho_b[0]=param;
+		  Rho_b[1]=param/8;*/
+
                      /* ratio=1./Rho_b[2];*/  /*vary rho tot at const x_s*/
                     /*  Rho_b[2]= param;    
                       ratio*=Rho_b[2];
@@ -822,11 +825,11 @@ void assign_parameter_tramonto(int cont_type, double param)
                           }
                           break;
 
-      case CONT_EPSFF_00: 
-		  /* Eps_ff[0][0]=param;  */
+      case CONT_EPSFF_00: Eps_ff[0][0]=param;  
+
 /*now do a special case where we change two of them at once */
-                         Eps_ff[2][0]=param;
-                         Eps_ff[0][2]=param;
+/*                         Eps_ff[2][0]=param;
+                         Eps_ff[0][2]=param;*/
                   /*       Eps_ff[1][2]=param;
                          Eps_ff[2][1]=param;*/
 
@@ -850,7 +853,11 @@ void assign_parameter_tramonto(int cont_type, double param)
                          break;
 
       case CONT_EPSFF_ALL: 
-                         for (i=0; i<Ncomp; i++) 
+                       Eps_ff[0][1]=param;
+                       Eps_ff[0][2]=param;
+                       Eps_ff[1][0]=param;
+                       Eps_ff[2][0]=param;
+/*                         for (i=0; i<Ncomp; i++) 
                             for (j=0; j<Ncomp; j++) if (fabs(Eps_ff[i][j])>1.e-15) Eps_ff[i][j] = param;
                       
                          if (Mix_type==0) {
@@ -866,7 +873,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                              }
                            }
                          }
-                         if (Type_poly==CMS) setup_polymer_cr();
+                         if (Type_poly==CMS && Type_poly==CMS_SCFT) setup_polymer_cr();*/
                          recalculate_stencils();
                          break;
 
@@ -912,7 +919,7 @@ void assign_parameter_tramonto(int cont_type, double param)
            WallPos[0][0] = 0.5*Size_x[0]-2.*WallParam[WallType[1]]-WallParam[WallType[0]]; 
            free_mesh_arrays();
            boundary_free();
-           if (Lsteady_state==DIFFUSIVE_INTERFACE && Ndim==1) safe_free((void *) &Area_IC);
+           if (Type_interface==DIFFUSIVE_INTERFACE && Ndim==1) safe_free((void *) &Area_IC);
            safe_free((void *) &Comm_node_proc);
            safe_free((void *) &Comm_unk_proc);
            safe_free((void *) &Comm_offset_node);
@@ -998,7 +1005,7 @@ double get_init_param_value(int cont_type)
       case CONT_TEMP: return Temp; break;
 
       case CONT_RHO_0:   return Rho_b[0]; break;
-      case CONT_RHO_ALL:  /* return Rho_b[0]; break; */
+      case CONT_RHO_ALL:  return Rho_b[0]; break; 
              if (Type_poly ==NONE){
                 for (i=0;i<Ncomp;i++) if (Rho_b[i] != Rho_b[0]){
                    printf("ERROR: need all Rho_b to be the same for CONT_RHO_ALL\n"); 
@@ -1076,11 +1083,12 @@ double get_init_param_value(int cont_type)
            return Eps_ff[0][2]; 
            break;
       case CONT_EPSFF_ALL:
-           for (i=0; i<Ncomp; i++) if (Eps_ff[i][i] != Eps_ff[0][0]) {
+/*           for (i=0; i<Ncomp; i++) if (Eps_ff[i][i] != Eps_ff[0][0]) {
                  printf("ERROR: need all Eps_ff[i][i] to be equal for  (CONT_EPSFF_ALL)\n");
                  exit(-1);
            }
-           return Eps_ff[0][0]; break;
+           return Eps_ff[0][0]; break;*/
+           return Eps_ff[0][1]; break;
       case CONT_SCALE_EPSFF: return Scale_fac; break;
 
       case CONT_SCALE_CHG:  return Scale_fac; break;

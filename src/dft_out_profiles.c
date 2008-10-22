@@ -207,7 +207,7 @@ void print_profile(char *output_file4)
      ifp = fopen(output_file4,"w");
 
            /* open file for G_CHAIN variables ... */
-     if (Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
+     if ((Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2)) || Type_poly==WJDC3){
        sprintf(gfile,"%sg",output_file4);
        fp6 = fopen(gfile,"w");
      } 
@@ -236,7 +236,7 @@ void print_profile(char *output_file4)
                }
             case MF_EQ: 
                unk_char = "MFEQ"; 
-               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
+               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); 
                } break;
@@ -254,46 +254,46 @@ void print_profile(char *output_file4)
                }
             case CMS_FIELD: 
                unk_char = "CMSFIELD";
-               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
+               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); 
                }break;
             case WJDC_FIELD: 
                unk_char = "WJDCFIELD";
-               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
+               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE|| Type_poly==WJDC3)){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); 
                } break;
             case HSRHOBAR: 
                unk_char="HSRHOBAR";
-               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
+               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); 
                }break;
             case CAVWTC:
                unk_char="CAVWTC";
-               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
+               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); 
                } break;
             case BONDWTC:
                unk_char="BONDWTC";
-               if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
+               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); 
                } break;
-			case SCF_CONSTR:
-				unk_char="SCF_CONSTR";
-				if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
-					fputs (unk_char,ifp); 
-					fprintf(ifp,"\n"); 
-				} break;				
-			case SCF_FIELD:
-				unk_char="SCFFIELD";
-				if (Phys2Nunk[i] > 0 && Iwrite==VERBOSE){
-					fputs (unk_char,ifp); 
-					fprintf(ifp,"\n"); 
-				} break;
+	    case SCF_CONSTR:
+		unk_char="SCF_CONSTR";
+		if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
+			fputs (unk_char,ifp); 
+			fprintf(ifp,"\n"); 
+		} break;				
+	    case SCF_FIELD:
+		unk_char="SCFFIELD";
+		if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
+			fputs (unk_char,ifp); 
+			fprintf(ifp,"\n"); 
+		} break;
 	 case YW_DENS:
 	   break;
          }
@@ -323,10 +323,10 @@ void print_profile(char *output_file4)
                          /* print ijk coordinates of this node in the files */ 
         for (idim=0; idim<Ndim; idim++) {
                                     fprintf(ifp,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
-            if (Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3))  {
+            if ((Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2)) || Type_poly==WJDC3)  {
                                    fprintf(fp6,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
             }
-            if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || ((Type_poly == CMS  || Type_poly==CMS_SCFT || Type_poly==WJDC3))) 
+            if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly == CMS  || Type_poly==CMS_SCFT || Type_poly==WJDC3) 
                  fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
         }
 
@@ -366,23 +366,25 @@ void print_profile(char *output_file4)
 
                 case CMS_FIELD:
                 case WJDC_FIELD:
-				case SCF_FIELD:
-                   if(Iwrite==VERBOSE){
-                      /*if (fabs(X_old[iunk+node_start]) > 1.e-12 && -log(X_old[iunk+node_start]) < VEXT_MAX){*/
+	        case SCF_FIELD:
+                   if(Iwrite==VERBOSE || Type_poly==WJDC3){
+                      /*if (fabs(X_old[iunk+node_start]) > 1.e-12 && -log(X_old[iunk+node_start]) < VEXT_MAX){
                           fprintf(ifp,"%g\t", -log(X_old[iunk+node_start]));
-                      /*}
-                      else fprintf(ifp,"%gf\t", VEXT_MAX);*/
+                      }
+                      else fprintf(ifp,"%g\t", VEXT_MAX);*/
+
+                      fprintf(ifp,"%g\t", X_old[iunk+node_start]);
                    }
                    break;
 					
-				case SCF_CONSTR:
-					if(Iwrite==VERBOSE){
-						fprintf(ifp,"%g\t", X_old[iunk+node_start]);
-					}
-					break;
-					
+	       case SCF_CONSTR:
+		    if(Iwrite==VERBOSE){
+		         fprintf(ifp,"%g\t", X_old[iunk+node_start]);
+		    }
+                   break;
+
                 case G_CHAIN:
-					if (Iwrite==VERBOSE) fprintf(fp6,"%g\t", X_old[iunk+node_start]);
+                   if (Iwrite==VERBOSE|| Type_poly==WJDC3) fprintf(fp6,"%g\t", X_old[iunk+node_start]);
                    break;
             }
 
@@ -415,26 +417,16 @@ void print_profile(char *output_file4)
                     }  
 
 					/* check this code!!! needs fixing */
-				   if(Type_poly == CMS)
-					   unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
-					else if(Type_poly == CMS_SCFT)
-						unk_B=Phys2Unk_first[SCF_FIELD]+itype_mer;
-                   site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[ipol][iseg]-1))
-                                           *Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
+		   if(Type_poly == CMS)            unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
+		   else if(Type_poly == CMS_SCFT)  unk_B=Phys2Unk_first[SCF_FIELD]+itype_mer;
+                   else if (Type_poly==WJDC3)      unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;
 
-                   if (Type_poly== WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;
-                   else                   unk_B=Phys2Unk_first[CMS_FIELD]+itype_mer;
-                   if (fabs(X_old[unk_B+node_start])>1.e-12)
-                   site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[ipol][iseg]-1));
+                   if (fabs(X_old[unk_B+node_start])>1.e-12){
+                      site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[ipol][iseg]-1));
+                      if (Type_poly==CMS || Type_poly==CMS_SCFT) site_dens*=Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
+                      else if (Type_poly==WJDC3)                 site_dens*=exp(Betamu_chain[ipol]+scale_term);
+                   }
                    else site_dens=0.0;
- 
-                   if (Type_poly==WJDC3){
-/*                      site_dens*=prefactor_rho_wjdc(iseg);*/
-                      site_dens*=exp(Betamu_chain[ipol]+scale_term);
-                   }
-                   else{
-                      site_dens*=Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
-                   }
 
                    sumsegdens[itype_mer]+=site_dens;
                    fprintf(fp7,"%g\t", site_dens);
@@ -461,7 +453,7 @@ void print_profile(char *output_file4)
  
                 /* add a carriage return to the file to start a new line */
         fprintf(ifp,"\n");
-        if (Iwrite==VERBOSE && (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) fprintf(fp6,"\n");
+        if ((Iwrite==VERBOSE && (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2)) || Type_poly==WJDC3) fprintf(fp6,"\n");
         if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 ||((Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3))) fprintf(fp7,"\n");
 
                 /* add some blank lines for improved graphics in 2D and 3D gnuplot */
@@ -471,7 +463,7 @@ void print_profile(char *output_file4)
 
           /* close files */
      fclose(ifp);
-     if (Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) fclose(fp6);
+     if ((Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2)) || Type_poly==WJDC3) fclose(fp6);
      if (Type_poly==WTC || Type_poly==WJDC || Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC2 || Type_poly==WJDC3) fclose(fp7);
 
   return;

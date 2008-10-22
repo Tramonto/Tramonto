@@ -22,6 +22,7 @@ double load_SCF_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izon
 #define SCF_FIELD	  10
 double load_WJDC_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+#define G_CHAIN       11 
 typedef struct RB_Struct RB_Struct;
 double load_WJDC_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
 #define WJDC_FIELD     8
@@ -45,6 +46,8 @@ double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,
 extern int Nrho_bar_s;
 #define THETA_FN_R            1
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
+#define NEQ_TYPE       13 
+extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       2
 #define YW			 7
 #define SCFT		 6
@@ -87,10 +90,9 @@ extern double Vol_el;
 extern int **Nel_hit2;
 extern int *L2B_node;
 extern int Nnodes_per_proc;
+extern int ***Poly_to_Unk;
+extern int Geqn_start[NCOMP_MAX];
 extern int Nmer[NCOMP_MAX];
-#define G_CHAIN       11 
-#define NEQ_TYPE       13 
-extern int Phys2Unk_first[NEQ_TYPE];
 extern int Npol_comp;
 extern double *Gsum;
 #define CMS_SCFT     1
@@ -122,10 +124,3 @@ struct RB_Struct {
   double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
 };
 double fill_resid_and_matrix(double **x,struct RB_Struct *dphi_drb,int iter,int resid_only_flag,int unk_flag);
-extern int Geqn_start[NCOMP_MAX];
-extern int ***Poly_to_Unk;
-extern int ***Bonds;
-extern double  Size_x[NDIM_MAX];  
-extern int     Ndim;  
-double load_SCF_Geqns(int iunk, int loc_inode, int inode_box, int *ijk_box, int izone, double **x,int resid_only_flag);
-
