@@ -1,0 +1,26 @@
+/*! \file 
+ \brief Liquid-Vapor Equilibria in 8-mer chain system (1D)
+
+Functionals: FMT3,WCA,WJDC3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example demonstrates a liquid-vapor coexistence calculation for a 8-mer chain system using functionals of Jain, Dominik, and Chapman. To plot the coexistence curve put density (column 6) on the x-axis and temperature (column 2 of dft_output.dat) on the y-axis.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - lin_8
+   - dft_dens.dat
+   - dft_dens2.dat
+
+Key Output Parameters (first solution) :
+   - Betamu[0]=-9.29082489
+   - Temperature=2.0342648
+   - density_liq=0.585857
+   - pressure=9.33065e-05
+.
+
+*/
+

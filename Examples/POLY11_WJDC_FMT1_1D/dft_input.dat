@@ -14,7 +14,7 @@
             (Type_attr options: -1=No attractions, 0=strict MF 2=MF_VARIABLE) 
             (Type_pairPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB_CS, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
 @ -1 	Type_coul (-1=No coulomb, 0=strict MF, 1=include 2nd order corrections) 
-@ 3 	Type_poly (-1=No polymer, 0=CMS, 1=CMS_SCFT, 2=WTC) 
+@ 3 	Type_poly (-1=No polymer, 0=CMS, 1=CMS_SCFT, 2=WTC, 3=WJDC, 4=WJDC2, 5=WJDC3) 
 
 ************** SURFACE PARAMETERS **********************************************
 @ 1 1 1 0 0 	Nwall_types Nwall Nlink Lauto_center Lauto_size 
@@ -120,15 +120,16 @@
     *Note for polymers: --- see note above.  Again replace Ncomp with Nblock_tot.
 
 ************** STATE POINT PARAMETERS ******************************************
-@ 0 0   Lsteady_state  State_gradient_dim
-        (Lsteady_state options: 0 = equilibrium, 1=diffusion calculation, 2=two phase interface)
-        (State_gradient_dim: identify dimension where difference in state point is to be applied -
+@ 0  0  0 Type_interface Grad_dim Lconstrain_interface
+        -- Type_interface options: 0 = equilibrium, 1=diffusion calculation, 2=two phase interface)
+        -- Grad_dim: identify dimension where difference in state point is to be applied -
          this dimension should have BULK boundary conditions - other dimensions should not!
          0=x, 1=y, 2=z)
+        -- Lconstrain_interface (0=FALSE; 1=TRUE)
 @ 0.2 Rho_b_0[icomp] (state condition on left(x) or bottom(y) or back(z) boundary)
                         (icomp=0,Ncomp-1 (or Npol_comp-1 for polymers)
 @ 0.0     Rho_b_1[icomp] (state condition on right(x) or top(y) or front(z) boundary - only
-                        applies if Lsteady_state=1 o 2)
+                        applies if Type_interface=1 or 2)
                         (icomp=0,Ncomp-1 (or Npol_comp-1 for polymers)
 @ 0. 0.         Elec_pot_L, Elec_pot_R (B.C. on elec. potential lbb and rtf)
 @ 0.    x_const_mu (define a region on both sides of domain where the state will be set to the

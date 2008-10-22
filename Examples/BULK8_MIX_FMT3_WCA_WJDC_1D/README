@@ -1,0 +1,35 @@
+/*! \file 
+ \brief Paritioning calcualtion for a system composed of an 8-mer chain and a single site solvent (1D).
+
+Functionals: FMT3,WCA,WJDC3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example demonstrates a coexistence calculation between a liquid state that is rich in solvent and a liquid state that is rich in the 8-mer chain species.  Modeling is based on the functionals of Jain, Dominik, and Chapman. In this calculation the chemical potentials of the two species are varied, and the pressure of each of the fluids is constrained to be identical.  The primary output would be to determine the relative densities in each of the phases as a function of pressure.  Then the free energy of partitioning one of the species betwen the possible phases (Delta G=-kTln(rho_solv(oily)/rho_solv(solvent)) can be calculated.  This type of calculation can be useful to set molecular interaction parameters so that a given coarse grained model mimics the partitioning of some real known system (for example we have used this system to model hexadecane/water partitioning where Delta G=-9.69). 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - lin_8_1
+   - dft_dens.dat
+   - dft_dens2.dat
+
+Key Output Parameters (first solution) :
+   - Betamu[0]=-20.15461426
+   - Betamu[1]=-3.76288047
+   - density_0[phase I]=0.862892
+   - density_1[phase I]=4.43681e-05
+   - pressure = 0.311192
+.
+
+Key Output Parameters (first solution) :
+   - Betamu[0]=-20.15461426
+   - Betamu[1]=-3.76288047
+   - density[0] in phase II=1.0005e-25
+   - density[1] in phase II=0.770154
+   - pressure = 0.311192
+.
+
+*/
+
