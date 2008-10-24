@@ -21,6 +21,7 @@ double load_lambda_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int i
 double load_SCF_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define SCF_FIELD	  10
 double load_WJDC_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+double load_SCF_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define G_CHAIN       11 
 typedef struct RB_Struct RB_Struct;
@@ -93,6 +94,9 @@ extern int Nnodes_per_proc;
 extern int ***Poly_to_Unk;
 extern int Geqn_start[NCOMP_MAX];
 extern int Nmer[NCOMP_MAX];
+#define NDIM_MAX  3
+extern double Size_x[NDIM_MAX];
+extern int Ndim;
 extern int Npol_comp;
 extern double *Gsum;
 #define CMS_SCFT     1
@@ -114,7 +118,6 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-#define NDIM_MAX  3
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */
   double    S1;      /*   1/(4*pi*Ri)    * Delta_fn   */

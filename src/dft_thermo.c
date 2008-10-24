@@ -94,7 +94,7 @@ void calc_pressure(char *output_file1)
    }
    fprintf(fp,"\n!!!!!!!!!!!!! output from dft_thermo.c !!!!!!!!!!!!!!!!!!\n");
  
-   if (Lsteady_state!=UNIFORM_INTERFACE){      
+   if (Type_interface!=UNIFORM_INTERFACE){      
       if (L_HSperturbation){
 				/* IDEAL contributions */
           if (Lseg_densities){
@@ -147,7 +147,7 @@ void calc_pressure(char *output_file1)
             print_to_file(fp,Betap_RTF,"Betap_RTF",2);
        }    
    }
-   else if (Lsteady_state==UNIFORM_INTERFACE){ 
+   else if (Type_interface==UNIFORM_INTERFACE){ 
       if (L_HSperturbation){
 				/* IDEAL contributions */
           if (Lseg_densities)  Betap=pressure_ideal_gas(Rho_seg_b);
@@ -208,14 +208,14 @@ void calc_chempot(char *output_file1)
       exit(1);
    }
  
-   if (Lsteady_state !=UNIFORM_INTERFACE){          /* CASE WITH DIFFUSION */
+   if (Type_interface !=UNIFORM_INTERFACE){          /* CASE WITH DIFFUSION */
       if (L_HSperturbation){
           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){  /* this is different than all the others because we compute
                                     chain chemical potentials.  Note that a segment chemical potential
                                     should also be implemented. */
              chempot_chain_wjdc(Rho_seg_LBB,Betamu_chain_LBB,Field_WJDC_LBB,G_WJDC_LBB);
              chempot_chain_wjdc(Rho_seg_RTF,Betamu_chain_RTF,Field_WJDC_RTF,G_WJDC_RTF);
-             if (Lsteady_state==PHASE_INTERFACE){
+             if (Type_interface==PHASE_INTERFACE){
                 for (icomp=0;icomp<Npol_comp;icomp++) Betamu_chain[icomp]=0.5*(Betamu_chain_LBB[icomp]+Betamu_chain_RTF[icomp]);
              }
           }
@@ -253,7 +253,7 @@ void calc_chempot(char *output_file1)
                  
              }
           }
-          if (Lsteady_state=PHASE_INTERFACE) {
+          if (Type_interface=PHASE_INTERFACE) {
              for (icomp=0;icomp<Ncomp;icomp++) Betamu[icomp]=0.5*(Betamu_RTF[icomp]+Betamu_LBB[icomp]);
           }
 				/* WTC contributions */
@@ -316,7 +316,7 @@ void calc_chempot(char *output_file1)
            /* CMS chemical potentials with diffusion would go here */
        }
    }
-   else if(Lsteady_state==UNIFORM_INTERFACE){          	
+   else if(Type_interface==UNIFORM_INTERFACE){          	
       if (L_HSperturbation){
 
           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){  /* this is different than all the others because we compute
@@ -366,6 +366,8 @@ void calc_chempot(char *output_file1)
                if (Lseg_densities){
                   if (Iwrite != NO_SCREEN) for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg[iseg],"Betamu_seg");
                   for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg[iseg],"Betamu_seg",2);
+               }
+               if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                   printf("\n");
                   if (Iwrite != NO_SCREEN) for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain[ipol],"Betamu_chain");
                   for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain[ipol],"Betamu_chain",2);

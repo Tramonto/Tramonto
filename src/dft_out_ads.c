@@ -87,8 +87,8 @@ void calc_adsorption(FILE *fp,double **x)
 
   if (Proc==0 && Iwrite != NO_SCREEN){
      for (icomp=0;icomp<nloop;icomp++){
-        if(!first && !LBulk && Lsteady_state==UNIFORM_INTERFACE) print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
-        if (fp !=NULL && !LBulk && Lsteady_state==UNIFORM_INTERFACE) print_to_file_comp(fp,icomp,ads_ex[icomp],"ads_ex",first);
+        if(!first && !LBulk && Type_interface==UNIFORM_INTERFACE) print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
+        if (fp !=NULL && !LBulk && Type_interface==UNIFORM_INTERFACE) print_to_file_comp(fp,icomp,ads_ex[icomp],"ads_ex",first);
      }    
   }
   if (first) first=FALSE;

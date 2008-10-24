@@ -33,13 +33,14 @@ extern int Mix_type;
 #define CONT_EPSW_ALL    8
 #define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
 #define CONT_SCALE_EPSW  9
-#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 #define NMER_MAX     100
 extern double Betamu_chain[NMER_MAX];
+extern int Npol_comp;
 #define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
 extern int Type_poly;
+#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 #define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
 extern double Betamu[NCOMP_MAX];
 #define SWITCH_MU    3
@@ -83,7 +84,7 @@ extern int Print_mesh_switch;
 extern double *X_old;
 void calc_flux(FILE *fp,char *output_flux,double *X_old);
 #define DIFFUSIVE_INTERFACE 1
-extern int Lsteady_state;
+extern int Type_interface;
 double calc_free_energy(FILE *fp,double **x);
 void calc_force(FILE *fp,double **x,double fac_area);
 void calc_fluid_charge(FILE *fp,double **x);

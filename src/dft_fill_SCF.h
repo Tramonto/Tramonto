@@ -1,4 +1,10 @@
 /* This file was automatically generated.  Do not edit! */
+double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+double CMS_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
+double CMS_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
+void CMS_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
+void CMS_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
+double load_SCF_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_lambda_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,16 +46,3 @@ extern int **Zero_density_TF;
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];
 double load_SCF_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
-extern int Phys2Nunk[NEQ_TYPE]; 
-double load_SCF_Geqns(int iunk, int loc_inode, int inode_box, int *ijk_box, int izone, double **x,int resid_only_flag);
-double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types, int Njacobian_sums,
-							void (*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),
-							double (*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),
-							double (*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),
-							int iunk, int loc_inode, int inode_box, 
-							int *ijk_box, int izone, double **x,
-							int resid_only_flag);
-double CMS_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
-double CMS_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
-void CMS_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
-void CMS_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);

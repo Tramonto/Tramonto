@@ -26,7 +26,7 @@ void setup_step_2consts(double **xInBox);
 extern double **Vext;
 extern int *B2L_node;
 #define DIFFUSIVE_INTERFACE 1
-extern int Lsteady_state;
+extern int Type_interface;
 #define NCOMP_MAX 5
 #define NSTEPS_MAX 10
 extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];

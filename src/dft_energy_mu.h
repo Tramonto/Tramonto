@@ -37,7 +37,7 @@ extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
 #define DIFFUSION      6
 #define DIFFUSIVE_INTERFACE 1
-extern int Lsteady_state;
+extern int Type_interface;
 #define DENSITY        0
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];

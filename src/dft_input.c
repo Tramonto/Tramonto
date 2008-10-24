@@ -101,7 +101,7 @@ void read_input_file(char *input_file, char *output_file1)
 
   LDeBroglie=FALSE;
   LBulk=FALSE;
-  Lsteady_state=UNIFORM_INTERFACE;
+  Type_interface=UNIFORM_INTERFACE;
 
   /* Initialize and Read Dimension Parameters */
   if (Proc==0) {
@@ -1316,10 +1316,10 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d  %d", &Lsteady_state, &Grad_dim);
-    fprintf(fp2,"%d  %d  ",Lsteady_state,Grad_dim);
+    fscanf(fp,"%d  %d %d", &Type_interface, &Grad_dim,&Lconstrain_interface);
+    fprintf(fp2,"%d  %d  %d",Type_interface,Grad_dim,Lconstrain_interface);
   }
-  MPI_Bcast(&Lsteady_state,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Type_interface,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Grad_dim,1,MPI_INT,0,MPI_COMM_WORLD);
 
   if (Proc==0) {
@@ -1329,7 +1329,7 @@ void read_input_file(char *input_file, char *output_file1)
         fscanf(fp,"%lf", &Rho_b[icomp]);
         fprintf(fp2,"%f  ",Rho_b[icomp]);
         if (Density_ref > 0.0) Rho_b[icomp] /= Density_ref;
-        if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_LBB[icomp]=Rho_b[icomp];
+        if (Type_interface != UNIFORM_INTERFACE) Rho_b_LBB[icomp]=Rho_b[icomp];
       }
     }
     else{
@@ -1348,7 +1348,7 @@ void read_input_file(char *input_file, char *output_file1)
         for (j=0; j<Npol_comp; j++) {
           Rho_b[i] += (double)Nmer_t[j][i]*rho_tmp[j]/(double)Nmer[j];
         }
-        if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_LBB[i]=Rho_b[i];
+        if (Type_interface != UNIFORM_INTERFACE) Rho_b_LBB[i]=Rho_b[i];
         fprintf(fp2,"%f  ",Rho_b[i]);
       }
       for (icomp=Ntype_mer; icomp<Ncomp; ++icomp){
@@ -1357,15 +1357,15 @@ void read_input_file(char *input_file, char *output_file1)
     }
   }
   MPI_Bcast(Rho_b,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
-  if (Lsteady_state != UNIFORM_INTERFACE) MPI_Bcast(Rho_b_LBB,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  if (Type_interface != UNIFORM_INTERFACE) MPI_Bcast(Rho_b_LBB,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
   /* calculate total sum of site densities */
   Rho_t = 0.0;
   for(icomp=0; icomp<Ncomp; icomp++) Rho_t += Rho_b[icomp];
-  if (Lsteady_state==UNIFORM_INTERFACE) printf("Rho_t = %f\n", Rho_t);
+  if (Type_interface==UNIFORM_INTERFACE) printf("Rho_t = %f\n", Rho_t);
   else printf("Rho_t(left) = %f\n", Rho_t);
 
-  if (Lsteady_state != UNIFORM_INTERFACE){
+  if (Type_interface != UNIFORM_INTERFACE){
      if (Proc==0) {
        read_junk(fp,fp2);
        if (Type_poly==NONE || Ntype_mer == 1){
@@ -1373,7 +1373,7 @@ void read_input_file(char *input_file, char *output_file1)
            fscanf(fp,"%lf", &Rho_b[icomp]);
            fprintf(fp2,"%f  ",Rho_b[icomp]);
            if (Density_ref > 0.0) Rho_b[icomp] /= Density_ref;
-           if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_RTF[icomp]=Rho_b[icomp];
+           if (Type_interface != UNIFORM_INTERFACE) Rho_b_RTF[icomp]=Rho_b[icomp];
          }
        }
        else{
@@ -1392,7 +1392,7 @@ void read_input_file(char *input_file, char *output_file1)
            for (j=0; j<Npol_comp; j++) {
              Rho_b[i] += (double)Nmer_t[j][i]*rho_tmp[j]/(double)Nmer[j];
            }
-           if (Lsteady_state != UNIFORM_INTERFACE) Rho_b_RTF[i]=Rho_b[i];
+           if (Type_interface != UNIFORM_INTERFACE) Rho_b_RTF[i]=Rho_b[i];
            fprintf(fp2,"%f  ",Rho_b[i]);
          }
          for (icomp=Ntype_mer; icomp<Ncomp; ++icomp){
@@ -1413,7 +1413,7 @@ void read_input_file(char *input_file, char *output_file1)
     }
   }
 
-  if (Ipot_ff_c == COULOMB && Lsteady_state != UNIFORM_INTERFACE) {
+  if (Ipot_ff_c == COULOMB && Type_interface != UNIFORM_INTERFACE) {
       if (Proc==0) {
 	read_junk(fp,fp2);
 	fscanf(fp,"%lf", &Elec_pot_LBB);
@@ -1435,7 +1435,7 @@ void read_input_file(char *input_file, char *output_file1)
       }
   }
 
-  if (Lsteady_state != UNIFORM_INTERFACE){
+  if (Type_interface != UNIFORM_INTERFACE){
      if (Proc==0) {
          read_junk(fp,fp2);
          fscanf(fp,"%lf", &X_const_mu);
@@ -1625,7 +1625,7 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&Linear_transport,1,MPI_INT,0,MPI_COMM_WORLD);
 
   /* ALF: temporary fix for polymer initial guesses */
-  if (Lsteady_state==DIFFUSIVE_INTERFACE || (Type_poly != NONE && Type_poly !=WTC)) {
+  if (Type_interface==DIFFUSIVE_INTERFACE || (Type_poly != NONE && Type_poly !=WTC)) {
 
     if (Proc==0) {
       read_junk(fp,fp2);
@@ -2012,12 +2012,7 @@ void read_input_file(char *input_file, char *output_file1)
         printf("ERROR: Can't do continuation in Eps_wf when the Mix_type is 0\n");
         exit(-1);
     } 
-    if ((Loca.cont_type1 == CONT_BETAMU_0 || Loca.cont_type1==CONT_BETAMU_1) && !LBulk){
-       printf("error: for continuation type=%d LBulk must be TRUE=%d .... resetting LBulk\n",Loca.cont_type1,1);
-       LBulk=TRUE;
-    }
   }
-  MPI_Bcast(&LBulk,1,MPI_INT,0,MPI_COMM_WORLD);
 
   /* checks on LBulk */
   /* first check that bulk boundaries are NOT used if LBulk=TRUE and chemical potentials will be varied */ 
@@ -2096,6 +2091,13 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&Scale_fac,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
   Loca.cont_type2 = itmp;
   if (Proc==0) fprintf(fp2,"%d  %g",Loca.cont_type2,Scale_fac);
+
+  if (((Loca.method != -1 &&(Loca.cont_type1 == CONT_BETAMU_0 || Loca.cont_type1==CONT_BETAMU_1)) ||
+        (Loca.method==4 && (Loca.cont_type2 == CONT_BETAMU_0 || Loca.cont_type2==CONT_BETAMU_1)))&& !LBulk){
+       printf("error: for continuation type=%d LBulk must be TRUE=%d .... resetting LBulk\n",Loca.cont_type1,1);
+       LBulk=TRUE;
+    }
+  MPI_Bcast(&LBulk,1,MPI_INT,0,MPI_COMM_WORLD);
 
 #else
   Loca.method = -1;

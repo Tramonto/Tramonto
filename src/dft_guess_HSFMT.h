@@ -26,7 +26,7 @@ extern double Esize_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
 extern int *B2G_node;
 #define UNIFORM_INTERFACE  0
-extern int Lsteady_state;
+extern int Type_interface;
 #define HSRHOBAR       2
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];

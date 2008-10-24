@@ -82,7 +82,7 @@ double pressure_ideal_gas(double *rho);
 extern double Betap_LBB;
 extern int Lseg_densities;
 #define UNIFORM_INTERFACE  0
-extern int Lsteady_state;
+extern int Type_interface;
 extern int Physics_scaling;
 void calc_pressure(char *output_file1);
 void calc_chempot(char *output_file1);

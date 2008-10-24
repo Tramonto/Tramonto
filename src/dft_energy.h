@@ -22,7 +22,7 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 #define CMS_SCFT     1
 #define CMS          0
 #define UNIFORM_INTERFACE  0
-extern int Lsteady_state;
+extern int Type_interface;
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 extern int LBulk;
 #define NDIM_MAX  3

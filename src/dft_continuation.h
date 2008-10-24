@@ -112,7 +112,7 @@ extern int *Comm_unk_proc;
 extern int *Comm_node_proc;
 extern double *Area_IC;
 #define DIFFUSIVE_INTERFACE 1
-extern int Lsteady_state;
+extern int Type_interface;
 void boundary_free(void);
 void free_mesh_arrays(void);
 #define NDIM_MAX  3
@@ -155,7 +155,6 @@ extern int Npol_comp;
 extern double Rho_b[NCOMP_MAX];
 #define CONT_RHO_0       2
 void setup_polymer_cr();
-#define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
 void calc_InvR_params();

@@ -158,7 +158,7 @@ extern int Nelements;
 void setup_area_IC(void);
 extern double *Area_IC;
 #define DIFFUSIVE_INTERFACE 1
-extern int Lsteady_state;
+extern int Type_interface;
 extern int Nnodes;
 int gsum_int(int c);
 extern int Coarser_jac;

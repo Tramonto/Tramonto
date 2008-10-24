@@ -21,7 +21,6 @@ extern int **Nodes_2_boundary_wall;
 #define KAPPA_H2O 78.5
 #define PI    M_PI
 extern double Temp_elec;
-extern int Ndim;
 extern int Lpolarize[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
 #define POISSON        1
@@ -37,7 +36,6 @@ extern double Betamu_att[NCOMP_MAX];
 extern double Betamu_hs_ex[NCOMP_MAX];
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
-#define UNIFORM_INTERFACE  0
 #define DIFFUSIVE_INTERFACE 1
 #define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 #define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
@@ -52,7 +50,6 @@ struct Loca_Struct {
 };
 extern struct Loca_Struct Loca;
 extern int LBulk;
-extern int SegAll_to_Poly[NMER_MAX];
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int **Nseg_type_pol;
 extern int Npol_comp;
@@ -85,8 +82,6 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
 #define DELTAC     1 
 #define THETA_PAIRPOT_RCUT    2
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
-extern void *LinProbMgr_manager;
-#define CALC_RESID_ONLY  3
 #define MF_EQ          3
 #define MF_VARIABLE  2
 extern int Type_attr;
@@ -105,15 +100,21 @@ extern int Type_coul;
 double fill_EL_ext_field(int iunk,int icomp,int loc_inode,int resid_only_flag);
 double fill_EL_chem_pot(int iunk,int icomp,int iseg,int loc_inode,int inode_box,int mesh_coarsen_flag_i,double **x,int resid_only_flag);
 double fill_EL_ideal_gas(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
-double fill_constant_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
+extern void *LinProbMgr_manager;
+#define CALC_RESID_ONLY  3
+int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
+extern int Ndim;
+#define UNIFORM_INTERFACE  0
 double fill_constant_field(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
+double fill_constant_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 extern int Grad_dim;
 extern double Size_x[NDIM_MAX];
 extern int *B2G_node;
 #define PHASE_INTERFACE 2
-extern int Lsteady_state;
+extern int Type_interface;
+extern int Lconstrain_interface;
 double fill_sym_WTC(int iunk,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern int *Pol_Sym_Seg;
 #define INIT_GUESS_FLAG  2

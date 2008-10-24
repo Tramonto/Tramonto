@@ -49,7 +49,7 @@ void setup_rho_bar(double **xInBox)
      for (irb = 0; irb < Nrho_bar; irb++){
        iunk = Phys2Unk_first[HSRHOBAR] + irb;
 
-       if (Lsteady_state!=UNIFORM_INTERFACE){
+       if (Type_interface!=UNIFORM_INTERFACE){
            inode     = B2G_node[inode_box];
            node_to_ijk(inode,ijk); 
            x_dist = Esize_x[Grad_dim]*ijk[Grad_dim];

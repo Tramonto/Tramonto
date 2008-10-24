@@ -45,7 +45,7 @@ void setup_elec_pot(double **xInBox,int iguess)
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
        inode_box = L2B_node[loc_inode];
        iunk = Phys2Unk_first[POISSON];
-       if (Lsteady_state !=UNIFORM_INTERFACE && iguess==LINEAR){
+       if (Type_interface !=UNIFORM_INTERFACE && iguess==LINEAR){
            inode     = B2G_node[inode_box];
            node_to_ijk(inode,ijk); 
            x_dist = Esize_x[Grad_dim]*ijk[Grad_dim];

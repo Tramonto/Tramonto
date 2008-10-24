@@ -90,8 +90,8 @@ int offset_to_node(int *inode_ijk, int *offset_node,
       if (inode_sten[i] < 0) {
         switch (Type_bc[i][0]) {
           case IN_BULK:  
-               if ( (Nwall == 0 && Lsteady_state==PHASE_INTERFACE) || 
-                     Lsteady_state == DIFFUSIVE_INTERFACE) return(-3);
+               if ( (Nwall == 0 && Type_interface==PHASE_INTERFACE) || 
+                     Type_interface == DIFFUSIVE_INTERFACE) return(-3);
                else                         return(-1);                     
           case IN_WALL:                     return(-2);                       
           case PERIODIC: 
@@ -115,8 +115,8 @@ int offset_to_node(int *inode_ijk, int *offset_node,
       else if (inode_sten[i] >= Nodes_x[i]) {
         switch (Type_bc[i][1]) {
           case IN_BULK:  
-               if ( (Nwall == 0 && Lsteady_state == PHASE_INTERFACE) ||
-                     Lsteady_state == DIFFUSIVE_INTERFACE)    return(-4);
+               if ( (Nwall == 0 && Type_interface == PHASE_INTERFACE) ||
+                     Type_interface == DIFFUSIVE_INTERFACE)    return(-4);
                else                            return(-1);                       
           case IN_WALL:                        return(-2);                        
           case PERIODIC: 
@@ -214,8 +214,8 @@ int offset_to_node_box(int *ijk_box, int *offset,
       if (ijk_sten_box[i] < 0) {
         switch (Type_bc[i][0]) {
           case IN_BULK:
-               if ( (Nwall == 0 && Lsteady_state==PHASE_INTERFACE ) ||
-                     Lsteady_state == DIFFUSIVE_INTERFACE)        return(-3);
+               if ( (Nwall == 0 && Type_interface==PHASE_INTERFACE ) ||
+                     Type_interface == DIFFUSIVE_INTERFACE)        return(-3);
                else                                return(-1);
           case IN_WALL:                            return(-2);
           case REFLECT:
@@ -225,8 +225,8 @@ int offset_to_node_box(int *ijk_box, int *offset,
                       Max_IJK_box[i] == Max_IJK[i]) {
                  switch (Type_bc[i][1]) {
                     case IN_BULK:  
-                         if ( (Nwall == 0 && Lsteady_state==PHASE_INTERFACE) ||
-                               Lsteady_state == DIFFUSIVE_INTERFACE)        return(-4);
+                         if ( (Nwall == 0 && Type_interface==PHASE_INTERFACE) ||
+                               Type_interface == DIFFUSIVE_INTERFACE)        return(-4);
                          else                                return(-1);  
                     case IN_WALL:                            return(-2); 
                     case REFLECT:   
@@ -248,8 +248,8 @@ int offset_to_node_box(int *ijk_box, int *offset,
       else if (ijk_sten_box[i] >= Nodes_x_box[i]) {
         switch (Type_bc[i][1]) {
           case IN_BULK:  
-               if ( (Nwall == 0 && Lsteady_state==PHASE_INTERFACE) ||
-                     Lsteady_state == DIFFUSIVE_INTERFACE)        return(-4);
+               if ( (Nwall == 0 && Type_interface==PHASE_INTERFACE) ||
+                     Type_interface == DIFFUSIVE_INTERFACE)        return(-4);
                else                                return(-1);                       
           case IN_WALL:                            return(-2);                        
           case REFLECT:   
@@ -258,8 +258,8 @@ int offset_to_node_box(int *ijk_box, int *offset,
                if (ijk_sten_box[i] < 0 && Min_IJK_box[i] == Min_IJK[i]) {
                   switch (Type_bc[i][0]) {
                     case IN_BULK:
-                    if ( (Nwall == 0 && Lsteady_state==PHASE_INTERFACE) ||
-                         Lsteady_state == DIFFUSIVE_INTERFACE)        return(-3);
+                    if ( (Nwall == 0 && Type_interface==PHASE_INTERFACE) ||
+                         Type_interface == DIFFUSIVE_INTERFACE)        return(-3);
                     else                               return(-1);
                     case IN_WALL:                      return(-2);
                     case REFLECT:

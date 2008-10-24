@@ -114,11 +114,11 @@ int picard_solver(double **x, int subIters){
        for (ibox=0; ibox<Nnodes_box;ibox++) x_old[iunk][ibox]=x[iunk][ibox];
 
      /* use successive substitution to update density field, then compute all other fields */ 
-     if (L_HSperturbation && Type_poly != WJDC)
+     if (L_HSperturbation && Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3)
                               calc_density_next_iter_HSperturb(x);
      else if(Type_poly==CMS)  calc_density_next_iter_CMS(x);
 	 else if(Type_poly==CMS_SCFT)  calc_density_next_iter_SCF(x);
-     else if(Type_poly==WJDC) calc_density_next_iter_WJDC(x);
+     else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) calc_density_next_iter_WJDC(x);
      communicate_to_fill_in_box_values(x);
 
  if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");
@@ -216,7 +216,7 @@ int picard_solver(double **x, int subIters){
          case G_CHAIN:
             if (Phys2Nunk[G_CHAIN]>0){
                if (Type_poly==CMS || Type_poly==CMS_SCFT) calc_init_polymer_G_CMS(x);
-               else if (Type_poly==WJDC) calc_init_polymer_G_wjdc(x);
+               else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) calc_init_polymer_G_wjdc(x);
             }
             break;
 		 case YW_DENS:

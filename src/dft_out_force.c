@@ -590,7 +590,7 @@ void calc_geom_factor(int iwall, double *nodepos,double *factor)
 *                        for the 1-dimensional problem.                  */
 void integrate_rho_vdash(double **x,double **rho_vdash)
 {
-  int iunk,inode_box,loc_inode,iwall,idim,icomp,ilist,
+  int iunk,inode_box,loc_inode,iwall,idim,icomp,ilist,i,nloop,
       iwunk,inode,reflect_flag[3],ijk[3],iel,ielement,nel_hit;
 
   for (iwall=0; iwall<Nwall; iwall++) {
@@ -601,12 +601,17 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
 
+  if (Lseg_densities) nloop=Nseg_tot;
+  else                nloop=Ncomp;
+
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
     inode = L2G_node[loc_inode];
     inode_box = L2B_node[loc_inode];
     node_to_ijk(inode,ijk);
 
-    for (icomp=0; icomp<Ncomp; icomp++){
+    for (i=0; i<nloop; i++){
+      if (Lseg_densities) icomp=Unk2Comp[i];
+      else                icomp=i;
       for (iwall=0; iwall<Nwall; iwall++){
 
 
@@ -631,7 +636,7 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
                       Type_bc[idim][1] == LAST_NODE ||
                       Type_bc[idim][1] == LAST_NODE_RESTART )              ) nel_hit /= 2;
 
-	   iunk = Phys2Unk_first[DENSITY]+icomp;
+	   iunk = Phys2Unk_first[DENSITY]+i;
            iwunk = iwall*Ncomp + icomp; 
            rho_vdash[iwall][idim] -=
                      (x[iunk][inode_box]*Vext_dash[loc_inode][iwunk][idim])

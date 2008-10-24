@@ -350,7 +350,8 @@ int     ***Wall_owners; /*Array[ilist][iel_box][Nwall_owners] that stores
 
 /* Steady State Solutions Info */
 
-int    Lsteady_state;          /*True-False Steady State or Equilibrium Run*/
+int    Type_interface;          /*Select type if interfacial problem to study*/
+int    Lconstrain_interface;   /*Logical to control interface constraint*/
 int    LBulk;          /*True-False Indicates a bulk run - changes output*/
 int    Linear_transport;       /*True-False Steady State or Equilibrium Run*/
 double Velocity;               /* Convective velocity over diffusion coefficient*/

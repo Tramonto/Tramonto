@@ -27,6 +27,7 @@ void print_freen_profile_1D(double *freen_profile_1D,char *output_file);
 void print_charge_surf(double **charge_w_sum,char *output_file);
 void print_Nodes_to_zone(int *node_to_zone,char *output_file);
 void print_zeroTF(int **zero_TF,char *output_file);
+extern double VEXT_MAX;
 extern int Lprint_gofr;
 extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
@@ -48,9 +49,9 @@ extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+extern double Betamu_chain[NMER_MAX];
 #define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
-extern double Betamu_chain[NMER_MAX];
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
@@ -70,7 +71,6 @@ extern int Npol_comp;
 #define NONE        -1
 #define NONE        -1
 #define G_CHAIN       11 
-extern double VEXT_MAX;
 extern double Temp;
 extern double Mass[NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
@@ -88,6 +88,8 @@ extern double Temp_elec;
 extern int Ipot_ff_c;
 extern int Npoisson;
 #define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
+#define SCF_FIELD	  10
+#define SCF_CONSTR	   9
 #define BONDWTC        5
 #define CAVWTC         4
 #define HSRHOBAR       2
@@ -144,5 +146,3 @@ extern int Ndim;
 extern int Nnodes;
 extern int Nodes_old;
 void collect_x_old(double **x);
-#define SCF_CONSTR	9
-#define SCF_FIELD	10

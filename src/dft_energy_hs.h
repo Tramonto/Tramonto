@@ -18,7 +18,7 @@ extern int Ndim;
 extern double Rhobar_b[10];
 extern double Rhobar_b_RTF[10];
 #define UNIFORM_INTERFACE  0
-extern int Lsteady_state;
+extern int Type_interface;
 extern int Nrho_bar_s;
 double integrand_hs_freen_bulk(int iunk,int inode_box,double **x);
 double phispt_switch(double *n);

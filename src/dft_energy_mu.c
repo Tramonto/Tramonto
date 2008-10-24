@@ -35,7 +35,7 @@ double integrand_mu_freen(int iunk,int inode_box, double **x)
 
      i = iunk-Phys2Unk_first[DENSITY];
 
-     if (Lsteady_state==DIFFUSIVE_INTERFACE){
+     if (Type_interface==DIFFUSIVE_INTERFACE){
         unk_mu = Phys2Unk_first[DIFFUSION]+i;
         mu_i = x[unk_mu][inode_box];
      }
@@ -67,7 +67,7 @@ double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
 
      i = iunk-Phys2Unk_first[DENSITY];
 
-     if (Lsteady_state==DIFFUSIVE_INTERFACE){
+     if (Type_interface==DIFFUSIVE_INTERFACE){
         if (Lseg_densities){
                icomp = Unk2Comp[i];
                /*mu_i = Betamu_seg_RTF[i];*/ /* note we need to fix up WTC for diffusion */

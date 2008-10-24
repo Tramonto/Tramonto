@@ -19,10 +19,10 @@ extern int Num_Proc;
 void error_check(void);
 extern int Nnodes_per_el_S;
 extern int Nnodes_per_el_V;
+#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 #define REFLECT              2
 #define LAST_NODE            3
 #define IN_BULK              0
-#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 #define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
 #define CONT_EPSFF_ALL   14   
 #define CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
@@ -147,6 +147,7 @@ extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_t;
 extern double Rho_b_LBB[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
+extern int Lconstrain_interface;
 extern int Grad_dim;
 extern double **Vext_membrane;
 extern int **Lsemiperm;
@@ -306,7 +307,7 @@ extern double Density_ref;
 extern double Length_ref;
 void read_junk(FILE *fp,FILE *fp2);
 #define UNIFORM_INTERFACE  0
-extern int Lsteady_state;
+extern int Type_interface;
 extern int LBulk;
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)

@@ -72,12 +72,12 @@ double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box, double **x)
      if (Lseg_densities){
          iseg = iunk-Phys2Unk_first[DENSITY];
          icomp = Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
-         if(Lsteady_state!=UNIFORM_INTERFACE) rho_bulk = Rho_seg_RTF[iseg];
+         if(Type_interface!=UNIFORM_INTERFACE) rho_bulk = Rho_seg_RTF[iseg];
          else              rho_bulk = Rho_seg_b[iseg];
      }
      else{
            icomp = iunk-Phys2Unk_first[DENSITY];
-           if(Lsteady_state!=UNIFORM_INTERFACE) rho_bulk = Rho_b_RTF[icomp];
+           if(Type_interface!=UNIFORM_INTERFACE) rho_bulk = Rho_b_RTF[icomp];
            else              rho_bulk = Rho_b[icomp];
      }
 

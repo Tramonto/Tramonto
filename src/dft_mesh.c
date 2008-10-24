@@ -547,7 +547,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
   }
 
-  if (Lsteady_state==DIFFUSIVE_INTERFACE && Ndim==1){
+  if (Type_interface==DIFFUSIVE_INTERFACE && Ndim==1){
       Area_IC = (double *) array_alloc (1, Nnodes_box, sizeof(double));
       setup_area_IC();
   }

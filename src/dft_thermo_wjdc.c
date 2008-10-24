@@ -39,7 +39,7 @@ function variables .
                           WJDC functionals */
 void WJDC_thermo_precalc(char *output_file1)
 { 
-  if (Lsteady_state==UNIFORM_INTERFACE) 
+  if (Type_interface==UNIFORM_INTERFACE) 
      compute_bulk_nonlocal_wjdc_properties(output_file1,Dphi_Drhobar_b,Rho_b,Rho_seg_b,
                                              	       Xi_cav_b,Field_WJDC_b,G_WJDC_b);
   else{

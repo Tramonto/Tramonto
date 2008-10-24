@@ -115,7 +115,7 @@ void setup_stepped_profile(double **xInBox)
     }
   }
 
-  if (Lsteady_state==DIFFUSIVE_INTERFACE){
+  if (Type_interface==DIFFUSIVE_INTERFACE){
      printf("stepped profile not set up for chemical potentials at this time\n");
      exit(-1);
   }
@@ -207,7 +207,7 @@ void setup_linear_profile(double **xInBox)
   if (Lseg_densities) nloop=Nseg_tot;
   else                nloop=Ncomp;
 
-  if (Lsteady_state!=UNIFORM_INTERFACE) x_tot=Size_x[Grad_dim]-2.0*X_const_mu;
+  if (Type_interface!=UNIFORM_INTERFACE) x_tot=Size_x[Grad_dim]-2.0*X_const_mu;
   else x_tot = Size_x[Grad_dim];
 
   for (inode_box=0; inode_box<Nnodes_box; inode_box++){

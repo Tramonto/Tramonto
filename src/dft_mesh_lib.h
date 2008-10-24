@@ -72,7 +72,7 @@ extern int Nodes_x[NDIM_MAX];
 #define IN_WALL             -1
 #define DIFFUSIVE_INTERFACE 1
 #define PHASE_INTERFACE 2
-extern int Lsteady_state;
+extern int Type_interface;
 extern int Nwall;
 #define IN_BULK              0
 extern int Type_bc[NDIM_MAX][2];

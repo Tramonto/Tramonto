@@ -42,7 +42,7 @@ extern int Nrho_bar_bond;
 extern int Nrho_bar_cavity;
 #define CAVWTC         4
 #define DIFFUSIVE_INTERFACE 1
-extern int Lsteady_state;
+extern int Type_interface;
 extern int Ndiffusion;
 #define DIFFUSION      6
 #define NONE       -1

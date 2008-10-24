@@ -47,6 +47,8 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 
   if (resid_only_flag !=INIT_GUESS_FLAG){
      resid = x[iunk][inode_box]*x[unk_B][inode_box];
+/*if ((!Lseg_densities && iunk==0 && loc_inode==191) || 
+    (Lseg_densities && itype_mer==0 && loc_inode==191)) printf("inode_box=%d iunk=%d unk_B=%d x[iunk]=%g  x[unk_B]=%g resid=%g\n", inode_box,iunk,unk_B,x[iunk][inode_box],x[unk_B][inode_box],resid);*/
      resid_sum=resid;
      if (resid_only_flag != CALC_RESID_ONLY) {
         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
@@ -92,6 +94,8 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
              if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
              fac1 = (*fp_prefactor)(iref);
 	     if (Type_poly==CMS_SCFT) fac1 /= Gsum[npol];
+/*if ((!Lseg_densities && iunk==0 && loc_inode==191) || 
+    (Lseg_densities && itype_mer==0 && loc_inode==191)) printf("prefac_fac1=%g\n",fac1);*/
         }
         else{                     fac1=1.0;
         }
@@ -140,6 +144,8 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
         if (boltz_pow >0) resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
         else resid = -fac1;
         resid_sum+=resid;
+/*if ((!Lseg_densities && iunk==0 && loc_inode==191) || 
+    (Lseg_densities && itype_mer==0 && loc_inode==191)) printf("fac1=%g  resid=%g  resid_sum=%g\n",fac1,resid,resid_sum);*/
         if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
             dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      }

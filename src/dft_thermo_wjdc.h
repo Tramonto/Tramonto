@@ -89,5 +89,5 @@ extern double Rho_b[NCOMP_MAX];
 extern double Dphi_Drhobar_b[10];
 void compute_bulk_nonlocal_wjdc_properties(char *output_file1,double *dphi_drhobar,double *rho,double *rho_seg,double *xi_cav,double *field_WJDC,double *g_WJDC);
 #define UNIFORM_INTERFACE  0
-extern int Lsteady_state;
+extern int Type_interface;
 void WJDC_thermo_precalc(char *output_file1);

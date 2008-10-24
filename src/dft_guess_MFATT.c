@@ -46,7 +46,7 @@ void setup_mf_attract(double **xInBox)
      inode_box=L2B_node[loc_inode];
      for (icomp = 0; icomp < Ncomp; icomp++){
        iunk = Phys2Unk_first[MF_EQ] + icomp;
-       if (Lsteady_state==DIFFUSIVE_INTERFACE || Lsteady_state==PHASE_INTERFACE){
+       if (Type_interface==DIFFUSIVE_INTERFACE || Type_interface==PHASE_INTERFACE){
            printf("attractions not set up for steady state yet. \n");
            exit(-1);
        }

@@ -62,30 +62,32 @@ int round_to_int(double x);
 #define CALC_RHOBAR_AND_G 3
 #define CALC_ALL_FIELDS   1
 extern int Iguess_fields;
-#define WJDC3        5 
-#define WJDC2        4 
 extern int Ndim;
 #define MF_VARIABLE  2
 extern int Type_attr;
 extern int L_HSperturbation;
-#define WJDC         3
 #define CMS_SCFT     1
 #define CMS          0
-extern int Type_poly;
 #define NONE       -1
 #define NONE      -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;
 #define DIFFUSIVE_INTERFACE 1
-extern int Lsteady_state;
+extern int Type_interface;
 #define NO_SCREEN    2 
 extern int Iwrite;
 #define DIFFUSION      6
 extern int Nbonds;
 #define BONDWTC        5
 #define CAVWTC         4
+#define WJDC3        5 
+#define WJDC2        4 
+#define WJDC         3
+extern int Type_poly;
 #define WJDC_FIELD     8
+#define SCF_CONSTR	   9
+#define SCF_FIELD	  10
 #define CMS_FIELD      7
 extern int Nrho_bar;
 #define HSRHOBAR       2
@@ -138,5 +140,3 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 void guess_restart_from_files(int start_no_info,int iguess,double **xInBox);
-#define SCF_CONSTR	9
-#define SCF_FIELD	10

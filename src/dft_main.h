@@ -100,7 +100,7 @@ extern double *Area_IC;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 #define DIFFUSIVE_INTERFACE 1
-extern int Lsteady_state;
+extern int Type_interface;
 void boundary_free(void);
 void free_mesh_arrays(void);
 void thermodynamics(char *output_file1);

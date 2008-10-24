@@ -38,7 +38,7 @@
 double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, int izone,
                     double **x,struct  RB_Struct *dphi_drb,int mesh_coarsen_flag_i, int resid_only_flag)
 {
-   int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF,iunk_att,first_unk;
+   int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF,iunk_att,first_unk,offset[3],reflect_flag[3],idim,jnode_box;
    double resid=0.0,resid_ig,resid_att,resid_hs,resid_chain,resid_old,mat_val;
 
                   /* set icomp and iseg(WTC) */
@@ -65,6 +65,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
        return(resid);
    }
 
+
    bulk_TF=FALSE;
    if (mesh_coarsen_flag_i == FLAG_BULK) bulk_TF=TRUE;
    if (bulk_TF){
@@ -87,11 +88,12 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
 
 /* pin one density (or field) at this point at mean between left and right interface*/
    first_unk=FALSE;
-   if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
-       if( iunk==Phys2Unk_first[WJDC_FIELD]) first_unk=TRUE;
-   }
-   else { if (iunk==Phys2Unk_first[DENSITY]) first_unk=TRUE;}
-   if (Lsteady_state==PHASE_INTERFACE && B2G_node[inode_box]==(int)(0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]) && first_unk){  
+   if (Lconstrain_interface){
+      if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
+          if( iunk==Phys2Unk_first[WJDC_FIELD]) first_unk=TRUE;
+      }
+      else { if (iunk==Phys2Unk_first[DENSITY]) first_unk=TRUE;}
+      if (Type_interface==PHASE_INTERFACE && B2G_node[inode_box]==(int)(0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]) && first_unk){  
         if (Type_poly != WJDC && Type_poly != WJDC2 && Type_poly != WJDC3){
            resid=fill_constant_density(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
            return(resid);
@@ -100,7 +102,25 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
            resid=fill_constant_field(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
            return(resid);
         }
+      }
+      if (Type_interface==UNIFORM_INTERFACE && B2G_node[inode_box]==(int)(0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]) && first_unk){  
+            for (idim=0;idim<Ndim;idim++){
+               if (idim==Grad_dim) offset[idim]=1;
+               else                offset[idim]=0;
+               reflect_flag[idim]=FALSE;
+            }
+            jnode_box=offset_to_node_box(ijk_box, offset, reflect_flag);
+            resid=x[iunk][inode_box]-x[iunk][jnode_box];
+            if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+            if (resid_only_flag==FALSE){
+                mat_val=1.0;
+                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);         
+/*                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,jnode_box,-mat_val);         */
+            }
+           return(resid);
+      }
    }
+
 
    /* now fill EL physics dependent terms */ 
    resid=0.0; 
@@ -146,6 +166,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
          }
 
    }
+   if (Type_attr !=NONE) 
 
    if (Type_coul==DELTAC) {   /* load electrostatics deltac correlations - RPM for now*/
          resid+=load_mean_field(THETA_CR_RPM_MSA,iunk,loc_inode,
@@ -365,8 +386,8 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
    if (Loca.method==4 && LBulk && Loca.cont_type2==CONT_BETAMU_1 && icomp==1) usemu_test=TRUE;
 
    resid_mu = 0.0;
-   if (Lsteady_state != DIFFUSIVE_INTERFACE) {
-      if (Lsteady_state ==UNIFORM_INTERFACE && !usemu_test){
+   if (Type_interface != DIFFUSIVE_INTERFACE) {
+      if (Type_interface ==UNIFORM_INTERFACE && !usemu_test){
         if (Lseg_densities) resid_mu -= log(Rho_seg_b[iseg]);
         else                resid_mu -= log(Rho_b[icomp]);
 
@@ -377,13 +398,13 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
             if (Type_coul == DELTAC) resid_mu += Deltac_b[icomp];
         }
       }
-      else if (Lsteady_state==PHASE_INTERFACE || usemu_test){
+      else if (Type_interface==PHASE_INTERFACE || usemu_test){
           if (Lseg_densities) resid_mu = -Betamu_seg[iseg];
           else {              resid_mu = -Betamu[icomp];
           }
       }
    }
-   else if (Lsteady_state==DIFFUSIVE_INTERFACE){     
+   else if (Type_interface==DIFFUSIVE_INTERFACE){     
       if(Lseg_densities)  junk=Phys2Unk_first[DIFFUSION] + iseg;
       else                junk=Phys2Unk_first[DIFFUSION] + icomp;
       resid_mu = -x[junk][inode_box];

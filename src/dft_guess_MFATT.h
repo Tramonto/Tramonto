@@ -22,7 +22,7 @@ extern double Rho_b[NCOMP_MAX];
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 #define PHASE_INTERFACE 2
 #define DIFFUSIVE_INTERFACE 1
-extern int Lsteady_state;
+extern int Type_interface;
 #define MF_EQ          3
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];

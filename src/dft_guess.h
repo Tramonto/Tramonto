@@ -34,6 +34,7 @@ void calc_init_polymer_G_wjdc(double **xInBox);
 #define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
+void calc_init_polymer_G_SCF(double **xInBox);
 void setup_polymer_G(double **xInBox);
 void calc_init_polymer_G_CMS(double **xInBox);
 #define CALC_RHOBAR_AND_G 3
@@ -109,5 +110,3 @@ extern int Proc;
 extern int Proc;
 #endif
 void set_initial_guess(int iguess,double **xOwned);
-void calc_init_polymer_G_SCF(double **xInBox);
-

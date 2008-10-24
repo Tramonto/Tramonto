@@ -27,6 +27,7 @@ extern double NL_update_scalingParam;
 double gsum_double(double c);
 #define CALC_RESID_ONLY  3
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
+double load_SCF_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define INIT_GUESS_FLAG  2
@@ -60,6 +61,10 @@ extern int Proc;
 void calc_init_polymer_G_wjdc(double **xInBox);
 void calc_init_polymer_G_CMS(double **xInBox);
 #define G_CHAIN       11 
+void calc_init_lambda(double **xInBox);
+#define SCF_CONSTR	   9
+void calc_init_SCFfield(double **xInBox);
+#define SCF_FIELD	  10
 void calc_init_CMSfield(double **xInBox);
 #define CMS_FIELD      7
 void calc_init_WJDC_field(double **xInBox);
@@ -79,9 +84,13 @@ extern int Phys2Nunk[NEQ_TYPE];
 void fix_symmetries(double **x);
 int update_solution_picard(double **x,double **delta_x,int iter);
 void calc_density_next_iter_WJDC(double **xInBox);
+void calc_density_next_iter_SCF(double **xInBox);
+#define CMS_SCFT     1
 void calc_density_next_iter_CMS(double **xInBox);
 #define CMS          0
 void calc_density_next_iter_HSperturb(double **xInBox);
+#define WJDC3        5 
+#define WJDC2        4 
 #define WJDC         3
 extern int Type_poly;
 extern int L_HSperturbation;
@@ -125,7 +134,3 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 int solve_problem_picard(double **x,double **x2);
-#define SCF_CONSTR	9
-#define SCF_FIELD	10
-#define CMS_SCFT	1
-

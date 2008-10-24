@@ -197,7 +197,7 @@ void dftmain(double * engptr)
      if (Imain_loop > 0){
            free_mesh_arrays();
            boundary_free();
-           if (Lsteady_state==DIFFUSIVE_INTERFACE && Ndim==1) safe_free((void *) &Area_IC);
+           if (Type_interface==DIFFUSIVE_INTERFACE && Ndim==1) safe_free((void *) &Area_IC);
            safe_free((void *) &Comm_node_proc);
            safe_free((void *) &Comm_unk_proc);
            safe_free((void *) &Comm_offset_node);
@@ -461,7 +461,7 @@ void dftmain(double * engptr)
   }
   free_mesh_arrays();
   boundary_free();
-  if (Lsteady_state==DIFFUSIVE_INTERFACE && Ndim==1) safe_free((void *) &Area_IC);
+  if (Type_interface==DIFFUSIVE_INTERFACE && Ndim==1) safe_free((void *) &Area_IC);
   safe_free((void *) &Comm_node_proc);
   safe_free((void *) &Comm_unk_proc);
   safe_free((void *) &Comm_offset_node);

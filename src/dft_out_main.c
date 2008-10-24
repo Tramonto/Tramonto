@@ -44,7 +44,7 @@ void post_process (double **x,char *output_file3,int *niters,
 
 
   char *yo = "post_process",*output_file4 = "dft_dens.dat",*output_file5=NULL,
-             *output_file6="dft_gofr.dat", *output_flux= "dft_flux.dat",
+             *output_file6="dft_gofr.dat",*output_flux= "dft_flux.dat",
              *output_file7="dft_dens_site.dat",*output_file8=NULL;
   char filename[20];
   int icomp,iunk;
@@ -171,7 +171,7 @@ void post_process (double **x,char *output_file3,int *niters,
 
    energy=calc_free_energy(fp,x); 
 
-   if (Lsteady_state==DIFFUSIVE_INTERFACE && Proc==0) calc_flux(fp,output_flux,X_old);
+   if (Type_interface==DIFFUSIVE_INTERFACE && Proc==0) calc_flux(fp,output_flux,X_old);
 
    if (Proc==0) fprintf(fp,"  \n");
 
@@ -276,13 +276,10 @@ void print_cont_variable(int cont_type,FILE *fp)
          break;
 
       case CONT_BETAMU_0:
-         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) fprintf(fp,"%11.8f   ", Betamu_chain[0]); 
-         else                 fprintf(fp,"%11.8f   ", Betamu[0]); 
-         break;
-
       case CONT_BETAMU_1:
-         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) fprintf(fp,"%11.8f   ", Betamu_chain[1]); 
-         else                 fprintf(fp,"%11.8f   ", Betamu[1]); 
+         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) 
+             for (i=0;i<Npol_comp;i++) fprintf(fp,"%11.8f   ", Betamu_chain[i]); 
+         else for (i=0;i<Ncomp;i++)    fprintf(fp,"%11.8f   ", Betamu[i]); 
          break;
 
       case CONT_SCALE_EPSW:
@@ -305,11 +302,12 @@ void print_cont_variable(int cont_type,FILE *fp)
          break;
 
       case CONT_SCALE_EPSFF:
-         fprintf(fp,"%11.8f   ", Scale_fac); 
+         fprintf(fp,"%11.8f   ", Scale_fac);  break;
       case CONT_EPSFF_00:
+         fprintf(fp,"%11.8f   ", Eps_ff[0][0]);  break;
       case CONT_EPSFF_ALL:
-         fprintf(fp,"%11.8f   ", Eps_ff[0][0]); 
-/*         fprintf(fp,"%11.8f  ", Eps_ff[0][2]); */
+/*         fprintf(fp,"%11.8f   ", Eps_ff[0][0]); */
+         fprintf(fp,"%11.8f  ", Eps_ff[0][1]); 
       /*   fprintf(fp,"%11.8f  ", Eps_ff[2][2]); */
          break;
 
@@ -389,10 +387,12 @@ void print_cont_type(int cont_type,FILE *fp)
          break;
    
       case CONT_BETAMU_0:
-         fprintf(fp,"Betamu[0]:  "); break;
-
       case CONT_BETAMU_1:
-         fprintf(fp,"Betamu[1]:  "); break;
+         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)
+            for (i=0;i<Npol_comp;i++) fprintf(fp,"Betamu_chain[%d]:  ",i); 
+         else
+            for (i=0;i<Ncomp;i++) fprintf(fp,"Betamu[%d]:  ",i); 
+         break;
 
       case CONT_SCALE_EPSW:
          fprintf(fp,"Scale_fac_epsw:  "); break;

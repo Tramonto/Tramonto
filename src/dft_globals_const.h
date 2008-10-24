@@ -298,7 +298,7 @@
 #define LINEAR_noCS       6 
 
 /*
- * The following are choices for Lsteady_state which indicates 
+ * The following are choices for Type_interface which indicates 
  * there the interface requires boundary conditions that differ on
  * two sides of the domain. Note that for a phase interface, density is different while
  * chemical potential is constant (no diffusion).  For a diffusive interface, both density
@@ -905,7 +905,8 @@ extern int     ***Wall_owners; /*Array[ilist][iel_box][Nwall_owners] that stores
                           all of the wall owners of a given element */ 
 
 /* Steady State Solutions Info */
-extern int    Lsteady_state;          /*True-False Steady State or Equilibrium Run*/
+extern int    Type_interface;          /*Select type if interfacial problem to study*/
+extern int    Lconstrain_interface;   /*Logical to control interface constraint*/
 extern int    LBulk;          /*True-False Indicates a bulk run - changes output*/
 extern int    Linear_transport;       /*True-False Steady State or Equilibrium Run*/
 extern double Velocity;               /*Constant Convective Velocity over Diffusion coefficient*/

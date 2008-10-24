@@ -21,9 +21,6 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern int Ncomp;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
-#define NCOMP_MAX 5
-extern int Geqn_start[NCOMP_MAX];
-extern int ***Poly_to_Unk;
 extern int **Nbond;
 extern int Nlists_HW;
 #define NDIM_MAX  3
@@ -39,9 +36,17 @@ struct Stencil_Struct {
                              are being contributed from. Only used for Hard
                              Walls when stencil point is a boundary node  */
 };
+double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_polymer_recursion(int sten_type,int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int unk_B,int itype_mer,int izone,int *ijk_box,double **x,int resid_only_flag);
+#define NWALL_MAX_TYPE 50 
+extern double WallParam[NWALL_MAX_TYPE];
+#define NWALL_MAX 600 
+extern double WallPos[NDIM_MAX][NWALL_MAX];
+void node_to_position(int inode,double *NodePos);
+extern int *L2G_node;
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
+#define NCOMP_MAX 5
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CAVWTC         4
@@ -55,23 +60,17 @@ extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
 #define G_CHAIN       11 
-double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,
-						void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),
-						double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),
-						double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,
-						int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types, int Njacobian_sums,
-							void (*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),
-							double (*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),
-							double (*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk, int loc_inode, 
-							int inode_box, int *ijk_box, int izone, double **x,
-							int resid_only_flag);
+double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define NMER_MAX     100
 extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_seg_b[NMER_MAX];
 #define NBOND_MAX 4
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 double resid_and_Jac_ChainDensity_WJDC2(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
+extern int *L2B_node;
+extern int Nnodes_per_proc;
+extern int ***Poly_to_Unk;
+extern int Geqn_start[NCOMP_MAX];
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
@@ -109,12 +108,3 @@ extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
 double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
-extern int Nnodes_per_proc;
-extern int *L2B_node;
-extern void node_to_position(int inode,double *NodePos);
-extern int     *L2G_node;    
-#define NWALL_MAX 600 
-#define NWALL_MAX_TYPE 50
-extern double  WallPos[NDIM_MAX][NWALL_MAX]; 
-extern double  WallParam[NWALL_MAX_TYPE];
-

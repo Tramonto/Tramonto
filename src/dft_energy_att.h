@@ -22,7 +22,7 @@ extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_seg_b[NMER_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 #define UNIFORM_INTERFACE  0
-extern int Lsteady_state;
+extern int Type_interface;
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
 #define DENSITY        0

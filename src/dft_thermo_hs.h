@@ -25,7 +25,7 @@ extern double Rho_b[NCOMP_MAX];
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
 #define UNIFORM_INTERFACE  0
-extern int Lsteady_state;
+extern int Type_interface;
 #define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
 void rhobar_icomp(double rho,int icomp,double *rhobar);

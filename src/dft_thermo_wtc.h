@@ -87,7 +87,7 @@ extern int Unk2Comp[NMER_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
 extern double Rho_seg_LBB[NMER_MAX];
 #define UNIFORM_INTERFACE  0
-extern int Lsteady_state;
+extern int Type_interface;
 extern int Nseg_tot;
 void WTC_overlap();
 void WTC_thermo_precalc(char *output_file1);

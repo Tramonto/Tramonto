@@ -45,12 +45,12 @@ double integrand_att_freen_bulk(int iunk,int inode_box, double **x)
      i= iunk-Phys2Unk_first[DENSITY];
      if (Lseg_densities){
            icomp = Unk2Comp[i];
-           if (Lsteady_state!=UNIFORM_INTERFACE) rho_bulk = Rho_seg_RTF[i];
+           if (Type_interface!=UNIFORM_INTERFACE) rho_bulk = Rho_seg_RTF[i];
            else rho_bulk = rho_bulk = Rho_seg_b[i];
      }
      else{
            icomp = i;
-           if (Lsteady_state!=UNIFORM_INTERFACE) rho_bulk = Rho_b_RTF[i];
+           if (Type_interface!=UNIFORM_INTERFACE) rho_bulk = Rho_b_RTF[i];
            else               rho_bulk = Rho_b[i];
      }
 
