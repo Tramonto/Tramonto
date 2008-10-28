@@ -1321,6 +1321,7 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(&Type_interface,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Grad_dim,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Lconstrain_interface,1,MPI_INT,0,MPI_COMM_WORLD);
 
   if (Proc==0) {
     read_junk(fp,fp2);

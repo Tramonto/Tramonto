@@ -472,6 +472,7 @@ if (icomp==0 && loc_inode>53+(i*117) && loc_inode<63+(i*117))
                         fabs(image_pos[i][Orientation[iwall_type]] - node_pos_w[Orientation[iwall_type]]);
  
                 Vext_dash[loc_inode][iunk][Orientation[iwall_type]] += sign*Vext_1D_dash(x,icomp,iwall_type);
+if (iwall==0) printf("x=%g vdash=%g\n",x,Vext_dash[loc_inode][iunk][Orientation[iwall_type]] );
                 }
  
             }    /* end of images loop */

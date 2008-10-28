@@ -36,6 +36,7 @@ extern double Betamu_att[NCOMP_MAX];
 extern double Betamu_hs_ex[NCOMP_MAX];
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
+extern int Proc;
 #define DIFFUSIVE_INTERFACE 1
 #define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 #define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
