@@ -120,7 +120,7 @@
     *Note for polymers: --- see note above.  Again replace Ncomp with Nblock_tot.
 
 ************** STATE POINT PARAMETERS ******************************************
-@ 2  0  0 Type_interface Grad_dim Lconstrain_interface
+@ 2  0  1 Type_interface Grad_dim Lconstrain_interface
         -- Type_interface options: 0 = equilibrium, 1=diffusion calculation, 2=two phase interface)
         -- Grad_dim: identify dimension where difference in state point is to be applied -
          this dimension should have BULK boundary conditions - other dimensions should not!
