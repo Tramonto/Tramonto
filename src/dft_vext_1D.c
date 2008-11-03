@@ -64,11 +64,10 @@ double Vextderiv_LJ9_3(double x,int icomp, int iwall_type)
    cut=Cut_wf[icomp][iwall_type];
 
   if (x <= cut)
-        vdash = prefac*(2.0*PI/3.0)*(POW_DOUBLE_INT(sigma,2))* (
-                -(9.0/5.0) * POW_DOUBLE_INT(sigma/x,10)
-                +(9.0/2.0) * POW_DOUBLE_INT(sigma/x,4) );
+        vdash = prefac*(2.0*PI)*(POW_DOUBLE_INT(sigma,2))* (
+                -(2.0/5.0) * POW_DOUBLE_INT(sigma/x,10)
+                + POW_DOUBLE_INT(sigma/x,4) );
    else vdash=0.0;
-
    return(vdash);
 }
 /********************************************************************************************/
@@ -99,8 +98,8 @@ double Vextderiv_LJ9_3_v2(double x,int icomp, int iwall_type)
 
    if (x <= cut)
         vdash = prefac*(1./sigma)*(
-                -(9.0/5.0) * POW_DOUBLE_INT(sigma/x,10)
-                +(9.0/2.0) * POW_DOUBLE_INT(sigma/x,4) );
+                -(6.0/5.0) * POW_DOUBLE_INT(sigma/x,10)
+                +3.0 * POW_DOUBLE_INT(sigma/x,4) );
    else vdash=0.0;
 
    return(vdash);
@@ -153,7 +152,7 @@ double Vext_REPULSIVE9_noCS(double x,int icomp, int iwall_type)
   cut=Cut_wf[icomp][iwall_type];
 
   if (x <= cut) 
-      vext = prefac*(2.0*PI/3.0)*( (2.0/15.0)*POW_DOUBLE_INT(sigma,12)/ POW_DOUBLE_INT(x,9));
+      vext = prefac*(2.0*PI/3.0)*POW_DOUBLE_INT(sigma,3)*( (2.0/15.0)*POW_DOUBLE_INT(sigma/x,9));
   else vext=0.0;
 
   return(vext);
@@ -168,7 +167,7 @@ double Vextderiv_REPULSIVE9(double x,int icomp, int iwall_type)
   cut=Cut_wf[icomp][iwall_type];
 
   if (x <= cut) 
-    vdash = prefac*(1.0/sigma)* ( -(9.0/5.0) * POW_DOUBLE_INT(sigma/x,10) );
+    vdash = prefac*(2.0*PI/3.0)*POW_DOUBLE_INT(sigma,2)*( -(6.0/5.0) * POW_DOUBLE_INT(sigma/x,10) );
   else vdash=0.0;
 
   return(vdash);
