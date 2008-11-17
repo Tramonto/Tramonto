@@ -98,9 +98,15 @@ void set_initial_guess (int iguess, double** xOwned)
                  else                     setup_rho_bar(xInBox);
            } break;
          case POISSON:
-           if (Phys2Nunk[POISSON]>0 && (start_no_info || Restart_field[POISSON]==FALSE ||Restart==RESTART_DENSONLY)) setup_elec_pot(xInBox,iguess); break;
+           if (Phys2Nunk[POISSON]>0 && (start_no_info || Restart_field[POISSON]==FALSE ||Restart==RESTART_DENSONLY)) {
+                 setup_elec_pot(xInBox,iguess); 
+           }
+           break;
          case DIFFUSION: 
-           if (Phys2Nunk[DIFFUSION]>0 && (start_no_info || Restart_field[DIFFUSION]==FALSE ||Restart==RESTART_DENSONLY)) setup_chem_pot(xInBox); break;
+           if (Phys2Nunk[DIFFUSION]>0 && (start_no_info || Restart_field[DIFFUSION]==FALSE ||Restart==RESTART_DENSONLY)) {
+                  setup_chem_pot(xInBox); 
+           }
+           break;
 
          case CAVWTC:
            if (Phys2Nunk[CAVWTC]>0 && (start_no_info || Restart_field[CAVWTC]==FALSE)){

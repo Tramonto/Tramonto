@@ -421,11 +421,6 @@ void setup_1Dvext(int iwall)
                     Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp];
                     break;
                 }
-/*for (i=0;i<9;i++){
-if (icomp==0 && loc_inode>53+(i*117) && loc_inode<63+(i*117))
-       printf("loc_inode=%d  node_pos_f %g %g %g  x=%g  \n",
-                   loc_inode,node_pos_f[0],node_pos_f[1], node_pos_f[2],x);
-}*/
             }    /* end of images loop */
           }     /* end of vext check */
         }     /* end of zero density check */
@@ -472,7 +467,6 @@ if (icomp==0 && loc_inode>53+(i*117) && loc_inode<63+(i*117))
                         fabs(image_pos[i][Orientation[iwall_type]] - node_pos_w[Orientation[iwall_type]]);
  
                 Vext_dash[loc_inode][iunk][Orientation[iwall_type]] += sign*Vext_1D_dash(x,icomp,iwall_type);
-if (iwall==0) printf("x=%g vdash=%g\n",x,Vext_dash[loc_inode][iunk][Orientation[iwall_type]] );
                 }
  
             }    /* end of images loop */

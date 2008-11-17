@@ -343,15 +343,18 @@ void read_in_a_file(int iguess,char *filename)
 
           switch (eq_type){
               case CMS_FIELD: 
+/*   	         fscanf(fp5,"%lf",&tmp);
+                 tmp = exp(-tmp); 
+                 break;*/
               case WJDC_FIELD: 
-			  case SCF_FIELD:
+	      case SCF_FIELD:
    	         fscanf(fp5,"%lf",&tmp);
                  /*tmp = exp(-tmp); */
                  break;
 				  
-			  case SCF_CONSTR:
-				  fscanf(fp5,"%lf",&tmp);
-				  break;
+	      case SCF_CONSTR:
+		 fscanf(fp5,"%lf",&tmp);
+		 break;
 
               case DENSITY:
    	         fscanf(fp5,"%lf",&tmp); 

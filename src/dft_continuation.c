@@ -795,7 +795,12 @@ void assign_parameter_tramonto(int cont_type, double param)
                          scale_vext_epswf(ratio,2,1); break;*/
 
       case CONT_EPSWF_ALL_0: 
-                         for (i=0; i<Ncomp-1; i++){ 
+
+                         ratio = param/Eps_wf[2][0];
+                         Eps_wf[2][0]    = param;
+                         scale_vext_epswf(ratio,2,0); break;
+
+/*                         for (i=0; i<Ncomp-1; i++){ 
                             for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
                          }
                          for (i=0; i<Ncomp-1; i++){
@@ -803,7 +808,7 @@ void assign_parameter_tramonto(int cont_type, double param)
                               ratio = Eps_wf[i][0]/eps_wf_save[i][WallType[0]];
                               scale_vext_epswf(ratio,i,0);
                          }
-                         break;
+                         break;*/
       
       case CONT_SCALE_EPSWF:
                           scale_save = Scale_fac;
@@ -1072,11 +1077,12 @@ double get_init_param_value(int cont_type)
       case CONT_EPSWF00: return Eps_wf[0][0]; /*return Eps_wf[2][0];*/
 
       case CONT_EPSWF_ALL_0: 
-           for (i=0;i<Ncomp-1;i++) if (Eps_wf[i][0] != Eps_wf[0][0]) {
+/*           for (i=0;i<Ncomp-1;i++) if (Eps_wf[i][0] != Eps_wf[0][0]) {
                  printf("ERROR: all Eps_wf must be equal for CONT_EPSWF_ALL_0\n");
                  exit(-1);
            }
-           return Eps_wf[0][0]; break;
+           return Eps_wf[0][0]; break;*/
+           return Eps_wf[2][0]; /*return Eps_wf[2][0];*/
       case CONT_SCALE_EPSWF: return Scale_fac; break;
 
       case CONT_EPSFF_00:   

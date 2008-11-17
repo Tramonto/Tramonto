@@ -313,6 +313,7 @@ double fill_constant_field(int iunk, int icomp, int iseg, int loc_inode, int ino
     }
   }
   resid = -log((0.5*Field_WJDC_LBB[icomp]+0.5*Field_WJDC_RTF[icomp]));
+  
 
   if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 

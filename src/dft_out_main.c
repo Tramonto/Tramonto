@@ -296,9 +296,12 @@ void print_cont_variable(int cont_type,FILE *fp)
          for (i=0;i<Ncomp;i++) fprintf(fp,"%9.6f  ",Eps_wf[i][0]);
          break;
       case CONT_EPSWF00:
-      case CONT_EPSWF_ALL_0:
          fprintf(fp,"%11.8f   ", Eps_wf[0][0]); 
-	 /*        fprintf(fp,"%11.8f   ", Eps_wf[2][0]); */
+/*	         fprintf(fp,"%11.8f   ", Eps_wf[2][0]); */
+         break;
+      case CONT_EPSWF_ALL_0:
+/*         fprintf(fp,"%11.8f   ", Eps_wf[0][0]); */
+	         fprintf(fp,"%11.8f   ", Eps_wf[2][0]); 
          break;
 
       case CONT_SCALE_EPSFF:
@@ -407,9 +410,11 @@ void print_cont_type(int cont_type,FILE *fp)
 	 for(i=0; i<Ncomp; i++) fprintf(fp, "Eps_wf[%d][0]  ",i);
 	 break;
       case CONT_EPSWF00:
+/*         fprintf(fp,"Eps_wf[2][0]:  "); break;*/
+	         fprintf(fp,"Eps_wf[0][0]:  "); break;
       case CONT_EPSWF_ALL_0:
-         fprintf(fp,"Eps_wf[0][0]:  "); break;
-	 /*         fprintf(fp,"Eps_wf[2][0]:  "); break;*/
+         fprintf(fp,"Eps_wf[2][0]:  "); break;
+/*	         fprintf(fp,"Eps_wf[0][0]:  "); break;*/
 
       case CONT_SCALE_EPSFF:
          fprintf(fp,"Scale_fac_epsff:  "); break;

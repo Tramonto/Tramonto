@@ -66,6 +66,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
  
    }
 
+
    if(!first) {
 
     if (Lvext_dash) integrate_rho_vdash(x,p_tilde_vdash);

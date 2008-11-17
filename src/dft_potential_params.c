@@ -103,6 +103,7 @@ void pot_parameters(char *output_file1)
         Sigma_wf[i][iw] = 0.5*(Sigma_ff[i][i] + Sigma_w[iw]);
         Eps_wf[i][iw] = sqrt(Eps_ff[i][i]*Eps_w[iw]);
         Cut_wf[i][iw] = 0.5*(Cut_ff[i][i]+Cut_ww[iw][iw]);
+printf("CALCULATING CUT_WF[%d][%d]=%g\n",i,iw,Cut_wf[i][iw]);
         if (Type_vext3D==PAIR_YUKAWA_CS) YukawaK_wf[i][iw] = 0.5*(YukawaK_ff[i][i]+YukawaK_ww[iw][iw]);
 
         if (printproc) {
