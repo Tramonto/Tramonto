@@ -120,7 +120,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
       }
 
      /* print for debugging purposes call this print routine */ 
-/*       print_residuals(loc_inode,iunk,resid_unk);*/
+       /*print_residuals(loc_inode,iunk,resid_unk);*/
 
     } /* end of loop over # of unknowns per node */
   } /* end of loop over local nodes */
@@ -263,7 +263,7 @@ dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode
                   kind of analysis may require multiple runs and so output to a file is recommended. */
 
     /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-/*    if (fabs(resid_unk[iunk])>1.e-3){*/
+    if (fabs(resid_unk[iunk])>1.e-3){
     switch(Unk2Phys[iunk]){
        case DENSITY:  printf("Proc=%d: loc_inode=%d of %d (Global val=%d) iunk_rho=%d ", Proc,loc_inode,Nnodes_per_proc,L2G_node[loc_inode],iunk); break;
        case HSRHOBAR: printf("Proc=%d: loc_inode=%d iunk_rbar=%d ", Proc,loc_inode,iunk); break;
@@ -279,7 +279,7 @@ dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode
        case MF_EQ: printf("Proc=%d: loc_inode=%d  iunk_MFeq=%d ",Proc,loc_inode,iunk); break;
     }
     printf(" resid=%11.8f \n",resid_unk[iunk]); 
-    /*}*/
+    }
 
     return;
 }

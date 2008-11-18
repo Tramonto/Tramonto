@@ -168,7 +168,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
          }
 
    }
-   if (Type_attr !=NONE) 
 
    if (Type_coul==DELTAC) {   /* load electrostatics deltac correlations - RPM for now*/
          resid+=load_mean_field(THETA_CR_RPM_MSA,iunk,loc_inode,

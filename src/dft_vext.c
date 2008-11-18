@@ -389,7 +389,7 @@ void setup_1Dvext(int iwall)
             if (Ipot_wf_n[iwall_type]==VEXT_3D_INTEGRATED || 
                 Type_bc[Orientation[iwall_type]][0] == PERIODIC || Type_bc[Orientation[iwall_type]][1] == PERIODIC
                 || Type_bc[Orientation[iwall_type]][0] == REFLECT || Type_bc[Orientation[iwall_type]][1] == REFLECT){
-                find_images_1D(Orientation[iwall_type],Cut_wf[icomp][iwall_type], &image,
+                find_images_1D(Orientation[iwall_type],Cut_wf[icomp][iwall_type]+WallParam[iwall_type], &image,
                               image_pos, node_pos_w,node_pos_f);
              }
 
@@ -400,6 +400,7 @@ void setup_1Dvext(int iwall)
         */
 
             for (i=0; i<image; i++){
+
 
                 x = fabs(node_pos_f[Orientation[iwall_type]] - image_pos[i][Orientation[iwall_type]])
                             - WallParam[iwall_type];
