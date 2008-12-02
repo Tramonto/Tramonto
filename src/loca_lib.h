@@ -10,14 +10,10 @@ double gsum_double_conwrap(double sum);
 #if !defined(_CON_CONST_H_)
 double gsum_double_conwrap(double sum);
 #endif
-double gsum_double_conwrap(double sum);
-double gsum_double_conwrap(double sum);
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #if !defined(_CON_CONST_H_)
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #endif
-void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
-void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 void free_vec(double **ptr);
 void free_vec(double **ptr);
 #if !defined(_CON_CONST_H_)
@@ -26,19 +22,11 @@ typedef struct con_struct con_struct;
 void solution_output_conwrap(int num_soln_flag,double *x,double param,double *x2,double param2,double *x3,double param3,int step_num,int num_its,struct con_struct *con);
 #if !defined(_CON_CONST_H_)
 void solution_output_conwrap(int type,double *x,double param,double *x2,double param2,double *x3,double param3,int stp,int nits,struct con_struct *con);
-#endif
-void solution_output_conwrap(int num_soln_flag,double *x,double param,double *x2,double param2,double *x3,double param3,int step_num,int num_its,struct con_struct *con);
-void solution_output_conwrap(int num_soln_flag,double *x,double param,double *x2,double param2,double *x3,double param3,int step_num,int num_its,struct con_struct *con);
-#if !defined(_CON_CONST_H_)
 #define  NEW_JACOBIAN                200
 #endif
 int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
 #if !defined(_CON_CONST_H_)
 int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
-#endif
-int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
-int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
-#if !defined(_CON_CONST_H_)
 #define  CONT_TANGENT      300
 #endif
 void calc_rhs_continuation(int rhs_type,double *x,double *resid_vector,double *ab_vec,double *scale_vec,double *x_tmp,double param,double perturb,double *r_vec,int numUnks,int numOwnedUnks);
@@ -49,8 +37,6 @@ int nonlinear_solver_conwrap(double *x,void *con_ptr,int step_num,double lambda,
 #if !defined(_CON_CONST_H_)
 int nonlinear_solver_conwrap(double *x,void *con,int step_num,double lambda,double delta_s,void *aux_info);
 #endif
-int nonlinear_solver_conwrap(double *x,void *con_ptr,int step_num,double lambda,double delta_s,void *aux_info);
-int nonlinear_solver_conwrap(double *x,void *con_ptr,int step_num,double lambda,double delta_s,void *aux_info);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -78,21 +64,13 @@ void perturb_solution_conwrap(double *x,double *x_old,double *scale_vec,int numO
 #if !defined(_CON_CONST_H_)
 void perturb_solution_conwrap(double *x,double *p,double *s,int n);
 #endif
-void perturb_solution_conwrap(double *x,double *x_old,double *scale_vec,int numOwnedUnks);
-void perturb_solution_conwrap(double *x,double *x_old,double *scale_vec,int numOwnedUnks);
 void assign_bif_parameter_conwrap(double tp_param);
 #if !defined(_CON_CONST_H_)
 void assign_bif_parameter_conwrap(double bif_param);
 #endif
-void assign_bif_parameter_conwrap(double tp_param);
-void assign_bif_parameter_conwrap(double tp_param);
 void assign_parameter_conwrap(double param);
 #if !defined(_CON_CONST_H_)
 void assign_parameter_conwrap(double param);
-#endif
-void assign_parameter_conwrap(double param);
-void assign_parameter_conwrap(double param);
-#if !defined(_CON_CONST_H_)
 #define PHASE_TRANSITION_CONTINUATION  6
 #define HOPF_CONTINUATION              5
 #define PITCHFORK_CONTINUATION         4

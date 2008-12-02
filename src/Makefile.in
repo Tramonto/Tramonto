@@ -131,11 +131,12 @@ am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
 	dft_guess_CMS.$(OBJEXT) dft_guess_SCF.$(OBJEXT) \
 	dft_guess_WJDC.$(OBJEXT) dft_guess_ELECPOT.$(OBJEXT) \
 	dft_comm.$(OBJEXT) dft_continuation.$(OBJEXT) \
-	dft_utils.$(OBJEXT) dft_fill_control.$(OBJEXT) \
-	dft_fill_main.$(OBJEXT) dft_fill_FMT.$(OBJEXT) \
-	dft_fill_mf.$(OBJEXT) dft_fill_SCF.$(OBJEXT) \
-	dft_fill_wtc.$(OBJEXT) dft_vext_coul.$(OBJEXT) \
-	dft_uww.$(OBJEXT) dft_images.$(OBJEXT) \
+	dft_switch_continuation.$(OBJEXT) \
+	dft_scale_variables.$(OBJEXT) dft_utils.$(OBJEXT) \
+	dft_fill_control.$(OBJEXT) dft_fill_main.$(OBJEXT) \
+	dft_fill_FMT.$(OBJEXT) dft_fill_mf.$(OBJEXT) \
+	dft_fill_SCF.$(OBJEXT) dft_fill_wtc.$(OBJEXT) \
+	dft_vext_coul.$(OBJEXT) dft_uww.$(OBJEXT) dft_images.$(OBJEXT) \
 	dft_potential_params.$(OBJEXT) dft_pairPot_LJ12_6.$(OBJEXT) \
 	dft_pairPot_LJ12_6_SIGTORCUT.$(OBJEXT) \
 	dft_pairPot_COULOMB.$(OBJEXT) dft_pairPot_Yukawa.$(OBJEXT) \
@@ -397,17 +398,19 @@ COMMON_H = \
         ${srcdir}/dft_guess_WTC.h \
         ${srcdir}/dft_guess_restart.h \
         ${srcdir}/dft_guess_CMS.h \
-	${srcdir}/dft_guess_SCF.h \
+		${srcdir}/dft_guess_SCF.h \
         ${srcdir}/dft_guess_WJDC.h \
         ${srcdir}/dft_guess_ELECPOT.h \
         ${srcdir}/dft_comm.h \
         ${srcdir}/dft_continuation.h \
+        ${srcdir}/dft_switch_continuation.h \
+        ${srcdir}/dft_scale_variables.h \
         ${srcdir}/dft_utils.h \
         ${srcdir}/dft_fill_control.h \
         ${srcdir}/dft_fill_main.h \
         ${srcdir}/dft_fill_FMT.h \
         ${srcdir}/dft_fill_mf.h \
-	${srcdir}/dft_fill_SCF.h \
+		${srcdir}/dft_fill_SCF.h \
         ${srcdir}/dft_fill_wtc.h \
         ${srcdir}/dft_vext_coul.h \
         ${srcdir}/dft_uww.h \
@@ -491,17 +494,19 @@ COMMON_C = \
         ${srcdir}/dft_guess_WTC.c \
         ${srcdir}/dft_guess_restart.c \
         ${srcdir}/dft_guess_CMS.c \
-	${srcdir}/dft_guess_SCF.c \
+		${srcdir}/dft_guess_SCF.c \
         ${srcdir}/dft_guess_WJDC.c \
         ${srcdir}/dft_guess_ELECPOT.c \
         ${srcdir}/dft_comm.c \
         ${srcdir}/dft_continuation.c \
+        ${srcdir}/dft_switch_continuation.c \
+        ${srcdir}/dft_scale_variables.c \
         ${srcdir}/dft_utils.c \
         ${srcdir}/dft_fill_control.c \
         ${srcdir}/dft_fill_main.c \
         ${srcdir}/dft_fill_FMT.c \
         ${srcdir}/dft_fill_mf.c \
-	${srcdir}/dft_fill_SCF.c \
+		${srcdir}/dft_fill_SCF.c \
         ${srcdir}/dft_fill_wtc.c \
         ${srcdir}/dft_vext_coul.c \
         ${srcdir}/dft_uww.c \
@@ -819,6 +824,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_poly_lin_prob_mgr_wrapper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_potential_params.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_quadrature.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_scale_variables.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_delta_Bond.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_delta_R.Po@am__quote@
@@ -828,6 +834,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_theta_Sigma.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_theta_uattr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_switch_FMT.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_switch_continuation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_switch_pairPot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_switch_stencil.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_switch_vext1D.Po@am__quote@
@@ -1857,6 +1864,34 @@ dft_continuation.obj: ${srcdir}/dft_continuation.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_continuation.c' object='dft_continuation.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_continuation.obj `if test -f '${srcdir}/dft_continuation.c'; then $(CYGPATH_W) '${srcdir}/dft_continuation.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_continuation.c'; fi`
+
+dft_switch_continuation.o: ${srcdir}/dft_switch_continuation.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_switch_continuation.o -MD -MP -MF $(DEPDIR)/dft_switch_continuation.Tpo -c -o dft_switch_continuation.o `test -f '${srcdir}/dft_switch_continuation.c' || echo '$(srcdir)/'`${srcdir}/dft_switch_continuation.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_switch_continuation.Tpo $(DEPDIR)/dft_switch_continuation.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_switch_continuation.c' object='dft_switch_continuation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_switch_continuation.o `test -f '${srcdir}/dft_switch_continuation.c' || echo '$(srcdir)/'`${srcdir}/dft_switch_continuation.c
+
+dft_switch_continuation.obj: ${srcdir}/dft_switch_continuation.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_switch_continuation.obj -MD -MP -MF $(DEPDIR)/dft_switch_continuation.Tpo -c -o dft_switch_continuation.obj `if test -f '${srcdir}/dft_switch_continuation.c'; then $(CYGPATH_W) '${srcdir}/dft_switch_continuation.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_switch_continuation.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_switch_continuation.Tpo $(DEPDIR)/dft_switch_continuation.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_switch_continuation.c' object='dft_switch_continuation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_switch_continuation.obj `if test -f '${srcdir}/dft_switch_continuation.c'; then $(CYGPATH_W) '${srcdir}/dft_switch_continuation.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_switch_continuation.c'; fi`
+
+dft_scale_variables.o: ${srcdir}/dft_scale_variables.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_scale_variables.o -MD -MP -MF $(DEPDIR)/dft_scale_variables.Tpo -c -o dft_scale_variables.o `test -f '${srcdir}/dft_scale_variables.c' || echo '$(srcdir)/'`${srcdir}/dft_scale_variables.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_scale_variables.Tpo $(DEPDIR)/dft_scale_variables.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_scale_variables.c' object='dft_scale_variables.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_scale_variables.o `test -f '${srcdir}/dft_scale_variables.c' || echo '$(srcdir)/'`${srcdir}/dft_scale_variables.c
+
+dft_scale_variables.obj: ${srcdir}/dft_scale_variables.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_scale_variables.obj -MD -MP -MF $(DEPDIR)/dft_scale_variables.Tpo -c -o dft_scale_variables.obj `if test -f '${srcdir}/dft_scale_variables.c'; then $(CYGPATH_W) '${srcdir}/dft_scale_variables.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_scale_variables.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_scale_variables.Tpo $(DEPDIR)/dft_scale_variables.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_scale_variables.c' object='dft_scale_variables.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_scale_variables.obj `if test -f '${srcdir}/dft_scale_variables.c'; then $(CYGPATH_W) '${srcdir}/dft_scale_variables.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_scale_variables.c'; fi`
 
 dft_utils.o: ${srcdir}/dft_utils.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_utils.o -MD -MP -MF $(DEPDIR)/dft_utils.Tpo -c -o dft_utils.o `test -f '${srcdir}/dft_utils.c' || echo '$(srcdir)/'`${srcdir}/dft_utils.c

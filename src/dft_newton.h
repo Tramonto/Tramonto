@@ -55,8 +55,6 @@ void fix_symmetries(double **x);
 int update_solution(double **x,double **delta_x,int iter);
 extern double NL_abs_tol,NL_rel_tol;
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
-int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
-int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 extern double Time_linsolver_av;
 extern double Time_linsolver_first;
 extern double Time_manager_av;
@@ -79,8 +77,6 @@ extern void *ParameterList_list;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 int newton_solver(double **x,void *con_ptr);
-int solve_continuation(double **xx,double **xx2);
-int solve_continuation(double **xx,double **xx2);
 int solve_continuation(double **xx,double **xx2);
 typedef struct Loca_Struct Loca_Struct;
 struct Loca_Struct {

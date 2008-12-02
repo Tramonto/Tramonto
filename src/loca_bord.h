@@ -66,14 +66,10 @@ void matrix_residual_fill_conwrap(double *x,double *rhs,int matflag);
 #if !defined(_CON_CONST_H_)
 void matrix_residual_fill_conwrap(double *x,double *rhs,int matflag);
 #endif
-void matrix_residual_fill_conwrap(double *x,double *rhs,int matflag);
-void matrix_residual_fill_conwrap(double *x,double *rhs,int matflag);
 double free_energy_diff_conwrap(double *x,double *x2);
 #if !defined(_CON_CONST_H_)
 double free_energy_diff_conwrap(double *x,double *x2);
 #endif
-double free_energy_diff_conwrap(double *x,double *x2);
-double free_energy_diff_conwrap(double *x,double *x2);
 int phase_transition_alg(double *x,double *delta_x,struct con_struct *con,double reltol,double abstol);
 #if !defined(_CON_CONST_H_)
 #define  OLD_JACOBIAN_DESTROY        203
@@ -84,30 +80,20 @@ int phase_transition_alg(double *x,double *delta_x,struct con_struct *con,double
 int komplex_linear_solver_conwrap(double *c,double *d,int jac_flag,double *omega,double *tmp);
 #if !defined(_CON_CONST_H_)
 int komplex_linear_solver_conwrap(double *x,double *y,int jac_flag,double *omega,double *tmp);
-#endif
-int komplex_linear_solver_conwrap(double *c,double *d,int jac_flag,double *omega,double *tmp);
-int komplex_linear_solver_conwrap(double *c,double *d,int jac_flag,double *omega,double *tmp);
-#if !defined(_CON_CONST_H_)
 #define  HP_CONT_SOL3      305
 #endif
 void matvec_mult_conwrap(double *x,double *y);
 #if !defined(_CON_CONST_H_)
 void matvec_mult_conwrap(double *x,double *y);
 #endif
-void matvec_mult_conwrap(double *x,double *y);
-void matvec_mult_conwrap(double *x,double *y);
 void mass_matvec_mult_conwrap(double *x,double *y);
 #if !defined(_CON_CONST_H_)
 void mass_matvec_mult_conwrap(double *x,double *y);
 #endif
-void mass_matvec_mult_conwrap(double *x,double *y);
-void mass_matvec_mult_conwrap(double *x,double *y);
 void mass_matrix_fill_conwrap(double *x,double *rhs);
 #if !defined(_CON_CONST_H_)
 void mass_matrix_fill_conwrap(double *x,double *rhs);
 #endif
-void mass_matrix_fill_conwrap(double *x,double *rhs);
-void mass_matrix_fill_conwrap(double *x,double *rhs);
 double dp(double *x,double *y);
 double dp(double *x,double *y);
 #if !defined(_CON_CONST_H_)
@@ -134,15 +120,9 @@ double gsum_double_conwrap(double sum);
 #if !defined(_CON_CONST_H_)
 double gsum_double_conwrap(double sum);
 #endif
-double gsum_double_conwrap(double sum);
-double gsum_double_conwrap(double sum);
 void assign_bif_parameter_conwrap(double tp_param);
 #if !defined(_CON_CONST_H_)
 void assign_bif_parameter_conwrap(double bif_param);
-#endif
-void assign_bif_parameter_conwrap(double tp_param);
-void assign_bif_parameter_conwrap(double tp_param);
-#if !defined(_CON_CONST_H_)
 #define  TP_CONT_SOL4      304
 #define  SAME_BUT_UNSCALED_JACOBIAN  202
 #endif
@@ -156,10 +136,6 @@ double ltransnorm(double *x,double *y);
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
 #if !defined(_CON_CONST_H_)
 void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
-#endif
-void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
-void calc_scale_vec_conwrap(double *x,double *scale_vec,int numUnks);
-#if !defined(_CON_CONST_H_)
 #define  TP_CONT_SOL2      302
 #endif
 int turning_point_alg(double *x,double *delta_x,struct con_struct *con,double reltol,double abstol);
@@ -194,19 +170,11 @@ void free_vec(double **ptr);
 void assign_parameter_conwrap(double param);
 #if !defined(_CON_CONST_H_)
 void assign_parameter_conwrap(double param);
-#endif
-void assign_parameter_conwrap(double param);
-void assign_parameter_conwrap(double param);
-#if !defined(_CON_CONST_H_)
 #define  CHECK_JACOBIAN              204
 #endif
 int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
 #if !defined(_CON_CONST_H_)
 int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
-#endif
-int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
-int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
-#if !defined(_CON_CONST_H_)
 #define  ARC_CONT_SOL2     301
 #endif
 void calc_rhs_continuation(int rhs_type,double *x,double *resid_vector,double *ab_vec,double *scale_vec,double *x_tmp,double param,double perturb,double *r_vec,int numUnks,int numOwnedUnks);

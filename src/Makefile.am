@@ -120,6 +120,8 @@ COMMON_H = \
         ${srcdir}/dft_guess_ELECPOT.h \
         ${srcdir}/dft_comm.h \
         ${srcdir}/dft_continuation.h \
+        ${srcdir}/dft_switch_continuation.h \
+        ${srcdir}/dft_scale_variables.h \
         ${srcdir}/dft_utils.h \
         ${srcdir}/dft_fill_control.h \
         ${srcdir}/dft_fill_main.h \
@@ -214,6 +216,8 @@ COMMON_C = \
         ${srcdir}/dft_guess_ELECPOT.c \
         ${srcdir}/dft_comm.c \
         ${srcdir}/dft_continuation.c \
+        ${srcdir}/dft_switch_continuation.c \
+        ${srcdir}/dft_scale_variables.c \
         ${srcdir}/dft_utils.c \
         ${srcdir}/dft_fill_control.c \
         ${srcdir}/dft_fill_main.c \

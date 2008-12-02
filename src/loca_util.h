@@ -34,14 +34,10 @@ void mass_matvec_mult_conwrap(double *x,double *y);
 #if !defined(_CON_CONST_H_)
 void mass_matvec_mult_conwrap(double *x,double *y);
 #endif
-void mass_matvec_mult_conwrap(double *x,double *y);
-void mass_matvec_mult_conwrap(double *x,double *y);
 void matvec_mult_conwrap(double *x,double *y);
 #if !defined(_CON_CONST_H_)
 void matvec_mult_conwrap(double *x,double *y);
 #endif
-void matvec_mult_conwrap(double *x,double *y);
-void matvec_mult_conwrap(double *x,double *y);
 double null_vector_resid(double r_val,double i_val,double *r_vec,double *i_vec,int mm_flag);
 double null_vector_resid(double r_val,double i_val,double *r_vec,double *i_vec,int mm_flag);
 double ltransnorm(double *x,double *scale_vec);
@@ -73,5 +69,3 @@ double gsum_double_conwrap(double sum);
 #if !defined(_CON_CONST_H_)
 double gsum_double_conwrap(double sum);
 #endif
-double gsum_double_conwrap(double sum);
-double gsum_double_conwrap(double sum);
