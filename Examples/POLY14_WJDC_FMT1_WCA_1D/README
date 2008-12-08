@@ -1,0 +1,27 @@
+/*! \file 
+ \brief 8-2-8 hard polymer at a hard wall.
+
+Functionals: WJDC, FMT1, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This case is a restart based on the 8-2-8 lipid systems we have been studying.
+Specifically it tests the restart of all fields other than the density profile for the 
+case of the segment based WJDC functional (Type_poly=3).
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_dens.dat
+   - lin_18_1
+
+
+Key Output Parameters:
+   - niter=2 
+   - adsorption[0]=2.0727  
+   - adsorption[1]=0.259088  
+   - adsorption[2]=13.7699   
+   - energy=-20.7246  
+   .
+*/
