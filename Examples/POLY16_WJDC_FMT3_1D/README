@@ -1,0 +1,28 @@
+/*! \file 
+ \brief WJDC functionals: 5-mer at a hard wall.
+
+Functionals: WJDC, FMT3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This is indentical to POLY15 except that the polymer architechture is entered in block format rather
+than treating every segment as a different component.
+This case is similar to the POLY7_WTC_FMT1_1D test case that was set up for WTC functionals and
+the POLY11_WJDC_FMT1_1D functional.  In this case we use FMT3 for the hard sphere part of the functional, the Schur solver and Physics scaling are turned on, and the component version of the WJDC functional
+(Type_poly=5) is used
+The ratio of adsorption[1]/adsorption[0]=3/2 is correct.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_5mer
+
+Key Output Parameters:
+   - niter=12
+   - adsorption[0]=1.15729
+   - adsorption[1]=1.735932
+   - energy=0.521004
+   .
+*/
