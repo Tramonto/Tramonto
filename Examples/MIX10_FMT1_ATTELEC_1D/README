@@ -21,7 +21,7 @@ Input Files for Test problem:
 
 Key Output Parameters:
    - niter=9
-   - adsorption[0]= 0.300677  
-   - adsorption[1]= 0.797593
+   - adsorption[0]= 0.79733
+   - adsorption[1]= 0.30073  
    .
 */
