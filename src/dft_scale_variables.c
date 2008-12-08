@@ -141,7 +141,7 @@ void scale_elec_param(double ratio)
    for (iwall=0; iwall<Nwall; iwall++) Elec_param_w[iwall]*=ratio;
 
    if (Iwrite == VERBOSE){
-       if (Proc==0) printf ("PRINTING CHARGE DISTRIBUTIONS: Scale_fac=%9.6f\n",Scale_fac);
+       if (Proc==0) printf ("PRINTING CHARGE DISTRIBUTIONS: Scale_fac=%9.6f\n",ratio);
        if (Vol_charge_flag) print_charge_vol(Charge_vol_els,"dft_charge_vol.dat");
        if (Surf_charge_flag) print_charge_surf(Charge_w_sum_els,"dft_charge_surf.dat");
     }

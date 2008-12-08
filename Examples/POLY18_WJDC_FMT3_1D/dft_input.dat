@@ -295,3 +295,31 @@
 @ 1 0.25 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
 @ 2 	Second parameter for Spinodal and Binoadal Calculations (Same list). 
 *********** END OF INPUT FILE ******************************************
+************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
+@ -1     Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length
+                         3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
+@ 2 1 0  Continuation_Type, NID_Cont, ID1, ID2
+          (NID_Cont indicates number if IDs needed to indentify which parameters should be continued.
+           This should be either 0, 1 (as in Rho_b[icomp] to indicate icomp) or
+           2 (as in Eps_ff[icomp][jcomp] to indicate icomp and jcomp).
+
+           Parameters for Continuation_Type are:
+                1 =  CONT_TEMP          Temperature Continuation
+                2 =  CONT_RHO_I         Density continuation - species i
+                3 =  CONT_BETAMU_I      Chemical potential continuation species i
+                4 =  CONT_EPSW_I        Wall-Wall Energy Parameter continuations for:
+                                             --  wall i (if Mix_type=0)
+                                            --  wall ij (if Mix_type==1)
+                5 =  CONT_EPSWF_IJ      Wall-Fluid Energy Parameter continuation for ij term
+                6 =  CONT_EPSFF_IJ      Fluid-Fluid Energy Parameter continuation for the ij term
+                7 =  CONT_ELECPARAM_I   Continue in Electrostatic properties for the surface
+                                            (charge or potential) for surfaces of type i
+                8 =  CONT_ELECPARAM_ALL Continue in Electrostatic properties for all surfaces simultaneously.
+                9 =  CONT_SEMIPERM_IJ   Continue in strength of semipermeable membrane potential.
+
+@ 0.0001    Parameter initial step size
+@ 30 0.30   N Steps, Step Control Aggressiveness (0.0 = constant step)
+@ 2 0 0 0       Continuation_Type2, NID_Cont, ID1, ID2
+           (2nd parameter for  Spinodal and Binoadal Calculations (see listabove).
+*********** END OF INPUT FILE ******************************************
+

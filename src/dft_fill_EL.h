@@ -37,8 +37,9 @@ extern double Betamu_hs_ex[NCOMP_MAX];
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
 #define DIFFUSIVE_INTERFACE 1
-#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
-#define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
+#define NCONT_MAX          2 /* the maximum number of solutions possible for use with Loca */
+extern int Cont_ID[NCONT_MAX][2];
+#define CONT_BETAMU_I      3  /* Vary chemical potential for species I */
 typedef struct Loca_Struct Loca_Struct;
 struct Loca_Struct {
   int    method;      /* Continuation method                          */

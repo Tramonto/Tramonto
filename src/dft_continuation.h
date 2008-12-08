@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-#include <stdio.h>
 int continuation_hook(double *x,double *delta_x,void *con_void,double reltol,double abstol);
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 void box2owned(double **xBox,double **xOwned);
@@ -53,7 +52,7 @@ void assign_bif_parameter_conwrap(double tp_param);
 #if !defined(_CON_CONST_H_)
 void assign_bif_parameter_conwrap(double bif_param);
 #endif
-void assign_parameter_tramonto(int cont_type,double param);
+void assign_parameter_tramonto(int cont_type,double param,int Loca_contID);
 void assign_parameter_conwrap(double param);
 #if !defined(_CON_CONST_H_)
 void assign_parameter_conwrap(double param);
@@ -68,6 +67,7 @@ double gsum_double_conwrap(double sum);
 double gsum_double_conwrap(double sum);
 #endif
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)
@@ -187,11 +187,11 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 int solve_continuation(double **xx,double **xx2);
-double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type,int);
 #if !defined(_CON_CONST_H_)
-double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type,int);
 #endif
-double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type,int Loca_contID);
 #if !defined(_CON_CONST_H_)
 typedef struct general_info_struct general_info_struct;
 struct general_info_struct {

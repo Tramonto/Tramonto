@@ -352,31 +352,42 @@
 #define CALC_AND_FILL_RESID_ONLY  4
 
 /*
- * The following are the various fields for continuuation 
+ * The following are the various fields for continuuation.  There are
+ * 3 groups of continuation routines. Group I contains the core Tramonto
+ * capabilities.  Group II contains archived extensions and special cases
+ * that have been used for specific applications.  Group III should contain
+ * local user extensions to be found in dft_plugins_user_continue.c.  
  */
-#define CONT_MESH        0   /* mesh size */
-#define CONT_TEMP        1   /* State Parameters */
-#define CONT_RHO_0       2
-#define CONT_RHO_ALL     3
-#define CONT_LOG_RHO_0   4 
-#define CONT_LOG_RHO_ALL 5 
-#define CONT_SCALE_RHO   6
-#define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
-#define CONT_EPSW_ALL    8
-#define CONT_SCALE_EPSW  9
-#define CONT_EPSWF00     10    /* Wall-Fluid Energy Params */
-#define CONT_EPSWF_ALL_0 11 
-#define CONT_SCALE_EPSWF 12
-#define CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
-#define CONT_EPSFF_ALL   14   
-#define CONT_SCALE_EPSFF 15
-#define CONT_SCALE_CHG   16  /* Charged surface params */
-#define CONT_SEMIPERM   17  /* Vext_membrane */
-#define CONT_WALLPARAM  18  /* Vext_membrane */
-#define CONT_CRFAC  19  /* continuous mixing of two cr files */
-#define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
-#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
-
+/*
+ * This group contains the core continuation capabilties in Tramonto
+ */
+#define NCONT_MAX          2 /* the maximum number of solutions possible for use with Loca */
+#define CONT_MESH          0   /* mesh size */
+#define CONT_TEMP          1   /* State Parameters */
+#define CONT_RHO_I         2
+#define CONT_BETAMU_I      3  /* Vary chemical potential for species I */
+#define CONT_EPSW_I        4    /* Wall-Wall Energy Params for wall I */
+#define CONT_EPSWF_IJ      5    /* Wall-Fluid Energy Params for IJ term */
+#define CONT_EPSFF_IJ      6   /* Fluid-Fluid Energy Params for IJ term */
+#define CONT_ELECPARAM_I   7  /* Charged surface params */
+#define CONT_ELECPARAM_ALL 8  /* Charged surface params */
+#define CONT_SEMIPERM_IJ   9  /* Vext_membrane */
+/*
+ * This group contains extensions to the core capabilities that are archived in the repository.
+ */
+#define CONT_LOG_RHO_I          100
+#define CONT_RHO_CONST_RHOTOT58 101
+#define CONT_RHO_CONST_XSOLV    102
+#define CONT_RHO_ALL		103
+#define CONT_EPSW_ALL		104
+#define CONT_EPSWF_ALL	        105
+#define CONT_EPSWF_SOME 	106
+#define CONT_EPSFF_ALL		107
+#define CONT_CRFAC              108  /* continuous mixing of two cr files */
+/*
+ * Any other new contination types that are defined by the user should be set here beginning
+ * with the ID number 200
+ */
 
 #define PRINT_RHO_0      0
 
@@ -735,7 +746,6 @@ extern int     Nruns;           /* Number of runs to perform (varying the mesh) 
 extern double  Del_1[NWALL_MAX_TYPE];    /*Stepping parameter for field #1  */
 extern double  Rho_max;         /* max rho when using an old solution for mesh contin*/
 extern int     Imain_loop;    /* Couter on the number of times through the program  */
-extern double  Scale_fac; /* for continuation in arrays !*/
 
 
 /* Surface Physics info */
@@ -1058,6 +1068,10 @@ extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
 extern double *Gsum;	/* chain partition func for CMS_SCFT */
+
+/*some continuation related arrayes */
+extern int  Cont_ID[NCONT_MAX][2];  /* Array of iwall/icomp ids for use in continuation.  */
+extern int NID_Cont;
 
 /*********************************************************************/
 extern double Ads[NCOMP_MAX][2];

@@ -19,28 +19,22 @@ extern int Num_Proc;
 void error_check(void);
 extern int Nnodes_per_el_S;
 extern int Nnodes_per_el_V;
-#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
 #define REFLECT              2
 #define LAST_NODE            3
 #define IN_BULK              0
-#define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
-#define CONT_EPSFF_ALL   14   
-#define CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
-#define CONT_EPSWF_ALL_0 11 
-#define CONT_EPSWF00     10    /* Wall-Fluid Energy Params */
-#define CONT_EPSW_ALL    8
-#define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
-#define CONT_LOG_RHO_ALL 5 
-#define CONT_LOG_RHO_0   4 
-#define CONT_RHO_ALL     3
-#define CONT_RHO_0       2
-#define CONT_TEMP        1   /* State Parameters */
-extern double Scale_fac;
-#define CONT_SCALE_CHG   16  /* Charged surface params */
-#define CONT_SCALE_EPSFF 15
-#define CONT_SCALE_EPSWF 12
-#define CONT_SCALE_EPSW  9
-#define CONT_SCALE_RHO   6
+#define CONT_BETAMU_I      3  /* Vary chemical potential for species I */
+#define CONT_EPSFF_ALL		107
+#define CONT_EPSFF_IJ      6   /* Fluid-Fluid Energy Params for IJ term */
+#define CONT_EPSWF_ALL	        105
+#define CONT_EPSWF_IJ      5    /* Wall-Fluid Energy Params for IJ term */
+#define CONT_EPSW_ALL		104
+#define CONT_EPSW_I        4    /* Wall-Wall Energy Params for wall I */
+#define CONT_LOG_RHO_I          100
+#define CONT_RHO_I         2
+#define CONT_TEMP          1   /* State Parameters */
+extern int NID_Cont;
+#define NCONT_MAX          2 /* the maximum number of solutions possible for use with Loca */
+extern int Cont_ID[NCONT_MAX][2];
 extern int Lbinodal;
 typedef struct Loca_Struct Loca_Struct;
 struct Loca_Struct {

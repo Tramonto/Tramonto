@@ -16,7 +16,6 @@ void print_charge_vol(double *charge_els,char *output_file);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-extern double Scale_fac;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
@@ -31,6 +30,8 @@ extern int Surf_charge_flag;
 void scale_elec_param(double ratio);
 void scale_vext_epswf(double ratio,int icomp,int iwall);
 void print_vext(double **vext,char *output_file);
+#define VERBOSE      3 
+extern int Iwrite;
 extern double ***Vext_dash;
 extern int Ndim;
 extern int Nwall;
@@ -43,10 +44,6 @@ extern double **Vext;
 extern int Restart_Vext;
 extern int Nnodes_per_proc;
 void scale_vext_temp(double ratio);
-#define THETA_PAIRPOT_RCUT    2
-#define VERBOSE      3 
-extern int Iwrite;
-void scale_att_stencil_temp(double temp);
 void calc_stencils(void);
 extern int Lhard_surf;
 void safe_free(void **ptr);

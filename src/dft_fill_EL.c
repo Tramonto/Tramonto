@@ -384,10 +384,8 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
    int junk,pol_num,usemu_test;
 
    usemu_test=FALSE;
-   if (LBulk && Loca.cont_type1==CONT_BETAMU_0 && icomp==0) usemu_test=TRUE;
-   if (LBulk && Loca.cont_type1==CONT_BETAMU_1 && icomp==1) usemu_test=TRUE;
-   if (Loca.method==4 && LBulk && Loca.cont_type2==CONT_BETAMU_0 && icomp==0) usemu_test=TRUE;
-   if (Loca.method==4 && LBulk && Loca.cont_type2==CONT_BETAMU_1 && icomp==1) usemu_test=TRUE;
+   if (LBulk && Loca.cont_type1==CONT_BETAMU_I && icomp==Cont_ID[0][0]) usemu_test=TRUE;
+   if (Loca.method==4 && LBulk && Loca.cont_type2==CONT_BETAMU_I && icomp==Cont_ID[1][0]) usemu_test=TRUE;
 
    resid_mu = 0.0;
    if (Type_interface != DIFFUSIVE_INTERFACE) {

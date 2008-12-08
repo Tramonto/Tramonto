@@ -32,6 +32,8 @@ Here are some useful routines that are used many times in
 different places in the DFT code - 
 ------------------------------------------------------------*/
 
+
+#include <stdio.h>
 #include "dft_utils.h"
 
 /***********************************************************************/

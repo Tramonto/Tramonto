@@ -1,5 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
-void thermodynamics(char *output_file1);
+void print_cont_variable_user_plugin(int cont_type,FILE *fp,int Loca_contID);
+void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,6 +16,24 @@ void thermodynamics(char *output_file1);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define NWALL_MAX_TYPE 50 
+extern double WallParam[NWALL_MAX_TYPE];
+#define NDIM_MAX  3
+extern double Size_x[NDIM_MAX];
+#define NWALL_MAX 600 
+extern double WallPos[NDIM_MAX][NWALL_MAX];
+void print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
+void print_cont_type_user_plugin(int cont_type,FILE *fp,int Loca_contID);
+void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID);
+extern int Type_attr;
+extern int Ndim;
+#define REFLECT              2
+extern int Type_bc[NDIM_MAX][2];
+extern int Plane_new_nodes;
+#define SWITCH_SURFACE_SEP   0
+extern int Print_mesh_switch;
+void print_cont_type(int cont_type,FILE *fp,int Loca_contID);
+void thermodynamics(char *output_file1);
 typedef struct Loca_Struct Loca_Struct;
 struct Loca_Struct {
   int    method;      /* Continuation method                          */
@@ -25,36 +44,15 @@ struct Loca_Struct {
   double step_size;   /* initial continuation step size               */
 };
 extern struct Loca_Struct Loca;
-extern int **Zero_density_TF;
-void print_zeroTF(int **zero_TF,char *output_file);
-void print_vext(double **vext,char *output_file);
-#define VERBOSE      3 
-extern int Iwrite;
-void boundary_setup(char *output_file1);
-void set_up_mesh(char *output_file1,char *output_file2);
-extern int *Comm_offset_unk;
-extern int *Comm_offset_node;
-extern int *Comm_unk_proc;
-extern int *Comm_node_proc;
-extern double *Area_IC;
-void safe_free(void **ptr);
-void safe_free(void **ptr);
-extern int Ndim;
-#define DIFFUSIVE_INTERFACE 1
-extern int Type_interface;
-void boundary_free(void);
-void free_mesh_arrays(void);
-#define NDIM_MAX  3
-extern double Size_x[NDIM_MAX];
-#define NWALL_MAX 600 
-extern double WallPos[NDIM_MAX][NWALL_MAX];
+void assign_param_user_plugin(int cont_type,int Loca_contID,double param);
+void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
 extern double **Vext;
 extern int Nnodes_per_proc;
 void scale_elec_param(double ratio);
+#define BH_DIAM             1
+extern int Type_hsdiam;
+extern int WallType[NWALL_MAX];
 void scale_vext_epswf(double ratio,int icomp,int iwall);
-#define NMER_MAX     100
-extern int Unk2Comp[NMER_MAX];
-extern int Nseg_tot;
 void scale_vext_temp(double ratio);
 extern int Nwall;
 void recalculate_stencils();
@@ -65,71 +63,61 @@ void calc_HS_diams();
 extern int Type_func;
 void pot_parameters(char *output_file1);
 #define VEXT_HARD        1
-#define NWALL_MAX_TYPE 50 
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
+extern int Nwall_type;
+extern int Ncomp;
 #define LJ12_6       2
 extern int Ipot_ff_n;
 extern double Temp_elec;
 #define COULOMB      1
 extern int Ipot_ff_c;
 #define NCOMP_MAX 5
-void assign_parameter_tramonto(int cont_type,double param);
-extern double Crfac;
-#define CONT_CRFAC  19  /* continuous mixing of two cr files */
-extern int WallType[NWALL_MAX];
-extern double WallParam[NWALL_MAX_TYPE];
-#define CONT_WALLPARAM  18  /* Vext_membrane */
+void assign_parameter_tramonto(int cont_type,double param,int Loca_contID);
+double get_init_param_user_plugin(int cont_type,int Loca_contID);
+double get_init_param_archived_plugin(int cont_type,int Loca_contID);
 extern double **Vext_membrane;
-#define CONT_SEMIPERM   17  /* Vext_membrane */
-#define CONT_SCALE_CHG   16  /* Charged surface params */
-#define CONT_SCALE_EPSFF 15
-#define CONT_EPSFF_ALL   14   
+#define CONT_SEMIPERM_IJ   9  /* Vext_membrane */
+#define CONT_ELECPARAM_ALL 8  /* Charged surface params */
+extern double Elec_param_w[NWALL_MAX];
+#define CONT_ELECPARAM_I   7  /* Charged surface params */
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
-#define CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
-#define CONT_SCALE_EPSWF 12
-#define CONT_EPSWF_ALL_0 11 
+#define CONT_EPSFF_IJ      6   /* Fluid-Fluid Energy Params for IJ term */
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
-#define CONT_EPSWF00     10    /* Wall-Fluid Energy Params */
-#define CONT_SCALE_EPSW  9
-extern int Nwall_type;
-#define CONT_EPSW_ALL    8
+#define CONT_EPSWF_IJ      5    /* Wall-Fluid Energy Params for IJ term */
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_w[NWALL_MAX_TYPE];
 extern int Mix_type;
-#define CONT_EPSW_0      7    /* Wall-Wall Energy Params */
-#define CONT_BETAMU_1 21  /* Vary chemical potential for species 1 */
+#define CONT_EPSW_I        4    /* Wall-Wall Energy Params for wall I */
 extern double Betamu[NCOMP_MAX];
+#define NMER_MAX     100
 extern double Betamu_chain[NMER_MAX];
 #define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
-#define CONT_BETAMU_0 20  /* Vary chemical potential for species 0 */
-extern double Scale_fac;
-#define CONT_SCALE_RHO   6
-#define CONT_LOG_RHO_ALL 5 
-#define CONT_LOG_RHO_0   4 
+#define CONT_BETAMU_I      3  /* Vary chemical potential for species I */
 extern double Rho_seg_b[NMER_MAX];
-extern int Npol_comp;
-extern int Ncomp;
+extern int SegAll_to_Poly[NMER_MAX];
+extern int Nseg_tot;
+#define NCONT_MAX          2 /* the maximum number of solutions possible for use with Loca */
+extern int Cont_ID[NCONT_MAX][2];
+extern double Rho_b[NCOMP_MAX];
 #define NONE       -1
 #define NONE      -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_poly;
-#define CONT_RHO_ALL     3
-extern double Rho_b[NCOMP_MAX];
-#define CONT_RHO_0       2
+#define CONT_RHO_I         2
 extern double Temp;
-#define CONT_TEMP        1   /* State Parameters */
-#define CONT_MESH        0   /* mesh size */
+#define CONT_TEMP          1   /* State Parameters */
+#define CONT_MESH          0   /* mesh size */
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
 #endif
 #if defined(LOCA_MF) && !defined(_CON_CONST_H_)
 #include <mf.h>
 #endif
-double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type,int);
 #if !defined(_CON_CONST_H_)
-double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type,int);
 #endif
-double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type,int Loca_contID);

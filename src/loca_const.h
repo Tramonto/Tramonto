@@ -233,7 +233,7 @@ extern int turning_point_alg(double *x, double *delta_x,
 extern int  nonlinear_solver_conwrap(double *x, void *con, int step_num,
                                      double lambda, double delta_s, void * aux_info);
 extern void assign_parameter_conwrap(double param);
-extern double get_init_param_value(int cont_type);
+extern double get_init_param_value(int cont_type,int);
 extern void assign_bif_parameter_conwrap(double bif_param);
 extern int  linear_solver_conwrap(double *x, int jac_flag, double *tmp);
 extern int  komplex_linear_solver_conwrap(double *x, double *y, 

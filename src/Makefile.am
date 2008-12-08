@@ -121,6 +121,8 @@ COMMON_H = \
         ${srcdir}/dft_comm.h \
         ${srcdir}/dft_continuation.h \
         ${srcdir}/dft_switch_continuation.h \
+        ${srcdir}/dft_plugin_archived_continue.h \
+        ${srcdir}/dft_plugin_user_continue.h \
         ${srcdir}/dft_scale_variables.h \
         ${srcdir}/dft_utils.h \
         ${srcdir}/dft_fill_control.h \
@@ -217,6 +219,8 @@ COMMON_C = \
         ${srcdir}/dft_comm.c \
         ${srcdir}/dft_continuation.c \
         ${srcdir}/dft_switch_continuation.c \
+        ${srcdir}/dft_plugin_archived_continue.c \
+        ${srcdir}/dft_plugin_user_continue.c \
         ${srcdir}/dft_scale_variables.c \
         ${srcdir}/dft_utils.c \
         ${srcdir}/dft_fill_control.c \

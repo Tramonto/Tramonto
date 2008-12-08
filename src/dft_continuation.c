@@ -93,6 +93,7 @@
 
 /* This include file is for the continuation structures, defines, prototypes */
 
+#include <stdio.h>
 #include "loca_const.h"
 #include "dft_continuation.h"
 
@@ -116,7 +117,7 @@ double **xBox;
 double **xOwned;
 } passdown;
 
-double get_init_param_value(int cont_type);
+double get_init_param_value(int cont_type,int);
 static void print_final(double param, int step_num);
 static void translate_2dBox_1dOwned(double **xBox, double *x);
 static void translate_1dOwned_2dBox(double *x, double **xBox);
@@ -182,7 +183,7 @@ int solve_continuation( double **xx, double **xx2)
 
   printf("\n###\nPROC = %d\n\n",Proc);
 
-  con.general_info.param        = get_init_param_value(Loca.cont_type1);
+  con.general_info.param        = get_init_param_value(Loca.cont_type1,0);
   con.general_info.x            = x;
   con.general_info.numUnks      = Nunk_per_node*Nnodes_per_proc;
   con.general_info.numOwnedUnks = Nunk_per_node*Nnodes_per_proc;
@@ -223,15 +224,15 @@ int solve_continuation( double **xx, double **xx2)
       con.arclength_info.tang_step_limit = 0.5;
       break;
     case TURNING_POINT_CONTINUATION:
-      con.turning_point_info.bif_param = get_init_param_value(Loca.cont_type2);
+      con.turning_point_info.bif_param = get_init_param_value(Loca.cont_type2,1);
       con.general_info.nv_restart       = FALSE;
       break;
     case PITCHFORK_CONTINUATION:
-      con.pitchfork_info.bif_param = get_init_param_value(Loca.cont_type2);
+      con.pitchfork_info.bif_param = get_init_param_value(Loca.cont_type2,1);
       con.pitchfork_info.psi        = NULL;
       break;
     case HOPF_CONTINUATION:
-      con.hopf_info.bif_param = get_init_param_value(Loca.cont_type2);
+      con.hopf_info.bif_param = get_init_param_value(Loca.cont_type2,1);
       con.hopf_info.omega       = 0.0;
       con.hopf_info.y_vec       = NULL;
       con.hopf_info.z_vec       = NULL;
@@ -239,7 +240,7 @@ int solve_continuation( double **xx, double **xx2)
       break;
     case PHASE_TRANSITION_CONTINUATION:
       con.phase_transition_info.bif_param
-          = get_init_param_value(Loca.cont_type2);
+          = get_init_param_value(Loca.cont_type2,1);
       con.phase_transition_info.x2  = x2;
       break;
     default:
@@ -470,7 +471,7 @@ void assign_parameter_conwrap(double param)
 {
   if (Proc==0) printf("\tContinuation parameter #%d set to %g\n",
                          Loca.cont_type1, param);
-  assign_parameter_tramonto(Loca.cont_type1, param);
+  assign_parameter_tramonto(Loca.cont_type1, param,0);
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -487,7 +488,7 @@ void assign_bif_parameter_conwrap(double tp_param)
 {
   if (Proc==0) printf("\tSecond (floating) parameter #%d set to %20.15g\n",
                          Loca.cont_type2, tp_param);
-  assign_parameter_tramonto(Loca.cont_type2, tp_param);
+  assign_parameter_tramonto(Loca.cont_type2, tp_param,1);
 
 }
 /*****************************************************************************/

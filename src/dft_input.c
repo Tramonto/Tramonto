@@ -1970,19 +1970,22 @@ void read_input_file(char *input_file, char *output_file1)
    exit (-1);
   }
 
+  for (i=0;i<NCONT_MAX;i++){
+     for (j=0;j<2;j++) Cont_ID[i][j]=-1;
+  } 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d", &itmp);
-    if (itmp == CONT_SCALE_RHO || itmp == CONT_SCALE_EPSW || itmp == CONT_SCALE_EPSWF ||
-         itmp == CONT_SCALE_EPSFF || itmp== CONT_SCALE_CHG){
-         fscanf(fp,"%lf ", &Scale_fac);
-    }
-    else Scale_fac = -1.;
+    fscanf(fp,"%d %d ", &itmp, &NID_Cont);
+    for (i=0;i<NID_Cont;i++) fscanf(fp,"%d ", &Cont_ID[0][i]);
   }
   MPI_Bcast(&itmp,1,MPI_INT,0,MPI_COMM_WORLD);
-  MPI_Bcast(&Scale_fac,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  MPI_Bcast(&NID_Cont,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(Cont_ID,NCONT_MAX*2,MPI_INT,0,MPI_COMM_WORLD);
   Loca.cont_type1 = itmp;
-  if (Proc==0) fprintf(fp2,"%d  %g",Loca.cont_type1,Scale_fac);
+  if (Proc==0){
+       fprintf(fp2,"%d  %d  ",Loca.cont_type1,NID_Cont);
+       for (i=0;i<NID_Cont;i++) fprintf(fp2,"%d  ",Cont_ID[0][i]);
+  }
 
   if (Proc==0) {
     read_junk(fp,fp2);
@@ -1994,22 +1997,22 @@ void read_input_file(char *input_file, char *output_file1)
     if (Loca.cont_type1 == CONT_TEMP && Temp>0.0 ) {
            dtmp /= (Eps_ff[0][0]*Temp);
     }
-    else if ( Loca.cont_type1 == CONT_RHO_0 || Loca.cont_type1 == CONT_RHO_ALL ||
-              Loca.cont_type1 == CONT_LOG_RHO_0 || Loca.cont_type1 == CONT_LOG_RHO_ALL ||  Loca.cont_type1 ==CONT_SCALE_RHO){
-           if (Type_poly !=NONE && Type_poly !=WTC){
+    else if ( Loca.cont_type1 == CONT_RHO_I || 
+              Loca.cont_type1 == CONT_LOG_RHO_I){
+           if (Type_poly == CMS){
                printf("WARNING: density continuation may be incorrect with polymer code\n");
                printf("...... you really need a new c(r) for the hard chain part\n");
                printf("...... for each new density.\n");
            }
-           if (Density_ref>0.0 && Loca.cont_type1 !=CONT_SCALE_RHO) dtmp /= Density_ref;
+           if (Density_ref>0.0) dtmp /= Density_ref;
     }
-    else if (Loca.cont_type1 == CONT_EPSW_0 ||  Loca.cont_type1 == CONT_EPSW_ALL ||
-             Loca.cont_type1 == CONT_EPSWF00 ||  Loca.cont_type1 == CONT_EPSWF_ALL_0 ||
-              Loca.cont_type1 == CONT_EPSFF_00 || Loca.cont_type1 == CONT_EPSFF_ALL ){
+    else if (Loca.cont_type1 == CONT_EPSW_I ||  Loca.cont_type1 == CONT_EPSW_ALL ||
+             Loca.cont_type1 == CONT_EPSWF_IJ ||  Loca.cont_type1 == CONT_EPSWF_ALL ||
+              Loca.cont_type1 == CONT_EPSFF_IJ || Loca.cont_type1 == CONT_EPSFF_ALL ){
            if (Temp>0.0) dtmp /= Temp;
     }
-    if (Mix_type == 0 && (Loca.cont_type1 == CONT_EPSWF00 ||  Loca.cont_type1 == CONT_EPSWF_ALL_0 ||
-        Loca.cont_type1 == CONT_SCALE_EPSWF)){
+    if (Mix_type == 0 && (Loca.cont_type1 == CONT_EPSWF_IJ ||  
+                          Loca.cont_type1 == CONT_EPSWF_ALL)){
         printf("ERROR: Can't do continuation in Eps_wf when the Mix_type is 0\n");
         exit(-1);
     } 
@@ -2017,7 +2020,8 @@ void read_input_file(char *input_file, char *output_file1)
 
   /* checks on LBulk */
   /* first check that bulk boundaries are NOT used if LBulk=TRUE and chemical potentials will be varied */ 
-  if (LBulk && Loca.cont_type1 == CONT_BETAMU_0 && Loca.method !=-1){
+  if (LBulk && Loca.method != -1 &&
+     (Loca.cont_type1 == CONT_BETAMU_I) ){
      for (idim=0;idim<Ndim;idim++){
          for (i=0;i<2;i++){
             if (Type_bc[idim][i]==IN_BULK){ 
@@ -2037,37 +2041,6 @@ void read_input_file(char *input_file, char *output_file1)
   Loca.step_size = dtmp;
   if (Proc==0) fprintf(fp2,"%f  ",Loca.step_size);
 
-  /* make adjustments to arrays if we are doing scaling continuation */
-  if (Loca.cont_type1 ==  CONT_SCALE_RHO){
-    for (icomp=0; icomp<Ncomp; icomp++) Rho_b[icomp] *= Scale_fac;
-  }
-  else if (Loca.cont_type1 ==  CONT_SCALE_EPSW){
-    if (Mix_type==0) for (iwall_type=0; iwall_type<Nwall_type; iwall_type++) Eps_w[iwall_type] *= Scale_fac;
-    else{
-        for (i=0; i<Nwall_type;i++){
-          for (j=0; j<Nwall_type; j++) Eps_ww[i][j] *= Scale_fac;
-        }
-    }
-  }
-  else if (Loca.cont_type1 ==  CONT_SCALE_EPSWF){
-    for (icomp=0; icomp<Ncomp; icomp++){
-       for (iwall_type=0; iwall_type<Nwall_type; iwall_type++) Eps_wf[icomp][iwall_type] *= Scale_fac;
-    }
-  }
-  else if (Loca.cont_type1 ==  CONT_SCALE_EPSFF){
-    if (Mix_type==0){ 
-        for (icomp=0; icomp<Ncomp; icomp++) Eps_ff[icomp][icomp] *= Scale_fac;
-    }
-    else{
-       for (i=0; i<Ncomp; i++){
-         for (j=0; j<Ncomp;j++)  Eps_ff[i][j] *= Scale_fac;
-       }
-    }
-  }
-  else if (Loca.cont_type1 ==  CONT_SCALE_CHG){
-    for (iwall=0; iwall<Nwall; iwall++) Elec_param_w[iwall] *= Scale_fac;
-  }
-
   if (Proc==0) {
     read_junk(fp,fp2);
     fscanf(fp,"%d", &itmp);
@@ -2081,20 +2054,20 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d", &itmp);
-    if (itmp == CONT_SCALE_RHO || itmp == CONT_SCALE_EPSW || itmp == CONT_SCALE_EPSWF ||
-         itmp == CONT_SCALE_EPSFF || itmp== CONT_SCALE_CHG){
-         fscanf(fp,"%lf ", &Scale_fac);
-    }
-    else Scale_fac = -1.;
+    fscanf(fp,"%d %d ", &itmp, &NID_Cont);
+    for (i=0;i<NID_Cont;i++) fscanf(fp,"%d ", &Cont_ID[1][i]);
   }
   MPI_Bcast(&itmp,1,MPI_INT,0,MPI_COMM_WORLD);
-  MPI_Bcast(&Scale_fac,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  MPI_Bcast(&NID_Cont,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(Cont_ID,NCONT_MAX*2,MPI_INT,0,MPI_COMM_WORLD);
   Loca.cont_type2 = itmp;
-  if (Proc==0) fprintf(fp2,"%d  %g",Loca.cont_type2,Scale_fac);
+  if (Proc==0){
+       fprintf(fp2,"%d  %d  ",Loca.cont_type2,NID_Cont);
+       for (i=0;i<NID_Cont;i++) fprintf(fp2,"%d  ",Cont_ID[1][i]);
+  }
 
-  if (((Loca.method != -1 &&(Loca.cont_type1 == CONT_BETAMU_0 || Loca.cont_type1==CONT_BETAMU_1)) ||
-        (Loca.method==4 && (Loca.cont_type2 == CONT_BETAMU_0 || Loca.cont_type2==CONT_BETAMU_1)))&& !LBulk){
+  if (!LBulk && ((Loca.method != -1 && Loca.cont_type1 == CONT_BETAMU_I) ||
+       (Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I)) ){
        printf("error: for continuation type=%d LBulk must be TRUE=%d .... resetting LBulk\n",Loca.cont_type1,1);
        LBulk=TRUE;
     }

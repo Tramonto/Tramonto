@@ -173,7 +173,6 @@ int     Nruns;           /* Number of runs to perform (varying the mesh)     */
 double  Del_1[NWALL_MAX_TYPE];    /*Stepping parameter for field #1  */
 double	Rho_max;         /* max rho when using an old solution for mesh contin*/
 int     Imain_loop;   /* counter on the main loop of the program */
-double  Scale_fac; /* for continuation in arrays !*/
 
 /* Surface Physics info */
 int     Nwall;           /* Number of surfaces in the calculation            */
@@ -498,4 +497,7 @@ int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbon
 int Nmer_comp[NCOMP_MAX];
 double *Gsum;
 
+/*some continuation related arrayes */
+int Cont_ID[NCONT_MAX][2];  /* Array of iwall/icomp ids for use in continuation.  */
+int NID_Cont;
 

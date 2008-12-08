@@ -64,7 +64,7 @@ void NOXLOCA_Solver(double **xBox, double **xOwned, double **x2Owned, bool doPic
     }
     // Continuation run
     else {
-      double init_param =  get_init_param_value(Loca.cont_type1);
+      double init_param =  get_init_param_value(Loca.cont_type1,0);
       p.addParameter("ConParam", init_param);
       stepperList.set("Continuation Parameter", "ConParam");
       stepperList.set("Initial Value", init_param);
@@ -72,7 +72,7 @@ void NOXLOCA_Solver(double **xBox, double **xOwned, double **x2Owned, bool doPic
 
       // Truning point (spinodal) run or phase transition tracking run
       if (Loca.method == 3 || Loca.method == 4) {
-        init_bif_param = get_init_param_value(Loca.cont_type2);
+        init_bif_param = get_init_param_value(Loca.cont_type2,1);
         p.addParameter("BifParam", init_bif_param);
       }
 

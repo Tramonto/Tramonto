@@ -30,9 +30,10 @@
 /* dft_switch_continuation.c:  This routine sets up parameters to be used in 
    continuation calculations using the LOCA library.   */
 
+#include <stdio.h>
 #include "dft_switch_continuation.h"
 /*****************************************************************************/
-double get_init_param_value(int cont_type)
+double get_init_param_value(int cont_type,int Loca_contID)
 {
   int i,j; 
   double param,sum;
@@ -44,115 +45,73 @@ double get_init_param_value(int cont_type)
 
       case CONT_TEMP: return Temp; break;
 
-      case CONT_RHO_0:   return Rho_b[0]; break;
-      case CONT_RHO_ALL:  return Rho_b[0]; break; 
-             if (Type_poly ==NONE){
-                for (i=0;i<Ncomp;i++) if (Rho_b[i] != Rho_b[0]){
-                   printf("ERROR: need all Rho_b to be the same for CONT_RHO_ALL\n"); 
-                   exit(-1);
-                }
-                param=Rho_b[0];
-             }
-             else if (Npol_comp ==1){ /* assume we are continuing in one molecular density */
-                /*sum=0.;
-                for (i=0;i<Nseg_tot;i++) sum += Rho_seg_b[i];
-                param=sum;*/
-                param=Rho_seg_b[0];  /*segment densities are identical = Rho_b/Nmer */
-             }
+      case CONT_RHO_I:   
+             if (Type_poly==NONE) return Rho_b[Cont_ID[Loca_contID][0]]; 
              else{
-                printf("ERROR: continue either with identical initial densities or with a single molecule\n");
-                exit(-1);
-             }
-             return param; break;
-
-      case CONT_LOG_RHO_0: return log(Rho_b[0]); break;
-
-      case CONT_LOG_RHO_ALL:   
-             for (i=0;i<Ncomp;i++) if (Rho_b[i] != Rho_b[0]){
-                 printf("ERROR: need all Rho_b to be the same for CONT_LOG_RHO_ALL\n"); 
-                 exit(-1);
-             }
-             return log(Rho_b[0]); break;
-
-      case CONT_SCALE_RHO: return Scale_fac; break;
-
-      case CONT_BETAMU_0: 
-           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) return Betamu_chain[0];
-           else                 return Betamu[0];
-           break;
-
-      case CONT_BETAMU_1: 
-           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) return Betamu_chain[1];
-           else                 return Betamu[1];
-           break;
-
-      case CONT_EPSW_0:   if (Mix_type==0) return Eps_w[0];
-                          else             return Eps_ww[0][0];
-                          break;
-
-      case CONT_EPSW_ALL: 
-             if (Mix_type ==0 ){
-                for (i=0;i<Nwall_type;i++) if (Eps_w[i] != Eps_w[0]){
-                    printf("ERROR: need all Eps_w to be the same for CONT_EPS_W_ALLL\n"); 
-                    exit(-1);
+                sum=0.0;
+                for (i=0;i<Nseg_tot;i++){
+                  if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) {
+                      sum += Rho_seg_b[i];
+                  }
                 }
-                return Eps_w[0];
+                param=sum;
+                return param;
              }
-             else{
-                for (i=0;i<Nwall_type;i++){
-                   for (j=0; j<Nwall_type;j++)  if (Eps_ww[i][j] != Eps_ww[0][0]){
-                      printf("ERROR: need all Eps_ww to be the same for CONT_EPS_W_ALLL Mix_type=1\n"); 
-                   }
-                }
-                return Eps_ww[0][0];
-             }
-             break;
-      case CONT_SCALE_EPSW: return Scale_fac; break;
+             break;   
 
-      case CONT_EPSWF00: return Eps_wf[0][0]; /*return Eps_wf[2][0];*/
-
-      case CONT_EPSWF_ALL_0: 
-/*           for (i=0;i<Ncomp-1;i++) if (Eps_wf[i][0] != Eps_wf[0][0]) {
-                 printf("ERROR: all Eps_wf must be equal for CONT_EPSWF_ALL_0\n");
-                 exit(-1);
+      case CONT_BETAMU_I: 
+           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
+                return Betamu_chain[Cont_ID[Loca_contID][0]];
            }
-           return Eps_wf[0][0]; break;*/
-           return Eps_wf[2][0]; /*return Eps_wf[2][0];*/
-      case CONT_SCALE_EPSWF: return Scale_fac; break;
+           else                 return Betamu[Cont_ID[Loca_contID][0]];
+           break;    
 
-      case CONT_EPSFF_00:   
-           return Eps_ff[0][2]; 
+      case CONT_EPSW_I:   
+          if (Mix_type==0) return Eps_w[Cont_ID[Loca_contID][0]];
+          else             return Eps_ww[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]];
+          break;
+
+      case CONT_EPSWF_IJ: 
+          return Eps_wf[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]; 
+          break;
+
+      case CONT_EPSFF_IJ:   
+           return Eps_ff[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]; 
            break;
-      case CONT_EPSFF_ALL:
-/*           for (i=0; i<Ncomp; i++) if (Eps_ff[i][i] != Eps_ff[0][0]) {
-                 printf("ERROR: need all Eps_ff[i][i] to be equal for  (CONT_EPSFF_ALL)\n");
-                 exit(-1);
-           }
-           return Eps_ff[0][0]; break;*/
-           return Eps_ff[0][1]; break;
-      case CONT_SCALE_EPSFF: return Scale_fac; break;
 
-      case CONT_SCALE_CHG:  return Scale_fac; break;
+      case CONT_ELECPARAM_I:  
+           return Elec_param_w[Cont_ID[Loca_contID][0]]; 
+           break;
 
-      case CONT_SEMIPERM: return Vext_membrane[0][0]; break;
+      case CONT_ELECPARAM_ALL:  
+           return Elec_param_w[0];
+           break;
 
-      case CONT_WALLPARAM: return WallParam[WallType[1]]; break;
-
-      case CONT_CRFAC:
-              return Crfac; break;
+      case CONT_SEMIPERM_IJ: 
+           return Vext_membrane[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]; 
+           break;
 
       default:
-        printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
-        exit(-1); break;
+        if (cont_type > 99 && cont_type < 199) {
+           param = get_init_param_archived_plugin(cont_type,Loca_contID); 
+        }
+        else if (cont_type >= 200 && cont_type<299){
+           param = get_init_param_user_plugin(cont_type,Loca_contID); 
+        }
+        else{
+           printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
+           exit(-1); 
+        }
+        break;
   }
   return 0.0;
 }
 /*****************************************************************************/
-void assign_parameter_tramonto(int cont_type, double param)
+void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
 /* Note: Post_processing assumes the cont_type flags are the same as those
    used in Tramonto's own continuation */
 {
-  int i,j,icomp,jcomp,iw,inode;
+  int i,j,icomp,jcomp,iw,iwall_type,inode;
   double ratio,temp_save,scale_save,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_save;
   char     *output_TF,*output_file1, *output_file2;
   
@@ -163,342 +122,385 @@ void assign_parameter_tramonto(int cont_type, double param)
        exit(-1); break;
 
       case CONT_TEMP: 
-                      temp_save = Temp;
-                      Temp      = param;
-                      ratio = Temp/temp_save;
-                      if (Ipot_ff_c == COULOMB ) Temp_elec *=ratio;
-                      if (Mix_type==0){
-                         if (Ipot_ff_n == LJ12_6){
-                            for (icomp=0; icomp<Ncomp; icomp++) Eps_ff[icomp][icomp] /= ratio;
-                         }
-                         for (i=0; i<Nwall_type;i++){
-                             if(Ipot_wf_n[i] != VEXT_HARD) Eps_w[i] /= ratio;
-                         }
-                         pot_parameters(NULL);
-                      }
-                      else if (Mix_type==1){
-                           for (icomp=0; icomp<Ncomp; icomp++){
-                             for(jcomp=0; jcomp<Ncomp; jcomp++) Eps_ff[icomp][jcomp] /= ratio;
-                             for (i=0; i<Nwall_type;i++) Eps_wf[icomp][i] /= ratio;
-                           }
-                           for (i=0; i<Nwall_type;i++) {
-                              for (j=0;j<Nwall_type;j++) Eps_ww[i][j] /= ratio;
-                           }
-                      }
-                      if (Type_func != NONE){ calc_HS_diams(); 
-                                              calc_InvR_params();}
-                      if (Type_poly ==CMS) setup_polymer_cr();
-                      recalculate_stencils();
-                      if (Nwall>0) scale_vext_temp(ratio);
-                      break;
+           temp_save = Temp;
+           Temp      = param;
+           ratio = Temp/temp_save;
+           if (Ipot_ff_c == COULOMB ) Temp_elec *=ratio;
+           if (Mix_type==0){
+              if (Ipot_ff_n == LJ12_6){
+                 for (icomp=0; icomp<Ncomp; icomp++) Eps_ff[icomp][icomp] /= ratio;
+              }
+              for (i=0; i<Nwall_type;i++){
+                  if(Ipot_wf_n[i] != VEXT_HARD) Eps_w[i] /= ratio;
+              }
+              pot_parameters(NULL);
+           }
+           else if (Mix_type==1){
+                for (icomp=0; icomp<Ncomp; icomp++){
+                  for(jcomp=0; jcomp<Ncomp; jcomp++) Eps_ff[icomp][jcomp] /= ratio;
+                  for (i=0; i<Nwall_type;i++) Eps_wf[icomp][i] /= ratio;
+                }
+                for (i=0; i<Nwall_type;i++) {
+                   for (j=0;j<Nwall_type;j++) Eps_ww[i][j] /= ratio;
+                }
+           }
+           if (Type_func != NONE){ calc_HS_diams(); 
+                                   calc_InvR_params();}
+           if (Type_poly ==CMS) setup_polymer_cr();
+           recalculate_stencils();
+           if (Nwall>0) scale_vext_temp(ratio);
+           break;
 
-      case CONT_RHO_0:   
-                       Rho_b[0]=param;
-/*                       Rho_b[1]=Rho_b[0]/8;*/
-/*                      ratio=1./Rho_b[0];  vary rho tot at const x_s
-                      Rho_b[2]= param;    */
-/*                      ratio*=Rho_b[2];
-                      Rho_b[0]*=ratio;
-                      Rho_b[1]*=ratio;  vary rho tot at const x_s*/
-
-/*                         Rho_b[0] = (16./18.)*(0.3771-Rho_b[2]);
-                         Rho_b[1] = (2./18.)*(0.3771-Rho_b[2]);*/
-
-                          /*continuation at constant rho_tot=0.58 */
-                      /*   Rho_b[0] = (16./18.)*(0.58-Rho_b[2]);
-                         Rho_b[1] = (2./18.)*(0.58-Rho_b[2]);*/
-
-                          /*continuation at constant rho_tot=0.825 */
-                         /*Rho_b[0] = (16./18.)*(0.825-Rho_b[2]);
-                         Rho_b[1] = (2./18.)*(0.825-Rho_b[2]);*/
-
-                         if (Type_poly == CMS) setup_polymer_cr();
-                         recalculate_stencils();
-                         break;
-      case CONT_RHO_ALL: 
-               /*Rho_b[2]=param;
-		  Rho_b[0]=param;
-		  Rho_b[1]=param/8;*/
-
-                     /* ratio=1./Rho_b[2];*/  /*vary rho tot at const x_s*/
-                    /*  Rho_b[2]= param;    
-                      ratio*=Rho_b[2];
-                      Rho_b[0]*=ratio;
-                      Rho_b[1]*=ratio; */  /*vary rho tot at const x_s*/
-
-             if (Type_poly==NONE)    for (i=0; i<Ncomp;i++)  Rho_b[i]= param;   
-             else if (Npol_comp ==1){
-                  for (i=0; i<Ncomp;i++)  Rho_b[i]= 0.;   
-                  for (i=0; i<Nseg_tot;i++){
-                      Rho_b[Unk2Comp[i]] += param;    
-                      Rho_seg_b[i]=param; 
+      case CONT_RHO_I:   
+            ratio=1.0/Rho_b[Cont_ID[Loca_contID][0]];
+            Rho_b[Cont_ID[Loca_contID][0]]=param;
+            ratio *= Rho_b[Cont_ID[Loca_contID][0]];
+            if (Type_poly !=NONE) {
+               for (i=0;i<Nseg_tot; i++){
+                  if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]){
+                     Rho_seg_b[i]*=ratio;
                   }
-             } 
-             if (Type_poly == CMS) setup_polymer_cr();
-             recalculate_stencils();
-             break; 
-                 
-      case CONT_LOG_RHO_0: Rho_b[0]        = exp(param);    break;
-      case CONT_LOG_RHO_ALL: for (i=0;i<Ncomp;i++) Rho_b[i]= exp(param);    break;
-      case CONT_SCALE_RHO: scale_save = Scale_fac;
-                           Scale_fac = param;
-                           ratio = Scale_fac/scale_save;
-                           for (i=0; i<Ncomp-1; i++) Rho_b[i] *= ratio;
-                           Rho_b[Ncomp-1]=0.678;
-                           for (i=0; i<Ncomp-1; i++) Rho_b[Ncomp-1] -= Rho_b[i];
-                           recalculate_stencils();
-                           break;
+               }
+            }
 
-      case CONT_BETAMU_0: if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)  Betamu_chain[0]=param;
-                          else                 Betamu[0]=param;
-                          break;
+            if (Type_poly == CMS) setup_polymer_cr();
+            recalculate_stencils();
+            break;
 
-      case CONT_BETAMU_1: if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)  Betamu_chain[1]=param;
-                          else                 Betamu[1]=param;
-                          break;
+      case CONT_BETAMU_I: 
+          if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
+                Betamu_chain[Cont_ID[Loca_contID][0]]=param;
+          }
+          else  Betamu[Cont_ID[Loca_contID][0]]=param;
+          break;
 
-      case CONT_EPSW_0:  
-                      if (Mix_type ==0) {
-                         Eps_w[0] = param;
-                         for (i=0; i<Ncomp; i++){ 
-                           for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
-                         }
-                         pot_parameters(NULL);
-                         for (i=0; i<Ncomp; i++){
-                            ratio = Eps_wf[i][0]/eps_wf_save[i][WallType[0]];
-                            scale_vext_epswf(ratio,i,0); 
-                         }
-                      }
-                      else Eps_ww[0][0]=param;
-                      break;
+      case CONT_EPSW_I:  
+          iwall_type=Cont_ID[Loca_contID][0];
+          if (Mix_type ==0) {
+              Eps_w[iwall_type] = param;
+              for (i=0; i<Ncomp; i++){ 
+                 for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
+              }
+              pot_parameters(NULL);
+              for (i=0; i<Ncomp; i++){
+                 ratio = Eps_wf[i][iwall_type]/eps_wf_save[i][iwall_type];
+                 scale_vext_epswf(ratio,i,0); 
+              }
+          }
+          else Eps_ww[iwall_type][iwall_type]=param;
+          break;
 
-      case CONT_EPSW_ALL: 
-                      if (Mix_type==0){
-                          for (i=0;i<Nwall_type;i++) Eps_w[i] = param;
-                          for (i=0; i<Ncomp; i++){ 
-                            for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
-                          }
-                          pot_parameters(NULL);
-                          for (i=0; i<Ncomp; i++){
-                            for (iw=0; iw<Nwall; iw++){
-                         
-                               ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
-                               scale_vext_epswf(ratio,i,iw); 
-                            }
-                          }
-                      }
-                      else {
-                            for (i=0;i<Nwall_type;i++) 
-                                for (j=0;j<Nwall_type;j++) Eps_ww[i][j] = param;
-                      }
-                      break;
+      case CONT_EPSWF_IJ: 
+          icomp=Cont_ID[Loca_contID][0];
+          iwall_type=Cont_ID[Loca_contID][1];
 
-      case CONT_SCALE_EPSW: 
-                      scale_save = Scale_fac;
-                      Scale_fac = param;
-                      ratio = Scale_fac/scale_save;
-                      if (Mix_type==0){
-                          for (iw=0; iw <Nwall_type;iw++) Eps_w[iw] *= ratio;
-                          for (i=0; i<Ncomp; i++){ 
-                            for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
-                          }
-                          pot_parameters(NULL);
-                          for (i=0; i<Ncomp; i++){
-                            for (iw=0; iw<Nwall; iw++){
-                               ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
-                               scale_vext_epswf(ratio,i,iw); 
-                            }
-                          } 
-                        }
-                        else{
-                            for (i=0;i<Nwall_type;i++) 
-                                for (j=0;j<Nwall_type;j++) Eps_ww[i][j] *=ratio;
-                        }
-                        break;
+          ratio = param/Eps_wf[icomp][iwall_type];
+          Eps_wf[icomp][iwall_type]    = param;
+          scale_vext_epswf(ratio,icomp,iwall_type); break;
 
-      case CONT_EPSWF00: 
-                         ratio = param/Eps_wf[0][0];
-                         Eps_wf[0][0]    = param;
-                         scale_vext_epswf(ratio,0,0); break;
-
-                          /* component 2 wall 0 */
-/*                         ratio = param/Eps_wf[2][0];
-                         Eps_wf[2][0]    = param;
-                         scale_vext_epswf(ratio,2,0); break;*/
-
-/*                         ratio = param/Eps_wf[1][0];
-                         Eps_wf[1][0]    = param;
-                         Eps_wf[1][1]    = param;
-                         Eps_wf[2][0]    = param;
-                         Eps_wf[2][1]    = param;
-                         scale_vext_epswf(ratio,1,0); break;
-                         scale_vext_epswf(ratio,1,1); break;
-                         scale_vext_epswf(ratio,2,0); break;
-                         scale_vext_epswf(ratio,2,1); break;*/
-
-      case CONT_EPSWF_ALL_0: 
-
-                         ratio = param/Eps_wf[2][0];
-                         Eps_wf[2][0]    = param;
-                         scale_vext_epswf(ratio,2,0); break;
-
-/*                         for (i=0; i<Ncomp-1; i++){ 
-                            for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
-                         }
-                         for (i=0; i<Ncomp-1; i++){
-                              Eps_wf[i][0] = param;
-                              ratio = Eps_wf[i][0]/eps_wf_save[i][WallType[0]];
-                              scale_vext_epswf(ratio,i,0);
-                         }
-                         break;*/
-      
-      case CONT_SCALE_EPSWF:
-                          scale_save = Scale_fac;
-                          Scale_fac = param;
-                          ratio = Scale_fac/scale_save;
-                          for (i=0; i<Ncomp; i++){ 
-                            for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
-                          }
-                          for (i=0; i<Ncomp; i++){
-                             for (iw=0; iw<Nwall_type; iw++){
-                                Eps_wf[i][iw] *= ratio;
-                             }
-                          }
-                          for (i=0; i<Ncomp; i++){
-                             for (iw=0; iw<Nwall; iw++){
-                                ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
-                                scale_vext_epswf(ratio,i,iw);
-                             }
-                          }
-                          break;
-
-      case CONT_EPSFF_00: Eps_ff[0][0]=param;  
-
-/*now do a special case where we change two of them at once */
-/*                         Eps_ff[2][0]=param;
-                         Eps_ff[0][2]=param;*/
-                  /*       Eps_ff[1][2]=param;
-                         Eps_ff[2][1]=param;*/
-
-                      /*   Eps_ff[2][2]=param;
-                         Eps_ff[1][2]=param;
-                         Eps_ff[2][1]=param;*/
-
-                       /*  Eps_ff[2][0]=param;*/
-                  /*       if (Mix_type==0) {
-                             for (iw=0; iw<Nwall_type; iw++) eps_wf_save[0][iw]=Eps_wf[0][iw];
-                             pot_parameters("dft_out.lis"); 
-                             for (iw=0; iw<Nwall; iw++){
-                                 ratio = Eps_wf[0][WallType[iw]]/eps_wf_save[0][WallType[iw]];
-                                 scale_vext_epswf(ratio,0,iw); 
-                             }
-                         }*/
-                         if (Type_func != NONE){ calc_HS_diams(); 
-                                                 calc_InvR_params();}
-                         if (Type_poly == CMS) setup_polymer_cr();
-                         recalculate_stencils();
-                         break;
-
-      case CONT_EPSFF_ALL: 
-                       Eps_ff[0][1]=param;
-                       Eps_ff[0][2]=param;
-                       Eps_ff[1][0]=param;
-                       Eps_ff[2][0]=param;
-/*                         for (i=0; i<Ncomp; i++) 
-                            for (j=0; j<Ncomp; j++) if (fabs(Eps_ff[i][j])>1.e-15) Eps_ff[i][j] = param;
-                      
-                         if (Mix_type==0) {
-                             for (i=0; i<Ncomp; i++){ 
-                              for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
-                             }
-                             pot_parameters("dft_out.lis"); 
-                             for (i=0; i<Ncomp; i++){
-                               for (iw=0; iw<Nwall; iw++){
-                             
-                                ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
-                                scale_vext_epswf(ratio,i,iw); 
-                             }
-                           }
-                         }
-                         if (Type_poly==CMS && Type_poly==CMS_SCFT) setup_polymer_cr();*/
-                         recalculate_stencils();
-                         break;
-
-      case CONT_SCALE_EPSFF:
-                         scale_save = Scale_fac;
-                         Scale_fac = param;
-                         ratio = Scale_fac/scale_save;
-                         for (i=0; i<Ncomp; i++) Eps_ff[i][i] *= ratio;
-                         if (Mix_type==0) {
-                             for (i=0; i<Ncomp; i++){ 
-                              for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
-                             }
-                             pot_parameters("dft_out.lis"); 
-                             for (i=0; i<Ncomp; i++){
-                               for (iw=0; iw<Nwall; iw++){
-                             
-                                ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
-                                scale_vext_epswf(ratio,i,iw); 
-                             }
-                           }
-                         }
-                         if (Type_poly==CMS) setup_polymer_cr();
-                         recalculate_stencils();
-                         break;
-
-      case CONT_SCALE_CHG: scale_save=Scale_fac;
-                           Scale_fac=param;
-                           ratio = Scale_fac/scale_save;
-                           scale_elec_param(ratio); 
-                           break;
-
-      case CONT_SEMIPERM:
-           param_save=Vext_membrane[0][0];
-           for (inode=0;inode<Nnodes_per_proc;inode++){
-                  if (fabs(Vext[inode][0]-param_save)<1.e-10) Vext[inode][0]=param;
-           }
-           Vext_membrane[0][0]=param;
-           break;
-
-      case CONT_WALLPARAM:
-           WallParam[1]=param;
-           WallPos[0][1] = 0.5*Size_x[0]-WallParam[WallType[1]]; 
-           WallPos[0][0] = 0.5*Size_x[0]-2.*WallParam[WallType[1]]-WallParam[WallType[0]]; 
-           free_mesh_arrays();
-           boundary_free();
-           if (Type_interface==DIFFUSIVE_INTERFACE && Ndim==1) safe_free((void *) &Area_IC);
-           safe_free((void *) &Comm_node_proc);
-           safe_free((void *) &Comm_unk_proc);
-           safe_free((void *) &Comm_offset_node);
-           safe_free((void *) &Comm_offset_unk);
-           output_file2 = "dft_vext.dat";
-           output_TF = "dft_zeroTF.dat";
-           set_up_mesh(output_file1,output_file2);
-           boundary_setup(output_file1);
-           if (Iwrite==VERBOSE) {
-                 print_vext(Vext,output_file2);
-                 print_zeroTF(Zero_density_TF,output_TF);
-           }
-
-           break;
-
-     case CONT_CRFAC:
-         Crfac=param;
-         setup_polymer_cr();
+      case CONT_EPSFF_IJ: 
+          icomp=Cont_ID[Loca_contID][0];
+          jcomp=Cont_ID[Loca_contID][1];
+          Eps_ff[icomp][jcomp]=param;  
+          if (icomp != jcomp){
+             Eps_ff[jcomp][icomp]=param;
+          }
+          if (Mix_type==0) {
+              for (i=0; i<Ncomp; i++){ 
+                  for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
+              }
+              pot_parameters("dft_out.lis"); 
+              for (i=0; i<Ncomp; i++){
+                  for (iw=0; iw<Nwall; iw++){
+                     ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
+                     scale_vext_epswf(ratio,i,iw); 
+              }
+            }
+          }
+          if (Type_hsdiam == BH_DIAM){ 
+              calc_HS_diams(); 
+              calc_InvR_params();
+          }
+         if (Type_poly == CMS) setup_polymer_cr();
          recalculate_stencils();
          break;
 
+      case CONT_ELECPARAM_I: 
+           Elec_param_w[Cont_ID[Loca_contID][0]]=param;
+           break;
+
+      case CONT_ELECPARAM_ALL: 
+           ratio=1./Elec_param_w[0];
+           Elec_param_w[0]=param;
+           ratio *= Elec_param_w[0];
+           scale_elec_param(ratio); 
+           break;
+
+      case CONT_SEMIPERM_IJ:
+           icomp=Cont_ID[Loca_contID][0];
+           iwall_type=Cont_ID[Loca_contID][1];
+           param_save=Vext_membrane[icomp][iwall_type];
+           for (inode=0;inode<Nnodes_per_proc;inode++){
+                  if (fabs(Vext[inode][icomp]-param_save)<1.e-10) Vext[inode][icomp]=param;
+           }
+           Vext_membrane[icomp][iwall_type]=param;
+           break;
+
       default:
-        printf("ERROR_apt: Unknown Continuation parameter %d\n",cont_type);
-        exit(-1); break;
+        if (cont_type > 99 && cont_type < 199) {
+           assign_param_archived_plugin(cont_type,Loca_contID,param); 
+        }
+        else if (cont_type >= 200 && cont_type<299){
+           assign_param_user_plugin(cont_type,Loca_contID,param); 
+        }
+        else{
+           printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
+           exit(-1); 
+        }
+        break;
   }
 
   /* for most cases...recalculate thermo based on new parameter.  However if
      calculating bulk_coexistence or varying Betamu do not call thermo */
-  if (Loca.cont_type1 != CONT_BETAMU_0 && Loca.cont_type1 != CONT_BETAMU_1 &&
-     !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_0) &&
-     !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_1)){
+  if (Loca.cont_type1 != CONT_BETAMU_I && !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I) ){
           thermodynamics(output_file1);
-  }
+   }
+}
+/*****************************************************************************/
+/*print_cont_type: Here print the type of the variable that
+                     is changing in a given run
+                     Note the logic here should mirror that in print_cont_variable() above
+*/
+void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
+{
+  int i,idim,icomp,iwall,nloop,jcomp;
+
+   switch(cont_type){
+      case CONT_MESH:
+        if (Print_mesh_switch == SWITCH_SURFACE_SEP && (Nwall==1 || Nwall==2)) {
+          idim = Plane_new_nodes;
+          if(Nwall==1 && Type_bc[idim][0] != REFLECT && Type_bc[idim][1] != REFLECT) {
+            for(idim=0; idim<Ndim; idim++)
+                fprintf(fp,"WallPos[%d][0]  ", idim);
+          }
+          else fprintf(fp, "Surf_sep  ");
+        }
+        else if (Nwall > 1) {
+           for (iwall=0; iwall<Nwall; iwall++) {
+             for(idim=0; idim<Ndim; idim++)
+               fprintf(fp,"WallPos[%d][%d]  ", idim,iwall);
+           }
+         }
+         else {
+           for(idim=0; idim<Ndim; idim++)
+             fprintf(fp,"Size[idim=%d]  ",idim);
+         }
+
+         break;
+
+      case CONT_TEMP:
+         if (Ipot_ff_c == 0) fprintf(fp,"TEMP  ");
+         else fprintf(fp,"TEMP_ELEC  ");
+         if (Type_attr != NONE){
+         for (icomp=0;icomp<Ncomp;icomp++)
+            for (jcomp=0;jcomp<Ncomp;jcomp++)
+                fprintf(fp,"EPS_ff[%d][%d]  ",icomp,jcomp);
+         }
+         break;
+
+      case CONT_RHO_I:
+        fprintf(fp,"Rho_b[%d]  ",Cont_ID[Loca_contID][0]);
+         /*  alternate print types for the density variable */
+        /* for (i=0; i<nloop; i++) fprintf(fp, "Rho_b[%d]/Rho_sum  ", i);
+         if (Print_rho_switch == SWITCH_RELP && Ncomp == 1)
+              fprintf(fp,"P_over_Po  ");
+         else if (Print_rho_switch == SWITCH_ION && Ipot_ff_c == COULOMB)
+              for(i=0; i<nloop; i++) fprintf(fp,"KAPPA[%d]   ",i);
+         else if (Print_rho_switch == SWITCH_MU)
+              for(i=0; i<nloop; i++) fprintf(fp,"CHEM_POT[%d]  ",i);    */
+        break;
+
+      case CONT_BETAMU_I:
+         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)
+            fprintf(fp,"Betamu_chain[%d]:  ",Cont_ID[Loca_contID][0]);
+         else
+            fprintf(fp,"Betamu[%d]:  ",Cont_ID[Loca_contID][0]);
+         break;
+
+      case CONT_EPSW_I:
+         if (Mix_type==0) fprintf(fp,"Eps_w[%d]  ",Cont_ID[Loca_contID][0]);
+         else             fprintf(fp,"Eps_ww[%d][%d]  ",Cont_ID[Loca_contID][0],Cont_ID[Loca_contID][1]);
+         break;
+
+      case CONT_EPSWF_IJ:
+         fprintf(fp,"Eps_wf[%d][%d]:  ",Cont_ID[Loca_contID][0],Cont_ID[Loca_contID][1]); 
+         break;
+
+      case CONT_EPSFF_IJ:
+         fprintf(fp,"Eps_ff[%d][%d]:  ",Cont_ID[Loca_contID][0],Cont_ID[Loca_contID][1]); 
+         break;
+
+      case CONT_ELECPARAM_I:
+         fprintf(fp,"Elec_param_w[%d]:  ",Cont_ID[Loca_contID][0]); 
+         break;
+
+      case CONT_ELECPARAM_ALL:
+         fprintf(fp,"Elec_param_w[0]:  "); 
+         break;
+
+     case CONT_SEMIPERM_IJ:
+         fprintf(fp, "Vext_membrane[%d][%d]  ",Cont_ID[Loca_contID][0],Cont_ID[Loca_contID][1]); 
+         break;
+
+      default:
+        if (cont_type > 99 && cont_type < 199) {
+           print_cont_type_archived_plugin(cont_type,fp,Loca_contID);
+        }
+        else if (cont_type >= 200 && cont_type<299){
+           print_cont_type_user_plugin(cont_type,fp,Loca_contID); 
+        }
+        else{
+           printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
+           exit(-1); 
+        }
+        break;
+   }
+   return;
+}
+/*****************************************************************************/
+/*print_cont_variable: Here print the value of the variable that
+                     is changing in a given run */
+void print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
+{                 
+   int i,idim,icomp,iwall,iwall_type,nloop,jcomp;
+   double kappa,kappa_sq,rhosum;
+         
+
+   switch(cont_type){
+      case CONT_MESH: 
+         if (Print_mesh_switch == SWITCH_SURFACE_SEP && (Nwall == 1 ||
+                Nwall==2)){
+            iwall = 0;
+            iwall_type = WallType[iwall];
+            idim = Plane_new_nodes;
+      
+            if (Nwall == 1) {
+              if (Type_bc[idim][0] == REFLECT)
+                  fprintf(fp,"%11.8f   ", 2.0*(WallPos[idim][iwall]
+                                              + 0.5*Size_x[0]
+                                              - WallParam[iwall_type]));
+                 
+               else if (Type_bc[idim][1] == REFLECT)
+                  fprintf(fp,"%11.8f   ", 2.0*(0.5*Size_x[0] 
+                                              - WallPos[idim][iwall]
+                                              -WallParam[iwall_type]));
+               else
+                for (idim=0; idim<Ndim; idim++)
+                    fprintf(fp,"%11.8f   ",WallPos[idim][iwall]);
+             }  
+             else if (Nwall == 2){
+                  fprintf(fp,"%11.8f   ",
+                    (fabs(WallPos[idim][1] - WallPos[idim][0]) - 2.0*WallParam[iwall_type]));
+             }
+         }
+         else if (Nwall > 1) {
+            for (iwall=0; iwall<Nwall; iwall++){
+                for (idim=0; idim<Ndim; idim++)
+                    fprintf(fp,"%11.8f   ",WallPos[idim][iwall]);
+            } 
+         }
+         else {
+            for (idim=0; idim<Ndim; idim++) 
+                 fprintf(fp,"%11.8f   ",Size_x[idim]);
+         }
+      
+      
+         break;
+
+      case CONT_TEMP:
+         if (Ipot_ff_c == 0) fprintf(fp,"%10.7f   ", Temp);
+         else fprintf(fp,"%7.4f   ",Temp_elec);
+         if (Type_attr != NONE){
+           for (icomp=0;icomp<Ncomp;icomp++){
+              for (jcomp=0;jcomp<Ncomp;jcomp++)
+                  fprintf(fp,"%10.7f  ",Eps_ff[icomp][jcomp]);
+           }
+         }
+         break;
+
+      case CONT_RHO_I:
+         fprintf(fp,"%11.8f  ",Rho_b[Cont_ID[Loca_contID][0]]);
+         /* alternate ways to print density */
+         /*
+         rhosum=0.0;
+         nloop=Ncomp;
+         for (i=0; i<nloop; i++){
+                 fprintf(fp,"%11.8f  ", Rho_b[i]);
+                 rhosum+=Rho_b[i];
+         }
+         for (i=0;i<nloop;i++) fprintf(fp,"%9.6f  ",Rho_b[i]/rhosum);
+         if (Print_rho_switch == SWITCH_RELP && nloop == 1)
+              fprintf(fp,"%11.8f   ", P_over_po);
+         else if (Print_rho_switch == SWITCH_ION && Ipot_ff_c == COULOMB) {
+             kappa_sq = 0.0;
+             for(icomp = 0; icomp<nloop; icomp++)
+                kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
+                           Charge_f[icomp]*Charge_f[icomp];
+             kappa = sqrt(kappa_sq);
+             fprintf(fp,"%11.8f   ", kappa);
+         }
+         else if (Print_rho_switch == SWITCH_MU)
+           for (i=0; i<nloop; i++) fprintf(fp,"%11.8f   ", Betamu[i]);
+         */
+         break;
+
+      case CONT_BETAMU_I:
+         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)
+                  fprintf(fp,"%11.8f   ", Betamu_chain[Cont_ID[Loca_contID][0]]);
+         else     fprintf(fp,"%11.8f   ", Betamu[Cont_ID[Loca_contID][0]]);
+         break;
+
+      case CONT_EPSW_I:
+         if (Mix_type==0) fprintf(fp,"%11.8f   ", Eps_w[Cont_ID[Loca_contID][0]]);
+         else fprintf(fp,"%11.8f   ", Eps_ww[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]);
+
+         break;
+
+      case CONT_EPSWF_IJ:
+         fprintf(fp,"%11.8f   ", Eps_wf[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]);
+         break;
+
+      case CONT_EPSFF_IJ:
+         fprintf(fp,"%11.8f   ", Eps_ff[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]);
+         break;
+
+      case CONT_ELECPARAM_I:
+         fprintf(fp,"%11.8f   ", Elec_param_w[Cont_ID[Loca_contID][0]]);
+         break;
+
+      case CONT_ELECPARAM_ALL:
+         fprintf(fp,"%11.8f   ", Elec_param_w[0]);
+         break;
+
+      case CONT_SEMIPERM_IJ:
+         fprintf(fp,"%11.8f   ", Vext_membrane[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]); 
+         break;
+
+      default:
+        if (cont_type > 99 && cont_type < 199) {
+           print_cont_variable_archived_plugin(cont_type,fp,Loca_contID);
+        }
+        else if (cont_type >= 200 && cont_type<299){
+           print_cont_variable_user_plugin(cont_type,fp,Loca_contID);
+        }
+        else{
+           printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
+           exit(-1);
+        }
+        break;
+
+   }
+   return;
+
 }
 /*****************************************************************************/

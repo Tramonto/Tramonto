@@ -261,37 +261,30 @@
 @ 0 -1 	Plane_new_nodes Pos_new_nodes 
                   (0=yz,1=xz,2=xy)   (-1=lbb,0=center,1=rtf)
 ************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
-@ 4 Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length 
+@ 4     Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length
                          3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
-@ 20 1.0 	Continuation parameter Scale_fac (for CONT_SCALE cases only) 
-                        CONT_TEMP        1   /* State Parameters */
-                        CONT_RHO_0       2
-                        CONT_RHO_ALL     3
-                        CONT_LOG_RHO_0   4
-                        CONT_LOG_RHO_ALL 5
-                        CONT_SCALE_RHO   6
+@ 3 1 0  Continuation_Type, NID_Cont, ID1, ID2
+          (NID_Cont indicates number if IDs needed to indentify which parameters should be continued.
+           This should be either 0, 1 (as in Rho_b[icomp] to indicate icomp) or
+           2 (as in Eps_ff[icomp][jcomp] to indicate icomp and jcomp).
 
-                        CONT_EPSW_0      7    /* Wall-Wall Energy Params */
-                        CONT_EPSW_ALL    8
-                        CONT_SCALE_EPSW  9
+           Parameters for Continuation_Type are:
+                1 =  CONT_TEMP          Temperature Continuation
+                2 =  CONT_RHO_I         Density continuation - species i
+                3 =  CONT_BETAMU_I      Chemical potential continuation species i
+                4 =  CONT_EPSW_I        Wall-Wall Energy Parameter continuations for:
+                                             --  wall i (if Mix_type=0)
+                                            --  wall ij (if Mix_type==1)
+                5 =  CONT_EPSWF_IJ      Wall-Fluid Energy Parameter continuation for ij term
+                6 =  CONT_EPSFF_IJ      Fluid-Fluid Energy Parameter continuation for the ij term
+                7 =  CONT_ELECPARAM_I   Continue in Electrostatic properties for the surface
+                                            (charge or potential) for surfaces of type i
+                8 =  CONT_ELECPARAM_ALL Continue in Electrostatic properties for all surfaces simultaneously.
+                9 =  CONT_SEMIPERM_IJ   Continue in strength of semipermeable membrane potential.
 
-                        CONT_EPSWF00     10    /* Wall-Fluid Energy Params */
-                        CONT_EPSWF_ALL_0 11
-                        CONT_SCALE_EPSWF 12
-
-                        CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
-                        CONT_EPSFF_ALL   14
-                        CONT_SCALE_EPSFF 15
-
-                        CONT_SCALE_CHG   16  /* Charged surface params */
-
-                        CONT_SEMIPERM    17  /* Vext_memebrane */
-                        CONT_WALLPARAM   18  /* WallParam */
-                                                                                                 
-                        CONT_CRFAC       19      /* Miximg parameter for 2 cr files */
-                                                                                                 
-
-@ -0.2 	Parameter initial step size 
-@ 10 0.0 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
-@ 21 	Second parameter for Spinodal and Binoadal Calculations (Same list). 
+@ -0.2    Parameter initial step size
+@ 10 0.0   N Steps, Step Control Aggressiveness (0.0 = constant step)
+@ 3 1 1        Continuation_Type2, NID_Cont, ID1, ID2
+           (2nd parameter for  Spinodal and Binoadal Calculations (see listabove).
 *********** END OF INPUT FILE ******************************************
+
