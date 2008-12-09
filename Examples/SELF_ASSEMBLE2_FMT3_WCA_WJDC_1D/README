@@ -1,0 +1,37 @@
+/*! \file 
+ \brief A test of mesh continuation and the force sum rule using a calculatoin of a confined lipid bilayer system based on 8-2-8 lipid and single site solvent (1D).  These calculations use the Jain, Dominik, Chapman functionals.
+
+Functionals: FMT3,WCA,WJDC3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example demonstrates continuation in mesh size for a study of a confined lipid bilayer.  In order to verify the force sum rule, the following steps can be taken.  
+.
+1. Use the pure solvent profile included here in a calculation where all surfaces are removed and boundary conditions are set to reflective.  In that case, the free energy will be Omega=-pV=-2.30199.  Since the domain size is 10 sigma, the pressure is psigma^3/kT=0.230199.  
+2. Run the test case as it is provided here.  
+3. Calculate the solvation force by shifting the force curve in dft_output.dat to zero using the value of the force at H=38.8 (force=0.102436).  Note that the discrepancy in bulk pressure is due to the coarse mesh in these calculations.  
+4. Next compute the surface free energy as Omega_s/A=Omega/A+p*H (using 0.230199 as the pressure).  
+5. Finally calculate the solvation force as f=-(delta Omega_s/delta H).  
+.
+The two solvation force cuves should match well. Note that the Omega^s field output by Tramonto for this case is not correct (as in many cases of self-assembly), because pressure calculations are based on a completely mixed polymer fluid.  When the system microphase separates, this is no longer the correct refence state for a calculation of surface free energy.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - lin_18_1
+   - dft_dens.dat
+   - dft_surfaces.dat
+   - dens_pure_solvent.dat
+   - dsave_whole_bilayer
+
+Key Output Parameters (first solution) :
+   - niter=3
+   - ads[0]=5.57463
+   - ads[1]=0.696829 
+   - ads[2]=6.31107
+   - force=0.0909986
+   - omega=-4.02681
+.
+
+*/
