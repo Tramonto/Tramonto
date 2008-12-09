@@ -1,0 +1,26 @@
+/*! \file 
+ \brief Lipid bilayer system based on 8-2-8 lipid and single site solvent (1D) using Jain, Dominik, Chapman functionals.
+
+Functionals: FMT3,WCA,WJDC3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example demonstrates a lipid bilayer that is pinned at the right side of the domain using reflective boundaries.  This particular solution is a zero tention state.  This can be verified by running a simulation using the pure solvent solution (set dens_pure_solvent.dat to be dft_dens.dat) as the starting point and obtaining the identical free energy (omega~-4.6) as output.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - lin_8_1
+   - dft_dens.dat
+   - dens_pure_solvent.dat
+
+Key Output Parameters (first solution) :
+   - niter=1
+   - ads[0]=2.76775
+   - ads[1]=0.345969 
+   - ads[2]=11.6907
+   - omega=-4.60398
+.
+
+*/
