@@ -978,7 +978,7 @@ void read_input_file(char *input_file, char *output_file1)
 		if (Proc==0) {
 			read_junk(fp,fp2);
 			fprintf(fp2,"\n poly_file not used for SCFT\n");
-			fprintf(fp2,"not read   ");
+			fprintf(fp2,"n/a   ");
 		}
 	}
 	if (Type_poly != SCFT) {
@@ -1206,10 +1206,10 @@ void read_input_file(char *input_file, char *output_file1)
           if (Proc==0) {
              read_junk(fp,fp2);
              fprintf(fp2,"\n NO LIQUID STATE INPUT FOR NON-CMS RUN\n");
-             fprintf(fp2,"not read   ");
+             fprintf(fp2,"n/a   ");
              for (i=0; i<2; i++) {
                 read_junk(fp,fp2);
-                fprintf(fp2,"not read   ");
+                fprintf(fp2,"n/a   ");
              }       
           }       
        }
@@ -1625,8 +1625,7 @@ void read_input_file(char *input_file, char *output_file1)
                         /* can do J=-Dgrad mu, but doesn't work well */
   MPI_Bcast(&Linear_transport,1,MPI_INT,0,MPI_COMM_WORLD);
 
-  /* ALF: temporary fix for polymer initial guesses */
-  if (Type_interface==DIFFUSIVE_INTERFACE || (Type_poly != NONE && Type_poly !=WTC)) {
+  if (Type_interface==DIFFUSIVE_INTERFACE) {
 
     if (Proc==0) {
       read_junk(fp,fp2);
@@ -1860,8 +1859,8 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d %d %d", &NL_Solver, &Max_NL_iter, &Physics_scaling);
-    fprintf(fp2,"%d %d %d ",NL_Solver,Max_NL_iter,Physics_scaling);
+    fscanf(fp,"%d %d %d %d ", &NL_Solver, &Max_NL_iter, &Physics_scaling);
+    fprintf(fp2,"%d %d %d %d",NL_Solver,Max_NL_iter,Physics_scaling);
   }
   MPI_Bcast(&Max_NL_iter,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&NL_Solver,1,MPI_INT,0,MPI_COMM_WORLD);

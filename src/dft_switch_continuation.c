@@ -112,7 +112,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
    used in Tramonto's own continuation */
 {
   int i,j,icomp,jcomp,iw,iwall_type,inode;
-  double ratio,temp_save,scale_save,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_save;
+  double ratio,temp_save,scale_save,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_save,rho_chain;
   char     *output_TF,*output_file1, *output_file2;
   
   output_file1 = "dft_out.lis";
@@ -152,15 +152,19 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
            break;
 
       case CONT_RHO_I:   
-            ratio=1.0/Rho_b[Cont_ID[Loca_contID][0]];
-            Rho_b[Cont_ID[Loca_contID][0]]=param;
-            ratio *= Rho_b[Cont_ID[Loca_contID][0]];
-            if (Type_poly !=NONE) {
-               for (i=0;i<Nseg_tot; i++){
-                  if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]){
-                     Rho_seg_b[i]*=ratio;
-                  }
-               }
+            if (Type_poly==NONE) Rho_b[Cont_ID[Loca_contID][0]]=param; 
+            else{
+              rho_chain=0.0;
+              for (i=0;i<Nseg_tot; i++){
+                  if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_b[i];
+              }
+              ratio=param/rho_chain;
+
+              for (i=0;i<Ntype_mer;i++) Rho_b[i]=0.0;
+              for (i=0;i<Nseg_tot; i++){
+                 if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) Rho_seg_b[i]*=ratio;
+                 Rho_b[Unk2Comp[i]]+=Rho_seg_b[i];
+              }
             }
 
             if (Type_poly == CMS) setup_polymer_cr();
@@ -309,7 +313,7 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
          break;
 
       case CONT_RHO_I:
-        fprintf(fp,"Rho_b[%d]  ",Cont_ID[Loca_contID][0]);
+         fprintf(fp,"Rho_b[%d]  ",Cont_ID[Loca_contID][0]);
          /*  alternate print types for the density variable */
         /* for (i=0; i<nloop; i++) fprintf(fp, "Rho_b[%d]/Rho_sum  ", i);
          if (Print_rho_switch == SWITCH_RELP && Ncomp == 1)
@@ -373,7 +377,7 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
 void print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
 {                 
    int i,idim,icomp,iwall,iwall_type,nloop,jcomp;
-   double kappa,kappa_sq,rhosum;
+   double kappa,kappa_sq,rhosum,rho_chain;
          
 
    switch(cont_type){
@@ -429,7 +433,15 @@ void print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
          break;
 
       case CONT_RHO_I:
-         fprintf(fp,"%11.8f  ",Rho_b[Cont_ID[Loca_contID][0]]);
+         if (Type_poly==NONE) fprintf(fp,"%11.8f  ",Rho_b[Cont_ID[Loca_contID][0]]);
+         else{
+              rho_chain=0.0;
+              for (i=0;i<Nseg_tot; i++){
+                  if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_b[i];
+              }
+              fprintf(fp,"%11.8f  ",rho_chain);
+         }
+
          /* alternate ways to print density */
          /*
          rhosum=0.0;

@@ -53,6 +53,9 @@ void scale_elec_param(double ratio);
 extern int Type_hsdiam;
 extern int WallType[NWALL_MAX];
 void scale_vext_epswf(double ratio,int icomp,int iwall);
+#define NMER_MAX     100
+extern int Unk2Comp[NMER_MAX];
+extern int Ntype_mer;
 void scale_vext_temp(double ratio);
 extern int Nwall;
 void recalculate_stencils();
@@ -89,7 +92,6 @@ extern double Eps_w[NWALL_MAX_TYPE];
 extern int Mix_type;
 #define CONT_EPSW_I        4    /* Wall-Wall Energy Params for wall I */
 extern double Betamu[NCOMP_MAX];
-#define NMER_MAX     100
 extern double Betamu_chain[NMER_MAX];
 #define WJDC3        5 
 #define WJDC2        4 
