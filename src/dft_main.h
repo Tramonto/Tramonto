@@ -46,10 +46,15 @@ extern int Ipot_ff_c;
 extern int L_Schur;
 double gmin_double(double c);
 double gmax_double(double c);
+extern int Nodes_x[NDIM_MAX];
+extern int Nodes_x_old[NDIM_MAX];
+extern int Nnodes;
 extern double *X_old;
 extern int Nodes_old;
 extern double *X2_old;
 void post_process(double **x,char *output_file3,int *niters,double *time_save,int loop1,int binodal_flag);
+typedef struct Loca_Struct Loca_Struct;
+extern struct Loca_Struct Loca;
 #define NEWTON_NOX            1
 #define NEWTON_BUILT_IN       0
 int solve_problem(double **x,double **x2);
@@ -71,6 +76,8 @@ extern int Restart_Vext;
 extern double **Vext;
 void print_vext(double **vext,char *output_file);
 #define VERBOSE      3 
+#define NO_SCREEN    2 
+extern int Iwrite;
 void setup_vext_coulomb_vol();
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
@@ -119,12 +126,8 @@ extern int Lmesh_refine;
 extern double Esize_x[NDIM_MAX];
 extern int Ndim;
 void continuation_shift();
-extern int Imain_loop;
-#define NO_SCREEN    2 
-extern int Iwrite;
 extern int Nruns;
-typedef struct Loca_Struct Loca_Struct;
-extern struct Loca_Struct Loca;
+extern int Imain_loop;
 void setup_polymer_cr();
 #define N_NZCR_MAX   200   /* maximum # of non-zero's in direct correlation fn */
 extern int Ncomp;

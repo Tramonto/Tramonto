@@ -42,6 +42,7 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
   int iunk,i;
 
   x_new = (double *) array_alloc(1, Nnodes*Nunk_per_node, sizeof(double));
+ 
 
   if (Proc == 0) {  /* Proc 0 reads in the data file */
 
@@ -74,14 +75,14 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
          for (i=0;i<NEQ_TYPE;i++) Restart_field[i]=TRUE;
      }
 
-printf("Imain_loop=%d\n  Nodes_old=%d  Nodes=%d\n",Imain_loop,Nodes_old,Nnodes);
      if (Nodes_old != Nnodes) {     /* Profile must be modified in some way.  Number of nodes in file does
                                        not match number of nodes in the current problem */
 
           /* fix up to allow for some mixing of a bulk solution with a previously
                                converged solution --this has been disabled with fac=1*/
          fac=1.0;
-         shift_the_profile(x_new,fac);
+         if (iguess==BINODAL_FLAG && Lbinodal) shift_the_profile(x_new,fac,X2_old);
+         else                                  shift_the_profile(x_new,fac,X_old);
      }
      else{
          for (iunk=0; iunk<Nunknowns; iunk++){
@@ -447,13 +448,11 @@ void read_in_a_file(int iguess,char *filename)
 /*******************************************************************/
 /*shift_the_profile: do this if the new mesh and the old mesh
                    have identical Esize, but not identical Nnodes_x */
-void shift_the_profile(double *x_new,double fac)
+void shift_the_profile(double *x_new,double fac,double *xold)
 {
 
   int idim,jdim,iunk,inode,inode_old,ijk[3],ijk_tmp[3],Nadd;
   double x_test,unk_old,unk_1,unk_2;
-
-  printf("try to fix up profile in idim=%d in position=%d\n",Plane_new_nodes,Pos_new_nodes);
 
   idim = Plane_new_nodes;
   Nadd = round_to_int(Del_1[idim]/Esize_x[idim]);
@@ -463,27 +462,26 @@ void shift_the_profile(double *x_new,double fac)
 
      switch(Pos_new_nodes){
          case  0:          /*ADDING NODES TO CENTER OF BOX */
-
            if (ijk[idim] < Nodes_x_old[idim]/2){           /*NODE LBB OF NEW PLANE*/
              inode_old = locate_inode_old(ijk);
-             unk_old = X_old[inode_old*Nunk_per_node+iunk];
+             unk_old = xold[inode_old*Nunk_per_node+iunk];
            }
            else if (ijk[idim] > Nodes_x_old[idim]/2+Nadd){ /*NODE RTF OF NEW PLANE*/
              for (jdim=0; jdim<Ndim; jdim++) ijk_tmp[jdim] = ijk[jdim];
              ijk_tmp[idim] -= Nadd;
              inode_old = locate_inode_old(ijk_tmp);
-             unk_old = X_old[inode_old*Nunk_per_node+iunk];
+             unk_old = xold[inode_old*Nunk_per_node+iunk];
            }
            else {                                    /*NODE IN CENTER OF NEW PLANE*/
              for (jdim=0; jdim<Ndim; jdim++) ijk_tmp[jdim] = ijk[jdim];
              ijk_tmp[idim] = Nodes_x_old[idim]/2;
              inode_old = locate_inode_old(ijk_tmp);
-             unk_1 = X_old[inode_old*Nunk_per_node+iunk];
+             unk_1 = xold[inode_old*Nunk_per_node+iunk];
 
              for (jdim=0; jdim<Ndim; jdim++) ijk_tmp[jdim] = ijk[jdim];
              ijk_tmp[idim] = Nodes_x_old[idim]/2 + 1;
              inode_old = locate_inode_old(ijk_tmp);
-             unk_2 = X_old[inode_old*Nunk_per_node+iunk];
+             unk_2 = xold[inode_old*Nunk_per_node+iunk];
       
              unk_old = 0.5*(unk_1+unk_2);
            }
@@ -494,26 +492,26 @@ void shift_the_profile(double *x_new,double fac)
              for (jdim=0; jdim<Ndim; jdim++) ijk_tmp[jdim] = ijk[jdim];
              ijk_tmp[idim] = 0;
              inode_old = locate_inode_old(ijk_tmp);
-             unk_old = X_old[inode_old*Nunk_per_node+iunk];
+             unk_old = xold[inode_old*Nunk_per_node+iunk];
            }
            else{
              for (jdim=0; jdim<Ndim; jdim++) ijk_tmp[jdim] = ijk[jdim];
              ijk_tmp[idim] -= Nadd;
              inode_old = locate_inode_old(ijk_tmp);
-             unk_old = X_old[inode_old*Nunk_per_node+iunk];
+             unk_old = xold[inode_old*Nunk_per_node+iunk];
            }
            break;
 
          case  1:          /*ADDING NODES TO RIGHT,TOP,FRONT*/
            if (ijk[idim] < Nodes_x_old[idim]){
              inode_old = locate_inode_old(ijk);
-             unk_old = X_old[inode_old*Nunk_per_node+iunk];
+             unk_old = xold[inode_old*Nunk_per_node+iunk];
            }
            else {
              for (jdim=0; jdim<Ndim; jdim++) ijk_tmp[jdim] = ijk[jdim];
              ijk_tmp[idim] = Nodes_x_old[idim]-1;
              inode_old = locate_inode_old(ijk_tmp);
-             unk_old = X_old[inode_old*Nunk_per_node+iunk];
+             unk_old = xold[inode_old*Nunk_per_node+iunk];
            }
            break;
 

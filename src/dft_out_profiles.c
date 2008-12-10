@@ -35,19 +35,15 @@
 #include "dft_out_profiles.h"
 
 /*******************************************************************************
-collect_x_old: This gathers all of the densities into X_old on proc 0.        */ 
+collect_x_old: This gathers all of the densities into xold on proc 0.        */ 
 
-void collect_x_old(double **x)
+void collect_x_old(double **x,double *xold)
 {
   int i,iunk,loc_inode, loc_i,idim,nunk_per_proc;
   int *index=NULL;
   double *unk_global, *unk_loc;
 
-  Nodes_old = Nnodes;
-  for (idim=0; idim<Ndim; idim++) Nodes_x_old[idim] = Nodes_x[idim];
-
   /* allocate temporary arrays */
-  /* X_old gets allocated here and will be freed in dft_guess.c */
 
   nunk_per_proc = Nnodes_per_proc*Nunk_per_node;
   unk_loc = (double *) array_alloc (1, nunk_per_proc, sizeof(double));
@@ -82,7 +78,7 @@ void collect_x_old(double **x)
   if (Proc == 0){
      for (i=0; i<Nnodes; i++){
         for (iunk=0; iunk<Nunk_per_node; iunk++){
-           X_old[index[i]*Nunk_per_node+iunk] = unk_global[i*Nunk_per_node+iunk];
+           xold[index[i]*Nunk_per_node+iunk] = unk_global[i*Nunk_per_node+iunk];
         }
      }
      safe_free((void *) &unk_global);
@@ -103,7 +99,6 @@ void collect_vext_old()
   double *unk_global, *unk_loc;
 
   /* allocate temporary arrays */
-  /* X_old gets allocated here and will be freed in dft_guess.c */
 
   nunk_per_proc = Nnodes_per_proc*Ncomp;
   unk_loc = (double *) array_alloc (1, nunk_per_proc, sizeof(double));
@@ -175,11 +170,11 @@ void print_profile_box(double **x, char *outfile)
     Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
   }
 
-  collect_x_old(x);
+  collect_x_old(x,X_old);
   collect_vext_old();
 
   if (Proc==0) {
-     print_profile(outfile);
+     print_profile(outfile,X_old);
      safe_free((void *) &X_old);
      safe_free((void *) &Vext_old);
   }
@@ -188,7 +183,7 @@ void print_profile_box(double **x, char *outfile)
 print_profile: This routine prints out the density profile.        
 this routine is only ever called by Proc 0                                    */ 
 
-void print_profile(char *output_file4)
+void print_profile(char *output_file4,double *xold)
 {
   int icomp,iunk,i,inode,ijk[3],idim,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
   int unk_field, node_start,jcomp;
@@ -342,49 +337,49 @@ void print_profile(char *output_file4)
             }
             switch(Unk2Phys[iunk]){
                 case DENSITY:
-/*                fprintf(ifp,"%g\t", X_old[iunk+node_start]/Rho_b[icomp]);*/
-                  fprintf(ifp,"%g\t", X_old[iunk+node_start]);
+/*                fprintf(ifp,"%g\t", xold[iunk+node_start]/Rho_b[icomp]);*/
+                  fprintf(ifp,"%g\t", xold[iunk+node_start]);
                   break;
 
                 case DIFFUSION:
                   if (LDeBroglie){
-                       fprintf(ifp,"%g\t", X_old[iunk+node_start]
+                       fprintf(ifp,"%g\t", xold[iunk+node_start]
                             + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );
                   }
-                  else fprintf(ifp,"%g\t", X_old[iunk+node_start]);
+                  else fprintf(ifp,"%g\t", xold[iunk+node_start]);
 
                 case POISSON:
-                  fprintf(ifp,"%g\t", X_old[iunk+node_start]);
+                  fprintf(ifp,"%g\t", xold[iunk+node_start]);
                   break;
 
                 case MF_EQ:
                 case HSRHOBAR:
                 case CAVWTC:
                 case BONDWTC:
-                  if (Iwrite==VERBOSE) fprintf(ifp,"%g\t", X_old[iunk+node_start]);
+                  if (Iwrite==VERBOSE) fprintf(ifp,"%g\t", xold[iunk+node_start]);
                   break;
 
                 case CMS_FIELD:
                 case WJDC_FIELD:
 	        case SCF_FIELD:
                    if(Iwrite==VERBOSE || Type_poly==WJDC3){
-                      /*if (fabs(X_old[iunk+node_start]) > 1.e-12 && -log(X_old[iunk+node_start]) < VEXT_MAX){
-                          fprintf(ifp,"%g\t", -log(X_old[iunk+node_start]));
+                      /*if (fabs(xold[iunk+node_start]) > 1.e-12 && -log(xold[iunk+node_start]) < VEXT_MAX){
+                          fprintf(ifp,"%g\t", -log(xold[iunk+node_start]));
                       }
                       else fprintf(ifp,"%g\t", VEXT_MAX);*/
 
-                      fprintf(ifp,"%g\t", X_old[iunk+node_start]);
+                      fprintf(ifp,"%g\t", xold[iunk+node_start]);
                    }
                    break;
 					
 	       case SCF_CONSTR:
 		    if(Iwrite==VERBOSE){
-		         fprintf(ifp,"%g\t", X_old[iunk+node_start]);
+		         fprintf(ifp,"%g\t", xold[iunk+node_start]);
 		    }
                    break;
 
                 case G_CHAIN:
-                   if (Iwrite==VERBOSE|| Type_poly==WJDC3) fprintf(fp6,"%g\t", X_old[iunk+node_start]);
+                   if (Iwrite==VERBOSE|| Type_poly==WJDC3) fprintf(fp6,"%g\t", xold[iunk+node_start]);
                    break;
             }
 
@@ -394,7 +389,7 @@ void print_profile(char *output_file4)
         if (Ipot_ff_c == 1 && Type_poly==NONE){
         for (icomp=0; icomp<Ncomp; icomp++)
           fprintf(ifp,"%g\t",
-                  Rho_b[icomp]*exp(-Charge_f[icomp]*X_old[Phys2Unk_first[POISSON]+node_start]
+                  Rho_b[icomp]*exp(-Charge_f[icomp]*xold[Phys2Unk_first[POISSON]+node_start]
                                                               -Vext_old[inode*Ncomp+icomp]));
         }
  
@@ -413,7 +408,7 @@ void print_profile(char *output_file4)
                     bondproduct=1.0;
                     for(ibond=0;ibond<Nbond[ipol][iseg];ibond++){
 			 unk_GQ  = Geqn_start[ipol] + Poly_to_Unk[ipol][iseg][ibond];
-                         bondproduct *= X_old[unk_GQ+node_start];
+                         bondproduct *= xold[unk_GQ+node_start];
                     }  
 
 					/* check this code!!! needs fixing */
@@ -421,8 +416,8 @@ void print_profile(char *output_file4)
 		   else if(Type_poly == CMS_SCFT)  unk_B=Phys2Unk_first[SCF_FIELD]+itype_mer;
                    else if (Type_poly==WJDC3)      unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;
 
-                   if (fabs(X_old[unk_B+node_start])>1.e-12){
-                      site_dens=bondproduct*POW_DOUBLE_INT(X_old[unk_B+node_start],-(Nbond[ipol][iseg]-1));
+                   if (fabs(xold[unk_B+node_start])>1.e-12){
+                      site_dens=bondproduct*POW_DOUBLE_INT(xold[unk_B+node_start],-(Nbond[ipol][iseg]-1));
                       if (Type_poly==CMS || Type_poly==CMS_SCFT) site_dens*=Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
                       else if (Type_poly==WJDC3)                 site_dens*=exp(Betamu_chain[ipol]+scale_term);
                    }
@@ -442,7 +437,7 @@ void print_profile(char *output_file4)
                 }
                 for (iseg=0; iseg<Nmer[ipol]; iseg++){
                    iunk=Phys2Unk_first[DENSITY]+SegChain2SegAll[ipol][iseg];
-                   sumsegdens[Type_mer[ipol][iseg]]+=X_old[iunk+node_start];
+                   sumsegdens[Type_mer[ipol][iseg]]+=xold[iunk+node_start];
                    flag_type_mer[Type_mer[ipol][iseg]]=TRUE;
                 }
                 for (itype_mer=0;itype_mer<Ncomp;itype_mer++){
@@ -472,7 +467,7 @@ void print_profile(char *output_file4)
 print_gofr: This routine prints out the density profile.        
 this routine is only ever called by Proc 0                                    */ 
 
-void print_gofr(char *output_file6)
+void print_gofr(char *output_file6,double *xold)
 {
   int icomp,i,inode,ijk[3],idim,nunk_print,npol=0,itype_mer,iwall,iunk;
   double kappa_sq,kappa,r,rsq;
@@ -506,10 +501,10 @@ void print_gofr(char *output_file6)
             if (Unk2Phys[iunk]==DENSITY){
                 icomp = iunk-Phys2Unk_first[DENSITY];
                 if (Lprint_gofr==2) {
-                    if (X_old[iunk+Nunk_per_node*inode]>1.e-8) fprintf(ifp,"%22.17f\t", -log(X_old[iunk+Nunk_per_node*inode]/Rho_b[icomp]));
+                    if (xold[iunk+Nunk_per_node*inode]>1.e-8) fprintf(ifp,"%22.17f\t", -log(xold[iunk+Nunk_per_node*inode]/Rho_b[icomp]));
                     else fprintf(ifp,"%22.17f\t",VEXT_MAX);
                 }
-                else fprintf(ifp,"%22.17f\t", X_old[iunk+Nunk_per_node*inode]/Rho_b[icomp]);
+                else fprintf(ifp,"%22.17f\t", xold[iunk+Nunk_per_node*inode]/Rho_b[icomp]);
             }
         }
 

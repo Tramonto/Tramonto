@@ -80,19 +80,32 @@ void post_process (double **x,char *output_file3,int *niters,
   * First exchange boundary information as necessary !! 
   */
 
-  if (Proc == 0) {
-    X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
-    Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
+  if (Proc==0){
+      if (binodal_flag)  X2_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
+      else                X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
+      Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
   }
 
-  collect_x_old(x);
+  if (binodal_flag) collect_x_old(x,X2_old);
+  else              collect_x_old(x,X_old);
   collect_vext_old();
 
    if (Proc == 0 && Iwrite != MINIMAL) {
-        if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5);
-        else                                print_profile(output_file4);
+        if (binodal_flag){
+printf("Print_rho_type=%d PRINT_RHO_0=%d should be printing X2 output to %s\n",Print_rho_type,PRINT_RHO_0,output_file5);
+           if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5,X2_old);
+           else                               print_profile(output_file4,X2_old);
+        }
+        else{
+printf("should be printing X output to %s\n",output_file5);
+           if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5,X_old);
+           else                               print_profile(output_file4,X_old);
+        }
    }
-   if (Lprint_gofr && Nlink==1) print_gofr(output_file6);
+   if (Proc==0 && Lprint_gofr && Nlink==1){
+       if (binodal_flag) print_gofr(output_file6,X2_old);
+       else print_gofr(output_file6,X_old);
+   }
 
    if (Proc==0) safe_free((void *) &Vext_old);
 

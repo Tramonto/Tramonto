@@ -38,7 +38,7 @@
 void set_initial_guess (int iguess, double** xOwned)
 {
   double t1=0.0;
-  int i;
+  int i,idim;
   int start_no_info;
   double **xInBox;
 
@@ -196,8 +196,8 @@ void translate_xInBox_to_xOwned(double **xInBox,double **xOwned)
 void communicate_to_fill_in_box_values(double **xInBox)
 {
 
-    X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
-  collect_x_old(xInBox);
+  X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
+  collect_x_old(xInBox,X_old);
   communicate_profile(X_old,xInBox);
   safe_free((void *) &X_old);
   return;

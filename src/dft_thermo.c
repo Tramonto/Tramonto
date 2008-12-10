@@ -158,8 +158,8 @@ void calc_pressure(char *output_file1)
           if (Type_func != NONE) {
                betap_hs_DFT = pressure_FMT_hs(Rhobar_b,Dphi_Drhobar_b);
                    if (Proc==0 && Iwrite != NO_SCREEN) printf("\tDFT HS pressure is %9.6f\n",betap_hs_DFT);
-               betap_hs_PY = pressure_PY_hs(Rho_b);
-                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\tPY HS pressure is %9.6f\n",betap_hs_PY);
+               /*betap_hs_PY = pressure_PY_hs(Rho_b);
+                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\tPY HS pressure is %9.6f\n",betap_hs_PY);*/
                Betap += betap_hs_DFT;
           }
 				/* MF ATT contributions */

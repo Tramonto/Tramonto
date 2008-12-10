@@ -1,6 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
 void communicate_profile(double *x_new,double **xInBox);
-void collect_x_old(double **x);
+void collect_x_old(double **x,double *xold);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

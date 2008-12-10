@@ -58,13 +58,13 @@ struct Loca_Struct {
 extern struct Loca_Struct Loca;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-void print_gofr(char *output_file6);
+void print_gofr(char *output_file6,double *xold);
 extern int Nlink;
 extern int Lprint_gofr;
-void print_profile(char *output_file4);
+void print_profile(char *output_file4,double *xold);
 #define MINIMAL      0
 void collect_vext_old();
-void collect_x_old(double **x);
+void collect_x_old(double **x,double *xold);
 extern int Ncomp;
 extern double *Vext_old;
 extern int Nunk_per_node;
@@ -76,6 +76,7 @@ void *array_alloc(int numdim,...);
 #if !(defined(__STDC__))
 void *array_alloc(...);
 #endif
+extern double *X2_old;
 #define NO_SCREEN    2 
 extern int Iwrite;
 extern int Proc;

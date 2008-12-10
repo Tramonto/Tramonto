@@ -35,9 +35,6 @@
 
 #include "dft_main.h"
 /*****************************************************************************/
-/*void continuation_shift();
-void setup_nunk_per_node(char *);
-void dftmain(double *);*/
 
 void dftmain(double * engptr)
 
@@ -146,11 +143,11 @@ void dftmain(double * engptr)
   count_nonzero = 0;
   */
 
-  if (Loca.method != -1) {
+/*  if (Loca.method != -1) {
     Nruns = 1;
     if (Proc==0 && Iwrite!=NO_SCREEN) printf("\nWARNING: Loca library requested, disabling"
                         "Tramonto continuation loops\n");
-  }
+  }*/
 
   for (Imain_loop=0; Imain_loop<Nruns; Imain_loop++){ /*only does mesh continuation now */
     if (Proc==0){  
@@ -283,15 +280,13 @@ void dftmain(double * engptr)
       time_save =  MPI_Wtime() - t_mesh;
       t_postprocess = -MPI_Wtime();
 
-      if (Loca.method == -1) {
-        if (Lbinodal) post_process(x2, output_file3, &niters, &time_save,
-                                   Imain_loop, TRUE);
-        if (Proc==0 && Lbinodal){
-          X2_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
-          for (i=0; i<Nodes_old*Nunk_per_node; i++) X2_old[i] = X_old[i];
-        }
+      if (Loca.method == -1 || Loca.num_steps==0) {
+        if (Lbinodal) post_process(x2, output_file3, &niters, &time_save,Imain_loop, TRUE);
         post_process(x, output_file3, &niters, &time_save, Imain_loop, FALSE);
       }
+      Nodes_old = Nnodes;
+      for (idim=0; idim<Ndim; idim++) Nodes_x_old[idim] = Nodes_x[idim];
+
 
       t_postprocess += MPI_Wtime();
 /*      printf("\n*********************************************\n");
@@ -500,11 +495,13 @@ void dftmain(double * engptr)
   if (Type_poly == CMS) safe_free((void **) &Rism_cr);
 
 
-  if (Proc == 0)
+  if (Proc == 0){
     safe_free((void *) &X_old); /* This is also done for each continuation run
               in set_initial_guess (dft_guess.c) called from solve_problem.
               The array is allocated in collect_x_old (dft_output.c) called
               from post_process.    */
+    if (Lbinodal) safe_free((void *) &X2_old); 
+  }
   *engptr = Energy;
   return;
 } 

@@ -34,7 +34,8 @@ extern double Size_x[NDIM_MAX];
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Nwall;
 extern int L_HSperturbation;
-void print_gofr(char *output_file6);
+void print_gofr(char *output_file6,double *xold);
+extern int Nodes_x[NDIM_MAX];
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -79,6 +80,7 @@ extern int LDeBroglie;
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern double Esize_x[NDIM_MAX];
+extern int Ndim;
 void node_to_ijk(int node,int *ijk);
 extern double Charge_f[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
@@ -110,14 +112,14 @@ extern int Lseg_densities;
 extern int Type_poly;
 #define VERBOSE      3 
 extern int Iwrite;
-void print_profile(char *output_file4);
+void print_profile(char *output_file4,double *xold);
+extern double *X_old;
 void print_profile_box(double **x,char *outfile);
 extern double *Vext_old;
 extern int Num_Proc;
 extern double **Vext;
 extern int Ncomp;
 void collect_vext_old();
-extern double *X_old;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern int *Comm_offset_unk;
@@ -125,6 +127,7 @@ extern int *Comm_unk_proc;
 extern int *Comm_offset_node;
 extern int *Comm_node_proc;
 extern int *L2G_node;
+extern int Nnodes;
 extern int Nunknowns;
 extern int Proc;
 #if defined(DEBUG)
@@ -140,9 +143,4 @@ void *array_alloc(...);
 #endif
 extern int Nunk_per_node;
 extern int Nnodes_per_proc;
-extern int Nodes_x[NDIM_MAX];
-extern int Nodes_x_old[NDIM_MAX];
-extern int Ndim;
-extern int Nnodes;
-extern int Nodes_old;
-void collect_x_old(double **x);
+void collect_x_old(double **x,double *xold);

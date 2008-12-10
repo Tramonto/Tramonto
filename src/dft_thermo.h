@@ -55,7 +55,6 @@ extern double Field_WJDC_LBB[NMER_MAX];
 extern double Betamu_chain_LBB[NMER_MAX];
 void chempot_chain_wjdc(double *rho,double *betamu_chain,double *field_WJDC,double *g_WJDC);
 extern double Xi_cav_b[4];
-double pressure_PY_hs(double *rho);
 extern double Dphi_Drhobar_b[10];
 extern double Rhobar_b[10];
 extern double Rho_b[NCOMP_MAX];

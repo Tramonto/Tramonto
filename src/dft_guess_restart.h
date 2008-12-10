@@ -35,10 +35,10 @@ extern int **Zero_density_TF;
 extern int *B2G_node;
 extern int Nnodes_box;
 int locate_inode_old(int *ijk);
+extern int Pos_new_nodes;
 void node_to_ijk(int node,int *ijk);
 #define NWALL_MAX_TYPE 50 
 extern double Del_1[NWALL_MAX_TYPE];
-extern int Pos_new_nodes;
 extern int Plane_new_nodes;
 #define NDIM_MAX  3
 extern int Nodes_x_old[NDIM_MAX];
@@ -110,7 +110,7 @@ void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern int Iguess1;
 extern int Nunknowns;
-void shift_the_profile(double *x_new,double fac);
+void shift_the_profile(double *x_new,double fac,double *xold);
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

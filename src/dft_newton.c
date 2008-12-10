@@ -103,7 +103,9 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
           }
        }
     }
-    else{ set_initial_guess(BINODAL_FLAG, x2Owned);}
+    else{ 
+printf("calling initial guess for 2nd binodal solutions !!\n");
+     set_initial_guess(BINODAL_FLAG, x2Owned);}
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
