@@ -1,0 +1,35 @@
+/*! \file 
+ \brief Phase transition tracking of confined lipid assemblies (bilayer/SAM) using 8-2-8 lipid and single site solvent (1D).
+
+Functionals: FMT3,WCA,WJDC3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example demonstrates binodal continuation in a confined lipid system with the two phases being confined bilayers and confined monolayers at each surface.  In this example the spacing of the confining slit and the tail-surface interaction are varied simultaneously.  
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_8_1
+   - dft_dens.dat
+   - dft_dens2.dat
+
+Key Output Parameters (first solution Bilayer) :
+   - Eps_wf[0][0]=0.88804643
+   - ads[0]=5.60308
+   - ads[1]=0.700385 
+   - ads[2]=1.79228 
+   - omega=-2.27118
+.
+
+Key Output Parameters (first solution SAM) :
+   - Eps_wf[0][0]=0.88804643
+   - ads[0]=6.52757
+   - ads[1]=0.815946 
+   - ads[2]=0.320844
+   - omega=-2.27118
+.
+
+*/
