@@ -111,7 +111,9 @@ printf("calling initial guess for 2nd binodal solutions !!\n");
   }
 
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
-  if (NL_Solver==NEWTON_NOX || NL_Solver==PICNEWTON_NOX) NOXLOCA_Solver(x, xOwned, x2Owned,FALSE);
+  if (NL_Solver==NEWTON_NOX || NL_Solver==PICNEWTON_NOX) {
+    iter = NOXLOCA_Solver(x, xOwned, x2Owned,FALSE);
+  }
   else{
   if (Loca.method != -1){
     iter = solve_continuation(x, x2);

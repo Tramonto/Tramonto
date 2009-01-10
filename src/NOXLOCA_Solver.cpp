@@ -30,8 +30,9 @@
 extern "C" {
 #include "loca_const.h"
 
-void NOXLOCA_Solver(double **xBox, double **xOwned, double **x2Owned, bool doPicard)
+int NOXLOCA_Solver(double **xBox, double **xOwned, double **x2Owned, bool doPicard)
 {
+  int NewtonIters = -1;
   try {
   
     // Create a solution vector of NOX's known type
@@ -201,6 +202,8 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
     // Perform continuation run
     LOCA::Abstract::Iterator::IteratorStatus status = stepper.run();
 
+    NewtonIters = nlParams.sublist("Output").get("Nonlinear Iterations", -1000);
+
     // Check for convergence
     if (status != LOCA::Abstract::Iterator::Finished) {
       if (globalData->locaUtils->isPrintType(NOX::Utils::Error))
@@ -229,6 +232,8 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
   catch (...) {
     cout << "Caught unknown exception!" << endl;
   }
+
+  return NewtonIters;
 
 }
 

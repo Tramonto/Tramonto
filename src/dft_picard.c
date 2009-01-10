@@ -32,6 +32,9 @@
  */
 #include "dft_picard.h"
 
+//prototype
+void calc_density_next_iter_SCF(double **xInBox);
+
 /*******************************************************************************/
 int solve_problem_picard(double **x, double **x2)
 /*
@@ -74,7 +77,8 @@ int solve_problem_picard(double **x, double **x2)
   }
 
   printf("NL_Solver=%d PICARD_NOX=%d PICNEWTON_NOX=%d\n",NL_Solver,PICARD_NOX,PICNEWTON_NOX);
-  if (NL_Solver==PICARD_NOX || NL_Solver==PICNEWTON_NOX) NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
+  if (NL_Solver==PICARD_NOX || NL_Solver==PICNEWTON_NOX)
+    iter=NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
   else iter=picard_solver(x,-1);
 
   safe_free((void **) &xOwned);
