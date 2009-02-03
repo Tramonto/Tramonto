@@ -280,9 +280,11 @@ void dftmain(double * engptr)
       time_save =  MPI_Wtime() - t_mesh;
       t_postprocess = -MPI_Wtime();
 
+      if (NL_Solver !=NEWTON_NOX && NL_Solver != PICARD_NOX){
       if (Loca.method == -1 || Loca.num_steps==0) {
         if (Lbinodal) post_process(x2, output_file3, &niters, &time_save,Imain_loop, TRUE);
         post_process(x, output_file3, &niters, &time_save, Imain_loop, FALSE);
+      }
       }
       Nodes_old = Nnodes;
       for (idim=0; idim<Ndim; idim++) Nodes_x_old[idim] = Nodes_x[idim];
@@ -384,6 +386,7 @@ void dftmain(double * engptr)
       if (Proc == 0 &&Iwrite !=NO_SCREEN) {
         printf ("\n\n\n\n");
         printf ("===================================================\n");
+        if (NL_Solver !=NEWTON_NOX && NL_Solver !=PICARD_NOX) 
         printf ("TIMING SUMMARY .... averaged over all %d iterations\n",niters);
         printf ("===================================================\n");
         printf ("                         min(sec)        max(sec)  \n");

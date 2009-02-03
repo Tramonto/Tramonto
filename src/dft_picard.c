@@ -62,7 +62,7 @@ int solve_problem_picard(double **x, double **x2)
   }
   communicate_to_fill_in_box_values(x);
   /* If requested, write out initial guess */
-   if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");
+/*   if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");*/
 
 
   /* Do same for second solution vector when Lbinodal is true */
@@ -73,7 +73,7 @@ int solve_problem_picard(double **x, double **x2)
       for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++) x2[iunk][L2B_node[loc_inode]]=x2Owned[iunk][loc_inode];
     }
     communicate_to_fill_in_box_values(x2);
-    if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
+/*    if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");*/
   }
 
   printf("NL_Solver=%d PICARD_NOX=%d PICNEWTON_NOX=%d\n",NL_Solver,PICARD_NOX,PICNEWTON_NOX);
@@ -101,7 +101,6 @@ int picard_solver(double **x, int subIters){
   x_old = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
   delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
 
-  if (Iwrite == VERBOSE) printf("In picard_solver  subIters = %d\n",subIters);
   if (subIters == -1) max_iters = Max_NL_iter;
   else {
     max_iters = subIters;
@@ -121,25 +120,27 @@ int picard_solver(double **x, int subIters){
      if (L_HSperturbation && Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3)
                               calc_density_next_iter_HSperturb(x);
      else if(Type_poly==CMS)  calc_density_next_iter_CMS(x);
-	 else if(Type_poly==CMS_SCFT)  calc_density_next_iter_SCF(x);
+     else if(Type_poly==CMS_SCFT)  calc_density_next_iter_SCF(x);
      else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) calc_density_next_iter_WJDC(x);
      communicate_to_fill_in_box_values(x);
 
- if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");
+/* if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");*/
 
      for (iunk=0; iunk<Nunk_per_node;iunk++)
        for (ibox=0; ibox<Nnodes_box;ibox++){
          delta_x[iunk][ibox]=x[iunk][ibox]-x_old[iunk][ibox];
      }
- if (Iwrite==VERBOSE) print_profile_box(x, "deltax_iter.dat");
+/* if (Iwrite==VERBOSE) print_profile_box(x, "deltax_iter.dat");*/
 
    // if (con_ptr != NULL) converged2 = continuation_hook_conwrap(x, delta_x, con_ptr, NL_rel_tol, NL_abs_tol);
 
     /* Do: x += delta_x, and check for convergence .... trying to reuse same update_solution strategies as in Newton solver*/
     converged = update_solution_picard(x_old, delta_x, iter);
+    if (skip_convergence_test) converged=FALSE;
+
      for (iunk=0; iunk<Nunk_per_node;iunk++)
        for (ibox=0; ibox<Nnodes_box;ibox++) x[iunk][ibox]=x_old[iunk][ibox];
-    if (converged) fix_symmetries(x);
+       fix_symmetries(x);
  
      /* now update all other fields in the solution vector */
 
@@ -232,8 +233,6 @@ int picard_solver(double **x, int subIters){
      }
      }
 
-     // Ignore this convergence test if NOX is controlling convergence
-     if (skip_convergence_test) converged=FALSE;
   } while (iter < max_iters && !converged);
 
   // Skip printing if NOX is controlling convergence
@@ -241,8 +240,10 @@ int picard_solver(double **x, int subIters){
     if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tPicard Solver: Failed to converge in %d iterations\n",iter);
     iter = -iter;
   }
-  else
+  else if (converged && !skip_convergence_test){
     if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tPicard Solver: Successful convergence in %d iterations\n",iter);
+  }
+  else{ if (Proc==0 && Iwrite!=NO_SCREEN) printf("\treturn control to NOX after %d iterations\n",iter);}
 
   safe_free((void **) &x_old);
   return iter;
@@ -308,17 +309,24 @@ void calc_density_next_iter_CMS(double **xInBox)
    we are doing WJDC-DFT calculations */
 void calc_density_next_iter_WJDC(double **xInBox)
 {
-  int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i;
+  int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i,iloop_max;
   double resid;
   struct  RB_Struct *dphi_drb=NULL;
   izone=0;
   mesh_coarsen_flag_i=0;
-  
+  if (Type_poly==WJDC3) iloop_max=Ncomp;
+  else iloop_max=Nseg_tot;
+
+  calc_init_WJDC_field(xInBox);
+  calc_init_polymer_G_wjdc(xInBox);
+  communicate_to_fill_in_box_values(xInBox);
+
+
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode]; 
      node_box_to_ijk_box(inode_box, ijk_box);
      
-     for (iloop=0; iloop<Nseg_tot; iloop++){
+     for (iloop=0; iloop<iloop_max; iloop++){
         iunk=Phys2Unk_first[DENSITY]+iloop;
         resid=load_WJDC_density(iunk,loc_inode,inode_box,xInBox,INIT_GUESS_FLAG);
         xInBox[iunk][inode_box]=-resid;
