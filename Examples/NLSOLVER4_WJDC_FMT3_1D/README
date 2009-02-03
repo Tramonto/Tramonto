@@ -1,0 +1,23 @@
+/*! \file 
+ \brief NL_Solver=3; 8-2-8 hard polymer at a hard wall.
+
+Functionals: WJDC, FMT3, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes:  This case is identical to the POLY18 (and NLSOLVER1-NLSOLVER5) case but tests the NOX Picard nonlinear solver option NL_Solver=3.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_18
+
+
+Key Output Parameters:
+   - adsorption[0]=19.3029 
+   - adsorption[1]=2.31176   
+   - energy=2.27955   
+   .
+*/
