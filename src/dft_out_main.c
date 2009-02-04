@@ -92,12 +92,10 @@ void post_process (double **x,char *output_file3,int *niters,
 
    if (Proc == 0 && Iwrite != MINIMAL) {
         if (binodal_flag){
-printf("Print_rho_type=%d PRINT_RHO_0=%d should be printing X2 output to %s\n",Print_rho_type,PRINT_RHO_0,output_file5);
            if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5,X2_old);
            else                               print_profile(output_file4,X2_old);
         }
         else{
-printf("should be printing X output to %s\n",output_file5);
            if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5,X_old);
            else                               print_profile(output_file4,X_old);
         }

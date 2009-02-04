@@ -48,8 +48,8 @@ void linsolver_setup_control()
 void linsolver_setup_CMSTYPE()
 {
   int iunk,i;
-  int *geq, *ginveq, *cmseq, *densityeq;
-  int count_density,count_cms_field,count_geqn,count_ginv_eqn;
+  int *geq, *ginveq, *geq_sym, *cmseq, *densityeq;
+  int count_density,count_cms_field,count_geqn,count_ginv_eqn,count_g_sym,count_ginv_eqn_old;
   int index_save;
   int count_poisson;
   int *poissoneq;
@@ -59,10 +59,11 @@ void linsolver_setup_CMSTYPE()
    cmseq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    geq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
+   geq_sym = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
    poissoneq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    count_poisson = 0;
    
-   count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
+   count_density=count_cms_field=count_geqn=count_ginv_eqn=count_g_sym=0;
    for (iunk=0;iunk<Nunk_per_node;iunk++){
      switch(Unk2Phys[iunk]){
      case DENSITY:
@@ -70,10 +71,11 @@ void linsolver_setup_CMSTYPE()
      case CMS_FIELD:                  
        cmseq[count_cms_field++]=iunk; break; 
      case G_CHAIN:                  
-       if ((iunk-Geqn_start[0])%2 == 0)
-         geq[count_geqn++]=iunk; 
-       else
-         ginveq[count_ginv_eqn++]=iunk; 
+       if (Pol_Sym[iunk-Geqn_start[0]]==-1){
+          if ((iunk-Geqn_start[0])%2 == 0) geq[count_geqn++]=iunk;
+          else                             ginveq[count_ginv_eqn++]=iunk;
+       }
+       else{ geq_sym[count_g_sym++]=iunk; }
        break;
      case POISSON:
        poissoneq[count_poisson++]=iunk; break;
@@ -89,10 +91,18 @@ void linsolver_setup_CMSTYPE()
      ginveq[i] = ginveq[count_ginv_eqn-1-i];
      ginveq[count_ginv_eqn-1-i]=index_save;
    }
+  /* finally dump all of the symmetry equations at the end of ginveq array ! */
+   count_ginv_eqn_old=count_ginv_eqn;
+   for (i=0;i<count_g_sym;i++){
+      ginveq[count_ginv_eqn_old+i]=geq_sym[i];
+      count_ginv_eqn++;
+   }
+
+
    // LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
-   dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, Ngeqn_tot/2, geq);
-   dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, Ngeqn_tot/2, ginveq);
+   dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
+   dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, count_ginv_eqn, ginveq);
    dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmseq);
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    dft_poly_lin_prob_mgr_setpoissonequationids(LinProbMgr_manager, count_poisson, poissoneq);
@@ -100,6 +110,7 @@ void linsolver_setup_CMSTYPE()
    safe_free((void *) &densityeq);
    safe_free((void *) &cmseq);
    safe_free((void *) &geq);
+   safe_free((void *) &geq_sym);
    safe_free((void *) &ginveq);
    safe_free((void *) &poissoneq);
 }
