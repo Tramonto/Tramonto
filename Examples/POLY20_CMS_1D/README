@@ -1,0 +1,27 @@
+/*! \file 
+ \brief Lipid bilayer: 8-2-8 lipid plus solvent.
+
+Functionals: CMS
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This problem is identical to POLY3, but it turns on symmetry code for the polymer and the Schur solvers.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - cr8.2.8_0.375_1_0.375   
+   - lin_18_1sym
+   - dft_dens.dat            
+   - dft_dens.datg
+
+Key Output Parameters:
+   - niter=1
+   - adsorption[0]=3.525595 
+   - adsorption[1]=0.440699 
+   - adsorption[2]=27.666943 
+   - energy=-26.314314
+   .
+*/
