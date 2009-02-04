@@ -76,3 +76,5 @@ void linsolver_setup_CMSTYPE();
 extern int Type_poly;
 extern int L_Schur;
 void linsolver_setup_control();
+extern int *Pol_Sym;
+

@@ -167,8 +167,8 @@ void linsolver_setup_WJDCTYPE()
 {
   int iunk,i;
   double **xOwned, **x2Owned;
-  int *geq, *ginveq, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,ginv_eq_start,first_time;
-  int count_density,count_wjdc_field,count_geqn,count_ginv_eqn;
+  int *geq, *ginveq, *geq_sym, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,ginv_eq_start,first_time;
+  int count_density,count_wjdc_field,count_geqn,count_ginv_eqn,count_g_sym,count_ginv_eqn_old;
   int count_indnonlocal,count_depnonlocal,index_save;
   int one_particle_size;
   int count_poisson;
@@ -181,9 +181,10 @@ void linsolver_setup_WJDCTYPE()
   wjdceq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   geq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
+  geq_sym = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
   poissoneq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
-   
-  count_density=count_wjdc_field=count_geqn=count_ginv_eqn=0;
+
+  count_density=count_wjdc_field=count_geqn=count_ginv_eqn=count_g_sym=0;
   count_indnonlocal=count_depnonlocal=0;
   count_poisson = 0;
   first_time=TRUE;
@@ -209,15 +210,20 @@ void linsolver_setup_WJDCTYPE()
        wjdceq[count_wjdc_field++]=iunk; 
          break; 
      case G_CHAIN:                  
-       if ((iunk-Geqn_start[0])%2 == 0){
-         geq[count_geqn++]=iunk; 
+       if (Pol_Sym[iunk-Geqn_start[0]]==-1){
+          if ((iunk-Geqn_start[0])%2 == 0){
+            geq[count_geqn++]=iunk; 
+          }
+          else{
+            if (first_time){
+               ginv_eq_start=count_ginv_eqn;
+               first_time=FALSE;
+            }
+            ginveq[count_ginv_eqn++]=iunk; 
+          }
        }
        else{
-         if (first_time){
-            ginv_eq_start=count_ginv_eqn;
-            first_time=FALSE;
-         }
-         ginveq[count_ginv_eqn++]=iunk; 
+          geq_sym[count_g_sym++]=iunk;
        }
        break;
      case POISSON:
@@ -229,12 +235,18 @@ void linsolver_setup_WJDCTYPE()
         break;
      } 
   }
-  /* now invert the order of the ginverse equations ! */
+  /* now invert the order of the ginverse equations and move symmetric conditions to the end ! */
   for (i=ginv_eq_start;i<count_ginv_eqn/2;i++){
      index_save = ginveq[i];
      ginveq[i] = ginveq[count_ginv_eqn-1-(i-ginv_eq_start)];
      ginveq[count_ginv_eqn-1-(i-ginv_eq_start)]=index_save;
   }
+  /* finally dump all of the symmetry equations at the end of ginveq array ! */
+   count_ginv_eqn_old=count_ginv_eqn;
+   for (i=0;i<count_g_sym;i++){
+      ginveq[count_ginv_eqn_old+i]=geq_sym[i];
+      count_ginv_eqn++;
+   }
 
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
@@ -251,6 +263,7 @@ void linsolver_setup_WJDCTYPE()
    safe_free((void *) &wjdceq);
    safe_free((void *) &geq);
    safe_free((void *) &ginveq);
+   safe_free((void *) &geq_sym);
    safe_free((void *) &poissoneq);
 
    // LinProbMgr_manager = dft_wjdc_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
