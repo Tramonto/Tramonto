@@ -35,8 +35,8 @@
 /*******************************************************************************/
 void linsolver_setup_control()
 {
-   if (L_Schur && Type_poly == CMS)    linsolver_setup_CMSTYPE();
-   else if (L_Schur && Type_poly == WJDC || Type_poly==WJDC3)   linsolver_setup_WJDCTYPE();
+   if (L_Schur && Type_poly == CMS)    linsolver_setup_CMSTYPE_LINEARONLY();
+   else if (L_Schur && Type_poly == WJDC || Type_poly==WJDC3)   linsolver_setup_WJDCTYPE_LINEARONLY();
    else if (L_Schur && Type_func != NONE) linsolver_setup_HSTYPE();
    else {
     //   LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
@@ -323,7 +323,7 @@ void linsolver_setup_WJDCTYPE()
   return;
 }
 /*******************************************************************************/
-void linsolver_setup_WJDCTYPE_LINEAR_ONLY()
+void linsolver_setup_WJDCTYPE_LINEARONLY()
 {
   int iunk,i;
   double **xOwned, **x2Owned;
