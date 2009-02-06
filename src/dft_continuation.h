@@ -1,4 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
+#include <stdio.h>
 int continuation_hook(double *x,double *delta_x,void *con_void,double reltol,double abstol);
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 void box2owned(double **xBox,double **xOwned);
@@ -67,7 +68,6 @@ double gsum_double_conwrap(double sum);
 double gsum_double_conwrap(double sum);
 #endif
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)

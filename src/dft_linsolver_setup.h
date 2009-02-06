@@ -14,6 +14,13 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int **Bonds_SegAll;
+extern int **Poly_to_Unk_SegAll;
+extern int *Nbonds_SegAll;
+extern int Nseg_tot;
+#define NEQ_TYPE       13 
+extern int Phys2Nunk[NEQ_TYPE];
+void linsolver_setup_WJDCTYPE_LINEAR_ONLY();
 #define WJDC_FIELD     8
 extern int Type_coul;
 extern int Mesh_coarsening;
@@ -24,7 +31,6 @@ extern int Type_attr;
 #define BONDWTC        5
 extern int Ndim;
 extern int Nrho_bar_s;
-#define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       2
 #define TRUE  1
@@ -40,13 +46,14 @@ extern int Lhard_surf;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+int discover_G_ordering_LT(int *geq);
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern int Ncomp;
-extern int Ngeqn_tot;
 #define POISSON        1
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
+extern int *Pol_Sym;
 #define G_CHAIN       11 
 #define CMS_FIELD      7
 #define DENSITY        0
@@ -59,6 +66,7 @@ void *array_alloc(int numdim,...);
 #if !(defined(__STDC__))
 void *array_alloc(...);
 #endif
+void linsolver_setup_CMSTYPE_LINEARONLY();
 extern void *ParameterList_list;
 extern int Nunk_per_node;
 extern void *LinProbMgr_manager;
@@ -76,5 +84,3 @@ void linsolver_setup_CMSTYPE();
 extern int Type_poly;
 extern int L_Schur;
 void linsolver_setup_control();
-extern int *Pol_Sym;
-

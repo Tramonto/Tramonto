@@ -84,7 +84,6 @@ extern int Phys2Nunk[NEQ_TYPE];
 void fix_symmetries(double **x);
 int update_solution_picard(double **x,double **delta_x,int iter);
 void calc_density_next_iter_WJDC(double **xInBox);
-void calc_density_next_iter_SCF(double **xInBox);
 #define CMS_SCFT     1
 void calc_density_next_iter_CMS(double **xInBox);
 #define CMS          0
@@ -96,6 +95,7 @@ extern int Type_poly;
 extern int L_HSperturbation;
 void print_resid_norm_picard(double **x,int iter);
 #define NO_SCREEN    2 
+extern int Iwrite;
 extern int Max_NL_iter;
 extern int Nnodes_box;
 #define FALSE 0
@@ -117,9 +117,6 @@ int picard_solver(double **x,int subIters);
 extern int NL_Solver;
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */
 extern int Lbinodal;
-void print_profile_box(double **x,char *outfile);
-#define VERBOSE      3 
-extern int Iwrite;
 void communicate_to_fill_in_box_values(double **xInBox);
 extern int *L2B_node;
 extern int Iguess1;
@@ -134,3 +131,5 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 int solve_problem_picard(double **x,double **x2);
+void calc_density_next_iter_SCF(double **xInBox);
+void calc_density_next_iter_SCF(double **xInBox);

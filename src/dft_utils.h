@@ -1,6 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
-void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
 #include <stdio.h>
+void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)
