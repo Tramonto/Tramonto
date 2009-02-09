@@ -55,7 +55,7 @@ void read_input_file(char *input_file, char *output_file1)
 {
    /* Local variable declarations */
    
-   FILE *fp=NULL, *fp2=NULL, *fp3=NULL, *fp4=NULL;
+   FILE *fp=NULL, *fp2=NULL, *fp3=NULL;
 
    char *yo = "read_input_file";
    char poly_file[20];
@@ -63,9 +63,8 @@ void read_input_file(char *input_file, char *output_file1)
        i, izone, j, jwall,end_count,end_count_all,
        new_wall,logical,ncharge, seg, block[NCOMP_MAX][NBLOCK_MAX],
        block_type[NBLOCK_MAX],pol_number, nlink_chk,irand,irand_range,itmp,
-       *nbond_tot,nbond_all,iseg,nseg,nmer_max,ibond,pol_num2,nunk,
-       ***pol_sym_tmp,dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
-       lzeros,latoms,ltrues,jwall_type,seg_tot,seg_id;
+       dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
+       lzeros,latoms,ltrues,jwall_type,seg_tot;
    double r,rho_tmp[NCOMP_MAX],dxdx,dtmp,charge_sum,minpos[3],maxpos[3];
    double rough_param_max[NWALL_MAX_TYPE],rough_length_scale[NWALL_MAX_TYPE];
    int iblock,jblock;
@@ -901,7 +900,8 @@ void read_input_file(char *input_file, char *output_file1)
     }
   }
 
-  /* Read and set up Polymer parameters - only read if stencil is turned on */
+  /* START POLYMER INPUT FOR ALL KINDS OF POLYMERS */
+
   Nbonds=0;
   for (icomp=0;icomp<Ncomp;icomp++){
        Nseg_type[icomp]=1;  /* if no polymer we just set to 1 */
@@ -973,194 +973,20 @@ void read_input_file(char *input_file, char *output_file1)
     MPI_Bcast(SegChain2SegAll,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Type_mer,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
 
-	/* read poly_file; don't need this for SCF */
-	if (Type_poly == SCFT) {
-		if (Proc==0) {
-			read_junk(fp,fp2);
-			fprintf(fp2,"\n poly_file not used for SCFT\n");
-			fprintf(fp2,"n/a   ");
-		}
-	}
-	if (Type_poly != SCFT) {
-
     if (Proc==0) {
       read_junk(fp,fp2);
-      fscanf(fp,"%s", poly_file);
-      fprintf(fp2,"%s  ",poly_file);
-      if( (fp4  = fopen(poly_file,"r")) == NULL) {
-	printf("Can't open file %s\n", poly_file);
-	exit(-1);
+      fscanf(fp,"%d", &Type_poly_arch);
+      if (Type_poly_arch==POLY_ARCH_FILE && Type_poly != SCFT){
+         fscanf(fp,"%s", poly_file);
+         fprintf(fp2,"%s  ",poly_file);
       }
     }
+    MPI_Bcast(&Type_poly_arch,1,MPI_INT,0,MPI_COMM_WORLD);
 
-    /* now read in the bonds linking the various segments - note that there
-       may be more than two bonds per site */
-  
-    nseg=nmer_max=0;
-    for (pol_number=0; pol_number<Npol_comp; pol_number++){
-         nseg += Nmer[pol_number];
-         if (Nmer[pol_number] > nmer_max) nmer_max=Nmer[pol_number];
-    }
-    Unk_to_Poly = (int *) array_alloc (1, NBOND_MAX*nseg, sizeof(int));
-    Unk_to_Seg = (int *) array_alloc (1, NBOND_MAX*nseg, sizeof(int));
-    Unk_to_Bond = (int *) array_alloc (1, NBOND_MAX*nseg, sizeof(int));
+    /*now set up the chain architecture...*/
+    setup_chain_architecture(poly_file,fp2);
 
-    Nbond = (int **) array_alloc (2, Npol_comp,nmer_max,sizeof(int));
-    Nbonds_SegAll = (int *) array_alloc (1, NMER_MAX,sizeof(int));
-    Bonds = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
-    Bonds_SegAll = (int **) array_alloc (2, NMER_MAX,NBOND_MAX,sizeof(int));
-    pol_sym_tmp = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
-    Poly_to_Unk = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
-    Poly_to_Unk_SegAll = (int **) array_alloc (2, NMER_MAX,NBOND_MAX,sizeof(int));
-    Pol_Sym = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
-    Pol_Sym_Seg = (int *) array_alloc (1, nseg,sizeof(int));
-    BondAll_to_isegAll = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
-    BondAll_to_ibond = (int *) array_alloc (1, nseg*NBOND_MAX,sizeof(int));
-    nbond_tot = (int *) array_alloc (1, Npol_comp, sizeof(int));
-    Nseg_type_pol = (int **) array_alloc (2, Npol_comp,Ncomp,sizeof(int));
-
-    nbond_all = 0; 
-    Nbonds=0;
-    Nseg_tot=0;
-    seg_tot=0;
-    end_count_all=0;
-    for (icomp=0;icomp<Ncomp;icomp++){
-         Nmer_comp[icomp]=0;
-       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-             Nseg_type_pol[pol_number][icomp]=0;
-       }
-    } 
-
-    for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-      Nseg_tot += Nmer[pol_number];
-      if(Nseg_tot > NMER_MAX) {
-      	printf("Error: too many polymer segments, must increase NMER_MAX\n");
-      	exit(-1);
-      }
-      nbond_tot[pol_number]=0;
-      nunk=0; 
-      for (iseg=0; iseg<Nmer[pol_number]; iseg++){
-        Pol_Sym_Seg[seg_tot]=-1;
-        end_count=0;
-	if (Proc==0){ 
-          fscanf(fp4,"%d %d",&seg_id, &Nbond[pol_number][iseg]);
-          if (seg_id != iseg){
-             printf("something is wrong with the segment ids in the poly_file\n");
-             exit(-1);
-          }
-        }
-	MPI_Bcast(&Nbond[pol_number][iseg],1,MPI_INT,0,MPI_COMM_WORLD);
-        Nbonds_SegAll[seg_tot]=0;
-        SegAll_to_Poly[seg_tot]=pol_number;
-
-	for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
-	  if (Proc==0) {
-	    fscanf(fp4,"%d  %d", &Bonds[pol_number][iseg][ibond],&pol_sym_tmp[pol_number][iseg][ibond]);
-	    fprintf(fp2,"%d  ",Bonds[pol_number][iseg][ibond]);
-	  }
-	  MPI_Bcast(&Bonds[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
-	  MPI_Bcast(&pol_sym_tmp[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
-          if (Type_poly!=WTC || (Type_poly==WTC && Bonds[pol_number][iseg][ibond] != -1)){
-                                  /* note we don't want to include ends for the WTC polymers!*/
-	    Unk_to_Poly[nbond_all] = pol_number;
-  	    Unk_to_Seg[nbond_all]  = iseg;
-	    Unk_to_Bond[nbond_all] = ibond;
-	    Poly_to_Unk[pol_number][iseg][ibond] = nunk;
-	    if(Bonds[pol_number][iseg][ibond] != -1)
-	      Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond]+SegChain2SegAll[pol_number][0];
-	    else
-	      Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond];
-	    Poly_to_Unk_SegAll[seg_tot][Nbonds_SegAll[seg_tot]] = nbond_all;
-	    if (pol_sym_tmp[pol_number][iseg][ibond] != -1) Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond]-end_count_all;
-            else Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond];
-
-	    /* will this bit of code work with branched polymers? note that BondAll_to_isegAll only defined sequentially */
-            if (Pol_Sym[nbond_all]!= -1 && Type_poly==WTC){
-                if(Pol_Sym_Seg[seg_tot]==-1 || Pol_Sym_Seg[seg_tot]==BondAll_to_isegAll[Pol_Sym[nbond_all]]) {
-                  Pol_Sym_Seg[seg_tot] = BondAll_to_isegAll[Pol_Sym[nbond_all]];
-		  if (Proc==0) printf("tagging symmetric segments on the chain for removal from the linear system:  seg=%d symmetric with %d\n",seg_tot,Pol_Sym_Seg[seg_tot]);
-                }
-                else{
-                 if (Proc==0) printf("problem with setting polymer symmetries: seg_sym=%d Pol_Sym_seg=%d nbond=%d BondAll_to_isegAll=%d\n",
-                      seg_tot,Pol_Sym_Seg[seg_tot],nbond_all,BondAll_to_isegAll[nbond_all]); 
-                 exit(-1);
-                }
-            }
-            BondAll_to_isegAll[nbond_all]=seg_tot;
-	    BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
-	    nbond_all++;
-	    nunk++;
-            Nbonds++; 
-            Nbonds_SegAll[seg_tot]++;
-          }
-          else if (Type_poly==WTC && Bonds[pol_number][iseg][ibond] == -1){
-              end_count++;
-              end_count_all++;
-          }
-	} /* end of loop over ibond */
-	nbond_tot[pol_number] += (Nbond[pol_number][iseg]-end_count);
-        Unk2Comp[seg_tot]=Type_mer[pol_number][iseg];
-        Nmer_comp[Unk2Comp[seg_tot]]++;
-        seg_tot++;
-        Nseg_type_pol[pol_number][Type_mer[pol_number][iseg]]++;
-      } /* end of loop over iseg */
-    }
-    for (icomp=0;icomp<Ncomp;icomp++) Nseg_type[icomp]=0;
-    for (iseg=0;iseg<Nseg_tot;iseg++) Nseg_type[Unk2Comp[iseg]]++;
-    if (Proc==0){
-       fprintf(fp2,"\n********************\n BOND DETAILS \n **********************\n");
-       fprintf(fp2,"\t total number of bonds is %d\n",Nbonds);
-       for (ibond=0;ibond<Nbonds; ibond++){
-           fprintf(fp2,"Unk_to_Poly[ibond=%d]=%d Unk_to_Seg[]=%d Unk_to_Bond[]=%d\n",
-            ibond,Unk_to_Poly[ibond],Unk_to_Seg[ibond],Unk_to_Bond[ibond]);
-       }
-       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-          for (iseg=0;iseg<Nmer[pol_number];iseg++){
-              for (ibond=0;ibond<Nbond[pol_number][iseg];ibond++){
-	        if(Bonds[pol_number][iseg][ibond] != -1)
-                  fprintf(fp2,"Poly_to_Unk[%d][%d][%d]=%d\n",
-                     pol_number, iseg,ibond,Poly_to_Unk[pol_number][iseg][ibond]);
-              }
-          }
-       }
-       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-          for (iseg=0;iseg<Nmer[pol_number];iseg++){
-              printf("SegChain2SegAll[%d][%d]=%d\n",
-                   pol_number, iseg,SegChain2SegAll[pol_number][iseg]);
-          }
-       }
-       printf("Total Number of segments in the problem=%d\n",Nseg_tot);
-       for (iseg=0;iseg<Nseg_tot;iseg++){
-           printf("Nbonds_SegAll[%d]=%d",iseg,Nbonds_SegAll[iseg]);
-           printf("\t seg %d is bonded to...",iseg);
-           for(ibond=0;ibond<Nbonds_SegAll[iseg];ibond++)
-                printf("%d  ",Bonds_SegAll[iseg][ibond]); 
-           printf("\n");
-       }
-       fprintf(fp2,"****************\n END BOND DETAILS \n **********************\n");
-    }
-    
-    if (Proc==0) fclose(fp4);
-	} /* end of if (Type_poly !=SCFT) */
-
-    if (Type_poly != NONE && Type_poly != WTC && Type_poly != SCFT){  /*POLYMER INPUT FOR EITHER CMS OR WJDC FUNCTIONAL */
-    /* set start value of Geqns for each of the polymers in the system.  
-       It is necessary to account for Ncomp Boltz and Ncomp Rho eqns */
-   
-       Ngeqn_tot=0; 
-       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-          Geqn_start[pol_number] = 0;
-          Ngeqn_tot += (nbond_tot[pol_number]);
-          for (pol_num2=0; pol_num2<pol_number; pol_num2++)
-              Geqn_start[pol_number] += (nbond_tot[pol_num2]);
-       }
-       safe_free((void *)  &nbond_tot); 
-       if (Proc==0) printf("The total number of g equations will be %d\n",Ngeqn_tot);
-       for (pol_number=0; pol_number<Npol_comp; ++pol_number)
-       if (Proc==0) printf("The start unknown for polymer %d is %d \n",
-                                    pol_number,Geqn_start[pol_number]);
-   
-       if (Type_poly == CMS){  /* this bit only applies to the CMS functional */
+      if (Type_poly == CMS){  /* this bit only applies to the CMS functional */
        if (Proc==0) {
           read_junk(fp,fp2);
           fscanf(fp,"%d",&Ncr_files);
@@ -1213,42 +1039,7 @@ void read_input_file(char *input_file, char *output_file1)
              }       
           }       
        }
-       
-
-/* This is a debugging tool used to enter a real and an
-   integer to try various things out.  Generally, we would
-   say at iter # Bupdate_iters set a certain number to 
-   Bupdate_fact.  Since this is useless for the average
-   user, these numbers are just set to nonsense here in
-   the input file, if they are needed, just uncomment these
-   lines, and add the input to the input file !
-*/
-/*    
-       if (Proc==0) {
-         read_junk(fp,fp2);
-         fscanf(fp,"%lf", &Bupdate_fact);
-         fprintf(fp2,"%f  ",Bupdate_fact);
-         fscanf(fp,"%d", &Bupdate_iters);
-         fprintf(fp2,"%d  ",Bupdate_iters);
-       }
-       MPI_Bcast(&Bupdate_fact,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
-       MPI_Bcast(&Bupdate_iters,1,MPI_INT,0,MPI_COMM_WORLD);
-*/
-       Bupdate_fact = 0.0;
-       Bupdate_iters = -1;
-    } /* ends the section on Geqns that is only used if THETA_CR_DATA stencil is on */
-    else{
-       if (Proc==0) {
-          read_junk(fp,fp2);
-          fprintf(fp2,"\n NO LIQUID STATE INPUT FOR WERTHEIM-TRIPATHI-CHAPMAN RUN\n");
-          fprintf(fp2,"not read   ");
-          for (i=0; i<2; i++) {
-             read_junk(fp,fp2);
-             fprintf(fp2,"not read   ");
-          }       
-       }       
-    }
-  }     /* POLYMER INPUT FOR ALL KINDS OF POLYMERS */
+  }     /* END POLYMER INPUT FOR ALL KINDS OF POLYMERS */
   else{
     if (Proc==0) {
       read_junk(fp,fp2);

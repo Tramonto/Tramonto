@@ -50,8 +50,8 @@ double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       2
-#define YW			 7
-#define SCFT		 6
+#define YW           7
+#define SCFT         6	
 double load_SCF_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);

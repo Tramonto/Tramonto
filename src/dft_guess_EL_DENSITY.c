@@ -37,7 +37,6 @@
 
 void setup_density(double **xInBox,int iguess)
 {
-printf("setup density profile with iguess=%d\n",iguess);
     switch(iguess){
       case CONST_RHO:
             if (Lseg_densities){

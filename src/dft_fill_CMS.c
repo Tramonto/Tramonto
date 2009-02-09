@@ -160,7 +160,7 @@ void CMS_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg,
 
     fac=weight;
     for(i=0;i<nunk-1;i++) fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
-    mat_val = fac*prefac*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power); /* Boltz Field Term */
+    mat_val = fac*((double)prefac)*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power); /* Boltz Field Term */
     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[nunk-1],jnode_box,mat_val);
     return;
 }

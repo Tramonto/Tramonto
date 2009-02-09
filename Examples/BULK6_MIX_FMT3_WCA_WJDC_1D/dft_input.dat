@@ -101,7 +101,12 @@
 @ 1 1 	Nblock[pol_number]: Number of blocks in each copolymer 
 @ 1 2	block[pol_number][iblock]: Number of segments in each block 
 @ 0 1	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
-@ lin_2mer 	poly_file: File containing polymer connectivity 
+@ 0 lin_2mer    Type_poly_arch    poly_file: File containing polymer connectivity
+             Type_poly_arch options:
+                0=POLY_ARCH_FILE (poly_file required)
+                1=LIN_POLY       (NO poly_file required)
+                2=LIN_POLY_SYM   (NO poly_file required)
+                3=LIN_POLY_FIVESEGS   (NO poly_file required)
 @ n/a 	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
                  NCrfiles (number of cr files - up to 4 to be read in)
                  Crfac (multiplicative factor for the first c(r).

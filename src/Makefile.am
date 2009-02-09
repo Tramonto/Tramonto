@@ -49,6 +49,7 @@ COMMON_H = \
         ${srcdir}/dft_parameterlist_wrapper.h \
         ${srcdir}/dft_direct_solver_const.h \
         ${srcdir}/dft_input.h \
+        ${srcdir}/dft_chain_architecture.h \
         ${srcdir}/dft_main.h \
 	${srcdir}/dft_maindriver.h \
         ${srcdir}/dft_mesh.h \
@@ -148,6 +149,7 @@ COMMON_H = \
 
 COMMON_C = \
         ${srcdir}/dft_input.c \
+        ${srcdir}/dft_chain_architecture.c \
         ${srcdir}/dft_main.c \
         ${srcdir}/dft_mesh.c \
         ${srcdir}/dft_mesh_surfaces.c \

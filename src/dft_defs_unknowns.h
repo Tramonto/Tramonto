@@ -29,7 +29,7 @@ extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
 #define SCF_CONSTR	   9
 #define SCF_FIELD	  10
-#define YW			 7
+#define YW           7
 #define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
 extern int Ngeqn_tot;
 #define G_CHAIN       11 
@@ -67,7 +67,7 @@ extern int Nseg_tot;
 extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 extern int L_HSperturbation;
-#define SCFT		 6
+#define SCFT         6	
 #define CMS_SCFT     1
 #define CMS          0
 #define FALSE 0

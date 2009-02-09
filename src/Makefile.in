@@ -93,20 +93,20 @@ AR = ar
 ARFLAGS = cru
 libdft_a_AR = $(AR) $(ARFLAGS)
 libdft_a_DEPENDENCIES =
-am__objects_1 = dft_input.$(OBJEXT) dft_main.$(OBJEXT) \
-	dft_mesh.$(OBJEXT) dft_mesh_surfaces.$(OBJEXT) \
-	dft_mesh_lib.$(OBJEXT) dft_newton.$(OBJEXT) \
-	dft_picard.$(OBJEXT) dft_linsolver_setup.$(OBJEXT) \
-	dft_ldbal.$(OBJEXT) dft_fill_pde.$(OBJEXT) \
-	dft_fill_pde_elec.$(OBJEXT) dft_fill_pde_diffusion.$(OBJEXT) \
-	dft_fill_coarse.$(OBJEXT) dft_fill_EL.$(OBJEXT) \
-	dft_fill_CMS.$(OBJEXT) dft_fill_wjdc.$(OBJEXT) \
-	dft_fill_CLSchain.$(OBJEXT) dft_fill_CLSmf.$(OBJEXT) \
-	dft_physics_FMT1.$(OBJEXT) dft_physics_FMT2.$(OBJEXT) \
-	dft_physics_FMT3.$(OBJEXT) dft_defs_stencil.$(OBJEXT) \
-	dft_defs_unknowns.$(OBJEXT) dft_quadrature.$(OBJEXT) \
-	dft_stencil.$(OBJEXT) dft_stencil_delta_Bond.$(OBJEXT) \
-	dft_stencil_delta_R.$(OBJEXT) \
+am__objects_1 = dft_input.$(OBJEXT) dft_chain_architecture.$(OBJEXT) \
+	dft_main.$(OBJEXT) dft_mesh.$(OBJEXT) \
+	dft_mesh_surfaces.$(OBJEXT) dft_mesh_lib.$(OBJEXT) \
+	dft_newton.$(OBJEXT) dft_picard.$(OBJEXT) \
+	dft_linsolver_setup.$(OBJEXT) dft_ldbal.$(OBJEXT) \
+	dft_fill_pde.$(OBJEXT) dft_fill_pde_elec.$(OBJEXT) \
+	dft_fill_pde_diffusion.$(OBJEXT) dft_fill_coarse.$(OBJEXT) \
+	dft_fill_EL.$(OBJEXT) dft_fill_CMS.$(OBJEXT) \
+	dft_fill_wjdc.$(OBJEXT) dft_fill_CLSchain.$(OBJEXT) \
+	dft_fill_CLSmf.$(OBJEXT) dft_physics_FMT1.$(OBJEXT) \
+	dft_physics_FMT2.$(OBJEXT) dft_physics_FMT3.$(OBJEXT) \
+	dft_defs_stencil.$(OBJEXT) dft_defs_unknowns.$(OBJEXT) \
+	dft_quadrature.$(OBJEXT) dft_stencil.$(OBJEXT) \
+	dft_stencil_delta_Bond.$(OBJEXT) dft_stencil_delta_R.$(OBJEXT) \
 	dft_stencil_theta_CrCMS.$(OBJEXT) \
 	dft_stencil_theta_R.$(OBJEXT) \
 	dft_stencil_theta_RPMmsa.$(OBJEXT) \
@@ -334,6 +334,7 @@ COMMON_H = \
         ${srcdir}/dft_parameterlist_wrapper.h \
         ${srcdir}/dft_direct_solver_const.h \
         ${srcdir}/dft_input.h \
+        ${srcdir}/dft_chain_architecture.h \
         ${srcdir}/dft_main.h \
 	${srcdir}/dft_maindriver.h \
         ${srcdir}/dft_mesh.h \
@@ -433,6 +434,7 @@ COMMON_H = \
 
 COMMON_C = \
         ${srcdir}/dft_input.c \
+        ${srcdir}/dft_chain_architecture.c \
         ${srcdir}/dft_main.c \
         ${srcdir}/dft_mesh.c \
         ${srcdir}/dft_mesh_surfaces.c \
@@ -760,6 +762,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_PolyLinProbMgr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_Schur_Epetra_Operator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_basic_lin_prob_mgr_wrapper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_chain_architecture.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_comm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_continuation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_defs_stencil.Po@am__quote@
@@ -892,6 +895,20 @@ dft_input.obj: ${srcdir}/dft_input.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_input.c' object='dft_input.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_input.obj `if test -f '${srcdir}/dft_input.c'; then $(CYGPATH_W) '${srcdir}/dft_input.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_input.c'; fi`
+
+dft_chain_architecture.o: ${srcdir}/dft_chain_architecture.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_chain_architecture.o -MD -MP -MF $(DEPDIR)/dft_chain_architecture.Tpo -c -o dft_chain_architecture.o `test -f '${srcdir}/dft_chain_architecture.c' || echo '$(srcdir)/'`${srcdir}/dft_chain_architecture.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_chain_architecture.Tpo $(DEPDIR)/dft_chain_architecture.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_chain_architecture.c' object='dft_chain_architecture.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_chain_architecture.o `test -f '${srcdir}/dft_chain_architecture.c' || echo '$(srcdir)/'`${srcdir}/dft_chain_architecture.c
+
+dft_chain_architecture.obj: ${srcdir}/dft_chain_architecture.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_chain_architecture.obj -MD -MP -MF $(DEPDIR)/dft_chain_architecture.Tpo -c -o dft_chain_architecture.obj `if test -f '${srcdir}/dft_chain_architecture.c'; then $(CYGPATH_W) '${srcdir}/dft_chain_architecture.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_chain_architecture.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_chain_architecture.Tpo $(DEPDIR)/dft_chain_architecture.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_chain_architecture.c' object='dft_chain_architecture.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_chain_architecture.obj `if test -f '${srcdir}/dft_chain_architecture.c'; then $(CYGPATH_W) '${srcdir}/dft_chain_architecture.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_chain_architecture.c'; fi`
 
 dft_main.o: ${srcdir}/dft_main.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_main.o -MD -MP -MF $(DEPDIR)/dft_main.Tpo -c -o dft_main.o `test -f '${srcdir}/dft_main.c' || echo '$(srcdir)/'`${srcdir}/dft_main.c

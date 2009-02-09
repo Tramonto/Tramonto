@@ -158,20 +158,17 @@ void WJDC_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg
     int i,icomp,jcomp;
     double prefac,power,fac,mat_val;
 
-    /*if (Nbond[pol_num][jseg] >2){*/
+    prefac = (Nbond[pol_num][jseg]-2);
+    power = -(Nbond[pol_num][jseg]-1);
 
-       prefac = (Nbond[pol_num][jseg]-2);
-       power = -(Nbond[pol_num][jseg]-1);
+    if (Type_poly==WJDC2 || Type_poly==WJDC3)  icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
+    else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
+    jcomp=Unk2Comp[jseg];
+    fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
 
-       if (Type_poly==WJDC2 || Type_poly==WJDC3)  icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
-       else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
-       jcomp=Unk2Comp[jseg];
-       fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
-
-       for(i=0;i<nunk-1;i++) fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
-       mat_val = fac*prefac*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power); /* Boltz Field Term */
-       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[nunk-1],jnode_box,mat_val);
-    /*}*/
+    for(i=0;i<nunk-1;i++) fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
+    mat_val = fac*((double)prefac)*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power); /* Boltz Field Term */
+    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[nunk-1],jnode_box,mat_val);
     return;
 }
 /****************************************************************************/

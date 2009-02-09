@@ -392,6 +392,7 @@ int     Type_func;    /* Type of functional for the calculation              */
 int     Type_attr;    /* Type for handling attractions                       */
 int     Type_coul;    /* Type for handling Coulombics                        */
 int     Type_poly;    /* Type for handling polymers                          */
+int     Type_poly_arch; /* Type of polymer architecture.                       */
 int     Lseg_densities; /* Logical to indicate that segement (rather than component) densities are treated in the code */
 int     L_HSperturbation; /* Logical to indicate whether the run is base on perturbation of hard spheres */
 int     LDeBroglie; /* logical to turn on the DeBroglie wavelength contribution to the free energy functional */
@@ -475,14 +476,13 @@ double Deltar_cr,Gauss_a,Gauss_k,***Rism_cr;
 double Crfac;
 double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
-double Bupdate_fact;
 int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
 int Nmer_t_total[NBLOCK_MAX];
 int Nseg_tot;
 int Nseg_type[NCOMP_MAX];
 int **Nseg_type_pol;
-int Bupdate_iters,Geqn_start[NCOMP_MAX];
+int Geqn_start[NCOMP_MAX];
 char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
 double Cr_break[2];
 int  Ncr_files;

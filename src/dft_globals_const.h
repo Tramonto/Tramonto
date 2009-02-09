@@ -235,9 +235,16 @@
 #define WJDC         3
 #define WJDC2        4 
 #define WJDC3        5 
-#define SCFT		 6
-#define YW			 7
+#define SCFT         6	
+#define YW           7
 
+/*
+ *  These constants identify the type of polymer architecture (Type_poly_arch).
+ */
+#define POLY_ARCH_FILE 0
+#define LIN_POLY 1
+#define LIN_POLY_SYM 2
+#define LIN_POLY_FIVESEGS 3
 
 /*
  * These constants identify attraction functional choices (Type_attr).
@@ -957,6 +964,7 @@ extern int     Type_func;    /* Type of functional for the calculation          
 extern int     Type_attr;    /* Type for handling attractions                       */
 extern int     Type_coul;    /* Type for handling coulomb interactions              */
 extern int     Type_poly;    /* Type for handling polymers                          */
+extern int     Type_poly_arch;    /* Type of polymer architecture                        */
 extern int     Lseg_densities; /* Logical to indicate that segement (rather than component) densities are treated in the code */
 extern int     L_HSperturbation; /* Logical to indicate whether the run is base on perturbation of hard spheres */
 extern int     LDeBroglie; /* logical to turn on the DeBroglie wavelength contribution to the free energy functional */
@@ -1028,8 +1036,6 @@ extern double ***Rism_cr;
 extern double Crfac;
 extern double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 extern double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
-extern double Bupdate_fact;
-extern int Bupdate_iters;
 extern int Geqn_start[NCOMP_MAX];
 extern int Nblock[NCOMP_MAX];
 extern int Ntype_mer;
