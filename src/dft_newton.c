@@ -43,6 +43,7 @@ int solve_problem(double **x, double **x2)
   int iter,iunk,i;
   double **xOwned, **x2Owned;
   int loc_inode,inode_box,itmp;
+  int ierr;
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
   linsolver_setup_control();
@@ -55,7 +56,9 @@ int solve_problem(double **x, double **x2)
   dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);
 
   /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
-  (void) dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
+  /*(void) dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);*/
+  ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
+  if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
 /*for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){

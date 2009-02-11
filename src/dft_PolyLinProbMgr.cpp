@@ -78,10 +78,10 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   if (numGlobalNodes_==0 ||
       numGlobalBoxNodes_==0 ||
       gEquations_.Length()==0 ||
-      gInvEquations_.Length()==0 ||
       cmsEquations_.Length()==0 ||
       densityEquations_.Length()==0) return(-1); // Error: One or more set methods not called
   //Not checking if poissonEquations_.Length()==0 because don't HAVE to have Poisson equations      
+  //Not checking if gInvEquations_.Length()==0 because we don't have to have G inv equations
   
   int poissonInA11 = Teuchos::getParameter<int>(*parameterList_, "P_location");
   int F_location = Teuchos::getParameter<int>(*parameterList_, "F_location");
