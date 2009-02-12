@@ -417,7 +417,7 @@ cleanUp();
             $exampleOutput = substr ($exampleOutput, -1000000);
             
             # parse output for real pass/fail status
-            if (!$exampleExitStatus) {
+            #if (!$exampleExitStatus) {
 
                 # Open README for reading.
                 open (README, "<README") 
@@ -504,9 +504,9 @@ cleanUp();
 
 		      } # foreach keyParam
 
-		      if ($misses) {
+		      #if ($misses) {
 			$exampleExitStatus = $misses;
-		      }
+		      #}
 		    } # else (dft_output.dat)
                     
                 } else {
@@ -515,7 +515,7 @@ cleanUp();
                     printMessage($message, $v1+$v2,$v3);
                 }
 
-            }
+            #}
                 
             # Tally result
             $examplesTotal++;
