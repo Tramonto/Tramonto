@@ -68,13 +68,31 @@ RUN (mac-tiger-intel) {
 ###############################################################################
 
 RUN (walbert-nightly) {
-    
+
     BUILD-LABEL         = t8.0.5;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = linux-walbert;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 4;
     TTR-DIR             = /home/jmwille/TramontoTestHarness/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
+# melchior - built against Trilinos 9.0.2
+#
+###############################################################################
+
+RUN (melchior) {
+    
+    BUILD-LABEL         = t9.0.2;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = linux-melchior;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 4;
+    TTR-DIR             = /home/jmwille/TramontoTestResults;
     SSG-USERNAME        = jmwille;
 
 }

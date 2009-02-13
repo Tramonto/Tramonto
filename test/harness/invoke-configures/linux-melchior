@@ -1,0 +1,3 @@
+../configure \
+--with-trilinos=/home/jmwille/TramontoTestHarness/TriInstall/9.0.2 \
+--with-gnumake
