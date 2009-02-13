@@ -63,13 +63,13 @@ RUN (mac-tiger-intel) {
 
 ###############################################################################
 #
-# walbert nightly - built against Trilinos 8.0.5
+# walbert nightly - built against Trilinos 9.0.2
 #
 ###############################################################################
 
 RUN (walbert-nightly) {
 
-    BUILD-LABEL         = t8.0.5;
+    BUILD-LABEL         = t9.0.2;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = linux-walbert;
     TEST-CATEGORY       = FRAMEWORK;
