@@ -71,7 +71,7 @@
 @ 5 1 	Ncomp Mix_type (0=L-B Rules, 1=manual input) 
 
 @ 1. 1. 1. 1. 1. 	Mass[i] i=0,Ncomp-1 
-@ 0.000003 -0.000002 -0.000002 -0.000002 0.000003 	Charge[i] i=0,Ncomp-1 
+@ 0.003 -0.002 -0.002 -0.002 0.003 	Charge[i] i=0,Ncomp-1 
 @ 0. 0. 0. 0. 0. 	Pol[i] i=0,Ncomp-1 
 
 @  2. 1.5 1.5 1.5 2.
