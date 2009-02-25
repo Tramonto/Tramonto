@@ -281,7 +281,7 @@ void dftmain(double * engptr)
       t_postprocess = -MPI_Wtime();
 
       if (NL_Solver !=NEWTON_NOX && NL_Solver != PICARD_NOX){
-      if (Loca.method == -1 || Loca.num_steps==0) {
+      if (Loca.method == -1) {
         if (Lbinodal) post_process(x2, output_file3, &niters, &time_save,Imain_loop, TRUE);
         post_process(x, output_file3, &niters, &time_save, Imain_loop, FALSE);
       }
