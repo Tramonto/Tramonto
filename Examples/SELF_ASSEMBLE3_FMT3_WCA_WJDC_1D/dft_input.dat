@@ -1,8 +1,8 @@
 ************* DIMENSION PARAMETERS *************************************************
-@ -1. -1. -1. -1. 20 	Length_ref Density_ref Temp Dielec_ref VEXT_MAX 
+@ -1. -1. -1. -1. 10. 	Length_ref Density_ref Temp Dielec_ref VEXT_MAX 
 ************* MESH PARAMETERS *************************************************
 @ 1 	Ndim 
-@ 7. 	Size_x(idim): idim=0,Ndim-1 
+@ 8.5 	Size_x(idim): idim=0,Ndim-1 
 @ 0.05 	Esize_x(idim): idim=0,Ndim-1 
 @ -1 2 	Type_bc(x0,: left, right) (-1=IN_WALL, 0=IN_BULK, 1=PERIODIC, 2=REFLECT, 3=LAST_NODE) 
 @ 0 0 	Type_bc(x1,: down, up) 
@@ -87,7 +87,7 @@
 @ 0. 	YukawaK_ww[i][j] 
 
 @ 1. 1.44 1. 	Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1] 
-@ 0.88804643  0.42  0.42  0.13764134 0.42 0.42	Eps_wf[i][j] 
+@ 0.65   0.42 0.42	Eps_wf[i][j] 
 @ 3. 3. 3. 	Cut_wf[i][j] 
 @ 0. 	YukawaK_wf[i][j] 
 
@@ -101,7 +101,7 @@
 @ 3 1 	Nblock[pol_number]: Number of blocks in each copolymer 
 @ 8 2 8 1 	block[pol_number][iblock]: Number of segments in each block 
 @ 0 1 0 2 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
-@ lin_18_1 	poly_file: File containing polymer connectivity 
+@ 1 none 	Type_poly_arch poly_file: File containing polymer connectivity 
 @ 1 1.0 cr8.2.8_0.375_1_0.375 	n/a NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
                  NCrfiles (number of cr files - up to 4 to be read in)
                  Crfac (multiplicative factor for the first c(r).
@@ -211,7 +211,7 @@
                **** set how you would like all of the output to print ******
                *************************************************************
 @ 1 1 0 0 	Lper_area Lcount_reflect Lprint_gofr Lprint_uww 
-@ 1 	Print_rho_type (0= all output in dft_dens.dat, 
+@ 0 	Print_rho_type (0= all output in dft_dens.dat, 
                                1= each run gets a different file)
 @ 0 0 	Print_rho_switch Print_mesh_switch 
                switches to determine how output will look in dft_force file
@@ -234,8 +234,8 @@
 @ 0 0. 	L1D_bc, X_1D_bc 
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 0 100 1                  NL_Solver   Max_NL_iter   Physics_scaling
-@ 1.0e-4 1.0e-6 0.02     NL_rel_tol NL_abs_tol NL_update_scalingParam
+@ 0 30 1                  NL_Solver   Max_NL_iter   Physics_scaling
+@ 1.0e-4 1.0e-7 0.2     NL_rel_tol NL_abs_tol NL_update_scalingParam
 @ 2     Load balance switch (0=linear,1=box,2=weights, 3=timings)
 ************ LINEAR SOLVER PARAMETERS ****************************************
 @ 1 400 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
@@ -246,14 +246,14 @@
 ************* MESH CONTINUATION PARAMETERS ************************************
                Here you enter information for mesh continuation.
                All other types are handled by LOCA
-@ 10  	N_runs 
+@ 3  	N_runs 
 @ -0.05 	Del_1[idim=0;Ndim-1] (How much to change parameter) 
 @ 0 1 	Plane_new_nodes Pos_new_nodes 
                   (0=yz,1=xz,2=xy)   (-1=lbb,0=center,1=rtf)
 ************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
-@ 4 Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length 
+@ 4     Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length
                          3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
-@ 5 2 1 0  Continuation_Type, NID_Cont, ID1, ID2
+@ 5 2 0 0  Continuation_Type, NID_Cont, ID1, ID2
           (NID_Cont indicates number if IDs needed to indentify which parameters should be continued.
            This should be either 0, 1 (as in Rho_b[icomp] to indicate icomp) or
            2 (as in Eps_ff[icomp][jcomp] to indicate icomp and jcomp).
@@ -271,9 +271,9 @@
                                             (charge or potential) for surfaces of type i
                 8 =  CONT_ELECPARAM_ALL Continue in Electrostatic properties for all surfaces simultaneously.
                 9 =  CONT_SEMIPERM_IJ   Continue in strength of semipermeable membrane potential.
-                                                                                                 
 
-@ -0.01 	Parameter initial step size 
-@ 0 0.2 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
-@ 5 2 0 0	Second parameter for Spinodal and Binoadal Calculations (Same list). 
+@ 0.01    Parameter initial step size
+@ 0 0.2   N Steps, Step Control Aggressiveness (0.0 = constant step)
+@ 5 2 0 0       Continuation_Type2, NID_Cont, ID1, ID2
+           (2nd parameter for  Spinodal and Binoadal Calculations (see listabove).
 *********** END OF INPUT FILE ******************************************
