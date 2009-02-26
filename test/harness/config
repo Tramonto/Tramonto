@@ -87,7 +87,7 @@ RUN (walbert-nightly) {
 
 RUN (melchior) {
     
-    BUILD-LABEL         = t9.0.2;
+    BUILD-LABEL         = O3-t9.0.2;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = linux-melchior;
     TEST-CATEGORY       = FRAMEWORK;
