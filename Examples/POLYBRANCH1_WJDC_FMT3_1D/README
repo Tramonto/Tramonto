@@ -1,0 +1,24 @@
+/*! \file 
+ \brief Branched WJDC polymer.  Case is identical to 3-arm star case from Jain-Chapman 2009 manuscript.
+
+Functionals: FMT3,WJDC3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example verifies code for branched polymers using WJDC approach.  The specific case mimics data from the 2009 manuscrip of Jain and Chapman on 3-arm star polymers with 5 beads per arm.  The density files included with this case (dens.eta1, dens.eta2, and dens.eta3) can be directly compared to the paper.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - star_3arm_5mer
+
+Key Output Parameters:
+   - niters=10
+   - ads[0]=16.7992
+   - force=1.14457 
+   - omega=-33.1857
+.
+
+*/
