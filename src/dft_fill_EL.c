@@ -175,7 +175,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                           icomp,izone,ijk_box,x, resid_only_flag);
    }
 
-
    if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2){
        if (Type_poly==WTC){
        resid+=load_polyTC_diagEL(iunk,loc_inode,inode_box,icomp,

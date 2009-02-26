@@ -103,6 +103,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1,double *dphi_drhob
   /* Now include Bonding terms - note that this is identical to WTC theory */
      field += chain_term(iseg,icomp,rho_seg,xi_cav);
 
+
      field_WJDC[icomp]=exp(field)*exp(Scale_fac_WJDC[pol_num][icomp]);
      if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_WJDC=%9.6f\n",iseg,field,field_WJDC[icomp]);
   } /* end of bulk field calculations */
@@ -188,7 +189,7 @@ void chempot_chain_wjdc(double *rho,double *betamu_chain,double *field_WJDC, dou
       mu_chain += log(rho[iseg]);
 
       /* field term */
-      mu_chain += log(field_WJDC[icomp]);
+      mu_chain += (double)((Nbonds_SegAll[iseg]-1))*log(field_WJDC[icomp]);
 
       /* bonding term */
       gproduct=1.0;

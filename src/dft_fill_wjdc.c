@@ -175,8 +175,8 @@ void WJDC_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg
 void WJDC_Jacobian_GCHAIN_derivCAVITY(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,
                     int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x)
 {
-    int i,icomp,jcomp,unk_xi;
-    double prefac_R,power_R,fac,yterm,xi_2,xi_3,y,dydxi,mat_val;
+    int i,icomp,jcomp,unk_xi,power_R;
+    double prefac_R,fac,yterm,xi_2,xi_3,y,dydxi,mat_val;
 
     prefac_R = -1.0;
     power_R = -(Nbond[pol_num][jseg]-2);
@@ -210,8 +210,8 @@ void WJDC_Jacobian_GCHAIN_derivCAVITY(int iunk,int loc_inode,int pol_num,int jse
 double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
           int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x)
 {
-   int i,icomp,jcomp;
-   double prefac_R,power_R,fac,resid;
+   int i,icomp,jcomp,power_R;
+   double prefac_R,fac,resid;
 
    prefac_R = -1.0;
    power_R = -(Nbond[pol_num][jseg]-2);
@@ -225,27 +225,32 @@ double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    for(i=0;i<nunk-1;i++){
         fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
    }
-   resid = fac*prefac_R*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power_R); /* Boltz Term */
+   if (x[unk[nunk-1]][jnode_box] > 1.e-15)
+        resid = fac*prefac_R*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power_R); /* Boltz Term */
+   else resid=0.0;
    return(resid);
 }
 /****************************************************************************/
 double WJDC_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
           int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x)
 {
-   int i,icomp,jcomp;
-   double prefac_R,power_R,fac,resid;
+   int i,icomp,jcomp,power_R;
+   double prefac_R,fac,resid;
 
    prefac_R = -1.0;
    power_R = -(Nbond[pol_num][jseg]-2);
 
    if (Type_poly==WJDC2 || Type_poly==WJDC3) icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
    else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
+
    jcomp=Unk2Comp[jseg];
    fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
    for(i=0;i<nunk-1;i++){
        fac *=constant_boundary(unk[i],jnode_box);  /*Gs or Qs*/
    }
-   resid = fac*prefac_R*POW_DOUBLE_INT(constant_boundary(unk[nunk-1],jnode_box),power_R); /* Boltz Term */
+   if (constant_boundary(unk[nunk-1],jnode_box) > 1.e-15) 
+        resid = fac*prefac_R*POW_DOUBLE_INT(constant_boundary(unk[nunk-1],jnode_box),power_R); /* Boltz Term */
+   else resid=0.0;
    return(resid);
 }
 /****************************************************************************/

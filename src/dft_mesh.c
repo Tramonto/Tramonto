@@ -85,12 +85,14 @@ void set_up_mesh (char *output_file1,char *output_file2)
 
 /*set up arrays on processor 0 that are needed for communications
   involved with printing arrays */
-  Comm_node_proc = (int *) array_alloc (1, Num_Proc, sizeof(int));
-  Comm_unk_proc = (int *) array_alloc (1, Num_Proc, sizeof(int));
-  Comm_offset_node = (int *) array_alloc (1, Num_Proc, sizeof(int));
-  Comm_offset_unk = (int *) array_alloc (1, Num_Proc, sizeof(int));
-  for (i=0; i<Num_Proc; i++)
-     Comm_node_proc[i]=Comm_unk_proc[i]=Comm_offset_node[i]=Comm_offset_unk[i] = 0;
+  if (Proc==0){
+     Comm_node_proc = (int *) array_alloc (1, Num_Proc, sizeof(int));
+     Comm_unk_proc = (int *) array_alloc (1, Num_Proc, sizeof(int));
+     Comm_offset_node = (int *) array_alloc (1, Num_Proc, sizeof(int));
+     Comm_offset_unk = (int *) array_alloc (1, Num_Proc, sizeof(int));
+     for (i=0; i<Num_Proc; i++)
+        Comm_node_proc[i]=Comm_unk_proc[i]=Comm_offset_node[i]=Comm_offset_unk[i] = 0;
+  }
 
   MPI_Gather(&Nnodes_per_proc,1,MPI_INT,
              Comm_node_proc,1,MPI_INT,0,MPI_COMM_WORLD);

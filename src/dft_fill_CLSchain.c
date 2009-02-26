@@ -125,13 +125,17 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
               }
         } /* end loop over ibond */
         if(resid_only_flag==FALSE){
-           if (boltz_pow > 0){
+           if (-boltz_pow > 0){
              mat_val = -fac1*((double) boltz_pow)*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow_J);
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
            }
         }
-        if (boltz_pow >0) resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
-        else resid = -fac1;
+        if (-boltz_pow >0) {
+             resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow); 
+        }
+        else{
+              resid = -fac1;
+        }
         resid_sum+=resid;
         if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
             dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
@@ -404,7 +408,9 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
          }
          if (resid_only_flag==INIT_GUESS_FLAG){
             if (Type_poly==CMS || Type_poly==CMS_SCFT)                        resid_G*=(-x[unk_B][inode_box]);
-            else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) resid_G*=(-x[unk_B][inode_box]*ysqrt);
+            else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
+                   resid_G*=(-x[unk_B][inode_box]*ysqrt);
+            }
          }
 
        } /*end of fill unique G bonds */

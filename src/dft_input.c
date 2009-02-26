@@ -1154,8 +1154,8 @@ void read_input_file(char *input_file, char *output_file1)
   /* calculate total sum of site densities */
   Rho_t = 0.0;
   for(icomp=0; icomp<Ncomp; icomp++) Rho_t += Rho_b[icomp];
-  if (Type_interface==UNIFORM_INTERFACE) printf("Rho_t = %f\n", Rho_t);
-  else printf("Rho_t(left) = %f\n", Rho_t);
+  /*if (Type_interface==UNIFORM_INTERFACE) printf("Rho_t = %f\n", Rho_t);
+  else printf("Rho_t(left) = %f\n", Rho_t);*/
 
   if (Type_interface != UNIFORM_INTERFACE){
      if (Proc==0) {

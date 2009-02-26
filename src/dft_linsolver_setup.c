@@ -35,8 +35,8 @@
 /*******************************************************************************/
 void linsolver_setup_control()
 {
-   if (L_Schur && Type_poly == CMS)    linsolver_setup_CMSTYPE_LINEARONLY();
-   else if (L_Schur && Type_poly == WJDC || Type_poly==WJDC3)   linsolver_setup_WJDCTYPE_LINEARONLY();
+   if (L_Schur && Type_poly == CMS)    linsolver_setup_CMSTYPE();
+   else if (L_Schur && Type_poly == WJDC || Type_poly==WJDC3)   linsolver_setup_WJDCTYPE();
    else if (L_Schur && Type_func != NONE) linsolver_setup_HSTYPE();
    else {
     //   LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
@@ -98,10 +98,6 @@ void linsolver_setup_CMSTYPE_LINEARONLY()
       count_ginv_eqn++;
    }
 
-   for (i=0;i<count_geqn;i++) printf("geq[i=%d]=%d\n",i,geq[i]);
-   for (i=0;i<count_ginv_eqn;i++) printf("ginveq[i=%d]=%d\n",i,ginveq[i]);
-
-
    // LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
@@ -154,14 +150,9 @@ void linsolver_setup_CMSTYPE()
    
    count_geqn=discover_G_ordering_LT(geq);
 
-   printf("after search here is order of geq unknowns  count_geqn=%d count_ginveq=%d \n",count_geqn,count_ginv_eqn);
-    for (i=0;i<count_geqn;i++){
-   printf("geq[i=%d]=%d\n",i,geq[i]);
-    }
-
-
    // LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
+
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
 /*   dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, count_ginv_eqn, ginveq);*/
    dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmseq);
@@ -239,8 +230,8 @@ void linsolver_setup_WJDCTYPE()
 {
   int iunk,i;
   double **xOwned, **x2Owned;
-  int *geq, *ginveq, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,ginv_eq_start,first_time;
-  int count_density,count_wjdc_field,count_geqn,count_ginv_eqn,count_ginv_eqn_old;
+  int *geq, *gonlyeq, *ginveq, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,ginv_eq_start,first_time;
+  int count_density,count_wjdc_field,count_geqn,count_geqn_save,count_ginv_eqn,count_ginv_eqn_old;
   int count_indnonlocal,count_depnonlocal,index_save;
   int one_particle_size;
   int count_poisson;
@@ -252,6 +243,7 @@ void linsolver_setup_WJDCTYPE()
   densityeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   wjdceq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   geq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
+  gonlyeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
   poissoneq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
 
@@ -293,15 +285,12 @@ void linsolver_setup_WJDCTYPE()
      } 
   }
 
-   count_geqn=discover_G_ordering_LT(geq);
-
-   printf("after search here is order of geq unknowns  count_geqn=%d count_ginveq=%d \n",count_geqn,count_ginv_eqn);
-    for (i=0;i<count_geqn;i++){
-   printf("geq[i=%d]=%d\n",i,geq[i]);
-    }
-
+   count_geqn_save=count_geqn;
+   count_geqn+=discover_G_ordering_LT(gonlyeq);
+   for (i=count_geqn_save;i<count_geqn;i++) geq[i]=gonlyeq[i-count_geqn_save];
 
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
+
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
 
    /*dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, count_ginv_eqn, ginveq);*/
@@ -316,6 +305,7 @@ void linsolver_setup_WJDCTYPE()
    safe_free((void *) &wjdceq);
    safe_free((void *) &geq);
    safe_free((void *) &ginveq);
+   safe_free((void *) &gonlyeq);
    safe_free((void *) &poissoneq);
 
    // LinProbMgr_manager = dft_wjdc_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);

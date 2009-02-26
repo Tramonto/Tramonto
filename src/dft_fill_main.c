@@ -120,7 +120,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
       }
 
      /* print for debugging purposes call this print routine */ 
-/*       print_residuals(loc_inode,iunk,resid_unk);*/
+       /*print_residuals(loc_inode,iunk,resid_unk);*/
 
     } /* end of loop over # of unknowns per node */
   } /* end of loop over local nodes */

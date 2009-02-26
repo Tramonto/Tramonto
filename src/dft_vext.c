@@ -1122,7 +1122,7 @@ return;
    values into the original box based array. */
 void correct_zeroTF_array()
 {
-  int *index,*unk_loc,*unk,*unk_global;
+  int *index,*unk_loc,*unk,*unk_global,i;
   int inode,inode_box,loc_inode,icomp;
 
   for (icomp=0; icomp<Ncomp; icomp++) {

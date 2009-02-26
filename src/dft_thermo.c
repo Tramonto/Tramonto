@@ -71,7 +71,9 @@ void  thermodynamics(char *output_file1)
     /* must calculate chemical potentials first because we use mu in the WTC calculation of the pressure */
     calc_chempot(output_file1);
     calc_pressure(output_file1);
-    if  (Physics_scaling && Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WJDC_thermo_precalc(output_file1); /*adjust bulk terms for scaling */
+    /*adjust bulk terms for scaling */
+    /*if  (Physics_scaling && Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WJDC_thermo_precalc(output_file1); */
+    if  (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WJDC_thermo_precalc(output_file1); 
 
     return;
 }

@@ -87,7 +87,6 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
                    dphi_drb[jnode_box].S1*Inv_4pir[icomp] +
                    dphi_drb[jnode_box].S2 );
 
-
            for (idim = 0; idim<Ndim; idim++){
               sign[idim]=1.0;
               if (reflect_flag[idim]) sign[idim]=-1.0;
