@@ -494,7 +494,7 @@ cleanUp();
 			    # only compare against non-integers
 			    if ($outputValue =~ m/\./) {
 			      my $diff = abs($keyParam - $outputValue);
-			      if ($diff < 0.0001) {
+			      if ($diff < 0.001) {
 				$found++;
 			      }
 			    }

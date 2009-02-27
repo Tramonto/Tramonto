@@ -81,6 +81,24 @@ RUN (walbert-nightly) {
 
 ###############################################################################
 #
+# frost nightly - built against Trilinos 8.0.5
+#
+###############################################################################
+
+RUN (frost-nightly) {
+    
+    BUILD-LABEL         = MacOSX_Frost;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = mac-frost;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 4;
+    TTR-DIR             = /Users/ljdfrink/TramontoTestHarness/TramontoTestResults;
+    SSG-USERNAME        = ljfrink;
+
+}
+
+###############################################################################
+#
 # melchior - built against Trilinos 9.0.2
 #
 ###############################################################################
