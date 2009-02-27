@@ -409,7 +409,7 @@ cleanUp();
             my $startSeconds = time();
         
             # run example
-            my $exampleCommand = "mpirun -np 4 ../../BUILD/src/dft 2>&1";
+            my $exampleCommand = "$mpiGo".$maxProc." ".$buildDir."/src/dft 2>&1";
             my $exampleOutput = `$exampleCommand`;
             my $exampleExitStatus = $?;
         
