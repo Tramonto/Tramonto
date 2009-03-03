@@ -23,6 +23,7 @@ extern int Phys2Nunk[NEQ_TYPE];
 #define WJDC_FIELD     8
 void linsolver_setup_WJDCTYPE();
 extern int Type_coul;
+extern int Proc;
 extern int Mesh_coarsening;
 #define WTC          2
 extern int Type_attr;

@@ -237,6 +237,7 @@ void linsolver_setup_WJDCTYPE()
   int count_poisson;
   int *poissoneq;
 
+
   /* Construct dft_Linprobmgr with information on number of unknowns - note that the CMS polymer
      type has been hijacked for use with the WJDC functionals pending a rewrite of the solver interface
      to a more general structure */
@@ -244,7 +245,7 @@ void linsolver_setup_WJDCTYPE()
   wjdceq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   geq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   gonlyeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
-  ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
+  /*ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));*/
   poissoneq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
 
   count_density=count_wjdc_field=count_geqn=count_ginv_eqn;
@@ -287,6 +288,7 @@ void linsolver_setup_WJDCTYPE()
 
    count_geqn_save=count_geqn;
    count_geqn+=discover_G_ordering_LT(gonlyeq);
+
    for (i=count_geqn_save;i<count_geqn;i++) geq[i]=gonlyeq[i-count_geqn_save];
 
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
@@ -304,7 +306,7 @@ void linsolver_setup_WJDCTYPE()
    safe_free((void *) &densityeq);
    safe_free((void *) &wjdceq);
    safe_free((void *) &geq);
-   safe_free((void *) &ginveq);
+/*   safe_free((void *) &ginveq);*/
    safe_free((void *) &gonlyeq);
    safe_free((void *) &poissoneq);
 
@@ -456,6 +458,7 @@ int discover_G_ordering_LT(int *geq)
        if (Pol_Sym[unkGQ]!=-1){
            max_count--;
            geq_sym[count_g_sym++]=iunk; 
+           filled[unkGQ]=TRUE;
        }
        else{
          if (jseg==-1) {  /*end segment - put in list */
@@ -473,7 +476,8 @@ int discover_G_ordering_LT(int *geq)
             count_terms=0;   
             max_index=-1;
             for (kbond=0;kbond<Nbonds_SegAll[jseg];kbond++){
-               unk_test=Poly_to_Unk_SegAll[jseg][kbond]+Phys2Unk_first[G_CHAIN];
+               if (Pol_Sym[Poly_to_Unk_SegAll[jseg][kbond]]==-1) unk_test=Poly_to_Unk_SegAll[jseg][kbond]+Phys2Unk_first[G_CHAIN];
+               else                                             unk_test=Pol_Sym[Poly_to_Unk_SegAll[jseg][kbond]]+Phys2Unk_first[G_CHAIN];
                if (Bonds_SegAll[jseg][kbond] != iseg){
                   for (i=0;i<count_filled;i++){
                      if (geq[i]==unk_test){
