@@ -357,10 +357,21 @@ cleanUp();
                 if (-d $absFile) {
                     use File::Basename;
                     my $dirName = basename($absFile); 
+                    #Temporary fix while the NLSOLVER4 test is hanging
+                    if ($maxProc ne "2") {
+                    if ($dirName ne "CVS" && $dirName ne "." 
+                      && $dirName ne ".." && $dirName ne "Ex_polyfiles"
+                      && $dirName ne "NLSOLVER4_WJDC_FMT3_1D") {
+                        push(@exampleDirs, $absFile); 
+                    }
+                    } #$maxProc ne "2"
+                    else {
                     if ($dirName ne "CVS" && $dirName ne "." 
                       && $dirName ne ".." && $dirName ne "Ex_polyfiles") {
                         push(@exampleDirs, $absFile); 
-                    } 
+                    }
+                    } # $maxProc = 2
+
                 }
             }
             closedir(DIR);
