@@ -248,7 +248,7 @@ void linsolver_setup_WJDCTYPE()
   /*ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));*/
   poissoneq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
 
-  count_density=count_wjdc_field=count_geqn=count_ginv_eqn;
+  count_density=count_wjdc_field=count_geqn=count_ginv_eqn=0;
   count_indnonlocal=count_depnonlocal=0;
   count_poisson = 0;
   first_time=TRUE;
