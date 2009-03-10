@@ -48,7 +48,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
    double **p_tilde_L,**f_elec_L;
    double p_tilde_iwall_idim,
      f_elec_iwall_idim,force;
-   int idim,iwall,i;
+   int idim,iwall,i,iproc;
    static int first=TRUE;
 
    p_tilde_vdash = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
@@ -69,7 +69,11 @@ void calc_force(FILE *fp, double **x,double fac_area)
 
    if(!first) {
 
-    if (Lvext_dash) integrate_rho_vdash(x,p_tilde_vdash);
+    for (iproc=0;iproc<Num_Proc;iproc++){
+       MPI_Barrier(MPI_COMM_WORLD);
+       if (iproc==Proc){ if (Lvext_dash) integrate_rho_vdash(x,p_tilde_vdash);}
+       MPI_Barrier(MPI_COMM_WORLD);
+    }
     if (Lhard_surf) sum_rho_wall(x, p_tilde_sumwall);
 
 
@@ -145,13 +149,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
 	 } 
        } /* end of if(!first) */
        if(Proc==0) {
-	 if (i==0 && idim == Orientation[WallType[0]]) 
-	   print_to_file(fp,force,"force",first);
-	   /* fprintf(fp,"%12.9f  ", force);
-/*                   fprintf(fp,"%12.9f  %12.9f  %12.9f  ",
-                          force,
-                          p_tilde_iwall_idim/area,
-                          f_elec_iwall_idim/area);*/
+	 if (i==0 && idim == Orientation[WallType[0]])  print_to_file(fp,force,"force",first);
        }
      }
   }
@@ -622,7 +620,7 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
             ielement = node_to_elem(inode,iel,reflect_flag);
             if (ielement != -2){
                if (ielement == -1) nel_hit--;
-	       else if (Wall_elems[ilist][ielement] != -1) nel_hit--;
+	       else if (Wall_elems[ilist][el_to_el_box(ielement)] != -1) nel_hit--;
             }
         }
 
