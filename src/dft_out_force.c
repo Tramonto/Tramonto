@@ -69,11 +69,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
 
    if(!first) {
 
-    for (iproc=0;iproc<Num_Proc;iproc++){
-       MPI_Barrier(MPI_COMM_WORLD);
-       if (iproc==Proc){ if (Lvext_dash) integrate_rho_vdash(x,p_tilde_vdash);}
-       MPI_Barrier(MPI_COMM_WORLD);
-    }
+    if (Lvext_dash) integrate_rho_vdash(x,p_tilde_vdash);
     if (Lhard_surf) sum_rho_wall(x, p_tilde_sumwall);
 
 
