@@ -1251,7 +1251,7 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
     Max_IJK[idim] = 0;
   }
   for (idim=Ndim; idim<3; idim++) {
-    Max_IJK[idim] = Min_IJK[2] = 0;
+    Max_IJK[idim] = Min_IJK[idim] = 0;
   }
 
   /* Translate new dots array into node and unknown numbers, put in *update */

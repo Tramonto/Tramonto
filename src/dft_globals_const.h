@@ -244,7 +244,6 @@
 #define POLY_ARCH_FILE 0
 #define LIN_POLY 1
 #define LIN_POLY_SYM 2
-#define LIN_POLY_FIVESEGS 3
 
 /*
  * These constants identify attraction functional choices (Type_attr).

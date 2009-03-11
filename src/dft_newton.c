@@ -85,6 +85,7 @@ if (B2G_node[inode_box]==254) printf("after calling set_inital guess: Proc=%d in
   Proc,inode_box,B2G_node[inode_box],xOwned[0][inode_box]);
 }*/
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
+/* debugging */
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
 /*for (inode_box=0;inode_box<Nnodes_box;inode_box++){

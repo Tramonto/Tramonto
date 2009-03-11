@@ -103,6 +103,7 @@ double gsum_double(double c);
 #define NO_SCREEN    2 
 extern int Iwrite;
 extern int Proc;
+extern int Num_Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif

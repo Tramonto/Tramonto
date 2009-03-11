@@ -54,9 +54,6 @@ void setup_chain_architecture(char *poly_file,FILE *fpout)
    if (Type_poly_arch==POLY_ARCH_FILE) setup_chain_from_file(fpout,poly_file,pol_sym_tmp);
    else if (Type_poly_arch==LIN_POLY) setup_chain_linear(fpout,pol_sym_tmp);
    else if (Type_poly_arch==LIN_POLY_SYM) setup_chain_linear_symmetric(fpout,pol_sym_tmp);
-   else if (Type_poly_arch==LIN_POLY_FIVESEGS) setup_chain_linear_five_segs(fpout,pol_sym_tmp);
-
-printf("Proc=%d returned from setup_chain_from_file \n",Proc);
 
    setup_chain_indexing_arrays(nseg,nmer_max,pol_sym_tmp,fpout);
 
@@ -157,7 +154,7 @@ void setup_chain_linear_symmetric(FILE *fpout,int ***pol_sym_tmp){
           }
           else if (ibond==0){ 
                Bonds[pol_number][iseg][ibond]=iseg-1;
-               if (iseg<Nmer[pol_number/2]+1) pol_sym_tmp[pol_number][iseg][ibond]=-1;
+               if (iseg<Nmer[pol_number]/2) pol_sym_tmp[pol_number][iseg][ibond]=-1;
                else {
                   iseg_sym=(Nmer[pol_number]-1)-iseg;
                   pol_sym_tmp[pol_number][iseg][ibond]=2*iseg_sym+1;
@@ -166,7 +163,7 @@ void setup_chain_linear_symmetric(FILE *fpout,int ***pol_sym_tmp){
           }
           else if (ibond==1){ 
                Bonds[pol_number][iseg][ibond]=iseg+1;
-               if (iseg<Nmer[pol_number/2]+1) pol_sym_tmp[pol_number][iseg][ibond]=-1;
+               if (iseg<Nmer[pol_number]/2) pol_sym_tmp[pol_number][iseg][ibond]=-1;
                else {
                    iseg_sym=(Nmer[pol_number]-1)-iseg;
                    pol_sym_tmp[pol_number][iseg][ibond]=2*iseg_sym;
@@ -177,45 +174,6 @@ void setup_chain_linear_symmetric(FILE *fpout,int ***pol_sym_tmp){
              printf("problem in linear chain code - can only have ibond=0 or ibond=1...ibond=%d\n",ibond);
              exit(-1);
           }
-        } /* end of loop over ibond */
-      } /* end of loop over iseg */
-   }
-   return;
-}
-/*************************************************************************************/
-/* automatically set up a linear chain where only the first five segments are treated as independent - all
-   other segments are assumed to be identical to the fifth segment */
-void setup_chain_linear_five_segs(FILE *fpout,int ***pol_sym_tmp){
-
-   int pol_number,iseg,ibond;
-
-   for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-      for (iseg=0; iseg<Nmer[pol_number]; iseg++){
-        Nbond[pol_number][iseg]=2;
-
-        for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
-          if ((iseg==0 && ibond==0) || (iseg==Nmer[pol_number]-1 && ibond==Nbond[pol_number][iseg]-1)){
-               Bonds[pol_number][iseg][ibond]=-1;
-               pol_sym_tmp[pol_number][iseg][ibond]=-1;
-	       if (Proc==0) fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
-          }
-          else if (ibond==0){
-               Bonds[pol_number][iseg][ibond]=iseg-1;
-               if (iseg>=5 && iseg < Nmer[pol_number]-6) pol_sym_tmp[pol_number][iseg][ibond]=8;
-               else pol_sym_tmp[pol_number][iseg][ibond]=-1;
-	       if (Proc==0) fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
-          }
-          else if (ibond==1){
-               Bonds[pol_number][iseg][ibond]=iseg+1;
-               if (iseg>=5 && iseg < Nmer[pol_number]-6) pol_sym_tmp[pol_number][iseg][ibond]=9;
-               else pol_sym_tmp[pol_number][iseg][ibond]=-1;
-	       if (Proc==0) fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
-          }
-          else{
-             printf("problem in linear chain code - can only have ibond=0 or ibond=1...ibond=%d\n",ibond);
-             exit(-1);
-          }
-
         } /* end of loop over ibond */
       } /* end of loop over iseg */
    }
@@ -256,7 +214,21 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max, int ***pol_sym_tmp,FILE
              Nseg_type_pol[pol_number][icomp]=0;
        }
     } 
- 
+
+/*    set up a way to reference from a bond ID to a segment ID using indexing over _all_ bonds and segments. Note
+      that this is not dependent on having a linear chain! */ 
+    for (pol_number=0; pol_number<Npol_comp; ++pol_number){
+      for (iseg=0; iseg<Nmer[pol_number]; iseg++){
+	for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
+            BondAll_to_isegAll[nbond_all]=seg_tot;
+	    BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
+	    nbond_all++;
+         }
+         seg_tot++;
+       }
+    }
+    nbond_all=0;
+    seg_tot=0;
 
     for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       Nseg_tot += Nmer[pol_number];
@@ -285,22 +257,14 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max, int ***pol_sym_tmp,FILE
 	      Bonds_SegAll[seg_tot][Nbonds_SegAll[seg_tot]]=Bonds[pol_number][iseg][ibond];
 	    Poly_to_Unk_SegAll[seg_tot][Nbonds_SegAll[seg_tot]] = nbond_all;
 	    if (pol_sym_tmp[pol_number][iseg][ibond] != -1) Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond]-end_count_all;
-            else Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond];
+            else                                            Pol_Sym[nbond_all]=-1;
 
-	    /* will this bit of code work with branched polymers? note that BondAll_to_isegAll only defined sequentially */
-            if (Pol_Sym[nbond_all]!= -1 && Type_poly==WTC){
-                if(Pol_Sym_Seg[seg_tot]==-1 || Pol_Sym_Seg[seg_tot]==BondAll_to_isegAll[Pol_Sym[nbond_all]]) {
-                  Pol_Sym_Seg[seg_tot] = BondAll_to_isegAll[Pol_Sym[nbond_all]];
+            if (Pol_Sym[nbond_all]!= -1 && (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
+                if(Pol_Sym_Seg[seg_tot]==-1){
+                   Pol_Sym_Seg[seg_tot] = BondAll_to_isegAll[Pol_Sym[nbond_all]];
 		  if (Proc==0) printf("tagging symmetric segments on the chain for removal from the linear system:  seg=%d symmetric with %d\n",seg_tot,Pol_Sym_Seg[seg_tot]);
                 }
-                else{
-                 if (Proc==0) printf("problem with setting polymer symmetries: seg_sym=%d Pol_Sym_seg=%d nbond=%d BondAll_to_isegAll=%d\n",
-                      seg_tot,Pol_Sym_Seg[seg_tot],nbond_all,BondAll_to_isegAll[nbond_all]); 
-                 exit(-1);
-                }
             }
-            BondAll_to_isegAll[nbond_all]=seg_tot;
-	    BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
 	    nbond_all++;
 	    nunk++;
             Nbonds++; 

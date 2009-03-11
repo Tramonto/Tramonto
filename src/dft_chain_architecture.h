@@ -27,6 +27,9 @@ extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 #define WTC          2
+#define WJDC         3
+#define WJDC2        4
+#define WJDC3        5
 extern int Type_poly;
 extern int SegAll_to_Poly[NMER_MAX];
 extern int Nmer_comp[NCOMP_MAX];
@@ -47,7 +50,6 @@ extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
 void setup_chain_indexing_arrays(int nseg,int nmer_max,int ***pol_sym_tmp,FILE *fpout);
 void setup_chain_linear_five_segs(FILE *fpout,int ***pol_sym_tmp);
-#define LIN_POLY_FIVESEGS 3
 void setup_chain_linear_symmetric(FILE *fpout,int ***pol_sym_tmp);
 #define LIN_POLY_SYM 2
 void setup_chain_linear(FILE *fpout,int ***pol_sym_tmp);

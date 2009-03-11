@@ -69,6 +69,7 @@ void set_up_mesh (char *output_file1,char *output_file2)
    */
   setup_basic_domain(fp1);
 
+
   /* 
    * Initialize Aztec settings. We may read in 
    * some of these eventually 
@@ -272,6 +273,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
    * Elements_x_box[],Nodes_plane_box, Elements_plane_box,
    * Nunknowns_box. 
    */
+ 
   setup_basic_box(fp1, update);
 
   /*
@@ -301,7 +303,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
      /*
       * SET UP SOME ARRAYS 
       */
- 
+
      elems_f = (int **) array_alloc (2, Nlists_HW, Nelements_box, sizeof(int));
 
      nelems_f = (int *) array_alloc (1, Nlists_HW, sizeof(int));
@@ -333,7 +335,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
             for (k=0; k<nwall_max; k++) Wall_owners[i][j][k] = 0;
         }
      }
-
 
 
      /*										 
@@ -762,7 +763,8 @@ void setup_basic_box(FILE *fp1, int *update)
 */
 
   /* set up B2G_node and B2G_unk mapping from box to global */
-  
+ 
+ 
   B2G_node = (int *) array_alloc(1, Nnodes_box, sizeof(int));
   B2G_unk  = (int *) array_alloc(1, Nunknowns_box, sizeof(int));
   for (inode_box=0; inode_box <Nnodes_box; inode_box++){
