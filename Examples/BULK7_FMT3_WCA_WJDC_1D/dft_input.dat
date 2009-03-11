@@ -2,7 +2,7 @@
 @ -1. -1. -1. -1. 20. 	Length_ref Density_ref Temp Dielec_ref VEXT_MAX 
 ************* MESH PARAMETERS *************************************************
 @ 1 	Ndim 
-@ 10.0 	Size_x(idim): idim=0,Ndim-1 
+@ 35.0 	Size_x(idim): idim=0,Ndim-1 
 @ 0.5 	Esize_x(idim): idim=0,Ndim-1 
 @ 2 2 	Type_bc(x0,: left, right) (-1=IN_WALL, 0=IN_BULK, 1=PERIODIC, 2=REFLECT, 3=LAST_NODE) 
 @ 0 0 	Type_bc(x1,: down, up) 
