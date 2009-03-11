@@ -8,17 +8,17 @@ Dimensions: 1
 Diffusion: No
 
 Notes: 1-1 electrolyte composed of two charged components (ions) and finite sized neutral solvent. Lennard-Jones
-attractions are also included via the Weeks-Chandler-Anderson approximation.  This is identical to case
-MIX7_FMT__WCA_ELEC_1D except with a coarsened mesh and a smaller domain.
+attractions are also included via the Weeks-Chandler-Anderson approximation.  This is similar to case
+MIX7_FMT__WCA_ELEC_1D. 
 
 Input Files for Test problem:
    - dft_input.dat
    - dft_surfaces.dat
 
 Key Output Parameters:
-   - niter=6
-   - adsorption[0]= 0.089822  
-   - adsorption[1]= 0.689822  
-   - adsorption[2]= 2.583747
+   - niter=12
+   - adsorption[0]= 0.0864002 
+   - adsorption[1]= 0.6864  
+   - adsorption[2]= 2.59511
    .
 */

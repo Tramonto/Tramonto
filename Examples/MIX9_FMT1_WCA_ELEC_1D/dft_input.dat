@@ -3,7 +3,7 @@
 ************* MESH PARAMETERS *************************************************
 @ 1 	Ndim 
 @ 3. 3. 2. 	Size_x(idim): idim=0,Ndim-1 
-@ 0.25 0.25 0.25 	Esize_x(idim): idim=0,Ndim-1 
+@ 0.02 0.25 0.25 	Esize_x(idim): idim=0,Ndim-1 
 @ -1 2 	Type_bc(x0,: left, right) (-1=IN_WALL, 0=IN_BULK, 1=PERIODIC, 2=REFLECT, 3=LAST_NODE) 
 @ -1 2 	Type_bc(x1,: down, up) 
 @ 2 2 	Type_bc(x2,: back, front) 
@@ -253,7 +253,7 @@
 @ 1.0e-3 1.0e-8 0.1     NL_rel_tol NL_abs_tol NL_update_scalingParam
 @ 2     Load balance switch (0=linear,1=box,2=weights, 3=timings)
 ************ LINEAR SOLVER PARAMETERS ****************************************
-@ 0 0 50 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
+@ 1 0 50 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
 @ -1 	Scaling (0=row_sum, 1=Jacobi, 2=symrow_sum, -1=none) 
 @ 0 	Preconditioner (0=ilu, 1=Jacobi, 2=symGS, 3=LSpoly3, -1=none), level 
 @ 50 1.e-3 	Max iterations and Convergence Tolerance for Linear Solver 
