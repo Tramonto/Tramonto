@@ -106,7 +106,6 @@
                 0=POLY_ARCH_FILE (poly_file required)
                 1=LIN_POLY       (NO poly_file required)
                 2=LIN_POLY_SYM   (NO poly_file required)
-                3=LIN_POLY_FIVESEGS   (NO poly_file required)
              Type_poly_arch options:
 		0=POLY_ARCH_FILE (poly_file required)
 		1=LIN_POLY       (NO poly_file required) 

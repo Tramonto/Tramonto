@@ -106,7 +106,6 @@
                 0=POLY_ARCH_FILE (poly_file required)
                 1=LIN_POLY       (NO poly_file required)
                 2=LIN_POLY_SYM   (NO poly_file required)
-                3=LIN_POLY_FIVESEGS   (NO poly_file required)
 @ 1 1.0  cr8.2.8_0.711eff1 NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
                  NCrfiles (number of cr files - up to 4 to be read in)
                  Crfac (multiplicative factor for the first c(r).
@@ -265,41 +264,6 @@
 @ 0. 	Del_1[idim=0;Ndim-1] (How much to change parameter) 
 @ 0 0 	Plane_new_nodes Pos_new_nodes 
                   (0=yz,1=xz,2=xy)   (-1=lbb,0=center,1=rtf)
-************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
-@ -1 	Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length 
-                         3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
-@ 2 1.0 	Continuation parameter Scale_fac (for CONT_SCALE cases only) 
-                        CONT_TEMP        1   /* State Parameters */
-                        CONT_RHO_0       2
-                        CONT_RHO_ALL     3
-                        CONT_LOG_RHO_0   4
-                        CONT_LOG_RHO_ALL 5
-                        CONT_SCALE_RHO   6
-
-                        CONT_EPSW_0      7    /* Wall-Wall Energy Params */
-                        CONT_EPSW_ALL    8
-                        CONT_SCALE_EPSW  9
-
-                        CONT_EPSWF00     10    /* Wall-Fluid Energy Params */
-                        CONT_EPSWF_ALL_0 11
-                        CONT_SCALE_EPSWF 12
-
-                        CONT_EPSFF_00    13   /* Fluid-Fluid Energy Params */
-                        CONT_EPSFF_ALL   14
-                        CONT_SCALE_EPSFF 15
-
-                        CONT_SCALE_CHG   16  /* Charged surface params */
-
-                        CONT_SEMIPERM    17  /* Vext_memebrane */
-                        CONT_WALLPARAM   18  /* WallParam */
-                                                                                                 
-                        CONT_CRFAC       19      /* Miximg parameter for 2 cr files */
-                                                                                                 
-
-@ 1.e-7 	Parameter initial step size 
-@ 1 0.25 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
-@ 2 	Second parameter for Spinodal and Binoadal Calculations (Same list). 
-*********** END OF INPUT FILE ******************************************
 ************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
 @ -1     Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length
                          3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
