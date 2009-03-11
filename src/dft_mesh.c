@@ -594,6 +594,10 @@ void setup_basic_domain(FILE *fp1)
          exit(-1);
       }
   } 
+  if (Nnodes < 2*Num_Proc){
+     if (Proc==0) printf("ERROR - less than two nodes per processor on average - decrease the number of processors\n");
+     exit (-1);
+  }
   for (idim = Ndim; idim < 3; idim++) Nodes_x[idim] = 1;
 
   if (Ndim == 3) {
