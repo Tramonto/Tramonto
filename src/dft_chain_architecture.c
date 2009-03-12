@@ -215,23 +215,6 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max, int ***pol_sym_tmp,FILE
        }
     } 
 
-/*    set up a way to reference from a bond ID to a segment ID using indexing over _all_ bonds and segments. Note
-      that this is not dependent on having a linear chain! */ 
-    for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-      for (iseg=0; iseg<Nmer[pol_number]; iseg++){
-	for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
-          if (Type_poly!=WTC || (Type_poly==WTC && Bonds[pol_number][iseg][ibond] != -1)){
-            BondAll_to_isegAll[nbond_all]=seg_tot;
-	    BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
-	    nbond_all++;
-          }
-         }
-         seg_tot++;
-       }
-    }
-    nbond_all=0;
-    seg_tot=0;
-
     for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       Nseg_tot += Nmer[pol_number];
       if(Nseg_tot > NMER_MAX) {
@@ -262,11 +245,10 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max, int ***pol_sym_tmp,FILE
             else                                            Pol_Sym[nbond_all]=-1;
 
             if (Pol_Sym[nbond_all]!= -1 && (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
-                if(Pol_Sym_Seg[seg_tot]==-1){
-                   Pol_Sym_Seg[seg_tot] = BondAll_to_isegAll[Pol_Sym[nbond_all]];
-		  if (Proc==0) printf("tagging symmetric segments on the chain for removal from the linear system:  seg=%d symmetric with %d\n",seg_tot,Pol_Sym_Seg[seg_tot]);
-                }
+                if(Pol_Sym_Seg[seg_tot]==-1){ Pol_Sym_Seg[seg_tot] = BondAll_to_isegAll[Pol_Sym[nbond_all]]; }
             }
+            BondAll_to_isegAll[nbond_all]=seg_tot;
+	    BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
 	    nbond_all++;
 	    nunk++;
             Nbonds++; 
@@ -284,6 +266,8 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max, int ***pol_sym_tmp,FILE
         Nseg_type_pol[pol_number][Type_mer[pol_number][iseg]]++;
       } /* end of loop over iseg */
     }
+
+
 
     for (icomp=0;icomp<Ncomp;icomp++) Nseg_type[icomp]=0;
     for (iseg=0;iseg<Nseg_tot;iseg++) Nseg_type[Unk2Comp[iseg]]++;
