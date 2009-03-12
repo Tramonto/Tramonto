@@ -2,7 +2,7 @@
 @ -1. -1. -1. -1. 20. 	Length_ref Density_ref Temp Dielec_ref VEXT_MAX 
 ************* MESH PARAMETERS *************************************************
 @ 1 	Ndim 
-@ 10.0 	Size_x(idim): idim=0,Ndim-1 
+@ 35.0 	Size_x(idim): idim=0,Ndim-1 
 @ 0.5 	Esize_x(idim): idim=0,Ndim-1 
 @ 2 2 	Type_bc(x0,: left, right) (-1=IN_WALL, 0=IN_BULK, 1=PERIODIC, 2=REFLECT, 3=LAST_NODE) 
 @ 0 0 	Type_bc(x1,: down, up) 
@@ -130,7 +130,7 @@
          this dimension should have BULK boundary conditions - other dimensions should not!
          0=x, 1=y, 2=z)
         -- Lconstrain_interface (0=FALSE; 1=TRUE)
-@ 5.e-25 0.75953  0.85555 0.00005  1.e-6  0.75953  Rho_b_0[icomp] (state condition on left(x) or bottom(y) or back(z) boundary)
+@  5.e-25 0.75953  0.85555 0.00005  1.e-6  0.75953  Rho_b_0[icomp] (state condition on left(x) or bottom(y) or back(z) boundary)
                         (icomp=0,Ncomp-1 (or Npol_comp-1 for polymers)
 @ 0.0     Rho_b_1[icomp] (state condition on right(x) or top(y) or front(z) boundary - only
                         applies if Type_interface=1 or 2)
