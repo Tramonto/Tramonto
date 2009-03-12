@@ -220,9 +220,11 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max, int ***pol_sym_tmp,FILE
     for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       for (iseg=0; iseg<Nmer[pol_number]; iseg++){
 	for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
+          if (Type_poly!=WTC || (Type_poly==WTC && Bonds[pol_number][iseg][ibond] != -1)){
             BondAll_to_isegAll[nbond_all]=seg_tot;
 	    BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
 	    nbond_all++;
+          }
          }
          seg_tot++;
        }
