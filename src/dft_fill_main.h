@@ -32,7 +32,6 @@ double load_CMS_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izon
 double load_bond_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define BONDWTC        5
 double load_cavity_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define CAVWTC         4
 double load_nonlinear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 extern int Linear_transport;
@@ -47,17 +46,13 @@ double load_rho_bar_v(double **x,int iunk,int loc_inode,int inode_box,int izone,
 extern int Nrho_bar_s;
 #define THETA_FN_R            1
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
-#define NEQ_TYPE       13 
-extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       2
 #define YW           7
 #define SCFT         6	
 double load_SCF_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
-#define CMS          0
 double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
-#define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
 extern int L_HSperturbation;
@@ -65,6 +60,47 @@ extern int L_HSperturbation;
 #define NCOMP_MAX 5
 #define NMER_MAX     100
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int **Zero_density_TF;
+int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
+extern int Ncomp;
+typedef struct Stencil_Struct Stencil_Struct;
+extern struct Stencil_Struct ***Stencil;
+#define NDIM_MAX  3
+struct Stencil_Struct {
+  int        Length;      /* Number of nodes that interact with current 
+                             node through this stencil                    */
+  int      **Offset;      /* 2D array to be set to size [Length][Ndim] that
+                             gives relative position of interacting node  */
+  double    *Weight;      /* 1D array of size [Length] that gives weight
+                             of interacting node to total stencil         */
+  double   **HW_Weight;   /* 2D array of size [Length][Nnodes_per_el] that
+                             holds the weights based on what element they
+                             are being contributed from. Only used for Hard
+                             Walls when stencil point is a boundary node  */
+};
+double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
+#define CAVWTC         4
+#define NEQ_TYPE       13 
+extern int Phys2Unk_first[NEQ_TYPE];
+#define WJDC3        5 
+#define DELTA_FN_BOND         6
+double grafted_int(int sten_type,int itype_mer,int *ijk_box,int izone,int unk_G,double **x);
+#define CMS          0
+int node_to_node_box(int inode);
+int position_to_node(double *NodePos);
+extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
+#define NWALL_MAX_TYPE 50 
+extern double WallParam[NWALL_MAX_TYPE];
+#define NWALL_MAX 600 
+extern double WallPos[NDIM_MAX][NWALL_MAX];
+extern int WallType[NWALL_MAX];
+extern int Graft_wall[NCOMP_MAX];
+void node_to_position(int inode,double *NodePos);
+extern int **Nodes_2_boundary_wall;
+extern int Type_mer[NCOMP_MAX][NMER_MAX];
+extern int ***Bonds;
+extern int *Nbonds_SegAll;
+extern int Grafted[NCOMP_MAX];
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 double load_standard_node(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,struct RB_Struct *dphi_drb,double *resid_unk,int mesh_coarsen_flag_i,int resid_only_flag);
@@ -85,20 +121,20 @@ extern int Nwall_type;
 #endif
 extern int Mesh_coarsening;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
+void calc_Gsum(double **x);
 double gsum_double(double c);
 extern int Nnodes_per_el_V;
 extern double Vol_el;
 extern int **Nel_hit2;
 extern int *L2B_node;
 extern int Nnodes_per_proc;
+extern double Gsum[NCOMP_MAX];
 extern int ***Poly_to_Unk;
 extern int Geqn_start[NCOMP_MAX];
 extern int Nmer[NCOMP_MAX];
-#define NDIM_MAX  3
+extern int Npol_comp;
 extern double Size_x[NDIM_MAX];
 extern int Ndim;
-extern int Npol_comp;
-extern double *Gsum;
 #define CMS_SCFT     1
 extern int Type_poly;
 #define NODAL_FLAG -999

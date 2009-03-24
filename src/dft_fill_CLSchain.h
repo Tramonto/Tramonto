@@ -15,14 +15,35 @@ double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,in
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
+extern int **Nbond;
+extern int Nlists_HW;
+double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+double load_polymer_recursion(int sten_type,int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int unk_B,int itype_mer,int izone,int *ijk_box,double **x,int resid_only_flag);
+#define NCOMP_MAX 5
+extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
+extern int *L2G_node;
+double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
+extern double VEXT_MAX;
+extern double **Vext;
+extern int *Unk_to_Bond;
+extern int *Unk_to_Seg;
+extern int *Unk_to_Poly;
+#define G_CHAIN       11 
+double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
+#define NMER_MAX     100
+extern double Field_WJDC_b[NMER_MAX];
+extern double Rho_seg_b[NMER_MAX];
+#define NBOND_MAX 4
+extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
+double resid_and_Jac_ChainDensity_WJDC2(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
+double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
+double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
+extern int **Zero_density_TF;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern int Ncomp;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
-extern int **Nbond;
-extern int Nlists_HW;
 #define NDIM_MAX  3
 struct Stencil_Struct {
   int        Length;      /* Number of nodes that interact with current 
@@ -36,37 +57,28 @@ struct Stencil_Struct {
                              are being contributed from. Only used for Hard
                              Walls when stencil point is a boundary node  */
 };
-double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-double load_polymer_recursion(int sten_type,int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int unk_B,int itype_mer,int izone,int *ijk_box,double **x,int resid_only_flag);
+double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
+#define CAVWTC         4
+#define DELTA_FN_BOND         6
+void grafted_jac(int sten_type,int itype_mer,int iunk,int loc_inode,int *ijk_box,int izone,int unk_G,int inode_boxl,double prefac,double ysqrt,double **x);
+extern int *Mesh_coarsen_flag;
+extern int L1D_bc;
+extern int Nwall_type;
+extern int Mesh_coarsening;
+void node_box_to_ijk_box(int node_box,int *ijk_box);
+int node_to_node_box(int inode);
+int position_to_node(double *NodePos);
+extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 #define NWALL_MAX_TYPE 50 
 extern double WallParam[NWALL_MAX_TYPE];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
+extern int WallType[NWALL_MAX];
+extern int Graft_wall[NCOMP_MAX];
 void node_to_position(int inode,double *NodePos);
-extern int *L2G_node;
-double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
-double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
-#define NCOMP_MAX 5
-extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
-double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
-#define CAVWTC         4
-double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
-extern double VEXT_MAX;
-extern double **Vext;
-extern int **Zero_density_TF;
-#define DELTA_FN_BOND         6
+extern int **Nodes_2_boundary_wall;
 extern int ***Bonds;
-extern int *Unk_to_Bond;
-extern int *Unk_to_Seg;
-extern int *Unk_to_Poly;
-#define G_CHAIN       11 
-double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define NMER_MAX     100
-extern double Field_WJDC_b[NMER_MAX];
-extern double Rho_seg_b[NMER_MAX];
-#define NBOND_MAX 4
-extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
-double resid_and_Jac_ChainDensity_WJDC2(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
+extern int Grafted[NCOMP_MAX];
 extern int *L2B_node;
 extern int Nnodes_per_proc;
 extern int ***Poly_to_Unk;
@@ -79,7 +91,7 @@ extern int Geqn_start[NCOMP_MAX];
 #endif
 extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
-extern double *Gsum;
+extern double Gsum[NCOMP_MAX];
 extern int *Nbonds_SegAll;
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];

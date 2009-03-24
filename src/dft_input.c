@@ -972,6 +972,32 @@ void read_input_file(char *input_file, char *output_file1)
     MPI_Bcast(Nmer_t_total,NBLOCK_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(SegChain2SegAll,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Type_mer,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
+	  
+	/* any grafted chains in system? */
+	  if(Proc==0) {
+		  read_junk(fp,fp2);
+		  for (pol_number=0; pol_number<Npol_comp; ++pol_number){
+			  fscanf(fp,"%d",&Grafted[pol_number]);
+			  fprintf(fp2,"%d   ",Grafted[pol_number]);
+		  }
+		  read_junk(fp,fp2);
+		  for (pol_number=0; pol_number<Npol_comp; ++pol_number){
+			  if(Grafted[pol_number]) {
+				fscanf(fp,"%d", &Graft_wall[pol_number]);
+				fprintf(fp2,"%d  ",Graft_wall[pol_number]);
+			  }
+		  }
+		  read_junk(fp,fp2);
+		  for (pol_number=0; pol_number<Npol_comp; ++pol_number){
+			  if(Grafted[pol_number]) {
+				  fscanf(fp,"%lf",&Rho_g[pol_number]);
+				  fprintf(fp2,"%f   ",Rho_g[pol_number]);
+			  }
+		  }
+	  }
+	  MPI_Bcast(Grafted,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
+	   MPI_Bcast(Graft_wall,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
+	  MPI_Bcast(Rho_g,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
 
     if (Proc==0) {
       read_junk(fp,fp2);
@@ -1045,7 +1071,7 @@ void read_input_file(char *input_file, char *output_file1)
       read_junk(fp,fp2);
       fprintf(fp2,"\n POLYMER INPUT NOT RELEVENT FOR THIS RUN\n");
       fprintf(fp2,"not read   ");
-      for (i=0; i<7; i++) {
+      for (i=0; i<10; i++) {
              read_junk(fp,fp2);
              fprintf(fp2,"not read   ");
       }

@@ -68,7 +68,7 @@ double pressure_WTC(double *rho_seg,double *xi_cav)
   for (iseg=0;iseg<Nseg_tot;iseg++){
      count_bond=0;
      for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
-        if (Bonds_SegAll[iseg][ibond]!=-1) count_bond++;
+        if (Bonds_SegAll[iseg][ibond]!=-1 && Bonds_SegAll[iseg][ibond]!=-2) count_bond++;
      }  
      betap_wtc -= 0.5*rho_seg[iseg]*count_bond;
   }
@@ -161,7 +161,7 @@ double chain_term(int kseg,int kcomp,double *rho_seg,double *xi_cav)
   for (iseg=0; iseg<Nseg_tot;iseg++){
         icomp=Unk2Comp[iseg];
         for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
-          if(Bonds_SegAll[iseg][ibond] != -1){
+          if(Bonds_SegAll[iseg][ibond] != -1 && Bonds_SegAll[iseg][ibond] != -2){
              jseg=Bonds_SegAll[iseg][ibond];
              jcomp=Unk2Comp[jseg];
              y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_cav[2],xi_cav[3]);

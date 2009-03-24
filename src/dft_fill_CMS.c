@@ -98,8 +98,12 @@ double prefactor_rho_cms(int itype_mer)
 
   npol = 0;
   while (Nmer_t[npol][itype_mer]==0) npol++;
-  fac = Rho_b[itype_mer]/Nmer_t[npol][itype_mer];
- 
+	
+  if(Grafted[npol])
+	  fac = Rho_g[npol]/Gsum[npol];
+  else
+	  fac = Rho_b[itype_mer]/Nmer_t[npol][itype_mer]; 
+
   return (fac);
 }
 /****************************************************************************/

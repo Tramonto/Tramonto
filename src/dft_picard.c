@@ -115,6 +115,9 @@ int picard_solver(double **x, int subIters){
      /* copy current fields to the x_old array */
      for (iunk=0; iunk<Nunk_per_node;iunk++)
        for (ibox=0; ibox<Nnodes_box;ibox++) x_old[iunk][ibox]=x[iunk][ibox];
+	  
+	  /* for grafted chains */
+	  calc_Gsum(x);
 
      /* use successive substitution to update density field, then compute all other fields */ 
      if (L_HSperturbation && Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3)
@@ -246,6 +249,7 @@ int picard_solver(double **x, int subIters){
   else{ if (Proc==0 && Iwrite!=NO_SCREEN) printf("\treturn control to NOX after %d iterations\n",iter);}
 
   safe_free((void **) &x_old);
+
   return iter;
 }
 /****************************************************************************/

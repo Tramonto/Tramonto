@@ -158,6 +158,9 @@ void setup_chain_architecture(char *poly_file,FILE *fpout);
 #define SCFT         6	
 #define POLY_ARCH_FILE 0
 extern int Type_poly_arch;
+extern double Rho_g[NCOMP_MAX];
+extern int Graft_wall[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
 #define NMER_MAX     100
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];

@@ -20,10 +20,9 @@ extern int *Nbonds_SegAll;
 extern int Nseg_tot;
 #define NEQ_TYPE       13 
 extern int Phys2Nunk[NEQ_TYPE];
+void linsolver_setup_WJDCTYPE_LINEARONLY();
 #define WJDC_FIELD     8
-void linsolver_setup_WJDCTYPE();
 extern int Type_coul;
-extern int Proc;
 extern int Mesh_coarsening;
 #define WTC          2
 extern int Type_attr;
@@ -48,7 +47,6 @@ extern int Lhard_surf;
 #define FALSE 0
 #endif
 int discover_G_ordering_LT(int *geq);
-void linsolver_setup_CMSTYPE();
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern int Ncomp;
@@ -68,6 +66,7 @@ void *array_alloc(int numdim,...);
 #if !(defined(__STDC__))
 void *array_alloc(...);
 #endif
+void linsolver_setup_CMSTYPE_LINEARONLY();
 extern void *ParameterList_list;
 extern int Nunk_per_node;
 extern void *LinProbMgr_manager;
@@ -77,10 +76,10 @@ void linsolver_setup_HSTYPE();
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;
-void linsolver_setup_WJDCTYPE_LINEARONLY();
+void linsolver_setup_WJDCTYPE();
 #define WJDC3        5 
 #define WJDC         3
-void linsolver_setup_CMSTYPE_LINEARONLY();
+void linsolver_setup_CMSTYPE();
 #define CMS          0
 extern int Type_poly;
 extern int L_Schur;

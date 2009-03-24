@@ -100,6 +100,11 @@ double prefactor_rho_wjdc(int iseg)
   mu=Betamu_chain[pol_number];
 
   fac=exp(mu+scale_term);
+	
+	if(Grafted[pol_number] && Type_poly==WJDC3)  {
+		icomp = Type_mer[pol_number][iseg];
+		fac = Rho_g[pol_number]/Gsum[pol_number]; 
+	}
 
   return (fac);
 }

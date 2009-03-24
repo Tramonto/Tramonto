@@ -44,9 +44,14 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   char   *yo = "fill_resid_and_matrix";
   int     loc_inode, inode_box,ijk_box[3],iunk,junk,iunk_start,iunk_end;
   int     mesh_coarsen_flag_i,switch_constmatrix;
-  int	npol,iseg,unk_G,idim;
+  int	npol,iseg,unk_G,idim,inode,itype_mer,ibond;
+	int graft_seg,graft_bond,gbond,izone, unk_xi2,unk_xi3;
+  double nodepos[3];
   double *resid_unk,resid_sum=0.0,resid_term;
-  double sum_i,vol;
+	double sum_i, vol;
+	double y,ysqrt,dydxi,xi_2,xi_3;
+	double ans;
+
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
   resid_unk = (double *) array_alloc (1, Nunk_per_node, sizeof(double));
@@ -66,7 +71,6 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   /* ALF: calculate all the single chain partition functions */
   if(Type_poly == CMS_SCFT) {
 	  
-	  Gsum = (double *) array_alloc(1, Npol_comp, sizeof(double));
 	  vol = 1.0;
 	  for(idim=0; idim<Ndim; idim++)
 		vol *= Size_x[idim];
@@ -86,8 +90,11 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
 		  if(Gsum[npol] < 1.e-6) printf("error: Gsum small = %f\n",Gsum[npol]);
 	  }
   } 
-  
-  /* Load residuals and matrix */
+ 
+	/* ALF: for grafted chains */
+	calc_Gsum(x);
+		
+		/* Load residuals and matrix */
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
 
     /* convert local node to global */
@@ -129,6 +136,127 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   if (Type_poly==CMS_SCFT) safe_free((void *) &Gsum);
   return(resid_sum);
 }
+
+/*************************************************************************************************/
+void calc_Gsum(double **x) 
+{
+	int npol,ibond,iseg,itype_mer,unk_G;
+	int graft_seg,graft_bond,gbond,izone, unk_xi2,unk_xi3;
+	int ilist, iwall,pwall,pwall_type,inode_w;
+	int loc_inode,inode,inode_box,ijk_box[3],num_wall_els;
+	double gsum,nodepos[3],nodeposc[3];
+	double y,ysqrt,dydxi,xi_2,xi_3;	
+	
+	for(npol=0; npol<Npol_comp; npol++){
+		gsum = 0.0;
+		if(Grafted[npol]) {
+			/* find type of bonded site */
+			for(iseg=0; iseg<Nmer[npol]; iseg++) {
+				for(ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
+					if(Bonds[npol][iseg][ibond] == -2) {	/* grafted site */
+						itype_mer = Type_mer[npol][iseg];
+						graft_seg = iseg;
+						graft_bond = ibond;
+					}
+				}
+			}			
+			/* find correct G; assumes 2 bonds only for grafting site */
+			for (ibond=0; ibond<Nbonds_SegAll[graft_seg]; ibond++)
+				if(ibond != graft_bond) gbond = ibond;
+			unk_G = Geqn_start[npol] + Poly_to_Unk[npol][graft_seg][gbond];
+			 
+			 /* find wall position and do integral with stencil */
+			for(loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
+				inode = L2B_node[loc_inode];
+				inode_box = L2B_node[loc_inode];
+				iwall = Nodes_2_boundary_wall[0][inode_box];
+				if(iwall != -1) {
+					node_to_position(inode,nodepos); 
+					
+					/* correct wall? */
+					pwall = Graft_wall[npol];
+					pwall_type = WallType[pwall];
+					nodeposc[0] = WallPos[0][pwall] + WallParam[pwall_type];
+					nodeposc[1] = nodeposc[2] = 0.0;
+					if(nodepos[0]==nodeposc[0] + Sigma_ff[itype_mer][itype_mer]/2.0 || 
+					   nodepos[0]==nodeposc[0] - Sigma_ff[itype_mer][itype_mer]/2.0) {
+						inode_w = position_to_node(nodeposc);
+						inode_box = node_to_node_box(inode_w);
+					node_box_to_ijk_box(inode_box, ijk_box);
+					if ( ((Mesh_coarsening != FALSE) && (Nwall_type >0)) || L1D_bc) izone = Mesh_coarsen_flag[inode_box];
+					else izone = 0;
+					if(Type_poly==CMS) {
+						gsum = grafted_int(DELTA_FN_BOND,itype_mer,ijk_box,izone,unk_G,x);
+					}
+					else if(Type_poly == WJDC3) {
+						/* find y at wall position */
+						unk_xi2=Phys2Unk_first[CAVWTC]; unk_xi3=Phys2Unk_first[CAVWTC]+1;
+						xi_2=x[unk_xi2][inode_box]; xi_3=x[unk_xi3][inode_box];
+						y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[itype_mer][itype_mer],xi_2,xi_3);
+						ysqrt=sqrt(y); 
+						gsum = ysqrt*grafted_int(DELTA_FN_BOND,itype_mer,ijk_box,izone,unk_G,x); 
+					}
+					else {
+						if(Proc==0) printf("grafting not implemented for Type_poly=%d\n", Type_poly);
+						exit(-1);
+					}
+					}					
+				}
+			} /* end loop over loc_inode */
+			
+			/* communicate value of Gsum */
+			Gsum[npol] = gsum_double(gsum);
+		}
+		else
+			Gsum[npol] = 1.0;
+	}
+	
+	return;
+}
+
+
+/*************************************************************************************************/
+/* grafted_int:  this function calculates an integral for overall density normalization with grafted chains */
+double grafted_int(int sten_type,int itype_mer, int *ijk_box, int izone, int unk_G,double **x)
+{
+	int   **sten_offset, *offset, isten;
+	int unk_xi2,unk_xi3;
+	double *sten_weight,  weight;
+	struct Stencil_Struct *sten;
+	double y,ysqrt,dydxi,xi_2,xi_3;
+	
+	int jnode_box,jcomp;
+	int reflect_flag[NDIM_MAX];
+	double sum = 0.0;
+	
+	sten = &(Stencil[sten_type][izone][itype_mer+Ncomp*itype_mer]);
+	sten_offset = sten->Offset;
+	sten_weight = sten->Weight;
+	
+	for (isten = 0; isten < sten->Length; isten++) {
+		offset = sten_offset[isten];
+		weight = sten_weight[isten];
+		
+		/* Find the Stencil point */
+		jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
+		jcomp=itype_mer;
+		if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {			
+			if(Type_poly == CMS)
+				sum += weight*x[unk_G][jnode_box];
+			else if (Type_poly == WJDC3) {
+				unk_xi2=Phys2Unk_first[CAVWTC]; unk_xi3=Phys2Unk_first[CAVWTC]+1;
+				xi_2=x[unk_xi2][jnode_box]; xi_3=x[unk_xi3][jnode_box];
+				y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[itype_mer][itype_mer],xi_2,xi_3);
+				ysqrt=sqrt(y);
+				sum += weight*ysqrt*x[unk_G][jnode_box];
+			}
+		}
+	}
+			
+	return(sum);
+}
+
+
 /*************************************************************************************************/
 /* load_standard_node:  this routine controls the invocation of different physics routines that load the 
                         matrix problem of interest.  */

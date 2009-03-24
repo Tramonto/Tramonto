@@ -93,6 +93,7 @@ void calc_density_next_iter_HSperturb(double **xInBox);
 #define WJDC         3
 extern int Type_poly;
 extern int L_HSperturbation;
+void calc_Gsum(double **x);
 void print_resid_norm_picard(double **x,int iter);
 #define NO_SCREEN    2 
 extern int Iwrite;

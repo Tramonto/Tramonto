@@ -70,6 +70,7 @@ void calc_init_WJDC_field(double **xInBox)
   struct  RB_Struct *dphi_drb=NULL;
   izone=0;
   mesh_coarsen_flag_i=0;
+	
 
   if (Type_func !=NONE){
      dphi_drb = (struct RB_Struct *) array_alloc (1, Nnodes_box, sizeof(struct RB_Struct));
@@ -132,7 +133,7 @@ void calc_init_polymer_G_wjdc(double **xInBox)
 
   fp_ResidG=&WJDC_Resid_GCHAIN;
   fp_ResidG_Bulk=&WJDC_Resid_Bulk_GCHAIN;
-
+	
   /* need to be careful to generate the G's in the order dictated
      by the chain architecture.  Use same strategy as in dft_thermo_wjdc */
 
@@ -150,7 +151,7 @@ void calc_init_polymer_G_wjdc(double **xInBox)
         if (array_val[ibond]==FALSE){
            test=TRUE;  /* assume we will compute a bulk G */
            jseg=Bonds[pol_num][iseg][bond_num];
-           if (jseg != -1 ){   /* may need to skip this G if we don't have all information yet  -
+           if (jseg != -1 && jseg != -2){   /* may need to skip this G if we don't have all information yet  -
                                   always compute G for end segments flagged with -1 value */
               for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
                  if (Bonds[pol_num][jseg][jbond] != iseg){ /* check all jbonds to see if we have necessary info */

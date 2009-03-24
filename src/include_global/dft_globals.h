@@ -477,6 +477,9 @@ double Crfac;
 double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
+int Grafted[NCOMP_MAX];
+int Graft_wall[NCOMP_MAX];
+double Rho_g[NCOMP_MAX];
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
 int Nmer_t_total[NBLOCK_MAX];
 int Nseg_tot;
@@ -495,7 +498,7 @@ int *BondAll_to_isegAll;
 int *BondAll_to_ibond;
 int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
 int Nmer_comp[NCOMP_MAX];
-double *Gsum;
+double Gsum[NCOMP_MAX];
 
 /*some continuation related arrayes */
 int Cont_ID[NCONT_MAX][2];  /* Array of iwall/icomp ids for use in continuation.  */

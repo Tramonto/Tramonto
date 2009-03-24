@@ -250,7 +250,7 @@ void dftmain(double * engptr)
       */
       x = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
       if (Lbinodal) x2 = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
-
+		 
       t_preprocess += MPI_Wtime();
       t_solve = -MPI_Wtime();
       if (NL_Solver == PICARD_BUILT_IN || NL_Solver==PICARD_NOX ||

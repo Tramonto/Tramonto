@@ -170,13 +170,15 @@ void setup_polymer_rho(double **xInBox, int iguess)
 /* in this version, guess is simply the Boltzmann factors, with some account taken of hard walls*/
 void setup_polymer_G(double **xInBox)
 {
-  int loc_inode,inode_box,ijk_box[3],loc_i;
+  int loc_inode,inode_box,ijk_box[3],loc_i,inode;
   int reflect_flag[NDIM_MAX];
   int   **sten_offset, *offset, isten;
   double *sten_weight,  weight;
   struct Stencil_Struct *sten;
   int sten_type,izone,jlist,jnode_box,jtype_mer,itype_mer;
   int iunk,poln,iseg,ibond,not_done,junk,cycle,loc_B;
+	
+	double sig2, nodepos[3],xbound;
 
      sten_type = DELTA_FN_BOND;
      izone = 0;
@@ -216,6 +218,24 @@ void setup_polymer_G(double **xInBox)
 						 xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[SCF_FIELD]+itype_mer][inode_box];
                   }
              }
+		     else if(Bonds[poln][iseg][ibond]== -2) {	/* grafted ends */
+				 for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+                     inode_box = L2B_node[loc_inode];
+                     node_box_to_ijk_box(inode_box, ijk_box);
+					 inode = L2G_node[loc_inode];
+					 node_to_position(inode,nodepos);
+					 xbound = WallPos[0][0] + WallParam[0];
+					 sig2 = Bond_ff[itype_mer][itype_mer]*Bond_ff[itype_mer][itype_mer];
+					 if(Type_poly==CMS) {
+						 if(nodepos[0] <= xbound+Bond_ff[itype_mer][itype_mer]) { 
+							 xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
+							 xInBox[iunk][inode_box] *= (1.0/(2.0*sig2))*sqrt(sig2-(nodepos[0]-xbound)*(nodepos[0]-xbound));
+						 }
+						 else
+							 xInBox[iunk][inode_box] = 0.0;
+					 }
+				 }
+			 }
              else{
                jtype_mer = Type_mer[poln][Bonds[poln][iseg][ibond]];
                junk = Geqn_start[poln]+2*Bonds[poln][iseg][ibond];
@@ -309,6 +329,8 @@ void calc_init_polymer_G_CMS(double **xInBox)
 
   fp_ResidG=&CMS_Resid_GCHAIN;
   fp_ResidG_Bulk=&CMS_Resid_Bulk_GCHAIN;
+	
+	printf("in calc_init_polymer_G_CMS\n");
 
   /* need to be careful to generate the G's in the order dictated
      by the chain architecture.  Use same strategy as in dft_thermo_wjdc */

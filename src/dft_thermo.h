@@ -14,6 +14,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int Physics_scaling;
 #define NCOMP_MAX 5
 extern double Betamu_id[NCOMP_MAX];
 #define NMER_MAX     100
@@ -82,7 +83,6 @@ extern double Betap_LBB;
 extern int Lseg_densities;
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
-extern int Physics_scaling;
 void calc_pressure(char *output_file1);
 void calc_chempot(char *output_file1);
 void WJDC_thermo_precalc(char *output_file1);

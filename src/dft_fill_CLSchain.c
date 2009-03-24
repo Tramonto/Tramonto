@@ -39,11 +39,15 @@ is being loaded -
 double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_B,
   int loc_inode, int inode_box, int resid_only_flag, double (*fp_prefactor)(int))
 {
-  int i,loop_start,loop_end,itype_mer,npol,iseg,unk_GQ,unk_GQ_test,iref;
-  int boltz_pow,boltz_pow_J,jbond,ibond,unkIndex[2],numEntries,unk_GQ_j,unk_GQ_j_test;
-  int loc_jnode,jnode_box;
-  double fac1,fac2,mat_val,resid=0.0,resid_sum=0.0,values[2];
-
+	int i,loop_start,loop_end,itype_mer,npol,iseg,unk_GQ,unk_GQ_test,iref;
+	int boltz_pow,boltz_pow_J,jbond,ibond,unkIndex[2],numEntries,unk_GQ_j,unk_GQ_j_test;
+	int loc_jnode,jnode_box,jnode,ijk_box[3];
+	int unk_xi2,unk_xi3;
+	int loc_inode2,num_wall_els,iwall,pwall,pwall_type,inode_w;
+	double nodepos[3],nodeposc[3],prefac;
+	double fac1,fac2,mat_val,resid=0.0,resid_sum=0.0,resid_sum2=0.0,values[2];
+	int inodel, inode_boxl,izone,graft_seg,graft_bond,gbond;
+	double y,ysqrt,dydxi,xi_2,xi_3,dummy;
 
   if (resid_only_flag !=INIT_GUESS_FLAG){
      resid = x[iunk][inode_box]*x[unk_B][inode_box];
@@ -119,45 +123,158 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                      fac2 *= x[unk_GQ_j][inode_box];
                    }
                  }
+				  /* should this be if (-boltz_pow > 0) ?? */
                  if (boltz_pow > 0) mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
                  else mat_val=-fac2;
-                 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
-              }
-        } /* end loop over ibond */
-        if(resid_only_flag==FALSE){
-           if (-boltz_pow > 0){
-             mat_val = -fac1*((double) boltz_pow)*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow_J);
-             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
-           }
-        }
-        if (-boltz_pow >0) {
+				 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
+				}
+			} /* end loop over ibond */			
+			if(resid_only_flag==FALSE){
+				if (-boltz_pow > 0){
+					mat_val = -fac1*((double) boltz_pow)*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow_J);
+					dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
+				}
+			}
+		 if (-boltz_pow >0) {
              resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow); 
-        }
-        else{
-              resid = -fac1;
-        }
-        resid_sum+=resid;
-        if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
-            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-     }
-  }
-  if (resid_only_flag==INIT_GUESS_FLAG){
-     resid_sum /= x[unk_B][inode_box];
-  }
-  
+		 }
+		 else{
+			 resid = -fac1;
+		 }
+			resid_sum+=resid;
+			resid_sum2+=resid;
+			if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+				dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+		} /* end if statement */
+	} /* end loop over length of chain */
+	
+	if (resid_only_flag==INIT_GUESS_FLAG){
+		resid_sum /= x[unk_B][inode_box];
+	}
+	
 	/* extra term in Jacobian for SCF */
-	if(Type_poly==CMS_SCFT) {
+	if(Type_poly==CMS_SCFT && resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) {
 		iseg = Nmer[npol]-1;
-		unk_GQ = Geqn_start[npol] + Poly_to_Unk[npol][iseg][0];;
+		unk_GQ = Geqn_start[npol] + Poly_to_Unk[npol][iseg][0];
 		for(loc_jnode=0; loc_jnode<Nnodes_per_proc; loc_jnode++) {
 			jnode_box = L2B_node[loc_jnode];
 			mat_val = resid_sum*x[unk_GQ][jnode_box];
 			dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,jnode_box,mat_val);
 		}
 	}
+	
+	/* extra term in Jacobian for grafted chains */
+	if(Grafted[npol] && resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) {
+		/* find type of bonded site */
+		for(iseg=0; iseg<Nmer[npol]; iseg++) {
+			for(ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
+				if(Bonds[npol][iseg][ibond] == -2) {	/* grafted site */
+					itype_mer = Type_mer[npol][iseg];
+					graft_seg = iseg;
+					graft_bond = ibond;
+				}
+			}
+		}					
+		/* find correct G; assumes 2 bonds only for grafting site */
+		for (ibond=0; ibond<Nbonds_SegAll[graft_seg]; ibond++)
+			if(ibond != graft_bond) gbond = ibond;
+		unk_GQ = Geqn_start[npol] + Poly_to_Unk[npol][graft_seg][gbond];
+		prefac = -resid_sum2/Gsum[npol];
+		/* find wall position, if owned by this proc */
+		for(loc_inode2=0; loc_inode2<Nnodes_per_proc; loc_inode2++) {
+			inodel = L2B_node[loc_inode2];
+			inode_boxl = L2B_node[loc_inode2];
+			iwall = Nodes_2_boundary_wall[0][inode_boxl];
+			if(iwall != -1) {
+				node_to_position(inodel,nodepos); /* position of wall + 1/2 radius */
+				/* correct wall? */
+				pwall = Graft_wall[npol];
+				pwall_type = WallType[pwall];
+				nodeposc[0] = WallPos[0][pwall] + WallParam[pwall_type];
+				nodeposc[1] = nodeposc[2] = 0.0;
+				if(nodepos[0]==nodeposc[0] + Sigma_ff[itype_mer][itype_mer]/2.0 || 
+				   nodepos[0]==nodeposc[0] - Sigma_ff[itype_mer][itype_mer]/2.0) {
+				inode_w = position_to_node(nodeposc);
+				inode_boxl = node_to_node_box(inode_w);
+				node_box_to_ijk_box(inode_boxl,ijk_box);
+				if ( ((Mesh_coarsening != FALSE) && (Nwall_type >0)) || L1D_bc) izone = Mesh_coarsen_flag[inode_boxl];
+				else izone = 0;
+				if(Type_poly==CMS) 	/* calculate delta G/delta G_0^1 */
+					grafted_jac(DELTA_FN_BOND,itype_mer,iunk,loc_inode,ijk_box,izone,unk_GQ,inode_boxl,prefac,dummy,x); 
+				else if(Type_poly==WJDC3) {
+					/* find y at wall position */
+					unk_xi2=Phys2Unk_first[CAVWTC]; unk_xi3=Phys2Unk_first[CAVWTC]+1;
+					xi_2=x[unk_xi2][inode_boxl]; xi_3=x[unk_xi3][inode_boxl];
+					y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[itype_mer][itype_mer],xi_2,xi_3);
+					ysqrt=sqrt(y);	
+					/* calculate delta G/delta G_0^1 and delta G/delta xi */
+					grafted_jac(DELTA_FN_BOND,itype_mer,iunk,loc_inode,ijk_box,izone,unk_GQ,inode_boxl,prefac,ysqrt,x); 
+				}
+				}
+			}
+		}
+	}
 
   return(resid_sum);
 }
+
+/****************************************************************************/
+void grafted_jac(int sten_type,int itype_mer,int iunk,int loc_inode,int *ijk_box, int izone, 
+				 int unk_G,int inode_boxl,double prefac,double ysqrt, double **x) {
+	
+	int   **sten_offset, *offset, isten;
+	int unk_xi2,unk_xi3;
+	int numEntries, unkIndex[2];
+	double *sten_weight,  weight;
+	struct Stencil_Struct *sten;
+	double y,ysqrt2,dydxi,xi_2,xi_3;
+	double values[2];
+	
+	int jnode_box,jcomp;
+	int reflect_flag[NDIM_MAX];
+	double mat_val;
+
+	sten = &(Stencil[sten_type][izone][itype_mer+Ncomp*itype_mer]);
+	sten_offset = sten->Offset;
+	sten_weight = sten->Weight;
+	
+	for (isten = 0; isten < sten->Length; isten++) {
+		offset = sten_offset[isten];
+		weight = sten_weight[isten];
+		
+		/* Find the Stencil point */
+		jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
+		jcomp=itype_mer;
+		if (jnode_box >= 0 && !Zero_density_TF[jnode_box][jcomp]) {
+			if(Type_poly==CMS) {
+				mat_val = weight*prefac;
+				dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_G,jnode_box,mat_val);
+			}
+			else if(Type_poly==WJDC3) {
+				/* Jacobian for G term */
+				unk_xi2=Phys2Unk_first[CAVWTC]; unk_xi3=Phys2Unk_first[CAVWTC]+1;
+				xi_2=x[unk_xi2][jnode_box]; xi_3=x[unk_xi3][jnode_box];
+				y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[itype_mer][itype_mer],xi_2,xi_3);
+				ysqrt2=sqrt(y);
+				mat_val = weight*prefac*ysqrt*ysqrt2;
+				dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_G,jnode_box,mat_val);
+				
+				/* Jacobian for xi terms */
+				unkIndex[0]=unk_xi2; unkIndex[1]=unk_xi3;
+				dydxi=dy_dxi2_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[itype_mer][itype_mer],xi_2,xi_3);
+				values[0] = 0.5*ysqrt*x[unk_G][jnode_box]*dydxi/ysqrt2;
+				dydxi=dy_dxi3_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[itype_mer][itype_mer],xi_2,xi_3);
+				values[1]= 0.5*ysqrt*x[unk_G][jnode_box]*dydxi/ysqrt2;
+				numEntries=2;
+				dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+															  unkIndex, jnode_box, values, numEntries);				
+			}
+		}
+	}
+	
+	return;
+}
+
 /****************************************************************************/
 double resid_and_Jac_ChainDensity_WJDC2 (int func_type, double **x, int iunk, int unk_B,
   int loc_inode, int inode_box, int resid_only_flag, double (*fp_prefactor)(int))
@@ -222,9 +339,12 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
 {
     int unk_GQ,unk_B,pol_num,seg_num,bond_num,junk,unkIndex[4],numEntries,sten;
     int itype_mer,jseg,jtype_mer,unk_xi2,unk_xi3,inode;
-    double nodepos[3],xbound;
+	int inode_box2,inode2;
+	int iwall,iwall_type;
+    double nodepos[3],nodepos2[3],xbound,xbound_lim;
     double resid_G=0.0,resid,mat_val,values[4],gint_tmp; 
-    double y,ysqrt,dydxi,xi_2,xi_3;
+    double y,ysqrt,dydxi,dydxi_0,xi_2,xi_3,xi_2_0,xi_3_0;
+	double y2,ysqrt2;
 	   
        /* use arrays that are indexed with the geqns ordered starting at 0 */ 
     unk_GQ=iunk-Phys2Unk_first[G_CHAIN];
@@ -249,17 +369,17 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
     else {
 		
         if (Pol_Sym[unk_GQ] != -1 && resid_only_flag != INIT_GUESS_FLAG){  /* FILL IN G's FOR SYMMETRIC BONDS */
-	junk = Pol_Sym[unk_GQ] + Phys2Unk_first[G_CHAIN];
-	resid = x[iunk][inode_box]-x[junk][inode_box];
-	resid_G+=resid;
-	if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-   	   if (!resid_only_flag){
-		unkIndex[0]=iunk; unkIndex[1]=junk;
-		values[0]=1.0; values[1]=-1.0;
-		numEntries=2;
-		dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
-							  unkIndex, inode_box, values, numEntries);
-	   }
+			junk = Pol_Sym[unk_GQ] + Phys2Unk_first[G_CHAIN];
+			resid = x[iunk][inode_box]-x[junk][inode_box];
+			resid_G+=resid;
+			if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+			if (!resid_only_flag){
+				unkIndex[0]=iunk; unkIndex[1]=junk;
+				values[0]=1.0; values[1]=-1.0;
+				numEntries=2;
+				dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+															  unkIndex, inode_box, values, numEntries);
+			}
         }
 	else {          /* FILL IN G's FOR UNIQUE BONDS */
 	   if (Bonds[pol_num][seg_num][bond_num] == -1){        /* fill end segment equation */
@@ -308,45 +428,124 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
 			}
 		}
 	   }
-           else if (Bonds[pol_num][seg_num][bond_num] == -2) {		/* for grafted ends */
-		if(Type_poly != CMS_SCFT) {
-			printf("Grafted boundary conditions not implemented for Type_poly=%d\n",Type_poly);
-			exit(-1);
+			else if (Bonds[pol_num][seg_num][bond_num] == -2) {		/* for grafted ends */
+				if(Type_poly == CMS || Type_poly==WJDC3)
+					unk_B = Phys2Unk_first[func_type_field] + itype_mer;
+				
+				/* find wall type and position */
+				iwall = Graft_wall[pol_num];
+				iwall_type = WallType[iwall];
+				inode = L2G_node[loc_inode];
+				node_to_position(inode,nodepos);
+				xbound = WallPos[0][iwall] + WallParam[iwall_type];
+				if(xbound<0.0)
+					xbound_lim = xbound+Bond_ff[itype_mer][itype_mer];
+				else if (xbound>0.0)
+					xbound_lim = xbound-Bond_ff[itype_mer][itype_mer];
+				
+				if(Type_poly==CMS) {
+				if( (xbound<0.0 && nodepos[0] <= xbound_lim) || (xbound>0.0 && nodepos[0] >= xbound_lim)) { 
+					if (resid_only_flag==INIT_GUESS_FLAG) 
+						resid=-(1.0/(2.0*Bond_ff[itype_mer][itype_mer]));
+					else resid = x[iunk][inode_box]/x[unk_B][inode_box] - 
+						(1.0/(2.0*Bond_ff[itype_mer][itype_mer]));
+					
+					resid_G+=resid;
+					if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+						dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+					if (resid_only_flag==FALSE){
+						unkIndex[0]=iunk; unkIndex[1]=unk_B;
+						values[0]=1.0/x[unk_B][inode_box]; 
+						values[1]=-x[iunk][inode_box]/(x[unk_B][inode_box]*x[unk_B][inode_box]);
+						numEntries=2;
+						dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+																	  unkIndex, inode_box, values, numEntries);
+					}
+				}
+				else {
+					if (resid_only_flag==INIT_GUESS_FLAG) resid=0.0;
+					else resid = x[iunk][inode_box]/x[unk_B][inode_box];	
+					resid_G+=resid;
+					if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+						dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+					/* if (resid_only_flag==FALSE){
+						mat_val=1.0; 
+						dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+																	  iunk, inode_box, mat_val);
+					}		*/		
+					if (resid_only_flag==FALSE){
+						unkIndex[0]=iunk; unkIndex[1]=unk_B;
+						values[0]=1.0/x[unk_B][inode_box]; 
+						values[1]=-x[iunk][inode_box]/(x[unk_B][inode_box]*x[unk_B][inode_box]);
+						numEntries=2;
+						dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+																	  unkIndex, inode_box, values, numEntries);
+					}					
+				}
+				} /*end of CMS */
+				
+				else if(Type_poly==WJDC3) {
+					
+					unk_xi2=Phys2Unk_first[CAVWTC]; unk_xi3=Phys2Unk_first[CAVWTC]+1;
+					xi_2=x[unk_xi2][inode_box]; xi_3=x[unk_xi3][inode_box];
+					y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
+					ysqrt=sqrt(y);
+					
+					if( (xbound<0.0 && nodepos[0] <= xbound_lim) || (xbound>0.0 && nodepos[0] >= xbound_lim)) { 
+						/* find y at wall position */
+						nodepos2[0] = xbound;
+						nodepos2[1] = nodepos2[2] = 0.0;
+						inode2 = position_to_node(nodepos2);
+						inode_box2 = node_to_node_box(inode2);
+						xi_2_0=x[unk_xi2][inode_box2]; xi_3_0=x[unk_xi3][inode_box2];
+						y2=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2_0,xi_3_0);
+						ysqrt2=sqrt(y2);						
+						if (resid_only_flag==INIT_GUESS_FLAG) 
+							resid = -(1.0/(2.0*Bond_ff[itype_mer][itype_mer]))*ysqrt2;	
+						else 
+							resid = x[iunk][inode_box]/(x[unk_B][inode_box]*ysqrt) - 
+							(1.0/(2.0*Bond_ff[itype_mer][itype_mer]))*ysqrt2;	
+						resid_G+=resid;
+						if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+							dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+						if (resid_only_flag==FALSE){
+							unkIndex[0]=iunk; unkIndex[1]=unk_B; unkIndex[2]=unk_xi2; unkIndex[3]=unk_xi3;
+							values[0]=1.0/(ysqrt*x[unk_B][inode_box]); 
+							values[1]=-x[iunk][inode_box]/(ysqrt*x[unk_B][inode_box]*x[unk_B][inode_box]);
+							dydxi=dy_dxi2_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
+							values[2]=-0.5*x[iunk][inode_box]*dydxi/(y*ysqrt*x[unk_B][inode_box]);
+							dydxi=dy_dxi3_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
+							values[3]=-0.5*x[iunk][inode_box]*dydxi/(y*ysqrt*x[unk_B][inode_box]);
+							numEntries=4;
+							dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+																		  unkIndex, inode_box, values, numEntries);
+						}
+					}
+					else {
+						if (resid_only_flag==INIT_GUESS_FLAG) resid=0.0; 
+						else resid = x[iunk][inode_box]/(x[unk_B][inode_box]*ysqrt);	
+						resid_G+=resid;
+						if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+							dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+						if (resid_only_flag==FALSE){
+							unkIndex[0]=iunk; unkIndex[1]=unk_B; unkIndex[2]=unk_xi2; unkIndex[3]=unk_xi3;
+							values[0]=1.0/(ysqrt*x[unk_B][inode_box]); 
+							values[1]=-x[iunk][inode_box]/(ysqrt*x[unk_B][inode_box]*x[unk_B][inode_box]);
+							dydxi=dy_dxi2_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
+							values[2]=-0.5*(dydxi/(y*ysqrt))*((x[iunk][inode_box]/x[unk_B][inode_box]));
+							dydxi=dy_dxi3_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[jtype_mer][jtype_mer],xi_2,xi_3);
+							values[3]=-0.5*(dydxi/(y*ysqrt))*((x[iunk][inode_box]/x[unk_B][inode_box]));
+							numEntries=4;
+							dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
+																		  unkIndex, inode_box, values, numEntries);
+						}						
+					}
+				} /* end of WJDC3 */
+				else {
+					printf("Grafted chains not implemented for Type_poly=%d\n", Type_poly);
+					exit(-1);
+				}
 		}
-		
-		unk_B = Phys2Unk_first[func_type_field] + itype_mer;
-		inode = L2G_node[loc_inode];
-		node_to_position(inode,nodepos);
-		xbound = WallPos[0][0] + WallParam[0];
-		printf("inode=%d, pos=%f, wallpos=%f, xbound=%f\n", inode,nodepos[0],WallPos[0][0],xbound);
-		if(nodepos[0] == xbound) {
-			if (resid_only_flag==INIT_GUESS_FLAG) resid=-1.0;
-			else resid = x[iunk][inode_box]/x[unk_B][inode_box] - 1.0;
-			resid_G+=resid;
-			if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
-				dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-			if (resid_only_flag==FALSE){
-				unkIndex[0]=iunk; unkIndex[1]=unk_B;
-				values[0]=1.0/x[unk_B][inode_box]; 
-				values[1]=-x[iunk][inode_box]/(x[unk_B][inode_box]*x[unk_B][inode_box]);
-				numEntries=2;
-				dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
-								  unkIndex, inode_box, values, numEntries);
-			}
-		}
-		else {
-			if (resid_only_flag==INIT_GUESS_FLAG) resid=-1.0;
-			else resid = x[iunk][inode_box];	
-			resid_G+=resid;
-			if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
-				dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-			if (resid_only_flag==FALSE){
-				mat_val=1.0; 
-				dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-									  iunk, inode_box, mat_val);
-			}					
-		}
-	   }
 	   else{                                            /* fill G_seg eqns */
 
 	   /* First calculate the residual contributions */
@@ -362,7 +561,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
 			resid_G+=resid;
 			if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 		    }
-
+			
 		    if (resid_only_flag==FALSE){
 		        unkIndex[0]=iunk; unkIndex[1]=unk_B;
                         values[0]=1.0/x[unk_B][inode_box]; 
@@ -517,7 +716,7 @@ double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types, int Njacobi
 			}
 			else if (Bonds[pol_num][seg_num][bond_num] == -2) {		/* for grafted ends */
 				unk_B = Phys2Unk_first[func_type_field] + itype_mer;
-				if(nodepos[0] == xbound) {
+				if (nodepos[0] == xbound) {
 					if (resid_only_flag==INIT_GUESS_FLAG) resid=-1.0;
 					else resid = x[iunk][inode_box]/x[unk_B][inode_box] - 1.0;
 					resid_G+=resid;
@@ -585,6 +784,7 @@ double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types, int Njacobi
     }  /* end of fill something */
     return(resid_G);
 }   
+
 
 
 /****************************************************************************/

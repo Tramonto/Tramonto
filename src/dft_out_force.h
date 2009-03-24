@@ -31,6 +31,7 @@ extern double ***Vext_dash;
 #define REFLECT              2
 #define NDIM_MAX  3
 extern int Type_bc[NDIM_MAX][2];
+int el_to_el_box(int iel);
 extern int **Wall_elems;
 int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 extern int Nnodes_per_el_V;
@@ -103,7 +104,6 @@ double gsum_double(double c);
 #define NO_SCREEN    2 
 extern int Iwrite;
 extern int Proc;
-extern int Num_Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif

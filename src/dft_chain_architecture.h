@@ -25,11 +25,11 @@ extern int Nseg_type[NCOMP_MAX];
 #define NMER_MAX     100
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
+#define WJDC3        5 
+#define WJDC2        4 
+#define WJDC         3
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 #define WTC          2
-#define WJDC         3
-#define WJDC2        4
-#define WJDC3        5
 extern int Type_poly;
 extern int SegAll_to_Poly[NMER_MAX];
 extern int Nmer_comp[NCOMP_MAX];
@@ -48,8 +48,11 @@ extern int *Nbonds_SegAll;
 extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
 void setup_chain_indexing_arrays(int nseg,int nmer_max,int ***pol_sym_tmp,FILE *fpout);
-void setup_chain_linear_five_segs(FILE *fpout,int ***pol_sym_tmp);
 void setup_chain_linear_symmetric(FILE *fpout,int ***pol_sym_tmp);
 #define LIN_POLY_SYM 2
 void setup_chain_linear(FILE *fpout,int ***pol_sym_tmp);
@@ -57,10 +60,6 @@ void setup_chain_linear(FILE *fpout,int ***pol_sym_tmp);
 void setup_chain_from_file(FILE *fpout,char *poly_file,int ***pol_sym_tmp);
 #define POLY_ARCH_FILE 0
 extern int Type_poly_arch;
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
 #define NBOND_MAX 4
 extern int ***Bonds;
 #if defined(__STDC__)

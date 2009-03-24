@@ -124,7 +124,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1,double *dphi_drhob
         if (array_val[ibond]==FALSE){
            test=TRUE;  /* assume we will compute a bulk G */
            jseg=Bonds[pol_num][iseg][bond_num];
-           if (jseg != -1 ){   /* may need to skip this G if we don't have all information yet  -
+           if (jseg != -1 && jseg != -2 ){   /* may need to skip this G if we don't have all information yet  -
                                   always compute G for end segments flagged with -1 value */
               for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
                  if (Bonds[pol_num][jseg][jbond] != iseg){ /* check all jbonds to see if we have necessary info */
@@ -134,7 +134,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1,double *dphi_drhob
               }
            }
            if (test==TRUE){     /* compute a bulk G */
-              if (jseg == -1){
+              if (jseg == -1 || jseg == -2){
                   g_WJDC[ibond]=field_WJDC[icomp]; /* end segment is simple */
               }
               else{

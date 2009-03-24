@@ -1037,6 +1037,9 @@ extern double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 extern double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 extern int Geqn_start[NCOMP_MAX];
 extern int Nblock[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
+extern int Graft_wall[NCOMP_MAX];
+extern double Rho_g[NCOMP_MAX];
 extern int Ntype_mer;
 extern int Nmer[NCOMP_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
@@ -1072,7 +1075,7 @@ extern int Nmer_comp[NCOMP_MAX];
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
-extern double *Gsum;	/* chain partition func for CMS_SCFT */
+extern double Gsum[NCOMP_MAX];	/* chain partition func for CMS_SCFT */
 
 /*some continuation related arrayes */
 extern int  Cont_ID[NCONT_MAX][2];  /* Array of iwall/icomp ids for use in continuation.  */

@@ -43,9 +43,16 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Nlists_HW;
+#define NCOMP_MAX 5
+extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
+#define NWALL_MAX_TYPE 50 
+extern double WallParam[NWALL_MAX_TYPE];
+#define NDIM_MAX  3
+#define NWALL_MAX 600 
+extern double WallPos[NDIM_MAX][NWALL_MAX];
+extern int *L2G_node;
 #define SCF_FIELD	  10
 extern int ***Bonds;
-#define NCOMP_MAX 5
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
@@ -68,7 +75,6 @@ struct Stencil_Struct {
                              are being contributed from. Only used for Hard
                              Walls when stencil point is a boundary node  */
 };
-#define NDIM_MAX  3
 void setup_polymer_G(double **xInBox);
 extern int Proc;
 #if defined(DEBUG)

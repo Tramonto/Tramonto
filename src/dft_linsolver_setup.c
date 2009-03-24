@@ -461,7 +461,7 @@ int discover_G_ordering_LT(int *geq)
            filled[unkGQ]=TRUE;
        }
        else{
-         if (jseg==-1) {  /*end segment - put in list */
+         if (jseg==-1 || jseg==-2) {  /*end segment - put in list */
             geq[count_filled]=iunk;
             filled[unkGQ]=TRUE;
             index_filled[unkGQ]=count_filled;

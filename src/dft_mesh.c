@@ -1162,7 +1162,7 @@ printf("setting up problem with old ZeroTF routine\n");
          for (inode_box=0; inode_box<Nnodes_box; inode_box++){
              node_to_ijk(B2G_node[inode_box],ijk);
              if (Nodes_2_boundary_wall[ilist][inode_box] != -1)
-                fprintf(fp1,"ilist: %d   inode: %d  ijk: %d iwall: %d\n",
+                fprintf(fp1,"hi ilist: %d   inode: %d  ijk: %d iwall: %d\n",
                            ilist,B2G_node[inode_box],ijk[0],
                            Nodes_2_boundary_wall[ilist][inode_box]);
          }
