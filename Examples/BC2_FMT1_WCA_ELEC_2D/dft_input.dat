@@ -9,7 +9,7 @@
 @ 0 0 	Type_bc(x2,: back, front) 
 
 ************ FUNCTIONAL SWITCHES *********************************************
-@ 0 0 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) Type_hsdiam(0=SIGMA_DIAM 1=BH_DIAM)
+@ 0 0 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) Type_hsdiam(0=SIGMA_DIAM 1=BH_DIAM) 
 @ 0 0 	Type_attr Type_pairPot 
             (Type_attr options: -1=No attractions, 0=strict MF 2=MF_VARIABLE) 
             (Type_pairPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB_CS, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
@@ -101,11 +101,19 @@
 @ 0 	Nblock[pol_number]: Number of blocks in each copolymer 
 @ 0 	block[pol_number][iblock]: Number of segments in each block 
 @ 0 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
-@ 0 n/a    Type_poly_arch    poly_file: File containing polymer connectivity
+@ 0  	Grafted[pol_number]: 1 if polymer is grafted to surface, 0 otherwise
+@ n/a  	Graft_wall[pol_number]: which polymer is grafted to which wall
+@ n/a   Rho_g[pol_number]: grafting density of chains on surface
+@ 0 n/a 	none Type_poly_arch poly_file: File containing polymer connectivity 
              Type_poly_arch options:
                 0=POLY_ARCH_FILE (poly_file required)
                 1=LIN_POLY       (NO poly_file required)
                 2=LIN_POLY_SYM   (NO poly_file required)
+             Type_poly_arch options:
+		0=POLY_ARCH_FILE (poly_file required)
+		1=LIN_POLY       (NO poly_file required) 
+		2=LIN_POLY_SYM   (NO poly_file required)
+		3=LIN_POLY_FIVESEGS   (NO poly_file required)
 @ n/a 	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
                  NCrfiles (number of cr files - up to 4 to be read in)
                  Crfac (multiplicative factor for the first c(r).
@@ -124,19 +132,19 @@
     *Note for polymers: --- see note above.  Again replace Ncomp with Nblock_tot.
 
 ************** STATE POINT PARAMETERS ******************************************
-@ 0  0  0 Type_interface Grad_dim Lconstrain_interface
+@ 0 0 0 	Type_interface Grad_dim Lconstrain_interface 
         -- Type_interface options: 0 = equilibrium, 1=diffusion calculation, 2=two phase interface)
         -- Grad_dim: identify dimension where difference in state point is to be applied -
          this dimension should have BULK boundary conditions - other dimensions should not!
          0=x, 1=y, 2=z)
         -- Lconstrain_interface (0=FALSE; 1=TRUE)
-@ 0.05 0.05 0.65  Rho_b_0[icomp] (state condition on left(x) or bottom(y) or back(z) boundary)
+@ 0.05 0.05 0.65 	Rho_b_0[icomp] (state condition on left(x) or bottom(y) or back(z) boundary) 
                         (icomp=0,Ncomp-1 (or Npol_comp-1 for polymers)
-@ 0.    Rho_b_1[icomp] (state condition on right(x) or top(y) or front(z) boundary - only
+@ 0. 	Rho_b_1[icomp] (state condition on right(x) or top(y) or front(z) boundary - only 
                         applies if Type_interface=1 or 2)
                         (icomp=0,Ncomp-1 (or Npol_comp-1 for polymers)
-@ 0. 0.         Elec_pot_L, Elec_pot_R (B.C. on elec. potential lbb and rtf)
-@ 0.    x_const_mu (define a region on both sides of domain where the state will be set to the
+@ 0. 0. 	Elec_pot_L, Elec_pot_R (B.C. on elec. potential lbb and rtf) 
+@ 0. 	x_const_mu (define a region on both sides of domain where the state will be set to the 
                     constants set by Rho_b_0, and Rho_b_1 etc.).
 
    *Note for polymers:
@@ -182,7 +190,7 @@
 @ 0. 0. 0. 	Radius_L, Radius_R, Length 
 
 ************** STARTUP CONTROL PARAMETERS ********************************
-@ 0 0  Iguess Iguess_fields 
+@ 0 0 	Iguess Iguess_fields 
            [Iguess options:  0: Constant Bulk Density
                              1: rho_bulk*exp(-Vext/kT)
                              2: step function profile
@@ -191,11 +199,11 @@
                              5: linear profile (for diffusion cases)]
            [Iguess_fields options: 0: use bulk values for all fields
                                    1: compute fields based on density field
-                                   2: compute nonlocal density fields, but 
-                                      retain bulk fields for G chain eqn (CMS/WJDC cases)
-                                      and CMS_FIELD or WJDC_FIELD variables
+                                   2: compute nonlocal density fields, but
+                                      retain bulk fields for G chain eqn (CMS/WJDC cases)                                                                  				      and CMS_FIELD or WJDC_FIELD variables
                                    3: compute all variables from density field except
                                       use a bulk approximation for CMS_FIELD and WJDC_FIELD
+
 @ 0 	Nsteps 
 @ 0 	Orientation[istep] 
 @ 0.0 	Xstart_step[istep] 
@@ -245,12 +253,12 @@
                          4 =use 2nd coarsest zone in all but coarsest zone 
                          5 =use Esize_jacobian for all Jacobian integrals
 @ 0 100. 	Ljac_cut Jac_threshold 
-@ 0 0. 	        L1D_bc, X_1D_bc 
+@ 0 0. 	L1D_bc, X_1D_bc 
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 0 20 0                  NL_Solver   Max_NL_iter  Physics_scaling
-@ 1.0e-3 1.0e-8 1.0     NL_rel_tol NL_abs_tol NL_update_scalingParam
-@ 2     Load balance switch (0=linear,1=box,2=weights, 3=timings)
+@ 0 20 0 	NL_Solver Max_NL_iter Physics_scaling 
+@ 1.0e-3 1.0e-8 1.0 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
+@ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
 @ 1 0 100 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
 @ -1 	Scaling (0=row_sum, 1=Jacobi, 2=symrow_sum, -1=none) 
@@ -265,9 +273,9 @@
 @ 0 0 	Plane_new_nodes Pos_new_nodes 
                   (0=yz,1=xz,2=xy)   (-1=lbb,0=center,1=rtf)
 ************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
-@ -1     Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length
+@ -1 	Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length 
                          3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
-@ 2 1 0  Continuation_Type, NID_Cont, ID1, ID2
+@ 2 1 0 	Continuation_Type, NID_Cont, ID1, ID2 
           (NID_Cont indicates number if IDs needed to indentify which parameters should be continued.
            This should be either 0, 1 (as in Rho_b[icomp] to indicate icomp) or
            2 (as in Eps_ff[icomp][jcomp] to indicate icomp and jcomp).
@@ -286,9 +294,9 @@
                 8 =  CONT_ELECPARAM_ALL Continue in Electrostatic properties for all surfaces simultaneously.
                 9 =  CONT_SEMIPERM_IJ   Continue in strength of semipermeable membrane potential.
 
-@ 0.0001    Parameter initial step size
-@ 30 0.30   N Steps, Step Control Aggressiveness (0.0 = constant step)
-@ 2 0 0 0       Continuation_Type2, NID_Cont, ID1, ID2
+@ 0.0001 	Parameter initial step size 
+@ 30 0.30 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
+@ 2 0 0 0 	Continuation_Type2, NID_Cont, ID1, ID2 
            (2nd parameter for  Spinodal and Binoadal Calculations (see listabove).
 *********** END OF INPUT FILE ******************************************
 
