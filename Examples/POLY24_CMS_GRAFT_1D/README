@@ -1,0 +1,24 @@
+/*! \file 
+ \brief grafted, length 10 CMS polymer grafted to a hard wall.
+
+Functionals: CMS
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example is for a short grafted polymer in an explicit solvent using the CMS functional.  Note that it uses the Picard solver, which usually works much better for grafted polymers than the Newton solver (a really good initial guess is required for convergence using the Newton solver). 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_10_1
+   - cr_10_1
+
+Key Output Parameters:
+   - niter=114 
+   - adsorption[0]=0.635985
+   - adsorption[1]=7.00482
+   - energy=-0.719508
+   .
+*/
