@@ -164,6 +164,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 	}
 	
 	/* extra term in Jacobian for grafted chains */
+	if(Type_poly==CMS || Type_poly==WJDC3) {
 	if(Grafted[npol] && resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) {
 		/* find type of bonded site */
 		for(iseg=0; iseg<Nmer[npol]; iseg++) {
@@ -214,7 +215,8 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 			}
 		}
 	}
-
+	}
+	
   return(resid_sum);
 }
 

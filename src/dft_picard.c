@@ -117,7 +117,8 @@ int picard_solver(double **x, int subIters){
        for (ibox=0; ibox<Nnodes_box;ibox++) x_old[iunk][ibox]=x[iunk][ibox];
 	  
 	  /* for grafted chains */
-	  calc_Gsum(x);
+	  if(Type_poly==CMS || Type_poly==WJDC3)
+		  calc_Gsum(x);
 
      /* use successive substitution to update density field, then compute all other fields */ 
      if (L_HSperturbation && Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3)

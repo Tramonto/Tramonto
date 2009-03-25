@@ -92,7 +92,8 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   } 
  
 	/* ALF: for grafted chains */
-	calc_Gsum(x);
+	if(Type_poly==CMS || Type_poly==WJDC3)
+		calc_Gsum(x);
 		
 		/* Load residuals and matrix */
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
