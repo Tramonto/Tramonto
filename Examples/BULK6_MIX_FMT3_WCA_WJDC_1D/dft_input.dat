@@ -104,7 +104,7 @@
 @ 0  	Grafted[pol_number]: 1 if polymer is grafted to surface, 0 otherwise
 @ n/a  	Graft_wall[pol_number]: which polymer is grafted to which wall
 @ n/a   Rho_g[pol_number]: grafting density of chains on surface
-@ 0 	none Type_poly_arch poly_file: File containing polymer connectivity 
+@ 0 lin_2mer   Type_poly_arch poly_file: File containing polymer connectivity 
              Type_poly_arch options:
                 0=POLY_ARCH_FILE (poly_file required)
                 1=LIN_POLY       (NO poly_file required)
