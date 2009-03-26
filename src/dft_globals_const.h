@@ -152,6 +152,9 @@
 
 #define NO_RENORMALIZATION_FLAG -888
 
+#define FROM_LOCA 0
+#define FROM_MAIN 1
+
 /*
  * Options for the context flag that is used to assign potential parameters
  */

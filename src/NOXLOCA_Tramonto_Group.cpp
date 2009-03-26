@@ -28,10 +28,11 @@
 
 extern "C" {
 #include "loca_const.h"
+#define FROM_LOCA 0
 extern void communicate_to_fill_in_box_values(double **xInBox);
 extern void picard_solver(double** xBox, int iters);
 void box2owned(double**, double**);
-extern void post_process(double**, char*, int*, double*, int, int);
+extern void post_process(double**, int*, double*, int, int,int);
 }
 
 NOXLOCA::Tramonto::Group::Group(const Teuchos::RefCountPtr<LOCA::GlobalData>& gD,
@@ -397,7 +398,6 @@ void  NOXLOCA::Tramonto::Group::printSolution(const NOX::Abstract::Vector& sol_,
 { 
   double time_save=0.0;
   int num_its=paramList->sublist("NOX").sublist("Output").get("Nonlinear Iterations",-1);
-  char *output_file3 = "dft_output.dat";
 
   contStep++;
 
@@ -406,7 +406,7 @@ void  NOXLOCA::Tramonto::Group::printSolution(const NOX::Abstract::Vector& sol_,
   if (!doPicard) (void) dft_linprobmgr_importr2c(LinProbMgr_manager, solVector.get(), xBox);
   else TV2Box(solVector, xBox);
 
-  post_process(xBox, output_file3, &num_its, &time_save, contStep, secondSolution);
+  post_process(xBox, &num_its, &time_save, contStep, secondSolution, FROM_LOCA);
 }
 
 void  NOXLOCA::Tramonto::Group::printSolution2(const NOX::Abstract::Vector& sol_,
@@ -422,13 +422,12 @@ void  NOXLOCA::Tramonto::Group::printSolution(const double param) const
 {
   double time_save=0.0;
   int num_its=paramList->sublist("NOX").sublist("Output").get("Nonlinear Iterations",-1);
-  char *output_file3 = "dft_output.dat";
 
   contStep++;
   if (!doPicard) (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
   else TV2Box(xVector, xBox);
   
-  post_process(xBox, output_file3, &num_its, &time_save, contStep, FALSE);
+  post_process(xBox, &num_its, &time_save, contStep, FALSE, FROM_LOCA);
 
 }
 

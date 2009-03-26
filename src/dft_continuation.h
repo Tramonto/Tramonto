@@ -16,7 +16,22 @@ double free_energy_diff_conwrap(double *x,double *x2);
 #endif
 double calc_free_energy(FILE *fp,double **x);
 double calc_free_energy_conwrap(double **xB);
-void post_process(double **x,char *output_file3,int *niters,double *time_save,int loop1,int binodal_flag);
+#include <stdlib.h>
+#include <math.h>
+#if defined(HAS_VALUES_H)
+#include <values.h>
+#include <unistd.h>
+#include <string.h>
+#endif
+#include "mpi.h"
+#include "az_aztec.h"
+#include "rf_allo.h"
+#include "dft_basic_lin_prob_mgr_wrapper.h"
+#include "dft_poly_lin_prob_mgr_wrapper.h"
+#include "dft_hardsphere_lin_prob_mgr_wrapper.h"
+#include "Tramonto_ConfigDefs.h"
+#define FROM_LOCA 0
+void post_process(double **x,int *niters,double *time_save,int loop1,int binodal_flag,int call_from_flag);
 #if !defined(_CON_CONST_H_)
 typedef struct con_struct con_struct;
 #endif
@@ -68,20 +83,6 @@ double gsum_double_conwrap(double sum);
 double gsum_double_conwrap(double sum);
 #endif
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
-#include <stdlib.h>
-#include <math.h>
-#if defined(HAS_VALUES_H)
-#include <values.h>
-#include <unistd.h>
-#include <string.h>
-#endif
-#include "mpi.h"
-#include "az_aztec.h"
-#include "rf_allo.h"
-#include "dft_basic_lin_prob_mgr_wrapper.h"
-#include "dft_poly_lin_prob_mgr_wrapper.h"
-#include "dft_hardsphere_lin_prob_mgr_wrapper.h"
-#include "Tramonto_ConfigDefs.h"
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

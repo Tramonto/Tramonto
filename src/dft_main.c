@@ -55,7 +55,7 @@ void dftmain(double * engptr)
 
   double    start_t,t_mesh;
   char     *input_file;
-  char     *output_file1, *output_file2, *output_file3, *output_file4;
+  char     *output_file1, *output_file2, *output_file4;
   char     *output_TF, *yo = "main";
   int       iend, match, idim, icomp, i, niters;
   double    Esize_x_final[3];
@@ -116,7 +116,6 @@ void dftmain(double * engptr)
   }
   output_file1 = "dft_out.lis";
   output_file2 = "dft_vext.dat";
-  output_file3 = "dft_output.dat";
   output_file4 = "dft_vext_c.dat";
   output_TF = "dft_zeroTF.dat";
 
@@ -281,9 +280,9 @@ void dftmain(double * engptr)
       t_postprocess = -MPI_Wtime();
 
       if (NL_Solver !=NEWTON_NOX && NL_Solver != PICARD_NOX){
-      if (Loca.method == -1) {
-        if (Lbinodal) post_process(x2, output_file3, &niters, &time_save,Imain_loop, TRUE);
-        post_process(x, output_file3, &niters, &time_save, Imain_loop, FALSE);
+      if (Loca.method == -1 || Nruns>1) {
+        if (Lbinodal) post_process(x2, &niters, &time_save,Imain_loop, TRUE,FROM_MAIN);
+        post_process(x, &niters, &time_save, Imain_loop, FALSE,FROM_MAIN);
       }
       }
       Nodes_old = Nnodes;

@@ -654,13 +654,12 @@ void solution_output_conwrap(int num_soln_flag, double *x, double param,
  * Return Value:
  */
 {
-  char *output_file3 = "dft_output.dat";
   double time_save=0;
   int i;
 
   translate_1dOwned_2dBox(x, passdown.xBox);
 
-  post_process(passdown.xBox, output_file3, &num_its, &time_save,step_num, FALSE);
+  post_process(passdown.xBox, &num_its, &time_save,step_num, FALSE,FROM_LOCA);
 
   /* Print second solution for Phase Trans, but not Spinodal tracking */
 
@@ -669,7 +668,7 @@ void solution_output_conwrap(int num_soln_flag, double *x, double param,
 
     translate_1dOwned_2dBox(x2, passdown.xBox);
 
-    post_process(passdown.xBox, output_file3, &num_its, &time_save, step_num, TRUE);
+    post_process(passdown.xBox, &num_its, &time_save, step_num, TRUE,FROM_LOCA);
   }
 }
 /*****************************************************************************/

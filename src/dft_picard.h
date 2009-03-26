@@ -86,14 +86,14 @@ int update_solution_picard(double **x,double **delta_x,int iter);
 void calc_density_next_iter_WJDC(double **xInBox);
 #define CMS_SCFT     1
 void calc_density_next_iter_CMS(double **xInBox);
-#define CMS          0
 void calc_density_next_iter_HSperturb(double **xInBox);
-#define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
-extern int Type_poly;
 extern int L_HSperturbation;
 void calc_Gsum(double **x);
+#define WJDC3        5 
+#define CMS          0
+extern int Type_poly;
 void print_resid_norm_picard(double **x,int iter);
 #define NO_SCREEN    2 
 extern int Iwrite;

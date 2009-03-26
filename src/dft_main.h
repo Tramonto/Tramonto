@@ -52,7 +52,8 @@ extern int Nodes_x[NDIM_MAX];
 extern int Nodes_x_old[NDIM_MAX];
 extern int Nnodes;
 extern int Nodes_old;
-void post_process(double **x,char *output_file3,int *niters,double *time_save,int loop1,int binodal_flag);
+#define FROM_MAIN 1
+void post_process(double **x,int *niters,double *time_save,int loop1,int binodal_flag,int call_from_flag);
 typedef struct Loca_Struct Loca_Struct;
 extern struct Loca_Struct Loca;
 #define NEWTON_NOX            1

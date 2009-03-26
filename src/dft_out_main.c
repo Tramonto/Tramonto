@@ -34,8 +34,8 @@
 
 #include "dft_out_main.h"
 /*************************************************************************/
-void post_process (double **x,char *output_file3,int *niters,
-                   double *time_save, int loop1, int binodal_flag)
+void post_process (double **x,int *niters,
+                   double *time_save, int loop1, int binodal_flag, int call_from_flag)
 {
  /*
   * Local variable declarations
@@ -43,9 +43,14 @@ void post_process (double **x,char *output_file3,int *niters,
 
 
 
-  char *yo = "post_process",*output_file4 = "dft_dens.dat",*output_file5=NULL,
-             *output_file6="dft_gofr.dat",*output_flux= "dft_flux.dat",
-             *output_file7="dft_dens_site.dat",*output_file8=NULL;
+  char *yo = "post_process",
+       *output_file3="dft_output.dat",
+       *output_file4 = "dft_dens.dat",
+       *output_file5=NULL,
+       *output_file6="dft_gofr.dat",
+       *output_flux= "dft_flux.dat",
+       *output_file7="dft_dens_site.dat",
+       *output_file8=NULL;
   char filename[20];
   int icomp,iunk;
   double t1,energy;
@@ -55,6 +60,7 @@ void post_process (double **x,char *output_file3,int *niters,
   FILE *fp=NULL;
   static int first=TRUE;
 
+  if (!(Nruns>1 && call_from_flag==FROM_LOCA)){
   if (Print_rho_type != PRINT_RHO_0){
      if (binodal_flag){
        sprintf(filename, "dft_dens2.%0d", loop1);
@@ -71,6 +77,7 @@ void post_process (double **x,char *output_file3,int *niters,
   if (binodal_flag){
      output_file4 = "dft_dens2.dat";
 /*     output_file7 = "dft_dens2_site.dat";*/
+  }
   }
 
   if (Proc==0 && Iwrite != NO_SCREEN) 
@@ -90,6 +97,7 @@ void post_process (double **x,char *output_file3,int *niters,
   else              collect_x_old(x,X_old);
   collect_vext_old();
 
+  if (!(Nruns>1 && call_from_flag==FROM_LOCA)){
    if (Proc == 0 && Iwrite != MINIMAL) {
         if (binodal_flag){
            if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5,X2_old);
@@ -104,11 +112,13 @@ void post_process (double **x,char *output_file3,int *niters,
        if (binodal_flag) print_gofr(output_file6,X2_old);
        else print_gofr(output_file6,X_old);
    }
+   }
 
    if (Proc==0) safe_free((void *) &Vext_old);
 
 
    /* open dft_output.dat file */
+   if (!(Nruns>1 && Loca.method!=-1 && call_from_flag==FROM_MAIN)){
    if (Proc ==0){
       if( (fp = fopen(output_file3,"a"))==NULL) {
 	printf("Can't open file %s\n", output_file3);
@@ -147,7 +157,7 @@ void post_process (double **x,char *output_file3,int *niters,
    if(!first) 
      setup_domain_multipliers();
 
-   /* calculate multiplicative factors that result         !!!!!!!!!!!remove this chuck ASAP
+   /* calculate multiplicative factors that result      
       from the presence of reflective boundaries...
       use the area of the 0th wall for an area basis calculation. */
 
@@ -190,8 +200,7 @@ void post_process (double **x,char *output_file3,int *niters,
 
    } /* end of loop over out_loop */
    
-   if (Proc==0) {
-      fclose(fp);
+   if (Proc==0)  fclose(fp); 
    }
 
    if (Proc==0 && Iwrite !=NO_SCREEN) printf("post processing took %g secs\n",MPI_Wtime()-t1);

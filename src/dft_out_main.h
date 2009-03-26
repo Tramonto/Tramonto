@@ -43,9 +43,9 @@ extern int Lcount_reflect;
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void setup_domain_multipliers();
-extern int Nruns;
 void print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID);
+#define FROM_MAIN 1
 typedef struct Loca_Struct Loca_Struct;
 struct Loca_Struct {
   int    method;      /* Continuation method                          */
@@ -85,8 +85,10 @@ extern int Proc;
 #endif
 #define PRINT_RHO_0      0
 extern int Print_rho_type;
+#define FROM_LOCA 0
+extern int Nruns;
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-void post_process(double **x,char *output_file3,int *niters,double *time_save,int loop1,int binodal_flag);
+void post_process(double **x,int *niters,double *time_save,int loop1,int binodal_flag,int call_from_flag);
