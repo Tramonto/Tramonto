@@ -39,15 +39,15 @@ is being loaded -
 double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_B,
   int loc_inode, int inode_box, int resid_only_flag, double (*fp_prefactor)(int))
 {
-	int i,loop_start,loop_end,itype_mer,npol,iseg,unk_GQ,unk_GQ_test,iref;
-	int boltz_pow,boltz_pow_J,jbond,ibond,unkIndex[2],numEntries,unk_GQ_j,unk_GQ_j_test;
-	int loc_jnode,jnode_box,jnode,ijk_box[3];
-	int unk_xi2,unk_xi3;
-	int loc_inode2,num_wall_els,iwall,pwall,pwall_type,inode_w;
-	double nodepos[3],nodeposc[3],prefac;
-	double fac1,fac2,mat_val,resid=0.0,resid_sum=0.0,resid_sum2=0.0,values[2];
-	int inodel, inode_boxl,izone,graft_seg,graft_bond,gbond;
-	double y,ysqrt,dydxi,xi_2,xi_3,dummy;
+  int i,loop_start,loop_end,itype_mer,npol,iseg,unk_GQ,unk_GQ_test,iref;
+  int boltz_pow,boltz_pow_J,jbond,ibond,unkIndex[2],numEntries,unk_GQ_j,unk_GQ_j_test;
+  int loc_jnode,jnode_box,jnode,ijk_box[3];
+  int unk_xi2,unk_xi3;
+  int loc_inode2,num_wall_els,iwall,pwall,pwall_type,inode_w;
+  double nodepos[3],nodeposc[3],prefac;
+  double fac1,fac2,mat_val,resid=0.0,resid_sum=0.0,resid_sum2=0.0,values[2];
+  int inodel, inode_boxl,izone,graft_seg,graft_bond,gbond;
+  double y,ysqrt,dydxi,xi_2,xi_3,dummy;
 
   if (resid_only_flag !=INIT_GUESS_FLAG){
      resid = x[iunk][inode_box]*x[unk_B][inode_box];
@@ -66,7 +66,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 
   if (Type_poly==WJDC || Type_poly==WJDC2){
      itype_mer=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
-     loop_start=iunk;   /* don't sum over segments of a given type for WJDC or WJDC2 where we track segment densities explicitly */
+     loop_start=iunk;   /* don't sum over segments of a given type for WJDC or WJDC2 where segments rhos are explicit */
      loop_end=iunk+1;
   }
   else if (Type_poly==CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3){
@@ -91,135 +91,126 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
         boltz_pow_J = -(Nbonds_SegAll[iseg]-1);
 
         if (fp_prefactor!=NULL) {
-
-             if (Type_poly==CMS || Type_poly==CMS_SCFT) iref=itype_mer;
-             if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
-             fac1 = (*fp_prefactor)(iref);
-	     if (Type_poly==CMS_SCFT) fac1 /= Gsum[npol];
+            if (Type_poly==CMS || Type_poly==CMS_SCFT) iref=itype_mer;
+            if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
+            fac1 = (*fp_prefactor)(iref);
+	    if (Type_poly==CMS_SCFT) fac1 /= Gsum[npol];
         }
-        else{                     fac1=1.0;
-        }
+        else  fac1=1.0;
 
         for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
-              unk_GQ  = Phys2Unk_first[func_type] + Poly_to_Unk_SegAll[iseg][ibond];
-              unk_GQ_test = unk_GQ-Phys2Unk_first[func_type];
-              if (Pol_Sym[unk_GQ_test] != -1) unk_GQ=Pol_Sym[unk_GQ_test] + Phys2Unk_first[func_type];
-              fac1 *= x[unk_GQ][inode_box];
+            unk_GQ  = Phys2Unk_first[func_type] + Poly_to_Unk_SegAll[iseg][ibond];
+            unk_GQ_test = unk_GQ-Phys2Unk_first[func_type];
+            if (Pol_Sym[unk_GQ_test] != -1) unk_GQ=Pol_Sym[unk_GQ_test] + Phys2Unk_first[func_type];
+            fac1 *= x[unk_GQ][inode_box];
 
-              if(resid_only_flag==FALSE){
-                 if (fp_prefactor!=NULL) {
-                     if (Type_poly==CMS || Type_poly==CMS_SCFT) iref=itype_mer;
-                     if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
-                     fac2 = (*fp_prefactor)(iref);
-		     if (Type_poly==CMS_SCFT) fac2 /=Gsum[npol];
+            if(resid_only_flag==FALSE){
+               if (fp_prefactor!=NULL) {
+                   if (Type_poly==CMS || Type_poly==CMS_SCFT) iref=itype_mer;
+                   if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
+                   fac2 = (*fp_prefactor)(iref);
+                   if (Type_poly==CMS_SCFT) fac2 /=Gsum[npol];
+               }
+               else                     fac2=1.0;
 
-                 }
-                 else                     fac2=1.0;
-                 for (jbond=0; jbond<Nbonds_SegAll[iseg]; jbond++) {
-                   if (jbond != ibond){
+               for (jbond=0; jbond<Nbonds_SegAll[iseg]; jbond++) {
+                  if (jbond != ibond){
                      unk_GQ_j  = Phys2Unk_first[func_type]+Poly_to_Unk_SegAll[iseg][jbond];
                      unk_GQ_j_test=unk_GQ_j-Phys2Unk_first[func_type];
                      if (Pol_Sym[unk_GQ_j_test] != -1) unk_GQ_j=Pol_Sym[unk_GQ_j_test] + Phys2Unk_first[func_type];
                      fac2 *= x[unk_GQ_j][inode_box];
                    }
-                 }
-				  /* should this be if (-boltz_pow > 0) ?? */
-                 if (boltz_pow > 0) mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
-                 else mat_val=-fac2;
-				 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
-				}
-			} /* end loop over ibond */			
-			if(resid_only_flag==FALSE){
-				if (-boltz_pow > 0){
-					mat_val = -fac1*((double) boltz_pow)*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow_J);
-					dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
-				}
-			}
-		 if (-boltz_pow >0) {
-             resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow); 
-		 }
-		 else{
-			 resid = -fac1;
-		 }
-			resid_sum+=resid;
-			resid_sum2+=resid;
-			if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
-				dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-		} /* end if statement */
-	} /* end loop over length of chain */
-	
-	if (resid_only_flag==INIT_GUESS_FLAG){
-		resid_sum /= x[unk_B][inode_box];
-	}
-	
-	/* extra term in Jacobian for SCF */
-	if(Type_poly==CMS_SCFT && resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) {
-		iseg = Nmer[npol]-1;
-		unk_GQ = Geqn_start[npol] + Poly_to_Unk[npol][iseg][0];
-		for(loc_jnode=0; loc_jnode<Nnodes_per_proc; loc_jnode++) {
-			jnode_box = L2B_node[loc_jnode];
-			mat_val = resid_sum*x[unk_GQ][jnode_box];
-			dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,jnode_box,mat_val);
-		}
-	}
-	
-	/* extra term in Jacobian for grafted chains */
-	if(Type_poly==CMS || Type_poly==WJDC3) {
-	if(Grafted[npol] && resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) {
-		/* find type of bonded site */
-		for(iseg=0; iseg<Nmer[npol]; iseg++) {
-			for(ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
-				if(Bonds[npol][iseg][ibond] == -2) {	/* grafted site */
-					itype_mer = Type_mer[npol][iseg];
-					graft_seg = iseg;
-					graft_bond = ibond;
-				}
-			}
-		}					
-		/* find correct G; assumes 2 bonds only for grafting site */
-		for (ibond=0; ibond<Nbonds_SegAll[graft_seg]; ibond++)
-			if(ibond != graft_bond) gbond = ibond;
-		unk_GQ = Geqn_start[npol] + Poly_to_Unk[npol][graft_seg][gbond];
-		prefac = -resid_sum2/Gsum[npol];
-		/* find wall position, if owned by this proc */
-		for(loc_inode2=0; loc_inode2<Nnodes_per_proc; loc_inode2++) {
-			inodel = L2B_node[loc_inode2];
-			inode_boxl = L2B_node[loc_inode2];
-			iwall = Nodes_2_boundary_wall[0][inode_boxl];
-			if(iwall != -1) {
-				node_to_position(inodel,nodepos); /* position of wall + 1/2 radius */
-				/* correct wall? */
-				pwall = Graft_wall[npol];
-				pwall_type = WallType[pwall];
-				nodeposc[0] = WallPos[0][pwall] + WallParam[pwall_type];
-				nodeposc[1] = nodeposc[2] = 0.0;
-				if(nodepos[0]==nodeposc[0] + Sigma_ff[itype_mer][itype_mer]/2.0 || 
-				   nodepos[0]==nodeposc[0] - Sigma_ff[itype_mer][itype_mer]/2.0) {
-				inode_w = position_to_node(nodeposc);
-				inode_boxl = node_to_node_box(inode_w);
-				node_box_to_ijk_box(inode_boxl,ijk_box);
-				if ( ((Mesh_coarsening != FALSE) && (Nwall_type >0)) || L1D_bc) izone = Mesh_coarsen_flag[inode_boxl];
-				else izone = 0;
-				if(Type_poly==CMS) 	/* calculate delta G/delta G_0^1 */
-					grafted_jac(DELTA_FN_BOND,itype_mer,iunk,loc_inode,ijk_box,izone,unk_GQ,inode_boxl,prefac,dummy,x); 
-				else if(Type_poly==WJDC3) {
-					/* find y at wall position */
-					unk_xi2=Phys2Unk_first[CAVWTC]; unk_xi3=Phys2Unk_first[CAVWTC]+1;
-					xi_2=x[unk_xi2][inode_boxl]; xi_3=x[unk_xi3][inode_boxl];
-					y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[itype_mer][itype_mer],xi_2,xi_3);
-					ysqrt=sqrt(y);	
-					/* calculate delta G/delta G_0^1 and delta G/delta xi */
-					grafted_jac(DELTA_FN_BOND,itype_mer,iunk,loc_inode,ijk_box,izone,unk_GQ,inode_boxl,prefac,ysqrt,x); 
-				}
-				}
-			}
-		}
-	}
-	}
-	
-  return(resid_sum);
-}
+               }
+               if (-boltz_pow > 0) mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
+               else mat_val=-fac2;
+               dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
+             }
+        } /* end loop over ibond */			
+        if(resid_only_flag==FALSE){
+           if (-boltz_pow > 0){
+              mat_val = -fac1*((double) boltz_pow)*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow_J);
+              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,inode_box,mat_val);
+           }
+         }
+         if (-boltz_pow >0)  resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow); 
+         else resid = -fac1;
+         resid_sum+=resid;
+         resid_sum2+=resid;
+         if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
+                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+      } /* end if statement */
+   } /* end loop over length of chain */
 
+   if (resid_only_flag==INIT_GUESS_FLAG) resid_sum /= x[unk_B][inode_box];
+
+   /* extra term in Jacobian for SCF */
+   if(Type_poly==CMS_SCFT && resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) {
+      iseg = Nmer[npol]-1;
+      unk_GQ = Geqn_start[npol] + Poly_to_Unk[npol][iseg][0];
+      for(loc_jnode=0; loc_jnode<Nnodes_per_proc; loc_jnode++) {
+         jnode_box = L2B_node[loc_jnode];
+         mat_val = resid_sum*x[unk_GQ][jnode_box];
+         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,jnode_box,mat_val);
+      }
+    }
+	
+    /* extra term in Jacobian for grafted chains */
+    if(Type_poly==CMS || Type_poly==WJDC3) {
+    if(Grafted[npol] && resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) {
+         /* find type of bonded site */
+	for(iseg=0; iseg<Nmer[npol]; iseg++) {
+            for(ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
+                if(Bonds[npol][iseg][ibond] == -2) {           /* grafted site */
+                    itype_mer = Type_mer[npol][iseg];
+                    graft_seg = iseg;
+                    graft_bond = ibond;
+                 }
+            }
+        }					
+                                                       /* find correct G; assumes 2 bonds only for grafting site */
+        for (ibond=0; ibond<Nbonds_SegAll[graft_seg]; ibond++)
+           if(ibond != graft_bond) gbond = ibond;
+           unk_GQ = Geqn_start[npol] + Poly_to_Unk[npol][graft_seg][gbond];
+           prefac = -resid_sum2/Gsum[npol];
+	                                               /* find wall position, if owned by this proc */
+           for(loc_inode2=0; loc_inode2<Nnodes_per_proc; loc_inode2++) {
+              inodel = L2B_node[loc_inode2];
+              inode_boxl = L2B_node[loc_inode2];
+              iwall = Nodes_2_boundary_wall[0][inode_boxl];
+              if(iwall != -1) {
+                   node_to_position(inodel,nodepos); /* position of wall + 1/2 radius */
+                                                     /* correct wall? */
+                   pwall = Graft_wall[npol];
+                   pwall_type = WallType[pwall];
+                   nodeposc[0] = WallPos[0][pwall] + WallParam[pwall_type];
+                   nodeposc[1] = nodeposc[2] = 0.0;
+                   if(nodepos[0]==nodeposc[0] + Sigma_ff[itype_mer][itype_mer]/2.0 || 
+                      nodepos[0]==nodeposc[0] - Sigma_ff[itype_mer][itype_mer]/2.0) {
+                         inode_w = position_to_node(nodeposc);
+                         inode_boxl = node_to_node_box(inode_w);
+                         node_box_to_ijk_box(inode_boxl,ijk_box);
+                         if ( ((Mesh_coarsening != FALSE) && (Nwall_type >0)) || L1D_bc) 
+                              izone = Mesh_coarsen_flag[inode_boxl];
+                         else izone = 0;
+                                                                             /* calculate delta G/delta G_0^1 */
+                         if(Type_poly==CMS)   grafted_jac(DELTA_FN_BOND,itype_mer,iunk,loc_inode,
+                                                          ijk_box,izone,unk_GQ,inode_boxl,prefac,dummy,x); 
+                         else if(Type_poly==WJDC3) {                         /* find y at wall position */
+                             unk_xi2=Phys2Unk_first[CAVWTC]; unk_xi3=Phys2Unk_first[CAVWTC]+1;
+                             xi_2=x[unk_xi2][inode_boxl]; xi_3=x[unk_xi3][inode_boxl];
+                             y=y_cav(Sigma_ff[itype_mer][itype_mer],Sigma_ff[itype_mer][itype_mer],xi_2,xi_3);
+                             ysqrt=sqrt(y);	
+                                                          /* calculate delta G/delta G_0^1 and delta G/delta xi */
+                             grafted_jac(DELTA_FN_BOND,itype_mer,iunk,loc_inode,ijk_box,
+                                         izone,unk_GQ,inode_boxl,prefac,ysqrt,x); 
+                        }
+                    }
+              }
+           }
+        }
+    }
+    return(resid_sum);
+}
 /****************************************************************************/
 void grafted_jac(int sten_type,int itype_mer,int iunk,int loc_inode,int *ijk_box, int izone, 
 				 int unk_G,int inode_boxl,double prefac,double ysqrt, double **x) {
