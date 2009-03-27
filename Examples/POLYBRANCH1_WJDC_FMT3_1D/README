@@ -15,7 +15,7 @@ Input Files for Test problem:
    - star_3arm_5mer
 
 Key Output Parameters:
-   - niters=10
+   - niters=8
    - ads[0]=16.7992
    - force=1.14457 
    - omega=-33.1857
