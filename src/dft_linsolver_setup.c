@@ -117,18 +117,17 @@ void linsolver_setup_CMSTYPE_LINEARONLY()
 void linsolver_setup_CMSTYPE()
 {
   int iunk,i;
-  int *geq, *ginveq, *cmseq, *densityeq;
-  int count_density,count_cms_field,count_geqn,count_ginv_eqn,count_poisson;
+  int *geq, *cmseq, *densityeq;
+  int count_density,count_cms_field,count_geqn,count_poisson;
   int *poissoneq;
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
    densityeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    cmseq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    geq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
-   ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));
    poissoneq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
 
-   count_poisson=count_density=count_cms_field=count_geqn=count_ginv_eqn=0;
+   count_poisson=count_density=count_cms_field=count_geqn=0;
 
    for (iunk=0;iunk<Nunk_per_node;iunk++){
      switch(Unk2Phys[iunk]){
@@ -154,7 +153,6 @@ void linsolver_setup_CMSTYPE()
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
 
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
-/*   dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, count_ginv_eqn, ginveq);*/
    dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, Ncomp, cmseq);
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, Ncomp, densityeq);
    dft_poly_lin_prob_mgr_setpoissonequationids(LinProbMgr_manager, count_poisson, poissoneq);
@@ -163,7 +161,6 @@ void linsolver_setup_CMSTYPE()
    safe_free((void *) &densityeq);
    safe_free((void *) &cmseq);
    safe_free((void *) &geq);
-   safe_free((void *) &ginveq);
    safe_free((void *) &poissoneq);
 }
 /*******************************************************************************/
@@ -230,8 +227,8 @@ void linsolver_setup_WJDCTYPE()
 {
   int iunk,i;
   double **xOwned, **x2Owned;
-  int *geq, *gonlyeq, *ginveq, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,ginv_eq_start,first_time;
-  int count_density,count_wjdc_field,count_geqn,count_geqn_save,count_ginv_eqn,count_ginv_eqn_old;
+  int *geq, *gonlyeq, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,first_time;
+  int count_density,count_wjdc_field,count_geqn,count_geqn_save;
   int count_indnonlocal,count_depnonlocal,index_save;
   int one_particle_size;
   int count_poisson;
@@ -245,10 +242,9 @@ void linsolver_setup_WJDCTYPE()
   wjdceq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   geq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
   gonlyeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
-  /*ginveq = (int *) array_alloc(1, Nunk_per_node,  sizeof(int));*/
   poissoneq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
 
-  count_density=count_wjdc_field=count_geqn=count_ginv_eqn=0;
+  count_density=count_wjdc_field=count_geqn=0;
   count_indnonlocal=count_depnonlocal=0;
   count_poisson = 0;
   first_time=TRUE;
@@ -295,8 +291,6 @@ void linsolver_setup_WJDCTYPE()
 
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
 
-   /*dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, count_ginv_eqn, ginveq);*/
-
    dft_poly_lin_prob_mgr_setcmsequationids(LinProbMgr_manager, count_wjdc_field, wjdceq);
 
    dft_poly_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, count_density, densityeq);
@@ -306,7 +300,6 @@ void linsolver_setup_WJDCTYPE()
    safe_free((void *) &densityeq);
    safe_free((void *) &wjdceq);
    safe_free((void *) &geq);
-/*   safe_free((void *) &ginveq);*/
    safe_free((void *) &gonlyeq);
    safe_free((void *) &poissoneq);
 
