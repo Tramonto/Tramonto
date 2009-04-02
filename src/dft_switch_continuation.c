@@ -94,9 +94,11 @@ double get_init_param_value(int cont_type,int Loca_contID)
       default:
         if (cont_type > 99 && cont_type < 199) {
            param = get_init_param_archived_plugin(cont_type,Loca_contID); 
+           return param;
         }
         else if (cont_type >= 200 && cont_type<299){
            param = get_init_param_user_plugin(cont_type,Loca_contID); 
+           return param;
         }
         else{
            printf("ERROR: Unknown Continuation parameter %d\n",cont_type);

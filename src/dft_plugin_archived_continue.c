@@ -200,13 +200,13 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
           /* vary wall fluid interactions for two species against two surface types simultaneously */
             ratio = param/Eps_wf[1][0];
             Eps_wf[1][0]  = param;
-            Eps_wf[1][1] *= ratio;
+/*            Eps_wf[1][1] *= ratio;*/
             Eps_wf[2][0] *= ratio;
-            Eps_wf[2][1] *= ratio;
+/*            Eps_wf[2][1] *= ratio;*/
             scale_vext_epswf(ratio,1,0); 
-            scale_vext_epswf(ratio,1,1); 
+/*            scale_vext_epswf(ratio,1,1); */
             scale_vext_epswf(ratio,2,0);
-            scale_vext_epswf(ratio,2,1); 
+/*            scale_vext_epswf(ratio,2,1); */
             break;
 
 
@@ -286,48 +286,49 @@ void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
 
       case CONT_RHO_ALL:
          if (Ncomp <=5){
-           for (i=0;i<Ncomp;i++) printf("Rho_b[%d]  ",i);
+           for (i=0;i<Ncomp;i++) fprintf(fp,"Rho_b[%d]  ",i);
          } 
          else{
-           printf("Rho_b[0]  ");
+           fprintf(fp,"Rho_b[0]  ");
          }
  
       case CONT_EPSW_ALL:
          if (Mix_type==0){
             if (Nwall_type <=5){
-              for (i=0;i<Nwall_type;i++) printf("Eps_w[%d]  ",i);
+              for (i=0;i<Nwall_type;i++) fprintf(fp,"Eps_w[%d]  ",i);
             } 
             else{
-              printf("Eps_w[0](all)  ");
+              fprintf(fp,"Eps_w[0](all)  ");
             }
           }
           else{ 
              if (Nwall_type<=2){
                 for (i=0;i<Nwall_type;i++) 
-                for (j=0;j<Nwall_type;j++) printf("Eps_ww[%d][%d]  ",i,j);
+                for (j=0;j<Nwall_type;j++) fprintf(fp,"Eps_ww[%d][%d]  ",i,j);
              }
-             else printf("Eps_ww[0][0](all)  ");
+             else fprintf(fp,"Eps_ww[0][0](all)  ");
           }
           break; 
 
       case CONT_EPSWF_ALL:
           if (Nwall_type*Ncomp<=5){
                 for (i=0;i<Ncomp;i++) 
-                for (j=0;j<Nwall_type;j++) printf("Eps_wf[%d][%d]  ",i,j);
+                for (j=0;j<Nwall_type;j++) fprintf(fp,"Eps_wf[%d][%d]  ",i,j);
           }
-          else printf("Eps_wf[0][0](all)  ");
+          else fprintf(fp,"Eps_wf[0][0](all)  ");
           break; 
     
       case CONT_EPSWF_SOME:
-          printf("Eps_wf[1][0]  Eps_wf[1][1]  Eps_wf[2][0]  Eps_wf[2][1]  ");
+          /*fprintf(fp,"Eps_wf[1][0]  Eps_wf[1][1]  Eps_wf[2][0]  Eps_wf[2][1]  ");*/
+          fprintf(fp,"Eps_wf[1][0]  Eps_wf[2][0] ");
           break;
 
       case CONT_EPSFF_ALL:
          if (Ncomp <=2){
               for (i=0;i<Ncomp;i++) 
-                 for (j=0;j<Ncomp;j++) printf("Eps_ff[%d][%d]  ",i,j);
+                 for (j=0;j<Ncomp;j++) fprintf(fp,"Eps_ff[%d][%d]  ",i,j);
          }
-         else printf("Eps_ff[0][0](all)  ");
+         else fprintf(fp,"Eps_ff[0][0](all)  ");
 
       case CONT_CRFAC:
         fprintf(fp, "Crfac  ");
@@ -383,48 +384,49 @@ void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
 
       case CONT_RHO_ALL:
          if (Ncomp <=5){
-           for (i=0;i<Ncomp;i++) printf("%11.7f  ",Rho_b[i]);
+           for (i=0;i<Ncomp;i++) fprintf(fp,"%11.7f  ",Rho_b[i]);
          } 
          else{
-           printf("%11.7f  ",Rho_b[0]);
+           fprintf(fp,"%11.7f  ",Rho_b[0]);
          }
  
       case CONT_EPSW_ALL:
          if (Mix_type==0){
             if (Nwall_type <=5){
-              for (i=0;i<Nwall_type;i++) printf("%11.7f  ",Eps_w[i]);
+              for (i=0;i<Nwall_type;i++) fprintf(fp,"%11.7f  ",Eps_w[i]);
             } 
             else{
-              printf("%11.7f  ",Eps_w[0]);
+              fprintf(fp,"%11.7f  ",Eps_w[0]);
             }
           }
           else{ 
              if (Nwall_type<=2){
                 for (i=0;i<Nwall_type;i++) 
-                for (j=0;j<Nwall_type;j++) printf("%11.7f  ",Eps_ww[i][j]);
+                for (j=0;j<Nwall_type;j++) fprintf(fp,"%11.7f  ",Eps_ww[i][j]);
              }
-             else printf("%11.7f  ",Eps_ww[0][0]);
+             else fprintf(fp,"%11.7f  ",Eps_ww[0][0]);
           }
           break; 
 
       case CONT_EPSWF_ALL:
           if (Nwall_type*Ncomp<=5){
                 for (i=0;i<Ncomp;i++) 
-                for (j=0;j<Nwall_type;j++) printf("%11.7f  ",Eps_wf[i][j]);
+                for (j=0;j<Nwall_type;j++) fprintf(fp,"%11.7f  ",Eps_wf[i][j]);
           }
-          else printf("%11.7f  ",Eps_wf[0][0]);
+          else fprintf(fp,"%11.7f  ",Eps_wf[0][0]);
           break; 
     
       case CONT_EPSWF_SOME:
-          printf("%11.7f  %11.7f  %11.7f  %11.7f  ",Eps_wf[1][0],Eps_wf[1][1],Eps_wf[2][0],Eps_wf[2][1]);
+          /*fprintf(fp,"%11.7f  %11.7f  %11.7f  %11.7f  ",Eps_wf[1][0],Eps_wf[1][1],Eps_wf[2][0],Eps_wf[2][1]);*/
+          fprintf(fp,"%11.7f  %11.7f  ",Eps_wf[1][0],Eps_wf[2][0]);
           break;
 
       case CONT_EPSFF_ALL:
          if (Ncomp <=2){
               for (i=0;i<Ncomp;i++) 
-                 for (j=0;j<Ncomp;j++) printf("%11.7f  ",Eps_ff[i][j]);
+                 for (j=0;j<Ncomp;j++) fprintf(fp,"%11.7f  ",Eps_ff[i][j]);
          }
-         else printf("%11.f7  ",Eps_ff[0][0]);
+         else fprintf(fp,"%11.f7  ",Eps_ff[0][0]);
   
       case CONT_CRFAC:
          fprintf(fp,"%11.8f   ",Crfac);
