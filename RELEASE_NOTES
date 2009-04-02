@@ -1,4 +1,41 @@
 ---------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
+Tramonto v3.0 Release Notes
+
+*Tramonto-3.0 Is the second open source release of the Tramonto software completed in March 2009. 
+
+*New features of the 3.0 release are as follows:
+	-- Linear bonded systems have been implemented using the functionals of Jain, Dominik, and Chapman, J. Chem. Phys., 2007. 
+	-- Branched bonded systems have been implemented using the functionals of 
+           Jain and Chapman, manuscript in preparation for J. Chem. Phys., 2009.
+	-- Generalized continuation methods have been implemented for multicomponent systems.
+        -- Segregation of supported general continuation methods, archived specialized contuation methods, 
+           and user plugin continuation methods. These developments allow users to implement new and specialized 
+           continuation methods with no significant impact on core Tramonto source code. 
+	-- New continuation capability for performing binodal (phase transition tracking) calculations with mesh size as one 
+           continuation parameter. Makes studies of confined phase transitions more automated.
+	-- New continuation capability for using chemical potential as a continuation variable - makes bulk phase transition studies possible.
+	-- An improved interface for setting up two phase interface or diffusion calculations has been developed.
+	-- Implementations include improved flexibility for performing bulk calculations including generating Pxy diagrams in 
+           mixtures and performing partitioning studies. 
+	-- Improved methods for generating initial guesses.  It is now possible for Tramonto to automatically generate initial 
+           guesses for all field variables that are fully consistent with the initial guess for the density.  It is still possible 
+           to generate guesses where all variables are based on bulk parameters as well. 
+	-- Restart files only require density inputs at this time.  All other fields are generated automatically. For polymer systems 
+           any calculation can be started by providing either segment density profiles or component density profiles.
+	-- New Picard and mixed Picard/Newton solver methods are now available with both built-in and NOX libraries. 
+	-- Schur solver capabilities have been expanded to treat branched polymer systems, and new Jain-Dominik-Chapman polymer functionals. 
+	-- Significantly expanded test harness (80 Example problems provided for testing and reference) including a variety of physical 
+           problems from bulk Pxy diagrams to self-assembled fluids. 
+
+* Developing (not fully implemented or not extensively tested) features in Tramonto as of the 3.0 release are as follows:
+	-- Polarizeable fluids are limited to 1-dimensional computational systems.
+	-- Tethered polymer chains are only available to 1-dimensional computational systems.
+	-- Electrostatics methods are available, but not mature, and force sum rules are only correct for Poisson-Boltzmann electrolyte models. 
+	-- Steady-State Diffusion methods are availbale, but have not be heavily used and tested. 
+	-- Rough surfaces have been implemented for some surface types, but have not been extensively tested. 
+---------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
 Tramonto v2.1 Release Notes
 
 * Tramonto-2.1 is the first general release of the open source software Tramonto (available in March 2007).
