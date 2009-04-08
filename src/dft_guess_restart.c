@@ -138,7 +138,7 @@ void read_in_a_file(int iguess,char *filename)
 {
   int c;
   int i,iunk,junk,idim, inode,itype_mer,ipol,iseg,index,dim_tmp,iunk_file;
-  int ijk_old[3],ijk_old_max[3],open_now,ndim_max,node_start;
+  int ijk_old[3],ijk_old_max[3],open_now,ndim_max,node_start,adjust1D,irhobar_file;
   int unk_in_file, unk_start_in_file[NEQ_TYPE],header,eq_type;
   int unk_to_eq_in_file[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13];
   int convert_to_comp_densities, convert_to_seg_densities,jseg,icomp;
@@ -199,9 +199,11 @@ void read_in_a_file(int iguess,char *filename)
        else if (strncmp(unk_char,"HSRHOBAR",5)==0){
              Restart_field[HSRHOBAR]=TRUE;
              header++;
-             unk_in_file+=Nrho_bar;
+             adjust1D = 0;
+             if (Restart == RESTART_1DTOND) adjust1D =(Ndim-1)*2;
+             unk_in_file+=(Nrho_bar-adjust1D);
              unk_start_in_file[HSRHOBAR]=iunk;
-             for (i=0;i<Nrho_bar;i++) unk_to_eq_in_file[iunk++]=HSRHOBAR;
+             for (i=0;i<(Nrho_bar-adjust1D);i++) unk_to_eq_in_file[iunk++]=HSRHOBAR;
        }
        else if (strncmp(unk_char,"CMSFIELD",5)==0){
              Restart_field[CMS_FIELD]=TRUE;
@@ -367,8 +369,7 @@ void read_in_a_file(int iguess,char *filename)
                  break;
 
               case HSRHOBAR:
-                 if (Restart == RESTART_1DTOND && iunk_file-unk_start_in_file[HSRHOBAR]-Nrho_bar_s>0) tmp=0.0;
-                 else fscanf(fp5,"%lf",&tmp); 
+                 fscanf(fp5,"%lf",&tmp); 
                  break;
               case POISSON:
               case CAVWTC:
@@ -403,6 +404,29 @@ void read_in_a_file(int iguess,char *filename)
                    else                                  X_old[junk+node_start]+=tmp/Nmer_comp[icomp];
                }
             }
+       }
+       else if (Restart==RESTART_1DTOND && eq_type==HSRHOBAR){
+          irhobar_file=iunk_file-unk_start_in_file[eq_type];
+          if (irhobar_file < Nrho_bar_s+1){
+             iunk = Phys2Unk_first[eq_type]+irhobar_file;
+             if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
+             else                                  X_old[iunk+node_start]=tmp;
+             for (idim=1;idim<Ndim;idim++) {
+                iunk = Phys2Unk_first[eq_type]+irhobar_file+idim;
+                if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=0.0;
+                else                                  X_old[iunk+node_start]=0.0;
+             }
+          }
+          else if (irhobar_file==Nrho_bar_s+1){
+             iunk = Phys2Unk_first[eq_type]+Nrho_bar_s+Ndim;
+             if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
+             else                                  X_old[iunk+node_start]=tmp;
+             for (idim=1;idim<Ndim;idim++) {
+                iunk = Phys2Unk_first[eq_type]+Nrho_bar_s+Ndim+idim;
+                if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=0.0;
+                else                                  X_old[iunk+node_start]=0.0;
+             }
+          }
        }
        else{
           iunk = Phys2Unk_first[eq_type]+iunk_file-unk_start_in_file[eq_type];
