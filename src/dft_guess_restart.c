@@ -263,27 +263,27 @@ void read_in_a_file(int iguess,char *filename)
              else                for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
        }
     }
-    if (Iwrite != NO_SCREEN) printf("Number of unknowns in the file=%d\n",unk_in_file);
+    if (Iwrite != NO_SCREEN) printf("\n\t ...Number of unknowns in the file=%d\n",unk_in_file);
 
     if (Type_interface==DIFFUSIVE_INTERFACE && Restart_field[DIFFUSION]==FALSE) 
          if (Proc==0 && Iwrite != NO_SCREEN)
-           printf("there is no chemical potential data in the restart file\n");
+           printf("\t ...NO chemical potential data found in restart file\n");
     if (Type_coul != NONE && Restart_field[POISSON]==FALSE)
-           printf("there is no electrostatic potential data in the restart file\n");
+           printf("\t ...NO electrostatic potential data found in restart file\n");
     if ((Type_poly == CMS || Type_poly==CMS_SCFT) && Restart_field[CMS_FIELD]==FALSE)
-           printf("there is no CMS field data in the restart file\n");
+           printf("\t ...NO CMS field data found in restart file\n");
     if ((Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[WJDC_FIELD]==FALSE)
-           printf("there is no WJDC field data in the restart file\n");
+           printf("\t ...NO WJDC field data found in restart file\n");
     if (L_HSperturbation && Restart_field[HSRHOBAR]==FALSE)
-           printf("there is no Rosenfeld nonlocal density data in the restart file\n");
+           printf("\t ...NO Rosenfeld nonlocal density data found in restart file\n");
     if (Type_attr==MF_VARIABLE && Restart_field[MF_EQ]==FALSE)
-           printf("there is no mean field attractive variable data in the restart file \n");
+           printf("\t ...NO mean field attractive variable data found the restart file \n");
     if (Restart_field[DENSITY]==FALSE)
-           printf("there is no density data in the restart file\n");
+           printf("\t ...NO density data found in restart file\n");
 
     fclose(fp5);
     if (Restart != RESTART_1DTOND) Nodes_old-=header;
-    printf("skipping %d lines in the dft_dens.dat file\n",header);
+    if (Iwrite==VERBOSE) printf("\t ...skipping %d lines in the dft_dens.dat file\n",header);
 
   /* read positions from file find Nodes_x_old[idim] */
   /* read the densities and electrostatic potentials from file */
@@ -302,10 +302,10 @@ void read_in_a_file(int iguess,char *filename)
 	 if( (fp6=fopen(filename2,"r")) == NULL){
 /*	   printf("Can't open file %s\n", filename2);
 	   exit(1);*/
-           if ((Iguess_fields=CALC_ALL_FIELDS || Iguess_fields==CALC_RHOBAR_AND_G) && index==0) 
-              printf("I can't find the file dft_dens.datg... I will construct an initial guess for G equations\n");
-           else if ((Iguess_fields=BULK || Iguess_fields==CALC_RHOBAR_ONLY)&&index==0) 
-              printf("I can't find the file dft_dens.datg... I will construct a simple bulk initial guess for G equations\n");
+           if ((Iguess_fields==CALC_ALL_FIELDS || Iguess_fields==CALC_RHOBAR_AND_G) && index==0) 
+              printf("\t ...NO G_EQN DATA IS FOUND - NO dft_dens.datg file \n\t\t...an initial guess will be constructed from other field data\n");
+           else if ((Iguess_fields==BULK || Iguess_fields==CALC_RHOBAR_ONLY)&&index==0) 
+              printf("\t ...NO G_EQN DATA IS FOUND - NO dft_dens.datg file \n\t\t...an initial guess will be constructed from bulk fluid data\n");
            Restart_field[G_CHAIN]=FALSE;
 	 }
          else  Restart_field[G_CHAIN]=TRUE;

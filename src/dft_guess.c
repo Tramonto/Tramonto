@@ -43,7 +43,7 @@ void set_initial_guess (int iguess, double** xOwned)
   double **xInBox;
 
   if (Proc==0) { 
-    /*  printf("\n%s: Setting an initial guess ... ",yo);*/
+      printf("\n SET UP INITIAL GUESS ... ");
       t1 = MPI_Wtime();
   }
 
@@ -52,8 +52,8 @@ void set_initial_guess (int iguess, double** xOwned)
   xInBox = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
 
   if (Proc==0 && Iwrite==VERBOSE){
-      if (Restart==NORESTART && Imain_loop==0) printf("generating guess from scratch\n");  
-      else printf("setting up guess from existing files\n");
+      if (Restart==NORESTART && Imain_loop==0) printf("start from scratch\n");  
+      else printf("from existing files\n");
   } 
 
   /* Get some or all parts of unknown vector from previously generated restart files.
@@ -176,7 +176,10 @@ void set_initial_guess (int iguess, double** xOwned)
 
 /* note need to put the setup_poymer_simple functionality inside the various setup_polymer_CMS routines....*/
 
-  if (Proc==0 && Iwrite !=NO_SCREEN) printf("\n initial guess took %g secs\n",MPI_Wtime()-t1);
+  if (Proc==0 && Iwrite !=NO_SCREEN){
+        printf("\nInitial guess took %g secs\n",MPI_Wtime()-t1);
+        printf("-----------------------------------------------------------------\n");
+  }
   return;
 }
 /********************************************************************************************************/

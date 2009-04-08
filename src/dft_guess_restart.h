@@ -72,6 +72,7 @@ extern int L_HSperturbation;
 #define NONE      -1
 #define NONE        -1
 #define NONE        -1
+#define VERBOSE      3
 extern int Type_coul;
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;

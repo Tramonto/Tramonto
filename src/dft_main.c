@@ -264,7 +264,6 @@ void dftmain(double * engptr)
           }
       }
       else if (NL_Solver == NEWTON_BUILT_IN || NL_Solver==NEWTON_NOX){
-            if (Proc==0) printf("Calling Newton Solver!\n");
             niters = solve_problem(x, x2);
       }
       else {
