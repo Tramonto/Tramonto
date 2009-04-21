@@ -40,8 +40,7 @@ Prerequisites:
         Package                       Web Reference
         BLAS                       http://www.netlib.org
         LAPACK                     http://www.netlib.org
-        MPI                        http://www.lam-mpi.org
-                                   http://www-unix.mcs.anl.gov/mpi/mpich2
+        MPI                        http://www-unix.mcs.anl.gov/mpi/mpich2
                                    http://www.open-mpi.org
         Trilinos (7.0.0 or later*) http://trilinos.sandia.gov
 
@@ -50,7 +49,8 @@ Prerequisites:
     While BLAS, LAPACK and MPI could be available on your system, you will
     most likely have to build Trilinos yourself.  Trilinos contains several
     packages of which Tramonto requires amesos, aztecoo, triutils, ifpack,
-    epetraext, epetra, ml, and teuchos and can optionally use nox and loca.
+    epetraext, epetra, loca, ml, nox, and teuchos loca.
+
     Trilinos has a webpage for new users available at
     http://trilinos.sandia.gov/getting_started.html.
     Below you will find a brief set of instructions that focus on building
@@ -60,8 +60,9 @@ Prerequisites:
 Building Trilinos:
 
     As of October 2006, Tramonto requires Trilinos version 7.0.0 or later.
+    The instructions below explain how to build with Trilinos 8.0.X or 9.0.X.
 
-    Trilinios can be download from the the Trilinos home page listed above.
+    Trilinos can be downloaded from the the Trilinos home page listed above.
     There are many options available in configuring Trilinos, some of the 
     most important one are:
     
@@ -268,13 +269,11 @@ Building Tramonto:
 	Linux
         ../configure  \
         --with-gnumake \
-        --with-noxloca \
         --with-trilinos=/home/jmwille/TramontosTrilinos
 
         Mac OS X
         ../configure \
         --with-gnumake \
-        --with-noxloca \
         --with-ldflags="-framework veclib -L/usr/lib/ -lSystemStubs" \
         --with-trilinos=/Users/jmwille/TraInstall
 
@@ -291,5 +290,12 @@ Building Tramonto:
 	
     Once the configure script completes, you can type "make" to 
     build Tramonto. After make finishes, the Tramonto  binary, "dft" 
-    can optionally be copied to a more convenient location.
+    can optionally be copied to a more convenient location.  Note that
+    although it is not necessary to specify the locations and names of
+    the BLAS and LAPACK libraries during the Tramonto configure process,
+    because that information is taken from the Trilinos configuration 
+    process, it is currently necessary to specify which compilers to
+    use if compilers were specified during the Trilinos configuration
+    process.  The same compilers should be used to build Trilinos and
+    Tramonto.
 
