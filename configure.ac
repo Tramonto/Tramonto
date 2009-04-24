@@ -224,7 +224,7 @@ dnl Checks for Trilinos header files
 dnl ------------------------------------------------------------------------
                                                                                 
 dnl
-dnl check for AztecOO, Ifpack, EpetraExt, Epetra, Teuchos, and (conditionally)
+dnl check for Amesos, ML, AztecOO, Ifpack, EpetraExt, Epetra, Teuchos, and
 dnl LOCA header files.
 dnl
 AC_LANG_CPLUSPLUS
@@ -238,7 +238,7 @@ AC_TRY_CPP([#include "mpi.h" #include "Amesos.h" #include "ml_common.h" #include
   [
    AC_MSG_RESULT(no)
    echo "-----"
-   echo "Cannot find Amesos, ML, AztecOO, LOCA, Ifpack, EpetraExt," 
+   echo "Cannot find Amesos, ML, AztecOO, LOCA, Ifpack, EpetraExt,"
    echo "Epetra, or Teuchos header file.  Make sure the Trilinos"
    echo "configuration includes all of those packages.  (Include"
    echo "--enable-amesos, --enable-ml --enable-aztecoo, --enable-loca,"
