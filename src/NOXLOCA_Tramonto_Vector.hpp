@@ -35,6 +35,7 @@ extern "C" {
 //work-arounds for C++ C linkage problems
 double gmax_double_conwrap(double);
 double gsum_double_conwrap(double);
+int gsum_int(int);
 void fill_resid_and_matrix_control_conwrap(double**, int, int);
 double** array_alloc_2d_conwrap(unsigned int, unsigned int, unsigned int);
 void safe_free_conwrap(void **);
@@ -174,6 +175,7 @@ namespace NOXLOCA {
       int n1; //first dimention
       int n2; //second dimension
       int n;  //total length, n1*n2
+      int n_global;  //global length, gsum(n)
 
       //! The vector owned by this object
       double** x2d; // Allocated  [n1][n2]

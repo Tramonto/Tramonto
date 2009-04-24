@@ -154,6 +154,7 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
 			       NOX::Utils::OuterIteration + 
 			       NOX::Utils::InnerIteration + 
 			       NOX::Utils::Warning + 
+                          //  NOX::Utils::OuterIterationStatusTest +
 			       NOX::Utils::StepperIteration +
 			       NOX::Utils::StepperDetails);
 
@@ -208,7 +209,7 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
     if (status != LOCA::Abstract::Iterator::Finished) {
       if (globalData->locaUtils->isPrintType(NOX::Utils::Error))
 	globalData->locaUtils->out() 
-	  << "Stepper failed to converge!" << std::endl;
+	  << "Continuation Stepper ended before reaching final value." << std::endl;
     }
 
     // Output the parameter list

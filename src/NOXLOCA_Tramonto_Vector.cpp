@@ -36,6 +36,7 @@ NOXLOCA::Tramonto::Vector::Vector() :
   x(0),
   needToDelete(false)
 {
+   n_global = gsum_int(n);
 }
 
 //view of double** vector
@@ -47,6 +48,7 @@ NOXLOCA::Tramonto::Vector::Vector(int N1, int N2, double **v) :
   x(v[0]),
   needToDelete(false)
 {
+   n_global = gsum_int(n);
 }
 
 NOXLOCA::Tramonto::Vector::Vector(const NOXLOCA::Tramonto::Vector& source, 
@@ -61,6 +63,7 @@ NOXLOCA::Tramonto::Vector::Vector(const NOXLOCA::Tramonto::Vector& source,
    x2d = (double **) array_alloc_2d_conwrap(n1, n2, sizeof(double));
    x = x2d[0];
    for (int i=0; i < n; i++) x[i] = source.x[i];
+   n_global = gsum_int(n);
 }
 
 NOXLOCA::Tramonto::Vector::~Vector()
@@ -237,7 +240,7 @@ double NOXLOCA::Tramonto::Vector::norm(const NOX::Abstract::Vector& weights) con
 
 double NOXLOCA::Tramonto::Vector::norm(const NOXLOCA::Tramonto::Vector& weights) const
 {
-  if (weights.length() != n) {
+  if (weights.length() != n_global) {
     cerr << "NOXLOCA::Tramonto::Vector::norm - size mismatch for weights vector" << endl;
     throw "NOXLOCA::Tramonto Error";
   }
@@ -260,7 +263,7 @@ double NOXLOCA::Tramonto::Vector::innerProduct(const NOX::Abstract::Vector& y) c
 
 double NOXLOCA::Tramonto::Vector::innerProduct(const NOXLOCA::Tramonto::Vector& y) const
 {
-  if (y.length() != n) {
+  if (y.length() != n_global) {
     cerr << "NOXLOCA::Tramonto::Vector::innerProduct - size mismatch for y vector" 
 	 << endl;
     throw "NOX::Tramonto Error";
@@ -277,7 +280,7 @@ double NOXLOCA::Tramonto::Vector::innerProduct(const NOXLOCA::Tramonto::Vector& 
 
 int NOXLOCA::Tramonto::Vector::length() const
 {
-  return n;
+  return n_global;
 }
 
 double& NOXLOCA::Tramonto::Vector::operator[] (int i)
