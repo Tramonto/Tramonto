@@ -6147,7 +6147,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include "AztecOO.h" #include "Ifpack.h" #include "EpetraExt_ConfigDefs.h" #include "Epetra_ConfigDefs.h" #include "Teuchos_Version.hpp" #include "LOCA.H"
+#include "mpi.h" #include "Amesos.h" #include "ml_common.h" #include "AztecOO.h" #include "Ifpack.h" #include "EpetraExt_ConfigDefs.h" #include "Epetra_ConfigDefs.h" #include "Teuchos_Version.hpp" #include "LOCA.H"
 _ACEOF
 if { (ac_try="$ac_cpp conftest.$ac_ext"
 case "(($ac_try" in
@@ -6175,12 +6175,12 @@ sed 's/^/| /' conftest.$ac_ext >&5
    { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
    echo "-----"
-   echo "Cannot find AztecOO, LOCA, Ifpack, EpetraExt, Epetra, or"
-   echo "Teuchos header file.  Make sure the Trilinos configuration"
-   echo "includes all of those packages.  (Include --enable-aztecoo,"
-   echo "--enable-loca, --enable-ifpack, --enable-epetraext,"
-   echo "--enable-epetra, and --enable-teuchos in the list of"
-   echo "configuration arguments.)"
+   echo "Cannot find Amesos, ML, AztecOO, LOCA, Ifpack, EpetraExt,"
+   echo "Epetra, or Teuchos header file.  Make sure the Trilinos"
+   echo "configuration includes all of those packages.  (Include"
+   echo "--enable-amesos, --enable-ml --enable-aztecoo, --enable-loca,"
+   echo "--enable-ifpack, --enable-epetraext, --enable-epetra, and"
+   echo "--enable-teuchos in the list of configuration arguments.)"
    echo "-----"
    { { echo "$as_me:$LINENO: error: Cannot find required Trilinos header file" >&5
 echo "$as_me: error: Cannot find required Trilinos header file" >&2;}

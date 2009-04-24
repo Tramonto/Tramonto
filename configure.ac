@@ -233,17 +233,17 @@ SAVE_CPPFLAGS=${CPPFLAGS}
 CPPFLAGS="${CPPFLAGS} ${TRILINOS_INC}"
 
 AC_MSG_CHECKING(for several Trilinos header files)
-AC_TRY_CPP([#include "AztecOO.h" #include "Ifpack.h" #include "EpetraExt_ConfigDefs.h" #include "Epetra_ConfigDefs.h" #include "Teuchos_Version.hpp" #include "LOCA.H"],
+AC_TRY_CPP([#include "mpi.h" #include "Amesos.h" #include "ml_common.h" #include "AztecOO.h" #include "Ifpack.h" #include "EpetraExt_ConfigDefs.h" #include "Epetra_ConfigDefs.h" #include "Teuchos_Version.hpp" #include "LOCA.H"],
   [AC_MSG_RESULT(yes)],
   [
    AC_MSG_RESULT(no)
    echo "-----"
-   echo "Cannot find AztecOO, LOCA, Ifpack, EpetraExt, Epetra, or" 
-   echo "Teuchos header file.  Make sure the Trilinos configuration"
-   echo "includes all of those packages.  (Include --enable-aztecoo,"
-   echo "--enable-loca, --enable-ifpack, --enable-epetraext,"
-   echo "--enable-epetra, and --enable-teuchos in the list of"
-   echo "configuration arguments.)"
+   echo "Cannot find Amesos, ML, AztecOO, LOCA, Ifpack, EpetraExt," 
+   echo "Epetra, or Teuchos header file.  Make sure the Trilinos"
+   echo "configuration includes all of those packages.  (Include"
+   echo "--enable-amesos, --enable-ml --enable-aztecoo, --enable-loca,"
+   echo "--enable-ifpack, --enable-epetraext, --enable-epetra, and"
+   echo "--enable-teuchos in the list of configuration arguments.)"
    echo "-----"
    AC_MSG_ERROR(Cannot find required Trilinos header file)
   ])

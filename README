@@ -49,7 +49,7 @@ Prerequisites:
     While BLAS, LAPACK and MPI could be available on your system, you will
     most likely have to build Trilinos yourself.  Trilinos contains several
     packages of which Tramonto requires amesos, aztecoo, triutils, ifpack,
-    epetraext, epetra, loca, ml, nox, and teuchos loca.
+    epetraext, epetra, loca, ml, nox, and teuchos.
 
     Trilinos has a webpage for new users available at
     http://trilinos.sandia.gov/getting_started.html.
