@@ -47,7 +47,7 @@ EXTRA_DIST = config/strip_dup_incl_paths.pl config/strip_dup_libs.pl \
 	test/utilities/runconfigure test/utilities/runmake \
 	test/utilities/runtests test/harness/runharness \
 	test/harness/config test/harness/invoke-configures/linux-beowulf \
-	test/harness/invoke-configures/linux-hrothgar sampleConfigs/cygwin \
+	sampleConfigs/cygwin \
 	sampleConfigs/cygwin2 sampleConfigs/irix64 sampleConfigs/liberty \
 	sampleConfigs/linux sampleConfigs/macOsX \
 	sampleConfigs/macOsX2 sampleConfigs/reddish sampleConfigs/sunos \
@@ -88,6 +88,35 @@ EXTRA_DIST = config/strip_dup_incl_paths.pl config/strip_dup_libs.pl \
 	Examples/BC9_FMT1_WCA_ELEC_3D/dft_input.dat \
 	Examples/BC9_FMT1_WCA_ELEC_3D/dft_surfaces.dat \
 	Examples/BC9_FMT1_WCA_ELEC_3D/README \
+	Examples/BULK1_FMT1_WCA_1D/dft_input.dat \
+	Examples/BULK1_FMT1_WCA_1D/README \
+	Examples/BULK2_FMT1_WCA_1D/dft_dens2.dat \
+	Examples/BULK2_FMT1_WCA_1D/dft_input.dat \
+	Examples/BULK2_FMT1_WCA_1D/README \
+	Examples/BULK2_FMT1_WCA_1D/dft_dens.dat \
+	Examples/BULK3_FMT1_WCA_1D/dft_input.dat \
+	Examples/BULK3_FMT1_WCA_1D/README \
+	Examples/BULK4_MIX_FMT3_WCA_WJDC_1D/lin_2mer \
+	Examples/BULK4_MIX_FMT3_WCA_WJDC_1D/dft_input.dat \
+	Examples/BULK4_MIX_FMT3_WCA_WJDC_1D/README \
+	Examples/BULK5_MIX_FMT3_WCA_WJDC_1D/lin_2mer \
+	Examples/BULK5_MIX_FMT3_WCA_WJDC_1D/dft_dens2.dat \
+	Examples/BULK5_MIX_FMT3_WCA_WJDC_1D/dft_input.dat \
+	Examples/BULK5_MIX_FMT3_WCA_WJDC_1D/README \
+	Examples/BULK5_MIX_FMT3_WCA_WJDC_1D/dft_dens.dat \
+	Examples/BULK6_MIX_FMT3_WCA_WJDC_1D/lin_2mer \
+	Examples/BULK6_MIX_FMT3_WCA_WJDC_1D/dft_input.dat \
+	Examples/BULK6_MIX_FMT3_WCA_WJDC_1D/README \
+	Examples/BULK7_FMT3_WCA_WJDC_1D/dft_dens2.dat \
+	Examples/BULK7_FMT3_WCA_WJDC_1D/dft_input.dat \
+	Examples/BULK7_FMT3_WCA_WJDC_1D/README \
+	Examples/BULK7_FMT3_WCA_WJDC_1D/lin_8 \
+	Examples/BULK7_FMT3_WCA_WJDC_1D/dft_dens.dat \
+	Examples/BULK8_MIX_FMT3_WCA_WJDC_1D/lin_8_1 \
+	Examples/BULK8_MIX_FMT3_WCA_WJDC_1D/dft_dens2.dat \
+	Examples/BULK8_MIX_FMT3_WCA_WJDC_1D/dft_input.dat \
+	Examples/BULK8_MIX_FMT3_WCA_WJDC_1D/README \
+	Examples/BULK8_MIX_FMT3_WCA_WJDC_1D/dft_dens.dat \
 	Examples/CONT1_FMT1_WCA_1D/dft_input.dat \
 	Examples/CONT1_FMT1_WCA_1D/dft_surfaces.dat \
 	Examples/CONT1_FMT1_WCA_1D/README \
@@ -136,6 +165,9 @@ EXTRA_DIST = config/strip_dup_incl_paths.pl config/strip_dup_libs.pl \
 	Examples/LJ4_FMT1_WCA_1D/dft_input.dat \
 	Examples/LJ4_FMT1_WCA_1D/dft_surfaces.dat \
 	Examples/LJ4_FMT1_WCA_1D/README \
+	Examples/LJ5_FMT1_WCA2_1D/dft_surfaces.dat \
+	Examples/LJ5_FMT1_WCA2_1D/dft_input.dat \
+	Examples/LJ5_FMT1_WCA2_1D/README \
 	Examples/MIX1_FMT1_1D/dft_input.dat \
 	Examples/MIX1_FMT1_1D/dft_surfaces.dat \
 	Examples/MIX1_FMT1_1D/README \
@@ -163,6 +195,32 @@ EXTRA_DIST = config/strip_dup_incl_paths.pl config/strip_dup_libs.pl \
 	Examples/MIX9_FMT1_WCA_ELEC_1D/dft_input.dat \
 	Examples/MIX9_FMT1_WCA_ELEC_1D/dft_surfaces.dat \
 	Examples/MIX9_FMT1_WCA_ELEC_1D/README \
+	Examples/MIX10_FMT1_ATTELEC_1D/dft_surfaces.dat \
+	Examples/MIX10_FMT1_ATTELEC_1D/dft_input.dat \
+	Examples/MIX10_FMT1_ATTELEC_1D/README \
+	Examples/MIX11_FMT1_WCA_1D/dft_surfaces.dat \
+	Examples/MIX11_FMT1_WCA_1D/dft_input.dat \
+	Examples/MIX11_FMT1_WCA_1D/README \
+	Examples/NLSOLVER1_WJDC_FMT3_1D/lin_18 \
+	Examples/NLSOLVER1_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/NLSOLVER1_WJDC_FMT3_1D/dft_input.dat \
+	Examples/NLSOLVER1_WJDC_FMT3_1D/README \
+	Examples/NLSOLVER2_WJDC_FMT3_1D/lin_18 \
+	Examples/NLSOLVER2_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/NLSOLVER2_WJDC_FMT3_1D/dft_input.dat \
+	Examples/NLSOLVER2_WJDC_FMT3_1D/README \
+	Examples/NLSOLVER3_WJDC_FMT3_1D/lin_18 \
+	Examples/NLSOLVER3_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/NLSOLVER3_WJDC_FMT3_1D/dft_input.dat \
+	Examples/NLSOLVER3_WJDC_FMT3_1D/README \
+	Examples/NLSOLVER4_WJDC_FMT3_1D/lin_18 \
+	Examples/NLSOLVER4_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/NLSOLVER4_WJDC_FMT3_1D/dft_input.dat \
+	Examples/NLSOLVER4_WJDC_FMT3_1D/README \
+	Examples/NLSOLVER5_WJDC_FMT3_1D/lin_18 \
+	Examples/NLSOLVER5_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/NLSOLVER5_WJDC_FMT3_1D/dft_input.dat \
+	Examples/NLSOLVER5_WJDC_FMT3_1D/README \
 	Examples/POLY1_CMS_1D/cr8.2.8_0.711eff1 \
 	Examples/POLY1_CMS_1D/dft_input.dat \
 	Examples/POLY1_CMS_1D/dft_surfaces.dat \
@@ -208,6 +266,95 @@ EXTRA_DIST = config/strip_dup_incl_paths.pl config/strip_dup_libs.pl \
 	Examples/POLY9_WTC_FMT1_1D/dft_surfaces.dat \
 	Examples/POLY9_WTC_FMT1_1D/lin_8_lin_4 \
 	Examples/POLY9_WTC_FMT1_1D/README \
+	Examples/POLY10_WJDC_FMT1_1D/lin_5mer \
+	Examples/POLY10_WJDC_FMT1_1D/dft_surfaces.dat \
+	Examples/POLY10_WJDC_FMT1_1D/dft_input.dat \
+	Examples/POLY10_WJDC_FMT1_1D/README \
+	Examples/POLY11_WJDC_FMT1_1D/lin_5mer \
+	Examples/POLY11_WJDC_FMT1_1D/dft_surfaces.dat \
+	Examples/POLY11_WJDC_FMT1_1D/dft_input.dat \
+	Examples/POLY11_WJDC_FMT1_1D/README \
+	Examples/POLY12_WJDC_FMT1_1D/lin_8_lin_4 \
+	Examples/POLY12_WJDC_FMT1_1D/dft_surfaces.dat \
+	Examples/POLY12_WJDC_FMT1_1D/dft_input.dat \
+	Examples/POLY12_WJDC_FMT1_1D/README \
+	Examples/POLY13_WJDC_FMT1_WCA_1D/lin_18 \
+	Examples/POLY13_WJDC_FMT1_WCA_1D/cr8.2.8_0.711eff1 \
+	Examples/POLY13_WJDC_FMT1_WCA_1D/dft_surfaces.dat \
+	Examples/POLY13_WJDC_FMT1_WCA_1D/dft_input.dat \
+	Examples/POLY13_WJDC_FMT1_WCA_1D/README \
+	Examples/POLY14_WJDC_FMT1_WCA_1D/dft_input.dat \
+	Examples/POLY14_WJDC_FMT1_WCA_1D/README \
+	Examples/POLY14_WJDC_FMT1_WCA_1D/lin_18_1 \
+	Examples/POLY14_WJDC_FMT1_WCA_1D/dft_dens.dat \
+	Examples/POLY15_WJDC_FMT3_1D/lin_5mer \
+	Examples/POLY15_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/POLY15_WJDC_FMT3_1D/dft_input.dat \
+	Examples/POLY15_WJDC_FMT3_1D/README \
+	Examples/POLY16_WJDC_FMT3_1D/lin_5mer \
+	Examples/POLY16_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/POLY16_WJDC_FMT3_1D/dft_input.dat \
+	Examples/POLY16_WJDC_FMT3_1D/README \
+	Examples/POLY17_WJDC_FMT3_1D/lin_8_lin_4 \
+	Examples/POLY17_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/POLY17_WJDC_FMT3_1D/dft_input.dat \
+	Examples/POLY17_WJDC_FMT3_1D/README \
+	Examples/POLY18_WJDC_FMT3_1D/lin_18 \
+	Examples/POLY18_WJDC_FMT3_1D/cr8.2.8_0.711eff1 \
+	Examples/POLY18_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/POLY18_WJDC_FMT3_1D/dft_input.dat \
+	Examples/POLY18_WJDC_FMT3_1D/README \
+	Examples/POLY19_WJDC_FMT3_1D/lin_18sym \
+	Examples/POLY19_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/POLY19_WJDC_FMT3_1D/dft_input.dat \
+	Examples/POLY19_WJDC_FMT3_1D/README \
+	Examples/POLY20_CMS_1D/dft_surfaces.dat \
+	Examples/POLY20_CMS_1D/dft_input.dat \
+	Examples/POLY20_CMS_1D/lin_18_1sym \
+	Examples/POLY20_CMS_1D/README \
+	Examples/POLY20_CMS_1D/cr8.2.8_0.375_1_0.375 \
+	Examples/POLY20_CMS_1D/dft_dens.datg \
+	Examples/POLY20_CMS_1D/dft_dens.dat \
+	Examples/POLY21_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/POLY21_WJDC_FMT3_1D/dft_input.dat \
+	Examples/POLY21_WJDC_FMT3_1D/README \
+	Examples/POLY22_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/POLY22_WJDC_FMT3_1D/dft_input.dat \
+	Examples/POLY22_WJDC_FMT3_1D/README \
+	Examples/POLY23_WJDC_GRAFT_1D/lin_49 \
+	Examples/POLY23_WJDC_GRAFT_1D/dft_surfaces.dat \
+	Examples/POLY23_WJDC_GRAFT_1D/dft_input.dat \
+	Examples/POLY23_WJDC_GRAFT_1D/README \
+	Examples/POLY24_CMS_GRAFT_1D/lin_10_1 \
+	Examples/POLY24_CMS_GRAFT_1D/cr_10_1 \
+	Examples/POLY24_CMS_GRAFT_1D/dft_surfaces.dat \
+	Examples/POLY24_CMS_GRAFT_1D/dft_input.dat \
+	Examples/POLY24_CMS_GRAFT_1D/README \
+	Examples/POLYBRANCH1_WJDC_FMT3_1D/dens.eta3 \
+	Examples/POLYBRANCH1_WJDC_FMT3_1D/dens.eta2 \
+	Examples/POLYBRANCH1_WJDC_FMT3_1D/dft_surfaces.dat \
+	Examples/POLYBRANCH1_WJDC_FMT3_1D/dft_input.dat \
+	Examples/POLYBRANCH1_WJDC_FMT3_1D/README \
+	Examples/POLYBRANCH1_WJDC_FMT3_1D/dens.eta1 \
+	Examples/POLYBRANCH1_WJDC_FMT3_1D/star_3arm_5mer \
+	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dens_pure_solvent.dat \
+	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dft_input.dat \
+	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/README \
+	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/lin_18_1 \
+	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dft_dens.dat \
+	Examples/SELF_ASSEMBLE2_FMT3_WCA_WJDC_1D/dsave_whole_bilayer \
+	Examples/SELF_ASSEMBLE2_FMT3_WCA_WJDC_1D/dens_pure_solvent.dat \
+	Examples/SELF_ASSEMBLE2_FMT3_WCA_WJDC_1D/dft_surfaces.dat \
+	Examples/SELF_ASSEMBLE2_FMT3_WCA_WJDC_1D/dft_input.dat \
+	Examples/SELF_ASSEMBLE2_FMT3_WCA_WJDC_1D/README \
+	Examples/SELF_ASSEMBLE2_FMT3_WCA_WJDC_1D/lin_18_1 \
+	Examples/SELF_ASSEMBLE2_FMT3_WCA_WJDC_1D/dft_dens.dat \
+	Examples/SELF_ASSEMBLE3_FMT3_WCA_WJDC_1D/dft_dens2.dat \
+	Examples/SELF_ASSEMBLE3_FMT3_WCA_WJDC_1D/dft_surfaces.dat \
+	Examples/SELF_ASSEMBLE3_FMT3_WCA_WJDC_1D/dft_input.dat \
+	Examples/SELF_ASSEMBLE3_FMT3_WCA_WJDC_1D/README \
+	Examples/SELF_ASSEMBLE3_FMT3_WCA_WJDC_1D/lin_18_1 \
+	Examples/SELF_ASSEMBLE3_FMT3_WCA_WJDC_1D/dft_dens.dat \
 	Examples/YUKAWA_FMT1_3D/dft_input.dat \
 	Examples/YUKAWA_FMT1_3D/dft_surfaces.dat \
 	Examples/YUKAWA_FMT1_3D/README
