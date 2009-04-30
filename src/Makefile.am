@@ -310,13 +310,13 @@ libdft_a_LIBADD = $(XTRALDADD)
 # ------------------------------------------------------------------------
                                                                                 
 bin_PROGRAMS = dft
-                                                                                
+
+CCLD = $(CXX)
+
 dft_SOURCES = \
-        $(srcdir)/dft_maindriver.c \
-        $(COMMON_CXX) \
-        $(COMMON_C)
+        $(srcdir)/dft_maindriver.c
                                                                                 
-dft_DEPENDENCIES = 
+dft_DEPENDENCIES = libdft.a 
 
 include $(top_builddir)/Makefile.export.tramonto
 
