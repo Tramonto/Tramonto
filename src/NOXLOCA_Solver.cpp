@@ -182,8 +182,8 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
       solveGrp = grp; // All execpt phase transitions
     }
     
-    // Set up the status tests
-    double tol=1.0e-9; if (Loca.method==3) tol=1.0e-6;
+    // Set up the status tests -- use absolute tol from input file
+    double tol = NL_abs_tol;
 
     Teuchos::RefCountPtr<NOX::StatusTest::NormF> normF = 
       Teuchos::rcp(new NOX::StatusTest::NormF(tol));
