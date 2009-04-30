@@ -8,6 +8,7 @@ Dimensions: 1
 Diffusion: No
 
 Notes:  This case is identical to the POLY18 (and NLSOLVER1-NLSOLVER5) case but tests the NOX Picard nonlinear solver option NL_Solver=3.
+        The tolerance is loose so the results are not identical to better-converged Newton tests.
 
 Input Files for Test problem:
    - dft_input.dat
@@ -16,8 +17,8 @@ Input Files for Test problem:
 
 
 Key Output Parameters:
-   - adsorption[0]=19.3029 
-   - adsorption[1]=2.31176   
-   - energy=2.27955   
+   - adsorption[0]=19.2957 
+   - adsorption[1]=2.31326   
+   - energy=2.33024   
    .
 */

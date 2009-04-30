@@ -16,7 +16,7 @@ Input Files for Test problem:
 
 
 Key Output Parameters:
-   - niter=8 
+   - niter=7 
    - adsorption[0]=19.3059 
    - adsorption[1]=2.31153   
    - energy=2.27975   
