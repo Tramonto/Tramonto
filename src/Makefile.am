@@ -311,7 +311,8 @@ libdft_a_LIBADD = $(XTRALDADD)
                                                                                 
 bin_PROGRAMS = dft
 
-CCLD = $(CXX)
+#CCLD = $(CXXLD)
+LINK = $(CXXLINK)
 
 dft_SOURCES = \
         $(srcdir)/dft_maindriver.c

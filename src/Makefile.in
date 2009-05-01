@@ -183,7 +183,7 @@ depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+CCLD = $(CC)
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
@@ -587,7 +587,9 @@ libdft_a_SOURCES = \
 
 #np# replace new_package with the name of the package being autotool'ed here
 libdft_a_LIBADD = $(XTRALDADD)
-CCLD = $(CXX)
+
+#CCLD = $(CXXLD)
+LINK = $(CXXLINK)
 dft_SOURCES = \
         $(srcdir)/dft_maindriver.c
 
