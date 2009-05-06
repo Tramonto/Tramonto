@@ -56,11 +56,11 @@ int solve_problem_picard(double **x, double **x2)
       changes to the Newton's method routine while implementing something here.  */
 
   xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
+  for (iunk=0;iunk<Nunk_per_node;iunk++)
+        for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++) xOwned[iunk][loc_inode]=0.0;
   set_initial_guess(Iguess1, xOwned);
-  for (iunk=0;iunk<Nunk_per_node;iunk++){
-    for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++) x[iunk][L2B_node[loc_inode]]=xOwned[iunk][loc_inode];
-  }
-  communicate_to_fill_in_box_values(x);
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
+
   /* If requested, write out initial guess */
 /*   if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");*/
 
@@ -68,18 +68,18 @@ int solve_problem_picard(double **x, double **x2)
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
     x2Owned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
+    for (iunk=0;iunk<Nunk_per_node;iunk++)
+        for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++) x2Owned[iunk][loc_inode]=0.0;
     set_initial_guess(BINODAL_FLAG, x2Owned);
-    for (iunk=0;iunk<Nunk_per_node;iunk++){
-      for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++) x2[iunk][L2B_node[loc_inode]]=x2Owned[iunk][loc_inode];
-    }
-    communicate_to_fill_in_box_values(x2);
+    (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
+
 /*    if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");*/
   }
 
   printf("NL_Solver=%d PICARD_NOX=%d PICNEWTON_NOX=%d\n",NL_Solver,PICARD_NOX,PICNEWTON_NOX);
   if (NL_Solver==PICARD_NOX || NL_Solver==PICNEWTON_NOX)
     iter=NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
-  else iter=picard_solver(x,-1);
+  else iter=picard_solver(x,xOwned,-1);
 
   safe_free((void **) &xOwned);
   if (Lbinodal)  safe_free((void **) &x2Owned);
@@ -88,7 +88,7 @@ int solve_problem_picard(double **x, double **x2)
   return(iter);
 }
 /****************************************************************************/
-int picard_solver(double **x, int subIters){
+int picard_solver(double **x, double **xOwned, int subIters){
   // subIters  of -1 means Picard is being called as the nonlinear solver alg.
   // Otherwise, this is an inner iteration to another solver (NOX) and
   // will just proceed for subIters iterations and return.
@@ -125,7 +125,7 @@ int picard_solver(double **x, int subIters){
                               calc_density_next_iter_HSperturb(x);
      else if(Type_poly==CMS)  calc_density_next_iter_CMS(x);
      else if(Type_poly==CMS_SCFT)  calc_density_next_iter_SCF(x);
-     else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) calc_density_next_iter_WJDC(x);
+     else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) calc_density_next_iter_WJDC(x,xOwned);
      communicate_to_fill_in_box_values(x);
 
 /* if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");*/
@@ -157,14 +157,14 @@ int picard_solver(double **x, int subIters){
 
          case MF_EQ:
            if (Phys2Nunk[MF_EQ]>0){
-              calc_init_mf_attract(x); 
+              calc_init_mf_attract(x,xOwned); 
               communicate_to_fill_in_box_values(x);
            }
            break;
 
          case HSRHOBAR:
            if (Phys2Nunk[HSRHOBAR]>0){
-              calc_init_rho_bar(x); 
+              calc_init_rho_bar(x,xOwned); 
               communicate_to_fill_in_box_values(x);
            }
            break;
@@ -185,28 +185,28 @@ int picard_solver(double **x, int subIters){
 
          case CAVWTC:
            if (Phys2Nunk[CAVWTC]>0){
-              calc_init_Xi_cavWTC(x);
+              calc_init_Xi_cavWTC(x,xOwned);
               communicate_to_fill_in_box_values(x);
             }
             break;
 
          case BONDWTC:
             if (Phys2Nunk[BONDWTC]>0){
-               calc_init_BondWTC(x);
+               calc_init_BondWTC(x,xOwned);
                communicate_to_fill_in_box_values(x);
              }
              break;
 
          case WJDC_FIELD:
             if (Phys2Nunk[WJDC_FIELD]>0){
-               calc_init_WJDC_field(x);
+               calc_init_WJDC_field(x,xOwned);
                communicate_to_fill_in_box_values(x);
              }
              break;
 
          case CMS_FIELD:
             if (Phys2Nunk[CMS_FIELD]>0){
-              calc_init_CMSfield(x);
+              calc_init_CMSfield(x,xOwned);
               communicate_to_fill_in_box_values(x);
             }
             break;
@@ -224,8 +224,8 @@ int picard_solver(double **x, int subIters){
 			 break;
          case G_CHAIN:
             if (Phys2Nunk[G_CHAIN]>0){
-               if (Type_poly==CMS || Type_poly==CMS_SCFT) calc_init_polymer_G_CMS(x);
-               else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) calc_init_polymer_G_wjdc(x);
+               if (Type_poly==CMS || Type_poly==CMS_SCFT) calc_init_polymer_G_CMS(x,xOwned);
+               else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) calc_init_polymer_G_wjdc(x,xOwned);
             }
             break;
 		 case YW_DENS:
@@ -312,7 +312,7 @@ void calc_density_next_iter_CMS(double **xInBox)
 /****************************************************************************/
 /* calc_density_next_iter_WJDC(x); compute a new density profile for cases where
    we are doing WJDC-DFT calculations */
-void calc_density_next_iter_WJDC(double **xInBox)
+void calc_density_next_iter_WJDC(double **xInBox,double **xOwned)
 {
   int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i,iloop_max;
   double resid;
@@ -322,9 +322,10 @@ void calc_density_next_iter_WJDC(double **xInBox)
   if (Type_poly==WJDC3) iloop_max=Ncomp;
   else iloop_max=Nseg_tot;
 
-  calc_init_WJDC_field(xInBox);
-  calc_init_polymer_G_wjdc(xInBox);
-  communicate_to_fill_in_box_values(xInBox);
+  calc_init_WJDC_field(xInBox,xOwned);
+  calc_init_polymer_G_wjdc(xInBox,xOwned);
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);
+/*  communicate_to_fill_in_box_values(xInBox);*/
 
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){

@@ -37,25 +37,24 @@
  
 /*********************************************************/
 /*setup_polymer_field: in this routine sets up the initial guess for the WJDC field variable */
-void setup_polymer_field_wjdc(double **xInBox)
+void setup_polymer_field_wjdc(double **xOwned)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,iref;
+  int loc_inode,itype_mer,irho, iunk,i,Nloop,iref;
   double field;
 
   if (Type_poly==WJDC)                           Nloop=Nseg_tot; 
   else if (Type_poly==WJDC2 || Type_poly==WJDC3) Nloop=Ncomp;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     inode_box=L2B_node[loc_inode];
      for (i=0; i<Nloop; i++){
          iunk=Phys2Unk_first[WJDC_FIELD]+i;
          if (Type_poly==WJDC){
-             if (!Zero_density_TF[inode_box][Unk2Comp[i]]) xInBox[iunk][inode_box]=Field_WJDC_b[Unk2Comp[i]];
-             else                            xInBox[iunk][inode_box]=0.;
+             if (!Zero_density_TF[L2B_node[loc_inode]][Unk2Comp[i]]) xOwned[iunk][loc_inode]=Field_WJDC_b[Unk2Comp[i]];
+             else                            xOwned[iunk][loc_inode]=0.;
          }
          else if (Type_poly==WJDC2 || Type_poly==WJDC3){
-             if (!Zero_density_TF[inode_box][i]) xInBox[iunk][inode_box]=Field_WJDC_b[i];
-             else                            xInBox[iunk][inode_box]=0.;
+             if (!Zero_density_TF[L2B_node[loc_inode]][i]) xOwned[iunk][loc_inode]=Field_WJDC_b[i];
+             else                            xOwned[iunk][loc_inode]=0.;
          }
      }
    }
@@ -63,7 +62,7 @@ void setup_polymer_field_wjdc(double **xInBox)
 }
 /*********************************************************/
 /*calc_init_WJDC_field: in this routine sets up the initial guess for the WJDC field variable */
-void calc_init_WJDC_field(double **xInBox)
+void calc_init_WJDC_field(double **xInBox,double **xOwned)
 {
   int loc_inode,inode_box,ijk_box[3],icomp,iunk,izone,mesh_coarsen_flag_i,i,Nloop;
   double resid_EL;
@@ -94,7 +93,8 @@ void calc_init_WJDC_field(double **xInBox)
                           xInBox,dphi_drb,mesh_coarsen_flag_i,INIT_GUESS_FLAG);
           xInBox[iunk][inode_box]=resid_EL;
        }
-       else xInBox[iunk][inode_box]=0.0;
+       else xInBox[iunk][inode_box]=0.0; 
+       xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
      }
   }
   if (Type_func != NONE) safe_free((void *) &dphi_drb);
@@ -103,18 +103,17 @@ void calc_init_WJDC_field(double **xInBox)
 /*********************************************************/
 /*setup_polymer_G_wjdc: in this routine sets up the initial guess for the chain variable
 in the wjdc functional */
-void setup_polymer_G_wjdc(double **xInBox)
+void setup_polymer_G_wjdc(double **xOwned)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,iseg,icomp_iseg;
+  int loc_inode,itype_mer,irho, iunk,i,Nloop,iseg,icomp_iseg;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     inode_box=L2B_node[loc_inode];
      for (i=0; i<Nbonds; i++){
          iseg=Unk_to_Seg[i];
          icomp_iseg=Unk2Comp[iseg];
          iunk=Phys2Unk_first[G_CHAIN]+i;
-         if (!Zero_density_TF[inode_box][icomp_iseg]) xInBox[iunk][inode_box]=G_WJDC_b[i];
-         else xInBox[iunk][inode_box]=0.0;
+         if (!Zero_density_TF[L2B_node[loc_inode]][icomp_iseg]) xOwned[iunk][loc_inode]=G_WJDC_b[i];
+         else xOwned[iunk][loc_inode]=0.0;
      }
    }
    return;
@@ -122,7 +121,7 @@ void setup_polymer_G_wjdc(double **xInBox)
 /*********************************************************/
 /*calc_init_polymer_G_wjdc: in this routine sets up the initial guess for the chain variable
 in the wjdc functional */
-void calc_init_polymer_G_wjdc(double **xInBox)
+void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned)
 {
   int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,icomp_iseg;
   int ibond,jbond,index,iseg,jseg,pol_num,bond_num,test,ijk_box[3];
@@ -161,6 +160,8 @@ void calc_init_polymer_G_wjdc(double **xInBox)
               }
            }
            if (test==TRUE){     /* compute a bulk G */
+              (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);  /* make sure all fields and G's previously calculated 
+                                                                                       are up to date in box coordinates */
                for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
                      inode_box=L2B_node[loc_inode];
                      node_box_to_ijk_box(inode_box,ijk_box);
@@ -171,9 +172,8 @@ void calc_init_polymer_G_wjdc(double **xInBox)
                                              ijk_box,0,xInBox, INIT_GUESS_FLAG);
                 
                      xInBox[iunk][inode_box]=resid_G;
+                     xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
                }
-               communicate_to_fill_in_box_values(xInBox);  /* we need every G to be updated for all nodes in box as we
-                                                             generate them so we will be able to perform the next integral */
               count_fill++;
               array_val[ibond]=TRUE;
 

@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-void communicate_to_fill_in_box_values(double **xInBox);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -18,6 +17,7 @@ void communicate_to_fill_in_box_values(double **xInBox);
 #define INIT_GUESS_FLAG  2
 double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define G_CHAIN       11 
+extern void *LinProbMgr_manager;
 extern int ***Poly_to_Unk;
 extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
@@ -27,7 +27,7 @@ double CMS_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_b
 double CMS_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 #define NBOND_MAX 4
 #define NMER_MAX     100
-void calc_init_polymer_G_CMS(double **xInBox);
+void calc_init_polymer_G_CMS(double **xInBox,double **xOwned);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -35,7 +35,6 @@ void calc_init_polymer_G_CMS(double **xInBox);
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-extern int *B2L_node;
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
@@ -75,13 +74,14 @@ struct Stencil_Struct {
                              are being contributed from. Only used for Hard
                              Walls when stencil point is a boundary node  */
 };
-void setup_polymer_G(double **xInBox);
+void setup_polymer_G(double **xInBox,double **xOwned);
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+extern int *B2L_node;
 extern int Nnodes_box;
-void setup_polymer_rho(double **xInBox,int iguess);
+void setup_polymer_rho(double **xInBox,double **xOwned,int iguess);
 #define DENSITY_MIN  1.e-20
 #define CMS_SCFT     1
 #define CMS          0
@@ -103,7 +103,8 @@ void setup_polymer_simple(double **xInBox,int iguess);
 double int_stencil_CMSField(double **x,int inode_box,int iunk,int sten_type);
 extern double **Vext;
 extern int **Zero_density_TF;
-void calc_init_CMSfield(double **xInBox);
+extern int *L2B_node;
+void calc_init_CMSfield(double **xInBox,double **xOwned);
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define CMS_FIELD      7
@@ -111,6 +112,5 @@ extern double VEXT_MAX;
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
-extern int *L2B_node;
 extern int Nnodes_per_proc;
-void setup_polymer_field(double **xInBox,int iguess);
+void setup_polymer_field(double **xOwned,int iguess);

@@ -21,13 +21,12 @@ extern double Elec_pot_LBB;
 extern int Grad_dim;
 extern double Esize_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
-extern int *B2G_node;
+extern int *L2G_node;
 #define LINEAR           5
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
 #define POISSON        1
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
-extern int *L2B_node;
 extern int Nnodes_per_proc;
-void setup_elec_pot(double **xInBox,int iguess);
+void setup_elec_pot(double **xOwned,int iguess);

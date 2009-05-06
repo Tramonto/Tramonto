@@ -41,11 +41,12 @@ int solve_problem(double **x, double **x2)
  */
 {
   int iter,iunk,i;
-  double **xOwned, **x2Owned;
+  double **xOwned, **x2Owned,start_t;
   int loc_inode,inode_box,itmp;
   int ierr;
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
+  start_t=MPI_Wtime();
   linsolver_setup_control();
 
   /* Give Nodal Row and Column maps */
@@ -56,9 +57,9 @@ int solve_problem(double **x, double **x2)
   dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);
 
   /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
-  /*(void) dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);*/
   ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
   if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
+  Time_MgrPrePost = MPI_Wtime()-start_t;
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
 /*for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
@@ -77,14 +78,21 @@ if (B2G_node[inode_box]==254) printf("Proc=%d sees global node 254 (box coord=%d
         }
      }
   }
-  else{ set_initial_guess(Iguess1, xOwned);}
+  else{ 
+      start_t=MPI_Wtime();
+      set_initial_guess(Iguess1, xOwned);
+      Time_InitGuess=MPI_Wtime()-start_t;
+  }
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
 /*for (inode_box=0;inode_box<Nnodes_box;inode_box++){
 if (B2G_node[inode_box]==254) printf("after calling set_inital guess: Proc=%d inode_box=%d B2G_node=%d xOwned=%g\n",
   Proc,inode_box,B2G_node[inode_box],xOwned[0][inode_box]);
 }*/
+
+  start_t=MPI_Wtime();
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
+  Time_MgrPrePost += (MPI_Wtime()-start_t);
 /* debugging */
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
@@ -108,13 +116,16 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
        }
     }
     else{ 
-printf("calling initial guess for 2nd binodal solutions !!\n");
      set_initial_guess(BINODAL_FLAG, x2Owned);}
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
+  start_t=MPI_Wtime();
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
+  Time_MgrPrePost += (MPI_Wtime()-start_t);
+
+  start_t=MPI_Wtime();
   if (NL_Solver==NEWTON_NOX || NL_Solver==PICNEWTON_NOX) {
     iter = NOXLOCA_Solver(x, xOwned, x2Owned,FALSE);
   }
@@ -125,7 +136,9 @@ printf("calling initial guess for 2nd binodal solutions !!\n");
   else
      iter = newton_solver(x, NULL);
    }
+  Time_NLSolve=MPI_Wtime()-start_t;
 
+  start_t=MPI_Wtime();
   safe_free((void **) &xOwned);
   if (Lbinodal)  safe_free((void **) &x2Owned);
 
@@ -134,6 +147,7 @@ printf("calling initial guess for 2nd binodal solutions !!\n");
 
   /* Call the destructor for the dft_ParameterList */
   dft_parameterlist_destruct(ParameterList_list);
+  /*Time_MgrPrePost += (MPI_Wtime()-start_t);*/
 
   return(iter);
 }

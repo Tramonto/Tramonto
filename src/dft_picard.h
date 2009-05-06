@@ -36,6 +36,7 @@ double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 void node_box_to_ijk_box(int node_box,int *ijk_box);
+extern int *L2B_node;
 extern int Ncomp;
 extern int Nseg_tot;
 extern int Lseg_densities;
@@ -58,32 +59,33 @@ extern int Proc;
 extern int Proc;
 #endif
 #define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
-void calc_init_polymer_G_wjdc(double **xInBox);
-void calc_init_polymer_G_CMS(double **xInBox);
+void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned);
+void calc_init_polymer_G_CMS(double **xInBox,double **xOwned);
 #define G_CHAIN       11 
 void calc_init_lambda(double **xInBox);
 #define SCF_CONSTR	   9
 void calc_init_SCFfield(double **xInBox);
 #define SCF_FIELD	  10
-void calc_init_CMSfield(double **xInBox);
+void calc_init_CMSfield(double **xInBox,double **xOwned);
 #define CMS_FIELD      7
-void calc_init_WJDC_field(double **xInBox);
+void calc_init_WJDC_field(double **xInBox,double **xOwned);
 #define WJDC_FIELD     8
-void calc_init_BondWTC(double **xInBox);
+void calc_init_BondWTC(double **xInBox,double **xOwned);
 #define BONDWTC        5
-void calc_init_Xi_cavWTC(double **xInBox);
+void calc_init_Xi_cavWTC(double **xInBox,double **xOwned);
 #define CAVWTC         4
 #define DIFFUSION      6
 #define POISSON        1
-void calc_init_rho_bar(double **xInBox);
+void calc_init_rho_bar(double **xInBox,double **xOwned);
 #define HSRHOBAR       2
-void calc_init_mf_attract(double **xInBox);
+void calc_init_mf_attract(double **xInBox,double **xOwned);
 extern int Phys2Nunk[NEQ_TYPE];
 #define MF_EQ          3
 #define DENSITY        0
 void fix_symmetries(double **x);
 int update_solution_picard(double **x,double **delta_x,int iter);
-void calc_density_next_iter_WJDC(double **xInBox);
+void communicate_to_fill_in_box_values(double **xInBox);
+void calc_density_next_iter_WJDC(double **xInBox,double **xOwned);
 #define CMS_SCFT     1
 void calc_density_next_iter_CMS(double **xInBox);
 void calc_density_next_iter_HSperturb(double **xInBox);
@@ -108,7 +110,7 @@ extern int Nnodes_box;
 #endif
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-int picard_solver(double **x,int subIters);
+int picard_solver(double **x,double **xOwned,int subIters);
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
@@ -118,8 +120,7 @@ int picard_solver(double **x,int subIters);
 extern int NL_Solver;
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */
 extern int Lbinodal;
-void communicate_to_fill_in_box_values(double **xInBox);
-extern int *L2B_node;
+extern void *LinProbMgr_manager;
 extern int Iguess1;
 void set_initial_guess(int iguess,double **xOwned);
 extern int Nnodes_per_proc;

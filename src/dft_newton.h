@@ -76,6 +76,7 @@ void box2owned(double **xBox,double **xOwned);
 extern void *ParameterList_list;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
+extern double Time_NLSolve;
 int newton_solver(double **x,void *con_ptr);
 int solve_continuation(double **xx,double **xx2);
 typedef struct Loca_Struct Loca_Struct;
@@ -98,6 +99,7 @@ extern int Lbinodal;
 void print_profile_box(double **x,char *outfile);
 #define VERBOSE      3 
 extern int Iwrite;
+extern double Time_InitGuess;
 extern int Iguess1;
 void set_initial_guess(int iguess,double **xOwned);
 extern int *L2B_node;
@@ -112,6 +114,7 @@ void *array_alloc(int numdim,...);
 #if !(defined(__STDC__))
 void *array_alloc(...);
 #endif
+extern double Time_MgrPrePost;
 extern int *List_coarse_nodes;
 extern int Nnodes_coarse_loc;
 extern int *B2G_node;

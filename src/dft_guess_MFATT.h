@@ -16,7 +16,8 @@
 #include "Tramonto_ConfigDefs.h"
 #define THETA_PAIRPOT_RCUT    2
 double int_stencil(double **x,int inode_box,int iunk,int sten_type);
-void calc_init_mf_attract(double **xInBox);
+extern int *L2B_node;
+void calc_init_mf_attract(double **xInBox,double **xOwned);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
@@ -27,6 +28,5 @@ extern int Type_interface;
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
-extern int *L2B_node;
 extern int Nnodes_per_proc;
-void setup_mf_attract(double **xInBox);
+void setup_mf_attract(double **xOwned);

@@ -24,9 +24,10 @@ extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];
 extern double Xstart_step[NSTEPS_MAX];
 extern double **X_wall;
 extern int Nwall;
+void chop_profile(double **xInBox,int iguess);
 extern int *L2B_node;
 extern int Nnodes_per_proc;
-void chop_profile(double **xInBox,int iguess);
+void check_zero_densities_owned(double **xOwned);
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define NMER_MAX     100
@@ -45,6 +46,7 @@ extern int Nodes_x_old[NDIM_MAX];
 extern int Nodes_x[NDIM_MAX];
 #define NEQ_TYPE       13 
 extern int Phys2Unk_last[NEQ_TYPE];
+extern int Nrho_bar_s;
 extern int Nmer_comp[NCOMP_MAX];
 extern int Phys2Unk_first[NEQ_TYPE];
 extern double Temp;
@@ -52,7 +54,6 @@ extern double Mass[NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int LDeBroglie;
-extern int Nrho_bar_s;
 int ijk_to_node(int *ijk);
 extern double Esize_x[NDIM_MAX];
 int round_to_int(double x);
@@ -62,7 +63,7 @@ int round_to_int(double x);
 #define CALC_RHOBAR_AND_G 3
 #define CALC_ALL_FIELDS   1
 extern int Iguess_fields;
-extern int Ndim;
+#define VERBOSE      3 
 #define MF_VARIABLE  2
 extern int Type_attr;
 extern int L_HSperturbation;
@@ -72,7 +73,6 @@ extern int L_HSperturbation;
 #define NONE      -1
 #define NONE        -1
 #define NONE        -1
-#define VERBOSE      3
 extern int Type_coul;
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
@@ -91,6 +91,7 @@ extern int Type_poly;
 #define SCF_FIELD	  10
 #define CMS_FIELD      7
 extern int Nrho_bar;
+extern int Ndim;
 #define HSRHOBAR       2
 #define POISSON        1
 #define MF_EQ          3

@@ -537,6 +537,22 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
     
     /* alert partner how many dots I'll send, read how many I'll recv */
 
+/* new code reverse order of MPI_Send/Recv 
+    incoming = 0;
+    if (readnumber) {
+printf("Proc=%d posting Recv procpartner=%d\n",Proc,procpartner);
+      MPI_Recv(&incoming,1,MPI_INT,procpartner,0,MPI_COMM_WORLD,&status);
+printf("Proc=%d after Recv readnumber=%d \n",Proc,readnumber);
+      if (readnumber == 2) {
+	MPI_Recv(&incoming2,1,MPI_INT,procpartner2,0,MPI_COMM_WORLD,&status);
+	incoming += incoming2;
+      }
+    }
+printf("Proc=%d posting Send procpartner=%d\n",Proc,procpartner);
+    MPI_Send(&outgoing,1,MPI_INT,procpartner,0,MPI_COMM_WORLD);
+ end new code ---- delete all above if it doesn't work. */
+
+/* old code with MPI_Send before MPI_Recv */
     MPI_Send(&outgoing,1,MPI_INT,procpartner,0,MPI_COMM_WORLD);
     incoming = 0;
     if (readnumber) {
@@ -546,6 +562,7 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
 	incoming += incoming2;
       }
     }
+/*end of  old code with MPI_Send before MPI_Recv remove these comments to restore code if changes don't work. */
 
     /* check if need to malloc more space */
 
@@ -605,13 +622,24 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
     }
     
     /* handshake before sending data to insure recvs have been posted */
-    
+
+/* new code attempting to reverse the order of MPI_Send/MPI_Recv ....
+    MPI_Recv(NULL,0,MPI_INT,procpartner,0,MPI_COMM_WORLD,&status);
+    if (readnumber > 0) {
+      MPI_Send(NULL,0,MPI_INT,procpartner,0,MPI_COMM_WORLD);
+      if (readnumber == 2)
+	MPI_Send(NULL,0,MPI_INT,procpartner2,0,MPI_COMM_WORLD);
+    }
+ end of new code. */
+
+/*  old code with MPI_Sends before receives....remove comments of the new code above doesn't work*/
     if (readnumber > 0) {
       MPI_Send(NULL,0,MPI_INT,procpartner,0,MPI_COMM_WORLD);
       if (readnumber == 2)
 	MPI_Send(NULL,0,MPI_INT,procpartner2,0,MPI_COMM_WORLD);
     }
     MPI_Recv(NULL,0,MPI_INT,procpartner,0,MPI_COMM_WORLD,&status);
+/*end of the code that we are trying to change.*/
 
     /* send dot data to partner */
 

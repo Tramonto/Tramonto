@@ -38,7 +38,7 @@
 void set_initial_guess (int iguess, double** xOwned)
 {
   double t1=0.0;
-  int i,idim;
+  int i,idim,iunk,inode_box,inode;
   int start_no_info;
   double **xInBox;
 
@@ -50,6 +50,8 @@ void set_initial_guess (int iguess, double** xOwned)
   /* temporary array set to size of box node to allow us to compute some variables
      that require integrations over densities */ 
   xInBox = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
+  for (iunk=0;iunk< Nunk_per_node; iunk++)
+   for (inode_box=0;inode_box<Nnodes_box; inode_box++) xInBox[iunk][inode_box]=0.0;
 
   if (Proc==0 && Iwrite==VERBOSE){
       if (Restart==NORESTART && Imain_loop==0) printf("start from scratch\n");  
@@ -64,6 +66,7 @@ void set_initial_guess (int iguess, double** xOwned)
   if (Restart != NORESTART || Imain_loop > 0){
        start_no_info = FALSE;
        guess_restart_from_files(start_no_info,iguess,xInBox);  
+       translate_xInBox_to_xOwned(xInBox,xOwned);
   } 
   else start_no_info = TRUE;
 
@@ -74,10 +77,10 @@ void set_initial_guess (int iguess, double** xOwned)
          case DENSITY:
            if (Phys2Nunk[DENSITY]>0 && start_no_info){
                if (Type_poly == CMS || Type_poly ==CMS_SCFT){
-                   setup_polymer_rho(xInBox,iguess);
+                   setup_polymer_rho(xInBox,xOwned,iguess);
                }
                else{
-                   setup_density(xInBox,iguess);
+                   setup_density(xInBox,xOwned,iguess);
                }
            }
            else if (Phys2Nunk[DENSITY]>0 && Restart_field[DENSITY]==FALSE){
@@ -89,47 +92,50 @@ void set_initial_guess (int iguess, double** xOwned)
            break;
          case MF_EQ:
            if (Phys2Nunk[MF_EQ]>0 && (start_no_info || Restart_field[MF_EQ]==FALSE ||Restart==RESTART_DENSONLY)){
-               if (Iguess_fields!=BULK)  calc_init_mf_attract(xInBox); 
-               else                      setup_mf_attract(xInBox); 
+               if (Iguess_fields!=BULK)  calc_init_mf_attract(xInBox,xOwned); 
+               else                      setup_mf_attract(xOwned); 
            } break;
          case HSRHOBAR:
            if (Phys2Nunk[HSRHOBAR]>0 && (start_no_info || Restart_field[HSRHOBAR]==FALSE ||Restart==RESTART_DENSONLY)) {
-                 if (Iguess_fields!=BULK) calc_init_rho_bar(xInBox);
-                 else                     setup_rho_bar(xInBox);
+                 if (Iguess_fields!=BULK) calc_init_rho_bar(xInBox,xOwned);
+                 else                     setup_rho_bar(xOwned);
            } break;
          case POISSON:
            if (Phys2Nunk[POISSON]>0 && (start_no_info || Restart_field[POISSON]==FALSE ||Restart==RESTART_DENSONLY)) {
-                 setup_elec_pot(xInBox,iguess); 
+                 setup_elec_pot(xOwned,iguess); 
            }
            break;
          case DIFFUSION: 
            if (Phys2Nunk[DIFFUSION]>0 && (start_no_info || Restart_field[DIFFUSION]==FALSE ||Restart==RESTART_DENSONLY)) {
-                  setup_chem_pot(xInBox); 
+                  setup_chem_pot(xOwned); 
            }
            break;
 
          case CAVWTC:
            if (Phys2Nunk[CAVWTC]>0 && (start_no_info || Restart_field[CAVWTC]==FALSE)){
-              if (Iguess_fields!=BULK) calc_init_Xi_cavWTC(xInBox);
-              else                     setup_Xi_cavWTC(xInBox);
+              if (Iguess_fields!=BULK) calc_init_Xi_cavWTC(xInBox,xOwned);
+              else                     setup_Xi_cavWTC(xOwned);
            }  break;
 
          case BONDWTC:
            if (Phys2Nunk[BONDWTC]>0 && (start_no_info || Restart_field[BONDWTC]==FALSE)){
-              if (Iguess_fields!=BULK) calc_init_BondWTC(xInBox);
-              else                     setup_BondWTC(xInBox);
+              if (Iguess_fields!=BULK) calc_init_BondWTC(xInBox,xOwned);
+              else                     setup_BondWTC(xOwned);
            } break;
 
          case WJDC_FIELD:
            if (Phys2Nunk[WJDC_FIELD]>0 && (start_no_info || Restart_field[WJDC_FIELD]==FALSE)){
-                 if (Iguess_fields==CALC_ALL_FIELDS) calc_init_WJDC_field(xInBox);
-                 else                            setup_polymer_field_wjdc(xInBox); 
-           } break;
+                 if (Iguess_fields==CALC_ALL_FIELDS) calc_init_WJDC_field(xInBox,xOwned);
+                 else                            setup_polymer_field_wjdc(xOwned); 
+           } 
+           break;
+
          case CMS_FIELD:
            if (Phys2Nunk[CMS_FIELD]>0 && (start_no_info || Restart_field[CMS_FIELD]==FALSE)) {
-              if (Iguess_fields==CALC_ALL_FIELDS) calc_init_CMSfield(xInBox);
-              else setup_polymer_field(xInBox,iguess); 
-           } break;
+              if (Iguess_fields==CALC_ALL_FIELDS) calc_init_CMSfield(xInBox,xOwned);
+              else setup_polymer_field(xOwned,iguess); 
+           } 
+           break;
 		 case SCF_FIELD:
 			 if (Phys2Nunk[SCF_FIELD]>0 && (start_no_info || Restart_field[SCF_FIELD]==FALSE)) {
 				 if (Iguess_fields==CALC_ALL_FIELDS) calc_init_SCFfield(xInBox);
@@ -144,17 +150,17 @@ void set_initial_guess (int iguess, double** xOwned)
            if (Phys2Nunk[G_CHAIN]>0 && (start_no_info || Restart_field[G_CHAIN]==FALSE)){
                 if (Type_poly==CMS){
                     if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
-                                                       calc_init_polymer_G_CMS(xInBox);
+                                                       calc_init_polymer_G_CMS(xInBox,xOwned);
                     }
-                    else                                setup_polymer_G(xInBox); 
+                    else                                setup_polymer_G(xInBox,xOwned); 
                 }
 			    else if (Type_poly==CMS_SCFT)
 					calc_init_polymer_G_SCF(xInBox);
                 else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                    if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
-                          calc_init_polymer_G_wjdc(xInBox);
+                          calc_init_polymer_G_wjdc(xInBox,xOwned);
                    }
-                   else   setup_polymer_G_wjdc(xInBox);
+                   else   setup_polymer_G_wjdc(xOwned);
                 }
            }
            break;
@@ -166,12 +172,10 @@ void set_initial_guess (int iguess, double** xOwned)
            exit(-1);
            break;
      }
-     communicate_to_fill_in_box_values(xInBox);
   }
   if (Restart == RESTART_STEP) chop_profile(xInBox,iguess);  /* special case for treating wetting problems */
 
-  check_zero_densities(xInBox);              
-  translate_xInBox_to_xOwned(xInBox,xOwned);
+  check_zero_densities_owned(xOwned);              
   safe_free((void **) &xInBox);
 
 /* note need to put the setup_poymer_simple functionality inside the various setup_polymer_CMS routines....*/

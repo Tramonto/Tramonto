@@ -45,6 +45,7 @@ extern int *B2L_unknowns;
 extern double *Deltac_b;
 #define COULOMB      1
 extern int Ipot_ff_c;
+extern double Time_InitGuess;
 extern int L_Schur;
 double gmin_double(double c);
 double gmax_double(double c);
@@ -152,6 +153,8 @@ extern int Proc;
 extern int Proc;
 #endif
 extern int Num_Proc;
+extern double Time_MgrPrePost;
+extern double Time_NLSolve;
 extern double Time_fill_av;
 extern double Time_fill_first;
 extern double Time_manager_av;

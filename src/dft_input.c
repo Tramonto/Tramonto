@@ -2021,7 +2021,7 @@ void error_check(void)
   if (Num_Proc == 1) Load_Bal_Flag = 0;
 
   if (Nzone > NZONE_MAX || Nzone <1 ){
-     printf("\nERROR: Nzone out of range: Minimum val=1; Maximum val=%d\n",NZONE_MAX);
+     printf("\nERROR: Nzone out of range: Minimum val=1; Maximum val=%d: Current val=%d\n",NZONE_MAX,Nzone);
      exit(-1);
   }
   if (Coarser_jac == 5) nmax= Nzone-1;

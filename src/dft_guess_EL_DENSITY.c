@@ -35,7 +35,7 @@
 
 #include "dft_guess_EL_DENSITY.h"
 
-void setup_density(double **xInBox,int iguess)
+void setup_density(double **xInBox,double **xOwned,int iguess)
 {
     switch(iguess){
       case CONST_RHO:
@@ -59,6 +59,7 @@ void setup_density(double **xInBox,int iguess)
       case LINEAR:
             setup_linear_profile(xInBox);
     }  /* end of iguess switch */
+    translate_xInBox_to_xOwned(xInBox,xOwned);
     return;
 }
 /*********************************************************/

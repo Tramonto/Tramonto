@@ -628,6 +628,37 @@ void check_zero_densities(double **xInBox)
   }
   return;
 }
+/*********************************************************************/
+/*check_zero_densities_owned: here just remove zero densities where 
+         not appropriate, and make sure x=0 where needed */
+void check_zero_densities_owned(double **xOwned)
+{
+
+  int loc_inode,icomp,iunk,iloop,nloop;
+
+  if (Lseg_densities) nloop=Nseg_tot;
+  else nloop=Ncomp;
+
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+      for (iloop=0; iloop<nloop; iloop++){
+         icomp=Unk2Comp[iloop];
+	 iunk = Phys2Unk_first[DENSITY]+iloop;
+         if (Zero_density_TF[L2B_node[loc_inode]][icomp])
+                 xOwned[iunk][loc_inode] = 0.0;
+         else{
+           if (Lseg_densities)
+              if (xOwned[iunk][loc_inode] < Rho_seg_b[iunk]*exp(-VEXT_MAX)) {
+                  xOwned[iunk][loc_inode] = Rho_seg_b[iunk]*exp(-VEXT_MAX); /*DENSITY_MIN*/
+              }
+           else
+              if (xOwned[iunk][loc_inode] < Rho_b[icomp]*exp(-VEXT_MAX)) {
+                  xOwned[iunk][loc_inode] = Rho_b[icomp]*exp(-VEXT_MAX); /*DENSITY_MIN*/
+              }
+         }
+      }
+  }
+  return;
+}
 /**********************************************************************/
 /*chop_profile: do the profile chop here. */
 void chop_profile(double **xInBox, int iguess)

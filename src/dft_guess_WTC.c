@@ -41,15 +41,14 @@
                  Wertheim-Tripathi-Chapman functionals.  For now
                 use bulk segment densities initial guess.  Later calculate
                 based on rho initial guess. */
-void setup_Xi_cavWTC(double **xInBox)
+void setup_Xi_cavWTC(double **xOwned)
 {
-  int loc_inode,iunk,icav,inode_box;
+  int loc_inode,iunk,icav;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     inode_box=L2B_node[loc_inode];
      for (icav = 0; icav < Phys2Nunk[CAVWTC]; icav++){
        iunk = Phys2Unk_first[CAVWTC] + icav;
-       xInBox[iunk][inode_box] = Xi_cav_b[icav+2];
+       xOwned[iunk][loc_inode] = Xi_cav_b[icav+2];
      }
   }
   return;
@@ -59,15 +58,14 @@ void setup_Xi_cavWTC(double **xInBox)
                  Wertheim-Tripathi-Chapman functionals.  For now
                 use bulk segment densities initial guess.  Later calculate
                 based on rho initial guess. */
-void setup_BondWTC(double **xInBox)
+void setup_BondWTC(double **xOwned)
 {
-  int loc_inode,iunk,ibond,inode_box;;
+  int loc_inode,iunk,ibond;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     inode_box=L2B_node[loc_inode];
      for (ibond = 0; ibond < Nbonds; ibond++){
        iunk = Phys2Unk_first[BONDWTC] + ibond;
-       xInBox[iunk][inode_box] = BondWTC_b[ibond];
+       xOwned[iunk][loc_inode] = BondWTC_b[ibond];
      }
   }
   return;
@@ -75,7 +73,7 @@ void setup_BondWTC(double **xInBox)
 /************************************************************/
 /*calc_init_Xi_cavWTC: compute the cavity function initial guesses 
                  based on known density profiles.  */
-void calc_init_Xi_cavWTC(double **xInBox)
+void calc_init_Xi_cavWTC(double **xInBox,double **xOwned)
 { 
   int loc_inode,iunk,icav,inode_box;
   
@@ -84,6 +82,7 @@ void calc_init_Xi_cavWTC(double **xInBox)
      for (icav = 0; icav < Phys2Nunk[CAVWTC]; icav++){
        iunk = Phys2Unk_first[CAVWTC] + icav;
        xInBox[iunk][inode_box] = int_stencil_CAV(xInBox,inode_box,iunk);
+       xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
      }
   }
   return;
@@ -93,15 +92,16 @@ void calc_init_Xi_cavWTC(double **xInBox)
                  Wertheim-Tripathi-Chapman functionals.  For now 
                 use bulk segment densities initial guess.  Later calculate
                 based on rho initial guess. */
-void calc_init_BondWTC(double **xInBox)
+void calc_init_BondWTC(double **xInBox,double **xOwned)
 { 
-  int loc_inode,iunk,ibond,inode_box;;
+  int loc_inode,iunk,ibond,inode_box;
   
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];
      for (ibond = 0; ibond < Nbonds; ibond++){
        iunk = Phys2Unk_first[BONDWTC] + ibond;
        xInBox[iunk][inode_box] = int_stencil_BondWTC(xInBox,inode_box,iunk);
+       xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
      }
   }
   return;

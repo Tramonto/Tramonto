@@ -22,6 +22,7 @@ extern double Betamu_LBB[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
 #define DENSITY        0
 extern int Ipot_ff_c;
+extern int *L2B_node;
 extern int **Zero_density_TF;
 #define NMER_MAX     100
 extern int Unk2Comp[NMER_MAX];
@@ -31,8 +32,7 @@ extern int Phys2Unk_first[NEQ_TYPE];
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
-extern int *B2G_node;
-extern int *L2B_node;
+extern int *L2G_node;
 extern int Nnodes_per_proc;
 extern double X_const_mu;
 extern int Grad_dim;
@@ -40,4 +40,4 @@ extern double Size_x[NDIM_MAX];
 extern int Ncomp;
 extern int Nseg_tot;
 extern int Lseg_densities;
-void setup_chem_pot(double **xInBox);
+void setup_chem_pot(double **xOwned);

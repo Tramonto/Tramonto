@@ -38,9 +38,9 @@
 /************************************************************/
 /* setup_chem_pot: for cases with steady state profiles,
    set up regions of constant (electro)chemical potentials */
-void setup_chem_pot(double **xInBox)
+void setup_chem_pot(double **xOwned)
 {
-  int loc_inode,inode_box,inode,ijk[3],icomp,iunk,i,nloop;
+  int loc_inode,inode,ijk[3],icomp,iunk,i,nloop;
   double x_dist,x_tot;
 
   if (Lseg_densities) nloop=Nseg_tot;
@@ -48,8 +48,7 @@ void setup_chem_pot(double **xInBox)
 
   x_tot = Size_x[Grad_dim]-2.*X_const_mu;
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     inode_box = L2B_node[loc_inode];
-     inode     = B2G_node[inode_box];
+     inode     = L2G_node[loc_inode];
      node_to_ijk(inode,ijk); 
      x_dist = Esize_x[Grad_dim]*ijk[Grad_dim]-X_const_mu;
 
@@ -58,19 +57,19 @@ void setup_chem_pot(double **xInBox)
         if (Lseg_densities) icomp=Unk2Comp[i];
         else                icomp=i;
 
-        if (!Zero_density_TF[inode_box][icomp]){
+        if (!Zero_density_TF[L2B_node[loc_inode]][icomp]){
            if (Ipot_ff_c == 1){
-             xInBox[iunk][inode_box] = log(xInBox[Phys2Unk_first[DENSITY]+i][inode_box])
-                           + Charge_f[icomp]*(xInBox[Phys2Unk_first[POISSON]][inode_box]);
+             xOwned[iunk][loc_inode] = log(xOwned[Phys2Unk_first[DENSITY]+i][loc_inode])
+                           + Charge_f[icomp]*(xOwned[Phys2Unk_first[POISSON]][loc_inode]);
 
            }
            else{
-               if (x_dist<0.)           xInBox[iunk][inode_box]=Betamu_LBB[i];
-               else if (x_dist > x_tot) xInBox[iunk][inode_box]=Betamu_RTF[i];
-               else  xInBox[iunk][inode_box] = Betamu_LBB[i] + (Betamu_RTF[i]-Betamu_LBB[i])* x_dist/x_tot;
+               if (x_dist<0.)           xOwned[iunk][loc_inode]=Betamu_LBB[i];
+               else if (x_dist > x_tot) xOwned[iunk][loc_inode]=Betamu_RTF[i];
+               else  xOwned[iunk][loc_inode] = Betamu_LBB[i] + (Betamu_RTF[i]-Betamu_LBB[i])* x_dist/x_tot;
            }
        }
-       else xInBox[iunk][inode_box] = -VEXT_MAX;
+       else xOwned[iunk][loc_inode] = -VEXT_MAX;
      }
   }
   return;

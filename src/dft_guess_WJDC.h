@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-void communicate_to_fill_in_box_values(double **xInBox);
 double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,8 +15,8 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_su
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern void *LinProbMgr_manager;
 #define NCOMP_MAX 5
-extern int Proc;
 extern int Geqn_start[NCOMP_MAX];
 extern int ***Poly_to_Unk;
 extern int **Nbond;
@@ -39,12 +38,12 @@ double WJDC_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_
 double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 #define NBOND_MAX 4
 #define NMER_MAX     100
-void calc_init_polymer_G_wjdc(double **xInBox);
+void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned);
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 #define G_CHAIN       11 
 extern int *Unk_to_Seg;
 extern int Nbonds;
-void setup_polymer_G_wjdc(double **xInBox);
+void setup_polymer_G_wjdc(double **xOwned);
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 #define INIT_GUESS_FLAG  2
@@ -74,14 +73,14 @@ struct RB_Struct {
   double    V1[NDIM_MAX];      /*  1/(4*pi*Ri) * unit_vec * Delta_Fn   */
   double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
 };
-void calc_init_WJDC_field(double **xInBox);
+void calc_init_WJDC_field(double **xInBox,double **xOwned);
 extern double Field_WJDC_b[NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
+extern int *L2B_node;
 extern int **Zero_density_TF;
 #define WJDC_FIELD     8
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
-extern int *L2B_node;
 extern int Nnodes_per_proc;
 extern int Ncomp;
 #define WJDC3        5 
@@ -89,4 +88,4 @@ extern int Ncomp;
 extern int Nseg_tot;
 #define WJDC         3
 extern int Type_poly;
-void setup_polymer_field_wjdc(double **xInBox);
+void setup_polymer_field_wjdc(double **xOwned);

@@ -39,27 +39,26 @@
 /*setup_rho_bar: set up the rhobar initial guesses.  For now
                 use Rho_b to set initial guess.  Later calculate
                 based on rho initial guess. */
-void setup_rho_bar(double **xInBox)
+void setup_rho_bar(double **xOwned)
 {
-  int loc_inode,inode_box,inode,ijk[3],iunk,irb;
+  int loc_inode,inode,ijk[3],iunk,irb;
   double vol,area,x_dist;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-     inode_box = L2B_node[loc_inode];
      for (irb = 0; irb < Nrho_bar; irb++){
        iunk = Phys2Unk_first[HSRHOBAR] + irb;
 
        if (Type_interface!=UNIFORM_INTERFACE){
-           inode     = B2G_node[inode_box];
+           inode     = L2G_node[loc_inode];
            node_to_ijk(inode,ijk); 
            x_dist = Esize_x[Grad_dim]*ijk[Grad_dim];
 
-           xInBox[iunk][inode_box] = Rhobar_b_LBB[irb] + 
+           xOwned[iunk][loc_inode] = Rhobar_b_LBB[irb] + 
                       (Rhobar_b_RTF[irb]-Rhobar_b_LBB[irb])*
                            x_dist/Size_x[Grad_dim];
        }
        else {
-          xInBox[iunk][inode_box] = Rhobar_b[irb];
+          xOwned[iunk][loc_inode] = Rhobar_b[irb];
        }
      }
   }
@@ -68,7 +67,7 @@ void setup_rho_bar(double **xInBox)
 /************************************************************/
 /*calc_init_rho_bar: set up the rhobar initial guesses based on a known
                 density profile. Set these variables up on local nodes only.*/
-void calc_init_rho_bar(double **xInBox)
+void calc_init_rho_bar(double **xInBox,double **xOwned)
 {
   int loc_inode,inode_box,inode,ijk[3],iunk,irb;
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
@@ -77,6 +76,7 @@ void calc_init_rho_bar(double **xInBox)
        iunk = Phys2Unk_first[HSRHOBAR] + irb;
        xInBox[iunk][inode_box]=int_stencil_HSFMT(xInBox,inode_box,iunk);
        if (irb==0 && xInBox[iunk][inode_box] >1.0) xInBox[iunk][inode_box]=0.98;
+       xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
      }
   }
   return;
