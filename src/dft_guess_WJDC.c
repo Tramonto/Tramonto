@@ -70,6 +70,9 @@ void calc_init_WJDC_field(double **xInBox,double **xOwned)
   izone=0;
   mesh_coarsen_flag_i=0;
 	
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);  /* make sure all previously calculated 
+                                                                           parameters are up to date in box coords */
+
 
   if (Type_func !=NONE){
      dphi_drb = (struct RB_Struct *) array_alloc (1, Nnodes_box, sizeof(struct RB_Struct));
