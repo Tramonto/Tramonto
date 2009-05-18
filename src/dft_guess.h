@@ -43,7 +43,7 @@ void calc_init_lambda(double **xInBox);
 void setup_polymer_SCF_field(double **xInBox,int iguess);
 void calc_init_SCFfield(double **xInBox);
 #define SCF_FIELD	  10
-void setup_polymer_field(double **xOwned,int iguess);
+void setup_polymer_field(double **xInBox, double **xOwned,int iguess);
 void calc_init_CMSfield(double **xInBox,double **xOwned);
 #define CMS_FIELD      7
 void setup_polymer_field_wjdc(double **xOwned);

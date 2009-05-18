@@ -133,29 +133,27 @@ void set_initial_guess (int iguess, double** xOwned)
          case CMS_FIELD:
            if (Phys2Nunk[CMS_FIELD]>0 && (start_no_info || Restart_field[CMS_FIELD]==FALSE)) {
               if (Iguess_fields==CALC_ALL_FIELDS) calc_init_CMSfield(xInBox,xOwned);
-              else setup_polymer_field(xOwned,iguess); 
+              else setup_polymer_field(xInBox,xOwned,iguess); 
            } 
            break;
-		 case SCF_FIELD:
-			 if (Phys2Nunk[SCF_FIELD]>0 && (start_no_info || Restart_field[SCF_FIELD]==FALSE)) {
-				 if (Iguess_fields==CALC_ALL_FIELDS) calc_init_SCFfield(xInBox);
-				 else setup_polymer_SCF_field(xInBox,iguess); 
-			 } 
-			 break;
-		 case SCF_CONSTR:
-			 if (Phys2Nunk[SCF_CONSTR]>0 && (start_no_info || Restart_field[SCF_CONSTR]==FALSE))
-				 calc_init_lambda(xInBox);
-			 break; 
+         case SCF_FIELD:
+           if (Phys2Nunk[SCF_FIELD]>0 && (start_no_info || Restart_field[SCF_FIELD]==FALSE)) {
+               if (Iguess_fields==CALC_ALL_FIELDS) calc_init_SCFfield(xInBox);
+               else setup_polymer_SCF_field(xInBox,iguess); 
+           } 
+           break;
+           case SCF_CONSTR:
+           if (Phys2Nunk[SCF_CONSTR]>0 && (start_no_info || Restart_field[SCF_CONSTR]==FALSE)) calc_init_lambda(xInBox);
+           break; 
          case G_CHAIN:
            if (Phys2Nunk[G_CHAIN]>0 && (start_no_info || Restart_field[G_CHAIN]==FALSE)){
                 if (Type_poly==CMS){
                     if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
-                                                       calc_init_polymer_G_CMS(xInBox,xOwned);
+                             calc_init_polymer_G_CMS(xInBox,xOwned);
                     }
-                    else                                setup_polymer_G(xInBox,xOwned); 
+                    else     setup_polymer_G(xInBox,xOwned); 
                 }
-			    else if (Type_poly==CMS_SCFT)
-					calc_init_polymer_G_SCF(xInBox);
+                else if (Type_poly==CMS_SCFT) calc_init_polymer_G_SCF(xInBox);
                 else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                    if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
                           calc_init_polymer_G_wjdc(xInBox,xOwned);

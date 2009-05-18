@@ -113,4 +113,4 @@ extern double VEXT_MAX;
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 extern int Nnodes_per_proc;
-void setup_polymer_field(double **xOwned,int iguess);
+void setup_polymer_field(double **xInBox, double **xOwned,int iguess);

@@ -37,7 +37,7 @@
  
 /*********************************************************/
 /*setup_polymer_field: in this routine sets up the initial guess for the CMS field variable */
-void setup_polymer_field(double **xOwned, int iguess)
+void setup_polymer_field(double **xInBox, double **xOwned, int iguess)
 {
   int loc_inode,itype_mer,irho, iunk;
   double field;
@@ -49,6 +49,7 @@ void setup_polymer_field(double **xOwned, int iguess)
          if (xOwned[irho][loc_inode]<1.e-6) field=VEXT_MAX-1.;
          else field=-log(xOwned[irho][loc_inode]/Rho_b[itype_mer]);
          xOwned[iunk][loc_inode]=exp(-field);
+         xInBox[iunk][L2B_node[loc_inode]]=xOwned[iunk][loc_inode];
      }
    }
    return;
@@ -178,19 +179,16 @@ void setup_polymer_G(double **xInBox,double **xOwned)
   struct Stencil_Struct *sten;
   int sten_type,izone,jlist,jnode_box,jtype_mer,itype_mer;
   int iunk,poln,iseg,ibond,not_done,junk,cycle,loc_B;
-	
-	double sig2, nodepos[3],xbound;
+  double sig2, nodepos[3],xbound;
 
      sten_type = DELTA_FN_BOND;
      izone = 0;
 
-     loc_inode=0;
-     inode_box=L2B_node[loc_inode];
      for (poln=0; poln < Npol_comp; poln++){
         iunk = Geqn_start[poln];
         for (iseg=0; iseg<Nmer[poln]; iseg++){
              for (ibond=0; ibond<Nbond[poln][iseg]; ibond++){
-                 xInBox[iunk][inode_box] =999.0;
+                 xOwned[iunk][0] =999.0;
                  iunk++;
              }
         }
@@ -204,92 +202,95 @@ void setup_polymer_G(double **xInBox,double **xOwned)
         for (iseg=0; iseg<Nmer[poln]; iseg++){
            itype_mer =Type_mer[poln][iseg];
            for (ibond=0; ibond<Nbond[poln][iseg]; ibond++){
-
-                             /* TREAT THE END SEGMENTS */
+             (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);  /* make sure all fields and G's previously 
+                                                                                 calculated are up to date in box coordinates */
              /* only try to generate the iunk guess if not already filled in */
-             if (fabs(xInBox[iunk][L2B_node[0]]-999.0)<1.e-6){
+             if (fabs(xOwned[iunk][0]-999.0)<1.e-6){
 
-             if(Bonds[poln][iseg][ibond]== -1){
-                 for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-                     inode_box = L2B_node[loc_inode];
-                     node_box_to_ijk_box(inode_box, ijk_box);
-					 if(Type_poly==CMS)
-						 xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
-					 else if (Type_poly==CMS_SCFT)
-						 xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[SCF_FIELD]+itype_mer][inode_box];
-                  }
-             }
-		     else if(Bonds[poln][iseg][ibond]== -2) {	/* grafted ends */
-				 for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-                     inode_box = L2B_node[loc_inode];
-                     node_box_to_ijk_box(inode_box, ijk_box);
-					 inode = L2G_node[loc_inode];
-					 node_to_position(inode,nodepos);
-					 xbound = WallPos[0][0] + WallParam[0];
-					 sig2 = Bond_ff[itype_mer][itype_mer]*Bond_ff[itype_mer][itype_mer];
-					 if(Type_poly==CMS) {
-						 if(nodepos[0] <= xbound+Bond_ff[itype_mer][itype_mer]) { 
-							 xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
-							 xInBox[iunk][inode_box] *= (1.0/(2.0*sig2))*sqrt(sig2-(nodepos[0]-xbound)*(nodepos[0]-xbound));
-						 }
-						 else xInBox[iunk][inode_box] = 0.0;
-                                                 xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
-					 }
-				 }
-			 }
-             else{
-               jtype_mer = Type_mer[poln][Bonds[poln][iseg][ibond]];
-               junk = Geqn_start[poln]+2*Bonds[poln][iseg][ibond];
-               if (iseg<Bonds[poln][iseg][ibond]) junk += 1;
-               /* test if this G equation has been generated yet ... if not, go on */
-               if (fabs(xInBox[junk][L2B_node[0]]-999.0)>1.e-6){
+                                                                  /* TREAT THE END SEGMENTS */
+               if(Bonds[poln][iseg][ibond]== -1){
                    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-                       inode_box = L2B_node[loc_inode];
-                       node_box_to_ijk_box(inode_box, ijk_box);
-                       xInBox[iunk][inode_box] = 0.;
-                       xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
+                     inode_box = L2B_node[loc_inode];
+                     node_box_to_ijk_box(inode_box, ijk_box);
+                     if(Type_poly==CMS){
+                        xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
+                        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
+                     }
+                     else if (Type_poly==CMS_SCFT){
+                        xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[SCF_FIELD]+itype_mer][inode_box];
+                        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
+                     }
+                   }
+                }
+                else if(Bonds[poln][iseg][ibond]== -2) {	/* grafted ends */
+                  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+                    inode_box = L2B_node[loc_inode];
+                    node_box_to_ijk_box(inode_box, ijk_box);
+                    inode = L2G_node[loc_inode];
+                    node_to_position(inode,nodepos);
+                    xbound = WallPos[0][0] + WallParam[0];
+                    sig2 = Bond_ff[itype_mer][itype_mer]*Bond_ff[itype_mer][itype_mer];
+                    if(Type_poly==CMS) {
+                       if(nodepos[0] <= xbound+Bond_ff[itype_mer][itype_mer]) { 
+                           xInBox[iunk][inode_box] = xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
+                           xInBox[iunk][inode_box] *= (1.0/(2.0*sig2))*sqrt(sig2-(nodepos[0]-xbound)*(nodepos[0]-xbound));
+                        }
+                        else xInBox[iunk][inode_box] = 0.0;
+                        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
+                     }
+                  }
+               }
+               else{
+                 jtype_mer = Type_mer[poln][Bonds[poln][iseg][ibond]];
+                 junk = Geqn_start[poln]+2*Bonds[poln][iseg][ibond];
+                 if (iseg<Bonds[poln][iseg][ibond]) junk += 1;
+                 /* test if this G equation has been generated yet ... if not, go on */
+                 if (fabs(xInBox[junk][L2B_node[0]]-999.0)>1.e-6){
+                    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+                        inode_box = L2B_node[loc_inode];
+                        node_box_to_ijk_box(inode_box, ijk_box);
+                        xInBox[iunk][inode_box] = 0.;
+                        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
 
-                   if (!Zero_density_TF[inode_box][jtype_mer]){ 
-                       if (Nlists_HW <= 2) jlist = 0;
-                       else                jlist = jtype_mer; 
+                        if (!Zero_density_TF[inode_box][jtype_mer]){ 
+                           if (Nlists_HW <= 2) jlist = 0;
+                           else                jlist = jtype_mer; 
            
-		       /* generalize to != bond lengths */
-                       sten = &(Stencil[sten_type][izone][itype_mer+Ncomp*jtype_mer]);
-                       sten_offset = sten->Offset;
-                       sten_weight = sten->Weight;
-                       for (isten = 0; isten < sten->Length; isten++) {
-                          offset = sten_offset[isten];
-                          weight = sten_weight[isten];
+        		       /* generalize to != bond lengths */
+                           sten = &(Stencil[sten_type][izone][itype_mer+Ncomp*jtype_mer]);
+                           sten_offset = sten->Offset;
+                           sten_weight = sten->Weight;
+                           for (isten = 0; isten < sten->Length; isten++) {
+                              offset = sten_offset[isten];
+                              weight = sten_weight[isten];
 
-                           /* Find the Stencil point */
-                           jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
+                               /* Find the Stencil point */
+                               jnode_box = offset_to_node_box(ijk_box, offset, reflect_flag);
 
-                           if (jnode_box >= -1 ) {  /* (-1 in bulk) */
-                              if (Lhard_surf) {
-                              if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
-                                  weight = HW_boundary_weight 
-                                   (jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+                               if (jnode_box >= -1 ) {  /* (-1 in bulk) */
+                                  if (Lhard_surf) {
+                                  if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1) 
+                                      weight = HW_boundary_weight 
+                                       (jtype_mer,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+                               }
+                               if (B2L_node[jnode_box] >-1){ /* node in domain */
+                                  /*xInBox[iunk][inode_box] +=  weight * xInBox[junk][jnode_box]; */
+                                  xInBox[iunk][inode_box] +=  weight; 
+                               } /* check that node is in domain */
+                               else{  /* use the value at loc_inode ... an approximation */
+                                  /*xInBox[iunk][inode_box] +=  weight*xInBox[junk][inode_box]; */
+                                  xInBox[iunk][inode_box] +=  weight; 
+                               }
+                             }
                            }
-                           if (B2L_node[jnode_box] >-1){ /* node in domain */
-                              /*xInBox[iunk][inode_box] +=  weight * xInBox[junk][jnode_box]; */
-                              xInBox[iunk][inode_box] +=  weight; 
-                           } /* check that node is in domain */
-                           else{  /* use the value at loc_inode ... an approximation */
-                              /*xInBox[iunk][inode_box] +=  weight*xInBox[junk][inode_box]; */
-                              xInBox[iunk][inode_box] +=  weight; 
-                           }
-                         }
-                      }
-                      if(Type_poly==CMS)
-			  xInBox[iunk][inode_box] *= xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
-                       else if (Type_poly==CMS_SCFT)
-			  xInBox[iunk][inode_box] *= xInBox[Phys2Unk_first[SCF_FIELD]+itype_mer][inode_box];
-                       xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
+                           if(Type_poly==CMS) xInBox[iunk][inode_box]*=xInBox[Phys2Unk_first[CMS_FIELD]+itype_mer][inode_box];
+                           else if (Type_poly==CMS_SCFT) xInBox[iunk][inode_box]*=xInBox[Phys2Unk_first[SCF_FIELD]+itype_mer][inode_box];
+                           xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
 
-	           } /*end of Zero_dens_TF test */
-                   } /* end of loop over loc_inode */
-               }  /* end of test on whether the jtype_mer guess exists */
-             } /* end of if Bond test */
+	                } /*end of Zero_dens_TF test */
+                    } /* end of loop over loc_inode */
+                 }  /* end of test on whether the jtype_mer guess exists */
+               } /* end of if Bond test */
              }  /* end of test of whether the itype_mer guess already has been generated */
              iunk++;
            } /* end of loop over bonds on iseg */
