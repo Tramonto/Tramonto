@@ -1,6 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-void communicate_profile(double *x_new,double **xInBox);
-void collect_x_old(double **x,double *xold);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -16,9 +14,6 @@ void collect_x_old(double **x,double *xold);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-extern int Nnodes;
-extern double *X_old;
-void communicate_to_fill_in_box_values(double **xInBox);
 extern int *L2B_node;
 extern int Nnodes_per_proc;
 #define NO_SCREEN    2 
@@ -33,17 +28,17 @@ void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned);
 #define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
-void calc_init_polymer_G_SCF(double **xInBox);
+void calc_init_polymer_G_SCF(double **xInBox,double **xOwned);
 void setup_polymer_G(double **xInBox,double **xOwned);
 void calc_init_polymer_G_CMS(double **xInBox,double **xOwned);
 #define CALC_RHOBAR_AND_G 3
 #define G_CHAIN       11 
-void calc_init_lambda(double **xInBox);
+void calc_init_lambda(double **xInBox,double **xOwned);
 #define SCF_CONSTR	   9
-void setup_polymer_SCF_field(double **xInBox,int iguess);
-void calc_init_SCFfield(double **xInBox);
+void setup_polymer_SCF_field(double **xInBox,double **xOwned,int iguess);
+void calc_init_SCFfield(double **xInBox,double **xOwned);
 #define SCF_FIELD	  10
-void setup_polymer_field(double **xInBox, double **xOwned,int iguess);
+void setup_polymer_field(double **xInBox,double **xOwned,int iguess);
 void calc_init_CMSfield(double **xInBox,double **xOwned);
 #define CMS_FIELD      7
 void setup_polymer_field_wjdc(double **xOwned);

@@ -25,14 +25,16 @@ extern double Xstart_step[NSTEPS_MAX];
 extern double **X_wall;
 extern int Nwall;
 void chop_profile(double **xInBox,int iguess);
-extern int *L2B_node;
-extern int Nnodes_per_proc;
 void check_zero_densities_owned(double **xOwned);
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define NMER_MAX     100
 extern double Rho_seg_b[NMER_MAX];
 extern int **Zero_density_TF;
+extern void *LinProbMgr_manager;
+extern int *L2B_node;
+extern int Nnodes_per_proc;
+void communicate_to_fill_in_box_values(double **xInBox);
 extern int *B2G_node;
 extern int Nnodes_box;
 int locate_inode_old(int *ijk);

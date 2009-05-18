@@ -138,12 +138,12 @@ void set_initial_guess (int iguess, double** xOwned)
            break;
          case SCF_FIELD:
            if (Phys2Nunk[SCF_FIELD]>0 && (start_no_info || Restart_field[SCF_FIELD]==FALSE)) {
-               if (Iguess_fields==CALC_ALL_FIELDS) calc_init_SCFfield(xInBox);
-               else setup_polymer_SCF_field(xInBox,iguess); 
+               if (Iguess_fields==CALC_ALL_FIELDS) calc_init_SCFfield(xInBox,xOwned);
+               else setup_polymer_SCF_field(xInBox,xOwned,iguess); 
            } 
            break;
            case SCF_CONSTR:
-           if (Phys2Nunk[SCF_CONSTR]>0 && (start_no_info || Restart_field[SCF_CONSTR]==FALSE)) calc_init_lambda(xInBox);
+           if (Phys2Nunk[SCF_CONSTR]>0 && (start_no_info || Restart_field[SCF_CONSTR]==FALSE)) calc_init_lambda(xInBox,xOwned);
            break; 
          case G_CHAIN:
            if (Phys2Nunk[G_CHAIN]>0 && (start_no_info || Restart_field[G_CHAIN]==FALSE)){
@@ -153,7 +153,7 @@ void set_initial_guess (int iguess, double** xOwned)
                     }
                     else     setup_polymer_G(xInBox,xOwned); 
                 }
-                else if (Type_poly==CMS_SCFT) calc_init_polymer_G_SCF(xInBox);
+                else if (Type_poly==CMS_SCFT) calc_init_polymer_G_SCF(xInBox,xOwned);
                 else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                    if (Iguess_fields == CALC_ALL_FIELDS || Iguess_fields == CALC_RHOBAR_AND_G) {
                           calc_init_polymer_G_wjdc(xInBox,xOwned);
@@ -193,18 +193,5 @@ void translate_xInBox_to_xOwned(double **xInBox,double **xOwned)
          if (L2B_node[loc_inode]>=0) xOwned[iunk][loc_inode]=xInBox[iunk][L2B_node[loc_inode]];
       }
    return;
-}
-/********************************************************************************************************/
-/*void communicate_to_fill_in_box_values: this routine is needed for CMS and WJDC functionals where the
-  field variables can only be computed on local nodes, but need to be known on all of the box coordinates
-  in order to enable computation of the chain variables on the local nodes*/
-void communicate_to_fill_in_box_values(double **xInBox)
-{
-
-  X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
-  collect_x_old(xInBox,X_old);
-  communicate_profile(X_old,xInBox);
-  safe_free((void *) &X_old);
-  return;
 }
 /********************************************************************************************************/

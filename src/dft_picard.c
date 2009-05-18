@@ -43,12 +43,26 @@ int solve_problem_picard(double **x, double **x2)
  */
 {
   int iter,iunk,i;
-  int loc_inode,inode_box,itmp;
+  int loc_inode,inode_box,itmp,ierr;
   double **xOwned, **x2Owned;
 
   /* this routine looks just like the initial guess routine where we used the density field
      to generate all other fields.  In this case, we use the fields at the ith iteration to
      generate the solution at the i+1 st iteration */
+
+  linsolver_setup_control();
+
+  /* Give Nodal Row and Column maps */
+  (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
+  (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
+
+  /* send solver manager information about mesh coarsening */
+/*  dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);*/
+
+  /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
+  ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
+  if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
+
 
   /* Set initial guess on owned nodes and reconcile ghost nodes manually here -- note this is a 
       rather silly approach since we have local nodes being converted to box coordinates both
@@ -62,7 +76,7 @@ int solve_problem_picard(double **x, double **x2)
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
   /* If requested, write out initial guess */
-/*   if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");*/
+   if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");
 
 
   /* Do same for second solution vector when Lbinodal is true */
@@ -73,7 +87,7 @@ int solve_problem_picard(double **x, double **x2)
     set_initial_guess(BINODAL_FLAG, x2Owned);
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
 
-/*    if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");*/
+    if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
   printf("NL_Solver=%d PICARD_NOX=%d PICNEWTON_NOX=%d\n",NL_Solver,PICARD_NOX,PICNEWTON_NOX);
@@ -121,12 +135,11 @@ int picard_solver(double **x, double **xOwned, int subIters){
 		  calc_Gsum(x);
 
      /* use successive substitution to update density field, then compute all other fields */ 
-     if (L_HSperturbation && Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3)
-                              calc_density_next_iter_HSperturb(x);
-     else if(Type_poly==CMS)  calc_density_next_iter_CMS(x);
-     else if(Type_poly==CMS_SCFT)  calc_density_next_iter_SCF(x);
-     else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) calc_density_next_iter_WJDC(x,xOwned);
-     communicate_to_fill_in_box_values(x);
+     if (L_HSperturbation && Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3) calc_density_next_iter_HSperturb(x);
+     else if(Type_poly==CMS)                                                             calc_density_next_iter_CMS(x);
+     else if(Type_poly==CMS_SCFT)                                                        calc_density_next_iter_SCF(x);
+     else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)                    calc_density_next_iter_WJDC(x,xOwned);
+     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
 /* if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");*/
 
@@ -139,7 +152,8 @@ int picard_solver(double **x, double **xOwned, int subIters){
    // if (con_ptr != NULL) converged2 = continuation_hook_conwrap(x, delta_x, con_ptr, NL_rel_tol, NL_abs_tol);
 
     /* Do: x += delta_x, and check for convergence .... trying to reuse same update_solution strategies as in Newton solver*/
-    converged = update_solution_picard(x_old, delta_x, iter);
+    converged = update_solution_picard(x_old, xOwned, delta_x, iter);
+    (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
     if (skip_convergence_test) converged=FALSE;
 
      for (iunk=0; iunk<Nunk_per_node;iunk++)
@@ -147,8 +161,6 @@ int picard_solver(double **x, double **xOwned, int subIters){
        fix_symmetries(x);
  
      /* now update all other fields in the solution vector */
-
-
      /* update all other fields (other than density - based on new density profile) */
      for (i=0;i<NEQ_TYPE;i++){
      switch(i){
@@ -158,14 +170,12 @@ int picard_solver(double **x, double **xOwned, int subIters){
          case MF_EQ:
            if (Phys2Nunk[MF_EQ]>0){
               calc_init_mf_attract(x,xOwned); 
-              communicate_to_fill_in_box_values(x);
            }
            break;
 
          case HSRHOBAR:
            if (Phys2Nunk[HSRHOBAR]>0){
               calc_init_rho_bar(x,xOwned); 
-              communicate_to_fill_in_box_values(x);
            }
            break;
 
@@ -186,42 +196,32 @@ int picard_solver(double **x, double **xOwned, int subIters){
          case CAVWTC:
            if (Phys2Nunk[CAVWTC]>0){
               calc_init_Xi_cavWTC(x,xOwned);
-              communicate_to_fill_in_box_values(x);
             }
             break;
 
          case BONDWTC:
             if (Phys2Nunk[BONDWTC]>0){
                calc_init_BondWTC(x,xOwned);
-               communicate_to_fill_in_box_values(x);
              }
              break;
 
          case WJDC_FIELD:
             if (Phys2Nunk[WJDC_FIELD]>0){
                calc_init_WJDC_field(x,xOwned);
-               communicate_to_fill_in_box_values(x);
              }
              break;
 
          case CMS_FIELD:
             if (Phys2Nunk[CMS_FIELD]>0){
               calc_init_CMSfield(x,xOwned);
-              communicate_to_fill_in_box_values(x);
             }
             break;
-		 case SCF_FIELD:
-			 if (Phys2Nunk[SCF_FIELD]>0){
-				 calc_init_SCFfield(x);
-				 communicate_to_fill_in_box_values(x);
-			 }
-			 break;
-		 case SCF_CONSTR:
-			 if (Phys2Nunk[SCF_CONSTR]>0){
-				 calc_init_lambda(x);
-				 communicate_to_fill_in_box_values(x);
-			 }
-			 break;
+         case SCF_FIELD:
+	    if (Phys2Nunk[SCF_FIELD]>0) calc_init_SCFfield(x,xOwned);
+            break;
+	 case SCF_CONSTR:
+             if (Phys2Nunk[SCF_CONSTR]>0) calc_init_lambda(x,xOwned);
+              break;
          case G_CHAIN:
             if (Phys2Nunk[G_CHAIN]>0){
                if (Type_poly==CMS || Type_poly==CMS_SCFT) calc_init_polymer_G_CMS(x,xOwned);
@@ -238,6 +238,8 @@ int picard_solver(double **x, double **xOwned, int subIters){
      }
 
   } while (iter < max_iters && !converged);
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
+
 
   // Skip printing if NOX is controlling convergence
   if (!converged && !skip_convergence_test) {
@@ -325,8 +327,6 @@ void calc_density_next_iter_WJDC(double **xInBox,double **xOwned)
   calc_init_WJDC_field(xInBox,xOwned);
   calc_init_polymer_G_wjdc(xInBox,xOwned);
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);
-/*  communicate_to_fill_in_box_values(xInBox);*/
-
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode]; 
@@ -336,6 +336,7 @@ void calc_density_next_iter_WJDC(double **xInBox,double **xOwned)
         iunk=Phys2Unk_first[DENSITY]+iloop;
         resid=load_WJDC_density(iunk,loc_inode,inode_box,xInBox,INIT_GUESS_FLAG);
         xInBox[iunk][inode_box]=-resid;
+        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
      }
   }
   return;
@@ -372,12 +373,12 @@ void print_resid_norm_picard(double **x, int iter)
   sum_local=fill_resid_and_matrix_control(x,iter,CALC_RESID_ONLY);
   norm = gsum_double(sum_local);
 
-  if (Proc==0) printf("\t\tResidual norm at iteration %d = %g\n",iter, sqrt(norm));
+  if (Proc==0) printf("\tIter=%d\t::::\tResid norm=%g",iter, sqrt(norm));
 
   return;
 }
 /*****************************************************************************************************/
-int update_solution_picard(double** x, double** delta_x, int iter) {
+int update_solution_picard(double** x, double **xOwned, double** delta_x, int iter) {
 /* Routine to update solution vector x using delta_x and
  * to test for convergence of the nonlinear solution (Picard) method.
  * Note that Picard updates require different heuristics than the Newton updates, and only
@@ -397,7 +398,7 @@ int update_solution_picard(double** x, double** delta_x, int iter) {
   else                nloop=Ncomp;
 
   if (Proc==0 && Iwrite != NO_SCREEN)
-      printf("\tUPDATE FRAC = %g percent\n",NL_update_scalingParam*100);
+      printf("\t::::\tUPDATE FRAC = %g percent",NL_update_scalingParam*100);
   
   for (ibox=0; ibox<Nnodes_box; ibox++) {
     
@@ -425,6 +426,7 @@ int update_solution_picard(double** x, double** delta_x, int iter) {
        for (i=0; i<nloop; i++) {
           iunk=i+Phys2Unk_first[DENSITY];
           x[iunk][ibox] += NL_update_scalingParam*delta_x[iunk][ibox];
+          xOwned[iunk][inode] = x[iunk][ibox];
        }
     }
   }
@@ -432,9 +434,9 @@ int update_solution_picard(double** x, double** delta_x, int iter) {
   updateNorm = sqrt(gsum_double(updateNorm));
   
   if (Proc==0 && Iwrite != NO_SCREEN)
-    printf("\t\t%s: Weighted norm of update vector =  %g\n", yo, updateNorm);
+    printf("\t::::\t Weighted norm of update vector =%g\n", updateNorm);
 
-  if (updateNorm > 1.0) return(FALSE);
+  if (updateNorm > 1.0 || iter==1 ) return(FALSE);
   else                  return(TRUE);
 
 }

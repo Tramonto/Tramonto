@@ -31,27 +31,37 @@ extern int Type_bc[NDIM_MAX][2];
 extern double Size_x[NDIM_MAX];
 int round_to_int(double x);
 int ijk_to_isten_index(int *ijk,int *el_in_radius);
+int ijk_to_isten_index(int *ijk,int *el_in_radius);
 extern double Jac_threshold;
 int stencil_quadBoundaryEl_switch(int sten);
+void distribute_weight_to_nodes(double weight,double *qp,double *el_weights,int ig,int jg,int kg);
 void distribute_weight_to_nodes(double weight,double *qp,double *el_weights,int ig,int jg,int kg);
 double stencil_GetWeight_switch(int sten,int icomp,int jcomp,double rsq,double sten_rad,int ngpu,double *gpu,double *gwu);
 void set_gauss_quad(int ngp,double *gp,double *gw);
 int stencil_quadGaussIntegrand_switch(int sten,double r);
 int stencil_quadGauss_switch(int sten,double r);
 void print_out_stencil(int isten,int izone,int icomp,int jcomp,FILE *ifp);
+void print_out_stencil(int isten,int izone,int icomp,int jcomp,FILE *ifp);
 typedef struct Stencil_Struct Stencil_Struct;
 void renormalize_stencil(struct Stencil_Struct *sten,double vol_sten);
+void renormalize_stencil(struct Stencil_Struct *sten,double vol_sten);
 #define NO_RENORMALIZATION_FLAG -888
+void shorten_stencil(struct Stencil_Struct *sten);
 void shorten_stencil(struct Stencil_Struct *sten);
 #define THETA_PAIRPOT_RCUT    2
 extern int Lcut_jac;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void merge_load_stencil(struct Stencil_Struct *sten,int **el_offsets,double *el_weights,int *el_in_radius,int *index_sten);
+void merge_load_stencil(struct Stencil_Struct *sten,int **el_offsets,double *el_weights,int *el_in_radius,int *index_sten);
 void calc_sten_weight_el_on_boundary(int isten,double sten_rad,int icomp,int jcomp,double r_center_sq,double *x_left,double *esize_zone,double *el_weights);
+void calc_sten_weight_el_on_boundary(int isten,double sten_rad,int icomp,int jcomp,double r_center_sq,double *x_left,double *esize_zone,double *el_weights);
+void calc_sten_weight_el_in_radius(int isten,double sten_rad,int icomp,int jcomp,double r_center_sq,double *x_left,double *esize_zone,double *el_weights);
 void calc_sten_weight_el_in_radius(int isten,double sten_rad,int icomp,int jcomp,double r_center_sq,double *x_left,double *esize_zone,double *el_weights);
 int stencil_deltaLogical(int sten);
 int calc_in_out_on(double *x_l,double *x_r,double sten_rad);
+int calc_in_out_on(double *x_l,double *x_r,double sten_rad);
+void setup_stencil_offsets(int i,int j,int k,int **el_offsets);
 void setup_stencil_offsets(int i,int j,int k,int **el_offsets);
 extern int Lhard_surf;
 double stencil_radius_switch(int sten,int icomp,int jcomp);
@@ -100,4 +110,5 @@ struct Stencil_Struct {
                              are being contributed from. Only used for Hard
                              Walls when stencil point is a boundary node  */
 };
+void calc_stencils(void);
 void calc_stencils(void);

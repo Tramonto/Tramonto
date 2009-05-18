@@ -38,7 +38,7 @@
 /*********************************************************/
 /*setup_polymer_field: in this routine set up the initial guess for the CMS-SCF field variable */
 /* called if not calculating all fields; just a guess for the fields */
-void setup_polymer_SCF_field(double **xInBox, int iguess)
+void setup_polymer_SCF_field(double **xInBox, double **xOwned, int iguess)
 {
 	int loc_inode,itype_mer,irho, iunk,inode_box;
 	double field;
@@ -53,19 +53,20 @@ void setup_polymer_SCF_field(double **xInBox, int iguess)
 			if (xInBox[irho][inode_box]<1.e-6) field=VEXT_MAX-1.;
 			else field=-log(xInBox[irho][inode_box]/Rho_b[itype_mer]);
 			xInBox[iunk][inode_box]=exp(-field);
+                        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
 		}
 	}
 	return;
 }
 /*********************************************************/
 /*calc_init_SCFfield: calculate the SCF field from knowledge of rho and lambda if available */
-void calc_init_SCFfield(double **xInBox)
+void calc_init_SCFfield(double **xInBox, double **xOwned)
 {
 	int loc_inode,icomp,jcomp,jrho,iunk,unk_L,inode_box;
 	double field,int_bulk;
 	
-	printf("in calc_init_SCFfield\n");
 	field = 0.0;
+
 	
 	for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 		inode_box=L2B_node[loc_inode];
@@ -85,6 +86,7 @@ void calc_init_SCFfield(double **xInBox)
 			}
 			else field=VEXT_MAX;
 			xInBox[iunk][inode_box]=exp(-field);		
+                        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
 		}
 	}
 	return;
@@ -92,17 +94,16 @@ void calc_init_SCFfield(double **xInBox)
 
 /*********************************************************/
 /*calc_init_lambda: set up the initial guess for the lambda constraint variable */
-void calc_init_lambda(double **xInBox)
+void calc_init_lambda(double **xInBox,double **xOwned)
 {
 	int loc_inode,inode_box,iunk;
-	
-	printf("in calc_init_lambda\n");
 	
 	iunk = Phys2Unk_first[SCF_CONSTR];
 	
 	for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 		inode_box=L2B_node[loc_inode];
 		xInBox[iunk][inode_box]=0.0;
+                xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
 	}
 	return;
 }
@@ -112,7 +113,7 @@ void calc_init_lambda(double **xInBox)
 in the SCF functional 
 this routine uses the machinery in load_Chain_Geqns_SCF and particularly load_polymer_recursion to do all
 the integrals to calculate the G's from the initial conditions and values of rho and the fields */
-void calc_init_polymer_G_SCF(double **xInBox)
+void calc_init_polymer_G_SCF(double **xInBox,double **xOwned)
 {
 	int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,field;
 	int ibond,jbond,index,iseg,jseg,pol_num,bond_num,test,ijk_box[3];
@@ -152,6 +153,8 @@ void calc_init_polymer_G_SCF(double **xInBox)
 					}
 				}
 				if (test==TRUE){     /* compute a bulk G */
+                                       (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);  /* make sure all densities are available for calculations */
+
 					for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
 						inode_box=L2B_node[loc_inode];
 						node_box_to_ijk_box(inode_box,ijk_box);
@@ -162,9 +165,8 @@ void calc_init_polymer_G_SCF(double **xInBox)
 												 ijk_box,0,xInBox, INIT_GUESS_FLAG);
 						
 						xInBox[iunk][inode_box]=resid_G;
+                                                xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
 					}
-					communicate_to_fill_in_box_values(xInBox);  /* we need every G to be updated for all nodes in box as we
-					generate them so we will be able to perform the next integral */
 					count_fill++;
 					array_val[ibond]=TRUE;
 					

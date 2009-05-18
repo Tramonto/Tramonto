@@ -39,7 +39,7 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
 {
   char filename[20];
   double *x_new,fac;
-  int iunk,i;
+  int iunk,i,inode_box;
 
   x_new = (double *) array_alloc(1, Nnodes*Nunk_per_node, sizeof(double));
  
@@ -104,6 +104,12 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
   }
   communicate_profile(x_new,xInBox);
   check_zero_densities(xInBox);
+
+/*for (inode_box=0;inode_box<Nnodes_box;inode_box++){
+   if (B2G_node[inode_box]==172) printf("at node 172 Proc=%d has x[density1]=%g and x[density2]=%g\n",Proc,
+                                 xInBox[Phys2Unk_first[DENSITY]][inode_box],
+                                 xInBox[Phys2Unk_first[DENSITY]+1][inode_box]);
+}*/
 
   safe_free((void *) &x_new);
   return;
@@ -596,6 +602,24 @@ void communicate_profile(double *x_new, double** xInBox)
        }
     }
     return;
+}
+/**********************************************************************/
+/* communicate_to_fill_in_box_values: make sure all procesors have necessary entries for all of xBox */
+void communicate_to_fill_in_box_values(double** xInBox)
+{
+   int loc_inode,iunk;
+   double **xOwned_tmp;
+   xOwned_tmp = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
+   for (loc_inode==0; loc_inode< Nnodes_per_proc;loc_inode++){
+      for (iunk=0;iunk<Nunk_per_node;iunk++){
+          xOwned_tmp[iunk][loc_inode]=xInBox[iunk][L2B_node[loc_inode]];
+      }
+  }
+
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned_tmp, xInBox);  /* make sure all previously calculated
+                                                                           parameters are up to date in box coords */
+  safe_free((void *) &xOwned_tmp);
+  return;
 }
 /*********************************************************************/
 /*check_zero_densities: here just remove zero densities where 

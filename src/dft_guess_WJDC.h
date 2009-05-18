@@ -15,7 +15,6 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_su
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-extern void *LinProbMgr_manager;
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
 extern int ***Poly_to_Unk;
@@ -64,6 +63,7 @@ void *array_alloc(...);
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;
+extern void *LinProbMgr_manager;
 #define NDIM_MAX  3
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */

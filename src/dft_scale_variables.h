@@ -45,6 +45,7 @@ extern int Restart_Vext;
 extern int Nnodes_per_proc;
 void scale_vext_temp(double ratio);
 void calc_stencils(void);
+void calc_stencils(void);
 extern int Lhard_surf;
 void safe_free(void **ptr);
 void safe_free(void **ptr);

@@ -20,7 +20,6 @@ extern int Nodes_x[NDIM_MAX];
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void node_to_ijk(int node,int *ijk);
-extern int *L2G_node;
 extern double NL_abs_tol,NL_rel_tol;
 extern int *B2L_node;
 extern double NL_update_scalingParam;
@@ -62,9 +61,9 @@ extern int Proc;
 void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned);
 void calc_init_polymer_G_CMS(double **xInBox,double **xOwned);
 #define G_CHAIN       11 
-void calc_init_lambda(double **xInBox);
+void calc_init_lambda(double **xInBox,double **xOwned);
 #define SCF_CONSTR	   9
-void calc_init_SCFfield(double **xInBox);
+void calc_init_SCFfield(double **xInBox,double **xOwned);
 #define SCF_FIELD	  10
 void calc_init_CMSfield(double **xInBox,double **xOwned);
 #define CMS_FIELD      7
@@ -83,8 +82,8 @@ extern int Phys2Nunk[NEQ_TYPE];
 #define MF_EQ          3
 #define DENSITY        0
 void fix_symmetries(double **x);
-int update_solution_picard(double **x,double **delta_x,int iter);
-void communicate_to_fill_in_box_values(double **xInBox);
+void fix_symmetries(double **x);
+int update_solution_picard(double **x,double **xOwned,double **delta_x,int iter);
 void calc_density_next_iter_WJDC(double **xInBox,double **xOwned);
 #define CMS_SCFT     1
 void calc_density_next_iter_CMS(double **xInBox);
@@ -98,9 +97,7 @@ void calc_Gsum(double **x);
 extern int Type_poly;
 void print_resid_norm_picard(double **x,int iter);
 #define NO_SCREEN    2 
-extern int Iwrite;
 extern int Max_NL_iter;
-extern int Nnodes_box;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -120,10 +117,11 @@ int picard_solver(double **x,double **xOwned,int subIters);
 extern int NL_Solver;
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */
 extern int Lbinodal;
-extern void *LinProbMgr_manager;
+void print_profile_box(double **x,char *outfile);
+#define VERBOSE      3 
+extern int Iwrite;
 extern int Iguess1;
 void set_initial_guess(int iguess,double **xOwned);
-extern int Nnodes_per_proc;
 extern int Nunk_per_node;
 #if defined(__STDC__)
 void *array_alloc(int numdim,...);
@@ -132,6 +130,12 @@ void *array_alloc(int numdim,...);
 #if !(defined(__STDC__))
 void *array_alloc(...);
 #endif
+extern int *B2G_node;
+extern int Nnodes_box;
+extern int *L2G_node;
+extern int Nnodes_per_proc;
+extern void *LinProbMgr_manager;
+void linsolver_setup_control();
 int solve_problem_picard(double **x,double **x2);
 void calc_density_next_iter_SCF(double **xInBox);
 void calc_density_next_iter_SCF(double **xInBox);

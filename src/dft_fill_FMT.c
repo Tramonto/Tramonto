@@ -94,6 +94,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
                       (  dphi_drb[jnode_box].V1[idim]*Inv_4pir[icomp]
                        + dphi_drb[jnode_box].V2[idim] ) *
                       (offset[idim] * Esize_x[idim]*Inv_rad[icomp]); 
+
            }
         }
         else if (sten_type == THETA_FN_R) resid = Fac_overlap_hs[icomp]*weight * dphi_drb[jnode_box].S3; 
@@ -105,6 +106,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
                                        Dphi_Drhobar_b[1]*Inv_4pir[icomp] +
                                        Dphi_Drhobar_b[2] );
           else if (sten_type == THETA_FN_R) resid = Fac_overlap_hs[icomp]*weight*Dphi_Drhobar_b[3];
+
        }
        else if (jnode_box == -3) {
           if (sten_type == DELTA_FN_R) resid = Fac_overlap_hs[icomp]*weight*

@@ -131,7 +131,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
       resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
    }
 
-
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode,resid_only_flag);
 
    if (Type_coul != NONE){

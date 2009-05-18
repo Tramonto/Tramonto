@@ -1,5 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
 void fill_test(double **x,int flag);
+void fill_test(double **x,int flag);
 int find_length_of_file(char *filename);
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,12 +47,15 @@ extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 double gsum_double(double c);
 double gmin_double(double c);
 int update_solution_new(double **x,double **delta_x,int iter);
+int update_solution_new(double **x,double **delta_x,int iter);
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
 extern int Max_NL_iter;
 void fix_symmetries(double **x);
+void fix_symmetries(double **x);
+int update_solution(double **x,double **delta_x,int iter);
 int update_solution(double **x,double **delta_x,int iter);
 extern double NL_abs_tol,NL_rel_tol;
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
@@ -59,6 +63,7 @@ extern double Time_linsolver_av;
 extern double Time_linsolver_first;
 extern double Time_manager_av;
 extern double Time_manager_first;
+void print_resid_norm(int iter);
 void print_resid_norm(int iter);
 #define NO_SCREEN    2 
 extern double Time_fill_av;
@@ -73,10 +78,12 @@ double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
 #endif
 extern int *B2L_node;
 void box2owned(double **xBox,double **xOwned);
+void box2owned(double **xBox,double **xOwned);
 extern void *ParameterList_list;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern double Time_NLSolve;
+int newton_solver(double **x,void *con_ptr);
 int newton_solver(double **x,void *con_ptr);
 int solve_continuation(double **xx,double **xx2);
 typedef struct Loca_Struct Loca_Struct;
@@ -124,5 +131,8 @@ extern int Nnodes_per_proc;
 extern void *LinProbMgr_manager;
 void linsolver_setup_control();
 int solve_problem(double **x,double **x2);
+int solve_problem(double **x,double **x2);
+void do_numerical_jacobian(double **);
+void do_numerical_jacobian(double **x);
 void do_numerical_jacobian(double **);
 void do_numerical_jacobian(double **x);

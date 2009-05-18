@@ -17,7 +17,6 @@
 #define INIT_GUESS_FLAG  2
 double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define G_CHAIN       11 
-extern void *LinProbMgr_manager;
 extern int ***Poly_to_Unk;
 extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
@@ -103,8 +102,9 @@ void setup_polymer_simple(double **xInBox,int iguess);
 double int_stencil_CMSField(double **x,int inode_box,int iunk,int sten_type);
 extern double **Vext;
 extern int **Zero_density_TF;
-extern int *L2B_node;
+extern void *LinProbMgr_manager;
 void calc_init_CMSfield(double **xInBox,double **xOwned);
+extern int *L2B_node;
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
 #define CMS_FIELD      7
@@ -113,4 +113,4 @@ extern double VEXT_MAX;
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Ncomp;
 extern int Nnodes_per_proc;
-void setup_polymer_field(double **xInBox, double **xOwned,int iguess);
+void setup_polymer_field(double **xInBox,double **xOwned,int iguess);

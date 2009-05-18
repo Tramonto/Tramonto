@@ -61,6 +61,8 @@ void calc_init_CMSfield(double **xInBox,double **xOwned)
   int loc_inode,icomp,irho, iunk,inode_box,jcomp;
   double field,int_bulk;
 
+ (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);  /* make sure all densities are available for calculations */
+
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];
 
