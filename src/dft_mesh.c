@@ -695,7 +695,7 @@ void setup_basic_box(FILE *fp1, int *update)
 
   Nnodes_box = 1;
   Nelements_box = 1;
-  if (Num_Proc > 1) MPI_Barrier(MPI_COMM_WORLD);
+/*  if (Num_Proc > 1) MPI_Barrier(MPI_COMM_WORLD);*/
   if (Imain_loop == 0 && Proc==0) {
     fprintf(fp1,"\n-------------------------------------------------------\n");
     fprintf(fp1,"\n \t idim \t Nodes_x[idim] \t Nnodes \t Elements_x[idim] \t Nelements...box units\n");
@@ -1271,7 +1271,7 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
        iel = node_to_elem_return_dim(inode, loc_node_el,reflect_flag,
                                      &idim,&iside,&periodic_flag);
        if (iel >= 0) iel_box = el_to_el_box(iel); 
-       else iel_box = 0;
+       if (iel < 0 || iel_box > Nelements_box) iel_box=0;     /*catch a parallel bug with periodic boundaries - may need more work here */
 
        if (iel_box>=0 || iel==-2 || iel==-1) n_el_in_box++;
 

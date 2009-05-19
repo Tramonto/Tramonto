@@ -87,6 +87,7 @@ void post_process (double **x,int *niters,
   * First exchange boundary information as necessary !! 
   */
 
+  if (Iwrite != MINIMAL){
   if (Proc==0){
       if (binodal_flag)  X2_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
       else                X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
@@ -98,7 +99,7 @@ void post_process (double **x,int *niters,
   collect_vext_old();
 
   if (!(Nruns>1 && call_from_flag==FROM_LOCA)){
-   if (Proc == 0 && Iwrite != MINIMAL) {
+   if (Proc == 0) {
         if (binodal_flag){
            if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5,X2_old);
            else                               print_profile(output_file4,X2_old);
@@ -115,6 +116,7 @@ void post_process (double **x,int *niters,
    }
 
    if (Proc==0) safe_free((void *) &Vext_old);
+   }
 
 
    /* open dft_output.dat file */
@@ -192,7 +194,7 @@ void post_process (double **x,int *niters,
 
    energy=calc_free_energy(fp,x); 
 
-   if (Type_interface==DIFFUSIVE_INTERFACE && Proc==0) calc_flux(fp,output_flux,X_old);
+   if (Type_interface==DIFFUSIVE_INTERFACE && Proc==0 && Iwrite !=MINIMAL) calc_flux(fp,output_flux,X_old);
 
    if (Proc==0) fprintf(fp,"  \n");
 

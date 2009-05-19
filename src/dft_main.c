@@ -88,8 +88,6 @@ void dftmain(double * engptr)
 
   gethostname(line,100);
   getcwd(linecwd,100);
-  /*  printf(" hello %s %s \n",line,linecwd); */
-  MPI_Barrier(MPI_COMM_WORLD);
 
   (void) MPI_Comm_size(MPI_COMM_WORLD, &Num_Proc);
   (void) MPI_Comm_rank(MPI_COMM_WORLD, &Proc);
@@ -338,7 +336,7 @@ void dftmain(double * engptr)
       MPI_Gather(&Time_manager_av,1,MPI_DOUBLE,t_manager_av_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
       MPI_Gather(&Time_fill_first,1,MPI_DOUBLE,t_fill_first_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
       MPI_Gather(&Time_fill_av,1,MPI_DOUBLE,t_fill_av_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
-      if (Proc==0){
+      if (Proc==0 && Iwrite==VERBOSE){
          fp  = fopen("dft_time.out","w");
             fprintf(fp,"\n Time histogram for the fill on the first iteration\n\n");
             for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_fill_first_array[i]);

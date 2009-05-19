@@ -94,7 +94,6 @@ void calc_pressure(char *output_file1)
       printf("Can't open file %s\n", output_file1);
       exit(1);
    }
-   fprintf(fp,"\n!!!!!!!!!!!!! output from dft_thermo.c !!!!!!!!!!!!!!!!!!\n");
  
    if (Type_interface!=UNIFORM_INTERFACE){      
       if (L_HSperturbation){
