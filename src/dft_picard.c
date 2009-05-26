@@ -153,7 +153,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
 
     /* Do: x += delta_x, and check for convergence .... trying to reuse same update_solution strategies as in Newton solver*/
     converged = update_solution_picard(x_old, xOwned, delta_x, iter);
-    (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
+    (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x_old);
     if (skip_convergence_test) converged=FALSE;
 
      for (iunk=0; iunk<Nunk_per_node;iunk++)
@@ -378,7 +378,7 @@ void print_resid_norm_picard(double **x, int iter)
   return;
 }
 /*****************************************************************************************************/
-int update_solution_picard(double** x, double **xOwned, double** delta_x, int iter) {
+int update_solution_picard(double** x, double **xOwned, double **delta_x, int iter) {
 /* Routine to update solution vector x using delta_x and
  * to test for convergence of the nonlinear solution (Picard) method.
  * Note that Picard updates require different heuristics than the Newton updates, and only
@@ -426,9 +426,9 @@ int update_solution_picard(double** x, double **xOwned, double** delta_x, int it
        for (i=0; i<nloop; i++) {
           iunk=i+Phys2Unk_first[DENSITY];
           x[iunk][ibox] += NL_update_scalingParam*delta_x[iunk][ibox];
-          xOwned[iunk][inode] = x[iunk][ibox];
        }
     }
+    if (inode>=0){ for (iunk=0; iunk<Nunk_per_node; iunk++) xOwned[iunk][inode]=x[iunk][ibox];}
   }
   
   updateNorm = sqrt(gsum_double(updateNorm));
