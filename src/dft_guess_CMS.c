@@ -336,8 +336,6 @@ void calc_init_polymer_G_CMS(double **xInBox,double **xOwned)
   fp_ResidG=&CMS_Resid_GCHAIN;
   fp_ResidG_Bulk=&CMS_Resid_Bulk_GCHAIN;
 	
-	printf("in calc_init_polymer_G_CMS\n");
-
   /* need to be careful to generate the G's in the order dictated
      by the chain architecture.  Use same strategy as in dft_thermo_wjdc */
   

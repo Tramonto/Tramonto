@@ -85,7 +85,7 @@ void fix_symmetries(double **x);
 int update_solution_picard(double **x,double **xOwned,double **delta_x,int iter);
 void calc_density_next_iter_WJDC(double **xInBox,double **xOwned);
 #define CMS_SCFT     1
-void calc_density_next_iter_CMS(double **xInBox);
+void calc_density_next_iter_CMS(double **xInBox,double **xOwned);
 void calc_density_next_iter_HSperturb(double **xInBox);
 #define WJDC2        4 
 #define WJDC         3
@@ -136,5 +136,4 @@ extern int Nnodes_per_proc;
 extern void *LinProbMgr_manager;
 void linsolver_setup_control();
 int solve_problem_picard(double **x,double **x2);
-void calc_density_next_iter_SCF(double **xInBox);
-void calc_density_next_iter_SCF(double **xInBox);
+void calc_density_next_iter_SCF(double **xInBox,double **xOwned);

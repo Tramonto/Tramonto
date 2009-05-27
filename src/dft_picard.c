@@ -32,9 +32,6 @@
  */
 #include "dft_picard.h"
 
-//prototype
-void calc_density_next_iter_SCF(double **xInBox);
-
 /*******************************************************************************/
 int solve_problem_picard(double **x, double **x2)
 /*
@@ -90,7 +87,6 @@ int solve_problem_picard(double **x, double **x2)
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
-  printf("NL_Solver=%d PICARD_NOX=%d PICNEWTON_NOX=%d\n",NL_Solver,PICARD_NOX,PICNEWTON_NOX);
   if (NL_Solver==PICARD_NOX || NL_Solver==PICNEWTON_NOX)
     iter=NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
   else iter=picard_solver(x,xOwned,-1);
@@ -131,13 +127,12 @@ int picard_solver(double **x, double **xOwned, int subIters){
        for (ibox=0; ibox<Nnodes_box;ibox++) x_old[iunk][ibox]=x[iunk][ibox];
 	  
 	  /* for grafted chains */
-	  if(Type_poly==CMS || Type_poly==WJDC3)
-		  calc_Gsum(x);
+     if(Type_poly==CMS || Type_poly==WJDC3) calc_Gsum(x);
 
      /* use successive substitution to update density field, then compute all other fields */ 
      if (L_HSperturbation && Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3) calc_density_next_iter_HSperturb(x);
-     else if(Type_poly==CMS)                                                             calc_density_next_iter_CMS(x);
-     else if(Type_poly==CMS_SCFT)                                                        calc_density_next_iter_SCF(x);
+     else if(Type_poly==CMS)                                                             calc_density_next_iter_CMS(x,xOwned);
+     else if(Type_poly==CMS_SCFT)                                                        calc_density_next_iter_SCF(x,xOwned);
      else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)                    calc_density_next_iter_WJDC(x,xOwned);
      (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
@@ -291,13 +286,17 @@ void calc_density_next_iter_HSperturb(double **xInBox)
 /****************************************************************************/
 /* calc_density_next_iter_CMS(x); compute a new density profile for cases where
    we are doing CMS-DFT calculations */
-void calc_density_next_iter_CMS(double **xInBox)
+void calc_density_next_iter_CMS(double **xInBox,double **xOwned)
 {
   int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i;
   double resid;
   struct  RB_Struct *dphi_drb=NULL;
   izone=0;
   mesh_coarsen_flag_i=0;
+
+  calc_init_CMSfield(xInBox,xOwned);
+  calc_init_polymer_G_CMS(xInBox,xOwned);
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);
   
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode]; 
@@ -307,6 +306,7 @@ void calc_density_next_iter_CMS(double **xInBox)
         iunk=Phys2Unk_first[DENSITY]+iloop;
         resid=load_CMS_density(iunk,loc_inode,inode_box,xInBox,INIT_GUESS_FLAG);
         xInBox[iunk][inode_box]=-resid;
+        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
      }
   }
   return;
@@ -344,7 +344,7 @@ void calc_density_next_iter_WJDC(double **xInBox,double **xOwned)
 /****************************************************************************/
 /* calc_density_next_iter_SCF(x); compute a new density profile for cases where
 we are doing CMS-SCFT calculations */
-void calc_density_next_iter_SCF(double **xInBox)
+void calc_density_next_iter_SCF(double **xInBox,double **xOwned)
 {
 	int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i;
 	double resid;
@@ -360,6 +360,7 @@ void calc_density_next_iter_SCF(double **xInBox)
 			iunk=Phys2Unk_first[DENSITY]+iloop;
 			resid=load_SCF_density(iunk,loc_inode,inode_box,xInBox,INIT_GUESS_FLAG);
 			xInBox[iunk][inode_box]=-resid;
+                        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
 		}
 	}
 	return;
