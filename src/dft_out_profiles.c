@@ -255,7 +255,7 @@ void print_profile(char *output_file4,double *xold)
                }break;
             case WJDC_FIELD: 
                unk_char = "WJDCFIELD";
-               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE|| Type_poly==WJDC3)){
+               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE/*|| Type_poly==WJDC3*/)){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); 
                } break;
@@ -362,7 +362,7 @@ void print_profile(char *output_file4,double *xold)
                 case CMS_FIELD:
                 case WJDC_FIELD:
 	        case SCF_FIELD:
-                   if(Iwrite==VERBOSE || Type_poly==WJDC3){
+                   if(Iwrite==VERBOSE /*|| Type_poly==WJDC3*/){
                       /*if (fabs(xold[iunk+node_start]) > 1.e-12 && -log(xold[iunk+node_start]) < VEXT_MAX){
                           fprintf(ifp,"%g\t", -log(xold[iunk+node_start]));
                       }

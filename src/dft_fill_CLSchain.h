@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,12 +14,18 @@ double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,in
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define NCOMP_MAX 5
+extern double Rho_b_RTF[NCOMP_MAX];
+extern double Rho_b_LBB[NCOMP_MAX];
+#define NMER_MAX     100
+extern double Rho_seg_RTF[NMER_MAX];
+extern double Rho_seg_LBB[NMER_MAX];
+double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
 extern int Lhard_surf;
 extern int **Nbond;
 extern int Nlists_HW;
 double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_polymer_recursion(int sten_type,int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int unk_B,int itype_mer,int izone,int *ijk_box,double **x,int resid_only_flag);
-#define NCOMP_MAX 5
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 extern int *L2G_node;
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
@@ -31,7 +36,6 @@ extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
 #define G_CHAIN       11 
 double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define NMER_MAX     100
 extern double Field_WJDC_b[NMER_MAX];
 extern double Rho_seg_b[NMER_MAX];
 #define NBOND_MAX 4
@@ -102,9 +106,6 @@ extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #define WJDC3        5 
 #define CMS_SCFT     1
 #define CMS          0
-#define DENSITY        0
-#define NEQ_TYPE       13 
-extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Comp[NMER_MAX];
 #define WJDC2        4 
 #define WJDC         3
@@ -119,4 +120,15 @@ extern int Type_poly;
 extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
+double fill_constant_density_chain(int iunk,int icomp,int iseg,double fac_FIELD,int loc_inode,int inode_box,double **x,int resid_only_flag);
+#define DENSITY        0
+#define NEQ_TYPE       13 
+extern int Phys2Unk_first[NEQ_TYPE];
+extern double Esize_x[NDIM_MAX];
+extern int Grad_dim;
+extern double Size_x[NDIM_MAX];
+extern int *B2G_node;
+#define PHASE_INTERFACE 2
+extern int Type_interface;
+extern int Lconstrain_interface;
 double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));

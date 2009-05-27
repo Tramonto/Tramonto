@@ -49,6 +49,12 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
   int inodel, inode_boxl,izone,graft_seg,graft_bond,gbond;
   double y,ysqrt,dydxi,xi_2,xi_3,dummy;
 
+  if (Lconstrain_interface && Type_interface==PHASE_INTERFACE && B2G_node[inode_box]==(int)(0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]) && 
+           iunk==Phys2Unk_first[DENSITY]){
+         fill_constant_density_chain(iunk,0,0,x[unk_B][inode_box],loc_inode,inode_box,x,resid_only_flag);
+  }
+  else{
+
   if (resid_only_flag !=INIT_GUESS_FLAG){
      resid = x[iunk][inode_box]*x[unk_B][inode_box];
      resid_sum=resid;
@@ -208,6 +214,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
               }
            }
         }
+    }
     }
     return(resid_sum);
 }
@@ -878,4 +885,29 @@ double load_polymer_recursion(int sten_type,int func_type_field, int Njacobian_t
 
   return(resid_sum);
 }
-/****************************************************************************/
+/******************************************************************************************/
+double fill_constant_density_chain(int iunk, int icomp, int iseg, double fac_FIELD,int loc_inode, int inode_box, double **x,int resid_only_flag)
+{
+  double resid,mat_val;
+
+  if (resid_only_flag != INIT_GUESS_FLAG){
+     resid = x[iunk][inode_box] ;
+     mat_val = 1.0;
+     if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+     if (resid_only_flag==FALSE){
+        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
+     }
+   }
+
+   if (Lseg_densities)   resid = -(0.5*(Rho_seg_LBB[iseg]+Rho_seg_RTF[iseg]));
+   else {                 resid = -(0.5*(Rho_b_LBB[icomp]+Rho_b_RTF[icomp]));
+   }
+
+   if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) {
+                      dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+   }
+
+   return resid;
+}
+/******************************************************************************************/
+

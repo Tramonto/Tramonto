@@ -60,7 +60,6 @@ extern struct Loca_Struct Loca;
 #define NEWTON_NOX            1
 #define NEWTON_BUILT_IN       0
 int solve_problem(double **x,double **x2);
-int solve_problem(double **x,double **x2);
 int solve_problem_picard(double **x,double **x2);
 extern double NL_update_scalingParam;
 #define PICNEWTON_BUILT_IN    4
@@ -114,7 +113,6 @@ extern int Type_interface;
 void boundary_free(void);
 void free_mesh_arrays(void);
 void thermodynamics(char *output_file1);
-void calc_stencils(void);
 void calc_stencils(void);
 void calc_HS_diams();
 #define NONE       -1

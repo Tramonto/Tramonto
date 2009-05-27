@@ -62,7 +62,6 @@ void print_gofr(char *output_file6,double *xold);
 extern int Nlink;
 extern int Lprint_gofr;
 void print_profile(char *output_file4,double *xold);
-#define MINIMAL      0
 void collect_vext_old();
 void collect_x_old(double **x,double *xold);
 extern int Ncomp;
@@ -77,6 +76,7 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 extern double *X2_old;
+#define MINIMAL      0
 #define NO_SCREEN    2 
 extern int Iwrite;
 extern int Proc;

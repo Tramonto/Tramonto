@@ -61,6 +61,7 @@ extern int LDeBroglie;
 extern double Field_WJDC_b[NMER_MAX];
 extern double Field_WJDC_RTF[NMER_MAX];
 extern double Field_WJDC_LBB[NMER_MAX];
+double fill_constant_field(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
@@ -106,7 +107,6 @@ extern void *LinProbMgr_manager;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 extern int Ndim;
 #define UNIFORM_INTERFACE  0
-double fill_constant_field(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double fill_constant_density(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];

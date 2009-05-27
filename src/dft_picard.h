@@ -82,7 +82,6 @@ extern int Phys2Nunk[NEQ_TYPE];
 #define MF_EQ          3
 #define DENSITY        0
 void fix_symmetries(double **x);
-void fix_symmetries(double **x);
 int update_solution_picard(double **x,double **xOwned,double **delta_x,int iter);
 void calc_density_next_iter_WJDC(double **xInBox,double **xOwned);
 #define CMS_SCFT     1

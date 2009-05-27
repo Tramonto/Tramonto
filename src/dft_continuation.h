@@ -3,7 +3,6 @@
 int continuation_hook(double *x,double *delta_x,void *con_void,double reltol,double abstol);
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 void box2owned(double **xBox,double **xOwned);
-void box2owned(double **xBox,double **xOwned);
 void setup_integrals();
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -132,7 +131,6 @@ int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
 #if !defined(_CON_CONST_H_)
 int linear_solver_conwrap(double *x,int jac_flag,double *tmp);
 #endif
-int newton_solver(double **x,void *con_ptr);
 int newton_solver(double **x,void *con_ptr);
 int nonlinear_solver_conwrap(double *x,void *con_ptr,int step_num,double lambda,double delta_s,void *aux_info);
 #if !defined(_CON_CONST_H_)

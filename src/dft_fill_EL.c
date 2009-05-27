@@ -88,20 +88,11 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
 
 /* pin one density (or field) at this point at mean between left and right interface*/
    first_unk=FALSE;
-   if (Lconstrain_interface){
-      if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
-          if( iunk==Phys2Unk_first[WJDC_FIELD]) first_unk=TRUE;
-      }
-      else { 
-          if (iunk==Phys2Unk_first[DENSITY]) first_unk=TRUE;
-      }
+   if (Lconstrain_interface && Type_poly!=WJDC3 && Type_poly!=WJDC && Type_poly !=WJDC2){
+      if (iunk==Phys2Unk_first[DENSITY]) first_unk=TRUE;
       if (Type_interface==PHASE_INTERFACE && B2G_node[inode_box]==(int)(0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]) && first_unk){  
         if (Type_poly != WJDC && Type_poly != WJDC2 && Type_poly != WJDC3){
            resid=fill_constant_density(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
-           return(resid);
-        }
-        else{
-           resid=fill_constant_field(iunk,icomp,iseg,loc_inode,inode_box,x,resid_only_flag);
            return(resid);
         }
       }
