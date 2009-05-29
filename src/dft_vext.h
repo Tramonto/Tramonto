@@ -23,8 +23,11 @@ extern double **Vext_static;
 #define READ_VEXT_STATIC     3
 extern int Restart_Vext;
 void read_external_field_n();
+extern int Num_Proc;
+void comm_vext_max(int *nnodes_vext_max,int **nodes_vext_max);
 extern int *Comm_offset_node;
 extern int *Comm_node_proc;
+void correct_zeroTF_array();
 void comm_loc_to_glob_vec(int *n_loc,int *in_loc_vec,int *out_glob_vec);
 int el_box_to_el(int iel_box);
 double integrate_potential(double param1,double param2,double param3,double param4,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
@@ -46,6 +49,7 @@ double pairPot_switch(double r,double param1,double param2,double param3,double 
 #define WALL_FLUID  1
 extern int Type_vext3D;
 double pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
+void node_to_ijk(int node,int *ijk);
 extern int *B2G_node;
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
@@ -79,20 +83,16 @@ int element_box_to_node_box(int iel_box);
 extern int **Lsemiperm;
 void node_to_position(int inode,double *NodePos);
 extern int *L2G_node;
-extern double VEXT_MAX;
-extern int *L2B_node;
 extern int Nnodes;
 int gsum_int(int c);
 extern int *B2L_node;
-extern int Nnodes_box;
 double gmin_double(double c);
 double gmax_double(double c);
-void correct_zeroTF_array();
-extern int Num_Proc;
+extern void *LinProbMgr_manager;
 extern int **Zero_density_TF;
-int node_to_node_box_no_bound(int inode);
-void node_to_ijk(int node,int *ijk);
-void comm_vext_max(int *nnodes_vext_max,int **nodes_vext_max);
+extern double VEXT_MAX;
+extern int *L2B_node;
+extern int Nnodes_box;
 void setup_vext_LJ_atomic(int iwall);
 #define VEXT_ATOMIC        6  /* 3D potential for 3D problems */
 void safe_free(void **ptr);

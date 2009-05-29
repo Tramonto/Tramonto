@@ -50,7 +50,6 @@ typedef struct RB_Struct RB_Struct;
 double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
-extern int Nnodes_box;
 #if defined(__STDC__)
 void *array_alloc(int numdim,...);
 #endif
@@ -64,6 +63,9 @@ void *array_alloc(...);
 #define NONE        -1
 extern int Type_func;
 extern void *LinProbMgr_manager;
+extern int *B2L_node;
+extern int Nnodes_box;
+extern int Nunk_per_node;
 #define NDIM_MAX  3
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */

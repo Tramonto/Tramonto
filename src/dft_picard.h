@@ -20,6 +20,7 @@ extern int Nodes_x[NDIM_MAX];
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void node_to_ijk(int node,int *ijk);
+extern int *L2G_node;
 extern double NL_abs_tol,NL_rel_tol;
 extern int *B2L_node;
 extern double NL_update_scalingParam;
@@ -84,6 +85,7 @@ extern int Phys2Nunk[NEQ_TYPE];
 void fix_symmetries(double **x);
 int update_solution_picard(double **x,double **xOwned,double **delta_x,int iter);
 void calc_density_next_iter_WJDC(double **xInBox,double **xOwned);
+void calc_density_next_iter_SCF(double **xInBox,double **xOwned);
 #define CMS_SCFT     1
 void calc_density_next_iter_CMS(double **xInBox,double **xOwned);
 void calc_density_next_iter_HSperturb(double **xInBox);
@@ -97,6 +99,7 @@ extern int Type_poly;
 void print_resid_norm_picard(double **x,int iter);
 #define NO_SCREEN    2 
 extern int Max_NL_iter;
+extern int Nnodes_box;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -119,8 +122,10 @@ extern int Lbinodal;
 void print_profile_box(double **x,char *outfile);
 #define VERBOSE      3 
 extern int Iwrite;
+extern void *LinProbMgr_manager;
 extern int Iguess1;
 void set_initial_guess(int iguess,double **xOwned);
+extern int Nnodes_per_proc;
 extern int Nunk_per_node;
 #if defined(__STDC__)
 void *array_alloc(int numdim,...);
@@ -129,11 +134,4 @@ void *array_alloc(int numdim,...);
 #if !(defined(__STDC__))
 void *array_alloc(...);
 #endif
-extern int *B2G_node;
-extern int Nnodes_box;
-extern int *L2G_node;
-extern int Nnodes_per_proc;
-extern void *LinProbMgr_manager;
-void linsolver_setup_control();
 int solve_problem_picard(double **x,double **x2);
-void calc_density_next_iter_SCF(double **xInBox,double **xOwned);

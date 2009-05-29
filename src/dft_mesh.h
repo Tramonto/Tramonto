@@ -40,12 +40,10 @@ extern double *Pore_rad_L_IC;
 #define PI    M_PI
 #define OPTION_CYL   1
 extern int Geom_flag;
-extern int Nnodes_coarse_loc;
 #define FLAG_PBELEC -777
 #define PB_ZONE      3 
 #define FLAG_BULK   -888
 #define BULK_ZONE    2 
-extern int *List_coarse_nodes;
 void print_Nodes_to_zone(int *node_to_zone,char *output_file);
 int ijk_box_to_node_box(int *ijk_box);
 extern int Nzone;
@@ -169,6 +167,8 @@ void read_external_field_n();
 #define READ_VEXT_FALSE      0
 extern int Restart_Vext;
 void setup_zeroTF_and_Node2bound_new(FILE *fp1,int ***el_type);
+extern int *List_coarse_nodes;
+extern int Nnodes_coarse_loc;
 void set_mesh_coarsen_flag(void);
 void zones_el_to_nodes(int *elem_zones);
 extern int Imain_loop;
@@ -192,6 +192,8 @@ extern int Ipot_ff_n;
 extern int Lhard_surf;
 extern int Nlists_HW;
 extern int Nwall;
+extern void *LinProbMgr_manager;
+void linsolver_setup_control();
 void setup_basic_box(FILE *fp1,int *update);
 extern int *L2G_node;
 extern int *B2L_node;

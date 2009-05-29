@@ -47,18 +47,18 @@ int solve_problem(double **x, double **x2)
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
   start_t=MPI_Wtime();
-  linsolver_setup_control();
+/*  linsolver_setup_control();*/
 
   /* Give Nodal Row and Column maps */
-  (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
-  (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
+/*  (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
+  (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);*/
 
   /* send solver manager information about mesh coarsening */
-  dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);
+/*  dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);*/
 
   /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
-  ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
-  if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
+/*  ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
+  if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);*/
   Time_MgrPrePost = MPI_Wtime()-start_t;
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */

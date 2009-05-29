@@ -50,6 +50,7 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
    int **elems_w_per_w_global, *nelems_w_per_w_global;
    int **nodes_vext_max,*nnodes_vext_max;
    int i,inode,inode_box,ijk[3],jwall;
+   double *vext_tmpOwned, *vext_tmpBox;
    double t1=0.0,t_zeroTF=0.0,t_vext=0.0;
    double t_tot_min,t_zero_min,t_vext_min;
    double t_tot_max,t_zero_max,t_vext_max;
@@ -160,7 +161,24 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
 /*  Now set up Zero_density_TF everywhere in the box based on
     the external field array */
 
-  if (Nwall > 0) {
+  vext_tmpOwned = (double *) array_alloc (1,Nnodes_per_proc,sizeof(double));
+  vext_tmpBox = (double *) array_alloc (1,Nnodes_box,sizeof(double));
+  if (Nwall > 0){
+     for (icomp=0; icomp<Ncomp; icomp++){
+         for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
+              vext_tmpOwned[loc_inode]=Vext[loc_inode][icomp];
+              vext_tmpBox[L2B_node[loc_inode]]=vext_tmpOwned[loc_inode];
+         }
+         (void) dft_linprobmgr_importnodalr2c(LinProbMgr_manager,vext_tmpOwned,vext_tmpBox);
+         for (inode_box=0;inode_box<Nnodes_box;inode_box++){
+              if (vext_tmpBox[inode_box] >=VEXT_MAX) Zero_density_TF[inode_box][icomp]=TRUE;
+         }
+     }
+  }
+  safe_free((void *) &vext_tmpOwned);
+  safe_free((void *) &vext_tmpBox);
+
+  /*if (Nwall > 0) {
 
      t_zeroTF -= MPI_Wtime();
      nodes_vext_max = (int **) array_alloc (1,Ncomp,sizeof(int *));
@@ -186,13 +204,13 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
      safe_free((void *) &nnodes_vext_max);
 
      t_zeroTF += MPI_Wtime();
-  }
+  }*/
 
 /* Finally, we may still have discrepancies in the Zero_TF array
    on different processors when there are semi-permeable
    membranes present. */
 
-   if (Num_Proc>1) correct_zeroTF_array();
+   /*if (Num_Proc>1) correct_zeroTF_array();*/
 
   safe_free((void *) &Vext_set);
 

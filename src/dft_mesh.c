@@ -249,7 +249,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
   int  *elem_zones;
 
-  int icomp,ilist,iwall,inode;
+  int ierr,icomp,ilist,iwall,inode;
   double sigma_test;
   int flag,iel_box,i,nwall_max,idim;
   int inode_box,iel,reflect_flag[3],j,k; 
@@ -275,6 +275,14 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
    */
  
   setup_basic_box(fp1, update);
+  /*
+   * set up communication maps so that local information can be efficiently moved to box coordinates 
+   */
+  linsolver_setup_control();
+  (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
+  (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
+  
+
 
   /*
    * Set up all arrays for surface geometry, external fields, and
@@ -454,6 +462,11 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
      /* set mesh coarsening flag for residual zones */
 
      /*if (Mesh_coarsening !=FALSE || L1D_bc)*/ set_mesh_coarsen_flag();
+     /* send solver manager information about mesh coarsening */
+       dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);
+     /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
+     ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
+     if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
 
      safe_free((void *) &elem_zones);
 

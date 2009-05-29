@@ -47,18 +47,18 @@ int solve_problem_picard(double **x, double **x2)
      to generate all other fields.  In this case, we use the fields at the ith iteration to
      generate the solution at the i+1 st iteration */
 
-  linsolver_setup_control();
+/*  linsolver_setup_control();*/
 
   /* Give Nodal Row and Column maps */
-  (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
-  (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
+/*  (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
+  (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);*/
 
   /* send solver manager information about mesh coarsening */
 /*  dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);*/
 
   /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
-  ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
-  if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
+/*  ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
+  if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);*/
 
 
   /* Set initial guess on owned nodes and reconcile ghost nodes manually here -- note this is a 
@@ -88,7 +88,7 @@ int solve_problem_picard(double **x, double **x2)
   }
 
   if (NL_Solver==PICARD_NOX || NL_Solver==PICNEWTON_NOX)
-    iter=NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
+       iter=NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
   else iter=picard_solver(x,xOwned,-1);
 
   safe_free((void **) &xOwned);
@@ -134,6 +134,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
      else if(Type_poly==CMS)                                                             calc_density_next_iter_CMS(x,xOwned);
      else if(Type_poly==CMS_SCFT)                                                        calc_density_next_iter_SCF(x,xOwned);
      else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)                    calc_density_next_iter_WJDC(x,xOwned);
+
      (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
 /* if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");*/

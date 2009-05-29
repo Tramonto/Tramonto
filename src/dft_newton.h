@@ -31,6 +31,7 @@ extern int Nodes_x[NDIM_MAX];
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void node_to_ijk(int node,int *ijk);
+extern int *L2G_node;
 extern double NL_update_scalingParam;
 extern int *Pol_Sym_Seg;
 #define WTC          2
@@ -72,6 +73,7 @@ double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
 #define TRUE  1
 #endif
 extern int *B2L_node;
+extern int Nnodes_box;
 void box2owned(double **xBox,double **xOwned);
 extern void *ParameterList_list;
 void safe_free(void **ptr);
@@ -99,6 +101,7 @@ extern int Lbinodal;
 void print_profile_box(double **x,char *outfile);
 #define VERBOSE      3 
 extern int Iwrite;
+extern void *LinProbMgr_manager;
 extern double Time_InitGuess;
 extern int Iguess1;
 void set_initial_guess(int iguess,double **xOwned);
@@ -106,6 +109,7 @@ extern int *L2B_node;
 #define PICNEWTON_NOX         5
 #define PICNEWTON_BUILT_IN    4
 extern int NL_Solver;
+extern int Nnodes_per_proc;
 extern int Nunk_per_node;
 #if defined(__STDC__)
 void *array_alloc(int numdim,...);
@@ -115,14 +119,6 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 extern double Time_MgrPrePost;
-extern int *List_coarse_nodes;
-extern int Nnodes_coarse_loc;
-extern int *B2G_node;
-extern int Nnodes_box;
-extern int *L2G_node;
-extern int Nnodes_per_proc;
-extern void *LinProbMgr_manager;
-void linsolver_setup_control();
 int solve_problem(double **x,double **x2);
 void do_numerical_jacobian(double **);
 void do_numerical_jacobian(double **x);
