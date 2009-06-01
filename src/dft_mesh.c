@@ -278,6 +278,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
   /*
    * set up communication maps so that local information can be efficiently moved to box coordinates 
    */
+
   linsolver_setup_control();
   (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
   (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
@@ -560,6 +561,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
       
      setup_external_field_n(NULL,NULL);
+     ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
 
   }
 
