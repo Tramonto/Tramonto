@@ -59,6 +59,12 @@ double pairPot_switch(double r,double param1, double param2, double param3,doubl
       case PAIR_YUKAWA_CS:
         u = uYUKAWA_CS(r,param1,param2,param3,param4);
         break;
+	  case PAIR_EXP_CS:
+		  u = uEXP_CS(r,param1,param2,param3,param4);
+		  break;
+	  case PAIR_SW:
+		  u = uSW(r,param1,param2,param3);
+		  break;
       default:
          printf("problems with your selection of typePairPot\n");
          exit(-1);
@@ -85,6 +91,12 @@ double pairPotparams_switch(int typePairPot,int context, int i, int j,double *pa
       case PAIR_YUKAWA_CS:
         uYUKAWA_CS_setparams(context,i,j,param1,param2,param3,param4);
         break;
+	  case PAIR_EXP_CS:
+		  uEXP_CS_setparams(context,i,j,param1,param2,param3,param4);
+		  break;
+	  case PAIR_SW:
+		  uSW_setparams(context,i,j,param1,param2,param3);
+		  break;
       default:
         printf("problems with your selection of typePairPot\n");
         exit(-1);
@@ -113,6 +125,12 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
       case PAIR_YUKAWA_CS:
         uderiv = uYUKAWA_DERIV1D(r,x,param1,param2,param3,param4);
         break;
+	  case PAIR_EXP_CS:
+		  uderiv = uEXP_DERIV1D(r,x,param1,param2,param3,param4);
+		  break;
+	  case PAIR_SW:
+		  uderiv = uSW_DERIV1D(r,x,param1,param2,param3);
+		  break;
       default:
          printf("problems with your selection of typePairPot\n");
          exit(-1);
@@ -145,6 +163,12 @@ double pairPot_ATT_CS_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_YUKAWA_CS:
         u = uYUKAWA_ATT_CS(r,icomp,jcomp);  
         break;
+	  case PAIR_EXP_CS:
+		  u = uEXP_ATT_CS(r,icomp,jcomp);  
+		  break;
+	  case PAIR_SW:
+		  u = uSW_ATT_CS(r,icomp,jcomp);  
+		  break;
       default:
          printf("problems with your selection of typePairPot\n");
          exit(-1);
@@ -174,6 +198,12 @@ double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_YUKAWA_CS:
         u = uYUKAWA_ATT_noCS(r,icomp,jcomp);
         break;
+	  case PAIR_EXP_CS:
+		  u = uEXP_ATT_noCS(r,icomp,jcomp);
+		  break;
+	  case PAIR_SW:
+		  u = uSW_ATT_noCS(r,icomp,jcomp);
+		  break;	  
       default:
          printf("problems with your selection of typePairPot\n");
          exit(-1);
@@ -201,6 +231,12 @@ double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_YUKAWA_CS:
         u = uYUKAWA_Integral(r,icomp,jcomp);
         break;
+	  case PAIR_EXP_CS:
+		  u = uEXP_Integral(r,icomp,jcomp);
+		  break;
+	  case PAIR_SW:
+		  u = uSW_Integral(r,icomp,jcomp);
+		  break;
       default:
          printf("problems with your selection of typePairPot\n");
          exit(-1);

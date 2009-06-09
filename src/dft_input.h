@@ -188,6 +188,7 @@ extern double Sigma_w[NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Rho_w[NWALL_MAX_TYPE];
 extern double YukawaK_ff[NCOMP_MAX][NCOMP_MAX];
+#define PAIR_EXP_CS			5
 #define PAIR_YUKAWA_CS     3
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];

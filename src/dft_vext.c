@@ -340,8 +340,8 @@ void setup_semiperm(int **nelems_w_per_w, int ***elems_w_per_w)
             if (flag){
 	    inode_box = ijk_box_to_node_box(ijk_box);
 	    loc_inode=B2L_node[inode_box];
-	    if (loc_inode >=0 ) 
-	      Vext_set[loc_inode][icomp] = Vext_membrane[WallType[iwall]][icomp];
+			if(loc_inode >=0)
+					Vext_set[loc_inode][icomp] = Vext_membrane[WallType[iwall]][icomp];
             }
 	  }
         }

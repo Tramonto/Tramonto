@@ -357,7 +357,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
 
        for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
             kseg = Bonds_SegAll[jseg][kbond];
-            if (Bonds_SegAll[jseg][kbond] !=-1){
+            if (Bonds_SegAll[jseg][kbond] !=-1){	/* ALF: need to fix? */
                kcomp=Unk2Comp[kseg];
                s2=Sigma_ff[kcomp][kcomp];
 /*               s2=Bond_ff[kcomp][kcomp];*/

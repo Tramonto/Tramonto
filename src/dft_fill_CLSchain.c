@@ -356,7 +356,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
      /* from iunk and the bond number find the jseg to which we are looking */
 
     jseg = Bonds[pol_num][seg_num][bond_num];
-    if (jseg != -1) {jtype_mer = Type_mer[pol_num][jseg];}
+    if (jseg != -1 && jseg != -2) {jtype_mer = Type_mer[pol_num][jseg];}  /* ALF: fix*/
     else {jtype_mer=itype_mer;}
 
     resid_G=0.0;

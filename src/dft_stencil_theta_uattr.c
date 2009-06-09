@@ -44,10 +44,21 @@ double StenTheta_uattr_sten_vol(int i,int j)
    if (Type_pairPot==PAIR_LJ12_6_CS) r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
    else                         r_min = Sigma_ff[i][j];
    r_cut = Cut_ff[i][j];
-
+	
+	if(Type_pairPot==PAIR_EXP_CS) {
+		vol_sten = (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
+		- (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
+		+ pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
+	}
+	else if(Type_pairPot==PAIR_SW) {
+		vol_sten = -(4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
+		+ (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot);
+	}
+	else {
    vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)
               - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
               + pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
+	}
 
    return(vol_sten);
 }

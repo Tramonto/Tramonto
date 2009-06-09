@@ -714,7 +714,7 @@ void read_input_file(char *input_file, char *output_file1)
                        /* Yukawa parameters - the Debye length */
   if (Proc==0) {
     read_junk(fp,fp2);
-    if (Type_pairPot == PAIR_YUKAWA_CS){
+    if (Type_pairPot == PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS){
       for (i=0; i<Ncomp; i++){
         if (Mix_type==0) {jmin=i; jmax=i+1;}
         else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
@@ -734,7 +734,8 @@ void read_input_file(char *input_file, char *output_file1)
       fprintf(fp2,"YukawaK_ff n/a");
     }
   }
-  if (Type_pairPot==PAIR_YUKAWA_CS) MPI_Bcast(YukawaK_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  if (Type_pairPot==PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS) 
+	  MPI_Bcast(YukawaK_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
 
                        /* WALL-WALL PARAMS */
@@ -1125,7 +1126,7 @@ void read_input_file(char *input_file, char *output_file1)
       }
     }
     for (i=0; i<Nwall_type; i++){
-      for(j=0; j<Ncomp; j++)
+		for(j=0; j<Ncomp; j++) 
 	if (! Lsemiperm[i][j]) Vext_membrane[i][j] = VEXT_MAX;
     }
   }
