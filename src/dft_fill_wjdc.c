@@ -222,7 +222,7 @@ double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    power_R = -(Nbond[pol_num][jseg]-2);
 
    if (Type_poly==WJDC2 || Type_poly==WJDC3) icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
-   else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
+   else /*if (Type_poly==WJDC)*/ icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
 
    jcomp=Unk2Comp[jseg];
 
@@ -497,7 +497,7 @@ double calc_dens_seg(int iseg,int inode_box,double **x,int flag)
 
    itype_mer=Unk2Comp[iseg]; /* note that itype_mer is also known as icomp */
    if (Type_poly==WJDC2 || Type_poly==WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;
-   else if (Type_poly==WJDC) unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; 
+   else /*if (Type_poly==WJDC)*/ unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; 
 
    fac1 = prefactor_rho_wjdc(iseg);
    for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {

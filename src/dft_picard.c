@@ -248,6 +248,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
   else{ if (Proc==0 && Iwrite!=NO_SCREEN) printf("\treturn control to NOX after %d iterations\n",iter);}
 
   safe_free((void **) &x_old);
+  safe_free((void **) &delta_x);
 
   return iter;
 }

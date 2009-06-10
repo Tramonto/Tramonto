@@ -29,8 +29,7 @@
 extern "C" {
 #include "loca_const.h"
 #define FROM_LOCA 0
-extern void communicate_to_fill_in_box_values(double **xInBox);
-extern void picard_solver(double** xBox, int iters);
+extern void picard_solver(double** xBox, double** xOwned, int iters);
 void box2owned(double**, double**);
 extern void post_process(double**, int*, double*, int, int,int);
 }
@@ -190,8 +189,9 @@ NOX::Abstract::Group::ReturnType NOXLOCA::Tramonto::Group::computeF()
   }
   else {
     fVector.init(0.0);
+    fVector = xVector;
     TV2Box(xVector, xBox);
-    picard_solver(xBox, 1);
+    picard_solver(xBox, fVector.get(), 1);
     Box2TV(xBox, fVector);
     fVector.update(-1.0, xVector, 1.0); //resid = delta_x
   }
@@ -306,7 +306,8 @@ NOXLOCA::Tramonto::Group::applyJacobianInverse(Teuchos::ParameterList& p,
   else {
     result.init(0.0);
     TV2Box(xVector, xBox);
-    picard_solver(xBox, 100); // 50 Picard steps per "Newton" iter
+    result = xVector;
+    picard_solver(xBox, result.get(), 100); // 100 Picard steps per "Newton" iter
     Box2TV(xBox, result);
     result.update(1.0, xVector, -1.0); //result = -delta_x
   }
@@ -403,8 +404,7 @@ void  NOXLOCA::Tramonto::Group::printSolution(const NOX::Abstract::Vector& sol_,
 
   const NOXLOCA::Tramonto::Vector& solVector =
       dynamic_cast<const NOXLOCA::Tramonto::Vector&>(sol_);
-  if (!doPicard) (void) dft_linprobmgr_importr2c(LinProbMgr_manager, solVector.get(), xBox);
-  else TV2Box(solVector, xBox);
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, solVector.get(), xBox);
 
   post_process(xBox, &num_its, &time_save, contStep, secondSolution, FROM_LOCA);
 }
@@ -424,8 +424,7 @@ void  NOXLOCA::Tramonto::Group::printSolution(const double param) const
   int num_its=paramList->sublist("NOX").sublist("Output").get("Nonlinear Iterations",-1);
 
   contStep++;
-  if (!doPicard) (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
-  else TV2Box(xVector, xBox);
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
   
   post_process(xBox, &num_its, &time_save, contStep, FALSE, FROM_LOCA);
 
@@ -433,19 +432,15 @@ void  NOXLOCA::Tramonto::Group::printSolution(const double param) const
 
 double  NOXLOCA::Tramonto::Group::calcFreeEnergy() const
 {
-  if (!doPicard) (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
-  else TV2Box(xVector, xBox);
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
   return calc_free_energy_conwrap(xBox);
 }
 
 void  NOXLOCA::Tramonto::Group::TV2Box(const NOXLOCA::Tramonto::Vector& xTV, double** xB) const
 {
-  for (int iunk=0;iunk<Nunk_per_node;iunk++){
-    for (int loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++)
-      xB[iunk][L2B_node[loc_inode]]=xTV.get()[iunk][loc_inode];
-  }
-  communicate_to_fill_in_box_values(xB);
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xTV.get(), xB);
 }
+
 void  NOXLOCA::Tramonto::Group::Box2TV(double** xB, NOXLOCA::Tramonto::Vector& xTV) const
 {
   for (int iunk=0;iunk<Nunk_per_node;iunk++){
