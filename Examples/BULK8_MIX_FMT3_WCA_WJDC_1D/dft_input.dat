@@ -138,7 +138,7 @@
          this dimension should have BULK boundary conditions - other dimensions should not!
          0=x, 1=y, 2=z)
         -- Lconstrain_interface (0=FALSE; 1=TRUE)
-@ 5.e-25 0.75953 0.85555 0.00005 1.e-6 0.75953 	Rho_b_0[icomp] (state condition on left(x) or bottom(y) or back(z) boundary) 
+@   0.85555  4.98867e-05 	Rho_b_0[icomp] (state condition on left(x) or bottom(y) or back(z) boundary) 
                         (icomp=0,Ncomp-1 (or Npol_comp-1 for polymers)
 @ 0.0 	Rho_b_1[icomp] (state condition on right(x) or top(y) or front(z) boundary - only 
                         applies if Type_interface=1 or 2)
@@ -256,8 +256,8 @@
 @ 0 0. 	L1D_bc, X_1D_bc 
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 0 20 1 	NL_Solver Max_NL_iter Physics_scaling 
-@ 1.0e-4 1.0e-6 0.01 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
+@ 0 10 1 	NL_Solver Max_NL_iter Physics_scaling 
+@ 1.0e-4 1.0e-6 0.1	NL_rel_tol NL_abs_tol NL_update_scalingParam 
 @ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
 @ 0 400 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
@@ -294,8 +294,8 @@
                 8 =  CONT_ELECPARAM_ALL Continue in Electrostatic properties for all surfaces simultaneously.
                 9 =  CONT_SEMIPERM_IJ   Continue in strength of semipermeable membrane potential.
 
-@ -0.2 	Parameter initial step size 
-@ 10 0.0 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
+@ 0.2 	Parameter initial step size 
+@ 5 0.2 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
 @ 3 1 1 	Continuation_Type2, NID_Cont, ID1, ID2 
            (2nd parameter for  Spinodal and Binoadal Calculations (see listabove).
 *********** END OF INPUT FILE ******************************************
