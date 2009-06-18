@@ -666,6 +666,8 @@ void renormalize_stencil(struct Stencil_Struct *sten, double vol_sten)
 
    for (i=0; i < sten->Length; i++) sum += sten->Weight[i];
 
+   /*printf("renormalize_stencils vol_sten=%g  sum_sten=%g\n",vol_sten,sum);*/
+
    if (sum == vol_sten) return;
 
    /* renormalize stencil */

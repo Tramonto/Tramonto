@@ -1009,7 +1009,6 @@ extern double Time_manager_av;
 extern double Time_fill_first;
 extern double Time_fill_av;
 extern double Time_NLSolve;
-extern double Time_MgrPrePost;
 extern double Time_InitGuess;
 
 /* Linear Solver info */

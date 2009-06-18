@@ -118,7 +118,6 @@ void *array_alloc(int numdim,...);
 #if !(defined(__STDC__))
 void *array_alloc(...);
 #endif
-extern double Time_MgrPrePost;
 int solve_problem(double **x,double **x2);
 void do_numerical_jacobian(double **);
 void do_numerical_jacobian(double **x);

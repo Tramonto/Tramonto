@@ -47,20 +47,6 @@ int solve_problem_picard(double **x, double **x2)
      to generate all other fields.  In this case, we use the fields at the ith iteration to
      generate the solution at the i+1 st iteration */
 
-/*  linsolver_setup_control();*/
-
-  /* Give Nodal Row and Column maps */
-/*  (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
-  (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);*/
-
-  /* send solver manager information about mesh coarsening */
-/*  dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);*/
-
-  /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
-/*  ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
-  if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);*/
-
-
   /* Set initial guess on owned nodes and reconcile ghost nodes manually here -- note this is a 
       rather silly approach since we have local nodes being converted to box coordinates both
       here and in the initial guess routine - I'll try to take this out, but don't want to make
@@ -74,7 +60,6 @@ int solve_problem_picard(double **x, double **x2)
 
   /* If requested, write out initial guess */
    if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");
-
 
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
@@ -93,7 +78,6 @@ int solve_problem_picard(double **x, double **x2)
 
   safe_free((void **) &xOwned);
   if (Lbinodal)  safe_free((void **) &x2Owned);
-
 
   return(iter);
 }

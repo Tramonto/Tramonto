@@ -66,7 +66,7 @@ void dftmain(double * engptr)
   double    t_pre_min,t_solve_min,t_post_min,t_total_min;
   double    t_linsolv_first_min,t_linsolv_av_min,t_linsolv_first_max,t_linsolv_av_max;
   double    t_manager_first_min,t_manager_av_min,t_manager_first_max,t_manager_av_max,t_NLSolve_max,t_NLSolve_min;
-  double    t_fill_first_min,t_fill_av_min,t_fill_first_max,t_fill_av_max,t_MgrPrePost_min,t_MgrPrePost_max,t_InitGuess_min,t_InitGuess_max;
+  double    t_fill_first_min,t_fill_av_min,t_fill_first_max,t_fill_av_max,t_InitGuess_min,t_InitGuess_max;
   double    *t_linsolv_first_array,*t_linsolv_av_array;
   double    *t_manager_first_array,*t_manager_av_array;
   double    *t_fill_first_array,*t_fill_av_array;
@@ -84,7 +84,6 @@ void dftmain(double * engptr)
   Time_fill_first=0.0;
   Time_fill_av=0.0;
   Time_NLSolve=0.0;
-  Time_MgrPrePost=0.0;
 
   gethostname(line,100);
   getcwd(linecwd,100);
@@ -381,8 +380,6 @@ void dftmain(double * engptr)
       }
       t_NLSolve_min=gmin_double(Time_NLSolve);
       t_NLSolve_max=gmax_double(Time_NLSolve);
-      t_MgrPrePost_min=gmin_double(Time_MgrPrePost);
-      t_MgrPrePost_max=gmax_double(Time_MgrPrePost);
       t_InitGuess_min=gmin_double(Time_InitGuess);
       t_InitGuess_max=gmax_double(Time_InitGuess);
 
@@ -406,10 +403,6 @@ void dftmain(double * engptr)
         printf ("---------------------------------------------------\n");
         printf ("INNER NONLINEAR SOLVER       %g         %g       \n",
                                                 t_NLSolve_min,t_NLSolve_max);
-        printf ("---------------------------------------------------\n");
-        printf ("---------------------------------------------------\n");
-        printf ("MANAGER OPS OUTSIDE NLSOLVE  %g         %g       \n",
-                                                t_MgrPrePost_min,t_MgrPrePost_max);
         printf ("---------------------------------------------------\n");
         printf ("---------------------------------------------------\n");
         printf ("TIME FOR INITIAL GUESSS      %g         %g       \n",

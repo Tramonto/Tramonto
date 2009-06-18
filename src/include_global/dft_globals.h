@@ -440,7 +440,6 @@ double Time_manager_av;
 double Time_fill_first;
 double Time_fill_av;
 double Time_NLSolve;
-double Time_MgrPrePost;
 double Time_InitGuess;
 
 

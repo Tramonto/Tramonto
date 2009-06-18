@@ -45,22 +45,6 @@ int solve_problem(double **x, double **x2)
   int loc_inode,inode_box,itmp;
   int ierr;
 
-  /* Construct dft_Linprobmgr with information on number of unknowns*/
-  start_t=MPI_Wtime();
-/*  linsolver_setup_control();*/
-
-  /* Give Nodal Row and Column maps */
-/*  (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
-  (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);*/
-
-  /* send solver manager information about mesh coarsening */
-/*  dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);*/
-
-  /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
-/*  ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
-  if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);*/
-  Time_MgrPrePost = MPI_Wtime()-start_t;
-
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
 /*for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
 if (L2G_node[loc_inode]==254) printf("Proc=%d owns global node 254 (local coord=%d boc coord=%d) \n", Proc,loc_inode,L2B_node[loc_inode]);
@@ -90,10 +74,7 @@ if (B2G_node[inode_box]==254) printf("after calling set_inital guess: Proc=%d in
   Proc,inode_box,B2G_node[inode_box],xOwned[0][inode_box]);
 }*/
 
-  start_t=MPI_Wtime();
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
-  Time_MgrPrePost += (MPI_Wtime()-start_t);
-/* debugging */
 
 /* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
 /*for (inode_box=0;inode_box<Nnodes_box;inode_box++){
@@ -121,9 +102,7 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
-  start_t=MPI_Wtime();
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
-  Time_MgrPrePost += (MPI_Wtime()-start_t);
 
   start_t=MPI_Wtime();
   if (NL_Solver==NEWTON_NOX || NL_Solver==PICNEWTON_NOX) {
@@ -147,7 +126,6 @@ if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box
 
   /* Call the destructor for the dft_ParameterList */
   dft_parameterlist_destruct(ParameterList_list);
-  /*Time_MgrPrePost += (MPI_Wtime()-start_t);*/
 
   return(iter);
 }

@@ -1838,25 +1838,6 @@ void read_input_file(char *input_file, char *output_file1)
     } 
   }
 
-  /* checks on LBulk */
-  /* first check that bulk boundaries are NOT used if LBulk=TRUE and chemical potentials will be varied */ 
-  if (LBulk && Loca.method != -1 &&
-     (Loca.cont_type1 == CONT_BETAMU_I) ){
-     for (idim=0;idim<Ndim;idim++){
-         for (i=0;i<2;i++){
-            if (Type_bc[idim][i]==IN_BULK){ 
-               if (Proc==0){
-                   printf("Bulk boundary detected while LBulk=TRUE and continuation in chemical potential requested.\n");
-                   printf("This will not work because Rho_b is not updated during a continuation run. \n");
-                   printf("The boundary condition will be reset to REFLECT (2). \n");
-               }
-               Type_bc[idim][i]=LAST_NODE;
-               Type_bc[idim][i]=REFLECT;
-            }
-         }
-     } 
-  }
-  
   MPI_Bcast(&dtmp,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
   Loca.step_size = dtmp;
   if (Proc==0) fprintf(fp2,"%f  ",Loca.step_size);
@@ -1892,6 +1873,26 @@ void read_input_file(char *input_file, char *output_file1)
        LBulk=TRUE;
     }
   MPI_Bcast(&LBulk,1,MPI_INT,0,MPI_COMM_WORLD);
+
+  /* checks on LBulk */
+  /* first check that bulk boundaries are NOT used if LBulk=TRUE and chemical potentials will be varied */ 
+  if (LBulk && Loca.method != -1 &&
+     (Loca.cont_type1 == CONT_BETAMU_I) ){
+     for (idim=0;idim<Ndim;idim++){
+         for (i=0;i<2;i++){
+            if (Type_bc[idim][i]==IN_BULK){ 
+               if (Proc==0){
+                   printf("Bulk boundary detected while LBulk=TRUE and continuation in chemical potential requested.\n");
+                   printf("This will not work because Rho_b is not updated during a continuation run. \n");
+                   printf("The boundary condition will be reset to REFLECT (2). \n");
+               }
+               Type_bc[idim][i]=LAST_NODE;
+               Type_bc[idim][i]=REFLECT;
+            }
+         }
+     } 
+  }
+  
 
 #else
   Loca.method = -1;

@@ -43,7 +43,7 @@
 double uLJ12_6_ATT_SIGTORCUT_CS(double r,int i, int j)
 {
   double uatt,sigma2,sigma6;
-  double r_inv,r2_inv,r6_inv,r12_inv;
+  double r_inv,r2_inv,r6_inv,r12_inv,r_min;
   double rc_inv,rc2_inv,rc6_inv,rc12_inv;
 
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
@@ -59,6 +59,9 @@ double uLJ12_6_ATT_SIGTORCUT_CS(double r,int i, int j)
      uatt=0.0;
   }
   else if (r <= Cut_ff[i][j]) {
+     r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
+     if (r < r_min) r = r_min;
+
      r_inv = 1.0/r;
      r2_inv  = r_inv*r_inv;
      r6_inv  = r2_inv*r2_inv*r2_inv;
@@ -86,6 +89,9 @@ double uLJ12_6_ATT_SIGTORCUT_noCS(double r,int i, int j)
 
   if (r<Sigma_ff[i][j]) uatt=0.0;
   else{
+     r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
+     if (r < r_min) r = r_min;
+
      r_inv = 1.0/r;
      r2_inv  = r_inv*r_inv;
      r6_inv  = r2_inv*r2_inv*r2_inv;

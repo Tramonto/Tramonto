@@ -153,7 +153,6 @@ extern int Proc;
 extern int Proc;
 #endif
 extern int Num_Proc;
-extern double Time_MgrPrePost;
 extern double Time_NLSolve;
 extern double Time_fill_av;
 extern double Time_fill_first;
