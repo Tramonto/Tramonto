@@ -17,36 +17,38 @@ Input Files for Test problem:
 
 Eps_wf[0][0]:  Eps_wf[0][0]:  Surf_sep  niters  time  ads[0]  ads[1]  ads[2]  ads_ex[0]  ads_ex[1]  ads_ex[2]  force  omega  omega_s    
 
-Key Output Parameters (first solution - bilayer) :
-   - eps_wf[0][0]=0.6795511
-   - ads[0]=5.58317 
-   - ads[2]=0.697896
-   - ads[3]=3.39421
-   - omega=-2.23589
+Key Output Parameters (first solution - SAM+bilayer) :
+   - eps_wf[0][0]=0.81289545
+   - niter=3
+   - ads[0]=8.74642 
+   - ads[2]=1.0933
+   - ads[3]=0.240325
+   - omega=-3.29687
 .
 
-Key Output Parameters (first solution - SAM) :
-   - eps_wf[0][0]=0.6795511
-   - ads[0]=8.39368 
-   - ads[2]=1.04921
-   - ads[3]=0.227313
-   - omega=-2.23589
+Key Output Parameters (first solution - bilayer) :
+   - eps_wf[0][0]=0.81289545
+   - ads[0]=5.54559 
+   - ads[2]=0.693199
+   - ads[3]=4.138963
+   - omega=-3.29687
+.
+
+Key Output Parameters (third solution - SAM+bilayer) :
+   - eps_wf[0][0]=0.82565737
+   - niter=6
+   - ads[0]=8.62331
+   - ads[2]=1.07791
+   - ads[3]=0.227268
+   - omega=-3.22598
 .
 
 Key Output Parameters (third solution - bilayer) :
-   - eps_wf[0][0]=0.69784001
-   - ads[0]=5.60968
-   - ads[2]=0.70121
-   - ads[3]=3.18358
-   - omega=-2.19704
-.
-
-Key Output Parameters (third solution - SAM) :
-   - eps_wf[0][0]=0.69784001
-   - ads[0]=8.27577
-   - ads[2]=1.03447
-   - ads[3]=0.215949
-   - omega=-2.19704
+   - eps_wf[0][0]=0.82565737
+   - ads[0]=5.50568
+   - ads[2]=0.68821
+   - ads[3]=4.023529
+   - omega=-3.22598
 .
 
 */

@@ -87,7 +87,7 @@
 @ 0. 	YukawaK_ww[i][j] 
 
 @ 1. 1.44 1. 	Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1] 
-@ 0.65 0.42 0.42 	Eps_wf[i][j] 
+@ 0.81289545 0.42 0.42 	Eps_wf[i][j] 
 @ 3. 3. 3. 	Cut_wf[i][j] 
 @ 0. 	YukawaK_wf[i][j] 
 
@@ -233,7 +233,7 @@
                **** set how you would like all of the output to print ******
                *************************************************************
 @ 1 1 0 0 	Lper_area Lcount_reflect Lprint_gofr Lprint_uww 
-@ 0 	Print_rho_type (0= all output in dft_dens.dat, 
+@ 1 	Print_rho_type (0= all output in dft_dens.dat, 
                                1= each run gets a different file)
 @ 0 0 	Print_rho_switch Print_mesh_switch 
                switches to determine how output will look in dft_force file
@@ -256,8 +256,8 @@
 @ 0 0. 	L1D_bc, X_1D_bc 
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 0 30 1 	NL_Solver Max_NL_iter Physics_scaling 
-@ 1.0e-4 1.0e-7 0.2 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
+@ 1 100 1 	NL_Solver Max_NL_iter Physics_scaling 
+@ 1.0e-4 1.0e-7 0.1 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
 @ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
 @ 1 400 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
