@@ -22,16 +22,14 @@ Input Files for Test problem:
    - lin_18_1
    - dft_dens.dat
    - dft_surfaces.dat
-   - dens_pure_solvent.dat
-   - dsave_whole_bilayer
 
 Key Output Parameters (first solution) :
-   - niter=3
-   - ads[0]=5.57463
-   - ads[1]=0.696829 
-   - ads[2]=6.31107
-   - force=0.0909986
-   - omega=-4.02681
+   - niter=1
+   - ads[0]=5.44566
+   - ads[1]=0.680707 
+   - ads[2]=7.07942
+   - force=0.2478836
+   - omega=-5.66127
 .
 
 */
