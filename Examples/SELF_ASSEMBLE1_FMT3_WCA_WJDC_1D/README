@@ -16,11 +16,11 @@ Input Files for Test problem:
    - dens_pure_solvent.dat
 
 Key Output Parameters (first solution) :
-   - niter=1
-   - ads[0]=2.76775
-   - ads[1]=0.345969 
-   - ads[2]=11.6907
-   - omega=-4.60398
+   - niter=2
+   - ads[0]=2.85332
+   - ads[1]=0.356665 
+   - ads[2]=12.0333
+   - omega=-4.60126
 .
 
 */

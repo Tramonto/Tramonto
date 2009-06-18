@@ -138,7 +138,7 @@
          this dimension should have BULK boundary conditions - other dimensions should not!
          0=x, 1=y, 2=z)
         -- Lconstrain_interface (0=FALSE; 1=TRUE)
-@ 0.2115 0.03354093 	Rho_b_0[icomp] (state condition on left(x) or bottom(y) or back(z) boundary) 
+@ 0.22726715   0.02597424  	Rho_b_0[icomp] (state condition on left(x) or bottom(y) or back(z) boundary) 
                         (icomp=0,Ncomp-1 (or Npol_comp-1 for polymers)
 @ n/a 	Rho_b_1[icomp] (state condition on right(x) or top(y) or front(z) boundary - only 
                         applies if Type_interface=1 or 2)
@@ -233,13 +233,13 @@
                **** set how you would like all of the output to print ******
                *************************************************************
 @ 1 1 0 0 	Lper_area Lcount_reflect Lprint_gofr Lprint_uww 
-@ 0 	Print_rho_type (0= all output in dft_dens.dat, 
+@ 1 	Print_rho_type (0= all output in dft_dens.dat, 
                                1= each run gets a different file)
 @ 0 0 	Print_rho_switch Print_mesh_switch 
                switches to determine how output will look in dft_force file
                rho: (0 - all densities, 1=p/po, 2=kappa, 3=all betamu)
                mesh: (0=surface separations, 1=wall positions)
-@ 1 	IWRITE (0=MINIMAL, 1=DENSITY_PROF, 2=NO_SCREEN, 3=VERBOSE) 
+@ 1 1 	IWRITE (0=MINIMAL, 1=DENSITY_PROF, 2=NO_SCREEN, 3=VERBOSE) 
 
 *********** COARSENING SWITCHES ************************************************
 @ 1 	Nzone (Coarsens Mesh/Jacobian by factor of 2) 
@@ -256,7 +256,7 @@
 @ 0 0. 	L1D_bc, X_1D_bc 
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 0 10 1 	NL_Solver Max_NL_iter Physics_scaling 
+@ 0 20 1 	NL_Solver Max_NL_iter Physics_scaling 
 @ 1.0e-3 1.0e-5 1.0 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
 @ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
@@ -273,7 +273,7 @@
 @ 0 -1 	Plane_new_nodes Pos_new_nodes 
                   (0=yz,1=xz,2=xy)   (-1=lbb,0=center,1=rtf)
 ************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
-@ -1 	Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length 
+@ -1 4 	Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length 
                          3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
 @ 2 1 0 	Continuation_Type, NID_Cont, ID1, ID2 
           (NID_Cont indicates number if IDs needed to indentify which parameters should be continued.
@@ -294,9 +294,9 @@
                 8 =  CONT_ELECPARAM_ALL Continue in Electrostatic properties for all surfaces simultaneously.
                 9 =  CONT_SEMIPERM_IJ   Continue in strength of semipermeable membrane potential.
 
-@ 0.0001 	Parameter initial step size 
-@ 30 0.30 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
-@ 2 0 0 0 	Continuation_Type2, NID_Cont, ID1, ID2 
+@ -0.0001 	Parameter initial step size 
+@ 1 0.30 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
+@ 2 1 1 0 	Continuation_Type2, NID_Cont, ID1, ID2 
            (2nd parameter for  Spinodal and Binoadal Calculations (see listabove).
 *********** END OF INPUT FILE ******************************************
 
