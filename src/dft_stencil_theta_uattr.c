@@ -59,6 +59,7 @@ double StenTheta_uattr_sten_vol(int i,int j)
           break;
 
        case PAIR_SW:
+		   r_min = Sigma_ff[i][j];
 	  vol_sten = -(4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
 	        + (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot);
           break;
