@@ -1,0 +1,23 @@
+/*! \file 
+ \brief Cut and shifted exponential attraction
+
+Functionals: FMT_3, PAIR_EXP_CS
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Single component fluid with a cut and shifted exponential attraction, near a hard wall.  The
+range of the attraction is set by the Yukawa parameter.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=6
+   - adsorption=12.3422
+   - force=0.991395
+   - energy=2.4142
+   .
+*/

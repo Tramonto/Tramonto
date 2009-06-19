@@ -1,0 +1,23 @@
+/*! \file 
+ \brief Square-well fluid near a hard wall.
+
+Functionals: FMT_3, PAIR_SW
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Single component square-well fluid near a hard wall.  The calculation of the force has not been
+implemented, due to the discontinuity in the potential.  Also note that this potential should only be used
+for fluid-fluid interactions, not fluid-wall interactions.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=5 
+   - adsorption=13.0015
+   - energy=1.98889
+   .
+*/
