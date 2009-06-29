@@ -152,6 +152,9 @@ void set_up_mesh (char *output_file1,char *output_file2)
       * load balancing.
       */
      if (Proc==0 && Iwrite == VERBOSE) printf("\n%s: Setting up the mesh again after load balance... \n",yo);
+     /* Call the destructor for the dft_Linprobmgr */
+     dft_linprobmgr_destruct(LinProbMgr_manager);
+
      control_mesh(fp1,output_file2,print_flag, update);
   }
     /* now reset the Mesh_coarsen_flag on the one row of nodes where
@@ -282,7 +285,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
   linsolver_setup_control();
   (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
   (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
-  
 
 
   /*
