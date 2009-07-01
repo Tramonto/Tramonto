@@ -75,11 +75,12 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
 
   if (isBlockStructureSet_) return(1); // Already been here, return warning
 
-  if (numGlobalNodes_==0 ||
-      numGlobalBoxNodes_==0 ||
-      gEquations_.Length()==0 ||
-      cmsEquations_.Length()==0 ||
-      densityEquations_.Length()==0) return(-1); // Error: One or more set methods not called
+	TEST_FOR_EXCEPTION((numGlobalNodes_==0 ||
+					   numGlobalBoxNodes_==0 ||
+					   gEquations_.Length()==0 ||
+					   cmsEquations_.Length()==0 ||
+					   densityEquations_.Length()==0), std::logic_error, 
+					   "One or more set methods not called.");
   //Not checking if poissonEquations_.Length()==0 because don't HAVE to have Poisson equations      
   //Not checking if gInvEquations_.Length()==0 because we don't have to have G inv equations
   
@@ -231,13 +232,17 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*boxMap_, *ownedMap_));
 
   isBlockStructureSet_ = true;
+  isGraphStructureSet_ = true;
   return(0);
 }
 //=============================================================================
 int dft_PolyLinProbMgr::initializeProblemValues() {
   
-  if (isGraphStructureSet_) return(-1); // Graph structure must be set
-  isLinearProblemSet_ = false; // We are reinitializing the linear problem
+	TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error, 
+					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
+	TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error, 
+					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
+	isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_) {
     A12_->PutScalar(0.0);
@@ -377,10 +382,13 @@ int dft_PolyLinProbMgr::finalizeProblemValues() {
 //=============================================================================
 int dft_PolyLinProbMgr::setupSolver() {
 
-  if (!isLinearProblemSet_) return(-1);
-
+	TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error, 
+					   "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
+		
+	
   schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
-  
+  if (solver_ != Teuchos::null) return(0); //All done if solver already defined.
+	
   solver_ = Teuchos::rcp(new AztecOO(*implicitProblem_));
   solver_->SetParameters(*parameterList_);
   //if (solverOptions_!=0) solver_->SetAllAztecOptions(solverOptions_);

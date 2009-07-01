@@ -39,7 +39,7 @@
 #include "EpetraExt_RowMatrixOut.h"
 #include "EpetraExt_MultiVectorOut.h"
 #include "EpetraExt_BlockMapOut.h"
-
+#include "Teuchos_TestForException.hpp"
 
 //=============================================================================
 /*dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm) 
@@ -172,12 +172,17 @@ int dft_BasicLinProbMgr::finalizeBlockStructure() {
   ownedToBoxImporter_ = Teuchos::rcp(new Epetra_Import(*boxMap_, *ownedMap_));
 
   isBlockStructureSet_ = true;
+  isGraphStructureSet_ = true;
   return(0);
 }
 //=============================================================================
 int dft_BasicLinProbMgr::initializeProblemValues() {
   
-  if (isGraphStructureSet_) return(-1); // Graph structure must be set
+	TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error, 
+					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
+	TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error, 
+					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
+	
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
  // AGS: I found that we needed to initialize the matrix even the 
@@ -350,8 +355,10 @@ int dft_BasicLinProbMgr::getRhs(double ** b) const {
 //=============================================================================
 int dft_BasicLinProbMgr::setupSolver() {
 
-  if (solver_ != Teuchos::null || directSolver_  != Teuchos::null) 
-     return (0);  // Already here (AGS attempt to fix memory prob June 09);
+	TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error, 
+					   "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
+
+	if (solver_ != Teuchos::null || directSolver_  != Teuchos::null) return(0);  //Already setup
 
   int solverInt = Teuchos::getParameter<int>(*parameterList_, "Solver");
   // int solverInt = solverOptions_[AZ_solver];

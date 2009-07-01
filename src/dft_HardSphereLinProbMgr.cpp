@@ -82,7 +82,16 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
       depNonLocalEquations_.Length()<0  ||
       densityEquations_.Length()==0) return(-1); // Error: One or more set methods not called
   
-  // Fill physics ordering vector with the concatenated contents of the IDs for all physics types
+	TEST_FOR_EXCEPTION((numGlobalNodes_==0 ||
+					   numGlobalBoxNodes_==0 ||
+					   indNonLocalEquations_.Length()==0 ||
+					   depNonLocalEquations_.Length()<0  ||
+					   densityEquations_.Length()==0), std::logic_error, 
+					   "One or more set methods not called.");
+	//Not checking if poissonEquations_.Length()==0 because don't HAVE to have Poisson equations      
+	//Not checking if gInvEquations_.Length()==0 because we don't have to have G inv equations
+	
+	// Fill physics ordering vector with the concatenated contents of the IDs for all physics types
   // Load Schur block mappings
   physicsOrdering_.Size(numUnknownsPerNode_);
   physicsIdToSchurBlockId_.Size(numUnknownsPerNode_);
@@ -195,13 +204,17 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
     
 
   isBlockStructureSet_ = true;
+  isGraphStructureSet_ = true;
   return(0);
 }
 //=============================================================================
 int dft_HardSphereLinProbMgr::initializeProblemValues() {
   
-  if (isGraphStructureSet_) return(-1); // Graph structure must be set
-  isLinearProblemSet_ = false; // We are reinitializing the linear problem
+	TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error, 
+					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
+	TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error, 
+					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
+	isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_) {
     A12_->PutScalar(0.0);
@@ -331,10 +344,14 @@ int dft_HardSphereLinProbMgr::finalizeProblemValues() {
 //=============================================================================
 int dft_HardSphereLinProbMgr::setupSolver() {
 
-  if (!isLinearProblemSet_) return(-1);
-
+	
+	TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error, 
+					   "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
+	
+	
   schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
-
+  if (solver_ != Teuchos::null ) return(0);  //Already setup
+	
   if (formSchurMatrix_) {// We have S explicitly available, so let's use it
     if (isA22Diagonal_)
       schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Diagonal_->getA22Matrix());
