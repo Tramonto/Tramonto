@@ -101,6 +101,8 @@ int dft_BasicLinProbMgr::setNodalRowMap(int numOwnedNodes, int * GIDs, int nx, i
 //=============================================================================
 int dft_BasicLinProbMgr::setNodalColMap(int numBoxNodes, int * GIDs, int nx, int ny, int nz) {
   
+  if (numGlobalBoxNodes_!=0) return(0); // Already been here
+
   numBoxNodes_ = numBoxNodes;
   comm_.SumAll(&numBoxNodes_, &numGlobalBoxNodes_, 1);
 
@@ -112,6 +114,8 @@ int dft_BasicLinProbMgr::setNodalColMap(int numBoxNodes, int * GIDs, int nx, int
 //=============================================================================
 int dft_BasicLinProbMgr::setCoarsenedNodesList(int numCoarsenedNodes, int * GIDs) {
   
+  if (numGlobalCoarsenedNodes_!=0) return(0); // Already been here
+
   numCoarsenedNodes_ = numCoarsenedNodes;
   comm_.SumAll(&numCoarsenedNodes_, &numGlobalCoarsenedNodes_, 1);
 
@@ -345,6 +349,9 @@ int dft_BasicLinProbMgr::getRhs(double ** b) const {
 }
 //=============================================================================
 int dft_BasicLinProbMgr::setupSolver() {
+
+  if (solver_ != Teuchos::null || directSolver_  != Teuchos::null) 
+     return (0);  // Already here (AGS attempt to fix memory prob June 09);
 
   int solverInt = Teuchos::getParameter<int>(*parameterList_, "Solver");
   // int solverInt = solverOptions_[AZ_solver];
