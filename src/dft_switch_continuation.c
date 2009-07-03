@@ -243,15 +243,15 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
            break;
 
       case CONT_SEMIPERM_IJ:
-           icomp=Cont_ID[Loca_contID][0];
-           iwall_type=Cont_ID[Loca_contID][1];
-           param_save=Vext_membrane[icomp][iwall_type];
-           for (inode=0;inode<Nnodes_per_proc;inode++){
+		  iwall_type=Cont_ID[Loca_contID][0];
+		  icomp=Cont_ID[Loca_contID][1];
+		  param_save=Vext_membrane[iwall_type][icomp];
+			  for (inode=0;inode<Nnodes_per_proc;inode++){
                   if (fabs(Vext[inode][icomp]-param_save)<1.e-10) Vext[inode][icomp]=param;
-           }
-           Vext_membrane[icomp][iwall_type]=param;
-           break;
-
+			  }
+			  Vext_membrane[iwall_type][icomp]=param;
+		  break;
+		  
       default:
         if (cont_type > 99 && cont_type < 199) {
            assign_param_archived_plugin(cont_type,Loca_contID,param); 
