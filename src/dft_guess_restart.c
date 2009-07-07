@@ -144,11 +144,12 @@ void read_in_a_file(int iguess,char *filename)
 {
   int c;
   int i,iunk,junk,idim, inode,itype_mer,ipol,iseg,index,dim_tmp,iunk_file;
+  int pol_number;
   int ijk_old[3],ijk_old_max[3],open_now,ndim_max,node_start,adjust1D,irhobar_file;
   int unk_in_file, unk_start_in_file[NEQ_TYPE],header,eq_type;
   int unk_to_eq_in_file[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13];
   int convert_to_comp_densities, convert_to_seg_densities,jseg,icomp;
-  double pos_old,pos_old0[3],tmp,x_tmp;
+  double pos_old,pos_old0[3],tmp,x_tmp,scalefac;
   char filename2[20];
   char unk_char[20];
   FILE *fp5=NULL,*fp6=NULL;
@@ -355,10 +356,20 @@ void read_in_a_file(int iguess,char *filename)
 /*   	         fscanf(fp5,"%lf",&tmp);
                  tmp = exp(-tmp); 
                  break;*/
-              case WJDC_FIELD: 
+
+                
 	      case SCF_FIELD:
+              case WJDC_FIELD: 
    	         fscanf(fp5,"%lf",&tmp);
                  /*tmp = exp(-tmp); */
+                 if (eq_type==WJDC_FIELD){ 
+                     if (Type_poly==WJDC) icomp=Unk2Comp[iunk_file-unk_start_in_file[WJDC_FIELD]];
+                     else                 icomp=iunk_file-unk_start_in_file[WJDC_FIELD];
+                     for (pol_number=0;pol_number<Npol_comp;pol_number++) {
+                          if (Nseg_type_pol[pol_number][icomp] !=0) scalefac=Scale_fac_WJDC[pol_number][icomp];
+                     }
+                     tmp *= exp(scalefac);
+                 }
                  break;
 				  
 	      case SCF_CONSTR:

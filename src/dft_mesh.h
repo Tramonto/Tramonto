@@ -192,7 +192,6 @@ extern int Ipot_ff_n;
 extern int Lhard_surf;
 extern int Nlists_HW;
 extern int Nwall;
-extern void *LinProbMgr_manager;
 void linsolver_setup_control();
 void setup_basic_box(FILE *fp1,int *update);
 extern int *L2G_node;
@@ -233,6 +232,7 @@ extern int Ndim;
 void node_to_ijk(int node,int *ijk);
 extern int *B2G_node;
 extern int Nnodes_box;
+extern void *LinProbMgr_manager;
 void free_mesh_arrays(void);
 #define VERBOSE      3 
 void control_mesh(FILE *fp1,char *output_file2,int print_flag,int *update);

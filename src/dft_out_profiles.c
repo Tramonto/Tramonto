@@ -186,8 +186,8 @@ this routine is only ever called by Proc 0                                    */
 void print_profile(char *output_file4,double *xold)
 {
   int icomp,iunk,i,inode,ijk[3],idim,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
-  int unk_field, node_start,jcomp;
-  double kappa_sq,kappa,r,rsq,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term;
+  int unk_field, node_start,jcomp,pol_number;
+  double kappa_sq,kappa,r,rsq,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term,scalefac;
   char *unk_char;
     
   char gfile[20],gfile2[20];
@@ -255,7 +255,7 @@ void print_profile(char *output_file4,double *xold)
                }break;
             case WJDC_FIELD: 
                unk_char = "WJDCFIELD";
-               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE/*|| Type_poly==WJDC3*/)){
+               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE|| Type_poly==WJDC3)){
                  fputs (unk_char,ifp); 
                  fprintf(ifp,"\n"); 
                } break;
@@ -332,8 +332,12 @@ void print_profile(char *output_file4,double *xold)
                case MF_EQ:     icomp = iunk-Phys2Unk_first[MF_EQ]; break;
                case DIFFUSION: icomp = iunk-Phys2Unk_first[DIFFUSION]; break;
                case CMS_FIELD: icomp = iunk-Phys2Unk_first[CMS_FIELD]; break;
-			   case SCF_FIELD: icomp = iunk-Phys2Unk_first[SCF_FIELD]; break;
-			   case SCF_CONSTR: icomp = iunk-Phys2Unk_first[SCF_CONSTR]; break;
+	       case SCF_FIELD: icomp = iunk-Phys2Unk_first[SCF_FIELD]; break;
+	       case SCF_CONSTR: icomp = iunk-Phys2Unk_first[SCF_CONSTR]; break;
+               case WJDC_FIELD:
+                    if (Type_poly==WJDC) icomp=Unk2Comp[iunk-Phys2Unk_first[WJDC_FIELD]]; 
+                    else                 icomp=iunk-Phys2Unk_first[WJDC_FIELD];
+                    break;
             }
             switch(Unk2Phys[iunk]){
                 case DENSITY:
@@ -362,13 +366,21 @@ void print_profile(char *output_file4,double *xold)
                 case CMS_FIELD:
                 case WJDC_FIELD:
 	        case SCF_FIELD:
-                   if(Iwrite==VERBOSE /*|| Type_poly==WJDC3*/){
+                   if(Iwrite==VERBOSE || Type_poly==WJDC3){
                       /*if (fabs(xold[iunk+node_start]) > 1.e-12 && -log(xold[iunk+node_start]) < VEXT_MAX){
                           fprintf(ifp,"%g\t", -log(xold[iunk+node_start]));
                       }
                       else fprintf(ifp,"%g\t", VEXT_MAX);*/
 
-                      fprintf(ifp,"%g\t", xold[iunk+node_start]);
+                     if (Unk2Phys[iunk]!=WJDC_FIELD){ 
+                         fprintf(ifp,"%g\t", xold[iunk+node_start]);
+                     }
+                     else{
+                       for (pol_number=0;pol_number<Npol_comp;pol_number++) {
+                          if (Nseg_type_pol[pol_number][icomp] !=0) scalefac=Scale_fac_WJDC[pol_number][icomp];
+                        }
+                        fprintf(ifp,"%g\t", xold[iunk+node_start]/exp(scalefac));
+                     }
                    }
                    break;
 					

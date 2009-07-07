@@ -64,18 +64,19 @@ extern int Geqn_start[NCOMP_MAX];
 extern int **Nbond;
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Nmer[NCOMP_MAX];
-extern int **Nseg_type_pol;
-extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
-extern int Npol_comp;
 #define NONE       -1
 #define NONE      -1
 #define NONE        -1
 #define NONE        -1
 #define G_CHAIN       11 
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
+extern int **Nseg_type_pol;
+extern int Npol_comp;
 extern double Temp;
 extern double Mass[NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int LDeBroglie;
+extern int Unk2Comp[NMER_MAX];
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
