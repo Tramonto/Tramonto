@@ -162,7 +162,7 @@ void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned)
               for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
                  if (Bonds[pol_num][jseg][jbond] != iseg){ /* check all jbonds to see if we have necessary info */
                     index=Poly_to_Unk[pol_num][jseg][jbond]+Geqn_start[pol_num]-Geqn_start[0];
-                    if (array_val[index]==FALSE) test=FALSE;
+                    if (array_val[index]==FALSE || (Pol_Sym[ibond] != -1 && array_val[Pol_Sym[ibond]]==FALSE)) test=FALSE;
                  }
               }
            }

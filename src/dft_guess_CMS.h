@@ -107,6 +107,7 @@ void calc_init_CMSfield(double **xInBox,double **xOwned);
 extern int *L2B_node;
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
+extern int *Pol_Sym;
 #define CMS_FIELD      7
 #define DENSITY        0
 #define NEQ_TYPE       13 

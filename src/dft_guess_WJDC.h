@@ -85,6 +85,7 @@ extern int **Zero_density_TF;
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nnodes_per_proc;
 extern int Ncomp;
+extern int *Pol_Sym;
 #define WJDC3        5 
 #define WJDC2        4 
 extern int Nseg_tot;
