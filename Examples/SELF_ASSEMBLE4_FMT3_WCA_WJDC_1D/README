@@ -1,0 +1,24 @@
+/*! \file 
+ \brief Oil/water/surfactant interface.
+
+Functionals: FMT3,WCA,WJDC3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example solves for an oil/water/surfactant interface starting with a surfactant free solution.  This case tests the Retart=4 type which takes a solution that does not contain all of the necessary density fields and uses a combination of starting from existing density fields and setting up new ones.  Note that the solution uses a combined Picard/Newton method.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_dens.dat
+
+Key Output Parameters :
+   - niter=8
+   - ads[0]=6.99579 
+   - ads[2]=0.176075
+   - ads[3]=0.176075
+   - omega=-3.78729
+.
+
+*/

@@ -202,14 +202,16 @@
 @ -6.0 10.0  	Xend_step[istep] 
 @ 0.05 0.0 	Rho_step[icomp][istep] 
 
-@ 0 0 	vext1.dat vext2.dat Restart Restart_Vext Vext_file1 Vext_file2 
+@ 0 0                Restart  Nmissing_densities
                        Restart options{
-                          0=don't restart from file. 
-                          1=restart using data in dft_dens.dat 
-                          2=restart with dft_dens.dat, but apply step function to defined constant at Xstart_step[0] 
+                          0=don't restart from file.
+                          1=restart using data in dft_dens.dat
+                          2=restart with dft_dens.dat, but apply step function to defined constant at Xstart_step[0]
                           3=restart densities but not elec.pot or chem.pot.
-			  5=use 1D profile as initial guess for 2 or 3D calculation
+                          4=restart from file that has an incomplete set of densities (specify Nmissing_densities)
+                          5=use 1D profile as initial guess for 2 or 3D calculation
                        }
+@  0    vext1.dat vext2.dat    Restart_Vext Vext_file1 Vext_file2
                        Restart_Vext options{
                           0=don't restart Vext from file.
                           1=restart Vext using data in file Vext_file1 (any name you like)
@@ -217,7 +219,6 @@
                           3=restart Vext by summing two files, but treat data in Vext2_file
                             as static with respect to continuation of Vext parameters.
                        }
-
 @ 1.1 	Rho_max maximum density allowed from restart file 
 
 ************* OUTPUT FORMAT PARAMETERS ****************************************
