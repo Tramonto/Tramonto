@@ -35,9 +35,9 @@
 
 #include "dft_guess_EL_DENSITY.h"
 
-void setup_density(double **xInBox,double **xOwned,int iguess)
+void setup_density(double **xInBox,double **xOwned,int guess_type)
 {
-    switch(iguess){
+    switch(guess_type){
       case CONST_RHO:
             if (Lseg_densities){
                  setup_const_density(xInBox,Rho_seg_b,Nseg_tot,0);
@@ -58,7 +58,7 @@ void setup_density(double **xInBox,double **xOwned,int iguess)
 
       case LINEAR:
             setup_linear_profile(xInBox);
-    }  /* end of iguess switch */
+    }  /* end of guess_type switch */
     translate_xInBox_to_xOwned(xInBox,xOwned);
     return;
 }
@@ -71,6 +71,7 @@ void setup_const_density(double **xInBox, double *rho,int nloop,int index)
 
   for (inode_box=0; inode_box<Nnodes_box; inode_box++){
      for (i=0; i<nloop; i++){
+         if (Restart==RESTART_FEWERCOMP && i<nloop-Nmissing_densities) i=nloop-Nmissing_densities;
 	 iunk = i+Phys2Unk_first[DENSITY];
          if (Lseg_densities) zeroTF=Zero_density_TF[inode_box][Unk2Comp[i]];
          else                zeroTF=Zero_density_TF[inode_box][i];
@@ -103,11 +104,13 @@ void setup_stepped_profile(double **xInBox)
            nodepos[Orientation_step[i]] <= Xend_step[i]){
 
            for (j=0; j<nloop; j++){
+               if (Restart==RESTART_FEWERCOMP && j<nloop-Nmissing_densities) j=nloop-Nmissing_densities;
                if (Lseg_densities) icomp=Unk2Comp[j];
                else                icomp=j;
 	       iunk = Phys2Unk_first[DENSITY]+j;
                if (!Zero_density_TF[inode_box][icomp]){
-                   xInBox[iunk][inode_box]=Rho_step[icomp][i];
+                   if (Restart==RESTART_FEWERCOMP) xInBox[iunk][inode_box]=Rho_step[0][i];
+                   else                           xInBox[iunk][inode_box]=Rho_step[icomp][i];
                }
                else xInBox[iunk][inode_box]=0.0;
            }
@@ -132,6 +135,7 @@ void setup_exp_density(double **xInBox, double *rho,int nloop,int index)
   for (inode_box=0; inode_box<Nnodes_box; inode_box++){
      loc_inode=B2L_node[inode_box];
      for (i=0; i<nloop; i++) {
+        if (Restart==RESTART_FEWERCOMP && i<nloop-Nmissing_densities) i=nloop-Nmissing_densities;
 
         if (Lseg_densities) icomp=Unk2Comp[i];
         else icomp=i;
@@ -176,6 +180,8 @@ void setup_step_2consts(double **xInBox)
      x_dist = Esize_x[0]*ijk[0] - 0.5*Size_x[0];
 
      for (i=0; i<nloop; i++) {
+        if (Restart==RESTART_FEWERCOMP && i<nloop-Nmissing_densities) i=nloop-Nmissing_densities;
+
         if (Lseg_densities) icomp=Unk2Comp[i];
         else                icomp=i;
 
@@ -216,6 +222,7 @@ void setup_linear_profile(double **xInBox)
      x_dist = Esize_x[0]*ijk[0]-X_const_mu;
 
      for (i=0; i<nloop; i++) {
+        if (Restart==RESTART_FEWERCOMP && i<Nmissing_densities) i=nloop-Nmissing_densities;
         if (Lseg_densities) icomp=Unk2Comp[i];
         else                icomp=i;
 

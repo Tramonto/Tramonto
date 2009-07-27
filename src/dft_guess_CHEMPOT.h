@@ -29,6 +29,9 @@ extern int Unk2Comp[NMER_MAX];
 #define DIFFUSION      6
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
+extern int Nmissing_densities;
+#define RESTART_FEWERCOMP  4
+extern int Restart;
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);

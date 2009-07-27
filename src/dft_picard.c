@@ -55,7 +55,7 @@ int solve_problem_picard(double **x, double **x2)
   xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   for (iunk=0;iunk<Nunk_per_node;iunk++)
         for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++) xOwned[iunk][loc_inode]=0.0;
-  set_initial_guess(Iguess1, xOwned);
+  set_initial_guess(Iguess, xOwned);
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
   /* If requested, write out initial guess */

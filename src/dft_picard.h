@@ -123,8 +123,8 @@ void print_profile_box(double **x,char *outfile);
 #define VERBOSE      3 
 extern int Iwrite;
 extern void *LinProbMgr_manager;
-extern int Iguess1;
-void set_initial_guess(int iguess,double **xOwned);
+extern int Iguess;
+void set_initial_guess(int guess_type,double **xOwned);
 extern int Nnodes_per_proc;
 extern int Nunk_per_node;
 #if defined(__STDC__)

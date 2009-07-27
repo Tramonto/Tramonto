@@ -1509,16 +1509,16 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d %d",&Iguess1,&Iguess_fields);
-    fprintf(fp2,"%d  %d ",Iguess1,Iguess_fields);
+    fscanf(fp,"%d %d",&Iguess,&Iguess_fields);
+    fprintf(fp2,"%d  %d ",Iguess,Iguess_fields);
   }
-  MPI_Bcast(&Iguess1,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Iguess,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Iguess_fields,1,MPI_INT,0,MPI_COMM_WORLD);
 
-  if (Iguess1==STEP_PROFILE || (Iguess1>=CHOP_RHO && Iguess1<= CHOP_RHO_STEP)){
+  if (Iguess==STEP_PROFILE || (Iguess>=CHOP_RHO && Iguess<= CHOP_RHO_STEP)){
     if (Proc==0) {
       read_junk(fp,fp2);
-      if (Iguess1 != STEP_PROFILE) Nsteps=1;
+      if (Iguess != STEP_PROFILE) Nsteps=1;
       else   fscanf(fp,"%d",&Nsteps);
       fprintf(fp2,"%d   ",Nsteps);
     }
@@ -1566,8 +1566,15 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d %d",&Restart,&Restart_Vext);
-    fprintf(fp2,"%d  %d",Restart,Restart_Vext);
+    fscanf(fp,"%d  %d",&Restart,&Nmissing_densities);
+    fprintf(fp2,"%d  %d",Restart,Nmissing_densities);
+  }
+  MPI_Bcast(&Restart,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Nmissing_densities,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Proc==0){
+    read_junk(fp,fp2);
+    fscanf(fp,"%d ",&Restart_Vext);
+    fprintf(fp2,"%d ",Restart_Vext);
     if (Restart_Vext != READ_VEXT_FALSE){
         fscanf(fp,"%s", Vext_file);
         fprintf(fp2,"  %s ", Vext_file);
@@ -1577,7 +1584,6 @@ void read_input_file(char *input_file, char *output_file1)
         }
     }
   }
-  MPI_Bcast(&Restart,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Restart_Vext,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Proc==0) {
     read_junk(fp,fp2);

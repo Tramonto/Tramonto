@@ -47,6 +47,7 @@ void setup_polymer_field_wjdc(double **xOwned)
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (i=0; i<Nloop; i++){
+         if (Restart==RESTART_FEWERCOMP && i<Nloop-Nmissing_densities) i=Nloop-Nmissing_densities;
          iunk=Phys2Unk_first[WJDC_FIELD]+i;
          if (Type_poly==WJDC){
              if (!Zero_density_TF[L2B_node[loc_inode]][Unk2Comp[i]]) xOwned[iunk][loc_inode]=Field_WJDC_b[Unk2Comp[i]];
@@ -91,6 +92,7 @@ void calc_init_WJDC_field(double **xInBox,double **xOwned)
      node_box_to_ijk_box(inode_box, ijk_box);
 
      for (i=0; i<Nloop; i++){  
+        if (Restart==RESTART_FEWERCOMP && i<Nloop-Nmissing_densities) i=Nloop-Nmissing_densities;
         if (Type_poly==WJDC) icomp=Unk2Comp[i];
         else icomp=i;
         iunk=Phys2Unk_first[WJDC_FIELD]+i;

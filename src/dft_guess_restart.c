@@ -35,7 +35,7 @@
 #include "dft_guess_restart.h"
  
 /************************************************************/
-void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
+void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox)
 {
   char filename[20];
   double *x_new,fac;
@@ -52,7 +52,7 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
                                     continuation run, all of the _old variables
                                     were set in collect_xold (dft_output.c) */
 
-         if (Lbinodal && iguess==BINODAL_FLAG) sprintf(filename,"dft_dens2.dat");
+         if (Lbinodal && guess_type==BINODAL_FLAG) sprintf(filename,"dft_dens2.dat");
          else                                  sprintf(filename,"dft_dens.dat");
 
          Nodes_old = find_length_of_file(filename);
@@ -61,14 +61,14 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
                          guess for a 2D or 3D system */
          if (Restart==RESTART_1DTOND)  Nodes_old=Nnodes;
 
-         if (Lbinodal && iguess==BINODAL_FLAG){
+         if (Lbinodal && guess_type==BINODAL_FLAG){
                   X2_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
                   for (i=0;i<Nodes_old*Nunk_per_node;i++) X2_old[i]=0.0;
          }
          else     {X_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
                   for (i=0;i<Nodes_old*Nunk_per_node;i++) X_old[i]=0.0;}
 
-         read_in_a_file(iguess,filename); /* Get X_old from the file! */
+         read_in_a_file(guess_type,filename); /* Get X_old from the file! */
      }
      else{ 
                       /* Here we are on n>first continuation step.  Have all necessary fields */
@@ -81,17 +81,17 @@ void guess_restart_from_files(int start_no_info,int iguess,double **xInBox)
           /* fix up to allow for some mixing of a bulk solution with a previously
                                converged solution --this has been disabled with fac=1*/
          fac=1.0;
-         if (iguess==BINODAL_FLAG && Lbinodal) shift_the_profile(x_new,fac,X2_old);
+         if (guess_type==BINODAL_FLAG && Lbinodal) shift_the_profile(x_new,fac,X2_old);
          else                                  shift_the_profile(x_new,fac,X_old);
      }
      else{
          for (iunk=0; iunk<Nunknowns; iunk++){
-              if (iguess==Iguess1)                       x_new[iunk] = X_old[iunk];
-              else if (iguess==BINODAL_FLAG && Lbinodal) x_new[iunk] = X2_old[iunk];
+              if (guess_type==Iguess)                       x_new[iunk] = X_old[iunk];
+              else if (guess_type==BINODAL_FLAG && Lbinodal) x_new[iunk] = X2_old[iunk];
          }
      }
-     if (iguess==Iguess1) safe_free((void *) &X_old);
-     else if (iguess==BINODAL_FLAG && Lbinodal) safe_free((void *) &X2_old);
+     if (guess_type==Iguess) safe_free((void *) &X_old);
+     else if (guess_type==BINODAL_FLAG && Lbinodal) safe_free((void *) &X2_old);
 
   }
 
@@ -140,11 +140,11 @@ int find_length_of_file(char *filename)
 /**************************************************************/
 /*read_in_a_file: In this routine, we read in a file containing
                   an old solution and use it for our initial guess */
-void read_in_a_file(int iguess,char *filename)
+void read_in_a_file(int guess_type,char *filename)
 {
   int c;
   int i,iunk,junk,idim, inode,itype_mer,ipol,iseg,index,dim_tmp,iunk_file;
-  int pol_number;
+  int pol_number,n_entries;
   int ijk_old[3],ijk_old_max[3],open_now,ndim_max,node_start,adjust1D,irhobar_file;
   int unk_in_file, unk_start_in_file[NEQ_TYPE],header,eq_type;
   int unk_to_eq_in_file[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13];
@@ -173,10 +173,12 @@ void read_in_a_file(int iguess,char *filename)
        fgets(unk_char,20,fp5);
        if (strncmp(unk_char,"DENSITY",5)==0) {
              Restart_field[DENSITY]=TRUE;
-             header++;
-             unk_in_file+=Ncomp;
+             header++; 
+             if (Restart==RESTART_FEWERCOMP) n_entries=Ncomp-Nmissing_densities;
+             else                           n_entries=Ncomp;
+             unk_in_file+=n_entries;
              unk_start_in_file[DENSITY]=iunk;
-             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DENSITY;
+             for (i=0;i<n_entries;i++) unk_to_eq_in_file[iunk++]=DENSITY;
              if (Lseg_densities) convert_to_seg_densities=TRUE;
              else                convert_to_seg_densities=FALSE;
        }
@@ -184,6 +186,10 @@ void read_in_a_file(int iguess,char *filename)
              Restart_field[DENSITY]=TRUE;
              header++;
              unk_in_file+=Nseg_tot;
+             if (Restart==RESTART_FEWERCOMP){
+               printf("Restart=%d not set up for segment density problems\n",RESTART_FEWERCOMP);
+               exit(-1);
+             }
              unk_start_in_file[DENSITY]=iunk;
              for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DENSITY;
              if (Lseg_densities) convert_to_comp_densities=FALSE;
@@ -192,9 +198,11 @@ void read_in_a_file(int iguess,char *filename)
        if (strncmp(unk_char,"MFEQ",5)==0) {
              Restart_field[MF_EQ]=TRUE;
              header++;
-             unk_in_file+=Ncomp;
+             if (Restart==RESTART_FEWERCOMP) n_entries=Ncomp-Nmissing_densities;
+             else                           n_entries=Ncomp;
+             unk_in_file+=n_entries;
              unk_start_in_file[MF_EQ]=iunk;
-             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=MF_EQ;
+             for (i=0;i<n_entries;i++) unk_to_eq_in_file[iunk++]=MF_EQ;
        }
        else if (strncmp(unk_char,"POISSON",5)==0){
              Restart_field[POISSON]=TRUE;
@@ -215,25 +223,29 @@ void read_in_a_file(int iguess,char *filename)
        else if (strncmp(unk_char,"CMSFIELD",5)==0){
              Restart_field[CMS_FIELD]=TRUE;
              header++;
-             unk_in_file+=Ncomp;
+             if (Restart==RESTART_FEWERCOMP) n_entries=Ncomp-Nmissing_densities;
+             else                           n_entries=Ncomp;
+             unk_in_file+=n_entries;
              unk_start_in_file[CMS_FIELD]=iunk;
-             for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=CMS_FIELD;
+             for (i=0;i<n_entries;i++) unk_to_eq_in_file[iunk++]=CMS_FIELD;
        }
-	   else if (strncmp(unk_char,"SCFFIELD",5)==0){
-		   Restart_field[SCF_FIELD]=TRUE;
-		   header++;
-		   unk_in_file+=Ncomp;
-		   unk_start_in_file[SCF_FIELD]=iunk;
-		   for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=SCF_FIELD;
+       else if (strncmp(unk_char,"SCFFIELD",5)==0){
+	     Restart_field[SCF_FIELD]=TRUE;
+	     header++;
+             if (Restart==RESTART_FEWERCOMP) n_entries=Ncomp-Nmissing_densities;
+             else                           n_entries=Ncomp;
+             unk_in_file+=n_entries;
+             unk_start_in_file[SCF_FIELD]=iunk;
+             for (i=0;i<n_entries;i++) unk_to_eq_in_file[iunk++]=SCF_FIELD;
        }
-	   else if (strncmp(unk_char,"SCF_CONSTR",5)==0){
+      else if (strncmp(unk_char,"SCF_CONSTR",5)==0){
 		   Restart_field[SCF_CONSTR]=TRUE;
 		   header++;
 		   unk_in_file+=1;
 		   unk_start_in_file[SCF_CONSTR]=iunk;
 		   unk_to_eq_in_file[iunk++]=SCF_CONSTR;
-       }
-       else if (strncmp(unk_char,"WJDCFIELD",5)==0){
+      }
+      else if (strncmp(unk_char,"WJDCFIELD",5)==0){
              Restart_field[WJDC_FIELD]=TRUE;
              header++;
              unk_start_in_file[WJDC_FIELD]=iunk;
@@ -242,8 +254,10 @@ void read_in_a_file(int iguess,char *filename)
                   unk_in_file+=Nseg_tot;
              }
              else if (Type_poly==WJDC2 || WJDC3){
-                  for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=WJDC_FIELD;
-                  unk_in_file+=Ncomp;
+                  if (Restart==RESTART_FEWERCOMP) n_entries=Ncomp-Nmissing_densities;
+                  else                           n_entries=Ncomp;
+                  unk_in_file+=n_entries;
+                  for (i=0;i<n_entries;i++) unk_to_eq_in_file[iunk++]=WJDC_FIELD;
              }
        }
        else if (strncmp(unk_char,"CAVWTC",5)==0){
@@ -264,10 +278,14 @@ void read_in_a_file(int iguess,char *filename)
              Restart_field[DIFFUSION]=TRUE;
              header++;
              if (Lseg_densities) unk_in_file+=Nseg_tot;
-             else              unk_in_file+=Ncomp;
+             else{              
+                if (Restart==RESTART_FEWERCOMP) n_entries=Ncomp-Nmissing_densities;
+                else                           n_entries=Ncomp;
+                unk_in_file+=n_entries;
+             }
              unk_start_in_file[DIFFUSION]=iunk;
              if (Lseg_densities) for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
-             else                for (i=0;i<Ncomp;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
+             else                for (i=0;i<n_entries;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
        }
     }
     if (Iwrite != NO_SCREEN) printf("\n\t ...Number of unknowns in the file=%d\n",unk_in_file);
@@ -402,12 +420,13 @@ void read_in_a_file(int iguess,char *filename)
                        tmp -= 3.0*log(Sigma_ff[icomp][icomp]+1.5*log(Mass[icomp]*Temp));
                  }
                  break;
-           }
+          }
+
        if (eq_type==DENSITY && convert_to_comp_densities){
             /* this is case where we have read in densities for all the segments and we need to collapse them to component densities */
             icomp=Unk2Comp[iunk_file-unk_start_in_file[eq_type]];
             iunk=Phys2Unk_first[eq_type]+icomp;
-            if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]+=tmp;
+            if (Lbinodal && guess_type==BINODAL_FLAG) X2_old[iunk+node_start]+=tmp;
             else                                  X_old[iunk+node_start]+=tmp;
        }
        else if (eq_type==DENSITY && convert_to_seg_densities){
@@ -417,7 +436,7 @@ void read_in_a_file(int iguess,char *filename)
             for (jseg=0; jseg<Nseg_tot;jseg++){
                junk=Phys2Unk_first[eq_type]+jseg;
                if (Unk2Comp[jseg]==icomp){
-                   if (Lbinodal && iguess==BINODAL_FLAG) X2_old[junk+node_start]+=tmp/Nmer_comp[icomp];
+                   if (Lbinodal && guess_type==BINODAL_FLAG) X2_old[junk+node_start]+=tmp/Nmer_comp[icomp];
                    else                                  X_old[junk+node_start]+=tmp/Nmer_comp[icomp];
                }
             }
@@ -426,28 +445,28 @@ void read_in_a_file(int iguess,char *filename)
           irhobar_file=iunk_file-unk_start_in_file[eq_type];
           if (irhobar_file < Nrho_bar_s+1){
              iunk = Phys2Unk_first[eq_type]+irhobar_file;
-             if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
+             if (Lbinodal && guess_type==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
              else                                  X_old[iunk+node_start]=tmp;
              for (idim=1;idim<Ndim;idim++) {
                 iunk = Phys2Unk_first[eq_type]+irhobar_file+idim;
-                if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=0.0;
+                if (Lbinodal && guess_type==BINODAL_FLAG) X2_old[iunk+node_start]=0.0;
                 else                                  X_old[iunk+node_start]=0.0;
              }
           }
           else if (irhobar_file==Nrho_bar_s+1){
              iunk = Phys2Unk_first[eq_type]+Nrho_bar_s+Ndim;
-             if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
+             if (Lbinodal && guess_type==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
              else                                  X_old[iunk+node_start]=tmp;
              for (idim=1;idim<Ndim;idim++) {
                 iunk = Phys2Unk_first[eq_type]+Nrho_bar_s+Ndim+idim;
-                if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=0.0;
+                if (Lbinodal && guess_type==BINODAL_FLAG) X2_old[iunk+node_start]=0.0;
                 else                                  X_old[iunk+node_start]=0.0;
              }
           }
        }
        else{
           iunk = Phys2Unk_first[eq_type]+iunk_file-unk_start_in_file[eq_type];
-          if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
+          if (Lbinodal && guess_type==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
           else                                  X_old[iunk+node_start]=tmp;
        }
     }
@@ -460,7 +479,7 @@ void read_in_a_file(int iguess,char *filename)
          itype_mer=Phys2Unk_first[CMS_FIELD]+Type_mer[ipol][iseg];*/
 
          fscanf(fp6,"%lf",&tmp);
-         if (Lbinodal && iguess==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
+         if (Lbinodal && guess_type==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
          else                                  X_old[iunk+node_start]=tmp;
 
        } /* end of loop over unknowns */
@@ -696,7 +715,7 @@ void check_zero_densities_owned(double **xOwned)
 }
 /**********************************************************************/
 /*chop_profile: do the profile chop here. */
-void chop_profile(double **xInBox, int iguess)
+void chop_profile(double **xInBox, int guess_type)
 {
   int loc_inode,icomp,iwall,check,iunk,inode_box;
 
@@ -708,8 +727,8 @@ void chop_profile(double **xInBox, int iguess)
               if (X_wall[loc_inode][iwall] > Xstart_step[0]) check++;
         if (check == Nwall){
 	      iunk = Phys2Unk_first[DENSITY]+icomp;
-              if (iguess==CHOP_RHO) xInBox[iunk][inode_box] = Rho_b[icomp];
-              else if (iguess==CHOP_RHO_STEP) xInBox[iunk][inode_box] = Rho_step[icomp][0];
+              if (guess_type==CHOP_RHO) xInBox[iunk][inode_box] = Rho_b[icomp];
+              else if (guess_type==CHOP_RHO_STEP) xInBox[iunk][inode_box] = Rho_step[icomp][0];
         }
     }
   return;

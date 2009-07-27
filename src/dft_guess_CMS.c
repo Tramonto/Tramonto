@@ -37,13 +37,14 @@
  
 /*********************************************************/
 /*setup_polymer_field: in this routine sets up the initial guess for the CMS field variable */
-void setup_polymer_field(double **xInBox, double **xOwned, int iguess)
+void setup_polymer_field(double **xInBox, double **xOwned, int guess_type)
 {
   int loc_inode,itype_mer,irho, iunk;
   double field;
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 
      for (itype_mer=0; itype_mer<Ncomp; itype_mer++){
+         if (Restart==RESTART_FEWERCOMP && itype_mer<Ncomp-Nmissing_densities) itype_mer=Ncomp-Nmissing_densities;
 	 irho = Phys2Unk_first[DENSITY]+itype_mer;
 	 iunk = Phys2Unk_first[CMS_FIELD]+itype_mer;
          if (xOwned[irho][loc_inode]<1.e-6) field=VEXT_MAX-1.;
@@ -67,6 +68,7 @@ void calc_init_CMSfield(double **xInBox,double **xOwned)
      inode_box=L2B_node[loc_inode];
 
      for (icomp=0; icomp<Ncomp; icomp++){
+         if (Restart==RESTART_FEWERCOMP && icomp<Ncomp-Nmissing_densities) icomp=Ncomp-Nmissing_densities;
 	 irho = Phys2Unk_first[DENSITY]+icomp;
 	 iunk = Phys2Unk_first[CMS_FIELD]+icomp;
          if (!Zero_density_TF[inode_box][icomp]){
@@ -82,7 +84,7 @@ void calc_init_CMSfield(double **xInBox,double **xOwned)
 /*********************************************************/
 /*setup_polymer_simple: in this routine set up the field guesses
                        for the polymers variables for SCF case    */
-void setup_polymer_simple(double **xInBox, int iguess)
+void setup_polymer_simple(double **xInBox, int guess_type)
 {
   int loc_inode,inode_box,ijk_box[3],i, iunk,junk;
   double temp;
@@ -94,16 +96,17 @@ void setup_polymer_simple(double **xInBox, int iguess)
      node_box_to_ijk_box(inode_box, ijk_box);
 
      for (itype_mer=0; itype_mer<Ncomp; itype_mer++){
+        if (Restart==RESTART_FEWERCOMP && itype_mer<Ncomp-Nmissing_densities) itype_mer=Ncomp-Nmissing_densities;
 	iunk = Phys2Unk_first[CMS_FIELD]+itype_mer;
         if (!Zero_density_TF[inode_box][itype_mer]){
            temp = 0.;
            for (jtype_mer=0; jtype_mer<Ncomp; jtype_mer++){
 	     junk = Phys2Unk_first[CMS_FIELD]+jtype_mer;
            
-	     if (iguess == CONST_RHO) {
+	     if (guess_type == CONST_RHO) {
 	       temp = 0.;
 	     }
-	     else if (iguess == STEP_PROFILE) {
+	     else if (guess_type == STEP_PROFILE) {
 	       inode = B2G_node[inode_box];
                node_to_position(inode,nodepos);
                for (i=0;i<Nsteps;i++){
@@ -131,7 +134,7 @@ void setup_polymer_simple(double **xInBox, int iguess)
 }
 /*********************************************************/
 /*setup_polymer_rho: in this routine set up polymer density profiles    */
-void setup_polymer_rho(double **xInBox, double **xOwned, int iguess)
+void setup_polymer_rho(double **xInBox, double **xOwned, int guess_type)
 {
   int loc_inode,i,inode_box,ijk_box[3],iunk,icomp;
   int inode;
@@ -139,23 +142,28 @@ void setup_polymer_rho(double **xInBox, double **xOwned, int iguess)
 
   for (inode_box=0; inode_box<Nnodes_box; inode_box++){
      node_box_to_ijk_box(inode_box, ijk_box);
-     if (iguess == CONST_RHO) {
+     if (guess_type == CONST_RHO) {
        for (icomp=0; icomp<Ncomp; icomp++){
+         if (Restart==RESTART_FEWERCOMP && icomp<Ncomp-Nmissing_densities) icomp=Ncomp-Nmissing_densities;
 	 iunk = Phys2Unk_first[DENSITY]+icomp;
          if (!Zero_density_TF[inode_box][icomp]) xInBox[iunk][inode_box] = Rho_b[icomp];
          else                                    xInBox[iunk][inode_box] = 0.0;
          if (B2L_node[inode_box]!=-1) xOwned[iunk][B2L_node[inode_box]]=xInBox[iunk][inode_box];
        }
      }
-     else if (iguess == STEP_PROFILE) {
+     else if (guess_type == STEP_PROFILE) {
        inode = B2G_node[inode_box]; 
        node_to_position(inode,nodepos);
        for (i=0;i<Nsteps;i++){
            if (nodepos[Orientation_step[i]]>=Xstart_step[i] &&
                 nodepos[Orientation_step[i]]<=Xend_step[i]){
                 for (icomp=0;icomp<Ncomp;icomp++){
+                   if (Restart==RESTART_FEWERCOMP && icomp<Ncomp-Nmissing_densities) icomp=Ncomp-Nmissing_densities;
 	           iunk = Phys2Unk_first[DENSITY]+icomp;
-       		   if (!Zero_density_TF[inode_box][icomp]) xInBox[iunk][inode_box]= Rho_step[icomp][i];
+       		   if (!Zero_density_TF[inode_box][icomp]) {
+                       if (Restart==RESTART_FEWERCOMP) xInBox[iunk][inode_box]=Rho_step[icomp][0];
+                       else                           xInBox[iunk][inode_box]= Rho_step[icomp][i];
+                   }
 		   else xInBox[iunk][inode_box]=0.0;
                    if (B2L_node[inode_box]!=-1) xOwned[iunk][B2L_node[inode_box]]=xInBox[iunk][inode_box];
                 }

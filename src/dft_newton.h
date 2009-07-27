@@ -103,8 +103,8 @@ void print_profile_box(double **x,char *outfile);
 extern int Iwrite;
 extern void *LinProbMgr_manager;
 extern double Time_InitGuess;
-extern int Iguess1;
-void set_initial_guess(int iguess,double **xOwned);
+extern int Iguess;
+void set_initial_guess(int guess_type,double **xOwned);
 extern int *L2B_node;
 #define PICNEWTON_NOX         5
 #define PICNEWTON_BUILT_IN    4

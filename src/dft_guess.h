@@ -20,7 +20,7 @@ extern int Nnodes_per_proc;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void check_zero_densities_owned(double **xOwned);
-void chop_profile(double **xInBox,int iguess);
+void chop_profile(double **xInBox,int guess_type);
 #define RESTART_STEP       2
 #define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
 void setup_polymer_G_wjdc(double **xOwned);
@@ -35,10 +35,10 @@ void calc_init_polymer_G_CMS(double **xInBox,double **xOwned);
 #define G_CHAIN       11 
 void calc_init_lambda(double **xInBox,double **xOwned);
 #define SCF_CONSTR	   9
-void setup_polymer_SCF_field(double **xInBox,double **xOwned,int iguess);
+void setup_polymer_SCF_field(double **xInBox,double **xOwned,int guess_type);
 void calc_init_SCFfield(double **xInBox,double **xOwned);
 #define SCF_FIELD	  10
-void setup_polymer_field(double **xInBox,double **xOwned,int iguess);
+void setup_polymer_field(double **xInBox,double **xOwned,int guess_type);
 void calc_init_CMSfield(double **xInBox,double **xOwned);
 #define CMS_FIELD      7
 void setup_polymer_field_wjdc(double **xOwned);
@@ -53,7 +53,7 @@ void calc_init_Xi_cavWTC(double **xInBox,double **xOwned);
 #define CAVWTC         4
 void setup_chem_pot(double **xOwned);
 #define DIFFUSION      6
-void setup_elec_pot(double **xOwned,int iguess);
+void setup_elec_pot(double **xOwned,int guess_type);
 #define POISSON        1
 void setup_rho_bar(double **xOwned);
 void calc_init_rho_bar(double **xInBox,double **xOwned);
@@ -64,11 +64,12 @@ void calc_init_mf_attract(double **xInBox,double **xOwned);
 extern int Iguess_fields;
 #define RESTART_DENSONLY   3
 #define MF_EQ          3
-void setup_density(double **xInBox,double **xOwned,int iguess);
-void setup_polymer_rho(double **xInBox,double **xOwned,int iguess);
+void setup_density(double **xInBox,double **xOwned,int guess_type);
+void setup_polymer_rho(double **xInBox,double **xOwned,int guess_type);
 #define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
+#define RESTART_FEWERCOMP  4
 #define NEQ_TYPE       13 
 extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
@@ -80,7 +81,7 @@ extern int Phys2Nunk[NEQ_TYPE];
 #define TRUE  1
 #endif
 void translate_xInBox_to_xOwned(double **xInBox,double **xOwned);
-void guess_restart_from_files(int start_no_info,int iguess,double **xInBox);
+void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox);
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
@@ -104,4 +105,4 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-void set_initial_guess(int iguess,double **xOwned);
+void set_initial_guess(int guess_type,double **xOwned);

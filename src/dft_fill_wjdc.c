@@ -328,9 +328,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
     resid=0.0;
     for (jseg=0;jseg<Nseg_tot;jseg++){
        
-       unk_rho = jseg;
        if (Pol_Sym_Seg[jseg] != -1) unk_rho=Pol_Sym_Seg[jseg];
-       unk_rho = Unk2Comp[unk_rho]+Phys2Unk_first[DENSITY];
+       unk_rho = Unk2Comp[jseg]+Phys2Unk_first[DENSITY];
 
        jcomp=Unk2Comp[jseg];
        s1=Sigma_ff[jcomp][jcomp];
@@ -338,20 +337,19 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
        if (Nlists_HW <= 2) jlist = 0;
        else                jlist = jcomp;
 
-       if (Lhard_surf && jnode_box>=0 && !Zero_density_TF[jnode_box][jcomp]) {
-            if (Nodes_2_boundary_wall[jlist][jnode_box]!=-1)
-               weight = HW_boundary_weight
-                (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
-       }
        if (jnode_box >=0 && !Zero_density_TF[jnode_box][jcomp]) {
                  /* note that the current algorithm uses the precise segment densities, but uses the avg segment density approach for the Jacobian.  This
                     may affect convergence.  Also this approach precludes restarts with only density fields.  To do restarts, _all_ of the following
                     are needed: DENSITY, WJCD_FIELD, and G_CHAIN. If one tries to compute the field without this data, we use the avg density approach*/
              if (resid_only_flag==INIT_GUESS_FLAG)         dens=x[unk_rho][jnode_box]/Nseg_type[jcomp];
              else                                          dens=calc_dens_seg(jseg,jnode_box,x,FALSE);   
+             if (Lhard_surf && Nodes_2_boundary_wall[jlist][jnode_box]!=-1){
+                 weight = HW_boundary_weight (jcomp,jlist,sten->HW_Weight[isten], jnode_box, reflect_flag);
+             }
        }
        else if (jnode_box==-1 ||jnode_box==-3 ||jnode_box==-4)  {
             dens = constant_boundary(unk_rho,jnode_box)/Nseg_type[jcomp];
+
        }
        else                                                     dens=0.0;
 

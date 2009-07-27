@@ -53,6 +53,7 @@ void setup_chem_pot(double **xOwned)
      x_dist = Esize_x[Grad_dim]*ijk[Grad_dim]-X_const_mu;
 
      for (i=0; i<nloop; i++){
+        if (Restart==RESTART_FEWERCOMP && i<nloop-Nmissing_densities) i=nloop-Nmissing_densities;
         iunk = i+Phys2Unk_first[DIFFUSION];
         if (Lseg_densities) icomp=Unk2Comp[i];
         else                icomp=i;

@@ -17,6 +17,7 @@
 #define INIT_GUESS_FLAG  2
 double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define G_CHAIN       11 
+extern int *Pol_Sym;
 extern int ***Poly_to_Unk;
 extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
@@ -80,7 +81,7 @@ extern int Proc;
 #endif
 extern int *B2L_node;
 extern int Nnodes_box;
-void setup_polymer_rho(double **xInBox,double **xOwned,int iguess);
+void setup_polymer_rho(double **xInBox,double **xOwned,int guess_type);
 #define DENSITY_MIN  1.e-20
 #define CMS_SCFT     1
 #define CMS          0
@@ -97,7 +98,7 @@ extern int *B2G_node;
 #define STEP_PROFILE     2
 #define CONST_RHO        0 
 void node_box_to_ijk_box(int node_box,int *ijk_box);
-void setup_polymer_simple(double **xInBox,int iguess);
+void setup_polymer_simple(double **xInBox,int guess_type);
 #define THETA_CR_DATA         4
 double int_stencil_CMSField(double **x,int inode_box,int iunk,int sten_type);
 extern double **Vext;
@@ -107,11 +108,13 @@ void calc_init_CMSfield(double **xInBox,double **xOwned);
 extern int *L2B_node;
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
-extern int *Pol_Sym;
 #define CMS_FIELD      7
 #define DENSITY        0
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
+extern int Nmissing_densities;
+#define RESTART_FEWERCOMP  4
+extern int Restart;
 extern int Ncomp;
 extern int Nnodes_per_proc;
-void setup_polymer_field(double **xInBox,double **xOwned,int iguess);
+void setup_polymer_field(double **xInBox,double **xOwned,int guess_type);

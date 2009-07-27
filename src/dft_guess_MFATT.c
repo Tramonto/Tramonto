@@ -44,6 +44,7 @@ void setup_mf_attract(double **xOwned)
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (icomp = 0; icomp < Ncomp; icomp++){
+       if (Restart==RESTART_FEWERCOMP && icomp<Ncomp-Nmissing_densities) icomp=Ncomp-Nmissing_densities;
        iunk = Phys2Unk_first[MF_EQ] + icomp;
        if (Type_interface==DIFFUSIVE_INTERFACE || Type_interface==PHASE_INTERFACE){
            printf("attractions not set up for steady state yet. \n");
@@ -68,6 +69,7 @@ void calc_init_mf_attract(double **xInBox,double **xOwned)
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];
      for (icomp = 0; icomp < Ncomp; icomp++){
+       if (Restart==RESTART_FEWERCOMP && icomp<Ncomp-Nmissing_densities) icomp=Ncomp-Nmissing_densities;
        iunk = Phys2Unk_first[MF_EQ] + icomp;
        xInBox[iunk][inode_box]=int_stencil(xInBox,inode_box,Phys2Unk_first[MF_EQ]+icomp,THETA_PAIRPOT_RCUT);
        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];

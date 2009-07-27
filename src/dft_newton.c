@@ -64,7 +64,7 @@ if (B2G_node[inode_box]==254) printf("Proc=%d sees global node 254 (box coord=%d
   }
   else{ 
       start_t=MPI_Wtime();
-      set_initial_guess(Iguess1, xOwned);
+      set_initial_guess(Iguess, xOwned);
       Time_InitGuess=MPI_Wtime()-start_t;
   }
 

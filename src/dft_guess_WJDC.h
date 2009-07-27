@@ -15,6 +15,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_su
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int *Pol_Sym;
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
 extern int ***Poly_to_Unk;
@@ -83,9 +84,11 @@ extern int **Zero_density_TF;
 #define WJDC_FIELD     8
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
+extern int Nmissing_densities;
+#define RESTART_FEWERCOMP  4
+extern int Restart;
 extern int Nnodes_per_proc;
 extern int Ncomp;
-extern int *Pol_Sym;
 #define WJDC3        5 
 #define WJDC2        4 
 extern int Nseg_tot;

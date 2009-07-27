@@ -91,6 +91,7 @@ extern char Vext_file2[40];
 extern char Vext_file[40];
 #define READ_VEXT_FALSE      0
 extern int Restart_Vext;
+extern int Nmissing_densities;
 extern int Restart;
 #define NCOMP_MAX 5
 #define NSTEPS_MAX 10
@@ -103,7 +104,7 @@ extern int Nsteps;
 #define CHOP_RHO         3
 #define STEP_PROFILE     2
 extern int Iguess_fields;
-extern int Iguess1;
+extern int Iguess;
 extern double *Lseg_IC;
 extern double *Pore_rad_R_IC;
 extern double *Pore_rad_L_IC;

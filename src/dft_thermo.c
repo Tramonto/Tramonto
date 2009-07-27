@@ -208,7 +208,7 @@ void calc_chempot(char *output_file1)
       printf("Can't open file %s\n", output_file1);
       exit(1);
    }
- 
+
    if (Type_interface !=UNIFORM_INTERFACE){          /* CASE WITH DIFFUSION */
       if (L_HSperturbation){
           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){  /* this is different than all the others because we compute
@@ -220,7 +220,7 @@ void calc_chempot(char *output_file1)
                 for (icomp=0;icomp<Npol_comp;icomp++) Betamu_chain[icomp]=0.5*(Betamu_chain_LBB[icomp]+Betamu_chain_RTF[icomp]);
              }
           }
-          else{
+/*          else{*/
 
 				/* IDEAL contributions */
           chempot_ideal_gas(Rho_b_LBB,Betamu_LBB);
@@ -311,7 +311,7 @@ void calc_chempot(char *output_file1)
                   for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_RTF[icomp],"Betamu_RTF",2);
                }
           }    
-       }
+       /*}*/
        }
        else{ 
            /* CMS chemical potentials with diffusion would go here */

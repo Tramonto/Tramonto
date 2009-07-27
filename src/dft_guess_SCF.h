@@ -59,7 +59,10 @@ extern double VEXT_MAX;
 #define SCF_FIELD	  10
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];
+extern int Nmissing_densities;
+#define RESTART_FEWERCOMP  4
+extern int Restart;
 extern int Ncomp;
 extern int *L2B_node;
 extern int Nnodes_per_proc;
-void setup_polymer_SCF_field(double **xInBox,double **xOwned,int iguess);
+void setup_polymer_SCF_field(double **xInBox,double **xOwned,int guess_type);

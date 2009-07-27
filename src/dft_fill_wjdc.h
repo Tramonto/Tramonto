@@ -24,6 +24,9 @@ extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 #define PI    M_PI
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
+double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
+extern int **Nodes_2_boundary_wall;
+extern int Lhard_surf;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -34,9 +37,6 @@ extern int *Nbonds_SegAll;
 double calc_dens_seg(int iseg,int inode_box,double **x,int flag);
 extern int Nseg_type[NCOMP_MAX];
 #define INIT_GUESS_FLAG  2
-double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
-extern int **Nodes_2_boundary_wall;
-extern int Lhard_surf;
 extern int Nlists_HW;
 extern int *Pol_Sym_Seg;
 extern int Nseg_tot;

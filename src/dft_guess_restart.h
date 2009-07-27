@@ -24,7 +24,7 @@ extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];
 extern double Xstart_step[NSTEPS_MAX];
 extern double **X_wall;
 extern int Nwall;
-void chop_profile(double **xInBox,int iguess);
+void chop_profile(double **xInBox,int guess_type);
 void check_zero_densities_owned(double **xOwned);
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
@@ -102,7 +102,9 @@ extern int Ndim;
 #define MF_EQ          3
 extern int Nseg_tot;
 extern int Lseg_densities;
+extern int Nmissing_densities;
 extern int Ncomp;
+#define RESTART_FEWERCOMP  4
 void check_zero_densities(double **xInBox);
 void communicate_profile(double *x_new,double **xInBox);
 #define FALSE 0
@@ -115,7 +117,7 @@ void communicate_profile(double *x_new,double **xInBox);
 #define DENSITY        0
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-extern int Iguess1;
+extern int Iguess;
 extern int Nunknowns;
 void shift_the_profile(double *x_new,double fac,double *xold);
 #define TRUE  1
@@ -123,7 +125,7 @@ void shift_the_profile(double *x_new,double fac,double *xold);
 #define TRUE  1
 #endif
 extern int Restart_field[NEQ_TYPE];
-void read_in_a_file(int iguess,char *filename);
+void read_in_a_file(int guess_type,char *filename);
 extern double *X_old;
 extern double *X2_old;
 #define RESTART_1DTOND     5
@@ -146,4 +148,4 @@ void *array_alloc(int numdim,...);
 #if !(defined(__STDC__))
 void *array_alloc(...);
 #endif
-void guess_restart_from_files(int start_no_info,int iguess,double **xInBox);
+void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox);

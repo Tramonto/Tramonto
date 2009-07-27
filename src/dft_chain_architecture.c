@@ -243,12 +243,14 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max, int ***pol_sym_tmp,FILE
 	    Poly_to_Unk_SegAll[seg_tot][Nbonds_SegAll[seg_tot]] = nbond_all;
 	    if (pol_sym_tmp[pol_number][iseg][ibond] != -1) Pol_Sym[nbond_all]=pol_sym_tmp[pol_number][iseg][ibond]-end_count_all;
             else                                            Pol_Sym[nbond_all]=-1;
-
-            if (Pol_Sym[nbond_all]!= -1 && (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
-                if(Pol_Sym_Seg[seg_tot]==-1){ Pol_Sym_Seg[seg_tot] = BondAll_to_isegAll[Pol_Sym[nbond_all]]; }
-            }
             BondAll_to_isegAll[nbond_all]=seg_tot;
 	    BondAll_to_ibond[nbond_all]=Nbonds_SegAll[seg_tot];
+
+            if (Pol_Sym[nbond_all]!= -1 && (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
+                if(Pol_Sym_Seg[seg_tot]==-1){ 
+                     Pol_Sym_Seg[seg_tot] = BondAll_to_isegAll[Pol_Sym[nbond_all]];  /* need to debug for chain mixtures */
+                }
+            }
 	    nbond_all++;
 	    nunk++;
             Nbonds++; 

@@ -38,7 +38,7 @@
 /*********************************************************/
 /*setup_polymer_field: in this routine set up the initial guess for the CMS-SCF field variable */
 /* called if not calculating all fields; just a guess for the fields */
-void setup_polymer_SCF_field(double **xInBox, double **xOwned, int iguess)
+void setup_polymer_SCF_field(double **xInBox, double **xOwned, int guess_type)
 {
 	int loc_inode,itype_mer,irho, iunk,inode_box;
 	double field;
@@ -48,6 +48,7 @@ void setup_polymer_SCF_field(double **xInBox, double **xOwned, int iguess)
 		inode_box=L2B_node[loc_inode];
 		
 		for (itype_mer=0; itype_mer<Ncomp; itype_mer++){
+                        if (Restart==RESTART_FEWERCOMP && itype_mer <Ncomp-Nmissing_densities) itype_mer=Ncomp-Nmissing_densities;
 			irho = Phys2Unk_first[DENSITY]+itype_mer;
 			iunk = Phys2Unk_first[SCF_FIELD]+itype_mer;
 			if (xInBox[irho][inode_box]<1.e-6) field=VEXT_MAX-1.;
@@ -72,6 +73,7 @@ void calc_init_SCFfield(double **xInBox, double **xOwned)
 		inode_box=L2B_node[loc_inode];
 		
 		for (icomp=0; icomp<Ncomp; icomp++){
+                        if (Restart==RESTART_FEWERCOMP && icomp <Ncomp-Nmissing_densities) icomp=Ncomp-Nmissing_densities;
 			iunk = Phys2Unk_first[SCF_FIELD]+icomp;
 			if (!Zero_density_TF[inode_box][icomp]){
 				field= Vext[loc_inode][icomp];

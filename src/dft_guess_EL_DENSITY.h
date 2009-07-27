@@ -42,6 +42,9 @@ extern int **Zero_density_TF;
 #define DENSITY        0
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
+extern int Nmissing_densities;
+#define RESTART_FEWERCOMP  4
+extern int Restart;
 extern int Nnodes_box;
 void translate_xInBox_to_xOwned(double **xInBox,double **xOwned);
 void setup_linear_profile(double **xInBox);
@@ -57,4 +60,4 @@ extern double Rho_seg_b[NMER_MAX];
 void setup_const_density(double **xInBox,double *rho,int nloop,int index);
 extern int Lseg_densities;
 #define CONST_RHO        0 
-void setup_density(double **xInBox,double **xOwned,int iguess);
+void setup_density(double **xInBox,double **xOwned,int guess_type);

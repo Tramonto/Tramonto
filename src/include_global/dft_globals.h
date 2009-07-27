@@ -273,7 +273,7 @@ int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
 int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */
 int     Lhard_surf;   /* Logical indicating if surfaces are hard core */
 int     Lvext_dash;   /* Logical indicating if the Vext_dash array should be set up */
-int     Iguess1;        /* Type of initial guess */
+int     Iguess;        /* Type of initial guess */
 int     Iguess_fields;        /* Type of initial guess */
 int     Nsteps;         /* Number of steps for a step profile initial guess */
 int     Orientation_step[NSTEPS_MAX]; /* orientation of the step profile */
@@ -406,6 +406,7 @@ double   HS_diam[NCOMP_MAX];  /* Hard sphere diameters for the calculation */
 /* Startup Info */
 int     Restart;      /* Logical that switches between new prof & restart file*/
 int     Restart_field[NEQ_TYPE];
+int     Nmissing_densities; /* special restart case where only partial densities are in restart file */
 int     Restart_Vext;     /* Logical that defines reading of external field*/
 char Vext_file[40];       /* file name that contains external field to read in */
 char Vext_file2[40];       /* a second file name that contains another part of the external field to read in */

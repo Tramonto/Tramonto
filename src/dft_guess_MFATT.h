@@ -27,6 +27,9 @@ extern int Type_interface;
 #define MF_EQ          3
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
+extern int Nmissing_densities;
+#define RESTART_FEWERCOMP  4
+extern int Restart;
 extern int Ncomp;
 extern int Nnodes_per_proc;
 void setup_mf_attract(double **xOwned);

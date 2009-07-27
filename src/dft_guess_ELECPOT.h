@@ -29,4 +29,4 @@ extern int Type_interface;
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nnodes_per_proc;
-void setup_elec_pot(double **xOwned,int iguess);
+void setup_elec_pot(double **xOwned,int guess_type);

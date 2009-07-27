@@ -92,11 +92,14 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
    int icomp,jcomp,kcomp,i,iseg,ibond,jseg,kseg,pol_num,count_comp;
    double y,term_kseg;
 
-
    for (iseg=0;iseg<Nseg_tot;iseg++) {
         Betamu_wtc[iseg]=0.0;
         Betamu_seg[iseg]=0.0;
    }
+    for (icomp=0; icomp<Ncomp;icomp++){
+        for (pol_num=0; pol_num<Npol_comp;pol_num++) Scale_fac_WJDC[pol_num][icomp]=0.0;
+    }
+
 
       /* first do ideal gas correction for segment densities rather than component densities */ 
    for (iseg=0; iseg<Nseg_tot;iseg++){
@@ -130,8 +133,8 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
      Betamu_wtc[kseg] -= term_kseg;
    }
 
-
    if (Physics_scaling &&(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
+      if (Proc==0 && Iwrite != NO_SCREEN) printf("Physics scaling is turned on, and the value of the parameter is set to:\n");
       for (icomp=0; icomp<Ncomp;icomp++){ 
          count_comp=0;
          for (iseg=0; iseg<Nseg_tot;iseg++){
@@ -142,7 +145,12 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
             }
          }
          if (count_comp>0) Scale_fac_WJDC[pol_num][icomp]/=(double)count_comp;
+         /*Scale_fac_WJDC[2][2]=-4.5;*/
+         /*Scale_fac_WJDC[2][3]=-4.5;*/
+         if (Proc==0 && Iwrite != NO_SCREEN) printf("pol_num=%d icomp=%d Scale_fac_WJDC[pol_num][icomp]=%g\n",icomp,pol_num,Scale_fac_WJDC[pol_num][icomp]);
       }
+      if (Proc==0 && Iwrite != NO_SCREEN) printf("NOTE THATE THE SCALING FACTOR IS A HURISTIC THAT MAY NOT BE OPTIMAL IN SOME CASES\n");
+      if (Proc==0 && Iwrite != NO_SCREEN) printf("THIS HEURISTIC CAN BE MODIFIED IN dft_thermo_wtc.c\n");
    }
 
    return;

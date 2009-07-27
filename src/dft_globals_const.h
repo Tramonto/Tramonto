@@ -352,6 +352,7 @@
 #define RESTART_BASIC      1
 #define RESTART_STEP       2
 #define RESTART_DENSONLY   3
+#define RESTART_FEWERCOMP  4
 #define RESTART_1DTOND     5
 
 /*
@@ -852,7 +853,7 @@ extern int     Ipot_ff_c;    /* Potential Type for charged part of f-f interacti
 extern int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */
 extern int     Lhard_surf;   /* Logical indicating if the surfaces have hard cores */
 extern int     Lvext_dash;   /* Logical indicating if the Vext_dash array should be set up */
-extern int     Iguess1;        /* Type of initial guess */
+extern int     Iguess;        /* Type of initial guess */
 extern int     Iguess_fields;        /* Type of initial guess */
 extern int     Nsteps;         /* Number of steps for a step profile initial guess */
 extern int     Orientation_step[NSTEPS_MAX]; /* orientation of the step profile */
@@ -979,6 +980,7 @@ extern double      HS_diam[NCOMP_MAX];  /* Hard sphere diameters for the calcula
 /* Startup Info */
 extern int     Restart;     /* Logical that switches between new prof & restart file*/
 extern int     Restart_field[NEQ_TYPE];
+extern int     Nmissing_densities; /* special restart case where only partial densities are in restart file */
 extern int     Restart_Vext;     /* Logical that defines reading of external field*/
 extern char Vext_file[40];       /* file name that contains external field to read in */
 extern char Vext_file2[40];       /* a second file name that contains another part of the external field to read in */
