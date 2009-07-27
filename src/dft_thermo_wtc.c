@@ -134,7 +134,10 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
    }
 
    if (Physics_scaling &&(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
-      if (Proc==0 && Iwrite != NO_SCREEN) printf("Physics scaling is turned on, and the value of the parameter is set to:\n");
+      if (Proc==0 && Iwrite != NO_SCREEN) {
+          printf("----------------------------------------------------------------------------------------\n");
+          printf("Physics scaling is turned on, and the value of the parameter is set to:\n");
+      }
       for (icomp=0; icomp<Ncomp;icomp++){ 
          count_comp=0;
          for (iseg=0; iseg<Nseg_tot;iseg++){
@@ -147,10 +150,13 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
          if (count_comp>0) Scale_fac_WJDC[pol_num][icomp]/=(double)count_comp;
          /*Scale_fac_WJDC[2][2]=-4.5;*/
          /*Scale_fac_WJDC[2][3]=-4.5;*/
-         if (Proc==0 && Iwrite != NO_SCREEN) printf("pol_num=%d icomp=%d Scale_fac_WJDC[pol_num][icomp]=%g\n",icomp,pol_num,Scale_fac_WJDC[pol_num][icomp]);
+         if (Proc==0 && Iwrite != NO_SCREEN) printf("pol_num=%d icomp=%d Scale_fac_WJDC[pol_num][icomp]=%g\n",pol_num,icomp,Scale_fac_WJDC[pol_num][icomp]);
       }
-      if (Proc==0 && Iwrite != NO_SCREEN) printf("NOTE THATE THE SCALING FACTOR IS A HURISTIC THAT MAY NOT BE OPTIMAL IN SOME CASES\n");
-      if (Proc==0 && Iwrite != NO_SCREEN) printf("THIS HEURISTIC CAN BE MODIFIED IN dft_thermo_wtc.c\n");
+      if (Proc==0 && Iwrite != NO_SCREEN){ 
+           printf("NOTE THATE THE SCALING FACTOR IS A HEURISTIC THAT MAY NOT BE OPTIMAL IN SOME CASES\n");
+           printf("THIS HEURISTIC CAN BE MODIFIED IN dft_thermo_wtc.c\n");
+          printf("----------------------------------------------------------------------------------------\n");
+      }
    }
 
    return;
