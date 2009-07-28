@@ -243,7 +243,7 @@ int con_lib(struct con_struct *con, void * aux_info)
   cpi->nstep = csi->base_step;
   csi->last_step = FALSE;
 
-printf("cpi:nstep=%d\n",cpi->nstep);
+/*printf("cpi:nstep=%d\n",cpi->nstep);*/
 
   /*
    * Loop through a number of continuation steps - note the loop index may not
@@ -846,7 +846,7 @@ printf("cpi:nstep=%d\n",cpi->nstep);
 
     }  /* END of else section for converged solves */
 
-printf("cpi:nstep=%d\n",cpi->nstep);
+/*printf("cpi:nstep=%d\n",cpi->nstep);*/
   } /* END of loop over continuation step attempts --- for (n = 0; ... --- */
 
   /*********************CLEAN-UP AREA*****************************************/
@@ -882,7 +882,7 @@ printf("cpi:nstep=%d\n",cpi->nstep);
    * Send back the overall result of the time step
    */
 
-printf("at end cpi:nstep=%d\n",cpi->nstep);
+/*printf("at end cpi:nstep=%d\n",cpi->nstep);*/
   return cpi->step_num;
 
 } /**************** END of solve_continuation () *****************************/
