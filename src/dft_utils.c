@@ -212,6 +212,28 @@ void solutionVec_to_nOrdering(double *rhoBar_SVOrdering, double *n)
   return;
 }
 /*****************************************************************************************************/
+void pass_part_of_solnVector(double **xOwned, double **x,int iunk_start,int nunk_to_pass)
+{
+ int inode,iunk;
+ double *nodal_owned, *nodal_box;
+ nodal_owned = (double *) array_alloc (1, Nnodes_per_proc, sizeof(double));
+ nodal_box = (double *) array_alloc (1, Nnodes_box, sizeof(double));
+
+ for (iunk=iunk_start; iunk<iunk_start+nunk_to_pass; iunk++){
+    for (inode=0;inode<Nnodes_per_proc;inode++) nodal_owned[inode]=xOwned[iunk][inode];
+    for (inode=0;inode<Nnodes_box;inode++)      nodal_box[inode]=x[iunk][inode];
+ 
+    (void) dft_linprobmgr_importnodalr2c(LinProbMgr_manager,nodal_owned,nodal_box);
+
+    for (inode=0;inode<Nnodes_box;inode++)      x[iunk][inode]=nodal_box[inode];
+ }
+
+ safe_free((void *) &nodal_owned);
+ safe_free((void *) &nodal_box);
+
+ return;
+}
+/*****************************************************************************************************/
 void print_to_screen(double val,char *var_label)
 {
   printf("\t\t %s=%g\n",var_label,val); return;

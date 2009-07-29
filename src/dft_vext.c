@@ -172,6 +172,7 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
          (void) dft_linprobmgr_importnodalr2c(LinProbMgr_manager,vext_tmpOwned,vext_tmpBox);
          for (inode_box=0;inode_box<Nnodes_box;inode_box++){
               if (vext_tmpBox[inode_box] >=VEXT_MAX) Zero_density_TF[inode_box][icomp]=TRUE;
+              else Zero_density_TF[inode_box][icomp]=FALSE;
          }
      }
   }

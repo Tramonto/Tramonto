@@ -1566,7 +1566,9 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d  %d",&Restart,&Nmissing_densities);
+    fscanf(fp,"%d ",&Restart);
+    if (Restart == RESTART_FEWERCOMP) fscanf(fp," %d",&Nmissing_densities);
+    else Nmissing_densities=0;
     fprintf(fp2,"%d  %d",Restart,Nmissing_densities);
   }
   MPI_Bcast(&Restart,1,MPI_INT,0,MPI_COMM_WORLD);

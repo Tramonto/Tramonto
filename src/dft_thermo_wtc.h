@@ -29,8 +29,6 @@ extern double BondWTC_b[NMER_MAX *NMER_MAX];
 extern int Nbonds;
 #define WTC          2
 #define VERBOSE      3 
-#define NO_SCREEN    2
-extern int Iwrite;
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
@@ -51,16 +49,18 @@ extern double Xi_cav_b[4];
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
 extern double Fac_overlap_hs[NCOMP_MAX];
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 #define PI    M_PI
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern int SegAll_to_Poly[NMER_MAX];
+#define NO_SCREEN    2 
+extern int Iwrite;
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
 #define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
