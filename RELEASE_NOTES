@@ -1,5 +1,27 @@
 ---------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------
+Tramonto v3.1 Release Notes
+
+* Tramonto-3.1 is a minor release completed in August, 2009 that includes with some bug fixes and new functionality as itemized here.  
+* It is recommended that all existing users download Tramonto-3.1.  
+* See v3.0 release notes below for more details on recent and developing features in the Tramonto code.</p>
+* New features & bug fixes in the 3.1 release are as follows:
+         -- New type of boundary condition (LAST_NODE_RESTART) is added to facilitate maintaining a solved 
+		boundary condition for a complex interface when surfaces are added to the problem. 
+         -- Two new interaction potentials (square well, PAIR_SW, and cut and shifted exponential, PAIR_EXP_CS) 
+		are added to the suite of interaction potential options.</li>
+         -- New Restart type (RESTART_FEWERCOMP) implemented to allow Restart of a multicomponent system from a 
+ 		file that contains a solved profile for fewer components.  This is particularly helpful when 
+		studying contaminants at two phase interfaces. 
+         -- A bug fix has been implemented for the printing of WJDC field parameters.  This bug fix properly 
+		removes the Physiscs scaling parameters prior to printing.  This field is only printed when 
+		Iwrite=VERBOSE, however the bug was causing problems with retsarts in various problems. 
+         -- Several optimizations have been implemented for large scale parallel computing using Tramonto. 
+         -- Bug fix for Type_pairPot=4 case.  Previous release had a small positive contribution to the 
+		attractive term for 0<r<sigma.  Current version fixes this error.
+
+---------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
 Tramonto v3.0 Release Notes
 
 *Tramonto-3.0 Is the second open source release of the Tramonto software completed in March 2009. 
