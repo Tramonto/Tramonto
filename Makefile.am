@@ -358,9 +358,9 @@ EXTRA_DIST = config/strip_dup_incl_paths.pl config/strip_dup_libs.pl \
 	Examples/SELF_ASSEMBLE3_FMT3_WCA_WJDC_1D/README \
 	Examples/SELF_ASSEMBLE3_FMT3_WCA_WJDC_1D/lin_18_1 \
 	Examples/SELF_ASSEMBLE3_FMT3_WCA_WJDC_1D/dft_dens.dat \
-	Examples/SELF_ASSEMBLE4/dft_dens.dat \
-	Examples/SELF_ASSEMBLE4/dft_input.dat \
-	Examples/SELF_ASSEMBLE4/README \
+	Examples/SELF_ASSEMBLE4_FMT3_WCA_WJDC_1D/dft_dens.dat \
+	Examples/SELF_ASSEMBLE4_FMT3_WCA_WJDC_1D/dft_input.dat \
+	Examples/SELF_ASSEMBLE4_FMT3_WCA_WJDC_1D/README \
 	Examples/SW_FMT3_1D/dft_input.dat \
 	Examples/SW_FMT3_1D/dft_surfaces.dat \
 	Examples/SW_FMT3_1D/README \
