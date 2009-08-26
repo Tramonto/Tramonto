@@ -251,20 +251,18 @@ RUN (melchior-11) {
 
 ###############################################################################
 #
-# s858352 nightly
+# s909348 nightly
 #
 ###############################################################################
 
-RUN (s858352-nightly) {
+RUN (s909348-nightly) {
 
-    BUILD-LABEL         = default;
+    BUILD-LABEL         = s90-O3-t9.0.2;
     BUILD-DIR           = BUILD;
-    INVOKE-CONFIGURE    = darwin-s858352;
+    INVOKE-CONFIGURE    = mac-s909348;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 2;
-    MPI-START           = lamboot;
-    MPI-PING            = mpitask;
-    MPI-STOP            = lamhalt;
+    MPI-GO              = /Users/bmpersc/bin/openmpi-1.3.2/bin/mpirun -np ;
     TTR-DIR             = /Users/jmwille/TramontoTestHarness/TramontoTestResults;
     SSG-USERNAME        = jmwille;
 
