@@ -105,11 +105,145 @@ RUN (frost-nightly) {
 
 RUN (melchior) {
     
-    BUILD-LABEL         = O3-t9.0.2;
+    BUILD-LABEL         = O3-t9.0.2-16proc;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = linux-melchior;
     TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 16;
+#    MPI-GO              = mpirun -hostfile /home/jmwille/.hostfile -np ;
+    TTR-DIR             = /home/jmwille/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
+# melchior - built against Trilinos 9.0.2
+#
+###############################################################################
+
+RUN (melchior-2) {
+
+    BUILD-LABEL         = O3-t9.0.2-2proc;
+    BUILD-DIR           = BUILD2;
+    INVOKE-CONFIGURE    = linux-melchior;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 2;
+#    MPI-GO              = mpirun -hostfile /home/jmwille/.hostfile -np ;
+    TTR-DIR             = /home/jmwille/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
+# melchior - built against Trilinos 9.0.2
+#
+###############################################################################
+
+RUN (melchior-8) {
+
+    BUILD-LABEL         = O3-t9.0.2-8proc;
+    BUILD-DIR           = BUILD8;
+    INVOKE-CONFIGURE    = linux-melchior;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 8;
+#    MPI-GO              = mpirun -hostfile /home/jmwille/.hostfile -np ;
+    TTR-DIR             = /home/jmwille/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
+# melchior - built against Trilinos 9.0.2
+#
+###############################################################################
+
+RUN (melchior-6) {
+
+    BUILD-LABEL         = O3-t9.0.2-6proc;
+    BUILD-DIR           = BUILD6;
+    INVOKE-CONFIGURE    = linux-melchior;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 6;
+#    MPI-GO              = mpirun -hostfile /home/jmwille/.hostfile -np ;
+    TTR-DIR             = /home/jmwille/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
+# melchior - built against Trilinos 9.0.2
+#
+###############################################################################
+
+RUN (melchior-4) {
+
+    BUILD-LABEL         = O3-t9.0.2-4proc;
+    BUILD-DIR           = BUILD4;
+    INVOKE-CONFIGURE    = linux-melchior;
+    TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 4;
+#    MPI-GO              = mpirun -hostfile /home/jmwille/.hostfile -np ;
+    TTR-DIR             = /home/jmwille/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
+# melchior - built against Trilinos 9.0.2
+#
+###############################################################################
+
+RUN (melchior-32) {
+
+    BUILD-LABEL         = O3-t9.0.2-32proc;
+    BUILD-DIR           = BUILD32;
+    INVOKE-CONFIGURE    = linux-melchior;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 32;
+    MPI-GO              = mpirun -hostfile /home/jmwille/.hostfile -np ;
+    TTR-DIR             = /home/jmwille/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
+# melchior - built against Trilinos 9.0.2
+#
+###############################################################################
+
+RUN (melchior-48) {
+
+    BUILD-LABEL         = O3-t9.0.2-48proc;
+    BUILD-DIR           = BUILD48;
+    INVOKE-CONFIGURE    = linux-melchior;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 48;
+    MPI-GO              = mpirun -hostfile /home/jmwille/.hostfile -np ;
+    TTR-DIR             = /home/jmwille/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
+# melchior - built against Trilinos 9.0.2
+#
+###############################################################################
+
+RUN (melchior-11) {
+
+    BUILD-LABEL         = O3-t9.0.2-11proc;
+    BUILD-DIR           = BUILD11;
+    INVOKE-CONFIGURE    = linux-melchior;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 11;
+#    MPI-GO              = mpirun -hostfile /home/jmwille/.hostfile -np ;
     TTR-DIR             = /home/jmwille/TramontoTestResults;
     SSG-USERNAME        = jmwille;
 
