@@ -35,6 +35,7 @@ extern int Lhard_surf;
 #define FALSE 0
 #endif
 double calc_dens_seg(int iseg,int inode_box,double **x,int flag);
+double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond, double **x,int flag);
 extern int Nseg_type[NCOMP_MAX];
 #define INIT_GUESS_FLAG  2
 extern int Nlists_HW;

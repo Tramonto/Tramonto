@@ -294,7 +294,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
   double *sten_weight,  weight,fac;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
-  double resid,mat_val,resid_sum,first_deriv,first_deriv_sum,dens;
+  double resid,mat_val,resid_sum,first_deriv,first_deriv_sum,dens,dens_Gderiv;
 
 /*  if (Type_poly==WJDC) iseg = iunk-Phys2Unk_first[WJDC_FIELD];
   else                 iseg = iunk - Phys2Unk_first[DENSITY];*/
@@ -349,7 +349,6 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
        }
        else if (jnode_box==-1 ||jnode_box==-3 ||jnode_box==-4)  {
             dens = constant_boundary(unk_rho,jnode_box)/Nseg_type[jcomp];
-
        }
        else                                                     dens=0.0;
 
@@ -411,8 +410,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
 
                 /* first compute density and first derivative terms 
                    that will be needed below */
-               /* dens = calc_dens_seg(jseg,jnode_boxJ,x);*/
-                dens=x[unk_rho][jnode_boxJ]/Nseg_type[jcomp];
+/*                dens=x[unk_rho][jnode_boxJ]/Nseg_type[jcomp];*/
+                dens = calc_dens_seg(jseg,jnode_boxJ,x,FALSE);
                 first_deriv_sum=0.0;
                 for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
                   kseg = Bonds_SegAll[jseg][kbond];
@@ -439,6 +438,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                 /* CAVITY variable derivatives */
 
                 for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
+                  unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[jseg][kbond];
+                  dens_Gderiv=calc_dens_seg_Gderiv(jseg,jnode_boxJ,kbond,x,FALSE);
                   kseg = Bonds_SegAll[jseg][kbond];
                   if (Bonds_SegAll[jseg][kbond] != -1){
                   kcomp=Unk2Comp[kseg];
@@ -458,9 +459,25 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
 
                   first_deriv = (prefac2*dy_dxi2 + prefac3*dy_dxi3)/y;
  
+                 /*Approximate matrix entries using a mean value of the segment density .....*/
+/* TO SWITCH TO ANALYTIC JACOBIAN COMMENT OUT THE NEXT TWO LINES !!! */
                    mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv/Nseg_type[jcomp];
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_rho,jnode_boxJ,mat_val);
+                
+                   /* Matrix entries for dR_Field/dXi_alpha */   
+/* TO SWITCH TO ANALYTIC JACOBIAN UN-COMMENT THE NEXT TWO LINES !!! */
+/*                   mat_val = 0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv*dens/x[unk_B][jnode_boxJ];
+                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                             unk_B,jnode_boxJ,mat_val);*/
+
+                   /* Matrix entries for dR_Field/dG_alpha */   
+/* TO SWITCH TO ANALYTIC JACOBIAN UN-COMMENT THE NEXT TWO LINES !!! */
+/*                   mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv*dens_Gderiv;
+                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                             unk_GQ,jnode_boxJ,mat_val);*/
+
+                   /* Matrix entries for dR_Field/dcav_2 */
                    mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*dens* (
                              (prefac2*d2y_dxi2_2 + prefac3*d2y_dxi2_dxi3)/y
                              - first_deriv*dy_dxi2/y );
@@ -468,6 +485,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_xi2,jnode_boxJ,mat_val);
 
+                   /* Matrix entries for dR_Field/dcav_3 */
                    mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*dens* (
                               (prefac2*d2y_dxi2_dxi3 + prefac3*d2y_dxi3_2)/y
                               - first_deriv*dy_dxi3/y );
@@ -503,6 +521,30 @@ double calc_dens_seg(int iseg,int inode_box,double **x,int flag)
 /*              unk_GQ_test = unk_GQ-Phys2Unk_first[G_CHAIN];
               if (Pol_Sym[unk_GQ_test] != -1) unk_GQ=Pol_Sym[unk_GQ_test] + Phys2Unk_first[G_CHAIN];*/
               fac1 *= x[unk_GQ][inode_box];
+    }
+   dens = fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
+   return(dens);
+}
+/********************************************************************************************/
+double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond, double **x,int flag)
+{
+   int boltz_pow,unk_GQ,unk_GQ_test,ibond,itype_mer,unk_B;
+   double fac1,dens;
+
+   boltz_pow = -(Nbonds_SegAll[iseg]-1);
+
+   itype_mer=Unk2Comp[iseg]; /* note that itype_mer is also known as icomp */
+   if (Type_poly==WJDC2 || Type_poly==WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;
+   else /*if (Type_poly==WJDC)*/ unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; 
+
+   fac1 = prefactor_rho_wjdc(iseg);
+   for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
+        if (ibond != kbond){    /* taking a first derivative eliminates one G from the calcualtion */
+              unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[iseg][ibond];
+/*              unk_GQ_test = unk_GQ-Phys2Unk_first[G_CHAIN];
+              if (Pol_Sym[unk_GQ_test] != -1) unk_GQ=Pol_Sym[unk_GQ_test] + Phys2Unk_first[G_CHAIN];*/
+              fac1 *= x[unk_GQ][inode_box];
+         }
     }
    dens = fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
    return(dens);
