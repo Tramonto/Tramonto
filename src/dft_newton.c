@@ -45,13 +45,6 @@ int solve_problem(double **x, double **x2)
   int loc_inode,inode_box,itmp;
   int ierr;
 
-/* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
-/*for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
-if (L2G_node[loc_inode]==254) printf("Proc=%d owns global node 254 (local coord=%d boc coord=%d) \n", Proc,loc_inode,L2B_node[loc_inode]);
-}
-for (inode_box=0;inode_box<Nnodes_box;inode_box++){
-if (B2G_node[inode_box]==254) printf("Proc=%d sees global node 254 (box coord=%d ) \n", Proc,inode_box);
-}*/
   /* Set initial guess on owned nodes and reconcile ghost nodes using importr2c */
   xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   if (NL_Solver==PICNEWTON_BUILT_IN || NL_Solver==PICNEWTON_NOX){
@@ -68,19 +61,7 @@ if (B2G_node[inode_box]==254) printf("Proc=%d sees global node 254 (box coord=%d
       Time_InitGuess=MPI_Wtime()-start_t;
   }
 
-/* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
-/*for (inode_box=0;inode_box<Nnodes_box;inode_box++){
-if (B2G_node[inode_box]==254) printf("after calling set_inital guess: Proc=%d inode_box=%d B2G_node=%d xOwned=%g\n",
-  Proc,inode_box,B2G_node[inode_box],xOwned[0][inode_box]);
-}*/
-
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
-
-/* PRINT STATEMENTS FOR DEBUG OF NONUNIQUE GLOBAL TO BOX COORD MAPS */
-/*for (inode_box=0;inode_box<Nnodes_box;inode_box++){
-if (B2G_node[inode_box]==254) printf("after calling importr2c: Proc=%d inode_box=%d B2G_node=%d x=%g\n",
-  Proc,inode_box,B2G_node[inode_box],x[0][inode_box]);
-}*/
 
   /* If requested, write out initial guess */
    if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");

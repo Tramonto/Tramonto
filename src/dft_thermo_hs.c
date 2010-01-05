@@ -102,7 +102,8 @@ double integrand_BH(double r,int icomp)
 {
   double integrand,rcut,param4=0.0;
   rcut=1.e6;  /* set very large to eliminate the cut and shift for the BH diameters */
-  if (r>.01) integrand = 1.-exp(-pairPot_switch(r,Sigma_ff[icomp][icomp],Eps_ff[icomp][icomp],rcut,param4,Type_pairPot));
+  /*rcut=Cut_ff[icomp][icomp];*/
+  if (r>.0001) integrand = 1.0-exp(-pairPot_switch(r,Sigma_ff[icomp][icomp],Eps_ff[icomp][icomp],rcut,param4,Type_pairPot));
   else integrand = 1.0;
   return(integrand);
 }

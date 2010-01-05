@@ -84,9 +84,11 @@ extern double **Vext_membrane;
 extern double Elec_param_w[NWALL_MAX];
 #define CONT_ELECPARAM_I   7  /* Charged surface params */
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
+extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 #define CONT_EPSFF_IJ      6   /* Fluid-Fluid Energy Params for IJ term */
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 #define CONT_EPSWF_IJ      5    /* Wall-Fluid Energy Params for IJ term */
+#define CONT_SIGMAFF_IJ    10 
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_w[NWALL_MAX_TYPE];
 extern int Mix_type;

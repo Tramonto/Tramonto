@@ -584,10 +584,9 @@ void print_zeroTF(int **zero_TF, char *output_file)
 
      for (inode=0; inode<Nnodes; inode++){
         node_to_ijk(inode,ijk);
-        for (idim=0; idim<Ndim; idim++)
-            fprintf(ifp,"%9.6f\t ",
-            ijk[idim]*Esize_x[idim]);
-
+        for (idim=0; idim<Ndim; idim++){
+            fprintf(ifp,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
+        }
         for (icomp=0; icomp<Ncomp+1; icomp++){
             fprintf(ifp,"%d\t", unk[inode][icomp]);
         }

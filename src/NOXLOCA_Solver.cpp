@@ -48,7 +48,7 @@ int NOXLOCA_Solver(double **xBox, double **xOwned, double **x2Owned, bool doPica
     // Create the stepper sublist and set the stepper parameters
     Teuchos::ParameterList& stepperList = locaParamsList.sublist("Stepper");
     
-    if (Loca.method == 2)  stepperList.set("Continuation Method", "Arc Length");
+    if (Loca.method == 2 ||Loca.method==4)  stepperList.set("Continuation Method", "Arc Length");
     else  stepperList.set("Continuation Method", "Natural");
 
 

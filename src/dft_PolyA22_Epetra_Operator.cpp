@@ -90,6 +90,7 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
 	curRowValues_[colGID] += value;
       }
       else if (!isFLinear_) { 
+        //cout<< "row GID = " << rowGID << " value = " << value << " colGID = " << colGID << endl;
 	cmsOnDensityMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
       }
     }
@@ -135,6 +136,10 @@ int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
     insertRow(); // Dump any remaining entries
     cmsOnDensityMatrix_->FillComplete(densityMap_, cmsMap_);
     cmsOnDensityMatrix_->OptimizeStorage();
+    //cout << " Number of equations in F block = " << cmsOnDensityMatrix_->NumGlobalRows() << endl;
+    //cout << " Number of nonzeros in F block = " << cmsOnDensityMatrix_->NumGlobalNonzeros() << endl;
+    //cout << " Frobenius Norm of F block    = " << cmsOnDensityMatrix_->NormFrobenius() << endl;
+    //cout << " Average Nonzeros per row of F block   = " << cmsOnDensityMatrix_->NumGlobalNonzeros()/cmsOnDensityMatrix_->NumGlobalRows() << endl;
   }
 
   if (!hasDensityOnCms) { // Confirm that densityOnCmsMatrix is zero

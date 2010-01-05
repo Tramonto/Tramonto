@@ -91,6 +91,10 @@ double get_init_param_value(int cont_type,int Loca_contID)
            return Vext_membrane[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]; 
            break;
 
+      case CONT_SIGMAFF_IJ:   
+           return Sigma_ff[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]; 
+           break;
+
       default:
         if (cont_type > 99 && cont_type < 199) {
            param = get_init_param_archived_plugin(cont_type,Loca_contID); 
@@ -113,7 +117,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
 /* Note: Post_processing assumes the cont_type flags are the same as those
    used in Tramonto's own continuation */
 {
-  int i,j,icomp,jcomp,iw,iwall_type,inode;
+  int i,j,icomp,jcomp,iw,iwall_type,inode,kcomp;
   double ratio,temp_save,scale_save,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_save,rho_chain;
   char     *output_TF,*output_file1, *output_file2;
   
@@ -251,6 +255,36 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
 			  }
 			  Vext_membrane[iwall_type][icomp]=param;
 		  break;
+
+      case CONT_SIGMAFF_IJ: 
+          icomp=Cont_ID[Loca_contID][0];
+          jcomp=Cont_ID[Loca_contID][1];
+          Sigma_ff[icomp][jcomp]=param;  
+          if (icomp != jcomp){
+             Sigma_ff[jcomp][icomp]=param;
+          }
+          else if(icomp==jcomp){
+             for (kcomp=0; kcomp<Ncomp; kcomp++){
+                if (kcomp != icomp){
+                      Sigma_ff[icomp][kcomp]=0.5*(Sigma_ff[icomp][icomp]+Sigma_ff[kcomp][kcomp]);
+                      Sigma_ff[kcomp][icomp]=Sigma_ff[icomp][kcomp];
+                }
+             }
+          }
+          if (Mix_type==0) {
+              printf("error...continuation in sigma not set up for automatic adjustment of external fields yet\n");
+              exit(-1);
+              for (i=0; i<Ncomp; i++){ 
+/*                  for (iw=0; iw<Nwall_type; iw++) sigma_wf_save[i][iw]=Sigma_wf[i][iw];*/
+              }
+              pot_parameters("dft_out.lis"); 
+              /* need to recompute external field - simple scaling won't work */
+            }
+         calc_HS_diams(); 
+         calc_InvR_params();
+         if (Type_poly == CMS) setup_polymer_cr();
+         recalculate_stencils();
+         break;
 		  
       default:
         if (cont_type > 99 && cont_type < 199) {
@@ -356,6 +390,10 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
 
      case CONT_SEMIPERM_IJ:
          fprintf(fp, "Vext_membrane[%d][%d]  ",Cont_ID[Loca_contID][0],Cont_ID[Loca_contID][1]); 
+         break;
+
+      case CONT_SIGMAFF_IJ:
+         fprintf(fp,"Sigma_ff[%d][%d]:  ",Cont_ID[Loca_contID][0],Cont_ID[Loca_contID][1]); 
          break;
 
       default:
@@ -498,6 +536,10 @@ void print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
 
       case CONT_SEMIPERM_IJ:
          fprintf(fp,"%11.8f   ", Vext_membrane[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]); 
+         break;
+
+      case CONT_SIGMAFF_IJ:
+         fprintf(fp,"%11.8f   ", Sigma_ff[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]);
          break;
 
       default:
