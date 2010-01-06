@@ -30,6 +30,18 @@ dft_thermo_cms.c:  Calculate relevant thermodynamic properties for CMS polymer f
 -----------------------------------------------------------------------------------*/
 #include "dft_thermo_cms.h"
 
+/****************************************************************************/
+/* CMS_thermo_precalc: call all routines needed to process bulk properties of CMS functionals */
+void CMS_thermo_precalc(char *output_file1)
+{
+  if (Type_interface==UNIFORM_INTERFACE)
+     compute_bulk_nonlocal_cms_properties(output_file1,Rho_b,Field_CMS_b,G_CMS_b);
+  else{
+     compute_bulk_nonlocal_cms_properties(output_file1,Rho_b_LBB,Field_CMS_LBB,G_CMS_LBB);
+     compute_bulk_nonlocal_cms_properties(output_file1,Rho_b_RTF,Field_CMS_RTF,G_CMS_RTF);
+  }
+  return;
+}
 /***************************************************************
 /*setup_polymer_cr: read in c(r) from file and add attractions*/
 void setup_polymer_cr()
@@ -372,4 +384,108 @@ void setup_polymer_cr()
 //   }
    return;
 }
+/*************************************************************************************/
+/* compute_bulk_nonlocal_cms_properties: compute some additional bulk properties we
+   need to carry around the calculation. */
+void compute_bulk_nonlocal_cms_properties(char *output_file1,double *rho, 
+                                        double *field_CMS, double *g_CMS)
+{
+  int i,loc_inode,loc_i,inode_box,inode,ijk[3],icomp,jcomp,idim,iunk,printproc;
+  int ibond,jbond,index,iseg,jseg,pol_num,bond_num,type_jseg,nloop,iloop;
+  int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill,test,power;
+  double vol,area,x_dist,field,sten_sum[4];
+  double field_hs,field_att,field_chain;
+  FILE *fp2=NULL;
+
+
+  if (Proc==0 && output_file1 !=NULL) printproc = TRUE;
+  else printproc=FALSE;
+  if (printproc) {
+    if( (fp2 = fopen(output_file1,"a+"))==NULL) {
+      printf("Can't open file %s\n", output_file1);
+      exit(1);
+    }
+  }
+
+  /* (1) compute bulk field variable -- note the variable explicitly solved in the residual
+     equations is exp(-U+beta*Vext) in the bulk. */
+
+  for (iseg=0;iseg<Nseg_tot;iseg++){
+    pol_num=SegAll_to_Poly[iseg];
+    field=0.0;
+    icomp=Unk2Comp[iseg];
+
+  /* Now include Attractions */
+    if (Type_attr != NONE){
+       for (jcomp=0; jcomp<Ncomp;jcomp++){
+          field += Avdw[icomp][jcomp]*rho[jcomp];
+       }
+    }
+
+  /* Now include Coulomb parts */
+    /*do this later*/
+
+     field_CMS[icomp]=exp(-field);
+     if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_CMS=%9.6f\n",iseg,field,field_CMS[icomp]);
+  } /* end of bulk field calculations */
+
+  /* (2) compute bulk G - chain propogator values.  Note that we need to start at the ends of
+     the chains (linear or branched and work toward the opposite end of the chain carefully. */
+
+  for (ibond=0;ibond<Nbonds;ibond++) array_val[ibond]=FALSE;
+  array_fill=FALSE;
+  count_fill=0;
+
+  while (array_fill==FALSE){
+     for (ibond=0;ibond<Nbonds;ibond++){
+        pol_num=Unk_to_Poly[ibond];
+        iseg=Unk_to_Seg[ibond];
+        icomp=Unk2Comp[SegChain2SegAll[pol_num][iseg]];
+        bond_num=Unk_to_Bond[ibond];
+        if (array_val[ibond]==FALSE){
+           test=TRUE;  /* assume we will compute a bulk G */
+           jseg=Bonds[pol_num][iseg][bond_num];
+           if (jseg != -1 && jseg != -2 ){   /* may need to skip this G if we don't have all information yet  -
+                                  always compute G for end segments flagged with -1 value */
+              for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
+                 if (Bonds[pol_num][jseg][jbond] != iseg){ /* check all jbonds to see if we have necessary info */
+                    index=Poly_to_Unk[pol_num][jseg][jbond]+Geqn_start[pol_num]-Geqn_start[0];
+                    if (array_val[index]==FALSE) test=FALSE;
+                 }
+              }
+           }
+           if (test==TRUE){     /* compute a bulk G */
+              if (jseg == -1 || jseg == -2){
+                  g_CMS[ibond]=field_CMS[icomp]; /* end segment is simple */
+              }
+              else{
+                  icomp=Unk2Comp[SegChain2SegAll[pol_num][iseg]];
+                  jcomp=Unk2Comp[SegChain2SegAll[pol_num][jseg]];
+                  g_CMS[ibond]=field_CMS[icomp];
+
+                  for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
+                     if (Bonds[pol_num][jseg][jbond] != iseg){
+                          g_CMS[ibond]*=g_CMS[Poly_to_Unk[pol_num][jseg][jbond]+Geqn_start[pol_num]-Geqn_start[0]];
+                     }
+                  }
+                  power=-(Nbond[pol_num][jseg]-2); /* this is 0 for a linear chain for all interal segments */
+                  if (power != 0){
+                         g_CMS[ibond]*=POW_DOUBLE_INT(field_CMS[jcomp],power);
+                  }
+              }
+              count_fill++;
+              array_val[ibond]=TRUE;
+              if (printproc)  fprintf(fp2,"ibond=%d  G=%g\n",ibond,g_CMS[ibond]);
+           }
+        }
+     }
+     if (count_fill==Nbonds) array_fill=TRUE;
+  }
+
+  if (printproc) fclose(fp2);
+
+  return;
+}
+/******************************************************************************************/
+
 

@@ -78,17 +78,17 @@ extern int Ipot_ff_c;
 void assign_parameter_tramonto(int cont_type,double param,int Loca_contID);
 double get_init_param_user_plugin(int cont_type,int Loca_contID);
 double get_init_param_archived_plugin(int cont_type,int Loca_contID);
+extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
+#define CONT_SIGMAFF_IJ    10   /* Fluid-Fluid Interaction Diameter for IJ term */
 extern double **Vext_membrane;
 #define CONT_SEMIPERM_IJ   9  /* Vext_membrane */
 #define CONT_ELECPARAM_ALL 8  /* Charged surface params */
 extern double Elec_param_w[NWALL_MAX];
 #define CONT_ELECPARAM_I   7  /* Charged surface params */
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
-extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 #define CONT_EPSFF_IJ      6   /* Fluid-Fluid Energy Params for IJ term */
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 #define CONT_EPSWF_IJ      5    /* Wall-Fluid Energy Params for IJ term */
-#define CONT_SIGMAFF_IJ    10 
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_w[NWALL_MAX_TYPE];
 extern int Mix_type;

@@ -87,6 +87,8 @@ extern "C" {
 
   int dft_linprobmgr_importr2c(void * linprobmgr, double**x, double** b);
 
+  int dft_linprobmgr_importsingleunknownr2c(void * linprobmgr, double*x, double* b);
+
   int dft_linprobmgr_importnodalr2c(void * linprobmgr, double*x, double* b);
 
 

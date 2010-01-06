@@ -178,6 +178,24 @@ void setup_polymer_rho(double **xInBox, double **xOwned, int guess_type)
   return;
 }
 /*********************************************************/
+/*setup_polymer_G_newCMS: in this routine set up guess for the G's   */
+/* in this version, guess is simply the Boltzmann factors, with some account taken of hard walls*/
+void setup_polymer_G_newCMS(double **xOwned)
+{
+  int loc_inode,itype_mer,irho, iunk,i,Nloop,iseg,icomp_iseg;
+
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     for (i=0; i<Nbonds; i++){
+         iseg=Unk_to_Seg[i];
+         icomp_iseg=Unk2Comp[iseg];
+         iunk=Phys2Unk_first[G_CHAIN]+i;
+         if (!Zero_density_TF[L2B_node[loc_inode]][icomp_iseg]) xOwned[iunk][loc_inode]=G_CMS_b[i];
+         else xOwned[iunk][loc_inode]=0.0;
+     }
+   }
+   return;
+}
+/*********************************************************/
 /*setup_polymer_G: in this routine set up guess for the G's   */
 /* in this version, guess is simply the Boltzmann factors, with some account taken of hard walls*/
 void setup_polymer_G(double **xInBox,double **xOwned)

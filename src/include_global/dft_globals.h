@@ -231,10 +231,16 @@ double  Rho_seg_RTF[NMER_MAX];
 double Field_WJDC_b[NMER_MAX];
 double Field_WJDC_LBB[NMER_MAX];
 double Field_WJDC_RTF[NMER_MAX];
+double Field_CMS_b[NMER_MAX];
+double Field_CMS_LBB[NMER_MAX];
+double Field_CMS_RTF[NMER_MAX];
 double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 double G_WJDC_b[NMER_MAX*NBOND_MAX];
 double G_WJDC_LBB[NMER_MAX*NBOND_MAX];
 double G_WJDC_RTF[NMER_MAX*NBOND_MAX];
+double G_CMS_b[NMER_MAX*NBOND_MAX];
+double G_CMS_LBB[NMER_MAX*NBOND_MAX];
+double G_CMS_RTF[NMER_MAX*NBOND_MAX];
 double *Rhobar3_old;      /* Array[Nodes_box] of old values of rhobar3 */
 double Xi_cav_b[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */
 double Xi_cav_LBB[4]; /* Array of bulk rhobars for cavity functions of WTC polymer functionals */

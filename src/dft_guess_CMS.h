@@ -16,13 +16,10 @@
 #include "Tramonto_ConfigDefs.h"
 #define INIT_GUESS_FLAG  2
 double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define G_CHAIN       11 
 extern int *Pol_Sym;
 extern int ***Poly_to_Unk;
 extern int *Unk_to_Bond;
-extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
-extern int Nbonds;
 double CMS_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 double CMS_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 #define NBOND_MAX 4
@@ -75,6 +72,12 @@ struct Stencil_Struct {
                              Walls when stencil point is a boundary node  */
 };
 void setup_polymer_G(double **xInBox,double **xOwned);
+extern double G_CMS_b[NMER_MAX *NBOND_MAX];
+#define G_CHAIN       11 
+extern int Unk2Comp[NMER_MAX];
+extern int *Unk_to_Seg;
+extern int Nbonds;
+void setup_polymer_G_newCMS(double **xOwned);
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

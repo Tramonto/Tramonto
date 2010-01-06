@@ -152,6 +152,11 @@ extern "C" {
     return(linprobmgr_->importR2C((const double**) x,b));
   }
 
+  int dft_linprobmgr_importsingleunknownr2c(void * linprobmgr, double* x, double *b) {
+    dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
+    return(linprobmgr_->importR2C((const double*) x,b));
+  }
+
   int dft_linprobmgr_importnodalr2c(void * linprobmgr, double* x, double *b) {
     dft_BasicLinProbMgr * linprobmgr_ = (dft_BasicLinProbMgr *) linprobmgr;
     return(linprobmgr_->importR2C((const double*) x,b));

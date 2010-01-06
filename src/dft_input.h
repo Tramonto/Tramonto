@@ -32,7 +32,6 @@ extern int Nnodes_per_el_V;
 #define CONT_LOG_RHO_I          100
 #define CONT_RHO_I         2
 #define CONT_TEMP          1   /* State Parameters */
-#define RESTART_FEWERCOMP 4
 extern int NID_Cont;
 #define NCONT_MAX          2 /* the maximum number of solutions possible for use with Loca */
 extern int Cont_ID[NCONT_MAX][2];
@@ -93,6 +92,7 @@ extern char Vext_file[40];
 #define READ_VEXT_FALSE      0
 extern int Restart_Vext;
 extern int Nmissing_densities;
+#define RESTART_FEWERCOMP  4
 extern int Restart;
 #define NCOMP_MAX 5
 #define NSTEPS_MAX 10
