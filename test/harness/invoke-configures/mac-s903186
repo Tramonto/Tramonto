@@ -1,0 +1,10 @@
+../configure  \
+CXX=/Users/jmwille/install/bin/mpicxx \
+CC=/Users/jmwille/install/bin/mpicc \
+F77=/Users/jmwille/install/bin/mpif90 \
+CXXFLAGS=-O3 \
+CFLAGS=-O3 \
+FFLAGS=-O3 \
+        --with-gnumake \
+        --with-trilinos=/Users/jmwille/TramontoTestHarness/9.0.2install
+

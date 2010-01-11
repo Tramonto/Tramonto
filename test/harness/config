@@ -251,6 +251,25 @@ RUN (melchior-11) {
 
 ###############################################################################
 #
+# s903186 nightly
+#
+###############################################################################
+
+RUN (s903186-nightly) {
+
+    BUILD-LABEL         = mac-t9.0.2;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = mac-s903186;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 4;
+    MPI-GO              = /Users/jmwille/install/bin/mpirun -np ;
+    TTR-DIR             = /Users/jmwille/TramontoTestHarness/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
 # s909348 nightly
 #
 ###############################################################################
