@@ -37,6 +37,7 @@
  */
 
 #include "dft_mesh.h"
+#include "dft_parameterlist_wrapper.h"
 
 /********************** BEGIN EXECUTION ************************************/
 void set_up_mesh (char *output_file1,char *output_file2)
