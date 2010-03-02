@@ -15,7 +15,7 @@ double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box,double **x);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern double Betamu_chain[NMER_MAX];
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi

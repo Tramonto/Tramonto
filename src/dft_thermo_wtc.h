@@ -15,7 +15,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define NCOMP_MAX 5
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int *Unk_to_Bond;

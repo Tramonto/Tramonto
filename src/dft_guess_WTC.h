@@ -19,7 +19,7 @@ double int_stencil_CAV(double **x,int inode_box,int iunk);
 #include "Tramonto_ConfigDefs.h"
 extern int *L2B_node;
 void calc_init_Xi_cavWTC(double **xInBox,double **xOwned);
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern double BondWTC_b[NMER_MAX *NMER_MAX];
 #define BONDWTC        5
 extern int Nbonds;

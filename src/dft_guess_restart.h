@@ -28,7 +28,7 @@ void chop_profile(double **xInBox,int guess_type);
 void check_zero_densities_owned(double **xOwned);
 extern double Rho_b[NCOMP_MAX];
 extern double VEXT_MAX;
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern double Rho_seg_b[NMER_MAX];
 extern int **Zero_density_TF;
 extern void *LinProbMgr_manager;

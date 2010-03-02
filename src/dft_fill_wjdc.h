@@ -82,7 +82,7 @@ void WJDC_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int
 double load_WJDC_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 extern double Gsum[NCOMP_MAX];
 extern double Rho_g[NCOMP_MAX];
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Grafted[NCOMP_MAX];
 extern double Betamu_chain[NMER_MAX];

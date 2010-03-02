@@ -37,7 +37,7 @@ extern struct Stencil_Struct ***Stencil;
 #define WJDC         3
 extern int Type_poly;
 #define MF_EQ          3
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 #define THETA_PAIRPOT_RCUT    2
 extern int Nlists_HW;

@@ -14,7 +14,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern double BondWTC_b[NMER_MAX *NMER_MAX];
 extern double Xi_cav_b[4];
 extern double Rho_seg_b[NMER_MAX];

@@ -19,7 +19,7 @@ extern double Rho_b[NCOMP_MAX];
 #define DENSITY        0
 #define NEQ_TYPE       13 
 extern int Phys2Unk_first[NEQ_TYPE];
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern double Rho_seg_b[NMER_MAX];
 extern int Lseg_densities;
 double integrand_ideal_gas_freen_bulk(int iunk,int inode_box,double **x);

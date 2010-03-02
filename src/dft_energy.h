@@ -67,7 +67,7 @@ double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **
 #define NONE        -1
 extern int Type_coul;
 extern double Charge_f[NCOMP_MAX];
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
 #define NEQ_TYPE       13 

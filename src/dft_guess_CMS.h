@@ -23,7 +23,7 @@ extern int *Unk_to_Poly;
 double CMS_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 double CMS_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 #define NBOND_MAX 4
-#define NMER_MAX     100
+#define NMER_MAX     200
 void calc_init_polymer_G_CMS(double **xInBox,double **xOwned);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)

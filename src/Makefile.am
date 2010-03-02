@@ -71,6 +71,7 @@ COMMON_H = \
         ${srcdir}/dft_physics_FMT1.h \
         ${srcdir}/dft_physics_FMT2.h \
         ${srcdir}/dft_physics_FMT3.h \
+	${srcdir}/dft_physics_FMT4.h \
         ${srcdir}/dft_defs_stencil.h \
         ${srcdir}/dft_defs_unknowns.h \
         ${srcdir}/dft_quadrature.h \
@@ -172,6 +173,7 @@ COMMON_C = \
         ${srcdir}/dft_physics_FMT1.c \
         ${srcdir}/dft_physics_FMT2.c \
         ${srcdir}/dft_physics_FMT3.c \
+	${srcdir}/dft_physics_FMT4.c \
         ${srcdir}/dft_defs_stencil.c \
         ${srcdir}/dft_defs_unknowns.c \
         ${srcdir}/dft_quadrature.c \

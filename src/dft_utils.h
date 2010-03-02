@@ -52,7 +52,7 @@ extern int Nnodes_per_proc;
 extern int Nunk_per_node;
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 int loc_find(int iunk,int inode,int flag);
-#define NMER_MAX     100
+#define NMER_MAX     200
 #define NBOND_MAX 4
 extern double G_WJDC_RTF[NMER_MAX *NBOND_MAX];
 extern double G_WJDC_LBB[NMER_MAX *NBOND_MAX];

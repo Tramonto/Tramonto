@@ -24,21 +24,26 @@ struct RB_Struct {
   double    V1[NDIM_MAX];      /*  1/(4*pi*Ri) * unit_vec * Delta_Fn   */
   double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
 };
+struct RB_Struct d2phi_drb2_theta_rb_FMT4(double *n);
 struct RB_Struct d2phi_drb2_theta_rb_FMT3(double *n);
 struct RB_Struct d2phi_drb2_theta_rb_FMT2(double *n);
 struct RB_Struct d2phi_drb2_theta_rb_FMT1(double *n);
 struct RB_Struct FMT2ndDerivTheta_switch(double *n);
+struct RB_Struct d2phi_drb2_delta_rb_FMT4(double *n,int *offset,double *sign,int icomp);
 struct RB_Struct d2phi_drb2_delta_rb_FMT3(double *n,int *offset,double *sign,int icomp);
 struct RB_Struct d2phi_drb2_delta_rb_FMT2(double *n,int *offset,double *sign,int icomp);
 struct RB_Struct d2phi_drb2_delta_rb_FMT1(double *n,int *offset,double *sign,int icomp);
 struct RB_Struct FMT2ndDerivDelta_switch(double *n,int *offset,double *sign,int icomp);
 void FMT1stDerivBulk_switch(double *n,double *inv_n3,double *dphi_drb);
+void FMT4_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
 void FMT3_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
 void FMT2_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
 void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
 void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,double *),int inode_box,double **x,struct RB_Struct *dphi_drb);
 extern int Nnodes_box;
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
+double FMT4_energy_density(double *n);
+#define FMT4       3
 double FMT3_energy_density(double *n);
 #define FMT3       2
 double FMT2_energy_density(double *n);

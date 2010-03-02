@@ -33,7 +33,7 @@ int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 extern int Imax;
 extern int List[2];
 extern int Lhard_surf;
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int **Nel_hit2;
 extern int Nnodes_box;

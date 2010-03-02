@@ -17,7 +17,7 @@
 extern int Physics_scaling;
 #define NCOMP_MAX 5
 extern double Betamu_id[NCOMP_MAX];
-#define NMER_MAX     100
+#define NMER_MAX     200
 #define NBOND_MAX 4
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 extern double Field_WJDC_b[NMER_MAX];

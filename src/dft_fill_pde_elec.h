@@ -26,7 +26,7 @@ extern double Esize_x[NDIM_MAX];
 extern double Charge_f[NCOMP_MAX];
 extern int **Lsemiperm;
 extern int **Wall_elems;
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
 #define NEQ_TYPE       13 

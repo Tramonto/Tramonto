@@ -53,7 +53,7 @@ void scale_elec_param(double ratio);
 extern int Type_hsdiam;
 extern int WallType[NWALL_MAX];
 void scale_vext_epswf(double ratio,int icomp,int iwall);
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int Ntype_mer;
 void scale_vext_temp(double ratio);

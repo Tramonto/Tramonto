@@ -22,7 +22,7 @@ void safe_free(void **ptr);
 extern int Geqn_start[NCOMP_MAX];
 extern int Ngeqn_tot;
 extern int Nseg_type[NCOMP_MAX];
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
 #define WJDC3        5 

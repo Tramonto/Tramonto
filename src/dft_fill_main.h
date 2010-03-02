@@ -58,7 +58,7 @@ double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int
 extern int L_HSperturbation;
 #define DENSITY        0
 #define NCOMP_MAX 5
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int **Zero_density_TF;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);

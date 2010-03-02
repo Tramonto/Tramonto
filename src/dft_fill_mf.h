@@ -22,7 +22,7 @@ extern void *LinProbMgr_manager;
 #define INIT_GUESS_FLAG  2
 #define MF_EQ          3
 #define NCOMP_MAX 5
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 #define MF_VARIABLE  2
 extern int Type_attr;

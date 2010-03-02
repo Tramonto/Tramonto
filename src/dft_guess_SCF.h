@@ -42,7 +42,7 @@ extern int Nbonds;
 double CMS_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 double CMS_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 #define NBOND_MAX 4
-#define NMER_MAX     100
+#define NMER_MAX     200
 void calc_init_polymer_G_SCF(double **xInBox,double **xOwned);
 void calc_init_lambda(double **xInBox,double **xOwned);
 extern double Rho_t;

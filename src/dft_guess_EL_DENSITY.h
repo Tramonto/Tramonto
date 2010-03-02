@@ -36,7 +36,7 @@ extern int Orientation_step[NSTEPS_MAX];
 extern int Nsteps;
 void node_to_position(int inode,double *NodePos);
 extern int *B2G_node;
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int **Zero_density_TF;
 #define DENSITY        0

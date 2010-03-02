@@ -52,6 +52,9 @@ double phispt_switch(double *n)
          case FMT3:
              FMTphispt=FMT3_energy_density(n);
              break;
+        case FMT4:
+             FMTphispt=FMT4_energy_density(n);
+             break;
          default:
              printf("problem with type of HS FUNCTIONAL: phispt_switch ");
              exit(-1); break;
@@ -78,6 +81,11 @@ void FMT1stDeriv_switch(double **x, struct RB_Struct *dphi_drb)
         for (inode_box=0;inode_box<Nnodes_box; inode_box++)
           calc_FMT_derivatives(&FMT3_1stderiv,inode_box,x,dphi_drb);
         break;
+     case FMT4: 
+        for (inode_box=0;inode_box<Nnodes_box; inode_box++)
+          calc_FMT_derivatives(&FMT4_1stderiv,inode_box,x,dphi_drb);
+        break;
+
       default:
          printf("problem with type of HS FUNCTIONAL: FMT1stDeriv_switch");
          exit(-1); break;
@@ -100,6 +108,9 @@ void FMT1stDerivBulk_switch(double *n,double *inv_n3, double *dphi_drb)
      case FMT3: 
         FMT3_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
         break;
+     case FMT4: 
+        FMT4_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
+        break;
       default:
          printf("problem with type of HS FUNCTIONAL: FMT1stDeriv_switch");
          exit(-1); break;
@@ -115,6 +126,7 @@ struct RB_Struct FMT2ndDerivDelta_switch(double *n, int *offset, double *sign, i
       case FMT1:  tmp = d2phi_drb2_delta_rb_FMT1(n,offset,sign,icomp); break;
       case FMT2:  tmp = d2phi_drb2_delta_rb_FMT2(n,offset,sign,icomp); break;
       case FMT3:  tmp = d2phi_drb2_delta_rb_FMT3(n,offset,sign,icomp); break;
+      case FMT4:  tmp = d2phi_drb2_delta_rb_FMT4(n,offset,sign,icomp); break;
       default:
          printf("problem with type of HS FUNCTIONAL: FMT2ndDerivDelta_switch");
          exit(-1); break;
@@ -130,6 +142,7 @@ struct RB_Struct FMT2ndDerivTheta_switch(double *n)
       case FMT1:  tmp = d2phi_drb2_theta_rb_FMT1(n); break;
       case FMT2:  tmp = d2phi_drb2_theta_rb_FMT2(n); break;
       case FMT3:  tmp = d2phi_drb2_theta_rb_FMT3(n); break;
+      case FMT4:  tmp = d2phi_drb2_theta_rb_FMT4(n); break;
       default:
          printf("problem with type of HS FUNCTIONAL: FMT2ndDerivTheta_switch");
          exit(-1); break;

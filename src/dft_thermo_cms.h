@@ -26,7 +26,7 @@ extern int ***Poly_to_Unk;
 extern int **Nbond;
 extern int ***Bonds;
 extern int *Unk_to_Bond;
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;

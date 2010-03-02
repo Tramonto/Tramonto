@@ -224,9 +224,10 @@
 #define FMT1       0
 #define FMT2       1
 #define FMT3       2
-#define LDA        3
-#define GHRM       4
-#define GVDWM      5
+#define FMT4       3
+#define LDA        4
+#define GHRM       5
+#define GVDWM      6
 
 /*
  *  These constants identify the type of polymer to be studied (Type_poly).
@@ -528,7 +529,7 @@
 /* Polymer constants */
 #define N_NZCR_MAX   200   /* maximum # of non-zero's in direct correlation fn */
 #define NBLOCK_MAX   20 
-#define NMER_MAX     100
+#define NMER_MAX     200
 
 /* options for reading external field */
 #define READ_VEXT_FALSE      0

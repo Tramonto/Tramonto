@@ -24,7 +24,7 @@ extern double Charge_f[NCOMP_MAX];
 extern int Ipot_ff_c;
 extern int *L2B_node;
 extern int **Zero_density_TF;
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 #define DIFFUSION      6
 #define NEQ_TYPE       13 

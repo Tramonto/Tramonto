@@ -44,7 +44,7 @@ extern int Nodes_x[NDIM_MAX];
 #define TRUE  1
 #endif
 #define NCOMP_MAX 5
-#define NMER_MAX     100
+#define NMER_MAX     200
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)

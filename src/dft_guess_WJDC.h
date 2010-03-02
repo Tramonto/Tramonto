@@ -37,7 +37,7 @@ extern int *Unk_to_Poly;
 double WJDC_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 #define NBOND_MAX 4
-#define NMER_MAX     100
+#define NMER_MAX     200
 void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned);
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 #define G_CHAIN       11 
