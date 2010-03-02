@@ -1,0 +1,22 @@
+/*! \file 
+ \brief Hard sphere fluid in a hard wall slit (high resolution).
+
+Functionals: FMT_4
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Basic Test Problem; high resolution grid. Uses hard sphere functional from Oleksy and Hansen.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=5 
+   - adsorption=3.51161
+   - energy=2.29566
+   - force=4.98569
+   .
+*/
