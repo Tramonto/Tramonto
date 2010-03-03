@@ -49,6 +49,7 @@ set(common_h
         dft_physics_FMT1.h 
         dft_physics_FMT2.h 
         dft_physics_FMT3.h 
+        dft_physics_FMT4.h 
         dft_defs_stencil.h 
         dft_defs_unknowns.h 
         dft_quadrature.h 
@@ -150,6 +151,7 @@ set(common_c
         dft_physics_FMT1.c 
         dft_physics_FMT2.c 
         dft_physics_FMT3.c 
+        dft_physics_FMT4.c
         dft_defs_stencil.c 
         dft_defs_unknowns.c 
         dft_quadrature.c 
