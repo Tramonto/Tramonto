@@ -221,7 +221,7 @@ int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
   Epetra_MultiVector curY(View, ownedMap_, curYptr, NumVectors); // Start curY to view first numNodes elements of Y
 
   for (int i=0; i< numBlocks_-1; i++) {
-    for (int j=0; j<NumVectors; j++) curY[j]+=numMyElements; // Increment pointers to next block
+    for (int j=0; j<NumVectors; j++) curYptr[j]+=numMyElements; // Increment pointers to next block
     curY.ResetView(curYptr); // Reset view to next block
     matrix_[i]->Multiply(false, X, curY); // This gives a result that is off-diagonal-matrix*X
   }
