@@ -263,7 +263,7 @@ set(noxloca_headers
         NOXLOCA_Tramonto_PTGroup.hpp 
         NOXLOCA_Tramonto_PTVector.hpp)
 
-set(TRILINOS_LIBRARIES  ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos )
+set(TRILINOS_LIBRARIES  ml amesos loca nox aztecoo ifpack epetraext epetra teuchos )
 
 add_library(dft ${common_h} ${noxloca_h} ${common_c} ${common_cxx} ${noxloca_cxx} )
 target_link_libraries(dft ${TRILINOS_LIBRARIES} ${LAPACK_LIBRARIES}

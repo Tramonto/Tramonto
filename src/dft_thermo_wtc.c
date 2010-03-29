@@ -148,8 +148,9 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
             }
          }
          if (count_comp>0) Scale_fac_WJDC[pol_num][icomp]/=(double)count_comp;
-         /*Scale_fac_WJDC[2][2]=-4.5;*/
-         /*Scale_fac_WJDC[2][3]=-4.5;*/
+         Scale_fac_WJDC[0][0]=-2.0;
+         Scale_fac_WJDC[0][1]=-2.0;
+/*         Scale_fac_WJDC[1][2]=-2.0;*/
          if (Proc==0 && Iwrite != NO_SCREEN) printf("pol_num=%d icomp=%d Scale_fac_WJDC[pol_num][icomp]=%g\n",pol_num,icomp,Scale_fac_WJDC[pol_num][icomp]);
       }
       if (Proc==0 && Iwrite != NO_SCREEN){ 

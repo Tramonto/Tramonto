@@ -47,11 +47,21 @@ extern double Charge_f[NCOMP_MAX];
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;
+#define THETA_CR_DATA         4
+double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
 extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
-#define THETA_CR_DATA         4
-double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
+#define MF_EQ          3
+#define MF_VARIABLE  2
+extern int Type_attr;
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double VEXT_MAX;
 extern double **Vext;

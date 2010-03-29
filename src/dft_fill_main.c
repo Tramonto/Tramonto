@@ -309,10 +309,16 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
           }
         break;
 
-       case MF_EQ: 
+       case MF_EQ:
            icomp=iunk-Phys2Unk_first[MF_EQ];
-           resid_unk[iunk]=load_mean_field(THETA_PAIRPOT_RCUT,iunk,loc_inode,
-                                                   icomp,izone,ijk_box, x, resid_only_flag);
+           if (Type_poly != CMS && Type_poly != CMS_SCFT){
+                resid_unk[iunk]=load_mean_field(THETA_PAIRPOT_RCUT,iunk,loc_inode,
+                                          icomp,izone,ijk_box, x, resid_only_flag);
+           }
+           else{
+                resid_unk[iunk]=load_mean_field(THETA_CR_DATA,iunk,loc_inode,
+                                          icomp,izone,ijk_box,x,resid_only_flag);
+           }
            break;
 
        case POISSON: resid_unk[iunk]=load_poisson_control(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag); break;

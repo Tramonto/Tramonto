@@ -46,6 +46,9 @@ extern double *Deltac_b;
 #define COULOMB      1
 extern int Ipot_ff_c;
 extern double Time_InitGuess;
+int gmax_int(int c);
+extern int Nnodes_per_proc;
+int gmin_int(int c);
 extern int L_Schur;
 double gmin_double(double c);
 double gmax_double(double c);

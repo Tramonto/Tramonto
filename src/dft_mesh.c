@@ -468,6 +468,10 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
      /*if (Mesh_coarsening !=FALSE || L1D_bc)*/ set_mesh_coarsen_flag();
      /* send solver manager information about mesh coarsening */
        dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);
+
+     MPI_Barrier(MPI_COMM_WORLD);
+      printf("Proc=%d to call dft_linprobmgr_finalizeblock...\n",Proc);
+     MPI_Barrier(MPI_COMM_WORLD);
      /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
      ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
      if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);

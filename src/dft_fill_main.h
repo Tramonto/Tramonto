@@ -38,6 +38,7 @@ extern int Linear_transport;
 #define DIFFUSION      6
 double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 #define POISSON        1
+#define THETA_CR_DATA         4
 #define THETA_PAIRPOT_RCUT    2
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 #define MF_EQ          3

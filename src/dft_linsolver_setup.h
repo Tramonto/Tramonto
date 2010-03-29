@@ -26,7 +26,6 @@ extern int Type_coul;
 extern int Mesh_coarsening;
 #define WTC          2
 extern int Type_attr;
-#define MF_EQ          3
 #define CAVWTC         4
 #define BONDWTC        5
 extern int Ndim;
@@ -50,6 +49,7 @@ int discover_G_ordering_LT(int *geq);
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern int Ncomp;
+#define MF_EQ          3
 #define POISSON        1
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];

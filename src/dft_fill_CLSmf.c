@@ -69,6 +69,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
   if (Lseg_densities) loop_max=Nseg_tot;
   else                loop_max=Ncomp;
 
+
   for (jloop=0; jloop<loop_max; jloop++){
       if (Lseg_densities) {
          jseg=jloop;
@@ -84,7 +85,6 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
 
       if (Nlists_HW <= 2) jlist = 0;
       else                jlist = jcomp;
-
       if (sten_type==THETA_PAIRPOT_RCUT) {
 
             if (Unk2Phys[iunk]==MF_EQ){
@@ -106,10 +106,14 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
             index=icomp+Ncomp*jcomp;
       }
       else if (sten_type==THETA_CR_DATA){
-            icomp=iunk-Phys2Unk_first[CMS_FIELD];
+            if (Unk2Phys[iunk]==MF_EQ){
+                  icomp=iunk-Phys2Unk_first[MF_EQ];
+            }
+            else  icomp=iunk-Phys2Unk_first[CMS_FIELD];
             index=icomp+Ncomp*jcomp;
       }
       else index=jcomp;
+
 
       sten = &(Stencil[sten_type][izone][index]);
       sten_offset = sten->Offset;
@@ -158,6 +162,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
             }
          }
       }
+
   }
   return(resid_sum);
 }

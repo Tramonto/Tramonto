@@ -79,6 +79,8 @@ void linsolver_setup_CMSTYPE_LINEARONLY()
        break;
      case POISSON:
        poissoneq[count_poisson++]=iunk; break;
+     case MF_EQ:
+       geq[count_geqn++]=iunk; break;
      default:
         printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
         exit(-1);
@@ -117,14 +119,15 @@ void linsolver_setup_CMSTYPE_LINEARONLY()
 void linsolver_setup_CMSTYPE()
 {
   int iunk,i;
-  int *geq, *cmseq, *densityeq;
-  int count_density,count_cms_field,count_geqn,count_poisson;
+  int *geq, *gonlyeq,*cmseq, *densityeq;
+  int count_density,count_cms_field,count_geqn,count_poisson,count_geqn_save;
   int *poissoneq;
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
    densityeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    cmseq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    geq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
+   gonlyeq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
    poissoneq = (int *) array_alloc(1, Nunk_per_node, sizeof(int));
 
    count_poisson=count_density=count_cms_field=count_geqn=0;
@@ -140,14 +143,21 @@ void linsolver_setup_CMSTYPE()
        break;
      case POISSON:
        poissoneq[count_poisson++]=iunk; break;
+     case MF_EQ:
+       geq[count_geqn++]=iunk; break;
      default:
         printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
         exit(-1);
         break;
      } 
    }
+
+   count_geqn_save=count_geqn;
+   count_geqn+=discover_G_ordering_LT(gonlyeq);
+   for (i=count_geqn_save;i<count_geqn;i++) geq[i]=gonlyeq[i-count_geqn_save];
+
    
-   count_geqn=discover_G_ordering_LT(geq);
+/*   count_geqn=discover_G_ordering_LT(geq);*/
 
    // LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
@@ -284,7 +294,6 @@ void linsolver_setup_WJDCTYPE()
 
    count_geqn_save=count_geqn;
    count_geqn+=discover_G_ordering_LT(gonlyeq);
-
    for (i=count_geqn_save;i<count_geqn;i++) geq[i]=gonlyeq[i-count_geqn_save];
 
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);

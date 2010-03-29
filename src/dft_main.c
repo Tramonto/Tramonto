@@ -70,6 +70,8 @@ void dftmain(double * engptr)
   double    *t_linsolv_first_array,*t_linsolv_av_array;
   double    *t_manager_first_array,*t_manager_av_array;
   double    *t_fill_first_array,*t_fill_av_array;
+  int       min_nnodes_per_proc,max_nnodes_per_proc,min_nnodes_box,max_nnodes_box;
+  double    min_nodesLoc_over_nodesBox,max_nodesLoc_over_nodesBox;
   FILE      *fp;
   int izone,isten,jcomp,jmax;
   struct Stencil_Struct *sten;
@@ -361,6 +363,13 @@ void dftmain(double * engptr)
       t_fill_first_min=gmin_double(Time_fill_first);
       t_fill_first_max=gmax_double(Time_fill_first);
 
+      min_nnodes_per_proc=gmin_int(Nnodes_per_proc);
+      max_nnodes_per_proc=gmax_int(Nnodes_per_proc);
+      min_nnodes_box=gmin_int(Nnodes_box);
+      max_nnodes_box=gmax_int(Nnodes_box);
+      min_nodesLoc_over_nodesBox=gmin_double((double)Nnodes_box/(double)Nnodes_per_proc);
+      max_nodesLoc_over_nodesBox=gmax_double((double)Nnodes_box/(double)Nnodes_per_proc);
+
       if(niters > 1){
         t_linsolv_av_min=gmin_double(Time_linsolver_av/((double)niters-1.0));
         t_linsolv_av_max=gmax_double(Time_linsolver_av/((double)niters-1.0));
@@ -386,6 +395,17 @@ void dftmain(double * engptr)
 
       if (Proc == 0 &&Iwrite !=NO_SCREEN) {
         printf ("\n\n\n\n");
+        printf ("===================================================\n");
+        printf ("MESH SUMMARY ....");
+        printf ("                    min             max       \n");
+        printf ("---------------------------------------------------\n");
+        printf ("---------------------------------------------------\n");
+        printf ("Nodes_per_proc                %d         %d       \n", min_nnodes_per_proc,max_nnodes_per_proc);
+        printf ("Nodes_box                     %d         %d       \n", min_nnodes_box,max_nnodes_box);
+        printf ("Nodes_local/Nnodes_box        %g         %g       \n", 1./min_nodesLoc_over_nodesBox,1./max_nodesLoc_over_nodesBox);
+        printf ("===================================================\n");
+        printf ("===================================================\n");
+        printf ("\n\n");
         printf ("===================================================\n");
         if (NL_Solver !=NEWTON_NOX && NL_Solver !=PICARD_NOX) 
         printf ("TIMING SUMMARY .... averaged over all %d iterations\n",niters);

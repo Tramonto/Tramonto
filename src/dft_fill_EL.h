@@ -135,6 +135,10 @@ double fill_bulk_field(int iunk,int icomp,int iseg,int loc_inode,int inode_box,d
 #endif
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 int check_zero_density_EL(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x);
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
 extern int Unk2Comp[NMER_MAX];
 #define WTC          2
 #define DENSITY        0
