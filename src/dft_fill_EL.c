@@ -60,9 +60,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                       is preempted by a simpler residual equation.  We check for each
                       of these cases first.  If none are true, the full EL residual is filled */
 
-MPI_Barrier(MPI_COMM_WORLD);
-printf("Proc=%d: checkpoint 1\n",Proc);
-MPI_Barrier(MPI_COMM_WORLD);
    zero_TF=check_zero_density_EL(iunk,icomp,iseg,loc_inode,inode_box,x);
    if (zero_TF) {
        resid=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
@@ -70,9 +67,6 @@ MPI_Barrier(MPI_COMM_WORLD);
    }
 
 
-MPI_Barrier(MPI_COMM_WORLD);
-printf("Proc=%d: checkpoint 2\n",Proc);
-MPI_Barrier(MPI_COMM_WORLD);
    bulk_TF=FALSE;
    if (mesh_coarsen_flag_i == FLAG_BULK) bulk_TF=TRUE;
    if (bulk_TF){
@@ -86,9 +80,6 @@ MPI_Barrier(MPI_COMM_WORLD);
        else                                  return(resid);
    } 
 
-MPI_Barrier(MPI_COMM_WORLD);
-printf("Proc=%d: checkpoint 3\n",Proc);
-MPI_Barrier(MPI_COMM_WORLD);
    sym_WTC_TF=FALSE;
    if (Type_poly==WTC && Pol_Sym_Seg[iseg] != -1) sym_WTC_TF=TRUE;
    if (sym_WTC_TF){
@@ -96,9 +87,6 @@ MPI_Barrier(MPI_COMM_WORLD);
        return(resid);
    }
 
-MPI_Barrier(MPI_COMM_WORLD);
-printf("Proc=%d: checkpoint 4\n",Proc);
-MPI_Barrier(MPI_COMM_WORLD);
 /* pin one density (or field) at this point at mean between left and right interface*/
    first_unk=FALSE;
    if (Lconstrain_interface && Type_poly!=WJDC3 && Type_poly!=WJDC && Type_poly !=WJDC2){
@@ -126,9 +114,6 @@ MPI_Barrier(MPI_COMM_WORLD);
            return(resid);
       }
    }
-MPI_Barrier(MPI_COMM_WORLD);
-printf("Proc=%d: checkpoint 5\n",Proc);
-MPI_Barrier(MPI_COMM_WORLD);
 
 
    /* now fill EL physics dependent terms */ 
@@ -138,22 +123,13 @@ MPI_Barrier(MPI_COMM_WORLD);
       resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
    }
 
-MPI_Barrier(MPI_COMM_WORLD);
-printf("Proc=%d: checkpoint 6\n",Proc);
-MPI_Barrier(MPI_COMM_WORLD);
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode,resid_only_flag);
 
-MPI_Barrier(MPI_COMM_WORLD);
-printf("Proc=%d: checkpoint 6\n",Proc);
-MPI_Barrier(MPI_COMM_WORLD);
    if (Type_coul != NONE){
          resid+=fill_EL_elec_field(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
    }
 
    if (mesh_coarsen_flag_i != FLAG_PBELEC){
-MPI_Barrier(MPI_COMM_WORLD);
-printf("Proc=%d: before hard sphere Type_func=% fill\n",Proc,Type_func);
-MPI_Barrier(MPI_COMM_WORLD);
 
    if (Type_func !=NONE) {
          resid +=load_nonlocal_hs_rosen_rb(DELTA_FN_R,iunk,loc_inode,inode_box,
@@ -164,9 +140,6 @@ MPI_Barrier(MPI_COMM_WORLD);
                                icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
    }
 
-MPI_Barrier(MPI_COMM_WORLD);
-printf("Proc=%d: before attraction fill Type_attr=%d\n",Proc,Type_attr);
-MPI_Barrier(MPI_COMM_WORLD);
    if (Type_attr !=NONE) {
          if (Type_attr==MF_VARIABLE){
            iunk_att=Phys2Unk_first[MF_EQ]+icomp;
@@ -185,9 +158,6 @@ MPI_Barrier(MPI_COMM_WORLD);
             resid+=resid_att;
          }
      }
-MPI_Barrier(MPI_COMM_WORLD);
-printf("Proc=%d: after attraction fill\n",Proc);
-MPI_Barrier(MPI_COMM_WORLD);
 
    }
 
