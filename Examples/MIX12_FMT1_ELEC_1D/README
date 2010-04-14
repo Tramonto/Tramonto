@@ -1,0 +1,29 @@
+/*! \file 
+ \brief Primitive model electrolyte (2 components) with corrections.
+
+Functionals: FMT1,ELEC (MSA,GEN)
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: 1-1 electrolyte composed of two charged components (ions) and a dielectric continuum solvent. In this case the ions
+are of finite and equal sizes. In addition second order corrections to the free energy functional via the direct correlation 
+function are included in this calcualtion using the generalized MSA corrections (Oleksy and Hansen, 2006).  
+Each of the two planar surfaces has a charge of 0.3 per unit area.  The difference in adsorption is 0.6 indicating a 
+charge neutral surface.  Since the ions are of equal size in this case, the results should be identical to
+the results in MIX5_FMT1_ELEC_1D which is based on the more restrictive RPM-MSA corrections that assume equal diameters
+of ions .
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=8
+   - adsorption[0]= 0.289621  
+   - adsorption[1]= 0.889621
+   - ptilde=1.073678
+   - surface_energy=1.785214
+   .
+*/
