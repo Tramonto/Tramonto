@@ -109,7 +109,8 @@ double uYUKAWA_ATT_CS(double r,int i, int j)
   if (r<=rcut){
      r_min=sigma;
      if (r<r_min) r=r_min;
-     uatt=eps*exp(-alpha*(r/sigma-1.))/(r/sigma)- exp(-alpha*(rcut/sigma-1.))/(rcut/sigma);
+     uatt=eps*exp(-alpha*(r/sigma-1.))/(r/sigma)
+        - eps*exp(-alpha*(rcut/sigma-1.))/(rcut/sigma);
   }
   else uatt=0.0;
   return uatt;
