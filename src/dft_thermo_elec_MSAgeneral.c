@@ -56,19 +56,27 @@ double deltaC_GENERAL_MSA(double r,int i, int j)
 {
   double deltac;
   double term1,term2,term3,term4;
-  double NplusGammaX_i;
+  double NplusGammaX_i,NplusGammaX_itemp;
+  int itemp,jtemp;
 
   /* note that the parameters X_MSA, N_SMA, Gamma_MSA are computed in the routine
      precalc_GENmsa_params wich is called at the top of dft_stencil.c outside the quadrature 
      loops of the stencil computation */
+ 
+  if (HS_diam[j]<HS_diam[i]){ itemp=j; jtemp=i; }
+  else                      { itemp=i; jtemp=j; }
 
   NplusGammaX_i=N_MSA[i]+Gamma_MSA*X_MSA[i];
+  NplusGammaX_itemp=N_MSA[itemp]+Gamma_MSA*X_MSA[itemp];
 
   if (r == 0.0) printf("trouble with deltaC term .... r=0");
-  if (r <= fabs(HS_diam[j]-HS_diam[i])/2.0 && r>0) {
-     deltac= (2.0/Temp_elec)*((Charge_f[i]*Charge_f[j]/(2.0*r))+Charge_f[i]*N_MSA[j]
-             -X_MSA[i]*(NplusGammaX_i)
-              +(HS_diam[i]/3.0)*POW_DOUBLE_INT(NplusGammaX_i,2));
+
+  if (r <= (HS_diam[jtemp]-HS_diam[itemp])/2.0 && r>0) {
+     deltac= (2.0/Temp_elec)*(
+                 (Charge_f[itemp]*Charge_f[jtemp]/(2.0*r))
+                 +Charge_f[itemp]*N_MSA[jtemp]
+                 -X_MSA[itemp]*(NplusGammaX_itemp)
+                 +(HS_diam[itemp]/3.0)*POW_DOUBLE_INT(NplusGammaX_itemp,2));
   }
   else if (r <= (HS_diam[i]+HS_diam[j])/2.0) {
 
@@ -91,17 +99,21 @@ double deltaC_GENERAL_MSA_int(double r,int i, int j)
 {
   double deltac_int;
   double term1,term2,term3,term4;
-  double NplusGammaX_i;
+  double NplusGammaX_i,NplusGammaX_itemp;
+  int itemp,jtemp;
 
+
+  if (HS_diam[j]<HS_diam[i]){ itemp=j; jtemp=i; }
+  else                      { itemp=i; jtemp=j; }
 
   NplusGammaX_i=N_MSA[i]+Gamma_MSA*X_MSA[i];
 
-  if (r <= fabs(HS_diam[j]-HS_diam[i])/2.0 && r>0) {
+  if (r <= (HS_diam[jtemp]-HS_diam[itemp])/2.0 && r>0) {
      deltac_int= (8.0*PI*r*r/Temp_elec)*(
-              (Charge_f[i]*Charge_f[j]/4.0)
-             +(r/3.0)*(Charge_f[i]*N_MSA[j]
-             -X_MSA[i]*(NplusGammaX_i)
-             +(HS_diam[i]/3.0)*POW_DOUBLE_INT(NplusGammaX_i,2)) );
+              (Charge_f[itemp]*Charge_f[jtemp]/4.0)
+             +(r/3.0)*( Charge_f[itemp]*N_MSA[jtemp]
+                    -X_MSA[itemp]*(NplusGammaX_itemp)
+                    +(HS_diam[itemp]/3.0)*POW_DOUBLE_INT(NplusGammaX_itemp,2)) );
   }
   else if (r <= (HS_diam[i]+HS_diam[j])/2.0) {
 
