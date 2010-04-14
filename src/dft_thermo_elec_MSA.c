@@ -32,11 +32,11 @@ corrections are turned on.
 #include "dft_thermo_elec_MSA.h"
 
 /********************************************************************
-chempot_ELEC_MSA: Here we compute the chemical potential contribution due
+chempot_ELEC_MSA_RPM: Here we compute the chemical potential contribution due
       to cross correlations between the hard sphere and coulomb parts of 
       the potential for the restricted primitive model based using the 
       mean spherical approximation (following the work of Tang and Davis)*/
-void chempot_ELEC_MSA(double *rho)
+void chempot_ELEC_MSA_RPM(double *rho)
 {
    int icomp,jcomp;
 
@@ -50,8 +50,7 @@ void chempot_ELEC_MSA(double *rho)
    return;
 }
 /*******************************************************************************/
-/* deltaC_MSA:  given r12, calculate the attractive part of a cut and
-           shifted 12-6 LJ potential. */
+/* deltaC_MSA:  calculate deltac_MSA */
 
 double deltaC_MSA(double r,int i, int j)
 {
@@ -60,27 +59,31 @@ double deltaC_MSA(double r,int i, int j)
 
   kappa_sq = 0.0;
   for(icomp = 0; icomp<Ncomp; icomp++)
-     kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
-                  Charge_f[icomp]*Charge_f[icomp];
+     kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*Charge_f[icomp]*Charge_f[icomp];
   kappa = sqrt(kappa_sq);
-  B = (kappa + 1.0 - sqrt(1.0+2.0*kappa))/kappa;
 
-/*  printf("\t r: %9.6f icomp: %d  jcomp: %d  kappa: %9.6f  B: %9.6f  Sigma_ff: %9.6f\n",
-          r,i,j,kappa,B,Sigma_ff[i][j]);*/
+  /* note that kappa is in units of (kappa*sigma_ref) so we need to explicitly include
+     hard sphere diameters (units of HS_diam/sigma_ref) */
+
+  /******* NOTE ----- epsilon in the Davis and Hanson papers should be interpreted 
+   as 4*pi*epsilon_r*epsilon_o to be consistent with SI units used in the code here.
+   Also note that Sigma has been replaced with HS_diam below (4/2010 LF) */
+
+  B = (kappa*HS_diam[i] + 1.0 - sqrt(1.0+2.0*kappa*HS_diam[i]))/(kappa*HS_diam[i]);
 
   if (r == 0.0) printf("trouble with deltaC term .... r=0");
-  if (r <= Sigma_ff[i][j] && r>0) {
+  if (r <= HS_diam[i] && r>0) {                   
 
      deltac = -Charge_f[i]*Charge_f[j]/Temp_elec*
-              (  2*B/Sigma_ff[i][j] - 1.0/r
-               - POW_DOUBLE_INT(B/Sigma_ff[i][j],2)*r );
+              (  2*B/HS_diam[i] - 1.0/r
+               - POW_DOUBLE_INT(B/HS_diam[i],2)*r );
   }
   else deltac = 0.0;
 
   return deltac;
 }
 /*******************************************************************************/
-/* deltaC_MSA_int:  given range of integrattion, r, calculate the definite
+/* deltaC_MSA_int:  given range of integrattion, r, calculate the 
            integral of deltac_MSA over all space */
 
 double deltaC_MSA_int(double r,int i, int j)
@@ -93,12 +96,20 @@ double deltaC_MSA_int(double r,int i, int j)
      kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
                   Charge_f[icomp]*Charge_f[icomp];
   kappa = sqrt(kappa_sq);
-  B = (kappa + 1.0 - sqrt(1.0+2.0*kappa))/kappa;
+  B = (kappa*HS_diam[i] + 1.0 - sqrt(1.0+2.0*kappa*HS_diam[i]))/(kappa*HS_diam[i]);
 
-  deltac_int = -(4*PI*Charge_f[i]*Charge_f[j]/Temp_elec)*
-                r*r*
-               (  2*B*r/(3.0*Sigma_ff[i][j]) - 0.5
-               - 0.25*POW_DOUBLE_INT(B/Sigma_ff[i][j],2)*r*r );
+
+   /********* NOTE --- does 4PI r^2 here is the integration over the spherical surface at a distance r, and is not
+       related to the plasma parameters (T_elec).*/
+
+   deltac_int = -(4*PI*r*r)*(Charge_f[i]*Charge_f[j]/Temp_elec)*
+               (  2*B*r/(3.0*HS_diam[i]) - 0.5
+               - 0.25*POW_DOUBLE_INT(B/HS_diam[i],2)*r*r );
+
+printf("deltaC_int:::: r=%g i=%d  j=%d  deltac_int=%g  \n",r,i,j,deltac_int);
+printf("\t prefac=%g  term1(r)=%g  term2(no r)=%g  term3(rsq)=%g\n",
+      -(4*PI*r*r)*(Charge_f[i]*Charge_f[j]/Temp_elec),
+      2*B*r/(3.0*HS_diam[i]), -0.5,- 0.25*POW_DOUBLE_INT(B/HS_diam[i],2)*r*r);
 
   return deltac_int;
 }

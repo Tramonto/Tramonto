@@ -246,11 +246,25 @@ void calc_chempot(char *output_file1)
                Betamu_LBB[icomp] += Charge_f[icomp]*(Elec_pot_LBB);
                Betamu_RTF[icomp] += Charge_f[icomp]*(Elec_pot_RTF);
              }
-             if (Type_coul==DELTAC) {
-                 chempot_ELEC_MSA(Rho_b_LBB);
-                 for (icomp=0;icomp<Ncomp;icomp++) Betamu_LBB[icomp]+=Deltac_b[icomp];
-                 chempot_ELEC_MSA(Rho_b_RTF);
-                 for (icomp=0;icomp<Ncomp;icomp++) Betamu_RTF[icomp]+=Deltac_b[icomp];
+             if (Type_coul==DELTAC_RPM || Type_coul==DELTAC_GENERAL) {
+                 printf("can't do inhomogeneous boundaries with constant Delta c (electrostatic) corrections !!\n");
+                 if (Type_coul==DELTAC_RPM)          chempot_ELEC_MSA_RPM(Rho_b_LBB);
+                 else if (Type_coul==DELTAC_GENERAL) chempot_ELEC_MSA_GENERAL(Rho_b_LBB);
+                 for (icomp=0;icomp<Ncomp;icomp++){ 
+                    Betamu_LBB[icomp]+=Deltac_b[icomp];
+                    printf("chemical potential contribution on left is icomp=%d mu_deltac=%g\n",icomp,Deltac_b[icomp]);
+                 }
+
+                 if (Type_coul==DELTAC_RPM)          chempot_ELEC_MSA_RPM(Rho_b_RTF);
+                 else if (Type_coul==DELTAC_GENERAL) chempot_ELEC_MSA_GENERAL(Rho_b_RTF);
+                 for (icomp=0;icomp<Ncomp;icomp++){
+                       Betamu_RTF[icomp]+=Deltac_b[icomp];
+                       printf("chemical potential contribution on right is icomp=%d mu_deltac=%g\n",icomp,Deltac_b[icomp]);
+                 }
+                 printf("with the bulk electrostatics correction models (Type_coul=%d),  setting the chemical \n",Type_coul);
+                 printf("potential between the limits on the left and right sides is not well defined.\n");
+                 printf("Exiting code now.\n");
+                 exit(-1);
                  
              }
           }
@@ -343,8 +357,12 @@ void calc_chempot(char *output_file1)
           if (Type_coul != NONE){
               /* note that the current assumption is that electrostatic potential is zero in the bulk */
               /* also note that Betamu_deltaC = Deltac_b (for the case of the RPM/MSA electrolyte) */
-              if (Type_coul==DELTAC) {
-                 chempot_ELEC_MSA(Rho_b);
+              if (Type_coul==DELTAC_RPM) {
+                 chempot_ELEC_MSA_RPM(Rho_b);
+                 for (icomp=0;icomp<Ncomp;icomp++) Betamu[icomp]+=Deltac_b[icomp];
+              }
+              else if (Type_coul==DELTAC_GENERAL){
+                 chempot_ELEC_MSA_GENERAL(Rho_b);
                  for (icomp=0;icomp<Ncomp;icomp++) Betamu[icomp]+=Deltac_b[icomp];
               }
           }

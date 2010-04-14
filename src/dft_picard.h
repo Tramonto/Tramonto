@@ -42,7 +42,7 @@ extern int Nseg_tot;
 extern int Lseg_densities;
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;

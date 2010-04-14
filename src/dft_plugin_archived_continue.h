@@ -57,7 +57,7 @@ extern int Nseg_tot;
 extern int Cont_ID[NCONT_MAX][2];
 extern double Rho_b[NCOMP_MAX];
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_poly;

@@ -161,8 +161,12 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
 
    }
 
-   if (Type_coul==DELTAC) {   /* load electrostatics deltac correlations - RPM for now*/
+   if (Type_coul==DELTAC_RPM) {   /* load electrostatics deltac correlations - RPM for now*/
          resid+=load_mean_field(THETA_CR_RPM_MSA,iunk,loc_inode,
+                          icomp,izone,ijk_box,x, resid_only_flag);
+   }
+   else if (Type_coul==DELTAC_GENERAL) {   /* load electrostatics deltac correlations - RPM for now*/
+         resid+=load_mean_field(THETA_CR_GENERAL_MSA,iunk,loc_inode,
                           icomp,izone,ijk_box,x, resid_only_flag);
    }
 
@@ -387,7 +391,7 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
             if (Ipot_ff_n != IDEAL_GAS) resid_mu -= Betamu_hs_ex[icomp];
             if (Ipot_ff_n == LJ12_6)    resid_mu -= Betamu_att[icomp];
             if (Type_poly==WTC)         resid_mu -= Betamu_wtc[iseg];
-            if (Type_coul == DELTAC) resid_mu += Deltac_b[icomp];
+            if (Type_coul == DELTAC_RPM || Type_coul==DELTAC_GENERAL) resid_mu += Deltac_b[icomp];
         }
       }
       else if (Type_interface==PHASE_INTERFACE || usemu_test){

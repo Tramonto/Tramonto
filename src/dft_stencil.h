@@ -57,7 +57,14 @@ extern int Lhard_surf;
 double stencil_radius_switch(int sten,int icomp,int jcomp);
 double stencil_volume_switch(int sten,int icomp,int jcomp);
 int stencil_Njcomp_switch(int sten);
-#define NSTEN        7
+extern double Gamma_MSA;
+#define NCOMP_MAX 5
+extern double N_MSA[NCOMP_MAX];
+extern double X_MSA[NCOMP_MAX];
+extern double Rho_b[NCOMP_MAX];
+void precalc_GENmsa_params(double *rho,double *x_msa,double *n_msa,double gamma);
+#define THETA_CR_GENERAL_MSA  7
+#define NSTEN        8
 extern int Sten_Type[NSTEN];
 #if defined(DEC_ALPHA)
 #define POW_INT powii

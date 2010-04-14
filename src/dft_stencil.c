@@ -111,6 +111,13 @@ void calc_stencils(void)
   for (isten=0; isten<NSTEN; isten++)  
   if (Sten_Type[isten]) {
 
+                           /* for case of general MSA - we want to precalculate certain parameters
+                              outside of the gauss quadrature loops needed for stencil set up. */
+      if (isten==THETA_CR_GENERAL_MSA){
+         printf("isten=%d calling precalc_GENmsa_params\n",isten);
+          precalc_GENmsa_params(Rho_b,X_MSA,N_MSA,Gamma_MSA);
+      }
+
                            /* set index if this stencil is first order (depends on icomp only) or 
                               second order (depends on icomp,jcomp pair) */
     imax = Ncomp;

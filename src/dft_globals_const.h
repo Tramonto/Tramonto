@@ -140,7 +140,7 @@
  * The following are the current acceptable values for Stencil types.
  */
 
-#define NSTEN        7
+#define NSTEN        8
 
 #define DELTA_FN_R            0
 #define THETA_FN_R            1
@@ -149,6 +149,7 @@
 #define THETA_CR_DATA         4
 #define THETA_FN_SIG          5
 #define DELTA_FN_BOND         6
+#define THETA_CR_GENERAL_MSA  7
 
 #define NO_RENORMALIZATION_FLAG -888
 
@@ -260,10 +261,11 @@
 /* 
  * These constants identify the functional choices (Type_coul).
  */
-#define NONE      -1
-#define BARE       0
-#define DELTAC     1 
-#define POLARIZE   2
+#define NONE          -1
+#define BARE           0
+#define DELTAC_RPM     1 
+#define DELTAC_GENERAL 2
+#define POLARIZE       3
 
 /*
  * The following are choices for the neutral fluid-fluid interactions (Ipot_ff_n)
@@ -918,6 +920,13 @@ extern double  *Charge;  /*Value of the local charge [Nlocal_charge]*/
 extern int     Charge_type_atoms; /* Type of charge distribution on the atoms */
 extern int     Charge_type_local; /* Type of charge distribution on the added local charge */
 extern double  *Deltac_b;   /* Array [icomp] of electrostatic correlations in bulk*/
+extern double  X_MSA[NCOMP_MAX]; /* Array needed for general MSA electrostatics Oleksy and Hanson */
+extern double  Gamma_MSA; /* Parameter needed for general MSA electrostatics Oleksy and Hanson */
+extern double  N_MSA[NCOMP_MAX]; /* Array needed for general MSA electrostatics Oleksy and Hanson */
+extern double  MSAgen_term1[NCOMP_MAX][NCOMP_MAX]; /* Array needed for general MSA electrosattics Oleksy and Hanson */
+extern double  MSAgen_term2[NCOMP_MAX][NCOMP_MAX]; /* Array needed for general MSA electrosattics Oleksy and Hanson */
+extern double  MSAgen_term3[NCOMP_MAX][NCOMP_MAX]; /* Array needed for general MSA electrosattics Oleksy and Hanson */
+extern double  MSAgen_term4[NCOMP_MAX][NCOMP_MAX]; /* Array needed for general MSA electrosattics Oleksy and Hanson */
 extern double  **Charge_w_sum_els; /*Array[Nnodes_b][Ndim] of surface charge per area*/
 extern double  *Charge_vol_els; /*Array[Nelemts_box] of volume charge per element */
 extern int     Vol_charge_flag; /* Flag for volumetric charges */

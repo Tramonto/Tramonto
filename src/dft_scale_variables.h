@@ -52,7 +52,7 @@ typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Ncomp;
 int stencil_Njcomp_switch(int sten);
-#define NSTEN        7
+#define NSTEN        8
 extern int Sten_Type[NSTEN];
 extern int Nzone;
 struct Stencil_Struct {

@@ -27,7 +27,7 @@ extern double Dielec_X;
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Type_poly;
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;

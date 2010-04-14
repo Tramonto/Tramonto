@@ -61,11 +61,13 @@ set(common_h
         dft_stencil_theta_RPMmsa.h 
         dft_stencil_theta_Sigma.h 
         dft_stencil_theta_uattr.h 
+        dft_stencil_theta_GENmsa.h
         dft_thermo.h 
         dft_thermo_hs.h 
         dft_thermo_att.h 
         dft_thermo_cms.h 
         dft_thermo_elec_MSA.h 
+        dft_thermo_elec_MSAgeneral.h 
         dft_thermo_id.h 
         dft_thermo_wtc.h 
         dft_thermo_wjdc.h 
@@ -151,7 +153,7 @@ set(common_c
         dft_physics_FMT1.c 
         dft_physics_FMT2.c 
         dft_physics_FMT3.c 
-        dft_physics_FMT4.c
+        dft_physics_FMT4.c 
         dft_defs_stencil.c 
         dft_defs_unknowns.c 
         dft_quadrature.c 
@@ -163,11 +165,13 @@ set(common_c
         dft_stencil_theta_RPMmsa.c 
         dft_stencil_theta_Sigma.c 
         dft_stencil_theta_uattr.c 
+        dft_stencil_theta_GENmsa.c
         dft_thermo.c 
         dft_thermo_hs.c 
         dft_thermo_att.c 
         dft_thermo_cms.c 
         dft_thermo_elec_MSA.c 
+        dft_thermo_elec_MSAgeneral.c 
         dft_thermo_id.c 
         dft_thermo_wtc.c 
         dft_thermo_wjdc.c 

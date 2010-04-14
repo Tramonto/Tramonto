@@ -58,6 +58,9 @@ int stencil_Njcomp_switch(int sten)
      case THETA_CR_RPM_MSA:
          njcomp=StenTheta_RPMmsa_Njcomp();
          break;
+     case THETA_CR_GENERAL_MSA:
+         njcomp=StenTheta_GENmsa_Njcomp();
+         break;
      case THETA_CR_DATA:
          njcomp=StenTheta_CrCMS_Njcomp();
          break;
@@ -65,7 +68,7 @@ int stencil_Njcomp_switch(int sten)
          njcomp=StenDelta_Bond_Njcomp();
          break;
      default:
-         printf("problem with stencil definitions: stencil_Njcomp_switch ");
+         printf("problem with stencil definitions: stencil_Njcomp_switch sten=%d",sten);
          exit(-1); break;
   }
   return(njcomp);
@@ -90,7 +93,10 @@ double stencil_radius_switch(int sten,int icomp,int jcomp)
          sten_rad=StenTheta_uattr_sten_rad(icomp,jcomp);
          break;
      case THETA_CR_RPM_MSA:
-         sten_rad=StenTheta_RPMmsa_sten_rad(icomp); /* approximation is for a one component system only */
+         sten_rad=StenTheta_RPMmsa_sten_rad(icomp); /* In RPM, only one stencil radius - all charged particles are same size */
+         break;
+     case THETA_CR_GENERAL_MSA:
+         sten_rad=StenTheta_GENmsa_sten_rad(icomp,jcomp); 
          break;
      case THETA_CR_DATA:
          sten_rad=StenTheta_CrCMS_sten_rad(icomp,jcomp);
@@ -99,7 +105,7 @@ double stencil_radius_switch(int sten,int icomp,int jcomp)
          sten_rad=StenDelta_Bond_sten_rad(icomp,jcomp);
          break;
      default:
-         printf("problem with stencil definitions: stencil_radius_switch ");
+         printf("problem with stencil definitions: stencil_radius_switch sten=%d",sten);
          exit(-1); break;
   }
   return(sten_rad);
@@ -125,7 +131,10 @@ double stencil_volume_switch(int sten,int icomp,int jcomp)
          sten_vol=StenTheta_uattr_sten_vol(icomp,jcomp);
          break;
      case THETA_CR_RPM_MSA:
-         sten_vol=StenTheta_RPMmsa_sten_vol(icomp,jcomp); /* approximation is for a one component system only */
+         sten_vol=StenTheta_RPMmsa_sten_vol(icomp,jcomp); /* In RPM, only one stencil volume */
+         break;
+     case THETA_CR_GENERAL_MSA:
+         sten_vol=StenTheta_GENmsa_sten_vol(icomp,jcomp); 
          break;
      case THETA_CR_DATA:
          sten_vol=StenTheta_CrCMS_sten_vol(icomp,jcomp);
@@ -134,7 +143,7 @@ double stencil_volume_switch(int sten,int icomp,int jcomp)
          sten_vol=StenDelta_Bond_sten_vol(icomp,jcomp);
          break;
      default:
-         printf("problem with stencil definitions: stencil_volume_switch ");
+         printf("problem with stencil definitions: stencil_volume_switch sten=%d",sten);
          exit(-1); break;
   }
   return(sten_vol);
@@ -166,6 +175,9 @@ double stencil_GetWeight_switch(int sten, int icomp, int jcomp, double rsq,
      case THETA_CR_RPM_MSA:
          weight=StenTheta_RPMmsa_GetWeightFromSten(icomp,jcomp,rsq,ngpu,gpu,gwu);
          break;
+     case THETA_CR_GENERAL_MSA:
+         weight=StenTheta_GENmsa_GetWeightFromSten(icomp,jcomp,rsq,ngpu,gpu,gwu);
+         break;
      case THETA_CR_DATA:
          weight=StenTheta_CrCMS_GetWeightFromSten(icomp,jcomp,rsq,sten_rad);
          break;
@@ -173,7 +185,7 @@ double stencil_GetWeight_switch(int sten, int icomp, int jcomp, double rsq,
          weight=StenDelta_Bond_GetWeightFromSten(rsq,sten_rad);
          break;
      default:
-         printf("problem with stencil definitions: stencil_volume_switch ");
+         printf("problem with stencil definitions: stencil_volume_switch sten=%d",sten);
          exit(-1); break;
   }
   return(weight);
@@ -202,6 +214,9 @@ int stencil_quadBoundaryEl_switch(int sten)
      case THETA_CR_RPM_MSA:
          num_quad_pts=StenTheta_RPMmsa_NquadPtsBoundary();
          break;
+     case THETA_CR_GENERAL_MSA:
+         num_quad_pts=StenTheta_GENmsa_NquadPtsBoundary();
+         break;
      case THETA_CR_DATA:
          num_quad_pts=StenTheta_CrCMS_NquadPtsBoundary();
          break;
@@ -209,7 +224,7 @@ int stencil_quadBoundaryEl_switch(int sten)
          num_quad_pts=StenDelta_Bond_NquadPtsBoundary();
          break;
      default:
-         printf("problem with stencil definitions: stencil_quadBoundaryEl_switch ");
+         printf("problem with stencil definitions: stencil_quadBoundaryEl_switch sten=%d",sten);
          exit(-1); break;
   }
   return(num_quad_pts);
@@ -238,6 +253,9 @@ int stencil_quadGauss_switch(int sten,double r)
      case THETA_CR_RPM_MSA:
          num_quad_pts=StenTheta_RPMmsa_NquadPtsGauss(r);
          break;
+     case THETA_CR_GENERAL_MSA:
+         num_quad_pts=StenTheta_GENmsa_NquadPtsGauss(r);
+         break;
      case THETA_CR_DATA:
          num_quad_pts=StenTheta_CrCMS_NquadPtsGauss(r);
          break;
@@ -245,7 +263,7 @@ int stencil_quadGauss_switch(int sten,double r)
          num_quad_pts=StenDelta_Bond_NquadPtsGauss(r);
          break;
      default:
-         printf("problem with stencil definitions: stencil_quadGauss_switch ");
+         printf("problem with stencil definitions: stencil_quadGauss_switch sten=%d",sten);
          exit(-1); break;
   }
   return(num_quad_pts);
@@ -266,10 +284,12 @@ int stencil_quadGaussIntegrand_switch(int sten,double r)
          num_quad_pts=StenTheta_uattr_NquadPtsGaussIntegrand(r); break;
      case THETA_CR_RPM_MSA:
          num_quad_pts=StenTheta_RPMmsa_NquadPtsGaussIntegrand(r); break;
+     case THETA_CR_GENERAL_MSA:
+         num_quad_pts=StenTheta_GENmsa_NquadPtsGaussIntegrand(r); break;
      case THETA_CR_DATA: break;
      case DELTA_FN_BOND: break;
      default:
-         printf("problem with stencil definitions: stencil_quadGaussIntegrand_switch ");
+         printf("problem with stencil definitions: stencil_quadGaussIntegrand_switch sten=%d",sten);
          exit(-1); break;
   }
   return(num_quad_pts);

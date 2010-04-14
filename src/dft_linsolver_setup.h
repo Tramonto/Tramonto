@@ -72,7 +72,7 @@ extern int Nunk_per_node;
 extern void *LinProbMgr_manager;
 void linsolver_setup_HSTYPE();
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;

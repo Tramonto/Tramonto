@@ -50,7 +50,8 @@ void setup_stencil_logicals()
         Sten_Type[THETA_FN_R]=TRUE;
       }
       if (Type_attr != NONE) Sten_Type[THETA_PAIRPOT_RCUT]=TRUE;
-      if (Type_coul == DELTAC) Sten_Type[THETA_CR_RPM_MSA]=TRUE;
+      if (Type_coul == DELTAC_RPM) Sten_Type[THETA_CR_RPM_MSA]=TRUE;
+      if (Type_coul == DELTAC_GENERAL) Sten_Type[THETA_CR_GENERAL_MSA]=TRUE;
 
       if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) {
         Sten_Type[THETA_FN_SIG]=TRUE;
@@ -71,6 +72,7 @@ int stencil_deltaLogical(int sten)
      case THETA_FN_SIG:  return FALSE;
      case THETA_PAIRPOT_RCUT:     return FALSE;
      case THETA_CR_RPM_MSA:  return FALSE;
+     case THETA_CR_GENERAL_MSA:  return FALSE;
      case THETA_CR_DATA:    return FALSE;
      case DELTA_FN_BOND: return TRUE;
      default:

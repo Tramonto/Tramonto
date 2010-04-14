@@ -18,7 +18,7 @@ extern double **Vext;
 #define PAIR_COULOMB       2
 extern int Type_pairPot;
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_attr;

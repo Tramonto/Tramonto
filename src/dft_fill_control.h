@@ -31,7 +31,7 @@ void *array_alloc(int numdim,...);
 void *array_alloc(...);
 #endif
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;

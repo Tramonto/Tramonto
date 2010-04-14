@@ -46,8 +46,12 @@ extern double Rho_seg_RTF[NMER_MAX];
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
 double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box,double **x);
+#define THETA_CR_GENERAL_MSA  7
+#define DELTAC_GENERAL 2
 #define THETA_CR_RPM_MSA      3
 double int_stencil(double **x,int inode_box,int iunk,int sten_type);
+#define DELTAC_RPM     1 
+extern int Type_coul;
 double integrand_elec_MSAcorr_freen(int iunk,int inode_box,double **x);
 extern double Charge_f[NCOMP_MAX];
 #define POISSON        1

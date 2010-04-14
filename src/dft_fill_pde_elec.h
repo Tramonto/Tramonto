@@ -64,7 +64,7 @@ extern int Ndim;
 double load_poisson_bc(int iunk,int loc_inode,int inode_box);
 double load_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 double load_polarize_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
-#define POLARIZE   2
+#define POLARIZE       3
 extern int Type_coul;
 extern double Elec_pot_RTF;
 extern void *LinProbMgr_manager;

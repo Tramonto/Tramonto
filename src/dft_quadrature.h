@@ -17,9 +17,10 @@
 #define PI    M_PI
 void theta_midpoint(double **point,double *wt,int izone,int num_dim);
 void get_radial_quadrature(double gauss_pt[],double gauss_wt[],int num_gp);
-#define NSTEN        7
+#define NSTEN        8
 #define NZONE_MAX  10 
 extern int Sten_Choice_R[NSTEN][NZONE_MAX];
+#define THETA_CR_GENERAL_MSA  7
 #define THETA_CR_RPM_MSA      3
 #define THETA_PAIRPOT_RCUT    2
 #define THETA_FN_R            1

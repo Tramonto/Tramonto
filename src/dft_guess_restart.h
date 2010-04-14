@@ -75,7 +75,7 @@ extern int L_HSperturbation;
 #define CMS_SCFT     1
 #define CMS          0
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;

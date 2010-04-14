@@ -32,7 +32,7 @@ extern int Lhard_surf;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 int stencil_Njcomp_switch(int sten);
-#define NSTEN        7
+#define NSTEN        8
 extern int Sten_Type[NSTEN];
 extern int Nzone;
 extern double **Vext_membrane;
@@ -119,7 +119,7 @@ void thermodynamics(char *output_file1);
 void calc_stencils(void);
 void calc_HS_diams();
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;

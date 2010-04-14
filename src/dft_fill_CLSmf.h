@@ -29,6 +29,7 @@ typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 #define CMS_FIELD      7
 #define THETA_CR_DATA         4
+#define THETA_CR_GENERAL_MSA  7
 #define THETA_CR_RPM_MSA      3
 #define WTC          2
 #define WJDC_FIELD     8

@@ -20,15 +20,17 @@ int stencil_deltaLogical(int sten);
 #define WJDC2        4 
 #define WJDC         3
 #define WTC          2
+#define THETA_CR_GENERAL_MSA  7
+#define DELTAC_GENERAL 2
 #define THETA_CR_RPM_MSA      3
-#define DELTAC     1 
+#define DELTAC_RPM     1 
 extern int Type_coul;
 #define THETA_PAIRPOT_RCUT    2
 extern int Type_attr;
 #define THETA_FN_R            1
 #define DELTA_FN_R            0
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;
@@ -48,6 +50,6 @@ extern int Type_poly;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-#define NSTEN        7
+#define NSTEN        8
 extern int Sten_Type[NSTEN];
 void setup_stencil_logicals();

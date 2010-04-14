@@ -62,7 +62,7 @@ extern int **Nel_hit2;
 double integrand_ideal_gas_freen(int iunk,int inode_box,double **x);
 double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;

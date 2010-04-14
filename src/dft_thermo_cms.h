@@ -53,7 +53,7 @@ extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_attr;

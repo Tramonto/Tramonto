@@ -46,7 +46,7 @@ extern int Type_interface;
 extern int Ndiffusion;
 #define DIFFUSION      6
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;

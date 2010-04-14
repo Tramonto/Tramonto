@@ -28,7 +28,7 @@ extern double Charge_f[NCOMP_MAX];
 extern double Betamu[NCOMP_MAX];
 extern double Rho_seg_b[NMER_MAX];
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;

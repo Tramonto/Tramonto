@@ -83,11 +83,13 @@ COMMON_H = \
         ${srcdir}/dft_stencil_theta_RPMmsa.h \
         ${srcdir}/dft_stencil_theta_Sigma.h \
         ${srcdir}/dft_stencil_theta_uattr.h \
+        ${srcdir}/dft_stencil_theta_GENmsa.h \
         ${srcdir}/dft_thermo.h \
         ${srcdir}/dft_thermo_hs.h \
         ${srcdir}/dft_thermo_att.h \
         ${srcdir}/dft_thermo_cms.h \
         ${srcdir}/dft_thermo_elec_MSA.h \
+        ${srcdir}/dft_thermo_elec_MSAgeneral.h \
         ${srcdir}/dft_thermo_id.h \
         ${srcdir}/dft_thermo_wtc.h \
         ${srcdir}/dft_thermo_wjdc.h \
@@ -185,11 +187,13 @@ COMMON_C = \
         ${srcdir}/dft_stencil_theta_RPMmsa.c \
         ${srcdir}/dft_stencil_theta_Sigma.c \
         ${srcdir}/dft_stencil_theta_uattr.c \
+        ${srcdir}/dft_stencil_theta_GENmsa.c \
         ${srcdir}/dft_thermo.c \
         ${srcdir}/dft_thermo_hs.c \
         ${srcdir}/dft_thermo_att.c \
         ${srcdir}/dft_thermo_cms.c \
         ${srcdir}/dft_thermo_elec_MSA.c \
+        ${srcdir}/dft_thermo_elec_MSAgeneral.c \
         ${srcdir}/dft_thermo_id.c \
         ${srcdir}/dft_thermo_wtc.c \
         ${srcdir}/dft_thermo_wjdc.c \

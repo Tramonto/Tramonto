@@ -37,7 +37,7 @@ double chain_term(int kseg,int kcomp,double *rho_seg,double *xi_cav);
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_attr;

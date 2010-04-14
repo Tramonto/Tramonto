@@ -99,7 +99,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
             }
             index=icomp+Ncomp*jcomp;
       }
-      else if (sten_type==THETA_CR_RPM_MSA){
+      else if (sten_type==THETA_CR_RPM_MSA || sten_type==THETA_CR_GENERAL_MSA){
             i=iunk-Phys2Unk_first[DENSITY];
             if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2) icomp=Unk2Comp[i]; 
             else icomp=i;
@@ -130,7 +130,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
       
         if (fp_prefactor!=NULL) fac = (*fp_prefactor)(iunk,jcomp,offset);
         else fac=1.0;
-        if (sten_type==THETA_CR_RPM_MSA || sten_type==THETA_CR_DATA) fac=-1.0;
+        if (sten_type==THETA_CR_RPM_MSA || sten_type==THETA_CR_GENERAL_MSA || sten_type==THETA_CR_DATA) fac=-1.0;
         if (sten_type==THETA_CR_DATA) bulk_term= weight_bulk*Rho_b[jcomp];
         else bulk_term=0.0;
 

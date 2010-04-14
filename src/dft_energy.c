@@ -248,8 +248,9 @@ int lfirst;
          }
          */
 
-         /* term 3 based on Tang and Davis papers for electrostatics 
-         if (Type_coul == DELTAC){     * MSA CORRECTIONS FOR ELECTROLYTES *
+         /* MSA CORRECTIONS - CONTRIBUTIONS TO FREE ENERGY ..... 
+         if (Type_coul == DELTAC_RPM || Type_coul==DELTAC_GENERAL){     
+
             omega_MSA=integrateInSpace_SumInComp(&integrand_elec_MSAcorr_freen,Nel_hit2,x,Integration_profile);
             if (Proc==0 && Iwrite != NO_SCREEN) print_to_screen(omega_MSA,"MSA CORRECTIONS");
   
@@ -259,8 +260,7 @@ int lfirst;
   
             omega_sum += omega_MSA;
             omega_s_sum += omega_MSA_surf_ex;
-         }
-         */
+         }*/
       }
 
                                     /* WTC CONTRIBUTIONS */

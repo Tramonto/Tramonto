@@ -80,8 +80,10 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
 double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
+#define THETA_CR_GENERAL_MSA  7
+#define DELTAC_GENERAL 2
 #define THETA_CR_RPM_MSA      3
-#define DELTAC     1 
+#define DELTAC_RPM     1 
 #define THETA_PAIRPOT_RCUT    2
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 #define MF_EQ          3
@@ -95,7 +97,7 @@ extern int Type_func;
 #define FLAG_PBELEC -777
 double fill_EL_elec_field(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;
@@ -135,10 +137,6 @@ double fill_bulk_field(int iunk,int icomp,int iseg,int loc_inode,int inode_box,d
 #endif
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 int check_zero_density_EL(int iunk,int icomp,int iseg,int loc_inode,int inode_box,double **x);
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
 extern int Unk2Comp[NMER_MAX];
 #define WTC          2
 #define DENSITY        0

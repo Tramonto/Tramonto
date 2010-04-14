@@ -43,7 +43,7 @@ double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resi
 extern double Charge_f[NCOMP_MAX];
 #define POISSON        1
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;

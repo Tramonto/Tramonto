@@ -34,8 +34,10 @@ extern int Nseg_tot;
 void chempot_WTC(double *rho_seg,double *betamu,double *xi_cav);
 extern double Betamu[NCOMP_MAX];
 extern double *Deltac_b;
-void chempot_ELEC_MSA(double *rho);
-#define DELTAC     1 
+void chempot_ELEC_MSA_GENERAL(double *rho);
+void chempot_ELEC_MSA_RPM(double *rho);
+#define DELTAC_GENERAL 2
+#define DELTAC_RPM     1 
 extern double Elec_pot_RTF;
 extern double Elec_pot_LBB;
 extern double Charge_f[NCOMP_MAX];
@@ -90,7 +92,7 @@ void ATT_thermo_precalc();
 extern int Type_attr;
 void HS_thermo_precalc(char *output_file1);
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;

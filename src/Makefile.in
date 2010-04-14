@@ -112,27 +112,28 @@ am__objects_1 = dft_input.$(OBJEXT) dft_chain_architecture.$(OBJEXT) \
 	dft_stencil_theta_R.$(OBJEXT) \
 	dft_stencil_theta_RPMmsa.$(OBJEXT) \
 	dft_stencil_theta_Sigma.$(OBJEXT) \
-	dft_stencil_theta_uattr.$(OBJEXT) dft_thermo.$(OBJEXT) \
+	dft_stencil_theta_uattr.$(OBJEXT) \
+	dft_stencil_theta_GENmsa.$(OBJEXT) dft_thermo.$(OBJEXT) \
 	dft_thermo_hs.$(OBJEXT) dft_thermo_att.$(OBJEXT) \
 	dft_thermo_cms.$(OBJEXT) dft_thermo_elec_MSA.$(OBJEXT) \
-	dft_thermo_id.$(OBJEXT) dft_thermo_wtc.$(OBJEXT) \
-	dft_thermo_wjdc.$(OBJEXT) dft_out_main.$(OBJEXT) \
-	dft_out_ads.$(OBJEXT) dft_out_utils.$(OBJEXT) \
-	dft_energy.$(OBJEXT) dft_energy_id.$(OBJEXT) \
-	dft_energy_hs.$(OBJEXT) dft_energy_att.$(OBJEXT) \
-	dft_energy_elec.$(OBJEXT) dft_energy_wtc.$(OBJEXT) \
-	dft_energy_wjdc.$(OBJEXT) dft_energy_vext.$(OBJEXT) \
-	dft_energy_mu.$(OBJEXT) dft_energy_cms.$(OBJEXT) \
-	dft_energy_CLSintsten.$(OBJEXT) dft_out_force.$(OBJEXT) \
-	dft_out_flux.$(OBJEXT) dft_out_profiles.$(OBJEXT) \
-	dft_vext.$(OBJEXT) dft_guess.$(OBJEXT) \
-	dft_guess_CHEMPOT.$(OBJEXT) dft_guess_EL_DENSITY.$(OBJEXT) \
-	dft_guess_HSFMT.$(OBJEXT) dft_guess_MFATT.$(OBJEXT) \
-	dft_guess_WTC.$(OBJEXT) dft_guess_restart.$(OBJEXT) \
-	dft_guess_CMS.$(OBJEXT) dft_guess_SCF.$(OBJEXT) \
-	dft_guess_WJDC.$(OBJEXT) dft_guess_ELECPOT.$(OBJEXT) \
-	dft_comm.$(OBJEXT) dft_continuation.$(OBJEXT) \
-	dft_switch_continuation.$(OBJEXT) \
+	dft_thermo_elec_MSAgeneral.$(OBJEXT) dft_thermo_id.$(OBJEXT) \
+	dft_thermo_wtc.$(OBJEXT) dft_thermo_wjdc.$(OBJEXT) \
+	dft_out_main.$(OBJEXT) dft_out_ads.$(OBJEXT) \
+	dft_out_utils.$(OBJEXT) dft_energy.$(OBJEXT) \
+	dft_energy_id.$(OBJEXT) dft_energy_hs.$(OBJEXT) \
+	dft_energy_att.$(OBJEXT) dft_energy_elec.$(OBJEXT) \
+	dft_energy_wtc.$(OBJEXT) dft_energy_wjdc.$(OBJEXT) \
+	dft_energy_vext.$(OBJEXT) dft_energy_mu.$(OBJEXT) \
+	dft_energy_cms.$(OBJEXT) dft_energy_CLSintsten.$(OBJEXT) \
+	dft_out_force.$(OBJEXT) dft_out_flux.$(OBJEXT) \
+	dft_out_profiles.$(OBJEXT) dft_vext.$(OBJEXT) \
+	dft_guess.$(OBJEXT) dft_guess_CHEMPOT.$(OBJEXT) \
+	dft_guess_EL_DENSITY.$(OBJEXT) dft_guess_HSFMT.$(OBJEXT) \
+	dft_guess_MFATT.$(OBJEXT) dft_guess_WTC.$(OBJEXT) \
+	dft_guess_restart.$(OBJEXT) dft_guess_CMS.$(OBJEXT) \
+	dft_guess_SCF.$(OBJEXT) dft_guess_WJDC.$(OBJEXT) \
+	dft_guess_ELECPOT.$(OBJEXT) dft_comm.$(OBJEXT) \
+	dft_continuation.$(OBJEXT) dft_switch_continuation.$(OBJEXT) \
 	dft_plugin_archived_continue.$(OBJEXT) \
 	dft_plugin_user_continue.$(OBJEXT) \
 	dft_scale_variables.$(OBJEXT) dft_utils.$(OBJEXT) \
@@ -368,11 +369,13 @@ COMMON_H = \
         ${srcdir}/dft_stencil_theta_RPMmsa.h \
         ${srcdir}/dft_stencil_theta_Sigma.h \
         ${srcdir}/dft_stencil_theta_uattr.h \
+        ${srcdir}/dft_stencil_theta_GENmsa.h \
         ${srcdir}/dft_thermo.h \
         ${srcdir}/dft_thermo_hs.h \
         ${srcdir}/dft_thermo_att.h \
         ${srcdir}/dft_thermo_cms.h \
         ${srcdir}/dft_thermo_elec_MSA.h \
+        ${srcdir}/dft_thermo_elec_MSAgeneral.h \
         ${srcdir}/dft_thermo_id.h \
         ${srcdir}/dft_thermo_wtc.h \
         ${srcdir}/dft_thermo_wjdc.h \
@@ -470,11 +473,13 @@ COMMON_C = \
         ${srcdir}/dft_stencil_theta_RPMmsa.c \
         ${srcdir}/dft_stencil_theta_Sigma.c \
         ${srcdir}/dft_stencil_theta_uattr.c \
+        ${srcdir}/dft_stencil_theta_GENmsa.c \
         ${srcdir}/dft_thermo.c \
         ${srcdir}/dft_thermo_hs.c \
         ${srcdir}/dft_thermo_att.c \
         ${srcdir}/dft_thermo_cms.c \
         ${srcdir}/dft_thermo_elec_MSA.c \
+        ${srcdir}/dft_thermo_elec_MSAgeneral.c \
         ${srcdir}/dft_thermo_id.c \
         ${srcdir}/dft_thermo_wtc.c \
         ${srcdir}/dft_thermo_wjdc.c \
@@ -850,6 +855,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_delta_Bond.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_delta_R.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_theta_CrCMS.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_theta_GENmsa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_theta_R.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_theta_RPMmsa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_stencil_theta_Sigma.Po@am__quote@
@@ -863,6 +869,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_thermo_att.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_thermo_cms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_thermo_elec_MSA.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_thermo_elec_MSAgeneral.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_thermo_hs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_thermo_id.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_thermo_wjdc.Po@am__quote@
@@ -1368,6 +1375,20 @@ dft_stencil_theta_uattr.obj: ${srcdir}/dft_stencil_theta_uattr.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_stencil_theta_uattr.obj `if test -f '${srcdir}/dft_stencil_theta_uattr.c'; then $(CYGPATH_W) '${srcdir}/dft_stencil_theta_uattr.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_stencil_theta_uattr.c'; fi`
 
+dft_stencil_theta_GENmsa.o: ${srcdir}/dft_stencil_theta_GENmsa.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_stencil_theta_GENmsa.o -MD -MP -MF $(DEPDIR)/dft_stencil_theta_GENmsa.Tpo -c -o dft_stencil_theta_GENmsa.o `test -f '${srcdir}/dft_stencil_theta_GENmsa.c' || echo '$(srcdir)/'`${srcdir}/dft_stencil_theta_GENmsa.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_stencil_theta_GENmsa.Tpo $(DEPDIR)/dft_stencil_theta_GENmsa.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_stencil_theta_GENmsa.c' object='dft_stencil_theta_GENmsa.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_stencil_theta_GENmsa.o `test -f '${srcdir}/dft_stencil_theta_GENmsa.c' || echo '$(srcdir)/'`${srcdir}/dft_stencil_theta_GENmsa.c
+
+dft_stencil_theta_GENmsa.obj: ${srcdir}/dft_stencil_theta_GENmsa.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_stencil_theta_GENmsa.obj -MD -MP -MF $(DEPDIR)/dft_stencil_theta_GENmsa.Tpo -c -o dft_stencil_theta_GENmsa.obj `if test -f '${srcdir}/dft_stencil_theta_GENmsa.c'; then $(CYGPATH_W) '${srcdir}/dft_stencil_theta_GENmsa.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_stencil_theta_GENmsa.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_stencil_theta_GENmsa.Tpo $(DEPDIR)/dft_stencil_theta_GENmsa.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_stencil_theta_GENmsa.c' object='dft_stencil_theta_GENmsa.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_stencil_theta_GENmsa.obj `if test -f '${srcdir}/dft_stencil_theta_GENmsa.c'; then $(CYGPATH_W) '${srcdir}/dft_stencil_theta_GENmsa.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_stencil_theta_GENmsa.c'; fi`
+
 dft_thermo.o: ${srcdir}/dft_thermo.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_thermo.o -MD -MP -MF $(DEPDIR)/dft_thermo.Tpo -c -o dft_thermo.o `test -f '${srcdir}/dft_thermo.c' || echo '$(srcdir)/'`${srcdir}/dft_thermo.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_thermo.Tpo $(DEPDIR)/dft_thermo.Po
@@ -1437,6 +1458,20 @@ dft_thermo_elec_MSA.obj: ${srcdir}/dft_thermo_elec_MSA.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_thermo_elec_MSA.c' object='dft_thermo_elec_MSA.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_thermo_elec_MSA.obj `if test -f '${srcdir}/dft_thermo_elec_MSA.c'; then $(CYGPATH_W) '${srcdir}/dft_thermo_elec_MSA.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_thermo_elec_MSA.c'; fi`
+
+dft_thermo_elec_MSAgeneral.o: ${srcdir}/dft_thermo_elec_MSAgeneral.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_thermo_elec_MSAgeneral.o -MD -MP -MF $(DEPDIR)/dft_thermo_elec_MSAgeneral.Tpo -c -o dft_thermo_elec_MSAgeneral.o `test -f '${srcdir}/dft_thermo_elec_MSAgeneral.c' || echo '$(srcdir)/'`${srcdir}/dft_thermo_elec_MSAgeneral.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_thermo_elec_MSAgeneral.Tpo $(DEPDIR)/dft_thermo_elec_MSAgeneral.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_thermo_elec_MSAgeneral.c' object='dft_thermo_elec_MSAgeneral.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_thermo_elec_MSAgeneral.o `test -f '${srcdir}/dft_thermo_elec_MSAgeneral.c' || echo '$(srcdir)/'`${srcdir}/dft_thermo_elec_MSAgeneral.c
+
+dft_thermo_elec_MSAgeneral.obj: ${srcdir}/dft_thermo_elec_MSAgeneral.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_thermo_elec_MSAgeneral.obj -MD -MP -MF $(DEPDIR)/dft_thermo_elec_MSAgeneral.Tpo -c -o dft_thermo_elec_MSAgeneral.obj `if test -f '${srcdir}/dft_thermo_elec_MSAgeneral.c'; then $(CYGPATH_W) '${srcdir}/dft_thermo_elec_MSAgeneral.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_thermo_elec_MSAgeneral.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_thermo_elec_MSAgeneral.Tpo $(DEPDIR)/dft_thermo_elec_MSAgeneral.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_thermo_elec_MSAgeneral.c' object='dft_thermo_elec_MSAgeneral.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_thermo_elec_MSAgeneral.obj `if test -f '${srcdir}/dft_thermo_elec_MSAgeneral.c'; then $(CYGPATH_W) '${srcdir}/dft_thermo_elec_MSAgeneral.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_thermo_elec_MSAgeneral.c'; fi`
 
 dft_thermo_id.o: ${srcdir}/dft_thermo_id.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_thermo_id.o -MD -MP -MF $(DEPDIR)/dft_thermo_id.Tpo -c -o dft_thermo_id.o `test -f '${srcdir}/dft_thermo_id.c' || echo '$(srcdir)/'`${srcdir}/dft_thermo_id.c

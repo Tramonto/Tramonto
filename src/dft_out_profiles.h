@@ -65,7 +65,7 @@ extern int **Nbond;
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Nmer[NCOMP_MAX];
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 #define G_CHAIN       11 

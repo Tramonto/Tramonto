@@ -337,6 +337,13 @@ double  *Charge; /*Value of the local charge [Nlocal_charge]*/
 int     Charge_type_atoms; /* Type of charge distribution on charged atoms */
 int     Charge_type_local; /* Type of charge distribution on added local charges */
 double  *Deltac_b;   /* Array [icomp] of electrostatic correlations in bulk*/
+double  X_MSA[NCOMP_MAX]; /* Array needed for general MSA electrostatics Oleksy and Hanson */
+double  Gamma_MSA; /* Parameter needed for general MSA electrostatics Oleksy and Hanson */
+double  N_MSA[NCOMP_MAX]; /* Array needed for general MSA electrostatics Oleksy and Hanson */
+double  MSAgen_term1[NCOMP_MAX][NCOMP_MAX]; /* Array needed for general MSA electrosattics Oleksy and Hanson */
+double  MSAgen_term2[NCOMP_MAX][NCOMP_MAX]; /* Array needed for general MSA electrosattics Oleksy and Hanson */
+double  MSAgen_term3[NCOMP_MAX][NCOMP_MAX]; /* Array needed for general MSA electrosattics Oleksy and Hanson */
+double  MSAgen_term4[NCOMP_MAX][NCOMP_MAX]; /* Array needed for general MSA electrosattics Oleksy and Hanson */
 double  **Charge_w_sum_els; /*Array[Nnodes_b][Ndim] of surface charge per area*/
 double  *Charge_vol_els; /*Array[Nelements_box] of volumetric charge per elem*/
 int     Vol_charge_flag; /* Flag for volumetric charges */

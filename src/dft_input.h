@@ -260,7 +260,7 @@ extern int Ipot_ff_c;
 extern int Ipot_ff_n;
 #define WTC          2
 #define NONE       -1
-#define NONE      -1
+#define NONE          -1
 #define NONE        -1
 #define NONE        -1
 #define WJDC3        5 
