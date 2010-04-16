@@ -31,7 +31,7 @@ IF(Trilinos_FOUND)
    # These are not available in Trilinos 10.2.0, but should be in 10.4.0
    MESSAGE("End of Trilinos details\n")
 ELSE()
-  MESSAGE("Could not find Trilinos!")
+  MESSAGE("Could not find Trilinos 10.2 or greater!")
 ENDIF()
 
 IF(NOT CMAKE_CXX_COMPILER)
