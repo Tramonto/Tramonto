@@ -1,6 +1,6 @@
-../configure \
-CXXFLAGS=-O3 \
-CFLAGS=-O3 \
-FFLAGS=-O3 \
---with-trilinos=/home/jmwille/TramontoTestHarness/TriInstall/9.0.2 \
---with-gnumake
+cmake \
+-DCMAKE_CXX_FLAGS:STRING=-O3 \
+-DCMAKE_C_FLAGS:STRING=-O3 \
+-DTRILINOS_PATH=/home/jmwille/TramontoTestHarness/Tri10.2 \
+..
+
