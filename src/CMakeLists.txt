@@ -1,7 +1,5 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${TRILINOS_PATH}/include)
-include_directories(${MPI_INCLUDE_PATH})
-link_directories(${TRILINOS_PATH}/lib)
+#include_directories(${MPI_INCLUDE_PATH})
 set(common_h
 	Tramonto_ConfigDefs.h 
         dft_ldbal.h 
@@ -267,13 +265,85 @@ set(noxloca_headers
         NOXLOCA_Tramonto_PTGroup.hpp 
         NOXLOCA_Tramonto_PTVector.hpp)
 
-set(TRILINOS_LIBRARIES  ml amesos loca nox aztecoo ifpack epetraext epetra teuchos )
+#Add Trilinos information to the include and link lines
+include_directories(${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} )
+link_directories(${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 
+#list of necessary Trilinos packages:
+#ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos
+set(Tramonto_Trilinos_LIBRARIES ${ML_LIBRARIES} ${Amesos_LIBRARIES}
+${NOX_LIBRARIES} ${AztecOO_LIBRARIES} ${Ifpack_LIBRARIES}
+${EpetraExt_LIBRARIES} ${Epetra_LIBRARIES} ${Teuchos_LIBRARIES} )
+
+#remove duplicates from the link line
+LIST(REVERSE Tramonto_Trilinos_LIBRARIES )
+LIST(REMOVE_DUPLICATES Tramonto_Trilinos_LIBRARIES )
+LIST(REVERSE Tramonto_Trilinos_LIBRARIES )
+
+#verify all necessary Trilinos packages are available
+LIST(FIND Trilinos_PACKAGE_LIST ML ML_FOUND)
+IF(ML_FOUND GREATER -1)
+  MESSAGE("Trilinos package ML found.")
+ELSE()
+  MESSAGE(FATAL_ERROR "Could not find Trilinos package ML!")
+ENDIF()
+
+LIST(FIND Trilinos_PACKAGE_LIST Amesos AMESOS_FOUND)
+IF(AMESOS_FOUND GREATER -1)
+  MESSAGE("Trilinos package Amesos found.")
+ELSE()
+  MESSAGE(FATAL_ERROR "Could not find Trilinos package Amesos!")
+ENDIF()
+
+LIST(FIND Trilinos_PACKAGE_LIST NOX NOX_FOUND)
+IF(NOX_FOUND GREATER -1)
+  MESSAGE("Trilinos package NOX found.")
+ELSE()
+  MESSAGE(FATAL_ERROR "Could not find Trilinos package NOX!")
+ENDIF()
+
+LIST(FIND Trilinos_PACKAGE_LIST AztecOO AZTECOO_FOUND)
+IF(AZTECOO_FOUND GREATER -1)
+  MESSAGE("Trilinos package AztecOO found.")
+ELSE()
+  MESSAGE(FATAL_ERROR "Could not find Trilinos package AztecOO!")
+ENDIF()
+
+LIST(FIND Trilinos_PACKAGE_LIST Ifpack IFPACK_FOUND)
+IF(IFPACK_FOUND GREATER -1)
+  MESSAGE("Trilinos package Ifpack found.")
+ELSE()
+  MESSAGE(FATAL_ERROR "Could not find Trilinos package Ifpack!")
+ENDIF()
+
+LIST(FIND Trilinos_PACKAGE_LIST EpetraExt EPETRAEXT_FOUND)
+IF(EPETRAEXT_FOUND GREATER -1)
+  MESSAGE("Trilinos package EpetraExt found.")
+ELSE()
+  MESSAGE(FATAL_ERROR "Could not find Trilinos package EpetraExt!")
+ENDIF()
+
+LIST(FIND Trilinos_PACKAGE_LIST Epetra EPETRA_FOUND)
+IF(EPETRA_FOUND GREATER -1)
+  MESSAGE("Trilinos package Epetra found.")
+ELSE()
+  MESSAGE(FATAL_ERROR "Could not find Trilinos package Epetra!")
+ENDIF()
+
+LIST(FIND Trilinos_PACKAGE_LIST Teuchos TEUCHOS_FOUND)
+IF(TEUCHOS_FOUND GREATER -1)
+  MESSAGE("Trilinos package Teuchos found.")
+ELSE()
+  MESSAGE(FATAL_ERROR "Could not find Trilinos package Teuchos!")
+ENDIF()
+
+# add dft library
 add_library(dft ${common_h} ${noxloca_h} ${common_c} ${common_cxx} ${noxloca_cxx} )
-target_link_libraries(dft ${TRILINOS_LIBRARIES} ${LAPACK_LIBRARIES}
-${BLAS_LIBRARIES} ${MPI_LIBRARIES} )
 
+#add dft_exec executable
+#FIX Epetra_TPL_LIBRARIES should be changed to Trilinos_TPL_LIBRARIES when
+#necessary fix is applied to Trilinos
 add_executable(dft_exec dft_maindriver.c)
-target_link_libraries(dft_exec dft ${TRILINOS_LIBRARIES} ${LAPACK_LIBRARIES}
-${BLAS_LIBRARIES} ${MPI_LIBRARIES})
+target_link_libraries(dft_exec dft ${Tramonto_Trilinos_LIBRARIES}
+${Trilinos_TPL_LIBRARIES} )
 
