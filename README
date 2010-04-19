@@ -42,10 +42,8 @@ Prerequisites:
         LAPACK                     http://www.netlib.org
         MPI                        http://www-unix.mcs.anl.gov/mpi/mpich2
                                    http://www.open-mpi.org
-        Trilinos (7.0.0 or later*) http://trilinos.sandia.gov
+        Trilinos (10.2.0 or later) http://trilinos.sandia.gov
 
-    *The instructions below explain how to build with Trilinos 8.0.0 or later.
-    
     While BLAS, LAPACK and MPI could be available on your system, you will
     most likely have to build Trilinos yourself.  Trilinos contains several
     packages of which Tramonto requires amesos, aztecoo, triutils, ifpack,
@@ -59,243 +57,170 @@ Prerequisites:
     
 Building Trilinos:
 
-    As of October 2006, Tramonto requires Trilinos version 7.0.0 or later.
-    The instructions below explain how to build with Trilinos 8.0.X or 9.0.X.
+    As of April 2010, Tramonto requires Trilinos version 10.2.0 or later.
 
     Trilinos can be downloaded from the the Trilinos home page listed above.
     There are many options available in configuring Trilinos, some of the 
     most important one are:
     
-    --prefix=
+    CMAKE_INSTALL_PREFIX:PATH=
 
         This option specifies where to install Trilinos.  For example,
-        --prefix=/path/TrilinosInstall will install Trilinos libraries
-        in /path/TrilinosInstall/lib and Tramonto header files in
+        CMAKE_INSTALL_PREFIX:PATH=/path/TrilinosInstall will install Trilinos
+        libraries in /path/TrilinosInstall/lib and Trilinos header files in
         /path/TrilinosInstall/include.
 
-    --enable-mpi
+    TPL_ENABLE_MPI:BOOL=ON
 
         This option indicates that a parallel, rather than serial, 
-        version of Trilinos should be built.  This option is set
-        automatically when the --with-mpi-compilers option is used.
+        version of Trilinos should be built.
 
-    --with-mpi-compilers
+    DMPI_BASE_DIR:PATH=
 
-        This option simplifies the process of specifying information about
-        compilers and mpi.  If your machine has compiler wrappers installed
-        (try 'which mpicc'), it may be possible to **use this option
-        in place of the next five options**.  The compiler wrappers simply
-        wrap the system default compilers (e.x. g++, gcc, and gfortran),
-        and contain information about the location of the mpi library and
-        headers, as well as the name of the mpi library.
+        Use this option to specify the base installation directory for MPI.
+        In many cases when using a standard setup, this is not necessary,
+        but the option is useful when a machine contains multiple mpi
+        installations, or mpi is installed in a non-standard location.  If
+        /path is the base installation directory, /path/include contains mpi.h,
+        /path/lib includes the mpi libraries, and /path/bin contains mpiexec
+        (or equivalent mpi executable).
+ 
+    TPL_BLAS_LIBRARIES:STRING=
+    TPL_LAPACK_LIBRARIES:SRING=
 
-    --with-mpi=
-
-        This option can be used to specify the location of mpi on your
-        machine.  For example, if mpi.h is in /path/include, and libmpi.a
-        is in /path/lib, use --with-mpi=/path.  In the unlikely event that
-        mpi is not installed with the same base path, it is possible to
-        replace this option with --with-mpi-incdir=/path1/include and
-        --with-mpi-libdir=/path2/lib.
-
-    --with-mpi-libs=
-
-        By default, Trilinos will try to link to mpi using -lmpi.  The
-        default can be modified with this option.  For example, if using
-        mpich, you might use --with-mpi-libs=-lmpich, or 
-        --with-mpi-libs="-lmpich -lpmpich".
-
-    CC=
-    CXX=
-    F77=
-
-        These options can be used to specify the names and, optionally,
-        the locations of the C, C++ and Fortran compilers.  For example,
-        CC=pgcc, CXX=pgCC, F77=pgf77.  If these options are not used
-        (and the --with-mpi-compilers option is not used), Trilinos
-        will attempt to locate your compilers.  It is often best to
-        explicitly list the compilers you want to use, especially if
-        there are multiple compiler sets installed on your machine.
-
-    --with-blas=
-    --with-lapack=
-
-        These options are used to specify the locations of the BLAS and
-        LAPACK libraries.  If the options are not specified, Trilinos
+        These options are used to specify the names or locations of the BLAS
+        and LAPACK libraries.  If the options are not specified, Trilinos
         will attempt to find BLAS and LAPACK.  Again, it is best to 
         explicitly list the libraries you want to use if there are 
         multiple libraries available on your machine.  Example usage:
-        --with-blas="/path/lib -lcblas -lf77blas -latlas" or 
-        --with-blas="-L/opt/intel/mkl/lib/32 -lmkl_ia32 -lguide" and
-        --with-lapack=/path/lib/liblapack.a or
-        --with-lapack="-L/opt/intel/mkl/lib/32 -lmkl_lapack"
+        TPL_BLAS_LIBRARIES:STRING="-lcblas;-lf77blas;-latlas;-lgfortran" or 
+        TPL_BLAS_LIBRARIES:STRING=/usr/lib64/libblas.so and
+        TPL_LAPACK_LIBRARIES:STRING=/usr/lib64/liblapack.so
 
-    --disable-default-packages
-    --enable-<package>
+    Trilinos_ENABLE_ALL_PACKAGES:BOOL=OFF 
+    Trilinos_ENABLE_<package>:BOOL=ON
 
-        A number of Trilinos packages are built by default.  This list
-        does not match the list of packages that Tramonto requires.
-        The best way to build only the packages that Tramonto will use is
-        to use the --disable-default-packages option in conjunction with
-        an --enable-<package> option for each required Trilinos package.
-        For example --enable-epetra, enable-aztecoo, etc.
+        The best way to build only the packages that Tramonto uses is to use 
+        the Trilinos_ENABLE_ALL_PACKAGES:BOOL=OFF option in conjunction with
+        a Trilinos_ENABLE_<package>:BOOL=ON option for each required
+        Trilinos package.  For example Trilinos_ENABLE_AztecOO:BOOL=ON, etc.
+        Note that it is not necessary to disable all of the packages that
+        Tramonto does not use; this is especially useful when building Tramonto
+        on a machine that has a pre-installed version of Trilinos.  It can be
+        helpful to disable unneeded packages to make it easier and faster to
+        build Trilinos.
 
-    When installing Trilinos for use with Tramonto, one should not use
-    the --disable-libcheck option.  Using this option will result in
-    problems with linking to BLAS and LAPACK.  Compiling, linking, and
-    running one or more Trilinos tests or examples is strongly recommended.
 
-    Below are examples of ways to invoke the configure script to
-    properly configure Trilinos.  You can find more examples in the
-    "sampleScripts" directory withing the Trilinos distribution.
-    The configure command points up one directory because the preferred
-    directory structure for building Trilinos has separate build and 
+    Below are examples of ways to properly configure Trilinos.  You can find
+    more examples in the "sampleScripts" directory in the Trilinos
+    distribution.  The configure command points up one directory because the
+    preferred directory structure for building Trilinos has separate build and 
     source trees.  For example, for a build tree named "TramontoInstall",
     from the top-level Trilinos directory, type "mkdir TramontoInstall",
     then "cd TramontoInstall", and finally provide the proper configure
-    arguments.  Often it is convenient to create a script (like those
-    in the sampleScripts directory mentioned above) in the build 
-    directory and then simply source the script.  The separate build
-    tree is highly recommended to help avoid "polluting" the 
-    source tree, which can cause odd problems when building.
+    arguments.  Some users prefer for the build tree to be a peer to the
+    top-level Trilinos directory.  The source tree can be in any arbitrary
+    location; the last argument in the configuration command simply has to
+    point to the source tree with an absolute or relative path.  Often it is
+    convenient to create a script (like those in the sampleScripts directory
+    mentioned above) in the build directory and then simply source the script.
+    If a separate build tree is not used, the configure process will terminate
+    with an error.
 		
-        Linux 
-        ../configure  \
-        --enable-mpi \
-        --with-mpi-compilers \
-        --enable-teuchos \
-        --enable-epetra \
-        --enable-epetraext \
-        --enable-ifpack \
-        --enable-aztecoo \
-        --enable-triutils \
-        --enable-nox \
-        --enable-loca \
-        --enable-ml \
-        --enable-amesos \
-        --with-blas="-L/home/jmwille/lib/ATLAS/lib -lcblas -lf77blas -latlas" \
-        --with-lapack="-L/home/jmwille/lib/LAPACK -llapack" \
-        --disable-default-packages \
-        --with-gnumake \
-        --prefix=/home/jmwille/TramontosTrilinos
-		
-        Mac OSX
-        ../configure \
-        --with-mpi-compilers \
-        --prefix=/Users/jmwille/TraInstall \
-        CXX=c++ \
-        F77=/sw/bin/g77 \
-        RANLIB="ranlib -s" \
-        --with-ldflags="-framework veclib -L/usr/lib/ -lSystemStubs" \
-        --cache-file=config.cache \
-        --disable-default-packages \
-        --enable-aztecoo \
-        --enable-epetra \
-        --enable-epetraext \
-        --enable-ifpack \
-        --enable-loca \
-        --enable-nox \
-        --enable-teuchos \
-        --enable-triutils \
-        --enable-ml \
-        --enable-amesos \
-        --with-gnumake
- 
-        Cygwin 
-        ../configure --disable-default-packages \
-        --prefix=/home/jmwille/TraInstall \
-        CXX=g++ \
-        CC=gcc \
-        F77=g77 \
-        --cache-file=config.cache \
-        --enable-teuchos \
-        --enable-epetra \
-        --enable-epetraext \
-        --enable-ifpack \
-        --enable-aztecoo \
-        --enable-triutils \
-        --enable-nox \
-        --enable-loca \
-        --enable-ml \
-        --enable-amesos \
-        --enable-mpi \
-        --with-gnumake \
-        CPPFLAGS=-DMPICH_IGNORE_CXX_SEEK \
-        --with-mpi-libs=-lmpich \
-        --with-mpi=/home/jmwille/MPICH/SDK.gcc
+    Linux 
+     cmake \
+     -DTPL_ENABLE_MPI:BOOL=ON \
+     -DTrilinos_ENABLE_ALL_PACKAGES:BOOL=OFF \
+     -DTrilinos_ENABLE_Amesos:BOOL=ON \
+     -DTrilinos_ENABLE_AztecOO:BOOL=ON \
+     -DTrilinos_ENABLE_Triutils:BOOL=ON \
+     -DTrilinos_ENABLE_Ifpack:BOOL=ON \
+     -DTrilinos_ENABLE_EpetraExt:BOOL=ON \
+     -DTrilinos_ENABLE_Epetra:BOOL=ON \
+     -DNOX_ENABLE_LOCA:BOOL=ON \
+     -DTrilinos_ENABLE_ML:BOOL=ON \
+     -DTrilinos_ENABLE_NOX:BOOL=ON \
+     -DTrilinos_ENABLE_Teuchos:BOOL=ON \
+     -DTrilinos_ENABLE_TESTS:BOOL=ON \
+     -DCMAKE_CXX_FLAGS:STRING="-O3" \
+     -DCMAKE_C_FLAGS:STRING="-O3" \
+     -DCMAKE_Fortran_FLAGS:STRING="-O5" \
+     -DTPL_BLAS_LIBRARIES:STRING="-lcblas;-lf77blas;-latlas;-lgfortran" \
+     -DCMAKE_INSTALL_PREFIX:PATH=/home/jmwille/TramontoTestHarness/Tri10.2 \
+     ..
 
-    Once you have configured Trilinos, build it by typing "make everything".  
-    This will build the libraries, tests, and examples for the packages that
-    were enabled at configure time.  If you have built Trilinos before, and
-    want to build only the libraries, type "make" instead of
-    "make everything".  If the tests were compiled, a test suite can be run
-    using the runtests-mpi make target.  For example, 
-    make runtests-mpi TRILINOS_MPI_GO="'mpiexec -np '" 
-    invokes the target, and provides information necessary for running
-    mpi enabled executables.  If your machine requires a command other than
-    "mpiexec" for running executables, for example, "mpirun", or an option
-    other than "-np " for specifying the number of processes, for example,
-    "-n ", adjust the above listed command as appropriate.  Note that 
-    double quoting, either using different types of quotes, or escaping
-    the inner pair of quotes is necessary.  For example,
-    TRILINOS_MPI_GO="\"~/bin/linux/mpirun -np \"".
+    Mac OSX
+     cmake \
+     -DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
+     -DTPL_ENABLE_MPI:BOOL=ON \
+     -DTrilinos_ENABLE_Amesos:BOOL=ON \
+     -DTrilinos_ENABLE_AztecOO:BOOL=ON \
+     -DTrilinos_ENABLE_Triutils:BOOL=ON \
+     -DTrilinos_ENABLE_Ifpack:BOOL=ON \
+     -DTrilinos_ENABLE_EpetraExt:BOOL=ON \
+     -DTrilinos_ENABLE_Epetra:BOOL=ON \
+     -DNOX_ENABLE_LOCA:BOOL=ON \
+     -DTrilinos_ENABLE_ML:BOOL=ON \
+     -DTrilinos_ENABLE_NOX:BOOL=ON \
+     -DTrilinos_ENABLE_Teuchos:BOOL=ON \
+     -DTrilinos_ENABLE_TESTS:BOOL=ON \
+     -DCMAKE_CXX_FLAGS:STRING="-O3" \
+     -DCMAKE_C_FLAGS:STRING="-O3" \
+     -DCMAKE_Fortran_FLAGS:STRING="-O5" \
+     -DMPI_BASE_DIR:PATH=/Users/jmwille/install \
+     -DCMAKE_INSTALL_PREFIX:PATH=/Users/jmwille/TramontoTestHarness/Tri10.2 \
+     ..
+
+    Once you have configured Trilinos, build it by typing "make".  
+    This will build the libraries, tests (if Trilinos_ENABLE_TESTS:BOOL=ON),
+    and examples for the packages that were enabled at configure time.  If
+    the tests were compiled, a test suite can be run by typing "ctest".
     Finally, install Trilinos using "make install".
 
 
 Building Tramonto:
 
     Once Trilinos has been built, building Tramonto tends to be 
-    straightforward because some of the options that were used to build
-    Trilinos can be used again to build Tramonto.  As with Trilinos, 
+    straightforward because most of the options that were used to build
+    Trilinos can be used automatically to build Tramonto.  As with Trilinos, 
     it is necessary to configure and then build Tramonto.  Since 
     Tramonto produces only a single executable, there is no need to 
     install it and at this time there is not a make target for testing.
     
-    To configure Tramonto, in addition to using some of the options that
-    were used to configure Trilinos, it is necessary to indicate the 
-    location of the installed Trilinos libraries and header files using
-    the --with-trilinos option.  This option points to the base of the 
-    installed version of Trilinos.  For example, if Trilinos is configured
-    with --prefix=/home/jmwille/TraInstall, use
+    To configure Tramonto, it is necessary to indicate the location of the
+    installed Trilinos libraries and header files using the TRILINOS_PATH
+    option.  This option points to the base of the installed version of
+    Trilinos.  For example, if Trilinos is configured with
+    CMAKE_INSTALL_PREFIX:PATH=/Users/jmwille/TramontoTestHarness/Tri10.2, use
 
-    --with-trilinos=/home/jmwille/TraInstall
+    TRILINOS_PATH:PATH=/Users/jmwille/TramontoTestHarness/Tri10.2
 
     Below are Tramonto configure invocations that correspond to the
     above Trilinos configure invocations.  These, as well as other,
     scripts can be found in the directory "sampleConfigs" in the Tramonto
     distribution.  Note that using a separate build tree is again
-    recommended, as discussed in the Building Trilinos section.
-    
-	Linux
-        ../configure  \
-        --with-gnumake \
-        --with-trilinos=/home/jmwille/TramontosTrilinos
+    required, as discussed in the Building Trilinos section.
 
-        Mac OS X
-        ../configure \
-        --with-gnumake \
-        --with-ldflags="-framework veclib -L/usr/lib/ -lSystemStubs" \
-        --with-trilinos=/Users/jmwille/TraInstall
+    Linux
+     cmake \
+     -DCMAKE_CXX_FLAGS:STRING=-O3 \
+     -DCMAKE_C_FLAGS:STRING=-O3 \
+     -DTRILINOS_PATH=/home/jmwille/TramontoTestHarness/Tri10.2 \
+     ..
 
-	Cygwin
-        ../configure \
-        --with-gnumake \
-        CXX=g++ \
-        CC=gcc \
-        F77=g77 \
-        --with-trilinos=/home/jmwille/TraInstall \
-        CPPFLAGS=-DMPICH_IGNORE_CXX_SEEK \
-        --with-mpi-libs=-lmpich \
-        --with-mpi=/home/jmwille/MPICH/SDK.gcc
-	
+    Mac OS X
+     cmake \
+     -DCMAKE_CXX_FLAGS:STRING=-O3 \
+     -DCMAKE_C_FLAGS:STRING=-O3 \
+     -DTRILINOS_PATH=/Users/jmwille/TramontoTestHarness/Tri10.2 \
+     ..
+
+
     Once the configure script completes, you can type "make" to 
-    build Tramonto. After make finishes, the Tramonto  binary, "dft" 
+    build Tramonto. After make finishes, the Tramonto  binary, "dft_exec" 
     can optionally be copied to a more convenient location.  Note that
     although it is not necessary to specify the locations and names of
-    the BLAS and LAPACK libraries during the Tramonto configure process,
-    because that information is taken from the Trilinos configuration 
-    process, it is currently necessary to specify which compilers to
-    use if compilers were specified during the Trilinos configuration
-    process.  The same compilers should be used to build Trilinos and
-    Tramonto.
+    the compilers because that information is taken from the Trilinos
+    configuration process, it is currently necessary to specify
+    compiler flags.
 
