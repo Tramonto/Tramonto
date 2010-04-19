@@ -49,22 +49,6 @@ ENDIF()
 #  SET(CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER})
 #ENDIF()
 
-# Pulling compiler flags from Trilinos doesn't currently work
-IF(NOT CMAKE_CXX_FLAGS)
-  MESSAGE("Setting CXX compiler flags.")
-  SET(CMAKE_CXX_FLAGS ${Trilinos_CXX_COMPILER_FLAGS})
-ENDIF()
-
-IF(NOT CMAKE_C_FLAGS)
-  MESSAGE("Setting C compiler flags.")
-  SET(CMAKE_C_FLAGS ${Trilinos_C_COMPILER_FLAGS})
-ENDIF()
-
-#IF(NOT CMAKE_Fortran_FLAGS)
-#  MESSAGE("Setting Fortran compiler flags.")
-#  SET(CMAKE_Fortran_FLAGS ${Trilinos_Fortran_COMPILER_FLAGS})
-#ENDIF()
-
 IF(NOT CMAKE_LINKER)
   MESSAGE("Setting linker.")
   SET(CMAKE_LINKER ${Trilinos_LINKER})
@@ -88,6 +72,21 @@ set(TRILINOS_PATH "" CACHE FILEPATH "Path to Trilinos Directory")
 #include(FindMPI)
 #include(FindBLAS)
 #include(FindLAPACK)
+
+IF(NOT CMAKE_CXX_FLAGS)
+  MESSAGE("Setting CXX compiler flags.")
+  SET(CMAKE_CXX_FLAGS ${Trilinos_CXX_COMPILER_FLAGS})
+ENDIF()
+
+IF(NOT CMAKE_C_FLAGS)
+  MESSAGE("Setting C compiler flags.")
+  SET(CMAKE_C_FLAGS ${Trilinos_C_COMPILER_FLAGS})
+ENDIF()
+
+#IF(NOT CMAKE_Fortran_FLAGS)
+#  MESSAGE("Setting Fortran compiler flags.")
+#  SET(CMAKE_Fortran_FLAGS ${Trilinos_Fortran_COMPILER_FLAGS})
+#ENDIF()
 
 #if(BUILD_EXAMPLES)
 #	ADD_SUBDIRECTORY(Examples)
