@@ -2,8 +2,6 @@
 # For a Macintosh running OS X
 #
 cmake \
-     -DCMAKE_CXX_FLAGS:STRING=-O3 \
-     -DCMAKE_C_FLAGS:STRING=-O3 \
      -DTRILINOS_PATH=/Users/jmwille/TramontoTestHarness/Tri10.2 \
      ..
 

@@ -203,24 +203,16 @@ Building Tramonto:
 
     Linux
      cmake \
-     -DCMAKE_CXX_FLAGS:STRING=-O3 \
-     -DCMAKE_C_FLAGS:STRING=-O3 \
      -DTRILINOS_PATH=/home/jmwille/TramontoTestHarness/Tri10.2 \
      ..
 
     Mac OS X
      cmake \
-     -DCMAKE_CXX_FLAGS:STRING=-O3 \
-     -DCMAKE_C_FLAGS:STRING=-O3 \
      -DTRILINOS_PATH=/Users/jmwille/TramontoTestHarness/Tri10.2 \
      ..
 
 
     Once the configure script completes, you can type "make" to 
     build Tramonto. After make finishes, the Tramonto  binary, "dft_exec" 
-    can optionally be copied to a more convenient location.  Note that
-    although it is not necessary to specify the locations and names of
-    the compilers because that information is taken from the Trilinos
-    configuration process, it is currently necessary to specify
-    compiler flags.
+    can optionally be copied to a more convenient location.
 
