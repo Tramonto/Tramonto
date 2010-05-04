@@ -31,6 +31,8 @@ extern double Sigma_w[NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern int Nwall_type;
 extern double YukawaK_ff[NCOMP_MAX][NCOMP_MAX];
+#define PAIR_r12andYUKAWA_CS   8
+#define PAIR_LJandYUKAWA_CS   7
 #define PAIR_EXP_CS			5
 #define PAIR_YUKAWA_CS     3
 extern int Type_pairPot;

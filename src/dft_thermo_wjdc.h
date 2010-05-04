@@ -32,7 +32,6 @@ extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
 extern int Nbonds;
-extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 double chain_term(int kseg,int kcomp,double *rho_seg,double *xi_cav);
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;

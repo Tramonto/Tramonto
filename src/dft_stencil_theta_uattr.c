@@ -52,6 +52,9 @@ double StenTheta_uattr_sten_vol(int i,int j)
           break;
 
       case PAIR_EXP_CS:	
+      case PAIR_YUKAWA_CS:	
+      case PAIR_LJandYUKAWA_CS:	
+      case PAIR_r12andYUKAWA_CS:	
           r_min = Sigma_ff[i][j];
 	  vol_sten = (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
 		- (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
@@ -75,9 +78,16 @@ double StenTheta_uattr_sten_vol(int i,int j)
 
       default:
           r_min = Sigma_ff[i][j];
-          vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)
+	  vol_sten = (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
+		- (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
+		+ pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
+
+/*        old default - replacing the WCA appraoch where uatt=u(rmin) for r<rmin (commented out below)
+                        with the assumption that uatt=0 for r<sigma (line above this one). */
+/*        vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)
               - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
-              + pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
+              + pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);*/
+
           break;
    }
 

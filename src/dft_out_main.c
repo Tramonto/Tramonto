@@ -109,7 +109,7 @@ void post_process (double **x,int *niters,
            else                               print_profile(output_file4,X_old);
         }
    }
-   if (Proc==0 && Lprint_gofr && Nlink==1){
+   if (Proc==0 && Lprint_gofr && (Nlink==1 || Nlocal_charge>0)){
        if (binodal_flag) print_gofr(output_file6,X2_old);
        else print_gofr(output_file6,X_old);
    }

@@ -480,7 +480,7 @@ this routine is only ever called by Proc 0                                    */
 
 void print_gofr(char *output_file6,double *xold)
 {
-  int icomp,i,inode,ijk[3],idim,nunk_print,npol=0,itype_mer,iwall,iunk;
+  int icomp,i,inode,ijk[3],idim,nunk_print,npol=0,itype_mer,iwall,iunk,end_loop;
   double kappa_sq,kappa,r,rsq;
   FILE *ifp=NULL;
   /* 
@@ -493,7 +493,10 @@ void print_gofr(char *output_file6,double *xold)
      if (L_HSperturbation) nunk_print = Nunk_per_node;
      else nunk_print = 2*Ncomp;
 
-     for (iwall=0; iwall<Nwall; iwall++){  /*compute g(r) for different atoms
+     if(Nwall > 0) end_loop=Nwall;
+     if(Nwall==0 && Nlocal_charge !=0) end_loop=Nlocal_charge;
+
+     for (iwall=0; iwall<end_loop; iwall++){  /*compute g(r) for different atoms
                                              in one linked wall --- e.g. 
                                              could represent H2O as 3 atoms
                                              then need to compute gHH,gOO,gHO */
@@ -502,8 +505,14 @@ void print_gofr(char *output_file6,double *xold)
  
         rsq=0.0; r=0.0;
         for (idim=0; idim<Ndim; idim++) {
-            rsq = rsq+(ijk[idim]*Esize_x[idim]-(WallPos[idim][iwall]+0.5*Size_x[idim]))*
-                      (ijk[idim]*Esize_x[idim]-(WallPos[idim][iwall]+0.5*Size_x[idim]));
+            if (Nwall==0 && Nlocal_charge ==1){
+                rsq = rsq+(ijk[idim]*Esize_x[idim]-(Charge_x[idim][iwall]+0.5*Size_x[idim]))*
+                          (ijk[idim]*Esize_x[idim]-(Charge_x[idim][iwall]+0.5*Size_x[idim]));
+            }
+            else{
+                rsq = rsq+(ijk[idim]*Esize_x[idim]-(WallPos[idim][iwall]+0.5*Size_x[idim]))*
+                          (ijk[idim]*Esize_x[idim]-(WallPos[idim][iwall]+0.5*Size_x[idim]));
+            }
         }
         if (rsq > 0.0) r=sqrt(rsq); 
         fprintf(ifp,"%9.6f\t ",r);

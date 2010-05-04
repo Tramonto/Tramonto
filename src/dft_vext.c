@@ -1009,6 +1009,7 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
         find_images(0,Cut_wf[icomp][iwall_type],&image,image_pos,
                        node_pos_w,node_pos_f);
 
+
            if (Ndim > 1) {
              image_x = image;
              for (iel_y=0; iel_y<image_x; iel_y++){
@@ -1038,12 +1039,13 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
           for (i=0; i<image; i++){
              r_center_sq = 0.0;
              for (idim=0; idim<Ndim; idim++) {
+                 /* adjust to llb node of element because gauss points are on interval [0,1] */
                  node_pos_w2[idim] = image_pos[i][idim]-0.5*Esize_x[idim];
                  r_center_sq += (node_pos_w2[idim]-node_pos_f[idim])*
                                 (node_pos_w2[idim]-node_pos_f[idim]);
              }
-             if (Lsemiperm[iwall_type][icomp] && 
-                 r_center_sq<1.1224620*Sigma_wf[icomp][iwall_type]){
+             if (Lsemiperm[iwall_type][icomp] && r_center_sq<Sigma_wf[icomp][iwall_type]){
+             /*if (Lsemiperm[iwall_type][icomp] && r_center_sq<1.1224620*Sigma_wf[icomp][iwall_type]){*/
                  Vext_set[loc_inode][icomp] = Vext_membrane[WallType[iwall]][icomp];
              }
              if (r_center_sq < 4.0) {
@@ -1062,11 +1064,11 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
                 gw = &gw3[0]; gwu = &gwu3[0];
              }
 
+
              pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4);
              vext = integrate_potential(param1,param2,param3,param4,
                        ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
 	     
-
              Vext[loc_inode][icomp] += vext;
 
           }  /* end of loop over the surface elements and its images */

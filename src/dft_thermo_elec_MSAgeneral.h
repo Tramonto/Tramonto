@@ -36,10 +36,10 @@ extern double MSAgen_term1[NCOMP_MAX][NCOMP_MAX];
 #endif
 extern double Charge_f[NCOMP_MAX];
 extern double Temp_elec;
-extern double HS_diam[NCOMP_MAX];
 extern double X_MSA[NCOMP_MAX];
 extern double Gamma_MSA;
 extern double N_MSA[NCOMP_MAX];
+extern double HS_diam[NCOMP_MAX];
 double deltaC_GENERAL_MSA(double r,int i,int j);
 #define THETA_CR_GENERAL_MSA  7
 double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int));

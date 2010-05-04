@@ -296,6 +296,8 @@
 #define PAIR_LJ12_6_SIGTORCUT_CS   4 
 #define PAIR_EXP_CS			5
 #define PAIR_SW				6
+#define PAIR_LJandYUKAWA_CS   7
+#define PAIR_r12andYUKAWA_CS   8
 
 /* options for Type_hsdiam */
 #define SIGMA_DIAM          0

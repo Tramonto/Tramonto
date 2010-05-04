@@ -59,6 +59,7 @@ extern struct Loca_Struct Loca;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void print_gofr(char *output_file6,double *xold);
+extern int Nlocal_charge;
 extern int Nlink;
 extern int Lprint_gofr;
 void print_profile(char *output_file4,double *xold);

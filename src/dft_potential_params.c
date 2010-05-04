@@ -62,15 +62,18 @@ void pot_parameters(char *output_file1)
            Eps_ff[i][j] = sqrt(Eps_ff[i][i]*Eps_ff[j][j]); 
            Cut_ff[i][j] = 0.5*(Cut_ff[i][i]+Cut_ff[j][j]);
            Bond_ff[i][j] = 0.5*(Bond_ff[i][i]+Bond_ff[j][j]);
-           if (Type_pairPot==PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS) 
+           if (Type_pairPot==PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS || 
+               Type_pairPot==PAIR_LJandYUKAWA_CS || Type_pairPot==PAIR_r12andYUKAWA_CS) {
 			   YukawaK_ff[i][j]=0.5*(YukawaK_ff[i][i]+YukawaK_ff[j][j]);
+           }
         }
      
         if (printproc) {
            fprintf(fp2,"\ti:%d  j:%d",i,j);
            fprintf(fp2,"   Sigma_ff: %9.6f  Cut_ff: %9.6f  Eps_ff: %9.6f  Bond_ff: %9.6f \n",
                    Sigma_ff[i][j],Cut_ff[i][j],Eps_ff[i][j],Bond_ff[i][j]);
-           if (Type_pairPot==PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS){
+           if (Type_pairPot==PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS || 
+               Type_pairPot==PAIR_LJandYUKAWA_CS || Type_pairPot==PAIR_r12andYUKAWA_CS) {
                fprintf(fp2,"\ti:%d  j:%d",i,j);
                fprintf(fp2,"   YukawaK_ff: %9.6f\n",YukawaK_ff[i][j]);
            }
@@ -82,8 +85,12 @@ void pot_parameters(char *output_file1)
    for (jw=0; jw<Nwall_type; jw++){
         Sigma_ww[iw][jw] = 0.5*(Sigma_w[iw]+Sigma_w[jw]);
         Eps_ww[iw][jw] = sqrt(Eps_w[iw]*Eps_w[jw]);
-        if (Type_vext3D==PAIR_YUKAWA_CS || Type_uwwPot==PAIR_YUKAWA_CS) YukawaK_ww[iw][jw]=0.5*(YukawaK_w[iw]+YukawaK_w[jw]);
-	    if (Type_vext3D==PAIR_EXP_CS || Type_uwwPot==PAIR_EXP_CS) YukawaK_ww[iw][jw]=0.5*(YukawaK_w[iw]+YukawaK_w[jw]);
+        if (Type_vext3D==PAIR_YUKAWA_CS || Type_vext3D==PAIR_EXP_CS || 
+            Type_vext3D==PAIR_LJandYUKAWA_CS || Type_vext3D==PAIR_r12andYUKAWA_CS ||
+            Type_uwwPot==PAIR_YUKAWA_CS || Type_uwwPot==PAIR_EXP_CS || 
+            Type_uwwPot==PAIR_LJandYUKAWA_CS || Type_uwwPot==PAIR_r12andYUKAWA_CS) {
+                 YukawaK_ww[iw][jw]=0.5*(YukawaK_w[iw]+YukawaK_w[jw]);
+        }
         if (iw != jw){
            Cut_ww[iw][jw] = 0.5*(Cut_ww[iw][iw]+Cut_ww[jw][jw]);
         }
@@ -91,7 +98,10 @@ void pot_parameters(char *output_file1)
           fprintf(fp2,"\tiwall_type:%d  jwall_type:%d",iw,jw);
           fprintf(fp2,"   Sigma_ww: %9.6f  Cut_ww: %9.6f  Eps_ww: %9.6f\n",
                            Sigma_ww[iw][jw],Cut_ww[iw][jw],Eps_ww[iw][jw]);
-          if (Type_vext3D==PAIR_YUKAWA_CS || Type_uwwPot==PAIR_YUKAWA_CS || Type_vext3D==PAIR_EXP_CS || Type_uwwPot==PAIR_EXP_CS){
+          if (Type_vext3D==PAIR_YUKAWA_CS || Type_uwwPot==PAIR_YUKAWA_CS || 
+              Type_vext3D==PAIR_EXP_CS || Type_uwwPot==PAIR_EXP_CS ||
+              Type_vext3D==PAIR_LJandYUKAWA_CS || Type_uwwPot==PAIR_LJandYUKAWA_CS ||
+              Type_vext3D==PAIR_r12andYUKAWA_CS || Type_uwwPot==PAIR_r12andYUKAWA_CS){
               fprintf(fp2,"\tiwall_type:%d  jwall_type:%d",iw,jw);
               fprintf(fp2,"   YukawaK_ww: %9.6f\n",YukawaK_ww[iw][jw]);
           }
@@ -105,13 +115,17 @@ void pot_parameters(char *output_file1)
         Sigma_wf[i][iw] = 0.5*(Sigma_ff[i][i] + Sigma_w[iw]);
         Eps_wf[i][iw] = sqrt(Eps_ff[i][i]*Eps_w[iw]);
         Cut_wf[i][iw] = 0.5*(Cut_ff[i][i]+Cut_ww[iw][iw]);
-        if (Type_vext3D==PAIR_YUKAWA_CS || Type_vext3D==PAIR_YUKAWA_CS) YukawaK_wf[i][iw] = 0.5*(YukawaK_ff[i][i]+YukawaK_ww[iw][iw]);
+        if (Type_vext3D==PAIR_YUKAWA_CS || Type_vext3D==PAIR_EXP_CS || 
+            Type_vext3D==PAIR_LJandYUKAWA_CS || Type_vext3D==PAIR_r12andYUKAWA_CS){ 
+               YukawaK_wf[i][iw] = 0.5*(YukawaK_ff[i][i]+YukawaK_ww[iw][iw]);
+        }
 
         if (printproc) {
           fprintf(fp2,"\ti:%d  iwall_type:%d",i,iw);
           fprintf(fp2,"   Sigma_wf: %9.6f  Cut_wf: %9.6f  Eps_wf: %9.6f\n",
            Sigma_wf[i][iw],Cut_wf[i][iw],Eps_wf[i][iw]);
-          if (Type_vext3D==PAIR_YUKAWA_CS || Type_vext3D==PAIR_YUKAWA_CS) {
+          if (Type_vext3D==PAIR_YUKAWA_CS || Type_vext3D==PAIR_EXP_CS || 
+              Type_vext3D==PAIR_LJandYUKAWA_CS || Type_vext3D==PAIR_r12andYUKAWA_CS) {
              fprintf(fp2,"\ti:%d  iwall_type:%d",i,iw);
              fprintf(fp2,"   YukawaK_wf: %9.6f \n",YukawaK_wf[i][iw]);
           }

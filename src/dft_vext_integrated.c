@@ -44,17 +44,24 @@ double integrate_potential(double param1, double param2, double param3, double p
                       double *node_pos, double *node_pos_f)
 { 
    int ig,jg,kg,jwall_type=0; 
-   double weight, vext=0.0, radius, point[3],cut,z1,z2,eps;
+   double weight, vext=0.0, radius, point[3],cut,z1,z2,eps,sum_gw=0.0;
 
    cut=param3;
    /* note that the parameters that come to this file are as follows*/
    /**** LJ type potential ****/
    /*  param1=sigma           */
    /*  param2=eps             */
+   /*  param3=rcut             */
    /**** COULOMB paramters ****/
    /*  param1=z1           */
    /*  param2=z2;             */
+   /*  param3=rcut             */
    /***************************/
+   /**** YUKAWA type potential ****/
+   /*  param1=sigma           */
+   /*  param2=eps             */
+   /*  param3=rcut             */
+   /*  param4=yukawa_alpha (decay param) */
 
    switch(Ndim){
        case 1:
@@ -154,16 +161,23 @@ double get_wt_from_sten(double r,double param1, double param2, double param3,
         rho = sqrt(r*r + z*z) * rcut;
         temp += gwu[i] * z * pairPot_switch(rho, param1,param2,param3,param4,Type_vext3D);
      }
+     /* note that sum over gweights is integral over interval 0 to 1.  So, we need
+        to multiply by the real range of the interaction (zmax/rc)*(rc/sigma).  We also
+        need to multiply by 2*PI because we are summing the area of rings. the second 
+        rcut/sigma term below is to rescale the z/rcut in the equation above. */
      return(2.0 * PI * temp * rcut *rcut * zmax);
   }
   else if (Ndim == 2) {
      temp = 0.0;
-     zmax = sqrt(1 - r*r);
+     zmax = sqrt(1 - r*r);   /*(note the units here are zmax/rc)*/
      for (i=0; i < ngpu; i++) {
         z = zmax * gpu[i];
-        rho = sqrt(r*r + z*z) * rcut;
+        rho = sqrt(r*r + z*z) * rcut;  /* distance to surface element out of plane */
         temp += gwu[i] * pairPot_switch(rho,param1,param2,param3,param4,Type_vext3D);
      }
+     /* note that sum over gweights is integral over interval 0 to 1.  So, we need
+        to multiply by the real range of the interaction (zmax/rc)*(rc/sigma).  We also
+        need to multiply by 2 to perform the integral above and below the explicit plane. */
      return(2.0 * temp * rcut * zmax);
   }
   else {

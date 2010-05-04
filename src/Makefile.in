@@ -144,6 +144,7 @@ am__objects_1 = dft_input.$(OBJEXT) dft_chain_architecture.$(OBJEXT) \
 	dft_potential_params.$(OBJEXT) dft_pairPot_LJ12_6.$(OBJEXT) \
 	dft_pairPot_LJ12_6_SIGTORCUT.$(OBJEXT) \
 	dft_pairPot_COULOMB.$(OBJEXT) dft_pairPot_Yukawa.$(OBJEXT) \
+	dft_pairPot_LJ12_6YukawaSum.$(OBJEXT) \
 	dft_pairPot_EXP.$(OBJEXT) dft_pairPot_SW.$(OBJEXT) \
 	dft_switch_pairPot.$(OBJEXT) dft_switch_vext1D.$(OBJEXT) \
 	dft_switch_FMT.$(OBJEXT) dft_switch_stencil.$(OBJEXT) \
@@ -429,6 +430,7 @@ COMMON_H = \
         ${srcdir}/dft_pairPot_LJ12_6_SIGTORCUT.h \
         ${srcdir}/dft_pairPot_COULOMB.h \
         ${srcdir}/dft_pairPot_Yukawa.h \
+        ${srcdir}/dft_pairPot_LJ12_6YukawaSum.h \
         ${srcdir}/dft_pairPot_EXP.h \
 		${srcdir}/dft_pairPot_SW.h \
         ${srcdir}/dft_switch_pairPot.h \
@@ -533,6 +535,7 @@ COMMON_C = \
         ${srcdir}/dft_pairPot_LJ12_6_SIGTORCUT.c \
         ${srcdir}/dft_pairPot_COULOMB.c \
         ${srcdir}/dft_pairPot_Yukawa.c \
+        ${srcdir}/dft_pairPot_LJ12_6YukawaSum.c \
         ${srcdir}/dft_pairPot_EXP.c \
 		${srcdir}/dft_pairPot_SW.c \
         ${srcdir}/dft_switch_pairPot.c \
@@ -836,6 +839,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_pairPot_COULOMB.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_pairPot_EXP.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_pairPot_LJ12_6.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_pairPot_LJ12_6YukawaSum.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_pairPot_LJ12_6_SIGTORCUT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_pairPot_SW.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dft_pairPot_Yukawa.Po@am__quote@
@@ -2214,6 +2218,20 @@ dft_pairPot_Yukawa.obj: ${srcdir}/dft_pairPot_Yukawa.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_pairPot_Yukawa.c' object='dft_pairPot_Yukawa.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_pairPot_Yukawa.obj `if test -f '${srcdir}/dft_pairPot_Yukawa.c'; then $(CYGPATH_W) '${srcdir}/dft_pairPot_Yukawa.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_pairPot_Yukawa.c'; fi`
+
+dft_pairPot_LJ12_6YukawaSum.o: ${srcdir}/dft_pairPot_LJ12_6YukawaSum.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_pairPot_LJ12_6YukawaSum.o -MD -MP -MF $(DEPDIR)/dft_pairPot_LJ12_6YukawaSum.Tpo -c -o dft_pairPot_LJ12_6YukawaSum.o `test -f '${srcdir}/dft_pairPot_LJ12_6YukawaSum.c' || echo '$(srcdir)/'`${srcdir}/dft_pairPot_LJ12_6YukawaSum.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_pairPot_LJ12_6YukawaSum.Tpo $(DEPDIR)/dft_pairPot_LJ12_6YukawaSum.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_pairPot_LJ12_6YukawaSum.c' object='dft_pairPot_LJ12_6YukawaSum.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_pairPot_LJ12_6YukawaSum.o `test -f '${srcdir}/dft_pairPot_LJ12_6YukawaSum.c' || echo '$(srcdir)/'`${srcdir}/dft_pairPot_LJ12_6YukawaSum.c
+
+dft_pairPot_LJ12_6YukawaSum.obj: ${srcdir}/dft_pairPot_LJ12_6YukawaSum.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_pairPot_LJ12_6YukawaSum.obj -MD -MP -MF $(DEPDIR)/dft_pairPot_LJ12_6YukawaSum.Tpo -c -o dft_pairPot_LJ12_6YukawaSum.obj `if test -f '${srcdir}/dft_pairPot_LJ12_6YukawaSum.c'; then $(CYGPATH_W) '${srcdir}/dft_pairPot_LJ12_6YukawaSum.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_pairPot_LJ12_6YukawaSum.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/dft_pairPot_LJ12_6YukawaSum.Tpo $(DEPDIR)/dft_pairPot_LJ12_6YukawaSum.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='${srcdir}/dft_pairPot_LJ12_6YukawaSum.c' object='dft_pairPot_LJ12_6YukawaSum.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dft_pairPot_LJ12_6YukawaSum.obj `if test -f '${srcdir}/dft_pairPot_LJ12_6YukawaSum.c'; then $(CYGPATH_W) '${srcdir}/dft_pairPot_LJ12_6YukawaSum.c'; else $(CYGPATH_W) '$(srcdir)/${srcdir}/dft_pairPot_LJ12_6YukawaSum.c'; fi`
 
 dft_pairPot_EXP.o: ${srcdir}/dft_pairPot_EXP.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dft_pairPot_EXP.o -MD -MP -MF $(DEPDIR)/dft_pairPot_EXP.Tpo -c -o dft_pairPot_EXP.o `test -f '${srcdir}/dft_pairPot_EXP.c' || echo '$(srcdir)/'`${srcdir}/dft_pairPot_EXP.c

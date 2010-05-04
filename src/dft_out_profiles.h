@@ -29,9 +29,11 @@ void print_Nodes_to_zone(int *node_to_zone,char *output_file);
 void print_zeroTF(int **zero_TF,char *output_file);
 extern double VEXT_MAX;
 extern int Lprint_gofr;
-extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
+extern double Size_x[NDIM_MAX];
+extern double **Charge_x;
+extern int Nlocal_charge;
 extern int Nwall;
 extern int L_HSperturbation;
 void print_gofr(char *output_file6,double *xold);

@@ -25,6 +25,9 @@ int StenTheta_uattr_Njcomp();
 #define PAIR_LJ12_6_SIGTORCUT_CS   4 
 #define PAIR_SW				6
 #define PAIR_EXP_CS			5
+#define PAIR_YUKAWA_CS     3
+#define PAIR_LJandYUKAWA_CS   7
+#define PAIR_r12andYUKAWA_CS   8
 double pairPot_integral_switch(double r,int icomp,int jcomp,int typePairPot);
 double pairPot_ATT_noCS_switch(double r,int icomp,int jcomp,int typePairPot);
 #define PI    M_PI

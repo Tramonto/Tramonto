@@ -237,7 +237,23 @@ void calc_stencils(void)
          shorten_stencil(sten);
       }
 
-      if ( !(fabs(vol_sten-(double)NO_RENORMALIZATION_FLAG) < 1.e-8) )   renormalize_stencil(sten, vol_sten);
+      if ( !(fabs(vol_sten-(double)NO_RENORMALIZATION_FLAG) < 1.e-8) ) {
+            if (Iwrite==VERBOSE && Proc==0){
+            printf("Renormalizing stencil: isten=%d",isten);
+            switch(isten){
+                case DELTA_FN_R: printf(" (DELTA_FN_R stencil)\n"); break;
+                case THETA_FN_R: printf(" (THETA_FN_R stencil)\n"); break;
+                case THETA_PAIRPOT_RCUT: printf(" (THETA_PAIRPOT_RCUT stencil)\n"); break;
+                case THETA_CR_RPM_MSA: printf(" (THETA_CR_RPM_MSA stencil)\n"); break;
+                case THETA_CR_DATA: printf(" (THETA_CR_DATA stencil)\n"); break;
+                case THETA_FN_SIG: printf(" (THETA_FN_SIG stencil)\n"); break;
+                case DELTA_FN_BOND: printf(" (DELTA_FN_BOND stencil)\n"); break;
+                case THETA_CR_GENERAL_MSA: printf(" (THETA_CR_GENERAL_MSA stencil)\n"); break;
+                default: printf("problem with isten switch exititng\n"); exit(-1); break;
+            }
+            }
+            renormalize_stencil(sten, vol_sten);
+      }
 
       if (Iwrite == VERBOSE && Proc==0){
           print_out_stencil(isten, izone,icomp, jcomp, ifp);
@@ -673,7 +689,7 @@ void renormalize_stencil(struct Stencil_Struct *sten, double vol_sten)
 
    for (i=0; i < sten->Length; i++) sum += sten->Weight[i];
 
-   /*printf("renormalize_stencils vol_sten=%g  sum_sten=%g\n",vol_sten,sum);*/
+   if (Iwrite==VERBOSE && Proc==0) printf("\t before normalization vol_sten=%g  sum_sten=%g\n",vol_sten,sum);
 
    if (sum == vol_sten) return;
 
@@ -688,6 +704,10 @@ void renormalize_stencil(struct Stencil_Struct *sten, double vol_sten)
        for (j=0; j < Nnodes_per_el_V; j++) 
          sten->HW_Weight[i][j] *= ratio;
    }
+
+   sum=0.0;
+   for (i=0; i < sten->Length; i++) sum += sten->Weight[i];
+   if (Iwrite==VERBOSE && Proc==0) printf("\t after normalization vol_sten=%g  sum_sten=%g\n",vol_sten,sum);
 }
 /****************************************************************************/
 

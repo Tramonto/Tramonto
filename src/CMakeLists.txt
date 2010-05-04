@@ -119,6 +119,8 @@ set(common_h
         dft_pairPot_LJ12_6_SIGTORCUT.h 
         dft_pairPot_COULOMB.h 
         dft_pairPot_Yukawa.h 
+        dft_pairPot_LJ12_6YukawaSum.h
+        dft_pairPot_r12YukawaSum.h
         dft_pairPot_EXP.h 
 		dft_pairPot_SW.h 
         dft_switch_pairPot.h 
@@ -223,6 +225,8 @@ set(common_c
         dft_pairPot_LJ12_6_SIGTORCUT.c 
         dft_pairPot_COULOMB.c 
         dft_pairPot_Yukawa.c 
+        dft_pairPot_LJ12_6YukawaSum.c
+        dft_pairPot_r12YukawaSum.c
         dft_pairPot_EXP.c 
 		dft_pairPot_SW.c 
         dft_switch_pairPot.c 

@@ -125,8 +125,8 @@ void set_initial_guess (int guess_type, double** xOwned)
 
          case WJDC_FIELD:
            if (Phys2Nunk[WJDC_FIELD]>0 && (start_no_info || Restart_field[WJDC_FIELD]==FALSE || Restart==RESTART_FEWERCOMP)){
-                 if (Iguess_fields==CALC_ALL_FIELDS) calc_init_WJDC_field(xInBox,xOwned);
-                 else                            setup_polymer_field_wjdc(xOwned); 
+                 if (Iguess_fields==CALC_ALL_FIELDS)  calc_init_WJDC_field(xInBox,xOwned);
+                 else                                 setup_polymer_field_wjdc(xOwned); 
            } 
            break;
 

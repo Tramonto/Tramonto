@@ -92,7 +92,8 @@ void calc_HS_diams()
      }
      else HS_diam[icomp]=Sigma_ff[icomp][icomp];
 
-     if (Proc==0) printf("BH hard cores: icomp=%d  Sigma_ff=%9.6f  eps/kT=%9.6f HS_diam=%9.6f\n",
+     if (Proc==0) 
+            printf("hard sphere diameters: icomp=%d  Sigma_ff=%9.6f  eps/kT=%9.6f HS_diam=%9.6f\n",
              icomp,Sigma_ff[icomp][icomp],Eps_ff[icomp][icomp],HS_diam[icomp]);
   }
   return;

@@ -41,6 +41,12 @@ int stencil_quadGauss_switch(int sten,double r);
 void print_out_stencil(int isten,int izone,int icomp,int jcomp,FILE *ifp);
 typedef struct Stencil_Struct Stencil_Struct;
 void renormalize_stencil(struct Stencil_Struct *sten,double vol_sten);
+#define DELTA_FN_BOND         6
+#define THETA_FN_SIG          5
+#define THETA_CR_DATA         4
+#define THETA_CR_RPM_MSA      3
+#define THETA_FN_R            1
+#define DELTA_FN_R            0
 #define NO_RENORMALIZATION_FLAG -888
 void shorten_stencil(struct Stencil_Struct *sten);
 #define THETA_PAIRPOT_RCUT    2
