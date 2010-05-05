@@ -1886,7 +1886,7 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (!LBulk && ((Loca.method != -1 && Loca.cont_type1 == CONT_BETAMU_I) ||
        (Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I)) ){
-       printf("error: for continuation type=%d LBulk must be TRUE=%d .... resetting LBulk\n",Loca.cont_type1,1);
+       /*printf("for continuation in chemical potential LBulk must be TRUE=%d .... resetting LBulk\n",Loca.cont_type1,1);*/
        LBulk=TRUE;
     }
   MPI_Bcast(&LBulk,1,MPI_INT,0,MPI_COMM_WORLD);
