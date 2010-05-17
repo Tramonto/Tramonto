@@ -58,7 +58,6 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-#define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
 void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned);
 void calc_init_polymer_G_CMS(double **xInBox,double **xOwned);
 #define G_CHAIN       11 

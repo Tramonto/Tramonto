@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-int stencil_deltaLogical(int sten);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,6 +14,21 @@ int stencil_deltaLogical(int sten);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define ATTCORE_UCSZERO     2
+#define MFPAIR_RCSZERO_ZERO   4
+#define ATTCORE_SIGTOUMIN   3
+#define MFPAIR_SIGTOUMIN_UMIN 3
+#define MFPAIR_SIGMA_USIGMA   2
+#define CORECONST_ZERO      1
+#define ATTCORE_SIGMA       0
+#define MFPAIR_SIGMA_ZERO     1
+#define CORECONST_UCONST    0
+extern int Type_CoreATT_CONST;
+#define ATTCORE_UMIN        1
+extern int Type_CoreATT_R;
+#define MFPAIR_RMIN_UMIN      0
+void setup_stencil_uattr_core_properties();
+int stencil_deltaLogical(int sten);
 #define THETA_FN_SIG          5
 #define WJDC3        5 
 #define WJDC2        4 

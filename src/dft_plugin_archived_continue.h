@@ -25,7 +25,7 @@ void scale_vext_epswf(double ratio,int icomp,int iwall);
 #define NWALL_MAX 600 
 extern int WallType[NWALL_MAX];
 extern int Nwall;
-void pot_parameters(char *output_file1);
+void setup_pairPotentials(char *output_file1);
 extern int Nwall_type;
 extern int Ncomp;
 void thermodynamics(char *output_file1);

@@ -81,5 +81,31 @@ int stencil_deltaLogical(int sten)
   }
 }
 /****************************************************************************/
+void setup_stencil_uattr_core_properties()
+{
+  switch(Type_attr){
+    case MFPAIR_RMIN_UMIN: 
+        Type_CoreATT_R=ATTCORE_UMIN;
+        Type_CoreATT_CONST=CORECONST_UCONST; break;
+    case MFPAIR_SIGMA_ZERO:
+        Type_CoreATT_R=ATTCORE_SIGMA;
+        Type_CoreATT_CONST=CORECONST_ZERO; break;
+    case MFPAIR_SIGMA_USIGMA:
+        Type_CoreATT_R=ATTCORE_SIGMA;
+        Type_CoreATT_CONST=CORECONST_UCONST; break;
+    case MFPAIR_SIGTOUMIN_UMIN:
+        Type_CoreATT_R=ATTCORE_SIGTOUMIN;
+        Type_CoreATT_CONST=CORECONST_UCONST; break;
+    case MFPAIR_RCSZERO_ZERO:
+        Type_CoreATT_R=ATTCORE_UCSZERO;
+        Type_CoreATT_CONST=CORECONST_ZERO; break;
+    default:
+        printf("unknown attraction type Type_attr=%d\n",Type_attr);
+        exit(-1); break;
+
+  }
+  return;
+}
+/****************************************************************************/
 
 

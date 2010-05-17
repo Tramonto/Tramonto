@@ -65,6 +65,7 @@ extern double NL_update_scalingParam;
 extern double NL_abs_tol,NL_rel_tol;
 #define CALC_ALL_FIELDS   1
 #define PICARD_BUILT_IN       2
+extern int ATTInA22Block;
 extern int Physics_scaling;
 extern int Max_NL_iter;
 extern int NL_Solver;
@@ -190,10 +191,10 @@ extern double Sigma_w[NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Rho_w[NWALL_MAX_TYPE];
 extern double YukawaK_ff[NCOMP_MAX][NCOMP_MAX];
-#define PAIR_r12andYUKAWA_CS   8
-#define PAIR_LJandYUKAWA_CS   7
-#define PAIR_EXP_CS			5
-#define PAIR_YUKAWA_CS     3
+#define PAIR_r12andYUKAWA_CS  7
+#define PAIR_LJandYUKAWA_CS   6
+#define PAIR_EXP_CS	      4
+#define PAIR_YUKAWA_CS        3
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
@@ -254,8 +255,8 @@ extern int Nlink;
 extern int Nwall;
 extern int Nwall_type;
 extern int Ipot_ff_c;
-#define PAIR_COULOMB       2
-#define PAIR_COULOMB_CS    1
+#define PAIR_COULOMB          2
+#define PAIR_COULOMB_CS       1
 #define LJ12_6       2
 #define HARD_SPHERE  1
 #define IDEAL_GAS    0

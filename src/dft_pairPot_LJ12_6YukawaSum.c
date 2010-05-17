@@ -102,6 +102,31 @@ double uLJandYUKAWA_DERIV1D(double r,double x,double sigma, double eps, double r
   return (uderiv);
 }
 /******************************************************************************/
+/* uLJandYUKAWA_InnerCore : define the properties of the inner core of the potential based on
+                  input parameters */
+void uLJandYUKAWA_InnerCore(int i, int j,
+       double *rCore_left, double *rCore_right, double *epsCore)
+{
+   /* note if the summed potential is purely repulsive then Rmin and Rzero will be set to Sigma_ff */
+   switch(Type_CoreATT_R){
+      case ATTCORE_SIGMA:      *(rCore_right)=Sigma_ff[i][j]; *(rCore_left)=0.0; break;
+      case ATTCORE_UMIN:       *rCore_right=Rmin_ff[i][j]; *rCore_left=0.0; break;
+      case ATTCORE_UCSZERO:    *rCore_right=Rzero_ff[i][j]; *rCore_left=0.0; break;
+      case ATTCORE_SIGTOUMIN:  *rCore_right=Rmin_ff[i][j]; *rCore_left=Sigma_ff[i][j]; break;
+      default:
+        printf("Problem with Type_CoreATT_R - set to %d\n",Type_CoreATT_R);
+        exit(-1); break;
+   }
+   switch(Type_CoreATT_CONST){
+      case CORECONST_UCONST:   *epsCore=uLJandYUKAWA_ATT_noCS(*rCore_right,i,j); break;
+      case CORECONST_ZERO:     *epsCore=0.0; break;
+      default:
+        printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
+        exit(-1); break;
+   }
+   return;
+}
+/******************************************************************************/
 /* uLJandYUKAWA_ATT_CS: the attractive part of the potential for a cut and shifted 
                         potential that sums LJ and yukawa potentials */
 double uLJandYUKAWA_ATT_CS(double r,int i, int j)
@@ -125,22 +150,35 @@ double uLJandYUKAWA_ATT_CS(double r,int i, int j)
   alpha=YukawaK_ff[i][j]*sigma;
   Ayukawa=eps;
 
-  if (r<=rcut){
-     r_min=sigma* pow(2.0,1.0/6.0);
-     if (r<r_min) r=r_min;
-
-     r_inv = 1.0/r;
-     r2_inv  = r_inv*r_inv;
-     r6_inv  = r2_inv*r2_inv*r2_inv;
-     r12_inv = r6_inv*r6_inv;
-
-     uatt=4.0 * fabs(eps)* sigma6 * (
-               sigma6*(r12_inv - rc12_inv)
-                    - (r6_inv  - rc6_inv ) )+
-          Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma)
-        - Ayukawa*exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma);
+   /* note if the summed potential is purely repulsive then Rmin and Rzero will be set to Sigma_ff */
+  switch(Type_CoreATT_R){
+     case ATTCORE_SIGMA:      r_min=Sigma_ff[i][j]; break;
+     case ATTCORE_SIGTOUMIN:       
+     case ATTCORE_UMIN:       r_min=Rmin_ff[i][j]; break; 
+     case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break;
   }
-  else uatt=0.0;
+
+  if ((r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) || 
+      (r<sigma && Type_CoreATT_R==ATTCORE_SIGTOUMIN)){
+         uatt=0.0;
+  }
+  else{
+     if (r<=rcut){
+        if (r<r_min) r=r_min;
+
+        r_inv = 1.0/r;
+        r2_inv  = r_inv*r_inv;
+        r6_inv  = r2_inv*r2_inv*r2_inv;
+        r12_inv = r6_inv*r6_inv;
+
+        uatt=4.0 * fabs(eps)* sigma6 * (
+                  sigma6*(r12_inv - rc12_inv)
+                    - (r6_inv  - rc6_inv ) )+
+             Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma)
+           - Ayukawa*exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma);
+     }
+     else uatt=0.0;
+  }
   return uatt;
 }
 /******************************************************************************/
@@ -159,18 +197,30 @@ double uLJandYUKAWA_ATT_noCS(double r,int i, int j)
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
   sigma6 = sigma2*sigma2*sigma2;
 
-  r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
-  if (r<r_min) r=r_min;
+   /* note if the summed potential is purely repulsive then Rmin and Rzero will be set to Sigma_ff */
+  switch(Type_CoreATT_R){
+     case ATTCORE_SIGMA:      r_min=Sigma_ff[i][j]; break;
+     case ATTCORE_SIGTOUMIN:       
+     case ATTCORE_UMIN:       r_min=Rmin_ff[i][j]; break; 
+     case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break;
+  }
 
-  r_inv = 1.0/r;
+  if ((r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) || 
+      (r<sigma && Type_CoreATT_R==ATTCORE_SIGTOUMIN)){
+     uatt=0.0;
+  }
+  else{
+     if (r<r_min) r=r_min;
 
-  r2_inv  = r_inv*r_inv;
-  r6_inv  = r2_inv*r2_inv*r2_inv;
-  r12_inv = r6_inv*r6_inv;
+     r_inv = 1.0/r;
 
-  uatt= 4.0 * fabs(eps)* sigma6 * ( sigma6*r12_inv  - r6_inv)
-        + Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma);
+     r2_inv  = r_inv*r_inv;
+     r6_inv  = r2_inv*r2_inv*r2_inv;
+     r12_inv = r6_inv*r6_inv;
 
+     uatt= 4.0 * fabs(eps)* sigma6 * ( sigma6*r12_inv  - r6_inv)
+           + Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma);
+  }
   return uatt;
 }
 /****************************************************************************/

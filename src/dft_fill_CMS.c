@@ -47,7 +47,7 @@ double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
     }
     else{
 		/* note: mean-field part of Jacobian gets filled in resid_and_Jac_sten_fill_sum_Ncomp in dft_fill_CLSmf.c */
-       if (Type_attr == MF_VARIABLE){
+       if (ATTInA22Block==FALSE){
            iunk_att=Phys2Unk_first[MF_EQ]+itype_mer;
            resid_B=x[iunk_att][inode_box];
            if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY)

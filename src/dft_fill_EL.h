@@ -32,10 +32,7 @@ extern double Betamu_seg[NMER_MAX];
 extern double *Deltac_b;
 extern double Betamu_wtc[NMER_MAX];
 extern double Betamu_att[NCOMP_MAX];
-#define LJ12_6       2
 extern double Betamu_hs_ex[NCOMP_MAX];
-#define IDEAL_GAS    0
-extern int Ipot_ff_n;
 #define DIFFUSIVE_INTERFACE 1
 #define NCONT_MAX          2 /* the maximum number of solutions possible for use with Loca */
 extern int Cont_ID[NCONT_MAX][2];
@@ -87,7 +84,7 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
 #define THETA_PAIRPOT_RCUT    2
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 #define MF_EQ          3
-#define MF_VARIABLE  2
+extern int ATTInA22Block;
 extern int Type_attr;
 #define THETA_FN_R            1
 #define DELTA_FN_R            0

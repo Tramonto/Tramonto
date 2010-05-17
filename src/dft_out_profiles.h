@@ -92,7 +92,6 @@ extern double Temp_elec;
 #define COULOMB      1
 extern int Ipot_ff_c;
 extern int Npoisson;
-#define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
 #define SCF_FIELD	  10
 #define SCF_CONSTR	   9
 #define BONDWTC        5

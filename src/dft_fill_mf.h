@@ -24,7 +24,11 @@ extern void *LinProbMgr_manager;
 #define NCOMP_MAX 5
 #define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
-#define MF_VARIABLE  2
+extern int ATTInA22Block;
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
 extern int Type_attr;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)

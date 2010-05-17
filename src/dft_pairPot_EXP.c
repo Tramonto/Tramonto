@@ -93,6 +93,23 @@ double uEXP_DERIV1D(double r,double x,double sigma, double eps, double rcut,doub
   return (uderiv);
 }
 /******************************************************************************/
+/* uEXP_InnerCore : define the properties of the inner core of the potential based on
+                  input parameters */
+void uEXP_InnerCore(int i, int j,double *rCore_left, double *rCore_right, double *epsCore)
+{
+   *rCore_left=0.0;
+   *rCore_right=Sigma_ff[i][j];   /* monotonic potential - UMIN & UZERO options not available */
+
+   switch(Type_CoreATT_CONST){
+      case CORECONST_UCONST:   *epsCore=uEXP_ATT_noCS(*rCore_right,i,j); break;
+      case CORECONST_ZERO:     *epsCore=0.0; break;
+      default:
+        printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
+        exit(-1);
+   }
+   return;
+}
+/******************************************************************************/
 /* uEXP_ATT_CS: the attractive part of the potential for a cut and shifted 
                    exponential system */
 double uEXP_ATT_CS(double r,int i, int j)
@@ -103,7 +120,10 @@ double uEXP_ATT_CS(double r,int i, int j)
   eps=Eps_ff[i][j];
   alpha=YukawaK_ff[i][j];
 
-  if(r<sigma) uatt=0.0;
+  if(r<sigma){
+     if (Type_CoreATT_CONST==CORECONST_ZERO) uatt = 0.0;
+     else                                    uatt = eps*(-1.0+exp(-(rcut-sigma)/alpha));
+  }
   else if (r<=rcut){
      uatt = -eps*exp(-(r-sigma)/alpha) + eps*exp(-(rcut-sigma)/alpha);
   }
@@ -119,9 +139,11 @@ double uEXP_ATT_noCS(double r,int i, int j)
   eps=Eps_ff[i][j];
   alpha=YukawaK_ff[i][j];
 
-  if (r<sigma) uatt = 0.0;
-  else
-	  uatt = -eps*exp(-(r-sigma)/alpha);
+  if (r<sigma){
+       if (Type_CoreATT_CONST==CORECONST_ZERO) uatt = 0.0;
+       else                                    uatt = -eps;
+  }
+  else   uatt = -eps*exp(-(r-sigma)/alpha);
 
   return uatt;
 }

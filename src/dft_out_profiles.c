@@ -289,8 +289,6 @@ void print_profile(char *output_file4,double *xold)
 			fputs (unk_char,ifp); 
 			fprintf(ifp,"\n"); 
 		} break;
-	 case YW_DENS:
-	   break;
          }
      }
 

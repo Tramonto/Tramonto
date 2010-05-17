@@ -15,7 +15,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern double **Vext;
-#define PAIR_COULOMB       2
+#define PAIR_COULOMB          2
 extern int Type_pairPot;
 #define NONE       -1
 #define NONE          -1

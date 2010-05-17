@@ -48,7 +48,6 @@ extern int Nrho_bar_s;
 #define THETA_FN_R            1
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
 #define HSRHOBAR       2
-#define YW           7
 #define SCFT         6	
 double load_SCF_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 double load_WJDC_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);

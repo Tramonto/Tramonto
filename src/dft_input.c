@@ -210,8 +210,8 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(&Type_attr,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Type_pairPot,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_attr >2 || Type_attr<-1){
-     if (Proc==0) printf("ERROR Type_attr=%d out of range - should be -1, 0, 1, or 2\n",Type_attr);
+  if (Type_attr >6 || Type_attr<-1){
+     if (Proc==0) printf("ERROR Type_attr=%d out of range - should be -1 <Type_attr<6\n",Type_attr);
      exit(-1);
   }
 
@@ -243,7 +243,7 @@ void read_input_file(char *input_file, char *output_file1)
   /* Read in or set if known the Potential Type Paramters */
   if (Type_func == -1 && (Type_poly==NONE || Type_poly==WTC)  ) Ipot_ff_n = IDEAL_GAS;
   else if (Type_attr == -1)                                     Ipot_ff_n = HARD_SPHERE;
-  else if (Type_attr == 0 || Type_attr==1 || Type_attr==2)      Ipot_ff_n = LJ12_6;
+  else if (Type_attr != NONE)      Ipot_ff_n = LJ12_6;
   else {
      printf("ERROR WITH Type_func and Type_attr selections and conversion to Ipot_ff_n parameter \n");
      exit (-1);
@@ -1697,12 +1697,13 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d %d %d %d ", &NL_Solver, &Max_NL_iter, &Physics_scaling);
-    fprintf(fp2,"%d %d %d %d",NL_Solver,Max_NL_iter,Physics_scaling);
+    fscanf(fp,"%d %d %d %d ", &NL_Solver, &Max_NL_iter, &Physics_scaling, &ATTInA22Block);
+    fprintf(fp2,"%d %d %d %d",NL_Solver,Max_NL_iter,Physics_scaling,ATTInA22Block);
   }
   MPI_Bcast(&Max_NL_iter,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&NL_Solver,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Physics_scaling,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&ATTInA22Block,1,MPI_INT,0,MPI_COMM_WORLD);
   if (NL_Solver==PICARD_BUILT_IN && Iguess_fields !=CALC_ALL_FIELDS){
      printf("Picard solver indicated so Iguess_fields is reset to %d\n",CALC_ALL_FIELDS);
   }

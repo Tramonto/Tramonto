@@ -120,6 +120,23 @@ double uCOULOMB_CS_DERIV1D(double r,double x,double z1,double z2,double rcut)
   return (uderiv);
 }
 /****************************************************************************/
+/* uCOULOMB_InnerCore : define the properties of the inner core of the potential based on
+                  input parameters */
+void uCOULOMB_InnerCore(int i, int j,double *rCore_left, double *rCore_right, double *epsCore)
+{
+   *rCore_left=0.0;
+   *rCore_right=Sigma_ff[i][j]; /* monotonic potential - UMIN & UZERO options not available */
+   switch(Type_CoreATT_CONST){
+      case CORECONST_UCONST:   *epsCore=uCOULOMB_ATT_noCS(*rCore_right,i,j);break;
+      case CORECONST_ZERO:     *epsCore=0.0; break;
+      default:
+        printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
+        exit(-1);
+   }
+   return;
+}
+/******************************************************************************/
+
 /* uCOULOMB_CS_ATT_CS:  the pair potential (based on a Coulomb potential model fluid) 
                   that will be used as the attractive perturbation to a hard sphere 
                   reference fluid in strict mean field DFT calculations */
@@ -128,14 +145,16 @@ double uCOULOMB_ATT_CS(double r,int i, int j)
 {
   double uatt,r_min,rcut;
   rcut=Cut_ff[i][j];
+  r_min = Sigma_ff[i][j];
 
-  if (r <= rcut) {
-     r_min = Sigma_ff[i][j];
-     if (r < r_min) r = r_min;
-
-     uatt = Charge_f[i]*Charge_f[j]*(1./(r*Temp_elec)-1./(rcut*Temp_elec));
-  }
+  if (r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) uatt=0.0;
+  else{
+     if (r <= rcut) {
+        if (r < r_min) r = r_min;
+        uatt = Charge_f[i]*Charge_f[j]*(1./(r*Temp_elec)-1./(rcut*Temp_elec));
+     }
   else uatt = 0.0;
+  }
 
   return uatt;
 }
@@ -149,10 +168,12 @@ double uCOULOMB_ATT_noCS(double r,int i, int j)
   double uatt,r_min;
 
   r_min = Sigma_ff[i][j];
-  if (r < r_min) r = r_min;
 
-  uatt = Charge_f[i]*Charge_f[j]/(r*Temp_elec);
-
+  if (r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) uatt=0.0;
+  else{
+     if (r < r_min) r = r_min;
+     uatt = Charge_f[i]*Charge_f[j]/(r*Temp_elec);
+  }
   return uatt;
 }
 /******************************************************************************/
@@ -174,15 +195,17 @@ double uCOULOMB_DERIV1D(double r,double x,double z1,double z2)
 double uCOULOMB_ATT_CnoS(double r,int i, int j)
 {
   double uatt,r_min;
+  r_min = Sigma_ff[i][j];
+  
 
-  if (r <= Cut_ff[i][j]) {
-     r_min = Sigma_ff[i][j];
-     if (r < r_min) r = r_min;
-
-     uatt = Charge_f[i]*Charge_f[j]/(r*Temp_elec);
-  }
+  if (r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) uatt=0.0;
+  else{
+    if (r <= Cut_ff[i][j]) {
+       if (r < r_min) r = r_min;
+       uatt = Charge_f[i]*Charge_f[j]/(r*Temp_elec);
+    }
   else uatt = 0.0;
-
+  }
   return uatt;
 }
 /****************************************************************************/

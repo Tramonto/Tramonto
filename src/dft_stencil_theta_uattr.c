@@ -39,58 +39,51 @@ double StenTheta_uattr_sten_rad(int icomp,int jcomp)
 double StenTheta_uattr_sten_vol(int i,int j)
 {
 
-   double r_min,r_cut,vol_sten;
+   double r_min,r_cut,vol_sten,rCore_left,rCore_right,epsCore;
+   int    LCore;
 
    r_cut = Cut_ff[i][j];
+   pairPot_InnerCore_switch(i,j,Type_pairPot,&rCore_left,&rCore_right,&epsCore);
 
-   switch(Type_pairPot){
-      case PAIR_LJ12_6_CS:
-          r_min=Sigma_ff[i][j] * pow(2.0,1.0/6.0);
+
+   if (fabs(epsCore)<1.e-8) LCore=FALSE;
+   else                     LCore=TRUE;
+
+   if (LCore==TRUE){
+       if (fabs(rCore_left)<Esize_x[0]){   /* WCA-like case where there is only one constant in the core */
+          r_min=rCore_right;
+          vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)
+                    - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
+                     + pairPot_integral_switch(r_cut,i,j,Type_pairPot) 
+                     - pairPot_integral_switch(r_min,i,j,Type_pairPot);
+
+       }
+       else{                                  /* Jain-Dominik-Chapman case two constants in the core.  Note that
+                                                 the first constant (from r=0 to r=rCore_left is assumed to be 
+                                                 zero (u=0 for r<Sigma in the JDC case). */
+          r_min=rCore_right;
           vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)
               - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
+              - (4.0/3.0)*PI*pow(rCore_left,3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)
+              + (4.0/3.0)*PI*pow(rCore_left,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
               + pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
-          break;
 
-      case PAIR_EXP_CS:	
-      case PAIR_YUKAWA_CS:	
-      case PAIR_LJandYUKAWA_CS:	
-      case PAIR_r12andYUKAWA_CS:	
-          r_min = Sigma_ff[i][j];
-	  vol_sten = (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
-		- (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
-		+ pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
-          break;
-
-       case PAIR_SW:
-		   r_min = Sigma_ff[i][j];
-	  vol_sten = -(4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
-	        + (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot);
-          break;
-
-      case PAIR_LJ12_6_SIGTORCUT_CS:
-          r_min=Sigma_ff[i][j] * pow(2.0,1.0/6.0);
-          vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)
-              - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
-              - (4.0/3.0)*PI*pow(Sigma_ff[i][j],3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)
-              + (4.0/3.0)*PI*pow(Sigma_ff[i][j],3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
-              + pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
-          break;
-
-      default:
-          r_min = Sigma_ff[i][j];
-	  vol_sten = (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
-		- (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
-		+ pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
-
-/*        old default - replacing the WCA appraoch where uatt=u(rmin) for r<rmin (commented out below)
-                        with the assumption that uatt=0 for r<sigma (line above this one). */
-/*        vol_sten =  (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_min,i,j,Type_pairPot)
-              - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot)
-              + pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);*/
-
-          break;
+       }
    }
-
+   else{
+       if (Type_pairPot==PAIR_SW){   /* this one case is different because there is a strict discontinuity at r=rcut */
+          r_min = rCore_right;
+          vol_sten = pairPot_integral_switch(r_cut,i,j,Type_pairPot) - pairPot_integral_switch(r_min,i,j,Type_pairPot);
+       }
+       else{ 
+          r_min = rCore_right;
+          /* volume of stencil from r_min to r_cut -- adjusted for cut and shift*/
+          vol_sten = (pairPot_integral_switch(r_cut,i,j,Type_pairPot) 
+                      - (4.0/3.0)*PI*pow(r_cut,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot))
+                - (pairPot_integral_switch(r_min,i,j,Type_pairPot) 
+                      - (4.0/3.0)*PI*pow(r_min,3.0)*pairPot_ATT_noCS_switch(r_cut,i,j,Type_pairPot));
+       }
+   }
    return(vol_sten);
 }
 /*********************************************************************/

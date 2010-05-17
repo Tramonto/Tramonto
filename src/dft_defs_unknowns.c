@@ -37,7 +37,7 @@ void setup_matrix_constant_blocks();
 void setup_nunk_per_node(char *output_file1)
 {
   int i,iunk,icomp,unk_rel;
-  int NCMSField_unk, NYW_Dens, NWJDCField_unk;
+  int NCMSField_unk, NWJDCField_unk;
   FILE *fp2=NULL;
 
   if (Proc==0) {
@@ -77,7 +77,7 @@ void setup_nunk_per_node(char *output_file1)
          case MF_EQ:  /* unknowns for mean field attractions - a new way to separate constant matrix
                                coefficients from density unknowns */
             Nmf_eqns=0;
-            if (Type_attr==MF_VARIABLE){
+            if (ATTInA22Block==FALSE && Type_attr != NONE){
                Nmf_eqns=Ncomp;
             }
             Phys2Nunk[MF_EQ]=Nmf_eqns;
@@ -145,13 +145,6 @@ void setup_nunk_per_node(char *output_file1)
             else Phys2Nunk[G_CHAIN]=0;
             break;
 
-          case YW_DENS:			/* unknowns for weighted density in YW functional */
-			  if(Type_poly==YW)
-				Phys2Nunk[YW_DENS] = Ncomp;
-			  else
-				  Phys2Nunk[YW_DENS] = 0;
-			  break;
-		 
          case SCF_FIELD:
 			  if(Type_poly==SCFT || Type_poly==CMS_SCFT)
 				  Phys2Nunk[SCF_FIELD] = Ncomp;
@@ -243,9 +236,8 @@ void setup_matrix_constant_blocks()
            case MF_EQ:
                 Constant_row_flag[iphys]=TRUE;
                 break;
-           case YW_DENS: break;
-		   case SCF_FIELD: break;
-		   case SCF_CONSTR: break;
+	   case SCF_FIELD: break;
+	   case SCF_CONSTR: break;
            default: break;
     }
   }

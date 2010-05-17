@@ -29,8 +29,6 @@ extern int Phys2Unk_last[NEQ_TYPE];
 extern int Phys2Unk_first[NEQ_TYPE];
 #define SCF_CONSTR	   9
 #define SCF_FIELD	  10
-#define YW           7
-#define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
 extern int Ngeqn_tot;
 #define G_CHAIN       11 
 #define WJDC_FIELD     8
@@ -45,15 +43,15 @@ extern int Nrho_bar_cavity;
 extern int Type_interface;
 extern int Ndiffusion;
 #define DIFFUSION      6
+extern int Type_coul;
+extern int Npoisson;
+#define POISSON        1
 #define NONE       -1
 #define NONE          -1
 #define NONE        -1
 #define NONE        -1
-extern int Type_coul;
-extern int Npoisson;
-#define POISSON        1
-#define MF_VARIABLE  2
 extern int Type_attr;
+extern int ATTInA22Block;
 extern int Nmf_eqns;
 #define MF_EQ          3
 extern int Nrho_bar_s;

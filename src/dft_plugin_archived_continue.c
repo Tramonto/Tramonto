@@ -166,7 +166,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
                  for (i=0; i<Ncomp; i++){ 
                    for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
                  }
-                 pot_parameters(NULL);
+                 setup_pairPotentials(NULL);
                  for (i=0; i<Ncomp; i++){
                    for (iw=0; iw<Nwall; iw++){
                       ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
@@ -222,7 +222,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
                 }
 
                     /* find new wf interactions and correct vext */
-                pot_parameters("dft_out.lis"); 
+                setup_pairPotentials("dft_out.lis");
                 for (i=0; i<Ncomp; i++){
                   for (iw=0; iw<Nwall; iw++){
                     ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];

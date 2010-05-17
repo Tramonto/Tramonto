@@ -22,19 +22,26 @@ extern int Ndim;
 int StenTheta_uattr_NquadPtsBoundary();
 extern int Ncomp;
 int StenTheta_uattr_Njcomp();
-#define PAIR_LJ12_6_SIGTORCUT_CS   4 
-#define PAIR_SW				6
-#define PAIR_EXP_CS			5
-#define PAIR_YUKAWA_CS     3
-#define PAIR_LJandYUKAWA_CS   7
-#define PAIR_r12andYUKAWA_CS   8
+#define PAIR_SW		      5
 double pairPot_integral_switch(double r,int icomp,int jcomp,int typePairPot);
 double pairPot_ATT_noCS_switch(double r,int icomp,int jcomp,int typePairPot);
 #define PI    M_PI
-#define NCOMP_MAX 5
-extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
-#define PAIR_LJ12_6_CS     0
+#define NDIM_MAX  3
+extern double Esize_x[NDIM_MAX];
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
+#define FALSE 0
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
 extern int Type_pairPot;
+double pairPot_InnerCore_switch(int icomp,int jcomp,int typePairPot,double *rCore_left,double *rCore_right,double *epsCore);
 double StenTheta_uattr_sten_vol(int i,int j);
+#define NCOMP_MAX 5
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 double StenTheta_uattr_sten_rad(int icomp,int jcomp);

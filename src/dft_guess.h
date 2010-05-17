@@ -22,7 +22,6 @@ void safe_free(void **ptr);
 void check_zero_densities_owned(double **xOwned);
 void chop_profile(double **xInBox,int guess_type);
 #define RESTART_STEP       2
-#define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
 void setup_polymer_G_wjdc(double **xOwned);
 void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned);
 #define WJDC3        5 

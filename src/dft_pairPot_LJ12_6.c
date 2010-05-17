@@ -91,6 +91,37 @@ double uLJ12_6_DERIV1D(double r,double x,double sigma, double eps, double rcut)
   return (4.0*eps*uderiv);
 }
 /******************************************************************************/
+/* uLJ12_6_InnerCore : define the properties of the inner core of the potential based on 
+                  input parameters */
+void uLJ12_6_InnerCore(int i, int j,double *rCore_left, double *rCore_right, double *epsCore)
+{
+   switch(Type_CoreATT_R){
+      case ATTCORE_SIGMA:      
+          *rCore_right=Sigma_ff[i][j]; 
+          *rCore_left=0.0; break;
+      case ATTCORE_UMIN:       
+          *rCore_right=Rmin_ff[i][j]; 
+          *rCore_left=0.0; break;
+      case ATTCORE_UCSZERO:    
+          *rCore_right=Rzero_ff[i][j]; 
+          *rCore_left=0.0; break;
+      case ATTCORE_SIGTOUMIN:  
+          *rCore_right=Rmin_ff[i][j]; 
+          *rCore_left=Sigma_ff[i][j]; break;
+      default:
+        printf("Problem with Type_CoreATT_R - set to %d\n",Type_CoreATT_R);
+        exit(-1);
+   }
+   switch(Type_CoreATT_CONST){
+      case CORECONST_UCONST:   *epsCore=uLJ12_6_ATT_noCS(*rCore_right,i,j);break;
+      case CORECONST_ZERO:     *epsCore=0.0; break;
+      default:
+        printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
+        exit(-1);
+   }
+   return;
+}
+/******************************************************************************/
 /* uLJ12_6_ATT_CS: the pair potential (based on a 12-6 LJ fluid) that will be used 
                   as the attractive perturbation to a hard sphere reference fluid
                   in strict mean field DFT calculations */
@@ -108,22 +139,32 @@ double uLJ12_6_ATT_CS(double r,int i, int j)
   rc6_inv  = rc2_inv*rc2_inv*rc2_inv;
   rc12_inv = rc6_inv*rc6_inv;
 
+  switch(Type_CoreATT_R){
+     case ATTCORE_SIGMA:      r_min=Sigma_ff[i][j]; break;
+     case ATTCORE_SIGTOUMIN:  
+     case ATTCORE_UMIN:       r_min=Rmin_ff[i][j]; break; /* should be Sigma_ff[i][j]*pow(2.0,1.0/6.0) */
+     case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break;
+  }
 
-  if (r <= Cut_ff[i][j]) {
-     r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
-     if (r < r_min) r = r_min;
 
-     r_inv = 1.0/r;
-     r2_inv  = r_inv*r_inv;
-     r6_inv  = r2_inv*r2_inv*r2_inv;
-     r12_inv = r6_inv*r6_inv;
+  if ((r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) ||
+      (r<Sigma_ff[i][j] && Type_CoreATT_R==ATTCORE_SIGTOUMIN)) uatt=0.0;  
+  else{
+     if (r <= Cut_ff[i][j]) {
+ 
+        if (r < r_min) r = r_min; 
 
-     uatt = 4.0 * Eps_ff[i][j]* sigma6 * (
+        r_inv = 1.0/r;
+        r2_inv  = r_inv*r_inv;
+        r6_inv  = r2_inv*r2_inv*r2_inv;
+        r12_inv = r6_inv*r6_inv;
+
+        uatt = 4.0 * Eps_ff[i][j]* sigma6 * (
                sigma6*(r12_inv - rc12_inv)
                     - (r6_inv  - rc6_inv ) );
+     }
+     else uatt = 0.0;
   }
-  else uatt = 0.0;
-
   return uatt;
 }
 /****************************************************************************/
@@ -138,16 +179,28 @@ double uLJ12_6_ATT_noCS(double r,int i, int j)
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
   sigma6 = sigma2*sigma2*sigma2;
 
+  switch(Type_CoreATT_R){
+     case ATTCORE_SIGMA:      r_min=Sigma_ff[i][j]; break;
+     case ATTCORE_SIGTOUMIN:
+     case ATTCORE_UMIN:       r_min=Rmin_ff[i][j]; break; /* should be Sigma_ff[i][j]*pow(2.0,1.0/6.0) */
+     case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break;
+  }
+
   r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
-  if (r < r_min) r = r_min;
+  if ((r < r_min && Type_CoreATT_CONST==CORECONST_ZERO) ||
+     (r<Sigma_ff[i][j] && Type_CoreATT_R==ATTCORE_SIGTOUMIN))  uatt=0.0;
+  else{
 
-  r_inv = 1.0/r;
+      if (r < r_min) r = r_min; 
 
-  r2_inv  = r_inv*r_inv;
-  r6_inv  = r2_inv*r2_inv*r2_inv;
-  r12_inv = r6_inv*r6_inv;
+      r_inv = 1.0/r;
 
-  uatt = 4.0 * Eps_ff[i][j]* sigma6 * ( sigma6*r12_inv  - r6_inv);
+      r2_inv  = r_inv*r_inv;
+      r6_inv  = r2_inv*r2_inv*r2_inv;
+      r12_inv = r6_inv*r6_inv;
+
+      uatt = 4.0 * Eps_ff[i][j]* sigma6 * ( sigma6*r12_inv  - r6_inv);
+      }
 
   return uatt;
 }

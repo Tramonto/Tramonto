@@ -183,7 +183,6 @@
 #define SCF_CONSTR	   9
 #define SCF_FIELD	  10
 #define G_CHAIN       11 
-#define YW_DENS       12       /* densities for Yethiraj-Woodward polymer DFTs */
 
 
 
@@ -241,7 +240,6 @@
 #define WJDC2        4 
 #define WJDC3        5 
 #define SCFT         6	
-#define YW           7
 
 /*
  *  These constants identify the type of polymer architecture (Type_poly_arch).
@@ -254,9 +252,25 @@
  * These constants identify attraction functional choices (Type_attr).
  */
 #define NONE        -1
-#define MFPAIR1      0
-#define MFPAIR2      1
-#define MF_VARIABLE  2
+#define MFPAIR_RMIN_UMIN      0
+#define MFPAIR_SIGMA_ZERO     1
+#define MFPAIR_SIGMA_USIGMA   2
+#define MFPAIR_SIGTOUMIN_UMIN 3
+#define MFPAIR_RCSZERO_ZERO   4
+
+/*
+ * These constants set choices for range of inner core of ATT potential (Type_CoreATT_R)
+ */
+#define ATTCORE_SIGMA       0
+#define ATTCORE_UMIN        1
+#define ATTCORE_UCSZERO     2
+#define ATTCORE_SIGTOUMIN   3
+
+/*
+ * These constants set choices for range of inner core of ATT potential (Type_CoreATT_CONST)
+ */
+#define CORECONST_UCONST    0
+#define CORECONST_ZERO      1
 
 /* 
  * These constants identify the functional choices (Type_coul).
@@ -288,16 +302,15 @@
  * interactions for 3D atomistic surfaces.  They are used by Type_pairPot,
  * Type_vext3D, and Type_uwwPot parameters which may be set independently.  
  */
-#define PAIR_HARD         -1 
-#define PAIR_LJ12_6_CS     0
-#define PAIR_COULOMB_CS    1
-#define PAIR_COULOMB       2
-#define PAIR_YUKAWA_CS     3
-#define PAIR_LJ12_6_SIGTORCUT_CS   4 
-#define PAIR_EXP_CS			5
-#define PAIR_SW				6
-#define PAIR_LJandYUKAWA_CS   7
-#define PAIR_r12andYUKAWA_CS   8
+#define PAIR_HARD            -1 
+#define PAIR_LJ12_6_CS        0
+#define PAIR_COULOMB_CS       1
+#define PAIR_COULOMB          2
+#define PAIR_YUKAWA_CS        3
+#define PAIR_EXP_CS	      4
+#define PAIR_SW		      5
+#define PAIR_LJandYUKAWA_CS   6
+#define PAIR_r12andYUKAWA_CS  7
 
 /* options for Type_hsdiam */
 #define SIGMA_DIAM          0
@@ -882,6 +895,9 @@ extern double  Fac_overlap[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths fo
 extern double  Fac_overlap_hs[NCOMP_MAX];/* Array of f-f bond lengths for polymers */
 extern double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
 extern double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
+extern double  Rmin_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f distances to the minimum of a pair potential.      */
+extern double  Rzero_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f distances to the location where 
+                                                   the cut and shifted pair potential is zero.      */
 extern double  Charge_f[NCOMP_MAX];           /* Array of the valence of each specie*/
 extern double  Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];/* Array of w-f interaction diameters */
 extern double  Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];  /* Array of w-f interaction energies  */
@@ -986,6 +1002,8 @@ extern double Inv_4pirsq[NCOMP_MAX]; /* Precalculated inverse of component's 4 p
 
 extern int     Type_func;    /* Type of functional for the calculation              */
 extern int     Type_attr;    /* Type for handling attractions                       */
+extern int     Type_CoreATT_R;     /* Type for range of constant core region for attractions */
+extern int     Type_CoreATT_CONST;  /* Type for value of constant in constant core region for attractions */
 extern int     Type_coul;    /* Type for handling coulomb interactions              */
 extern int     Type_poly;    /* Type for handling polymers                          */
 extern int     Type_poly_arch;    /* Type of polymer architecture                        */
@@ -1018,6 +1036,7 @@ extern void * ParameterList_list; /* Parameterlist to hold Aztec options and par
 extern int NL_Solver;    /* select type of nonliear solver */
 extern int Max_NL_iter;    /* Maximum # of Newton iterations (10 - 30)          */
 extern int Physics_scaling; /* do physical scaling of nonlinear problems */
+extern int ATTInA22Block; /* Logical for location of dense attractions.  1=TRUE=A22block; 0=FALSE=A12block */
 extern double NL_abs_tol,NL_rel_tol; /* Convergence tolerances (update_soln)*/
 extern double NL_update_scalingParam; /* Minimum fraction to update solution to slow down
                            Newton's method */

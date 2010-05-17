@@ -1,8 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-double uSW_Integral(double r,int i,int j);
-double uSW_ATT_noCS(double r,int i,int j);
-double uSW_ATT_CS(double r,int i,int j);
-double uSW_DERIV1D(double r,double x,double sigma,double eps,double rcut);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -18,6 +14,12 @@ double uSW_DERIV1D(double r,double x,double sigma,double eps,double rcut);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define PI    M_PI
+double uSW_Integral(double r,int i,int j);
+double uSW_ATT_noCS(double r,int i,int j);
+double uSW_ATT_CS(double r,int i,int j);
+void uSW_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
+double uSW_DERIV1D(double r,double x,double sigma,double eps,double rcut);
 #define NWALL_MAX_TYPE 50 
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];

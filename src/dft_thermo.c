@@ -381,6 +381,15 @@ void calc_chempot(char *output_file1)
                   }
                }
           }
+/************ Optimizing Scale_fac Terms !!! ************/
+/*          for (ipol=0;ipol<Npol_comp;ipol++){
+              for (icomp=0; icomp<Ncomp; icomp++){
+                if (Nseg_type_pol[ipol][icomp] > 0) Scale_fac_WJDC[ipol][icomp]=Betamu_chain[ipol]/Nseg_type_pol[ipol][icomp];
+                if (fabs(Scale_fac_WJDC[ipol][icomp])>4.0) Scale_fac_WJDC[ipol][icomp]=4.*Scale_fac_WJDC[ipol][icomp]/fabs(Scale_fac_WJDC[ipol][icomp]);
+                printf("modified Scale_fac_WJDC[ipol=%d][icomp=%d]=%g\n",ipol,icomp,Scale_fac_WJDC[ipol][icomp]);
+              }
+           }*/
+/************ End Optimizing Scale_fac Terms !!! ************/
           if (Proc==0){
                if (Lseg_densities){
                   if (Iwrite != NO_SCREEN) for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg[iseg],"Betamu_seg");

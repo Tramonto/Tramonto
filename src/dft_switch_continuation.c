@@ -133,13 +133,13 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
            ratio = Temp/temp_save;
            if (Ipot_ff_c == COULOMB ) Temp_elec *=ratio;
            if (Mix_type==0){
-              if (Ipot_ff_n == LJ12_6){
+              if (Type_attr != NONE){
                  for (icomp=0; icomp<Ncomp; icomp++) Eps_ff[icomp][icomp] /= ratio;
               }
               for (i=0; i<Nwall_type;i++){
                   if(Ipot_wf_n[i] != VEXT_HARD) Eps_w[i] /= ratio;
               }
-              pot_parameters(NULL);
+              setup_pairPotentials(NULL);
            }
            else if (Mix_type==1){
                 for (icomp=0; icomp<Ncomp; icomp++){
@@ -191,7 +191,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
               for (i=0; i<Ncomp; i++){ 
                  for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
               }
-              pot_parameters(NULL);
+              setup_pairPotentials(NULL);
               for (i=0; i<Ncomp; i++){
                  ratio = Eps_wf[i][iwall_type]/eps_wf_save[i][iwall_type];
                  scale_vext_epswf(ratio,i,0); 
@@ -219,7 +219,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
               for (i=0; i<Ncomp; i++){ 
                   for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
               }
-              pot_parameters("dft_out.lis"); 
+              setup_pairPotentials("dft_out.lis");
               for (i=0; i<Ncomp; i++){
                   for (iw=0; iw<Nwall; iw++){
                      ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
@@ -277,7 +277,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
               for (i=0; i<Ncomp; i++){ 
 /*                  for (iw=0; iw<Nwall_type; iw++) sigma_wf_save[i][iw]=Sigma_wf[i][iw];*/
               }
-              pot_parameters("dft_out.lis"); 
+              setup_pairPotentials("dft_out.lis");
               /* need to recompute external field - simple scaling won't work */
             }
          calc_HS_diams(); 

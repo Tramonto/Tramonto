@@ -141,7 +141,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    }
 
    if (Type_attr !=NONE) {
-         if (Type_attr==MF_VARIABLE){
+         if (ATTInA22Block==FALSE){
            iunk_att=Phys2Unk_first[MF_EQ]+icomp;
            resid_att = x[iunk_att][inode_box];
            resid += resid_att;
@@ -388,9 +388,9 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
         else                resid_mu -= log(Rho_b[icomp]);
 
         if (mesh_coarsen_flag_i != FLAG_PBELEC){
-            if (Ipot_ff_n != IDEAL_GAS) resid_mu -= Betamu_hs_ex[icomp];
-            if (Ipot_ff_n == LJ12_6)    resid_mu -= Betamu_att[icomp];
-            if (Type_poly==WTC)         resid_mu -= Betamu_wtc[iseg];
+            if (Type_func != NONE) resid_mu -= Betamu_hs_ex[icomp];
+            if (Type_attr != NONE)    resid_mu -= Betamu_att[icomp];
+            if (Type_poly == WTC)         resid_mu -= Betamu_wtc[iseg];
             if (Type_coul == DELTAC_RPM || Type_coul==DELTAC_GENERAL) resid_mu += Deltac_b[icomp];
         }
       }

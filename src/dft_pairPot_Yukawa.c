@@ -96,6 +96,23 @@ double uYUKAWA_DERIV1D(double r,double x,double sigma, double eps, double rcut,d
   return (uderiv);
 }
 /******************************************************************************/
+/* uYUKAWA_InnerCore : define the properties of the inner core of the potential based on
+                  input parameters */
+void uYUKAWA_InnerCore(int i, int j,double *rCore_left, double *rCore_right, double *epsCore)
+{
+   *rCore_left=0.0;
+   *rCore_right=Sigma_ff[i][j];  /* monotonic potential UMIN and UZERO options not available */
+
+   switch(Type_CoreATT_CONST){
+      case CORECONST_UCONST:   *epsCore=uYUKAWA_ATT_noCS(*rCore_right,i,j); break;
+      case CORECONST_ZERO:     *epsCore=0.0; break;
+      default:
+        printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
+        exit(-1);
+   }
+   return;
+}
+/******************************************************************************/
 /* uYUKAWA_ATT_CS: the attractive part of the potential for a cut and shifted 
                    yukawa system */
 double uYUKAWA_ATT_CS(double r,int i, int j)
@@ -105,14 +122,18 @@ double uYUKAWA_ATT_CS(double r,int i, int j)
   rcut=Cut_ff[i][j];
   eps=Eps_ff[i][j];
   alpha=YukawaK_ff[i][j]*sigma;
-
-  if (r<=rcut){
-     r_min=sigma;
-     if (r<r_min) r=r_min;
+  
+  r_min=sigma;
+  if (r<r_min){
+     if (Type_CoreATT_CONST==CORECONST_ZERO) uatt=0.0;
+     else uatt=eps*(1.0-exp(-alpha*(rcut/sigma-1.))/(rcut/sigma));
+  }
+  else if (r<=rcut){
      uatt=eps*exp(-alpha*(r/sigma-1.))/(r/sigma)
         - eps*exp(-alpha*(rcut/sigma-1.))/(rcut/sigma);
   }
   else uatt=0.0;
+
   return uatt;
 }
 /******************************************************************************/
@@ -125,9 +146,11 @@ double uYUKAWA_ATT_noCS(double r,int i, int j)
   alpha=YukawaK_ff[i][j]*sigma;
 
   r_min=sigma;
-  if (r<r_min) r=r_min;
-
-  uatt=eps*exp(-alpha*(r/sigma-1.))/(r/sigma);
+  if (r<r_min){
+    if (Type_CoreATT_CONST==CORECONST_ZERO) uatt=0.0;
+    else                                    uatt=eps;
+  } 
+  else   uatt=eps*exp(-alpha*(r/sigma-1.))/(r/sigma);
 
   return uatt;
 }

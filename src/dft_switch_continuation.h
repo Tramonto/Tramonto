@@ -25,7 +25,6 @@ extern double WallPos[NDIM_MAX][NWALL_MAX];
 void print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_user_plugin(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID);
-extern int Type_attr;
 extern int Ndim;
 #define REFLECT              2
 extern int Type_bc[NDIM_MAX][2];
@@ -64,13 +63,12 @@ void setup_polymer_cr();
 void calc_InvR_params();
 void calc_HS_diams();
 extern int Type_func;
-void pot_parameters(char *output_file1);
+void setup_pairPotentials(char *output_file1);
 #define VEXT_HARD        1
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Nwall_type;
 extern int Ncomp;
-#define LJ12_6       2
-extern int Ipot_ff_n;
+extern int Type_attr;
 extern double Temp_elec;
 #define COULOMB      1
 extern int Ipot_ff_c;

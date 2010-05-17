@@ -16,8 +16,20 @@
 #include "Tramonto_ConfigDefs.h"
 #define PI    M_PI
 double uLJandYUKAWA_Integral(double r,int i,int j);
-double uLJandYUKAWA_ATT_noCS(double r,int i,int j);
 double uLJandYUKAWA_ATT_CS(double r,int i,int j);
+#define CORECONST_ZERO      1
+double uLJandYUKAWA_ATT_noCS(double r,int i,int j);
+#define CORECONST_UCONST    0
+extern int Type_CoreATT_CONST;
+#define ATTCORE_SIGTOUMIN   3
+#define NCOMP_MAX 5
+extern double Rzero_ff[NCOMP_MAX][NCOMP_MAX];
+#define ATTCORE_UCSZERO     2
+extern double Rmin_ff[NCOMP_MAX][NCOMP_MAX];
+#define ATTCORE_UMIN        1
+#define ATTCORE_SIGMA       0
+extern int Type_CoreATT_R;
+void uLJandYUKAWA_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
 double uLJandYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,double yukawaK);
 #define NWALL_MAX_TYPE 50 
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
@@ -25,7 +37,6 @@ extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define WALL_WALL   2
-#define NCOMP_MAX 5
 extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];

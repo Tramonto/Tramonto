@@ -175,7 +175,7 @@ void read_in_a_file(int guess_type,char *filename)
              Restart_field[DENSITY]=TRUE;
              header++; 
              if (Restart==RESTART_FEWERCOMP) n_entries=Ncomp-Nmissing_densities;
-             else                           n_entries=Ncomp;
+             else                            n_entries=Ncomp;
              unk_in_file+=n_entries;
              unk_start_in_file[DENSITY]=iunk;
              for (i=0;i<n_entries;i++) unk_to_eq_in_file[iunk++]=DENSITY;
@@ -195,15 +195,6 @@ void read_in_a_file(int guess_type,char *filename)
              if (Lseg_densities) convert_to_comp_densities=FALSE;
              else                convert_to_comp_densities=TRUE;
        }
-       if (strncmp(unk_char,"MFEQ",5)==0) {
-             Restart_field[MF_EQ]=TRUE;
-             header++;
-             if (Restart==RESTART_FEWERCOMP) n_entries=Ncomp-Nmissing_densities;
-             else                           n_entries=Ncomp;
-             unk_in_file+=n_entries;
-             unk_start_in_file[MF_EQ]=iunk;
-             for (i=0;i<n_entries;i++) unk_to_eq_in_file[iunk++]=MF_EQ;
-       }
        else if (strncmp(unk_char,"POISSON",5)==0){
              Restart_field[POISSON]=TRUE;
              header++;
@@ -219,6 +210,15 @@ void read_in_a_file(int guess_type,char *filename)
              unk_in_file+=(Nrho_bar-adjust1D);
              unk_start_in_file[HSRHOBAR]=iunk;
              for (i=0;i<(Nrho_bar-adjust1D);i++) unk_to_eq_in_file[iunk++]=HSRHOBAR;
+       }
+       if (strncmp(unk_char,"MFEQ",4)==0) {
+             Restart_field[MF_EQ]=TRUE;
+             header++;
+             if (Restart==RESTART_FEWERCOMP) n_entries=Ncomp-Nmissing_densities;
+             else                           n_entries=Ncomp;
+             unk_in_file+=n_entries;
+             unk_start_in_file[MF_EQ]=iunk;
+             for (i=0;i<n_entries;i++) unk_to_eq_in_file[iunk++]=MF_EQ;
        }
        else if (strncmp(unk_char,"CMSFIELD",5)==0){
              Restart_field[CMS_FIELD]=TRUE;
@@ -301,7 +301,7 @@ void read_in_a_file(int guess_type,char *filename)
            printf("\t ...NO WJDC field data found in restart file\n");
     if (L_HSperturbation && Restart_field[HSRHOBAR]==FALSE)
            printf("\t ...NO Rosenfeld nonlocal density data found in restart file\n");
-    if (Type_attr==MF_VARIABLE && Restart_field[MF_EQ]==FALSE)
+    if (ATTInA22Block==FALSE && Restart_field[MF_EQ]==FALSE)
            printf("\t ...NO mean field attractive variable data found the restart file \n");
     if (Restart_field[DENSITY]==FALSE)
            printf("\t ...NO density data found in restart file\n");
@@ -377,6 +377,8 @@ void read_in_a_file(int guess_type,char *filename)
 
                 
 	      case SCF_FIELD:
+
+
               case WJDC_FIELD: 
    	         fscanf(fp5,"%lf",&tmp);
                  /*tmp = exp(-tmp); */
@@ -407,6 +409,7 @@ void read_in_a_file(int guess_type,char *filename)
                  fscanf(fp5,"%lf",&tmp); 
                  break;
               case POISSON:
+              case MF_EQ:
               case CAVWTC:
               case BONDWTC:
    	         fscanf(fp5,"%lf",&tmp); 

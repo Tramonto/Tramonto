@@ -131,9 +131,10 @@ void dftmain(double * engptr)
 
   read_input_file(input_file,output_file1);
   setup_stencil_logicals();
+  if (Type_attr != NONE) setup_stencil_uattr_core_properties();
   setup_nunk_per_node(output_file1);
+  setup_pairPotentials(output_file1);
 
-  if (Mix_type == 0) pot_parameters(output_file1);
   if (Type_poly == CMS){
       Rism_cr = (double ***) array_alloc (3, Ncomp,Ncomp,N_NZCR_MAX,sizeof(double));
       setup_polymer_cr();

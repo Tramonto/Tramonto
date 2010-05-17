@@ -37,6 +37,22 @@
 #include "dft_pairPot_LJ12_6_SIGTORCUT.h"
 
 /******************************************************************************/
+/* uLJ12_6_SIGTORCUT_InnerCore : define the properties of the inner core of the potential based on
+                  input parameters */
+void uLJ12_6_SIGTORCUT_InnerCore(int i, int j,double *rCore_left, double *rCore_right, double *epsCore)
+{
+
+   /* Note that Type_CoreATT_R and Type_CoreATT_CONST are turned off for this case
+      because it is a very particular case that requires a constant core region only
+      from r=Sigma to r=rmin. */ 
+
+   *rCore_left=Sigma_ff[i][j];
+   *rCore_right=Sigma_ff[i][j] * pow(2.0,1.0/6.0); 
+   *epsCore=uLJ12_6_ATT_SIGTORCUT_noCS(*rCore_right,i,j);
+
+   return;
+}
+/******************************************************************************/
 /* uLJ12_6_ATT_SIGTORCUT_CS: the pair potential (based on a 12-6 LJ fluid) that will be used 
                   as the attractive perturbation to a hard sphere reference fluid
                   in strict mean field DFT calculations */

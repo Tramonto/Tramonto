@@ -296,6 +296,9 @@ double  Fac_overlap[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polym
 double  Fac_overlap_hs[NCOMP_MAX];/* Array of f-f bond lengths for polymers */
 double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
 double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
+double  Rmin_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f distances to the minimum of a pair potential.      */
+double  Rzero_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f distances to the location where 
+                                                   the cut and shifted pair potential is zero.      */
 double  Charge_f[NCOMP_MAX];           /* Array of the valence of each specie*/
 double  Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];/* Array of w-f interaction diameters */
 double  Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];  /* Array of w-f interaction energies  */
@@ -403,6 +406,8 @@ double Inv_4pirsq[NCOMP_MAX]; /* Precalculated inverse of component's 4 pi Radiu
 
 int     Type_func;    /* Type of functional for the calculation              */
 int     Type_attr;    /* Type for handling attractions                       */
+int     Type_CoreATT_R;     /* Type for range of constant core region for attractions */
+int     Type_CoreATT_CONST;  /* Type for value of constant in constant core region for attractions */
 int     Type_coul;    /* Type for handling Coulombics                        */
 int     Type_poly;    /* Type for handling polymers                          */
 int     Type_poly_arch; /* Type of polymer architecture.                       */
@@ -442,6 +447,7 @@ void * ParameterList_list; /* Parameterlist to hold Aztec options and params inf
 int NL_Solver;    /* select type of nonliear solver */
 int Max_NL_iter;    /* Maximum # of Newton iterations (10 - 30)          */
 int Physics_scaling; /* do physical scaling of nonlinear problems */
+int ATTInA22Block; /* Logical for location of dense attractions.  1=TRUE=A22block; 0=FALSE=A12block */
 double NL_abs_tol,NL_rel_tol; /* Convergence tolerances (update_soln)*/
 double NL_update_scalingParam; /* Minimum fraction to update solution to slow down
                            Newton's method */

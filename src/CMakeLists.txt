@@ -115,6 +115,7 @@ set(common_h
         dft_uww.h 
         dft_images.h 
         dft_potential_params.h 
+        dft_pairPot.h 
         dft_pairPot_LJ12_6.h 
         dft_pairPot_LJ12_6_SIGTORCUT.h 
         dft_pairPot_COULOMB.h 
@@ -221,6 +222,7 @@ set(common_c
         dft_uww.c 
         dft_images.c 
         dft_potential_params.c 
+        dft_pairPot.c 
         dft_pairPot_LJ12_6.c 
         dft_pairPot_LJ12_6_SIGTORCUT.c 
         dft_pairPot_COULOMB.c 

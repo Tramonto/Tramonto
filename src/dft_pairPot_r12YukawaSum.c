@@ -48,7 +48,7 @@ double ur12andYUKAWA_CS(double r,double sigma, double eps, double rcut,double yu
      input file will be entered as K*sigma_ij */
   
   if (r <= rcut) {
-     u = 4.0*( POW_DOUBLE_INT(sigma/r,12) - POW_DOUBLE_INT(sigma/rcut,12) ) + 
+     u = 4.0*( POW_DOUBLE_INT(sigma/r,12) - POW_DOUBLE_INT(sigma/rcut,12) ) - 
          Ayukawa*(exp(-alpha*(r/sigma-1.0))/(r/sigma)- exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma));
   }
   else u = 0.0;
@@ -95,10 +95,35 @@ double ur12andYUKAWA_DERIV1D(double r,double x,double sigma, double eps, double 
   
   if (r <= rcut) {
      uderiv = (4.0/(sigma*sigma)) * (-12.*x*POW_DOUBLE_INT(sigma/r,14) )
-            -Ayukawa*sigma*x*exp(-alpha*(r/sigma-1.0))*((1./r)+(alpha/sigma))/(r*r);
+            +Ayukawa*sigma*x*exp(-alpha*(r/sigma-1.0))*((1./r)+(alpha/sigma))/(r*r);
   }
   else uderiv = 0.0;
   return (uderiv);
+}
+/******************************************************************************/
+/* ur12andYUKAWA_InnerCore : define the properties of the inner core of the potential based on
+                  input parameters */
+void ur12andYUKAWA_InnerCore(int i, int j,double *rCore_left, double *rCore_right, double *epsCore)
+{
+   switch(Type_CoreATT_R){
+         /* note we have full flexibility by if the potential is purely repulsive (monotonic),
+            both Rmin_ff and Rzero_ff will be set to Sigma_ff */
+      case ATTCORE_SIGMA:      *rCore_right=Sigma_ff[i][j]; *rCore_left=0.0; break;
+      case ATTCORE_UMIN:       *rCore_right=Rmin_ff[i][j]; *rCore_left=0.0; break;
+      case ATTCORE_UCSZERO:    *rCore_right=Rzero_ff[i][j]; *rCore_left=0.0; break;
+      case ATTCORE_SIGTOUMIN:   *rCore_right=Rmin_ff[i][j]; *rCore_left=Sigma_ff[i][j]; break;
+      default:
+        printf("Problem with Type_CoreATT_R - set to %d\n",Type_CoreATT_R);
+        exit(-1);
+   } 
+   switch(Type_CoreATT_CONST){
+      case CORECONST_UCONST:   *epsCore=ur12andYUKAWA_ATT_noCS(*rCore_right,i,j); break;
+      case CORECONST_ZERO:     *epsCore=0.0; break;
+      default:
+        printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
+        exit(-1);
+   }
+   return;
 }
 /******************************************************************************/
 /* ur12andYUKAWA_ATT_CS: the attractive part of the potential for a summed r12 and 
@@ -124,20 +149,31 @@ double ur12andYUKAWA_ATT_CS(double r,int i, int j)
   alpha=YukawaK_ff[i][j]*sigma;
   Ayukawa=eps;
 
-  if (r<=rcut){
-     r_min=sigma;
-     if (r<r_min) r=r_min;
-
-     r_inv = 1.0/r;
-     r2_inv  = r_inv*r_inv;
-     r6_inv  = r2_inv*r2_inv*r2_inv;
-     r12_inv = r6_inv*r6_inv;
-
-     uatt= 4.0*sigma6*sigma6*(r12_inv - rc12_inv)+
-          Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma)
-        - Ayukawa*exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma);
+  /* note that Rmin and Rzero will both be Sigma_ff[i][j] for a monotonic potential */
+  switch(Type_CoreATT_R){
+     case ATTCORE_SIGMA:      r_min=sigma; break;
+     case ATTCORE_SIGTOUMIN:
+     case ATTCORE_UMIN:       r_min=Rmin_ff[i][j]; break; 
+     case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break; 
   }
-  else uatt=0.0;
+
+  if ((r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) ||
+      (r<sigma && Type_CoreATT_R==ATTCORE_SIGTOUMIN))       uatt=0.0;
+  else{
+     if (r<=rcut){
+        if (r<r_min) r=r_min;
+   
+        r_inv = 1.0/r;
+        r2_inv  = r_inv*r_inv;
+        r6_inv  = r2_inv*r2_inv*r2_inv;
+        r12_inv = r6_inv*r6_inv;
+
+        uatt= 4.0*sigma6*sigma6*(r12_inv - rc12_inv)-
+             Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma)
+           + Ayukawa*exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma);
+     }
+     else uatt=0.0;
+  }
   return uatt;
 }
 /******************************************************************************/
@@ -156,16 +192,26 @@ double ur12andYUKAWA_ATT_noCS(double r,int i, int j)
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
   sigma6 = sigma2*sigma2*sigma2;
 
-  r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
-  if (r<r_min) r=r_min;
+  /* note that Rmin and Rzero will both be Sigma_ff[i][j] for a monotonic potential */
+  switch(Type_CoreATT_R){
+     case ATTCORE_SIGMA:      r_min=sigma; break;
+     case ATTCORE_SIGTOUMIN:
+     case ATTCORE_UMIN:       r_min=Rmin_ff[i][j]; break; 
+     case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break; 
+  }
 
-  r_inv = 1.0/r;
+  if ((r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) ||
+      (r<sigma && Type_CoreATT_R==ATTCORE_SIGTOUMIN))       uatt=0.0;
+  else{
+     if (r<r_min) r=r_min;
+     r_inv = 1.0/r;
 
-  r2_inv  = r_inv*r_inv;
-  r6_inv  = r2_inv*r2_inv*r2_inv;
-  r12_inv = r6_inv*r6_inv;
+     r2_inv  = r_inv*r_inv;
+     r6_inv  = r2_inv*r2_inv*r2_inv;
+     r12_inv = r6_inv*r6_inv;
 
-  uatt= 4.0*sigma6*sigma6*r12_inv + Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma);
+     uatt= 4.0*sigma6*sigma6*r12_inv - Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma);
+  }
 
   return uatt;
 }
@@ -194,7 +240,7 @@ double ur12andYUKAWA_Integral(double r,int i, int j)
   r9_inv  = r3_inv*r3_inv*r3_inv;
 
 
-  uatt_int = -16.0*PI*sigma6*sigma6*r9_inv/9.0 +
+  uatt_int = -16.0*PI*sigma6*sigma6*r9_inv/9.0 -
              4*PI*Ayukawa*sigma*exp(alpha)*((exp(-c*r)/(c*c))*(-c*r-1.0));
 
   return uatt_int;

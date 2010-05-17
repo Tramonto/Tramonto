@@ -162,8 +162,6 @@ void set_initial_guess (int guess_type, double** xOwned)
                 }
            }
            break;
-     case YW_DENS:
-       break;
 
 	 default:
            printf("problem with switch in initial guess\n");

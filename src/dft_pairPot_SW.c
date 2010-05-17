@@ -91,6 +91,17 @@ double uSW_DERIV1D(double r,double x,double sigma, double eps, double rcut)
   return (uderiv);
 }
 /******************************************************************************/
+/* uSW_InnerCore : define the properties of the inner core of the potential based on
+                  input parameters */
+void uSW_InnerCore(int i, int j,double *rCore_left, double *rCore_right, double *epsCore)
+{
+   *rCore_left=0.0;
+   *rCore_right=Sigma_ff[i][j];
+   *epsCore=0.0;
+
+   return;
+}
+/******************************************************************************/
 /* uSW_ATT_CS: the attractive part of the potential for a cut and shifted 
 			SW system */
 double uSW_ATT_CS(double r,int i, int j)
@@ -131,9 +142,10 @@ double uSW_Integral(double r,int i, int j)
 	double uatt_int,eps;
 	
 	eps=Eps_ff[i][j];	
-	uatt_int = -eps;
+	uatt_int = -(4.0/3.0)*PI*Eps_ff[i][j]*pow(r,3);
 	
 	return uatt_int;
 }
 /****************************************************************************/
+
 

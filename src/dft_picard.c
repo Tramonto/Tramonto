@@ -208,8 +208,6 @@ int picard_solver(double **x, double **xOwned, int subIters){
                else if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) calc_init_polymer_G_wjdc(x,xOwned);
             }
             break;
-		 case YW_DENS:
-			 break;
          default:
            printf("problem with switch in initial guess\n");
            exit(-1);

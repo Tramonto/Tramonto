@@ -69,8 +69,7 @@ int round_to_int(double x);
 #define CALC_ALL_FIELDS   1
 extern int Iguess_fields;
 #define VERBOSE      3 
-#define MF_VARIABLE  2
-extern int Type_attr;
+extern int ATTInA22Block;
 extern int L_HSperturbation;
 #define CMS_SCFT     1
 #define CMS          0
@@ -95,11 +94,11 @@ extern int Type_poly;
 #define SCF_CONSTR	   9
 #define SCF_FIELD	  10
 #define CMS_FIELD      7
+#define MF_EQ          3
 extern int Nrho_bar;
 extern int Ndim;
 #define HSRHOBAR       2
 #define POISSON        1
-#define MF_EQ          3
 extern int Nseg_tot;
 extern int Lseg_densities;
 extern int Nmissing_densities;

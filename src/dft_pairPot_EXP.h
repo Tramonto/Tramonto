@@ -16,8 +16,12 @@
 #include "Tramonto_ConfigDefs.h"
 #define PI    M_PI
 double uEXP_Integral(double r,int i,int j);
-double uEXP_ATT_noCS(double r,int i,int j);
 double uEXP_ATT_CS(double r,int i,int j);
+#define CORECONST_ZERO      1
+double uEXP_ATT_noCS(double r,int i,int j);
+#define CORECONST_UCONST    0
+extern int Type_CoreATT_CONST;
+void uEXP_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
 double uEXP_DERIV1D(double r,double x,double sigma,double eps,double rcut,double yukawaK);
 #define NWALL_MAX_TYPE 50 
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
