@@ -10,11 +10,37 @@
 
 ************ FUNCTIONAL SWITCHES *********************************************
 @ 2 0 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) Type_hsdiam(0=SIGMA_DIAM 1=BH_DIAM) 
-@ -1 0 	Type_attr Type_pairPot 
-            (Type_attr options: -1=No attractions, 0=strict MF 2=MF_VARIABLE) 
-            (Type_pairPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB_CS, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
-@ -1 	Type_coul (-1=No coulomb, 0=strict MF, 1=include 2nd order corrections) 
-@ 5 	Type_poly (-1=No polymer, 0=CMS, 1=CMS_SCFT, 2=WTC, 3=WJDC, 4=WJDC2, 5=WJDC3) 
+@ -1 0   Type_attr Type_pairPot
+            Type_attr options: -1=No attractions,
+                                 0=strict MF: uattr = umin     from r=0 to r=rmin
+                                 1=strict MF: uattr = 0        from r=0 to r=sigma
+                                 2=strict MF: uattr = u(sigma) from r=0 to r=sigma
+                                 3=strict MF: uattr = 0        from r=0 to r=sigma and
+                                              uattr=umin       from r=sigma to r=rmin
+                                 4=strict MF: uattr=0          from r=0 to r=rzero
+                                              where rzero=r where u(r)=r(rcut).
+            Type_pairPot options:  -1=NONE=PAIR_HARD
+                                   0=PAIR_LJ12_6_CS,
+                                   1=PAIR_COULOMB_CS,
+                                   2=PAIR_COULOMB,
+                                   3=PAIR_YUKAWA_CS
+                                   4=PAIR_EXP_CS
+                                   5=PAIR_SW (square well)
+                                   6=PAIR_LJandYUKAWA_CS
+                                   7=PAIR_r12andYUKAWA_CS
+@ -1     Type_coul options: -1=NONE              (No PDE coulomb terms - can use coulomb as cut/shift-MF attraction above.)
+                            0=strict mean-field (no 2nd order corrections)
+                            1=DELTAC_RPM        (2nd order corrections - restricted primitive model only)
+                            2=DELTAC_GENERAL    (2nd order corrections - ions of varying size)
+                            3=POLARIZE          (strict mean-field with polarization.)
+
+@  5    Type_poly options: -1=NONE (No bonds in system),
+                            0=CMS      (Chandler-McCoy-Singer polymer DFT)
+                            1=CMS_SCFT (Chandler-McCoy-Singer type of Self-consistent Field Theory)
+                            2=WTC    (Tripathi/Chapman - Wertheim model)
+                            3=WJDC   (segment based implementation)
+                            4=WJDC2  (segment based densities / component implementation of fields)
+                            5=WJDC3  (PREFERRED:: component based implementation of fields and densities)
 
 ************** SURFACE PARAMETERS **********************************************
 @ 1 1 1 0 0 	Nwall_types Nwall Nlink Lauto_center Lauto_size 
@@ -257,7 +283,7 @@
 @ 0 0. 	L1D_bc, X_1D_bc 
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 0 20 1 	NL_Solver Max_NL_iter Physics_scaling 
+@ 0 20 1 1 	NL_Solver Max_NL_iter Physics_scaling ATTInA22Block
 @ 1.0e-5 1.0e-7 0.25 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
 @ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
