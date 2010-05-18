@@ -10,7 +10,7 @@
 
 ************ FUNCTIONAL SWITCHES *********************************************
 @ 2 0 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) Type_hsdiam(0=SIGMA_DIAM 1=BH_DIAM)
-@ 0 4   Type_attr Type_pairPot
+@ 1 4   Type_attr Type_pairPot
             Type_attr options: -1=No attractions,
                                  0=strict MF: uattr = umin     from r=0 to r=rmin
                                  1=strict MF: uattr = 0        from r=0 to r=sigma
