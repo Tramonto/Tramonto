@@ -70,7 +70,7 @@ extern double Charge_f[NCOMP_MAX];
 #define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];

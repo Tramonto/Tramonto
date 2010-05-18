@@ -82,7 +82,7 @@ extern int Unk2Comp[NMER_MAX];
 extern int *L2B_node;
 extern int **Zero_density_TF;
 #define WJDC_FIELD     8
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nmissing_densities;
 #define RESTART_FEWERCOMP  4

@@ -25,7 +25,7 @@ extern double BondWTC_b[NMER_MAX *NMER_MAX];
 extern int Nbonds;
 void setup_BondWTC(double **xOwned);
 extern double Xi_cav_b[4];
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define CAVWTC         4
 extern int Phys2Nunk[NEQ_TYPE];

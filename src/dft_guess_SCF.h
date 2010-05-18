@@ -47,7 +47,7 @@ void calc_init_polymer_G_SCF(double **xInBox,double **xOwned);
 void calc_init_lambda(double **xInBox,double **xOwned);
 extern double Rho_t;
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Restart_field[NEQ_TYPE];
 #define SCF_CONSTR	   9
 extern int Phys2Nunk[NEQ_TYPE];

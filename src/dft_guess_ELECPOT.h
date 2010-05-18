@@ -26,7 +26,7 @@ extern int *L2G_node;
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
 #define POISSON        1
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nnodes_per_proc;
 void setup_elec_pot(double **xOwned,int guess_type);

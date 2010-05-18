@@ -69,7 +69,7 @@ void setup_polymer_rho(double **xInBox,double **xOwned,int guess_type);
 #define CMS          0
 extern int Type_poly;
 #define RESTART_FEWERCOMP  4
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Nunk[NEQ_TYPE];
 #define DENSITY        0
 #define TRUE  1

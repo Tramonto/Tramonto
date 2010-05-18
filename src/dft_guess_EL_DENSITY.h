@@ -40,7 +40,7 @@ extern int *B2G_node;
 extern int Unk2Comp[NMER_MAX];
 extern int **Zero_density_TF;
 #define DENSITY        0
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nmissing_densities;
 #define RESTART_FEWERCOMP  4

@@ -101,7 +101,7 @@ extern int **Zero_density_TF;
 #define WJDC3        5 
 extern int Unk2Comp[NMER_MAX];
 #define DENSITY        0
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define WJDC2        4 
 #define WJDC         3

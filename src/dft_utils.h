@@ -96,7 +96,7 @@ extern double Rho_b_LBB[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 extern double Rho_seg_LBB[NMER_MAX];
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern double Rho_seg_b[NMER_MAX];
 extern int Lseg_densities;

@@ -26,7 +26,7 @@ extern int Type_interface;
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
 #define DENSITY        0
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 double integrand_att_freen_bulk(int iunk,int inode_box,double **x);
 #define THETA_PAIRPOT_RCUT    2

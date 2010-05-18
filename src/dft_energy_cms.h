@@ -25,6 +25,6 @@ double int_stencil(double **x,int inode_box,int iunk,int sten_type);
 #define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #define DENSITY        0
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 double integrand_CMS_freen(int iunk,int inode_box,double **x);

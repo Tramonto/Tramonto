@@ -46,7 +46,7 @@ extern int Plane_new_nodes;
 #define NDIM_MAX  3
 extern int Nodes_x_old[NDIM_MAX];
 extern int Nodes_x[NDIM_MAX];
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_last[NEQ_TYPE];
 extern int Nrho_bar_s;
 extern int Nmer_comp[NCOMP_MAX];

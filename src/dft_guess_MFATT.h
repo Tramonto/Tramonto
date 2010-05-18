@@ -25,7 +25,7 @@ extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
 #define MF_EQ          3
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nmissing_densities;
 #define RESTART_FEWERCOMP  4

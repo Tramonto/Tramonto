@@ -14,7 +14,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Constant_row_flag[NEQ_TYPE];
 #define VERBOSE      3 
 extern int Iwrite;

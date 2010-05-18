@@ -23,7 +23,7 @@ extern int Nrho_bar_s;
 double integrand_hs_freen_bulk(int iunk,int inode_box,double **x);
 double phispt_switch(double *n);
 void solutionVec_to_nOrdering(double *rhoBar_SVOrdering,double *n);
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       2
 extern int Phys2Nunk[NEQ_TYPE];

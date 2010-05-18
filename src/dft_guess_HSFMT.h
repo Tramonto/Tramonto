@@ -29,7 +29,7 @@ extern int *L2G_node;
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
 #define HSRHOBAR       2
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nrho_bar;
 extern int Nnodes_per_proc;

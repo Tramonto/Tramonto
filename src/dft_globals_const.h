@@ -168,7 +168,7 @@
  * unknown number straightforward.  This became necessary with the introduction
  * of the WTC polymers where we now have 6 types of equations to fill.
  */
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 #define NO_UNK        -888
 
 #define DENSITY        0

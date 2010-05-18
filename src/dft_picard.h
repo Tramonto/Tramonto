@@ -33,7 +33,7 @@ double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resi
 #define INIT_GUESS_FLAG  2
 typedef struct RB_Struct RB_Struct;
 double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 extern int *L2B_node;

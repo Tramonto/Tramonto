@@ -48,6 +48,6 @@ extern int SegAll_to_Poly[NMER_MAX];
 extern int Type_poly;
 extern int Unk2Comp[NMER_MAX];
 #define DENSITY        0
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 double integrand_WJDC_freen(int iunk,int inode_box,double **x);

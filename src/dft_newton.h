@@ -37,7 +37,7 @@ extern int *Pol_Sym_Seg;
 #define WTC          2
 extern int Type_poly;
 #define DENSITY        0
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *Pol_Sym;
 #define G_CHAIN       11 

@@ -80,7 +80,7 @@ struct Stencil_Struct {
 };
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CAVWTC         4
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 #define DELTA_FN_BOND         6
 double grafted_int(int sten_type,int itype_mer,int *ijk_box,int izone,int unk_G,double **x);

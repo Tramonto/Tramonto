@@ -18,7 +18,7 @@ extern int **Bonds_SegAll;
 extern int **Poly_to_Unk_SegAll;
 extern int *Nbonds_SegAll;
 extern int Nseg_tot;
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Nunk[NEQ_TYPE];
 void linsolver_setup_WJDCTYPE_LINEARONLY();
 #define WJDC_FIELD     8

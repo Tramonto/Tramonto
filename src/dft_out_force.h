@@ -70,7 +70,7 @@ extern int ***Surf_normal;
 extern int ***Surf_elem_to_wall;
 extern int **Nelems_S;
 #define DENSITY        0
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 void node_to_position(int inode,double *NodePos);
 extern int **Nodes_2_boundary_wall;

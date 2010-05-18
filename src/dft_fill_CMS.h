@@ -66,6 +66,6 @@ extern double VEXT_MAX;
 extern double **Vext;
 extern int **Zero_density_TF;
 #define CMS_FIELD      7
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 double load_CMS_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);

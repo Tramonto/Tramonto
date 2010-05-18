@@ -43,7 +43,7 @@ extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 #define THETA_PAIRPOT_RCUT    2
 extern int Nlists_HW;
 #define DENSITY        0
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *Pol_Sym_Seg;
 extern int Unk2Comp[NMER_MAX];

@@ -25,7 +25,7 @@ extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
 #define SCF_CONSTR	   9
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Nunk[NEQ_TYPE];
 extern double Rho_t;
 #define NCOMP_MAX 5

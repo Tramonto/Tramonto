@@ -122,7 +122,7 @@ extern void *LinProbMgr_manager;
 #define INIT_GUESS_FLAG  2
 double fill_constant_density_chain(int iunk,int icomp,int iseg,double fac_FIELD,int loc_inode,int inode_box,double **x,int resid_only_flag);
 #define DENSITY        0
-#define NEQ_TYPE       13 
+#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern double Esize_x[NDIM_MAX];
 extern int Grad_dim;
