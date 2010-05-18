@@ -78,27 +78,16 @@ void setup_pairPotentials(char *output_file1){
      }
   }
 
-/*  if (Iwrite==VERBOSE && Proc==0){
+  if (Iwrite==VERBOSE && Proc==0){
      if (Type_attr != NONE){
-       for (i=0, i<Ncomp; i++){
-         for (j=0, j<Ncomp; j++){
-             pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4);
-             print_potentials_fluid(Type_pairPot,param1,param2,param3,param4);
+       for (i=0; i<Ncomp; i++){
+         for (j=0; j<Ncomp; j++){
+             print_potentials_fluid(Type_pairPot,i,j);
      
          }
        }
      }
-     if (Type_vext3D != NONE){
-       for (i=0, i<Ncomp; i++){
-         for (j=0, j<Nwall; j++){
-             if (Ipot_wf_n[WallType[j]]==VEXT_ATOMIC && Nwall > 0){
-                pairPotparams_switch(Type_vext3D,WALL_FLUID,i,j,&param1,&param2,&param3,&param4);
-                print_potentials_wall(Type_vext3D,param1,param2,param3,param4);
-             }
-         }
-       }
-     }
-  }*/
+  }
   return;
 }
 /*******************************************************************************************/
@@ -220,5 +209,30 @@ double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double 
       }
   }
   return(rmin);
+}
+/*******************************************************************************************/
+/* print_potentials_fluid  .... output potentials so they can be tested or fitted */
+void print_potentials_fluid(int type_pairPot,int icomp,int jcomp){
+
+  double param1, param2, param3, param4,r,uatt,ucs,delr;
+  char filename[20], filenameATT[20], filenameCS[20];
+  FILE *fpATT, *fpCS;
+
+  pairPotparams_switch(Type_pairPot,FLUID_FLUID,icomp,jcomp,&param1,&param2,&param3,&param4);
+
+  sprintf(filenameATT, "dft_uATT%0d%0d.dat", icomp,jcomp);
+  sprintf(filenameCS, "dft_uCS%0d%0d.dat", icomp,jcomp);
+  fpATT=fopen(filenameATT,"w");
+  fpCS=fopen(filenameCS,"w");
+ 
+  delr=Esize_x[0]/10; 
+  for (r=delr; r<Cut_ff[icomp][jcomp]+1.0; r+=delr){
+     uatt=pairPot_ATT_CS_switch(r,icomp,jcomp,type_pairPot);
+     fprintf(fpATT,"%11.6f  %11.6f\n",r,uatt); 
+
+     ucs=pairPot_switch(r,param1,param2,param3,param4,type_pairPot);
+     fprintf(fpCS,"%11.6f  %11.6f\n",r,ucs); 
+  }
+  return; 
 }
 /*******************************************************************************************/

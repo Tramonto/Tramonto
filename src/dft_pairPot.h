@@ -1,4 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
+double pairPot_ATT_CS_switch(double r,int icomp,int jcomp,int typePairPot);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -14,6 +15,8 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define NCOMP_MAX 5
+extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -28,6 +31,7 @@ extern double Esize_x[NDIM_MAX];
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+void print_potentials_fluid(int type_pairPot,int icomp,int jcomp);
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
@@ -35,7 +39,6 @@ extern int Proc;
 #define VERBOSE      3 
 extern int Iwrite;
 double pairPot_find_r_ZeroCut(int i,int j,double param1,double param2,double param3,double param4,int typePairPot);
-#define NCOMP_MAX 5
 extern double Rzero_ff[NCOMP_MAX][NCOMP_MAX];
 double pairPot_find_rmin(int i,int j,double param1,double param2,double param3,double param4,int typePairPot);
 extern double Rmin_ff[NCOMP_MAX][NCOMP_MAX];
