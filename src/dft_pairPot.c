@@ -41,21 +41,29 @@ void setup_pairPotentials(char *output_file1){
   double param1, param2, param3, param4;
   int i,j;
 
+
+  printf("pot_params  Mix_type=%d\n",Mix_type);
   if (Mix_type == 0) pot_parameters(output_file1);
 
   if (Type_attr != NONE){
       for (i=0; i<Ncomp; i++){
          for (j=0; j<Ncomp; j++){
+printf("i=%d j=%d pairPotparams_switch  Type_pairPot=%d\n",i,j,Type_pairPot);
              pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4);
+printf("i=%d j=%j pairPotparams_find_rmin\n",i,j);
              Rmin_ff[i][j]=pairPot_find_rmin(i,j,param1,param2,param3,param4,Type_pairPot);
+printf("i=%d j=%j Rmin=%g\n",Rmin_ff[i][j]);
      
          }
       }
 
       for (i=0; i<Ncomp; i++){
          for (j=0; j<Ncomp; j++){
+printf("i=%d j=%j pairPotparams_switch\n",i,j);
              pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4);
+printf("i=%d j=%j pairPotparams_find_rzero\n",i,j);
              Rzero_ff[i][j]=pairPot_find_r_ZeroCut(i,j,param1,param2,param3,param4,Type_pairPot);
+printf("i=%d j=%j Rzero=%g\n",Rzero_ff[i][j]);
          }
       }
 

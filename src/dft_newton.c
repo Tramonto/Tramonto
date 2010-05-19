@@ -394,14 +394,17 @@ void do_numerical_jacobian(double **x)
 
   /* print out analytic matrix in MSR format */
   sprintf(filename, "ja%0d",Proc);
+
   dft_linprobmgr_writeMatrix(LinProbMgr_manager,filename,NULL,NULL);
 
   /* compute numerical jacobian by repeated residual fill calls */
 
   full = (double **) array_alloc(2,N,N,sizeof(double));
   if (full==NULL){printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
+
   count_nonzeros = (int **) array_alloc(2,N,N,sizeof(int));
   if (count_nonzeros==NULL){printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
+
   count_nonzeros_a = (int **) array_alloc(2,N,N,sizeof(int));
   if (count_nonzeros_a==NULL){printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
 
@@ -426,8 +429,6 @@ void do_numerical_jacobian(double **x)
           for (jnode=0; jnode<Nnodes_per_proc; jnode++) resid_tmp[junk][jnode] = 0.0;
 
       (void) dft_linprobmgr_initializeproblemvalues(LinProbMgr_manager);
-if (i==9832 || i==4841) Print_flag=TRUE;
-else Print_flag=FALSE;
       resid_sum=fill_resid_and_matrix_control(x,1,CALC_AND_FILL_RESID_ONLY);
       dft_linprobmgr_getrhs(LinProbMgr_manager, resid_tmp);
 
@@ -439,8 +440,6 @@ else Print_flag=FALSE;
           if ( full[j][i]>1.e-6 &&((resid[junk][jnode]<10.*del && resid[junk][jnode]>del) || 
                (resid_tmp[junk][jnode]<10.*del && resid_tmp[junk][jnode]>del))) count_warnings++;
           if (full[j][i] > 1.e-6 && fabs(resid[junk][jnode] - resid_tmp[junk][jnode])>1.e-8) count_nonzeros[j][i]=TRUE;
-if (j==2587 && i==9832) printf("seg 16 del=%g value to vary: (iunk=%d inode=%d x[iunk][inode]=%g)   resid=%g resid_tmp=%g  full[%d][%d]=%g\n", del,iunk,inode,x[iunk][inode],resid[junk][jnode],resid_tmp[junk][jnode],j,i,full[j][i]);
-if (j==172 && i==4841) printf("seg 1 del=%g value to vary: (iunk=%d inode=%d x[iunk][inode]=%g)   resid=%g resid_tmp=%g  full[%d][%d]=%g\n", del,iunk,inode,x[iunk][inode],resid[junk][jnode],resid_tmp[junk][jnode],j,i,full[j][i]);
           else count_nonzeros[j][i]=FALSE;
           count_nonzeros_a[j][i]=FALSE; /*set all of the analytical jacobian to false */
       }}

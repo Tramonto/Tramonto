@@ -60,8 +60,8 @@ void uCOULOMB_CS_setparams(int context, int i, int j, double *param1,double *par
 {
   switch (context){
      case FLUID_FLUID:
-        *param1 = Charge[i];
-        *param2 = Charge[j];
+        *param1 = Charge_f[i];
+        *param2 = Charge_f[j];
         *param3 = Cut_ff[i][j];
         break;
      case WALL_FLUID:
@@ -84,9 +84,11 @@ void uCOULOMB_CS_setparams(int context, int i, int j, double *param1,double *par
 /* uCOULOMB_setparams: The parameters for the full Coulomb potential */
 void uCOULOMB_setparams(int context, int i, int j, double *param1,double *param2, double *param3)
 {
+
+
   switch (context){
      case FLUID_FLUID:
-        *param1 = Charge[i];
+        *param1 = Charge_f[i];
         *param2 = Charge_f[j];
         *param3 = 1.e6;
         break;
