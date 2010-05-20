@@ -284,7 +284,7 @@
 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
 @ 3 10000 1 1 	NL_Solver Max_NL_iter Physics_scaling ATTInA22Block
-@ 1.0e-5 1.0e-4 0.005 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
+@ 1.0e-6 1.0e-5 0.005 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
 @ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
 @ 1 0 200 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
