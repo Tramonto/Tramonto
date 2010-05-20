@@ -165,7 +165,6 @@ double uLJ12_6_ATT_CS(double r,int i, int j)
      }
      else uatt = 0.0;
 
-     if (uatt>0.0) uatt=0.0;
   }
   return uatt;
 }
@@ -203,7 +202,6 @@ double uLJ12_6_ATT_noCS(double r,int i, int j)
 
       uatt = 4.0 * Eps_ff[i][j]* sigma6 * ( sigma6*r12_inv  - r6_inv);
       }
-      if (uatt>0.0) uatt=0.0;
 
   return uatt;
 }
