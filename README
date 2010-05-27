@@ -131,6 +131,7 @@ Building Trilinos:
      cmake \
      -DTPL_ENABLE_MPI:BOOL=ON \
      -DTrilinos_ENABLE_ALL_PACKAGES:BOOL=OFF \
+     -DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
      -DTrilinos_ENABLE_Amesos:BOOL=ON \
      -DTrilinos_ENABLE_AztecOO:BOOL=ON \
      -DTrilinos_ENABLE_Triutils:BOOL=ON \
@@ -151,6 +152,7 @@ Building Trilinos:
 
     Mac OSX
      cmake \
+     -DTrilinos_ENABLE_ALL_PACKAGES:BOOL=OFF \
      -DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
      -DTPL_ENABLE_MPI:BOOL=ON \
      -DTrilinos_ENABLE_Amesos:BOOL=ON \
