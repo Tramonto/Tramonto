@@ -48,7 +48,7 @@ double pairPot_deriv_switch(double r,double x,double param1,double param2,double
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,int typePairPot);
 #define WALL_FLUID  1
 extern int Type_vext3D;
-double pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
+void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
 void node_to_ijk(int node,int *ijk);
 extern int *B2G_node;
 #if defined(DEC_ALPHA)

@@ -31,7 +31,7 @@
 double integrand_mu_freen(int iunk,int inode_box, double **x)
 {
      double integrand,rho_i,mu_i;
-     int icomp,iseg,i,unk_mu;
+     int icomp,i,unk_mu;
 
      i = iunk-Phys2Unk_first[DENSITY];
 
@@ -63,7 +63,7 @@ double integrand_mu_freen(int iunk,int inode_box, double **x)
 double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
 {
      double integrand,rho_i,mu_i;
-     int icomp,iseg,i;
+     int icomp,i;
 
      i = iunk-Phys2Unk_first[DENSITY];
 

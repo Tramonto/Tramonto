@@ -29,7 +29,7 @@ extern int Type_bc_elec[NWALL_MAX_TYPE];
 extern int Nlists_HW;
 extern int *B2L_node;
 double integrand_surface_charge(int iunk,int inode_box,int iwall,double **x);
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern double Temp_elec;
 extern int Nodes_x[NDIM_MAX];
 extern int Ndim;

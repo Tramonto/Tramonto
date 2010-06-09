@@ -35,7 +35,7 @@
 /*****************************************************************************/
 double get_init_param_archived_plugin(int cont_type,int Loca_contID)
 {
-  int i,j; 
+  int i; 
   double param,sum;
 
   switch(cont_type){
@@ -92,9 +92,9 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
 /* Note: Post_processing assumes the cont_type flags are the same as those
    used in Tramonto's own continuation */
 {
-  int i,j,icomp,jcomp,iw,inode;
-  double ratio,temp_save,scale_save,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_save;
-  char     *output_TF,*output_file1, *output_file2;
+  int i,j,icomp,iw;
+  double ratio,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_save;
+  char     *output_file1;
   
   output_file1 = "dft_out.lis";
   switch(cont_type){
@@ -261,7 +261,8 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
                      is changing in a given run -- archived special cases    */       
 void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
 {
-  int i,j,idim,icomp,iwall,nloop,jcomp;
+  int i,j;
+  /* int nloop;*/
 
    switch(cont_type){
       case CONT_LOG_RHO_I:
@@ -345,7 +346,8 @@ void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
                      is changing in a given run  -- archived special cases */
 void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
 {
-  int i,j,idim,icomp,iwall,nloop,jcomp;
+  int i,j;
+/*  int icomp,nloop;*/
 
    switch(cont_type){
       case CONT_LOG_RHO_I:

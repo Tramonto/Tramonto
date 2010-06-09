@@ -14,7 +14,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 double uCOULOMB_Integral(double r,int i,int j);
 double uCOULOMB_ATT_CnoS(double r,int i,int j);
 double uCOULOMB_DERIV1D(double r,double x,double z1,double z2);
@@ -35,10 +35,9 @@ extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern int WallType[NWALL_MAX];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Elec_param_w[NWALL_MAX];
-extern double Charge_f[NCOMP_MAX];
 #define WALL_FLUID  1
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
-extern double *Charge;
+extern double Charge_f[NCOMP_MAX];
 #define FLUID_FLUID 0
 void uCOULOMB_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 double uCOULOMB(double r,double z1,double z2);

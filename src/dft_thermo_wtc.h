@@ -51,7 +51,7 @@ extern double Xi_cav_b[4];
 #endif
 extern double Fac_overlap_hs[NCOMP_MAX];
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern int SegAll_to_Poly[NMER_MAX];

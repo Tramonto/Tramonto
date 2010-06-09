@@ -22,7 +22,7 @@ double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CALC_RESID_ONLY  3
 #define NCOMP_MAX 5
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);

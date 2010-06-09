@@ -39,8 +39,8 @@
 /*setup_mf_attract: set up variables for mean field attractions. */
 void setup_mf_attract(double **xOwned)
 {
-  int loc_inode,inode,ijk[3],iunk,icomp,jcomp;
-  double vol,area,x_dist,sum;
+  int loc_inode,iunk,icomp,jcomp;
+  double sum;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (icomp = 0; icomp < Ncomp; icomp++){
@@ -65,7 +65,7 @@ void setup_mf_attract(double **xOwned)
 /*calc_init_mf_attract: set up the variables for mean field attractions.*/
 void calc_init_mf_attract(double **xInBox,double **xOwned)
 {
-  int loc_inode,inode_box,inode,ijk[3],iunk,icomp;
+  int loc_inode,inode_box,iunk,icomp;
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];
      for (icomp = 0; icomp < Ncomp; icomp++){

@@ -64,7 +64,7 @@ void setup_polymer_SCF_field(double **xInBox, double **xOwned, int guess_type)
 void calc_init_SCFfield(double **xInBox, double **xOwned)
 {
 	int loc_inode,icomp,jcomp,jrho,iunk,unk_L,inode_box;
-	double field,int_bulk;
+	double field;
 	
 	field = 0.0;
 
@@ -117,7 +117,7 @@ this routine uses the machinery in load_Chain_Geqns_SCF and particularly load_po
 the integrals to calculate the G's from the initial conditions and values of rho and the fields */
 void calc_init_polymer_G_SCF(double **xInBox,double **xOwned)
 {
-	int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,field;
+	int loc_inode,iunk,inode_box,field;
 	int ibond,jbond,index,iseg,jseg,pol_num,bond_num,test,ijk_box[3];
 	double resid_G;
 	int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill;

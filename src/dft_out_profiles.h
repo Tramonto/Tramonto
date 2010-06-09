@@ -88,7 +88,7 @@ void node_to_ijk(int node,int *ijk);
 extern double Charge_f[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Temp_elec;
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 #define COULOMB      1
 extern int Ipot_ff_c;
 extern int Npoisson;

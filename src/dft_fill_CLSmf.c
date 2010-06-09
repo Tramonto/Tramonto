@@ -181,7 +181,7 @@ double resid_and_Jac_sten_fill (int sten_type, double **x, int iunk, int junk,
   struct Stencil_Struct *stenJ;
   double resid,mat_val,resid_sum=0.0;
 
-  int jzone, jnode_box, jlist,loop_max,jloop,jseg;
+  int jzone, jnode_box, jlist;
   int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
 

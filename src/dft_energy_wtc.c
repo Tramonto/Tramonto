@@ -30,7 +30,7 @@
 /****************************************************************************/
 double integrand_WTC_freen(int iunk,int inode_box, double **x)
 {
-     double integrand,rho_i,wtc_term,y;
+     double integrand,rho_i,y;
      int icomp,iseg,unk_xi2,unk_xi3,ibond,jseg,jcomp,unk_bond;
      integrand=0.0;
 
@@ -57,7 +57,7 @@ double integrand_WTC_freen(int iunk,int inode_box, double **x)
 /****************************************************************************/
 double integrand_WTC_freen_bulk(int iunk,int inode_box, double **x)
 {
-     double integrand,rho_i,wtc_term,y;
+     double integrand,rho_i,y;
      int icomp,iseg,ibond,jseg,jcomp;
      integrand=0.0;
 

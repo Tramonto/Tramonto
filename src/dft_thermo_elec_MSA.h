@@ -26,7 +26,7 @@ extern double HS_diam[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
 extern double Temp_elec;
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 double deltaC_MSA(double r,int i,int j);
 #define THETA_CR_RPM_MSA      3
 double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int));

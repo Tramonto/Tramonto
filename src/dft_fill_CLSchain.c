@@ -41,13 +41,13 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 {
   int i,loop_start,loop_end,itype_mer,npol,iseg,unk_GQ,unk_GQ_test,iref;
   int boltz_pow,boltz_pow_J,jbond,ibond,unkIndex[2],numEntries,unk_GQ_j,unk_GQ_j_test;
-  int loc_jnode,jnode_box,jnode,ijk_box[3];
+  int loc_jnode,jnode_box,ijk_box[3];
   int unk_xi2,unk_xi3;
-  int loc_inode2,num_wall_els,iwall,pwall,pwall_type,inode_w;
+  int loc_inode2,iwall,pwall,pwall_type,inode_w;
   double nodepos[3],nodeposc[3],prefac;
   double fac1,fac2,mat_val,resid=0.0,resid_sum=0.0,resid_sum2=0.0,values[2];
   int inodel, inode_boxl,izone,graft_seg,graft_bond,gbond;
-  double y,ysqrt,dydxi,xi_2,xi_3,dummy;
+  double y,ysqrt,xi_2,xi_3,dummy=0.0;
 
   if (Lconstrain_interface && Type_interface==PHASE_INTERFACE && B2G_node[inode_box]==(int)(0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]) && 
            iunk==Phys2Unk_first[DENSITY]){
@@ -279,7 +279,7 @@ void grafted_jac(int sten_type,int itype_mer,int iunk,int loc_inode,int *ijk_box
 double resid_and_Jac_ChainDensity_WJDC2 (int func_type, double **x, int iunk, int unk_B,
   int loc_inode, int inode_box, int resid_only_flag, double (*fp_prefactor)(int))
 {
-  int i,loop_start,loop_end,itype_mer,npol,iseg,unk_GQ,unk_GQ_test,iref;
+  int itype_mer,iseg,unk_GQ,unk_GQ_test;
   int boltz_pow,boltz_pow_J,jbond,ibond,unkIndex[2],numEntries,unk_GQ_j,unk_GQ_j_test;
   double fac1,fac2,mat_val,resid=0.0,resid_sum=0.0,values[2],fac1deriv;
 
@@ -342,8 +342,9 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
 	int inode_box2,inode2;
 	int iwall,iwall_type;
     double nodepos[3],nodepos2[3],xbound,xbound_lim;
-    double resid_G=0.0,resid,mat_val,values[4],gint_tmp; 
-    double y,ysqrt,dydxi,dydxi_0,xi_2,xi_3,xi_2_0,xi_3_0;
+    double resid_G=0.0,resid,values[4],gint_tmp; 
+ /* double mat_val;*/
+    double y,ysqrt,dydxi,xi_2,xi_3,xi_2_0,xi_3_0;
 	double y2,ysqrt2;
 	   
        /* use arrays that are indexed with the geqns ordered starting at 0 */ 
@@ -628,10 +629,9 @@ double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types, int Njacobi
        int resid_only_flag)
 {
     int unk_GQ,unk_B,pol_num,seg_num,bond_num,junk,unkIndex[4],numEntries,sten;
-    int itype_mer,jseg,jtype_mer,unk_xi2,unk_xi3,inode;
+    int itype_mer,jseg,jtype_mer,inode;
     double nodepos[3],xbound;
     double resid_G=0.0,resid,mat_val,values[4],gint_tmp; 
-    double y,ysqrt,dydxi,xi_2,xi_3;
    
        /* use arrays that are indexed with the geqns ordered starting at 0 */ 
     unk_GQ=iunk-Phys2Unk_first[G_CHAIN];
@@ -804,9 +804,9 @@ double load_polymer_recursion(int sten_type,int func_type_field, int Njacobian_t
 
   int jlist,unk_GQ,nunk,unk[20],jseg,jtype_mer;
   int reflect_flag[NDIM_MAX];
-  int i,j,jnode_box,jcomp,isum,iterm;
+  int i,jnode_box,jcomp,isum,iterm;
   int pol_num,seg_num,bond_num,ibond,unk_test;
-  double resid,resid_sum,mat_val,jac_sum[10];
+  double resid,resid_sum,jac_sum[10];
 
   if (Nlists_HW <= 2) jlist = 0;
   else                jlist = itype_mer;

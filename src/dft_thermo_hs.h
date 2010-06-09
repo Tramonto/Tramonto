@@ -82,7 +82,7 @@ extern double Inv_4pir[NCOMP_MAX];
 extern double HS_diam[NCOMP_MAX];
 extern double Inv_rad[NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern double Inv_4pi;
 void compute_bulk_FMT_properties(char *output_file1);
 void calc_InvR_params();

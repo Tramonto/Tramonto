@@ -25,7 +25,7 @@ int StenDelta_R_Njcomp();
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 double StenDelta_R_sten_vol(int icomp);
 #define NCOMP_MAX 5
 extern double HS_diam[NCOMP_MAX];

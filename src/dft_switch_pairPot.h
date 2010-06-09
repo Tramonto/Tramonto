@@ -31,7 +31,7 @@ void uLJandYUKAWA_InnerCore(int i,int j,double *rCore_left,double *rCore_right,d
 void uYUKAWA_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
 void uCOULOMB_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
 void uLJ12_6_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
-double pairPot_InnerCore_switch(int icomp,int jcomp,int typePairPot,double *rCore_left,double *rCore_right,double *epsCore);
+void pairPot_InnerCore_switch(int icomp,int jcomp,int typePairPot,double *rCore_left,double *rCore_right,double *epsCore);
 double uSW_DERIV1D(double r,double x,double sigma,double eps,double rcut);
 double uEXP_DERIV1D(double r,double x,double sigma,double eps,double rcut,double yukawaK);
 double ur12andYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,double yukawaK);
@@ -49,7 +49,7 @@ void uYUKAWA_CS_setparams(int context,int i,int j,double *param1,double *param2,
 void uCOULOMB_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 void uCOULOMB_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
 void uLJ12_6_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
-double pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
+void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
 double uSW(double r,double sigma,double eps,double rcut);
 #include <stdio.h>
 #include <stdlib.h>

@@ -44,7 +44,7 @@ double integrate_potential(double param1, double param2, double param3, double p
                       double *node_pos, double *node_pos_f)
 { 
    int ig,jg,kg,jwall_type=0; 
-   double weight, vext=0.0, radius, point[3],cut,z1,z2,eps,sum_gw=0.0;
+   double weight, vext=0.0, radius, point[3],cut,sum_gw=0.0;
 
    cut=param3;
    /* note that the parameters that come to this file are as follows*/

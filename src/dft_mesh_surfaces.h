@@ -37,7 +37,7 @@ extern double Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 extern double WallParam[NWALL_MAX_TYPE];
 extern double Rough_length[NWALL_MAX_TYPE];
 extern int Lrough_surf[NWALL_MAX_TYPE];
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern double WallParam_3[NWALL_MAX_TYPE];
 extern double WallParam_2[NWALL_MAX_TYPE];
 #define NDIM_MAX  3

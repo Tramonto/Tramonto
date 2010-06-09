@@ -38,7 +38,7 @@ double Vextderiv_LJ9_3(double x,int icomp,int iwall_type);
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 #define NWALL_MAX_TYPE 50 
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];

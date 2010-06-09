@@ -32,7 +32,7 @@ extern double Inv_rad[NCOMP_MAX];
 extern double Esize_x[NDIM_MAX];
 struct RB_Struct d2phi_drb2_delta_rb_FMT3(double *n,int *offset,double *sign,int icomp);
 void FMT3_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *dphi_drb_loc);
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern int Nrho_bar_s;
 extern int Ndim;
 double FMT3_energy_density(double *n);

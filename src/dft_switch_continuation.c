@@ -35,7 +35,7 @@
 /*****************************************************************************/
 double get_init_param_value(int cont_type,int Loca_contID)
 {
-  int i,j; 
+  int i; 
   double param,sum;
 
   switch(cont_type){
@@ -118,8 +118,8 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
    used in Tramonto's own continuation */
 {
   int i,j,icomp,jcomp,iw,iwall_type,inode,kcomp;
-  double ratio,temp_save,scale_save,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_save,rho_chain;
-  char     *output_TF,*output_file1, *output_file2;
+  double ratio,temp_save,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_save,rho_chain;
+  char     *output_file1;
   
   output_file1 = "dft_out.lis";
   switch(cont_type){
@@ -313,7 +313,8 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
 */
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
 {
-  int i,idim,icomp,iwall,nloop,jcomp;
+  int idim,icomp,iwall,jcomp;
+/* int i,nloop; */
 
    switch(cont_type){
       case CONT_MESH:
@@ -417,7 +418,8 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
 void print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
 {                 
    int i,idim,icomp,iwall,iwall_type,nloop,jcomp;
-   double kappa,kappa_sq,rhosum,rho_chain;
+   double rhosum,rho_chain;
+ /*double kappa,kappa_sq;*/
          
 
    switch(cont_type){

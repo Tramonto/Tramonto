@@ -85,8 +85,8 @@ double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
 /****************************************************************************/
 double load_CMS_density(int iunk, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
-   int itype_mer,unk_B,unkIndex[2],numEntries;
-   double resid_R,resid,values[2];
+   int itype_mer,unk_B;
+   double resid_R;
 
    resid_R=0.0;
 

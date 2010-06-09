@@ -679,7 +679,7 @@ void setup_basic_box(FILE *fp1, int *update)
       max_cut = 0.5;
     }
 
-  if (L1D_bc) ijk_1D = (int) X_1D_bc/Esize_x[Grad_dim]+1;
+  if (L1D_bc) ijk_1D = ((int)(X_1D_bc/Esize_x[Grad_dim]))+1;
 
 
   for (idim=0; idim<Ndim; idim++){

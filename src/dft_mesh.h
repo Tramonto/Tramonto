@@ -37,7 +37,7 @@ extern double *Pore_rad_R_IC;
 extern double X_const_mu;
 #define OPTION_VARY  2
 extern double *Pore_rad_L_IC;
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 #define OPTION_CYL   1
 extern int Geom_flag;
 #define FLAG_PBELEC -777

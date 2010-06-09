@@ -57,8 +57,8 @@ double load_WJDC_field(int iunk, int loc_inode, int inode_box, int *ijk_box,
 /****************************************************************************/
 double load_WJDC_density(int iunk, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
-   int itype_mer,unk_B,unkIndex[2],numEntries,iseg;
-   double resid_R,resid,values[2];
+   int itype_mer,unk_B,iseg;
+   double resid_R;
 
    resid_R=0.0;
 
@@ -181,7 +181,7 @@ void WJDC_Jacobian_GCHAIN_derivCAVITY(int iunk,int loc_inode,int pol_num,int jse
                     int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x)
 {
     int i,icomp,jcomp,unk_xi,power_R;
-    double prefac_R,fac,yterm,xi_2,xi_3,y,dydxi,mat_val;
+    double prefac_R,fac,yterm,xi_2,xi_3,dydxi,mat_val;
 
     prefac_R = -1.0;
     power_R = -(Nbond[pol_num][jseg]-2);
@@ -262,7 +262,7 @@ double WJDC_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
 double yterm_wjdc(int icomp, int jcomp,int jnode_box,double **x)
 {
   int unk_xi2,unk_xi3;
-  double xi_2,xi_3,y1,y2,y,term;
+  double xi_2,xi_3,term;
 
      unk_xi2=Phys2Unk_first[CAVWTC];
      unk_xi3=Phys2Unk_first[CAVWTC]+1;
@@ -461,21 +461,21 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
  
                  /*Approximate matrix entries using a mean value of the segment density .....*/
 /* TO SWITCH TO ANALYTIC JACOBIAN COMMENT OUT THE NEXT TWO LINES !!! */
-                   mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv/Nseg_type[jcomp];
+/*                   mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv/Nseg_type[jcomp];
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                             unk_rho,jnode_boxJ,mat_val);
+                                                             unk_rho,jnode_boxJ,mat_val);*/
                 
                    /* Matrix entries for dR_Field/dXi_alpha */   
 /* TO SWITCH TO ANALYTIC JACOBIAN UN-COMMENT THE NEXT TWO LINES !!! */
-/*                   mat_val = 0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv*dens/x[unk_B][jnode_boxJ];
+                   mat_val = 0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv*dens/x[unk_B][jnode_boxJ];
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                             unk_B,jnode_boxJ,mat_val);*/
+                                                             unk_B,jnode_boxJ,mat_val);
 
                    /* Matrix entries for dR_Field/dG_alpha */   
 /* TO SWITCH TO ANALYTIC JACOBIAN UN-COMMENT THE NEXT TWO LINES !!! */
-/*                   mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv*dens_Gderiv;
+                   mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv*dens_Gderiv;
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                             unk_GQ,jnode_boxJ,mat_val);*/
+                                                             unk_GQ,jnode_boxJ,mat_val);
 
                    /* Matrix entries for dR_Field/dcav_2 */
                    mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*dens* (

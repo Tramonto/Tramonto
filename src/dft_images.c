@@ -157,7 +157,7 @@ void find_images_1D(int idim, double cut,
 void find_images_coulomb(int idim, int *image, double **image_pos,double *node_image) 
 {
   int iside,done,i,jdim;
-  double sign,shift,node_image2[3],rsq,r;
+  double sign,shift,node_image2[3];
 
   for (iside = 0; iside < 2; iside++){
      if (iside == 0) sign=-1.0; else sign=1.0;

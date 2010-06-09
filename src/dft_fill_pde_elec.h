@@ -45,7 +45,7 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #define POW_INT (int)pow
 #endif
 extern double Temp_elec;
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern double *Charge_vol_els;
 extern int Vol_charge_flag;
 int el_to_el_box(int iel);

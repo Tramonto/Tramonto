@@ -31,7 +31,7 @@
 void  thermodynamics(char *output_file1)
 {
    char *yo = "thermodynamics";
-   int iseg,ibond,pol_num,icomp;
+   int pol_num,icomp;
    if (Proc==0 && Iwrite!=NO_SCREEN){
           printf("\n-------------------------------------------------------------------------------\n");
           printf("%s: Doing Thermo precalculations\n",yo);
@@ -81,9 +81,9 @@ void  thermodynamics(char *output_file1)
 /* calc_pressure: this routine contains the logic for assembly of the pressure */
 void calc_pressure(char *output_file1)
 {
-   double betap_hs_DFT,betap_hs_PY,betap_hs_bulk,betap_att,betap_chain;
-   double betap_att_LBB, betap_att_RTF,betap_hs_bulk_LBB,betap_hs_bulk_RTF;
-   int icomp;
+   double betap_hs_DFT,betap_att,betap_chain;
+   /*double betap_hs_PY;*/
+   double betap_att_LBB, betap_att_RTF;
    FILE *fp;
 
    betap_att = 0.0;
@@ -200,8 +200,7 @@ void calc_pressure(char *output_file1)
 void calc_chempot(char *output_file1)
 {
 
-   double betamu_hs[NCOMP_MAX];
-   int icomp,iseg,ipol,i,pol_num;
+   int icomp,iseg,ipol;
    FILE *fp;
 
    if( (fp = fopen(output_file1,"a+")) == NULL) {

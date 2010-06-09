@@ -41,7 +41,7 @@
            calculated in calling routine)                           */
 double Vext_1D(double x,int icomp, int iwall_type)
 {
-  double vext,xmin;
+  double vext;
 
   switch(Type_vext1D){
       case LJ9_3_CS:

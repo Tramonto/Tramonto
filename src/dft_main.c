@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include "include_global/dft_globals.h"
 #include "rf_allo.h"
+#include "dft_optikaGUI.h"
 
 #include "dft_main.h"
 /*****************************************************************************/
@@ -70,6 +71,7 @@ void dftmain(double * engptr)
   double    *t_linsolv_first_array,*t_linsolv_av_array;
   double    *t_manager_first_array,*t_manager_av_array;
   double    *t_fill_first_array,*t_fill_av_array;
+  int        dummy_param;
   int       min_nnodes_per_proc,max_nnodes_per_proc,min_nnodes_box,max_nnodes_box;
   double    min_nodesLoc_over_nodesBox,max_nodesLoc_over_nodesBox;
   FILE      *fp;
@@ -130,6 +132,8 @@ void dftmain(double * engptr)
   */
 
   read_input_file(input_file,output_file1);
+  dft_OptikaGUI(&dummy_param);
+  printf("DUMMY PARAM FROM OPTIKA IS %d\n",dummy_param);
   setup_stencil_logicals();
   if (Type_attr != NONE) setup_stencil_uattr_core_properties();
   setup_nunk_per_node(output_file1);

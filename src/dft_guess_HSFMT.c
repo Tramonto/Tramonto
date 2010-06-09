@@ -42,7 +42,7 @@
 void setup_rho_bar(double **xOwned)
 {
   int loc_inode,inode,ijk[3],iunk,irb;
-  double vol,area,x_dist;
+  double x_dist;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (irb = 0; irb < Nrho_bar; irb++){
@@ -69,7 +69,7 @@ void setup_rho_bar(double **xOwned)
                 density profile. Set these variables up on local nodes only.*/
 void calc_init_rho_bar(double **xInBox,double **xOwned)
 {
-  int loc_inode,inode_box,inode,ijk[3],iunk,irb;
+  int loc_inode,inode_box,iunk,irb;
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];
      for (irb = 0; irb < Nrho_bar; irb++){

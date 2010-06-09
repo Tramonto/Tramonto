@@ -14,7 +14,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 double deltaC_MSA(double r,int i,int j);
 double StenTheta_RPMmsa_GetWeightFromSten(int icomp,int jcomp,double rsq,int ngpu,double *gpu,double *gwu);
 int StenTheta_RPMmsa_NquadPtsGaussIntegrand(double r);

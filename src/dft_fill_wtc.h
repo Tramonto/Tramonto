@@ -32,7 +32,7 @@ double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern int Nseg_tot;
 #define THETA_FN_SIG          5
 double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);

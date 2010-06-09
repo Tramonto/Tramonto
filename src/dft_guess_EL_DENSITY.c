@@ -89,7 +89,7 @@ void setup_const_density(double **xInBox, double *rho,int nloop,int index)
         density profile wherever Zero_density_TF = FALSE */
 void setup_stepped_profile(double **xInBox)
 {
-  int loc_inode,i,j,nloop,inode_box,iunk,icomp,inode;
+  int i,j,nloop,inode_box,iunk,icomp,inode;
   double nodepos[3];
 
   if (Lseg_densities) nloop=Nseg_tot;

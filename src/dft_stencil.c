@@ -136,7 +136,7 @@ void calc_stencils(void)
        * and the maximum number of nodes in the stencil
        */
 
-      max_sten_nodes = 1.0;
+      max_sten_nodes = 1;
       el_in_radius[0]=0; el_in_radius[1]=0; el_in_radius[2]=0;
       for (i=0; i<Ndim; i++) {
         el_in_radius[i] = (int) ((float)sten_rad/(float) esize_zone[i] + 0.999);

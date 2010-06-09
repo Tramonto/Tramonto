@@ -20,7 +20,7 @@ double pairPot_switch(double r,double param1,double param2,double param3,double 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Ndim;
 #define WALL_WALL   2
-double pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
+void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
 #define PAIR_COULOMB          2
 extern int Type_coul;
 void setup_atomic_ww(int iwall,int jwall,int type_uwwpot);

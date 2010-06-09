@@ -84,7 +84,8 @@
 #define DENSITY_MIN  1.e-20
 
 /* basic constants */
-#define PI    M_PI
+/*#define PI    M_PI*/
+#define PI    3.141592653589793238462643383279502884197169399375
 
 #define KAPPA_H2O 78.5
 

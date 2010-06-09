@@ -25,7 +25,7 @@ int StenTheta_uattr_Njcomp();
 #define PAIR_SW		      5
 double pairPot_integral_switch(double r,int icomp,int jcomp,int typePairPot);
 double pairPot_ATT_noCS_switch(double r,int icomp,int jcomp,int typePairPot);
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 #define TRUE  1
@@ -40,7 +40,7 @@ extern double Esize_x[NDIM_MAX];
 #define FALSE 0
 #endif
 extern int Type_pairPot;
-double pairPot_InnerCore_switch(int icomp,int jcomp,int typePairPot,double *rCore_left,double *rCore_right,double *epsCore);
+void pairPot_InnerCore_switch(int icomp,int jcomp,int typePairPot,double *rCore_left,double *rCore_right,double *epsCore);
 double StenTheta_uattr_sten_vol(int i,int j);
 #define NCOMP_MAX 5
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];

@@ -14,7 +14,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 void theta_midpoint(double **point,double *wt,int izone,int num_dim);
 void get_radial_quadrature(double gauss_pt[],double gauss_wt[],int num_gp);
 #define NSTEN        8

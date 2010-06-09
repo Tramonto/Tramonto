@@ -59,8 +59,8 @@ void setup_polymer_field(double **xInBox, double **xOwned, int guess_type)
 /*calc_init_CMSfield: in this routine sets up the initial guess for the CMS field variable */
 void calc_init_CMSfield(double **xInBox,double **xOwned)
 {
-  int loc_inode,icomp,irho, iunk,inode_box,jcomp;
-  double field,int_bulk;
+  int loc_inode,icomp,irho, iunk,inode_box;
+  double field;
 
  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);  /* make sure all densities are available for calculations */
 
@@ -136,7 +136,7 @@ void setup_polymer_simple(double **xInBox, int guess_type)
 /*setup_polymer_rho: in this routine set up polymer density profiles    */
 void setup_polymer_rho(double **xInBox, double **xOwned, int guess_type)
 {
-  int loc_inode,i,inode_box,ijk_box[3],iunk,icomp;
+  int i,inode_box,ijk_box[3],iunk,icomp;
   int inode;
   double nodepos[3];
 
@@ -182,7 +182,7 @@ void setup_polymer_rho(double **xInBox, double **xOwned, int guess_type)
 /* in this version, guess is simply the Boltzmann factors, with some account taken of hard walls*/
 void setup_polymer_G_newCMS(double **xOwned)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,iseg,icomp_iseg;
+  int loc_inode,iunk,i,iseg,icomp_iseg;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (i=0; i<Nbonds; i++){
@@ -200,13 +200,13 @@ void setup_polymer_G_newCMS(double **xOwned)
 /* in this version, guess is simply the Boltzmann factors, with some account taken of hard walls*/
 void setup_polymer_G(double **xInBox,double **xOwned)
 {
-  int loc_inode,inode_box,ijk_box[3],loc_i,inode;
+  int loc_inode,inode_box,ijk_box[3],inode;
   int reflect_flag[NDIM_MAX];
   int   **sten_offset, *offset, isten;
   double *sten_weight,  weight;
   struct Stencil_Struct *sten;
   int sten_type,izone,jlist,jnode_box,jtype_mer,itype_mer;
-  int iunk,poln,iseg,ibond,not_done,junk,cycle,loc_B;
+  int iunk,poln,iseg,ibond,not_done,junk,cycle;
   double sig2, nodepos[3],xbound;
 
      sten_type = DELTA_FN_BOND;
@@ -352,7 +352,7 @@ void setup_polymer_G(double **xInBox,double **xOwned)
 in the wjdc functional */
 void calc_init_polymer_G_CMS(double **xInBox,double **xOwned)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,field;
+  int loc_inode,iunk,inode_box,field;
   int ibond,jbond,index,iseg,jseg,pol_num,bond_num,test,ijk_box[3];
   double resid_G;
   int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill;

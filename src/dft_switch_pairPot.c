@@ -80,7 +80,7 @@ double pairPot_switch(double r,double param1, double param2, double param3,doubl
 /******************************************************************************/
 /* pairPotparams_switch:  switch to set the correct parameters for a given choice of potential.
            Note that these parameters must map correctly to the potential functions (i.e. uLJ12_6_CS). */
-double pairPotparams_switch(int typePairPot,int context, int i, int j,double *param1, double *param2, double *param3,double *param4)
+void pairPotparams_switch(int typePairPot,int context, int i, int j,double *param1, double *param2, double *param3,double *param4)
 {
   switch(typePairPot){
       case PAIR_LJ12_6_CS:
@@ -156,7 +156,7 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
 /******************************************************************************/
 /* pairPot_InnerCore_switch:  switch to choose the correct properties of the 
            inner core of attractions as used in the DFT calculation.       */
-double pairPot_InnerCore_switch(int icomp, int jcomp,int typePairPot, 
+void pairPot_InnerCore_switch(int icomp, int jcomp,int typePairPot, 
               double *rCore_left, double *rCore_right, double *epsCore)
 {
   switch(typePairPot){

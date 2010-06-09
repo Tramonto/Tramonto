@@ -73,7 +73,7 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(
  double int_stencil(double **x,int inode_box,int iunk,int sten_type)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
-  int j,jcomp,junk,icomp,jlist;
+  int jcomp,junk,icomp,jlist;
   double weight, sum;
   struct Stencil_Struct *current_sten;
   int **current_sten_offset, reflect_flag[NDIM_MAX];
@@ -133,7 +133,7 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(
  double int_stencil_CMSField(double **x,int inode_box,int iunk,int sten_type)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
-  int j,jcomp,junk,icomp,jlist;
+  int jcomp,junk,icomp,jlist;
   double weight, weight_bulk,sum;
   struct Stencil_Struct *current_sten;
   int **current_sten_offset, reflect_flag[NDIM_MAX];
@@ -195,7 +195,7 @@ for the FMT hard sphere functionals */
  double int_stencil_HSFMT(double **x,int inode_box,int iunk)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
-  int j,jcomp,junk,icomp,jlist,sten_type;
+  int jcomp,junk,jlist,sten_type;
   double weight, sum,fac;
   struct Stencil_Struct *current_sten;
   int **current_sten_offset, reflect_flag[NDIM_MAX];
@@ -259,7 +259,7 @@ for the WTC and WJDC cavity functionals */
  double int_stencil_CAV(double **x,int inode_box,int iunk)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
-  int j,jcomp,junk,icomp,jlist,sten_type;
+  int jcomp,junk,jlist,sten_type;
   double weight, sum,fac;
   struct Stencil_Struct *current_sten;
   int **current_sten_offset, reflect_flag[NDIM_MAX];
@@ -321,9 +321,9 @@ for the WTC and WJDC cavity functionals */
  double int_stencil_BondWTC(double **x,int inode_box,int iunk)
 {
   int isten,*offset,inode_sten,ijk_box[3],izone,idim;
-  int j,jcomp,junk,icomp,jlist,sten_type;
+  int jcomp,junk,icomp,jlist,sten_type;
   int unk_bond,iseg,jseg,ibond;
-  double weight, sum,fac;
+  double weight, sum;
   struct Stencil_Struct *current_sten;
   int **current_sten_offset, reflect_flag[NDIM_MAX];
   double *current_sten_weight;

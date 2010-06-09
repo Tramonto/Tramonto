@@ -44,7 +44,7 @@ double pairPot_find_rmin(int i,int j,double param1,double param2,double param3,d
 extern double Rmin_ff[NCOMP_MAX][NCOMP_MAX];
 #define FLUID_FLUID 0
 extern int Type_pairPot;
-double pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
+void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
 extern int Ncomp;
 #define NONE       -1
 #define NONE          -1

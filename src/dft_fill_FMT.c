@@ -50,12 +50,12 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
 
-  int jzone=0, jnode_box, idim,j_box,unk_tmp,junk,i;
+  int jzone=0, jnode_box, idim,junk,i;
   int jnode_boxJ;
   int reflect_flag[NDIM_MAX];
   double  sign[3];
   struct  RB_Struct tmp;
-  double resid=0.0,mat_val,resid_sum=0.0;
+  double resid=0.0,resid_sum=0.0;
   int numEntries, indexUnks[4];
   double values[4];
   double n[4+2*NDIM_MAX];
@@ -338,7 +338,7 @@ void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,dou
   double n[4+2*NDIM_MAX], rho_bar[4+2*NDIM_MAX];
   double inv_n3[5],dphi_drb_loc[4+2*NDIM_MAX];
   double DOT_22,DOT_12;
-  int iunk,idim,i;
+  int idim,i;
 
   inv_n3[0]=inv_n3[1]=inv_n3[2]=inv_n3[3]=inv_n3[4]=0.0;
 

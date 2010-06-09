@@ -106,15 +106,13 @@ void uSW_InnerCore(int i, int j,double *rCore_left, double *rCore_right, double 
 			SW system */
 double uSW_ATT_CS(double r,int i, int j)
 {
-	double uatt,r_min,rcut,sigma,alpha,eps;
+	double uatt,rcut,sigma,eps;
 	sigma=Sigma_ff[i][j];
 	rcut=Cut_ff[i][j];
 	eps=Eps_ff[i][j];
 	
 	if(r<sigma) uatt=0.0;
-	else if (r<=rcut){
-		uatt = -eps;
-	}
+	else if (r<=rcut) uatt = -eps;
 	else uatt=0.0;
 	return uatt;
 }
@@ -124,13 +122,12 @@ double uSW_ATT_CS(double r,int i, int j)
 
 double uSW_ATT_noCS(double r,int i, int j)
 {
-	double uatt,sigma,alpha,r_min,eps;
+	double uatt,sigma,eps;
 	sigma=Sigma_ff[i][j];
 	eps=Eps_ff[i][j];
 	
 	if (r<sigma) uatt = 0.0;
-	else
-		uatt = -eps;
+	else         uatt = -eps;
 	
 	return uatt;
 }

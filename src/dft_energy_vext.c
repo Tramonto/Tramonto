@@ -30,7 +30,7 @@
 /****************************************************************************/
 double integrand_vext_freen(int iunk,int inode_box, double **x)
 {     double integrand,rho_i;
-     int icomp,iseg,i;
+     int icomp,i;
 
      i = iunk-Phys2Unk_first[DENSITY];
      if (Lseg_densities) icomp = Unk2Comp[i];
@@ -46,7 +46,7 @@ double integrand_vext_freen(int iunk,int inode_box, double **x)
 /****************************************************************************/
 double integrand_vext_elec_freen(int iunk,int inode_box, double **x)
 {     double integrand,rho_i;
-     int icomp,iseg,i;
+     int icomp,i;
 
      i = iunk-Phys2Unk_first[DENSITY];
      if (Lseg_densities) icomp = Unk2Comp[i];

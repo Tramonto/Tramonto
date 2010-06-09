@@ -124,7 +124,7 @@ extern double Dielec_bulk;
 #define DIELEC_WF_PORE     2
 #define KAPPA_H2O 78.5
 #define EPSILON_0  8.85419e-12  /* C^2 J^-1 m^-1 */
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern double Temp_elec;
 extern int Type_dielec;
 extern int Charge_type_local;

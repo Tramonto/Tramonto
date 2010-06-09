@@ -19,7 +19,7 @@ extern double Pol[NCOMP_MAX];
 extern int ***Surf_normal;
 extern int **Nodes_2_boundary_wall;
 #define KAPPA_H2O 78.5
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern double Temp_elec;
 extern int Lpolarize[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];

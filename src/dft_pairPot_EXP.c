@@ -114,7 +114,7 @@ void uEXP_InnerCore(int i, int j,double *rCore_left, double *rCore_right, double
                    exponential system */
 double uEXP_ATT_CS(double r,int i, int j)
 {
-  double uatt,r_min,rcut,sigma,alpha,eps;
+  double uatt,rcut,sigma,alpha,eps;
   sigma=Sigma_ff[i][j];
   rcut=Cut_ff[i][j];
   eps=Eps_ff[i][j];
@@ -134,7 +134,7 @@ double uEXP_ATT_CS(double r,int i, int j)
 /* uEXP_ATT_noCS: the attractive part of the potential for an exponential potential */
 double uEXP_ATT_noCS(double r,int i, int j)
 {
-  double uatt,sigma,alpha,r_min,eps;
+  double uatt,sigma,alpha,eps;
   sigma=Sigma_ff[i][j];
   eps=Eps_ff[i][j];
   alpha=YukawaK_ff[i][j];

@@ -32,7 +32,7 @@
 /**************************************************************************************/
 void calc_adsorption(FILE *fp,double **x)
 {
-  int icomp,iunk,nloop,idim,jcomp;
+  int icomp,iunk,nloop,idim;
   double ads[NCOMP_MAX],ads_ex[NCOMP_MAX],ads_b[NCOMP_MAX],volume,total_ads;
   static int first=TRUE;
 

@@ -30,7 +30,7 @@
 /****************************************************************************/
 double integrand_hs_freen(int iunk, int inode_box,double **x)
 {
-  int i,idim,iv1,iv2;
+  int i;
   double integrand,rho_bar[4+2*NDIM_MAX];
   double n[4+2*NDIM_MAX];
 
@@ -45,7 +45,7 @@ double integrand_hs_freen(int iunk, int inode_box,double **x)
 double integrand_hs_freen_bulk(int iunk, int inode_box,double **x)
 {
   double integrand,n[4+2*NDIM_MAX],rho_bar[4+2*NDIM_MAX];
-  int iv1,iv2,i;
+  int i;
 
   for(i=0; i<Nrho_bar_s; i++){
      if (Type_interface!=UNIFORM_INTERFACE) rho_bar[i] = Rhobar_b_RTF[i];

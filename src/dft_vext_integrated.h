@@ -14,7 +14,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,int typePairPot);
 extern double Vol_el;
 double get_wt_from_sten(double r,double param1,double param2,double param3,double param4,int ngpu,double *gpu,double *gwu);

@@ -36,7 +36,7 @@ void setup_matrix_constant_blocks();
   unknown number and equation type easily. */
 void setup_nunk_per_node(char *output_file1)
 {
-  int i,iunk,icomp,unk_rel;
+  int i,iunk,icomp;
   int NCMSField_unk, NWJDCField_unk;
   FILE *fp2=NULL;
 

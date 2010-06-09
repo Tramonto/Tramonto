@@ -98,7 +98,7 @@ extern int Orientation[NWALL_MAX_TYPE];
 extern int Nlists_HW;
 extern double **S_area_tot;
 extern int Lper_area;
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern double Temp_elec;
 double gsum_double(double c);
 #define NO_SCREEN    2 

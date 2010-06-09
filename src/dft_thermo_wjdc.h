@@ -48,7 +48,7 @@ extern double Fac_overlap_hs[NCOMP_MAX];
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-#define PI    M_PI
+#define PI    3.141592653589793238462643383279502884197169399375
 extern double HS_diam[NCOMP_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int SegAll_to_Poly[NMER_MAX];

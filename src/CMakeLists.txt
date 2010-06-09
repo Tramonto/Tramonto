@@ -23,6 +23,7 @@ set(common_h
         dft_poly_lin_prob_mgr_wrapper.h 
         dft_hardsphere_lin_prob_mgr_wrapper.h 
         dft_parameterlist_wrapper.h 
+        dft_optikaGUI.h
         dft_direct_solver_const.h 
         dft_input.h 
         dft_chain_architecture.h 
@@ -257,7 +258,8 @@ set(common_cxx
         dft_basic_lin_prob_mgr_wrapper.cpp 
         dft_poly_lin_prob_mgr_wrapper.cpp 
         dft_hardsphere_lin_prob_mgr_wrapper.cpp 
-        dft_parameterlist_wrapper.cpp )
+        dft_parameterlist_wrapper.cpp 
+        dft_optikaGUI.cpp )
 set(noxloca_cxx
         NOXLOCA_Solver.cpp 
         NOXLOCA_Tramonto_Group.cpp 
@@ -273,13 +275,13 @@ set(noxloca_headers
 
 #Add Trilinos information to the include and link lines
 include_directories(${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} )
-link_directories(${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
+link_directories(${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} /Library/Frameworks/QtCore.framework /Library/Frameworks/QtGui.framework)
 
 #list of necessary Trilinos packages:
-#ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos
+#ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos optika 
 set(Tramonto_Trilinos_LIBRARIES ${ML_LIBRARIES} ${Amesos_LIBRARIES}
 ${NOX_LIBRARIES} ${AztecOO_LIBRARIES} ${Ifpack_LIBRARIES}
-${EpetraExt_LIBRARIES} ${Epetra_LIBRARIES} ${Teuchos_LIBRARIES} )
+${EpetraExt_LIBRARIES} ${Epetra_LIBRARIES} ${Teuchos_LIBRARIES} ${Optika_LIBRARIES} /Library/Frameworks/QtCore.framework/QtCore /Library/Frameworks/QtGui.framework/QtGui)
 
 #remove duplicates from the link line
 LIST(REVERSE Tramonto_Trilinos_LIBRARIES )
@@ -341,6 +343,13 @@ IF(TEUCHOS_FOUND GREATER -1)
   MESSAGE("Trilinos package Teuchos found.")
 ELSE()
   MESSAGE(FATAL_ERROR "Could not find Trilinos package Teuchos!")
+ENDIF()
+
+LIST(FIND Trilinos_PACKAGE_LIST Optika OPTIKA_FOUND)
+IF(TEUCHOS_FOUND GREATER -1)
+  MESSAGE("Trilinos package Optika found.")
+ELSE()
+  MESSAGE(FATAL_ERROR "Could not find Trilinos package Optika!")
 ENDIF()
 
 # add dft library

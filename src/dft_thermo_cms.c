@@ -47,8 +47,8 @@ void CMS_thermo_precalc(char *output_file1)
 void setup_polymer_cr()
 {     
    FILE *fp7,*fp8,*fp9,*fp10;
-   int i,j,lines,lines2,ir,ir2, nextChar;
-   double r,u,cr_rad_max,cr_rad_max2,rsave,rsave2,dummy_read,crread;
+   int i,j,lines,ir;
+   double r,u,cr_rad_max,rsave,dummy_read,crread;
    double crfac1,crfac2,crfac3,crfac4,xs=0.0;
    char c;
 
@@ -390,11 +390,10 @@ void setup_polymer_cr()
 void compute_bulk_nonlocal_cms_properties(char *output_file1,double *rho, 
                                         double *field_CMS, double *g_CMS)
 {
-  int i,loc_inode,loc_i,inode_box,inode,ijk[3],icomp,jcomp,idim,iunk,printproc;
-  int ibond,jbond,index,iseg,jseg,pol_num,bond_num,type_jseg,nloop,iloop;
+  int icomp,jcomp,printproc;
+  int ibond,jbond,index,iseg,jseg,pol_num,bond_num;
   int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill,test,power;
-  double vol,area,x_dist,field,sten_sum[4];
-  double field_hs,field_att,field_chain;
+  double field;
   FILE *fp2=NULL;
 
 

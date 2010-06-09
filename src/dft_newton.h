@@ -17,7 +17,6 @@ int find_length_of_file(char *filename);
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define CALC_AND_FILL_RESID_ONLY  4
-extern int Print_flag;
 extern int Nnodes;
 extern int Lseg_densities;
 #define HSRHOBAR       2

@@ -39,8 +39,8 @@
 /****************************************************************************/
 double load_SCF_density(int iunk, int loc_inode, int inode_box, double **x,int resid_only_flag) 
 {
-	int itype_mer,unk_B,unkIndex[2],numEntries;
-	double resid_R,resid,values[2];
+	int itype_mer,unk_B;
+	double resid_R;
 		
 	resid_R=0.0;
 	
@@ -74,8 +74,8 @@ double prefactor_rho_scft(int itype_mer)
 /****************************************************************************/
 double load_SCF_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int izone, double **x,int resid_only_flag) 
 {
-	double resid_B,mat_val,values[2];
-	int itype_mer,junk,unk_L,jcomp,numEntries;
+	double resid_B,mat_val;
+	int itype_mer,junk,unk_L,jcomp;
 		
 	itype_mer = iunk - Phys2Unk_first[SCF_FIELD];
 	

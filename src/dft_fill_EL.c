@@ -39,7 +39,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                     double **x,struct  RB_Struct *dphi_drb,int mesh_coarsen_flag_i, int resid_only_flag)
 {
    int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF,iunk_att,first_unk,offset[3],reflect_flag[3],idim,jnode_box;
-   double resid=0.0,resid_ig,resid_att,resid_hs,resid_chain,resid_old,mat_val;
+   double resid=0.0,resid_att,mat_val;
 
                   /* set icomp and iseg(WTC) */
    iseg=-1;
@@ -194,7 +194,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                                 EL fill may be skipped for this node. */
 int check_zero_density_EL(int iunk, int icomp, int iseg, int loc_inode, int inode_box, double **x) 
 {
-   int zero_density_bond_check,ibond,unk_bond,junk,zero_TF;
+   int zero_density_bond_check,ibond,unk_bond,zero_TF;
    double n;
 
    /* set a flag for zero density of bond parameters only applies when WTC functionals are present.*/
@@ -339,7 +339,7 @@ double fill_bulk_field(int iunk, int icomp, int iseg, int loc_inode, int inode_b
 double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, double **x,int resid_only_flag)
 {
    double resid,resid_ig=0.0,mat_val,scalefac;
-   int pol_number,jseg;
+   int pol_number;
 
    if (resid_only_flag != INIT_GUESS_FLAG){
       resid = log(x[iunk][inode_box]); 
@@ -375,7 +375,7 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
                         int mesh_coarsen_flag_i, double **x,int resid_only_flag)
 {
    double resid_mu,mat_val;
-   int junk,pol_num,usemu_test;
+   int junk,usemu_test;
 
    usemu_test=FALSE;
    if (LBulk && Loca.cont_type1==CONT_BETAMU_I && icomp==Cont_ID[0][0]) usemu_test=TRUE;

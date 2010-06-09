@@ -643,7 +643,7 @@ void communicate_to_fill_in_box_values(double** xInBox)
    int loc_inode,iunk;
    double **xOwned_tmp;
    xOwned_tmp = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
-   for (loc_inode==0; loc_inode< Nnodes_per_proc;loc_inode++){
+   for (loc_inode=0; loc_inode< Nnodes_per_proc;loc_inode++){
       for (iunk=0;iunk<Nunk_per_node;iunk++){
           xOwned_tmp[iunk][loc_inode]=xInBox[iunk][L2B_node[loc_inode]];
       }
