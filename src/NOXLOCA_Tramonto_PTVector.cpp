@@ -66,6 +66,7 @@ NOX::Abstract::Vector& NOXLOCA::Tramonto::PTVector::operator=(
   x1 = source.x1;
   x2 = source.x2;
   ptp= source.ptp;
+  return *this;
 }
 
 NOX::Abstract::Vector& NOXLOCA::Tramonto::PTVector::init(double value)
