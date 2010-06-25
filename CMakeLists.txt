@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.6)
 
 MESSAGE("Starting configure")
-FIND_PACKAGE(Trilinos PATHS ${TRILINOS_PATH})
+#Look for Trilinos - the first PATH will find Trilinos 10.4 and later,
+#the second PATH will find Trilinos 10.2
+FIND_PACKAGE(Trilinos PATHS ${TRILINOS_PATH}/include ${TRILINOS_PATH})
 
 #Verify that we can find a Trilinos installation
 IF(Trilinos_FOUND)
@@ -31,7 +33,7 @@ IF(Trilinos_FOUND)
    # These are not available in Trilinos 10.2.0, but should be in 10.4.0
    MESSAGE("End of Trilinos details\n")
 ELSE()
-  MESSAGE("Could not find Trilinos 10.2 or greater!")
+  MESSAGE(FATAL_ERROR "Could not find Trilinos 10.2 or greater!")
 ENDIF()
 
 IF(NOT CMAKE_CXX_COMPILER)
