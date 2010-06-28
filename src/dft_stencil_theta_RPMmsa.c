@@ -116,7 +116,6 @@ double StenTheta_RPMmsa_GetWeightFromSten(int icomp, int jcomp, double rsq,
      weight = deltaC_MSA(rho, icomp, jcomp);
      return(weight);
      break;
-
   }
 }
 /*********************************************************************/

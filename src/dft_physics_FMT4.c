@@ -167,6 +167,7 @@ struct RB_Struct d2phi_drb2_delta_rb_FMT4(double *n, int *offset, double *sign, 
        tmp.V1[idim] = sign[idim]*(inv_n3[1]) * vector[idim];
      }
 
+    DOT_nw=0.0;
     for(idim=0; idim<Ndim; idim++) {
         i2v=Nrho_bar_s+Ndim+idim;
         DOT_nw += n[i2v]*vector[idim];

@@ -28,11 +28,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef __STDC__
+/*#ifdef __STDC__*/
 #include <stdarg.h>
-#else
+/*#else
 #include <varargs.h>
-#endif
+#endif*/
 
 #ifdef DEBUG
     extern int Proc;

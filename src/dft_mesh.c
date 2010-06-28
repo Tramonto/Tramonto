@@ -37,6 +37,7 @@
  */
 
 #include "dft_mesh.h"
+#include "az_aztec.h"
 #include "dft_parameterlist_wrapper.h"
 
 /********************** BEGIN EXECUTION ************************************/

@@ -89,7 +89,7 @@ double pressure_WTC(double *rho_seg,double *xi_cav)
    Betamu_wtc = contribution to chem. potential from the chain part of the functional only */
 void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
 {
-   int icomp,jcomp,kcomp,i,iseg,ibond,jseg,kseg,pol_num,count_comp;
+   int icomp,jcomp,kcomp,iseg,ibond,jseg,kseg,pol_num,count_comp;
    double y,term_kseg;
 
    for (iseg=0;iseg<Nseg_tot;iseg++) {
@@ -284,9 +284,8 @@ void WTC_overlap()
    and particle sizes. */
 void compute_bulk_nonlocal_wtc_properties(char *output_file1)
 {
-  int i,loc_inode,loc_i,inode_box,inode,ijk[3],icomp,idim,iunk,printproc;
-  int ibond,iseg,jseg,pol_number,type_jseg,nloop,iloop;
-  double vol,area,x_dist;
+  int i,icomp,printproc;
+  int ibond,iseg,jseg,pol_number,type_jseg;
   FILE *fp2=NULL;
   if (Proc==0 && output_file1 !=NULL) printproc = TRUE;
   else printproc=FALSE;

@@ -135,7 +135,7 @@ chempot_FMT_hs:  This routine calculates the excess chemical potential for
 void chempot_FMT_hs(double *dphi_drhobar)
 {
    int icomp,i;
-   double sten_sum[4],n[4+2*NDIM_MAX];
+   double sten_sum[4];
 
   
    for (icomp=0; icomp<Ncomp;icomp++){
@@ -225,9 +225,8 @@ void chempot_PY_hs(double *rho)
    nonlocal densities.  It is convenient to compute these once up front.  */
 void compute_bulk_FMT_properties(char *output_file1)
 {
-  int i,loc_inode,loc_i,inode_box,inode,ijk[3],icomp,idim,iunk,printproc;
-  int ibond,iseg,jseg,pol_number,type_jseg,nloop,iloop;
-  double vol,area,x_dist;
+  int i,icomp,iunk,printproc;
+  int nloop,iloop;
   FILE *fp2=NULL;
   if (Proc==0) printproc = TRUE;
   else printproc=FALSE;

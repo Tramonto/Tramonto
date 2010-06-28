@@ -87,7 +87,7 @@ double load_WJDC_density(int iunk, int loc_inode, int inode_box, double **x,int 
 /****************************************************************************/
 double prefactor_rho_wjdc(int iseg)
 {
-  int pol_number,jseg,icomp;
+  int pol_number,icomp;
   double mu,fac,scale_term;
 
   pol_number=SegAll_to_Poly[iseg];
@@ -284,19 +284,20 @@ double yterm_wjdc(int icomp, int jcomp,int jnode_box,double **x)
 /*load_polyWJDC_cavityEL:  Here add the bond contributions of the WTC association/bonding (cavity term) functionals                       to the Euler-Lagrange equation for the Wertheim-Tripathi-Chapman theory */
 double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag)
 {
-  int iseg,jseg,kseg,kbond,jcomp,unk_xi2,unk_xi3,unk_rho,junk_rho,kcomp,unk_B,unk_GQ;
+  int jseg,kseg,kbond,jcomp,unk_xi2,unk_xi3,unk_rho,kcomp,unk_B,unk_GQ;
   double xi_2,xi_3,s1,s2,y,dy_dxi2,dy_dxi3,prefac2,prefac3;
   double d2y_dxi2_2,d2y_dxi3_2,d2y_dxi2_dxi3;
   int jzone,jnode_box,jlist,reflect_flag[3],jnode_boxJ;
   int   **sten_offset, *offset, isten;
   int   **sten_offsetJ, *offsetJ;
   double *sten_weightJ,weightJ;
-  double *sten_weight,  weight,fac;
+  double *sten_weight,  weight;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
   double resid,mat_val,resid_sum,first_deriv,first_deriv_sum,dens,dens_Gderiv;
 
-/*  if (Type_poly==WJDC) iseg = iunk-Phys2Unk_first[WJDC_FIELD];
+/* int iseg;
+   if (Type_poly==WJDC) iseg = iunk-Phys2Unk_first[WJDC_FIELD];
   else                 iseg = iunk - Phys2Unk_first[DENSITY];*/
 
   resid_sum=0.0;
@@ -506,8 +507,9 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
 /********************************************************************************************/
 double calc_dens_seg(int iseg,int inode_box,double **x,int flag)
 {
-   int boltz_pow,unk_GQ,unk_GQ_test,ibond,itype_mer,unk_B;
+   int boltz_pow,unk_GQ,ibond,itype_mer,unk_B;
    double fac1,dens;
+/* int unk_GQ_test; */
 
    boltz_pow = -(Nbonds_SegAll[iseg]-1);
 
@@ -528,8 +530,9 @@ double calc_dens_seg(int iseg,int inode_box,double **x,int flag)
 /********************************************************************************************/
 double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond, double **x,int flag)
 {
-   int boltz_pow,unk_GQ,unk_GQ_test,ibond,itype_mer,unk_B;
+   int boltz_pow,unk_GQ,ibond,itype_mer,unk_B;
    double fac1,dens;
+/* int unk_GQ_test; */
 
    boltz_pow = -(Nbonds_SegAll[iseg]-1);
 
