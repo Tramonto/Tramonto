@@ -116,13 +116,8 @@ extern int Lvext_dash;
 extern int Ipot_wf_c;
 extern int Ndim;
 extern int Nwall;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

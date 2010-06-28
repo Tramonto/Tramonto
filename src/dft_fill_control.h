@@ -23,13 +23,8 @@ double fill_resid_and_matrix(double **x,struct RB_Struct *dphi_drb,int iter,int 
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
 extern int Nnodes_box;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 #define NONE       -1
 #define NONE          -1
 #define NONE        -1

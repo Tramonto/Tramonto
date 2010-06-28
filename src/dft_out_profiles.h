@@ -136,13 +136,8 @@ extern int Proc;
 extern int Proc;
 #endif
 extern int *L2B_node;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern int Nunk_per_node;
 extern int Nnodes_per_proc;
 void collect_x_old(double **x,double *xold);

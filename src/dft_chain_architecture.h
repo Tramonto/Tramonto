@@ -62,13 +62,8 @@ void setup_chain_from_file(FILE *fpout,char *poly_file,int ***pol_sym_tmp);
 extern int Type_poly_arch;
 #define NBOND_MAX 4
 extern int ***Bonds;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern int **Nbond;
 extern int Nmer[NCOMP_MAX];
 extern int Npol_comp;

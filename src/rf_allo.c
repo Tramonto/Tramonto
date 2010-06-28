@@ -40,11 +40,11 @@
 
 /* prototypes */
 static void * smalloc(size_t n);
-#ifdef __STDC__
+/*#ifdef __STDC__*/
 void * array_alloc(int numdim, ...);
-#else
+/*#else
 void * array_alloc(...);
-#endif
+#endif*/
 
 /* user callable interface to array_alloc */
 

@@ -23,13 +23,8 @@ extern int Nnodes_per_el_V;
 void set_fem_1el_weights(double **wt_lp_1el_ptr,double **wt_s_1el_ptr,int ***elem_permute);
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern int Ndim;
 #if defined(DEC_ALPHA)
 #define POW_INT powii

@@ -141,13 +141,8 @@ extern int Type_poly;
 void print_profile_box(double **x,char *outfile);
 #define VERBOSE      3 
 extern int Nunk_per_node;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 #define NO_SCREEN    2 
 extern int Iwrite;
 extern int Proc;

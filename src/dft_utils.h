@@ -32,13 +32,8 @@ void print_to_screen(double val,char *var_label);
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern void *LinProbMgr_manager;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 void pass_part_of_solnVector(double **xOwned,double **x,int iunk_start,int nunk_to_pass);
 extern int Nrho_bar_s;
 extern int Ndim;

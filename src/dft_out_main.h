@@ -69,13 +69,8 @@ extern int Ncomp;
 extern double *Vext_old;
 extern int Nunk_per_node;
 extern int Nnodes;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern double *X2_old;
 #define MINIMAL      0
 #define NO_SCREEN    2 

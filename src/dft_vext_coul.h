@@ -52,13 +52,8 @@ extern int Proc;
 extern int Nelements;
 extern int Ncomp;
 extern int Nnodes_per_proc;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern double **Vext_coul;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)

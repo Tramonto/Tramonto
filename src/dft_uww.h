@@ -34,13 +34,8 @@ extern int Link[NWALL_MAX];
 extern int Nlink;
 extern double **Uww_link;
 extern int Nwall;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern double **Uww;
 extern int Proc;
 #if defined(DEBUG)

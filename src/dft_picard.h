@@ -126,11 +126,6 @@ extern int Iguess;
 void set_initial_guess(int guess_type,double **xOwned);
 extern int Nnodes_per_proc;
 extern int Nunk_per_node;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 int solve_problem_picard(double **x,double **x2);

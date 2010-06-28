@@ -93,13 +93,8 @@ extern int Restart;
 extern int Iwrite;
 extern int Nnodes_box;
 extern int Nunk_per_node;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

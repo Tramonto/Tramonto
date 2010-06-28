@@ -243,13 +243,8 @@ extern int Link[NWALL_MAX];
 extern int WallType[NWALL_MAX];
 extern int Orientation[NWALL_MAX_TYPE];
 extern int Surface_type[NWALL_MAX_TYPE];
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern int **Xtest_reflect_TF;
 extern int Nlink;
 extern int Nwall;

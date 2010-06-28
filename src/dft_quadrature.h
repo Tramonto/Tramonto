@@ -43,13 +43,8 @@ void delta_cube(double **point,double *wt);
 void delta_octahedron(double **point,double *wt);
 #define OCTAHEDRON    2
 void delta_tetrahedron(double **point,double *wt);
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 #define TETRAHEDRON   1
 extern int Sten_Choice_S[NSTEN][NZONE_MAX];
 #define DELTA_FN_BOND         6

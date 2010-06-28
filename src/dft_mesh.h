@@ -256,13 +256,8 @@ extern int *Comm_offset_unk;
 extern int *Comm_offset_node;
 extern int *Comm_unk_proc;
 extern int Num_Proc;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern int *Comm_node_proc;
 void load_balance(int flag,double *fill_time,int *N_update,int **update);
 extern int Nunk_per_node;

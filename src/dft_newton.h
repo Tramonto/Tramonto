@@ -110,13 +110,8 @@ extern int *L2B_node;
 extern int NL_Solver;
 extern int Nnodes_per_proc;
 extern int Nunk_per_node;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 int solve_problem(double **x,double **x2);
 void do_numerical_jacobian(double **);
 void do_numerical_jacobian(double **x);

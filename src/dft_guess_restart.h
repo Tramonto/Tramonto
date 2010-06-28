@@ -140,11 +140,6 @@ extern int Proc;
 #endif
 extern int Nunk_per_node;
 extern int Nnodes;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox);

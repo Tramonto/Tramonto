@@ -37,13 +37,8 @@ extern int Lhard_surf;
 extern int Unk2Comp[NMER_MAX];
 extern int **Nel_hit2;
 extern int Nnodes_box;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern int **Nel_hit;
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)

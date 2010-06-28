@@ -180,13 +180,8 @@ extern struct Loca_Struct Loca;
 extern int Nnodes_box;
 extern int Nnodes_per_proc;
 extern int Nunk_per_node;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 int solve_continuation(double **xx,double **xx2);
 double get_init_param_value(int cont_type,int);
 #if !defined(_CON_CONST_H_)

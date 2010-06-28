@@ -61,13 +61,8 @@ extern int *B2G_node;
 #endif
 void basis_fn_calc(double **phi,double ***grad_phi,double *evol);
 extern int Ndim;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

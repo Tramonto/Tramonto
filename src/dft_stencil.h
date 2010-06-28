@@ -86,13 +86,8 @@ extern int Ndim;
 extern int Nnodes_per_el_V;
 extern int Ncomp;
 extern int Nzone;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern struct Stencil_Struct ***Stencil;
 #define VERBOSE      3 
 #define NO_SCREEN    2 

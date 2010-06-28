@@ -92,13 +92,8 @@ extern int Proc;
 extern int Proc;
 #endif
 extern int Nnodes_per_proc;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern double *Integration_profile;
 #define VERBOSE      3 
 extern int Iwrite;

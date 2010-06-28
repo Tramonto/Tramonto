@@ -59,13 +59,8 @@ extern int *Pol_Sym;
 #define DENSITY        0
 #define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 void linsolver_setup_CMSTYPE_LINEARONLY();
 extern void *ParameterList_list;
 extern int Nunk_per_node;

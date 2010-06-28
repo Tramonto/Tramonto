@@ -28,13 +28,8 @@ void node_to_position(int inode,double *NodePos);
 extern int Nunk_per_node;
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 extern int Nnodes_per_proc;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

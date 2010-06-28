@@ -132,13 +132,8 @@ extern int Imain_loop;
 void setup_polymer_cr();
 #define N_NZCR_MAX   200   /* maximum # of non-zero's in direct correlation fn */
 extern int Ncomp;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern double ***Rism_cr;
 #define CMS          0
 extern int Type_poly;

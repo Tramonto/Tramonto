@@ -31,12 +31,7 @@ double deltaC_MSA(double r,int i,int j);
 #define THETA_CR_RPM_MSA      3
 double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int));
 extern int Ncomp;
-#if defined(__STDC__)
 void *array_alloc(int numdim,...);
-#endif
 void *array_alloc(int numdim,...);
-#if !(defined(__STDC__))
-void *array_alloc(...);
-#endif
 extern double *Deltac_b;
 void chempot_ELEC_MSA_RPM(double *rho);
