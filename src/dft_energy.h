@@ -14,6 +14,7 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -92,6 +93,7 @@ extern int Proc;
 extern int Proc;
 #endif
 extern int Nnodes_per_proc;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double *Integration_profile;

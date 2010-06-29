@@ -11,6 +11,7 @@ int find_length_of_file(char *filename);
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -110,6 +111,7 @@ extern int *L2B_node;
 extern int NL_Solver;
 extern int Nnodes_per_proc;
 extern int Nunk_per_node;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 int solve_problem(double **x,double **x2);

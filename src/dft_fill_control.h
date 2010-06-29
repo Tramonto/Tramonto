@@ -11,6 +11,7 @@ void safe_free(void **ptr);
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -23,6 +24,7 @@ double fill_resid_and_matrix(double **x,struct RB_Struct *dphi_drb,int iter,int 
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
 extern int Nnodes_box;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 #define NONE       -1

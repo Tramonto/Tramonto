@@ -16,6 +16,7 @@ double load_lambda_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int i
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"

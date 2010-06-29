@@ -10,6 +10,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_su
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -51,6 +52,7 @@ typedef struct RB_Struct RB_Struct;
 double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 #define NONE       -1

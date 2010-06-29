@@ -9,6 +9,7 @@
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -141,6 +142,7 @@ extern int Type_poly;
 void print_profile_box(double **x,char *outfile);
 #define VERBOSE      3 
 extern int Nunk_per_node;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 #define NO_SCREEN    2 

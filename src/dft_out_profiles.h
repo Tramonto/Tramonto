@@ -13,6 +13,7 @@ int node_to_elem(int inode_all,int local_node,int *reflect_flag);
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -136,6 +137,7 @@ extern int Proc;
 extern int Proc;
 #endif
 extern int *L2B_node;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern int Nunk_per_node;

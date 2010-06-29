@@ -9,6 +9,7 @@
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -132,6 +133,7 @@ extern int Imain_loop;
 void setup_polymer_cr();
 #define N_NZCR_MAX   200   /* maximum # of non-zero's in direct correlation fn */
 extern int Ncomp;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double ***Rism_cr;

@@ -25,6 +25,7 @@ double calc_free_energy_conwrap(double **xB);
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -180,6 +181,7 @@ extern struct Loca_Struct Loca;
 extern int Nnodes_box;
 extern int Nnodes_per_proc;
 extern int Nunk_per_node;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 int solve_continuation(double **xx,double **xx2);

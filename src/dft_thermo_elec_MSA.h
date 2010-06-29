@@ -10,6 +10,7 @@ double deltaC_MSA_int(double r,int i,int j);
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -31,6 +32,7 @@ double deltaC_MSA(double r,int i,int j);
 #define THETA_CR_RPM_MSA      3
 double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int));
 extern int Ncomp;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double *Deltac_b;

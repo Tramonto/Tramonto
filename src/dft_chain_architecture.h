@@ -9,6 +9,7 @@
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -62,6 +63,7 @@ void setup_chain_from_file(FILE *fpout,char *poly_file,int ***pol_sym_tmp);
 extern int Type_poly_arch;
 #define NBOND_MAX 4
 extern int ***Bonds;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern int **Nbond;

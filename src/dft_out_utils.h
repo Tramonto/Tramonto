@@ -9,6 +9,7 @@
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -37,6 +38,7 @@ extern int Lhard_surf;
 extern int Unk2Comp[NMER_MAX];
 extern int **Nel_hit2;
 extern int Nnodes_box;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern int **Nel_hit;

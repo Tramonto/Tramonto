@@ -10,6 +10,7 @@ double pairPot_switch(double r,double param1,double param2,double param3,double 
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -34,6 +35,7 @@ extern int Link[NWALL_MAX];
 extern int Nlink;
 extern double **Uww_link;
 extern int Nwall;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double **Uww;

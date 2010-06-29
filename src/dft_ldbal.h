@@ -9,6 +9,7 @@
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -28,6 +29,7 @@ void node_to_position(int inode,double *NodePos);
 extern int Nunk_per_node;
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 extern int Nnodes_per_proc;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern int Proc;

@@ -10,6 +10,7 @@ void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first)
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -32,6 +33,7 @@ void print_to_screen(double val,char *var_label);
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern void *LinProbMgr_manager;
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void pass_part_of_solnVector(double **xOwned,double **x,int iunk_start,int nunk_to_pass);

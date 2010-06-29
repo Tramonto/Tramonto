@@ -9,6 +9,7 @@
 #endif
 #include "mpi.h"
 #include "az_aztec.h"
+#include "az_aztec_defs.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
@@ -243,6 +244,7 @@ extern int Link[NWALL_MAX];
 extern int WallType[NWALL_MAX];
 extern int Orientation[NWALL_MAX_TYPE];
 extern int Surface_type[NWALL_MAX_TYPE];
+void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern int **Xtest_reflect_TF;
