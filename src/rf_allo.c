@@ -164,9 +164,9 @@ void *array_alloc(int numdim, ...)
     size_t off;    /* offset from beginning of array       */
   } dim[4];      /* Info about each dimension            */
 
-#ifndef __STDC__
-  int numdim;           /* Number of dimensions                 */
-#endif
+/*#ifndef __STDC__
+  int numdim; */          /* Number of dimensions                 */
+/*#endif*/
 
   size_t  total;        /* Total size of the array              */
   void  *dfield;        /* ptr to avoid lint complaints         */

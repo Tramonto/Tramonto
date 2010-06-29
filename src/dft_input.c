@@ -59,16 +59,14 @@ void read_input_file(char *input_file, char *output_file1)
 
    char *yo = "read_input_file";
    char poly_file[20];
-   int isten, icomp, jcomp, iwall,iwall_save,iwall_type, idim, 
-       i, izone, j, jwall,end_count,end_count_all,
-       new_wall,logical,ncharge, seg, block[NCOMP_MAX][NBLOCK_MAX],
+   int icomp, jcomp, iwall,iwall_type, idim, 
+       i, izone, j, jwall,new_wall,logical,ncharge, seg, block[NCOMP_MAX][NBLOCK_MAX],
        block_type[NBLOCK_MAX],pol_number, nlink_chk,irand,irand_range,itmp,
        dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
-   double r,rho_tmp[NCOMP_MAX],dxdx,dtmp,charge_sum,minpos[3],maxpos[3];
-   double rough_param_max[NWALL_MAX_TYPE],rough_length_scale[NWALL_MAX_TYPE];
+   double rho_tmp[NCOMP_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
+   double rough_param_max[NWALL_MAX_TYPE];
    int iblock,jblock;
-   int Lvext1D;
 
   
   /********************** BEGIN EXECUTION ************************************/
