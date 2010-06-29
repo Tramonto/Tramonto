@@ -603,23 +603,24 @@ extern void * LinProbMgr_manager;
  *  Information for the linear solver is all held here.
  */
 
-struct Aztec_Struct {
+/*   DONE WITH THIS STRUCT !! */
+/*struct Aztec_Struct {
   /* int    options[AZ_OPTIONS_SIZE]; Array used to select solver options.  */
   /* double params[AZ_PARAMS_SIZE];    User selected solver paramters.       */
 #ifdef DONE_WITH_THESE
-  int    proc_config[AZ_PROC_SIZE];/* Processor information.                */
-  int    *data_org;                /* Array to specify data layout          */
-  double status[AZ_STATUS_SIZE];   /* Information returned from AZ_solve(). */
-  int    *update;                  /* vector elements updated on this node. */
-  int    *external;                /* vector elements needed by this node.  */
-  int    *update_index;            /* ordering of update[] and external[]   */
-  int    *extern_index;            /* locally on this processor.            */
-  int    *bindx;                   /* Sparse matrix to be solved is stored  */
-  double *val;                     /* in these MSR arrays.                  */
-  int    N_update;                 /* # of unknowns updated on this node    */
-  int    nonzeros;                 /* # of nonzeros in sparse matrix        */
+  int    proc_config[AZ_PROC_SIZE];* Processor information.                *
+  int    *data_org;                * Array to specify data layout          *
+  double status[AZ_STATUS_SIZE];   * Information returned from AZ_solve(). *
+  int    *update;                  * vector elements updated on this node. *
+  int    *external;                * vector elements needed by this node.  *
+  int    *update_index;            * ordering of update[] and external[]   *
+  int    *extern_index;            * locally on this processor.            *
+  int    *bindx;                   * Sparse matrix to be solved is stored  *
+  double *val;                     * in these MSR arrays.                  *
+  int    N_update;                 * # of unknowns updated on this node    *
+  int    nonzeros;                 * # of nonzeros in sparse matrix        *
 #endif
-};
+};*/
 
 /* 
  *  Declaration of the Loca_Struct follows.
