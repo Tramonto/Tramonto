@@ -132,7 +132,7 @@ int solve_continuation( double **xx, double **xx2)
  */
 {
   struct con_struct con;
-  int nstep=0, i, j;
+  int nstep=0;
   double *x, *x2;
 
 
@@ -655,7 +655,6 @@ void solution_output_conwrap(int num_soln_flag, double *x, double param,
  */
 {
   double time_save=0;
-  int i;
 
   translate_1dOwned_2dBox(x, passdown.xBox);
 

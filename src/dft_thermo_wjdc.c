@@ -56,7 +56,7 @@ void WJDC_thermo_precalc(char *output_file1)
 void compute_bulk_nonlocal_wjdc_properties(char *output_file1,double *dphi_drhobar, double *rho,
      double *rho_seg, double *xi_cav, double *field_WJDC, double *g_WJDC)
 {
-  int i,loc_i,icomp,jcomp,printproc;
+  int i,icomp,jcomp,printproc;
   int ibond,jbond,index,iseg,jseg,pol_num,bond_num;
   int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill,test,power;
   double field,sten_sum[4];

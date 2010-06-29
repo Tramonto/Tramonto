@@ -40,7 +40,7 @@ int solve_problem_picard(double **x, double **x2)
  */
 {
   int iter,iunk,i;
-  int loc_inode,inode_box,itmp,ierr;
+  int loc_inode;
   double **xOwned, **x2Owned;
 
   /* this routine looks just like the initial guess routine where we used the density field
@@ -375,7 +375,7 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
  */
   
   int i,iunk, ibox, inode,inodeG,ijk[3],go_update,idim;
-  int iseg,jbond,itype_mer,unk_GQ,nloop;
+  int nloop;
   double updateNorm=0.0, temp;
   char *yo = "newupdate solution";
 

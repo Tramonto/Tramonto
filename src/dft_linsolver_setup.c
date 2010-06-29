@@ -176,7 +176,7 @@ void linsolver_setup_CMSTYPE()
 /*******************************************************************************/
 void linsolver_setup_HSTYPE()
 {
-  int iunk,i;
+  int iunk;
   int *densityeq, *indnonlocaleq, *depnonlocaleq;
   int count_density, count_indnonlocal,count_depnonlocal;
   int one_particle_size;
@@ -236,10 +236,10 @@ void linsolver_setup_HSTYPE()
 void linsolver_setup_WJDCTYPE()
 {
   int iunk,i;
-  double **xOwned, **x2Owned;
-  int *geq, *gonlyeq, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,first_time;
+  double **xOwned;
+  int *geq, *gonlyeq, *wjdceq, *densityeq,first_time;
   int count_density,count_wjdc_field,count_geqn,count_geqn_save;
-  int count_indnonlocal,count_depnonlocal,index_save;
+  int count_indnonlocal,count_depnonlocal;
   int one_particle_size;
   int count_poisson;
   int *poissoneq;
@@ -320,7 +320,6 @@ void linsolver_setup_WJDCTYPE()
 void linsolver_setup_WJDCTYPE_LINEARONLY()
 {
   int iunk,i;
-  double **xOwned, **x2Owned;
   int *geq, *ginveq, *geq_sym, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,ginv_eq_start,first_time;
   int count_density,count_wjdc_field,count_geqn,count_ginv_eqn,count_g_sym,count_ginv_eqn_old;
   int count_indnonlocal,count_depnonlocal,index_save;
@@ -430,10 +429,9 @@ int discover_G_ordering_LT(int *geq)
 {
   int iunk,i;
   int *gtmp, *geq_sym,*geq2k_index;
-  int count_density,count_geqn,count_g_sym,count_geq_old;
-  int index_save;
-  int *poissoneq,*filled,*index_filled;
-  int count_filled,iseg,jbond,unkGQ,max_count,count_terms,max_index,jseg,kbond,unk_test,k;
+  int count_geqn,count_g_sym,count_geq_old;
+  int *filled,*index_filled;
+  int count_filled,iseg,jbond,unkGQ,max_count,count_terms,max_index,jseg,kbond,unk_test;
 
   /* Construct dft_Linprobmgr with information on number of unknowns*/
    geq2k_index = (int *) array_alloc(1, Nunk_per_node, sizeof(int));

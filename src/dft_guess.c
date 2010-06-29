@@ -38,7 +38,7 @@
 void set_initial_guess (int guess_type, double** xOwned)
 {
   double t1=0.0;
-  int i,idim,iunk,inode_box,inode;
+  int i,iunk,inode_box;
   int start_no_info;
   double **xInBox;
 

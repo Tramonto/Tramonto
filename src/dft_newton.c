@@ -40,10 +40,9 @@ int solve_problem(double **x, double **x2)
  * x2 only relevent for Lbinodal calculations, so can mostly be ignored
  */
 {
-  int iter,iunk,i;
+  int iter,iunk;
   double **xOwned, **x2Owned,start_t;
-  int loc_inode,inode_box,itmp;
-  int ierr;
+  int loc_inode,inode_box;
 
   /* Set initial guess on owned nodes and reconcile ghost nodes using importr2c */
   xOwned = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
@@ -205,9 +204,8 @@ int update_solution_new(double** x, double** delta_x, int iter) {
  *       iter  value may be used in some damping methods
  */
 
-  int iunk, ibox, inode,inodeG,ijk[3],go_update,idim;
-  int iseg,jbond,itype_mer,unk_GQ;
-  double updateNorm=0.0, temp,frac_min,frac;
+  int iunk, ibox, inode;
+  double updateNorm=0.0, temp,frac_min;
   char *yo = "newupdate solution";
      
 
@@ -258,7 +256,7 @@ int update_solution(double** x, double** delta_x, int iter) {
  */
 
   int iunk, ibox, inode,inodeG,ijk[3],go_update,idim;
-  int iseg,jbond,itype_mer,unk_GQ;
+  int iseg;
   double updateNorm=0.0, temp,frac_min,frac;
   char *yo = "newupdate solution";
      

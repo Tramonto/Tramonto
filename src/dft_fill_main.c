@@ -42,15 +42,13 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   */
 
   char   *yo = "fill_resid_and_matrix";
-  int     loc_inode, inode_box,ijk_box[3],iunk,junk,iunk_start,iunk_end;
-  int     mesh_coarsen_flag_i,switch_constmatrix;
-  int	npol,iseg,unk_G,idim,inode,itype_mer,ibond;
-	int graft_seg,graft_bond,gbond,izone, unk_xi2,unk_xi3;
+  int     loc_inode, inode_box,ijk_box[3],iunk,iunk_start,iunk_end;
+  int     mesh_coarsen_flag_i;
+  /* int switch_constmatrix;*/
+  int	npol,iseg,unk_G,idim,inode;
   double nodepos[3];
   double *resid_unk,resid_sum=0.0,resid_term;
-	double sum_i, vol;
-	double y,ysqrt,dydxi,xi_2,xi_3;
-	double ans;
+  double sum_i, vol;
 
 
   if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
@@ -143,10 +141,10 @@ void calc_Gsum(double **x)
 {
 	int npol,ibond,iseg,itype_mer,unk_G;
 	int graft_seg,graft_bond,gbond,izone, unk_xi2,unk_xi3;
-	int ilist, iwall,pwall,pwall_type,inode_w;
-	int loc_inode,inode,inode_box,ijk_box[3],num_wall_els;
+	int iwall,pwall,pwall_type,inode_w;
+	int loc_inode,inode,inode_box,ijk_box[3];
 	double gsum,nodepos[3],nodeposc[3];
-	double y,ysqrt,dydxi,xi_2,xi_3;	
+	double y,ysqrt,xi_2,xi_3;	
 	
 	for(npol=0; npol<Npol_comp; npol++){
 		gsum = 0.0;
@@ -224,7 +222,7 @@ double grafted_int(int sten_type,int itype_mer, int *ijk_box, int izone, int unk
 	int unk_xi2,unk_xi3;
 	double *sten_weight,  weight;
 	struct Stencil_Struct *sten;
-	double y,ysqrt,dydxi,xi_2,xi_3;
+	double y,ysqrt,xi_2,xi_3;
 	
 	int jnode_box,jcomp;
 	int reflect_flag[NDIM_MAX];
@@ -265,7 +263,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                         struct  RB_Struct *dphi_drb, double *resid_unk,
                         int mesh_coarsen_flag_i,int resid_only_flag)
 {
-   int izone,i,icomp;
+   int izone,icomp;
    double l2norm_term;
                                            
    /* IZONE: izone is the zone number that controls the quadrature scheme to be used. */
@@ -384,7 +382,7 @@ dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode
                /* note: translate local coordinates to global coordinates with L2G_node[loc_inode]*/
                /* note: translate local coordinates to box coordinates with L2B_node[loc_inode]*/
                /* note: if you want to print to a file you need to modify print statements below */
-   FILE *ifp; 
+
    char filename[20]="resid.out";
                /* also note: to separate parts of the physics constributions (e.g. different parts 
                   of the euler-lagrange equation you will need to modify the return parameters from the

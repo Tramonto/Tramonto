@@ -97,7 +97,7 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
   int   **sten_offset, *offset, isten;
   int   **sten_offsetJ, *offsetJ;
   double *sten_weightJ,weightJ;
-  double *sten_weight,  weight,fac;
+  double *sten_weight,  weight;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
   double resid,mat_val,resid_sum=0.0;
@@ -182,14 +182,14 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
                        to the Euler-Lagrange equation for the Wertheim-Tripathi-Chapman theory */
 double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag)
 {
-  int iseg,jseg,kseg,kbond,jcomp,unk_xi2,unk_xi3,unk_rho,junk_rho,kunk_rho,kcomp;
+  int jseg,kseg,kbond,jcomp,unk_xi2,unk_xi3,unk_rho,kunk_rho,kcomp;
   double xi_2,xi_3,s1,s2,y,dy_dxi2,dy_dxi3,prefac2,prefac3;
   double d2y_dxi2_2,d2y_dxi3_2,d2y_dxi2_dxi3;
   int jzone,jnode_box,jlist,reflect_flag[3],jnode_boxJ;
   int   **sten_offset, *offset, isten;
   int   **sten_offsetJ, *offsetJ;
   double *sten_weightJ,weightJ;
-  double *sten_weight,  weight,fac;
+  double *sten_weight,  weight;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
   double resid,mat_val,resid_sum,first_deriv,dens;
@@ -408,7 +408,7 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
 double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
                     int izone, double **x,int resid_only_flag)
 {
-  int junk,unk_bond,pol_num,iseg,bond_num,jseg,jcomp,icomp,jzone_flag,ibond;
+  int junk,unk_bond,iseg,jseg,jcomp,icomp,jzone_flag,ibond;
   double resid=0.0,mat_val,resid_bondwtc=0.0;
 
   if (resid_only_flag !=INIT_GUESS_FLAG){
@@ -469,7 +469,6 @@ double load_cavity_wtc(int iunk, int loc_inode, int inode_box, int *ijk_box,
 {
   double resid=0.0,mat_val,resid_cavity=0.0;
   int jzone_flag;
-  int icav;
 
   jzone_flag=FALSE;
 

@@ -39,8 +39,7 @@
 /*setup_polymer_field: in this routine sets up the initial guess for the WJDC field variable */
 void setup_polymer_field_wjdc(double **xOwned)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,iref;
-  double field;
+  int loc_inode,iunk,i,Nloop;
 
   if (Type_poly==WJDC)                           Nloop=Nseg_tot; 
   else if (Type_poly==WJDC2 || Type_poly==WJDC3) Nloop=Ncomp;
@@ -114,7 +113,7 @@ void calc_init_WJDC_field(double **xInBox,double **xOwned)
 in the wjdc functional */
 void setup_polymer_G_wjdc(double **xOwned)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,iseg,icomp_iseg;
+  int loc_inode,iunk,i,iseg,icomp_iseg;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      for (i=0; i<Nbonds; i++){
@@ -132,7 +131,7 @@ void setup_polymer_G_wjdc(double **xOwned)
 in the wjdc functional */
 void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned)
 {
-  int loc_inode,itype_mer,irho, iunk,i,Nloop,inode_box,icomp_iseg;
+  int loc_inode,iunk,inode_box,icomp_iseg;
   int ibond,jbond,index,iseg,jseg,pol_num,bond_num,test,ijk_box[3];
   double resid_G;
   int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill;

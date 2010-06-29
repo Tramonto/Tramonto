@@ -144,17 +144,17 @@ void * array_alloc_4d ( size_t n1, size_t n2, size_t n3, size_t n4, size_t size 
 /*****************************************************************************/
 /*****************************************************************************/
 
-#ifdef __STDC__
-void *array_alloc(int numdim, ...)
-#else
+/* code that windows chokes on */
+/*#ifdef __STDC__*/
+/*void *array_alloc(int numdim, ...)*/
+/*#else
 void  *array_alloc(va_alist)
 va_dcl
-#endif
-
+#endif*/
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-
+void *array_alloc(int numdim, ...)
 {
   int i, j;
   struct dim {
@@ -175,12 +175,12 @@ va_dcl
   char   *data;         /* Data offset                          */
   va_list va;           /* Current pointer in the argument list */
 
-#ifdef __STDC__
+/*#ifdef __STDC__*/
   va_start(va, numdim);
-#else
+/*#else
   va_start(va);
   numdim = va_arg(va, int);
-#endif
+#endif*/
 
   if (numdim <= 0) {
     fprintf(stderr, "array_alloc ERROR: number of dimensions, %d, is <=0\n",

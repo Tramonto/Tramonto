@@ -307,7 +307,7 @@ void find_wall_images(int idim,
 void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
              int **nelems_w_per_w, int ***elems_w_per_w, int ***el_type)
 {
-   int ijk[3],idim,nadd,i,new_wall,new_entry,diff_wall;
+   int ijk[3],idim,nadd,i,new_wall,new_entry;
    int imax[3],ix[3],iw,ijk_box[3],inode_box,inode_tmp_box,ijk_tmp_box[3],index;
    imax[0]=imax[1]=imax[2]=1;
 
@@ -787,7 +787,7 @@ void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
 		      int ***el_type,
 		      double **image_pos)
 {
-   int iel, iel_box, inode, idim, ilist,dim[3],loc_inode;
+   int iel, iel_box, inode, ilist,dim[3],loc_inode;
    double xtest[3];
    double node_pos[3];
    double r12, radius,x12,length,delr,x12new,r12new;
@@ -958,7 +958,7 @@ void els_cone_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
 		      int **nelems_w_per_w, int ***elems_w_per_w,
 		      int ***el_type, double **image_pos)
 {
-   int iel, iel_box, inode, idim, ilist,dim[3],loc_inode,operp;
+   int iel, iel_box, inode, ilist,dim[3],loc_inode,operp;
    double xtest[3];
    double node_pos[3];
    double r12, delr,

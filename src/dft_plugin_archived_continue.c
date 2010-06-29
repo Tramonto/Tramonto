@@ -92,8 +92,8 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
 /* Note: Post_processing assumes the cont_type flags are the same as those
    used in Tramonto's own continuation */
 {
-  int i,j,icomp,iw;
-  double ratio,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_save;
+  int i,j,iw;
+  double ratio,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE];
   char     *output_file1;
   
   output_file1 = "dft_out.lis";

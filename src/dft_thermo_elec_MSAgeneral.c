@@ -55,7 +55,6 @@ void chempot_ELEC_MSA_GENERAL(double *rho)
 double deltaC_GENERAL_MSA(double r,int i, int j)
 {
   double deltac;
-  double term1,term2,term3,term4;
   double NplusGammaX_i,NplusGammaX_itemp;
   int itemp,jtemp;
 
@@ -98,7 +97,6 @@ double deltaC_GENERAL_MSA(double r,int i, int j)
 double deltaC_GENERAL_MSA_int(double r,int i, int j)
 {
   double deltac_int;
-  double term1,term2,term3,term4;
   double NplusGammaX_i,NplusGammaX_itemp;
   int itemp,jtemp;
 

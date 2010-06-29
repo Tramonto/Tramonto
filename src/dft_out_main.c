@@ -52,7 +52,6 @@ void post_process (double **x,int *niters,
        *output_file7="dft_dens_site.dat",
        *output_file8=NULL;
   char filename[20];
-  int icomp,iunk;
   double t1,energy;
   double fac_area,fac_vol;
   int i,iwall,idim;

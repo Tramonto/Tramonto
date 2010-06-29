@@ -39,7 +39,7 @@ collect_x_old: This gathers all of the densities into xold on proc 0.        */
 
 void collect_x_old(double **x,double *xold)
 {
-  int i,iunk,loc_inode, loc_i,idim,nunk_per_proc;
+  int i,iunk,loc_inode,nunk_per_proc;
   int *index=NULL;
   double *unk_global, *unk_loc;
 
@@ -186,12 +186,12 @@ this routine is only ever called by Proc 0                                    */
 void print_profile(char *output_file4,double *xold)
 {
   int icomp,iunk,i,inode,ijk[3],idim,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
-  int unk_field, node_start,jcomp,pol_number;
-  double kappa_sq,kappa,r,rsq,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term,scalefac;
+  int node_start,jcomp,pol_number;
+  double kappa_sq,kappa,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term,scalefac;
   char *unk_char;
     
   char gfile[20],gfile2[20];
-  char compfile[20],compfile2[20];
+  char compfile[20];
   FILE *ifp=NULL,*fp6=NULL,*fp7=NULL;
   /* 
    *  print out the densities (and electrostatic potential)
@@ -467,7 +467,7 @@ void print_profile(char *output_file4,double *xold)
 
           /* close files */
      fclose(ifp);
-     if (Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 | Type_poly==WJDC3)) fclose(fp6);
+     if (Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) fclose(fp6);
      if (Iwrite==VERBOSE &&(Type_poly==WTC || Type_poly==WJDC || Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC2 || Type_poly==WJDC3)) fclose(fp7);
 
   return;
@@ -478,8 +478,8 @@ this routine is only ever called by Proc 0                                    */
 
 void print_gofr(char *output_file6,double *xold)
 {
-  int icomp,i,inode,ijk[3],idim,nunk_print,npol=0,itype_mer,iwall,iunk,end_loop;
-  double kappa_sq,kappa,r,rsq;
+  int icomp,inode,ijk[3],idim,nunk_print,npol=0,iwall,iunk,end_loop;
+  double r,rsq;
   FILE *ifp=NULL;
   /* 
    *  print out the densities (and electrostatic potential)
@@ -777,11 +777,11 @@ void print_charge_surf(double **charge_w_sum, char *output_file)
 print_free_energy_profile: This routine collects and prints freen_profile_1D  */
 void print_freen_profile_1D(double *freen_profile_1D, char *output_file)
 {
-  int i,iel,iel_box,icount,logical;
+  int i,icount;
   int loc_inode,inode,ijk[3],*index_loc,*index,idim,inode_box;
   int reflect_flag[3];
   int *comm_icount_proc, *comm_offset_icount;
-  double *unk,*unk_loc, *unk_global,charge_total;
+  double *unk,*unk_loc, *unk_global;
   FILE *ifp=NULL;
 
   reflect_flag[0] = reflect_flag[1] = reflect_flag[2] = FALSE;

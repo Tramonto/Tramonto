@@ -48,7 +48,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
    double **p_tilde_L,**f_elec_L;
    double p_tilde_iwall_idim,
      f_elec_iwall_idim,force;
-   int idim,iwall,i,iproc;
+   int idim,iwall,i;
    static int first=TRUE;
 
    p_tilde_vdash = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
@@ -230,7 +230,7 @@ void force_elec(double **x, double **Sum_dphi_dx)
 {
    int  iunk,loc_inode,iwall,idim,jdim,
        iel_w,inode,surf_norm,ijk_box[3],
-       el_type,offset[3], loc_j,reflect_flag[3],
+       el_type,offset[3],reflect_flag[3],
        match,test,inode_box,jnode_box,blocked,jwall;
 
    double prefac,nodepos[3],

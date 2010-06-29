@@ -51,8 +51,7 @@ void setup_wall_wall_potentials()
    /* Local variable declarations */
    
    char *yo = "wall_wall_potentials";
-   int ilist,iwall,jwall,itype_w,jtype_w;
-   int L_LJ,L_COULOMB;
+   int iwall,jwall,itype_w,jtype_w;
    FILE *fp10, *fp11;
   
   /********************** BEGIN EXECUTION ************************************/

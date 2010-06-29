@@ -742,13 +742,13 @@ void chop_profile(double **xInBox, int guess_type)
 void setup_exp_density_with_profile(double **xInBox)
 {
 
-  int loc_inode,i,inode_box,iunk,icomp;
+  int loc_inode,i,inode_box,iunk;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box = L2B_node[loc_inode];
      for (i=0;i<Ncomp;i++){
-        iunk = icomp+Phys2Unk_first[DENSITY];
-        if (Vext[loc_inode][icomp]>0.0) xInBox[iunk][inode_box] *= exp(-Vext[loc_inode][i]);
+        iunk = i+Phys2Unk_first[DENSITY];
+        if (Vext[loc_inode][i]>0.0) xInBox[iunk][inode_box] *= exp(-Vext[loc_inode][i]);
 
 /*        if (Type_poly==CMS || Type_poly==CMS_SCFT)
         xInBox[i+Phys2Unk_first[CMS_FIELD]][inode_box] = exp(-log(xInBox[i+Phys2Unk_first[CMS_FIELD]][inode_box])+Vext[loc_inode][i]);*/

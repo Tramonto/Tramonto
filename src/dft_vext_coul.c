@@ -38,10 +38,10 @@
 
 void setup_vext_coulomb_vol()
 {
-   double *charge_el_vol_global, *charge_el_vol_loc, *unk_global,cut_wf_max;
-  int iel_box,inode_box,n_loc,reflect_flag[3], *index, inode,i,iel;
-  int iwall_type,icomp, idim, loc_inode;
-  double elem_pos[3],elem_pos2[3],x,r,rsq;
+   double *charge_el_vol_global, *charge_el_vol_loc, *unk_global;
+  int iel_box,inode_box,reflect_flag[3], *index, inode,i,iel;
+  int icomp, idim, loc_inode;
+  double elem_pos[3],elem_pos2[3];
   double node_pos[3],node_pos_f[3],pos[3];
 
   double **image_pos,r_center_sq;

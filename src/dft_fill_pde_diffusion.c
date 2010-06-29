@@ -43,7 +43,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
   int iln, jln, elem, offset[3];
   int nodes_volm_el, nodes_surf_el, junk2[3];
   int off_ref[2][2] = { {0,1}, {-1,0}};
-  int j_box_mu[8], j_box_rho[8], loc_j_mu[8], loc_j_rho[8], jnode_box,flag,count_flag;
+  int jnode_box,flag,count_flag;
   double wt=1.0, area_0=0.0, area_1=0.0, rho_0, rho_1, mu_0, mu_1, tmp;
   double resid,resid_sum=0.0,mat_val;
   int nodeIndices[8],junk_mu,junk_rho;

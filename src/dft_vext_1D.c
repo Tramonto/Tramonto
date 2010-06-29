@@ -218,7 +218,7 @@ double Vext_LINEAR_noCS(double x,int icomp, int iwall_type)
 /* Vext_deriv_LINEAR: linear interaction - charged surfaces */
 double Vextderiv_LINEAR(double x,int icomp, int iwall_type)
 {
-  double vext,prefac,sigma,cut;
+  double vext,prefac;
   prefac = 8.*PI*Rho_w[iwall_type]/Temp_elec;
 
   vext = -prefac*Charge_f[icomp]*Elec_param_w[iwall_type];

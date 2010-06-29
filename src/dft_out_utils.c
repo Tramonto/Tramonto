@@ -40,8 +40,7 @@ double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,
 {
 
    double sum,sum_i,integrand;
-   int loc_inode,inode_box,iwall;
-   double area;
+   int loc_inode,inode_box;
 
    sum_i=0.0,sum=0.0;
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
@@ -182,9 +181,9 @@ void setup_domain_multipliers()
                      parameters (adsorption, free energy etc.). */
 void setup_integrals()
 {
-  int loc_inode, icomp, iel, iunk, inode_box, nel_hit,inode,iel_box,
-      nel_hit2,ilist,idim,ielement,semiperm,iwall,jcomp;
-  int reflect_flag[3],ijk[3],i,nloop,iloop;
+  int loc_inode, icomp, iel, inode_box, nel_hit,inode,iel_box,
+      nel_hit2,idim,ielement,semiperm,iwall,jcomp;
+  int reflect_flag[3],ijk[3],nloop,iloop;
   
   
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;

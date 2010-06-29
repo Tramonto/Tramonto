@@ -48,8 +48,9 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
    char *yo = "external_field_neutral";
    int idim,icomp,iwall,iunk,loc_inode,ilist;
    int **elems_w_per_w_global, *nelems_w_per_w_global;
-   int **nodes_vext_max,*nnodes_vext_max;
-   int i,inode,inode_box,ijk[3],jwall;
+   int inode_box;
+   /*int **nodes_vext_max,*nnodes_vext_max;*/
+   /*int i,ijk[3],inode;*/
    double *vext_tmpOwned, *vext_tmpBox;
    double t1=0.0,t_zeroTF=0.0,t_vext=0.0;
    double t_tot_min,t_zero_min,t_vext_min;
@@ -377,7 +378,7 @@ void setup_1Dvext(int iwall)
         if (max_cut < Cut_wf[icomp][iwall_type])
             max_cut = Cut_wf[icomp][iwall_type];
 
-  maximum = 1 + 2*((int)max_cut/Size_x[Orientation[iwall_type]]+2);  
+  maximum = 1 + 2*((int)(max_cut/Size_x[Orientation[iwall_type]])+2);  
   image_pos = (double **) array_alloc (2, maximum, Ndim, sizeof(double));
 
   for (idim=0;idim<Ndim;idim++){
@@ -525,7 +526,7 @@ void setup_1Dvext_xmin(int iwall)
         if (max_cut < Cut_wf[icomp][iwall_type])
             max_cut = Cut_wf[icomp][iwall_type];
 
-  maximum = 1 + 2*((int)max_cut/Size_x[0]+2);  
+  maximum = 1 + 2*((int)(max_cut/Size_x[0])+2);  
   image_pos = (double **) array_alloc (2, maximum, Ndim, sizeof(double));
 
 
@@ -958,7 +959,7 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
          if (max_cut < Cut_wf[icomp][iwall_type]) 
                  max_cut = Cut_wf[icomp][iwall_type];
   
-   max_els = POW_DOUBLE_INT(max_cut,Ndim)/Vol_el + 1;
+   max_els = (int)(POW_DOUBLE_INT(max_cut,Ndim)/Vol_el) + 1;
    image_pos = (double **) array_alloc (2, max_els, Ndim, sizeof(double));
 
    ilist = Nlists_HW-1; /* only add the contributions of the solid*/
@@ -1143,7 +1144,7 @@ return;
    values into the original box based array. */
 void correct_zeroTF_array()
 {
-  int *index,*unk_loc,*unk,*unk_global,i;
+  int *index,*unk_loc,*unk,*unk_global;
   int inode,inode_box,loc_inode,icomp;
 
   for (icomp=0; icomp<Ncomp; icomp++) {
@@ -1194,7 +1195,7 @@ void correct_zeroTF_array()
 void comm_vext_max(int *nnodes_vext_max, int **nodes_vext_max)
 {
   int inode_box,loc_inode,icomp,inode,ijk[3];
-  int i, n_loc,n_tot;
+  int n_loc,n_tot;
   int *vext_max_nodes_tmp;
 
   /* set up for broadcasting the wall elements */
@@ -1365,8 +1366,8 @@ void read_external_field_n()
     for (inode_box=0; inode_box<Nnodes_box; inode_box++) {
        inode=B2G_node[inode_box];
        for (icomp=0;icomp<Ncomp;icomp++){
-          if (vext_tmp[inode][icomp] >= VEXT_MAX) Zero_density_TF[inode_box][icomp]==TRUE;
-          else Zero_density_TF[inode_box][icomp]==TRUE;
+          if (vext_tmp[inode][icomp] >= VEXT_MAX) Zero_density_TF[inode_box][icomp]=TRUE;
+          else                                    Zero_density_TF[inode_box][icomp]=FALSE;
        }
     }
     safe_free((void *) &vext_tmp);

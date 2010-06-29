@@ -256,7 +256,8 @@ int  get_integration_pts(int isten, int izone,
          printf("%s: Unknown or uninitialized choice of integration\n",yo);
          printf("\t\tscheme for isten: %d, izone: %d, Sten_Choice_S: %d\n",
                                 isten, izone, Sten_Choice_S[isten][izone]);
-         exit(-1); break;
+         exit(-1); 
+         return(-1);break;
     }
   }
 
@@ -436,7 +437,8 @@ int  get_integration_pts(int isten, int izone,
          printf("%s: Unknown or uninitialized choice of integration\n",yo);
          printf("\t\tscheme for isten: %d, izone: %d, Sten_Choice_S: %d\n",
                                 isten, izone, Sten_Choice_S[isten][izone]);
-         exit(-1); break;
+         exit(-1); 
+         return(-1);break;
     }
   }
 

@@ -33,7 +33,7 @@ double calc_free_energy(FILE *fp, double **x)
 double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
        omega_hs,omega_hs_b,omega_hs_surf_ex,
        omega_att,omega_att_b,omega_att_surf_ex,
-       omega_wtc,omega_wtc_b,omega_wtc_surf_ex,
+       omega_wtc,omega_wtc_b,
        omega_psirho,omega_psirho_surf_ex,
        omega_MSA,omega_MSA_b,omega_MSA_surf_ex,
        omega_vext,omega_vext_surf_ex,
@@ -44,12 +44,11 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
        omega_maxwell_stress,omega_surface_charge,
        omega_osmotic, omega_osmotic_b,omega_osmotic_surf_ex,
        omega_mu,omega_mu_b,omega_mu_surf_ex;
-static int first=TRUE,loc_inode;
-double energy,volume;
-int iunk,idim;
-int lfirst;
-
-       double L,L1,L2,sum,energy_RR,energy_RR_plus,energy_RR_minus,derivative_neg,lambda;
+       static int first=TRUE,loc_inode;
+       double energy,volume;
+       int iunk,idim;
+       int lfirst;
+       double sum,lambda;
        int icomp;
 
 
