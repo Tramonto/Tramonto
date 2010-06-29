@@ -8,8 +8,8 @@
 #include <string.h>
 #endif
 #include "mpi.h"
-#include "az_aztec.h"
 #include "az_aztec_defs.h"
+#include "az_aztec.h"
 #include "rf_allo.h"
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_poly_lin_prob_mgr_wrapper.h"
