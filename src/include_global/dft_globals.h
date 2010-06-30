@@ -438,7 +438,7 @@ void * LinProbMgr_manager;
 /* Parallel Info, Aztec info */
 int     Num_Proc; /* The total number of processors used in this calculation */
 int     Proc;     /* The unique  processor number (from 0 to Num_Proc-1)     */
-struct  Aztec_Struct Aztec; /* Structure to hold all the Aztec info          */
+/*struct  Aztec_Struct Aztec;*/ /* Structure to hold all the Aztec info.....don't need this anymore...          */
 int     Load_Bal_Flag; /* Flag specifying type of laod balancing to do       */
 int L_Schur; /* Switch to turn on Schur solvers */
 void * ParameterList_list; /* Parameterlist to hold Aztec options and params info */
