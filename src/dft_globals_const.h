@@ -604,10 +604,10 @@ extern void * LinProbMgr_manager;
  */
 
 /*   DONE WITH THIS STRUCT !! */
-/*struct Aztec_Struct {
+/*struct Aztec_Struct {*/
   /* int    options[AZ_OPTIONS_SIZE]; Array used to select solver options.  */
   /* double params[AZ_PARAMS_SIZE];    User selected solver paramters.       */
-#ifdef DONE_WITH_THESE
+/*#ifdef DONE_WITH_THESE
   int    proc_config[AZ_PROC_SIZE];* Processor information.                *
   int    *data_org;                * Array to specify data layout          *
   double status[AZ_STATUS_SIZE];   * Information returned from AZ_solve(). *
