@@ -363,3 +363,7 @@ add_executable(dft_exec dft_maindriver.c)
 target_link_libraries(dft_exec dft ${Tramonto_Trilinos_LIBRARIES}
 ${Trilinos_TPL_LIBRARIES} )
 
+INSTALL(TARGETS dft DESTINATION lib)
+INSTALL(TARGETS dft_exec DESTINATION bin)
+INCLUDE(CPack)
+
