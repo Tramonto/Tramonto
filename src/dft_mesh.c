@@ -1,4 +1,4 @@
-/*
+ /*
 //@HEADER
 // ******************************************************************** 
 // Tramonto: A molecular theory code for structured and uniform fluids
@@ -2861,6 +2861,8 @@ void initialize_Aztec(int* N_update, int *update[])
   /* Define partitioning:  matrix rows (ascending order) owned by this node */
   /* Partitioning Nnodes groups of Nunk_per_node                            */
   int flag;
+  int options[47]; 
+  double params[30];
  
 /*  if (Load_Bal_Flag == LB_LINEAR || Ndim != 2) flag = AZ_linear;
   else                            flag = AZ_box;*/
@@ -2873,8 +2875,7 @@ void initialize_Aztec(int* N_update, int *update[])
   * input file for more user control.
   */
 
-  int options[AZ_OPTIONS_SIZE]; 
-  double params[AZ_PARAMS_SIZE]; 
+ 
   AZ_defaults(options, params); 
 
   switch (Az_solver) {
