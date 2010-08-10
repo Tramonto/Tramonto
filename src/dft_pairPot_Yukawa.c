@@ -59,19 +59,19 @@ void uYUKAWA_CS_setparams(int context, int i, int j, double *param1,double *para
   switch (context){
      case FLUID_FLUID:
         *param1 = Sigma_ff[i][j];
-        *param2 = Eps_ff[i][j];
+        *param2 = EpsYukawa_ff[i][j];
         *param3 = Cut_ff[i][j];
         *param4 = YukawaK_ff[i][j];
         break;
      case WALL_FLUID:
         *param1 = Sigma_wf[i][WallType[j]];
-        *param2 = Eps_wf[i][WallType[j]];
+        *param2 = EpsYukawa_wf[i][WallType[j]];
         *param3 = Cut_wf[i][WallType[j]];
         *param4 = YukawaK_wf[i][WallType[j]];
         break;
      case WALL_WALL:
         *param1 = Sigma_ww[WallType[i]][WallType[j]];
-        *param2 = Eps_ww[WallType[i]][WallType[j]];
+        *param2 = EpsYukawa_ww[WallType[i]][WallType[j]];
         *param3 = Cut_ww[WallType[i]][WallType[j]];
         *param4 = YukawaK_ww[WallType[i]][WallType[j]];
         break;

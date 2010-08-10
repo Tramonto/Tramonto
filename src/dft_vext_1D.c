@@ -121,6 +121,45 @@ double Vext_LJ9_3_noCS(double x,int icomp, int iwall_type)
   return(vext);
 }
 /********************************************************************************************/
+double Vext_LJ7YukawaSum(double r, int icomp,int iwall_type)
+{
+  double vext,prefac,sigma,cut,Ayukawa,alpha;
+
+  prefac = Eps_wf[icomp][iwall_type]*Rho_w[iwall_type];
+  sigma=Sigma_wf[icomp][iwall_type];
+  cut=Cut_wf[icomp][iwall_type];
+  Ayukawa=EpsYukawa_wf[icomp][iwall_type];
+  alpha=YukawaK_wf[icomp][iwall_type];
+
+  if (r <= cut) 
+     vext = prefac*( POW_DOUBLE_INT(sigma/r,7) - POW_DOUBLE_INT(sigma/cut,7) ) +
+         Ayukawa*(exp(-alpha*(r/sigma-1.0))/(r/sigma) - exp(-alpha*(cut/sigma-1.0))/(cut/sigma));
+
+  else vext=0.0;
+
+  return(vext);
+}
+/********************************************************************************************/
+double Vextderiv_LJ7YukawaSum(double r, int icomp,int iwall_type)
+{
+  double vdash,prefac,sigma,cut,Ayukawa,alpha;
+
+  prefac = Eps_wf[icomp][iwall_type]*Rho_w[iwall_type];
+  sigma=Sigma_wf[icomp][iwall_type];
+  cut=Cut_wf[icomp][iwall_type];
+  Ayukawa=EpsYukawa_wf[icomp][iwall_type];
+  alpha=YukawaK_wf[icomp][iwall_type];
+
+  if (r <= cut) 
+     vdash = -(7.0/sigma)*prefac*( POW_DOUBLE_INT(sigma/r,8) ) + ( 
+              (-alpha/sigma)*Ayukawa*(exp(-alpha*(r/sigma-1.0))/(r/sigma)) +
+              (-1./sigma)*Ayukawa*(exp(-alpha*(r/sigma-1.0))/(r*r/(sigma*sigma)) )   );
+
+  else vdash=0.0;
+
+  return(vdash);
+}
+/********************************************************************************************/
 /* Vext_LJ9_3_shiftX_CS: cut and shifted 9-3 LJ potential */
 double Vext_LJ9_3_shiftX_CS(double x,int icomp, int iwall_type)
 {

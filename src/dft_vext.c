@@ -127,6 +127,10 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
                                                     WallType[iwall],Ipot_wf_n[WallType[iwall]]);
          exit(-1);
 
+       case VEXT_1D_RSURF:
+         setup_1Dvext_rsurf(iwall);
+         break;
+
        case VEXT_3D_INTEGRATED:             /* a more proper treatment of 2D or 3D systems where the 12-6 LJ 
                                         potential is explicitly integratedover unusual geometries */
          elems_w_per_w_global = (int **) array_alloc(1,Nlists_HW, sizeof(int *));
@@ -143,7 +147,7 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
          break;
 
        case VEXT_ATOMIC:                 /* 12-6 LJ potentials for atoms : a 3D potential for 3D systems */
-         setup_vext_LJ_atomic(iwall); 
+         setup_vext_atomic(iwall); 
          break;
 
 /*       case HARD_CHARGED_ATOMS :       / * note this case was only written for speed 
@@ -642,11 +646,11 @@ void setup_1Dvext_xmin(int iwall)
 return;
 }
 /******************************************************************************/
-/* setup_vext_LJ_atomic:  In this routine we assume that materials properties
+/* setup_vext_atomic:  In this routine we assume that materials properties
                             are constant in the surfaces of interest, and that
                             surface-fluid interactions are described by 12-6
                             Lennard-Jones potentials.*/
-void setup_vext_LJ_atomic(int iwall)
+void setup_vext_atomic(int iwall)
 {
    int icomp,iwall_type,ilist,idim, i,inode_box,iunk,ijk[3];
    int loc_inode,inode,on_ref_bound;
@@ -654,7 +658,7 @@ void setup_vext_LJ_atomic(int iwall)
    double max_cut,sign,**image_pos,node_pos_w[3],
           node_pos_f[3],node_pos_w2[3],r_center_sq,r,x[3],
           node_pos_f2[3];
-   double param1,param2,param3,param4;
+   double param1,param2,param3,param4,param5;
 
    iwall_type = WallType[iwall];
    max_cut = 0.0;
@@ -757,8 +761,8 @@ void setup_vext_LJ_atomic(int iwall)
                 }
 
                 if (r > 0.00001){
-                   pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4);
-                   Vext[loc_inode][icomp] += pairPot_switch(r,param1,param2,param3,param4,Type_vext3D);
+                   pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4,&param5);
+                   Vext[loc_inode][icomp] += pairPot_switch(r,param1,param2,param3,param4,param5,Type_vext3D);
                 }
                 else {
                    Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; break;
@@ -862,9 +866,240 @@ void setup_vext_LJ_atomic(int iwall)
                     sign = (image_pos[i][idim] - node_pos_w[idim])/x[idim];
                     else sign = 1.0;
 
-                    pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4);
+                    pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4,&param5);
                     Vext_dash[loc_inode][iunk][idim] +=
-                         sign*pairPot_deriv_switch(r,x[idim],param1,param2,param3,param4,Type_vext3D);
+                         sign*pairPot_deriv_switch(r,x[idim],param1,param2,param3,param4,param5,Type_vext3D);
+                    }
+                }
+
+             }   /*end of loop over the surface atom and its images */
+
+         }      /* check for Zero_density_TF */
+    
+       }        /* end of icomp loop */
+    }           /* end of fluid node loop */
+
+  safe_free((void *) &image_pos);
+  return;
+}
+/***************************************************************************/
+/* setup_1Dvext_rsurf:  this option works for cylindrical or spherical surfaces
+                        where a 1D potential, Vext(r) is set up such that r=0 is 
+                        taken at the surface of the 'wall' rather than at its center. */
+void setup_1Dvext_rsurf(int iwall)
+{
+   int icomp,iwall_type,ilist,idim, i,inode_box,iunk,ijk[3];
+   int loc_inode,inode,on_ref_bound;
+   int maximum,image,image_x,image_xy,iel_y,iel_z,count;
+   double max_cut,sign,**image_pos,node_pos_w[3],
+          node_pos_f[3],node_pos_w2[3],r_center_sq,r,x[3],r_surface_sq,rcenter,
+          node_pos_f2[3];
+   double param1,param2,param3,param4,param5;
+
+   iwall_type = WallType[iwall];
+   max_cut = 0.0;
+   for (icomp=0; icomp<Ncomp; icomp++)
+         if (max_cut < Cut_wf[icomp][iwall_type]) 
+             max_cut = Cut_wf[icomp][iwall_type];
+  
+   maximum = 1 + (int)POW_DOUBLE_INT(2*max_cut/Size_x[0]+2,Ndim);
+   image_pos = (double **) array_alloc (2, maximum, Ndim, sizeof(double));
+
+   ilist = Nlists_HW-1; /* only add the contributions of the solid*/
+
+   /* LOGIC FOR VEXT .... see comment on 1D_LJ case */
+
+    image= 0;
+    for (idim=0; idim<Ndim; idim++) {
+      node_pos_w[idim] = WallPos[idim][iwall];
+      image_pos[image][idim] = node_pos_w[idim];
+    }
+
+                    count=0;
+    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
+      inode_box = L2B_node[loc_inode];
+      inode = B2G_node[inode_box];
+      node_to_ijk(inode,ijk);
+
+      image = 1;
+
+      for (icomp=0; icomp<Ncomp; icomp++) {
+         if (!Zero_density_TF[inode_box][icomp]) {
+
+         inode = L2G_node[loc_inode];
+         node_to_position(inode,node_pos_f);
+
+         if (Vext[loc_inode][icomp] <Vext_set[loc_inode][icomp] ||
+             Vext[loc_inode][icomp]==0.0) {
+            iunk = iwall*Ncomp + icomp;
+
+            on_ref_bound = FALSE;
+            if ((WallPos[0][iwall] == -0.5*Size_x[0] && Type_bc[0][0]==REFLECT) ||
+                (WallPos[0][iwall] == 0.5*Size_x[0] && Type_bc[0][1]==REFLECT)) on_ref_bound=TRUE;
+
+            if (! on_ref_bound) find_images(0,Cut_wf[icomp][iwall_type],
+                                                             &image,image_pos,
+                                                        node_pos_w,node_pos_f);
+
+             if (Ndim > 1) {
+                on_ref_bound = FALSE;
+                if ((WallPos[1][iwall] == -0.5*Size_x[1] && Type_bc[1][0]==REFLECT) ||
+                    (WallPos[1][iwall] == 0.5*Size_x[1] && Type_bc[1][1]==REFLECT)) on_ref_bound=TRUE;
+                if (!on_ref_bound){
+               image_x = image;
+               for (iel_y=0; iel_y<image_x; iel_y++){
+                  for (idim=0; idim<Ndim; idim++) 
+                      node_pos_w2[idim] = image_pos[iel_y][idim];
+
+                  find_images(1,Cut_wf[icomp][iwall_type],
+                                         &image,image_pos,
+                                  node_pos_w2,node_pos_f);
+               }
+               }
+             }
+
+             if (Ndim == 3) {
+                on_ref_bound = FALSE;
+                if ((WallPos[2][iwall] == -0.5*Size_x[2] && Type_bc[2][0]==REFLECT) ||
+                    (WallPos[2][iwall] == 0.5*Size_x[2] && Type_bc[2][1]==REFLECT)) on_ref_bound=TRUE;
+                if (!on_ref_bound){
+                image_xy = image;
+                for (iel_z=0; iel_z<image_xy; iel_z++){
+                   for (idim=0; idim<Ndim; idim++) 
+                       node_pos_w2[idim] = image_pos[iel_z][idim];
+
+                   find_images(2,Cut_wf[icomp][iwall_type],
+                                          &image,image_pos,
+                                   node_pos_w2,node_pos_f);
+                }
+                }
+             }
+
+        /* 
+         *  now that we have all the images associated with
+         *  this particular surface element for icomp...calculate
+         *     the external field !!
+         */
+        
+             for (i=0; i<image; i++){
+                r_center_sq = 0.0;
+                for (idim=0; idim<Ndim; idim++) {
+                    node_pos_w2[idim] = image_pos[i][idim];
+                    r_center_sq += (node_pos_w2[idim]-node_pos_f[idim])*(node_pos_w2[idim]-node_pos_f[idim]);
+                }
+                rcenter = sqrt(r_center_sq);
+                r=rcenter-WallParam[iwall_type];
+
+                if (Lsemiperm[iwall_type][icomp] && rcenter<=WallParam[iwall_type]){
+                    Vext_set[loc_inode][icomp] = Vext_membrane[WallType[iwall]][icomp];
+                }
+
+                if (rcenter <= WallParam[iwall_type]) {   /* in the surface */
+                    Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; 
+                }
+                else{
+                   Vext[loc_inode][icomp] += Vext_1D(r,icomp,iwall_type);
+                }
+
+                if (Vext[loc_inode][icomp] >= Vext_set[loc_inode][icomp]) {
+                    Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; 
+                }
+
+             }  /* end of loop over the surface atom and its images */
+
+         }      /* check for VEXT_MAX */
+         }      /* check for Zero_density_TF */
+    
+       }        /* end of icomp loop */
+    }           /* end of fluid node loop */
+
+
+
+  /* LOGIC FOR VEXT_DASH */
+
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
+    inode_box = L2B_node[loc_inode];
+    inode = L2G_node[loc_inode];
+    node_to_position(inode,node_pos_f);
+
+    image= 0;
+    for (idim=0; idim<Ndim; idim++) 
+        image_pos[image][idim] = node_pos_f[idim];
+
+      for (idim=0; idim<Ndim; idim++) 
+        node_pos_w[idim] = WallPos[idim][iwall];
+
+      image = 1;
+
+      for (icomp=0; icomp<Ncomp; icomp++) {
+         iunk = iwall*Ncomp + icomp;
+
+         if (!Zero_density_TF[inode_box][icomp] &&
+              Vext[loc_inode][icomp] != Vext_set[loc_inode][icomp]) {
+
+             on_ref_bound = FALSE;
+             if ((WallPos[0][iwall] == -0.5*Size_x[0] && Type_bc[0][0]==REFLECT) ||
+                 (WallPos[0][iwall] == 0.5*Size_x[0] && Type_bc[0][1]==REFLECT)) on_ref_bound=TRUE;
+             if (!on_ref_bound) find_images(0,Cut_wf[icomp][iwall_type],
+                                                             &image,image_pos,
+                                                       node_pos_f,node_pos_w);
+
+             if (Ndim > 1) {
+                on_ref_bound = FALSE;
+                if ((WallPos[1][iwall] == -0.5*Size_x[1] && Type_bc[1][0]==REFLECT) ||
+                    (WallPos[1][iwall] == 0.5*Size_x[1] && Type_bc[1][1]==REFLECT)) on_ref_bound=TRUE;
+               if (!on_ref_bound){
+               image_x = image;
+               for (iel_y=0; iel_y<image_x; iel_y++){
+                  for (idim=0; idim<Ndim; idim++) 
+                      node_pos_f2[idim] = image_pos[iel_y][idim];
+
+                  find_images(1,Cut_wf[icomp][iwall_type],
+                                         &image,image_pos,
+                                  node_pos_f2,node_pos_w);
+               }
+               }
+             }
+
+             if (Ndim == 3) {
+                on_ref_bound = FALSE;
+                if ((WallPos[2][iwall] == -0.5*Size_x[2] && Type_bc[2][0]==REFLECT) ||
+                    (WallPos[2][iwall] == 0.5*Size_x[2] && Type_bc[2][1]==REFLECT)) on_ref_bound=TRUE;
+               if (!on_ref_bound){
+                image_xy = image;
+                for (iel_z=0; iel_z<image_xy; iel_z++){
+                   for (idim=0; idim<Ndim; idim++) 
+                       node_pos_f2[idim] = image_pos[iel_z][idim];
+
+                   find_images(2,Cut_wf[icomp][iwall_type],
+                                          &image,image_pos,
+                                   node_pos_f2,node_pos_w);
+                }
+               }
+             }
+
+        /* 
+         *  now that we have all the images associated with
+         *  this particular fluid node for icomp...calculate
+         *  the derivative of the external field in each dimension !!
+         */
+        
+             for (i=0; i<image; i++){
+                r_surface_sq = 0.0;
+                for (idim=0; idim<Ndim; idim++) {
+                    node_pos_w2[idim] = image_pos[i][idim];
+                    r_surface_sq += (fabs(node_pos_w2[idim]-node_pos_f[idim])-WallParam[iwall_type])*
+                                   (fabs(node_pos_w2[idim]-node_pos_f[idim])-WallParam[iwall_type]);
+                }
+                r = sqrt(r_surface_sq);
+
+                if (r > 0.00001){
+                   for (idim=0; idim<Ndim; idim++){
+                    if (x[idim] != 0.0)
+                    sign = (image_pos[i][idim] - node_pos_w[idim])/x[idim];
+                    else sign = 1.0;
+
+                    Vext_dash[loc_inode][iunk][idim] += sign*Vext_1D_dash(r,icomp,iwall_type);
                     }
                 }
 
@@ -951,7 +1186,7 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
    double gp3[12],gw3[12],gpu3[12],gwu3[12];
    double max_cut,**image_pos,node_pos[3],node_pos_w[3],
           node_pos_f[3],node_pos_w2[3],vext,r_center_sq;
-   double param1,param2,param3,param4;
+   double param1,param2,param3,param4,param5;
 
    iwall_type = WallType[iwall];
    max_cut = 0.0;
@@ -1066,8 +1301,8 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
              }
 
 
-             pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4);
-             vext = integrate_potential(param1,param2,param3,param4,
+             pairPotparams_switch(Type_vext3D,WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4,&param5);
+             vext = integrate_potential(param1,param2,param3,param4,param5,
                        ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
 	     
              Vext[loc_inode][icomp] += vext;

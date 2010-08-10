@@ -29,6 +29,11 @@ double Vext_REPULSIVE9_noCS(double x,int icomp,int iwall_type);
 extern double VEXT_MAX;
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double Vext_LJ9_3_shiftX_CS(double x,int icomp,int iwall_type);
+double Vextderiv_LJ7YukawaSum(double r,int icomp,int iwall_type);
+#define NWALL_MAX_TYPE 50 
+extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+double Vext_LJ7YukawaSum(double r,int icomp,int iwall_type);
 double Vext_LJ9_3_noCS(double x,int icomp,int iwall_type);
 double Vextderiv_LJ9_3_v2(double x,int icomp,int iwall_type);
 double Vext_LJ9_3_v2_CS(double x,int icomp,int iwall_type);
@@ -40,7 +45,6 @@ double Vextderiv_LJ9_3(double x,int icomp,int iwall_type);
 #define POW_DOUBLE_INT pow
 #endif
 #define PI    3.141592653589793238462643383279502884197169399375
-#define NWALL_MAX_TYPE 50 
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Rho_w[NWALL_MAX_TYPE];

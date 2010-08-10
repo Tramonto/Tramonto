@@ -39,7 +39,7 @@
                     (same logic as in stencil routine) to calculate
                     the potential energy at a given fluid position
                     due to a given wall element.*/
-double integrate_potential(double param1, double param2, double param3, double param4, int ngp, int ngpu,
+double integrate_potential(double param1, double param2, double param3, double param4, double param5,int ngp, int ngpu,
                       double *gp, double *gpu, double *gw, double *gwu,
                       double *node_pos, double *node_pos_f)
 { 
@@ -57,11 +57,19 @@ double integrate_potential(double param1, double param2, double param3, double p
    /*  param2=z2;             */
    /*  param3=rcut             */
    /***************************/
-   /**** YUKAWA type potential ****/
+   /**** YUKAWA potential ****/
    /*  param1=sigma           */
-   /*  param2=eps             */
+   /*  param2=eps_Yukawa      */
    /*  param3=rcut             */
    /*  param4=yukawa_alpha (decay param) */
+   /***************************/
+   /**** combined YUKAWA-LJ potential ****/
+   /*  param1=sigma           */
+   /*  param2=eps_LJ      */
+   /*  param3=rcut             */
+   /*  param4=yukawa_alpha (decay param) */
+   /*  param5=eps_Yukawa      */
+   /***************************/
 
    switch(Ndim){
        case 1:
@@ -77,7 +85,7 @@ double integrate_potential(double param1, double param2, double param3, double p
            }
            else{
               radius /= cut;
-              weight = get_wt_from_sten(radius, param1, param2, param3, param4, ngpu, gpu, gwu);
+              weight = get_wt_from_sten(radius, param1, param2, param3, param4, param5,ngpu, gpu, gwu);
            }
            
            vext += weight * gw[ig] * Vol_el;
@@ -103,7 +111,7 @@ double integrate_potential(double param1, double param2, double param3, double p
               }
               else{
                  radius /= cut;
-                 weight = get_wt_from_sten(radius, param1,param2,param3, param4,ngpu, gpu, gwu);
+                 weight = get_wt_from_sten(radius, param1,param2,param3, param4,param5,ngpu, gpu, gwu);
               }
 
              vext += weight * gw[ig] * gw[jg] *Vol_el;
@@ -129,7 +137,7 @@ double integrate_potential(double param1, double param2, double param3, double p
                             (node_pos_f[2] - point[2]) );
 		radius /= cut;
 
-                weight = get_wt_from_sten(radius,param1,param2,param3,param4,ngpu, gpu, gwu); 
+                weight = get_wt_from_sten(radius,param1,param2,param3,param4,param5,ngpu, gpu, gwu); 
 
                 vext += weight * gw[ig] * gw[jg] * gw[kg] * Vol_el;
              }
@@ -143,7 +151,7 @@ double integrate_potential(double param1, double param2, double param3, double p
 /*get_wt_from_sten: here we do the integrations out of the plane*/
 
 double get_wt_from_sten(double r,double param1, double param2, double param3,
-				    double param4, int ngpu, double *gpu, double *gwu)
+				    double param4, double param5,int ngpu, double *gpu, double *gwu)
 {
   double temp, zmax, z, rho,rcut;
   int i;
@@ -159,7 +167,7 @@ double get_wt_from_sten(double r,double param1, double param2, double param3,
      for (i=0; i < ngpu; i++) {
         z = zmax * gpu[i];
         rho = sqrt(r*r + z*z) * rcut;
-        temp += gwu[i] * z * pairPot_switch(rho, param1,param2,param3,param4,Type_vext3D);
+        temp += gwu[i] * z * pairPot_switch(rho, param1,param2,param3,param4,param5,Type_vext3D);
      }
      /* note that sum over gweights is integral over interval 0 to 1.  So, we need
         to multiply by the real range of the interaction (zmax/rc)*(rc/sigma).  We also
@@ -173,7 +181,7 @@ double get_wt_from_sten(double r,double param1, double param2, double param3,
      for (i=0; i < ngpu; i++) {
         z = zmax * gpu[i];
         rho = sqrt(r*r + z*z) * rcut;  /* distance to surface element out of plane */
-        temp += gwu[i] * pairPot_switch(rho,param1,param2,param3,param4,Type_vext3D);
+        temp += gwu[i] * pairPot_switch(rho,param1,param2,param3,param4,param5,Type_vext3D);
      }
      /* note that sum over gweights is integral over interval 0 to 1.  So, we need
         to multiply by the real range of the interaction (zmax/rc)*(rc/sigma).  We also
@@ -182,7 +190,7 @@ double get_wt_from_sten(double r,double param1, double param2, double param3,
   }
   else {
     rho = r * rcut;
-    temp = pairPot_switch(rho,param1,param2,param3,param4,Type_vext3D);
+    temp = pairPot_switch(rho,param1,param2,param3,param4,param5,Type_vext3D);
     return(temp);
   }
 }

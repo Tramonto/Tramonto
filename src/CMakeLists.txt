@@ -122,6 +122,7 @@ set(common_h
         dft_pairPot_Yukawa.h 
         dft_pairPot_LJ12_6YukawaSum.h
         dft_pairPot_r12YukawaSum.h
+        dft_pairPot_r18YukawaSum.h
         dft_pairPot_EXP.h 
 		dft_pairPot_SW.h 
         dft_switch_pairPot.h 
@@ -229,6 +230,7 @@ set(common_c
         dft_pairPot_Yukawa.c 
         dft_pairPot_LJ12_6YukawaSum.c
         dft_pairPot_r12YukawaSum.c
+        dft_pairPot_r18YukawaSum.c
         dft_pairPot_EXP.c 
 		dft_pairPot_SW.c 
         dft_switch_pairPot.c 
@@ -281,7 +283,7 @@ link_directories(${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 #ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos optika 
 set(Tramonto_Trilinos_LIBRARIES ${ML_LIBRARIES} ${Amesos_LIBRARIES}
 ${NOX_LIBRARIES} ${AztecOO_LIBRARIES} ${Ifpack_LIBRARIES}
-${EpetraExt_LIBRARIES} ${Epetra_LIBRARIES} ${Teuchos_LIBRARIES} )
+${EpetraExt_LIBRARIES} ${Epetra_LIBRARIES} ${Teuchos_LIBRARIES} ${Optika_LIBRARIES} )
 # ${Optika_LIBRARIES} /Library/Frameworks/QtCore.framework/QtCore /Library/Frameworks/QtGui.framework/QtGui)
 
 #remove duplicates from the link line

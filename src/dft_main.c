@@ -132,8 +132,8 @@ void dftmain(double * engptr)
   */
 
   read_input_file(input_file,output_file1);
-  /*dft_OptikaGUI(&dummy_param);*/
-  printf("DUMMY PARAM FROM OPTIKA IS %d\n",dummy_param);
+/*  dft_OptikaGUI(&dummy_param);*/
+/*  printf("DUMMY PARAM FROM OPTIKA IS %d\n",dummy_param);*/
   setup_stencil_logicals();
   if (Type_attr != NONE) setup_stencil_uattr_core_properties();
   setup_nunk_per_node(output_file1);

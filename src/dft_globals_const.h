@@ -313,6 +313,7 @@
 #define PAIR_SW		      5
 #define PAIR_LJandYUKAWA_CS   6
 #define PAIR_r12andYUKAWA_CS  7
+#define PAIR_r18andYUKAWA_CS  8
 
 /* options for Type_hsdiam */
 #define SIGMA_DIAM          0
@@ -327,6 +328,7 @@
 #define REPULSIVE9_noCS   4
 #define EXP_ATT_noCS      5
 #define LINEAR_noCS       6 
+#define R7_YUKAWA_SUM_CS  7 
 
 /*
  * The following are choices for Type_interface which indicates 
@@ -448,6 +450,7 @@
 #define VEXT_1D_ORIENTATION     4  /* crude 1D-like treatment of funny geometries */
 #define VEXT_3D_INTEGRATED      5  /* more proper 3D integration potential for funny geometries */
 #define VEXT_ATOMIC        6  /* 3D potential for 3D problems */
+#define VEXT_1D_RSURF      7 /* 1D external field that can be used for cylinders and spheres based on distance to surface */
 
  /* The following is a choice for the wall type Ipot_ww_n*/
 #define NO_WW              0
@@ -908,10 +911,14 @@ extern double  Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];  /* Array of w-f cutoff distan
 extern double  Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];/* Array of w-w interaction diameters */
 extern double  Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w interaction energies  */
 extern double  Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w cutoff distances      */
+extern double  EpsYukawa_ff[NCOMP_MAX][NCOMP_MAX]; /* Yukawa prefactor for fluid-fluid interactions */
+extern double  EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE]; /* Yukawa prefactor for wallfluid interactions */
+extern double  EpsYukawa_w[NWALL_MAX_TYPE]; /* Yukawa prefactor for wall-wall interactions */
+extern double  EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa prefactor for wall-wall interactions */
 extern double  YukawaK_ff[NCOMP_MAX][NCOMP_MAX]; /* Yukawa decay constant on fluid-fluid interactions */
-extern double  YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
-extern double  YukawaK_w[NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
-extern double  YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
+extern double  YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE]; /* Yukawa decay constant on wall-fluid interactions */
+extern double  YukawaK_w[NWALL_MAX_TYPE]; /* Yukawa decay constant on wall-wall interactions */
+extern double  YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa decay constant on wall-wall interactions */
 
 extern int     **Lsemiperm; /*Array of logicals for semi-permeable surfaces */
 extern double  **Vext_membrane; /*Array potentials for semi-perm surfaces */

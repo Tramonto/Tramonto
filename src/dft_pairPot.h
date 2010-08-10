@@ -25,7 +25,7 @@ extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-double pairPot_switch(double r,double param1,double param2,double param3,double param4,int typePairPot);
+double pairPot_switch(double r,double param1,double param2,double param3,double param4,double param5,int typePairPot);
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 #define FALSE 0
@@ -39,13 +39,13 @@ extern int Proc;
 #endif
 #define VERBOSE      3 
 extern int Iwrite;
-double pairPot_find_r_ZeroCut(int i,int j,double param1,double param2,double param3,double param4,int typePairPot);
+double pairPot_find_r_ZeroCut(int i,int j,double param1,double param2,double param3,double param4,double param5,int typePairPot);
 extern double Rzero_ff[NCOMP_MAX][NCOMP_MAX];
-double pairPot_find_rmin(int i,int j,double param1,double param2,double param3,double param4,int typePairPot);
+double pairPot_find_rmin(int i,int j,double param1,double param2,double param3,double param4,double param5,int typePairPot);
 extern double Rmin_ff[NCOMP_MAX][NCOMP_MAX];
 #define FLUID_FLUID 0
 extern int Type_pairPot;
-void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4);
+void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4,double *param5);
 extern int Ncomp;
 #define NONE       -1
 #define NONE          -1

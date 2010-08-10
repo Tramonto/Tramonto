@@ -16,10 +16,10 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define PI    3.141592653589793238462643383279502884197169399375
-double ur12andYUKAWA_Integral(double r,int i,int j);
-double ur12andYUKAWA_ATT_CS(double r,int i,int j);
+double ur18andYUKAWA_Integral(double r,int i,int j);
+double ur18andYUKAWA_ATT_CS(double r,int i,int j);
 #define CORECONST_ZERO      1
-double ur12andYUKAWA_ATT_noCS(double r,int i,int j);
+double ur18andYUKAWA_ATT_noCS(double r,int i,int j);
 #define CORECONST_UCONST    0
 extern int Type_CoreATT_CONST;
 #define ATTCORE_SIGTOUMIN   3
@@ -30,8 +30,8 @@ extern double Rmin_ff[NCOMP_MAX][NCOMP_MAX];
 #define ATTCORE_UMIN        1
 #define ATTCORE_SIGMA       0
 extern int Type_CoreATT_R;
-void ur12andYUKAWA_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
-double ur12andYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,double yukawaK,double AYukawa);
+void ur18andYUKAWA_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
+double ur18andYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,double yukawaK,double AYukawa);
 #define NWALL_MAX_TYPE 50 
 extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
@@ -53,11 +53,11 @@ extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 #define FLUID_FLUID 0
-void ur12andYUKAWA_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3,double *param4,double *param5);
+void ur18andYUKAWA_CS_setparams(int context,int i,int j,double *param1,double *param2,double *param3,double *param4,double *param5);
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-double ur12andYUKAWA_CS(double r,double sigma,double eps,double rcut,double yukawaK,double AYukawa);
+double ur18andYUKAWA_CS(double r,double sigma,double eps,double rcut,double yukawaK,double AYukawa);

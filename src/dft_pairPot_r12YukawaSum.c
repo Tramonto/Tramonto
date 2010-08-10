@@ -38,17 +38,16 @@
 /******************************************************************************/
 /* ur12andYUKAWA_CS: The cut and shifted r12+YUKAWA potential                         */
 
-double ur12andYUKAWA_CS(double r,double sigma, double eps, double rcut,double yukawaK)
+double ur12andYUKAWA_CS(double r,double sigma, double eps, double rcut,double yukawaK,double AYukawa)
 {
   double u,alpha,Ayukawa;
   alpha=yukawaK*sigma;
-  Ayukawa=eps;
 
   /* note that writing the potential this way implies that the Yukawa parameters in the
      input file will be entered as K*sigma_ij */
   
   if (r <= rcut) {
-     u = 4.0*( POW_DOUBLE_INT(sigma/r,12) - POW_DOUBLE_INT(sigma/rcut,12) ) - 
+     u = eps*( POW_DOUBLE_INT(sigma/r,12) - POW_DOUBLE_INT(sigma/rcut,12) ) - 
          Ayukawa*(exp(-alpha*(r/sigma-1.0))/(r/sigma)- exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma));
   }
   else u = 0.0;
@@ -57,7 +56,7 @@ double ur12andYUKAWA_CS(double r,double sigma, double eps, double rcut,double yu
 /*******************************************************************************/
 /* ur12andYUKAWA_CS_setparams: The parameters for a potential that sums a r12 repulsive
 core and a Yukawa potential. */
-void ur12andYUKAWA_CS_setparams(int context, int i, int j, double *param1,double *param2,double *param3,double *param4)
+void ur12andYUKAWA_CS_setparams(int context, int i, int j, double *param1,double *param2,double *param3,double *param4,double *param5)
 {    
   switch (context){
      case FLUID_FLUID:
@@ -65,18 +64,21 @@ void ur12andYUKAWA_CS_setparams(int context, int i, int j, double *param1,double
         *param2 = Eps_ff[i][j];
         *param3 = Cut_ff[i][j];
         *param4 = YukawaK_ff[i][j];
+        *param5 = EpsYukawa_ff[i][j];
         break;
      case WALL_FLUID:
         *param1 = Sigma_wf[i][WallType[j]];
         *param2 = Eps_wf[i][WallType[j]];
         *param3 = Cut_wf[i][WallType[j]];
         *param4 = YukawaK_wf[i][WallType[j]];
+        *param5 = EpsYukawa_wf[i][WallType[j]];
         break;
      case WALL_WALL:
         *param1 = Sigma_ww[WallType[i]][WallType[j]];
         *param2 = Eps_ww[WallType[i]][WallType[j]];
         *param3 = Cut_ww[WallType[i]][WallType[j]];
         *param4 = YukawaK_ww[WallType[i]][WallType[j]];
+        *param5 = EpsYukawa_ww[WallType[i]][WallType[j]];
         break;
      default:
         printf("problem with potential context ur12andYUKAWA_CS_setparams\n");
@@ -87,14 +89,13 @@ void ur12andYUKAWA_CS_setparams(int context, int i, int j, double *param1,double
 /*******************************************************************************/
 /* ur12andYUKAWA_DERIV1D: The derivative of the summed r12 and Yukawa potential in one cartesian direction x,y,z*/
 
-double ur12andYUKAWA_DERIV1D(double r,double x,double sigma, double eps, double rcut,double yukawaK)
+double ur12andYUKAWA_DERIV1D(double r,double x,double sigma, double eps, double rcut,double yukawaK,double AYukawa)
 {
   double uderiv,alpha,Ayukawa;
   alpha=yukawaK*sigma;
-  Ayukawa=eps;
   
   if (r <= rcut) {
-     uderiv = (4.0/(sigma*sigma)) * (-12.*x*POW_DOUBLE_INT(sigma/r,14) )
+     uderiv = (eps/(sigma*sigma)) * (-12.*x*POW_DOUBLE_INT(sigma/r,14) )
             +Ayukawa*sigma*x*exp(-alpha*(r/sigma-1.0))*((1./r)+(alpha/sigma))/(r*r);
   }
   else uderiv = 0.0;
@@ -147,7 +148,7 @@ double ur12andYUKAWA_ATT_CS(double r,int i, int j)
   rcut=Cut_ff[i][j];
   eps=Eps_ff[i][j];
   alpha=YukawaK_ff[i][j]*sigma;
-  Ayukawa=eps;
+  Ayukawa=EpsYukawa_ff[i][j];
 
   /* note that Rmin and Rzero will both be Sigma_ff[i][j] for a monotonic potential */
   switch(Type_CoreATT_R){
@@ -168,7 +169,7 @@ double ur12andYUKAWA_ATT_CS(double r,int i, int j)
         r6_inv  = r2_inv*r2_inv*r2_inv;
         r12_inv = r6_inv*r6_inv;
 
-        uatt= 4.0*sigma6*sigma6*(r12_inv - rc12_inv)-
+        uatt= eps*sigma6*sigma6*(r12_inv - rc12_inv)-
              Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma)
            + Ayukawa*exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma);
      }
@@ -188,7 +189,7 @@ double ur12andYUKAWA_ATT_noCS(double r,int i, int j)
   sigma=Sigma_ff[i][j];
   eps=Eps_ff[i][j];
   alpha=YukawaK_ff[i][j]*sigma;
-  Ayukawa=eps;
+  Ayukawa=EpsYukawa_ff[i][j];
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
   sigma6 = sigma2*sigma2*sigma2;
 
@@ -210,7 +211,7 @@ double ur12andYUKAWA_ATT_noCS(double r,int i, int j)
      r6_inv  = r2_inv*r2_inv*r2_inv;
      r12_inv = r6_inv*r6_inv;
 
-     uatt= 4.0*sigma6*sigma6*r12_inv - Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma);
+     uatt= eps*sigma6*sigma6*r12_inv - Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma);
   }
 
   return uatt;
@@ -230,7 +231,7 @@ double ur12andYUKAWA_Integral(double r,int i, int j)
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
   sigma6 = sigma2*sigma2*sigma2;
   eps=Eps_ff[i][j];
-  Ayukawa=eps;
+  Ayukawa=EpsYukawa_ff[i][j];
   alpha=YukawaK_ff[i][j]*sigma;
   c=alpha/sigma;
 
@@ -240,7 +241,7 @@ double ur12andYUKAWA_Integral(double r,int i, int j)
   r9_inv  = r3_inv*r3_inv*r3_inv;
 
 
-  uatt_int = -16.0*PI*sigma6*sigma6*r9_inv/9.0 -
+  uatt_int = -4.*PI*eps*sigma6*sigma6*r9_inv/9.0 -
              4*PI*Ayukawa*sigma*exp(alpha)*((exp(-c*r)/(c*c))*(-c*r-1.0));
 
   return uatt_int;

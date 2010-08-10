@@ -38,7 +38,7 @@
 /*******************************************************************************************/
 /*setup_pairPot:  some logic needed to set up pair potentials including locting potential minima and zeros */
 void setup_pairPotentials(char *output_file1){
-  double param1, param2, param3, param4;
+  double param1, param2, param3, param4,param5;
   int i,j;
 
 
@@ -47,16 +47,16 @@ void setup_pairPotentials(char *output_file1){
   if (Type_attr != NONE){
       for (i=0; i<Ncomp; i++){
          for (j=0; j<Ncomp; j++){
-             pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4);
-             Rmin_ff[i][j]=pairPot_find_rmin(i,j,param1,param2,param3,param4,Type_pairPot);
+             pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4,&param5);
+             Rmin_ff[i][j]=pairPot_find_rmin(i,j,param1,param2,param3,param4,param5,Type_pairPot);
      
          }
       }
 
       for (i=0; i<Ncomp; i++){
          for (j=0; j<Ncomp; j++){
-             pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4);
-             Rzero_ff[i][j]=pairPot_find_r_ZeroCut(i,j,param1,param2,param3,param4,Type_pairPot);
+             pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4,&param5);
+             Rzero_ff[i][j]=pairPot_find_r_ZeroCut(i,j,param1,param2,param3,param4,param5,Type_pairPot);
          }
       }
 
@@ -64,14 +64,14 @@ void setup_pairPotentials(char *output_file1){
         printf("********************************************************************************\n");
         for (i=0; i<Ncomp; i++){
           for (j=0; j<Ncomp; j++){
-             pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4);
+             pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4,&param5);
              printf("Rmin_ff[i=%d][j=%d](sigma units)=%15.11f:: check Rmin_ij/sig_ij=%15.11f (const for LJ)\n",i,j,Rmin_ff[i][j],Rmin_ff[i][j]/param1);
           }
        }
         printf("\n");
         for (i=0; i<Ncomp; i++){
           for (j=0; j<Ncomp; j++){
-             pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4);
+             pairPotparams_switch(Type_pairPot,FLUID_FLUID,i,j,&param1,&param2,&param3,&param4,&param5);
              printf("Rzero_ff[i=%d][j=%d](sigma units)=%15.11f:: check Rzero_ij/sig_ij=%15.11f (const for LJ if rcut=(const)*sig_ij)\n",i,j,Rzero_ff[i][j],Rzero_ff[i][j]/param1);
           }
        }
@@ -95,7 +95,7 @@ void setup_pairPotentials(char *output_file1){
 /*pairPot_find_rmin....This function locates the distance r where the minimum in the potential is found.
 Note that the distances here are returned in units of r/sigma_ref so no adjustment is needed later.*/
 
-double pairPot_find_rmin(int i, int j,double param1, double param2, double param3,double param4,int typePairPot){
+double pairPot_find_rmin(int i, int j,double param1, double param2, double param3,double param4,double param5,int typePairPot){
 
   int logical_update=FALSE,count;
   double r,rcut,rmin,umin,umin_old,rstart,delr,sigma,tol=1.e-8,error=1.0,u,uleft,uright,delr_old,rlast;
@@ -106,10 +106,10 @@ double pairPot_find_rmin(int i, int j,double param1, double param2, double param
                                                /* first find general vicinity of minimum */ 
   r=2.0*Esize_x[0];
   delr=Esize_x[0];
-  umin=pairPot_switch(r, param1,param2,param3,param4,typePairPot);
+  umin=pairPot_switch(r, param1,param2,param3,param4,param5,typePairPot);
   while (r <rcut){
       r+=delr;
-      u=pairPot_switch(r, param1,param2,param3,param4,typePairPot);
+      u=pairPot_switch(r, param1,param2,param3,param4,param5,typePairPot);
       if (u<umin){ 
           umin=u;
           rmin=r;
@@ -129,8 +129,8 @@ double pairPot_find_rmin(int i, int j,double param1, double param2, double param
       while(error>tol){
            umin_old=umin;
            delr_old=delr; 
-           uleft=pairPot_switch(rmin-delr_old, param1,param2,param3,param4,typePairPot);
-           uright=pairPot_switch(rmin+delr_old, param1,param2,param3,param4,typePairPot);
+           uleft=pairPot_switch(rmin-delr_old, param1,param2,param3,param4,param5,typePairPot);
+           uright=pairPot_switch(rmin+delr_old, param1,param2,param3,param4,param5,typePairPot);
        
            rstart=rmin-delr_old;
            r=rstart;
@@ -139,7 +139,7 @@ double pairPot_find_rmin(int i, int j,double param1, double param2, double param
            delr=delr_old/100; 
            while (r<rstart+2.0*delr_old){
                r+=delr;
-               u=pairPot_switch(r, param1,param2,param3,param4,typePairPot);
+               u=pairPot_switch(r, param1,param2,param3,param4,param5,typePairPot);
                if (u<umin){ 
                   umin=u;
                   rmin=r;
@@ -156,7 +156,7 @@ double pairPot_find_rmin(int i, int j,double param1, double param2, double param
 /*pairPot_find_rzero_cut....This function locates the distances where the interaction potential is equal to the
   interaction potential at r=r_cut.  In these cases u_att=0 for r<r_zero_cut 
   Note that the distances here are returned in units of r/sigma_ref so no adjustment is needed later.*/
-double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double param3,double param4,int typePairPot){
+double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double param3,double param4,double param5,int typePairPot){
 
   int logical_update=FALSE,count;
   double r,rcut,rmin,umin,umin_old,rstart,delr,sigma,tol=1.e-8,error=1.0,u,uleft,uright,delr_old,rlast;
@@ -167,10 +167,10 @@ double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double 
                                                /* first find general vicinity of minimum */ 
   r=2.0*Esize_x[0];
   delr=Esize_x[0];
-  umin=pairPot_switch(r, param1,param2,param3,param4,typePairPot);
+  umin=pairPot_switch(r, param1,param2,param3,param4,param5,typePairPot);
   while (r <rcut-delr){
       r+=delr;
-      u=pairPot_switch(r, param1,param2,param3,param4,typePairPot);
+      u=pairPot_switch(r, param1,param2,param3,param4,param5,typePairPot);
       if (u*umin<0.0){ 
           umin=u;
           rmin=r;
@@ -190,8 +190,8 @@ double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double 
       while(error>tol){
            umin_old=umin;
            delr_old=delr; 
-           uleft=pairPot_switch(rmin-delr_old, param1,param2,param3,param4,typePairPot);
-           uright=pairPot_switch(rmin+delr_old, param1,param2,param3,param4,typePairPot);
+           uleft=pairPot_switch(rmin-delr_old, param1,param2,param3,param4,param5,typePairPot);
+           uright=pairPot_switch(rmin+delr_old, param1,param2,param3,param4,param5,typePairPot);
        
            rstart=rmin-delr_old; 
            umin=uleft;
@@ -200,7 +200,7 @@ double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double 
            delr=delr_old/100; 
            while (r<rstart+2.0*delr_old){
                r+=delr;
-               u=pairPot_switch(r, param1,param2,param3,param4,typePairPot);
+               u=pairPot_switch(r, param1,param2,param3,param4,param5,typePairPot);
                if (u*umin<0.0 && fabs(umin)>tol){ 
                   umin=u;
                   rmin=r;
@@ -215,11 +215,11 @@ double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double 
 /* print_potentials_fluid  .... output potentials so they can be tested or fitted */
 void print_potentials_fluid(int type_pairPot,int icomp,int jcomp){
 
-  double param1, param2, param3, param4,r,uatt,ucs,delr;
+  double param1, param2, param3, param4,param5,r,uatt,ucs,delr;
   char filename[20], filenameATT[20], filenameCS[20];
   FILE *fpATT, *fpCS;
 
-  pairPotparams_switch(Type_pairPot,FLUID_FLUID,icomp,jcomp,&param1,&param2,&param3,&param4);
+  pairPotparams_switch(Type_pairPot,FLUID_FLUID,icomp,jcomp,&param1,&param2,&param3,&param4,&param5);
 
   sprintf(filenameATT, "dft_uATT%0d%0d.dat", icomp,jcomp);
   sprintf(filenameCS, "dft_uCS%0d%0d.dat", icomp,jcomp);
@@ -231,7 +231,7 @@ void print_potentials_fluid(int type_pairPot,int icomp,int jcomp){
      uatt=pairPot_ATT_CS_switch(r,icomp,jcomp,type_pairPot);
      fprintf(fpATT,"%11.6f  %11.6f\n",r,uatt); 
 
-     ucs=pairPot_switch(r,param1,param2,param3,param4,type_pairPot);
+     ucs=pairPot_switch(r,param1,param2,param3,param4,param5,type_pairPot);
      fprintf(fpCS,"%11.6f  %11.6f\n",r,ucs); 
   }
   return; 

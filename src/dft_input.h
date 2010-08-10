@@ -179,11 +179,14 @@ extern int Unk2Comp[NMER_MAX];
 extern int Nseg_type[NCOMP_MAX];
 extern int Nbonds;
 extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double YukawaK_w[NWALL_MAX_TYPE];
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
+extern double EpsYukawa_w[NWALL_MAX_TYPE];
+extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_w[NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
@@ -192,6 +195,8 @@ extern double Sigma_w[NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Rho_w[NWALL_MAX_TYPE];
 extern double YukawaK_ff[NCOMP_MAX][NCOMP_MAX];
+extern double EpsYukawa_ff[NCOMP_MAX][NCOMP_MAX];
+#define PAIR_r18andYUKAWA_CS  8
 #define PAIR_r12andYUKAWA_CS  7
 #define PAIR_LJandYUKAWA_CS   6
 #define PAIR_EXP_CS	      4

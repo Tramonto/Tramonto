@@ -306,11 +306,14 @@ double  Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];  /* Array of w-f cutoff distances    
 double  Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];/* Array of w-w interaction diameters */
 double  Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w interaction energies  */
 double  Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w cutoff distances      */
+double  EpsYukawa_ff[NCOMP_MAX][NCOMP_MAX]; /* Yukawa prefactor for fluid-fluid interactions */
+double  EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE]; /* Yukawa prefactor for wallfluid interactions */
+double  EpsYukawa_w[NWALL_MAX_TYPE]; /* Yukawa prefactor for wall-wall interactions */
+double  EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa prefactor for wall-wall interactions */
 double  YukawaK_ff[NCOMP_MAX][NCOMP_MAX]; /* Yukawa decay constant on fluid-fluid interactions */
-double  YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
-double  YukawaK_w[NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
-double  YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa decay constant on fluid-fluid interactions */
-
+double  YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE]; /* Yukawa decay constant on wall-fluid interactions */
+double  YukawaK_w[NWALL_MAX_TYPE]; /* Yukawa decay constant on wall-wall interactions */
+double  YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa decay constant on wall-wall interactions */
 
 int     **Lsemiperm;  /* Array of logicals for semipermeable surfaces */
 double  **Vext_membrane; /*Array potentials for semi-perm surfaces */

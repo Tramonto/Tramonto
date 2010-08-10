@@ -26,19 +26,20 @@
 */
 
 /*
- *  FILE: dft_pairPot_Yukawa.c
+ *  FILE: dft_pairPot_r18YukawaSum.c
  *
  *  This file contains routines specific to a strict mean field implementation of
- *  a Yukawa fluid .
+ *  a summed repulsive and Yukawa fluid.  Note that the repulsive r^18 form was 
+ *  chosen for a specific study of polyplex systems (Sachs/Braun UMN)
  *
  */
 
-#include "dft_pairPot_LJ12_6YukawaSum.h"
+#include "dft_pairPot_r18YukawaSum.h"
 
 /******************************************************************************/
-/* uLJandYUKAWA_CS: The cut and shifted LJ+YUKAWA potential                         */
+/* ur18andYUKAWA_CS: The cut and shifted r18+YUKAWA potential                         */
 
-double uLJandYUKAWA_CS(double r,double sigma, double eps, double rcut,double yukawaK,double Ayukawa)
+double ur18andYUKAWA_CS(double r,double sigma, double eps, double rcut,double yukawaK,double AYukawa)
 {
   double u,alpha;
   alpha=yukawaK*sigma;
@@ -47,16 +48,16 @@ double uLJandYUKAWA_CS(double r,double sigma, double eps, double rcut,double yuk
      input file will be entered as K*sigma_ij */
   
   if (r <= rcut) {
-     u = 4.0*fabs(eps)*(( POW_DOUBLE_INT(sigma/r,12) - POW_DOUBLE_INT(sigma/rcut,12) ) -
-            ( POW_DOUBLE_INT(sigma/r,6) - POW_DOUBLE_INT(sigma/rcut,6) )) +
-         Ayukawa*(exp(-alpha*(r/sigma-1.0))/(r/sigma)- exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma));
+     u = eps*( POW_DOUBLE_INT(sigma/r,18) - POW_DOUBLE_INT(sigma/rcut,18) ) + 
+         AYukawa*(exp(-alpha*(r/sigma-1.0))/(r/sigma)- exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma));
   }
   else u = 0.0;
   return (u);
 }
 /*******************************************************************************/
-/* uLJandYUKAWA_CS_setparams: The parameters for the cut and shifted LJ12_6 + Yukawa potential */
-void uLJandYUKAWA_CS_setparams(int context, int i, int j, double *param1,double *param2,double *param3,double *param4,double *param5)
+/* ur18andYUKAWA_CS_setparams: The parameters for a potential that sums a r18 repulsive
+core and a Yukawa potential. */
+void ur18andYUKAWA_CS_setparams(int context, int i, int j, double *param1,double *param2,double *param3,double *param4,double *param5)
 {    
   switch (context){
      case FLUID_FLUID:
@@ -81,61 +82,60 @@ void uLJandYUKAWA_CS_setparams(int context, int i, int j, double *param1,double 
         *param5 = EpsYukawa_ww[WallType[i]][WallType[j]];
         break;
      default:
-        printf("problem with potential context uLJandYUKAWA_CS_setparams\n");
+        printf("problem with potential context ur18andYUKAWA_CS_setparams\n");
         exit(-1);
    }
    return;
 }
 /*******************************************************************************/
-/* uLJandYUKAWA_DERIV1D: The derivative of the summed LJ and Yukawa potential in the x (or y or z) direction */
+/* ur18andYUKAWA_DERIV1D: The derivative of the summed r18 and Yukawa potential in one cartesian direction x,y,z*/
 
-double uLJandYUKAWA_DERIV1D(double r,double x,double sigma, double eps, double rcut,double yukawaK,double Ayukawa)
+double ur18andYUKAWA_DERIV1D(double r,double x,double sigma, double eps, double rcut,double yukawaK,double AYukawa)
 {
   double uderiv,alpha;
   alpha=yukawaK*sigma;
   
   if (r <= rcut) {
-     uderiv = (4.0*fabs(eps)/(sigma*sigma)) * (
-            -12.*x*POW_DOUBLE_INT(sigma/r,14) + 6.*x*POW_DOUBLE_INT(sigma/r,8) )
-            -Ayukawa*sigma*x*exp(-alpha*(r/sigma-1.0))*((1./r)+(alpha/(sigma*sigma)))/(r*r);
+     uderiv = (eps/(sigma*sigma)) * (-18.*x*POW_DOUBLE_INT(sigma/r,20) )
+            -AYukawa*sigma*x*exp(-alpha*(r/sigma-1.0))*((1./r)+(alpha/sigma))/(r*r);
   }
   else uderiv = 0.0;
   return (uderiv);
 }
 /******************************************************************************/
-/* uLJandYUKAWA_InnerCore : define the properties of the inner core of the potential based on
+/* ur18andYUKAWA_InnerCore : define the properties of the inner core of the potential based on
                   input parameters */
-void uLJandYUKAWA_InnerCore(int i, int j,
-       double *rCore_left, double *rCore_right, double *epsCore)
+void ur18andYUKAWA_InnerCore(int i, int j,double *rCore_left, double *rCore_right, double *epsCore)
 {
-   /* note if the summed potential is purely repulsive then Rmin and Rzero will be set to Sigma_ff */
    switch(Type_CoreATT_R){
-      case ATTCORE_SIGMA:      *(rCore_right)=Sigma_ff[i][j]; *(rCore_left)=0.0; break;
+         /* note we have full flexibility --- if the potential is purely repulsive (monotonic),
+            both Rmin_ff and Rzero_ff will be set to Sigma_ff */
+      case ATTCORE_SIGMA:      *rCore_right=Sigma_ff[i][j]; *rCore_left=0.0; break;
       case ATTCORE_UMIN:       *rCore_right=Rmin_ff[i][j]; *rCore_left=0.0; break;
       case ATTCORE_UCSZERO:    *rCore_right=Rzero_ff[i][j]; *rCore_left=0.0; break;
-      case ATTCORE_SIGTOUMIN:  *rCore_right=Rmin_ff[i][j]; *rCore_left=Sigma_ff[i][j]; break;
+      case ATTCORE_SIGTOUMIN:   *rCore_right=Rmin_ff[i][j]; *rCore_left=Sigma_ff[i][j]; break;
       default:
         printf("Problem with Type_CoreATT_R - set to %d\n",Type_CoreATT_R);
-        exit(-1); break;
-   }
+        exit(-1);
+   } 
    switch(Type_CoreATT_CONST){
-      case CORECONST_UCONST:   *epsCore=uLJandYUKAWA_ATT_noCS(*rCore_right,i,j); break;
+      case CORECONST_UCONST:   *epsCore=ur18andYUKAWA_ATT_noCS(*rCore_right,i,j); break;
       case CORECONST_ZERO:     *epsCore=0.0; break;
       default:
         printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
-        exit(-1); break;
+        exit(-1);
    }
    return;
 }
 /******************************************************************************/
-/* uLJandYUKAWA_ATT_CS: the attractive part of the potential for a cut and shifted 
-                        potential that sums LJ and yukawa potentials */
-double uLJandYUKAWA_ATT_CS(double r,int i, int j)
+/* ur18andYUKAWA_ATT_CS: the attractive part of the potential for a summed r18 and 
+                          yukawa potential. */
+double ur18andYUKAWA_ATT_CS(double r,int i, int j)
 {
   double uatt,r_min,rcut,sigma,alpha,eps,Ayukawa;
   double sigma2,sigma6;
-  double r_inv,r2_inv,r6_inv,r12_inv;
-  double rc_inv,rc2_inv,rc6_inv,rc12_inv;
+  double r_inv,r2_inv,r6_inv,r12_inv,r18_inv;
+  double rc_inv,rc2_inv,rc6_inv,rc12_inv,rc18_inv;
 
   sigma=Sigma_ff[i][j];
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
@@ -145,36 +145,34 @@ double uLJandYUKAWA_ATT_CS(double r,int i, int j)
   rc2_inv  = rc_inv*rc_inv;
   rc6_inv  = rc2_inv*rc2_inv*rc2_inv;
   rc12_inv = rc6_inv*rc6_inv;
+  rc18_inv = rc6_inv*rc12_inv;
 
   rcut=Cut_ff[i][j];
   eps=Eps_ff[i][j];
   alpha=YukawaK_ff[i][j]*sigma;
   Ayukawa=EpsYukawa_ff[i][j];
 
-   /* note if the summed potential is purely repulsive then Rmin and Rzero will be set to Sigma_ff */
+  /* note that Rmin and Rzero will both be Sigma_ff[i][j] for a monotonic potential */
   switch(Type_CoreATT_R){
-     case ATTCORE_SIGMA:      r_min=Sigma_ff[i][j]; break;
-     case ATTCORE_SIGTOUMIN:       
+     case ATTCORE_SIGMA:      r_min=sigma; break;
+     case ATTCORE_SIGTOUMIN:
      case ATTCORE_UMIN:       r_min=Rmin_ff[i][j]; break; 
-     case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break;
+     case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break; 
   }
 
-  if ((r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) || 
-      (r<sigma && Type_CoreATT_R==ATTCORE_SIGTOUMIN)){
-         uatt=0.0;
-  }
+  if ((r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) ||
+      (r<sigma && Type_CoreATT_R==ATTCORE_SIGTOUMIN))       uatt=0.0;
   else{
      if (r<=rcut){
         if (r<r_min) r=r_min;
-
+   
         r_inv = 1.0/r;
         r2_inv  = r_inv*r_inv;
         r6_inv  = r2_inv*r2_inv*r2_inv;
         r12_inv = r6_inv*r6_inv;
+        r18_inv = r6_inv*r12_inv;
 
-        uatt=4.0 * fabs(eps)* sigma6 * (
-                  sigma6*(r12_inv - rc12_inv)
-                    - (r6_inv  - rc6_inv ) )+
+        uatt= eps*sigma6*sigma6*sigma6*(r18_inv - rc18_inv)+
              Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma)
            - Ayukawa*exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma);
      }
@@ -183,13 +181,13 @@ double uLJandYUKAWA_ATT_CS(double r,int i, int j)
   return uatt;
 }
 /******************************************************************************/
-/* uLJandYUKAWA_ATT_noCS: the attractive part of the potential for a 
-       combined LJ and yukawa potential */
-double uLJandYUKAWA_ATT_noCS(double r,int i, int j)
+/* ur18andYUKAWA_ATT_noCS: the attractive part of the potential for a 
+       combined r18 and yukawa potential */
+double ur18andYUKAWA_ATT_noCS(double r,int i, int j)
 {
   double uatt,sigma,alpha,r_min,eps,Ayukawa;
   double sigma2,sigma6;
-  double r_inv,r2_inv,r6_inv,r12_inv;
+  double r_inv,r2_inv,r6_inv,r12_inv,r18_inv;
 
   sigma=Sigma_ff[i][j];
   eps=Eps_ff[i][j];
@@ -198,42 +196,40 @@ double uLJandYUKAWA_ATT_noCS(double r,int i, int j)
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
   sigma6 = sigma2*sigma2*sigma2;
 
-   /* note if the summed potential is purely repulsive then Rmin and Rzero will be set to Sigma_ff */
+  /* note that Rmin and Rzero will both be Sigma_ff[i][j] for a monotonic potential */
   switch(Type_CoreATT_R){
-     case ATTCORE_SIGMA:      r_min=Sigma_ff[i][j]; break;
-     case ATTCORE_SIGTOUMIN:       
+     case ATTCORE_SIGMA:      r_min=sigma; break;
+     case ATTCORE_SIGTOUMIN:
      case ATTCORE_UMIN:       r_min=Rmin_ff[i][j]; break; 
-     case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break;
+     case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break; 
   }
 
-  if ((r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) || 
-      (r<sigma && Type_CoreATT_R==ATTCORE_SIGTOUMIN)){
-     uatt=0.0;
-  }
+  if ((r<r_min && Type_CoreATT_CONST==CORECONST_ZERO) ||
+      (r<sigma && Type_CoreATT_R==ATTCORE_SIGTOUMIN))       uatt=0.0;
   else{
      if (r<r_min) r=r_min;
-
      r_inv = 1.0/r;
 
      r2_inv  = r_inv*r_inv;
      r6_inv  = r2_inv*r2_inv*r2_inv;
      r12_inv = r6_inv*r6_inv;
+     r18_inv = r6_inv*r12_inv;
 
-     uatt= 4.0 * fabs(eps)* sigma6 * ( sigma6*r12_inv  - r6_inv)
-           + Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma);
+     uatt= eps*sigma6*sigma6*sigma6*r18_inv + Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma);
   }
+
   return uatt;
 }
 /****************************************************************************/
-/* uLJandYUKAWA_IntStencil:  the integral of the summed LJ and Yukawa potential 
+/* ur18andYUKAWA_IntStencil:  the integral of the summed r18 and Yukawa potential 
                         that is used to define the magnitude of the DFTMFT UATTRACT
                         integration stencil. */
 
-double uLJandYUKAWA_Integral(double r,int i, int j)
+double ur18andYUKAWA_Integral(double r,int i, int j)
 {
   double uatt_int, sigma,c,alpha,eps,Ayukawa;
   double sigma2,sigma6;
-  double r_inv,r3_inv,r9_inv;
+  double r_inv,r3_inv,r9_inv,r15_inv;
 
   sigma=Sigma_ff[i][j];
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
@@ -247,9 +243,10 @@ double uLJandYUKAWA_Integral(double r,int i, int j)
 
   r3_inv  = r_inv*r_inv*r_inv;
   r9_inv  = r3_inv*r3_inv*r3_inv;
+  r15_inv  = r9_inv*r3_inv*r3_inv;
 
 
-  uatt_int = 16*PI*fabs(eps)*sigma6 * ( - sigma6*r9_inv/9.0  + r3_inv/3.0 )+
+  uatt_int = -4.*PI*eps*sigma6*sigma6*sigma6*r15_inv/15.0 +
              4*PI*Ayukawa*sigma*exp(alpha)*((exp(-c*r)/(c*c))*(-c*r-1.0));
 
   return uatt_int;
