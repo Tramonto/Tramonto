@@ -28,6 +28,8 @@
                                    5=PAIR_SW (square well)
                                    6=PAIR_LJandYUKAWA_CS
                                    7=PAIR_r12andYUKAWA_CS
+                                   8=PAIR_r18andYUKAWA_CS
+
 @  0     Type_coul options: -1=NONE              (No PDE coulomb terms - can use coulomb as cut/shift-MF attraction above.)
                             0=strict mean-field (no 2nd order corrections)
                             1=DELTAC_RPM        (2nd order corrections - restricted primitive model only)
@@ -75,13 +77,16 @@
                            4=1D potential in 2D/3D calculation - based on Orientation[iwall]
                            5=numerically integrated LJ12_6 interactions, 
                            6=ATOMIC potential (e.g. LJ12-6)
+                           7=1D radial potential in 2D (cylindrical surf) or 
+                             3D (spherical surf) calculation                                         
+
 
 @ 0 	Lhard_surf (Logical that controls application of integration stencil at the boundaries. If 
                    TRUE (1), the step function at the boundary is treated carefully).
 
 @ 0 0 	Type_vext1D, Type_vext3D 
           (Type_vext1D options: 0=LJ9_3_CS,  1=LJ9_3_v2_CS, 2=LJ9_3_noCS, 3=LJ9_3_shiftX_CS
-           4=REPULSIVE9_noCS, 5=EXP_ATT_noCS)
+           4=REPULSIVE9_noCS, 5=EXP_ATT_noCS,6=LINEAR_noCS,7=R7_YUKAWA_SUM_CS)
           (Type_vext3D options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
 
 @ 0 	Type of wall-wall interactions::Ipot_ww_n[iwall_type][jwall_type] 
@@ -104,17 +109,20 @@
 @ 1. 1. 1. 	Eps_ff[i][j] 
 @ 3. 3. 3. 	Cut_ff[i][j] 
 @ 1. 1. 1. 	Bond_ff[i][j] 
+@ 0.            EpsYukawa_ff[i][j]
 @ 0. 	YukawaK_ff[i][j] 
 
 @ 1. 	Rho_w[i] [i=0,Nwall_type-1] 
 @ 1. 	Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1] 
 @ 9. 	Eps_ww[i][j] 
 @ 3. 	Cut_ww[i][j] 
+@ 0.    EpsYukawa_ww[i][j]
 @ 0. 	YukawaK_ww[i][j] 
 
 @ 0. 	Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1] 
 @ 0. 	Eps_wf[i][j] 
 @ 0. 	Cut_wf[i][j] 
+@ 0.    EpsYukawa_wf[i][j]
 @ 0. 	YukawaK_wf[i][j] 
 
    *Note for polymers: --- treat each segment (or block) TYPE as a distinct 
