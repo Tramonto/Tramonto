@@ -14,7 +14,7 @@ Input Files for Test problem:
    - lin_2mer
 
 Key Output Parameters (Solution 1):
-   - niter=17
+   - niter=14
    - ads[0]=5.61177
    - ads[1]=8.50437
    - omega=0.23326
