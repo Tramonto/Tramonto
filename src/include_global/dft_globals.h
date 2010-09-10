@@ -296,6 +296,7 @@ double  Fac_overlap[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths for polym
 double  Fac_overlap_hs[NCOMP_MAX];/* Array of f-f bond lengths for polymers */
 double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
 double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
+double  Npow_ff[NCOMP_MAX][NCOMP_MAX]; /* array of N for r^N potentials */
 double  Rmin_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f distances to the minimum of a pair potential.      */
 double  Rzero_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f distances to the location where 
                                                    the cut and shifted pair potential is zero.      */

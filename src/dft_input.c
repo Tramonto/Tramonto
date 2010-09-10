@@ -713,7 +713,7 @@ void read_input_file(char *input_file, char *output_file1)
   if (Proc==0) {
     if (Type_pairPot == PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS || 
         Type_pairPot==PAIR_LJandYUKAWA_CS || Type_pairPot==PAIR_r12andYUKAWA_CS ||
-        Type_pairPot==PAIR_r18andYUKAWA_CS ){
+        Type_pairPot==PAIR_r18andYUKAWA_CS || Type_pairPot==PAIR_rNandYUKAWA_CS){
       read_junk(fp,fp2);
       for (i=0; i<Ncomp; i++){
         if (Mix_type==0) {jmin=i; jmax=i+1;}
@@ -752,14 +752,37 @@ void read_input_file(char *input_file, char *output_file1)
       }
       fprintf(fp2,"YukawaK_ff n/a");
     }
+
+    if(Type_pairPot==PAIR_rNandYUKAWA_CS){
+      read_junk(fp,fp2);
+      for (i=0; i<Ncomp; i++){
+        if (Mix_type==0) {jmin=i; jmax=i+1;}
+        else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
+        for (j=jmin; j<jmax; j++){
+	  fscanf(fp,"%lf",&Npow_ff[i][j]);
+	  fprintf(fp2,"%f  ",Npow_ff[i][j]);
+        }
+      }
+    }
+    else{
+      read_junk(fp,fp2);
+      for (i=0; i<Ncomp; i++){
+         if (Mix_type==0) {jmin=i; jmax=i+1;}
+         else if (Mix_type==1) {jmin=0;jmax=Ncomp;}
+         for(j=jmin;j<jmax;j++) Npow_ff[i][j] = 0.0;
+      }
+      fprintf(fp2,"Npow_ff n/a");
+    }
   }
+
+
   if (Type_pairPot==PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS || 
       Type_pairPot==PAIR_LJandYUKAWA_CS || Type_pairPot==PAIR_r12andYUKAWA_CS ||
-      Type_pairPot==PAIR_r18andYUKAWA_CS) {
+      Type_pairPot==PAIR_r18andYUKAWA_CS || Type_pairPot==PAIR_rNandYUKAWA_CS) {
           MPI_Bcast(EpsYukawa_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 	  MPI_Bcast(YukawaK_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+	  MPI_Bcast(Npow_ff,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
       }
-
 
                        /* WALL-WALL PARAMS */
 

@@ -25,7 +25,7 @@ double Vext_LINEAR_noCS(double x,int icomp,int iwall_type);
 #include "Tramonto_ConfigDefs.h"
 #define LINEAR_noCS       6 
 double Vext_LJ7YukawaSum(double r,int icomp,int iwall_type);
-#define VEXT_1D_RSURF      7 /* 1D external field that can be used for cylinders and spheres based on distance to surface */
+#define R7_YUKAWA_SUM_CS  7 
 double Vext_EXP_ATT_noCS(double x,int icomp,int iwall_type);
 #define EXP_ATT_noCS      5
 double Vext_REPULSIVE9_noCS(double x,int icomp,int iwall_type);
@@ -38,6 +38,5 @@ double Vext_LJ9_3_v2_CS(double x,int icomp,int iwall_type);
 #define LJ9_3_v2_CS       1
 double Vext_LJ9_3_CS(double x,int icomp,int iwall_type);
 #define LJ9_3_CS          0
-#define R7_YUKAWA_SUM_CS  7
 extern int Type_vext1D;
 double Vext_1D(double x,int icomp,int iwall_type);

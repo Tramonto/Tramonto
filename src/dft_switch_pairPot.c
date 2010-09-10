@@ -41,7 +41,7 @@
            external field calculation when using integrated potential surfaces
            or atomistic surface. This routine is also used when computing
            Barker-Henderson diameters */
-double pairPot_switch(double r,double param1, double param2, double param3,double param4,double param5,int typePairPot)
+double pairPot_switch(double r,double param1, double param2, double param3,double param4,double param5,double param6,int typePairPot)
 {
   double u;
 
@@ -67,6 +67,9 @@ double pairPot_switch(double r,double param1, double param2, double param3,doubl
       case PAIR_r18andYUKAWA_CS:
         u = ur18andYUKAWA_CS(r,param1,param2,param3,param4,param5);
         break;
+      case PAIR_rNandYUKAWA_CS:
+        u = urNandYUKAWA_CS(r,param1,param2,param3,param4,param5,param6);
+        break;
       case PAIR_EXP_CS:
         u = uEXP_CS(r,param1,param2,param3,param4);
         break;
@@ -83,7 +86,8 @@ double pairPot_switch(double r,double param1, double param2, double param3,doubl
 /******************************************************************************/
 /* pairPotparams_switch:  switch to set the correct parameters for a given choice of potential.
            Note that these parameters must map correctly to the potential functions (i.e. uLJ12_6_CS). */
-void pairPotparams_switch(int typePairPot,int context, int i, int j,double *param1, double *param2, double *param3,double *param4,double *param5)
+void pairPotparams_switch(int typePairPot,int context, int i, int j,
+      double *param1, double *param2, double *param3,double *param4,double *param5,double *param6)
 {
   switch(typePairPot){
       case PAIR_LJ12_6_CS:
@@ -107,6 +111,9 @@ void pairPotparams_switch(int typePairPot,int context, int i, int j,double *para
       case PAIR_r18andYUKAWA_CS:
         ur18andYUKAWA_CS_setparams(context,i,j,param1,param2,param3,param4,param5);
         break;
+      case PAIR_rNandYUKAWA_CS:
+        urNandYUKAWA_CS_setparams(context,i,j,param1,param2,param3,param4,param5,param6);
+        break;
       case PAIR_EXP_CS:
         uEXP_CS_setparams(context,i,j,param1,param2,param3,param4);
         break;
@@ -123,7 +130,8 @@ void pairPotparams_switch(int typePairPot,int context, int i, int j,double *para
 /******************************************************************************/
 /* pairPot_deriv_switch:  switch to choose the correct pair potential derivative
            needed for force calculations */
-double pairPot_deriv_switch(double r, double x, double param1, double param2, double param3,double param4,double param5,int typePairPot)
+double pairPot_deriv_switch(double r, double x, double param1, double param2, double param3,
+                            double param4,double param5,double param6,int typePairPot)
 {
   double uderiv;
 
@@ -148,6 +156,9 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
         break;
       case PAIR_r18andYUKAWA_CS:
         uderiv = ur18andYUKAWA_DERIV1D(r,x,param1,param2,param3,param4,param5);
+        break;
+      case PAIR_rNandYUKAWA_CS:
+        uderiv = urNandYUKAWA_DERIV1D(r,x,param1,param2,param3,param4,param5,param6);
         break;
       case PAIR_EXP_CS:
         uderiv = uEXP_DERIV1D(r,x,param1,param2,param3,param4);
@@ -187,6 +198,9 @@ void pairPot_InnerCore_switch(int icomp, int jcomp,int typePairPot,
          break;
       case PAIR_r18andYUKAWA_CS:
          ur18andYUKAWA_InnerCore(icomp,jcomp,rCore_left,rCore_right,epsCore);
+         break;
+      case PAIR_rNandYUKAWA_CS:
+         urNandYUKAWA_InnerCore(icomp,jcomp,rCore_left,rCore_right,epsCore);
          break;
       case PAIR_EXP_CS:
          uEXP_InnerCore(icomp,jcomp,rCore_left,rCore_right,epsCore);
@@ -232,6 +246,9 @@ double pairPot_ATT_CS_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_r18andYUKAWA_CS:
         u = ur18andYUKAWA_ATT_CS(r,icomp,jcomp);  
         break;
+      case PAIR_rNandYUKAWA_CS:
+        u = urNandYUKAWA_ATT_CS(r,icomp,jcomp);  
+        break;
       case PAIR_EXP_CS:
         u = uEXP_ATT_CS(r,icomp,jcomp);  
         break;
@@ -273,6 +290,9 @@ double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp,int typePairPot)
       case PAIR_r18andYUKAWA_CS:
         u = ur18andYUKAWA_ATT_noCS(r,icomp,jcomp);
         break;
+      case PAIR_rNandYUKAWA_CS:
+        u = urNandYUKAWA_ATT_noCS(r,icomp,jcomp);
+        break;
       case PAIR_EXP_CS:
         u = uEXP_ATT_noCS(r,icomp,jcomp);
         break;
@@ -313,6 +333,9 @@ double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
          break;
       case PAIR_r18andYUKAWA_CS:
          u = ur18andYUKAWA_Integral(r,icomp,jcomp);
+         break;
+      case PAIR_rNandYUKAWA_CS:
+         u = urNandYUKAWA_Integral(r,icomp,jcomp);
          break;
       case PAIR_EXP_CS:
          u = uEXP_Integral(r,icomp,jcomp);

@@ -60,9 +60,9 @@
 
 #include "Tramonto_ConfigDefs.h"
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 extern "C" {
-#endif
+#endif*/
 
 /****************************************************************************/
 /* Machine specific definitions */
@@ -318,6 +318,8 @@ extern "C" {
 #define PAIR_LJandYUKAWA_CS   6
 #define PAIR_r12andYUKAWA_CS  7
 #define PAIR_r18andYUKAWA_CS  8
+#define PAIR_rNandYUKAWA_CS   9
+
 
 /* options for Type_hsdiam */
 #define SIGMA_DIAM          0
@@ -905,6 +907,7 @@ extern double  Fac_overlap[NCOMP_MAX][NCOMP_MAX];/* Array of f-f bond lengths fo
 extern double  Fac_overlap_hs[NCOMP_MAX];/* Array of f-f bond lengths for polymers */
 extern double  Eps_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f interaction energies  */
 extern double  Cut_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f cutoff distances      */
+extern double  Npow_ff[NCOMP_MAX][NCOMP_MAX]; /* array of N for r^N potentials */
 extern double  Rmin_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f distances to the minimum of a pair potential.      */
 extern double  Rzero_ff[NCOMP_MAX][NCOMP_MAX];  /* Array of f-f distances to the location where 
                                                    the cut and shifted pair potential is zero.      */
@@ -1149,6 +1152,6 @@ extern double *Integration_profile; /* a place to put the integrand as a functio
 
 /****************************************************************************/
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 }
-#endif
+#endif*/

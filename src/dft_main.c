@@ -557,15 +557,15 @@ void continuation_shift()
 
   /* special case of continuation for a hexagonal system */
   /* commenting out of main source for now */
-/*  size_y_tmp= sqrt(3*(Size_x[0]+Del_1[0])*(Size_x[0]+Del_1[0]));
+  size_y_tmp= sqrt(3*(Size_x[0]+Del_1[0])*(Size_x[0]+Del_1[0]));
   nadd = round_to_int((size_y_tmp-Size_x[1])/Esize_x[1]);
-  Del_1[1]=nadd*Esize_x[1];*/
+  Del_1[1]=nadd*Esize_x[1];
   /* end special case */
 
   for (idim=0; idim<Ndim; idim++) {
       Size_x[idim] += Del_1[idim];
                                    /*comment out special case for hexagonal mesh change */
-      if (Plane_new_nodes == idim /*|| round_to_int(Del_1[idim]/Esize_x[idim])>0*/){
+      if (Plane_new_nodes == idim || round_to_int(Del_1[idim]/Esize_x[idim])>0){
          if (Pos_new_nodes == 0) {    /*adding nodes to center*/
             for (iwall=0; iwall<Nwall; iwall++) {
                if (WallPos[idim][iwall]<0.0)

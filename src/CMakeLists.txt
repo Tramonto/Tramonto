@@ -18,6 +18,7 @@ set(common_h
         dft_A22Matrix_Epetra_Operator.hpp 
         dft_HardSphereA11_Epetra_Operator.hpp 
         dft_HardSphereA22_Epetra_Operator.hpp 
+        dft_optikaGUI.h
         dft_Schur_Epetra_Operator.hpp 
         dft_basic_lin_prob_mgr_wrapper.h 
         dft_poly_lin_prob_mgr_wrapper.h 
@@ -123,6 +124,7 @@ set(common_h
         dft_pairPot_LJ12_6YukawaSum.h
         dft_pairPot_r12YukawaSum.h
         dft_pairPot_r18YukawaSum.h
+        dft_pairPot_nvarYukawaSum.h
         dft_pairPot_EXP.h 
 		dft_pairPot_SW.h 
         dft_switch_pairPot.h 
@@ -231,6 +233,7 @@ set(common_c
         dft_pairPot_LJ12_6YukawaSum.c
         dft_pairPot_r12YukawaSum.c
         dft_pairPot_r18YukawaSum.c
+        dft_pairPot_nvarYukawaSum.c
         dft_pairPot_EXP.c 
 		dft_pairPot_SW.c 
         dft_switch_pairPot.c 
@@ -260,6 +263,7 @@ set(common_cxx
         dft_poly_lin_prob_mgr_wrapper.cpp 
         dft_hardsphere_lin_prob_mgr_wrapper.cpp 
         dft_parameterlist_wrapper.cpp 
+        dft_optikaGUI.cpp
         )
 set(noxloca_cxx
         NOXLOCA_Solver.cpp 

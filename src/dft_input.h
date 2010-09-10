@@ -194,8 +194,10 @@ extern double Sigma_w[NWALL_MAX_TYPE];
 #define atomic_centers                  3
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Rho_w[NWALL_MAX_TYPE];
+extern double Npow_ff[NCOMP_MAX][NCOMP_MAX];
 extern double YukawaK_ff[NCOMP_MAX][NCOMP_MAX];
 extern double EpsYukawa_ff[NCOMP_MAX][NCOMP_MAX];
+#define PAIR_rNandYUKAWA_CS   9
 #define PAIR_r18andYUKAWA_CS  8
 #define PAIR_r12andYUKAWA_CS  7
 #define PAIR_LJandYUKAWA_CS   6

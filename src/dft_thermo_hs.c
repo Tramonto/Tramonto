@@ -101,10 +101,10 @@ void calc_HS_diams()
 /********************************************************************************/
 double integrand_BH(double r,int icomp)
 {
-  double integrand,rcut,param4=0.0,param5=0.0;
+  double integrand,rcut,param4=0.0,param5=0.0,param6=0.0;
   rcut=1.e6;  /* set very large to eliminate the cut and shift for the BH diameters */
   /*rcut=Cut_ff[icomp][icomp];*/
-  if (r>.0001) integrand = 1.0-exp(-pairPot_switch(r,Sigma_ff[icomp][icomp],Eps_ff[icomp][icomp],rcut,param4,param5,Type_pairPot));
+  if (r>.0001) integrand = 1.0-exp(-pairPot_switch(r,Sigma_ff[icomp][icomp],Eps_ff[icomp][icomp],rcut,param4,param5,param6,Type_pairPot));
   else integrand = 1.0;
   return(integrand);
 }
