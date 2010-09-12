@@ -54,7 +54,8 @@ void set_initial_guess (int guess_type, double** xOwned)
    for (inode_box=0;inode_box<Nnodes_box; inode_box++) xInBox[iunk][inode_box]=0.0;
 
   if (Proc==0 && Iwrite==VERBOSE){
-      if (Restart==NORESTART && Imain_loop==0) printf("start from scratch\n");  
+/*      if (Restart==NORESTART && (Imain_loop==0 || Nwall==0 && LBulk==TRUE) ) printf("start from scratch\n");  */
+      if (Restart==NORESTART && Imain_loop==0 ) printf("start from scratch\n");  
       else printf("from existing files\n");
   } 
 
@@ -63,7 +64,8 @@ void set_initial_guess (int guess_type, double** xOwned)
      be patched up in some cases. */
 
   for (i=0;i<NEQ_TYPE;i++) Restart_field[i]=FALSE;
-  if (Restart != NORESTART || Imain_loop > 0){
+/*  if (Restart != NORESTART || (Imain_loop > 0 && (Nwall!=0 || LBulk==TRUE)) ){*/
+  if (Restart != NORESTART || Imain_loop > 0  ){
        start_no_info = FALSE;
        guess_restart_from_files(start_no_info,guess_type,xInBox);  
        translate_xInBox_to_xOwned(xInBox,xOwned);

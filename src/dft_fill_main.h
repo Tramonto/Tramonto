@@ -145,7 +145,7 @@ extern int Nunk_per_node;
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)

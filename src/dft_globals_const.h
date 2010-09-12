@@ -60,9 +60,9 @@
 
 #include "Tramonto_ConfigDefs.h"
 
-/*#ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#endif*/
+#endif
 
 /****************************************************************************/
 /* Machine specific definitions */
@@ -535,8 +535,9 @@ extern "C" {
 /* The following are choices for output */
 #define MINIMAL      0
 #define DENSITIES    1 
-#define NO_SCREEN    2 
+#define EXTENDED     2
 #define VERBOSE      3 
+#define NO_SCREEN    4 
 
 /* The followint are choices for the output of density info */
 #define SWITCH_RHO   0
@@ -1152,6 +1153,6 @@ extern double *Integration_profile; /* a place to put the integrand as a functio
 
 /****************************************************************************/
 
-/*#ifdef __cplusplus
+#ifdef __cplusplus
 }
-#endif*/
+#endif

@@ -79,7 +79,7 @@ void setup_pairPotentials(char *output_file1){
      }
   }
 
-  if (Iwrite==VERBOSE && Proc==0){
+  if ((Iwrite==VERBOSE || Iwrite==EXTENDED) && Proc==0){
      if (Type_attr != NONE){
        for (i=0; i<Ncomp; i++){
          for (j=0; j<Ncomp; j++){

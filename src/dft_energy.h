@@ -87,7 +87,7 @@ extern int L_HSperturbation;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

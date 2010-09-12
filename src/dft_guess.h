@@ -17,7 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 extern int *L2B_node;
 extern int Nnodes_per_proc;
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void check_zero_densities_owned(double **xOwned);

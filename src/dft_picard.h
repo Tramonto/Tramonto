@@ -97,7 +97,7 @@ void calc_Gsum(double **x);
 #define CMS          0
 extern int Type_poly;
 void print_resid_norm_picard(double **x,int iter);
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Max_NL_iter;
 extern int Nnodes_box;
 #define FALSE 0

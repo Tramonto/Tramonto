@@ -51,7 +51,7 @@ void calc_Avdw_att()
   for (icomp=0; icomp<Ncomp; icomp++) {
      for (jcomp=0; jcomp<Ncomp;jcomp++){
        Avdw[icomp][jcomp] = int_stencil_bulk(THETA_PAIRPOT_RCUT,icomp,jcomp,NULL);
-       printf("Avdw[%d][%d]=%g\n",icomp,jcomp,Avdw[icomp][jcomp]);
+       /*printf("Avdw[%d][%d]=%g\n",icomp,jcomp,Avdw[icomp][jcomp]);*/
      }
   }
   return;

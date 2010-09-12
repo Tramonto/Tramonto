@@ -23,6 +23,7 @@ extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Nwall;
 extern int Pos_new_nodes;
 extern int Plane_new_nodes;
+int round_to_int(double x);
 #define NWALL_MAX_TYPE 50 
 extern double Del_1[NWALL_MAX_TYPE];
 extern double Size_x[NDIM_MAX];
@@ -81,8 +82,9 @@ extern double **Vext_static;
 extern int Restart_Vext;
 extern double **Vext;
 void print_vext(double **vext,char *output_file);
+#define EXTENDED     2
 #define VERBOSE      3 
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Iwrite;
 void setup_vext_coulomb_vol();
 #define FALSE 0

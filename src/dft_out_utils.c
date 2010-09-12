@@ -163,13 +163,13 @@ void setup_domain_multipliers()
 
   /* compute surface area */
   Area = 0.0;
+
   if (Nwall == 0) Area = 1.0;
   else{
      if (Nlink == Nwall) Area = S_area_tot[Nlists_HW-1][0];
      else
         for (iwall=0; iwall<Nwall; iwall++){
-           if (Link[iwall]==0)
-           Area += S_area_tot[Nlists_HW-1][iwall];
+           if (Link[iwall]==0) Area += S_area_tot[Nlists_HW-1][iwall];
         }
   }
 

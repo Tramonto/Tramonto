@@ -81,7 +81,7 @@ extern int L_HSperturbation;
 extern int Type_coul;
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Iwrite;
 #define DIFFUSION      6
 extern int Nbonds;

@@ -102,7 +102,7 @@ extern int Lper_area;
 #define PI    3.141592653589793238462643383279502884197169399375
 extern double Temp_elec;
 double gsum_double(double c);
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)

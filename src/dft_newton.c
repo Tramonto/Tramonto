@@ -131,7 +131,7 @@ void box2owned(double** xBox, double** xOwned) {
 int newton_solver(double** x, void* con_ptr) {
 
   int iter=0;
-  int iunk, ibox;
+  /*int iunk, ibox;*/
   int converged=FALSE, converged2=TRUE;
   char filename[20]="matrix.dat";
   double start_t;
@@ -256,7 +256,6 @@ int update_solution(double** x, double** delta_x, int iter) {
  */
 
   int iunk, ibox, inode,inodeG,ijk[3],go_update,idim;
-  int iseg;
   double updateNorm=0.0, temp,frac_min,frac;
   char *yo = "newupdate solution";
      

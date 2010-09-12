@@ -266,7 +266,7 @@ extern int Nunk_per_node;
 extern int Nnodes_per_proc;
 void initialize_Aztec(int *N_update,int *update[]);
 void setup_basic_domain(FILE *fp1);
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)

@@ -71,14 +71,14 @@ void dftmain(double * engptr)
   double    *t_linsolv_first_array,*t_linsolv_av_array;
   double    *t_manager_first_array,*t_manager_av_array;
   double    *t_fill_first_array,*t_fill_av_array;
-  int        dummy_param;
+/*  int        dummy_param, *dummy;*/
   int       min_nnodes_per_proc,max_nnodes_per_proc,min_nnodes_box,max_nnodes_box;
   double    min_nodesLoc_over_nodesBox,max_nodesLoc_over_nodesBox;
   FILE      *fp;
   int izone,isten,jcomp,jmax;
   struct Stencil_Struct *sten;
   char line[100],linecwd[100];
-  int *dummy,proper_bc;
+  int proper_bc;
   int argc=1;
 
   Time_linsolver_first=0.0;
@@ -240,7 +240,7 @@ void dftmain(double * engptr)
            if(Iwrite !=NO_SCREEN) printf("Not computing vext_coulomb due to boundary conditions\n");
          }
      }
-     if (Iwrite==VERBOSE) {
+     if (Iwrite==VERBOSE || Iwrite==EXTENDED) {
         print_vext(Vext,output_file2);
         if (Restart_Vext == READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");
         print_zeroTF(Zero_density_TF,output_TF);
@@ -560,12 +560,13 @@ void continuation_shift()
   size_y_tmp= sqrt(3*(Size_x[0]+Del_1[0])*(Size_x[0]+Del_1[0]));
   nadd = round_to_int((size_y_tmp-Size_x[1])/Esize_x[1]);
   Del_1[1]=nadd*Esize_x[1];
+
   /* end special case */
 
   for (idim=0; idim<Ndim; idim++) {
       Size_x[idim] += Del_1[idim];
                                    /*comment out special case for hexagonal mesh change */
-      if (Plane_new_nodes == idim || round_to_int(Del_1[idim]/Esize_x[idim])>0){
+      if (Plane_new_nodes == idim || fabs(round_to_int(Del_1[idim]/Esize_x[idim]))>0){
          if (Pos_new_nodes == 0) {    /*adding nodes to center*/
             for (iwall=0; iwall<Nwall; iwall++) {
                if (WallPos[idim][iwall]<0.0)

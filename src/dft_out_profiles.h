@@ -106,6 +106,7 @@ extern int Npoisson;
 extern int Phys2Nunk[NEQ_TYPE];
 extern int Lseg_densities;
 #define DENSITY        0
+#define EXTENDED     2
 #define WTC          2
 #define WJDC3        5 
 #define WJDC2        4 

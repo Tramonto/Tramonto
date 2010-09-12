@@ -33,6 +33,7 @@ extern double Esize_x[NDIM_MAX];
 #define FALSE 0
 #endif
 void print_potentials_fluid(int type_pairPot,int icomp,int jcomp);
+#define EXTENDED     2
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

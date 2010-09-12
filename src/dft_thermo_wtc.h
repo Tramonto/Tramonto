@@ -56,7 +56,7 @@ extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern int SegAll_to_Poly[NMER_MAX];
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)

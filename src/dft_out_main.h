@@ -75,7 +75,7 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double *X2_old;
 #define MINIMAL      0
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)

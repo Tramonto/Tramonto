@@ -123,16 +123,14 @@ void setup_surface (FILE *fp2, int *nelems_f,
      }
      image = image_old + 1;
 
-     if (Xtest_reflect_TF[Link[iwall]][0])
-     find_wall_images(0,&image,image_pos,pos);
+/*     if (Xtest_reflect_TF[Link[iwall]][0]) */ find_wall_images(0,&image,image_pos,pos);
 
      if (Ndim > 1){
         image_x = image-image_old;
         for (i=image_old; i<image_old+image_x; i++){
            for (idim=0; idim<Ndim; idim++)
               pos[idim] = image_pos[i][idim];
-              if (Xtest_reflect_TF[Link[iwall]][1])
-              find_wall_images(1, &image,image_pos,pos);
+              /*if (Xtest_reflect_TF[Link[iwall]][1])*/ find_wall_images(1, &image,image_pos,pos);
         }
      }
      if (Ndim == 3){
@@ -140,9 +138,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
         for (i=image_old; i<image_old+image_xy; i++){
            for (idim=0; idim<Ndim; idim++)
               pos[idim] = image_pos[i][idim];
-
-              if (Xtest_reflect_TF[Link[iwall]][2])
-              find_wall_images(2,&image,image_pos,pos);
+              /*if (Xtest_reflect_TF[Link[iwall]][2])*/ find_wall_images(2,&image,image_pos,pos);
         }
 
      }
@@ -155,6 +151,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
   for (iwall=0; iwall<nwall_max; iwall++){
   itype = imagetype[iwall];
   real_wall = iwall/(nwall_max/Nwall);
+  MPI_Barrier(MPI_COMM_WORLD);     /* this may be a bug, but without this barrier statement we have issues with the surface areas */
   switch(Surface_type[itype])
   {
      case smooth_planar_wall:
@@ -310,6 +307,7 @@ void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
    int ijk[3],idim,nadd,i,new_wall,new_entry;
    int imax[3],ix[3],iw,ijk_box[3],inode_box,inode_tmp_box,ijk_tmp_box[3],index;
    imax[0]=imax[1]=imax[2]=1;
+
 
    new_wall=TRUE;
    for (i=0; i<Nwall_owners[ilist][iel_box]; i++)

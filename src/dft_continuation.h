@@ -155,7 +155,7 @@ extern int Max_NL_iter;
 #define VERBOSE      3 
 #define DENSITIES    1 
 #define MINIMAL      0
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)

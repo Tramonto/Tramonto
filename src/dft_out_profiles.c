@@ -214,7 +214,7 @@ void print_profile(char *output_file4,double *xold)
      } 
 
            /* open file for segment densities */
-     if (Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)){
+     if ((Iwrite==VERBOSE || Iwrite==EXTENDED) &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)){
        sprintf(gfile2,"%s_seg",output_file4);
        fp7 = fopen(gfile2,"w");
      }

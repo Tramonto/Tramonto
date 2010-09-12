@@ -61,7 +61,7 @@ extern double Time_linsolver_first;
 extern double Time_manager_av;
 extern double Time_manager_first;
 void print_resid_norm(int iter);
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern double Time_fill_av;
 extern double Time_fill_first;
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);

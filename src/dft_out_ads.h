@@ -50,7 +50,7 @@ extern int Unk2Comp[NMER_MAX];
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)

@@ -107,7 +107,7 @@ extern int L_HSperturbation;
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int Npol_comp;
 extern int Ncomp;
-#define NO_SCREEN    2 
+#define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)
