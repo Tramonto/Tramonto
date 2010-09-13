@@ -18,7 +18,6 @@ set(common_h
         dft_A22Matrix_Epetra_Operator.hpp 
         dft_HardSphereA11_Epetra_Operator.hpp 
         dft_HardSphereA22_Epetra_Operator.hpp 
-/*        dft_optikaGUI.h*/
         dft_Schur_Epetra_Operator.hpp 
         dft_basic_lin_prob_mgr_wrapper.h 
         dft_poly_lin_prob_mgr_wrapper.h 
@@ -263,7 +262,6 @@ set(common_cxx
         dft_poly_lin_prob_mgr_wrapper.cpp 
         dft_hardsphere_lin_prob_mgr_wrapper.cpp 
         dft_parameterlist_wrapper.cpp 
-/*        dft_optikaGUI.cpp*/
         )
 set(noxloca_cxx
         NOXLOCA_Solver.cpp 
