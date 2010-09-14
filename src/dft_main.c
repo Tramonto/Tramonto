@@ -77,7 +77,7 @@ void dftmain(double * engptr)
   FILE      *fp;
   int izone,isten,jcomp,jmax;
   struct Stencil_Struct *sten;
-  char line[100],linecwd[100];
+/*  char line[100],linecwd[100];*/
   int proper_bc;
   int argc=1;
 
@@ -89,8 +89,8 @@ void dftmain(double * engptr)
   Time_fill_av=0.0;
   Time_NLSolve=0.0;
 
-  gethostname(line,100);
-  getcwd(linecwd,100);
+/*  gethostname(line,100);*/
+/*  getcwd(linecwd,100);*/
 
   (void) MPI_Comm_size(MPI_COMM_WORLD, &Num_Proc);
   (void) MPI_Comm_rank(MPI_COMM_WORLD, &Proc);
