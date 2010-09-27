@@ -18,8 +18,6 @@ void dft_GUI_vextType(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
      /* VALIDATORS*/
 
-        RCP<EnhancedNumberValidator<int> > NwallValidator = rcp(new EnhancedNumberValidator<int>(0,1000,1));
-
         /* 1D options */
         RCP<StringValidator> Vext1Dtype_Valid = rcp<StringValidator>(new StringValidator(tuple<std::string>(
                        "None",

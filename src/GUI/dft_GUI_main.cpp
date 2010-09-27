@@ -46,14 +46,14 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> Functional_List = sublist(Tramonto_List,"Sect. 2: Functional Types");
   dft_GUI_functionals(Tramonto_List,depSheet_Tramonto,Functional_List);
 
-  RCP<ParameterList> Fluid_List = sublist(Tramonto_List, "Sect. 3: Fluid Definition");
+  RCP<ParameterList> Fluid_List = sublist(Tramonto_List, "Sect. 3: Fluid");
   RCP<ParameterList> PotentialsFF_List = sublist(Fluid_List, "Fluid-Fluid Potential Parameters");
   dft_GUI_potentialsFF(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,PotentialsFF_List);
   RCP<ParameterList> Polymer_List = sublist(Fluid_List, "Bonded Fluid Parameters");
   RCP<ParameterList> ChargedFluid_List = sublist(Fluid_List, "Charged Fluid Parameters");
   RCP<ParameterList> Diffusion_List = sublist(Fluid_List, "Charged Fluid Parameters");
 
-  RCP<ParameterList> Surface_List = sublist(Tramonto_List, "Sect. 4: Surface Definition");
+  RCP<ParameterList> Surface_List = sublist(Tramonto_List, "Sect. 4: Surfaces");
   RCP<ParameterList> SurfaceGeometry_List = sublist(Surface_List, "Surface Geometry Parameters");
   dft_GUI_surfaces(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfaceGeometry_List);
 
@@ -67,11 +67,19 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> ChargedSurface_List = sublist(Surface_List, "Charged Surface Parameters");
   RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "Surface-Fluid Potential Parameters");
 
-  RCP<ParameterList> Thermodynamics_List = sublist(Tramonto_List, "Sect. 5: State Point Definition");
+  RCP<ParameterList> Thermodynamics_List = sublist(Tramonto_List, "Sect. 5: State Point(s)");
   RCP<ParameterList> Continuation_List = sublist(Tramonto_List, "Sect. 6: Continuation");
   RCP<ParameterList> Startup_List = sublist(Tramonto_List, "Sect. 7: Startup Control");
+
   RCP<ParameterList> Output_List = sublist(Tramonto_List, "Sect. 8: Output Control");
-  RCP<ParameterList> Solver_List = sublist(Tramonto_List, "Sect. 9: Solver Options");
+  dft_GUI_OutputParams(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,SurfaceInteraction_List,Output_List);
+
+  RCP<ParameterList> Solver_List = sublist(Tramonto_List, "Sect. 9: Numerical Methods");
+  RCP<ParameterList> Coarsening_List = sublist(Solver_List, "Jacobian & Mesh Coarsening");
+  RCP<ParameterList> LinearSolver_List = sublist(Solver_List, "Linear Solver Options");
+  RCP<ParameterList> NonlinearSolver_List = sublist(Solver_List, "Nonlinear Solver Options");
+  dft_GUI_NumericalMethods(Tramonto_List,depSheet_Tramonto,Functional_List,Solver_List,
+                            Coarsening_List,NonlinearSolver_List,LinearSolver_List);
 
              /* The getInput function starts up an Optika GUI and      *
               * lets the user start to input parameter values. When    *
