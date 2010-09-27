@@ -24,7 +24,7 @@ set(common_h
         dft_poly_lin_prob_mgr_wrapper.h 
         dft_hardsphere_lin_prob_mgr_wrapper.h 
         dft_parameterlist_wrapper.h 
-        GUI/dft_GUI.h
+#        GUI/dft_GUI.h
         dft_direct_solver_const.h 
         dft_input.h 
         dft_chain_architecture.h 
@@ -264,14 +264,16 @@ set(common_cxx
         dft_poly_lin_prob_mgr_wrapper.cpp 
         dft_hardsphere_lin_prob_mgr_wrapper.cpp 
         dft_parameterlist_wrapper.cpp 
-        GUI/dft_GUI_main.cpp
-        GUI/dft_GUI_mesh.cpp
-        GUI/dft_GUI_functionals.cpp
-        GUI/dft_GUI_surfaces.cpp
-        GUI/dft_GUI_vextType.cpp
-        GUI/dft_GUI_toTramonto.cpp
-        GUI/dft_GUI_potentialsFF.cpp
-        GUI/dft_GUI_potentialsWF.cpp
+#        GUI/dft_GUI_mesh.cpp
+#        GUI/dft_GUI_functionals.cpp
+#        GUI/dft_GUI_surfaces.cpp
+#        GUI/dft_GUI_vextType.cpp
+#        GUI/dft_GUI_toTramonto.cpp
+#        GUI/dft_GUI_potentialsFF.cpp
+#        GUI/dft_GUI_potentialsWF.cpp
+#        GUI/dft_GUI_numericalMethods.cpp
+#        GUI/dft_GUI_output.cpp
+#        GUI/dft_GUI_main.cpp
         )
 set(noxloca_cxx
         NOXLOCA_Solver.cpp 
