@@ -110,68 +110,68 @@ ENDIF()
 	
 ADD_SUBDIRECTORY(src)
 
-install(FILES
-	Examples/BC1_FMT1_WCA_ELEC_2D/dft_input.dat
-	Examples/BC1_FMT1_WCA_ELEC_2D/dft_surfaces.dat 	Examples/BC1_FMT1_WCA_ELEC_2D/README
-	DESTINATION ./Examples/BC1_FMT1_WCA_ELEC_2D)
-Install(FILES
-	Examples/BULK1_FMT1_WCA_1D/dft_input.dat
-	Examples/BULK1_FMT1_WCA_1D/README
-	DESTINATION ./Examples/BULK1_FMT1_WCA_1D)
-Install(FILES
-	Examples/CONT1_FMT1_WCA_1D/dft_input.dat
-	Examples/CONT1_FMT1_WCA_1D/dft_surfaces.dat
-	Examples/CONT1_FMT1_WCA_1D/README
-	DESTINATION ./Examples/CONT1_FMT1_WCA_1D)
-Install(FILES
-	Examples/HS1_FMT1_1D/dft_input.dat
-	Examples/HS1_FMT1_1D/dft_dens.dat
-	Examples/HS1_FMT1_1D/dft_surfaces.dat
-	Examples/HS1_FMT1_1D/README
-	DESTINATION ./Examples/HS1_FMT1_1D)
-Install(FILES
-	Examples/LJ1_FMT1_WCA_1D/dft_input.dat
-	Examples/LJ1_FMT1_WCA_1D/dft_surfaces.dat
-	Examples/LJ1_FMT1_WCA_1D/README
-	DESTINATION ./Examples/LJ1_FMT1_WCA_1D)
-Install(FILES
-	Examples/MIX1_FMT1_1D/dft_input.dat
-	Examples/MIX1_FMT1_1D/dft_surfaces.dat
-	Examples/MIX1_FMT1_1D/README
-	DESTINATION ./Examples/MIX1_FMT1_1D)
-Install(FILES
-	Examples/NLSOLVER1_WJDC_FMT3_1D/dft_input.dat
-	Examples/NLSOLVER1_WJDC_FMT3_1D/dft_surfaces.dat
-	Examples/NLSOLVER1_WJDC_FMT3_1D/lin_18
-	Examples/NLSOLVER1_WJDC_FMT3_1D/READM
-	DESTINATION ./Examples/NLSOLVER1_WJDC_FMT3_1D)
-Install(FILES
-	Examples/POLY1_CMS_1D/dft_input.dat
-	Examples/POLY1_CMS_1D/dft_surfaces.dat
-	Examples/POLY1_CMS_1D/README
-	Examples/POLY1_CMS_1D/lin_18
-	Examples/POLY1_CMS_1D/cr8.2.8_0.711eff1
-	DESTINATION ./Examples/POLY1_CMS_1D)
-Install(FILES
-	Examples/POLYBRANCH1_WJDC_FMT3_1D/dft_input.dat
-	Examples/POLYBRANCH1_WJDC_FMT3_1D/dft_surfaces.dat
-	Examples/POLYBRANCH1_WJDC_FMT3_1D/README
-	Examples/POLYBRANCH1_WJDC_FMT3_1D/star_3arm_5mer
-	Examples/POLYBRANCH1_WJDC_FMT3_1D/dens.eta1
-	Examples/POLYBRANCH1_WJDC_FMT3_1D/dens.eta2
-	Examples/POLYBRANCH1_WJDC_FMT3_1D/dens.eta3
-	DESTINATION ./Examples/POLYBRANCH1_WJDC_FMT3_1D)
-Install(FILES
-	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dft_input.dat
-	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dft_dens.dat
-	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dft_input.dat
-	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/README
-	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/lin_18_1
-	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dens_pure_solvent.dat
-	DESTINATION ./Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D)
-Install(FILES
-	Examples/YUKAWA_FMT1_3D/dft_input.dat
-	Examples/YUKAWA_FMT1_3D/dft_surfaces.dat
-	Examples/YUKAWA_FMT1_3D/README
-	DESTINATION ./Examples/YUKAWA_FMT1_3D)
-include(CPACK)
+#install(FILES
+#	Examples/BC1_FMT1_WCA_ELEC_2D/dft_input.dat
+#	Examples/BC1_FMT1_WCA_ELEC_2D/dft_surfaces.dat 	Examples/BC1_FMT1_WCA_ELEC_2D/README
+#	DESTINATION ./Examples/BC1_FMT1_WCA_ELEC_2D)
+#Install(FILES
+#	Examples/BULK1_FMT1_WCA_1D/dft_input.dat
+#	Examples/BULK1_FMT1_WCA_1D/README
+#	DESTINATION ./Examples/BULK1_FMT1_WCA_1D)
+#Install(FILES
+#	Examples/CONT1_FMT1_WCA_1D/dft_input.dat
+#	Examples/CONT1_FMT1_WCA_1D/dft_surfaces.dat
+#	Examples/CONT1_FMT1_WCA_1D/README
+#	DESTINATION ./Examples/CONT1_FMT1_WCA_1D)
+#Install(FILES
+#	Examples/HS1_FMT1_1D/dft_input.dat
+#	Examples/HS1_FMT1_1D/dft_dens.dat
+#	Examples/HS1_FMT1_1D/dft_surfaces.dat
+#	Examples/HS1_FMT1_1D/README
+#	DESTINATION ./Examples/HS1_FMT1_1D)
+#Install(FILES
+#	Examples/LJ1_FMT1_WCA_1D/dft_input.dat
+#	Examples/LJ1_FMT1_WCA_1D/dft_surfaces.dat
+#	Examples/LJ1_FMT1_WCA_1D/README
+#	DESTINATION ./Examples/LJ1_FMT1_WCA_1D)
+#Install(FILES
+#	Examples/MIX1_FMT1_1D/dft_input.dat
+#	Examples/MIX1_FMT1_1D/dft_surfaces.dat
+#	Examples/MIX1_FMT1_1D/README
+#	DESTINATION ./Examples/MIX1_FMT1_1D)
+#Install(FILES
+#	Examples/NLSOLVER1_WJDC_FMT3_1D/dft_input.dat
+#	Examples/NLSOLVER1_WJDC_FMT3_1D/dft_surfaces.dat
+#	Examples/NLSOLVER1_WJDC_FMT3_1D/lin_18
+#	Examples/NLSOLVER1_WJDC_FMT3_1D/READM
+#	DESTINATION ./Examples/NLSOLVER1_WJDC_FMT3_1D)
+#Install(FILES
+#	Examples/POLY1_CMS_1D/dft_input.dat
+#	Examples/POLY1_CMS_1D/dft_surfaces.dat
+#	Examples/POLY1_CMS_1D/README
+#	Examples/POLY1_CMS_1D/lin_18
+#	Examples/POLY1_CMS_1D/cr8.2.8_0.711eff1
+#	DESTINATION ./Examples/POLY1_CMS_1D)
+#Install(FILES
+#	Examples/POLYBRANCH1_WJDC_FMT3_1D/dft_input.dat
+#	Examples/POLYBRANCH1_WJDC_FMT3_1D/dft_surfaces.dat
+#	Examples/POLYBRANCH1_WJDC_FMT3_1D/README
+#	Examples/POLYBRANCH1_WJDC_FMT3_1D/star_3arm_5mer
+#	Examples/POLYBRANCH1_WJDC_FMT3_1D/dens.eta1
+#	Examples/POLYBRANCH1_WJDC_FMT3_1D/dens.eta2
+#	Examples/POLYBRANCH1_WJDC_FMT3_1D/dens.eta3
+#	DESTINATION ./Examples/POLYBRANCH1_WJDC_FMT3_1D)
+#Install(FILES
+#	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dft_input.dat
+#	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dft_dens.dat
+#	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dft_input.dat
+#	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/README
+#	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/lin_18_1
+#	Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D/dens_pure_solvent.dat
+#	DESTINATION ./Examples/SELF_ASSEMBLE1_FMT3_WCA_WJDC_1D)
+#Install(FILES
+#	Examples/YUKAWA_FMT1_3D/dft_input.dat
+#	Examples/YUKAWA_FMT1_3D/dft_surfaces.dat
+#	Examples/YUKAWA_FMT1_3D/README
+#	DESTINATION ./Examples/YUKAWA_FMT1_3D)
+#include(CPACK)
