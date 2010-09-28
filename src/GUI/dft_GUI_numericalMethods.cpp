@@ -24,6 +24,10 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
 						  "Picard Built-In","Picard LOCA",
 						  "Picard/Newton Built-In","Picard/Newton LOCA")));
 
+    RCP<StringValidator> CoarsenTypeValidator = rcp(
+           new StringValidator(tuple<std::string>("none","Bulk zone","Poisson-Boltzmann zone", "1D zone in 2D or 3D problem",
+                                  "residual and jacobian coarsening","jacobian only coarsening")));
+
     RCP<EnhancedNumberValidator<int> > Niter_Validator = rcp(new EnhancedNumberValidator<int>());
 
     RCP<EnhancedNumberValidator<double> > NLtolValidator = rcp(new EnhancedNumberValidator<double>(1.e-10,1.e-2,1.e-6,8));
@@ -46,8 +50,9 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
            new StringValidator(tuple<std::string>("none","ilu","ilut","Jacobi","symmetric Gauss-Seidel","LSpoly3")));
 
     RCP<EnhancedNumberValidator<int> > NlevelILUT_Validator = rcp(new EnhancedNumberValidator<int>());
+    RCP<EnhancedNumberValidator<int> > DimValidator = rcp(new EnhancedNumberValidator<int>(0,2,1));
 
-    RCP<StringValidator> CoarsenTypeValidator = rcp(
+    RCP<StringValidator> JacCoarsenTypeValidator = rcp(
          new StringValidator(tuple<std::string>("none",
         "Jacobian Coarsening consistent with Residual Coarsening",
 	"Jacobian: factor of 2 in most refined zone",
@@ -62,12 +67,17 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
     /***************************************************************/
     Solver_List->set("S1: Load Balancing Approach", "Weighted Recursive Bisection", "Select a method for load balancing a parallel processing job", LoadBalValidator);
 
-    Coarsening_List->set("C1: residual coarsening?",false,"Set to true for coarsening of residual equations in zones away from the surfaces.\n  The approach increases the mesh size by a factor of 2 in all dimensions in each successive\n user defined zone based on distance from surfaces.");
-    Coarsening_List->set("C2: jacobian coarsening?",false,"Set to true for coarsening of jacobian integrals based on the\n distance of a given node point from the surfaces in the problem.");
-    Coarsening_List->set("C3: Type of Jacobian coarsening","none","Select a method for coarsening the mesh or jacobian",CoarsenTypeValidator);
-    Coarsening_List->set("C4: Number of coarsening zones",1,"Set number of coarsening zones in problem.");
-    Array<double> Rmax_zone_Array( (Coarsening_List->get<int>("C4: Number of coarsening zones"))-1,0.0);
+
+    Coarsening_List->set("C1: Type of coarsening", "none", "Select a method for coarsening of the problem.\n options: bulk_zone: Set to true to replace DFT Euler-Lagrange equation with rho(r)=rho_b some distance from teh surfaces.\n \t Poisson-Bolzmann zone: Set to true to replace DFT Euler-Lagrange equation with rho(r)=rho_b some distance from teh surfaces.\n \t 1D zone: Set to true if the 2D or 3D problem will converge to a 1D solution at some distance from the surface.\n\t Residual coarsening: Coarsening of residual equations and Jacobian integrals in zones away from the surfaces.\n\t Jacobian coarsening: Coarsening of jacobian integrals only in zones away from surfaces.", CoarsenTypeValidator);
+
+    Coarsening_List->set("C2: truncate integrals in jacobian?" ,false,"Set to true for truncation of jacobian integrals below some threshhold.");
+    Coarsening_List->set("C3: Type of Jacobian coarsening","none","Select a method for coarsening the mesh or jacobian",JacCoarsenTypeValidator);
+    Coarsening_List->set("C4: Number of coarsened zones",0,"Set number of coarsened zones in problem (don't count most refined zone).");
+
+    Array<double> Rmax_zone_Array( (Coarsening_List->get<int>("C4: Number of coarsened zones")),0.0);
     Coarsening_List->set("C5: Rmax_zone", Rmax_zone_Array, "define the maximum distance from surface in each zone. \n The distances should be arranged from nearest to furthest where\n the nearest zone to the surface is the most refined zone,\n and the furthest zone from the surfaces is the most coarse zone.");
+    Coarsening_List->set("C6: Dimension 1D_BC",0,"This is direction that still has density variations in the 1D zone (0=x,1=y,2=z).",DimValidator);
+    Coarsening_List->set("C7: X 1D_BC",0.0,"Distance from domain boundary where 1D zone should be applied. Note that the boundary is applied on both sides of the domain.");
 
     
 
@@ -101,23 +111,42 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
            new StringVisualDependency( "LS6: Preconditioner option",LinearSolver_List,"LS7: Number of Levels for ILUT", LinearSolver_List, 
                tuple<std::string>("ilut")));
 
-      RCP<BoolVisualDependency> JacCoarseType_Dep = rcp(
-          new BoolVisualDependency( "C2: jacobian coarsening?",Coarsening_List,"C3: Type of Jacobian coarsening", Coarsening_List));
+      RCP<StringVisualDependency> TypeJacCoarse_Dep = rcp(
+           new StringVisualDependency( "C1: Type of coarsening",Coarsening_List,"C3: Type of Jacobian coarsening", Coarsening_List, 
+               tuple<std::string>("residual and jacobian coarsening","jacobian only coarsening")));
+
+     RCP<StringVisualDependency> Nzone_Dep = rcp(
+           new StringVisualDependency( "C1: Type of coarsening",Coarsening_List,"C4: Number of coarsened zones", Coarsening_List, 
+               tuple<std::string>("residual and jacobian coarsening","jacobian only coarsening","Bulk zone","Poisson-Boltzmann zone","1D zone in 2D or 3D problem")));
+
+      RCP<StringVisualDependency> RmaxZone_Dep = rcp(
+           new StringVisualDependency( "C1: Type of coarsening",Coarsening_List,"C5: Rmax_zone", Coarsening_List, 
+               tuple<std::string>("residual and jacobian coarsening","jacobian only coarsening","Bulk zone","Poisson-Boltzmann zone")));
+
+      RCP<StringVisualDependency> Dim1DZone_Dep = rcp(
+           new StringVisualDependency( "C1: Type of coarsening",Coarsening_List,"C6: Dimension 1D_BC", Coarsening_List, 
+               tuple<std::string>("1D zone in 2D or 3D problem")));
+
+      RCP<StringVisualDependency> X1DZone_Dep = rcp(
+           new StringVisualDependency( "C1: Type of coarsening",Coarsening_List,"C7: X 1D_BC", Coarsening_List, 
+               tuple<std::string>("1D zone in 2D or 3D problem")));
 
       RCP<NumberArrayLengthDependency> RmaxZoneLength_Dep = rcp(
-          new NumberArrayLengthDependency( "C4: Number of coarsening zones", Coarsening_List, "C5: Rmax_zone",Coarsening_List));
+          new NumberArrayLengthDependency( "C4: Number of coarsened zones", Coarsening_List, "C5: Rmax_zone",Coarsening_List));
 
-      RCP<NumberVisualDependency<int> > RmaxZoneView_Dep = rcp(
-           new NumberVisualDependency<int>("C4: Number of coarsening zones",Coarsening_List,"C5: Rmax_zone", Coarsening_List)); 
 
     /*****************************************/
     /* add the dependencies for this section.*/
     /*****************************************/
       depSheet_Tramonto->addDependency(PhysScale_Dep);
       depSheet_Tramonto->addDependency(LevelILUT_Dep);
-      depSheet_Tramonto->addDependency(JacCoarseType_Dep);
+
+      depSheet_Tramonto->addDependency(TypeJacCoarse_Dep);
+      depSheet_Tramonto->addDependency(Nzone_Dep);
+      depSheet_Tramonto->addDependency(RmaxZone_Dep);
+      depSheet_Tramonto->addDependency(Dim1DZone_Dep);
+      depSheet_Tramonto->addDependency(X1DZone_Dep);
       depSheet_Tramonto->addDependency(RmaxZoneLength_Dep);
-      depSheet_Tramonto->addDependency(RmaxZoneView_Dep);
   /****************************************************************************************************************/
   /****************************** END FUNCTIONAL CONTROL PARAMETER SECTION ****************************************/
   /****************************************************************************************************************/
