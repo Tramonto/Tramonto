@@ -22,7 +22,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     /* params from mesh section of the GUI */
     /***************************************/
     
-    if (Mesh_List->get<bool>("M2_Dimensionless_Entry_Mesh_TF")) Length_ref=1.0; 
+    if (Mesh_List->get<bool>("M2_Dimensionless_Distance_Entry")) Length_ref=1.0; 
     else               Length_ref=Mesh_List->get<double>("M3_Reference_Length");
 
     Ndim=Mesh_List->get<int>("M1_Ndim");

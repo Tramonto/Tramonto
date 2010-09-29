@@ -1,19 +1,12 @@
 /*#include "Teuchos_ParameterList.hpp"*/
 using namespace std;
 #include <iostream>
-/***** push these to common dft_GUI.h file *****
-#include "Teuchos_StandardParameterEntryValidators.hpp"
-#include "Teuchos_Array.hpp"	
-#include "Teuchos_Version.hpp"
-#include "Optika_GUI.hpp"
-#include "Teuchos_XMLParameterListHelpers.hpp"
-#include "Teuchos_FancyOStream.hpp"
-#include "Teuchos_VerboseObject.hpp"
-**************************************************/
 #include "dft_GUI.h"
 #include "dft_GUI.hpp"
 using namespace Teuchos;
 using namespace Optika;
+
+int funcCMS(int nCrfiles);
 
 void dft_GUI_Polymer( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                   Teuchos::RCP<DependencySheet> depSheet_Tramonto,
@@ -73,6 +66,8 @@ void dft_GUI_Polymer( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
    PolymerCMS_List->set("CMS4: CrFac (CMS)",1.0,"Factor used for mixing of two direct correlation functions from different files.\n Specifically the hybrid DCF will be Crfac*Cr_File_1+(1.0-Crfac)*Cr_File_2."); 
 
+   PolymerCMS_List->set("CMS5: Cr Radius (CMS)",1.0,"Radius of direct correlation function."); 
+
 /* would be nice to have code here to set up chain architecture */
 /* Need Nbond[ipol][iseg], Bond[ipol][iseg][ibond], PolSym[ipol][iseg][ibond] */
 /* can make this Nbond[iseg_all], Bond[iseg_all][ibond], PolSym[iseg_all][ibond] */  
@@ -103,14 +98,17 @@ void dft_GUI_Polymer( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
    Dependency::ParameterParentMap CMSDependents;
    CMSDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS1: N_CrFiles (CMS)", PolymerCMS_List));
    CMSDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS2: Cr_File_1 (CMS)", PolymerCMS_List));
-   CMSDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS3: Cr_File_2 (CMS)", PolymerCMS_List));
-   CMSDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS4: CrFac (CMS)", PolymerCMS_List));
-/*   CMSDependents.insert(std::pair<std::string, RCP<ParameterList> >("", PolymerCMS_List));
-   CMSDependents.insert(std::pair<std::string, RCP<ParameterList> >("", PolymerCMS_List));*/
+   CMSDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS5: Cr Radius (CMS)", PolymerCMS_List));
 
    RCP<StringVisualDependency> CMS_Dep = rcp(new StringVisualDependency("F4_POLYMER_Functional", Functional_List, CMSDependents, tuple<std::string>("Polymer_CMS")));
 
+   Dependency::ParameterParentMap CMSFileDependents;
+   CMSFileDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS3: Cr_File_2 (CMS)", PolymerCMS_List));
+   CMSFileDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS4: CrFac (CMS)", PolymerCMS_List));
 
+   /* doesn't work */
+/*   RCP<NumberVisualDependency<int> > CMSFile_Dep = rcp(new NumberVisualDependency<int>("CMS1: N_CrFiles (CMS)", PolymerCMS_List, CMSFileDependents, 
+                                                       (funcCMS(PolymerCMS_List->get<int>("CMS1: N_CrFiles (CMS)") )  ));*/
 
 
    RCP<StringCondition> PolyFile_Con1 = rcp(new StringCondition("P8: Polymer achitecture entry", Polymer_List, tuple<std::string>("Read From File"),true));
@@ -144,4 +142,9 @@ void dft_GUI_Polymer( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
   return;
 }
-
+/***************************************************************************/
+int funcCMS(int nCrfiles)
+{
+   if (nCrfiles==2) return 1;
+   else return -1;
+}

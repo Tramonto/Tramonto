@@ -61,6 +61,8 @@ void dft_GUI_potentialsFF(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
     Fluid_List->set("F4_PairPotType", "none", "Type of pair interaction potential", PairPotValidator);
 
+    Fluid_List->set("F5_Dimensionless_Energy_Entry", true, "Dimensionless energies must be provided in units of epsilon/kT.\n Otherwise, set to false for entry as epsilon/k (units of K)");
+
     PotentialsFF_List->set("PF0_Off_Diagonal_Definitions", "Manual Definition", "Options for definition of off-diagonal pair potential parameters", MixTypeValidator);
 
            /* items for PotentialsFF_sublist */

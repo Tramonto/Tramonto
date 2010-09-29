@@ -36,14 +36,20 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
         /* set up parameters */
         /*********************/
 
-   StatePoint_List->set("SP1: Direction of Gradient", 0, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
-   StatePoint_List->set("SP2: Constrained Interface?", false, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
+   StatePoint_List->set("SP0: Temperature(K)", 300.0, "Enter the Temperature in Kelvin");
+   StatePoint_List->set("SP1: Dimensionless Density Entry?", true, "Dimensionless densities are given in units of rho*sigma_ref^3.\n Set to false to enter in any other units (molar,g/cc etc).\n For dimensioned entry you must provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
+   StatePoint_List->set("SP2: Density Conversion Factor",1.0,"Provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
 
    Array<double> RhoBulk0_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
    StatePoint_List->set("SP3: Rho_b_0[icomp]", RhoBulk0_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
 
    Array<double> RhoBulk1_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
    StatePoint_List->set("SP4: Rho_b_1[icomp]", RhoBulk1_Array, "Set the densities on the positive boundary  for an inhomogenous system");
+   
+   StatePoint_List->set("SP5: Direction of Gradient", 0, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
+   StatePoint_List->set("SP6: Constrained Interface?", false, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
+
+
 
    Array<double> DiffCoeff_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
    Diffusion_List->set("D1: Diff_Coeff[icomp]", DiffCoeff_Array, "Set the diffusion coefficientf sof each component.");
@@ -61,11 +67,15 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
         /* set up dependencies */
         /************************/
    RCP<StringVisualDependency> GradDim_Dep = rcp(
-       new StringVisualDependency( "F0_Type_of_Calculation",Functional_List,"SP1: Direction of Gradient", StatePoint_List,
+       new StringVisualDependency( "F0_Type_of_Calculation",Functional_List,"SP5: Direction of Gradient", StatePoint_List,
            tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)","Steady State Diffusion (inhomogeneous boundaries)")));
 
+   RCP<BoolVisualDependency> EnergyUnit_Dep = rcp( new BoolVisualDependency( "F5_Dimensionless_Energy_Entry",Fluid_List,"SP0: Temperature(K)", StatePoint_List,false));
+
+   RCP<BoolVisualDependency> DensityUnit_Dep = rcp( new BoolVisualDependency( "SP1: Dimensionless Density Entry?",StatePoint_List,"SP2: Density Conversion Factor", StatePoint_List,false));
+
    RCP<StringVisualDependency> Lconstrain_Dep = rcp(
-       new StringVisualDependency( "F0_Type_of_Calculation",Functional_List,"SP2: Constrained Interface?", StatePoint_List,
+       new StringVisualDependency( "F0_Type_of_Calculation",Functional_List,"SP6: Constrained Interface?", StatePoint_List,
            tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)")));
 
    RCP<NumberArrayLengthDependency> RhoB0Length_Dep = rcp(
@@ -113,6 +123,8 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
       /*****************************************/
 
    depSheet_Tramonto->addDependency(GradDim_Dep);
+   depSheet_Tramonto->addDependency(EnergyUnit_Dep);
+   depSheet_Tramonto->addDependency(DensityUnit_Dep);
    depSheet_Tramonto->addDependency(Lconstrain_Dep);
    depSheet_Tramonto->addDependency(RhoB0Length_Dep);
    depSheet_Tramonto->addDependency(RhoB1Length_Dep);
