@@ -43,7 +43,7 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> Mesh_List = sublist(Tramonto_List,"Sect. 1: Computational Domain");
   dft_GUI_mesh(Tramonto_List,depSheet_Tramonto,Mesh_List);
 
-  RCP<ParameterList> Functional_List = sublist(Tramonto_List,"Sect. 2: Functional Types");
+  RCP<ParameterList> Functional_List = sublist(Tramonto_List,"Sect. 2: Functionals");
   dft_GUI_functionals(Tramonto_List,depSheet_Tramonto,Functional_List);
 
   RCP<ParameterList> Fluid_List = sublist(Tramonto_List, "Sect. 3: Fluid");
@@ -61,19 +61,18 @@ extern "C" void dft_OptikaGUI()
   dft_GUI_Polymer(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,PolymerCMS_List);
 
   RCP<ParameterList> Surface_List = sublist(Tramonto_List, "Sect. 4: Surfaces");
-  RCP<ParameterList> SurfaceGeometry_List = sublist(Surface_List, "Surface Geometry Parameters");
-  dft_GUI_surfaces(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfaceGeometry_List);
+  RCP<ParameterList> SurfaceGeometry_List = sublist(Surface_List, "4.1: Geometry Parameters");
+  RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "4.2: Interaction Parameters");
+  RCP<ParameterList> SurfaceParamCharge_List = sublist(Surface_List, "4.3 Charged Surface Parameters");
+  dft_GUI_surfaces(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfaceGeometry_List,PotentialsWW_List,SurfaceParamCharge_List);
 
-  RCP<ParameterList> SurfaceInteraction_List = sublist(Surface_List, "Surface-Fluid Interaction Types");
+
+  RCP<ParameterList> SurfaceInteraction_List = sublist(Surface_List, "4.4 Fluid-Surface Interactions");
   dft_GUI_vextType(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfaceInteraction_List);
 
-  RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "Surface-Fluid Potential Parameters");
+  RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "4.5 Fluid-Surface Potential Parameters");
   dft_GUI_potentialsWF(Tramonto_List,depSheet_Tramonto,Functional_List, Surface_List,
                        SurfaceInteraction_List,Fluid_List,PotentialsWF_List);
-
-  RCP<ParameterList> ChargedSurface_List = sublist(Surface_List, "Charged Surface Parameters");
-  RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "Surface-Fluid Potential Parameters");
-
 
 
   RCP<ParameterList> Continuation_List = sublist(Tramonto_List, "Sect. 6: Continuation");

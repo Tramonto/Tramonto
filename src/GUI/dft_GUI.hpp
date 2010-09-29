@@ -51,7 +51,9 @@ void dft_GUI_surfaces(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                       Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
                       Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
                       Teuchos::RCP<Teuchos::ParameterList> Surface_List,
-                      Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List); 
+                      Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List,
+                      Teuchos::RCP<Teuchos::ParameterList> PotentialsWW_List,
+                      Teuchos::RCP<Teuchos::ParameterList> SurfaceParamCharge_List); 
 
 void dft_GUI_vextType(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                       Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
