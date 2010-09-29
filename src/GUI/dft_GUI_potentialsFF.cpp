@@ -182,26 +182,25 @@ void dft_GUI_potentialsFF(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
          new StringVisualDependency("F3_CHARGE_Functional", Functional_List, "PF9_Polarization", PotentialsFF_List, 
               tuple<std::string>("Charge(MF)_with_Polarization"),true));
 
-      RCP<NumberArrayLengthDependency> SigmaFFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "PF1_SigmaFF",PotentialsFF_List));
 
-      RCP<NumberArrayLengthDependency> EpsFFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "PF2_EpsFF",PotentialsFF_List));
+      Dependency::ParameterParentMap PotFFArrayLength_Dependents;
+      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF1_SigmaFF", PotentialsFF_List));
+      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF2_EpsFF", PotentialsFF_List));
+      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF3_CutFF", PotentialsFF_List));
+      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF4_EpsYukawaFF", PotentialsFF_List));
+      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF5_ExpDecayParamFF", PotentialsFF_List));
+      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF6_NpowFF", PotentialsFF_List));
 
-      RCP<NumberArrayLengthDependency> CutFFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "PF3_CutFF",PotentialsFF_List));
-      RCP<NumberArrayLengthDependency> EpsYukawaFFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "PF4_EpsYukawaFF",PotentialsFF_List));
-      RCP<NumberArrayLengthDependency> YukawaKFFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "PF5_ExpDecayParamFF",PotentialsFF_List));
-      RCP<NumberArrayLengthDependency> NpowFFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "PF6_NpowFF",PotentialsFF_List));
-      RCP<NumberArrayLengthDependency> MassArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "PF7_Mass",PotentialsFF_List));
-      RCP<NumberArrayLengthDependency> ChargeArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "PF8_Charge",PotentialsFF_List));
-      RCP<NumberArrayLengthDependency> PolarizationArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "PF9_Polarization",PotentialsFF_List));
+      RCP<NumberArrayLengthDependency> PotFFArrayLength_Dep = rcp(
+                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, PotFFArrayLength_Dependents));
+
+      Dependency::ParameterParentMap PotFF2ArrayLength_Dependents;
+      PotFF2ArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF7_Mass", PotentialsFF_List));
+      PotFF2ArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF8_Charge", PotentialsFF_List));
+      PotFF2ArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF9_Polarization", PotentialsFF_List));
+
+      RCP<NumberArrayLengthDependency> PotFFArrayLength2_Dep = rcp(
+                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, PotFF2ArrayLength_Dependents));
 
 /*      RCP<BoolVisualDependency> VextSemiperm_Dep = rcp(
            new BoolVisualDependency( "SI5_LSemiperm", SurfaceInteraction_List, "PW1_Vext_membrane", PotentialsFF_List,true));*/
@@ -219,24 +218,19 @@ void dft_GUI_potentialsFF(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        depSheet_Tramonto->addDependency(MixType_Dep);
        depSheet_Tramonto->addDependency(MixType2_Dep);
        depSheet_Tramonto->addDependency(SigmaFFArray_Dep2);
-       depSheet_Tramonto->addDependency(SigmaFFArray_Dep);
        depSheet_Tramonto->addDependency(EpsFFArray_Dep2);
-       depSheet_Tramonto->addDependency(EpsFFArray_Dep);
        depSheet_Tramonto->addDependency(CutFFArray_Dep2);
-       depSheet_Tramonto->addDependency(CutFFArray_Dep);
        depSheet_Tramonto->addDependency(EpsYukawaFFArray_Dep2);
-       depSheet_Tramonto->addDependency(EpsYukawaFFArray_Dep);
        depSheet_Tramonto->addDependency(YukawaKFFArray_Dep2);
-       depSheet_Tramonto->addDependency(YukawaKFFArray_Dep);
        depSheet_Tramonto->addDependency(NpowFFArray_Dep2);
-       depSheet_Tramonto->addDependency(NpowFFArray_Dep);
-       depSheet_Tramonto->addDependency(MassArray_Dep);
-
-       depSheet_Tramonto->addDependency(ChargeArray_Dep);
        depSheet_Tramonto->addDependency(ChargeArray_Dep2);
        depSheet_Tramonto->addDependency(ChargeArray_Dep3);
        depSheet_Tramonto->addDependency(PolarizationArray_Dep2);
-       depSheet_Tramonto->addDependency(PolarizationArray_Dep);
+
+       depSheet_Tramonto->addDependency(PotFFArrayLength_Dep);
+       depSheet_Tramonto->addDependency(PotFFArrayLength2_Dep);
+     
+      
 /*       depSheet_Tramonto->addDependency(VextSemiperm_Dep);*/
 /*       depSheet_Tramonto->addDependency(PairPotList_Dep);*/
 

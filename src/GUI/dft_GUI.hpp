@@ -34,6 +34,10 @@
 #include "Teuchos_FancyOStream.hpp"
 #include "Teuchos_VerboseObject.hpp"
 #include "Optika_GUI.hpp"
+#include "Optika_StandardDependencies.hpp"
+#include "Optika_DependencySheet.hpp"
+#include "Optika_StandardConditions.hpp"
+
 
 void dft_GUI_mesh(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                   Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
@@ -69,6 +73,14 @@ void dft_GUI_potentialsWF(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                       Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
                       Teuchos::RCP<Teuchos::ParameterList> PotentialsWF_List); 
 
+void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
+                      Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                      Teuchos::RCP<Teuchos::ParameterList> Functional_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                      Teuchos::RCP<Teuchos::ParameterList> StatePoint_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Diffusion_List,
+                      Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List);
+
 void dft_GUI_toTramonto(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
                          Teuchos::RCP<Teuchos::ParameterList> Functional_List, 
@@ -89,4 +101,11 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
                          Teuchos::RCP<Teuchos::ParameterList> Coarsening_List,
                          Teuchos::RCP<Teuchos::ParameterList> NonlinearSolver_List,
                          Teuchos::RCP<Teuchos::ParameterList> LinearSolver_List);
+
+void dft_GUI_Polymer( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,   
+                  Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                  Teuchos::RCP<Teuchos::ParameterList> Functional_List,
+                  Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                  Teuchos::RCP<Teuchos::ParameterList> Polymer_List,
+                  Teuchos::RCP<Teuchos::ParameterList> PolymerCMS_List);
 

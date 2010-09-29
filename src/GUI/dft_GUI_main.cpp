@@ -49,9 +49,16 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> Fluid_List = sublist(Tramonto_List, "Sect. 3: Fluid");
   RCP<ParameterList> PotentialsFF_List = sublist(Fluid_List, "Fluid-Fluid Potential Parameters");
   dft_GUI_potentialsFF(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,PotentialsFF_List);
-  RCP<ParameterList> Polymer_List = sublist(Fluid_List, "Bonded Fluid Parameters");
-  RCP<ParameterList> ChargedFluid_List = sublist(Fluid_List, "Charged Fluid Parameters");
-  RCP<ParameterList> Diffusion_List = sublist(Fluid_List, "Charged Fluid Parameters");
+
+  RCP<ParameterList> StatePoint_List = sublist(Fluid_List, "State Point(s)");
+  RCP<ParameterList> Diffusion_List = sublist(StatePoint_List, "Parameters for Diffusing Systems");
+  RCP<ParameterList> ChargedFluid_List = sublist(StatePoint_List, "Parameters for Charged Systems");
+  dft_GUI_StatePoint(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,StatePoint_List,
+							Diffusion_List,ChargedFluid_List);
+
+  RCP<ParameterList> Polymer_List = sublist(Fluid_List, "Polymer(Bonded) Fluid Parameters");
+  RCP<ParameterList> PolymerCMS_List = sublist(Polymer_List, "Chandler-McCoy-Singer Theory Parameters");
+  dft_GUI_Polymer(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,PolymerCMS_List);
 
   RCP<ParameterList> Surface_List = sublist(Tramonto_List, "Sect. 4: Surfaces");
   RCP<ParameterList> SurfaceGeometry_List = sublist(Surface_List, "Surface Geometry Parameters");
@@ -67,7 +74,8 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> ChargedSurface_List = sublist(Surface_List, "Charged Surface Parameters");
   RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "Surface-Fluid Potential Parameters");
 
-  RCP<ParameterList> Thermodynamics_List = sublist(Tramonto_List, "Sect. 5: State Point(s)");
+
+
   RCP<ParameterList> Continuation_List = sublist(Tramonto_List, "Sect. 6: Continuation");
   RCP<ParameterList> Startup_List = sublist(Tramonto_List, "Sect. 7: Startup Control");
 
