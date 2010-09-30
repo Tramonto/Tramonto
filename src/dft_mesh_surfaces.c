@@ -123,14 +123,14 @@ void setup_surface (FILE *fp2, int *nelems_f,
      }
      image = image_old + 1;
 
-/*     if (Xtest_reflect_TF[Link[iwall]][0]) */ find_wall_images(0,&image,image_pos,pos);
+     if (Xtest_reflect_TF[Link[iwall]][0]) find_wall_images(0,&image,image_pos,pos);
 
      if (Ndim > 1){
         image_x = image-image_old;
         for (i=image_old; i<image_old+image_x; i++){
            for (idim=0; idim<Ndim; idim++)
               pos[idim] = image_pos[i][idim];
-              /*if (Xtest_reflect_TF[Link[iwall]][1])*/ find_wall_images(1, &image,image_pos,pos);
+              if (Xtest_reflect_TF[Link[iwall]][1]) find_wall_images(1, &image,image_pos,pos);
         }
      }
      if (Ndim == 3){
@@ -138,7 +138,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
         for (i=image_old; i<image_old+image_xy; i++){
            for (idim=0; idim<Ndim; idim++)
               pos[idim] = image_pos[i][idim];
-              /*if (Xtest_reflect_TF[Link[iwall]][2])*/ find_wall_images(2,&image,image_pos,pos);
+              if (Xtest_reflect_TF[Link[iwall]][2]) find_wall_images(2,&image,image_pos,pos);
         }
 
      }
