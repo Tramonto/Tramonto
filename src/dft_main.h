@@ -82,7 +82,6 @@ extern double **Vext_static;
 extern int Restart_Vext;
 extern double **Vext;
 void print_vext(double **vext,char *output_file);
-#define EXTENDED     2
 #define VERBOSE      3 
 #define NO_SCREEN    4 
 extern int Iwrite;
@@ -128,7 +127,6 @@ extern int Type_func;
 #endif
 extern int Lmesh_refine;
 extern double Esize_x[NDIM_MAX];
-extern int Ndim;
 void continuation_shift();
 extern int Nruns;
 extern int Imain_loop;
@@ -150,6 +148,7 @@ void setup_stencil_uattr_core_properties();
 #define NONE        -1
 extern int Type_attr;
 void setup_stencil_logicals();
+extern int Ndim;
 void read_input_file(char *input_file,char *output_file1);
 extern int Proc;
 #if defined(DEBUG)

@@ -91,6 +91,7 @@ void safe_free(void **ptr);
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+extern double Betap;
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 #define NWALL_MAX 600 
 extern int WallType[NWALL_MAX];

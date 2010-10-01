@@ -34,11 +34,14 @@ void calc_fluid_charge(FILE *fp,double **x);
 #endif
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
+extern int Nwall;
+extern int LBulk;
 extern int **Nel_hit;
 double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
 void print_to_screen_comp(int icomp,double val,char *var_label);
-extern int LBulk;
+#define SWITCH_BULK_OUTPUT 5
+extern int Print_rho_switch;
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
 extern int Ndim;

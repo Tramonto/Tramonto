@@ -15,17 +15,12 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define FALSE 0
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
-#endif
 extern double *X_old;
 void calc_flux(FILE *fp,char *output_flux,double *X_old);
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
+#define NCOMP_MAX 5
+extern double Betamu[NCOMP_MAX];
 double calc_free_energy(FILE *fp,double **x);
 void calc_force(FILE *fp,double **x,double fac_area);
 void calc_fluid_charge(FILE *fp,double **x);
@@ -44,8 +39,21 @@ extern int Lcount_reflect;
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void setup_domain_multipliers();
-void print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
+#define CONT_RHO_I         2
+#define NCONT_MAX          2 /* the maximum number of solutions possible for use with Loca */
+extern int Cont_ID[NCONT_MAX][2];
+#define CONT_MESH          0   /* mesh size */
+double print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID);
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+#define CONT_BETAMU_I      3  /* Vary chemical potential for species I */
+extern int Nwall;
 #define FROM_MAIN 1
 typedef struct Loca_Struct Loca_Struct;
 struct Loca_Struct {

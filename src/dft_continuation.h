@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-#include <stdio.h>
 int continuation_hook(double *x,double *delta_x,void *con_void,double reltol,double abstol);
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 void box2owned(double **xBox,double **xOwned);
@@ -16,6 +15,7 @@ double free_energy_diff_conwrap(double *x,double *x2);
 #endif
 double calc_free_energy(FILE *fp,double **x);
 double calc_free_energy_conwrap(double **xB);
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)

@@ -60,9 +60,9 @@
 
 #include "Tramonto_ConfigDefs.h"
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 extern "C" {
-#endif
+#endif*/
 
 /****************************************************************************/
 /* Machine specific definitions */
@@ -324,6 +324,7 @@ extern "C" {
 /* options for Type_hsdiam */
 #define SIGMA_DIAM          0
 #define BH_DIAM             1
+#define MANUAL_HS_DIAM         2
 /*
  * The following are choices for 1D external field potentials.  
  */
@@ -541,9 +542,11 @@ extern "C" {
 
 /* The followint are choices for the output of density info */
 #define SWITCH_RHO   0
-#define SWITCH_RELP  1
+#define SWITCH_ALLTYPES_ICOMP 1
 #define SWITCH_ION   2
 #define SWITCH_MU    3
+#define SWITCH_ALLTYPES 4
+#define SWITCH_BULK_OUTPUT 5
 
 #define SWITCH_SURFACE_SEP   0
 
@@ -817,6 +820,9 @@ extern double  Temp;            /* Reduced Temperature for LJ interactions      
 extern double  Temp_elec;       /* Reduced Temperature for Poisson's equation       */
 extern double  charge_fluid;    /* the charge in the fluid ... post processing */
 extern  int     Type_dielec;      /* choose how to handle dielectric constants in system */
+extern double  Sigma_Angstroms_plasma;     /* the particle diameter in Angstroms sigma to be used in computing the plasma parameter. */
+extern double  Temp_K_plasma;     /* the temperature in K to be used in computing the plasma parameter.*/
+extern double  DielecConst_plasma;     /* the dielectric constant to be used in computing the plasma parameter */
 extern double  Dielec_bulk;     /* the dielectric constant in the bulk fluid */
 extern double  Dielec_pore;     /* the dielectric constant in the "pore" fluid */
 extern double  Dielec_X;        /* distance from a surface defines the "pore" fluid */
@@ -1153,6 +1159,6 @@ extern double *Integration_profile; /* a place to put the integrand as a functio
 
 /****************************************************************************/
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 }
-#endif
+#endif*/

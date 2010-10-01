@@ -123,10 +123,12 @@ extern double Dielec_X;
 extern double Dielec_pore;
 extern double Dielec_bulk;
 #define DIELEC_WF_PORE     2
-#define KAPPA_H2O 78.5
 #define EPSILON_0  8.85419e-12  /* C^2 J^-1 m^-1 */
 #define PI    3.141592653589793238462643383279502884197169399375
 extern double Temp_elec;
+extern double DielecConst_plasma;
+extern double Temp_K_plasma;
+extern double Sigma_Angstroms_plasma;
 extern int Type_dielec;
 extern int Charge_type_local;
 extern int Charge_type_atoms;
@@ -211,6 +213,8 @@ extern int Lpolarize[NCOMP_MAX];
 extern double Pol[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
 extern double Mass[NCOMP_MAX];
+extern double HS_diam[NCOMP_MAX];
+#define MANUAL_HS_DIAM         2
 extern int Mix_type;
 extern int Ncomp;
 extern int Type_uwwPot;

@@ -17,15 +17,26 @@ void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define NCOMP_MAX 5
+extern double Charge_f[NCOMP_MAX];
+#define PI    3.141592653589793238462643383279502884197169399375
 #define NWALL_MAX_TYPE 50 
 extern double WallParam[NWALL_MAX_TYPE];
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
-void print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
+double print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_user_plugin(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID);
+#define SWITCH_MU    3
+#define SWITCH_ION   2
+#define SWITCH_ALLTYPES_ICOMP 1
+#define SWITCH_RHO   0
+extern int Npol_comp;
+#define SWITCH_BULK_OUTPUT 5
+#define SWITCH_ALLTYPES 4
+extern int Print_rho_switch;
 extern int Ndim;
 #define REFLECT              2
 extern int Type_bc[NDIM_MAX][2];
@@ -73,7 +84,6 @@ extern int Type_attr;
 extern double Temp_elec;
 #define COULOMB      1
 extern int Ipot_ff_c;
-#define NCOMP_MAX 5
 void assign_parameter_tramonto(int cont_type,double param,int Loca_contID);
 double get_init_param_user_plugin(int cont_type,int Loca_contID);
 double get_init_param_archived_plugin(int cont_type,int Loca_contID);

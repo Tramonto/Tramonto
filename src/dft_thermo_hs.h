@@ -76,6 +76,7 @@ extern int Proc;
 #endif
 double integrand_BH(double r,int icomp);
 #define BH_DIAM             1
+#define MANUAL_HS_DIAM         2
 extern int Type_hsdiam;
 void calc_HS_diams();
 extern double Inv_4pirsq[NCOMP_MAX];
