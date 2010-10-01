@@ -314,7 +314,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
 {
   int idim,icomp,iwall,jcomp;
-/* int i,nloop; */
+  int i,nloop; 
 
    switch(cont_type){
       case CONT_MESH:
@@ -350,15 +350,46 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
          break;
 
       case CONT_RHO_I:
-         fprintf(fp,"Rho_b[%d]  ",Cont_ID[Loca_contID][0]);
+
+         if (Print_rho_switch==SWITCH_ALLTYPES||Print_rho_switch==SWITCH_BULK_OUTPUT){
+             if (Type_poly==NONE) nloop=Ncomp;
+             else                 nloop=Npol_comp;
+         }
+         else nloop=1;
+
+         if (Print_rho_switch==SWITCH_RHO || Print_rho_switch==SWITCH_ALLTYPES || 
+             Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT){
+            for (i=0;i<nloop;i++){
+               if (Type_poly==NONE){
+                  if (nloop==1) fprintf(fp,"Rho_b[%d]  ",Cont_ID[Loca_contID][0]);
+                  else          fprintf(fp,"Rho_b[%d]  ",i);
+               }
+               else{
+                  if (nloop==1) fprintf(fp,"Rho_chain_b[%d]  ",Cont_ID[Loca_contID][0]);
+                  else          fprintf(fp,"Rho_chain_b[%d]  ",i);
+               }
+             }
+          }
          /*  alternate print types for the density variable */
-        /* for (i=0; i<nloop; i++) fprintf(fp, "Rho_b[%d]/Rho_sum  ", i);
-         if (Print_rho_switch == SWITCH_RELP && Ncomp == 1)
-              fprintf(fp,"P_over_Po  ");
-         else if (Print_rho_switch == SWITCH_ION && Ipot_ff_c == COULOMB)
-              for(i=0; i<nloop; i++) fprintf(fp,"KAPPA[%d]   ",i);
-         else if (Print_rho_switch == SWITCH_MU)
-              for(i=0; i<nloop; i++) fprintf(fp,"CHEM_POT[%d]  ",i);    */
+        /* for (i=0; i<nloop; i++) fprintf(fp, "Rho_b[%d]/Rho_sum  ", i);*/
+
+         if (Ipot_ff_c==COULOMB &&(Print_rho_switch==SWITCH_ION || 
+            Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT)){
+              fprintf(fp,"KAPPA   ");
+        }
+
+        if (Print_rho_switch == SWITCH_MU || Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT){
+            for(i=0; i<nloop; i++){
+                if (Type_poly==NONE){
+                       if (nloop==1) fprintf(fp,"Betamu[%d]   ",Cont_ID[Loca_contID][0]);
+                       else          fprintf(fp,"Betamu[%d]   ",i);
+                }   
+                else{
+                    if (nloop==1) fprintf(fp,"%Betamu_chain[%d]  ", Cont_ID[Loca_contID][0]);
+                    else          fprintf(fp,"%Betamu_chain[%d]  ", i);
+                }
+            }
+        }
         break;
 
       case CONT_BETAMU_I:
@@ -415,15 +446,16 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
 /*****************************************************************************/
 /*print_cont_variable: Here print the value of the variable that
                      is changing in a given run */
-void print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
+double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
 {                 
-   int i,idim,icomp,iwall,iwall_type,nloop,jcomp;
-   double rhosum,rho_chain;
- /*double kappa,kappa_sq;*/
-         
+   int i,idim,icomp,iwall,iwall_type,nloop,jcomp,iseg;
+   double rhosum,rho_chain,surface_Sep;
+   double kappa,kappa_sq;
+   double return_param=0.0,surface_sep;
 
    switch(cont_type){
       case CONT_MESH: 
+         surface_sep=0.0;
          if (Print_mesh_switch == SWITCH_SURFACE_SEP && (Nwall == 1 ||
                 Nwall==2)){
             iwall = 0;
@@ -431,22 +463,22 @@ void print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
             idim = Plane_new_nodes;
       
             if (Nwall == 1) {
-              if (Type_bc[idim][0] == REFLECT)
-                  fprintf(fp,"%11.8f   ", 2.0*(WallPos[idim][iwall]
-                                              + 0.5*Size_x[0]
-                                              - WallParam[iwall_type]));
-                 
-               else if (Type_bc[idim][1] == REFLECT)
-                  fprintf(fp,"%11.8f   ", 2.0*(0.5*Size_x[0] 
-                                              - WallPos[idim][iwall]
-                                              -WallParam[iwall_type]));
-               else
-                for (idim=0; idim<Ndim; idim++)
-                    fprintf(fp,"%11.8f   ",WallPos[idim][iwall]);
+                if (Type_bc[idim][0] == REFLECT){
+                    surface_sep=2.0*(WallPos[idim][iwall]+ 0.5*Size_x[0]- WallParam[iwall_type]);
+                    fprintf(fp,"%11.8f   ", surface_sep);
+                }
+                else if (Type_bc[idim][1] == REFLECT){
+                    surface_sep=2.0*(0.5*Size_x[0]-WallPos[idim][iwall]- WallParam[iwall_type]);
+                    fprintf(fp,"%11.8f   ", surface_sep);
+                }
+                else{
+                  surface_sep=WallPos[idim][iwall];
+                  for (idim=0; idim<Ndim; idim++) fprintf(fp,"%11.8f   ",WallPos[idim][iwall]);
+                }
              }  
              else if (Nwall == 2){
-                  fprintf(fp,"%11.8f   ",
-                    (fabs(WallPos[idim][1] - WallPos[idim][0]) - 2.0*WallParam[iwall_type]));
+                  surface_sep=fabs(WallPos[idim][1] - WallPos[idim][0]) - 2.0*WallParam[iwall_type];
+                  fprintf(fp,"%11.8f   ", surface_sep);
              }
          }
          else if (Nwall > 1) {
@@ -460,7 +492,7 @@ void print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                  fprintf(fp,"%11.8f   ",Size_x[idim]);
          }
       
-      
+         return_param=surface_sep; 
          break;
 
       case CONT_TEMP:
@@ -475,43 +507,71 @@ void print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
          break;
 
       case CONT_RHO_I:
-         if (Type_poly==NONE) fprintf(fp,"%11.8f  ",Rho_b[Cont_ID[Loca_contID][0]]);
-         else{
-              rho_chain=0.0;
-              for (i=0;i<Nseg_tot; i++){
-                  if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_b[i];
-              }
-              fprintf(fp,"%11.8f  ",rho_chain);
+         if (Print_rho_switch==SWITCH_ALLTYPES||Print_rho_switch==SWITCH_BULK_OUTPUT){
+             if (Type_poly==NONE) nloop=Ncomp;
+             else                 nloop=Npol_comp;
          }
+         else nloop=1;
+
+         if (Print_rho_switch==SWITCH_RHO || Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT){
+            for (i=0;i<nloop;i++){
+               if (Type_poly==NONE){
+                  if (nloop==1) fprintf(fp,"%11.8f  ",Rho_b[Cont_ID[Loca_contID][0]]);
+                  else          fprintf(fp,"%11.8f  ",Rho_b[i]);
+               }
+               else{
+                    rho_chain=0.0;
+                    for (iseg=0;iseg<Nseg_tot; iseg++){
+                        if (nloop==1 && SegAll_to_Poly[iseg]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_b[iseg];
+                        else if (SegAll_to_Poly[iseg]==i) rho_chain+= Rho_seg_b[iseg];
+                    }
+                    fprintf(fp,"%11.8f  ",rho_chain);
+               }
+             }
+          }
 
          /* alternate ways to print density */
-         /*
-         rhosum=0.0;
-         nloop=Ncomp;
+         
+/*       rhosum=0.0;
          for (i=0; i<nloop; i++){
                  fprintf(fp,"%11.8f  ", Rho_b[i]);
                  rhosum+=Rho_b[i];
          }
-         for (i=0;i<nloop;i++) fprintf(fp,"%9.6f  ",Rho_b[i]/rhosum);
-         if (Print_rho_switch == SWITCH_RELP && nloop == 1)
-              fprintf(fp,"%11.8f   ", P_over_po);
-         else if (Print_rho_switch == SWITCH_ION && Ipot_ff_c == COULOMB) {
+         for (i=0;i<nloop;i++) fprintf(fp,"%9.6f  ",Rho_b[i]/rhosum);*/
+
+         if ( (Print_rho_switch==SWITCH_ION ||Print_rho_switch==SWITCH_ALLTYPES || 
+               Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT) && Ipot_ff_c == COULOMB) {
              kappa_sq = 0.0;
-             for(icomp = 0; icomp<nloop; icomp++)
+             for(icomp = 0; icomp<Ncomp; icomp++)
                 kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
                            Charge_f[icomp]*Charge_f[icomp];
              kappa = sqrt(kappa_sq);
              fprintf(fp,"%11.8f   ", kappa);
          }
-         else if (Print_rho_switch == SWITCH_MU)
-           for (i=0; i<nloop; i++) fprintf(fp,"%11.8f   ", Betamu[i]);
-         */
+
+         if (Print_rho_switch == SWITCH_MU || Print_rho_switch==SWITCH_ALLTYPES || 
+               Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT){
+            for (i=0; i<nloop; i++){
+                if (Type_poly==NONE){
+                       if (nloop==1) fprintf(fp,"%11.8f   ", Betamu[Cont_ID[Loca_contID][0]]);
+                       else          fprintf(fp,"%11.8f   ", Betamu[i]);
+                }
+                else{
+                    if (nloop==1) fprintf(fp,"%11.8f   ", Betamu_chain[Cont_ID[Loca_contID][0]]);
+                    else          fprintf(fp,"%11.8f   ", Betamu_chain[i]);
+                }
+            }
+         }
          break;
 
       case CONT_BETAMU_I:
-         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)
+         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                   fprintf(fp,"%11.8f   ", Betamu_chain[Cont_ID[Loca_contID][0]]);
-         else     fprintf(fp,"%11.8f   ", Betamu[Cont_ID[Loca_contID][0]]);
+                  return_param=Betamu_chain[Cont_ID[Loca_contID][0]];
+         }
+         else{    fprintf(fp,"%11.8f   ", Betamu[Cont_ID[Loca_contID][0]]);
+                  return_param=Betamu[Cont_ID[Loca_contID][0]];
+         }
          break;
 
       case CONT_EPSW_I:
@@ -558,7 +618,7 @@ void print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
         break;
 
    }
-   return;
+   return(return_param);
 
 }
 /*****************************************************************************/

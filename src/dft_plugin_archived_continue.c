@@ -269,9 +269,7 @@ void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
         fprintf(fp,"Rho_b[%d]  ",Cont_ID[Loca_contID][0]);
          /*  alternate print types for the density variable */
         /* for (i=0; i<nloop; i++) fprintf(fp, "Rho_b[%d]/Rho_sum  ", i);
-         if (Print_rho_switch == SWITCH_RELP && Ncomp == 1)
-              fprintf(fp,"P_over_Po  ");
-         else if (Print_rho_switch == SWITCH_ION && Ipot_ff_c == COULOMB)
+         if (Print_rho_switch == SWITCH_ION && Ipot_ff_c == COULOMB)
               for(i=0; i<nloop; i++) fprintf(fp,"KAPPA[%d]   ",i);
          else if (Print_rho_switch == SWITCH_MU)
               for(i=0; i<nloop; i++) fprintf(fp,"CHEM_POT[%d]  ",i);    */
@@ -361,9 +359,7 @@ void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
                  rhosum+=Rho_b[i];
          }
          for (i=0;i<nloop;i++) fprintf(fp,"%9.6f  ",Rho_b[i]/rhosum);
-         if (Print_rho_switch == SWITCH_RELP && nloop == 1)
-              fprintf(fp,"%11.8f   ", P_over_po);
-         else if (Print_rho_switch == SWITCH_ION && Ipot_ff_c == COULOMB) {
+         if (Print_rho_switch == SWITCH_ION && Ipot_ff_c == COULOMB) {
              kappa_sq = 0.0;
              for(icomp = 0; icomp<nloop; icomp++)
                 kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*

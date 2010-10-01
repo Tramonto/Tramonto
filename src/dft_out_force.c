@@ -145,7 +145,8 @@ void calc_force(FILE *fp, double **x,double fac_area)
 	 } 
        } /* end of if(!first) */
        if(Proc==0) {
-	 if (i==0 && idim == Orientation[WallType[0]])  print_to_file(fp,force,"force",first);
+	 if (i==0 && idim == Orientation[WallType[0]])  print_to_file(fp,force,"ptilde",first);
+	 if (i==0 && idim == Orientation[WallType[0]])  print_to_file(fp,force-Betap,"force",first);
        }
      }
   }

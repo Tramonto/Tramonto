@@ -191,12 +191,12 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(&Type_func,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Type_func >3 || Type_func<-1){
-    if (Proc==0) printf("ERROR Type_hs out of range - should be -1,0,1,2 or 3\n");
+    if (Proc==0) printf("ERROR Type_func out of range - should be -1,0,1,2 or 3\n");
     exit(-1);
   }
   MPI_Bcast(&Type_hsdiam,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_hsdiam >1 || Type_hsdiam<0){
-    if (Proc==0) printf("ERROR Type_hsdiam out of range - should be 0 or 1\n");
+  if (Type_hsdiam >2 || Type_hsdiam<0){
+    if (Proc==0) printf("ERROR Type_hsdiam out of range - should be 0,1,2\n");
     exit(-1);
   }
 
@@ -558,9 +558,16 @@ void read_input_file(char *input_file, char *output_file1)
     read_junk(fp,fp2);
     fscanf(fp,"%d  %d",&Ncomp,&Mix_type);
     fprintf(fp2,"%d  %d",Ncomp,Mix_type);
+    if (Type_hsdiam==MANUAL_HS_DIAM){
+       for (icomp=0; icomp<Ncomp;icomp++){ 
+         fscanf(fp,"%lf ",&HS_diam[icomp]);
+         fprintf(fp2,"%f  ",HS_diam[icomp]);
+       }
+    }
   }
   MPI_Bcast(&Ncomp,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Mix_type,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Type_hsdiam==MANUAL_HS_DIAM) MPI_Bcast(Charge_f,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
 /* New code for interaction potential parameters */
 
@@ -1475,18 +1482,19 @@ void read_input_file(char *input_file, char *output_file1)
   if (Ipot_ff_c == COULOMB ) {
     if (Proc==0) {
       read_junk(fp,fp2);
-      fscanf(fp,"%d  ",&Type_dielec);
-      fprintf(fp2,"%d  ",Type_dielec);
+      fscanf(fp,"%d  %lf %lf %lf ",&Type_dielec, &Sigma_Angstroms_plasma, &Temp_K_plasma, &DielecConst_plasma);
+      fprintf(fp2,"%d  %f %f %f",Type_dielec,Sigma_Angstroms_plasma,Temp_K_plasma,DielecConst_plasma);
     }
     MPI_Bcast(&Type_dielec,1,MPI_INT,0,MPI_COMM_WORLD);
-    if (Length_ref > 0 && Dielec_ref > 0 && Temp > 0){
-       Temp_elec = 4.0*PI*KBOLTZ*Temp*Dielec_ref*EPSILON_0*Length_ref*1.e-10/(E_CONST*E_CONST);
-       if (Proc==0) printf("\t WARNING :: CHECK THAT Length_ref WAS GIVEN IN ANGSTROM UNITS ... CHARGED SYSTEM\n");
-    }
-    else /* make some assumptions */
-       Temp_elec = 4*PI*KBOLTZ*298.0*KAPPA_H2O*EPSILON_0*4.25e-10/(E_CONST*E_CONST);
+    MPI_Bcast(&Sigma_Angstroms_plasma,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(&Temp_K_plasma,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(&DielecConst_plasma,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-    if (Proc==0) printf("\t Temp_elec=%9.6f\n",Temp_elec);
+    Temp_elec = 4.0*PI*KBOLTZ*Temp_K_plasma*DielecConst_plasma*EPSILON_0*Sigma_Angstroms_plasma*1.e-10/(E_CONST*E_CONST);
+
+       /*Temp_elec = 4*PI*KBOLTZ*298.0*KAPPA_H2O*EPSILON_0*4.25e-10/(E_CONST*E_CONST);  Tang-Davis Paper Parameters*/
+
+    if (Proc==0) printf("\t plasma parameter=%9.6f\n",1./Temp_elec);
 
     if (Proc==0) read_junk(fp,fp2);
     if (Type_dielec != DIELEC_WF_PORE){

@@ -80,6 +80,7 @@ void calc_HS_diams()
   int icomp,i;
   double del,r,sum;
   for (icomp=0;icomp<Ncomp;icomp++){
+     if (Type_hsdiam != MANUAL_HS_DIAM){  /* if not set manually in input file do something here */
      if (Type_hsdiam==BH_DIAM){ /* Barker-Henderson Treatment of hard core diameters */
         del=Sigma_ff[icomp][icomp]/1000.;
         r=sum=0.0;
@@ -91,7 +92,7 @@ void calc_HS_diams()
         HS_diam[icomp]=sum;
      }
      else HS_diam[icomp]=Sigma_ff[icomp][icomp];
-
+     }
      if (Proc==0) 
             printf("hard sphere diameters: icomp=%d  Sigma_ff=%9.6f  eps/kT=%9.6f HS_diam=%9.6f\n",
              icomp,Sigma_ff[icomp][icomp],Eps_ff[icomp][icomp],HS_diam[icomp]);
