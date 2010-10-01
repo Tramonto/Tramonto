@@ -16,6 +16,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define NCOMP_MAX 5
+#define NONE -1 
 extern double Rho_b[NCOMP_MAX];
 #define NMER_MAX     200
 extern double Rho_seg_b[NMER_MAX];
@@ -27,9 +28,11 @@ extern double Betamu_RTF[NCOMP_MAX];
 double integrand_mu_freen_bulk(int iunk,int inode_box,double **x);
 #define DENSITY_MIN  1.e-20
 extern double Betamu[NCOMP_MAX];
+extern double Charge_f[NCOMP_MAX];
 extern double Betamu_seg[NMER_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
+extern int Type_coul;
 #define DIFFUSION      6
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
