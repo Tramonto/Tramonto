@@ -60,9 +60,9 @@
 
 #include "Tramonto_ConfigDefs.h"
 
-/*#ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#endif*/
+#endif
 
 /****************************************************************************/
 /* Machine specific definitions */
@@ -1159,6 +1159,6 @@ extern double *Integration_profile; /* a place to put the integrand as a functio
 
 /****************************************************************************/
 
-/*#ifdef __cplusplus
+#ifdef __cplusplus
 }
-#endif*/
+#endif
