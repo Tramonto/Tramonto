@@ -25,8 +25,7 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
 void print_to_file(FILE *fp,double val,char *var_label,int first);
-#define SWITCH_BULK_OUTPUT 5
-extern int Print_rho_switch;
+extern int LBulk;
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
 double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box,double **x);
@@ -36,29 +35,21 @@ double integrand_WJDC_freen(int iunk,int inode_box,double **x);
 double integrand_WTC_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_WTC_freen(int iunk,int inode_box,double **x);
 #define WTC          2
-double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box,double **x);
-double integrand_elec_MSAcorr_freen(int iunk,int inode_box,double **x);
-#define DELTAC_GENERAL 2
-#define DELTAC_RPM     1 
 double integrand_surface_charge(int iunk,int inode_box,int iwall,double **x);
 double integrateOverSurface(double(*fp_integrand)(int,int,int,double **),int iunk,double **x,double *profile);
-double integrand_elec_PB_freen(int iunk,int inode_box,double **x);
+double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
+double integrand_adsorption(int iunk,int inode_box,double **x);
+double integrand_maxwell_stress_freen(int iunk,int inode_box,double **x);
 #define PI    3.141592653589793238462643383279502884197169399375
 extern double Temp_elec;
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
-extern double Charge_f[NCOMP_MAX];
 extern int Ncomp;
-extern int Type_coul;
 double integrand_att_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_att_freen(int iunk,int inode_box,double **x);
 extern int Type_attr;
 double integrand_hs_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_hs_freen(int iunk,int inode_box,double **x);
-#define NONE       -1
-#define NONE          -1
-#define NONE        -1
-#define NONE        -1
 extern int Type_func;
 double integrand_vext_freen(int iunk,int inode_box,double **x);
 extern int Nwall;
@@ -71,6 +62,12 @@ double integrand_ideal_gas_freen_bulk(int iunk,int inode_box,double **x);
 extern int **Nel_hit2;
 double integrand_ideal_gas_freen(int iunk,int inode_box,double **x);
 double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
+extern int Type_coul;
+extern double Charge_f[NCOMP_MAX];
 #define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
