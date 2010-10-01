@@ -567,7 +567,7 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(&Ncomp,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Mix_type,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_hsdiam==MANUAL_HS_DIAM) MPI_Bcast(Charge_f,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  if (Type_hsdiam==MANUAL_HS_DIAM) MPI_Bcast(HS_diam,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
 /* New code for interaction potential parameters */
 
