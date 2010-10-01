@@ -198,6 +198,9 @@ int     Ncomp;           /* Number of components in the current problem      */
 double  Temp;            /* Reduced Temperature for LJ interactions          */
 double  Temp_elec;       /* Reduced Temperature for Poisson's equation       */
 int     Type_dielec;      /* choose how to handle dielectric constants in system */
+double  Sigma_Angstroms_plasma;     /* the particle diameter in Angstroms sigma to be used in computing the plasma parameter. */
+double  Temp_K_plasma;     /* the temperature in K to be used in computing the plasma parameter.*/
+double  DielecConst_plasma;     /* the dielectric constant to be used in computing the plasma parameter */
 double  Dielec_bulk;     /* the dielectric constant in the bulk fluid */
 double  Dielec_pore;     /* the dielectric constant in the "pore" fluid */
 double  Dielec_X;        /* distance from a surface defines "pore" fluid */
