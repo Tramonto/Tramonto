@@ -229,7 +229,7 @@
 			point charge=0, smeared charge over sigma=1, background charge=2
                                for either Type_elec=3 or Nlocal_charge !=0.
 ************** DIELECTRIC CONSTANTS ************************************
-@ 0 	Type_dielec 
+@ 0 4.25  298.0  78.5   Type_dielec Sigma_Anstroms_plasm   Temp_K_plasma   DielecConst_plasma
                     (0 = all the same; 1 = fluid/walls different;
                      2 = bulk fluid/wall fluid/pore fluid;
                      3 = constant in walls; varies with density in fluid !)

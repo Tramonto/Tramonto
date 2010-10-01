@@ -210,7 +210,7 @@
 			point charge=0, smeared charge over sigma=1, background charge=2
                                for either Type_elec=3 or Nlocal_charge !=0.
 ************** DIELECTRIC CONSTANTS ************************************
-@ 0 	Type_dielec 
+@ 0 4.25  298.0  78.5   Type_dielec Sigma_Anstroms_plasm   Temp_K_plasma   DielecConst_plasma
                     (0 = all the same; 1 = fluid/walls different;
                      2 = bulk fluid/wall fluid/pore fluid;
                      3 = constant in walls; varies with density in fluid !)
@@ -271,7 +271,7 @@
 @ 1 1 0 0 	Lper_area Lcount_reflect Lprint_gofr Lprint_uww 
 @ 1 	Print_rho_type (0= all output in dft_dens.dat, 
                                1= each run gets a different file)
-@ 0 0 	Print_rho_switch Print_mesh_switch 
+@ 5 0 	Print_rho_switch Print_mesh_switch 
                switches to determine how output will look in dft_force file
                rho: (0 - all densities, 1=p/po, 2=kappa, 3=all betamu)
                mesh: (0=surface separations, 1=wall positions)
