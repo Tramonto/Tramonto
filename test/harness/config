@@ -257,7 +257,7 @@ RUN (melchior-11) {
 
 RUN (s903186-nightly) {
 
-    BUILD-LABEL         = mac-t9.0.2;
+    BUILD-LABEL         = mac-t10.6;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = mac-s903186;
     TEST-CATEGORY       = FRAMEWORK;
