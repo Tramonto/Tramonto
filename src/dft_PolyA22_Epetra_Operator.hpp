@@ -72,7 +72,7 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
   }
 
   virtual int initializeProblemValues();
-  virtual int insertMatrixValue(int rowGID, int colGID, double value);
+  virtual int insertMatrixValue(int rowGID, int colGID, double value, int isCms);
   virtual int finalizeProblemValues();
   //@}
   //@{ \name Destructor.
@@ -166,7 +166,7 @@ protected:
   //int * options_;
   //double * params_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnDensityMatrix_;
-  Teuchos::RefCountPtr<Epetra_Vector> cmsOnCmsMatrix_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnCmsMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> densityOnDensityMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> densityOnCmsMatrix_;
   char * Label_; /*!< Description of object */
@@ -175,9 +175,9 @@ protected:
   bool isFLinear_;
   bool firstTime_;
   int curRow_;
-  std::map<int, double> curRowValues_;
-  Epetra_IntSerialDenseVector indices_;
-  Epetra_SerialDenseVector values_;
+  std::map<int, double> curRowValues_, curRowValuesCms_;
+  Epetra_IntSerialDenseVector indices_, indicesCms_;
+  Epetra_SerialDenseVector values_, valuesCms_;
   Ifpack factory_;
 };
 

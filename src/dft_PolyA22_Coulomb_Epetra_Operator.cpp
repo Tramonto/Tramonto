@@ -63,7 +63,7 @@ dft_PolyA22_Coulomb_Epetra_Operator::dft_PolyA22_Coulomb_Epetra_Operator(const E
     curCPRow_(-1),
     curPDRow_(-1)
 {
-  
+
   poissonMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, poissonMap, 0));
   cmsOnPoissonMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, cmsMap, 0));
   poissonOnDensityMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, poissonMap, 0));
@@ -174,8 +174,17 @@ int dft_PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(int rowGID, int colGI
   } //end if poissonMap_.MyGID(rowGID)
   
   else if (cmsMap_.MyGID(rowGID)) {
-    if (rowGID==colGID)
-      (*cmsOnCmsMatrix_)[cmsMap_.LID(rowGID)] += value; // Storing this cms block in a vector since it is diagonal
+    if ( cmsMap_.MyGID(colGID) ) { // Insert into cmsOnCmsMatrix
+      if (firstTime_) {
+        if (rowGID!=curRow_) {
+          insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+          curRow_=rowGID;
+        }
+        curRowValuesCms_[colGID] += value;
+      }
+      else
+        cmsOnCmsMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
+    }
     else if (densityMap_.MyGID(colGID)){
       if (firstTime_) {
 	if (rowGID!=curRow_) { 
@@ -273,6 +282,10 @@ int dft_PolyA22_Coulomb_Epetra_Operator::insertPDRow() {
 int dft_PolyA22_Coulomb_Epetra_Operator::finalizeProblemValues() {
   
   if (isLinearProblemSet_) return(0); // nothing to do
+
+  insertRow(); // Dump any remaining entries
+  cmsOnCmsMatrix_->FillComplete();
+  cmsOnCmsMatrix_->OptimizeStorage();
   
   if (firstTime_) {
     insertPoissonRow();
@@ -437,14 +450,23 @@ int dft_PolyA22_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
     cmsOnPoissonMatrix_->Apply(Y0, Y1tmp2);
     Y1tmp.Update(1.0, Y1tmp2, 1.0);
     Y1.Update(1.0, X1, -1.0, Y1tmp, 0.0);
-    Y1.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y1, 0.0);
+    // For now, extract diagonal of cmsOnCmsMatrix and use that as preconditioner
+    Epetra_Vector cmsOnCmsDiag(cmsMap_);
+    cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
+    // Y1.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y1, 0.0);
+    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y1, 0.0)!=0);
   }
   else { 
     cmsOnDensityMatrix_->Apply(Y1, Y2tmp);
     cmsOnPoissonMatrix_->Apply(Y0, Y2tmp2);
     Y2tmp.Update(1.0, Y2tmp2, 1.0);
     Y2.Update(1.0, X2, -1.0, Y2tmp, 0.0);
-    Y2.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y2, 0.0);
+
+    // For now, extract diagonal of cmsOnCmsMatrix and use that as preconditioner
+    Epetra_Vector cmsOnCmsDiag(cmsMap_);
+    cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
+    // Y2.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y2, 0.0);
+    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y2, 0.0)!=0);
   }
   
   delete [] Y1ptr;
@@ -491,7 +513,7 @@ int dft_PolyA22_Coulomb_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epet
     }
   }
 
- Epetra_MultiVector X0(View, poissonMap_, X0ptr, NumVectors); // Start X0 to view the first numPoisson elements of X
+  Epetra_MultiVector X0(View, poissonMap_, X0ptr, NumVectors); // Start X0 to view the first numPoisson elements of X
   Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view middle numDensityElements/numCms elements of X
   Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity/numCms elements of X - was cms
   Epetra_MultiVector Y0(View, poissonMap_, Y0ptr, NumVectors); // Y0 is a view of the first numPoisson elements of Y
@@ -513,7 +535,8 @@ int dft_PolyA22_Coulomb_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epet
     cmsOnDensityMatrix_->Apply(X2, Y1tmp2);
     Y2tmp.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0);
     Y2tmp2.Multiply(1.0, *densityOnDensityMatrix_, X2, 0.0);
-    Y1.Multiply(1.0, *cmsOnCmsMatrix_, X1, 0.0);
+    // Y1.Multiply(1.0, *cmsOnCmsMatrix_, X1, 0.0);
+    TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X1, Y1)!=0);
     Y1.Update(1.0, Y1tmp, 1.0,  Y1tmp2, 1.0);
     Y2.Update(1.0, Y2tmp, 1.0, Y2tmp2, 0.0);
     Y0.Update(1.0, Y0tmp, 1.0, Y0tmp2, 0.0);
@@ -524,7 +547,8 @@ int dft_PolyA22_Coulomb_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epet
     cmsOnDensityMatrix_->Apply(X1, Y2tmp2);
     Y1tmp.Multiply(1.0, *densityOnDensityMatrix_, X1, 0.0);
     Y1tmp2.Multiply(1.0, *densityOnCmsMatrix_, X2, 0.0);
-    Y2.Multiply(1.0, *cmsOnCmsMatrix_, X2, 0.0);
+    TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X2, Y2)!=0);
+    // Y2.Multiply(1.0, *cmsOnCmsMatrix_, X2, 0.0);
     Y2.Update(1.0, Y2tmp, 1.0, Y2tmp2, 1.0);
     Y1.Update(1.0, Y1tmp, 1.0, Y1tmp2, 0.0);
     Y0.Update(1.0, Y0tmp, 1.0, Y0tmp2, 0.0);

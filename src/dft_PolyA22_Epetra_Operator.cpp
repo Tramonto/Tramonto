@@ -49,7 +49,8 @@ dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsM
     curRow_(-1) {
 
   cmsOnDensityMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, cmsMap, 0));
-  cmsOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(cmsMap));
+  cmsOnCmsMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, cmsMap, 0));
+  cmsOnCmsMatrix_->SetLabel("PolyA22::cmsOnCmsMatrix");
   densityOnDensityMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
   densityOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
   Label_ = "dft_PolyA22_Epetra_Operator";
@@ -61,7 +62,7 @@ dft_PolyA22_Epetra_Operator::~dft_PolyA22_Epetra_Operator() {
 }
 //=============================================================================
 int dft_PolyA22_Epetra_Operator::initializeProblemValues() {
-  
+
   if (isGraphStructureSet_) return(-1); // Graph structure must be set
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
@@ -75,13 +76,21 @@ int dft_PolyA22_Epetra_Operator::initializeProblemValues() {
   return(0);
 }
 //=============================================================================
-int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value) {
+int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value, int isCms) {
 
-  
-  if (cmsMap_.MyGID(rowGID)) {
-    if (rowGID==colGID)
-      (*cmsOnCmsMatrix_)[cmsMap_.LID(rowGID)] += value; // Storing this cms block in a vector since it is diagonal
-    else {
+  if (cmsMap_.MyGID(rowGID)) { // Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
+    if ( isCms ) { // Insert into cmsOnCmsMatrix
+      if (firstTime_) {
+	if (rowGID!=curRow_) { 
+	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+	  curRow_=rowGID;
+	}
+	curRowValuesCms_[colGID] += value;
+      }
+      else
+        cmsOnCmsMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
+    }
+    else { // Insert into cmsOnDensityMatrix ("F matrix")
       if (firstTime_) {
 	if (rowGID!=curRow_) { 
 	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
@@ -94,37 +103,62 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
 	cmsOnDensityMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
       }
     }
-  }
-  else {
-    if (rowGID==colGID)
+  } // end Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
+  else if (densityMap_.MyGID(rowGID)) { // Insert into densityOnDensityMatrix or densityOnCmsMatrix
+    if ( !isCms ) { // Insert into densityOnDensityMatrix
+      TEST_FOR_EXCEPT(rowGID!=colGID); // Confirm that this is a diagonal value
       (*densityOnDensityMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
-    else {
+    }
+    else { // Insert into densityOnCmsMatrix
       TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // Confirm that this is a diagonal value
       (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
     }
+  } // end Insert into densityOnDensityMatrix or densityOnCmsMatrix
+  else { // Problem! rowGID not in cmsMap or densityMap
+    char err_msg[200];
+    sprintf(err_msg,"PolyA22_Epetra_Operator::insertMatrixValue(): rowGID=%i not in cmsMap or densityMap.",rowGID);
+    TEST_FOR_EXCEPT_MSG(1, err_msg);
   }
 
   return(0);
 }
 //=============================================================================
 int dft_PolyA22_Epetra_Operator::insertRow() {
-  if (curRowValues_.empty()) return(0);
-  int numEntries = curRowValues_.size();
-  if (numEntries>indices_.Length()) {
-    indices_.Resize(numEntries);
-    values_.Resize(numEntries);
+
+  // Fill row of cmsOnCms and cmsOnDensity matrices
+  if (!curRowValues_.empty()) {
+    int numEntries = curRowValues_.size();
+    if (numEntries>indices_.Length()) {
+      indices_.Resize(numEntries);
+      values_.Resize(numEntries);
+    }
+    int i=0;
+    std::map<int, double>::iterator pos;
+    for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
+      indices_[i] = pos->first;
+      values_[i++] = pos->second;
+    }
+    cmsOnDensityMatrix_->InsertGlobalValues(curRow_, numEntries, values_.Values(), indices_.Values());
   }
-  int i=0;
-  std::map<int, double>::iterator pos;
-  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
-    indices_[i] = pos->first;
-    values_[i++] = pos->second;
+  if (!curRowValuesCms_.empty()) {
+    int numEntriesCms = curRowValuesCms_.size();
+    if (numEntriesCms>indicesCms_.Length()) {
+      indicesCms_.Resize(numEntriesCms);
+      valuesCms_.Resize(numEntriesCms);
+    }
+    int i=0;
+    std::map<int, double>::iterator pos;
+    for (pos = curRowValuesCms_.begin(); pos != curRowValuesCms_.end(); ++pos) {
+      indicesCms_[i] = pos->first;
+      valuesCms_[i++] = pos->second;
+    }
+    cmsOnCmsMatrix_->InsertGlobalValues(curRow_, numEntriesCms, valuesCms_.Values(), indicesCms_.Values());
   }
   
-  cmsOnDensityMatrix_->InsertGlobalValues(curRow_, numEntries, values_.Values(), indices_.Values());
-
   curRowValues_.clear();
+  curRowValuesCms_.clear();
   return(0);
+
 }
 //=============================================================================
 int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
@@ -132,14 +166,21 @@ int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
   // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
   bool hasDensityOnCms = cmsMap_.NumGlobalElements()==densityMap_.NumGlobalElements(); 
 
+  insertRow(); // Dump any remaining entries
+  cmsOnCmsMatrix_->FillComplete();
+  cmsOnCmsMatrix_->OptimizeStorage();
+  // cout << " Number of equations in cmsOnCms block = " << cmsOnCmsMatrix_->NumGlobalRows() << endl;
+  // cout << " Number of nonzeros in cmsOnCms block = " << cmsOnCmsMatrix_->NumGlobalNonzeros() << endl;
+  // cout << " Frobenius Norm of cmsOnCms block    = " << cmsOnCmsMatrix_->NormFrobenius() << endl;
+  // cout << " Average Nonzeros per row of cmsOnCms block   = " << cmsOnCmsMatrix_->NumGlobalNonzeros()/cmsOnCmsMatrix_->NumGlobalRows() << endl;
   if (!isFLinear_) {
     insertRow(); // Dump any remaining entries
     cmsOnDensityMatrix_->FillComplete(densityMap_, cmsMap_);
     cmsOnDensityMatrix_->OptimizeStorage();
-    //cout << " Number of equations in F block = " << cmsOnDensityMatrix_->NumGlobalRows() << endl;
-    //cout << " Number of nonzeros in F block = " << cmsOnDensityMatrix_->NumGlobalNonzeros() << endl;
-    //cout << " Frobenius Norm of F block    = " << cmsOnDensityMatrix_->NormFrobenius() << endl;
-    //cout << " Average Nonzeros per row of F block   = " << cmsOnDensityMatrix_->NumGlobalNonzeros()/cmsOnDensityMatrix_->NumGlobalRows() << endl;
+    // cout << " Number of equations in F block = " << cmsOnDensityMatrix_->NumGlobalRows() << endl;
+    // cout << " Number of nonzeros in F block = " << cmsOnDensityMatrix_->NumGlobalNonzeros() << endl;
+    // cout << " Frobenius Norm of F block    = " << cmsOnDensityMatrix_->NormFrobenius() << endl;
+    // cout << " Average Nonzeros per row of F block   = " << cmsOnDensityMatrix_->NumGlobalNonzeros()/cmsOnDensityMatrix_->NumGlobalRows() << endl;
   }
 
   if (!hasDensityOnCms) { // Confirm that densityOnCmsMatrix is zero
@@ -236,7 +277,10 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
     TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X2, 0.0)!=0);
     TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y2, Y1tmp)!=0);
     TEST_FOR_EXCEPT(Y1.Update(1.0, X1, -1.0, Y1tmp, 0.0)!=0);
-    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y1, 0.0)!=0);
+    // MLP: For now, extract diagonal of cmsOnCmsMatrix and use that as preconditioner
+    Epetra_Vector cmsOnCmsDiag(cmsMap_);
+    cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
+    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y1, 0.0)!=0);
   }
   else {
     for (int i = 0;i<NumVectors; i++) {
@@ -252,7 +296,10 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
     TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X1, 0.0)!=0);
     TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y1, Y2tmp)!=0);
     TEST_FOR_EXCEPT(Y2.Update(1.0, X2, -1.0, Y2tmp, 0.0)!=0);
-    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y2, 0.0)!=0);
+    // MLP: For now, extract diagonal of cmsOnCmsMatrix and use that as preconditioner
+    Epetra_Vector cmsOnCmsDiag(cmsMap_);
+    cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
+    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y2, 0.0)!=0);
   }
   
   delete [] Y2ptr;
@@ -297,8 +344,10 @@ int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
     Epetra_MultiVector X1(View, cmsMap_, X1ptr, NumVectors); // Start X1 to view first numCms elements of X
     Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
 
-    cmsOnDensityMatrix_->Apply(X2, Y1);
-    TEST_FOR_EXCEPT(Y1.Multiply(1.0, *cmsOnCmsMatrix_, X1, 1.0)!=0);
+    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X2, Y1)!=0);
+    Epetra_MultiVector Y1tmp(Y1);
+    TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X1, Y1tmp)!=0);
+    TEST_FOR_EXCEPT(Y1.Update(1.0, Y1tmp, 1.0));
     TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0)!=0);
     TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0)!=0);
   }
@@ -319,7 +368,9 @@ int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
     }
     TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 1.0)!=0);
     TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X1, Y2)!=0);
-    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *cmsOnCmsMatrix_, X2, 1.0)!=0);
+    Epetra_MultiVector Y2tmp(Y2);
+    TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X2, Y2tmp)!=0);
+    TEST_FOR_EXCEPT(Y2.Update(1.0, Y2tmp, 1.0));
   }
   
   delete [] X2ptr;

@@ -50,7 +50,6 @@
     debug_(debug),
     curRowA12_(-1),
     curRowA21_(-1) {
-  
 
   return;
   }*/
@@ -91,6 +90,8 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   // Load Schur block mappings
   physicsOrdering_.Size(numUnknownsPerNode_);
   physicsIdToSchurBlockId_.Size(numUnknownsPerNode_);
+  isCmsEquation_.Size(numUnknownsPerNode_); 
+  isDensityEquation_.Size(numUnknownsPerNode_);
   int * ptr = physicsOrdering_.Values();
   for (int i=0; i<gEquations_.Length(); i++) {
     *ptr++ = gEquations_[i];
@@ -116,20 +117,24 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
     for (int i=0; i<cmsEquations_.Length(); i++) {
       *ptr++ = cmsEquations_[i];
       physicsIdToSchurBlockId_[cmsEquations_[i]] = 2;
+      isCmsEquation_[cmsEquations_[i]] = 1;
     }
     for (int i=0; i<densityEquations_.Length(); i++) {
       *ptr++ = densityEquations_[i];
       physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
+      isDensityEquation_[densityEquations_[i]] = 1;
     }
   }
   else { //F in SW
     for (int i=0; i<densityEquations_.Length(); i++) {
       *ptr++ = densityEquations_[i];
       physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
+      isDensityEquation_[densityEquations_[i]] = 1;
     }
     for (int i=0;  i<cmsEquations_.Length(); i++) {
       *ptr++ = cmsEquations_[i];
       physicsIdToSchurBlockId_[cmsEquations_[i]] = 2;
+      isCmsEquation_[cmsEquations_[i]] = 1;
     }
   }
 
@@ -276,7 +281,10 @@ int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int
     A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->GID(ownedNode), rowGID, colGID, value); 
   }
   else if (schurBlockRow==2 && schurBlockCol==2) { // A22 block
-    A22_->insertMatrixValue(rowGID, colGID, value); 
+    if (isCmsEquation_[boxPhysicsID]) 
+      A22_->insertMatrixValue(rowGID, colGID, value, 1); 
+    else if (isDensityEquation_[boxPhysicsID])
+      A22_->insertMatrixValue(rowGID, colGID, value, 0); 
   }
   else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
     if (firstTime_) {

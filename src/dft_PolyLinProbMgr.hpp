@@ -244,6 +244,8 @@ protected:
   Epetra_IntSerialDenseVector cmsEquations_;
   Epetra_IntSerialDenseVector densityEquations_; 
   Epetra_IntSerialDenseVector poissonEquations_;
+  Epetra_IntSerialDenseVector isCmsEquation_;
+  Epetra_IntSerialDenseVector isDensityEquation_;
   Teuchos::RefCountPtr<dft_PolyA11_Epetra_Operator> A11_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A12_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A21_;
