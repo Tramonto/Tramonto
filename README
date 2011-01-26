@@ -21,6 +21,13 @@
 
                        How to Build Tramonto
 
+Note:
+
+    When accessing these instructions from the website, it is a good idea
+    to verify that you have the version of the instructions that corresponds
+    to your version of Tramonto.  The correct version of the instructions can
+    always be found in the README file in the top level directory of a Tramonto
+    tarball, or a checked out copy of the Tramonto source code repository.
 
 Contents:
     Prerequisites
