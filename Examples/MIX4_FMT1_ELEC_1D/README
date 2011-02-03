@@ -11,7 +11,7 @@ Notes: 1-1 electrolyte composed of two charged components (ions) and a dielectri
 are of finite and equal sizes. The DFT includes both hard sphere and electrostatic contributions to the functional. There
 are two surfaces in the problem, each with a charge per unit area of 0.3.  Note that the difference in the adsorption of the
 two ionic species is 0.6 indicating a charge neutral system overall.  Compare with MIX4_FMT1_ELEC_1D to see the effect
-of the hard sphere funtional on the density profiles.
+of the hard sphere funtional on the density profiles.Update on 2/3/11: Reiner-Radke approximation to the free energy has been turned off.  Prior to this date, the energy reported in this file was surf_ex_energy=2.432460.
 
 Input Files for Test problem:
    - dft_input.dat
@@ -22,6 +22,6 @@ Key Output Parameters:
    - adsorption[0]= 0.264168  
    - adsorption[1]= 0.864168
    - ptilde=1.072603 
-   - surface_energy=2.432460
+   - surface_energy=2.17189
    .
 */

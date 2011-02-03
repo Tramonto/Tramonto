@@ -283,13 +283,8 @@
 @ 0 100. 	Ljac_cut Jac_threshold 
 @ 0 0. 		L1D_bc, X_1D_bc 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 2 200 0 1                 NL_Solver   Max_NL_iter   Physics_scaling ATTInA22Block
-			NL_Solver = 0  Newton_built_in
-				    1  NEWTON_NOX
-					2 PICARD_BUILT_IN
-					3 PICARD_NOX
-					4 PICNEWTON_BUILT_IN
-					5 PICNEWTON_NOX
+@ 2 200 0 1 0    NL_Solver Max_NL_iter Physics_scaling ATTInA22Block Analyt_WJDC_Jac
+@ n/a           Scale_fac_WJDC[ipol][icomp]
 @ 1.0e-4 1.0e-5 0.1     NL_rel_tol NL_abs_tol NL_update_scalingParam
 @ 2     Load balance switch (0=linear,1=box,2=weights, 3=timings)
 ************ LINEAR SOLVER PARAMETERS ****************************************

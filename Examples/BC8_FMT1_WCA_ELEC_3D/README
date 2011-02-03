@@ -7,7 +7,7 @@ Dimensions: 3
 
 Diffusion: No
 
-Notes: Testing electrostatics hard sphere functionals and attractions simultaneously.  The resolution is rather low in order to facilitate a reasonably fast test even on a relatively slow platform.  The problem has one explicit charged surfaces with a surface charge density of qe/A=0.3, and one implicit reflected charged surface across a reflective boundary.  This is identical to BC7 except that the surface is in the x-z rather than the y-z plane.  This test is part of a series designed to test various boundary conditions.
+Notes: Testing electrostatics hard sphere functionals and attractions simultaneously.  The resolution is rather low in order to facilitate a reasonably fast test even on a relatively slow platform.  The problem has one explicit charged surfaces with a surface charge density of qe/A=0.3, and one implicit reflected charged surface across a reflective boundary.  This is identical to BC7 except that the surface is in the x-z rather than the y-z plane.  This test is part of a series designed to test various boundary conditions. Update on 2/3/11: Reiner-Radke approximation to the free energy has been turned off.  Prior to this date, the energy reported in this file was surf_ex_energy=-1.886449.
 
 Input Files for Test problem:
    - dft_input.dat
@@ -18,6 +18,6 @@ Key Output Parameters:
    - adsorption[0]=0.089830
    - adsorption[1]=0.689830
    - adsorption[2]=2.583995
-   - surf_ex_energy=-1.886449
+   - surf_ex_energy=-1.92825
    .
 */

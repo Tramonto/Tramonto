@@ -11,7 +11,7 @@ Notes: 1-1 electrolyte composed of two charged components (ions) and finite size
 and solvent are of equal size.   This is the so-called civilized model of Tang and Davis (1992).  Note that the 
 surface charge on each of two planar surfaces is 0.3.  The difference in adsorption between the two charged 
 components (0 and 1) is 0.6 indicating a charge neutral system.  This case may be compared to case MIX4_FMT1_ELEC_1D to 
-see the effect of including the solvent explicitly in the calculation.
+see the effect of including the solvent explicitly in the calculation. Update on 2/3/11: Reiner-Radke approximation to the free energy has been turned off.  Prior to this date, the energy reported in this file was surf_ex_energy=3.602336.
 
 Input Files for Test problem:
    - dft_input.dat
@@ -23,6 +23,6 @@ Key Output Parameters:
    - adsorption[1]= 0.900098  
    - adsorption[2]= 5.347047
    - ptilde= 6.096366
-   - surface_energy=3.602336
+   - surface_energy=4.01323
    .
 */

@@ -8,7 +8,8 @@ Dimensions: 2
 Diffusion: No
 
 Notes: Testing electrostatics hard sphere functionals and attractions simultaneously.  The resolution is rather low in order to facilitate a reasonably fast test even on a relatively slow platform.  The problem has two charged surfaces each with a surface charge density of qe/A=0.3.  This test is
-part of a series designed to test various boundary conditions.
+part of a series designed to test various boundary conditions.  Update on 2/3/11: Reiner-Radke approximation to the free energy has been turned off.  Prior to this date, the energy reported in this file was surf_ex_energy=-2.337443.
+
 
 
 Input Files for Test problem:
@@ -20,7 +21,7 @@ Key Output Parameters:
    - adsorption[0]=0.046164
    - adsorption[1]=0.646164 
    - adsorption[2]=1.877272  
-   - surf_ex_energy=-2.337443 
+   - surf_ex_energy=-2.41625 
    .
 */
 

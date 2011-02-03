@@ -22,7 +22,7 @@ Input Files for Test problem:
    - lin_8_lin_4
 
 Key Output Parameters:
-   - niter=8
+   - niter=7
    - adsorption[0]=11.3734
    - adsorption[1]=10.2357
    - energy=1.06399

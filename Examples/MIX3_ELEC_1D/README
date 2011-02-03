@@ -12,7 +12,7 @@ The ions are treated as point particles so this is the ideal (Poisson-Boltzmann)
 of the Density Functional Theory.  There are two surfaces in this problem each with
 a surface charge per unit area of 0.6.  Note that adsorption[1]-adsorption[0]=0.6 so the electrolyte 
 perfectly neutralizes the surface charge.  Finally, the sum rules associated with the force (ptilde)
-and free energies have been confirmed for this case.
+and free energies have been confirmed for this case. Update on 2/3/11: Reiner-Radke approximation to the free energy has been turned off.  Prior to this date, the energy reported in this file was surf_ex_energy=1.064881.
 
 Input Files for Test problem:
    - dft_input.dat
@@ -23,6 +23,6 @@ Key Output Parameters:
    - adsorption[0]= 0.342487  
    - adsorption[1]= 0.942487
    - ptilde = 1.048839
-   - surface_energy = 1.064881
+   - surface_energy = 1.05215
    .
 */

@@ -14,7 +14,7 @@ Input Files for Test problem:
    - dft_dens.dat
 
 Key Output Parameters :
-   - niter=8
+   - niter=9
    - ads[0]=6.99579 
    - ads[2]=0.176075
    - ads[3]=0.176075

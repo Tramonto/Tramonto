@@ -17,8 +17,8 @@ Input Files for Test problem:
 
 
 Key Output Parameters:
-   - adsorption[0]=19.2916 
-   - adsorption[1]=2.31402   
-   - energy=2.35102   
+   - adsorption[0]=19.3027 
+   - adsorption[1]=2.31181   
+   - energy=2.28354   
    .
 */
