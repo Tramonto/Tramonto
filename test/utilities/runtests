@@ -366,10 +366,8 @@ cleanUp();
                     #}
                     #} #$maxProc ne "2"
                     #else {
-                    #Temporary fix while the SELF_ASSEMBLE3 test is hanging
                     if ($dirName ne "CVS" && $dirName ne "." 
-                      && $dirName ne ".." && $dirName ne "Ex_polyfiles" 
-                      && $dirName ne "SELF_ASSEMBLE3_FMT3_WCA_WJDC_1D") {
+                      && $dirName ne ".." && $dirName ne "Ex_polyfiles") { 
                         push(@exampleDirs, $absFile); 
                     }
                     #} # $maxProc = 2
