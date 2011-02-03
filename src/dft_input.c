@@ -59,7 +59,7 @@ void read_input_file(char *input_file, char *output_file1)
 
    char *yo = "read_input_file";
    char poly_file[20];
-   int icomp, jcomp, iwall,iwall_type, idim, 
+   int icomp, jcomp, iwall,iwall_type, idim, ipol,
        i, izone, j, jwall,new_wall,logical,ncharge, seg, block[NCOMP_MAX][NBLOCK_MAX],
        block_type[NBLOCK_MAX],pol_number, nlink_chk,irand,irand_range,itmp,
        dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
@@ -1792,13 +1792,25 @@ void read_input_file(char *input_file, char *output_file1)
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    fscanf(fp,"%d %d %d %d ", &NL_Solver, &Max_NL_iter, &Physics_scaling, &ATTInA22Block);
-    fprintf(fp2,"%d %d %d %d",NL_Solver,Max_NL_iter,Physics_scaling,ATTInA22Block);
+    fscanf(fp,"%d %d %d %d %d", &NL_Solver, &Max_NL_iter, &Physics_scaling, &ATTInA22Block, &Analyt_WJDC_Jac);
+    fprintf(fp2,"NL_Solver=%d %d %d %d %d",NL_Solver,Max_NL_iter,Physics_scaling,ATTInA22Block,Analyt_WJDC_Jac);
+    read_junk(fp,fp2);
+    if (Physics_scaling != FALSE  && (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
+      for (ipol=0;ipol<Npol_comp;ipol++){
+            for (icomp=0;icomp<Ncomp;icomp++) {
+                  fscanf(fp,"%lf ", &Scale_fac_WJDC[ipol][icomp]);
+                  fprintf(fp2,"%f ", Scale_fac_WJDC[ipol][icomp]);
+            }
+      }
+    }
+    else { printf("n/a - no manual entry of scaling parameters"); }
   }
+  MPI_Bcast(Scale_fac_WJDC,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
   MPI_Bcast(&Max_NL_iter,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&NL_Solver,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Physics_scaling,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&ATTInA22Block,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Analyt_WJDC_Jac,1,MPI_INT,0,MPI_COMM_WORLD);
   if (NL_Solver==PICARD_BUILT_IN && Iguess_fields !=CALC_ALL_FIELDS){
      printf("Picard solver indicated so Iguess_fields is reset to %d\n",CALC_ALL_FIELDS);
   }
@@ -1830,7 +1842,7 @@ void read_input_file(char *input_file, char *output_file1)
     fscanf(fp,"%d ", &Az_solver);
     if (Az_solver == 0) fscanf(fp,"%d ", &Az_kspace);
     else Az_kspace=-1;
-    fprintf(fp2,"%d  %d  %d ", L_Schur, Az_solver, Az_kspace);
+    fprintf(fp2,"L_Schur=%d  %d  %d ", L_Schur, Az_solver, Az_kspace);
   }
   MPI_Bcast(&L_Schur,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Az_solver,1,MPI_INT,0,MPI_COMM_WORLD);
@@ -1861,7 +1873,7 @@ void read_input_file(char *input_file, char *output_file1)
   if (Proc==0) {
     read_junk(fp,fp2);
     fscanf(fp,"%d",&Nruns);
-    fprintf(fp2,"%d  ",Nruns);
+    fprintf(fp2,"Nruns=%d  ",Nruns);
   }
   MPI_Bcast(&Nruns,1,MPI_INT,0,MPI_COMM_WORLD);
 
@@ -1892,10 +1904,11 @@ void read_input_file(char *input_file, char *output_file1)
   if (Proc==0) {
     read_junk(fp,fp2);
     fscanf(fp,"%d", &itmp);
+    fprintf(fp2,"%d ",itmp);
   }
   MPI_Bcast(&itmp,1,MPI_INT,0,MPI_COMM_WORLD);
   Loca.method = itmp;
-  if (Proc==0) fprintf(fp2,"%d  ",Loca.method);
+/*  if (Proc==0) fprintf(fp2,"%d  ",Loca.method);*/
   if (Loca.method == 4) Lbinodal = 1;
   else Lbinodal=0;
   if (Lbinodal && Restart==0){
@@ -2042,8 +2055,10 @@ void read_input_file(char *input_file, char *output_file1)
 void read_junk(FILE *fp, FILE *fp2)
 {
    int c;
+   if (Proc==0) fprintf(fp2,"   junk:");
    while ((c=getc(fp)) != EOF && c !='@')
       if (Proc==0) putc(c,fp2);
+   if (Proc==0) fprintf(fp2,"   data:");
 }
 
 /****************************************************************************/

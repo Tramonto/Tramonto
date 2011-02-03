@@ -67,7 +67,6 @@ void post_process (double **x,int *niters,
   static double mu_previous,mu_2previous;
   double derivative,cont_var,surface_sep,derivative_avg,mu;
 
-
   if (!(Nruns>1 && call_from_flag==FROM_LOCA)){
   if (Print_rho_type != PRINT_RHO_0){
      if (binodal_flag){
@@ -289,5 +288,6 @@ void post_process (double **x,int *niters,
    }
 
    if (Proc==0 && Iwrite !=NO_SCREEN) printf("post processing took %g secs\n",MPI_Wtime()-t1);
+  return;
 }
 /******************************************************************************/

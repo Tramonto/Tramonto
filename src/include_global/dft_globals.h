@@ -455,6 +455,7 @@ int NL_Solver;    /* select type of nonliear solver */
 int Max_NL_iter;    /* Maximum # of Newton iterations (10 - 30)          */
 int Physics_scaling; /* do physical scaling of nonlinear problems */
 int ATTInA22Block; /* Logical for location of dense attractions.  1=TRUE=A22block; 0=FALSE=A12block */
+int Analyt_WJDC_Jac; /* Logical for handling of WJDC jacobians - 0=FALSE=approximate jacobian; 1=TRUE=analytic */
 double NL_abs_tol,NL_rel_tol; /* Convergence tolerances (update_soln)*/
 double NL_update_scalingParam; /* Minimum fraction to update solution to slow down
                            Newton's method */

@@ -19,7 +19,7 @@ void dft_GUI_Diffusion( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                   Teuchos::RCP<DependencySheet> depSheet_Tramonto,
                   Teuchos::RCP<Teuchos::ParameterList> Functional_List, 
                   Teuchos::RCP<Teuchos::ParameterList> Fluid_List, 
-                  Teuchos::RCP<Teuchos::ParameterList> Diffusion_List)
+                  Teuchos::RCP<Teuchos::ParameterList> StatePoint_List)
 {
   int idim;
 
@@ -49,8 +49,8 @@ void dft_GUI_Diffusion( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
         /************************/
 
    Dependency::ParameterParentMap InhomogeneousBCDependents;
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("SP1: Direction of Gradient", StatePoint_List));
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("SP4: Rho_b_1[icomp]", StatePoint_List));
+   InhomogeneousBCDependents.insert(std::pair<std::string, RCP<ParameterList> >("SP1: Direction of Gradient", StatePoint_List));
+   InhomogeneousBC.insert(std::pair<std::string, RCP<ParameterList> >("SP4: Rho_b_1[icomp]", StatePoint_List));
 
    RCP<StringVisualDependency> InhomogeneousBC_Dep = rcp(
        new StringVisualDependency( "F0_Type_of_Calculation",Functional_List,InhomogeneousBCDependents,

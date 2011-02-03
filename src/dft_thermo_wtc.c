@@ -96,9 +96,14 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
         Betamu_wtc[iseg]=0.0;
         Betamu_seg[iseg]=0.0;
    }
-    for (icomp=0; icomp<Ncomp;icomp++){
-        for (pol_num=0; pol_num<Npol_comp;pol_num++) Scale_fac_WJDC[pol_num][icomp]=0.0;
-    }
+   for (icomp=0; icomp<Ncomp;icomp++){
+       for (pol_num=0; pol_num<Npol_comp;pol_num++) {
+           if (Physics_scaling!=MANUAL_INPUT) Scale_fac_WJDC[pol_num][icomp]=0.0;
+           else if(fabs(Scale_fac_WJDC[pol_num][icomp])>1.e-8){ 
+              if (Iwrite!=NO_SCREEN) printf("MANUAL_ENTRY:: pol_num=%d icomp=%d Scale_fac_WJDC=%9.6f\n",pol_num,icomp,Scale_fac_WJDC[pol_num][icomp]);
+           }
+      }
+   }
 
 
       /* first do ideal gas correction for segment densities rather than component densities */ 
@@ -133,26 +138,26 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
      Betamu_wtc[kseg] -= term_kseg;
    }
 
-   if (Physics_scaling &&(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
-      if (Proc==0 && Iwrite != NO_SCREEN) {
+   if (Physics_scaling==AUTOMATIC &&(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
+      if (Proc==0 && Iwrite == VERBOSE) {
           printf("----------------------------------------------------------------------------------------\n");
           printf("Physics scaling is turned on, and the value of the parameter is set to:\n");
       }
       for (icomp=0; icomp<Ncomp;icomp++){ 
-         count_comp=0;
-         for (iseg=0; iseg<Nseg_tot;iseg++){
-            if (Unk2Comp[iseg]==icomp){  
-               count_comp++;
-               pol_num=SegAll_to_Poly[iseg];
-               Scale_fac_WJDC[pol_num][icomp]+=Betamu_seg[iseg];
+            count_comp=0;
+            for (iseg=0; iseg<Nseg_tot;iseg++){
+               if (Unk2Comp[iseg]==icomp){  
+                  count_comp++;
+                  pol_num=SegAll_to_Poly[iseg];
+                  Scale_fac_WJDC[pol_num][icomp]+=Betamu_seg[iseg];
+               }
             }
-         }
-         if (count_comp>0) Scale_fac_WJDC[pol_num][icomp]/=(double)count_comp;
+            if (count_comp>0) Scale_fac_WJDC[pol_num][icomp]/=(double)count_comp;
 /*         Scale_fac_WJDC[0][1]=-2.0; */ /* lipid bilayer problem !*/
          /*Scale_fac_WJDC[0][2]=-2.0;*/
-         if (Proc==0 && Iwrite != NO_SCREEN) printf("pol_num=%d icomp=%d Scale_fac_WJDC[pol_num][icomp]=%g\n",pol_num,icomp,Scale_fac_WJDC[pol_num][icomp]);
+         if (Proc==0 && Iwrite == VERBOSE) printf("pol_num=%d icomp=%d Scale_fac_WJDC[pol_num][icomp]=%g\n",pol_num,icomp,Scale_fac_WJDC[pol_num][icomp]);
       }
-      if (Proc==0 && Iwrite != NO_SCREEN){ 
+      if (Proc==0 && Iwrite == VERBOSE){ 
            printf("NOTE THATE THE SCALING FACTOR IS A HEURISTIC THAT MAY NOT BE OPTIMAL IN SOME CASES\n");
            printf("THIS HEURISTIC CAN BE MODIFIED IN dft_thermo_wtc.c\n");
           printf("----------------------------------------------------------------------------------------\n");

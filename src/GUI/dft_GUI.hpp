@@ -34,9 +34,9 @@
 #include "Teuchos_FancyOStream.hpp"
 #include "Teuchos_VerboseObject.hpp"
 #include "Optika_GUI.hpp"
+#include "Optika_StandardConditions.hpp"
 #include "Optika_StandardDependencies.hpp"
 #include "Optika_DependencySheet.hpp"
-#include "Optika_StandardConditions.hpp"
 
 
 void dft_GUI_mesh(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 

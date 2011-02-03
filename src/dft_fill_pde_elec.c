@@ -419,6 +419,7 @@ double load_poisson_bc(int iunk,int loc_inode,int inode_box)
              charge_i += Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
 
           resid = -4.0*PI*charge_i/Temp_elec;
+
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
         }   /* check for charge b.c. on this wall */

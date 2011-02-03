@@ -20,6 +20,7 @@ extern int Physics_scaling;
 extern double Betamu_id[NCOMP_MAX];
 #define NMER_MAX     200
 #define NBOND_MAX 4
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 extern double Field_WJDC_b[NMER_MAX];
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
@@ -45,11 +46,13 @@ extern double Charge_f[NCOMP_MAX];
 extern double Betamu_att[NCOMP_MAX];
 void chempot_att(double *rho);
 extern double Betamu_hs_ex[NCOMP_MAX];
+extern int Ncomp;
 void chempot_FMT_hs(double *dphi_drhobar);
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
 void chempot_ideal_gas(double *rho,double *betamu);
 extern double Betamu_chain[NMER_MAX];
+extern int Npol_comp;
 #define PHASE_INTERFACE 2
 extern double G_WJDC_RTF[NMER_MAX *NBOND_MAX];
 extern double Field_WJDC_RTF[NMER_MAX];
@@ -104,9 +107,6 @@ void WTC_thermo_precalc(char *output_file1);
 #define WTC          2
 extern int Type_poly;
 extern int L_HSperturbation;
-extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
-extern int Npol_comp;
-extern int Ncomp;
 #define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;

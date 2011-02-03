@@ -91,11 +91,11 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
            tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)","Steady State Diffusion (inhomogeneous boundaries)")));
 
        /* set up two dependees for the temperature condition */
-   RCP<BoolCondition> TempCon1=rcp(new BoolCondition("F5_Dimensionless_Energy_Entry",Fluid_List));
-   RCP<BoolCondition> TempCon2=rcp(new BoolCondition("CF8.0: Dimensionless Entry of Electrostatic Potential(s)?",ChargedFluid_List));
+   RCP<BoolCondition> TempCon1=rcp(new BoolCondition("F5_Dimensionless_Energy_Entry",Fluid_List,false));
+   RCP<BoolCondition> TempCon2=rcp(new BoolCondition("CF8.0: Dimensionless Entry of Electrostatic Potential(s)?",ChargedFluid_List,false));
    Condition::ConditionList Temp_conList = tuple<RCP<Condition> >(TempCon1,TempCon2);
    RCP<OrCondition>Temp_orCon=rcp(new OrCondition(Temp_conList));
-   RCP<ConditionVisualDependency> EnergyUnit_Dep = rcp(new ConditionVisualDependency(Temp_orCon, "0: Temperature(K)", StatePoint_List, false));
+   RCP<ConditionVisualDependency> EnergyUnit_Dep = rcp(new ConditionVisualDependency(Temp_orCon, "0: Temperature(K)", StatePoint_List));
        /* end of set up two dependees for the temperature condition */
 
    RCP<BoolVisualDependency> DensityUnit_Dep = rcp( new BoolVisualDependency( "1: Dimensionless Density Entry?",StatePoint_List,"2: Density Conversion Factor", StatePoint_List,false));

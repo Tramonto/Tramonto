@@ -60,7 +60,6 @@ extern int Nnodes;
 extern int Nodes_old;
 #define FROM_MAIN 1
 void post_process(double **x,int *niters,double *time_save,int loop1,int binodal_flag,int call_from_flag);
-typedef struct Loca_Struct Loca_Struct;
 extern struct Loca_Struct Loca;
 #define NEWTON_NOX            1
 #define NEWTON_BUILT_IN       0
@@ -127,6 +126,7 @@ extern int Type_func;
 #endif
 extern int Lmesh_refine;
 extern double Esize_x[NDIM_MAX];
+extern int Ndim;
 void continuation_shift();
 extern int Nruns;
 extern int Imain_loop;
@@ -148,7 +148,6 @@ void setup_stencil_uattr_core_properties();
 #define NONE        -1
 extern int Type_attr;
 void setup_stencil_logicals();
-extern int Ndim;
 void read_input_file(char *input_file,char *output_file1);
 extern int Proc;
 #if defined(DEBUG)

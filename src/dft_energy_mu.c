@@ -43,11 +43,11 @@ double integrand_mu_freen(int iunk,int inode_box, double **x)
         if (Lseg_densities){
                icomp = Unk2Comp[i];
                mu_i = Betamu_seg[i];
-               if (Type_coul != NONE) mu_i -= log(Rho_seg_b[i]);
+               /*if (Type_coul != NONE) mu_i -= log(Rho_seg_b[i]);*/ /* this bit is only for Reiner-Radke approach */
         }
         else{
             mu_i = Betamu[i];
-            if (Type_coul != NONE && fabs(Charge_f[i])>1.e-15) mu_i -= log(Rho_b[i]);
+/*            if (Type_coul != NONE && fabs(Charge_f[i])>1.e-15) mu_i -= log(Rho_b[i]);*/ /* this bit is only for Reiner-Radke approach */
         }
      }
      rho_i = x[iunk][inode_box];
@@ -72,11 +72,11 @@ double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
                icomp = Unk2Comp[i];
                /*mu_i = Betamu_seg_RTF[i];*/ /* note we need to fix up WTC for diffusion */
                mu_i = Betamu_RTF[i];
-               if (Type_coul != NONE) mu_i -= log(Rho_seg_RTF[i]);
+               /*if (Type_coul != NONE) mu_i -= log(Rho_seg_RTF[i]);*/  /* this bit is for Reiner-Radke approach */
                rho_i = Rho_seg_RTF[i];
         }
         else{   mu_i = Betamu_RTF[i];
-               if (Type_coul != NONE) mu_i -= log(Rho_b_RTF[i]);
+               /*if (Type_coul != NONE) mu_i -= log(Rho_b_RTF[i]);*/ /* this bit is for Reiner-Radke approach */
                rho_i = Rho_b_RTF[i];
         }
      }
@@ -84,11 +84,11 @@ double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
         if (Type_poly==WTC){
                icomp = Unk2Comp[i];
                mu_i = Betamu_seg[i];
-               if (Type_coul != NONE) mu_i -= log(Rho_seg_b[i]);
+              /* if (Type_coul != NONE) mu_i -= log(Rho_seg_b[i]);*/ /* this bit is for Reiner-Radke approach */
                rho_i = Rho_seg_b[i];
         }
         else{   mu_i = Betamu[i];
-                if (Type_coul != NONE && fabs(Charge_f[i])>1.e-15) mu_i -= log(Rho_b[i]);
+               /* if (Type_coul != NONE && fabs(Charge_f[i])>1.e-15) mu_i -= log(Rho_b[i]);*/ /* this bit is for Reiner-Radke approach */
                 rho_i = Rho_b[i];
         }
      }

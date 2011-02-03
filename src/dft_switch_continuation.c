@@ -302,10 +302,34 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
 
   /* for most cases...recalculate thermo based on new parameter.  However if
      calculating bulk_coexistence or varying Betamu do not call thermo */
-  if (Loca.cont_type1 != CONT_BETAMU_I && !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I) ){
+  if (Loca.cont_type1 != CONT_BETAMU_I && !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I)){
           thermodynamics(output_file1);
    }
+
+   /*adjust_dep_params(cont_type,Loca_contID,output_file1)*/
 }
+/*****************************************************************************/
+/*adjust_dep_params(int cont_type,int Loca_contID,char *output_file1)
+{
+  int Ladjust_uattCore=FALSE,Ladjust_pairPot=FALSE,Ladjust_polymbercr=FALSE,
+      Ladjust_HSdiams=FALSE,Ladjust_thermo=FALSE,Ladjust_mesh=FALSE,Ladjust_stencils=FALSE;
+
+  switch(cont_type){
+     case CONT_MESH: break;
+     case CONT_TEMP: break;
+     case CONT_RHO_I:   break;
+     case CONT_BETAMU_I: break;
+     case CONT_EPSW_I:  break;
+     case CONT_EPSWF_IJ: break;
+     case CONT_EPSFF_IJ: break;
+     case CONT_ELECPARAM_I: break;
+     case CONT_ELECPARAM_ALL: break;
+     case CONT_SEMIPERM_IJ: break;
+     case CONT_SIGMAFF_IJ: break;
+  } 
+  if (Ladjust_thermo) thermodynamics(output_file1);
+}
+*/
 /*****************************************************************************/
 /*print_cont_type: Here print the type of the variable that
                      is changing in a given run

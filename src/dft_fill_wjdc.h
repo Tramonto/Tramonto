@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond,double **x,int flag);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -16,6 +15,8 @@ double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond,double **x,int flag
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int Analyt_WJDC_Jac;
+double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond,double **x,int flag);
 extern int **Poly_to_Unk_SegAll;
 double d2y_dxi3_dxi2(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double d2y_dxi3_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);

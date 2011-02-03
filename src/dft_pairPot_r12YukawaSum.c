@@ -40,15 +40,15 @@
 
 double ur12andYUKAWA_CS(double r,double sigma, double eps, double rcut,double yukawaK,double AYukawa)
 {
-  double u,alpha,Ayukawa;
+  double u,alpha;
   alpha=yukawaK*sigma;
 
   /* note that writing the potential this way implies that the Yukawa parameters in the
      input file will be entered as K*sigma_ij */
   
   if (r <= rcut) {
-     u = eps*( POW_DOUBLE_INT(sigma/r,12) - POW_DOUBLE_INT(sigma/rcut,12) ) - 
-         Ayukawa*(exp(-alpha*(r/sigma-1.0))/(r/sigma)- exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma));
+     u = eps*( POW_DOUBLE_INT(sigma/r,12) - POW_DOUBLE_INT(sigma/rcut,12) ) + 
+         AYukawa*(exp(-alpha*(r/sigma-1.0))/(r/sigma)- exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma));
   }
   else u = 0.0;
   return (u);
@@ -91,12 +91,12 @@ void ur12andYUKAWA_CS_setparams(int context, int i, int j, double *param1,double
 
 double ur12andYUKAWA_DERIV1D(double r,double x,double sigma, double eps, double rcut,double yukawaK,double AYukawa)
 {
-  double uderiv,alpha,Ayukawa;
+  double uderiv,alpha;
   alpha=yukawaK*sigma;
   
   if (r <= rcut) {
      uderiv = (eps/(sigma*sigma)) * (-12.*x*POW_DOUBLE_INT(sigma/r,14) )
-            +Ayukawa*sigma*x*exp(-alpha*(r/sigma-1.0))*((1./r)+(alpha/sigma))/(r*r);
+            -AYukawa*sigma*x*exp(-alpha*(r/sigma-1.0))*((1./r)+(alpha/sigma))/(r*r);
   }
   else uderiv = 0.0;
   return (uderiv);
@@ -147,7 +147,8 @@ double ur12andYUKAWA_ATT_CS(double r,int i, int j)
 
   rcut=Cut_ff[i][j];
   eps=Eps_ff[i][j];
-  alpha=YukawaK_ff[i][j]*sigma;
+  /*alpha=YukawaK_ff[i][j]*sigma;*/
+  alpha=YukawaK_ff[i][j];
   Ayukawa=EpsYukawa_ff[i][j];
 
   /* note that Rmin and Rzero will both be Sigma_ff[i][j] for a monotonic potential */
@@ -169,9 +170,9 @@ double ur12andYUKAWA_ATT_CS(double r,int i, int j)
         r6_inv  = r2_inv*r2_inv*r2_inv;
         r12_inv = r6_inv*r6_inv;
 
-        uatt= eps*sigma6*sigma6*(r12_inv - rc12_inv)-
+        uatt= eps*sigma6*sigma6*(r12_inv - rc12_inv)+
              Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma)
-           + Ayukawa*exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma);
+           - Ayukawa*exp(-alpha*(rcut/sigma-1.0))/(rcut/sigma);
      }
      else uatt=0.0;
   }
@@ -188,7 +189,8 @@ double ur12andYUKAWA_ATT_noCS(double r,int i, int j)
 
   sigma=Sigma_ff[i][j];
   eps=Eps_ff[i][j];
-  alpha=YukawaK_ff[i][j]*sigma;
+  /*alpha=YukawaK_ff[i][j]*sigma;*/
+  alpha=YukawaK_ff[i][j];
   Ayukawa=EpsYukawa_ff[i][j];
   sigma2 = Sigma_ff[i][j]*Sigma_ff[i][j];
   sigma6 = sigma2*sigma2*sigma2;
@@ -211,7 +213,7 @@ double ur12andYUKAWA_ATT_noCS(double r,int i, int j)
      r6_inv  = r2_inv*r2_inv*r2_inv;
      r12_inv = r6_inv*r6_inv;
 
-     uatt= eps*sigma6*sigma6*r12_inv - Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma);
+     uatt= eps*sigma6*sigma6*r12_inv + Ayukawa*exp(-alpha*(r/sigma-1.0))/(r/sigma);
   }
 
   return uatt;
@@ -232,7 +234,8 @@ double ur12andYUKAWA_Integral(double r,int i, int j)
   sigma6 = sigma2*sigma2*sigma2;
   eps=Eps_ff[i][j];
   Ayukawa=EpsYukawa_ff[i][j];
-  alpha=YukawaK_ff[i][j]*sigma;
+/*  alpha=YukawaK_ff[i][j]*sigma;*/
+  alpha=YukawaK_ff[i][j];
   c=alpha/sigma;
 
   r_inv = 1.0/r;

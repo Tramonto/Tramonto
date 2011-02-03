@@ -4,7 +4,7 @@ using namespace std;
 #include "dft_GUI.hpp"
 using namespace Teuchos;
 using namespace Optika;
-bool func_testNcomp(Teuchos::RCP<Teuchos::ParameterList> Fluid_List);
+int func_testNcomp(int);
 
 void dft_GUI_potentialsFF(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                          Teuchos::RCP<DependencySheet> depSheet_Tramonto,
@@ -120,11 +120,11 @@ void dft_GUI_potentialsFF(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
 
       /* trying to set up dependency based on the value of F1_Ncomp-1 rather than F1_Ncomp .... doesn't work */
-/*     RCP<NumberVisualDependency<int> > MixType_Dep = rcp(
-            new NumberVisualDependency<int>( "F1_Ncomp", Fluid_List, "PF0_Off_Diagonal_Definitions", PotentialsFF_List,func_testNcomp(Fluid_List)));*/
-
      RCP<NumberVisualDependency<int> > MixType_Dep = rcp(
-           new NumberVisualDependency<int>( "F1_Ncomp", Fluid_List,"PF0_Off_Diagonal_Definitions", PotentialsFF_List));
+            new NumberVisualDependency<int>( "F1_Ncomp", Fluid_List, "PF0_Off_Diagonal_Definitions", PotentialsFF_List,func_testNcomp));
+
+/*     RCP<NumberVisualDependency<int> > MixType_Dep = rcp(
+           new NumberVisualDependency<int>( "F1_Ncomp", Fluid_List,"PF0_Off_Diagonal_Definitions", PotentialsFF_List));*/
 
      RCP<StringVisualDependency> MixType2_Dep =rcp(
            new StringVisualDependency("F2_PAIRPOTcore_Functional", Functional_List, "PF0_Off_Diagonal_Definitions", PotentialsFF_List, 
@@ -256,13 +256,8 @@ void dft_GUI_potentialsFF(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
   return;
 }
 /**************************************************************************************************************/
-bool func_testNcomp(Teuchos::RCP<Teuchos::ParameterList> Fluid_List)
+int func_testNcomp(int Ncomp)
 {
-  int test;
-  bool logical;
-   test=Fluid_List->get<int>("F1_Ncomp")-1;
-   if (test>0) logical=true;
-   else logical=false;
-   return logical;
+   return Ncomp-1;
 }
 

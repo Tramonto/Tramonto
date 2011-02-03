@@ -2275,6 +2275,7 @@ void bc_setup_const_charge(int iwall, int loc_inode)
             }
             Charge_w_sum_els[loc_inode][idim] += 
                          weight*Elec_param_w[iwall]/(double)Nnodes_per_el_S;
+
       }
   }
 

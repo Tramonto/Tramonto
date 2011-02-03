@@ -100,6 +100,7 @@ double prefactor_rho_wjdc(int iseg)
   mu=Betamu_chain[pol_number];
 
   fac=exp(mu+scale_term);
+
 	
 	if(Grafted[pol_number] && Type_poly==WJDC3)  {
 		icomp = Type_mer[pol_number][iseg];
@@ -284,7 +285,7 @@ double yterm_wjdc(int icomp, int jcomp,int jnode_box,double **x)
 /*load_polyWJDC_cavityEL:  Here add the bond contributions of the WTC association/bonding (cavity term) functionals                       to the Euler-Lagrange equation for the Wertheim-Tripathi-Chapman theory */
 double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag)
 {
-  int jseg,kseg,kbond,jcomp,unk_xi2,unk_xi3,unk_rho,kcomp,unk_B,unk_GQ;
+  int jseg,kseg,kbond,jcomp,unk_xi2,unk_xi3,unk_rho,kcomp,unk_B,unk_GQ,jseg_tmp;
   double xi_2,xi_3,s1,s2,y,dy_dxi2,dy_dxi3,prefac2,prefac3;
   double d2y_dxi2_2,d2y_dxi3_2,d2y_dxi2_dxi3;
   int jzone,jnode_box,jlist,reflect_flag[3],jnode_boxJ;
@@ -300,7 +301,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
    if (Type_poly==WJDC) iseg = iunk-Phys2Unk_first[WJDC_FIELD];
   else                 iseg = iunk - Phys2Unk_first[DENSITY];*/
 
-  resid_sum=0.0;
+  resid_sum=resid=0.0;
   unk_xi2 = Phys2Unk_first[CAVWTC];
   unk_xi3 = Phys2Unk_first[CAVWTC]+1;
   jzone=izone;
@@ -326,13 +327,15 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
          xi_3=constant_boundary(unk_xi3,jnode_box);
     }
 
+
     resid=0.0;
     for (jseg=0;jseg<Nseg_tot;jseg++){
-       
-       if (Pol_Sym_Seg[jseg] != -1) unk_rho=Pol_Sym_Seg[jseg];
-       unk_rho = Unk2Comp[jseg]+Phys2Unk_first[DENSITY];
-
+      
+       jseg_tmp=jseg; 
+       if (Pol_Sym_Seg[jseg] != -1) jseg_tmp=Pol_Sym_Seg[jseg];
+       unk_rho = Unk2Comp[jseg_tmp]+Phys2Unk_first[DENSITY];
        jcomp=Unk2Comp[jseg];
+
        s1=Sigma_ff[jcomp][jcomp];
 /*       s1=Bond_ff[jcomp][jcomp];*/
        if (Nlists_HW <= 2) jlist = 0;
@@ -389,9 +392,9 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
           }
 
           for (jseg=0;jseg<Nseg_tot;jseg++){
-              unk_rho = jseg;
-              if (Pol_Sym_Seg[jseg] != -1) unk_rho = Pol_Sym_Seg[jseg];
-              unk_rho = Unk2Comp[unk_rho]+Phys2Unk_first[DENSITY];
+              jseg_tmp = jseg;
+              if (Pol_Sym_Seg[jseg] != -1) jseg_tmp = Pol_Sym_Seg[jseg];
+              unk_rho = Unk2Comp[jseg_tmp]+Phys2Unk_first[DENSITY];
               jcomp=Unk2Comp[jseg];
               if (Type_poly==WJDC2 || Type_poly==WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+jcomp;
               else if (Type_poly==WJDC) unk_B=Phys2Unk_first[WJDC_FIELD]+jseg; 
@@ -461,22 +464,23 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                   first_deriv = (prefac2*dy_dxi2 + prefac3*dy_dxi3)/y;
  
                  /*Approximate matrix entries using a mean value of the segment density .....*/
-/* TO SWITCH TO ANALYTIC JACOBIAN COMMENT OUT THE NEXT TWO LINES !!! */
-/*                   mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv/Nseg_type[jcomp];
-                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                             unk_rho,jnode_boxJ,mat_val);*/
+                  if (Analyt_WJDC_Jac==FALSE){
+                     mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv/Nseg_type[jcomp];
+                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                             unk_rho,jnode_boxJ,mat_val);
+                  }
+                  else{
                 
-                   /* Matrix entries for dR_Field/dXi_alpha */   
-/* TO SWITCH TO ANALYTIC JACOBIAN UN-COMMENT THE NEXT TWO LINES !!! */
-                   mat_val = 0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv*dens/x[unk_B][jnode_boxJ];
-                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                   /* Analytic Matrix entries for dR_Field/dXi_alpha */   
+                     mat_val = 0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv*dens/x[unk_B][jnode_boxJ];
+                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_B,jnode_boxJ,mat_val);
 
-                   /* Matrix entries for dR_Field/dG_alpha */   
-/* TO SWITCH TO ANALYTIC JACOBIAN UN-COMMENT THE NEXT TWO LINES !!! */
-                   mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv*dens_Gderiv;
-                   dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                   /* Analytic Matrix entries for dR_Field/dG_alpha */   
+                     mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv*dens_Gderiv;
+                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_GQ,jnode_boxJ,mat_val);
+                   }
 
                    /* Matrix entries for dR_Field/dcav_2 */
                    mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*dens* (
@@ -518,13 +522,16 @@ double calc_dens_seg(int iseg,int inode_box,double **x,int flag)
    else /*if (Type_poly==WJDC)*/ unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; 
 
    fac1 = prefactor_rho_wjdc(iseg);
+
    for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
               unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[iseg][ibond];
 /*              unk_GQ_test = unk_GQ-Phys2Unk_first[G_CHAIN];
               if (Pol_Sym[unk_GQ_test] != -1) unk_GQ=Pol_Sym[unk_GQ_test] + Phys2Unk_first[G_CHAIN];*/
               fac1 *= x[unk_GQ][inode_box];
+
     }
    dens = fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
+
    return(dens);
 }
 /********************************************************************************************/

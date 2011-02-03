@@ -66,7 +66,12 @@ extern double NL_update_scalingParam;
 extern double NL_abs_tol,NL_rel_tol;
 #define CALC_ALL_FIELDS   1
 #define PICARD_BUILT_IN       2
+#define NCOMP_MAX 5
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
+#define WJDC2        4 
+#define WJDC         3
 extern int ATTInA22Block;
+extern int Analyt_WJDC_Jac;
 extern int Physics_scaling;
 extern int Max_NL_iter;
 extern int NL_Solver;
@@ -96,7 +101,6 @@ extern int Restart_Vext;
 extern int Nmissing_densities;
 #define RESTART_FEWERCOMP  4
 extern int Restart;
-#define NCOMP_MAX 5
 #define NSTEPS_MAX 10
 extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];
 extern double Xend_step[NSTEPS_MAX];

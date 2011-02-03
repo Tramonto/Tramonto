@@ -41,6 +41,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF,iunk_att,first_unk,offset[3],reflect_flag[3],idim,jnode_box;
    double resid=0.0,resid_att,mat_val;
 
+
                   /* set icomp and iseg(WTC) */
    iseg=-1;
    if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) { /* note that this routine fills the _field_variable rather than
@@ -123,6 +124,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
       resid+=fill_EL_chem_pot(iunk,icomp,iseg,loc_inode,inode_box,mesh_coarsen_flag_i,x,resid_only_flag);
    }
 
+
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode,resid_only_flag);
 
    if (Type_coul != NONE){
@@ -169,6 +171,8 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
          resid+=load_mean_field(THETA_CR_GENERAL_MSA,iunk,loc_inode,
                           icomp,izone,ijk_box,x, resid_only_flag);
    }
+
+
 
    if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2){
        if (Type_poly==WTC){
@@ -357,7 +361,6 @@ double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, doub
       }
    }
 
-
    if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){ 
       for (pol_number=0;pol_number<Npol_comp;pol_number++) {
        if (Nseg_type_pol[pol_number][icomp] !=0) scalefac=Scale_fac_WJDC[pol_number][icomp];
@@ -380,6 +383,7 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
    usemu_test=FALSE;
    if (LBulk && Loca.cont_type1==CONT_BETAMU_I && icomp==Cont_ID[0][0]) usemu_test=TRUE;
    if (Loca.method==4 && LBulk && Loca.cont_type2==CONT_BETAMU_I && icomp==Cont_ID[1][0]) usemu_test=TRUE;
+
 
    resid_mu = 0.0;
    if (Type_interface != DIFFUSIVE_INTERFACE) {
@@ -409,6 +413,7 @@ double fill_EL_chem_pot(int iunk, int icomp, int iseg, int loc_inode, int inode_
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
       }
    }
+
    if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY)
        dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_mu);
  

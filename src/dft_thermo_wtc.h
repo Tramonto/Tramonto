@@ -29,7 +29,6 @@ extern double BondWTC_LBB[NMER_MAX *NMER_MAX];
 extern double BondWTC_b[NMER_MAX *NMER_MAX];
 extern int Nbonds;
 #define WTC          2
-#define VERBOSE      3 
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
@@ -55,9 +54,8 @@ extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 #define PI    3.141592653589793238462643383279502884197169399375
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
+#define VERBOSE      3 
 extern int SegAll_to_Poly[NMER_MAX];
-#define NO_SCREEN    4 
-extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
@@ -66,11 +64,15 @@ extern int Proc;
 #define WJDC2        4 
 #define WJDC         3
 extern int Type_poly;
-extern int Physics_scaling;
+#define AUTOMATIC       1
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
+#define NO_SCREEN    4 
+extern int Iwrite;
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
+#define MANUAL_INPUT    2
+extern int Physics_scaling;
 extern int Npol_comp;
 extern int Ncomp;
 extern double Betamu_seg[NMER_MAX];

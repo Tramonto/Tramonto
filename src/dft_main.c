@@ -32,7 +32,7 @@
 #include <unistd.h>
 #include "include_global/dft_globals.h"
 #include "rf_allo.h"
-/*#include "dft_optikaGUI.h"*/
+/*#include "GUI/dft_GUI.h"*/
 
 #include "dft_main.h"
 /*****************************************************************************/
@@ -71,7 +71,6 @@ void dftmain(double * engptr)
   double    *t_linsolv_first_array,*t_linsolv_av_array;
   double    *t_manager_first_array,*t_manager_av_array;
   double    *t_fill_first_array,*t_fill_av_array;
-/*  int        dummy_param, *dummy;*/
   int       min_nnodes_per_proc,max_nnodes_per_proc,min_nnodes_box,max_nnodes_box;
   double    min_nodesLoc_over_nodesBox,max_nodesLoc_over_nodesBox;
   FILE      *fp;
@@ -122,9 +121,6 @@ void dftmain(double * engptr)
   output_file4 = "dft_vext_c.dat";
   output_TF = "dft_zeroTF.dat";
 
-  /*dummy = (int *) array_alloc (1, 500000000, sizeof(int));
-  safe_free((void *) &dummy);*/
-
  /*
   * Read in the ascii input file from the front end 
   * This routine also sets up some flags
@@ -132,8 +128,9 @@ void dftmain(double * engptr)
   */
 
   read_input_file(input_file,output_file1);
-/*  dft_OptikaGUI(&dummy_param);*/
-/*  printf("DUMMY PARAM FROM OPTIKA IS %d\n",dummy_param);*/
+/*  dft_OptikaGUI();
+
+  printf("Ndim - SET IN GUI is %d\n",Ndim);*/
   setup_stencil_logicals();
   if (Type_attr != NONE) setup_stencil_uattr_core_properties();
   setup_nunk_per_node(output_file1);
@@ -176,6 +173,7 @@ void dftmain(double * engptr)
 
      t_mesh = MPI_Wtime();
 
+     if (Loca.method == -1 || Imain_loop==0) {
     /* we need the HS diameters before we compute the integration stencils. */
      if (Type_func != NONE) calc_HS_diams();
 
@@ -189,6 +187,7 @@ void dftmain(double * engptr)
      * do all the thermodynamics for the bulk fluid mixture
      */
      thermodynamics(output_file1);
+     }
 
     /*
      * Set up the mesh based on input info, and allocate the solution vector
@@ -240,7 +239,7 @@ void dftmain(double * engptr)
            if(Iwrite !=NO_SCREEN) printf("Not computing vext_coulomb due to boundary conditions\n");
          }
      }
-     if (Iwrite==VERBOSE || Iwrite==EXTENDED) {
+     if (Iwrite==VERBOSE) {
         print_vext(Vext,output_file2);
         if (Restart_Vext == READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");
         print_zeroTF(Zero_density_TF,output_TF);
@@ -560,13 +559,12 @@ void continuation_shift()
   size_y_tmp= sqrt(3*(Size_x[0]+Del_1[0])*(Size_x[0]+Del_1[0]));
   nadd = round_to_int((size_y_tmp-Size_x[1])/Esize_x[1]);
   Del_1[1]=nadd*Esize_x[1];
-
   /* end special case */
 
   for (idim=0; idim<Ndim; idim++) {
       Size_x[idim] += Del_1[idim];
                                    /*comment out special case for hexagonal mesh change */
-      if (Plane_new_nodes == idim || fabs(round_to_int(Del_1[idim]/Esize_x[idim]))>0){
+      if (Plane_new_nodes == idim || round_to_int(Del_1[idim]/Esize_x[idim])>0){
          if (Pos_new_nodes == 0) {    /*adding nodes to center*/
             for (iwall=0; iwall<Nwall; iwall++) {
                if (WallPos[idim][iwall]<0.0)

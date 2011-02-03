@@ -31,24 +31,38 @@
 void  thermodynamics(char *output_file1)
 {
    char *yo = "thermodynamics";
+   double scale_fac_tmp[NCOMP_MAX][NCOMP_MAX];
    int pol_num,icomp;
    if (Proc==0 && Iwrite!=NO_SCREEN){
           printf("\n-------------------------------------------------------------------------------\n");
           printf("%s: Doing Thermo precalculations\n",yo);
+
    }
 
     /* first call any functions needed to preprocess global bulk variables associated with the functionals chosen for this run */
 
-    for (icomp=0; icomp<Ncomp;icomp++){
-        for (pol_num=0; pol_num<Npol_comp;pol_num++) Scale_fac_WJDC[pol_num][icomp]=0.0;
-    }
     if (L_HSperturbation){
                                                                     /* set up segment densities */
        if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WTC_thermo_precalc(output_file1);   
                                                                     /* set up bulk WJDC_field and G values */
-       if (Type_func != NONE) HS_thermo_precalc(output_file1); 
+       if (Type_func != NONE)  HS_thermo_precalc(output_file1); 
+
        if (Type_attr != NONE ) ATT_thermo_precalc();
-       if (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WJDC_thermo_precalc(output_file1);
+       if (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) {
+            /* the Scale_fac must be set to zero on the first call since the scaling factor is not used in computation
+               of the bulk properties. */
+            for (icomp=0; icomp<Ncomp;icomp++){
+              for (pol_num=0; pol_num<Npol_comp;pol_num++) {
+                 scale_fac_tmp[pol_num][icomp]=Scale_fac_WJDC[pol_num][icomp];
+                 Scale_fac_WJDC[pol_num][icomp]=0.0;
+              }
+            }
+            WJDC_thermo_precalc(output_file1);
+            /* Return the Scale_fac array to its previous values
+               of the bulk properties. */
+            for (icomp=0; icomp<Ncomp;icomp++)
+              for (pol_num=0; pol_num<Npol_comp;pol_num++) { Scale_fac_WJDC[pol_num][icomp]=scale_fac_tmp[pol_num][icomp]; } 
+       }
        /* if (Type_coul == DELTAC)  nothing to do here... */
     }
     /*else { } no CMS precalculations implemented here yet */

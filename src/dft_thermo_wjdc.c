@@ -39,9 +39,11 @@ function variables .
                           WJDC functionals */
 void WJDC_thermo_precalc(char *output_file1)
 { 
-  if (Type_interface==UNIFORM_INTERFACE) 
+  if (Type_interface==UNIFORM_INTERFACE) {
+
      compute_bulk_nonlocal_wjdc_properties(output_file1,Dphi_Drhobar_b,Rho_b,Rho_seg_b,
                                              	       Xi_cav_b,Field_WJDC_b,G_WJDC_b);
+  }
   else{
      compute_bulk_nonlocal_wjdc_properties(output_file1,Dphi_Drhobar_LBB,Rho_b_LBB,Rho_seg_LBB,
                                              	       Xi_cav_LBB,Field_WJDC_LBB,G_WJDC_LBB);
@@ -102,8 +104,11 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1,double *dphi_drhob
   /* Now include Bonding terms - note that this is identical to WTC theory */
      field += chain_term(iseg,icomp,rho_seg,xi_cav);
 
+                /* note that this routine musbe called twice because Scale_fac_WJDC is not known for the first call */
      field_WJDC[icomp]=exp(field)*exp(Scale_fac_WJDC[pol_num][icomp]);
+
      if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_WJDC=%9.6f\n",iseg,field,field_WJDC[icomp]);
+
   } /* end of bulk field calculations */
 
   /* (2) compute bulk G - chain propogator values.  Note that we need to start at the ends of 
@@ -170,7 +175,7 @@ void chempot_chain_wjdc(double *rho,double *betamu_chain,double *field_WJDC, dou
 {
    int iseg,ibond,unk_G,pol_num,printproc,icomp;
    double mu_chain,gproduct;
- 
+
    if (Proc==0 && Iwrite==VERBOSE) printproc = TRUE;
    else printproc=FALSE;
     
@@ -199,7 +204,7 @@ void chempot_chain_wjdc(double *rho,double *betamu_chain,double *field_WJDC, dou
       mu_chain -= log(gproduct);
 
       betamu_chain[pol_num]=mu_chain;
-      if (printproc) printf("iseg=%d pol_num=%d  mu_chain=%9.6f\n",iseg,pol_num,mu_chain);
+      if (printproc) printf("iseg=%d pol_num=%d mu_chain=%g\n",iseg,pol_num,betamu_chain[pol_num]);
    } 
    return;
 }
