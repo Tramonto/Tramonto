@@ -60,7 +60,6 @@ extern int Nnodes;
 extern int Nodes_old;
 #define FROM_MAIN 1
 void post_process(double **x,int *niters,double *time_save,int loop1,int binodal_flag,int call_from_flag);
-extern struct Loca_Struct Loca;
 #define NEWTON_NOX            1
 #define NEWTON_BUILT_IN       0
 int solve_problem(double **x,double **x2);
@@ -120,6 +119,8 @@ void thermodynamics(char *output_file1);
 void calc_stencils(void);
 void calc_HS_diams();
 extern int Type_func;
+typedef struct Loca_Struct Loca_Struct;
+extern struct Loca_Struct Loca;
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

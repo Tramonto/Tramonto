@@ -70,8 +70,8 @@ extern double NL_abs_tol,NL_rel_tol;
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 #define WJDC2        4 
 #define WJDC         3
-extern int ATTInA22Block;
 extern int Analyt_WJDC_Jac;
+extern int ATTInA22Block;
 extern int Physics_scaling;
 extern int Max_NL_iter;
 extern int NL_Solver;

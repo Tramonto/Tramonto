@@ -54,8 +54,8 @@ extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 #define PI    3.141592653589793238462643383279502884197169399375
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
-#define VERBOSE      3 
 extern int SegAll_to_Poly[NMER_MAX];
+#define VERBOSE      3 
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
