@@ -127,8 +127,7 @@ void scale_vext_epswf(double ratio, int icomp,int iwall)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* scale_elec_param: when changing eps wall only a
-   simple scaling is required. */
+/* scale_elec_param: when changing eps wall only a simple scaling is required. */
 void scale_elec_param(double ratio)
 {
    int iwall,iel,loc_inode,idim;
@@ -147,6 +146,46 @@ void scale_elec_param(double ratio)
     }
 
    return;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* set_new_membrane_potential: change the set point for the external field */
+void set_new_membrane_potential(double param_old,double param_new,int icomp)
+{
+   int inode;
+
+   for (inode=0;inode<Nnodes_per_proc;inode++){
+        if (fabs(Vext[inode][icomp]-param_old)<1.e-10) Vext[inode][icomp]=param_new;
+   }
+   return;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* scale_all_epsParams: change the set point for the external field */
+void scale_all_epsParams(double ratio)
+{
+  int icomp,jcomp,i,j;
+
+  if (Mix_type==0){
+     if (Type_attr != NONE){
+        for (icomp=0; icomp<Ncomp; icomp++) Eps_ff[icomp][icomp] /= ratio;
+     }
+     for (i=0; i<Nwall_type;i++){
+        if(Ipot_wf_n[i] != VEXT_HARD) Eps_w[i] /= ratio;
+     }
+  }
+  else if (Mix_type==1){
+     for (icomp=0; icomp<Ncomp; icomp++){
+        for(jcomp=0; jcomp<Ncomp; jcomp++) Eps_ff[icomp][jcomp] /= ratio;
+        for (i=0; i<Nwall_type;i++) Eps_wf[icomp][i] /= ratio;
+     }
+     for (i=0; i<Nwall_type;i++) {
+        for (j=0;j<Nwall_type;j++) Eps_ww[i][j] /= ratio;
+     }
+  }
+  return;
 }
 /*****************************************************************************/
 /*****************************************************************************/

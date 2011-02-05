@@ -117,8 +117,8 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
 /* Note: Post_processing assumes the cont_type flags are the same as those
    used in Tramonto's own continuation */
 {
-  int i,j,icomp,jcomp,iw,iwall_type,inode,kcomp;
-  double ratio,temp_save,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_save,rho_chain;
+  int i,j,icomp,jcomp,iw,iwall_type,inode,kcomp,jwall_type;
+  double ratio,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_old,rho_chain;
   char     *output_file1;
   
   output_file1 = "dft_out.lis";
@@ -128,42 +128,21 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
        exit(-1); break;
 
       case CONT_TEMP: 
-           temp_save = Temp;
+           param_old = Temp;
            Temp      = param;
-           ratio = Temp/temp_save;
-           if (Ipot_ff_c == COULOMB ) Temp_elec *=ratio;
-           if (Mix_type==0){
-              if (Type_attr != NONE){
-                 for (icomp=0; icomp<Ncomp; icomp++) Eps_ff[icomp][icomp] /= ratio;
-              }
-              for (i=0; i<Nwall_type;i++){
-                  if(Ipot_wf_n[i] != VEXT_HARD) Eps_w[i] /= ratio;
-              }
-              setup_pairPotentials(NULL);
-           }
-           else if (Mix_type==1){
-                for (icomp=0; icomp<Ncomp; icomp++){
-                  for(jcomp=0; jcomp<Ncomp; jcomp++) Eps_ff[icomp][jcomp] /= ratio;
-                  for (i=0; i<Nwall_type;i++) Eps_wf[icomp][i] /= ratio;
-                }
-                for (i=0; i<Nwall_type;i++) {
-                   for (j=0;j<Nwall_type;j++) Eps_ww[i][j] /= ratio;
-                }
-           }
-           if (Type_func != NONE){ calc_HS_diams(); 
-                                   calc_InvR_params();}
-           if (Type_poly ==CMS) setup_polymer_cr();
-           recalculate_stencils();
-           if (Nwall>0) scale_vext_temp(ratio);
            break;
 
       case CONT_RHO_I:   
-            if (Type_poly==NONE) Rho_b[Cont_ID[Loca_contID][0]]=param; 
+            if (Type_poly==NONE){
+                 param_old=Rho_b[Cont_ID[Loca_contID][0]];
+                 Rho_b[Cont_ID[Loca_contID][0]]=param; 
+            }
             else{
               rho_chain=0.0;
               for (i=0;i<Nseg_tot; i++){
                   if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_b[i];
               }
+              param_old=rho_chain;
               ratio=param/rho_chain;
 
               for (i=0;i<Ntype_mer;i++) Rho_b[i]=0.0;
@@ -172,118 +151,81 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
                  Rho_b[Unk2Comp[i]]+=Rho_seg_b[i];
               }
             }
-
-            if (Type_poly == CMS) setup_polymer_cr();
-            recalculate_stencils();
             break;
 
       case CONT_BETAMU_I: 
           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
+                param_old=Betamu_chain[Cont_ID[Loca_contID][0]];
                 Betamu_chain[Cont_ID[Loca_contID][0]]=param;
           }
-          else  Betamu[Cont_ID[Loca_contID][0]]=param;
+          else{ 
+                param_old=Betamu[Cont_ID[Loca_contID][0]];
+                Betamu[Cont_ID[Loca_contID][0]]=param;
+          }
           break;
 
       case CONT_EPSW_I:  
           iwall_type=Cont_ID[Loca_contID][0];
           if (Mix_type ==0) {
+              param_old=Eps_w[iwall_type];
               Eps_w[iwall_type] = param;
-              for (i=0; i<Ncomp; i++){ 
-                 for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
-              }
-              setup_pairPotentials(NULL);
-              for (i=0; i<Ncomp; i++){
-                 ratio = Eps_wf[i][iwall_type]/eps_wf_save[i][iwall_type];
-                 scale_vext_epswf(ratio,i,0); 
-              }
           }
-          else Eps_ww[iwall_type][iwall_type]=param;
+          else{
+             jwall_type=Cont_ID[Loca_contID][1];
+             param_old=Eps_ww[iwall_type][jwall_type];
+             Eps_ww[iwall_type][jwall_type]=param;
+          }
           break;
 
       case CONT_EPSWF_IJ: 
           icomp=Cont_ID[Loca_contID][0];
           iwall_type=Cont_ID[Loca_contID][1];
-
-          ratio = param/Eps_wf[icomp][iwall_type];
+          param_old=Eps_wf[icomp][iwall_type];
           Eps_wf[icomp][iwall_type]    = param;
-          scale_vext_epswf(ratio,icomp,iwall_type); break;
+          break;
 
       case CONT_EPSFF_IJ: 
           icomp=Cont_ID[Loca_contID][0];
-          jcomp=Cont_ID[Loca_contID][1];
-          Eps_ff[icomp][jcomp]=param;  
-          if (icomp != jcomp){
+          if (Mix_type==0) jcomp=icomp;
+          else             jcomp=Cont_ID[Loca_contID][1];
+          param_old=Eps_ff[icomp][jcomp];
+          if (icomp != jcomp && (Eps_ff[jcomp][icomp]-Eps_ff[icomp][jcomp]<1.e-8)){ 
              Eps_ff[jcomp][icomp]=param;
           }
-          if (Mix_type==0) {
-              for (i=0; i<Ncomp; i++){ 
-                  for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
-              }
-              setup_pairPotentials("dft_out.lis");
-              for (i=0; i<Ncomp; i++){
-                  for (iw=0; iw<Nwall; iw++){
-                     ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
-                     scale_vext_epswf(ratio,i,iw); 
-              }
-            }
-          }
-          if (Type_hsdiam == BH_DIAM){ 
-              calc_HS_diams(); 
-              calc_InvR_params();
-          }
-         if (Type_poly == CMS) setup_polymer_cr();
-         recalculate_stencils();
-         break;
+          Eps_ff[icomp][jcomp]=param;  
+          break;
 
       case CONT_ELECPARAM_I: 
+           param_old=Elec_param_w[Cont_ID[Loca_contID][0]];
            Elec_param_w[Cont_ID[Loca_contID][0]]=param;
            break;
 
       case CONT_ELECPARAM_ALL: 
-           ratio=1./Elec_param_w[0];
+           param_old=Elec_param_w[0];
            Elec_param_w[0]=param;
-           ratio *= Elec_param_w[0];
-           scale_elec_param(ratio); 
            break;
 
       case CONT_SEMIPERM_IJ:
-		  iwall_type=Cont_ID[Loca_contID][0];
-		  icomp=Cont_ID[Loca_contID][1];
-		  param_save=Vext_membrane[iwall_type][icomp];
-			  for (inode=0;inode<Nnodes_per_proc;inode++){
-                  if (fabs(Vext[inode][icomp]-param_save)<1.e-10) Vext[inode][icomp]=param;
-			  }
-			  Vext_membrane[iwall_type][icomp]=param;
-		  break;
+	   iwall_type=Cont_ID[Loca_contID][0];
+	   icomp=Cont_ID[Loca_contID][1];
+           param_old=Vext_membrane[iwall_type][icomp];
+	   Vext_membrane[iwall_type][icomp]=param;
+	   break;
 
       case CONT_SIGMAFF_IJ: 
           icomp=Cont_ID[Loca_contID][0];
           jcomp=Cont_ID[Loca_contID][1];
-          Sigma_ff[icomp][jcomp]=param;  
-          if (icomp != jcomp){
+          param_old=Sigma_ff[icomp][jcomp];
+          if (icomp != jcomp && fabs(Sigma_ff[icomp][jcomp]-Sigma_ff[jcomp][icomp]<1.e-8)){
              Sigma_ff[jcomp][icomp]=param;
           }
-          else if(icomp==jcomp){
-             for (kcomp=0; kcomp<Ncomp; kcomp++){
-                if (kcomp != icomp){
-                      Sigma_ff[icomp][kcomp]=0.5*(Sigma_ff[icomp][icomp]+Sigma_ff[kcomp][kcomp]);
-                      Sigma_ff[kcomp][icomp]=Sigma_ff[icomp][kcomp];
-                }
-             }
-          }
+          Sigma_ff[icomp][jcomp]=param;  
+
           if (Mix_type==0) {
               printf("error...continuation in sigma not set up for automatic adjustment of external fields yet\n");
+              printf("so it is not possible to do a consistent continuation in Sigma params with Mix_type=0\n");
               exit(-1);
-              for (i=0; i<Ncomp; i++){ 
-/*                  for (iw=0; iw<Nwall_type; iw++) sigma_wf_save[i][iw]=Sigma_wf[i][iw];*/
-              }
-              setup_pairPotentials("dft_out.lis");
-              /* need to recompute external field - simple scaling won't work */
             }
-         calc_HS_diams(); 
-         calc_InvR_params();
-         if (Type_poly == CMS) setup_polymer_cr();
-         recalculate_stencils();
          break;
 		  
       default:
@@ -299,37 +241,134 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
         }
         break;
   }
-
-  /* for most cases...recalculate thermo based on new parameter.  However if
-     calculating bulk_coexistence or varying Betamu do not call thermo */
-  if (Loca.cont_type1 != CONT_BETAMU_I && !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I)){
-          thermodynamics(output_file1);
-   }
-
-   /*adjust_dep_params(cont_type,Loca_contID,output_file1)*/
+  adjust_dep_params(cont_type,Loca_contID,param_old,param,output_file1);
+  return;
 }
 /*****************************************************************************/
-/*adjust_dep_params(int cont_type,int Loca_contID,char *output_file1)
+void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double param_new,char *output_file1)
 {
-  int Ladjust_uattCore=FALSE,Ladjust_pairPot=FALSE,Ladjust_polymbercr=FALSE,
-      Ladjust_HSdiams=FALSE,Ladjust_thermo=FALSE,Ladjust_mesh=FALSE,Ladjust_stencils=FALSE;
+  int i,iwall_type,icomp,nloop;
+  double ratio;
+  int Ladjust_uattCore=FALSE;
+  int Ladjust_pairPot=FALSE;
+  int Ladjust_CMSpolymerCr=FALSE;
+  int Ladjust_HSdiams=FALSE;
+  int Ladjust_thermo=FALSE;
+  int Ladjust_mesh=FALSE;
+  int Ladjust_stencils=FALSE;
+  int Ladjust_external_field=FALSE;
+  int Ladjust_external_field_allTemp=FALSE;
+  int Ladjust_external_field_semiperm=FALSE;
+  int Ladjust_electparam_walls=FALSE;
+  int Ladjust_wall_wall_potentials=FALSE;
+  int Ladjust_all_epsParams=FALSE;
+  int Lrecalc_external_field=FALSE;
 
   switch(cont_type){
+
      case CONT_MESH: break;
-     case CONT_TEMP: break;
-     case CONT_RHO_I:   break;
+     case CONT_TEMP: 
+           ratio = param_new/param_old;
+           if (Ipot_ff_c == COULOMB ) Temp_elec *=ratio;
+                                  Ladjust_all_epsParams=TRUE;
+           if (Mix_type==0)       Ladjust_pairPot=TRUE;
+           if (Type_func != NONE) Ladjust_HSdiams=TRUE;
+           if (Type_poly ==CMS)   Ladjust_CMSpolymerCr=TRUE;
+                                  Ladjust_stencils=TRUE;
+           if (Nwall>0)           Ladjust_external_field_allTemp=TRUE;
+           if (Loca.cont_type1 != CONT_BETAMU_I && 
+             !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I))  Ladjust_thermo=TRUE;
+           break;
+
+     case CONT_RHO_I:  
+           if (Type_poly == CMS) Ladjust_CMSpolymerCr=TRUE;
+                                 Ladjust_stencils=TRUE;
+           if (Loca.cont_type1 != CONT_BETAMU_I && 
+             !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I)) Ladjust_thermo=TRUE;
+           break;
+
      case CONT_BETAMU_I: break;
+
+     case CONT_EPSFF_IJ: 
+          if (Mix_type==0) {
+            icomp=Cont_ID[Loca_contID][0];
+            ratio=param_new/param_old;
+            Ladjust_pairPot=TRUE;
+            nloop=Nwall;
+            Ladjust_external_field=TRUE;    /* Need to rescale Vext[icomp][iwall_type] for all iwall_type */
+          }
+          if (Type_hsdiam == BH_DIAM) Ladjust_HSdiams=TRUE;
+          if (Type_poly == CMS) Ladjust_CMSpolymerCr=TRUE;
+          Ladjust_stencils=TRUE;
+          if (Loca.cont_type1 != CONT_BETAMU_I && 
+             !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I))  Ladjust_thermo=TRUE;
+          break;
+
+     case CONT_SIGMAFF_IJ: 
+          Ladjust_HSdiams=TRUE;
+          if (Type_poly == CMS) Ladjust_CMSpolymerCr=TRUE;
+                                Ladjust_stencils=TRUE;
+          if (Loca.cont_type1 != CONT_BETAMU_I && 
+             !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I))  Ladjust_thermo=TRUE;
+
      case CONT_EPSW_I:  break;
-     case CONT_EPSWF_IJ: break;
-     case CONT_EPSFF_IJ: break;
+          iwall_type=Cont_ID[Loca_contID][1];
+          if (Mix_type==0){
+            ratio=param_new/param_old;
+            Ladjust_pairPot=TRUE;           /* need to recompute Eps_wf */
+            nloop=Ncomp;
+            Ladjust_external_field=TRUE;    /* Need to rescale Vext[icomp][iwall_type] for all icomp */
+          }
+          Ladjust_wall_wall_potentials=TRUE;
+
+     case CONT_EPSWF_IJ: 
+          icomp=Cont_ID[Loca_contID][0];
+          iwall_type=Cont_ID[Loca_contID][1];
+          ratio=param_new/param_old;
+          nloop=1;
+          Ladjust_external_field=TRUE; /* Need to rescale Vext[icomp][iwall_type] for just one icomp */
+     break;
+
      case CONT_ELECPARAM_I: break;
-     case CONT_ELECPARAM_ALL: break;
-     case CONT_SEMIPERM_IJ: break;
-     case CONT_SIGMAFF_IJ: break;
+
+     case CONT_ELECPARAM_ALL: 
+          ratio=param_new/param_old;
+          Ladjust_electparam_walls=TRUE;
+     break;
+
+     case CONT_SEMIPERM_IJ: 
+          icomp = Cont_ID[Loca_contID][1];
+          Ladjust_external_field_semiperm=TRUE;
+     break;
+ 
   } 
-  if (Ladjust_thermo) thermodynamics(output_file1);
+
+  if (Ladjust_all_epsParams)            scale_all_epsParams(ratio);
+  if (Ladjust_pairPot)                  setup_pairPotentials(output_file1);
+
+  if (Ladjust_electparam_walls)         scale_elec_param(ratio); 
+
+  if (Ladjust_external_field){
+       for (i=0;i<nloop;i++){           
+           if (cont_type==CONT_EPSW_I)  icomp=i;
+           if (cont_type==CONT_EPSFF_IJ)iwall_type=i;
+           scale_vext_epswf(ratio,icomp,iwall_type);
+       }
+  }
+  if (Ladjust_external_field_allTemp) scale_vext_temp(ratio);
+
+  if (Ladjust_wall_wall_potentials && Nwall > 1 && Lprint_pmf) setup_wall_wall_potentials();
+
+  if (Ladjust_external_field_semiperm)  set_new_membrane_potential(param_old,param_new,icomp); 
+
+  if (Ladjust_HSdiams){ calc_HS_diams(); calc_InvR_params(); }
+
+  if (Ladjust_CMSpolymerCr)             setup_polymer_cr();
+
+  if (Ladjust_stencils)                 recalculate_stencils();
+
+  if (Ladjust_thermo) 			thermodynamics(output_file1);
 }
-*/
 /*****************************************************************************/
 /*print_cont_type: Here print the type of the variable that
                      is changing in a given run

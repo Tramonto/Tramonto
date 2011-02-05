@@ -26,6 +26,7 @@ extern double WallParam[NWALL_MAX_TYPE];
 extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
+extern int WallType[NWALL_MAX];
 double print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_user_plugin(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID);
@@ -37,6 +38,7 @@ extern int Npol_comp;
 #define SWITCH_BULK_OUTPUT 5
 #define SWITCH_ALLTYPES 4
 extern int Print_rho_switch;
+extern int Type_attr;
 extern int Ndim;
 #define REFLECT              2
 extern int Type_bc[NDIM_MAX][2];
@@ -45,6 +47,21 @@ extern int Plane_new_nodes;
 extern int Print_mesh_switch;
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID);
 void thermodynamics(char *output_file1);
+void recalculate_stencils();
+void setup_polymer_cr();
+void calc_InvR_params();
+void calc_HS_diams();
+void set_new_membrane_potential(double param_old,double param_new,int icomp);
+void setup_wall_wall_potentials();
+extern int Lprint_pmf;
+void scale_vext_temp(double ratio);
+void scale_vext_epswf(double ratio,int icomp,int iwall);
+void scale_elec_param(double ratio);
+void setup_pairPotentials(char *output_file1);
+void scale_all_epsParams(double ratio);
+extern int Ncomp;
+#define BH_DIAM             1
+extern int Type_hsdiam;
 typedef struct Loca_Struct Loca_Struct;
 struct Loca_Struct {
   int    method;      /* Continuation method                          */
@@ -55,35 +72,29 @@ struct Loca_Struct {
   double step_size;   /* initial continuation step size               */
 };
 extern struct Loca_Struct Loca;
-void assign_param_user_plugin(int cont_type,int Loca_contID,double param);
-void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
-extern double **Vext;
-extern int Nnodes_per_proc;
-void scale_elec_param(double ratio);
-#define BH_DIAM             1
-extern int Type_hsdiam;
-extern int WallType[NWALL_MAX];
-void scale_vext_epswf(double ratio,int icomp,int iwall);
-#define NMER_MAX     200
-extern int Unk2Comp[NMER_MAX];
-extern int Ntype_mer;
-void scale_vext_temp(double ratio);
 extern int Nwall;
-void recalculate_stencils();
-void setup_polymer_cr();
 #define CMS          0
-void calc_InvR_params();
-void calc_HS_diams();
 extern int Type_func;
-void setup_pairPotentials(char *output_file1);
-#define VEXT_HARD        1
-extern int Ipot_wf_n[NWALL_MAX_TYPE];
-extern int Nwall_type;
-extern int Ncomp;
-extern int Type_attr;
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
 extern double Temp_elec;
 #define COULOMB      1
 extern int Ipot_ff_c;
+#define FALSE 0
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double param_new,char *output_file1);
+void assign_param_user_plugin(int cont_type,int Loca_contID,double param);
+void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
+#define NMER_MAX     200
+extern int Unk2Comp[NMER_MAX];
+extern int Ntype_mer;
 void assign_parameter_tramonto(int cont_type,double param,int Loca_contID);
 double get_init_param_user_plugin(int cont_type,int Loca_contID);
 double get_init_param_archived_plugin(int cont_type,int Loca_contID);
@@ -123,9 +134,6 @@ extern int Type_poly;
 extern double Temp;
 #define CONT_TEMP          1   /* State Parameters */
 #define CONT_MESH          0   /* mesh size */
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
 #if defined(LOCA_MF) && !defined(_CON_CONST_H_)
 #include <mf.h>
 #endif
