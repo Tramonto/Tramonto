@@ -13,7 +13,8 @@ function are included in this calcualtion using the generalized MSA corrections 
 Each of the two planar surfaces has a charge of 0.3 per unit area.  The difference in adsorption is 0.6 indicating a 
 charge neutral surface.  Since the ions are of equal size in this case, the results should be identical to
 the results in MIX5_FMT1_ELEC_1D which is based on the more restrictive RPM-MSA corrections that assume equal diameters
-of ions .
+of ions . Update on 2/3/11: Reiner-Radke approximation to the free energy has been turned off.
+Prior to this date, the energy reported in this file was surf_ex_energy=1.785214.
 
 Input Files for Test problem:
    - dft_input.dat
@@ -24,6 +25,6 @@ Key Output Parameters:
    - adsorption[0]= 0.289621  
    - adsorption[1]= 0.889621
    - ptilde=1.073678
-   - surface_energy=1.785214
+   - surface_energy=1.817
    .
 */

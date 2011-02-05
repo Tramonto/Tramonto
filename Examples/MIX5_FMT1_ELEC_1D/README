@@ -11,7 +11,8 @@ Notes: 1-1 electrolyte composed of two charged components (ions) and a dielectri
 are of finite and equal sizes. In addition second order corrections to the free energy functional via the direct correlation 
 function are included in this calcualtion (Tang and Davis, 1992).  Each of the two planar surfaces has a charge of 0.3 per unit 
 area.  The difference in adsorption is 0.6 indicating a charge neutral surface.  Compare with MIX4_FMT1_ELEC_1D to see the 
-effect of the liquid state corrections.
+effect of the liquid state corrections. Update on 2/3/11: Reiner-Radke approximation to the free energy has been turned off.  
+Prior to this date, the energy reported in this file was surf_ex_energy=1.785214.
 
 Input Files for Test problem:
    - dft_input.dat
@@ -22,6 +23,6 @@ Key Output Parameters:
    - adsorption[0]= 0.289621  
    - adsorption[1]= 0.889621
    - ptilde=1.073678
-   - surface_energy=1.785214
+   - surface_energy=1.817
    .
 */
