@@ -207,7 +207,7 @@ int update_solution_new(double** x, double** delta_x, int iter) {
   int iunk, ibox, inode;
   double updateNorm=0.0, temp,frac_min;
   char *yo = "newupdate solution";
-     
+
 
   if (iter==1) frac_min=0.5;
   else frac_min=1.0;
@@ -258,6 +258,7 @@ int update_solution(double** x, double** delta_x, int iter) {
   int iunk, ibox, inode,inodeG,ijk[3],go_update,idim;
   double updateNorm=0.0, temp,frac_min,frac;
   char *yo = "newupdate solution";
+
      
    /* Certain unknowns - specifically densities and Gs in CMS DFT cannot be less than 0.
       Here we locate problems, and scale the entire update vector to prevent this from 
@@ -339,6 +340,7 @@ int update_solution(double** x, double** delta_x, int iter) {
 
   if (Proc==0 && Iwrite != NO_SCREEN)
     printf("\n\t\t%s: Weighted norm of update vector =  %g\n", yo, updateNorm);
+
 
   if (updateNorm > 1.0) return(FALSE);
   else                  return(TRUE);
