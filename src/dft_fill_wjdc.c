@@ -483,14 +483,14 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
 
                /*Approximate matrix entries using a mean value of the segment density .....*/
                   if (Analyt_WJDC_Jac==FALSE){
-                     mat_val = -0.5*weightJ*first_deriv/Nseg_type[jcomp];
+                     mat_val = -0.5*weightJ*first_deriv_sum/Nseg_type[jcomp];
                      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_rho,jnode_boxJ,mat_val);
                   }
                   else{
                 
                    /* Analytic Matrix entries for dR_Field/dXi_alpha */   
-                     mat_val = 0.5*weightJ*(dens*((double)Nbonds_SegAll[jseg]-1.0)/x[unk_B][jnode_boxJ]);
+                     mat_val = 0.5*weightJ*first_deriv_sum*(dens*((double)Nbonds_SegAll[jseg]-1.0)/x[unk_B][jnode_boxJ]);
                      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_B,jnode_boxJ,mat_val);
 
@@ -499,7 +499,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                      for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
                         unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[jseg][kbond];
                          dens_Gderiv=calc_dens_seg_Gderiv(jseg,jnode_boxJ,kbond,x,FALSE);
-                         mat_val = -0.5*weightJ*first_deriv*dens_Gderiv;
+                         mat_val = -0.5*weightJ*first_deriv_sum*dens_Gderiv;
                          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_GQ,jnode_boxJ,mat_val);
                      }
