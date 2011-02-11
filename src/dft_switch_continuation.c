@@ -308,6 +308,7 @@ void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double par
           Ladjust_HSdiams=TRUE;
           if (Type_poly == CMS) Ladjust_CMSpolymerCr=TRUE;
                                 Ladjust_stencils=TRUE;
+                                Ladjust_pairPot=TRUE;          
           if (Loca.cont_type1 != CONT_BETAMU_I && 
              !(Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I))  Ladjust_thermo=TRUE;
 
@@ -362,6 +363,7 @@ void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double par
   if (Ladjust_external_field_semiperm)  set_new_membrane_potential(param_old,param_new,icomp); 
 
   if (Ladjust_HSdiams){ calc_HS_diams(); calc_InvR_params(); }
+
 
   if (Ladjust_CMSpolymerCr)             setup_polymer_cr();
 
