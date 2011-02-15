@@ -1,0 +1,22 @@
+/*! \file 
+ \brief WJDC functionals: charged 10-mer and single site counterions at a hard wall.
+
+Functionals: WJDC,FMT3,ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This problem is for a simple polyelectrolyte consisting of a hard charged 10mer chain, with hard sphere counterions, near a charged surface.
+As of 2/15/11, this problem solves with the generic solver but fails with the Schur solver.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=6
+   - adsorption[0]=1.19457
+   - adsorption[1]=1.06957
+*/
+
