@@ -50,8 +50,9 @@ double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
        if (ATTInA22Block==FALSE){
            iunk_att=Phys2Unk_first[MF_EQ]+itype_mer;
            resid_B=x[iunk_att][inode_box];
-           if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY)
+           if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY){
                 dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid_B);
+           }
            if (resid_only_flag==FALSE){
               mat_val=1.0;
               dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk_att,inode_box,mat_val);
@@ -62,7 +63,9 @@ double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
        }
        resid = Vext[loc_inode][itype_mer]+log(x[iunk][inode_box]);
        resid_B+=resid;
-       if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+       if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY){
+           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+       }
        if(!resid_only_flag){
           mat_val = 1.0/x[iunk][inode_box];  
           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
@@ -73,7 +76,9 @@ double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
           junk = Phys2Unk_first[POISSON];
           resid = Charge_f[itype_mer]*x[junk][inode_box];
           resid_B+=resid;
-          if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+          if (resid_only_flag !=CALC_RESID_ONLY){ 
+               dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+          }
           if(!resid_only_flag){
                mat_val = Charge_f[itype_mer];
                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);

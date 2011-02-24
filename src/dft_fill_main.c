@@ -315,7 +315,8 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
            }
            break;
 
-       case POISSON: resid_unk[iunk]=load_poisson_control(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag); break;
+       case POISSON: 
+		resid_unk[iunk]=load_poisson_control(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag); break;
 
        case DIFFUSION:
            if (Linear_transport)

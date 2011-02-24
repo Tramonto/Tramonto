@@ -376,7 +376,7 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
   
   int i,iunk, ibox, inode,inodeG,ijk[3],go_update,idim;
   int nloop;
-  double updateNorm=0.0, temp;
+  double updateNorm=0.0, temp,xold;
   char *yo = "newupdate solution";
 
   if (Lseg_densities) nloop=Nseg_tot;
@@ -410,7 +410,9 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
     if (go_update){
        for (i=0; i<nloop; i++) {
           iunk=i+Phys2Unk_first[DENSITY];
+/*xold=x[iunk][ibox];*/
           x[iunk][ibox] += NL_update_scalingParam*delta_x[iunk][ibox];
+/*if (fabs(x[iunk][ibox]-xold)>fabs(0.0001*xold)&&x[iunk][ibox]>1.e-12) printf("iunk=%d  ibox=%d  x=%g  xold=%g\n",iunk,ibox,x[iunk][ibox],xold);*/
        }
     }
     if (inode>=0){ for (iunk=0; iunk<Nunk_per_node; iunk++) xOwned[iunk][inode]=x[iunk][ibox];}

@@ -106,10 +106,10 @@ double deltaC_MSA_int(double r,int i, int j)
                (  2*B*r/(3.0*HS_diam[i]) - 0.5
                - 0.25*POW_DOUBLE_INT(B/HS_diam[i],2)*r*r );
 
-printf("deltaC_int:::: r=%g i=%d  j=%d  deltac_int=%g  \n",r,i,j,deltac_int);
+/*printf("deltaC_int:::: r=%g i=%d  j=%d  deltac_int=%g  \n",r,i,j,deltac_int);
 printf("\t prefac=%g  term1(r)=%g  term2(no r)=%g  term3(rsq)=%g\n",
       -(4*PI*r*r)*(Charge_f[i]*Charge_f[j]/Temp_elec),
-      2*B*r/(3.0*HS_diam[i]), -0.5,- 0.25*POW_DOUBLE_INT(B/HS_diam[i],2)*r*r);
+      2*B*r/(3.0*HS_diam[i]), -0.5,- 0.25*POW_DOUBLE_INT(B/HS_diam[i],2)*r*r);*/
 
   return deltac_int;
 }

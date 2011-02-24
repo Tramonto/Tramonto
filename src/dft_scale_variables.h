@@ -30,7 +30,7 @@ extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 #define NONE        -1
 extern int Type_attr;
 extern int Mix_type;
-void scale_all_epsParams(ratio);
+void scale_all_epsParams(double ratio);
 void set_new_membrane_potential(double param_old,double param_new,int icomp);
 void print_charge_surf(double **charge_w_sum,char *output_file);
 void print_charge_vol(double *charge_els,char *output_file);
