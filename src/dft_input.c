@@ -305,7 +305,11 @@ void read_input_file(char *input_file, char *output_file1)
 
 
   charge_sum=0.0;
-  srandom(135649);
+  #ifndef _MSC_VER
+    srandom(135649);
+  #else
+    srand(135649);
+  #endif
   if (Nwall_type != 0){
     if ( Proc==0) {
       for (idim=0; idim<Ndim; idim++){ minpos[idim] = 1000.; maxpos[idim]=-1000.;}
@@ -324,7 +328,11 @@ void read_input_file(char *input_file, char *output_file1)
   /* end of temporary code */
 	  fscanf(fp3,"%lf",&WallPos[dim_tmp][iwall]);
           if (fabs(WallPos[dim_tmp][iwall]+9999.0)<1.e-6) { /*random coordinate placement */
-             irand = random();
+             #ifndef _MSC_VER
+               irand = random();
+             #else
+               irand = rand();
+             #endif
              irand_range = POW_INT(2,31)-1;
               WallPos[dim_tmp][iwall] = Size_x[idim]*(-0.5+( ((double)irand)/((double)irand_range)));
               printf("\n  Wall %d dim %d gets WallPos:%g \n",iwall,idim,WallPos[idim][iwall]);
@@ -472,7 +480,11 @@ void read_input_file(char *input_file, char *output_file1)
   for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
       for (iblock=0;iblock<MAX_ROUGH_BLOCK;iblock++){
          for (jblock=0;jblock<MAX_ROUGH_BLOCK;jblock++){
-            irand = random();
+            #ifndef _MSC_VER
+              irand = random();
+            #else
+              irand = rand();
+            #endif
             irand_range = POW_INT(2,31)-1;
             Rough_precalc[iwall_type][iblock][jblock]= rough_param_max[iwall_type]*(-0.5+( ((double)irand)/((double)irand_range)));
          }
