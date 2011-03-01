@@ -148,6 +148,8 @@ void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned)
   array_fill=FALSE;
   count_fill=0;
 
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);
+
   while (array_fill==FALSE){
      for (ibond=0;ibond<Nbonds;ibond++){
         pol_num=Unk_to_Poly[ibond];

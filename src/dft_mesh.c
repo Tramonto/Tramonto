@@ -256,7 +256,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
   int ierr,icomp,ilist,iwall,inode;
   double sigma_test;
   int flag,iel_box,i,nwall_max,idim;
-  int inode_box,iel,reflect_flag[3],j,k; 
+  int inode_box,iel,reflect_flag[3],j,k,loc_inode; 
 
   int count_zero,count_zero_all,count_coarse_resid,count_coarse_r_all,
       count_coarse_jac,count_coarse_jac_all;
@@ -267,6 +267,10 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
   int *comm_icount_proc, *comm_offset_icount;
 
   int ntot_per_list,ntot_per_list_all_procs,*el_tmp,*elems_w_per_w_proc_0_tmp,ncount;
+  double pos_xyz[3];
+  char proc_file[20];
+  FILE *fp_L2Gmap=NULL;
+  FILE *fp_B2Gmap=NULL;
   
   reflect_flag[0]=reflect_flag[1]=reflect_flag[2] = FALSE;
 
@@ -279,6 +283,30 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
    */
  
   setup_basic_box(fp1, update);
+  /* here is some debugging code to make sure we understand the basic box and the coordinate systems */
+   if (Iwrite==VERBOSE){
+       sprintf(proc_file,"L2GMap_%d",Proc);
+       fp_L2Gmap = fopen(proc_file,"w");
+       sprintf(proc_file,"B2GMap_%d",Proc);
+       fp_B2Gmap = fopen(proc_file,"w");
+       fprintf(fp_L2Gmap,"loc_inode   L2G_node[loc_inode]   L2B_node[loc_inode]  xpos  ypos\n");
+       for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
+            node_to_position(L2G_node[loc_inode],pos_xyz);
+            fprintf(fp_L2Gmap,"%d  %d  %d",loc_inode,L2G_node[loc_inode],L2B_node[loc_inode]);
+            for (idim=0;idim<Ndim;idim++) fprintf(fp_L2Gmap,"%12.6f  ",pos_xyz[idim]);
+            fprintf(fp_L2Gmap,"\n");
+       }
+       fprintf(fp_B2Gmap,"inode_box   B2G_node[inode_box]   B2L_node[inode_box]  xpos  ypos\n");
+       for (inode_box=0;inode_box<Nnodes_box;inode_box++){
+            node_to_position(B2G_node[inode_box],pos_xyz);
+            fprintf(fp_B2Gmap,"%d  %d  %d",inode_box,B2G_node[inode_box],B2L_node[inode_box]);
+            for (idim=0;idim<Ndim;idim++) fprintf(fp_B2Gmap,"%12.6f  ",pos_xyz[idim]);
+            fprintf(fp_B2Gmap,"\n");
+       }
+       fclose(fp_L2Gmap);
+       fclose(fp_B2Gmap);
+   }
+
   /*
    * set up communication maps so that local information can be efficiently moved to box coordinates 
    */
@@ -286,7 +314,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
   linsolver_setup_control();
   (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
   (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
-
 
   /*
    * Set up all arrays for surface geometry, external fields, and
@@ -563,7 +590,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
            if (Ipot_ff_c == COULOMB) Dielec[iel_box] = Dielec_bulk;
      }
 
-      
      setup_external_field_n(NULL,NULL);
      ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
 
@@ -696,14 +722,17 @@ void setup_basic_box(FILE *fp1, int *update)
         (2) the processor owns the entire range of x[idim].
         In these cases, we can apply the old type of periodic 
         boundary conditions and not extend the box nodes beyond the
-        boundaries. */
+        boundaries. Note that a 1 sigma buffer zone has been added to the 
+        periodic boundaries in question in order to be sure we catch all possible
+        cases where Pflag should be turned on. */
 
 
       Pflag[idim] = FALSE;
       if (Type_bc[idim][0]==PERIODIC && (
           max_cut >0.5*Size_x[idim] ||
-          (Min_IJK[idim]==0 && Max_IJK[idim]==Nodes_x[idim]-1))) 
-                                               Pflag[idim]=TRUE;
+          (Min_IJK[idim]*Esize_x[idim]-max_cut <=1.0 && 
+           Max_IJK[idim]*Esize_x[idim]+max_cut >= (Nodes_x[idim]-1)*Esize_x[idim]-1.0)
+          )) Pflag[idim]=TRUE;
 
       if ((Type_bc[idim][0] != PERIODIC && Min_IJK_box[idim]<0) ||Pflag[idim]) 
           Min_IJK_box[idim] = 0;
@@ -714,7 +743,7 @@ void setup_basic_box(FILE *fp1, int *update)
 
   Nnodes_box = 1;
   Nelements_box = 1;
-/*  if (Num_Proc > 1) MPI_Barrier(MPI_COMM_WORLD);*/
+
   if (Imain_loop == 0 && Proc==0) {
     fprintf(fp1,"\n-------------------------------------------------------\n");
     fprintf(fp1,"\n \t idim \t Nodes_x[idim] \t Nnodes \t Elements_x[idim] \t Nelements...box units\n");

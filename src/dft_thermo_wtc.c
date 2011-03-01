@@ -100,7 +100,8 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
        for (pol_num=0; pol_num<Npol_comp;pol_num++) {
            if (Physics_scaling!=MANUAL_INPUT) Scale_fac_WJDC[pol_num][icomp]=0.0;
            else if(fabs(Scale_fac_WJDC[pol_num][icomp])>1.e-8){ 
-              if (Iwrite!=NO_SCREEN) printf("MANUAL_ENTRY:: pol_num=%d icomp=%d Scale_fac_WJDC=%9.6f\n",pol_num,icomp,Scale_fac_WJDC[pol_num][icomp]);
+              if (Iwrite!=NO_SCREEN && Proc==0) 
+                  printf("MANUAL_ENTRY of Physics scaling params:: pol_num=%d icomp=%d Scale_fac_WJDC=%9.6f\n",pol_num,icomp,Scale_fac_WJDC[pol_num][icomp]);
            }
       }
    }
