@@ -577,7 +577,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
      Wall_elems = (int **) array_alloc(2, Nlists_HW, Nelements_box, sizeof(int));
      Nodes_2_boundary_wall =(int **)array_alloc(2, Nlists_HW, Nnodes_box, sizeof(int));
      Zero_density_TF = (int **) array_alloc (2, Nnodes_box,Ncomp+1,sizeof(int));
-     Dielec = (double *) array_alloc (1, Nelements_box, sizeof(double));
+     if (Ipot_ff_c == COULOMB) Dielec = (double *) array_alloc (1, Nelements_box, sizeof(double));
 
      for (inode = 0; inode < Nnodes_box; inode++){
         Nodes_to_zone[inode] = 0;

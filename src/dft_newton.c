@@ -301,7 +301,7 @@ int update_solution(double** x, double** delta_x, int iter) {
      vector at these points */
 
 
-    inodeG=L2G_node[inode]; 
+    inodeG=B2G_node[ibox]; 
     node_to_ijk(inodeG,ijk);
     go_update=TRUE;
     for (idim=0; idim<Ndim;idim++){

@@ -32,6 +32,7 @@ extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void node_to_ijk(int node,int *ijk);
 extern int *L2G_node;
+extern int *B2G_node;
 extern double NL_update_scalingParam;
 extern int *Pol_Sym_Seg;
 #define WTC          2

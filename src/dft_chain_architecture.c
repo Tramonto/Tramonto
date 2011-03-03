@@ -57,6 +57,8 @@ void setup_chain_architecture(char *poly_file,FILE *fpout)
 
    setup_chain_indexing_arrays(nseg,nmer_max,pol_sym_tmp,fpout);
 
+   safe_free((void *) &pol_sym_tmp);
+
    return;
 }
 /*************************************************************************************/
