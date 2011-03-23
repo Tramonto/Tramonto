@@ -32,7 +32,7 @@
 #include <unistd.h>
 #include "include_global/dft_globals.h"
 #include "rf_allo.h"
-#include "GUI/dft_GUI.h"
+/*#include "GUI/dft_GUI.h"*/
 
 #include "dft_main.h"
 /*****************************************************************************/
@@ -128,7 +128,7 @@ void dftmain(double * engptr)
   */
 
   read_input_file(input_file,output_file1);
-  dft_OptikaGUI();
+/*  dft_OptikaGUI();*/
 
 /*  printf("Ndim - SET IN GUI is %d\n",Ndim);*/
   setup_stencil_logicals();

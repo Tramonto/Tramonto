@@ -19,12 +19,10 @@ set(common_h
         dft_HardSphereA11_Epetra_Operator.hpp 
         dft_HardSphereA22_Epetra_Operator.hpp 
         dft_Schur_Epetra_Operator.hpp 
-        GUI/dft_GUI.hpp
         dft_basic_lin_prob_mgr_wrapper.h 
         dft_poly_lin_prob_mgr_wrapper.h 
         dft_hardsphere_lin_prob_mgr_wrapper.h 
         dft_parameterlist_wrapper.h 
-        GUI/dft_GUI.h
         dft_direct_solver_const.h 
         dft_input.h 
         dft_chain_architecture.h 
@@ -264,18 +262,6 @@ set(common_cxx
         dft_poly_lin_prob_mgr_wrapper.cpp 
         dft_hardsphere_lin_prob_mgr_wrapper.cpp 
         dft_parameterlist_wrapper.cpp 
-        GUI/dft_GUI_mesh.cpp
-        GUI/dft_GUI_functionals.cpp
-        GUI/dft_GUI_surfaces.cpp
-        GUI/dft_GUI_vextType.cpp
-        GUI/dft_GUI_toTramonto.cpp
-        GUI/dft_GUI_potentialsFF.cpp
-        GUI/dft_GUI_potentialsWF.cpp
-        GUI/dft_GUI_statePoint.cpp
-        GUI/dft_GUI_numericalMethods.cpp
-        GUI/dft_GUI_polymer.cpp
-        GUI/dft_GUI_output.cpp
-        GUI/dft_GUI_main.cpp
         )
 set(noxloca_cxx
         NOXLOCA_Solver.cpp 
@@ -296,11 +282,11 @@ link_directories(${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 # /Library/Frameworks/QtCore.framework /Library/Frameworks/QtGui.framework)
 
 #list of necessary Trilinos packages:
-#ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos optika 
+#ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos  
 set(Tramonto_Trilinos_LIBRARIES ${ML_LIBRARIES} ${Amesos_LIBRARIES}
 ${NOX_LIBRARIES} ${AztecOO_LIBRARIES} ${Ifpack_LIBRARIES}
 ${EpetraExt_LIBRARIES} ${Epetra_LIBRARIES} ${Teuchos_LIBRARIES} ${Optika_LIBRARIES} )
-#${Optika_LIBRARIES} /Library/Frameworks/QtCore.framework/QtCore /Library/Frameworks/QtGui.framework/QtGui)
+# ${Optika_LIBRARIES} /Library/Frameworks/QtCore.framework/QtCore /Library/Frameworks/QtGui.framework/QtGui)
 
 #remove duplicates from the link line
 LIST(REVERSE Tramonto_Trilinos_LIBRARIES )
@@ -364,12 +350,12 @@ ELSE()
   MESSAGE(FATAL_ERROR "Could not find Trilinos package Teuchos!")
 ENDIF()
 
-LIST(FIND Trilinos_PACKAGE_LIST Optika OPTIKA_FOUND)
-IF(OPTIKA_FOUND GREATER -1)
-  MESSAGE("Trilinos package Optika found.")
-ELSE()
-  MESSAGE(FATAL_ERROR "Could not find Trilinos package Optika!")
-ENDIF()
+#LIST(FIND Trilinos_PACKAGE_LIST Optika OPTIKA_FOUND)
+#IF(OPTIKA_FOUND GREATER -1)
+#  MESSAGE("Trilinos package Optika found.")
+#ELSE()
+#  MESSAGE(FATAL_ERROR "Could not find Trilinos package Optika!")
+#ENDIF()
 
 # add dft library
 add_library(dft ${common_h} ${noxloca_h} ${common_c} ${common_cxx} ${noxloca_cxx} )
