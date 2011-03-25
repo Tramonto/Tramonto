@@ -188,7 +188,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                                                      /* correct wall? */
                    pwall = Graft_wall[npol];
                    pwall_type = WallType[pwall];
-                   nodeposc[0] = WallPos[0][pwall] + WallParam[pwall_type];
+                   nodeposc[0] = WallPos[0][pwall] + Poly_graft_dist[pwall_type];
                    nodeposc[1] = nodeposc[2] = 0.0;
                    if(nodepos[0]==nodeposc[0] + Sigma_ff[itype_mer][itype_mer]/2.0 || 
                       nodepos[0]==nodeposc[0] - Sigma_ff[itype_mer][itype_mer]/2.0) {
@@ -438,7 +438,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types, int Njacobian_s
 				iwall_type = WallType[iwall];
 				inode = L2G_node[loc_inode];
 				node_to_position(inode,nodepos);
-				xbound = WallPos[0][iwall] + WallParam[iwall_type];
+				xbound = WallPos[0][iwall] + Poly_graft_dist[iwall_type];
 				if(xbound<0.0)
 					xbound_lim = xbound+Bond_ff[itype_mer][itype_mer];
 				else if (xbound>0.0)
@@ -652,7 +652,7 @@ double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types, int Njacobi
 	
 	inode = L2G_node[loc_inode];
 	node_to_position(inode,nodepos);
-	xbound = WallPos[0][0] + WallParam[0];
+	xbound = WallPos[0][0] + Poly_graft_dist[0];
 
     if (Zero_density_TF[inode_box][itype_mer] || Vext[loc_inode][itype_mer] == VEXT_MAX) {
 		resid_G=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);

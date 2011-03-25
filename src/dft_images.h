@@ -1,4 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
+void find_images_coulomb(int idim,int *image,double **image_pos,double *node_image);
+void find_images_1D(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,15 +17,6 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NWALL_MAX 600 
-extern int WallType[NWALL_MAX];
-#define NWALL_MAX_TYPE 50 
-extern double WallParam[NWALL_MAX_TYPE];
-#define NDIM_MAX  3
-extern double WallPos[NDIM_MAX][NWALL_MAX];
-void find_images2(int idim,double cut,int *image,double **image_pos,double *node_image,int iwall,int iside);
-void find_images_coulomb(int idim,int *image,double **image_pos,double *node_image);
-void find_images_1D(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -35,6 +28,7 @@ void find_images_1D(int idim,double cut,int *image,double **image_pos,double *no
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+#define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 extern double Size_x[NDIM_MAX];
 #define IN_WALL             -1

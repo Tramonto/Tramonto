@@ -17,8 +17,6 @@
 #include "Tramonto_ConfigDefs.h"
 #define VERBOSE      3 
 extern int Iwrite;
-void safe_free(void **ptr);
-void safe_free(void **ptr);
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
 extern int Ngeqn_tot;
@@ -53,6 +51,8 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+void safe_free(void **ptr);
+void safe_free(void **ptr);
 void setup_chain_indexing_arrays(int nseg,int nmer_max,int ***pol_sym_tmp,FILE *fpout);
 void setup_chain_linear_symmetric(FILE *fpout,int ***pol_sym_tmp);
 #define LIN_POLY_SYM 2

@@ -43,7 +43,6 @@ extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define point_surface                   4
 #define atomic_centers                  3
-extern int Surface_type[NWALL_MAX_TYPE];
 void setup_vext_HS_atomic(int iwall);
 double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
@@ -64,16 +63,32 @@ double Vext_1D_dash(double x,int icomp,int iwall_type);
 void find_images(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
 double Vext_1D(double x,int icomp,int iwall_type);
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
-extern double WallParam[NWALL_MAX_TYPE];
 void find_images_1D(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
 #define REFLECT              2
 #define PERIODIC             1
 extern int Type_bc[NDIM_MAX][2];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
-extern int Orientation[NWALL_MAX_TYPE];
 extern double Size_x[NDIM_MAX];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
+extern struct SurfaceGeom_Struct *SGeom;
+struct SurfaceGeom_Struct {
+  int       surfaceTypeID;    /* ID of the type of surface */
+  int       orientation;  /* orientation of the surface */
+  double    *halfwidth;   /* planar surface params given in halfwidth */
+  double    radius;       /* radius of spherical or cylindrical surface */
+  double    halflength;   /* length of finite cylinders and pores */
+  double    radius2;      /* a second radius for tapered pores or cylinders */
+  double    amplitude;    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    wavelength;    /* desired wavelength of cosine wave superimposed on a cylinder */
+  double    angle_wedge_start;    /* angle as measured from x0 axis */
+  double    angle_wedge_end;    /* angle as measured from x0 axis */
+  int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
+  double    roughness;          /* maximum roughness amplitude */
+  double    roughness_length;    /* lengthscale for the rougness */
+  int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
+};
 extern double **Vext_membrane;
 int ijk_box_to_node_box(int *ijk_box);
 extern int Nodes_x[NDIM_MAX];

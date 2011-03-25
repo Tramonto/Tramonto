@@ -23,7 +23,6 @@ void safe_free(void **ptr);
 void check_zero_densities_owned(double **xOwned);
 void chop_profile(double **xInBox,int guess_type);
 #define RESTART_STEP       2
-extern void *LinProbMgr_manager;
 void setup_polymer_G_wjdc(double **xOwned);
 void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned);
 #define WJDC3        5 
@@ -63,9 +62,6 @@ void setup_mf_attract(double **xOwned);
 void calc_init_mf_attract(double **xInBox,double **xOwned);
 #define BULK              0
 extern int Iguess_fields;
-extern int     *B2G_node;         /* Box to global array for all box nodes */
-extern int     *B2L_node;         /* Box to global array for all box nodes */
-extern int     *L2G_node;         /* Box to global array for all box nodes */
 #define RESTART_DENSONLY   3
 #define MF_EQ          3
 void setup_density(double **xInBox,double **xOwned,int guess_type);

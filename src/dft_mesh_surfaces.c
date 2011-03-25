@@ -44,8 +44,11 @@ void setup_surface (FILE *fp2, int *nelems_f,
   int itype,iwall,ilist,iel_box,izone, **L_wall,idim,loc_inode,real_wall,*imagetype,flag;
   double *x_min;
 
-  int image,image_x,image_xy,i,nwall_max,image_old,icount;
+  int image,image_x,image_xy,i,nwall_max,image_old,icount,orientation,surfaceTypeID;
   double pos[3],**image_pos;
+  struct SurfaceGeom_Struct *sgeom_iw;
+
+
   
   /*  Calculate the number of wall and fluid elements and nodes, and 
       fill arrays that index the wall and fluid elements and nodes.  This
@@ -92,14 +95,17 @@ void setup_surface (FILE *fp2, int *nelems_f,
 
   for (iwall=0; iwall<Nwall; iwall++){
      itype = WallType[iwall];
+     sgeom_iw = &(SGeom[itype]);
+     orientation = sgeom_iw->orientation;
+     surfaceTypeID = sgeom_iw->surfaceTypeID;
      if(Ndim > 1){
-        if(Surface_type[itype] == smooth_planar_wall) {
+        if(surfaceTypeID == smooth_planar_wall) {
             for (idim=0; idim<Ndim; idim++) {
-               if (idim != Orientation[itype]) Xtest_reflect_TF[Link[iwall]][idim] = FALSE;
+               if (idim != orientation) Xtest_reflect_TF[Link[iwall]][idim] = FALSE;
             } 
         }
-        if(Surface_type[itype] == finite_cyl_3D || Surface_type[itype]==cyl_periodic_3D) {
-           Xtest_reflect_TF[Link[iwall]][Orientation[itype]] = FALSE;
+        if(surfaceTypeID == finite_cyl_3D || surfaceTypeID==cyl_periodic_3D) {
+           Xtest_reflect_TF[Link[iwall]][orientation] = FALSE;
         }
      }
   }
@@ -150,9 +156,10 @@ void setup_surface (FILE *fp2, int *nelems_f,
   icount=0;
   for (iwall=0; iwall<nwall_max; iwall++){
   itype = imagetype[iwall];
+  sgeom_iw=&(SGeom[itype]);
   real_wall = iwall/(nwall_max/Nwall);
   MPI_Barrier(MPI_COMM_WORLD);     /* this may be a bug, but without this barrier statement we have issues with the surface areas */
-  switch(Surface_type[itype])
+  switch(sgeom_iw->surfaceTypeID)
   {
      case smooth_planar_wall:
        els_planar(iwall,real_wall,itype, L_wall,x_min,
@@ -223,7 +230,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
 
      default:		/* No surfaces */
        fprintf (fp2,"ERROR:the surface type chosen is not available\n");
-       fprintf (fp2,"Surface_type:%d\n",Surface_type[itype]);
+       fprintf (fp2,"Surface type:%d\n",sgeom_iw->surfaceTypeID);
        fclose(fp2);
        break;
   }
@@ -397,9 +404,20 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
 {
    int iel, iel_box,inode, idim, ilist,L1el_charge;
    double xtest[3], node_pos[3];
-   double r12_sq_sum, r12, dx, radius,delr,roff=0.00000000001;
+   double r12_sq_sum, r12, dx, delr,roff=0.00000000001;
    double vecB[2],angle_block,angle,roughness,shift,cos_theta,angle_deg;
    int iblock,rough_block[2],idim_permute,angle_test;
+
+   struct SurfaceGeom_Struct *sgeom_iw;
+   double radius,rough_length,angle_wedge_start,angle_wedge_end;
+   int    logical_rough=FALSE;
+
+   sgeom_iw = &(SGeom[itype]);
+   radius=sgeom_iw->radius;
+   angle_wedge_start=sgeom_iw->angle_wedge_start;
+   angle_wedge_end=sgeom_iw->angle_wedge_end;
+   rough_length=sgeom_iw->roughness_length;
+   logical_rough=sgeom_iw->Lrough_surface;
 
    for (ilist=0; ilist<Nlists_HW; ilist++){
 
@@ -409,16 +427,11 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
 
-         switch(Ndim)   /* xtest = position at center of element */
-         {
-            case 3:  xtest[2] = node_pos[2] + 0.5*Esize_x[2];
-            case 2:  xtest[1] = node_pos[1] + 0.5*Esize_x[1];
-            default: xtest[0] = node_pos[0] + 0.5*Esize_x[0];   
-         }
+         for (idim=0;idim<Ndim;idim++) xtest[idim]=node_pos[idim]+0.5*Esize_x[idim];
 
                                                                 /* compute surface for a cylindrical wedge */
          angle_test=TRUE;
-         if (Ndim==2 && (fabs(WallParam_2[itype]-0.0)>=1.e-12 || fabs(WallParam_3[itype]-360.0)>1.e-12)){
+         if (Ndim==2 && (fabs(angle_wedge_start-0.0)>=1.e-12 || fabs(angle_wedge_end-360.0)>1.e-12)){
                vecB[0]=xtest[0]-WallPos[0][iwall]; vecB[1]=xtest[1]-WallPos[1][iwall]; idim_permute=1;
                cos_theta=vecB[0]/(sqrt(vecB[0]*vecB[0]+vecB[1]*vecB[1]));
                angle = acos(cos_theta);
@@ -426,24 +439,24 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
                else shift=0.0;
                angle+=shift;
                angle_deg=180.*angle/PI;
-               if(WallParam_3[itype]>WallParam_2[itype]){
-                      if(angle_deg <WallParam_2[itype] || angle_deg > WallParam_3[itype]) angle_test=FALSE;
+               if(angle_wedge_end>angle_wedge_start){
+                      if(angle_deg <angle_wedge_start || angle_deg > angle_wedge_end) angle_test=FALSE;
                }
-               else if(WallParam_3[itype]<WallParam_2[itype]){
-                      if(angle_deg <WallParam_2[itype] && angle_deg > WallParam_3[itype]) angle_test=FALSE;
+               else if(angle_wedge_end<angle_wedge_start){
+                      if(angle_deg <angle_wedge_start && angle_deg > angle_wedge_end) angle_test=FALSE;
                }
          }
 
-         if (Lrough_surf[itype] && Ndim==2){
+         if (logical_rough && Ndim==2){
                for (iblock=0;iblock<2;iblock++) rough_block[iblock]=0;
 
                rough_block[1] = 0;
 
-               if (Rough_length[itype] > WallParam[itype]){
+               if (Rough_length[itype] > radius){
                   printf("ERROR IN LENGTH SCALE FOR ROUGHNESS...Rough length larger than 1/4 of cylinder\n");
                   exit(-1);
                }
-               angle_block = asin(Rough_length[itype]/WallParam[itype]);
+               angle_block = asin(rough_length/radius);
                vecB[0]=xtest[0];
                vecB[1]=xtest[1];
                idim_permute=1;
@@ -463,11 +476,10 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
          }
          else roughness=0.0;
 
-   
-         radius = WallParam[itype]+roughness;
-         if(Lhard_surf && ilist != Nlists_HW-1 && (Type_func != NONE || Type_poly !=NONE) )  
-                     radius += 0.5*Sigma_ff[ilist][ilist];
-
+         radius += roughness;
+         if(Type_func != NONE || Type_poly !=NONE){
+             if(Lhard_surf && ilist != Nlists_HW-1 )  radius += 0.5*Sigma_ff[ilist][ilist];
+         }
          radius -= roff; /* adjust for round-off errors */
 
          r12_sq_sum = 0.0;
@@ -479,7 +491,7 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
 
          /* for point charge surfaces only allow one element per surface*/
          L1el_charge = FALSE;
-         if (Ipot_ff_c==COULOMB && Surface_type[WallType[iwall]]==point_surface &&
+         if (Ipot_ff_c==COULOMB && sgeom_iw->surfaceTypeID==point_surface &&
                 nelems_w_per_w[ilist][iwall]==1) L1el_charge=TRUE;
 
          if (r12 <= radius && angle_test && !L1el_charge) 
@@ -493,9 +505,7 @@ void els_spheres(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
                         r12 <= radius + Dielec_X) 
                               Dielec[iel_box] = Dielec_pore;
               }
-            
          }
-
 
          if (ilist == Nlists_HW-1){
              delr = r12-radius;
@@ -517,10 +527,23 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
                             double **image_pos)
 {
    int iel, iel_box,inode, idim, ilist;
-   double xtest[3], node_pos[3],length;
-   double r12_sq_sum, r12, dx, radius,delr,roff=0.00000000001;
+   double xtest[3], node_pos[3];
+   double r12_sq_sum, r12, dx, delr,roff=0.00000000001;
    double vecB[2],angle_block,angle,roughness,shift,cos_theta,angle_deg;
    int iblock,rough_block[2],idim_permute,angle_test;
+
+   struct SurfaceGeom_Struct *sgeom_iw;
+   double radius,rough_length,angle_wedge_start,angle_wedge_end,halflength;
+   int    logical_rough=FALSE,orientation;
+
+   sgeom_iw = &(SGeom[itype]);
+   radius=sgeom_iw->radius;
+   halflength=sgeom_iw->halflength;
+   orientation=sgeom_iw->orientation;
+   angle_wedge_start=sgeom_iw->angle_wedge_start;
+   angle_wedge_end=sgeom_iw->angle_wedge_end;
+   rough_length=sgeom_iw->roughness_length;
+   logical_rough=sgeom_iw->Lrough_surface;
 
    for (ilist=0; ilist<Nlists_HW; ilist++){
 
@@ -530,22 +553,18 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
 
-         switch(Ndim)   /* xtest = position at center of element */
-         {
-            case 3:  xtest[2] = node_pos[2] + 0.5*Esize_x[2];
-            case 2:  xtest[1] = node_pos[1] + 0.5*Esize_x[1];
-            default: xtest[0] = node_pos[0] + 0.5*Esize_x[0];   
-         }
+         /* xtest is position at center of element */ 
+         for (idim=0;idim<Ndim;idim++) xtest[idim] = node_pos[idim] + 0.5*Esize_x[idim];
 
          angle_test=TRUE;
-         if ((fabs(WallParam_3[itype]-0.0)>=1.e-12 || fabs(WallParam_4[itype]-360.0)>1.e-12)){
-               if (Orientation[itype]==0){ vecB[0]=xtest[1]-WallPos[1][iwall];
+         if ((fabs(angle_wedge_start-0.0)>=1.e-12 || fabs(angle_wedge_end-360.0)>1.e-12)){
+               if (orientation==0){ vecB[0]=xtest[1]-WallPos[1][iwall];
                                            vecB[1]=xtest[2]-WallPos[2][iwall];
                                            idim_permute=2;}
-               else if (Orientation[itype]==1){ vecB[0]=xtest[2]-WallPos[2][iwall];
+               else if (orientation==1){ vecB[0]=xtest[2]-WallPos[2][iwall];
                                                 vecB[1]=xtest[0]-WallPos[0][iwall];
                                                 idim_permute=0;}
-               else if (Orientation[itype]==2){ vecB[0]=xtest[0]-WallPos[0][iwall]; 
+               else if (orientation==2){ vecB[0]=xtest[0]-WallPos[0][iwall]; 
                                                 vecB[1]=xtest[1]-WallPos[1][iwall]; 
                                                 idim_permute=1;}
                cos_theta=vecB[0]/(sqrt(vecB[0]*vecB[0]+vecB[1]*vecB[1]));
@@ -554,27 +573,27 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
                else shift=0.0;
                angle+=shift;
                angle_deg=180.*angle/PI;
-               if(WallParam_4[itype]>WallParam_3[itype]){
-                      if(angle_deg <WallParam_3[itype] || angle_deg > WallParam_4[itype]) angle_test=FALSE;
+               if(angle_wedge_end>angle_wedge_start){
+                      if(angle_deg <angle_wedge_start || angle_deg > angle_wedge_end) angle_test=FALSE;
                }
-               else if(WallParam_4[itype]<WallParam_3[itype]){
-                      if(angle_deg <WallParam_3[itype] && angle_deg > WallParam_4[itype]) angle_test=FALSE;
+               else if(angle_wedge_end<angle_wedge_start){
+                      if(angle_deg <angle_wedge_start && angle_deg > angle_wedge_end) angle_test=FALSE;
                }
          }
 
-         if (Lrough_surf[itype]){
+         if (logical_rough){
                for (iblock=0;iblock<2;iblock++) rough_block[iblock]=0;
 
-               rough_block[1] = (int) ((xtest[Orientation[itype]]+0.5*Size_x[Orientation[itype]])/Rough_length[itype]);
+               rough_block[1] = (int) ((xtest[orientation]+0.5*Size_x[orientation])/rough_length);
 
-               if (Rough_length[itype] > WallParam[itype]){
+               if (rough_length > radius){
                   printf("ERROR IN LENGTH SCALE FOR ROUGHNESS...Rough length larger than 1/4 of cylinder\n");
                   exit(-1);
                }
-               angle_block = asin(Rough_length[itype]/WallParam[itype]);
-               if (Orientation[itype]==0){ vecB[0]=xtest[1];vecB[1]=xtest[2];idim_permute=2;}
-               else if (Orientation[itype]==1){ vecB[0]=xtest[2];vecB[1]=xtest[0];idim_permute=0;}
-               else if (Orientation[itype]==2){ vecB[0]=xtest[0];vecB[1]=xtest[1];idim_permute=1;}
+               angle_block = asin(rough_length/radius);
+               if (orientation==0){ vecB[0]=xtest[1];vecB[1]=xtest[2];idim_permute=2;}
+               else if (orientation==1){ vecB[0]=xtest[2];vecB[1]=xtest[0];idim_permute=0;}
+               else if (orientation==2){ vecB[0]=xtest[0];vecB[1]=xtest[1];idim_permute=1;}
                cos_theta=vecB[0]/(sqrt(vecB[0]*vecB[0]+vecB[1]*vecB[1]));
                angle = acos(cos_theta);
                if (vecB[1]<WallPos[idim_permute][iwall]) shift=2.0*(PI-angle);
@@ -591,8 +610,7 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
          }
          else roughness=0.0;
    
-         radius = WallParam[itype]+roughness;
-         length = WallParam_2[itype];
+         radius+= roughness;
          if(Lhard_surf && ilist != Nlists_HW-1)  
                      radius += 0.5*Sigma_wf[ilist][itype];
 
@@ -601,13 +619,12 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
          r12_sq_sum = 0.0;
          for (idim = 0; idim < Ndim; idim++) {
             dx =  xtest[idim] -  image_pos[iwall][idim];
-            if( idim != Orientation[itype])
-                   r12_sq_sum = r12_sq_sum + dx*dx;
+            if( idim != orientation) r12_sq_sum = r12_sq_sum + dx*dx;
          }
          r12 = sqrt(r12_sq_sum);
 
          if (r12 <= radius && 
-             fabs(xtest[Orientation[itype]]-image_pos[iwall][Orientation[itype]])<=length && angle_test) 
+             fabs(xtest[orientation]-image_pos[iwall][orientation])<=halflength && angle_test) 
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
@@ -619,7 +636,6 @@ void els_cyls_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_mi
               }
             
          }
-
 
          if (ilist == Nlists_HW-1){
              delr = r12-radius;
@@ -640,7 +656,17 @@ void els_cyls_cos_3D(int iwall, int real_wall, int itype, int **L_wall, double *
 {
    int iel, iel_box,inode, idim, ilist;
    double xtest[3], node_pos[3];
-   double r12_sq_sum, r12, dx, radius,delr,roff=0.00000000001;
+   double r12_sq_sum, r12, dx, delr,roff=0.00000000001;
+
+   struct SurfaceGeom_Struct *sgeom_iw;
+   double radius,rough_length,amplitude,wavelength;
+   int    logical_rough=FALSE,orientation;
+
+   sgeom_iw = &(SGeom[itype]);
+   radius=sgeom_iw->radius;
+   orientation=sgeom_iw->orientation;
+   amplitude=sgeom_iw->amplitude;
+   wavelength=sgeom_iw->wavelength;
 
    for (ilist=0; ilist<Nlists_HW; ilist++){
 
@@ -650,27 +676,17 @@ void els_cyls_cos_3D(int iwall, int real_wall, int itype, int **L_wall, double *
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
 
-         switch(Ndim)   /* xtest = position at center of element */
-         {
-            case 3:  xtest[2] = node_pos[2] + 0.5*Esize_x[2];
-            case 2:  xtest[1] = node_pos[1] + 0.5*Esize_x[1];
-            default: xtest[0] = node_pos[0] + 0.5*Esize_x[0];   
-         }
-  
-         idim = Orientation[itype]; 
-         radius = WallParam[itype] + WallParam_2[itype]*
-                   cos(2*PI*(xtest[idim]-WallPos[idim][iwall])/WallParam_3[itype]);
+         /* xtest = position at center of element */
+         for (idim=0;idim<Ndim;idim++)  xtest[idim] = node_pos[idim] + 0.5*Esize_x[idim];
 
-         if(Lhard_surf && ilist != Nlists_HW-1)  
-                     radius += 0.5*Sigma_wf[ilist][itype];
-
+         radius += amplitude*cos(2*PI*(xtest[orientation]-WallPos[orientation][iwall])/wavelength);
+         if(Lhard_surf && ilist != Nlists_HW-1)  radius += 0.5*Sigma_wf[ilist][itype];
          radius -= roff; /* adjust for round-off errors */
 
          r12_sq_sum = 0.0;
          for (idim = 0; idim < Ndim; idim++) {
             dx =  xtest[idim] -  image_pos[iwall][idim];
-            if( idim != Orientation[itype])
-                   r12_sq_sum = r12_sq_sum + dx*dx;
+            if( idim != orientation) r12_sq_sum = r12_sq_sum + dx*dx;
          }
          r12 = sqrt(r12_sq_sum);
 
@@ -686,7 +702,6 @@ void els_cyls_cos_3D(int iwall, int real_wall, int itype, int **L_wall, double *
               }
             
          }
-
 
          if (ilist == Nlists_HW-1){
              delr = r12-radius;
@@ -737,14 +752,9 @@ void els_atomic_centers(int iwall, int real_wall,int itype, int **L_wall, double
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
 
+         /* xtest = position at center of element */
+         for (idim=0;idim<Ndim;idim++) xtest[idim]=node_pos[idim]+0.5*Esize_x[idim];
 
-         switch(Ndim)   /* xtest = position at center of element */
-         {
-            case 3:  xtest[2] = node_pos[2] + 0.5*Esize_x[2];
-            case 2:  xtest[1] = node_pos[1] + 0.5*Esize_x[1];
-            default: xtest[0] = node_pos[0] + 0.5*Esize_x[0];   
-         }
- 
          r12_sq_sum = 0.0;
          for (idim = 0; idim < Ndim; idim++) {
             dx =  xtest[idim] -  image_pos[iwall][idim];
@@ -777,7 +787,7 @@ void els_atomic_centers(int iwall, int real_wall,int itype, int **L_wall, double
 /****************************************************************************/
 /* els_slit_pore_2D: Assign each element to either the fluid 
                      or the pore walls.  This routine is for
-                     2D calculations where the Orientation specifies the
+                     2D calculations where the orientation specifies the
                      axis down the length of the slit pore.  */
 
 void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double *x_min,
@@ -788,8 +798,16 @@ void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
    int iel, iel_box, inode, ilist,dim[3],loc_inode;
    double xtest[3];
    double node_pos[3];
-   double r12, radius,x12,length,delr,x12new,r12new;
+   double r12,x12,length,delr,x12new,r12new;
    double roff=0.00000000001;
+
+   struct SurfaceGeom_Struct *sgeom_iw;
+   double radius,halflength;
+   int orientation;
+
+   sgeom_iw = &(SGeom[itype]);
+   radius=sgeom_iw->radius;
+   orientation=sgeom_iw->orientation;
 
    for (ilist = 0; ilist<Nlists_HW; ilist++){
 
@@ -799,7 +817,7 @@ void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
    
-         switch(Orientation[itype])  /* xtest = center of element */
+         switch(orientation)  /* xtest = center of element */
          {
             case 1:
                xtest[0] = node_pos[0] + 0.5*Esize_x[0]; dim[0] = 0;
@@ -811,16 +829,14 @@ void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
                break;
          }
 
-         radius = WallParam[itype];
-         if (Lhard_surf && ilist != Nlists_HW-1)
-                       radius -= 0.5*Sigma_wf[ilist][itype];
+         if (Lhard_surf && ilist != Nlists_HW-1) radius -= 0.5*Sigma_wf[ilist][itype];
          radius += roff;
          r12 = fabs(xtest[0] -  image_pos[iwall][dim[0]]);
 
-         length = 2.0*WallParam_2[itype] - 2.0*roff;
+         halflength-=roff;
          x12 = fabs(image_pos[iwall][dim[1]] - xtest[1]);
 
-         if (r12 >= radius && x12 <= 0.5*length) {
+         if (r12 >= radius && x12 <= halflength) {
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          }
@@ -836,7 +852,7 @@ void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
              /* in fluid ... store the value of x12 if we are doing
                 a stepped 9-3 surface */
               if (Ipot_wf_n[iwall]==VEXT_1D_XMIN){
-                 switch(Orientation[itype])  /* xtest = llb node of element */
+                 switch(orientation)  /* xtest = llb node of element */
                  {
                    case 1:  xtest[0] = node_pos[0]; xtest[1] = node_pos[1]; break;
                    case 0:  xtest[0] = node_pos[1];  xtest[1] = node_pos[0]; break;
@@ -854,7 +870,7 @@ void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
               }    /* END of VEXT_1D_XMIN case */
 
          if (ilist == Nlists_HW-1) {
-             delr = WallParam[itype] - r12;
+             delr = radius - r12;
              if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
@@ -865,19 +881,28 @@ void els_slit_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
 /****************************************************************************/
 /* els_cyl_pore_3D: Assign each element to either the fluid 
                      or the cylindrical pore walls.  This routine is for
-                     3D calculations where the Orientation specifies the
+                     3D calculations where the orientation specifies the
                      axis down the length of the cylinder. */ 
 
 void els_cyl_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *x_min,
                               int **nelems_w_per_w, int ***elems_w_per_w,
-                              int ***el_type,
-                              double **image_pos)
+                              int ***el_type, double **image_pos)
 {
    int iel, iel_box, inode, idim, ilist,dim[3];
    double xtest[3];
    double node_pos[3];
-   double r12_sq_sum, r12, dx,radius,x12,length,delr;
+   double r12_sq_sum, r12, dx,x12,length,delr,delx;
    double roff=0.00000000001;
+
+   struct SurfaceGeom_Struct *sgeom_iw;
+   double radius,halflength;
+   int    orientation;
+
+   sgeom_iw = &(SGeom[itype]);
+   radius=sgeom_iw->radius;
+   halflength=sgeom_iw->halflength;
+   orientation=sgeom_iw->orientation;
+
 
    for (ilist = 0; ilist<Nlists_HW; ilist++){
 
@@ -888,7 +913,7 @@ void els_cyl_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *
          node_to_position(inode,node_pos);
    
 
-         switch(Orientation[itype])  /* xtest = center of element */
+         switch(orientation)  /* xtest = center of element */
          {
             case 2:
                xtest[0] = node_pos[0] + 0.5*Esize_x[0]; dim[0] = 0;
@@ -907,10 +932,7 @@ void els_cyl_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *
                break;
          }
 
-
-         radius = WallParam[itype];
-         if (Lhard_surf && ilist != Nlists_HW-1 )  
-              radius -= 0.5*Sigma_wf[ilist][itype];
+         if (Lhard_surf && ilist != Nlists_HW-1 )  radius -= 0.5*Sigma_wf[ilist][itype];
          radius += roff;
 
          r12_sq_sum = 0.0;
@@ -920,10 +942,10 @@ void els_cyl_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *
          }
          r12 = sqrt(r12_sq_sum);
 
-         length = 2.0*WallParam_2[itype] - 2.0*roff;
+         halflength -= roff;
          x12 = fabs(image_pos[iwall][dim[2]] - xtest[2]);
 
-         if (r12 >= radius && x12 <= 0.5*length) 
+         if (r12 >= radius && x12 <= halflength) 
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
@@ -937,7 +959,9 @@ void els_cyl_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *
 
 
          if (ilist == Nlists_HW-1) {
-             delr = x12 - WallParam_2[itype];
+             delx = x12 - halflength;
+             delr = radius-r12;
+             if (delx >0.0) delr=delx;  /* outside of pore */
              if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
@@ -948,7 +972,7 @@ void els_cyl_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double *
 /****************************************************************************/
 /* els_cone_pore_2D: Assign each element to either the fluid 
                      or the cylindrical pore walls.  This routine is for
-                     3D calculations where the Orientation specifies the
+                     3D calculations where the orientation specifies the
                      axis down the length of the cylinder.  It is assumed
                      that the ends of the box are periodic.  */
 
@@ -964,6 +988,17 @@ void els_cone_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
           x12,length,r12new,x12new,radiusnew;
    double roff=0.00000000001;
 
+   struct SurfaceGeom_Struct *sgeom_iw;
+   double halflength;
+   int    orientation;
+
+   sgeom_iw = &(SGeom[itype]);
+   radius1=sgeom_iw->radius;
+   radius2=sgeom_iw->radius2;
+   halflength=sgeom_iw->halflength;
+   orientation=sgeom_iw->orientation;
+
+
    for (ilist = 0; ilist<Nlists_HW; ilist++){
 
       for (iel_box = 0; iel_box < Nelements_box; iel_box++){
@@ -972,7 +1007,7 @@ void els_cone_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
    
-         switch(Orientation[itype])  /* xtest = center of element */
+         switch(orientation)  /* xtest = center of element */
          {
             case 1:
                xtest[0] = node_pos[0] + 0.5*Esize_x[0]; dim[0] = 0;
@@ -986,22 +1021,21 @@ void els_cone_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
                break;
          }
 
-         length = 2.0*WallParam_3[itype] - 2.0*roff;
+         halflength -= roff;
+         length=2.0*halflength;
          x12 = xtest[1] - image_pos[iwall][dim[1]];
 
-         radius1 = WallParam[itype];
-         radius2 = WallParam_2[itype];
          if (Lhard_surf && ilist != Nlists_HW-1) {
             radius1 -= 0.5*Sigma_wf[ilist][itype];
             radius2 -= 0.5*Sigma_wf[ilist][itype];
          }
-         radius = radius2 + (radius2-radius1)*(x12-0.5*length)/length;
+         radius = radius2 + (radius2-radius1)*(x12-halflength)/(length);
          radius += roff;
 
          r12 = fabs(xtest[0] - image_pos[iwall][dim[0]]);
          x12 = fabs(x12);
 
-         if (r12 >= radius && x12 <= 0.5*length) 
+         if (r12 >= radius && x12 <= halflength) 
              flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,
                           nelems_w_per_w, elems_w_per_w,el_type);
          else{
@@ -1015,14 +1049,14 @@ void els_cone_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
              /* in fluid ... store the value of x12 if we are doing
                 a stepped 9-3 surface */
               if (Ipot_wf_n[iwall]==VEXT_1D_XMIN){
-                 switch(Orientation[itype])  /* xtest = llb node of element */
+                 switch(orientation)  /* xtest = llb node of element */
                  {
                    case 1:  xtest[0] = node_pos[0]; xtest[1] = node_pos[1]; break;
                    case 0:  xtest[0] = node_pos[1];  xtest[1] = node_pos[0]; break;
                  }
                  r12new = fabs(xtest[0] -  image_pos[iwall][dim[0]]);
                  x12new = xtest[1] - image_pos[iwall][dim[1]];
-                 radiusnew = radius2 + (radius2-radius1)*(x12new-0.5*length)/length;
+                 radiusnew = radius2 + (radius2-radius1)*(x12new-halflength)/length;
                  radiusnew += roff;
                  x12new = fabs(x12new);
 
@@ -1048,7 +1082,7 @@ void els_cone_pore_2D(int iwall, int real_wall, int itype, int **L_wall, double 
 /****************************************************************************/
 /* els_cone_pore_3D: Assign each element to either the fluid 
                      or the cylindrical pore walls.  This routine is for
-                     3D calculations where the Orientation specifies the
+                     3D calculations where the orientation specifies the
                      axis down the length of the cylinder.  It is assumed
                      that the ends of the box are periodic.  */
 
@@ -1064,6 +1098,16 @@ void els_cone_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double 
           x12,length;
    double roff=0.00000000001;
 
+   struct SurfaceGeom_Struct *sgeom_iw;
+   double halflength;
+   int    orientation;
+
+   sgeom_iw = &(SGeom[itype]);
+   radius1=sgeom_iw->radius;
+   radius2=sgeom_iw->radius2;
+   halflength=sgeom_iw->halflength;
+   orientation=sgeom_iw->orientation;
+
    for (ilist = 0; ilist<Nlists_HW; ilist++){
 
       for (iel_box = 0; iel_box < Nelements_box; iel_box++){
@@ -1072,7 +1116,7 @@ void els_cone_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double 
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
    
-         switch(Orientation[itype])  /* xtest = center of element */
+         switch(orientation)  /* xtest = center of element */
          {
             case 2:
                xtest[0] = node_pos[0] + 0.5*Esize_x[0]; dim[0] = 0;
@@ -1092,16 +1136,15 @@ void els_cone_pore_3D(int iwall, int real_wall, int itype, int **L_wall, double 
          }
 
 
-         length = 2.0*WallParam_3[itype] - 2.0*roff;
+         halflength-=roff;
+         length = 2.0*halflength;
          x12 = xtest[2] - image_pos[iwall][dim[2]];
 
-         radius1 = WallParam[itype];
-         radius2 = WallParam_2[itype];
          if (Lhard_surf && ilist != Nlists_HW-1){
             radius1 -= 0.5*Sigma_wf[ilist][itype];
             radius2 -= 0.5*Sigma_wf[ilist][itype];
          }
-         radius = radius2 + (radius2-radius1)*(x12-0.5*length)/length;
+         radius = radius2 + (radius2-radius1)*(x12-halflength)/length;
          radius += roff;
 
          r12_sq_sum = 0.0;
@@ -1143,8 +1186,14 @@ void els_cyl_pores(int iwall,int real_wall, int itype, int **L_wall, double *x_m
 {
    int iel, iel_box, inode, idim, ilist,count;
    double xtest[3],node_pos[3];
-   double r12_sq_sum, r12, delr,dx,radius;
+   double r12_sq_sum, r12, delr,dx;
    double roff=0.00000000001;
+
+   struct SurfaceGeom_Struct *sgeom_iw;
+   double radius;
+
+   sgeom_iw = &(SGeom[itype]);
+   radius=sgeom_iw->radius;
 
    count = 0;
 
@@ -1156,16 +1205,10 @@ void els_cyl_pores(int iwall,int real_wall, int itype, int **L_wall, double *x_m
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
    
-         switch(Ndim)                 /* xtest = position at center of element */
-         {
-            case 3:  xtest[2] = node_pos[2] + 0.5*Esize_x[2];
-            case 2:  xtest[1] = node_pos[1] + 0.5*Esize_x[1];
-            default: xtest[0] = node_pos[0] + 0.5*Esize_x[0];   
-         }
+         /* xtest = position at center of element */
+         for (idim=0;idim<Ndim;idim++) xtest[idim] = node_pos[idim] + 0.5*Esize_x[idim];
    
-         radius = WallParam[itype];
-         if (Lhard_surf && ilist != Nlists_HW-1) 
-             radius -= 0.5*Sigma_ff[ilist][ilist];
+         if (Lhard_surf && ilist != Nlists_HW-1) radius -= 0.5*Sigma_ff[ilist][ilist];
          radius += roff;
 
          r12_sq_sum = 0.0;
@@ -1187,9 +1230,8 @@ void els_cyl_pores(int iwall,int real_wall, int itype, int **L_wall, double *x_m
               }
          }
 
-
          if (ilist == Nlists_HW-1) {
-             delr = WallParam[itype] - r12;
+             delr = radius - r12;
              if (delr > 0.0 ) x_min[iel_box] = AZ_MIN(delr,x_min[iel_box]);
              else             x_min[iel_box] = 0.0;
          }
@@ -1212,6 +1254,15 @@ void els_planar(int iwall, int real_wall, int itype,
   double roff=0.00000000001;
   double roughness;
   int iblock,rough_block[2];
+  struct SurfaceGeom_Struct *sgeom_iw;
+  double halfwidth,rough_length;
+  int orientation,logical_rough=FALSE;
+
+  sgeom_iw = &(SGeom[itype]);
+  orientation=sgeom_iw->orientation;
+  halfwidth=sgeom_iw->halfwidth[orientation];
+  rough_length=sgeom_iw->roughness_length;
+  logical_rough=sgeom_iw->Lrough_surface;
 
    /*
     * Find the number of fluid and wall elements based on the 
@@ -1226,16 +1277,14 @@ void els_planar(int iwall, int real_wall, int itype,
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
 
-         if (Lrough_surf[itype]){
+         if (logical_rough){
               if (Ndim==1) roughness=0.0; /* sanity check */
               else{
                   for (iblock=0;iblock<2;iblock++) rough_block[iblock]=0;
                   iblock=0;
                   for (idim=0;idim<Ndim;idim++){
-                     if (idim != Orientation[itype]) {
-                         rough_block[iblock] = (int) ((node_pos[idim]+0.5*Size_x[idim])/Rough_length[itype]);
-                         printf("idim=%d  node_pos[idim]=%9.6f  Rough_length=%9.6f  iblock=%d  rough_block=%d  roughness=%9.6f\n",idim,node_pos[idim],
-                                 Rough_length[itype],iblock,rough_block[iblock],Rough_precalc[itype][rough_block[0]][0]);
+                     if (idim != orientation) {
+                         rough_block[iblock] = (int) ((node_pos[idim]+0.5*Size_x[idim])/rough_length);
                          if (rough_block[iblock] >= MAX_ROUGH_BLOCK) {
                              printf("ERROR with rough surfacess - number of rough patches exceeds maximum of MAX_ROUGH_BLOCK=%d\n",
                                       MAX_ROUGH_BLOCK);
@@ -1249,13 +1298,12 @@ void els_planar(int iwall, int real_wall, int itype,
          }
          else roughness=0.0;
 
-   
-         wall_thick = 2.0*(WallParam[itype]+roughness) - 2.0*roff;
+         wall_thick = 2.0*(halfwidth+roughness) - 2.0*roff;
          if (Lhard_surf && ilist !=Nlists_HW-1) wall_thick += diam;
 
-         if      (Orientation[itype] == 0) idim = 0;
-         else if (Orientation[itype] == 1) idim = 1;
-         else                              idim = 2;
+         if      (orientation == 0) idim = 0;
+         else if (orientation == 1) idim = 1;
+         else                       idim = 2;
 
          /* get center of element in appropriate dimension */
          x = node_pos[idim] + 0.5*Esize_x[idim];
@@ -1276,7 +1324,7 @@ void els_planar(int iwall, int real_wall, int itype,
       
 
          if (ilist == Nlists_HW-1){
-           delx = x12 - WallParam[itype];
+           delx = x12 - halfwidth;
            if (delx > 0.0) x_min[iel_box] = AZ_MIN(delx,x_min[iel_box]);
            else            x_min[iel_box] = 0.0;
          }
@@ -1297,6 +1345,11 @@ void els_finite_planar(int iwall, int real_wall, int itype,
        ilist,in_wall,near_wall,npos;
    double xtest[3], xsave[3],x12[3],length[3],diam;
    double node_pos[3],x[3],x_this_wall=0.0,roff=0.00000000001;
+   struct SurfaceGeom_Struct *sgeom_iw;
+   double *halfwidth;
+
+   sgeom_iw = &(SGeom[itype]);
+   halfwidth=sgeom_iw->halfwidth;
    
    /*
     * Find the number of fluid and wall elements based on the 
@@ -1311,17 +1364,11 @@ void els_finite_planar(int iwall, int real_wall, int itype,
          inode = element_to_node(iel);
          node_to_position(inode,node_pos);
 
-                       length[0] = 2.0*WallParam[itype];
-                       length[1] = 2.0*WallParam_2[itype];
-         if (Ndim==3)  length[2] = 2.0*WallParam_3[itype];
-         if (Lhard_surf && ilist != Nlists_HW-1){
-                       length[0] += diam;
-                       length[1] += diam;
-          if (Ndim==3) length[2] += diam;
+         for (idim=0; idim<Ndim; idim++){
+              length[idim]=2.0*halfwidth[idim];
+              if (Lhard_surf && ilist != Nlists_HW-1) length[idim] += diam;
+              length[idim] -= 2.0*roff;
          }
-         for (idim=0; idim<Ndim; idim++)
-            length[idim] -= 2.0*roff;
-         
 
          in_wall = TRUE;
          near_wall = TRUE;
@@ -1343,41 +1390,22 @@ void els_finite_planar(int iwall, int real_wall, int itype,
                   if (Type_dielec == DIELEC_WF_PORE && near_wall)
                         Dielec[iel_box] = Dielec_pore;
               }
-
          }
-
 
          if (ilist == Nlists_HW-1){
              npos = 0;
              for (idim=0; idim<Ndim; idim++){
-                 if (idim == 0) 
-                       xtest[idim] = x12[idim] - WallParam[itype];
-                 else if (idim == 1) 
-                       xtest[idim] = x12[idim] - WallParam_2[itype];
-                 else  xtest[idim] = x12[idim] - WallParam_3[itype];
-
+                 xtest[idim] = x12[idim] - halfwidth[idim];
                  if (xtest[idim] > 0) xsave[npos++] = xtest[idim];
              }
-           
-             if (npos == 0) 
-	       {
-		 x_this_wall = 0.0;
-	       }
-             else if (npos == 1) 
-	       {
-		 x_this_wall = xsave[0];
-	       }
-             else if (npos >= 2)
-	       {
+             if (npos == 0)      x_this_wall = 0.0;
+             else if (npos == 1) x_this_wall = xsave[0];
+             else if (npos >= 2) {
                  x_this_wall = AZ_MAX(xsave[0],xsave[1]);
-                 if (npos == 3) 
-		   {
-		     x_this_wall = AZ_MAX(x_this_wall,xsave[2]);
-		   }
-	       }
+                 if (npos == 3)  x_this_wall = AZ_MAX(x_this_wall,xsave[2]); 
+	     }
              x_min[iel_box] = AZ_MIN(x_min[iel_box],x_this_wall); 
          }
-
 
       }    /* end of loop over elements */
    }       /* end of loop over boundary lists */

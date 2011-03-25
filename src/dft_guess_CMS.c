@@ -256,7 +256,7 @@ void setup_polymer_G(double **xInBox,double **xOwned)
                     node_box_to_ijk_box(inode_box, ijk_box);
                     inode = L2G_node[loc_inode];
                     node_to_position(inode,nodepos);
-                    xbound = WallPos[0][0] + WallParam[0];
+                    xbound = WallPos[0][0] + Poly_graft_dist[0];
                     sig2 = Bond_ff[itype_mer][itype_mer]*Bond_ff[itype_mer][itype_mer];
                     if(Type_poly==CMS) {
                        if(nodepos[0] <= xbound+Bond_ff[itype_mer][itype_mer]) { 

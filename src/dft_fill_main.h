@@ -88,8 +88,7 @@ double grafted_int(int sten_type,int itype_mer,int *ijk_box,int izone,int unk_G,
 int node_to_node_box(int inode);
 int position_to_node(double *NodePos);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
-#define NWALL_MAX_TYPE 50 
-extern double WallParam[NWALL_MAX_TYPE];
+extern double *Poly_graft_dist;
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int WallType[NWALL_MAX];

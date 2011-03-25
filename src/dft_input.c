@@ -65,8 +65,8 @@ void read_input_file(char *input_file, char *output_file1)
        dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
    double rho_tmp[NCOMP_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
-   double rough_param_max[NWALL_MAX_TYPE];
    int iblock,jblock;
+
 
   
   /********************** BEGIN EXECUTION ************************************/
@@ -264,6 +264,14 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&Nlink,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Lauto_center,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Lauto_size,1,MPI_INT,0,MPI_COMM_WORLD);
+
+ /*
+  * Allocate the SurfaceGeometry variable to be a 3D array of structures
+  * So it can be accessed as SGeom[iwall_type].param
+  */
+
+  SGeom = (struct SurfaceGeom_Struct *) array_alloc(1,Nwall_type, sizeof(struct SurfaceGeom_Struct));
+
   if (Nwall>0) Xtest_reflect_TF = (int **) array_alloc (2, Nlink,Ndim, sizeof(int));
   if (Proc==0) {
     read_junk(fp,fp2);
@@ -455,13 +463,13 @@ void read_input_file(char *input_file, char *output_file1)
     read_junk(fp,fp2);
     if (Nwall_type > 0) 
       for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
-	fscanf(fp,"%lf", &rough_param_max[iwall_type]);
-	fprintf(fp2,"%f  ",rough_param_max[iwall_type]);
+	fscanf(fp,"%lf", &Rough_param_max[iwall_type]);
+	fprintf(fp2,"%f  ",Rough_param_max[iwall_type]);
       }
-    else fprintf(fp2,"rough_param_max n/a");
+    else fprintf(fp2,"Rough_param_max n/a");
   }
   if (Nwall_type > 0) 
-    MPI_Bcast(rough_param_max,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(Rough_param_max,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
   if (Proc==0) {
     read_junk(fp,fp2);
@@ -486,10 +494,11 @@ void read_input_file(char *input_file, char *output_file1)
               irand = rand();
             #endif
             irand_range = POW_INT(2,31)-1;
-            Rough_precalc[iwall_type][iblock][jblock]= rough_param_max[iwall_type]*(-0.5+( ((double)irand)/((double)irand_range)));
+            Rough_precalc[iwall_type][iblock][jblock]= Rough_param_max[iwall_type]*(-0.5+( ((double)irand)/((double)irand_range)));
          }
       }
   }
+
 
   /* switches for types of wall-fluid and wall-wall interaction parameters */
   if (Proc==0) {
@@ -840,6 +849,10 @@ void read_input_file(char *input_file, char *output_file1)
   }
     if (Mix_type==1) MPI_Bcast(Sigma_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
     else MPI_Bcast(Sigma_w,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+    /* resend WallParam to catch cases where it has been adjusted to be Sigma */
+    MPI_Bcast(WallParam,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    fill_surfGeom_struct();
 
                        /*Eps_w or Eps_ww*/
   if (Proc==0) {
@@ -2072,7 +2085,91 @@ void read_junk(FILE *fp, FILE *fp2)
       if (Proc==0) putc(c,fp2);
    if (Proc==0) fprintf(fp2,"   data:");
 }
+/****************************************************************************/
+/* fill_SurfGeom_struct : this function pushes all the data from the generic input
+formats to the surface geometry structures that will be used to access data */
+void fill_surfGeom_struct()
+{
+  int iw;
+  struct SurfaceGeom_Struct *sgeom_iw;
 
+  if (Nwall_type>0) Poly_graft_dist = (double *) array_alloc (1, Nwall_type, sizeof(double));
+
+  for (iw=0;iw<Nwall_type;iw++){
+    Poly_graft_dist[iw]=0.;
+    sgeom_iw = &(SGeom[iw]); 
+    sgeom_iw->surfaceTypeID=Surface_type[iw];
+    switch(sgeom_iw->surfaceTypeID)
+    {
+       case smooth_planar_wall:
+            sgeom_iw->halfwidth = (double *) array_alloc(1, Ndim, sizeof(double));
+            sgeom_iw->orientation=Orientation[iw];
+            sgeom_iw->halfwidth[Orientation[iw]]=WallParam[iw];
+            sgeom_iw->Lrough_surface=Lrough_surf[iw];
+            sgeom_iw->roughness=Rough_param_max[iw];
+            sgeom_iw->roughness_length=Rough_length[iw];
+            Poly_graft_dist[iw]=sgeom_iw->halfwidth[sgeom_iw->orientation];
+            break;
+       case finite_planar_wall:
+            sgeom_iw->halfwidth = (double *) array_alloc(1, Ndim, sizeof(double));
+            sgeom_iw->halfwidth[0]=WallParam[iw];
+            if (Ndim>1) sgeom_iw->halfwidth[1]=WallParam_2[iw];
+            if (Ndim>2) sgeom_iw->halfwidth[2]=WallParam_3[iw];
+            sgeom_iw->Lrough_surface=Lrough_surf[iw];
+            break;
+       case point_surface:
+       case colloids_cyl_sphere:
+            sgeom_iw->radius=WallParam[iw];
+            sgeom_iw->angle_wedge_start=WallParam_2[iw];
+            sgeom_iw->angle_wedge_end=WallParam_3[iw];
+            sgeom_iw->Lrough_surface=Lrough_surf[iw];
+            sgeom_iw->roughness=Rough_param_max[iw];
+            sgeom_iw->roughness_length=Rough_length[iw];
+            Poly_graft_dist[iw]=sgeom_iw->radius;
+            break;
+       case finite_cyl_3D:
+            sgeom_iw->orientation=Orientation[iw];
+            sgeom_iw->radius=WallParam[iw];
+            sgeom_iw->halflength=WallParam_2[iw];
+            sgeom_iw->angle_wedge_start=WallParam_3[iw];
+            sgeom_iw->angle_wedge_end=WallParam_4[iw];
+            sgeom_iw->Lrough_surface=Lrough_surf[iw];
+            sgeom_iw->roughness=Rough_param_max[iw];
+            sgeom_iw->roughness_length=Rough_length[iw];
+            Poly_graft_dist[iw]=sgeom_iw->radius;
+            break;
+       case atomic_centers:
+            break;
+       case cyl_periodic_3D:
+            sgeom_iw->orientation=Orientation[iw];
+            sgeom_iw->radius=WallParam[iw];
+            sgeom_iw->amplitude=WallParam_2[iw];
+            sgeom_iw->wavelength=WallParam_3[iw];
+            break;
+       case cyl2D_sphere3D_pore:
+            sgeom_iw->radius=WallParam[iw];
+            Poly_graft_dist[iw]=sgeom_iw->radius;
+            break;
+       case cyl3D_slit2D_pore:
+            sgeom_iw->orientation=Orientation[iw];
+            sgeom_iw->radius=WallParam[iw];
+            sgeom_iw->halflength=WallParam_2[iw];
+            Poly_graft_dist[iw]=sgeom_iw->radius;
+            break;
+       case tapered_pore:
+            sgeom_iw->orientation=Orientation[iw];
+            sgeom_iw->radius=WallParam[iw];
+            sgeom_iw->radius2=WallParam_2[iw];
+            sgeom_iw->halflength=WallParam_3[iw];
+            break;
+       default: /* No surface found */
+            printf("error with surface type iwall_type=%d not identified\n",iw);
+            exit(-1);
+            break;
+    }
+  }
+  return;
+}
 /****************************************************************************/
 /* error_check :  This function checks for error or inconsistencies in
                   the input parameters.  If either are found, the program

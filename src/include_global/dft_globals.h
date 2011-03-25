@@ -191,6 +191,7 @@ double  WallParam_4[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall par
 int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
 double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 double  Rough_length[NWALL_MAX_TYPE];
+double  Rough_param_max[NWALL_MAX_TYPE];
 double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
 
 /* Fluid Physics info */
@@ -489,6 +490,7 @@ struct  Loca_Struct Loca; /* Information for continuation library */
  */
 
 struct Stencil_Struct ***Stencil;
+struct SurfaceGeom_Struct *SGeom;
 int MPsten_Npts_R[NZONE_MAX];  /* # radial gauss pts. in MIDPOINT rule */
 int MPsten_Npts_arc[NZONE_MAX]; /* # theta gauss pts. in MIDPOINT rule */
 int MPsten_Npts_phi[NZONE_MAX]; /* # phi gauss pts. in MIDPOINT rule */
@@ -509,6 +511,7 @@ double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
 int Grafted[NCOMP_MAX];
 int Graft_wall[NCOMP_MAX];
+double *Poly_graft_dist;     /* distance associated with polymer grafting - */
 double Rho_g[NCOMP_MAX];
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
 int Nmer_t_total[NBLOCK_MAX];

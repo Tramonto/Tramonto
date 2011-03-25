@@ -922,7 +922,7 @@ setup_zeroTF_and_Node2bound: This routine take the information about which eleme
                     lists of wall nodes and fluid nodes for each wall list */
 void setup_zeroTF_and_Node2bound (FILE *fp1,int ***el_type)
 {
- int reflect_flag[3], **n_fluid_els, iwall,
+ int reflect_flag[3], **n_fluid_els, iwall,iwall_type,
       iel, idim, ilist, loc_node_el,
       inode, inode_box, iel_box, icomp, iside,
       periodic_flag, wall_flag;
@@ -931,6 +931,7 @@ void setup_zeroTF_and_Node2bound (FILE *fp1,int ***el_type)
  int dim_reflect[3],ndim_reflect,wall_chk; 
  int link_chk,ilink;
  int iw,jw,nonat_count,*nonatomic_walls;
+ struct SurfaceGeom_Struct *sgeom_iw;
 
  Nodes_2_boundary_wall = (int **) array_alloc(2, Nlists_HW, Nnodes_box, sizeof(int));
  Zero_density_TF = (int **) array_alloc (2, Nnodes_box,Ncomp+1,sizeof(int));
@@ -982,7 +983,9 @@ void setup_zeroTF_and_Node2bound (FILE *fp1,int ***el_type)
     nonatomic_walls = (int *) array_alloc (1, Nwall, sizeof(int));
     nonat_count=0;
     for (iwall=0; iwall<Nwall;iwall++){
-      if (Surface_type[WallType[iwall]] != atomic_centers || Nwall<1000){
+      iwall_type=WallType[iwall];
+      sgeom_iw=&(SGeom[iwall_type]);
+      if (sgeom_iw->surfaceTypeID != atomic_centers || Nwall<1000){
           nonatomic_walls[nonat_count]=iwall;
           nonat_count++;
       }
@@ -2359,20 +2362,22 @@ void setup_linear_grad_of_charge(void)
 void setup_volume_charge1(int iwall)
 {
 
-  int nmax,idim,iel,nelems,nelems_unique, *elems;
+  int nmax,idim,iel,nelems,nelems_unique, *elems,iwall_type;
   double r,x[3],charge_per_el, esize_x_min = 10.;
+  struct SurfaceGeom_Struct *sgeom_iw;
 
   nmax = Nwall;
   for (idim=0; idim<Ndim; idim++) esize_x_min = AZ_MIN(Esize_x[idim],esize_x_min);
 
   elems = (int *) array_alloc(1, Nelements_box, sizeof(int));
-
+  iwall_type=WallType[iwall];
+  sgeom_iw=&(SGeom[iwall_type]);
   
   if (Charge_type_atoms == POINT_CHARGE || 
-        Sigma_ww[WallType[iwall]][WallType[iwall]]<= esize_x_min) r = 0.6 * esize_x_min;
-  else if (Surface_type[WallType[iwall]] == atomic_centers )  
-            r = 0.5*Sigma_ww[WallType[iwall]][WallType[iwall]];
-  else      r = WallParam[WallType[iwall]];
+        Sigma_ww[iwall_type][iwall_type]<= esize_x_min) r = 0.6 * esize_x_min;
+  else if (sgeom_iw->surfaceTypeID == atomic_centers )  
+            r = 0.5*Sigma_ww[iwall_type][iwall_type];
+  else      r = sgeom_iw->radius;
 
   for (idim=0; idim<Ndim; idim++) x[idim] = WallPos[idim][iwall];
 

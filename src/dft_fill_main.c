@@ -175,7 +175,7 @@ void calc_Gsum(double **x)
 					/* correct wall? */
 					pwall = Graft_wall[npol];
 					pwall_type = WallType[pwall];
-					nodeposc[0] = WallPos[0][pwall] + WallParam[pwall_type];
+					nodeposc[0] = WallPos[0][pwall] + Poly_graft_dist[pwall_type];
 					nodeposc[1] = nodeposc[2] = 0.0;
 					if(nodepos[0]==nodeposc[0] + Sigma_ff[itype_mer][itype_mer]/2.0 || 
 					   nodepos[0]==nodeposc[0] - Sigma_ff[itype_mer][itype_mer]/2.0) {

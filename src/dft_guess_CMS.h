@@ -42,8 +42,7 @@ extern struct Stencil_Struct ***Stencil;
 extern int Nlists_HW;
 #define NCOMP_MAX 5
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
-#define NWALL_MAX_TYPE 50 
-extern double WallParam[NWALL_MAX_TYPE];
+extern double *Poly_graft_dist;
 #define NDIM_MAX  3
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];

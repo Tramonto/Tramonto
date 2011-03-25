@@ -145,8 +145,8 @@ void calc_force(FILE *fp, double **x,double fac_area)
 	 } 
        } /* end of if(!first) */
        if(Proc==0) {
-	 if (i==0 && idim == Orientation[WallType[0]])  print_to_file(fp,force,"ptilde",first);
-	 if (i==0 && idim == Orientation[WallType[0]])  print_to_file(fp,force-Betap,"force",first);
+ 	  print_to_file(fp,force,"ptilde",first);
+	  print_to_file(fp,force-Betap,"force",first);
        }
      }
   }
@@ -549,38 +549,6 @@ double sum_rho_midplane(double **x)
    }          /* end of icomp loop */
    return(rho_mid_sum);
 }
-/****************************************************************************
-calc_geom_factor:  In this routine calculate the geometrical factor associated
-                   with the surfaces of interest.
-void calc_geom_factor(int iwall, double *nodepos,double *factor)
-{
-  double r_iw[3],r_iw_mag,r_iw_mag_sq;
-  int idim;
-
-   * assume that this node is point 3, the center of surface # 1 is 1,
-   * the center of surface #2 is 2.  Calculate the magnitudes of the vectors
-   * R_12 and r_23. 
-   * 
-
-   if (Ndim == 1 || Surface_type[0] == 0) 
-      for (idim=0; idim<Ndim; idim++) factor[0] = 1.0;
-
-   else {
-     for (idim=0; idim<Ndim; idim++) 
-          r_iw[idim] = WallPos[idim][iwall]-nodepos[idim];
-  
-     r_iw_mag_sq = 0.0;
-     for (idim=0; idim<Ndim; idim++) 
-           r_iw_mag_sq += r_iw[idim]*r_iw[idim];
-
-     r_iw_mag = sqrt(r_iw_mag_sq);
-
-     for (idim=0; idim<Ndim; idim++) 
-           factor[idim] = fabs(r_iw[idim])/r_iw_mag;
-   }
-  return;
-}
-*/
 /****************************************************************************
 *integrate_rho_vdash: Find p_tilde as the integral of rho_vdash 
 *                        for the 1-dimensional problem.                  */

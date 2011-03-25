@@ -20,13 +20,29 @@ void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
 #define NCOMP_MAX 5
 extern double Charge_f[NCOMP_MAX];
 #define PI    3.141592653589793238462643383279502884197169399375
-#define NWALL_MAX_TYPE 50 
-extern double WallParam[NWALL_MAX_TYPE];
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
+typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
+extern struct SurfaceGeom_Struct *SGeom;
 extern int WallType[NWALL_MAX];
+struct SurfaceGeom_Struct {
+  int       surfaceTypeID;    /* ID of the type of surface */
+  int       orientation;  /* orientation of the surface */
+  double    *halfwidth;   /* planar surface params given in halfwidth */
+  double    radius;       /* radius of spherical or cylindrical surface */
+  double    halflength;   /* length of finite cylinders and pores */
+  double    radius2;      /* a second radius for tapered pores or cylinders */
+  double    amplitude;    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    wavelength;    /* desired wavelength of cosine wave superimposed on a cylinder */
+  double    angle_wedge_start;    /* angle as measured from x0 axis */
+  double    angle_wedge_end;    /* angle as measured from x0 axis */
+  int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
+  double    roughness;          /* maximum roughness amplitude */
+  double    roughness_length;    /* lengthscale for the rougness */
+  int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
+};
 double print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_user_plugin(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID);
@@ -95,6 +111,7 @@ void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
 #define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int Ntype_mer;
+#define NWALL_MAX_TYPE 50 
 void assign_parameter_tramonto(int cont_type,double param,int Loca_contID);
 double get_init_param_user_plugin(int cont_type,int Loca_contID);
 double get_init_param_archived_plugin(int cont_type,int Loca_contID);

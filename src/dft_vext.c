@@ -362,9 +362,10 @@ void setup_1Dvext(int iwall)
 {
    int icomp,iwall_type, inode_box,iunk,i,idim;
    int loc_inode,inode;
-   int maximum,image;
+   int maximum,image,orientation;
    double max_cut,**image_pos,node_pos_w[3],
-          node_pos_f[3],x,sign;
+          node_pos_f[3],x,sign,halfwidth;
+   struct SurfaceGeom_Struct *sgeom_iw;
 
    /*
     * 	The tricky part is dealing with the images that result from
@@ -377,12 +378,16 @@ void setup_1Dvext(int iwall)
     */
 
   iwall_type = WallType[iwall];
+  sgeom_iw=&(SGeom[iwall_type]);
+  orientation=sgeom_iw->orientation;
+  halfwidth=sgeom_iw->halfwidth[orientation];
+
   max_cut= 0.0;
   for (icomp=0; icomp<Ncomp; icomp++)
         if (max_cut < Cut_wf[icomp][iwall_type])
             max_cut = Cut_wf[icomp][iwall_type];
 
-  maximum = 1 + 2*((int)(max_cut/Size_x[Orientation[iwall_type]])+2);  
+  maximum = 1 + 2*((int)(max_cut/Size_x[orientation])+2);  
   image_pos = (double **) array_alloc (2, maximum, Ndim, sizeof(double));
 
   for (idim=0;idim<Ndim;idim++){
@@ -393,8 +398,8 @@ void setup_1Dvext(int iwall)
    /* LOGIC FOR VEXT */
 
     image= 0;
-    node_pos_w[Orientation[iwall_type]] = WallPos[Orientation[iwall_type]][iwall];
-    image_pos[image][Orientation[iwall_type]] = node_pos_w[Orientation[iwall_type]];
+    node_pos_w[orientation] = WallPos[orientation][iwall];
+    image_pos[image][orientation] = node_pos_w[orientation];
 
 
     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
@@ -411,9 +416,9 @@ void setup_1Dvext(int iwall)
               Vext[loc_inode][icomp]==0.0) {
             iunk = iwall*Ncomp + icomp;
             if (Ipot_wf_n[iwall_type]==VEXT_3D_INTEGRATED || 
-                Type_bc[Orientation[iwall_type]][0] == PERIODIC || Type_bc[Orientation[iwall_type]][1] == PERIODIC
-                || Type_bc[Orientation[iwall_type]][0] == REFLECT || Type_bc[Orientation[iwall_type]][1] == REFLECT){
-                find_images_1D(Orientation[iwall_type],Cut_wf[icomp][iwall_type]+WallParam[iwall_type], &image,
+                Type_bc[orientation][0] == PERIODIC || Type_bc[orientation][1] == PERIODIC
+                || Type_bc[orientation][0] == REFLECT || Type_bc[orientation][1] == REFLECT){
+                find_images_1D(orientation,Cut_wf[icomp][iwall_type]+halfwidth, &image,
                               image_pos, node_pos_w,node_pos_f);
              }
 
@@ -426,8 +431,7 @@ void setup_1Dvext(int iwall)
             for (i=0; i<image; i++){
 
 
-                x = fabs(node_pos_f[Orientation[iwall_type]] - image_pos[i][Orientation[iwall_type]])
-                            - WallParam[iwall_type];
+                x = fabs(node_pos_f[orientation] - image_pos[i][orientation]) - halfwidth;
 
                 if (Lsemiperm[iwall_type][icomp] && 
                     x<0.8583742*Sigma_wf[icomp][iwall_type]){
@@ -461,8 +465,8 @@ void setup_1Dvext(int iwall)
      node_to_position(inode,node_pos_f);
 
      image= 0;
-     image_pos[image][Orientation[iwall_type]] = node_pos_f[Orientation[iwall_type]];
-     node_pos_w[Orientation[iwall_type]] = WallPos[Orientation[iwall_type]][iwall];
+     image_pos[image][orientation] = node_pos_f[orientation];
+     node_pos_w[orientation] = WallPos[orientation][iwall];
 
      for (icomp=0; icomp<Ncomp; icomp++) {
      image = 1;
@@ -472,9 +476,9 @@ void setup_1Dvext(int iwall)
           if (Vext[loc_inode][icomp] != Vext_set[loc_inode][icomp]) {
 
             if (Ipot_wf_n[iwall_type]==VEXT_3D_INTEGRATED || 
-                Type_bc[Orientation[iwall_type]][0] == PERIODIC || 
-                Type_bc[Orientation[iwall_type]][1] == PERIODIC
-                || Type_bc[Orientation[iwall_type]][0] == REFLECT || Type_bc[Orientation[iwall_type]][1] == REFLECT){
+                Type_bc[orientation][0] == PERIODIC || 
+                Type_bc[orientation][1] == PERIODIC
+                || Type_bc[orientation][0] == REFLECT || Type_bc[orientation][1] == REFLECT){
                  find_images(0,Cut_wf[icomp][iwall_type], &image,
                               image_pos, node_pos_f,node_pos_w);
             }
@@ -485,13 +489,12 @@ void setup_1Dvext(int iwall)
          */
 
             for (i=0; i<image; i++){
-                x = fabs(image_pos[i][Orientation[iwall_type]] - node_pos_w[Orientation[iwall_type]]) 
-                            - WallParam[iwall_type];
+                x = fabs(image_pos[i][orientation] - node_pos_w[orientation]) - halfwidth;
                 if (x > 0.00001) {
-                sign = (image_pos[i][Orientation[iwall_type]] - node_pos_w[Orientation[iwall_type]])/
-                        fabs(image_pos[i][Orientation[iwall_type]] - node_pos_w[Orientation[iwall_type]]);
+                sign = (image_pos[i][orientation] - node_pos_w[orientation])/
+                        fabs(image_pos[i][orientation] - node_pos_w[orientation]);
  
-                Vext_dash[loc_inode][iunk][Orientation[iwall_type]] += sign*Vext_1D_dash(x,icomp,iwall_type);
+                Vext_dash[loc_inode][iunk][orientation] += sign*Vext_1D_dash(x,icomp,iwall_type);
                 }
  
             }    /* end of images loop */
@@ -893,10 +896,14 @@ void setup_1Dvext_rsurf(int iwall)
    int maximum,image,image_x,image_xy,iel_y,iel_z,count;
    double max_cut,sign,**image_pos,node_pos_w[3],
           node_pos_f[3],node_pos_w2[3],r_center_sq,r,x[3],r_surface_sq,rcenter,
-          node_pos_f2[3];
+          node_pos_f2[3],radius;
    double param1,param2,param3,param4,param5,param6;
+   struct SurfaceGeom_Struct *sgeom_iw;
 
    iwall_type = WallType[iwall];
+   sgeom_iw=&(SGeom[iwall_type]);
+   radius=sgeom_iw->radius;
+
    max_cut = 0.0;
    for (icomp=0; icomp<Ncomp; icomp++)
          if (max_cut < Cut_wf[icomp][iwall_type]) 
@@ -988,13 +995,13 @@ void setup_1Dvext_rsurf(int iwall)
                     r_center_sq += (node_pos_w2[idim]-node_pos_f[idim])*(node_pos_w2[idim]-node_pos_f[idim]);
                 }
                 rcenter = sqrt(r_center_sq);
-                r=rcenter-WallParam[iwall_type];
+                r=rcenter-radius;
 
-                if (Lsemiperm[iwall_type][icomp] && rcenter<=WallParam[iwall_type]){
+                if (Lsemiperm[iwall_type][icomp] && rcenter<=radius){
                     Vext_set[loc_inode][icomp] = Vext_membrane[WallType[iwall]][icomp];
                 }
 
-                if (rcenter <= WallParam[iwall_type]) {   /* in the surface */
+                if (rcenter <= radius) {   /* in the surface */
                     Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; 
                 }
                 else{
@@ -1088,8 +1095,8 @@ void setup_1Dvext_rsurf(int iwall)
                 r_surface_sq = 0.0;
                 for (idim=0; idim<Ndim; idim++) {
                     node_pos_w2[idim] = image_pos[i][idim];
-                    r_surface_sq += (fabs(node_pos_w2[idim]-node_pos_f[idim])-WallParam[iwall_type])*
-                                   (fabs(node_pos_w2[idim]-node_pos_f[idim])-WallParam[iwall_type]);
+                    r_surface_sq += (fabs(node_pos_w2[idim]-node_pos_f[idim])-radius)*
+                                   (fabs(node_pos_w2[idim]-node_pos_f[idim])-radius);
                 }
                 r = sqrt(r_surface_sq);
 
@@ -1122,12 +1129,14 @@ void setup_vext_HS_atomic(int iwall)
    int loc_inode,inode;
    double node_pos_f[3],r,r_sq,r_test;
    double roff=0.00000000001;
+   struct SurfaceGeom_Struct *sgeom_iw;
 
 
    ilist = Nlists_HW-1; /* only add the contributions of the solid*/
    iwall_type = WallType[iwall];
+   sgeom_iw=&(SGeom[iwall_type]);
 
-    if (Surface_type[iwall_type] == atomic_centers || Surface_type[iwall_type]==point_surface){
+    if (sgeom_iw->surfaceTypeID == atomic_centers || sgeom_iw->surfaceTypeID==point_surface){
 
     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
       inode_box = L2B_node[loc_inode];

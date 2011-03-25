@@ -1,6 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
 void fill_test(double **x,int flag);
-int find_length_of_file(char *filename);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -17,6 +16,8 @@ int find_length_of_file(char *filename);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int *L2G_node;
+int find_length_of_file(char *filename);
 #define CALC_AND_FILL_RESID_ONLY  4
 extern int Nnodes;
 extern int Lseg_densities;
@@ -31,7 +32,6 @@ extern int Nodes_x[NDIM_MAX];
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void node_to_ijk(int node,int *ijk);
-extern int *L2G_node;
 extern int *B2G_node;
 extern double NL_update_scalingParam;
 extern int *Pol_Sym_Seg;

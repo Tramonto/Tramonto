@@ -21,26 +21,21 @@ extern int *B2L_node;
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define NCOMP_MAX 5
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
-extern double WallParam_4[NWALL_MAX_TYPE];
 extern double Dielec_pore;
 extern double Dielec_X;
 #define DIELEC_WF_PORE     2
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
+extern int Lhard_surf;
 extern int Type_poly;
 #define NONE       -1
 #define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;
-extern int Lhard_surf;
 #define MAX_ROUGH_BLOCK 100
 extern double Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
-extern double WallParam[NWALL_MAX_TYPE];
 extern double Rough_length[NWALL_MAX_TYPE];
-extern int Lrough_surf[NWALL_MAX_TYPE];
 #define PI    3.141592653589793238462643383279502884197169399375
-extern double WallParam_3[NWALL_MAX_TYPE];
-extern double WallParam_2[NWALL_MAX_TYPE];
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 void node_to_position(int inode,double *NodePos);
@@ -112,9 +107,9 @@ extern double WallPos[NDIM_MAX][NWALL_MAX];
 #define finite_cyl_3D                   5
 extern int Link[NWALL_MAX];
 extern int **Xtest_reflect_TF;
-extern int Orientation[NWALL_MAX_TYPE];
 #define smooth_planar_wall              0
-extern int Surface_type[NWALL_MAX_TYPE];
+typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
+extern struct SurfaceGeom_Struct *SGeom;
 extern int WallType[NWALL_MAX];
 #define FLUID_EL       1 
 extern int **Wall_elems;
@@ -145,4 +140,20 @@ extern int Nlists_HW;
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
+struct SurfaceGeom_Struct {
+  int       surfaceTypeID;    /* ID of the type of surface */
+  int       orientation;  /* orientation of the surface */
+  double    *halfwidth;   /* planar surface params given in halfwidth */
+  double    radius;       /* radius of spherical or cylindrical surface */
+  double    halflength;   /* length of finite cylinders and pores */
+  double    radius2;      /* a second radius for tapered pores or cylinders */
+  double    amplitude;    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    wavelength;    /* desired wavelength of cosine wave superimposed on a cylinder */
+  double    angle_wedge_start;    /* angle as measured from x0 axis */
+  double    angle_wedge_end;    /* angle as measured from x0 axis */
+  int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
+  double    roughness;          /* maximum roughness amplitude */
+  double    roughness_length;    /* lengthscale for the rougness */
+  int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
+};
 void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);

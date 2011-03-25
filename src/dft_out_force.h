@@ -93,10 +93,6 @@ void safe_free(void **ptr);
 #endif
 extern double Betap;
 void print_to_file(FILE *fp,double val,char *var_label,int first);
-#define NWALL_MAX 600 
-extern int WallType[NWALL_MAX];
-#define NWALL_MAX_TYPE 50 
-extern int Orientation[NWALL_MAX_TYPE];
 extern int Nlists_HW;
 extern double **S_area_tot;
 extern int Lper_area;
@@ -109,6 +105,7 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+#define NWALL_MAX 600 
 extern int Link[NWALL_MAX];
 extern int Nlink;
 void sum_rho_wall(double **x,double **Sum_rho);

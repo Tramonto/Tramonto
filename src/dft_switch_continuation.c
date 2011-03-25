@@ -516,7 +516,8 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
    int i,idim,icomp,iwall,iwall_type,nloop,jcomp,iseg;
    double rhosum,rho_chain,surface_Sep;
    double kappa,kappa_sq;
-   double return_param=0.0,surface_sep;
+   double return_param=0.0,surface_sep,halfwidth;
+   struct SurfaceGeom_Struct *sgeom_iw;
 
    switch(cont_type){
       case CONT_MESH: 
@@ -525,15 +526,17 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                 Nwall==2)){
             iwall = 0;
             iwall_type = WallType[iwall];
+            sgeom_iw=&(SGeom[iwall_type]);
+            halfwidth=sgeom_iw->halfwidth[sgeom_iw->orientation];
             idim = Plane_new_nodes;
       
             if (Nwall == 1) {
                 if (Type_bc[idim][0] == REFLECT){
-                    surface_sep=2.0*(WallPos[idim][iwall]+ 0.5*Size_x[0]- WallParam[iwall_type]);
+                    surface_sep=2.0*(WallPos[idim][iwall]+ 0.5*Size_x[0]- halfwidth);
                     fprintf(fp,"%11.8f   ", surface_sep);
                 }
                 else if (Type_bc[idim][1] == REFLECT){
-                    surface_sep=2.0*(0.5*Size_x[0]-WallPos[idim][iwall]- WallParam[iwall_type]);
+                    surface_sep=2.0*(0.5*Size_x[0]-WallPos[idim][iwall]- halfwidth);
                     fprintf(fp,"%11.8f   ", surface_sep);
                 }
                 else{
@@ -542,7 +545,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                 }
              }  
              else if (Nwall == 2){
-                  surface_sep=fabs(WallPos[idim][1] - WallPos[idim][0]) - 2.0*WallParam[iwall_type];
+                  surface_sep=fabs(WallPos[idim][1] - WallPos[idim][0]) - 2.0*halfwidth;
                   fprintf(fp,"%11.8f   ", surface_sep);
              }
          }

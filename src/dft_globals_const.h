@@ -612,6 +612,23 @@ struct RB_Struct {
   double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
 };
 
+struct SurfaceGeom_Struct {
+  int       surfaceTypeID;    /* ID of the type of surface */
+  int       orientation;  /* orientation of the surface */
+  double    *halfwidth;   /* planar surface params given in halfwidth */
+  double    radius;       /* radius of spherical or cylindrical surface */
+  double    halflength;   /* length of finite cylinders and pores */
+  double    radius2;      /* a second radius for tapered pores or cylinders */
+  double    amplitude;    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    wavelength;    /* desired wavelength of cosine wave superimposed on a cylinder */
+  double    angle_wedge_start;    /* angle as measured from x0 axis */
+  double    angle_wedge_end;    /* angle as measured from x0 axis */
+  int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
+  double    roughness;          /* maximum roughness amplitude */
+  double    roughness_length;    /* lengthscale for the rougness */
+  int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
+};
+
 /*
  * Declaration of the Trilinos solver stuff follows.
  */
@@ -818,6 +835,7 @@ extern double  WallParam_4[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic w
 extern int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
 extern double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 extern double  Rough_length[NWALL_MAX_TYPE];
+extern double  Rough_param_max[NWALL_MAX_TYPE];
 extern double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
 
 /* Fluid Physics info */
@@ -1100,6 +1118,8 @@ extern struct  Loca_Struct Loca; /* Information for continuation library */
  */
 
 extern struct Stencil_Struct ***Stencil;
+extern struct SurfaceGeom_Struct *SGeom;
+
 extern int MPsten_Npts_R[NZONE_MAX];  /* # radial gauss pts. in MIDPOINT rule */
 extern int MPsten_Npts_arc[NZONE_MAX]; /* # theta gauss pts. in MIDPOINT rule */
 extern int MPsten_Npts_phi[NZONE_MAX]; /* # phi gauss pts. in MIDPOINT rule */
@@ -1117,6 +1137,7 @@ extern int Geqn_start[NCOMP_MAX];
 extern int Nblock[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];
 extern int Graft_wall[NCOMP_MAX];
+extern double *Poly_graft_dist;     /* distance associated with polymer grafting - */
 extern double Rho_g[NCOMP_MAX];
 extern int Ntype_mer;
 extern int Nmer[NCOMP_MAX];
@@ -1165,7 +1186,6 @@ extern double Ads_ex[NCOMP_MAX][2];
 extern double *Integration_profile; /* a place to put the integrand as a function of position */
 
 /****************************************************************************/
-
 #ifdef __cplusplus
 }
 #endif
