@@ -29,7 +29,6 @@
  *      All Global Definitions occur in the include files here.
  */
 #include <mpi.h>
-#include <unistd.h>
 #include "include_global/dft_globals.h"
 #include "rf_allo.h"
 /*#include "GUI/dft_GUI.h"*/
