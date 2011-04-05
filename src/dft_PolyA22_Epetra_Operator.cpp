@@ -76,42 +76,55 @@ int dft_PolyA22_Epetra_Operator::initializeProblemValues() {
   return(0);
 }
 //=============================================================================
-int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value, int isCms) {
+int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, double value, int blockColFlag) {
+  // if poisson then blockColFlag = 0
+  // if density then blockColFlag = 1
+  // if cms then blockColFlag = 2
 
   if (cmsMap_.MyGID(rowGID)) { // Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
-    if ( isCms ) { // Insert into cmsOnCmsMatrix
+    if ( blockColFlag == 2 ) { // Insert into cmsOnCmsMatrix
       if (firstTime_) {
 	if (rowGID!=curRow_) { 
 	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
 	  curRow_=rowGID;
 	}
-	curRowValuesCms_[colGID] += value;
+	curRowValuesCmsOnCms_[colGID] += value;
       }
       else
         cmsOnCmsMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
     }
-    else { // Insert into cmsOnDensityMatrix ("F matrix")
+    else if (blockColFlag == 1) { // Insert into cmsOnDensityMatrix ("F matrix")
       if (firstTime_) {
 	if (rowGID!=curRow_) { 
 	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
 	  curRow_=rowGID;
 	}
-	curRowValues_[colGID] += value;
+	curRowValuesCmsOnDensity_[colGID] += value;
       }
       else if (!isFLinear_) { 
         //cout<< "row GID = " << rowGID << " value = " << value << " colGID = " << colGID << endl;
 	cmsOnDensityMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
       }
     }
+    else {
+      char err_msg[200];
+      sprintf(err_msg,"PolyA22_Epetra_Operator::insertMatrixValue(): Invalid argument -- row in cmsMap, but blockColFlag not set for cms or density equations.");
+      TEST_FOR_EXCEPT_MSG(1, err_msg);
+    }
   } // end Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
   else if (densityMap_.MyGID(rowGID)) { // Insert into densityOnDensityMatrix or densityOnCmsMatrix
-    if ( !isCms ) { // Insert into densityOnDensityMatrix
+    if ( blockColFlag == 1 ) { // Insert into densityOnDensityMatrix
       TEST_FOR_EXCEPT(rowGID!=colGID); // Confirm that this is a diagonal value
       (*densityOnDensityMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
     }
-    else { // Insert into densityOnCmsMatrix
+    else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
       TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // Confirm that this is a diagonal value
       (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
+    }
+    else {
+      char err_msg[200];
+      sprintf(err_msg,"PolyA22_Epetra_Operator::insertMatrixValue(): Invalid argument -- row in densityMap, but blockColFlag not set for cms or density equations.");
+      TEST_FOR_EXCEPT_MSG(1, err_msg);
     }
   } // end Insert into densityOnDensityMatrix or densityOnCmsMatrix
   else { // Problem! rowGID not in cmsMap or densityMap
@@ -126,37 +139,37 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
 int dft_PolyA22_Epetra_Operator::insertRow() {
 
   // Fill row of cmsOnCms and cmsOnDensity matrices
-  if (!curRowValues_.empty()) {
-    int numEntries = curRowValues_.size();
-    if (numEntries>indices_.Length()) {
-      indices_.Resize(numEntries);
-      values_.Resize(numEntries);
+  if (!curRowValuesCmsOnDensity_.empty()) {
+    int numEntriesCmsOnDensity = curRowValuesCmsOnDensity_.size();
+    if (numEntriesCmsOnDensity>indicesCmsOnDensity_.Length()) {
+      indicesCmsOnDensity_.Resize(numEntriesCmsOnDensity);
+      valuesCmsOnDensity_.Resize(numEntriesCmsOnDensity);
     }
     int i=0;
     std::map<int, double>::iterator pos;
-    for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
-      indices_[i] = pos->first;
-      values_[i++] = pos->second;
+    for (pos = curRowValuesCmsOnDensity_.begin(); pos != curRowValuesCmsOnDensity_.end(); ++pos) {
+      indicesCmsOnDensity_[i] = pos->first;
+      valuesCmsOnDensity_[i++] = pos->second;
     }
-    cmsOnDensityMatrix_->InsertGlobalValues(curRow_, numEntries, values_.Values(), indices_.Values());
+    cmsOnDensityMatrix_->InsertGlobalValues(curRow_, numEntriesCmsOnDensity, valuesCmsOnDensity_.Values(), indicesCmsOnDensity_.Values());
   }
-  if (!curRowValuesCms_.empty()) {
-    int numEntriesCms = curRowValuesCms_.size();
-    if (numEntriesCms>indicesCms_.Length()) {
-      indicesCms_.Resize(numEntriesCms);
-      valuesCms_.Resize(numEntriesCms);
+  if (!curRowValuesCmsOnCms_.empty()) {
+    int numEntriesCmsOnCms = curRowValuesCmsOnCms_.size();
+    if (numEntriesCmsOnCms>indicesCmsOnCms_.Length()) {
+      indicesCmsOnCms_.Resize(numEntriesCmsOnCms);
+      valuesCmsOnCms_.Resize(numEntriesCmsOnCms);
     }
     int i=0;
     std::map<int, double>::iterator pos;
-    for (pos = curRowValuesCms_.begin(); pos != curRowValuesCms_.end(); ++pos) {
-      indicesCms_[i] = pos->first;
-      valuesCms_[i++] = pos->second;
+    for (pos = curRowValuesCmsOnCms_.begin(); pos != curRowValuesCmsOnCms_.end(); ++pos) {
+      indicesCmsOnCms_[i] = pos->first;
+      valuesCmsOnCms_[i++] = pos->second;
     }
-    cmsOnCmsMatrix_->InsertGlobalValues(curRow_, numEntriesCms, valuesCms_.Values(), indicesCms_.Values());
+    cmsOnCmsMatrix_->InsertGlobalValues(curRow_, numEntriesCmsOnCms, valuesCmsOnCms_.Values(), indicesCmsOnCms_.Values());
   }
   
-  curRowValues_.clear();
-  curRowValuesCms_.clear();
+  curRowValuesCmsOnDensity_.clear();
+  curRowValuesCmsOnCms_.clear();
   return(0);
 
 }

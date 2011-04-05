@@ -72,7 +72,7 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
   }
 
   virtual int initializeProblemValues();
-  virtual int insertMatrixValue(int rowGID, int colGID, double value, int isCms);
+  virtual int insertMatrixValue(int rowGID, int colGID, double value, int blockColFlag);
   virtual int finalizeProblemValues();
   //@}
   //@{ \name Destructor.
@@ -130,7 +130,7 @@ class dft_PolyA22_Epetra_Operator: public virtual Epetra_Operator {
      
      \return Returns 0 if residual is "small", otherwise it returns -1.
   */ 
-  int Check(bool verbose) const;
+  virtual int Check(bool verbose) const;
 
   //@}
   
@@ -175,9 +175,9 @@ protected:
   bool isFLinear_;
   bool firstTime_;
   int curRow_;
-  std::map<int, double> curRowValues_, curRowValuesCms_;
-  Epetra_IntSerialDenseVector indices_, indicesCms_;
-  Epetra_SerialDenseVector values_, valuesCms_;
+  std::map<int, double> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_;
+  Epetra_IntSerialDenseVector indicesCmsOnDensity_, indicesCmsOnCms_;
+  Epetra_SerialDenseVector valuesCmsOnDensity_, valuesCmsOnCms_;
   Ifpack factory_;
 };
 

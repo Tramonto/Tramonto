@@ -57,7 +57,7 @@
 dft_PolyLinProbMgr::dft_PolyLinProbMgr(int numUnknownsPerNode, Teuchos::ParameterList * parameterList, MPI_Comm comm, bool debug) 
   : dft_BasicLinProbMgr(numUnknownsPerNode, parameterList, comm),
     isLinear_(false),
-    debug_(debug),
+    debug_(false),
     hasPoisson_(false),
     curRowA12_(-1),
     curRowA21_(-1) {
@@ -92,6 +92,7 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
   physicsIdToSchurBlockId_.Size(numUnknownsPerNode_);
   isCmsEquation_.Size(numUnknownsPerNode_); 
   isDensityEquation_.Size(numUnknownsPerNode_);
+  isPoissonEquation_.Size(numUnknownsPerNode_);
   int * ptr = physicsOrdering_.Values();
   for (int i=0; i<gEquations_.Length(); i++) {
     *ptr++ = gEquations_[i];
@@ -105,12 +106,14 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
     for (int i=0; i<poissonEquations_.Length(); i++) {
       *ptr++ = poissonEquations_[i];
       physicsIdToSchurBlockId_[poissonEquations_[i]] = 1; //so it's in A11
+      isPoissonEquation_[poissonEquations_[i]] = 1;
     }
   }
   else {
     for (int i=0; i<poissonEquations_.Length(); i++) {
       *ptr++ = poissonEquations_[i];
       physicsIdToSchurBlockId_[poissonEquations_[i]] = 2; //so it's in A22
+      isPoissonEquation_[poissonEquations_[i]] = 1;
     }
   }
   if (F_location == 1) { //F in NE
@@ -281,10 +284,17 @@ int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int
     A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->GID(ownedNode), rowGID, colGID, value); 
   }
   else if (schurBlockRow==2 && schurBlockCol==2) { // A22 block
+    // if poisson then blockColFlag = 0
+    // if density then blockColFlag = 1
+    // if cms then blockColFlag = 2
     if (isCmsEquation_[boxPhysicsID]) 
-      A22_->insertMatrixValue(rowGID, colGID, value, 1); 
+      A22_->insertMatrixValue(rowGID, colGID, value, 2); 
     else if (isDensityEquation_[boxPhysicsID])
+      A22_->insertMatrixValue(rowGID, colGID, value, 1); 
+    else if (isPoissonEquation_[boxPhysicsID])
       A22_->insertMatrixValue(rowGID, colGID, value, 0); 
+    else 
+      TEST_FOR_EXCEPT_MSG(1, "Unknown box physics ID in A22.");
   }
   else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
     if (firstTime_) {
@@ -430,7 +440,7 @@ int dft_PolyLinProbMgr::solve() {
   // const int * options = solver_->GetAllAztecOptions();
   // const double * params = solver_->GetAllAztecParams();
   // solver_->Iterate(options[AZ_max_iter], params[AZ_tol]); // Try to solve
-  
+
   solver_->Iterate(Teuchos::getParameter<int>(*parameterList_, "Max_iter"), Teuchos::getParameter<double>(*parameterList_, "Tol")); // Try to solve
 
   schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_); // Compute rest of solution

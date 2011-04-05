@@ -72,7 +72,7 @@ class dft_PolyA22_Coulomb_Epetra_Operator: public virtual dft_PolyA22_Epetra_Ope
   //@}
   //@{ \name Assembly methods.
   int initializeProblemValues();
-  int insertMatrixValue(int rowGID, int colGID, double value);
+  int insertMatrixValue(int rowGID, int colGID, double value, int BlockColFlag);
   int finalizeProblemValues();
   //@}
   //@{ \name Destructor.
@@ -133,23 +133,20 @@ class dft_PolyA22_Coulomb_Epetra_Operator: public virtual dft_PolyA22_Epetra_Ope
   
 protected:
 
-  int insertPoissonRow();
-  int insertCPRow();
-  int insertPDRow();
+  virtual int insertRow();
   Epetra_Map poissonMap_;
   Epetra_Map cmsDensMap_;
-  Epetra_Map block2Map_;
-  Teuchos::RefCountPtr<Epetra_CrsMatrix> poissonMatrix_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> poissonOnPoissonMatrix_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnPoissonMatrix_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> poissonOnDensityMatrix_;
-  Teuchos::ParameterList MLList_;
+  Teuchos::ParameterList MLList_, IFList_;
+  string IFPrecType; // incomplete LU
+  int IFOverlapLevel;
   ML_Epetra::MultiLevelPreconditioner * MLPrec;
-  int curPoissonRow_;
-  std::map<int, double> curPoissonRowValues_;
-  int curCPRow_;
-  std::map<int, double> curCPRowValues_;
-  int curPDRow_;
-  std::map<int, double> curPDRowValues_;
+  Ifpack_Preconditioner * IFPrec;
+  std::map<int, double> curRowValuesCmsOnPoisson_, curRowValuesPoissonOnPoisson_, curRowValuesPoissonOnDensity_;
+  Epetra_IntSerialDenseVector indicesCmsOnPoisson_, indicesPoissonOnPoisson_, indicesPoissonOnDensity_;
+  Epetra_SerialDenseVector valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;
 };
 
 #endif /* DFT_POLYA22_COULOMB_EPETRA_OPERATOR_H */
