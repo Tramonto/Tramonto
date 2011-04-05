@@ -133,7 +133,6 @@ Install(FILES
 	DESTINATION ./Examples/CONT1_FMT1_WCA_1D)
 Install(FILES
 	Examples/HS1_FMT1_1D/dft_input.dat
-	Examples/HS1_FMT1_1D/dft_dens.dat
 	Examples/HS1_FMT1_1D/dft_surfaces.dat
 	Examples/HS1_FMT1_1D/README
 	DESTINATION ./Examples/HS1_FMT1_1D)
@@ -151,7 +150,7 @@ Install(FILES
 	Examples/NLSOLVER1_WJDC_FMT3_1D/dft_input.dat
 	Examples/NLSOLVER1_WJDC_FMT3_1D/dft_surfaces.dat
 	Examples/NLSOLVER1_WJDC_FMT3_1D/lin_18
-	Examples/NLSOLVER1_WJDC_FMT3_1D/READM
+	Examples/NLSOLVER1_WJDC_FMT3_1D/README
 	DESTINATION ./Examples/NLSOLVER1_WJDC_FMT3_1D)
 Install(FILES
 	Examples/POLY1_CMS_1D/dft_input.dat
