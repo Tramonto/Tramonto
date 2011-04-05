@@ -1,0 +1,24 @@
+/*! \file 
+ \brief Oil/water/surfactant interface.
+
+Functionals: FMT3,WCA,WJDC3
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example solves for a lipid bilayer with a 4-bead head group nd two 4-bead tail groups.  This is the optimized structure published in 2011.  The solution is a binodal calculation that ensures a zero tension bilayer at the desired pressure. 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_dens.dat
+
+Key Output Parameters :
+   - niter=18
+   - rho_avg[0]=0.128406 
+   - rho_avg[2]=0.0642029
+   - rho_avg[3]=0.663323
+   - pressure=0.0176934
+.
+
+*/
