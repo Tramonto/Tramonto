@@ -178,7 +178,10 @@ protected:
   std::map<int, double> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_;
   Epetra_IntSerialDenseVector indicesCmsOnDensity_, indicesCmsOnCms_;
   Epetra_SerialDenseVector valuesCmsOnDensity_, valuesCmsOnCms_;
-  Ifpack factory_;
+  Teuchos::ParameterList IFList_;
+  Teuchos::RCP<Ifpack_Preconditioner> IFPrec;
+  string IFPrecType; // incomplete LU
+  int IFOverlapLevel;
 };
 
 #endif /* DFT_POLYA22_EPETRA_OPERATOR_H */

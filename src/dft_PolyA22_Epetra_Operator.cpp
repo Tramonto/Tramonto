@@ -56,6 +56,12 @@ dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsM
   Label_ = "dft_PolyA22_Epetra_Operator";
   cmsOnDensityMatrix_->SetLabel("PolyA22::cmsOnDensityMatrix");
   F_location_ = Teuchos::getParameter<int>(*parameterList_, "F_location"); //F in NE if F_location = 1, F in SW otherwise
+
+  // Init Ifpack preconditioner for cmsOnCmsMatrix_
+  IFPrecType = "ILU"; // incomplete LU
+  IFOverlapLevel = 0; // must be >= 0. This value ignored if Comm.NumProc() == 1
+  IFList_.set("fact: level-of-fill", 4);
+
   }
 //==============================================================================
 dft_PolyA22_Epetra_Operator::~dft_PolyA22_Epetra_Operator() {
@@ -182,10 +188,6 @@ int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
   insertRow(); // Dump any remaining entries
   cmsOnCmsMatrix_->FillComplete();
   cmsOnCmsMatrix_->OptimizeStorage();
-  // cout << " Number of equations in cmsOnCms block = " << cmsOnCmsMatrix_->NumGlobalRows() << endl;
-  // cout << " Number of nonzeros in cmsOnCms block = " << cmsOnCmsMatrix_->NumGlobalNonzeros() << endl;
-  // cout << " Frobenius Norm of cmsOnCms block    = " << cmsOnCmsMatrix_->NormFrobenius() << endl;
-  // cout << " Average Nonzeros per row of cmsOnCms block   = " << cmsOnCmsMatrix_->NumGlobalNonzeros()/cmsOnCmsMatrix_->NumGlobalRows() << endl;
   if (!isFLinear_) {
     insertRow(); // Dump any remaining entries
     cmsOnDensityMatrix_->FillComplete(densityMap_, cmsMap_);
@@ -201,10 +203,55 @@ int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
     densityOnCmsMatrix_->NormInf(&normvalue);
     TEST_FOR_EXCEPT(normvalue!=0.0);
   }
-  //cout << "CmsOnDensityMatrix Inf Norm = " << cmsOnDensityMatrix_->NormInf() << endl;
-  //densityOnDensityMatrix_->NormInf(&normvalue);
-  //cout << "DensityOnDensityMatrix Inf Norm = " << normvalue << endl;
-  //cout << "DensityOnCmsMatrix Inf Norm = " << normvalue << endl;
+
+  if (firstTime_) {
+    // allocates an IFPACK factory. No data is associated with this object (only method Create()).
+    Ifpack Factory;
+
+    // create the preconditioner. For valid PrecType values, please check the documentation
+    IFPrec = Teuchos::rcp( Factory.Create(IFPrecType, &(*cmsOnCmsMatrix_), IFOverlapLevel) );
+    TEST_FOR_EXCEPT(IFPrec == Teuchos::null);
+
+    // set the parameters
+    IFPACK_CHK_ERR(IFPrec->SetParameters(IFList_));
+
+    // initialize the preconditioner using only filled matrix structure
+    // Matrix must have been FillComplete()'d
+    IFPACK_CHK_ERR(IFPrec->Initialize());
+
+    // Build the preconditioner using filled matrix values
+    IFPACK_CHK_ERR(IFPrec->Compute());
+  }
+
+/*
+  cout << endl;
+  cout << " Number of equations in cmsOnDensity block = " << cmsOnDensityMatrix_->NumGlobalRows() << endl;
+  cout << " Number of nonzeros in cmsOnDensity block = " << cmsOnDensityMatrix_->NumGlobalNonzeros() << endl;
+  cout << " Frobenius Norm of cmsOnDensity block    = " << cmsOnDensityMatrix_->NormFrobenius() << endl;
+  cout << " Average Nonzeros per row of cmsOnDensity block   = " << ((double)cmsOnDensityMatrix_->NumGlobalNonzeros())/((double)cmsOnDensityMatrix_->NumGlobalRows()) << endl;
+
+  cout << endl;
+  cout << " Number of equations in cmsOnCms block = " << cmsOnCmsMatrix_->NumGlobalRows() << endl;
+  cout << " Number of nonzeros in cmsOnCms block = " << cmsOnCmsMatrix_->NumGlobalNonzeros() << endl;
+  cout << " Frobenius Norm of cmsOnCms block    = " << cmsOnCmsMatrix_->NormFrobenius() << endl;
+  cout << " Average Nonzeros per row of cmsOnCms block   = " << ((double)cmsOnCmsMatrix_->NumGlobalNonzeros())/((double)cmsOnCmsMatrix_->NumGlobalRows()) << endl;
+
+  cout << endl;
+  double norm;
+  densityOnDensityMatrix_->Norm2( &norm  );
+  cout << " Number of equations in densityOnDensity block = " << densityOnDensityMatrix_->GlobalLength() << endl;
+  cout << " Number of nonzeros in densityOnDensity block = " << densityOnDensityMatrix_->GlobalLength() << endl;
+  cout << " Frobenius Norm of densityOnDensity block    = " << norm << endl;
+  cout << " Average Nonzeros per row of DensityOnDensity block   = " << 1.0 << endl;
+
+  cout << endl;
+  densityOnCmsMatrix_->Norm2( &norm  );
+  cout << " Number of equations in densityOnCms block = " << densityOnCmsMatrix_->GlobalLength() << endl;
+  cout << " Number of nonzeros in densityOnCms block = " << densityOnCmsMatrix_->GlobalLength() << endl;
+  cout << " Frobenius Norm of densityOnCms block    = " << norm << endl;
+  cout << " Average Nonzeros per row of DensityOnCms block   = " << 1.0 << endl;
+  cout << endl;
+*/
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -213,50 +260,34 @@ int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
 }
 //==============================================================================
 int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+
+  // If F is in SW (F_location_ == 0):
   // The true A22 block is of the form:
 
-  // |  Dcc     F    |
-  // |  Ddc     Ddd  |
-  
-  // where 
-  // Dcc is Cms on Cms (diagonal),
-  // F is Cms on Density (fairly dense)
-  // Ddc is Density on Cms (diagonal with small coefficient values),
-  // Ddd is Density on Density (diagonal).
+  // | DD      DC   |
+  // | CD      CC   |
+
+  // where
+  // DD is Density on Density (diagonal),
+  // DC is Density on Cms (diagonal),
+  // CD is Cms on Density (general, also called the "F matrix")
+  // CC is Cms on Cms (general).
   //
   // We will approximate A22 with:
-  
-  // |  Dcc     F    |
-  // |  0       Ddd  |
-  
-  // replacing Ddc with a zero matrix for the ApplyInverse method only.
+
+  // | DD       0  |
+  // | CD      CC  |
+
+  // replacing DC with a zero matrix for the ApplyInverse method only.
 
   // Our algorithm is then:
-  // Y2 = Ddd \ X2
-  // Y1 = Dcc \ (X1 - F*Y2)
+  // Y1 = DD \ X1
+  // Y2 = CC \ (X2 - CD*Y1)
 
-  // Or, if F is in the SW quadrant:
-  // The true A22 block is of the form:
+  // where inv(DD) is approximated by an ML-generated preconditioner
+  // and inv(CC) is approximated using an IFPACK generated preconditioner (currently ILU)
 
-  // |  Ddd     Ddc  |
-  // |  F       Dcc  |
-  
-  // where 
-  // Ddd is Density on Density (diagonal),
-  // Ddc is Density on Cms (diagonal with small coefficient values),
-  // F is Cms on Density (fairly dense),
-  // Dcc is Cms on Cms (diagonal).
-  //
-  // We will approximate A22 with:
-  
-  // |  Ddd     0    |
-  // |  F       Dcc  |
-  
-  // replacing Ddc with a zero matrix for the ApplyInverse method only.
-
-  // Our algorithm is then:
-  // Y1 = Ddd \ X1
-  // Y2 = Dcc \ (X2 - F*Y1)  
+  // A similar algorithm is found when F is in the NE quadrant
 
   //double normvalue;
   //X.NormInf(&normvalue);
@@ -286,33 +317,43 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
     Epetra_MultiVector X1(View, cmsMap_, X1ptr, NumVectors); // Start X1 to view first numCms elements of X
     Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
     
+    // Temporary vectors needed for intermediate results
     Epetra_MultiVector Y1tmp(Y1);
-    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X2, 0.0)!=0);
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y2, Y1tmp)!=0);
-    TEST_FOR_EXCEPT(Y1.Update(1.0, X1, -1.0, Y1tmp, 0.0)!=0);
-    // MLP: For now, extract diagonal of cmsOnCmsMatrix and use that as preconditioner
-    Epetra_Vector cmsOnCmsDiag(cmsMap_);
-    cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
-    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y1, 0.0)!=0);
+
+    // Second block row: Y2 = DD\X2
+    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X2, 0.0));
+    // First block row: Y1 = CC \ (X1 - CD*Y2)
+    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y2, Y1tmp));
+    TEST_FOR_EXCEPT(Y1tmp.Update(1.0, X1, -1.0));
+    // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
+    // Epetra_Vector cmsOnCmsDiag(cmsMap_);
+    // cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
+    // TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y1tmp, 0.0));
+    TEST_FOR_EXCEPT(IFPrec->ApplyInverse(Y1tmp,Y1));
   }
   else {
     for (int i = 0;i<NumVectors; i++) {
       Y2ptr[i] = Y1ptr[i]+numDensityElements;
       X2ptr[i] = X1ptr[i]+numDensityElements;
     }
-    
     Epetra_MultiVector Y1(View, densityMap_, Y1ptr, NumVectors); // Y1 is a view of the first numDensity elements of Y
     Epetra_MultiVector Y2(View, cmsMap_, Y2ptr, NumVectors); // Start Y2 to view last numCms elements of Y
     Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view first numDensity elements of X
     Epetra_MultiVector X2(View, cmsMap_, X2ptr, NumVectors); // Start X2 to view last numCms elements of X
+
+    // Temporary vectors needed for intermediate results
     Epetra_MultiVector Y2tmp(Y2);
-    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X1, 0.0)!=0);
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y1, Y2tmp)!=0);
-    TEST_FOR_EXCEPT(Y2.Update(1.0, X2, -1.0, Y2tmp, 0.0)!=0);
-    // MLP: For now, extract diagonal of cmsOnCmsMatrix and use that as preconditioner
-    Epetra_Vector cmsOnCmsDiag(cmsMap_);
-    cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
-    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y2, 0.0)!=0);
+
+    // First block row: Y1 = DD\X1
+    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X1, 0.0));
+    // Second block row: Y2 = CC \ (X2 - CD*Y1)
+    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y1, Y2tmp));
+    TEST_FOR_EXCEPT(Y2tmp.Update(1.0, X2, -1.0));
+    // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
+    // Epetra_Vector cmsOnCmsDiag(cmsMap_);
+    // cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
+    // TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y2tmp, 0.0));
+    TEST_FOR_EXCEPT(IFPrec->ApplyInverse(Y2tmp,Y2));
   }
   
   delete [] Y2ptr;
@@ -324,6 +365,24 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
 }
 //==============================================================================
 int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
+
+  // If F is in SW (F_location_ == 0):
+  // The A22 block is of the form:
+
+  // |  DD      DC   |
+  // |  CD      CC   |
+
+  // where
+  // DD is Density on Density (diagonal),
+  // DC is Density on Cms (diagonal),
+  // CD is Cms on Density (general, also called the "F matrix")
+  // CC is Cms on Cms (general).
+
+  // If F is in NE (F_location_ == 1):
+  // The A22 block is of the form:
+
+  // |  CC      CD   |
+  // |  DC      DD   |
 
   //double normvalue;
   //X.NormInf(&normvalue);
@@ -357,12 +416,12 @@ int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
     Epetra_MultiVector X1(View, cmsMap_, X1ptr, NumVectors); // Start X1 to view first numCms elements of X
     Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
 
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X2, Y1)!=0);
+    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X2, Y1));
     Epetra_MultiVector Y1tmp(Y1);
-    TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X1, Y1tmp)!=0);
+    TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X1, Y1tmp));
     TEST_FOR_EXCEPT(Y1.Update(1.0, Y1tmp, 1.0));
-    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0)!=0);
-    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0)!=0);
+    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0));
+    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0));
   }
   else {
     for (int i=0; i<NumVectors; i++) {
@@ -377,12 +436,12 @@ int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
     if (hasDensityOnCms) {
       // convert X2 map
       Epetra_MultiVector X2tmp(View, densityMap_, X2ptr, NumVectors);
-      TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnCmsMatrix_, X2tmp, 0.0)!=0); // Momentarily make X2 compatible with densityMap_
+      TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnCmsMatrix_, X2tmp, 0.0)); // Momentarily make X2 compatible with densityMap_
     }
-    TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 1.0)!=0);
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X1, Y2)!=0);
+    TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 1.0));
+    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X1, Y2));
     Epetra_MultiVector Y2tmp(Y2);
-    TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X2, Y2tmp)!=0);
+    TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X2, Y2tmp));
     TEST_FOR_EXCEPT(Y2.Update(1.0, Y2tmp, 1.0));
   }
   

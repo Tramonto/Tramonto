@@ -77,7 +77,7 @@ class dft_PolyA22_Coulomb_Epetra_Operator: public virtual dft_PolyA22_Epetra_Ope
   //@}
   //@{ \name Destructor.
     //! Destructor
-  virtual ~dft_PolyA22_Coulomb_Epetra_Operator();
+    virtual ~dft_PolyA22_Coulomb_Epetra_Operator();
   //@}
   
   //@{ \name Atribute get methods.
@@ -139,11 +139,8 @@ protected:
   Teuchos::RefCountPtr<Epetra_CrsMatrix> poissonOnPoissonMatrix_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnPoissonMatrix_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> poissonOnDensityMatrix_;
-  Teuchos::ParameterList MLList_, IFList_;
-  string IFPrecType; // incomplete LU
-  int IFOverlapLevel;
-  ML_Epetra::MultiLevelPreconditioner * MLPrec;
-  Ifpack_Preconditioner * IFPrec;
+  Teuchos::ParameterList MLList_;
+  Teuchos::RCP<ML_Epetra::MultiLevelPreconditioner> MLPrec;
   std::map<int, double> curRowValuesCmsOnPoisson_, curRowValuesPoissonOnPoisson_, curRowValuesPoissonOnDensity_;
   Epetra_IntSerialDenseVector indicesCmsOnPoisson_, indicesPoissonOnPoisson_, indicesPoissonOnDensity_;
   Epetra_SerialDenseVector valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;

@@ -70,19 +70,10 @@ dft_PolyA22_Coulomb_Epetra_Operator::dft_PolyA22_Coulomb_Epetra_Operator(const E
   cmsOnPoissonMatrix_->SetLabel("PolyA22Coulomb::cmsOnPoissonMatrix");
   poissonOnDensityMatrix_->SetLabel("PolyA22Coulomb::poissonOnDensityMatrix");
 
-  // Init Ifpack preconditioner for cmsOnCmsMatrix_
-  IFPrec = NULL;
-  IFPrecType = "ILU"; // incomplete LU
-  IFOverlapLevel = 0; // must be >= 0. This value ignored if Comm.NumProc() == 1
-  IFList_.set("fact: drop tolerance", 1e-9);
-  IFList_.set("fact: level-of-fill", 4);
-  // the combine mode is on the following:
-  // "Add", "Zero", "Insert", "InsertAdd", "Average", "AbsMax"
-  // Their meaning is as defined in file Epetra_CombineMode.h
-  IFList_.set("schwarz: combine mode", "Add");
+  // Initialization of Ifpack preconditioner for cmsOnCmsMatrix_
+  // handled in base class (dft_PolyA22_Epetra_Operator)
 
   // Init ML
-  MLPrec = NULL;
   ML_Epetra::SetDefaults("SA",MLList_);
   MLList_.set("ML output", 0);
   // If running TestSmoothers() in ApplyInverse(), uncomment these
@@ -128,9 +119,6 @@ dft_PolyA22_Coulomb_Epetra_Operator::dft_PolyA22_Coulomb_Epetra_Operator(const E
 }
 //==============================================================================
 dft_PolyA22_Coulomb_Epetra_Operator::~dft_PolyA22_Coulomb_Epetra_Operator() {
-  if (MLPrec != 0) delete MLPrec;
-  if (IFPrec != 0) delete IFPrec;
-  return;
 }
 //=============================================================================
 int dft_PolyA22_Coulomb_Epetra_Operator::initializeProblemValues() {
@@ -366,7 +354,7 @@ int dft_PolyA22_Coulomb_Epetra_Operator::finalizeProblemValues() {
   poissonOnDensityMatrix_->OptimizeStorage();
 
   if (firstTime_) {
-    MLPrec = new ML_Epetra::MultiLevelPreconditioner(*poissonOnPoissonMatrix_, MLList_, true);
+    MLPrec = Teuchos::rcp(new ML_Epetra::MultiLevelPreconditioner(*poissonOnPoissonMatrix_, MLList_, true));
   }
 
   if (firstTime_) {
@@ -374,8 +362,10 @@ int dft_PolyA22_Coulomb_Epetra_Operator::finalizeProblemValues() {
     Ifpack Factory;
 
     // create the preconditioner. For valid PrecType values, please check the documentation
-    IFPrec = Factory.Create(IFPrecType, &(*cmsOnCmsMatrix_), IFOverlapLevel);
-    TEST_FOR_EXCEPT(IFPrec == NULL);
+    //IFPrec = Factory.Create(IFPrecType, &(*cmsOnCmsMatrix_), IFOverlapLevel);
+    // TEST_FOR_EXCEPT(IFPrec == NULL);
+    IFPrec = Teuchos::rcp( Factory.Create(IFPrecType, &(*cmsOnCmsMatrix_), IFOverlapLevel) );
+    TEST_FOR_EXCEPT(IFPrec == Teuchos::null);
 
     // set the parameters
     IFPACK_CHK_ERR(IFPrec->SetParameters(IFList_));
@@ -466,15 +456,15 @@ int dft_PolyA22_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
   // |   0      DD       0  |
   // |  CP      CD      CC  |
   
-  // replacing Ddc with a zero matrix for the ApplyInverse method only.
+  // replacing DC with a zero matrix for the ApplyInverse method only.
 
   // Our algorithm is then:
   // Y1 = DD \ X1
   // Y0 = PP \ (X0 - PD*Y1)
   // Y2 = CC \ (X2 - CP*Y0 - CD*Y1)  
 
-  // where inv(DD) is approximated by an ML-generated preconditioner
-  // and inv(CC) in approximated using an IFPACK generated preconditioner (currently ILUT)
+  // where inv(PP) is approximated by an ML-generated preconditioner
+  // and inv(CC) is approximated using an IFPACK generated preconditioner (currently ILUT)
 
   // A similar algorithm is found when F is in the NE quadrant
 
