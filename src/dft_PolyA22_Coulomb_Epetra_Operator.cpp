@@ -357,13 +357,13 @@ int dft_PolyA22_Coulomb_Epetra_Operator::finalizeProblemValues() {
     MLPrec = Teuchos::rcp(new ML_Epetra::MultiLevelPreconditioner(*poissonOnPoissonMatrix_, MLList_, true));
   }
 
+  // IFPACK preconditioner for CC currently disabled; Using diagonal preconditoner for now
+  /*
   if (firstTime_) {
     // allocates an IFPACK factory. No data is associated with this object (only method Create()).
     Ifpack Factory;
 
     // create the preconditioner. For valid PrecType values, please check the documentation
-    //IFPrec = Factory.Create(IFPrecType, &(*cmsOnCmsMatrix_), IFOverlapLevel);
-    // TEST_FOR_EXCEPT(IFPrec == NULL);
     IFPrec = Teuchos::rcp( Factory.Create(IFPrecType, &(*cmsOnCmsMatrix_), IFOverlapLevel) );
     TEST_FOR_EXCEPT(IFPrec == Teuchos::null);
 
@@ -377,6 +377,7 @@ int dft_PolyA22_Coulomb_Epetra_Operator::finalizeProblemValues() {
     // Build the preconditioner using filled matrix values
     IFPACK_CHK_ERR(IFPrec->Compute());
   }
+  */
 
 /*
   cout << endl;
@@ -463,8 +464,9 @@ int dft_PolyA22_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
   // Y0 = PP \ (X0 - PD*Y1)
   // Y2 = CC \ (X2 - CP*Y0 - CD*Y1)  
 
-  // where inv(PP) is approximated by an ML-generated preconditioner
-  // and inv(CC) is approximated using an IFPACK generated preconditioner (currently ILUT)
+  // where inv(DD) is approximated by an ML-generated preconditioner
+  // and inv(CC) is approximated using a diagonal preconditioner
+  // (Code to use IFPACK generated preconditioner (currently ILU) commented out.)
 
   // A similar algorithm is found when F is in the NE quadrant
 
@@ -517,10 +519,10 @@ int dft_PolyA22_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
     TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y2, Y1tmp2));
     TEST_FOR_EXCEPT( Y1tmp1.Update( 1.0, X1, -1.0, Y1tmp2, -1.0 ) );
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
-    //Epetra_Vector cmsOnCmsDiag(cmsMap_);
-    //cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
-    //TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y1tmp1, 0.0));
-    TEST_FOR_EXCEPT(IFPrec->ApplyInverse(Y1tmp1,Y1));
+    Epetra_Vector cmsOnCmsDiag(cmsMap_);
+    cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
+    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y1tmp1, 0.0));
+    //TEST_FOR_EXCEPT(IFPrec->ApplyInverse(Y1tmp1,Y1));
 
   }
   else { // F in SW
@@ -555,10 +557,10 @@ int dft_PolyA22_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
     TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y1, Y2tmp2));
     TEST_FOR_EXCEPT( Y2tmp1.Update( 1.0, X2, -1.0, Y2tmp2, -1.0 ) );
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
-    //Epetra_Vector cmsOnCmsDiag(cmsMap_);
-    //cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
-    //TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y2tmp1, 0.0));
-    TEST_FOR_EXCEPT(IFPrec->ApplyInverse(Y2tmp1,Y2));
+    Epetra_Vector cmsOnCmsDiag(cmsMap_);
+    cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
+    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y2tmp1, 0.0));
+    //TEST_FOR_EXCEPT(IFPrec->ApplyInverse(Y2tmp1,Y2));
 
  }
 
