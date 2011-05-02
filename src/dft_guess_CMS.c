@@ -230,8 +230,9 @@ void setup_polymer_G(double **xInBox,double **xOwned)
         for (iseg=0; iseg<Nmer[poln]; iseg++){
            itype_mer =Type_mer[poln][iseg];
            for (ibond=0; ibond<Nbond[poln][iseg]; ibond++){
-             (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);  /* make sure all fields and G's previously 
-                                                                                 calculated are up to date in box coordinates */
+			   /* make sure all fields and G's previously calculated are up to date in box coordinates */
+			  (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[iunk], xInBox[iunk]);
+			   
              /* only try to generate the iunk guess if not already filled in */
              if (fabs(xOwned[iunk][0]-999.0)<1.e-6){
 
@@ -348,8 +349,8 @@ void setup_polymer_G(double **xInBox,double **xOwned)
 }
 /*********************************************************/
 /*********************************************************/
-/*calc_init_polymer_G_CMS: in this routine sets up the initial guess for the chain variable
-in the wjdc functional */
+/*calc_init_polymer_G_CMS: this routine sets up the initial guess for the chain variable
+in the CMS functional */
 void calc_init_polymer_G_CMS(double **xInBox,double **xOwned)
 {
   int loc_inode,iunk,inode_box,field;
