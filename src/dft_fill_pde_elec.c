@@ -287,8 +287,8 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
   static int   **elem_permute;
   int off_ref[2][2]; /*= { {0,1}, {-1,0}};*/
   int jnode_box,junk,junkP;
-  int reflect_flag[3];
-  double resid,mat_val,resid_sum=0.0;
+  int reflect_flag[3],ijk[3],flag_bulk_boundary;
+  double resid,mat_val,resid_sum=0.0,elec_param_bulk_boundary;
   off_ref[0][0]=0;
   off_ref[0][1]=1;
   off_ref[1][0]=-1;
@@ -297,14 +297,34 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
   /* First time through, load weights appropriate for this Ndim */
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
+  ijk_box_to_ijk(ijk_box,ijk);
   
-    set_fem_1el_weights(&wt_lp_1el, &wt_s_1el, &elem_permute);
+  set_fem_1el_weights(&wt_lp_1el, &wt_s_1el, &elem_permute);
 
 /* if we are at a boundary node and the boundary condition is constant
  * potential, then solve the equation psi = constant ..... in all other
  * cases loop over the elements near this node and fill the laplace and
  * source terms.  Note that the surface charge boundary condition is
  * handled in the main fill routine. */
+
+  flag_bulk_boundary=FALSE;
+  for (idim=0;idim<Ndim;idim++){
+      if ( (ijk[idim]==0 && Type_bc[idim][0] == IN_BULK) ||
+           (ijk[idim]==Nodes_x[idim]-1 && Type_bc[idim][1] == IN_BULK) ){
+            flag_bulk_boundary=TRUE;
+            elec_param_bulk_boundary=0.0;
+            resid = x[iunk][inode_box] - elec_param_bulk_boundary;
+            resid_sum+=resid;
+            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+            if (!resid_only_flag){
+               mat_val=1.0;
+               dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                        iunk,inode_box,mat_val);
+            }
+      }
+   }
+ 
+   if (flag_bulk_boundary==FALSE){
 
    iwall = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
    if (iwall != -1 && Type_bc_elec[WallType[iwall]] == CONST_POTENTIAL) {
@@ -398,6 +418,7 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
            }     /* end of loop over all local nodes in this fluid element */
          }       /* end of test to be sure element is in fluid */
        }         /* end of possible local node positions */
+   }
    }
    return(resid_sum);
 }
