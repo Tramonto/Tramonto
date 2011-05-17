@@ -307,7 +307,7 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
  * source terms.  Note that the surface charge boundary condition is
  * handled in the main fill routine. */
 
-  flag_bulk_boundary=FALSE;
+/*  flag_bulk_boundary=FALSE;
   for (idim=0;idim<Ndim;idim++){
       if ( (ijk[idim]==0 && Type_bc[idim][0] == IN_BULK) ||
            (ijk[idim]==Nodes_x[idim]-1 && Type_bc[idim][1] == IN_BULK) ){
@@ -324,7 +324,7 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
       }
    }
  
-   if (flag_bulk_boundary==FALSE){
+   if (flag_bulk_boundary==FALSE){ */
 
    iwall = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
    if (iwall != -1 && Type_bc_elec[WallType[iwall]] == CONST_POTENTIAL) {
@@ -419,7 +419,7 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
          }       /* end of test to be sure element is in fluid */
        }         /* end of possible local node positions */
    }
-   }
+   /*}*/
    return(resid_sum);
 }
 /************************************************************************/
