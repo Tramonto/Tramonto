@@ -1,0 +1,23 @@
+/*! \file 
+ \brief WJDC functionals: charged 10-mer and single site counterions in a hard wall slit.
+
+Functionals: WJDC,FMT3,ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This problem is the same as POLY26 (a simple polyelectrolyte consisting of a hard charged 10mer chain, with hard sphere counterions) except the fluid is confined between two hard walls at constant potential.  The electrostatic boundary conditions are therefore Dirichlet on the whole boundary.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=7
+   - adsorption[0]=1.54716
+   - adsorption[1]=1.35021 
+   - charge = -0.196953
+   - omega_s = 0.245479   
+*/
+

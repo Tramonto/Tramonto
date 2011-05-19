@@ -1,0 +1,23 @@
+/*! \file 
+ \brief WJDC functionals: charged 10-mer and single site counterions in a hard wall slit.
+
+Functionals: WJDC,FMT3,ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This problem is the same as POLY26 and POLY27 (a simple polyelectrolyte consisting of a hard charged 10mer chain, with hard sphere counterions) but with mixed boundary conditions: the left wall has constant charge, the right wall is at constant potential. 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=7
+   - adsorption[0]=1.52453 
+   - adsorption[1]=1.35865 
+   - charge = -0.165881
+   - omega_s = 0.394361 
+*/
+

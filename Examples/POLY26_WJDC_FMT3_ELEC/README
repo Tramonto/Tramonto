@@ -1,0 +1,22 @@
+/*! \file 
+ \brief WJDC functionals: charged 10-mer and single site counterions in a hard wall slit.
+
+Functionals: WJDC,FMT3,ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This problem is for a simple polyelectrolyte consisting of a hard charged 10mer chain, with hard sphere counterions, confined between two charged hard walls.  The electrostatic boundary conditions are therefore Neumann on the whole boundary.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=7
+   - adsorption[0]=1.58914
+   - adsorption[1]=1.33914
+   - omega_s = 0.560482
+*/
+
