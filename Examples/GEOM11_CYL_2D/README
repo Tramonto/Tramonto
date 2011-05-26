@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 2D infinite cylindrical surfaces. Vext(integrated)
+
+Functionals: FMT_1,WCA
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - two cylindrical surfaces. Vext(integrated).
+Reflected planes result in hexagonal arrangment of surfaces.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=9
+   - adsorption[0]=126.591
+   - adsorption[0]=126.591
+   - surf_ex_energy=-1.38604
+   .
+*/
+

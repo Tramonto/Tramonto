@@ -1,0 +1,26 @@
+/*! \file 
+ \brief 2D infinite cylindrical surfaces with wedges removed. compound surfaces are created by
+putting pairs of complementary wedges together. Vext(integrated)
+
+Functionals: FMT_1,WCA
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - 12 cylindrical wedge surfaces where pairs of cylindrical wedges with
+different chemical properties fit together to form compound surfaces (cylinders). Vext(integrated).  Small wedges line
+the interior of a pore formed by the 6 cylinders.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=11
+   - adsorption[0]=116.858
+   - adsorption[0]=136.703
+   - surf_ex_energy=-33.7068
+   .
+*/
+

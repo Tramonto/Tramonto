@@ -1,0 +1,23 @@
+/*! \file 
+ \brief 2D rough planar walls perpendicular to x axis. / Vext(integrated).
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: Testing Vext(integrated) functionality for rough 2D planar surface.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=8
+   - adsorption[0]=0.0191271
+   - adsorption[1]=0.619127 
+   - adsorption[2]=1.095982  
+   - surf_ex_energy=2.56234
+   .
+*/

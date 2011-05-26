@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 2D finite block surfaces. Vext(integrated)
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - finite block surfaces. Vext(integrated)
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=10
+   - adsorption[0]=0.482623
+   - adsorption[1]=0.782623 
+   - adsorption[2]=7.405022  
+   - surf_ex_energy=-0.814592
+   .
+*/
+

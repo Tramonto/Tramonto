@@ -1,0 +1,21 @@
+/*! \file 
+ \brief 3D rough planar walls perpendicular to x axis. / Vext(integrated).
+
+Functionals: FMT_1,WCA
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: Testing Vext(integrated) functionality for rough 3D planar surface.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=10
+   - adsorption[0]=1.3193
+   - surf_ex_energy=0.173214
+   .
+*/

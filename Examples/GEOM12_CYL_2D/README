@@ -1,0 +1,25 @@
+/*! \file 
+ \brief 2D infinite cylindrical surfaces. Vext(integrated)
+
+Functionals: FMT_1,WCA
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - 6 cylindrical surfaces. Vext(integrated).
+Identical to GEOM11 case except there are no reflecting boundaries and 6 total surfaces are
+included explicitly in the calculations.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=10
+   - adsorption[0]=125.093
+   - adsorption[0]=125.093
+   - surf_ex_energy=-1.40399
+   .
+*/
+

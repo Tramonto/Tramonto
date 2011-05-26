@@ -1,0 +1,26 @@
+/*! \file 
+\brief 2D rough planar walls perpendicular to y axis. / Vext(Xwall).
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: The test case is similar to the BC2_FMT1_WCA_ELEC_2D case except the walls are rough.  
+This test case is identical to GEOM1 with a different surface orientation.  
+Testing Vext(Xwall) functionality for rough 2D planar surface.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=8
+   - adsorption[0]=0.0277241
+   - adsorption[1]=0.627724 
+   - adsorption[2]=1.314582  
+   - surf_ex_energy=0.3933899
+   .
+*/
+

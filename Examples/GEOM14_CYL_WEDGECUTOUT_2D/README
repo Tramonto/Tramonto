@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 2D infinite cylindrical surfaces with a wedge removed. Vext(integrated)
+
+Functionals: FMT_1,WCA
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - 6 cylindrical surfaces with a wedge removed (0-90 degrees). Vext(integrated).
+Identical to GEOM12 case except for removal of the wedge from each surface.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=9
+   - adsorption[0]=126.351
+   - adsorption[0]=126.351
+   - surf_ex_energy=11.1634
+   .
+*/
+

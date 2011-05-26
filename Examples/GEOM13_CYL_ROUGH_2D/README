@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 2D rough infinite cylindrical surfaces. Vext(integrated)
+
+Functionals: FMT_1,WCA
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - 6 cylindrical surfaces. Vext(integrated).
+Identical to GEOM12 case except surface roughness is included in the calculation.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=10
+   - adsorption[0]=120.285
+   - adsorption[0]=120.285
+   - surf_ex_energy=22.4381
+   .
+*/
+

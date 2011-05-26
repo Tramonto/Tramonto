@@ -1,0 +1,26 @@
+/*! \file 
+\brief 1D 1element (thin membrane) surfaces. 
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: surface geometry test for 1elem surface type.  Note that all nodes should be designated
+as fluid nodes with this type of surface.  However external fields or charges may be applied. 
+This case has only a surface charge.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=8
+   - adsorption[0]=0.1863581
+   - adsorption[1]=0.486358 
+   - adsorption[2]=3.069692  
+   - surf_ex_energy=0.602939
+   .
+*/
+

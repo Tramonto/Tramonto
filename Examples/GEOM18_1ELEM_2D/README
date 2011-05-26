@@ -1,0 +1,26 @@
+/*! \file 
+\brief 2D 1element (thin rod) surfaces. 
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test for 1elem surface type.  Note that all nodes should be designated
+as fluid nodes with this type of surface.  However external fields or charges may be applied. 
+This case has only a surface charge.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=9
+   - adsorption[0]=3.0124
+   - adsorption[1]=3.31269 
+   - adsorption[2]=40.5038  
+   - surf_ex_energy=0.215825
+   .
+*/
+

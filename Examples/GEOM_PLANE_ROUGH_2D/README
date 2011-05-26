@@ -1,0 +1,25 @@
+/*! \file 
+ \brief 2D case - testing rough surfaces for 2D planar walls perpendicular to y axis.
+
+Functionals: FMT_1,WCA,ELEC
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: The test case is similar to the BC2_FMT1_WCA_ELEC_2D case except the walls are rough.  
+
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=7
+   - adsorption[0]=0.046164
+   - adsorption[1]=0.646164 
+   - adsorption[2]=1.877272  
+   - surf_ex_energy=-2.41625 
+   .
+*/
+

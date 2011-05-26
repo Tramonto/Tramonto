@@ -1,0 +1,22 @@
+/*! \file 
+ \brief 3D spherical surfaces. Vext(integrated)
+
+Functionals: FMT_1,WCA
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: surface geometry test - spherical surfaces. Vext(integrated)
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=7
+   - adsorption[0]=3.530273
+   - surf_ex_energy=0.117188
+   .
+*/
+
