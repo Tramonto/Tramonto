@@ -57,7 +57,6 @@ extern int *B2G_node;
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-extern double **X_wall2;
 extern double **X_wall;
 double Vext_1D_dash(double x,int icomp,int iwall_type);
 void find_images(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
@@ -73,6 +72,10 @@ extern double Size_x[NDIM_MAX];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
 extern struct SurfaceGeom_Struct *SGeom;
+extern int Lwedge_cutout[NWALL_MAX];
+extern int Lperiodic_overlay[NWALL_MAX_TYPE];
+extern int Nperiodic_overlay[NWALL_MAX_TYPE];
+#define NPERIODIC_MAX 4
 struct SurfaceGeom_Struct {
   int       surfaceTypeID;    /* ID of the type of surface */
   int       orientation;  /* orientation of the surface */
@@ -80,13 +83,18 @@ struct SurfaceGeom_Struct {
   double    radius;       /* radius of spherical or cylindrical surface */
   double    halflength;   /* length of finite cylinders and pores */
   double    radius2;      /* a second radius for tapered pores or cylinders */
-  double    amplitude;    /* maximum amplitude for a cosine wave superimposed on a cylinder */
-  double    wavelength;    /* desired wavelength of cosine wave superimposed on a cylinder */
+  int       Lwedge_cutout;    /* TRUE or FALSE for wedge cutout from basic surfac */
   double    angle_wedge_start;    /* angle as measured from x0 axis */
   double    angle_wedge_end;    /* angle as measured from x0 axis */
   int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
   double    roughness;          /* maximum roughness amplitude */
   double    roughness_length;    /* lengthscale for the rougness */
+  int       Lperiodic_overlay;    /* TRUE or FALSE for periodic function added to surface */
+  int       Nperiodic_overlay;     /* The number of periodic functions to apply */
+  double    orientation_periodic[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    amplitude[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    wavelength[NPERIODIC_MAX];    /* desired wavelength of cosine wave superimposed on a cylinder */
+  double    origin_PeriodicFunc[NPERIODIC_MAX];     /* The origin of periodic functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
 extern double **Vext_membrane;

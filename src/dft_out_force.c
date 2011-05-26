@@ -67,7 +67,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
    }
 
 
-   if(!first) {
+   if(first!=TRUE) {
 
     if (Lvext_dash) integrate_rho_vdash(x,p_tilde_vdash);
     if (Lhard_surf) sum_rho_wall(x, p_tilde_sumwall);
@@ -101,12 +101,12 @@ void calc_force(FILE *fp, double **x,double fac_area)
    divide the sum total by the surface area of iwall */
 
   /* get sum of p_tilde[iwall][idim] and if you're proc #0 print it !! */
-  if (!first && Proc == 0 && Iwrite != NO_SCREEN)
+  if (first!=TRUE && Proc == 0 && Iwrite != NO_SCREEN)
       printf("\n----------------------------------------------------------\n");
         
   for (i=0; i<Nlink; i++){
      for (idim=0; idim<Ndim; idim++){
-       if(!first) {
+       if(first!=TRUE) {
 
          f_elec_iwall_idim = 0.0; 
          if (Ipot_wf_c == 1) 
@@ -143,7 +143,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
             printf("\t\t total force: %9.6f\n",force);
             }
 	 } 
-       } /* end of if(!first) */
+       } /* end of if(first!=TRUE) */
        if(Proc==0) {
  	  print_to_file(fp,force,"ptilde",first);
 	  print_to_file(fp,force-Betap,"force",first);
@@ -151,7 +151,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
      }
   }
 
-  if(first) first = FALSE;
+  if(first==TRUE) first = FALSE;
 
   if (Proc == 0 &&Iwrite != NO_SCREEN){
         printf("----------------------------------------------------------\n");

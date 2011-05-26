@@ -40,8 +40,9 @@ double get_init_param_value(int cont_type,int Loca_contID)
 
   switch(cont_type){
       case CONT_MESH: 
-       printf("ERROR: Continuation Library cannot do mesh size changes\n");
-       exit(-1); break;
+       return Size_x[Plane_new_nodes];   /* can be step parameter for binodal */
+/*       printf("ERROR: Continuation Library cannot do mesh size changes\n");
+       exit(-1); break;*/
 
       case CONT_TEMP: return Temp; break;
 
@@ -124,8 +125,9 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
   output_file1 = "dft_out.lis";
   switch(cont_type){
      case CONT_MESH: 
-       printf("ERROR: Continuation Library cannot do mesh size changes\n");
-       exit(-1); break;
+       /* don't actually set parameter here */
+/*       printf("ERROR: Continuation Library cannot do mesh size changes\n");
+       exit(-1); break;*/
 
       case CONT_TEMP: 
            param_old = Temp;

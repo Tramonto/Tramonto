@@ -63,7 +63,7 @@ int solve_problem(double **x, double **x2)
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
   /* If requested, write out initial guess */
-   if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");
+   if (Iwrite == VERBOSE)  print_profile_box(x,"rho_init.dat");
 
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
@@ -79,8 +79,9 @@ int solve_problem(double **x, double **x2)
     else{ 
      set_initial_guess(BINODAL_FLAG, x2Owned);}
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
-    if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
+    if (Iwrite == VERBOSE)  print_profile_box(x2,"rho_init2.dat");
   }
+
 
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 

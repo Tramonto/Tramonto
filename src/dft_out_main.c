@@ -56,7 +56,7 @@ void post_process (double **x,int *niters,
   char filename[20];
   double t1,energy;
   double fac_area,fac_vol;
-  int i,iwall,idim,first_local;
+  int i,iwall,idim,first_local,counter;
   int out_loop;
   FILE *fp=NULL;
   FILE *fpFSR=NULL;
@@ -67,25 +67,27 @@ void post_process (double **x,int *niters,
   static double mu_previous,mu_2previous;
   double derivative,cont_var,surface_sep,derivative_avg,mu;
 
-  if (!(Nruns>1 && call_from_flag==FROM_LOCA)){
+
+  if (Nruns>1) loop1=Imain_loop;
+ 
+  counter=loop1;
+
+/*  if (!(Nruns>1 && call_from_flag==FROM_LOCA)){*/
   if (Print_rho_type != PRINT_RHO_0){
-     if (binodal_flag){
-       sprintf(filename, "dft_dens2.%0d", loop1);
-       /*sprintf(filename_site, "dft_dens2_site.%0d", loop1);*/
+     if (binodal_flag==TRUE){
+       sprintf(filename, "dft_dens2.%0d", counter);
      }
      else{
-       sprintf(filename, "dft_dens.%0d", loop1);
-/*       sprintf(filename_site, "dft_dens_site.%0d", loop1);*/
+       sprintf(filename, "dft_dens.%0d", counter);
      }
      output_file5 = filename;
-/*     output_file8 = filename_site;*/
   }
 
-  if (binodal_flag){
+  if (binodal_flag==TRUE){
      output_file4 = "dft_dens2.dat";
 /*     output_file7 = "dft_dens2_site.dat";*/
   }
-  }
+ /* }*/
 
   if (Proc==0 && Iwrite != NO_SCREEN) 
            printf("\n%s: Doing post_processing and output of results ...\n",yo);
@@ -94,20 +96,25 @@ void post_process (double **x,int *niters,
   * First exchange boundary information as necessary !! 
   */
 
-  if (Iwrite != MINIMAL){
   if (Proc==0){
-      if (binodal_flag)  X2_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
-      else                X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
-      Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
+      if (binodal_flag==TRUE){
+          if (X2_old==NULL) X2_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
+       }
+      else{
+          if (X_old==NULL) X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
+      }
+       if (Vext_old==NULL) Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
   }
 
-  if (binodal_flag) collect_x_old(x,X2_old);
-  else              collect_x_old(x,X_old);
+  if (binodal_flag==TRUE)  collect_x_old(x,X2_old);
+  else  collect_x_old(x,X_old);
   collect_vext_old();
 
-  if (!(Nruns>1 && call_from_flag==FROM_LOCA)){
+  if (Iwrite != MINIMAL){
+
+/*  if (!(Nruns>1 && call_from_flag==FROM_LOCA)){*/
    if (Proc == 0) {
-        if (binodal_flag){
+        if (binodal_flag==TRUE){
            if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5,X2_old);
            else                               print_profile(output_file4,X2_old);
         }
@@ -117,10 +124,10 @@ void post_process (double **x,int *niters,
         }
    }
    if (Proc==0 && Lprint_gofr && (Nlink==1 || Nlocal_charge>0)){
-       if (binodal_flag) print_gofr(output_file6,X2_old);
+       if (binodal_flag==TRUE) print_gofr(output_file6,X2_old);
        else print_gofr(output_file6,X_old);
    }
-   }
+   /*}*/
 
    if (Proc==0) safe_free((void *) &Vext_old);
    }
@@ -143,45 +150,42 @@ void post_process (double **x,int *niters,
 	exit(1);
       } }
    }
-   if (first) first_local=TRUE;
+   if (first==TRUE) first_local=TRUE;
    else first_local=FALSE;
 
   /* begin extra loop here */
-   if (first) out_loop = 2;
+   if (first==TRUE) out_loop = 2;
    else  out_loop = 1;
 
    for(i=0; i<out_loop; i++) {
 
    if (Proc == 0) {
       if (Loca.method != -1) {
-	if(first) print_cont_type(Loca.cont_type1,fp,0);
+	if(first==TRUE) print_cont_type(Loca.cont_type1,fp,0);
 	else cont_var=print_cont_variable(Loca.cont_type1,fp,0);
       }
       if (Loca.method == 3 || Loca.method == 4) {
-	if(first) print_cont_type(Loca.cont_type2,fp,1);
-	else cont_var=print_cont_variable(Loca.cont_type2,fp,1);
+	if(first==TRUE) print_cont_type(Loca.cont_type2,fp,1); 
+	else            cont_var=print_cont_variable(Loca.cont_type2,fp,1); 
       }
       if (Nruns > 1) {
-	if(first) print_cont_type(CONT_MESH,fp,-1);
-	else cont_var=print_cont_variable(CONT_MESH,fp,-1);
+	if(first==TRUE) print_cont_type(CONT_MESH,fp,-1);
+	else  cont_var=print_cont_variable(CONT_MESH,fp,-1);
       }
       if (Nruns==1 && Loca.method ==-1){ /* print state variables even though continuation is off. */
         Cont_ID[0][0]=0;
         Cont_ID[0][1]=0;
-	if(first) print_cont_type(CONT_RHO_I,fp,0);
+	if(first==TRUE) print_cont_type(CONT_RHO_I,fp,0);
 	else cont_var=print_cont_variable(CONT_RHO_I,fp,0);
       }
    }
 
    if (Proc==0){
-      if (first){
-           fprintf(fp,"niters  time  ");
-      }
+      if (first==TRUE) fprintf(fp,"niters  time  ");
       else fprintf(fp,"%d  %9.4f  ",*niters,*time_save);
    }
 
-   if(!first) 
-     setup_domain_multipliers();
+   if (first!=TRUE) setup_domain_multipliers();
 
    /* calculate multiplicative factors that result      
       from the presence of reflective boundaries...
@@ -237,7 +241,7 @@ void post_process (double **x,int *niters,
             }
       }
       else{
-         if (!first && second){
+         if (first!=TRUE && second==TRUE){
             if (Loca.cont_type1==CONT_BETAMU_I) {
                derivative=-(energy-omega_s_previous)/(mu-mu_previous);
                if (Proc==0) fprintf(fpASR,"%11.8f \t %11.8f\n",mu_previous,derivative);
@@ -278,7 +282,7 @@ void post_process (double **x,int *niters,
 
    if (Proc==0) fprintf(fp,"  \n");
 
-   if(first) first = FALSE;
+   if(first==TRUE) first = FALSE;
 
    } /* end of loop over out_loop */
    

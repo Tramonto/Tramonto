@@ -21,12 +21,16 @@ void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
 extern double Charge_f[NCOMP_MAX];
 #define PI    3.141592653589793238462643383279502884197169399375
 #define NDIM_MAX  3
-extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
 extern struct SurfaceGeom_Struct *SGeom;
 extern int WallType[NWALL_MAX];
+extern int Lwedge_cutout[NWALL_MAX];
+#define NWALL_MAX_TYPE 50 
+extern int Lperiodic_overlay[NWALL_MAX_TYPE];
+extern int Nperiodic_overlay[NWALL_MAX_TYPE];
+#define NPERIODIC_MAX 4
 struct SurfaceGeom_Struct {
   int       surfaceTypeID;    /* ID of the type of surface */
   int       orientation;  /* orientation of the surface */
@@ -34,13 +38,18 @@ struct SurfaceGeom_Struct {
   double    radius;       /* radius of spherical or cylindrical surface */
   double    halflength;   /* length of finite cylinders and pores */
   double    radius2;      /* a second radius for tapered pores or cylinders */
-  double    amplitude;    /* maximum amplitude for a cosine wave superimposed on a cylinder */
-  double    wavelength;    /* desired wavelength of cosine wave superimposed on a cylinder */
+  int       Lwedge_cutout;    /* TRUE or FALSE for wedge cutout from basic surfac */
   double    angle_wedge_start;    /* angle as measured from x0 axis */
   double    angle_wedge_end;    /* angle as measured from x0 axis */
   int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
   double    roughness;          /* maximum roughness amplitude */
   double    roughness_length;    /* lengthscale for the rougness */
+  int       Lperiodic_overlay;    /* TRUE or FALSE for periodic function added to surface */
+  int       Nperiodic_overlay;     /* The number of periodic functions to apply */
+  double    orientation_periodic[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    amplitude[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    wavelength[NPERIODIC_MAX];    /* desired wavelength of cosine wave superimposed on a cylinder */
+  double    origin_PeriodicFunc[NPERIODIC_MAX];     /* The origin of periodic functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
 double print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
@@ -58,7 +67,6 @@ extern int Type_attr;
 extern int Ndim;
 #define REFLECT              2
 extern int Type_bc[NDIM_MAX][2];
-extern int Plane_new_nodes;
 #define SWITCH_SURFACE_SEP   0
 extern int Print_mesh_switch;
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID);
@@ -111,7 +119,6 @@ void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
 #define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int Ntype_mer;
-#define NWALL_MAX_TYPE 50 
 void assign_parameter_tramonto(int cont_type,double param,int Loca_contID);
 double get_init_param_user_plugin(int cont_type,int Loca_contID);
 double get_init_param_archived_plugin(int cont_type,int Loca_contID);
@@ -150,6 +157,8 @@ extern int Type_poly;
 #define CONT_RHO_I         2
 extern double Temp;
 #define CONT_TEMP          1   /* State Parameters */
+extern int Plane_new_nodes;
+extern double Size_x[NDIM_MAX];
 #define CONT_MESH          0   /* mesh size */
 #if defined(LOCA_MF) && !defined(_CON_CONST_H_)
 #include <mf.h>

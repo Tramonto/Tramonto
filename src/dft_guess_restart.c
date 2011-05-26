@@ -42,7 +42,6 @@ void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox)
   int iunk,i,inode_box;
 
   x_new = (double *) array_alloc(1, Nnodes*Nunk_per_node, sizeof(double));
- 
 
   if (Proc == 0) {  /* Proc 0 reads in the data file */
 
@@ -60,19 +59,19 @@ void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox)
                      /* Modify Nodes_old for the special case where we will read in a 1D file, but set up an initial
                          guess for a 2D or 3D system */
          if (Restart==RESTART_1DTOND)  Nodes_old=Nnodes;
-
          if (Lbinodal && guess_type==BINODAL_FLAG){
-                  X2_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
+                  if (X2_old==NULL) X2_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
                   for (i=0;i<Nodes_old*Nunk_per_node;i++) X2_old[i]=0.0;
          }
-         else     {X_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
-                  for (i=0;i<Nodes_old*Nunk_per_node;i++) X_old[i]=0.0;}
-
+         else     {
+                  if (X_old==NULL) X_old = (double *) array_alloc(1, Nodes_old*Nunk_per_node, sizeof(double));
+                  for (i=0;i<Nodes_old*Nunk_per_node;i++) X_old[i]=0.0;
+         }
          read_in_a_file(guess_type,filename); /* Get X_old from the file! */
      }
      else{ 
                       /* Here we are on n>first continuation step.  Have all necessary fields */
-         for (i=0;i<NEQ_TYPE;i++) Restart_field[i]=TRUE;
+        for (i=0;i<NEQ_TYPE;i++) Restart_field[i]=TRUE;
      }
 
      if (Nodes_old != Nnodes) {     /* Profile must be modified in some way.  Number of nodes in file does
@@ -82,7 +81,7 @@ void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox)
                                converged solution --this has been disabled with fac=1*/
          fac=1.0;
          if (guess_type==BINODAL_FLAG && Lbinodal) shift_the_profile(x_new,fac,X2_old);
-         else                                  shift_the_profile(x_new,fac,X_old);
+         else                                     shift_the_profile(x_new,fac,X_old);
      }
      else{
          for (iunk=0; iunk<Nunknowns; iunk++){
@@ -469,8 +468,8 @@ void read_in_a_file(int guess_type,char *filename)
        }
        else{
           iunk = Phys2Unk_first[eq_type]+iunk_file-unk_start_in_file[eq_type];
-          if (Lbinodal && guess_type==BINODAL_FLAG) X2_old[iunk+node_start]=tmp;
-          else                                  X_old[iunk+node_start]=tmp;
+          if (Lbinodal && guess_type==BINODAL_FLAG)  X2_old[iunk+node_start]=tmp;
+          else   X_old[iunk+node_start]=tmp;
        }
     }
  

@@ -1,13 +1,5 @@
-/*#include "Teuchos_ParameterList.hpp"*/
 using namespace std;
 #include <iostream>
-/*#include "Teuchos_StandardParameterEntryValidators.hpp"
-#include "Teuchos_Array.hpp"	
-#include "Optika_GUI.hpp"
-#include "Teuchos_XMLParameterListHelpers.hpp"
-#include "Teuchos_FancyOStream.hpp"
-#include "Teuchos_VerboseObject.hpp"*/
-#include "Teuchos_Version.hpp"
 #include "dft_GUI.h"
 #include "dft_GUI.hpp"
 using namespace Teuchos;
@@ -31,10 +23,6 @@ extern "C" void dft_OptikaGUI()
   RCP<DependencySheet> depSheet_Tramonto = rcp(new DependencySheet);
 
             /* Create sublists that must be passed around */
-
-
-
-
             /* Call different sections of the GUI.   *
              * Note that each file contains the bits *
              * that were formerly found in different *
@@ -43,7 +31,7 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> Mesh_List = sublist(Tramonto_List,"Sect. 1: Computational Domain");
   dft_GUI_mesh(Tramonto_List,depSheet_Tramonto,Mesh_List);
 
-  RCP<ParameterList> Functional_List = sublist(Tramonto_List,"Sect. 2: Functionals");
+/*  RCP<ParameterList> Functional_List = sublist(Tramonto_List,"Sect. 2: Functionals");
   dft_GUI_functionals(Tramonto_List,depSheet_Tramonto,Functional_List);
 
   RCP<ParameterList> Fluid_List = sublist(Tramonto_List, "Sect. 3: Fluid");
@@ -87,6 +75,7 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> NonlinearSolver_List = sublist(Solver_List, "Nonlinear Solver Options");
   dft_GUI_NumericalMethods(Tramonto_List,depSheet_Tramonto,Functional_List,Solver_List,
                             Coarsening_List,NonlinearSolver_List,LinearSolver_List);
+*/
 
              /* The getInput function starts up an Optika GUI and      *
               * lets the user start to input parameter values. When    *
@@ -101,7 +90,7 @@ extern "C" void dft_OptikaGUI()
   RCP<FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
   writeParameterListToXmlOStream(*Tramonto_List, *out);
 
-  dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Surface_List,SurfaceGeometry_List);
+  /*dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Surface_List,SurfaceGeometry_List);*/
 
              /* Here save parameter a to return to C code --- a fully 
                 functioning GUI will need to return all parameters entered

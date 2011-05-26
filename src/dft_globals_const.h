@@ -60,9 +60,9 @@
 
 #include "Tramonto_ConfigDefs.h"
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 extern "C" {
-#endif
+#endif*/
 
 /****************************************************************************/
 /* Machine specific definitions */
@@ -111,6 +111,7 @@ extern "C" {
 #define NDIM_MAX  3
 #define NWALL_MAX 600 
 #define NWALL_MAX_TYPE 50 
+#define NPERIODIC_MAX 4
 
 #define NBOND_MAX 4
 
@@ -619,13 +620,18 @@ struct SurfaceGeom_Struct {
   double    radius;       /* radius of spherical or cylindrical surface */
   double    halflength;   /* length of finite cylinders and pores */
   double    radius2;      /* a second radius for tapered pores or cylinders */
-  double    amplitude;    /* maximum amplitude for a cosine wave superimposed on a cylinder */
-  double    wavelength;    /* desired wavelength of cosine wave superimposed on a cylinder */
+  int       Lwedge_cutout;    /* TRUE or FALSE for wedge cutout from basic surfac */
   double    angle_wedge_start;    /* angle as measured from x0 axis */
   double    angle_wedge_end;    /* angle as measured from x0 axis */
   int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
   double    roughness;          /* maximum roughness amplitude */
   double    roughness_length;    /* lengthscale for the rougness */
+  int       Lperiodic_overlay;    /* TRUE or FALSE for periodic function added to surface */
+  int       Nperiodic_overlay;     /* The number of periodic functions to apply */
+  double    orientation_periodic[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    amplitude[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    wavelength[NPERIODIC_MAX];    /* desired wavelength of cosine wave superimposed on a cylinder */
+  double    origin_PeriodicFunc[NPERIODIC_MAX];     /* The origin of periodic functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
 
@@ -836,6 +842,15 @@ extern int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
 extern double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 extern double  Rough_length[NWALL_MAX_TYPE];
 extern double  Rough_param_max[NWALL_MAX_TYPE];
+extern int     Lwedge_cutout[NWALL_MAX];    /* TRUE or FALSE for applying wedge cutout to surface*/
+extern double  Angle_wedge_start[NWALL_MAX];  /* start angle for wedge cutout */
+extern double  Angle_wedge_end[NWALL_MAX];     /* end angle for wedge cutout */
+extern  int    Lperiodic_overlay[NWALL_MAX_TYPE];    /* TRUE or FALSE for periodic function added to surface */
+extern  int    Nperiodic_overlay[NWALL_MAX_TYPE];     /* The number of periodic functions to apply */
+extern  int    OrientationPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The orientation of periodic functions to apply */
+extern  double AmplitudePeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The amplitude of periodic functions to apply */
+extern  double WavelengthPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];    /* The period of periodic functions to apply */
+extern  double OriginPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The origin of periodic functions to apply */
 extern double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
 
 /* Fluid Physics info */
@@ -1087,6 +1102,7 @@ extern int Physics_scaling; /* do physical scaling of nonlinear problems */
 extern int ATTInA22Block; /* Logical for location of dense attractions.  1=TRUE=A22block; 0=FALSE=A12block */
 extern int Analyt_WJDC_Jac; /* Logical for handling of WJDC jacobians - 0=FALSE=approximate jacobian; 1=TRUE=analytic */
 extern double NL_abs_tol,NL_rel_tol; /* Convergence tolerances (update_soln)*/
+extern double NL_abs_tol_picard,NL_rel_tol_picard; /* Convergence tolerances (update_soln) --- may be different than newton tolerances*/
 extern double NL_update_scalingParam; /* Minimum fraction to update solution to slow down
                            Newton's method */
 
@@ -1186,6 +1202,6 @@ extern double Ads_ex[NCOMP_MAX][2];
 extern double *Integration_profile; /* a place to put the integrand as a function of position */
 
 /****************************************************************************/
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 }
-#endif
+#endif*/

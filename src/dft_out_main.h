@@ -72,6 +72,7 @@ extern int Nlocal_charge;
 extern int Nlink;
 extern int Lprint_gofr;
 void print_profile(char *output_file4,double *xold);
+#define MINIMAL      0
 void collect_vext_old();
 void collect_x_old(double **x,double *xold);
 extern int Ncomp;
@@ -82,7 +83,6 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double *X2_old;
-#define MINIMAL      0
 #define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;
@@ -91,7 +91,7 @@ extern int Proc;
 #endif
 #define PRINT_RHO_0      0
 extern int Print_rho_type;
-#define FROM_LOCA 0
+extern int Imain_loop;
 extern int Nruns;
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)

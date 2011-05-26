@@ -71,6 +71,7 @@ extern int Az_kspace;
 extern int Az_solver;
 extern int L_Schur;
 extern int Load_Bal_Flag;
+extern double NL_abs_tol_picard,NL_rel_tol_picard;
 extern double NL_update_scalingParam;
 extern double NL_abs_tol,NL_rel_tol;
 #define CALC_ALL_FIELDS   1
@@ -237,12 +238,22 @@ extern int Type_vext3D;
 extern int Type_vext1D;
 extern int Lhard_surf;
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
+#define NPERIODIC_MAX 4
+extern double OriginPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
+extern double WavelengthPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
+extern double AmplitudePeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
+extern int OrientationPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
+extern int Nperiodic_overlay[NWALL_MAX_TYPE];
+extern int Lperiodic_overlay[NWALL_MAX_TYPE];
+#define NWALL_MAX 600 
+extern double Angle_wedge_end[NWALL_MAX];
+extern double Angle_wedge_start[NWALL_MAX];
+extern int Lwedge_cutout[NWALL_MAX];
 #define MAX_ROUGH_BLOCK 100
 extern double Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 extern double Rough_length[NWALL_MAX_TYPE];
 extern double Rough_param_max[NWALL_MAX_TYPE];
 extern int Lrough_surf[NWALL_MAX_TYPE];
-extern double WallParam_4[NWALL_MAX_TYPE];
 extern double WallParam_3[NWALL_MAX_TYPE];
 extern double WallParam_2[NWALL_MAX_TYPE];
 #define point_surface                   4
@@ -256,7 +267,6 @@ extern int **Link_list;
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-#define NWALL_MAX 600 
 extern double Elec_param_w[NWALL_MAX];
 #if defined(DEC_ALPHA)
 #define POW_INT powii
@@ -282,13 +292,18 @@ struct SurfaceGeom_Struct {
   double    radius;       /* radius of spherical or cylindrical surface */
   double    halflength;   /* length of finite cylinders and pores */
   double    radius2;      /* a second radius for tapered pores or cylinders */
-  double    amplitude;    /* maximum amplitude for a cosine wave superimposed on a cylinder */
-  double    wavelength;    /* desired wavelength of cosine wave superimposed on a cylinder */
+  int       Lwedge_cutout;    /* TRUE or FALSE for wedge cutout from basic surfac */
   double    angle_wedge_start;    /* angle as measured from x0 axis */
   double    angle_wedge_end;    /* angle as measured from x0 axis */
   int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
   double    roughness;          /* maximum roughness amplitude */
   double    roughness_length;    /* lengthscale for the rougness */
+  int       Lperiodic_overlay;    /* TRUE or FALSE for periodic function added to surface */
+  int       Nperiodic_overlay;     /* The number of periodic functions to apply */
+  double    orientation_periodic[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    amplitude[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    wavelength[NPERIODIC_MAX];    /* desired wavelength of cosine wave superimposed on a cylinder */
+  double    origin_PeriodicFunc[NPERIODIC_MAX];     /* The origin of periodic functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
 extern struct SurfaceGeom_Struct *SGeom;

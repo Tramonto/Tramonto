@@ -72,9 +72,11 @@ int solve_problem_picard(double **x, double **x2)
     if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
   }
 
-  if (NL_Solver==PICARD_NOX || NL_Solver==PICNEWTON_NOX)
-       iter=NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
-  else iter=picard_solver(x,xOwned,-1);
+  if (NL_Solver==PICARD_NOX || NL_Solver==PICNEWTON_NOX) iter=NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
+  else{
+      iter=picard_solver(x,xOwned,-1); 
+      if(Lbinodal) iter=picard_solver(x2,x2Owned,-1); 
+  }
 
   safe_free((void **) &xOwned);
   if (Lbinodal)  safe_free((void **) &x2Owned);
@@ -391,7 +393,7 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
     inode = B2L_node[ibox];
     if (inode != -1) {
       for (iunk=0; iunk<Nunk_per_node; iunk++) {
-        temp =(NL_update_scalingParam*delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
+        temp =(NL_update_scalingParam*delta_x[iunk][ibox])/(NL_rel_tol_picard*x[iunk][ibox] + NL_abs_tol_picard);
         updateNorm +=  temp*temp;
       }
     }

@@ -60,23 +60,6 @@ void els_charge_spheres(double radius,double *x,int *nelems,int *nelems_unique,i
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define POINT_CHARGE 0
 extern int Charge_type_atoms;
-typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
-struct SurfaceGeom_Struct {
-  int       surfaceTypeID;    /* ID of the type of surface */
-  int       orientation;  /* orientation of the surface */
-  double    *halfwidth;   /* planar surface params given in halfwidth */
-  double    radius;       /* radius of spherical or cylindrical surface */
-  double    halflength;   /* length of finite cylinders and pores */
-  double    radius2;      /* a second radius for tapered pores or cylinders */
-  double    amplitude;    /* maximum amplitude for a cosine wave superimposed on a cylinder */
-  double    wavelength;    /* desired wavelength of cosine wave superimposed on a cylinder */
-  double    angle_wedge_start;    /* angle as measured from x0 axis */
-  double    angle_wedge_end;    /* angle as measured from x0 axis */
-  int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
-  double    roughness;          /* maximum roughness amplitude */
-  double    roughness_length;    /* lengthscale for the rougness */
-  int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
-};
 extern double *Charge_Diam;
 extern double *Charge;
 extern double **Charge_x;
@@ -120,8 +103,34 @@ int el_to_el_box(int iel);
 int node_to_elem_return_dim(int inode_all,int local_node,int *reflect_flag,int *idim_return,int *iside,int *periodic_flag);
 extern int Nnodes_per_el_V;
 #define atomic_centers                  3
+typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
 extern struct SurfaceGeom_Struct *SGeom;
 extern int WallType[NWALL_MAX];
+extern int Lwedge_cutout[NWALL_MAX];
+extern int Lperiodic_overlay[NWALL_MAX_TYPE];
+extern int Nperiodic_overlay[NWALL_MAX_TYPE];
+#define NPERIODIC_MAX 4
+struct SurfaceGeom_Struct {
+  int       surfaceTypeID;    /* ID of the type of surface */
+  int       orientation;  /* orientation of the surface */
+  double    *halfwidth;   /* planar surface params given in halfwidth */
+  double    radius;       /* radius of spherical or cylindrical surface */
+  double    halflength;   /* length of finite cylinders and pores */
+  double    radius2;      /* a second radius for tapered pores or cylinders */
+  int       Lwedge_cutout;    /* TRUE or FALSE for wedge cutout from basic surfac */
+  double    angle_wedge_start;    /* angle as measured from x0 axis */
+  double    angle_wedge_end;    /* angle as measured from x0 axis */
+  int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
+  double    roughness;          /* maximum roughness amplitude */
+  double    roughness_length;    /* lengthscale for the rougness */
+  int       Lperiodic_overlay;    /* TRUE or FALSE for periodic function added to surface */
+  int       Nperiodic_overlay;     /* The number of periodic functions to apply */
+  double    orientation_periodic[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    amplitude[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
+  double    wavelength[NPERIODIC_MAX];    /* desired wavelength of cosine wave superimposed on a cylinder */
+  double    origin_PeriodicFunc[NPERIODIC_MAX];     /* The origin of periodic functions to apply */
+  int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
+};
 void setup_zeroTF_and_Node2bound(FILE *fp1,int ***el_type);
 extern double **Charge_w_sum_els;
 extern double *Charge_vol_els;
@@ -188,6 +197,7 @@ extern int Nnodes_coarse_loc;
 void set_mesh_coarsen_flag(void);
 void zones_el_to_nodes(int *elem_zones);
 extern int Imain_loop;
+void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);
 void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);
 extern int Nnodes_wall_box;
 extern int **List_wall_node;

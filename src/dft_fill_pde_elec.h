@@ -18,14 +18,12 @@
 extern double Area_surf_el[3];
 extern double **Charge_w_sum_els;
 #define CONST_CHARGE     2
-#define IN_BULK              0
 extern double *Dielec;
+void ijk_box_to_ijk(int *ijk_box,int *ijk);
 #define NCOMP_MAX 5
 extern double Pol[NCOMP_MAX];
 extern int Lpolarize[NCOMP_MAX];
 #define NDIM_MAX  3
-extern int   Type_bc[NDIM_MAX][2];/*Array of boundary conditions in each dim.    */
-extern int Nodes_x[NDIM_MAX];   /* Array[Ndim]: # nodes in each dimension */
 extern double Esize_x[NDIM_MAX];
 extern double Charge_f[NCOMP_MAX];
 extern int **Lsemiperm;

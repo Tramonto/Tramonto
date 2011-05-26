@@ -1,15 +1,5 @@
-/*#include "Teuchos_ParameterList.hpp"*/
 using namespace std;
 #include <iostream>
-/***** push these to common dft_GUI.h file *****
-#include "Teuchos_StandardParameterEntryValidators.hpp"
-#include "Teuchos_Array.hpp"	
-#include "Teuchos_Version.hpp"
-#include "Optika_GUI.hpp"
-#include "Teuchos_XMLParameterListHelpers.hpp"
-#include "Teuchos_FancyOStream.hpp"
-#include "Teuchos_VerboseObject.hpp"
-**************************************************/
 #include "dft_GUI.h"
 #include "dft_GUI.hpp"
 using namespace Teuchos;

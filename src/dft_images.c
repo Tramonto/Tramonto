@@ -62,7 +62,7 @@ void find_images(int idim, double cut,
 
      if (Type_bc[idim][iside] == PERIODIC ||
          (Type_bc[idim][iside] == REFLECT) || 
-         (Type_bc[idim][iside] == IN_WALL  && 
+         ((Type_bc[idim][iside] == IN_WALL || Type_bc[idim][iside]==LAST_NODE || Type_bc[idim][iside]==LAST_NODE_RESTART)  && 
               (fabs(node_image[idim]-sign*(0.5*Size_x[idim]-0.5*Esize_x[idim]))< 0.0001))){
 
         done = FALSE;

@@ -22,7 +22,7 @@ extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void node_to_ijk(int node,int *ijk);
 extern int *L2G_node;
-extern double NL_abs_tol,NL_rel_tol;
+extern double NL_abs_tol_picard,NL_rel_tol_picard;
 extern int *B2L_node;
 extern double NL_update_scalingParam;
 double gsum_double(double c);

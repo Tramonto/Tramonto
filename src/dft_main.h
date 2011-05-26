@@ -28,6 +28,7 @@ int round_to_int(double x);
 extern double Del_1[NWALL_MAX_TYPE];
 extern double Size_x[NDIM_MAX];
 extern double Energy;
+extern double *Vext_old;
 extern double *X2_old;
 extern double *X_old;
 extern int Lhard_surf;
@@ -63,6 +64,7 @@ void post_process(double **x,int *niters,double *time_save,int loop1,int binodal
 #define NEWTON_NOX            1
 #define NEWTON_BUILT_IN       0
 int solve_problem(double **x,double **x2);
+void print_profile_box(double **x,char *outfile);
 int solve_problem_picard(double **x,double **x2);
 extern double NL_update_scalingParam;
 #define PICNEWTON_BUILT_IN    4

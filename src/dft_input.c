@@ -65,7 +65,7 @@ void read_input_file(char *input_file, char *output_file1)
        dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
    double rho_tmp[NCOMP_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
-   int iblock,jblock;
+   int iblock,jblock,read_periodic,read_wedge,read_rough;
 
 
   
@@ -433,58 +433,49 @@ void read_input_file(char *input_file, char *output_file1)
   if (Nwall_type > 0) 
     MPI_Bcast(WallParam_3,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
+                 /* Surface Roughness */
   if (Proc==0) {
     read_junk(fp,fp2);
-    if (Nwall_type > 0) 
-      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
-	fscanf(fp,"%lf", &WallParam_4[iwall_type]);
-	fprintf(fp2,"%f  ",WallParam_4[iwall_type]);
-        if (Length_ref >0.0) WallParam_4[iwall_type]/=Length_ref;
-      }
-    else fprintf(fp2,"WallParam_4 n/a");
-  }
-  if (Nwall_type > 0) 
-    MPI_Bcast(WallParam_4,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-
-
-  if (Proc==0) {
-    read_junk(fp,fp2);
+    read_rough=FALSE;
     if (Nwall_type > 0) 
       for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
 	fscanf(fp,"%d", &Lrough_surf[iwall_type]);
 	fprintf(fp2,"%d  ",Lrough_surf[iwall_type]);
+        if (Lrough_surf[iwall_type]==TRUE) read_rough=TRUE;
       }
     else fprintf(fp2,"Lrough_surf n/a");
   }
+  MPI_Bcast(&read_rough,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Nwall_type > 0) 
     MPI_Bcast(Lrough_surf,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    if (Nwall_type > 0) 
+    if (Nwall_type > 0 && read_rough==TRUE) 
       for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
 	fscanf(fp,"%lf", &Rough_param_max[iwall_type]);
 	fprintf(fp2,"%f  ",Rough_param_max[iwall_type]);
       }
     else fprintf(fp2,"Rough_param_max n/a");
   }
-  if (Nwall_type > 0) 
+  if (Nwall_type > 0 && read_rough==TRUE) 
     MPI_Bcast(Rough_param_max,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
   if (Proc==0) {
     read_junk(fp,fp2);
-    if (Nwall_type > 0) 
+    if (Nwall_type > 0 && read_rough==TRUE) 
       for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
 	fscanf(fp,"%lf", &Rough_length[iwall_type]);
 	fprintf(fp2,"%f  ",Rough_length[iwall_type]);
       }
     else fprintf(fp2,"Rough_length n/a");
   }
-  if (Nwall_type > 0) 
+  if (Nwall_type > 0 && read_rough==TRUE) 
     MPI_Bcast(Rough_length,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-         /* we don't really know the correct number of rouch tiles (blocks) 
-           for any problem at this point .... so we will just populate the random roughness array fully */
+   /* populate a roughness array with random numbers that can be used to 
+      generate roughness profiles */
+  if (read_rough){
   for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
       for (iblock=0;iblock<MAX_ROUGH_BLOCK;iblock++){
          for (jblock=0;jblock<MAX_ROUGH_BLOCK;jblock++){
@@ -498,7 +489,127 @@ void read_input_file(char *input_file, char *output_file1)
          }
       }
   }
+  }
 
+                 /* Angle Cutout Params */
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    read_wedge=FALSE;
+    if (Nwall_type > 0) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+	fscanf(fp,"%d", &Lwedge_cutout[iwall_type]);
+	fprintf(fp2,"%d  ",Lwedge_cutout[iwall_type]);
+        if (Lwedge_cutout[iwall_type]==TRUE) read_wedge=TRUE;
+      }
+    else fprintf(fp2,"Lwedge_cutout n/a");
+  }
+  MPI_Bcast(&read_wedge,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Nwall_type > 0) 
+    MPI_Bcast(Lwedge_cutout,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&& read_wedge==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+	fscanf(fp,"%lf", &Angle_wedge_start[iwall_type]);
+	fprintf(fp2,"%f  ",Angle_wedge_start[iwall_type]);
+      }
+    else fprintf(fp2,"Angle_wedge_start n/a");
+  }
+  if (Nwall_type > 0&& read_wedge==TRUE) 
+    MPI_Bcast(Angle_wedge_start,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&& read_wedge==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+	fscanf(fp,"%lf", &Angle_wedge_end[iwall_type]);
+	fprintf(fp2,"%f  ",Angle_wedge_end[iwall_type]);
+      }
+    else fprintf(fp2,"Angle_wedge_end n/a");
+  }
+  if (Nwall_type > 0&& read_wedge==TRUE) 
+    MPI_Bcast(Angle_wedge_end,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+                 /* Periodic Overlay  Params */
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    read_periodic=FALSE;
+    if (Nwall_type > 0) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+        Lperiodic_overlay[iwall_type]=FALSE;
+	fscanf(fp,"%d", &Nperiodic_overlay[iwall_type]);
+	fprintf(fp2,"%d  ",Nperiodic_overlay[iwall_type]);
+        if (Nperiodic_overlay[iwall_type]>0){
+            Lperiodic_overlay[iwall_type]=TRUE;
+            read_periodic=TRUE;
+        }
+      }
+    else fprintf(fp2,"Nperiodic_overlay n/a");
+  }
+  MPI_Bcast(&read_periodic,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Nwall_type > 0) {
+    MPI_Bcast(Nperiodic_overlay,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(Lperiodic_overlay,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+  }
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&&read_periodic==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+         for (i=0; i < Nperiodic_overlay[iwall_type]; ++i){
+  	     fscanf(fp,"%d", &OrientationPeriodicFunc[iwall_type][i]);
+     	     fprintf(fp2,"%d  ",OrientationPeriodicFunc[iwall_type][i]);
+         }
+      }
+    else fprintf(fp2,"OrientationPeriodicFunc n/a");
+  }
+  if (Nwall_type > 0&&read_periodic==TRUE) 
+    MPI_Bcast(OrientationPeriodicFunc,NWALL_MAX_TYPE*NPERIODIC_MAX,MPI_INT,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&&read_periodic==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+         for (i=0; i < Nperiodic_overlay[iwall_type]; ++i){
+	    fscanf(fp,"%lf", &AmplitudePeriodicFunc[iwall_type][i]);
+	    fprintf(fp2,"%f  ",AmplitudePeriodicFunc[iwall_type][i]);
+         }
+      }
+    else fprintf(fp2,"AmplitudePeriodicFunc n/a");
+  }
+  if (Nwall_type > 0&&read_periodic==TRUE) 
+    MPI_Bcast(AmplitudePeriodicFunc,NWALL_MAX_TYPE*NPERIODIC_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&&read_periodic==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+         for (i=0; i < Nperiodic_overlay[iwall_type]; ++i){
+	     fscanf(fp,"%lf", &WavelengthPeriodicFunc[iwall_type][i]);
+	     fprintf(fp2,"%f  ",WavelengthPeriodicFunc[iwall_type][i]);
+         }
+      }
+    else fprintf(fp2,"WavelengthPeriodicFunc n/a");
+  }
+  if (Nwall_type > 0&&read_periodic==TRUE) 
+    MPI_Bcast(WavelengthPeriodicFunc,NWALL_MAX_TYPE*NPERIODIC_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&&read_periodic==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+         for (i=0; i < Nperiodic_overlay[iwall_type]; ++i){
+	     fscanf(fp,"%lf", &OriginPeriodicFunc[iwall_type][i]);
+	     fprintf(fp2,"%f  ",OriginPeriodicFunc[iwall_type][i]);
+         } 
+      }
+    else fprintf(fp2,"OrginPeriodicFunc n/a");
+  }
+  if (Nwall_type > 0&&read_periodic==TRUE) 
+    MPI_Bcast(OriginPeriodicFunc,NWALL_MAX_TYPE*NPERIODIC_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+             /* end surface adjustments */
 
   /* switches for types of wall-fluid and wall-wall interaction parameters */
   if (Proc==0) {
@@ -1854,6 +1965,15 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&NL_update_scalingParam,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
   if (Proc==0) {
     read_junk(fp,fp2);
+    fscanf(fp,"%lg", &NL_rel_tol_picard);
+    fprintf(fp2,"%lg  ",NL_rel_tol_picard);
+    fscanf(fp,"%lg", &NL_abs_tol_picard);
+    fprintf(fp2,"%lg  ",NL_abs_tol_picard);
+  }
+  MPI_Bcast(&NL_rel_tol_picard,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  MPI_Bcast(&NL_abs_tol_picard,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+  if (Proc==0) {
+    read_junk(fp,fp2);
     fscanf(fp,"%d", &Load_Bal_Flag);
     fprintf(fp2,"%d  ", Load_Bal_Flag);
   }
@@ -2090,8 +2210,9 @@ void read_junk(FILE *fp, FILE *fp2)
 formats to the surface geometry structures that will be used to access data */
 void fill_surfGeom_struct()
 {
-  int iw;
+  int iw,idim,i;
   struct SurfaceGeom_Struct *sgeom_iw;
+  double r,rsq;
 
   if (Nwall_type>0) Poly_graft_dist = (double *) array_alloc (1, Nwall_type, sizeof(double));
 
@@ -2099,6 +2220,8 @@ void fill_surfGeom_struct()
     Poly_graft_dist[iw]=0.;
     sgeom_iw = &(SGeom[iw]); 
     sgeom_iw->surfaceTypeID=Surface_type[iw];
+    sgeom_iw->Lperiodic_overlay=FALSE;
+    sgeom_iw->Lwedge_cutout=FALSE;
     switch(sgeom_iw->surfaceTypeID)
     {
        case smooth_planar_wall:
@@ -2106,8 +2229,24 @@ void fill_surfGeom_struct()
             sgeom_iw->orientation=Orientation[iw];
             sgeom_iw->halfwidth[Orientation[iw]]=WallParam[iw];
             sgeom_iw->Lrough_surface=Lrough_surf[iw];
-            sgeom_iw->roughness=Rough_param_max[iw];
-            sgeom_iw->roughness_length=Rough_length[iw];
+            if (Lrough_surf[iw]==TRUE){
+               sgeom_iw->roughness=Rough_param_max[iw];
+               sgeom_iw->roughness_length=Rough_length[iw];
+            }
+            sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
+            if(Lwedge_cutout[iw]==TRUE){
+               sgeom_iw->angle_wedge_start=Angle_wedge_start[iw];
+               sgeom_iw->angle_wedge_end=Angle_wedge_end[iw];
+            }
+            sgeom_iw->Lperiodic_overlay=Lperiodic_overlay[iw];
+            sgeom_iw->Nperiodic_overlay=Nperiodic_overlay[iw];
+printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
+            for (i=0;i<Nperiodic_overlay[iw]; i++){ 
+               sgeom_iw->orientation_periodic[i]=OrientationPeriodicFunc[iw][i];
+               sgeom_iw->amplitude[i]=AmplitudePeriodicFunc[iw][i];
+               sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
+               sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
+            }
             Poly_graft_dist[iw]=sgeom_iw->halfwidth[sgeom_iw->orientation];
             break;
        case finite_planar_wall:
@@ -2116,26 +2255,47 @@ void fill_surfGeom_struct()
             if (Ndim>1) sgeom_iw->halfwidth[1]=WallParam_2[iw];
             if (Ndim>2) sgeom_iw->halfwidth[2]=WallParam_3[iw];
             sgeom_iw->Lrough_surface=Lrough_surf[iw];
+            if (Lrough_surf[iw]==TRUE){
+               sgeom_iw->roughness=Rough_param_max[iw];
+               sgeom_iw->roughness_length=Rough_length[iw];
+            }
             break;
        case point_surface:
+            rsq=0.0;
+            for (idim=0;idim<Ndim;idim++) rsq+=Esize_x[idim]*Esize_x[idim];
+            r=sqrt(rsq)/2.0;
+            sgeom_iw->radius=r;
+            sgeom_iw->halfwidth = (double *) array_alloc(1, Ndim, sizeof(double));
+            if (Ndim==1) sgeom_iw->halfwidth[Orientation[iw]]=0.5*Esize_x[0];
+            break;
        case colloids_cyl_sphere:
             sgeom_iw->radius=WallParam[iw];
-            sgeom_iw->angle_wedge_start=WallParam_2[iw];
-            sgeom_iw->angle_wedge_end=WallParam_3[iw];
+            sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
+            if(Lwedge_cutout[iw]==TRUE){
+               sgeom_iw->angle_wedge_start=Angle_wedge_start[iw];
+               sgeom_iw->angle_wedge_end=Angle_wedge_end[iw];
+            }
             sgeom_iw->Lrough_surface=Lrough_surf[iw];
-            sgeom_iw->roughness=Rough_param_max[iw];
-            sgeom_iw->roughness_length=Rough_length[iw];
+            if (Lrough_surf[iw]==TRUE){
+               sgeom_iw->roughness=Rough_param_max[iw];
+               sgeom_iw->roughness_length=Rough_length[iw];
+            }
             Poly_graft_dist[iw]=sgeom_iw->radius;
             break;
        case finite_cyl_3D:
             sgeom_iw->orientation=Orientation[iw];
             sgeom_iw->radius=WallParam[iw];
             sgeom_iw->halflength=WallParam_2[iw];
-            sgeom_iw->angle_wedge_start=WallParam_3[iw];
-            sgeom_iw->angle_wedge_end=WallParam_4[iw];
+            sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
+            if(Lwedge_cutout[iw]==TRUE){
+               sgeom_iw->angle_wedge_start=Angle_wedge_start[iw];
+               sgeom_iw->angle_wedge_end=Angle_wedge_end[iw];
+            }
             sgeom_iw->Lrough_surface=Lrough_surf[iw];
-            sgeom_iw->roughness=Rough_param_max[iw];
-            sgeom_iw->roughness_length=Rough_length[iw];
+            if (Lrough_surf[iw]==TRUE){
+               sgeom_iw->roughness=Rough_param_max[iw];
+               sgeom_iw->roughness_length=Rough_length[iw];
+            }
             Poly_graft_dist[iw]=sgeom_iw->radius;
             break;
        case atomic_centers:
@@ -2143,17 +2303,51 @@ void fill_surfGeom_struct()
        case cyl_periodic_3D:
             sgeom_iw->orientation=Orientation[iw];
             sgeom_iw->radius=WallParam[iw];
-            sgeom_iw->amplitude=WallParam_2[iw];
-            sgeom_iw->wavelength=WallParam_3[iw];
+            sgeom_iw->Lperiodic_overlay=Lperiodic_overlay[iw];
+            sgeom_iw->Nperiodic_overlay=Nperiodic_overlay[iw];
+            for (i=0;i<Nperiodic_overlay[iw]; i++){ 
+               sgeom_iw->orientation_periodic[i]=OrientationPeriodicFunc[iw][i];
+               sgeom_iw->amplitude[i]=AmplitudePeriodicFunc[iw][i];
+               sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
+               sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
+            }
+            sgeom_iw->Lrough_surface=Lrough_surf[iw];
+            sgeom_iw->halflength=Size_x[Orientation[iw]]/2.0;
+            if (Lrough_surf[iw]==TRUE){
+               sgeom_iw->roughness=Rough_param_max[iw];
+               sgeom_iw->roughness_length=Rough_length[iw];
+            }
+            sgeom_iw->Lperiodic_overlay=TRUE;
             break;
+
        case cyl2D_sphere3D_pore:
             sgeom_iw->radius=WallParam[iw];
             Poly_graft_dist[iw]=sgeom_iw->radius;
+            sgeom_iw->Lrough_surface=Lrough_surf[iw];
+            if (Lrough_surf[iw]==TRUE){
+               sgeom_iw->roughness=Rough_param_max[iw];
+               sgeom_iw->roughness_length=Rough_length[iw];
+            }
+            sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
+            if(Lwedge_cutout[iw]==TRUE){
+               sgeom_iw->angle_wedge_start=Angle_wedge_start[iw];
+               sgeom_iw->angle_wedge_end=Angle_wedge_end[iw];
+            }
             break;
        case cyl3D_slit2D_pore:
             sgeom_iw->orientation=Orientation[iw];
             sgeom_iw->radius=WallParam[iw];
             sgeom_iw->halflength=WallParam_2[iw];
+            sgeom_iw->Lrough_surface=Lrough_surf[iw];
+            if (Lrough_surf[iw]==TRUE){
+               sgeom_iw->roughness=Rough_param_max[iw];
+               sgeom_iw->roughness_length=Rough_length[iw];
+            }
+            sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
+            if(Lwedge_cutout[iw]==TRUE){
+               sgeom_iw->angle_wedge_start=Angle_wedge_start[iw];
+               sgeom_iw->angle_wedge_end=Angle_wedge_end[iw];
+            }
             Poly_graft_dist[iw]=sgeom_iw->radius;
             break;
        case tapered_pore:

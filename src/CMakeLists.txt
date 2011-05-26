@@ -29,7 +29,21 @@ set(common_h
         dft_main.h 
 	dft_maindriver.h 
         dft_mesh.h 
-        dft_mesh_surfaces.h 
+        dft_surfaces.h 
+        dft_surfaces_planar.h 
+        dft_surfaces_block.h 
+        dft_surfaces_sphere.h 
+        dft_surfaces_cylinder2D.h 
+        dft_surfaces_cylinder3D.h 
+        dft_surfaces_1elem.h 
+        dft_surfaces_atoms.h 
+        dft_surfaces_cylindricalPore2D.h 
+        dft_surfaces_sphericalCavity3D.h 
+        dft_surfaces_slitPore2D.h 
+        dft_surfaces_cylindricalPore3D.h 
+        dft_surfacesAdjust_angleCutout.h
+        dft_surfacesAdjust_roughness.h
+        dft_surfacesAdjust_periodic.h
         dft_mesh_lib.h 
         dft_newton.h 
         dft_picard.h 
@@ -138,7 +152,21 @@ set(common_c
         dft_chain_architecture.c 
         dft_main.c 
         dft_mesh.c 
-        dft_mesh_surfaces.c 
+        dft_surfaces.c 
+        dft_surfaces_planar.c 
+        dft_surfaces_block.c 
+        dft_surfaces_sphere.c 
+        dft_surfaces_cylinder2D.c 
+        dft_surfaces_cylinder3D.c 
+        dft_surfaces_1elem.c 
+        dft_surfaces_atoms.c 
+        dft_surfaces_cylindricalPore2D.c 
+        dft_surfaces_sphericalCavity3D.c 
+        dft_surfaces_slitPore2D.c 
+        dft_surfaces_cylindricalPore3D.c
+        dft_surfacesAdjust_angleCutout.c
+        dft_surfacesAdjust_roughness.c
+        dft_surfacesAdjust_periodic.c
         dft_mesh_lib.c 
         dft_newton.c 
         dft_picard.c 

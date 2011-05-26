@@ -192,6 +192,15 @@ int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
 double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 double  Rough_length[NWALL_MAX_TYPE];
 double  Rough_param_max[NWALL_MAX_TYPE];
+int     Lwedge_cutout[NWALL_MAX];    /* TRUE or FALSE for applying wedge cutout to surface*/
+double  Angle_wedge_start[NWALL_MAX];  /* start angle for wedge cutout */
+double  Angle_wedge_end[NWALL_MAX];     /* end angle for wedge cutout */
+int    Lperiodic_overlay[NWALL_MAX_TYPE];    /* TRUE or FALSE for periodic function added to surface */
+int    Nperiodic_overlay[NWALL_MAX_TYPE];     /* The number of periodic functions to apply */
+int    OrientationPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The orientation of periodic functions to apply */
+double AmplitudePeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The amplitude of periodic functions to apply */
+double WavelengthPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX] ;    /* The period of periodic functions to apply */
+double OriginPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The origin of periodic functions to apply */
 double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
 
 /* Fluid Physics info */
@@ -458,6 +467,7 @@ int Physics_scaling; /* do physical scaling of nonlinear problems */
 int ATTInA22Block; /* Logical for location of dense attractions.  1=TRUE=A22block; 0=FALSE=A12block */
 int Analyt_WJDC_Jac; /* Logical for handling of WJDC jacobians - 0=FALSE=approximate jacobian; 1=TRUE=analytic */
 double NL_abs_tol,NL_rel_tol; /* Convergence tolerances (update_soln)*/
+double NL_abs_tol_picard,NL_rel_tol_picard; /* Convergence tolerances (update_soln) --- may be different than newton tolerances*/
 double NL_update_scalingParam; /* Minimum fraction to update solution to slow down
                            Newton's method */
 

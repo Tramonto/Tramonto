@@ -61,7 +61,7 @@ void set_up_mesh (char *output_file1,char *output_file2)
       exit(1);
     }
   }
-  
+ 
   /*
    * set up all the basic domain parameters for this run:
    * Nnodes,Nelements,Nodes_x[],Elements_x[],Nodes_plane,
@@ -189,7 +189,6 @@ void set_up_mesh (char *output_file1,char *output_file2)
        printf("mesh set up took %g secs\n",MPI_Wtime()-t1);
        printf("-------------------------------------------------------------------\n");
   }
-
   return;
 }
 /********************************************************/
@@ -281,6 +280,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
    * Elements_x_box[],Nodes_plane_box, Elements_plane_box,
    * Nunknowns_box. 
    */
+
  
   setup_basic_box(fp1, update);
   /* here is some debugging code to make sure we understand the basic box and the coordinate systems */
@@ -1407,12 +1407,9 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
         ilist=List_wall_node[index][index_w];
 
         if (n_fluid_els[index_w] == 0){
-            if ( Nlists_HW == Ncomp+1 || ilist==Ncomp)
-                Zero_density_TF[inode_box][ilist] = TRUE;
+            if ( Nlists_HW == Ncomp+1 || ilist==Ncomp) Zero_density_TF[inode_box][ilist] = TRUE;
             else if (ilist == 0){
-                 for (icomp=0; icomp<Ncomp; icomp++) {
-                   Zero_density_TF[inode_box][icomp] = TRUE;
-                 }
+                 for (icomp=0; icomp<Ncomp; icomp++) { Zero_density_TF[inode_box][icomp] = TRUE; }
             }
         }
 

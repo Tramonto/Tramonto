@@ -29,6 +29,7 @@
 extern "C" {
 #include "loca_const.h"
 #define FROM_LOCA 0
+#define FROM_MAIN 1
 extern void picard_solver(double** xBox, double** xOwned, int iters);
 void box2owned(double**, double**);
 extern void post_process(double**, int*, double*, int, int,int);
@@ -400,13 +401,13 @@ void  NOXLOCA::Tramonto::Group::printSolution(const NOX::Abstract::Vector& sol_,
   double time_save=0.0;
   int num_its=paramList->sublist("NOX").sublist("Output").get("Nonlinear Iterations",-1);
 
-  contStep++;
-
   const NOXLOCA::Tramonto::Vector& solVector =
       dynamic_cast<const NOXLOCA::Tramonto::Vector&>(sol_);
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, solVector.get(), xBox);
 
+cout<<"calling post_process from NOXLOCA 1 contStep="<<contStep<<"secondSolution="<<secondSolution<<"from_flag="<<FROM_LOCA<<endl;
   post_process(xBox, &num_its, &time_save, contStep, secondSolution, FROM_LOCA);
+  contStep++;
 }
 
 void  NOXLOCA::Tramonto::Group::printSolution2(const NOX::Abstract::Vector& sol_,
@@ -426,6 +427,7 @@ void  NOXLOCA::Tramonto::Group::printSolution(const double param) const
   contStep++;
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
   
+cout<<"calling post_process from NOXLOCA 1 contStep="<<contStep<<"secondSolution="<<FALSE<<"from_flag="<<FROM_LOCA<<endl;
   post_process(xBox, &num_its, &time_save, contStep, FALSE, FROM_LOCA);
 
 }

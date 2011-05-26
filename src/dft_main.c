@@ -263,7 +263,9 @@ void dftmain(double * engptr)
           niters = solve_problem_picard(x, x2);
           if (NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN){
                NL_update_scalingParam*=100.;
-              if (Proc==0) printf("Calling Newton Solver!\n");
+              if (Proc==0) printf("Calling Newton Solver after print of Picard solution!\n");
+               print_profile_box(x,"dft_dens_picard.dat");
+               if (Lbinodal) print_profile_box(x2,"dft_dens_picard2.dat");
                niters = solve_problem(x, x2);
           }
       }
@@ -538,6 +540,7 @@ void dftmain(double * engptr)
               The array is allocated in collect_x_old (dft_output.c) called
               from post_process.    */
     if (Lbinodal) safe_free((void *) &X2_old); 
+    safe_free((void *) &Vext_old); 
   }
   *engptr = Energy;
   return;

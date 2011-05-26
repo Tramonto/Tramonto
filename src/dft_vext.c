@@ -515,7 +515,7 @@ void setup_1Dvext_xmin(int iwall)
    int loc_inode,inode;
    int maximum,image;
    double max_cut,**image_pos,node_pos_w[3],
-          node_pos_f[3],x,x2;
+          node_pos_f[3],x;
 
    /*
     * 	The tricky part is dealing with the images that result from
@@ -554,9 +554,6 @@ void setup_1Dvext_xmin(int iwall)
           inode = L2G_node[loc_inode];
           node_to_position(inode,node_pos_f);
 
-          /* don't count overlaps twice ... only add vext if currently 0.0 */
-          if (Vext[loc_inode][icomp]==0.0) {
-
 /*          if (Vext[loc_inode][icomp] < Vext_set[loc_inode][icomp] ||
               Vext[loc_inode][icomp]==0.0) {*/
             iunk = iwall*Ncomp + icomp;
@@ -574,17 +571,16 @@ void setup_1Dvext_xmin(int iwall)
             for (i=0; i<image; i++){
 
                 x = X_wall[loc_inode][iwall];
-                x2= X_wall2[loc_inode][iwall];
 
                 if (Lsemiperm[iwall_type][icomp] && 
                     x<0.8583742*Sigma_wf[icomp][iwall_type]){
                     Vext_set[loc_inode][icomp] = Vext_membrane[WallType[iwall]][icomp];
                 }
 
-                if (x==-999.0) 
-                   Vext[loc_inode][icomp]+=0.0;
-                else if (x > 0.00001) 
-                   Vext[loc_inode][icomp]+= (Vext_1D(x,icomp,iwall_type)+Vext_1D(x2,icomp,iwall_type)); 
+                if (x==-999.0) Vext[loc_inode][icomp]+=0.0;
+                else if (x > 0.00001) {
+                   Vext[loc_inode][icomp]+= (Vext_1D(x,icomp,iwall_type)); 
+                }
                 else {
                     Vext[loc_inode][icomp]= Vext_set[loc_inode][icomp];
                     break;
@@ -596,7 +592,6 @@ void setup_1Dvext_xmin(int iwall)
                 }
             }    /* end of images loop */
           }     /* end of vext check */
-        }     /* end of zero density check */
       }   /* end of icomp loop */
     }     /* end of fluid local node loop */
 
@@ -631,18 +626,15 @@ void setup_1Dvext_xmin(int iwall)
 
             for (i=0; i<image; i++){
                 x = X_wall[loc_inode][iwall];
-                x2 = X_wall2[loc_inode][iwall];
                 if (x > 0.00001) {
                 sign = (image_pos[i][0] - node_pos_w[0])/
                         fabs(image_pos[i][0] - node_pos_w[0]);
- 
-                Vext_dash[loc_inode][iunk][0] += sign* (Vext_1D_dash(x,icomp,iwall_type)+
-                                                        Vext_1D_dash(x2,icomp,iwall_type));
+                Vext_dash[loc_inode][iunk][0] += sign*Vext_1D_dash(x,icomp,iwall_type);
                 }
-            }    * end of images loop *
-          }     * end of vext check *
-        }     * end of zero density check *
-      }   * end of icomp loop *
+            }    / end of images loop /
+          }     / end of vext check /
+        }     / end of zero density check /
+      }   / end of icomp loop /
   }*/        /* end of loop over fluid nodes */
   safe_free((void *) &image_pos);
 
