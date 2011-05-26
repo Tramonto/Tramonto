@@ -63,11 +63,21 @@
 @ 0.5 	WallParam[iwall_type] 
 @ 0. 	WallParam2[iwall_type] 
 @ 0. 	WallParam3[iwall_type] 
-@ 0. 	WallParam4[iwall_type] 
-@ 0 	Lrough_surf[iwall_type] 
-@ 0 	rough_param_max[iwall_type] 
-@ 0 	Rough_length[iwall_type] 
-                      
+
+@ 0     Lrough_surf[iwall_type]
+@ 0.   rough_param_max[iwall_type]
+@ 0.    Rough_length[iwall_type]
+
+@ 0       LangleCutout_surf[iwall_type]
+@ 0.   Angle_start[iwall_type] (degrees from origin - cartesian axis)
+@ 0. Angle_end[iwall_type] (degrees from origin - cartesian axis)
+
+@ 0     Nperiodic_overlay_fncs[iwall_type]
+@ 0     OrientationPeriodicFnc[iwall_type][Nperiodic_overlay_fncs]     (sigma units)
+@ 0.    Amplitude[iwall_type][Nperiodic_overlay_fncs] (sigma units)
+@ 0.    Period[iwall_type][Nperiodic_overlay_fncs]    (sigma units)
+@ 0.    Origin[iwall_type][Nperiodic_overlay_fncs]  (sigma units)
+
 ************** WALL-FLUID AND WALL-WALL  INTERACTION TYPE PARAMETERS  ************************************
 @ 1 	Type of neutral surface-fluid interactions (param. Ipot_wf_n[iwall_type]) 
 			  (0=No_wall-fluid interaction, 
@@ -290,6 +300,7 @@
 @ 0 30 0 1 0    NL_Solver Max_NL_iter Physics_scaling ATTInA22Block Analyt_WJDC_Jac
 @ 0.0 0.0           Scale_fac_WJDC[ipol][icomp]
 @ 1.0e-4 1.0e-6 0.25    NL_rel_tol NL_abs_tol NL_update_scalingParam
+@ 1.e-3 1.e-8   NL_rel_tol_picard NL_abs_tol_picard
 @ 2     Load balance switch (0=linear,1=box,2=weights, 3=timings)
 ************ LINEAR SOLVER PARAMETERS ****************************************
 @ 0 0 200 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
