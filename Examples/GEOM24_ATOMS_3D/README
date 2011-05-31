@@ -1,0 +1,22 @@
+/*! \file 
+ \brief 3D atomistic surface based on 10-mer chain. Vext(integrated)
+
+Functionals: FMT3
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - atomistic surface based on 10-mer chain. Vext(integrated).
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=10
+   - adsorption[0]=383.522
+   - surf_ex_energy=-68.2923
+   .
+*/
+

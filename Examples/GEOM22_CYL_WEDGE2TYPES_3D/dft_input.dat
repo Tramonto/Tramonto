@@ -1,0 +1,354 @@
+************* DIMENSION PARAMETERS *************************************************
+@ -1. -1. -1. -1. 10. 	Length_ref Density_ref Temp Dielec_ref VEXT_MAX 
+************* MESH PARAMETERS *************************************************
+@ 3 	Ndim 
+@ 9.4  10.0 3. 	Size_x(idim): idim=0,Ndim-1 
+@ 0.25 0.25 .25 	Esize_x(idim): idim=0,Ndim-1 
+@ 2 3 	Type_bc(x0,: left, right) (-1=IN_WALL, 0=IN_BULK, 1=PERIODIC, 2=REFLECT, 3=LAST_NODE) 
+@ 3 2 	Type_bc(x1,: down, up) 
+@ 3 3 	Type_bc(x2,: back, front) 
+
+************ FUNCTIONAL SWITCHES *********************************************
+@ 2 0 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3) Type_hsdiam(0=SIGMA_DIAM 1=BH_DIAM) 
+@ -1 0   Type_attr Type_pairPot
+            Type_attr options: -1=No attractions,
+                                 0=strict MF: uattr = umin     from r=0 to r=rmin
+                                 1=strict MF: uattr = 0        from r=0 to r=sigma
+                                 2=strict MF: uattr = u(sigma) from r=0 to r=sigma
+                                 3=strict MF: uattr = 0        from r=0 to r=sigma and
+                                              uattr=umin       from r=sigma to r=rmin
+                                 4=strict MF: uattr=0          from r=0 to r=rzero
+                                              where rzero=r where u(r)=r(rcut).
+            Type_pairPot options:  -1=NONE=PAIR_HARD
+                                   0=PAIR_LJ12_6_CS,
+                                   1=PAIR_COULOMB_CS,
+                                   2=PAIR_COULOMB,
+                                   3=PAIR_YUKAWA_CS
+                                   4=PAIR_EXP_CS
+                                   5=PAIR_SW (square well)
+                                   6=PAIR_LJandYUKAWA_CS
+                                   7=PAIR_r12andYUKAWA_CS
+                                   8=PAIR_r18andYUKAWA_CS
+
+@ -1     Type_coul options: -1=NONE              (No PDE coulomb terms - can use coulomb as cut/shift-MF attraction above.)
+                            0=strict mean-field (no 2nd order corrections)
+                            1=DELTAC_RPM        (2nd order corrections - restricted primitive model only)
+                            2=DELTAC_GENERAL    (2nd order corrections - ions of varying size)
+                            3=POLARIZE          (strict mean-field with polarization.)
+
+@ -1    Type_poly options: -1=NONE (No bonds in system),
+                            0=CMS      (Chandler-McCoy-Singer polymer DFT)
+                            1=CMS_SCFT (Chandler-McCoy-Singer type of Self-consistent Field Theory)
+                            2=WTC    (Tripathi/Chapman - Wertheim model)
+                            3=WJDC   (segment based implementation)
+                            4=WJDC2  (segment based densities / component implementation of fields)
+                            5=WJDC3  (PREFERRED:: component based implementation of fields and densities)
+
+************** SURFACE PARAMETERS **********************************************
+@ 4 4 2 0 0 	Nwall_types Nwall Nlink Lauto_center Lauto_size 
+@ 0 0 0 0 0 0 0 0 	Xtest_reflect_TF[ilink=0,Nlink-1][idim=0,Ndim-1] 
+@ 5 5 5 5          	Surf_type[iwall_type] ; iwall_type=0,Nwall_type-1 
+                  (0 = smooth uniform planar wall of infinite extent, 
+                   1 = finite length smooth wall, 
+                   2 = colloids - spheres(3D) cylinders(2D)
+                   3 = atoms - spheres(3D) using Sigma_w to define size 
+                   4 = point atoms 
+                   5 = finite length cylinders (3D) 
+                   6 = periodic cylinders (3D)
+                   7 = infinite pores (cylindrical in 2D; spherical in 3D),
+                   8 = finite pores (slit in 2D; cylinder in 3D)
+                   9 = finite length tapered pores 
+
+@ 2 2 2 2                 	Orientation[iwall_type]: iwall_type=0,Nwall_type-1 
+@ 1. 1. 1. 1.                        	WallParam[iwall_type] 
+@ 3. 3. 3. 3.                        	WallParam2[iwall_type] 
+@ 0. 0. 0. 0.                        	WallParam3[iwall_type] 
+
+@ 0 0 0 0     Lrough_surf[iwall_type]
+@ 0.   rough_param_max[iwall_type]
+@ 0.    Rough_length[iwall_type]
+
+@ 1 1 1 1       LangleCutout_surf[iwall_type]
+@ 210. 90.     150. 30.    Angle_start[iwall_type] (degrees from origin - cartesian axis)
+@ 90.  210.    30.  150. Angle_end[iwall_type] (degrees from origin - cartesian axis)
+
+@ 0 0 0 0     Nperiodic_overlay_fncs[iwall_type]
+@ 0     OrientationPeriodicFnc[iwall_type][Nperiodic_overlay_fncs]     (sigma units)
+@ 0.    Amplitude[iwall_type][Nperiodic_overlay_fncs] (sigma units)
+@ 0.    Period[iwall_type][Nperiodic_overlay_fncs]    (sigma units)
+@ 0.    Origin[iwall_type][Nperiodic_overlay_fncs]  (sigma units)
+
+************** WALL-FLUID AND WALL-WALL  INTERACTION TYPE PARAMETERS  ************************************
+@ 5 5 5 5 	Type of neutral surface-fluid interactions (param. Ipot_wf_n[iwall_type]) 
+			  (0=No_wall-fluid interaction, 
+                           1=pure exclusion /  Hard_wall interactions, 
+                           2=1D potential in 1D calculations
+                           3=1D potential in 2D/3D calculation - based on Xmin[iwall]
+                           4=1D potential in 2D/3D calculation - based on Orientation[iwall]
+                           5=numerically integrated LJ12_6 interactions, 
+                           6=ATOMIC potential (e.g. LJ12-6)
+                           7=1D radial potential in 2D (cylindrical surf) or 
+                             3D (spherical surf) calculation                                         
+
+
+@ 0 	Lhard_surf (Logical that controls application of integration stencil at the boundaries. If 
+                   TRUE (1), the step function at the boundary is treated carefully).
+
+@ 0 0 	Type_vext1D, Type_vext3D 
+          (Type_vext1D options: 0=LJ9_3_CS,  1=LJ9_3_v2_CS, 2=LJ9_3_noCS, 3=LJ9_3_shiftX_CS
+           4=REPULSIVE9_noCS, 5=EXP_ATT_noCS,6=LINEAR_noCS,7=R7_YUKAWA_SUM_CS)
+          (Type_vext3D options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
+
+@ 0 	Type of wall-wall interactions::Ipot_ww_n[iwall_type][jwall_type] 
+                           (-2 : set all array to 0
+                            -1 : set all array to 1
+                             0 : Don't compute interactions
+                             1 : Compute interactions of atom centers)
+
+@ 0 	Type_uwwPot 
+          (Type_uwwPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
+
+************** FLUID INTERACTION PARAMETERS  ************************************
+@ 2 1 	Ncomp Mix_type (0=L-B Rules, 1=manual input) 
+
+@ 1. 1. 	Mass[i] i=0,Ncomp-1 
+@ 0. 0. 	Charge[i] i=0,Ncomp-1 
+@ 0. 0. 	Pol[i] i=0,Ncomp-1 
+
+@ 1. 1. 1. 1.	Sigma_ff[i][j], [0][1]...[0][Ncomp-1]; 
+@ 1. 1. 1. 1.	Eps_ff[i][j] 
+@ 3. 3. 3. 3. 	Cut_ff[i][j] 
+@ 1. 1. 1. 1.	Bond_ff[i][j] 
+@ 0.            EpsYukawa_ff[i][j]
+@ 0. 	YukawaK_ff[i][j] 
+@ 0.              Npow_ff[i][j]
+
+@ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 	Rho_w[i] [i=0,Nwall_type-1] 
+@   	Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1] 
+@    	Eps_ww[i][j] 
+@  	Cut_ww[i][j] 
+@       EpsYukawa_ww[i][j]
+@  	YukawaK_ww[i][j] 
+
+@ 1. 1. 1. 1.   	
+  1. 1. 1. 1.   	Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1] 
+@ 0.1 4. 0.1 4.    	
+  4. 0.1 4. 0.1   	Eps_wf[i][j] 
+@ 3. 3. 3. 3. 
+  3. 3. 3. 3.  	Cut_wf[i][j] 
+@ 0. 0. 0. 0.     EpsYukawa_wf[i][j]
+@ 0. 0. 0. 0.  	YukawaK_wf[i][j] 
+
+   *Note for polymers: --- treat each segment (or block) TYPE as a distinct 
+     component in this section (& MIX section below).
+  => 1 for homopolymer, 2 for diblock or ABA triblock, 3 for ABC triblock
+     3 for diblock with solvent, etc.
+
+************* POLYMER INPUT PARAMETERS ****************************************
+@ 0 	Npol_comp: Number of (co)polymer components 
+@ 0 	Nblock[pol_number]: Number of blocks in each copolymer 
+@ 0 	block[pol_number][iblock]: Number of segments in each block 
+@ 0 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
+@ 0  	Grafted[pol_number]: 1 if polymer is grafted to surface, 0 otherwise
+@ n/a  	Graft_wall[pol_number]: which polymer is grafted to which wall
+@ n/a   Rho_g[pol_number]: grafting density of chains on surface
+@ 0 n/a 	none Type_poly_arch poly_file: File containing polymer connectivity 
+             Type_poly_arch options:
+                0=POLY_ARCH_FILE (poly_file required)
+                1=LIN_POLY       (NO poly_file required)
+                2=LIN_POLY_SYM   (NO poly_file required)
+             Type_poly_arch options:
+		0=POLY_ARCH_FILE (poly_file required)
+		1=LIN_POLY       (NO poly_file required) 
+		2=LIN_POLY_SYM   (NO poly_file required)
+		3=LIN_POLY_FIVESEGS   (NO poly_file required)
+@ n/a 	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
+                 NCrfiles (number of cr files - up to 4 to be read in)
+                 Crfac (multiplicative factor for the first c(r).
+                        The second c(r) is multiplied by (1.-crfac)
+@ n/a 	Cr_break[i=0;NCr_files-2] 
+@ 0. 	Cr_rad: c(r) radius (units of sigma) 
+
+************** SEMI-PERMEABLE SURFACE PARAMETERS *******************************
+@ -2 	Lsemiperm[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]... 
+                 (-2 in first entry all array set to zero : FALSE
+                  -1 in first entry all array set to one : TRUE)
+
+@ 0. 	Vext_membrane[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]... 
+                  if (first entry of Lsemiperm is -2 then all array set to zero).
+
+    *Note for polymers: --- see note above.  Again replace Ncomp with Nblock_tot.
+
+************** STATE POINT PARAMETERS ******************************************
+@ 0 0 0 	Type_interface Grad_dim Lconstrain_interface 
+        -- Type_interface options: 0 = equilibrium, 1=diffusion calculation, 2=two phase interface)
+        -- Grad_dim: identify dimension where difference in state point is to be applied -
+         this dimension should have BULK boundary conditions - other dimensions should not!
+         0=x, 1=y, 2=z)
+        -- Lconstrain_interface (0=FALSE; 1=TRUE)
+@ 0.375 0.375  	Rho_b_0[icomp] (state condition on left(x) or bottom(y) or back(z) boundary) 
+                        (icomp=0,Ncomp-1 (or Npol_comp-1 for polymers)
+@ 0. 	Rho_b_1[icomp] (state condition on right(x) or top(y) or front(z) boundary - only 
+                        applies if Type_interface=1 or 2)
+                        (icomp=0,Ncomp-1 (or Npol_comp-1 for polymers)
+@ 0. 0. 	Elec_pot_L, Elec_pot_R (B.C. on elec. potential lbb and rtf) 
+@ 0. 	x_const_mu (define a region on both sides of domain where the state will be set to the 
+                    constants set by Rho_b_0, and Rho_b_1 etc.).
+
+   *Note for polymers:
+    Rho_b is indexed Npol_comp rather than Nblock_tot.  The code automatically
+    converts to the density of the different polymer segments.
+    For example: For an ABC triblock in solvent you enter Rho_b[0],Rho_b[1]
+    corresponding to the polymer density and the solvent density.  The
+    code converts them to Rho_b'[0-2] based on the first value, and Rho_b'[3]
+    based on the second entry.
+
+*************** CHARGED SURFACE BOUNDARY CONDITIONS ***************************
+
+@ 0 	Type_bc_elec[iwall_type]: 0=neutral surface, 
+                        	   1=const potential,
+                                   2=const surface charge,
+                                   3=atomic charges
+
+@ 0 	Nlocal_charge, # of local charges on surfaces 
+                        not necessarily on every atom of a given type.  Or
+                        to approximate a local charge on a non-atomic surface.
+                        (-1 indicates linear profile of point charges between
+                            two points aligned with principle axes.  !!!)
+
+@ 0. 	Charge_loc[i]: i=0,Nlocal_charge-1 : Value of charge 
+@ 0. 	Charge_Diam[i] : diameter or spread of charge (=0 for point charge) 
+@ 0. 0. -2. 	Charge_x[i][idim] : position of charge 
+@ 0 0 	Charge_type_atoms Charge_type_local 
+			point charge=0, smeared charge over sigma=1, background charge=2
+                               for either Type_elec=3 or Nlocal_charge !=0.
+************** DIELECTRIC CONSTANTS ************************************
+@ 0 4.25  298.0  78.5   Type_dielec Sigma_Anstroms_plasm   Temp_K_plasma   DielecConst_plasma
+                    (0 = all the same; 1 = fluid/walls different;
+                     2 = bulk fluid/wall fluid/pore fluid;
+                     3 = constant in walls; varies with density in fluid !)
+
+@ 1. 0. 0. 	Dielec_bulk Dielec_pore Dielec_X 
+@ 0. 	Dielec_wall[i] i=0,Nwall_type-1 
+
+************* DIFFUSION PARAMETERS *******************************************
+@ 0. 	D_coef[icomp] (Diffusion Coefficients per component (cm^2/sec)) 
+@ 0.0 	Velocity 
+@ 0 0 	Geom_Flag (0=unit area;1=cyl pore;2=vary pore), Nseg (# pore segments) 
+@ 0. 0. 0. 	Radius_L, Radius_R, Length 
+
+************** STARTUP CONTROL PARAMETERS ********************************
+@ 0 1 	Iguess Iguess_fields 
+           [Iguess options:  0: Constant Bulk Density
+                             1: rho_bulk*exp(-Vext/kT)
+                             2: step function profile
+                             3: chopped profile: to rho_bulk
+                             4: chopped profile: to rho_step
+                             5: linear profile (for diffusion cases)]
+           [Iguess_fields options: 0: use bulk values for all fields
+                                   1: compute fields based on density field
+                                   2: compute nonlocal density fields, but
+                                      retain bulk fields for G chain eqn (CMS/WJDC cases)                                                                  				      and CMS_FIELD or WJDC_FIELD variables
+                                   3: compute all variables from density field except
+                                      use a bulk approximation for CMS_FIELD and WJDC_FIELD
+
+@ 0 	Nsteps 
+@ 0 	Orientation[istep] 
+@ 0.0 	Xstart_step[istep] 
+@ 0.0 	Xend_step[istep] 
+@ 0.0 	Rho_step[icomp][istep] 
+
+@ 0 0                Restart  Nmissing_densities
+                       Restart options{
+                          0=don't restart from file.
+                          1=restart using data in dft_dens.dat
+                          2=restart with dft_dens.dat, but apply step function to defined constant at Xstart_step[0]
+                          3=restart densities but not elec.pot or chem.pot.
+                          4=restart from file that has an incomplete set of densities (specify Nmissing_densities)
+                          5=use 1D profile as initial guess for 2 or 3D calculation
+                       }
+@  0    vext1.dat vext2.dat    Restart_Vext Vext_file1 Vext_file2
+                       Restart_Vext options{
+                          0=don't restart Vext from file.
+                          1=restart Vext using data in file Vext_file1 (any name you like)
+                          2=restart Vext by summing data in files Vext_file1 and Vext_file2
+                          3=restart Vext by summing two files, but treat data in Vext2_file
+                            as static with respect to continuation of Vext parameters.
+                       }
+
+@ 0. 	Rho_max maximum density allowed from restart file 
+
+************* OUTPUT FORMAT PARAMETERS ****************************************
+               *************************************************************
+               **** set how you would like all of the output to print ******
+               *************************************************************
+@ 0 1 0 0 	Lper_area Lcount_reflect Lprint_gofr Lprint_uww 
+@ 0 	Print_rho_type (0= all output in dft_dens.dat, 
+                               1= each run gets a different file)
+@ 0 0 	Print_rho_switch Print_mesh_switch 
+               switches to determine how output will look in dft_force file
+               rho: (0 - all densities, 1=p/po, 2=kappa, 3=all betamu)
+               mesh: (0=surface separations, 1=wall positions)
+@ 1 	IWRITE (0=MINIMAL, 1=DENSITY_PROF, 2=NO_SCREEN, 3=VERBOSE) 
+
+*********** COARSENING SWITCHES ************************************************
+@ 1 	Nzone (Coarsens Mesh/Jacobian by factor of 2) 
+@ 0. 	Rmax_zone[Nzone-1] [0.0 for complete coarsening] 
+@ 0 	Mesh_coarsening (0=NO, 1=YES) 
+@ 0 0.25 	Coarser_jac Esize_jacobian 
+                         0 =Jac. zones are the same as resid zones.
+                         1 =coarsen finest Jacobian zone by fac of 2 
+                         2 =coarsen all but coarsest zone by fac of 2
+                         3 =use coarsest zone everywhere
+                         4 =use 2nd coarsest zone in all but coarsest zone 
+                         5 =use Esize_jacobian for all Jacobian integrals
+@ 0 100. 	Ljac_cut Jac_threshold 
+@ 0 0. 	L1D_bc, X_1D_bc 
+
+************ NONLINEAR SOLVER PARAMETERS *************************************
+@ 0 20 0 0 0    NL_Solver Max_NL_iter Physics_scaling ATTInA22Block Analyt_WJDC_Jac
+@ n/a           Scale_fac_WJDC[ipol][icomp]
+@ 1.0e-3 1.0e-8 1.0 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
+@ 1.e-3 1.e-8   NL_rel_tol_picard NL_abs_tol_picard
+@ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
+************ LINEAR SOLVER PARAMETERS ****************************************
+@ 1 0 100 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
+@ -1 	Scaling (0=row_sum, 1=Jacobi, 2=symrow_sum, -1=none) 
+@ 4 4 	Preconditioner (0=ilu, 1=Jacobi, 2=symGS, 3=LSpoly3, -1=none), level 
+@ 100 1.e-8 	Max iterations and Convergence Tolerance for Linear Solver 
+
+************* MESH CONTINUATION PARAMETERS ************************************
+               Here you enter information for mesh continuation.
+               All other types are handled by LOCA
+@ 1 	N_runs 
+@ 0. 	Del_1[idim=0;Ndim-1] (How much to change parameter) 
+@ 0 0 	Plane_new_nodes Pos_new_nodes 
+                  (0=yz,1=xz,2=xy)   (-1=lbb,0=center,1=rtf)
+************ LOCA CONTINUATION LIBRARY PARAMETERS ****************************
+@ -1 	Continuation Method (-1=None; 0,1,2=0th, 1st, arc-length 
+                         3=Spinodal (Turning Point); 4=Binodal (Phase Eq))
+@ 2 1 0 	Continuation_Type, NID_Cont, ID1, ID2 
+          (NID_Cont indicates number if IDs needed to indentify which parameters should be continued.
+           This should be either 0, 1 (as in Rho_b[icomp] to indicate icomp) or
+           2 (as in Eps_ff[icomp][jcomp] to indicate icomp and jcomp).
+
+           Parameters for Continuation_Type are:
+                1 =  CONT_TEMP          Temperature Continuation
+                2 =  CONT_RHO_I         Density continuation - species i
+                3 =  CONT_BETAMU_I      Chemical potential continuation species i
+                4 =  CONT_EPSW_I        Wall-Wall Energy Parameter continuations for:
+                                             --  wall i (if Mix_type=0)
+                                            --  wall ij (if Mix_type==1)
+                5 =  CONT_EPSWF_IJ      Wall-Fluid Energy Parameter continuation for ij term
+                6 =  CONT_EPSFF_IJ      Fluid-Fluid Energy Parameter continuation for the ij term
+                7 =  CONT_ELECPARAM_I   Continue in Electrostatic properties for the surface
+                                            (charge or potential) for surfaces of type i
+                8 =  CONT_ELECPARAM_ALL Continue in Electrostatic properties for all surfaces simultaneously.
+                9 =  CONT_SEMIPERM_IJ   Continue in strength of semipermeable membrane potential.
+
+@ 0.0001 	Parameter initial step size 
+@ 30 0.30 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
+@ 2 0 0 0 	Continuation_Type2, NID_Cont, ID1, ID2 
+           (2nd parameter for  Spinodal and Binoadal Calculations (see listabove).
+*********** END OF INPUT FILE ******************************************
+

@@ -1,0 +1,22 @@
+/*! \file 
+ \brief 2D cylindrical pore. Vext(integrated)
+
+Functionals: FMT3,WCA
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - infinite cylindrical pore in 2D. Vext(integrated).
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=11
+   - adsorption[0]=8.58107
+   - surf_ex_energy=0.398752
+   .
+*/
+

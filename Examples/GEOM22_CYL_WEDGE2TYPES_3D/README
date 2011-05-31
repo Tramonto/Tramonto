@@ -1,0 +1,25 @@
+/*! \file 
+ \brief 3D infinite length compound cylindrical wedge surfaces.  Two total surfaces each composed of two surface types. Vext(integrated)
+
+Functionals: FMT3
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - two cylindrical surfaces with infinite length (Length=Size_z). 
+Each surface is composed of two cylindrical wedges with different surface-fluid interactions.
+Vext(integrated) is used.  Reflected planes result in hexagonal arrangment of surfaces.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=12
+   - adsorption[0]=375.507
+   - adsorption[0]=421.865
+   - surf_ex_energy=-18.5531
+   .
+*/
+

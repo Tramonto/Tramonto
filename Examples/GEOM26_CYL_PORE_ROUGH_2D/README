@@ -1,0 +1,22 @@
+/*! \file 
+ \brief 2D rough cylindrical pore. Vext(integrated)
+
+Functionals: FMT3,WCA
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - rough cylindrical pore in 2D. Vext(integrated).
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=12
+   - adsorption[0]=8.16652
+   - surf_ex_energy=9.8939
+   .
+*/
+

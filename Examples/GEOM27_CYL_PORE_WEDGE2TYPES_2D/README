@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 2D rough compound cylindrical pore surface with two types of surface-fluid chemistry. Vext(integrated)
+
+Functionals: FMT3,WCA
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - rough compound cylindrical pore in 2D. Two cylindrical pore wedges combine
+to form one heterogeneous cylindrical pore. Vext(integrated).
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=11
+   - adsorption[0]=13.6511 
+   - adsorption[1]=10.9709
+   - surf_ex_energy=13.4664
+   .
+*/
+

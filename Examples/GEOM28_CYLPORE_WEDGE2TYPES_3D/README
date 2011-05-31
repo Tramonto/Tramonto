@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 3D rough compound cylindrical finite-length pore with two types of surface-fluid chemistry. Vext(integrated)
+
+Functionals: FMT3
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: surface geometry test - rough compound cylindrical pore of finite length in 3D. Two cylindrical pore wedges combine
+to form one heterogeneous cylindrical pore. Vext(integrated).
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=13
+   - adsorption[0]=146.146
+   - adsorption[1]=96.7839
+   - surf_ex_energy=-109.571
+   .
+*/
+
