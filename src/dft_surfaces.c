@@ -220,12 +220,13 @@ void setup_surface (FILE *fp2, int *nelems_f,
        fp_inSurfaceTest=&surface_cylinder3D_inSurfaceTest;
        fp_roughness=&surface_cylinder3D_roughness;
        fp_angleCutout=&surface_angleCutout3D_cyl;
+       fp_periodic=&surface_periodic_offset;
        break;
 
      case cyl_periodic_3D:
-       fp_periodic=&surface_periodic_offset;
+/*       fp_periodic=&surface_periodic_offset;
        fp_inSurfaceTest=&surface_cylinder3D_inSurfaceTest;
-       fp_roughness=&surface_cylinder3D_roughness;
+       fp_roughness=&surface_cylinder3D_roughness;*/
        break;
 
      case atomic_centers:

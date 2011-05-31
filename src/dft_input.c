@@ -2240,7 +2240,6 @@ void fill_surfGeom_struct()
             }
             sgeom_iw->Lperiodic_overlay=Lperiodic_overlay[iw];
             sgeom_iw->Nperiodic_overlay=Nperiodic_overlay[iw];
-printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
             for (i=0;i<Nperiodic_overlay[iw]; i++){ 
                sgeom_iw->orientation_periodic[i]=OrientationPeriodicFunc[iw][i];
                sgeom_iw->amplitude[i]=AmplitudePeriodicFunc[iw][i];
@@ -2249,6 +2248,7 @@ printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
             }
             Poly_graft_dist[iw]=sgeom_iw->halfwidth[sgeom_iw->orientation];
             break;
+
        case finite_planar_wall:
             sgeom_iw->halfwidth = (double *) array_alloc(1, Ndim, sizeof(double));
             sgeom_iw->halfwidth[0]=WallParam[iw];
@@ -2260,6 +2260,7 @@ printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
                sgeom_iw->roughness_length=Rough_length[iw];
             }
             break;
+
        case point_surface:
             rsq=0.0;
             for (idim=0;idim<Ndim;idim++) rsq+=Esize_x[idim]*Esize_x[idim];
@@ -2268,6 +2269,7 @@ printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
             sgeom_iw->halfwidth = (double *) array_alloc(1, Ndim, sizeof(double));
             if (Ndim==1) sgeom_iw->halfwidth[Orientation[iw]]=0.5*Esize_x[0];
             break;
+
        case colloids_cyl_sphere:
             sgeom_iw->radius=WallParam[iw];
             sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
@@ -2282,6 +2284,7 @@ printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
             }
             Poly_graft_dist[iw]=sgeom_iw->radius;
             break;
+
        case finite_cyl_3D:
             sgeom_iw->orientation=Orientation[iw];
             sgeom_iw->radius=WallParam[iw];
@@ -2296,12 +2299,22 @@ printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
                sgeom_iw->roughness=Rough_param_max[iw];
                sgeom_iw->roughness_length=Rough_length[iw];
             }
+            sgeom_iw->Lperiodic_overlay=Lperiodic_overlay[iw];
+            sgeom_iw->Nperiodic_overlay=Nperiodic_overlay[iw];
+            for (i=0;i<Nperiodic_overlay[iw]; i++){ 
+               sgeom_iw->orientation_periodic[i]=OrientationPeriodicFunc[iw][i];
+               sgeom_iw->amplitude[i]=AmplitudePeriodicFunc[iw][i];
+               sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
+               sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
+            }
             Poly_graft_dist[iw]=sgeom_iw->radius;
             break;
+
        case atomic_centers:
             break;
+
        case cyl_periodic_3D:
-            sgeom_iw->orientation=Orientation[iw];
+/*            sgeom_iw->orientation=Orientation[iw];
             sgeom_iw->radius=WallParam[iw];
             sgeom_iw->Lperiodic_overlay=Lperiodic_overlay[iw];
             sgeom_iw->Nperiodic_overlay=Nperiodic_overlay[iw];
@@ -2317,7 +2330,7 @@ printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
                sgeom_iw->roughness=Rough_param_max[iw];
                sgeom_iw->roughness_length=Rough_length[iw];
             }
-            sgeom_iw->Lperiodic_overlay=TRUE;
+            sgeom_iw->Lperiodic_overlay=TRUE;*/
             break;
 
        case cyl2D_sphere3D_pore:
@@ -2334,6 +2347,7 @@ printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
                sgeom_iw->angle_wedge_end=Angle_wedge_end[iw];
             }
             break;
+
        case cyl3D_slit2D_pore:
             sgeom_iw->orientation=Orientation[iw];
             sgeom_iw->radius=WallParam[iw];
@@ -2343,6 +2357,14 @@ printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
                sgeom_iw->roughness=Rough_param_max[iw];
                sgeom_iw->roughness_length=Rough_length[iw];
             }
+            sgeom_iw->Lperiodic_overlay=Lperiodic_overlay[iw];
+            sgeom_iw->Nperiodic_overlay=Nperiodic_overlay[iw];
+            for (i=0;i<Nperiodic_overlay[iw]; i++){ 
+               sgeom_iw->orientation_periodic[i]=OrientationPeriodicFunc[iw][i];
+               sgeom_iw->amplitude[i]=AmplitudePeriodicFunc[iw][i];
+               sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
+               sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
+            }
             sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
             if(Lwedge_cutout[iw]==TRUE){
                sgeom_iw->angle_wedge_start=Angle_wedge_start[iw];
@@ -2350,12 +2372,32 @@ printf("iw=%d  Lwedge_cutout=%d\n",iw,sgeom_iw->Lwedge_cutout);
             }
             Poly_graft_dist[iw]=sgeom_iw->radius;
             break;
+
        case tapered_pore:
             sgeom_iw->orientation=Orientation[iw];
             sgeom_iw->radius=WallParam[iw];
             sgeom_iw->radius2=WallParam_2[iw];
             sgeom_iw->halflength=WallParam_3[iw];
+            sgeom_iw->Lrough_surface=Lrough_surf[iw];
+            if (Lrough_surf[iw]==TRUE){
+               sgeom_iw->roughness=Rough_param_max[iw];
+               sgeom_iw->roughness_length=Rough_length[iw];
+            }
+            sgeom_iw->Lperiodic_overlay=Lperiodic_overlay[iw];
+            sgeom_iw->Nperiodic_overlay=Nperiodic_overlay[iw];
+            for (i=0;i<Nperiodic_overlay[iw]; i++){ 
+               sgeom_iw->orientation_periodic[i]=OrientationPeriodicFunc[iw][i];
+               sgeom_iw->amplitude[i]=AmplitudePeriodicFunc[iw][i];
+               sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
+               sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
+            }
+            sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
+            if(Lwedge_cutout[iw]==TRUE){
+               sgeom_iw->angle_wedge_start=Angle_wedge_start[iw];
+               sgeom_iw->angle_wedge_end=Angle_wedge_end[iw];
+            }
             break;
+
        default: /* No surface found */
             printf("error with surface type iwall_type=%d not identified\n",iw);
             exit(-1);
