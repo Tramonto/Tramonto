@@ -48,16 +48,14 @@
 @ 1 1 1 0 0 	Nwall_types Nwall Nlink Lauto_center Lauto_size 
 @ 0 	Xtest_reflect_TF[ilink=0,Nlink-1][idim=0,Ndim-1] 
 @ 0 	Surf_type[iwall_type] ; iwall_type=0,Nwall_type-1 
-                  (0 = smooth uniform planar wall of infinite extent, 
-                   1 = finite length smooth wall, 
-                   2 = colloids - spheres(3D) cylinders(2D)
-                   3 = atoms - spheres(3D) using Sigma_w to define size 
-                   4 = point atoms 
-                   5 = finite length cylinders (3D) 
-                   6 = periodic cylinders (3D)
-                   7 = infinite pores (cylindrical in 2D; spherical in 3D),
-                   8 = finite pores (slit in 2D; cylinder in 3D)
-                   9 = finite length tapered pores 
+                  (0 = planar wall of infinite extent,               
+                   1 = finite length wall,       
+                   2 = spheres(3D) OR cylinders(2D)
+                   3 = atomic surfaces [use Sigma_w param to define size]
+                   4 = 1 element surface (1D:thin membrane, 2D: thin rod, 3D: approximate point)
+                   5 = finite length cylinder (3D only)
+                   7 = pores of infinite lengthI:  cylindrical (2D) OR  spherical cavities (3D),
+                   8 = pores of finite length:  slits(2D) OR cylindrical(3D)
 
 @ 0 	Orientation[iwall_type]: iwall_type=0,Nwall_type-1 
 @ 0.0 	WallParam[iwall_type] 
@@ -77,6 +75,13 @@
 @ 0.    Amplitude[iwall_type][Nperiodic_overlay_fncs] (sigma units)
 @ 0.    Period[iwall_type][Nperiodic_overlay_fncs]    (sigma units)
 @ 0.    Origin[iwall_type][Nperiodic_overlay_fncs]  (sigma units)
+
+@ 0          Nlinear_overlay_fncs[iwall_type]
+@ 0          OrientationLinearFnc[iwall_type][Nperiodic_overlay_fncs]     (sigma units)
+@ 0.         Slope[iwall_type][Nperiodic_overlay_fncs] (sigma units)
+@ 0.         Origin_linear[iwall_type][Nperiodic_overlay_fncs]    (sigma units)
+@ 0.         Endpoint_linear[iwall_type][Nperiodic_overlay_fncs]  (sigma units)
+
 
 ************** WALL-FLUID AND WALL-WALL  INTERACTION TYPE PARAMETERS  ************************************
 @ 1 	Type of neutral surface-fluid interactions (param. Ipot_wf_n[iwall_type]) 

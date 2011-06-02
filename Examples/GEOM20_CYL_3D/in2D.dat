@@ -57,7 +57,6 @@
                    6 = periodic cylinders (3D)
                    7 = infinite pores (cylindrical in 2D; spherical in 3D),
                    8 = finite pores (slit in 2D; cylinder in 3D)
-                   9 = finite length tapered pores 
 
 @ 2 	Orientation[iwall_type]: iwall_type=0,Nwall_type-1 
 @ 1.0 	WallParam[iwall_type] 
