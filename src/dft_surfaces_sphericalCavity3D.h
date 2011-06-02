@@ -38,6 +38,8 @@ extern int Lwedge_cutout[NWALL_MAX];
 extern int Lperiodic_overlay[NWALL_MAX_TYPE];
 extern int Nperiodic_overlay[NWALL_MAX_TYPE];
 #define NPERIODIC_MAX 4
+extern int Llinear_overlay[NWALL_MAX_TYPE];
+extern int Nlinear_overlay[NWALL_MAX_TYPE];
 struct SurfaceGeom_Struct {
   int       surfaceTypeID;    /* ID of the type of surface */
   int       orientation;  /* orientation of the surface */
@@ -53,10 +55,16 @@ struct SurfaceGeom_Struct {
   double    roughness_length;    /* lengthscale for the rougness */
   int       Lperiodic_overlay;    /* TRUE or FALSE for periodic function added to surface */
   int       Nperiodic_overlay;     /* The number of periodic functions to apply */
-  double    orientation_periodic[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
-  double    amplitude[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a cylinder */
-  double    wavelength[NPERIODIC_MAX];    /* desired wavelength of cosine wave superimposed on a cylinder */
+  double    orientation_periodic[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a surface */
+  double    amplitude[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a surface */
+  double    wavelength[NPERIODIC_MAX];    /* desired wavelength of cosine wave superimposed on a surface */
   double    origin_PeriodicFunc[NPERIODIC_MAX];     /* The origin of periodic functions to apply */
+  int       Llinear_overlay;    /* TRUE or FALSE for linear function added to surface */
+  int       Nlinear_overlay;     /* The number of linear functions to apply */
+  double    orientation_linear[NPERIODIC_MAX];    /* maximum amplitude for a linear function superimposed on a surface */
+  double    slope[NPERIODIC_MAX];    /* maximum amplitude for a linear function superimposed on a surface */
+  double    origin_LinearFunc[NPERIODIC_MAX];     /* The origin of linear functions to apply */
+  double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
 void surface_sphericalCavity3D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);

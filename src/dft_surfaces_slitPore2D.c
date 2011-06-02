@@ -53,8 +53,8 @@ void surface_slitPore2D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int
   *logical_inwall=FALSE;
 
   sgeom_iw=&(SGeom[iwall_type]);
-  radius=sgeom_iw->radius+dist_adjustments-roff;
-  halflength=sgeom_iw->halflength+dist_adjustments-roff;
+  radius=sgeom_iw->radius+dist_adjustments-roff;   /* apply roughness, linear, periodic functions to pore width only */
+  halflength=sgeom_iw->halflength-roff;
   orientation=sgeom_iw->orientation;
 
   switch(orientation)  {

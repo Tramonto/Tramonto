@@ -53,8 +53,8 @@ void surface_cylindricalPore3D_inSurfaceTest(int iwall,int iwall_type,int loc_in
   *logical_inwall=FALSE;
 
   sgeom_iw=&(SGeom[iwall_type]);
-  radius=sgeom_iw->radius+dist_adjustments-roff;
-  halflength=sgeom_iw->halflength+dist_adjustments-roff;
+  radius=sgeom_iw->radius+dist_adjustments-roff;  /* apply periodic, linear, roughness adjustments to radial direction only */
+  halflength=sgeom_iw->halflength-roff;
   orientation=sgeom_iw->orientation;
 
   switch(orientation)  {

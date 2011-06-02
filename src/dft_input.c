@@ -65,7 +65,7 @@ void read_input_file(char *input_file, char *output_file1)
        dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
    double rho_tmp[NCOMP_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
-   int iblock,jblock,read_periodic,read_wedge,read_rough;
+   int iblock,jblock,read_periodic,read_wedge,read_rough,read_linear;
 
 
   
@@ -608,6 +608,84 @@ void read_input_file(char *input_file, char *output_file1)
   }
   if (Nwall_type > 0&&read_periodic==TRUE) 
     MPI_Bcast(OriginPeriodicFunc,NWALL_MAX_TYPE*NPERIODIC_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+                 /* Linear Overlay  Params */
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    read_linear=FALSE;
+    if (Nwall_type > 0) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+        Llinear_overlay[iwall_type]=FALSE;
+	fscanf(fp,"%d", &Nlinear_overlay[iwall_type]);
+	fprintf(fp2,"%d  ",Nlinear_overlay[iwall_type]);
+        if (Nlinear_overlay[iwall_type]>0){
+            Llinear_overlay[iwall_type]=TRUE;
+            read_linear=TRUE;
+        }
+      }
+    else fprintf(fp2,"Nlinear_overlay n/a");
+  }
+  MPI_Bcast(&read_linear,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Nwall_type > 0) {
+    MPI_Bcast(Nlinear_overlay,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(Llinear_overlay,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+  }
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&&read_linear==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+         for (i=0; i < Nlinear_overlay[iwall_type]; ++i){
+  	     fscanf(fp,"%d", &OrientationLinearFunc[iwall_type][i]);
+     	     fprintf(fp2,"%d  ",OrientationLinearFunc[iwall_type][i]);
+         }
+      }
+    else fprintf(fp2,"OrientationLinearFunc n/a");
+  }
+  if (Nwall_type > 0&&read_linear==TRUE) 
+    MPI_Bcast(OrientationLinearFunc,NWALL_MAX_TYPE*NPERIODIC_MAX,MPI_INT,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&&read_linear==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+         for (i=0; i < Nlinear_overlay[iwall_type]; ++i){
+	    fscanf(fp,"%lf", &SlopeLinearFunc[iwall_type][i]);
+	    fprintf(fp2,"%f  ",SlopeLinearFunc[iwall_type][i]);
+         }
+      }
+    else fprintf(fp2,"SlopeLinerFunc n/a");
+  }
+  if (Nwall_type > 0&&read_linear==TRUE) 
+    MPI_Bcast(SlopeLinearFunc,NWALL_MAX_TYPE*NPERIODIC_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&&read_linear==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+         for (i=0; i < Nlinear_overlay[iwall_type]; ++i){
+	     fscanf(fp,"%lf", &OriginLinearFunc[iwall_type][i]);
+	     fprintf(fp2,"%f  ",OriginLinearFunc[iwall_type][i]);
+         }
+      }
+    else fprintf(fp2,"OriginLinearFunc n/a");
+  }
+  if (Nwall_type > 0&&read_linear==TRUE) 
+    MPI_Bcast(OriginLinearFunc,NWALL_MAX_TYPE*NPERIODIC_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&&read_linear==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+         for (i=0; i < Nlinear_overlay[iwall_type]; ++i){
+	     fscanf(fp,"%lf", &EndpointLinearFunc[iwall_type][i]);
+	     fprintf(fp2,"%f  ",EndpointLinearFunc[iwall_type][i]);
+         } 
+      }
+    else fprintf(fp2,"EndpointLinearFunc n/a");
+  }
+  if (Nwall_type > 0&&read_linear==TRUE) 
+    MPI_Bcast(EndpointLinearFunc,NWALL_MAX_TYPE*NPERIODIC_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
              /* end surface adjustments */
 
@@ -2221,6 +2299,7 @@ void fill_surfGeom_struct()
     sgeom_iw = &(SGeom[iw]); 
     sgeom_iw->surfaceTypeID=Surface_type[iw];
     sgeom_iw->Lperiodic_overlay=FALSE;
+    sgeom_iw->Llinear_overlay=FALSE;
     sgeom_iw->Lwedge_cutout=FALSE;
     switch(sgeom_iw->surfaceTypeID)
     {
@@ -2246,6 +2325,14 @@ void fill_surfGeom_struct()
                sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
                sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
             }
+            sgeom_iw->Llinear_overlay=Llinear_overlay[iw];
+            sgeom_iw->Nlinear_overlay=Nlinear_overlay[iw];
+            for (i=0;i<Nlinear_overlay[iw]; i++){ 
+               sgeom_iw->orientation_linear[i]=OrientationLinearFunc[iw][i];
+               sgeom_iw->slope[i]=SlopeLinearFunc[iw][i];
+               sgeom_iw->origin_LinearFunc[i]=OriginLinearFunc[iw][i];
+               sgeom_iw->endpoint_LinearFunc[i]=EndpointLinearFunc[iw][i];
+            }
             Poly_graft_dist[iw]=sgeom_iw->halfwidth[sgeom_iw->orientation];
             break;
 
@@ -2258,6 +2345,14 @@ void fill_surfGeom_struct()
             if (Lrough_surf[iw]==TRUE){
                sgeom_iw->roughness=Rough_param_max[iw];
                sgeom_iw->roughness_length=Rough_length[iw];
+            }
+            sgeom_iw->Llinear_overlay=Llinear_overlay[iw];
+            sgeom_iw->Nlinear_overlay=Nlinear_overlay[iw];
+            for (i=0;i<Nlinear_overlay[iw]; i++){ 
+               sgeom_iw->orientation_linear[i]=OrientationLinearFunc[iw][i];
+               sgeom_iw->slope[i]=SlopeLinearFunc[iw][i];
+               sgeom_iw->origin_LinearFunc[i]=OriginLinearFunc[iw][i];
+               sgeom_iw->endpoint_LinearFunc[i]=EndpointLinearFunc[iw][i];
             }
             break;
 
@@ -2306,31 +2401,31 @@ void fill_surfGeom_struct()
                sgeom_iw->amplitude[i]=AmplitudePeriodicFunc[iw][i];
                sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
                sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
+               if (OrientationPeriodicFunc[iw][i] != Orientation[iw]){
+                   printf("Orientation of periodic function must be the same as the orientation of the surface\n");
+                   printf("for the 3D cylindrical surface.  Adjustments can only be made along length of cylinder\n");
+                   printf("Resetting periodic orientation to match the surface orientation\n");
+                   sgeom_iw->orientation_periodic[i]=Orientation[iw];
+               }
+            }
+            sgeom_iw->Llinear_overlay=Llinear_overlay[iw];
+            sgeom_iw->Nlinear_overlay=Nlinear_overlay[iw];
+            for (i=0;i<Nlinear_overlay[iw]; i++){ 
+               sgeom_iw->orientation_linear[i]=OrientationLinearFunc[iw][i];
+               sgeom_iw->slope[i]=SlopeLinearFunc[iw][i];
+               sgeom_iw->origin_LinearFunc[i]=OriginLinearFunc[iw][i];
+               sgeom_iw->endpoint_LinearFunc[i]=EndpointLinearFunc[iw][i];
+               if (OrientationLinearFunc[iw][i] != Orientation[iw]){
+                   printf("Orientation of linear function must be the same as the orientation of the surface\n");
+                   printf("for the 3D cylinder.  Adjustments can only be made along length of the surface.\n");
+                   printf("Resetting linear orientation to match the surface orientation\n");
+                   sgeom_iw->orientation_linear[i]=Orientation[iw];
+               }
             }
             Poly_graft_dist[iw]=sgeom_iw->radius;
             break;
 
        case atomic_centers:
-            break;
-
-       case cyl_periodic_3D:
-/*            sgeom_iw->orientation=Orientation[iw];
-            sgeom_iw->radius=WallParam[iw];
-            sgeom_iw->Lperiodic_overlay=Lperiodic_overlay[iw];
-            sgeom_iw->Nperiodic_overlay=Nperiodic_overlay[iw];
-            for (i=0;i<Nperiodic_overlay[iw]; i++){ 
-               sgeom_iw->orientation_periodic[i]=OrientationPeriodicFunc[iw][i];
-               sgeom_iw->amplitude[i]=AmplitudePeriodicFunc[iw][i];
-               sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
-               sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
-            }
-            sgeom_iw->Lrough_surface=Lrough_surf[iw];
-            sgeom_iw->halflength=Size_x[Orientation[iw]]/2.0;
-            if (Lrough_surf[iw]==TRUE){
-               sgeom_iw->roughness=Rough_param_max[iw];
-               sgeom_iw->roughness_length=Rough_length[iw];
-            }
-            sgeom_iw->Lperiodic_overlay=TRUE;*/
             break;
 
        case cyl2D_sphere3D_pore:
@@ -2364,38 +2459,33 @@ void fill_surfGeom_struct()
                sgeom_iw->amplitude[i]=AmplitudePeriodicFunc[iw][i];
                sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
                sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
+               if (OrientationPeriodicFunc[iw][i] != Orientation[iw]){
+                   printf("Orientation of periodic function must be the same as the orientation of the surface\n");
+                   printf("for the 3D cylindrical or 2D slit pore.  adjustments can only be made along length of pore\n");
+                   printf("Resetting periodic orientation to match the surface orientation\n");
+                   sgeom_iw->orientation_periodic[i]=Orientation[iw];
+               }
             }
             sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
             if(Lwedge_cutout[iw]==TRUE){
                sgeom_iw->angle_wedge_start=Angle_wedge_start[iw];
                sgeom_iw->angle_wedge_end=Angle_wedge_end[iw];
+            }
+            sgeom_iw->Llinear_overlay=Llinear_overlay[iw];
+            sgeom_iw->Nlinear_overlay=Nlinear_overlay[iw];
+            for (i=0;i<Nlinear_overlay[iw]; i++){ 
+               sgeom_iw->orientation_linear[i]=OrientationLinearFunc[iw][i];
+               sgeom_iw->slope[i]=SlopeLinearFunc[iw][i];
+               sgeom_iw->origin_LinearFunc[i]=OriginLinearFunc[iw][i];
+               sgeom_iw->endpoint_LinearFunc[i]=EndpointLinearFunc[iw][i];
+               if (OrientationLinearFunc[iw][i] != Orientation[iw]){
+                   printf("Orientation of linear function must be the same as the orientation of the surface\n");
+                   printf("for the 3D cylindrical or 2D slit pore.  adjustments can only be made along length of pore\n");
+                   printf("Resetting linear orientation to match the surface orientation\n");
+                   sgeom_iw->orientation_linear[i]=Orientation[iw];
+               }
             }
             Poly_graft_dist[iw]=sgeom_iw->radius;
-            break;
-
-       case tapered_pore:
-            sgeom_iw->orientation=Orientation[iw];
-            sgeom_iw->radius=WallParam[iw];
-            sgeom_iw->radius2=WallParam_2[iw];
-            sgeom_iw->halflength=WallParam_3[iw];
-            sgeom_iw->Lrough_surface=Lrough_surf[iw];
-            if (Lrough_surf[iw]==TRUE){
-               sgeom_iw->roughness=Rough_param_max[iw];
-               sgeom_iw->roughness_length=Rough_length[iw];
-            }
-            sgeom_iw->Lperiodic_overlay=Lperiodic_overlay[iw];
-            sgeom_iw->Nperiodic_overlay=Nperiodic_overlay[iw];
-            for (i=0;i<Nperiodic_overlay[iw]; i++){ 
-               sgeom_iw->orientation_periodic[i]=OrientationPeriodicFunc[iw][i];
-               sgeom_iw->amplitude[i]=AmplitudePeriodicFunc[iw][i];
-               sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
-               sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
-            }
-            sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
-            if(Lwedge_cutout[iw]==TRUE){
-               sgeom_iw->angle_wedge_start=Angle_wedge_start[iw];
-               sgeom_iw->angle_wedge_end=Angle_wedge_end[iw];
-            }
             break;
 
        default: /* No surface found */

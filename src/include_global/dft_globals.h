@@ -201,7 +201,14 @@ int    OrientationPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The orient
 double AmplitudePeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The amplitude of periodic functions to apply */
 double WavelengthPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX] ;    /* The period of periodic functions to apply */
 double OriginPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The origin of periodic functions to apply */
+int    Llinear_overlay[NWALL_MAX_TYPE];    /* TRUE or FALSE for linear function added to surface */
+int    Nlinear_overlay[NWALL_MAX_TYPE];     /* The number of linear functions to apply */
+int    OrientationLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The orientation of linear functions to apply */
+double SlopeLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The slope of linear functions to apply */
+double OriginLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The origin of linear functions to apply */
+double EndpointLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The endpoint of linear functions to apply */
 double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
+
 
 /* Fluid Physics info */
 int     Ncomp;           /* Number of components in the current problem      */

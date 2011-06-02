@@ -44,7 +44,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
   int itype,iwall,ilist,iel_box,izone, **L_wall,idim,inode_box;
   int loc_inode,real_wall,*imagetype,flag;
   int iel,inode,angle_test;
-  double xtest[3],dist_roughness,dist_periodic, node_pos[3];
+  double xtest[3],dist_roughness,dist_periodic, dist_linear,node_pos[3];
   double *x_min;
 
   int image,image_x,image_xy,i,nwall_max,image_old,icount,orientation,surfaceTypeID;
@@ -56,6 +56,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
   double (*fp_roughness)(double *,int,int);
   void (*fp_inSurfaceTest)(int, int,int,int,double *, double **, double, double *, int *, int *);
   double (*fp_periodic)(double *,int,int);
+  double (*fp_linear)(double *,int,int);
   int (*fp_angleCutout)(int, int,double *);
 
   /*  Calculate the number of wall and fluid elements and nodes, and 
@@ -110,7 +111,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
                if (idim != orientation) Xtest_reflect_TF[Link[iwall]][idim] = FALSE;
             } 
         }
-        if(surfaceTypeID == finite_cyl_3D || surfaceTypeID==cyl_periodic_3D) {
+        if(surfaceTypeID == finite_cyl_3D) {
            Xtest_reflect_TF[Link[iwall]][orientation] = FALSE;
         }
      }
@@ -162,6 +163,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
   for (iwall=0; iwall<nwall_max; iwall++){
      itype = imagetype[iwall];
      sgeom_iw=&(SGeom[itype]);
+     surfaceTypeID = sgeom_iw->surfaceTypeID;
   
      real_wall = iwall/(nwall_max/Nwall);
      MPI_Barrier(MPI_COMM_WORLD);     /* this may be a bug, but without this barrier statement we have issues with the surface areas */
@@ -184,10 +186,12 @@ void setup_surface (FILE *fp2, int *nelems_f,
        if (Ndim==2){
           fp_angleCutout=&surface_angleCutout2D;
           fp_periodic=&surface_periodic_offset;
+          fp_linear=&surface_linear_offset;
        }
        if (Ndim==3){
           fp_angleCutout=&surface_angleCutout3D_cyl;
           fp_periodic=&surface_periodic_offset;
+          fp_linear=&surface_linear_offset;
        }
        break;
 
@@ -196,10 +200,12 @@ void setup_surface (FILE *fp2, int *nelems_f,
        if (Ndim==2){
           fp_angleCutout=&surface_angleCutout2D;
           fp_periodic=&surface_periodic_offset;
+          fp_linear=&surface_linear_offset;
        }
        if (Ndim==3){
           fp_angleCutout=&surface_angleCutout3D_cyl;
           fp_periodic=&surface_periodic_offset;
+          fp_linear=&surface_linear_offset;
        }
        break;
 
@@ -209,6 +215,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
           fp_inSurfaceTest=&surface_cylinder2D_inSurfaceTest;
           fp_roughness=&surface_cylinder2D_roughness;
           fp_angleCutout=&surface_angleCutout2D;
+          fp_linear=&surface_linear_offset;
        }
        break;
 
@@ -221,12 +228,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
        fp_roughness=&surface_cylinder3D_roughness;
        fp_angleCutout=&surface_angleCutout3D_cyl;
        fp_periodic=&surface_periodic_offset;
-       break;
-
-     case cyl_periodic_3D:
-/*       fp_periodic=&surface_periodic_offset;
-       fp_inSurfaceTest=&surface_cylinder3D_inSurfaceTest;
-       fp_roughness=&surface_cylinder3D_roughness;*/
+       fp_linear=&surface_linear_offset;
        break;
 
      case atomic_centers:
@@ -247,25 +249,15 @@ void setup_surface (FILE *fp2, int *nelems_f,
          fp_inSurfaceTest=&surface_cylindricalPore3D_inSurfaceTest;
          fp_angleCutout=&surface_angleCutout3D_cyl;
          fp_roughness=&surface_cylinder3D_roughness;
+         fp_linear=&surface_linear_offset;
        }
        else if (Ndim==2){
          fp_inSurfaceTest=&surface_slitPore2D_inSurfaceTest;
          fp_roughness=&surface_cylinder2D_roughness;
          fp_angleCutout=&surface_angleCutout2D;
+         fp_linear=&surface_linear_offset;
        }
        break;
-
-     case tapered_pore:
-/*       if (Ndim==3){
-         fp_inSurfaceTest=&surface_cylindricalTaperedPore3D_inSurfaceTest;
-         fp_angleCutout=&surface_angleCutout3D_cyl;
-         fp_roughness=&surface_cylinder3D_roughness;
-       }
-       else if (Ndim==2){
-         fp_inSurfaceTest=&surface_slitTaperedPore2D_inSurfaceTest
-         fp_roughness=&surface_cylinder2D_roughness;
-       }
-       break;*/
 
      default:           
        printf ("ERROR:the surface type chosen is not available\n");
@@ -287,14 +279,15 @@ void setup_surface (FILE *fp2, int *nelems_f,
            for (idim=0;idim<Ndim;idim++) xtest[idim]=node_pos[idim]+0.5*Esize_x[idim];
 
            /* compute adjustments to basic geometries*/
-           dist_roughness=0.0; dist_periodic=0.0; angle_test=TRUE;
+           dist_roughness=0.0; dist_periodic=0.0; dist_linear=0.0; angle_test=TRUE;
            if (sgeom_iw->Lrough_surface && fp_roughness!=NULL &&Ndim>1) dist_roughness=(*fp_roughness)(xtest,itype,iwall); 
            if (sgeom_iw->Lperiodic_overlay && fp_periodic!=NULL) dist_periodic=(*fp_periodic)(xtest,itype,iwall); 
+           if (sgeom_iw->Llinear_overlay && fp_linear!=NULL) dist_linear=(*fp_linear)(xtest,itype,iwall); 
            if (sgeom_iw->Lwedge_cutout && fp_angleCutout!=NULL)  angle_test=(*fp_angleCutout)(real_wall,itype,xtest); 
 
            if (Lhard_surf && ilist !=Nlists_HW-1) dist_adjustments=0.5*Sigma_ff[ilist][ilist]; 
            else dist_adjustments=0.0;
-           dist_adjustments+=(dist_roughness+dist_periodic);
+           dist_adjustments+=(dist_roughness+dist_periodic+dist_linear);
 
            (*fp_inSurfaceTest)(iwall,itype,loc_inode,flag,xtest,image_pos,dist_adjustments,
                                                       &delx,&logical_inwall,&logical_nearWallDielec);

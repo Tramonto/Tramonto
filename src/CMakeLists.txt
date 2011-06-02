@@ -44,6 +44,7 @@ set(common_h
         dft_surfacesAdjust_angleCutout.h
         dft_surfacesAdjust_roughness.h
         dft_surfacesAdjust_periodic.h
+        dft_surfacesAdjust_linear.h
         dft_mesh_lib.h 
         dft_newton.h 
         dft_picard.h 
@@ -167,6 +168,7 @@ set(common_c
         dft_surfacesAdjust_angleCutout.c
         dft_surfacesAdjust_roughness.c
         dft_surfacesAdjust_periodic.c
+        dft_surfacesAdjust_linear.c
         dft_mesh_lib.c 
         dft_newton.c 
         dft_picard.c 

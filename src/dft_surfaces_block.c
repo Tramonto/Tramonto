@@ -54,7 +54,8 @@ void surface_block_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag
   npos = 0;
   rsqsum=0.0;
   for (idim=0; idim<Ndim; idim++){
-     halfwidth=sgeom_iw->halfwidth[idim]+dist_adjustments-roff;
+     if (idim!=1) halfwidth=sgeom_iw->halfwidth[idim]-roff;
+     else         halfwidth=sgeom_iw->halfwidth[idim]+dist_adjustments-roff;
      x12 = fabs(image_pos[iwall][idim] - fluidEl_center[idim]);
      if (x12 > halfwidth)                                *logical_inwall = FALSE;
      if (Ipot_ff_c==COULOMB && x12 > halfwidth+Dielec_X) *logical_nearWallDielec  = FALSE;

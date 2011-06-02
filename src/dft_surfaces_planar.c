@@ -53,10 +53,13 @@ void surface_planar_inSurfaceTest(int iwall,int iwall_type,int loc_inode, int fl
 
   halfwidth +=dist_adjustments-roff;
 
+
   /* get distance from surface to center of element in appropriate dimension */
   x12 = fabs(image_pos[iwall][orientation] - fluidEl_center[orientation]);
   if (x12 <= halfwidth) *logical_inwall=TRUE;
   else *logical_inwall=FALSE;
+
+if (L2G_node[loc_inode]==1) printf("x12=%g halfwidth=%g  logical_inwall=%d\n",x12,halfwidth,*logical_inwall);
 
   if (Type_dielec==DIELEC_WF_PORE && x12<halfwidth + Dielec_X)  *logical_nearWallDielec=TRUE;
   else *logical_nearWallDielec=FALSE;
