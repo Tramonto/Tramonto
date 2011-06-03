@@ -1,0 +1,22 @@
+/*! \file 
+ \brief 3D wedge surface in 3D constructed with 4 linear functions superimposed on a plane. Vext(integrated)
+
+Functionals: FMT3
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: surface geometry test - a 3D wedge surface constructed with 4 linear functions superimposed on a plane. hard-sphere fluid.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=12
+   - adsorption[0]=151.131
+   - surf_ex_energy=62.3761
+   .
+*/
+

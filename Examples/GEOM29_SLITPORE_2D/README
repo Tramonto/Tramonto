@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 2D slit pore of finite length. One wall is smooth, the other is rough. Ncomp=2; Vext(integrated)
+
+Functionals: FMT3
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - 2D slit pore of finite length.  The system is heterogeneous with one smooth
+and one rough wall.  One species is more attracted to teh smooth wall, the other is attracted to the rough wall.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=12
+   - adsorption[0]=19.7791
+   - adsorption[0]=19.6152
+   - surf_ex_energy=-14.3762
+   .
+*/
+

@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 2D tapered slit pore of finite length. Ncomp=2; Vext(integrated)
+
+Functionals: FMT3
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - a tapered 2D slit pore of finite length.  This case demonstrates application of a 
+linear offset to a planar surface. The surface-fluid interactions are heterogeneous for the two components.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=9
+   - adsorption[0]=15.6153
+   - adsorption[0]=15.6153
+   - surf_ex_energy=11.4508
+   .
+*/
+

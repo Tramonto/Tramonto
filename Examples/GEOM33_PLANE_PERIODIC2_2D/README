@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 2D surface with superimposed periodic function (corrugated surface). Orientation test
+
+Functionals: FMT3,WCA,ELEC
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - a corrugated surface formed by superimposing a periodic function on a planar surface. The surface is charged, the fluid is an electrolyte. Note this is identical to GEOM31, but changes the orientation of the surface.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=11
+   - adsorption[0]=0.0134092
+   - adsorption[1]=0.6134092
+   - adsorption[2]=0.767366
+   - surf_ex_energy=0.89225
+   .
+*/
+

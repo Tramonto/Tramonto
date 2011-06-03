@@ -1,0 +1,25 @@
+/*! \file 
+ \brief 2D surface with a notch removed from the surface. Charged surface with electrolyte.
+
+Functionals: FMT3,WCA,ELEC
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - a planar surface with a notch removed fromt the surface using the angle-wedge functionality.
+The surface is charged, the fluid is an electrolyte. 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=8
+   - adsorption[0]=0.1663093
+   - adsorption[1]=0.466309
+   - adsorption[2]=2.702849
+   - surf_ex_energy=1.07213
+   .
+*/
+

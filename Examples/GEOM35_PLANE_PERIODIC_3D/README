@@ -1,0 +1,22 @@
+/*! \file 
+ \brief 3D surface with two superimposed periodic functions in different directions (egg-carton surface). 
+
+Functionals: FMT3,WCA
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: surface geometry test - a corrugated surface in 2D (egg-carton surface) formed by superimposing two periodic functions with different orientations on a planar surface. Ncomp=1.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=17
+   - adsorption[0]=1.69204
+   - surf_ex_energy=0.0646326
+   .
+*/
+

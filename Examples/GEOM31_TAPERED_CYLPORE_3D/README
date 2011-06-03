@@ -1,0 +1,23 @@
+/*! \file 
+ \brief 3D tapered cylindrical pore of finite length. Ncomp=1; Vext(integrated)
+
+Functionals: FMT3
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: surface geometry test - a tapered 3D cylindrical pore of finite length.  This case demonstrates application of a 
+linear offset to a cylindrical surface. 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=12
+   - adsorption[0]=99.2021
+   - surf_ex_energy=-30.8178
+   .
+*/
+

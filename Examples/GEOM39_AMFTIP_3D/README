@@ -1,0 +1,22 @@
+/*! \file 
+ \brief 3D model of a small AFM tip with a square pyramid structure. 
+
+Functionals: FMT3
+
+Dimensions: 3
+
+Diffusion: No
+
+Notes: surface geometry test - a 3D square pyramid interacting with a surface.  This could be one model for an AFM tip, but note the base dimension of the pyramid is smaller than a typical AFM tip by a factor of 2-5.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=9
+   - adsorption[0]=1323.79
+   - surf_ex_energy=53.2632
+   .
+*/
+

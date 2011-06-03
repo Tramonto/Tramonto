@@ -1,0 +1,24 @@
+/*! \file 
+ \brief 2D surface with two superimposed periodic functions (corrugated surface). 
+
+Functionals: FMT3,WCA,ELEC
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - a corrugated surface formed by superimposing two periodic functions on a planar surface. The surface is charged, the fluid is an electrolyte. 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=11
+   - adsorption[0]=0.0100073
+   - adsorption[1]=0.610007
+   - adsorption[2]=0.577509
+   - surf_ex_energy=3.20834
+   .
+*/
+

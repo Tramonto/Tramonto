@@ -1,0 +1,22 @@
+/*! \file 
+ \brief 2D wedge surface constructed with linear functions superimposed on a plane. Vext(integrated)
+
+Functionals: FMT3
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: surface geometry test - a 2D wedge surface constructed with linear functions superimposed on a plane. hard-sphere fluid.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=12
+   - adsorption[0]=27.8265
+   - surf_ex_energy=0.97903
+   .
+*/
+
