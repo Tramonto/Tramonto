@@ -842,7 +842,7 @@ extern int     Orientation[NWALL_MAX_TYPE];  /* Orientation of planar/bumpy infi
 extern double  WallParam[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
 extern double  WallParam_2[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
 extern double  WallParam_3[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
-extern double  WallParam_4[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
+extern int     Lapply_offset[3];/* Array of logicals to control how the offsets are applied to various WallParams*/
 extern int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
 extern double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 extern double  Rough_length[NWALL_MAX_TYPE];

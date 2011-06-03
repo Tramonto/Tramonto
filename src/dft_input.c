@@ -433,6 +433,18 @@ void read_input_file(char *input_file, char *output_file1)
   if (Nwall_type > 0) 
     MPI_Bcast(WallParam_3,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0) 
+      for (i=0; i < 3; ++i){
+	fscanf(fp,"%d", &Lapply_offset[i]);
+	fprintf(fp2,"%d  ",Lapply_offset[i]);
+      }
+    else fprintf(fp2,"Lapply_offset[] n/a");
+  }
+  if (Nwall_type > 0) 
+    MPI_Bcast(Lapply_offset,3,MPI_INT,0,MPI_COMM_WORLD);
+
                  /* Surface Roughness */
   if (Proc==0) {
     read_junk(fp,fp2);
@@ -490,46 +502,6 @@ void read_input_file(char *input_file, char *output_file1)
       }
   }
   }
-
-                 /* Angle Cutout Params */
-  if (Proc==0) {
-    read_junk(fp,fp2);
-    read_wedge=FALSE;
-    if (Nwall_type > 0) 
-      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
-	fscanf(fp,"%d", &Lwedge_cutout[iwall_type]);
-	fprintf(fp2,"%d  ",Lwedge_cutout[iwall_type]);
-        if (Lwedge_cutout[iwall_type]==TRUE) read_wedge=TRUE;
-      }
-    else fprintf(fp2,"Lwedge_cutout n/a");
-  }
-  MPI_Bcast(&read_wedge,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Nwall_type > 0) 
-    MPI_Bcast(Lwedge_cutout,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
-
-  if (Proc==0) {
-    read_junk(fp,fp2);
-    if (Nwall_type > 0&& read_wedge==TRUE) 
-      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
-	fscanf(fp,"%lf", &Angle_wedge_start[iwall_type]);
-	fprintf(fp2,"%f  ",Angle_wedge_start[iwall_type]);
-      }
-    else fprintf(fp2,"Angle_wedge_start n/a");
-  }
-  if (Nwall_type > 0&& read_wedge==TRUE) 
-    MPI_Bcast(Angle_wedge_start,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-
-  if (Proc==0) {
-    read_junk(fp,fp2);
-    if (Nwall_type > 0&& read_wedge==TRUE) 
-      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
-	fscanf(fp,"%lf", &Angle_wedge_end[iwall_type]);
-	fprintf(fp2,"%f  ",Angle_wedge_end[iwall_type]);
-      }
-    else fprintf(fp2,"Angle_wedge_end n/a");
-  }
-  if (Nwall_type > 0&& read_wedge==TRUE) 
-    MPI_Bcast(Angle_wedge_end,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
                  /* Periodic Overlay  Params */
   if (Proc==0) {
@@ -686,6 +658,46 @@ void read_input_file(char *input_file, char *output_file1)
   }
   if (Nwall_type > 0&&read_linear==TRUE) 
     MPI_Bcast(EndpointLinearFunc,NWALL_MAX_TYPE*NPERIODIC_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+                 /* Angle Cutout Params */
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    read_wedge=FALSE;
+    if (Nwall_type > 0) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+	fscanf(fp,"%d", &Lwedge_cutout[iwall_type]);
+	fprintf(fp2,"%d  ",Lwedge_cutout[iwall_type]);
+        if (Lwedge_cutout[iwall_type]==TRUE) read_wedge=TRUE;
+      }
+    else fprintf(fp2,"Lwedge_cutout n/a");
+  }
+  MPI_Bcast(&read_wedge,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Nwall_type > 0) 
+    MPI_Bcast(Lwedge_cutout,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&& read_wedge==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+	fscanf(fp,"%lf", &Angle_wedge_start[iwall_type]);
+	fprintf(fp2,"%f  ",Angle_wedge_start[iwall_type]);
+      }
+    else fprintf(fp2,"Angle_wedge_start n/a");
+  }
+  if (Nwall_type > 0&& read_wedge==TRUE) 
+    MPI_Bcast(Angle_wedge_start,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0&& read_wedge==TRUE) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+	fscanf(fp,"%lf", &Angle_wedge_end[iwall_type]);
+	fprintf(fp2,"%f  ",Angle_wedge_end[iwall_type]);
+      }
+    else fprintf(fp2,"Angle_wedge_end n/a");
+  }
+  if (Nwall_type > 0&& read_wedge==TRUE) 
+    MPI_Bcast(Angle_wedge_end,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
              /* end surface adjustments */
 

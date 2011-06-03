@@ -23,6 +23,7 @@ extern double Dielec_X;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+extern int Lapply_offset[3];
 extern int Ndim;
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)

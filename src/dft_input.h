@@ -17,7 +17,6 @@
 #include "Tramonto_ConfigDefs.h"
 #define NZONE_MAX  10 
 extern int Num_Proc;
-#define tapered_pore                    9
 #define cyl3D_slit2D_pore               8
 #define cyl2D_sphere3D_pore             7
 #define finite_cyl_3D                   5
@@ -237,6 +236,10 @@ extern int Type_vext3D;
 extern int Type_vext1D;
 extern int Lhard_surf;
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
+#define NWALL_MAX 600 
+extern double Angle_wedge_end[NWALL_MAX];
+extern double Angle_wedge_start[NWALL_MAX];
+extern int Lwedge_cutout[NWALL_MAX];
 #define NPERIODIC_MAX 4
 extern double EndpointLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
 extern double OriginLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
@@ -250,15 +253,12 @@ extern double AmplitudePeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
 extern int OrientationPeriodicFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
 extern int Nperiodic_overlay[NWALL_MAX_TYPE];
 extern int Lperiodic_overlay[NWALL_MAX_TYPE];
-#define NWALL_MAX 600 
-extern double Angle_wedge_end[NWALL_MAX];
-extern double Angle_wedge_start[NWALL_MAX];
-extern int Lwedge_cutout[NWALL_MAX];
 #define MAX_ROUGH_BLOCK 100
 extern double Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 extern double Rough_length[NWALL_MAX_TYPE];
 extern double Rough_param_max[NWALL_MAX_TYPE];
 extern int Lrough_surf[NWALL_MAX_TYPE];
+extern int Lapply_offset[3];
 extern double WallParam_3[NWALL_MAX_TYPE];
 extern double WallParam_2[NWALL_MAX_TYPE];
 #define point_surface                   4

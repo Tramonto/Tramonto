@@ -53,8 +53,10 @@ void surface_cylinder3D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int
   *logical_inwall=FALSE;
 
   sgeom_iw=&(SGeom[iwall_type]);
-  radius=sgeom_iw->radius+dist_adjustments-roff;   /* apply periodic functions, roughness, linear functions in radial direction only */
-  halflength=sgeom_iw->halflength-roff;
+  if (Lapply_offset[0]==TRUE) radius=sgeom_iw->radius+dist_adjustments-roff;   
+  else                       radius=sgeom_iw->radius-roff;   
+  if (Lapply_offset[1]==TRUE) halflength=sgeom_iw->halflength+dist_adjustments-roff;
+  else                        halflength=sgeom_iw->halflength-roff;
   orientation=sgeom_iw->orientation;
 
   switch(orientation)  {

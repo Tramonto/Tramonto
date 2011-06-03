@@ -59,8 +59,6 @@ void surface_planar_inSurfaceTest(int iwall,int iwall_type,int loc_inode, int fl
   if (x12 <= halfwidth) *logical_inwall=TRUE;
   else *logical_inwall=FALSE;
 
-if (L2G_node[loc_inode]==1) printf("x12=%g halfwidth=%g  logical_inwall=%d\n",x12,halfwidth,*logical_inwall);
-
   if (Type_dielec==DIELEC_WF_PORE && x12<halfwidth + Dielec_X)  *logical_nearWallDielec=TRUE;
   else *logical_nearWallDielec=FALSE;
   *delx=x12-halfwidth;

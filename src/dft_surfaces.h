@@ -62,12 +62,10 @@ extern int Llinear_overlay[NWALL_MAX_TYPE];
 extern int Lperiodic_overlay[NWALL_MAX_TYPE];
 extern double Esize_x[NDIM_MAX];
 extern int *B2L_node;
-extern int *L2G_node;
 int element_box_to_node_box(int iel_box);
 void node_to_position(int inode,double *NodePos);
 int element_to_node(int ielement);
 int el_box_to_el(int iel_box);
-#define tapered_pore                    9
 void surface_slitPore2D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
 void surface_cylindricalPore3D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
 #define cyl3D_slit2D_pore               8
@@ -87,7 +85,6 @@ void surface_sphere_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int fla
 void surface_block_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delx,int *logical_inwall,int *logical_nearWallDielec);
 #define finite_planar_wall              1
 int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center);
-double surface_linear_offset(double *fluidEl_center,int iwall_type,int iwall);
 double surface_linear_offset(double *fluidEl_center,int iwall_type,int iwall);
 double surface_periodic_offset(double *fluidEl_center,int iwall_type,int iwall);
 int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center);

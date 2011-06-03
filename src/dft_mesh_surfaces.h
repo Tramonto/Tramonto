@@ -79,7 +79,6 @@ extern int Proc;
 extern int Iwrite;
 void els_cone_pore_3D(int iwall,int real_wall,int itype,int **L_wall,double *x_min,int **nelems_w_per_w,int ***elems_w_per_w,int ***el_type,double **image_pos);
 void els_cone_pore_2D(int iwall,int real_wall,int itype,int **L_wall,double *x_min,int **nelems_w_per_w,int ***elems_w_per_w,int ***el_type,double **image_pos);
-#define tapered_pore                    9
 void els_cyl_pore_3D(int iwall,int real_wall,int itype,int **L_wall,double *x_min,int **nelems_w_per_w,int ***elems_w_per_w,int ***el_type,double **image_pos);
 void els_slit_pore_2D(int iwall,int real_wall,int itype,int **L_wall,double *x_min,int **nelems_w_per_w,int ***elems_w_per_w,int ***el_type,double **image_pos);
 #define cyl3D_slit2D_pore               8

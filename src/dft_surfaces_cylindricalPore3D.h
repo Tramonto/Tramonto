@@ -18,6 +18,7 @@
 extern double Dielec_X;
 #define COULOMB      1
 extern int Ipot_ff_c;
+extern int Ndim;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -25,7 +26,7 @@ extern int Ipot_ff_c;
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-extern int Ndim;
+extern int Lapply_offset[3];
 typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
 extern struct SurfaceGeom_Struct *SGeom;
 #define FALSE 0

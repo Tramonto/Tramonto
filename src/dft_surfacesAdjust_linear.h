@@ -53,4 +53,3 @@ struct SurfaceGeom_Struct {
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
 double surface_linear_offset(double *fluidEl_center,int iwall_type,int iwall);
-double surface_linear_offset(double *fluidEl_center,int iwall_type,int iwall);
