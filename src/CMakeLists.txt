@@ -387,6 +387,19 @@ ENDIF()
 #  MESSAGE(FATAL_ERROR "Could not find Trilinos package Optika!")
 #ENDIF()
 
+# Handle selective compilation of Tpetra source
+if (USE_TPETRA)
+  message("USE_TPETRA defined. Compiling against Tpetra code.")
+  list(REMOVE_ITEM common_h dft_BasicLinProbMgr.hpp)
+  list(APPEND common_h dft_TpetraBasicLinProbMgr.hpp)
+  list(APPEND common_h Tpetra_OperatorApplyInverse.hpp)
+  list(REMOVE_ITEM common_cxx  dft_basic_lin_prob_mgr_wrapper.cpp)
+  list(REMOVE_ITEM common_cxx dft_BasicLinProbMgr.cpp)
+  list(APPEND common_cxx dft_TpetraBasicLinProbMgr.cpp)
+  list(APPEND common_cxx dft_tpetra_basic_lin_prob_mgr_wrapper.cpp)
+endif(USE_TPETRA)
+
+
 # add dft library
 add_library(dft ${common_h} ${noxloca_h} ${common_c} ${common_cxx} ${noxloca_cxx} )
 
@@ -396,6 +409,12 @@ add_library(dft ${common_h} ${noxloca_h} ${common_c} ${common_cxx} ${noxloca_cxx
 add_executable(dft_exec dft_maindriver.c)
 target_link_libraries(dft_exec dft ${Tramonto_Trilinos_LIBRARIES}
 ${Trilinos_TPL_LIBRARIES} )
+
+# Handle selective compilation of Tpetra source
+if (USE_TPETRA)
+  set_target_properties(dft dft_exec
+                        PROPERTIES COMPILE_FLAGS "-DUSE_TPETRA ")
+endif(USE_TPETRA)
 
 INSTALL(TARGETS dft DESTINATION lib)
 INSTALL(TARGETS dft_exec DESTINATION bin)
