@@ -198,6 +198,25 @@ RUN (melchior-4) {
 #
 ###############################################################################
 
+RUN (melchior-28) {
+
+    BUILD-LABEL         = O3-t10.2-28proc;
+    BUILD-DIR           = BUILD28;
+    INVOKE-CONFIGURE    = linux-melchior;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 28;
+#    MPI-GO              = mpirun -hostfile /home/jmwille/.hostfile -np ;
+    TTR-DIR             = /home/jmwille/TramontoTestResults;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
+# melchior - built against Trilinos 10.2 branch
+#
+###############################################################################
+
 RUN (melchior-32) {
 
     BUILD-LABEL         = O3-t10.2-32proc;
