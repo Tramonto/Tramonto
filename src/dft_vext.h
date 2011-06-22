@@ -31,80 +31,38 @@ extern int *Comm_node_proc;
 void correct_zeroTF_array();
 void comm_loc_to_glob_vec(int *n_loc,int *in_loc_vec,int *out_glob_vec);
 int el_box_to_el(int iel_box);
-double integrate_potential(double param1,double param2,double param3,double param4,double param5,double param6,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
+double integrate_potential(int typePot,double param1,double param2,double param3,double param4,double param5,double param6,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
+#define NCOMP_MAX 5
+#define NWALL_MAX_TYPE 50 
+extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+void find_images(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
+extern int *B2G_node;
+void node_to_ijk(int node,int *ijk);
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 int element_to_node(int ielement);
 void set_gauss_quad(int ngp,double *gp,double *gw);
 extern double Vol_el;
-#define NCOMP_MAX 5
-extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
-#define NWALL_MAX_TYPE 50 
-extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-#define point_surface                   4
-#define atomic_centers                  3
-void setup_vext_HS_atomic(int iwall);
-double pairPot_deriv_switch(double r,double x,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
-double pairPot_switch(double r,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
-#define WALL_FLUID  1
-extern int Type_vext3D;
-void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4,double *param5,double *param6);
-void node_to_ijk(int node,int *ijk);
-extern int *B2G_node;
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-extern double **X_wall;
-double Vext_1D_dash(double x,int icomp,int iwall_type);
-void find_images(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
-double Vext_1D(double x,int icomp,int iwall_type);
-extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
-void find_images_1D(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
-#define REFLECT              2
-#define PERIODIC             1
-extern int Type_bc[NDIM_MAX][2];
-#define NWALL_MAX 600 
-extern double WallPos[NDIM_MAX][NWALL_MAX];
-extern double Size_x[NDIM_MAX];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
-typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
-extern struct SurfaceGeom_Struct *SGeom;
-extern int Lwedge_cutout[NWALL_MAX];
-extern int Lperiodic_overlay[NWALL_MAX_TYPE];
-extern int Nperiodic_overlay[NWALL_MAX_TYPE];
-#define NPERIODIC_MAX 4
-extern int Llinear_overlay[NWALL_MAX_TYPE];
-extern int Nlinear_overlay[NWALL_MAX_TYPE];
-struct SurfaceGeom_Struct {
-  int       surfaceTypeID;    /* ID of the type of surface */
-  int       orientation;  /* orientation of the surface */
-  double    *halfwidth;   /* planar surface params given in halfwidth */
-  double    radius;       /* radius of spherical or cylindrical surface */
-  double    halflength;   /* length of finite cylinders and pores */
-  double    radius2;      /* a second radius for tapered pores or cylinders */
-  int       Lwedge_cutout;    /* TRUE or FALSE for wedge cutout from basic surfac */
-  double    angle_wedge_start;    /* angle as measured from x0 axis */
-  double    angle_wedge_end;    /* angle as measured from x0 axis */
-  int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
-  double    roughness;          /* maximum roughness amplitude */
-  double    roughness_length;    /* lengthscale for the rougness */
-  int       Lperiodic_overlay;    /* TRUE or FALSE for periodic function added to surface */
-  int       Nperiodic_overlay;     /* The number of periodic functions to apply */
-  double    orientation_periodic[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a surface */
-  double    amplitude[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a surface */
-  double    wavelength[NPERIODIC_MAX];    /* desired wavelength of cosine wave superimposed on a surface */
-  double    origin_PeriodicFunc[NPERIODIC_MAX];     /* The origin of periodic functions to apply */
-  int       Llinear_overlay;    /* TRUE or FALSE for linear function added to surface */
-  int       Nlinear_overlay;     /* The number of linear functions to apply */
-  double    orientation_linear[NPERIODIC_MAX];    /* maximum amplitude for a linear function superimposed on a surface */
-  double    slope[NPERIODIC_MAX];    /* maximum amplitude for a linear function superimposed on a surface */
-  double    origin_LinearFunc[NPERIODIC_MAX];     /* The origin of linear functions to apply */
-  double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
-  int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
-};
+#define VDASH_DELTA  1.e-6
+extern double **WallPos_Images;
+extern int *RealWall_Images;
+extern double ***Xwall_delDOWN;
+extern double ***Xwall_delUP;
+double Vext_1D(double x,int icomp,int iwall_type);
+double pairPot_switch(double r,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
+extern double **X_wall;
+#define WALL_FLUID  1
+extern int Vext_PotentialID[NWALL_MAX_TYPE];
+void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4,double *param5,double *param6);
+#define VEXT_PAIR_POTENTIAL  1
+extern int Type_vext[NWALL_MAX_TYPE];
 extern double **Vext_membrane;
 int ijk_box_to_node_box(int *ijk_box);
 extern int Nodes_x[NDIM_MAX];
@@ -125,21 +83,17 @@ extern double VEXT_MAX;
 extern void *LinProbMgr_manager;
 extern int *L2B_node;
 extern int Nnodes_box;
-void setup_vext_atomic(int iwall);
-#define VEXT_ATOMIC        6  /* 3D potential for 3D problems */
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void setup_integrated_LJ_walls(int iwall,int *nelems_w_per_w,int **elems_w_per_w);
 void comm_wall_els(int iwall,int **nelems_w_per_w,int ***elems_w_per_w,int *nelems_w_per_w_global,int **elems_w_per_w_global);
 extern int Nlists_HW;
 #define VEXT_3D_INTEGRATED      5  /* more proper 3D integration potential for funny geometries */
-void setup_1Dvext_rsurf(int iwall);
-#define VEXT_1D_RSURF      7 /* 1D external field that can be used for cylinders and spheres based on distance to surface */
-#define VEXT_1D_ORIENTATION     4  /* crude 1D-like treatment of funny geometries */
-void setup_1Dvext_xmin(int iwall);
-#define VEXT_1D_XMIN     3  /* crude 1D-like treatment of funny geometries */
-void setup_1Dvext(int iwall);
-#define VEXT_1D          2  /* 1D potential for 1D systems */
+void setup_vext_XRSurf(int iwall);
+#define VEXT_DIST_TO_CENTER        3  /* any potential that is a function of the distance to the center of wall (atom). */
+#define VEXT_DIST_TO_SURF          2  /* any potential that is a function of only distance from the surface */
+extern int *WallType_Images;
+extern int Nwall_Images;
 void setup_zero();
 void setup_vext_max();
 void setup_semiperm(int **nelems_w_per_w,int ***elems_w_per_w);
@@ -155,6 +109,7 @@ extern double ***Vext_dash;
 #endif
 #define VEXT_HARD        1
 #define VEXT_NONE          0
+#define NWALL_MAX 600 
 extern int WallType[NWALL_MAX];
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Nwall;

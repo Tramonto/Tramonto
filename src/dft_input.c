@@ -728,18 +728,27 @@ void read_input_file(char *input_file, char *output_file1)
       MPI_Bcast(&Lhard_surf,1,MPI_INT,0,MPI_COMM_WORLD);
   }
 
-  if (Proc==0){
-     read_junk(fp,fp2);
-     if (Nwall_type>0){
-        fscanf(fp,"%d  %d",&Type_vext1D,&Type_vext3D);
-        fprintf(fp2,"%d  %d",Type_vext1D,Type_vext3D);
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+         fscanf(fp,"%d",&Type_vext[iwall_type]);
+         fprintf(fp2,"%d",Type_vext[iwall_type]);
       }
-      else fprintf(fp2,"Type_vext1D and Type_vext3D n/a");
+    else fprintf(fp2,"Type_vext n/a");
   }
-  if (Nwall_type>0){
-     MPI_Bcast(&Type_vext1D,1,MPI_INT,0,MPI_COMM_WORLD);
-     MPI_Bcast(&Type_vext3D,1,MPI_INT,0,MPI_COMM_WORLD);
+  if (Nwall_type > 0) MPI_Bcast(Type_vext,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Nwall_type > 0) 
+      for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
+         fscanf(fp,"%d",&Vext_PotentialID[iwall_type]);
+         fprintf(fp2,"%d",Vext_PotentialID[iwall_type]);
+      }
+    else fprintf(fp2,"Type_vext n/a");
   }
+  if (Nwall_type > 0) MPI_Bcast(Vext_PotentialID,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
 
   if (Proc==0) {
     read_junk(fp,fp2);
@@ -780,18 +789,22 @@ void read_input_file(char *input_file, char *output_file1)
     read_junk(fp,fp2);
     fscanf(fp,"%d  %d",&Ncomp,&Mix_type);
     fprintf(fp2,"%d  %d",Ncomp,Mix_type);
-    if (Type_hsdiam==MANUAL_HS_DIAM){
-       for (icomp=0; icomp<Ncomp;icomp++){ 
-         fscanf(fp,"%lf ",&HS_diam[icomp]);
-         fprintf(fp2,"%f  ",HS_diam[icomp]);
-       }
-    }
   }
   MPI_Bcast(&Ncomp,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Mix_type,1,MPI_INT,0,MPI_COMM_WORLD);
-  if (Type_hsdiam==MANUAL_HS_DIAM) MPI_Bcast(HS_diam,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-/* New code for interaction potential parameters */
+                      /* Manual HS_diam Entries */
+  if (Proc==0) {
+    read_junk(fp,fp2);
+    if (Type_hsdiam==MANUAL_HS_DIAM){
+       for (i=0; i<Ncomp; i++){
+         fscanf(fp,"%lf",&HS_diam[i]); 
+         fprintf(fp2,"%f  ",HS_diam[i]);
+       }
+    }
+    else fprintf(fp2,"no read for HS_diam_manual_entry \n");
+  }
+  if (Type_hsdiam==MANUAL_HS_DIAM) MPI_Bcast(HS_diam,NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
                       /* MASS Entries */
   if (Proc==0) {
@@ -1192,9 +1205,6 @@ void read_input_file(char *input_file, char *output_file1)
          }
                        /* Yukawa paramter */
        read_junk(fp,fp2);
-       if (Type_pairPot==PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS || 
-           Type_pairPot==PAIR_LJandYUKAWA_CS || Type_pairPot==PAIR_r12andYUKAWA_CS
-            || Type_pairPot==PAIR_r18andYUKAWA_CS){
          for (i=0; i<Ncomp; i++){
            for (j=0; j<Nwall_type; j++){
    	  fscanf(fp,"%lf",&YukawaK_wf[i][j]);
@@ -1202,20 +1212,12 @@ void read_input_file(char *input_file, char *output_file1)
              if (Length_ref > 0.0) YukawaK_wf[i][j]*=Length_ref;
            }
          }
-       } 
-       else   fprintf(fp2,"YukawaK_wf n/a");
      }
     MPI_Bcast(Sigma_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(Eps_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(Cut_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-    if (Type_pairPot==PAIR_YUKAWA_CS || Type_vext3D==PAIR_YUKAWA_CS || 
-        Type_pairPot == PAIR_EXP_CS || Type_vext3D==PAIR_EXP_CS ||
-        Type_pairPot==PAIR_LJandYUKAWA_CS || Type_vext3D==PAIR_LJandYUKAWA_CS ||
-        Type_pairPot==PAIR_r12andYUKAWA_CS || Type_vext3D==PAIR_r12andYUKAWA_CS ||
-        Type_pairPot==PAIR_r18andYUKAWA_CS || Type_vext3D==PAIR_r18andYUKAWA_CS) {
-           MPI_Bcast(EpsYukawa_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-           MPI_Bcast(YukawaK_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-        }
+    MPI_Bcast(EpsYukawa_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(YukawaK_wf,NCOMP_MAX*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
   }
   else{
     if (Proc==0){
@@ -1421,7 +1423,7 @@ void read_input_file(char *input_file, char *output_file1)
     read_junk(fp,fp2);
     for (i=0; i<Nwall_type; i++){
       for(j=0; j<Ncomp; j++){
-        if (!lzeros  && ! ltrues){
+        if (lzeros==FALSE  && ltrues==FALSE){
            fscanf(fp,"%d ", &Lsemiperm[i][j]);
            fprintf(fp2,"%d  ",Lsemiperm[i][j]);
         }
@@ -1429,13 +1431,12 @@ void read_input_file(char *input_file, char *output_file1)
            if (Lsemiperm[i][j]==-2) lzeros=TRUE;
            else if (Lsemiperm[i][j]==-1) ltrues=TRUE;
         }
-        if (lzeros) Lsemiperm[i][j]=0;
-        else if (ltrues) Lsemiperm[i][j]=1;
+        if (lzeros==TRUE) Lsemiperm[i][j]=0;
+        else if (ltrues==TRUE) Lsemiperm[i][j]=1;
       }
     }
   }
-  if (Nwall_type >0)
-  MPI_Bcast(*Lsemiperm,Nwall_type*Ncomp,MPI_INT,0,MPI_COMM_WORLD);
+  if (Nwall_type >0) MPI_Bcast(*Lsemiperm,Nwall_type*Ncomp,MPI_INT,0,MPI_COMM_WORLD);
 
 
   if (Nwall_type>0)
@@ -2374,7 +2375,7 @@ void fill_surfGeom_struct()
             r=sqrt(rsq)/2.0;
             sgeom_iw->radius=r;
             sgeom_iw->halfwidth = (double *) array_alloc(1, Ndim, sizeof(double));
-            if (Ndim==1) sgeom_iw->halfwidth[Orientation[iw]]=0.5*Esize_x[0];
+            for(idim=0;idim<Ndim;idim++) sgeom_iw->halfwidth[idim]=0.5*Esize_x[idim];
             break;
 
        case colloids_cyl_sphere:

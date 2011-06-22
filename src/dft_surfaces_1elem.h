@@ -24,14 +24,14 @@ extern double Dielec_X;
 #define TRUE  1
 #endif
 extern int Ndim;
-#define COULOMB      1
-extern int Ipot_ff_c;
-typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
-extern struct SurfaceGeom_Struct *SGeom;
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+#define COULOMB      1
+extern int Ipot_ff_c;
+typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
+extern struct SurfaceGeom_Struct *SGeom;
 #define NWALL_MAX 600 
 extern int Lwedge_cutout[NWALL_MAX];
 #define NWALL_MAX_TYPE 50 
@@ -67,4 +67,4 @@ struct SurfaceGeom_Struct {
   double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
-void surface_1elemSurface_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
+void surface_1elemSurface_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delr_vext,double *delr_zone,int *logical_inwall,int *logical_nearWallDielec);

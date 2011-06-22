@@ -18,10 +18,9 @@
 #define PI    3.141592653589793238462643383279502884197169399375
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
 extern double Vol_el;
-double get_wt_from_sten(double r,double param1,double param2,double param3,double param4,double param5,double param6,int ngpu,double *gpu,double *gwu);
+double get_wt_from_sten(int typePot,double r,double param1,double param2,double param3,double param4,double param5,double param6,int ngpu,double *gpu,double *gwu);
 #define PAIR_COULOMB          2
-extern int Type_vext3D;
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 extern int Ndim;
-double integrate_potential(double param1,double param2,double param3,double param4,double param5,double param6,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
+double integrate_potential(int typePot,double param1,double param2,double param3,double param4,double param5,double param6,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);

@@ -23,11 +23,19 @@ extern double Charge_f[NCOMP_MAX];
 #define NDIM_MAX  3
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
+#define cyl3D_slit2D_pore               8
+#define NWALL_MAX_TYPE 50 
+extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
+#define atomic_centers                  3
+#define finite_cyl_3D                   5
+#define colloids_cyl_sphere             2
+#define point_surface                   4
+#define finite_planar_wall              1
+#define smooth_planar_wall              0
 typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
 extern struct SurfaceGeom_Struct *SGeom;
 extern int WallType[NWALL_MAX];
 extern int Lwedge_cutout[NWALL_MAX];
-#define NWALL_MAX_TYPE 50 
 extern int Lperiodic_overlay[NWALL_MAX_TYPE];
 extern int Nperiodic_overlay[NWALL_MAX_TYPE];
 #define NPERIODIC_MAX 4

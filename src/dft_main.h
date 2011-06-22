@@ -22,8 +22,8 @@ extern int Nlocal_charge;
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Nwall;
 extern int Pos_new_nodes;
-extern int Plane_new_nodes;
 int round_to_int(double x);
+extern int Plane_new_nodes;
 #define NWALL_MAX_TYPE 50 
 extern double Del_1[NWALL_MAX_TYPE];
 extern double Size_x[NDIM_MAX];

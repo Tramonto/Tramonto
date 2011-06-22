@@ -115,7 +115,6 @@ extern int WallType[NWALL_MAX];
 extern int **Wall_elems;
 extern int Nzone;
 extern int Coarser_jac;
-extern double **X_wall2;
 extern int Nnodes_per_proc;
 extern double **X_wall;
 #define TRUE  1
@@ -125,7 +124,6 @@ extern double **X_wall;
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-#define VEXT_1D_XMIN     3  /* crude 1D-like treatment of funny geometries */
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Nwall_type;
 #define FALSE 0

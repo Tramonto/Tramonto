@@ -558,9 +558,10 @@ void continuation_shift()
 
   /* special case of continuation for a hexagonal system */
   /* commenting out of main source for now */
+/*
   size_y_tmp= sqrt(3*(Size_x[0]+Del_1[0])*(Size_x[0]+Del_1[0]));
   nadd = round_to_int((size_y_tmp-Size_x[1])/Esize_x[1]);
-  Del_1[1]=nadd*Esize_x[1];
+  Del_1[1]=nadd*Esize_x[1];*/
   /* end special case */
 
   for (idim=0; idim<Ndim; idim++) {

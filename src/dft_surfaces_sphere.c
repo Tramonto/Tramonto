@@ -35,9 +35,9 @@
 
 #include "dft_surfaces_sphere.h"
 /****************************************************************************/
-void surface_sphere_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,
-                                  double *fluidEl_center, double **image_pos,
-                                  double dist_adjustments, double *delr,
+void surface_sphere_inSurfaceTest(int iwall,int iwall_type,
+                                  double *fluid_testpos, double **wall_pos,
+                                  double dist_adjustments, int flag_X_to_center, double *delr_vext, double *delr_zone,
                                   int *logical_inwall, int *logical_nearWallDielec)
 {
   double x12,radius,r12sq_sum,r12;
@@ -54,20 +54,18 @@ void surface_sphere_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int fla
 
   r12sq_sum=0.0;
   for (idim=0; idim<Ndim; idim++){
-     x12 = image_pos[iwall][idim] - fluidEl_center[idim];
+     x12 = wall_pos[iwall][idim] - fluid_testpos[idim];
      r12sq_sum += x12*x12;
   }
   r12=sqrt(r12sq_sum);
 
   if (r12<=radius) *logical_inwall=TRUE;  
   if (Ipot_ff_c==COULOMB && r12 < radius+Dielec_X) *logical_nearWallDielec  = TRUE;
-  *delr=r12-radius;
 
-  if (flag_setup_Xwall){
-      printf("error : the Vext_1D_xmin option is not available for spherical surfaces\n");
-      printf("try the Vext_integrated surface instead.\n");
-      exit(-1);
-  }
+  if (flag_X_to_center==TRUE) *delr_vext=r12;
+  else                        *delr_vext=r12-radius;
+  *delr_zone=r12-radius;
+
   return;
 }
 /****************************************************************************/

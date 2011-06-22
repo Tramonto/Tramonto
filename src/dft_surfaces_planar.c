@@ -35,16 +35,18 @@
 
 #include "dft_surfaces_planar.h"
 /****************************************************************************/
-void surface_planar_inSurfaceTest(int iwall,int iwall_type,int loc_inode, int flag_setup_Xwall,
-                                  double *fluidEl_center, double **image_pos,
-                                  double dist_adjustments, double *delx,
+void surface_planar_inSurfaceTest(int iwall,int iwall_type,
+                                  double *fluid_testpos, double **wall_pos,
+                                  double dist_adjustments, int flag_X_to_center, double *delx_vext, double *delx_zone,
                                   int *logical_inwall, int *logical_nearWallDielec)
 {
   int orientation;
   double halfwidth,x12;
   double roff=0.00000000001;
   struct SurfaceGeom_Struct *sgeom_iw;
-  int imax[3],ix[3],idim,inode_box,ijk[3],ijk_tmp[3],ijk_tmp_box[3];
+
+  *logical_inwall=FALSE;
+  *logical_nearWallDielec=FALSE;
 
   sgeom_iw=&(SGeom[iwall_type]);
 
@@ -53,46 +55,14 @@ void surface_planar_inSurfaceTest(int iwall,int iwall_type,int loc_inode, int fl
 
   halfwidth +=dist_adjustments-roff;
 
+  x12 = fabs(wall_pos[iwall][orientation] - fluid_testpos[orientation]);
 
-  /* get distance from surface to center of element in appropriate dimension */
-  x12 = fabs(image_pos[iwall][orientation] - fluidEl_center[orientation]);
   if (x12 <= halfwidth) *logical_inwall=TRUE;
-  else *logical_inwall=FALSE;
-
   if (Type_dielec==DIELEC_WF_PORE && x12<halfwidth + Dielec_X)  *logical_nearWallDielec=TRUE;
-  else *logical_nearWallDielec=FALSE;
-  *delx=x12-halfwidth;
 
-           /* need to set up X_wall here because it depends on specific surface geometries. */
-  if (loc_inode >= 0 && flag_setup_Xwall) {
-     imax[0]=imax[1]=imax[2]=1;
-     node_to_ijk(L2G_node[loc_inode],ijk);
-     for (idim=0; idim<Ndim; idim++) imax[idim]=2;
-
-     for (ix[2]=0; ix[2]<imax[2]; ix[2]++){
-      for (ix[1]=0; ix[1]<imax[1]; ix[1]++){
-       for (ix[0]=0; ix[0]<imax[0]; ix[0]++){
-           for (idim=0;idim<Ndim;idim++) ijk_tmp[idim]=ijk[idim]+ix[idim];                
-               ijk_to_ijk_box(ijk_tmp,ijk_tmp_box);
-               inode_box=ijk_box_to_node_box(ijk_tmp_box);
-               if (B2L_node[inode_box]>=0){
-  
-               if (*delx>0){
-                    if (fluidEl_center[orientation]>image_pos[iwall][orientation]){  
-                       if (ix[orientation]==0) X_wall[B2L_node[inode_box]][iwall]=*delx-0.5*Esize_x[orientation];              
-                       else{
-                           X_wall[B2L_node[inode_box]][iwall]=*delx+0.5*Esize_x[orientation];
-                       }
-                    }
-                    else{
-                       if (ix[orientation]==0) X_wall[B2L_node[inode_box]][iwall]=*delx+0.5*Esize_x[orientation];              
-                       else X_wall[B2L_node[inode_box]][iwall]=*delx-0.5*Esize_x[orientation];
-                    }
-               }
-               else X_wall[B2L_node[inode_box]][iwall]=0.0;
-               }
-     }}}
-  }
+  if (flag_X_to_center==TRUE) *delx_vext=x12;
+  else                        *delx_vext=x12-halfwidth;
+  *delx_zone=x12-halfwidth;
 
   return;
 }

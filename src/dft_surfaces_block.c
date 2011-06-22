@@ -35,12 +35,12 @@
 
 #include "dft_surfaces_block.h"
 /****************************************************************************/
-void surface_block_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,
-                                  double *fluidEl_center, double **image_pos,
-                                  double dist_adjustments, double *delx,
+void surface_block_inSurfaceTest(int iwall,int iwall_type,
+                                  double *fluid_testpos, double **wall_pos,
+                                  double dist_adjustments, int flag_X_to_center, double *delx_vext, double *delx_zone,
                                   int *logical_inwall, int *logical_nearWallDielec)
 {
-  double x12,rsqsum,xtest;
+  double x12,rsqsum_to_surface,rsqsum_to_center,xtest;
   double roff=0.00000000001,halfwidth;
   int npos,idim;
   struct SurfaceGeom_Struct *sgeom_iw;
@@ -52,24 +52,29 @@ void surface_block_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag
 
 
   npos = 0;
-  rsqsum=0.0;
+  rsqsum_to_surface=0.0;
+  rsqsum_to_center=0.0;
   for (idim=0; idim<Ndim; idim++){
      if (Lapply_offset[idim]==TRUE) halfwidth=sgeom_iw->halfwidth[idim]+dist_adjustments-roff;
      else                           halfwidth=sgeom_iw->halfwidth[idim]-roff;
-     x12 = fabs(image_pos[iwall][idim] - fluidEl_center[idim]);
+     x12 = fabs(wall_pos[iwall][idim] - fluid_testpos[idim]);
      if (x12 > halfwidth)                                *logical_inwall = FALSE;
      if (Ipot_ff_c==COULOMB && x12 > halfwidth+Dielec_X) *logical_nearWallDielec  = FALSE;
-     xtest=x12-halfwidth;
-     if (xtest > 0) rsqsum+=xtest*xtest;
-  }
-  if (*logical_inwall==TRUE) *delx = 0.0;   /* element in wall */
-  else                       *delx = sqrt(rsqsum);  /*distance to surface*/
 
-  if (flag_setup_Xwall){
-      printf("error : the Vext_1D_xmin option is not available for block surfaces\n");
-      printf("try the Vext_integrated surface instead.\n");
-      exit(-1);
+     xtest=x12-halfwidth;
+     if (xtest > 0) rsqsum_to_surface+=xtest*xtest;
+     if (xtest > 0) rsqsum_to_center+=x12*x12;
   }
+  if (*logical_inwall==TRUE) {
+          *delx_vext = 0.0;   /* element in wall */
+          *delx_zone = 0.0;   /* element in wall */
+  }
+  else{      
+        if (flag_X_to_center==TRUE) *delx_vext = sqrt(rsqsum_to_center);  /*distance to center*/
+        else                        *delx_vext = sqrt(rsqsum_to_surface);  /*distance to surface*/
+        *delx_zone = sqrt(rsqsum_to_surface);  /*distance to surface*/
+  }
+
   return;
 }
 /****************************************************************************/

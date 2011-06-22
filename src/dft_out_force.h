@@ -30,8 +30,6 @@ extern double ***Vext_dash;
 #define LAST_NODE            3
 #define IN_BULK              0
 #define REFLECT              2
-#define NDIM_MAX  3
-extern int Type_bc[NDIM_MAX][2];
 int el_to_el_box(int iel);
 extern int **Wall_elems;
 int node_to_elem(int inode_all,int local_node,int *reflect_flag);
@@ -39,6 +37,7 @@ extern int Nnodes_per_el_V;
 double calc_local_pressure(double **x,int iden_first,int inode_box);
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
+#define NDIM_MAX  3
 extern int Nodes_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
 double sum_rho_midplane(double **x);
@@ -84,13 +83,6 @@ extern int Nseg_tot;
 extern int Lseg_densities;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-#define FALSE 0
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
-#endif
 extern double Betap;
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 extern int Nlists_HW;
@@ -107,6 +99,21 @@ extern int Proc;
 #endif
 #define NWALL_MAX 600 
 extern int Link[NWALL_MAX];
+extern double Size_x[NDIM_MAX];
+extern double WallPos[NDIM_MAX][NWALL_MAX];
+#define IN_WALL             -1
+extern int Type_bc[NDIM_MAX][2];
+#define smooth_planar_wall              0
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
+extern struct SurfaceGeom_Struct *SGeom;
+extern int WallType[NWALL_MAX];
 extern int Nlink;
 void sum_rho_wall(double **x,double **Sum_rho);
 extern int Lhard_surf;
@@ -118,6 +125,40 @@ extern int Nwall;
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
+extern int Lwedge_cutout[NWALL_MAX];
+#define NWALL_MAX_TYPE 50 
+extern int Lperiodic_overlay[NWALL_MAX_TYPE];
+extern int Nperiodic_overlay[NWALL_MAX_TYPE];
+#define NPERIODIC_MAX 4
+extern int Llinear_overlay[NWALL_MAX_TYPE];
+extern int Nlinear_overlay[NWALL_MAX_TYPE];
+struct SurfaceGeom_Struct {
+  int       surfaceTypeID;    /* ID of the type of surface */
+  int       orientation;  /* orientation of the surface */
+  double    *halfwidth;   /* planar surface params given in halfwidth */
+  double    radius;       /* radius of spherical or cylindrical surface */
+  double    halflength;   /* length of finite cylinders and pores */
+  double    radius2;      /* a second radius for tapered pores or cylinders */
+  int       Lwedge_cutout;    /* TRUE or FALSE for wedge cutout from basic surfac */
+  double    angle_wedge_start;    /* angle as measured from x0 axis */
+  double    angle_wedge_end;    /* angle as measured from x0 axis */
+  int       Lrough_surface;    /* TRUE or FALSE for surface roughness */
+  double    roughness;          /* maximum roughness amplitude */
+  double    roughness_length;    /* lengthscale for the rougness */
+  int       Lperiodic_overlay;    /* TRUE or FALSE for periodic function added to surface */
+  int       Nperiodic_overlay;     /* The number of periodic functions to apply */
+  double    orientation_periodic[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a surface */
+  double    amplitude[NPERIODIC_MAX];    /* maximum amplitude for a cosine wave superimposed on a surface */
+  double    wavelength[NPERIODIC_MAX];    /* desired wavelength of cosine wave superimposed on a surface */
+  double    origin_PeriodicFunc[NPERIODIC_MAX];     /* The origin of periodic functions to apply */
+  int       Llinear_overlay;    /* TRUE or FALSE for linear function added to surface */
+  int       Nlinear_overlay;     /* The number of linear functions to apply */
+  double    orientation_linear[NPERIODIC_MAX];    /* maximum amplitude for a linear function superimposed on a surface */
+  double    slope[NPERIODIC_MAX];    /* maximum amplitude for a linear function superimposed on a surface */
+  double    origin_LinearFunc[NPERIODIC_MAX];     /* The origin of linear functions to apply */
+  double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
+  int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
+};
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

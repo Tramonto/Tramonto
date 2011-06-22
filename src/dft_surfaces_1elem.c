@@ -36,17 +36,16 @@
 
 #include "dft_surfaces_1elem.h"
 /****************************************************************************/
-void surface_1elemSurface_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,
-                                  double *fluidEl_center, double **image_pos,
-                                  double dist_adjustments, double *delr,
+void surface_1elemSurface_inSurfaceTest(int iwall,int iwall_type,
+                                  double *fluid_testpos, double **wall_pos,
+                                  double dist_adjustments, int flag_X_to_center,double *delr_vext,double *delr_zone,
                                   int *logical_inwall, int *logical_nearWallDielec)
 {
   double x12,radius,r12sq_sum,r12;
-  double roff=0.00000000001,halfwidth;
+  double roff=0.00000000001;
   int idim;
   struct SurfaceGeom_Struct *sgeom_iw;
-  static int logical_1el;
-  if (iwall==0 && loc_inode==0) logical_1el=FALSE;
+  static int count_wallEl=0;
 
 
   sgeom_iw=&(SGeom[iwall_type]);
@@ -54,27 +53,24 @@ void surface_1elemSurface_inSurfaceTest(int iwall,int iwall_type,int loc_inode,i
   if (Ipot_ff_c==COULOMB) *logical_nearWallDielec=FALSE;
   *logical_inwall=FALSE;
 
-  radius=sgeom_iw->radius+dist_adjustments-roff;
+  radius=sgeom_iw->radius-roff;
 
   r12sq_sum=0.0;
   for (idim=0; idim<Ndim; idim++){
-     x12 = image_pos[iwall][idim] - fluidEl_center[idim];
+     x12 = wall_pos[iwall][idim] - fluid_testpos[idim];
      r12sq_sum += x12*x12;
   }
   r12=sqrt(r12sq_sum);
 
-  if (r12<=radius+roff && logical_1el==FALSE){ 
+  if (r12<=radius+roff && count_wallEl==0){ 
      *logical_inwall=TRUE;  
-     logical_1el=TRUE;      /* allows only one element to be flagged as true */
+     count_wallEl++;      
   }
 
   if (Ipot_ff_c==COULOMB && r12 < radius+Dielec_X) *logical_nearWallDielec  = TRUE;
-  *delr=r12-radius;
-
-  if (flag_setup_Xwall){
-      printf("error : the Vext_1D_xmin option is not available for 1element surfaces\n");
-      exit(-1);
-  }
+  *delr_zone=r12-radius;
+  if (flag_X_to_center==TRUE) *delr_vext=r12;
+  else                        *delr_vext=r12-radius;
 
   return;
 }

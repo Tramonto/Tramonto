@@ -47,9 +47,14 @@ void calc_force(FILE *fp, double **x,double fac_area)
    double **p_tilde_vdash,**p_tilde_sumwall,**f_elec,area;
    double **p_tilde_L,**f_elec_L;
    double p_tilde_iwall_idim,
-     f_elec_iwall_idim,force;
-   int idim,iwall,i;
+     f_elec_iwall_idim,force,sign_pressure[NWALL_MAX];
+   int idim,iwall,i,iwall_type,Linclude_pressure[NWALL_MAX],orient;
    static int first=TRUE;
+   char forceInfo[20];
+   int orientation,surfaceTypeID;
+   struct SurfaceGeom_Struct *sgeom_iw;
+
+
 
    p_tilde_vdash = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
    p_tilde_sumwall = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
@@ -89,6 +94,22 @@ void calc_force(FILE *fp, double **x,double fac_area)
          p_tilde_L[i][idim] = 0.0;
          if (Ipot_wf_c == 1) f_elec_L[i][idim] = 0.0;
          for (iwall=0; iwall<Nwall; iwall++){
+            iwall_type=WallType[iwall];
+            sgeom_iw=&(SGeom[iwall_type]);
+            surfaceTypeID = sgeom_iw->surfaceTypeID;
+
+            Linclude_pressure[Link[iwall]]=FALSE;
+            if (surfaceTypeID==smooth_planar_wall){
+                 orient=sgeom_iw->orientation;
+                 if ( Type_bc[orient][0]==IN_WALL && fabs(WallPos[orient][iwall]+Size_x[orient]/2.)<=sgeom_iw->halfwidth[orient]){
+                    Linclude_pressure[Link[iwall]]=TRUE;
+                    sign_pressure[Link[iwall]]=1.0;
+                 }
+                 else if ( Type_bc[orient][1]==IN_WALL && fabs((Size_x[orient]/2.0)-WallPos[orient][iwall])<=sgeom_iw->halfwidth[orient]){
+                    Linclude_pressure[Link[iwall]]=TRUE;
+                    sign_pressure[Link[iwall]]=-1.0;
+                 }
+            }
             if (Link[iwall] == i){
                 p_tilde_L[i][idim] += (p_tilde_vdash[iwall][idim] + p_tilde_sumwall[iwall][idim]);
                 if (Ipot_wf_c == 1)f_elec_L[i][idim] += f_elec[iwall][idim];
@@ -145,8 +166,23 @@ void calc_force(FILE *fp, double **x,double fac_area)
 	 } 
        } /* end of if(first!=TRUE) */
        if(Proc==0) {
- 	  print_to_file(fp,force,"ptilde",first);
-	  print_to_file(fp,force-Betap,"force",first);
+          if (Linclude_pressure[i]){   
+             if (idim==0) sprintf(forceInfo, "ptilde_x[%d]", i);
+             else if (idim==1) sprintf(forceInfo, "ptilde_y[%d]", i);
+             else if (idim==2) sprintf(forceInfo, "ptilde_z[%d]", i);
+ 	     print_to_file(fp,force,forceInfo,first);
+
+             if (idim==0) sprintf(forceInfo, "force_x[%d]", i);
+             else if (idim==1) sprintf(forceInfo, "force_y[%d]", i);
+             else if (idim==2) sprintf(forceInfo, "force_z[%d]", i);
+ 	     print_to_file(fp,force+sign_pressure[i]*Betap,forceInfo,first);
+          }
+          else{
+             if (idim==0) sprintf(forceInfo, "force_x[%d]", i);
+             else if (idim==1) sprintf(forceInfo, "force_y[%d]", i);
+             else if (idim==2) sprintf(forceInfo, "force_z[%d]", i);
+ 	     print_to_file(fp,force,forceInfo,first);
+          }
        }
      }
   }
@@ -206,7 +242,7 @@ void sum_rho_wall(double **x, double **Sum_rho)
                  jwall = Surf_elem_to_wall[ilist][loc_inode][iel_w];
                  surf_norm = Surf_normal[ilist][loc_inode][iel_w];
                  idim = abs(surf_norm) - 1;
-                 prefac = (double)(surf_norm/abs(surf_norm))*
+                 prefac = -(double)(surf_norm/abs(surf_norm))*
                           Area_surf_el[idim]/((double)Nnodes_per_el_S);
 
                  /* taking mean between force limits from above (high rho)
@@ -556,6 +592,7 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
 {
   int iunk,inode_box,loc_inode,iwall,idim,icomp,ilist,i,nloop,
       iwunk,inode,reflect_flag[3],ijk[3],iel,ielement,nel_hit;
+  double node_pos[3],sign;
 
   for (iwall=0; iwall<Nwall; iwall++) {
     for (idim=0; idim<Ndim; idim++) {
@@ -572,6 +609,7 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
     inode = L2G_node[loc_inode];
     inode_box = L2B_node[loc_inode];
     node_to_ijk(inode,ijk);
+    node_to_position(inode,node_pos);
 
     for (i=0; i<nloop; i++){
       if (Lseg_densities) icomp=Unk2Comp[i];
@@ -600,11 +638,14 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
                       Type_bc[idim][1] == LAST_NODE ||
                       Type_bc[idim][1] == LAST_NODE_RESTART )              ) nel_hit /= 2;
 
+           if (node_pos[idim]<WallPos[idim][iwall]) sign=-1.0;
+           else sign=1.0;
+
 	   iunk = Phys2Unk_first[DENSITY]+i;
            iwunk = iwall*Ncomp + icomp; 
-           rho_vdash[iwall][idim] -=
-                     (x[iunk][inode_box]*Vext_dash[loc_inode][iwunk][idim])
-                                 *nel_hit*Vol_el/((double)Nnodes_per_el_V);
+           
+           rho_vdash[iwall][idim] +=sign* (x[iunk][inode_box]*Vext_dash[loc_inode][iwunk][idim])
+                                       *nel_hit*Vol_el/((double)Nnodes_per_el_V);
         }  /* end of idim loop */
       }     /* end of Nwall loop */
 

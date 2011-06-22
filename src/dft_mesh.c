@@ -158,6 +158,7 @@ void set_up_mesh (char *output_file1,char *output_file2)
 
      control_mesh(fp1,output_file2,print_flag, update);
   }
+
     /* now reset the Mesh_coarsen_flag on the one row of nodes where
        we will do the computation beyond the 1D boundary */
     if (L1D_bc){
@@ -216,10 +217,11 @@ void free_mesh_arrays(void)
    if (Lvext_dash) safe_free((void *) &Vext_dash);
    safe_free((void *) &Zero_density_TF);
    flag=FALSE;
-   for (i=0;i<Nwall_type;i++)if (Ipot_wf_n[i]==VEXT_1D_XMIN) flag=TRUE;
+   for (i=0;i<Nwall_type;i++)if (Ipot_wf_n[i]==VEXT_DIST_TO_SURF) flag=TRUE;
    if (flag){
        safe_free((void *) &X_wall);
-       safe_free((void *) &X_wall2);
+       safe_free((void *) &Xwall_delUP);
+       safe_free((void *) &Xwall_delDOWN);
    }
   safe_free((void *) &Uww);
   safe_free((void *) &Uww_link);

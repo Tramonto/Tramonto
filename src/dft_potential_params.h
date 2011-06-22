@@ -25,7 +25,7 @@ extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double YukawaK_w[NWALL_MAX_TYPE];
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern int Type_uwwPot;
-extern int Type_vext3D;
+extern int Vext_PotentialID[NWALL_MAX_TYPE];
 extern double Eps_w[NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Sigma_w[NWALL_MAX_TYPE];

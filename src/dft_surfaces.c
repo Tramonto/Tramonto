@@ -41,20 +41,21 @@ void setup_surface (FILE *fp2, int *nelems_f,
                     int ***elems_w_per_w, int *elem_zones, int ***el_type)
 {
  /* Local variable declarations */
-  int itype,iwall,ilist,iel_box,izone, **L_wall,idim,inode_box;
-  int loc_inode,real_wall,*imagetype,flag;
-  int iel,inode,angle_test;
-  double xtest[3],dist_roughness,dist_periodic, dist_linear,node_pos[3];
+  int itype,iwall,ilist,iel_box,izone, **L_wall,idim,inode_box,inode_box_tmp,save_dim,inode_global;
+  int loc_inode,real_wall,flag,flag_X_to_center;
+  int iel,inode,angle_test,jdim;
+  int edge_element, ijk[3],imax[3],ix[3],Linwall,Lfind_images[3],ijk_global[3],ijk_box_tmp[3];
+  double xtest[3],dist_roughness,dist_periodic, dist_linear,node_pos[3],xtest_tmp[3];
   double *x_min;
 
-  int image,image_x,image_xy,i,nwall_max,image_old,icount,orientation,surfaceTypeID;
+  int image,image_x,image_xy,i,image_old,icount,orientation,surfaceTypeID;
   double pos[3],**image_pos;
   struct SurfaceGeom_Struct *sgeom_iw;
-  double delx,dist_adjustments;
+  double delx_vext,delx_zone,dist_adjustments;
   int logical_inwall=FALSE, logical_nearWallDielec=FALSE;
 
   double (*fp_roughness)(double *,int,int);
-  void (*fp_inSurfaceTest)(int, int,int,int,double *, double **, double, double *, int *, int *);
+  void (*fp_inSurfaceTest)(int, int,double *, double **, double, int, double *, double *, int *, int *);
   double (*fp_periodic)(double *,int,int);
   double (*fp_linear)(double *,int,int);
   int (*fp_angleCutout)(int, int,double *);
@@ -66,13 +67,9 @@ void setup_surface (FILE *fp2, int *nelems_f,
   L_wall = (int **) array_alloc (2, Nlists_HW,Nelements_box, sizeof(int));
   x_min  = (double *) array_alloc (1, Nelements_box, sizeof(double));
   Touch_domain_boundary = (int ****) array_alloc (4,Nwall,Nlists_HW,Ndim,2,sizeof(int));
+
   flag=FALSE;
-  for (i=0;i<Nwall_type;i++) if (Ipot_wf_n[i]==VEXT_1D_XMIN) flag=TRUE;
-  if (flag){
-     X_wall = (double **) array_alloc (2, Nnodes_per_proc, Nwall,sizeof(double));
-     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) 
-        for (iwall=0; iwall<Nwall; iwall++)  X_wall[loc_inode][iwall]=-999.0;
-  }
+  for (i=0;i<Nwall_type;i++) if (Ipot_wf_n[i]==VEXT_DIST_TO_SURF || Ipot_wf_n[i]==VEXT_DIST_TO_CENTER)  flag=TRUE;
   for (idim=0;idim<Ndim;idim++) xtest[idim]=0.0;
 
   for (iel_box=0; iel_box<Nelements_box; iel_box++){
@@ -123,49 +120,79 @@ void setup_surface (FILE *fp2, int *nelems_f,
      of the surfaces in the system, and expand the loops
      over the walls to include these images. */
 
-  image_pos = (double **) array_alloc (2, Nwall*POW_INT(3,Ndim), 
-                                          Ndim, sizeof(double));
-  imagetype = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(double));
+  WallPos_Images = (double **) array_alloc (2, Nwall*POW_INT(3,Ndim),Ndim, sizeof(double));
+  WallType_Images = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(double));
+  RealWall_Images = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(double));
 
   image_old = 0;
   for (iwall=0; iwall<Nwall; iwall++){
+
+     for (idim=0;idim<Ndim;idim++) Lfind_images[idim]=TRUE;
+     itype = WallType[iwall];
+     sgeom_iw = &(SGeom[itype]);
+     orientation = sgeom_iw->orientation;
+     surfaceTypeID = sgeom_iw->surfaceTypeID;
+     if (surfaceTypeID==smooth_planar_wall) {
+         for (idim=0;idim<Ndim;idim++){
+              if (idim!=orientation) Lfind_images[idim]=FALSE;
+         }
+     }
+     
      for (idim=0; idim<Ndim; idim++) {
         pos[idim] = WallPos[idim][iwall];
-        image_pos[image_old][idim] = pos[idim];
+        WallPos_Images[image_old][idim] = pos[idim];
      }
      image = image_old + 1;
 
-     if (Xtest_reflect_TF[Link[iwall]][0]) find_wall_images(0,&image,image_pos,pos);
+     if (Lfind_images[0]) find_wall_images(0,&image,WallPos_Images,pos);
 
      if (Ndim > 1){
         image_x = image-image_old;
         for (i=image_old; i<image_old+image_x; i++){
            for (idim=0; idim<Ndim; idim++)
-              pos[idim] = image_pos[i][idim];
-              if (Xtest_reflect_TF[Link[iwall]][1]) find_wall_images(1, &image,image_pos,pos);
+              pos[idim] = WallPos_Images[i][idim];
+              if (Lfind_images[1]) find_wall_images(1, &image,WallPos_Images,pos);
         }
      }
      if (Ndim == 3){
         image_xy = image-image_old;
         for (i=image_old; i<image_old+image_xy; i++){
            for (idim=0; idim<Ndim; idim++)
-              pos[idim] = image_pos[i][idim];
-              if (Xtest_reflect_TF[Link[iwall]][2]) find_wall_images(2,&image,image_pos,pos);
+              pos[idim] = WallPos_Images[i][idim];
+              if (Lfind_images[2]) find_wall_images(2,&image,WallPos_Images,pos);
         }
 
      }
-     for (i=image_old; i<image; i++) imagetype[i]=WallType[iwall];
+     for (i=image_old; i<image; i++) WallType_Images[i]=WallType[iwall];
+     for (i=image_old; i<image; i++) RealWall_Images[i]=iwall;
      image_old=image;
   }
-  nwall_max = image;
+  Nwall_Images = image;
+  if (Proc==0 && Iwrite==VERBOSE) printf("Number of surfaces requested=%d   Number of additional images=%d\n",Nwall,Nwall_Images-Nwall);
+
+  if (flag){  /* if Vext is to be computed based on nearest x or r allocate array for walls and all images of walls */
+     X_wall = (double **) array_alloc (2, Nnodes_box, Nwall_Images,sizeof(double));
+     Xwall_delUP = (double ***) array_alloc (3, Nnodes_box, Nwall_Images,Ndim,sizeof(double));
+     Xwall_delDOWN = (double ***) array_alloc (3, Nnodes_box, Nwall_Images,Ndim,sizeof(double));
+     for (inode_box=0; inode_box<Nnodes_box; inode_box++) {
+        for (iwall=0; iwall<Nwall_Images; iwall++){
+                X_wall[inode_box][iwall]=1000.0;
+                for (idim=0;idim<Ndim;idim++) {
+                  Xwall_delUP[inode_box][iwall][idim]=1000.0;
+                  Xwall_delDOWN[inode_box][iwall][idim]=1000.0;
+                }
+      }   }
+  }
 
   icount=0;
-  for (iwall=0; iwall<nwall_max; iwall++){
-     itype = imagetype[iwall];
+  for (iwall=0; iwall<Nwall_Images; iwall++){
+     itype = WallType_Images[iwall];
      sgeom_iw=&(SGeom[itype]);
      surfaceTypeID = sgeom_iw->surfaceTypeID;
   
-     real_wall = iwall/(nwall_max/Nwall);
+     real_wall = RealWall_Images[iwall];
+     if(Ipot_wf_n[itype]==VEXT_DIST_TO_CENTER) flag_X_to_center=TRUE;
+     else                              flag_X_to_center=FALSE;
      MPI_Barrier(MPI_COMM_WORLD);     /* this may be a bug, but without this barrier statement we have issues with the surface areas */
 
   /* NEW CODE STARTS */
@@ -197,6 +224,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
 
      case finite_planar_wall:
        fp_inSurfaceTest=&surface_block_inSurfaceTest;
+       fp_roughness=&surface_planar_roughness;
        if (Ndim==2){
           fp_angleCutout=&surface_angleCutout2D;
           fp_periodic=&surface_periodic_offset;
@@ -210,12 +238,15 @@ void setup_surface (FILE *fp2, int *nelems_f,
        break;
 
      case colloids_cyl_sphere:
-       if (Ndim==3) fp_inSurfaceTest=&surface_sphere_inSurfaceTest;
+       if (Ndim==3){
+          fp_angleCutout=&surface_angleCutout3D_cyl;
+          fp_inSurfaceTest=&surface_sphere_inSurfaceTest;
+       }
        else if (Ndim==2){
           fp_inSurfaceTest=&surface_cylinder2D_inSurfaceTest;
           fp_roughness=&surface_cylinder2D_roughness;
           fp_angleCutout=&surface_angleCutout2D;
-          fp_linear=&surface_linear_offset;
+          /*fp_linear=&surface_linear_offset;*/
        }
        break;
 
@@ -236,7 +267,10 @@ void setup_surface (FILE *fp2, int *nelems_f,
        break;
 
      case cyl2D_sphere3D_pore:
-       if (Ndim==3) fp_inSurfaceTest=&surface_sphericalCavity3D_inSurfaceTest;
+       if (Ndim==3){
+         fp_angleCutout=&surface_angleCutout3D_cyl;
+         fp_inSurfaceTest=&surface_sphericalCavity3D_inSurfaceTest;
+       }
        else if (Ndim==2){
          fp_inSurfaceTest=&surface_cylindricalPore2D_inSurfaceTest;
          fp_roughness=&surface_cylinder2D_roughness;
@@ -271,11 +305,12 @@ void setup_surface (FILE *fp2, int *nelems_f,
 
            iel=el_box_to_el(iel_box);
            inode = element_to_node(iel);
+
+    
+              /* find center of element - and set up all surface logical, wall elements, and x_min based on element center */
            node_to_position(inode,node_pos);
            inode_box = element_box_to_node_box(iel_box);
-
            loc_inode=B2L_node[inode_box];
-
            for (idim=0;idim<Ndim;idim++) xtest[idim]=node_pos[idim]+0.5*Esize_x[idim];
 
            /* compute adjustments to basic geometries*/
@@ -285,12 +320,13 @@ void setup_surface (FILE *fp2, int *nelems_f,
            if (sgeom_iw->Llinear_overlay && fp_linear!=NULL) dist_linear=(*fp_linear)(xtest,itype,iwall); 
            if (sgeom_iw->Lwedge_cutout && fp_angleCutout!=NULL)  angle_test=(*fp_angleCutout)(real_wall,itype,xtest); 
 
+           /*if (Lhard_surf && ilist !=Nlists_HW-1) dist_adjustments=0.5*Sigma_wf[ilist][itype]; */
            if (Lhard_surf && ilist !=Nlists_HW-1) dist_adjustments=0.5*Sigma_ff[ilist][ilist]; 
            else dist_adjustments=0.0;
            dist_adjustments+=(dist_roughness+dist_periodic+dist_linear);
 
-           (*fp_inSurfaceTest)(iwall,itype,loc_inode,flag,xtest,image_pos,dist_adjustments,
-                                                      &delx,&logical_inwall,&logical_nearWallDielec);
+           (*fp_inSurfaceTest)(iwall,itype,xtest,WallPos_Images,dist_adjustments,flag_X_to_center,
+                                                      &delx_vext,&delx_zone,&logical_inwall,&logical_nearWallDielec);
 
            if (logical_inwall==TRUE && angle_test==TRUE )  
                 flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,nelems_w_per_w, elems_w_per_w,el_type);
@@ -298,21 +334,83 @@ void setup_surface (FILE *fp2, int *nelems_f,
            else if (logical_nearWallDielec) Dielec[iel_box] = Dielec_pore;
 
            if (ilist==Nlists_HW-1){
-              if (delx > 0.0) x_min[iel_box] = AZ_MIN(delx,x_min[iel_box]);
+              if (delx_zone > 0.0) x_min[iel_box] = AZ_MIN(delx_zone,x_min[iel_box]);
               else            x_min[iel_box] = 0.0;
            }
 
-        }
-     }
+               /* now set up X_wall array find minimum surface distances for nodes in the fluid */
+               /*  first identify if this is an edge element where all nodes must be considered */
+           if (flag==TRUE) {  
+              node_to_ijk(inode,ijk);
+              edge_element=FALSE;
+              imax[0]=imax[1]=imax[2]=1;     
+              for (idim=0; idim<Ndim; idim++){
+                   if (ijk[idim]==Nodes_x[idim]-2 && Type_bc[idim][1] !=PERIODIC) imax[idim]=2;
+              }
+
+              for (ix[2]=0; ix[2]<imax[2]; ix[2]++){
+                 for (ix[1]=0; ix[1]<imax[1]; ix[1]++){
+                     for (ix[0]=0; ix[0]<imax[0]; ix[0]++){
+
+                        for (idim=0;idim<Ndim;idim++){
+                              xtest[idim]=node_pos[idim]+ix[idim]*Esize_x[idim];
+                        }
+                        (*fp_inSurfaceTest)(iwall,itype,xtest,WallPos_Images,dist_adjustments,flag_X_to_center,
+                                                      &delx_vext,&delx_zone,&logical_inwall,&logical_nearWallDielec);
+                         if (ilist==Nlists_HW-1){
+                           inode_global=position_to_node(xtest);
+                           node_to_ijk(inode_global,ijk_global);
+                           ijk_to_ijk_box(ijk_global,ijk_box_tmp);
+                           inode_box_tmp=ijk_box_to_node_box(ijk_box_tmp);
+
+                           if (delx_vext > 0.0) X_wall[inode_box_tmp][iwall] = AZ_MIN(delx_vext,X_wall[inode_box_tmp][iwall]);
+                           else            X_wall[inode_box_tmp][iwall] = 0.0;
+                         }
+
+                         /* now set up X_wall_delUP and X_wall_delDOWN to facilitate more accurate estimates of Vdash */
+                         for (idim=0;idim<Ndim;idim++){
+                            for (jdim=0;jdim<Ndim;jdim++){
+                                 if (jdim==idim) xtest_tmp[jdim]=xtest[jdim]+VDASH_DELTA;
+                                 else            xtest_tmp[jdim]=xtest[jdim];
+                            }
+                            (*fp_inSurfaceTest)(iwall,itype,xtest_tmp,WallPos_Images,dist_adjustments,flag_X_to_center,
+                                                      &delx_vext,&delx_zone,&logical_inwall,&logical_nearWallDielec);
+                             if (ilist==Nlists_HW-1){
+                               if (delx_vext > 0.0) Xwall_delUP[inode_box_tmp][iwall][idim] = AZ_MIN(delx_vext,Xwall_delUP[inode_box_tmp][iwall][idim]);
+                               else            Xwall_delUP[inode_box_tmp][iwall][idim] = 0.0;
+                             }
+                         }
+                         for (idim=0;idim<Ndim;idim++){
+                            for (jdim=0;jdim<Ndim;jdim++){
+                                 if (jdim==idim) xtest_tmp[jdim]=xtest[jdim]-VDASH_DELTA; 
+                                 else            xtest_tmp[jdim]=xtest[jdim];
+                            }
+                            (*fp_inSurfaceTest)(iwall,itype,xtest_tmp,WallPos_Images,dist_adjustments,flag_X_to_center,
+                                                      &delx_vext,&delx_zone,&logical_inwall,&logical_nearWallDielec);
+                             if (ilist==Nlists_HW-1){
+                               if (delx_vext > 0.0) Xwall_delDOWN[inode_box_tmp][iwall][idim] = AZ_MIN(delx_vext,Xwall_delDOWN[inode_box_tmp][iwall][idim]);
+                               else            Xwall_delDOWN[inode_box_tmp][iwall][idim] = 0.0;
+                             }
+                         }
+
+
+                      }
+                  }
+               }
+
+
+             } /* logical_local_node */
+        }  /* iel_box loop */
+     }    /* ilist loop */
    
      if (icount==100 && Iwrite==VERBOSE) {
-        printf("Proc: %d in setup surfaces:: iwall=%d of nwall_max=%d Nnodes_wall_box: %d \n",
-                                             Proc,iwall,nwall_max,Nnodes_wall_box);
+        printf("Proc: %d in setup surfaces:: iwall=%d of Nwall_Images=%d Nnodes_wall_box: %d \n",
+                                             Proc,iwall,Nwall_Images,Nnodes_wall_box);
         icount=0;
      }
-     else if (iwall==nwall_max-1 && Iwrite==VERBOSE && Proc==0){
-        printf("Proc: %d is done with setup surfaces:: iwall=%d of nwall_max=%d Nnodes_wall_box=%d\n",
-                                              Proc,iwall,nwall_max,Nnodes_wall_box);
+     else if (iwall==Nwall_Images-1 && Iwrite==VERBOSE && Proc==0){
+        printf("Proc: %d is done with setup surfaces:: iwall=%d of Nwall_Images=%d Nnodes_wall_box=%d\n",
+                                              Proc,iwall,Nwall_Images,Nnodes_wall_box);
      }  
      else icount++;
   } /* end of loop over walls */
@@ -333,8 +431,6 @@ void setup_surface (FILE *fp2, int *nelems_f,
         }
       }
   }
-  safe_free((void *) &imagetype);
-  safe_free((void *) &image_pos);
   safe_free((void *) &L_wall);
   safe_free((void *) &x_min);
   
@@ -344,9 +440,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
  *    central cell and locate all the corresponding images due
  *    to reflective and periodic boundaries.
  */
-void find_wall_images(int idim, 
-		      int *image, double **image_pos,
-		      double *pos)
+void find_wall_images(int idim, int *image, double **image_pos, double *pos)
 {
   int iside,jdim;
   double sign,shift=0,node_image[3];

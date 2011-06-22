@@ -16,7 +16,6 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern double **Vext;
-#define PAIR_COULOMB          2
 extern int Type_pairPot;
 #define NONE       -1
 #define NONE          -1
@@ -25,7 +24,8 @@ extern int Type_pairPot;
 extern int Type_attr;
 #define NCOMP_MAX 5
 extern double Charge_f[NCOMP_MAX];
-double integrate_potential(double param1,double param2,double param3,double param4,double param5,double param6,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
+#define PAIR_COULOMB          2
+double integrate_potential(int typePot,double param1,double param2,double param3,double param4,double param5,double param6,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
 extern int **Zero_density_TF;
 extern int *L2B_node;
 void find_images_coulomb(int idim,int *image,double **image_pos,double *node_image);

@@ -15,31 +15,22 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NDIM_MAX  3
-extern double Esize_x[NDIM_MAX];
-extern double **X_wall;
-extern int *B2L_node;
-int ijk_box_to_node_box(int *ijk_box);
-void ijk_to_ijk_box(int *ijk,int *ijk_box);
-extern int Ndim;
-extern int *L2G_node;
-void node_to_ijk(int node,int *ijk);
 extern double Dielec_X;
 #define DIELEC_WF_PORE     2
 extern int Type_dielec;
-#define FALSE 0
+#define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
 #endif
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
-#endif
-#define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
 typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
 extern struct SurfaceGeom_Struct *SGeom;
+#define FALSE 0
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
 #define NWALL_MAX 600 
 extern int Lwedge_cutout[NWALL_MAX];
 #define NWALL_MAX_TYPE 50 
@@ -75,4 +66,4 @@ struct SurfaceGeom_Struct {
   double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
-void surface_planar_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delx,int *logical_inwall,int *logical_nearWallDielec);
+void surface_planar_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delx_vext,double *delx_zone,int *logical_inwall,int *logical_nearWallDielec);

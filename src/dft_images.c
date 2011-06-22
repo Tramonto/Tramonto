@@ -68,8 +68,9 @@ void find_images(int idim, double cut,
         done = FALSE;
         i=1;
 
-        if (Type_bc[idim][iside] == PERIODIC)
+        if (Type_bc[idim][iside] == PERIODIC){
            shift = Size_x[idim];
+        }
         else if (Type_bc[idim][iside] == REFLECT)
            shift = 2.0*fabs(sign*0.5*Size_x[idim] - node_image[idim]);
         else 

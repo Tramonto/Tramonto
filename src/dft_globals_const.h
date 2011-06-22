@@ -87,6 +87,7 @@ extern "C" {
 
 /* minimum allowed density */
 #define DENSITY_MIN  1.e-20
+#define VDASH_DELTA  1.e-6
 
 /* basic constants */
 /*#define PI    M_PI*/
@@ -301,12 +302,18 @@ extern "C" {
 #define COULOMB      1
 #define YUKAWA       2
 
+/* The following are choices for Type_vext The VEXT_PAIR_POTENTIAL option uses pair 
+   potentials implemented for fluid interactions.  The VEXT_DEFINED option uses 
+   external fields defined separately */
+#define VEXT_DEFINED  0
+#define VEXT_PAIR_POTENTIAL  1
+
 /*
  * The following are choices for pair interacton potentials.  Note that these
  * options can be used to set stencil functions for strict mean field attractions,
  * set external fields based on 3D interaction potentials, and set wall-wall
  * interactions for 3D atomistic surfaces.  They are used by Type_pairPot,
- * Type_vext3D, and Type_uwwPot parameters which may be set independently.  
+ * Vext_PotentialID, and Type_uwwPot parameters which may be set independently.  
  */
 #define PAIR_HARD            -1 
 #define PAIR_LJ12_6_CS        0
@@ -326,7 +333,7 @@ extern "C" {
 #define BH_DIAM             1
 #define MANUAL_HS_DIAM         2
 /*
- * The following are choices for 1D external field potentials.  
+ * The following are choices for the Vext_PotentialID parameter.  
  */
 #define LJ9_3_CS          0
 #define LJ9_3_v2_CS       1
@@ -458,12 +465,9 @@ extern "C" {
  /* The following is a choice for the wall type Ipot_wf_n*/
 #define VEXT_NONE          0
 #define VEXT_HARD        1
-#define VEXT_1D          2  /* 1D potential for 1D systems */
-#define VEXT_1D_XMIN     3  /* crude 1D-like treatment of funny geometries */
-#define VEXT_1D_ORIENTATION     4  /* crude 1D-like treatment of funny geometries */
+#define VEXT_DIST_TO_SURF          2  /* any potential that is a function of only distance from the surface */
+#define VEXT_DIST_TO_CENTER        3  /* any potential that is a function of the distance to the center of wall (atom). */
 #define VEXT_3D_INTEGRATED      5  /* more proper 3D integration potential for funny geometries */
-#define VEXT_ATOMIC        6  /* 3D potential for 3D problems */
-#define VEXT_1D_RSURF      7 /* 1D external field that can be used for cylinders and spheres based on distance to surface */
 
  /* The following is a choice for the wall type Ipot_ww_n*/
 #define NO_WW              0
@@ -863,6 +867,10 @@ extern  double SlopeLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The slope 
 extern  double OriginLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The origin of linear functions to apply */
 extern  double EndpointLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The endpoint of linear functions to apply */
 extern double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
+extern double  **WallPos_Images; /* Array of the centers of the surfaces including periodic and reflected images*/
+extern int     *WallType_Images; /* Array of the types of the surfaces including periodic and reflected images*/
+extern int     *RealWall_Images; /* Array of the real wall in the domain associated with a particular images*/
+extern int     Nwall_Images; /* Number of surfaces including all images*/
 
 /* Fluid Physics info */
 extern int     Ncomp;           /* Number of components in the current problem      */
@@ -939,8 +947,8 @@ extern int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interacti
 extern int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
 extern int     Type_pairPot;  /* Interaction potential to use for strict mean field DFT calculations*/
 extern int     Type_hsdiam;  /* How to calculate Hard-Sphere diamters - use Sigma or Barker-Henderson approach */
-extern int     Type_vext1D;  /* Interaction potential to choose for external field calculations based on 1D potentials*/
-extern int     Type_vext3D;  /* Interaction potential to choose for external field calculations based on 3D potentials*/
+extern int     Type_vext[NWALL_MAX_TYPE];  /* External field type for a given surface type - either pair potential, u(r) or defined vext*/
+extern int     Vext_PotentialID[NWALL_MAX_TYPE];  /* ID for external field for each surface type in the problem */
 extern int     Type_uwwPot;  /* potential to use for computation of wall-wall interactions.  Used in 3D-atomic surface calculations */
 extern int     Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
 extern int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
@@ -995,7 +1003,8 @@ extern double ***Vext_dash;  /* derivative of external field [Nnodes][Ncomp][Nwa
 extern double **Uww;        /* Wall-Wall interactions [Nwall-1][Nwall-1]           */
 extern double **Uww_link;        /* Wall-Wall interactions [Nlink-1][Nlink-1]           */
 extern double **X_wall;  /* Distance from inode to iwall [Nnodes][Nwall]    */
-extern double **X_wall2;  /* Distance from inode to iwall [Nnodes][Nwall]    */
+extern double ***Xwall_delUP;  /* Distance from inode+delta to iwall [Nnodes][Nwall]  ... used to compute Vdash  */
+extern double ***Xwall_delDOWN;  /* Distance from inode-delta to iwall [Nnodes][Nwall] ... used to compute Vdash   */
 extern int    **Zero_density_TF; /* array [Nnodes][icomp] indicates where VEXT_MAX */
 extern double  Betamu_att[NCOMP_MAX];   /* sum over jcomp of Van der waals constant a(icomp,jcomp)*/
 extern double  Avdw[NCOMP_MAX][NCOMP_MAX];    /*  Van der waals constant a(icomp,jcomp)*/

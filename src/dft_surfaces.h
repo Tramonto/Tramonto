@@ -20,12 +20,8 @@ extern int **Wall_touch_node;
 extern int *Nwall_touch_node;
 extern int *Nodes_wall_box;
 extern int *Index_wall_nodes;
-int ijk_box_to_node_box(int *ijk_box);
 extern int Pflag[3];
 void node_box_to_ijk_box(int node_box,int *ijk_box);
-#define NDIM_MAX  3
-extern int Nodes_x[NDIM_MAX];
-void node_to_ijk(int node,int *ijk);
 extern double *Dielec_wall;
 #define DIELEC_CONST       0
 extern int Type_dielec;
@@ -34,20 +30,21 @@ extern int Ipot_ff_c;
 #define WALL_EL        0 
 extern int ***Wall_owners;
 extern int **Nwall_owners;
+#define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
 #define REFLECT              2
-#define PERIODIC             1
-extern int Type_bc[NDIM_MAX][2];
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern double Rmax_zone[5];
 extern int Nnodes_wall_box;
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
-#define VERBOSE      3 
-extern int Iwrite;
+#define VDASH_DELTA  1.e-6
+int ijk_box_to_node_box(int *ijk_box);
+void ijk_to_ijk_box(int *ijk,int *ijk_box);
+int position_to_node(double *NodePos);
+#define PERIODIC             1
+extern int Type_bc[NDIM_MAX][2];
+extern int Nodes_x[NDIM_MAX];
+void node_to_ijk(int node,int *ijk);
 extern double Dielec_pore;
 extern double *Dielec;
 void flag_wall_el(int inode,int ilist,int iwall,int iel_box,int **L_wall,int **nelems_w_per_w,int ***elems_w_per_w,int ***el_type);
@@ -66,39 +63,53 @@ int element_box_to_node_box(int iel_box);
 void node_to_position(int inode,double *NodePos);
 int element_to_node(int ielement);
 int el_box_to_el(int iel_box);
-void surface_slitPore2D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
-void surface_cylindricalPore3D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
+void surface_slitPore2D_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delr_vext,double *delr_zone,int *logical_inwall,int *logical_nearWallDielec);
+void surface_cylindricalPore3D_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delr_vext,double *delr_zone,int *logical_inwall,int *logical_nearWallDielec);
 #define cyl3D_slit2D_pore               8
-void surface_cylindricalPore2D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
-void surface_sphericalCavity3D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
+void surface_cylindricalPore2D_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delr_vext,double *delr_zone,int *logical_inwall,int *logical_nearWallDielec);
+void surface_sphericalCavity3D_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delr_vext,double *delr_zone,int *logical_inwall,int *logical_nearWallDielec);
 #define cyl2D_sphere3D_pore             7
-void surface_atoms_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
+void surface_atoms_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delr_vext,double *delr_zone,int *logical_inwall,int *logical_nearWallDielec);
 #define atomic_centers                  3
 double surface_cylinder3D_roughness(double *fluidEl_center,int iwall_type,int iwall);
-void surface_cylinder3D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
-void surface_1elemSurface_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
+void surface_cylinder3D_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delr_vext,double *delr_zone,int *logical_inwall,int *logical_nearWallDielec);
+void surface_1elemSurface_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delr_vext,double *delr_zone,int *logical_inwall,int *logical_nearWallDielec);
 #define point_surface                   4
 double surface_cylinder2D_roughness(double *fluidEl_center,int iwall_type,int iwall);
-void surface_cylinder2D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
-void surface_sphere_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delr,int *logical_inwall,int *logical_nearWallDielec);
+void surface_cylinder2D_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delr_vext,double *delr_zone,int *logical_inwall,int *logical_nearWallDielec);
+void surface_sphere_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delr_vext,double *delr_zone,int *logical_inwall,int *logical_nearWallDielec);
 #define colloids_cyl_sphere             2
-void surface_block_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delx,int *logical_inwall,int *logical_nearWallDielec);
+void surface_block_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delx_vext,double *delx_zone,int *logical_inwall,int *logical_nearWallDielec);
 #define finite_planar_wall              1
 int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center);
 double surface_linear_offset(double *fluidEl_center,int iwall_type,int iwall);
 double surface_periodic_offset(double *fluidEl_center,int iwall_type,int iwall);
 int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center);
 double surface_planar_roughness(double *fluidEl_center,int iwall_type,int iwall);
-void surface_planar_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delx,int *logical_inwall,int *logical_nearWallDielec);
+void surface_planar_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delx_vext,double *delx_zone,int *logical_inwall,int *logical_nearWallDielec);
+extern double ***Xwall_delDOWN;
+extern double ***Xwall_delUP;
+extern int Nnodes_box;
+extern double **X_wall;
+#define VERBOSE      3 
+extern int Iwrite;
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
+extern int Nwall_Images;
 void find_wall_images(int idim,int *image,double **image_pos,double *pos);
 void find_wall_images(int idim,int *image,double **image_pos,double *pos);
 extern double WallPos[NDIM_MAX][NWALL_MAX];
+extern int *RealWall_Images;
+extern int *WallType_Images;
 #if defined(DEC_ALPHA)
 #define POW_INT powii
 #endif
 #if !(defined(DEC_ALPHA))
 #define POW_INT (int)pow
 #endif
+extern double **WallPos_Images;
 #define finite_cyl_3D                   5
 extern int Link[NWALL_MAX];
 extern int **Xtest_reflect_TF;
@@ -110,8 +121,6 @@ extern int WallType[NWALL_MAX];
 extern int **Wall_elems;
 extern int Nzone;
 extern int Coarser_jac;
-extern int Nnodes_per_proc;
-extern double **X_wall;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -119,7 +128,8 @@ extern double **X_wall;
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-#define VEXT_1D_XMIN     3  /* crude 1D-like treatment of funny geometries */
+#define VEXT_DIST_TO_CENTER        3  /* any potential that is a function of the distance to the center of wall (atom). */
+#define VEXT_DIST_TO_SURF          2  /* any potential that is a function of only distance from the surface */
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Nwall_type;
 extern int Ndim;

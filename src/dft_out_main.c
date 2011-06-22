@@ -214,8 +214,6 @@ void post_process (double **x,int *niters,
    
    if (Type_coul != NONE) calc_fluid_charge(fp,x); 
 
-/*   if (Ipot_wf_n != LJ12_6_WALL &&  
-         Ipot_wf_n != LJ_CHARGED_ATOMS && Ipot_wf_n != LJ_ATOMIC) */
    calc_force(fp,x,fac_area);   
                             /* haven't implemented V_dash 
                                for 12-6 integrated wall yet */

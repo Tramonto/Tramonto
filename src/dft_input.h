@@ -232,8 +232,8 @@ extern int Mix_type;
 extern int Ncomp;
 extern int Type_uwwPot;
 extern int Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern int Type_vext3D;
-extern int Type_vext1D;
+extern int Vext_PotentialID[NWALL_MAX_TYPE];
+extern int Type_vext[NWALL_MAX_TYPE];
 extern int Lhard_surf;
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
 #define NWALL_MAX 600 

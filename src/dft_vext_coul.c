@@ -191,7 +191,7 @@ void setup_vext_coulomb_vol()
                   if (r_center_sq < 4.0) { ngp = ngp1; gp = &gp1[0]; gw = &gw1[0]; }
                   else{                    ngp = ngp2; gp = &gp2[0]; gw = &gw2[0]; }
 
-                  Vext_coul[loc_inode][icomp] += integrate_potential(
+                  Vext_coul[loc_inode][icomp] += integrate_potential(PAIR_COULOMB,
                           Charge_f[icomp],charge_el_vol_global[iel],
                           1.,1.,1.,1., ngp, 1, gp, NULL, gw, NULL, pos, node_pos_f);
                }

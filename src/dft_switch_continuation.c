@@ -382,6 +382,7 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
 {
   int idim,icomp,iwall,jcomp;
   int i,nloop; 
+   
 
    switch(cont_type){
       case CONT_MESH:
@@ -518,7 +519,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
    int i,idim,icomp,iwall,iwall_type,nloop,jcomp,iseg;
    double rhosum,rho_chain,surface_Sep;
    double kappa,kappa_sq;
-   double return_param=0.0,surface_sep,halfwidth;
+   double return_param=0.0,surface_sep,halfwidth,dist;
    struct SurfaceGeom_Struct *sgeom_iw;
 
    switch(cont_type){
@@ -529,16 +530,36 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
             iwall = 0;
             iwall_type = WallType[iwall];
             sgeom_iw=&(SGeom[iwall_type]);
-            halfwidth=sgeom_iw->halfwidth[sgeom_iw->orientation];
+
+            switch(sgeom_iw->surfaceTypeID){
+               case smooth_planar_wall: dist=sgeom_iw->halfwidth[sgeom_iw->orientation];break;
+               case finite_planar_wall: dist=sgeom_iw->halfwidth[Plane_new_nodes]; break;
+               case point_surface: dist=sgeom_iw->halfwidth[Plane_new_nodes];break;
+               case colloids_cyl_sphere: dist=sgeom_iw->radius;break;
+               case finite_cyl_3D:
+                     if (Plane_new_nodes==sgeom_iw->orientation) dist=sgeom_iw->halflength;
+                     else dist=sgeom_iw->radius;
+                    break;
+               case atomic_centers: dist=Sigma_ww[iwall_type][iwall_type]/2.0; break;
+               case cyl3D_slit2D_pore:
+                    if (Plane_new_nodes==sgeom_iw->orientation) dist=sgeom_iw->halflength;
+                    else dist=sgeom_iw->radius;
+                    break;
+               default: 
+                    printf("trouble with continuation cases\n");
+                    exit(-1);
+                    break;
+            }
+            
             idim = Plane_new_nodes;
       
             if (Nwall == 1) {
                 if (Type_bc[idim][0] == REFLECT){
-                    surface_sep=2.0*(WallPos[idim][iwall]+ 0.5*Size_x[0]- halfwidth);
+                    surface_sep=2.0*(WallPos[idim][iwall]+ 0.5*Size_x[0]- dist);
                     fprintf(fp,"%11.8f   ", surface_sep);
                 }
                 else if (Type_bc[idim][1] == REFLECT){
-                    surface_sep=2.0*(0.5*Size_x[0]-WallPos[idim][iwall]- halfwidth);
+                    surface_sep=2.0*(0.5*Size_x[0]-WallPos[idim][iwall]- dist);
                     fprintf(fp,"%11.8f   ", surface_sep);
                 }
                 else{
@@ -547,7 +568,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                 }
              }  
              else if (Nwall == 2){
-                  surface_sep=fabs(WallPos[idim][1] - WallPos[idim][0]) - 2.0*halfwidth;
+                  surface_sep=fabs(WallPos[idim][1] - WallPos[idim][0]) - 2.0*dist;
                   fprintf(fp,"%11.8f   ", surface_sep);
              }
          }

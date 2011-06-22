@@ -68,4 +68,4 @@ struct SurfaceGeom_Struct {
   double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
-void surface_block_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,double *fluidEl_center,double **image_pos,double dist_adjustments,double *delx,int *logical_inwall,int *logical_nearWallDielec);
+void surface_block_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delx_vext,double *delx_zone,int *logical_inwall,int *logical_nearWallDielec);

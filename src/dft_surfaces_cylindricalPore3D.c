@@ -35,13 +35,13 @@
  */
 #include "dft_surfaces_cylindricalPore3D.h"
 /****************************************************************************/
-void surface_cylindricalPore3D_inSurfaceTest(int iwall,int iwall_type,int loc_inode,int flag_setup_Xwall,
-                                  double *fluidEl_center, double **image_pos,
-                                  double dist_adjustments, double *delr,
+void surface_cylindricalPore3D_inSurfaceTest(int iwall,int iwall_type,
+                                  double *fluid_testpos, double **wall_pos,
+                                  double dist_adjustments, int flag_X_to_center, double *delr_vext, double *delr_zone,
                                   int *logical_inwall, int *logical_nearWallDielec)
 {
 
-  double dx,x12,r12_sq_sum,r12,radius;
+  double dx,x12,r12_sq_sum,r12,radius,delr_sq;
   double roff=0.00000000001,halflength;
   double xtest[3];
   int  dim[3];
@@ -61,41 +61,39 @@ void surface_cylindricalPore3D_inSurfaceTest(int iwall,int iwall_type,int loc_in
 
   switch(orientation)  {
        case 2:
-          xtest[0] = fluidEl_center[0]; dim[0] = 0;
-          xtest[1] = fluidEl_center[1]; dim[1] = 1;
-          xtest[2] = fluidEl_center[2]; dim[2] = 2;
+          xtest[0] = fluid_testpos[0]; dim[0] = 0;
+          xtest[1] = fluid_testpos[1]; dim[1] = 1;
+          xtest[2] = fluid_testpos[2]; dim[2] = 2;
           break;
        case 1:
-          xtest[0] = fluidEl_center[2]; dim[0] = 2;
-          xtest[1] = fluidEl_center[0]; dim[1] = 0;
-          xtest[2] = fluidEl_center[1]; dim[2] = 1;
+          xtest[0] = fluid_testpos[2]; dim[0] = 2;
+          xtest[1] = fluid_testpos[0]; dim[1] = 0;
+          xtest[2] = fluid_testpos[1]; dim[2] = 1;
           break;
        case 0:
-          xtest[0] = fluidEl_center[1]; dim[0] = 1;
-          xtest[1] = fluidEl_center[2]; dim[1] = 2;
-          xtest[2] = fluidEl_center[0]; dim[2] = 0;
+          xtest[0] = fluid_testpos[1]; dim[0] = 1;
+          xtest[1] = fluid_testpos[2]; dim[1] = 2;
+          xtest[2] = fluid_testpos[0]; dim[2] = 0;
           break;
   }
 
   r12_sq_sum = 0.0;
   for (idim = 0; idim < Ndim-1; idim++) {
-     dx =  xtest[idim] -  image_pos[iwall][dim[idim]];
+     dx =  xtest[idim] -  wall_pos[iwall][dim[idim]];
      r12_sq_sum = r12_sq_sum + dx*dx;
   }
   r12 = sqrt(r12_sq_sum);
-  x12 = fabs(image_pos[iwall][dim[2]] - xtest[2]);
+  x12 = fabs(wall_pos[iwall][dim[2]] - xtest[2]);
 
   if (r12 >= radius && x12 <= halflength) *logical_inwall=TRUE;
   if (Ipot_ff_c==COULOMB && r12 > radius-Dielec_X && r12<=radius && x12<halflength+Dielec_X) *logical_nearWallDielec  = TRUE;
 
-   if (flag_setup_Xwall){
-       printf("error : the Vext_1D_xmin option is not available for finite 3D cylindrical surfaces\n");
-       printf("try the Vext_integrated surface instead.\n");
-       exit(-1);
-   }
-   if (x12<=halflength) *delr=radius-r12;
-   else *delr=x12-halflength;
+  delr_sq=0.0;
+  if (x12 > halflength) delr_sq+=(x12-halflength)*(x12-halflength);
+  if (r12 < radius) delr_sq+=(radius-r12)*(radius-r12);
+  *delr_zone=sqrt(delr_sq);
+  *delr_vext=sqrt(delr_sq);
       
-   return;
+  return;
 }
 /****************************************************************************/

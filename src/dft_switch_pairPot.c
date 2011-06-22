@@ -88,6 +88,7 @@ double pairPot_switch(double r,double param1, double param2, double param3,doubl
            Note that these parameters must map correctly to the potential functions (i.e. uLJ12_6_CS). */
 void pairPotparams_switch(int typePairPot,int context, int i, int j,
       double *param1, double *param2, double *param3,double *param4,double *param5,double *param6)
+
 {
   switch(typePairPot){
       case PAIR_LJ12_6_CS:

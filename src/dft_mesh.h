@@ -235,9 +235,10 @@ extern int *L2B_node;
 extern int *B2G_unk;
 extern double **Uww_link;
 extern double **Uww;
-extern double **X_wall2;
+extern double ***Xwall_delDOWN;
+extern double ***Xwall_delUP;
 extern double **X_wall;
-#define VEXT_1D_XMIN     3  /* crude 1D-like treatment of funny geometries */
+#define VEXT_DIST_TO_SURF          2  /* any potential that is a function of only distance from the surface */
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Nwall_type;
 extern int **Zero_density_TF;

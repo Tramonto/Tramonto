@@ -208,6 +208,11 @@ double SlopeLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The slope of linea
 double OriginLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The origin of linear functions to apply */
 double EndpointLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The endpoint of linear functions to apply */
 double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
+double  **WallPos_Images; /* Array of the centers of the surfaces including periodic and reflected images*/
+int     *WallType_Images; /* Array of the types of the surfaces including periodic and reflected images*/
+int     *RealWall_Images; /* Array of the real walls in the domain associated with the periodic and reflected images */
+int     Nwall_Images; /* Number of surfaces including all images*/
+
 
 
 /* Fluid Physics info */
@@ -291,8 +296,8 @@ int     Ipot_ff_n;    /* Potential Type for neutral part of f-f interactions */
 int     Ipot_wf_n[NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
 int     Type_pairPot;  /* Interaction potential to use for strict mean field DFT calculations*/
 int     Type_hsdiam;  /* How to calculate hard sphere diameter - use sigma or Barker-Henderson approach */
-int     Type_vext1D;  /* Interaction potential to choose for external field calculations based on 1D potentials*/
-int     Type_vext3D;  /* Interaction potential to choose for external field calculations based on 3D potentials*/
+int     Type_vext[NWALL_MAX_TYPE];  /* External field type for a given surface type - either pair potential, u(r) or defined vext*/
+int     Vext_PotentialID[NWALL_MAX_TYPE];  /* ID for external field for each surface type in the problem */
 int     Type_uwwPot;  /* potential to use for computation of wall-wall interactions.  Used in 3D-atomic surface calculations */
 int     Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];    /* Potential Type for neutral part of w-f interactions */
 int     Ipot_ff_c;    /* Potential Type for charged part of f-f interactions */
@@ -347,7 +352,8 @@ double  ***Vext_dash; /* Derivative of external field [Nnodes][Ncomp][Nwall]  */
 double  **Uww; /* wall-wall interactions [Nwall-1][Nwall-1]  */
 double  **Uww_link; /* wall-wall interactions [Nlink-1][Nlink-1]  */
 double  **X_wall; /* Distance from inode to iwall [Nnodes][Nwall]    */
-double  **X_wall2; /* Distance from inode to iwall [Nnodes][Nwall]    */
+double ***Xwall_delUP;  /* Distance from inode+delta to iwall [Nnodes][Nwall]  ... used to compute Vdash  */
+double ***Xwall_delDOWN;  /* Distance from inode-delta to iwall [Nnodes][Nwall] ... used to compute Vdash   */
 int    **Zero_density_TF; /* array [Nnodes][icomp] indicates where VEXT_MAX */
 double  Betamu_att[NCOMP_MAX];  /* sum over jcomp of Van der waals constant a(icomp,jcomp)*/
 double  Avdw[NCOMP_MAX][NCOMP_MAX];    /* Van der waals constant a(icomp,jcomp)*/
