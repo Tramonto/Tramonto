@@ -48,14 +48,16 @@
 @ 1 2 2 0 0 	Nwall_types Nwall Nlink Lauto_center Lauto_size 
 @ 0 0 	Xtest_reflect_TF[ilink=0,Nlink-1][idim=0,Ndim-1] 
 @ 0 	Surf_type[iwall_type] ; iwall_type=0,Nwall_type-1 
-                  (0 = planar wall of infinite extent,               
-                   1 = finite length wall,       
-                   2 = spheres(3D) OR cylinders(2D)
-                   3 = atomic surfaces [use Sigma_w param to define size]
-                   4 = 1 element surface (1D:thin membrane, 2D: thin rod, 3D: approximate point)
-                   5 = finite length cylinder (3D only)
-                   7 = pores of infinite lengthI:  cylindrical (2D) OR  spherical cavities (3D),
-                   8 = pores of finite length:  slits(2D) OR cylindrical(3D)
+                  (0 = smooth uniform planar wall of infinite extent, 
+                   1 = finite length smooth wall, 
+                   2 = colloids - spheres(3D) cylinders(2D)
+                   3 = atoms - spheres(3D) using Sigma_w to define size 
+                   4 = point atoms 
+                   5 = finite length cylinders (3D) 
+                   6 = periodic cylinders (3D)
+                   7 = infinite pores (cylindrical in 2D; spherical in 3D),
+                   8 = finite pores (slit in 2D; cylinder in 3D)
+                   9 = finite length tapered pores 
 
 @ 0 	Orientation[iwall_type]: iwall_type=0,Nwall_type-1 
 @ 0.5 	WallParam[iwall_type] 
@@ -85,27 +87,31 @@
 @ 0.   Angle_start[iwall_type] (degrees from origin - cartesian axis)
 @ 0. Angle_end[iwall_type] (degrees from origin - cartesian axis)
 
-
 ************** WALL-FLUID AND WALL-WALL  INTERACTION TYPE PARAMETERS  ************************************
 @ 1 	Type of neutral surface-fluid interactions (param. Ipot_wf_n[iwall_type]) 
-			  (0=No_wall-fluid interaction, 
-                           1=pure exclusion /  Hard_wall interactions, 
-                           2=1D potential in 1D calculations
-                           3=1D potential in 2D/3D calculation - based on Xmin[iwall]
-                           4=1D potential in 2D/3D calculation - based on Orientation[iwall]
-                           5=numerically integrated LJ12_6 interactions, 
-                           6=ATOMIC potential (e.g. LJ12-6)
-                           7=1D radial potential in 2D (cylindrical surf) or 
-                             3D (spherical surf) calculation                                         
+                          (0=No_wall-fluid interaction,
+                           1=pure exclusion /  Hard_wall interactions,
+                           2=any vext based on shortest distance to surface
+                           3=any vext based on the distance to the center of a surface
+                           5=numerically integrated pair potential must set Type_vext=VEXT_PAIR_POTENTIAL
 
 
 @ 1 	Lhard_surf (Logical that controls application of integration stencil at the boundaries. If 
                    TRUE (1), the step function at the boundary is treated carefully).
 
-@ 0 0 	Type_vext1D, Type_vext3D 
-          (Type_vext1D options: 0=LJ9_3_CS,  1=LJ9_3_v2_CS, 2=LJ9_3_noCS, 3=LJ9_3_shiftX_CS
-           4=REPULSIVE9_noCS, 5=EXP_ATT_noCS,6=LINEAR_noCS,7=R7_YUKAWA_SUM_CS)
-          (Type_vext3D options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
+@ 0     Type_vext[iwall_type] (0=VEXT_DEFINED; 1=VEXT_PAIR_POTENTIAL)
+
+@ 0      Vext_PotentialID[iwall_type]: if Type_vext=0 select from list here.
+                                      if Type_vext=1 select from Type_pairPot list above
+                VEXT_DEFINED options:
+                    0=LJ9_3_CS
+                    1=LJ9_3_v2_CS
+                    2=LJ9_3_noCS
+                    3=LJ9_3_shiftX_CS
+                    4=REPULSIVE9_noCS
+                    5=EXP_ATT_noCS
+                    6=LINEAR_noCS
+                    7=R7_YUKAWA_SUM_CS
 
 @ 0 	Type of wall-wall interactions::Ipot_ww_n[iwall_type][jwall_type] 
                            (-2 : set all array to 0
@@ -119,6 +125,7 @@
 ************** FLUID INTERACTION PARAMETERS  ************************************
 @ 2 0 	Ncomp Mix_type (0=L-B Rules, 1=manual input) 
 
+@ 1.       HS_diam[i] i=0,Ncomp-1  This is only read if Type_hsdiam is set to MANUAL
 @ 1. 1. 	Mass[i] i=0,Ncomp-1 
 @ 1. -1. 	Charge[i] i=0,Ncomp-1 
 @ 0. 0. 	Pol[i] i=0,Ncomp-1 

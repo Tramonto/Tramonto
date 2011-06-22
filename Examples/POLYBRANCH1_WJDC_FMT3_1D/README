@@ -17,7 +17,7 @@ Input Files for Test problem:
 Key Output Parameters:
    - niters=7
    - ads[0]=16.7992
-   - force=1.14457 
+   - force=-1.14457 
    - omega=-33.1857
 .
 
