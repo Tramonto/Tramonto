@@ -1,20 +1,18 @@
 ###############################################################################
 #
-# beowulf nightly
+# beefy nightly
 #
 ###############################################################################
 
-RUN (beowulf-nightly) {
+RUN (beefy-nightly) {
     
-    BUILD-LABEL         = default;
+    BUILD-LABEL         = O3-t10.6-8proc;
     BUILD-DIR           = BUILD;
-    INVOKE-CONFIGURE    = linux-beowulf;
+    INVOKE-CONFIGURE    = linux-beefy;
     TEST-CATEGORY       = FRAMEWORK;
-    MAX-PROC            = 16;
-    MPI-START           = lamboot;
-    MPI-PING            = mpitask;
-    MPI-STOP            = lamhalt;    
-    TTR-DIR             = /common/TramontoTestHarness/TramontoTestResults;
+    MAX-PROC            = 8;
+    TTR-DIR             = /net/people/faculty/other/jwillen/work/TramontoTestHarness/TramontoTestResults;
+    MPI-GO              = /usr/lib64/openmpi/bin/mpiexec -np ;
     SSG-USERNAME        = jmwille;
 
 }
