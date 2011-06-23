@@ -62,8 +62,7 @@ void surface_1elemSurface_inSurfaceTest(int iwall,int iwall_type,
   }
   r12=sqrt(r12sq_sum);
 
-  if (r12<=radius && count_wallEl==0){ 
-printf("FLAGGING fluid pos=%g to be in the wall wall_pos=%g\n",fluid_testpos[0],wall_pos[iwall][idim]);
+  if (r12<=radius /*&& count_wallEl==0*/){ 
      *logical_inwall=TRUE;  
      count_wallEl++;      
   }
