@@ -61,18 +61,19 @@ RUN (mac-tiger-intel) {
 
 ###############################################################################
 #
-# walbert nightly - built against Trilinos 9.0.2
+# zan nightly - built against Trilinos 10.6.4
 #
 ###############################################################################
 
-RUN (walbert-nightly) {
+RUN (zan-nightly) {
 
-    BUILD-LABEL         = t9.0.2;
+    BUILD-LABEL         = O3-t10.6-8proc;
     BUILD-DIR           = BUILD;
-    INVOKE-CONFIGURE    = linux-walbert;
+    INVOKE-CONFIGURE    = linux-zan;
     TEST-CATEGORY       = FRAMEWORK;
-    MAX-PROC            = 4;
+    MAX-PROC            = 8;
     TTR-DIR             = /home/jmwille/TramontoTestHarness/TramontoTestResults;
+    MPI-GO              = /home/jmwille/install/bin/mpiexec -np ;
     SSG-USERNAME        = jmwille;
 
 }
