@@ -112,6 +112,13 @@
                     6=LINEAR_noCS
                     7=R7_YUKAWA_SUM_CS
 
+@ 0     Type of wall-wall interactions::Ipot_ww_n[iwall_type][jwall_type]
+                           (-2 : set all array to 0
+                            -1 : set all array to 1
+                             0 : Don't compute interactions
+                             1 : Compute interactions of atom centers)
+
+
 @ 0 	Type_uwwPot 
           (Type_uwwPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
 
