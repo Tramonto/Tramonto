@@ -123,19 +123,21 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
          elems_w_per_w_global = (int **) array_alloc(1,Nlists_HW, sizeof(int *));
          nelems_w_per_w_global = (int *) array_alloc(1,Nlists_HW, sizeof(int));
          comm_wall_els(iwall,nelems_w_per_w,elems_w_per_w, nelems_w_per_w_global, elems_w_per_w_global);
-         setup_integrated_LJ_walls(iwall,nelems_w_per_w_global, elems_w_per_w_global);
+/*         if (RealWall_Images[iwall]<Nwall){*/
+               setup_integrated_LJ_walls(iwall,nelems_w_per_w_global, elems_w_per_w_global);
 
-         for (ilist=0; ilist<Nlists_HW; ilist++){
-               safe_free((void *) &elems_w_per_w_global[ilist]);
-         }
-         safe_free((void *) &elems_w_per_w_global);
-         safe_free((void *) &nelems_w_per_w_global);
+               for (ilist=0; ilist<Nlists_HW; ilist++){
+                   safe_free((void *) &elems_w_per_w_global[ilist]);
+                }
+                safe_free((void *) &elems_w_per_w_global);
+                safe_free((void *) &nelems_w_per_w_global);
+         /*}*/
        
          break;
 
        default:
            printf ("ERROR:no function set up for the chosen external field\n");
-           printf ("iwall=%d  Type=%d Ipot_wf_n=%d\n",iwall,WallType[iwall],Ipot_wf_n[WallType[iwall]]);
+           printf ("iwall=%d  Type=%d Ipot_wf_n=%d\n",RealWall_Images[iwall],WallType[iwall],Ipot_wf_n[WallType[iwall]]);
            exit (-1);
      }
   }
@@ -441,7 +443,7 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
           node_pos_f[3],node_pos_w2[3],vext,r_center_sq;
    double param1,param2,param3,param4,param5,param6;
 
-   iwall_type = WallType[iwall];
+   iwall_type = WallType_Images[iwall];
    max_cut = 0.0;
    for (icomp=0; icomp<Ncomp; icomp++)
          if (max_cut < Cut_wf[icomp][iwall_type]) 
@@ -557,6 +559,7 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
              pairPotparams_switch(Vext_PotentialID[iwall_type],WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4,&param5,&param6);
              vext = integrate_potential(Vext_PotentialID[iwall_type],param1,param2,param3,param4,param5,param6,
                        ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
+
 	     
              Vext[loc_inode][icomp] += vext;
 

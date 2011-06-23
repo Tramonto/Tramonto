@@ -43,7 +43,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
  /* Local variable declarations */
   int itype,iwall,ilist,iel_box,izone, **L_wall,idim,inode_box,inode_box_tmp,save_dim,inode_global;
   int loc_inode,real_wall,flag,flag_X_to_center;
-  int iel,inode,angle_test,jdim;
+  int iel,inode,angle_test,jdim,save_el_wall;
   int edge_element, ijk[3],imax[3],ix[3],Linwall,Lfind_images[3],ijk_global[3],ijk_box_tmp[3];
   double xtest[3],dist_roughness,dist_periodic, dist_linear,node_pos[3],xtest_tmp[3];
   double *x_min;
@@ -58,7 +58,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
   void (*fp_inSurfaceTest)(int, int,double *, double **, double, int, double *, double *, int *, int *);
   double (*fp_periodic)(double *,int,int);
   double (*fp_linear)(double *,int,int);
-  int (*fp_angleCutout)(int, int,double *);
+  int (*fp_angleCutout)(int, int,double *,double **);
 
   /*  Calculate the number of wall and fluid elements and nodes, and 
       fill arrays that index the wall and fluid elements and nodes.  This
@@ -81,15 +81,6 @@ void setup_surface (FILE *fp2, int *nelems_f,
         Wall_elems[ilist][iel_box] = -1;
         for (iwall=0; iwall<Nwall; iwall++) el_type[iwall][ilist][iel_box] = FLUID_EL;
      }
-  }
-
-  for (iwall=0; iwall<Nwall; iwall++)
-    for (ilist=0; ilist<Nlists_HW; ilist++){
-       nelems_w_per_w[ilist][iwall] = 0;
-       for (idim=0; idim<Ndim; idim++) {
-         Touch_domain_boundary[iwall][ilist][idim][0]=FALSE;
-         Touch_domain_boundary[iwall][ilist][idim][1]=FALSE;
-    }
   }
 
  /* To treat wall-wall boundaries effectively and clean
@@ -168,6 +159,18 @@ void setup_surface (FILE *fp2, int *nelems_f,
      image_old=image;
   }
   Nwall_Images = image;
+
+  for (iwall=0; iwall<Nwall_Images; iwall++)
+    if (RealWall_Images[iwall]<Nwall){
+    for (ilist=0; ilist<Nlists_HW; ilist++){
+       nelems_w_per_w[ilist][iwall] = 0;
+       for (idim=0; idim<Ndim; idim++) {
+         Touch_domain_boundary[RealWall_Images[iwall]][ilist][idim][0]=FALSE;
+         Touch_domain_boundary[RealWall_Images[iwall]][ilist][idim][1]=FALSE;
+    }
+    }
+  }
+
   if (Proc==0 && Iwrite==VERBOSE) printf("Number of surfaces requested=%d   Number of additional images=%d\n",Nwall,Nwall_Images-Nwall);
 
   if (flag){  /* if Vext is to be computed based on nearest x or r allocate array for walls and all images of walls */
@@ -246,7 +249,6 @@ void setup_surface (FILE *fp2, int *nelems_f,
           fp_inSurfaceTest=&surface_cylinder2D_inSurfaceTest;
           fp_roughness=&surface_cylinder2D_roughness;
           fp_angleCutout=&surface_angleCutout2D;
-          /*fp_linear=&surface_linear_offset;*/
        }
        break;
 
@@ -318,7 +320,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
            if (sgeom_iw->Lrough_surface && fp_roughness!=NULL &&Ndim>1) dist_roughness=(*fp_roughness)(xtest,itype,iwall); 
            if (sgeom_iw->Lperiodic_overlay && fp_periodic!=NULL) dist_periodic=(*fp_periodic)(xtest,itype,iwall); 
            if (sgeom_iw->Llinear_overlay && fp_linear!=NULL) dist_linear=(*fp_linear)(xtest,itype,iwall); 
-           if (sgeom_iw->Lwedge_cutout && fp_angleCutout!=NULL)  angle_test=(*fp_angleCutout)(real_wall,itype,xtest); 
+           if (sgeom_iw->Lwedge_cutout && fp_angleCutout!=NULL)  angle_test=(*fp_angleCutout)(iwall,itype,xtest,WallPos_Images); 
 
            /*if (Lhard_surf && ilist !=Nlists_HW-1) dist_adjustments=0.5*Sigma_wf[ilist][itype]; */
            if (Lhard_surf && ilist !=Nlists_HW-1) dist_adjustments=0.5*Sigma_ff[ilist][ilist]; 
@@ -328,8 +330,9 @@ void setup_surface (FILE *fp2, int *nelems_f,
            (*fp_inSurfaceTest)(iwall,itype,xtest,WallPos_Images,dist_adjustments,flag_X_to_center,
                                                       &delx_vext,&delx_zone,&logical_inwall,&logical_nearWallDielec);
 
-           if (logical_inwall==TRUE && angle_test==TRUE )  
-                flag_wall_el(inode,ilist,real_wall,iel_box,L_wall,nelems_w_per_w, elems_w_per_w,el_type);
+           if (logical_inwall==TRUE && angle_test==TRUE )  {
+                flag_wall_el(inode,ilist,iwall,iel_box,L_wall,nelems_w_per_w, elems_w_per_w,el_type);
+           }
 
            else if (logical_nearWallDielec) Dielec[iel_box] = Dielec_pore;
 
@@ -357,6 +360,10 @@ void setup_surface (FILE *fp2, int *nelems_f,
                         }
                         (*fp_inSurfaceTest)(iwall,itype,xtest,WallPos_Images,dist_adjustments,flag_X_to_center,
                                                       &delx_vext,&delx_zone,&logical_inwall,&logical_nearWallDielec);
+                         if (surfaceTypeID==point_surface){
+                             if (ilist==0) save_el_wall=iel_box;   
+                             else if (iel_box==save_el_wall) logical_inwall=TRUE; 
+                         }
                          if (ilist==Nlists_HW-1){
                            inode_global=position_to_node(xtest);
                            node_to_ijk(inode_global,ijk_global);
@@ -487,7 +494,7 @@ void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
       if (Link[iwall]==Link[i]) new_wall=FALSE;
    if (new_wall) Wall_owners[ilist][iel_box][Nwall_owners[ilist][iel_box]++] = Link[iwall];
 
-   if (iwall < Nwall) {
+/*   if (iwall < Nwall) {*/
       elems_w_per_w[ilist][nelems_w_per_w[ilist][iwall]][iwall] = iel_box;
       nelems_w_per_w[ilist][iwall]++;
       Wall_elems[ilist][iel_box] = iwall;
@@ -498,21 +505,23 @@ void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
       /* setup wall dielectric constants */
       if (ilist == Nlists_HW-1 && Ipot_ff_c == COULOMB){
           if (Type_dielec != DIELEC_CONST)
-                  Dielec[iel_box] = Dielec_wall[WallType[iwall]];
+                  Dielec[iel_box] = Dielec_wall[WallType_Images[iwall]];
       }
 
       /* flag cases where a given wall touches the domain boundary - need
          to do some special things if we touch a reflective boundary */
       node_to_ijk(inode,ijk);
 
-      for (idim=0; idim<Ndim; idim++){
-      if (ijk[idim] == 0 && !Touch_domain_boundary[iwall][ilist][idim][0]) 
-                       Touch_domain_boundary[iwall][ilist][idim][0] = TRUE;
-          if (Type_bc[idim][1]==PERIODIC) nadd=0;
-          else                            nadd=1;
-          if (ijk[idim]+nadd == Nodes_x[idim]-1 && 
-                       !Touch_domain_boundary[iwall][ilist][idim][1]) 
-                       Touch_domain_boundary[iwall][ilist][idim][1] = TRUE;
+      if (RealWall_Images[iwall]<Nwall){
+         for (idim=0; idim<Ndim; idim++){
+         if (ijk[idim] == 0 && !Touch_domain_boundary[RealWall_Images[iwall]][ilist][idim][0]) 
+                       Touch_domain_boundary[RealWall_Images[iwall]][ilist][idim][0] = TRUE;
+             if (Type_bc[idim][1]==PERIODIC) nadd=0;
+             else                            nadd=1;
+             if (ijk[idim]+nadd == Nodes_x[idim]-1 && 
+                       !Touch_domain_boundary[RealWall_Images[iwall]][ilist][idim][1]) 
+                       Touch_domain_boundary[RealWall_Images[iwall]][ilist][idim][1] = TRUE;
+         }
       }
 
       /* make a list of nodes that are hit by wall elements */
@@ -556,7 +565,7 @@ void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
           }
         }
       }
-   }
+  /* }*/
    return;
 }
 /****************************************************************************/

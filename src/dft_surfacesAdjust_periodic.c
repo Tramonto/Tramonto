@@ -50,7 +50,6 @@ double surface_periodic_offset(double *fluidEl_center,int iwall_type,int iwall)
      wavelength=sgeom_iw->wavelength[i];
      origin=sgeom_iw->origin_PeriodicFunc[i];
 
-/*     offset=amplitude*cos(2*PI*(fluidEl_center[orientation]-WallPos[orientation][iwall])/wavelength);*/
      offset+=amplitude*cos(2*PI*(fluidEl_center[orientation]-origin)/wavelength);
   }
   return(offset); 

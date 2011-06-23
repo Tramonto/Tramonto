@@ -53,7 +53,7 @@ void surface_1elemSurface_inSurfaceTest(int iwall,int iwall_type,
   if (Ipot_ff_c==COULOMB) *logical_nearWallDielec=FALSE;
   *logical_inwall=FALSE;
 
-  radius=sgeom_iw->radius-roff;
+  radius=sgeom_iw->radius+roff;
 
   r12sq_sum=0.0;
   for (idim=0; idim<Ndim; idim++){
@@ -62,13 +62,16 @@ void surface_1elemSurface_inSurfaceTest(int iwall,int iwall_type,
   }
   r12=sqrt(r12sq_sum);
 
-  if (r12<=radius+roff && count_wallEl==0){ 
+  if (r12<=radius && count_wallEl==0){ 
+printf("FLAGGING fluid pos=%g to be in the wall wall_pos=%g\n",fluid_testpos[0],wall_pos[iwall][idim]);
      *logical_inwall=TRUE;  
      count_wallEl++;      
   }
 
   if (Ipot_ff_c==COULOMB && r12 < radius+Dielec_X) *logical_nearWallDielec  = TRUE;
+
   *delr_zone=r12-radius;
+
   if (flag_X_to_center==TRUE) *delr_vext=r12;
   else                        *delr_vext=r12-radius;
 

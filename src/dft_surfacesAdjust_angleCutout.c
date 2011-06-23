@@ -38,7 +38,7 @@
 
 #include "dft_surfacesAdjust_angleCutout.h"
 /****************************************************************************/
-int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center)
+int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center, double **wall_pos)
 {
    int angle_test,idim;
    double vecB[2],angle,cos_angle,shift,angle_deg,rsq,r;
@@ -51,7 +51,7 @@ int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center)
 
    rsq=0.0;
    for (idim=0;idim<Ndim;idim++){
-         vecB[idim]=fluidEl_center[idim]-WallPos[idim][iwall];
+         vecB[idim]=fluidEl_center[idim]-wall_pos[idim][iwall];
          rsq+=vecB[idim]*vecB[idim];
    }
    r=sqrt(rsq);
@@ -60,7 +60,7 @@ int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center)
    cos_angle=vecB[0]/r;
    angle = acos(cos_angle);
    angle_deg=180.*angle/PI;
-   if (fluidEl_center[1] <WallPos[1][iwall]){
+   if (fluidEl_center[1] <wall_pos[1][iwall]){
        angle_reflect=360-angle_deg;
        angle_deg=angle_reflect;
    }
@@ -76,7 +76,7 @@ int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center)
    return (angle_test);
 }
 /****************************************************************************/
-int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center)
+int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center,double **wall_pos)
 {
   int angle_test,idim,orientation,dim[3],idim_testCos;
   double vecB[3],xtest[3],angle,cos_angle,angle_deg,rsq,r;
@@ -112,7 +112,7 @@ int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center)
 
    rsq=0.0;
    for (idim=0;idim<Ndim-1;idim++){
-         vecB[idim]=xtest[idim]-WallPos[dim[idim]][iwall];
+         vecB[idim]=xtest[idim]-wall_pos[dim[idim]][iwall];
          rsq+=vecB[idim]*vecB[idim];
    }
    r=sqrt(rsq);
@@ -121,7 +121,7 @@ int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center)
    angle = acos(cos_angle);
    angle_deg=180.*angle/PI;
 
-   if (fluidEl_center[idim_testCos] <WallPos[idim_testCos][iwall]){
+   if (fluidEl_center[idim_testCos] <wall_pos[idim_testCos][iwall]){
        angle_reflect=360-angle_deg;
        angle_deg=angle_reflect;
    }

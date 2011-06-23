@@ -97,9 +97,8 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-#define NWALL_MAX 600 
-extern int Link[NWALL_MAX];
 extern double Size_x[NDIM_MAX];
+#define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 #define IN_WALL             -1
 extern int Type_bc[NDIM_MAX][2];
@@ -111,6 +110,7 @@ extern int Type_bc[NDIM_MAX][2];
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+extern int Link[NWALL_MAX];
 typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
 extern struct SurfaceGeom_Struct *SGeom;
 extern int WallType[NWALL_MAX];

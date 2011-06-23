@@ -254,7 +254,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
   int  *elem_zones;
 
-  int ierr,icomp,ilist,iwall,inode;
+  int ierr,icomp,ilist,iwall,inode,fac_image;
   double sigma_test;
   int flag,iel_box,i,nwall_max,idim;
   int inode_box,iel,reflect_flag[3],j,k,loc_inode; 
@@ -349,14 +349,19 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
      nelems_f = (int *) array_alloc (1, Nlists_HW, sizeof(int));
 
-     elems_w_per_w =(int ***)array_alloc(3, Nlists_HW,Nelements_box,Nwall,sizeof(int));
-     nelems_w_per_w  =(int **) array_alloc(2, Nlists_HW, Nwall, sizeof(int));
+     fac_image=1;
+     for (idim=0; idim<Ndim; idim++){
+         if (Type_bc[idim][0]==REFLECT || Type_bc[idim][1]==PERIODIC || 
+         Type_bc[idim][1]==REFLECT || Type_bc[idim][1]==PERIODIC) fac_image*=3; }
+     
+     elems_w_per_w =(int ***)array_alloc(3, Nlists_HW,Nelements_box,Nwall*fac_image,sizeof(int));
+     nelems_w_per_w  =(int **) array_alloc(2, Nlists_HW, Nwall*fac_image, sizeof(int));
 
      elem_zones = (int *) array_alloc (1, Nelements_box, sizeof(int));
      for (iel_box=0; iel_box<Nelements_box; iel_box++) elem_zones[iel_box] = 0;
 
      Wall_elems = (int **) array_alloc(2, Nlists_HW, Nelements_box, sizeof(int));
-     el_type = (int ***) array_alloc(3, Nwall,Nlists_HW, Nelements_box, sizeof(int));
+     el_type = (int ***) array_alloc(3, Nwall*fac_image,Nlists_HW, Nelements_box, sizeof(int));
      if (Ipot_ff_c == COULOMB){
        Dielec = (double *) array_alloc (1, Nelements_box, sizeof(double));
        for (iel=0; iel<Nelements_box; iel++) Dielec[iel]=Dielec_bulk;
@@ -412,7 +417,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
              Vol_in_surfs[ilist]=0.0;
 
              ntot_per_list=0;
-             for (iwall=0;iwall<Nwall;iwall++){
+             for (iwall=0;iwall<Nwall_Images;iwall++){
                  ntot_per_list+=nelems_w_per_w[ilist][iwall];
              }
 
@@ -423,7 +428,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
              el_tmp  =(int *) array_alloc(1, ntot_per_list, sizeof(int));
 
              j=0;
-             for (iwall=0;iwall<Nwall;iwall++) 
+             for (iwall=0;iwall<Nwall_Images;iwall++) 
                 for (i=0;i<nelems_w_per_w[ilist][iwall];i++){
                      el_tmp[j]=el_box_to_el(elems_w_per_w[ilist][i][iwall]);
                      j++;
@@ -477,8 +482,8 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
         for (ilist=0; ilist<Nlists_HW; ilist++){
            fprintf (fp1,"ilist: %d\n",ilist);
            fprintf (fp1,"\t nelems_f[ilist]: %d Proc %d\n",nelems_f[ilist],Proc);
-           for (iwall=0; iwall<Nwall; iwall++)
-                 fprintf (fp1,"\t iwall: %d \t nelems_w_per_w[ilist][iwall]: %d\n",
+           for (iwall=0; iwall<Nwall_Images; iwall++)
+                 fprintf (fp1,"\t iwall: %d \t nelems_w_per_w[ilist][iwall_Image] in domain: %d\n",
                                          iwall, nelems_w_per_w[ilist][iwall]);
         }
         if (Proc==0) 

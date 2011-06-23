@@ -204,6 +204,7 @@ extern int *List_coarse_nodes;
 extern int Nnodes_coarse_loc;
 void set_mesh_coarsen_flag(void);
 void zones_el_to_nodes(int *elem_zones);
+extern int Nwall_Images;
 extern int Imain_loop;
 void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);
 void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);
@@ -213,11 +214,11 @@ extern int **Wall_touch_node;
 extern int *Nwall_touch_node;
 extern int *Nodes_wall_box;
 extern int *Index_wall_nodes;
-#define REFLECT              2
-#define PERIODIC             1
-extern int Type_bc[NDIM_MAX][2];
 extern int Nlink;
 extern double Dielec_bulk;
+#define PERIODIC             1
+#define REFLECT              2
+extern int Type_bc[NDIM_MAX][2];
 extern int Nelements_box;
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;

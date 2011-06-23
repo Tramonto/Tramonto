@@ -81,10 +81,10 @@ void surface_sphere_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos
 #define colloids_cyl_sphere             2
 void surface_block_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delx_vext,double *delx_zone,int *logical_inwall,int *logical_nearWallDielec);
 #define finite_planar_wall              1
-int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center);
+int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center,double **wal_pos);
 double surface_linear_offset(double *fluidEl_center,int iwall_type,int iwall);
 double surface_periodic_offset(double *fluidEl_center,int iwall_type,int iwall);
-int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center);
+int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center,double **wall_pos);
 double surface_planar_roughness(double *fluidEl_center,int iwall_type,int iwall);
 void surface_planar_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delx_vext,double *delx_zone,int *logical_inwall,int *logical_nearWallDielec);
 extern double ***Xwall_delDOWN;

@@ -52,7 +52,6 @@ extern double Vol_el;
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 #define VDASH_DELTA  1.e-6
 extern double **WallPos_Images;
-extern int *RealWall_Images;
 extern double ***Xwall_delDOWN;
 extern double ***Xwall_delUP;
 double Vext_1D(double x,int icomp,int iwall_type);
@@ -83,6 +82,7 @@ extern double VEXT_MAX;
 extern void *LinProbMgr_manager;
 extern int *L2B_node;
 extern int Nnodes_box;
+extern int *RealWall_Images;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void setup_integrated_LJ_walls(int iwall,int *nelems_w_per_w,int **elems_w_per_w);

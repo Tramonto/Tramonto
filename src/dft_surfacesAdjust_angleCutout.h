@@ -1,5 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
-int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center);
+int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center,double **wal_pos);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -28,12 +28,10 @@ int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center);
 #define TRUE  1
 #endif
 #define PI    3.141592653589793238462643383279502884197169399375
-#define NDIM_MAX  3
-#define NWALL_MAX 600 
-extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Ndim;
 typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
 extern struct SurfaceGeom_Struct *SGeom;
+#define NWALL_MAX 600 
 extern int Lwedge_cutout[NWALL_MAX];
 #define NWALL_MAX_TYPE 50 
 extern int Lperiodic_overlay[NWALL_MAX_TYPE];
@@ -68,4 +66,4 @@ struct SurfaceGeom_Struct {
   double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
-int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center);
+int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center,double **wall_pos);
