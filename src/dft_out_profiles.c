@@ -724,7 +724,7 @@ void print_charge_surf(double **charge_w_sum, char *output_file)
   }
 
   /* collect the global indices from all processors */
-  MPI_Gatherv(index_loc,Nnodes_per_proc,MPI_INT,
+  MPI_Gatherv(L2G_node,Nnodes_per_proc,MPI_INT,
            index,comm_icount_proc,comm_offset_icount,
            MPI_INT,0,MPI_COMM_WORLD);
   safe_free((void *) &index_loc);
@@ -765,7 +765,7 @@ void print_charge_surf(double **charge_w_sum, char *output_file)
             fprintf(ifp,"%9.6f\t", unk[inode][idim]);
 
         fprintf(ifp,"\n");
-        if (ijk[0] == Nodes_x[0]) fprintf(ifp,"\n");
+        if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
      }    /* loop over all nodes  */
 
      safe_free((void *) &unk);

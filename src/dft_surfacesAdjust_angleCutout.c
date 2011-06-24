@@ -51,7 +51,7 @@ int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center, doubl
 
    rsq=0.0;
    for (idim=0;idim<Ndim;idim++){
-         vecB[idim]=fluidEl_center[idim]-wall_pos[idim][iwall];
+         vecB[idim]=fluidEl_center[idim]-wall_pos[iwall][idim];
          rsq+=vecB[idim]*vecB[idim];
    }
    r=sqrt(rsq);
@@ -60,7 +60,7 @@ int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center, doubl
    cos_angle=vecB[0]/r;
    angle = acos(cos_angle);
    angle_deg=180.*angle/PI;
-   if (fluidEl_center[1] <wall_pos[1][iwall]){
+   if (fluidEl_center[1] <wall_pos[iwall][1]){
        angle_reflect=360-angle_deg;
        angle_deg=angle_reflect;
    }
@@ -112,7 +112,7 @@ int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center,do
 
    rsq=0.0;
    for (idim=0;idim<Ndim-1;idim++){
-         vecB[idim]=xtest[idim]-wall_pos[dim[idim]][iwall];
+         vecB[idim]=xtest[idim]-wall_pos[iwall][dim[idim]];
          rsq+=vecB[idim]*vecB[idim];
    }
    r=sqrt(rsq);
@@ -121,7 +121,7 @@ int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center,do
    angle = acos(cos_angle);
    angle_deg=180.*angle/PI;
 
-   if (fluidEl_center[idim_testCos] <wall_pos[idim_testCos][iwall]){
+   if (fluidEl_center[idim_testCos] <wall_pos[iwall][idim_testCos]){
        angle_reflect=360-angle_deg;
        angle_deg=angle_reflect;
    }

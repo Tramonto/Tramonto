@@ -331,7 +331,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
                                                       &delx_vext,&delx_zone,&logical_inwall,&logical_nearWallDielec);
 
            if (logical_inwall==TRUE && angle_test==TRUE )  {
-               if (surfaceTypeID != point_surface ||(surfaceTypeID==point_surface && nelems_w_per_w[ilist][iwall]==0)){
+               if (surfaceTypeID != point_surface || nelems_w_per_w[ilist][iwall]==0){
                 flag_wall_el(inode,ilist,iwall,iel_box,L_wall,nelems_w_per_w, elems_w_per_w,el_type);
                }
            }

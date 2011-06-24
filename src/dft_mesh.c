@@ -2230,6 +2230,7 @@ void setup_surface_charge(FILE *fp1)
         for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
            inode_box = L2B_node[loc_inode];
            iwall_test = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
+
            if (iwall_test == iwall){
                 bc_setup_const_charge(iwall,loc_inode);
                 Surf_charge_flag=TRUE;
