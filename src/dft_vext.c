@@ -454,11 +454,11 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
 
    ilist = Nlists_HW-1; /* only add the contributions of the solid*/
 
-  /* put 12 gauss quadrature points in each element */
-   gp = (double *) array_alloc (1, 12, sizeof(double));
-   gw = (double *) array_alloc (1, 12, sizeof(double));
-   gpu = (double *) array_alloc (1, 12, sizeof(double));
-   gwu = (double *) array_alloc (1, 12, sizeof(double));
+  /* put 20 or fewer gauss quadrature points in each element */
+   gp = (double *) array_alloc (1, 20, sizeof(double));
+   gw = (double *) array_alloc (1, 20, sizeof(double));
+   gpu = (double *) array_alloc (1, 20, sizeof(double));
+   gwu = (double *) array_alloc (1, 20, sizeof(double));
 
   ngp1  = 6;  ngp2 = 3; ngp3  = 3;
   ngpu1 = 20; ngpu2 = 12; ngpu3 = 6;
@@ -556,7 +556,8 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
              }
 
 
-             pairPotparams_switch(Vext_PotentialID[iwall_type],WALL_FLUID,icomp,iwall,&param1,&param2,&param3,&param4,&param5,&param6);
+             pairPotparams_switch(Vext_PotentialID[iwall_type],WALL_FLUID,icomp,RealWall_Images[iwall],
+                                  &param1,&param2,&param3,&param4,&param5,&param6);
              vext = integrate_potential(Vext_PotentialID[iwall_type],param1,param2,param3,param4,param5,param6,
                        ngp, ngpu, gp, gpu, gw, gwu, node_pos_w2, node_pos_f);
 

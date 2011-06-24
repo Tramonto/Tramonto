@@ -789,6 +789,10 @@ void read_input_file(char *input_file, char *output_file1)
     read_junk(fp,fp2);
     fscanf(fp,"%d  %d",&Ncomp,&Mix_type);
     fprintf(fp2,"%d  %d",Ncomp,Mix_type);
+    if (Mix_type==0 && (Ipot_ff_n==HARD_SPHERE || Ipot_ff_n==IDEAL_GAS)){
+        printf("don't do LB mixing rules for hard sphere or ideal gas fluids where Eps=0 and/or Sigma=0 by default\n");
+        exit(-1);
+    }
   }
   MPI_Bcast(&Ncomp,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Mix_type,1,MPI_INT,0,MPI_COMM_WORLD);

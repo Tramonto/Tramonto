@@ -59,6 +59,7 @@ void surface_cylinder3D_inSurfaceTest(int iwall,int iwall_type,
   else                        halflength=sgeom_iw->halflength-roff;
   orientation=sgeom_iw->orientation;
 
+
   switch(orientation)  {
        case 2:
           xtest[0] = fluid_testpos[0]; dim[0] = 0;

@@ -1414,10 +1414,18 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
         ilist=List_wall_node[index][index_w];
 
         if (n_fluid_els[index_w] == 0){
-            if ( Nlists_HW == Ncomp+1 || ilist==Ncomp) Zero_density_TF[inode_box][ilist] = TRUE;
-            else if (ilist == 0){
-                 for (icomp=0; icomp<Ncomp; icomp++) { Zero_density_TF[inode_box][icomp] = TRUE; }
+            if (Lhard_surf==TRUE){  /* Ncomp+1 lists and Ncomp+1 Zero_density_TF arrays */
+                 Zero_density_TF[inode_box][ilist] = TRUE;
             }
+            else{  /* only 2 lists, but Ncomp+1 Zero_density_TF arrays */
+                 if (ilist==1) Zero_density_TF[inode_box][Ncomp] = TRUE;
+                 else{ for (icomp=0; icomp<Ncomp; icomp++)  Zero_density_TF[inode_box][icomp] = TRUE; }
+            }
+/*            if ( (Lhard_wall==TRUE && Nlists_HW == Ncomp+1) || (Lhard_wall==FALSE && ilist==2) || ilist==Ncomp) 
+Zero_density_TF[inode_box][ilist] = TRUE;
+            else if (ilist == 0){
+                 for (icomp=0; icomp<Ncomp; icomp++)  Zero_density_TF[inode_box][icomp] = TRUE; 
+            }*/
         }
 
         else if ((n_fluid_els[index_w] != n_el_in_box) /*&& n_fluid_els[index_w]>0*/) {
@@ -2163,6 +2171,8 @@ void surf_el_to_list(int loc_inode, int ilist, int *iel_box,
 {
     int jwall, i;
     int inode,ijk[3];
+/*printf("ilist=%d el_box=%d Nwall_owners=%d\n",ilist,iel_box[el],Nwall_owners[ilist][iel_box[el]]);*/
+
     for (i=0; i< Nwall_owners[ilist][iel_box[el]];i++) {
 
        if (Nwall_owners[ilist][iel_box[el]] == 1) 
