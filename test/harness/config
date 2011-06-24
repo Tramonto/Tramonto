@@ -279,7 +279,7 @@ RUN (s903186-nightly) {
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = mac-s903186;
     TEST-CATEGORY       = FRAMEWORK;
-    MAX-PROC            = 4;
+    MAX-PROC            = 7;
     MPI-GO              = /Users/jmwille/install/bin/mpirun -np ;
     TTR-DIR             = /Users/jmwille/TramontoTestHarness/TramontoTestResults;
     SSG-USERNAME        = jmwille;
