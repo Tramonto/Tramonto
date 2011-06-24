@@ -45,7 +45,7 @@
                             5=WJDC3  (PREFERRED:: component based implementation of fields and densities)
 
 ************** SURFACE PARAMETERS **********************************************
-@ 1 2 2 0 0 	Nwall_types Nwall Nlink Lauto_center Lauto_size 
+@ 1 1 1 0 0 	Nwall_types Nwall Nlink Lauto_center Lauto_size 
 @ 0 0 	Xtest_reflect_TF[ilink=0,Nlink-1][idim=0,Ndim-1] 
 @ 1 	Surf_type[iwall_type] ; iwall_type=0,Nwall_type-1 
                   (0 = planar wall of infinite extent,               
