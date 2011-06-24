@@ -17,7 +17,7 @@ Input Files for Test problem:
 Key Output Parameters:
    - niter=6
    - adsorption=12.3422
-   - force=0.991395
+   - ptilde=-0.991395
    - energy=2.4142
    .
 */
