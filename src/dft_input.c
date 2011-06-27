@@ -771,7 +771,7 @@ void read_input_file(char *input_file, char *output_file1)
     }
     else fprintf(fp2,"Ipot_ww_n n/a");
   }
-  MPI_Bcast(Ipot_wf_n,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(Ipot_ww_n,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
 
   if (Proc==0){
      read_junk(fp,fp2);
@@ -790,8 +790,13 @@ void read_input_file(char *input_file, char *output_file1)
     fscanf(fp,"%d  %d",&Ncomp,&Mix_type);
     fprintf(fp2,"%d  %d",Ncomp,Mix_type);
     if (Mix_type==0 && (Ipot_ff_n==HARD_SPHERE || Ipot_ff_n==IDEAL_GAS)){
-        printf("don't do LB mixing rules for hard sphere or ideal gas fluids where Eps=0 and/or Sigma=0 by default\n");
-        exit(-1);
+        for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
+           if (Ipot_wf_n[iwall_type]!=VEXT_NONE && Ipot_wf_n[iwall_type]!=VEXT_HARD){
+                printf("don't do LB mixing rules for hard sphere or ideal gas fluids if any\n");
+                printf("of the surfaces has a nonzero Vext because Eps_f=0 and/or Sigma_f=0 by default\n");
+                exit(-1);
+           }
+        }
     }
   }
   MPI_Bcast(&Ncomp,1,MPI_INT,0,MPI_COMM_WORLD);

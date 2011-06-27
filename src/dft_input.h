@@ -103,6 +103,9 @@ extern double Rho_max;
 extern char Vext_file2[40];
 #define READ_VEXT_STATIC     3
 #define READ_VEXT_SUMTWO     2
+#define VEXT_NONE          0
+#define VEXT_HARD        1
+
 extern char Vext_file[40];
 #define READ_VEXT_FALSE      0
 extern int Restart_Vext;
