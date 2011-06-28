@@ -211,6 +211,7 @@ double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
 double  **WallPos_Images; /* Array of the centers of the surfaces including periodic and reflected images*/
 int     *WallType_Images; /* Array of the types of the surfaces including periodic and reflected images*/
 int     *RealWall_Images; /* Array of the real walls in the domain associated with the periodic and reflected images */
+int     *Image_IDCheck; /* Array of the real walls in the domain associated with the periodic and reflected images */
 int     Nwall_Images; /* Number of surfaces including all images*/
 
 

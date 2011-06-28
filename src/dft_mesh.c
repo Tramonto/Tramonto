@@ -1,4 +1,4 @@
- /*
+/*
 //@HEADER
 // ******************************************************************** 
 // Tramonto: A molecular theory code for structured and uniform fluids
@@ -477,7 +477,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
      if (Imain_loop == 0 && Proc ==0){
         fprintf (fp1,"\n---------------------------------------------------------------\n");
-        fprintf (fp1, " Have set up elements for the  selected surface geometry\n");
+        fprintf (fp1, " uave set up elements for the  selected surface geometry\n");
         fprintf (fp1, " For this problem, Nlists_HW= %d \n",Nlists_HW);
         for (ilist=0; ilist<Nlists_HW; ilist++){
            fprintf (fp1,"ilist: %d\n",ilist);
@@ -1314,8 +1314,11 @@ void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
     inode_box = Nodes_wall_box[index];
     inode = B2G_node[inode_box];
     node_to_ijk(inode,ijk);
+    node_to_position(inode,node_pos);
 
     for (index_w=0; index_w<Nwall_touch_node[index]; index_w++){
+/*printf("position=%g %g  Nwall_touch_node=%d indexw=%d  WallID=%d\n",
+    node_pos[0]+0.5*Size_x[0],node_pos[1]+0.5*Size_x[1],Nwall_touch_node[index],index_w,Wall_touch_node[index][index_w]);*/
        n_fluid_els[index_w] = 0;
        countw_per_w[index_w]=0;
     }
@@ -1430,6 +1433,8 @@ Zero_density_TF[inode_box][ilist] = TRUE;
 
         else if ((n_fluid_els[index_w] != n_el_in_box) /*&& n_fluid_els[index_w]>0*/) {
             Nodes_2_boundary_wall[ilist][inode_box] = Wall_touch_node[index][index_w]; 
+/*if ((Wall_touch_node[index][index_w]==0 || Wall_touch_node[index][index_w]==1) && ilist==Nlists_HW-1)
+      printf("iwall=%d  node_pos=%g %g \n",Wall_touch_node[index][index_w],node_pos[0]+Size_x[0]/2.,node_pos[1]+Size_x[1]/2.);*/
         }
     }
 
@@ -2093,12 +2098,13 @@ void boundary_properties(FILE *fp1)
         fprintf (fp1,"\nilist: %d\n",ilist); 
         sarea_sum=0.0;
         for (iwall=0; iwall<Nwall; iwall++){
-            fprintf (fp1,"\t iwall: %d \t S_area_tot[ilist][iwall]: %9.6f\n",
+            if (Proc==0) fprintf (fp1,"\t iwall: %d \t S_area_tot[ilist][iwall]: %9.6f\n",
                                             iwall, S_area_tot[ilist][iwall]); 
             sarea_sum += S_area_tot[ilist][iwall];
-            for (idim=0; idim<Ndim; idim++)
-                 fprintf (fp1,"\t\t idim: %d \t S_area[ilist][iwall][idim]: %9.6f\n",
+            for (idim=0; idim<Ndim; idim++){
+                 if (Proc==0) fprintf (fp1,"\t\t idim: %d \t S_area[ilist][iwall][idim]: %9.6f\n",
                                                   idim, S_area[ilist][iwall][idim]); 
+             }
        }
             fprintf (fp1,"\t total of walls: %d \t sarea_sum=%9.6f\n", ilist, sarea_sum);
      }

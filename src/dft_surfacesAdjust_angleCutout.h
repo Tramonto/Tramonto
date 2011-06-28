@@ -1,5 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
-int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center,double **wal_pos);
+int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center,double **wall_pos);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

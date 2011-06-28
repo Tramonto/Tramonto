@@ -81,7 +81,7 @@ void surface_sphere_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos
 #define colloids_cyl_sphere             2
 void surface_block_inSurfaceTest(int iwall,int iwall_type,double *fluid_testpos,double **wall_pos,double dist_adjustments,int flag_X_to_center,double *delx_vext,double *delx_zone,int *logical_inwall,int *logical_nearWallDielec);
 #define finite_planar_wall              1
-int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center,double **wal_pos);
+int surface_angleCutout3D_cyl(int iwall,int iwall_type,double *fluidEl_center,double **wall_pos);
 double surface_linear_offset(double *fluidEl_center,int iwall_type,int iwall);
 double surface_periodic_offset(double *fluidEl_center,int iwall_type,int iwall);
 int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center,double **wall_pos);
@@ -98,9 +98,12 @@ extern int Proc;
 extern int Proc;
 #endif
 extern int Nwall_Images;
+extern int Nlink;
 void find_wall_images(int idim,int *image,double **image_pos,double *pos);
 void find_wall_images(int idim,int *image,double **image_pos,double *pos);
 extern double WallPos[NDIM_MAX][NWALL_MAX];
+extern int Nlink_Images;
+extern int *Image_IDCheck;
 extern int *RealWall_Images;
 extern int *WallType_Images;
 #if defined(DEC_ALPHA)

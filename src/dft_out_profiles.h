@@ -123,7 +123,6 @@ extern double *Vext_old;
 extern int Num_Proc;
 extern double **Vext;
 extern int Ncomp;
-extern int Nlists_HW;
 void collect_vext_old();
 void safe_free(void **ptr);
 void safe_free(void **ptr);

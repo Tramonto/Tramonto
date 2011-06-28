@@ -870,6 +870,7 @@ extern double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surf
 extern double  **WallPos_Images; /* Array of the centers of the surfaces including periodic and reflected images*/
 extern int     *WallType_Images; /* Array of the types of the surfaces including periodic and reflected images*/
 extern int     *RealWall_Images; /* Array of the real wall in the domain associated with a particular images*/
+extern int     *Image_IDCheck; /* Array of the real wall in the domain associated with a particular images*/
 extern int     Nwall_Images; /* Number of surfaces including all images*/
 
 /* Fluid Physics info */

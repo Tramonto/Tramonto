@@ -112,10 +112,21 @@ void setup_surface (FILE *fp2, int *nelems_f,
      over the walls to include these images. */
 
   WallPos_Images = (double **) array_alloc (2, Nwall*POW_INT(3,Ndim),Ndim, sizeof(double));
-  WallType_Images = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(double));
-  RealWall_Images = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(double));
+  WallType_Images = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(int));
+  RealWall_Images = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(int));
+  Image_IDCheck = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(int));
+  /*Image_Link = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(int));*/
 
+  image=0;
   image_old = 0;
+  for (iwall=0; iwall<Nwall; iwall++){  /* put real walls into image list first */
+      for (idim=0;idim<Ndim;idim++) WallPos_Images[iwall][idim]=WallPos[idim][iwall];
+      WallType_Images[iwall]=WallType[iwall];
+      Image_IDCheck[iwall]=iwall;
+      RealWall_Images[iwall]=iwall;
+  }
+  image=Nwall;
+
   for (iwall=0; iwall<Nwall; iwall++){
 
      for (idim=0;idim<Ndim;idim++) Lfind_images[idim]=TRUE;
@@ -128,50 +139,88 @@ void setup_surface (FILE *fp2, int *nelems_f,
               if (idim!=orientation) Lfind_images[idim]=FALSE;
          }
      }
-     
-     for (idim=0; idim<Ndim; idim++) {
-        pos[idim] = WallPos[idim][iwall];
-        WallPos_Images[image_old][idim] = pos[idim];
+   
+     image_old=image;
+     for (i=0; i<image_old; i++){
+         if (RealWall_Images[i]==iwall){
+        for (idim=0; idim<Ndim; idim++)  pos[idim] = WallPos_Images[iwall][idim];
+        if (Lfind_images[0]) find_wall_images(0,&image,WallPos_Images,pos);
+        }
      }
-     image = image_old + 1;
+     for (i=image_old;i<image;i++){
+          WallType_Images[i]=WallType[iwall];
+          RealWall_Images[i]=iwall;
+          Image_IDCheck[i]=-1;
+     }
 
-     if (Lfind_images[0]) find_wall_images(0,&image,WallPos_Images,pos);
+     if (Ndim>1){
+     image_old=image;
+     for (i=0; i<image_old; i++){
+         if (RealWall_Images[i]==iwall){
+           for (idim=0; idim<Ndim; idim++) pos[idim] = WallPos_Images[i][idim];
+           if (Lfind_images[1]) find_wall_images(1, &image,WallPos_Images,pos);
+         }
+     }
+     for (i=image_old;i<image;i++){
+          WallType_Images[i]=WallType[iwall];
+          RealWall_Images[i]=iwall;
+          Image_IDCheck[i]=-1;
+     }
+     }
 
-     if (Ndim > 1){
+     if (Ndim==3){ 
+     image_old=image;
+     for (i=0; i<image_old; i++){
+         if (RealWall_Images[i]==iwall){
+           for (idim=0; idim<Ndim; idim++) pos[idim] = WallPos_Images[i][idim];
+           if (Lfind_images[2]) find_wall_images(2, &image,WallPos_Images,pos);
+         }
+     }
+     for (i=image_old;i<image;i++){
+          WallType_Images[i]=WallType[iwall];
+          RealWall_Images[i]=iwall;
+          Image_IDCheck[i]=-1;
+     }
+     }
+  
+/*     if (Ndim > 1){
         image_x = image-image_old;
         for (i=image_old; i<image_old+image_x; i++){
-           for (idim=0; idim<Ndim; idim++)
-              pos[idim] = WallPos_Images[i][idim];
-              if (Lfind_images[1]) find_wall_images(1, &image,WallPos_Images,pos);
+           for (idim=0; idim<Ndim; idim++) pos[idim] = WallPos_Images[i][idim];
+           if (Lfind_images[1]) find_wall_images(1, &image,WallPos_Images,pos);
         }
      }
      if (Ndim == 3){
         image_xy = image-image_old;
         for (i=image_old; i<image_old+image_xy; i++){
-           for (idim=0; idim<Ndim; idim++)
-              pos[idim] = WallPos_Images[i][idim];
-              if (Lfind_images[2]) find_wall_images(2,&image,WallPos_Images,pos);
+           for (idim=0; idim<Ndim; idim++) pos[idim] = WallPos_Images[i][idim];
+            if (Lfind_images[2]) find_wall_images(2,&image,WallPos_Images,pos);
         }
-
      }
      for (i=image_old; i<image; i++) WallType_Images[i]=WallType[iwall];
      for (i=image_old; i<image; i++) RealWall_Images[i]=iwall;
-     image_old=image;
+     for (i=image_old+1; i<image; i++) Image_IDCheck[i]=-1;*/
+/*     image_old=image;*/
   }
   Nwall_Images = image;
 
   for (iwall=0; iwall<Nwall_Images; iwall++)
-    if (RealWall_Images[iwall]<Nwall){
     for (ilist=0; ilist<Nlists_HW; ilist++){
        nelems_w_per_w[ilist][iwall] = 0;
-       for (idim=0; idim<Ndim; idim++) {
-         Touch_domain_boundary[RealWall_Images[iwall]][ilist][idim][0]=FALSE;
-         Touch_domain_boundary[RealWall_Images[iwall]][ilist][idim][1]=FALSE;
-    }
-    }
+       if (Image_IDCheck[iwall]>=0){
+         for (idim=0; idim<Ndim; idim++) {
+           Touch_domain_boundary[Image_IDCheck[iwall]][ilist][idim][0]=FALSE;
+           Touch_domain_boundary[Image_IDCheck[iwall]][ilist][idim][1]=FALSE;
+         }
+       }
   }
 
-  if (Proc==0 && Iwrite==VERBOSE) printf("Number of surfaces requested=%d   Number of additional images=%d\n",Nwall,Nwall_Images-Nwall);
+  if (Proc==0 && Iwrite==VERBOSE){
+      printf("Number of surfaces requested=%d   Number of additional images=%d\n",Nwall,Nwall_Images-Nwall);
+      for (iwall=0;iwall<Nwall_Images;iwall++){
+         printf("image=%d  Image_IDCheck=%d  position=%g %g\n",iwall,Image_IDCheck[iwall],WallPos_Images[iwall][0],WallPos_Images[iwall][1]);
+      }
+  }
 
   if (flag){  /* if Vext is to be computed based on nearest x or r allocate array for walls and all images of walls */
      X_wall = (double **) array_alloc (2, Nnodes_box, Nwall_Images,sizeof(double));
