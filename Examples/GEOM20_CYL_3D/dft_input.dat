@@ -122,20 +122,20 @@
           (Type_uwwPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
 
 ************** FLUID INTERACTION PARAMETERS  ************************************
-@ 2 0 	Ncomp Mix_type (0=L-B Rules, 1=manual input) 
+@ 2 1 	Ncomp Mix_type (0=L-B Rules, 1=manual input) 
 
-@ 1.       HS_diam[i] i=0,Ncomp-1  This is only read if Type_hsdiam is set to MANUAL
+@ 1. 1.       HS_diam[i] i=0,Ncomp-1  This is only read if Type_hsdiam is set to MANUAL
 @ 1. 1.  	Mass[i] i=0,Ncomp-1 
 @ 0. 0. 	Charge[i] i=0,Ncomp-1 
 @ 0. 0. 	Pol[i] i=0,Ncomp-1 
 
-@ 1. 1. 	Sigma_ff[i][j], [0][1]...[0][Ncomp-1]; 
-@ 1. 1. Eps_ff[i][j] 
-@ 3. 3. 	Cut_ff[i][j] 
-@ 1. 1. Bond_ff[i][j] 
-@ 0. 0.          EpsYukawa_ff[i][j]
-@ 0. 0.	YukawaK_ff[i][j] 
-@ 0. 0.          Npow_ff[i][j]
+@ 1. 1. 1. 1. 	Sigma_ff[i][j], [0][1]...[0][Ncomp-1]; 
+@ 1. 1.  1. 1. Eps_ff[i][j] 
+@ 3. 3. 3. 3. 	Cut_ff[i][j] 
+@ 1. 1. 1. 1. Bond_ff[i][j] 
+@ 0. 0. 0. 0.         EpsYukawa_ff[i][j]
+@ 0. 0.	0. 0.YukawaK_ff[i][j] 
+@ 0. 0. 0. 0.         Npow_ff[i][j]
 
 @ 1. 	Rho_w[i] [i=0,Nwall_type-1] 
 @ 1. 	Sigma_ww[i][j] [i=0,Nwall_type-1][j=0,Nwall_type-1] 
@@ -144,9 +144,9 @@
 @ 0.    EpsYukawa_ww[i][j]
 @ 0. 	YukawaK_ww[i][j] 
 
-@ 0. 0. 	Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1] 
-@ 0. 0. 	Eps_wf[i][j] 
-@ 0. 0. 	Cut_wf[i][j] 
+@ 1. 1. 	Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1] 
+@ 2. 2. 	Eps_wf[i][j] 
+@ 3. 3. 	Cut_wf[i][j] 
 @ 0. 0.   EpsYukawa_wf[i][j]
 @ 0. 0. 	YukawaK_wf[i][j] 
 

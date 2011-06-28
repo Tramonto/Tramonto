@@ -15,10 +15,10 @@ Input Files for Test problem:
    - dft_surfaces.dat
 
 Key Output Parameters:
-   - niter=6
-   - adsorption[0]=826.606
-   - adsorption[0]=826.606
-   - surf_ex_energy=11.7168
+   - niter=8
+   - adsorption[0]=792.265
+   - adsorption[1]=792.265
+   - surf_ex_energy=149.629
    .
 */
 
