@@ -330,14 +330,14 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
      Nlists_HW = 2;
      if (Lhard_surf && Ipot_ff_n != IDEAL_GAS){ Nlists_HW = Ncomp + 1;
-/*        if (Ncomp > 1){    /* remove case where Ncomp>1 and lists are the same */
+/*        if (Ncomp > 1){*/    /* remove case where Ncomp>1 and lists are the same */
            sigma_test = Sigma_ff[0][0];
            flag = FALSE;
            for (icomp=1; icomp<Ncomp; icomp++){
                if (Sigma_ff[icomp][icomp] != sigma_test) flag = TRUE;
            }
            if (flag == TRUE) Nlists_HW = Ncomp + 1;
-        }*/
+        /*}*/
      }
 
 
