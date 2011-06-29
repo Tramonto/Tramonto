@@ -72,7 +72,8 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
    /* set up the Vext_dash array if we will need it */
    Lvext_dash=FALSE;
    for (iwall=0;iwall<Nwall;iwall++){
-      if (Ipot_wf_n[WallType[iwall]] != VEXT_NONE && Ipot_wf_n[WallType[iwall]] != VEXT_HARD) Lvext_dash=TRUE;
+      if (Ipot_wf_n[WallType[iwall]] != VEXT_NONE && Ipot_wf_n[WallType[iwall]] != VEXT_HARD &&
+         Ipot_wf_n[WallType[iwall]] != VEXT_3D_INTEGRATED) Lvext_dash=TRUE;
    }
    if (Nwall>0 && Lvext_dash) 
          Vext_dash =  (double ***) array_alloc (3, Nnodes_per_proc,Ncomp*Nwall, 
@@ -342,14 +343,17 @@ void setup_semiperm(int **nelems_w_per_w, int ***elems_w_per_w)
 void setup_vext_XRSurf(int iwall)
 {
   int iwall_type,icomp,loc_inode,ijk_box[3],ijk_box_tmp[3],iunk, inode_box_tmp, idim;
+  int flag_on_cutoff;
   double xORr, fluid_pos[3], sign, vtmpUP, vtmpDOWN, xORr_tmp;
   double param1,param2,param3,param4,param5,param6;
 
   iwall_type=WallType_Images[iwall];
     for (icomp=0; icomp<Ncomp;icomp++){
+      
        if (Type_vext[iwall_type]==VEXT_PAIR_POTENTIAL) pairPotparams_switch(Vext_PotentialID[iwall_type],WALL_FLUID, icomp,iwall,
                                                        &param1,&param2,&param3,&param4,&param5,&param6);
        for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
+           flag_on_cutoff=FALSE;
            if (Zero_density_TF[L2B_node[loc_inode]][icomp]==FALSE) {
 
               node_box_to_ijk_box(L2B_node[loc_inode],ijk_box);
@@ -362,7 +366,6 @@ void setup_vext_XRSurf(int iwall)
               }*/
 
               xORr=X_wall[L2B_node[loc_inode]][iwall];
-/*              if (fabs(Vext[loc_inode][icomp]-VEXT_MAX)>1.e-6){*/
               if (fabs(Vext[loc_inode][icomp]-Vext_set[loc_inode][icomp])>1.e-6){
                  if (xORr>0.001){
 
@@ -370,6 +373,7 @@ void setup_vext_XRSurf(int iwall)
                           Vext[loc_inode][icomp] += pairPot_switch(xORr,param1,param2,param3,param4,param5,param6,Vext_PotentialID[iwall_type]);
                      }
                      else Vext[loc_inode][icomp]+= Vext_1D(xORr,icomp,iwall_type);
+                     if (fabs(xORr-Cut_wf[icomp][iwall_type])<1.e-6) flag_on_cutoff=TRUE;
                  }
                  else Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; 
               } 
@@ -406,10 +410,12 @@ void setup_vext_XRSurf(int iwall)
                        Vext_dash[loc_inode][iunk][idim]==0.0;
                  }
                  else{
-                     if (fabs(vtmpUP-Vext_set[loc_inode][icomp])<1.e-6 && fabs(vtmpDOWN-Vext_set[loc_inode][icomp])>1.e-6){
+                     if ((fabs(vtmpUP-Vext_set[loc_inode][icomp])<1.e-6 && fabs(vtmpDOWN-Vext_set[loc_inode][icomp])>1.e-6) ||
+                         (fabs(vtmpUP)<1.e-6 && flag_on_cutoff==TRUE)){
                         Vext_dash[loc_inode][iunk][idim]+=sign*(Vext[loc_inode][icomp]-vtmpDOWN)/VDASH_DELTA;
                      }
-                     else if (fabs(vtmpDOWN-Vext_set[loc_inode][icomp])<1.e-6 && fabs(vtmpUP-Vext_set[loc_inode][icomp])>1.e-6){
+                     else if ((fabs(vtmpDOWN-Vext_set[loc_inode][icomp])<1.e-6 && fabs(vtmpUP-Vext_set[loc_inode][icomp])>1.e-6) ||
+                         (fabs(vtmpDOWN<1.e-6) && flag_on_cutoff==TRUE)){
                         Vext_dash[loc_inode][iunk][idim]+=sign*(vtmpUP-Vext[loc_inode][icomp])/VDASH_DELTA;
                      }
                      else{
@@ -418,9 +424,9 @@ void setup_vext_XRSurf(int iwall)
                  }
               }
 
-           }
-       }
-    }
+       }  /*zero check */
+    } /*loc_inode*/
+   } /*icomp */
    return;
 }
 
