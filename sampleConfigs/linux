@@ -1,6 +1,0 @@
-#
-# This configure invocation works for RedHat Linux
-# with Trilinos installed in /home/rlschie/arch/intelLinuxParallel
-#
-./configure \
-  --with-trilinos=/home/rlschie/arch/intelLinuxParallel
