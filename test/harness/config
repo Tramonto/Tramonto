@@ -80,6 +80,25 @@ RUN (zan-nightly) {
 
 ###############################################################################
 #
+# barky occasional - built against Trilinos 10.6.4
+#
+###############################################################################
+
+RUN (barky) {
+
+    BUILD-LABEL         = O3-t10.6-8proc;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = linux-barky;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 8;
+    TTR-DIR             = /home/jmwille/TramontoTestHarness/TramontoTestResults;
+    MPI-GO              = /home/jmwille/install/bin/mpiexec -np ;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
 # frost nightly - built against Trilinos 8.0.5
 #
 ###############################################################################
