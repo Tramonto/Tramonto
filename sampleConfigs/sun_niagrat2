@@ -1,9 +1,0 @@
-#
-# This configure invocation works on paunchy, a Sun machine, 
-# with Trilinos installed in /local/homes/jmwille/TramontosTrilinos
-#
-../configure \
-CXX=mpic++ CC=mpicc F77=mpif77 \
-LDFLAGS="-xlic_lib=sunperf" \
-CXXFLAGS="-O3 -pto -library=stlport4" \
---with-trilinos=/home/maherou/Trilinos/SUN_MPI

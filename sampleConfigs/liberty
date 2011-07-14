@@ -1,9 +1,0 @@
-#
-# This configure invocation works on liberty (ICC). 
-# Note: It is not possible to use the parallel make option (-j) on liberty
-# when building Tramonto.
-#
-.././configure \
-CXX=mpicxx CC=mpicc F77=mpif77 \
---with-trilinos=/home/jmwille/TramontosTrilinos/liberty \
-FFLAGS=-O3 CPPFLAGS=-DCODE_MP
