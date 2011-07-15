@@ -74,6 +74,7 @@ IF(NOT CMAKE_AR)
 ENDIF()
 
 project(Tramonto)
+SET(CPACK_PACKAGE_VERSION "4.1d")
 #enable_language(Fortran)
 #Currently no example exes are built for Tramonto
 #set(BUILD_EXAMPLES true CACHE BOOL "Build Tramonto Examples")
