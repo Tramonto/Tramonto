@@ -390,13 +390,53 @@ ENDIF()
 # Handle selective compilation of Tpetra source
 if (USE_TPETRA)
   message("USE_TPETRA defined. Compiling against Tpetra code.")
+#  list(APPEND common_h Tpetra_OperatorApplyInverse.hpp)
+
   list(REMOVE_ITEM common_h dft_BasicLinProbMgr.hpp)
-  list(APPEND common_h dft_TpetraBasicLinProbMgr.hpp)
-  list(APPEND common_h Tpetra_OperatorApplyInverse.hpp)
-  list(REMOVE_ITEM common_cxx  dft_basic_lin_prob_mgr_wrapper.cpp)
   list(REMOVE_ITEM common_cxx dft_BasicLinProbMgr.cpp)
-  list(APPEND common_cxx dft_TpetraBasicLinProbMgr.cpp)
+  list(APPEND common_h dft_TpetraBasicLinProbMgr.hpp)
+#  list(APPEND common_cxx dft_TpetraBasicLinProbMgr.cpp)
+
+  list(REMOVE_ITEM common_h dft_PolyLinProbMgr.hpp)
+  list(REMOVE_ITEM common_cxx dft_PolyLinProbMgr.cpp)
+#  list(APPEND common_h dft_TpetraPolyLinProbMgr.hpp)
+#  list(APPEND common_cxx dft_TpetraPolyLinProbMgr.cpp)
+
+  list(REMOVE_ITEM common_h dft_HardSphereLinProbMgr.hpp)
+  list(REMOVE_ITEM common_cxx dft_HardSphereLinProbMgr.cpp)
+#  list(APPEND common_h dft_TpetraHardSphereLinProbMgr.hpp)
+#  list(APPEND common_cxx dft_TpetraHardSphereLinProbMgr.cpp)
+
+  list(REMOVE_ITEM common_cxx  dft_basic_lin_prob_mgr_wrapper.cpp)
   list(APPEND common_cxx dft_tpetra_basic_lin_prob_mgr_wrapper.cpp)
+
+  list(REMOVE_ITEM common_cxx  dft_poly_lin_prob_mgr_wrapper.cpp)
+  list(APPEND common_cxx dft_tpetra_poly_lin_prob_mgr_wrapper.cpp)
+
+  list(REMOVE_ITEM common_cxx  dft_hardsphere_lin_prob_mgr_wrapper.cpp)
+  list(APPEND common_cxx dft_tpetra_hardsphere_lin_prob_mgr_wrapper.cpp)
+
+#  list(APPEND common_h dft_A22Matrix_Tpetra_Operator.hpp)
+#  list(APPEND common_cxx dft_A22Matrix_Tpetra_Operator.cpp)
+
+#  list(APPEND common_h dft_PolyA11_Tpetra_Operator.hpp)
+#  list(APPEND common_cxx dft_PolyA11_Tpetra_Operator.cpp)
+#  list(APPEND common_h dft_PolyA11_Coulomb_Tpetra_Operator.hpp)
+#  list(APPEND common_cxx dft_PolyA11_Coulomb_Tpetra_Operator.cpp)
+
+#  list(APPEND common_h dft_PolyA22_Tpetra_Operator.hpp)
+#  list(APPEND common_cxx dft_PolyA22_Tpetra_Operator.cpp)
+#  list(APPEND common_h dft_PolyA22_Coulomb_Tpetra_Operator.hpp)
+#  list(APPEND common_cxx dft_PolyA22_Coulomb_Tpetra_Operator.cpp)
+
+#  list(APPEND common_h dft_Schur_Tpetra_Operator.hpp)
+#  list(APPEND common_cxx dft_Schur_Tpetra_Operator.cpp)
+
+#  list(APPEND common_h dft_HardSphereA11_Tpetra_Operator.hpp)
+#  list(APPEND common_cxx dft_HardSphereA11_Tpetra_Operator.cpp)
+#  list(APPEND common_h dft_HardSphereA22_Tpetra_Operator.hpp)
+#  list(APPEND common_cxx dft_HardSphereA22_Tpetra_Operator.cpp)
+
 endif(USE_TPETRA)
 
 
