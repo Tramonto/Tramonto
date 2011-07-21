@@ -71,9 +71,10 @@ void read_input_file(char *input_file, char *output_file1)
   
   /********************** BEGIN EXECUTION ************************************/
 
-  if (Proc==0) {
+	if (Proc==0) {
      printf("\n-----------------STARTING DFT CALCULATION----------------------------\n");
-  }
+	}
+  
   /* Read in the Mesh, Surface, Potential Type, Fluid Particle, 
      Surface Particle, State Point, Functional, and Run Control Parameters.
 
@@ -343,7 +344,7 @@ void read_input_file(char *input_file, char *output_file1)
              #endif
              irand_range = POW_INT(2,31)-1;
               WallPos[dim_tmp][iwall] = Size_x[idim]*(-0.5+( ((double)irand)/((double)irand_range)));
-              printf("\n  Wall %d dim %d gets WallPos:%g \n",iwall,idim,WallPos[idim][iwall]);
+			  printf("\n  Wall %d dim %d gets WallPos:%g \n",iwall,idim,WallPos[idim][iwall]);
               fprintf(fp2,"\n Wall %d dim %d gets WallPos:%g \n",iwall,idim,WallPos[idim][iwall]);
           }
           if (Length_ref > 0.0) WallPos[dim_tmp][iwall] /=Length_ref; 
@@ -1306,7 +1307,7 @@ void read_input_file(char *input_file, char *output_file1)
 	}
       }
       Ntype_mer++;
-      printf("Number of segment types (Ntype_mer) = %d\n",Ntype_mer);
+		printf("Number of segment types (Ntype_mer) = %d\n",Ntype_mer);
     }
     MPI_Bcast(&Ntype_mer,1,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Nmer_t,NCOMP_MAX*NBLOCK_MAX,MPI_INT,0,MPI_COMM_WORLD);
@@ -1565,7 +1566,7 @@ void read_input_file(char *input_file, char *output_file1)
      /* calculate total sum of site densities */
      Rho_t = 0.0;
      for(icomp=0; icomp<Ncomp; icomp++) Rho_t += Rho_b_RTF[icomp];
-     printf("Rho_t(right) = %f\n", Rho_t);
+	  printf("Rho_t(right) = %f\n", Rho_t);
   }
   else{
     if (Proc==0) {
@@ -1965,7 +1966,7 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(&Iwrite,1,MPI_INT,0,MPI_COMM_WORLD);
 
-  if (Proc==0) printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
+  if (Proc==0 && Iwrite != NO_SCREEN) printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
   /* COARSENING Switches */
 
   if (Proc==0) {
@@ -1992,10 +1993,10 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(&Mesh_coarsening,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Mesh_coarsening==2 && Lauto_size && Proc==0){
-      printf("AUTO SIZE FOR BOX :: [Lx,Ly,Lz]=");
+      if(Iwrite != NO_SCREEN) printf("AUTO SIZE FOR BOX :: [Lx,Ly,Lz]=");
       for (idim=0; idim<Ndim; idim++){
          Size_x[idim] = maxpos[idim]-minpos[idim] + 2.0*(Rmax_zone[0]+Sigma_ff[0][0]);
-         printf("  %9.6f\n",Size_x[idim]);
+         if(Iwrite != NO_SCREEN) printf("  %9.6f\n",Size_x[idim]);
       }
   }
   MPI_Bcast(Size_x,NDIM_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -2039,7 +2040,7 @@ void read_input_file(char *input_file, char *output_file1)
             }
       }
     }
-    else { printf("n/a - no manual entry of scaling parameters"); }
+    else { if(Iwrite != NO_SCREEN) printf("n/a - no manual entry of scaling parameters"); }
   }
   MPI_Bcast(Scale_fac_WJDC,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
   MPI_Bcast(&Max_NL_iter,1,MPI_INT,0,MPI_COMM_WORLD);
@@ -2048,7 +2049,7 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&ATTInA22Block,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Analyt_WJDC_Jac,1,MPI_INT,0,MPI_COMM_WORLD);
   if (NL_Solver==PICARD_BUILT_IN && Iguess_fields !=CALC_ALL_FIELDS){
-     printf("Picard solver indicated so Iguess_fields is reset to %d\n",CALC_ALL_FIELDS);
+     if(Iwrite != NO_SCREEN) printf("Picard solver indicated so Iguess_fields is reset to %d\n",CALC_ALL_FIELDS);
   }
 
   if (Proc==0) {

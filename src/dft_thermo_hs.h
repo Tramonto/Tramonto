@@ -19,6 +19,7 @@ void FMT1stDerivBulk_switch(double *n,double *inv_n3,double *dphi_drb);
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define VERBOSE      3 
+#define	NO_SCREEN	4
 extern int Iwrite;
 void dphi_drb_bulk(double *rhobar,double *dphi_drb);
 #define NCOMP_MAX 5

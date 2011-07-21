@@ -82,6 +82,7 @@ extern double **Vext_static;
 extern int Restart_Vext;
 extern double **Vext;
 void print_vext(double **vext,char *output_file);
+#define	EXTENDED	2
 #define VERBOSE      3 
 #define NO_SCREEN    4 
 extern int Iwrite;
