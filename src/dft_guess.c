@@ -42,7 +42,7 @@ void set_initial_guess (int guess_type, double** xOwned)
   int start_no_info;
   double **xInBox;
 
-  if (Proc==0) { 
+  if (Proc==0 && Iwrite != NO_SCREEN) { 
       printf("\n SET UP INITIAL GUESS ... ");
       t1 = MPI_Wtime();
   }
