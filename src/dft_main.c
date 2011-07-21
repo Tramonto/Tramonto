@@ -238,7 +238,7 @@ void dftmain(double * engptr)
            if(Iwrite !=NO_SCREEN) printf("Not computing vext_coulomb due to boundary conditions\n");
          }
      }
-     if (Iwrite==VERBOSE) {
+     if (Iwrite==EXTENDED) {
         print_vext(Vext,output_file2);
         if (Restart_Vext == READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");
         print_zeroTF(Zero_density_TF,output_TF);
