@@ -182,4 +182,53 @@ Install(FILES
 	Examples/YUKAWA_FMT1_3D/dft_surfaces.dat
 	Examples/YUKAWA_FMT1_3D/README
 	DESTINATION ./Examples/YUKAWA_FMT1_3D)
+
+# These files should not be included in a release tarball
+SET(CPACK_SOURCE_IGNORE_FILES
+  ${CPACK_SOURCE_IGNORE_FILES}
+  ${Tramonto_SOURCE_DIR}/TramontoGUI
+  ${Tramonto_SOURCE_DIR}/Performance
+  ${Tramonto_SOURCE_DIR}/Idea
+  ${Tramonto_SOURCE_DIR}/guiSupport
+  ${Tramonto_SOURCE_DIR}/Documentation
+  ${Tramonto_SOURCE_DIR}/Examples/test_script
+  ${Tramonto_SOURCE_DIR}/src/CMakeLists_with_Optika.txt
+  ${Tramonto_SOURCE_DIR}/src/GUI_trilinos10.7
+  ${Tramonto_SOURCE_DIR}/src/GUI
+  ${Tramonto_SOURCE_DIR}/src/packages
+  ${Tramonto_SOURCE_DIR}/src/NEW
+  ${Tramonto_SOURCE_DIR}/src/prototype
+  ${Tramonto_SOURCE_DIR}/src/source_archives
+  ${Tramonto_SOURCE_DIR}/src/include_global/dft_globals.h_new
+  ${Tramonto_SOURCE_DIR}/src/dft_eqLoader.h
+  ${Tramonto_SOURCE_DIR}/src/loca_util.h
+  ${Tramonto_SOURCE_DIR}/src/dft_eqLoader_NewPhys.h
+  ${Tramonto_SOURCE_DIR}/src/dft_BasicA22_Epetra_Operator.cpp
+  ${Tramonto_SOURCE_DIR}/src/dft_BasicA22_Epetra_Operator.hpp
+  ${Tramonto_SOURCE_DIR}/src/PolySolverTester.cpp
+  ${Tramonto_SOURCE_DIR}/src/sol_A22_G11_Z12_D21_D22.hpp
+  ${Tramonto_SOURCE_DIR}/src/dft_c2cpp_wrappers.cpp
+  ${Tramonto_SOURCE_DIR}/src/dft_ldbal_old.h
+  ${Tramonto_SOURCE_DIR}/src/dft_loadManager.h
+  ${Tramonto_SOURCE_DIR}/src/loca_bord.h
+  ${Tramonto_SOURCE_DIR}/src/loca_lib.h
+  ${Tramonto_SOURCE_DIR}/src/dft_Poisson_Epetra_Operator.cpp
+  ${Tramonto_SOURCE_DIR}/src/dft_mesh_surfaces.h
+  ${Tramonto_SOURCE_DIR}/src/dft_schur_solver.h
+  ${Tramonto_SOURCE_DIR}/src/dft_TpetraBasicLinProbMgr.cpp
+  ${Tramonto_SOURCE_DIR}/src/dft_TpetraBasicLinProbMgr.hpp
+  ${Tramonto_SOURCE_DIR}/src/dft_mesh_surfaces.c
+  ${Tramonto_SOURCE_DIR}/src/HardSphereSolverTester.cpp
+  ${Tramonto_SOURCE_DIR}/src/dft_eqLoader.cpp
+  ${Tramonto_SOURCE_DIR}/src/dft_c2cpp_wrappers.h
+  ${Tramonto_SOURCE_DIR}/src/dft_Poisson_Epetra_Operator.hpp
+  ${Tramonto_SOURCE_DIR}/src/dft_schur_solver.cpp
+  ${Tramonto_SOURCE_DIR}/src/dft_tpetra_basic_lin_prob_mgr_wrapper.cpp
+  ${Tramonto_SOURCE_DIR}/src/Tpetra_Headers.hpp
+  ${Tramonto_SOURCE_DIR}/src/Tpetra_OperatorApplyInverse.hpp
+  ${Tramonto_SOURCE_DIR}/src/sol_A22_G11_Z12_D21_D22.cpp
+  ${Tramonto_SOURCE_DIR}/src/dft_loadManager.cpp
+  ${Tramonto_SOURCE_DIR}/src/dft_eqLoader_NewPhys.cpp
+)
+
 include(CPack)
