@@ -186,6 +186,7 @@ Install(FILES
 # These files should not be included in a release tarball
 SET(CPACK_SOURCE_IGNORE_FILES
   ${CPACK_SOURCE_IGNORE_FILES}
+  /CVS/
   ${Tramonto_SOURCE_DIR}/TramontoGUI
   ${Tramonto_SOURCE_DIR}/Performance
   ${Tramonto_SOURCE_DIR}/Idea
