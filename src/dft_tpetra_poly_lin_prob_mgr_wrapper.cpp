@@ -24,7 +24,7 @@
 //@HEADER
 
 #include "dft_poly_lin_prob_mgr_wrapper.h"
-//#include "dft_TpetraPolyLinProbMgr.hpp"
+#include "dft_TpetraPolyLinProbMgr.hpp"
 
 #ifdef __cplusplus
 extern "C" 
@@ -34,10 +34,10 @@ extern "C"
 //template class dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal>;
 //template class dft_PolyLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal>;
 
-//typedef Teuchos::Comm<int> COMM;
+typedef Teuchos::Comm<int> COMM;
 
-//typedef dft_PolyLinProbMgr<double,int,int> PLPM;
-//typedef dft_BasicLinProbMgr<double,int,int> BLPM;
+typedef dft_PolyLinProbMgr<double,int,int> PLPM;
+typedef dft_BasicLinProbMgr<double,int,int> BLPM;
 
   /*****************************************************/
   /**                  dft_BasicLinProbMgr            **/
@@ -46,33 +46,33 @@ extern "C"
 void * 
 dft_poly_lin_prob_mgr_create
 (int numUnks, void * Parameterlist_list, MPI_Comm comm) 
-{/*
+{
   RCP<ParameterList> my_list = rcp( (ParameterList *) Parameterlist_list, false);
   RCP<const COMM> my_comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
 
-  PLPM * tmp = new PLPM(numUnks, my_list, my_comm);
+  PLPM * tmp = new PLPM(comm, numUnks, my_list, my_comm);
   BLPM * linprobmgr_ = dynamic_cast<BLPM *>(tmp);
-  return((void *)linprobmgr_);*/
+  return((void *)linprobmgr_);
 }
 
 void * 
 dft_poly_lin_prob_mgr_create_debug
 (int numUnks, void * Parameterlist_list, MPI_Comm comm) 
-{/*
+{
   RCP<ParameterList> my_list = rcp( (ParameterList *) Parameterlist_list, false);
   RCP<const COMM> my_comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
-  PLPM * tmp = new PLPM(numUnks, my_list, my_comm, true);
+  PLPM * tmp = new PLPM(comm, numUnks, my_list, my_comm, true);
   BLPM * linprobmgr_ = dynamic_cast<BLPM *>(tmp);
-  return((void *)linprobmgr_);*/
+  return((void *)linprobmgr_);
 }
 
 void 
 dft_poly_lin_prob_mgr_destruct
 (void * linprobmgr) 
-{/*
+{
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
-  delete linprobmgr_;*/
+  delete linprobmgr_;
 }
 
 int 
@@ -90,55 +90,55 @@ dft_poly_lin_prob_mgr_setgequationids
 int 
 dft_poly_lin_prob_mgr_setginvequationids
 (void * linprobmgr, int numgids, int * gids) 
-{/*
+{
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_  = dynamic_cast<PLPM *>(tmp);
 
   ArrayView<const int> gid_arr(gids, numgids);
-  linprobmgr_->setGInvEquationIDs(gid_arr);*/
+  linprobmgr_->setGInvEquationIDs(gid_arr);
   return 0;
 }
 
 int 
 dft_poly_lin_prob_mgr_setcmsequationids
 (void * linprobmgr, int numgids, int * gids) 
-{/*
+{
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
   
   ArrayView<const int> gid_arr(gids, numgids);
-  linprobmgr_->setCmsEquationIDs(gid_arr);*/
+  linprobmgr_->setCmsEquationIDs(gid_arr);
   return 0;
 }
 
 int 
 dft_poly_lin_prob_mgr_setdensityequationids
 (void * linprobmgr, int numgids, int * gids) 
-{/*
+{
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
 
   ArrayView<const int> gid_arr(gids, numgids);
 
-  linprobmgr_->setDensityEquationIDs(gid_arr);*/
+  linprobmgr_->setDensityEquationIDs(gid_arr);
   return 0;
 }
 
 int 
 dft_poly_lin_prob_mgr_setfieldondensityislinear
 (void * linprobmgr, int isLinear) 
-{/*
+{
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
   bool isLinear1 = (isLinear!=0);
-  linprobmgr_->setFieldOnDensityIsLinear(isLinear1);*/
+  linprobmgr_->setFieldOnDensityIsLinear(isLinear1);
   return 0;
 }
 
 int 
 dft_poly_lin_prob_mgr_setpoissonequationids
 (void * linprobmgr, int numgids, int * gids) 
-{/*
+{
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
 
@@ -146,7 +146,7 @@ dft_poly_lin_prob_mgr_setpoissonequationids
     return 0;
   }
   ArrayView<const int> gid_arr(gids, numgids);
-  linprobmgr_->setPoissonEquationIDs(gid_arr);*/
+  linprobmgr_->setPoissonEquationIDs(gid_arr);
   return 0;
 }
 
