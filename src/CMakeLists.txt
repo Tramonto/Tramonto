@@ -400,7 +400,7 @@ if (USE_TPETRA)
   list(REMOVE_ITEM common_h dft_PolyLinProbMgr.hpp)
   list(REMOVE_ITEM common_cxx dft_PolyLinProbMgr.cpp)
   list(APPEND common_h dft_TpetraPolyLinProbMgr.hpp)
-#  list(APPEND common_cxx dft_TpetraPolyLinProbMgr.cpp)
+  list(APPEND common_cxx dft_TpetraPolyLinProbMgr.cpp)
 
   list(REMOVE_ITEM common_h dft_HardSphereLinProbMgr.hpp)
   list(REMOVE_ITEM common_cxx dft_HardSphereLinProbMgr.cpp)
