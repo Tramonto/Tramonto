@@ -616,7 +616,7 @@ Check
   
   if (verbose) 
   {
-    std::cout << "A22 self-check residual = " << resid << endl;
+    std::cout << "A22 self-check residual = " << resid << std::endl;
   } //end if
 
   TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n"); 
