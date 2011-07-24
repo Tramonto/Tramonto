@@ -29,10 +29,10 @@
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyLinProbMgr
-(MPI_Comm ecomm, LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList,
+(LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList,
  RCP<const COMM> comm, bool debug)
   : dft_BasicLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>
-    (ecomm, numUnknownsPerNode, parameterList, comm),
+    (numUnknownsPerNode, parameterList, comm),
     isLinear_(false),
     debug_(debug),
     hasPoisson_(false),

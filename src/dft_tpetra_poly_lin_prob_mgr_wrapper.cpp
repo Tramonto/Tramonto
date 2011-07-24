@@ -50,7 +50,7 @@ dft_poly_lin_prob_mgr_create
   RCP<ParameterList> my_list = rcp( (ParameterList *) Parameterlist_list, false);
   RCP<const COMM> my_comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
 
-  PLPM * tmp = new PLPM(comm, numUnks, my_list, my_comm);
+  PLPM * tmp = new PLPM(numUnks, my_list, my_comm);
   BLPM * linprobmgr_ = dynamic_cast<BLPM *>(tmp);
   return((void *)linprobmgr_);
 }
@@ -61,7 +61,7 @@ dft_poly_lin_prob_mgr_create_debug
 {
   RCP<ParameterList> my_list = rcp( (ParameterList *) Parameterlist_list, false);
   RCP<const COMM> my_comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
-  PLPM * tmp = new PLPM(comm, numUnks, my_list, my_comm, true);
+  PLPM * tmp = new PLPM(numUnks, my_list, my_comm, true);
   BLPM * linprobmgr_ = dynamic_cast<BLPM *>(tmp);
   return((void *)linprobmgr_);
 }

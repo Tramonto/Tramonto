@@ -50,7 +50,7 @@ class dft_BasicLinProbMgr {
      \param comm (In) Teuchos communicator that should be used by the solver.
   */
   dft_BasicLinProbMgr
-  (MPI_Comm ecomm, size_t numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm);
+  (size_t numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm);
 
   //! dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> Destructor.
   /*! Completely deletes a dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> object.

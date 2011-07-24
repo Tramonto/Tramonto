@@ -29,7 +29,7 @@
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_BasicLinProbMgr
-(MPI_Comm ecomm, size_t numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm)
+(size_t numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm)
   : isBlockStructureSet_(false),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),

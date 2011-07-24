@@ -63,7 +63,7 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
      \param comm (In) Teuchos communicator that should be used by the solver.
      \param debug (In) Turns debug mode on if set to true, false by default.
   */
-  dft_PolyLinProbMgr(MPI_Comm ecomm, LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, bool debug = false);
+  dft_PolyLinProbMgr(LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, bool debug = false);
 
   //! dft_PolyLinProbMgr Destructor.
   /*! Completely deletes a dft_PolyLinProbMgr object.

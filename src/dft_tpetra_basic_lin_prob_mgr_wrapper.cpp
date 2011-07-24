@@ -42,7 +42,7 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
   void * dft_basic_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
     RCP<ParameterList> my_list = rcp( (ParameterList *) Parameterlist_list, false);
     const RCP<const COMM> my_comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
-    BLPM * linprobmgr_ = new BLPM(comm, numUnks, my_list, my_comm);
+    BLPM * linprobmgr_ = new BLPM(numUnks, my_list, my_comm);
     return( (void *)linprobmgr_ );
   }
 
