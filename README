@@ -230,7 +230,7 @@ Building Tramonto:
     build Tramonto. After make finishes, the Tramonto  binary, "dft_exec" 
     can optionally be copied to a more convenient location.
 
-Building Trilinos and Tramonto on Windows
+Building Trilinos and Tramonto on Windows Using Visual Studio
 
     Beginning with Tramonto 4.0, it is possible to build Tramonto on Windows
     using Microsoft Visual Studio.  The below instructions assume some
