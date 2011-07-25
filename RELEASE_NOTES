@@ -1,5 +1,59 @@
 ---------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------
+Tramonto v4.0 Release Notes
+
+* Tramonto-4.0 is a major release delivered in July of 2011.
+* It is recommended that all users upgrade to Tramonto-4.0. 
+* New features and capabilities in Tramonto-4.0 include:
+
+  Build System
+
+   - A cmake-based build system that is consistent with Trilinos 10.x.
+   - Tramonto now can be built on Windows through Visual Studio. The Windows
+     build is not fully supported for this release. We are planning to add a
+     Windows installer for future releases.
+
+  New Physics
+
+   - Implementaion of a fourth hard-sphere FMT method.
+   - Generalized electrostatics methods for electrolytes with species of unlike
+     size.
+   - Generalized methods for defining attractive functionals.
+   - New pair potential interactions for summed Yukawa with repulsions to allow
+     for studies of coarse-grained electrostatics systems. 
+   - Option for manual input of hard sphere diameters to allow for studies of
+     nonadditive potentials.
+   - Implementation of automated output for sum rule studies. 
+   - Generalization of surface modifications (roughess, periodic, and linear
+     functions) to simple surfaces. 
+   - Generalized external field code to allow for different types of surfaces
+     (e.g. Lennard-Jones and Yukawa) in one calculation. 
+
+  New Solver Functionality
+
+   - Implementation of Schur solvers for analytic Jacobians for WJDC3 polymer
+     methods. 
+   - Implementation of Schur solvers for charged systems.
+   - Manual input option for physics based scaling of WJDC polymer systems.
+   - Picard and Newton iterations and tolerances changed to be set
+     independently. 
+
+  Refactored Code and Bug Fixes
+
+   - Surface geometry code refactored to allow for easier code extensions and
+     modifications. 
+   - External field code refactored to simplify treatment of any case where the
+     external field is based on distance to surface or distance to center of
+     wall or atom. 
+   - A new numerical scheme for computing derivatives of external field for
+     every case except integrated surfaces. 
+   - Addition of more than 40 new example problems to the release with a
+     special emphasis on 2D and 3D problems of various geometries.
+   - Bug fixes for free energy calculations in charged systems.
+   - Bug fixes for LAST_NODE boundary conditions. 
+
+---------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
 Tramonto v3.1 Release Notes
 
 * Tramonto-3.1 is a minor release completed in August, 2009 that includes with some bug fixes and new functionality as itemized here.  
