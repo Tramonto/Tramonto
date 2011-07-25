@@ -33,7 +33,7 @@ Contents:
     Prerequisites
     Building Trilinos
     Building Tramonto
- 
+    Building Trilinos and Tramonto on Windows Using Visual Studio
 
 Prerequisites:
 
@@ -229,4 +229,115 @@ Building Tramonto:
     Once the configure script completes, you can type "make" to 
     build Tramonto. After make finishes, the Tramonto  binary, "dft_exec" 
     can optionally be copied to a more convenient location.
+
+Building Trilinos and Tramonto on Windows
+
+    Beginning with Tramonto 4.0, it is possible to build Tramonto on Windows
+    using Microsoft Visual Studio.  The below instructions assume some
+    familiarity with Visual Studio.  The Windows build process is not as
+    polished as the process for Linux or Mac.  Feedback for building on
+    Windows, including improvements or additions for the information below
+    can be sent to tramonto-help@software.sandia.gov.
+
+    1.  Install CMake, CLAPACK (or other BLAS & LAPACK implementations), and
+        MPICH2 (or another MPI implementation)
+
+      CMake: http://www.cmake.org/cmake/resources/software.html
+
+        Download the latest 32-bit Windows installer (even if using a 64-bit
+        machine.  Follow the instructions for the self-extracting installer.
+
+      CLAPACK: http://www.netlib.org/clapack
+
+        Download the latest Visual Studio prebuilt zip file.  Extract the
+        contents of the zip file and note the directory where CLAPACK was
+        extracted.  Alternatively, use the CMake-aware version and build
+        (and optionally install) CLAPACK through visual studio.
+
+      MPICH2: http://www.mcs.anl.gov/research/projects/mpich2/downloads/index.php?s=downloads
+
+        Download the latest Windows installer from the above website.  Follow
+        the instructions for the self-extracting installer.
+
+    2.  Build Trilinos
+
+        Open the CMake GUI, select Trilinos source and build trees.  Configure
+        once.
+
+        Set the following variables (Note that safety and clarity were the
+        primary considerations for these instructions, not efficiency):
+
+        TPL_ENABLE_MPI -> ON
+        Trilinos_ENABLE_ALL_PACKAGES -> Leave box unchecked
+        Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES -> Uncheck box
+        Trilinos_ENABLE_Amesos -> ON
+        Trilinos_ENABLE_AztecOO -> ON
+        Trilinos_ENABLE_Triutils -> ON
+        Trilinos_ENABLE_Ifpack -> ON
+        Trilinos_ENABLE_EpetraExt -> ON
+        Trilinos_ENABLE_Epetra -> ON
+        Trilinos_ENABLE_ML -> ON
+        Trilinos_ENABLE_NOX -> ON
+        Trilinos_ENABLE_Teuchos -> ON
+        TPL_ENABLE_BLAS -> ON
+        TPL_ENABLE_LAPACK -> ON
+        CMAKE_INSTALL_PREFIX -> Set to Trilinos installation path
+
+        Configure again, switch to "Advanced View"
+
+        MPI_BASE_DIR -> Set to top level of MPI installation 
+            (ex C:/Program Files/MPICH2)
+        TPL_BLAS_LIBRARIES -> Set to find BLAS 
+            (ex (this is all one line) - C:/Program Files/CLAPACK 3.2.1/lib/
+             blas.lib;C:/Program Files/CLAPACK 3.2.1/lib/libf2c.lib )
+
+        configure again
+
+        TPL_LAPACK_LIBRARIES -> Set to find LAPACK
+            (ex C:/Program Files/CLAPACK 3.2.1/lib/lapack.lib )
+
+        configure again
+        configure again
+        generate
+
+        Open the 'Trilinos.snl' file created during the generation process
+        from the 'File' menu in Visual Studio.  Right click on Solution
+        'Trilinos' and click 'Build Solution'.
+
+    3.  Build Tramonto
+
+        Next, open the CMake GUI again.  Select Tramonto source and build trees. 
+        Configure once.
+
+        Trilinos_DIR -> delete the pre-filled value (if applicable)
+        TRILINOS_PATH -> Set to the same value used for CMAKE_INSTALL_PREFIX
+        for Trilinos.
+
+        configure again
+        generate
+
+        Open the 'Tramonto.snl' file created during the generation process from
+        the 'File' menu in Visual Studio.  Right click on Solution 'Tramonto'
+        and click 'Build Solution'.
+
+    Notes for Windows build: 
+
+        - These instructions were created using Microsoft Visual Studio 2008.
+
+        - Depending on the version of Trilinos used, the ML build may fail with
+          an error indicating that 'unistd.h' cannot be found.  Remove the
+          reference to this file from 'ml_utils.h' and build again.
+
+        - If the Tramonto build fails with an error indicating that LAPACK or
+          BLAS cannot be found, do the following inside Visual Studio:
+
+            Right-click the dft_exec target -> properties
+            Under the C/C++ tab, add to the additional include directories the
+            proper directories for the lapack and blas header files.
+
+            Under the Linker tab, add to the additional library directories the
+            proper directories for the lapack and blas library files.
+
+            Under Linker->Input, add lapack.lib, blas.lib, and (if using
+            clapack) libf2c.lib to the additional dependencies list.
 
