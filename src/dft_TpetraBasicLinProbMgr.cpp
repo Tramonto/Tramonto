@@ -442,11 +442,13 @@ setupSolver
   //printf("Node num cols = %d\n", globalMatrix_->getNodeNumCols());
   problem_ = rcp(new LinPROB(globalMatrix_, globalLhs_, globalRhs_));
   // No preconditioner for now
-  //  preconditioner_ = Ifpack2::Factory::create<MAT>("ILUT", globalMatrix_);
-  //  preconditioner_->setParameters(*parameterList_);
-  //  preconditioner_->initialize();
-  //  preconditioner_->compute();
-  //  problem_->setLeftPrec(preconditioner_);
+  // Ifpack2::Factory factory;
+  // RCP<const MAT> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT>(globalMatrix_);
+  // preconditioner_ = factory.create("ILUT", const_globalMatrix_);
+  // preconditioner_->setParameters(*parameterList_);
+  // preconditioner_->initialize();
+  // preconditioner_->compute();
+  // problem_->setLeftPrec(preconditioner_);
   TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 #endif
