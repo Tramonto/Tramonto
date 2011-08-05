@@ -437,6 +437,22 @@ if (USE_TPETRA)
 #  list(APPEND common_h dft_HardSphereA22_Tpetra_Operator.hpp)
 #  list(APPEND common_cxx dft_HardSphereA22_Tpetra_Operator.cpp)
 
+   list(APPEND Tramonto_Trilinos_LIBRARIES ${Tpetra_LIBRARIES} ${Ifpack2_LIBRARIES} )
+
+   LIST(FIND Trilinos_PACKAGE_LIST Tpetra TPETRA_FOUND)
+   IF(TPETRA_FOUND GREATER -1)
+     MESSAGE("Trilinos package Tpetra found.")
+   ELSE()
+     MESSAGE(FATAL_ERROR "Could not find Trilinos package Tpetra!")
+   ENDIF()
+
+   LIST(FIND Trilinos_PACKAGE_LIST Ifpack2 IFPACK2_FOUND)
+   IF(IFPACK2_FOUND GREATER -1)
+     MESSAGE("Trilinos package Ifpack2 found.")
+   ELSE()
+     MESSAGE(FATAL_ERROR "Could not find Trilinos package Ifpack2!")
+   ENDIF()
+
 endif(USE_TPETRA)
 
 
