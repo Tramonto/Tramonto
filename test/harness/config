@@ -294,12 +294,12 @@ RUN (melchior-11) {
 
 RUN (s903186-nightly) {
 
-    BUILD-LABEL         = mac-t10.6;
+    BUILD-LABEL         = mac-TriDev;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = mac-s903186;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 7;
-    MPI-GO              = /Users/jmwille/install/bin/mpirun -np ;
+    MPI-GO              = /Users/jmwille/install/gcc-4.6.1/openmpi-1.4.3/bin/mpiexec -np ;
     TTR-DIR             = /Users/jmwille/TramontoTestHarness/TramontoTestResults;
     SSG-USERNAME        = jmwille;
 
