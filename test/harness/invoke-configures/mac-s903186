@@ -1,4 +1,4 @@
 cmake \
-     -DTRILINOS_PATH=/Users/jmwille/TramontoTestHarness/Tri10.6 \
+     -DTRILINOS_PATH=/Users/jmwille/TramontoTestHarness/TriDev \
      ..
 
