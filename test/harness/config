@@ -72,7 +72,7 @@ RUN (zan-nightly) {
     INVOKE-CONFIGURE    = linux-zan;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 8;
-    TTR-DIR             = /home/jmwille/TramontoTestHarness/TramontoTestResults;
+    TTR-DIR             = /home/hudson/slave/workspace/tramonto-test-results;
     MPI-GO              = /home/jmwille/install/bin/mpiexec -np ;
     SSG-USERNAME        = jmwille;
 
