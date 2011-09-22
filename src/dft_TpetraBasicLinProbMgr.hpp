@@ -73,7 +73,7 @@ class dft_BasicLinProbMgr {
   */
   virtual void
   setNodalRowMap
-  (int * GIDs, const ArrayView<const GlobalOrdinal>& GIDs2, LocalOrdinal nx = 0, LocalOrdinal ny = 1, LocalOrdinal nz = 1);
+  (const ArrayView<const GlobalOrdinal>& GIDs, LocalOrdinal nx = 0, LocalOrdinal ny = 1, LocalOrdinal nz = 1);
 
   //! Define global to local index column mappings, the rectangular box containing all ghost nodes and owned nodes.
   /*! Define the list of global node IDs reached to by global row nodes on this processor.
@@ -89,7 +89,7 @@ class dft_BasicLinProbMgr {
   */
   virtual void
   setNodalColMap
-  (int * GIDs, const ArrayView<const GlobalOrdinal>& GIDs2, LocalOrdinal nx = 0, LocalOrdinal ny = 1, LocalOrdinal nz = 1);
+  (const ArrayView<const GlobalOrdinal>& GIDs, LocalOrdinal nx = 0, LocalOrdinal ny = 1, LocalOrdinal nz = 1);
 
   //! Define the nodes on this processor that will be mesh-coarsened, must be nodes set as part of setNodalRowMap().
   /*! Define the list of global node IDs that will be algebraically defined as an average of neighbors.  The exact definition
@@ -101,7 +101,7 @@ class dft_BasicLinProbMgr {
   */
   virtual void
   setCoarsenedNodesList
-  (const ArrayView<const GlobalOrdinal> &GIDs2);
+  (const ArrayView<const GlobalOrdinal> &GIDs);
 
   //! Method that must be called once, when all row and column maps are set.
   /*! This method constructs all of the CrsGraph objects and the lhs and rhs vectors. */
@@ -335,7 +335,7 @@ class dft_BasicLinProbMgr {
   */
   virtual ArrayRCP<Scalar>
   exportC2R
-  (const ArrayRCP<const Scalar>& aBox2) const;
+  (const ArrayRCP<const Scalar>& aBox) const;
   //@}
 
 

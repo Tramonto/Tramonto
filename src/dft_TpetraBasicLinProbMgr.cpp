@@ -60,35 +60,35 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 setNodalRowMap
-(int *GIDs, const ArrayView<const GlobalOrdinal>& GIDs2, LocalOrdinal nx, LocalOrdinal ny, LocalOrdinal nz)
+(const ArrayView<const GlobalOrdinal>& GIDs, LocalOrdinal nx, LocalOrdinal ny, LocalOrdinal nz)
 {
   if (numGlobalNodes_!=0)
   {
     return; // Already been here
   }
-  numOwnedNodes_ = GIDs2.size();
+  numOwnedNodes_ = GIDs.size();
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
 				  &numOwnedNodes_, &numGlobalNodes_);
 
-  ownedMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), GIDs2, 0, comm_));
+  ownedMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), GIDs, 0, comm_));
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 setNodalColMap
-(int *GIDs, const ArrayView<const GlobalOrdinal> &GIDs2, LocalOrdinal nx, LocalOrdinal ny, LocalOrdinal nz)
+(const ArrayView<const GlobalOrdinal> &GIDs, LocalOrdinal nx, LocalOrdinal ny, LocalOrdinal nz)
 {
   if (numGlobalBoxNodes_!=0)
   {
     return; // Already been here
   }
 
-  numBoxNodes_ = GIDs2.size();
+  numBoxNodes_ = GIDs.size();
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
 			       &numBoxNodes_, &numGlobalBoxNodes_);
 
-  boxMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), GIDs2, 0, comm_));
+  boxMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), GIDs, 0, comm_));
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -116,8 +116,8 @@ finalizeBlockStructure
 {
   TEST_FOR_EXCEPTION(isBlockStructureSet_, std::runtime_error, "Already set block structure.\n");
 
-  const size_t numUnks2 = numOwnedNodes_*numUnknownsPerNode_;
-  Array<LocalOrdinal> globalGIDList2(numUnks2);
+  const size_t numUnks = numOwnedNodes_*numUnknownsPerNode_;
+  Array<LocalOrdinal> globalGIDList(numUnks);
 
   // Physics ordering for Basic Linear Problem is natural ordering:
   physicsOrdering_.resize(numUnknownsPerNode_);
@@ -136,8 +136,8 @@ finalizeBlockStructure
   // Sanity check of physics ordering
   checkPhysicsOrdering();
 
-  ArrayView<const GlobalOrdinal> GIDs2 = ownedMap_->getNodeElementList();
-  LocalOrdinal k2=0;
+  ArrayView<const GlobalOrdinal> GIDs = ownedMap_->getNodeElementList();
+  LocalOrdinal k=0;
   if (groupByPhysics_)
   {
     for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++)
@@ -145,7 +145,7 @@ finalizeBlockStructure
       LocalOrdinal ii=physicsOrdering_[i];
       for (LocalOrdinal j=0; j<numOwnedNodes_; j++)
       {
-	      globalGIDList2[k2++] = ii*numGlobalNodes_ + GIDs2[j];
+	      globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
       }
     }
   }
@@ -156,12 +156,12 @@ finalizeBlockStructure
       for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++)
       {
 	LocalOrdinal ii=physicsOrdering_[i];
-	globalGIDList2[k2++] = ii + GIDs2[j]*numUnknownsPerNode_;
+	globalGIDList[k++] = ii + GIDs[j]*numUnknownsPerNode_;
       }
     }
   }
 
-  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList2, 0, comm_));
+  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_));
   globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
@@ -189,14 +189,11 @@ initializeProblemValues
  // first time a matrix was filled, because matrix entries are being put
  // in on residual-only fills, which can occur before matrix fills.
 
-  if (!firstTime_)
-  {
-    globalMatrix_->resumeFill();
-    globalMatrix_->setAllToScalar(0.0);
-    globalMatrix_->fillComplete();
-    globalRhs_->putScalar(0.0);
-    globalLhs_->putScalar(0.0);
-  }
+  globalMatrix_->resumeFill();
+  globalMatrix_->setAllToScalar(0.0);
+  globalRhs_->putScalar(0.0);
+  globalLhs_->putScalar(0.0);
+
  }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -249,10 +246,10 @@ insertRow
 {
   if (curRowValues_.empty()) return;
 
-  typename std::map<LocalOrdinal, Scalar>::iterator pos2;
-  for (pos2 = curRowValues_.begin(); pos2 != curRowValues_.end(); ++pos2) {
-    indices_.append(pos2->first);
-    values_.append(pos2->second);
+  typename std::map<LocalOrdinal, Scalar>::iterator pos;
+  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
+    indices_.append(pos->first);
+    values_.append(pos->second);
   }
 
   globalMatrix_->insertGlobalValues(curRow_, indices_, values_);
@@ -342,10 +339,9 @@ finalizeProblemValues
 
   if (firstTime_) {
     insertRow();
-
-    if(!globalMatrix_->isFillComplete()){
-      globalMatrix_->fillComplete();
-    }
+  }
+  if(!globalMatrix_->isFillComplete()){
+    globalMatrix_->fillComplete();
   }
 
   isLinearProblemSet_ = true;
@@ -511,12 +507,12 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 importR2C
 (const ArrayRCP<const Scalar> &aOwned) const
 {
-  RCP<VEC> owned2 = rcp(new VEC(ownedMap_, aOwned()));
-  RCP<VEC>  box2 = rcp(new VEC(boxMap_));
+  RCP<VEC> owned = rcp(new VEC(ownedMap_, aOwned()));
+  RCP<VEC>  box = rcp(new VEC(boxMap_));
 
-  box2->doImport(*owned2, *ownedToBoxImporter_, Tpetra::INSERT);
+  box->doImport(*owned, *ownedToBoxImporter_, Tpetra::INSERT);
 
-  return (box2->get1dViewNonConst());
+  return (box->get1dViewNonConst());
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -525,12 +521,12 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 exportC2R
 (const ArrayRCP<const Scalar>& aBox) const
 {
-  RCP<VEC> owned2 =  rcp(new VEC(ownedMap_));
+  RCP<VEC> owned =  rcp(new VEC(ownedMap_));
   RCP<VEC> box = rcp(new VEC(boxMap_, aBox()));
 
-  owned2->doExport(*box, *ownedToBoxImporter_, Tpetra::INSERT); // Use importer, but zero out off-processor contributions.
+  owned->doExport(*box, *ownedToBoxImporter_, Tpetra::INSERT); // Use importer, but zero out off-processor contributions.
 
-  return(owned2->get1dViewNonConst());
+  return(owned->get1dViewNonConst());
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>

@@ -54,14 +54,14 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
   int dft_linprobmgr_setnodalrowmap(void * linprobmgr, int numgids, int * gids) {
     ArrayView<const int> gid_arr(gids, numgids);
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    linprobmgr_->setNodalRowMap(gids, gid_arr);
+    linprobmgr_->setNodalRowMap(gid_arr);
     return( 0 );
   }
 
   int dft_linprobmgr_setnodalcolmap(void * linprobmgr, int numgids, int * gids) {
     ArrayView<const int> gid_arr(gids, numgids);
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    linprobmgr_->setNodalColMap(gids, gid_arr);
+    linprobmgr_->setNodalColMap(gid_arr);
     return( 0 );
   }
 
