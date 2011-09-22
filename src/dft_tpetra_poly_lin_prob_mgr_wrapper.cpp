@@ -78,12 +78,12 @@ dft_poly_lin_prob_mgr_destruct
 int 
 dft_poly_lin_prob_mgr_setgequationids
 (void * linprobmgr, int numgids, int * gids) 
-{/*
+{
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
   
   ArrayView<const int> gid_arr(gids, numgids);
-  linprobmgr_->setGEquationIDs(gid_arr);*/
+  linprobmgr_->setGEquationIDs(gid_arr);
   return 0;
 }
 

@@ -73,7 +73,6 @@ dft_PolyA11_Tpetra_Operator
     curOwnedPhysicsID_(-1),
     curOwnedNode_(-1) 
 {
-
   Label_ = "dft_PolyA11_Tpetra_Operator";
 
   invDiagonal_ = rcp(new VEC(block1Map));
@@ -84,6 +83,7 @@ dft_PolyA11_Tpetra_Operator
     matrix_[i] = rcp(new MAT(ownedMap, 0));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
   } //end for
+
   return;
 } //end constructor
 //==============================================================================
@@ -108,10 +108,13 @@ initializeProblemValues
   {
     for (LocalOrdinal i=0; i<numBlocks_-1; i++)
     { 
+      matrix_[i]->resumeFill(); 
       matrix_[i]->setAllToScalar(0.0);
     } //end for
+
     invDiagonal_->putScalar(0.0);
   } //end if
+
 } //end initializeProblemValues
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -120,6 +123,7 @@ dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value) 
 {
+
   Array<GlobalOrdinal> cols(1);
   Array<Scalar> vals(1);
   cols[0] = colGID;
@@ -156,6 +160,7 @@ insertMatrixValue
   else
   {
     matrix_[ownedPhysicsID-1]->sumIntoGlobalValues(ownedNode, cols, vals);
+
   } //end else
 } //end insertMatrixValue
 //=============================================================================
@@ -182,8 +187,11 @@ insertRow
     indices_[i] = pos->first;
     values_[i++] = pos->second;
   } //end for
+
   matrix_[curOwnedPhysicsID_-1]->insertGlobalValues(curOwnedNode_, indices_, values_);
 
+  indices_.clear();
+  values_.clear();
   curRowValues_.clear();
 } //end insertRow
 //=============================================================================
@@ -267,34 +275,25 @@ dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const 
 {
-  //Scalar normvalue;
-  //X.NormInf(&normvalue);
-  //cout << "Norm of X in PolyA11 Apply = " << normvalue << endl;
-
   TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
   TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
   size_t NumVectors = Y.getNumVectors();
   size_t numMyElements = ownedMap_->getNodeNumElements();
 
-  //cout << "I AM CALLED BY APPLYINVERSE" << endl;
-
   RCP<MV > curY = Y.offsetViewNonConst(ownedMap_, 0);
   // Start curY to view first numNodes elements of Y
 
-  for (LocalOrdinal i=0; i< numBlocks_-1; i++) 
-  {
+  for (LocalOrdinal i=0; i< numBlocks_-1; i++) {
     curY = Y.offsetViewNonConst(ownedMap_, (i+1)*numMyElements);
     matrix_[i]->apply(X, *curY); // This gives a result that is off-diagonal-matrix*X
   } //end for
 
   RCP<VEC> tempVec = rcp(new VEC(invDiagonal_->getMap()));
-  invDiagonal_->reciprocal(*tempVec);
+  tempVec->reciprocal(*invDiagonal_);
+
   Y.elementWiseMultiply(1.0,*tempVec, X, 1.0); // Add diagonal contribution
 
-
-  //Y.NormInf(&normvalue);
-  //cout << "Norm of Y in PolyA11 Apply = " << normvalue << endl;
 } //end Apply
 //==============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -303,17 +302,13 @@ dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 Check
 (bool verbose) const 
 {
-
   RCP<VEC > x = rcp(new VEC(getDomainMap()));
   RCP<VEC > b = rcp(new VEC(getRangeMap()));
+
   x->randomize(); // Fill x with random numbers
   apply(*x, *b); // Forward operation
   applyInverse(*b, *b); // Reverse operation
-
   b->update(-1.0, *x, 1.0); // Should be zero
-
-  //  Scalar resid = 0.0;
-  //  b.Norm2(&resid);
 
   Scalar absResid = b->norm2();
   Scalar normX = x->norm2();
@@ -325,5 +320,6 @@ Check
   } //end if
 
   TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n"); 
+
 } //end Check
 template class dft_PolyA11_Tpetra_Operator<double, int, int>;

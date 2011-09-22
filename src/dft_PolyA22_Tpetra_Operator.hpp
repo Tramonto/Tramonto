@@ -27,6 +27,7 @@
 #define DFT_POLYA22_TPETRA_OPERATOR_H
 
 #include "Tpetra_Headers.hpp"
+#include "Ifpack.h"
 
 //! dft_PolyA22_Tpetra_Operator: An implementation of the Tpetra_Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
@@ -70,7 +71,7 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   virtual void
   insertMatrixValue
-  (GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value);
+  (GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag);
 
   virtual void
   finalizeProblemValues
@@ -212,7 +213,7 @@ protected:
   const RCP<const MAP > block2Map_;
   RCP<ParameterList> parameterList_;
   RCP<MAT > cmsOnDensityMatrix_;
-  RCP<VEC > cmsOnCmsMatrix_;
+  RCP<MAT > cmsOnCmsMatrix2_;
   RCP<VEC > densityOnDensityMatrix_;
   RCP<VEC > densityOnCmsMatrix_;
   char * Label_; /*!< Description of object */
@@ -221,6 +222,13 @@ protected:
   bool isFLinear_;
   bool firstTime_;
   GlobalOrdinal curRow_;
+  std::map<GlobalOrdinal, Scalar> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_;
+  Array<GlobalOrdinal> indicesCmsOnDensity_, indicesCmsOnCms_;
+  Array<Scalar> valuesCmsOnDensity_, valuesCmsOnCms_;
+  Teuchos::ParameterList IFList_;
+  RCP<PRECOND> IFPrec;
+  string IFPrecType; // incomplete LU
+  GlobalOrdinal IFOverlapLevel;
   std::map<GlobalOrdinal, Scalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
   Array<Scalar> values_;

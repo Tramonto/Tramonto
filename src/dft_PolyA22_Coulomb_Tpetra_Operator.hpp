@@ -60,7 +60,7 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   void
   insertMatrixValue
-  (GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value);
+  (GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag);
 
   void
   finalizeProblemValues
@@ -146,13 +146,11 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   
 protected:
 
-  void insertPoissonRow();
-  void insertCPRow();
-  void insertPDRow();
+  void insertRow();
   const RCP<const MAP> poissonMap_;
   const RCP<const MAP> cmsDensMap_;
   const RCP<const MAP> block2Map_;
-  RCP<MAT> poissonMatrix_;
+  RCP<MAT> poissonOnPoissonMatrix_;
   RCP<MAT> cmsOnPoissonMatrix_;
   RCP<MAT> poissonOnDensityMatrix_;
   GlobalOrdinal curPoissonRow_;
@@ -161,6 +159,9 @@ protected:
   std::map<GlobalOrdinal, Scalar> curCPRowValues_;
   GlobalOrdinal curPDRow_;
   std::map<GlobalOrdinal, Scalar> curPDRowValues_;
+  std::map<GlobalOrdinal, Scalar> curRowValuesCmsOnPoisson_, curRowValuesPoissonOnPoisson_, curRowValuesPoissonOnDensity_;
+  Array<GlobalOrdinal> indicesCmsOnPoisson_, indicesPoissonOnPoisson_, indicesPoissonOnDensity_;
+  Array<Scalar> valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;
 
   using P22TO::isGraphStructureSet_;
   using P22TO::Label_;
@@ -168,12 +169,18 @@ protected:
   using P22TO::firstTime_;
   using P22TO::curRow_;
   using P22TO::curRowValues_;
+  using P22TO::curRowValuesCmsOnDensity_;
+  using P22TO::curRowValuesCmsOnCms_;
   using P22TO::indices_;
+  using P22TO::indicesCmsOnCms_;
+  using P22TO::indicesCmsOnDensity_;
   using P22TO::values_;
+  using P22TO::valuesCmsOnCms_;
+  using P22TO::valuesCmsOnDensity_;
   using P22TO::cmsOnDensityMatrix_;
   using P22TO::densityMap_;
   using P22TO::densityOnDensityMatrix_;
-  using P22TO::cmsOnCmsMatrix_;
+  using P22TO::cmsOnCmsMatrix2_;
   using P22TO::densityOnCmsMatrix_;
   using P22TO::F_location_;
   using P22TO::cmsMap_;

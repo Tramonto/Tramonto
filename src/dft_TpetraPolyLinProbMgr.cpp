@@ -79,6 +79,10 @@ finalizeBlockStructure
   // Load Schur block mappings
   physicsOrdering_.clear();
   physicsIdToSchurBlockId_.resize(numUnknownsPerNode_);
+  isCmsEquation_.resize(numUnknownsPerNode_); 
+  isDensityEquation_.resize(numUnknownsPerNode_);
+  isPoissonEquation_.resize(numUnknownsPerNode_);
+
   for (LocalOrdinal i=0; i<gEquations_.size(); i++)
   {
     physicsOrdering_.append(gEquations_[i]);
@@ -89,12 +93,14 @@ finalizeBlockStructure
     physicsOrdering_.append(gInvEquations_[i]);
     physicsIdToSchurBlockId_[gInvEquations_[i]] = 1;
   } //end for
+
   if (poissonInA11)
   {
     for (LocalOrdinal i=0; i<poissonEquations_.size(); i++)
     {
       physicsOrdering_.append(poissonEquations_[i]);
       physicsIdToSchurBlockId_[poissonEquations_[i]] = 1; //so it's in A11
+      isPoissonEquation_[poissonEquations_[i]] = 1;
     } //end for
   } //end if
   else
@@ -103,19 +109,23 @@ finalizeBlockStructure
     {
       physicsOrdering_.append(poissonEquations_[i]);
       (physicsIdToSchurBlockId_)[poissonEquations_[i]] = 2; //so it's in A22
+      isPoissonEquation_[poissonEquations_[i]] = 1;
     } //end for
   } //end else
+
   if (F_location == 1)  //F in NE
   {
     for (LocalOrdinal i=0; i<cmsEquations_.size(); i++)
     {
       physicsOrdering_.append(cmsEquations_[i]);
       physicsIdToSchurBlockId_[cmsEquations_[i]] = 2;
+      isCmsEquation_[cmsEquations_[i]] = 1;
     } //end for
     for (LocalOrdinal i=0; i<densityEquations_.size(); i++)
     {
       physicsOrdering_.append(densityEquations_[i]);
       physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
+      isDensityEquation_[densityEquations_[i]] = 1;
     } //end for
   } //end if
   else  //F in SW
@@ -124,16 +134,18 @@ finalizeBlockStructure
     {
       physicsOrdering_.append(densityEquations_[i]);
       physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
+      isDensityEquation_[densityEquations_[i]] = 1;
     } //end for
     for (LocalOrdinal i=0;  i<cmsEquations_.size(); i++)
     {
       physicsOrdering_.append(cmsEquations_[i]);
       physicsIdToSchurBlockId_[cmsEquations_[i]] = 2;
+      isCmsEquation_[cmsEquations_[i]] = 1;
     } //end for
   } //end else
 
   // Sanity check of physics ordering
-  BLPM::checkPhysicsOrdering();
+  //  BLPM::checkPhysicsOrdering();
 
   // create inverse mapping of where each physics unknown is ordered for the solver
   solverOrdering_.resize(numUnknownsPerNode_);
@@ -156,6 +168,7 @@ finalizeBlockStructure
   Array<GlobalOrdinal> globalGIDList(numUnks);
 
   ArrayView<const GlobalOrdinal> GIDs = ownedMap_->getNodeElementList();
+
   LocalOrdinal k=0;
   for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++)
   {
@@ -253,6 +266,7 @@ finalizeBlockStructure
 
   isBlockStructureSet_ = true;
   isGraphStructureSet_ = true;
+
 } //end finalizeBlockStructure
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -269,6 +283,8 @@ initializeProblemValues
 
   if (!firstTime_)
   {
+    A12_->resumeFill();
+    A21_->resumeFill();
     A12_->setAllToScalar(0.0);
     A21_->setAllToScalar(0.0);
     globalRhs_->putScalar(0.0);
@@ -282,6 +298,7 @@ initializeProblemValues
   A11_->initializeProblemValues();
   A22_->setFieldOnDensityIsLinear(isLinear_);  // Set current state of linearity for F
   A22_->initializeProblemValues();
+
 } //end initializeProblemValues
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -301,54 +318,52 @@ insertMatrixValue
   //     << "][boxPhysicsID="  <<boxPhysicsID  <<"][boxNode="  <<boxNode
   //     << "][rowGID="        <<rowGID        <<"][colGID="   <<colGID
   //     << "] = " << value << endl;
+  Array<GlobalOrdinal> cols(1);
+  cols[0] = colGID;
+  Array<Scalar> vals(1);
+  vals[0] = value;
 
-  if (schurBlockRow==1 && schurBlockCol==1)  // A11 block
-  {
-    A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID],
-			    ownedMap_->getGlobalElement(ownedNode), rowGID, colGID, value);
-  } //end if
-  else if (schurBlockRow==2 && schurBlockCol==2)  // A22 block
-  {
-    A22_->insertMatrixValue(rowGID, colGID, value);
-  } //end elseif
-  else if (schurBlockRow==2 && schurBlockCol==1)  // A21 block
-  {
-    if (firstTime_)
-    {
-      if (rowGID!=curRowA21_)
-      {
-	insertRowA21();
-	// Dump the current contents of curRowValues_ into matrix and clear map
+  if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
+    A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->getGlobalElement(ownedNode), rowGID, colGID, value); 
+  }
+  else if (schurBlockRow==2 && schurBlockCol==2) { // A22 block
+    // if poisson then blockColFlag = 0
+    // if density then blockColFlag = 1
+    // if cms then blockColFlag = 2
+    if (isCmsEquation_[boxPhysicsID]) {
+      A22_->insertMatrixValue(rowGID, colGID, value, 2); 
+    }else if (isDensityEquation_[boxPhysicsID]) {
+      A22_->insertMatrixValue(rowGID, colGID, value, 1); 
+    }else if (isPoissonEquation_[boxPhysicsID]) {
+      A22_->insertMatrixValue(rowGID, colGID, value, 0); 
+    }else{ 
+      TEST_FOR_EXCEPT_MSG(1, "Unknown box physics ID in A22.");
+    }
+  }
+  else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
+    if (firstTime_) {
+      if (rowGID!=curRowA21_) { 
+	insertRowA21();  // Dump the current contents of curRowValues_ into matrix and clear map
 	curRowA21_=rowGID;
-      } //end if
+      }
       curRowValuesA21_[colGID] += value;
-    } //end if
-    else
-    {
-      Array<GlobalOrdinal> cols(1); cols[0] = colGID;
-      Array<Scalar> vals(1); vals[0] = value;
+    }
+    else{
       A21_->sumIntoGlobalValues(rowGID, cols, vals);
-    } //end else
-  } //end elseif
-  else  // A12 block
-  {
-    if (firstTime_)
-    {
-      if (rowGID!=curRowA12_)
-      {
-	insertRowA12();
-	// Dump the current contents of curRowValues_ into matrix and clear map
+    }
+  }
+  else { // A12 block
+    if (firstTime_) {
+      if (rowGID!=curRowA12_) { 
+	insertRowA12();  // Dump the current contents of curRowValues_ into matrix and clear map
 	curRowA12_=rowGID;
-      } //end if
+      }
       curRowValuesA12_[colGID] += value;
-    } //end if
-    else
-    {
-      Array<GlobalOrdinal> cols(1); cols[0] = colGID;
-      Array<Scalar> vals(1); vals[0] = value;
+    }
+    else{
       A12_->sumIntoGlobalValues(rowGID, cols, vals);
-    } //end else
-  } //end else
+    }
+  }
 
   if (debug_)
   {
@@ -381,7 +396,10 @@ insertRowA12
   } //end for
    A12_->insertGlobalValues(curRowA12_, indicesA12_, valuesA12_);
 
+  indicesA12_.clear();
+  valuesA12_.clear();
   curRowValuesA12_.clear();
+
 } //end insertRowA12
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -409,6 +427,8 @@ insertRowA21
   } //end for
    A21_->insertGlobalValues(curRowA21_, indicesA21_, valuesA21_);
 
+  indicesA21_.clear();
+  valuesA21_.clear();
   curRowValuesA21_.clear();
 } //end insertRowA21
 //=============================================================================
@@ -426,17 +446,19 @@ finalizeProblemValues
   if (firstTime_)
   {
     insertRowA12(); // Dump any remaining entries
-    A12_->fillComplete(block2RowMap_,block1RowMap_);
     insertRowA21(); // Dump any remaining entries
-    A21_->fillComplete(block1RowMap_,block2RowMap_);
-
     if (debug_)
     {
       globalMatrix_->fillComplete();
     } //end if
-    //if (debug_) globalMatrix_->OptimizeStorage(); //should this be included?
 
   } //end if
+  if(!A12_->isFillComplete()){
+    A12_->fillComplete(block2RowMap_,block1RowMap_);
+  }
+  if(!A21_->isFillComplete()) {
+    A21_->fillComplete(block1RowMap_,block2RowMap_);
+  }
   //std::cout << *A12_ << endl
   //          << *A21_ << endl;
 
@@ -498,9 +520,7 @@ dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
 solve
 ()
 {
-  A11_->Check(true);
-  A11_->Check(true);
-  A11_->Check(true);
+  //  A11_->Check(true);
 #ifdef KDEBUG
   printf("\n\n\n\ndft_PolyLinProbMgr::solve()\n\n\n\n");
 #endif

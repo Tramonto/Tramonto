@@ -41,13 +41,13 @@ dft_PolyA22_Coulomb_Tpetra_Operator
     curCPRow_(-1),
     curPDRow_(-1)
 {
-  
-  poissonMatrix_ = rcp(new MAT(poissonMap, 0));
+  poissonOnPoissonMatrix_ = rcp(new MAT(poissonMap, 0));    
   cmsOnPoissonMatrix_ = rcp(new MAT(cmsMap, 0));
   poissonOnDensityMatrix_ = rcp(new MAT(poissonMap, 0));
   Label_ = "dft_PolyA22_Coulomb_Tpetra_Operator";
   cmsOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnDensityMatrix");
-  poissonMatrix_->setObjectLabel("PolyA22Coulomb::poissonMatrix");
+  cmsOnCmsMatrix2_->setObjectLabel("PolyA22Coulomb::cmsOnCmsMatrix");
+  poissonOnPoissonMatrix_->setObjectLabel("PolyA22Coulomb::poissonOnPoissonMatrix");
   cmsOnPoissonMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnPoissonMatrix");
   poissonOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::poissonOnDensityMatrix");
   /*
@@ -122,14 +122,19 @@ initializeProblemValues
   {
     if (!isFLinear_) 
     {
-      cmsOnDensityMatrix_->setAllToScalar(0.0); //not needed
+      cmsOnDensityMatrix_->resumeFill();
+      cmsOnDensityMatrix_->setAllToScalar(0.0);
     } //end if
-    cmsOnCmsMatrix_->putScalar(0.0);
+    cmsOnCmsMatrix2_->resumeFill();
+    cmsOnCmsMatrix2_->setAllToScalar(0.0);
     densityOnDensityMatrix_->putScalar(0.0);
     densityOnCmsMatrix_->putScalar(0.0);
-    poissonMatrix_->setAllToScalar(0.0); //not needed
-    cmsOnPoissonMatrix_->setAllToScalar(0.0); //not needed
-    poissonOnDensityMatrix_->setAllToScalar(0.0); //not needed
+    poissonOnPoissonMatrix_->resumeFill();
+    poissonOnPoissonMatrix_->setAllToScalar(0.0);
+    cmsOnPoissonMatrix_->resumeFill();
+    cmsOnPoissonMatrix_->setAllToScalar(0.0);
+    poissonOnDensityMatrix_->resumeFill();
+    poissonOnDensityMatrix_->setAllToScalar(0.0);
   } //end if
 } //end initializeProblemValues
 //=============================================================================
@@ -137,8 +142,11 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value) 
+(GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag) 
 {
+  // if poisson then blockColFlag = 0
+  // if density then blockColFlag = 1
+  // if cms then blockColFlag = 2
 
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
@@ -147,175 +155,202 @@ insertMatrixValue
 
   /* The poissonMatrix_, poissonOnDensityMatrix_, cmsOnPoissonMatrix_, and cmsOnDensityMatrix_ values do not change between iterations */  
 
-  if (poissonMap_->getLocalElement(rowGID)) 
-  {
-    if (poissonMap_->getLocalElement(colGID)) 
-    {
-      if (firstTime_) 
-      { 
-	if (rowGID != curPoissonRow_) 
-        {
-	  insertPoissonRow();
-	  curPoissonRow_ = rowGID;
-	} //end if
-	curPoissonRowValues_[colGID] += value;
+  if (poissonMap_->isNodeGlobalElement(rowGID)) { // Insert into poissonOnPoissonMatrix or poissonOnDensityMatrix
+    if ( blockColFlag == 0 ) { // Insert into poissonOnPoissonMatrix
+      if (firstTime_) {
+	if (rowGID != curRow_) {
+	  insertRow();
+	  curRow_ = rowGID;
+	}
+	curRowValuesPoissonOnPoisson_[colGID] += value;
       }
-      else 
-      {
-	poissonMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
-      } //end else
-    } //end if
-    else  //!poissonMap_.MyGID(colGID)
-    {
-      if (firstTime_) 
-      {
-	if (rowGID != curPDRow_) 
-        {
-	  insertPDRow();
-	  curPDRow_ = rowGID;
-	} //end if
-	curPDRowValues_[colGID] += value;
-      } //end if
-      else 
-      {
-	poissonOnDensityMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
-      } //end else
-    } //end else
-  } //end if
-  else if (cmsMap_->getLocalElement(rowGID)) 
-  {
-    if (rowGID==colGID)
-    {
-      cmsOnCmsMatrix_->sumIntoGlobalValue(rowGID, value); // Storing this cms block in a vector since it is diagonal
-    } //end if
-    else if (densityMap_->getLocalElement(colGID))
-    {
-      if (firstTime_) 
-      {
-	if (rowGID!=curRow_) 
-        { 
-	  P22TO::insertRow();
-          // Dump the current contents of curRowValues_ into matrix and clear map
-	  curRow_=rowGID;
-	} //end if
-	curRowValues_[colGID] += value;
-      } //end if
-      else if (!isFLinear_) 
-      {
-	GlobalOrdinal newRowGID = densityMap_->getGlobalElement(cmsMap_->getLocalElement(rowGID));
-	cmsOnDensityMatrix_->sumIntoGlobalValues(newRowGID, cols, vals);
-      } //end elseif
-    } //end elseif
-    else if (poissonMap_->getLocalElement(colGID)) 
-    {
-      if (firstTime_) 
-      {
-	if (rowGID!=curCPRow_) 
-        {
-	  insertCPRow(); 
-          // Dump the current contents of curCPRowValues_ into matrix and clear map
-	  curCPRow_=rowGID;
-	} //end if
-	curCPRowValues_[colGID] += value;
-      } //end if
-      else 
-      {
+      else
+	poissonOnPoissonMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
+    }
+    else if ( blockColFlag == 1 ) { // Insert into poissonOnDensityMatrix
+      if (firstTime_) {
+      	if (rowGID != curRow_) {
+      	  insertRow();
+      	  curRow_ = rowGID;
+      	}
+      	curRowValuesPoissonOnDensity_[colGID] += value;
+      }
+      else
+      	poissonOnDensityMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
+    }
+    else {
+      char err_msg[200];
+      sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- row in poissonMap, but blockColFlag not set for Poisson or density equations.");
+      TEST_FOR_EXCEPT_MSG(1, err_msg);
+    }
+  } //end if poissonMap_.MyGID(rowGID)
+  else if (cmsMap_->isNodeGlobalElement(rowGID)) { // Insert into cmsOnPoissonMatrix or cmsOnCmsMatrix or cmsOnDensityMatrix
+    if ( blockColFlag == 0 ) { // Insert into cmsOnPoissonMatrix
+      if (firstTime_) {
+	if (rowGID != curRow_) {
+	  insertRow();
+	  curRow_ = rowGID;
+	}
+	curRowValuesCmsOnPoisson_[colGID] += value;
+      }
+      else
 	cmsOnPoissonMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
-      } //end else
-    } //end elseif
-  } //end if
-  else 
-  {
-    if (rowGID==colGID)
-      densityOnDensityMatrix_->sumIntoGlobalValue(rowGID, value); // Storing this density block in a vector since it is diagonal
-    else
-    {
-      densityOnCmsMatrix_->sumIntoGlobalValue(rowGID, value); 
-      // Storing this density block in a vector since it is diagonal
-    } //end else
-  } //end else
+    }
+    else if ( blockColFlag == 2 ) { // Insert into cmsOnCmsMatrix
+      if (firstTime_) {
+	if (rowGID!=curRow_) {
+	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+	  curRow_=rowGID;
+	}
+	curRowValuesCmsOnCms_[colGID] += value;
+      }
+      else
+	cmsOnCmsMatrix2_->sumIntoGlobalValues(rowGID, cols, vals);
+    }
+    else if (blockColFlag == 1) { // Insert into cmsOnDensityMatrix ("F matrix")
+      if (firstTime_) {
+      	if (rowGID!=curRow_) {
+      	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+      	  curRow_=rowGID;
+      	}
+      	curRowValuesCmsOnDensity_[colGID] += value;
+      }
+      else if (!isFLinear_) {
+      	cmsOnDensityMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
+      }
+    }
+    else {
+      char err_msg[200];
+      sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- row in cmsMap, but blockColFlag not set for Poisson,density, or cms equations.");
+      TEST_FOR_EXCEPT_MSG(1, err_msg);
+    }
+  } // end Insert into cmsOnPoisson or cmsOnCmsMatrix or cmsOnDensityMatrix
+  else if (densityMap_->isNodeGlobalElement(rowGID)) { // Insert into densityOnDensityMatrix or densityOnCmsMatrix
+    if ( blockColFlag == 1 ) { // Insert into densityOnDensityMatrix
+      if (rowGID!=colGID) {
+	char err_msg[200];
+	sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- Inserting non-diagonal element into densityOnDensity matrix.");
+	TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
+      }
+      densityOnDensityMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
+    }
+    else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
+      if (densityMap_->getLocalElement(rowGID)!=cmsMap_->getLocalElement(colGID)) {
+	char err_msg[200];
+	sprintf(err_msg,"PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(): Invalid argument -- Inserting non-diagonal element into densityOnCms matrix.");
+	TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
+      }
+      densityOnCmsMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
+    }
+    else {
+      char err_msg[200];
+      sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- row in densityMap, but blockColFlag not set for cms or density equations.");
+      TEST_FOR_EXCEPT_MSG(1, err_msg);
+    }
+  } // end Insert into densityOnDensityMatrix or densityOnCmsMatrix
+  else { // Problem! rowGID not in cmsMap or densityMap or poissonMap
+    char err_msg[200];
+    sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): rowGID=%i not in cmsMap,densityMap, or poissonMap.",rowGID);
+    TEST_FOR_EXCEPT_MSG(1, err_msg);
+  }
+
 } //end insertMatrixValue
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-void
+template<class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+void 
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-insertPoissonRow
+insertRow
 () 
 {
-  if (curPoissonRowValues_.empty()) 
-  {
-    return;
-  } //end if
-  size_t numEntries = curPoissonRowValues_.size();
-  if (numEntries>indices_.size()) 
-  {
-    indices_.resize(numEntries);
-    values_.resize(numEntries);
-  } //end if
-  LocalOrdinal i=0;
-  typename std::map<GlobalOrdinal, Scalar>::iterator pos;
-  for (pos=curPoissonRowValues_.begin(); pos!=curPoissonRowValues_.end(); ++pos) 
-  {
-    indices_[i] = pos->first;
-    values_[i++] = pos->second;
-  } //end for
-  poissonMatrix_->insertGlobalValues(curPoissonRow_, indices_, values_);
-  curPoissonRowValues_.clear();
-} //end insertPoissonRow
-//=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-insertCPRow
-() 
-{
-  if (curCPRowValues_.empty()) 
-  {
-    return;
-  } //end if
-  size_t numEntries = curCPRowValues_.size();
-  if (numEntries>indices_.size()) 
-  {
-    indices_.resize(numEntries);
-    values_.resize(numEntries);
-  } //end if
-  LocalOrdinal i=0;
-  typename std::map<GlobalOrdinal, Scalar>::iterator pos;
-  for (pos=curCPRowValues_.begin(); pos!=curCPRowValues_.end(); ++pos) 
-  {
-    indices_[i] = pos->first;
-    values_[i++] = pos->second;
-  } //end for
-  cmsOnPoissonMatrix_->insertGlobalValues(curCPRow_, indices_, values_);
-  curCPRowValues_.clear();
-} //end insertCPRow
-//=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-insertPDRow
-() 
-{
-  if (curPDRowValues_.empty()) 
-  {
-    return;
-  } //end if
-  size_t numEntries = curPDRowValues_.size();
-  if (numEntries>indices_.size()) 
-  {
-    indices_.resize(numEntries);
-    values_.resize(numEntries);
-  } //end if
-  LocalOrdinal i=0;
-  typename std::map<GlobalOrdinal, Scalar>::iterator pos;
-  for (pos=curPDRowValues_.begin(); pos!=curPDRowValues_.end(); ++pos) 
-  {
-    indices_[i] = pos->first;
-    values_[i++] = pos->second;
-  } //end for
-  poissonOnDensityMatrix_->insertGlobalValues(curPDRow_, indices_, values_); 
-  curPDRowValues_.clear();
-} //end insertPDRow
+  // Fill matrix rows
+  if (!curRowValuesCmsOnDensity_.empty()) {
+    int numEntriesCmsOnDensity = curRowValuesCmsOnDensity_.size();
+    if (numEntriesCmsOnDensity>indicesCmsOnDensity_.size()) {
+      indicesCmsOnDensity_.resize(numEntriesCmsOnDensity);
+      valuesCmsOnDensity_.resize(numEntriesCmsOnDensity);
+    }
+    LocalOrdinal i=0;
+    typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+    for (pos = curRowValuesCmsOnDensity_.begin(); pos != curRowValuesCmsOnDensity_.end(); ++pos) {
+      indicesCmsOnDensity_[i] = pos->first;
+      valuesCmsOnDensity_[i++] = pos->second;
+    }
+    cmsOnDensityMatrix_->insertGlobalValues(curRow_, indicesCmsOnDensity_, valuesCmsOnDensity_);
+  }
+  if (!curRowValuesCmsOnCms_.empty()) {
+    int numEntriesCmsOnCms = curRowValuesCmsOnCms_.size();
+    if (numEntriesCmsOnCms>indicesCmsOnCms_.size()) {
+      indicesCmsOnCms_.resize(numEntriesCmsOnCms);
+      valuesCmsOnCms_.resize(numEntriesCmsOnCms);
+    }
+    LocalOrdinal i=0;
+    typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+    for (pos = curRowValuesCmsOnCms_.begin(); pos != curRowValuesCmsOnCms_.end(); ++pos) {
+      indicesCmsOnCms_[i] = pos->first;
+      valuesCmsOnCms_[i++] = pos->second;
+    }
+    cmsOnCmsMatrix2_->insertGlobalValues(curRow_, indicesCmsOnCms_, valuesCmsOnCms_);
+  }
+  if (!curRowValuesPoissonOnPoisson_.empty()) {
+    int numEntriesPoissonOnPoisson = curRowValuesPoissonOnPoisson_.size();
+    if (numEntriesPoissonOnPoisson>indicesPoissonOnPoisson_.size()) {
+      indicesPoissonOnPoisson_.resize(numEntriesPoissonOnPoisson);
+      valuesPoissonOnPoisson_.resize(numEntriesPoissonOnPoisson);
+    }
+    LocalOrdinal i=0;
+    typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+    for (pos = curRowValuesPoissonOnPoisson_.begin(); pos != curRowValuesPoissonOnPoisson_.end(); ++pos) {
+      indicesPoissonOnPoisson_[i] = pos->first;
+      valuesPoissonOnPoisson_[i++] = pos->second;
+    }
+    poissonOnPoissonMatrix_->insertGlobalValues(curRow_, indicesPoissonOnPoisson_, valuesPoissonOnPoisson_);
+  }
+  if (!curRowValuesCmsOnPoisson_.empty()) {
+    int numEntriesCmsOnPoisson = curRowValuesCmsOnPoisson_.size();
+    if (numEntriesCmsOnPoisson>indicesCmsOnPoisson_.size()) {
+      indicesCmsOnPoisson_.resize(numEntriesCmsOnPoisson);
+      valuesCmsOnPoisson_.resize(numEntriesCmsOnPoisson);
+    }
+    LocalOrdinal i=0;
+    typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+    for (pos = curRowValuesCmsOnPoisson_.begin(); pos != curRowValuesCmsOnPoisson_.end(); ++pos) {
+      indicesCmsOnPoisson_[i] = pos->first;
+      valuesCmsOnPoisson_[i++] = pos->second;
+    }
+    cmsOnPoissonMatrix_->insertGlobalValues(curRow_, indicesCmsOnPoisson_, valuesCmsOnPoisson_);
+  }
+  if (!curRowValuesPoissonOnDensity_.empty()) {
+    int numEntriesPoissonOnDensity = curRowValuesPoissonOnDensity_.size();
+    if (numEntriesPoissonOnDensity>indicesPoissonOnDensity_.size()) {
+      indicesPoissonOnDensity_.resize(numEntriesPoissonOnDensity);
+      valuesPoissonOnDensity_.resize(numEntriesPoissonOnDensity);
+    }
+    LocalOrdinal i=0;
+    typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+    for (pos = curRowValuesPoissonOnDensity_.begin(); pos != curRowValuesPoissonOnDensity_.end(); ++pos) {
+      indicesPoissonOnDensity_[i] = pos->first;
+      valuesPoissonOnDensity_[i++] = pos->second;
+    }
+    poissonOnDensityMatrix_->insertGlobalValues(curRow_, indicesPoissonOnDensity_, valuesPoissonOnDensity_);
+  }
+
+  indicesCmsOnDensity_.clear();
+  valuesCmsOnDensity_.clear();
+  indicesCmsOnCms_.clear();
+  valuesCmsOnCms_.clear();
+  indicesPoissonOnPoisson_.clear();
+  valuesPoissonOnPoisson_.clear();
+  indicesCmsOnPoisson_.clear();
+  valuesCmsOnPoisson_.clear();
+  indicesPoissonOnDensity_.clear();
+  valuesPoissonOnDensity_.clear();
+  curRowValuesCmsOnDensity_.clear();
+  curRowValuesCmsOnCms_.clear();
+  curRowValuesPoissonOnPoisson_.clear();
+  curRowValuesCmsOnPoisson_.clear();
+  curRowValuesPoissonOnDensity_.clear();
+
+}
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -327,45 +362,18 @@ finalizeProblemValues
   {
     return; // nothing to do
   } //end if
+  insertRow(); // Dump any remaining entries
+  cmsOnCmsMatrix2_->fillComplete();
   
-  if (firstTime_) 
-  {
-    insertPoissonRow();
-    insertCPRow();
-    insertPDRow();
-    if (!isFLinear_) 
-    {
-      P22TO::insertRow(); 
-      // Dump any remaining entries
-    } //end if
-  } //end if
-  
-  if (!isFLinear_) 
-  {
-    cmsOnDensityMatrix_->fillComplete();
-  } //end if
+  if (!isFLinear_) {
+    cmsOnDensityMatrix_->fillComplete(densityMap_,cmsMap_);
+  } //end if<
   
   //only need to do the following the firstTime_
-  poissonMatrix_->fillComplete();
+  poissonOnPoissonMatrix_->fillComplete();
   cmsOnPoissonMatrix_->fillComplete(poissonMap_, cmsMap_);
   poissonOnDensityMatrix_->fillComplete(densityMap_, poissonMap_);
 
-  /* This appears to make minimal difference, so could be removed */
-  for (LocalOrdinal i = 0; i < poissonMap_->getNodeNumElements(); i++) 
-  {
-    GlobalOrdinal row = poissonMatrix_->getRowMap()->getGlobalElement(i);
-    Array<GlobalOrdinal> indices(1);
-    indices[0] = row;
-    Array<Scalar> values(1);
-    values[0] = 10.0e-12;
-    poissonMatrix_->sumIntoGlobalValues(row, indices, values);
-  } //end for
-  
-  if (firstTime_) 
-  {
-    ////////////////MLPrec = rcp(new ML_Epetra::MultiLevelPreconditioner(*poissonMatrix_, *MLList_, true));
-  } //end if
-  
   isLinearProblemSet_ = true;
   firstTime_ = false;
 } //end finalizeProblemValues
@@ -444,26 +452,53 @@ applyInverse
   // Y2 is a view of the last numDensity/numCms elements of Y
 
   RCP<MV > Y0tmp = rcp(new MV(*Y0));
-  RCP<MV > Y1tmp = rcp(new MV(*Y1));
+  RCP<MV > Y1tmp1 = rcp(new MV(*Y1));
   RCP<MV > Y1tmp2 = rcp(new MV(*Y1));
-  RCP<MV > Y2tmp = rcp(new MV(*Y2));
+  RCP<MV > Y2tmp1 = rcp(new MV(*Y2));
   RCP<MV > Y2tmp2 = rcp(new MV(*Y2));
-  
-  RCP<VEC> tmp;
-  densityOnDensityMatrix_->reciprocal(*tmp);
+
+  RCP<VEC> tmp = rcp(new VEC(densityMap_));
+  RCP<VEC> tmp2 = rcp(new VEC(densityMap_));
+  tmp->reciprocal(*densityOnDensityMatrix_);
   if (F_location_ == 1) 
   {
+    // Third block row: Y2 = DD\X2
     Y2->elementWiseMultiply(1.0, *tmp, *X2, 0.0);
+    // First block row: Y0 = PP \ (X0 - PD*Y2);
     poissonOnDensityMatrix_->apply(*Y2, *Y0tmp);
-    Y0->update(1.0, *X0, -1.0, *Y0tmp, 0.0);
+    Y0tmp->update(1.0, *X0, -1.0);
+    //// equivalent of ML applying inv(PP) ...? ////
+    // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
+    cmsOnPoissonMatrix_->apply(*Y0, *Y1tmp1);
+    cmsOnDensityMatrix_->apply(*Y2, *Y1tmp2);
+    Y1tmp1->update(1.0, *X1, -1.0, *Y1tmp2, -1.0);    
+    // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
+    VEC cmsOnCmsDiag(cmsMap_);
+    cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
+    tmp2->reciprocal(cmsOnCmsDiag);
+    Y1->elementWiseMultiply(1.0, *tmp2, *Y1tmp1, 0.0);
+
   } //end if
   else 
   {
+    // Second block row: Y1 = DD\X1
     Y1->elementWiseMultiply(1.0, *tmp, *X1, 0.0);
+    // First block row: Y0 = PP \ (X0 - PD*Y1);
     poissonOnDensityMatrix_->apply(*Y1, *Y0tmp);
-    Y0->update(1.0, *X0, -1.0, *Y0tmp, 0.0);
+    Y0tmp->update( 1.0, *X0, -1.0 );
+    //// equivalent of ML applying inv(PP) ...? ////
+    // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
+    cmsOnPoissonMatrix_->apply(*Y0, *Y2tmp1);
+    cmsOnDensityMatrix_->apply(*Y1, *Y2tmp2);
+    Y2tmp1->update(1.0, *X2, -1.0, *Y2tmp2, -1.0);
+    // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
+    VEC cmsOnCmsDiag(cmsMap_);
+    cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
+    tmp2->reciprocal(cmsOnCmsDiag);
+    Y2->elementWiseMultiply(1.0, *tmp2, *Y2tmp1, 0.0);
+
   } //end else
-    
+  /*    
 #ifdef SUPPORTS_STRATIMIKOS
   RCP<ThyraMV> thyraY = createMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0);
   RCP<ThyraOP> thyraOp = createLinearOp<Scalar, LocalOrdinal, GlobalOrdinal, Node>(poissonMatrix_);
@@ -481,27 +516,8 @@ applyInverse
   RCP<SolMGR> solver = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem, parameterList_));
   ReturnType ret = solver->solve();
 #endif
+  */  
 
-  if (F_location_ == 1) 
-  {
-    cmsOnDensityMatrix_->apply(*Y2, *Y1tmp);
-    cmsOnPoissonMatrix_->apply(*Y0, *Y1tmp2);
-    Y1tmp->update(1.0, *Y1tmp2, 1.0);
-    Y1->update(1.0, *X1, -1.0, *Y1tmp, 0.0);
-    RCP<VEC> tmp2;
-    cmsOnCmsMatrix_->reciprocal(*tmp2);
-    Y1->elementWiseMultiply(1.0, *tmp2, *Y1, 0.0);
-  } //end if
-  else 
-  { 
-    cmsOnDensityMatrix_->apply(*Y1, *Y2tmp);
-    cmsOnPoissonMatrix_->apply(*Y0, *Y2tmp2);
-    Y2tmp->update(1.0, *Y2tmp2, 1.0);
-    Y2->update(1.0, *X2, -1.0, *Y2tmp, 0.0);
-    RCP<VEC> tmp;
-    cmsOnCmsMatrix_->reciprocal(*tmp);
-    Y2->elementWiseMultiply(1.0, *tmp, *Y2, 0.0);
-  } //end else
 } //end applyInverse
 //==============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -542,39 +558,44 @@ apply
     Y2 = Y.offsetViewNonConst(densityMap_, numDensityElements);
   } //end else
 
-
   RCP<MV > Y0tmp = rcp(new MV(*Y0));
   RCP<MV > Y0tmp2 = rcp(new MV(*Y0));
-  RCP<MV > Y1tmp = rcp(new MV(*Y1));
+  RCP<MV > Y1tmp1 = rcp(new MV(*Y1));
   RCP<MV > Y1tmp2 = rcp(new MV(*Y1));
-  RCP<MV > Y2tmp = rcp(new MV(*Y2));
+  RCP<MV > Y2tmp1 = rcp(new MV(*Y2));
   RCP<MV > Y2tmp2 = rcp(new MV(*Y2));
-  
-  poissonMatrix_->apply(*X0, *Y0tmp);
   
   if (F_location_ == 1) 
   {
-    poissonOnDensityMatrix_->apply(*X2, *Y0tmp2);
-    cmsOnPoissonMatrix_->apply(*X0, *Y1tmp);
+    // First block row
+    poissonOnPoissonMatrix_->apply(*X0, *Y0);
+    poissonOnDensityMatrix_->apply(*X2, *Y0tmp);
+    Y0->update(1.0, *Y0tmp, 1.0);
+    // Second block row
+    cmsOnPoissonMatrix_->apply(*X0, *Y1);
+    cmsOnCmsMatrix2_->apply(*X1, *Y1tmp1);
     cmsOnDensityMatrix_->apply(*X2, *Y1tmp2);
-    Y2tmp->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X1, 0.0);
-    Y2tmp2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 0.0);
-    Y1->elementWiseMultiply(1.0, *cmsOnCmsMatrix_, *X1, 0.0);
-    Y1->update(1.0, *Y1tmp, 1.0,  *Y1tmp2, 1.0);
-    Y2->update(1.0, *Y2tmp, 1.0, *Y2tmp2, 0.0);
-    Y0->update(1.0, *Y0tmp, 1.0, *Y0tmp2, 0.0);
+    Y1->update(1.0, *Y1tmp1, 1.0);
+    Y1->update(1.0, *Y1tmp2, 1.0);
+    // Third block row
+    Y2->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *densityOnCmsMatrix_, *X1, 0.0);
+    Y2->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *densityOnDensityMatrix_, *X2, 1.0);
   } //end if
   else 
   {
-    poissonOnDensityMatrix_->apply(*X1, *Y0tmp2);
-    cmsOnPoissonMatrix_->apply(*X0, *Y2tmp);
-    cmsOnDensityMatrix_->apply(*X1, *Y2tmp2);
-    Y1tmp->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 0.0);
-    Y1tmp2->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X2, 0.0);
-    Y2->elementWiseMultiply(1.0, *cmsOnCmsMatrix_, *X2, 0.0);
-    Y2->update(1.0, *Y2tmp, 1.0, *Y2tmp2, 1.0);
-    Y1->update(1.0, *Y1tmp, 1.0, *Y1tmp2, 0.0);
-    Y0->update(1.0, *Y0tmp, 1.0, *Y0tmp2, 0.0);
+    // First block row
+    poissonOnPoissonMatrix_->apply(*X0, *Y0);
+    poissonOnDensityMatrix_->apply(*X1, *Y0tmp);
+    Y0->update(1.0, *Y0tmp, 1.0);
+    // Second block row
+    Y1->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *densityOnDensityMatrix_, *X1, 0.0);
+    Y1->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *densityOnCmsMatrix_, *X2, 1.0);
+    // Third block row
+    cmsOnPoissonMatrix_->apply(*X0, *Y2);
+    cmsOnDensityMatrix_->apply(*X1, *Y2tmp1);
+    cmsOnCmsMatrix2_->apply(*X2, *Y2tmp2);
+    Y2->update(1.0, *Y2tmp1, 1.0);
+    Y2->update(1.0, *Y2tmp2, 1.0);
   } //end else
 } //end Apply
 //==============================================================================
@@ -584,19 +605,37 @@ dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 Check
 (bool verbose) const 
 {
-
   RCP<VEC > x = rcp(new VEC(getDomainMap()));
   RCP<VEC > b = rcp(new VEC(getRangeMap()));
+  RCP<VEC > bb = rcp(new VEC(*b));
   x->randomize(); // Fill x with random numbers
 
+  RCP<MV> x0 = x->offsetViewNonConst(poissonMap_, 0);
+  RCP<MV> b0 = b->offsetViewNonConst(poissonMap_, 0);
   RCP<MV> x1 = x->offsetViewNonConst(densityMap_, poissonMap_->getNodeNumElements());
   // Start x1 to view middle numCmsElements elements of x
-  RCP<MV> b2 = b->offsetViewNonConst(densityMap_, poissonMap_->getNodeNumElements()+cmsMap_->getNodeNumElements());
+  RCP<MV> b1 = b->offsetViewNonConst(densityMap_, poissonMap_->getNodeNumElements());
+  // Start b1 to view middle numDensity elements of b
+  RCP<MV> b2 = b->offsetViewNonConst(densityMap_, poissonMap_->getNodeNumElements()+densityMap_->getNodeNumElements());
   // Start b2 to view last numDensity elements of b
   RCP<MV> x2 = x->offsetViewNonConst(densityMap_, poissonMap_->getNodeNumElements()+densityMap_->getNodeNumElements());
   //Start x2 to view last numCms elements of x
-  RCP<MV> b1 = b->offsetViewNonConst(densityMap_, poissonMap_->getNodeNumElements());
-  // Start b1 to view middle numDensity elements of b
+
+  // The poisson-on-poisson matrix is singular. Make x0 orthogonal to the kernel.
+  RCP<MV> ones = rcp(new MV(*b0));
+  //  RCP<VEC> ones = onesmv->getVectorNonConst(0);
+
+  Scalar alpha;
+  Array<Scalar> norms;
+  ArrayView<Scalar> dots;
+  ones->putScalar(1.0);
+  ones->norm2( norms );
+  alpha = norms[0];
+  alpha = 1.0 / alpha;
+  ones->scale( alpha );
+  ones->dot( *x0, dots );
+  alpha = -1.0*alpha;
+  x0->update( alpha, *ones, 1.0 ); 
 
   apply(*x, *b); // Forward operation
   
@@ -610,8 +649,8 @@ Check
     b1->elementWiseMultiply(-1.0, *densityOnCmsMatrix_, *x2, 1.0);
   } //end else
   
-  applyInverse(*b, *b); // Reverse operation
-  b->update(-1.0, *x, 1.0); // Should be zero
+  applyInverse(*b, *bb); // Reverse operation
+  bb->update(-1.0, *x, 1.0); // Should be zero
   Scalar resid = b->norm2();
   
   if (verbose) 

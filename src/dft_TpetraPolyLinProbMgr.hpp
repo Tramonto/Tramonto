@@ -291,6 +291,9 @@ protected:
   Array<LocalOrdinal> cmsEquations_;
   Array<LocalOrdinal> densityEquations_;
   Array<LocalOrdinal> poissonEquations_;
+  Array<LocalOrdinal> isCmsEquation_;
+  Array<LocalOrdinal> isDensityEquation_;
+  Array<LocalOrdinal> isPoissonEquation_;
   RCP<P11TO> A11_;
   RCP<MAT> A12_;
   RCP<MAT> A21_;
