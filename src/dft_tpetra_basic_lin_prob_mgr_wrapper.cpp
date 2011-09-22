@@ -151,7 +151,7 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
 
     ArrayRCP<ArrayRCP<double> > data = linprobmgr_->getLhs();
-    for(int j = 0; j < numUnknownsPerNode; j++){
+    for(int j = 0; j < data.size(); j++){
       for(int k = 0; k < data[j].size(); k++){
 	x[j][k] = data[j][k];
       }
@@ -165,7 +165,7 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
 
     ArrayRCP<ArrayRCP<double> > data = linprobmgr_->getRhs();
-    for(int j = 0; j < numUnknownsPerNode; j++){
+    for(int j = 0; j < data.size(); j++){
       for(int k = 0; k < data[j].size(); k++){
 	x[j][k] = data[j][k];
       }
@@ -204,7 +204,7 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
 
     ArrayView<ArrayView<const double> > my_view(x_views);
     ArrayRCP<ArrayRCP<double> > b_data = linprobmgr_->applyMatrix(my_view);
-    for(int i = 0; i < numUnknownsPerNode; i++){
+    for(int i = 0; i < b_data.size(); i++){
       for(int j = 0; j < b_data[i].size(); j++){
 	b[i][j] = b_data[i][j];
       }
@@ -223,7 +223,7 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
     }
 
     ArrayRCP<ArrayRCP<double> > my_b = linprobmgr_->importR2C(my_x);
-    for(int i = 0; i < numUnknownsPerNode; i++){
+    for(int i = 0; i < my_b.size(); i++){
       for(int j = 0; j < my_b[i].size(); j++){
 	b[i][j] = my_b[i][j];
       }
