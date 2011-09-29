@@ -300,7 +300,7 @@ RUN (s903186-nightly) {
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 7;
     MPI-GO              = /Users/jmwille/install/gcc-4.6.1/openmpi-1.4.3/bin/mpiexec -np ;
-    TTR-DIR             = /Users/jmwille/TramontoTestHarness/TramontoTestResults;
+    TTR-DIR             = /Users/hudson/slave/workspace/tramonto-test-results;
     SSG-USERNAME        = jmwille;
 
 }
