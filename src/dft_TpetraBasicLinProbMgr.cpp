@@ -23,6 +23,8 @@
 // ********************************************************************
 //@HEADER
 
+#include <MatrixMarket_Tpetra.hpp>
+
 #include "dft_TpetraBasicLinProbMgr.hpp"
 
 //=============================================================================
@@ -534,9 +536,12 @@ void
 dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 writeMatrix
 (const char * filename, const char * matrixName, const char * matrixDescription) const  {
-  //int dft_BasicLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
-  return;
-      //(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_, matrixName, matrixDescription));
+
+  std::string str_filename(filename); 
+  std::string str_matrixName(matrixName); 
+  std::string str_matrixDescription(matrixDescription); 
+
+  Tpetra::MatrixMarket::Writer<MAT>::writeSparseFile(str_filename,globalMatrix_,str_matrixName,str_matrixDescription);
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -544,9 +549,12 @@ void
 dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 writeLhs
 (const char * filename) const  {
-  //int dft_BasicLinProbMgr::writeLhs(const char * filename) const  {
-  return;
-      //(EpetraExt::MultiVectorToMatlabFile(filename, *globalLhs_));
+
+  std::string str_filename(filename); 
+  std::string str_matrixName("LHS"); 
+  std::string str_matrixDescription("LHS"); 
+
+  Tpetra::MatrixMarket::Writer<MAT>::writeDenseFile(str_filename,globalLhs_,str_matrixName,str_matrixDescription);
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -554,9 +562,12 @@ void
 dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 writeRhs
 (const char * filename) const  {
-  //int dft_BasicLinProbMgr::writeRhs(const char * filename) const  {
-  return;
-      //(EpetraExt::MultiVectorToMatlabFile(filename, *globalRhs_));
+
+  std::string str_filename(filename); 
+  std::string str_matrixName("RHS"); 
+  std::string str_matrixDescription("RHS"); 
+
+  Tpetra::MatrixMarket::Writer<MAT>::writeDenseFile(str_filename,globalRhs_,str_matrixName,str_matrixDescription);
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
