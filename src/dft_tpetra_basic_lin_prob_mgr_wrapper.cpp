@@ -27,13 +27,35 @@
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_TpetraBasicLinProbMgr.hpp"
 
+#include <qd/qd_real.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef Teuchos::Comm<int> COMM;
+  //#define BLPMF
+#define BLPMD
+  //#define BLPMQ
 
+#ifdef BLPMF
+typedef dft_BasicLinProbMgr<float,int,int> BLPM;
+#define WORKING_PREC float
+#define WORKING_CAST( x ) float(x)
+#define DOUBLE_CAST( x ) double(x)
+#endif
+#ifdef BLPMQ
+typedef dft_BasicLinProbMgr<qd_real,int,int> BLPM;
+#define WORKING_PREC qd_real
+#define WORKING_CAST( x ) qd_real(x)
+#define DOUBLE_CAST( x ) to_double(x)
+#endif
+#ifdef BLPMD
 typedef dft_BasicLinProbMgr<double,int,int> BLPM;
+#define WORKING_PREC double
+#define WORKING_CAST( x ) (x)
+#define DOUBLE_CAST( x ) (x)
+#endif
 
   /*****************************************************/
   /**                  dft_BasicLinProbMgr            **/
@@ -89,34 +111,44 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
 
   int dft_linprobmgr_insertrhsvalue (void * linprobmgr, int iunk, int inode, double value) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    linprobmgr_->insertRhsValue(iunk, inode, value);
+    WORKING_PREC val = WORKING_CAST(value);
+    linprobmgr_->insertRhsValue(iunk, inode, val);
     return( 0 );
   }
 
   int dft_linprobmgr_insertonematrixvalue (void * linprobmgr, int iunk, int ownednode,
 					   int junk, int boxnode, double value) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    linprobmgr_->insertMatrixValue(iunk, ownednode, junk, boxnode, value);
+    WORKING_PREC val = WORKING_CAST(value);
+    linprobmgr_->insertMatrixValue(iunk, ownednode, junk, boxnode, val);
     return( 0 );
   }
 
   int dft_linprobmgr_insertmultinodematrixvalues (void * linprobmgr, int iunk, int ownednode,
 						  int junk, int * boxnodeindices, double *values, int numEntries) {
     ArrayView<const int> indices(boxnodeindices, numEntries);
-    ArrayView<const double> vals(values, numEntries);
-
+    WORKING_PREC *fvalues;
+    fvalues = new WORKING_PREC[numEntries];
+    for (int i=0;i<numEntries;i++)
+      fvalues[i] = WORKING_CAST(values[i]);
+    ArrayView<const WORKING_PREC> vals(fvalues, numEntries);
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     linprobmgr_->insertMatrixValues(iunk, ownednode, junk, indices, vals);
+    delete [] fvalues;
     return( 0 );
   }
 
   int dft_linprobmgr_insertmultiphysicsmatrixvalues (void * linprobmgr, int iunk, int ownednode,
 						    int *junkindices, int boxnode, double *values, int numEntries) {
     ArrayView<const int> indices(junkindices, numEntries);
-
-    ArrayView<const double> vals(values, numEntries);
+    WORKING_PREC *fvalues;
+    fvalues = new WORKING_PREC[numEntries];
+    for (int i=0;i<numEntries;i++)
+      fvalues[i] = WORKING_CAST(values[i]);
+    ArrayView<const WORKING_PREC> vals(fvalues, numEntries);
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     linprobmgr_->insertMatrixValues(iunk, ownednode, indices, boxnode, vals);
+    delete [] fvalues;
     return( 0 );
   }
 
@@ -129,19 +161,34 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
   double dft_linprobmgr_getmatrixvalue (void * linprobmgr, int iunk, int ownednode,
 					int junk, int boxnode) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    return( linprobmgr_->getMatrixValue(iunk, ownednode, junk, boxnode) );
+    WORKING_PREC retval1 = linprobmgr_->getMatrixValue(iunk, ownednode, junk, boxnode);
+    double retval2 = DOUBLE_CAST(retval1);
+    return retval2;
   }
 
   int dft_linprobmgr_setrhs(void * linprobmgr, double** x) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
-    Array<ArrayView<const double> > my_x(numUnknownsPerNode);
+
+    WORKING_PREC **fx;
+    fx = new WORKING_PREC*[numUnknownsPerNode];
+    for (int i=0; i<numUnknownsPerNode;i++)
+      fx[i] = new WORKING_PREC[numOwnedNodes];
+    for(int i=0;i<numUnknownsPerNode;i++)
+      for(int j=0;j<numOwnedNodes;j++)
+	fx[i][j] = WORKING_CAST(x[i][j]);
+
+    Array<ArrayView<const WORKING_PREC> > my_x(numUnknownsPerNode);
     for(int i = 0; i < numUnknownsPerNode; i++){
-      my_x[i] = ArrayView<const double>(x[i], numOwnedNodes);
+      my_x[i] = ArrayView<const WORKING_PREC>(fx[i], numOwnedNodes);
     }
-    ArrayView<ArrayView<const double> > ret_val(my_x());
+    ArrayView<ArrayView<const WORKING_PREC> > ret_val(my_x());
     linprobmgr_->setRhs(ret_val);
+    for (int i = 0; i < numUnknownsPerNode; ++i)
+      delete [] fx[i];
+    delete [] fx;
+
     return( 0 );
   }
 
@@ -149,11 +196,10 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
-
-    ArrayRCP<ArrayRCP<double> > data = linprobmgr_->getLhs();
-    for(int j = 0; j < data.size(); j++){
+    ArrayRCP<ArrayRCP<WORKING_PREC> > data = linprobmgr_->getLhs();
+    for(int j = 0; j < numUnknownsPerNode; j++){
       for(int k = 0; k < data[j].size(); k++){
-	x[j][k] = data[j][k];
+	x[j][k] = DOUBLE_CAST(data[j][k]);
       }
     }
     return( 0 );
@@ -163,11 +209,10 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
-
-    ArrayRCP<ArrayRCP<double> > data = linprobmgr_->getRhs();
+    ArrayRCP<ArrayRCP<WORKING_PREC> > data = linprobmgr_->getRhs();
     for(int j = 0; j < data.size(); j++){
       for(int k = 0; k < data[j].size(); k++){
-	x[j][k] = data[j][k];
+	x[j][k] = DOUBLE_CAST(data[j][k]);
       }
     }
     return( 0 );
@@ -196,19 +241,31 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
 
-    Array<ArrayView<const double> > x_views(numUnknownsPerNode);
+    WORKING_PREC **fx;
+    fx = new WORKING_PREC*[numUnknownsPerNode];
+    for (int i=0; i<numUnknownsPerNode;i++)
+      fx[i] = new WORKING_PREC[numOwnedNodes];
+    for(int i=0;i<numUnknownsPerNode;i++)
+      for(int j=0;j<numOwnedNodes;j++)
+	fx[i][j] = WORKING_CAST(x[i][j]);
+
+    Array<ArrayView<const WORKING_PREC> > x_views(numUnknownsPerNode);
 
     for(int i = 0; i < numUnknownsPerNode; i++){
-      x_views[i] = Teuchos::arrayView(x[i], numOwnedNodes);
+      x_views[i] = Teuchos::arrayView(fx[i], numOwnedNodes);
     }
 
-    ArrayView<ArrayView<const double> > my_view(x_views);
-    ArrayRCP<ArrayRCP<double> > b_data = linprobmgr_->applyMatrix(my_view);
+    ArrayView<ArrayView<const WORKING_PREC> > my_view(x_views);
+    ArrayRCP<ArrayRCP<WORKING_PREC> > b_data = linprobmgr_->applyMatrix(my_view);
     for(int i = 0; i < b_data.size(); i++){
       for(int j = 0; j < b_data[i].size(); j++){
-	b[i][j] = b_data[i][j];
+	b[i][j] = DOUBLE_CAST(b_data[i][j]);
       }
     }
+    for (int i = 0; i < numUnknownsPerNode; ++i)
+      delete [] fx[i];
+    delete [] fx;
+
     return( 0 );
   }
 
@@ -217,17 +274,29 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
 
-    ArrayRCP<ArrayRCP<const double> > my_x = Teuchos::arcp<ArrayRCP<const double> >(numUnknownsPerNode);
+    WORKING_PREC **fx;
+    fx = new WORKING_PREC*[numUnknownsPerNode];
+    for (int i=0; i<numUnknownsPerNode;i++)
+      fx[i] = new WORKING_PREC[numOwnedNodes];
+    for(int i=0;i<numUnknownsPerNode;i++)
+      for(int j=0;j<numOwnedNodes;j++)
+	fx[i][j] = WORKING_CAST(x[i][j]);
+
+    ArrayRCP<ArrayRCP<const WORKING_PREC> > my_x = Teuchos::arcp<ArrayRCP<const WORKING_PREC> >(numUnknownsPerNode);
     for(int i = 0; i < numUnknownsPerNode; i++){
-      my_x[i] = Teuchos::arcp<double>(x[i], 0, numOwnedNodes, false);
+      my_x[i] = Teuchos::arcp<WORKING_PREC>(fx[i], 0, numOwnedNodes, false);
     }
 
-    ArrayRCP<ArrayRCP<double> > my_b = linprobmgr_->importR2C(my_x);
+    ArrayRCP<ArrayRCP<WORKING_PREC> > my_b = linprobmgr_->importR2C(my_x);
     for(int i = 0; i < my_b.size(); i++){
       for(int j = 0; j < my_b[i].size(); j++){
-	b[i][j] = my_b[i][j];
+	b[i][j] = DOUBLE_CAST(my_b[i][j]);
       }
     }
+    for (int i = 0; i < numUnknownsPerNode; ++i)
+      delete [] fx[i];
+    delete [] fx;
+
     return( 0 );
   }
 
@@ -236,15 +305,21 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
 
-    ArrayRCP<double> my_x = Teuchos::arcp<double> (numOwnedNodes);
+    WORKING_PREC *fx;
+    fx = new WORKING_PREC[numOwnedNodes];
+    for(int i=0;i<numOwnedNodes;i++)
+      fx[i] = WORKING_CAST(x[i]);
 
-    my_x = Teuchos::arcp<double>(x, 0, numOwnedNodes, false);
+    ArrayRCP<WORKING_PREC> my_x = Teuchos::arcp<WORKING_PREC> (numOwnedNodes);
 
-    ArrayRCP<double> my_b = linprobmgr_->importR2C(my_x);
+    my_x = Teuchos::arcp<WORKING_PREC>(fx, 0, numOwnedNodes, false);
 
+    ArrayRCP<WORKING_PREC> my_b = linprobmgr_->importR2C(my_x);
     for(int j = 0; j < my_b.size(); j++){
-      b[j] = my_b[j];
+      b[j] = DOUBLE_CAST(my_b[j]);
     }
+    delete [] fx;
+
     return( 0 );
   }
 
@@ -253,13 +328,19 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
 
-    ArrayRCP<double> ret_x = Teuchos::arcp<double>(x, 0, numOwnedNodes, false);
+    WORKING_PREC *fx;
+    fx = new WORKING_PREC[numOwnedNodes];
+    for(int i=0;i<numOwnedNodes;i++)
+      fx[i] = WORKING_CAST(x[i]);
 
-    ArrayRCP<double> ret_val = linprobmgr_->importR2C(ret_x);
+    ArrayRCP<WORKING_PREC> ret_x = Teuchos::arcp<WORKING_PREC>(fx, 0, numOwnedNodes, false);
 
+    ArrayRCP<WORKING_PREC> ret_val = linprobmgr_->importR2C(ret_x);
     for(int i = 0; i < ret_val.size(); i++){
-      b[i] = ret_val[i];
+      b[i] = DOUBLE_CAST(ret_val[i]);
     }
+    delete [] fx;
+
     return( 0 );
   }
 

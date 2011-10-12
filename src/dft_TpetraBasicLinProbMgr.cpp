@@ -606,3 +606,5 @@ const  {
 
 }
 template class dft_BasicLinProbMgr<double, int, int>;
+template class dft_BasicLinProbMgr<float, int, int>;
+//template class dft_BasicLinProbMgr<qd_real, int, int>;
