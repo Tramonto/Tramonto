@@ -29,7 +29,8 @@ extern int Nwall;
 void setup_pairPotentials(char *output_file1);
 extern int Nwall_type;
 extern int Ncomp;
-void thermodynamics(char *output_file1);
+extern int Iwrite;
+void thermodynamics(char *output_file1,int iwrite);
 void recalculate_stencils();
 void setup_polymer_cr();
 #define CMS          0

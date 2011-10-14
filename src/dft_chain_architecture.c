@@ -293,17 +293,19 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max, int ***pol_sym_tmp,FILE
        }
        for (pol_number=0; pol_number<Npol_comp; ++pol_number){
           for (iseg=0;iseg<Nmer[pol_number];iseg++){
-              printf("SegChain2SegAll[%d][%d]=%d\n",
+              if (Iwrite==VERBOSE) printf("SegChain2SegAll[%d][%d]=%d\n",
                    pol_number, iseg,SegChain2SegAll[pol_number][iseg]);
           }
        }
-       printf("Total Number of segments in the problem=%d\n",Nseg_tot);
-       for (iseg=0;iseg<Nseg_tot;iseg++){
-           printf("Nbonds_SegAll[%d]=%d",iseg,Nbonds_SegAll[iseg]);
-           printf("\t seg %d is bonded to...",iseg);
-           for(ibond=0;ibond<Nbonds_SegAll[iseg];ibond++)
-                printf("%d  ",Bonds_SegAll[iseg][ibond]); 
-           printf("\n");
+       if (Iwrite==VERBOSE){
+         printf("Total Number of segments in the problem=%d\n",Nseg_tot);
+         for (iseg=0;iseg<Nseg_tot;iseg++){
+             printf("Nbonds_SegAll[%d]=%d",iseg,Nbonds_SegAll[iseg]);
+             printf("\t seg %d is bonded to...",iseg);
+             for(ibond=0;ibond<Nbonds_SegAll[iseg];ibond++)
+                  printf("%d  ",Bonds_SegAll[iseg][ibond]); 
+             printf("\n");
+         }
        }
        fprintf(fpout,"****************\n END BOND DETAILS \n **********************\n");
     }

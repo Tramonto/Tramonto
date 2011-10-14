@@ -31,6 +31,7 @@ extern int Nnodes_per_el_V;
 #define REFLECT              2
 #define LAST_NODE            3
 #define IN_BULK              0
+#define CONT_BETAMU_I_NEW  11 /* Vary chemical potential for species I...holding densities of other species constant */
 #define CONT_BETAMU_I      3  /* Vary chemical potential for species I */
 #define CONT_EPSFF_ALL		107
 #define CONT_EPSFF_IJ      6   /* Fluid-Fluid Energy Params for IJ term */

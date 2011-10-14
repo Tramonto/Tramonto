@@ -225,7 +225,7 @@ double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    if (Type_poly==WJDC2 || Type_poly==WJDC3) icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
    else /*if (Type_poly==WJDC)*/ icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
 
-   jcomp=Unk2Comp[jseg];
+   jcomp=Type_mer[pol_num][jseg];
 
    fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
    for(i=0;i<nunk-1;i++){
@@ -234,6 +234,7 @@ double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    if (x[unk[nunk-1]][jnode_box] > 1.e-15)
         resid = fac*prefac_R*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power_R); /* Boltz Term */
    else resid=0.0;
+
    return(resid);
 }
 /****************************************************************************/
@@ -249,7 +250,7 @@ double WJDC_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    if (Type_poly==WJDC2 || Type_poly==WJDC3) icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
    else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
 
-   jcomp=Unk2Comp[jseg];
+   jcomp=Type_mer[pol_num][jseg];
    fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
    for(i=0;i<nunk-1;i++){
        fac *=constant_boundary(unk[i],jnode_box);  /*Gs or Qs*/
@@ -277,7 +278,6 @@ double yterm_wjdc(int icomp, int jcomp,int jnode_box,double **x)
         xi_3=x[unk_xi3][jnode_box];
      }
      term=sqrt(y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_2,xi_3));
-     /*term=sqrt(y_cav(Bond_ff[icomp][icomp],Bond_ff[jcomp][jcomp],xi_2j,xi_3j));*/
 
      return(term);
 }
@@ -342,9 +342,6 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
        else                jlist = jcomp;
 
        if (jnode_box >=0 && !Zero_density_TF[jnode_box][jcomp]) {
-                 /* note that the current algorithm uses the precise segment densities, but uses the avg segment density approach for the Jacobian.  This
-                    may affect convergence.  Also this approach precludes restarts with only density fields.  To do restarts, _all_ of the following
-                    are needed: DENSITY, WJCD_FIELD, and G_CHAIN. If one tries to compute the field without this data, we use the avg density approach*/
              if (resid_only_flag==INIT_GUESS_FLAG)         dens=x[unk_rho][jnode_box]/Nseg_type[jcomp];
              else                                          dens=calc_dens_seg(jseg,jnode_box,x,FALSE);   
              if (Lhard_surf && Nodes_2_boundary_wall[jlist][jnode_box]!=-1){

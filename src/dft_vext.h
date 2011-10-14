@@ -49,11 +49,11 @@ extern double Vol_el;
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 #define VDASH_DELTA  1.e-6
 extern double **WallPos_Images;
 extern double ***Xwall_delDOWN;
 extern double ***Xwall_delUP;
+extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 double Vext_1D(double x,int icomp,int iwall_type);
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
 extern double **X_wall;
@@ -88,7 +88,6 @@ void safe_free(void **ptr);
 void setup_integrated_LJ_walls(int iwall,int *nelems_w_per_w,int **elems_w_per_w);
 void comm_wall_els(int iwall,int **nelems_w_per_w,int ***elems_w_per_w,int *nelems_w_per_w_global,int **elems_w_per_w_global);
 extern int Nlists_HW;
-#define VEXT_3D_INTEGRATED      5  /* more proper 3D integration potential for funny geometries */
 void setup_vext_XRSurf(int iwall);
 #define VEXT_DIST_TO_CENTER        3  /* any potential that is a function of the distance to the center of wall (atom). */
 #define VEXT_DIST_TO_SURF          2  /* any potential that is a function of only distance from the surface */
@@ -107,6 +106,7 @@ extern double ***Vext_dash;
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
+#define VEXT_3D_INTEGRATED      5  /* more proper 3D integration potential for funny geometries */
 #define VEXT_HARD        1
 #define VEXT_NONE          0
 #define NWALL_MAX 600 

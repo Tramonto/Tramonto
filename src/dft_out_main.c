@@ -211,13 +211,8 @@ void post_process (double **x,int *niters,
    }
 
    calc_adsorption(fp,x);
-   
    if (Type_coul != NONE) calc_fluid_charge(fp,x); 
-
    calc_force(fp,x,fac_area);   
-                            /* haven't implemented V_dash 
-                               for 12-6 integrated wall yet */
-
    energy=calc_free_energy(fp,x); 
 
    if ((Nruns>2 && (Nwall==1 || Nwall==2) || Loca.cont_type1==CONT_BETAMU_I) && fabs(cont_var)>1.e-6){

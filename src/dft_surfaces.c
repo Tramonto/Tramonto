@@ -182,25 +182,6 @@ void setup_surface (FILE *fp2, int *nelems_f,
           Image_IDCheck[i]=-1;
      }
      }
-  
-/*     if (Ndim > 1){
-        image_x = image-image_old;
-        for (i=image_old; i<image_old+image_x; i++){
-           for (idim=0; idim<Ndim; idim++) pos[idim] = WallPos_Images[i][idim];
-           if (Lfind_images[1]) find_wall_images(1, &image,WallPos_Images,pos);
-        }
-     }
-     if (Ndim == 3){
-        image_xy = image-image_old;
-        for (i=image_old; i<image_old+image_xy; i++){
-           for (idim=0; idim<Ndim; idim++) pos[idim] = WallPos_Images[i][idim];
-            if (Lfind_images[2]) find_wall_images(2,&image,WallPos_Images,pos);
-        }
-     }
-     for (i=image_old; i<image; i++) WallType_Images[i]=WallType[iwall];
-     for (i=image_old; i<image; i++) RealWall_Images[i]=iwall;
-     for (i=image_old+1; i<image; i++) Image_IDCheck[i]=-1;*/
-/*     image_old=image;*/
   }
   Nwall_Images = image;
 
@@ -261,29 +242,19 @@ void setup_surface (FILE *fp2, int *nelems_f,
   {
      case smooth_planar_wall:
        fp_inSurfaceTest=&surface_planar_inSurfaceTest;
-       fp_roughness=&surface_planar_roughness;
-       if (Ndim==2){
+       if (Ndim>1){
           fp_angleCutout=&surface_angleCutout2D;
           fp_periodic=&surface_periodic_offset;
           fp_linear=&surface_linear_offset;
-       }
-       if (Ndim==3){
-          fp_angleCutout=&surface_angleCutout3D_cyl;
-          fp_periodic=&surface_periodic_offset;
-          fp_linear=&surface_linear_offset;
+          fp_roughness=&surface_planar_roughness;
        }
        break;
 
      case finite_planar_wall:
        fp_inSurfaceTest=&surface_block_inSurfaceTest;
-       fp_roughness=&surface_planar_roughness;
-       if (Ndim==2){
+       if (Ndim>=1){
+          fp_roughness=&surface_planar_roughness;
           fp_angleCutout=&surface_angleCutout2D;
-          fp_periodic=&surface_periodic_offset;
-          fp_linear=&surface_linear_offset;
-       }
-       if (Ndim==3){
-          fp_angleCutout=&surface_angleCutout3D_cyl;
           fp_periodic=&surface_periodic_offset;
           fp_linear=&surface_linear_offset;
        }

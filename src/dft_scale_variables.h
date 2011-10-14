@@ -15,9 +15,35 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define NCOMP_MAX 5
+extern int Nmer[NCOMP_MAX];
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
+#define NBLOCK_MAX   20 
+extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
+extern int Npol_comp;
+#define NO_SCREEN    4 
+void thermodynamics(char *output_file1,int iwrite);
+#define FALSE 0
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+extern double Betamu[NCOMP_MAX];
+#define NMER_MAX     200
+extern double Betamu_chain[NMER_MAX];
+#define WJDC3        5 
+#define WJDC2        4 
+#define WJDC         3
+extern int Type_poly;
+extern double Rho_b[NCOMP_MAX];
+void calc_new_density(int icomp,char *output_file1);
 #define NWALL_MAX_TYPE 50 
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-#define NCOMP_MAX 5
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_w[NWALL_MAX_TYPE];
 #define VEXT_HARD        1

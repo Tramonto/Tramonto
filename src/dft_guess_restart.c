@@ -293,16 +293,22 @@ void read_in_a_file(int guess_type,char *filename)
          if (Proc==0 && Iwrite != NO_SCREEN)
            printf("\t ...NO chemical potential data found in restart file\n");
     if (Type_coul != NONE && Restart_field[POISSON]==FALSE)
+         if (Proc==0 && Iwrite != NO_SCREEN)
            printf("\t ...NO electrostatic potential data found in restart file\n");
     if ((Type_poly == CMS || Type_poly==CMS_SCFT) && Restart_field[CMS_FIELD]==FALSE)
+         if (Proc==0 && Iwrite != NO_SCREEN)
            printf("\t ...NO CMS field data found in restart file\n");
     if ((Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[WJDC_FIELD]==FALSE)
+         if (Proc==0 && Iwrite != NO_SCREEN)
            printf("\t ...NO WJDC field data found in restart file\n");
     if (L_HSperturbation && Restart_field[HSRHOBAR]==FALSE)
+         if (Proc==0 && Iwrite != NO_SCREEN)
            printf("\t ...NO Rosenfeld nonlocal density data found in restart file\n");
     if (ATTInA22Block==FALSE && Restart_field[MF_EQ]==FALSE)
+         if (Proc==0 && Iwrite != NO_SCREEN)
            printf("\t ...NO mean field attractive variable data found the restart file \n");
     if (Restart_field[DENSITY]==FALSE)
+         if (Proc==0 && Iwrite != NO_SCREEN)
            printf("\t ...NO density data found in restart file\n");
 
     fclose(fp5);
@@ -327,8 +333,10 @@ void read_in_a_file(int guess_type,char *filename)
 /*	   printf("Can't open file %s\n", filename2);
 	   exit(1);*/
            if ((Iguess_fields==CALC_ALL_FIELDS || Iguess_fields==CALC_RHOBAR_AND_G) && index==0) 
+              if (Proc==0 && Iwrite != NO_SCREEN)
               printf("\t ...NO G_EQN DATA IS FOUND - NO dft_dens.datg file \n\t\t...an initial guess will be constructed from other field data\n");
            else if ((Iguess_fields==BULK || Iguess_fields==CALC_RHOBAR_ONLY)&&index==0) 
+              if (Proc==0 && Iwrite != NO_SCREEN)
               printf("\t ...NO G_EQN DATA IS FOUND - NO dft_dens.datg file \n\t\t...an initial guess will be constructed from bulk fluid data\n");
            Restart_field[G_CHAIN]=FALSE;
 	 }

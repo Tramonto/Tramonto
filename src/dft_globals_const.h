@@ -427,6 +427,7 @@ extern "C" {
 #define CONT_ELECPARAM_ALL 8  /* Charged surface params */
 #define CONT_SEMIPERM_IJ   9  /* Vext_membrane */
 #define CONT_SIGMAFF_IJ    10   /* Fluid-Fluid Interaction Diameter for IJ term */
+#define CONT_BETAMU_I_NEW  11 /* Vary chemical potential for species I...holding densities of other species constant */
 /*
  * This group contains extensions to the core capabilities that are archived in the repository.
  */
@@ -557,6 +558,7 @@ extern "C" {
 #define SWITCH_MU    3
 #define SWITCH_ALLTYPES 4
 #define SWITCH_BULK_OUTPUT 5
+#define SWITCH_BULK_OUTPUT_ALL 6
 
 #define SWITCH_SURFACE_SEP   0
 

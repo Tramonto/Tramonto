@@ -40,6 +40,7 @@ extern int **Nel_hit;
 double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
 void print_to_screen_comp(int icomp,double val,char *var_label);
+#define SWITCH_BULK_OUTPUT_ALL 6
 #define SWITCH_BULK_OUTPUT 5
 extern int Print_rho_switch;
 #define NDIM_MAX  3

@@ -548,7 +548,7 @@ void print_resid_norm(int iter)
 
   safe_free((void **) &f);
   norm = gsum_double(norm);
-  if (Proc==0) printf("\t\tResidual norm at iteration %d = %g\n",iter, sqrt(norm));
+  if (Proc==0 && Iwrite != NO_SCREEN) printf("\t\tResidual norm at iteration %d = %g\n",iter, sqrt(norm));
   return;
 }
 /*****************************************************************************************************/

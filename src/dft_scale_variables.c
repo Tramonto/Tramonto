@@ -190,5 +190,69 @@ void scale_all_epsParams(double ratio)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/* calc_new_density: use a quick iterative scheme to update a density for a
+specified continuation variable while holding the other densities constant */
+void calc_new_density(int icomp,char *output_file1)
+{
+  int jcomp,i,ncount=0,Lconverged,ipol;
+  double mu_new_icomp,tol=1.e-8,rho_save_icomp,betamu_test,percent_change,rho_new_test;
+  double rho_tmp[NCOMP_MAX];
+
+  rho_save_icomp=Rho_b[icomp];
+  if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) mu_new_icomp=Betamu_chain[icomp]; 
+  else                                                         mu_new_icomp=Betamu[icomp];
+  Lconverged=FALSE;
 
 
+  while(Lconverged==FALSE && ncount<2000){
+     
+     thermodynamics(output_file1,NO_SCREEN);
+
+     if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) betamu_test=Betamu_chain[icomp];
+     else                                                         betamu_test=Betamu[icomp];
+
+     percent_change=fabs(betamu_test-mu_new_icomp)/fabs(mu_new_icomp);
+
+     /* component density to polymer density */
+     if (Type_poly !=NONE && Npol_comp != Ncomp){
+        for (ipol=0;ipol<Npol_comp;ipol++){ 
+           rho_tmp[ipol]=0.0;
+           for (i=0;i<Ncomp;i++) {
+              if (Nmer_t[ipol][i]>0) rho_tmp[ipol]+=Rho_b[i];
+           }
+        }
+     }
+     else{ for (i=0;i<Ncomp;i++) rho_tmp[i]=Rho_b[i]; }
+
+     if (percent_change<tol){ 
+        Lconverged=TRUE;
+        rho_new_test=rho_tmp[icomp];
+     }
+     else if (betamu_test>mu_new_icomp) rho_new_test=rho_tmp[icomp]-percent_change*rho_tmp[icomp];
+     else if (betamu_test<mu_new_icomp) rho_new_test=rho_tmp[icomp]+percent_change*rho_tmp[icomp];
+    
+     rho_tmp[icomp]=rho_new_test;
+
+     /* polymer density to component density */
+     if (Type_poly !=NONE && Npol_comp != Ncomp){
+        for (i=0; i<Ncomp; i++){
+           Rho_b[i] = 0.;
+           for (ipol=0; ipol<Npol_comp; ipol++) {
+             Rho_b[i] += (double)Nmer_t[ipol][i]*rho_tmp[ipol]/(double)Nmer[ipol];
+           }
+        }
+     }
+     else{ for (i=0;i<Ncomp;i++) Rho_b[i]=rho_tmp[i]; }
+     
+     ncount++;
+  }
+  if (ncount>=2000) {
+     printf("new bulk densities not converged after 2000 iterations (Proc=%d): currently Rho_b[icomp]=%g\n",Rho_b[icomp],Proc);
+     exit(-1);
+  }
+  else if (Lconverged==TRUE){ if(Iwrite==VERBOSE && Proc==0)  printf("new bulk density found:icomp=%d Rho_b[icomp]=%g\n",icomp,Rho_b[icomp]); }
+  return;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/

@@ -85,7 +85,6 @@ void print_vext(double **vext,char *output_file);
 #define	EXTENDED	2
 #define VERBOSE      3 
 #define NO_SCREEN    4 
-extern int Iwrite;
 void setup_vext_coulomb_vol();
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
@@ -118,7 +117,8 @@ void safe_free(void **ptr);
 extern int Type_interface;
 void boundary_free(void);
 void free_mesh_arrays(void);
-void thermodynamics(char *output_file1);
+extern int Iwrite;
+void thermodynamics(char *output_file1,int iwrite);
 void calc_stencils(void);
 void calc_HS_diams();
 extern int Type_func;

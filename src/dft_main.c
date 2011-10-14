@@ -185,7 +185,7 @@ void dftmain(double * engptr)
     /*
      * do all the thermodynamics for the bulk fluid mixture
      */
-     thermodynamics(output_file1);
+     thermodynamics(output_file1,Iwrite);
      }
 
     /*
@@ -259,11 +259,11 @@ void dftmain(double * engptr)
       if (NL_Solver == PICARD_BUILT_IN || NL_Solver==PICARD_NOX ||
            NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN){
           if (NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN) NL_update_scalingParam/=100.;
-          if (Proc==0) printf("Calling Picard Solver!\n");
+          if (Proc==0 && Iwrite != NO_SCREEN) printf("Calling Picard Solver!\n");
           niters = solve_problem_picard(x, x2);
           if (NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN){
                NL_update_scalingParam*=100.;
-              if (Proc==0) printf("Calling Newton Solver after print of Picard solution!\n");
+              if (Proc==0 && Iwrite != NO_SCREEN) printf("Calling Newton Solver after print of Picard solution!\n");
                print_profile_box(x,"dft_dens_picard.dat");
                if (Lbinodal) print_profile_box(x2,"dft_dens_picard2.dat");
                niters = solve_problem(x, x2);

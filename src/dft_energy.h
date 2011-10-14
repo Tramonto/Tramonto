@@ -25,6 +25,7 @@ double integrand_CMS_freen(int iunk,int inode_box,double **x);
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
 void print_to_file(FILE *fp,double val,char *var_label,int first);
+#define SWITCH_BULK_OUTPUT_ALL 6
 #define SWITCH_BULK_OUTPUT 5
 extern int Print_rho_switch;
 #define NDIM_MAX  3

@@ -61,6 +61,7 @@ double get_init_param_value(int cont_type,int Loca_contID)
              break;   
 
       case CONT_BETAMU_I: 
+      case CONT_BETAMU_I_NEW: 
            if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                 return Betamu_chain[Cont_ID[Loca_contID][0]];
            }
@@ -156,6 +157,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
             break;
 
       case CONT_BETAMU_I: 
+      case CONT_BETAMU_I_NEW: 
           if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                 param_old=Betamu_chain[Cont_ID[Loca_contID][0]];
                 Betamu_chain[Cont_ID[Loca_contID][0]]=param;
@@ -265,6 +267,7 @@ void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double par
   int Ladjust_wall_wall_potentials=FALSE;
   int Ladjust_all_epsParams=FALSE;
   int Lrecalc_external_field=FALSE;
+  int Ladjust_density=FALSE;
 
   switch(cont_type){
 
@@ -290,6 +293,12 @@ void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double par
            break;
 
      case CONT_BETAMU_I: break;
+
+     case CONT_BETAMU_I_NEW: 
+          icomp=Cont_ID[Loca_contID][0];
+          Ladjust_density=TRUE;
+          Ladjust_thermo=TRUE;
+          break;
 
      case CONT_EPSFF_IJ: 
           if (Mix_type==0) {
@@ -370,8 +379,10 @@ void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double par
   if (Ladjust_CMSpolymerCr)             setup_polymer_cr();
 
   if (Ladjust_stencils)                 recalculate_stencils();
+  
+  if (Ladjust_density)                  calc_new_density(icomp,output_file1);
 
-  if (Ladjust_thermo) 			thermodynamics(output_file1);
+  if (Ladjust_thermo) 			thermodynamics(output_file1,Iwrite);
 }
 /*****************************************************************************/
 /*print_cont_type: Here print the type of the variable that
@@ -418,15 +429,19 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
          break;
 
       case CONT_RHO_I:
+      case CONT_BETAMU_I:
+      case CONT_BETAMU_I_NEW:
 
-         if (Print_rho_switch==SWITCH_ALLTYPES||Print_rho_switch==SWITCH_BULK_OUTPUT){
+         if (Print_rho_switch==SWITCH_ALLTYPES||Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
              if (Type_poly==NONE) nloop=Ncomp;
              else                 nloop=Npol_comp;
          }
          else nloop=1;
 
-         if (Print_rho_switch==SWITCH_RHO || Print_rho_switch==SWITCH_ALLTYPES || 
-             Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT){
+
+         if (cont_type!=CONT_BETAMU_I&&(Print_rho_switch==SWITCH_RHO || Print_rho_switch==SWITCH_ALLTYPES || 
+             Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT
+             ||Print_rho_switch==SWITCH_BULK_OUTPUT_ALL)){
             for (i=0;i<nloop;i++){
                if (Type_poly==NONE){
                   if (nloop==1) fprintf(fp,"Rho_b[%d]  ",Cont_ID[Loca_contID][0]);
@@ -442,11 +457,14 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
         /* for (i=0; i<nloop; i++) fprintf(fp, "Rho_b[%d]/Rho_sum  ", i);*/
 
          if (Ipot_ff_c==COULOMB &&(Print_rho_switch==SWITCH_ION || 
-            Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT)){
+            Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||
+            Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL)){
               fprintf(fp,"KAPPA   ");
         }
 
-        if (Print_rho_switch == SWITCH_MU || Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT){
+        if (Print_rho_switch == SWITCH_MU || Print_rho_switch==SWITCH_ALLTYPES || 
+            Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT || 
+            Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
             for(i=0; i<nloop; i++){
                 if (Type_poly==NONE){
                        if (nloop==1) fprintf(fp,"Betamu[%d]   ",Cont_ID[Loca_contID][0]);
@@ -459,13 +477,6 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
             }
         }
         break;
-
-      case CONT_BETAMU_I:
-         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)
-            fprintf(fp,"Betamu_chain[%d]:  ",Cont_ID[Loca_contID][0]);
-         else
-            fprintf(fp,"Betamu[%d]:  ",Cont_ID[Loca_contID][0]);
-         break;
 
       case CONT_EPSW_I:
          if (Mix_type==0) fprintf(fp,"Eps_w[%d]  ",Cont_ID[Loca_contID][0]);
@@ -598,17 +609,24 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
          break;
 
       case CONT_RHO_I:
-         if (Print_rho_switch==SWITCH_ALLTYPES||Print_rho_switch==SWITCH_BULK_OUTPUT){
+      case CONT_BETAMU_I:
+      case CONT_BETAMU_I_NEW:
+
+         if (Print_rho_switch==SWITCH_ALLTYPES||Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
              if (Type_poly==NONE) nloop=Ncomp;
              else                 nloop=Npol_comp;
          }
          else nloop=1;
 
-         if (Print_rho_switch==SWITCH_RHO || Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT){
+         if (cont_type!=CONT_BETAMU_I&&(Print_rho_switch==SWITCH_RHO || 
+             Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||
+             Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL)){
             for (i=0;i<nloop;i++){
                if (Type_poly==NONE){
-                  if (nloop==1) fprintf(fp,"%11.8f  ",Rho_b[Cont_ID[Loca_contID][0]]);
-                  else          fprintf(fp,"%11.8f  ",Rho_b[i]);
+                  if (nloop==1){ if (Rho_b[Cont_ID[Loca_contID][0]]>1.e-6) fprintf(fp,"%11.8f  ",Rho_b[Cont_ID[Loca_contID][0]]);
+                                 else fprintf(fp,"%g  ",Rho_b[Cont_ID[Loca_contID][0]]); }
+                  else         { if(Rho_b[i]>1.e-6) fprintf(fp,"%11.8f  ",Rho_b[i]);
+                                 else fprintf(fp,"%g  ",Rho_b[i]);}
                }
                else{
                     rho_chain=0.0;
@@ -616,7 +634,8 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                         if (nloop==1 && SegAll_to_Poly[iseg]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_b[iseg];
                         else if (SegAll_to_Poly[iseg]==i) rho_chain+= Rho_seg_b[iseg];
                     }
-                    fprintf(fp,"%11.8f  ",rho_chain);
+                    if (rho_chain>1.e-6) fprintf(fp,"%11.8f  ",rho_chain);
+                    else fprintf(fp,"%g  ",rho_chain);
                }
              }
           }
@@ -631,7 +650,8 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
          for (i=0;i<nloop;i++) fprintf(fp,"%9.6f  ",Rho_b[i]/rhosum);*/
 
          if ( (Print_rho_switch==SWITCH_ION ||Print_rho_switch==SWITCH_ALLTYPES || 
-               Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT) && Ipot_ff_c == COULOMB) {
+               Print_rho_switch==SWITCH_ALLTYPES_ICOMP||
+               Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL) && Ipot_ff_c == COULOMB) {
              kappa_sq = 0.0;
              for(icomp = 0; icomp<Ncomp; icomp++)
                 kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
@@ -641,7 +661,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
          }
 
          if (Print_rho_switch == SWITCH_MU || Print_rho_switch==SWITCH_ALLTYPES || 
-               Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT){
+               Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT ||Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
             for (i=0; i<nloop; i++){
                 if (Type_poly==NONE){
                        if (nloop==1) fprintf(fp,"%11.8f   ", Betamu[Cont_ID[Loca_contID][0]]);
@@ -652,16 +672,6 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                     else          fprintf(fp,"%11.8f   ", Betamu_chain[i]);
                 }
             }
-         }
-         break;
-
-      case CONT_BETAMU_I:
-         if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
-                  fprintf(fp,"%11.8f   ", Betamu_chain[Cont_ID[Loca_contID][0]]);
-                  return_param=Betamu_chain[Cont_ID[Loca_contID][0]];
-         }
-         else{    fprintf(fp,"%11.8f   ", Betamu[Cont_ID[Loca_contID][0]]);
-                  return_param=Betamu[Cont_ID[Loca_contID][0]];
          }
          break;
 

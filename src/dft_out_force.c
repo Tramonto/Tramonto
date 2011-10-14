@@ -54,8 +54,6 @@ void calc_force(FILE *fp, double **x,double fac_area)
    int orientation,surfaceTypeID;
    struct SurfaceGeom_Struct *sgeom_iw;
 
-
-
    p_tilde_vdash = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
    p_tilde_sumwall = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
    for (iwall=0;iwall<Nwall;iwall++)
@@ -71,11 +69,11 @@ void calc_force(FILE *fp, double **x,double fac_area)
  
    }
 
-
    if(first!=TRUE) {
 
     if (Lvext_dash) integrate_rho_vdash(x,p_tilde_vdash);
     if (Lhard_surf) sum_rho_wall(x, p_tilde_sumwall);
+
 
 
 /*       rho_sum_mid = sum_rho_midplane(x);
@@ -646,6 +644,9 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
            
            rho_vdash[iwall][idim] +=sign* (x[iunk][inode_box]*Vext_dash[loc_inode][iwunk][idim])
                                        *nel_hit*Vol_el/((double)Nnodes_per_el_V);
+printf("%d  %d  %d  %g %g %g\n",icomp,iwall,inode_box,rho_vdash[iwall][idim],
+       x[iunk][inode_box],Vext_dash[loc_inode][iwunk][idim] );
+
         }  /* end of idim loop */
       }     /* end of Nwall loop */
 

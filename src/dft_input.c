@@ -1280,8 +1280,8 @@ void read_input_file(char *input_file, char *output_file1)
 	  fprintf(fp2,"%d  ",block[pol_number][i]);
 	  Nmer[pol_number] += block[pol_number][i];
 	}
-	printf("Length (Nmer) of polymer %d = %d\n",pol_number,
-	       Nmer[pol_number]);
+	/*printf("Length (Nmer) of polymer %d = %d\n",pol_number,
+	       Nmer[pol_number]);*/
       }
     }
     MPI_Bcast(Nmer,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
@@ -1307,7 +1307,7 @@ void read_input_file(char *input_file, char *output_file1)
 	}
       }
       Ntype_mer++;
-		printf("Number of segment types (Ntype_mer) = %d\n",Ntype_mer);
+      /*printf("Number of segment types (Ntype_mer) = %d\n",Ntype_mer);*/
     }
     MPI_Bcast(&Ntype_mer,1,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Nmer_t,NCOMP_MAX*NBLOCK_MAX,MPI_INT,0,MPI_COMM_WORLD);
@@ -1966,7 +1966,7 @@ void read_input_file(char *input_file, char *output_file1)
   }
   MPI_Bcast(&Iwrite,1,MPI_INT,0,MPI_COMM_WORLD);
 
-  if (Proc==0 && Iwrite != NO_SCREEN) printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
+  if (Proc==0 && fabs(charge_sum) > 1.e-8 && Iwrite != NO_SCREEN) printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
   /* COARSENING Switches */
 
   if (Proc==0) {
@@ -2240,7 +2240,10 @@ void read_input_file(char *input_file, char *output_file1)
   }
 
   if (!LBulk && ((Loca.method != -1 && Loca.cont_type1 == CONT_BETAMU_I) ||
-       (Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I)) ){
+       (Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I)) 
+      && ((Loca.method != -1 && Loca.cont_type1 == CONT_BETAMU_I_NEW) ||
+          (Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I_NEW)) 
+     ){
        /*printf("for continuation in chemical potential LBulk must be TRUE=%d .... resetting LBulk\n",Loca.cont_type1,1);*/
        LBulk=TRUE;
     }

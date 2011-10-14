@@ -340,7 +340,8 @@ void print_profile(char *output_file4,double *xold)
             switch(Unk2Phys[iunk]){
                 case DENSITY:
 /*                fprintf(ifp,"%g\t", xold[iunk+node_start]/Rho_b[icomp]);*/
-                  fprintf(ifp,"%g\t", xold[iunk+node_start]);
+                  if (xold[iunk+node_start]<0. && Rho_b[icomp]<1.e-20) fprintf(ifp,"%g\t", Rho_b[icomp]);
+                  else fprintf(ifp,"%g\t", xold[iunk+node_start]);
                   break;
 
                 case DIFFUSION:

@@ -86,8 +86,8 @@ extern double Betap_LBB;
 extern int Lseg_densities;
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
-void calc_pressure(char *output_file1);
-void calc_chempot(char *output_file1);
+void calc_pressure(char *output_file1,int iwrite);
+void calc_chempot(char *output_file1,int iwrite);
 void WJDC_thermo_precalc(char *output_file1);
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int Npol_comp;
@@ -108,9 +108,8 @@ void WTC_thermo_precalc(char *output_file1);
 extern int Type_poly;
 extern int L_HSperturbation;
 #define NO_SCREEN    4 
-extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-void thermodynamics(char *output_file1);
+void thermodynamics(char *output_file1,int iwrite);

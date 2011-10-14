@@ -283,7 +283,6 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
    * Nunknowns_box. 
    */
 
- 
   setup_basic_box(fp1, update);
   /* here is some debugging code to make sure we understand the basic box and the coordinate systems */
    if (Iwrite==VERBOSE){

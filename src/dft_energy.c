@@ -325,7 +325,7 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
          volume=1.0;
          for (idim=0;idim<Ndim; idim++) volume*=Size_x[0];
          if (fp !=NULL){
-            if(Print_rho_switch==SWITCH_BULK_OUTPUT) print_to_file(fp,-omega_sum/volume,"pressure",first);
+            if(Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL) print_to_file(fp,-omega_sum/volume,"pressure",first);
             else                                     print_to_file(fp,omega_sum,"omega",first);
             if (Type_interface == UNIFORM_INTERFACE) print_to_file(fp,omega_s_sum,"omega_s",first);
          }

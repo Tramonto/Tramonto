@@ -122,7 +122,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
 
              if (Type_poly == CMS) setup_polymer_cr();
              recalculate_stencils();
-             thermodynamics(output_file1);
+             thermodynamics(output_file1,Iwrite);
              break;
 
       case CONT_RHO_CONST_XSOLV:
@@ -135,7 +135,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
              Rho_b[1]*=ratio; 
              if (Type_poly == CMS) setup_polymer_cr();
              recalculate_stencils();
-             thermodynamics(output_file1);
+             thermodynamics(output_file1,Iwrite);
              break;
 
       case CONT_RHO_ALL: 
@@ -152,7 +152,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
              } 
              if (Type_poly == CMS) setup_polymer_cr();
              recalculate_stencils();
-             thermodynamics(output_file1);
+             thermodynamics(output_file1,Iwrite);
              break; 
                  
       case CONT_EPSW_ALL: 
@@ -242,7 +242,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
             }
             if (Type_poly==CMS && Type_poly==CMS_SCFT) setup_polymer_cr();
             recalculate_stencils();
-            thermodynamics("dft_out.lis");
+            thermodynamics("dft_out.lis",Iwrite);
             break;
 
      case CONT_CRFAC:

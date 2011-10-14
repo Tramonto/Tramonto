@@ -73,10 +73,11 @@ void print_cont_type_user_plugin(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID);
 #define SWITCH_MU    3
 #define SWITCH_ION   2
+#define SWITCH_BULK_OUTPUT 5
 #define SWITCH_ALLTYPES_ICOMP 1
 #define SWITCH_RHO   0
 extern int Npol_comp;
-#define SWITCH_BULK_OUTPUT 5
+#define SWITCH_BULK_OUTPUT_ALL 6
 #define SWITCH_ALLTYPES 4
 extern int Print_rho_switch;
 extern int Type_attr;
@@ -86,7 +87,9 @@ extern int Type_bc[NDIM_MAX][2];
 #define SWITCH_SURFACE_SEP   0
 extern int Print_mesh_switch;
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID);
-void thermodynamics(char *output_file1);
+extern int Iwrite;
+void thermodynamics(char *output_file1,int iwrite);
+void calc_new_density(int icomp,char *output_file1);
 void recalculate_stencils();
 void setup_polymer_cr();
 void calc_InvR_params();
@@ -158,6 +161,7 @@ extern double Betamu_chain[NMER_MAX];
 #define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
+#define CONT_BETAMU_I_NEW  11 /* Vary chemical potential for species I...holding densities of other species constant */
 #define CONT_BETAMU_I      3  /* Vary chemical potential for species I */
 extern double Rho_seg_b[NMER_MAX];
 extern int SegAll_to_Poly[NMER_MAX];
