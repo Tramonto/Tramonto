@@ -307,6 +307,25 @@ RUN (s903186-nightly) {
 
 ###############################################################################
 #
+# ictinus nightly
+#
+###############################################################################
+
+RUN (ictinus-nightly) {
+
+    BUILD-LABEL         = mac-TriDev;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = mac-ictinus;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 4;
+    MPI-GO              = /Users/jmwille/install/gcc-4.4.6/openmpi-1.4.3/bin/mpiexec -np ;
+    TTR-DIR             = /Users/hudson/slave/workspace/tramonto-test-results;
+    SSG-USERNAME        = jmwille;
+
+}
+
+###############################################################################
+#
 # s909348 nightly
 #
 ###############################################################################
