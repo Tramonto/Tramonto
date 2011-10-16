@@ -269,6 +269,7 @@ exit $exitStatus;
         $result = $?;
         print "\n\$output: $output\n";
         print "\n\$result: $result\n\n";
+        echo $cmd; 
         
         return 0;
         
