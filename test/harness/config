@@ -61,6 +61,25 @@ RUN (mac-tiger-intel) {
 
 ###############################################################################
 #
+# regression nightly - built against Trilinos Dev
+#
+###############################################################################
+
+RUN (regression-nightly) {
+
+    BUILD-LABEL         = O3-tdev-8proc;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = linux-regression;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 8;
+    TTR-DIR             = /home/hudson/slave/workspace/tramonto-test-results;
+    MPI-GO              = /usr/alt/bin/mpiexec -np ;
+    SSG-USERNAME        = hudson;
+
+}
+
+###############################################################################
+#
 # zan nightly - built against Trilinos 10.6.4
 #
 ###############################################################################
@@ -74,7 +93,7 @@ RUN (zan-nightly) {
     MAX-PROC            = 8;
     TTR-DIR             = /home/hudson/slave/workspace/tramonto-test-results;
     MPI-GO              = /home/jmwille/install/bin/mpiexec -np ;
-    SSG-USERNAME        = jmwille;
+    SSG-USERNAME        = hudson;
 
 }
 
@@ -301,7 +320,7 @@ RUN (s903186-nightly) {
     MAX-PROC            = 7;
     MPI-GO              = /Users/jmwille/install/gcc-4.6.1/openmpi-1.4.3/bin/mpiexec -np ;
     TTR-DIR             = /Users/hudson/slave/workspace/tramonto-test-results;
-    SSG-USERNAME        = jmwille;
+    SSG-USERNAME        = hudson;
 
 }
 
@@ -320,7 +339,7 @@ RUN (ictinus-nightly) {
     MAX-PROC            = 4;
     MPI-GO              = /Users/jmwille/install/gcc-4.4.6/openmpi-1.4.3/bin/mpiexec -np ;
     TTR-DIR             = /Users/hudson/slave/workspace/tramonto-test-results;
-    SSG-USERNAME        = jmwille;
+    SSG-USERNAME        = hudson;
 
 }
 
