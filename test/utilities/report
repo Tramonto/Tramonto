@@ -264,12 +264,12 @@ exit $exitStatus;
         
         my $cmd = "";
         $cmd .= "ssh $ssgUsername\@software.sandia.gov ";
-        $cmd .= "'/space/TramontoWebHome/insert_results.pl --results-dir=$resultsDirNameNew 2>&1' 2>&1";
+        #$cmd .= "'/space/TramontoWebHome/insert_results.pl --results-dir=$resultsDirNameNew 2>&1' 2>&1";
+        $cmd .= "/space/TramontoWebHome/insert_results.pl --results-dir=$resultsDirNameNew";
         $output = `$cmd`;
         $result = $?;
         print "\n\$output: $output\n";
         print "\n\$result: $result\n\n";
-        echo $cmd; 
         
         return 0;
         
