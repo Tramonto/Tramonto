@@ -34,27 +34,25 @@ extern "C" {
 #endif
 
 typedef Teuchos::Comm<int> COMM;
-  //#define BLPMF
-#define BLPMD
-  //#define BLPMQ
 
-#ifdef BLPMF
+#if LINSOLVE_PREC == 0
+// Use float
 typedef dft_BasicLinProbMgr<float,int,int> BLPM;
 #define WORKING_PREC float
 #define WORKING_CAST( x ) float(x)
 #define DOUBLE_CAST( x ) double(x)
-#endif
-#ifdef BLPMQ
-typedef dft_BasicLinProbMgr<qd_real,int,int> BLPM;
-#define WORKING_PREC qd_real
-#define WORKING_CAST( x ) qd_real(x)
-#define DOUBLE_CAST( x ) to_double(x)
-#endif
-#ifdef BLPMD
+#elif LINSOLVE_PREC == 1
+// Use double
 typedef dft_BasicLinProbMgr<double,int,int> BLPM;
 #define WORKING_PREC double
 #define WORKING_CAST( x ) (x)
 #define DOUBLE_CAST( x ) (x)
+#elif LINSOLVE_PREC == 2
+// Use quad double
+typedef dft_BasicLinProbMgr<qd_real,int,int> BLPM;
+#define WORKING_PREC qd_real
+#define WORKING_CAST( x ) qd_real(x)
+#define DOUBLE_CAST( x ) to_double(x)
 #endif
 
   /*****************************************************/

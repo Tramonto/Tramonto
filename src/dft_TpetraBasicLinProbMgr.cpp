@@ -441,12 +441,22 @@ setupSolver
   problem_ = rcp(new LinPROB(globalMatrix_, globalLhs_, globalRhs_));
   Ifpack2::Factory factory;
   RCP<const MAT> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT>(globalMatrix_);
-  preconditioner_ = factory.create("ILUT", const_globalMatrix_);
-  preconditioner_->setParameters(*parameterList_);
-  preconditioner_->initialize();
-  preconditioner_->compute();
-  problem_->setLeftPrec(preconditioner_);
+  //  preconditioner_ = factory.create("ILUT", const_globalMatrix_);
+  //  preconditioner_->setParameters(*parameterList_);
+  //  preconditioner_->initialize();
+  //  preconditioner_->compute();
+  //  problem_->setLeftPrec(preconditioner_);
   TEST_FOR_EXCEPT(problem_->setProblem() == false);
+  //  Teuchos::RCP<Teuchos::ParameterList> belosList = Teuchos::rcp( new Teuchos::ParameterList() );
+  //  belosList->set( "Num Blocks", 500 );               // Maximum number of blocks in Krylov factorization
+  //  belosList->set( "Block Size", 1 );              // Blocksize to be used by iterative solver
+  //  belosList->set( "Maximum Iterations", 5000 );       // Maximum number of iterations allowed
+  //  belosList->set( "Maximum Restarts", 1 );      // Maximum number of restarts allowed
+  //  belosList->set<Scalar>( "Convergence Tolerance", 1.0e-4 );         // Relative convergence tolerance requested
+  //  belosList->set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+  //  belosList->set( "Output Frequency", 10 );
+  //  belosList->set( "Output Style", Belos::Brief);
+  //  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, belosList));
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 #endif
 }
@@ -537,9 +547,9 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 writeMatrix
 (const char * filename, const char * matrixName, const char * matrixDescription) const  {
 
-  std::string str_filename(filename); 
-  std::string str_matrixName(matrixName); 
-  std::string str_matrixDescription(matrixDescription); 
+  std::string str_filename(filename);
+  std::string str_matrixName(matrixName);
+  std::string str_matrixDescription(matrixDescription);
 
   Tpetra::MatrixMarket::Writer<MAT>::writeSparseFile(str_filename,globalMatrix_,str_matrixName,str_matrixDescription);
 }
@@ -550,9 +560,9 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 writeLhs
 (const char * filename) const  {
 
-  std::string str_filename(filename); 
-  std::string str_matrixName("LHS"); 
-  std::string str_matrixDescription("LHS"); 
+  std::string str_filename(filename);
+  std::string str_matrixName("LHS");
+  std::string str_matrixDescription("LHS");
 
   Tpetra::MatrixMarket::Writer<MAT>::writeDenseFile(str_filename,globalLhs_,str_matrixName,str_matrixDescription);
 }
@@ -563,9 +573,9 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 writeRhs
 (const char * filename) const  {
 
-  std::string str_filename(filename); 
-  std::string str_matrixName("RHS"); 
-  std::string str_matrixDescription("RHS"); 
+  std::string str_filename(filename);
+  std::string str_matrixName("RHS");
+  std::string str_matrixDescription("RHS");
 
   Tpetra::MatrixMarket::Writer<MAT>::writeDenseFile(str_filename,globalRhs_,str_matrixName,str_matrixDescription);
 }
@@ -607,4 +617,4 @@ const  {
 }
 template class dft_BasicLinProbMgr<double, int, int>;
 template class dft_BasicLinProbMgr<float, int, int>;
-//template class dft_BasicLinProbMgr<qd_real, int, int>;
+template class dft_BasicLinProbMgr<qd_real, int, int>;

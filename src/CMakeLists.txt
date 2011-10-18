@@ -453,6 +453,20 @@ if (USE_TPETRA)
      MESSAGE(FATAL_ERROR "Could not find Trilinos package Ifpack2!")
    ENDIF()
 
+#  Select precision of linear solver
+   if (LINSOLVE_PREC_FLOAT)   
+     message("LINSOLVE_PREC_FLOAT defined. Using float precision for linear solver code.")
+     ADD_DEFINITIONS(-DLINSOLVE_PREC=0)
+   endif (LINSOLVE_PREC_FLOAT)
+   if (LINSOLVE_PREC_DOUBLE)   
+     message("LINSOLVE_PREC_DOUBLE defined. Using double precision for linear solver code.")
+     ADD_DEFINITIONS(-DLINSOLVE_PREC=1)
+   endif (LINSOLVE_PREC_DOUBLE)
+   if (LINSOLVE_PREC_QUAD)   
+     message("LINSOLVE_PREC_QUAD defined. Using quad double precision for linear solver code.")
+     ADD_DEFINITIONS(-DLINSOLVE_PREC=2)
+   endif (LINSOLVE_PREC_QUAD)
+
 endif(USE_TPETRA)
 
 
