@@ -146,7 +146,8 @@ void WJDC_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int
 
     if (Type_poly==WJDC2 || Type_poly==WJDC3) icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
     else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
-    jcomp=Unk2Comp[jseg];
+    /*jcomp=Unk2Comp[jseg];*/
+    jcomp=Type_mer[pol_num][jseg];
 
     for (i=0;i < nunk-1; i++){
        fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
@@ -169,7 +170,8 @@ void WJDC_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg
 
     if (Type_poly==WJDC2 || Type_poly==WJDC3)  icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
     else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
-    jcomp=Unk2Comp[jseg];
+    /*jcomp=Unk2Comp[jseg];*/
+    jcomp=Type_mer[pol_num][jseg];
     fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
 
     for(i=0;i<nunk-1;i++) fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
@@ -189,7 +191,8 @@ void WJDC_Jacobian_GCHAIN_derivCAVITY(int iunk,int loc_inode,int pol_num,int jse
 
     if (Type_poly==WJDC2 || Type_poly==WJDC3)  icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
     else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
-    jcomp=Unk2Comp[jseg];
+   /* jcomp=Unk2Comp[jseg];*/
+    jcomp=Type_mer[pol_num][jseg];
 
     yterm=0.5/yterm_wjdc(icomp,jcomp,jnode_box,x);
 
@@ -225,7 +228,7 @@ double WJDC_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    if (Type_poly==WJDC2 || Type_poly==WJDC3) icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
    else /*if (Type_poly==WJDC)*/ icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
 
-   jcomp=Unk2Comp[jseg];
+   jcomp=Type_mer[pol_num][jseg];
 
    fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
    for(i=0;i<nunk-1;i++){
@@ -249,7 +252,7 @@ double WJDC_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,
    if (Type_poly==WJDC2 || Type_poly==WJDC3) icomp=unk_B-Phys2Unk_first[WJDC_FIELD];
    else if (Type_poly==WJDC) icomp=Unk2Comp[unk_B-Phys2Unk_first[WJDC_FIELD]]; 
 
-   jcomp=Unk2Comp[jseg];
+   jcomp=Type_mer[pol_num][jseg];
    fac=weight*yterm_wjdc(icomp,jcomp,jnode_box,x);
    for(i=0;i<nunk-1;i++){
        fac *=constant_boundary(unk[i],jnode_box);  /*Gs or Qs*/
