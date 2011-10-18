@@ -42,6 +42,7 @@ extern double Gamma_MSA;
 extern double N_MSA[NCOMP_MAX];
 extern double HS_diam[NCOMP_MAX];
 double deltaC_GENERAL_MSA(double r,int i,int j);
+double pressure_elec_MSA(double *rho);
 #define THETA_CR_GENERAL_MSA  7
 double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int));
 extern int Ncomp;

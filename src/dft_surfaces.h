@@ -98,11 +98,9 @@ extern int Proc;
 extern int Proc;
 #endif
 extern int Nwall_Images;
-extern int Nlink;
 void find_wall_images(int idim,int *image,double **image_pos,double *pos);
 void find_wall_images(int idim,int *image,double **image_pos,double *pos);
 extern double WallPos[NDIM_MAX][NWALL_MAX];
-extern int Nlink_Images;
 extern int *Image_IDCheck;
 extern int *RealWall_Images;
 extern int *WallType_Images;

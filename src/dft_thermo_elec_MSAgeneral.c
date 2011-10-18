@@ -49,6 +49,22 @@ void chempot_ELEC_MSA_GENERAL(double *rho)
       }
    return;
 }
+/********************************************************************
+pressure_elec_MSA: Here we compute the chemical potential contribution due
+      to cross correlations between the hard sphere and coulomb parts of 
+      the potential. */
+double pressure_elec_MSA(double *rho)
+{
+   int icomp;
+   double betap_elec;
+   
+   betap_elec=0.0;
+
+   for (icomp=0; icomp<Ncomp; icomp++){ betap_elec += 0.5*Deltac_b[icomp];
+printf("icomp=%d  Deltac_b=%g  betap_elec=%g\n",icomp,Deltac_b[icomp],betap_elec);
+}
+   return(betap_elec);
+}
 /*******************************************************************************/
 /* deltaC_GENERAL_MSA:  calculate deltac_MSA generalized for ion size*/
 

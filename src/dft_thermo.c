@@ -95,9 +95,10 @@ void  thermodynamics(char *output_file1)
 /* calc_pressure: this routine contains the logic for assembly of the pressure */
 void calc_pressure(char *output_file1)
 {
-   double betap_hs_DFT,betap_att,betap_chain;
+   double betap_hs_DFT,betap_att,betap_elec,betap_chain;
    /*double betap_hs_PY;*/
    double betap_att_LBB, betap_att_RTF;
+   double betap_elec_LBB, betap_elec_RTF;
    FILE *fp;
 
    betap_att = 0.0;
@@ -135,7 +136,10 @@ void calc_pressure(char *output_file1)
           }
 				/* electrostatics contributions */
           if (Type_coul != NONE){
-         /* please put call to electrostatic pressure function here */
+	    betap_elec_LBB = pressure_elec_MSA(Rho_b_LBB);
+	    Betap_LBB += betap_elec_LBB;
+	    betap_elec_RTF = pressure_elec_MSA(Rho_b_RTF); 
+	    Betap_RTF += betap_elec_RTF;
           }
 				/* WTC contributions */
 	  /* note these aren't additive,instead we recalculate the HS, ideal terms here */
@@ -185,7 +189,9 @@ void calc_pressure(char *output_file1)
           }
 				/* electrostatics contributions */
           if (Type_coul != NONE){
-         /* please put call to electrostatic pressure function here */
+               betap_elec = pressure_elec_MSA(Rho_b);
+                   if (Proc==0 && Iwrite != NO_SCREEN) printf("\t elec_MSA pressure is %9.6f\n",betap_elec);
+	       Betap += betap_elec;
           }
 				/* WTC contributions */
 	  /* note these aren't additive,instead we recalculate the HS, ideal terms here */

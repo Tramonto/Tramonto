@@ -19,8 +19,6 @@ void FMT1stDerivBulk_switch(double *n,double *inv_n3,double *dphi_drb);
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define VERBOSE      3 
-#define	NO_SCREEN	4
-extern int Iwrite;
 void dphi_drb_bulk(double *rhobar,double *dphi_drb);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
@@ -71,6 +69,8 @@ double pressure_FMT_hs(double *rhobar,double *dphi_drhobar);
 extern int Type_pairPot;
 double pairPot_switch(double r,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
+#define NO_SCREEN    4 
+extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

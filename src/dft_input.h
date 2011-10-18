@@ -15,7 +15,6 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define	NO_SCREEN	4
 #define NZONE_MAX  10 
 extern int Num_Proc;
 #define cyl3D_slit2D_pore               8
@@ -92,6 +91,7 @@ extern int Coarser_jac;
 extern int Mesh_coarsening;
 extern double Rmax_zone[5];
 extern int Nzone;
+#define NO_SCREEN    4 
 extern int Iwrite;
 extern int Print_mesh_switch;
 extern int Print_rho_switch;
