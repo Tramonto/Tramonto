@@ -15,11 +15,11 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define VERBOSE      3 
-extern int Iwrite;
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
 extern int Ngeqn_tot;
+#define VERBOSE      3 
+extern int Iwrite;
 extern int Nseg_type[NCOMP_MAX];
 #define NMER_MAX     200
 extern int Type_mer[NCOMP_MAX][NMER_MAX];

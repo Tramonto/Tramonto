@@ -52,6 +52,7 @@ extern double Time_InitGuess;
 int gmax_int(int c);
 extern int Nnodes_per_proc;
 int gmin_int(int c);
+#define VERBOSE      3 
 extern int L_Schur;
 double gmin_double(double c);
 double gmax_double(double c);
@@ -82,8 +83,7 @@ extern double **Vext_static;
 extern int Restart_Vext;
 extern double **Vext;
 void print_vext(double **vext,char *output_file);
-#define	EXTENDED	2
-#define VERBOSE      3 
+#define EXTENDED     2
 #define NO_SCREEN    4 
 void setup_vext_coulomb_vol();
 #define FALSE 0

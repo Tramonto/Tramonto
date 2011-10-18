@@ -17,7 +17,6 @@
 #include "Tramonto_ConfigDefs.h"
 extern int *L2B_node;
 extern int Nnodes_per_proc;
-#define NO_SCREEN    4 
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void check_zero_densities_owned(double **xOwned);
@@ -91,12 +90,13 @@ extern int Imain_loop;
 #define NORESTART          0
 extern int Restart;
 #define VERBOSE      3 
-extern int Iwrite;
 extern int Nnodes_box;
 extern int Nunk_per_node;
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
+#define NO_SCREEN    4 
+extern int Iwrite;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

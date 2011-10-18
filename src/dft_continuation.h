@@ -152,9 +152,9 @@ extern int Max_NL_iter;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-#define VERBOSE      3 
 #define DENSITIES    1 
 #define MINIMAL      0
+#define VERBOSE      3 
 #define NO_SCREEN    4 
 extern int Iwrite;
 extern int Proc;
