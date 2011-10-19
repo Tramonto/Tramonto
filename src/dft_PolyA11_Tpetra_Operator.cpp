@@ -322,8 +322,6 @@ Check
   TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n"); 
 
 } //end Check
-template class dft_PolyA11_Tpetra_Operator<double, int, int>;
-
 #if LINSOLVE_PREC == 0
 // Use float
 template class dft_PolyA11_Tpetra_Operator<float, int, int>;
