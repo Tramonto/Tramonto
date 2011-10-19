@@ -61,6 +61,44 @@ RUN (mac-tiger-intel) {
 
 ###############################################################################
 #
+# regression nightly - built against Trilinos Dev
+#
+###############################################################################
+
+RUN (regression-nightly) {
+
+    BUILD-LABEL         = O3-tdev-7proc;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = linux-regression;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 7;
+    TTR-DIR             = /home/hudson/slave/workspace/tramonto-test-results;
+    MPI-GO              = /usr/alt/bin/mpiexec -np ;
+    SSG-USERNAME        = hudson;
+
+}
+
+###############################################################################
+#
+# regression continuous - built against Trilinos 10.8 branch
+#
+###############################################################################
+
+RUN (regression-continuous) {
+
+    BUILD-LABEL         = continuous-t10.8-8proc;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = linux-regression-10-8;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 8;
+    TTR-DIR             = /home/hudson/slave/workspace/tramonto-test-results;
+    MPI-GO              = /usr/alt/bin/mpiexec -np ;
+    SSG-USERNAME        = hudson;
+
+}
+
+###############################################################################
+#
 # zan nightly - built against Trilinos 10.6.4
 #
 ###############################################################################
@@ -72,9 +110,9 @@ RUN (zan-nightly) {
     INVOKE-CONFIGURE    = linux-zan;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 8;
-    TTR-DIR             = /home/jmwille/TramontoTestHarness/TramontoTestResults;
+    TTR-DIR             = /home/hudson/slave/workspace/tramonto-test-results;
     MPI-GO              = /home/jmwille/install/bin/mpiexec -np ;
-    SSG-USERNAME        = jmwille;
+    SSG-USERNAME        = hudson;
 
 }
 
@@ -294,14 +332,33 @@ RUN (melchior-11) {
 
 RUN (s903186-nightly) {
 
-    BUILD-LABEL         = mac-t10.6;
+    BUILD-LABEL         = mac-TriDev;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = mac-s903186;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 7;
-    MPI-GO              = /Users/jmwille/install/bin/mpirun -np ;
-    TTR-DIR             = /Users/jmwille/TramontoTestHarness/TramontoTestResults;
-    SSG-USERNAME        = jmwille;
+    MPI-GO              = /Users/jmwille/install/gcc-4.6.1/openmpi-1.4.3/bin/mpiexec -np ;
+    TTR-DIR             = /Users/hudson/slave/workspace/tramonto-test-results;
+    SSG-USERNAME        = hudson;
+
+}
+
+###############################################################################
+#
+# ictinus nightly
+#
+###############################################################################
+
+RUN (ictinus-nightly) {
+
+    BUILD-LABEL         = mac-TriDev;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = mac-ictinus;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 4;
+    MPI-GO              = /Users/jmwille/install/gcc-4.4.6/openmpi-1.4.3/bin/mpiexec -np ;
+    TTR-DIR             = /Users/hudson/slave/workspace/tramonto-test-results;
+    SSG-USERNAME        = hudson;
 
 }
 

@@ -1,0 +1,4 @@
+cmake \
+ -DTRILINOS_PATH=/home/hudson/slave/workspace/tramonto-trilinos-10.8-regression-gcc/Tri10.8Install \
+ ..
+
