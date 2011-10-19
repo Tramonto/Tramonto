@@ -595,4 +595,14 @@ writeMatrix
     return; // Not available if not in debug mode
   } //end else
 } //end writeMatrix
+#if LINSOLVE_PREC == 0
+// Use float
+template class dft_PolyLinProbMgr<float, int, int>;
+#elif LINSOLVE_PREC == 1
+// Use double
 template class dft_PolyLinProbMgr<double, int, int>;
+#elif LINSOLVE_PREC == 2
+// Use quad double
+template class dft_PolyLinProbMgr<qd_real, int, int>;
+#endif
+

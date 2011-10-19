@@ -251,4 +251,14 @@ getSchurComplement
 
   return(S_);
 } //end getSchurCompliment
+#if LINSOLVE_PREC == 0
+// Use float
+template class dft_Schur_Tpetra_Operator<float, int, int>;
+#elif LINSOLVE_PREC == 1
+// Use double
 template class dft_Schur_Tpetra_Operator<double, int, int>;
+#elif LINSOLVE_PREC == 2
+// Use quad double
+template class dft_Schur_Tpetra_Operator<qd_real, int, int>;
+#endif
+

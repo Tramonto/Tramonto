@@ -462,4 +462,14 @@ Check
   TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
 
 } //end Check
+#if LINSOLVE_PREC == 0
+// Use float
+template class dft_PolyA22_Tpetra_Operator<float, int, int>;
+#elif LINSOLVE_PREC == 1
+// Use double
 template class dft_PolyA22_Tpetra_Operator<double, int, int>;
+#elif LINSOLVE_PREC == 2
+// Use quad double
+template class dft_PolyA22_Tpetra_Operator<qd_real, int, int>;
+#endif
+

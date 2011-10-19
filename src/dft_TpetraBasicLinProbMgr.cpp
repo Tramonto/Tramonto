@@ -615,6 +615,13 @@ const  {
   }
 
 }
-template class dft_BasicLinProbMgr<double, int, int>;
+#if LINSOLVE_PREC == 0
+// Use float
 template class dft_BasicLinProbMgr<float, int, int>;
+#elif LINSOLVE_PREC == 1
+// Use double
+template class dft_BasicLinProbMgr<double, int, int>;
+#elif LINSOLVE_PREC == 2
+// Use quad double
 template class dft_BasicLinProbMgr<qd_real, int, int>;
+#endif

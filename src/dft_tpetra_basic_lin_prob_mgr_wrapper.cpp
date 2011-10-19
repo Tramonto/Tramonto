@@ -27,8 +27,6 @@
 #include "dft_basic_lin_prob_mgr_wrapper.h"
 #include "dft_TpetraBasicLinProbMgr.hpp"
 
-#include <qd/qd_real.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -51,6 +49,7 @@ typedef dft_BasicLinProbMgr<double,int,int> BLPM;
 // Use quad double
 typedef dft_BasicLinProbMgr<qd_real,int,int> BLPM;
 #define WORKING_PREC qd_real
+#include <qd/qd_real.h>
 #define WORKING_CAST( x ) qd_real(x)
 #define DOUBLE_CAST( x ) to_double(x)
 #endif

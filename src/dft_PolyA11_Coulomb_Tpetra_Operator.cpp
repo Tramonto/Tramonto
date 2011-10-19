@@ -279,4 +279,14 @@ apply
   poissonMatrix_->apply(*X2, *Y2);
 
 } //end Apply
+#if LINSOLVE_PREC == 0
+// Use float
+template class dft_PolyA11_Coulomb_Tpetra_Operator<float, int, int>;
+#elif LINSOLVE_PREC == 1
+// Use double
 template class dft_PolyA11_Coulomb_Tpetra_Operator<double, int, int>;
+#elif LINSOLVE_PREC == 2
+// Use quad double
+template class dft_PolyA11_Coulomb_Tpetra_Operator<qd_real, int, int>;
+#endif
+
