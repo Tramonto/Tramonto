@@ -135,7 +135,7 @@ void calc_pressure(char *output_file1)
 	    Betap_RTF += betap_att_RTF;
           }
 				/* electrostatics contributions */
-          if (Type_coul != NONE){
+          if (Type_coul == DELTAC_RPM || Type_coul==DELTAC_GENERAL){
 	    betap_elec_LBB = pressure_elec_MSA(Rho_b_LBB);
 	    Betap_LBB += betap_elec_LBB;
 	    betap_elec_RTF = pressure_elec_MSA(Rho_b_RTF); 
@@ -188,7 +188,7 @@ void calc_pressure(char *output_file1)
 	       Betap += betap_att;
           }
 				/* electrostatics contributions */
-          if (Type_coul != NONE){
+          if (Type_coul == DELTAC_RPM || Type_coul==DELTAC_GENERAL){
                betap_elec = pressure_elec_MSA(Rho_b);
                    if (Proc==0 && Iwrite != NO_SCREEN) printf("\t elec_MSA pressure is %9.6f\n",betap_elec);
 	       Betap += betap_elec;
@@ -287,7 +287,7 @@ void calc_chempot(char *output_file1)
                  
              }
           }
-          if (Type_interface=PHASE_INTERFACE) {
+          if (Type_interface==PHASE_INTERFACE) {
              for (icomp=0;icomp<Ncomp;icomp++) Betamu[icomp]=0.5*(Betamu_RTF[icomp]+Betamu_LBB[icomp]);
           }
 				/* WTC contributions */

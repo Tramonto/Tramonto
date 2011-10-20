@@ -140,7 +140,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
            /* this loop should be good for 2D and 3D as well */
 
            junk_mu = iunk;
-           junk_rho = Phys2Unk_first[DENSITY];
+           junk_rho = Phys2Unk_first[DENSITY]+iunk-Phys2Unk_first[DIFFUSION];
            flag=FALSE;
            for (jln=0; jln< Nnodes_per_el_V; jln++) {
              for (idim=0; idim<Ndim; idim++){
