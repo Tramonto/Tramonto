@@ -319,7 +319,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
 		resid_unk[iunk]=load_poisson_control(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag); break;
 
        case DIFFUSION:
-           if (Linear_transport)
+           if (Linear_transport==TRUE)
                resid_unk[iunk]=load_linear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag);
            else
                resid_unk[iunk]=load_nonlinear_transport_eqn(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag);
@@ -338,8 +338,6 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
            break;
 
        case WJDC_FIELD: 
-/*resid_unk[iunk]=0.0;
-dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,1.0);*/
           resid_unk[iunk]=load_WJDC_field(iunk,loc_inode,inode_box,ijk_box,izone,x,dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
           break;
 

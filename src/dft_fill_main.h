@@ -19,6 +19,7 @@ extern int *L2G_node;
 void print_residuals(int loc_inode,int iunk,double *resid_unk);
 double load_lambda_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define SCF_CONSTR	   9
+#define TRUE	   1
 double load_SCF_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define SCF_FIELD	  10
 double load_WJDC_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);

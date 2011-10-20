@@ -350,6 +350,7 @@ void print_profile(char *output_file4,double *xold)
                             + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );
                   }
                   else fprintf(ifp,"%g\t", xold[iunk+node_start]);
+                  break;
 
                 case POISSON:
                   fprintf(ifp,"%g\t", xold[iunk+node_start]);

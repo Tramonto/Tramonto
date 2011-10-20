@@ -47,9 +47,9 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
   int inode_minus1,inode_plus1,ijk_minus1[3],ijk_plus1[3];
   double grad_mu[NCOMP_MAX],current,flux[NCOMP_MAX];
   FILE *ifp;
-  static int first=TRUE;
+/*  static int first=TRUE;*/
 
-  if(!first) {
+/*  if(!first) {*/
   ifp = fopen(output_flux,"w");
   for (inode=0; inode < Nnodes; inode++ ){
       node_to_ijk(inode,ijk);
@@ -87,22 +87,25 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
 	  grad_mu[icomp] = (X_old[loc_i_plus1]-X_old[loc_i_minus1])/(2*Esize_x[dim_flx]);
 
           if (Velocity <= 1.e-6){
-          if (Linear_transport) flux[icomp] = - grad_mu[icomp];
-          else                  flux[icomp] = - X_old[loc_i]*grad_mu[icomp];
-          flux[icomp] *= D_coef[icomp]*1.602e-19*
-                        /*   Area_IC_old[inode]/(POW_DOUBLE_INT(3.0e-8,2)*1.e-12);*/
-                             1.0/(POW_DOUBLE_INT(3.0e-8,2)*1.e-12);
+             if (Linear_transport) flux[icomp] = - grad_mu[icomp];
+             else                  flux[icomp] = - X_old[loc_i]*grad_mu[icomp];
+
+ /*         ion channels
+             flux[icomp] *= D_coef[icomp]*1.602e-19*
+*                           Area_IC_old[inode]/(POW_DOUBLE_INT(3.0e-8,2)*1.e-12);*     might be commented out - this line
+                             1.0/(POW_DOUBLE_INT(3.0e-8,2)*1.e-12);*/
           }
           else flux[icomp] = - X_old[loc_i]*grad_mu[icomp]*D_coef[icomp]+Velocity*D_coef[icomp]*X_old[loc_i];
 
-          if (Ipot_ff_c ==1) current += flux[icomp]*Charge_f[icomp];
+/*            ion channels .... flux to current
+               if (Ipot_ff_c ==1) current += flux[icomp]*Charge_f[icomp];*/
 	  fprintf(ifp,"  %9.6f  ",flux[icomp]);
 /*
  * need to write routine to collect Area_IC array on proc 0 in order to
  *  do the above calculation correctly for 1D models with varying area! For now, set Area_IC to 1 everywhere
  */
 	}
-	if (Ipot_ff_c==1) fprintf(ifp,"  %9.6f  ",current);
+/*	if (Ipot_ff_c==1) fprintf(ifp,"  %9.6f  ",current);*/
           
       } /* loop over dim_flx */
 	fprintf(ifp,"\n");
@@ -111,7 +114,7 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
   fclose(ifp);
   if(Proc==0) printf("got through first part of calculations\n");
 
-  } 
+ /* } */
 /*
   for (idim=0; idim<Ndim; idim++) ijk[idim] = 0.5*Nodes_x[idim];
   loc_inode = ijk_to_node(ijk);

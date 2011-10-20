@@ -644,8 +644,8 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
            
            rho_vdash[iwall][idim] +=sign* (x[iunk][inode_box]*Vext_dash[loc_inode][iwunk][idim])
                                        *nel_hit*Vol_el/((double)Nnodes_per_el_V);
-printf("%d  %d  %d  %g %g %g\n",icomp,iwall,inode_box,rho_vdash[iwall][idim],
-       x[iunk][inode_box],Vext_dash[loc_inode][iwunk][idim] );
+/*printf("%d  %d  %d  %g %g %g\n",icomp,iwall,inode_box,rho_vdash[iwall][idim],
+       x[iunk][inode_box],Vext_dash[loc_inode][iwunk][idim] );*/
 
         }  /* end of idim loop */
       }     /* end of Nwall loop */

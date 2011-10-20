@@ -286,7 +286,7 @@ void setup_vext_max()
             }  /* end of loop over iwall */
             }
          }
-     }        /* end of loop over wall nodes */
+     }        /* end of loop over nodes */
   }           /* end of loop over components */
 }
 /******************************************************************************/
@@ -298,13 +298,15 @@ void setup_semiperm(int **nelems_w_per_w, int ***elems_w_per_w)
   int iwall,ilist,iel_box,wall_el,inode_box,ijk_box[3],ijk_box_0[3];
   int loc_inode,icomp,i,idim;
   int flag,ijk[3];
+  
+  printf("in setup_semiperm\n");
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) 
      for (icomp=0; icomp<Ncomp; icomp++) Vext_set[loc_inode][icomp]=VEXT_MAX;
 
   for (iwall=0; iwall<Nwall; iwall++)
     for (icomp=0; icomp<Ncomp; icomp++) {
-      if (Lsemiperm[WallType[iwall]][icomp]){
+      if (Lsemiperm[WallType[iwall]][icomp]==TRUE){
         if (Nlists_HW==1 || Nlists_HW==2) ilist = 0;
         else                             ilist = icomp;
 	

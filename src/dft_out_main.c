@@ -271,7 +271,11 @@ void post_process (double **x,int *niters,
        }
    }
 
-   if (Type_interface==DIFFUSIVE_INTERFACE && Proc==0 && Iwrite !=MINIMAL) calc_flux(fp,output_flux,X_old);
+   printf("going to calc_flux?  Type_interface=%d  Proc=%d  Iwrite=%d\n",Type_interface,Proc,Iwrite);
+   if (Type_interface==DIFFUSIVE_INTERFACE && Proc==0 && Iwrite !=MINIMAL){
+   printf("YES FOR PROC=%d\n",Proc);
+        calc_flux(fp,output_flux,X_old);
+    }
 
    if (Proc==0) fprintf(fp,"  \n");
 

@@ -61,6 +61,8 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                       is preempted by a simpler residual equation.  We check for each
                       of these cases first.  If none are true, the full EL residual is filled */
 
+   if (iunk==19 && loc_inode==177) printf("resid1=%g\n",resid);
+
    zero_TF=check_zero_density_EL(iunk,icomp,iseg,loc_inode,inode_box,x);
    if (zero_TF) {
        resid=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
@@ -81,6 +83,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
        else                                  return(resid);
    } 
 
+   if (iunk==19 && loc_inode==177) printf("resid2=%g\n",resid);
    sym_WTC_TF=FALSE;
    if (Type_poly==WTC && Pol_Sym_Seg[iseg] != -1) sym_WTC_TF=TRUE;
    if (sym_WTC_TF){
@@ -116,6 +119,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
       }
    }
 
+   if (iunk==19 && loc_inode==177) printf("resid3=%g\n",resid);
 
    /* now fill EL physics dependent terms */ 
    resid=0.0; 
@@ -142,6 +146,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                                icomp,izone, ijk_box,x,dphi_drb, resid_only_flag);
    }
 
+   if (iunk==19 && loc_inode==177) printf("resid4=%g\n",resid);
    if (Type_attr !=NONE) {
          if (ATTInA22Block==FALSE){
            iunk_att=Phys2Unk_first[MF_EQ]+icomp;
@@ -160,6 +165,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
             resid+=resid_att;
          }
      }
+   if (iunk==19 && loc_inode==177) printf("resid5=%g\n",resid);
 
    }
 
@@ -173,6 +179,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    }
 
 
+   if (iunk==19 && loc_inode==177) printf("resid6=%g\n",resid);
 
    if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2){
        if (Type_poly==WTC){
@@ -188,6 +195,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
        resid+=load_polyWJDC_cavityEL(iunk,loc_inode,inode_box,icomp,
                                   izone,ijk_box,x,resid_only_flag);
    }
+   if (iunk==19 && loc_inode==177) printf("resid7=%g\n",resid);
 
    if (resid_only_flag==INIT_GUESS_FLAG) return(exp(-resid));
    else                                  return(resid);
