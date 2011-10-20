@@ -80,6 +80,25 @@ RUN (regression-nightly) {
 
 ###############################################################################
 #
+# regression - built against Trilinos Dev using tpetra option
+#
+###############################################################################
+
+RUN (regression-tpetra) {
+
+    BUILD-LABEL         = O3-tdev-7proc;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = linux-regression-tpetra;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 7;
+    TTR-DIR             = /home/hudson/slave/workspace/tramonto-test-results;
+    MPI-GO              = /usr/alt/bin/mpiexec -np ;
+    SSG-USERNAME        = hudson;
+
+}
+
+###############################################################################
+#
 # regression continuous - built against Trilinos 10.8 branch
 #
 ###############################################################################
