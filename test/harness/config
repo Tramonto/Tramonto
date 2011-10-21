@@ -86,7 +86,7 @@ RUN (regression-nightly) {
 
 RUN (regression-tpetra) {
 
-    BUILD-LABEL         = O3-tdev-7proc;
+    BUILD-LABEL         = tdev-tpetra-7proc;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = linux-regression-tpetra;
     TEST-CATEGORY       = FRAMEWORK;
