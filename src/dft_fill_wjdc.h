@@ -88,13 +88,16 @@ extern double Rho_g[NCOMP_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int Grafted[NCOMP_MAX];
 extern double Betamu_chain[NMER_MAX];
+#define DIFFUSION      6
+#define DIFFUSIVE_INTERFACE 1
+extern int Type_interface;
 extern int **Nseg_type_pol;
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
 extern int SegAll_to_Poly[NMER_MAX];
-double prefactor_rho_wjdc(int iseg);
+double prefactor_rho_wjdc(int iseg,int inode_box,double **x);
 #define G_CHAIN       11 
-double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
+double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int,int,double **));
 #define WJDC_FIELD     8
 double fill_zero_value(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double VEXT_MAX;

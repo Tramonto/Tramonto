@@ -78,7 +78,7 @@ double integrand_WJDC_freen_bulk(int iunk,int inode_box, double **x)
 /****************************************************************************/
 double integrand_WJDCcomp_freen(int iunk,int inode_box, double **x)
 {
-     double integrand=0.0,rho_i,bondproduct,scale_term;
+     double integrand=0.0,rho_i,bondproduct,scale_term,mu;
      int iseg,unk_field,ibond,count_ends,npol,icomp,jcomp,loop_start,loop_end,i,unk_GQ;
 
      icomp=iunk-Phys2Unk_first[DENSITY];
@@ -113,7 +113,12 @@ double integrand_WJDCcomp_freen(int iunk,int inode_box, double **x)
         else rho_i=0.0;
 
 /*      rho_i*=prefactor_rho_wjdc(iseg);*/
-        rho_i*=exp(Betamu_chain[npol]+scale_term);
+        if (Type_interface==DIFFUSIVE_INTERFACE){
+           mu=x[Phys2Unk_first[DIFFUSION]+npol][inode_box];
+        }
+        else mu=Betamu_chain[npol];
+
+        rho_i*=exp(mu+scale_term);
 
         count_ends=0;
         for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){

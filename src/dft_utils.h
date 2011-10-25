@@ -1,6 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
-#include <stdio.h>
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #if defined(HAS_VALUES_H)
@@ -59,7 +59,6 @@ extern double G_WJDC_b[NMER_MAX *NBOND_MAX];
 #define WJDC         3
 #define CMS_SCFT     1
 #define CMS          0
-extern int Type_poly;
 #define G_CHAIN       11 
 #define SCF_CONSTR	   9
 #define SCF_FIELD	  10
@@ -76,9 +75,16 @@ extern double Xi_cav_RTF[4];
 extern double Xi_cav_LBB[4];
 extern double Xi_cav_b[4];
 #define CAVWTC         4
+extern double Betamu_chain_RTF[NMER_MAX];
+extern double Betamu_chain_LBB[NMER_MAX];
 #define NCOMP_MAX 5
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
+extern int Type_poly;
 extern double VEXT_MAX;
 #define DIFFUSION      6
 extern double Elec_pot_RTF;

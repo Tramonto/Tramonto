@@ -37,7 +37,7 @@ is being loaded -
 
 /****************************************************************************/
 double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_B,
-  int loc_inode, int inode_box, int resid_only_flag, double (*fp_prefactor)(int))
+  int loc_inode, int inode_box, int resid_only_flag, double (*fp_prefactor)(int,int,double **))
 {
   int i,loop_start,loop_end,itype_mer,npol,iseg,unk_GQ,unk_GQ_test,iref;
   int boltz_pow,boltz_pow_J,jbond,ibond,unkIndex[2],numEntries,unk_GQ_j,unk_GQ_j_test;
@@ -100,7 +100,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
         if (fp_prefactor!=NULL) {
             if (Type_poly==CMS || Type_poly==CMS_SCFT) iref=itype_mer;
             if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
-            fac1 = (*fp_prefactor)(iref);
+            fac1 = (*fp_prefactor)(iref,inode_box,x);
 	    if (Type_poly==CMS_SCFT) fac1 /= Gsum[npol];
         }
         else  fac1=1.0;
@@ -115,7 +115,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                if (fp_prefactor!=NULL) {
                    if (Type_poly==CMS || Type_poly==CMS_SCFT) iref=itype_mer;
                    if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) iref=iseg;
-                   fac2 = (*fp_prefactor)(iref);
+                   fac2 = (*fp_prefactor)(iref,inode_box,x);
                    if (Type_poly==CMS_SCFT) fac2 /=Gsum[npol];
                }
                else                     fac2=1.0;

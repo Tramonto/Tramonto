@@ -36,9 +36,9 @@ extern double Rho_g[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];
 #define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
-double prefactor_rho_cms(int itype_mer);
+double prefactor_rho_cms(int itype_mer,int inode_box,double **x);
 #define G_CHAIN       11 
-double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
+double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int,int,double **));
 #define DENSITY        0
 double load_CMS_density(int iunk,int loc_inode,int inode_box,double **x,int resid_only_flag);
 extern double Charge_f[NCOMP_MAX];

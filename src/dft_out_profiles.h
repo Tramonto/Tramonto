@@ -54,6 +54,8 @@ extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 #define FALSE 0
 #endif
 extern double Betamu_chain[NMER_MAX];
+#define DIFFUSIVE_INTERFACE 1
+extern int Type_interface;
 #define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #if defined(DEC_ALPHA)

@@ -187,7 +187,7 @@ void print_profile(char *output_file4,double *xold)
 {
   int icomp,iunk,i,inode,ijk[3],idim,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
   int node_start,jcomp,pol_number;
-  double kappa_sq,kappa,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term,scalefac;
+  double kappa_sq,kappa,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term,scalefac,mu;
   char *unk_char;
     
   char gfile[20],gfile2[20];
@@ -431,7 +431,11 @@ void print_profile(char *output_file4,double *xold)
                    if (fabs(xold[unk_B+node_start])>1.e-12){
                       site_dens=bondproduct*POW_DOUBLE_INT(xold[unk_B+node_start],-(Nbond[ipol][iseg]-1));
                       if (Type_poly==CMS || Type_poly==CMS_SCFT) site_dens*=Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
-                      else if (Type_poly==WJDC3)                 site_dens*=exp(Betamu_chain[ipol]+scale_term);
+                      else if (Type_poly==WJDC3) {
+                             if (Type_interface==DIFFUSIVE_INTERFACE)  mu=xold[ipol+Phys2Unk_first[DIFFUSION]+node_start];
+                             else                                      mu=Betamu_chain[ipol];
+                             site_dens*=exp(mu+scale_term);
+                      }
                    }
                    else site_dens=0.0;
 

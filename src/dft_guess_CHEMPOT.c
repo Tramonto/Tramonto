@@ -40,11 +40,14 @@
    set up regions of constant (electro)chemical potentials */
 void setup_chem_pot(double **xOwned)
 {
-  int loc_inode,inode,ijk[3],icomp,iunk,i,nloop;
+  int loc_inode,inode,ijk[3],icomp,iunk,i,ipol,nloop;
   double x_dist,x_tot;
 
-  if (Lseg_densities) nloop=Nseg_tot;
-  else                nloop=Ncomp;
+  if (Type_poly==NONE)nloop=Ncomp;
+  else{
+     if (Lseg_densities) nloop=Nseg_tot;
+     else                nloop=Npol_comp;
+  }
 
   x_tot = Size_x[Grad_dim]-2.*X_const_mu;
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
@@ -55,22 +58,32 @@ void setup_chem_pot(double **xOwned)
      for (i=0; i<nloop; i++){
         if (Restart==RESTART_FEWERCOMP && i<nloop-Nmissing_densities) i=nloop-Nmissing_densities;
         iunk = i+Phys2Unk_first[DIFFUSION];
-        if (Lseg_densities) icomp=Unk2Comp[i];
-        else                icomp=i;
-
-        if (!Zero_density_TF[L2B_node[loc_inode]][icomp]){
-           if (Ipot_ff_c == 1){
-             xOwned[iunk][loc_inode] = log(xOwned[Phys2Unk_first[DENSITY]+i][loc_inode])
+        if (Type_poly==NONE)icomp=i;
+        else{
+           if (Lseg_densities) icomp=Unk2Comp[i];
+           else                ipol=i;
+        }
+ 
+        if (Type_poly==NONE && Zero_density_TF[L2B_node[loc_inode]][icomp]==TRUE) xOwned[iunk][loc_inode] = -VEXT_MAX;
+        else{
+           if (Type_poly==NONE){
+              if (Ipot_ff_c == 1){
+                xOwned[iunk][loc_inode] = log(xOwned[Phys2Unk_first[DENSITY]+i][loc_inode])
                            + Charge_f[icomp]*(xOwned[Phys2Unk_first[POISSON]][loc_inode]);
 
+              }
+              else{
+                  if (x_dist<0.)           xOwned[iunk][loc_inode]=Betamu_LBB[i];
+                  else if (x_dist > x_tot) xOwned[iunk][loc_inode]=Betamu_RTF[i];
+                  else  xOwned[iunk][loc_inode] = Betamu_LBB[i] + (Betamu_RTF[i]-Betamu_LBB[i])* x_dist/x_tot;
+              }
            }
            else{
-               if (x_dist<0.)           xOwned[iunk][loc_inode]=Betamu_LBB[i];
-               else if (x_dist > x_tot) xOwned[iunk][loc_inode]=Betamu_RTF[i];
-               else  xOwned[iunk][loc_inode] = Betamu_LBB[i] + (Betamu_RTF[i]-Betamu_LBB[i])* x_dist/x_tot;
+                  if (x_dist<0.)           xOwned[iunk][loc_inode]=Betamu_chain_LBB[ipol];
+                  else if (x_dist > x_tot) xOwned[iunk][loc_inode]=Betamu_chain_RTF[ipol];
+                  else  xOwned[iunk][loc_inode] = Betamu_chain_LBB[ipol] + (Betamu_chain_RTF[ipol]-Betamu_chain_LBB[ipol])* x_dist/x_tot;
            }
        }
-       else xOwned[iunk][loc_inode] = -VEXT_MAX;
      }
   }
   return;

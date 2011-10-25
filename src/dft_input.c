@@ -65,7 +65,7 @@ void read_input_file(char *input_file, char *output_file1)
        dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
    double rho_tmp[NCOMP_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
-   int iblock,jblock,read_periodic,read_wedge,read_rough,read_linear;
+   int iblock,jblock,read_periodic,read_wedge,read_rough,read_linear,itype_poly,repeat_type;
 
 
   
@@ -1289,8 +1289,9 @@ void read_input_file(char *input_file, char *output_file1)
       Ntype_mer = 0;
       read_junk(fp,fp2);
       seg_tot=0;
-      for (i=0; i<NBLOCK_MAX; ++i) Nmer_t_total[i]=0;
+      for (i=0; i<NBLOCK_MAX; ++i){ Nmer_t_total[i]=0; Type_mer_to_Pol[i]=-1;}
       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
+        Poly_to_Ntype[pol_number]=0;
 	seg = 0;
 	for (i=0; i<NBLOCK_MAX; ++i)  Nmer_t[pol_number][i] = 0; 
 	for (i=0; i<Nblock[pol_number]; ++i){
@@ -1301,6 +1302,17 @@ void read_input_file(char *input_file, char *output_file1)
 	  for (j=0; j<block[pol_number][i]; j++) {
 	    Type_mer[pol_number][seg] = block_type[i];
             SegChain2SegAll[pol_number][seg]=seg_tot;
+            if (Type_mer_to_Pol[block_type[i]]!=-1 && Type_mer_to_Pol[block_type[i]]!=pol_number){
+               printf("Error: identical types on different chains are not allowed\n");
+               exit(-1);
+            }
+            else Type_mer_to_Pol[block_type[i]]=pol_number;
+            repeat_type=FALSE;
+            for (itype_poly=0;itype_poly<Poly_to_Ntype[pol_number];itype_poly++) if (Poly_to_Type[pol_number][itype_poly]==block_type[i]) repeat_type=TRUE;
+            if (repeat_type==FALSE){
+                Poly_to_Type[pol_number][Poly_to_Ntype[pol_number]]=block_type[i];
+                Poly_to_Ntype[pol_number]++;
+            }
             seg++; seg_tot++;
           }
 	  if (block_type[i] > Ntype_mer) Ntype_mer = block_type[i];
@@ -1314,6 +1326,9 @@ void read_input_file(char *input_file, char *output_file1)
     MPI_Bcast(Nmer_t_total,NBLOCK_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(SegChain2SegAll,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Type_mer,NCOMP_MAX*NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(Poly_to_Ntype,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(Poly_to_Type,NCOMP_MAX*NBLOCK_MAX,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(Type_mer_to_Pol,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
 	  
 	/* any grafted chains in system? */
 	  /* first assume no */

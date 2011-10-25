@@ -85,7 +85,7 @@ double load_WJDC_density(int iunk, int loc_inode, int inode_box, double **x,int 
    return(resid_R);
 }                                  
 /****************************************************************************/
-double prefactor_rho_wjdc(int iseg)
+double prefactor_rho_wjdc(int iseg,int inode_box,double **x)
 {
   int pol_number,icomp;
   double mu,fac,scale_term;
@@ -97,7 +97,11 @@ double prefactor_rho_wjdc(int iseg)
   for (icomp=0;icomp<Ncomp;icomp++){
      scale_term-=Scale_fac_WJDC[pol_number][icomp]*Nseg_type_pol[pol_number][icomp];
   }
-  mu=Betamu_chain[pol_number];
+
+  if (Type_interface==DIFFUSIVE_INTERFACE){
+     mu=x[Phys2Unk_first[DIFFUSION]+pol_number][inode_box];
+  }
+  else mu=Betamu_chain[pol_number];
 
   fac=exp(mu+scale_term);
 
@@ -528,7 +532,7 @@ double calc_dens_seg(int iseg,int inode_box,double **x,int flag)
    if (Type_poly==WJDC2 || Type_poly==WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;
    else /*if (Type_poly==WJDC)*/ unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; 
 
-   fac1 = prefactor_rho_wjdc(iseg);
+   fac1 = prefactor_rho_wjdc(iseg,inode_box,x);
 
    for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
               unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[iseg][ibond];
@@ -554,7 +558,7 @@ double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond, double **x,int fla
    if (Type_poly==WJDC2 || Type_poly==WJDC3) unk_B=Phys2Unk_first[WJDC_FIELD]+itype_mer;
    else /*if (Type_poly==WJDC)*/ unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; 
 
-   fac1 = prefactor_rho_wjdc(iseg);
+   fac1 = prefactor_rho_wjdc(iseg,inode_box,x);
    for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
         if (ibond != kbond){    /* taking a first derivative eliminates one G from the calcualtion */
               unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[iseg][ibond];

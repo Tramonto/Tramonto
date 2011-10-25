@@ -21,7 +21,6 @@ extern int Constant_row_flag[NEQ_TYPE];
 extern int Iwrite;
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
-extern int Npol_comp;
 #define NO_UNK        -888
 extern int Nunk_per_node;
 #define NMER_MAX     200
@@ -40,6 +39,7 @@ extern int Nrho_bar_bond;
 #define WJDC3        5 
 extern int Nrho_bar_cavity;
 #define CAVWTC         4
+extern int Npol_comp;
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
 extern int Ndiffusion;

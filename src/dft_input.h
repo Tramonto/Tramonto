@@ -182,10 +182,13 @@ extern double Rho_g[NCOMP_MAX];
 extern int Graft_wall[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];
 #define NMER_MAX     200
+#define NBLOCK_MAX   20 
+extern int Poly_to_Type[NCOMP_MAX][NBLOCK_MAX];
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
-#define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
+extern int Poly_to_Ntype[NCOMP_MAX];
+extern int Type_mer_to_Pol[NBLOCK_MAX];
 extern int Nmer_t_total[NBLOCK_MAX];
 extern int Ntype_mer;
 extern int Nmer[NCOMP_MAX];

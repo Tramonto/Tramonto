@@ -18,6 +18,9 @@ double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box,double **x);
 #include "Tramonto_ConfigDefs.h"
 #define NMER_MAX     200
 extern double Betamu_chain[NMER_MAX];
+#define DIFFUSION      6
+#define DIFFUSIVE_INTERFACE 1
+extern int Type_interface;
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif

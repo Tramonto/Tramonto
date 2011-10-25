@@ -48,6 +48,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
   double resid,resid_sum=0.0,mat_val;
   int nodeIndices[8],junk_mu,junk_rho;
   double values[2],values_rho[8],values_mu[8];
+  int flag_left,flag_right,ipol,itype;
 
   /* pre calc basis function stuff for 3D */
 
@@ -79,7 +80,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
 
    node_to_ijk(node_box_to_node(inode_box),ijk);
 
-   if (Zero_density_TF[inode_box][icomp]) {
+   if (Type_poly==NONE && Zero_density_TF[inode_box][icomp]) {
        /* set mu to -VEXT_MAX in walls, and skip transport eqn fill */
           resid = x[iunk][inode_box] + VEXT_MAX;
           resid_sum+=resid;
@@ -92,7 +93,8 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
    }
    /* check if you are in well-mixed bulk region */
    else if (ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu+0.0000001) {
-          resid = x[iunk][inode_box] - Betamu_LBB[icomp];
+          flag_left=-3;
+          resid = x[iunk][inode_box] - constant_boundary(iunk,flag_left);
           resid_sum+=resid;
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           if (!resid_only_flag){
@@ -102,7 +104,8 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
           }
    }
    else if (Size_x[Grad_dim]-ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu+0.0000001) {
-          resid = x[iunk][inode_box] - Betamu_RTF[icomp];
+          flag_right=-4;
+          resid = x[iunk][inode_box] - constant_boundary(iunk,flag_right);
           resid_sum+=resid;
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           if (!resid_only_flag){
@@ -140,7 +143,6 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
            /* this loop should be good for 2D and 3D as well */
 
            junk_mu = iunk;
-           junk_rho = Phys2Unk_first[DENSITY]+iunk-Phys2Unk_first[DIFFUSION];
            flag=FALSE;
            for (jln=0; jln< Nnodes_per_el_V; jln++) {
              for (idim=0; idim<Ndim; idim++){
@@ -169,23 +171,46 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
 
               if (Ndim==1) {   
 
-                rho_0 = x[junk_rho][nodeIndices[0]];
-                rho_1 = x[junk_rho][nodeIndices[1]];
+                if (Type_poly==NONE){
+                  junk_rho = Phys2Unk_first[DENSITY]+iunk-Phys2Unk_first[DIFFUSION];
+                  rho_0 = x[junk_rho][nodeIndices[0]];
+                  rho_1 = x[junk_rho][nodeIndices[1]];
+                }
+                else{
+                   rho_0=0.0; rho_1=0.0;
+                   ipol=iunk-Phys2Unk_first[DIFFUSION];
+                   for (itype=0; itype<Poly_to_Ntype[ipol];itype++){
+                       junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
+                       rho_0 += x[junk_rho][nodeIndices[0]];
+                       rho_1 += x[junk_rho][nodeIndices[1]];
+                   }
+                }
                 mu_0  = x[junk_mu][nodeIndices[0]];
                 mu_1  = x[junk_mu][nodeIndices[1]];
 
-                tmp = (2.0*rho_0*area_0 + rho_1*area_0 
-                       + rho_0*area_1 + 2.0*rho_1*area_1);
+                tmp = (2.0*rho_0*area_0 + rho_1*area_0 + rho_0*area_1 + 2.0*rho_1*area_1);
 
                 resid = wt*(mu_0 - mu_1)*tmp;
                 resid_sum+=resid;
                 dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
 
                 if (!resid_only_flag){ 
-                   numEntries=2;
-                   values[0]=values[1]=wt*(mu_0 - mu_1)*(2.0*area_0 + area_1);
-                   dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                   if (Type_poly==NONE){
+                     numEntries=2;
+                     values[0]=values[1]=wt*(mu_0 - mu_1)*(2.0*area_0 + area_1);
+                     dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                      junk_rho, nodeIndices,values,numEntries);
+                   }
+                   else{
+                      ipol=iunk-Phys2Unk_first[DIFFUSION];
+                      for (itype=0; itype<Poly_to_Ntype[ipol];itype++){
+                          junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
+                          numEntries=2;
+                          values[0]=values[1]=wt*(mu_0 - mu_1)*(2.0*area_0 + area_1);
+                          dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                     junk_rho, nodeIndices,values,numEntries);
+                      }
+                   }
                    values[0] = wt*tmp;  values[1]=-values[0]; 
                    dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                      junk_mu, nodeIndices,values,numEntries);
@@ -204,6 +229,10 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                 }
               }
               else if (Ndim==3){     /* Ndim==3 case */
+                 if (Type_poly !=NONE) {
+                   if (Proc==0) printf("ERROR: diffusion not extended to polymers in 2D or 3D at this time\n");
+                   exit(-1);
+                 }
 
                 /* loop over all quad points */
 
@@ -212,6 +241,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                   /* calculate quantities at quad point */
                   rho = 0.0; 
                   grad_mu[0] = grad_mu[1] = grad_mu[2] = 0.0;
+                  junk_rho = Phys2Unk_first[DENSITY]+iunk-Phys2Unk_first[DIFFUSION];
                   for (jln=0; jln<8; jln++) {
 
                      rho += phi[jln][igp] * x[junk_rho][nodeIndices[jln]];

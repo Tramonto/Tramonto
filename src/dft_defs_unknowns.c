@@ -94,8 +94,11 @@ void setup_nunk_per_node(char *output_file1)
          case DIFFUSION:                            /* unknowns of Diffusion Equation */
             Ndiffusion=0;
             if ( Type_interface==DIFFUSIVE_INTERFACE && L_HSperturbation){
-              if (Lseg_densities) Ndiffusion=Nseg_tot; 
-              else                Ndiffusion=Ncomp;
+               if (Type_poly !=NONE){
+                  if (Lseg_densities) Ndiffusion=Nseg_tot; 
+                  else                Ndiffusion=Npol_comp; 
+               }
+               else  Ndiffusion=Ncomp; 
             }
             Phys2Nunk[DIFFUSION]=Ndiffusion;
             break;

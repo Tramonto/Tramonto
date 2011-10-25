@@ -131,4 +131,4 @@ extern int *B2G_node;
 #define PHASE_INTERFACE 2
 extern int Type_interface;
 extern int Lconstrain_interface;
-double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int));
+double resid_and_Jac_ChainDensity(int func_type,double **x,int iunk,int unk_B,int loc_inode,int inode_box,int resid_only_flag,double(*fp_prefactor)(int,int,double **));

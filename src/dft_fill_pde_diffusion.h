@@ -15,10 +15,21 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define NCOMP_MAX 5
+extern double Betamu_RTF[NCOMP_MAX];
+extern double Betamu_LBB[NCOMP_MAX];
 extern int **Nodes_2_boundary_wall;
 void set_fem_1el_weights(double **wt_lp_1el_ptr,double **wt_s_1el_ptr,int ***elem_permute);
 double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
 extern double Velocity;
+#define NBLOCK_MAX   20 
+extern int Poly_to_Type[NCOMP_MAX][NBLOCK_MAX];
+extern int Poly_to_Ntype[NCOMP_MAX];
+#define DENSITY        0
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #if defined(DEC_ALPHA)
 #define POW_INT powii
@@ -26,7 +37,6 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #if !(defined(DEC_ALPHA))
 #define POW_INT (int)pow
 #endif
-#define DENSITY        0
 extern double *Area_IC;
 #define NWALL_MAX 600 
 extern int WallType[NWALL_MAX];
@@ -35,17 +45,20 @@ int el_to_el_box(int iel);
 extern int **Wall_elems;
 int node_to_elem_v2(int inode_all,int local_node);
 extern int Nnodes_per_el_V;
-#define NCOMP_MAX 5
-extern double Betamu_RTF[NCOMP_MAX];
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
-extern double Betamu_LBB[NCOMP_MAX];
+double constant_boundary(int iunk,int jnode_box);
 extern double X_const_mu;
 extern double Esize_x[NDIM_MAX];
 extern int Grad_dim;
 extern void *LinProbMgr_manager;
 extern double VEXT_MAX;
 extern int **Zero_density_TF;
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
+extern int Type_poly;
 int node_box_to_node(int inode_box);
 void node_to_ijk(int node,int *ijk);
 extern int Nlists_HW;

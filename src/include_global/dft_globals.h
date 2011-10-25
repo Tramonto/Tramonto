@@ -539,6 +539,9 @@ double *Poly_graft_dist;     /* distance associated with polymer grafting - */
 double Rho_g[NCOMP_MAX];
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
 int Nmer_t_total[NBLOCK_MAX];
+int Type_mer_to_Pol[NBLOCK_MAX];
+int Poly_to_Type[NCOMP_MAX][NBLOCK_MAX];
+int Poly_to_Ntype[NCOMP_MAX];
 int Nseg_tot;
 int Nseg_type[NCOMP_MAX];
 int **Nseg_type_pol;

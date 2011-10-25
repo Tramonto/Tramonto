@@ -52,13 +52,13 @@ double load_SCF_density(int iunk, int loc_inode, int inode_box, double **x,int r
 	else{
 		unk_B=Phys2Unk_first[SCF_FIELD]+itype_mer; /* Boltzmann factor for this i */
 		resid_R+=resid_and_Jac_ChainDensity (G_CHAIN,x,iunk,unk_B,loc_inode,inode_box,
-											 resid_only_flag, &prefactor_rho_scft); 
+							 resid_only_flag, &prefactor_rho_scft); 
 	}
 	return(resid_R);
 }
 
 /****************************************************************************/
-double prefactor_rho_scft(int itype_mer)
+double prefactor_rho_scft(int itype_mer,int inode_box,double **x)
 {
 	int npol;
 	double fac;
