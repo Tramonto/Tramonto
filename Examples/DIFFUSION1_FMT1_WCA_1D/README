@@ -1,0 +1,22 @@
+/*! \file 
+ \brief Color diffusion of an atomistic fluid through a permeable membrane.
+
+Functionals: FMT1, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Two component neutral Lennard-Jones system.  This tests the atomistic diffusion implementation.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=7 
+   - adsorption[0]= 8.09209  
+   - adsorption[1]= 8.09209
+   - energy=-41.0452   
+   .
+*/
