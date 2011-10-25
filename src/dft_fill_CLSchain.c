@@ -57,7 +57,6 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 
   if (resid_only_flag !=INIT_GUESS_FLAG){
      resid = x[iunk][inode_box]*x[unk_B][inode_box];
-/*if (inode_box==0 || inode_box==20) printf("iunk=%d unk_B=%d  x[iunk]=%g x[unk_b]=%g resid=%g\n",iunk,unk_B,x[iunk][inode_box],x[unk_B][inode_box],resid);*/
      resid_sum=resid;
      if (resid_only_flag != CALC_RESID_ONLY) {
         dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
@@ -141,11 +140,9 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
          }
          if (-boltz_pow >0){
                resid = -fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow); 
-/*               if (inode_box==0 || inode_box==20) printf("unk_B=%d x[unk_B] boltz_pow=%d  fac1=%g resid=%g resid_sum=%g\n",unk_B,x[unk_B][inode_box],boltz_pow,fac1,resid,resid_sum+resid);*/
          }
          else{
               resid = -fac1;
-/*              if (inode_box==0 || inode_box==20) printf("fac1=%g resid=%g resid_sum=%g\n",fac1,resid,resid_sum+resid);*/
           }
          resid_sum+=resid;
          resid_sum2+=resid;

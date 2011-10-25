@@ -212,7 +212,7 @@ void post_process (double **x,int *niters,
 
    calc_adsorption(fp,x);
    if (Type_coul != NONE) calc_fluid_charge(fp,x); 
-   calc_force(fp,x,fac_area);   
+   if (Type_interface != DIFFUSIVE_INTERFACE) calc_force(fp,x,fac_area);   
    energy=calc_free_energy(fp,x); 
 
    if ((Nruns>2 && (Nwall==1 || Nwall==2) || Loca.cont_type1==CONT_BETAMU_I) && fabs(cont_var)>1.e-6){
@@ -271,9 +271,7 @@ void post_process (double **x,int *niters,
        }
    }
 
-   printf("going to calc_flux?  Type_interface=%d  Proc=%d  Iwrite=%d\n",Type_interface,Proc,Iwrite);
    if (Type_interface==DIFFUSIVE_INTERFACE && Proc==0 && Iwrite !=MINIMAL){
-   printf("YES FOR PROC=%d\n",Proc);
         calc_flux(fp,output_flux,X_old);
     }
 

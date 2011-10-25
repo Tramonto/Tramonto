@@ -444,12 +444,36 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
              ||Print_rho_switch==SWITCH_BULK_OUTPUT_ALL)){
             for (i=0;i<nloop;i++){
                if (Type_poly==NONE){
-                  if (nloop==1) fprintf(fp,"Rho_b[%d]  ",Cont_ID[Loca_contID][0]);
-                  else          fprintf(fp,"Rho_b[%d]  ",i);
+                  if (Type_interface==UNIFORM_INTERFACE){
+                     if (nloop==1) fprintf(fp,"Rho_b[%d]  ",Cont_ID[Loca_contID][0]);
+                     else          fprintf(fp,"Rho_b[%d]  ",i);
+                  }
+                  else{
+                     if (nloop==1){ 
+                          fprintf(fp,"Rho_b_LBB[%d]  ",Cont_ID[Loca_contID][0]);
+                          fprintf(fp,"Rho_b_RTF[%d]  ",Cont_ID[Loca_contID][0]);
+                     }
+                     else{
+                          fprintf(fp,"Rho_b_LBB[%d]  ",i);
+                          fprintf(fp,"Rho_b_RTF[%d]  ",i);
+                     }
+                  }
                }
                else{
-                  if (nloop==1) fprintf(fp,"Rho_chain_b[%d]  ",Cont_ID[Loca_contID][0]);
-                  else          fprintf(fp,"Rho_chain_b[%d]  ",i);
+                  if (Type_interface==UNIFORM_INTERFACE){
+                     if (nloop==1) fprintf(fp,"Rho_chain_b[%d]  ",Cont_ID[Loca_contID][0]);
+                     else          fprintf(fp,"Rho_chain_b[%d]  ",i);
+                  }
+                  else{
+                     if (nloop==1) {
+                          fprintf(fp,"Rho_chain_b_LBB[%d]  ",Cont_ID[Loca_contID][0]);
+                          fprintf(fp,"Rho_chain_b_RTF[%d]  ",Cont_ID[Loca_contID][0]);
+                     }
+                     else{          
+                        fprintf(fp,"Rho_chain_b_LBB[%d]  ",i);
+                        fprintf(fp,"Rho_chain_b_RTF[%d]  ",i);
+                     }
+                  }
                }
              }
           }
@@ -467,12 +491,36 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
             Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
             for(i=0; i<nloop; i++){
                 if (Type_poly==NONE){
+                   if (Type_interface==UNIFORM_INTERFACE || Type_interface==PHASE_INTERFACE){
                        if (nloop==1) fprintf(fp,"Betamu[%d]   ",Cont_ID[Loca_contID][0]);
                        else          fprintf(fp,"Betamu[%d]   ",i);
+                   }
+                   else{
+                       if (nloop==1){
+                              fprintf(fp,"Betamu_LBB[%d]   ",Cont_ID[Loca_contID][0]);
+                              fprintf(fp,"Betamu_RTF[%d]   ",Cont_ID[Loca_contID][0]);
+                       }
+                       else{          
+                              fprintf(fp,"Betamu_LBB[%d]   ",i);
+                              fprintf(fp,"Betamu_RTF[%d]   ",i);
+                       }
+                   }
                 }   
                 else{
-                    if (nloop==1) fprintf(fp,"%Betamu_chain[%d]  ", Cont_ID[Loca_contID][0]);
-                    else          fprintf(fp,"%Betamu_chain[%d]  ", i);
+                   if (Type_interface==UNIFORM_INTERFACE || Type_interface==PHASE_INTERFACE){
+                      if (nloop==1) fprintf(fp,"%Betamu_chain[%d]  ", Cont_ID[Loca_contID][0]);
+                      else          fprintf(fp,"%Betamu_chain[%d]  ", i);
+                   }
+                   else{
+                      if (nloop==1){
+                              fprintf(fp,"%Betamu_chain_LBB[%d]  ", Cont_ID[Loca_contID][0]);
+                              fprintf(fp,"%Betamu_chain_RTF[%d]  ", Cont_ID[Loca_contID][0]);
+                      }
+                      else{
+                             fprintf(fp,"%Betamu_chain_LBB[%d]  ", i);
+                             fprintf(fp,"%Betamu_chain_RTF[%d]  ", i);
+                      }
+                   }
                 }
             }
         }
@@ -623,19 +671,58 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
              Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL)){
             for (i=0;i<nloop;i++){
                if (Type_poly==NONE){
-                  if (nloop==1){ if (Rho_b[Cont_ID[Loca_contID][0]]>1.e-6) fprintf(fp,"%11.8f  ",Rho_b[Cont_ID[Loca_contID][0]]);
-                                 else fprintf(fp,"%g  ",Rho_b[Cont_ID[Loca_contID][0]]); }
-                  else         { if(Rho_b[i]>1.e-6) fprintf(fp,"%11.8f  ",Rho_b[i]);
-                                 else fprintf(fp,"%g  ",Rho_b[i]);}
+                  if (Type_interface == UNIFORM_INTERFACE){
+                     if (nloop==1){ 
+                         if (Rho_b[Cont_ID[Loca_contID][0]]>1.e-6) fprintf(fp,"%11.8f  ",Rho_b[Cont_ID[Loca_contID][0]]);
+                         else fprintf(fp,"%g  ",Rho_b[Cont_ID[Loca_contID][0]]); 
+                     }
+                     else { 
+                          if(Rho_b[i]>1.e-6) fprintf(fp,"%11.8f  ",Rho_b[i]);
+                          else fprintf(fp,"%g  ",Rho_b[i]);
+                     }
+                  }
+                  else{
+                     if (nloop==1){ 
+                         if (Rho_b_LBB[Cont_ID[Loca_contID][0]]>1.e-6) fprintf(fp,"%11.8f  ",Rho_b_LBB[Cont_ID[Loca_contID][0]]);
+                         else fprintf(fp,"%g  ",Rho_b_LBB[Cont_ID[Loca_contID][0]]); 
+                         if (Rho_b_RTF[Cont_ID[Loca_contID][0]]>1.e-6) fprintf(fp,"%11.8f  ",Rho_b_RTF[Cont_ID[Loca_contID][0]]);
+                         else fprintf(fp,"%g  ",Rho_b_RTF[Cont_ID[Loca_contID][0]]); 
+                     }
+                     else { 
+                          if(Rho_b_LBB[i]>1.e-6) fprintf(fp,"%11.8f  ",Rho_b_LBB[i]);
+                          else fprintf(fp,"%g  ",Rho_b_LBB[i]);
+                          if(Rho_b_RTF[i]>1.e-6) fprintf(fp,"%11.8f  ",Rho_b_RTF[i]);
+                          else fprintf(fp,"%g  ",Rho_b_RTF[i]);
+                     }
+                  }
                }
                else{
-                    rho_chain=0.0;
-                    for (iseg=0;iseg<Nseg_tot; iseg++){
-                        if (nloop==1 && SegAll_to_Poly[iseg]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_b[iseg];
-                        else if (SegAll_to_Poly[iseg]==i) rho_chain+= Rho_seg_b[iseg];
+                    if (Type_interface==UNIFORM_INTERFACE){
+                       rho_chain=0.0;
+                       for (iseg=0;iseg<Nseg_tot; iseg++){
+                           if (nloop==1 && SegAll_to_Poly[iseg]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_b[iseg];
+                           else if (SegAll_to_Poly[iseg]==i) rho_chain+= Rho_seg_b[iseg];
+                       }
+                       if (rho_chain>1.e-6) fprintf(fp,"%11.8f  ",rho_chain);
+                       else fprintf(fp,"%g  ",rho_chain);
                     }
-                    if (rho_chain>1.e-6) fprintf(fp,"%11.8f  ",rho_chain);
-                    else fprintf(fp,"%g  ",rho_chain);
+                    else{
+                       rho_chain=0.0;
+                       for (iseg=0;iseg<Nseg_tot; iseg++){
+                           if (nloop==1 && SegAll_to_Poly[iseg]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_LBB[iseg];
+                           else if (SegAll_to_Poly[iseg]==i) rho_chain+= Rho_seg_LBB[iseg];
+                       }
+                       if (rho_chain>1.e-6) fprintf(fp,"%11.8f  ",rho_chain);
+                       else fprintf(fp,"%g  ",rho_chain);
+
+                       rho_chain=0.0;
+                       for (iseg=0;iseg<Nseg_tot; iseg++){
+                           if (nloop==1 && SegAll_to_Poly[iseg]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_RTF[iseg];
+                           else if (SegAll_to_Poly[iseg]==i) rho_chain+= Rho_seg_RTF[iseg];
+                       }
+                       if (rho_chain>1.e-6) fprintf(fp,"%11.8f  ",rho_chain);
+                       else fprintf(fp,"%g  ",rho_chain);
+                    }
                }
              }
           }
@@ -664,12 +751,28 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT ||Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
             for (i=0; i<nloop; i++){
                 if (Type_poly==NONE){
+                    if (Type_interface==UNIFORM_INTERFACE || Type_interface==PHASE_INTERFACE){
                        if (nloop==1) fprintf(fp,"%11.8f   ", Betamu[Cont_ID[Loca_contID][0]]);
                        else          fprintf(fp,"%11.8f   ", Betamu[i]);
+                    }
+                    else{
+                       if (nloop==1) fprintf(fp,"%11.8f   ", Betamu_LBB[Cont_ID[Loca_contID][0]]);
+                       else          fprintf(fp,"%11.8f   ", Betamu_LBB[i]);
+                       if (nloop==1) fprintf(fp,"%11.8f   ", Betamu_RTF[Cont_ID[Loca_contID][0]]);
+                       else          fprintf(fp,"%11.8f   ", Betamu_RTF[i]);
+                    }
                 }
                 else{
-                    if (nloop==1) fprintf(fp,"%11.8f   ", Betamu_chain[Cont_ID[Loca_contID][0]]);
-                    else          fprintf(fp,"%11.8f   ", Betamu_chain[i]);
+                    if (Type_interface==UNIFORM_INTERFACE || Type_interface==PHASE_INTERFACE){
+                      if (nloop==1) fprintf(fp,"%11.8f   ", Betamu_chain[Cont_ID[Loca_contID][0]]);
+                      else          fprintf(fp,"%11.8f   ", Betamu_chain[i]);
+                    }
+                    else{
+                      if (nloop==1) fprintf(fp,"%11.8f   ", Betamu_chain_LBB[Cont_ID[Loca_contID][0]]);
+                      else          fprintf(fp,"%11.8f   ", Betamu_chain_LBB[i]);
+                      if (nloop==1) fprintf(fp,"%11.8f   ", Betamu_chain_RTF[Cont_ID[Loca_contID][0]]);
+                      else          fprintf(fp,"%11.8f   ", Betamu_chain_RTF[i]);
+                    }
                 }
             }
          }

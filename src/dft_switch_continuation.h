@@ -17,9 +17,18 @@ void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define NMER_MAX     200
+extern double Betamu_chain_RTF[NMER_MAX];
+extern double Betamu_chain_LBB[NMER_MAX];
 #define NCOMP_MAX 5
+extern double Betamu_RTF[NCOMP_MAX];
+extern double Betamu_LBB[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
 #define PI    3.141592653589793238462643383279502884197169399375
+extern double Rho_seg_RTF[NMER_MAX];
+extern double Rho_seg_LBB[NMER_MAX];
+extern double Rho_b_RTF[NCOMP_MAX];
+extern double Rho_b_LBB[NCOMP_MAX];
 #define NDIM_MAX  3
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
@@ -71,8 +80,12 @@ struct SurfaceGeom_Struct {
 double print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_user_plugin(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID);
+#define INTERFACE 0
+#define PHASE_INTERFACE 2
 #define SWITCH_MU    3
 #define SWITCH_ION   2
+#define UNIFORM_INTERFACE  0
+extern int Type_interface;
 #define SWITCH_BULK_OUTPUT 5
 #define SWITCH_ALLTYPES_ICOMP 1
 #define SWITCH_RHO   0
@@ -135,7 +148,6 @@ extern int Ipot_ff_c;
 void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double param_new,char *output_file1);
 void assign_param_user_plugin(int cont_type,int Loca_contID,double param);
 void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
-#define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int Ntype_mer;
 void assign_parameter_tramonto(int cont_type,double param,int Loca_contID);

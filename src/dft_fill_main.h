@@ -16,6 +16,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern int *L2G_node;
+void print_residuals(int loc_inode,int iunk,double *resid_unk);
 double load_lambda_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define SCF_CONSTR	   9
 double load_SCF_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
@@ -107,7 +108,6 @@ extern int *Nbonds_SegAll;
 extern int Grafted[NCOMP_MAX];
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-void print_residuals(int loc_inode,int iunk,double *resid_unk);
 double load_standard_node(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,struct RB_Struct *dphi_drb,double *resid_unk,int mesh_coarsen_flag_i,int resid_only_flag);
 double load_coarse_node_Ndim(int loc_inode,int inode_box,int iunk,double **x,int resid_only_flag);
 #define FLAG_PBELEC -777
