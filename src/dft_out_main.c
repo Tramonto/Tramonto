@@ -214,7 +214,7 @@ void post_process (double **x,int *niters,
    
    if (Type_coul != NONE) calc_fluid_charge(fp,x); 
 
-   calc_force(fp,x,fac_area);   
+   if (Type_interface != DIFFUSIVE_INTERFACE) calc_force(fp,x,fac_area);   
                             /* haven't implemented V_dash 
                                for 12-6 integrated wall yet */
 

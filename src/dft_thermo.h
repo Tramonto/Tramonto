@@ -37,8 +37,6 @@ extern double Betamu[NCOMP_MAX];
 extern double *Deltac_b;
 void chempot_ELEC_MSA_GENERAL(double *rho);
 void chempot_ELEC_MSA_RPM(double *rho);
-#define DELTAC_GENERAL 2
-#define DELTAC_RPM     1 
 extern double Elec_pot_RTF;
 extern double Elec_pot_LBB;
 extern double Charge_f[NCOMP_MAX];
@@ -69,9 +67,11 @@ void print_to_screen(double val,char *var_label);
 extern double Xi_cav_RTF[4];
 extern double Xi_cav_LBB[4];
 double pressure_WTC(double *rho_seg,double *xi_cav);
+double pressure_elec_MSA(double *rho);
+#define DELTAC_GENERAL 2
+#define DELTAC_RPM     1 
 extern int Type_coul;
 double pressure_att(double *rho);
-double pressure_elec_MSA(double *rho);
 extern double Dphi_Drhobar_RTF[10];
 extern double Rhobar_b_RTF[10];
 extern double Dphi_Drhobar_LBB[10];

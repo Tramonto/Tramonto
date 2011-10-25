@@ -18,7 +18,6 @@
 extern int *L2G_node;
 void print_residuals(int loc_inode,int iunk,double *resid_unk);
 double load_lambda_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define TRUE	   1
 #define SCF_CONSTR	   9
 double load_SCF_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define SCF_FIELD	  10
@@ -36,6 +35,13 @@ double load_bond_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone
 double load_cavity_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_nonlinear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
 extern int Linear_transport;
 #define DIFFUSION      6
 double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
@@ -112,9 +118,6 @@ extern int *Mesh_coarsen_flag;
 extern int L1D_bc;
 extern int Nwall_type;
 #define FALSE 0
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif

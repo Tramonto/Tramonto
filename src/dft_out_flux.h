@@ -20,14 +20,6 @@ extern int Proc;
 extern int Proc;
 #endif
 #define NCOMP_MAX 5
-extern double Charge_f[NCOMP_MAX];
-extern int Ipot_ff_c;
-#if defined(DEC_ALPHA)
-#define POW_DOUBLE_INT powi
-#endif
-#if !(defined(DEC_ALPHA))
-#define POW_DOUBLE_INT pow
-#endif
 extern double D_coef[NCOMP_MAX];
 extern int Linear_transport;
 extern double Velocity;
