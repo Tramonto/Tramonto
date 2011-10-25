@@ -1,0 +1,23 @@
+/*! \file 
+ \brief Color diffusion (Fickian) of a bonded chain fluid through a permeable membrane.
+
+Functionals: FMT1, WCA, WJDC
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Two component neutral Lennard-Jones chain fluid system.  This tests the polymer Fickian diffusion implementation.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - dft_dens.dat
+
+Key Output Parameters:
+   - niter=8 
+   - adsorption[0]= 8.11296  
+   - adsorption[1]= 8.11296
+   - energy=-6.3157   
+   .
+*/
