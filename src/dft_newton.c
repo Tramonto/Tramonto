@@ -314,11 +314,12 @@ int update_solution(double** x, double** delta_x, int iter) {
     if (go_update){
     for (iunk=0; iunk<Nunk_per_node; iunk++){
 
-      if (x[iunk][ibox]+frac_min*delta_x[iunk][ibox] <0.0 && 
+     /* if (x[iunk][ibox]+frac_min*delta_x[iunk][ibox] <0.0 && */
+      if (x[iunk][ibox]+frac_min*delta_x[iunk][ibox] <1.e-99 && 
          (  (Unk2Phys[iunk]==DENSITY && (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) || 
             (Unk2Phys[iunk]==G_CHAIN && Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]] == -1)                              || 
             Unk2Phys[iunk]==CMS_FIELD                                                                             || 
-            Unk2Phys[iunk]==WJDC_FIELD                                                                            ||
+            /*Unk2Phys[iunk]==WJDC_FIELD                                                                            ||*/
             (Unk2Phys[iunk]==BONDWTC  && Pol_Sym[iunk-Phys2Unk_first[BONDWTC]] == -1 )                            || 
              Unk2Phys[iunk]==CAVWTC)                 
           ){
