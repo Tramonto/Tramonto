@@ -35,6 +35,7 @@ dft_BasicLinProbMgr
   : isBlockStructureSet_(false),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
+    machineParamsSet_(false),
     groupByPhysics_(true),
     firstTime_(true),
     numUnknownsPerNode_(numUnknownsPerNode),
@@ -418,11 +419,36 @@ getRhs
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+setMachineParams
+()
+{
+  TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
+		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
+  // Get machine parameters
+  n_ = globalMatrix_->getGlobalNumCols();
+  eps_ = Teuchos::ScalarTraits<Scalar>::eps();
+  epsHalf_ = Teuchos::ScalarTraits<Scalar>::eps();
+  anorm_ = globalMatrix_->getFrobeniusNorm();
+  nae_ = n_*anorm_*eps_;
+  snae_ = sqrt(n_)*anorm_*eps_;
+  naeHalf_ = n_*anorm_*epsHalf_;
+  snaeHalf_ = sqrt(n_)*anorm_*epsHalf_;
+  machineParamsSet_ = true;
+  std::cout << "PROBLEM CONSTANTS--- anorm = " << anorm_ << " n = " << n_ << " snae = " << snae_ << std::endl;
+
+}
+//=============================================================================
+template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+void
+dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 setupSolver
 ()
 {
   TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
+  
+  // Setup machine constants
+  setMachineParams();
 
 #ifdef SUPPORTS_STRATIMIKOS
   thyraRhs_ = createVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(globalRhs_);
@@ -436,28 +462,27 @@ setupSolver
   lowsFactory_ = solver_->createLinearSolveStrategy("");
   lows_ = linearOpWithSolve<Scalar>(*lowsFactory_, thyraOp_);
 #else
-  //printf("Node num rows = %d\n", globalMatrix_->getNodeNumRows());
-  //printf("Node num cols = %d\n", globalMatrix_->getNodeNumCols());
+
   problem_ = rcp(new LinPROB(globalMatrix_, globalLhs_, globalRhs_));
   Ifpack2::Factory factory;
   RCP<const MAT> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT>(globalMatrix_);
-  //  preconditioner_ = factory.create("ILUT", const_globalMatrix_);
-  //  preconditioner_->setParameters(*parameterList_);
-  //  preconditioner_->initialize();
-  //  preconditioner_->compute();
-  //  problem_->setLeftPrec(preconditioner_);
+  preconditioner_ = factory.create("ILUT", const_globalMatrix_);
+  preconditioner_->setParameters(*parameterList_);
+  preconditioner_->initialize();
+  preconditioner_->compute();
+  problem_->setLeftPrec(preconditioner_);
   TEST_FOR_EXCEPT(problem_->setProblem() == false);
-  //  Teuchos::RCP<Teuchos::ParameterList> belosList = Teuchos::rcp( new Teuchos::ParameterList() );
-  //  belosList->set( "Num Blocks", 500 );               // Maximum number of blocks in Krylov factorization
-  //  belosList->set( "Block Size", 1 );              // Blocksize to be used by iterative solver
-  //  belosList->set( "Maximum Iterations", 5000 );       // Maximum number of iterations allowed
-  //  belosList->set( "Maximum Restarts", 1 );      // Maximum number of restarts allowed
-  //  belosList->set<Scalar>( "Convergence Tolerance", 1.0e-4 );         // Relative convergence tolerance requested
-  //  belosList->set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
-  //  belosList->set( "Output Frequency", 10 );
-  //  belosList->set( "Output Style", Belos::Brief);
-  //  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, belosList));
-  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
+  Teuchos::RCP<Teuchos::ParameterList> belosList = Teuchos::rcp( new Teuchos::ParameterList() );
+  belosList->set( "Num Blocks", 500 );               // Maximum number of blocks in Krylov factorization
+  belosList->set( "Block Size", 1 );              // Blocksize to be used by iterative solver
+  belosList->set( "Maximum Iterations", 5000 );       // Maximum number of iterations allowed
+  belosList->set( "Maximum Restarts", 1 );      // Maximum number of restarts allowed
+  belosList->set<Scalar>( "Convergence Tolerance", 25*snae_ );         // Relative convergence tolerance requested
+  belosList->set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+  belosList->set( "Output Frequency", 10 );
+  belosList->set( "Output Style", Belos::Brief);
+  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, belosList));
+  //  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 #endif
 }
 //=============================================================================

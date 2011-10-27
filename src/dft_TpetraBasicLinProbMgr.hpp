@@ -248,6 +248,11 @@ class dft_BasicLinProbMgr {
 
   //@{ \name Solver-related methods
 
+  //! Get constants for this machine and problem.
+  virtual void
+  setMachineParams
+  ();
+
   //! Setup up the solver for solving the current linear problem.
   virtual void
   setupSolver
@@ -391,6 +396,7 @@ protected:
   bool isBlockStructureSet_;
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
+  bool machineParamsSet_;
   bool groupByPhysics_;
   bool firstTime_;
   size_t numUnknownsPerNode_;
@@ -418,6 +424,14 @@ protected:
   std::map<GlobalOrdinal, Scalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
   Array<Scalar> values_;
+  GlobalOrdinal n_;
+  Scalar eps_;
+  halfScalar epsHalf_;
+  Scalar anorm_;
+  Scalar nae_;
+  Scalar snae_;
+  halfScalar naeHalf_;
+  halfScalar snaeHalf_;
 
 #ifdef SUPPORTS_STRATIMIKOS
   //Thyra Objects

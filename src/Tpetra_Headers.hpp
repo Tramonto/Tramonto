@@ -93,7 +93,16 @@ using Belos::ReturnType;
   typedef Tpetra::Import<LO,GO,Node> IMP; \
   typedef Belos::SolverManager<SCALAR, MV, OP> SolMGR; \
   typedef Belos::LinearProblem<SCALAR, MV, OP> LinPROB; \
-  typedef Ifpack2::Preconditioner<SCALAR, LO, GO, Node> PRECOND;
+  typedef Ifpack2::Preconditioner<SCALAR, LO, GO, Node> PRECOND; \
+  typedef typename Teuchos::ScalarTraits<SCALAR>::halfPrecision halfScalar; \
+  typedef Tpetra::MultiVector<halfScalar,LO,GO,Node> MV_H; \
+  typedef Tpetra::Vector<halfScalar,LO,GO,Node> VEC_H;		   \
+  typedef Tpetra::Operator<halfScalar,LO,GO,Node> OP_H;			\
+  typedef Tpetra::OperatorApplyInverse<halfScalar,LO,GO,Node> APINV_H;	\
+  typedef Tpetra::CrsMatrix<halfScalar,LO,GO,Node> MAT_H;			\
+  typedef Belos::SolverManager<halfScalar, MV_H, OP_H> SolMGR_H;		\
+  typedef Belos::LinearProblem<halfScalar, MV_H, OP_H> LinPROB_H;		\
+  typedef Ifpack2::Preconditioner<halfScalar, LO, GO, Node> PRECOND_H;
 
 #endif //SUPPORTS_STRATIMIKOS
 
