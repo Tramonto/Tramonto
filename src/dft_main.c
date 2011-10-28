@@ -263,9 +263,13 @@ void dftmain(double * engptr)
           niters = solve_problem_picard(x, x2);
           if (NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN){
                NL_update_scalingParam*=100.;
-              if (Proc==0 && Iwrite != NO_SCREEN) printf("Calling Newton Solver after print of Picard solution!\n");
+              if (Proc==0 && Iwrite != NO_SCREEN) printf("Printing solution after Picard iterations...\n");
                print_profile_box(x,"dft_dens_picard.dat");
-               if (Lbinodal) print_profile_box(x2,"dft_dens_picard2.dat");
+              if (Lbinodal){ 
+                   if (Proc==0 && Iwrite != NO_SCREEN) printf("Printing second solution after Picard iterations...\n");
+                            print_profile_box(x2,"dft_dens_picard2.dat");
+              }
+              if (Proc==0 && Iwrite != NO_SCREEN) printf("Calling Newton Solver after print of Picard solution!\n");
                niters = solve_problem(x, x2);
           }
       }

@@ -80,7 +80,6 @@ struct SurfaceGeom_Struct {
 double print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_user_plugin(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID);
-#define INTERFACE 0
 #define PHASE_INTERFACE 2
 #define SWITCH_MU    3
 #define SWITCH_ION   2
@@ -146,7 +145,7 @@ extern int Ipot_ff_c;
 #define FALSE 0
 #endif
 void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double param_new,char *output_file1);
-void assign_param_user_plugin(int cont_type,int Loca_contID,double param);
+void assign_param_user_plugin(int cont_type,int Loca_contID,double param,char *output_file1);
 void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
 extern int Unk2Comp[NMER_MAX];
 extern int Ntype_mer;

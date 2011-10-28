@@ -299,8 +299,6 @@ void setup_semiperm(int **nelems_w_per_w, int ***elems_w_per_w)
   int loc_inode,icomp,i,idim;
   int flag,ijk[3];
   
-  printf("in setup_semiperm\n");
-
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) 
      for (icomp=0; icomp<Ncomp; icomp++) Vext_set[loc_inode][icomp]=VEXT_MAX;
 

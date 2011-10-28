@@ -91,7 +91,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
   int iter=0,i, max_iters;
   int iunk, ibox;
   int converged=FALSE;
-  int skip_convergence_test=FALSE;
+  int skip_convergence_test=FALSE,Lprint_screen;
   double **x_old, **delta_x;
 
   x_old = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
@@ -106,7 +106,25 @@ int picard_solver(double **x, double **xOwned, int subIters){
   do {
     iter++;
 
-    if (Iwrite != NO_SCREEN) print_resid_norm_picard(x,iter);
+    Lprint_screen=FALSE;
+    if (max_iters<30){
+       if ((Iwrite!= NO_SCREEN && (iter%(max_iters/1)==0 || iter==1)) || Iwrite==VERBOSE){
+          print_resid_norm_picard(x,iter);
+          Lprint_screen=TRUE;
+       }
+    }
+    else if (max_iters<5000){
+       if ((Iwrite!= NO_SCREEN && (iter%(max_iters/20)==0 || iter==1)) || Iwrite==VERBOSE){
+          print_resid_norm_picard(x,iter);
+          Lprint_screen=TRUE;
+       }
+    }
+    else{
+       if ((Iwrite!= NO_SCREEN && (iter%(max_iters/50)==0 || iter==1)) || Iwrite==VERBOSE){
+          print_resid_norm_picard(x,iter);
+          Lprint_screen=TRUE;
+       }
+    }
 
      /* copy current fields to the x_old array */
      for (iunk=0; iunk<Nunk_per_node;iunk++)
@@ -121,20 +139,28 @@ int picard_solver(double **x, double **xOwned, int subIters){
      else if(Type_poly==CMS_SCFT)                                                        calc_density_next_iter_SCF(x,xOwned);
      else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)                    calc_density_next_iter_WJDC(x,xOwned);
 
-     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
+     /*(void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);*/
 
-/* if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");*/
+     for (i=0; i<Phys2Nunk[DENSITY]; i++){
+        iunk=Phys2Unk_first[DENSITY]+i;
+        (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[iunk], x[iunk]);
+     }
 
      for (iunk=0; iunk<Nunk_per_node;iunk++)
        for (ibox=0; ibox<Nnodes_box;ibox++){
          delta_x[iunk][ibox]=x[iunk][ibox]-x_old[iunk][ibox];
      }
-/* if (Iwrite==VERBOSE) print_profile_box(x, "deltax_iter.dat");*/
 
    // if (con_ptr != NULL) converged2 = continuation_hook_conwrap(x, delta_x, con_ptr, NL_rel_tol, NL_abs_tol);
 
-    /* Do: x += delta_x, and check for convergence .... trying to reuse same update_solution strategies as in Newton solver*/
-    converged = update_solution_picard(x_old, xOwned, delta_x, iter);
+    /* Do: x += delta_x, and check for convergence .... */
+    converged = update_solution_picard(x_old, xOwned, delta_x, iter,Lprint_screen);
+    if (converged==TRUE){ 
+        print_resid_norm_picard(x,iter);
+        Lprint_screen=TRUE;
+        converged = update_solution_picard(x_old, xOwned, delta_x, iter,Lprint_screen);
+    }
+
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x_old);
     if (skip_convergence_test) converged=FALSE;
 
@@ -274,15 +300,27 @@ void calc_density_next_iter_HSperturb(double **xInBox)
    we are doing CMS-DFT calculations */
 void calc_density_next_iter_CMS(double **xInBox,double **xOwned)
 {
-  int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i;
+  int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i,i;
   double resid;
   struct  RB_Struct *dphi_drb=NULL;
   izone=0;
   mesh_coarsen_flag_i=0;
 
   calc_init_CMSfield(xInBox,xOwned);
+
+  for (i=0; i<Phys2Nunk[CMS_FIELD]; i++){
+     iunk=Phys2Unk_first[CMS_FIELD]+i;
+     (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[iunk], xInBox[iunk]);
+  }
+
   calc_init_polymer_G_CMS(xInBox,xOwned);
-  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);
+
+  for (i=0; i<Phys2Nunk[G_CHAIN]; i++){
+     iunk=Phys2Unk_first[G_CHAIN]+i;
+     (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[iunk], xInBox[iunk]);
+  }
+
+/*  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);*/
   
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode]; 
@@ -302,7 +340,7 @@ void calc_density_next_iter_CMS(double **xInBox,double **xOwned)
    we are doing WJDC-DFT calculations */
 void calc_density_next_iter_WJDC(double **xInBox,double **xOwned)
 {
-  int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i,iloop_max;
+  int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i,iloop_max,i;
   double resid;
   struct  RB_Struct *dphi_drb=NULL;
   izone=0;
@@ -311,8 +349,17 @@ void calc_density_next_iter_WJDC(double **xInBox,double **xOwned)
   else iloop_max=Nseg_tot;
 
   calc_init_WJDC_field(xInBox,xOwned);
+  for (i=0; i<Phys2Nunk[WJDC_FIELD]; i++){
+     iunk=Phys2Unk_first[WJDC_FIELD]+i;
+     (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[iunk], xInBox[iunk]);
+  }
+
   calc_init_polymer_G_wjdc(xInBox,xOwned);
-  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);
+  for (i=0; i<Phys2Nunk[G_CHAIN]; i++){
+     iunk=Phys2Unk_first[G_CHAIN]+i;
+     (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[iunk], xInBox[iunk]);
+  }
+/*  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);*/
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode]; 
@@ -365,7 +412,7 @@ void print_resid_norm_picard(double **x, int iter)
   return;
 }
 /*****************************************************************************************************/
-int update_solution_picard(double** x, double **xOwned, double **delta_x, int iter) {
+int update_solution_picard(double** x, double **xOwned, double **delta_x, int iter,int Lprint_screen) {
 /* Routine to update solution vector x using delta_x and
  * to test for convergence of the nonlinear solution (Picard) method.
  * Note that Picard updates require different heuristics than the Newton updates, and only
@@ -384,8 +431,7 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
   if (Lseg_densities) nloop=Nseg_tot;
   else                nloop=Ncomp;
 
-  if (Proc==0 && Iwrite != NO_SCREEN)
-      printf("\t::::\tUPDATE FRAC = %g percent",NL_update_scalingParam*100);
+  if (Proc==0 && Iwrite!= NO_SCREEN && Lprint_screen==TRUE) printf("\t::::\tUPDATE FRAC = %g percent",NL_update_scalingParam*100);
   
   for (ibox=0; ibox<Nnodes_box; ibox++) {
     
@@ -422,8 +468,7 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
   
   updateNorm = sqrt(gsum_double(updateNorm));
   
-  if (Proc==0 && Iwrite != NO_SCREEN)
-    printf("\t::::\t Weighted norm of update vector =%g\n", updateNorm);
+  if (Proc==0 && Iwrite!= NO_SCREEN && Lprint_screen==TRUE) printf("\t::::\t Weighted norm of update vector =%g\n", updateNorm);
 
   if (updateNorm > 1.0 || iter==1 ) return(FALSE);
   else                  return(TRUE);

@@ -237,7 +237,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
            assign_param_archived_plugin(cont_type,Loca_contID,param); 
         }
         else if (cont_type >= 200 && cont_type<299){
-           assign_param_user_plugin(cont_type,Loca_contID,param); 
+           assign_param_user_plugin(cont_type,Loca_contID,param,output_file1); 
         }
         else{
            printf("ERROR: Unknown Continuation parameter %d\n",cont_type);

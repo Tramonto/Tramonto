@@ -54,6 +54,14 @@
 double get_init_param_user_plugin(int cont_type,int Loca_contID)
 {
   switch(cont_type){
+   /*   user_param_type:*/ /*  ..... set the string for your continuation type - definine it in dft_globals_const.h */
+         /* enter source code here to set the initial value of the parameter that will vary in your calculation - 
+            let's assume it is a density, as defined by Loca_contID
+           
+            return Rho_b[Cont_ID[Loca_contID][0]];
+            break;
+          */
+
       default:
         printf("ERROR: Unknown Continuation parameter in user plugin %d\n",cont_type);
         exit(-1); 
@@ -62,25 +70,54 @@ double get_init_param_user_plugin(int cont_type,int Loca_contID)
   return 0.0;
 }
 /*****************************************************************************/
-void assign_param_user_plugin(int cont_type, int Loca_contID, double param)
+void assign_param_user_plugin(int cont_type, int Loca_contID, double param,char *output_file1)
 {
+ double param_old;
  /* note that depending on which variables you are adjusting you may need to recalculate stencils, external fields, or 
-    thermodynamics.  See code in dft_switch_continuation.c and dft_scale_variables.c for help.  Also note that output
-    from thermodynamics, and mesh calculations are typically sent to "dft_out.lis" */
+    thermodynamics.  See code in dft_switch_continuation.c and dft_scale_variables.c for help. */
+
   switch(cont_type){
+
+      /*user_param_type:*/ /* set the string for your new continuation type here - define it in dft_globals_const.h */
+
+        /* enter source code here to change the value of the chose parameters.  
+           As an example, assume that although you are varying Rho_b[0], you have another dependent density 
+           that must also vary in the same ratio as the continuation density - 
+           the user code would look something like this...
+ 
+         param_old=Rho_b[Cont_ID[Loca_contID][0]];
+         ratio=param/param_old
+         Rho_b[Cont_ID[Loca_contID][0]] *= ratio;
+         Rho_b[dependent_density_ID] *= ratio;
+         break;
+        */
+
       default:
         printf("ERROR_apt: Unknown Continuation parameter in user plugin %d\n",cont_type);
-        exit(-1); break;
+        exit(-1); 
+        break;
   }
+
+  /* on changing some parameters, it may be necessary to recompute stencils, thermodynamics, etc. 
+     It is necessary to add the new continuation type to the routine adjust_dep_params() in 
+     dft_switch_continuation.c.  That routine sets a series of logical to turn on various types
+     of adjustments that may be needed for a given type of continuation */ 
+
+  adjust_dep_params(cont_type,Loca_contID,param_old,param,output_file1);  
   return;
 }
 /*****************************************************************************/
 void print_cont_type_user_plugin(int cont_type, FILE *fp,int Loca_contID)
 {
   switch(cont_type){
+      /*user_param_type:*/
+          /* enter souce code to define labeling of your continuation parameter(s) in dft_output.dat 
+          break;*/
+
       default:
         printf("ERROR_apt: Unknown Continuation parameter in user plugin %d\n",cont_type);
-        exit(-1); break;
+        exit(-1); 
+        break;
   }
   return;
 }
@@ -88,9 +125,14 @@ void print_cont_type_user_plugin(int cont_type, FILE *fp,int Loca_contID)
 void print_cont_variable_user_plugin(int cont_type,FILE *fp,int Loca_contID)
 {
   switch(cont_type){
+      /*user_param_type:*/
+          /* enter souce code to print continuation parameter(s) in dft_output.dat 
+          break;*/
+
       default:
         printf("ERROR_apt: Unknown Continuation parameter in user plugin %d\n",cont_type);
-        exit(-1); break;
+        exit(-1); 
+        break;
   }
   return;
 }
