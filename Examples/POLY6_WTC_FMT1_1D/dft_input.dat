@@ -319,7 +319,7 @@
                switches to determine how output will look in dft_force file
                rho: (0 - all densities, 1=p/po, 2=kappa, 3=all betamu)
                mesh: (0=surface separations, 1=wall positions)
-@ 3 	IWRITE (0=MINIMAL, 1=DENSITY_PROF, 2=NO_SCREEN, 3=VERBOSE) 
+@ 1 	IWRITE (0=MINIMAL, 1=DENSITY_PROF, 2=NO_SCREEN, 3=VERBOSE) 
 
 *********** COARSENING SWITCHES ************************************************
 @ 1 	Nzone (Coarsens Mesh/Jacobian by factor of 2) 
