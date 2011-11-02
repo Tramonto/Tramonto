@@ -319,7 +319,7 @@ int update_solution(double** x, double** delta_x, int iter) {
          (  (Unk2Phys[iunk]==DENSITY && (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) || 
             (Unk2Phys[iunk]==G_CHAIN && Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]] == -1)                              || 
             Unk2Phys[iunk]==CMS_FIELD                                                                             || 
-            /*Unk2Phys[iunk]==WJDC_FIELD                                                                            ||*/
+            Unk2Phys[iunk]==WJDC_FIELD                                                                            ||
             (Unk2Phys[iunk]==BONDWTC  && Pol_Sym[iunk-Phys2Unk_first[BONDWTC]] == -1 )                            || 
              Unk2Phys[iunk]==CAVWTC)                 
           ){
