@@ -446,7 +446,12 @@ setupSolver
 {
   TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
-  
+  // If solver is already setup, just reset the problem
+  if (solver_ != Teuchos::null ) {
+    solver_->reset(Belos::Problem);
+    return;  //Already setup
+  }
+
   // Setup machine constants
   setMachineParams();
 
@@ -470,15 +475,16 @@ setupSolver
   preconditioner_->setParameters(*parameterList_);
   preconditioner_->initialize();
   preconditioner_->compute();
-  problem_->setLeftPrec(preconditioner_);
+  //  problem_->setLeftPrec(preconditioner_);
   TEST_FOR_EXCEPT(problem_->setProblem() == false);
   Teuchos::RCP<Teuchos::ParameterList> belosList = Teuchos::rcp( new Teuchos::ParameterList() );
   belosList->set( "Num Blocks", 500 );               // Maximum number of blocks in Krylov factorization
   belosList->set( "Block Size", 1 );              // Blocksize to be used by iterative solver
-  belosList->set( "Maximum Iterations", 5000 );       // Maximum number of iterations allowed
+  belosList->set( "Maximum Iterations", 500 );       // Maximum number of iterations allowed
   belosList->set( "Maximum Restarts", 1 );      // Maximum number of restarts allowed
-  belosList->set<Scalar>( "Convergence Tolerance", 25*snae_ );         // Relative convergence tolerance requested
-  belosList->set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+  belosList->set<Scalar>( "Convergence Tolerance", 1e-6 );         // Relative convergence tolerance requested
+  //  belosList->set<Scalar>( "Convergence Tolerance", 0.5*nae_ );         // Relative convergence tolerance requested
+  //  belosList->set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
   belosList->set( "Output Frequency", 10 );
   belosList->set( "Output Style", Belos::Brief);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, belosList));
