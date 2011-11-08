@@ -486,7 +486,7 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
               fprintf(fp,"KAPPA   ");
         }
 
-        if (Print_rho_switch == SWITCH_MU || Print_rho_switch==SWITCH_ALLTYPES || 
+        if (cont_type==CONT_BETAMU_I || Print_rho_switch == SWITCH_MU || Print_rho_switch==SWITCH_ALLTYPES || 
             Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT || 
             Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
             for(i=0; i<nloop; i++){
@@ -747,7 +747,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
              fprintf(fp,"%11.8f   ", kappa);
          }
 
-         if (Print_rho_switch == SWITCH_MU || Print_rho_switch==SWITCH_ALLTYPES || 
+         if (cont_type==CONT_BETAMU_I||Print_rho_switch == SWITCH_MU || Print_rho_switch==SWITCH_ALLTYPES || 
                Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT ||Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
             for (i=0; i<nloop; i++){
                 if (Type_poly==NONE){
@@ -775,6 +775,12 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                     }
                 }
             }
+         }
+         if (cont_type==CONT_BETAMU_I){
+              if (Type_interface==UNIFORM_INTERFACE || Type_interface==PHASE_INTERFACE){
+                 if (Type_poly==NONE) return_param=Betamu[Cont_ID[Loca_contID][0]]; 
+                 else                 return_param=Betamu_chain[Cont_ID[Loca_contID][0]]; 
+              }
          }
          break;
 
