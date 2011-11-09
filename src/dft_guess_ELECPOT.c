@@ -58,3 +58,22 @@ void setup_elec_pot(double **xOwned,int guess_type)
   return;
 }
 /************************************************************/
+/*calc_init_elec_pot: calculate the electrostatic potential initial guess based on a 
+  density profile */
+void calc_init_elec_pot(double **xInBox,double **xOwned)
+{
+  int loc_inode,inode_box,ijk_box[3],iunk;
+  double resid_POISSON;
+
+  iunk=Phys2Unk_first[POISSON];
+  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+     inode_box=L2B_node[loc_inode];
+     node_box_to_ijk_box(inode_box, ijk_box);
+
+     resid_POISSON=load_poisson_control(iunk,loc_inode,inode_box,ijk_box,xInBox,INIT_GUESS_FLAG);
+     xInBox[iunk][inode_box]=resid_POISSON;
+     xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
+  }
+  return;
+}
+/************************************************************/

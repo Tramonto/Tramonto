@@ -43,7 +43,6 @@ double StenTheta_GENmsa_sten_vol(int i,int j)
    double r_max,vol_sten;
 
    r_max = (HS_diam[i]+HS_diam[j])/2.0;
-printf("calling deltaC_GENERAL_MSA_int with r_max=%g i=%d j=%d\n",r_max,i,j);
    vol_sten = deltaC_GENERAL_MSA_int(r_max,i,j);
 
    return(vol_sten);

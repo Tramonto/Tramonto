@@ -104,7 +104,11 @@ void set_initial_guess (int guess_type, double** xOwned)
            } break;
          case POISSON:
            if (Phys2Nunk[POISSON]>0 && (start_no_info || Restart_field[POISSON]==FALSE ||Restart==RESTART_DENSONLY)) {
-                 setup_elec_pot(xOwned,guess_type); 
+                 if (Iguess_fields==CALC_ALL_FIELDS){  
+                      setup_elec_pot(xOwned,guess_type);
+                      calc_init_elec_pot(xInBox,xOwned);
+                 }
+                 else setup_elec_pot(xOwned,guess_type); 
            }
            break;
          case DIFFUSION: 

@@ -18,6 +18,7 @@
 #define NDIM_MAX  3
 extern int Nodes_x[NDIM_MAX];
 #define LAST_NODE_RESTART    4
+extern int Type_coul;
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void node_to_ijk(int node,int *ijk);
@@ -73,6 +74,7 @@ void calc_init_BondWTC(double **xInBox,double **xOwned);
 void calc_init_Xi_cavWTC(double **xInBox,double **xOwned);
 #define CAVWTC         4
 #define DIFFUSION      6
+void calc_init_elec_pot(double **xInBox,double **xOwned);
 #define POISSON        1
 void calc_init_rho_bar(double **xInBox,double **xOwned);
 #define HSRHOBAR       2
@@ -88,7 +90,7 @@ void calc_density_next_iter_WJDC(double **xInBox,double **xOwned);
 void calc_density_next_iter_SCF(double **xInBox,double **xOwned);
 #define CMS_SCFT     1
 void calc_density_next_iter_CMS(double **xInBox,double **xOwned);
-void calc_density_next_iter_HSperturb(double **xInBox);
+void calc_density_next_iter_HSperturb(double **xInBox,double **xOwned);
 #define WJDC2        4 
 #define WJDC         3
 extern int L_HSperturbation;

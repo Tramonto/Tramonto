@@ -39,7 +39,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                     double **x,struct  RB_Struct *dphi_drb,int mesh_coarsen_flag_i, int resid_only_flag)
 {
    int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF,iunk_att,first_unk,offset[3],reflect_flag[3],idim,jnode_box;
-   double resid=0.0,resid_att,mat_val;
+   double resid=0.0,resid_att,mat_val,resid_charge;
 
 
                   /* set icomp and iseg(WTC) */
@@ -60,8 +60,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                    /* note that there are several cases where the euler-lagrange fill
                       is preempted by a simpler residual equation.  We check for each
                       of these cases first.  If none are true, the full EL residual is filled */
-
-   if (iunk==19 && loc_inode==177) printf("resid1=%g\n",resid);
 
    zero_TF=check_zero_density_EL(iunk,icomp,iseg,loc_inode,inode_box,x);
    if (zero_TF) {
@@ -132,7 +130,8 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    resid+=fill_EL_ext_field(iunk,icomp,loc_inode,resid_only_flag);
 
    if (Type_coul != NONE){
-         resid+=fill_EL_elec_field(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
+         resid_charge=fill_EL_elec_field(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);
+         resid+=resid_charge;
    }
 
    if (mesh_coarsen_flag_i != FLAG_PBELEC){
@@ -486,12 +485,13 @@ double fill_EL_elec_field(int iunk, int icomp, int loc_inode, int inode_box, dou
    resid_charge += resid;
    if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY){
       dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-      if (!resid_only_flag){
+      if (resid_only_flag==FALSE){
          dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                        junk,nodeIndices,values,numEntries);
       }
       }
    }
+
    return(resid_charge);
 }
 /******************************************************************************************/

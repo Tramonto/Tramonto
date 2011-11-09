@@ -134,22 +134,30 @@ int picard_solver(double **x, double **xOwned, int subIters){
      if(Type_poly==CMS || Type_poly==WJDC3) calc_Gsum(x);
 
      /* use successive substitution to update density field, then compute all other fields */ 
-     if (L_HSperturbation && Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3) calc_density_next_iter_HSperturb(x);
-     else if(Type_poly==CMS)                                                             calc_density_next_iter_CMS(x,xOwned);
-     else if(Type_poly==CMS_SCFT)                                                        calc_density_next_iter_SCF(x,xOwned);
-     else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)                    calc_density_next_iter_WJDC(x,xOwned);
+     if ((L_HSperturbation || Type_coul != NONE) && Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3) 
+                                                                                    calc_density_next_iter_HSperturb(x,xOwned);
+     else if(Type_poly==CMS)                                                        calc_density_next_iter_CMS(x,xOwned);
+     else if(Type_poly==CMS_SCFT)                                                   calc_density_next_iter_SCF(x,xOwned);
+     else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)               calc_density_next_iter_WJDC(x,xOwned);
 
-     /*(void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);*/
+
+/*     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);*/
 
      for (i=0; i<Phys2Nunk[DENSITY]; i++){
         iunk=Phys2Unk_first[DENSITY]+i;
         (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[iunk], x[iunk]);
      }
 
+/*     if (Type_coul !=NONE){         
+        calc_init_elec_pot(x,xOwned);
+        (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[POISSON], x[POISSON]);
+     }*/
+
      for (iunk=0; iunk<Nunk_per_node;iunk++)
        for (ibox=0; ibox<Nnodes_box;ibox++){
          delta_x[iunk][ibox]=x[iunk][ibox]-x_old[iunk][ibox];
      }
+
 
    // if (con_ptr != NULL) converged2 = continuation_hook_conwrap(x, delta_x, con_ptr, NL_rel_tol, NL_abs_tol);
 
@@ -189,8 +197,9 @@ int picard_solver(double **x, double **xOwned, int subIters){
 
          case POISSON:
            if (Phys2Nunk[POISSON]>0){
-              printf("Error - we don't have routines for doing picard iterations with electrostatics yet\n");
-              exit(-1);
+              calc_init_elec_pot(x,xOwned);
+/*              printf("Error - we don't have routines for doing picard iterations with electrostatics yet\n");
+              exit(-1);*/
            }
            break;
 
@@ -243,9 +252,12 @@ int picard_solver(double **x, double **xOwned, int subIters){
      }
      }
 
-  } while (iter < max_iters && !converged);
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
+  } while (iter < max_iters && !converged);
+
+    (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x_old);
+    if (skip_convergence_test) converged=FALSE;
 
   // Skip printing if NOX is controlling convergence
   if (!converged && !skip_convergence_test) {
@@ -265,7 +277,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
 /****************************************************************************/
 /*calc_density_next_iter_HSperturb(): compute a new density profile for cases where
   we are doing HSperturbation - but not WJDC - calculations */
-void calc_density_next_iter_HSperturb(double **xInBox)
+void calc_density_next_iter_HSperturb(double **xInBox, double **xOwned)
 {
   int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i,nloop;
   double resid_EL;
@@ -290,6 +302,7 @@ void calc_density_next_iter_HSperturb(double **xInBox)
         resid_EL=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,
                           xInBox,dphi_drb,mesh_coarsen_flag_i,INIT_GUESS_FLAG);
         xInBox[iunk][inode_box]=resid_EL;
+        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
      }
   }
   if (Type_func != NONE) safe_free((void *) &dphi_drb);
@@ -462,6 +475,7 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
           x[iunk][ibox] += NL_update_scalingParam*delta_x[iunk][ibox];
 /*if (fabs(x[iunk][ibox]-xold)>fabs(0.0001*xold)&&x[iunk][ibox]>1.e-12) printf("iunk=%d  ibox=%d  x=%g  xold=%g\n",iunk,ibox,x[iunk][ibox],xold);*/
        }
+       /*if (Type_coul != NONE) x[POISSON][ibox] += NL_update_scalingParam*delta_x[POISSON][ibox];*/
     }
     if (inode>=0){ for (iunk=0; iunk<Nunk_per_node; iunk++) xOwned[iunk][inode]=x[iunk][ibox];}
   }

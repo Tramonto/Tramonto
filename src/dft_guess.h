@@ -42,7 +42,6 @@ void calc_init_CMSfield(double **xInBox,double **xOwned);
 #define CMS_FIELD      7
 void setup_polymer_field_wjdc(double **xOwned);
 void calc_init_WJDC_field(double **xInBox,double **xOwned);
-#define CALC_ALL_FIELDS   1
 #define WJDC_FIELD     8
 void setup_BondWTC(double **xOwned);
 void calc_init_BondWTC(double **xInBox,double **xOwned);
@@ -52,7 +51,9 @@ void calc_init_Xi_cavWTC(double **xInBox,double **xOwned);
 #define CAVWTC         4
 void setup_chem_pot(double **xOwned);
 #define DIFFUSION      6
+void calc_init_elec_pot(double **xInBox,double **xOwned);
 void setup_elec_pot(double **xOwned,int guess_type);
+#define CALC_ALL_FIELDS   1
 #define POISSON        1
 void setup_rho_bar(double **xOwned);
 void calc_init_rho_bar(double **xInBox,double **xOwned);

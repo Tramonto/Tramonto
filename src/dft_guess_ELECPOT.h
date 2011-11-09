@@ -15,6 +15,11 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define INIT_GUESS_FLAG  2
+double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
+void node_box_to_ijk_box(int node_box,int *ijk_box);
+extern int *L2B_node;
+void calc_init_elec_pot(double **xInBox,double **xOwned);
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
 extern double Elec_pot_RTF;

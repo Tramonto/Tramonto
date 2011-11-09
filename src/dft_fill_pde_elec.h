@@ -63,13 +63,15 @@ extern int Nlists_HW;
 extern int **Nodes_2_boundary_wall;
 void set_fem_1el_weights(double **wt_lp_1el_ptr,double **wt_s_1el_ptr,int ***elem_permute);
 extern int Ndim;
-double load_poisson_bc(int iunk,int loc_inode,int inode_box);
+double load_poisson_bc(int iunk,int loc_inode,int inode_box,int resid_only_flag);
 double load_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 double load_polarize_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 #define POLARIZE       3
 extern int Type_coul;
 extern double Elec_pot_RTF;
 extern void *LinProbMgr_manager;
+#define CALC_RESID_ONLY  3
+#define INIT_GUESS_FLAG  2
 extern double Elec_pot_LBB;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)

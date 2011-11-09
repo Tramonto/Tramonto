@@ -2254,10 +2254,10 @@ void read_input_file(char *input_file, char *output_file1)
        for (i=0;i<NID_Cont;i++) fprintf(fp2,"%d  ",Cont_ID[1][i]);
   }
 
-  if (!LBulk && ((Loca.method != -1 && Loca.cont_type1 == CONT_BETAMU_I) ||
+  if (!LBulk && (((Loca.method != -1 && Loca.cont_type1 == CONT_BETAMU_I) ||
        (Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I)) 
-      && ((Loca.method != -1 && Loca.cont_type1 == CONT_BETAMU_I_NEW) ||
-          (Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I_NEW)) 
+      || ((Loca.method != -1 && Loca.cont_type1 == CONT_BETAMU_I_NEW) ||
+          (Loca.method==4 && Loca.cont_type2 == CONT_BETAMU_I_NEW))) 
      ){
        /*printf("for continuation in chemical potential LBulk must be TRUE=%d .... resetting LBulk\n",Loca.cont_type1,1);*/
        LBulk=TRUE;

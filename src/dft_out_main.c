@@ -215,8 +215,9 @@ void post_process (double **x,int *niters,
    if (Type_interface != DIFFUSIVE_INTERFACE) calc_force(fp,x,fac_area);   
    energy=calc_free_energy(fp,x); 
 
-   if ((Nruns>2 && (Nwall==1 || Nwall==2) || Loca.cont_type1==CONT_BETAMU_I) && fabs(cont_var)>1.e-6){
-      if (Loca.cont_type1==CONT_BETAMU_I){ mu=cont_var;
+   if (((Nruns>2 && (Nwall==1 || Nwall==2)) || Loca.cont_type1==CONT_BETAMU_I) && fabs(cont_var)>1.e-6){
+      if (Loca.cont_type1==CONT_BETAMU_I){ 
+        mu=cont_var;
         printf("cont_var=%g  Betamu=%g first=%d\n",cont_var,Betamu[0],first);
       }
       else                                surface_sep=cont_var;

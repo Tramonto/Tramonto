@@ -150,13 +150,12 @@ void precalc_GENmsa_params(double *rho, double *x_msa, double *n_msa, double gam
    
 
   gamma=1.0;
-	c = 0.0;
+  c = 0.0;
   for (i=0;i<Ncomp;i++){
      x_msa[i]=1.0;
      n_msa[i]=1.0;
-	 c += (PI/2.0)*(1./(1.-(PI/6.)*rho[i]*POW_DOUBLE_INT(HS_diam[i],3)));
+     c += (PI/2.0)*(1./(1.-(PI/6.)*rho[i]*POW_DOUBLE_INT(HS_diam[i],3)));
   }
-  /* c=(PI/2.0)*(1./(1.-(PI/6.)*rho[i]*POW_DOUBLE_INT(HS_diam[i],3))); /* ALF: I think this was a bug? */
 
   while (error>tol && iter <10000){
 
