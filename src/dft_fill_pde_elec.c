@@ -74,8 +74,6 @@ double load_poisson_control(int iunk, int loc_inode, int inode_box, int *ijk_box
   else if (!l_elec_LBB && !l_elec_RTF) {
      if(Type_coul==POLARIZE) resid_poisson=load_polarize_poissons_eqn(iunk,loc_inode, inode_box,ijk_box,x,resid_only_flag);
      else                    resid_poisson=load_poissons_eqn(iunk,loc_inode,inode_box,ijk_box,x,resid_only_flag);
-
-     resid_poisson+=load_poisson_bc(iunk,loc_inode,inode_box,resid_only_flag);
   }
   if (resid_only_flag==INIT_GUESS_FLAG) return(-resid_poisson);
   else                                  return resid_poisson;
@@ -89,8 +87,8 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
   int nodes_volm_el, nodes_surf_el, junk2[3];
   int in_wall,numEntries, nodeIndices[2];
   double values[2];
-  double pol_wall,wt;
-  double resid,resid_sum=0.0,mat_val,resid_poisson_polarize=0.0;
+  double pol_wall,wt,charge_i;
+  double resid,resid_sum=0.0,mat_val,prefactor_sum=0.0;
 
   /* static variables keep their value for every time the function is called*/
   static double *wt_lp_1el, *wt_s_1el;
@@ -283,7 +281,25 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
          }       /* end of test to be sure element is in fluid */
        }         /* end of possible local node positions */
    }
-   return(resid_poisson_polarize);
+
+       /* finally address nodes where there is a constant surface charge */
+       if (Nodes_2_boundary_wall[Nlists_HW-1][inode_box] != -1){
+
+           iwall     = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
+           if (Type_bc_elec[WallType[iwall]] == CONST_CHARGE ){
+
+             charge_i = 0.0;
+             for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
+             resid = -4.0*PI*charge_i/Temp_elec;
+             if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             resid_sum +=resid;
+
+        }   /* check for charge b.c. on this wall */
+     }      /* end of check for if this is a boundary node */
+
+     if (resid_only_flag==INIT_GUESS_FLAG) resid_sum /= prefactor_sum;
+
+   return(resid_sum);
 }
 /****************************************************************************/
 double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x,int resid_only_flag)
@@ -298,7 +314,7 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
   int off_ref[2][2]; /*= { {0,1}, {-1,0}};*/
   int jnode_box,junk,junkP;
   int reflect_flag[3],ijk[3],flag_bulk_boundary;
-  double resid,mat_val,resid_sum=0.0,elec_param_bulk_boundary,prefactor_sum;
+  double resid,mat_val,resid_sum=0.0,elec_param_bulk_boundary,prefactor_sum,charge_i;
   off_ref[0][0]=0;
   off_ref[0][1]=1;
   off_ref[1][0]=-1;
@@ -437,9 +453,24 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
            }     /* end of loop over all local nodes in this fluid element */
          }       /* end of test to be sure element is in fluid */
        }         /* end of possible local node positions */
-       if (resid_only_flag==INIT_GUESS_FLAG) resid_sum /= prefactor_sum;
+
+       /* finally address nodes where there is a constant surface charge */
+       if (Nodes_2_boundary_wall[Nlists_HW-1][inode_box] != -1){
+
+           iwall     = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
+           if (Type_bc_elec[WallType[iwall]] == CONST_CHARGE ){
+
+             charge_i = 0.0;
+             for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
+             resid = -4.0*PI*charge_i/Temp_elec;
+             if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             resid_sum +=resid;
+
+        }   /* check for charge b.c. on this wall */
+     }      /* end of check for if this is a boundary node */
+
+     if (resid_only_flag==INIT_GUESS_FLAG) resid_sum /= prefactor_sum;
    }
-   /*}*/
    return(resid_sum);
 }
 /************************************************************************/
