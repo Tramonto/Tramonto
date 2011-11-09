@@ -94,7 +94,7 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
   static double *wt_lp_1el, *wt_s_1el;
   static int   **elem_permute, off_ref[2][2] = { {0,1}, {-1,0}};
   double rho_0, rho_1, psi_0, psi_1, tmp;
-  int jnode_box,junk_psi,junk_rho;
+  int jnode_box,junk_rho;
   int reflect_flag[3];
 
   /* First time through, load weights appropriate for this Ndim */
@@ -113,7 +113,6 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
        resid = - Elec_param_w[iwall];
        if (resid_only_flag != INIT_GUESS_FLAG){
           resid += x[iunk][inode_box];
-          resid_sum+=resid;
           if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           if (resid_only_flag==FALSE){
             mat_val = 1.0;
@@ -121,11 +120,12 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
                                                       iunk,inode_box,mat_val);
           }
        }
+       resid_sum+=resid;
    }
    else {
+       prefactor_sum=0.0;
        for (iln=0; iln< Nnodes_per_el_V; iln++) {
 
-         /*elem = node_to_elem_v2(node_box_to_node(inode_box), iln);*/
          elem = node_to_elem(node_box_to_node(inode_box), iln,reflect_flag);
          el_box = el_to_el_box(elem);
 
@@ -134,9 +134,11 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
            if (Vol_charge_flag) {
                resid = -Charge_vol_els[el_box]*4.0*PI/(Temp_elec * Nnodes_per_el_V);
                resid_sum+=resid;
-               if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+               if (resid_only_flag != INIT_GUESS_FLAG && 
+                   resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
            }
 
+           junkP = Phys2Unk_first[POISSON];
            for (jln=0; jln< Nnodes_per_el_V; jln++) {
 
             /* 
@@ -160,12 +162,12 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
              /*
               * add in Laplace term
               */
-             junkP = Phys2Unk_first[POISSON];
              if (jnode_box >= 0){  /* new flag for boundaries */
-                   in_wall=TRUE;
-                   for (icomp=0; icomp<Ncomp; icomp++){
-                      if (!Zero_density_TF[jnode_box][icomp])in_wall=FALSE;
-                   }
+                in_wall=TRUE;
+                for (icomp=0; icomp<Ncomp; icomp++){
+                   if (!Zero_density_TF[jnode_box][icomp])in_wall=FALSE;
+                }
+                if(resid_only_flag != INIT_GUESS_FLAG || junkP!= iunk || jnode_box != inode_box){
                    if (in_wall){
                       /* pol_wall is a constant wall polarization.  set equal
                          to zero, but leave code as place holder. */
@@ -178,10 +180,15 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
                       resid = wt_lp_1el[isten]*x[junkP][jnode_box];
                       mat_val = wt_lp_1el[isten];
                    }
+                   if (resid_only_flag != INIT_GUESS_FLAG && 
+                       resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                   if (resid_only_flag == FALSE) dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junkP,jnode_box,mat_val);
                    resid_sum+=resid;
-                   if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                   if (!resid_only_flag) dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                                            junkP,jnode_box,mat_val);
+                   }
+                else {
+                   if (in_wall) prefactor_sum +=(1.0+pol_wall)*wt_lp_1el[isten];
+                   else prefactor_sum+=wt_lp_1el[isten];
+                }
              }
 
              /* 
@@ -197,15 +204,15 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
                    Lsemiperm[WallType[Wall_elems[ilist][el_box]]][icomp]) ){
 
                   if (Charge_f[icomp] != 0.0) {
-                    resid = -wt_s_1el[isten]*KAPPA_H2O*Charge_f[icomp]*x[junk][jnode_box]*
-                                                                         4.0*PI/Temp_elec;
-                    if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                    if (!resid_only_flag){
+                    resid = -wt_s_1el[isten]*KAPPA_H2O*Charge_f[icomp]*x[junk][jnode_box]*4.0*PI/Temp_elec;
+                    if (resid_only_flag != INIT_GUESS_FLAG && 
+                        resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                    if (resid_only_flag==FALSE){
                        mat_val = -wt_s_1el[isten]*KAPPA_H2O*Charge_f[icomp]*4.0*PI/Temp_elec;
                        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                      junk,jnode_box,mat_val);
                     }
-                    
+                    resid_sum+=resid;
                   } /* End if (Charge_f[icomp] != 0.0) */
                }
              }   /* end of icomp (source term) loop */
@@ -225,9 +232,10 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
               else if (iln == 1) wt = -1.0 / (Esize_x[0] * 2.0);
            }
 
-           junk_psi = Phys2Unk_first[POISSON];
-           for (junk_rho=Phys2Unk_first[DENSITY]; junk_rho<Phys2Unk_last[DENSITY]; junk_rho++){
-               icomp=junk-Phys2Unk_first[DENSITY];
+          for (junk_rho=Phys2Unk_first[DENSITY]; junk_rho<Phys2Unk_last[DENSITY]; junk_rho++){
+               if (Lseg_densities) icomp=Unk2Comp[junk_rho-Phys2Unk_first[DENSITY]];
+               else                icomp=junk_rho-Phys2Unk_first[DENSITY];
+
                if (!Zero_density_TF[inode_box][icomp] && Lpolarize[icomp]){
 
                for (jln=0; jln< Nnodes_per_el_V; jln++) {
@@ -238,7 +246,6 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
                            off_ref[((nodes_volm_el+iln)%nodes_volm_el)/nodes_surf_el]
                                   [((nodes_volm_el+jln)%nodes_volm_el)/nodes_surf_el];
                   }
-
                   nodeIndices[jln] = offset_to_node_box(ijk_box, offset, junk2);
                }
 
@@ -253,25 +260,48 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
 
                     rho_0 = x[junk_rho][nodeIndices[0]];
                     rho_1 = x[junk_rho][nodeIndices[1]];
-                    psi_0  = x[junk_psi][nodeIndices[0]];
-                    psi_1  = x[junk_psi][nodeIndices[1]];
+                    psi_0  = x[junkP][nodeIndices[0]];
+                    psi_1  = x[junkP][nodeIndices[1]];
 
                     tmp = (rho_0 + rho_1);
 
-                    resid = wt*Pol[icomp]*(psi_0 - psi_1)*tmp;
-                    resid_sum+=resid;
-                    if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-  
-                    if (!resid_only_flag){
-                       numEntries=2;
-                       values[0]=values[1]=wt*Pol[icomp]*(psi_0 - psi_1);
-                       dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                      junk_rho, nodeIndices,values,numEntries);
-                       values[0]=wt*Pol[icomp]*tmp; values[1]=-values[0];
-                       dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                      junk_psi, nodeIndices,values,numEntries);
+                    if(resid_only_flag != INIT_GUESS_FLAG || junkP!= iunk || nodeIndices[0] != inode_box){
+                       resid = wt*Pol[icomp]*(psi_0)*tmp;
+                       resid_sum+=resid;
+                       if (resid_only_flag != INIT_GUESS_FLAG && 
+                          resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                       if (resid_only_flag==FALSE){
+                          numEntries=2;
+                          values[0]=values[1]=wt*Pol[icomp]*(psi_0);
+                          dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                         junk_rho, nodeIndices,values,numEntries);
+                          mat_val=wt*Pol[icomp]*tmp; 
+                          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                         junkP, nodeIndices[0],mat_val);
+                       }
+                    }
+                    else{
+                       prefactor_sum+=wt*Pol[icomp]*tmp;
                     }
 
+                    if(resid_only_flag != INIT_GUESS_FLAG || junkP!= iunk || nodeIndices[1] != inode_box){
+                       resid = wt*Pol[icomp]*(- psi_1)*tmp;
+                       resid_sum+=resid;
+                       if (resid_only_flag != INIT_GUESS_FLAG && 
+                           resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                       if (resid_only_flag==FALSE){
+                          numEntries=2;
+                          values[0]=values[1]=wt*Pol[icomp]*(-psi_1);
+                          dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                         junk_rho, nodeIndices,values,numEntries);
+                          mat_val=-wt*Pol[icomp]*tmp; 
+                          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                         junkP, nodeIndices[1],mat_val);
+                       }
+                    }
+                    else{
+                       prefactor_sum+=(-wt*Pol[icomp]*tmp);
+                    }
                   }
                }
              } /*end of test for polarizeable fluid species */
@@ -282,24 +312,24 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
        }         /* end of possible local node positions */
    }
 
-       /* finally address nodes where there is a constant surface charge */
-       if (Nodes_2_boundary_wall[Nlists_HW-1][inode_box] != -1){
+    /* finally address nodes where there is a constant surface charge */
+    if (Nodes_2_boundary_wall[Nlists_HW-1][inode_box] != -1){
 
-           iwall     = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
-           if (Type_bc_elec[WallType[iwall]] == CONST_CHARGE ){
+       iwall     = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
+       if (Type_bc_elec[WallType[iwall]] == CONST_CHARGE ){
 
-             charge_i = 0.0;
-             for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
-             resid = -4.0*PI*charge_i/Temp_elec;
-             if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-             resid_sum +=resid;
+         charge_i = 0.0;
+         for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
+         resid = -4.0*PI*charge_i/Temp_elec;
+         if (resid_only_flag != INIT_GUESS_FLAG && 
+             resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+         resid_sum +=resid;
 
-        }   /* check for charge b.c. on this wall */
-     }      /* end of check for if this is a boundary node */
+       }   /* check for charge b.c. on this wall */
+    }      /* end of check for if this is a boundary node */
 
-     if (resid_only_flag==INIT_GUESS_FLAG) resid_sum /= prefactor_sum;
-
-   return(resid_sum);
+    if (resid_only_flag==INIT_GUESS_FLAG) resid_sum /= prefactor_sum;
+    return(resid_sum);
 }
 /****************************************************************************/
 double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x,int resid_only_flag)
