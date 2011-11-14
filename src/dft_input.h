@@ -93,6 +93,7 @@ extern int Mesh_coarsening;
 extern double Rmax_zone[5];
 extern int Nzone;
 #define NO_SCREEN    4 
+#define VERBOSE    3 
 extern int Iwrite;
 extern int Print_mesh_switch;
 extern int Print_rho_switch;

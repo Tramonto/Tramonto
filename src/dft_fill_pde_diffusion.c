@@ -48,7 +48,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
   double resid,resid_sum=0.0,mat_val;
   int nodeIndices[8],junk_mu,junk_rho;
   double values[2],values_rho[8],values_mu[8],prefactor_sum;
-  int flag_left,flag_right,ipol,itype;
+  int flag_left,flag_right,ipol,itype,jln_tmp;
 
   /* pre calc basis function stuff for 3D */
 
@@ -277,10 +277,6 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                 }
               }
               else if (Ndim==3){     /* Ndim==3 case */
-                 if (Type_poly !=NONE) {
-                   if (Proc==0) printf("ERROR: diffusion not extended to polymers in 2D or 3D at this time\n");
-                   exit(-1);
-                 }
 
                 /* loop over all quad points */
 
@@ -289,36 +285,72 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                   /* calculate quantities at quad point */
                   rho = 0.0; 
                   grad_mu[0] = grad_mu[1] = grad_mu[2] = 0.0;
-                  junk_rho = Phys2Unk_first[DENSITY]+iunk-Phys2Unk_first[DIFFUSION];
-                  for (jln=0; jln<8; jln++) {
-
-                     rho += phi[jln][igp] * x[junk_rho][nodeIndices[jln]];
-                     grad_mu[0] += grad_phi[jln][igp][0] * x[junk_mu][nodeIndices[jln]];
-                     grad_mu[1] += grad_phi[jln][igp][1] * x[junk_mu][nodeIndices[jln]];
-                     grad_mu[2] += grad_phi[jln][igp][2] * x[junk_mu][nodeIndices[jln]];
+                  if (Type_poly==NONE){
+                    junk_rho = Phys2Unk_first[DENSITY]+iunk-Phys2Unk_first[DIFFUSION];
+                    for (jln=0; jln<8; jln++) {
+                       rho += phi[jln][igp] * x[junk_rho][nodeIndices[jln]];
+                    }
                   }
-                  grad_mu_dot_grad_phi = grad_mu[0]*grad_phi[iln][igp][0]
-                                       + grad_mu[1]*grad_phi[iln][igp][1]
-                                       + grad_mu[2]*grad_phi[iln][igp][2];
-                                      
-                  resid = evol * rho * grad_mu_dot_grad_phi;
-                  resid_sum+=resid;
-                  dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                  if (!resid_only_flag){
-                     for (jln=0; jln<8; jln++) {
-                       values_rho[jln]= evol * phi[jln][igp] * grad_mu_dot_grad_phi;
-                       values_mu[jln] = evol * rho * (
-                                    grad_phi[jln][igp][0] * grad_phi[iln][igp][0]
-                                  + grad_phi[jln][igp][1] * grad_phi[iln][igp][1]
-                                  + grad_phi[jln][igp][2] * grad_phi[iln][igp][2]);
+                  else{
+                     rho_0=0.0; rho_1=0.0;
+                     ipol=iunk-Phys2Unk_first[DIFFUSION];
+                     for (itype=0; itype<Poly_to_Ntype[ipol];itype++){
+                         junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
+                         for (jln=0; jln<8; jln++) {
+                             rho += phi[jln][igp] * x[junk_rho][nodeIndices[jln]];
+                         }
                      }
-                     numEntries=8;
-                     dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                     junk_rho, nodeIndices,values_rho,numEntries);
-                     dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                     junk_mu, nodeIndices,values_mu,numEntries);
                   }
 
+                  for (jln=0; jln<8; jln++) {
+                     grad_mu[0] = grad_phi[jln][igp][0] * x[junk_mu][nodeIndices[jln]];
+                     grad_mu[1] = grad_phi[jln][igp][1] * x[junk_mu][nodeIndices[jln]];
+                     grad_mu[2] = grad_phi[jln][igp][2] * x[junk_mu][nodeIndices[jln]];
+
+                     grad_mu_dot_grad_phi = grad_mu[0]*grad_phi[iln][igp][0]
+                                           + grad_mu[1]*grad_phi[iln][igp][1]
+                                           + grad_mu[2]*grad_phi[iln][igp][2];
+
+                     if(resid_only_flag != INIT_GUESS_FLAG || junk_mu != iunk || nodeIndices[jln] != inode_box){
+                        resid = evol * rho * grad_mu_dot_grad_phi;
+                        resid_sum +=resid;
+
+                        if (resid_only_flag != INIT_GUESS_FLAG &&
+                             resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+
+                       if (resid_only_flag==FALSE){
+                          if (Type_poly==NONE){
+                             for (jln_tmp=0; jln_tmp<8; jln_tmp++){values_rho[jln_tmp]= evol * phi[jln_tmp][igp] * grad_mu_dot_grad_phi;}
+                             numEntries=8;
+                             dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                              junk_rho, nodeIndices,values_rho,numEntries);
+                          }
+                          else{ 
+                             for (itype=0; itype<Poly_to_Ntype[ipol];itype++){
+                                 junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
+                                 for (jln_tmp=0; jln_tmp<8; jln_tmp++){values_rho[jln_tmp]= evol * phi[jln_tmp][igp] * grad_mu_dot_grad_phi;}
+                                 numEntries=8;
+                                 dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                                 junk_rho, nodeIndices,values_rho,numEntries);
+                             }
+                          }
+                          mat_val= evol * rho * (
+                                         grad_phi[jln][igp][0] * grad_phi[iln][igp][0]
+                                       + grad_phi[jln][igp][1] * grad_phi[iln][igp][1]
+                                       + grad_phi[jln][igp][2] * grad_phi[iln][igp][2]);
+                          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                                 junk_mu, nodeIndices[jln],mat_val);
+                       }
+                     }
+                     else{
+                        prefactor_sum += evol*rho*( 
+                                         grad_phi[jln][igp][0] * grad_phi[iln][igp][0]
+                                       + grad_phi[jln][igp][1] * grad_phi[iln][igp][1]
+                                       + grad_phi[jln][igp][2] * grad_phi[iln][igp][2] );
+                     }
+
+                  }
+                                     
                 }
               }
               else {

@@ -16,6 +16,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern int *L2B_node;
+extern int Ndim;
 extern int Nnodes_per_proc;
 void safe_free(void **ptr);
 void safe_free(void **ptr);

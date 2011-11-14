@@ -298,6 +298,9 @@ void read_in_a_file(int guess_type,char *filename)
     if ((Type_poly == CMS || Type_poly==CMS_SCFT) && Restart_field[CMS_FIELD]==FALSE)
          if (Proc==0 && Iwrite != NO_SCREEN)
            printf("\t ...NO CMS field data found in restart file\n");
+    if ((Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[CAVWTC]==FALSE)
+         if (Proc==0 && Iwrite != NO_SCREEN)
+           printf("\t ...NO WJDC cavity variable found in restart file\n");
     if ((Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[WJDC_FIELD]==FALSE)
          if (Proc==0 && Iwrite != NO_SCREEN)
            printf("\t ...NO WJDC field data found in restart file\n");
@@ -363,7 +366,8 @@ void read_in_a_file(int guess_type,char *filename)
 
       dim_tmp=idim;
       ijk_old[dim_tmp] = round_to_int(pos_old/Esize_x[dim_tmp]);
-      if ((Type_poly==CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[G_CHAIN]==TRUE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
+      if ((Type_poly==CMS || Type_poly==CMS_SCFT || 
+          Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[G_CHAIN]==TRUE)  fscanf(fp6,"%lf",&tmp); /* ignore positions in densg files. */
 
       if (ijk_old[dim_tmp] > ijk_old_max[dim_tmp]) ijk_old_max[dim_tmp] = ijk_old[dim_tmp];
     }
@@ -511,7 +515,8 @@ void read_in_a_file(int guess_type,char *filename)
   }
   if (Restart!=RESTART_1DTOND){
        fclose(fp5);
-       if ((Type_poly == CMS || Type_poly ==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[G_CHAIN]==TRUE) fclose(fp6);
+       if ((Type_poly == CMS || Type_poly ==CMS_SCFT || 
+            Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[G_CHAIN]==TRUE) fclose(fp6);
   }
   return;
 }
