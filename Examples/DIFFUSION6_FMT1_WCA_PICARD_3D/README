@@ -1,0 +1,23 @@
+/*! \file 
+ \brief Color diffusion of an atomistic fluid through a permeable membrane - 3D calculation with Picard solver.
+
+Functionals: FMT1, WCA
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: Two component neutral Lennard-Jones system.  This tests the atomistic diffusion implementation in 3D solved using a Picard method.. 
+Results can be compared to DIFFUSION1 & DIFFUSION4 cases
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+
+Key Output Parameters:
+   - niter=822 
+   - adsorption[0]= 8.08131  
+   - adsorption[1]= 8.08131
+   - energy=-40.659   
+   .
+*/
