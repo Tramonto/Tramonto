@@ -105,7 +105,7 @@ void set_initial_guess (int guess_type, double** xOwned)
          case POISSON:
            if (Phys2Nunk[POISSON]>0 && (start_no_info || Restart_field[POISSON]==FALSE ||Restart==RESTART_DENSONLY)) {
                  if (Iguess_fields==CALC_ALL_FIELDS){  
-                      setup_elec_pot(xOwned,guess_type);
+                      if (start_no_info==TRUE) setup_elec_pot(xOwned,guess_type);
                       calc_init_elec_pot(xInBox,xOwned);
                  }
                  else setup_elec_pot(xOwned,guess_type); 
@@ -113,7 +113,11 @@ void set_initial_guess (int guess_type, double** xOwned)
            break;
          case DIFFUSION: 
            if (Phys2Nunk[DIFFUSION]>0 && (start_no_info || Restart_field[DIFFUSION]==FALSE ||Restart==RESTART_DENSONLY || Restart==RESTART_FEWERCOMP)) {
-                  setup_chem_pot(xOwned); 
+                 if (Iguess_fields==CALC_ALL_FIELDS){  
+                    if (start_no_info==TRUE) setup_chem_pot(xOwned); 
+                    calc_init_chem_pot(xInBox,xOwned);
+                 }
+                 else  setup_chem_pot(xOwned); 
            }
            break;
 

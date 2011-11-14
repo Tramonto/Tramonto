@@ -2055,7 +2055,7 @@ void read_input_file(char *input_file, char *output_file1)
             }
       }
     }
-    else { if(Iwrite != NO_SCREEN) printf("n/a - no manual entry of scaling parameters"); }
+    else { if(Iwrite != NO_SCREEN) printf("n/a - scaling parameters not relevant"); }
   }
   MPI_Bcast(Scale_fac_WJDC,NCOMP_MAX*NCOMP_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
   MPI_Bcast(&Max_NL_iter,1,MPI_INT,0,MPI_COMM_WORLD);
@@ -2064,7 +2064,7 @@ void read_input_file(char *input_file, char *output_file1)
   MPI_Bcast(&ATTInA22Block,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Analyt_WJDC_Jac,1,MPI_INT,0,MPI_COMM_WORLD);
   if (NL_Solver==PICARD_BUILT_IN && Iguess_fields !=CALC_ALL_FIELDS){
-     if(Iwrite != NO_SCREEN) printf("Picard solver indicated so Iguess_fields is reset to %d\n",CALC_ALL_FIELDS);
+     if(Iwrite != NO_SCREEN && Proc==0) printf("Picard solver indicated so Iguess_fields is reset to %d\n",CALC_ALL_FIELDS);
   }
 
   if (Proc==0) {

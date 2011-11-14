@@ -49,6 +49,7 @@ void calc_init_BondWTC(double **xInBox,double **xOwned);
 void setup_Xi_cavWTC(double **xOwned);
 void calc_init_Xi_cavWTC(double **xInBox,double **xOwned);
 #define CAVWTC         4
+void calc_init_chem_pot(double **xInBox,double **xOwned);
 void setup_chem_pot(double **xOwned);
 #define DIFFUSION      6
 void calc_init_elec_pot(double **xInBox,double **xOwned);

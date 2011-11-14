@@ -81,7 +81,8 @@ void setup_chem_pot(double **xOwned)
            else{
                   if (x_dist<0.)           xOwned[iunk][loc_inode]=Betamu_chain_LBB[ipol];
                   else if (x_dist > x_tot) xOwned[iunk][loc_inode]=Betamu_chain_RTF[ipol];
-                  else  xOwned[iunk][loc_inode] = Betamu_chain_LBB[ipol] + (Betamu_chain_RTF[ipol]-Betamu_chain_LBB[ipol])* x_dist/x_tot;
+                  else  xOwned[iunk][loc_inode] = Betamu_chain_LBB[ipol] + 
+                              (Betamu_chain_RTF[ipol]-Betamu_chain_LBB[ipol])* x_dist/x_tot;
            }
        }
      }
@@ -89,4 +90,27 @@ void setup_chem_pot(double **xOwned)
   return;
 }
 /************************************************************/
+/*calc_init_chem_pot: calculate the chemical potential initial guess based on a density profile and
+  the diffusion residual equation. */
+void calc_init_chem_pot(double **xInBox,double **xOwned)
+{
+  int loc_inode,inode_box,ijk_box[3],iunk;
+  double resid_DIFFUSION;
+
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);  /* get owned values to box values */
+
+  for (iunk=Phys2Unk_first[DIFFUSION]; iunk<Phys2Unk_last[DIFFUSION];iunk++){
+     for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+        inode_box=L2B_node[loc_inode];
+        node_box_to_ijk_box(inode_box, ijk_box);
+
+        resid_DIFFUSION=load_nonlinear_transport_eqn(iunk, loc_inode, inode_box, ijk_box,xInBox,INIT_GUESS_FLAG);
+        xInBox[iunk][inode_box]=resid_DIFFUSION;
+        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
+     }
+  }
+  return;
+}
+/************************************************************/
+
 

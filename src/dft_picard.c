@@ -140,18 +140,10 @@ int picard_solver(double **x, double **xOwned, int subIters){
      else if(Type_poly==CMS_SCFT)                                                   calc_density_next_iter_SCF(x,xOwned);
      else if(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)               calc_density_next_iter_WJDC(x,xOwned);
 
-
-/*     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);*/
-
      for (i=0; i<Phys2Nunk[DENSITY]; i++){
         iunk=Phys2Unk_first[DENSITY]+i;
         (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[iunk], x[iunk]);
      }
-
-/*     if (Type_coul !=NONE){         
-        calc_init_elec_pot(x,xOwned);
-        (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[POISSON], x[POISSON]);
-     }*/
 
      for (iunk=0; iunk<Nunk_per_node;iunk++)
        for (ibox=0; ibox<Nnodes_box;ibox++){
@@ -198,15 +190,12 @@ int picard_solver(double **x, double **xOwned, int subIters){
          case POISSON:
            if (Phys2Nunk[POISSON]>0){
               calc_init_elec_pot(x,xOwned);
-/*              printf("Error - we don't have routines for doing picard iterations with electrostatics yet\n");
-              exit(-1);*/
            }
            break;
 
          case DIFFUSION:
            if (Phys2Nunk[DIFFUSION]>0){
-              printf("Error - we don't have routines for doing picard iterations with diffusion yet\n");
-              exit(-1);
+              calc_init_chem_pot(x,xOwned);
            }
            break;
 
@@ -280,10 +269,12 @@ int picard_solver(double **x, double **xOwned, int subIters){
 void calc_density_next_iter_HSperturb(double **xInBox, double **xOwned)
 {
   int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i,nloop;
-  double resid_EL;
+  double resid_EL, **x_InBoxOld;
   struct  RB_Struct *dphi_drb=NULL;
   izone=0;
   mesh_coarsen_flag_i=0;
+
+  x_InBoxOld = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
   
   if (Type_func !=NONE){
      dphi_drb = (struct RB_Struct *) array_alloc (1, Nnodes_box, sizeof(struct RB_Struct));
@@ -292,6 +283,10 @@ void calc_density_next_iter_HSperturb(double **xInBox, double **xOwned)
 
   if (Lseg_densities) nloop=Nseg_tot;
   else                nloop=Ncomp;
+
+  for (inode_box=0; inode_box<Nnodes_box; inode_box++) {
+     for (iloop=0; iloop<Nunk_per_node; iloop++) x_InBoxOld[iloop][inode_box]=xInBox[iloop][inode_box];
+  }
  
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode]; 
@@ -300,12 +295,13 @@ void calc_density_next_iter_HSperturb(double **xInBox, double **xOwned)
      for (iloop=0; iloop<nloop; iloop++){
         iunk=Phys2Unk_first[DENSITY]+iloop;
         resid_EL=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,
-                          xInBox,dphi_drb,mesh_coarsen_flag_i,INIT_GUESS_FLAG);
+                          x_InBoxOld,dphi_drb,mesh_coarsen_flag_i,INIT_GUESS_FLAG);
         xInBox[iunk][inode_box]=resid_EL;
         xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
      }
   }
   if (Type_func != NONE) safe_free((void *) &dphi_drb);
+  if (Type_func != NONE) safe_free((void *) &x_InBoxOld);
   return;
 }
 /****************************************************************************/
@@ -471,9 +467,7 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
     if (go_update){
        for (i=0; i<nloop; i++) {
           iunk=i+Phys2Unk_first[DENSITY];
-/*xold=x[iunk][ibox];*/
           x[iunk][ibox] += NL_update_scalingParam*delta_x[iunk][ibox];
-/*if (fabs(x[iunk][ibox]-xold)>fabs(0.0001*xold)&&x[iunk][ibox]>1.e-12) printf("iunk=%d  ibox=%d  x=%g  xold=%g\n",iunk,ibox,x[iunk][ibox],xold);*/
        }
        /*if (Type_coul != NONE) x[POISSON][ibox] += NL_update_scalingParam*delta_x[POISSON][ibox];*/
     }

@@ -31,6 +31,7 @@ extern int Nwall_type;
 extern int Ncomp;
 extern int Iwrite;
 void thermodynamics(char *output_file1,int iwrite);
+void thermodynamics(char *output_file1,int iwrite);
 void recalculate_stencils();
 void setup_polymer_cr();
 #define CMS          0

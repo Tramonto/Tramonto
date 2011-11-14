@@ -15,6 +15,13 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define INIT_GUESS_FLAG  2
+double load_nonlinear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
+void node_box_to_ijk_box(int node_box,int *ijk_box);
+#define NEQ_TYPE       12 
+extern int Phys2Unk_last[NEQ_TYPE];
+extern void *LinProbMgr_manager;
+void calc_init_chem_pot(double **xInBox,double **xOwned);
 #define NMER_MAX     200
 extern double Betamu_chain_RTF[NMER_MAX];
 extern double Betamu_chain_LBB[NMER_MAX];
@@ -37,7 +44,6 @@ extern int *L2B_node;
 extern int **Zero_density_TF;
 extern int Unk2Comp[NMER_MAX];
 #define DIFFUSION      6
-#define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int Nmissing_densities;
 #define RESTART_FEWERCOMP  4

@@ -36,6 +36,7 @@ void chempot_WTC(double *rho_seg,double *betamu,double *xi_cav);
 extern double Betamu[NCOMP_MAX];
 extern double *Deltac_b;
 void chempot_ELEC_MSA_GENERAL(double *rho);
+void chempot_ELEC_MSA_GENERAL(double *rho);
 void chempot_ELEC_MSA_RPM(double *rho);
 extern double Elec_pot_RTF;
 extern double Elec_pot_LBB;
@@ -69,6 +70,7 @@ extern double Xi_cav_RTF[4];
 extern double Xi_cav_LBB[4];
 double pressure_WTC(double *rho_seg,double *xi_cav);
 double pressure_elec_MSA(double *rho);
+double pressure_elec_MSA(double *rho);
 #define DELTAC_GENERAL 2
 #define DELTAC_RPM     1 
 extern int Type_coul;
@@ -89,6 +91,8 @@ extern int Lseg_densities;
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
 void calc_pressure(char *output_file1,int iwrite);
+void calc_pressure(char *output_file1,int iwrite);
+void calc_chempot(char *output_file1,int iwrite);
 void calc_chempot(char *output_file1,int iwrite);
 void WJDC_thermo_precalc(char *output_file1);
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
@@ -114,4 +118,5 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+void thermodynamics(char *output_file1,int iwrite);
 void thermodynamics(char *output_file1,int iwrite);

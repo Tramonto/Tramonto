@@ -101,6 +101,7 @@ extern int Print_mesh_switch;
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID);
 extern int Iwrite;
 void thermodynamics(char *output_file1,int iwrite);
+void thermodynamics(char *output_file1,int iwrite);
 void calc_new_density(int icomp,char *output_file1);
 void recalculate_stencils();
 void setup_polymer_cr();

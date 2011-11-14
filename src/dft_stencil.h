@@ -70,6 +70,7 @@ extern double N_MSA[NCOMP_MAX];
 extern double X_MSA[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
 void precalc_GENmsa_params(double *rho,double *x_msa,double *n_msa,double gamma);
+void precalc_GENmsa_params(double *rho,double *x_msa,double *n_msa,double gamma);
 #define THETA_CR_GENERAL_MSA  7
 #define NSTEN        8
 extern int Sten_Type[NSTEN];

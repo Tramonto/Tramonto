@@ -30,6 +30,11 @@ extern double Velocity;
 extern int Poly_to_Type[NCOMP_MAX][NBLOCK_MAX];
 extern int Poly_to_Ntype[NCOMP_MAX];
 #define DENSITY        0
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
+extern int Type_poly;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #if defined(DEC_ALPHA)
 #define POW_INT powii
@@ -52,13 +57,10 @@ extern double X_const_mu;
 extern double Esize_x[NDIM_MAX];
 extern int Grad_dim;
 extern void *LinProbMgr_manager;
+#define CALC_RESID_ONLY  3
+#define INIT_GUESS_FLAG  2
 extern double VEXT_MAX;
 extern int **Zero_density_TF;
-#define NONE       -1
-#define NONE          -1
-#define NONE        -1
-#define NONE        -1
-extern int Type_poly;
 int node_box_to_node(int inode_box);
 void node_to_ijk(int node,int *ijk);
 extern int Nlists_HW;

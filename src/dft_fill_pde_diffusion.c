@@ -47,7 +47,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
   double wt=1.0, area_0=0.0, area_1=0.0, rho_0, rho_1, mu_0, mu_1, tmp;
   double resid,resid_sum=0.0,mat_val;
   int nodeIndices[8],junk_mu,junk_rho;
-  double values[2],values_rho[8],values_mu[8];
+  double values[2],values_rho[8],values_mu[8],prefactor_sum;
   int flag_left,flag_right,ipol,itype;
 
   /* pre calc basis function stuff for 3D */
@@ -80,42 +80,53 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
 
    node_to_ijk(node_box_to_node(inode_box),ijk);
 
-   if (Type_poly==NONE && Zero_density_TF[inode_box][icomp]) {
+   prefactor_sum=0.0;
+   if (Zero_density_TF[inode_box][icomp]) {
        /* set mu to -VEXT_MAX in walls, and skip transport eqn fill */
-          resid = x[iunk][inode_box] + VEXT_MAX;
-          resid_sum+=resid;
-          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-          if (!resid_only_flag){
-             mat_val = 1.0;
-             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                      iunk,inode_box,mat_val);
-          }
+          resid = VEXT_MAX;
+          if (resid_only_flag !=INIT_GUESS_FLAG){
+             resid += x[iunk][inode_box];
+             if (resid_only_flag !=INIT_GUESS_FLAG && 
+                resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             if (resid_only_flag==FALSE){
+                mat_val = 1.0;
+                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
+             }
+        }
+        resid_sum+=resid;
    }
    /* check if you are in well-mixed bulk region */
    else if (ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu+0.0000001) {
           flag_left=-3;
-          resid = x[iunk][inode_box] - constant_boundary(iunk,flag_left);
-          resid_sum+=resid;
-          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-          if (!resid_only_flag){
-             mat_val = 1.0;
-             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                          iunk,inode_box,mat_val);
+          resid = -constant_boundary(iunk,flag_left);
+          if (resid_only_flag !=INIT_GUESS_FLAG){
+             resid += x[iunk][inode_box];
+             if (resid_only_flag !=INIT_GUESS_FLAG && 
+                resid_only_flag != CALC_RESID_ONLY)dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             if (resid_only_flag==FALSE){
+                mat_val = 1.0;
+                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
+             }
           }
+          resid_sum+=resid;
    }
    else if (Size_x[Grad_dim]-ijk[Grad_dim]*Esize_x[Grad_dim] <= X_const_mu+0.0000001) {
           flag_right=-4;
-          resid = x[iunk][inode_box] - constant_boundary(iunk,flag_right);
-          resid_sum+=resid;
-          dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-          if (!resid_only_flag){
-             mat_val = 1.0;
-             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                         iunk,inode_box,mat_val);
+          resid = -constant_boundary(iunk,flag_right);
+          if (resid_only_flag !=INIT_GUESS_FLAG){
+             resid += x[iunk][inode_box];
+             if (resid_only_flag !=INIT_GUESS_FLAG && 
+                   resid_only_flag != CALC_RESID_ONLY)dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             if (resid_only_flag==FALSE){
+                mat_val = 1.0;
+                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
+             }
           }
+          resid_sum+=resid;
    }
    else {
        count_flag=0;
+       prefactor_sum=0.0;
        for (iln=0; iln< Nnodes_per_el_V; iln++) {
 
          /* find element with inode_box as local node iln */
@@ -190,30 +201,66 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
 
                 tmp = (2.0*rho_0*area_0 + rho_1*area_0 + rho_0*area_1 + 2.0*rho_1*area_1);
 
-                resid = wt*(mu_0 - mu_1)*tmp;
-                resid_sum+=resid;
-                dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-
-                if (!resid_only_flag){ 
-                   if (Type_poly==NONE){
-                     numEntries=2;
-                     values[0]=values[1]=wt*(mu_0 - mu_1)*(2.0*area_0 + area_1);
-                     dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                     junk_rho, nodeIndices,values,numEntries);
-                   }
-                   else{
-                      ipol=iunk-Phys2Unk_first[DIFFUSION];
-                      for (itype=0; itype<Poly_to_Ntype[ipol];itype++){
-                          junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
-                          numEntries=2;
-                          values[0]=values[1]=wt*(mu_0 - mu_1)*(2.0*area_0 + area_1);
-                          dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                     junk_rho, nodeIndices,values,numEntries);
+                if(resid_only_flag != INIT_GUESS_FLAG || junk_mu != iunk || nodeIndices[0] != inode_box){
+                   resid = wt*(mu_0)*tmp;
+                   resid_sum+=resid;
+                   if (resid_only_flag !=INIT_GUESS_FLAG &&
+                      resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                   if (resid_only_flag==FALSE){
+                      if (Type_poly==NONE){
+                        numEntries=2;
+                        values[0]=values[1]=wt*(mu_0)*(2.0*area_0 + area_1);
+                        dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                        junk_rho, nodeIndices,values,numEntries);
                       }
+                      else{
+                         ipol=iunk-Phys2Unk_first[DIFFUSION];
+                         for (itype=0; itype<Poly_to_Ntype[ipol];itype++){
+                             junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
+                             numEntries=2;
+                             values[0]=values[1]=wt*(mu_0)*(2.0*area_0 + area_1);
+                             dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                     junk_rho, nodeIndices,values,numEntries);
+                         }
+                      }
+                      mat_val = wt*tmp;  
+                      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                        junk_mu, nodeIndices[0],mat_val);
                    }
-                   values[0] = wt*tmp;  values[1]=-values[0]; 
-                   dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                     junk_mu, nodeIndices,values,numEntries);
+                }
+                else{
+                   prefactor_sum+=wt*tmp;
+                }
+
+                if(resid_only_flag != INIT_GUESS_FLAG || junk_mu != iunk || nodeIndices[1] != inode_box){
+                   resid = wt*(-mu_1)*tmp;
+                   resid_sum+=resid;
+                   if (resid_only_flag !=INIT_GUESS_FLAG &&
+                       resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                   if (resid_only_flag==FALSE){
+                      if (Type_poly==NONE){
+                        numEntries=2;
+                        values[0]=values[1]=wt*(-mu_1)*(2.0*area_0 + area_1);
+                        dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                        junk_rho, nodeIndices,values,numEntries);
+                      }
+                      else{
+                         ipol=iunk-Phys2Unk_first[DIFFUSION];
+                         for (itype=0; itype<Poly_to_Ntype[ipol];itype++){
+                             junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
+                             numEntries=2;
+                             values[0]=values[1]=wt*(-mu_1)*(2.0*area_0 + area_1);
+                             dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                     junk_rho, nodeIndices,values,numEntries);
+                         }
+                      }
+                      mat_val = -wt*tmp;  
+                      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                        junk_mu, nodeIndices[1],mat_val);
+                   }
+                }
+                else{
+                   prefactor_sum+=(-wt)*tmp;
                 }
 
                 /* add in a bulk convection term */
@@ -221,8 +268,9 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                 else          tmp = (area_0 + 2.0*area_1)/6.0;
                 resid = Velocity * (rho_1 - rho_0) * tmp;
                 resid_sum+=resid;
-                dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                if (!resid_only_flag){
+                if (resid_only_flag != INIT_GUESS_FLAG &&
+                        resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                if (resid_only_flag==FALSE){
                    values[0] = -Velocity*tmp;  values[1]=-values[0];
                    dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                   junk_rho, nodeIndices,values,numEntries);
@@ -280,6 +328,10 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
            }
          }
        }
+   }
+   if (resid_only_flag==INIT_GUESS_FLAG){
+      if (fabs(prefactor_sum) >1.e-12) resid_sum /= prefactor_sum;
+      return(-resid_sum);
    }
    return(resid_sum);
 }

@@ -1,4 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
+double load_poisson_bc(int iunk,int loc_inode,int inode_box,int resid_only_flag);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,11 +16,11 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern double *Dielec;
+void ijk_box_to_ijk(int *ijk_box,int *ijk);
 extern double Area_surf_el[3];
 extern double **Charge_w_sum_els;
 #define CONST_CHARGE     2
-extern double *Dielec;
-void ijk_box_to_ijk(int *ijk_box,int *ijk);
 #define NCOMP_MAX 5
 extern double Pol[NCOMP_MAX];
 extern int Lpolarize[NCOMP_MAX];
@@ -37,8 +38,6 @@ extern int Phys2Unk_last[NEQ_TYPE];
 #define KAPPA_H2O 78.5
 extern int **Zero_density_TF;
 extern int Ncomp;
-#define POISSON        1
-extern int Phys2Unk_first[NEQ_TYPE];
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #if defined(DEC_ALPHA)
 #define POW_INT powii
@@ -46,6 +45,8 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #if !(defined(DEC_ALPHA))
 #define POW_INT (int)pow
 #endif
+#define POISSON        1
+extern int Phys2Unk_first[NEQ_TYPE];
 extern double Temp_elec;
 #define PI    3.141592653589793238462643383279502884197169399375
 extern double *Charge_vol_els;
@@ -63,7 +64,6 @@ extern int Nlists_HW;
 extern int **Nodes_2_boundary_wall;
 void set_fem_1el_weights(double **wt_lp_1el_ptr,double **wt_s_1el_ptr,int ***elem_permute);
 extern int Ndim;
-double load_poisson_bc(int iunk,int loc_inode,int inode_box,int resid_only_flag);
 double load_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 double load_polarize_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 #define POLARIZE       3

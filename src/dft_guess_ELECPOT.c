@@ -65,6 +65,8 @@ void calc_init_elec_pot(double **xInBox,double **xOwned)
   int loc_inode,inode_box,ijk_box[3],iunk;
   double resid_POISSON;
 
+  (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);  /* get owned values to box values */
+
   iunk=Phys2Unk_first[POISSON];
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
      inode_box=L2B_node[loc_inode];

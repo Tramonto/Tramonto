@@ -18,7 +18,6 @@
 #define NDIM_MAX  3
 extern int Nodes_x[NDIM_MAX];
 #define LAST_NODE_RESTART    4
-extern int Type_coul;
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void node_to_ijk(int node,int *ijk);
@@ -41,10 +40,6 @@ extern int Ncomp;
 extern int Nseg_tot;
 extern int Lseg_densities;
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
-#define NONE       -1
-#define NONE          -1
-#define NONE        -1
-#define NONE        -1
 extern int Type_func;
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */
@@ -73,6 +68,7 @@ void calc_init_BondWTC(double **xInBox,double **xOwned);
 #define BONDWTC        5
 void calc_init_Xi_cavWTC(double **xInBox,double **xOwned);
 #define CAVWTC         4
+void calc_init_chem_pot(double **xInBox,double **xOwned);
 #define DIFFUSION      6
 void calc_init_elec_pot(double **xInBox,double **xOwned);
 #define POISSON        1
@@ -93,6 +89,11 @@ void calc_density_next_iter_CMS(double **xInBox,double **xOwned);
 void calc_density_next_iter_HSperturb(double **xInBox,double **xOwned);
 #define WJDC2        4 
 #define WJDC         3
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
+extern int Type_coul;
 extern int L_HSperturbation;
 void calc_Gsum(double **x);
 #define WJDC3        5 

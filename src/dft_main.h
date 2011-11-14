@@ -119,6 +119,7 @@ void boundary_free(void);
 void free_mesh_arrays(void);
 extern int Iwrite;
 void thermodynamics(char *output_file1,int iwrite);
+void thermodynamics(char *output_file1,int iwrite);
 void calc_stencils(void);
 void calc_HS_diams();
 extern int Type_func;

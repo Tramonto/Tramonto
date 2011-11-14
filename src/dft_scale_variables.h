@@ -29,6 +29,7 @@ extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 extern int Npol_comp;
 #define NO_SCREEN    4 
 void thermodynamics(char *output_file1,int iwrite);
+void thermodynamics(char *output_file1,int iwrite);
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
