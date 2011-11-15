@@ -405,7 +405,7 @@ void  NOXLOCA::Tramonto::Group::printSolution(const NOX::Abstract::Vector& sol_,
       dynamic_cast<const NOXLOCA::Tramonto::Vector&>(sol_);
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, solVector.get(), xBox);
 
-cout<<"calling post_process from NOXLOCA 1 contStep="<<contStep<<"secondSolution="<<secondSolution<<"from_flag="<<FROM_LOCA<<endl;
+//cout<<"calling post_process from NOXLOCA 1 contStep="<<contStep<<"secondSolution="<<secondSolution<<"from_flag="<<FROM_LOCA<<endl;
   post_process(xBox, &num_its, &time_save, contStep, secondSolution, FROM_LOCA);
   contStep++;
 }
@@ -427,7 +427,7 @@ void  NOXLOCA::Tramonto::Group::printSolution(const double param) const
   contStep++;
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xVector.get(), xBox);
   
-cout<<"calling post_process from NOXLOCA 1 contStep="<<contStep<<"secondSolution="<<FALSE<<"from_flag="<<FROM_LOCA<<endl;
+//cout<<"calling post_process from NOXLOCA 1 contStep="<<contStep<<"secondSolution="<<FALSE<<"from_flag="<<FROM_LOCA<<endl;
   post_process(xBox, &num_its, &time_save, contStep, FALSE, FROM_LOCA);
 
 }

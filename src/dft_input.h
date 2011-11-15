@@ -75,6 +75,7 @@ extern double NL_update_scalingParam;
 extern double NL_abs_tol,NL_rel_tol;
 #define CALC_ALL_FIELDS   1
 #define PICARD_BUILT_IN       2
+#define VERBOSE      3 
 #define NCOMP_MAX 5
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 #define WJDC2        4 
@@ -93,7 +94,6 @@ extern int Mesh_coarsening;
 extern double Rmax_zone[5];
 extern int Nzone;
 #define NO_SCREEN    4 
-#define VERBOSE    3 
 extern int Iwrite;
 extern int Print_mesh_switch;
 extern int Print_rho_switch;

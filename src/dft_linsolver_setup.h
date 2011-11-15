@@ -19,10 +19,10 @@ extern int **Bonds_SegAll;
 extern int **Poly_to_Unk_SegAll;
 extern int *Nbonds_SegAll;
 extern int Nseg_tot;
-#define NEQ_TYPE       12 
-extern int Phys2Nunk[NEQ_TYPE];
 void linsolver_setup_WJDCTYPE_LINEARONLY();
 #define WJDC_FIELD     8
+#define NEQ_TYPE       12 
+extern int Phys2Nunk[NEQ_TYPE];
 extern int Type_coul;
 extern int Mesh_coarsening;
 #define WTC          2
@@ -33,6 +33,7 @@ extern int Ndim;
 extern int Nrho_bar_s;
 extern int Phys2Unk_first[NEQ_TYPE];
 #define HSRHOBAR       2
+#define DIFFUSION      6
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

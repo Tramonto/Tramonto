@@ -193,6 +193,7 @@ void linsolver_setup_HSTYPE()
    for (iunk=0;iunk<Nunk_per_node;iunk++){
      switch(Unk2Phys[iunk]){
      case POISSON:
+     case DIFFUSION:
      case DENSITY:
        densityeq[count_density++]=iunk; break; 
      case HSRHOBAR:                  
@@ -204,6 +205,8 @@ void linsolver_setup_HSTYPE()
        else
          indnonlocaleq[count_indnonlocal++]=iunk; 
        break;
+     case MF_EQ:
+       indnonlocaleq[count_indnonlocal++]=iunk; break;   
      case BONDWTC:
 /*       if (Pol_Sym[iunk-Phys2Unk_first[BONDWTC]] == -1)
           indnonlocaleq[count_indnonlocal++]=iunk; 
@@ -211,8 +214,6 @@ void linsolver_setup_HSTYPE()
           depnonlocaleq[count_depnonlocal++]=iunk; 
        break;*/
      case CAVWTC:
-     case MF_EQ:
-       indnonlocaleq[count_indnonlocal++]=iunk; break;   
       default:
         printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
         exit(-1);
@@ -224,7 +225,7 @@ void linsolver_setup_HSTYPE()
    dft_hardsphere_lin_prob_mgr_setindnonlocalequationids(LinProbMgr_manager, count_indnonlocal, indnonlocaleq);
    dft_hardsphere_lin_prob_mgr_setdepnonlocalequationids(LinProbMgr_manager, count_depnonlocal, depnonlocaleq);
    dft_hardsphere_lin_prob_mgr_setdensityequationids(LinProbMgr_manager, count_density, densityeq);
-   if (Type_attr != NONE || Type_poly==WTC || Mesh_coarsening || Type_coul != NONE)
+   if (Type_attr != NONE || Type_poly==WTC || Mesh_coarsening || Type_coul != NONE || Phys2Nunk[DIFFUSION]>0)
                 dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(LinProbMgr_manager, FALSE);
    else         dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(LinProbMgr_manager, TRUE);
    safe_free((void *) &densityeq);
@@ -282,6 +283,7 @@ void linsolver_setup_WJDCTYPE()
      case G_CHAIN:                  
        /* need to do the G_CHAIN terms carefully to discover LT ordering in branched or linear systems */
        break;
+     case DIFFUSION:
      case POISSON:
        poissoneq[count_poisson++]=iunk; 
        break; 
@@ -379,6 +381,7 @@ void linsolver_setup_WJDCTYPE_LINEARONLY()
           geq_sym[count_g_sym++]=iunk;
        }
        break;
+     case DIFFUSION:
      case POISSON:
        poissoneq[count_poisson++]=iunk; 
        break; 

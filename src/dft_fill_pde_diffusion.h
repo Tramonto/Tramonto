@@ -21,10 +21,6 @@ extern double Betamu_LBB[NCOMP_MAX];
 extern int **Nodes_2_boundary_wall;
 void set_fem_1el_weights(double **wt_lp_1el_ptr,double **wt_s_1el_ptr,int ***elem_permute);
 double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
 extern double Velocity;
 #define NBLOCK_MAX   20 
 extern int Poly_to_Type[NCOMP_MAX][NBLOCK_MAX];
