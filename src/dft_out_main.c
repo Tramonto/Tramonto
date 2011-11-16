@@ -144,7 +144,7 @@ void post_process (double **x,int *niters,
 	printf("Can't open file %s\n", output_fileFSR);
 	exit(1);
       }}
-      if (Loca.cont_type1==CONT_BETAMU_I){
+      if (Loca.method!=-1 && Loca.cont_type1==CONT_BETAMU_I){
       if( (fpASR = fopen(output_fileASR,"a"))==NULL) {
 	printf("Can't open file %s\n", output_fileASR);
 	exit(1);
@@ -211,24 +211,20 @@ void post_process (double **x,int *niters,
    }
 
    calc_adsorption(fp,x);
-   
    if (Type_coul != NONE) calc_fluid_charge(fp,x); 
-
    if (Type_interface != DIFFUSIVE_INTERFACE) calc_force(fp,x,fac_area);   
-                            /* haven't implemented V_dash 
-                               for 12-6 integrated wall yet */
-
    energy=calc_free_energy(fp,x); 
 
-   if ((Nruns>2 && (Nwall==1 || Nwall==2) || Loca.cont_type1==CONT_BETAMU_I) && fabs(cont_var)>1.e-6){
-      if (Loca.cont_type1==CONT_BETAMU_I){ mu=cont_var;
+   if (((Nruns>2 && (Nwall==1 || Nwall==2)) || (Loca.method!=-1 && Loca.cont_type1==CONT_BETAMU_I)) && fabs(cont_var)>1.e-6){
+      if (Loca.method!=-1 && Loca.cont_type1==CONT_BETAMU_I){ 
+        mu=cont_var;
         printf("cont_var=%g  Betamu=%g first=%d\n",cont_var,Betamu[0],first);
       }
       else                                surface_sep=cont_var;
       if (first_local){
              /* store the results of the first data point */
             omega_s_previous=energy;
-            if (Loca.cont_type1==CONT_BETAMU_I) {
+            if (Loca.method!=-1 && Loca.cont_type1==CONT_BETAMU_I) {
                 mu_previous=mu;
                 if (Proc==0) fprintf(fpASR,"betamu \t numerical derivative d(Omega_s)/dmu \n");
                 printf("should have printed header in the file I think....\n");
@@ -240,7 +236,7 @@ void post_process (double **x,int *niters,
       }
       else{
          if (first!=TRUE && second==TRUE){
-            if (Loca.cont_type1==CONT_BETAMU_I) {
+            if (Loca.method!=-1 && Loca.cont_type1==CONT_BETAMU_I) {
                derivative=-(energy-omega_s_previous)/(mu-mu_previous);
                if (Proc==0) fprintf(fpASR,"%11.8f \t %11.8f\n",mu_previous,derivative);
             }
@@ -251,7 +247,7 @@ void post_process (double **x,int *niters,
             second=FALSE;
          }
          else{
-            if (Loca.cont_type1==CONT_BETAMU_I) {
+            if (Loca.method!=-1 && Loca.cont_type1==CONT_BETAMU_I) {
                derivative=-(energy-omega_s_previous)/(mu-mu_previous);
                derivative_avg=0.5*(derivative+derivative_previous);
                if (Proc==0) fprintf(fpASR,"%11.8f \t %11.8f\n",mu_previous,derivative);
@@ -262,7 +258,7 @@ void post_process (double **x,int *niters,
                if (Proc==0) fprintf(fpFSR,"%11.8f \t %11.8f\n",separation_previous,derivative_avg);
             }
          }
-         if (Loca.cont_type1==CONT_BETAMU_I) {
+         if (Loca.method!=-1 && Loca.cont_type1==CONT_BETAMU_I) {
            mu_2previous=mu_previous;
            mu_previous=mu;
          }
@@ -276,7 +272,9 @@ void post_process (double **x,int *niters,
        }
    }
 
-   if (Type_interface==DIFFUSIVE_INTERFACE && Proc==0 && Iwrite !=MINIMAL) calc_flux(fp,output_flux,X_old);
+   if (Type_interface==DIFFUSIVE_INTERFACE && Proc==0 && Iwrite !=MINIMAL){
+        calc_flux(fp,output_flux,X_old);
+    }
 
    if (Proc==0) fprintf(fp,"  \n");
 
