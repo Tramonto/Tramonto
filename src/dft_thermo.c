@@ -332,8 +332,8 @@ void calc_chempot(char *output_file1)
                       for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");
                       for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");
                   }
-                  for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);
-                  for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
+                  for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);
+                  for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
                }
                else{
                   if (Type_poly==WJDC3){
@@ -341,8 +341,8 @@ void calc_chempot(char *output_file1)
                          for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");
                          for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");
                      }
-                     for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);
-                     for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
+                     for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);
+                     for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
                   }
                   else{
                     if (Iwrite != NO_SCREEN) {
