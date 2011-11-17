@@ -332,16 +332,26 @@ void calc_chempot(char *output_file1,int iwrite)
                       for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");
                       for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");
                   }
-                  for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);
-                  for (ipol=0;iseg<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
+                  for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);
+                  for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
                }
                else{
-                  if (iwrite != NO_SCREEN) {
-                      for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu_LBB[icomp],"Betamu_LBB");
-                      for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu_RTF[icomp],"Betamu_RTF");
+                  if (Type_poly==WJDC3) {
+                     if (iwrite != NO_SCREEN){
+                         for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");
+                         for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");
+                     }
+                     for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);
+                     for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
                   }
-                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_LBB[icomp],"Betamu_LBB",2);
-                  for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_RTF[icomp],"Betamu_RTF",2);
+                  else{
+                     if (iwrite != NO_SCREEN) {
+                         for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu_LBB[icomp],"Betamu_LBB");
+                         for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu_RTF[icomp],"Betamu_RTF");
+                     }
+                     for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_LBB[icomp],"Betamu_LBB",2);
+                     for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu_RTF[icomp],"Betamu_RTF",2);
+                  }
                }
           }    
        /*}*/
