@@ -205,8 +205,6 @@ void linsolver_setup_HSTYPE()
        else
          indnonlocaleq[count_indnonlocal++]=iunk; 
        break;
-     case MF_EQ:
-       indnonlocaleq[count_indnonlocal++]=iunk; break;   
      case BONDWTC:
 /*       if (Pol_Sym[iunk-Phys2Unk_first[BONDWTC]] == -1)
           indnonlocaleq[count_indnonlocal++]=iunk; 
@@ -214,6 +212,8 @@ void linsolver_setup_HSTYPE()
           depnonlocaleq[count_depnonlocal++]=iunk; 
        break;*/
      case CAVWTC:
+     case MF_EQ:
+       indnonlocaleq[count_indnonlocal++]=iunk; break;   
       default:
         printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
         exit(-1);
