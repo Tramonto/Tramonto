@@ -1,5 +1,24 @@
 ---------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------
+Tramonto v4.0.1 Release Notes
+
+* Tramonto-4.0.1 is a release of bug fixes to Tramonto 4.0.
+* The following issues are addressed:
+
+    - Bug fix for electrostatic free energy. Uninitialized variable causing
+      failure on some platforms.
+    - Bug fix for WJDC polymer recursion equation. Bug in residual and Jacobian
+      affecting some polymer mixtures with varying bead sizes.
+    - Bug fixes for atomistic diffusion cases. Atomistic diffusion working with
+      standard AztecOO solvers (not Picard solvers or Schur solvers yet). One
+      new test case is included in this release to demonstrate color diffusion
+      through a permeable membrane.
+    - Bug fix to include electrostatic term in bulk pressure calculation. Note
+      that it is only nonzero if the DELTAC_GENERAL term is turned on and if
+      the ion sizes differ.
+
+---------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
 Tramonto v4.0 Release Notes
 
 * Tramonto-4.0 is a major release delivered in July of 2011.
