@@ -101,7 +101,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
       }
       else if (sten_type==THETA_CR_RPM_MSA || sten_type==THETA_CR_GENERAL_MSA){
             i=iunk-Phys2Unk_first[DENSITY];
-            if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2) icomp=Unk2Comp[i]; 
+            if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) icomp=Unk2Comp[i]; 
             else icomp=i;
             index=icomp+Ncomp*jcomp;
       }
