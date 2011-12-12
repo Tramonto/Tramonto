@@ -422,17 +422,20 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 setMachineParams
 ()
 {
+  using Teuchos::as;
+  using Teuchos::ScalarTraits;
+
   TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
   // Get machine parameters
   n_ = globalMatrix_->getGlobalNumCols();
   eps_ = Teuchos::ScalarTraits<Scalar>::eps();
-  epsHalf_ = Teuchos::ScalarTraits<Scalar>::eps();
+  epsHalf_ = ScalarTraits<halfScalar>::eps();
   anorm_ = globalMatrix_->getFrobeniusNorm();
-  nae_ = n_*anorm_*eps_;
-  snae_ = sqrt(n_)*anorm_*eps_;
-  naeHalf_ = n_*anorm_*epsHalf_;
-  snaeHalf_ = sqrt(n_)*anorm_*epsHalf_;
+  nae_ = as<Scalar>(n_) * anorm_ * eps_;
+  snae_ = sqrt(as<Scalar>(n_))*anorm_*eps_;
+  naeHalf_ = as<halfScalar>(as<Scalar>(n_)*anorm_*epsHalf_);
+  snaeHalf_ = as<halfScalar>(sqrt(as<Scalar>(n_))*anorm_*epsHalf_);
   machineParamsSet_ = true;
   std::cout << "PROBLEM CONSTANTS--- anorm = " << anorm_ << " n = " << n_ << " snae = " << snae_ << std::endl;
 
