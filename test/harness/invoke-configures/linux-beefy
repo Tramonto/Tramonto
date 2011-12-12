@@ -1,4 +1,4 @@
 cmake \
- -DTRILINOS_PATH=/net/people/faculty/other/jwillen/work/TramontoTestHarness/Tri10.6.1install \
+ -DTRILINOS_PATH=/net/people/faculty/other/jwillen/work/TramontoTestHarness/Tri10.8.4install \
  ..
 
