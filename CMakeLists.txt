@@ -118,6 +118,11 @@ ENDIF()
 	
 ADD_SUBDIRECTORY(src)
 
+IF(BUILD_TESTING)
+  INCLUDE(CTest)
+  ADD_SUBDIRECTORY(Examples)
+ENDIF()
+
 install(FILES
 	Examples/BC1_FMT1_WCA_ELEC_2D/dft_input.dat
 	Examples/BC1_FMT1_WCA_ELEC_2D/dft_surfaces.dat
