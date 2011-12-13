@@ -80,6 +80,25 @@ RUN (regression-nightly) {
 
 ###############################################################################
 #
+# brain nightly - built against Trilinos Dev
+#
+###############################################################################
+
+RUN (brain-nightly) {
+
+    BUILD-LABEL         = O3-tdev-32proc;
+    BUILD-DIR           = BUILD;
+    INVOKE-CONFIGURE    = brain-nightly;
+    TEST-CATEGORY       = FRAMEWORK;
+    MAX-PROC            = 32;
+    TTR-DIR             = /home/hudson/slave/workspace/tramonto-test-results;
+    MPI-GO              = mpiexec -np ;
+    SSG-USERNAME        = hudson;
+
+}
+
+###############################################################################
+#
 # linux nightly - built against Trilinos Dev
 #
 ###############################################################################
