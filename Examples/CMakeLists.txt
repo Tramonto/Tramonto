@@ -9,8 +9,14 @@ include(CMakeParseArguments)
 set(Tramonto_TEST_HARNESS_DEFAULT_PROCESSES 4 CACHE STRING 
   "Maximum number of processes to be used by individual test harness jobs.")
 
+set(Tramonto_TEST_HARNESS_FAIL_TOLERANCE 0.0004 CACHE STRING
+  "Maximum difference between floating point values before test is considered a failure.")
+
 # We use MPI to run Tramonto tests.
 find_package(MPI REQUIRED)
+
+# Build the program that checks the results.
+add_subdirectory(check_results)
 
 # Add a Tramonto executable test.
 #
@@ -28,9 +34,9 @@ function(Tramonto_add_test _test_name)
   # Parse the arguments.
   cmake_parse_arguments(
     TEST_HARNESS
-    ${_input_options} 
-    ${_input_one_value_keywords}
-    ${_input_multi_value_keywords}
+    "${_input_options}" 
+    "${_input_one_value_keywords}"
+    "${_input_multi_value_keywords}"
     ${ARGN})
 
   
@@ -45,7 +51,9 @@ function(Tramonto_add_test _test_name)
 
   # Add targets to copy all of the test dependencies to the binary
   # directory.
-  foreach(_file ${TEST_HARNESS_INPUT_FILES})
+  set(_files_to_copy)
+  list(APPEND  _files_to_copy ${TEST_HARNESS_INPUT_FILES} ${TEST_HARNESS_README_FILE})
+  foreach(_file ${_files_to_copy})
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_file}
       COMMAND ${CMAKE_COMMAND} -E copy 
@@ -56,23 +64,33 @@ function(Tramonto_add_test _test_name)
       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${_file})
   endforeach()
 
-  # Add the test.
+  # Add the test that runs the example.
   get_property(_dft_exec_location TARGET dft_exec PROPERTY LOCATION)
   add_test(
-    NAME ${_test_name}
+    NAME ${_test_name}.run
     COMMAND 
       ${MPIEXEC} 
       ${MPIEXEC_NUMPROC_FLAG} ${TEST_HARNESS_PROCESSES}
       ${MPIEXEC_PREFLAGS} ${_dft_exec_location} ${MPIEXEC_POSTFLAGS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+  # Add the test that checks the results.
+  add_test(
+    NAME ${_test_name}.check
+    COMMAND check_results README dft_output.dat ${Tramonto_TEST_HARNESS_FAIL_TOLERANCE}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
   
   # Set properties on the test.
   set_tests_properties(
-    ${_test_name} 
+    ${_test_name}.run 
     PROPERTIES
       PROCESSORS ${TEST_HARNESS_PROCESSES}
       WILL_FAIL TRUE
       )
+    
+  # Set up the dependency between the run job and the check job.
+  set_property(TEST ${_test_name}.check 
+    APPEND PROPERTY DEPENDS ${_test_name}.run)
   
 endfunction()
 
