@@ -12,7 +12,7 @@
 
 macro(setcache var value type)
   message("Setting ${var} to ${value} for the Tramonto build.")
-  set(${var} ${value} CACHE ${type} "Value set for Tramonto")
+  set(${var} ${value} CACHE ${type} "Value set for Tramonto" FORCE)
 endmacro()
 
 setcache(TPL_ENABLE_MPI ON BOOL)
