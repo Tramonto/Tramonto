@@ -11,6 +11,7 @@
 # To choose the installation prefix.
 
 macro(setcache var value type)
+  message("Setting ${var} to ${value} for the Tramonto build.")
   set(${var} ${value} CACHE ${type} "Value set for Tramonto")
 endmacro()
 
