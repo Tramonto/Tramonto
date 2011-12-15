@@ -27,7 +27,7 @@ add_subdirectory(check_results)
 function(Tramonto_add_test _test_name)
 
   # Set up the accepted argument set for the macro.
-  set(_input_options "")
+  set(_input_options LONG_TEST)
   set(_input_one_value_keywords README_FILE PROCESSES)
   set(_input_multi_value_keywords INPUT_FILES)
 
@@ -79,19 +79,33 @@ function(Tramonto_add_test _test_name)
     NAME ${_test_name}.check
     COMMAND check_results README dft_output.dat ${Tramonto_TEST_HARNESS_FAIL_TOLERANCE}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-  
+ 
+  if(TEST_HARNESS_LONG_TEST)
+    set(_labels FullTestSuite CheckinTestSuite)
+  else()
+    set(_label CheckinTestSuite)
+  endif()
+
   # Set properties on the test.
   set_tests_properties(
     ${_test_name}.run 
     PROPERTIES
       PROCESSORS ${TEST_HARNESS_PROCESSES}
       WILL_FAIL TRUE
+      LABELS "${_label}"
       )
-    
+
   # Set up the dependency between the run job and the check job.
   set_property(TEST ${_test_name}.check 
     APPEND PROPERTY DEPENDS ${_test_name}.run)
   
 endfunction()
 
+# Add a target to run only the short tests before a checkin.
+add_custom_target(checkin_test
+  ${CMAKE_CTEST_COMMAND} -L CheckinTestSuite
+  )
+
 add_subdirectory(HS1_FMT1_1D)
+add_subdirectory(GEOM14_CYL_WEDGECUTOUT_2D)
+
