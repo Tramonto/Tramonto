@@ -73,11 +73,18 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-
 if(__CMAKE_PARSE_ARGUMENTS_INCLUDED)
   return()
 endif()
 set(__CMAKE_PARSE_ARGUMENTS_INCLUDED TRUE)
+
+# This file was copied from CMake 2.8.5 for backwards compatibility with older
+# CMake versions. Because of this, we need to set a policy to quiet a CMake
+# warning.  For more information run cmake --help-policy CMP0017
+if(${CMAKE_VERSION} VERSION_GREATER "2.8.3")
+  cmake_policy(SET CMP0017 OLD)
+  cmake_policy(SET CMP0011 NEW)
+endif()
 
 
 function(CMAKE_PARSE_ARGUMENTS prefix _optionNames _singleArgNames _multiArgNames)

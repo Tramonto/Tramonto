@@ -5,9 +5,6 @@ MESSAGE("Starting configure")
 # Add the local Tramonto modules to the module path.
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
 
-# Set CMake policies to be compatible with CMake 2.8.0.
-CMAKE_POLICY(VERSION 2.8.0)
-
 # Use TRILINOS_PATH if the user set it, to help find Trilinos 10.7 or greater.
 # The final location will actually be held in Trilinos_DIR which must
 # point at "<prefix>/lib/cmake/Trilinos", but this helps the search.
