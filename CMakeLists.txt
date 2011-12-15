@@ -5,12 +5,8 @@ MESSAGE("Starting configure")
 # Add the local Tramonto modules to the module path.
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
 
-# We currently have a copy of the CMakeParseArguments system module from 2.8.5
-# for compatibility with older versions of CMake. Set the policy that tells
-# CMake to use the system version of a module when it is called from another
-# system module. For more information, run
-# cmake --help-policy CMP0017
-CMAKE_POLICY(SET CMP0017 OLD)
+# Set CMake policies to be compatible with CMake 2.8.0.
+CMAKE_POLICY(VERSION 2.8.0)
 
 # Use TRILINOS_PATH if the user set it, to help find Trilinos 10.7 or greater.
 # The final location will actually be held in Trilinos_DIR which must
