@@ -9,7 +9,7 @@ include(CMakeParseArguments)
 set(Tramonto_TEST_HARNESS_DEFAULT_PROCESSES 4 CACHE STRING 
   "Maximum number of processes to be used by individual test harness jobs.")
 
-set(Tramonto_TEST_HARNESS_FAIL_TOLERANCE 0.0004 CACHE STRING
+set(Tramonto_TEST_HARNESS_FAIL_TOLERANCE 0.001 CACHE STRING
   "Maximum difference between floating point values before test is considered a failure.")
 
 # We use MPI to run Tramonto tests.
