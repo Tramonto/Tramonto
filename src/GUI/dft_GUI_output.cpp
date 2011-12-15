@@ -59,11 +59,11 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     /* show the dependent parameters only if the independent parameters has a particular setting. */
     /**********************************************************************************************/
       RCP<StringVisualDependency> GofRprint_Dep = rcp(
-           new StringVisualDependency( "SI0_Vext_type",SurfaceInteraction_List,"O4: Print radial correlation function: g(r)?", Output_List, 
+           new StringVisualDependency( SurfaceInteraction_List->getEntryRCP("SI0_Vext_type"),Output_List->getEntryRCP("O4: Print radial correlation function: g(r)?"),  
                tuple<std::string>("Vext for atomic surfaces")));
 
       RCP<StringVisualDependency> UWWprint_Dep = rcp(
-           new StringVisualDependency( "SI0_Vext_type",SurfaceInteraction_List,"O5: Print surface-surface interactions?",Output_List, 
+           new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI0_Vext_type"),Output_List->getEntryRCP("O5: Print surface-surface interactions?"),
                tuple<std::string>("Vext for atomic surfaces")));
 
     /*****************************************/

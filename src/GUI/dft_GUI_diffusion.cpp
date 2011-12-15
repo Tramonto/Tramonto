@@ -1,15 +1,5 @@
-/*#include "Teuchos_ParameterList.hpp"*/
 using namespace std;
 #include <iostream>
-/***** push these to common dft_GUI.h file *****
-#include "Teuchos_StandardParameterEntryValidators.hpp"
-#include "Teuchos_Array.hpp"	
-#include "Teuchos_Version.hpp"
-#include "Optika_GUI.hpp"
-#include "Teuchos_XMLParameterListHelpers.hpp"
-#include "Teuchos_FancyOStream.hpp"
-#include "Teuchos_VerboseObject.hpp"
-**************************************************/
 #include "dft_GUI.h"
 #include "dft_GUI.hpp"
 using namespace Teuchos;
@@ -60,12 +50,11 @@ void dft_GUI_Diffusion( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        new StringVisualDependency( "F0_Type_of_Calculation",Functional_List,"SP2: Constrained Interface?", StatePoint_List,
            tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)")));
 
-   RCP<NumberArrayLengthDependency> RhoB0Length_Dep = rcp(
-           new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "SP3: Rho_b_0[icomp]",StatePoint_List));
+   RCP<NumberArrayLengthDependency<int,double> > RhoB0Length_Dep = rcp(
+           new NumberArrayLengthDependency<int,double>( Fluid_List->getEntryRCP("F1_Ncomp"), StatePoint_List->getEntryRCP("SP3: Rho_b_0[icomp]")));
 
-   RCP<NumberArrayLengthDependency> RhoB1Length_Dep = rcp(
-           new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "SP4: Rho_b_1[icomp]",StatePoint_List));
-
+   RCP<NumberArrayLengthDependency<int,double> > RhoB1Length_Dep = rcp(
+           new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"),StatePoint_List->getEntryRCP("SP4: Rho_b_1[icomp]")));
 
       /*****************************************/
       /* add the dependencies for this section.*/

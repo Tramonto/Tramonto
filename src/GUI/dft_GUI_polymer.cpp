@@ -78,57 +78,59 @@ void dft_GUI_Polymer( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
         /* set up dependencies */
         /************************/
 
-   Dependency::ParameterParentMap PolymerDependents;
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P1: Npoly_comp", Polymer_List));
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P2: Nblock[ipol_comp]", Polymer_List));
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P3: Block[ipol_comp][iblock]", Polymer_List));
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P4: BlockType[ipol_comp][iblock]", Polymer_List));
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P5: Any Grafted polymers?", Polymer_List));
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P8: Polymer achitecture entry", Polymer_List));
+   Dependency::ParameterEntryList PolymerDependents;
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P1: Npoly_comp"));
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P2: Nblock[ipol_comp]"));
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P3: Block[ipol_comp][iblock]"));
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P4: BlockType[ipol_comp][iblock]"));
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P5: Any Grafted polymers?"));
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P8: Polymer achitecture entry"));
 
-   RCP<StringVisualDependency> PolyAll_Dep = rcp(new StringVisualDependency("F4_POLYMER_Functional", Functional_List, PolymerDependents, 
+   RCP<StringVisualDependency> PolyAll_Dep = rcp(new StringVisualDependency(Functional_List->getEntryRCP("F4_POLYMER_Functional"), PolymerDependents, 
            tuple<std::string>("Polymer_CMS","Polymer_CMS_SCFT","Polymer_TC_iSAFT","Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)","Polymer_JDC_iSAFT(comp)")));
 
-   Dependency::ParameterParentMap GraftDependents;
-   GraftDependents.insert(std::pair<std::string, RCP<ParameterList> >("P6: Grafted_wall_ID[ipol_comp]", Polymer_List));
-   GraftDependents.insert(std::pair<std::string, RCP<ParameterList> >("P7: Grafted_wall_Density[ipol_comp]", Polymer_List));
+   Dependency::ParameterEntryList GraftDependents;
+   GraftDependents.insert(Polymer_List->getEntryRCP("P6: Grafted_wall_ID[ipol_comp]"));
+   GraftDependents.insert(Polymer_List->getEntryRCP("P7: Grafted_wall_Density[ipol_comp]"));
 
-   RCP<BoolVisualDependency> Graft_Dep = rcp(new BoolVisualDependency("P5: Any Grafted polymers?", Polymer_List, GraftDependents, true));
+   RCP<BoolVisualDependency> Graft_Dep = rcp(
+        new BoolVisualDependency(Polymer_List->getEntryRCP("P5: Any Grafted polymers?"), GraftDependents, true));
 
-   Dependency::ParameterParentMap CMSDependents;
-   CMSDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS1: N_CrFiles (CMS)", PolymerCMS_List));
-   CMSDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS2: Cr_File_1 (CMS)", PolymerCMS_List));
-   CMSDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS5: Cr Radius (CMS)", PolymerCMS_List));
+   Dependency::ParameterEntryList CMSDependents;
+   CMSDependents.insert(PolymerCMS_List->getEntryRCP("CMS1: N_CrFiles (CMS)"));
+   CMSDependents.insert(PolymerCMS_List->getEntryRCP("CMS2: Cr_File_1 (CMS)"));
+   CMSDependents.insert(PolymerCMS_List->getEntryRCP("CMS5: Cr Radius (CMS)"));
 
-   RCP<StringVisualDependency> CMS_Dep = rcp(new StringVisualDependency("F4_POLYMER_Functional", Functional_List, CMSDependents, tuple<std::string>("Polymer_CMS")));
+   RCP<StringVisualDependency> CMS_Dep = rcp(new StringVisualDependency(Functional_List->getEntryRCP("F4_POLYMER_Functional"), CMSDependents, tuple<std::string>("Polymer_CMS")));
 
-   Dependency::ParameterParentMap CMSFileDependents;
-   CMSFileDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS3: Cr_File_2 (CMS)", PolymerCMS_List));
-   CMSFileDependents.insert(std::pair<std::string, RCP<ParameterList> >("CMS4: CrFac (CMS)", PolymerCMS_List));
+   Dependency::ParameterEntryList CMSFileDependents;
+   CMSFileDependents.insert(Polymer_List->getEntryRCP("CMS3: Cr_File_2 (CMS)"));
+   CMSFileDependents.insert(Polymer_List->getEntryRCP("CMS4: CrFac (CMS)"));
 
    /* doesn't work */
-/*   RCP<NumberVisualDependency<int> > CMSFile_Dep = rcp(new NumberVisualDependency<int>("CMS1: N_CrFiles (CMS)", PolymerCMS_List, CMSFileDependents, 
+/*   RCP<NumberVisualDependency<int> > CMSFile_Dep = rcp(new NumberVisualDependency<int>(PolymerCMS_List->getEntryRCP("CMS1: N_CrFiles (CMS)"), CMSFileDependents, 
                                                        (funcCMS(PolymerCMS_List->get<int>("CMS1: N_CrFiles (CMS)") )  ));*/
 
 
-   RCP<StringCondition> PolyFile_Con1 = rcp(new StringCondition("P8: Polymer achitecture entry", Polymer_List, tuple<std::string>("Read From File"),true));
-   RCP<StringCondition> PolyFile_Con2 = rcp(new StringCondition("F4_POLYMER_Functional", Functional_List, 
-           tuple<std::string>("Polymer_CMS","Polymer_CMS_SCFT","Polymer_TC_iSAFT","Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)","Polymer_JDC_iSAFT(comp)"),true));
-   Condition::ConditionList PolyFile_conList = tuple<RCP<Condition> >(PolyFile_Con1, PolyFile_Con2);
+   RCP<StringCondition> PolyFile_Con1 = rcp(new StringCondition(Polymer_List->getEntryRCP("P8: Polymer achitecture entry"), tuple<std::string>("Read From File")));
+   RCP<StringCondition> PolyFile_Con2 = rcp(new StringCondition(Functional_List->getEntryRCP("F4_POLYMER_Functional"), 
+           tuple<std::string>("Polymer_CMS","Polymer_CMS_SCFT","Polymer_TC_iSAFT","Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)","Polymer_JDC_iSAFT(comp)")));
+   Condition::ConstConditionList PolyFile_conList = tuple<RCP<const Condition> >(PolyFile_Con1, PolyFile_Con2);
    RCP<AndCondition> PolyFile_andCon = rcp(new AndCondition(PolyFile_conList));
 
-   RCP<ConditionVisualDependency> PolyFile_Dep = rcp(new ConditionVisualDependency(PolyFile_andCon, "P9: Polymer architecture filename", Polymer_List, true));
+   RCP<ConditionVisualDependency> PolyFile_Dep = rcp(
+       new ConditionVisualDependency(PolyFile_andCon,Polymer_List->getEntryRCP("P9: Polymer architecture filename"), true));
 
 
-   Dependency::ParameterParentMap PolymerArrayLength_Dependents;
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P2: Nblock[ipol_comp]", Polymer_List));
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P3: Block[ipol_comp][iblock]", Polymer_List));
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P4: BlockType[ipol_comp][iblock]", Polymer_List));
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P5: Grafted_wall_ID[ipol_comp]", Polymer_List));
-   PolymerDependents.insert(std::pair<std::string, RCP<ParameterList> >("P6: Grafted_wall_Density[ipol_comp]", Polymer_List));
+   Dependency::ParameterEntryList PolymerArrayLength_Dependents;
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P2: Nblock[ipol_comp]"));
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P3: Block[ipol_comp][iblock]"));
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P4: BlockType[ipol_comp][iblock]"));
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P5: Grafted_wall_ID[ipol_comp]"));
+   PolymerDependents.insert(Polymer_List->getEntryRCP("P6: Grafted_wall_Density[ipol_comp]"));
 
-   RCP<NumberArrayLengthDependency> PolyAllLength_Dep = rcp(
-           new NumberArrayLengthDependency( "P1: Npoly_comp", Polymer_List, PolymerArrayLength_Dependents));
+   RCP<NumberArrayLengthDependency<int,double> > PolyAllLength_Dep = rcp(
+           new NumberArrayLengthDependency<int,double>(Polymer_List->getEntryRCP("P1: Npoly_comp"), PolymerArrayLength_Dependents));
 
       /*****************************************/
       /* add the dependencies for this section.*/

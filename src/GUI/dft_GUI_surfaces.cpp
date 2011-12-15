@@ -123,13 +123,13 @@ void dft_GUI_surfaces(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
      /* DEPENDENCIES */
         RCP<NumberVisualDependency<int> > NsurfType_Dep = rcp(
-           new NumberVisualDependency<int>( "S1: Number of Surfaces", "S3: Number of surface types", Surface_List ));
+           new NumberVisualDependency<int>( Surface_List->getEntryRCP("S1: Number of Surfaces"), Surface_List->getEntryRCP("S3: Number of surface types")));
 
         RCP<NumberVisualDependency<int> > NsurfMacro_Dep = rcp(
-           new NumberVisualDependency<int>( "S1: Number of Surfaces", "S2: Number of macro surfaces", Surface_List));
+           new NumberVisualDependency<int>( Surface_List->getEntryRCP("S1: Number of Surfaces"), Surface_List->getEntryRCP("S2: Number of macro surfaces")));
 
-        RCP<NumberArrayLengthDependency> surfTypeLengthDep = rcp(
-           new NumberArrayLengthDependency( "S3: Number of surface types", Surface_List, "SG1: Surface Type Array", SurfaceGeometry_List));
+        RCP<NumberArrayLengthDependency<int,string> > surfTypeLengthDep = rcp(
+           new NumberArrayLengthDependency<int,string> (Surface_List->getEntryRCP("S3: Number of surface types"),SurfaceGeometry_List->getEntryRCP("SG1: Surface Type Array")));
 
         RangeValidatorDependency<int>::RangeToValidatorMap dimranges;
         dimranges[std::pair<int,int>(1,1)] = arraySurfTypeVali1;
@@ -138,12 +138,13 @@ void dft_GUI_surfaces(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
         RCP<RangeValidatorDependency<int> >
         surfTypeValiDep = rcp(
-                new RangeValidatorDependency<int>( "M1_Ndim", Mesh_List, "SG1: Surface Type Array", SurfaceGeometry_List, dimranges, arraySurfTypeVali1)
+                new RangeValidatorDependency<int>(Mesh_List->getEntryRCP("M1_Ndim"), SurfaceGeometry_List->getEntryRCP("SG1: Surface Type Array"), dimranges, arraySurfTypeVali1)
         );
 
         /* need to write a dependency for "WW1: Compute wall-wall interactions?" to show up if Ndim=3D and at least one surface type is atomic */
-        RCP<BoolVisualDependency> UWWType_Dep = rcp(new BoolVisualDependency("WW1: Compute wall-wall interactions?", PotentialsWW_List, 
-			"WW2: Type of wall-wall interactions", PotentialsWW_List, true));
+        RCP<BoolVisualDependency> UWWType_Dep = rcp(new BoolVisualDependency(
+               PotentialsWW_List->getEntryRCP("WW1: Compute wall-wall interactions?"), 
+	       PotentialsWW_List->getEntryRCP("WW2: Type of wall-wall interactions"), true));
 
 
 

@@ -104,35 +104,34 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
     /* show the dependent parameters only if the independent parameters has a particular setting. */
     /**********************************************************************************************/
       RCP<StringVisualDependency> PhysScale_Dep = rcp(
-           new StringVisualDependency( "F4_POLYMER_Functional",Functional_List,"NLS3: Logical_Physics_Scaling", NonlinearSolver_List, 
+           new StringVisualDependency(Functional_List->getEntryRCP("F4_POLYMER_Functional"),NonlinearSolver_List->getEntryRCP("NLS3: Logical_Physics_Scaling"),
                tuple<std::string>("Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)","Polymer_JDC_iSAFT(comp)")));
 
       RCP<StringVisualDependency> LevelILUT_Dep = rcp(
-           new StringVisualDependency( "LS6: Preconditioner option",LinearSolver_List,"LS7: Number of Levels for ILUT", LinearSolver_List, 
-               tuple<std::string>("ilut")));
+           new StringVisualDependency( LinearSolver_List->getEntryRCP("LS6: Preconditioner option"),LinearSolver_List->getEntryRCP("LS7: Number of Levels for ILUT"), tuple<std::string>("ilut")));
 
       RCP<StringVisualDependency> TypeJacCoarse_Dep = rcp(
-           new StringVisualDependency( "C1: Type of coarsening",Coarsening_List,"C3: Type of Jacobian coarsening", Coarsening_List, 
+           new StringVisualDependency(Coarsening_List->getEntryRCP("C1: Type of coarsening"),Coarsening_List->getEntryRCP("C3: Type of Jacobian coarsening"), 
                tuple<std::string>("residual and jacobian coarsening","jacobian only coarsening")));
 
      RCP<StringVisualDependency> Nzone_Dep = rcp(
-           new StringVisualDependency( "C1: Type of coarsening",Coarsening_List,"C4: Number of coarsened zones", Coarsening_List, 
+           new StringVisualDependency( Coarsening_List->getEntryRCP("C1: Type of coarsening"),Coarsening_List->getEntryRCP("C4: Number of coarsened zones"), 
                tuple<std::string>("residual and jacobian coarsening","jacobian only coarsening","Bulk zone","Poisson-Boltzmann zone","1D zone in 2D or 3D problem")));
 
       RCP<StringVisualDependency> RmaxZone_Dep = rcp(
-           new StringVisualDependency( "C1: Type of coarsening",Coarsening_List,"C5: Rmax_zone", Coarsening_List, 
+           new StringVisualDependency( Coarsening_List->getEntryRCP("C1: Type of coarsening"),Coarsening_List->getEntryRCP("C5: Rmax_zone"), 
                tuple<std::string>("residual and jacobian coarsening","jacobian only coarsening","Bulk zone","Poisson-Boltzmann zone")));
 
       RCP<StringVisualDependency> Dim1DZone_Dep = rcp(
-           new StringVisualDependency( "C1: Type of coarsening",Coarsening_List,"C6: Dimension 1D_BC", Coarsening_List, 
+           new StringVisualDependency( Coarsening_List->getEntryRCP("C1: Type of coarsening"),Coarsening_List->getEntryRCP("C6: Dimension 1D_BC"), 
                tuple<std::string>("1D zone in 2D or 3D problem")));
 
       RCP<StringVisualDependency> X1DZone_Dep = rcp(
-           new StringVisualDependency( "C1: Type of coarsening",Coarsening_List,"C7: X 1D_BC", Coarsening_List, 
+           new StringVisualDependency( Coarsening_List->getEntryRCP("C1: Type of coarsening"),Coarsening_List->getEntryRCP("C7: X 1D_BC"), 
                tuple<std::string>("1D zone in 2D or 3D problem")));
 
-      RCP<NumberArrayLengthDependency> RmaxZoneLength_Dep = rcp(
-          new NumberArrayLengthDependency( "C4: Number of coarsened zones", Coarsening_List, "C5: Rmax_zone",Coarsening_List));
+      RCP<NumberArrayLengthDependency<int,double> > RmaxZoneLength_Dep = rcp(
+          new NumberArrayLengthDependency<int,double>(Coarsening_List->getEntryRCP("C4: Number of coarsened zones"), Coarsening_List->getEntryRCP("C5: Rmax_zone")));
 
 
     /*****************************************/

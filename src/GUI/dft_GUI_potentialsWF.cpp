@@ -1,6 +1,6 @@
 using namespace std;
 #include <iostream>
-#include "dft_GUI.h"
+/*#include "dft_GUI.h"*/
 #include "dft_GUI.hpp"
 using namespace Teuchos;
 using namespace Optika;
@@ -68,83 +68,91 @@ void dft_GUI_potentialsWF(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                /* Visual Dependencies */
 
       RCP<StringVisualDependency> EpsWFArray_Dep2 = rcp(
-         new StringVisualDependency("SI4_U3D_TO_BE_INTEGRATED", SurfaceInteraction_List, "SP2_EpsWF", PotentialsWF_List, 
-             tuple<std::string>("LJ 12-6 potential (cut/shift)",
-                "Exponential potential (cut/shift)","Square Well potential",
-                "LJ 12-6 plus Yukawa potential (cut/shift)",
-                "r^12 repulsion plus Yukawa potential (cut/shift)",
-                "r^18 repulsion plus Yukawa potential (cut/shift)",
-                "r^N repulsion plus Yukawa potential (cut/shift)"),true));
+         new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI4_U3D_TO_BE_INTEGRATED"), 
+                                    PotentialsWF_List->getEntryRCP("SP2_EpsWF"), 
+                                    tuple<std::string>("LJ 12-6 potential (cut/shift)",
+                                    "Exponential potential (cut/shift)","Square Well potential",
+                                    "LJ 12-6 plus Yukawa potential (cut/shift)",
+                                    "r^12 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^18 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^N repulsion plus Yukawa potential (cut/shift)"),true));
 
       RCP<StringVisualDependency> EpsWFArray_Dep3 = rcp(
-         new StringVisualDependency("SI2_Vext_1D", SurfaceInteraction_List, "SP2_EpsWF", PotentialsWF_List,
-             tuple<std::string>("LJ 9-3 potential (cut/shift)","LJ 9-3 potential (version 2) (cut/shift)",
-				"LJ 9-3 potential (no c/s)","LJ 9-3 potential with shifted x",
-				"r^9 repulsive potential (no c/s)","Expotential potential (no c/s)",
-				"R^7 repulsion plus Yukawa field (cut/shift)"),true));
+         new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI2_Vext_1D"), 
+                                    PotentialsWF_List->getEntryRCP("SP2_EpsWF"), 
+                                    tuple<std::string>("LJ 9-3 potential (cut/shift)",
+                                    "LJ 9-3 potential (version 2) (cut/shift)",
+                                    "LJ 9-3 potential (no c/s)","LJ 9-3 potential with shifted x",
+                                    "r^9 repulsive potential (no c/s)","Expotential potential (no c/s)",
+                                    "R^7 repulsion plus Yukawa field (cut/shift)"),true));
 
       RCP<StringVisualDependency> CutWFArray_Dep2 = rcp(
-         new StringVisualDependency("SI4_U3D_TO_BE_INTEGRATED", SurfaceInteraction_List, "SP3_CutWF", PotentialsWF_List, 
-             tuple<std::string>("LJ 12-6 potential (cut/shift)","Exponential potential (cut/shift)",
-                "Coulomb potential as mean field (cut/shift)","Coulomb potential as mean field (cut only)",
-                "Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
-                "r^12 repulsion plus Yukawa potential (cut/shift)",
-                "r^18 repulsion plus Yukawa potential (cut/shift)",
-                "r^N repulsion plus Yukawa potential (cut/shift)"),true));
+         new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI4_U3D_TO_BE_INTEGRATED"), 
+                                    PotentialsWF_List->getEntryRCP("SP3_CutWF"), 
+                                    tuple<std::string>("LJ 12-6 potential (cut/shift)","Exponential potential (cut/shift)",
+                                    "Coulomb potential as mean field (cut/shift)","Coulomb potential as mean field (cut only)",
+                                    "Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
+                                    "r^12 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^18 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^N repulsion plus Yukawa potential (cut/shift)"),true));
 
       RCP<StringVisualDependency> CutWFArray_Dep3 = rcp(
-         new StringVisualDependency("SI2_Vext_1D", SurfaceInteraction_List, "SP3_CutWF", PotentialsWF_List,
-             tuple<std::string>("LJ 9-3 potential (cut/shift)","LJ 9-3 potential (version 2) (cut/shift)",
-				"LJ 9-3 potential with shifted x",
-				"R^7 repulsion plus Yukawa field (cut/shift)"),true));
+         new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI2_Vext_1D"), 
+                                    PotentialsWF_List->getEntryRCP("SP3_CutWF"),
+                                    tuple<std::string>("LJ 9-3 potential (cut/shift)","LJ 9-3 potential (version 2) (cut/shift)",
+                                     "LJ 9-3 potential with shifted x", "R^7 repulsion plus Yukawa field (cut/shift)"),true));
 
       RCP<StringVisualDependency> EpsYukawaWFArray_Dep2 = rcp(
-         new StringVisualDependency("SI4_U3D_TO_BE_INTEGRATED", SurfaceInteraction_List, "SP4_EpsYukawaWF", PotentialsWF_List, 
-             tuple<std::string>("Yukawa potential (cut/shift)",
-				"LJ 12-6 plus Yukawa potential (cut/shift)",
-		                "r^12 repulsion plus Yukawa potential (cut/shift)",
-       			        "r^18 repulsion plus Yukawa potential (cut/shift)",
-				"r^N repulsion plus Yukawa potential (cut/shift)"),true));
+         new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI4_U3D_TO_BE_INTEGRATED"),
+                                    PotentialsWF_List->getEntryRCP("SP4_EpsYukawaWF"), 
+                                    tuple<std::string>("Yukawa potential (cut/shift)",
+				    "LJ 12-6 plus Yukawa potential (cut/shift)",
+		                    "r^12 repulsion plus Yukawa potential (cut/shift)",
+       			            "r^18 repulsion plus Yukawa potential (cut/shift)",
+				    "r^N repulsion plus Yukawa potential (cut/shift)"),true));
 
       RCP<StringVisualDependency> EpsYukawaWFArray_Dep3 = rcp(
-         new StringVisualDependency("SI2_Vext_1D", SurfaceInteraction_List, "SP4_EpsYukawaWF", PotentialsWF_List,
-             tuple<std::string>("R^7 repulsion plus Yukawa field (cut/shift)"),true));
+         new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI2_Vext_1D"), 
+                                    PotentialsWF_List->getEntryRCP("SP4_EpsYukawaWF"), 
+                                    tuple<std::string>("R^7 repulsion plus Yukawa field (cut/shift)"),true));
 
       RCP<StringVisualDependency> YukawaKWFArray_Dep2 = rcp(
-         new StringVisualDependency("SI4_U3D_TO_BE_INTEGRATED", SurfaceInteraction_List, "SP5_ExpDecayParamWF", PotentialsWF_List, 
-             tuple<std::string>("Exponential potential (cut/shift)",
-				"Yukawa potential (cut/shift)",
-				"LJ 12-6 plus Yukawa potential (cut/shift)",
-		                "r^12 repulsion plus Yukawa potential (cut/shift)",
-       			        "r^18 repulsion plus Yukawa potential (cut/shift)",
-				"r^N repulsion plus Yukawa potential (cut/shift)"),true));
+         new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI4_U3D_TO_BE_INTEGRATED"), 
+                                    PotentialsWF_List->getEntryRCP("SP5_ExpDecayParamWF"), 
+                                    tuple<std::string>("Exponential potential (cut/shift)",
+				    "Yukawa potential (cut/shift)",
+                                    "LJ 12-6 plus Yukawa potential (cut/shift)",
+                                    "r^12 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^18 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^N repulsion plus Yukawa potential (cut/shift)"),true));
 
       RCP<StringVisualDependency> YukawaKWFArray_Dep3 = rcp(
-         new StringVisualDependency("SI2_Vext_1D", SurfaceInteraction_List, "SP5_ExpDecayParamWF", PotentialsWF_List,
-             tuple<std::string>("Expotential potential (no c/s)",
-				"R^7 repulsion plus Yukawa field (cut/shift)"),true));
+         new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI2_Vext_1D"),
+                                    PotentialsWF_List->getEntryRCP("SP5_ExpDecayParamWF"),
+                                    tuple<std::string>("Expotential potential (no c/s)",
+                                    "R^7 repulsion plus Yukawa field (cut/shift)"),true));
 
 
              /* Array Length Dependencies */
-      RCP<NumberArrayLengthDependency> SigmaWFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "SP1_SigmaWF",PotentialsWF_List));
+      RCP<NumberArrayLengthDependency<int,double> > SigmaWFArray_Dep = rcp(
+                new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"),PotentialsWF_List->getEntryRCP("SP1_SigmaWF")));
 
-      RCP<NumberArrayLengthDependency> SigmaWFArray_Dep2 = rcp(
-                new NumberArrayLengthDependency( "S3: Number of surface types", Surface_List, "SP1_SigmaWF",PotentialsWF_List));
+      RCP<NumberArrayLengthDependency<int,double> > SigmaWFArray_Dep2 = rcp(
+                new NumberArrayLengthDependency<int,double>(Surface_List->getEntryRCP("S3: Number of surface types"), PotentialsWF_List->getEntryRCP("SP1_SigmaWF")));
 
-      RCP<NumberArrayLengthDependency> EpsWFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "SP2_EpsWF",PotentialsWF_List));
-      RCP<NumberArrayLengthDependency> CutWFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "SP3_CutWF",PotentialsWF_List));
+      RCP<NumberArrayLengthDependency<int,double> > EpsWFArray_Dep = rcp(
+                new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"),PotentialsWF_List->getEntryRCP( "SP2_EpsWF")));
+      RCP<NumberArrayLengthDependency<int,double> > CutWFArray_Dep = rcp(
+                new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"),PotentialsWF_List->getEntryRCP("SP3_CutWF")));
 
-      RCP<NumberArrayLengthDependency> EpsYukawaWFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "SP4_EpsYukawaWF",PotentialsWF_List));
+      RCP<NumberArrayLengthDependency<int,double> > EpsYukawaWFArray_Dep = rcp(
+                new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"),PotentialsWF_List->getEntryRCP("SP4_EpsYukawaWF")));
 
-      RCP<NumberArrayLengthDependency> YukawaKWFArray_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "SP5_ExpDecayParamWF",PotentialsWF_List));
+      RCP<NumberArrayLengthDependency<int,double> > YukawaKWFArray_Dep = rcp(
+                new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"),PotentialsWF_List->getEntryRCP("SP5_ExpDecayParamWF")));
 
       RCP<BoolVisualDependency> VextSemiperm_Dep = rcp(
-           new BoolVisualDependency( "SI5_LSemiperm", SurfaceInteraction_List, "PW1_Vext_membrane", PotentialsWF_List,true));
+           new BoolVisualDependency( SurfaceInteraction_List->getEntryRCP("SI5_LSemiperm"),PotentialsWF_List->getEntryRCP("PW1_Vext_membrane"),true));
 
 
 /* need to figure out how to do 2D arrays ---- if 1D array of NxN length, how do we make the NumberArrayLengthDependency work?*/

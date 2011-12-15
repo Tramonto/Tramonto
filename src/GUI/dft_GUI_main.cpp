@@ -1,13 +1,5 @@
-/*#include "Teuchos_ParameterList.hpp"*/
 using namespace std;
 #include <iostream>
-/*#include "Teuchos_StandardParameterEntryValidators.hpp"
-#include "Teuchos_Array.hpp"	
-#include "Optika_GUI.hpp"
-#include "Teuchos_XMLParameterListHelpers.hpp"
-#include "Teuchos_FancyOStream.hpp"
-#include "Teuchos_VerboseObject.hpp"*/
-#include "Teuchos_Version.hpp"
 #include "dft_GUI.h"
 #include "dft_GUI.hpp"
 using namespace Teuchos;
@@ -28,7 +20,8 @@ extern "C" void dft_OptikaGUI()
 
             /* Create a  dependency sheet for the GUI*/
 
-  RCP<DependencySheet> depSheet_Tramonto = rcp(new DependencySheet(Tramonto_List));
+/*  RCP<DependencySheet> depSheet_Tramonto = rcp(new DependencySheet(Tramonto_List));*/
+  RCP<DependencySheet> depSheet_Tramonto = rcp(new DependencySheet());
 
             /* Create sublists that must be passed around */
 

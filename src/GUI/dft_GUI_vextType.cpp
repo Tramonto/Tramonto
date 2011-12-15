@@ -96,31 +96,39 @@ void dft_GUI_vextType(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
      /* DEPENDENCIES */
         RCP<NumberVisualDependency<int> > VextTypeDep = rcp(
-           new NumberVisualDependency<int>( "S1: Number of Surfaces", Surface_List, "SI0_Vext_type", SurfaceInteraction_List));
+           new NumberVisualDependency<int>( Surface_List->getEntryRCP("S1: Number of Surfaces"), 
+                                            SurfaceInteraction_List->getEntryRCP("SI0_Vext_type")));
 
         RCP<NumberVisualDependency<int> > VextMaxDep = rcp(
-           new NumberVisualDependency<int>( "S1: Number of Surfaces", Surface_List, "SI1_VEXT_MAX", SurfaceInteraction_List));
+           new NumberVisualDependency<int>( Surface_List->getEntryRCP("S1: Number of Surfaces"), 
+                                            SurfaceInteraction_List->getEntryRCP("SI1_VEXT_MAX")));
 
         RCP<NumberVisualDependency<int> > LhardDep = rcp(
-           new NumberVisualDependency<int>( "S1: Number of Surfaces", Surface_List, "SI3_CAREFUL_BOUNDARIES", SurfaceInteraction_List));
+           new NumberVisualDependency<int>(Surface_List->getEntryRCP("S1: Number of Surfaces"),
+                                           SurfaceInteraction_List->getEntryRCP("SI3_CAREFUL_BOUNDARIES")));
 
         RCP<NumberVisualDependency<int> > Lsemiperm_Dep = rcp(
-           new NumberVisualDependency<int>( "S1: Number of Surfaces", Surface_List, "SI5_LSemiperm", SurfaceInteraction_List));
+           new NumberVisualDependency<int>( Surface_List->getEntryRCP("S1: Number of Surfaces"), 
+                                            SurfaceInteraction_List->getEntryRCP("SI5_LSemiperm")));
 
         RCP<StringVisualDependency> Vext1D_Dep = rcp(
-           new StringVisualDependency( "SI0_Vext_type", SurfaceInteraction_List, "SI2_Vext_1D", SurfaceInteraction_List,
-                tuple<std::string>( "Vext 1D", "Vext 1D_XMIN", "Vext 1D_ORIENTATION"),true));
+           new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI0_Vext_type"),
+                                      SurfaceInteraction_List->getEntryRCP("SI2_Vext_1D"), 
+                                      tuple<std::string>( "Vext 1D", "Vext 1D_XMIN", "Vext 1D_ORIENTATION"),true));
 
         RCP<StringVisualDependency> VextU3D_Dep = rcp(
-           new StringVisualDependency( "SI0_Vext_type", SurfaceInteraction_List, "SI4_U3D_TO_BE_INTEGRATED", SurfaceInteraction_List,
-                tuple<std::string>( "Numerically integrated Vext from Uij", "Vext for atomic surfaces"),true));
+           new StringVisualDependency( SurfaceInteraction_List->getEntryRCP("SI0_Vext_type"),
+                                       SurfaceInteraction_List->getEntryRCP("SI4_U3D_TO_BE_INTEGRATED"),
+                                       tuple<std::string>( "Numerically integrated Vext from Uij", "Vext for atomic surfaces"),true));
 
         RCP<StringVisualDependency> UwwTF_Dep = rcp(
-           new StringVisualDependency( "SI0_Vext_type", SurfaceInteraction_List, "SI6_UWW_TF", SurfaceInteraction_List,
-                tuple<std::string>("Vext for atomic surfaces"),true));
+           new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI0_Vext_type"), 
+                                      SurfaceInteraction_List->getEntryRCP("SI6_UWW_TF"),
+                                      tuple<std::string>("Vext for atomic surfaces"),true));
 
         RCP<BoolVisualDependency> VextUWW_Dep = rcp(
-           new BoolVisualDependency( "SI6_UWW_TF", SurfaceInteraction_List, "SI7_U3D_FOR_WW_INTERACTIONS", SurfaceInteraction_List,true));
+           new BoolVisualDependency( SurfaceInteraction_List->getEntryRCP("SI6_UWW_TF"),
+                                     SurfaceInteraction_List->getEntryRCP("SI7_U3D_FOR_WW_INTERACTIONS"),true));
 
 
      /* DEPENDENCY SHEET ENTRIES*/

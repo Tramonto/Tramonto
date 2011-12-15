@@ -57,19 +57,19 @@ void dft_GUI_mesh( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
     /* show the dependent parameters only if the independent parameters has a particular setting. */
      RCP<BoolVisualDependency> UnitEntryDep_mesh = rcp(
-           new BoolVisualDependency( "M2_Dimensionless_Distance_Entry",Mesh_List,"M3_Reference_Length", Mesh_List, false));
+           new BoolVisualDependency(Mesh_List->getEntryRCP("M2_Dimensionless_Distance_Entry"),Mesh_List->getEntryRCP("M3_Reference_Length"),false));
 
-    RCP<NumberArrayLengthDependency> EsizeArrayDep = rcp(
-          new NumberArrayLengthDependency( "M1_Ndim", Mesh_List, "M5_Esize_x",Mesh_List));
+    RCP<NumberArrayLengthDependency<int,double> > EsizeArrayDep = rcp(
+          new NumberArrayLengthDependency<int,double>(Mesh_List->getEntryRCP("M1_Ndim"),Mesh_List->getEntryRCP("M5_Esize_x")));
 
-    RCP<NumberArrayLengthDependency> SizeArrayDep = rcp(
-          new NumberArrayLengthDependency( "M1_Ndim", Mesh_List, "M4_Size_x",Mesh_List));
+    RCP<NumberArrayLengthDependency<int,double> > SizeArrayDep = rcp(
+          new NumberArrayLengthDependency<int,double>( Mesh_List->getEntryRCP("M1_Ndim"), Mesh_List->getEntryRCP("M4_Size_x")));
 
-    RCP<NumberArrayLengthDependency> BCnegArrayDep = rcp(
-          new NumberArrayLengthDependency( "M1_Ndim", Mesh_List, "M6_Boundary_Conditions_XMIN",Mesh_List));
+    RCP<NumberArrayLengthDependency<int,string> > BCnegArrayDep = rcp(
+          new NumberArrayLengthDependency<int,string>( Mesh_List->getEntryRCP("M1_Ndim"), Mesh_List->getEntryRCP("M6_Boundary_Conditions_XMIN")));
 
-    RCP<NumberArrayLengthDependency> BCposArrayDep = rcp(
-          new NumberArrayLengthDependency( "M1_Ndim", Mesh_List, "M7_Boundary_Conditions_XMAX",Mesh_List));
+    RCP<NumberArrayLengthDependency<int,string> > BCposArrayDep = rcp(
+          new NumberArrayLengthDependency<int,string>( Mesh_List->getEntryRCP("M1_Ndim"), Mesh_List->getEntryRCP("M7_Boundary_Conditions_XMAX")));
 
 
     /* add the dependencies for this section.*/

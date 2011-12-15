@@ -105,104 +105,126 @@ void dft_GUI_potentialsFF(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     /***************************************************************************************************************/
 
      RCP<StringVisualDependency> PotType_Dep =rcp(
-           new StringVisualDependency("F2_PAIRPOTcore_Functional", Functional_List, "F4_PairPotType", Fluid_List, tuple<std::string>("No Mean Field Functional"), false));
+           new StringVisualDependency(Functional_List->getEntryRCP("F2_PAIRPOTcore_Functional"), 
+                                      Fluid_List->getEntryRCP("F4_PairPotType"), 
+                                      tuple<std::string>("No Mean Field Functional"), false));
 
       /* trying to set up dependency for a sublist based on the value of F4_PairPotType .... doesn't work */
 /*     RCP<StringVisualDependency> PairPotList_Dep =rcp(
            new StringVisualDependency("F4_PairPotType", Fluid_List, "PotentialsFF_List", Fluid_List, "NO_PAIRPOT", false));*/
 
      RCP<StringVisualDependency> HSDiamType_Dep = rcp(
-           new StringVisualDependency( "F1_HS_Functional", Functional_List, "F2_HSDiamType", Fluid_List, tuple<std::string>("Ideal Fluid / No Volume Exclusion"), false));
+           new StringVisualDependency( Functional_List->getEntryRCP("F1_HS_Functional"),
+                                       Fluid_List->getEntryRCP("F2_HSDiamType"), 
+                                       tuple<std::string>("Ideal Fluid / No Volume Exclusion"), false));
+
      RCP<StringVisualDependency> HSDiam_Dep = rcp(
-           new StringVisualDependency( "F2_HSDiamType", Fluid_List, "F3_HSDiam", Fluid_List, tuple<std::string>("Manual Definition"), true));
-    RCP<NumberArrayLengthDependency> HSDiam_Dep2 = rcp(
-          new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, "F3_HSDiam",Fluid_List));
+           new StringVisualDependency( Fluid_List->getEntryRCP("F2_HSDiamType"),
+                                       Fluid_List->getEntryRCP("F3_HSDiam"), 
+                                       tuple<std::string>("Manual Definition"), true));
+
+    RCP<NumberArrayLengthDependency<int,double> > HSDiam_Dep2 = rcp(
+          new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"), 
+                                           Fluid_List->getEntryRCP("F3_HSDiam")));
 
 
       /* trying to set up dependency based on the value of F1_Ncomp-1 rather than F1_Ncomp .... doesn't work */
      RCP<NumberVisualDependency<int> > MixType_Dep = rcp(
-            new NumberVisualDependency<int>( "F1_Ncomp", Fluid_List, "PF0_Off_Diagonal_Definitions", PotentialsFF_List,func_testNcomp));
+            new NumberVisualDependency<int>(Fluid_List->getEntryRCP("F1_Ncomp"),
+                                            PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"),func_testNcomp));
 
 /*     RCP<NumberVisualDependency<int> > MixType_Dep = rcp(
            new NumberVisualDependency<int>( "F1_Ncomp", Fluid_List,"PF0_Off_Diagonal_Definitions", PotentialsFF_List));*/
 
      RCP<StringVisualDependency> MixType2_Dep =rcp(
-           new StringVisualDependency("F2_PAIRPOTcore_Functional", Functional_List, "PF0_Off_Diagonal_Definitions", PotentialsFF_List, 
-           tuple<std::string>("No Mean Field Functional"), false));
+           new StringVisualDependency(Functional_List->getEntryRCP("F2_PAIRPOTcore_Functional"), 
+                                      PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"), 
+                                      tuple<std::string>("No Mean Field Functional"), false));
 
-      RCP<StringVisualDependency> SigmaFFArray_Dep2 = rcp(
-         new StringVisualDependency("F1_HS_Functional", Functional_List, "PF1_SigmaFF", PotentialsFF_List, "Ideal Fluid / No Volume Exclusion",false));
+     RCP<StringVisualDependency> SigmaFFArray_Dep2 = rcp(
+         new StringVisualDependency(Functional_List->getEntryRCP("F1_HS_Functional"), 
+                                    PotentialsFF_List->getEntryRCP("PF1_SigmaFF"),"Ideal Fluid / No Volume Exclusion",false));
 
-      RCP<StringVisualDependency> EpsFFArray_Dep2 = rcp(
-         new StringVisualDependency("F4_PairPotType", Fluid_List, "PF2_EpsFF", PotentialsFF_List, 
-             tuple<std::string>("LJ 12-6 potential (cut/shift)",
-                "Exponential potential (cut/shift)","Square Well potential",
-                "LJ 12-6 plus Yukawa potential (cut/shift)",
-                "r^12 repulsion plus Yukawa potential (cut/shift)",
-                "r^18 repulsion plus Yukawa potential (cut/shift)",
-		"r^N repulsion plus Yukawa potential (cut/shift)"),true));
+     RCP<StringVisualDependency> EpsFFArray_Dep2 = rcp(
+         new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"),
+                                    PotentialsFF_List->getEntryRCP("PF2_EpsFF"), 
+                                    tuple<std::string>("LJ 12-6 potential (cut/shift)",
+                                       "Exponential potential (cut/shift)","Square Well potential",
+                                       "LJ 12-6 plus Yukawa potential (cut/shift)",
+                                       "r^12 repulsion plus Yukawa potential (cut/shift)",
+                                       "r^18 repulsion plus Yukawa potential (cut/shift)",
+                                       "r^N repulsion plus Yukawa potential (cut/shift)"),true));
 
 
-      RCP<StringVisualDependency> CutFFArray_Dep2 = rcp(
-         new StringVisualDependency("F4_PairPotType", Fluid_List, "PF3_CutFF", PotentialsFF_List, 
-             tuple<std::string>("LJ 12-6 potential (cut/shift)","Exponential potential (cut/shift)",
-		"Coulomb potential as mean field (cut/shift)","Coulomb potential as mean field (cut only)",
-		"Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
-		"r^12 repulsion plus Yukawa potential (cut/shift)",
-		"r^18 repulsion plus Yukawa potential (cut/shift)",
-		"r^N repulsion plus Yukawa potential (cut/shift)"),true));
+     RCP<StringVisualDependency> CutFFArray_Dep2 = rcp(
+         new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"), 
+                                    PotentialsFF_List->getEntryRCP("PF3_CutFF"), 
+                                    tuple<std::string>("LJ 12-6 potential (cut/shift)","Exponential potential (cut/shift)",
+	                            "Coulomb potential as mean field (cut/shift)","Coulomb potential as mean field (cut only)",
+                                    "Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
+                                    "r^12 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^18 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^N repulsion plus Yukawa potential (cut/shift)"),true));
 
 
       RCP<StringVisualDependency> EpsYukawaFFArray_Dep2 = rcp(
-         new StringVisualDependency("F4_PairPotType", Fluid_List, "PF4_EpsYukawaFF", PotentialsFF_List, 
-             tuple<std::string>("Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
-		"r^12 repulsion plus Yukawa potential (cut/shift)",
-		"r^18 repulsion plus Yukawa potential (cut/shift)",
-		"r^N repulsion plus Yukawa potential (cut/shift)"),true));
+         new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"),
+                                    PotentialsFF_List->getEntryRCP("PF4_EpsYukawaFF"),  
+                                    tuple<std::string>("Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
+                                    "r^12 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^18 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^N repulsion plus Yukawa potential (cut/shift)"),true));
 
       RCP<StringVisualDependency> YukawaKFFArray_Dep2 = rcp(
-         new StringVisualDependency("F4_PairPotType", Fluid_List, "PF5_ExpDecayParamFF", PotentialsFF_List, 
-             tuple<std::string>("Exponential potential (cut/shift)",
- 		"Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
-		"r^12 repulsion plus Yukawa potential (cut/shift)",
-		"r^18 repulsion plus Yukawa potential (cut/shift)",
-		"r^N repulsion plus Yukawa potential (cut/shift)"),true));
+         new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"),
+                                    PotentialsFF_List->getEntryRCP("PF5_ExpDecayParamFF"), 
+                                    tuple<std::string>("Exponential potential (cut/shift)",
+                                    "Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
+                                    "r^12 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^18 repulsion plus Yukawa potential (cut/shift)",
+                                    "r^N repulsion plus Yukawa potential (cut/shift)"),true));
 
       RCP<StringVisualDependency> NpowFFArray_Dep2 = rcp(
-         new StringVisualDependency("F4_PairPotType", Fluid_List, "PF6_NpowFF", PotentialsFF_List, 
-             tuple<std::string>("r^N repulsion plus Yukawa potential (cut/shift)"),true));
+         new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"), 
+                                    PotentialsFF_List->getEntryRCP("PF6_NpowFF"), 
+                                    tuple<std::string>("r^N repulsion plus Yukawa potential (cut/shift)"),true));
 
       RCP<StringVisualDependency> ChargeArray_Dep2 = rcp(
-         new StringVisualDependency("F3_CHARGE_Functional", Functional_List, "PF8_Charge", PotentialsFF_List, 
-             tuple<std::string>("Charge_Mean_Field","Charge_with_DeltaC_RPM","Charge_with_DeltaC_General","Charge(MF)_with_Polarization"),true));
+         new StringVisualDependency(Functional_List->getEntryRCP("F3_CHARGE_Functional"), 
+                                    PotentialsFF_List->getEntryRCP("PF8_Charge"), 
+                                    tuple<std::string>("Charge_Mean_Field","Charge_with_DeltaC_RPM",
+                                    "Charge_with_DeltaC_General","Charge(MF)_with_Polarization"),true));
 
       RCP<StringVisualDependency> ChargeArray_Dep3 = rcp(
-         new StringVisualDependency("F4_PairPotType", Fluid_List, "PF8_Charge", PotentialsFF_List, 
-             tuple<std::string>("Coulomb potential as mean field (cut/shift)","Coulomb potential as mean field (cut only)"),true));
+         new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"),
+                                    PotentialsFF_List->getEntryRCP("PF8_Charge"), 
+                                    tuple<std::string>("Coulomb potential as mean field (cut/shift)",
+                                     "Coulomb potential as mean field (cut only)"),true));
 
       RCP<StringVisualDependency> PolarizationArray_Dep2 = rcp(
-         new StringVisualDependency("F3_CHARGE_Functional", Functional_List, "PF9_Polarization", PotentialsFF_List, 
-              tuple<std::string>("Charge(MF)_with_Polarization"),true));
+         new StringVisualDependency(Functional_List->getEntryRCP("F3_CHARGE_Functional"),
+                                    PotentialsFF_List->getEntryRCP("PF9_Polarization"), 
+                                    tuple<std::string>("Charge(MF)_with_Polarization"),true));
 
 
-      Dependency::ParameterParentMap PotFFArrayLength_Dependents;
-      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF1_SigmaFF", PotentialsFF_List));
-      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF2_EpsFF", PotentialsFF_List));
-      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF3_CutFF", PotentialsFF_List));
-      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF4_EpsYukawaFF", PotentialsFF_List));
-      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF5_ExpDecayParamFF", PotentialsFF_List));
-      PotFFArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF6_NpowFF", PotentialsFF_List));
+      Dependency::ParameterEntryList PotFFArrayLength_Dependents;
+      PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF1_SigmaFF"));
+      PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF2_EpsFF"));
+      PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF3_CutFF"));
+      PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF4_EpsYukawaFF"));
+      PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF5_ExpDecayParamFF"));
+      PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF6_NpowFF"));
 
-      RCP<NumberArrayLengthDependency> PotFFArrayLength_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, PotFFArrayLength_Dependents));
+      RCP<NumberArrayLengthDependency<int,double> > PotFFArrayLength_Dep = rcp(
+                new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"),PotFFArrayLength_Dependents));
 
-      Dependency::ParameterParentMap PotFF2ArrayLength_Dependents;
-      PotFF2ArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF7_Mass", PotentialsFF_List));
-      PotFF2ArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF8_Charge", PotentialsFF_List));
-      PotFF2ArrayLength_Dependents.insert(std::pair<std::string, RCP<ParameterList> >("PF9_Polarization", PotentialsFF_List));
+      Dependency::ParameterEntryList PotFF2ArrayLength_Dependents;
+      PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF7_Mass"));
+      PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF8_Charge"));
+      PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF9_Polarization"));
 
-      RCP<NumberArrayLengthDependency> PotFFArrayLength2_Dep = rcp(
-                new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, PotFF2ArrayLength_Dependents));
+      RCP<NumberArrayLengthDependency<int,double> > PotFFArrayLength2_Dep = rcp(
+                new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"), PotFF2ArrayLength_Dependents));
 
 /*      RCP<BoolVisualDependency> VextSemiperm_Dep = rcp(
            new BoolVisualDependency( "SI5_LSemiperm", SurfaceInteraction_List, "PW1_Vext_membrane", PotentialsFF_List,true));*/

@@ -1,15 +1,5 @@
-/*#include "Teuchos_ParameterList.hpp"*/
 using namespace std;
 #include <iostream>
-/***** push these to common dft_GUI.h file *****
-#include "Teuchos_StandardParameterEntryValidators.hpp"
-#include "Teuchos_Array.hpp"	
-#include "Teuchos_Version.hpp"
-#include "Optika_GUI.hpp"
-#include "Teuchos_XMLParameterListHelpers.hpp"
-#include "Teuchos_FancyOStream.hpp"
-#include "Teuchos_VerboseObject.hpp"
-**************************************************/
 #include "dft_GUI.h"
 #include "dft_GUI.hpp"
 using namespace Teuchos;
@@ -87,73 +77,88 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
         /* set up dependencies */
         /************************/
    RCP<StringVisualDependency> GradDim_Dep = rcp(
-       new StringVisualDependency( "F0_Type_of_Calculation",Functional_List,"5: Direction of Gradient", StatePoint_List,
-           tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)","Steady State Diffusion (inhomogeneous boundaries)")));
+       new StringVisualDependency( Functional_List->getEntryRCP("F0_Type_of_Calculation"),
+                                   StatePoint_List->getEntryRCP("5: Direction of Gradient"), 
+                                   tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)",
+                                   "Steady State Diffusion (inhomogeneous boundaries)")));
 
-       /* set up two dependees for the temperature condition */
-   RCP<BoolCondition> TempCon1=rcp(new BoolCondition("F5_Dimensionless_Energy_Entry",Fluid_List,false));
-   RCP<BoolCondition> TempCon2=rcp(new BoolCondition("CF8.0: Dimensionless Entry of Electrostatic Potential(s)?",ChargedFluid_List,false));
-   Condition::ConditionList Temp_conList = tuple<RCP<Condition> >(TempCon1,TempCon2);
+       /* set up two dependees for the temperature condition ...note there used to be a false here so that a negative entry meant enter dimensioned units...may need to work on this*/
+   RCP<BoolCondition> TempCon1=rcp(new BoolCondition(Fluid_List->getEntryRCP("F5_Dimensionless_Energy_Entry")));
+   RCP<BoolCondition> TempCon2=rcp(new BoolCondition(ChargedFluid_List->getEntryRCP("CF8.0: Dimensionless Entry of Electrostatic Potential(s)?")));
+   Condition::ConstConditionList Temp_conList = tuple<RCP<const Condition> >(TempCon1,TempCon2);
    RCP<OrCondition>Temp_orCon=rcp(new OrCondition(Temp_conList));
-   RCP<ConditionVisualDependency> EnergyUnit_Dep = rcp(new ConditionVisualDependency(Temp_orCon, "0: Temperature(K)", StatePoint_List));
+   RCP<ConditionVisualDependency> EnergyUnit_Dep = rcp(new ConditionVisualDependency(Temp_orCon, StatePoint_List->getEntryRCP("0: Temperature(K)")));
        /* end of set up two dependees for the temperature condition */
 
-   RCP<BoolVisualDependency> DensityUnit_Dep = rcp( new BoolVisualDependency( "1: Dimensionless Density Entry?",StatePoint_List,"2: Density Conversion Factor", StatePoint_List,false));
+   RCP<BoolVisualDependency> DensityUnit_Dep = rcp( 
+        new BoolVisualDependency( StatePoint_List->getEntryRCP("1: Dimensionless Density Entry?"),
+                                  StatePoint_List->getEntryRCP("2: Density Conversion Factor"),false));
 
    RCP<StringVisualDependency> Lconstrain_Dep = rcp(
-       new StringVisualDependency( "F0_Type_of_Calculation",Functional_List,"6: Constrained Interface?", StatePoint_List,
-           tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)")));
+       new StringVisualDependency( Functional_List->getEntryRCP("F0_Type_of_Calculation"),
+                                   StatePoint_List->getEntryRCP("6: Constrained Interface?"),
+                                   tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)")));
 
-   Dependency::ParameterParentMap DensityLengthDependents;
-   DensityLengthDependents.insert(std::pair<std::string, RCP<ParameterList> >("3: Rho_b_0[icomp]", StatePoint_List));
-   DensityLengthDependents.insert(std::pair<std::string, RCP<ParameterList> >("4: Rho_b_1[icomp]", StatePoint_List));
-   RCP<NumberArrayLengthDependency> DensityLength_Dep = rcp(
-           new NumberArrayLengthDependency( "F1_Ncomp", Fluid_List, DensityLengthDependents));
+   Dependency::ParameterEntryList DensityLengthDependents;
+   DensityLengthDependents.insert(StatePoint_List->getEntryRCP("3: Rho_b_0[icomp]"));
+   DensityLengthDependents.insert(StatePoint_List->getEntryRCP("4: Rho_b_1[icomp]"));
+   RCP<NumberArrayLengthDependency<int,double> > DensityLength_Dep = rcp(
+           new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"), DensityLengthDependents));
 
    RCP<StringVisualDependency> RhoB1_Dep = rcp(
-       new StringVisualDependency( "F0_Type_of_Calculation",Functional_List,"4: Rho_b_1[icomp]", StatePoint_List,
-           tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)","Steady State Diffusion (inhomogeneous boundaries)")));
+       new StringVisualDependency( Functional_List->getEntryRCP("F0_Type_of_Calculation"),
+                                   StatePoint_List->getEntryRCP("4: Rho_b_1[icomp]"), 
+                                   tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)",
+                                   "Steady State Diffusion (inhomogeneous boundaries)")));
 
-   Dependency::ParameterParentMap DiffusionDependents;
-   DiffusionDependents.insert(std::pair<std::string, RCP<ParameterList> >("D1: Diff_Coeff[icomp]", Diffusion_List));
-   DiffusionDependents.insert(std::pair<std::string, RCP<ParameterList> >("D2: distance for constant Mu region",Diffusion_List));
-   DiffusionDependents.insert(std::pair<std::string, RCP<ParameterList> >("D3: bulk velocity",Diffusion_List));
+   Dependency::ParameterEntryList DiffusionDependents;
+   DiffusionDependents.insert(Diffusion_List->getEntryRCP("D1: Diff_Coeff[icomp]"));
+   DiffusionDependents.insert(Diffusion_List->getEntryRCP("D2: distance for constant Mu region"));
+   DiffusionDependents.insert(Diffusion_List->getEntryRCP("D3: bulk velocity"));
 
    RCP<StringVisualDependency> Diffusion_Dep = rcp(
-       new StringVisualDependency( "F0_Type_of_Calculation",Functional_List,DiffusionDependents,
+       new StringVisualDependency( Functional_List->getEntryRCP("F0_Type_of_Calculation"),DiffusionDependents,
            tuple<std::string>("Steady State Diffusion (inhomogeneous boundaries)")));
 
-   Dependency::ParameterParentMap ChargeParamsDependents;
-   ChargeParamsDependents.insert(std::pair<std::string, RCP<ParameterList> >("CF1: Type Dielectric Constant(s)",ChargedFluid_List));
-   ChargeParamsDependents.insert(std::pair<std::string, RCP<ParameterList> >("CF2: Entry of Relative Dielectric Constant(s)?",ChargedFluid_List));
-   ChargeParamsDependents.insert(std::pair<std::string, RCP<ParameterList> >("CF4: Dielec Const Bulk Fluid",ChargedFluid_List));
-   ChargeParamsDependents.insert(std::pair<std::string, RCP<ParameterList> >("CF7: Plasma Parameter",ChargedFluid_List));
-   ChargeParamsDependents.insert(std::pair<std::string, RCP<ParameterList> >("CF8.0: Dimensionless Entry of Electrostatic Potential(s)?",ChargedFluid_List));
-   ChargeParamsDependents.insert(std::pair<std::string, RCP<ParameterList> >("CF8.1: Elec_pot_0",ChargedFluid_List));
+   Dependency::ParameterEntryList ChargeParamsDependents;
+   ChargeParamsDependents.insert(ChargedFluid_List->getEntryRCP("CF1: Type Dielectric Constant(s)"));
+   ChargeParamsDependents.insert(ChargedFluid_List->getEntryRCP("CF2: Entry of Relative Dielectric Constant(s)?"));
+   ChargeParamsDependents.insert(ChargedFluid_List->getEntryRCP("CF4: Dielec Const Bulk Fluid"));
+   ChargeParamsDependents.insert(ChargedFluid_List->getEntryRCP("CF7: Plasma Parameter"));
+   ChargeParamsDependents.insert(ChargedFluid_List->getEntryRCP("CF8.0: Dimensionless Entry of Electrostatic Potential(s)?"));
+   ChargeParamsDependents.insert(ChargedFluid_List->getEntryRCP("CF8.1: Elec_pot_0"));
 
    RCP<StringVisualDependency> ChargeParams_Dep = rcp(
-       new StringVisualDependency( "F3_CHARGE_Functional",Functional_List,ChargeParamsDependents,
+       new StringVisualDependency( Functional_List->getEntryRCP("F3_CHARGE_Functional"),ChargeParamsDependents,
            tuple<std::string>("Charge_Mean_Field","Charge_with_DeltaC_RPM","Charge_with_DeltaC_General","Charge(MF)_with_Polarization")));
 
-   RCP<BoolVisualDependency> DielecConstUnit_Dep = rcp( new BoolVisualDependency( "CF2: Entry of Relative Dielectric Constant(s)?",ChargedFluid_List,
-                                                                                  "CF3: Reference Dielectric Constant", ChargedFluid_List,false));
+   RCP<BoolVisualDependency> DielecConstUnit_Dep = rcp( 
+        new BoolVisualDependency( ChargedFluid_List->getEntryRCP("CF2: Entry of Relative Dielectric Constant(s)?"),
+                                  ChargedFluid_List->getEntryRCP("CF3: Reference Dielectric Constant"),false));
 
-   Dependency::ParameterParentMap DielecPoreDependents;
-   DielecPoreDependents.insert(std::pair<std::string, RCP<ParameterList> >("CF5: Dielec Const Near Wall Fluid",ChargedFluid_List));
-   DielecPoreDependents.insert(std::pair<std::string, RCP<ParameterList> >("CF6: Size of Near Wall region",ChargedFluid_List));
+   Dependency::ParameterEntryList DielecPoreDependents;
+   DielecPoreDependents.insert(ChargedFluid_List->getEntryRCP("CF5: Dielec Const Near Wall Fluid"));
+   DielecPoreDependents.insert(ChargedFluid_List->getEntryRCP("CF6: Size of Near Wall region"));
    RCP<StringVisualDependency> DielecPore_Dep = rcp(
-       new StringVisualDependency( "CF1: Type Dielectric Constant(s)",ChargedFluid_List,DielecPoreDependents,
+       new StringVisualDependency( ChargedFluid_List->getEntryRCP("CF1: Type Dielectric Constant(s)"),DielecPoreDependents,
            tuple<std::string>("2-Dielec Const: fluid and wall regions","3-Dielec Const: bulk fluid, fluid near wall, wall regions")));
 
        /* set up two dependees for the electrostatic condition */
-   RCP<StringCondition> ChargeCon1 = rcp(new StringCondition("F3_CHARGE_Functional", Functional_List, 
-           tuple<std::string>("Charge_Mean_Field","Charge_with_DeltaC_RPM","Charge_with_DeltaC_General","Charge(MF)_with_Polarization"),true));
-   RCP<StringCondition> ChargeCon2 = rcp(new StringCondition("F0_Type_of_Calculation", Functional_List, 
-           tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)","Steady State Diffusion (inhomogeneous boundaries)"),true));
+   RCP<StringCondition> ChargeCon1 = rcp(
+        new StringCondition(Functional_List->getEntryRCP("F3_CHARGE_Functional"),  
+                            tuple<std::string>("Charge_Mean_Field","Charge_with_DeltaC_RPM",
+                            "Charge_with_DeltaC_General","Charge(MF)_with_Polarization")));
 
-   Condition::ConditionList Charge_conList = tuple<RCP<Condition> >(ChargeCon1, ChargeCon2);
+   RCP<StringCondition> ChargeCon2 = rcp(
+        new StringCondition(Functional_List->getEntryRCP("F0_Type_of_Calculation"),  
+           tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)",
+                              "Steady State Diffusion (inhomogeneous boundaries)")));
+
+   Condition::ConstConditionList Charge_conList = tuple<RCP<const Condition> >(ChargeCon1, ChargeCon2);
    RCP<AndCondition> Charge_andCon = rcp(new AndCondition(Charge_conList));
-   RCP<ConditionVisualDependency> Elec_pot1_Dep = rcp(new ConditionVisualDependency(Charge_andCon, "CF8.2: Elec_pot_1", ChargedFluid_List, true));
+   RCP<ConditionVisualDependency> Elec_pot1_Dep = rcp(
+          new ConditionVisualDependency(Charge_andCon, ChargedFluid_List->getEntryRCP("CF8.2: Elec_pot_1"), true));
+
        /* end of set up for two dependees for the electrostatic condition */
 
 
