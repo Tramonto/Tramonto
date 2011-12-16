@@ -658,4 +658,7 @@ template class dft_BasicLinProbMgr<double, int, int>;
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_BasicLinProbMgr<qd_real, int, int>;
+#elif LINSOLVE_PREC == 3
+// Use double double
+template class dft_BasicLinProbMgr<dd_real, int, int>;
 #endif

@@ -288,5 +288,8 @@ template class dft_PolyA11_Coulomb_Tpetra_Operator<double, int, int>;
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_PolyA11_Coulomb_Tpetra_Operator<qd_real, int, int>;
+#elif LINSOLVE_PREC == 3
+// Use double double
+template class dft_PolyA11_Coulomb_Tpetra_Operator<dd_real, int, int>;
 #endif
 
