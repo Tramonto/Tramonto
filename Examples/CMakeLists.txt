@@ -51,7 +51,10 @@ function(Tramonto_add_test _test_name)
 
   # Add targets to copy all of the test dependencies to the binary
   # directory.
-  set(_files_to_copy)
+  if(NOT TEST_HARNESS_INPUT_FILES)
+    file(GLOB TEST_HARNESS_INPUT_FILES *)
+  endif()
+
   list(APPEND  _files_to_copy ${TEST_HARNESS_INPUT_FILES} ${TEST_HARNESS_README_FILE})
   foreach(_file ${_files_to_copy})
     add_custom_command(
