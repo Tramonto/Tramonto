@@ -367,7 +367,8 @@ cleanUp();
                     #} #$maxProc ne "2"
                     #else {
                     if ($dirName ne "CVS" && $dirName ne "." 
-                      && $dirName ne ".." && $dirName ne "Ex_polyfiles") { 
+                      && $dirName ne ".." && $dirName ne "check_results" 
+                      && $dirName ne "Ex_polyfiles") {
                         push(@exampleDirs, $absFile); 
                     }
                     #} # $maxProc = 2
