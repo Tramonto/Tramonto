@@ -74,14 +74,12 @@ function(Tramonto_add_test _test_name)
     COMMAND 
       ${MPIEXEC} 
       ${MPIEXEC_NUMPROC_FLAG} ${TEST_HARNESS_PROCESSES}
-      ${MPIEXEC_PREFLAGS} ${_dft_exec_location} ${MPIEXEC_POSTFLAGS}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+      ${MPIEXEC_PREFLAGS} ${_dft_exec_location} ${MPIEXEC_POSTFLAGS})
 
   # Add the test that checks the results.
   add_test(
     NAME ${_test_name}.check
-    COMMAND check_results README dft_output.dat ${Tramonto_TEST_HARNESS_FAIL_TOLERANCE}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    COMMAND check_results README dft_output.dat ${Tramonto_TEST_HARNESS_FAIL_TOLERANCE})
   
   # Set up test labels based on the specified testing track.
   set(_labels)
