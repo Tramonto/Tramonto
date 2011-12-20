@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+#include <cmath>
+
 /**
    \brief Determine if a numeric string is floating point or integer valued.
  */
@@ -79,27 +81,6 @@ private:
   double double_;
 };
 
-class MatchToTolerance
-{
-public:
-  MatchToTolerance(double tolerance, const IntOrDouble& value) 
-  : tolerance_(tolerance),
-    value_(value)
-  {}
-  bool operator()(const IntOrDouble& lhs) {
-    if (lhs.isInt() && value_.isInt()) {
-      return lhs.getInt() == value_.getInt();
-    } else if (lhs.isDouble() && value_.isDouble()) {
-      return abs(lhs.getDouble() - value_.getDouble()) < tolerance_;
-    } else {
-      return false;
-    }
-  }
-private:
-  double tolerance_;
-  IntOrDouble value_;
-};
-
 std::ostream& operator<<(std::ostream& ostr, const IntOrDouble& v) {
   if (v.isInt()) {
     ostr << "(int)" << v.getInt();
@@ -134,6 +115,27 @@ bool operator==(const IntOrDouble& lhs, const IntOrDouble& rhs) {
     return false;
   }
 }
+
+class MatchToTolerance
+{
+public:
+  MatchToTolerance(double tolerance, const IntOrDouble& value) 
+  : tolerance_(tolerance),
+    value_(value)
+  {}
+  bool operator()(const IntOrDouble& lhs) {
+    if (lhs.isInt() && value_.isInt()) {
+      return lhs.getInt() == value_.getInt();
+    } else if (lhs.isDouble() && value_.isDouble()) {
+      return (std::abs(lhs.getDouble() - value_.getDouble()) < tolerance_);
+    } else {
+      return false;
+    }
+  }
+private:
+  double tolerance_;
+  IntOrDouble value_;
+};
 
 /**
    \brief Trim the leading whitespace from a string.
@@ -216,9 +218,11 @@ void matchParameters(
   typedef std::vector<IntOrDouble>::const_iterator Iter;
   for (Iter it = actual.begin(); it != actual.end(); ++it)
   {
-    ioExpected.erase(
-      std::remove_if(ioExpected.begin(), ioExpected.end(), MatchToTolerance(tolerance, *it)),
-      ioExpected.end());
+    std::vector<IntOrDouble>::iterator newEnd 
+      = std::remove_if(ioExpected.begin(),
+		       ioExpected.end(),
+		       MatchToTolerance(tolerance, *it));
+    ioExpected.erase(newEnd, ioExpected.end());
   }
 }
 
@@ -256,6 +260,10 @@ int main(int argc, char* argv[])
   double tolerance;
   std::istringstream readtolerance(argv[3]);
   readtolerance >> tolerance;
+
+  std::cout << "Expected parameters file is " << readmeFile << std::endl;
+  std::cout << "Data file is " << outputDat << std::endl;
+  std::cout << "Floating point comparison tolerance is " << tolerance << std::endl;
 
   try {
     std::ifstream readmeIn(readmeFile.c_str());
