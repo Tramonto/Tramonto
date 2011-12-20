@@ -27,8 +27,8 @@ add_subdirectory(check_results)
 function(Tramonto_add_test _test_name)
 
   # Set up the accepted argument set for the macro.
-  set(_input_options LONG_TEST)
-  set(_input_one_value_keywords README_FILE PROCESSES)
+  set(_input_options)
+  set(_input_one_value_keywords PROCESSES TYPE)
   set(_input_multi_value_keywords INPUT_FILES)
 
   # Parse the arguments.
@@ -41,29 +41,29 @@ function(Tramonto_add_test _test_name)
 
   
   # Set defaults for required values.
-  if(NOT TEST_HARNESS_README_FILE)
-    set(TEST_HARNESS_README_FILE "README")
+  if(NOT TEST_HARNESS_TYPE)
+    set(TEST_HARNESS_TYPE Checkin)
   endif()
 
   if(NOT TEST_HARNESS_PROCESSES)
     set(TEST_HARNESS_PROCESSES "${Tramonto_TEST_HARNESS_DEFAULT_PROCESSES}")
   endif()
 
-  # Add targets to copy all of the test dependencies to the binary
-  # directory.
   if(NOT TEST_HARNESS_INPUT_FILES)
     file(GLOB TEST_HARNESS_INPUT_FILES *)
   endif()
 
-  list(APPEND  _files_to_copy ${TEST_HARNESS_INPUT_FILES} ${TEST_HARNESS_README_FILE})
-  foreach(_file ${_files_to_copy})
+  # Add targets to copy all of the test dependencies to the binary
+  # directory.
+  foreach(_file ${TEST_HARNESS_INPUT_FILES})
+    get_filename_component(_name ${_file} NAME)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_file}
       COMMAND ${CMAKE_COMMAND} -E copy 
         ${CMAKE_CURRENT_SOURCE_DIR}/${_file} 
 	${CMAKE_CURRENT_BINARY_DIR}/${_file}
       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_file})
-    add_custom_target(copy_${_test_name}_${_file} ALL
+    add_custom_target(copy_${_test_name}_${_name} ALL
       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${_file})
   endforeach()
 
@@ -82,33 +82,47 @@ function(Tramonto_add_test _test_name)
     NAME ${_test_name}.check
     COMMAND check_results README dft_output.dat ${Tramonto_TEST_HARNESS_FAIL_TOLERANCE}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
- 
-  if(TEST_HARNESS_LONG_TEST)
-    set(_labels FullTestSuite CheckinTestSuite)
+  
+  # Set up test labels based on the specified testing track.
+  set(_labels)
+  if(TEST_HARNESS_TYPE STREQUAL Checkin)
+    set(_labels Checkin Continuous Nightly)
+  elseif(TEST_HARNESS_TYPE STREQUAL Continuous)
+    set(_labels Continuous Nightly)
+  elseif(TEST_HARNESS_TYPE STREQUAL Nightly)
+    set(_labels Nightly)
   else()
-    set(_label CheckinTestSuite)
+    set(_labels ${TEST_HARNESS_TYPE})
   endif()
-
+  
   # Set properties on the test.
   set_tests_properties(
     ${_test_name}.run 
     PROPERTIES
       PROCESSORS ${TEST_HARNESS_PROCESSES}
       WILL_FAIL TRUE
-      LABELS "${_label}"
+      LABELS "${_labels}"
       )
 
   # Set up the dependency between the run job and the check job.
   set_property(TEST ${_test_name}.check 
     APPEND PROPERTY DEPENDS ${_test_name}.run)
   set_property(TEST ${_test_name}.check
-    APPEND PROPERTY LABELS "${_label}")
+    APPEND PROPERTY LABELS "${_labels}")
   
 endfunction()
 
 # Add a target to run only the short tests before a checkin.
 add_custom_target(checkin_test
-  ${CMAKE_CTEST_COMMAND} -L CheckinTestSuite
+  ${CMAKE_CTEST_COMMAND} -L Checkin
+  )
+
+add_custom_target(continuous_test
+  ${CMAKE_CTEST_COMMAND} -L Continuous
+  )
+
+add_custom_target(nightly_test
+  ${CMAKE_CTEST_COMMAND} -L Nightly
   )
 
 add_subdirectory(HS1_FMT1_1D)
