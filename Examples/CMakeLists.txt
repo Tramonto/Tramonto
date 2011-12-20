@@ -101,6 +101,8 @@ function(Tramonto_add_test _test_name)
   # Set up the dependency between the run job and the check job.
   set_property(TEST ${_test_name}.check 
     APPEND PROPERTY DEPENDS ${_test_name}.run)
+  set_property(TEST ${_test_name}.check
+    APPEND PROPERTY LABELS "${_label}")
   
 endfunction()
 
