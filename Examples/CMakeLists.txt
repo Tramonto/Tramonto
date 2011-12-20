@@ -12,6 +12,18 @@ set(Tramonto_TEST_HARNESS_DEFAULT_PROCESSES 4 CACHE STRING
 set(Tramonto_TEST_HARNESS_FAIL_TOLERANCE 0.001 CACHE STRING
   "Maximum difference between floating point values before test is considered a failure.")
 
+set(Tramonto_TEST_HARNESS_Checkin_TIMEOUT 30 CACHE STRING
+  "Maximum runtime for a test that gets run as part of the Checkin test suite.")
+
+set(Tramonto_TEST_HARNESS_Continuous_TIMEOUT 300 CACHE STRING
+  "Maximum runtime for a test that gets run as part of the Continuous test suite.")
+
+set(Tramonto_TEST_HARNESS_Nightly_TIMEOUT 3600 CACHE STRING
+  "Maximum runtime for a test that gets run as part of the Nightly test suite.")
+
+set(Tramonto_TEST_HARNESS_CHECK_JOB_TIMEOUT 2 CACHE STRING
+  "Maximum runtime for the jobs responsible for checking the results of the test harness.")
+
 # We use MPI to run Tramonto tests.
 find_package(MPI REQUIRED)
 
@@ -83,12 +95,16 @@ function(Tramonto_add_test _test_name)
   
   # Set up test labels based on the specified testing track.
   set(_labels)
+  set(_timeout ${Tramonto_TEST_HARNESS_Nightly_TIMEOUT})
   if(TEST_HARNESS_TYPE STREQUAL Checkin)
     set(_labels Checkin Continuous Nightly)
+    set(_timeout ${Tramonto_TEST_HARNESS_Checkin_TIMEOUT})
   elseif(TEST_HARNESS_TYPE STREQUAL Continuous)
     set(_labels Continuous Nightly)
+    set(_timeout ${Tramonto_TEST_HARNESS_Continuous_TIMEOUT})
   elseif(TEST_HARNESS_TYPE STREQUAL Nightly)
     set(_labels Nightly)
+    set(_timeout ${Tramonto_TEST_HARNESS_Nightly_TIMEOUT})
   else()
     set(_labels ${TEST_HARNESS_TYPE})
   endif()
@@ -100,13 +116,16 @@ function(Tramonto_add_test _test_name)
       PROCESSORS ${TEST_HARNESS_PROCESSES}
       WILL_FAIL TRUE
       LABELS "${_labels}"
+      TIMEOUT "${_timeout}"
       )
 
   # Set up the dependency between the run job and the check job.
-  set_property(TEST ${_test_name}.check 
-    APPEND PROPERTY DEPENDS ${_test_name}.run)
-  set_property(TEST ${_test_name}.check
-    APPEND PROPERTY LABELS "${_labels}")
+  set_tests_properties(
+    ${_test_name}.check
+    PROPERTIES
+      TIMEOUT "${Tramonto_TEST_HARNESS_CHECK_JOB_TIMEOUT}"
+      DEPENDS ${_test_name}.run
+      LABELS "${_labels}")
   
 endfunction()
 
