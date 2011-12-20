@@ -125,7 +125,6 @@ add_custom_target(nightly_test
   ${CMAKE_CTEST_COMMAND} -L Nightly
   )
 
-
 # Begin example listing
 add_subdirectory(BC10_FMT1_WCA_ELEC_3D)
 add_subdirectory(BC11_FMT1_WCA_ELEC_3D)
@@ -151,6 +150,12 @@ add_subdirectory(CONT1_FMT1_WCA_1D)
 add_subdirectory(CONT2_FMT1_WCA_1D)
 add_subdirectory(CONT3_FMT1_WCA_1D)
 add_subdirectory(CONT4_FMT1_WCA_1D)
+add_subdirectory(DIFFUSION1_FMT1_WCA_1D)
+add_subdirectory(DIFFUSION2_FMT1_WCA_WJDC_1D)
+add_subdirectory(DIFFUSION3_FMT1_WCA_PICARD_1D)
+add_subdirectory(DIFFUSION4_FMT1_WCA_3D)
+add_subdirectory(DIFFUSION5_FMT1_WCA_WJDC_3D)
+add_subdirectory(DIFFUSION6_FMT1_WCA_PICARD_3D)
 add_subdirectory(EXP_FMT3_1D)
 add_subdirectory(GEOM10_SPHERE_3D)
 add_subdirectory(GEOM11_CYL_2D)
@@ -208,6 +213,7 @@ add_subdirectory(LJ5_FMT1_WCA2_1D)
 add_subdirectory(MIX10_FMT1_ATTELEC_1D)
 add_subdirectory(MIX11_FMT1_WCA_1D)
 add_subdirectory(MIX12_FMT1_ELEC_1D)
+add_subdirectory(MIX13_ELEC_PICARD_1D)
 add_subdirectory(MIX1_FMT1_1D)
 add_subdirectory(MIX2_FMT1_WCA_1D)
 add_subdirectory(MIX3_ELEC_1D)

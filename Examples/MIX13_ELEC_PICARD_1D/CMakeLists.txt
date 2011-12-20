@@ -1,5 +1,5 @@
 Tramonto_add_test(
-  HS1_FMT1_1D
+  MIX13_ELEC_PICARD_1D
   INPUT_FILES
     README
     dft_input.dat

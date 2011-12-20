@@ -1,5 +1,5 @@
 Tramonto_add_test(
-  HS1_FMT1_1D
+  DIFFUSION3_FMT1_WCA_PICARD_1D
   INPUT_FILES
     README
     dft_input.dat
