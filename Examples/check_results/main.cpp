@@ -267,8 +267,16 @@ int main(int argc, char* argv[])
 
   try {
     std::ifstream readmeIn(readmeFile.c_str());
+    if (!readmeIn.good()) {
+      std::cerr << "Failed to read from " << readmeFile << std::endl;
+      return 1;
+    }
     std::vector<IntOrDouble> expected = readKeyOutputParameters(readmeIn);
     std::ifstream outputIn(outputDat.c_str());
+    if (!outputIn.good()) {
+      std::cerr << "Failed to read from " << outputDat << std::endl;
+      return 1;
+    }
     std::vector<IntOrDouble> actual = readActualParameters(outputIn);
     printValues("Expected", expected.begin(), expected.end());
     printValues("Actual", actual.begin(), actual.end()); 
