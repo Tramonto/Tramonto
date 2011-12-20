@@ -1,5 +1,5 @@
 Tramonto_add_test(
-  GEOM14_CYL_WEDGECUTOUT_2D
+  HS8_FMT4_1D
   INPUT_FILES
     README
     dft_input.dat

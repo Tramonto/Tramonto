@@ -1,8 +1,8 @@
-
 Tramonto_add_test(
   HS1_FMT1_1D
-  TYPE Checkin
   INPUT_FILES
+    README
+    README.~1.3.~
     dft_input.dat
     dft_surfaces.dat
 )

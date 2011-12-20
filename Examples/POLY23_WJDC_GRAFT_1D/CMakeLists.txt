@@ -1,7 +1,8 @@
 Tramonto_add_test(
-  GEOM14_CYL_WEDGECUTOUT_2D
+  POLY23_WJDC_GRAFT_1D
   INPUT_FILES
     README
     dft_input.dat
     dft_surfaces.dat
+    lin_49
 )

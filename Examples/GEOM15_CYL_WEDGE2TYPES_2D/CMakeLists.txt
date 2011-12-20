@@ -1,5 +1,5 @@
 Tramonto_add_test(
-  GEOM14_CYL_WEDGECUTOUT_2D
+  GEOM15_CYL_WEDGE2TYPES_2D
   INPUT_FILES
     README
     dft_input.dat

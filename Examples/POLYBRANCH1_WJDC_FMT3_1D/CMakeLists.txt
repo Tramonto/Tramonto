@@ -1,0 +1,11 @@
+Tramonto_add_test(
+  POLYBRANCH1_WJDC_FMT3_1D
+  INPUT_FILES
+    README
+    dens.eta1
+    dens.eta2
+    dens.eta3
+    dft_input.dat
+    dft_surfaces.dat
+    star_3arm_5mer
+)
