@@ -111,4 +111,4 @@ add_custom_target(checkin_test
 
 add_subdirectory(HS1_FMT1_1D)
 add_subdirectory(GEOM14_CYL_WEDGECUTOUT_2D)
-
+add_subdirectory(SW_FMT3_1D)
