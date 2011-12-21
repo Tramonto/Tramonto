@@ -13,8 +13,7 @@ function(add_application_test _test_name)
   set(_option_args)
   set(_one_value_keyword_args 
     WEIGHT
-    TIMEOUT
-    WORKING_DIRECTORY)
+    TIMEOUT)
   set(_multi_value_keyword_args
     FILE_DEPENDENCIES
     PREPROCESS
@@ -79,7 +78,6 @@ function(add_application_test _test_name)
   
   # Add the test that runs the driver.
   add_test(NAME ${_test_name}
-    WORKING_DIRECTORY ${_application_test_WORKING_DIRECTORY}
     COMMAND ${CMAKE_COMMAND} -P ${_test_driver_file})
   
   # Set up the test properties.
