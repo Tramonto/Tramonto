@@ -2,6 +2,7 @@
 # These are the primary Tramonto tests.
 #
 
+include(AddApplicationTest)
 include(CMakeParseArguments)
 
 # Set a cache variable to serve as the default for the maximum number
@@ -65,33 +66,15 @@ function(Tramonto_add_test _test_name)
     file(GLOB TEST_HARNESS_INPUT_FILES *)
   endif()
 
-  # Add targets to copy all of the test dependencies to the binary
-  # directory.
-  foreach(_file ${TEST_HARNESS_INPUT_FILES})
-    get_filename_component(_name ${_file} NAME)
-    add_custom_command(
-      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_file}
-      COMMAND ${CMAKE_COMMAND} -E copy 
-        ${CMAKE_CURRENT_SOURCE_DIR}/${_file} 
-	${CMAKE_CURRENT_BINARY_DIR}/${_file}
-      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_file})
-    add_custom_target(copy_${_test_name}_${_name} ALL
-      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${_file})
-  endforeach()
-
   # Add the test that runs the example.
   get_property(_dft_exec_location TARGET dft_exec PROPERTY LOCATION)
-  add_test(
-    NAME ${_test_name}.run
-    COMMAND 
-      ${MPIEXEC} 
-      ${MPIEXEC_NUMPROC_FLAG} ${TEST_HARNESS_PROCESSES}
-      ${MPIEXEC_PREFLAGS} ${_dft_exec_location} ${MPIEXEC_POSTFLAGS})
-
-  # Add the test that checks the results.
-  add_test(
-    NAME ${_test_name}.check
-    COMMAND check_results README dft_output.dat ${Tramonto_TEST_HARNESS_FAIL_TOLERANCE})
+  set(_command
+    ${MPIEXEC} 
+    ${MPIEXEC_NUMPROC_FLAG} ${TEST_HARNESS_PROCESSES}
+    ${MPIEXEC_PREFLAGS} ${_dft_exec_location} ${MPIEXEC_POSTFLAGS})
+  get_property(_check_results_location TARGET check_results PROPERTY LOCATION)
+  set(_postprocess
+    ${_check_results_location} README dft_output.dat ${Tramonto_TEST_HARNESS_FAIL_TOLERANCE})
   
   # Set up test labels based on the specified testing track.
   set(_labels)
@@ -109,24 +92,15 @@ function(Tramonto_add_test _test_name)
     set(_labels ${TEST_HARNESS_TYPE})
   endif()
   
-  # Set properties on the test.
-  set_tests_properties(
-    ${_test_name}.run 
-    PROPERTIES
-      PROCESSORS ${TEST_HARNESS_PROCESSES}
-      WILL_FAIL TRUE
-      LABELS "${_labels}"
-      TIMEOUT "${_timeout}"
-      )
+  # Add the test.
+  add_application_test(${_test_name}
+    WEIGHT ${TEST_HARNESS_PROCESSES}
+    TIMEOUT ${_timeout}
+    FILE_DEPENDENCIES ${TEST_HARNESS_INPUT_FILES}
+    APPLICATION COMMAND ${_command} EXIT_CODE 1
+    POSTPROCESS COMMAND ${_postprocess}
+    LABELS ${_labels})
 
-  # Set up the dependency between the run job and the check job.
-  set_tests_properties(
-    ${_test_name}.check
-    PROPERTIES
-      TIMEOUT "${Tramonto_TEST_HARNESS_CHECK_JOB_TIMEOUT}"
-      DEPENDS ${_test_name}.run
-      LABELS "${_labels}")
-  
 endfunction()
 
 # Add a target to run only the short tests before a checkin.
