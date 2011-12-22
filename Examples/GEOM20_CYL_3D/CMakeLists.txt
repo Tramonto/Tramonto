@@ -8,4 +8,5 @@ Tramonto_add_test(
     in2D.dat
     output2D.dat
     surf2D.dat
+  TYPE Nightly
 )
