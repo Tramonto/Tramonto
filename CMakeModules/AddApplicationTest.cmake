@@ -86,7 +86,7 @@ function(add_application_test _test_name)
     PROPERTIES
       PROCESSORS ${_application_test_WEIGHT}
       TIMEOUT ${_application_test_TIMEOUT}
-      LABELS ${_application_test_LABELS})
+      LABELS "${_application_test_LABELS}")
     
 
 endfunction()
