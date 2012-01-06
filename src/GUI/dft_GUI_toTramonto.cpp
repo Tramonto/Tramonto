@@ -10,10 +10,12 @@ using namespace Optika;
 void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                         Teuchos::RCP<Teuchos::ParameterList> Mesh_List, 
                         Teuchos::RCP<Teuchos::ParameterList> Functional_List,
+                        Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                        Teuchos::RCP<Teuchos::ParameterList> PotentialsFF_List,
                         Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                         Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List) 
 {
-  int i;
+  int i,j;
   /****************************** DIMENSION PARAMETER SECTION **********************************************************/
   /* this routine translates the parameters from the GUI to Tramonto.  */
 
@@ -87,6 +89,89 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     else if (Functional_List->get<string>("F4_POLYMER_Functional")=="Polymer_JDC_iSAFT(seg)")              Type_poly=WJDC;
     else if (Functional_List->get<string>("F4_POLYMER_Functional")=="Polymer_JDC_iSAFT(segRho compField)") Type_poly=WJDC2;
     else if (Functional_List->get<string>("F4_POLYMER_Functional")=="Polymer_JDC_iSAFT(comp)")             Type_poly=WJDC3;
+
+    /****************************************************/
+    /* params from fluid physics section of the GUI  */
+    /****************************************************/
+    Ncomp=Fluid_List->get<int>("F1_Ncomp");
+
+    if(Fluid_List->get<string>("F2_HSDiamType")=="HS_diam=Sigma") Type_hsdiam=SIGMA_DIAM;
+    else if(Fluid_List->get<string>("F2_HSDiamType")=="Manual Definition") Type_hsdiam=MANUAL_HS_DIAM;
+    else if(Fluid_List->get<string>("F2_HSDiamType")=="Barker-Henderson") Type_hsdiam=BH_DIAM;
+    
+    Array<double> F3_HSDiam = Fluid_List->get<Array<double> >("F3_HSDiam");
+    for (i=0; i<Ncomp; i++) HS_diam[i]=F3_HSDiam[i]; 
+
+    if(Fluid_List->get<string>("F4_PairPotType")=="none") Type_pairPot=PAIR_HARD;
+    else if(Fluid_List->get<string>("F4_PairPotType")=="LJ 12-6 potential (cut/shift)") Type_pairPot=PAIR_LJ12_6_CS;
+    else if(Fluid_List->get<string>("F4_PairPotType")=="Coulomb potential as mean field (cut/shift)") Type_pairPot=PAIR_COULOMB_CS;
+    else if(Fluid_List->get<string>("F4_PairPotType")=="Coulomb potential as mean field (cut only)") Type_pairPot=PAIR_COULOMB;
+    else if(Fluid_List->get<string>("F4_PairPotType")=="Yukawa potential (cut/shift)") Type_pairPot=PAIR_YUKAWA_CS;
+    else if(Fluid_List->get<string>("F4_PairPotType")=="Exponential potential (cut/shift)") Type_pairPot=PAIR_EXP_CS;
+    else if(Fluid_List->get<string>("F4_PairPotType")=="Square Well potential") Type_pairPot=PAIR_SW;
+    else if(Fluid_List->get<string>("F4_PairPotType")=="LJ 12-6 plus Yukawa potential (cut/shift)") Type_pairPot=PAIR_LJandYUKAWA_CS;
+    else if(Fluid_List->get<string>("F4_PairPotType")=="r^12 repulsion plus Yukawa potential (cut/shift)") Type_pairPot=PAIR_r12andYUKAWA_CS;
+    else if(Fluid_List->get<string>("F4_PairPotType")=="r^18 repulsion plus Yukawa potential (cut/shift)") Type_pairPot=PAIR_r18andYUKAWA_CS;
+    else if(Fluid_List->get<string>("F4_PairPotType")=="r^N repulsion plus Yukawa potential (cut/shift)") Type_pairPot=PAIR_rNandYUKAWA_CS;
+
+    Temp=Fluid_List->get<double>("F6_Temperature");
+   
+    if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Manual Definition") Mix_type=1;
+    else if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Lorentz-Berthlot Mixing") Mix_type=0;
+
+   cout<<"Mix_type="<<Mix_type<<"\n"<< "value of variable from list="<<PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")<<endl;
+
+    if (Mix_type==0){ /* translate diagonal array entries to the 2D arrays used in Tramonto */
+       Array<double> PF1_SigmaF=PotentialsFF_List->get<Array<double> >("PF1_SigmaF");
+       for (i=0; i<Ncomp; i++) Sigma_ff[i][i]=PF1_SigmaF[i]; 
+
+       Array<double> PF2_EpsF=PotentialsFF_List->get<Array<double> >("PF2_EpsF");
+       for (i=0; i<Ncomp; i++) Eps_ff[i][i]=PF2_EpsF[i]; 
+
+       Array<double> PF3_CutF=PotentialsFF_List->get<Array<double> >("PF3_CutF");
+       for (i=0; i<Ncomp; i++) Cut_ff[i][i]=PF3_CutF[i]; 
+    }
+    else{
+       TwoDArray<double> PF1_SigmaFF=PotentialsFF_List->get<TwoDArray<double> >("PF1_SigmaFF");
+       for (i=0; i<Ncomp; i++)  
+          for (j=0; j<Ncomp; j++){ Sigma_ff[i][j]=PF1_SigmaFF[i][j]; 
+       }
+
+       TwoDArray<double> PF2_EpsFF=PotentialsFF_List->get<TwoDArray<double> >("PF2_EpsFF");
+       for (i=0; i<Ncomp; i++)  
+          for (j=0; j<Ncomp; j++) Eps_ff[i][j]=PF2_EpsFF[i][j]; 
+
+       TwoDArray<double> PF3_CutFF=PotentialsFF_List->get<TwoDArray<double> >("PF3_CutFF");
+       for (i=0; i<Ncomp; i++)  
+          for (j=0; j<Ncomp; j++) Cut_ff[i][j]=PF3_CutFF[i][j]; 
+
+       TwoDArray<double> PF4_EpsYukawaFF=PotentialsFF_List->get<TwoDArray<double> >("PF4_EpsYukawaFF");
+       for (i=0; i<Ncomp; i++)  
+          for (j=0; j<Ncomp; j++) EpsYukawa_ff[i][j]=PF4_EpsYukawaFF[i][j]; 
+
+       TwoDArray<double> PF5_YukawaKFF=PotentialsFF_List->get<TwoDArray<double> >("PF5_ExpDecayParamFF");
+       for (i=0; i<Ncomp; i++)  
+          for (j=0; j<Ncomp; j++) YukawaK_ff[i][j]=PF5_YukawaKFF[i][j]; 
+
+       TwoDArray<double> PF6_NpowFF=PotentialsFF_List->get<TwoDArray<double> >("PF6_NpowFF");
+       for (i=0; i<Ncomp; i++)  
+          for (j=0; j<Ncomp; j++) Npow_ff[i][j]=PF6_NpowFF[i][j]; 
+
+       TwoDArray<double> PF10_BondFF=PotentialsFF_List->get<TwoDArray<double> >("PF10_BondFF");
+       for (i=0; i<Ncomp; i++)  
+          for (j=0; j<Ncomp; j++) Bond_ff[i][j]=PF10_BondFF[i][j]; 
+    }
+ 
+
+    Array<double> PF7_Mass=PotentialsFF_List->get<Array<double> >("PF7_Mass");
+    for (i=0; i<Ncomp; i++) Mass[i]=PF7_Mass[i]; 
+
+    Array<double> PF8_Charge=PotentialsFF_List->get<Array<double> >("PF8_Charge");
+    for (i=0; i<Ncomp; i++) Charge_f[i]=PF8_Charge[i]; 
+
+    Array<double> PF9_Pol=PotentialsFF_List->get<Array<double> >("PF9_Polarization");
+    for (i=0; i<Ncomp; i++) Pol[i]=PF9_Pol[i]; 
+
 
     /****************************************************/
     /* params from surface geometry section of the GUI  */
