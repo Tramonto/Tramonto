@@ -4,6 +4,7 @@
 
 include(AddApplicationTest)
 include(CMakeParseArguments)
+include(ConfigureTestOutputSize)
 
 # Set a cache variable to serve as the default for the maximum number
 # of processes a test can use.
@@ -30,6 +31,9 @@ find_package(MPI REQUIRED)
 
 # Build the program that checks the results.
 add_subdirectory(check_results)
+
+# Set the test output size to unlimited.
+configure_test_output_size(0 0)
 
 # Add a Tramonto executable test.
 #
