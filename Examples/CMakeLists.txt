@@ -14,6 +14,9 @@ set(Tramonto_TEST_HARNESS_DEFAULT_PROCESSES 4 CACHE STRING
 set(Tramonto_TEST_HARNESS_FAIL_TOLERANCE 0.001 CACHE STRING
   "Maximum difference between floating point values before test is considered a failure.")
 
+set(Tramonto_TEST_HARNESS_Sanity_TIMEOUT 15 CACHE STRING
+  "Maximum runtime for a test that gets run as part of the Sanity test suite.")
+
 set(Tramonto_TEST_HARNESS_Checkin_TIMEOUT 30 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Checkin test suite.")
 
@@ -22,6 +25,9 @@ set(Tramonto_TEST_HARNESS_Continuous_TIMEOUT 300 CACHE STRING
 
 set(Tramonto_TEST_HARNESS_Nightly_TIMEOUT 3600 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Nightly test suite.")
+
+set(Tramonto_TEST_HARNESS_Occasional_TIMEOUT 0 CACHE STRING
+  "Maximum runtime for a test that gets run as part of the Occasional test suite.")
 
 set(Tramonto_TEST_HARNESS_CHECK_JOB_TIMEOUT 2 CACHE STRING
   "Maximum runtime for the jobs responsible for checking the results of the test harness.")
@@ -83,7 +89,10 @@ function(Tramonto_add_test _test_name)
   # Set up test labels based on the specified testing track.
   set(_labels)
   set(_timeout ${Tramonto_TEST_HARNESS_Nightly_TIMEOUT})
-  if(TEST_HARNESS_TYPE STREQUAL Checkin)
+  if(TEST_HARNESS_TYPE STREQUAL Sanity)
+    set(_labels Sanity Checkin Continuous Nightly)
+    set(_timeout ${Tramonto_TEST_HARNESS_Sanity_TIMEOUT})
+  elseif(TEST_HARNESS_TYPE STREQUAL Checkin)
     set(_labels Checkin Continuous Nightly)
     set(_timeout ${Tramonto_TEST_HARNESS_Checkin_TIMEOUT})
   elseif(TEST_HARNESS_TYPE STREQUAL Continuous)
@@ -92,6 +101,9 @@ function(Tramonto_add_test _test_name)
   elseif(TEST_HARNESS_TYPE STREQUAL Nightly)
     set(_labels Nightly)
     set(_timeout ${Tramonto_TEST_HARNESS_Nightly_TIMEOUT})
+  elseif(TEST_HARNESS_TYPE STREQUAL Occasional)
+    set(_labels Occasional)
+    set(_timeout ${Tramonto_TEST_HARNESS_Occasional_TIMEOUT})
   else()
     set(_labels ${TEST_HARNESS_TYPE})
   endif()
@@ -106,6 +118,9 @@ function(Tramonto_add_test _test_name)
     LABELS ${_labels})
 
 endfunction()
+
+add_custom_target(sanity_test
+  ${CMAKE_CTEST_COMMAND} -L Sanity)
 
 # Add a target to run only the short tests before a checkin.
 add_custom_target(checkin_test

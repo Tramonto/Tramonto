@@ -6,4 +6,5 @@ Tramonto_add_test(
     dft_dens.dat
     dft_input.dat
     lin_18_1
+  TYPE Sanity
 )
