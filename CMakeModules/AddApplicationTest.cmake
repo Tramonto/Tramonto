@@ -3,7 +3,26 @@
 # An application level test consists of a preprocessing step, running
 # the application itself, and a postprocessing step. In addition, file
 # dependencies can be specified and an overall job weight can be
-# specified.
+# specified. The function should be used as follows:
+#
+# add_application_test(
+#   <test-name>
+#   [WEIGHT <n>]
+#   [TIMEOUT <seconds>]
+#   [FILE_DEPENDENCIES file1 [file2 [file3[...]]]]
+#   [PREPROCESS COMMAND <command> [EXIT_CODE <exit-code>]] 
+#   [APPLICATION COMMAND <command> [EXIT_CODE <exit-code>]] 
+#   [POSTPROCESS COMMAND <command> [EXIT_CODE <exit-code>]] 
+#   [LABELS [label1 [label2 [...]]]]
+#
+# The WEIGHT argument specifies the number of processes that will be occupied
+# by the test. The TIMEOUT argument specifies how long the test should be
+# allowed to run in seconds. The FILE_DEPENDENCIES argument specifies any input
+# files the application test requires. These files will be copied to the test
+# execution directory at build time. The PREPROCESS, APPLICATION, and
+# POSTPROCESS arguments specify a preprocessing step, how to run the
+# application itself and any post processing steps that are required. Finally,
+# the LABELS argument specifies any labels to attach to the test.
 
 include(CMakeParseArguments)
 
