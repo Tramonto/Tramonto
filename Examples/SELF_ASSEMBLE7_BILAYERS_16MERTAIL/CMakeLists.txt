@@ -6,4 +6,5 @@ Tramonto_add_test(
     dft_dens.dat
     dft_dens2.dat
     dft_input.dat
+  TYPE Continuous
 )

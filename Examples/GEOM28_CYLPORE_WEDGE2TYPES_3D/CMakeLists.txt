@@ -4,4 +4,5 @@ Tramonto_add_test(
     README
     dft_input.dat
     dft_surfaces.dat
+  TYPE Nightly
 )
