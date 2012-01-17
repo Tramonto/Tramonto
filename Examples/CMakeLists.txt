@@ -14,6 +14,9 @@ set(Tramonto_TEST_HARNESS_DEFAULT_PROCESSES 4 CACHE STRING
 set(Tramonto_TEST_HARNESS_FAIL_TOLERANCE 0.001 CACHE STRING
   "Maximum difference between floating point values before test is considered a failure.")
 
+set(Tramonto_TEST_HARNESS_ITERATION_BOUND 2 CACHE STRING
+  "Maximum number of iterations a test is allowed to differ by before it is considered a failure.")
+
 set(Tramonto_TEST_HARNESS_Sanity_TIMEOUT 15 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Sanity test suite.")
 
@@ -84,7 +87,7 @@ function(Tramonto_add_test _test_name)
     ${MPIEXEC_PREFLAGS} ${_dft_exec_location} ${MPIEXEC_POSTFLAGS})
   get_property(_check_results_location TARGET check_results PROPERTY LOCATION)
   set(_postprocess
-    ${_check_results_location} README dft_output.dat ${Tramonto_TEST_HARNESS_FAIL_TOLERANCE})
+    ${_check_results_location} README dft_output.dat ${Tramonto_TEST_HARNESS_FAIL_TOLERANCE} ${Tramonto_TEST_HARNESS_ITERATION_BOUND})
   
   # Set up test labels based on the specified testing track.
   set(_labels)

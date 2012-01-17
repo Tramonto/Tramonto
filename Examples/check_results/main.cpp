@@ -119,13 +119,14 @@ bool operator==(const IntOrDouble& lhs, const IntOrDouble& rhs) {
 class MatchToTolerance
 {
 public:
-  MatchToTolerance(double tolerance, const IntOrDouble& value) 
+  MatchToTolerance(double tolerance, int iterationBound, const IntOrDouble& value) 
   : tolerance_(tolerance),
+    iterationBound_(iterationBound),
     value_(value)
   {}
   bool operator()(const IntOrDouble& lhs) {
     if (lhs.isInt() && value_.isInt()) {
-      return lhs.getInt() == value_.getInt();
+      return std::abs(lhs.getInt() - value_.getInt()) < iterationBound_;
     } else if (lhs.isDouble() && value_.isDouble()) {
       return (std::abs(lhs.getDouble() - value_.getDouble()) < tolerance_);
     } else {
@@ -134,6 +135,7 @@ public:
   }
 private:
   double tolerance_;
+  int iterationBound_;
   IntOrDouble value_;
 };
 
@@ -213,7 +215,8 @@ std::vector<IntOrDouble> readActualParameters(std::istream& in)
 void matchParameters(
   const std::vector<IntOrDouble>& actual, 
   std::vector<IntOrDouble>& ioExpected,
-  double tolerance)
+  double tolerance,
+  int iterationBound)
 {
   typedef std::vector<IntOrDouble>::const_iterator Iter;
   for (Iter it = actual.begin(); it != actual.end(); ++it)
@@ -221,7 +224,7 @@ void matchParameters(
     std::vector<IntOrDouble>::iterator newEnd 
       = std::remove_if(ioExpected.begin(),
 		       ioExpected.end(),
-		       MatchToTolerance(tolerance, *it));
+		       MatchToTolerance(tolerance, iterationBound, *it));
     ioExpected.erase(newEnd, ioExpected.end());
   }
 }
@@ -244,13 +247,13 @@ void printValues(const std::string& label, IterT begin, IterT end)
  */
 void printUsage(const std::string& exename, std::ostream& out)
 {
-  out << "Usage: " << exename << " <readme-file> <output-dat> <tolerance>" << std::endl;
+  out << "Usage: " << exename << " <readme-file> <output-dat> <floating-point-tolerance> <iteration-bound>" << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
   // Validate arguments.
-  if (argc != 4) {
+  if (argc != 5) {
     printUsage(argv[0], std::cerr);
     return -1;
   }
@@ -260,10 +263,15 @@ int main(int argc, char* argv[])
   double tolerance;
   std::istringstream readtolerance(argv[3]);
   readtolerance >> tolerance;
+  int iterationBound;
+  std::istringstream readIterationBound(argv[4]);
+  readIterationBound >> iterationBound;
 
   std::cout << "Expected parameters file is " << readmeFile << std::endl;
   std::cout << "Data file is " << outputDat << std::endl;
   std::cout << "Floating point comparison tolerance is " << tolerance << std::endl;
+  std::cout << "Iteration bound is " << iterationBound << std::endl;
+  
 
   try {
     std::ifstream readmeIn(readmeFile.c_str());
@@ -280,7 +288,7 @@ int main(int argc, char* argv[])
     std::vector<IntOrDouble> actual = readActualParameters(outputIn);
     printValues("Expected", expected.begin(), expected.end());
     printValues("Actual", actual.begin(), actual.end()); 
-    matchParameters(actual, expected, tolerance);
+    matchParameters(actual, expected, tolerance, iterationBound);
 
     if (!expected.empty()) {
       std::cout << "[FAILED]" << std::endl;
