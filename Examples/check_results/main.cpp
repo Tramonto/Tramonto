@@ -150,17 +150,17 @@ void trim(std::string& iostring) {
 std::vector<IntOrDouble> readKeyOutputParameters(std::istream& in)
 {
   typedef std::vector<IntOrDouble> ResultType;
-  char const * const kSectionTag = "Key Output Parameters:";
+  char const * const kSectionTag = "Key Output Parameters";
   char const * const kEndOfSectionTag = ".";
   
   // Read until we hit a line with "Key Output Parameters"
   std::string search(kSectionTag);
   std::string line;
-  while (!in.eof() && line != search) {
+  while (!in.eof() && line.find(search) == std::string::npos) {
     std::getline(in, line);
   }
 
-  if (line != search) {
+  if (line.find(search) == std::string::npos) {
     throw std::runtime_error("Could not find the Key Output Parameters section.");
   }
   
