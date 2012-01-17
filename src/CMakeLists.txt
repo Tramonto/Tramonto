@@ -312,9 +312,9 @@ link_directories(${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 # /Library/Frameworks/QtCore.framework /Library/Frameworks/QtGui.framework)
 
 #list of necessary Trilinos packages:
-#ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos  
+#ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos muelu
 set(Tramonto_Trilinos_LIBRARIES ${ML_LIBRARIES} ${Amesos_LIBRARIES}
-${NOX_LIBRARIES} ${AztecOO_LIBRARIES} ${Ifpack_LIBRARIES}
+${NOX_LIBRARIES} ${AztecOO_LIBRARIES} ${Ifpack_LIBRARIES} ${MueLu_LIBRARIES}
 ${EpetraExt_LIBRARIES} ${Epetra_LIBRARIES} ${Teuchos_LIBRARIES} ${Optika_LIBRARIES} )
 # ${Optika_LIBRARIES} /Library/Frameworks/QtCore.framework/QtCore /Library/Frameworks/QtGui.framework/QtGui)
 

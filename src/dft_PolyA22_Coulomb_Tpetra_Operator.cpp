@@ -374,6 +374,16 @@ finalizeProblemValues
   cmsOnPoissonMatrix_->fillComplete(poissonMap_, cmsMap_);
   poissonOnDensityMatrix_->fillComplete(densityMap_, poissonMap_);
 
+  if (firstTime_) {
+    RCP<Xpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps > > mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
+    RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps> > mueluPP  = rcp(new Xpetra::CrsOperator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    H = rcp(new Hierarchy(mueluPP));
+    H->setVerbLevel(Teuchos::VERB_HIGH);
+    FactoryManager M;
+    M.SetFactory("A", rcp(new RAPFactory()));
+    H->Setup(M);
+  }
+
   isLinearProblemSet_ = true;
   firstTime_ = false;
 } //end finalizeProblemValues
@@ -460,6 +470,9 @@ applyInverse
   RCP<VEC> tmp = rcp(new VEC(densityMap_));
   RCP<VEC> tmp2 = rcp(new VEC(densityMap_));
   tmp->reciprocal(*densityOnDensityMatrix_);
+  int nIts = 9;
+  RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluX;
+  RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluB;
   if (F_location_ == 1) 
   {
     // Third block row: Y2 = DD\X2
@@ -467,7 +480,9 @@ applyInverse
     // First block row: Y0 = PP \ (X0 - PD*Y2);
     poissonOnDensityMatrix_->apply(*Y2, *Y0tmp);
     Y0tmp->update(1.0, *X0, -1.0);
-    //// equivalent of ML applying inv(PP) ...? ////
+    mueluX = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
+    mueluB = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
+    H->Iterate(*mueluB, nIts, *mueluX);
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
     cmsOnPoissonMatrix_->apply(*Y0, *Y1tmp1);
     cmsOnDensityMatrix_->apply(*Y2, *Y1tmp2);
@@ -486,7 +501,9 @@ applyInverse
     // First block row: Y0 = PP \ (X0 - PD*Y1);
     poissonOnDensityMatrix_->apply(*Y1, *Y0tmp);
     Y0tmp->update( 1.0, *X0, -1.0 );
-    //// equivalent of ML applying inv(PP) ...? ////
+    mueluX = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
+    mueluB = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
+    H->Iterate(*mueluB, nIts, *mueluX);
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
     cmsOnPoissonMatrix_->apply(*Y0, *Y2tmp1);
     cmsOnDensityMatrix_->apply(*Y1, *Y2tmp2);

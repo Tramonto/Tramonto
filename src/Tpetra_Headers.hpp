@@ -35,7 +35,11 @@
 #include "BelosBlockGmresSolMgr.hpp"
 #include "Ifpack2_Factory.hpp"
 #include "Ifpack2_Preconditioner.hpp"
-
+#include <MueLu.hpp>
+#include <MueLu_TrilinosSmoother.hpp>
+#include <MueLu_RAPFactory.hpp>
+#include <MueLu_UseDefaultTypes.hpp>
+#include <MueLu_UseShortNames.hpp>
 #include "Kokkos_DefaultNode.hpp"
 #include <map>
 
