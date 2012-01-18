@@ -116,6 +116,7 @@ function(Tramonto_add_test _test_name)
     WEIGHT ${TEST_HARNESS_PROCESSES}
     TIMEOUT ${_timeout}
     FILE_DEPENDENCIES ${TEST_HARNESS_INPUT_FILES}
+    PREPROCESS COMMAND "\"${CMAKE_COMMAND}\"" -E remove -f dft_output.dat
     APPLICATION COMMAND ${_command} EXIT_CODE 1
     POSTPROCESS COMMAND ${_postprocess}
     LABELS ${_labels})

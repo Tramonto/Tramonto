@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <list>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -146,27 +147,11 @@ void trim(std::string& iostring) {
   iostring.erase(0, iostring.find_first_not_of(" \b\t\r\n"));
 }
 
-/**
-   \brief Read the "Key Output Parameters" section from the given file.
-*/
-std::vector<IntOrDouble> readKeyOutputParameters(std::istream& in)
-{
-  typedef std::vector<IntOrDouble> ResultType;
-  char const * const kSectionTag = "Key Output Parameters";
+std::vector<IntOrDouble> readParameterSection(std::istream& in) {
   char const * const kEndOfSectionTag = ".";
-  
-  // Read until we hit a line with "Key Output Parameters"
-  std::string search(kSectionTag);
-  std::string line;
-  while (!in.eof() && line.find(search) == std::string::npos) {
-    std::getline(in, line);
-  }
 
-  if (line.find(search) == std::string::npos) {
-    throw std::runtime_error("Could not find the Key Output Parameters section.");
-  }
-  
-  ResultType result;
+  std::vector<IntOrDouble> result;
+  std::string line;
   std::getline(in, line);
   trim(line);
   while(!in.eof() && line != std::string(kEndOfSectionTag)) {
@@ -184,27 +169,52 @@ std::vector<IntOrDouble> readKeyOutputParameters(std::istream& in)
     std::getline(in, line);
     trim(line);
   }
+  return result;
+}
+
+/**
+   \brief Read the "Key Output Parameters" section from the given file.
+*/
+std::list<std::vector<IntOrDouble> > readKeyOutputParameters(std::istream& in)
+{
+  std::list<std::vector<IntOrDouble> > result;
+  char const * const kSectionTag = "Key Output Parameters";
   
+  // Read until we hit a line with "Key Output Parameters"
+  std::string search(kSectionTag);
+  std::string line;
+  while (!in.eof()) {
+    if (line.find(search) != std::string::npos) {
+      result.push_back(readParameterSection(in));
+    }
+    std::getline(in, line);
+  }
   return result;
 }
 
 /**
    \brief Read the actual output parameters from a file.
 */
-std::vector<IntOrDouble> readActualParameters(std::istream& in)
+std::list<std::vector<IntOrDouble> > readActualParameters(std::istream& in)
 {
-  // Read to the last line of the file.
+  std::list<std::vector<IntOrDouble> > result;
+  // Read past the first line of the file.
   std::string line;
-  while (getline(in, line).peek() && !in.eof());
-
-  // Extract the actual parameters from the last line of the file.
-  std::istringstream lineread(line);
-  std::vector<IntOrDouble> actualParameters;
-  std::copy(
-    std::istream_iterator<IntOrDouble>(lineread),
-    std::istream_iterator<IntOrDouble>(),
-    std::back_inserter(actualParameters));
-  return actualParameters;
+  std::getline(in, line);
+  // Extract each parameter set.
+  for (std::getline(in, line); !in.eof(); std::getline(in, line)) {
+    trim(line);
+    if (!line.empty()) {
+      std::istringstream lineread(line);
+      std::vector<IntOrDouble> actualParameters;
+      std::copy(
+		std::istream_iterator<IntOrDouble>(lineread),
+		std::istream_iterator<IntOrDouble>(),
+		std::back_inserter(actualParameters));
+      result.push_back(actualParameters);
+    }
+  }
+  return result;
 }
 
 /**
@@ -274,25 +284,52 @@ int main(int argc, char* argv[])
   
 
   try {
+    typedef std::list<std::vector<IntOrDouble> > ParameterSet;
     std::ifstream readmeIn(readmeFile.c_str());
     if (!readmeIn.good()) {
       std::cerr << "Failed to read from " << readmeFile << std::endl;
       return 1;
     }
-    std::vector<IntOrDouble> expected = readKeyOutputParameters(readmeIn);
+    ParameterSet expected = readKeyOutputParameters(readmeIn);
+    if (expected.empty()) {
+      std::cerr << "Failed to locate Key Output Parameters section" << std::endl;
+      return 1;
+    }
     std::ifstream outputIn(outputDat.c_str());
     if (!outputIn.good()) {
       std::cerr << "Failed to read from " << outputDat << std::endl;
       return 1;
     }
-    std::vector<IntOrDouble> actual = readActualParameters(outputIn);
-    printValues("Expected", expected.begin(), expected.end());
-    printValues("Actual", actual.begin(), actual.end()); 
-    matchParameters(actual, expected, tolerance, iterationBound);
+    ParameterSet actual = readActualParameters(outputIn);
+    if (actual.empty()) {
+      std::cerr << "Failed to locate parameters in output file";
+    }
+    
+    std::cout << "Parameter Sets" << std::endl;
+    for (ParameterSet::iterator expectedValues = expected.begin(); expectedValues != expected.end(); ++expectedValues) {
+      printValues("Expected", expectedValues->begin(), expectedValues->end());
+    }
+    for (ParameterSet::iterator actualValues = actual.begin(); actualValues != actual.end(); ++actualValues) {
+      printValues("Actual", actualValues->begin(), actualValues->end());
+    }
+    
+    // Try to match one of the actual parameter sets to one of the expected parameter sets.
+    bool foundMatch = false;
+    for (ParameterSet::iterator expectedValues = expected.begin(); expectedValues != expected.end(); ++expectedValues) {
+      for (ParameterSet::iterator actualValues = actual.begin(); actualValues != actual.end(); ++actualValues) {
+	matchParameters(*actualValues, *expectedValues, tolerance, iterationBound);
+	if (expectedValues->empty()) {
+	  foundMatch = true;
+	}
+      }
+    }
 
-    if (!expected.empty()) {
+    if (!foundMatch) {
       std::cout << "[FAILED]" << std::endl;
-      printValues("Unmatched", expected.begin(), expected.end());
+      for (ParameterSet::iterator expectedValues = expected.begin(); expectedValues != expected.end(); ++expectedValues) {
+	std::cout << "Expected parameter set " << std::distance(expected.begin(), expectedValues) << std::endl;
+	printValues("  Unmatched", expectedValues->begin(), expectedValues->end());
+      }
       return 1;
     } else {
       std::cout << "[PASSED]" << std::endl;
