@@ -450,13 +450,13 @@ applyInverse
 
   if (F_location_ == 1)  //F in NE part
   {
-    X2 = X.offsetView(densityMap_, numCmsElements);
-    Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements);
+    X2 = X.offsetView(densityMap_, numPoissonElements+numCmsElements);
+    Y2 = Y.offsetViewNonConst(densityMap_, numPoissonElements+numCmsElements);
   } //end if
   else  //F in SW part
   {
-    X2 = X.offsetView(densityMap_, numDensityElements);
-    Y2 = Y.offsetViewNonConst(densityMap_, numDensityElements);
+    X2 = X.offsetView(cmsMap_, numPoissonElements+numDensityElements);
+    Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements+numDensityElements);
   } //end else
   // X2 is a view of the last numDensity/numCms elements of X
   // Y2 is a view of the last numDensity/numCms elements of Y
@@ -564,15 +564,15 @@ apply
   RCP<MV > Y2;
   // Y2 is a view of the last numDensity/numCms elements of Y
 
-  if (F_location_ == 1) 
+  if (F_location_ == 1)
   {
-    X2 = X.offsetView(densityMap_, numCmsElements);
-    Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements);
+    X2 = X.offsetView(densityMap_, numPoissonElements+numCmsElements);
+    Y2 = Y.offsetViewNonConst(densityMap_, numPoissonElements+numCmsElements);
   } //end if
-  else 
+  else
   {
-    X2 = X.offsetView(densityMap_, numDensityElements);
-    Y2 = Y.offsetViewNonConst(densityMap_, numDensityElements);
+    X2 = X.offsetView(cmsMap_, numPoissonElements+numDensityElements);
+    Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements+numDensityElements);
   } //end else
 
   RCP<MV > Y0tmp = rcp(new MV(*Y0));
@@ -595,8 +595,8 @@ apply
     Y1->update(1.0, *Y1tmp1, 1.0);
     Y1->update(1.0, *Y1tmp2, 1.0);
     // Third block row
-    Y2->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *densityOnCmsMatrix_, *X1, 0.0);
-    Y2->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *densityOnDensityMatrix_, *X2, 1.0);
+    Y2->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X1, 0.0);
+    Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 1.0);
   } //end if
   else 
   {
@@ -605,8 +605,8 @@ apply
     poissonOnDensityMatrix_->apply(*X1, *Y0tmp);
     Y0->update(1.0, *Y0tmp, 1.0);
     // Second block row
-    Y1->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *densityOnDensityMatrix_, *X1, 0.0);
-    Y1->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *densityOnCmsMatrix_, *X2, 1.0);
+    Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 0.0);
+    Y1->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X2, 1.0);
     // Third block row
     cmsOnPoissonMatrix_->apply(*X0, *Y2);
     cmsOnDensityMatrix_->apply(*X1, *Y2tmp1);

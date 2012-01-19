@@ -473,7 +473,7 @@ finalizeProblemValues
 
   //cout << *A21_ << endl;
 
-  //Check(true);
+  //  Check(true);
   isLinearProblemSet_ = true;
   firstTime_ = false;
 
