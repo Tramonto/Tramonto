@@ -29,7 +29,7 @@ set(Tramonto_TEST_HARNESS_Continuous_TIMEOUT 300 CACHE STRING
 set(Tramonto_TEST_HARNESS_Nightly_TIMEOUT 3600 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Nightly test suite.")
 
-set(Tramonto_TEST_HARNESS_Occasional_TIMEOUT 0 CACHE STRING
+set(Tramonto_TEST_HARNESS_Occasional_TIMEOUT 36000 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Occasional test suite.")
 
 set(Tramonto_TEST_HARNESS_CHECK_JOB_TIMEOUT 2 CACHE STRING
