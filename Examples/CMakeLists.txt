@@ -17,7 +17,7 @@ set(Tramonto_TEST_HARNESS_FAIL_TOLERANCE 0.001 CACHE STRING
 set(Tramonto_TEST_HARNESS_ITERATION_BOUND 2 CACHE STRING
   "Maximum number of iterations a test is allowed to differ by before it is considered a failure.")
 
-set(Tramonto_TEST_HARNESS_Sanity_TIMEOUT 15 CACHE STRING
+set(Tramonto_TEST_HARNESS_Sanity_TIMEOUT 20 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Sanity test suite.")
 
 set(Tramonto_TEST_HARNESS_Checkin_TIMEOUT 30 CACHE STRING
