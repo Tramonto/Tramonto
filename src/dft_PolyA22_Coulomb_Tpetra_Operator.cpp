@@ -1,5 +1,5 @@
 //@HEADER
-// ******************************************************************** 
+// ********************************************************************
 // Tramonto: A molecular theory code for structured and uniform fluids
 //                 Copyright (2006) Sandia Corporation
 //
@@ -29,11 +29,11 @@
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyA22_Coulomb_Tpetra_Operator
-(const RCP<const MAP> & cmsMap, const RCP<const MAP> & densityMap, 
- const RCP<const MAP> & poissonMap, const RCP<const MAP> & cmsDensMap, 
- const RCP<const MAP> & block2Map,  RCP<ParameterList> parameterList) 
+(const RCP<const MAP> & cmsMap, const RCP<const MAP> & densityMap,
+ const RCP<const MAP> & poissonMap, const RCP<const MAP> & cmsDensMap,
+ const RCP<const MAP> & block2Map,  RCP<ParameterList> parameterList)
   : dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>
-              (cmsMap, densityMap, cmsDensMap, parameterList),
+	      (cmsMap, densityMap, cmsDensMap, parameterList),
     poissonMap_(poissonMap),
     cmsDensMap_(cmsDensMap),
     block2Map_(block2Map),
@@ -41,7 +41,7 @@ dft_PolyA22_Coulomb_Tpetra_Operator
     curCPRow_(-1),
     curPDRow_(-1)
 {
-  poissonOnPoissonMatrix_ = rcp(new MAT(poissonMap, 0));    
+  poissonOnPoissonMatrix_ = rcp(new MAT(poissonMap, 0));
   cmsOnPoissonMatrix_ = rcp(new MAT(cmsMap, 0));
   poissonOnDensityMatrix_ = rcp(new MAT(poissonMap, 0));
   Label_ = "dft_PolyA22_Coulomb_Tpetra_Operator";
@@ -56,13 +56,13 @@ dft_PolyA22_Coulomb_Tpetra_Operator
    If running TestSmoothers() in applyInverse(), uncomment these
      MLList_->set("test: IFPACK", false);
      MLList_->set("test: ML self smoother", false);
-  
+
   int MaxLevels = 10;
-  int sweeps = 2; 
+  int sweeps = 2;
   Scalar alpha = 20.0; //30.0 is default
   char parameter[80];
   MLList_->set("max levels", MaxLevels);
-  for (LocalOrdinal ilevel = 0; ilevel < MaxLevels; ilevel++) 
+  for (LocalOrdinal ilevel = 0; ilevel < MaxLevels; ilevel++)
   {
     sprintf(parameter, "smoother: type (level %d)", ilevel);
     MLList_->set(parameter, "MLS");
@@ -71,19 +71,19 @@ dft_PolyA22_Coulomb_Tpetra_Operator
     sprintf(parameter, "smoother: MLS alpha (level %d)", ilevel);
     MLList_->set(parameter, alpha);
   } //end for
-  
-  MLList_->set("coarse: sweeps", 6); 
+
+  MLList_->set("coarse: sweeps", 6);
   MLList_->set("coarse: type", "MLS");
   MLList_->set("coarse: MLS polynomial order", 3); //3 is default
-  
-  // Or use Gauss-Seidel 
-    
+
+  // Or use Gauss-Seidel
+
   LocalOrdinal MaxLevels = 10;
   LocalOrdinal sweeps = 1;
   Scalar omega = 0.67;
   char parameter[80];
   MLList_->set("max levels", MaxLevels);
-  for (LocalOrdinal ilevel = 0; ilevel < MaxLevels; ilevel++) 
+  for (LocalOrdinal ilevel = 0; ilevel < MaxLevels; ilevel++)
   {
     sprintf(parameter, "smoother: type (level %d)", ilevel);
     MLList_->set(parameter, "Gauss-Seidel");
@@ -92,7 +92,7 @@ dft_PolyA22_Coulomb_Tpetra_Operator
     sprintf(parameter, "smoother: sweeps (level %d)", ilevel);
     MLList_->set(parameter, sweeps);
   } //end for
-  
+
   MLList->set("coarse: sweeps", 6);
   MLList_->set("coarse: damping parameter", 0.67); //0.67 is default
   MLList_->set("coarse: type", "Gauss-Seidel");
@@ -103,24 +103,24 @@ dft_PolyA22_Coulomb_Tpetra_Operator
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_PolyA22_Coulomb_Tpetra_Operator
-() 
+()
 {
   return;
 } //end destructor
-//============================================================================= 
+//=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
-() 
+()
 {
 
-  TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n"); 
+  TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n");
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
-  if (!firstTime_) 
+  if (!firstTime_)
   {
-    if (!isFLinear_) 
+    if (!isFLinear_)
     {
       cmsOnDensityMatrix_->resumeFill();
       cmsOnDensityMatrix_->setAllToScalar(0.0);
@@ -142,7 +142,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag) 
+(GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag)
 {
   // if poisson then blockColFlag = 0
   // if density then blockColFlag = 1
@@ -153,7 +153,7 @@ insertMatrixValue
   Array<Scalar> vals(1);
   vals[0] = value;
 
-  /* The poissonMatrix_, poissonOnDensityMatrix_, cmsOnPoissonMatrix_, and cmsOnDensityMatrix_ values do not change between iterations */  
+  /* The poissonMatrix_, poissonOnDensityMatrix_, cmsOnPoissonMatrix_, and cmsOnDensityMatrix_ values do not change between iterations */
 
   if (poissonMap_->isNodeGlobalElement(rowGID)) { // Insert into poissonOnPoissonMatrix or poissonOnDensityMatrix
     if ( blockColFlag == 0 ) { // Insert into poissonOnPoissonMatrix
@@ -257,10 +257,10 @@ insertMatrixValue
 } //end insertMatrixValue
 //=============================================================================
 template<class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-void 
+void
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertRow
-() 
+()
 {
   // Fill matrix rows
   if (!curRowValuesCmsOnDensity_.empty()) {
@@ -356,34 +356,33 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeProblemValues
-() 
+()
 {
-  if (isLinearProblemSet_) 
+  if (isLinearProblemSet_)
   {
     return; // nothing to do
   } //end if
   insertRow(); // Dump any remaining entries
   cmsOnCmsMatrix2_->fillComplete();
-  
+
   if (!isFLinear_) {
     cmsOnDensityMatrix_->fillComplete(densityMap_,cmsMap_);
   } //end if<
-  
+
   //only need to do the following the firstTime_
   poissonOnPoissonMatrix_->fillComplete();
   cmsOnPoissonMatrix_->fillComplete(poissonMap_, cmsMap_);
   poissonOnDensityMatrix_->fillComplete(densityMap_, poissonMap_);
 
   if (firstTime_) {
-    RCP<Xpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps > > mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
-    RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps> > mueluPP  = rcp(new Xpetra::CrsOperator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
-    H = rcp(new Hierarchy(mueluPP));
-    H->setVerbLevel(Teuchos::VERB_HIGH);
-    FactoryManager M;
-    M.SetFactory("A", rcp(new RAPFactory()));
-    H->Setup(M);
+    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
+    mueluPP  = rcp(new Xpetra::CrsOperator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    H_ = rcp(new Hierarchy(mueluPP));
+    H_->setVerbLevel(Teuchos::VERB_HIGH);
+    M_.SetFactory("A", rcp(new RAPFactory()));
+    H_->Setup(M_);
   }
-
+  //  Check(true);
   isLinearProblemSet_ = true;
   firstTime_ = false;
 } //end finalizeProblemValues
@@ -392,7 +391,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
-(const MV& X, MV& Y) const 
+(const MV& X, MV& Y) const
 {
   // If F is in SW (F_location_ == 0):
   // The true A22 block is of the form:
@@ -400,8 +399,8 @@ applyInverse
   // |  P       Pd      0    |
   // |  0       Ddd     Ddc  |
   // |  Cp      F       Dcc  |
-  
-  // where 
+
+  // where
   // P is Poisson matrix,
   // Pd is Poisson on Density matrix,
   // Ddd is Density on Density (diagonal),
@@ -411,21 +410,21 @@ applyInverse
   // Dcc is Cms on Cms (diagonal).
   //
   // We will approximate A22 with:
-  
+
   // |  P       Pd      0    |
   // |  0       Ddd     0    |
   // |  Cp      F       Dcc  |
-  
+
   // replacing Ddc with a zero matrix for the applyInverse method only.
 
   // Our algorithm is then:
   // Y1 = Ddd \ X1
   // Y0 = P \ (X0 - Pd*Y1)
-  // Y2 = Dcc \ (X2 - Cp*Y0 - F*Y1)  
+  // Y2 = Dcc \ (X2 - Cp*Y0 - F*Y1)
 
   // A similar algorithm is found when F is in the NE quadrant
 
-  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap())); 
+  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
   TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 #ifdef KDEBUG
@@ -473,7 +472,7 @@ applyInverse
   int nIts = 9;
   RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluX;
   RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluB;
-  if (F_location_ == 1) 
+  if (F_location_ == 1)
   {
     // Third block row: Y2 = DD\X2
     Y2->elementWiseMultiply(1.0, *tmp, *X2, 0.0);
@@ -482,11 +481,11 @@ applyInverse
     Y0tmp->update(1.0, *X0, -1.0);
     mueluX = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
     mueluB = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
-    H->Iterate(*mueluB, nIts, *mueluX);
+    H_->Iterate(*mueluB, nIts, *mueluX);
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
     cmsOnPoissonMatrix_->apply(*Y0, *Y1tmp1);
     cmsOnDensityMatrix_->apply(*Y2, *Y1tmp2);
-    Y1tmp1->update(1.0, *X1, -1.0, *Y1tmp2, -1.0);    
+    Y1tmp1->update(1.0, *X1, -1.0, *Y1tmp2, -1.0);
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
     VEC cmsOnCmsDiag(cmsMap_);
     cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
@@ -494,7 +493,7 @@ applyInverse
     Y1->elementWiseMultiply(1.0, *tmp2, *Y1tmp1, 0.0);
 
   } //end if
-  else 
+  else
   {
     // Second block row: Y1 = DD\X1
     Y1->elementWiseMultiply(1.0, *tmp, *X1, 0.0);
@@ -503,7 +502,7 @@ applyInverse
     Y0tmp->update( 1.0, *X0, -1.0 );
     mueluX = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
     mueluB = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
-    H->Iterate(*mueluB, nIts, *mueluX);
+    H_->Iterate(*mueluB, nIts, *mueluX);
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
     cmsOnPoissonMatrix_->apply(*Y0, *Y2tmp1);
     cmsOnDensityMatrix_->apply(*Y1, *Y2tmp2);
@@ -515,15 +514,15 @@ applyInverse
     Y2->elementWiseMultiply(1.0, *tmp2, *Y2tmp1, 0.0);
 
   } //end else
-  /*    
+  /*
 #ifdef SUPPORTS_STRATIMIKOS
   RCP<ThyraMV> thyraY = createMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0);
   RCP<ThyraOP> thyraOp = createLinearOp<Scalar, LocalOrdinal, GlobalOrdinal, Node>(poissonMatrix_);
-  
+
   RCP<DefaultLinearSolverBuilder> solver = rcp(new DefaultLinearSolverBuilder("./dft_input.xml"));
   RCP<FancyOStream> out = VerboseObjectBase::getDefaultOStream();
   solver->readParameters(out.get());
-  
+
   RCP<ThyraLOWSFactory> lowsFactory = solver->createLinearSolveStrategy("");
   RCP<ThyraLOWS> lows = linearOpWithSolve<Scalar>(*lowsFactory, thyraOp);
   SolveStatus<Scalar> status = lows->solve(Thyra::NOTRANS, *thyraY, thyraY.ptr());
@@ -533,7 +532,7 @@ applyInverse
   RCP<SolMGR> solver = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem, parameterList_));
   ReturnType ret = solver->solve();
 #endif
-  */  
+  */
 
 } //end applyInverse
 //==============================================================================
@@ -541,7 +540,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
-(const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const 
+(const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
   TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
@@ -581,8 +580,8 @@ apply
   RCP<MV > Y1tmp2 = rcp(new MV(*Y1));
   RCP<MV > Y2tmp1 = rcp(new MV(*Y2));
   RCP<MV > Y2tmp2 = rcp(new MV(*Y2));
-  
-  if (F_location_ == 1) 
+
+  if (F_location_ == 1)
   {
     // First block row
     poissonOnPoissonMatrix_->apply(*X0, *Y0);
@@ -598,7 +597,7 @@ apply
     Y2->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X1, 0.0);
     Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 1.0);
   } //end if
-  else 
+  else
   {
     // First block row
     poissonOnPoissonMatrix_->apply(*X0, *Y0);
@@ -620,7 +619,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 Check
-(bool verbose) const 
+(bool verbose) const
 {
   RCP<VEC > x = rcp(new VEC(getDomainMap()));
   RCP<VEC > b = rcp(new VEC(getRangeMap()));
@@ -640,42 +639,44 @@ Check
 
   // The poisson-on-poisson matrix is singular. Make x0 orthogonal to the kernel.
   RCP<MV> ones = rcp(new MV(*b0));
-  //  RCP<VEC> ones = onesmv->getVectorNonConst(0);
 
   Scalar alpha;
-  Array<Scalar> norms;
-  ArrayView<Scalar> dots;
-  ones->putScalar(1.0);
+  Array<Scalar> norm(1);
+  Array<Scalar> dot(1);
+  ArrayView<Scalar> norms = norm.view( 0, 1 );
+  ArrayView<Scalar> dots = dot.view( 0, 1 );
+  ones->putScalar( 1.0 );
   ones->norm2( norms );
   alpha = norms[0];
   alpha = 1.0 / alpha;
   ones->scale( alpha );
   ones->dot( *x0, dots );
+  alpha = dots[0];
   alpha = -1.0*alpha;
-  x0->update( alpha, *ones, 1.0 ); 
+  x0->update( alpha, *ones, 1.0 );
 
   apply(*x, *b); // Forward operation
-  
+
   // Inverse if not exact, so we must modify b first:
-  if (F_location_ == 1) 
+  if (F_location_ == 1)
   {
     b2->elementWiseMultiply(-1.0, *densityOnCmsMatrix_, *x1, 1.0);
   } //end if
-  else 
+  else
   {
     b1->elementWiseMultiply(-1.0, *densityOnCmsMatrix_, *x2, 1.0);
   } //end else
-  
+
   applyInverse(*b, *bb); // Reverse operation
   bb->update(-1.0, *x, 1.0); // Should be zero
-  Scalar resid = b->norm2();
-  
-  if (verbose) 
+  Scalar resid = bb->norm2();
+
+  if (verbose)
   {
     std::cout << "A22 self-check residual = " << resid << std::endl;
   } //end if
 
-  TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n"); 
+  TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
 } //end Check
 #if LINSOLVE_PREC == 0
 // Use float
@@ -690,4 +691,3 @@ template class dft_PolyA22_Coulomb_Tpetra_Operator<qd_real, int, int>;
 // Use double double
 template class dft_PolyA22_Coulomb_Tpetra_Operator<dd_real, int, int>;
 #endif
-
