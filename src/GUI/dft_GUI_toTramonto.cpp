@@ -12,6 +12,10 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                         Teuchos::RCP<Teuchos::ParameterList> Functional_List,
                         Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
                         Teuchos::RCP<Teuchos::ParameterList> PotentialsFF_List,
+                        Teuchos::RCP<Teuchos::ParameterList> Polymer_List,
+                        Teuchos::RCP<Teuchos::ParameterList> PolymerGraft_List,
+                        Teuchos::RCP<Teuchos::ParameterList> PolymerArch_List,
+                        Teuchos::RCP<Teuchos::ParameterList> PolymerCMS_List,
                         Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                         Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List) 
 {
@@ -119,8 +123,6 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Manual Definition") Mix_type=1;
     else if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Lorentz-Berthlot Mixing") Mix_type=0;
 
-   cout<<"Mix_type="<<Mix_type<<"\n"<< "value of variable from list="<<PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")<<endl;
-
     if (Mix_type==0){ /* translate diagonal array entries to the 2D arrays used in Tramonto */
        Array<double> PF1_SigmaF=PotentialsFF_List->get<Array<double> >("PF1_SigmaF");
        for (i=0; i<Ncomp; i++) Sigma_ff[i][i]=PF1_SigmaF[i]; 
@@ -171,6 +173,67 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
     Array<double> PF9_Pol=PotentialsFF_List->get<Array<double> >("PF9_Polarization");
     for (i=0; i<Ncomp; i++) Pol[i]=PF9_Pol[i]; 
+
+    /****************************************************/
+    /* params from polymer input section of the GUI  */
+    /****************************************************/
+    Npol_comp=Polymer_List->get<int>("P1: Npoly_comp");
+
+    Array<int> P2_Nblock=Polymer_List->get<Array<int> >("P2: Nblock_per_polymer");
+    for (i=0; i<Npol_comp; i++) Nblock[i]=P2_Nblock[i]; 
+
+     /* note that Nseg_per_block is the same as block[][] in dft_input.c...Need to use it to compute some other things,
+        but we don't want to do those things here if possible */
+    TwoDArray<int> P4_SegsPerBlock=Polymer_List->get<TwoDArray<int> >("P4: Nseg_perBlock");
+      for (i=0; i<Npol_comp; i++)  
+        for (j=0; j<Nblock[i]; j++) Nseg_per_block[i][j]=P4_SegsPerBlock[i][j]; 
+
+     
+    TwoDArray<int> P5_SegTypePerBlock=Polymer_List->get<TwoDArray<int> >("P5: SegType_perBlock");
+      for (i=0; i<Npol_comp; i++)  
+        for (j=0; j<Nblock[i]; j++) SegType_per_block[i][j]=P5_SegTypePerBlock[i][j]; 
+
+    if (Polymer_List->get<string>("P6: Polymer achitecture entry")=="Read From File") Type_poly_arch=POLY_ARCH_FILE;
+    else if (Polymer_List->get<string>("P6: Polymer achitecture entry")=="Linear Chains - Automatic set-up") Type_poly_arch=LIN_POLY;
+    else if (Polymer_List->get<string>("P6: Polymer achitecture entry")=="Symmetric Linear Chains - Automatic set-up") Type_poly_arch=LIN_POLY_SYM;
+    else Type_poly_arch=SET_IN_GUI;
+   
+    if (Polymer_List->get<string>("P6: Polymer achitecture entry")=="Read From File") {
+       Poly_file_name=(char*)Polymer_List->get<string>("P7: Polymer architecture filename").c_str();
+    }
+    else Poly_file_name=NULL;
+
+           /* Variables specific to Grafted polymers */
+    if (PolymerGraft_List->get<bool>("PG1: Grafted Polymers?")){
+/*       Array<bool> PG2_GraftPolymerTF=PolymerGraft_List->get<Array<bool> >("PG2: Grafted_polymer_TF");
+       for (i=0; i<Npol_comp; i++) if(PG2_GraftPolymerTF[i]) Grafted[i]=TRUE;
+       else Grafted[i]=FALSE; */
+
+       Array<int> PG3_GraftWallID=PolymerGraft_List->get<Array<int> >("PG3: Grafted_wall_ID[ipol_comp]");
+       for (i=0; i<Npol_comp; i++) {
+            Graft_wall[i]=PG3_GraftWallID[i]; 
+            if (Graft_wall[i]<0) Grafted[i]=FALSE;
+            else Grafted[i]=TRUE;
+       }
+
+       Array<double> PG4_GraftDensity=PolymerGraft_List->get<Array<double> >("PG4: Grafted_wall_Density[ipol_comp]");
+       for (i=0; i<Npol_comp; i++) Rho_g[i]=PG4_GraftDensity[i]; 
+    }
+    
+          /* CMS specific variables */
+    if (Type_poly==CMS || Type_poly==CMS_SCFT){
+       Ncr_files=PolymerCMS_List->get<int>("CMS1: N_CrFiles");
+       Cr_file=(char*)PolymerCMS_List->get<string>("CMS2: Cr_File_1").c_str();
+       Cr_file2=(char*)PolymerCMS_List->get<string>("CMS3: Cr_File_2").c_str();
+       Crfac=PolymerCMS_List->get<double>("CMS4: CrFac");
+       TwoDArray<double> CMS5_CradHSArray=PolymerCMS_List->get<TwoDArray<double> >("CMS5: Cr HSRadius");
+       for (i=0; i<Ncomp; i++)  for (j=0; j<Ncomp; j++) Cr_rad_hs[i][j]=CMS5_CradHSArray[i][j]; 
+    }
+    
+
+    if (Polymer_List->get<string>("P6: Polymer achitecture entry")=="Set up in GUI") {
+
+    }
 
 
     /****************************************************/

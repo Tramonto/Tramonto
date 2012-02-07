@@ -112,8 +112,12 @@ void setup_polymer_cr()
    }
 
    /* reading in c(r) file */
-   if(Proc==0) printf("reading in %d c(r) file(s)...\n",Ncr_files);
    if (Type_poly == CMS) {
+       if(Proc==0){
+             printf("reading in %d c(r) file(s)...\n",Ncr_files);
+             printf("with the following name(s): %s ...\n",Cr_file);
+             if (Ncr_files>1) printf(" %s and",Cr_file2);
+       }
 
    if (Proc==0){
      if( (fp7  = fopen(Cr_file,"r")) == NULL) {
@@ -127,7 +131,7 @@ void setup_polymer_cr()
         }
         fclose(fp8);
      }
-     if (Ncr_files>=3){
+/*     if (Ncr_files>=3){
        if( (fp9  = fopen(Cr_file3,"r")) == NULL) {
           printf("Can't open file %s\n", Cr_file3);
           exit(1);
@@ -140,7 +144,7 @@ void setup_polymer_cr()
           exit(1);
         }
         fclose(fp10);
-     }
+     }*/
      for (ir=1; ir<=3; ir++){
        fscanf(fp7,"%lf",&r );
        fscanf(fp7,"%c",&c );
@@ -187,7 +191,7 @@ void setup_polymer_cr()
 	 exit(1); 
        }
      }
-     if (Ncr_files>=3) {
+/*     if (Ncr_files>=3) {
        if( (fp9  = fopen(Cr_file3,"r")) == NULL){
 	 printf("Can't open file %s\n", Cr_file3);
 	 exit(1); 
@@ -198,7 +202,7 @@ void setup_polymer_cr()
 	 printf("Can't open file %s\n", Cr_file4);
 	 exit(1); 
        }
-     }
+     }*/
 
      for (ir=1; ir<=lines; ir++){
        fscanf(fp7,"%lf",&r );
@@ -210,14 +214,14 @@ void setup_polymer_cr()
          fscanf(fp8,"%lf",&r );
          fscanf(fp8,"%c",&c );
        }
-       if (Ncr_files>=3){
+/*       if (Ncr_files>=3){
          fscanf(fp9,"%lf",&r );
          fscanf(fp9,"%c",&c );
        }
        if (Ncr_files==4){
          fscanf(fp10,"%lf",&r );
          fscanf(fp10,"%c",&c );
-       }
+       }*/
 
        for (i=0; i<Ncomp; i++){  /* for (i=0; i<Ntype_mer; i++)  */
          fscanf(fp7,"%lf",&crread);
@@ -226,19 +230,19 @@ void setup_polymer_cr()
               fscanf(fp8,"%lf",&crread);
               Rism_cr[i][i][ir]+=Crfac*crfac2*crread;
          }
-         if (Ncr_files>=3){
+/*         if (Ncr_files>=3){
               fscanf(fp9,"%lf",&crread);
               Rism_cr[i][i][ir]+=Crfac*crfac3*crread;
          }
          if (Ncr_files==4){
               fscanf(fp10,"%lf",&crread);
               Rism_cr[i][i][ir]+=Crfac*crfac4*crread;
-         }
+         }*/
        }
        fscanf(fp7,"%c",&c );
        if (Ncr_files>=2) fscanf(fp8,"%c",&c );
-       if (Ncr_files>=3) fscanf(fp9,"%c",&c );
-       if (Ncr_files==4) fscanf(fp10,"%c",&c );
+/*       if (Ncr_files>=3) fscanf(fp9,"%c",&c );
+       if (Ncr_files==4) fscanf(fp10,"%c",&c );*/
 
        for (i=0; i<Ncomp; i++) {
          for (j=i+1; j<Ncomp; j++) {
@@ -250,7 +254,7 @@ void setup_polymer_cr()
                  Rism_cr[i][j][ir]+=Crfac*crfac2*crread;
                  fscanf(fp8,"%c",&c );
            }
-           if (Ncr_files>=3){
+/*           if (Ncr_files>=3){
                  fscanf(fp9,"%lf",&crread);
                  Rism_cr[i][j][ir]+=Crfac*crfac3*crread;
                  fscanf(fp9,"%c",&c );
@@ -259,19 +263,19 @@ void setup_polymer_cr()
                  fscanf(fp10,"%lf",&crread);
                  Rism_cr[i][j][ir]+=Crfac*crfac4*crread;
                  fscanf(fp10,"%c",&c );
-           }
+           }*/
            Rism_cr[j][i][ir] = Rism_cr[i][j][ir];
          }
        }
        while(c != '\n') c=getc(fp7);
        if(Ncr_files>=2) while(c != '\n') c=getc(fp8);
-       if(Ncr_files>=3) while(c != '\n') c=getc(fp9);
-       if(Ncr_files==4) while(c != '\n') c=getc(fp10);
+/*       if(Ncr_files>=3) while(c != '\n') c=getc(fp9);
+       if(Ncr_files==4) while(c != '\n') c=getc(fp10);*/
      }
      fclose(fp7);
      if(Ncr_files>=2) fclose(fp8);
-     if(Ncr_files>=3) fclose(fp9);
-     if(Ncr_files==4) fclose(fp10);
+/*     if(Ncr_files>=3) fclose(fp9);
+     if(Ncr_files==4) fclose(fp10);*/
 
      for (ir=lines+1; ir<N_NZCR_MAX; ir++)
        for (i=0; i<Ncomp; i++){

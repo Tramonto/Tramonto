@@ -68,6 +68,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    }
 
 
+
    bulk_TF=FALSE;
    if (mesh_coarsen_flag_i == FLAG_BULK) bulk_TF=TRUE;
    if (bulk_TF){

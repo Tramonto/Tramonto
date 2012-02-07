@@ -254,6 +254,7 @@ extern "C" {
 #define POLY_ARCH_FILE 0
 #define LIN_POLY 1
 #define LIN_POLY_SYM 2
+#define SET_IN_GUI 3
 
 /*
  * These constants identify attraction functional choices (Type_attr).
@@ -723,6 +724,7 @@ extern int Elements_x[NDIM_MAX];/* Array[Ndim]: # elements in each dim    */
 extern int     Max_sten_length[3];  /* The number of nodes in the longest stencil */
 
 /*************** Reference Variables ***********************/
+extern int Open_GUI;
 extern double Length_ref;
 extern double Density_ref;
 extern double Dielec_ref;
@@ -853,6 +855,10 @@ extern int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
 extern double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 extern double  Rough_length[NWALL_MAX_TYPE];
 extern double  Rough_param_max[NWALL_MAX_TYPE];
+extern int     read_rough; /* a way to indicate whether surface roughness params are read in */
+extern int     read_periodic; /* a way to indicate whether periodic surfaces are being used */
+extern int     read_wedge; /* a way to indicate whether wedge cutouts are being used */
+extern int     read_linear; /* a way to indicate whether linear surface modifications are being used */
 extern int     Lwedge_cutout[NWALL_MAX];    /* TRUE or FALSE for applying wedge cutout to surface*/
 extern double  Angle_wedge_start[NWALL_MAX];  /* start angle for wedge cutout */
 extern double  Angle_wedge_end[NWALL_MAX];     /* end angle for wedge cutout */
@@ -1174,6 +1180,9 @@ extern double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 extern double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 extern int Geqn_start[NCOMP_MAX];
 extern int Nblock[NCOMP_MAX];
+extern int Nseg_per_block[NCOMP_MAX][NBLOCK_MAX];
+extern int SegType_per_block[NCOMP_MAX][NBLOCK_MAX];
+extern char *Poly_file_name;
 extern int Grafted[NCOMP_MAX];
 extern int Graft_wall[NCOMP_MAX];
 extern double *Poly_graft_dist;     /* distance associated with polymer grafting - */
@@ -1189,12 +1198,18 @@ extern int Type_mer_to_Pol[NBLOCK_MAX];
 extern int Poly_to_Type[NCOMP_MAX][NBLOCK_MAX];
 extern int Poly_to_Ntype[NCOMP_MAX];
 extern int Nseg_tot;
+extern int Nbond_max;
 extern int Nseg_type[NCOMP_MAX];
 extern int **Nseg_type_pol;
-extern char Cr_file[40];
+extern char *Cr_file;
+extern char *Cr_file2;
+extern char cr_file_array[20];
+extern char cr_file2_array[20];
+extern char poly_file_array[20]; 
+/*extern char Cr_file[40];
 extern char Cr_file2[40];
 extern char Cr_file3[40];
-extern char Cr_file4[40];
+extern char Cr_file4[40];*/
 extern double Cr_break[2];
 extern int Ncr_files;
 extern int SegAll_to_Poly[NMER_MAX];
@@ -1207,6 +1222,7 @@ extern int Ngeqn_tot;
 extern int Nbonds;
 extern int **Nbond;
 extern int ***Bonds;
+extern int ***pol_sym_tmp;
 extern int *Pol_Sym;
 extern int *Pol_Sym_Seg;
 extern int *BondAll_to_isegAll;

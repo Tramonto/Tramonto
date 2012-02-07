@@ -31,7 +31,6 @@
 #include <mpi.h>
 #include "include_global/dft_globals.h"
 #include "rf_allo.h"
-/*#include "GUI/dft_GUI.h"*/
 
 #include "dft_main.h"
 /*****************************************************************************/
@@ -73,6 +72,7 @@ void dftmain(double * engptr)
   int       min_nnodes_per_proc,max_nnodes_per_proc,min_nnodes_box,max_nnodes_box;
   double    min_nodesLoc_over_nodesBox,max_nodesLoc_over_nodesBox;
   FILE      *fp;
+  char crfile[20];
   int izone,isten,jcomp,jmax;
   struct Stencil_Struct *sten;
 /*  char line[100],linecwd[100];*/
@@ -126,10 +126,9 @@ void dftmain(double * engptr)
   * (see file dft_input.c)
   */
 
-  read_input_file(input_file,output_file1);
-/*  dft_OptikaGUI();*/
 
-/*  printf("Ndim - SET IN GUI is %d\n",Ndim);*/
+  setup_params_for_dft(input_file,output_file1);
+
   setup_stencil_logicals();
   if (Type_attr != NONE) setup_stencil_uattr_core_properties();
   setup_nunk_per_node(output_file1);
@@ -185,6 +184,7 @@ void dftmain(double * engptr)
     /*
      * do all the thermodynamics for the bulk fluid mixture
      */
+
      thermodynamics(output_file1,Iwrite);
      }
 

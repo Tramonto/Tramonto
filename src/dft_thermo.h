@@ -49,7 +49,6 @@ extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
 void chempot_ideal_gas(double *rho,double *betamu);
 extern double Betamu_chain[NMER_MAX];
-#define PHASE_INTERFACE 2
 extern double G_WJDC_RTF[NMER_MAX *NBOND_MAX];
 extern double Field_WJDC_RTF[NMER_MAX];
 extern double Betamu_chain_RTF[NMER_MAX];
@@ -64,6 +63,7 @@ extern double Rhobar_b[10];
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_seg_b[NMER_MAX];
 extern double Betap;
+#define PHASE_INTERFACE 2
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 void print_to_screen(double val,char *var_label);
 extern double Xi_cav_RTF[4];

@@ -153,7 +153,7 @@ void setup_stencil_uattr_core_properties();
 #define NONE        -1
 extern int Type_attr;
 void setup_stencil_logicals();
-void read_input_file(char *input_file,char *output_file1);
+void setup_params_for_dft(char *input_file,char *output_file1);
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

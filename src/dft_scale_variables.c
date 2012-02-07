@@ -204,7 +204,7 @@ void calc_new_density(int icomp,char *output_file1)
   Lconverged=FALSE;
 
 
-  while(Lconverged==FALSE && ncount<2000){
+  while(Lconverged==FALSE && ncount<10000){
      
      thermodynamics(output_file1,NO_SCREEN);
 
@@ -246,8 +246,8 @@ void calc_new_density(int icomp,char *output_file1)
      
      ncount++;
   }
-  if (ncount>=2000) {
-     printf("new bulk densities not converged after 2000 iterations (Proc=%d): currently Rho_b[icomp]=%g\n",Rho_b[icomp],Proc);
+  if (ncount>=4000) {
+     printf("new bulk densities not converged after 10000 iterations (Proc=%d): currently Rho_b[icomp]=%g\n",Rho_b[icomp],Proc);
      exit(-1);
   }
   else if (Lconverged==TRUE){ if(Iwrite==VERBOSE && Proc==0)  printf("new bulk density found:icomp=%d Rho_b[icomp]=%g\n",icomp,Rho_b[icomp]); }

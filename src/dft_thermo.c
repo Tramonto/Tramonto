@@ -164,6 +164,17 @@ void calc_pressure(char *output_file1,int iwrite)
             }
             print_to_file(fp,Betap_LBB,"Betap_LBB",2);
             print_to_file(fp,Betap_RTF,"Betap_RTF",2);
+            if(Type_interface==PHASE_INTERFACE){
+                if (Proc==0 && fabs(Betap_LBB-Betap_RTF)/fabs(Betap_LBB)>0.1){
+                    printf("\nERROR: A two phase interface is requested,\n");
+                    printf("but the pressure is more than 10 percent different in the two bulk regions.\n");
+                    printf("This will result in unstable numerical calculations.\n");
+                    printf("Use arc-length continuation and/or binodal calculation methods to more\n");
+                    printf("precisely determine the bulk coexistence densities of the fluid.\n");
+                    printf("Betap_LBB=%g  Betap_RTF=%g\n",Betap_LBB,Betap_RTF);
+                    exit(-1);
+                }
+            }
        }    
    }
    else if (Type_interface==UNIFORM_INTERFACE){ 
@@ -236,7 +247,17 @@ void calc_chempot(char *output_file1,int iwrite)
              chempot_chain_wjdc(Rho_seg_LBB,Betamu_chain_LBB,Field_WJDC_LBB,G_WJDC_LBB);
              chempot_chain_wjdc(Rho_seg_RTF,Betamu_chain_RTF,Field_WJDC_RTF,G_WJDC_RTF);
              if (Type_interface==PHASE_INTERFACE){
-                for (icomp=0;icomp<Npol_comp;icomp++) Betamu_chain[icomp]=0.5*(Betamu_chain_LBB[icomp]+Betamu_chain_RTF[icomp]);
+                for (icomp=0;icomp<Npol_comp;icomp++){
+                    if (Proc==0 && fabs(Betamu_chain_LBB[icomp]-Betamu_chain_RTF[icomp])/fabs(Betamu_chain_LBB[icomp]) >0.1){
+                       printf("\nERROR: A two phase interface is requested, but the chemical potentials of ipol_comp=%d\n",icomp);
+                       printf("are more than 10 percent different in the two bulk regions.\n");
+                       printf("Use arc-length continuation and/or binodal calculation methods to more\n");
+                       printf("precisely determine the bulk coexistence densities of the fluid.\n");
+                       printf("Betamu_chain_LBB=%g  Betamu_chain_RTF=%g\n",Betamu_chain_LBB[icomp],Betamu_chain_RTF[icomp]);
+                       exit(-1);
+                    }
+                    Betamu_chain[icomp]=0.5*(Betamu_chain_LBB[icomp]+Betamu_chain_RTF[icomp]);
+                }
              }
           }
 /*          else{*/
@@ -287,8 +308,18 @@ void calc_chempot(char *output_file1,int iwrite)
                  
              }
           }
-          if (Type_interface==PHASE_INTERFACE) {
-             for (icomp=0;icomp<Ncomp;icomp++) Betamu[icomp]=0.5*(Betamu_RTF[icomp]+Betamu_LBB[icomp]);
+          if (Type_interface==PHASE_INTERFACE && Type_poly==NONE) {
+             for (icomp=0;icomp<Ncomp;icomp++){
+                    if (fabs(Betamu_LBB[icomp]-Betamu_RTF[icomp])/fabs(Betamu_LBB[icomp]) >0.1){
+                       printf("ERROR: you are attempting to compute a two phase interface,\n");
+                       printf("but the chemical potentials of ipol_comp=%d are more than 10% different in the two bulk regions\n",icomp);
+                       printf("use arc-length continuation and/or binodal calculation methods to more\n");
+                       printf("precisely determine the bulk coexistence densities of the fluid\n");
+                       printf("Betamu_LBB=%g  Betamu_RTF=%g\n",Betamu_LBB[icomp],Betamu_RTF[icomp]);
+                       exit(-1);
+                    }
+                    Betamu[icomp]=0.5*(Betamu_RTF[icomp]+Betamu_LBB[icomp]);
+             }
           }
 				/* WTC contributions */
           if (Type_poly ==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){

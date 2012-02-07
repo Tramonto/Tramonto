@@ -63,10 +63,8 @@ extern int Last_nz_cr;
 #define N_NZCR_MAX   200   /* maximum # of non-zero's in direct correlation fn */
 extern double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 extern double Deltar_cr;
-extern char Cr_file4[40];
-extern char Cr_file3[40];
-extern char Cr_file2[40];
-extern char Cr_file[40];
+extern char *Cr_file2;
+extern char *Cr_file;
 #define CMS          0
 extern int Type_poly;
 #define VERBOSE      3 

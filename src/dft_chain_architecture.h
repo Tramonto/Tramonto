@@ -1,4 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
+void safe_free(void **ptr);
+void safe_free(void **ptr);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -47,20 +49,19 @@ extern int *Nbonds_SegAll;
 extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
+void setup_chain_indexing_arrays(int nseg,int nmer_max,FILE *fpout);
+extern int Nbond_max;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-void safe_free(void **ptr);
-void safe_free(void **ptr);
-void setup_chain_indexing_arrays(int nseg,int nmer_max,int ***pol_sym_tmp,FILE *fpout);
-void setup_chain_linear_symmetric(FILE *fpout,int ***pol_sym_tmp);
+void setup_chain_linear_symmetric(FILE *fpout);
 #define LIN_POLY_SYM 2
-void setup_chain_linear(FILE *fpout,int ***pol_sym_tmp);
+void setup_chain_linear(FILE *fpout);
 #define LIN_POLY 1
-void setup_chain_from_file(FILE *fpout,char *poly_file,int ***pol_sym_tmp);
+void setup_chain_from_file(FILE *fpout,char *poly_file);
 #define POLY_ARCH_FILE 0
-extern int Type_poly_arch;
+extern int ***pol_sym_tmp;
 #define NBOND_MAX 4
 extern int ***Bonds;
 void *array_alloc(int numdim,...);
@@ -69,4 +70,6 @@ void *array_alloc(int numdim,...);
 extern int **Nbond;
 extern int Nmer[NCOMP_MAX];
 extern int Npol_comp;
+#define SET_IN_GUI 3
+extern int Type_poly_arch;
 void setup_chain_architecture(char *poly_file,FILE *fpout);

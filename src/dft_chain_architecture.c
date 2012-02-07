@@ -40,30 +40,28 @@ void setup_chain_architecture(char *poly_file,FILE *fpout)
 {
    /* Local variable declarations */
    
-   int pol_number, nseg,nmer_max,***pol_sym_tmp;
-       
-    nseg=nmer_max=0;
-    for (pol_number=0; pol_number<Npol_comp; pol_number++){
-         nseg += Nmer[pol_number];
-         if (Nmer[pol_number] > nmer_max) nmer_max=Nmer[pol_number];
-    }   
-    Nbond = (int **) array_alloc (2, Npol_comp,nmer_max,sizeof(int));
-    Bonds = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
-    pol_sym_tmp = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
+   int pol_number, nseg,nmer_max;
+   
+   if (Type_poly_arch != SET_IN_GUI){    
+       nseg=nmer_max=0;
+       for (pol_number=0; pol_number<Npol_comp; pol_number++){
+            nseg += Nmer[pol_number];
+            if (Nmer[pol_number] > nmer_max) nmer_max=Nmer[pol_number];
+       }   
+       Nbond = (int **) array_alloc (2, Npol_comp,nmer_max,sizeof(int));
+       Bonds = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
+       pol_sym_tmp = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
 
-   if (Type_poly_arch==POLY_ARCH_FILE) setup_chain_from_file(fpout,poly_file,pol_sym_tmp);
-   else if (Type_poly_arch==LIN_POLY) setup_chain_linear(fpout,pol_sym_tmp);
-   else if (Type_poly_arch==LIN_POLY_SYM) setup_chain_linear_symmetric(fpout,pol_sym_tmp);
-
-   setup_chain_indexing_arrays(nseg,nmer_max,pol_sym_tmp,fpout);
-
-   safe_free((void *) &pol_sym_tmp);
+      if (Type_poly_arch==POLY_ARCH_FILE) setup_chain_from_file(fpout,poly_file);
+      else if (Type_poly_arch==LIN_POLY) setup_chain_linear(fpout);
+      else if (Type_poly_arch==LIN_POLY_SYM) setup_chain_linear_symmetric(fpout);
+   }
 
    return;
 }
 /*************************************************************************************/
 /* read in a file that contains chain architecture */
-void setup_chain_from_file(FILE *fpout, char *poly_file,int ***pol_sym_tmp)
+void setup_chain_from_file(FILE *fpout, char *poly_file)
 {
    int pol_number,iseg,seg_id,ibond;
    FILE *fppoly;
@@ -74,25 +72,24 @@ void setup_chain_from_file(FILE *fpout, char *poly_file,int ***pol_sym_tmp)
            exit(-1);
       }
    }
- 
+
+   Nbond_max=0; 
    for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       for (iseg=0; iseg<Nmer[pol_number]; iseg++){
 	if (Proc==0){ 
            fscanf(fppoly,"%d %d",&seg_id, &Nbond[pol_number][iseg]);
+           if (Nbond[pol_number][iseg]>Nbond_max) Nbond_max=Nbond[pol_number][iseg];
            if (seg_id != iseg){
                printf("problem with seg_ids in file - there should be no skips, and every chain starts at 0\n");
                exit(-1);
            }
         }
-	MPI_Bcast(&Nbond[pol_number][iseg],1,MPI_INT,0,MPI_COMM_WORLD);
 
 	for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
 	  if (Proc==0) {
 	    fscanf(fppoly,"%d  %d", &Bonds[pol_number][iseg][ibond],&pol_sym_tmp[pol_number][iseg][ibond]);
 	    fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
 	  }
-	  MPI_Bcast(&Bonds[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
-	  MPI_Bcast(&pol_sym_tmp[pol_number][iseg][ibond],1,MPI_INT,0,MPI_COMM_WORLD);
 
 	} /* end of loop over ibond */
       } /* end of loop over iseg */
@@ -102,9 +99,10 @@ void setup_chain_from_file(FILE *fpout, char *poly_file,int ***pol_sym_tmp)
 }
 /*************************************************************************************/
 /* automatically set up a linear chain */
-void setup_chain_linear(FILE *fpout,int ***pol_sym_tmp){
+void setup_chain_linear(FILE *fpout){
 
    int pol_number,iseg,ibond;
+   Nbond_max=2;
 
    for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       for (iseg=0; iseg<Nmer[pol_number]; iseg++){
@@ -138,9 +136,10 @@ void setup_chain_linear(FILE *fpout,int ***pol_sym_tmp){
 }
 /*************************************************************************************/
 /* automatically set up a linear chain with proper symmetries in place */
-void setup_chain_linear_symmetric(FILE *fpout,int ***pol_sym_tmp){
+void setup_chain_linear_symmetric(FILE *fpout){
 
    int pol_number,iseg,iseg_sym,ibond;
+   Nbond_max=2;
 
    for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       for (iseg=0; iseg<Nmer[pol_number]; iseg++){
@@ -182,7 +181,7 @@ void setup_chain_linear_symmetric(FILE *fpout,int ***pol_sym_tmp){
    return;
 }
 /*************************************************************************************/
-void setup_chain_indexing_arrays(int nseg, int nmer_max, int ***pol_sym_tmp,FILE *fpout)
+void setup_chain_indexing_arrays(int nseg, int nmer_max,FILE *fpout)
 {
     int *nbond_tot;
     int nbond_all,iseg,seg_tot,end_count_all,icomp,pol_number,nunk,end_count,ibond,pol_num2;

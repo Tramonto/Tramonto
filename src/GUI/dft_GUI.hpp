@@ -92,6 +92,10 @@ void dft_GUI_toTramonto(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Teuchos::ParameterList> Functional_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Fluid_List, 
                          Teuchos::RCP<Teuchos::ParameterList> PotentialsFF_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> Polymer_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> PolymerGraft_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> PolymerArch_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> PolymerCMS_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Surface_List, 
                          Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List); 
 
@@ -115,5 +119,7 @@ void dft_GUI_Polymer( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                   Teuchos::RCP<Teuchos::ParameterList> Functional_List,
                   Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
                   Teuchos::RCP<Teuchos::ParameterList> Polymer_List,
-                  Teuchos::RCP<Teuchos::ParameterList> PolymerCMS_List);
+                  Teuchos::RCP<Teuchos::ParameterList> PolymerCMS_List,
+                  Teuchos::RCP<Teuchos::ParameterList> PolymerArch_List,
+                  Teuchos::RCP<Teuchos::ParameterList> PolymerGraft_List);
 

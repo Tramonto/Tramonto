@@ -59,6 +59,7 @@ int Elements_x[NDIM_MAX];/* Array[Ndim]: # elements in idim    */
 int     Max_sten_length[3];  /* The number of nodes in the longest stencil */
 
 /************** Reference Variables *************************/
+int Open_GUI;
 double Length_ref;
 double Density_ref;
 double Dielec_ref;
@@ -192,6 +193,10 @@ int     Lrough_surf[NWALL_MAX_TYPE]; /*Logical for rough surfaces */
 double  Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 double  Rough_length[NWALL_MAX_TYPE];
 double  Rough_param_max[NWALL_MAX_TYPE];
+int     read_rough; /* a way to indicate whether surface roughness params are read in */
+int     read_periodic; /* a way to indicate whether periodic surfaces are being used */
+int     read_wedge; /* a way to indicate whether wedge cutouts are being used */
+int     read_linear; /* a way to indicate whether linear surface modifications are being used */
 int     Lwedge_cutout[NWALL_MAX];    /* TRUE or FALSE for applying wedge cutout to surface*/
 double  Angle_wedge_start[NWALL_MAX];  /* start angle for wedge cutout */
 double  Angle_wedge_end[NWALL_MAX];     /* end angle for wedge cutout */
@@ -533,6 +538,9 @@ double Crfac;
 double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
+int Nseg_per_block[NCOMP_MAX][NBLOCK_MAX];
+int SegType_per_block[NCOMP_MAX][NBLOCK_MAX];
+char *Poly_file_name;
 int Grafted[NCOMP_MAX];
 int Graft_wall[NCOMP_MAX];
 double *Poly_graft_dist;     /* distance associated with polymer grafting - */
@@ -546,12 +554,17 @@ int Nseg_tot;
 int Nseg_type[NCOMP_MAX];
 int **Nseg_type_pol;
 int Geqn_start[NCOMP_MAX];
-char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];
+/*char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];*/
+char *Cr_file,*Cr_file2,*Cr_file3,*Cr_file4;
+char cr_file_array[20];
+char cr_file2_array[20];
+char poly_file_array[20];
 double Cr_break[2];
 int  Ncr_files;
 int SegAll_to_Poly[NMER_MAX];
 int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk, **Poly_to_Unk_SegAll;
-int Ngeqn_tot, Nbonds, **Nbond,***Bonds; 
+int Ngeqn_tot, Nbonds, **Nbond,***Bonds,***pol_sym_tmp; 
+int Nbond_max;
 int *Pol_Sym;
 int *Pol_Sym_Seg;
 int *BondAll_to_isegAll;

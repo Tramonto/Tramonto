@@ -389,7 +389,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                   kind of analysis may require multiple runs and so output to a file is recommended. */
 
     /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-    if (fabs(resid_unk[iunk])>1.e-3){
+/*    if (fabs(resid_unk[iunk])>1.e-3){*/
     switch(Unk2Phys[iunk]){
        case DENSITY:  printf("Proc=%d: loc_inode=%d of %d (Global val=%d) iunk_rho=%d ", Proc,loc_inode,Nnodes_per_proc,L2G_node[loc_inode],iunk); break;
        case HSRHOBAR: printf("Proc=%d: loc_inode=%d iunk_rbar=%d ", Proc,loc_inode,iunk); break;
@@ -405,7 +405,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
        case MF_EQ: printf("Proc=%d: loc_inode=%d  iunk_MFeq=%d ",Proc,loc_inode,iunk); break;
     }
     printf(" resid=%11.8f \n",resid_unk[iunk]); 
-    }
+    /*}*/
 
     return;
 }

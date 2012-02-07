@@ -238,17 +238,9 @@ int i,j;
 
 
       /* trying to set up dependency based on the value of F1_Ncomp-1 rather than F1_Ncomp .... doesn't work */
-/*     RCP<NumberVisualDependency<int> > MixType_Dep = rcp(
+/*     RCP<NumberVisualDependency<int> > MixType2_Dep = rcp(
             new NumberVisualDependency<int>(Fluid_List->getEntryRCP("F1_Ncomp"),
                                             PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"),func_testNcomp));*/
-
-/*     RCP<NumberVisualDependency<int> > MixType_Dep = rcp(
-           new NumberVisualDependency<int>( "F1_Ncomp", Fluid_List,"PF0_Off_Diagonal_Definitions", PotentialsFF_List));*/
-
-/*     RCP<StringVisualDependency> MixType2_Dep =rcp(
-           new StringVisualDependency(Functional_List->getEntryRCP("F2_PAIRPOTcore_Functional"), 
-                                      PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"), 
-                                      tuple<std::string>("No Mean Field Functional"), false));*/
 
           /* all the things that depend on the hard sphere functional being turned on */
      Dependency::ParameterEntryList HSFuncVis_Dependents;
@@ -267,7 +259,7 @@ int i,j;
      PotArray2D_Dependents.insert(PotentialsFF_List->getEntryRCP("PF2_EpsFF"));
      PotArray2D_Dependents.insert(PotentialsFF_List->getEntryRCP("PF3_CutFF"));
 
-     RCP<StringVisualDependency> SigmaFFArray_Dep = rcp(
+     RCP<StringVisualDependency> MixType_Dep = rcp(
          new StringVisualDependency(PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"), 
                                     PotArray2D_Dependents,"Manual Definition",true));
 
@@ -329,7 +321,6 @@ int i,j;
                                     PotentialsFF_List->getEntryRCP("PF6_NpowFF"), 
                                     tuple<std::string>("r^N repulsion plus Yukawa potential (cut/shift)"),true));
 
-      /*cout << "when setting up PF8 dependency....F3_CHARGE_Functional is"<< Functional_List->get<string>("F3_CHARGE_Functional") <<endl;*/
       RCP<StringVisualDependency> ChargeArray_Dep = rcp(
          new StringVisualDependency(Functional_List->getEntryRCP("F3_CHARGE_Functional"), 
                                     PotentialsFF_List->getEntryRCP("PF8_Charge"), 
@@ -396,8 +387,6 @@ int i,j;
        depSheet_Tramonto->addDependency(HSDiam_Dep);
        depSheet_Tramonto->addDependency(HSDiam_Dep2);
        depSheet_Tramonto->addDependency(Temp_Dep);
-/*       depSheet_Tramonto->addDependency(MixType_Dep);*/
-/*       depSheet_Tramonto->addDependency(MixType2_Dep);*/
        depSheet_Tramonto->addDependency(EpsFFArray_Dep);
        depSheet_Tramonto->addDependency(CutFFArray_Dep);
        depSheet_Tramonto->addDependency(EpsYukawaFFArray_Dep);
@@ -409,7 +398,8 @@ int i,j;
        depSheet_Tramonto->addDependency(BondArray_Dep);
        depSheet_Tramonto->addDependency(HSFuncVis_Dep);
        depSheet_Tramonto->addDependency(SigmaFArray_Dep);
-       depSheet_Tramonto->addDependency(SigmaFFArray_Dep);
+       depSheet_Tramonto->addDependency(MixType_Dep);
+/*       depSheet_Tramonto->addDependency(MixType2_Dep);*/
      
        depSheet_Tramonto->addDependency(PotFFArrayLength2_Dep);
        depSheet_Tramonto->addDependency(PotFF2DRowNumber_Dep);

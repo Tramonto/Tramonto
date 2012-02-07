@@ -62,6 +62,7 @@ int solve_problem(double **x, double **x2)
 
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
+
   /* If requested, write out initial guess */
    if (Iwrite == VERBOSE)  print_profile_box(x,"rho_init.dat");
 

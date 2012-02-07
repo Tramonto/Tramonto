@@ -25,22 +25,24 @@ set(common_h
         dft_parameterlist_wrapper.h 
         dft_direct_solver_const.h 
         dft_input.h 
+        dft_setup_params.h
+        dft_input_broadcast.h
         dft_chain_architecture.h 
         dft_main.h 
 	dft_maindriver.h 
         dft_mesh.h 
-        dft_surfaces.h 
-        dft_surfaces_planar.h 
-        dft_surfaces_block.h 
-        dft_surfaces_sphere.h 
-        dft_surfaces_cylinder2D.h 
-        dft_surfaces_cylinder3D.h 
-        dft_surfaces_1elem.h 
-        dft_surfaces_atoms.h 
-        dft_surfaces_cylindricalPore2D.h 
-        dft_surfaces_sphericalCavity3D.h 
-        dft_surfaces_slitPore2D.h 
-        dft_surfaces_cylindricalPore3D.h 
+        dft_surfaces.h
+        dft_surfaces_planar.h
+        dft_surfaces_block.h
+        dft_surfaces_sphere.h
+        dft_surfaces_cylinder2D.h
+        dft_surfaces_cylinder3D.h
+        dft_surfaces_1elem.h
+        dft_surfaces_atoms.h
+        dft_surfaces_cylindricalPore2D.h
+        dft_surfaces_sphericalCavity3D.h
+        dft_surfaces_slitPore2D.h
+        dft_surfaces_cylindricalPore3D.h
         dft_surfacesAdjust_angleCutout.h
         dft_surfacesAdjust_roughness.h
         dft_surfacesAdjust_periodic.h
@@ -150,20 +152,22 @@ set(common_h
 
 set(common_c
         dft_input.c 
+        dft_setup_params.c
+        dft_input_broadcast.c
         dft_chain_architecture.c 
         dft_main.c 
         dft_mesh.c 
-        dft_surfaces.c 
-        dft_surfaces_planar.c 
-        dft_surfaces_block.c 
-        dft_surfaces_sphere.c 
-        dft_surfaces_cylinder2D.c 
-        dft_surfaces_cylinder3D.c 
-        dft_surfaces_1elem.c 
-        dft_surfaces_atoms.c 
-        dft_surfaces_cylindricalPore2D.c 
-        dft_surfaces_sphericalCavity3D.c 
-        dft_surfaces_slitPore2D.c 
+        dft_surfaces.c
+        dft_surfaces_planar.c
+        dft_surfaces_block.c
+        dft_surfaces_sphere.c
+        dft_surfaces_cylinder2D.c
+        dft_surfaces_cylinder3D.c
+        dft_surfaces_1elem.c
+        dft_surfaces_atoms.c
+        dft_surfaces_cylindricalPore2D.c
+        dft_surfaces_sphericalCavity3D.c
+        dft_surfaces_slitPore2D.c
         dft_surfaces_cylindricalPore3D.c
         dft_surfacesAdjust_angleCutout.c
         dft_surfacesAdjust_roughness.c
@@ -312,11 +316,11 @@ link_directories(${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 # /Library/Frameworks/QtCore.framework /Library/Frameworks/QtGui.framework)
 
 #list of necessary Trilinos packages:
-#ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos muelu
+#ml zoltan amesos loca nox aztecoo ifpack epetraext epetra teuchos muelu optika 
 set(Tramonto_Trilinos_LIBRARIES ${ML_LIBRARIES} ${Amesos_LIBRARIES}
 ${NOX_LIBRARIES} ${AztecOO_LIBRARIES} ${Ifpack_LIBRARIES} ${MueLu_LIBRARIES}
-${EpetraExt_LIBRARIES} ${Epetra_LIBRARIES} ${Teuchos_LIBRARIES} ${Optika_LIBRARIES} )
-# ${Optika_LIBRARIES} /Library/Frameworks/QtCore.framework/QtCore /Library/Frameworks/QtGui.framework/QtGui)
+${EpetraExt_LIBRARIES} ${Epetra_LIBRARIES} ${Teuchos_LIBRARIES} )
+#${Optika_LIBRARIES} /Library/Frameworks/QtCore.framework/QtCore /Library/Frameworks/QtGui.framework/QtGui)
 
 #remove duplicates from the link line
 LIST(REVERSE Tramonto_Trilinos_LIBRARIES )
@@ -380,12 +384,32 @@ ELSE()
   MESSAGE(FATAL_ERROR "Could not find Trilinos package Teuchos!")
 ENDIF()
 
-#LIST(FIND Trilinos_PACKAGE_LIST Optika OPTIKA_FOUND)
-#IF(OPTIKA_FOUND GREATER -1)
-#  MESSAGE("Trilinos package Optika found.")
-#ELSE()
-#  MESSAGE(FATAL_ERROR "Could not find Trilinos package Optika!")
-#ENDIF()
+if (BUILD_GUI)
+   message("BUILD_GUI defined. Compiling against Optika code.")
+  LIST(FIND Trilinos_PACKAGE_LIST Optika OPTIKA_FOUND)
+  IF(OPTIKA_FOUND GREATER -1)
+    MESSAGE("Trilinos package Optika found.")
+  ELSE()
+    MESSAGE(FATAL_ERROR "Could not find Trilinos package Optika!")
+  ENDIF()
+  list(APPEND common_h GUI/dft_GUI.hpp)
+  list(APPEND common_h GUI/dft_GUI.h)
+  list(APPEND common_cxx GUI/dft_GUI_mesh.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_output.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_potentialsWF.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_numericalMethods.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_functionals.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_vextType.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_toTramonto.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_main.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_surfaces.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_potentialsFF.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_statePoint.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_Polymer.cpp)
+
+  list(APPEND Tramonto_Trilinos_LIBRARIES ${Optika_LIBRARIES} )
+  ADD_DEFINITIONS(-DBUILD_GUI=1)
+endif(BUILD_GUI)
 
 # Handle selective compilation of Tpetra source
 if (USE_TPETRA)
@@ -473,7 +497,6 @@ if (USE_TPETRA)
 
 endif(USE_TPETRA)
 
-
 # add dft library
 add_library(dft ${common_h} ${noxloca_h} ${common_c} ${common_cxx} ${noxloca_cxx} )
 
@@ -483,12 +506,6 @@ add_library(dft ${common_h} ${noxloca_h} ${common_c} ${common_cxx} ${noxloca_cxx
 add_executable(dft_exec dft_maindriver.c)
 target_link_libraries(dft_exec dft ${Tramonto_Trilinos_LIBRARIES}
 ${Trilinos_TPL_LIBRARIES} )
-
-# Handle selective compilation of Tpetra source
-if (USE_TPETRA)
-  set_target_properties(dft dft_exec
-                        PROPERTIES COMPILE_FLAGS "-DUSE_TPETRA ")
-endif(USE_TPETRA)
 
 INSTALL(TARGETS dft DESTINATION lib)
 INSTALL(TARGETS dft_exec DESTINATION bin)
