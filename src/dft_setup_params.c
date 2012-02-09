@@ -169,11 +169,14 @@ void setup_other_run_constants()
      for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
        for (iblock=0;iblock<MAX_ROUGH_BLOCK;iblock++){
          for (jblock=0;jblock<MAX_ROUGH_BLOCK;jblock++){
+            if (Proc==0){
             #ifndef _MSC_VER
               irand = random();
             #else
               irand = rand();
             #endif
+            }
+            MPI_Bcast(&irand,1,MPI_INT,0,MPI_COMM_WORLD);  /* need this for parallel jobs to be identical to serial jobs */
             irand_range = POW_INT(2,31)-1;
             Rough_precalc[iwall_type][iblock][jblock]= Rough_param_max[iwall_type]*(-0.5+( ((double)irand)/((double)irand_range)));
          }
