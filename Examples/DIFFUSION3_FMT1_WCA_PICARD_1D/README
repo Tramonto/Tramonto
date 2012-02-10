@@ -7,7 +7,7 @@ Dimensions: 1
 
 Diffusion: No
 
-Notes: Two component neutral Lennard-Jones system.  This tests the Picard solver with the same atomistic diffusion problem found in the
+Notes: Two component neutral Lennard-Jones system.  This tests the combined Picard-Newton Schur solver with the same atomistic diffusion problem found in the
 DIFFUSION1 case study. 
 
 Input Files for Test problem:
@@ -15,9 +15,9 @@ Input Files for Test problem:
    - dft_surfaces.dat
 
 Key Output Parameters:
-   - niter=22000 
-   - adsorption[0]= 8.09184  
-   - adsorption[1]= 8.09184
-   - energy=-41.0347   
+   - niter=6
+   - adsorption[0]= 8.09209  
+   - adsorption[1]= 8.09209
+   - energy=-41.0452   
    .
 */
