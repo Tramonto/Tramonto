@@ -7,7 +7,7 @@ Dimensions: 1
 
 Diffusion: No
 
-Notes: This case is identical to MIX3_ELEC_1D except the picard solver is used.   
+Notes: This case is identical to MIX3_ELEC_1D except a combined picard/newton solver is used.   
 The electrolyte is composed of two charged components (ions) and a dielectric continuum solvent.
 The ions are treated as point particles so this is the ideal (Poisson-Boltzmann) limit
 of the Density Functional Theory.  There are two surfaces in this problem each with
@@ -19,7 +19,7 @@ Input Files for Test problem:
    - dft_surfaces.dat
 
 Key Output Parameters:
-   - niter=8700
+   - niter=10
    - adsorption[0]= 0.342487  
    - adsorption[1]= 0.942487
    - ptilde = 1.048839
