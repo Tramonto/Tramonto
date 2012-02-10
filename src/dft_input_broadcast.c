@@ -493,12 +493,10 @@ void broadcast_input()
   MPI_Bcast(&Loca.cont_type1,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&NID_Cont,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(Cont_ID,NCONT_MAX*2,MPI_INT,0,MPI_COMM_WORLD);
-  MPI_Bcast(&Loca.step_size,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Loca.step_size,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
   MPI_Bcast(&Loca.num_steps,1,MPI_INT,0,MPI_COMM_WORLD);
-  MPI_Bcast(&Loca.aggr,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Loca.aggr,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
   MPI_Bcast(&Loca.cont_type2,1,MPI_INT,0,MPI_COMM_WORLD);
-  MPI_Bcast(&NID_Cont,1,MPI_INT,0,MPI_COMM_WORLD);
-  MPI_Bcast(Cont_ID,NCONT_MAX*2,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&LBulk,1,MPI_INT,0,MPI_COMM_WORLD);
 #endif
 
