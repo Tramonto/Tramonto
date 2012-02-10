@@ -14,7 +14,7 @@ Input Files for Test problem:
    - dft_surfaces.dat
 
 Key Output Parameters:
-   - niter=7
+   - niter=6
    - adsorption[0]=1.19457
    - adsorption[1]=1.06957
 */
