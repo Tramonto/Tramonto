@@ -16,9 +16,9 @@ Input Files for Test problem:
    - cr_10_1
 
 Key Output Parameters:
-   - niter=114 
-   - adsorption[0]=0.635985
-   - adsorption[1]=7.00482
-   - energy=-0.719508
+   - niter=143 
+   - adsorption[0]=0.635952
+   - adsorption[1]=7.00485
+   - energy=-0.719534
    .
 */
