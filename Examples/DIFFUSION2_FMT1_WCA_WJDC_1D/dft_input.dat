@@ -318,14 +318,14 @@
 ************ NONLINEAR SOLVER PARAMETERS *************************************
 @ 0 20 0 1 0    NL_Solver Max_NL_iter Physics_scaling ATTInA22Block Analyt_WJDC_Jac
 @ n/a           Scale_fac_WJDC[ipol][icomp]
-@ 1.0e-3 1.0e-8 0.2	NL_rel_tol NL_abs_tol NL_update_scalingParam 
-@ 1.e-3 1.e-8   NL_rel_tol_picard NL_abs_tol_picard
+@ 1.0e-4 1.0e-8 0.2	NL_rel_tol NL_abs_tol NL_update_scalingParam 
+@ 1.e-4 1.e-8   NL_rel_tol_picard NL_abs_tol_picard
 @ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
-@ 0 0 50 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
+@ 1 0 400 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
 @ -1 	Scaling (0=row_sum, 1=Jacobi, 2=symrow_sum, -1=none) 
 @ 4 4 	Preconditioner (0=ilu, 1=Jacobi, 2=symGS, 3=LSpoly3, -1=none), level 
-@ 50 1.e-3 	Max iterations and Convergence Tolerance for Linear Solver 
+@ 400 1.e-5 	Max iterations and Convergence Tolerance for Linear Solver 
 
 ************* MESH CONTINUATION PARAMETERS ************************************
                Here you enter information for mesh continuation.
