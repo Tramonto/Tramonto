@@ -215,7 +215,7 @@ void setup_other_run_constants()
 /******************************************************************************/
 void make_length_params_dimensionless()
 {
-  int idim,iwall,iwall_type,jwall_type,icomp,jcomp,i,j,izone;
+  int idim,iwall,iwall_type,jwall_type,icomp,jcomp,izone;
 
   for (idim=0; idim < Ndim; ++idim){
        Size_x[idim] /= Length_ref;
@@ -261,7 +261,7 @@ void make_length_params_dimensionless()
 
         if (Type_pairPot == PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS ||
             Type_pairPot==PAIR_LJandYUKAWA_CS || Type_pairPot==PAIR_r12andYUKAWA_CS ||
-            Type_pairPot==PAIR_r18andYUKAWA_CS || Type_pairPot==PAIR_rNandYUKAWA_CS) YukawaK_ff[i][j]*=Length_ref;
+            Type_pairPot==PAIR_r18andYUKAWA_CS || Type_pairPot==PAIR_rNandYUKAWA_CS) YukawaK_ff[icomp][jcomp]*=Length_ref;
      }
 
   if (Mix_type==1) 
@@ -301,7 +301,7 @@ void make_energy_params_dimensionless()
 
          if (Type_pairPot == PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS ||
              Type_pairPot==PAIR_LJandYUKAWA_CS || Type_pairPot==PAIR_r12andYUKAWA_CS ||
-             Type_pairPot==PAIR_r18andYUKAWA_CS || Type_pairPot==PAIR_rNandYUKAWA_CS) EpsYukawa_ff[i][j]/=Temp;
+             Type_pairPot==PAIR_r18andYUKAWA_CS || Type_pairPot==PAIR_rNandYUKAWA_CS) EpsYukawa_ff[icomp][jcomp]/=Temp;
      }
   }
 
