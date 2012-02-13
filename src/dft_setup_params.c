@@ -254,7 +254,7 @@ void make_length_params_dimensionless()
   }
 
   for (icomp=0;icomp<Ncomp;icomp++)
-     for (jcomp=0;icomp<Ncomp;jcomp++){
+     for (jcomp=0;jcomp<Ncomp;jcomp++){
         Sigma_ff[icomp][jcomp]/=Length_ref;
         Bond_ff[icomp][jcomp]/=Length_ref;
         Cut_ff[icomp][jcomp]/=Length_ref;
@@ -296,7 +296,7 @@ void make_energy_params_dimensionless()
   int icomp,jcomp,iwall_type,jwall_type,i,j;
 
   for (icomp=0;icomp<Ncomp;icomp++){
-     for (jcomp=0;icomp<Ncomp;jcomp++){
+     for (jcomp=0;jcomp<Ncomp;jcomp++){
          Eps_ff[icomp][jcomp]/=Temp;
 
          if (Type_pairPot == PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS ||
