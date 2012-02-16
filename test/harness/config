@@ -80,15 +80,15 @@ RUN (regression-nightly) {
 
 ###############################################################################
 #
-# regression continuous - built against Trilinos 10.8 branch
+# regression continuous - built against Trilinos 10.10 branch
 #
 ###############################################################################
 
 RUN (regression-continuous) {
 
-    BUILD-LABEL         = continuous-t10.8-8proc;
+    BUILD-LABEL         = continuous-t10.10-8proc;
     BUILD-DIR           = BUILD;
-    INVOKE-CONFIGURE    = linux-regression-10-8;
+    INVOKE-CONFIGURE    = linux-regression-10-10;
     TEST-CATEGORY       = FRAMEWORK;
     MAX-PROC            = 8;
     TTR-DIR             = /home/hudson/slave/workspace/tramonto-test-results;
