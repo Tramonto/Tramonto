@@ -19,7 +19,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                         Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                         Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List) 
 {
-  int i,j;
+  int i,j,k,counter;
   /****************************** DIMENSION PARAMETER SECTION **********************************************************/
   /* this routine translates the parameters from the GUI to Tramonto.  */
 
@@ -181,13 +181,13 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     /****************************************************/
     /* params from polymer input section of the GUI  */
     /****************************************************/
-/*    Npol_comp=Polymer_List->get<int>("P1: Npoly_comp");
+    Npol_comp=Polymer_List->get<int>("P1: Npoly_comp");
 
     Array<int> P2_Nblock=Polymer_List->get<Array<int> >("P2: Nblock_per_polymer");
     for (i=0; i<Npol_comp; i++) Nblock[i]=P2_Nblock[i]; 
 
-     ** note that Nseg_per_block is the same as block[][] in dft_input.c...Need to use it to compute some other things,
-        but we don't want to do those things here if possible **
+     /** note that Nseg_per_block is the same as block[][] in dft_input.c...Need to use it to compute some other things,
+        but we don't want to do those things here if possible ***/
     TwoDArray<int> P4_SegsPerBlock=Polymer_List->get<TwoDArray<int> >("P4: Nseg_perBlock");
       for (i=0; i<Npol_comp; i++)  
         for (j=0; j<Nblock[i]; j++) Nseg_per_block[i][j]=P4_SegsPerBlock[i][j]; 
@@ -206,13 +206,13 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        Poly_file_name=(char*)Polymer_List->get<string>("P7: Polymer architecture filename").c_str();
     }
     else Poly_file_name=NULL;
-*/
+
 
            /* Variables specific to Grafted polymers */
-/*    if (PolymerGraft_List->get<bool>("PG1: Grafted Polymers?")){
-**       Array<bool> PG2_GraftPolymerTF=PolymerGraft_List->get<Array<bool> >("PG2: Grafted_polymer_TF");
+    if (PolymerGraft_List->get<bool>("PG1: Grafted Polymers?")){
+/**       Array<bool> PG2_GraftPolymerTF=PolymerGraft_List->get<Array<bool> >("PG2: Grafted_polymer_TF");
        for (i=0; i<Npol_comp; i++) if(PG2_GraftPolymerTF[i]) Grafted[i]=TRUE;
-       else Grafted[i]=FALSE; **
+       else Grafted[i]=FALSE; ***/
 
        Array<int> PG3_GraftWallID=PolymerGraft_List->get<Array<int> >("PG3: Grafted_wall_ID[ipol_comp]");
        for (i=0; i<Npol_comp; i++) {
@@ -224,14 +224,14 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        Array<double> PG4_GraftDensity=PolymerGraft_List->get<Array<double> >("PG4: Grafted_wall_Density[ipol_comp]");
        for (i=0; i<Npol_comp; i++) Rho_g[i]=PG4_GraftDensity[i]; 
     }
-*/
     
           /* CMS specific variables */
- /*  if (Type_poly==CMS || Type_poly==CMS_SCFT){
+   if (Type_poly==CMS || Type_poly==CMS_SCFT){
        Ncr_files=PolymerCMS_List->get<int>("CMS1: N_CrFiles");
        Cr_file=(char*)PolymerCMS_List->get<string>("CMS2: Cr_File_1").c_str();
        Cr_file2=(char*)PolymerCMS_List->get<string>("CMS3: Cr_File_2").c_str();
        Crfac=PolymerCMS_List->get<double>("CMS4: CrFac");
+
        TwoDArray<double> CMS5_CradHSArray=PolymerCMS_List->get<TwoDArray<double> >("CMS5: Cr HSRadius");
        for (i=0; i<Ncomp; i++)  for (j=0; j<Ncomp; j++) Cr_rad_hs[i][j]=CMS5_CradHSArray[i][j]; 
     }
@@ -239,7 +239,33 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
     if (Polymer_List->get<string>("P6: Polymer achitecture entry")=="Set up in GUI") {
 
-    }*/
+       Nseg_tot=PolymerArch_List->get<int>("PA1: NSeg_tot");
+       Nbond_max=PolymerArch_List->get<int>("PA2: Nbond_max");
+        
+       Array<int> PA3_NbondPerSeg_Array=PolymerArch_List->get<Array<int> >("PA3: NBondsperSeg"); 
+       counter=0;
+       for (i=0;i<Npol_comp;i++)
+          for (j=0;j<Nmer[i];j++){ 
+             Nbond[i][j]=PA3_NbondPerSeg_Array[counter++]; 
+          }
+
+       TwoDArray<int> PA4_BondsPerSeg=PolymerArch_List->get<TwoDArray<int> >("PA4: BondAll");
+       counter=0;
+       for (i=0;i<Npol_comp;i++)
+          for (j=0;j<Nmer[i];j++){
+              for (k=0;k<Nbond[i][j];k++) { Bonds[i][j][k]=PA4_BondsPerSeg[counter][k]; }
+               counter++;
+           }
+
+       TwoDArray<int> PA5_PolSymArray=PolymerArch_List->get<TwoDArray<int> >("PA5: PolySym");
+       counter=0;
+       for (i=0;i<Npol_comp;i++)
+          for (j=0;j<Nmer[i];j++){
+              for (k=0;k<Nbond[i][j];k++) { pol_sym_tmp[i][j][k]=PA5_PolSymArray[counter][k];}
+              counter++;
+          }
+
+    }
 
 
     /****************************************************/
@@ -269,6 +295,18 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        else if (WallTypes[i]=="CYLINDRICAL TAPERED PORE: Finite_L") Surface_type[i]=9;
    }
 */
+
+    /****************************************************/
+    /* params from thermodynamics section of the GUI  */
+    /****************************************************/
+
+    /****************************************************/
+    /* params from solvers section of the GUI  */
+    /****************************************************/
+
+    /****************************************************/
+    /* params from continuation section of the GUI  */
+    /****************************************************/
     
        
   return;

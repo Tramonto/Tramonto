@@ -19,7 +19,7 @@ void dft_GUI_Polymer( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                   Teuchos::RCP<Teuchos::ParameterList> PolymerGraft_List)
 {
   bool set_defaults_from_old_format_file=true,bool_tmp;
-  int idim,i,j,k,max,counter,counter2;
+  int idim,i,j,k,max,counter;
 
 
         /**************************************/
@@ -113,7 +113,7 @@ void dft_GUI_Polymer( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
    }
 
 
-   if (set_defaults_from_old_format_file && Type_poly == CMS){
+   if (set_defaults_from_old_format_file && (Type_poly == CMS || Type_poly==SCFT)){
       PolymerCMS_List->set("CMS1: N_CrFiles",Ncr_files,"Number of direct correlation function files to be read",Ncrfile_Validator); 
 
       PolymerCMS_List->set("CMS2: Cr_File_1", (string)Cr_file, "Enter filename for a file containing a direct correlation function",CrFile_Validator);
@@ -174,13 +174,13 @@ void dft_GUI_Polymer( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
       TwoDArray<int> PolySym_Array(Nseg_tot,Nbond_max);
 
-      counter2=0;
+      counter=0;
       for (i=0; i<Npol_comp;i++)
          for (j=0; j<Nmer[i];j++){
             for (k=0; k<Nbond[i][j];k++){
-            PolySym_Array[counter2][k]=pol_sym_tmp[i][j][k];
+            PolySym_Array[counter][k]=pol_sym_tmp[i][j][k];
             }
-            counter2++;
+            counter++;
       }
       PolymerArch_List->set("PA5: PolySym",PolySym_Array,"If you have a symmetric polymer you can indicated symmetric bonds here.  Enter -1 in all fields to ignore symmetric bonds.  Otherwise, enter the bond IDs to enforce symmetry. This will allow for some speed up of the calculations.\n Test your indexing by setting all to -1. Note that some entries may be irrelevant."); 
    }

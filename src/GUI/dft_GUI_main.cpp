@@ -96,10 +96,10 @@ extern "C" void dft_OptikaGUI()
 /*  RCP<FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();*/
 /*  writeParameterListToXmlOStream(*Tramonto_List, *out);*/
 
-/*  cout<<"calling dft_GUI_toTramonto\n"<<endl;
+/*  cout<<"calling dft_GUI_toTramonto\n"<<endl;*/
   dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
-                     Surface_List,SurfaceGeometry_List);*/
+                     Surface_List,SurfaceGeometry_List);
 
              /* Here save parameter a to return to C code --- a fully 
                 functioning GUI will need to return all parameters entered
