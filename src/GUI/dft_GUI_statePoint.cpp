@@ -10,6 +10,7 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                   Teuchos::RCP<DependencySheet> depSheet_Tramonto,
                   Teuchos::RCP<Teuchos::ParameterList> Functional_List, 
                   Teuchos::RCP<Teuchos::ParameterList> Fluid_List, 
+                  Teuchos::RCP<Teuchos::ParameterList> Polymer_List, 
                   Teuchos::RCP<Teuchos::ParameterList> StatePoint_List,
                   Teuchos::RCP<Teuchos::ParameterList> Diffusion_List,
                   Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List)
@@ -50,10 +51,14 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
         }
         if (Type_interface != UNIFORM_INTERFACE){
            Array<double> RhoBulk0_Array(Rho_b_LBB,Rho_b_LBB+Ncomp);
+           Array<double> RhoBulk0POL_Array(Rho_b_LBB,Rho_b_LBB+Npol_comp);
            StatePoint_List->set("BF3: Rho_b_0[icomp]", RhoBulk0_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
+           StatePoint_List->set("BF3: Rho_b_0[ipol_comp]", RhoBulk0POL_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
 
            Array<double> RhoBulk1_Array(Rho_b_RTF,Rho_b_RTF+Ncomp);
+           Array<double> RhoBulk1POL_Array(Rho_b_RTF,Rho_b_RTF+Npol_comp);
            StatePoint_List->set("BF4: Rho_b_1[icomp]", RhoBulk1_Array, "Set the densities on the positive boundary  for an inhomogenous system");
+           StatePoint_List->set("BF4: Rho_b_1[ipol_comp]", RhoBulk1POL_Array, "Set the densities on the positive boundary  for an inhomogenous system");
     
            StatePoint_List->set("BF5: Direction of Gradient", Grad_dim, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
 
@@ -64,17 +69,21 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
         }
         else{
            Array<double> RhoBulk0_Array(Rho_b,Rho_b+Ncomp);
+           Array<double> RhoBulk0POL_Array(Rho_b,Rho_b+Npol_comp);
            StatePoint_List->set("BF3: Rho_b_0[icomp]", RhoBulk0_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
+           StatePoint_List->set("BF3: Rho_b_0[ipol_comp]", RhoBulk0POL_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
 
            Array<double> RhoBulk1_Array(Rho_b,Rho_b+Ncomp);
+           Array<double> RhoBulk1POL_Array(Rho_b,Rho_b+Npol_comp);
            StatePoint_List->set("BF4: Rho_b_1[icomp]", RhoBulk1_Array, "Set the densities on the positive boundary  for an inhomogenous system");
+           StatePoint_List->set("BF4: Rho_b_1[ipol_comp]", RhoBulk1POL_Array, "Set the densities on the positive boundary  for an inhomogenous system");
 
            StatePoint_List->set("BF5: Direction of Gradient", 0, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
 
            StatePoint_List->set("BF6: Constrained Interface?", false, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
 
         }
-        StatePoint_List->set("BF6: X_const_mu", X_const_mu, "Set the distance from the computational boundaries\n in the direction of the chemical potential gradient\n where the chemical potential is to be held constant.\n Facilitates comparison with GCMD calculations.");
+        StatePoint_List->set("BF7: X_const", X_const_mu, "Set the distance from the computational boundaries\n in the direction of Grad_dim\n where the chemical potential is to be held constant.\n Facilitates comparison with GCMD calculations.");
 
    }
    else{
@@ -82,36 +91,39 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
         StatePoint_List->set("BF2: Density Conversion Factor",1.0,"Provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
 
         Array<double> RhoBulk0_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
+        Array<double> RhoBulk0POL_Array( (Polymer_List->get<int>("P1: Npoly_comp")),0.0);
         StatePoint_List->set("BF3: Rho_b_0[icomp]", RhoBulk0_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
+        StatePoint_List->set("BF3: Rho_b_0[ipol_comp]", RhoBulk0POL_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
 
         Array<double> RhoBulk1_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
+        Array<double> RhoBulk1POL_Array( (Polymer_List->get<int>("P1: Npoly_comp")),0.0);
         StatePoint_List->set("BF4: Rho_b_1[icomp]", RhoBulk1_Array, "Set the densities on the positive boundary  for an inhomogenous system");
+        StatePoint_List->set("BF4: Rho_b_1[ipol_comp]", RhoBulk1POL_Array, "Set the densities on the positive boundary  for an inhomogenous system");
    
         StatePoint_List->set("BF5: Direction of Gradient", 0, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
         StatePoint_List->set("BF6: Constrained Interface?", false, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
 
-        StatePoint_List->set("BF6: distance for constant Mu region", 0.0, "Set the distance from the computational boundaries\n in the direction of the chemical potential gradient\n where the chemical potential is to be held constant.\n Facilitates comparison with GCMD calculations.");
+        StatePoint_List->set("BF7: X_const", 0.0, "Set the distance from the computational boundaries\n in the direction of Grad_dim\n where the chemical potential is to be held constant.\n Facilitates comparison with GCMD calculations.");
 
 
    }
 
        /* Optional Diffusion parameters */
-   if (set_defaults_from_old_format_file){
+   if (set_defaults_from_old_format_file && Type_interface != UNIFORM_INTERFACE){
         if (Type_interface != UNIFORM_INTERFACE){
            Array<double> DiffCoeff_Array(D_coef,D_coef+Ncomp);
+           Array<double> DiffCoeffPOL_Array(D_coef,D_coef+Npol_comp);
            Diffusion_List->set("D1: Diff_Coeff[icomp]", DiffCoeff_Array, "Set the diffusion coefficientf sof each component. Note this is only used to post-process flux.  It is not neede for calculation of profiles.");
+           Diffusion_List->set("D1: Diff_Coeff[ipol_comp]", DiffCoeffPOL_Array, "Set the diffusion coefficientf sof each component. Note this is only used to post-process flux.  It is not neede for calculation of profiles.");
            
            Diffusion_List->set("D3: Velocity", Velocity, "Optional diffusion parameter: Set a bulk velocity term in diffusion calculation.");
-       }
-       else{
-           Array<double> DiffCoeff_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
-           Diffusion_List->set("D1: Diff_Coeff[icomp]", DiffCoeff_Array, "Set the diffusion coefficientf sof each component.");
-           Diffusion_List->set("D3: Velocity", 0.0, "Set a bulk velocity term in diffusion calculation.");
        }
    }
    else{
        Array<double> DiffCoeff_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
+       Array<double> DiffCoeffPOL_Array( (Polymer_List->get<int>("P1: Npoly_comp")),0.0);
        Diffusion_List->set("D1: Diff_Coeff[icomp]", DiffCoeff_Array, "Set the diffusion coefficientf sof each component.");
+       Diffusion_List->set("D1: Diff_Coeff[ipol_comp]", DiffCoeffPOL_Array, "Set the diffusion coefficientf sof each component.");
        Diffusion_List->set("D3: Velocity", 0.0, "Set a bulk velocity term in diffusion calculation.");
    }
 
@@ -162,27 +174,59 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     }
 
 
-
-
-
-
         /************************/
         /* set up dependencies */
         /************************/
+
+    RCP<StringCondition> IpolcompCon = rcp(
+           new StringCondition(Functional_List->getEntryRCP("F4_POLYMER_Functional"), 
+                              tuple<std::string>("Polymer_CMS","Polymer_CMS_SCFT","Polymer_TC_iSAFT",
+                              "Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)",
+                              "Polymer_JDC_iSAFT(comp)")));
+
+    RCP<StringCondition> IcompCon = rcp(
+           new StringCondition(Functional_List->getEntryRCP("F4_POLYMER_Functional"), "No Bonded Fluids"));
+
+    RCP<StringCondition> InterfaceCon = rcp(
+           new StringCondition(Functional_List->getEntryRCP("F0_Type_of_Calculation"), 
+                              tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)",
+                                   "Steady State Diffusion (inhomogeneous boundaries)")));
+
+   RCP<StringCondition> DiffusionCon = rcp(
+           new StringCondition(Functional_List->getEntryRCP("F0_Type_of_Calculation"), 
+                                   "Steady State Diffusion (inhomogeneous boundaries)"));
+
+    Condition::ConstConditionList Icomp_conList=tuple<RCP<const Condition> >(InterfaceCon,IcompCon);
+    RCP<AndCondition> Rhoicomp_Con = rcp(new AndCondition(Icomp_conList));
+      RCP<ConditionVisualDependency> IcompVis_Dep = rcp(
+          new ConditionVisualDependency(Rhoicomp_Con, StatePoint_List->getEntryRCP("BF4: Rho_b_1[icomp]")));
+
+    Condition::ConstConditionList Ipolcomp_conList=tuple<RCP<const Condition> >(InterfaceCon,IpolcompCon);
+    RCP<AndCondition> Rhoipolcomp_Con = rcp(new AndCondition(Ipolcomp_conList));
+      RCP<ConditionVisualDependency> IpolcompVis_Dep = rcp(
+          new ConditionVisualDependency(Rhoipolcomp_Con, StatePoint_List->getEntryRCP("BF4: Rho_b_1[ipol_comp]")));
+
+
+    Condition::ConstConditionList IpolcompDiff_conList=tuple<RCP<const Condition> >(DiffusionCon,IpolcompCon);
+    RCP<AndCondition> Dcoefipolcomp_Con = rcp(new AndCondition(IpolcompDiff_conList));
+      RCP<ConditionVisualDependency> DcoefIpolcompVis_Dep = rcp(
+          new ConditionVisualDependency(Dcoefipolcomp_Con, Diffusion_List->getEntryRCP("D1: Diff_Coeff[ipol_comp]"))); 
+
+
+    Condition::ConstConditionList IcompDiff_conList=tuple<RCP<const Condition> >(DiffusionCon,IcompCon);
+    RCP<AndCondition> Dcoeficomp_Con = rcp(new AndCondition(IcompDiff_conList));
+      RCP<ConditionVisualDependency> DcoefIcompVis_Dep = rcp(
+          new ConditionVisualDependency(Dcoeficomp_Con, Diffusion_List->getEntryRCP("D1: Diff_Coeff[icomp]")));
+
    
-   Dependency::ParameterEntryList INhomogeneous_Deps;
-   INhomogeneous_Deps.insert(StatePoint_List->getEntryRCP("BF4: Rho_b_1[icomp]"));
-   INhomogeneous_Deps.insert(StatePoint_List->getEntryRCP("BF5: Direction of Gradient"));
    RCP<StringVisualDependency> GradDim_Dep = rcp(
-       new StringVisualDependency( Functional_List->getEntryRCP("F0_Type_of_Calculation"), INhomogeneous_Deps, 
+       new StringVisualDependency( Functional_List->getEntryRCP("F0_Type_of_Calculation"), 
+                                   StatePoint_List->getEntryRCP("BF5: Direction of Gradient"), 
                                    tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)",
                                    "Steady State Diffusion (inhomogeneous boundaries)")));
 
-   Dependency::ParameterEntryList DiffusionDependents;
-   DiffusionDependents.insert(Diffusion_List->getEntryRCP("D1: Diff_Coeff[icomp]"));
-   DiffusionDependents.insert(Diffusion_List->getEntryRCP("D3: Velocity"));
    RCP<StringVisualDependency> Diffusion_Dep = rcp(
-       new StringVisualDependency( Functional_List->getEntryRCP("F0_Type_of_Calculation"),DiffusionDependents,
+       new StringVisualDependency( Functional_List->getEntryRCP("F0_Type_of_Calculation"),Diffusion_List->getEntryRCP("D3: Velocity"),
            tuple<std::string>("Steady State Diffusion (inhomogeneous boundaries)")));
 
    RCP<BoolVisualDependency> DensityUnit_Dep = rcp( 
@@ -194,12 +238,32 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                                    StatePoint_List->getEntryRCP("BF6: Constrained Interface?"),
                                    tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)"))); 
 
+   RCP<StringVisualDependency> Rhoicomp_Dep = rcp(
+       new StringVisualDependency( Functional_List->getEntryRCP("F4_POLYMER_Functional"),
+                                   StatePoint_List->getEntryRCP("BF3: Rho_b_0[icomp]"),
+                                   tuple<std::string>("No Bonded Fluids")),true); 
+
+   RCP<StringVisualDependency> Rhoipolcomp_Dep = rcp(
+       new StringVisualDependency( Functional_List->getEntryRCP("F4_POLYMER_Functional"),
+                                   StatePoint_List->getEntryRCP("BF3: Rho_b_0[ipol_comp]"),
+                                   tuple<std::string>("Polymer_CMS","Polymer_CMS_SCFT","Polymer_TC_iSAFT",
+                                   "Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)",
+                                   "Polymer_JDC_iSAFT(comp)")),true); 
+
+
    Dependency::ParameterEntryList DensityLengthDependents;
    DensityLengthDependents.insert(StatePoint_List->getEntryRCP("BF3: Rho_b_0[icomp]"));
    DensityLengthDependents.insert(StatePoint_List->getEntryRCP("BF4: Rho_b_1[icomp]"));
    DensityLengthDependents.insert(Diffusion_List->getEntryRCP("D1: Diff_Coeff[icomp]"));
    RCP<NumberArrayLengthDependency<int,double> > DensityLength_Dep = rcp(
            new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"), DensityLengthDependents));
+
+   Dependency::ParameterEntryList DensityLengthDependents_POL;
+   DensityLengthDependents_POL.insert(StatePoint_List->getEntryRCP("BF3: Rho_b_0[ipol_comp]"));
+   DensityLengthDependents_POL.insert(StatePoint_List->getEntryRCP("BF4: Rho_b_1[ipol_comp]"));
+   DensityLengthDependents_POL.insert(Diffusion_List->getEntryRCP("D1: Diff_Coeff[ipol_comp]"));
+   RCP<NumberArrayLengthDependency<int,double> > DensityLength_DepPOL = rcp(
+           new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"), DensityLengthDependents_POL));
 
 
    Dependency::ParameterEntryList ChargeParamsDependents;
@@ -251,15 +315,23 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
       /* add the dependencies for this section.*/
       /*****************************************/
 
+   depSheet_Tramonto->addDependency(IcompVis_Dep); 
+   depSheet_Tramonto->addDependency(IpolcompVis_Dep);
+/*   depSheet_Tramonto->addDependency(DcoefIpolcompVis_Dep);*/
+   depSheet_Tramonto->addDependency(DcoefIcompVis_Dep);
+   depSheet_Tramonto->addDependency(Rhoicomp_Dep);
+   depSheet_Tramonto->addDependency(Rhoipolcomp_Dep);
    depSheet_Tramonto->addDependency(GradDim_Dep);
    depSheet_Tramonto->addDependency(DensityUnit_Dep);
    depSheet_Tramonto->addDependency(Lconstrain_Dep);
    depSheet_Tramonto->addDependency(Diffusion_Dep);      
    depSheet_Tramonto->addDependency(DensityLength_Dep);
+   depSheet_Tramonto->addDependency(DensityLength_DepPOL);
    depSheet_Tramonto->addDependency(ChargeParams_Dep);
    depSheet_Tramonto->addDependency(DielecPore_Dep);
    depSheet_Tramonto->addDependency(DielecConstUnit_Dep);
    depSheet_Tramonto->addDependency(Elec_pot1_Dep); 
+
 
 
   return;

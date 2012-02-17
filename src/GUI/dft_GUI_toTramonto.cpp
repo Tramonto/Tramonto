@@ -16,6 +16,9 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                         Teuchos::RCP<Teuchos::ParameterList> PolymerGraft_List,
                         Teuchos::RCP<Teuchos::ParameterList> PolymerArch_List,
                         Teuchos::RCP<Teuchos::ParameterList> PolymerCMS_List,
+                        Teuchos::RCP<Teuchos::ParameterList> StatePoint_List,
+                        Teuchos::RCP<Teuchos::ParameterList> Diffusion_List,
+                        Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List,
                         Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                         Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List) 
 {
@@ -267,6 +270,88 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
     }
 
+    /****************************************************/
+    /* params from state point section of the GUI  */
+    /****************************************************/
+    if (StatePoint_List->get<bool>("BF1: Dimensionless Density Entry?")) Density_ref=-1.0; 
+    else    Density_ref=StatePoint_List->get<double>("BF2: Density Conversion Factor");
+
+   
+    if (Type_interface == UNIFORM_INTERFACE){
+        if (Type_poly==NONE){ 
+           Array<double> BF3_RhoLBB=StatePoint_List->get<Array<double> >("BF3: Rho_b_0[icomp]"); 
+           for (i=0;i<Ncomp;i++){
+              Rho_b[i]=BF3_RhoLBB[i]; 
+              if (Type_interface==DIFFUSIVE_INTERFACE) D_coef[i]=0.0; 
+           }
+        }
+        else{ 
+            Array<double> BF3_RhoLBB=StatePoint_List->get<Array<double> >("BF3: Rho_b_0[ipol_comp]"); 
+            for (i=0;i<Npol_comp;i++){
+               Rho_b[i]=BF3_RhoLBB[i]; 
+               if (Type_interface==DIFFUSIVE_INTERFACE) D_coef[i]=0.0;
+            }
+        }
+    
+        Grad_dim=0;
+        Velocity=0.0;
+        Lconstrain_interface=FALSE;
+    }
+    else{
+       
+        if (Type_poly==NONE){ 
+           Array<double> BF3_RhoLBB=StatePoint_List->get<Array<double> >("BF3: Rho_b_0[icomp]"); 
+           Array<double> BF4_RhoRTF=StatePoint_List->get<Array<double> >("BF4: Rho_b_1[icomp]"); 
+           Array<double> D1_DiffCoeff=Diffusion_List->get<Array<double> >("D1: Diff_Coeff[icomp]"); 
+           for (i=0;i<Ncomp;i++){ 
+             Rho_b_LBB[i]=BF3_RhoLBB[i]; 
+             Rho_b_RTF[i]=BF4_RhoRTF[i]; 
+             Rho_b[i]=Rho_b_LBB[i];
+             if (Type_interface==DIFFUSIVE_INTERFACE) D_coef[i]=D1_DiffCoeff[i];
+           }
+        }
+        else{ 
+           Array<double> BF3_RhoLBB=StatePoint_List->get<Array<double> >("BF3: Rho_b_0[ipol_comp]"); 
+           Array<double> BF4_RhoRTF=StatePoint_List->get<Array<double> >("BF4: Rho_b_1[ipol_comp]"); 
+           Array<double> D1_DiffCoeff=Diffusion_List->get<Array<double> >("D1: Diff_Coeff[ipol_comp]"); 
+           for (i=0;i<Npol_comp;i++){ 
+             Rho_b_LBB[i]=BF3_RhoLBB[i]; 
+             Rho_b_RTF[i]=BF4_RhoRTF[i]; 
+             Rho_b[i]=Rho_b_LBB[i];
+             if (Type_interface==DIFFUSIVE_INTERFACE) D_coef[i]=D1_DiffCoeff[i];
+           }
+        }
+
+        Grad_dim=StatePoint_List->get<int>("BF5: Direction of Gradient");
+        if (Type_interface==DIFFUSIVE_INTERFACE) Velocity= Diffusion_List->get<double>("D3: Velocity");
+        if (StatePoint_List->get<bool>("BF6: Constrained Interface?")) Lconstrain_interface=TRUE;
+        else Lconstrain_interface=FALSE;
+    }
+
+    X_const_mu=StatePoint_List->get<double>("BF7: X_const");
+
+
+    if (ChargedFluid_List->get<string>("CF1: Type Dielectric Constant(s)")=="Uniform Dielectric Constant") Type_dielec=DIELEC_CONST;
+    else if (ChargedFluid_List->get<string>("CF1: Type Dielectric Constant(s)")=="2-Dielec Const: fluid and wall regions") Type_dielec=DIELEC_WF;
+    else if (ChargedFluid_List->get<string>("CF1: Type Dielectric Constant(s)")=="3-Dielec Const: bulk fluid, fluid near wall, wall regions") Type_dielec=DIELEC_WF_PORE;
+
+    if (ChargedFluid_List->get<bool>("CF2: Entry of Relative Dielectric Constant(s)?")) Dielec_ref=-1.;
+    else Dielec_ref=ChargedFluid_List->get<double>("CF3: Reference Dielectric Constant");
+
+    Dielec_bulk=ChargedFluid_List->get<double>("CF4.0: Dielec Const Bulk Fluid");
+    Dielec_pore=ChargedFluid_List->get<double>("CF4.1: Dielec Const Near Wall Fluid");
+    Dielec_X=ChargedFluid_List->get<double>("CF4.2: Size of Near Wall region");
+  
+    Sigma_Angstroms_plasma=ChargedFluid_List->get<double>("CF5.0: Sigma for Plasma Parameter (Angstroms)");
+    Temp_K_plasma=ChargedFluid_List->get<double>("CF5.1: Temperature for Plasma Parameter (Kelvin)");
+    DielecConst_plasma=ChargedFluid_List->get<double>("CF5.2: Dielectric const for Plasma Parameter");
+
+    
+
+    
+
+
+     
 
     /****************************************************/
     /* params from surface geometry section of the GUI  */
@@ -295,10 +380,6 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        else if (WallTypes[i]=="CYLINDRICAL TAPERED PORE: Finite_L") Surface_type[i]=9;
    }
 */
-
-    /****************************************************/
-    /* params from thermodynamics section of the GUI  */
-    /****************************************************/
 
     /****************************************************/
     /* params from solvers section of the GUI  */
