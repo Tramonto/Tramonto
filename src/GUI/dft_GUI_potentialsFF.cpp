@@ -242,62 +242,81 @@ int i,j;
             new NumberVisualDependency<int>(Fluid_List->getEntryRCP("F1_Ncomp"),
                                             PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"),func_testNcomp));*/
 
-          /* all the things that depend on the hard sphere functional being turned on */
-     Dependency::ParameterEntryList HSFuncVis_Dependents;
-     HSFuncVis_Dependents.insert(Fluid_List->getEntryRCP("F2_HSDiamType"));
-     HSFuncVis_Dependents.insert(Fluid_List->getEntryRCP("F3_HSDiam"));
-     HSFuncVis_Dependents.insert(PotentialsFF_List->getEntryRCP("PF1_SigmaFF"));
-     HSFuncVis_Dependents.insert(PotentialsFF_List->getEntryRCP("PF1_SigmaF"));
+      /* potentials array vis dependencies ....need AND condition*/
+      RCP<StringCondition> PotTypeStringCon = rcp(
+           new StringCondition(PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"), "Manual Definition"));
+      RCP<StringCondition> PotTypeStringConF = rcp(
+           new StringCondition(PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"), "Lorentz-Berthlot Mixing"));
 
-     RCP<StringVisualDependency> HSFuncVis_Dep = rcp(
-         new StringVisualDependency(Functional_List->getEntryRCP("F1_HS_Functional"), HSFuncVis_Dependents,
-                                    "Ideal Fluid / No Volume Exclusion",false));
+      RCP<StringCondition> SigmaStringCon1 = rcp(
+        new StringCondition(Functional_List->getEntryRCP("F1_HS_Functional"),tuple<std::string>(
+                "HS_Rosenfeld_Original","HS_Rosenfeld_Zerocrossover","HS_White_Bear","HS_White_Bear2")));
 
-          /* dependency to select 2D or 1D aray entries for various potential parameters */
-     Dependency::ParameterEntryList PotArray2D_Dependents;
-     PotArray2D_Dependents.insert(PotentialsFF_List->getEntryRCP("PF1_SigmaFF"));
-     PotArray2D_Dependents.insert(PotentialsFF_List->getEntryRCP("PF2_EpsFF"));
-     PotArray2D_Dependents.insert(PotentialsFF_List->getEntryRCP("PF3_CutFF"));
+         /* set up SigmaFF conditions */
+      Condition::ConstConditionList SigmaFF_conList=tuple<RCP<const Condition> >(SigmaStringCon1,PotTypeStringCon);
+      RCP<AndCondition> SigmaFF_allowed = rcp(new AndCondition(SigmaFF_conList));
+      RCP<ConditionVisualDependency> SigmaFF_Dep = rcp(
+          new ConditionVisualDependency(SigmaFF_allowed, PotentialsFF_List->getEntryRCP("PF1_SigmaFF"), true));
 
-     RCP<StringVisualDependency> MixType_Dep = rcp(
-         new StringVisualDependency(PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"), 
-                                    PotArray2D_Dependents,"Manual Definition",true));
+         /* now set up SigmaF conditions */
+      Condition::ConstConditionList SigmaF_conList=tuple<RCP<const Condition> >(SigmaStringCon1,PotTypeStringConF);
+      RCP<AndCondition> SigmaF_allowed = rcp(new AndCondition(SigmaF_conList));
+      RCP<ConditionVisualDependency> SigmaF_Dep = rcp(
+          new ConditionVisualDependency(SigmaF_allowed, PotentialsFF_List->getEntryRCP("PF1_SigmaF"), true));
 
-     Dependency::ParameterEntryList PotArray1D_Dependents;
-     PotArray1D_Dependents.insert(PotentialsFF_List->getEntryRCP("PF1_SigmaF"));
-     PotArray1D_Dependents.insert(PotentialsFF_List->getEntryRCP("PF2_EpsF"));
-     PotArray1D_Dependents.insert(PotentialsFF_List->getEntryRCP("PF3_CutF"));
 
-     RCP<StringVisualDependency> SigmaFArray_Dep = rcp(
-         new StringVisualDependency(PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"), 
-                                    PotArray1D_Dependents, "Lorentz-Berthlot Mixing",true));
 
-     Dependency::ParameterEntryList EpsArray_Dependents;
-     EpsArray_Dependents.insert(PotentialsFF_List->getEntryRCP("PF2_EpsF")); 
-     EpsArray_Dependents.insert(PotentialsFF_List->getEntryRCP("PF2_EpsFF")); 
-     RCP<StringVisualDependency> EpsFFArray_Dep = rcp(
-         new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"),
-                                    EpsArray_Dependents, 
+      RCP<StringCondition> EpsStringCon1 = rcp(
+        new StringCondition(Fluid_List->getEntryRCP("F4_PairPotType"), 
                                     tuple<std::string>("LJ 12-6 potential (cut/shift)",
                                        "Exponential potential (cut/shift)","Square Well potential",
                                        "LJ 12-6 plus Yukawa potential (cut/shift)",
                                        "r^12 repulsion plus Yukawa potential (cut/shift)",
                                        "r^18 repulsion plus Yukawa potential (cut/shift)",
-                                       "r^N repulsion plus Yukawa potential (cut/shift)"),true));
+                                       "r^N repulsion plus Yukawa potential (cut/shift)")));
+
+         /* set up EpsFF conditions */
+      Condition::ConstConditionList EpsFF_conList=tuple<RCP<const Condition> >(EpsStringCon1,PotTypeStringCon);
+      RCP<AndCondition> EpsFF_allowed = rcp(new AndCondition(EpsFF_conList));
+      RCP<ConditionVisualDependency> EpsFF_Dep = rcp(
+          new ConditionVisualDependency(EpsFF_allowed, PotentialsFF_List->getEntryRCP("PF2_EpsFF"), true));
+
+         /* now set up EpsF conditions */
+      Condition::ConstConditionList EpsF_conList=tuple<RCP<const Condition> >(EpsStringCon1,PotTypeStringConF);
+      RCP<AndCondition> EpsF_allowed = rcp(new AndCondition(EpsF_conList));
+      RCP<ConditionVisualDependency> EpsF_Dep = rcp(
+          new ConditionVisualDependency(EpsF_allowed, PotentialsFF_List->getEntryRCP("PF2_EpsF"), true));
 
 
-     Dependency::ParameterEntryList CutArray_Dependents;
-     CutArray_Dependents.insert(PotentialsFF_List->getEntryRCP("PF3_CutF")); 
-     CutArray_Dependents.insert(PotentialsFF_List->getEntryRCP("PF3_CutFF")); 
-     RCP<StringVisualDependency> CutFFArray_Dep = rcp(
-         new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"), 
-                                    CutArray_Dependents, 
+
+     RCP<StringCondition> CutStringCon1 = rcp(
+         new StringCondition(Fluid_List->getEntryRCP("F4_PairPotType"),
                                     tuple<std::string>("LJ 12-6 potential (cut/shift)","Exponential potential (cut/shift)",
-	                            "Coulomb potential as mean field (cut/shift)","Coulomb potential as mean field (cut only)",
+                                    "Coulomb potential as mean field (cut/shift)","Coulomb potential as mean field (cut only)",
                                     "Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
                                     "r^12 repulsion plus Yukawa potential (cut/shift)",
                                     "r^18 repulsion plus Yukawa potential (cut/shift)",
-                                    "r^N repulsion plus Yukawa potential (cut/shift)"),true));
+                                    "r^N repulsion plus Yukawa potential (cut/shift)")));
+
+         /* set up CutFF conditions */
+      Condition::ConstConditionList CutFF_conList=tuple<RCP<const Condition> >(CutStringCon1,PotTypeStringCon);
+      RCP<AndCondition> CutFF_allowed = rcp(new AndCondition(CutFF_conList));
+      RCP<ConditionVisualDependency> CutFF_Dep = rcp(
+          new ConditionVisualDependency(CutFF_allowed, PotentialsFF_List->getEntryRCP("PF3_CutFF"), true));
+
+         /* now set up CutF conditions */
+      Condition::ConstConditionList CutF_conList=tuple<RCP<const Condition> >(CutStringCon1,PotTypeStringConF);
+      RCP<AndCondition> CutF_allowed = rcp(new AndCondition(CutF_conList));
+      RCP<ConditionVisualDependency> CutF_Dep = rcp(
+          new ConditionVisualDependency(CutF_allowed, PotentialsFF_List->getEntryRCP("PF3_CutF"), true));
+
+
+          /* HSdiam entry */
+     RCP<StringVisualDependency> HSFuncVis_Dep = rcp(
+         new StringVisualDependency(Functional_List->getEntryRCP("F1_HS_Functional"), Fluid_List->getEntryRCP("F2_HSDiamType"),
+                                    "Ideal Fluid / No Volume Exclusion",false));
+
+
 
       RCP<StringVisualDependency> EpsYukawaFFArray_Dep = rcp(
          new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"),
@@ -374,7 +393,6 @@ int i,j;
       PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF1_SigmaF"));
       PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF2_EpsF"));
       PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF3_CutF"));
-
       RCP<NumberArrayLengthDependency<int,double> > PotFFArrayLength2_Dep = rcp(
                 new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"), PotFF2ArrayLength_Dependents));
 
@@ -387,8 +405,9 @@ int i,j;
        depSheet_Tramonto->addDependency(HSDiam_Dep);
        depSheet_Tramonto->addDependency(HSDiam_Dep2);
        depSheet_Tramonto->addDependency(Temp_Dep);
-       depSheet_Tramonto->addDependency(EpsFFArray_Dep);
-       depSheet_Tramonto->addDependency(CutFFArray_Dep);
+       depSheet_Tramonto->addDependency(EpsFF_Dep);
+       depSheet_Tramonto->addDependency(EpsF_Dep);
+       depSheet_Tramonto->addDependency(CutF_Dep);
        depSheet_Tramonto->addDependency(EpsYukawaFFArray_Dep);
        depSheet_Tramonto->addDependency(YukawaKFFArray_Dep);
        depSheet_Tramonto->addDependency(NpowFFArray_Dep);
@@ -397,8 +416,8 @@ int i,j;
        depSheet_Tramonto->addDependency(PolarizationArray_Dep);
        depSheet_Tramonto->addDependency(BondArray_Dep);
        depSheet_Tramonto->addDependency(HSFuncVis_Dep);
-       depSheet_Tramonto->addDependency(SigmaFArray_Dep);
-       depSheet_Tramonto->addDependency(MixType_Dep);
+       depSheet_Tramonto->addDependency(SigmaF_Dep);
+       depSheet_Tramonto->addDependency(SigmaFF_Dep);
 /*       depSheet_Tramonto->addDependency(MixType2_Dep);*/
      
        depSheet_Tramonto->addDependency(PotFFArrayLength2_Dep);
