@@ -156,13 +156,13 @@ RUN (regression-continuous) {
 
 ###############################################################################
 #
-# zan nightly - built against Trilinos 10.6.4
+# zan nightly - built against Trilinos 10.10
 #
 ###############################################################################
 
 RUN (zan-nightly) {
 
-    BUILD-LABEL         = O3-t10.6-8proc;
+    BUILD-LABEL         = O3-t10.10-8proc;
     BUILD-DIR           = BUILD;
     INVOKE-CONFIGURE    = linux-zan;
     TEST-CATEGORY       = FRAMEWORK;
