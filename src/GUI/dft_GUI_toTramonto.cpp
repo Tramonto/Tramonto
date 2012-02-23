@@ -331,27 +331,30 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     X_const_mu=StatePoint_List->get<double>("BF7: X_const");
 
 
-    if (ChargedFluid_List->get<string>("CF1: Type Dielectric Constant(s)")=="Uniform Dielectric Constant") Type_dielec=DIELEC_CONST;
-    else if (ChargedFluid_List->get<string>("CF1: Type Dielectric Constant(s)")=="2-Dielec Const: fluid and wall regions") Type_dielec=DIELEC_WF;
-    else if (ChargedFluid_List->get<string>("CF1: Type Dielectric Constant(s)")=="3-Dielec Const: bulk fluid, fluid near wall, wall regions") Type_dielec=DIELEC_WF_PORE;
+    if (Type_coul != NONE){
+       if (ChargedFluid_List->get<string>("CF1: Type Dielectric Constant(s)")=="Uniform Dielectric Constant") Type_dielec=DIELEC_CONST;
+       else if (ChargedFluid_List->get<string>("CF1: Type Dielectric Constant(s)")=="2-Dielec Const: fluid and wall regions") Type_dielec=DIELEC_WF;
+       else if (ChargedFluid_List->get<string>("CF1: Type Dielectric Constant(s)")=="3-Dielec Const: bulk fluid, fluid near wall, wall regions") Type_dielec=DIELEC_WF_PORE;
 
-    if (ChargedFluid_List->get<bool>("CF2: Entry of Relative Dielectric Constant(s)?")) Dielec_ref=-1.;
-    else Dielec_ref=ChargedFluid_List->get<double>("CF3: Reference Dielectric Constant");
+       if (ChargedFluid_List->get<bool>("CF2: Entry of Relative Dielectric Constant(s)?")) Dielec_ref=-1.;
+       else Dielec_ref=ChargedFluid_List->get<double>("CF3: Reference Dielectric Constant");
 
-    Dielec_bulk=ChargedFluid_List->get<double>("CF4.0: Dielec Const Bulk Fluid");
-    Dielec_pore=ChargedFluid_List->get<double>("CF4.1: Dielec Const Near Wall Fluid");
-    Dielec_X=ChargedFluid_List->get<double>("CF4.2: Size of Near Wall region");
+       Dielec_bulk=ChargedFluid_List->get<double>("CF4.0: Dielec Const Bulk Fluid");
+       Dielec_pore=ChargedFluid_List->get<double>("CF4.1: Dielec Const Near Wall Fluid");
+       Dielec_X=ChargedFluid_List->get<double>("CF4.2: Size of Near Wall region");
   
-    Sigma_Angstroms_plasma=ChargedFluid_List->get<double>("CF5.0: Sigma for Plasma Parameter (Angstroms)");
-    Temp_K_plasma=ChargedFluid_List->get<double>("CF5.1: Temperature for Plasma Parameter (Kelvin)");
-    DielecConst_plasma=ChargedFluid_List->get<double>("CF5.2: Dielectric const for Plasma Parameter");
+       Sigma_Angstroms_plasma=ChargedFluid_List->get<double>("CF5.0: Sigma for Plasma Parameter (Angstroms)");
+       Temp_K_plasma=ChargedFluid_List->get<double>("CF5.1: Temperature for Plasma Parameter (Kelvin)");
+       DielecConst_plasma=ChargedFluid_List->get<double>("CF5.2: Dielectric const for Plasma Parameter");
+ 
+       if (ChargedFluid_List->get<string>("CF6.0: Electrostatic Potential(s) entry type")=="Enter electrostatic potentials in mV units") Flag_mV_elecpot=TRUE;
+       else Flag_mV_elecpot=FALSE;
 
+
+       Elec_pot_LBB=ChargedFluid_List->get<double>("CF6.1: Elec_pot_0");
+       Elec_pot_LBB=ChargedFluid_List->get<double>("CF6.2: Elec_pot_1");
+    }
     
-
-    
-
-
-     
 
     /****************************************************/
     /* params from surface geometry section of the GUI  */

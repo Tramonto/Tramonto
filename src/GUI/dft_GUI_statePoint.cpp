@@ -310,14 +310,13 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
        /* end of set up for two dependees for the electrostatic condition */
 
-
       /*****************************************/
       /* add the dependencies for this section.*/
       /*****************************************/
 
    depSheet_Tramonto->addDependency(IcompVis_Dep); 
    depSheet_Tramonto->addDependency(IpolcompVis_Dep);
-/*   depSheet_Tramonto->addDependency(DcoefIpolcompVis_Dep);*/
+   depSheet_Tramonto->addDependency(DcoefIpolcompVis_Dep);
    depSheet_Tramonto->addDependency(DcoefIcompVis_Dep);
    depSheet_Tramonto->addDependency(Rhoicomp_Dep);
    depSheet_Tramonto->addDependency(Rhoipolcomp_Dep);
@@ -331,8 +330,6 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
    depSheet_Tramonto->addDependency(DielecPore_Dep);
    depSheet_Tramonto->addDependency(DielecConstUnit_Dep);
    depSheet_Tramonto->addDependency(Elec_pot1_Dep); 
-
-
 
   return;
 }

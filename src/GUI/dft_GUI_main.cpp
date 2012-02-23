@@ -40,18 +40,18 @@ extern "C" void dft_OptikaGUI()
   dft_GUI_functionals(Tramonto_List,depSheet_Tramonto,Functional_List);
 
   RCP<ParameterList> Fluid_List = sublist(Tramonto_List, "Sect. 3: Fluid");
-  RCP<ParameterList> PotentialsFF_List = sublist(Fluid_List, "F7_Fluid-Fluid Potential Parameters");
+  RCP<ParameterList> PotentialsFF_List = sublist(Fluid_List, "Parameters: Fluid-Fluid Interaction Potentials");
   dft_GUI_potentialsFF(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,PotentialsFF_List);
 
-  RCP<ParameterList> Polymer_List = sublist(Fluid_List, "F8_Polymer(Bonded) Fluid Parameters");
+  RCP<ParameterList> Polymer_List = sublist(Fluid_List, "Parameters: Polymers / Bonded Fluids");
   RCP<ParameterList> PolymerCMS_List = sublist(Polymer_List, "P9: Chandler-McCoy-Singer Theory Parameters");
   RCP<ParameterList> PolymerGraft_List = sublist(Polymer_List, "P9: Grafted Polymer Parameters Parameters");
   RCP<ParameterList> PolymerArch_List = sublist(Polymer_List, "P9: Architecture Entry for Bonded Systems");
   dft_GUI_Polymer(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
 
-  RCP<ParameterList> StatePoint_List = sublist(Fluid_List, "F9_Bulk Fluid Properties");
-  RCP<ParameterList> Diffusion_List = sublist(Fluid_List, "Parameters for Diffusing Systems");
-  RCP<ParameterList> ChargedFluid_List = sublist(StatePoint_List, "BF7: Parameters for Charged Systems");
+  RCP<ParameterList> StatePoint_List = sublist(Fluid_List, "Parameters: Properties of the Bulk Fluid");
+  RCP<ParameterList> Diffusion_List = sublist(Fluid_List, "Special (optional) Parameters for Diffusing Systems");
+  RCP<ParameterList> ChargedFluid_List = sublist(StatePoint_List, "Parameters: Fluids with Charge / Electrostatics");
   dft_GUI_StatePoint(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,
                                  StatePoint_List,Diffusion_List,ChargedFluid_List);
 
