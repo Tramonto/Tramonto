@@ -63,7 +63,7 @@ initializeProblemValues
 () 
 {
   
-  TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n"); 
+  TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n"); 
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_) 
@@ -170,7 +170,7 @@ finalizeProblemValues
   for (LocalOrdinal i=0; i<numBlocks_; i++) 
   {
     matrix_[i]->fillComplete(allGMap_, ownedMap_);
-    //TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
+    //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
   } //end for
   poissonMatrix_->fillComplete(poissonMap_, poissonMap_); 
 
@@ -194,9 +194,9 @@ dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
 (const MV& X, MV& Y) const 
 {
-  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap())); 
-  TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
-  TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 
 #ifdef KDEBUG
   printf("\n\n\n\ndft_PolyA11_Coulomb_Tpetra_Operator::applyInverse()\n\n\n\n");
@@ -234,7 +234,7 @@ applyInverse
   SolveStatus<Scalar> status = lows->solve(Thyra::NOTRANS, *thyraY, thyraY.ptr());
 #else
   RCP<LinPROB> problem = rcp(new LinPROB(poissonMatrix_, Y2, Y2));
-  TEST_FOR_EXCEPT(problem->setProblem() == false);
+  TEUCHOS_TEST_FOR_EXCEPT(problem->setProblem() == false);
   RCP<SolMGR> solver = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem, parameterList_));
   ReturnType ret = solver->solve();
 #endif
@@ -246,9 +246,9 @@ dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const 
 {
-  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
-  TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
-  TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
   size_t NumVectors = Y.getNumVectors();
   size_t numMyElements = ownedMap_->getNodeNumElements();
 

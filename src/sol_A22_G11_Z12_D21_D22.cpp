@@ -31,7 +31,7 @@
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
 #include "Epetra_IntSerialDenseVector.h"
-#include "Teuchos_TestForException.hpp"
+#include "Teuchos_Assert.hpp"
 
 //=============================================================================
 sol_A22_G11_Z12_D21_D22::sol_A22_G11_Z12_D21_D22(const Epetra_Map & map1, const Epetra_Map & map2, 
@@ -85,7 +85,7 @@ int sol_A22_G11_Z12_D21_D22::insertMatrixValue(int rowGID, int colGID, double va
 
 
   if (map1_.MyGID(rowGID)) {   // G11
-    TEST_FOR_EXCEPTION(map2_.MyGID(colGID), std::logic_error, 
+    TEUCHOS_TEST_FOR_EXCEPTION(map2_.MyGID(colGID), std::logic_error, 
                        "You are adding a value to the 12 block of A22.  This action is not allowed since the 12 block by definition zero"); 
     if (firstTime_) {
       if (rowGID!=curRow_) { 
@@ -95,18 +95,18 @@ int sol_A22_G11_Z12_D21_D22::insertMatrixValue(int rowGID, int colGID, double va
       curRowValues_[colGID] += value;
     }
     else { 
-      TEST_FOR_EXCEPTION(isG11RowStatic_[map1_.LID(rowGID)], std::logic_error, 
+      TEUCHOS_TEST_FOR_EXCEPTION(isG11RowStatic_[map1_.LID(rowGID)], std::logic_error, 
                          "You are adding a value to the 21 block of A22.  This action is not allowed since the 21 block by definition zero"); 
       G11Matrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
     }
   }
   else { // D21, D22
-    TEST_FOR_EXCEPTION(!map2_.MyGID(rowGID), std::logic_error, 
+    TEUCHOS_TEST_FOR_EXCEPTION(!map2_.MyGID(rowGID), std::logic_error, 
                        "You are adding values to a row that is not part of A22"); 
     if (rowGID==colGID)
       (*D22Matrix_)[map2_.LID(rowGID)] += value; // Storing this block in a vector since it is diagonal
     else {
-      TEST_FOR_EXCEPT(map2_.LID(rowGID)!=map1_.LID(colGID)); // Confirm that this is a diagonal value
+      TEUCHOS_TEST_FOR_EXCEPT(map2_.LID(rowGID)!=map1_.LID(colGID)); // Confirm that this is a diagonal value
       (*D21Matrix_)[map2_.LID(rowGID)] += value; // Storing this block in a vector since it is diagonal
     }
   }
@@ -200,9 +200,9 @@ int sol_A22_G11_Z12_D21_D22::ApplyInverse(const Epetra_MultiVector& X, Epetra_Mu
   // where Ifpack(Gff) is a preconditioner selected via the solver parameters using Ifpack methods.  
   
   
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numElements1 = map1_.NumMyElements();
   int numElements2 = map2_.NumMyElements();
@@ -224,9 +224,9 @@ int sol_A22_G11_Z12_D21_D22::ApplyInverse(const Epetra_MultiVector& X, Epetra_Mu
   Epetra_MultiVector X2(View, map2_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
   
   Epetra_MultiVector X2tmp(X2);
-  TEST_FOR_EXCEPT(G11Inverse_->ApplyInverse(X1,Y1)!=0);                      // Ifpack solve Y1 = G11 \ X1
-  TEST_FOR_EXCEPT(X2tmp.Multiply(-11.0, *D21Matrix_, Y1, 1.0)!=0);           // X2tmp = (X2 - Dfd*Y1)
-  TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *D22Matrix_, X2tmp, 0.0)!=0);   // Y2 = Ddd \ X2tmp
+  TEUCHOS_TEST_FOR_EXCEPT(G11Inverse_->ApplyInverse(X1,Y1)!=0);                      // Ifpack solve Y1 = G11 \ X1
+  TEUCHOS_TEST_FOR_EXCEPT(X2tmp.Multiply(-11.0, *D21Matrix_, Y1, 1.0)!=0);           // X2tmp = (X2 - Dfd*Y1)
+  TEUCHOS_TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *D22Matrix_, X2tmp, 0.0)!=0);   // Y2 = Ddd \ X2tmp
   
   delete [] Y2ptr;
   delete [] X2ptr;
@@ -242,9 +242,9 @@ int sol_A22_G11_Z12_D21_D22::Apply(const Epetra_MultiVector& X, Epetra_MultiVect
   //X.NormInf(&normvalue);
   //cout << "Norm of X in PolyA22 Apply = " << normvalue << endl;
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numElements1 = map1_.NumMyElements();
   int numElements2 = map2_.NumMyElements(); 
@@ -270,8 +270,8 @@ int sol_A22_G11_Z12_D21_D22::Apply(const Epetra_MultiVector& X, Epetra_MultiVect
   Epetra_MultiVector X2(View, map2_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
   
   G11Matrix_->Apply(X1, Y1);
-  TEST_FOR_EXCEPT(Y2.Multiply(1.0, *D21Matrix_, X1, 0.0)!=0);
-  TEST_FOR_EXCEPT(Y2.Multiply(1.0, *D22Matrix_, X2, 1.0)!=0);
+  TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *D21Matrix_, X1, 0.0)!=0);
+  TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *D22Matrix_, X2, 1.0)!=0);
   
   delete [] X2ptr;
   delete [] Y2ptr;
@@ -294,8 +294,8 @@ int sol_A22_G11_Z12_D21_D22::Check(bool verbose) const {
   Epetra_Vector x1(View, map1_, x.Values()); // Start x1, b1 to view first numElements1 elements of x
   Epetra_Vector G11x1(map1_);
   Epetra_Vector IfpackG11x1(map1_);
-  TEST_FOR_EXCEPT(G11Matrix_->Apply(x1,G11x1)!=0);
-  TEST_FOR_EXCEPT(G11Inverse_->Apply(x1,IfpackG11x1)!=0);
+  TEUCHOS_TEST_FOR_EXCEPT(G11Matrix_->Apply(x1,G11x1)!=0);
+  TEUCHOS_TEST_FOR_EXCEPT(G11Inverse_->Apply(x1,IfpackG11x1)!=0);
   Epetra_Vector b1(View, map1_, b.Values()); 
   b1.Update(-1.0, G11x1, 1.0, IfpackG11x1, 1.0);
 

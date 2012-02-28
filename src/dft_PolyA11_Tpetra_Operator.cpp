@@ -101,7 +101,7 @@ dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
 () 
 {
-  TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n"); 
+  TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n"); 
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_) 
@@ -134,7 +134,7 @@ insertMatrixValue
     invDiagonal_->sumIntoLocalValue(locDiag, value);
     return;
   } //end if
-  TEST_FOR_EXCEPTION(block1Map_->getLocalElement(colGID)> block1Map_->getLocalElement(rowGID), std::runtime_error,  
+  TEUCHOS_TEST_FOR_EXCEPTION(block1Map_->getLocalElement(colGID)> block1Map_->getLocalElement(rowGID), std::runtime_error,  
     std::cout << "Encountered an illegal non-zero entry in dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::insertMatrixValue." << std::endl
 	 << "The A11 block cannot have nonzero terms in the upper diagonal." << std::endl
 	 << "Input parameters:" << std::endl
@@ -214,7 +214,7 @@ finalizeProblemValues
   {
     matrix_[i]->fillComplete(block1Map_, ownedMap_);
     //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << endl;
-    //TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
+    //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
   } //end for
   invDiagonal_->reciprocal(*invDiagonal_); // Invert diagonal values for faster applyInverse() method
 
@@ -234,9 +234,9 @@ dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
 (const MV& X, MV& Y) const 
 {
-  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap())); 
-  TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
-  TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 #ifdef KDEBUG
   printf("\n\n\n\ndft_PolyA11_Tpetra_Operator::applyInverse()\n\n\n\n");
 #endif
@@ -275,9 +275,9 @@ dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const 
 {
-  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
-  TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
-  TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
   size_t NumVectors = Y.getNumVectors();
   size_t numMyElements = ownedMap_->getNodeNumElements();
 
@@ -319,7 +319,7 @@ Check
     std::cout << "A11 self-check residual = " << resid << std::endl;
   } //end if
 
-  TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n"); 
+  TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n"); 
 
 } //end Check
 #if LINSOLVE_PREC == 0

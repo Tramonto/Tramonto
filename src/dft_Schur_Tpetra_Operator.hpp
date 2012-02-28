@@ -69,7 +69,7 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   SetUseTranspose
   (bool UseTranspose)
   {
-    TEST_FOR_EXCEPTION(true, std::runtime_error, "SetUseTranspose is not supported.\n");
+    TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "SetUseTranspose is not supported.\n");
   };
   //@}
   
@@ -91,7 +91,7 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   applyInverse
   (const MV& X, MV& Y) const 
   {
-    TEST_FOR_EXCEPTION(true, std::runtime_error, "applyInverse is not supported.\n");
+    TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "applyInverse is not supported.\n");
   };
   
   //! Generate RHS.

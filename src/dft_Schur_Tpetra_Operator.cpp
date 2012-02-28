@@ -85,9 +85,9 @@ apply
   //X.NormInf(&normvalue);
   //cout << "Norm of X in Schur Apply = " << normvalue << endl;
 
-  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
-  TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
-  TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 
   // Apply (A22 - A21*inv(A11)*A12 to X
 
@@ -147,11 +147,11 @@ dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 ApplyGlobal
 (const MV& X1, const MV& X2, MV& Y1, MV& Y2) const 
 {
-  TEST_FOR_EXCEPT(!X1.getMap()->isSameAs(*A11_->getDomainMap()));
-  TEST_FOR_EXCEPT(!X2.getMap()->isSameAs(*A22_->getDomainMap()));
-  TEST_FOR_EXCEPT(!Y1.getMap()->isSameAs(*A11_->getRangeMap()));
-  TEST_FOR_EXCEPT(!Y2.getMap()->isSameAs(*A22_->getRangeMap()));
-  TEST_FOR_EXCEPT(Y1.getNumVectors()!=X1.getNumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X1.getMap()->isSameAs(*A11_->getDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!X2.getMap()->isSameAs(*A22_->getDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y1.getMap()->isSameAs(*A11_->getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y2.getMap()->isSameAs(*A22_->getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y1.getNumVectors()!=X1.getNumVectors());
 
   // Apply (A22 - A21*inv(A11)*A12 to X
 

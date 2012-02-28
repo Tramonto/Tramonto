@@ -20,7 +20,7 @@
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_ParameterList.hpp"
-#include "Teuchos_TestForException.hpp"
+#include "Teuchos_Assert.hpp"
 
 #include "Thyra_TpetraThyraWrappers.hpp"
 #include "Thyra_LinearOpWithSolveFactoryBase.hpp"

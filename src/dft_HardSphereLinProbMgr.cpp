@@ -82,7 +82,7 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
       depNonLocalEquations_.Length()<0  ||
       densityEquations_.Length()==0) return(-1); // Error: One or more set methods not called
   
-	TEST_FOR_EXCEPTION((numGlobalNodes_==0 ||
+	TEUCHOS_TEST_FOR_EXCEPTION((numGlobalNodes_==0 ||
 					   numGlobalBoxNodes_==0 ||
 					   indNonLocalEquations_.Length()==0 ||
 					   depNonLocalEquations_.Length()<0  ||
@@ -210,9 +210,9 @@ int dft_HardSphereLinProbMgr::finalizeBlockStructure() {
 //=============================================================================
 int dft_HardSphereLinProbMgr::initializeProblemValues() {
   
-	TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error, 
+	TEUCHOS_TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error, 
 					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
-	TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error, 
+	TEUCHOS_TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error, 
 					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
 	isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
@@ -345,7 +345,7 @@ int dft_HardSphereLinProbMgr::finalizeProblemValues() {
 int dft_HardSphereLinProbMgr::setupSolver() {
 
 	
-	TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error, 
+	TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error, 
 					   "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
 	
 	

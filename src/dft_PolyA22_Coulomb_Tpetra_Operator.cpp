@@ -115,7 +115,7 @@ initializeProblemValues
 ()
 {
 
-  TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n");
+  TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n");
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_)
@@ -181,7 +181,7 @@ insertMatrixValue
     else {
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- row in poissonMap, but blockColFlag not set for Poisson or density equations.");
-      TEST_FOR_EXCEPT_MSG(1, err_msg);
+      TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
     }
   } //end if poissonMap_.MyGID(rowGID)
   else if (cmsMap_->isNodeGlobalElement(rowGID)) { // Insert into cmsOnPoissonMatrix or cmsOnCmsMatrix or cmsOnDensityMatrix
@@ -222,7 +222,7 @@ insertMatrixValue
     else {
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- row in cmsMap, but blockColFlag not set for Poisson,density, or cms equations.");
-      TEST_FOR_EXCEPT_MSG(1, err_msg);
+      TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
     }
   } // end Insert into cmsOnPoisson or cmsOnCmsMatrix or cmsOnDensityMatrix
   else if (densityMap_->isNodeGlobalElement(rowGID)) { // Insert into densityOnDensityMatrix or densityOnCmsMatrix
@@ -230,7 +230,7 @@ insertMatrixValue
       if (rowGID!=colGID) {
 	char err_msg[200];
 	sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- Inserting non-diagonal element into densityOnDensity matrix.");
-	TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
+	TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
       }
       densityOnDensityMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
     }
@@ -238,20 +238,20 @@ insertMatrixValue
       if (densityMap_->getLocalElement(rowGID)!=cmsMap_->getLocalElement(colGID)) {
 	char err_msg[200];
 	sprintf(err_msg,"PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(): Invalid argument -- Inserting non-diagonal element into densityOnCms matrix.");
-	TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
+	TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
       }
       densityOnCmsMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
     }
     else {
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- row in densityMap, but blockColFlag not set for cms or density equations.");
-      TEST_FOR_EXCEPT_MSG(1, err_msg);
+      TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
     }
   } // end Insert into densityOnDensityMatrix or densityOnCmsMatrix
   else { // Problem! rowGID not in cmsMap or densityMap or poissonMap
     char err_msg[200];
     sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): rowGID=%i not in cmsMap,densityMap, or poissonMap.",rowGID);
-    TEST_FOR_EXCEPT_MSG(1, err_msg);
+    TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
   }
 
 } //end insertMatrixValue
@@ -424,9 +424,9 @@ applyInverse
 
   // A similar algorithm is found when F is in the NE quadrant
 
-  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
-  TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
-  TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 #ifdef KDEBUG
   printf("\n\n\n\ndft_PolyA22_Coulomb_Tpetra_Operator::applyInverse()\n\n\n\n");
 #endif
@@ -528,7 +528,7 @@ applyInverse
   SolveStatus<Scalar> status = lows->solve(Thyra::NOTRANS, *thyraY, thyraY.ptr());
 #else
   RCP<LinPROB> problem = rcp(new LinPROB(poissonMatrix_, Y0, Y0));
-  TEST_FOR_EXCEPT(problem->setProblem() == false);
+  TEUCHOS_TEST_FOR_EXCEPT(problem->setProblem() == false);
   RCP<SolMGR> solver = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem, parameterList_));
   ReturnType ret = solver->solve();
 #endif
@@ -542,9 +542,9 @@ dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
-  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
-  TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
-  TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
   size_t NumVectors = Y.getNumVectors();
   size_t numCmsElements = cmsMap_->getNodeNumElements();
   size_t numDensityElements = densityMap_->getNodeNumElements();
@@ -676,7 +676,7 @@ Check
     std::cout << "A22 self-check residual = " << resid << std::endl;
   } //end if
 
-  TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
+  TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
 } //end Check
 #if LINSOLVE_PREC == 0
 // Use float

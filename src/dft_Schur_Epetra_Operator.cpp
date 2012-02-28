@@ -33,7 +33,7 @@
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
 #include "EpetraExt_MatrixMatrix.h"
-#include "Teuchos_TestForException.hpp"
+#include "Teuchos_Assert.hpp"
 
 //==============================================================================
 dft_Schur_Epetra_Operator::dft_Schur_Epetra_Operator(Epetra_Operator * A11, Epetra_CrsMatrix * A12, 
@@ -90,9 +90,9 @@ int dft_Schur_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVe
   //X.NormInf(&normvalue);
   //cout << "Norm of X in Schur Epetra Apply = " << normvalue << endl;
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
 
   // Apply (A22 - A21*inv(A11)*A12 to X
 
@@ -150,11 +150,11 @@ int dft_Schur_Epetra_Operator::ApplyGlobal(const Epetra_MultiVector& X1, const E
 					   Epetra_MultiVector& Y1, Epetra_MultiVector& Y2) const {
 
 
-  TEST_FOR_EXCEPT(!X1.Map().SameAs(A11_->OperatorDomainMap()));
-  TEST_FOR_EXCEPT(!X2.Map().SameAs(A22_->OperatorDomainMap()));
-  TEST_FOR_EXCEPT(!Y1.Map().SameAs(A11_->OperatorRangeMap()));
-  TEST_FOR_EXCEPT(!Y2.Map().SameAs(A22_->OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y1.NumVectors()!=X1.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X1.Map().SameAs(A11_->OperatorDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!X2.Map().SameAs(A22_->OperatorDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y1.Map().SameAs(A11_->OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y2.Map().SameAs(A22_->OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y1.NumVectors()!=X1.NumVectors());
 
   // Apply (A22 - A21*inv(A11)*A12 to X
 

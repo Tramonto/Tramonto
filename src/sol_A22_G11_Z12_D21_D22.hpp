@@ -68,7 +68,7 @@ class sol_A22_G11_Z12_D21_D22: public virtual Epetra_Operator {
      \param rowGID (In) Set to true if this row should be define only once.
   */
    void setG11RowStatic(int rowGID) { 
-    TEST_FOR_EXCEPTION(!map1_.MyGID(rowGID), std::logic_error, 
+    TEUCHOS_TEST_FOR_EXCEPTION(!map1_.MyGID(rowGID), std::logic_error, 
                        "You are setting a row of G11 static that is not owned by this matrix"); 
     isG11RowStatic_[map1_.LID(rowGID)] = true; 
     return;

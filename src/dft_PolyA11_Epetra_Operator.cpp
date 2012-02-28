@@ -33,7 +33,7 @@
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
 #include "Epetra_IntSerialDenseVector.h"
-#include "Teuchos_TestForException.hpp"
+#include "Teuchos_Assert.hpp"
 
 //==============================================================================
 dft_PolyA11_Epetra_Operator::dft_PolyA11_Epetra_Operator(const Epetra_Map & ownedMap, const Epetra_Map & block1Map) 
@@ -143,7 +143,7 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
       matrix_[i]->FillComplete(block1Map_, ownedMap_);
       matrix_[i]->OptimizeStorage();
       //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << endl;
-      //TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
+      //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
     }
     invDiagonal_->Reciprocal(*invDiagonal_); // Invert diagonal values for faster ApplyInverse() method
 
@@ -161,9 +161,9 @@ int dft_PolyA11_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
   //X.NormInf(&normvalue);
   //cout << "Norm of X in PolyA11 ApplyInverse = " << normvalue << endl;
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numMyElements = ownedMap_.NumMyElements();
   Epetra_MultiVector Ytmp(ownedMap_,NumVectors);
@@ -207,9 +207,9 @@ int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
   //X.NormInf(&normvalue);
   //cout << "Norm of X in PolyA11 Apply = " << normvalue << endl;
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numMyElements = ownedMap_.NumMyElements();
 

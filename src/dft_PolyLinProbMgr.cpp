@@ -74,7 +74,7 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
 
   if (isBlockStructureSet_) return(1); // Already been here, return warning
 
-	TEST_FOR_EXCEPTION((numGlobalNodes_==0 ||
+	TEUCHOS_TEST_FOR_EXCEPTION((numGlobalNodes_==0 ||
 					   numGlobalBoxNodes_==0 ||
 					   gEquations_.Length()==0 ||
 					   cmsEquations_.Length()==0 ||
@@ -246,9 +246,9 @@ int dft_PolyLinProbMgr::finalizeBlockStructure() {
 //=============================================================================
 int dft_PolyLinProbMgr::initializeProblemValues() {
   
-	TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error, 
+	TEUCHOS_TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error, 
 					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
-	TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error, 
+	TEUCHOS_TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error, 
 					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
 	isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
@@ -294,7 +294,7 @@ int dft_PolyLinProbMgr::insertMatrixValue(int ownedPhysicsID, int ownedNode, int
     else if (isPoissonEquation_[boxPhysicsID])
       A22_->insertMatrixValue(rowGID, colGID, value, 0); 
     else 
-      TEST_FOR_EXCEPT_MSG(1, "Unknown box physics ID in A22.");
+      TEUCHOS_TEST_FOR_EXCEPT_MSG(1, "Unknown box physics ID in A22.");
   }
   else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
     if (firstTime_) {
@@ -400,7 +400,7 @@ int dft_PolyLinProbMgr::finalizeProblemValues() {
 //=============================================================================
 int dft_PolyLinProbMgr::setupSolver() {
 
-	TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error, 
+	TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error, 
 					   "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
 		
 	

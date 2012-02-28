@@ -29,7 +29,7 @@
 #include "Epetra_Vector.h"
 #include "Epetra_MultiVector.h"
 #include "Epetra_Comm.h"
-#include "Teuchos_TestForException.hpp"
+#include "Teuchos_Assert.hpp"
 
 //==============================================================================
 dft_HardSphereA22_Epetra_Operator::dft_HardSphereA22_Epetra_Operator(const Epetra_Map & block2Map) 
@@ -82,9 +82,9 @@ int dft_HardSphereA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X,
   // Y = D \ X
 
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
 
   Y.ReciprocalMultiply(1.0, densityOnDensityMatrix_, X, 0.0);
 
@@ -93,9 +93,9 @@ int dft_HardSphereA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X,
 //==============================================================================
 int dft_HardSphereA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVector& Y) const {
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
 
   Y.Multiply(1.0, densityOnDensityMatrix_, X, 1.0);
 

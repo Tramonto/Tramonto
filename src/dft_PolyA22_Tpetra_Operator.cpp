@@ -66,7 +66,7 @@ dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
 () 
 {
-  TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n"); 
+  TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n"); 
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_) 
@@ -126,28 +126,28 @@ insertMatrixValue
     else {
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Epetra_Operator::insertMatrixValue(): Invalid argument -- row in cmsMap, but blockColFlag not set for cms or density equations.");
-      TEST_FOR_EXCEPT_MSG(1, err_msg);
+      TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
     }
   } // end Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
   else if (densityMap_->isNodeGlobalElement(rowGID)) { // Insert into densityOnDensityMatrix or densityOnCmsMatrix
     if ( blockColFlag == 1 ) { // Insert into densityOnDensityMatrix
-      TEST_FOR_EXCEPT(rowGID!=colGID); // Confirm that this is a diagonal value
+      TEUCHOS_TEST_FOR_EXCEPT(rowGID!=colGID); // Confirm that this is a diagonal value
       densityOnDensityMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
     }
     else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
-      TEST_FOR_EXCEPT(densityMap_->getLocalElement(rowGID)!=cmsMap_->getLocalElement(colGID)); // Confirm that this is a diagonal value
+      TEUCHOS_TEST_FOR_EXCEPT(densityMap_->getLocalElement(rowGID)!=cmsMap_->getLocalElement(colGID)); // Confirm that this is a diagonal value
       densityOnCmsMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
     }
     else {
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Epetra_Operator::insertMatrixValue(): Invalid argument -- row in densityMap, but blockColFlag not set for cms or density equations.");
-      TEST_FOR_EXCEPT_MSG(1, err_msg);
+      TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
     }
   } // end Insert into densityOnDensityMatrix or densityOnCmsMatrix
   else { // Problem! rowGID not in cmsMap or densityMap
     char err_msg[200];
     sprintf(err_msg,"PolyA22_Epetra_Operator::insertMatrixValue(): rowGID=%i not in cmsMap or densityMap.",rowGID);
-    TEST_FOR_EXCEPT_MSG(1, err_msg);
+    TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
   }
 } //end insertMatrixValue
 //=============================================================================
@@ -220,7 +220,7 @@ finalizeProblemValues
   if (!hasDensityOnCms)  // Confirm that densityOnCmsMatrix is zero
   {
     Scalar normvalue = densityOnCmsMatrix_->normInf();
-    TEST_FOR_EXCEPT(normvalue!=0.0);
+    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=0.0);
   } //end if
   //cout << "CmsOnDensityMatrix Inf Norm = " << cmsOnDensityMatrix_->NormInf() << endl;
   //densityOnDensityMatrix_->NormInf(&normvalue);
@@ -282,9 +282,9 @@ applyInverse
   // Y1 = Ddd \ X1
   // Y2 = Dcc \ (X2 - F*Y1)  
 
-  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap())); 
-  TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
-  TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 #ifdef KDEBUG
   printf("\n\n\n\ndft_PolyA22_Tpetra_Operator::applyInverse()\n\n\n\n");
 #endif
@@ -355,9 +355,9 @@ dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const 
 {
-  TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
-  TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
-  TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
   size_t NumVectors = Y.getNumVectors();
   size_t numCmsElements = cmsMap_->getNodeNumElements();
   size_t numDensityElements = densityMap_->getNodeNumElements(); 
@@ -459,7 +459,7 @@ Check
     std::cout << "A22 self-check residual = " << resid << std::endl;
   } //end if
 
-  TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
+  TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
 
 } //end Check
 #if LINSOLVE_PREC == 0

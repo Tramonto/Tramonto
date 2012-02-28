@@ -33,7 +33,7 @@
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
 #include "Epetra_IntSerialDenseVector.h"
-#include "Teuchos_TestForException.hpp"
+#include "Teuchos_Assert.hpp"
 
 //=============================================================================
 dft_BasicA22_Epetra_Operator::dft_BasicA22_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & block2Map, Teuchos::ParameterList * parameterList) 
@@ -101,7 +101,7 @@ int dft_BasicA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doub
     if (rowGID==colGID)
       (*densityOnDensityMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
     else {
-      TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // Confirm that this is a diagonal value
+      TEUCHOS_TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // Confirm that this is a diagonal value
       (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
     }
   }
@@ -143,7 +143,7 @@ int dft_BasicA22_Epetra_Operator::finalizeProblemValues() {
   if (!hasDensityOnCms) { // Confirm that densityOnCmsMatrix is zero
     double normvalue;
     densityOnCmsMatrix_->NormInf(&normvalue);
-    TEST_FOR_EXCEPT(normvalue!=0.0);
+    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=0.0);
   }
   //cout << "CmsOnDensityMatrix Inf Norm = " << cmsOnDensityMatrix_->NormInf() << endl;
   //densityOnDensityMatrix_->NormInf(&normvalue);
@@ -206,9 +206,9 @@ int dft_BasicA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epet
   //X.NormInf(&normvalue);
   //cout << "Norm of X in BasicA22 ApplyInverse = " << normvalue << endl;
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numCmsElements = cmsMap_.NumMyElements();
   int numDensityElements = densityMap_.NumMyElements();
@@ -231,10 +231,10 @@ int dft_BasicA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epet
     Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
     
     Epetra_MultiVector Y1tmp(Y1);
-    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X2, 0.0)!=0);
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y2, Y1tmp)!=0);
-    TEST_FOR_EXCEPT(Y1.Update(1.0, X1, -1.0, Y1tmp, 0.0)!=0);
-    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y1, 0.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X2, 0.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y2, Y1tmp)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.Update(1.0, X1, -1.0, Y1tmp, 0.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y1, 0.0)!=0);
   }
   else {
     for (int i = 0;i<NumVectors; i++) {
@@ -247,10 +247,10 @@ int dft_BasicA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epet
     Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view first numDensity elements of X
     Epetra_MultiVector X2(View, cmsMap_, X2ptr, NumVectors); // Start X2 to view last numCms elements of X
     Epetra_MultiVector Y2tmp(Y2);
-    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X1, 0.0)!=0);
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y1, Y2tmp)!=0);
-    TEST_FOR_EXCEPT(Y2.Update(1.0, X2, -1.0, Y2tmp, 0.0)!=0);
-    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y2, 0.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X1, 0.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y1, Y2tmp)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.Update(1.0, X2, -1.0, Y2tmp, 0.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *cmsOnCmsMatrix_, Y2, 0.0)!=0);
   }
   
   delete [] Y2ptr;
@@ -267,9 +267,9 @@ int dft_BasicA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Mult
   //X.NormInf(&normvalue);
   //cout << "Norm of X in BasicA22 Apply = " << normvalue << endl;
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numCmsElements = cmsMap_.NumMyElements();
   int numDensityElements = densityMap_.NumMyElements(); 
@@ -296,9 +296,9 @@ int dft_BasicA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Mult
     Epetra_MultiVector X2(View, densityMap_, X2ptr, NumVectors); // Start X2 to view last numDensity elements of X
 
     cmsOnDensityMatrix_->Apply(X2, Y1);
-    TEST_FOR_EXCEPT(Y1.Multiply(1.0, *cmsOnCmsMatrix_, X1, 1.0)!=0);
-    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0)!=0);
-    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.Multiply(1.0, *cmsOnCmsMatrix_, X1, 1.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0)!=0);
   }
   else {
     for (int i=0; i<NumVectors; i++) {
@@ -313,11 +313,11 @@ int dft_BasicA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Mult
     if (hasDensityOnCms) {
       // convert X2 map
       Epetra_MultiVector X2tmp(View, densityMap_, X2ptr, NumVectors);
-      TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnCmsMatrix_, X2tmp, 0.0)!=0); // Momentarily make X2 compatible with densityMap_
+      TEUCHOS_TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnCmsMatrix_, X2tmp, 0.0)!=0); // Momentarily make X2 compatible with densityMap_
     }
-    TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 1.0)!=0);
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X1, Y2)!=0);
-    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *cmsOnCmsMatrix_, X2, 1.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 1.0)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X1, Y2)!=0);
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *cmsOnCmsMatrix_, X2, 1.0)!=0);
   }
   
   delete [] X2ptr;

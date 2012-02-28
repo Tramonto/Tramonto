@@ -33,7 +33,7 @@
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
 #include "Epetra_IntSerialDenseVector.h"
-#include "Teuchos_TestForException.hpp"
+#include "Teuchos_Assert.hpp"
 
 //============================================================================
 /*dft_PolyA22_Coulomb_Epetra_Operator::dft_PolyA22_Coulomb_Epetra_Operator(const Epetra_Map & cmsMap, const Epetra_Map & densityMap, const Epetra_Map & poissonMap, const Epetra_Map & cmsDensMap, const Epetra_Map & block2Map, int * options, double * params) 
@@ -171,7 +171,7 @@ int dft_PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(int rowGID, int colGI
     else {
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(): Invalid argument -- row in poissonMap, but blockColFlag not set for Poisson or density equations.");
-      TEST_FOR_EXCEPT_MSG(1, err_msg);
+      TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
     }
   } //end if poissonMap_.MyGID(rowGID)
   else if (cmsMap_.MyGID(rowGID)) { // Insert into cmsOnPoissonMatrix or cmsOnCmsMatrix or cmsOnDensityMatrix
@@ -212,7 +212,7 @@ int dft_PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(int rowGID, int colGI
     else {
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(): Invalid argument -- row in cmsMap, but blockColFlag not set for Poisson,density, or cms equations.");
-      TEST_FOR_EXCEPT_MSG(1, err_msg);
+      TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
     }
   } // end Insert into cmsOnPoisson or cmsOnCmsMatrix or cmsOnDensityMatrix
   else if (densityMap_.MyGID(rowGID)) { // Insert into densityOnDensityMatrix or densityOnCmsMatrix
@@ -220,29 +220,29 @@ int dft_PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(int rowGID, int colGI
       if (rowGID!=colGID) {
         char err_msg[200];
         sprintf(err_msg,"PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(): Invalid argument -- Inserting non-diagonal element into densityOnDensity matrix.");
-        TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
+        TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
       }
       (*densityOnDensityMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
     }
     else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
-      //TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // Confirm that this is a diagonal value
+      //TEUCHOS_TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // Confirm that this is a diagonal value
       if (densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)) {
         char err_msg[200];
         sprintf(err_msg,"PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(): Invalid argument -- Inserting non-diagonal element into densityOnCms matrix.");
-        TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
+        TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
       }
       (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
     }
     else {
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(): Invalid argument -- row in densityMap, but blockColFlag not set for cms or density equations.");
-      TEST_FOR_EXCEPT_MSG(1, err_msg);
+      TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
     }
   } // end Insert into densityOnDensityMatrix or densityOnCmsMatrix
   else { // Problem! rowGID not in cmsMap or densityMap or poissonMap
     char err_msg[200];
     sprintf(err_msg,"PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(): rowGID=%i not in cmsMap,densityMap, or poissonMap.",rowGID);
-    TEST_FOR_EXCEPT_MSG(1, err_msg);
+    TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
   }
   
   return(0);
@@ -365,7 +365,7 @@ int dft_PolyA22_Coulomb_Epetra_Operator::finalizeProblemValues() {
 
     // create the preconditioner. For valid PrecType values, please check the documentation
     IFPrec = Teuchos::rcp( Factory.Create(IFPrecType, &(*cmsOnCmsMatrix_), IFOverlapLevel) );
-    TEST_FOR_EXCEPT(IFPrec == Teuchos::null);
+    TEUCHOS_TEST_FOR_EXCEPT(IFPrec == Teuchos::null);
 
     // set the parameters
     IFPACK_CHK_ERR(IFPrec->SetParameters(IFList_));
@@ -470,9 +470,9 @@ int dft_PolyA22_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
 
   // A similar algorithm is found when F is in the NE quadrant
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numCmsElements = cmsMap_.NumMyElements();
   int numDensityElements = densityMap_.NumMyElements(); // == numCmsElements
@@ -509,20 +509,20 @@ int dft_PolyA22_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
     Epetra_MultiVector Y1tmp2(Y2);
 
     // Third block row: Y2 = DD\X2
-    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X2, 0.0));
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X2, 0.0));
     // First block row: Y0 = PP \ (X0 - PD*Y2);
-    TEST_FOR_EXCEPT(poissonOnDensityMatrix_->Apply(Y2, Y0tmp));
-    TEST_FOR_EXCEPT(Y0tmp.Update( 1.0, X0, -1.0 ));
-    TEST_FOR_EXCEPT(MLPrec->ApplyInverse(Y0tmp, Y0));
+    TEUCHOS_TEST_FOR_EXCEPT(poissonOnDensityMatrix_->Apply(Y2, Y0tmp));
+    TEUCHOS_TEST_FOR_EXCEPT(Y0tmp.Update( 1.0, X0, -1.0 ));
+    TEUCHOS_TEST_FOR_EXCEPT(MLPrec->ApplyInverse(Y0tmp, Y0));
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
-    TEST_FOR_EXCEPT(cmsOnPoissonMatrix_->Apply(Y0, Y1tmp1));
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y2, Y1tmp2));
-    TEST_FOR_EXCEPT( Y1tmp1.Update( 1.0, X1, -1.0, Y1tmp2, -1.0 ) );
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnPoissonMatrix_->Apply(Y0, Y1tmp1));
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y2, Y1tmp2));
+    TEUCHOS_TEST_FOR_EXCEPT( Y1tmp1.Update( 1.0, X1, -1.0, Y1tmp2, -1.0 ) );
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
     Epetra_Vector cmsOnCmsDiag(cmsMap_);
     cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
-    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y1tmp1, 0.0));
-    //TEST_FOR_EXCEPT(IFPrec->ApplyInverse(Y1tmp1,Y1));
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y1tmp1, 0.0));
+    //TEUCHOS_TEST_FOR_EXCEPT(IFPrec->ApplyInverse(Y1tmp1,Y1));
 
   }
   else { // F in SW
@@ -547,20 +547,20 @@ int dft_PolyA22_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
     Epetra_MultiVector Y2tmp2(Y2);
 
     // Second block row: Y1 = DD\X1
-    TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X1, 0.0));
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.ReciprocalMultiply(1.0, *densityOnDensityMatrix_, X1, 0.0));
     // First block row: Y0 = PP \ (X0 - PD*Y1);
-    TEST_FOR_EXCEPT(poissonOnDensityMatrix_->Apply(Y1, Y0tmp));
-    TEST_FOR_EXCEPT(Y0tmp.Update( 1.0, X0, -1.0 ));
-    TEST_FOR_EXCEPT(MLPrec->ApplyInverse(Y0tmp, Y0));
+    TEUCHOS_TEST_FOR_EXCEPT(poissonOnDensityMatrix_->Apply(Y1, Y0tmp));
+    TEUCHOS_TEST_FOR_EXCEPT(Y0tmp.Update( 1.0, X0, -1.0 ));
+    TEUCHOS_TEST_FOR_EXCEPT(MLPrec->ApplyInverse(Y0tmp, Y0));
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
-    TEST_FOR_EXCEPT(cmsOnPoissonMatrix_->Apply(Y0, Y2tmp1));
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y1, Y2tmp2));
-    TEST_FOR_EXCEPT( Y2tmp1.Update( 1.0, X2, -1.0, Y2tmp2, -1.0 ) );
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnPoissonMatrix_->Apply(Y0, Y2tmp1));
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(Y1, Y2tmp2));
+    TEUCHOS_TEST_FOR_EXCEPT( Y2tmp1.Update( 1.0, X2, -1.0, Y2tmp2, -1.0 ) );
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
     Epetra_Vector cmsOnCmsDiag(cmsMap_);
     cmsOnCmsMatrix_->ExtractDiagonalCopy(cmsOnCmsDiag);
-    TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y2tmp1, 0.0));
-    //TEST_FOR_EXCEPT(IFPrec->ApplyInverse(Y2tmp1,Y2));
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.ReciprocalMultiply(1.0, cmsOnCmsDiag, Y2tmp1, 0.0));
+    //TEUCHOS_TEST_FOR_EXCEPT(IFPrec->ApplyInverse(Y2tmp1,Y2));
 
  }
 
@@ -610,9 +610,9 @@ int dft_PolyA22_Coulomb_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epet
   // |  CP      CC      CD   |
   // |   0      DC      DD   |
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
   int NumVectors = Y.NumVectors();
   int numCmsElements = cmsMap_.NumMyElements();
   int numDensityElements = densityMap_.NumMyElements();
@@ -643,20 +643,20 @@ int dft_PolyA22_Coulomb_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epet
 
     // First block row
     Epetra_MultiVector Y0tmp(Y0);
-    TEST_FOR_EXCEPT(poissonOnPoissonMatrix_->Apply(X0, Y0));
-    TEST_FOR_EXCEPT(poissonOnDensityMatrix_->Apply(X2, Y0tmp));
-    TEST_FOR_EXCEPT(Y0.Update(1.0,Y0tmp,1.0));
+    TEUCHOS_TEST_FOR_EXCEPT(poissonOnPoissonMatrix_->Apply(X0, Y0));
+    TEUCHOS_TEST_FOR_EXCEPT(poissonOnDensityMatrix_->Apply(X2, Y0tmp));
+    TEUCHOS_TEST_FOR_EXCEPT(Y0.Update(1.0,Y0tmp,1.0));
     // Second block row
-    TEST_FOR_EXCEPT(cmsOnPoissonMatrix_->Apply(X0, Y1));
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnPoissonMatrix_->Apply(X0, Y1));
     Epetra_MultiVector Y1tmp1(Y1);
-    TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X1, Y1tmp1));
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X1, Y1tmp1));
     Epetra_MultiVector Y1tmp2(Y1);
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X2, Y1tmp2));
-    TEST_FOR_EXCEPT(Y1.Update(1.0, Y1tmp1, 1.0));
-    TEST_FOR_EXCEPT(Y1.Update(1.0, Y1tmp2, 1.0));
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X2, Y1tmp2));
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.Update(1.0, Y1tmp1, 1.0));
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.Update(1.0, Y1tmp2, 1.0));
     // Third block row
-    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0));
-    TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0));
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0));
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0));
   }
   else { // F in SW
     for (int i=0; i<NumVectors; i++) {
@@ -675,20 +675,20 @@ int dft_PolyA22_Coulomb_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epet
 
     // First block row
     Epetra_MultiVector Y0tmp(Y0);
-    TEST_FOR_EXCEPT(poissonOnPoissonMatrix_->Apply(X0, Y0));
-    TEST_FOR_EXCEPT(poissonOnDensityMatrix_->Apply(X1, Y0tmp));
-    TEST_FOR_EXCEPT(Y0.Update(1.0,Y0tmp,1.0));
+    TEUCHOS_TEST_FOR_EXCEPT(poissonOnPoissonMatrix_->Apply(X0, Y0));
+    TEUCHOS_TEST_FOR_EXCEPT(poissonOnDensityMatrix_->Apply(X1, Y0tmp));
+    TEUCHOS_TEST_FOR_EXCEPT(Y0.Update(1.0,Y0tmp,1.0));
     // Second block row
-    TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 0.0));
-    TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnCmsMatrix_, X2, 1.0));
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 0.0));
+    TEUCHOS_TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnCmsMatrix_, X2, 1.0));
     // Third block row
-    TEST_FOR_EXCEPT(cmsOnPoissonMatrix_->Apply(X0, Y2));
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnPoissonMatrix_->Apply(X0, Y2));
     Epetra_MultiVector Y2tmp1(Y2);
-    TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X1, Y2tmp1));
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X1, Y2tmp1));
     Epetra_MultiVector Y2tmp2(Y2);
-    TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X2, Y2tmp2));
-    TEST_FOR_EXCEPT(Y2.Update(1.0, Y2tmp1, 1.0));
-    TEST_FOR_EXCEPT(Y2.Update(1.0, Y2tmp2, 1.0));
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X2, Y2tmp2));
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.Update(1.0, Y2tmp1, 1.0));
+    TEUCHOS_TEST_FOR_EXCEPT(Y2.Update(1.0, Y2tmp2, 1.0));
   }
 
   delete [] X1ptr;

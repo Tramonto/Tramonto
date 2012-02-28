@@ -77,7 +77,7 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   SetUseTranspose
   (bool UseTranspose)
   {
-    TEST_FOR_EXCEPTION(true, std::runtime_error, "SetUseTranspose is unsupported.\n");
+    TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "SetUseTranspose is unsupported.\n");
   };
   //@}
   

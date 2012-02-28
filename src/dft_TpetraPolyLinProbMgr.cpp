@@ -61,9 +61,9 @@ dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
 finalizeBlockStructure
 ()
 {
-  TEST_FOR_EXCEPTION(isBlockStructureSet_, std::runtime_error, "Block structure already set.\n");
+  TEUCHOS_TEST_FOR_EXCEPTION(isBlockStructureSet_, std::runtime_error, "Block structure already set.\n");
 
-  TEST_FOR_EXCEPTION((numGlobalNodes_==0 || numGlobalBoxNodes_==0 ||
+  TEUCHOS_TEST_FOR_EXCEPTION((numGlobalNodes_==0 || numGlobalBoxNodes_==0 ||
 		      gEquations_.size()==0 || cmsEquations_.size()==0 ||
 		      densityEquations_.size()==0),
 		      std::logic_error, "One or more set methods not called.");
@@ -275,9 +275,9 @@ dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
 initializeProblemValues
 ()
 {
-  TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error,
+  TEUCHOS_TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error,
     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
-  TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error,
+  TEUCHOS_TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error,
     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
@@ -337,7 +337,7 @@ insertMatrixValue
     }else if (isPoissonEquation_[boxPhysicsID]) {
       A22_->insertMatrixValue(rowGID, colGID, value, 0); 
     }else{ 
-      TEST_FOR_EXCEPT_MSG(1, "Unknown box physics ID in A22.");
+      TEUCHOS_TEST_FOR_EXCEPT_MSG(1, "Unknown box physics ID in A22.");
     }
   }
   else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
@@ -485,7 +485,7 @@ dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
 setupSolver
 ()
 {
-  TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
+  TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
 
   schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
@@ -508,7 +508,7 @@ setupSolver
   lows_ = linearOpWithSolve<Scalar>(*lowsFactory_, thyraOp_);
 #else
   problem_ = rcp(new LinPROB(schurOperator_, lhs2_, rhsSchur_));
-  TEST_FOR_EXCEPT(problem_->setProblem() == false);
+  TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 #endif
 

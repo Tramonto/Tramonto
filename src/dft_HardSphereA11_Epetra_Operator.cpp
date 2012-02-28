@@ -33,7 +33,7 @@
 #include "Epetra_Distributor.h"
 #include "EpetraExt_RowMatrixOut.h"
 #include "Epetra_IntSerialDenseVector.h"
-#include "Teuchos_TestForException.hpp"
+#include "Teuchos_Assert.hpp"
 
 //==============================================================================
 dft_HardSphereA11_Epetra_Operator::dft_HardSphereA11_Epetra_Operator(const Epetra_Map & indNonLocalMap, const Epetra_Map & depNonLocalMap, const Epetra_Map & block1Map) 
@@ -130,9 +130,9 @@ int dft_HardSphereA11_Epetra_Operator::finalizeProblemValues() {
 int dft_HardSphereA11_Epetra_Operator::doApply(const Epetra_MultiVector& X, Epetra_MultiVector& Y, bool inverse) const {
 
 
-  TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
-  TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
-  TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
+  TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
+  TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
 
   // Matrix is of the form 
   // 

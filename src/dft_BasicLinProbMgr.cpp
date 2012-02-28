@@ -39,7 +39,7 @@
 #include "EpetraExt_RowMatrixOut.h"
 #include "EpetraExt_MultiVectorOut.h"
 #include "EpetraExt_BlockMapOut.h"
-#include "Teuchos_TestForException.hpp"
+#include "Teuchos_Assert.hpp"
 
 //=============================================================================
 /*dft_BasicLinProbMgr::dft_BasicLinProbMgr(int numUnknownsPerNode, int * solverOptions, double * solverParams, MPI_Comm comm) 
@@ -178,9 +178,9 @@ int dft_BasicLinProbMgr::finalizeBlockStructure() {
 //=============================================================================
 int dft_BasicLinProbMgr::initializeProblemValues() {
   
-	TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error, 
+	TEUCHOS_TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error, 
 					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
-	TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error, 
+	TEUCHOS_TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error, 
 					   "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
 	
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
@@ -355,7 +355,7 @@ int dft_BasicLinProbMgr::getRhs(double ** b) const {
 //=============================================================================
 int dft_BasicLinProbMgr::setupSolver() {
 
-	TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error, 
+	TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error, 
 					   "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
 
 	if (solver_ != Teuchos::null || directSolver_  != Teuchos::null) return(0);  //Already setup

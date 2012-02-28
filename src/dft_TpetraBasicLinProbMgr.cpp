@@ -117,7 +117,7 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeBlockStructure
 ()
 {
-  TEST_FOR_EXCEPTION(isBlockStructureSet_, std::runtime_error, "Already set block structure.\n");
+  TEUCHOS_TEST_FOR_EXCEPTION(isBlockStructureSet_, std::runtime_error, "Already set block structure.\n");
 
   const size_t numUnks = numOwnedNodes_*numUnknownsPerNode_;
   Array<LocalOrdinal> globalGIDList(numUnks);
@@ -181,9 +181,9 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
 ()
 {
-  TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error,
+  TEUCHOS_TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error,
 		     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
-  TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error,
+  TEUCHOS_TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error,
 		     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
 
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
@@ -268,7 +268,7 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 getMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode)
 {
-  TEST_FOR_EXCEPTION(globalMatrix_.get()==0, std::runtime_error, "Global Matrix is not constructed, must set debug flag to enable this feature.\n");
+  TEUCHOS_TEST_FOR_EXCEPTION(globalMatrix_.get()==0, std::runtime_error, "Global Matrix is not constructed, must set debug flag to enable this feature.\n");
 
   GlobalOrdinal rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
@@ -425,7 +425,7 @@ setMachineParams
   using Teuchos::as;
   using Teuchos::ScalarTraits;
 
-  TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
+  TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
   // Get machine parameters
   n_ = globalMatrix_->getGlobalNumCols();
@@ -447,7 +447,7 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 setupSolver
 ()
 {
-  TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
+  TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
   // If solver is already setup, just reset the problem
   if (solver_ != Teuchos::null ) {
@@ -479,7 +479,7 @@ setupSolver
   preconditioner_->initialize();
   preconditioner_->compute();
   //  problem_->setLeftPrec(preconditioner_);
-  TEST_FOR_EXCEPT(problem_->setProblem() == false);
+  TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   Teuchos::RCP<Teuchos::ParameterList> belosList = Teuchos::rcp( new Teuchos::ParameterList() );
   belosList->set( "Num Blocks", 500 );               // Maximum number of blocks in Krylov factorization
   belosList->set( "Block Size", 1 );              // Blocksize to be used by iterative solver
@@ -629,23 +629,23 @@ void
 dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 checkPhysicsOrdering()
 const  {
-  TEST_FOR_EXCEPTION(physicsOrdering_.size()==0, std::runtime_error, "No unknowns are registered with this problem manager.\n");
+  TEUCHOS_TEST_FOR_EXCEPTION(physicsOrdering_.size()==0, std::runtime_error, "No unknowns are registered with this problem manager.\n");
 
   size_t numUnks = physicsOrdering_.size();
   Array<Scalar> tmp(numUnks);
   for (LocalOrdinal i=0; i<numUnks; i++)
   {
     LocalOrdinal curID = physicsOrdering_[i];
-    TEST_FOR_EXCEPTION(curID <0, std::runtime_error, "Invalid unknown number " << curID << " is less than 0.\n");
-    TEST_FOR_EXCEPTION(curID>=numUnks, std::runtime_error, "Invalid unknown number " << curID << " is greater than or equal to the number of unknowns (" << numUnks << ").\n");
+    TEUCHOS_TEST_FOR_EXCEPTION(curID <0, std::runtime_error, "Invalid unknown number " << curID << " is less than 0.\n");
+    TEUCHOS_TEST_FOR_EXCEPTION(curID>=numUnks, std::runtime_error, "Invalid unknown number " << curID << " is greater than or equal to the number of unknowns (" << numUnks << ").\n");
       tmp[curID] = tmp[curID]+1;
       // Increment counter for this ID (at the end each ID should appear exactly one time).
   }
 
   for (LocalOrdinal i=0; i<numUnks; i++)
   {
-    TEST_FOR_EXCEPTION(tmp[i]==0, std::runtime_error, "Unknown number " << i << " is not present and should be.\n");
-    TEST_FOR_EXCEPTION(tmp[i]>1, std::runtime_error, "Unknown number " << i << " is present " << tmp[i] << " times and should be present only once.\n");
+    TEUCHOS_TEST_FOR_EXCEPTION(tmp[i]==0, std::runtime_error, "Unknown number " << i << " is not present and should be.\n");
+    TEUCHOS_TEST_FOR_EXCEPTION(tmp[i]>1, std::runtime_error, "Unknown number " << i << " is present " << tmp[i] << " times and should be present only once.\n");
   }
 
 }
