@@ -135,7 +135,7 @@ private:
   Epetra_Map block2Map_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A22Matrix_;
   Teuchos::RefCountPtr<Ifpack_Preconditioner> A22Inverse_;
-  char * Label_; /*!< Description of object */
+  const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool firstTime_;

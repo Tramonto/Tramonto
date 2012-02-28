@@ -135,7 +135,7 @@ class dft_Schur_Epetra_Operator: public virtual Epetra_Operator {
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A11invA12_; /* Intermediate matrix containing inv(A11)*A12 */
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A21A11invA12_; /* Intermediate matrix containing A21*inv(A11)*A12 */
   Teuchos::RefCountPtr<Epetra_CrsMatrix> S_; /* Schur complement, if formed */
-  char * Label_; /*!< Description of object */
+  const char * Label_; /*!< Description of object */
 };
 
 #endif /* DFT_SCHUR_EPETRA_OPERATOR_H */

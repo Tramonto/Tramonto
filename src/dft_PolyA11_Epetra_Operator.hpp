@@ -138,7 +138,7 @@ protected:
   int numBlocks_;
   Epetra_CrsMatrix ** matrix_;
   Epetra_Vector * invDiagonal_;
-  char * Label_; /*!< Description of object */
+  const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   int curRow_;

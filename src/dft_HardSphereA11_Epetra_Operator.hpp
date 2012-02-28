@@ -147,7 +147,7 @@ protected:
   Epetra_Map block1Map_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> matrix_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A11invMatrix_;
-  char * Label_; /*!< Description of object */
+  const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool firstTime_;

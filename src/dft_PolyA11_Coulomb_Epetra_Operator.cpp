@@ -200,7 +200,7 @@ int dft_PolyA11_Coulomb_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& 
 
   int solverInt = Teuchos::getParameter<int>(*parameterList_, "Solver"); //probably want to change it to "Direct Solver" or something
   //int solverInt = solverOptions_[AZ_solver];
-  char * solverName;
+  const char * solverName;
   
   switch (solverInt) {
   case AM_lapack: solverName = "Amesos_Lapack"; break;

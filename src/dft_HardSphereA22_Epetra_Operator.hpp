@@ -147,7 +147,7 @@ private:
   Epetra_Map block2Map_;
   Epetra_Vector densityOnDensityMatrix_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> A22Matrix_;
-  char * Label_; /*!< Description of object */
+  const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool firstTime_;

@@ -169,7 +169,7 @@ protected:
   Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnCmsMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> densityOnDensityMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> densityOnCmsMatrix_;
-  char * Label_; /*!< Description of object */
+  const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool isFLinear_;

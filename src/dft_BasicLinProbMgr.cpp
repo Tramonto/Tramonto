@@ -362,7 +362,7 @@ int dft_BasicLinProbMgr::setupSolver() {
 
   int solverInt = Teuchos::getParameter<int>(*parameterList_, "Solver");
   // int solverInt = solverOptions_[AZ_solver];
-  char * solverName;
+  const char *solverName;
 
   switch (solverInt) {
   case AM_lapack: solverName = "Amesos_Lapack"; break;

@@ -48,6 +48,7 @@
 
 */
                       
+#include <stdlib.h>
 #include <stdio.h>
 #include "dft_plugin_user_continue.h"
 /*****************************************************************************/
