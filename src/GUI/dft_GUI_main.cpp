@@ -72,6 +72,10 @@ extern "C" void dft_OptikaGUI()
 
 
   RCP<ParameterList> Continuation_List = sublist(Tramonto_List, "Sect. 6: Continuation");
+  dft_GUI_Continuation(Tramonto_List,depSheet_Tramonto,Functional_List, PotentialsFF_List, StatePoint_List,
+                       Continuation_List);
+
+
   RCP<ParameterList> Startup_List = sublist(Tramonto_List, "Sect. 7: Startup Control");
 
   RCP<ParameterList> Output_List = sublist(Tramonto_List, "Sect. 8: Output Control");
@@ -100,7 +104,7 @@ extern "C" void dft_OptikaGUI()
 /*  cout<<"calling dft_GUI_toTramonto\n"<<endl;*/
   dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
-                     StatePoint_List,Diffusion_List,ChargedFluid_List,
+                     StatePoint_List,Diffusion_List,ChargedFluid_List,Continuation_List,
                      Surface_List,SurfaceGeometry_List);
 
              /* Here save parameter a to return to C code --- a fully 

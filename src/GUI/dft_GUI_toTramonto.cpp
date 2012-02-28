@@ -19,6 +19,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                         Teuchos::RCP<Teuchos::ParameterList> StatePoint_List,
                         Teuchos::RCP<Teuchos::ParameterList> Diffusion_List,
                         Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List,
+                        Teuchos::RCP<Teuchos::ParameterList> Continuation_List,
                         Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                         Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List) 
 {
@@ -354,7 +355,175 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        Elec_pot_LBB=ChargedFluid_List->get<double>("CF6.1: Elec_pot_0");
        Elec_pot_LBB=ChargedFluid_List->get<double>("CF6.2: Elec_pot_1");
     }
-    
+
+    /****************************************************/
+    /* params from the continuation section of the GUI  */
+    /****************************************************/
+    Lbinodal=FALSE;
+    if (Continuation_List->get<string>("C1: Continuation Type")=="None") Loca.method=-1;
+    else if (Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Simple Parameter Continuation") Loca.method=1;
+    else if (Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Arc-Length Parameter Continuation") Loca.method=2;
+    else if (Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Spinodal Continuation") Loca.method=3;
+    else if (Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Binodal Continuation"){
+         Loca.method=4;
+         Lbinodal=TRUE;
+    }
+    else if (Continuation_List->get<string>("C1: Continuation Type")=="Mesh Stepping with LOCA Binodal" ||
+             Continuation_List->get<string>("C1: Continuation Type")=="Mesh Continuation"){
+
+         Nsteps=Continuation_List->get<int>("C5: Number of Steps");
+         Plane_new_nodes=Continuation_List->get<int>("C9.1: Direction of Mesh Cont.");
+         for (i=0;i<Ndim;i++){
+             if (i==Plane_new_nodes) Del_1[i]=Continuation_List->get<double>("C4: Continuation Step Size");
+             else Del_1[i]=0.0;
+         }
+         if (Continuation_List->get<string>("C9.2: Location for node count change")=="center") Pos_new_nodes=0;
+         else if (Continuation_List->get<string>("C9.2: Location for node count change")=="Left(dim=0), Bottom(dim=1), or Back(dim=2) boundary") Pos_new_nodes=-1;
+         else if (Continuation_List->get<string>("C9.2: Location for node count change")=="Right(dim=0), Top(dim=1), or Front(dim=2) boundary") Pos_new_nodes=1;
+
+         if (Continuation_List->get<string>("C1: Continuation Type")=="Mesh Stepping with LOCA Binodal"){
+            Loca.method=4;
+            Loca.cont_type1=CONT_MESH;
+            Lbinodal=TRUE;
+            Loca.step_size=Del_1[Plane_new_nodes];
+            Loca.num_steps=0;
+            Loca.aggr=0.0;
+         }
+         else if (Continuation_List->get<string>("C1: Continuation Type")=="Mesh Continuation") Loca.method=-1;          
+
+    }
+
+    if (Continuation_List->get<string>("C1: Continuation Type")!="None"){
+
+        if (Continuation_List->get<string>("C2: Continuation Parameter")=="Temperature" ){
+           Loca.cont_type1=CONT_TEMP;
+        }
+        else if (Continuation_List->get<string>("C2: Continuation Parameter")=="Density (1 species)" ||
+                 Continuation_List->get<string>("C2: Continuation Parameter")=="Chemical Potential (1 species)"){
+           if (Continuation_List->get<string>("C2: Continuation Parameter")=="Density (1 species)" ) Loca.cont_type1=CONT_RHO_I;
+           else Loca.cont_type1=CONT_BETAMU_I;
+           NID_Cont=1;
+           Cont_ID[0][0]=Continuation_List->get<int>("C3: icomp");
+        }
+        else if (Continuation_List->get<string>("C2: Continuation Parameter")=="Electrostatic parameter (iwall)"){
+           Loca.cont_type1=CONT_ELECPARAM_I;
+           NID_Cont=1;
+           Cont_ID[0][0]=Continuation_List->get<int>("C3: iwall");
+        }
+        else if (Continuation_List->get<string>("C2: Continuation Parameter")=="Wall-Wall energy param (iwall_type or iwall_type,jwall_type pair)"){
+           Loca.cont_type1=CONT_EPSW_I;
+
+           if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Lorentz-Berthlot Mixing"){
+              NID_Cont=1;
+              Cont_ID[0][0]=Continuation_List->get<int>("C3: iwall_type");
+           }
+           else{
+              NID_Cont=2;
+              Array<int> C3_WW = Continuation_List->get<Array<int> >("C3: iwall_type,jwall_type");
+              for (i=0; i<2; i++) Cont_ID[0][i]=C3_WW[i]; 
+           }
+        }
+        else if (Continuation_List->get<string>("C2: Continuation Parameter")=="Fluid-fluid energy param (i or ij pair)"){
+           Loca.cont_type1=CONT_EPSFF_IJ;
+           if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Lorentz-Berthlot Mixing"){
+              NID_Cont=1;
+              Cont_ID[0][0]=Continuation_List->get<int>("C3: icomp");
+           }
+           else{
+              NID_Cont=2;
+              Array<int> C3_FF = Continuation_List->get<Array<int> >("C3: icomp,jcomp");
+              for (i=0; i<2; i++) Cont_ID[0][i]=C3_FF[i]; 
+           }
+        }
+        else if (Continuation_List->get<string>("C2: Continuation Parameter")=="Fluid size: SigmaFF(i or ij pair)"){
+           Loca.cont_type1=CONT_SIGMAFF_IJ;
+           if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Lorentz-Berthlot Mixing"){
+              NID_Cont=1;
+              Cont_ID[0][0]=Continuation_List->get<int>("C3: icomp");
+           }
+           else{
+              NID_Cont=2;
+              Array<int> C3Sig_FF = Continuation_List->get<Array<int> >("C3: icomp,jcomp");
+              for (i=0; i<2; i++) Cont_ID[0][i]=C3Sig_FF[i]; 
+           }
+        }
+        else if (Continuation_List->get<string>("C2: Continuation Parameter")=="Wall-Fluid energy param (iwall_type,icomp)"){
+              Loca.cont_type1=CONT_EPSWF_IJ;
+              NID_Cont=2;
+              Array<int> C3_WF = Continuation_List->get<Array<int> >("C3: iwall_type,icomp");
+              for (i=0; i<2; i++) Cont_ID[0][i]=C3_WF[i]; 
+        }
+
+        Loca.step_size=Continuation_List->get<double>("C4: Continuation Step Size");
+        Loca.num_steps=Continuation_List->get<int>("C5: Number of Steps");
+        Loca.aggr=Continuation_List->get<double>("C6: Step Aggressivnes");
+
+    }
+
+    if (Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Binodal Continuation" || 
+        Continuation_List->get<string>("C1: Continuation Type")=="Mesh Stepping with LOCA Binodal"){
+
+        if (Continuation_List->get<string>("C7: Dependent Cont. Param. (Binodals)")=="Temperature" ){
+           Loca.cont_type2=CONT_TEMP;
+        }
+        else if (Continuation_List->get<string>("C7: Dependent Cont. Param. (Binodals)")=="Density (1 species)" ||
+                 Continuation_List->get<string>("C7: Dependent Cont. Param. (Binodals)")=="Chemical Potential (1 species)"){
+           if (Continuation_List->get<string>("C7: Dependent Cont. Param. (Binodals)")=="Density (1 species)" ) {
+                 Loca.cont_type2=CONT_RHO_I;
+           }
+           else  Loca.cont_type2=CONT_BETAMU_I;
+           NID_Cont=1;
+           Cont_ID[1][0]=Continuation_List->get<int>("C8: icomp");
+        }
+        else if (Continuation_List->get<string>("C7: Dependent Cont. Param. (Binodals)")=="Electrostatic parameter (iwall)"){
+           Loca.cont_type2=CONT_ELECPARAM_I;
+           NID_Cont=1;
+           Cont_ID[1][0]=Continuation_List->get<int>("C8: iwall");
+        }
+        else if (Continuation_List->get<string>("C7: Dependent Cont. Param. (Binodals)")=="Wall-Wall energy param (iwall_type or iwall_type,jwall_type pair)"){
+           Loca.cont_type2=CONT_EPSW_I;
+
+           if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Lorentz-Berthlot Mixing"){
+              NID_Cont=1;
+              Cont_ID[1][0]=Continuation_List->get<int>("C8: iwall_type");
+           }
+           else{
+              NID_Cont=2;
+              Array<int> C8_WW = Continuation_List->get<Array<int> >("C8: iwall_type,jwall_type");
+              for (i=0; i<2; i++) Cont_ID[1][i]=C8_WW[i]; 
+           }
+        }
+        else if (Continuation_List->get<string>("C7: Dependent Cont. Param. (Binodals)")=="Fluid-fluid energy param (i or ij pair)"){
+           Loca.cont_type2=CONT_EPSFF_IJ;
+           if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Lorentz-Berthlot Mixing"){
+              NID_Cont=1;
+              Cont_ID[1][0]=Continuation_List->get<int>("C8: icomp");
+           }
+           else{
+              NID_Cont=2;
+              Array<int> C8_FF = Continuation_List->get<Array<int> >("C8: icomp,jcomp");
+              for (i=0; i<2; i++) Cont_ID[1][i]=C8_FF[i]; 
+           }
+        }
+        else if (Continuation_List->get<string>("C7: Dependent Cont. Param. (Binodals)")=="Fluid size: SigmaFF(i or ij pair)"){
+           Loca.cont_type2=CONT_SIGMAFF_IJ;
+           if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Lorentz-Berthlot Mixing"){
+              NID_Cont=1;
+              Cont_ID[1][0]=Continuation_List->get<int>("C8: icomp");
+           }
+           else{
+              NID_Cont=2;
+              Array<int> C8Sig_FF = Continuation_List->get<Array<int> >("C8: icomp,jcomp");
+              for (i=0; i<2; i++) Cont_ID[1][i]=C8Sig_FF[i]; 
+           }
+        }
+        else if (Continuation_List->get<string>("C7: Dependent Cont. Param. (Binodals)")=="Wall-Fluid energy param (iwall_type,icomp)"){
+              Loca.cont_type2=CONT_EPSWF_IJ;
+              NID_Cont=2;
+              Array<int> C8_WF = Continuation_List->get<Array<int> >("C8: iwall_type,icomp");
+              for (i=0; i<2; i++) Cont_ID[1][i]=C8_WF[i]; 
+        }
+     }
 
     /****************************************************/
     /* params from surface geometry section of the GUI  */

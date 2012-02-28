@@ -88,6 +88,13 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                       Teuchos::RCP<Teuchos::ParameterList> Diffusion_List,
                       Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List);
 
+void dft_GUI_Continuation(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
+                     Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                     Teuchos::RCP<Teuchos::ParameterList> Functional_List,
+                     Teuchos::RCP<Teuchos::ParameterList> PotentialsFF_List,
+                     Teuchos::RCP<Teuchos::ParameterList> StatePoint_List,
+                     Teuchos::RCP<Teuchos::ParameterList> Continuation_List);
+
 void dft_GUI_toTramonto(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
                          Teuchos::RCP<Teuchos::ParameterList> Functional_List, 
@@ -100,6 +107,7 @@ void dft_GUI_toTramonto(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Teuchos::ParameterList> StatePoint_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Diffusion_List, 
                          Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> Continuation_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Surface_List, 
                          Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List); 
 
