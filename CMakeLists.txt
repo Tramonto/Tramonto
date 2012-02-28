@@ -10,12 +10,13 @@ SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
 # point at "<prefix>/lib/cmake/Trilinos", but this helps the search.
 SET(CMAKE_PREFIX_PATH ${TRILINOS_PATH} ${CMAKE_PREFIX_PATH})
 
-#Look for Trilinos - the first PATH will find Trilinos 10.4 and 10.6,
-#the second PATH will find Trilinos 10.2
-FIND_PACKAGE(Trilinos REQUIRED PATHS ${TRILINOS_PATH}/include ${TRILINOS_PATH})
+FIND_PACKAGE(Trilinos REQUIRED)
 
 #Output some info about the Trilinos installation found
 IF(Trilinos_FOUND)
+   IF(Trilinos_VERSION VERSION_LESS 10.10.0)
+      MESSAGE(FATAL_ERROR "Could not find Trilinos 10.10 or greater!")
+   ENDIF()
    MESSAGE("\nFound Trilinos!  Here are the details: ")
    MESSAGE("   Trilinos_DIR = ${Trilinos_DIR}")
    MESSAGE("   Trilinos_VERSION = ${Trilinos_VERSION}")
@@ -43,7 +44,7 @@ IF(Trilinos_FOUND)
    MESSAGE("End of Trilinos details\n")
 ELSE()
   # We should never reach this because FIND_PACKAGE(Trilinos now uses REQUIRED
-  MESSAGE(FATAL_ERROR "Could not find Trilinos 10.2 or greater!")
+  MESSAGE(FATAL_ERROR "Could not find Trilinos 10.10 or greater!")
 ENDIF()
 
 IF(NOT CMAKE_CXX_COMPILER)

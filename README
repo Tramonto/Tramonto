@@ -49,7 +49,7 @@ Prerequisites:
         LAPACK                     http://www.netlib.org
         MPI                        http://www-unix.mcs.anl.gov/mpi/mpich2
                                    http://www.open-mpi.org
-        Trilinos (10.2.0 or later) http://trilinos.sandia.gov
+        Trilinos (10.10.0 or later) http://trilinos.sandia.gov
 
     While BLAS, LAPACK and MPI could be available on your system, you will
     most likely have to build Trilinos yourself.  Trilinos contains several
@@ -64,7 +64,7 @@ Prerequisites:
     
 Building Trilinos:
 
-    As of April 2010, Tramonto requires Trilinos version 10.2.0 or later.
+    As of February 2012, Tramonto requires Trilinos version 10.10.0 or later.
 
     Trilinos can be downloaded from the the Trilinos home page listed above.
     There are many options available in configuring Trilinos, some of the 
@@ -154,7 +154,7 @@ Building Trilinos:
      -DCMAKE_C_FLAGS:STRING="-O3" \
      -DCMAKE_Fortran_FLAGS:STRING="-O5" \
      -DTPL_BLAS_LIBRARIES:STRING="-lcblas;-lf77blas;-latlas;-lgfortran" \
-     -DCMAKE_INSTALL_PREFIX:PATH=/home/jmwille/TramontoTestHarness/Tri10.2 \
+     -DCMAKE_INSTALL_PREFIX:PATH=/home/jmwille/TramontoTestHarness/Tri10.10 \
      ..
 
     Mac OSX
@@ -177,7 +177,7 @@ Building Trilinos:
      -DCMAKE_C_FLAGS:STRING="-O3" \
      -DCMAKE_Fortran_FLAGS:STRING="-O5" \
      -DMPI_BASE_DIR:PATH=/Users/jmwille/install \
-     -DCMAKE_INSTALL_PREFIX:PATH=/Users/jmwille/TramontoTestHarness/Tri10.2 \
+     -DCMAKE_INSTALL_PREFIX:PATH=/Users/jmwille/TramontoTestHarness/Tri10.10 \
      ..
 
     Once you have configured Trilinos, build it by typing "make".  
@@ -200,14 +200,14 @@ Building Tramonto:
     installed Trilinos libraries and header files.  This can be done using the
     TRILINOS_PATH option.  This option points to the base of the installed
     version of Trilinos.  For example, if Trilinos is configured with
-    CMAKE_INSTALL_PREFIX:PATH=/Users/jmwille/TramontoTestHarness/Tri10.2, use
+    CMAKE_INSTALL_PREFIX:PATH=/Users/jmwille/TramontoTestHarness/Tri10.10, use
 
-    -DTRILINOS_PATH:PATH=/Users/jmwille/TramontoTestHarness/Tri10.2
+    -DTRILINOS_PATH:PATH=/Users/jmwille/TramontoTestHarness/Tri10.10
 
-    Beginning with Trilinos 10.7, it is also possible to use the standard
+    It is also possible to use the standard
     CMake option CMAKE_PREFIX_PATH:
 
-    -DCMAKE_PREFIX_PATH:PATH=/Users/jmwille/TramontoTestHarness/Tri10.7
+    -DCMAKE_PREFIX_PATH:PATH=/Users/jmwille/TramontoTestHarness/Tri10.10
 
     Below are Tramonto configure invocations that correspond to the
     above Trilinos configure invocations.  These, as well as other,
@@ -218,16 +218,19 @@ Building Tramonto:
     Linux
      cmake \
      -DTRILINOS_PATH=/home/jmwille/TramontoTestHarness/Tri10.2 \
+     -DBUILD_TESTING=ON \
      ..
 
     Mac OS X
      cmake \
      -DTRILINOS_PATH=/Users/jmwille/TramontoTestHarness/Tri10.2 \
+     -DBUILD_TESTING=ON \
      ..
 
 
     Once the configure script completes, you can type "make" to 
-    build Tramonto. After make finishes, the Tramonto  binary, "dft_exec" 
+    build Tramonto. Then type "ctest -L Sanity" to run a quick set of sanity
+    tests.  After ctest finishes, the Tramonto  binary, "dft_exec" 
     can optionally be copied to a more convenient location.
 
 Building Trilinos and Tramonto on Windows Using Visual Studio
