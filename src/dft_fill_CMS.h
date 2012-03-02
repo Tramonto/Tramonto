@@ -50,6 +50,12 @@ extern double Charge_f[NCOMP_MAX];
 extern int Type_coul;
 #define THETA_CR_DATA         4
 double load_mean_field(int sten_type,int iunk,int loc_inode,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
+extern int *B2G_node;
+extern int Nnodes;
+extern int *L2G_node;
+extern double **Array_test;
+#define FILES_DEBUG_MATRIX 3 
+extern int Iwrite_files;
 extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2

@@ -34,15 +34,15 @@ void setup_matrix_constant_blocks();
 /*setup_nunk_per_node:  here we just set up the basic parameters for the number
   of unknowns per node for the run of interest, and some arrays to move between
   unknown number and equation type easily. */
-void setup_nunk_per_node(char *output_file1)
+void setup_nunk_per_node(char *file_echoinput)
 {
   int i,iunk,icomp;
   int NCMSField_unk, NWJDCField_unk;
-  FILE *fp2=NULL;
+  FILE *fpecho=NULL;
 
-  if (Proc==0) {
-    if( (fp2 = fopen(output_file1,"a+"))==NULL){
-      printf("Can't open file %s\n", output_file1);
+  if (Proc==0 && Iwrite_files==FILES_DEBUG) {
+    if( (fpecho = fopen(file_echoinput,"a+"))==NULL){
+      if (Iwrite_screen != SCREEN_NONE) printf("Can't open file %s\n", file_echoinput);
       exit(1);
     }
   }	
@@ -167,7 +167,7 @@ void setup_nunk_per_node(char *output_file1)
 			  break;
 
          default:
-            printf("problems with defining equation type %d\n",i);
+            if (Iwrite_screen != SCREEN_NONE)printf("problems with defining equation type %d\n",i);
             exit(-1);
             break;
      }
@@ -188,23 +188,25 @@ void setup_nunk_per_node(char *output_file1)
   }
 
    if (Proc==0){
-   if (Iwrite==VERBOSE){
-        printf("\n******************************************************\n");
-        printf("TOTAL Nunk_per_node=%d\n",Nunk_per_node);
-        for (i=0;i<NEQ_TYPE;i++) printf("Phys2Nunk[%d]=%d  start_unk=%d  end_unk=%d\n",
-                                   i,Phys2Nunk[i],Phys2Unk_first[i],Phys2Unk_last[i]);
-        for (iunk=0;iunk<Nunk_per_node;iunk++) printf("iunk=%d equation_type=%d\n",iunk,Unk2Phys[iunk]);
-        printf("******************************************************\n");
-   }
-   fprintf(fp2,"\n******************************************************\n");
-   fprintf(fp2,"TOTAL Nunk_per_node=%d\n",Nunk_per_node);
-   for (i=0;i<NEQ_TYPE;i++) fprintf(fp2,"Phys2Nunk[%d]=%d  start_unk=%d  end_unk=%d\n",
-                                   i,Phys2Nunk[i],Phys2Unk_first[i],Phys2Unk_last[i]);
-   for (iunk=0;iunk<Nunk_per_node;iunk++) fprintf(fp2,"iunk=%d equation_type=%d\n",iunk,Unk2Phys[iunk]);
-   fprintf(fp2,"******************************************************\n");
+      if (Iwrite_screen==SCREEN_VERBOSE){
+           printf("\n******************************************************\n");
+           printf("TOTAL Nunk_per_node=%d\n",Nunk_per_node);
+           for (i=0;i<NEQ_TYPE;i++) printf("Phys2Nunk[%d]=%d  start_unk=%d  end_unk=%d\n",
+                                      i,Phys2Nunk[i],Phys2Unk_first[i],Phys2Unk_last[i]);
+           for (iunk=0;iunk<Nunk_per_node;iunk++) printf("iunk=%d equation_type=%d\n",iunk,Unk2Phys[iunk]);
+           printf("******************************************************\n");
+      }
+      if (Iwrite_files==FILES_DEBUG){
+          fprintf(fpecho,"\n******************************************************\n");
+          fprintf(fpecho,"TOTAL Nunk_per_node=%d\n",Nunk_per_node);
+          for (i=0;i<NEQ_TYPE;i++) fprintf(fpecho,"Phys2Nunk[%d]=%d  start_unk=%d  end_unk=%d\n",
+                                      i,Phys2Nunk[i],Phys2Unk_first[i],Phys2Unk_last[i]);
+          for (iunk=0;iunk<Nunk_per_node;iunk++) fprintf(fpecho,"iunk=%d equation_type=%d\n",iunk,Unk2Phys[iunk]);
+          fprintf(fpecho,"******************************************************\n");
+      }
    }
    setup_matrix_constant_blocks();
-   if (Proc==0)fclose(fp2);
+   if (Proc==0 && Iwrite_files==FILES_DEBUG)fclose(fpecho);
    return;
 }
 /*******************************************************************************/

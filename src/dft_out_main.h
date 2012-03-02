@@ -67,12 +67,11 @@ struct Loca_Struct {
 extern struct Loca_Struct Loca;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-void print_gofr(char *output_file6,double *xold);
+void print_gofr(char *GofR_Filename,double *xold);
 extern int Nlocal_charge;
 extern int Nlink;
 extern int Lprint_gofr;
-void print_profile(char *output_file4,double *xold);
-#define MINIMAL      0
+void print_profile(char *Density_FileName,double *xold);
 void collect_vext_old();
 void collect_x_old(double **x,double *xold);
 extern int Ncomp;
@@ -83,16 +82,18 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double *X2_old;
-#define NO_SCREEN    4 
-extern int Iwrite;
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 #define PRINT_RHO_0      0
 extern int Print_rho_type;
 extern int Imain_loop;
 extern int Nruns;
+extern char *OutputFileDir;
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

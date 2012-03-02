@@ -32,6 +32,11 @@ extern double Rmin_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Type_CoreATT_R;
 void uLJ12_6_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
 double uLJ12_6_DERIV1D(double r,double x,double sigma,double eps,double rcut);
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
+extern int Iwrite_screen;
 #define NWALL_MAX_TYPE 50 
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];

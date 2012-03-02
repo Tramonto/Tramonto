@@ -50,6 +50,8 @@ extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
 extern int Ncomp;
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -57,6 +59,8 @@ extern int Ncomp;
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
+#define FILES_DEBUG        2
+extern int Iwrite_files;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
@@ -65,4 +69,4 @@ extern int Proc;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-void pot_parameters(char *output_file1);
+void pot_parameters(char *file_echoinput);

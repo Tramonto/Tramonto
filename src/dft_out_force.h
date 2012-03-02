@@ -85,14 +85,17 @@ void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern double Betap;
 void print_to_file(FILE *fp,double val,char *var_label,int first);
+#define SCREEN_BASIC       1
+#define SCREEN_VERBOSE     3 
 extern int Nlists_HW;
 extern double **S_area_tot;
 extern int Lper_area;
 #define PI    3.141592653589793238462643383279502884197169399375
 extern double Temp_elec;
 double gsum_double(double c);
-#define NO_SCREEN    4 
-extern int Iwrite;
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

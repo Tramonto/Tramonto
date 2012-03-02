@@ -102,6 +102,11 @@ extern int Type_coul;
 double fill_EL_ext_field(int iunk,int icomp,int loc_inode,int resid_only_flag);
 double fill_EL_chem_pot(int iunk,int icomp,int iseg,int loc_inode,int inode_box,int mesh_coarsen_flag_i,double **x,int resid_only_flag);
 double fill_EL_ideal_gas(int iunk,int icomp,int loc_inode,int inode_box,double **x,int resid_only_flag);
+extern int Nnodes;
+extern int *L2G_node;
+extern double **Array_test;
+#define FILES_DEBUG_MATRIX 3 
+extern int Iwrite_files;
 extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);

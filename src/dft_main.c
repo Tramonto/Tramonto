@@ -54,8 +54,8 @@ void dftmain(double * engptr)
 
   double    start_t,t_mesh;
   char     *input_file;
-  char     *output_file1, *output_file2, *output_file4;
-  char     *output_TF, *yo = "main";
+  char     *file_echoinput, *Vext_Filename, *VextCoul_Filename;
+  char     *ZeroTF_filename, *yo = "main";
   int       iend, match, idim, icomp, i, niters;
   double    Esize_x_final[3];
   double    **x,**x2=NULL;  /* The solution vector of densities */
@@ -71,7 +71,7 @@ void dftmain(double * engptr)
   double    *t_fill_first_array,*t_fill_av_array;
   int       min_nnodes_per_proc,max_nnodes_per_proc,min_nnodes_box,max_nnodes_box;
   double    min_nodesLoc_over_nodesBox,max_nodesLoc_over_nodesBox;
-  FILE      *fp;
+  FILE      *fptime;
   char crfile[20];
   int izone,isten,jcomp,jmax;
   struct Stencil_Struct *sten;
@@ -115,10 +115,11 @@ void dftmain(double * engptr)
        exit(-1);
        break;
   }
-  output_file1 = "dft_out.lis";
-  output_file2 = "dft_vext.dat";
-  output_file4 = "dft_vext_c.dat";
-  output_TF = "dft_zeroTF.dat";
+
+  file_echoinput = "dft_out.lis";
+  Vext_Filename = "dft_vext.dat";
+  VextCoul_Filename = "dft_vext_c.dat";
+  ZeroTF_filename = "dft_zeroTF.dat";
 
  /*
   * Read in the ascii input file from the front end 
@@ -126,13 +127,15 @@ void dftmain(double * engptr)
   * (see file dft_input.c)
   */
 
+  if (Proc==0) printf("\n--------------Starting Tramonto DFT Calculation------------------------\n");
 
-  setup_params_for_dft(input_file,output_file1);
+
+  setup_params_for_dft(input_file,file_echoinput);
 
   setup_stencil_logicals();
   if (Type_attr != NONE) setup_stencil_uattr_core_properties();
-  setup_nunk_per_node(output_file1);
-  setup_pairPotentials(output_file1);
+  setup_nunk_per_node(file_echoinput);
+  setup_pairPotentials(file_echoinput);
 
   if (Type_poly == CMS){
       Rism_cr = (double ***) array_alloc (3, Ncomp,Ncomp,N_NZCR_MAX,sizeof(double));
@@ -142,12 +145,6 @@ void dftmain(double * engptr)
  /* count_zero = 0;
   count_nonzero = 0;
   */
-
-/*  if (Loca.method != -1) {
-    Nruns = 1;
-    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\nWARNING: Loca library requested, disabling"
-                        "Tramonto continuation loops\n");
-  }*/
 
   for (Imain_loop=0; Imain_loop<Nruns; Imain_loop++){ /*only does mesh continuation now */
     if (Proc==0){  
@@ -185,7 +182,7 @@ void dftmain(double * engptr)
      * do all the thermodynamics for the bulk fluid mixture
      */
 
-     thermodynamics(output_file1,Iwrite);
+     thermodynamics(file_echoinput,Iwrite_screen,Iwrite_files);
      }
 
     /*
@@ -205,13 +202,13 @@ void dftmain(double * engptr)
            safe_free((void *)&Nel_hit);
            safe_free((void *)&Nel_hit2);
      }
-     set_up_mesh(output_file1,output_file2);
+     set_up_mesh(file_echoinput,Vext_Filename);
 
     /*
      * Set up boundary and surface charge information -- this must come
      * after load-balancing because quantities are local on a Proc
      */
-     boundary_setup(output_file1);
+     boundary_setup(file_echoinput);
 
      /*
       * bvbw moved setup_integral after boundary_setup to eliminate seg fault
@@ -235,14 +232,14 @@ void dftmain(double * engptr)
          }
          if (proper_bc) setup_vext_coulomb_vol();
          else{
-           if(Iwrite !=NO_SCREEN) printf("Not computing vext_coulomb due to boundary conditions\n");
+           if(Iwrite_screen ==SCREEN_VERBOSE) printf("Not computing vext_coulomb due to boundary conditions\n");
          }
      }
-     if (Iwrite==EXTENDED || Iwrite==VERBOSE) {
-        print_vext(Vext,output_file2);
+     if (Iwrite_files==FILES_EXTENDED || Iwrite_files==FILES_DEBUG) {
+        print_vext(Vext,Vext_Filename);
         if (Restart_Vext == READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");
-        print_zeroTF(Zero_density_TF,output_TF);
-        if (Vol_charge_flag && Ndim==3) print_vext(Vext_coul,output_file4);
+        print_zeroTF(Zero_density_TF,ZeroTF_filename);
+        if (Vol_charge_flag && Ndim==3) print_vext(Vext_coul,VextCoul_Filename);
      }
 
 
@@ -259,25 +256,23 @@ void dftmain(double * engptr)
       if (NL_Solver == PICARD_BUILT_IN || NL_Solver==PICARD_NOX ||
            NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN){
           if (NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN) NL_update_scalingParam/=100.;
-          if (Proc==0 && Iwrite != NO_SCREEN) printf("Calling Picard Solver!\n");
+          if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) printf("\nCalling Picard Solver!\n");
           niters = solve_problem_picard(x, x2);
           if (NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN){
-               NL_update_scalingParam*=100.;
-              if (Proc==0 && Iwrite != NO_SCREEN) printf("Printing solution after Picard iterations...\n");
-               print_profile_box(x,"dft_dens_picard.dat");
-              if (Lbinodal){ 
-                   if (Proc==0 && Iwrite != NO_SCREEN) printf("Printing second solution after Picard iterations...\n");
-                            print_profile_box(x2,"dft_dens_picard2.dat");
-              }
-              if (Proc==0 && Iwrite != NO_SCREEN) printf("Calling Newton Solver after print of Picard solution!\n");
-               niters = solve_problem(x, x2);
+              NL_update_scalingParam*=100.;
+
+              print_profile_box(x,"dft_dens_picard.dat");
+              if (Lbinodal){ print_profile_box(x2,"dft_dens_picard2.dat"); }
+
+              niters = solve_problem(x, x2);
           }
       }
       else if (NL_Solver == NEWTON_BUILT_IN || NL_Solver==NEWTON_NOX){
+            if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) printf("\nCalling Newton Solver!\n");
             niters = solve_problem(x, x2);
       }
       else {
-         printf("Problem with solver type...set to %d\n",NL_Solver);
+         if (Iwrite_screen != SCREEN_NONE) printf("Problem with solver type...set to %d\n",NL_Solver);
          exit(-1);
       }   
       t_solve += MPI_Wtime();
@@ -299,11 +294,6 @@ void dftmain(double * engptr)
 
 
       t_postprocess += MPI_Wtime();
-/*      printf("\n*********************************************\n");
-      printf("The number of nonzeros counted is %d\n",count_nonzero);
-      printf("The number of zeros counted is %d\n",count_zero);
-      printf("*********************************************\n");
-*/
 
       iend=0;
       match=0;
@@ -346,23 +336,23 @@ void dftmain(double * engptr)
       MPI_Gather(&Time_manager_av,1,MPI_DOUBLE,t_manager_av_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
       MPI_Gather(&Time_fill_first,1,MPI_DOUBLE,t_fill_first_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
       MPI_Gather(&Time_fill_av,1,MPI_DOUBLE,t_fill_av_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
-      if (Proc==0 && Iwrite==VERBOSE){
-         fp  = fopen("dft_time.out","w");
-            fprintf(fp,"\n Time histogram for the fill on the first iteration\n\n");
-            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_fill_first_array[i]);
-            fprintf(fp,"\n Time histogram for the fill averaging the 2-%d iterations\n\n",niters);
-            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_fill_av_array[i]/((double)niters-1.0));
+      if (Proc==0 && Iwrite_files==FILES_DEBUG){
+         fptime  = fopen("dft_time.out","w");
+            fprintf(fptime,"\n Time histogram for the fill on the first iteration\n\n");
+            for (i=0;i<Num_Proc;i++) fprintf(fptime,"\t %d  %9.6f\n",i,t_fill_first_array[i]);
+            fprintf(fptime,"\n Time histogram for the fill averaging the 2-%d iterations\n\n",niters);
+            for (i=0;i<Num_Proc;i++) fprintf(fptime,"\t %d  %9.6f\n",i,t_fill_av_array[i]/((double)niters-1.0));
 
-            fprintf(fp,"\n Time histogram for the linear solver manager on the first iteration\n\n");
-            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_manager_first_array[i]);
-            fprintf(fp,"\n Time histogram for the linear solver manager averaging the 2-%d iterations\n\n",niters);
-            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_manager_av_array[i]/((double)niters-1.0));
+            fprintf(fptime,"\n Time histogram for the linear solver manager on the first iteration\n\n");
+            for (i=0;i<Num_Proc;i++) fprintf(fptime,"\t %d  %9.6f\n",i,t_manager_first_array[i]);
+            fprintf(fptime,"\n Time histogram for the linear solver manager averaging the 2-%d iterations\n\n",niters);
+            for (i=0;i<Num_Proc;i++) fprintf(fptime,"\t %d  %9.6f\n",i,t_manager_av_array[i]/((double)niters-1.0));
 
-            fprintf(fp,"\n Time histogram for the linear solve on the first iteration\n\n");
-            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_linsolv_first_array[i]);
-            fprintf(fp,"\n Time histogram for the linear solve averaging the 2-%d iterations\n\n",niters);
-            for (i=0;i<Num_Proc;i++) fprintf(fp,"\t %d  %9.6f\n",i,t_linsolv_av_array[i]/((double)niters-1.0));
-         fclose(fp); 
+            fprintf(fptime,"\n Time histogram for the linear solve on the first iteration\n\n");
+            for (i=0;i<Num_Proc;i++) fprintf(fptime,"\t %d  %9.6f\n",i,t_linsolv_first_array[i]);
+            fprintf(fptime,"\n Time histogram for the linear solve averaging the 2-%d iterations\n\n",niters);
+            for (i=0;i<Num_Proc;i++) fprintf(fptime,"\t %d  %9.6f\n",i,t_linsolv_av_array[i]/((double)niters-1.0));
+         fclose(fptime); 
       }
 
       t_linsolv_first_min=gmin_double(Time_linsolver_first);
@@ -402,7 +392,7 @@ void dftmain(double * engptr)
       t_InitGuess_max=gmax_double(Time_InitGuess);
 
 
-      if (Proc == 0 &&Iwrite !=NO_SCREEN) {
+      if (Proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) {
         printf ("\n\n\n\n");
         printf ("===================================================\n");
         printf ("MESH SUMMARY ....");
@@ -460,6 +450,12 @@ void dftmain(double * engptr)
         printf("TOTAL TIME               %g         %g       \n",
                                                 t_total_min,t_total_max);
         printf ("===================================================\n");
+
+      }
+      else if (Proc==0 && Iwrite_screen==SCREEN_BASIC){
+         printf("Max and Min Time in Linear Solver = %g  and %g sec\n",t_solve_max,t_solve_min);
+         printf("Total Time for DFT calculation = %g  sec\n",(t_total_max+t_total_min)/2.);
+         printf("-------------------------------------------------------------------------------\n");
 
       }
 

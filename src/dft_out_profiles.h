@@ -26,8 +26,8 @@ extern int Nelements;
 void print_charge_vol(double *charge_els,char *output_file);
 void print_freen_profile_1D(double *freen_profile_1D,char *output_file);
 void print_charge_surf(double **charge_w_sum,char *output_file);
-void print_Nodes_to_zone(int *node_to_zone,char *output_file);
-void print_zeroTF(int **zero_TF,char *output_file);
+void print_Nodes_to_zone(int *node_to_zone,char *Nodes2Zone_Filename);
+void print_zeroTF(int **zero_TF,char *ZeroTF_filename);
 extern double VEXT_MAX;
 extern int Lprint_gofr;
 #define NWALL_MAX 600 
@@ -37,7 +37,7 @@ extern double **Charge_x;
 extern int Nlocal_charge;
 extern int Nwall;
 extern int L_HSperturbation;
-void print_gofr(char *output_file6,double *xold);
+void print_gofr(char *GofR_Filename,double *xold);
 extern int Nodes_x[NDIM_MAX];
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
@@ -108,7 +108,6 @@ extern int Npoisson;
 extern int Phys2Nunk[NEQ_TYPE];
 extern int Lseg_densities;
 #define DENSITY        0
-#define EXTENDED     2
 #define WTC          2
 #define WJDC3        5 
 #define WJDC2        4 
@@ -116,9 +115,10 @@ extern int Lseg_densities;
 #define CMS_SCFT     1
 #define CMS          0
 extern int Type_poly;
-#define VERBOSE      3 
-extern int Iwrite;
-void print_profile(char *output_file4,double *xold);
+#define FILES_DEBUG        2
+#define FILES_EXTENDED     1 
+extern int Iwrite_files;
+void print_profile(char *Density_FileName,double *xold);
 extern double *X_old;
 void print_profile_box(double **x,char *outfile);
 extern double *Vext_old;

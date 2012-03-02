@@ -171,7 +171,7 @@ void setup_polymer_rho(double **xInBox, double **xOwned, int guess_type)
        }
      }
      else {
-       if (Proc==0) printf("invalid initial guess for polymers\n");
+       if (Iwrite_screen != SCREEN_NONE) if (Proc==0) printf("invalid initial guess for polymers\n");
        exit(1);
      }
   }
@@ -333,9 +333,6 @@ void setup_polymer_G(double **xInBox,double **xOwned)
         for (iseg=0; iseg<Nmer[poln]; iseg++){
              for (ibond=0; ibond<Nbond[poln][iseg]; ibond++){
                  if (fabs(xInBox[iunk][L2B_node[0]]-999.0)<1.e-6) not_done=TRUE;
-                /* else{
-                    printf("poln=%d iseg=%d ibond=%d is done \n",poln,iseg,ibond);
-                 }*/
                  iunk++;
              }
         }

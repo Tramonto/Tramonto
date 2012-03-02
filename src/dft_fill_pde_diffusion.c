@@ -48,7 +48,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
   double resid,resid_sum=0.0,mat_val;
   int nodeIndices[8],junk_mu,junk_rho;
   double values[2],values_rho[8],values_mu[8],prefactor_sum;
-  int flag_left,flag_right,ipol,itype,jln_tmp;
+  int flag_left,flag_right,ipol,itype,jln_tmp,jtmp;
 
   /* pre calc basis function stuff for 3D */
 
@@ -90,6 +90,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                 resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              if (resid_only_flag==FALSE){
                 mat_val = 1.0;
+                if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
                 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
              }
         }
@@ -105,6 +106,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                 resid_only_flag != CALC_RESID_ONLY)dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              if (resid_only_flag==FALSE){
                 mat_val = 1.0;
+                if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
                 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
              }
           }
@@ -119,6 +121,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                    resid_only_flag != CALC_RESID_ONLY)dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              if (resid_only_flag==FALSE){
                 mat_val = 1.0;
+                if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
                 dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
              }
           }
@@ -171,10 +174,10 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
            }
            if (flag) count_flag++;
            if (count_flag==Nnodes_per_el_V) {
-               printf("WARNING : zero density nodes in all elements !!!\n");
-               printf("inode_box=%d elem: %d iunk: %d \n",inode_box,elem,iunk);
+               if (Iwrite_screen != SCREEN_NONE) printf("WARNING : zero density nodes in all elements !!!\n");
+               if (Iwrite_screen != SCREEN_NONE) printf("Proc=%d inode_box=%d elem: %d iunk: %d \n",Proc,inode_box,elem,iunk);
                exit(-1);
-                                             }
+           }
 
            /* only fill if every node is non zero density node - otherwise will be 
               including discontinuities in mu */
@@ -210,6 +213,10 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                       if (Type_poly==NONE){
                         numEntries=2;
                         values[0]=values[1]=wt*(mu_0)*(2.0*area_0 + area_1);
+                        if (Iwrite_files==FILES_DEBUG_MATRIX){
+                            for (jtmp=0;jtmp<numEntries;jtmp++)
+                               Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[jtmp]]+junk_rho*Nnodes]+=values[jtmp];
+                        }
                         dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                         junk_rho, nodeIndices,values,numEntries);
                       }
@@ -219,11 +226,16 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                              junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
                              numEntries=2;
                              values[0]=values[1]=wt*(mu_0)*(2.0*area_0 + area_1);
+                             if (Iwrite_files==FILES_DEBUG_MATRIX){
+                                 for (jtmp=0;jtmp<numEntries;jtmp++)
+                                    Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[jtmp]]+junk_rho*Nnodes]+=values[jtmp];
+                             }
                              dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                      junk_rho, nodeIndices,values,numEntries);
                          }
                       }
                       mat_val = wt*tmp;  
+                      if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[0]]+junk_mu*Nnodes]+=mat_val;
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                         junk_mu, nodeIndices[0],mat_val);
                    }
@@ -241,6 +253,10 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                       if (Type_poly==NONE){
                         numEntries=2;
                         values[0]=values[1]=wt*(-mu_1)*(2.0*area_0 + area_1);
+                        if (Iwrite_files==FILES_DEBUG_MATRIX){
+                            for (jtmp=0;jtmp<numEntries;jtmp++)
+                               Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[jtmp]]+junk_rho*Nnodes]+=values[jtmp];
+                        }
                         dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                         junk_rho, nodeIndices,values,numEntries);
                       }
@@ -250,11 +266,16 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                              junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
                              numEntries=2;
                              values[0]=values[1]=wt*(-mu_1)*(2.0*area_0 + area_1);
+                             if (Iwrite_files==FILES_DEBUG_MATRIX){
+                                 for (jtmp=0;jtmp<numEntries;jtmp++)
+                                    Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[jtmp]]+junk_rho*Nnodes]+=values[jtmp];
+                             }
                              dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                      junk_rho, nodeIndices,values,numEntries);
                          }
                       }
                       mat_val = -wt*tmp;  
+                      if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[1]]+junk_mu*Nnodes]+=mat_val;
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                         junk_mu, nodeIndices[1],mat_val);
                    }
@@ -272,6 +293,10 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                         resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                 if (resid_only_flag==FALSE){
                    values[0] = -Velocity*tmp;  values[1]=-values[0];
+                   if (Iwrite_files==FILES_DEBUG_MATRIX){
+                      for (jtmp=0;jtmp<numEntries;jtmp++)
+                          Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[jtmp]]+junk_rho*Nnodes]+=values[jtmp];
+                   }
                    dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                   junk_rho, nodeIndices,values,numEntries);
                 }
@@ -322,6 +347,10 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                           if (Type_poly==NONE){
                              for (jln_tmp=0; jln_tmp<8; jln_tmp++){values_rho[jln_tmp]= evol * phi[jln_tmp][igp] * grad_mu_dot_grad_phi;}
                              numEntries=8;
+                             if (Iwrite_files==FILES_DEBUG_MATRIX){
+                                for (jtmp=0;jtmp<numEntries;jtmp++)
+                                    Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[jtmp]]+junk_rho*Nnodes]+=values[jtmp];
+                             }
                              dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                               junk_rho, nodeIndices,values_rho,numEntries);
                           }
@@ -330,6 +359,10 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                                  junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
                                  for (jln_tmp=0; jln_tmp<8; jln_tmp++){values_rho[jln_tmp]= evol * phi[jln_tmp][igp] * grad_mu_dot_grad_phi;}
                                  numEntries=8;
+                                 if (Iwrite_files==FILES_DEBUG_MATRIX){
+                                    for (jtmp=0;jtmp<numEntries;jtmp++)
+                                        Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[jtmp]]+junk_rho*Nnodes]+=values[jtmp];
+                                 }
                                  dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                                  junk_rho, nodeIndices,values_rho,numEntries);
                              }
@@ -338,6 +371,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                                          grad_phi[jln][igp][0] * grad_phi[iln][igp][0]
                                        + grad_phi[jln][igp][1] * grad_phi[iln][igp][1]
                                        + grad_phi[jln][igp][2] * grad_phi[iln][igp][2]);
+                          if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[jln]]+junk_mu*Nnodes]+=mat_val;
                           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                  junk_mu, nodeIndices[jln],mat_val);
                        }
@@ -354,7 +388,7 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                 }
               }
               else {
-                printf("load_transport not written for 2D yet\n");
+                if (Iwrite_screen != SCREEN_NONE && Proc==0) printf("load_transport not written for 2D yet\n");
                 exit(-1);
               }  
            }
@@ -404,6 +438,7 @@ double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           if (!resid_only_flag){
              mat_val = 1.0;
+             if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                       iunk,inode_box,mat_val);
           }
@@ -414,6 +449,7 @@ double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           if (!resid_only_flag){
              mat_val = 1.0;
+             if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                          iunk,inode_box,mat_val);
           }
@@ -424,6 +460,7 @@ double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           if (!resid_only_flag){
              mat_val = 1.0;
+             if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                          iunk,inode_box,mat_val);
           }
@@ -465,6 +502,7 @@ double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,
                    dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                    if (!resid_only_flag){
                       mat_val = wt_lp_1el[isten];
+                      if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_box]+iunk*Nnodes]+=mat_val;
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                 iunk,jnode_box,mat_val);
                    }

@@ -26,6 +26,11 @@ double uYUKAWA_ATT_noCS(double r,int i,int j);
 extern int Type_CoreATT_CONST;
 void uYUKAWA_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
 double uYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,double yukawaK);
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
+extern int Iwrite_screen;
 #define NWALL_MAX_TYPE 50 
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];

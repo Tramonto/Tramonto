@@ -450,8 +450,13 @@ int dft_HardSphereLinProbMgr::applyMatrix(const double** x, double** b) const {
   }
 //=============================================================================
 int dft_HardSphereLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
-  if (debug_)
+  cout << "IN WRITEMATRIX ROUTINE" <<endl;
+  if (debug_){
+  cout << "DEBUG FLAG SEEMS TO BE TRUE"<<endl;
     return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_, matrixName, matrixDescription));
-  else
+  }
+  else{
+  cout << "DEBUG FLAG SEEMS TO BE false"<<endl;
     return(-1); // Not available if not in debug mode
+  }
 }

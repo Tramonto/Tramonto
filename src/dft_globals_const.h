@@ -545,12 +545,26 @@ extern "C" {
 #define OPTION_VARY  2
 
 
-/* The following are choices for output */
+/* The following are choices for file output */
+#define FILES_BASIC        0
+#define FILES_EXTENDED     1 
+#define FILES_DEBUG        2
+#define FILES_DEBUG_MATRIX 3 
+
+/* The following are choices for screen output */
+#define SCREEN_NONE       -1 
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_BASIC       1
+#define SCREEN_DEBUG_RESID 2
+#define SCREEN_VERBOSE     3 
+
+/* The following are old choices for output */
 #define MINIMAL      0
 #define DENSITIES    1 
 #define EXTENDED     2
 #define VERBOSE      3 
 #define NO_SCREEN    4 
+#define VERBOSE_MATRIX    5 
 
 /* The followint are choices for the output of density info */
 #define SWITCH_RHO   0
@@ -712,6 +726,7 @@ extern int Unk2Phys[3*NCOMP_MAX+2*NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that 
 
 /*************** Global Mesh ********************************/
 extern int Print_flag;
+extern double **Array_test;
 
 extern int     Ndim;            /* # of spatial dimensions of the problem      */
 extern int     Nnodes;          /* # of nodes in the mesh                */
@@ -1067,6 +1082,7 @@ extern double Rho_b_LBB[NCOMP_MAX];   /*Rho_b boundary condition left-bottom-bac
 extern double Rho_b_RTF[NCOMP_MAX];   /*Rho_b boundary condition right-top-front*/
 extern double Elec_pot_LBB;           /*Electric potential boundary condition LBB*/
 extern double Elec_pot_RTF;           /*Electric potential boundary condition RTF */
+extern int    Flag_mV_elecpot;         /* TF logical for units entry for electrostatic potential boundary conditions */
 extern double Betamu_LBB[NCOMP_MAX];  /*Chemical Potential Boundary Condition LBB */
 extern double Betamu_RTF[NCOMP_MAX];  /*Chemical Potential Boudary Condition RTF*/
 extern double D_coef[NCOMP_MAX];  /*Diffusion Coefficients for ion species */
@@ -1114,6 +1130,8 @@ extern int     Restart_Vext;     /* Logical that defines reading of external fie
 extern char Vext_file[40];       /* file name that contains external field to read in */
 extern char Vext_file2[40];       /* a second file name that contains another part of the external field to read in */
 extern int     Iwrite;       /* Do we want a complete or modified set of output data*/
+extern int     Iwrite_screen;       /* Do we want a complete or modified set of output data*/
+extern int     Iwrite_files;       /* Do we want a complete or modified set of output data*/
 
 /* Parallel Info, Aztec info */
 extern int     Num_Proc; /* The total number of processors used in this calculation */
@@ -1182,7 +1200,6 @@ extern int Geqn_start[NCOMP_MAX];
 extern int Nblock[NCOMP_MAX];
 extern int Nseg_per_block[NCOMP_MAX][NBLOCK_MAX];
 extern int SegType_per_block[NCOMP_MAX][NBLOCK_MAX];
-extern char *Poly_file_name;
 extern int Grafted[NCOMP_MAX];
 extern int Graft_wall[NCOMP_MAX];
 extern double *Poly_graft_dist;     /* distance associated with polymer grafting - */
@@ -1205,7 +1222,10 @@ extern char *Cr_file;
 extern char *Cr_file2;
 extern char cr_file_array[20];
 extern char cr_file2_array[20];
+extern char *Poly_file_name;
 extern char poly_file_array[20]; 
+extern char *OutputFileDir;
+extern char OutputFileDir_array[100]; 
 /*extern char Cr_file[40];
 extern char Cr_file2[40];
 extern char Cr_file3[40];

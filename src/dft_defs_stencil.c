@@ -76,7 +76,7 @@ int stencil_deltaLogical(int sten)
      case THETA_CR_DATA:    return FALSE;
      case DELTA_FN_BOND: return TRUE;
      default:
-         printf("problem with stencil definitions: stencil_deltaLogical");
+         if (Iwrite_screen != SCREEN_NONE) printf("problem with stencil definitions: stencil_deltaLogical");
          exit(-1); break;
   }
 }
@@ -100,7 +100,7 @@ void setup_stencil_uattr_core_properties()
         Type_CoreATT_R=ATTCORE_UCSZERO;
         Type_CoreATT_CONST=CORECONST_ZERO; break;
     default:
-        printf("unknown attraction type Type_attr=%d\n",Type_attr);
+        if (Iwrite_screen != SCREEN_NONE) printf("unknown attraction type Type_attr=%d\n",Type_attr);
         exit(-1); break;
 
   }

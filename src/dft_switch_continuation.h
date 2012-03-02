@@ -99,9 +99,8 @@ extern int Type_bc[NDIM_MAX][2];
 #define SWITCH_SURFACE_SEP   0
 extern int Print_mesh_switch;
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID);
-extern int Iwrite;
-void thermodynamics(char *output_file1,int iwrite);
-void thermodynamics(char *output_file1,int iwrite);
+#define FILES_BASIC        0
+void thermodynamics(char *file_echoinput,int iwrite_screen,int iwrite_files);
 void calc_new_density(int icomp,char *output_file1);
 void recalculate_stencils();
 void setup_polymer_cr();
@@ -113,7 +112,7 @@ extern int Lprint_pmf;
 void scale_vext_temp(double ratio);
 void scale_vext_epswf(double ratio,int icomp,int iwall);
 void scale_elec_param(double ratio);
-void setup_pairPotentials(char *output_file1);
+void setup_pairPotentials(char *file_echoinput);
 void scale_all_epsParams(double ratio);
 extern int Ncomp;
 #define BH_DIAM             1
@@ -151,6 +150,8 @@ void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
 extern int Unk2Comp[NMER_MAX];
 extern int Ntype_mer;
 void assign_parameter_tramonto(int cont_type,double param,int Loca_contID);
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 double get_init_param_user_plugin(int cont_type,int Loca_contID);
 double get_init_param_archived_plugin(int cont_type,int Loca_contID);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];

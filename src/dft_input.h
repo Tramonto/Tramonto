@@ -62,7 +62,6 @@ extern double NL_update_scalingParam;
 extern double NL_abs_tol,NL_rel_tol;
 #define CALC_ALL_FIELDS   1
 #define PICARD_BUILT_IN       2
-#define VERBOSE      3 
 #define NCOMP_MAX 5
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 #define WJDC2        4 
@@ -80,7 +79,22 @@ extern int Coarser_jac;
 extern int Mesh_coarsening;
 extern double Rmax_zone[5];
 extern int Nzone;
+#define SCREEN_ERRORS_ONLY  0 
+#define FILES_DEBUG_MATRIX 3 
+#define VERBOSE_MATRIX    5 
+#define SCREEN_NONE       -1 
 #define NO_SCREEN    4 
+#define FILES_DEBUG        2
+#define SCREEN_VERBOSE     3 
+#define VERBOSE      3 
+#define FILES_EXTENDED     1 
+#define EXTENDED     2
+#define FILES_BASIC        0
+extern int Iwrite_files;
+#define SCREEN_BASIC       1
+extern int Iwrite_screen;
+#define DENSITIES    1 
+#define MINIMAL      0
 extern int Iwrite;
 extern int Print_mesh_switch;
 extern int Print_rho_switch;
@@ -158,7 +172,7 @@ extern char cr_file_array[20];
 extern double Crfac;
 extern int Ncr_files;
 #define CMS          0
-void setup_chain_architecture(char *poly_file,FILE *fpout);
+void setup_chain_architecture(char *poly_file,FILE *fpecho);
 extern char *Poly_file_name;
 extern char poly_file_array[20];
 #define SCFT         6	
@@ -305,7 +319,8 @@ extern double Dielec_ref;
 extern double Temp;
 extern double Density_ref;
 extern double Length_ref;
-void read_junk(FILE *fp,FILE *fp2);
+void read_junk(FILE *fpinput,FILE *fpecho);
+extern char *OutputFileDir;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -322,8 +337,4 @@ extern int LBulk;
 #define FALSE 0
 #endif
 extern int LDeBroglie;
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
-void read_input_file(FILE *fp,FILE *fp2);
+void read_input_file(FILE *fpinput,FILE *fpecho);

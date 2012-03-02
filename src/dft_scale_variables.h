@@ -15,6 +15,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define SCREEN_ERRORS_ONLY  0 
 #define NCOMP_MAX 5
 extern int Nmer[NCOMP_MAX];
 #define TRUE  1
@@ -27,9 +28,9 @@ extern int Nmer[NCOMP_MAX];
 #define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 extern int Npol_comp;
-#define NO_SCREEN    4 
-void thermodynamics(char *output_file1,int iwrite);
-void thermodynamics(char *output_file1,int iwrite);
+#define FILES_BASIC        0
+#define SCREEN_NONE       -1 
+void thermodynamics(char *file_echoinput,int iwrite_screen,int iwrite_files);
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
@@ -65,6 +66,8 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+#define SCREEN_VERBOSE     3 
+extern int Iwrite_screen;
 #define NWALL_MAX 600 
 extern double Elec_param_w[NWALL_MAX];
 extern double *Charge_vol_els;

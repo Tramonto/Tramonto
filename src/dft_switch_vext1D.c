@@ -69,7 +69,7 @@ double Vext_1D(double x,int icomp, int iwall_type)
         vext = Vext_LINEAR_noCS(x,icomp,iwall_type);
         break;
       default:
-         printf("problems with your selection of Vext_PotentialID[iwall_type=%d]\n",iwall_type);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of Vext_PotentialID[iwall_type=%d]\n",iwall_type);
          exit(-1);
          break;
   }
@@ -107,7 +107,7 @@ double Vext_1D_dash(double x,int icomp, int iwall_type)
          vdash=0.0;  /* vdash code not yet written */
          break;
       default:
-         printf("problems with your selection of Vext_PotentialID[iwall_type=%d]\n",iwall_type);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of Vext_PotentialID[iwall_type=%d]\n",iwall_type);
          exit(-1);
          break;
   }

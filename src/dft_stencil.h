@@ -39,7 +39,7 @@ double stencil_GetWeight_switch(int sten,int icomp,int jcomp,double rsq,double s
 void set_gauss_quad(int ngp,double *gp,double *gw);
 int stencil_quadGaussIntegrand_switch(int sten,double r);
 int stencil_quadGauss_switch(int sten,double r);
-void print_out_stencil(int isten,int izone,int icomp,int jcomp,FILE *ifp);
+void print_out_stencil(int isten,int izone,int icomp,int jcomp,FILE *fp_stencil);
 typedef struct Stencil_Struct Stencil_Struct;
 void renormalize_stencil(struct Stencil_Struct *sten,double vol_sten);
 #define DELTA_FN_BOND         6
@@ -71,6 +71,7 @@ extern double X_MSA[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];
 void precalc_GENmsa_params(double *rho,double *x_msa,double *n_msa,double gamma);
 void precalc_GENmsa_params(double *rho,double *x_msa,double *n_msa,double gamma);
+#define SCREEN_VERBOSE     3 
 #define THETA_CR_GENERAL_MSA  7
 #define NSTEN        8
 extern int Sten_Type[NSTEN];
@@ -92,9 +93,12 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern struct Stencil_Struct ***Stencil;
-#define VERBOSE      3 
-#define NO_SCREEN    4 
-extern int Iwrite;
+#define FILES_DEBUG        2
+extern int Iwrite_files;
+#define SCREEN_BASIC       1
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

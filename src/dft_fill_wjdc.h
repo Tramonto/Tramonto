@@ -67,6 +67,12 @@ extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CAVWTC         4
 extern void *LinProbMgr_manager;
+extern int *B2G_node;
+extern int Nnodes;
+extern int *L2G_node;
+extern double **Array_test;
+#define FILES_DEBUG_MATRIX 3 
+extern int Iwrite_files;
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif

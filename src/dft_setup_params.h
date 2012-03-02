@@ -129,6 +129,8 @@ extern int Ipot_ff_n;
 extern int Nnodes_per_el_S;
 extern int Ndim;
 extern int Nnodes_per_el_V;
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
 extern double Sigma_Angstroms_plasma;
 #define EPSILON_0  8.85419e-12  /* C^2 J^-1 m^-1 */
 extern double DielecConst_plasma;
@@ -155,6 +157,8 @@ extern int Nwall;
 extern int Nlink;
 extern int **Link_list;
 extern int Lmesh_refine;
+#define SCREEN_VERBOSE     3 
+extern int Iwrite_screen;
 void setup_other_run_constants();
 void fill_surfGeom_struct();
 void *array_alloc(int numdim,...);
@@ -193,7 +197,7 @@ extern int Nwall_type;
 extern int ***pol_sym_tmp;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-void setup_chain_indexing_arrays(int nseg,int nmer_max,FILE *fpout);
+void setup_chain_indexing_arrays(int nseg,int nmer_max,FILE *fpecho);
 extern int Nmer[NCOMP_MAX];
 extern int Npol_comp;
 extern int Type_poly;
@@ -208,18 +212,19 @@ extern double Potential_ref;
 #define PAIR_COULOMB          2
 #define PAIR_COULOMB_CS       1
 extern int Type_pairPot;
+void make_energy_params_dimensionless();
+void make_length_params_dimensionless();
+extern double Length_ref;
+void broadcast_input();
+extern int Num_Proc;
+extern int Flag_mV_elecpot;
 #define NONE       -1
 #define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;
-void make_energy_params_dimensionless();
 extern double Temp;
-void make_length_params_dimensionless();
-extern double Length_ref;
-void broadcast_input();
-extern int Num_Proc;
-void read_input_file(FILE *fp,FILE *fp2);
+void read_input_file(FILE *fpinput,FILE *fpecho);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -236,4 +241,4 @@ extern int Proc;
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-void setup_params_for_dft(char *input_file,char *output_file1);
+void setup_params_for_dft(char *input_file,char *file_echoinput);

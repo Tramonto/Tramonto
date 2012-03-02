@@ -77,7 +77,7 @@ double pairPot_switch(double r,double param1, double param2, double param3,doubl
         u = uSW(r,param1,param2,param3);
         break;
       default:
-         printf("problems with your selection of typePairPotin pairPot_switch: typePairPot=%d\n",typePairPot);
+         if (Iwrite_screen !=SCREEN_NONE)printf("problems with your selection of typePairPotin pairPot_switch: typePairPot=%d\n",typePairPot);
          exit(-1);
          break;
   }
@@ -122,7 +122,7 @@ void pairPotparams_switch(int typePairPot,int context, int i, int j,
         uSW_setparams(context,i,j,param1,param2,param3);
         break;
       default:
-        printf("problems with your selection of typePairPot in pairPotparams_switch typePairPot=%d\n",typePairPot);
+        if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPotparams_switch typePairPot=%d\n",typePairPot);
         exit(-1);
         break;
   }
@@ -168,7 +168,7 @@ double pairPot_deriv_switch(double r, double x, double param1, double param2, do
         uderiv = uSW_DERIV1D(r,x,param1,param2,param3);
         break;
       default:
-         printf("problems with your selection of typePairPot in pairPot_deriv_switch typePairPot=%d\n",typePairPot);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_deriv_switch typePairPot=%d\n",typePairPot);
          exit(-1);
          break;
   }
@@ -210,7 +210,7 @@ void pairPot_InnerCore_switch(int icomp, int jcomp,int typePairPot,
          uSW_InnerCore(icomp,jcomp,rCore_left,rCore_right,epsCore);
          break;
       default:
-         printf("problems with your selection of typePairPot in pairPot_innerCore_switch typePairPot=%d\n",typePairPot);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_innerCore_switch typePairPot=%d\n",typePairPot);
          exit(-1);
          break;
   }
@@ -257,7 +257,7 @@ double pairPot_ATT_CS_switch(double r, int icomp, int jcomp,int typePairPot)
         u = uSW_ATT_CS(r,icomp,jcomp);  
         break;
       default:
-         printf("problems with your selection of typePairPot in pairPot_ATT_CS_switch typePairPot=%d\n",typePairPot);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_ATT_CS_switch typePairPot=%d\n",typePairPot);
          exit(-1);
          break;
   }
@@ -301,7 +301,7 @@ double pairPot_ATT_noCS_switch(double r, int icomp, int jcomp,int typePairPot)
         u = uSW_ATT_noCS(r,icomp,jcomp);
         break;	  
       default:
-         printf("problems with your selection of typePairPot in pairPot_ATT_noCS_switch typePairPot=%d\n",typePairPot);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_ATT_noCS_switch typePairPot=%d\n",typePairPot);
          exit(-1);
          break;
   }
@@ -345,7 +345,7 @@ double pairPot_integral_switch(double r, int icomp, int jcomp,int typePairPot)
          u = uSW_Integral(r,icomp,jcomp);
          break;
       default:
-         printf("problems with your selection of typePairPot in pairPot_integral_switch typePairPot=%d\n",typePairPot);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problems with your selection of typePairPot in pairPot_integral_switch typePairPot=%d\n",typePairPot);
          exit(-1);
          break;
   }

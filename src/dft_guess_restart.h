@@ -69,7 +69,6 @@ int round_to_int(double x);
 #define CALC_RHOBAR_AND_G 3
 #define CALC_ALL_FIELDS   1
 extern int Iguess_fields;
-#define VERBOSE      3 
 extern int ATTInA22Block;
 extern int L_HSperturbation;
 #define CMS_SCFT     1
@@ -79,10 +78,10 @@ extern int L_HSperturbation;
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;
+#define SCREEN_VERBOSE     3 
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
-#define NO_SCREEN    4 
-extern int Iwrite;
+#define VERBOSE      3 
 #define DIFFUSION      6
 extern int Nbonds;
 #define BONDWTC        5
@@ -107,6 +106,8 @@ extern int Ncomp;
 #define RESTART_FEWERCOMP  4
 void check_zero_densities(double **xInBox);
 void communicate_profile(double *x_new,double **xInBox);
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

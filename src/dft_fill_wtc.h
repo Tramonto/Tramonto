@@ -62,6 +62,12 @@ struct Stencil_Struct {
                              Walls when stencil point is a boundary node  */
 };
 double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
+extern int *B2G_node;
+extern int Nnodes;
+extern int *L2G_node;
+extern double **Array_test;
+#define FILES_DEBUG_MATRIX 3 
+extern int Iwrite_files;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

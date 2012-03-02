@@ -16,7 +16,6 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern int *L2G_node;
-void print_residuals(int loc_inode,int iunk,double *resid_unk);
 double load_lambda_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define SCF_CONSTR	   9
 double load_SCF_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
@@ -86,6 +85,7 @@ struct Stencil_Struct {
                              are being contributed from. Only used for Hard
                              Walls when stencil point is a boundary node  */
 };
+#define SCREEN_NONE       -1 
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CAVWTC         4
 #define NEQ_TYPE       12 
@@ -108,6 +108,8 @@ extern int *Nbonds_SegAll;
 extern int Grafted[NCOMP_MAX];
 void safe_free(void **ptr);
 void safe_free(void **ptr);
+void print_residuals(int loc_inode,int iunk,double *resid_unk);
+#define SCREEN_DEBUG_RESID 2
 double load_standard_node(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,struct RB_Struct *dphi_drb,double *resid_unk,int mesh_coarsen_flag_i,int resid_only_flag);
 double load_coarse_node_Ndim(int loc_inode,int inode_box,int iunk,double **x,int resid_only_flag);
 #define FLAG_PBELEC -777
@@ -143,13 +145,17 @@ extern int Ndim;
 extern int Type_poly;
 #define NODAL_FLAG -999
 void print_profile_box(double **x,char *outfile);
-#define VERBOSE      3 
+#define FILES_DEBUG        2
+extern int Nnodes;
+extern double **Array_test;
+#define FILES_DEBUG_MATRIX 3 
+extern int Iwrite_files;
 extern int Nunk_per_node;
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
-#define NO_SCREEN    4 
-extern int Iwrite;
+#define SCREEN_VERBOSE     3 
+extern int Iwrite_screen;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

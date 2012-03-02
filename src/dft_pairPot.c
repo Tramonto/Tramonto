@@ -37,12 +37,12 @@
 
 /*******************************************************************************************/
 /*setup_pairPot:  some logic needed to set up pair potentials including locting potential minima and zeros */
-void setup_pairPotentials(char *output_file1){
+void setup_pairPotentials(char *file_echoinput){
   double param1, param2, param3, param4,param5,param6;
   int i,j;
 
 
-  if (Mix_type == 0) pot_parameters(output_file1);
+  if (Mix_type == 0) pot_parameters(file_echoinput);
 
   if (Type_attr != NONE){
       for (i=0; i<Ncomp; i++){
@@ -60,7 +60,7 @@ void setup_pairPotentials(char *output_file1){
          }
       }
 
-     if (Iwrite==VERBOSE && Proc==0) {
+     if (Iwrite_screen==SCREEN_VERBOSE && Proc==0) {
         printf("********************************************************************************\n");
         for (i=0; i<Ncomp; i++){
           for (j=0; j<Ncomp; j++){
@@ -79,7 +79,7 @@ void setup_pairPotentials(char *output_file1){
      }
   }
 
-  if ((Iwrite==VERBOSE || Iwrite==EXTENDED) && Proc==0){
+  if ((Iwrite_files==FILES_EXTENDED||Iwrite_files==FILES_DEBUG) && Proc==0){
      if (Type_attr != NONE){
        for (i=0; i<Ncomp; i++){
          for (j=0; j<Ncomp; j++){

@@ -17,6 +17,11 @@
 #include "Tramonto_ConfigDefs.h"
 extern int *L2B_node;
 extern int Nnodes_per_proc;
+#define SCREEN_VERBOSE     3 
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void check_zero_densities_owned(double **xOwned);
@@ -65,6 +70,8 @@ void calc_init_mf_attract(double **xInBox,double **xOwned);
 extern int Iguess_fields;
 #define RESTART_DENSONLY   3
 #define MF_EQ          3
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 void setup_density(double **xInBox,double **xOwned,int guess_type);
 void setup_polymer_rho(double **xInBox,double **xOwned,int guess_type);
 #define CMS_SCFT     1
@@ -83,24 +90,17 @@ extern int Phys2Nunk[NEQ_TYPE];
 #endif
 void translate_xInBox_to_xOwned(double **xInBox,double **xOwned);
 void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox);
+extern int Imain_loop;
+#define NORESTART          0
+extern int Restart;
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
 extern int Restart_field[NEQ_TYPE];
-extern int Imain_loop;
-#define NORESTART          0
-extern int Restart;
-#define VERBOSE      3 
 extern int Nnodes_box;
 extern int Nunk_per_node;
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
-#define NO_SCREEN    4 
-extern int Iwrite;
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
 void set_initial_guess(int guess_type,double **xOwned);

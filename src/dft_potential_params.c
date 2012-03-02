@@ -36,16 +36,16 @@
 /****************************************************************************/
 /* pot_parameters: calculate the cross terms (sigmaij,epsilonij,cutoffij) 
    for this potential */
-void pot_parameters(char *output_file1)
+void pot_parameters(char *file_echoinput)
 {        
  int i,j,iw,jw, printproc=FALSE;
  double cut=0.0;
  FILE *fp2=NULL;
- if (Proc==0 && output_file1 != NULL) printproc = TRUE;
+ if (Proc==0 && file_echoinput != NULL && Iwrite_files==FILES_DEBUG) printproc = TRUE;
  else printproc=FALSE;
  if (printproc) {
-   if( (fp2 = fopen(output_file1,"a+")) == NULL) {
-     printf("Can't open file %s\n", output_file1);
+   if( (fp2 = fopen(file_echoinput,"a+")) == NULL) {
+     if (Iwrite_screen != SCREEN_NONE) printf("Can't open file %s\n", file_echoinput);
      exit(1);
    }  
  }       

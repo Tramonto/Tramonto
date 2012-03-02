@@ -32,6 +32,11 @@ extern double Rmin_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Type_CoreATT_R;
 void ur12andYUKAWA_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
 double ur12andYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,double yukawaK,double AYukawa);
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
+extern int Iwrite_screen;
 #define NWALL_MAX_TYPE 50 
 extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];

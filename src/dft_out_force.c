@@ -120,7 +120,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
    divide the sum total by the surface area of iwall */
 
   /* get sum of p_tilde[iwall][idim] and if you're proc #0 print it !! */
-  if (first!=TRUE && Proc == 0 && Iwrite != NO_SCREEN)
+  if (first!=TRUE && Proc == 0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY)
       printf("\n----------------------------------------------------------\n");
         
   for (i=0; i<Nlink; i++){
@@ -154,12 +154,14 @@ void calc_force(FILE *fp, double **x,double fac_area)
                force *= fac_area;
             }
 
-            if (Iwrite != NO_SCREEN){
-            printf("iwall: %d \t idim: %d \n",i,idim);
-            printf("fac: %9.6f  area: %9.6f\n",fac_area,area);
-            printf("\t\t p_tilde[][]: %9.6f\n",p_tilde_iwall_idim);
-            printf("\t\t f_elec [][]: %9.6f\n",f_elec_iwall_idim);
-            printf("\t\t total force: %9.6f\n",force);
+            if (Iwrite_screen == SCREEN_VERBOSE || Iwrite_screen == SCREEN_BASIC){
+               printf("iwall: %d \t idim: %d ",i,idim);
+               if (Iwrite_screen==SCREEN_VERBOSE){
+                  printf("fac: %9.6f  area: %9.6f\n",fac_area,area);
+                  printf("\t\t p_tilde[][]: %9.6f\n",p_tilde_iwall_idim);
+                  printf("\t\t f_elec [][]: %9.6f\n",f_elec_iwall_idim);
+               }
+               printf("\t\t total force: %9.6f\n",force);
             }
 	 } 
        } /* end of if(first!=TRUE) */
@@ -187,7 +189,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
 
   if(first==TRUE) first = FALSE;
 
-  if (Proc == 0 &&Iwrite != NO_SCREEN){
+  if (Proc == 0 &&Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
         printf("----------------------------------------------------------\n");
   }
   safe_free((void *) &p_tilde_vdash);
@@ -311,40 +313,29 @@ void force_elec(double **x, double **Sum_dphi_dx)
           }
 
 	  iunk = Phys2Unk_first[POISSON];
-         /* printf("inode: %d icomp: %d  elec_pot: %9.6f \n",inode,Ncomp,x[loc_i]);*/
-/*          printf(" %9.6f  %9.6f  %9.6f \n",nodepos[0],nodepos[1],x[loc_i]);*/
-/*          printf(" %9.6f  %9.6f  ",nodepos[0],nodepos[1]);*/
 
           /*for (iel_w=0; iel_w<Nelems_S[Nlists_HW-1][loc_inode]; iel_w++){
               surf_norm = Surf_normal[Nlists_HW-1][loc_inode][iel_w];*/
           for (iel_w=0; iel_w<Nelems_S[0][loc_inode]; iel_w++){
               surf_norm = Surf_normal[0][loc_inode][iel_w];
               el_type   = Surf_elem_type[loc_inode][iel_w];
-/*printf("el_type %d  %d %d\n", el_type ,loc_inode,iel_w);*/
               idim = abs(surf_norm) - 1;
 
               for (jdim=0; jdim<Ndim; jdim++){
                  if (jdim == idim){
                     if (surf_norm < 0) deriv_x[iel_w][jdim] = calc_deriv(idim,inode_box,BFD,&blocked,x,0);
                     else               deriv_x[iel_w][jdim] = calc_deriv(idim,inode_box,FFD,&blocked,x,0);
-/*                    printf("%d  %9.6f",jdim,deriv_x[iel_w][jdim]);*/
                  }
                  else{
                     find_offset(el_type,jdim,offset);
                     jnode_box = offset_to_node_box(ijk_box,offset,reflect_flag);
-                    /*if (Nodes_2_boundary_wall[Nlists_HW-1][jnode_box] == -1){*/
-                    if (Nodes_2_boundary_wall[0][jnode_box] == -1){
-                  /*     printf("trouble ... the derivatives are not within surface elements !!");*/
-                    }
 
                     deriv_x[iel_w][jdim] = offset[jdim]*(x[iunk][jnode_box] - x[iunk][inode_box])/Esize_x[jdim];
-/*                    printf("%d  %9.6f",jdim,deriv_x[iel_w][jdim]);*/
                  }
 
                  dot_prod[iel_w] += deriv_x[iel_w][jdim]*deriv_x[iel_w][jdim];
               }
           }
-/*          printf("\n");*/
 
 
           /*for (iel_w=0; iel_w<Nelems_S[Nlists_HW-1][loc_inode]; iel_w++){
@@ -380,9 +371,9 @@ void force_elec(double **x, double **Sum_dphi_dx)
 
     store1_tot = gsum_double(store1)*Temp_elec/(4.0*PI*0.05);
     store2_tot = gsum_double(store2)*Temp_elec/(4.0*PI*0.05);
-    if (Proc == 0)
-    printf("normal contribution: %9.6f  tangential contribution:%9.6f",
-           store1_tot,store2_tot);
+    if (Proc == 0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+        printf("normal contribution: %9.6f  tangential contribution:%9.6f", store1_tot,store2_tot);
+    }
 
     return;
 }
@@ -644,8 +635,6 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
            
            rho_vdash[iwall][idim] +=sign* (x[iunk][inode_box]*Vext_dash[loc_inode][iwunk][idim])
                                        *nel_hit*Vol_el/((double)Nnodes_per_el_V);
-/*printf("%d  %d  %d  %g %g %g\n",icomp,iwall,inode_box,rho_vdash[iwall][idim],
-       x[iunk][inode_box],Vext_dash[loc_inode][iwunk][idim] );*/
 
         }  /* end of idim loop */
       }     /* end of Nwall loop */

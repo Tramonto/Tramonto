@@ -41,10 +41,10 @@
 #endif
 
 /******************************************************************************/
-void setup_params_for_dft(char *input_file, char *output_file1)
+void setup_params_for_dft(char *input_file, char *file_echoinput)
 {
   int input_file_exists=TRUE,i,j,nseg,nmer_max,pol_number;
-  FILE *fpin, *fpout;
+  FILE *fpinput, *fpecho;
 
   /****************************************************/
   /* first do all the things that only Proc 0 will do */
@@ -53,7 +53,7 @@ void setup_params_for_dft(char *input_file, char *output_file1)
                 /*********************************/
                 /* attempt to open an input file */
                 /*********************************/
-    if( (fpin  = fopen(input_file,"r")) == NULL) {
+    if( (fpinput  = fopen(input_file,"r")) == NULL) {
       printf("Can't open file %s\n", input_file);
 #ifdef BUILD_GUI
       printf("Must enter all params from the GUI\n");
@@ -63,13 +63,13 @@ void setup_params_for_dft(char *input_file, char *output_file1)
 #endif
       input_file_exists=FALSE;
     }
-    if( (fpout = fopen(output_file1,"w+")) == NULL) {
-      printf("Can't open file %s\n", output_file1);
+    if( (fpecho = fopen(file_echoinput,"w+")) == NULL) {
+      printf("Can't open file %s\n", file_echoinput);
       exit(-1);
     }
-    fprintf(fpout,"test out the printing %s\n",output_file1);
+    fprintf(fpecho,"test out the printing %s\n",file_echoinput);
 
-    if (input_file_exists==TRUE) read_input_file(fpin,fpout);
+    if (input_file_exists==TRUE) read_input_file(fpinput,fpecho);
 
 
         /******************************************************************/
@@ -82,10 +82,16 @@ void setup_params_for_dft(char *input_file, char *output_file1)
         /*****************************/
 #ifdef BUILD_GUI
     if (Open_GUI==TRUE) dft_OptikaGUI();
+    else{
+        if (Temp>0. && Type_coul!=NONE) Flag_mV_elecpot=TRUE;
+        else         Flag_mV_elecpot=FALSE;
+    }
 #else
     if (Open_GUI==TRUE){
        printf("GUI request is ignored because the code was not built with a GUI\n");
     }
+    if (Temp>0. && Type_coul!=NONE) Flag_mV_elecpot=TRUE;
+    else         Flag_mV_elecpot=FALSE;
 #endif 
   }
 
@@ -102,7 +108,7 @@ void setup_params_for_dft(char *input_file, char *output_file1)
    /*********************************************************************/
 
    if (Length_ref>0.0) make_length_params_dimensionless();
-   if (Temp>0.0){
+   if (Temp>0.0 && Flag_mV_elecpot){
       make_energy_params_dimensionless();
       if (Type_coul != NONE || Type_pairPot==PAIR_COULOMB_CS || Type_pairPot==PAIR_COULOMB) {
           Potential_ref=1000.*KBOLTZ*Temp/E_CONST;  /* reference potential in mV */
@@ -122,7 +128,7 @@ void setup_params_for_dft(char *input_file, char *output_file1)
            nseg += Nmer[pol_number];
            if (Nmer[pol_number] > nmer_max) nmer_max=Nmer[pol_number];
         }
-        setup_chain_indexing_arrays(nseg,nmer_max,fpout);
+        setup_chain_indexing_arrays(nseg,nmer_max,fpecho);
         safe_free((void *) &pol_sym_tmp);
    }
 
@@ -138,7 +144,7 @@ void setup_params_for_dft(char *input_file, char *output_file1)
    }
 
    setup_other_run_constants();
-   if (Proc==0){
+   if (Proc==0 && Iwrite_screen==SCREEN_VERBOSE){
      printf("\n--------------------------------------------------------------------");
      printf("\n    Successfully Completed Problem Setup \n");
      printf("\n--------------------------------------------------------------------\n");
@@ -195,7 +201,7 @@ void setup_other_run_constants()
   if (Type_coul!=NONE || Type_pairPot==PAIR_COULOMB_CS || Type_pairPot==PAIR_COULOMB) {
        Temp_elec = 4.0*PI*KBOLTZ*Temp_K_plasma*DielecConst_plasma*EPSILON_0*Sigma_Angstroms_plasma*1.e-10/(E_CONST*E_CONST);
       /*Temp_elec = 4*PI*KBOLTZ*298.0*KAPPA_H2O*EPSILON_0*4.25e-10/(E_CONST*E_CONST);  Tang-Davis Paper Parameters*/
-       if (Proc==0) printf("\t plasma parameter=%9.6f\n",1./Temp_elec);
+       if (Proc==0 && (Iwrite_screen!=SCREEN_NONE || Iwrite_screen!=SCREEN_ERRORS_ONLY)) printf("\t plasma parameter=%9.6f\n",1./Temp_elec);
   }
 
   Nnodes_per_el_V = POW_INT(2, Ndim);
@@ -521,9 +527,11 @@ void fill_surfGeom_struct()
                sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
                sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
                if (OrientationPeriodicFunc[iw][i] != Orientation[iw]){
+                   if (Iwrite_screen != SCREEN_NONE) {
                    printf("Orientation of periodic function must be the same as the orientation of the surface\n");
                    printf("for the 3D cylindrical surface.  Adjustments can only be made along length of cylinder\n");
                    printf("Resetting periodic orientation to match the surface orientation\n");
+                   }
                    sgeom_iw->orientation_periodic[i]=Orientation[iw];
                }
             }
@@ -535,9 +543,11 @@ void fill_surfGeom_struct()
                sgeom_iw->origin_LinearFunc[i]=OriginLinearFunc[iw][i];
                sgeom_iw->endpoint_LinearFunc[i]=EndpointLinearFunc[iw][i];
                if (OrientationLinearFunc[iw][i] != Orientation[iw]){
+                   if (Iwrite_screen != SCREEN_NONE) {
                    printf("Orientation of linear function must be the same as the orientation of the surface\n");
                    printf("for the 3D cylinder.  Adjustments can only be made along length of the surface.\n");
                    printf("Resetting linear orientation to match the surface orientation\n");
+                   }
                    sgeom_iw->orientation_linear[i]=Orientation[iw];
                }
             }
@@ -579,9 +589,11 @@ void fill_surfGeom_struct()
                sgeom_iw->wavelength[i]=WavelengthPeriodicFunc[iw][i];
                sgeom_iw->origin_PeriodicFunc[i]=OriginPeriodicFunc[iw][i];
                if (OrientationPeriodicFunc[iw][i] != Orientation[iw]){
+                   if (Iwrite_screen != SCREEN_NONE) {
                    printf("Orientation of periodic function must be the same as the orientation of the surface\n");
                    printf("for the 3D cylindrical or 2D slit pore.  adjustments can only be made along length of pore\n");
                    printf("Resetting periodic orientation to match the surface orientation\n");
+                   }
                    sgeom_iw->orientation_periodic[i]=Orientation[iw];
                }
             }
@@ -598,9 +610,11 @@ void fill_surfGeom_struct()
                sgeom_iw->origin_LinearFunc[i]=OriginLinearFunc[iw][i];
                sgeom_iw->endpoint_LinearFunc[i]=EndpointLinearFunc[iw][i];
                if (OrientationLinearFunc[iw][i] != Orientation[iw]){
+                   if (Iwrite_screen != SCREEN_NONE) {
                    printf("Orientation of linear function must be the same as the orientation of the surface\n");
                    printf("for the 3D cylindrical or 2D slit pore.  adjustments can only be made along length of pore\n");
                    printf("Resetting linear orientation to match the surface orientation\n");
+                   }
                    sgeom_iw->orientation_linear[i]=Orientation[iw];
                }
             }
@@ -608,7 +622,7 @@ void fill_surfGeom_struct()
             break;
 
        default: /* No surface found */
-            printf("error with surface type iwall_type=%d not identified\n",iw);
+            if (Iwrite_screen != SCREEN_NONE)  printf("error with surface type iwall_type=%d not identified\n",iw);
             exit(-1);
             break;
     }

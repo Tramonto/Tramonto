@@ -29,6 +29,8 @@ extern int Type_CoreATT_CONST;
 extern int Type_CoreATT_R;
 #define MFPAIR_RMIN_UMIN      0
 void setup_stencil_uattr_core_properties();
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 int stencil_deltaLogical(int sten);
 #define THETA_FN_SIG          5
 #define WJDC3        5 

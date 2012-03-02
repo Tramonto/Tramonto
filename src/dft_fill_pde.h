@@ -15,6 +15,8 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

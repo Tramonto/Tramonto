@@ -64,7 +64,7 @@ int solve_problem(double **x, double **x2)
 
 
   /* If requested, write out initial guess */
-   if (Iwrite == VERBOSE)  print_profile_box(x,"rho_init.dat");
+   if (Iwrite_files == FILES_DEBUG)  print_profile_box(x,"rho_init.dat");
 
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
@@ -80,7 +80,7 @@ int solve_problem(double **x, double **x2)
     else{ 
      set_initial_guess(BINODAL_FLAG, x2Owned);}
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
-    if (Iwrite == VERBOSE)  print_profile_box(x2,"rho_init2.dat");
+    if (Iwrite_files == FILES_DEBUG)  print_profile_box(x2,"rho_init2.dat");
   }
 
 
@@ -154,12 +154,12 @@ int newton_solver(double** x, void* con_ptr) {
 
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_finalizeproblemvalues(LinProbMgr_manager);
-    if (Iwrite != NO_SCREEN) print_resid_norm(iter);
+    if (Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) print_resid_norm(iter);
     (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);
 /*#ifdef NUMERICAL_JACOBIAN*/
-   /*do_numerical_jacobian(x);*/
+   /*if (Iwrite_files==FILES_DEBUG_MATRIX) do_numerical_jacobian(x);*/
 /*#endif*/
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
@@ -185,11 +185,11 @@ int newton_solver(double** x, void* con_ptr) {
   } while (iter < Max_NL_iter && (!converged || !converged2));
 
   if (!converged || !converged2) {
-    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tNewton Solver: Failed to converge in %d iterations\n",iter);
+    if (Proc==0 && Iwrite_screen!=SCREEN_NONE) printf("\tNewton Solver: Failed to converge in %d iterations\n",iter);
     iter = -iter;
   }
   else
-    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tNewton Solver: Successful convergence in %d iterations\n",iter);
+    if (Proc==0 && Iwrite_screen!=SCREEN_NONE) printf("\tNewton Solver: Successful convergence in %d iterations\n",iter);
 
   safe_free((void **) &delta_x);
   return iter;
@@ -215,8 +215,10 @@ int update_solution_new(double** x, double** delta_x, int iter) {
   else frac_min=1.0;
 
   frac_min=gmin_double(frac_min);
-  if (Proc==0 && Iwrite != NO_SCREEN)
-      printf("\tUPDATE FRAC = %g percent\n",frac_min*100);
+  if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+     if (Iwrite_screen == SCREEN_BASIC) printf("\tUpdate percent=%g ",frac_min*100);
+     else printf("\tUpdate Frac = %g percent\n",frac_min*100);
+  }
 
   for (ibox=0; ibox<Nnodes_box; ibox++) {
 
@@ -240,8 +242,10 @@ int update_solution_new(double** x, double** delta_x, int iter) {
   
   updateNorm = sqrt(gsum_double(updateNorm));
 
-  if (Proc==0 && Iwrite != NO_SCREEN)
-    printf("\n\t\t%s: Weighted norm of update vector =  %g\n", yo, updateNorm);
+  if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+    if (Iwrite_screen==SCREEN_BASIC) printf("\tWeighted norm update vec =  %g\n", updateNorm);
+    else                             printf("\n\t\t Weighted norm of update vector =  %g\n", updateNorm);
+  }
 
   if (updateNorm > 1.0) return(FALSE);
   else                  return(TRUE);
@@ -284,8 +288,10 @@ int update_solution(double** x, double** delta_x, int iter) {
   }
 
   frac_min=gmin_double(frac_min);
-  if (Proc==0 && Iwrite != NO_SCREEN)
-      printf("\tUPDATE FRAC = %g percent\n",frac_min*100);
+  if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+     if (Iwrite_screen == SCREEN_BASIC) printf("\tUpdate percent=%g ",frac_min*100);
+     else printf("\tUpdate Frac = %g percent\n",frac_min*100);
+  }
 
   for (ibox=0; ibox<Nnodes_box; ibox++) {
 
@@ -341,8 +347,10 @@ int update_solution(double** x, double** delta_x, int iter) {
 
   updateNorm = sqrt(gsum_double(updateNorm));
 
-  if (Proc==0 && Iwrite != NO_SCREEN)
-    printf("\n\t\t%s: Weighted norm of update vector =  %g\n", yo, updateNorm);
+  if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+    if (Iwrite_screen == SCREEN_BASIC) printf("\tWeighted norm update vec =  %g\n", updateNorm);
+    else    printf("\n\t\tWeighted norm of update vector =  %g\n", updateNorm);
+  }
 
 
   if (updateNorm > 1.0) return(FALSE);
@@ -402,17 +410,16 @@ void do_numerical_jacobian(double **x)
   /* compute numerical jacobian by repeated residual fill calls */
 
   full = (double **) array_alloc(2,N,N,sizeof(double));
-  if (full==NULL){printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
+  if (full==NULL){if (Iwrite_screen != SCREEN_NONE) printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
 
   count_nonzeros = (int **) array_alloc(2,N,N,sizeof(int));
-  if (count_nonzeros==NULL){printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
+  if (count_nonzeros==NULL){if (Iwrite_screen != SCREEN_NONE) printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
 
   count_nonzeros_a = (int **) array_alloc(2,N,N,sizeof(int));
-  if (count_nonzeros_a==NULL){printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
+  if (count_nonzeros_a==NULL){if (Iwrite_screen != SCREEN_NONE) printf("Not enough memory for full numerical jacobian\n"); exit(-1);}
 
   for (iunk=0;iunk<Nunk_per_node;iunk++){
     for (inode=0; inode<Nnodes; inode++) {
-/*      printf("iunk=%d inode=%d x[60][11]=%g\n",iunk,inode,x[60][11]);*/
       i=inode+Nnodes*iunk; /* Physics Based Ordering */
       /*i=iunk+Nunk_per_node*inode;*/  /* Nodal Based Ordering */
 /*      del=1.e-6*fabs(x[iunk][inode])+1.e-12;*/
@@ -447,12 +454,12 @@ void do_numerical_jacobian(double **x)
       }}
       x[iunk][inode] -= del;
       if (count==100 || i==N-1){
-        if (Iwrite != NO_SCREEN)printf("Proc: %d :: ith row=%d, out of %d rows.\n",Proc,i,N-1);
+        if (Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY)printf("Proc: %d :: ith row=%d, out of %d rows.\n",Proc,i,N-1);
         count=0;
       } count++;
     }
   }
-  if (Iwrite != NO_SCREEN)printf("Proc: %d finished computing numerical jacobian !!\n",Proc);
+  if (Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY)printf("Proc: %d finished computing numerical jacobian !!\n",Proc);
 
   /* print out nonzero entries of numerical jacobian */
   sprintf(filename, "jn%0d",Proc);
@@ -510,14 +517,16 @@ void do_numerical_jacobian(double **x)
   fclose(ifp);
   fclose(ifp2);
   fclose(ifp3);
-  printf("numerical jacobian statistics:\n");
-  printf("number of matrix coefficients that are the same (nonzeros in ja0)=%d\n",count_same);
-  printf("number of matrix coefficients that are different (nonzeros in ja0)=%d\n",count_diff);
-  printf("number of matrix coefficients where nonzeros are only in numerical jacobian=%d\n",count_nonzeros_num);
-  printf("number of warnings where differences between analytical and numerical results\n \t may not be real due to small residuals and resulting inaccurate jacobians=%d\n",count_warnings);
-  printf("See jdiff0 for summary of matrix coefficients where differences\n");
-  printf("between analytical and numerical results are greater than 1%. \n\n");
-  printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
+  if (Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) {
+      printf("numerical jacobian statistics:\n");
+      printf("number of matrix coefficients that are the same (nonzeros in ja0)=%d\n",count_same);
+      printf("number of matrix coefficients that are different (nonzeros in ja0)=%d\n",count_diff);
+      printf("number of matrix coefficients where nonzeros are only in numerical jacobian=%d\n",count_nonzeros_num);
+      printf("number of warnings where differences between analytical and numerical results\n \t may not be real due to small residuals and resulting inaccurate jacobians=%d\n",count_warnings);
+      printf("See jdiff0 for summary of matrix coefficients where differences\n");
+      printf("between analytical and numerical results are greater than 1%. \n\n");
+      printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
+  }
   exit(0);
 }
 /*#endif*/
@@ -530,10 +539,11 @@ void print_resid_norm(int iter)
   int iunk, j;
   double norm=0.0,l2norm_term;
   double **f;
-  FILE *ifp;
-  char filename[20]="Resid2.dat";
+  FILE *fp_resid;
+  char filename[20]="Resid.dat";
 
-  if (Proc==0 && Iwrite==VERBOSE) ifp=fopen(filename,"w+");
+  if (Proc==0 && Iwrite_files==FILES_DEBUG) fp_resid=fopen(filename,"w+");
+
   f = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   dft_linprobmgr_getrhs(LinProbMgr_manager, f);
 
@@ -543,14 +553,17 @@ void print_resid_norm(int iter)
        l2norm_term=f[iunk][j]*f[iunk][j];
        norm += f[iunk][j] * f[iunk][j];
 
-       if(Proc==0 && Iwrite==VERBOSE) fprintf(ifp," %d  %d  %14.11f  %14.11f\n",iunk,L2G_node[j],f[iunk][j],norm);
+       if(Proc==0 && Iwrite_files==FILES_DEBUG) fprintf(fp_resid," %d  %d  %14.11f  %14.11f\n",iunk,L2G_node[j],f[iunk][j],norm);
     }
   }
-  if (Proc==0 && Iwrite==VERBOSE) fclose(ifp);
+  if (Proc==0 && Iwrite_files==FILES_DEBUG) fclose(fp_resid);
 
   safe_free((void **) &f);
   norm = gsum_double(norm);
-  if (Proc==0 && Iwrite != NO_SCREEN) printf("\t\tResidual norm at iteration %d = %g\n",iter, sqrt(norm));
+  if (Proc==0 && Iwrite_screen != NO_SCREEN && Iwrite_screen != SCREEN_ERRORS_ONLY) {
+     if (Iwrite_screen==SCREEN_VERBOSE || Iwrite_screen==SCREEN_DEBUG_RESID) printf("\t\tResidual norm at iteration %d = %g\n",iter, sqrt(norm));
+     else if (Iwrite_screen==SCREEN_BASIC) printf("Iter=%d   NLResid=%g   ",iter,sqrt(norm));
+  }
   return;
 }
 /*****************************************************************************************************/

@@ -17,8 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 #define NEQ_TYPE       12 
 extern int Constant_row_flag[NEQ_TYPE];
-#define VERBOSE      3 
-extern int Iwrite;
+#define SCREEN_VERBOSE     3 
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
 #define NO_UNK        -888
@@ -85,10 +84,14 @@ extern int Lseg_densities;
 #define WJDC         3
 #define WTC          2
 extern int Type_poly;
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
+#define FILES_DEBUG        2
+extern int Iwrite_files;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-void setup_nunk_per_node(char *output_file1);
+void setup_nunk_per_node(char *file_echoinput);
 void setup_matrix_constant_blocks();
 void setup_matrix_constant_blocks();

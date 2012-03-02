@@ -76,7 +76,7 @@ void uYUKAWA_CS_setparams(int context, int i, int j, double *param1,double *para
         *param4 = YukawaK_ww[WallType[i]][WallType[j]];
         break;
      default:
-        printf("problem with potential context uYUKAWA_CS_setparams\n");
+        if (Iwrite_screen != NONE) printf("problem with potential context uYUKAWA_CS_setparams\n");
         exit(-1);
    }
    return;
@@ -107,7 +107,7 @@ void uYUKAWA_InnerCore(int i, int j,double *rCore_left, double *rCore_right, dou
       case CORECONST_UCONST:   *epsCore=uYUKAWA_ATT_noCS(*rCore_right,i,j); break;
       case CORECONST_ZERO:     *epsCore=0.0; break;
       default:
-        printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
+        if (Iwrite_screen != NONE) printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
         exit(-1);
    }
    return;

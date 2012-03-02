@@ -42,10 +42,10 @@ void set_initial_guess (int guess_type, double** xOwned)
   int start_no_info;
   double **xInBox;
 
-  if (Proc==0 && Iwrite!=NO_SCREEN) { 
-      printf("\n SET UP INITIAL GUESS ... ");
+/*  if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) { 
+      printf("Set up Initial Guess ... ");
       t1 = MPI_Wtime();
-  }
+  }*/
 
   /* temporary array set to size of box node to allow us to compute some variables
      that require integrations over densities */ 
@@ -53,11 +53,10 @@ void set_initial_guess (int guess_type, double** xOwned)
   for (iunk=0;iunk< Nunk_per_node; iunk++)
    for (inode_box=0;inode_box<Nnodes_box; inode_box++) xInBox[iunk][inode_box]=0.0;
 
-  if (Proc==0 && Iwrite==VERBOSE){
-/*      if (Restart==NORESTART && (Imain_loop==0 || Nwall==0 && LBulk==TRUE) ) printf("start from scratch\n");  */
+/*  if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
       if (Restart==NORESTART && Imain_loop==0 ) printf("start from scratch\n");  
-      else printf("from existing files\n");
-  } 
+      else                                      printf("from existing files\n");
+  } */
 
   /* Get some or all parts of unknown vector from previously generated restart files.
      Note that these files do not need to have all of the solution vector and can 
@@ -86,7 +85,7 @@ void set_initial_guess (int guess_type, double** xOwned)
                }
            }
            else if (Phys2Nunk[DENSITY]>0 && Restart_field[DENSITY]==FALSE){
-                printf("we don't have the ability to restart without a density field at this time\n");
+                if (Iwrite_screen != SCREEN_NONE) printf("we don't have the ability to restart without a density field at this time\n");
                 exit(-1);
            }
            else{
@@ -174,7 +173,7 @@ void set_initial_guess (int guess_type, double** xOwned)
            break;
 
 	 default:
-           printf("problem with switch in initial guess\n");
+           if (Iwrite_screen != SCREEN_NONE) printf("problem with switch in initial guess\n");
            exit(-1);
            break;
      }
@@ -184,9 +183,7 @@ void set_initial_guess (int guess_type, double** xOwned)
   check_zero_densities_owned(xOwned);              
   safe_free((void **) &xInBox);
 
-/* note need to put the setup_poymer_simple functionality inside the various setup_polymer_CMS routines....*/
-
-  if (Proc==0 && Iwrite !=NO_SCREEN){
+  if (Proc==0 && Iwrite_screen ==SCREEN_VERBOSE){
         printf("\nInitial guess took %g secs\n",MPI_Wtime()-t1);
         printf("-----------------------------------------------------------------\n");
   }

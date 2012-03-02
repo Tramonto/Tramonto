@@ -200,7 +200,7 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
     for (i = 0; i < dotnum; i++) if (dotpt[i].weight <= 0.0) j++;
     MPI_Allreduce(&j,&k,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
     if (k > 0) {
-      if (proc == 0) printf("RCB ERROR: %d dot weights are <= 0\n",k);
+      if (proc == 0 && Iwrite_screen != SCREEN_NONE) printf("RCB ERROR: %d dot weights are <= 0\n",k);
       return;
     }
   }
@@ -540,15 +540,12 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
 /* new code reverse order of MPI_Send/Recv 
     incoming = 0;
     if (readnumber) {
-printf("Proc=%d posting Recv procpartner=%d\n",Proc,procpartner);
       MPI_Recv(&incoming,1,MPI_INT,procpartner,0,MPI_COMM_WORLD,&status);
-printf("Proc=%d after Recv readnumber=%d \n",Proc,readnumber);
       if (readnumber == 2) {
 	MPI_Recv(&incoming2,1,MPI_INT,procpartner2,0,MPI_COMM_WORLD,&status);
 	incoming += incoming2;
       }
     }
-printf("Proc=%d posting Send procpartner=%d\n",Proc,procpartner);
     MPI_Send(&outgoing,1,MPI_INT,procpartner,0,MPI_COMM_WORLD);
  end new code ---- delete all above if it doesn't work. */
 
@@ -724,7 +721,7 @@ void rcb_error(int size)
   int proc;
 
   MPI_Comm_rank(MPI_COMM_WORLD,&proc);
-  printf("RCB ERROR: proc = %d could not malloc/realloc %d bytes",proc,size);
+  if (Iwrite_screen != SCREEN_NONE) printf("RCB ERROR: proc = %d could not malloc/realloc %d bytes",proc,size);
   exit(1);
 }
 
@@ -821,7 +818,7 @@ void rcb_check(struct rcb_dot *dotpt, int dotnum, int dotorig,
   MPI_Allreduce(&dotnum,&total2,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
   if (total1 != total2) {
     if (proc == 0) 
-      printf("ERROR: Points before RCB = %d, Points after RCB = %d\n",
+      if (Iwrite_screen != SCREEN_NONE) printf("ERROR: Points before RCB = %d, Points after RCB = %d\n",
 	     total1,total2);
   }
   
@@ -844,11 +841,10 @@ void rcb_check(struct rcb_dot *dotpt, int dotnum, int dotorig,
   tolerance = tolerance * i * (1.0 + TINY);
 
   if (wtmax - wtmin > tolerance) {
-    if (proc == 0) 
-      printf("ERROR: Load-imbalance > tolerance of %g\n",tolerance);
+    if (proc == 0) if (Iwrite_screen != SCREEN_NONE) printf("ERROR: Load-imbalance > tolerance of %g\n",tolerance);
     MPI_Barrier(MPI_COMM_WORLD);
-    if (weight == wtmin) printf("  Proc %d has weight = %g\n",proc,weight);
-    if (weight == wtmax) printf("  Proc %d has weight = %g\n",proc,weight);
+    if (weight == wtmin && Iwrite_screen != SCREEN_NONE) printf("  Proc %d has weight = %g\n",proc,weight);
+    if (weight == wtmax && Iwrite_screen != SCREEN_NONE) printf("  Proc %d has weight = %g\n",proc,weight);
   }
   
   MPI_Barrier(MPI_COMM_WORLD);
@@ -862,8 +858,7 @@ void rcb_check(struct rcb_dot *dotpt, int dotnum, int dotorig,
 	dotpt[i].x[2] < rcbbox->lo[2] || dotpt[i].x[2] > rcbbox->hi[2])
       iflag++;
   }
-  if (iflag > 0) 
-    printf("ERROR: %d points are out-of-box on proc %d\n",iflag,proc);
+  if (iflag > 0 && Iwrite_screen != SCREEN_NONE) printf("ERROR: %d points are out-of-box on proc %d\n",iflag,proc);
   
   MPI_Barrier(MPI_COMM_WORLD);
     
@@ -884,9 +879,9 @@ void rcb_stats(double timetotal, struct rcb_dot *dotpt,
   MPI_Comm_rank(MPI_COMM_WORLD,&proc);
   MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
   
-  if (proc == 0 &&Iwrite==VERBOSE) printf("RCB total time: %g (secs)\n",timetotal);
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) printf("RCB total time: %g (secs)\n",timetotal);
 
-  if (proc == 0 &&Iwrite==VERBOSE) printf("RCB Statistics:\n");
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) printf("RCB Statistics:\n");
 
   MPI_Barrier(MPI_COMM_WORLD);
 
@@ -897,7 +892,7 @@ void rcb_stats(double timetotal, struct rcb_dot *dotpt,
   MPI_Allreduce(&weight,&wtmin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&weight,&wtmax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
 
-  if (proc == 0 &&Iwrite==VERBOSE) {
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) {
     printf(" Total weight of dots = %g\n",wttot);
     printf(" Weight on each proc: ave = %g, max = %g, min = %g\n",
 	   wttot/nprocs,wtmax,wtmin);
@@ -907,10 +902,10 @@ void rcb_stats(double timetotal, struct rcb_dot *dotpt,
     if (dotpt[i].weight > weight) weight = dotpt[i].weight;
   MPI_Allreduce(&weight,&wtmax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
   
-  if (proc == 0 &&Iwrite==VERBOSE) printf(" Maximum weight of single dot = %g\n",wtmax);
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) printf(" Maximum weight of single dot = %g\n",wtmax);
 
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2 &&Iwrite==VERBOSE) printf("    Proc %d has weight = %g\n",proc,weight);
+  if (RCB_STATS == 2 &&Iwrite_screen==SCREEN_VERBOSE) printf("    Proc %d has weight = %g\n",proc,weight);
 
   /* counter info */
 
@@ -918,50 +913,50 @@ void rcb_stats(double timetotal, struct rcb_dot *dotpt,
   MPI_Allreduce(&counters[0],&min,1,MPI_INT,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&counters[0],&max,1,MPI_INT,MPI_MAX,MPI_COMM_WORLD);
   ave = ((double) sum)/nprocs;
-  if (proc == 0 &&Iwrite==VERBOSE) 
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) 
     printf(" Median iter: ave = %g, min = %d, max = %d\n",ave,min,max);
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2 &&Iwrite==VERBOSE) 
+  if (RCB_STATS == 2 &&Iwrite_screen==SCREEN_VERBOSE) 
     printf("    Proc %d median count = %d\n",proc,counters[0]);
 
   MPI_Allreduce(&counters[1],&sum,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
   MPI_Allreduce(&counters[1],&min,1,MPI_INT,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&counters[1],&max,1,MPI_INT,MPI_MAX,MPI_COMM_WORLD);
   ave = ((double) sum)/nprocs;
-  if (proc == 0 &&Iwrite==VERBOSE) 
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) 
     printf(" Send count: ave = %g, min = %d, max = %d\n",ave,min,max);
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2 &&Iwrite==VERBOSE)
+  if (RCB_STATS == 2 &&Iwrite_screen==SCREEN_VERBOSE)
     printf("    Proc %d send count = %d\n",proc,counters[1]);
   
   MPI_Allreduce(&counters[2],&sum,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
   MPI_Allreduce(&counters[2],&min,1,MPI_INT,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&counters[2],&max,1,MPI_INT,MPI_MAX,MPI_COMM_WORLD);
   ave = ((double) sum)/nprocs;
-  if (proc == 0 &&Iwrite==VERBOSE) 
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) 
     printf(" Recv count: ave = %g, min = %d, max = %d\n",ave,min,max);
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2 &&Iwrite==VERBOSE)
+  if (RCB_STATS == 2 &&Iwrite_screen==SCREEN_VERBOSE)
     printf("    Proc %d recv count = %d\n",proc,counters[2]);
   
   MPI_Allreduce(&counters[3],&sum,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
   MPI_Allreduce(&counters[3],&min,1,MPI_INT,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&counters[3],&max,1,MPI_INT,MPI_MAX,MPI_COMM_WORLD);
   ave = ((double) sum)/nprocs;
-  if (proc == 0 &&Iwrite==VERBOSE) 
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) 
     printf(" Max dots: ave = %g, min = %d, max = %d\n",ave,min,max);
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2 &&Iwrite==VERBOSE)
+  if (RCB_STATS == 2 &&Iwrite_screen==SCREEN_VERBOSE)
     printf("    Proc %d max dots = %d\n",proc,counters[3]);
   
   MPI_Allreduce(&counters[4],&sum,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
   MPI_Allreduce(&counters[4],&min,1,MPI_INT,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&counters[4],&max,1,MPI_INT,MPI_MAX,MPI_COMM_WORLD);
   ave = ((double) sum)/nprocs;
-  if (proc == 0 &&Iwrite==VERBOSE) 
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) 
     printf(" Max memory: ave = %g, min = %d, max = %d\n",ave,min,max);
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2 &&Iwrite==VERBOSE)
+  if (RCB_STATS == 2 &&Iwrite_screen==SCREEN_VERBOSE)
     printf("    Proc %d max memory = %d\n",proc,counters[4]);
   
   if (reuse) {
@@ -969,10 +964,10 @@ void rcb_stats(double timetotal, struct rcb_dot *dotpt,
     MPI_Allreduce(&counters[5],&min,1,MPI_INT,MPI_MIN,MPI_COMM_WORLD);
     MPI_Allreduce(&counters[5],&max,1,MPI_INT,MPI_MAX,MPI_COMM_WORLD);
     ave = ((double) sum)/nprocs;
-    if (proc == 0 &&Iwrite==VERBOSE) 
+    if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) 
       printf(" # of Reuse: ave = %g, min = %d, max = %d\n",ave,min,max);
     MPI_Barrier(MPI_COMM_WORLD);
-    if (RCB_STATS == 2 &&Iwrite==VERBOSE)
+    if (RCB_STATS == 2 &&Iwrite_screen==SCREEN_VERBOSE)
       printf("    Proc %d # of Reuse = %d\n",proc,counters[5]);
   }
   
@@ -980,10 +975,10 @@ void rcb_stats(double timetotal, struct rcb_dot *dotpt,
   MPI_Allreduce(&counters[6],&min,1,MPI_INT,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&counters[6],&max,1,MPI_INT,MPI_MAX,MPI_COMM_WORLD);
   ave = ((double) sum)/nprocs;
-  if (proc == 0 &&Iwrite==VERBOSE) 
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) 
     printf(" # of OverAlloc: ave = %g, min = %d, max = %d\n",ave,min,max);
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2 &&Iwrite==VERBOSE)
+  if (RCB_STATS == 2 &&Iwrite_screen==SCREEN_VERBOSE)
     printf("    Proc %d # of OverAlloc = %d\n",proc,counters[6]);
 
   /* timer info */
@@ -992,55 +987,55 @@ void rcb_stats(double timetotal, struct rcb_dot *dotpt,
   MPI_Allreduce(&timers[0],&rmin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&timers[0],&rmax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
   ave = rsum/nprocs;
-  if (proc == 0 &&Iwrite==VERBOSE) 
+  if (proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) 
     printf(" Start-up time %%: ave = %g, min = %g, max = %g\n",
 	   ave/timetotal*100.0,rmin/timetotal*100.0,rmax/timetotal*100.0);
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2&&Iwrite==VERBOSE)
+  if (RCB_STATS == 2&&Iwrite_screen==SCREEN_VERBOSE)
     printf("    Proc %d start-up time = %g\n",proc,timers[0]);
   
   MPI_Allreduce(&timers[1],&rsum,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
   MPI_Allreduce(&timers[1],&rmin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&timers[1],&rmax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
   ave = rsum/nprocs;
-  if (proc == 0&&Iwrite==VERBOSE) 
+  if (proc == 0&&Iwrite_screen==SCREEN_VERBOSE) 
     printf(" Pre-median time %%: ave = %g, min = %g, max = %g\n",
 	   ave/timetotal*100.0,rmin/timetotal*100.0,rmax/timetotal*100.0);
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2&&Iwrite==VERBOSE)
+  if (RCB_STATS == 2&&Iwrite_screen==SCREEN_VERBOSE)
     printf("    Proc %d pre-median time = %g\n",proc,timers[1]);
   
   MPI_Allreduce(&timers[2],&rsum,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
   MPI_Allreduce(&timers[2],&rmin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&timers[2],&rmax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
   ave = rsum/nprocs;
-  if (proc == 0&&Iwrite==VERBOSE) 
+  if (proc == 0&&Iwrite_screen==SCREEN_VERBOSE) 
     printf(" Median time %%: ave = %g, min = %g, max = %g\n",
 	   ave/timetotal*100.0,rmin/timetotal*100.0,rmax/timetotal*100.0);
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2&&Iwrite==VERBOSE)
+  if (RCB_STATS == 2&&Iwrite_screen==SCREEN_VERBOSE)
     printf("    Proc %d median time = %g\n",proc,timers[2]);
   
   MPI_Allreduce(&timers[3],&rsum,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
   MPI_Allreduce(&timers[3],&rmin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
   MPI_Allreduce(&timers[3],&rmax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
   ave = rsum/nprocs;
-  if (proc == 0&&Iwrite==VERBOSE) 
+  if (proc == 0&&Iwrite_screen==SCREEN_VERBOSE) 
     printf(" Comm time %%: ave = %g, min = %g, max = %g\n",
 	   ave/timetotal*100.0,rmin/timetotal*100.0,rmax/timetotal*100.0);
   MPI_Barrier(MPI_COMM_WORLD);
-  if (RCB_STATS == 2&&Iwrite==VERBOSE)
+  if (RCB_STATS == 2&&Iwrite_screen==SCREEN_VERBOSE)
     printf("    Proc %d comm time = %g\n",proc,timers[3]);
   
   /* RCB boxes for each proc */
   
   if (RCB_STATS == 2) {
-    if (proc == 0&&Iwrite==VERBOSE) printf(" RCB sub-domain boxes:\n");
+    if (proc == 0&&Iwrite_screen==SCREEN_VERBOSE) printf(" RCB sub-domain boxes:\n");
     for (i = 0; i < 3; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
-      if (proc == 0&&Iwrite==VERBOSE) printf("    Dimension %d\n",i+1);
+      if (proc == 0&&Iwrite_screen==SCREEN_VERBOSE) printf("    Dimension %d\n",i+1);
       MPI_Barrier(MPI_COMM_WORLD);
-      if (Iwrite==VERBOSE)printf("      Proc = %d: Box = %g %g\n",
+      if (Iwrite_screen==SCREEN_VERBOSE)printf("      Proc = %d: Box = %g %g\n",
 	     proc,rcbbox->lo[i],rcbbox->hi[i]);
     }
   }
@@ -1197,7 +1192,7 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
   nmax = gmax_int(*N_update);
   nmin = gmin_int(*N_update);
   navg = gsum_double((double)*N_update) / (double) Num_Proc;
-  if (Proc == 0 &&Iwrite==VERBOSE) {
+  if (Proc == 0 &&Iwrite_screen==SCREEN_VERBOSE) {
     printf("\n+++++++++++++++++++++++++++++++++++++");
     printf("+++++++++++++++++++++++++++++++++++++++\n");
     printf("Calling RCB routine for load balancing\n\n");
@@ -1253,7 +1248,7 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
   nmax = gmax_int(*N_update);
   nmin = gmin_int(*N_update);
   navg = gsum_double((double)*N_update) / (double)Num_Proc;
-  if (Proc == 0&&Iwrite==VERBOSE)
+  if (Proc == 0&&Iwrite_screen==SCREEN_VERBOSE)
     printf("\tBefore load_balance: Max %d  Min %d  Ave %g Unknowns per Proc\n",
              nmax, nmin, navg);
 
@@ -1267,7 +1262,7 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
   nmax = gmax_int(*N_update);
   nmin = gmin_int(*N_update);
   navg = gsum_double((double)*N_update) / (double)Num_Proc;
-  if (Proc == 0 && Iwrite == VERBOSE)
+  if (Proc == 0 && Iwrite_screen == SCREEN_VERBOSE)
     printf("\tAfter load_balance: Max=%d  Min=%d  Avg=%g (Unknowns per Proc)\n",
              nmax, nmin, navg);
 
@@ -1302,7 +1297,7 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
   }
 
   /* print out bounding boxes */
-  if (Iwrite == VERBOSE && Num_Proc>1) {
+  if (Iwrite_screen == SCREEN_VERBOSE && Num_Proc>1) {
     MPI_Barrier(MPI_COMM_WORLD);
     printf("Proc %2d: Position x: %g = %g  y: %g = %g\n",Proc,
             rcbbox.lo[0], rcbbox.hi[0], rcbbox.lo[1], rcbbox.hi[1]);
@@ -1341,7 +1336,7 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
   safe_free((void *) &treept);
 
   MPI_Barrier(MPI_COMM_WORLD);
-  if (Proc == 0 && Iwrite==VERBOSE) {
+  if (Proc == 0 && Iwrite_screen==SCREEN_VERBOSE) {
     printf("+++++++++++++++++++++++++++++++++++++");
     printf("+++++++++++++++++++++++++++++++++++++++\n");
   }

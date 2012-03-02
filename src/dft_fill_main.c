@@ -49,13 +49,24 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   double nodepos[3];
   double *resid_unk,resid_sum=0.0,resid_term;
   double sum_i, vol;
+  double **array_test;
+  FILE *fparray;
+  char filename[20];
+  char *fileArray;
 
+  int i,j;
 
-  if (Proc == 0 && !resid_only_flag && Iwrite != NO_SCREEN) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
+  if (Proc == 0 && !resid_only_flag && Iwrite_screen == SCREEN_VERBOSE) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
   resid_unk = (double *) array_alloc (1, Nunk_per_node, sizeof(double));
 
+  if (Iwrite_files==FILES_DEBUG_MATRIX){
+      Array_test = (double **) array_alloc (2, Nunk_per_node*Nnodes,Nunk_per_node*Nnodes, sizeof(double));
+      for (i=0;i<Nunk_per_node*Nnodes;i++){
+          for (j=0;j<Nunk_per_node*Nnodes;j++){ Array_test[i][j]=0.0; }}
+  }
+
   /* for debugging print out profiles on each iteration */
-  if (Iwrite==VERBOSE) print_profile_box(x, "dens_iter.dat");
+  if (Iwrite_files==FILES_DEBUG) print_profile_box(x, "dens_iter.dat");
 
   if (unk_flag == NODAL_FLAG){
       iunk_start = 0;
@@ -85,7 +96,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
 			  sum_i += x[unk_G][inode_box]*Nel_hit2[0][inode_box]*Vol_el/((double)Nnodes_per_el_V);
 		  }
 		 Gsum[npol] = gsum_double(sum_i)/vol; 
-		  if(Gsum[npol] < 1.e-6) printf("error: Gsum small = %f\n",Gsum[npol]);
+		  if(Gsum[npol] < 1.e-6) if (Iwrite_screen==SCREEN_VERBOSE) printf("Proc=%d error: Gsum small = %f\n",Proc,Gsum[npol]);
 	  }
   } 
  
@@ -126,10 +137,23 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
       }
 
      /* print for debugging purposes call this print routine */ 
-       /*print_residuals(loc_inode,iunk,resid_unk);*/
+       if (Iwrite_screen==SCREEN_DEBUG_RESID) print_residuals(loc_inode,iunk,resid_unk);
 
     } /* end of loop over # of unknowns per node */
   } /* end of loop over local nodes */
+
+  if (Iwrite_files==FILES_DEBUG_MATRIX){
+     sprintf(filename,"matrix_proc%0d.dat",Proc);
+     fileArray=filename;
+     fparray=fopen(fileArray,"w");
+
+     for (i=0;i<Nunk_per_node*Nnodes;i++){
+        for (j=0;j<Nunk_per_node*Nnodes;j++){
+            if (fabs(Array_test[i][j])>1.e-12) fprintf(fparray,"%d  %d  %d  %g\n",Proc,Nunk_per_node*Nnodes-j,i,Array_test[j][i]);
+     }}
+     safe_free((void *) &Array_test);
+     fclose(fparray);
+  }
 
   safe_free((void *) &resid_unk);
   if (Type_poly==CMS_SCFT) safe_free((void *) &Gsum);
@@ -196,7 +220,7 @@ void calc_Gsum(double **x)
 						gsum = ysqrt*grafted_int(DELTA_FN_BOND,itype_mer,ijk_box,izone,unk_G,x); 
 					}
 					else {
-						if(Proc==0) printf("grafting not implemented for Type_poly=%d\n", Type_poly);
+						if(Proc==0 && Iwrite_screen != SCREEN_NONE) printf("grafting not implemented for Type_poly=%d\n", Type_poly);
 						exit(-1);
 					}
 					}					
@@ -280,16 +304,13 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                 if (Type_poly==CMS) resid_unk[iunk]=load_CMS_density(iunk,loc_inode,inode_box,x,resid_only_flag);
                 else                resid_unk[iunk]=load_WJDC_density(iunk,loc_inode,inode_box,x,resid_only_flag);
              }
-		     else if(Type_poly == CMS_SCFT) {
-				 resid_unk[iunk]=load_SCF_density(iunk,loc_inode,inode_box,x,resid_only_flag); 
-				 /* resid_unk[iunk]/=Gsum;  // check initial value of G's! */
-				 /* printf("CMS_SCFT not yet implemented\n");
-				 exit(-1); */
-		     }
-		   else if(Type_poly == SCFT) {
-			   printf("SCFT not yet implemented\n");
-			   exit(-1);
-		   }
+	     else if(Type_poly == CMS_SCFT) {
+		 resid_unk[iunk]=load_SCF_density(iunk,loc_inode,inode_box,x,resid_only_flag); 
+	     }
+	     else if(Type_poly == SCFT) {
+	          if (Iwrite_screen != SCREEN_NONE) printf("SCFT not yet implemented\n");
+		  exit(-1);
+	     }
              break;
        case HSRHOBAR: 
           if (iunk == Phys2Unk_first[HSRHOBAR]){
@@ -351,18 +372,16 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
              resid_unk[iunk]=load_WJDC_Geqns(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
           }
           break;
-	  case SCF_FIELD:
-		   if(Type_poly==CMS_SCFT){
-			   resid_unk[iunk]=load_SCF_field(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
-		   }
-		   else{
-			   printf("SCFT not yet implemented\n");
-			   exit(-1);
-		   }
-		   break;
-	   case SCF_CONSTR:
-		   resid_unk[iunk]=load_lambda_field(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
-		   break; 
+       case SCF_FIELD:
+	  if(Type_poly==CMS_SCFT) resid_unk[iunk]=load_SCF_field(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+	  else{
+	      if (Proc==0 && Iwrite_screen != SCREEN_NONE) printf("SCFT not yet implemented\n");
+	      exit(-1);
+	  }
+	  break;
+       case SCF_CONSTR:
+	   resid_unk[iunk]=load_lambda_field(iunk,loc_inode,inode_box,ijk_box,izone,x,resid_only_flag);
+	   break; 
 
    }  /* end of physics switch */
 
@@ -389,7 +408,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                   kind of analysis may require multiple runs and so output to a file is recommended. */
 
     /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-/*    if (fabs(resid_unk[iunk])>1.e-3){*/
+    if (fabs(resid_unk[iunk])>1.e-3){
     switch(Unk2Phys[iunk]){
        case DENSITY:  printf("Proc=%d: loc_inode=%d of %d (Global val=%d) iunk_rho=%d ", Proc,loc_inode,Nnodes_per_proc,L2G_node[loc_inode],iunk); break;
        case HSRHOBAR: printf("Proc=%d: loc_inode=%d iunk_rbar=%d ", Proc,loc_inode,iunk); break;
@@ -405,7 +424,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
        case MF_EQ: printf("Proc=%d: loc_inode=%d  iunk_MFeq=%d ",Proc,loc_inode,iunk); break;
     }
     printf(" resid=%11.8f \n",resid_unk[iunk]); 
-    /*}*/
+    }
 
     return;
 }

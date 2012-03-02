@@ -33,13 +33,15 @@ extern double Esize_x[NDIM_MAX];
 #define FALSE 0
 #endif
 void print_potentials_fluid(int type_pairPot,int icomp,int jcomp);
-#define EXTENDED     2
+#define FILES_DEBUG        2
+#define FILES_EXTENDED     1 
+extern int Iwrite_files;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-#define VERBOSE      3 
-extern int Iwrite;
+#define SCREEN_VERBOSE     3 
+extern int Iwrite_screen;
 double pairPot_find_r_ZeroCut(int i,int j,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
 extern double Rzero_ff[NCOMP_MAX][NCOMP_MAX];
 double pairPot_find_rmin(int i,int j,double param1,double param2,double param3,double param4,double param5,double param6,int typePairPot);
@@ -53,6 +55,6 @@ extern int Ncomp;
 #define NONE        -1
 #define NONE        -1
 extern int Type_attr;
-void pot_parameters(char *output_file1);
+void pot_parameters(char *file_echoinput);
 extern int Mix_type;
-void setup_pairPotentials(char *output_file1);
+void setup_pairPotentials(char *file_echoinput);

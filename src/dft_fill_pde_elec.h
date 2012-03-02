@@ -69,6 +69,12 @@ double load_polarize_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_
 #define POLARIZE       3
 extern int Type_coul;
 extern double Elec_pot_RTF;
+extern int *B2G_node;
+extern int Nnodes;
+extern int *L2G_node;
+extern double **Array_test;
+#define FILES_DEBUG_MATRIX 3 
+extern int Iwrite_files;
 extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2

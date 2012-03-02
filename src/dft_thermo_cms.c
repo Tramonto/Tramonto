@@ -114,8 +114,8 @@ void setup_polymer_cr()
    /* reading in c(r) file */
    if (Type_poly == CMS) {
        if(Proc==0){
-             printf("reading in %d c(r) file(s)...\n",Ncr_files);
-             printf("with the following name(s): %s ...\n",Cr_file);
+             printf("reading in %d c(r) file(s)...",Ncr_files);
+             printf("%s ...\n",Cr_file);
              if (Ncr_files>1) printf(" %s and",Cr_file2);
        }
 

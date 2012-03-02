@@ -159,6 +159,7 @@ void WJDC_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int
           if (j != i)  fac *= x[unk[j]][jnode_box];  /*Gs or Qs*/
        }
        mat_val = fac*prefac*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power);
+       if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_box]+unk[i]*Nnodes]+=mat_val;
        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[i],jnode_box,mat_val);
     }
 }
@@ -180,6 +181,7 @@ void WJDC_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg
 
     for(i=0;i<nunk-1;i++) fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
     mat_val = fac*((double)prefac)*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power); /* Boltz Field Term */
+    if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_box]+unk[nunk-1]*Nnodes]+=mat_val;
     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[nunk-1],jnode_box,mat_val);
     return;
 }
@@ -215,6 +217,7 @@ void WJDC_Jacobian_GCHAIN_derivCAVITY(int iunk,int loc_inode,int pol_num,int jse
         fac=weight;
         for(i=0;i<nunk-1;i++) fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
         mat_val=fac*prefac_R*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power_R)*(yterm*dydxi);
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_box]+unk_xi*Nnodes]+=mat_val;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_xi,jnode_box,mat_val);
     }           
     return;
@@ -472,6 +475,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                              (prefac2*d2y_dxi2_2 + prefac3*d2y_dxi2_dxi3)/y
                              - first_deriv*dy_dxi2/y );
 
+                   if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+unk_xi2*Nnodes]+=mat_val;
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_xi2,jnode_boxJ,mat_val);
 
@@ -480,6 +484,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                               (prefac2*d2y_dxi2_dxi3 + prefac3*d2y_dxi3_2)/y
                               - first_deriv*dy_dxi3/y );
 
+                   if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+unk_xi3*Nnodes]+=mat_val;
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_xi3,jnode_boxJ,mat_val);
                }
@@ -488,6 +493,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                /*Approximate matrix entries using a mean value of the segment density .....*/
                   if (Analyt_WJDC_Jac==FALSE){
                      mat_val = -0.5*weightJ*first_deriv_sum/Nseg_type[jcomp];
+
+                     if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+unk_rho*Nnodes]+=mat_val;
                      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_rho,jnode_boxJ,mat_val);
                   }
@@ -495,6 +502,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                 
                    /* Analytic Matrix entries for dR_Field/dXi_alpha */   
                      mat_val = 0.5*weightJ*first_deriv_sum*(dens*((double)Nbonds_SegAll[jseg]-1.0)/x[unk_B][jnode_boxJ]);
+                     if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+unk_B*Nnodes]+=mat_val;
                      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                              unk_B,jnode_boxJ,mat_val);
 
@@ -504,8 +512,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                         unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[jseg][kbond];
                          dens_Gderiv=calc_dens_seg_Gderiv(jseg,jnode_boxJ,kbond,x,FALSE);
                          mat_val = -0.5*weightJ*first_deriv_sum*dens_Gderiv;
-                         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                             unk_GQ,jnode_boxJ,mat_val);
+                         if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+unk_GQ*Nnodes]+=mat_val;
+                         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, unk_GQ,jnode_boxJ,mat_val);
                      }
                    }
 

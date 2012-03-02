@@ -43,17 +43,14 @@ void post_process (double **x,int *niters,
 
 
 
-  char *yo = "post_process",
-       *output_fileFSR="dft_force_sum_rule.dat",
-       *output_fileASR="dft_ads_sum_rule.dat",
-       *output_file3="dft_output.dat",
-       *output_file4 = "dft_dens.dat",
-       *output_file5=NULL,
-       *output_file6="dft_gofr.dat",
+  char *ForceSR_Filename="dft_force_sum_rule.dat",
+       *AdsorptionSR_Filename="dft_ads_sum_rule.dat",
+       *MainOutput_Filename="dft_output.dat",
+       *GofR_Filename="dft_gofr.dat",
        *output_flux= "dft_flux.dat",
-       *output_file7="dft_dens_site.dat",
-       *output_file8=NULL;
-  char filename[20];
+       *outPath=NULL;
+  char filename[100],outPath_array[100],Density_file[100],DensityCounter_file[100];
+ 
   double t1,energy;
   double fac_area,fac_vol;
   int i,iwall,idim,first_local,counter;
@@ -67,30 +64,35 @@ void post_process (double **x,int *niters,
   static double mu_previous,mu_2previous;
   double derivative,cont_var,surface_sep,derivative_avg,mu;
 
+  if (Proc==0) strcpy(outPath_array,OutputFileDir);
 
   if (Nruns>1) loop1=Imain_loop;
- 
   counter=loop1;
 
-/*  if (!(Nruns>1 && call_from_flag==FROM_LOCA)){*/
-  if (Print_rho_type != PRINT_RHO_0){
-     if (binodal_flag==TRUE){
-       sprintf(filename, "dft_dens2.%0d", counter);
+                        /* set up filename arrays with proper output directory */
+  if (Proc==0){
+     if (Print_rho_type != PRINT_RHO_0){
+        if (binodal_flag==TRUE) sprintf(filename, "dft_dens2.%0d", counter); 
+        else                    sprintf(filename, "dft_dens.%0d", counter); 
+
+        strcpy(DensityCounter_file,strcat(strcat(outPath_array,"/"),filename));
+        strcpy(outPath_array,OutputFileDir);
      }
-     else{
-       sprintf(filename, "dft_dens.%0d", counter);
+     else {
+        strcpy(Density_file,strcat(strcat(outPath_array,"/"),"dft_dens.dat"));
+        strcpy(outPath_array,OutputFileDir);
+
+        if (binodal_flag==TRUE){
+           strcpy(Density_file,strcat(strcat(outPath_array,"/"),"dft_dens2.dat"));
+           strcpy(outPath_array,OutputFileDir);
+        }
      }
-     output_file5 = filename;
   }
 
-  if (binodal_flag==TRUE){
-     output_file4 = "dft_dens2.dat";
-/*     output_file7 = "dft_dens2_site.dat";*/
+  if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) {
+          printf("\n-------------------------------------------------------------------------------\n");
+          printf("\nDoing post_processing and output of results ...\n");
   }
- /* }*/
-
-  if (Proc==0 && Iwrite != NO_SCREEN) 
-           printf("\n%s: Doing post_processing and output of results ...\n",yo);
   t1 = MPI_Wtime();
  /*
   * First exchange boundary information as necessary !! 
@@ -110,43 +112,40 @@ void post_process (double **x,int *niters,
   else  collect_x_old(x,X_old);
   collect_vext_old();
 
-  if (Iwrite != MINIMAL){
 
-/*  if (!(Nruns>1 && call_from_flag==FROM_LOCA)){*/
+                                /* always write density files */
    if (Proc == 0) {
         if (binodal_flag==TRUE){
-           if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5,X2_old);
-           else                               print_profile(output_file4,X2_old);
+           if (Print_rho_type != PRINT_RHO_0) print_profile((char *)DensityCounter_file,X2_old);
+           else                               print_profile((char *)Density_file,X2_old);
         }
         else{
-           if (Print_rho_type != PRINT_RHO_0) print_profile(output_file5,X_old);
-           else                               print_profile(output_file4,X_old);
+           if (Print_rho_type != PRINT_RHO_0) print_profile((char *)DensityCounter_file,X_old);
+           else                               print_profile((char *)Density_file,X_old);
         }
    }
    if (Proc==0 && Lprint_gofr && (Nlink==1 || Nlocal_charge>0)){
-       if (binodal_flag==TRUE) print_gofr(output_file6,X2_old);
-       else print_gofr(output_file6,X_old);
+       if (binodal_flag==TRUE) print_gofr(GofR_Filename,X2_old);
+       else print_gofr(GofR_Filename,X_old);
    }
-   /*}*/
 
    if (Proc==0) safe_free((void *) &Vext_old);
-   }
 
 
    /* open dft_output.dat file */
    if (!(Nruns>1 && Loca.method!=-1 && call_from_flag==FROM_MAIN)){
    if (Proc ==0){
-      if( (fp = fopen(output_file3,"a"))==NULL) {
-	printf("Can't open file %s\n", output_file3);
+      if( (fp = fopen(MainOutput_Filename,"a"))==NULL) {
+	printf("Can't open file %s\n", MainOutput_Filename);
       }
       if(Nruns>2 && (Nwall==1 || Nwall==2)){
-      if( (fpFSR = fopen(output_fileFSR,"a"))==NULL) {
-	printf("Can't open file %s\n", output_fileFSR);
+      if( (fpFSR = fopen(ForceSR_Filename,"a"))==NULL) {
+	printf("Can't open file %s\n", ForceSR_Filename);
 	exit(1);
       }}
       if (Loca.method!=-1 && Loca.cont_type1==CONT_BETAMU_I){
-      if( (fpASR = fopen(output_fileASR,"a"))==NULL) {
-	printf("Can't open file %s\n", output_fileASR);
+      if( (fpASR = fopen(AdsorptionSR_Filename,"a"))==NULL) {
+	printf("Can't open file %s\n", AdsorptionSR_Filename);
 	exit(1);
       } }
    }
@@ -272,7 +271,7 @@ void post_process (double **x,int *niters,
        }
    }
 
-   if (Type_interface==DIFFUSIVE_INTERFACE && Proc==0 && Iwrite !=MINIMAL){
+   if (Type_interface==DIFFUSIVE_INTERFACE && Proc==0){
         calc_flux(fp,output_flux,X_old);
     }
 
@@ -287,7 +286,9 @@ void post_process (double **x,int *niters,
    if (Nruns>2 && (Nwall==1 || Nwall==2)){ if (Proc==0)  fclose(fpFSR); }
    }
 
-   if (Proc==0 && Iwrite !=NO_SCREEN) printf("post processing took %g secs\n",MPI_Wtime()-t1);
+  if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) 
+     printf("\n-------------------------------------------------------------------------------\n");
+
   return;
 }
 /******************************************************************************/

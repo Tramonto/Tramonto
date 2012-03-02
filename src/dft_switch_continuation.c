@@ -107,7 +107,7 @@ double get_init_param_value(int cont_type,int Loca_contID)
            return param;
         }
         else{
-           printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
+           if (Iwrite_screen != SCREEN_NONE)  printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
            exit(-1); 
         }
         break;
@@ -226,8 +226,8 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
           Sigma_ff[icomp][jcomp]=param;  
 
           if (Mix_type==0) {
-              printf("error...continuation in sigma not set up for automatic adjustment of external fields yet\n");
-              printf("so it is not possible to do a consistent continuation in Sigma params with Mix_type=0\n");
+              if (Iwrite_screen != SCREEN_NONE)  printf("error...continuation in sigma not set up for automatic adjustment of external fields yet\n");
+              if (Iwrite_screen != SCREEN_NONE)  printf("so it is not possible to do a consistent continuation in Sigma params with Mix_type=0\n");
               exit(-1);
             }
          break;
@@ -240,7 +240,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
            assign_param_user_plugin(cont_type,Loca_contID,param,output_file1); 
         }
         else{
-           printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
+           if (Iwrite_screen != SCREEN_NONE)  printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
            exit(-1); 
         }
         break;
@@ -382,7 +382,7 @@ void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double par
   
   if (Ladjust_density)                  calc_new_density(icomp,output_file1);
 
-  if (Ladjust_thermo) 			thermodynamics(output_file1,Iwrite);
+  if (Ladjust_thermo) 			thermodynamics(output_file1,SCREEN_NONE,FILES_BASIC);
 }
 /*****************************************************************************/
 /*print_cont_type: Here print the type of the variable that
@@ -563,7 +563,7 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
            print_cont_type_user_plugin(cont_type,fp,Loca_contID); 
         }
         else{
-           printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
+           if (Iwrite_screen != SCREEN_NONE)  printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
            exit(-1); 
         }
         break;
@@ -605,7 +605,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                     else dist=sgeom_iw->radius;
                     break;
                default: 
-                    printf("trouble with continuation cases\n");
+                    if (Iwrite_screen != SCREEN_NONE)  printf("trouble with continuation cases\n");
                     exit(-1);
                     break;
             }
@@ -822,7 +822,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
            print_cont_variable_user_plugin(cont_type,fp,Loca_contID);
         }
         else{
-           printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
+           if (Iwrite_screen != SCREEN_NONE)  printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
            exit(-1);
         }
         break;

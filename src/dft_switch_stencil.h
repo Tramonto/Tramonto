@@ -48,7 +48,6 @@ double StenTheta_Sigma_sten_rad(int icomp);
 double StenTheta_R_sten_rad(int icomp);
 double StenDelta_R_sten_rad(int icomp);
 double stencil_radius_switch(int sten,int icomp,int jcomp);
-int StenDelta_Bond_Njcomp();
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -65,6 +64,9 @@ int StenDelta_Bond_Njcomp();
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
+int StenDelta_Bond_Njcomp();
 #define DELTA_FN_BOND         6
 int StenTheta_CrCMS_Njcomp();
 #define THETA_CR_DATA         4

@@ -119,7 +119,7 @@ void setup_stepped_profile(double **xInBox)
   }
 
   if (Type_interface==DIFFUSIVE_INTERFACE){
-     printf("stepped profile not set up for chemical potentials at this time\n");
+     if (Iwrite_screen != SCREEN_NONE) printf("stepped profile not set up for chemical potentials at this time\n");
      exit(-1);
   }
   return;

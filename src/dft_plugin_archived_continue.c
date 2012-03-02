@@ -81,7 +81,7 @@ double get_init_param_archived_plugin(int cont_type,int Loca_contID)
            break;
 
       default:
-        printf("ERROR: Unknown Continuation parameter in archived plugin %d\n",cont_type);
+        if (Iwrite_screen != SCREEN_NONE) printf("ERROR: Unknown Continuation parameter in archived plugin %d\n",cont_type);
         exit(-1); 
         break;
   }
@@ -122,7 +122,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
 
              if (Type_poly == CMS) setup_polymer_cr();
              recalculate_stencils();
-             thermodynamics(output_file1,Iwrite);
+             thermodynamics(output_file1,Iwrite_screen,FILES_BASIC);
              break;
 
       case CONT_RHO_CONST_XSOLV:
@@ -135,7 +135,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
              Rho_b[1]*=ratio; 
              if (Type_poly == CMS) setup_polymer_cr();
              recalculate_stencils();
-             thermodynamics(output_file1,Iwrite);
+             thermodynamics(output_file1,Iwrite_screen,FILES_BASIC);
              break;
 
       case CONT_RHO_ALL: 
@@ -152,7 +152,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
              } 
              if (Type_poly == CMS) setup_polymer_cr();
              recalculate_stencils();
-             thermodynamics(output_file1,Iwrite);
+             thermodynamics(output_file1,Iwrite_screen,FILES_BASIC);
              break; 
                  
       case CONT_EPSW_ALL: 
@@ -242,7 +242,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
             }
             if (Type_poly==CMS && Type_poly==CMS_SCFT) setup_polymer_cr();
             recalculate_stencils();
-            thermodynamics("dft_out.lis",Iwrite);
+            thermodynamics("dft_out.lis",Iwrite_screen,FILES_BASIC);
             break;
 
      case CONT_CRFAC:
@@ -252,7 +252,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
          break;
 
       default:
-        printf("ERROR_apt: Unknown Continuation parameter in archived plugins. %d\n",cont_type);
+        if (Iwrite_screen != SCREEN_NONE) printf("ERROR_apt: Unknown Continuation parameter in archived plugins. %d\n",cont_type);
         exit(-1); break;
   }
 }
@@ -334,7 +334,7 @@ void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
         break;
 
       default:
-        printf("ERROR_apt: Unknown Continuation parameter in archived plugins. %d\n",cont_type);
+        if (Iwrite_screen != SCREEN_NONE)printf("ERROR_apt: Unknown Continuation parameter in archived plugins. %d\n",cont_type);
         exit(-1); break;
    }
    return;
@@ -431,7 +431,7 @@ void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
          break;
 
       default:
-        printf("ERROR_apt: Unknown Continuation parameter in archived plugins. %d\n",cont_type);
+        if (Iwrite_screen != SCREEN_NONE) printf("ERROR_apt: Unknown Continuation parameter in archived plugins. %d\n",cont_type);
         exit(-1); break;
    }
    return;

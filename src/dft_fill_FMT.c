@@ -60,6 +60,8 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
   double values[4];
   double n[4+2*NDIM_MAX];
   double rho_bar[4+2*NDIM_MAX];
+  int jtmp;
+
 
   for (idim=0;idim<Ndim;idim++) reflect_flag[idim]=FALSE;
   jzone = find_jzone(izone,inode_box);
@@ -160,8 +162,12 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
             values[2]=Fac_overlap_hs[icomp]*weightJ*tmp.S1; values[3]=Fac_overlap_hs[icomp]*weightJ*tmp.S0;
 
             indexUnks[0]=junk; indexUnks[1]=junk+1; indexUnks[2]=junk+2; indexUnks[3]=junk+3;
-            dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
-                                                   indexUnks, jnode_boxJ, values, numEntries);
+            if (Iwrite_files==FILES_DEBUG_MATRIX){
+              for (jtmp=0; jtmp<numEntries;jtmp++) 
+                  Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+indexUnks[jtmp]*Nnodes]+=values[jtmp]; 
+            }
+            dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode, indexUnks, jnode_boxJ, values, numEntries);
+
 
             for (idim = 0; idim<Ndim; idim++){
                numEntries=2;
@@ -169,6 +175,10 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
                values[1]=Fac_overlap_hs[icomp]*weightJ*tmp.V1[idim];
                indexUnks[0]=junk+Nrho_bar_s+idim; 
                indexUnks[1]=indexUnks[0]+Ndim; 
+               if (Iwrite_files==FILES_DEBUG_MATRIX){
+                 for (jtmp=0; jtmp<numEntries;jtmp++)
+                     Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+indexUnks[jtmp]*Nnodes]+=values[jtmp]; 
+               }
                dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                     indexUnks, jnode_boxJ, values, numEntries);
             }
@@ -197,6 +207,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      if (resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (resid_only_flag==FALSE){
         mat_val=-1.0;
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val; 
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
      }
   }
@@ -215,6 +226,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
                            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (resid_only_flag==FALSE) {
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+junk*Nnodes]+=mat_val; 
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
      }
      resid_sum+=resid;
@@ -285,6 +297,7 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
      if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (resid_only_flag==FALSE){
        mat_val=-1.0;
+       if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val; 
        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
      }
   }
@@ -301,6 +314,7 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
                dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag){
         mat_val = Inv_4pir[0];
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+junk*Nnodes]+=mat_val; 
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
      }
   }

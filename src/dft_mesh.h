@@ -18,6 +18,7 @@
 extern void *ParameterList_list;
 extern int Az_kspace;
 extern int Max_gmres_iter;
+#define SCREEN_BASIC       1
 extern double Az_tolerance;
 extern double Az_ilut_fill_param;
 extern int Az_preconditioner;
@@ -45,7 +46,7 @@ extern int Geom_flag;
 #define PB_ZONE      3 
 #define FLAG_BULK   -888
 #define BULK_ZONE    2 
-void print_Nodes_to_zone(int *node_to_zone,char *output_file);
+void print_Nodes_to_zone(int *node_to_zone,char *Nodes2Zone_Filename);
 int ijk_box_to_node_box(int *ijk_box);
 extern int Nzone;
 int element_to_node(int ielement);
@@ -139,7 +140,7 @@ struct SurfaceGeom_Struct {
   double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
-void setup_zeroTF_and_Node2bound(FILE *fp1,int ***el_type);
+void setup_zeroTF_and_Node2bound(FILE *fpecho,int ***el_type);
 extern double **Charge_w_sum_els;
 extern double *Charge_vol_els;
 extern double **S_area_tot;
@@ -149,12 +150,12 @@ extern int **Surf_elem_type;
 extern int ***Surf_normal;
 extern int **Nelems_S;
 void boundary_free(void);
-void setup_surface_charge(FILE *fp1);
+void setup_surface_charge(FILE *fpecho);
 extern int Surf_charge_flag;
 extern int Vol_charge_flag;
 extern int Ipot_wf_c;
-void boundary_properties(FILE *fp1);
-void boundary_setup(char *output_file1);
+void boundary_properties(FILE *fpecho);
+void boundary_setup(char *file_echoinput);
 int node_to_node_box(int inode);
 #define MATRIX_FILL_NODAL 1   /* set to zero for physics based ordering */
 int unk_box_to_unk(int i_box);
@@ -199,7 +200,7 @@ void setup_external_field_n(int **nelems_w_per_w,int ***elems_w_per_w);
 void read_external_field_n();
 #define READ_VEXT_FALSE      0
 extern int Restart_Vext;
-void setup_zeroTF_and_Node2bound_new(FILE *fp1,int ***el_type);
+void setup_zeroTF_and_Node2bound_new(FILE *fpecho,int ***el_type);
 extern int *List_coarse_nodes;
 extern int Nnodes_coarse_loc;
 void set_mesh_coarsen_flag(void);
@@ -229,7 +230,7 @@ extern int Nlists_HW;
 extern int Nwall;
 void linsolver_setup_control();
 void node_to_position(int inode,double *NodePos);
-void setup_basic_box(FILE *fp1,int *update);
+void setup_basic_box(FILE *fpecho,int *update);
 extern int *L2G_node;
 extern int *B2L_node;
 extern int *L2B_node;
@@ -253,6 +254,7 @@ extern int ***Wall_owners;
 extern int **Nwall_owners;
 extern int **Wall_elems;
 extern int **Nodes_2_boundary_wall;
+#define VERBOSE      3 
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 #if defined(DEC_ALPHA)
@@ -271,8 +273,7 @@ extern int *B2G_node;
 extern int Nnodes_box;
 extern void *LinProbMgr_manager;
 void free_mesh_arrays(void);
-#define VERBOSE      3 
-void control_mesh(FILE *fp1,char *output_file2,int print_flag,int *update);
+void control_mesh(FILE *fpecho,char *output_file2,int print_flag,int *update);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -301,11 +302,15 @@ void load_balance(int flag,double *fill_time,int *N_update,int **update);
 extern int Nunk_per_node;
 extern int Nnodes_per_proc;
 void initialize_Aztec(int *N_update,int *update[]);
-void setup_basic_domain(FILE *fp1);
-#define NO_SCREEN    4 
-extern int Iwrite;
+void setup_basic_domain(FILE *fpecho);
+#define FILES_DEBUG        2
+extern int Iwrite_files;
+#define SCREEN_VERBOSE     3 
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-void set_up_mesh(char *output_file1,char *output_file2);
+void set_up_mesh(char *file_echoinput,char *output_file2);

@@ -170,8 +170,8 @@ int solve_continuation( double **xx, double **xx2)
     case 3: con.general_info.method = TURNING_POINT_CONTINUATION; break;
     case 4: con.general_info.method = PHASE_TRANSITION_CONTINUATION; break;
     default:
-       if (Proc==0 && Iwrite !=NO_SCREEN) printf("\nERROR in solve_continuation: Unknown "
-                           "continuation method: %d\n",Loca.method);
+       if (Proc==0 && Iwrite_screen !=SCREEN_NONE) 
+          printf("\nERROR in solve_continuation: Unknown " "continuation method: %d\n",Loca.method);
        exit(-1);
   }
  
@@ -181,7 +181,7 @@ int solve_continuation( double **xx, double **xx2)
     translate_2dBox_1dOwned(xx2, x2);
   }
 
-  if (Iwrite==VERBOSE) printf("\n###\nPROC = %d\n\n",Proc);
+  if (Iwrite_screen==SCREEN_VERBOSE) printf("\n###\nPROC = %d\n\n",Proc);
 
   con.general_info.param        = get_init_param_value(Loca.cont_type1,0);
   con.general_info.x            = x;
@@ -244,7 +244,7 @@ int solve_continuation( double **xx, double **xx2)
       con.phase_transition_info.x2  = x2;
       break;
     default:
-      printf("ERROR: Unknown LOCA input method: %d\n",con.general_info.method);
+      if (Iwrite_screen != SCREEN_NONE) printf("ERROR: Unknown LOCA input method: %d\n",con.general_info.method);
       exit(-1);
   }
 
@@ -262,7 +262,7 @@ int solve_continuation( double **xx, double **xx2)
 
   /* print out continuation structure */
 
-  if (Iwrite ==VERBOSE) print_con_struct(&con);
+  if (Iwrite_screen == SCREEN_VERBOSE) print_con_struct(&con);
 
   /* Now call continuation library and return */
 
@@ -282,7 +282,7 @@ int solve_continuation( double **xx, double **xx2)
   if (con.general_info.method==PHASE_TRANSITION_CONTINUATION)
     safe_free((void **) &x2);
 
-  if (con.general_info.printproc && Iwrite != NO_SCREEN) print_final(con.general_info.param, nstep);
+  if (con.general_info.printproc && Iwrite_screen == SCREEN_VERBOSE) print_final(con.general_info.param, nstep);
 
   return nstep;
 } /**************** END of solve_continuation () *****************************/
@@ -359,7 +359,7 @@ int linear_solver_conwrap(double *x, int jac_flag, double *tmp)
   else if (jac_flag == SAME_BUT_UNSCALED_JACOBIAN) {
   }
   else if (jac_flag != NEW_JACOBIAN) {
-    printf("ERROR: linear solve conwrap: unknown flag value %d\n",jac_flag);
+    if (Iwrite_screen != SCREEN_NONE) printf("ERROR: linear solve conwrap: unknown flag value %d\n",jac_flag);
     exit(-1);
   }
 
@@ -429,7 +429,8 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
   for (i=0; i<Nunk_per_node*Nnodes_per_proc; i++) l2_resid += rhs[i]*rhs[i];
 
   l2_resid= sqrt(gsum_double_conwrap(l2_resid));
-  if (Proc==0 && Iwrite !=NO_SCREEN) printf("\t\tNorm of resid vector = %20.15g\n", l2_resid);
+  if (Proc==0 && Iwrite_screen !=SCREEN_NONE &&
+         Iwrite_screen !=SCREEN_ERRORS_ONLY) printf("\t\tNorm of resid vector = %20.15g\n", l2_resid);
 
 }
 /*****************************************************************************/
@@ -469,8 +470,9 @@ void assign_parameter_conwrap(double param)
  * Return Value:
  */
 {
-  if (Proc==0 && Iwrite !=NO_SCREEN) printf("\tContinuation parameter #%d set to %g\n",
-                         Loca.cont_type1, param);
+  if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen !=SCREEN_ERRORS_ONLY) {
+        printf("\tContinuation parameter #%d set to %g\n", Loca.cont_type1, param);
+  }
   assign_parameter_tramonto(Loca.cont_type1, param,0);
 }
 /*****************************************************************************/
@@ -486,8 +488,9 @@ void assign_bif_parameter_conwrap(double tp_param)
  * Return Value:
  */
 {
-  if (Proc==0 && Iwrite !=NO_SCREEN) printf("\tSecond (floating) parameter #%d set to %20.15g\n",
-                         Loca.cont_type2, tp_param);
+  if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){ 
+        printf("\tSecond (floating) parameter #%d set to %20.15g\n", Loca.cont_type2, tp_param);
+  }
   assign_parameter_tramonto(Loca.cont_type2, tp_param,1);
 
 }
@@ -592,7 +595,7 @@ void random_vector_conwrap(double *x, int numOwnedUnks)
  */
 {
   int i;
-  printf("\tWARNING: random_vector_conwrap just filling vec with constant\n");
+  if (Iwrite_screen != SCREEN_NONE) printf("\tWARNING: random_vector_conwrap just filling vec with constant\n");
   for (i=0; i<numOwnedUnks; i++) x[i] = 0.5;
 }
 /*****************************************************************************/
@@ -700,7 +703,7 @@ double free_energy_diff_conwrap(double *x, double *x2)
   translate_1dOwned_2dBox(x2, passdown.xBox);
   energy2 = calc_free_energy(NULL,passdown.xBox);
 
-/*printf("energy1 %12.8g energy2  %12.8g\n",energy1, energy2);*/
+  if (Iwrite_screen == SCREEN_VERBOSE) printf("energy1 %12.8g energy2  %12.8g\n",energy1, energy2);
   return energy1-energy2;
 }
 /*****************************************************************************/
@@ -711,7 +714,7 @@ static void print_con_struct(const struct con_struct* con)
 /* Routine for printing out the con structure to the screen */
 
 {
-  printf("\n"); /* print_line("~", 80); */
+  printf("--------------------------------------------------\n"); 
   printf("\tcon->general_info.param=             %10.4g\n",
     con->general_info.param);
   printf("\tcon->general_info.numUnks=           %10d\n",
@@ -769,7 +772,7 @@ static void print_con_struct(const struct con_struct* con)
     printf("\tcon->eigen_info.Every_n_Steps=       %10d\n",
       con->eigen_info.Every_n_Steps);
   }
-  /* print_line("~", 80); */ printf("\n");
+  printf("--------------------------------------------------\n"); 
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -786,8 +789,8 @@ static void print_final(double param, int step_num)
   printf("\tEnding Parameter value     = %g\n", param);
   printf("\tNnumber of steps           = %d\n", step_num);
   printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-
-} /************* END of print_final () ***************************************/
+} 
+/************* END of print_final () ***************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

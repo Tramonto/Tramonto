@@ -56,7 +56,7 @@ double phispt_switch(double *n)
              FMTphispt=FMT4_energy_density(n);
              break;
          default:
-             printf("problem with type of HS FUNCTIONAL: phispt_switch ");
+             if (Iwrite_screen !=SCREEN_NONE) printf("problem with type of HS FUNCTIONAL: phispt_switch ");
              exit(-1); break;
      }
      return(FMTphispt);
@@ -87,7 +87,7 @@ void FMT1stDeriv_switch(double **x, struct RB_Struct *dphi_drb)
         break;
 
       default:
-         printf("problem with type of HS FUNCTIONAL: FMT1stDeriv_switch");
+         if (Iwrite_screen !=SCREEN_NONE)printf("problem with type of HS FUNCTIONAL: FMT1stDeriv_switch");
          exit(-1); break;
   }
   return;
@@ -112,7 +112,7 @@ void FMT1stDerivBulk_switch(double *n,double *inv_n3, double *dphi_drb)
         FMT4_1stderiv(n,DOT_12,DOT_22,inv_n3,dphi_drb);
         break;
       default:
-         printf("problem with type of HS FUNCTIONAL: FMT1stDeriv_switch");
+         if (Iwrite_screen !=SCREEN_NONE)printf("problem with type of HS FUNCTIONAL: FMT1stDeriv_switch");
          exit(-1); break;
   }
   return;
@@ -128,7 +128,7 @@ struct RB_Struct FMT2ndDerivDelta_switch(double *n, int *offset, double *sign, i
       case FMT3:  tmp = d2phi_drb2_delta_rb_FMT3(n,offset,sign,icomp); break;
       case FMT4:  tmp = d2phi_drb2_delta_rb_FMT4(n,offset,sign,icomp); break;
       default:
-         printf("problem with type of HS FUNCTIONAL: FMT2ndDerivDelta_switch");
+         if (Iwrite_screen !=SCREEN_NONE)printf("problem with type of HS FUNCTIONAL: FMT2ndDerivDelta_switch");
          exit(-1); break;
    }
    return(tmp);
@@ -144,7 +144,7 @@ struct RB_Struct FMT2ndDerivTheta_switch(double *n)
       case FMT3:  tmp = d2phi_drb2_theta_rb_FMT3(n); break;
       case FMT4:  tmp = d2phi_drb2_theta_rb_FMT4(n); break;
       default:
-         printf("problem with type of HS FUNCTIONAL: FMT2ndDerivTheta_switch");
+         if (Iwrite_screen !=SCREEN_NONE)printf("problem with type of HS FUNCTIONAL: FMT2ndDerivTheta_switch");
          exit(-1); break;
    }
    return(tmp);

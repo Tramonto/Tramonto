@@ -26,6 +26,8 @@ void node_to_ijk(int node,int *ijk);
 void setup_step_2consts(double **xInBox);
 extern double **Vext;
 extern int *B2L_node;
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
 #define NCOMP_MAX 5

@@ -51,6 +51,8 @@ int discover_G_ordering_LT(int *geq);
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern int Ncomp;
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 #define MF_EQ          3
 #define POISSON        1
 #define NCOMP_MAX 5

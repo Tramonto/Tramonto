@@ -183,40 +183,40 @@ void print_profile_box(double **x, char *outfile)
 print_profile: This routine prints out the density profile.        
 this routine is only ever called by Proc 0                                    */ 
 
-void print_profile(char *output_file4,double *xold)
+void print_profile(char *Density_FileName,double *xold)
 {
   int icomp,iunk,i,inode,ijk[3],idim,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
   int node_start,jcomp,pol_number;
   double kappa_sq,kappa,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term,scalefac,mu;
   char *unk_char;
     
-  char gfile[20],gfile2[20];
+  char gfile[20],segfile[20];
   char compfile[20];
-  FILE *ifp=NULL,*fp6=NULL,*fp7=NULL;
+  FILE *fp_Density=NULL,*fp_Gfile=NULL,*fp_DensSegComp=NULL;
   /* 
    *  print out the densities (and electrostatic potential)
    *  to the file dft_dens.dat or dft_dens.?.?   
    */
 
            /* open primary output file .... densities, electrostatic potential, and CMS fields */
-     ifp = fopen(output_file4,"w");
+     fp_Density = fopen(Density_FileName,"w");
 
            /* open file for G_CHAIN variables ... */
-     if (Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
-       sprintf(gfile,"%sg",output_file4);
-       fp6 = fopen(gfile,"w");
+     if ((Iwrite_files==FILES_EXTENDED || Iwrite_files==FILES_DEBUG) &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
+       sprintf(gfile,"%sg",Density_FileName);
+       fp_Gfile = fopen(gfile,"w");
      } 
 
            /* open file for segment type densities per chain ... */
-     if (Iwrite==VERBOSE &&( Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2)){
-       sprintf(compfile,"%s_comp",output_file4);
-       fp7 = fopen(compfile,"w");
+     if ((Iwrite_files==FILES_EXTENDED|| Iwrite_files==FILES_DEBUG) &&( Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2)){
+       sprintf(compfile,"%s_comp",Density_FileName);
+       fp_DensSegComp = fopen(compfile,"w");
      } 
 
            /* open file for segment densities */
-     if ((Iwrite==VERBOSE || Iwrite==EXTENDED) &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)){
-       sprintf(gfile2,"%s_seg",output_file4);
-       fp7 = fopen(gfile2,"w");
+     if ((Iwrite_files==FILES_EXTENDED || Iwrite_files==FILES_DEBUG) &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)){
+       sprintf(segfile,"%s_seg",Density_FileName);
+       fp_DensSegComp = fopen(segfile,"w");
      }
 
            /* print order of unknowns at the top of the file */
@@ -226,68 +226,68 @@ void print_profile(char *output_file4,double *xold)
                if (Lseg_densities) unk_char = "DENSSEG"; 
                else                unk_char = "DENSITY"; 
                if (Phys2Nunk[i] > 0){
-                 fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); break;
+                 fputs (unk_char,fp_Density); 
+                 fprintf(fp_Density,"\n"); break;
                }
             case MF_EQ: 
                unk_char = "MFEQ"; 
-               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
-                 fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); 
+               if (Phys2Nunk[i] > 0 && (Iwrite_files==FILES_DEBUG)){
+                 fputs (unk_char,fp_Density); 
+                 fprintf(fp_Density,"\n"); 
                } break;
             case POISSON: 
                unk_char = "POISSON"; 
                if (Phys2Nunk[i] > 0){
-                 fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); break;
+                 fputs (unk_char,fp_Density); 
+                 fprintf(fp_Density,"\n"); break;
                }
             case DIFFUSION: 
                unk_char = "CHEMPOT";
                if (Phys2Nunk[i] > 0){
-                 fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); break;
+                 fputs (unk_char,fp_Density); 
+                 fprintf(fp_Density,"\n"); break;
                }
             case CMS_FIELD: 
                unk_char = "CMSFIELD";
-               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
-                 fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); 
+               if (Phys2Nunk[i] > 0 && (Iwrite_files==FILES_DEBUG)){
+                 fputs (unk_char,fp_Density); 
+                 fprintf(fp_Density,"\n"); 
                }break;
             case WJDC_FIELD: 
                unk_char = "WJDCFIELD";
-               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE|| Type_poly==WJDC3)){
-                 fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); 
+               if (Phys2Nunk[i] > 0 && (Iwrite_files==FILES_DEBUG|| Type_poly==WJDC3)){
+                 fputs (unk_char,fp_Density); 
+                 fprintf(fp_Density,"\n"); 
                } break;
             case HSRHOBAR: 
                unk_char="HSRHOBAR";
-               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
-                 fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); 
+               if (Phys2Nunk[i] > 0 && (Iwrite_files==FILES_DEBUG)){
+                 fputs (unk_char,fp_Density); 
+                 fprintf(fp_Density,"\n"); 
                }break;
             case CAVWTC:
                unk_char="CAVWTC";
-               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
-                 fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); 
+               if (Phys2Nunk[i] > 0 && (Iwrite_files==FILES_DEBUG)){
+                 fputs (unk_char,fp_Density); 
+                 fprintf(fp_Density,"\n"); 
                } break;
             case BONDWTC:
                unk_char="BONDWTC";
-               if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
-                 fputs (unk_char,ifp); 
-                 fprintf(ifp,"\n"); 
+               if (Phys2Nunk[i] > 0 && (Iwrite_files==FILES_DEBUG)){
+                 fputs (unk_char,fp_Density); 
+                 fprintf(fp_Density,"\n"); 
                } break;
 	    case SCF_CONSTR:
 		unk_char="SCF_CONSTR";
-		if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
-			fputs (unk_char,ifp); 
-			fprintf(ifp,"\n"); 
+		if (Phys2Nunk[i] > 0 && (Iwrite_files==FILES_DEBUG)){
+			fputs (unk_char,fp_Density); 
+			fprintf(fp_Density,"\n"); 
 		} break;				
 	    case SCF_FIELD:
 		unk_char="SCFFIELD";
-		if (Phys2Nunk[i] > 0 && (Iwrite==VERBOSE)){
-			fputs (unk_char,ifp); 
-			fprintf(ifp,"\n"); 
+		if (Phys2Nunk[i] > 0 && (Iwrite_files==FILES_DEBUG)){
+			fputs (unk_char,fp_Density); 
+			fprintf(fp_Density,"\n"); 
 		} break;
          }
      }
@@ -306,8 +306,8 @@ void print_profile(char *output_file4,double *xold)
      if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || ((Type_poly == CMS  || Type_poly==CMS_SCFT || Type_poly==WJDC3))) {
         if (Lseg_densities) unk_char = "DENSITY"; 
         else                unk_char = "DENSSEG"; 
-        if (Iwrite==VERBOSE) fputs (unk_char,fp7); 
-        if (Iwrite==VERBOSE) fprintf(fp7,"\n"); 
+        if (Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) fputs (unk_char,fp_DensSegComp); 
+        if (Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) fprintf(fp_DensSegComp,"\n"); 
      }
      for (inode=0; inode<Nnodes; inode++){
         node_to_ijk(inode,ijk);
@@ -315,12 +315,14 @@ void print_profile(char *output_file4,double *xold)
 
                          /* print ijk coordinates of this node in the files */ 
         for (idim=0; idim<Ndim; idim++) {
-                                    fprintf(ifp,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
-            if (Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3))  {
-                                   fprintf(fp6,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
+                                    fprintf(fp_Density,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
+            if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) &&
+                (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3))  {
+                                   fprintf(fp_Gfile,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
             }
-            if (Iwrite==VERBOSE &&(Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly == CMS  || Type_poly==CMS_SCFT || Type_poly==WJDC3)) 
-                 fprintf(fp7,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
+            if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) &&
+                (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly == CMS  || Type_poly==CMS_SCFT || Type_poly==WJDC3)) 
+                 fprintf(fp_DensSegComp,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
         }
 
         for (iunk=0; iunk<Nunk_per_node; iunk++){
@@ -339,59 +341,59 @@ void print_profile(char *output_file4,double *xold)
             }
             switch(Unk2Phys[iunk]){
                 case DENSITY:
-/*                fprintf(ifp,"%g\t", xold[iunk+node_start]/Rho_b[icomp]);*/
-                  if (xold[iunk+node_start]<0.0 && Rho_b[icomp]<1.e-20) fprintf(ifp,"%g\t", Rho_b[icomp]);
-                  else fprintf(ifp,"%g\t", xold[iunk+node_start]);
+/*                fprintf(fp_Density,"%g\t", xold[iunk+node_start]/Rho_b[icomp]);*/
+                  if (xold[iunk+node_start]<0.0 && Rho_b[icomp]<1.e-20) fprintf(fp_Density,"%g\t", Rho_b[icomp]);
+                  else fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
                   break;
 
                 case DIFFUSION:
                   if (LDeBroglie){
-                       fprintf(ifp,"%g\t", xold[iunk+node_start]
+                       fprintf(fp_Density,"%g\t", xold[iunk+node_start]
                             + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );
                   }
-                  else fprintf(ifp,"%g\t", xold[iunk+node_start]);
+                  else fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
                   break;
 
                 case POISSON:
-                  fprintf(ifp,"%g\t", xold[iunk+node_start]);
+                  fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
                   break;
 
                 case MF_EQ:
                 case HSRHOBAR:
                 case CAVWTC:
                 case BONDWTC:
-                  if (Iwrite==VERBOSE) fprintf(ifp,"%g\t", xold[iunk+node_start]);
+                  if (Iwrite_files==FILES_DEBUG) fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
                   break;
 
                 case CMS_FIELD:
                 case WJDC_FIELD:
 	        case SCF_FIELD:
-                   if(Iwrite==VERBOSE || Type_poly==WJDC3){
+                   if(Iwrite_files==FILES_DEBUG || Type_poly==WJDC3){
                       /*if (fabs(xold[iunk+node_start]) > 1.e-12 && -log(xold[iunk+node_start]) < VEXT_MAX){
-                          fprintf(ifp,"%g\t", -log(xold[iunk+node_start]));
+                          fprintf(fp_Density,"%g\t", -log(xold[iunk+node_start]));
                       }
-                      else fprintf(ifp,"%g\t", VEXT_MAX);*/
+                      else fprintf(fp_Density,"%g\t", VEXT_MAX);*/
 
                      if (Unk2Phys[iunk]!=WJDC_FIELD){ 
-                         fprintf(ifp,"%g\t", xold[iunk+node_start]);
+                         fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
                      }
                      else{
                        for (pol_number=0;pol_number<Npol_comp;pol_number++) {
                           if (Nseg_type_pol[pol_number][icomp] !=0) scalefac=Scale_fac_WJDC[pol_number][icomp];
                         }
-                        fprintf(ifp,"%g\t", xold[iunk+node_start]/exp(scalefac));
+                        fprintf(fp_Density,"%g\t", xold[iunk+node_start]/exp(scalefac));
                      }
                    }
                    break;
 					
 	       case SCF_CONSTR:
-		    if(Iwrite==VERBOSE){
-		         fprintf(ifp,"%g\t", xold[iunk+node_start]);
+		    if(Iwrite_files==FILES_DEBUG){
+		         fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
 		    }
                    break;
 
                 case G_CHAIN:
-                   if (Iwrite==VERBOSE) fprintf(fp6,"%g\t", xold[iunk+node_start]);
+                   if (Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) fprintf(fp_Gfile,"%g\t", xold[iunk+node_start]);
                    break;
             }
 
@@ -400,7 +402,7 @@ void print_profile(char *output_file4,double *xold)
                 /* print the Poisson-Boltzmann solution based on the computed electrostatic field */
         if (Ipot_ff_c == 1 && Type_poly==NONE){
         for (icomp=0; icomp<Ncomp; icomp++)
-          fprintf(ifp,"%g\t",
+          fprintf(fp_Density,"%g\t",
                   Rho_b[icomp]*exp(-Charge_f[icomp]*xold[Phys2Unk_first[POISSON]+node_start]
                                                               -Vext_old[inode*Ncomp+icomp]));
         }
@@ -440,7 +442,7 @@ void print_profile(char *output_file4,double *xold)
                    else site_dens=0.0;
 
                    sumsegdens[itype_mer]+=site_dens;
-                   if (Iwrite==VERBOSE)fprintf(fp7,"%g\t", site_dens);
+                   if (Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED)fprintf(fp_DensSegComp,"%g\t", site_dens);
                  }
               }
         }
@@ -456,25 +458,25 @@ void print_profile(char *output_file4,double *xold)
                    flag_type_mer[Type_mer[ipol][iseg]]=TRUE;
                 }
                 for (itype_mer=0;itype_mer<Ncomp;itype_mer++){
-                   if (Iwrite==VERBOSE && flag_type_mer[itype_mer]==TRUE)  fprintf(fp7,"%g\t",sumsegdens[itype_mer]);
+                   if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) && flag_type_mer[itype_mer]==TRUE)  fprintf(fp_DensSegComp,"%g\t",sumsegdens[itype_mer]);
                 }
               }
         }
  
                 /* add a carriage return to the file to start a new line */
-        fprintf(ifp,"\n");
-        if (Iwrite==VERBOSE && (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) fprintf(fp6,"\n");
-        if (Iwrite==VERBOSE && (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 ||((Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)))) fprintf(fp7,"\n");
+        fprintf(fp_Density,"\n");
+        if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) && (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) fprintf(fp_Gfile,"\n");
+        if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) && (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 ||((Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)))) fprintf(fp_DensSegComp,"\n");
 
                 /* add some blank lines for improved graphics in 2D and 3D gnuplot */
-        if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
+        if (ijk[0] == Nodes_x[0]-1) fprintf(fp_Density,"\n");
 
      }    /* loop over all nodes  */
 
           /* close files */
-     fclose(ifp);
-     if (Iwrite==VERBOSE &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) fclose(fp6);
-     if (Iwrite==VERBOSE &&(Type_poly==WTC || Type_poly==WJDC || Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC2 || Type_poly==WJDC3)) fclose(fp7);
+     fclose(fp_Density);
+     if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) fclose(fp_Gfile);
+     if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) &&(Type_poly==WTC || Type_poly==WJDC || Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC2 || Type_poly==WJDC3)) fclose(fp_DensSegComp);
 
   return;
 }
@@ -482,17 +484,17 @@ void print_profile(char *output_file4,double *xold)
 print_gofr: This routine prints out the density profile.        
 this routine is only ever called by Proc 0                                    */ 
 
-void print_gofr(char *output_file6,double *xold)
+void print_gofr(char *GofR_Filename,double *xold)
 {
   int icomp,inode,ijk[3],idim,nunk_print,npol=0,iwall,iunk,end_loop;
   double r,rsq;
-  FILE *ifp=NULL;
+  FILE *fp_gofr=NULL;
   /* 
    *  print out the densities (and electrostatic potential)
    *  to the file dft_dens.dat or dft_dens.?.?   
    */
 
-     ifp = fopen(output_file6,"w");
+     fp_gofr = fopen(GofR_Filename,"w");
 
      if (L_HSperturbation) nunk_print = Nunk_per_node;
      else nunk_print = 2*Ncomp;
@@ -519,37 +521,37 @@ void print_gofr(char *output_file6,double *xold)
             }
         }
         if (rsq > 0.0) r=sqrt(rsq); 
-        fprintf(ifp,"%9.6f\t ",r);
+        fprintf(fp_gofr,"%9.6f\t ",r);
 
         for (iunk=0; iunk<Nunk_per_node; iunk++){
             if (Unk2Phys[iunk]==DENSITY){
                 icomp = iunk-Phys2Unk_first[DENSITY];
                 if (Lprint_gofr==2) {
-                    if (xold[iunk+Nunk_per_node*inode]>1.e-8) fprintf(ifp,"%22.17f\t", -log(xold[iunk+Nunk_per_node*inode]/Rho_b[icomp]));
-                    else fprintf(ifp,"%22.17f\t",VEXT_MAX);
+                    if (xold[iunk+Nunk_per_node*inode]>1.e-8) fprintf(fp_gofr,"%22.17f\t", -log(xold[iunk+Nunk_per_node*inode]/Rho_b[icomp]));
+                    else fprintf(fp_gofr,"%22.17f\t",VEXT_MAX);
                 }
-                else fprintf(ifp,"%22.17f\t", xold[iunk+Nunk_per_node*inode]/Rho_b[icomp]);
+                else fprintf(fp_gofr,"%22.17f\t", xold[iunk+Nunk_per_node*inode]/Rho_b[icomp]);
             }
         }
 
-        fprintf(ifp,"\n");
-        if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
+        fprintf(fp_gofr,"\n");
+        if (ijk[0] == Nodes_x[0]-1) fprintf(fp_gofr,"\n");
 
      } /* loop over nodes */
      }    /* loop over all walls  */
-     fclose(ifp);
+     fclose(fp_gofr);
   return;
 }
 /************************************************************************
 print_zeroTF: This routine collects the zero_TF array and prints it out  */
-void print_zeroTF(int **zero_TF, char *output_file)
+void print_zeroTF(int **zero_TF, char *ZeroTF_filename)
 {
   int icomp,loc_inode,inode,ijk[3],*index,idim,inode_box;
   int *unk_loc,*unk_global,**unk;
-  FILE *ifp=NULL;
+  FILE *fp_zeroTF=NULL;
 
   if (Proc == 0) {
-       ifp = fopen(output_file,"w");
+       fp_zeroTF = fopen(ZeroTF_filename,"w");
        unk = (int **) array_alloc (2, Nnodes, Ncomp+1, sizeof(int));
   }
 
@@ -598,16 +600,16 @@ void print_zeroTF(int **zero_TF, char *output_file)
      for (inode=0; inode<Nnodes; inode++){
         node_to_ijk(inode,ijk);
         for (idim=0; idim<Ndim; idim++){
-            fprintf(ifp,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
+            fprintf(fp_zeroTF,"%9.6f\t ", ijk[idim]*Esize_x[idim]);
         }
         for (icomp=0; icomp<Ncomp+1; icomp++){
-            fprintf(ifp,"%d\t", unk[inode][icomp]);
+            fprintf(fp_zeroTF,"%d\t", unk[inode][icomp]);
         }
 
-        fprintf(ifp,"\n");
-        if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
+        fprintf(fp_zeroTF,"\n");
+        if (ijk[0] == Nodes_x[0]-1) fprintf(fp_zeroTF,"\n");
      }    /* loop over all nodes  */
-     fclose(ifp);
+     fclose(fp_zeroTF);
      safe_free((void *) &unk);
   }       /* end of Proc ==0 test */
 
@@ -616,14 +618,14 @@ void print_zeroTF(int **zero_TF, char *output_file)
 }
 /************************************************************************
 print_Nodes_to_zone: This routine collects and prints nodes_to_zone  */
-void print_Nodes_to_zone(int *node_to_zone, char *output_file)
+void print_Nodes_to_zone(int *node_to_zone, char *Nodes2Zone_Filename)
 {
   int loc_inode,inode,ijk[3],*index,idim,inode_box;
   int *unk,*unk_loc, *unk_global;
-  FILE *ifp=NULL;
+  FILE *fp_Nodes2Zone=NULL;
 
   if (Proc == 0){
-     ifp = fopen(output_file,"w");
+     fp_Nodes2Zone = fopen(Nodes2Zone_Filename,"w");
      unk = (int *) array_alloc (1, Nnodes, sizeof(int));
   }
 
@@ -668,15 +670,15 @@ void print_Nodes_to_zone(int *node_to_zone, char *output_file)
      for (inode=0; inode<Nnodes; inode++){
         node_to_ijk(inode,ijk);
         for (idim=0; idim<Ndim; idim++)
-            fprintf(ifp,"%9.6f\t ",
+            fprintf(fp_Nodes2Zone,"%9.6f\t ",
             (double)ijk[idim]*Esize_x[idim]);
 
-            fprintf(ifp,"%d \t", unk[inode]);
+            fprintf(fp_Nodes2Zone,"%d \t", unk[inode]);
 
-        fprintf(ifp,"\n");
-        if (ijk[0] == Nodes_x[0]-1) fprintf(ifp,"\n");
+        fprintf(fp_Nodes2Zone,"\n");
+        if (ijk[0] == Nodes_x[0]-1) fprintf(fp_Nodes2Zone,"\n");
      }    /* loop over all nodes  */
-     fclose(ifp);
+     fclose(fp_Nodes2Zone);
      safe_free((void *) &unk);
   }       /* end of Proc ==0 test */
 

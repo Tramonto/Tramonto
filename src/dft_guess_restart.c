@@ -98,17 +98,11 @@ void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox)
   MPI_Bcast (&start_no_info,1,MPI_INT,0,MPI_COMM_WORLD);
 
   if (Restart_field[DENSITY]==FALSE) {
-      printf("can't do automatic restart without density fields yet\n");
+      if (Proc==0 && Iwrite_screen != SCREEN_NONE) printf("can't do automatic restart without density fields yet\n");
       exit(-1);
   }
   communicate_profile(x_new,xInBox);
   check_zero_densities(xInBox);
-
-/*for (inode_box=0;inode_box<Nnodes_box;inode_box++){
-   if (B2G_node[inode_box]==172) printf("at node 172 Proc=%d has x[density1]=%g and x[density2]=%g\n",Proc,
-                                 xInBox[Phys2Unk_first[DENSITY]][inode_box],
-                                 xInBox[Phys2Unk_first[DENSITY]+1][inode_box]);
-}*/
 
   safe_free((void *) &x_new);
   return;
@@ -186,7 +180,7 @@ void read_in_a_file(int guess_type,char *filename)
              header++;
              unk_in_file+=Nseg_tot;
              if (Restart==RESTART_FEWERCOMP){
-               printf("Restart=%d not set up for segment density problems\n",RESTART_FEWERCOMP);
+               if (Iwrite_screen != SCREEN_NONE) printf("Restart=%d not set up for segment density problems\n",RESTART_FEWERCOMP);
                exit(-1);
              }
              unk_start_in_file[DENSITY]=iunk;
@@ -287,36 +281,36 @@ void read_in_a_file(int guess_type,char *filename)
              else                for (i=0;i<n_entries;i++) unk_to_eq_in_file[iunk++]=DIFFUSION;
        }
     }
-    if (Iwrite != NO_SCREEN) printf("\n\t ...Number of unknowns in the file=%d\n",unk_in_file);
+    if (Iwrite_screen == VERBOSE) printf("\n\t ...Number of unknowns in the file=%d\n",unk_in_file);
 
     if (Type_interface==DIFFUSIVE_INTERFACE && Restart_field[DIFFUSION]==FALSE) 
-         if (Proc==0 && Iwrite != NO_SCREEN)
+         if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE)
            printf("\t ...NO chemical potential data found in restart file\n");
     if (Type_coul != NONE && Restart_field[POISSON]==FALSE)
-         if (Proc==0 && Iwrite != NO_SCREEN)
+         if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE)
            printf("\t ...NO electrostatic potential data found in restart file\n");
     if ((Type_poly == CMS || Type_poly==CMS_SCFT) && Restart_field[CMS_FIELD]==FALSE)
-         if (Proc==0 && Iwrite != NO_SCREEN)
+         if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE)
            printf("\t ...NO CMS field data found in restart file\n");
     if ((Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[CAVWTC]==FALSE)
-         if (Proc==0 && Iwrite != NO_SCREEN)
+         if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE)
            printf("\t ...NO WJDC cavity variable found in restart file\n");
     if ((Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[WJDC_FIELD]==FALSE)
-         if (Proc==0 && Iwrite != NO_SCREEN)
+         if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE)
            printf("\t ...NO WJDC field data found in restart file\n");
     if (L_HSperturbation && Restart_field[HSRHOBAR]==FALSE)
-         if (Proc==0 && Iwrite != NO_SCREEN)
+         if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE)
            printf("\t ...NO Rosenfeld nonlocal density data found in restart file\n");
     if (ATTInA22Block==FALSE && Restart_field[MF_EQ]==FALSE)
-         if (Proc==0 && Iwrite != NO_SCREEN)
+         if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE)
            printf("\t ...NO mean field attractive variable data found the restart file \n");
     if (Restart_field[DENSITY]==FALSE)
-         if (Proc==0 && Iwrite != NO_SCREEN)
+         if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE)
            printf("\t ...NO density data found in restart file\n");
 
     fclose(fp5);
     if (Restart != RESTART_1DTOND) Nodes_old-=header;
-    if (Iwrite==VERBOSE) printf("\t ...skipping %d lines in the dft_dens.dat file\n",header);
+    if (Iwrite_screen==SCREEN_VERBOSE) printf("\t ...skipping %d lines in the dft_dens.dat file\n",header);
 
   /* read positions from file find Nodes_x_old[idim] */
   /* read the densities and electrostatic potentials from file */
@@ -327,19 +321,17 @@ void read_in_a_file(int guess_type,char *filename)
 
     if (open_now){
       if( (fp5=fopen(filename,"r")) == NULL){
-	printf("Can't open file %s\n", filename);
+	if (Iwrite_screen != SCREEN_NONE) printf("Can't open file %s\n", filename);
 	exit(1);
       }
        if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
          sprintf(filename2,"%sg",filename);
 	 if( (fp6=fopen(filename2,"r")) == NULL){
-/*	   printf("Can't open file %s\n", filename2);
-	   exit(1);*/
            if ((Iguess_fields==CALC_ALL_FIELDS || Iguess_fields==CALC_RHOBAR_AND_G) && index==0) 
-              if (Proc==0 && Iwrite != NO_SCREEN)
+              if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE)
               printf("\t ...NO G_EQN DATA IS FOUND - NO dft_dens.datg file \n\t\t...an initial guess will be constructed from other field data\n");
            else if ((Iguess_fields==BULK || Iguess_fields==CALC_RHOBAR_ONLY)&&index==0) 
-              if (Proc==0 && Iwrite != NO_SCREEN)
+              if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE)
               printf("\t ...NO G_EQN DATA IS FOUND - NO dft_dens.datg file \n\t\t...an initial guess will be constructed from bulk fluid data\n");
            Restart_field[G_CHAIN]=FALSE;
 	 }
@@ -352,7 +344,6 @@ void read_in_a_file(int guess_type,char *filename)
 
     if (Restart==RESTART_1DTOND) ndim_max=1;  /* again for using 1D solution for 2D/3D guess */
     else ndim_max=Ndim;
-    /*printf("Proc=%d  ndim_max=%d\n",Proc,ndim_max);*/
 
                                  /* find number of nodes in each dimension in the file */
     for (idim=0;idim<ndim_max;idim++)         {
@@ -507,7 +498,6 @@ void read_in_a_file(int guess_type,char *filename)
        fclose(fp5);
        if ((Type_poly == CMS || Type_poly ==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) && Restart_field[G_CHAIN]==TRUE) fclose(fp6);
        open_now=TRUE;
-/* if (Proc==0) printf("closing files to read again!\n");*/
     }
   }
   for (idim=0; idim<Ndim; idim++) {
@@ -594,25 +584,9 @@ void shift_the_profile(double *x_new,double fac,double *xold)
            printf("Check pos new nodes %d [should be -1,0,1]\n",Pos_new_nodes);
            exit(-1);
            break;
- 
      }
 
      x_test=unk_old;
-     /* check a few limiting values ... and finally set initial guess*/
-/*     if (Unk2Phys[iunk]==DENSITY){
-        x_test = AZ_MIN(Rho_max,fac*(unk_old-Rho_b[iunk-Phys2Unk_first[DENSITY]])+ Rho_b[iunk-Phys2Unk_first[DENSITY]]);
-     }
-     else x_test=unk_old;
-
-     else if (Unk2Phys[iunk]==HSRHOBAR){
-        x_test = fac*(unk_old-Rhobar_b[iunk-Phys2Unk_first[HSRHOBAR]])+ Rhobar_b[iunk-Phys2Unk_first[HSRHOBAR]];
-        if (iunk == Ncomp && x_test >= 1.0) x_test = Rhobar_b[iunk-Phys2Unk_first[HSRHOBAR]];
-     }
-     else if (Unk2Phys[iunk]==POISSON){
-        x_test = fac*(unk_old-1.0) + 1.0;
-     }
-     else x_test = unk_old;*/
-
      x_new[inode*Nunk_per_node+iunk] = x_test;
 
      }

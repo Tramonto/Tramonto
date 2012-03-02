@@ -139,7 +139,7 @@ void scale_elec_param(double ratio)
    if (Vol_charge_flag) for (iel=0; iel<Nelements_box; iel++) Charge_vol_els[iel]*=ratio;
    for (iwall=0; iwall<Nwall; iwall++) Elec_param_w[iwall]*=ratio;
 
-   if (Iwrite == VERBOSE){
+   if (Iwrite_screen == SCREEN_VERBOSE){
        if (Proc==0) printf ("PRINTING CHARGE DISTRIBUTIONS: Scale_fac=%9.6f\n",ratio);
        if (Vol_charge_flag) print_charge_vol(Charge_vol_els,"dft_charge_vol.dat");
        if (Surf_charge_flag) print_charge_surf(Charge_w_sum_els,"dft_charge_surf.dat");
@@ -206,7 +206,7 @@ void calc_new_density(int icomp,char *output_file1)
 
   while(Lconverged==FALSE && ncount<10000){
      
-     thermodynamics(output_file1,NO_SCREEN);
+     thermodynamics(output_file1,SCREEN_NONE,FILES_BASIC);
 
      if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) betamu_test=Betamu_chain[icomp];
      else                                                         betamu_test=Betamu[icomp];
@@ -247,10 +247,12 @@ void calc_new_density(int icomp,char *output_file1)
      ncount++;
   }
   if (ncount>=4000) {
-     printf("new bulk densities not converged after 10000 iterations (Proc=%d): currently Rho_b[icomp]=%g\n",Rho_b[icomp],Proc);
+     if (Iwrite_screen==SCREEN_VERBOSE)
+         printf("new bulk densities not converged after 10000 iterations (Proc=%d): currently Rho_b[icomp]=%g\n",Rho_b[icomp],Proc);
      exit(-1);
   }
-  else if (Lconverged==TRUE){ if(Iwrite==VERBOSE && Proc==0)  printf("new bulk density found:icomp=%d Rho_b[icomp]=%g\n",icomp,Rho_b[icomp]); }
+  else if (Lconverged==TRUE){ if( Iwrite_screen!=SCREEN_NONE && Iwrite_screen!=SCREEN_ERRORS_ONLY && Proc==0)  
+       printf("new bulk density found:icomp=%d Rho_b[icomp]=%g\n",icomp,Rho_b[icomp]); }
   return;
 }
 /*****************************************************************************/

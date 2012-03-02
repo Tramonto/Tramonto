@@ -22,6 +22,12 @@ void calc_init_mf_attract(double **xInBox,double **xOwned);
 #define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
 #define PHASE_INTERFACE 2
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;

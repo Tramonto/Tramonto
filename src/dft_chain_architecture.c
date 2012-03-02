@@ -35,7 +35,7 @@
 #include "dft_chain_architecture.h"
 
 /*************************************************************************************/
-void setup_chain_architecture(char *poly_file,FILE *fpout)
+void setup_chain_architecture(char *poly_file,FILE *fpecho)
 
 {
    /* Local variable declarations */
@@ -52,23 +52,23 @@ void setup_chain_architecture(char *poly_file,FILE *fpout)
        Bonds = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
        pol_sym_tmp = (int ***) array_alloc (3, Npol_comp,nmer_max,NBOND_MAX,sizeof(int));
 
-      if (Type_poly_arch==POLY_ARCH_FILE) setup_chain_from_file(fpout,poly_file);
-      else if (Type_poly_arch==LIN_POLY) setup_chain_linear(fpout);
-      else if (Type_poly_arch==LIN_POLY_SYM) setup_chain_linear_symmetric(fpout);
+      if (Type_poly_arch==POLY_ARCH_FILE) setup_chain_from_file(fpecho,poly_file);
+      else if (Type_poly_arch==LIN_POLY) setup_chain_linear(fpecho);
+      else if (Type_poly_arch==LIN_POLY_SYM) setup_chain_linear_symmetric(fpecho);
    }
 
    return;
 }
 /*************************************************************************************/
 /* read in a file that contains chain architecture */
-void setup_chain_from_file(FILE *fpout, char *poly_file)
+void setup_chain_from_file(FILE *fpecho, char *poly_file)
 {
    int pol_number,iseg,seg_id,ibond;
    FILE *fppoly;
 
    if (Proc==0){
       if( (fppoly  = fopen(poly_file,"r")) == NULL) {
-           printf("Can't open file %s\n", poly_file);
+           if (Iwrite_screen != SCREEN_NONE) printf("Can't open file %s\n", poly_file);
            exit(-1);
       }
    }
@@ -80,7 +80,7 @@ void setup_chain_from_file(FILE *fpout, char *poly_file)
            fscanf(fppoly,"%d %d",&seg_id, &Nbond[pol_number][iseg]);
            if (Nbond[pol_number][iseg]>Nbond_max) Nbond_max=Nbond[pol_number][iseg];
            if (seg_id != iseg){
-               printf("problem with seg_ids in file - there should be no skips, and every chain starts at 0\n");
+               if (Iwrite_screen != SCREEN_NONE) printf("problem with seg_ids in file - there should be no skips, and every chain starts at 0\n");
                exit(-1);
            }
         }
@@ -88,18 +88,18 @@ void setup_chain_from_file(FILE *fpout, char *poly_file)
 	for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
 	  if (Proc==0) {
 	    fscanf(fppoly,"%d  %d", &Bonds[pol_number][iseg][ibond],&pol_sym_tmp[pol_number][iseg][ibond]);
-	    fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
+	    if (Iwrite_files == FILES_DEBUG) fprintf(fpecho,"%d  ",Bonds[pol_number][iseg][ibond]);
 	  }
 
 	} /* end of loop over ibond */
       } /* end of loop over iseg */
    }
-   if (Proc==0) fclose (fppoly);
+   if (Proc==0 && Iwrite_files==FILES_DEBUG) fclose (fppoly);
    return;
 }
 /*************************************************************************************/
 /* automatically set up a linear chain */
-void setup_chain_linear(FILE *fpout){
+void setup_chain_linear(FILE *fpecho){
 
    int pol_number,iseg,ibond;
    Nbond_max=2;
@@ -112,17 +112,17 @@ void setup_chain_linear(FILE *fpout){
           if ((iseg==0 && ibond==0) || (iseg==Nmer[pol_number]-1 && ibond==Nbond[pol_number][iseg]-1)){
                Bonds[pol_number][iseg][ibond]=-1;
                pol_sym_tmp[pol_number][iseg][ibond]=-1;
-	       if (Proc==0) fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
+	       if (Proc==0 && Iwrite_files==FILES_DEBUG) fprintf(fpecho,"%d  ",Bonds[pol_number][iseg][ibond]);
           }
           else if (ibond==0){
                Bonds[pol_number][iseg][ibond]=iseg-1;
                pol_sym_tmp[pol_number][iseg][ibond]=-1;
-	       if (Proc==0) fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
+	       if (Proc==0 && Iwrite_files==FILES_DEBUG) fprintf(fpecho,"%d  ",Bonds[pol_number][iseg][ibond]);
           }
           else if (ibond==1){
                Bonds[pol_number][iseg][ibond]=iseg+1;
                pol_sym_tmp[pol_number][iseg][ibond]=-1;
-	       if (Proc==0) fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
+	       if (Proc==0 && Iwrite_files==FILES_DEBUG) fprintf(fpecho,"%d  ",Bonds[pol_number][iseg][ibond]);
           }
           else{
              printf("problem in linear chain code - can only have ibond=0 or ibond=1...ibond=%d\n",ibond);
@@ -136,7 +136,7 @@ void setup_chain_linear(FILE *fpout){
 }
 /*************************************************************************************/
 /* automatically set up a linear chain with proper symmetries in place */
-void setup_chain_linear_symmetric(FILE *fpout){
+void setup_chain_linear_symmetric(FILE *fpecho){
 
    int pol_number,iseg,iseg_sym,ibond;
    Nbond_max=2;
@@ -151,7 +151,7 @@ void setup_chain_linear_symmetric(FILE *fpout){
                Bonds[pol_number][iseg][ibond]=-1;
                if (iseg==0)  pol_sym_tmp[pol_number][iseg][ibond]=-1;
                else          pol_sym_tmp[pol_number][iseg][ibond]= 0;
-	       if (Proc==0) fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
+	       if (Proc==0 && Iwrite_files==FILES_DEBUG) fprintf(fpecho,"%d  ",Bonds[pol_number][iseg][ibond]);
           }
           else if (ibond==0){ 
                Bonds[pol_number][iseg][ibond]=iseg-1;
@@ -160,7 +160,7 @@ void setup_chain_linear_symmetric(FILE *fpout){
                   iseg_sym=(Nmer[pol_number]-1)-iseg;
                   pol_sym_tmp[pol_number][iseg][ibond]=2*iseg_sym+1;
                }
-	       if (Proc==0) fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
+	       if (Proc==0 && Iwrite_files==FILES_DEBUG) fprintf(fpecho,"%d  ",Bonds[pol_number][iseg][ibond]);
           }
           else if (ibond==1){ 
                Bonds[pol_number][iseg][ibond]=iseg+1;
@@ -169,7 +169,7 @@ void setup_chain_linear_symmetric(FILE *fpout){
                    iseg_sym=(Nmer[pol_number]-1)-iseg;
                    pol_sym_tmp[pol_number][iseg][ibond]=2*iseg_sym;
                }
-	       if (Proc==0) fprintf(fpout,"%d  ",Bonds[pol_number][iseg][ibond]);
+	       if (Proc==0 && Iwrite_files==FILES_DEBUG) fprintf(fpecho,"%d  ",Bonds[pol_number][iseg][ibond]);
           }
           else{
              printf("problem in linear chain code - can only have ibond=0 or ibond=1...ibond=%d\n",ibond);
@@ -181,7 +181,7 @@ void setup_chain_linear_symmetric(FILE *fpout){
    return;
 }
 /*************************************************************************************/
-void setup_chain_indexing_arrays(int nseg, int nmer_max,FILE *fpout)
+void setup_chain_indexing_arrays(int nseg, int nmer_max,FILE *fpecho)
 {
     int *nbond_tot;
     int nbond_all,iseg,seg_tot,end_count_all,icomp,pol_number,nunk,end_count,ibond,pol_num2;
@@ -274,39 +274,38 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max,FILE *fpout)
 
     for (icomp=0;icomp<Ncomp;icomp++) Nseg_type[icomp]=0;
     for (iseg=0;iseg<Nseg_tot;iseg++) Nseg_type[Unk2Comp[iseg]]++;
-    if (Proc==0){
-       fprintf(fpout,"\n********************\n BOND DETAILS \n **********************\n");
-       fprintf(fpout,"\t total number of bonds is %d\n",Nbonds);
+    if (Proc==0 && Iwrite_files==FILES_DEBUG){
+       fprintf(fpecho,"\n********************\n BOND DETAILS \n **********************\n");
+       fprintf(fpecho,"\t total number of bonds is %d\n",Nbonds);
        for (ibond=0;ibond<Nbonds; ibond++){
-           fprintf(fpout,"Unk_to_Poly[ibond=%d]=%d Unk_to_Seg[]=%d Unk_to_Bond[]=%d\n",
+           fprintf(fpecho,"Unk_to_Poly[ibond=%d]=%d Unk_to_Seg[]=%d Unk_to_Bond[]=%d\n",
             ibond,Unk_to_Poly[ibond],Unk_to_Seg[ibond],Unk_to_Bond[ibond]);
        }
        for (pol_number=0; pol_number<Npol_comp; ++pol_number){
           for (iseg=0;iseg<Nmer[pol_number];iseg++){
               for (ibond=0;ibond<Nbond[pol_number][iseg];ibond++){
 	        if(Bonds[pol_number][iseg][ibond] != -1)
-                  fprintf(fpout,"Poly_to_Unk[%d][%d][%d]=%d\n",
+                  fprintf(fpecho,"Poly_to_Unk[%d][%d][%d]=%d\n",
                      pol_number, iseg,ibond,Poly_to_Unk[pol_number][iseg][ibond]);
               }
           }
        }
+       fprintf(fpecho,"****************\n END BOND DETAILS \n **********************\n");
+    }
+    if (Proc==0 && Iwrite_screen==SCREEN_VERBOSE){
        for (pol_number=0; pol_number<Npol_comp; ++pol_number){
           for (iseg=0;iseg<Nmer[pol_number];iseg++){
-              if (Iwrite==VERBOSE) printf("SegChain2SegAll[%d][%d]=%d\n",
-                   pol_number, iseg,SegChain2SegAll[pol_number][iseg]);
+             printf("SegChain2SegAll[%d][%d]=%d\n", pol_number, iseg,SegChain2SegAll[pol_number][iseg]);
           }
        }
-       if (Iwrite==VERBOSE){
-         printf("Total Number of segments in the problem=%d\n",Nseg_tot);
-         for (iseg=0;iseg<Nseg_tot;iseg++){
-             printf("Nbonds_SegAll[%d]=%d",iseg,Nbonds_SegAll[iseg]);
-             printf("\t seg %d is bonded to...",iseg);
-             for(ibond=0;ibond<Nbonds_SegAll[iseg];ibond++)
-                  printf("%d  ",Bonds_SegAll[iseg][ibond]); 
-             printf("\n");
-         }
+       printf("Total Number of segments in the problem=%d\n",Nseg_tot);
+       for (iseg=0;iseg<Nseg_tot;iseg++){
+           printf("Nbonds_SegAll[%d]=%d",iseg,Nbonds_SegAll[iseg]);
+           printf("\t seg %d is bonded to...",iseg);
+           for(ibond=0;ibond<Nbonds_SegAll[iseg];ibond++)
+                printf("%d  ",Bonds_SegAll[iseg][ibond]); 
+           printf("\n");
        }
-       fprintf(fpout,"****************\n END BOND DETAILS \n **********************\n");
     }
     
     if (Type_poly != WTC){  /*POLYMER INPUT FOR EITHER CMS OR WJDC FUNCTIONAL */
@@ -321,9 +320,9 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max,FILE *fpout)
               Geqn_start[pol_number] += (nbond_tot[pol_num2]);
        }
        safe_free((void *)  &nbond_tot); 
-       if (Iwrite==VERBOSE && Proc==0) printf("The total number of g equations will be %d\n",Ngeqn_tot);
+       if (Iwrite_screen==SCREEN_VERBOSE && Proc==0) printf("The total number of g equations will be %d\n",Ngeqn_tot);
        for (pol_number=0; pol_number<Npol_comp; ++pol_number)
-       if (Iwrite==VERBOSE && Proc==0) printf("The start unknown for polymer %d is %d \n",
+       if (Iwrite_screen==SCREEN_VERBOSE && Proc==0) printf("The start unknown for polymer %d is %d \n",
                                                        pol_number,Geqn_start[pol_number]);
    }
    return;

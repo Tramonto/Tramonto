@@ -82,6 +82,8 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 extern int *B2L_node;
 extern int Nnodes_box;
 void setup_polymer_rho(double **xInBox,double **xOwned,int guess_type);

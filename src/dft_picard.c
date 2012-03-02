@@ -59,7 +59,7 @@ int solve_problem_picard(double **x, double **x2)
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
   /* If requested, write out initial guess */
-   if (Iwrite == VERBOSE) print_profile_box(x,"rho_init.dat");
+   if (Iwrite_files == FILES_DEBUG) print_profile_box(x,"rho_init.dat");
 
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
@@ -69,7 +69,7 @@ int solve_problem_picard(double **x, double **x2)
     set_initial_guess(BINODAL_FLAG, x2Owned);
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
 
-    if (Iwrite == VERBOSE) print_profile_box(x2,"rho_init2.dat");
+    if (Iwrite_files == FILES_DEBUG) print_profile_box(x2,"rho_init2.dat");
   }
 
   if (NL_Solver==PICARD_NOX || NL_Solver==PICNEWTON_NOX) iter=NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
@@ -108,19 +108,19 @@ int picard_solver(double **x, double **xOwned, int subIters){
 
     Lprint_screen=FALSE;
     if (max_iters<30){
-       if ((Iwrite!= NO_SCREEN && (iter%(max_iters/1)==0 || iter==1)) || Iwrite==VERBOSE){
+       if ((Iwrite_screen== SCREEN_BASIC && (iter%(max_iters/1)==0 || iter==1)) || Iwrite_screen==SCREEN_VERBOSE){
           print_resid_norm_picard(x,iter);
           Lprint_screen=TRUE;
        }
     }
     else if (max_iters<5000){
-       if ((Iwrite!= NO_SCREEN && (iter%(max_iters/20)==0 || iter==1)) || Iwrite==VERBOSE){
+       if ((Iwrite_screen== SCREEN_BASIC && (iter%(max_iters/20)==0 || iter==1)) || Iwrite_screen==SCREEN_VERBOSE){
           print_resid_norm_picard(x,iter);
           Lprint_screen=TRUE;
        }
     }
     else{
-       if ((Iwrite!= NO_SCREEN && (iter%(max_iters/50)==0 || iter==1)) || Iwrite==VERBOSE){
+       if ((Iwrite_screen== SCREEN_BASIC && (iter%(max_iters/50)==0 || iter==1)) || Iwrite_screen==SCREEN_VERBOSE){
           print_resid_norm_picard(x,iter);
           Lprint_screen=TRUE;
        }
@@ -156,7 +156,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
     /* Do: x += delta_x, and check for convergence .... */
     converged = update_solution_picard(x_old, xOwned, delta_x, iter,Lprint_screen);
     if (converged==TRUE){ 
-        print_resid_norm_picard(x,iter);
+        if (Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) print_resid_norm_picard(x,iter);
         Lprint_screen=TRUE;
         converged = update_solution_picard(x_old, xOwned, delta_x, iter,Lprint_screen);
     }
@@ -235,7 +235,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
             }
             break;
          default:
-           printf("problem with switch in initial guess\n");
+           if (Iwrite_screen != SCREEN_NONE) printf("problem with switch in initial guess\n");
            exit(-1);
            break;
      }
@@ -250,13 +250,13 @@ int picard_solver(double **x, double **xOwned, int subIters){
 
   // Skip printing if NOX is controlling convergence
   if (!converged && !skip_convergence_test) {
-    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tPicard Solver: Failed to converge in %d iterations\n",iter);
+    if (Proc==0 && Iwrite_screen !=SCREEN_NONE) printf("\tPicard Solver: Failed to converge in %d iterations\n",iter);
     iter = -iter;
   }
   else if (converged && !skip_convergence_test){
-    if (Proc==0 && Iwrite!=NO_SCREEN) printf("\tPicard Solver: Successful convergence in %d iterations\n",iter);
+    if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) printf("\tPicard Solver: Successful convergence in %d iterations\n",iter);
   }
-  else{ if (Proc==0 && Iwrite!=NO_SCREEN) printf("\treturn control to NOX after %d iterations\n",iter);}
+  else{ if (Proc==0 && Iwrite_screen==SCREEN_VERBOSE) printf("\treturn control to NOX after %d iterations\n",iter);}
 
   safe_free((void **) &x_old);
   safe_free((void **) &delta_x);
@@ -416,7 +416,7 @@ void print_resid_norm_picard(double **x, int iter)
   sum_local=fill_resid_and_matrix_control(x,iter,CALC_RESID_ONLY);
   norm = gsum_double(sum_local);
 
-  if (Proc==0) printf("\tIter=%d\t::::\tResid norm=%g",iter, sqrt(norm));
+  if (Proc==0) printf("\tIter=%d\t::::\tResid norm=%g",iter, sqrt(norm)); 
 
   return;
 }
@@ -440,7 +440,9 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
   if (Lseg_densities) nloop=Nseg_tot;
   else                nloop=Ncomp;
 
-  if (Proc==0 && Iwrite!= NO_SCREEN && Lprint_screen==TRUE) printf("\t::::\tUPDATE FRAC = %g percent",NL_update_scalingParam*100);
+  if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY && Lprint_screen==TRUE) {
+        printf("\t::::\tUpdate percent = %g ",NL_update_scalingParam*100);
+  }
   
   for (ibox=0; ibox<Nnodes_box; ibox++) {
     
@@ -476,7 +478,9 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
   
   updateNorm = sqrt(gsum_double(updateNorm));
   
-  if (Proc==0 && Iwrite!= NO_SCREEN && Lprint_screen==TRUE) printf("\t::::\t Weighted norm of update vector =%g\n", updateNorm);
+  if (Proc==0 && Iwrite_screen!= SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY && Lprint_screen==TRUE) {
+       printf("\t::::\t Weighted norm of update vector =%g\n", updateNorm);
+  }
 
   if (updateNorm > 1.0 || iter==1 ) return(FALSE);
   else                  return(TRUE);

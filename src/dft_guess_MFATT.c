@@ -47,7 +47,7 @@ void setup_mf_attract(double **xOwned)
        if (Restart==RESTART_FEWERCOMP && icomp<Ncomp-Nmissing_densities) icomp=Ncomp-Nmissing_densities;
        iunk = Phys2Unk_first[MF_EQ] + icomp;
        if (Type_interface==DIFFUSIVE_INTERFACE || Type_interface==PHASE_INTERFACE){
-           printf("attractions not set up for steady state yet. \n");
+           if (Proc==0 && Iwrite_screen != SCREEN_NONE) printf("attractions not set up for steady state yet. \n");
            exit(-1);
        }
        else {

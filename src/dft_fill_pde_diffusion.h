@@ -31,6 +31,12 @@ extern int Poly_to_Ntype[NCOMP_MAX];
 #define NONE        -1
 #define NONE        -1
 extern int Type_poly;
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #if defined(DEC_ALPHA)
 #define POW_INT powii
@@ -52,6 +58,11 @@ double constant_boundary(int iunk,int jnode_box);
 extern double X_const_mu;
 extern double Esize_x[NDIM_MAX];
 extern int Grad_dim;
+extern int Nnodes;
+extern int *L2G_node;
+extern double **Array_test;
+#define FILES_DEBUG_MATRIX 3 
+extern int Iwrite_files;
 extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2

@@ -40,24 +40,23 @@
 #include "dft_parameterlist_wrapper.h"
 
 /********************** BEGIN EXECUTION ************************************/
-void set_up_mesh (char *output_file1,char *output_file2)
+void set_up_mesh (char *file_echoinput,char *output_file2)
 {
  /* Local variable declarations */
-  char *yo = "set_up_mesh";
   double t1;
-  FILE *fp1=NULL;
+  FILE *fpecho=NULL;
   int i,inode,ijk[3],flag,idim,coarse_fac,count,print_flag;
   int N_update=0; /*local variables to replace AztecStruct global ones of same name*/
   int *update=NULL;
 
-  if (Proc==0 && Iwrite != NO_SCREEN){
-       printf("\n-------------------------------------------------------------------\n");
-       printf("%s: Setting up the mesh ... \n",yo);
+  if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+       if (Iwrite_screen == SCREEN_VERBOSE) printf("\n-------------------------------------------------------------------\n");
+       printf("Setting up the mesh ... \n");
   }
   t1 = MPI_Wtime();
-  if (Proc==0) {
-    if( (fp1 = fopen(output_file1,"a+")) == NULL) {
-      printf("Can't open file %s\n", output_file1);
+  if (Proc==0 && Iwrite_files==FILES_DEBUG) {
+    if( (fpecho = fopen(file_echoinput,"a+")) == NULL) {
+      if (Iwrite_screen != SCREEN_NONE) printf("Can't open file %s\n", file_echoinput);
       exit(1);
     }
   }
@@ -68,7 +67,7 @@ void set_up_mesh (char *output_file1,char *output_file2)
    * Elements_plane, Vol_el, Area_surf_el,Nunk_per_node,
    * Nunknowns. 
    */
-  setup_basic_domain(fp1);
+  setup_basic_domain(fpecho);
 
 
   /* 
@@ -119,7 +118,7 @@ void set_up_mesh (char *output_file1,char *output_file2)
   if (L1D_bc || Load_Bal_Flag == LB_WEIGHTS || (Load_Bal_Flag >= LB_TIMINGS
 				      && Mesh_coarsening != FALSE) ) print_flag=FALSE;
 
-  control_mesh(fp1,output_file2,print_flag, update);
+  control_mesh(fpecho,output_file2,print_flag, update);
 
   if (L1D_bc || Load_Bal_Flag == LB_WEIGHTS || (Load_Bal_Flag >= LB_TIMINGS
 				      && Mesh_coarsening != FALSE) ) {
@@ -130,7 +129,8 @@ void set_up_mesh (char *output_file1,char *output_file2)
       */
     load_balance(1,NULL, &N_update, &update);
 
-    if (Iwrite==VERBOSE) printf("Proc: %d Nodes_per_proc: %d\n",Proc,Nnodes_per_proc);
+    if (Iwrite_screen==SCREEN_VERBOSE) printf("Proc: %d Nodes_per_proc: %d\n",Proc,Nnodes_per_proc);
+
 
     free_mesh_arrays();
 
@@ -152,11 +152,11 @@ void set_up_mesh (char *output_file1,char *output_file2)
       * And redo the mesh variables based on the new
       * load balancing.
       */
-     if (Proc==0 && Iwrite == VERBOSE) printf("\n%s: Setting up the mesh again after load balance... \n",yo);
+     if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE) printf("\n%Setting up the mesh again after load balance... \n");
      /* Call the destructor for the dft_Linprobmgr */
      dft_linprobmgr_destruct(LinProbMgr_manager);
 
-     control_mesh(fp1,output_file2,print_flag, update);
+     control_mesh(fpecho,output_file2,print_flag, update);
   }
 
     /* now reset the Mesh_coarsen_flag on the one row of nodes where
@@ -185,8 +185,8 @@ void set_up_mesh (char *output_file1,char *output_file2)
 
   safe_free((void *) &update);
   
-  if (Proc==0) fclose(fp1);
-  if (Proc==0 && Iwrite !=NO_SCREEN){
+  if (Proc==0 && Iwrite_files==FILES_DEBUG) fclose(fpecho);
+  if (Proc==0 && Iwrite_screen ==VERBOSE){
        printf("mesh set up took %g secs\n",MPI_Wtime()-t1);
        printf("-------------------------------------------------------------------\n");
   }
@@ -243,7 +243,7 @@ void free_mesh_arrays(void)
 control_mesh: this routine calls other functions
    involved in setting up the mesh.                     */
 
-void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
+void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
 {
   int  **elems_f,  
     ***elems_w_per_w;
@@ -283,9 +283,9 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
    * Nunknowns_box. 
    */
 
-  setup_basic_box(fp1, update);
+  setup_basic_box(fpecho, update);
   /* here is some debugging code to make sure we understand the basic box and the coordinate systems */
-   if (Iwrite==VERBOSE){
+   if (Iwrite_files==FILES_DEBUG){
        sprintf(proc_file,"L2GMap_%d",Proc);
        fp_L2Gmap = fopen(proc_file,"w");
        sprintf(proc_file,"B2GMap_%d",Proc);
@@ -400,7 +400,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
          for (inode_box=0; inode_box<Nnodes_box; inode_box++) Nwall_touch_node[inode_box]=0;
          for (inode_box=0; inode_box<Nnodes_box; inode_box++) Index_wall_nodes[inode_box]=-1;
 
-         setup_surface(fp1,nelems_f, nelems_w_per_w, elems_f,
+         setup_surface(fpecho,nelems_f, nelems_w_per_w, elems_f,
                                    elems_w_per_w,elem_zones,
                                    el_type);
 
@@ -464,7 +464,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
              safe_free((void *) &el_tmp);
              if (Proc==0){
                   Vol_in_surfs[ilist]+=(double)ncount*Vol_el;
-                  if (Iwrite != NO_SCREEN) printf("total volume in surfaces for ilist=%d is %9.6f (%d elements)\n",
+                  if (Iwrite_screen == SCREEN_VERBOSE) printf("total volume in surfaces for ilist=%d is %9.6f (%d elements)\n",
                          ilist,Vol_in_surfs[ilist],ncount);
              }
           }
@@ -474,20 +474,20 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
 /*     if (Num_Proc>1) MPI_Barrier(MPI_COMM_WORLD);*/
 
-     if (Imain_loop == 0 && Proc ==0){
-        fprintf (fp1,"\n---------------------------------------------------------------\n");
-        fprintf (fp1, " uave set up elements for the  selected surface geometry\n");
-        fprintf (fp1, " For this problem, Nlists_HW= %d \n",Nlists_HW);
+     if (Imain_loop == 0 && Proc ==0 && Iwrite_files==FILES_DEBUG){
+        fprintf (fpecho,"\n---------------------------------------------------------------\n");
+        fprintf (fpecho, " uave set up elements for the  selected surface geometry\n");
+        fprintf (fpecho, " For this problem, Nlists_HW= %d \n",Nlists_HW);
         for (ilist=0; ilist<Nlists_HW; ilist++){
-           fprintf (fp1,"ilist: %d\n",ilist);
-           fprintf (fp1,"\t nelems_f[ilist]: %d Proc %d\n",nelems_f[ilist],Proc);
+           fprintf (fpecho,"ilist: %d\n",ilist);
+           fprintf (fpecho,"\t nelems_f[ilist]: %d Proc %d\n",nelems_f[ilist],Proc);
            for (iwall=0; iwall<Nwall_Images; iwall++)
-                 fprintf (fp1,"\t iwall: %d \t nelems_w_per_w[ilist][iwall_Image] in domain: %d\n",
+                 fprintf (fpecho,"\t iwall: %d \t nelems_w_per_w[ilist][iwall_Image] in domain: %d\n",
                                          iwall, nelems_w_per_w[ilist][iwall]);
         }
         if (Proc==0) 
-        fprintf (fp1,"---------------------------------------------------------------\n");
-        /*fprintf (fp1,"%d Quadrature zones have been assigned\n",Nzone);*/
+        fprintf (fpecho,"---------------------------------------------------------------\n");
+        /*fprintf (fpecho,"%d Quadrature zones have been assigned\n",Nzone);*/
      }
 
     /* 
@@ -504,7 +504,10 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 
      /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
      ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
-     if (ierr!=0) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
+     if (ierr!=0){
+            if (Iwrite_screen != SCREEN_NONE) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
+            exit(-1);
+     }
 
      safe_free((void *) &elem_zones);
 
@@ -513,7 +516,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
      * Each processor sets up the arrays that pertain to the nodes it owns only.
      * The global arrays set up are Nodes_2_boundary_wall and Wall_elems.
      */
-     setup_zeroTF_and_Node2bound_new (fp1, el_type);
+     setup_zeroTF_and_Node2bound_new (fpecho, el_type);
 
      /* some temporary list arrays can be trashed now */
      safe_free((void *) &elems_f);
@@ -556,7 +559,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
         if (icomp==0){
           count_coarse_r_all=gsum_int(count_coarse_resid);
           count_coarse_jac_all=gsum_int(count_coarse_jac);
-          if (Proc==0 && Iwrite != NO_SCREEN && print_flag) {
+          if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE && print_flag) {
               printf("**************************************************************\n");
               printf("..............MESH SUMMARY..........\n");     
               printf("Total number of nodes in calculation = \t %d\n",Nnodes);
@@ -568,7 +571,7 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
               printf("--------------------------------------------------------------\n");
           }
         }
-        if (Proc==0 && Iwrite != NO_SCREEN && print_flag){
+        if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE && print_flag){
              printf("Number of zero density nodes for icomp: %d = \t %d \t or %g percent \n",
                   icomp,count_zero_all,100.*count_zero_all/Nnodes);
              if (icomp==Ncomp-1) 
@@ -611,15 +614,15 @@ void control_mesh(FILE *fp1,char *output_file2,int print_flag, int *update)
 /************************************************************************/
 /*setup_basic_domain: Here we set up the basic parameters of the calculation.
                  Number of nodes and elements etc.*/
-void setup_basic_domain(FILE *fp1)
+void setup_basic_domain(FILE *fpecho)
 {
   int idim,jdim;
 
   Nnodes = 1;
   Nelements = 1;
-  if (Proc==0 && Imain_loop == 0) {
-     fprintf(fp1,"\n--------------------------------------------------------------\n");
-     fprintf(fp1,"\n idim \t Nodes_x[idim] \t Nnodes \t Elements_x[idim] \t Nelements \n");
+  if (Proc==0 && Imain_loop == 0 && Iwrite_files==FILES_DEBUG) {
+     fprintf(fpecho,"\n--------------------------------------------------------------\n");
+     fprintf(fpecho,"\n idim \t Nodes_x[idim] \t Nnodes \t Elements_x[idim] \t Nelements \n");
   }
   for (idim = 0; idim < Ndim; idim++) {
       if (round_to_int(fmod(Size_x[idim],Esize_x[idim])) == 0){
@@ -632,22 +635,22 @@ void setup_basic_domain(FILE *fp1)
 
          Nnodes = Nnodes*Nodes_x[idim];
          Nelements = Nelements*Elements_x[idim];
-         if (Proc==0 && Imain_loop == 0) fprintf(fp1,"   %d \t    %d \t \t %d \t \t \t %d \t \t %d\n",
+         if (Proc==0 && Imain_loop == 0 && Iwrite_files==FILES_DEBUG) fprintf(fpecho,"   %d \t    %d \t \t %d \t \t \t %d \t \t %d\n",
                        idim,Nodes_x[idim],Nnodes,Elements_x[idim],Nelements);
       }
       else{
-         if (Proc==0 && Imain_loop == 0){
-            fprintf(fp1,"\n \nERROR: Esize_x and Size_x are not commensurate\n");
-            fprintf(fp1,"Esize_x: %lf\tSize_x: %lf\n",Esize_x[idim],Size_x[idim]);
-            fprintf(fp1,"idim: %d \t fmod(Size_x[idim],Esize_x[idim]): %g\n",
+         if (Proc==0 && Imain_loop == 0 && Iwrite_files==FILES_DEBUG){
+            fprintf(fpecho,"\n \nERROR: Esize_x and Size_x are not commensurate\n");
+            fprintf(fpecho,"Esize_x: %lf\tSize_x: %lf\n",Esize_x[idim],Size_x[idim]);
+            fprintf(fpecho,"idim: %d \t fmod(Size_x[idim],Esize_x[idim]): %g\n",
                     idim,fmod(Size_x[idim],Esize_x[idim]) );
          }
          exit(-1);
       }
   } 
   if (Nnodes < 2*Num_Proc){
-     if (Proc==0) printf("ERROR - less than two nodes per processor on average - decrease the number of processors\n");
-     if (Proc==0) printf("Nnodes=%d  Num_Proc=%d\n",Nnodes,Num_Proc);
+     if (Proc==0 && Iwrite_screen != SCREEN_NONE) printf("ERROR - less than two nodes per processor on average - decrease the number of processors\n");
+     if (Proc==0 && Iwrite_screen != SCREEN_NONE) printf("Nnodes=%d  Num_Proc=%d\n",Nnodes,Num_Proc);
      exit (-1);
   }
   for (idim = Ndim; idim < 3; idim++) Nodes_x[idim] = 1;
@@ -655,7 +658,7 @@ void setup_basic_domain(FILE *fp1)
   if (Ndim == 3) {
       Nodes_plane = Nodes_x[0]*Nodes_x[1];
       Elements_plane = Elements_x[0]*Elements_x[1];
-      if (Proc==0 && Imain_loop == 0) fprintf (fp1,"\nNodes_plane: %d \t Elements_plane: %d \n",
+      if (Proc==0 && Imain_loop == 0 && Iwrite_files==FILES_DEBUG) fprintf (fpecho,"\nNodes_plane: %d \t Elements_plane: %d \n",
                                                 Nodes_plane,Elements_plane);
   }
 
@@ -683,16 +686,16 @@ void setup_basic_domain(FILE *fp1)
 /******************************************************************
 setup_basic_box: here we set up the box coordinates for
                  parallel computations. */
-void setup_basic_box(FILE *fp1, int *update)
+void setup_basic_box(FILE *fpecho, int *update)
 {
   int idim,inode_box,i_box,loc_inode,inode,icomp;
   double max_cut=0.0;
   int ijk_1D=0;
-  FILE *fp2;
+  FILE *fp_procmesh;
 
-  if (Iwrite==VERBOSE) {
-    if( (fp2 = fopen("proc_mesh.dat","a+")) == NULL) {
-      printf("Can't open file proc_mesh.dat\n");
+  if (Iwrite_files==FILES_DEBUG) {
+    if( (fp_procmesh = fopen("proc_mesh.dat","a+")) == NULL) {
+      if(Iwrite_screen != SCREEN_NONE) printf("Can't open file proc_mesh.dat\n");
       exit(1);
     }
   }
@@ -750,9 +753,9 @@ void setup_basic_box(FILE *fp1, int *update)
   Nnodes_box = 1;
   Nelements_box = 1;
 
-  if (Imain_loop == 0 && Proc==0) {
-    fprintf(fp1,"\n-------------------------------------------------------\n");
-    fprintf(fp1,"\n \t idim \t Nodes_x[idim] \t Nnodes \t Elements_x[idim] \t Nelements...box units\n");
+  if (Imain_loop == 0 && Proc==0 && Iwrite_files==FILES_DEBUG) {
+    fprintf(fpecho,"\n-------------------------------------------------------\n");
+    fprintf(fpecho,"\n \t idim \t Nodes_x[idim] \t Nnodes \t Elements_x[idim] \t Nelements...box units\n");
   }
   for (idim = 0; idim < Ndim; idim++) {
     Nodes_x_box[idim] = Max_IJK_box[idim] - Min_IJK_box[idim] + 1;
@@ -762,8 +765,8 @@ void setup_basic_box(FILE *fp1, int *update)
     
     Nnodes_box = Nnodes_box*Nodes_x_box[idim];
     Nelements_box = Nelements_box*Elements_x_box[idim];
-    if (Imain_loop == 0 && Proc==0) 
-      fprintf(fp1,"  Proc: %d   %d \t    %d \t \t %d \t \t \t %d \t \t %d\n",
+    if (Imain_loop == 0 && Proc==0 && Iwrite_files==FILES_DEBUG) 
+      fprintf(fpecho,"  Proc: %d   %d \t    %d \t \t %d \t \t \t %d \t \t %d\n",
 	      Proc,idim,Nodes_x_box[idim],Nnodes_box,
 	      Elements_x_box[idim],Nelements_box);
   } 
@@ -773,21 +776,21 @@ void setup_basic_box(FILE *fp1, int *update)
   if (Ndim == 3) {
     Nodes_plane_box = Nodes_x_box[0]*Nodes_x_box[1];
     Elements_plane_box = Elements_x_box[0]*Elements_x_box[1];
-    if (Imain_loop == 0 && Proc==0) 
-      fprintf (fp1,"\n Proc: %d  Nodes_plane_box: %d \t Elements_plane_box: %d \n",
+    if (Imain_loop == 0 && Proc==0 && Iwrite_files==FILES_DEBUG) 
+      fprintf (fpecho,"\n Proc: %d  Nodes_plane_box: %d \t Elements_plane_box: %d \n",
 	       Proc, Nodes_plane_box,Elements_plane_box);
   }
 
   Nunknowns_box = Nnodes_box * Nunk_per_node;
-  if (Proc == 0) fprintf (fp1," Proc: %d  Nunknowns_box: %d \n",
-                                           Proc, Nunknowns_box);
+  if (Proc == 0 && Iwrite_files==FILES_DEBUG) 
+       fprintf (fpecho," Proc: %d  Nunknowns_box: %d \n", Proc, Nunknowns_box);
 
-  if (Iwrite==VERBOSE){
-     for (idim=0; idim<Ndim; idim++) fprintf(fp2, "Proc=%d Pflag[%d]=%d\n",Proc,idim,Pflag[idim]);
-     fprintf(fp2,"Proc: %d  Nnodes_per_proc: %d  Nnodes_box: %d",Proc,Nnodes_per_proc,Nnodes_box); 
-     for (idim=0; idim<Ndim; idim++) fprintf(fp2,"  Min_IJK[%d]: %d  Max_IJK[%d]:%d ",idim,Min_IJK[idim],idim,Max_IJK[idim]); 
+  if (Iwrite_files==FILES_DEBUG){
+     for (idim=0; idim<Ndim; idim++) fprintf(fp_procmesh, "Proc=%d Pflag[%d]=%d\n",Proc,idim,Pflag[idim]);
+     fprintf(fp_procmesh,"Proc: %d  Nnodes_per_proc: %d  Nnodes_box: %d",Proc,Nnodes_per_proc,Nnodes_box); 
+     for (idim=0; idim<Ndim; idim++) fprintf(fp_procmesh,"  Min_IJK[%d]: %d  Max_IJK[%d]:%d ",idim,Min_IJK[idim],idim,Max_IJK[idim]); 
      for (idim=0; idim<Ndim; idim++) 
-          fprintf(fp2,"Min_IJK_box[%d]: %d  Max_IJK_box[%d]:%d \n",idim,Min_IJK_box[idim],idim,Max_IJK_box[idim]); 
+          fprintf(fp_procmesh,"Min_IJK_box[%d]: %d  Max_IJK_box[%d]:%d \n",idim,Min_IJK_box[idim],idim,Max_IJK_box[idim]); 
   }
 
   /*
@@ -851,20 +854,20 @@ void setup_basic_box(FILE *fp1, int *update)
     B2L_node[inode_box] = loc_inode;
     L2G_node[loc_inode] = inode;
   }
-  if (Iwrite==VERBOSE) fclose(fp2);
+  if (Iwrite_files==FILES_DEBUG) fclose(fp_procmesh);
   return;
 }
 /*****************************************************************************
 boundary_setup: This routine sets up the boundaries and surface charges.
                 These calls were removed from mesh_setup to be called
                 after load balancing, since some arrays are local to a Proc.*/
-void boundary_setup(char *output_file1)
+void boundary_setup(char *file_echoinput)
 {
-  FILE *fp1=NULL;
+  FILE *fpecho=NULL;
 
-  if (Proc==0) {
-    if( (fp1 = fopen(output_file1,"a+")) == NULL) {
-      printf("Can't open file %s\n", output_file1);
+  if (Proc==0 && Iwrite_files==FILES_DEBUG) {
+    if( (fpecho = fopen(file_echoinput,"a+")) == NULL) {
+      if (Iwrite_screen != SCREEN_NONE) printf("Can't open file %s\n", file_echoinput);
       exit(1);
     }
   }
@@ -875,7 +878,7 @@ void boundary_setup(char *output_file1)
      * unit normals, the total areas of each surface, and the surface
      * area in each dimension on each processor. 
      */
-     boundary_properties(fp1);
+     boundary_properties(fpecho);
   }
 
   /*
@@ -886,10 +889,10 @@ void boundary_setup(char *output_file1)
   if(Ipot_wf_c == COULOMB) {
      Vol_charge_flag = FALSE;
      Surf_charge_flag = FALSE;
-     setup_surface_charge(fp1);
+     setup_surface_charge(fpecho);
   }
 
-  if (Proc==0) fclose(fp1);
+  if (Proc==0 && Iwrite_files==FILES_DEBUG) fclose(fpecho);
 }
 /*****************************************************************************
 boundary_free: This routine frees the arrays formed in boundary_setup       */
@@ -926,7 +929,7 @@ void boundary_free(void)
 setup_zeroTF_and_Node2bound: This routine take the information about which elements
                     are wall and fluid elements, and translates that into
                     lists of wall nodes and fluid nodes for each wall list */
-void setup_zeroTF_and_Node2bound (FILE *fp1,int ***el_type)
+void setup_zeroTF_and_Node2bound (FILE *fpecho,int ***el_type)
 {
  int reflect_flag[3], **n_fluid_els, iwall,iwall_type,
       iel, idim, ilist, loc_node_el,
@@ -1003,7 +1006,6 @@ void setup_zeroTF_and_Node2bound (FILE *fp1,int ***el_type)
  countw = (int **) array_alloc (2, nonat_count,Nlists_HW,sizeof(int));
 
   if (nonat_count > 0 || Nwall<0){
-printf("setting up problem with old ZeroTF routine\n");
  /* 
   * loop over all nodes in the box coordinates of this processor
   * to set up Nodes_2_boundary_wall array 
@@ -1211,21 +1213,21 @@ printf("setting up problem with old ZeroTF routine\n");
  }
 
 
- if (Imain_loop==0 && Proc==0 && Iwrite==VERBOSE) {
-    fprintf (fp1,"\n---------------------------------------------------------------\n");
-    fprintf (fp1,"Proc: %d \n",Proc);
-    fprintf(fp1,"Have set up arrays Wall_elems, and Nodes_2_boundary_wall\n");
+ if (Imain_loop==0 && Proc==0 && Iwrite_files==FILES_DEBUG) {
+    fprintf (fpecho,"\n---------------------------------------------------------------\n");
+    fprintf (fpecho,"Proc: %d \n",Proc);
+    fprintf(fpecho,"Have set up arrays Wall_elems, and Nodes_2_boundary_wall\n");
 
     for (ilist=0; ilist<Nlists_HW; ilist++){
          for (inode_box=0; inode_box<Nnodes_box; inode_box++){
              node_to_ijk(B2G_node[inode_box],ijk);
              if (Nodes_2_boundary_wall[ilist][inode_box] != -1)
-                fprintf(fp1,"hi ilist: %d   inode: %d  ijk: %d iwall: %d\n",
+                fprintf(fpecho,"hi ilist: %d   inode: %d  ijk: %d iwall: %d\n",
                            ilist,B2G_node[inode_box],ijk[0],
                            Nodes_2_boundary_wall[ilist][inode_box]);
          }
     }
-    fprintf (fp1,"\n---------------------------------------------------------------\n");
+    fprintf (fpecho,"\n---------------------------------------------------------------\n");
  } 
 
  safe_free((void *) &n_fluid_els);
@@ -1241,7 +1243,7 @@ printf("setting up problem with old ZeroTF routine\n");
 setup_zeroTF_and_Node2bound_new: This routine take the information about which elements
                     are wall and fluid elements, and translates that into
                     lists of wall nodes and fluid nodes for each wall list */
-void setup_zeroTF_and_Node2bound_new (FILE *fp1,int ***el_type)
+void setup_zeroTF_and_Node2bound_new (FILE *fpecho,int ***el_type)
 {
  int reflect_flag[3], *n_fluid_els, iwall,
       iel, idim, ilist, loc_node_el,
@@ -1539,20 +1541,20 @@ Zero_density_TF[inode_box][ilist] = TRUE;
 
  }        /* End of loop over nodes in local box coordinates */
 
- if (Imain_loop==0 && Proc==0 && Iwrite==VERBOSE) {
-    fprintf (fp1,"\n---------------------------------------------------------------\n");
-    fprintf (fp1,"Proc: %d \n",Proc);
-    fprintf(fp1,"Have set up arrays Wall_elems, and Nodes_2_boundary_wall\n");
+ if (Imain_loop==0 && Proc==0 && Iwrite_files==FILES_DEBUG) {
+    fprintf (fpecho,"\n---------------------------------------------------------------\n");
+    fprintf (fpecho,"Proc: %d \n",Proc);
+    fprintf(fpecho,"Have set up arrays Wall_elems, and Nodes_2_boundary_wall\n");
 
     for (ilist=0; ilist<Nlists_HW; ilist++){
          for (inode_box=0; inode_box<Nnodes_box; inode_box++){
              node_to_ijk(B2G_node[inode_box],ijk);
              if (Nodes_2_boundary_wall[ilist][inode_box] != -1)
-                fprintf(fp1,"ilist: %d   inode: %d   iwall: %d\n",
+                fprintf(fpecho,"ilist: %d   inode: %d   iwall: %d\n",
                            ilist,B2G_node[inode_box], Nodes_2_boundary_wall[ilist][inode_box]);
          }
     }
-    fprintf (fp1,"\n---------------------------------------------------------------\n");
+    fprintf (fpecho,"\n---------------------------------------------------------------\n");
  } 
 
  safe_free((void *) &n_fluid_els);
@@ -1569,7 +1571,7 @@ Zero_density_TF[inode_box][ilist] = TRUE;
 *                      that each boundary node is a part of.  We store      *
 *                      the normal to the surface element for future use.    */
 
-void boundary_properties(FILE *fp1)
+void boundary_properties(FILE *fpecho)
 {
   int norm,ilist,loc_inode,iwall,i,j,*iel,idim,inode,iel_s,
       loc_node_el,reflect_flag[3], ijk[3],inode_box,surf_norm,
@@ -2049,15 +2051,15 @@ void boundary_properties(FILE *fp1)
   }             /* end of loop over lists */
   safe_free((void *) &iel);
 
-  if (Proc == 0 && Imain_loop>=0) {
-     fprintf (fp1,"\n---------------------------------------------------------------\n");
-     fprintf(fp1,"Done calculating surface normals of boundary elements : Iloop: %d\n",Imain_loop);
-     fprintf(fp1,"\nProc: %d\n",Proc);
+  if (Proc == 0 && Imain_loop>=0 && Iwrite_files==FILES_DEBUG) {
+     fprintf (fpecho,"\n---------------------------------------------------------------\n");
+     fprintf(fpecho,"Done calculating surface normals of boundary elements : Iloop: %d\n",Imain_loop);
+     fprintf(fpecho,"\nProc: %d\n",Proc);
   }
 
   for (ilist=0; ilist<Nlists_HW; ilist++){
      for (idim=0; idim<Ndim; idim++) sum[idim]=0;
-     if (Proc==0 && Imain_loop>=0) fprintf (fp1,"\nilist: %d\n",ilist); 
+     if (Proc==0 && Imain_loop>=0 && Iwrite_files==FILES_DEBUG) fprintf (fpecho,"\nilist: %d\n",ilist); 
      for (loc_inode=0; loc_inode<Nnodes_per_proc;loc_inode++){
 
          inode = L2G_node[loc_inode];
@@ -2080,36 +2082,36 @@ void boundary_properties(FILE *fp1)
       }
       for (idim=0; idim<Ndim; idim++){
       sum_all[idim] = gsum_double(sum[idim]);
-        if (Proc == 0)
-          fprintf(fp1,"ilist: %d Summing surface normals idim: %d yields: %d\n", 
+        if (Proc == 0 && Iwrite_files==FILES_DEBUG)
+          fprintf(fpecho,"ilist: %d Summing surface normals idim: %d yields: %d\n", 
                                                       ilist,idim,sum_all[idim]);
       }
 
   }
-  if (Proc==0 && Imain_loop>=0) {
-     fprintf (fp1,"\n---------------------------------------------------------------\n");
-     fprintf(fp1,"Done calculating surface areas.Iloop: %d\n",Imain_loop);
-     fprintf(fp1,"\nProc: %d\n",Proc);
+  if (Proc==0 && Imain_loop>=0 && Iwrite_files==FILES_DEBUG) {
+     fprintf (fpecho,"\n---------------------------------------------------------------\n");
+     fprintf(fpecho,"Done calculating surface areas.Iloop: %d\n",Imain_loop);
+     fprintf(fpecho,"\nProc: %d\n",Proc);
   }
 
-  if (Proc == 0 && Imain_loop>=0) {
+  if (Proc == 0 && Imain_loop>=0 && Iwrite_files==FILES_DEBUG) {
      for (ilist=0; ilist<Nlists_HW; ilist++){
-        fprintf (fp1,"\nilist: %d\n",ilist); 
+        fprintf (fpecho,"\nilist: %d\n",ilist); 
         sarea_sum=0.0;
         for (iwall=0; iwall<Nwall; iwall++){
-            if (Proc==0) fprintf (fp1,"\t iwall: %d \t S_area_tot[ilist][iwall]: %9.6f\n",
+            if (Proc==0) fprintf (fpecho,"\t iwall: %d \t S_area_tot[ilist][iwall]: %9.6f\n",
                                             iwall, S_area_tot[ilist][iwall]); 
             sarea_sum += S_area_tot[ilist][iwall];
             for (idim=0; idim<Ndim; idim++){
-                 if (Proc==0) fprintf (fp1,"\t\t idim: %d \t S_area[ilist][iwall][idim]: %9.6f\n",
+                 if (Proc==0) fprintf (fpecho,"\t\t idim: %d \t S_area[ilist][iwall][idim]: %9.6f\n",
                                                   idim, S_area[ilist][iwall][idim]); 
              }
        }
-            fprintf (fp1,"\t total of walls: %d \t sarea_sum=%9.6f\n", ilist, sarea_sum);
+       fprintf (fpecho,"\t total of walls: %d \t sarea_sum=%9.6f\n", ilist, sarea_sum);
      }
   }
-  if (Proc ==0 && Imain_loop >=0) 
-       fprintf (fp1,"\n---------------------------------------------------------------\n");
+  if (Proc ==0 && Imain_loop >=0 && Iwrite_files==FILES_DEBUG) 
+       fprintf (fpecho,"\n---------------------------------------------------------------\n");
 
   safe_free ((void *) &iel_box);
   safe_free ((void *) &els_one_owner);
@@ -2210,7 +2212,7 @@ setup_surface_charge: assign a surface charge to each of the surface
                       is only set up for constant charge per unit area 
                       at the moment.                               */ 
 
-void setup_surface_charge(FILE *fp1)
+void setup_surface_charge(FILE *fpecho)
 {
   int iwall,iwall_test,iwall_type, loc_inode, idim, inode_box;
   int ncharge_s,ncharge_v,iel;
@@ -2264,8 +2266,8 @@ void setup_surface_charge(FILE *fp1)
       Vol_charge_flag = TRUE;
   }
 
-  if (Iwrite == VERBOSE){
-      if (Proc==0) printf ("PRINTING CHARGE DISTRIBUTIONS: ncharge_v=%d ncharge_s=%d\n",ncharge_v,ncharge_s);
+  if (Iwrite_files == FILES_DEBUG){
+      if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE) printf ("PRINTING CHARGE DISTRIBUTIONS to files: ncharge_v=%d ncharge_s=%d\n",ncharge_v,ncharge_s);
       if (ncharge_v>0 || Nlocal_charge !=0) print_charge_vol(Charge_vol_els,"dft_charge_vol.dat");
       if (ncharge_s>0) print_charge_surf(Charge_w_sum_els,"dft_charge_surf.dat");
   }
@@ -2273,10 +2275,10 @@ void setup_surface_charge(FILE *fp1)
 
         
            /********** PRINTING **********/
-/*  if (Proc == 0 && Imain_loop==0) {
-     fprintf (fp1,"\n---------------------------------------------------------------\n");
-     fprintf(fp1,"Done setting up the surface charges.\n");
-     fprintf(fp1,"\nProc: %d\n",Proc);
+/*  if (Proc == 0 && Imain_loop==0 && Iwrite_files==FILES_DEBUG) {
+     fprintf (fpecho,"\n---------------------------------------------------------------\n");
+     fprintf(fpecho,"Done setting up the surface charges.\n");
+     fprintf(fpecho,"\nProc: %d\n",Proc);
   }
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
@@ -2287,15 +2289,15 @@ void setup_surface_charge(FILE *fp1)
       if (charge_TF == TRUE) {
          inode = L2G_node[loc_inode];
          if (Proc == 0 && Imain_loop==0) {
-            fprintf (fp1,"inode: %d \n", inode); 
+            fprintf (fpecho,"inode: %d \n", inode); 
             for (idim=0; idim<Ndim; idim++)
-               fprintf (fp1,"\t idim: %d \t Charge_w_sum_els[inode][idim]: %9.6f\n",
+               fprintf (fpecho,"\t idim: %d \t Charge_w_sum_els[inode][idim]: %9.6f\n",
                                            idim, Charge_w_sum_els[loc_inode][idim]); 
          }
       }
   }
   if (Proc == 0 && Imain_loop==0) 
-     fprintf (fp1,"\n---------------------------------------------------------------\n"); 
+     fprintf (fpecho,"\n---------------------------------------------------------------\n"); 
 */
   return;
 }
@@ -2411,7 +2413,7 @@ void setup_volume_charge1(int iwall)
   for (iel=0; iel<nelems; iel++){
       Charge_vol_els[elems[iel]]+=charge_per_el;
   }
-  if (Proc==0 && Iwrite==VERBOSE){ 
+  if (Proc==0 && Iwrite_screen==SCREEN_VERBOSE){ 
         printf("iwall: %d size=%g has a charge of: %g being smeared over %d elements\n",
                          iwall, r, Elec_param_w[iwall],nelems_unique);
   }
@@ -2438,7 +2440,7 @@ void setup_volume_charge2(void)
       if (Charge_type_local==BACKGROUND){
           charge_per_el = Charge[i]/(double) Nelements;
           for (iel=0; iel<Nelements_box; iel++) Charge_vol_els[iel] += charge_per_el;
-        if (Proc==0&&Iwrite!=NO_SCREEN) printf("a uniform background charge of %g total is being smeared over every element\n",
+        if (Proc==0&&Iwrite_screen==SCREEN_VERBOSE) printf("a uniform background charge of %g total is being smeared over every element\n",
                                                                            Charge[i]);
       }
       else {
@@ -2460,7 +2462,7 @@ void setup_volume_charge2(void)
          for (iel=0; iel<nelems; iel++){
             Charge_vol_els[elems[iel]] += charge_per_el;
          }
-         if (Proc==0 && Iwrite==VERBOSE) 
+         if (Proc==0 && Iwrite_screen==SCREEN_VERBOSE) 
               printf(" a charge of: %g being smeared over %d elements\n", 
                                                          Charge[i],nelems_unique);
       }
@@ -2603,7 +2605,7 @@ void zones_el_to_nodes(int *elem_zones)
        }
      }
   }
-  if (Iwrite == VERBOSE) print_Nodes_to_zone(Nodes_to_zone,"dft_zones.dat");
+  if (Iwrite_files == FILES_DEBUG) print_Nodes_to_zone(Nodes_to_zone,"dft_zones.dat");
 }
 /****************************************************************************/
 void set_mesh_coarsen_flag(void)
@@ -2665,13 +2667,13 @@ void set_mesh_coarsen_flag(void)
   if (L1D_bc){
      Nnodes_coarse_loc=count;
      nodes_coarse=gsum_int(count);
-     if (Proc==0&&Iwrite!=NO_SCREEN) printf(" %d nodes of %d total will be set to the 1D boundary region\n",nodes_coarse,Nnodes);
+     if (Proc==0&&Iwrite_screen==VERBOSE) printf(" %d nodes of %d total will be set to the 1D boundary region\n",nodes_coarse,Nnodes);
   }
   else{
      if (Mesh_coarsening==BULK_ZONE || Mesh_coarsening==PB_ZONE) Nnodes_coarse_loc=0;
      else                                                        Nnodes_coarse_loc=count_coarse;
      nodes_coarse=gsum_int(count_coarse);
-     if (Proc==0&&Iwrite!=NO_SCREEN) printf(" %d nodes of %d total will be coarsened\n",nodes_coarse,Nnodes);
+     if (Proc==0&&Iwrite_screen==VERBOSE) printf(" %d nodes of %d total will be coarsened\n",nodes_coarse,Nnodes);
   }
 
 }
@@ -2684,9 +2686,9 @@ void setup_area_IC(void)
   int inode_box, inode,idim,i;
   double nodepos[3],rad,xleft,xright;
   char *filename = "Area_IC.dat";
-  FILE *fp=NULL;
+  FILE *fp_AreaIC=NULL;
 
-  if (Iwrite == VERBOSE && Proc==0) fp=fopen(filename,"w");
+  if (Iwrite_files == FILES_DEBUG && Proc==0) fp_AreaIC=fopen(filename,"w");
 
   idim = Grad_dim;
   for (inode_box=0; inode_box <Nnodes_box; inode_box++){
@@ -2724,10 +2726,10 @@ void setup_area_IC(void)
           Area_IC[inode_box] = 1.0;
           break;
     }
-    if (Iwrite==VERBOSE && Proc==0) 
-        fprintf(fp," %d  %9.6f \n", inode_box,Area_IC[inode_box]);
+    if (Iwrite_files == FILES_DEBUG  && Proc==0) 
+        fprintf(fp_AreaIC," %d  %9.6f \n", inode_box,Area_IC[inode_box]);
   }
-  if (Iwrite == VERBOSE && Proc==0) fclose(fp);
+  if (Iwrite_files == FILES_DEBUG && Proc==0) fclose(fp_AreaIC);
   return;
 }
 /****************************************************************************/
@@ -2978,7 +2980,9 @@ void initialize_Aztec(int* N_update, int *update[])
                                         /* criterion (often called eta_k)    */
 
   options[AZ_conv] = AZ_r0;
-  if (Iwrite==NO_SCREEN)  options[AZ_output] = 0; /* no output */
+  if (Iwrite_screen==SCREEN_NONE)  options[AZ_output] = 0; /* no output */
+  else if (Iwrite_screen==SCREEN_ERRORS_ONLY || Iwrite_screen==SCREEN_BASIC) options[AZ_output] = AZ_warnings; /*output warnings */
+/*  else if (Iwrite_screen==SCREEN_BASIC) options[AZ_output] = AZ_last; */
   else options[AZ_output] = 10; /* lots of output */
   options[AZ_pre_calc] = AZ_calc;
   options[AZ_max_iter] = Max_gmres_iter;
@@ -3080,7 +3084,6 @@ void MY_read_update(int *N_update, int *update[],
    */
   if (input_option == AZ_box) {
 
-
     /* find approx number of nodes on a side of each proc's box */
 
     npts = pow( (double) N / (double) nprocs, 1.0 / (double) Ndim);
@@ -3120,11 +3123,6 @@ void MY_read_update(int *N_update, int *update[],
 
         *N_update = chunk * (end_x - start_x) * (end_y - start_y);
 
-/*
-printf("Proc %d nx %d ny %d px %d py %d st_x %d e_x %d st_y %d e_y %d N_update %d\n",
-         proc, nodes_x[0], nodes_x[1], px, py, start_x, end_x-1, start_y, end_y-1, *N_update);
-*/
-
         /* if (!AZ_using_fortran) */
               *update     = (int *) calloc(*N_update, sizeof(int));
 
@@ -3146,8 +3144,8 @@ printf("Proc %d nx %d ny %d px %d py %d st_x %d e_x %d st_y %d e_y %d N_update %
       }
     }
     else {
-     printf("AZ_BOX NOT YET SET FOR NDIM=3 :  %d\n", Ndim);
-     exit(-1);
+       if (Iwrite_screen != SCREEN_NONE) printf("AZ_BOX NOT YET SET FOR NDIM=3 :  %d\n", Ndim);
+       exit(-1);
     }
   }
   else if (input_option == AZ_linear) {
@@ -3172,7 +3170,7 @@ printf("Proc %d nx %d ny %d px %d py %d st_x %d e_x %d st_y %d e_y %d N_update %
 
     /*if (!AZ_using_fortran) */
       *update = (int *) calloc(*N_update,sizeof(int));
-    if ( (*update == NULL) && (*N_update != 0)) {
+    if ( (*update == NULL) && (*N_update != 0) && Iwrite_screen != SCREEN_NONE) {
       (void) fprintf (stderr, "Not enough space to allocate 'update'\n");
       exit(-1);
     }
@@ -3188,8 +3186,9 @@ printf("Proc %d nx %d ny %d px %d py %d st_x %d e_x %d st_y %d e_y %d N_update %
     }
 
   }
-  else
-    (void) fprintf(stderr,"Unknown input option (%d) in MY_read_update()\n",
-                   input_option);
+  else{
+    if (Iwrite_screen != SCREEN_NONE) 
+          (void) fprintf(stderr,"Unknown input option (%d) in MY_read_update()\n", input_option);
+  }
 
 } /* MY_read_update */

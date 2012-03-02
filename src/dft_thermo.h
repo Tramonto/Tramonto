@@ -57,6 +57,7 @@ extern double Field_WJDC_LBB[NMER_MAX];
 extern double Betamu_chain_LBB[NMER_MAX];
 void chempot_chain_wjdc(double *rho,double *betamu_chain,double *field_WJDC,double *g_WJDC);
 extern double Xi_cav_b[4];
+#define NO_SCREEN    4 
 extern int Iwrite;
 extern double Dphi_Drhobar_b[10];
 extern double Rhobar_b[10];
@@ -67,6 +68,7 @@ extern double Betap;
 void print_to_file(FILE *fp,double val,char *var_label,int first);
 void print_to_screen(double val,char *var_label);
 extern double Xi_cav_RTF[4];
+#define SCREEN_VERBOSE     3 
 extern double Xi_cav_LBB[4];
 double pressure_WTC(double *rho_seg,double *xi_cav);
 double pressure_elec_MSA(double *rho);
@@ -90,10 +92,8 @@ extern double Betap_LBB;
 extern int Lseg_densities;
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
-void calc_pressure(char *output_file1,int iwrite);
-void calc_pressure(char *output_file1,int iwrite);
-void calc_chempot(char *output_file1,int iwrite);
-void calc_chempot(char *output_file1,int iwrite);
+void calc_pressure(char *file_echoinput,int iwrite_screen,int iwrite_files);
+void calc_chempot(char *file_echoinput,int iwrite_screen,int iwrite_files);
 void WJDC_thermo_precalc(char *output_file1);
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int Npol_comp;
@@ -113,10 +113,10 @@ void WTC_thermo_precalc(char *output_file1);
 #define WTC          2
 extern int Type_poly;
 extern int L_HSperturbation;
-#define NO_SCREEN    4 
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-void thermodynamics(char *output_file1,int iwrite);
-void thermodynamics(char *output_file1,int iwrite);
+void thermodynamics(char *file_echoinput,int iwrite_screen,int iwrite_files);

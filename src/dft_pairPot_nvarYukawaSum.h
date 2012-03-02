@@ -38,6 +38,11 @@ void urNandYUKAWA_InnerCore(int i,int j,double *rCore_left,double *rCore_right,d
 #define POW_DOUBLE_INT pow
 #endif
 double urNandYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,double yukawaK,double AYukawa,double npow);
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
+extern int Iwrite_screen;
 #define NWALL_MAX_TYPE 50 
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];

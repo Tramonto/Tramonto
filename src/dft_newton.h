@@ -16,6 +16,9 @@ void fill_test(double **x,int flag);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define SCREEN_DEBUG_RESID 2
+#define SCREEN_VERBOSE     3 
+#define NO_SCREEN    4 
 extern int *L2G_node;
 int find_length_of_file(char *filename);
 #define CALC_AND_FILL_RESID_ONLY  4
@@ -46,6 +49,7 @@ extern int *Pol_Sym;
 #define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 double gsum_double(double c);
+#define SCREEN_BASIC       1
 double gmin_double(double c);
 int update_solution_new(double **x,double **delta_x,int iter);
 extern int Proc;
@@ -62,7 +66,9 @@ extern double Time_linsolver_first;
 extern double Time_manager_av;
 extern double Time_manager_first;
 void print_resid_norm(int iter);
-#define NO_SCREEN    4 
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 extern double Time_fill_av;
 extern double Time_fill_first;
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
@@ -100,8 +106,8 @@ extern struct Loca_Struct Loca;
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */
 extern int Lbinodal;
 void print_profile_box(double **x,char *outfile);
-#define VERBOSE      3 
-extern int Iwrite;
+#define FILES_DEBUG        2
+extern int Iwrite_files;
 extern void *LinProbMgr_manager;
 extern double Time_InitGuess;
 extern int Iguess;

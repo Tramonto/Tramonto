@@ -55,6 +55,7 @@ double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
            }
            if (resid_only_flag==FALSE){
               mat_val=1.0;
+              if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk_att*Nnodes]+=mat_val;
               dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk_att,inode_box,mat_val);
            }
        }
@@ -68,6 +69,7 @@ double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
        }
        if(!resid_only_flag){
           mat_val = 1.0/x[iunk][inode_box];  
+          if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
        }
 
@@ -81,6 +83,7 @@ double load_CMS_field(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
           }
           if(!resid_only_flag){
                mat_val = Charge_f[itype_mer];
+               if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+junk*Nnodes]+=mat_val;
                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
           }
        }          
@@ -165,6 +168,7 @@ void CMS_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int 
           if (j != i)  fac *= x[unk[j]][jnode_box];  /*Gs or Qs*/              
        }              
        mat_val = fac*prefac*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power); 
+       if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_box]+unk[i]*Nnodes]+=mat_val;
        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[i],jnode_box,mat_val);
     }
     return;
@@ -182,6 +186,7 @@ void CMS_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg,
     fac=weight;
     for(i=0;i<nunk-1;i++) fac *=x[unk[i]][jnode_box];  /*Gs or Qs*/
     mat_val = fac*((double)prefac)*POW_DOUBLE_INT(x[unk[nunk-1]][jnode_box],power); /* Boltz Field Term */
+    if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_box]+unk[nunk-1]*Nnodes]+=mat_val;
     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk[nunk-1],jnode_box,mat_val);
     return;
 }

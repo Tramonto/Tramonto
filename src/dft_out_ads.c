@@ -43,7 +43,9 @@ void calc_adsorption(FILE *fp,double **x)
 
   if(!first) {
 
-  if (Proc==0 &&Iwrite != NO_SCREEN) printf("-------------------- ADSORPTION -------------------------------\n");
+  if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE) {
+     printf("-------------------- ADSORPTION -------------------------------\n");
+  }
   for (icomp=0;icomp<nloop;icomp++) ads[icomp]=0.0;
   for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
      if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
@@ -60,10 +62,10 @@ void calc_adsorption(FILE *fp,double **x)
      for (idim=0;idim<Ndim;idim++) volume*=Size_x[idim];
      for (icomp=0;icomp<nloop;icomp++){
           if(!first){
-               if ( Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL) 
-                       if (Iwrite != NO_SCREEN)  print_to_screen_comp(icomp,ads[icomp]/volume,"DENSITY");
-               else {
-                       if (Iwrite != NO_SCREEN)  print_to_screen_comp(icomp,ads[icomp],"ADSORPTION");
+               if (Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+                  printf("\t\t----------------------------------------\n");
+                 if ( Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL) print_to_screen_comp(icomp,ads[icomp]/volume,"DENSITY");
+                 else print_to_screen_comp(icomp,ads[icomp],"ADSORPTION");
                }
           }
           if (fp !=NULL){
@@ -88,14 +90,16 @@ void calc_adsorption(FILE *fp,double **x)
   }
  }
 
-  if (Proc==0 && Iwrite != NO_SCREEN){
+  if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
      for (icomp=0;icomp<nloop;icomp++){
-        if(!first &&  (!LBulk || Nwall>0) && Type_interface==UNIFORM_INTERFACE && Iwrite != NO_SCREEN) print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
+        if(!first &&  (!LBulk || Nwall>0) && Type_interface==UNIFORM_INTERFACE ) print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
         if (fp !=NULL && (!LBulk || Nwall>0) && Type_interface==UNIFORM_INTERFACE) print_to_file_comp(fp,icomp,ads_ex[icomp],"ads_ex",first);
      }    
   }
   if (first) first=FALSE;
-  if (Proc==0 &&Iwrite != NO_SCREEN) printf("---------------------------------------------------------------\n");
+  if (Proc==0 && Iwrite_screen == VERBOSE){
+      printf("---------------------------------------------------------------\n");
+  }
   return;
 }
 /**************************************************************************************/
@@ -105,16 +109,22 @@ void calc_fluid_charge(FILE *fp,double **x)
  double charge;
 
  if(!first) {
-   if (Proc==0&&Iwrite != NO_SCREEN) printf("-------------------- CHARGE     -------------------------------\n");
+   if (Proc==0&&Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+     printf("-------------------- CHARGE     -------------------------------\n");
+   }
    Integration_profile=NULL;
 
    charge=integrateInSpace_SumInComp(&integrand_fluid_charge,Nel_hit2,x,Integration_profile);
  }
 
  if (Proc==0){
-      if(!first && Iwrite != NO_SCREEN) print_to_screen(charge,"CHARGE IN FLUID");
+      if(!first && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) {
+           print_to_screen(charge,"CHARGE IN FLUID");
+      }
       if (fp !=NULL) print_to_file(fp,charge,"charge",first);
-      if(!first && Iwrite !=NO_SCREEN) printf("---------------------------------------------------------------\n");
+      if(!first && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) {
+           printf("---------------------------------------------------------------\n");
+      }
  }
  if (first) first=FALSE;
  return;

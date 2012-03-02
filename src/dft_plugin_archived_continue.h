@@ -26,18 +26,19 @@ void scale_vext_epswf(double ratio,int icomp,int iwall);
 #define NWALL_MAX 600 
 extern int WallType[NWALL_MAX];
 extern int Nwall;
-void setup_pairPotentials(char *output_file1);
+void setup_pairPotentials(char *file_echoinput);
 extern int Nwall_type;
 extern int Ncomp;
-extern int Iwrite;
-void thermodynamics(char *output_file1,int iwrite);
-void thermodynamics(char *output_file1,int iwrite);
+#define FILES_BASIC        0
+void thermodynamics(char *file_echoinput,int iwrite_screen,int iwrite_files);
 void recalculate_stencils();
 void setup_polymer_cr();
 #define CMS          0
 #define NWALL_MAX_TYPE 50 
 #define NCOMP_MAX 5
 void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 extern double Crfac;
 #define CONT_CRFAC              108  /* continuous mixing of two cr files */
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];

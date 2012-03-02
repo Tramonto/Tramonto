@@ -64,6 +64,8 @@ extern int Coarser_jac;
 extern int Mesh_coarsening;
 extern double Rmax_zone[5];
 extern int Nzone;
+extern int Iwrite_files;
+extern int Iwrite_screen;
 extern int Iwrite;
 extern int Print_rho_switch;
 extern int Print_rho_type;

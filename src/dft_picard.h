@@ -78,6 +78,8 @@ void calc_init_mf_attract(double **xInBox,double **xOwned);
 #define MF_EQ          3
 #define NEQ_TYPE       12 
 void fix_symmetries(double **x);
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
 int update_solution_picard(double **x,double **xOwned,double **delta_x,int iter,int Lprint_screen);
 extern int Phys2Unk_first[NEQ_TYPE];
 #define DENSITY        0
@@ -100,7 +102,9 @@ void calc_Gsum(double **x);
 #define CMS          0
 extern int Type_poly;
 void print_resid_norm_picard(double **x,int iter);
-#define NO_SCREEN    4 
+#define SCREEN_VERBOSE     3 
+#define SCREEN_BASIC       1
+extern int Iwrite_screen;
 extern int Max_NL_iter;
 extern int Nnodes_box;
 #define FALSE 0
@@ -123,8 +127,8 @@ extern int NL_Solver;
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */
 extern int Lbinodal;
 void print_profile_box(double **x,char *outfile);
-#define VERBOSE      3 
-extern int Iwrite;
+#define FILES_DEBUG        2
+extern int Iwrite_files;
 extern void *LinProbMgr_manager;
 extern int Iguess;
 void set_initial_guess(int guess_type,double **xOwned);

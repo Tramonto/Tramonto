@@ -16,6 +16,12 @@ double resid_and_Jac_sten_fill(int sten_type,double **x,int iunk,int junk,int ic
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern int *B2G_node;
+extern int Nnodes;
+extern int *L2G_node;
+extern double **Array_test;
+#define FILES_DEBUG_MATRIX 3 
+extern int Iwrite_files;
 extern int **Zero_density_TF;
 extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
@@ -51,6 +57,12 @@ extern int Unk2Comp[NMER_MAX];
 extern int Ncomp;
 extern int Nseg_tot;
 extern int Lseg_densities;
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 #define FLAG_PBELEC -777
 #define FLAG_BULK   -888
 int find_jzone(int izone,int inode_box);

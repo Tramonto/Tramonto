@@ -48,6 +48,8 @@ int Unk2Phys[3*NCOMP_MAX+2*NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives e
 
 /*************** Global Mesh ********************************/
 int     Print_flag;
+double **Array_test;
+
 int     Ndim;            /* # of spatial dimensions of the problem      */
 int     Nnodes;          /* # of nodes in the mesh                */
 int     Nunknowns;       /* # of unknowns in the problem          */
@@ -414,6 +416,7 @@ double Rho_b_LBB[NCOMP_MAX];   /*Rho_b boundary condition left-bottom-back*/
 double Rho_b_RTF[NCOMP_MAX];   /*Rho_b boundary condition right-top-front*/
 double Elec_pot_LBB;           /*Electric potential boundary condition LBB*/
 double Elec_pot_RTF;           /*Electric potential boundary condition RTF */
+int    Flag_mV_elecpot;         /* TF logical for units entry for electrostatic potential boundary conditions */
 double Betamu_LBB[NCOMP_MAX];  /*Chemical Potential Boundary Condition LBB */
 double Betamu_RTF[NCOMP_MAX];  /*Chemical Potential Boudary Condition RTF*/
 double D_coef[NCOMP_MAX];  /*Diffusion Coefficients for ion species */
@@ -467,6 +470,8 @@ char Vext_file2[40];       /* a second file name that contains another part of t
 int     Iprofile;     /* Specifies Liq-Solid,Vap-Solid,or Liq-Vap profile    */
 double  Toler;        /* Tolerance for Newton-Rhapson iterations             */
 int     Iwrite;       /* Do we want a complete or modified set of output data*/
+int     Iwrite_screen;       /* Do we want a complete or modified set of output data*/
+int     Iwrite_files;       /* Do we want a complete or modified set of output data*/
 
 /* Trilinos info */
 void * LinProbMgr_manager;
@@ -540,7 +545,6 @@ double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
 int Nseg_per_block[NCOMP_MAX][NBLOCK_MAX];
 int SegType_per_block[NCOMP_MAX][NBLOCK_MAX];
-char *Poly_file_name;
 int Grafted[NCOMP_MAX];
 int Graft_wall[NCOMP_MAX];
 double *Poly_graft_dist;     /* distance associated with polymer grafting - */
@@ -559,7 +563,10 @@ char *Cr_file,*Cr_file2,*Cr_file3,*Cr_file4;
 char cr_file_array[20];
 char cr_file2_array[20];
 char poly_file_array[20];
+char *Poly_file_name;
 double Cr_break[2];
+char *OutputFileDir;
+char OutputFileDir_array[100];
 int  Ncr_files;
 int SegAll_to_Poly[NMER_MAX];
 int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk, **Poly_to_Unk_SegAll;

@@ -60,6 +60,8 @@ void ijk_to_ijk_box(int *ijk,int *ijk_box);
 int ijk_to_node(int *ijk);
 #define LAST_NODE_RESTART    4
 #define LAST_NODE            3
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

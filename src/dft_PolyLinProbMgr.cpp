@@ -493,6 +493,7 @@ int dft_PolyLinProbMgr::applyMatrix(const double** x, double** b) const {
   }
 //=============================================================================
 int dft_PolyLinProbMgr::writeMatrix(const char * filename, const char * matrixName, const char * matrixDescription) const  {
+cout << "in poly version of writeMatrix filename="<<filename<<endl;
   if (debug_)
     return(EpetraExt::RowMatrixToMatrixMarketFile(filename, *globalMatrix_, matrixName, matrixDescription));
   else

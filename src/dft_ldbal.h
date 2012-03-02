@@ -74,8 +74,9 @@ int node_to_node_box(int inode);
 void node_to_ijk(int node,int *ijk);
 double set_weight_for_node(int inode);
 void sort_int_array(int n,int ra[]);
-#define VERBOSE      3 
-extern int Iwrite;
+#define SCREEN_VERBOSE     3 
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 void rcb_median_merge(void *in,void *inout,int *len,MPI_Datatype *dptr);
 void rcb_box_merge(void *in,void *inout,int *len,MPI_Datatype *dptr);
 typedef struct rcb_dot rcb_dot;

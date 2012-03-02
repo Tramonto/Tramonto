@@ -43,6 +43,8 @@ void FMT1_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3,double *
 void calc_FMT_derivatives(void(*fp_FMTderiv)(double *,double,double,double *,double *),int inode_box,double **x,struct RB_Struct *dphi_drb);
 extern int Nnodes_box;
 void FMT1stDeriv_switch(double **x,struct RB_Struct *dphi_drb);
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 double FMT4_energy_density(double *n);
 #define FMT4       3
 double FMT3_energy_density(double *n);

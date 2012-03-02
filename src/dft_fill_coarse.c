@@ -46,6 +46,7 @@ void load_coarse_node_1dim(int loc_inode, int inode_box, int *ijk_box,int iunk, 
     loc_jnode = B2L_node[jnode_box]; 
 
     if (jnode_box <0 ){
+        if (Iwrite_screen != SCREEN_NONE) 
         printf("Proc: %d ijk_box: %d %d %d PROBLEMS: jnode_box: %d  ijk_tmp: %d %d %d\n",
         Proc,ijk_box[0],ijk_box[1],ijk_box[2],jnode_box,ijk_tmp[0],ijk_tmp[1],ijk_tmp[2]);
         exit(-1);

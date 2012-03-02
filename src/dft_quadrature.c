@@ -153,7 +153,7 @@ void set_gauss_quad(int ngp, double *gp, double *gw)
     gp[ 8] = (-0.968160239507626 + 1.0)/2.0;  gw[ 8] = 0.081274388361574/2.0;
   }
   else {
-    printf("Requested Number of Gauss points not allowed (%d)\n",ngp);
+    if (Iwrite_screen != SCREEN_NONE) printf("Requested Number of Gauss points not allowed (%d)\n",ngp);
     exit(-1);
   }
   return;
@@ -227,7 +227,7 @@ int  get_integration_pts(int isten, int izone,
 
       case ONE_D_TWELVE:
          if (Ndim!=1) {
-            printf("ERROR: THIS STENCIL ONLY FOR 1D problems\n"); 
+            if (Iwrite_screen != SCREEN_NONE) printf("ERROR: THIS STENCIL ONLY FOR 1D problems\n"); 
             exit(-1);
          }
          num_int_pts = 12;
@@ -244,7 +244,7 @@ int  get_integration_pts(int isten, int izone,
          else {
             num_int_pts = MPsten_Npts_R[izone] * MPsten_Npts_arc[izone]
                           *MPsten_Npts_phi[izone];
-/*            printf("ERROR: THIS STENCIL ONLY FOR 1D or 2D problems\n");
+/*            if (Iwrite_screen != SCREEN_NONE) printf("ERROR: THIS STENCIL ONLY FOR 1D or 2D problems\n");
             exit(-1);*/
          }
         *point_ptr = (double **) array_alloc(2, num_int_pts, 3, sizeof(double));
@@ -253,9 +253,11 @@ int  get_integration_pts(int isten, int izone,
          return (num_int_pts);
 
       default:
-         printf("%s: Unknown or uninitialized choice of integration\n",yo);
-         printf("\t\tscheme for isten: %d, izone: %d, Sten_Choice_S: %d\n",
+         if (Iwrite_screen != SCREEN_NONE) {
+            printf("%s: Unknown or uninitialized choice of integration\n",yo);
+            printf("\t\tscheme for isten: %d, izone: %d, Sten_Choice_S: %d\n",
                                 isten, izone, Sten_Choice_S[isten][izone]);
+         }
          exit(-1); 
          return(-1);break;
     }
@@ -392,7 +394,7 @@ int  get_integration_pts(int isten, int izone,
 
       case ONE_D_TWELVE: /* See comments in tetrahedon section */
          if (Ndim!=1) {
-            printf("ERROR: STENCIL ONE_D_TWELVE ONLY FOR 1D problems\n"); 
+            if (Iwrite_screen != SCREEN_NONE) printf("ERROR: STENCIL ONE_D_TWELVE ONLY FOR 1D problems\n"); 
             exit(-1);
          }
          num_surf_pts = 12;
@@ -434,8 +436,8 @@ int  get_integration_pts(int isten, int izone,
          return (num_int_pts);
 
       default:
-         printf("%s: Unknown or uninitialized choice of integration\n",yo);
-         printf("\t\tscheme for isten: %d, izone: %d, Sten_Choice_S: %d\n",
+         if (Iwrite_screen != SCREEN_NONE) printf("%s: Unknown or uninitialized choice of integration\n",yo);
+         if (Iwrite_screen != SCREEN_NONE) printf("\t\tscheme for isten: %d, izone: %d, Sten_Choice_S: %d\n",
                                 isten, izone, Sten_Choice_S[isten][izone]);
          exit(-1); 
          return(-1);break;
@@ -710,7 +712,7 @@ void theta_midpoint(double **point, double *wt, int izone, int num_dim)
 
 void delta_seventy_two(double **point, double *wt)
 {
-  printf("NO QUADRATURE SCHEME FOR SEVENTY_TWO PTS YET\n");
+  if (Iwrite_screen != SCREEN_NONE) printf("NO QUADRATURE SCHEME FOR SEVENTY_TWO PTS YET\n");
 }
 
 /****************************************************************************/
@@ -779,8 +781,8 @@ void get_radial_quadrature(double gauss_pt[], double gauss_wt[], int num_gp)
      break;
 
    default:
-     printf("%s: Error! Number of radial Gauss Pts for Theta_fn must be 1-7...it is %d\n",
-             yo, num_gp);
+     if (Iwrite_screen != SCREEN_NONE) 
+        printf("%s: Error! Number of radial Gauss Pts for Theta_fn must be 1-7...it is %d\n", yo, num_gp);
      if (num_gp>7) printf
           ("\t\tWhat, a 14th order polynomial isn't good enough for you???\n");
      exit(-1);

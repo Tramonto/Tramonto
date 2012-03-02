@@ -219,6 +219,7 @@ Epetra_CrsMatrix * dft_Schur_Epetra_Operator::getSchurComplement() {
       err = S_->SumIntoGlobalValues( Row, NumEntries, Values, Indices ); assert( err == 0 );
     }
     else {
+cout <<"Row="<<Row<< "NumEntries="<<NumEntries<<endl;
       err = S_->InsertGlobalValues( Row, NumEntries, Values, Indices ); assert( err == 0 || err == 1 );
     }
   }

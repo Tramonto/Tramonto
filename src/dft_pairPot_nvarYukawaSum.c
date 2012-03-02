@@ -89,7 +89,7 @@ void urNandYUKAWA_CS_setparams(int context, int i, int j, double *param1,double 
 /*        *param6 = Npow_ww[WallType[i]][WallType[j]];*/  /* not implemented for wall-fluid potentials */
         break;
      default:
-        printf("problem with potential context urNandYUKAWA_CS_setparams\n");
+        if (Iwrite_screen != NONE) printf("problem with potential context urNandYUKAWA_CS_setparams\n");
         exit(-1);
    }
    return;
@@ -123,14 +123,14 @@ void urNandYUKAWA_InnerCore(int i, int j,double *rCore_left, double *rCore_right
       case ATTCORE_UCSZERO:    *rCore_right=Rzero_ff[i][j]; *rCore_left=0.0; break;
       case ATTCORE_SIGTOUMIN:   *rCore_right=Rmin_ff[i][j]; *rCore_left=Sigma_ff[i][j]; break;
       default:
-        printf("Problem with Type_CoreATT_R - set to %d\n",Type_CoreATT_R);
+        if (Iwrite_screen != NONE) printf("Problem with Type_CoreATT_R - set to %d\n",Type_CoreATT_R);
         exit(-1);
    } 
    switch(Type_CoreATT_CONST){
       case CORECONST_UCONST:   *epsCore=urNandYUKAWA_ATT_noCS(*rCore_right,i,j); break;
       case CORECONST_ZERO:     *epsCore=0.0; break;
       default:
-        printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
+        if (Iwrite_screen != NONE) printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
         exit(-1);
    }
    return;

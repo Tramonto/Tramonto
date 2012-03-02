@@ -425,6 +425,8 @@ void broadcast_input()
   MPI_Bcast(&Print_rho_type,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Print_rho_switch,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Iwrite,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Iwrite_screen,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Iwrite_files,1,MPI_INT,0,MPI_COMM_WORLD);
 
   /********************************************************/
   /* Broadcast Settings for Numerical Methods: Coarsening */

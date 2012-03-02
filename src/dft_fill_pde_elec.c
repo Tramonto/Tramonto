@@ -54,6 +54,7 @@ double load_poisson_control(int iunk, int loc_inode, int inode_box, int *ijk_box
        if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
        if (resid_only_flag==FALSE){
          mat_value = 1.0;
+         if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_value;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
        }
      }
@@ -66,6 +67,7 @@ double load_poisson_control(int iunk, int loc_inode, int inode_box, int *ijk_box
         if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
         if (resid_only_flag==FALSE){
           mat_value = 1.0;
+          if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_value;
           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_value);
         }
      }
@@ -82,7 +84,7 @@ double load_poisson_control(int iunk, int loc_inode, int inode_box, int *ijk_box
 double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, double **x,int resid_only_flag)
 {
 
-  int iwall,  isten, icomp,ilist,idim,junk,junkP;
+  int iwall,  isten, icomp,ilist,idim,junk,junkP,jtmp;
   int iln, jln, elem, offset[3], el_box;
   int nodes_volm_el, nodes_surf_el, junk2[3];
   int in_wall,numEntries, nodeIndices[2];
@@ -116,8 +118,8 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
           if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           if (resid_only_flag==FALSE){
             mat_val = 1.0;
-            dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                      iunk,inode_box,mat_val);
+            if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
+            dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
           }
        }
        resid_sum+=resid;
@@ -182,7 +184,10 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
                    }
                    if (resid_only_flag != INIT_GUESS_FLAG && 
                        resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
-                   if (resid_only_flag == FALSE) dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junkP,jnode_box,mat_val);
+                   if (resid_only_flag == FALSE){
+                       if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_box]+junkP*Nnodes]+=mat_val;
+                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junkP,jnode_box,mat_val);
+                   }
                    resid_sum+=resid;
                    }
                 else {
@@ -209,6 +214,7 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
                         resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                     if (resid_only_flag==FALSE){
                        mat_val = -wt_s_1el[isten]*KAPPA_H2O*Charge_f[icomp]*4.0*PI/Temp_elec;
+                       if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_box]+junk*Nnodes]+=mat_val;
                        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                      junk,jnode_box,mat_val);
                     }
@@ -270,14 +276,20 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
                        resid_sum+=resid;
                        if (resid_only_flag != INIT_GUESS_FLAG && 
                           resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                       
                        if (resid_only_flag==FALSE){
                           numEntries=2;
                           values[0]=values[1]=wt*Pol[icomp]*(psi_0);
+                          if (Iwrite_files==FILES_DEBUG_MATRIX){
+                             for (jtmp=0; jtmp<numEntries;jtmp++) 
+                                   Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[jtmp]]+junk_rho*Nnodes]+=values[jtmp];
+                          }
                           dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                          junk_rho, nodeIndices,values,numEntries);
                           mat_val=wt*Pol[icomp]*tmp; 
+                          if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[0]]+junkP*Nnodes]+=mat_val;
                           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                         junkP, nodeIndices[0],mat_val);
+                                                              junkP, nodeIndices[0],mat_val);
                        }
                     }
                     else{
@@ -292,9 +304,14 @@ double load_polarize_poissons_eqn(int iunk, int loc_inode, int inode_box, int *i
                        if (resid_only_flag==FALSE){
                           numEntries=2;
                           values[0]=values[1]=wt*Pol[icomp]*(-psi_1);
+                          if (Iwrite_files==FILES_DEBUG_MATRIX){
+                            for (jtmp=0; jtmp<numEntries;jtmp++) 
+                                Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[jtmp]]+junk_rho*Nnodes]+=values[jtmp];
+                          }
                           dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                          junk_rho, nodeIndices,values,numEntries);
                           mat_val=-wt*Pol[icomp]*tmp; 
+                          if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[nodeIndices[1]]+junkP*Nnodes]+=mat_val;
                           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                          junkP, nodeIndices[1],mat_val);
                        }
@@ -374,8 +391,8 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
             if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
             if (!resid_only_flag){
                mat_val=1.0;
-               dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                        iunk,inode_box,mat_val);
+               if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
+               dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
             }
       }
    }
@@ -390,8 +407,8 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
           if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
           if (resid_only_flag==FALSE){
              mat_val=1.0;
-             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                      iunk,inode_box,mat_val);
+             if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
+             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
           }
        }
        resid_sum+=resid;
@@ -441,8 +458,8 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
                    if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                    if (resid_only_flag==FALSE){
                       mat_val = Dielec[el_box]*wt_lp_1el[isten];
-                      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                               junkP,jnode_box,mat_val);
+                      if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_box]+junkP*Nnodes]+=mat_val;
+                      dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, junkP,jnode_box,mat_val);
                    }
                    resid_sum+=resid;
                  }
@@ -469,8 +486,8 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
                        if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                        if (resid_only_flag==FALSE){
                           mat_val = -wt_s_1el[isten]*Charge_f[icomp]* 4.0*PI/Temp_elec;
-                          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
-                                                                  junk,jnode_box,mat_val);
+                          if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_box]+junk*Nnodes]+=mat_val;
+                          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, junk,jnode_box,mat_val);
                        }
                        resid_sum+=resid;
                     

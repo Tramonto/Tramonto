@@ -33,6 +33,8 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 extern int *B2L_node;
 int ijk_box_to_node_box(int *ijk_box);
 extern int Grad_dim;

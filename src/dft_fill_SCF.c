@@ -232,8 +232,6 @@ collect_G_old: This gathers the G that we need on Proc 0.        */
 //	int itype_mer, Ns;
 //	double resid;
 //
-//	printf("in load_SCF_density\n");
-//	
 //	itype_mer = iunk-Phys2Unk_first[DENSITY];
 //	
 //	resid = 0.0;
@@ -267,8 +265,6 @@ collect_G_old: This gathers the G that we need on Proc 0.        */
 //	static double *wt_lp_1el, *wt_s_1el;
 //	static int   **elem_permute;	
 //	
-//	printf("in solve_q_diff\n");
-//	
 //	Ns = Nmer[0];
 //	delta_s = 1.0;
 //	
@@ -279,7 +275,6 @@ collect_G_old: This gathers the G that we need on Proc 0.        */
 //		/* convert local node to box */
 //		inode_box = L2B_node[loc_inode];
 //		x[unk_w][inode_box] = 1.0;
-//		/* printf("loc_inode=%d, inode_box=%d\n", loc_inode,inode_box); */
 //	}
 //	
 //	/* load weights for Laplacian */
@@ -292,7 +287,6 @@ collect_G_old: This gathers the G that we need on Proc 0.        */
 //		q[0][0][inode_box] = 1.0;		/* initial conditions for q */
 //		for(s=0; s<Ns; s++){			/* loop along chain */
 //			q_tmp = exp(-delta_s*x[unk_w][inode_box]/2.0)*q[0][s][inode_box];
-//			printf("s=%d, loc_inode=%d, q_tmp = %f\n", s, loc_inode, q_tmp);
 //			q[0][s+1][inode_box] = q_tmp;
 //		}
 //	}

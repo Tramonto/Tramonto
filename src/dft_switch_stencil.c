@@ -68,7 +68,7 @@ int stencil_Njcomp_switch(int sten)
          njcomp=StenDelta_Bond_Njcomp();
          break;
      default:
-         printf("problem with stencil definitions: stencil_Njcomp_switch sten=%d",sten);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problem with stencil definitions: stencil_Njcomp_switch sten=%d",sten);
          exit(-1); break;
   }
   return(njcomp);
@@ -105,7 +105,7 @@ double stencil_radius_switch(int sten,int icomp,int jcomp)
          sten_rad=StenDelta_Bond_sten_rad(icomp,jcomp);
          break;
      default:
-         printf("problem with stencil definitions: stencil_radius_switch sten=%d",sten);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problem with stencil definitions: stencil_radius_switch sten=%d",sten);
          exit(-1); break;
   }
   return(sten_rad);
@@ -143,7 +143,7 @@ double stencil_volume_switch(int sten,int icomp,int jcomp)
          sten_vol=StenDelta_Bond_sten_vol(icomp,jcomp);
          break;
      default:
-         printf("problem with stencil definitions: stencil_volume_switch sten=%d",sten);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problem with stencil definitions: stencil_volume_switch sten=%d",sten);
          exit(-1); break;
   }
   return(sten_vol);
@@ -185,7 +185,7 @@ double stencil_GetWeight_switch(int sten, int icomp, int jcomp, double rsq,
          weight=StenDelta_Bond_GetWeightFromSten(rsq,sten_rad);
          break;
      default:
-         printf("problem with stencil definitions: stencil_volume_switch sten=%d",sten);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problem with stencil definitions: stencil_volume_switch sten=%d",sten);
          exit(-1); break;
   }
   return(weight);
@@ -224,7 +224,7 @@ int stencil_quadBoundaryEl_switch(int sten)
          num_quad_pts=StenDelta_Bond_NquadPtsBoundary();
          break;
      default:
-         printf("problem with stencil definitions: stencil_quadBoundaryEl_switch sten=%d",sten);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problem with stencil definitions: stencil_quadBoundaryEl_switch sten=%d",sten);
          exit(-1); break;
   }
   return(num_quad_pts);
@@ -263,7 +263,7 @@ int stencil_quadGauss_switch(int sten,double r)
          num_quad_pts=StenDelta_Bond_NquadPtsGauss(r);
          break;
      default:
-         printf("problem with stencil definitions: stencil_quadGauss_switch sten=%d",sten);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problem with stencil definitions: stencil_quadGauss_switch sten=%d",sten);
          exit(-1); break;
   }
   return(num_quad_pts);
@@ -289,7 +289,7 @@ int stencil_quadGaussIntegrand_switch(int sten,double r)
      case THETA_CR_DATA: break;
      case DELTA_FN_BOND: break;
      default:
-         printf("problem with stencil definitions: stencil_quadGaussIntegrand_switch sten=%d",sten);
+         if (Iwrite_screen !=SCREEN_NONE) printf("problem with stencil definitions: stencil_quadGaussIntegrand_switch sten=%d",sten);
          exit(-1); break;
   }
   return(num_quad_pts);

@@ -82,7 +82,7 @@ void linsolver_setup_CMSTYPE_LINEARONLY()
      case MF_EQ:
        geq[count_geqn++]=iunk; break;
      default:
-        printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
+        if (Iwrite_screen != SCREEN_NONE) printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
         exit(-1);
         break;
      } 
@@ -146,7 +146,7 @@ void linsolver_setup_CMSTYPE()
      case MF_EQ:
        geq[count_geqn++]=iunk; break;
      default:
-        printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
+        if (Iwrite_screen != SCREEN_NONE) printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
         exit(-1);
         break;
      } 
@@ -215,12 +215,13 @@ void linsolver_setup_HSTYPE()
      case MF_EQ:
        indnonlocaleq[count_indnonlocal++]=iunk; break;   
       default:
-        printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
+        if (Iwrite_screen != SCREEN_NONE) printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
         exit(-1);
         break;
      } 
    }
    // LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+
    LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
    dft_hardsphere_lin_prob_mgr_setindnonlocalequationids(LinProbMgr_manager, count_indnonlocal, indnonlocaleq);
    dft_hardsphere_lin_prob_mgr_setdepnonlocalequationids(LinProbMgr_manager, count_depnonlocal, depnonlocaleq);
@@ -288,7 +289,7 @@ void linsolver_setup_WJDCTYPE()
        poissoneq[count_poisson++]=iunk; 
        break; 
      default:
-        printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
+        if (Iwrite_screen != SCREEN_NONE) printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
         exit(-1);
         break;
      } 
@@ -386,7 +387,7 @@ void linsolver_setup_WJDCTYPE_LINEARONLY()
        poissoneq[count_poisson++]=iunk; 
        break; 
      default:
-        printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
+        if (Iwrite_screen != SCREEN_NONE) printf("ERROR: every unknown should be linked to a physics type and added to id lists for solver iunk=%d\n",iunk);
         exit(-1);
         break;
      } 

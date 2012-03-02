@@ -271,7 +271,7 @@ void basis_fn_calc(double **phi, double ***grad_phi, double *evol)
       }
    }
    else {
-     if (Proc==0) printf("ERROR basis_fn_calc: Only for 3D\n");
+     if (Proc==0 && Iwrite_screen != SCREEN_NONE) printf("ERROR basis_fn_calc: Only for 3D\n");
      exit(-1);
    }
 }

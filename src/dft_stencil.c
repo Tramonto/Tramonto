@@ -57,23 +57,19 @@ void calc_stencils(void)
 
   struct Stencil_Struct *sten;
   int *index_sten;
-  FILE *ifp=NULL, *ifp2=NULL;
+  FILE *fp_stencil=NULL;
 
   double esize_zone[3];
   int  zone_coarseness=0;
   /********************** BEGIN EXECUTION ************************************/
 
   if (Proc==0) {
-    if (Iwrite!=NO_SCREEN){
-         printf("\n---------------------------------------------------------------------------------\n");
-         printf("%s: Calculating stencils ... \n",yo);
+    if (Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+         if (Iwrite_screen !=SCREEN_BASIC) printf("\n-------------------------------------------------------------------------------\n");
+         printf("Calculating stencils ... \n");
     }
     t1 = MPI_Wtime();
-    if (Iwrite == VERBOSE) ifp = fopen("stencil.out", "w");
-    if( (ifp2 = fopen("dft_out.lis","a+")) ==NULL){
-      printf("Can't open file dft_out.lis\n");
-      exit(1);
-    }
+    if (Iwrite_files == FILES_DEBUG) fp_stencil = fopen("stencil.out", "w");
   }
 
  /*
@@ -114,7 +110,7 @@ void calc_stencils(void)
                            /* for case of general MSA - we want to precalculate certain parameters
                               outside of the gauss quadrature loops needed for stencil set up. */
       if (isten==THETA_CR_GENERAL_MSA){
-         printf("isten=%d calling precalc_GENmsa_params\n",isten);
+          if (Proc==0 && Iwrite_screen==SCREEN_VERBOSE) printf("isten=%d calling precalc_GENmsa_params\n",isten);
           precalc_GENmsa_params(Rho_b,X_MSA,N_MSA,Gamma_MSA);
       }
 
@@ -238,7 +234,7 @@ void calc_stencils(void)
       }
 
       if ( !(fabs(vol_sten-(double)NO_RENORMALIZATION_FLAG) < 1.e-8) ) {
-            if (Iwrite==VERBOSE && Proc==0){
+            if (Iwrite_screen==SCREEN_VERBOSE && Proc==0){
             printf("Renormalizing stencil: isten=%d",isten);
             switch(isten){
                 case DELTA_FN_R: printf(" (DELTA_FN_R stencil)\n"); break;
@@ -255,8 +251,8 @@ void calc_stencils(void)
             renormalize_stencil(sten, vol_sten);
       }
 
-      if (Iwrite == VERBOSE && Proc==0){
-          print_out_stencil(isten, izone,icomp, jcomp, ifp);
+      if (Iwrite_files == FILES_DEBUG && Proc==0){
+          print_out_stencil(isten, izone,icomp, jcomp, fp_stencil);
       }
 
     } /* End of loop over components j */
@@ -273,12 +269,10 @@ void calc_stencils(void)
   safe_free((void *) &el_weights);
 
   if (Proc == 0) {
-    fprintf(ifp2,"\n!!!!!!!!!!!! done setting up stencils !!!!!!!!!!!!!!!!!\n");
-    fclose(ifp2);   
 
-    if (Iwrite == VERBOSE) fclose(ifp);
+    if (Iwrite_files == FILES_DEBUG) fclose(fp_stencil);
 
-    if (Iwrite != NO_SCREEN){
+    if (Iwrite_screen == SCREEN_VERBOSE){
              printf("stencil setup took %g secs\n", MPI_Wtime()-t1);
              printf("---------------------------------------------------------------------------------\n");
     }
@@ -582,8 +576,8 @@ for (i=0; i<length_tmp; i++){
 }
 
 if (sten->Length != count){
-   printf("problems with shortening the stencil\n");
-   printf("number of entries: %d  expected number %d",sten->Length,count);
+   if (Iwrite_screen != SCREEN_NONE) printf("problems with shortening the stencil\n");
+   if (Iwrite_screen != SCREEN_NONE) printf("number of entries: %d  expected number %d",sten->Length,count);
    exit(-1);
 }
 
@@ -689,7 +683,7 @@ void renormalize_stencil(struct Stencil_Struct *sten, double vol_sten)
 
    for (i=0; i < sten->Length; i++) sum += sten->Weight[i];
 
-   if (Iwrite==VERBOSE && Proc==0) printf("\t before normalization vol_sten=%g  sum_sten=%g\n",vol_sten,sum);
+   if (Iwrite_screen==SCREEN_VERBOSE && Proc==0) printf("\t before normalization vol_sten=%g  sum_sten=%g\n",vol_sten,sum);
 
    if (sum == vol_sten) return;
 
@@ -707,12 +701,12 @@ void renormalize_stencil(struct Stencil_Struct *sten, double vol_sten)
 
    sum=0.0;
    for (i=0; i < sten->Length; i++) sum += sten->Weight[i];
-   if (Iwrite==VERBOSE && Proc==0) printf("\t after normalization vol_sten=%g  sum_sten=%g\n",vol_sten,sum);
+   if (Iwrite_screen==SCREEN_VERBOSE && Proc==0) printf("\t after normalization vol_sten=%g  sum_sten=%g\n",vol_sten,sum);
 }
 /****************************************************************************/
 
 void print_out_stencil(int isten, int izone,
-			      int icomp, int jcomp, FILE *ifp)
+			      int icomp, int jcomp, FILE *fp_stencil)
 {
   int i,j;
   struct Stencil_Struct *sten;
@@ -723,29 +717,29 @@ void print_out_stencil(int isten, int izone,
   sum=0.0;
   sten = &(Stencil[isten][izone][icomp + Ncomp*jcomp]);
 
-  fprintf(ifp,"\nWriting out stencil for isten %d, izone %d, icomp %d, jcomp %d, Length %d\n\n",
+  fprintf(fp_stencil,"\nWriting out stencil for isten %d, izone %d, icomp %d, jcomp %d, Length %d\n\n",
               isten, izone, icomp, jcomp, sten->Length);
 
-  fprintf(ifp," #  Node Offsets   Weight\n");
+  fprintf(fp_stencil," #  Node Offsets   Weight\n");
   for (i=0; i<sten->Length; i++) {
     if (Ndim<=3  && (sten->Length < 2500 || sten->Offset[i][0]==0)){
-       fprintf(ifp,"%3d. ",i);
+       fprintf(fp_stencil,"%3d. ",i);
        for (j=0; j<Ndim; j++){ 
-         fprintf(ifp,"  %3d  %7.4f",sten->Offset[i][j],Esize_x[j]*sten->Offset[i][j]);
+         fprintf(fp_stencil,"  %3d  %7.4f",sten->Offset[i][j],Esize_x[j]*sten->Offset[i][j]);
        }
-       fprintf(ifp,"  %e  ",sten->Weight[i]);
+       fprintf(fp_stencil,"  %e  ",sten->Weight[i]);
     }
     sum += sten->Weight[i];
     if (Lhard_surf &&(Ndim<=3 && (sten->Length < 2500 || sten->Offset[i][0]==0))){
          for (j=0; j<Nnodes_per_el_V; j++){
-            fprintf(ifp," %5f",sten->HW_Weight[i][j]);
+            fprintf(fp_stencil," %5f",sten->HW_Weight[i][j]);
           }
     }
-    if ( Ndim<3 || Ndim==3 &&sten->Length < 2500 || sten->Offset[i][0]==0) fprintf(ifp,"\n");
+    if ( Ndim<3 || Ndim==3 &&sten->Length < 2500 || sten->Offset[i][0]==0) fprintf(fp_stencil,"\n");
   }
-  fprintf(ifp,"\tSUM OF WEIGHTS = %e\n\n",sum);
+  fprintf(fp_stencil,"\tSUM OF WEIGHTS = %e\n\n",sum);
 
-  fprintf(ifp,"============================================\n");
+  fprintf(fp_stencil,"============================================\n");
 
   return;
 }

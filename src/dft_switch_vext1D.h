@@ -6,7 +6,6 @@ double Vextderiv_REPULSIVE9(double x,int icomp,int iwall_type);
 double Vextderiv_LJ9_3_v2(double x,int icomp,int iwall_type);
 double Vextderiv_LJ9_3(double x,int icomp,int iwall_type);
 double Vext_1D_dash(double x,int icomp,int iwall_type);
-double Vext_LINEAR_noCS(double x,int icomp,int iwall_type);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -23,6 +22,9 @@ double Vext_LINEAR_noCS(double x,int icomp,int iwall_type);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
+double Vext_LINEAR_noCS(double x,int icomp,int iwall_type);
 #define LINEAR_noCS       6 
 double Vext_LJ7YukawaSum(double r,int icomp,int iwall_type);
 #define R7_YUKAWA_SUM_CS  7 

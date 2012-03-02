@@ -75,7 +75,7 @@ void uCOULOMB_CS_setparams(int context, int i, int j, double *param1,double *par
         *param3 = Cut_ww[WallType[i]][WallType[j]];
         break;
      default:
-        printf("problem with potential context uCOULOMB_CS_setparams\n");
+        if (Iwrite_screen != NONE) printf("problem with potential context uCOULOMB_CS_setparams\n");
         exit(-1);
    }
    return;
@@ -103,7 +103,7 @@ void uCOULOMB_setparams(int context, int i, int j, double *param1,double *param2
         *param3 = 1.e6;
         break;
      default:
-        printf("problem with potential context uCOULOMB_setparams\n");
+        if (Iwrite_screen != NONE) printf("problem with potential context uCOULOMB_setparams\n");
         exit(-1);
    }
    return;
@@ -132,7 +132,7 @@ void uCOULOMB_InnerCore(int i, int j,double *rCore_left, double *rCore_right, do
       case CORECONST_UCONST:   *epsCore=uCOULOMB_ATT_noCS(*rCore_right,i,j);break;
       case CORECONST_ZERO:     *epsCore=0.0; break;
       default:
-        printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
+        if (Iwrite_screen != NONE) printf("Problem with Type_CoreATT_CONST - set to %d\n",Type_CoreATT_CONST);
         exit(-1);
    }
    return;

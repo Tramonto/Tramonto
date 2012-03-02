@@ -103,7 +103,7 @@ int offset_to_node(int *inode_ijk, int *offset_node,
                    if      (Type_bc[i][1] == IN_WALL) return(-2);
                    else if (Type_bc[i][1] == IN_BULK) return(-1);
                    else {
-                     printf("ERROR: You are reflecting beyond the domain\n");
+                     if (Iwrite_screen != SCREEN_NONE) printf("ERROR: You are reflecting beyond the domain\n");
                      exit(-1);
                    }
                }
@@ -128,7 +128,7 @@ int offset_to_node(int *inode_ijk, int *offset_node,
                   if      (Type_bc[i][0] == IN_WALL) return(-2);
                   else if (Type_bc[i][0] == IN_BULK) return(-1);
                   else {
-                     printf("ERROR: You are reflecting beyond the domain\n");
+                     if (Iwrite_screen != SCREEN_NONE) printf("ERROR: You are reflecting beyond the domain\n");
                      exit(-1);
                   }
                }
@@ -230,9 +230,11 @@ int offset_to_node_box(int *ijk_box, int *offset,
                          else                                return(-1);  
                     case IN_WALL:                            return(-2); 
                     case REFLECT:   
+                        if (Iwrite_screen != SCREEN_NONE){ 
                         printf("Problems with multiple reflections\n");
                         printf("(1) Check domain size and maximum stencil size \n");
                         printf("ijk_sten_box[i=%d]=%d ijk_box=%d offset=%d Nodes_x_box=%d Max_IJK_box=%d  Max_IJK=%d\n",i,ijk_sten_box[i],ijk_box[i],offset[i],Nodes_x_box[i],Max_IJK_box[i],Max_IJK[i]);
+                        }
                         exit(-1);
                  }
                }
@@ -263,9 +265,11 @@ int offset_to_node_box(int *ijk_box, int *offset,
                     else                               return(-1);
                     case IN_WALL:                      return(-2);
                     case REFLECT:
+                        if (Iwrite_screen != SCREEN_NONE){ 
                         printf("Problems with multiple reflections\n");
                         printf("(2) Check domain size and maximum stencil size \n");
                         printf("ijk_sten_box[i=%d]=%d (min=0) Min_IJK_box=%d  Min_IJK=%d\n",i,ijk_sten_box[i],Min_IJK_box[i],Min_IJK[i]);
+                        }
                         exit(-1);
                   }
                }
@@ -576,20 +580,6 @@ void node_to_position(int inode, double *NodePos)
 {
   int Node_0th_plane;
 
-  /* write column headings to file: for checking routine */
-
-/*
- *fprintf(fp2,"\n   ********* TEST THE MESH GENERATION ********\n");
- *if (Ndim ==3){
- *   fprintf(fp2,"\tinode\tNodePos[0]\tNodePos[1]\tNodePos[2]\tinode_calc\n");
- *}
- *else if (Ndim == 2) {
- *   fprintf(fp2,"\tinode \tNodePos[0] \tNodePos[1] \tinode_calc\n");
- *}
- *else if (Ndim ==1) {
- *   fprintf(fp2,"\tinode \tNodePos[0] \tinode_calc\n"); 
- *} 
- */
   /* fill an array of the positions of the nodes */
 
   if (Ndim == 3) {
@@ -616,25 +606,6 @@ void node_to_position(int inode, double *NodePos)
   else if (Ndim == 1){
      NodePos[0] = -0.5*Size_x[0] + Esize_x[0]*( inode );
   }
-
-  /* write positions and calculated node number to the file */
-
-/*
- *if (Ndim ==3){
- *   inode_calc = position_to_node(NodePos);
- *   fprintf(fp2,"%7d \t%8.4f \t%8.4f \t%8.4f \t%7d",inode,NodePos[0],
- *                                  NodePos[1],NodePos[2],inode_calc); 
- *}
- *else if (Ndim == 2) {
-     inode_calc = position_to_node(NodePos);
- *   fprintf(fp2,"%7d \t%8.4f \t%8.4f \t%7d",inode,NodePos[0],
- *                                     NodePos[1],inode_calc); 
- *}
- *else if (Ndim ==1) {
-     inode_calc = position_to_node(NodePos);
-     fprintf(fp2,"%7d \t%8.4f \t%7d\n",inode,NodePos[0],inode_calc); 
- *} 
- */
 
 }
 /****************************************************************************/

@@ -25,6 +25,7 @@ void print_to_screen(double val,char *var_label);
 double integrand_fluid_charge(int iunk,int inode_box,double **x);
 double integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **nelhit,double **x,double *profile);
 void calc_fluid_charge(FILE *fp,double **x);
+#define VERBOSE      3 
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -43,6 +44,8 @@ void print_to_screen_comp(int icomp,double val,char *var_label);
 #define SWITCH_BULK_OUTPUT_ALL 6
 #define SWITCH_BULK_OUTPUT 5
 extern int Print_rho_switch;
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
 extern int Ndim;
@@ -54,8 +57,8 @@ extern int Unk2Comp[NMER_MAX];
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
 extern int Phys2Unk_first[NEQ_TYPE];
-#define NO_SCREEN    4 
-extern int Iwrite;
+#define SCREEN_VERBOSE     3 
+extern int Iwrite_screen;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

@@ -30,6 +30,7 @@ void print_to_file(FILE *fp,double val,char *var_label,int first);
 extern int Print_rho_switch;
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
+#define NO_SCREEN    4 
 double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_WJDCcomp_freen(int iunk,int inode_box,double **x);
 double integrand_WJDC_freen_bulk(int iunk,int inode_box,double **x);
@@ -91,7 +92,10 @@ extern int L_HSperturbation;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-#define NO_SCREEN    4 
+#define SCREEN_VERBOSE     3 
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
@@ -101,8 +105,8 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double *Integration_profile;
-#define VERBOSE      3 
-extern int Iwrite;
+#define FILES_BASIC        0
+extern int Iwrite_files;
 extern int Ndim;
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)

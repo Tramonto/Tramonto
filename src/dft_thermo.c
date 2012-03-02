@@ -28,14 +28,14 @@
 #include "dft_thermo.h"
 
 /***************************************************************************************/
-void  thermodynamics(char *output_file1,int iwrite)
+void  thermodynamics(char *file_echoinput,int iwrite_screen, int iwrite_files)
 {
    char *yo = "thermodynamics";
    double scale_fac_tmp[NCOMP_MAX][NCOMP_MAX];
    int pol_num,icomp;
-   if (Proc==0 && iwrite!=NO_SCREEN){
+   if (Proc==0 && iwrite_screen !=SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY){
           printf("\n-------------------------------------------------------------------------------\n");
-          printf("%s: Doing Thermo precalculations\n",yo);
+          printf("Doing Thermo precalculations\n");
 
    }
 
@@ -43,9 +43,9 @@ void  thermodynamics(char *output_file1,int iwrite)
 
     if (L_HSperturbation){
                                                                     /* set up segment densities */
-       if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WTC_thermo_precalc(output_file1);   
+       if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WTC_thermo_precalc(file_echoinput);   
                                                                     /* set up bulk WJDC_field and G values */
-       if (Type_func != NONE)  HS_thermo_precalc(output_file1); 
+       if (Type_func != NONE)  HS_thermo_precalc(file_echoinput); 
 
        if (Type_attr != NONE ) ATT_thermo_precalc();
        if (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) {
@@ -57,7 +57,7 @@ void  thermodynamics(char *output_file1,int iwrite)
                  Scale_fac_WJDC[pol_num][icomp]=0.0;
               }
             }
-            WJDC_thermo_precalc(output_file1);
+            WJDC_thermo_precalc(file_echoinput);
             /* Return the Scale_fac array to its previous values
                of the bulk properties. */
             for (icomp=0; icomp<Ncomp;icomp++)
@@ -83,17 +83,19 @@ void  thermodynamics(char *output_file1,int iwrite)
 
     /* compute bulk pressure and chemical potentials for the DFT calculation */
     /* must calculate chemical potentials first because we use mu in the WTC calculation of the pressure */
-    calc_chempot(output_file1,iwrite);
-    calc_pressure(output_file1,iwrite);
+    calc_chempot(file_echoinput,iwrite_screen,iwrite_files);
+    calc_pressure(file_echoinput,iwrite_screen,iwrite_files);
     /*adjust bulk terms for scaling */
-    /*if  (Physics_scaling && Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WJDC_thermo_precalc(output_file1); */
-    if  (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WJDC_thermo_precalc(output_file1); 
+    /*if  (Physics_scaling && Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WJDC_thermo_precalc(file_echoinput); */
+    if  (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) WJDC_thermo_precalc(file_echoinput); 
 
+   if (Proc==0 && iwrite_screen !=SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY)
+          printf("\n-------------------------------------------------------------------------------\n");
     return;
 }
 /***************************************************************************************/
 /* calc_pressure: this routine contains the logic for assembly of the pressure */
-void calc_pressure(char *output_file1,int iwrite)
+void calc_pressure(char *file_echoinput,int iwrite_screen, int iwrite_files)
 {
    double betap_hs_DFT,betap_att,betap_elec,betap_chain;
    /*double betap_hs_PY;*/
@@ -105,10 +107,12 @@ void calc_pressure(char *output_file1,int iwrite)
    betap_att_LBB = 0.0;
      betap_att_RTF = 0.0;
 
-   if( (fp = fopen(output_file1,"a+")) == NULL) {
-      printf("Can't open file %s\n", output_file1);
+/*   if (Iwrite_files == FILES_DEBUG){*/
+   if( (fp = fopen(file_echoinput,"a+")) == NULL) {
+      printf("Can't open file %s\n", file_echoinput);
       exit(1);
    }
+   /*}*/
  
    if (Type_interface!=UNIFORM_INTERFACE){      
       if (L_HSperturbation){
@@ -147,10 +151,10 @@ void calc_pressure(char *output_file1,int iwrite)
 	  /* note chem. potential term gives twice the att. pressure, so subtract att. pressure term here */
           if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
 	    betap_chain = pressure_WTC(Rho_seg_LBB,Xi_cav_LBB);
-                   if (Proc==0 && iwrite != NO_SCREEN) printf("\t LBB chain pressure is %9.6f\n",betap_chain);
+            if (Proc==0 && iwrite_screen == SCREEN_VERBOSE) printf("\t\t\tLBB chain pressure is %9.6f\n",betap_chain);
             Betap_LBB += betap_chain;
 	    betap_chain = pressure_WTC(Rho_seg_RTF,Xi_cav_RTF);
-                   if (Proc==0 && iwrite != NO_SCREEN) printf("\t RTF chain pressure is %9.6f\n",betap_chain);
+            if (Proc==0 && iwrite_screen == SCREEN_VERBOSE) printf("\t\t\tRTF chain pressure is %9.6f\n",betap_chain);
             Betap_RTF += betap_chain;
           }
        }
@@ -158,7 +162,7 @@ void calc_pressure(char *output_file1,int iwrite)
            /* CMS pressure with diffusion would go here */
        }
        if (Proc==0){
-            if (iwrite != NO_SCREEN) {
+            if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) {
                 print_to_screen(Betap_LBB,"Betap_LBB");
                 print_to_screen(Betap_RTF,"Betap_RTF");
             }
@@ -182,20 +186,20 @@ void calc_pressure(char *output_file1,int iwrite)
 				/* IDEAL contributions */
           if (Lseg_densities)  Betap=pressure_ideal_gas(Rho_seg_b);
           else                 Betap=pressure_ideal_gas(Rho_b);
-                   if (Proc==0 && iwrite != NO_SCREEN) printf("\t ideal gas pressure is %9.6f\n",Betap);
+                   if (Proc==0 && iwrite_screen == SCREEN_VERBOSE) print_to_screen(Betap,"\tIdeal gas pressure term");
 
 				/* HS FMT contributions */
           if (Type_func != NONE) {
                betap_hs_DFT = pressure_FMT_hs(Rhobar_b,Dphi_Drhobar_b);
-                   if (Proc==0 && iwrite != NO_SCREEN) printf("\tDFT HS pressure is %9.6f\n",betap_hs_DFT);
+                   if (Proc==0 && iwrite_screen == SCREEN_VERBOSE) print_to_screen(betap_hs_DFT,"\tHard Sphere pressure term");
                /*betap_hs_PY = pressure_PY_hs(Rho_b);
-                   if (Proc==0 && iwrite != NO_SCREEN) printf("\tPY HS pressure is %9.6f\n",betap_hs_PY);*/
+                   if (Proc==0 && iwrite_screen == SCREEN_VERBOSE) print_to_screen(betap_hs_PY,"\tPY HS pressure term",betap_hs_PY);*/
                Betap += betap_hs_DFT;
           }
 				/* MF ATT contributions */
           if (Type_attr != NONE){
                betap_att = pressure_att(Rho_b);
-                   if (Proc==0 && iwrite != NO_SCREEN) printf("\t att pressure is %9.6f\n",betap_att);
+                   if (Proc==0 && iwrite_screen == SCREEN_VERBOSE) print_to_screen(betap_att,"\tAtt pressure term");
 	       Betap += betap_att;
           }
 				/* electrostatics contributions */
@@ -209,11 +213,11 @@ void calc_pressure(char *output_file1,int iwrite)
 	  /* must then correct contributions from attractions, Coulomb */
           if (Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
 	    betap_chain = pressure_WTC(Rho_seg_b,Xi_cav_b);
-                   if (Proc==0 && iwrite != NO_SCREEN) printf("\t chain pressure is %9.6f\n",betap_chain);
+                   if (Proc==0 && iwrite_screen == SCREEN_VERBOSE) printf("\t chain pressure is %9.6f\n",betap_chain);
             Betap += betap_chain;
           }
          if (Proc==0){
-              if (iwrite != NO_SCREEN) {
+              if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) {
                   print_to_screen(Betap,"Betap");
               }
               print_to_file(fp,Betap,"Betap",2);
@@ -228,14 +232,14 @@ void calc_pressure(char *output_file1,int iwrite)
 }
 /***************************************************************************************/
 /* calc_chempot: this routine contains the logic for assembly of the chemical potentials */
-void calc_chempot(char *output_file1,int iwrite)
+void calc_chempot(char *file_echoinput,int iwrite_screen, int iwrite_files)
 {
 
    int icomp,iseg,ipol;
    FILE *fp;
 
-   if( (fp = fopen(output_file1,"a+")) == NULL) {
-      printf("Can't open file %s\n", output_file1);
+   if( (fp = fopen(file_echoinput,"a+")) == NULL) {
+      printf("Can't open file %s\n", file_echoinput);
       exit(1);
    }
 
@@ -352,14 +356,14 @@ void calc_chempot(char *output_file1,int iwrite)
           if (Proc==0){
                if (Lseg_densities){
                   if (Type_poly==WTC){
-                  if (iwrite != NO_SCREEN) {
+                  if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) {
                       for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg_LBB[iseg],"Betamu_seg_LBB");
                       for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg_RTF[iseg],"Betamu_seg_RTF");
                   }
                   for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg_LBB[iseg],"Betamu_seg_LBB",2);
                   for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg_RTF[iseg],"Betamu_seg_RTF",2);
                   }
-                  if (iwrite != NO_SCREEN){
+                  if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY){
                       for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");
                       for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");
                   }
@@ -368,7 +372,7 @@ void calc_chempot(char *output_file1,int iwrite)
                }
                else{
                   if (Type_poly==WJDC3) {
-                     if (iwrite != NO_SCREEN){
+                     if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY){
                          for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");
                          for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");
                      }
@@ -376,7 +380,7 @@ void calc_chempot(char *output_file1,int iwrite)
                      for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
                   }
                   else{
-                     if (iwrite != NO_SCREEN) {
+                     if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) {
                          for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu_LBB[icomp],"Betamu_LBB");
                          for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu_RTF[icomp],"Betamu_RTF");
                      }
@@ -452,18 +456,18 @@ void calc_chempot(char *output_file1,int iwrite)
 /************ End Optimizing Scale_fac Terms !!! ************/
           if (Proc==0){
                if (Lseg_densities){
-                  if (iwrite != NO_SCREEN) for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg[iseg],"Betamu_seg");
+                  if (iwrite_screen == SCREEN_VERBOSE) for (iseg=0;iseg<Nseg_tot;iseg++) print_to_screen_comp(iseg,Betamu_seg[iseg],"Betamu_seg");
                   for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg[iseg],"Betamu_seg",2);
                }
                if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
-                  if (iwrite != NO_SCREEN)printf("\n");
-                  if (iwrite != NO_SCREEN) for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain[ipol],"Betamu_chain");
+                  if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY)printf("\n");
+                  if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain[ipol],"Betamu_chain");
                   for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain[ipol],"Betamu_chain",2);
 
                  
                }
                else{
-                  if (iwrite != NO_SCREEN) for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu[icomp],"Betamu");
+                  if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu[icomp],"Betamu");
                   for (icomp=0;icomp<Ncomp;icomp++) print_to_file_comp(fp,icomp,Betamu[icomp],"Betamu",2);
                }
           }    

@@ -66,6 +66,8 @@ void post_process(double **x,int *niters,double *time_save,int loop1,int binodal
 int solve_problem(double **x,double **x2);
 void print_profile_box(double **x,char *outfile);
 int solve_problem_picard(double **x,double **x2);
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
 extern double NL_update_scalingParam;
 #define PICNEWTON_BUILT_IN    4
 #define PICNEWTON_NOX         5
@@ -76,15 +78,15 @@ extern int Lbinodal;
 extern int Nnodes_box;
 extern int Nunk_per_node;
 extern int **Zero_density_TF;
-void print_zeroTF(int **zero_TF,char *output_file);
+void print_zeroTF(int **zero_TF,char *ZeroTF_filename);
 extern double **Vext_static;
 #define READ_VEXT_STATIC     3
 extern int Restart_Vext;
 extern double **Vext;
 void print_vext(double **vext,char *output_file);
-#define VERBOSE      3 
-#define EXTENDED     2
-#define NO_SCREEN    4 
+#define FILES_DEBUG        2
+#define FILES_EXTENDED     1 
+#define SCREEN_VERBOSE     3 
 void setup_vext_coulomb_vol();
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
@@ -102,8 +104,8 @@ extern int Vol_charge_flag;
 extern double **Vext_coul;
 void setup_integrals();
 void setup_domain_multipliers();
-void boundary_setup(char *output_file1);
-void set_up_mesh(char *output_file1,char *output_file2);
+void boundary_setup(char *file_echoinput);
+void set_up_mesh(char *file_echoinput,char *output_file2);
 extern int **Nel_hit2;
 extern int **Nel_hit;
 extern int *Comm_offset_unk;
@@ -117,9 +119,9 @@ void safe_free(void **ptr);
 extern int Type_interface;
 void boundary_free(void);
 void free_mesh_arrays(void);
-extern int Iwrite;
-void thermodynamics(char *output_file1,int iwrite);
-void thermodynamics(char *output_file1,int iwrite);
+extern int Iwrite_files;
+extern int Iwrite_screen;
+void thermodynamics(char *file_echoinput,int iwrite_screen,int iwrite_files);
 void calc_stencils(void);
 void calc_HS_diams();
 extern int Type_func;
@@ -144,8 +146,8 @@ void *array_alloc(int numdim,...);
 extern double ***Rism_cr;
 #define CMS          0
 extern int Type_poly;
-void setup_pairPotentials(char *output_file1);
-void setup_nunk_per_node(char *output_file1);
+void setup_pairPotentials(char *file_echoinput);
+void setup_nunk_per_node(char *file_echoinput);
 void setup_stencil_uattr_core_properties();
 #define NONE       -1
 #define NONE          -1
@@ -153,7 +155,7 @@ void setup_stencil_uattr_core_properties();
 #define NONE        -1
 extern int Type_attr;
 void setup_stencil_logicals();
-void setup_params_for_dft(char *input_file,char *output_file1);
+void setup_params_for_dft(char *input_file,char *file_echoinput);
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

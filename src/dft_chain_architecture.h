@@ -20,8 +20,7 @@ void safe_free(void **ptr);
 #define NCOMP_MAX 5
 extern int Geqn_start[NCOMP_MAX];
 extern int Ngeqn_tot;
-#define VERBOSE      3 
-extern int Iwrite;
+#define SCREEN_VERBOSE     3 
 extern int Nseg_type[NCOMP_MAX];
 #define NMER_MAX     200
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
@@ -49,17 +48,21 @@ extern int *Nbonds_SegAll;
 extern int *Unk_to_Bond;
 extern int *Unk_to_Seg;
 extern int *Unk_to_Poly;
-void setup_chain_indexing_arrays(int nseg,int nmer_max,FILE *fpout);
+void setup_chain_indexing_arrays(int nseg,int nmer_max,FILE *fpecho);
+#define FILES_DEBUG        2
+extern int Iwrite_files;
 extern int Nbond_max;
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-void setup_chain_linear_symmetric(FILE *fpout);
+void setup_chain_linear_symmetric(FILE *fpecho);
 #define LIN_POLY_SYM 2
-void setup_chain_linear(FILE *fpout);
+void setup_chain_linear(FILE *fpecho);
 #define LIN_POLY 1
-void setup_chain_from_file(FILE *fpout,char *poly_file);
+void setup_chain_from_file(FILE *fpecho,char *poly_file);
 #define POLY_ARCH_FILE 0
 extern int ***pol_sym_tmp;
 #define NBOND_MAX 4
@@ -72,4 +75,4 @@ extern int Nmer[NCOMP_MAX];
 extern int Npol_comp;
 #define SET_IN_GUI 3
 extern int Type_poly_arch;
-void setup_chain_architecture(char *poly_file,FILE *fpout);
+void setup_chain_architecture(char *poly_file,FILE *fpecho);

@@ -112,7 +112,6 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
     } /* end of test for boundary node */
   }
   fclose(ifp);
-  if(Proc==0) printf("got through first part of calculations\n");
 
  /* } */
 /*

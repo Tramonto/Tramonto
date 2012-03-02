@@ -70,7 +70,7 @@ void uSW_setparams(int context, int i, int j, double *param1,double *param2, dou
         *param3 = Cut_ww[WallType[i]][WallType[j]];
         break;
      default:
-        printf("problem with potential context uSW_setparams\n");
+        if (Iwrite_screen != NONE) printf("problem with potential context uSW_setparams\n");
         exit(-1);
    }
    return;

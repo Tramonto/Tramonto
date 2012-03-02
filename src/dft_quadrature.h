@@ -52,4 +52,6 @@ extern int Sten_Choice_S[NSTEN][NZONE_MAX];
 #define DELTA_FN_BOND         6
 #define DELTA_FN_R            0
 int get_integration_pts(int isten,int izone,double ***point_ptr,double **wt_ptr);
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 void set_gauss_quad(int ngp,double *gp,double *gw);

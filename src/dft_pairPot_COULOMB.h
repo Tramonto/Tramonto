@@ -29,6 +29,11 @@ extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 void uCOULOMB_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
 double uCOULOMB_CS_DERIV1D(double r,double x,double z1,double z2,double rcut);
 void uCOULOMB_setparams(int context,int i,int j,double *param1,double *param2,double *param3);
+#define NONE       -1
+#define NONE          -1
+#define NONE        -1
+#define NONE        -1
+extern int Iwrite_screen;
 #define NWALL_MAX_TYPE 50 
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define WALL_WALL   2
