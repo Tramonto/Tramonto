@@ -73,7 +73,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
   for (idim=0;idim<Ndim;idim++) xtest[idim]=0.0;
 
   for (iel_box=0; iel_box<Nelements_box; iel_box++){
-     if (Coarser_jac != 5) elem_zones[iel_box] = Nzone - 1;
+     if (Coarser_jac != JAC_ZONES_SETFIXED_ESIZE) elem_zones[iel_box] = Nzone - 1;
      else                  elem_zones[iel_box] = Nzone - 2;
      x_min[iel_box] = 1000.;
      for (ilist=0; ilist<Nlists_HW; ilist++){

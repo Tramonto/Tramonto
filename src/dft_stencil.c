@@ -90,7 +90,7 @@ void calc_stencils(void)
  /* Loop over each quadrature zone */
   for (izone=0; izone<Nzone; izone++){
 
-  if (Coarser_jac ==5 && izone == Nzone-1 ){
+  if (Coarser_jac ==JAC_ZONES_SETFIXED_ESIZE && izone == Nzone-1 ){
     for (idim=0; idim<Ndim; idim++){
         zone_coarseness = (int)(Jac_grid/Esize_x[idim]+0.000000001);
         esize_zone[idim]=Esize_x[idim]* zone_coarseness;

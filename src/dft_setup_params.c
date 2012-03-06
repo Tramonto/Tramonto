@@ -216,6 +216,9 @@ void setup_other_run_constants()
   if (Ipot_ff_n <= HARD_SPHERE) Temp = 1.0;
   else{ Temp = 1.0/Eps_ff[0][0];}
 
+  if (Coarser_jac == JAC_ZONES_SETFIXED_ESIZE) Nzone += 1;
+
+
   return;
 }
 /******************************************************************************/

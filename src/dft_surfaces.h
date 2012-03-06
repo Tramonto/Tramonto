@@ -48,7 +48,6 @@ void node_to_ijk(int node,int *ijk);
 extern double Dielec_pore;
 extern double *Dielec;
 void flag_wall_el(int inode,int ilist,int iwall,int iel_box,int **L_wall,int **nelems_w_per_w,int ***elems_w_per_w,int ***el_type);
-void flag_wall_el(int inode,int ilist,int iwall,int iel_box,int **L_wall,int **nelems_w_per_w,int ***elems_w_per_w,int ***el_type);
 #define NCOMP_MAX 5
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Lhard_surf;
@@ -99,7 +98,6 @@ extern int Proc;
 #endif
 extern int Nwall_Images;
 void find_wall_images(int idim,int *image,double **image_pos,double *pos);
-void find_wall_images(int idim,int *image,double **image_pos,double *pos);
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int *Image_IDCheck;
 extern int *RealWall_Images;
@@ -121,6 +119,7 @@ extern int WallType[NWALL_MAX];
 #define FLUID_EL       1 
 extern int **Wall_elems;
 extern int Nzone;
+#define JAC_ZONES_SETFIXED_ESIZE       5
 extern int Coarser_jac;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
@@ -175,5 +174,4 @@ struct SurfaceGeom_Struct {
   double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
-void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);
 void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);

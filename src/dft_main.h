@@ -48,6 +48,7 @@ extern int *B2L_unknowns;
 extern double *Deltac_b;
 #define COULOMB      1
 extern int Ipot_ff_c;
+#define SCREEN_BASIC       1
 extern double Time_InitGuess;
 int gmax_int(int c);
 extern int Nnodes_per_proc;

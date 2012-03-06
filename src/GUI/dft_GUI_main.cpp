@@ -82,11 +82,13 @@ extern "C" void dft_OptikaGUI()
   dft_GUI_OutputParams(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,SurfaceInteraction_List,Output_List);
 
   RCP<ParameterList> Solver_List = sublist(Tramonto_List, "Sect. 9: Numerical Methods");
-  RCP<ParameterList> Coarsening_List = sublist(Solver_List, "Jacobian & Mesh Coarsening");
+  RCP<ParameterList> Coarsening_List = sublist(Solver_List, "Numerical Coarsening Options");
+  RCP<ParameterList> LoadBalance_List = sublist(Solver_List, "Load Balancing Options");
+  RCP<ParameterList> PhysicsMethod_List = sublist(Solver_List, "Physics based Solver Options");
   RCP<ParameterList> LinearSolver_List = sublist(Solver_List, "Linear Solver Options");
   RCP<ParameterList> NonlinearSolver_List = sublist(Solver_List, "Nonlinear Solver Options");
   dft_GUI_NumericalMethods(Tramonto_List,depSheet_Tramonto,Functional_List,Solver_List,
-                            Coarsening_List,NonlinearSolver_List,LinearSolver_List);
+                            Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
 
              /* The getInput function starts up an Optika GUI and      *
               * lets the user start to input parameter values. When    *
@@ -105,6 +107,7 @@ extern "C" void dft_OptikaGUI()
   dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
                      StatePoint_List,Diffusion_List,ChargedFluid_List,Continuation_List,
+                     Solver_List,Coarsening_List,LoadBalance_List,PhysicsMethod_List,LinearSolver_List,NonlinearSolver_List,
                      Surface_List,SurfaceGeometry_List);
 
              /* Here save parameter a to return to C code --- a fully 

@@ -1523,7 +1523,6 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   fscanf(fpinput,"%d %lf",&Coarser_jac,&Jac_grid);
    fprintf(fpecho,"%d %f ",Coarser_jac,Jac_grid);
 
-  if (Coarser_jac == 5) Nzone += 1;
   read_junk(fpinput,fpecho);
   fscanf(fpinput,"%d %lf",&Lcut_jac,&Jac_threshold);
    fprintf(fpecho,"%d %f ",Lcut_jac,Jac_threshold);
@@ -1743,7 +1742,7 @@ void read_junk(FILE *fpinput, FILE *fpecho)
 void error_check(void)
 {
   double charge_b;
-  int i,nmax;
+  int i;
   char *yo="error_check";
 
   if (Ndim> NDIM_MAX) {
@@ -1828,7 +1827,5 @@ void error_check(void)
      if(Iwrite_screen!=SCREEN_NONE) printf("\nERROR: Nzone out of range: Minimum val=1; Maximum val=%d: Current val=%d\n",NZONE_MAX,Nzone);
      exit(-1);
   }
-  if (Coarser_jac == 5) nmax= Nzone-1;
-  else                  nmax = Nzone;
 
 }

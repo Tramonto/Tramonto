@@ -118,7 +118,7 @@ double deltaC_GENERAL_MSA_int(double r,int i, int j)
   if (HS_diam[j]<HS_diam[i]){ itemp=j; jtemp=i; }
   else                      { itemp=i; jtemp=j; }
 
-  NplusGammaX_i=N_MSA[i]+Gamma_MSA*X_MSA[i];
+  NplusGammaX_itemp=N_MSA[i]+Gamma_MSA*X_MSA[i];   /* note that this needs to be checked */
 
   if (r <= (HS_diam[jtemp]-HS_diam[itemp])/2.0 && r>0) {
      deltac_int= (8.0*PI*r*r/Temp_elec)*(

@@ -20,6 +20,12 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                         Teuchos::RCP<Teuchos::ParameterList> Diffusion_List,
                         Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List,
                         Teuchos::RCP<Teuchos::ParameterList> Continuation_List,
+                        Teuchos::RCP<Teuchos::ParameterList> Solver_List,
+                        Teuchos::RCP<Teuchos::ParameterList> Coarsening_List,
+                        Teuchos::RCP<Teuchos::ParameterList> LoadBalance_List,
+                        Teuchos::RCP<Teuchos::ParameterList> PhysicsMethod_List,
+                        Teuchos::RCP<Teuchos::ParameterList> LinearSolver_List,
+                        Teuchos::RCP<Teuchos::ParameterList> NonlinearSolver_List,
                         Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                         Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List) 
 {
@@ -524,6 +530,94 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
               for (i=0; i<2; i++) Cont_ID[1][i]=C8_WF[i]; 
         }
      }
+
+    /*****************************************************/
+    /* params from numerical methods section of the GUI  */
+    /*****************************************************/
+      if (LoadBalance_List->get<string>("LB1: Load Balancing Approach")=="Linear Matrix Balance") Load_Bal_Flag=LB_LINEAR;
+      else if (LoadBalance_List->get<string>("LB1: Load Balancing Approach")=="Weighted Recursive Bisection") Load_Bal_Flag=LB_LINEAR;
+      else if (LoadBalance_List->get<string>("LB1: Load Balancing Approach")=="Geometric Recursive Bisection") Load_Bal_Flag=LB_LINEAR;
+
+     if (Coarsening_List->get<string>("C1: Coarsening Type")=="none") Mesh_coarsening=FALSE;
+     else if (Coarsening_List->get<string>("C1: Coarsening Type")=="residual and jacobian coarsening") Mesh_coarsening=TRUE;
+     else if (Coarsening_List->get<string>("C1: Coarsening Type")=="Poisson-Boltzmann zone") Mesh_coarsening=PB_ZONE;
+     else if (Coarsening_List->get<string>("C1: Coarsening Type")=="Bulk zone") Mesh_coarsening=BULK_ZONE;
+
+     if (Coarsening_List->get<bool>("C5.0: Truncate jacobian integrals?")){
+        Lcut_jac=TRUE;
+        Jac_threshold=Coarsening_List->get<double>("C5.1: Truncation threshhold");
+     }
+     else{
+        Lcut_jac=FALSE;
+        Jac_threshold=0.0;
+     }
+
+     if(Coarsening_List->get<string>("C2.0: Type of Jacobian coarsening")=="Jacobian Coarsening identical to Residual Coarsening") Coarser_jac=JAC_RESID_ZONES_SAME;
+     else if(Coarsening_List->get<string>("C2.0: Type of Jacobian coarsening")=="Jacobian: factor of 2 more coarse than resid in most refined zone") Coarser_jac=JAC_ZONE0_FAC2LESSTHANRESID;
+     else if(Coarsening_List->get<string>("C2.0: Type of Jacobian coarsening")=="Jacobian: factor of 2 more coarse than resid in all but most coarse zone") Coarser_jac=JAC_ZONES_FAC2LESSTHANRESID;
+     else if(Coarsening_List->get<string>("C2.0: Type of Jacobian coarsening")=="Jacobian: use most coarse zone to define entire matrix") Coarser_jac=JAC_ZONES_ALLMOSTCOARSE;
+     else if(Coarsening_List->get<string>("C2.0: Type of Jacobian coarsening")=="Jacobian: use 2nd most coarse zone in all but most coarse region") Coarser_jac=JAC_ZONES_SECONDMOSTCOARSE;
+     else if(Coarsening_List->get<string>("C2.0: Type of Jacobian coarsening")=="Jacobian: set Esize_jac for all matrix calculations") Coarser_jac=JAC_ZONES_SETFIXED_ESIZE;
+
+     Jac_grid=Coarsening_List->get<double>("C2.1: Esize_Jac");
+
+     Nzone = Coarsening_List->get<int>("C3: Nzone");
+
+     Array<double> Rmin_Array = Coarsening_List->get<Array<double> >("C4: Rmin for each zone");
+     for (i=0;i<Nzone-1;i++){
+        Rmax_zone[i]=Rmin_Array[i+1];
+     }
+
+     if (Coarsening_List->get<bool>("C6.0: 1D boundary zone?")){
+       L1D_bc=TRUE;
+       Grad_dim=Coarsening_List->get<int>("C6.1: Dim_1D_bc");
+       X_1D_bc=Coarsening_List->get<double>("C6.2: X_1D_bc");
+     }
+     else L1D_bc=FALSE;
+
+     if(PhysicsMethod_List->get<bool>("PM1: Attractions in A22 Block of matrix?")) ATTInA22Block=TRUE;
+     else ATTInA22Block=FALSE;
+
+     if(PhysicsMethod_List->get<string>("PM2: Physics Scaling?")=="No Physics Scaling") Physics_scaling=FALSE;
+     else if(PhysicsMethod_List->get<string>("PM2: Physics Scaling?")=="Automatic Calculation") Physics_scaling=AUTOMATIC;
+     else if(PhysicsMethod_List->get<string>("PM2: Physics Scaling?")=="Manual Input") Physics_scaling=MANUAL_INPUT;
+
+     if(PhysicsMethod_List->get<bool>("PM3: Analytic Jacobian?")) Analyt_WJDC_Jac=TRUE;
+     else Analyt_WJDC_Jac=FALSE;
+
+     if(NonlinearSolver_List->get<string>("NLS1: Nonlinear Solver")=="Newton Built-In") NL_Solver=NEWTON_BUILT_IN;
+     else if(NonlinearSolver_List->get<string>("NLS1: Nonlinear Solver")=="Newton NOX") NL_Solver=NEWTON_NOX;
+     if(NonlinearSolver_List->get<string>("NLS1: Nonlinear Solver")=="Picard Built-In") NL_Solver=PICARD_BUILT_IN;
+     else if(NonlinearSolver_List->get<string>("NLS1: Nonlinear Solver")=="Picard NOX") NL_Solver=PICARD_NOX;
+     else if(NonlinearSolver_List->get<string>("NLS1: Nonlinear Solver")=="Picard/Newton Built-In") NL_Solver=PICNEWTON_BUILT_IN;
+     else if(NonlinearSolver_List->get<string>("NLS1: Nonlinear Solver")=="Picard/Newton NOX") NL_Solver=PICNEWTON_NOX;
+
+     Max_NL_iter=NonlinearSolver_List->get<int>("NLS2: Max Nonlinear Iterations");
+     NL_abs_tol=NonlinearSolver_List->get<double>("NLS3: Newton Tolerance Absolute");
+     NL_rel_tol=NonlinearSolver_List->get<double>("NLS4: Newton Tolerance Relative");
+     NL_update_scalingParam=NonlinearSolver_List->get<double>("NLS5: Minimum update fraction");
+     NL_abs_tol_picard=NonlinearSolver_List->get<double>("NLS6: Picard Tolerance Absolute");
+     NL_rel_tol_picard=NonlinearSolver_List->get<double>("NLS7: Picard Tolerance Relative");
+
+     if(LinearSolver_List->get<string>("LS4: Linear Solver Approach")=="GMRES") Az_solver=0;
+     else if(LinearSolver_List->get<string>("LS4: Linear Solver Approach")=="cg") Az_solver=1;
+     else if(LinearSolver_List->get<string>("LS4: Linear Solver Approach")=="tfqmr") Az_solver=2;
+     else if(LinearSolver_List->get<string>("LS4: Linear Solver Approach")=="cgs") Az_solver=3;
+     else if(LinearSolver_List->get<string>("LS4: Linear Solver Approach")=="bicgstab") Az_solver=4;
+
+     if(LinearSolver_List->get<string>("LS5: Matrix Scaling option")=="none") Az_scaling=-1;
+     else if(LinearSolver_List->get<string>("LS5: Matrix Scaling option")=="row_sum") Az_scaling=0;
+     else if(LinearSolver_List->get<string>("LS5: Matrix Scaling option")=="jacobi") Az_scaling=1;
+     else if(LinearSolver_List->get<string>("LS5: Matrix Scaling option")=="symrow_sum") Az_scaling=2;
+
+     if(LinearSolver_List->get<string>("LS6: Preconditioner option")=="none") Az_preconditioner=-1;
+     else if(LinearSolver_List->get<string>("LS6: Preconditioner option")=="ilu") Az_preconditioner=0;
+     else if(LinearSolver_List->get<string>("LS6: Preconditioner option")=="jacobi") Az_preconditioner=1;
+     else if(LinearSolver_List->get<string>("LS6: Preconditioner option")=="symmetric Gauss-Seidel") Az_preconditioner=2;
+     else if(LinearSolver_List->get<string>("LS6: Preconditioner option")=="LSpoly3") Az_preconditioner=3;
+     else if(LinearSolver_List->get<string>("LS6: Preconditioner option")=="ilut") Az_preconditioner=4;
+
+     Az_ilut_fill_param=LinearSolver_List->get<double>("LS7: Number of Fill Levels for ILUT");
 
     /****************************************************/
     /* params from surface geometry section of the GUI  */

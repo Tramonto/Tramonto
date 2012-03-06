@@ -493,9 +493,6 @@ extern "C" {
 #define LB_LINEAR    0
 #define LB_BOX       1
 #define LB_WEIGHTS   2
-#define LB_TIMINGS   3
-#define LB_NON0      4
-#define LB_MIXED     5
 
 /* The following is a choice for the treatment of dielectric_constants */
 #define DIELEC_CONST       0
@@ -596,6 +593,13 @@ extern "C" {
 #define READ_VEXT_SUMTWO     2
 #define READ_VEXT_STATIC     3
 
+/* options for jacobian coarsening */
+#define JAC_RESID_ZONES_SAME    0
+#define JAC_ZONE0_FAC2LESSTHANRESID    1
+#define JAC_ZONES_FAC2LESSTHANRESID    2
+#define JAC_ZONES_ALLMOSTCOARSE        3
+#define JAC_ZONES_SECONDMOSTCOARSE     4
+#define JAC_ZONES_SETFIXED_ESIZE       5
 
 /****************************************************************************/
 

@@ -508,17 +508,17 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
                 }   
                 else{
                    if (Type_interface==UNIFORM_INTERFACE || Type_interface==PHASE_INTERFACE){
-                      if (nloop==1) fprintf(fp,"%Betamu_chain[%d]  ", Cont_ID[Loca_contID][0]);
-                      else          fprintf(fp,"%Betamu_chain[%d]  ", i);
+                      if (nloop==1) fprintf(fp,"Betamu_chain[%d]  ", Cont_ID[Loca_contID][0]);
+                      else          fprintf(fp,"Betamu_chain[%d]  ", i);
                    }
                    else{
                       if (nloop==1){
-                              fprintf(fp,"%Betamu_chain_LBB[%d]  ", Cont_ID[Loca_contID][0]);
-                              fprintf(fp,"%Betamu_chain_RTF[%d]  ", Cont_ID[Loca_contID][0]);
+                              fprintf(fp,"Betamu_chain_LBB[%d]  ", Cont_ID[Loca_contID][0]);
+                              fprintf(fp,"Betamu_chain_RTF[%d]  ", Cont_ID[Loca_contID][0]);
                       }
                       else{
-                             fprintf(fp,"%Betamu_chain_LBB[%d]  ", i);
-                             fprintf(fp,"%Betamu_chain_RTF[%d]  ", i);
+                             fprintf(fp,"Betamu_chain_LBB[%d]  ", i);
+                             fprintf(fp,"Betamu_chain_RTF[%d]  ", i);
                       }
                    }
                 }

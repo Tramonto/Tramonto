@@ -49,6 +49,7 @@ extern int Geom_flag;
 void print_Nodes_to_zone(int *node_to_zone,char *Nodes2Zone_Filename);
 int ijk_box_to_node_box(int *ijk_box);
 extern int Nzone;
+#define JAC_ZONES_SETFIXED_ESIZE       5
 int element_to_node(int ielement);
 int el_box_to_el(int iel_box);
 void node_box_to_ijk_box(int node_box,int *ijk_box);
@@ -193,6 +194,7 @@ extern double *Area_IC;
 extern int Type_interface;
 extern int Nnodes;
 int gsum_int(int c);
+#define JAC_RESID_ZONES_SAME    0
 extern int Coarser_jac;
 void setup_wall_wall_potentials();
 extern int Lprint_pmf;
@@ -207,7 +209,6 @@ void set_mesh_coarsen_flag(void);
 void zones_el_to_nodes(int *elem_zones);
 extern int Nwall_Images;
 extern int Imain_loop;
-void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);
 void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);
 extern int Nnodes_wall_box;
 extern int **List_wall_node;

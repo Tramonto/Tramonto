@@ -108,6 +108,12 @@ void dft_GUI_toTramonto(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Teuchos::ParameterList> Diffusion_List, 
                          Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Continuation_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> Solver_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> Coarsening_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> LoadBalance_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> PhysicsMethod_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> LinearSolver_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> NonlinearSolver_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Surface_List, 
                          Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List); 
 
@@ -123,6 +129,8 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
                          Teuchos::RCP<Teuchos::ParameterList> Functional_List,
                          Teuchos::RCP<Teuchos::ParameterList> Solver_List,
                          Teuchos::RCP<Teuchos::ParameterList> Coarsening_List,
+                         Teuchos::RCP<Teuchos::ParameterList> LoadBalance_List,
+                         Teuchos::RCP<Teuchos::ParameterList> PhysicsMethods_List,
                          Teuchos::RCP<Teuchos::ParameterList> NonlinearSolver_List,
                          Teuchos::RCP<Teuchos::ParameterList> LinearSolver_List);
 

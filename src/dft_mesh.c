@@ -115,13 +115,11 @@ void set_up_mesh (char *file_echoinput,char *output_file2)
    */
 
   print_flag=TRUE;
-  if (L1D_bc || Load_Bal_Flag == LB_WEIGHTS || (Load_Bal_Flag >= LB_TIMINGS
-				      && Mesh_coarsening != FALSE) ) print_flag=FALSE;
+  if (L1D_bc || Load_Bal_Flag == LB_WEIGHTS) print_flag=FALSE;
 
   control_mesh(fpecho,output_file2,print_flag, update);
 
-  if (L1D_bc || Load_Bal_Flag == LB_WEIGHTS || (Load_Bal_Flag >= LB_TIMINGS
-				      && Mesh_coarsening != FALSE) ) {
+  if (L1D_bc || Load_Bal_Flag == LB_WEIGHTS) {
     print_flag=TRUE; 
      /*
       * Now redo load balancing based on mesh info
@@ -553,7 +551,7 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
      
             if (Zero_density_TF[L2B_node[i]][icomp]) count_zero++;
             if (Mesh_coarsening !=FALSE || L1D_bc) if (Mesh_coarsen_flag[L2B_node[i]] < 0) count_coarse_resid++;
-            if (Nodes_to_zone[L2B_node[i]] > 0 || Coarser_jac>0) count_coarse_jac++;
+            if (Nodes_to_zone[L2B_node[i]] > 0 || Coarser_jac!=JAC_RESID_ZONES_SAME) count_coarse_jac++;
         }
         count_zero_all=gsum_int(count_zero);
         if (icomp==0){
@@ -2549,7 +2547,7 @@ void zones_el_to_nodes(int *elem_zones)
   int nzone_max;
   Nodes_to_zone = (int *) array_alloc (1, Nnodes_box, sizeof(int));
 
-  if (Coarser_jac != 5) nzone_max=Nzone-1;
+  if (Coarser_jac != JAC_ZONES_SETFIXED_ESIZE) nzone_max=Nzone-1;
   else                  nzone_max=Nzone-2;
   
   for (izone = nzone_max; izone>=0; izone--){

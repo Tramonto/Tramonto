@@ -58,7 +58,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
   else{
       if (izone >= 0) jzone = izone;
       else{
-         if (izone=FLAG_BULK || izone==FLAG_PBELEC) jzone=0;
+         if (izone==FLAG_BULK || izone==FLAG_PBELEC) jzone=0;
          else {
              if (Iwrite_screen != SCREEN_NONE && Proc==0) printf("I'm confused about the zones see dft_utils.c\n");
              exit(-1);

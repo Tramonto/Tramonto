@@ -86,7 +86,6 @@ extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double EpsYukawa_ff[NCOMP_MAX][NCOMP_MAX];
 extern double X_1D_bc;
 extern double Rmax_zone[5];
-extern int Nzone;
 extern double Dielec_X;
 #define DIELEC_WF_PORE     2
 extern int Type_dielec;
@@ -123,6 +122,9 @@ extern double WallParam[NWALL_MAX_TYPE];
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern double Esize_x[NDIM_MAX];
 extern double Size_x[NDIM_MAX];
+extern int Nzone;
+#define JAC_ZONES_SETFIXED_ESIZE       5
+extern int Coarser_jac;
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 #define HARD_SPHERE  1
 extern int Ipot_ff_n;

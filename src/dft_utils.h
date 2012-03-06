@@ -109,7 +109,13 @@ double constant_boundary(int iunk,int jnode_box);
 extern int *Mesh_coarsen_flag;
 extern int Nwall;
 extern int Mesh_coarsening;
+#define JAC_ZONES_SETFIXED_ESIZE       5
+#define JAC_ZONES_SECONDMOSTCOARSE     4
+#define JAC_ZONES_ALLMOSTCOARSE        3
+#define JAC_ZONES_FAC2LESSTHANRESID    2
+#define JAC_ZONE0_FAC2LESSTHANRESID    1
 extern int Nzone;
+#define JAC_RESID_ZONES_SAME    0
 extern int Coarser_jac;
 int find_jzone(int izone,int inode_box);
 #define NWALL_MAX 600 

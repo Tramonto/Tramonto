@@ -67,17 +67,17 @@ bug prone. */
 int find_jzone(int izone,int inode_box)
 {
   int jzone;
-  if (Coarser_jac > 0 && izone<Nzone-1){
-      if (Coarser_jac == 1){
+  if (Coarser_jac != JAC_RESID_ZONES_SAME && izone<Nzone-1){
+      if (Coarser_jac == JAC_ZONE0_FAC2LESSTHANRESID){
           if (izone ==0 ) jzone = izone + 1;
           else                 jzone = izone;
       }
-      else if (Coarser_jac == 2) jzone = izone + 1;
-      else if (Coarser_jac == 3) jzone = Nzone-1;
-      else if (Coarser_jac == 4) jzone = Nzone-2;
-      else if (Coarser_jac == 5) jzone = Nzone-1;
+      else if (Coarser_jac == JAC_ZONES_FAC2LESSTHANRESID) jzone = izone + 1;
+      else if (Coarser_jac == JAC_ZONES_ALLMOSTCOARSE) jzone = Nzone-1;
+      else if (Coarser_jac == JAC_ZONES_SECONDMOSTCOARSE) jzone = Nzone-2;
+      else if (Coarser_jac == JAC_ZONES_SETFIXED_ESIZE) jzone = Nzone-1;
   }
-  else if (Coarser_jac==0){
+  else if (Coarser_jac==JAC_RESID_ZONES_SAME){
      if (Mesh_coarsening || Nwall==0) jzone = izone;
      else jzone = Mesh_coarsen_flag[inode_box];
   }

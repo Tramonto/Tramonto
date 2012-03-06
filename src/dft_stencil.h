@@ -83,6 +83,7 @@ extern int Sten_Type[NSTEN];
 #endif
 extern double Esize_x[NDIM_MAX];
 extern double Jac_grid;
+#define JAC_ZONES_SETFIXED_ESIZE       5
 extern int Coarser_jac;
 extern int Max_sten_length[3];
 extern int Ndim;
