@@ -128,6 +128,8 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
                          Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
                          Teuchos::RCP<Teuchos::ParameterList> Functional_List,
                          Teuchos::RCP<Teuchos::ParameterList> Solver_List,
+                         Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                         Teuchos::RCP<Teuchos::ParameterList> Polymer_List,
                          Teuchos::RCP<Teuchos::ParameterList> Coarsening_List,
                          Teuchos::RCP<Teuchos::ParameterList> LoadBalance_List,
                          Teuchos::RCP<Teuchos::ParameterList> PhysicsMethods_List,

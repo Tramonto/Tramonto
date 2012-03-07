@@ -440,6 +440,7 @@ void broadcast_input()
   MPI_Bcast(&Lcut_jac,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Jac_threshold,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
   MPI_Bcast(&L1D_bc,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&Dim_1Dbc,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&X_1D_bc,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
   /*************************************************************************/

@@ -71,6 +71,7 @@ extern int ATTInA22Block;
 extern int Physics_scaling;
 extern int Max_NL_iter;
 extern int NL_Solver;
+extern int Dim_1Dbc;
 extern double X_1D_bc;
 extern double Jac_threshold;
 extern int Lcut_jac;

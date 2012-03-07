@@ -64,10 +64,10 @@ void calc_stencils(void)
   /********************** BEGIN EXECUTION ************************************/
 
   if (Proc==0) {
-    if (Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+/*    if (Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
          if (Iwrite_screen !=SCREEN_BASIC) printf("\n-------------------------------------------------------------------------------\n");
          printf("Calculating stencils ... \n");
-    }
+    }*/
     t1 = MPI_Wtime();
     if (Iwrite_files == FILES_DEBUG) fp_stencil = fopen("stencil.out", "w");
   }

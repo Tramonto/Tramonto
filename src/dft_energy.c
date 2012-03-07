@@ -313,7 +313,7 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
 
       } /* end of if(!first || !lfirst) */
 
-      if (Proc==0 && Iwrite_screen != NO_SCREEN && Iwrite_screen != SCREEN_ERRORS_ONLY){
+      if (Proc==0 && Iwrite_screen != NO_SCREEN && Iwrite_screen != SCREEN_ERRORS_ONLY && fp != NULL){
         if(!first || !lfirst) {
         printf("\t\t----------------------------------------\n");
         print_to_screen(omega_sum,"TOTAL GRAND POTENTIAL");
@@ -338,17 +338,17 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
     if (Type_poly == CMS || Type_poly==CMS_SCFT){
       if(!first || !lfirst) {
        omega_CMS=integrateInSpace_SumInComp(&integrand_CMS_freen,Nel_hit2,x,Integration_profile);
-       if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) print_to_screen(omega_CMS,"CMS FREE ENERGY");
+       if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY && fp != NULL) print_to_screen(omega_CMS,"CMS FREE ENERGY");
 
        omega_CMS_b=integrateInSpace_SumInComp(&integrand_CMS_freen_bulk,Nel_hit2,x,Integration_profile);
        omega_CMS_surf_ex = omega_CMS-omega_CMS_b;
-       if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) print_to_screen(omega_CMS_surf_ex,"CMS FREE ENERGY DELTA");
+       if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY && fp != NULL) print_to_screen(omega_CMS_surf_ex,"CMS FREE ENERGY DELTA");
 
        omega_sum += omega_CMS;
        omega_s_sum += omega_CMS_surf_ex;
       }
 
-       if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+       if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY && fp != NULL){
         if(!first || !lfirst) {
            printf("\t----------------------------------------\n");
            print_to_screen(omega_s_sum,"FREE ENERGY REL TO BULK");
@@ -356,7 +356,7 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
          }
        }
     
-       if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+       if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY && fp != NULL){
 	 if (fp !=NULL) print_to_file(fp,omega_s_sum,"del_omega",first);
        }
     }

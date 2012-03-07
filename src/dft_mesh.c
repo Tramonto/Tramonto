@@ -166,7 +166,7 @@ void set_up_mesh (char *file_echoinput,char *output_file2)
          node_to_ijk(inode, ijk);
          flag=TRUE;
          for (idim=0; idim<Ndim; idim++) 
-            if(Mesh_coarsen_flag[i] != FLAG_1DBC || (ijk[idim] != 0 && idim != Grad_dim)) flag=FALSE;
+            if(Mesh_coarsen_flag[i] != FLAG_1DBC || (ijk[idim] != 0 && idim != Dim_1Dbc)) flag=FALSE;
          if (flag){
               count++;
               Mesh_coarsen_flag[i] = Nodes_to_zone[i];
@@ -712,16 +712,16 @@ void setup_basic_box(FILE *fpecho, int *update)
       max_cut = 0.5;
     }
 
-  if (L1D_bc) ijk_1D = ((int)(X_1D_bc/Esize_x[Grad_dim]))+1;
+  if (L1D_bc) ijk_1D = ((int)(X_1D_bc/Esize_x[Dim_1Dbc]))+1;
 
 
   for (idim=0; idim<Ndim; idim++){
       Min_IJK_box[idim] = Min_IJK[idim] - Max_sten_length[idim];
       Max_IJK_box[idim] = Max_IJK[idim] + Max_sten_length[idim];
 
-      if (L1D_bc && idim!= Grad_dim){
-            if (Min_IJK[Grad_dim] <= ijk_1D || 
-               Max_IJK[Grad_dim] >= Nodes_x[Grad_dim]-ijk_1D) Min_IJK_box[idim] = 0;
+      if (L1D_bc && idim!= Dim_1Dbc){
+            if (Min_IJK[Dim_1Dbc] <= ijk_1D || 
+               Max_IJK[Dim_1Dbc] >= Nodes_x[Dim_1Dbc]-ijk_1D) Min_IJK_box[idim] = 0;
       }
 
      /* set Pflag to catch cases where (1) the cut-offs are so large
@@ -2655,8 +2655,8 @@ void set_mesh_coarsen_flag(void)
                
       }
       if (L1D_bc){
-         if (ijk[Grad_dim]*Esize_x[Grad_dim] <= X_1D_bc+0.00000001 ||
-             ijk[Grad_dim]*Esize_x[Grad_dim] >= Size_x[Grad_dim] - (X_1D_bc+0.00000001) ) {
+         if (ijk[Dim_1Dbc]*Esize_x[Dim_1Dbc] <= X_1D_bc+0.00000001 ||
+             ijk[Dim_1Dbc]*Esize_x[Dim_1Dbc] >= Size_x[Dim_1Dbc] - (X_1D_bc+0.00000001) ) {
              Mesh_coarsen_flag[i] = FLAG_1DBC;
              if (B2L_node[i] >=0) List_coarse_nodes[count++]=B2L_node[i];
           }
@@ -2978,8 +2978,8 @@ void initialize_Aztec(int* N_update, int *update[])
                                         /* criterion (often called eta_k)    */
 
   options[AZ_conv] = AZ_r0;
-  if (Iwrite_screen==SCREEN_NONE)  options[AZ_output] = 0; /* no output */
-  else if (Iwrite_screen==SCREEN_ERRORS_ONLY || Iwrite_screen==SCREEN_BASIC) options[AZ_output] = AZ_warnings; /*output warnings */
+  if (Iwrite_screen==SCREEN_NONE || Iwrite_screen==SCREEN_BASIC)  options[AZ_output] = 0; /* no output */
+  else if (Iwrite_screen==SCREEN_ERRORS_ONLY) options[AZ_output] = AZ_warnings; /*output warnings */
 /*  else if (Iwrite_screen==SCREEN_BASIC) options[AZ_output] = AZ_last; */
   else options[AZ_output] = 10; /* lots of output */
   options[AZ_pre_calc] = AZ_calc;

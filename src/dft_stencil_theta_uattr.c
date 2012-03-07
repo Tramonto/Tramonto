@@ -106,7 +106,7 @@ int StenTheta_uattr_NquadPtsGauss(double r)
 {
    int npt;
 
-   npt=1;  /* independent of distance because this stencil can be very large */
+   npt=1;   /* independent of distance because this stencil can be very large */
 
    return(npt);
 }

@@ -177,7 +177,13 @@ void dftmain(double * engptr)
      * dependent on choice for integration schemes
      * (see file dft_stencil.c)
      */
-     if (Imain_loop==0) calc_stencils();
+     if (Imain_loop==0){
+       if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
+            if (Iwrite_screen !=SCREEN_BASIC) printf("\n-------------------------------------------------------------------------------\n");
+            printf("Calculating stencils ... \n");
+       }
+        calc_stencils();
+     }
     /*
      * do all the thermodynamics for the bulk fluid mixture
      */

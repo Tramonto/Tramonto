@@ -56,6 +56,7 @@ extern int Max_NL_iter;
 #define NCOMP_MAX 5
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern double X_1D_bc;
+extern int Dim_1Dbc;
 extern int L1D_bc;
 extern double Jac_threshold;
 extern int Lcut_jac;

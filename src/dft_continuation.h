@@ -78,7 +78,6 @@ void matvec_mult_conwrap(double *x,double *y);
 #if !defined(_CON_CONST_H_)
 void matvec_mult_conwrap(double *x,double *y);
 #endif
-#define SCREEN_ERRORS_ONLY  0 
 double gsum_double_conwrap(double sum);
 double gsum_double_conwrap(double sum);
 #if !defined(_CON_CONST_H_)
@@ -154,10 +153,8 @@ extern int Max_NL_iter;
 #define FALSE 0
 #endif
 #define VERBOSE      3 
-#define DENSITIES    1 
-#define MINIMAL      0
-#define NO_SCREEN    4 
-extern int Iwrite;
+#define SCREEN_BASIC       1
+#define SCREEN_ERRORS_ONLY  0 
 #define SCREEN_VERBOSE     3 
 #define SCREEN_NONE       -1 
 extern int Iwrite_screen;

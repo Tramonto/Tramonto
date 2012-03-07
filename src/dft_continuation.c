@@ -188,10 +188,11 @@ int solve_continuation( double **xx, double **xx2)
   con.general_info.numUnks      = Nunk_per_node*Nnodes_per_proc;
   con.general_info.numOwnedUnks = Nunk_per_node*Nnodes_per_proc;
   if (Proc==0) {
-     switch (Iwrite) {
-	     case NO_SCREEN: con.general_info.printproc = 0; break;
-	     case MINIMAL:   con.general_info.printproc = 1; break;
-	     case DENSITIES: con.general_info.printproc = 5; break;
+     switch (Iwrite_screen) {
+	     case SCREEN_NONE: con.general_info.printproc = 0; break;
+	     case SCREEN_ERRORS_ONLY:   con.general_info.printproc = 1; break;
+	     /*case SCREEN_BASIC: con.general_info.printproc = 5; break;*/
+	     case SCREEN_BASIC: con.general_info.printproc = 1; break;
 	     case VERBOSE:   con.general_info.printproc = 8; break;
      }
   }
@@ -429,8 +430,7 @@ void matrix_residual_fill_conwrap(double *x, double *rhs, int matflag)
   for (i=0; i<Nunk_per_node*Nnodes_per_proc; i++) l2_resid += rhs[i]*rhs[i];
 
   l2_resid= sqrt(gsum_double_conwrap(l2_resid));
-  if (Proc==0 && Iwrite_screen !=SCREEN_NONE &&
-         Iwrite_screen !=SCREEN_ERRORS_ONLY) printf("\t\tNorm of resid vector = %20.15g\n", l2_resid);
+  if (Proc==0 && Iwrite_screen ==SCREEN_VERBOSE) printf("\t\tNorm of resid vector = %20.15g\n", l2_resid);
 
 }
 /*****************************************************************************/
@@ -488,7 +488,7 @@ void assign_bif_parameter_conwrap(double tp_param)
  * Return Value:
  */
 {
-  if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){ 
+  if (Proc==0 && Iwrite_screen ==SCREEN_VERBOSE){ 
         printf("\tSecond (floating) parameter #%d set to %20.15g\n", Loca.cont_type2, tp_param);
   }
   assign_parameter_tramonto(Loca.cont_type2, tp_param,1);

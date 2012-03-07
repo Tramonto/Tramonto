@@ -42,6 +42,7 @@ extern double *Pore_rad_L_IC;
 #define PI    3.141592653589793238462643383279502884197169399375
 #define OPTION_CYL   1
 extern int Geom_flag;
+extern int Grad_dim;
 #define FLAG_PBELEC -777
 #define PB_ZONE      3 
 #define FLAG_BULK   -888
@@ -210,6 +211,7 @@ void zones_el_to_nodes(int *elem_zones);
 extern int Nwall_Images;
 extern int Imain_loop;
 void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);
+void setup_surface(FILE *fp2,int *nelems_f,int **nelems_w_per_w,int **elems_f,int ***elems_w_per_w,int *elem_zones,int ***el_type);
 extern int Nnodes_wall_box;
 extern int **List_wall_node;
 extern int **Wall_touch_node;
@@ -264,8 +266,9 @@ void safe_free(void **ptr);
 #if !(defined(DEC_ALPHA))
 #define POW_INT (int)pow
 #endif
+extern int Mesh_coarsening;
 extern int *Nodes_to_zone;
-extern int Grad_dim;
+extern int Dim_1Dbc;
 #define FLAG_1DBC   -999
 extern int *Mesh_coarsen_flag;
 extern int Ndim;
@@ -282,8 +285,6 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag,int *update);
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-extern int Mesh_coarsening;
-#define LB_TIMINGS   3
 #define LB_WEIGHTS   2
 extern int Load_Bal_Flag;
 extern int L1D_bc;

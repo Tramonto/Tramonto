@@ -9,6 +9,8 @@ using namespace Optika;
 void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                          Teuchos::RCP<DependencySheet> depSheet_Tramonto,
                          Teuchos::RCP<Teuchos::ParameterList> Functional_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> Fluid_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> Polymer_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Solver_List,
                          Teuchos::RCP<Teuchos::ParameterList> Coarsening_List,
                          Teuchos::RCP<Teuchos::ParameterList> LoadBalance_List,
@@ -17,8 +19,8 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
                          Teuchos::RCP<Teuchos::ParameterList> LinearSolver_List)
 {
   bool set_defaults_from_old_format_file=true;
-  string str_coarse,str_zones,str_updatefrac;
-  int i;
+  string str_coarse,str_zones,str_updatefrac,str_scalefac;
+  int i,j;
 
   /****************************************************************************************************************/
   /****************************** FUNCTIONAL CONTROL PARAMETER SECTION ********************************************/
@@ -28,6 +30,8 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
     str_zones= "Set the minimum distance from surface in each zone. \n The distances should be arranged from nearest to furthest where\n the nearest zone to the surface is the most refined zone,\n and the furthest zone from the surfaces is the most coarse zone.  The first entry should be 0.0";
 
     str_updatefrac= "Set a minimum fraction for solution updates if using the built in Newton solver.\n This allows code to perform fractional updates if convergence difficulties are identifed. Set to 1.0 for full Newton steps. \n For Picard solver, this fraction is a mixing parameter for old and new solutions.  If using the mixed Picard-Newton Solver enter the minimum Newton update fraction.\n The Picard mixing parameter will be set to the newton update parameter divided by 100.";
+
+    str_scalefac="Enter the desired scaling factor for segment component on each polymer chain.  \nNote that there will be zero entries wherever there are no segments of a given type on a particular chain";
     /**************************************/
     /* Define validators for this section.*/
     /**************************************/
@@ -107,6 +111,11 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
     PhysicsMethod_List->set("PM1: Attractions in A22 Block of matrix?", false, "Set to true to move attractions from A12 block of Schur matrix to A22 block of Shur Matrix.\n");
     PhysicsMethod_List->set("PM2: Physics Scaling?", "No Physics Scaling", "Set to true to turn on physics scaling.\n Physics scaling attempts to moderate the effect of terms like exp(mu) in the JDC polymer options",PhysicsScalingValidator);
     PhysicsMethod_List->set("PM3: Analytic Jacobian?", true, "Set to true for analytic Jacobian.\n Set to false for a physics based approximate Jacobian for JDC polymers");
+
+
+    Array<double> ScaleFac_Array(Fluid_List->get<int>("F1_Ncomp"),1.0);
+    PhysicsMethod_List->set("PM4: ScaleFac[icomp]", ScaleFac_Array, str_scalefac);
+
 
     NonlinearSolver_List->set("NLS1: Nonlinear Solver", "Newton Built-In", "Select nonlinear solver type you would like to use.", NLSolverTypeValidator);
     NonlinearSolver_List->set("NLS2: Max Nonlinear Iterations", 10, "Set the Maximum number of nonlinear iterations", Niter_Validator);
@@ -194,6 +203,13 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
            PhysicsMethod_List->set("PM2: Physics Scaling?", "Manual Input", "Set to true to turn on physics scaling.\n Physics scaling attempts to moderate the effect of terms like exp(mu) in the JDC polymer options",PhysicsScalingValidator);
        if (Analyt_WJDC_Jac==FALSE) 
            PhysicsMethod_List->set("PM3: Analytic Jacobian?", false, "Set to true for analytic Jacobian.\n Set to false for a physics based approximate Jacobian for JDC polymers");
+
+       Array<double> ScaleFac_Array(Ncomp,1.0);
+       for (i=0; i<Npol_comp;i++) 
+           for (j=0; j<Nblock[i];j++){
+                ScaleFac_Array[SegType_per_block[i][j]]=Scale_fac_WJDC[i][SegType_per_block[i][j]];
+       }
+       PhysicsMethod_List->set("PM4: ScaleFac[icomp]", ScaleFac_Array, str_scalefac);
 
        if (NL_Solver==NEWTON_BUILT_IN)
           NonlinearSolver_List->set("NLS1: Nonlinear Solver", "Newton Built-In", "Select nonlinear solver type you would like to use.", NLSolverTypeValidator);
@@ -317,6 +333,33 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
            new StringVisualDependency(Functional_List->getEntryRCP("F2_PAIRPOTcore_Functional"),
                 PhysicsMethod_List->getEntryRCP("PM1: Attractions in A22 Block of matrix?"), "No Mean Field Functional",false));
 
+      RCP<StringCondition> PolyFuncCon = rcp(
+           new StringCondition(Functional_List->getEntryRCP("F4_POLYMER_Functional"),
+                              tuple<std::string>("Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)",
+                              "Polymer_JDC_iSAFT(comp)")));
+
+      RCP<StringCondition> ScaleFacManualCon = rcp(
+           new StringCondition(PhysicsMethod_List->getEntryRCP("PM2: Physics Scaling?"),"Manual Input"));
+
+      Condition::ConstConditionList ScaleFac_conList=tuple<RCP<const Condition> >(PolyFuncCon,ScaleFacManualCon);
+      RCP<AndCondition> ScaleFac_Con = rcp(new AndCondition(ScaleFac_conList));
+        RCP<ConditionVisualDependency> ScaleFac_Dep = rcp(
+            new ConditionVisualDependency(ScaleFac_Con, PhysicsMethod_List->getEntryRCP("PM4: ScaleFac[icomp]")));
+
+      Dependency::ParameterEntryList ScaleFacArrayLength_Deps;
+      ScaleFacArrayLength_Deps.insert(PhysicsMethod_List->getEntryRCP("PM4: ScaleFac[icomp]"));
+      RCP<NumberArrayLengthDependency<int,double> > ScaleFacLength_Dep = rcp(
+           new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"), ScaleFacArrayLength_Deps));
+
+/*      Dependency::ParameterEntryList ScaleFac_Deps;
+      ScaleFac_Deps.insert(PhysicsMethod_List->getEntryRCP("PM4: ScaleFac[ipol][icomp]"));
+          RCP<TwoDRowDependency<int,double> > ScaleFacRows_Dep = rcp(
+           new TwoDRowDependency<int,double>(Polymer_List->getEntryRCP("P1: Npoly_comp"), ScaleFac_Deps));
+
+          RCP<TwoDColDependency<int,double> > ScaleFacCol_Dep = rcp(
+           new TwoDColDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"), ScaleFac_Deps));*/
+
+
       RCP<StringVisualDependency> PhysAnalytJac_Dep = rcp(
            new StringVisualDependency(Functional_List->getEntryRCP("F4_POLYMER_Functional"),PhysicsMethod_List->getEntryRCP("PM2: Physics Scaling?"),
                tuple<std::string>("Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)","Polymer_JDC_iSAFT(comp)")));
@@ -355,6 +398,10 @@ void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List
       depSheet_Tramonto->addDependency(PhysScale_Dep);
       depSheet_Tramonto->addDependency(GenSolver_Dep);
       depSheet_Tramonto->addDependency(LevelILUT_Dep);
+      depSheet_Tramonto->addDependency(ScaleFac_Dep);
+      depSheet_Tramonto->addDependency(ScaleFacLength_Dep);
+      /*depSheet_Tramonto->addDependency(ScaleFacRows_Dep);
+      depSheet_Tramonto->addDependency(ScaleFacCol_Dep);*/
 
   /****************************************************************************************************************/
   /****************************** END FUNCTIONAL CONTROL PARAMETER SECTION ****************************************/

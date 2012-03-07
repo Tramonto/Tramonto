@@ -409,6 +409,7 @@ int    LBulk;          /*True-False Indicates a bulk run - changes output*/
 int    Linear_transport;       /*True-False Steady State or Equilibrium Run*/
 double Velocity;               /* Convective velocity over diffusion coefficient*/
 int    Grad_dim;               /*direction where gradient is implemented*/
+int    Dim_1Dbc;               /*direction where we expect to have a 1D solution near the boundaries*/
 int    L1D_bc;               /*logical for 1D boundary condition in Grad_dim */
 double X_1D_bc;             /* distance where 1D boundary is applied */
 double X_const_mu;             

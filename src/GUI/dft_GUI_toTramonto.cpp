@@ -535,8 +535,8 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     /* params from numerical methods section of the GUI  */
     /*****************************************************/
       if (LoadBalance_List->get<string>("LB1: Load Balancing Approach")=="Linear Matrix Balance") Load_Bal_Flag=LB_LINEAR;
-      else if (LoadBalance_List->get<string>("LB1: Load Balancing Approach")=="Weighted Recursive Bisection") Load_Bal_Flag=LB_LINEAR;
-      else if (LoadBalance_List->get<string>("LB1: Load Balancing Approach")=="Geometric Recursive Bisection") Load_Bal_Flag=LB_LINEAR;
+      else if (LoadBalance_List->get<string>("LB1: Load Balancing Approach")=="Weighted Recursive Bisection") Load_Bal_Flag=LB_WEIGHTS;
+      else if (LoadBalance_List->get<string>("LB1: Load Balancing Approach")=="Geometric Recursive Bisection") Load_Bal_Flag=LB_BOX;
 
      if (Coarsening_List->get<string>("C1: Coarsening Type")=="none") Mesh_coarsening=FALSE;
      else if (Coarsening_List->get<string>("C1: Coarsening Type")=="residual and jacobian coarsening") Mesh_coarsening=TRUE;
@@ -570,7 +570,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
      if (Coarsening_List->get<bool>("C6.0: 1D boundary zone?")){
        L1D_bc=TRUE;
-       Grad_dim=Coarsening_List->get<int>("C6.1: Dim_1D_bc");
+       Dim_1Dbc=Coarsening_List->get<int>("C6.1: Dim_1D_bc");
        X_1D_bc=Coarsening_List->get<double>("C6.2: X_1D_bc");
      }
      else L1D_bc=FALSE;
@@ -584,6 +584,12 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
      if(PhysicsMethod_List->get<bool>("PM3: Analytic Jacobian?")) Analyt_WJDC_Jac=TRUE;
      else Analyt_WJDC_Jac=FALSE;
+
+     Array<double> PM4_ScaleFac_Array=PhysicsMethod_List->get<Array<double> >("PM4: ScaleFac[icomp]");
+     for (i=0; i<Npol_comp;i++) 
+          for (j=0; j<Nblock[i];j++){ 
+             Scale_fac_WJDC[i][SegType_per_block[i][j]]=PM4_ScaleFac_Array[SegType_per_block[i][j]]; 
+     }
 
      if(NonlinearSolver_List->get<string>("NLS1: Nonlinear Solver")=="Newton Built-In") NL_Solver=NEWTON_BUILT_IN;
      else if(NonlinearSolver_List->get<string>("NLS1: Nonlinear Solver")=="Newton NOX") NL_Solver=NEWTON_NOX;

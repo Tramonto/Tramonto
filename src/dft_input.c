@@ -1531,6 +1531,8 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   fscanf(fpinput,"%d  %lf", &L1D_bc,&X_1D_bc );
    fprintf(fpecho,"%d  %f  ",L1D_bc,X_1D_bc);
   
+  if (L1D_bc==TRUE) Dim_1Dbc=Grad_dim; /* old code did this - GUI has new parameter */
+  
   /*****************************************************/
   /* Numerical Methods ... Nonlinear Solver Parameters */
   /*****************************************************/
