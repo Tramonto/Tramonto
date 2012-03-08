@@ -442,6 +442,8 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
          if (cont_type!=CONT_BETAMU_I&&(Print_rho_switch==SWITCH_RHO || Print_rho_switch==SWITCH_ALLTYPES || 
              Print_rho_switch==SWITCH_ALLTYPES_ICOMP||Print_rho_switch==SWITCH_BULK_OUTPUT
              ||Print_rho_switch==SWITCH_BULK_OUTPUT_ALL)){
+            if (Loca.method ==-1 || (Loca.cont_type1 !=CONT_BETAMU_I)){  
+                if ( Loca.method<3 || ((Loca.method==3 || Loca.method==4) && Loca.cont_type2 != CONT_BETAMU_I)){
             for (i=0;i<nloop;i++){
                if (Type_poly==NONE){
                   if (Type_interface==UNIFORM_INTERFACE){
@@ -475,7 +477,7 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
                      }
                   }
                }
-             }
+             }}}
           }
          /*  alternate print types for the density variable */
         /* for (i=0; i<nloop; i++) fprintf(fp, "Rho_b[%d]/Rho_sum  ", i);*/
@@ -524,6 +526,18 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
                 }
             }
         }
+        if (Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||
+            Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
+            if (Loca.method ==-1 || (Loca.cont_type1 !=CONT_BETAMU_I)){  
+                if ( Loca.method<3 || ((Loca.method==3 || Loca.method==4) && Loca.cont_type2 != CONT_BETAMU_I)){
+            if (Type_interface==UNIFORM_INTERFACE || Type_interface==PHASE_INTERFACE){
+                fprintf(fp,"Beta_p  ");
+            }
+            else{
+                fprintf(fp,"Beta_p_LBB  ");
+                fprintf(fp,"Beta_p_RTF  ");
+            }
+        }}}
         break;
 
       case CONT_EPSW_I:
@@ -669,6 +683,8 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
          if (cont_type!=CONT_BETAMU_I&&(Print_rho_switch==SWITCH_RHO || 
              Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||
              Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL)){
+              if (Loca.method ==-1 || (Loca.cont_type1 !=CONT_BETAMU_I)){  
+                  if ( Loca.method<3 || ((Loca.method==3 || Loca.method==4) && Loca.cont_type2 != CONT_BETAMU_I)){
             for (i=0;i<nloop;i++){
                if (Type_poly==NONE){
                   if (Type_interface == UNIFORM_INTERFACE){
@@ -725,7 +741,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                     }
                }
              }
-          }
+          }}}
 
          /* alternate ways to print density */
          
@@ -782,6 +798,18 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                  else                 return_param=Betamu_chain[Cont_ID[Loca_contID][0]]; 
               }
          }
+         if (Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||
+              Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
+              if (Loca.method ==-1 || (Loca.cont_type1 !=CONT_BETAMU_I)){  
+                  if ( Loca.method<3 || ((Loca.method==3 || Loca.method==4) && Loca.cont_type2 != CONT_BETAMU_I)){
+              if (Type_interface==UNIFORM_INTERFACE){
+                  fprintf(fp,"%11.8f  ",Betap);
+              }
+              else{
+                  fprintf(fp,"%11.8f  ",Betap_LBB);
+                  fprintf(fp,"%11.8f  ",Betap_RTF);
+              }
+         }}}
          break;
 
       case CONT_EPSW_I:

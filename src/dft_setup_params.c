@@ -218,6 +218,9 @@ void setup_other_run_constants()
 
   if (Coarser_jac == JAC_ZONES_SETFIXED_ESIZE) Nzone += 1;
 
+  if (Type_poly!=NONE && Physics_scaling != FALSE) Lprint_scaleFacWJDC=TRUE;
+  else Lprint_scaleFacWJDC=FALSE;
+
 
   return;
 }

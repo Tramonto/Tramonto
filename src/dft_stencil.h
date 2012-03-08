@@ -32,6 +32,7 @@ extern int Type_bc[NDIM_MAX][2];
 extern double Size_x[NDIM_MAX];
 int round_to_int(double x);
 int ijk_to_isten_index(int *ijk,int *el_in_radius);
+#define SCREEN_NONE       -1 
 extern double Jac_threshold;
 int stencil_quadBoundaryEl_switch(int sten);
 void distribute_weight_to_nodes(double weight,double *qp,double *el_weights,int ig,int jg,int kg);
@@ -72,6 +73,7 @@ extern double Rho_b[NCOMP_MAX];
 void precalc_GENmsa_params(double *rho,double *x_msa,double *n_msa,double gamma);
 void precalc_GENmsa_params(double *rho,double *x_msa,double *n_msa,double gamma);
 #define SCREEN_VERBOSE     3 
+extern int Iwrite_screen;
 #define THETA_CR_GENERAL_MSA  7
 #define NSTEN        8
 extern int Sten_Type[NSTEN];
@@ -96,10 +98,6 @@ void *array_alloc(int numdim,...);
 extern struct Stencil_Struct ***Stencil;
 #define FILES_DEBUG        2
 extern int Iwrite_files;
-#define SCREEN_BASIC       1
-#define SCREEN_ERRORS_ONLY  0 
-#define SCREEN_NONE       -1 
-extern int Iwrite_screen;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

@@ -168,6 +168,7 @@ double *X2_old;             /* Array of unknowns from previous run */
 int     Print_rho_type;  /* flag for printing file type of densities */
 int     Print_rho_switch;  /* flag for printing of densities -- format*/
 int     Lprint_gofr; /* flag for printing radial distribution functions */
+int     Lprint_scaleFacWJDC;  /* flag for printing ScaleFac array */
 int     Lprint_pmf; /* flag for printing radial distribution functions */
 int     Print_mesh_switch;  /* flag for printing of densities -- format*/
 int     Lper_area;  /*logical for per unit are outputs of params */ 

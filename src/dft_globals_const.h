@@ -564,6 +564,7 @@ extern "C" {
 #define VERBOSE_MATRIX    5 
 
 /* The followint are choices for the output of density info */
+#define SWITCH_NO_STATEOUT -1
 #define SWITCH_RHO   0
 #define SWITCH_ALLTYPES_ICOMP 1
 #define SWITCH_ION   2
@@ -846,6 +847,7 @@ extern int     Print_force_type;  /* flag for printing of force */
 extern int     Print_rho_type;  /* flag for file type for printing of densities */
 extern int     Print_rho_switch; /* flag for printing densities -- format */
 extern int     Lprint_gofr; /* flag for printing radial distribution functions */
+extern int     Lprint_scaleFacWJDC;  /* flag for printing ScaleFac array */
 extern int     Lprint_pmf; /* flag for printing radial distribution functions */
 extern int     Print_mesh_switch; /* flag for printing densities -- format */
 extern int     Lper_area;  /*logical for per unit are outputs of params */ 

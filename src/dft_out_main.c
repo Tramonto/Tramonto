@@ -53,8 +53,8 @@ void post_process (double **x,int *niters,
  
   double t1,energy;
   double fac_area,fac_vol;
-  int i,iwall,idim,first_local,counter;
-  int out_loop;
+  int i,iwall,idim,first_local,counter,icomp,pol_num;
+  int out_loop,contID0_tmp[2];
   FILE *fp=NULL;
   FILE *fpFSR=NULL;
   FILE *fpASR=NULL;
@@ -159,23 +159,60 @@ void post_process (double **x,int *niters,
    for(i=0; i<out_loop; i++) {
 
    if (Proc == 0) {
+ 
+              /* first print state variables unless specifically told not to do so */
+      if (Print_rho_switch != SWITCH_NO_STATEOUT){
+        if ((Loca.method == -1 || 
+           (Loca.cont_type1 !=CONT_RHO_I && Loca.cont_type1 !=CONT_BETAMU_I && Loca.cont_type1 != CONT_BETAMU_I_NEW)) &&
+           ( (Loca.method !=3 && Loca.method !=4) ||
+           (Loca.cont_type2 !=CONT_RHO_I && Loca.cont_type2 !=CONT_BETAMU_I && Loca.cont_type2 != CONT_BETAMU_I_NEW))) {
+
+          for (icomp=0;icomp<2;icomp++) { contID0_tmp[icomp]=Cont_ID[0][icomp]; }
+          Cont_ID[0][0]=0;
+
+          if(first==TRUE){
+                print_cont_type(CONT_RHO_I,fp,0);
+                fprintf(fp," | ");
+           }
+           else cont_var=print_cont_variable(CONT_RHO_I,fp,0);
+           for (icomp=0;icomp<2;icomp++) {
+              Cont_ID[0][icomp]=contID0_tmp[icomp];
+           }
+         }
+      }
+
       if (Loca.method != -1) {
-	if(first==TRUE) print_cont_type(Loca.cont_type1,fp,0);
+	if(first==TRUE){
+            print_cont_type(Loca.cont_type1,fp,0);
+            fprintf(fp," | ");
+        }
 	else cont_var=print_cont_variable(Loca.cont_type1,fp,0);
       }
       if (Loca.method == 3 || Loca.method == 4) {
-	if(first==TRUE) print_cont_type(Loca.cont_type2,fp,1); 
-	else            cont_var=print_cont_variable(Loca.cont_type2,fp,1); 
+	if(first==TRUE){
+             print_cont_type(Loca.cont_type2,fp,1); 
+             fprintf(fp," | ");
+        }
+	else cont_var=print_cont_variable(Loca.cont_type2,fp,1); 
       }
       if (Nruns > 1) {
-	if(first==TRUE) print_cont_type(CONT_MESH,fp,-1);
+	if(first==TRUE){
+             print_cont_type(CONT_MESH,fp,-1);
+             fprintf(fp," | ");
+        }
 	else  cont_var=print_cont_variable(CONT_MESH,fp,-1);
       }
-      if (Nruns==1 && Loca.method ==-1){ /* print state variables even though continuation is off. */
-        Cont_ID[0][0]=0;
-        Cont_ID[0][1]=0;
-	if(first==TRUE) print_cont_type(CONT_RHO_I,fp,0);
-	else cont_var=print_cont_variable(CONT_RHO_I,fp,0);
+ 
+      if (Lprint_scaleFacWJDC){
+         if (first==TRUE){
+            for (icomp=0;icomp<Ncomp;icomp++) fprintf(fp,"Scale_fac_WJDC[%d]  ",icomp);
+            fprintf(fp," | ");
+         }
+         else{
+            for (pol_num=0; pol_num<Npol_comp;pol_num++) {
+               for (icomp=0;icomp<Ncomp;icomp++) if (Nseg_type_pol[pol_num][icomp] > 0) fprintf(fp,"%11.8f ",Scale_fac_WJDC[pol_num][icomp]);
+            }
+         }
       }
    }
 

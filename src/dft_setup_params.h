@@ -122,6 +122,8 @@ extern double WallParam[NWALL_MAX_TYPE];
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern double Esize_x[NDIM_MAX];
 extern double Size_x[NDIM_MAX];
+extern int Lprint_scaleFacWJDC;
+extern int Physics_scaling;
 extern int Nzone;
 #define JAC_ZONES_SETFIXED_ESIZE       5
 extern int Coarser_jac;

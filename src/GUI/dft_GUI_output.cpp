@@ -1,5 +1,6 @@
 using namespace std;
 #include <iostream>
+#include "dft_globals_const.h"
 #include "dft_GUI.h"
 #include "dft_GUI.hpp"
 using namespace Teuchos;
@@ -7,52 +8,184 @@ using namespace Optika;
 
 void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                          Teuchos::RCP<DependencySheet> depSheet_Tramonto,
+                         Teuchos::RCP<Teuchos::ParameterList> Mesh_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Functional_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Fluid_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> Continuation_List, 
                          Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Output_List)
 {
+   bool set_defaults_from_old_format_file=true;
+   string str_screenout,str_fileout,str_printtooutput,str_adsout,str_energyout,str_LperArea,str_reflect,str_pmf;
     /****************************************************************************************************************/
   /****************************** FUNCTIONAL CONTROL PARAMETER SECTION ********************************************/
   /****************************************************************************************************************/
+
+    str_screenout="Select how much output to the screen you would like to generate.\n Basic output includes thermodynamics and post processing results, but minimal output from solver.  \nVerbose output includes extensive solver output.  Debugging Residual output will print the complete residual vector to the screen.";
+
+    str_fileout="Select files you would like to generate in this run. \n Basic output gives density profiles, g(r) if requested, and principle output (adsorption and free energies). \nExtended output also gives external field files, interaction potential files, and polymer G functions. \nVerbose output gives additional mesh information, stencils, parallel computing informaiton, timings, and generates density profiles at each iteration. \nDebug Matrix prints the entire matrix to files (which are very large).  The code exits after the matrix is printed.";
+
+    str_printtooutput="Select the bulk fluid output you would like to have printed in the file dft_output.dat.  Note that density and pressure output is not available when chemical potential continuation is being done.";
+
+    str_adsout="Indicate how you would like the adsorption output to be printed in dft_output.dat";
+
+    str_energyout="Indicate how you would like the free energy output to be printed in dft_output.dat";
+  
+    str_LperArea="Set to true to convert all output (energy, adsorption, force) to per unit area. \n If false, output will be energy (3D), energy/Length (2D), and energy/Area (1D).";
+
+    str_reflect="Set to true if you want output (energy/adsorption/force) to use reflected images in calculations.";
+
+    str_pmf="Set to true to produce output for surface-surface interactions.\n Needed for potential of mean force calculations.";
+
     /**************************************/
     /* Define validators for this section.*/
     /**************************************/
-    RCP<StringValidator> OutputTypeValidator = rcp(
-           new StringValidator(tuple<std::string>("Minimal","Densities", 
-						  "Extended","Verbose","No Screen")));
+       RCP<StringValidator> ScreenOutValidator = rcp(
+           new StringValidator(tuple<std::string>("No Screen Output","Errors Only to Screen", "Basic Screen Output",
+                                                  "Verbose Screen Output","Debugging Output: Residual")));
 
-    RCP<StringValidator> StateOutputValidator = rcp( new StringValidator(tuple<std::string>("Density[icont]","Betamu[icont]","kappa","Density[icont], Betamu[icont], and kappa","Density[Ncomp], Betamu[Ncomp], kappa")));
+       RCP<StringValidator> FileOutValidator = rcp(
+           new StringValidator(tuple<std::string>("Basic Files","Extended Files", "Debug Files","Debug Matrix Files")));
 
-    RCP<StringValidator> StateOutputNoChargeValidator = rcp( new StringValidator(tuple<std::string>("Density[icont]","Betamu[icont]","Density[icont] and Betamu[icont]","Density[Ncomp] and Betamu[Ncomp]")));
+       RCP<StringValidator> StateOutputValidator = rcp( new StringValidator(tuple<std::string>(
+         "Density[i]","Betamu[i]","kappa","Density[i], Betamu[i], kappa, and pressure","Density[all], Betamu[all], kappa, and pressure","No State Point Output")));
 
-    RCP<StringValidator> AdsOutputValidator = rcp( new StringValidator(tuple<std::string>("total adsorption","excess adsorption", "excess and total adsorption","adsorption/volume (density in bulk fluid)")));
-    RCP<StringValidator> EnergyOutputValidator = rcp( new StringValidator(tuple<std::string>("total free energy","excess surface free energy", "excess and total free energy","free energy/volume (pressure in bulk fluid)")));
+       RCP<StringValidator> StateOutputNoChargeValidator = rcp( new StringValidator(tuple<std::string>(
+         "Density[i]","Betamu[i]","Density[i], Betamu[i], and pressure","Density[all], Betamu[all], and pressure","No State Point Output")));
 
-    RCP<StringValidator> MeshOutputValidator = rcp( new StringValidator(tuple<std::string>("Positions","Separations")));
+       RCP<StringValidator> AdsOutputValidator = rcp( new StringValidator(tuple<std::string>(
+           "total adsorption","excess adsorption", "excess and total adsorption","adsorption/volume (density in bulk fluid)")));
+
+       RCP<StringValidator> EnergyOutputValidator = rcp( new StringValidator(tuple<std::string>(
+           "total free energy","excess surface free energy", "excess and total free energy","free energy/volume (pressure in bulk fluid)")));
+
+       RCP<StringValidator> MeshOutputValidator = rcp( new StringValidator(tuple<std::string>("Position of all surfaces","Separations between surfaces")));
 
 
 
     /***************************************************************/
     /* set up independent parameters that do not have dependencies */
     /***************************************************************/
+    if ( set_defaults_from_old_format_file){
+       if (Iwrite==MINIMAL || Iwrite==DENSITIES){
+          Output_List->set("O1: Screen Output", "Basic Screen Output", str_screenout,ScreenOutValidator);
+          Output_List->set("O2: Files Output", "Basic Files", str_fileout,FileOutValidator);
+       }
+       else if (Iwrite==EXTENDED){
+          Output_List->set("O1: Screen Output", "Basic Screen Output", str_screenout,ScreenOutValidator);
+          Output_List->set("O2: Files Output", "Extended Files", str_fileout,FileOutValidator);
+       }
+       else if (Iwrite==VERBOSE){
+          Output_List->set("O1: Screen Output", "Verbose Screen Output", str_screenout,ScreenOutValidator);
+          Output_List->set("O2: Files Output", "Debug Files", str_fileout,FileOutValidator);
+       }
+       else if (Iwrite==NO_SCREEN){
+         Output_List->set("O1: Screen Output", "No Screen Output", str_screenout,ScreenOutValidator);
+         Output_List->set("O2: Files Output", "Basic Files", str_fileout,FileOutValidator);
+       }
+       else if (Iwrite==VERBOSE_MATRIX){
+          Output_List->set("O1: Screen Output", "Debugging Output: Residual", str_screenout,ScreenOutValidator);
+          Output_List->set("O2: Files Output", "Debug Matrix Files", str_fileout,FileOutValidator);
+       }
 
-    Output_List->set("O1: Output Type", "Extended", "Select how much output you would like to generate.\n Extended output will give external fields and segment densities (for polymers).\n Verbose output will give all ancillary fields in the calculation.", OutputTypeValidator);
+       if (Print_rho_switch==SWITCH_NO_STATEOUT){
+             if (Functional_List->get<string>("F3_CHARGE_Functional") !="No Charge or No Poisson" || 
+                Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut/shift)" ||
+                Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut only)" ){ 
+                  Output_List->set("O3.0: dft_output.dat: State Point Output", "No State Point Output", str_printtooutput,StateOutputValidator);
+             }
+             else Output_List->set("O3.0: dft_output.dat: State Point Output", "No State Point Output", str_printtooutput,StateOutputNoChargeValidator);
+       }
+       else{
+          if (Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){
+             if (Functional_List->get<string>("F3_CHARGE_Functional") !="No Charge or No Poisson" || 
+                Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut/shift)" ||
+                Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut only)" ){ 
+                  Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[all], Betamu[all], kappa, and pressure", str_printtooutput,StateOutputValidator);
+             }
+             else Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[all], Betamu[all], and pressure", str_printtooutput,StateOutputNoChargeValidator);
 
-    Output_List->set("O2: Energies per unit area?", false, "Set to true for output (energy, adsorption, force) per unit area.\n If false, output will be energy (3D), energy/Length (2D), and energy/Area (1D).");
-    Output_List->set("O3: Count reflections?", true, "Set to true if you want output (energy/adsorption/force) to use reflected images in calculations.");
-    Output_List->set("O4: Print radial correlation function: g(r)?", false, "Set to true to produce a radial correlation function.");
-    Output_List->set("O5: Print surface-surface interactions?", false, "Set to true to produce output for surface-surface interactions.");
+          }
+          else if (Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_ALLTYPES_ICOMP){
+             if (Functional_List->get<string>("F3_CHARGE_Functional") !="No Charge or No Poisson" || 
+                Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut/shift)" ||
+                Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut only)" ){ 
+                  Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[i], Betamu[i], kappa, and pressure", str_printtooutput,StateOutputValidator);
+             }
+             else Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[i], Betamu[i], and pressure", str_printtooutput,StateOutputNoChargeValidator);
+          }
+          else if (Print_rho_switch==SWITCH_RHO){
+             if (Functional_List->get<string>("F3_CHARGE_Functional") !="No Charge or No Poisson" || 
+                Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut/shift)" ||
+                Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut only)" ){ 
+                  Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[i]", str_printtooutput,StateOutputValidator);
+             }
+             else Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[i]", str_printtooutput,StateOutputNoChargeValidator);
+          }
+          else if (Print_rho_switch==SWITCH_ION)
+                Output_List->set("O3.0: dft_output.dat: State Point Output", "kappa", str_printtooutput,StateOutputValidator);
+          else if (Print_rho_switch==SWITCH_MU){
+             if (Functional_List->get<string>("F3_CHARGE_Functional") !="No Charge or No Poisson" || 
+                Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut/shift)" ||
+                Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut only)" ){ 
+                  Output_List->set("O3.0: dft_output.dat: State Point Output", "Betamu[i]", str_printtooutput,StateOutputValidator);
+             }
+             else Output_List->set("O3.0: dft_output.dat: State Point Output", "Betamu[i]", str_printtooutput,StateOutputNoChargeValidator);
+          } 
+       }
 
-    if (Functional_List->get<string>("F3_CHARGE_Functional") !="No Charge or No Poisson" || 
-        Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut/shift)" ||
-        Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut only)" ){ 
-        Output_List->set("O6: Type of State point Output", "Density[icont]", "Select output type for state point in file dft_output.dat.\n Options are densities, chemical potentials, or kappa(for ionic systems)",StateOutputValidator);
+       if (Functional_List->get<string>("F3_CHARGE_Functional") !="No Charge or No Poisson" || 
+           Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut/shift)" ||
+           Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut only)" ){ 
+             Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[all], Betamu[all], kappa, and pressure", str_printtooutput,StateOutputValidator);
+       }
+       else{ Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[all], Betamu[all], and pressure", str_printtooutput, StateOutputNoChargeValidator); }
+
+       if (Print_rho_switch==SWITCH_BULK_OUTPUT_ALL || Print_rho_switch == SWITCH_BULK_OUTPUT){
+          Output_List->set("O3.1: dft_output.dat: Adsorption Output", "adsorption/volume (density in bulk fluid)", str_adsout,AdsOutputValidator); 
+          Output_List->set("O3.2: dft_output.dat: Energy Output", "free energy/volume (pressure in bulk fluid)", str_energyout,EnergyOutputValidator); 
+       } 
+       else{
+         Output_List->set("O3.1: dft_output.dat: Adsorption Output", "excess and total adsorption", str_adsout,AdsOutputValidator); 
+         Output_List->set("O3.2: dft_output.dat: Energy Output", "excess and total free energy", str_energyout,EnergyOutputValidator); 
+       }
+
+       if (Lper_area==TRUE) Output_List->set("O3.3: dft_output.dat: per unit area?", true, str_LperArea);
+       else                 Output_List->set("O3.3: dft_output.dat: per unit area?", false, str_LperArea);
+
+       if (Lcount_reflect==TRUE) Output_List->set("O3.4: dft_output.dat: Correct for reflections?", true, str_reflect);
+       else Output_List->set("O3.4: dft_output.dat: Correct for reflections?", true, str_reflect);
+
+       if (Print_mesh_switch==SWITCH_SURFACE_SEP) Output_List->set("O3.5: dft_output.dat: Mesh Output", "Separations between surfaces", "Select output type for mesh continuation.",MeshOutputValidator);
+       else Output_List->set("O3.5: dft_output.dat: Mesh Output", "Position of all surfaces", "Select output type for mesh continuation.",MeshOutputValidator);
+
+       if (Lprint_gofr==TRUE) Output_List->set("O4: Print g(r)?", true, "Set to true to produce a radial correlation function.");
+       else Output_List->set("O4: Print g(r)?", false, "Set to true to produce a radial correlation function.");
+
+       if (Lprint_pmf==TRUE) Output_List->set("O5: Print surface-surface interactions?", true, str_pmf);
+       else Output_List->set("O5: Print surface-surface interactions?", false, str_pmf);
     }
     else{
-        Output_List->set("O6: Type of State point Output", "Density[icont]", "Select output type for state point in file dft_output.dat.\n Options are densities or chemical potentials",StateOutputNoChargeValidator);
+       Output_List->set("O1: Screen Output", "Basic Screen Output", str_screenout,ScreenOutValidator);
+       Output_List->set("O2: Files Output", "Basic Files", str_fileout,FileOutValidator);
+
+       if (Functional_List->get<string>("F3_CHARGE_Functional") !="No Charge or No Poisson" || 
+           Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut/shift)" ||
+           Fluid_List->get<string>("F4_PairPotType") == "Coulomb potential as mean field (cut only)" ){ 
+             Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[all], Betamu[all], kappa, and pressure", str_printtooutput,StateOutputValidator);
+       }
+       else{ Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[all], Betamu[all], and pressure", str_printtooutput, StateOutputNoChargeValidator); }
+
+       Output_List->set("O3.1: dft_output.dat: Adsorption Output", "excess and total adsorption", str_adsout, AdsOutputValidator); 
+       Output_List->set("O3.2: dft_output.dat: Energy Output", "excess and total free energy", str_energyout,EnergyOutputValidator); 
+       Output_List->set("O3.3: dft_output.dat: per unit area?", false, str_LperArea);
+       Output_List->set("O3.4: dft_output.dat: Correct for reflections?", true, str_reflect);
+       Output_List->set("O3.5: dft_output.dat: Mesh Output", "Separations between surfaces", "Select output type for mesh continuation.",MeshOutputValidator);
+
+       Output_List->set("O4: Print g(r)?", false, "Set to true to produce a radial correlation function.");
+       Output_List->set("O5: Print surface-surface interactions?", false, str_pmf);
     }
-    Output_List->set("O7: Type of Mesh Output", "Positions", "Select output type for mesh continuation.\n Options are to output positions of surfaces or separations of surfaces.",MeshOutputValidator);
+
 
     /*******************************/
     /* define dependent parameters */
@@ -62,18 +195,29 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     /* show the dependent parameters only if the independent parameters has a particular setting. */
     /**********************************************************************************************/
       RCP<StringVisualDependency> GofRprint_Dep = rcp(
-           new StringVisualDependency( SurfaceInteraction_List->getEntryRCP("SI0_Vext_type"),Output_List->getEntryRCP("O4: Print radial correlation function: g(r)?"),  
+           new StringVisualDependency( SurfaceInteraction_List->getEntryRCP("SI0_Vext_type"),Output_List->getEntryRCP("O4: Print g(r)?"),  
                tuple<std::string>("Vext for atomic surfaces")));
 
       RCP<StringVisualDependency> UWWprint_Dep = rcp(
-           new StringVisualDependency(SurfaceInteraction_List->getEntryRCP("SI0_Vext_type"),Output_List->getEntryRCP("O5: Print surface-surface interactions?"),
+           new StringVisualDependency( SurfaceInteraction_List->getEntryRCP("SI0_Vext_type"),Output_List->getEntryRCP("O5: Print surface-surface interactions?"),
                tuple<std::string>("Vext for atomic surfaces")));
 
-    /*****************************************/
+/*      RCP<NumberVisualDependency<int> > LperAreaDep = rcp(
+           new NumberVisualDependency<int>( Mesh_List->getEntryRCP("M1_Ndim"), 
+                                            Output_List->getEntryRCP("O3.3: dft_output.dat: per unit area?"),true,
+                                            Mesh_List->get<int>("M1_Ndim")-1));*/
+
+      RCP<StringVisualDependency> MeshCont_Dep = rcp(
+           new StringVisualDependency(Continuation_List->getEntryRCP("C1: Continuation Type"),Output_List->getEntryRCP("O3.5: dft_output.dat: Mesh Output"),
+               tuple<std::string>("Mesh Continuation","Mesh Stepping with LOCA Binodal")));
+
+
     /* add the dependencies for this section.*/
     /*****************************************/
       depSheet_Tramonto->addDependency(GofRprint_Dep);
       depSheet_Tramonto->addDependency(UWWprint_Dep);
+/*      depSheet_Tramonto->addDependency(LperArea_Dep);*/
+      depSheet_Tramonto->addDependency(MeshCont_Dep);
 
   /****************************************************************************************************************/
   /****************************** END FUNCTIONAL CONTROL PARAMETER SECTION ****************************************/

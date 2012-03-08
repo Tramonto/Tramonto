@@ -39,12 +39,19 @@ extern int Lcount_reflect;
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void setup_domain_multipliers();
-#define CONT_RHO_I         2
-#define NCONT_MAX          2 /* the maximum number of solutions possible for use with Loca */
-extern int Cont_ID[NCONT_MAX][2];
+extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
+extern int **Nseg_type_pol;
+extern int Npol_comp;
+extern int Lprint_scaleFacWJDC;
 #define CONT_MESH          0   /* mesh size */
 double print_cont_variable(int cont_type,FILE *fp,int Loca_contID);
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID);
+#define NCONT_MAX          2 /* the maximum number of solutions possible for use with Loca */
+extern int Cont_ID[NCONT_MAX][2];
+#define CONT_BETAMU_I_NEW  11 /* Vary chemical potential for species I...holding densities of other species constant */
+#define CONT_RHO_I         2
+#define SWITCH_NO_STATEOUT -1
+extern int Print_rho_switch;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

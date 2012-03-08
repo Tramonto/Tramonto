@@ -17,6 +17,9 @@ void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern double Betap_RTF;
+extern double Betap_LBB;
+extern double Betap;
 #define NMER_MAX     200
 extern double Betamu_chain_RTF[NMER_MAX];
 extern double Betamu_chain_LBB[NMER_MAX];

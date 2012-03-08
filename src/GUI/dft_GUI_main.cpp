@@ -91,10 +91,10 @@ extern "C" void dft_OptikaGUI()
   dft_GUI_Continuation(Tramonto_List,depSheet_Tramonto,Functional_List, PotentialsFF_List, StatePoint_List,
                        Continuation_List);
 
-  dft_GUI_OutputParams(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,SurfaceInteraction_List,Output_List);
-
   dft_GUI_NumericalMethods(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,Solver_List,
                             Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
+
+  dft_GUI_OutputParams(Tramonto_List,depSheet_Tramonto,Mesh_List,Functional_List,Fluid_List,Continuation_List,SurfaceInteraction_List,Output_List);
 
              /* The getInput function starts up an Optika GUI and      *
               * lets the user start to input parameter values. When    *

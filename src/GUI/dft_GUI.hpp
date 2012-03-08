@@ -119,8 +119,10 @@ void dft_GUI_toTramonto(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
 void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                         Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
                          Teuchos::RCP<Teuchos::ParameterList> Functional_List,
                          Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                         Teuchos::RCP<Teuchos::ParameterList> Continuation_List,
                          Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List,
                          Teuchos::RCP<Teuchos::ParameterList> Output_List);
 

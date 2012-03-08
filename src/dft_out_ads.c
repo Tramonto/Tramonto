@@ -70,7 +70,7 @@ void calc_adsorption(FILE *fp,double **x)
           }
           if (fp !=NULL){
                if ( Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL){ 
-                   print_to_file_comp(fp,icomp,ads[icomp]/volume,"rho_avg",first);
+                   print_to_file_comp(fp,icomp,ads[icomp]/volume,"ads/V",first);
                    if (Ncomp >1){
                        print_to_file_comp(fp,icomp,ads[icomp]/total_ads,"num_frac",first);
                    }
