@@ -135,7 +135,7 @@ int newton_solver(double** x, void* con_ptr) {
   int iter=0;
   /*int iunk, ibox;*/
   int converged=FALSE, converged2=TRUE;
-  char filename[20]="matrix.dat";
+  char filename[FILENAME_LENGTH]="./matrix.dat";
   double start_t;
   double** delta_x,resid_sum;
   delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
@@ -391,7 +391,7 @@ void do_numerical_jacobian(double **x)
   double **full=NULL, del;
   int i, j, N=Nunk_per_node*Nnodes, count=0,iunk,junk,jnode,inode,c,read_next;
   int **count_nonzeros=NULL, **count_nonzeros_a, count_nonzeros_num;
-  char filename[20];
+  char filename[FILENAME_LENGTH];
   FILE *ifp, *ifp2, *ifp3;
   int ia,ja,count_same=0,count_diff=0,ilines,lines_jafile;
   int count_warnings=0;
@@ -540,7 +540,7 @@ void print_resid_norm(int iter)
   double norm=0.0,l2norm_term;
   double **f;
   FILE *fp_resid;
-  char filename[20]="Resid.dat";
+  char filename[FILENAME_LENGTH]="./Resid.dat";
 
   if (Proc==0 && Iwrite_files==FILES_DEBUG) fp_resid=fopen(filename,"w+");
 

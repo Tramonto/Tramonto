@@ -37,7 +37,7 @@
 /************************************************************/
 void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox)
 {
-  char filename[20];
+  char filename[100];
   double *x_new,fac;
   int iunk,i,inode_box;
 
@@ -51,8 +51,8 @@ void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox)
                                     continuation run, all of the _old variables
                                     were set in collect_xold (dft_output.c) */
 
-         if (Lbinodal && guess_type==BINODAL_FLAG) sprintf(filename,"dft_dens2.dat");
-         else                                  sprintf(filename,"dft_dens.dat");
+         if (Lbinodal && guess_type==BINODAL_FLAG) sprintf(filename,DensityFile2);
+         else                                  sprintf(filename,DensityFile);
 
          Nodes_old = find_length_of_file(filename);
 
@@ -115,7 +115,7 @@ int find_length_of_file(char *filename)
   FILE *fp;
   if (Proc==0) {
     if( (fp=fopen(filename,"r")) == NULL){
-      printf("Can't open file %s\n", filename);
+      printf("Can't open file (density) %s\n", filename);
       exit(1);
     }
 
@@ -143,7 +143,7 @@ void read_in_a_file(int guess_type,char *filename)
   int unk_to_eq_in_file[3*NCOMP_MAX+NMER_MAX+NMER_MAX*NMER_MAX+13];
   int convert_to_comp_densities, convert_to_seg_densities,jseg,icomp;
   double pos_old,pos_old0[3],tmp,x_tmp,scalefac;
-  char filename2[20];
+  char filename2[FILENAME_LENGTH];
   char unk_char[20];
   FILE *fp5=NULL,*fp6=NULL;
 
@@ -153,7 +153,7 @@ void read_in_a_file(int guess_type,char *filename)
 
                     /* open the dft_dens.dat file */
    if( (fp5=fopen(filename,"r")) == NULL){
-     printf("Can't open file %s\n", filename);
+     printf("Can't open file (density) %s\n", filename);
      exit(1);
    }
 
@@ -321,7 +321,7 @@ void read_in_a_file(int guess_type,char *filename)
 
     if (open_now){
       if( (fp5=fopen(filename,"r")) == NULL){
-	if (Iwrite_screen != SCREEN_NONE) printf("Can't open file %s\n", filename);
+	if (Iwrite_screen != SCREEN_NONE) printf("Can't open file (density) %s\n", filename);
 	exit(1);
       }
        if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){

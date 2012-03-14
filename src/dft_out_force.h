@@ -162,6 +162,7 @@ struct SurfaceGeom_Struct {
   double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
+#define FILENAME_LENGTH 200
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

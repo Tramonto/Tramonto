@@ -81,7 +81,11 @@ void setup_params_for_dft(char *input_file, char *file_echoinput)
         /* open the GUI if requested */ 
         /*****************************/
 #ifdef BUILD_GUI
-    if (Open_GUI==TRUE) dft_OptikaGUI();
+    if (Open_GUI==TRUE){
+        dft_OptikaGUI();
+        /* set up the chain architecture based on selections in GUI */
+        if (Type_poly != NONE) setup_chain_architecture(Poly_file_name,fpecho);
+    }
     else{
         if (Temp>0. && Type_coul!=NONE) Flag_mV_elecpot=TRUE;
         else         Flag_mV_elecpot=FALSE;
@@ -221,6 +225,8 @@ void setup_other_run_constants()
   if (Type_poly!=NONE && Physics_scaling != FALSE) Lprint_scaleFacWJDC=TRUE;
   else Lprint_scaleFacWJDC=FALSE;
 
+  /*strcpy(DensityFile_array,DensityFile);
+  strcpy(DensityFile2_array,DensityFile2);*/
 
   return;
 }

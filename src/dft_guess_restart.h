@@ -104,6 +104,7 @@ extern int Lseg_densities;
 extern int Nmissing_densities;
 extern int Ncomp;
 #define RESTART_FEWERCOMP  4
+#define FILENAME_LENGTH 200
 void check_zero_densities(double **xInBox);
 void communicate_profile(double *x_new,double **xInBox);
 #define SCREEN_NONE       -1 
@@ -133,6 +134,8 @@ extern double *X2_old;
 extern int Restart;
 int find_length_of_file(char *filename);
 extern int Nodes_old;
+extern char *DensityFile;
+extern char *DensityFile2;
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */
 extern int Lbinodal;
 extern int Imain_loop;

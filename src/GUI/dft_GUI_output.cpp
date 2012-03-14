@@ -53,8 +53,8 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        RCP<StringValidator> StateOutputNoChargeValidator = rcp( new StringValidator(tuple<std::string>(
          "Density[i]","Betamu[i]","Density[i], Betamu[i], and pressure","Density[all], Betamu[all], and pressure","No State Point Output")));
 
-       RCP<StringValidator> AdsOutputValidator = rcp( new StringValidator(tuple<std::string>(
-           "total adsorption","excess adsorption", "excess and total adsorption","adsorption/volume (density in bulk fluid)")));
+       RCP<StringValidator> AdsEnergyOutputValidator = rcp( new StringValidator(tuple<std::string>(
+           "total adsorption and energy","excess adsorption and energy", "excess and total adsorption and energy","adsorption/volume and energy/volume (bulk density & pressure)")));
 
        RCP<StringValidator> EnergyOutputValidator = rcp( new StringValidator(tuple<std::string>(
            "total free energy","excess surface free energy", "excess and total free energy","free energy/volume (pressure in bulk fluid)")));
@@ -141,23 +141,19 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        }
        else{ Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[all], Betamu[all], and pressure", str_printtooutput, StateOutputNoChargeValidator); }
 
-       if (Print_rho_switch==SWITCH_BULK_OUTPUT_ALL || Print_rho_switch == SWITCH_BULK_OUTPUT){
-          Output_List->set("O3.1: dft_output.dat: Adsorption Output", "adsorption/volume (density in bulk fluid)", str_adsout,AdsOutputValidator); 
-          Output_List->set("O3.2: dft_output.dat: Energy Output", "free energy/volume (pressure in bulk fluid)", str_energyout,EnergyOutputValidator); 
-       } 
-       else{
-         Output_List->set("O3.1: dft_output.dat: Adsorption Output", "excess and total adsorption", str_adsout,AdsOutputValidator); 
-         Output_List->set("O3.2: dft_output.dat: Energy Output", "excess and total free energy", str_energyout,EnergyOutputValidator); 
-       }
+       if (Print_rho_switch==SWITCH_BULK_OUTPUT_ALL || Print_rho_switch == SWITCH_BULK_OUTPUT)
+          Output_List->set("O3.1: dft_output.dat: Adsorption & Energy Output", "adsorption/volume and energy/volume (bulk density & pressure)", str_adsout,AdsEnergyOutputValidator); 
+       else Output_List->set("O3.1: dft_output.dat: Adsorption & Energy Output", "excess and total adsorption and energy", str_adsout,AdsEnergyOutputValidator); 
+       
 
-       if (Lper_area==TRUE) Output_List->set("O3.3: dft_output.dat: per unit area?", true, str_LperArea);
-       else                 Output_List->set("O3.3: dft_output.dat: per unit area?", false, str_LperArea);
+       if (Lper_area==TRUE) Output_List->set("O3.2: dft_output.dat: per unit area?", true, str_LperArea);
+       else                 Output_List->set("O3.2: dft_output.dat: per unit area?", false, str_LperArea);
 
-       if (Lcount_reflect==TRUE) Output_List->set("O3.4: dft_output.dat: Correct for reflections?", true, str_reflect);
-       else Output_List->set("O3.4: dft_output.dat: Correct for reflections?", true, str_reflect);
+       if (Lcount_reflect==TRUE) Output_List->set("O3.3: dft_output.dat: Correct for reflections?", true, str_reflect);
+       else Output_List->set("O3.3: dft_output.dat: Correct for reflections?", true, str_reflect);
 
-       if (Print_mesh_switch==SWITCH_SURFACE_SEP) Output_List->set("O3.5: dft_output.dat: Mesh Output", "Separations between surfaces", "Select output type for mesh continuation.",MeshOutputValidator);
-       else Output_List->set("O3.5: dft_output.dat: Mesh Output", "Position of all surfaces", "Select output type for mesh continuation.",MeshOutputValidator);
+       if (Print_mesh_switch==SWITCH_SURFACE_SEP) Output_List->set("O3.4: dft_output.dat: Mesh Output", "Separations between surfaces", "Select output type for mesh continuation.",MeshOutputValidator);
+       else Output_List->set("O3.4: dft_output.dat: Mesh Output", "Position of all surfaces", "Select output type for mesh continuation.",MeshOutputValidator);
 
        if (Lprint_gofr==TRUE) Output_List->set("O4: Print g(r)?", true, "Set to true to produce a radial correlation function.");
        else Output_List->set("O4: Print g(r)?", false, "Set to true to produce a radial correlation function.");
@@ -176,11 +172,10 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        }
        else{ Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[all], Betamu[all], and pressure", str_printtooutput, StateOutputNoChargeValidator); }
 
-       Output_List->set("O3.1: dft_output.dat: Adsorption Output", "excess and total adsorption", str_adsout, AdsOutputValidator); 
-       Output_List->set("O3.2: dft_output.dat: Energy Output", "excess and total free energy", str_energyout,EnergyOutputValidator); 
-       Output_List->set("O3.3: dft_output.dat: per unit area?", false, str_LperArea);
-       Output_List->set("O3.4: dft_output.dat: Correct for reflections?", true, str_reflect);
-       Output_List->set("O3.5: dft_output.dat: Mesh Output", "Separations between surfaces", "Select output type for mesh continuation.",MeshOutputValidator);
+       Output_List->set("O3.1: dft_output.dat: Adsorption & Energy Output", "excess and total adsorption and energy", str_adsout, AdsEnergyOutputValidator); 
+       Output_List->set("O3.2: dft_output.dat: per unit area?", false, str_LperArea);
+       Output_List->set("O3.3: dft_output.dat: Correct for reflections?", true, str_reflect);
+       Output_List->set("O3.4: dft_output.dat: Mesh Output", "Separations between surfaces", "Select output type for mesh continuation.",MeshOutputValidator);
 
        Output_List->set("O4: Print g(r)?", false, "Set to true to produce a radial correlation function.");
        Output_List->set("O5: Print surface-surface interactions?", false, str_pmf);
@@ -204,11 +199,11 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
 /*      RCP<NumberVisualDependency<int> > LperAreaDep = rcp(
            new NumberVisualDependency<int>( Mesh_List->getEntryRCP("M1_Ndim"), 
-                                            Output_List->getEntryRCP("O3.3: dft_output.dat: per unit area?"),true,
+                                            Output_List->getEntryRCP("O3.2: dft_output.dat: per unit area?"),true,
                                             Mesh_List->get<int>("M1_Ndim")-1));*/
 
       RCP<StringVisualDependency> MeshCont_Dep = rcp(
-           new StringVisualDependency(Continuation_List->getEntryRCP("C1: Continuation Type"),Output_List->getEntryRCP("O3.5: dft_output.dat: Mesh Output"),
+           new StringVisualDependency(Continuation_List->getEntryRCP("C1: Continuation Type"),Output_List->getEntryRCP("O3.4: dft_output.dat: Mesh Output"),
                tuple<std::string>("Mesh Continuation","Mesh Stepping with LOCA Binodal")));
 
 

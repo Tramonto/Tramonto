@@ -72,7 +72,7 @@ void dftmain(double * engptr)
   int       min_nnodes_per_proc,max_nnodes_per_proc,min_nnodes_box,max_nnodes_box;
   double    min_nodesLoc_over_nodesBox,max_nodesLoc_over_nodesBox;
   FILE      *fptime;
-  char crfile[20];
+  char crfile[FILENAME_LENGTH];
   int izone,isten,jcomp,jmax;
   struct Stencil_Struct *sten;
 /*  char line[100],linecwd[100];*/

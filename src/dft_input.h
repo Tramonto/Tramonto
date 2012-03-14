@@ -105,10 +105,13 @@ extern int Lprint_gofr;
 extern int Lcount_reflect;
 extern int Lper_area;
 extern double Rho_max;
-extern char Vext_file2[40];
+extern char *Vext_filename2;
+#define FILENAME_LENGTH 200
+extern char vext_file2_array[FILENAME_LENGTH];
 #define READ_VEXT_STATIC     3
 #define READ_VEXT_SUMTWO     2
-extern char Vext_file[40];
+extern char *Vext_filename;
+extern char vext_file_array[FILENAME_LENGTH];
 #define READ_VEXT_FALSE      0
 extern int Restart_Vext;
 extern int Nmissing_densities;
@@ -167,15 +170,15 @@ extern int **Lsemiperm;
 extern double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 extern double Cr_break[2];
 extern char *Cr_file2;
-extern char cr_file2_array[20];
+extern char cr_file2_array[FILENAME_LENGTH];
 extern char *Cr_file;
-extern char cr_file_array[20];
+extern char cr_file_array[FILENAME_LENGTH];
 extern double Crfac;
 extern int Ncr_files;
 #define CMS          0
 void setup_chain_architecture(char *poly_file,FILE *fpecho);
 extern char *Poly_file_name;
-extern char poly_file_array[20];
+extern char poly_file_array[FILENAME_LENGTH];
 #define SCFT         6	
 #define POLY_ARCH_FILE 0
 extern int Type_poly_arch;
@@ -321,6 +324,10 @@ extern double Temp;
 extern double Density_ref;
 extern double Length_ref;
 void read_junk(FILE *fpinput,FILE *fpecho);
+extern char *DensityFile2;
+extern char *DensityFile;
+extern char DensityFile2_array[FILENAME_LENGTH];
+extern char DensityFile_array[FILENAME_LENGTH];
 extern char *OutputFileDir;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)

@@ -216,7 +216,7 @@ double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double 
 void print_potentials_fluid(int type_pairPot,int icomp,int jcomp){
 
   double param1, param2, param3, param4,param5,param6,r,uatt,ucs,delr;
-  char filename[20], filenameATT[20], filenameCS[20];
+  char filename[FILENAME_LENGTH], filenameATT[FILENAME_LENGTH], filenameCS[FILENAME_LENGTH];
   FILE *fpATT, *fpCS;
 
   pairPotparams_switch(Type_pairPot,FLUID_FLUID,icomp,jcomp,&param1,&param2,&param3,&param4,&param5,&param6);

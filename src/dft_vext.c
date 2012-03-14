@@ -804,9 +804,9 @@ void read_external_field_n()
    /* first read in the external field components found in the default file */
  
    if (Proc==0){
-      if (Iwrite==VERBOSE) printf("setting up the external field from the file %s\n",Vext_file);
-      if( (fp=fopen(Vext_file,"r"))==NULL){
-          printf("the file %s does not exist\n",Vext_file);
+      if (Iwrite==VERBOSE) printf("setting up the external field from the file %s\n",vext_file_array);
+      if( (fp=fopen(vext_file_array,"r"))==NULL){
+          printf("the file %s does not exist\n",vext_file_array);
       }
 
       for (i=0; i<Nnodes; i++) {
@@ -828,9 +828,9 @@ void read_external_field_n()
    /* now if necessary read in the external field components found in file 2 */
    if (Restart_Vext == READ_VEXT_SUMTWO || Restart_Vext == READ_VEXT_STATIC){
       if (Proc==0){
-         if (Iwrite==VERBOSE) printf("setting up the external field from the file %s\n",Vext_file2);
-         if( (fp2=fopen(Vext_file2,"r"))==NULL){
-             printf("the file %s does not exist\n",Vext_file2);
+         if (Iwrite==VERBOSE) printf("setting up the external field from the file %s\n",vext_file2_array);
+         if( (fp2=fopen(vext_file2_array,"r"))==NULL){
+             printf("the file %s does not exist\n",vext_file2_array);
          }
 
          for (i=0; i<Nnodes; i++) {

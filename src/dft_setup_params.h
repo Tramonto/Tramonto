@@ -204,7 +204,6 @@ void safe_free(void **ptr);
 void setup_chain_indexing_arrays(int nseg,int nmer_max,FILE *fpecho);
 extern int Nmer[NCOMP_MAX];
 extern int Npol_comp;
-extern int Type_poly;
 void make_density_params_dimensionless();
 extern double Density_ref;
 void make_dielecConst_params_dimensionless();
@@ -222,12 +221,15 @@ extern double Length_ref;
 void broadcast_input();
 extern int Num_Proc;
 extern int Flag_mV_elecpot;
+extern int Type_coul;
+extern double Temp;
+extern char *Poly_file_name;
+void setup_chain_architecture(char *poly_file,FILE *fpecho);
 #define NONE       -1
 #define NONE          -1
 #define NONE        -1
 #define NONE        -1
-extern int Type_coul;
-extern double Temp;
+extern int Type_poly;
 void read_input_file(FILE *fpinput,FILE *fpecho);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)

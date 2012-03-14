@@ -51,7 +51,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   double sum_i, vol;
   double **array_test;
   FILE *fparray;
-  char filename[20];
+  char filename[FILENAME_LENGTH];
   char *fileArray;
 
   int i,j;
@@ -401,7 +401,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                /* note: translate local coordinates to box coordinates with L2B_node[loc_inode]*/
                /* note: if you want to print to a file you need to modify print statements below */
 
-   char filename[20]="resid.out";
+   char filename[FILENAME_LENGTH]="./resid.out";
                /* also note: to separate parts of the physics constributions (e.g. different parts 
                   of the euler-lagrange equation you will need to modify the return parameters from the
                   various load_ functions. Note that this

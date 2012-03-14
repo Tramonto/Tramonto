@@ -26,9 +26,12 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                         Teuchos::RCP<Teuchos::ParameterList> PhysicsMethod_List,
                         Teuchos::RCP<Teuchos::ParameterList> LinearSolver_List,
                         Teuchos::RCP<Teuchos::ParameterList> NonlinearSolver_List,
+                        Teuchos::RCP<Teuchos::ParameterList> Output_List,
+                        Teuchos::RCP<Teuchos::ParameterList> DensProfile_List,
                         Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                         Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List) 
 {
+  string str_tmp;
   int i,j,k,counter;
   /****************************** DIMENSION PARAMETER SECTION **********************************************************/
   /* this routine translates the parameters from the GUI to Tramonto.  */
@@ -216,7 +219,6 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        Poly_file_name=(char*)Polymer_List->get<string>("P7: Polymer architecture filename").c_str();
     }
     else Poly_file_name=NULL;
-
 
            /* Variables specific to Grafted polymers */
     if (PolymerGraft_List->get<bool>("PG1: Grafted Polymers?")){
@@ -564,9 +566,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
      Nzone = Coarsening_List->get<int>("C3: Nzone");
 
      Array<double> Rmin_Array = Coarsening_List->get<Array<double> >("C4: Rmin for each zone");
-     for (i=0;i<Nzone-1;i++){
-        Rmax_zone[i]=Rmin_Array[i+1];
-     }
+     for (i=0;i<Nzone-1;i++) Rmax_zone[i]=Rmin_Array[i+1];
 
      if (Coarsening_List->get<bool>("C6.0: 1D boundary zone?")){
        L1D_bc=TRUE;
@@ -624,6 +624,129 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
      else if(LinearSolver_List->get<string>("LS6: Preconditioner option")=="ilut") Az_preconditioner=4;
 
      Az_ilut_fill_param=LinearSolver_List->get<double>("LS7: Number of Fill Levels for ILUT");
+
+    /****************************************************/
+    /* params from output selection section of the GUI  */
+    /****************************************************/
+     if(Output_List->get<string>("O1: Screen Output")=="Basic Screen Output") Iwrite_screen=SCREEN_BASIC;
+     else if (Output_List->get<string>("O1: Screen Output")=="No Screen Output") Iwrite_screen=SCREEN_NONE;
+     else if (Output_List->get<string>("O1: Screen Output")=="Errors Only to Screen") Iwrite_screen=SCREEN_ERRORS_ONLY;
+     else if (Output_List->get<string>("O1: Screen Output")=="Verbose Screen Output") Iwrite_screen=SCREEN_VERBOSE;
+     else if (Output_List->get<string>("O1: Screen Output")=="Debugging Output: Residual") Iwrite_screen=SCREEN_DEBUG_RESID;
+
+     if(Output_List->get<string>("O2: Files Output")=="Basic Files") Iwrite_files=FILES_BASIC;
+     else if(Output_List->get<string>("O2: Files Output")=="Extended Files") Iwrite_files=FILES_EXTENDED;
+     else if(Output_List->get<string>("O2: Files Output")=="Debug Files") Iwrite_files=FILES_DEBUG;
+     else if(Output_List->get<string>("O2: Files Output")=="Debug Matrix Files") Iwrite_files=FILES_DEBUG_MATRIX;
+
+     Iwrite=DENSITIES;
+     if (Iwrite_screen==SCREEN_VERBOSE || Iwrite_files==FILES_DEBUG) Iwrite=VERBOSE;
+     if (Iwrite_files==FILES_EXTENDED) Iwrite=EXTENDED;
+     else if (Iwrite_files==FILES_DEBUG_MATRIX) Iwrite=VERBOSE_MATRIX;
+     if (Iwrite_screen==SCREEN_NONE) Iwrite=NO_SCREEN;
+
+     if(Output_List->get<string>("O3.0: dft_output.dat: State Point Output")=="Density[i]") Print_rho_switch=SWITCH_RHO;
+     else if(Output_List->get<string>("O3.0: dft_output.dat: State Point Output")=="Betamu[i]") Print_rho_switch=SWITCH_MU;
+     else if(Output_List->get<string>("O3.0: dft_output.dat: State Point Output")=="kappa") Print_rho_switch=SWITCH_ION;
+     else if(Output_List->get<string>("O3.0: dft_output.dat: State Point Output")=="Density[i], Betamu[i], kappa, and pressure") Print_rho_switch=SWITCH_ALLTYPES_ICOMP;
+     else if(Output_List->get<string>("O3.0: dft_output.dat: State Point Output")=="Density[i], Betamu[i], and pressure") Print_rho_switch=SWITCH_ALLTYPES_ICOMP;
+     else if(Output_List->get<string>("O3.0: dft_output.dat: State Point Output")=="Density[all], Betamu[all], kappa, and pressure") Print_rho_switch=SWITCH_ALLTYPES;
+     else if(Output_List->get<string>("O3.0: dft_output.dat: State Point Output")=="Density[all], Betamu[all], and pressure") Print_rho_switch=SWITCH_ALLTYPES;
+     else if(Output_List->get<string>("O3.0: dft_output.dat: State Point Output")=="No State Point Output") Print_rho_switch=SWITCH_NO_STATEOUT;
+
+     if(Output_List->get<string>("O3.1: dft_output.dat: Adsorption & Energy Output")=="adsorption/volume and energy/volume (bulk density & pressure)"){
+         if(Print_rho_switch==SWITCH_ALLTYPES)  Print_rho_switch=SWITCH_BULK_OUTPUT_ALL;
+         else Print_rho_switch=SWITCH_BULK_OUTPUT;
+     }
+
+     if (Output_List->get<bool>("O3.2: dft_output.dat: per unit area?")) Lper_area=TRUE;
+     else Lper_area=FALSE;
+
+     if (Output_List->get<bool>("O3.3: dft_output.dat: Correct for reflections?")) Lcount_reflect=TRUE;
+     else Lcount_reflect=FALSE;
+
+     if (Output_List->get<string>("O3.4: dft_output.dat: Mesh Output")=="Position of all surfaces")  Print_mesh_switch=TRUE;
+     else if (Output_List->get<string>("O3.4: dft_output.dat: Mesh Output")=="Separations between surfaces")  Print_mesh_switch=SWITCH_SURFACE_SEP;
+   
+     if (Output_List->get<bool>("O4: Print g(r)?")) Lprint_gofr=TRUE;
+     else Lprint_gofr=FALSE;
+
+     if (Output_List->get<bool>("O5: Print surface-surface interactions?")) Lprint_pmf=TRUE;
+     else Lprint_pmf=FALSE;
+
+    /***********************************************************/
+    /* params from initial guess selection section of the GUI  */
+    /***********************************************************/
+     str_tmp=DensProfile_List->get<string>("DP1.0: Type of Initial Density Profile");
+     if (str_tmp=="Construct a new Density Profile") Restart=NORESTART;
+     else if (str_tmp=="Restart from File") Restart=RESTART_BASIC;
+     else if (str_tmp=="Restart with Step to constant") Restart=RESTART_STEP;
+     else if (str_tmp=="Restart densities only (no other fields)") Restart=RESTART_DENSONLY;
+     else if (str_tmp=="Restart incomplete Ncomp") Restart=RESTART_FEWERCOMP;
+     else if (str_tmp=="Restart with 1D profile (in 2D or 3D)") Restart=RESTART_1DTOND;
+
+    if (str_tmp !="Construct a new Density Profile") {
+       DensityFile=(char*)DensProfile_List->get<string>("DP1.1: Density Restart File").c_str();
+       if (Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Binodal Continuation" ||
+           Continuation_List->get<string>("C1: Continuation Type")=="Mesh Stepping with LOCA Binodal" ||
+           Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Spinodal Continuation" ){
+                DensityFile2=(char*)DensProfile_List->get<string>("DP1.2: 2nd Density RestartFile").c_str();
+        }
+        else DensityFile2=NULL;
+    }
+    else{
+       DensityFile=NULL;
+       DensityFile2=NULL;
+    }
+   
+    Nmissing_densities=DensProfile_List->get<int>("DP1.3: Number of missing components");
+    Rho_max=DensProfile_List->get<double>("DP1.4: Rho max");
+
+    str_tmp=DensProfile_List->get<string>("DP2.0: Density Profile Construct Type");
+    if (str_tmp=="Constant Bulk Density") Iguess=CONST_RHO;
+    else if (str_tmp=="Rho_bulk*exp(-Vext/kT)") Iguess=EXP_RHO;
+    else if (str_tmp=="Step function profile") Iguess=STEP_PROFILE;
+    else if (str_tmp=="Chopped profile to rho_bulk") Iguess=CHOP_RHO;
+    else if (str_tmp=="Chopped profile to rho_step") Iguess=CHOP_RHO_STEP;
+    else if (str_tmp=="Linear profile (for diffusion)") Iguess=LINEAR;
+
+    Nsteps=DensProfile_List->get<int>("DP2.1: Nsteps");
+
+    Array<int> OrientStep_Array = DensProfile_List->get<Array<int> >("DP2.2: Orient_step[istep]");
+    Array<double> XstartStep_Array = DensProfile_List->get<Array<double> >("DP2.3: Xstart_step[istep]");
+    Array<double> XendStep_Array = DensProfile_List->get<Array<double> >("DP2.4: Xend_step[istep]");
+    for (i=0;i<Nsteps;i++){
+        Orientation_step[i]=OrientStep_Array[i];
+        Xstart_step[i]=XstartStep_Array[i];
+        Xend_step[i]=XendStep_Array[i];
+    }
+    TwoDArray<double> Rhomax_Array=DensProfile_List->get<TwoDArray<double> >("DP2.5 Rho_step[icomp][istep]");
+    for (i=0; i<Ncomp; i++)  for (j=0; j<Nsteps; j++) Rho_step[i][j]=Rhomax_Array[i][j]; 
+
+    str_tmp=DensProfile_List->get<string>("DP3: Dependent Field Construct Type");
+    if (str_tmp=="Bulk values for dependent fields") Iguess_fields=BULK;
+    else if (str_tmp=="Compute fields based on density profile") Iguess_fields=CALC_ALL_FIELDS;
+    else if (str_tmp=="Compute nonlocal densities only - other fields are bulk") Iguess_fields=CALC_RHOBAR_ONLY;
+    else if (str_tmp=="Compute chain eq. and nonlocal densities - other fields are bulk") Iguess_fields=CALC_RHOBAR_AND_G;
+
+    str_tmp=DensProfile_List->get<string>("DP4.0: External Field Restart Type");
+    if (str_tmp=="Compute new Vext") Restart_Vext=READ_VEXT_FALSE;
+    else if (str_tmp=="Restart from File") Restart_Vext=READ_VEXT_TRUE;
+    else if (str_tmp=="Sum Two from Files") Restart_Vext=READ_VEXT_SUMTWO;
+    else if (str_tmp=="Sum Two with constraints") Restart_Vext=READ_VEXT_STATIC;
+
+    if (str_tmp !="Compute new Vext") {
+       Vext_filename=(char*)DensProfile_List->get<string>("DP4.1: External Field Filename").c_str();
+       if (str_tmp=="Sum Two from Files" || str_tmp=="Sum Two with constraints") 
+             Vext_filename2=(char*)DensProfile_List->get<string>("DP4.2: 2nd External Field Filename").c_str();
+       else Vext_filename2=NULL;
+    }
+    else{
+       Vext_filename=NULL;
+       Vext_filename2=NULL;
+    }
+   
+
 
     /****************************************************/
     /* params from surface geometry section of the GUI  */

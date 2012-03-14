@@ -467,8 +467,10 @@ int     Restart;      /* Logical that switches between new prof & restart file*/
 int     Restart_field[NEQ_TYPE];
 int     Nmissing_densities; /* special restart case where only partial densities are in restart file */
 int     Restart_Vext;     /* Logical that defines reading of external field*/
-char Vext_file[40];       /* file name that contains external field to read in */
-char Vext_file2[40];       /* a second file name that contains another part of the external field to read in */
+char *Vext_filename;       /* pointer to the vext filename */
+char *Vext_filename2;       /* pointer to the vext2 filename */
+char vext_file_array[FILENAME_LENGTH];       /* file name that contains external field to read in */
+char vext_file2_array[FILENAME_LENGTH];       /* a second file name that contains another part of the external field to read in */
 int     Iprofile;     /* Specifies Liq-Solid,Vap-Solid,or Liq-Vap profile    */
 double  Toler;        /* Tolerance for Newton-Rhapson iterations             */
 int     Iwrite;       /* Do we want a complete or modified set of output data*/
@@ -560,15 +562,19 @@ int Nseg_tot;
 int Nseg_type[NCOMP_MAX];
 int **Nseg_type_pol;
 int Geqn_start[NCOMP_MAX];
-/*char Cr_file[40],Cr_file2[40],Cr_file3[40],Cr_file4[40];*/
+/*char Cr_file[FILENAME_LENGTH],Cr_file2[FILENAME_LENGTH],Cr_file3[FILENAME_LENGTH],Cr_file4[FILENAME_LENGTH];*/
 char *Cr_file,*Cr_file2,*Cr_file3,*Cr_file4;
-char cr_file_array[20];
-char cr_file2_array[20];
-char poly_file_array[20];
+char cr_file_array[FILENAME_LENGTH];
+char cr_file2_array[FILENAME_LENGTH];
+char poly_file_array[FILENAME_LENGTH];
 char *Poly_file_name;
 double Cr_break[2];
 char *OutputFileDir;
-char OutputFileDir_array[100];
+char OutputFileDir_array[FILENAME_LENGTH];
+char *DensityFile;
+char *DensityFile2;
+char DensityFile_array[FILENAME_LENGTH];
+char DensityFile2_array[FILENAME_LENGTH];
 int  Ncr_files;
 int SegAll_to_Poly[NMER_MAX];
 int *Unk_to_Poly, *Unk_to_Seg, *Unk_to_Bond, ***Poly_to_Unk, **Poly_to_Unk_SegAll;

@@ -66,6 +66,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
    double rho_tmp[NCOMP_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
    int iblock,jblock,itype_poly,repeat_type,graft_logical;
    char unk_char[20];
+   char *densityFile_tmp,*densityFile2_tmp;
 
 
   
@@ -98,15 +99,27 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
      Open_GUI=TRUE;
    }
 
-  /******************************************************/
-  /* Set a directory for output files from Tramonto run */
-  /******************************************************/
+  /**************************************************************************/
+  /* Set a directory for output and default density files for Tramonto run */
+  /**************************************************************************/
 /*      read_junk(fpinput,fpecho);
       fscanf(fpinput,"%s", OutputFileDir_array);
       fprintf(fpecho,"%s  ",OutputFileDir_array);
       OutputFileDir=OutputFileDir_array; */
 
-      OutputFileDir=".";
+      OutputFileDir=".";   /* just set to cwd for now...*/
+
+/*  densityFile_tmp="./dft_dens.dat";
+  densityFile2_tmp="./dft_dens2.dat";
+
+  strcpy(DensityFile_array,densityFile_tmp);
+  strcpy(DensityFile2_array,densityFile2_tmp);*/
+
+  sprintf(DensityFile_array, "./dft_dens.dat");
+  sprintf(DensityFile2_array, "./dft_dens2.dat");
+
+  DensityFile=DensityFile_array;
+  DensityFile2=DensityFile2_array;
 
 
   /********************************************/
@@ -1434,12 +1447,19 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   fscanf(fpinput,"%d ",&Restart_Vext);
    fprintf(fpecho,"%d ",Restart_Vext);
   if (Restart_Vext != READ_VEXT_FALSE){
-        fscanf(fpinput,"%s", Vext_file);
-         fprintf(fpecho,"  %s ", Vext_file);
+        fscanf(fpinput,"%s", vext_file_array);
+         fprintf(fpecho,"  %s ", vext_file_array);
+           Vext_filename=vext_file_array;
         if (Restart_Vext == READ_VEXT_SUMTWO || Restart_Vext == READ_VEXT_STATIC){
-           fscanf(fpinput,"%s", Vext_file2);
-            fprintf(fpecho,"  %s ", Vext_file2);
+           fscanf(fpinput,"%s", vext_file2_array);
+            fprintf(fpecho,"  %s ", vext_file2_array);
+           Vext_filename2=vext_file2_array;
         }
+        else Vext_filename2=NULL;
+  }
+  else{
+     Vext_filename=NULL;
+     Vext_filename2=NULL;
   }
 
   read_junk(fpinput,fpecho);

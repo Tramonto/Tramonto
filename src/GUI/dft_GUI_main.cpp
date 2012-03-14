@@ -43,7 +43,7 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> SurfaceInteraction_List = sublist(Surface_List, "4.4 Fluid-Surface Interactions");
   RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "4.5 Fluid-Surface Potential Parameters");
   RCP<ParameterList> Continuation_List = sublist(Tramonto_List, "Sect. 6: Continuation");
-  RCP<ParameterList> Startup_List = sublist(Tramonto_List, "Sect. 7: Startup Control");
+  RCP<ParameterList> DensProfile_List = sublist(Tramonto_List, "Sect. 7:Initial Guess Options");
   RCP<ParameterList> Output_List = sublist(Tramonto_List, "Sect. 8: Output Control");
   RCP<ParameterList> Solver_List = sublist(Tramonto_List, "Sect. 9: Numerical Methods");
   RCP<ParameterList> Coarsening_List = sublist(Solver_List, "Numerical Coarsening Options");
@@ -94,6 +94,9 @@ extern "C" void dft_OptikaGUI()
   dft_GUI_NumericalMethods(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,Solver_List,
                             Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
 
+ dft_GUI_DensityStartupParams(Tramonto_List,depSheet_Tramonto,Fluid_List,Continuation_List,DensProfile_List);
+
+
   dft_GUI_OutputParams(Tramonto_List,depSheet_Tramonto,Mesh_List,Functional_List,Fluid_List,Continuation_List,SurfaceInteraction_List,Output_List);
 
              /* The getInput function starts up an Optika GUI and      *
@@ -115,8 +118,8 @@ extern "C" void dft_OptikaGUI()
   dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
                      StatePoint_List,Diffusion_List,ChargedFluid_List,Continuation_List,
-                     Solver_List,Coarsening_List,LoadBalance_List,PhysicsMethod_List,LinearSolver_List,NonlinearSolver_List,
-                     Surface_List,SurfaceGeometry_List);
+                     Solver_List,Coarsening_List,LoadBalance_List,PhysicsMethod_List,LinearSolver_List,NonlinearSolver_List,Output_List,
+                     DensProfile_List,Surface_List,SurfaceGeometry_List);
 
              /* Here save parameter a to return to C code --- a fully 
                 functioning GUI will need to return all parameters entered

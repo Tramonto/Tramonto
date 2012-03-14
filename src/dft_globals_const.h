@@ -119,6 +119,7 @@ extern "C" {
 #define NSTEPS_MAX 10
 
 #define MAX_ROUGH_BLOCK 100
+#define FILENAME_LENGTH 200
 
 /* a constat flag to indicate that there is no bond between a pair of segments in 
    a polymer problems */
@@ -1134,8 +1135,10 @@ extern int     Restart;     /* Logical that switches between new prof & restart 
 extern int     Restart_field[NEQ_TYPE];
 extern int     Nmissing_densities; /* special restart case where only partial densities are in restart file */
 extern int     Restart_Vext;     /* Logical that defines reading of external field*/
-extern char Vext_file[40];       /* file name that contains external field to read in */
-extern char Vext_file2[40];       /* a second file name that contains another part of the external field to read in */
+extern char    *Vext_filename;       /* pointer to the vext filename */
+extern char    *Vext_filename2;       /* pointer to the vext2 filename */
+extern char    vext_file_array[FILENAME_LENGTH];       /* file name that contains external field to read in */
+extern char    vext_file2_array[FILENAME_LENGTH];       /* a second file name that contains another part of the external field to read in */
 extern int     Iwrite;       /* Do we want a complete or modified set of output data*/
 extern int     Iwrite_screen;       /* Do we want a complete or modified set of output data*/
 extern int     Iwrite_files;       /* Do we want a complete or modified set of output data*/
@@ -1227,16 +1230,20 @@ extern int Nseg_type[NCOMP_MAX];
 extern int **Nseg_type_pol;
 extern char *Cr_file;
 extern char *Cr_file2;
-extern char cr_file_array[20];
-extern char cr_file2_array[20];
+extern char cr_file_array[FILENAME_LENGTH];
+extern char cr_file2_array[FILENAME_LENGTH];
 extern char *Poly_file_name;
-extern char poly_file_array[20]; 
+extern char poly_file_array[FILENAME_LENGTH]; 
 extern char *OutputFileDir;
-extern char OutputFileDir_array[100]; 
-/*extern char Cr_file[40];
-extern char Cr_file2[40];
-extern char Cr_file3[40];
-extern char Cr_file4[40];*/
+extern char OutputFileDir_array[FILENAME_LENGTH]; 
+extern char *DensityFile;
+extern char *DensityFile2;
+extern char DensityFile_array[FILENAME_LENGTH];
+extern char DensityFile2_array[FILENAME_LENGTH];
+/*extern char Cr_file[FILENAME_LENGTH];
+extern char Cr_file2[FILENAME_LENGTH];
+extern char Cr_file3[FILENAME_LENGTH];
+extern char Cr_file4[FILENAME_LENGTH];*/
 extern double Cr_break[2];
 extern int Ncr_files;
 extern int SegAll_to_Poly[NMER_MAX];

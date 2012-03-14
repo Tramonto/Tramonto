@@ -72,6 +72,7 @@ extern int Iwrite_screen;
 extern double Time_fill_av;
 extern double Time_fill_first;
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
+#define FILENAME_LENGTH 200
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

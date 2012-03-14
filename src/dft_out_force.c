@@ -50,7 +50,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
      f_elec_iwall_idim,force,sign_pressure[NWALL_MAX];
    int idim,iwall,i,iwall_type,Linclude_pressure[NWALL_MAX],orient;
    static int first=TRUE;
-   char forceInfo[20];
+   char forceInfo[FILENAME_LENGTH];
    int orientation,surfaceTypeID;
    struct SurfaceGeom_Struct *sgeom_iw;
 

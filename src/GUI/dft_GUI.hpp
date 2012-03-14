@@ -114,6 +114,8 @@ void dft_GUI_toTramonto(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Teuchos::ParameterList> PhysicsMethod_List, 
                          Teuchos::RCP<Teuchos::ParameterList> LinearSolver_List, 
                          Teuchos::RCP<Teuchos::ParameterList> NonlinearSolver_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> Output_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> DensProfile_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Surface_List, 
                          Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List); 
 
@@ -125,6 +127,12 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Teuchos::ParameterList> Continuation_List,
                          Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List,
                          Teuchos::RCP<Teuchos::ParameterList> Output_List);
+
+void dft_GUI_DensityStartupParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
+                         Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                         Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                         Teuchos::RCP<Teuchos::ParameterList> Continuation_List,
+                         Teuchos::RCP<Teuchos::ParameterList> DensProfile_List);
 
 void dft_GUI_NumericalMethods(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,

@@ -190,8 +190,8 @@ void print_profile(char *Density_FileName,double *xold)
   double kappa_sq,kappa,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term,scalefac,mu;
   char *unk_char;
     
-  char gfile[20],segfile[20];
-  char compfile[20];
+  char gfile[FILENAME_LENGTH],segfile[FILENAME_LENGTH];
+  char compfile[FILENAME_LENGTH];
   FILE *fp_Density=NULL,*fp_Gfile=NULL,*fp_DensSegComp=NULL;
   /* 
    *  print out the densities (and electrostatic potential)

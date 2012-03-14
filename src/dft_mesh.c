@@ -267,7 +267,7 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
 
   int ntot_per_list,ntot_per_list_all_procs,*el_tmp,*elems_w_per_w_proc_0_tmp,ncount;
   double pos_xyz[3];
-  char proc_file[20];
+  char proc_file[FILENAME_LENGTH];
   FILE *fp_L2Gmap=NULL;
   FILE *fp_B2Gmap=NULL;
   

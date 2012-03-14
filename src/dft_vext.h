@@ -15,11 +15,12 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-extern char Vext_file2[40];
+#define FILENAME_LENGTH 200
+extern char vext_file2_array[FILENAME_LENGTH];
 #define READ_VEXT_SUMTWO     2
 int ijk_to_node(int *ijk);
 int round_to_int(double x);
-extern char Vext_file[40];
+extern char vext_file_array[FILENAME_LENGTH];
 extern double **Vext_static;
 #define READ_VEXT_STATIC     3
 extern int Restart_Vext;
