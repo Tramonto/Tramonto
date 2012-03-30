@@ -37,7 +37,12 @@
 #include "Ifpack2_Preconditioner.hpp"
 #include <MueLu.hpp>
 #include <MueLu_TrilinosSmoother.hpp>
+#include "MueLu_Hierarchy.hpp"
 #include <MueLu_RAPFactory.hpp>
+#include "MueLu_AmesosSmoother.hpp"
+#include "MueLu_Amesos2Smoother.hpp"
+#include "MueLu_Utilities.hpp"
+#include <MueLu_MLParameterListInterpreter.hpp>
 #include <MueLu_UseDefaultTypes.hpp>
 #include <MueLu_UseShortNames.hpp>
 #include "Kokkos_DefaultNode.hpp"

@@ -50,53 +50,13 @@ dft_PolyA22_Coulomb_Tpetra_Operator
   poissonOnPoissonMatrix_->setObjectLabel("PolyA22Coulomb::poissonOnPoissonMatrix");
   cmsOnPoissonMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnPoissonMatrix");
   poissonOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::poissonOnDensityMatrix");
-  /*
-  ML_Epetra::SetDefaults("SA",*MLList_);
-  //MLList_->set("ML output", 0);
-   If running TestSmoothers() in applyInverse(), uncomment these
-     MLList_->set("test: IFPACK", false);
-     MLList_->set("test: ML self smoother", false);
 
-  int MaxLevels = 10;
-  int sweeps = 2;
-  Scalar alpha = 20.0; //30.0 is default
-  char parameter[80];
-  MLList_->set("max levels", MaxLevels);
-  for (LocalOrdinal ilevel = 0; ilevel < MaxLevels; ilevel++)
-  {
-    sprintf(parameter, "smoother: type (level %d)", ilevel);
-    MLList_->set(parameter, "MLS");
-    sprintf(parameter, "smoother: MLS polynomial order (level %d)", ilevel);
-    MLList_->set(parameter, 3); //3 is default
-    sprintf(parameter, "smoother: MLS alpha (level %d)", ilevel);
-    MLList_->set(parameter, alpha);
-  } //end for
-
-  MLList_->set("coarse: sweeps", 6);
-  MLList_->set("coarse: type", "MLS");
-  MLList_->set("coarse: MLS polynomial order", 3); //3 is default
-
-  // Or use Gauss-Seidel
-
-  LocalOrdinal MaxLevels = 10;
-  LocalOrdinal sweeps = 1;
-  Scalar omega = 0.67;
-  char parameter[80];
-  MLList_->set("max levels", MaxLevels);
-  for (LocalOrdinal ilevel = 0; ilevel < MaxLevels; ilevel++)
-  {
-    sprintf(parameter, "smoother: type (level %d)", ilevel);
-    MLList_->set(parameter, "Gauss-Seidel");
-    sprintf(parameter, "smoother: damping (level %d)", ilevel);
-    MLList_->set(parameter, omega);
-    sprintf(parameter, "smoother: sweeps (level %d)", ilevel);
-    MLList_->set(parameter, sweeps);
-  } //end for
-
-  MLList->set("coarse: sweeps", 6);
-  MLList_->set("coarse: damping parameter", 0.67); //0.67 is default
-  MLList_->set("coarse: type", "Gauss-Seidel");
-  */
+  MueluList_ = rcp(new Teuchos::ParameterList());
+  MueluList_->set("ML output", 0);
+  MueluList_->set("smoother: sweeps", 2);
+  MueluList_->set("smoother: type","Chebyshev");
+  MueluList_->set("coarse: sweeps", 6);
+  MueluList_->set("coarse: type", "Chebyshev");
 
 } //end constructor
 //==============================================================================
@@ -377,12 +337,13 @@ finalizeProblemValues
   if (firstTime_) {
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP  = rcp(new Xpetra::CrsOperator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
-    H_ = rcp(new Hierarchy(mueluPP));
+    MLParameterListInterpreter mueluFactory(*MueluList_);
+    H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_HIGH);
-    M_.SetFactory("A", rcp(new RAPFactory()));
-    H_->Setup(M_);
+    H_->GetLevel(0)->Set("A", mueluPP);
+    mueluFactory.SetupHierarchy(*H_);
   }
-  //  Check(true);
+
   isLinearProblemSet_ = true;
   firstTime_ = false;
 } //end finalizeProblemValues
@@ -469,7 +430,7 @@ applyInverse
   RCP<VEC> tmp = rcp(new VEC(densityMap_));
   RCP<VEC> tmp2 = rcp(new VEC(densityMap_));
   tmp->reciprocal(*densityOnDensityMatrix_);
-  int nIts = 9;
+  int nIts = 200;
   RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluX;
   RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluB;
   if (F_location_ == 1)

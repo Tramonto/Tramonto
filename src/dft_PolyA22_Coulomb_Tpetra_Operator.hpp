@@ -166,6 +166,7 @@ protected:
   RCP<Xpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps > > mueluPP_;
   RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
   FactoryManager M_;
+  RCP<Teuchos::ParameterList> MueluList_;
 
   using P22TO::isGraphStructureSet_;
   using P22TO::Label_;
