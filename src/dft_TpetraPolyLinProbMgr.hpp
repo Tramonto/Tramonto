@@ -33,6 +33,7 @@
 #include "dft_PolyA22_Coulomb_Tpetra_Operator.hpp"
 #include "dft_Schur_Tpetra_Operator.hpp"
 #include "dft_TpetraBasicLinProbMgr.hpp"
+#include "dft_PolyA22_Coulomb_Tpetra_Belos_Operator.hpp"
 
 //====================================================
 
@@ -53,6 +54,7 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P11CO;
   typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
   typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P22CO;
+  typedef dft_PolyA22_Coulomb_Tpetra_Belos_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P22CBO;
   typedef dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
 
   //@{ \name Constructors/destructor.

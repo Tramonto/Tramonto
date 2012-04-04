@@ -79,7 +79,7 @@ finalizeBlockStructure
   // Load Schur block mappings
   physicsOrdering_.clear();
   physicsIdToSchurBlockId_.resize(numUnknownsPerNode_);
-  isCmsEquation_.resize(numUnknownsPerNode_); 
+  isCmsEquation_.resize(numUnknownsPerNode_);
   isDensityEquation_.resize(numUnknownsPerNode_);
   isPoissonEquation_.resize(numUnknownsPerNode_);
 
@@ -227,7 +227,11 @@ finalizeBlockStructure
 
   if (hasPoisson_ && !poissonInA11)
   {
+#if POISSON_APPLY_INVERSE == 1
+    A22_ = rcp(new P22CBO(cmsRowMap_, densityRowMap_, poissonRowMap_, extraRowMap_, block2RowMap_, parameterList_));
+#else
     A22_ = rcp(new P22CO(cmsRowMap_, densityRowMap_, poissonRowMap_, extraRowMap_, block2RowMap_, parameterList_));
+#endif
   }  //end if
   else
   {
@@ -324,25 +328,25 @@ insertMatrixValue
   vals[0] = value;
 
   if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
-    A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->getGlobalElement(ownedNode), rowGID, colGID, value); 
+    A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->getGlobalElement(ownedNode), rowGID, colGID, value);
   }
   else if (schurBlockRow==2 && schurBlockCol==2) { // A22 block
     // if poisson then blockColFlag = 0
     // if density then blockColFlag = 1
     // if cms then blockColFlag = 2
     if (isCmsEquation_[boxPhysicsID]) {
-      A22_->insertMatrixValue(rowGID, colGID, value, 2); 
+      A22_->insertMatrixValue(rowGID, colGID, value, 2);
     }else if (isDensityEquation_[boxPhysicsID]) {
-      A22_->insertMatrixValue(rowGID, colGID, value, 1); 
+      A22_->insertMatrixValue(rowGID, colGID, value, 1);
     }else if (isPoissonEquation_[boxPhysicsID]) {
-      A22_->insertMatrixValue(rowGID, colGID, value, 0); 
-    }else{ 
+      A22_->insertMatrixValue(rowGID, colGID, value, 0);
+    }else{
       TEUCHOS_TEST_FOR_EXCEPT_MSG(1, "Unknown box physics ID in A22.");
     }
   }
   else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
     if (firstTime_) {
-      if (rowGID!=curRowA21_) { 
+      if (rowGID!=curRowA21_) {
 	insertRowA21();  // Dump the current contents of curRowValues_ into matrix and clear map
 	curRowA21_=rowGID;
       }
@@ -354,7 +358,7 @@ insertMatrixValue
   }
   else { // A12 block
     if (firstTime_) {
-      if (rowGID!=curRowA12_) { 
+      if (rowGID!=curRowA12_) {
 	insertRowA12();  // Dump the current contents of curRowValues_ into matrix and clear map
 	curRowA12_=rowGID;
       }

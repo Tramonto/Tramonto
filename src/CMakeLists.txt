@@ -454,6 +454,9 @@ if (USE_TPETRA)
   list(APPEND common_cxx dft_PolyA22_Tpetra_Operator.cpp)
   list(APPEND common_h dft_PolyA22_Coulomb_Tpetra_Operator.hpp)
   list(APPEND common_cxx dft_PolyA22_Coulomb_Tpetra_Operator.cpp)
+  list(APPEND common_h dft_PolyA22_Coulomb_Tpetra_Belos_Operator.hpp)
+  list(APPEND common_cxx dft_PolyA22_Coulomb_Tpetra_Belos_Operator.cpp)
+
 
   list(APPEND common_h dft_Schur_Tpetra_Operator.hpp)
   list(APPEND common_cxx dft_Schur_Tpetra_Operator.cpp)
@@ -496,6 +499,14 @@ if (USE_TPETRA)
      message("No precision specified. Using double precision for linear solver code.")
      ADD_DEFINITIONS(-DLINSOLVE_PREC=1)   
    endif (LINSOLVE_PREC_FLOAT)
+
+#  Choose whether the belos solver calls apply() or applyInverse() on the A22 block for charged examples
+   if (A22_APPLY_INVERSE)    	   
+     message("A22_APPLY_INVERSE defined. Using applyInverse() method on poisson block (charged examples).")
+     ADD_DEFINITIONS(-DPOISSON_APPLY_INVERSE=1)
+   else ()
+     ADD_DEFINITIONS(-DPOISSON_APPLY_INVERSE=0)   
+   endif (A22_APPLY_INVERSE)
 
 endif(USE_TPETRA)
 
