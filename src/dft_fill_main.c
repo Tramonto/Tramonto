@@ -87,7 +87,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
 	  /* loop over chains */
 	  for(npol=0; npol<Npol_comp; npol++){
 		  iseg = Nmer[npol]-1;
-		  unk_G = Geqn_start[npol] + Poly_to_Unk[npol][iseg][0];		// find G_{N-1}^{N-2}
+		  unk_G = Geqn_start[npol] + Poly_to_Unk[npol][iseg][0];		/* find G_{N-1}^{N-2} */
 		  sum_i=0.0, Gsum[npol] = 0.0;
 		  for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 			  inode_box = L2B_node[loc_inode];

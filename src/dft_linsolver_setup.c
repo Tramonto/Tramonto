@@ -13,7 +13,8 @@
 // of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public
@@ -39,7 +40,7 @@ void linsolver_setup_control()
    else if (L_Schur && (Type_poly == WJDC || Type_poly==WJDC3))   linsolver_setup_WJDCTYPE();
    else if (L_Schur && Type_func != NONE) linsolver_setup_HSTYPE();
    else {
-    //   LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+    /*   LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD); */
          LinProbMgr_manager = dft_basic_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
    }
    return;
@@ -100,7 +101,7 @@ void linsolver_setup_CMSTYPE_LINEARONLY()
       count_ginv_eqn++;
    }
 
-   // LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   /* LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD); */
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
    dft_poly_lin_prob_mgr_setginvequationids(LinProbMgr_manager, count_ginv_eqn, ginveq);
@@ -159,7 +160,7 @@ void linsolver_setup_CMSTYPE()
    
 /*   count_geqn=discover_G_ordering_LT(geq);*/
 
-   // LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   /* LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD); */
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
 
    dft_poly_lin_prob_mgr_setgequationids(LinProbMgr_manager, count_geqn, geq);
@@ -220,7 +221,7 @@ void linsolver_setup_HSTYPE()
         break;
      } 
    }
-   // LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   /* LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD); */
 
    LinProbMgr_manager = dft_hardsphere_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
    dft_hardsphere_lin_prob_mgr_setindnonlocalequationids(LinProbMgr_manager, count_indnonlocal, indnonlocaleq);
@@ -315,7 +316,7 @@ void linsolver_setup_WJDCTYPE()
    safe_free((void *) &gonlyeq);
    safe_free((void *) &poissoneq);
 
-   // LinProbMgr_manager = dft_wjdc_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   /* LinProbMgr_manager = dft_wjdc_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD); */
 
   return;
 }
@@ -423,7 +424,7 @@ void linsolver_setup_WJDCTYPE_LINEARONLY()
    safe_free((void *) &geq_sym);
    safe_free((void *) &poissoneq);
 
-   // LinProbMgr_manager = dft_wjdc_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD);
+   /* LinProbMgr_manager = dft_wjdc_lin_prob_mgr_create(Nunk_per_node, Aztec.options, Aztec.params, MPI_COMM_WORLD); */
 
   return;
 }

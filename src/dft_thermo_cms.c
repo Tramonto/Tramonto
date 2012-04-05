@@ -352,40 +352,40 @@ void setup_polymer_cr()
    }
 
    }
-//   else if (Type_poly==CMS_SCFT) { /* here only read c(0)*/
-//     if (Proc==0){
-//       if( (fp7  = fopen(Cr_file,"r")) == NULL) {
-//         printf("Can't open file %s\n", Cr_file);
-//         exit(1);
-//       }
-//
-//       for (i=0; i<Ncomp; i++) {  /* for (i=0; i<Ntype_mer; i++)  */
-//         fscanf(fp7,"%lf",&Rism_cr[i][i][0]);
-//         fscanf(fp7,"%c",&c );
-//         printf("cr[%d][%d] = %f\t", i, i, Rism_cr[i][i][0]);
-//       }
-//       for (i=0; i<Ncomp; i++) {                /* "  */
-//         for (j=i+1; j<Ncomp; j++) {                /* "  */
-//           fscanf(fp7,"%lf",&Rism_cr[i][j][0]);
-//           fscanf(fp7,"%c",&c );
-//           Rism_cr[j][i][0] = Rism_cr[i][j][0];
-//           printf("cr[%d][%d] = %f\t", i,j,Rism_cr[i][j][0]);
-//         }
-//       }
-//       fclose(fp7);
-//       for (ir=1; ir<N_NZCR_MAX; ir++){
-//         for (i=0; i<Ncomp; i++){
-//           Rism_cr[i][i][ir] = 0.;
-//           for (j=i+1; j<Ncomp; j++) {
-//             Rism_cr[i][j][ir] = 0.;
-//             Rism_cr[j][i][ir] = 0.;
-//           }
-//         }
-//       }
-//   } /* end of if(Proc==0) */
-//
-//     MPI_Bcast(**Rism_cr,Ncomp*Ncomp*N_NZCR_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
-//   }
+/*   else if (Type_poly==CMS_SCFT) { * here only read c(0)*/
+/*     if (Proc==0){
+        if( (fp7  = fopen(Cr_file,"r")) == NULL) {
+         printf("Can't open file %s\n", Cr_file);
+         exit(1);
+       } */
+
+/*       for (i=0; i<Ncomp; i++) {  * for (i=0; i<Ntype_mer; i++)  */
+/*         fscanf(fp7,"%lf",&Rism_cr[i][i][0]);
+         fscanf(fp7,"%c",&c );
+         printf("cr[%d][%d] = %f\t", i, i, Rism_cr[i][i][0]);
+       } */
+/*       for (i=0; i<Ncomp; i++) {                * "  */
+/*         for (j=i+1; j<Ncomp; j++) {                * "  */
+/*           fscanf(fp7,"%lf",&Rism_cr[i][j][0]);
+           fscanf(fp7,"%c",&c );
+           Rism_cr[j][i][0] = Rism_cr[i][j][0];
+           printf("cr[%d][%d] = %f\t", i,j,Rism_cr[i][j][0]);
+         }
+       }
+       fclose(fp7);
+       for (ir=1; ir<N_NZCR_MAX; ir++){
+         for (i=0; i<Ncomp; i++){
+           Rism_cr[i][i][ir] = 0.;
+           for (j=i+1; j<Ncomp; j++) {
+             Rism_cr[i][j][ir] = 0.;
+             Rism_cr[j][i][ir] = 0.;
+           }
+         }
+       } */
+/*   } * end of if(Proc==0) */
+
+/*     MPI_Bcast(**Rism_cr,Ncomp*Ncomp*N_NZCR_MAX,MPI_DOUBLE,0,MPI_COMM_WORLD);
+   } */
    return;
 }
 /*************************************************************************************/

@@ -177,128 +177,122 @@ double load_SCF_Geqns(int iunk, int loc_inode, int inode_box, int *ijk_box, int 
 /*******************************************************************************
 collect_G_old: This gathers the G that we need on Proc 0.        */ 
 
-//void collect_G_old(double **x, int unk_G, double *G_old)
-//{
-//	int i,iunk,loc_inode, loc_i,idim,nunk_per_proc;
-//	int *index=NULL;
-//	double *unk_global, *unk_loc;
-//	
-//	Nodes_old = Nnodes;
-//	for (idim=0; idim<Ndim; idim++) Nodes_x_old[idim] = Nodes_x[idim];
-//	
-//	/* allocate temporary arrays */
-//	
-//	unk_loc = (double *) array_alloc (1, Nnodes_per_proc, sizeof(double));
-//	
-//	for (loc_inode=0; loc_inode < Nnodes_per_proc; loc_inode++ )
-//		unk_loc[loc_inode] = x[unk_G][L2B_node[loc_inode]];  /* always use nodal ordering here */
-//					
-//	if (Proc == 0) {
-//		unk_global = (double *) array_alloc (1, Nnodes, sizeof(double));
-//		index = (int *) array_alloc (1, Nnodes, sizeof(int));
-//	}
-//	else {
-//		unk_global=NULL;
-//		index=NULL;
-//	}
-//			
-//	/* collect the node numbers from all the processors */
-//			
-//	MPI_Gatherv(L2G_node,Nnodes_per_proc,MPI_INT,
-//				index,Comm_node_proc,Comm_offset_node,
-//				MPI_INT,0,MPI_COMM_WORLD);
-//	
-//	/* collect the unknowns from all the processors */
-//	
-//	MPI_Gatherv(unk_loc,Nnodes_per_proc,MPI_DOUBLE,
-//				unk_global,Comm_unk_proc,Comm_offset_unk,
-//				MPI_DOUBLE,0,MPI_COMM_WORLD);
-//	
-//	safe_free((void *) &unk_loc);
-//	
-//	if (Proc == 0){
-//		for (i=0; i<Nnodes; i++)
-//			G_old[index[i]] = unk_global[i];  /* figure out correct indexing */
-//		safe_free((void *) &unk_global);
-//		safe_free((void *) &index);
-//	}
-//	
-//	return;
-//}
+/*void collect_G_old(double **x, int unk_G, double *G_old)
+{
+	int i,iunk,loc_inode, loc_i,idim,nunk_per_proc;
+	int *index=NULL;
+	double *unk_global, *unk_loc;
+	
+	Nodes_old = Nnodes;
+	for (idim=0; idim<Ndim; idim++) Nodes_x_old[idim] = Nodes_x[idim];*/
+	
+	/* allocate temporary arrays */
+	
+/*	unk_loc = (double *) array_alloc (1, Nnodes_per_proc, sizeof(double));
+	
+	for (loc_inode=0; loc_inode < Nnodes_per_proc; loc_inode++ ) */
+/*		unk_loc[loc_inode] = x[unk_G][L2B_node[loc_inode]];  * always use nodal ordering here */
+					
+/*	if (Proc == 0) {
+		unk_global = (double *) array_alloc (1, Nnodes, sizeof(double));
+		index = (int *) array_alloc (1, Nnodes, sizeof(int));
+	}
+	else {
+		unk_global=NULL;
+		index=NULL;
+	}*/
+			
+	/* collect the node numbers from all the processors */
+			
+/*	MPI_Gatherv(L2G_node,Nnodes_per_proc,MPI_INT,
+				index,Comm_node_proc,Comm_offset_node,
+				MPI_INT,0,MPI_COMM_WORLD);*/
+	
+	/* collect the unknowns from all the processors */
+	
+/*	MPI_Gatherv(unk_loc,Nnodes_per_proc,MPI_DOUBLE,
+				unk_global,Comm_unk_proc,Comm_offset_unk,
+				MPI_DOUBLE,0,MPI_COMM_WORLD);
+	
+	safe_free((void *) &unk_loc);
+	
+	if (Proc == 0){
+		for (i=0; i<Nnodes; i++)*/
+/*			G_old[index[i]] = unk_global[i];  * figure out correct indexing */
+/*		safe_free((void *) &unk_global);
+		safe_free((void *) &index);
+	}
+	
+	return;
+}*/
 
-///****************************************************************************/
-//double load_SCF_density(int iunk, int loc_inode, int inode_box, double **x,int resid_only_flag) 
-//{
-//	int itype_mer, Ns;
-//	double resid;
-//
-//	itype_mer = iunk-Phys2Unk_first[DENSITY];
-//	
-//	resid = 0.0;
-//	return(resid);
-//}
-//
-///****************************************************************************/
-///* allocate memory for the q propagators */
-//void setup_SCF_q() {
-//	double delta_s;
-//	int Ns;
-//	
-//	delta_s = 1.0;
-//	Ns = Nmer[0]/delta_s;
-//
-//	/* create propagator functions; q[icomp][s][r] */
-//	q = (double ***) array_alloc (3, Ncomp, Ns+1, Nnodes_box, sizeof(double));
-//
-//	return;
-//}
-//
-//
-///****************************************************************************/
-///* function to solve the diffusion equation for the chain propagators */
-//void solve_q_diff(double **x) {
-//	
-//	int s, loc_inode, inode_box;
-//	int unk_w, Ns;
-//	double q_tmp, delta_s;
-//	/* static variables keep their value for every time the function is called*/
-//	static double *wt_lp_1el, *wt_s_1el;
-//	static int   **elem_permute;	
-//	
-//	Ns = Nmer[0];
-//	delta_s = 1.0;
-//	
-//	/* for now,  set field equal to a function */
-//	unk_w = Phys2Unk_first[SCF_FIELD];
-//	for  (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
-//		
-//		/* convert local node to box */
-//		inode_box = L2B_node[loc_inode];
-//		x[unk_w][inode_box] = 1.0;
-//	}
-//	
-//	/* load weights for Laplacian */
-//	set_fem_1el_weights(&wt_lp_1el, &wt_s_1el, &elem_permute);
-//	
-//	/* loop over spatial nodes */
-//	/* will have to deal with ghost nodes for q somehow!! */
-//	for  (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
-//		inode_box = L2B_node[loc_inode];
-//		q[0][0][inode_box] = 1.0;		/* initial conditions for q */
-//		for(s=0; s<Ns; s++){			/* loop along chain */
-//			q_tmp = exp(-delta_s*x[unk_w][inode_box]/2.0)*q[0][s][inode_box];
-//			q[0][s+1][inode_box] = q_tmp;
-//		}
-//	}
-//	
-//	
-//	
-//	return;
-//}
-//
-//
-//
-//
+/****************************************************************************/
+/*double load_SCF_density(int iunk, int loc_inode, int inode_box, double **x,int resid_only_flag) 
+{
+	int itype_mer, Ns;
+	double resid;
+
+	itype_mer = iunk-Phys2Unk_first[DENSITY];
+	
+	resid = 0.0;
+	return(resid);
+}*/
+
+/****************************************************************************/
+/* allocate memory for the q propagators */
+/*void setup_SCF_q() {
+	double delta_s;
+	int Ns;
+	
+	delta_s = 1.0;
+	Ns = Nmer[0]/delta_s;*/
+
+	/* create propagator functions; q[icomp][s][r] */
+/*	q = (double ***) array_alloc (3, Ncomp, Ns+1, Nnodes_box, sizeof(double));
+
+	return;
+}*/
 
 
+/****************************************************************************/
+/* function to solve the diffusion equation for the chain propagators */
+/*void solve_q_diff(double **x) {
+	
+	int s, loc_inode, inode_box;
+	int unk_w, Ns;
+	double q_tmp, delta_s; */
+	/* static variables keep their value for every time the function is called*/
+/*	static double *wt_lp_1el, *wt_s_1el;
+	static int   **elem_permute;	
+	
+	Ns = Nmer[0];
+	delta_s = 1.0;*/
+	
+	/* for now,  set field equal to a function */
+/*	unk_w = Phys2Unk_first[SCF_FIELD];
+	for  (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {*/
+		
+		/* convert local node to box */
+/*		inode_box = L2B_node[loc_inode];
+		x[unk_w][inode_box] = 1.0;
+	}*/
+	
+	/* load weights for Laplacian */
+/*	set_fem_1el_weights(&wt_lp_1el, &wt_s_1el, &elem_permute);*/
+	
+	/* loop over spatial nodes */
+	/* will have to deal with ghost nodes for q somehow!! */
+/*	for  (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
+		inode_box = L2B_node[loc_inode];*/
+/*		q[0][0][inode_box] = 1.0;		* initial conditions for q */
+/*		for(s=0; s<Ns; s++){			* loop along chain */
+/*			q_tmp = exp(-delta_s*x[unk_w][inode_box]/2.0)*q[0][s][inode_box];
+			q[0][s+1][inode_box] = q_tmp;
+		}
+	}
+	
+	
+	
+	return;
+}*/
 

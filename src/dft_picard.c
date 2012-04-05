@@ -85,9 +85,9 @@ int solve_problem_picard(double **x, double **x2)
 }
 /****************************************************************************/
 int picard_solver(double **x, double **xOwned, int subIters){
-  // subIters  of -1 means Picard is being called as the nonlinear solver alg.
-  // Otherwise, this is an inner iteration to another solver (NOX) and
-  // will just proceed for subIters iterations and return.
+  /* subIters  of -1 means Picard is being called as the nonlinear solver alg.
+     Otherwise, this is an inner iteration to another solver (NOX) and
+     will just proceed for subIters iterations and return. */
   int iter=0,i, max_iters;
   int iunk, ibox;
   int converged=FALSE;
@@ -151,7 +151,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
      }
 
 
-   // if (con_ptr != NULL) converged2 = continuation_hook_conwrap(x, delta_x, con_ptr, NL_rel_tol, NL_abs_tol);
+   /* if (con_ptr != NULL) converged2 = continuation_hook_conwrap(x, delta_x, con_ptr, NL_rel_tol, NL_abs_tol); */
 
     /* Do: x += delta_x, and check for convergence .... */
     converged = update_solution_picard(x_old, xOwned, delta_x, iter,Lprint_screen);
@@ -248,7 +248,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x_old);
     if (skip_convergence_test) converged=FALSE;
 
-  // Skip printing if NOX is controlling convergence
+  /* Skip printing if NOX is controlling convergence */
   if (!converged && !skip_convergence_test) {
     if (Proc==0 && Iwrite_screen !=SCREEN_NONE) printf("\tPicard Solver: Failed to converge in %d iterations\n",iter);
     iter = -iter;
