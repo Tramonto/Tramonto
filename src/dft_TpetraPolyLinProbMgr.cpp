@@ -227,7 +227,7 @@ finalizeBlockStructure
 
   if (hasPoisson_ && !poissonInA11)
   {
-#if POISSON_APPLY_INVERSE == 1
+#if A22_BELOS_APPLY_INVERSE == 1
     A22_ = rcp(new P22CBO(cmsRowMap_, densityRowMap_, poissonRowMap_, extraRowMap_, block2RowMap_, parameterList_));
 #else
     A22_ = rcp(new P22CO(cmsRowMap_, densityRowMap_, poissonRowMap_, extraRowMap_, block2RowMap_, parameterList_));
@@ -235,7 +235,11 @@ finalizeBlockStructure
   }  //end if
   else
   {
+#if A22_BELOS_APPLY_INVERSE == 1
+    A22_ = rcp(new P22TBO(cmsRowMap_, densityRowMap_, block2RowMap_, parameterList_));
+#else
     A22_ = rcp(new P22TO(cmsRowMap_, densityRowMap_, block2RowMap_, parameterList_));
+#endif
   }
   if (debug_)
   {

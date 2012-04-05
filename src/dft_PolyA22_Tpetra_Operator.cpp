@@ -319,7 +319,7 @@ applyInverse
     VEC cmsOnCmsDiag(cmsMap_);
     cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
     tmp2->reciprocal(cmsOnCmsDiag);
-    Y2->elementWiseMultiply(1.0, *tmp2, *Y1tmp, 0.0);
+    Y1->elementWiseMultiply(1.0, *tmp2, *Y1tmp, 0.0);
 
   } //end if
   else 
