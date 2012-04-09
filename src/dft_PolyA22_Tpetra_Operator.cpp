@@ -1,5 +1,5 @@
 //@HEADER
-// ******************************************************************** 
+// ********************************************************************
 // Tramonto: A molecular theory code for structured and uniform fluids
 //                 Copyright (2006) Sandia Corporation
 //
@@ -28,8 +28,8 @@
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyA22_Tpetra_Operator
-(const RCP<const MAP > & cmsMap, const RCP<const MAP > & densityMap, const RCP<const MAP > & block2Map, 
- RCP<ParameterList> parameterList) 
+(const RCP<const MAP > & cmsMap, const RCP<const MAP > & densityMap, const RCP<const MAP > & block2Map,
+ RCP<ParameterList> parameterList)
   : cmsMap_(cmsMap),
     densityMap_(densityMap),
     block2Map_(block2Map),
@@ -39,7 +39,7 @@ dft_PolyA22_Tpetra_Operator
     isLinearProblemSet_(false),
     isFLinear_(false),
     firstTime_(true),
-    curRow_(-1) 
+    curRow_(-1)
 {
 
   cmsOnDensityMatrix_ = rcp(new MAT(cmsMap, 0));
@@ -48,7 +48,7 @@ dft_PolyA22_Tpetra_Operator
   densityOnCmsMatrix_ = rcp(new VEC(densityMap));
   Label_ = "dft_PolyA22_Tpetra_Operator";
   cmsOnDensityMatrix_->setObjectLabel("PolyA22::cmsOnDensityMatrix");
-  F_location_ = Teuchos::getParameter<LocalOrdinal>(*parameterList_, "F_location"); 
+  F_location_ = Teuchos::getParameter<LocalOrdinal>(*parameterList_, "F_location");
 
   //F in NE if F_location = 1, F in SW otherwise
 } //end constructor
@@ -56,7 +56,7 @@ dft_PolyA22_Tpetra_Operator
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_PolyA22_Tpetra_Operator
-() 
+()
 {
 } //end destructor
 //=============================================================================
@@ -64,14 +64,14 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
-() 
+()
 {
-  TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n"); 
+  TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n");
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
-  if (!firstTime_) 
+  if (!firstTime_)
   {
-    if (!isFLinear_) 
+    if (!isFLinear_)
     {
       cmsOnDensityMatrix_->resumeFill();
       cmsOnDensityMatrix_->setAllToScalar(0.0);
@@ -87,7 +87,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag ) 
+(GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag )
 {
   // if poisson then blockColFlag = 0
   // if density then blockColFlag = 1
@@ -101,25 +101,25 @@ insertMatrixValue
   if (cmsMap_->isNodeGlobalElement(rowGID)) { // Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
     if ( blockColFlag == 2 ) { // Insert into cmsOnCmsMatrix
       if (firstTime_) {
-	if (rowGID!=curRow_) { 
+	if (rowGID!=curRow_) {
 	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
 	  curRow_=rowGID;
 	}
 	curRowValuesCmsOnCms_[colGID] += value;
       }
       else
-        cmsOnCmsMatrix2_->sumIntoGlobalValues(rowGID, cols, vals);
+	cmsOnCmsMatrix2_->sumIntoGlobalValues(rowGID, cols, vals);
     }
     else if (blockColFlag == 1) { // Insert into cmsOnDensityMatrix ("F matrix")
       if (firstTime_) {
-	if (rowGID!=curRow_) { 
+	if (rowGID!=curRow_) {
       	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
 	  curRow_=rowGID;
       	}
 	curRowValuesCmsOnDensity_[colGID] += value;
       }
-      else if (!isFLinear_) { 
-        //cout<< "row GID = " << rowGID << " value = " << value << " colGID = " << colGID << endl;
+      else if (!isFLinear_) {
+	//cout<< "row GID = " << rowGID << " value = " << value << " colGID = " << colGID << endl;
       	cmsOnDensityMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
       }
     }
@@ -155,7 +155,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertRow
-() 
+()
 {
   // Fill row of cmsOnCms and cmsOnDensity matrices
   if (!curRowValuesCmsOnDensity_.empty()) {
@@ -201,14 +201,14 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeProblemValues
-() 
+()
 {
-  if (isLinearProblemSet_) 
+  if (isLinearProblemSet_)
   {
     return; // nothing to do
   } //end if
   // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
-  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements(); 
+  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
   insertRow(); // Dump any remaining entries
   cmsOnCmsMatrix2_->fillComplete();
@@ -235,24 +235,24 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
-(const MV& X, MV& Y) const 
+(const MV& X, MV& Y) const
 {
   // The true A22 block is of the form:
 
   // |  Dcc     F    |
   // |  Ddc     Ddd  |
-  
-  // where 
+
+  // where
   // Dcc is Cms on Cms (diagonal),
   // F is Cms on Density (fairly dense)
   // Ddc is Density on Cms (diagonal with small coefficient values),
   // Ddd is Density on Density (diagonal).
   //
   // We will approximate A22 with:
-  
+
   // |  Dcc     F    |
   // |  0       Ddd  |
-  
+
   // replacing Ddc with a zero matrix for the applyInverse method only.
 
   // Our algorithm is then:
@@ -264,25 +264,25 @@ applyInverse
 
   // |  Ddd     Ddc  |
   // |  F       Dcc  |
-  
-  // where 
+
+  // where
   // Ddd is Density on Density (diagonal),
   // Ddc is Density on Cms (diagonal with small coefficient values),
   // F is Cms on Density (fairly dense),
   // Dcc is Cms on Cms (diagonal).
   //
   // We will approximate A22 with:
-  
+
   // |  Ddd     0    |
   // |  F       Dcc  |
-  
+
   // replacing Ddc with a zero matrix for the applyInverse method only.
 
   // Our algorithm is then:
   // Y1 = Ddd \ X1
-  // Y2 = Dcc \ (X2 - F*Y1)  
+  // Y2 = Dcc \ (X2 - F*Y1)
 
-  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
   TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 #ifdef KDEBUG
@@ -322,7 +322,7 @@ applyInverse
     Y1->elementWiseMultiply(1.0, *tmp2, *Y1tmp, 0.0);
 
   } //end if
-  else 
+  else
   {
     RCP<MV > Y1 = Y.offsetViewNonConst(densityMap_, 0);
     // Y1 is a view of the first numDensity elements of Y
@@ -353,17 +353,17 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
-(const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const 
+(const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
   TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
   TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
   size_t NumVectors = Y.getNumVectors();
   size_t numCmsElements = cmsMap_->getNodeNumElements();
-  size_t numDensityElements = densityMap_->getNodeNumElements(); 
+  size_t numDensityElements = densityMap_->getNodeNumElements();
 
   // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
-  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements(); 
+  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
   if (F_location_ == 1) //F in NE
   {
@@ -388,17 +388,17 @@ apply
   {
     RCP<MV> Y1 = Y.offsetViewNonConst(densityMap_, 0);//rcp(new MV(densityMap_, Y1ptr, NumVectors));
     // Y1 is a view of the first numDensity elements of Y
-    RCP<MV> Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements);//rcp(new MV(cmsMap_, Y2ptr, NumVectors)); 
+    RCP<MV> Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements);//rcp(new MV(cmsMap_, Y2ptr, NumVectors));
     // Start Y2 to view last numCms elements of Y
     RCP<const MV> X1 = X.offsetView(densityMap_, 0);//rcp(new MV(densityMap_, X1ptr, NumVectors));
     // Start X1 to view first numDensity elements of X
-    RCP<const MV> X2 = X.offsetView(cmsMap_, numDensityElements);//rcp(new MV(cmsMap_, X2ptr, NumVectors)); 
+    RCP<const MV> X2 = X.offsetView(cmsMap_, numDensityElements);//rcp(new MV(cmsMap_, X2ptr, NumVectors));
     // Start X2 to view last numCms elements of X
-    if (hasDensityOnCms) 
+    if (hasDensityOnCms)
     {
       // convert X2 map
       RCP<const MV> X2tmp = X.offsetView(densityMap_, numDensityElements);
-      Y1->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X2tmp, 0.0); 
+      Y1->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X2tmp, 0.0);
       // Momentarily make X2 compatible with densityMap_
     } //end if
     Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 1.0);
@@ -415,18 +415,18 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 Check
-(bool verbose) const 
+(bool verbose) const
 {
   RCP<VEC > x = rcp(new VEC(getDomainMap()));
   RCP<VEC > b = rcp(new VEC(getRangeMap()));
   x->randomize(); // Fill x with random numbers
 
   // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
-  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements(); 
+  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
   apply(*x, *b); // Forward operation
 
-  if (hasDensityOnCms) 
+  if (hasDensityOnCms)
   {
     if (F_location_ == 1) //F in NE
     {
@@ -437,7 +437,7 @@ Check
       // Start b2 to view last numDensity elements of b
       b2->elementWiseMultiply(-1.0, *densityOnCmsMatrix_, *x1, 1.0);
     } //end if
-    else 
+    else
     {
       // Inverse is not exact, so we must modify b1 first:
       RCP<MV> x2 = x->offsetViewNonConst(densityMap_, densityMap_->getNodeNumElements());
@@ -454,7 +454,7 @@ Check
 
   Scalar resid = b->norm2();
 
-  if (verbose) 
+  if (verbose)
   {
     std::cout << "A22 self-check residual = " << resid << std::endl;
   } //end if

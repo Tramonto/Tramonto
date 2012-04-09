@@ -1,5 +1,5 @@
 //@HEADER
-// ******************************************************************** 
+// ********************************************************************
 // Tramonto: A molecular theory code for structured and uniform fluids
 //                 Copyright (2006) Sandia Corporation
 //
@@ -32,45 +32,45 @@
 
 //! dft_PolyA22_Tpetra_Operator: An implementation of the Operator class for Tramonto Schur complements with Coulomb effects.
 /*! Special 2*numBeads by 2*numBeads (plus Coulomb) for Tramonto polymer problems.
-*/    
+*/
 
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal, 
-         class Node = Kokkos::DefaultNode::DefaultNodeType>
-class dft_PolyA22_Tpetra_Belos_Operator: 
-  public virtual dft_PolyA22_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> 
+template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+	 class Node = Kokkos::DefaultNode::DefaultNodeType>
+class dft_PolyA22_Tpetra_Belos_Operator:
+  public virtual dft_PolyA22_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
-      
+
  public:
 TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
-  typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO; 
+  typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads (plus Coulomb) system
 
   dft_PolyA22_Tpetra_Belos_Operator
-  (const RCP<const MAP> & cmsMap,const RCP<const MAP> & densityMap, 
+  (const RCP<const MAP> & cmsMap,const RCP<const MAP> & densityMap,
    const RCP<const MAP> & block2Map, RCP<ParameterList> parameterList);
 
   //@{ \name Destructor.
     //! Destructor
   virtual ~dft_PolyA22_Tpetra_Belos_Operator();
   //@}
-  
+
   //@{ \name Mathematical functions.
 
     //! Returns the result of a dft_PolyA22_Coulomb_Tpetra_Operator applied to a MultiVector X in Y.
-    /*! 
+    /*!
     \param In
 	   X - A MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
 	   Y -A MultiVector of dimension NumVectors containing result.
   */
-  void 
+  void
   apply
   (const MV& X, MV& Y, Teuchos::ETransp mode = Teuchos::NO_TRANS, Scalar alpha = 1.0 , Scalar beta = 0.0) const;
 
   //! Returns the result of an inverse dft_PolyA22_Coulomb_Tpetra_Operator applied to a MultiVector X in Y.
-  /*! 
+  /*!
     \param In
     X - A MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
@@ -80,7 +80,22 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   applyInverse
   (const MV& X,MV& Y) const;
 
+  //! Check for inconsistencies in operators.
+  /* \param verbose (In) Print the residual of inv(A22)*A22*x_random.
+
+  //! Throws an exception if the residual error is "large".
+  */
+  void
+  Check
+  (bool verbose) const;
+
   //@}
 
+protected:
+
+  using P22TO::densityMap_;
+  using P22TO::cmsMap_;
+  using P22TO::densityOnCmsMatrix_;
+  using P22TO::F_location_;
 };
 #endif /* DFT_POLYA22_TPETRA_BELOS_OPERATOR_H */

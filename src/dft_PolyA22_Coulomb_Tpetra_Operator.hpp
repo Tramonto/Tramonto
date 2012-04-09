@@ -1,5 +1,5 @@
 //@HEADER
-// ******************************************************************** 
+// ********************************************************************
 // Tramonto: A molecular theory code for structured and uniform fluids
 //                 Copyright (2006) Sandia Corporation
 //
@@ -32,24 +32,24 @@
 
 //! dft_PolyA22_Tpetra_Operator: An implementation of the Operator class for Tramonto Schur complements with Coulomb effects.
 /*! Special 2*numBeads by 2*numBeads (plus Coulomb) for Tramonto polymer problems.
-*/    
+*/
 
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal, 
-         class Node = Kokkos::DefaultNode::DefaultNodeType>
-class dft_PolyA22_Coulomb_Tpetra_Operator: 
-  public virtual dft_PolyA22_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> 
+template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+	 class Node = Kokkos::DefaultNode::DefaultNodeType>
+class dft_PolyA22_Coulomb_Tpetra_Operator:
+  public virtual dft_PolyA22_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
-      
+
  public:
 TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
-  typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO; 
+  typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads (plus Coulomb) system
 
   dft_PolyA22_Coulomb_Tpetra_Operator
-  (const RCP<const MAP> & cmsMap,const RCP<const MAP> & densityMap, 
-   const RCP<const MAP> & poissonMap, const RCP<const MAP> & cmsDensMap, 
+  (const RCP<const MAP> & cmsMap,const RCP<const MAP> & densityMap,
+   const RCP<const MAP> & poissonMap, const RCP<const MAP> & cmsDensMap,
    const RCP<const MAP> & block2Map, RCP<ParameterList> parameterList);
 
   //@}
@@ -70,33 +70,33 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
     //! Destructor
   virtual ~dft_PolyA22_Coulomb_Tpetra_Operator();
   //@}
-  
+
   //@{ \name Atribute get methods.
 
   //! Returns an Operator pointer that is actually the \e this object, since this class implements Operator.
-  RCP<OP> 
+  RCP<OP>
   getA22Inv
-  () 
+  ()
   {
     return(rcp(this));
   }
   //@}
-  
+
   //@{ \name Mathematical functions.
 
     //! Returns the result of a dft_PolyA22_Coulomb_Tpetra_Operator applied to a MultiVector X in Y.
-    /*! 
+    /*!
     \param In
 	   X - A MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
 	   Y -A MultiVector of dimension NumVectors containing result.
   */
-  void 
+  void
   apply
   (const MV& X, MV& Y, Teuchos::ETransp mode = Teuchos::NO_TRANS, Scalar alpha = 1.0 , Scalar beta = 0.0) const;
 
   //! Returns the result of an inverse dft_PolyA22_Coulomb_Tpetra_Operator applied to a MultiVector X in Y.
-  /*! 
+  /*!
     \param In
     X - A MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
@@ -108,42 +108,42 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   //! Check for inconsistencies in operators.
   /* \param verbose (In) Print the residual of inv(A22)*A22*x_random.
-     
+
   //! Throws an exception if the residual error is "large".
-  */ 
+  */
   void
   Check
-  (bool verbose) const; 
+  (bool verbose) const;
 
   //@}
-  
+
   //@{ \name Atribute access functions
 
   //! Returns a pointer to the Comm communicator associated with this operator.
-  const RCP<const COMM> & 
+  const RCP<const COMM> &
   Comm
   () const
   {
     return(block2Map_->getComm());
   };
-  
+
   //! Returns the Map object associated with the domain of this operator.
-  const RCP<const MAP > & 
+  const RCP<const MAP > &
   getDomainMap
-  () const 
+  () const
   {
     return(block2Map_);
   };
-  
+
   //! Returns the Map object associated with the range of this operator.
-  const RCP<const MAP > & 
+  const RCP<const MAP > &
   getRangeMap
-  () const 
+  () const
   {
     return(block2Map_);
   };
   //@}
-  
+
 protected:
 
   void insertRow();
@@ -162,7 +162,7 @@ protected:
   std::map<GlobalOrdinal, Scalar> curRowValuesCmsOnPoisson_, curRowValuesPoissonOnPoisson_, curRowValuesPoissonOnDensity_;
   Array<GlobalOrdinal> indicesCmsOnPoisson_, indicesPoissonOnPoisson_, indicesPoissonOnDensity_;
   Array<Scalar> valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;
-  RCP<Hierarchy> H_; 
+  RCP<Hierarchy> H_;
   RCP<Xpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps > > mueluPP_;
   RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
   FactoryManager M_;

@@ -62,6 +62,57 @@ apply
   P22TO::applyInverse( X, Y );
 } //end Apply
 //==============================================================================
+template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+void
+dft_PolyA22_Tpetra_Belos_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+Check
+(bool verbose) const
+{
+  RCP<VEC > x = rcp(new VEC(P22TO::getDomainMap()));
+  RCP<VEC > b = rcp(new VEC(P22TO::getRangeMap()));
+  x->randomize(); // Fill x with random numbers
+
+  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
+  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
+
+  applyInverse(*x, *b); // Forward operation
+
+  if (hasDensityOnCms)
+  {
+    if (F_location_ == 1) //F in NE
+    {
+      // Inverse is not exact, so we must modify b2 first:
+      RCP<MV> x1 = x->offsetViewNonConst(densityMap_, 0);
+      // Start x1 to view first numCmsElements elements of x
+      RCP<MV> b2 = b->offsetViewNonConst(densityMap_, cmsMap_->getNodeNumElements());
+      // Start b2 to view last numDensity elements of b
+      b2->elementWiseMultiply(-1.0, *densityOnCmsMatrix_, *x1, 1.0);
+    } //end if
+    else
+    {
+      // Inverse is not exact, so we must modify b1 first:
+      RCP<MV> x2 = x->offsetViewNonConst(densityMap_, densityMap_->getNodeNumElements());
+      //Start x2 to view last numCms elements of x
+      RCP<MV> b1 = b->offsetViewNonConst(densityMap_, 0);
+      // Start b1 to view first numDensity elements of b
+      b1->elementWiseMultiply(-1.0, *densityOnCmsMatrix_, *x2, 1.0);
+    } //end else
+  } //end if
+
+  apply(*b, *b); // Reverse operation
+
+  b->update(-1.0, *x, 1.0); // Should be zero
+
+  Scalar resid = b->norm2();
+
+  if (verbose)
+  {
+    std::cout << "A22 self-check residual = " << resid << std::endl;
+  } //end if
+
+  TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
+
+} //end Check
 
 #if LINSOLVE_PREC == 0
 // Use float

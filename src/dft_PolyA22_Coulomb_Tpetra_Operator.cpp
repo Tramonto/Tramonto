@@ -430,7 +430,7 @@ applyInverse
   RCP<VEC> tmp = rcp(new VEC(densityMap_));
   RCP<VEC> tmp2 = rcp(new VEC(densityMap_));
   tmp->reciprocal(*densityOnDensityMatrix_);
-  int nIts = 100;
+  int nIts = 50;
   RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluX;
   RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluB;
   if (F_location_ == 1)
