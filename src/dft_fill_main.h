@@ -160,7 +160,7 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-#define FILENAME_LENGTH 200
+#define FILENAME_LENGTH 300
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */
   double    S1;      /*   1/(4*pi*Ri)    * Delta_fn   */

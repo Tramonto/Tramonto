@@ -677,7 +677,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     /***********************************************************/
     /* params from initial guess selection section of the GUI  */
     /***********************************************************/
-     str_tmp=DensProfile_List->get<string>("DP1.0: Type of Initial Density Profile");
+     str_tmp=DensProfile_List->get<string>("IG1: Initial Guess Type");
      if (str_tmp=="Construct a new Density Profile") Restart=NORESTART;
      else if (str_tmp=="Restart from File") Restart=RESTART_BASIC;
      else if (str_tmp=="Restart with Step to constant") Restart=RESTART_STEP;
@@ -686,11 +686,11 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
      else if (str_tmp=="Restart with 1D profile (in 2D or 3D)") Restart=RESTART_1DTOND;
 
     if (str_tmp !="Construct a new Density Profile") {
-       DensityFile=(char*)DensProfile_List->get<string>("DP1.1: Density Restart File").c_str();
+       DensityFile=(char*)DensProfile_List->get<string>("IG1.1: Density Restart File").c_str();
        if (Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Binodal Continuation" ||
            Continuation_List->get<string>("C1: Continuation Type")=="Mesh Stepping with LOCA Binodal" ||
            Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Spinodal Continuation" ){
-                DensityFile2=(char*)DensProfile_List->get<string>("DP1.2: 2nd Density RestartFile").c_str();
+                DensityFile2=(char*)DensProfile_List->get<string>("IG1.2: 2nd Density RestartFile").c_str();
         }
         else DensityFile2=NULL;
     }
@@ -698,11 +698,11 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        DensityFile=NULL;
        DensityFile2=NULL;
     }
-   
-    Nmissing_densities=DensProfile_List->get<int>("DP1.3: Number of missing components");
-    Rho_max=DensProfile_List->get<double>("DP1.4: Rho max");
 
-    str_tmp=DensProfile_List->get<string>("DP2.0: Density Profile Construct Type");
+    Nmissing_densities=DensProfile_List->get<int>("IG1.3: Number of missing components");
+    Rho_max=DensProfile_List->get<double>("IG1.4: Rho max");
+
+    str_tmp=DensProfile_List->get<string>("IG2: Density Profile Constructor");
     if (str_tmp=="Constant Bulk Density") Iguess=CONST_RHO;
     else if (str_tmp=="Rho_bulk*exp(-Vext/kT)") Iguess=EXP_RHO;
     else if (str_tmp=="Step function profile") Iguess=STEP_PROFILE;
@@ -710,35 +710,35 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     else if (str_tmp=="Chopped profile to rho_step") Iguess=CHOP_RHO_STEP;
     else if (str_tmp=="Linear profile (for diffusion)") Iguess=LINEAR;
 
-    Nsteps=DensProfile_List->get<int>("DP2.1: Nsteps");
+    Nsteps=DensProfile_List->get<int>("IG2.1: Nsteps");
 
-    Array<int> OrientStep_Array = DensProfile_List->get<Array<int> >("DP2.2: Orient_step[istep]");
-    Array<double> XstartStep_Array = DensProfile_List->get<Array<double> >("DP2.3: Xstart_step[istep]");
-    Array<double> XendStep_Array = DensProfile_List->get<Array<double> >("DP2.4: Xend_step[istep]");
+    Array<int> OrientStep_Array = DensProfile_List->get<Array<int> >("IG2.2: Orient_step[istep]");
+    Array<double> XstartStep_Array = DensProfile_List->get<Array<double> >("IG2.3: Xstart_step[istep]");
+    Array<double> XendStep_Array = DensProfile_List->get<Array<double> >("IG2.4: Xend_step[istep]");
     for (i=0;i<Nsteps;i++){
         Orientation_step[i]=OrientStep_Array[i];
         Xstart_step[i]=XstartStep_Array[i];
         Xend_step[i]=XendStep_Array[i];
     }
-    TwoDArray<double> Rhomax_Array=DensProfile_List->get<TwoDArray<double> >("DP2.5 Rho_step[icomp][istep]");
+    TwoDArray<double> Rhomax_Array=DensProfile_List->get<TwoDArray<double> >("IG2.5 Rho_step[icomp][istep]");
     for (i=0; i<Ncomp; i++)  for (j=0; j<Nsteps; j++) Rho_step[i][j]=Rhomax_Array[i][j]; 
 
-    str_tmp=DensProfile_List->get<string>("DP3: Dependent Field Construct Type");
+    str_tmp=DensProfile_List->get<string>("IG3: Dependent Field Constructor");
     if (str_tmp=="Bulk values for dependent fields") Iguess_fields=BULK;
     else if (str_tmp=="Compute fields based on density profile") Iguess_fields=CALC_ALL_FIELDS;
     else if (str_tmp=="Compute nonlocal densities only - other fields are bulk") Iguess_fields=CALC_RHOBAR_ONLY;
     else if (str_tmp=="Compute chain eq. and nonlocal densities - other fields are bulk") Iguess_fields=CALC_RHOBAR_AND_G;
 
-    str_tmp=DensProfile_List->get<string>("DP4.0: External Field Restart Type");
+    str_tmp=DensProfile_List->get<string>("IG4: External Field Constructor");
     if (str_tmp=="Compute new Vext") Restart_Vext=READ_VEXT_FALSE;
     else if (str_tmp=="Restart from File") Restart_Vext=READ_VEXT_TRUE;
     else if (str_tmp=="Sum Two from Files") Restart_Vext=READ_VEXT_SUMTWO;
     else if (str_tmp=="Sum Two with constraints") Restart_Vext=READ_VEXT_STATIC;
 
     if (str_tmp !="Compute new Vext") {
-       Vext_filename=(char*)DensProfile_List->get<string>("DP4.1: External Field Filename").c_str();
+       Vext_filename=(char*)DensProfile_List->get<string>("IG4.1: External Field Filename").c_str();
        if (str_tmp=="Sum Two from Files" || str_tmp=="Sum Two with constraints") 
-             Vext_filename2=(char*)DensProfile_List->get<string>("DP4.2: 2nd External Field Filename").c_str();
+             Vext_filename2=(char*)DensProfile_List->get<string>("IG4.2: 2nd External Field Filename").c_str();
        else Vext_filename2=NULL;
     }
     else{

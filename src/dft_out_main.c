@@ -49,7 +49,7 @@ void post_process (double **x,int *niters,
        *GofR_Filename="dft_gofr.dat",
        *output_flux= "dft_flux.dat",
        *outPath=NULL;
-  char filename[100],outPath_array[100],Density_file[100],DensityCounter_file[100];
+  char filename[FILENAME_LENGTH],outPath_array[FILENAME_LENGTH],Density_file[FILENAME_LENGTH],DensityCounter_file[FILENAME_LENGTH];
  
   double t1,energy;
   double fac_area,fac_vol;

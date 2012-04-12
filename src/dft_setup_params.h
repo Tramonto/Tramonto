@@ -22,7 +22,7 @@
 #define colloids_cyl_sphere             2
 #define point_surface                   4
 #define finite_planar_wall              1
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 #define NPERIODIC_MAX 4
 extern double EndpointLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
 extern double OriginLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
@@ -122,6 +122,12 @@ extern double WallParam[NWALL_MAX_TYPE];
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern double Esize_x[NDIM_MAX];
 extern double Size_x[NDIM_MAX];
+extern char *DensityFile2;
+#define FILENAME_LENGTH 300
+extern char DensityFile2_array[FILENAME_LENGTH];
+extern int Lbinodal;
+extern char *DensityFile;
+extern char DensityFile_array[FILENAME_LENGTH];
 extern int Lprint_scaleFacWJDC;
 extern int Physics_scaling;
 extern int Nzone;

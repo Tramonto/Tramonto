@@ -129,7 +129,7 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern int Lwedge_cutout[NWALL_MAX];
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern int Lperiodic_overlay[NWALL_MAX_TYPE];
 extern int Nperiodic_overlay[NWALL_MAX_TYPE];
 #define NPERIODIC_MAX 4
@@ -162,7 +162,7 @@ struct SurfaceGeom_Struct {
   double    endpoint_LinearFunc[NPERIODIC_MAX];     /* The end point of linear functions to apply */
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
-#define FILENAME_LENGTH 200
+#define FILENAME_LENGTH 300
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

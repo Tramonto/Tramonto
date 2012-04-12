@@ -59,7 +59,7 @@ int element_box_to_node_box(int iel_box);
 #define BACKGROUND   2
 extern int Charge_type_local;
 void els_charge_spheres(double radius,double *x,int *nelems,int *nelems_unique,int *elems,int charge_type);
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define POINT_CHARGE 0
 extern int Charge_type_atoms;
@@ -234,7 +234,7 @@ extern int Nwall;
 void linsolver_setup_control();
 void node_to_position(int inode,double *NodePos);
 void setup_basic_box(FILE *fpecho,int *update);
-#define FILENAME_LENGTH 200
+#define FILENAME_LENGTH 300
 extern int *L2G_node;
 extern int *B2L_node;
 extern int *L2B_node;

@@ -111,7 +111,7 @@ extern "C" {
 #define NCOMP_MAX 5
 #define NDIM_MAX  3
 #define NWALL_MAX 600 
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 #define NPERIODIC_MAX 4
 
 #define NBOND_MAX 4
@@ -119,7 +119,7 @@ extern "C" {
 #define NSTEPS_MAX 10
 
 #define MAX_ROUGH_BLOCK 100
-#define FILENAME_LENGTH 200
+#define FILENAME_LENGTH 300
 
 /* a constat flag to indicate that there is no bond between a pair of segments in 
    a polymer problems */

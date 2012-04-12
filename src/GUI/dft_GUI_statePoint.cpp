@@ -6,110 +6,149 @@ using namespace std;
 using namespace Teuchos;
 using namespace Optika;
 
-void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
+void dft_GUI_StatePoint_set_defaults( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                   Teuchos::RCP<DependencySheet> depSheet_Tramonto,
-                  Teuchos::RCP<Teuchos::ParameterList> Functional_List, 
                   Teuchos::RCP<Teuchos::ParameterList> Fluid_List, 
                   Teuchos::RCP<Teuchos::ParameterList> Polymer_List, 
                   Teuchos::RCP<Teuchos::ParameterList> StatePoint_List,
                   Teuchos::RCP<Teuchos::ParameterList> Diffusion_List,
                   Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List)
 {
-  bool set_defaults_from_old_format_file=true;
-  int idim;
+
+ /**************************************/
+ /* Define validators for this section.*/
+ /**************************************/
+
+  RCP<EnhancedNumberValidator<int> > DimValidator = rcp(new EnhancedNumberValidator<int>(0,2,1));
+  RCP<StringValidator> DielecType_Validator = rcp(
+         new StringValidator(tuple<std::string>("Uniform Dielectric Constant",
+                   "2-Dielec Const: fluid and wall regions",
+                   "3-Dielec Const: bulk fluid, fluid near wall, wall regions")));
+
+  RCP<StringValidator> ElecPotType_Validator = rcp(
+         new StringValidator(tuple<std::string>("Enter Dimensionless Potentials (phi e/kT)",
+                    "Enter electrostatic potentials in mV units")));
+ 
+  /*********************/
+  /* set up parameters */
+  /*********************/
+
+  StatePoint_List->set("BF1: Dimensionless Density Entry?", true, "Dimensionless densities are given in units of rho*sigma_ref^3.\n Set to false to enter in any other units (molar,g/cc etc).\n For dimensioned entry you must provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
+  StatePoint_List->set("BF2: Density Conversion Factor",1.0,"Provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
+
+  Array<double> RhoBulk0_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
+  Array<double> RhoBulk0POL_Array( (Polymer_List->get<int>("P1: Npoly_comp")),0.0);
+  StatePoint_List->set("BF3: Rho_b_0[icomp]", RhoBulk0_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
+  StatePoint_List->set("BF3: Rho_b_0[ipol_comp]", RhoBulk0POL_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
+
+  Array<double> RhoBulk1_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
+  Array<double> RhoBulk1POL_Array( (Polymer_List->get<int>("P1: Npoly_comp")),0.0);
+  StatePoint_List->set("BF4: Rho_b_1[icomp]", RhoBulk1_Array, "Set the densities on the positive boundary  for an inhomogenous system");
+  StatePoint_List->set("BF4: Rho_b_1[ipol_comp]", RhoBulk1POL_Array, "Set the densities on the positive boundary  for an inhomogenous system");
+
+  StatePoint_List->set("BF5: Direction of Gradient", 0, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
+  StatePoint_List->set("BF6: Constrained Interface?", false, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
+
+  StatePoint_List->set("BF7: X_const", 0.0, "Set the distance from the computational boundaries\n in the direction of Grad_dim\n where the chemical potential is to be held constant.\n Facilitates comparison with GCMD calculations.");
+
+
+       /* Optional Diffusion parameters */
+  Array<double> DiffCoeff_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
+  Array<double> DiffCoeffPOL_Array( (Polymer_List->get<int>("P1: Npoly_comp")),0.0);
+  Diffusion_List->set("D1: Diff_Coeff[icomp]", DiffCoeff_Array, "Set the diffusion coefficientf sof each component.");
+  Diffusion_List->set("D1: Diff_Coeff[ipol_comp]", DiffCoeffPOL_Array, "Set the diffusion coefficientf sof each component.");
+  Diffusion_List->set("D3: Velocity", 0.0, "Set a bulk velocity term in diffusion calculation.");
+
+
+       /* Bulk Charged Fluid Parameters */
+  ChargedFluid_List->set("CF1: Type Dielectric Constant(s)","Uniform Dielectric Constant","Indicate type of dielectric constants to be entered for the problem.",DielecType_Validator);
+  ChargedFluid_List->set("CF2: Entry of Relative Dielectric Constant(s)?",true,"true indicates that dielectric constants will be entered as D/D_reference\n (for example, D_ref may be the dielectric constant of the bulk solvent).\n If set to false, you will be asked for provide a reference value, D_reference for computation of relative dielectric constants.");
+  ChargedFluid_List->set("CF3: Reference Dielectric Constant",78.5,"Enter a reference dielectric constant for calculation of relative values D/D_reference.\n Note that 78.5 is a typical value used for water");
+
+  ChargedFluid_List->set("CF4.0: Dielec Const Bulk Fluid",1.0,"Enter the dielectric constant of the bulk fluid.");
+  ChargedFluid_List->set("CF4.1: Dielec Const Near Wall Fluid",1.0,"Enter the dielectric constant of the fluid in the pore or near the wall.");
+  ChargedFluid_List->set("CF4.2: Size of Near Wall region",1.0,"Enter the distance from the wall to be considered in the Near Wall region.");
+  ChargedFluid_List->set("CF5.0: Sigma for Plasma Parameter (Angstroms)",4.25,"Enter the length scale you would like to use for the plasma parameter");
+  ChargedFluid_List->set("CF5.1: Temperature for Plasma Parameter (Kelvin)",298.,"Enter the temperature you would like to use for calculation of the plasma parameter");
+  ChargedFluid_List->set("CF5.2: Dielectric const for Plasma Parameter",KAPPA_H2O,"Enter the dielectric constant you would like to use for calculation of the plasma parameter");
+  ChargedFluid_List->set("CF6.0: Electrostatic Potential(s) entry type","Enter Dimensionless Potentials (phi e/kT)","select how bulk fluid electrostatic potentials will be entered.\n  Note that setting phi=0 in a uniform bulk fluid is customary in electrostatics, but not for diffusive elctrochemical systems.",ElecPotType_Validator);
+  ChargedFluid_List->set("CF6.1: Elec_pot_0", 0.0, "Set a bulk electrostatic potential (homogeneous boundary case), or \n set the bulk electrostatic potential on the negative boundary (inhomogeneous boundary or diffusion).");
+  ChargedFluid_List->set("CF6.2: Elec_pot_1", 0.0, "Set the bulk electrostatic potential on the positive boundary (inhomogeneous boundary or diffusion).");
+
+  return;
+}
+/****************************************************************************************************************/
+void dft_GUI_StatePoint_set_OldFormat( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
+                  Teuchos::RCP<DependencySheet> depSheet_Tramonto,
+                  Teuchos::RCP<Teuchos::ParameterList> Fluid_List, 
+                  Teuchos::RCP<Teuchos::ParameterList> Polymer_List, 
+                  Teuchos::RCP<Teuchos::ParameterList> StatePoint_List,
+                  Teuchos::RCP<Teuchos::ParameterList> Diffusion_List,
+                  Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List)
+{
   string tmp_string;
 
+  /**************************************/
+  /* Define validators for this section.*/
+  /**************************************/
 
-        /**************************************/
-        /* Define validators for this section.*/
-        /**************************************/
+   RCP<EnhancedNumberValidator<int> > DimValidator = rcp(new EnhancedNumberValidator<int>(0,2,1));
+   RCP<StringValidator> DielecType_Validator = rcp(
+         new StringValidator(tuple<std::string>("Uniform Dielectric Constant",
+                   "2-Dielec Const: fluid and wall regions",
+                   "3-Dielec Const: bulk fluid, fluid near wall, wall regions")));
 
-    RCP<EnhancedNumberValidator<int> > DimValidator = rcp(new EnhancedNumberValidator<int>(0,2,1));
-    RCP<StringValidator> DielecType_Validator = rcp(
-           new StringValidator(tuple<std::string>("Uniform Dielectric Constant",
-                       "2-Dielec Const: fluid and wall regions",
-                       "3-Dielec Const: bulk fluid, fluid near wall, wall regions")));
-
-    RCP<StringValidator> ElecPotType_Validator = rcp(
-           new StringValidator(tuple<std::string>("Enter Dimensionless Potentials (phi e/kT)",
-                       "Enter electrostatic potentials in mV units")));
+   RCP<StringValidator> ElecPotType_Validator = rcp(
+         new StringValidator(tuple<std::string>("Enter Dimensionless Potentials (phi e/kT)",
+                    "Enter electrostatic potentials in mV units")));
  
+   if (Density_ref<0.0){
+        StatePoint_List->set("BF1: Dimensionless Density Entry?", true, "Dimensionless densities are given in units of rho*sigma_ref^3.\n Set to false to enter in any other units (molar,g/cc etc).\n For dimensioned entry you must provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
+        StatePoint_List->set("BF2: Density Conversion Factor",1.0,"Provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
+   }
+   else{
+        StatePoint_List->set("BF1: Dimensionless Density Entry?", false, "Dimensionless densities are given in units of rho*sigma_ref^3.\n Set to false to enter in any other units (molar,g/cc etc).\n For dimensioned entry you must provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
+        StatePoint_List->set("BF2: Density Conversion Factor",Density_ref,"Provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
+        
+   }
+   if (Type_interface != UNIFORM_INTERFACE){
+      Array<double> RhoBulk0_Array(Rho_b_LBB,Rho_b_LBB+Ncomp);
+      Array<double> RhoBulk0POL_Array(Rho_b_LBB,Rho_b_LBB+Npol_comp);
+      StatePoint_List->set("BF3: Rho_b_0[icomp]", RhoBulk0_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
+      StatePoint_List->set("BF3: Rho_b_0[ipol_comp]", RhoBulk0POL_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
 
-        /*********************/
-        /* set up parameters */
-        /*********************/
+      Array<double> RhoBulk1_Array(Rho_b_RTF,Rho_b_RTF+Ncomp);
+      Array<double> RhoBulk1POL_Array(Rho_b_RTF,Rho_b_RTF+Npol_comp);
+      StatePoint_List->set("BF4: Rho_b_1[icomp]", RhoBulk1_Array, "Set the densities on the positive boundary  for an inhomogenous system");
+      StatePoint_List->set("BF4: Rho_b_1[ipol_comp]", RhoBulk1POL_Array, "Set the densities on the positive boundary  for an inhomogenous system");
 
-   if (set_defaults_from_old_format_file){
-        if (Density_ref<0.0){
-             StatePoint_List->set("BF1: Dimensionless Density Entry?", true, "Dimensionless densities are given in units of rho*sigma_ref^3.\n Set to false to enter in any other units (molar,g/cc etc).\n For dimensioned entry you must provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
-             StatePoint_List->set("BF2: Density Conversion Factor",1.0,"Provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
-        }
-        else{
-             StatePoint_List->set("BF1: Dimensionless Density Entry?", false, "Dimensionless densities are given in units of rho*sigma_ref^3.\n Set to false to enter in any other units (molar,g/cc etc).\n For dimensioned entry you must provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
-             StatePoint_List->set("BF2: Density Conversion Factor",Density_ref,"Provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
-             
-        }
-        if (Type_interface != UNIFORM_INTERFACE){
-           Array<double> RhoBulk0_Array(Rho_b_LBB,Rho_b_LBB+Ncomp);
-           Array<double> RhoBulk0POL_Array(Rho_b_LBB,Rho_b_LBB+Npol_comp);
-           StatePoint_List->set("BF3: Rho_b_0[icomp]", RhoBulk0_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
-           StatePoint_List->set("BF3: Rho_b_0[ipol_comp]", RhoBulk0POL_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
+      StatePoint_List->set("BF5: Direction of Gradient", Grad_dim, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
 
-           Array<double> RhoBulk1_Array(Rho_b_RTF,Rho_b_RTF+Ncomp);
-           Array<double> RhoBulk1POL_Array(Rho_b_RTF,Rho_b_RTF+Npol_comp);
-           StatePoint_List->set("BF4: Rho_b_1[icomp]", RhoBulk1_Array, "Set the densities on the positive boundary  for an inhomogenous system");
-           StatePoint_List->set("BF4: Rho_b_1[ipol_comp]", RhoBulk1POL_Array, "Set the densities on the positive boundary  for an inhomogenous system");
-    
-           StatePoint_List->set("BF5: Direction of Gradient", Grad_dim, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
-
-           if (Lconstrain_interface==TRUE)
-                 StatePoint_List->set("BF6: Constrained Interface?", true, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
-           else  StatePoint_List->set("BF6: Constrained Interface?", false, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
-
-        }
-        else{
-           Array<double> RhoBulk0_Array(Rho_b,Rho_b+Ncomp);
-           Array<double> RhoBulk0POL_Array(Rho_b,Rho_b+Npol_comp);
-           StatePoint_List->set("BF3: Rho_b_0[icomp]", RhoBulk0_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
-           StatePoint_List->set("BF3: Rho_b_0[ipol_comp]", RhoBulk0POL_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
-
-           Array<double> RhoBulk1_Array(Rho_b,Rho_b+Ncomp);
-           Array<double> RhoBulk1POL_Array(Rho_b,Rho_b+Npol_comp);
-           StatePoint_List->set("BF4: Rho_b_1[icomp]", RhoBulk1_Array, "Set the densities on the positive boundary  for an inhomogenous system");
-           StatePoint_List->set("BF4: Rho_b_1[ipol_comp]", RhoBulk1POL_Array, "Set the densities on the positive boundary  for an inhomogenous system");
-
-           StatePoint_List->set("BF5: Direction of Gradient", 0, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
-
-           StatePoint_List->set("BF6: Constrained Interface?", false, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
-
-        }
-        StatePoint_List->set("BF7: X_const", X_const_mu, "Set the distance from the computational boundaries\n in the direction of Grad_dim\n where the chemical potential is to be held constant.\n Facilitates comparison with GCMD calculations.");
+      if (Lconstrain_interface==TRUE)
+            StatePoint_List->set("BF6: Constrained Interface?", true, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
+      else  StatePoint_List->set("BF6: Constrained Interface?", false, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
 
    }
    else{
-        StatePoint_List->set("BF1: Dimensionless Density Entry?", true, "Dimensionless densities are given in units of rho*sigma_ref^3.\n Set to false to enter in any other units (molar,g/cc etc).\n For dimensioned entry you must provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
-        StatePoint_List->set("BF2: Density Conversion Factor",1.0,"Provide a conversion factor, Fac, where rho*sigma*3=(your densities)/Fac.");
+      Array<double> RhoBulk0_Array(Rho_b,Rho_b+Ncomp);
+      Array<double> RhoBulk0POL_Array(Rho_b,Rho_b+Npol_comp);
+      StatePoint_List->set("BF3: Rho_b_0[icomp]", RhoBulk0_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
+      StatePoint_List->set("BF3: Rho_b_0[ipol_comp]", RhoBulk0POL_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
 
-        Array<double> RhoBulk0_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
-        Array<double> RhoBulk0POL_Array( (Polymer_List->get<int>("P1: Npoly_comp")),0.0);
-        StatePoint_List->set("BF3: Rho_b_0[icomp]", RhoBulk0_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
-        StatePoint_List->set("BF3: Rho_b_0[ipol_comp]", RhoBulk0POL_Array, "Set the bulk densities (homogeneous system), or the densities on the negative boundary (inhomogenous system)");
+      Array<double> RhoBulk1_Array(Rho_b,Rho_b+Ncomp);
+      Array<double> RhoBulk1POL_Array(Rho_b,Rho_b+Npol_comp);
+      StatePoint_List->set("BF4: Rho_b_1[icomp]", RhoBulk1_Array, "Set the densities on the positive boundary  for an inhomogenous system");
+      StatePoint_List->set("BF4: Rho_b_1[ipol_comp]", RhoBulk1POL_Array, "Set the densities on the positive boundary  for an inhomogenous system");
 
-        Array<double> RhoBulk1_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
-        Array<double> RhoBulk1POL_Array( (Polymer_List->get<int>("P1: Npoly_comp")),0.0);
-        StatePoint_List->set("BF4: Rho_b_1[icomp]", RhoBulk1_Array, "Set the densities on the positive boundary  for an inhomogenous system");
-        StatePoint_List->set("BF4: Rho_b_1[ipol_comp]", RhoBulk1POL_Array, "Set the densities on the positive boundary  for an inhomogenous system");
-   
-        StatePoint_List->set("BF5: Direction of Gradient", 0, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
-        StatePoint_List->set("BF6: Constrained Interface?", false, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
+      StatePoint_List->set("BF5: Direction of Gradient", 0, "Indicate direction where inhomogeneous boundaries should be applied (0=x,1=y,2=z)",DimValidator);
 
-        StatePoint_List->set("BF7: X_const", 0.0, "Set the distance from the computational boundaries\n in the direction of Grad_dim\n where the chemical potential is to be held constant.\n Facilitates comparison with GCMD calculations.");
-
+      StatePoint_List->set("BF6: Constrained Interface?", false, "Set to true to set rho[0]=0.5(rho[0]_left+rho[0]_right)\n at the midpoint of the domain. This approach can help to keep the interface from moving in a free interface calculation.");
 
    }
+   StatePoint_List->set("BF7: X_const", X_const_mu, "Set the distance from the computational boundaries\n in the direction of Grad_dim\n where the chemical potential is to be held constant.\n Facilitates comparison with GCMD calculations.");
 
        /* Optional Diffusion parameters */
-   if (set_defaults_from_old_format_file && Type_interface != UNIFORM_INTERFACE){
+   if (Type_interface != UNIFORM_INTERFACE){
         if (Type_interface != UNIFORM_INTERFACE){
            Array<double> DiffCoeff_Array(D_coef,D_coef+Ncomp);
            Array<double> DiffCoeffPOL_Array(D_coef,D_coef+Npol_comp);
@@ -119,64 +158,50 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
            Diffusion_List->set("D3: Velocity", Velocity, "Optional diffusion parameter: Set a bulk velocity term in diffusion calculation.");
        }
    }
-   else{
-       Array<double> DiffCoeff_Array( (Fluid_List->get<int>("F1_Ncomp")),0.0);
-       Array<double> DiffCoeffPOL_Array( (Polymer_List->get<int>("P1: Npoly_comp")),0.0);
-       Diffusion_List->set("D1: Diff_Coeff[icomp]", DiffCoeff_Array, "Set the diffusion coefficientf sof each component.");
-       Diffusion_List->set("D1: Diff_Coeff[ipol_comp]", DiffCoeffPOL_Array, "Set the diffusion coefficientf sof each component.");
-       Diffusion_List->set("D3: Velocity", 0.0, "Set a bulk velocity term in diffusion calculation.");
-   }
-
 
        /* Bulk Charged Fluid Parameters */
-   if (set_defaults_from_old_format_file){
-       if (Type_dielec==DIELEC_CONST) tmp_string="Uniform Dielectric Constant";
-       else if (Type_dielec==DIELEC_WF) tmp_string="2-Dielec Const: fluid and wall regions";
-       else if (Type_dielec==DIELEC_WF_PORE) tmp_string="3-Dielec Const: bulk fluid, fluid near wall, wall regions";
-       ChargedFluid_List->set("CF1: Type Dielectric Constant(s)",tmp_string,"Indicate type of dielectric constants to be entered for the problem.",DielecType_Validator);
+   if (Type_dielec==DIELEC_CONST) tmp_string="Uniform Dielectric Constant";
+   else if (Type_dielec==DIELEC_WF) tmp_string="2-Dielec Const: fluid and wall regions";
+   else if (Type_dielec==DIELEC_WF_PORE) tmp_string="3-Dielec Const: bulk fluid, fluid near wall, wall regions";
+   ChargedFluid_List->set("CF1: Type Dielectric Constant(s)",tmp_string,"Indicate type of dielectric constants to be entered for the problem.",DielecType_Validator);
 
-       if (Dielec_ref<=0.0) ChargedFluid_List->set("CF2: Entry of Relative Dielectric Constant(s)?",true,"true indicates that dielectric constants will be entered as D/D_reference\n (for example, D_ref may be the dielectric constant of the bulk solvent).\n If set to false, you will be asked for provide a reference value, D_reference for computation of relative dielectric constants.");
-       else ChargedFluid_List->set("CF2: Entry of Relative Dielectric Constant(s)?",false,"true indicates that dielectric constants will be entered as D/D_reference\n (for example, D_ref may be the dielectric constant of the bulk solvent).\n If set to false, you will be asked for provide a reference value, D_reference for computation of relative dielectric constants.");
+   if (Dielec_ref<=0.0) ChargedFluid_List->set("CF2: Entry of Relative Dielectric Constant(s)?",true,"true indicates that dielectric constants will be entered as D/D_reference\n (for example, D_ref may be the dielectric constant of the bulk solvent).\n If set to false, you will be asked for provide a reference value, D_reference for computation of relative dielectric constants.");
+   else ChargedFluid_List->set("CF2: Entry of Relative Dielectric Constant(s)?",false,"true indicates that dielectric constants will be entered as D/D_reference\n (for example, D_ref may be the dielectric constant of the bulk solvent).\n If set to false, you will be asked for provide a reference value, D_reference for computation of relative dielectric constants.");
 
-       ChargedFluid_List->set("CF3: Reference Dielectric Constant",Dielec_ref,"Enter a reference dielectric constant for calculation of relative values D/D_reference.\n Note that 78.5 is a typical value used for water");
-       ChargedFluid_List->set("CF4.0: Dielec Const Bulk Fluid",Dielec_bulk,"Enter the dielectric constant of the bulk fluid.");
-       ChargedFluid_List->set("CF4.1: Dielec Const Near Wall Fluid",Dielec_pore,"Enter the dielectric constant of the fluid in the pore or near the wall.");
-       ChargedFluid_List->set("CF4.2: Size of Near Wall region",Dielec_X,"Enter the distance from the wall to be considered in the Near Wall region.");
-       ChargedFluid_List->set("CF5.0: Sigma for Plasma Parameter (Angstroms)",Sigma_Angstroms_plasma,"Enter the length scale you would like to use for calculation of the plasma parameter");
-       ChargedFluid_List->set("CF5.1: Temperature for Plasma Parameter (Kelvin)",Temp_K_plasma,"Enter the temperature you would like to use for calculation of the plasma parameter");
-       ChargedFluid_List->set("CF5.2: Dielectric const for Plasma Parameter",DielecConst_plasma,"Enter the dielectric constant you would like to use for calculation of the plasma parameter");
+   ChargedFluid_List->set("CF3: Reference Dielectric Constant",Dielec_ref,"Enter a reference dielectric constant for calculation of relative values D/D_reference.\n Note that 78.5 is a typical value used for water");
+   ChargedFluid_List->set("CF4.0: Dielec Const Bulk Fluid",Dielec_bulk,"Enter the dielectric constant of the bulk fluid.");
+   ChargedFluid_List->set("CF4.1: Dielec Const Near Wall Fluid",Dielec_pore,"Enter the dielectric constant of the fluid in the pore or near the wall.");
+   ChargedFluid_List->set("CF4.2: Size of Near Wall region",Dielec_X,"Enter the distance from the wall to be considered in the Near Wall region.");
+   ChargedFluid_List->set("CF5.0: Sigma for Plasma Parameter (Angstroms)",Sigma_Angstroms_plasma,"Enter the length scale you would like to use for calculation of the plasma parameter");
+   ChargedFluid_List->set("CF5.1: Temperature for Plasma Parameter (Kelvin)",Temp_K_plasma,"Enter the temperature you would like to use for calculation of the plasma parameter");
+   ChargedFluid_List->set("CF5.2: Dielectric const for Plasma Parameter",DielecConst_plasma,"Enter the dielectric constant you would like to use for calculation of the plasma parameter");
 
-       ChargedFluid_List->set("CF6.0: Electrostatic Potential(s) entry type","Enter Dimensionless Potentials (phi e/kT)","select how bulk fluid electrostatic potentials will be entered.\n  Note that setting phi=0 in a uniform bulk fluid is customary in electrostatics, but not for diffusive elctrochemical systems.",ElecPotType_Validator);
+   ChargedFluid_List->set("CF6.0: Electrostatic Potential(s) entry type","Enter Dimensionless Potentials (phi e/kT)","select how bulk fluid electrostatic potentials will be entered.\n  Note that setting phi=0 in a uniform bulk fluid is customary in electrostatics, but not for diffusive elctrochemical systems.",ElecPotType_Validator);
 
-       if (Type_interface != UNIFORM_INTERFACE){ 
-          ChargedFluid_List->set("CF6.1: Elec_pot_0", Elec_pot_LBB, "Set a bulk electrostatic potential (homogeneous boundary case), or \n set the bulk electrostatic potential on the negative boundary (inhomogeneous boundary or diffusion).");
-          ChargedFluid_List->set("CF6.2: Elec_pot_1", Elec_pot_RTF, "Set the bulk electrostatic potential on the positive boundary (inhomogeneous boundary or diffusion).");
-       }  
-       else{
-          ChargedFluid_List->set("CF6.1: Elec_pot_0", 0.0, "Set a bulk electrostatic potential (homogeneous boundary case), or \n set the bulk electrostatic potential on the negative boundary (inhomogeneous boundary or diffusion).");
-          ChargedFluid_List->set("CF6.2: Elec_pot_1", 0.0, "Set the bulk electrostatic potential on the positive boundary (inhomogeneous boundary or diffusion).");
-       }
+   if (Type_interface != UNIFORM_INTERFACE){ 
+      ChargedFluid_List->set("CF6.1: Elec_pot_0", Elec_pot_LBB, "Set a bulk electrostatic potential (homogeneous boundary case), or \n set the bulk electrostatic potential on the negative boundary (inhomogeneous boundary or diffusion).");
+      ChargedFluid_List->set("CF6.2: Elec_pot_1", Elec_pot_RTF, "Set the bulk electrostatic potential on the positive boundary (inhomogeneous boundary or diffusion).");
+   }  
+   else{
+      ChargedFluid_List->set("CF6.1: Elec_pot_0", 0.0, "Set a bulk electrostatic potential (homogeneous boundary case), or \n set the bulk electrostatic potential on the negative boundary (inhomogeneous boundary or diffusion).");
+      ChargedFluid_List->set("CF6.2: Elec_pot_1", 0.0, "Set the bulk electrostatic potential on the positive boundary (inhomogeneous boundary or diffusion).");
    }
-   else {
-       ChargedFluid_List->set("CF1: Type Dielectric Constant(s)","Uniform Dielectric Constant","Indicate type of dielectric constants to be entered for the problem.",DielecType_Validator);
-       ChargedFluid_List->set("CF2: Entry of Relative Dielectric Constant(s)?",true,"true indicates that dielectric constants will be entered as D/D_reference\n (for example, D_ref may be the dielectric constant of the bulk solvent).\n If set to false, you will be asked for provide a reference value, D_reference for computation of relative dielectric constants.");
-       ChargedFluid_List->set("CF3: Reference Dielectric Constant",78.5,"Enter a reference dielectric constant for calculation of relative values D/D_reference.\n Note that 78.5 is a typical value used for water");
 
-       ChargedFluid_List->set("CF4.0: Dielec Const Bulk Fluid",1.0,"Enter the dielectric constant of the bulk fluid.");
-       ChargedFluid_List->set("CF4.1: Dielec Const Near Wall Fluid",1.0,"Enter the dielectric constant of the fluid in the pore or near the wall.");
-       ChargedFluid_List->set("CF4.2: Size of Near Wall region",1.0,"Enter the distance from the wall to be considered in the Near Wall region.");
-       ChargedFluid_List->set("CF5.0: Sigma for Plasma Parameter (Angstroms)",4.25,"Enter the length scale you would like to use for the plasma parameter");
-       ChargedFluid_List->set("CF5.1: Temperature for Plasma Parameter (Kelvin)",298.,"Enter the temperature you would like to use for calculation of the plasma parameter");
-       ChargedFluid_List->set("CF5.2: Dielectric const for Plasma Parameter",KAPPA_H2O,"Enter the dielectric constant you would like to use for calculation of the plasma parameter");
-       ChargedFluid_List->set("CF6.0: Electrostatic Potential(s) entry type","Enter Dimensionless Potentials (phi e/kT)","select how bulk fluid electrostatic potentials will be entered.\n  Note that setting phi=0 in a uniform bulk fluid is customary in electrostatics, but not for diffusive elctrochemical systems.",ElecPotType_Validator);
-       ChargedFluid_List->set("CF6.1: Elec_pot_0", 0.0, "Set a bulk electrostatic potential (homogeneous boundary case), or \n set the bulk electrostatic potential on the negative boundary (inhomogeneous boundary or diffusion).");
-       ChargedFluid_List->set("CF6.2: Elec_pot_1", 0.0, "Set the bulk electrostatic potential on the positive boundary (inhomogeneous boundary or diffusion).");
-    }
-
-
-        /************************/
-        /* set up dependencies */
-        /************************/
+   return;
+}
+/****************************************************************************************************************/
+void dft_GUI_StatePoint_dependencies( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
+                  Teuchos::RCP<DependencySheet> depSheet_Tramonto,
+                  Teuchos::RCP<Teuchos::ParameterList> Functional_List, 
+                  Teuchos::RCP<Teuchos::ParameterList> Fluid_List, 
+                  Teuchos::RCP<Teuchos::ParameterList> Polymer_List, 
+                  Teuchos::RCP<Teuchos::ParameterList> StatePoint_List,
+                  Teuchos::RCP<Teuchos::ParameterList> Diffusion_List,
+                  Teuchos::RCP<Teuchos::ParameterList> ChargedFluid_List)
+{
+   /************************/
+   /* set up dependencies */
+   /************************/
 
     RCP<StringCondition> IpolcompCon = rcp(
            new StringCondition(Functional_List->getEntryRCP("F4_POLYMER_Functional"), 
@@ -331,6 +356,6 @@ void dft_GUI_StatePoint( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
    depSheet_Tramonto->addDependency(DielecConstUnit_Dep);
    depSheet_Tramonto->addDependency(Elec_pot1_Dep); 
 
-  return;
+   return;
 }
-
+/****************************************************************************************************************/

@@ -5,11 +5,14 @@ using namespace std;
 using namespace Teuchos;
 using namespace Optika;
 
+/*int test_NsurfTypes(int,int);*/
 
 extern "C" void dft_OptikaGUI()
 {
-
+  int i;
   bool test_input_file=false;
+  bool read_input_old_format=true;
+
  /* this file is built based on the examples provided with the optika package with the intent
     of beginning GUI development for Tramonto.  This is a first working version that handles only
     the first few parameters in the Tramonto input file.  In order to even implement the first few
@@ -27,66 +30,102 @@ extern "C" void dft_OptikaGUI()
             /* Create sublists that must be passed around */
   RCP<ParameterList> Mesh_List = sublist(Tramonto_List,"Sect. 1: Computational Domain");
   RCP<ParameterList> Functional_List = sublist(Tramonto_List,"Sect. 2: Functionals");
+
   RCP<ParameterList> Fluid_List = sublist(Tramonto_List, "Sect. 3: Fluid");
-  RCP<ParameterList> PotentialsFF_List = sublist(Fluid_List, "Parameters: Fluid-Fluid Interaction Potentials");
-  RCP<ParameterList> Polymer_List = sublist(Fluid_List, "Parameters: Polymers / Bonded Fluids");
-  RCP<ParameterList> PolymerCMS_List = sublist(Polymer_List, "P9: Chandler-McCoy-Singer Theory Parameters");
-  RCP<ParameterList> PolymerGraft_List = sublist(Polymer_List, "P9: Grafted Polymer Parameters Parameters");
-  RCP<ParameterList> PolymerArch_List = sublist(Polymer_List, "P9: Architecture Entry for Bonded Systems");
-  RCP<ParameterList> StatePoint_List = sublist(Fluid_List, "Parameters: Properties of the Bulk Fluid");
-  RCP<ParameterList> Diffusion_List = sublist(Fluid_List, "Special (optional) Parameters for Diffusing Systems");
-  RCP<ParameterList> ChargedFluid_List = sublist(StatePoint_List, "Parameters: Fluids with Charge / Electrostatics");
+  RCP<ParameterList> PotentialsFF_List = sublist(Fluid_List, "FL1: Fluid-Fluid Interactions");
+  RCP<ParameterList> Polymer_List = sublist(Fluid_List, "FL2: Polymers / Bonded Fluids");
+  RCP<ParameterList> StatePoint_List = sublist(Fluid_List, "FL3: Properties of the Bulk Fluid");
+  RCP<ParameterList> Diffusion_List = sublist(Fluid_List, "FL4: Diffusion Params (optional)");
+
+
+  RCP<ParameterList> PolymerCMS_List = sublist(Polymer_List, "PL1: Chandler-McCoy-Singer Theory Params");
+  RCP<ParameterList> PolymerGraft_List = sublist(Polymer_List, "PL2: Grafted Polymer Parameters Params");
+  RCP<ParameterList> PolymerArch_List = sublist(Polymer_List, "PL3: Architecture Entry Bonded Systems");
+
+  RCP<ParameterList> ChargedFluid_List = sublist(StatePoint_List, "BFL1: Fluids with Charge / Electrostatics");
+
   RCP<ParameterList> Surface_List = sublist(Tramonto_List, "Sect. 4: Surfaces");
-  RCP<ParameterList> SurfaceGeometry_List = sublist(Surface_List, "4.1: Geometry Parameters");
-  RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "4.2: Interaction Parameters");
-  RCP<ParameterList> SurfaceParamCharge_List = sublist(Surface_List, "4.3 Charged Surface Parameters");
-  RCP<ParameterList> SurfaceInteraction_List = sublist(Surface_List, "4.4 Fluid-Surface Interactions");
-  RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "4.5 Fluid-Surface Potential Parameters");
+
+  RCP<ParameterList> SurfGeom0_List = sublist(Surface_List, "SL1: GeomParams SurfType 0");
+  RCP<ParameterList> SurfGeom1_List = sublist(Surface_List, "SL1: GeomParams SurfType 1");
+  RCP<ParameterList> SurfGeom2_List = sublist(Surface_List, "SL1: GeomParams SurfType 2");
+  RCP<ParameterList> SurfGeom3_List = sublist(Surface_List, "SL1: GeomParams SurfType 3");
+  RCP<ParameterList> SurfGeom4_List = sublist(Surface_List, "SL1: GeomParams SurfType 4");
+  RCP<ParameterList> SurfGeom5_List = sublist(Surface_List, "SL1: GeomParams SurfType 5");
+  RCP<ParameterList> SurfGeom6_List = sublist(Surface_List, "SL1: GeomParams SurfType 6");
+  RCP<ParameterList> SurfGeom7_List = sublist(Surface_List, "SL1: GeomParams SurfType 7");
+  RCP<ParameterList> SurfGeom8_List = sublist(Surface_List, "SL1: GeomParams SurfType 8");
+  RCP<ParameterList> SurfGeom9_List = sublist(Surface_List, "SL1: GeomParams SurfType 9");
+
+  RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "SL2: Interaction Params");
+  RCP<ParameterList> SurfaceParamCharge_List = sublist(Surface_List, "SL3: Charged Surface Params");
+  RCP<ParameterList> SurfaceInteraction_List = sublist(Surface_List, "SL4: Fluid-Surface Interactions");
+  RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "SL5: Fluid-Surface Potential Params");
+
   RCP<ParameterList> Continuation_List = sublist(Tramonto_List, "Sect. 6: Continuation");
-  RCP<ParameterList> DensProfile_List = sublist(Tramonto_List, "Sect. 7:Initial Guess Options");
+  RCP<ParameterList> DensProfile_List = sublist(Tramonto_List, "Sect. 7: Initial Guess Options");
   RCP<ParameterList> Output_List = sublist(Tramonto_List, "Sect. 8: Output Control");
   RCP<ParameterList> Solver_List = sublist(Tramonto_List, "Sect. 9: Numerical Methods");
-  RCP<ParameterList> Coarsening_List = sublist(Solver_List, "Numerical Coarsening Options");
-  RCP<ParameterList> LoadBalance_List = sublist(Solver_List, "Load Balancing Options");
-  RCP<ParameterList> PhysicsMethod_List = sublist(Solver_List, "Physics based Solver Options");
-  RCP<ParameterList> LinearSolver_List = sublist(Solver_List, "Linear Solver Options");
-  RCP<ParameterList> NonlinearSolver_List = sublist(Solver_List, "Nonlinear Solver Options");
+
+  RCP<ParameterList> NonlinearSolver_List = sublist(Solver_List, "SL1: Nonlinear Solver Options");
+  RCP<ParameterList> LinearSolver_List = sublist(Solver_List, "SL2: Linear Solver Options");
+  RCP<ParameterList> PhysicsMethod_List = sublist(Solver_List, "SL3: Physics based Solver Options");
+  RCP<ParameterList> Coarsening_List = sublist(Solver_List, "SL4: Numerical Coarsening Options");
+  RCP<ParameterList> LoadBalance_List = sublist(Solver_List, "SL5: Load Balancing Options");
 
   if (test_input_file){
-
-/*      Teuchos::RCP<Teuchos::ParameterList> myParameters;*/
 
   /**
    * Then we just call getInput! There's a little more to it, so let's
    * head on over to the inputs.xml file to see what's going on there.
    */
+cout << "reading inputs.xml" << endl;
         Optika::getInput("inputs.xml", Tramonto_List);
   }
   else{
 
-            /* Call different sections of the GUI.   *
-             * Note that each file contains the bits *
-             * that were formerly found in different *
-             * sections of dft_input.dat             */
+    /* set defaults for each section of the GUI */
+     dft_GUI_mesh_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List);
+     dft_GUI_functionals_set_defaults(Tramonto_List,depSheet_Tramonto,Functional_List);
+     dft_GUI_potentialsFF_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,PotentialsFF_List);
+     dft_GUI_Polymer_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
+     dft_GUI_StatePoint_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
 
-  dft_GUI_mesh(Tramonto_List,depSheet_Tramonto,Mesh_List);
+    /* replace defauls if requested for each section of the GUI */
+     if (read_input_old_format){ 
+        dft_GUI_mesh_set_OldFormat(Tramonto_List,depSheet_Tramonto,Mesh_List);
+        dft_GUI_functionals_set_OldFormat(Tramonto_List,depSheet_Tramonto,Functional_List);
+        dft_GUI_potentialsFF_set_OldFormat(Tramonto_List,depSheet_Tramonto,Fluid_List,PotentialsFF_List);
+        dft_GUI_Polymer_set_OldFormat(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
+        dft_GUI_StatePoint_set_OldFormat(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
+     }
 
-  dft_GUI_functionals(Tramonto_List,depSheet_Tramonto,Functional_List);
+    /* set dependencies for each section of the GUI */
+     dft_GUI_mesh_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List);
+     dft_GUI_functionals_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List);
+     dft_GUI_potentialsFF_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,PotentialsFF_List);
+     dft_GUI_Polymer_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
+     dft_GUI_StatePoint_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
 
-  dft_GUI_potentialsFF(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,PotentialsFF_List);
-
-  dft_GUI_Polymer(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
-
-  dft_GUI_StatePoint(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,
-                                 StatePoint_List,Diffusion_List,ChargedFluid_List);
-
-  dft_GUI_surfaces(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfaceGeometry_List,PotentialsWW_List,SurfaceParamCharge_List);
-
+     dft_GUI_surfaces(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List);
+     for (i=0;i<10;i++){
+             if (i==0) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom0_List);
+        else if (i==1) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom1_List);
+        else if (i==2) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom2_List);
+        else if (i==3) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom3_List);
+        else if (i==4) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom4_List);
+        else if (i==5) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom5_List);
+        else if (i==6) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom6_List);
+        else if (i==7) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom7_List);
+        else if (i==8) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom8_List);
+        else if (i==9) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom9_List);
+     }
+     dft_GUI_potentialsWW(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsWW_List,SurfaceParamCharge_List);
 
   dft_GUI_vextType(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfaceInteraction_List);
 
   dft_GUI_potentialsWF(Tramonto_List,depSheet_Tramonto,Functional_List, Surface_List,
-                       SurfaceInteraction_List,Fluid_List,PotentialsWF_List);
+                       SurfaceInteraction_List,Fluid_List,PotentialsWF_List); 
 
   dft_GUI_Continuation(Tramonto_List,depSheet_Tramonto,Functional_List, PotentialsFF_List, StatePoint_List,
                        Continuation_List);
@@ -94,10 +133,9 @@ extern "C" void dft_OptikaGUI()
   dft_GUI_NumericalMethods(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,Solver_List,
                             Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
 
- dft_GUI_DensityStartupParams(Tramonto_List,depSheet_Tramonto,Fluid_List,Continuation_List,DensProfile_List);
+  dft_GUI_DensityStartupParams(Tramonto_List,depSheet_Tramonto,Fluid_List,Continuation_List,DensProfile_List);
 
-
-  dft_GUI_OutputParams(Tramonto_List,depSheet_Tramonto,Mesh_List,Functional_List,Fluid_List,Continuation_List,SurfaceInteraction_List,Output_List);
+/*  dft_GUI_OutputParams(Tramonto_List,depSheet_Tramonto,Mesh_List,Functional_List,Fluid_List,Continuation_List,SurfaceInteraction_List,Output_List);*/
 
              /* The getInput function starts up an Optika GUI and      *
               * lets the user start to input parameter values. When    *
@@ -107,19 +145,45 @@ extern "C" void dft_OptikaGUI()
 
   }
 
-  Optika::getInput(Tramonto_List,depSheet_Tramonto);
+/* set up list dependencies */
+  
+   RCP<StringVisualDependency> PolyList_Dep = rcp(new StringVisualDependency(
+          Functional_List->getEntryRCP("F4_POLYMER_Functional"), Fluid_List->getEntryRCP("FL2: Polymers / Bonded Fluids"), 
+          tuple<std::string>("Polymer_CMS","Polymer_CMS_SCFT","Polymer_TC_iSAFT",
+                             "Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)","Polymer_JDC_iSAFT(comp)")));
+
+   RCP<StringVisualDependency> DiffusionList_Dep = rcp(
+       new StringVisualDependency( Functional_List->getEntryRCP("F0_Type_of_Calculation"),Fluid_List->getEntryRCP("FL4: Diffusion Params (optional)"),
+           tuple<std::string>("Equilibrium (inhomogeneous boudary conditions)","Steady State Diffusion (inhomogeneous boundaries)")));
+
+   RCP<StringVisualDependency> ChargedFluidList_Dep = rcp( new StringVisualDependency(
+           Functional_List->getEntryRCP("F3_CHARGE_Functional"),
+           StatePoint_List->getEntryRCP("BFL1: Fluids with Charge / Electrostatics"),
+           tuple<std::string>("Charge_Mean_Field","Charge_with_DeltaC_RPM", "Charge_with_DeltaC_General","Charge(MF)_with_Polarization")));
+
+/*   RCP<SimpleFunctionObject<int> >test_NsurfTypes(int,int);
+   RCP<NumberVisualDependency<int> > SurfaceTypeList_DepN8=rcp(new NumberVisualDependency<int>(
+         Surface_List->getEntry("S3: Number of surface types"),
+         Surface_List->getEntry("SL1:GeomParams SurfType 7"),true,
+         test_NsurfTypes(Surface_List->get<int>("S3: Number of surface types"),8) ));*/
+  
+   depSheet_Tramonto->addDependency(PolyList_Dep);
+   depSheet_Tramonto->addDependency(DiffusionList_Dep);
+   depSheet_Tramonto->addDependency(ChargedFluidList_Dep);
+
+             /* Greate the GUI windows for data entry with all dependencies.  */
+    Optika::getInput(Tramonto_List,depSheet_Tramonto);
 
              /* Print out what the user entered in nice XML format.  */
 
-/*  RCP<FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
-  writeParameterListToXmlOStream(*Tramonto_List, *out);*/
+  RCP<FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
+  writeParameterListToXmlOStream(*Tramonto_List, *out);
 
-/*  cout<<"calling dft_GUI_toTramonto\n"<<endl;*/
   dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
                      StatePoint_List,Diffusion_List,ChargedFluid_List,Continuation_List,
                      Solver_List,Coarsening_List,LoadBalance_List,PhysicsMethod_List,LinearSolver_List,NonlinearSolver_List,Output_List,
-                     DensProfile_List,Surface_List,SurfaceGeometry_List);
+                     DensProfile_List,Surface_List,SurfGeom0_List);
 
              /* Here save parameter a to return to C code --- a fully 
                 functioning GUI will need to return all parameters entered
@@ -127,4 +191,11 @@ extern "C" void dft_OptikaGUI()
 
   return;
 }
+/*********************************************************************************************************************/
+/*int test_NsurfTypes(int Ninput,int Ntest){
+
+   if (Ninput >= Ntest) return Ntest;
+   else return -1;
+}*/
+/*********************************************************************************************************************/
 

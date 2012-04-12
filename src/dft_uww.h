@@ -28,7 +28,7 @@ void setup_atomic_ww(int iwall,int jwall,int type_uwwpot);
 #define PAIR_HARD            -1 
 extern int Type_uwwPot;
 #define ATOM_CENTERS_WW    1 
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern int Ipot_ww_n[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern int WallType[NWALL_MAX];
 extern int Link[NWALL_MAX];

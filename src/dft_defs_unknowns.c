@@ -191,8 +191,8 @@ void setup_nunk_per_node(char *file_echoinput)
       if (Iwrite_screen==SCREEN_VERBOSE){
            printf("\n******************************************************\n");
            printf("TOTAL Nunk_per_node=%d\n",Nunk_per_node);
-           for (i=0;i<NEQ_TYPE;i++) printf("Phys2Nunk[%d]=%d  start_unk=%d  end_unk=%d\n",
-                                      i,Phys2Nunk[i],Phys2Unk_first[i],Phys2Unk_last[i]);
+/*           for (i=0;i<NEQ_TYPE;i++) printf("Phys2Nunk[%d]=%d  start_unk=%d  end_unk=%d\n",
+                                      i,Phys2Nunk[i],Phys2Unk_first[i],Phys2Unk_last[i]);*/
            for (iunk=0;iunk<Nunk_per_node;iunk++) printf("iunk=%d equation_type=%d\n",iunk,Unk2Phys[iunk]);
            printf("******************************************************\n");
       }

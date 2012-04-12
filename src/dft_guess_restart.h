@@ -41,7 +41,7 @@ extern int Nnodes_box;
 int locate_inode_old(int *ijk);
 extern int Pos_new_nodes;
 void node_to_ijk(int node,int *ijk);
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern double Del_1[NWALL_MAX_TYPE];
 extern int Plane_new_nodes;
 #define NDIM_MAX  3
@@ -104,7 +104,6 @@ extern int Lseg_densities;
 extern int Nmissing_densities;
 extern int Ncomp;
 #define RESTART_FEWERCOMP  4
-#define FILENAME_LENGTH 200
 void check_zero_densities(double **xInBox);
 void communicate_profile(double *x_new,double **xInBox);
 #define SCREEN_NONE       -1 
@@ -134,11 +133,14 @@ extern double *X2_old;
 extern int Restart;
 int find_length_of_file(char *filename);
 extern int Nodes_old;
-extern char *DensityFile;
+extern int Imain_loop;
+#define FILENAME_LENGTH 300
+extern char DensityFile2_array[FILENAME_LENGTH];
 extern char *DensityFile2;
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */
 extern int Lbinodal;
-extern int Imain_loop;
+extern char DensityFile_array[FILENAME_LENGTH];
+extern char *DensityFile;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

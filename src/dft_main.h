@@ -24,7 +24,7 @@ extern int Nwall;
 extern int Pos_new_nodes;
 int round_to_int(double x);
 extern int Plane_new_nodes;
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern double Del_1[NWALL_MAX_TYPE];
 extern double Size_x[NDIM_MAX];
 extern double Energy;
@@ -48,7 +48,6 @@ extern int *B2L_unknowns;
 extern double *Deltac_b;
 #define COULOMB      1
 extern int Ipot_ff_c;
-#define SCREEN_BASIC       1
 extern double Time_InitGuess;
 int gmax_int(int c);
 extern int Nnodes_per_proc;
@@ -67,8 +66,6 @@ void post_process(double **x,int *niters,double *time_save,int loop1,int binodal
 int solve_problem(double **x,double **x2);
 void print_profile_box(double **x,char *outfile);
 int solve_problem_picard(double **x,double **x2);
-#define SCREEN_ERRORS_ONLY  0 
-#define SCREEN_NONE       -1 
 extern double NL_update_scalingParam;
 #define PICNEWTON_BUILT_IN    4
 #define PICNEWTON_NOX         5
@@ -121,9 +118,12 @@ extern int Type_interface;
 void boundary_free(void);
 void free_mesh_arrays(void);
 extern int Iwrite_files;
-extern int Iwrite_screen;
 void thermodynamics(char *file_echoinput,int iwrite_screen,int iwrite_files);
 void calc_stencils(void);
+#define SCREEN_BASIC       1
+#define SCREEN_ERRORS_ONLY  0 
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 void calc_HS_diams();
 extern int Type_func;
 typedef struct Loca_Struct Loca_Struct;
@@ -169,4 +169,5 @@ extern double Time_manager_av;
 extern double Time_manager_first;
 extern double Time_linsolver_av;
 extern double Time_linsolver_first;
+#define FILENAME_LENGTH 300
 void dftmain(double *engptr);

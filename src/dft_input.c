@@ -109,12 +109,6 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
 
       OutputFileDir=".";   /* just set to cwd for now...*/
 
-/*  densityFile_tmp="./dft_dens.dat";
-  densityFile2_tmp="./dft_dens2.dat";
-
-  strcpy(DensityFile_array,densityFile_tmp);
-  strcpy(DensityFile2_array,densityFile2_tmp);*/
-
   sprintf(DensityFile_array, "./dft_dens.dat");
   sprintf(DensityFile2_array, "./dft_dens2.dat");
 

@@ -16,7 +16,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define PI    3.141592653589793238462643383279502884197169399375
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern int Nperiodic_overlay[NWALL_MAX_TYPE];
 typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
 extern struct SurfaceGeom_Struct *SGeom;

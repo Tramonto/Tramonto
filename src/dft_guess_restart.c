@@ -37,13 +37,15 @@
 /************************************************************/
 void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox)
 {
-  char filename[100];
+  char filename[FILENAME_LENGTH];
   double *x_new,fac;
   int iunk,i,inode_box;
 
   x_new = (double *) array_alloc(1, Nnodes*Nunk_per_node, sizeof(double));
 
   if (Proc == 0) {  /* Proc 0 reads in the data file */
+     DensityFile=DensityFile_array;
+     if (Lbinodal && guess_type==BINODAL_FLAG) DensityFile2=DensityFile2_array;
 
      if ( Imain_loop == 0){
 
@@ -115,7 +117,7 @@ int find_length_of_file(char *filename)
   FILE *fp;
   if (Proc==0) {
     if( (fp=fopen(filename,"r")) == NULL){
-      printf("Can't open file (density) %s\n", filename);
+      printf("Can't open file (density -1) %s\n", filename);
       exit(1);
     }
 
@@ -153,7 +155,7 @@ void read_in_a_file(int guess_type,char *filename)
 
                     /* open the dft_dens.dat file */
    if( (fp5=fopen(filename,"r")) == NULL){
-     printf("Can't open file (density) %s\n", filename);
+     printf("Can't open file (density -2) %s\n", filename);
      exit(1);
    }
 
@@ -321,7 +323,7 @@ void read_in_a_file(int guess_type,char *filename)
 
     if (open_now){
       if( (fp5=fopen(filename,"r")) == NULL){
-	if (Iwrite_screen != SCREEN_NONE) printf("Can't open file (density) %s\n", filename);
+	if (Iwrite_screen != SCREEN_NONE) printf("Can't open file (density -3) %s\n", filename);
 	exit(1);
       }
        if (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){

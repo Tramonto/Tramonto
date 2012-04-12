@@ -17,7 +17,7 @@ int node_to_node_box(int inode);
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern int *B2L_node;
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define NCOMP_MAX 5
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];

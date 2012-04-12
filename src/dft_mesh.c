@@ -49,6 +49,9 @@ void set_up_mesh (char *file_echoinput,char *output_file2)
   int N_update=0; /*local variables to replace AztecStruct global ones of same name*/
   int *update=NULL;
 
+
+
+
   if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
        if (Iwrite_screen == SCREEN_VERBOSE) printf("\n-------------------------------------------------------------------\n");
        printf("Setting up the mesh ... \n");

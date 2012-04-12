@@ -17,7 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 #define NZONE_MAX  10 
 extern int Num_Proc;
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 #define NWALL_MAX 600 
 void error_check(void);
 #define REFLECT              2
@@ -106,7 +106,7 @@ extern int Lcount_reflect;
 extern int Lper_area;
 extern double Rho_max;
 extern char *Vext_filename2;
-#define FILENAME_LENGTH 200
+#define FILENAME_LENGTH 300
 extern char vext_file2_array[FILENAME_LENGTH];
 #define READ_VEXT_STATIC     3
 #define READ_VEXT_SUMTWO     2

@@ -44,7 +44,7 @@ extern double Betamu_chain[NMER_MAX];
 extern int Type_poly;
 extern double Rho_b[NCOMP_MAX];
 void calc_new_density(int icomp,char *output_file1);
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_w[NWALL_MAX_TYPE];

@@ -31,7 +31,7 @@ double uYUKAWA_DERIV1D(double r,double x,double sigma,double eps,double rcut,dou
 #define NONE        -1
 #define NONE        -1
 extern int Iwrite_screen;
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];

@@ -33,7 +33,7 @@ extern struct Loca_Struct Loca;
 #define USE_LOCA
 extern int Pos_new_nodes;
 extern int Plane_new_nodes;
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern double Del_1[NWALL_MAX_TYPE];
 extern int Nruns;
 extern double Az_tolerance;

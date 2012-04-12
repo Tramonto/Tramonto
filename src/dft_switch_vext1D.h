@@ -40,6 +40,6 @@ double Vext_LJ9_3_v2_CS(double x,int icomp,int iwall_type);
 #define LJ9_3_v2_CS       1
 double Vext_LJ9_3_CS(double x,int icomp,int iwall_type);
 #define LJ9_3_CS          0
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern int Vext_PotentialID[NWALL_MAX_TYPE];
 double Vext_1D(double x,int icomp,int iwall_type);

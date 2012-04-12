@@ -18,7 +18,7 @@ double pairPot_ATT_CS_switch(double r,int icomp,int jcomp,int typePairPot);
 #include "Tramonto_ConfigDefs.h"
 #define NCOMP_MAX 5
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
-#define FILENAME_LENGTH 200
+#define FILENAME_LENGTH 300
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

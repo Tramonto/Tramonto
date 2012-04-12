@@ -24,7 +24,7 @@ extern double Dielec_X;
 #define TRUE  1
 #endif
 extern int Ndim;
-#define NWALL_MAX_TYPE 50 
+#define NWALL_MAX_TYPE 10 
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)

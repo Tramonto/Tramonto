@@ -146,7 +146,7 @@ void setup_params_for_dft(char *input_file, char *file_echoinput)
      SGeom = (struct SurfaceGeom_Struct *) array_alloc(1,Nwall_type, sizeof(struct SurfaceGeom_Struct));
      fill_surfGeom_struct();
    }
-
+ 
    setup_other_run_constants();
    if (Proc==0 && Iwrite_screen==SCREEN_VERBOSE){
      printf("\n--------------------------------------------------------------------");
@@ -225,8 +225,10 @@ void setup_other_run_constants()
   if (Type_poly!=NONE && Physics_scaling != FALSE) Lprint_scaleFacWJDC=TRUE;
   else Lprint_scaleFacWJDC=FALSE;
 
-  /*strcpy(DensityFile_array,DensityFile);
-  strcpy(DensityFile2_array,DensityFile2);*/
+  if (Proc==0){   
+    strcpy(DensityFile_array,DensityFile);
+    if (Lbinodal==TRUE) strcpy(DensityFile2_array,DensityFile2);
+  }
 
   return;
 }

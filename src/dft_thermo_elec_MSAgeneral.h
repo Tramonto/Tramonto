@@ -22,9 +22,7 @@ extern int Proc;
 extern int Proc;
 #endif
 void precalc_GENmsa_params(double *rho,double *x_msa,double *n_msa,double gamma);
-void precalc_GENmsa_params(double *rho,double *x_msa,double *n_msa,double gamma);
 #define PI    3.141592653589793238462643383279502884197169399375
-double deltaC_GENERAL_MSA_int(double r,int i,int j);
 double deltaC_GENERAL_MSA_int(double r,int i,int j);
 #define NCOMP_MAX 5
 extern double MSAgen_term4[NCOMP_MAX][NCOMP_MAX];
@@ -44,8 +42,6 @@ extern double Gamma_MSA;
 extern double N_MSA[NCOMP_MAX];
 extern double HS_diam[NCOMP_MAX];
 double deltaC_GENERAL_MSA(double r,int i,int j);
-double deltaC_GENERAL_MSA(double r,int i,int j);
-double pressure_elec_MSA(double *rho);
 double pressure_elec_MSA(double *rho);
 #define THETA_CR_GENERAL_MSA  7
 double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int));
@@ -54,5 +50,4 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double *Deltac_b;
-void chempot_ELEC_MSA_GENERAL(double *rho);
 void chempot_ELEC_MSA_GENERAL(double *rho);
