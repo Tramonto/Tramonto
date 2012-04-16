@@ -54,7 +54,7 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
          "Density[i]","Betamu[i]","Density[i], Betamu[i], and pressure","Density[all], Betamu[all], and pressure","No State Point Output")));
 
        RCP<StringValidator> AdsEnergyOutputValidator = rcp( new StringValidator(tuple<std::string>(
-           "total adsorption and energy","excess adsorption and energy", "excess and total adsorption and energy","adsorption/volume and energy/volume (bulk density & pressure)")));
+           "total adsorption and energy","excess adsorption and energy", "excess and total adsorption and energy","adsorption/volume and energy/volume (bulk density and pressure)")));
 
        RCP<StringValidator> EnergyOutputValidator = rcp( new StringValidator(tuple<std::string>(
            "total free energy","excess surface free energy", "excess and total free energy","free energy/volume (pressure in bulk fluid)")));
@@ -142,8 +142,8 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        else{ Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[all], Betamu[all], and pressure", str_printtooutput, StateOutputNoChargeValidator); }
 
        if (Print_rho_switch==SWITCH_BULK_OUTPUT_ALL || Print_rho_switch == SWITCH_BULK_OUTPUT)
-          Output_List->set("O3.1: dft_output.dat: Adsorption & Energy Output", "adsorption/volume and energy/volume (bulk density & pressure)", str_adsout,AdsEnergyOutputValidator); 
-       else Output_List->set("O3.1: dft_output.dat: Adsorption & Energy Output", "excess and total adsorption and energy", str_adsout,AdsEnergyOutputValidator); 
+          Output_List->set("O3.1: dft_output.dat: Adsorption and Energy Output", "adsorption/volume and energy/volume (bulk density and pressure)", str_adsout,AdsEnergyOutputValidator); 
+       else Output_List->set("O3.1: dft_output.dat: Adsorption and Energy Output", "excess and total adsorption and energy", str_adsout,AdsEnergyOutputValidator); 
        
 
        if (Lper_area==TRUE) Output_List->set("O3.2: dft_output.dat: per unit area?", true, str_LperArea);
@@ -172,7 +172,7 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        }
        else{ Output_List->set("O3.0: dft_output.dat: State Point Output", "Density[all], Betamu[all], and pressure", str_printtooutput, StateOutputNoChargeValidator); }
 
-       Output_List->set("O3.1: dft_output.dat: Adsorption & Energy Output", "excess and total adsorption and energy", str_adsout, AdsEnergyOutputValidator); 
+       Output_List->set("O3.1: dft_output.dat: Adsorption and Energy Output", "excess and total adsorption and energy", str_adsout, AdsEnergyOutputValidator); 
        Output_List->set("O3.2: dft_output.dat: per unit area?", false, str_LperArea);
        Output_List->set("O3.3: dft_output.dat: Correct for reflections?", true, str_reflect);
        Output_List->set("O3.4: dft_output.dat: Mesh Output", "Separations between surfaces", "Select output type for mesh continuation.",MeshOutputValidator);

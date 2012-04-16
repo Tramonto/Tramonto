@@ -78,7 +78,7 @@ void dft_GUI_vextType(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                 SurfaceInteraction_List->set("SI0_Vext_type","None", "Type of external field to apply with the surfaces", Vext1Dtype_Valid); break;
         }
 
-        SurfaceInteraction_List->set("SI1_VEXT_MAX",20.0, "Set point for Vext inside surfaces. (heuristic 10.0<VEXT_MAX<20.0)");
+        SurfaceInteraction_List->set("SI1_VEXT_MAX",20.0, "Set point for Vext inside surfaces. (VEXT_MAX typically between 10. and 20.)");
 
         SurfaceInteraction_List->set("SI2_Vext_1D","LJ 9-3 potential (cut/shift)", "Specific analytic external field to apply (1D)", Vext1D_Valid);
 

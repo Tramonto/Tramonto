@@ -1,5 +1,6 @@
 using namespace std;
 #include <iostream>
+#include "dft_globals_const.h" 
 #include "dft_GUI.h"
 #include "dft_GUI.hpp"
 using namespace Teuchos;
@@ -10,7 +11,7 @@ using namespace Optika;
 extern "C" void dft_OptikaGUI()
 {
   int i;
-  bool test_input_file=false;
+  bool test_input_file=true;
   bool read_input_old_format=true;
 
  /* this file is built based on the examples provided with the optika package with the intent
@@ -33,7 +34,7 @@ extern "C" void dft_OptikaGUI()
 
   RCP<ParameterList> Fluid_List = sublist(Tramonto_List, "Sect. 3: Fluid");
   RCP<ParameterList> PotentialsFF_List = sublist(Fluid_List, "FL1: Fluid-Fluid Interactions");
-  RCP<ParameterList> Polymer_List = sublist(Fluid_List, "FL2: Polymers / Bonded Fluids");
+  RCP<ParameterList> Polymer_List = sublist(Fluid_List, "FL2: Polymers or Bonded Fluids");
   RCP<ParameterList> StatePoint_List = sublist(Fluid_List, "FL3: Properties of the Bulk Fluid");
   RCP<ParameterList> Diffusion_List = sublist(Fluid_List, "FL4: Diffusion Params (optional)");
 
@@ -42,7 +43,7 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> PolymerGraft_List = sublist(Polymer_List, "PL2: Grafted Polymer Parameters Params");
   RCP<ParameterList> PolymerArch_List = sublist(Polymer_List, "PL3: Architecture Entry Bonded Systems");
 
-  RCP<ParameterList> ChargedFluid_List = sublist(StatePoint_List, "BFL1: Fluids with Charge / Electrostatics");
+  RCP<ParameterList> ChargedFluid_List = sublist(StatePoint_List, "BFL1: Fluids with Charge and Electrostatics");
 
   RCP<ParameterList> Surface_List = sublist(Tramonto_List, "Sect. 4: Surfaces");
 
@@ -56,6 +57,8 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> SurfGeom7_List = sublist(Surface_List, "SL1: GeomParams SurfType 7");
   RCP<ParameterList> SurfGeom8_List = sublist(Surface_List, "SL1: GeomParams SurfType 8");
   RCP<ParameterList> SurfGeom9_List = sublist(Surface_List, "SL1: GeomParams SurfType 9");
+  RCP<ParameterList> SurfGeom10_List = sublist(Surface_List, "SL1: GeomParams SurfType 9");
+  RCP<ParameterList> SurfGeom11_List = sublist(Surface_List, "SL1: GeomParams SurfType 9");
 
   RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "SL2: Interaction Params");
   RCP<ParameterList> SurfaceParamCharge_List = sublist(Surface_List, "SL3: Charged Surface Params");
@@ -79,7 +82,7 @@ extern "C" void dft_OptikaGUI()
    * Then we just call getInput! There's a little more to it, so let's
    * head on over to the inputs.xml file to see what's going on there.
    */
-cout << "reading inputs.xml" << endl;
+cout << "reading inputs.xml" << "test_input_file="<<test_input_file<<endl;
         Optika::getInput("inputs.xml", Tramonto_List);
   }
   else{
@@ -90,6 +93,24 @@ cout << "reading inputs.xml" << endl;
      dft_GUI_potentialsFF_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,PotentialsFF_List);
      dft_GUI_Polymer_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
      dft_GUI_StatePoint_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
+     dft_GUI_surfaces_set_defaults(Tramonto_List,depSheet_Tramonto,Surface_List);
+     for (i=0;i<10;i++){
+             if (i==0) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom0_List);
+        else if (i==1) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom1_List);
+        else if (i==2) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom2_List);
+        else if (i==3) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom3_List);
+        else if (i==4) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom4_List);
+        else if (i==5) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom5_List);
+        else if (i==6) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom6_List);
+        else if (i==7) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom7_List);
+        else if (i==8) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom8_List);
+        else if (i==9) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom9_List);
+        else if (i==9) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
+        else if (i==9) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
+     }
+     dft_GUI_Continuation_set_defaults(Tramonto_List,depSheet_Tramonto,Continuation_List);
+     dft_GUI_NumericalMethods_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Solver_List,
+                              Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
 
     /* replace defauls if requested for each section of the GUI */
      if (read_input_old_format){ 
@@ -98,6 +119,24 @@ cout << "reading inputs.xml" << endl;
         dft_GUI_potentialsFF_set_OldFormat(Tramonto_List,depSheet_Tramonto,Fluid_List,PotentialsFF_List);
         dft_GUI_Polymer_set_OldFormat(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
         dft_GUI_StatePoint_set_OldFormat(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
+        dft_GUI_surfaces_set_OldFormat(Tramonto_List,depSheet_Tramonto,Surface_List);
+        for (i=0;i<Nwall_type;i++){
+                if (i==0) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom0_List);
+           else if (i==1) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom1_List);
+           else if (i==2) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom2_List);
+           else if (i==3) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom3_List);
+           else if (i==4) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom4_List);
+           else if (i==5) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom5_List);
+           else if (i==6) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom6_List);
+           else if (i==7) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom7_List);
+           else if (i==8) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom8_List);
+           else if (i==9) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom9_List);
+           else if (i==9) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
+           else if (i==9) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
+        }
+        dft_GUI_Continuation_set_OldFormat(Tramonto_List,depSheet_Tramonto,Continuation_List);
+        dft_GUI_NumericalMethods_set_OldFormat(Tramonto_List,depSheet_Tramonto,Solver_List,
+                                 Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
      }
 
     /* set dependencies for each section of the GUI */
@@ -106,36 +145,33 @@ cout << "reading inputs.xml" << endl;
      dft_GUI_potentialsFF_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,PotentialsFF_List);
      dft_GUI_Polymer_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
      dft_GUI_StatePoint_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
-
-     dft_GUI_surfaces(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List);
+     dft_GUI_surfaces_dependencies(Tramonto_List,depSheet_Tramonto,Surface_List);
      for (i=0;i<10;i++){
-             if (i==0) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom0_List);
-        else if (i==1) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom1_List);
-        else if (i==2) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom2_List);
-        else if (i==3) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom3_List);
-        else if (i==4) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom4_List);
-        else if (i==5) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom5_List);
-        else if (i==6) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom6_List);
-        else if (i==7) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom7_List);
-        else if (i==8) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom8_List);
-        else if (i==9) dft_GUI_surface_geometry(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom9_List);
+             if (i==0) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom0_List);
+        else if (i==1) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom1_List);
+        else if (i==2) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom2_List);
+        else if (i==3) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom3_List);
+        else if (i==4) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom4_List);
+        else if (i==5) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom5_List);
+        else if (i==6) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom6_List);
+        else if (i==7) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom7_List);
+        else if (i==8) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom8_List);
+        else if (i==9) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom9_List);
+        else if (i==9) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
+        else if (i==9) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
      }
-     dft_GUI_potentialsWW(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsWW_List,SurfaceParamCharge_List);
+     dft_GUI_Continuation_dependencies(Tramonto_List,depSheet_Tramonto,PotentialsFF_List,Continuation_List);
+     dft_GUI_NumericalMethods_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,Solver_List,
+                              Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
 
+  dft_GUI_potentialsWW(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsWW_List,SurfaceParamCharge_List);
   dft_GUI_vextType(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfaceInteraction_List);
-
   dft_GUI_potentialsWF(Tramonto_List,depSheet_Tramonto,Functional_List, Surface_List,
                        SurfaceInteraction_List,Fluid_List,PotentialsWF_List); 
 
-  dft_GUI_Continuation(Tramonto_List,depSheet_Tramonto,Functional_List, PotentialsFF_List, StatePoint_List,
-                       Continuation_List);
-
-  dft_GUI_NumericalMethods(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,Solver_List,
-                            Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
 
   dft_GUI_DensityStartupParams(Tramonto_List,depSheet_Tramonto,Fluid_List,Continuation_List,DensProfile_List);
-
-/*  dft_GUI_OutputParams(Tramonto_List,depSheet_Tramonto,Mesh_List,Functional_List,Fluid_List,Continuation_List,SurfaceInteraction_List,Output_List);*/
+  dft_GUI_OutputParams(Tramonto_List,depSheet_Tramonto,Mesh_List,Functional_List,Fluid_List,Continuation_List,SurfaceInteraction_List,Output_List);
 
              /* The getInput function starts up an Optika GUI and      *
               * lets the user start to input parameter values. When    *
@@ -148,7 +184,7 @@ cout << "reading inputs.xml" << endl;
 /* set up list dependencies */
   
    RCP<StringVisualDependency> PolyList_Dep = rcp(new StringVisualDependency(
-          Functional_List->getEntryRCP("F4_POLYMER_Functional"), Fluid_List->getEntryRCP("FL2: Polymers / Bonded Fluids"), 
+          Functional_List->getEntryRCP("F4_POLYMER_Functional"), Fluid_List->getEntryRCP("FL2: Polymers or Bonded Fluids"), 
           tuple<std::string>("Polymer_CMS","Polymer_CMS_SCFT","Polymer_TC_iSAFT",
                              "Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)","Polymer_JDC_iSAFT(comp)")));
 
@@ -158,7 +194,7 @@ cout << "reading inputs.xml" << endl;
 
    RCP<StringVisualDependency> ChargedFluidList_Dep = rcp( new StringVisualDependency(
            Functional_List->getEntryRCP("F3_CHARGE_Functional"),
-           StatePoint_List->getEntryRCP("BFL1: Fluids with Charge / Electrostatics"),
+           StatePoint_List->getEntryRCP("BFL1: Fluids with Charge and Electrostatics"),
            tuple<std::string>("Charge_Mean_Field","Charge_with_DeltaC_RPM", "Charge_with_DeltaC_General","Charge(MF)_with_Polarization")));
 
 /*   RCP<SimpleFunctionObject<int> >test_NsurfTypes(int,int);
@@ -183,7 +219,8 @@ cout << "reading inputs.xml" << endl;
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
                      StatePoint_List,Diffusion_List,ChargedFluid_List,Continuation_List,
                      Solver_List,Coarsening_List,LoadBalance_List,PhysicsMethod_List,LinearSolver_List,NonlinearSolver_List,Output_List,
-                     DensProfile_List,Surface_List,SurfGeom0_List);
+                     DensProfile_List,Surface_List,SurfGeom0_List, SurfGeom1_List, SurfGeom2_List, SurfGeom3_List, SurfGeom4_List, SurfGeom5_List,
+                     SurfGeom6_List, SurfGeom7_List, SurfGeom8_List, SurfGeom9_List, SurfGeom10_List,SurfGeom11_List);
 
              /* Here save parameter a to return to C code --- a fully 
                 functioning GUI will need to return all parameters entered

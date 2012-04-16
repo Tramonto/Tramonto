@@ -29,10 +29,21 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                         Teuchos::RCP<Teuchos::ParameterList> Output_List,
                         Teuchos::RCP<Teuchos::ParameterList> DensProfile_List,
                         Teuchos::RCP<Teuchos::ParameterList> Surface_List,
-                        Teuchos::RCP<Teuchos::ParameterList> SurfaceGeometry_List) 
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom0_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom1_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom2_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom3_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom4_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom5_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom6_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom7_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom8_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom9_List, 
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom10_List, 
+                        Teuchos::RCP<Teuchos::ParameterList> SurfGeom11_List) 
 {
   string str_tmp;
-  int i,j,k,counter;
+  int i,j,k,counter,ip;
   /****************************** DIMENSION PARAMETER SECTION **********************************************************/
   /* this routine translates the parameters from the GUI to Tramonto.  */
 
@@ -400,7 +411,6 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
          else if (Continuation_List->get<string>("C1: Continuation Type")=="Mesh Continuation") Loca.method=-1;          
 
     }
-
     if (Continuation_List->get<string>("C1: Continuation Type")!="None"){
 
         if (Continuation_List->get<string>("C2: Continuation Parameter")=="Temperature" ){
@@ -654,7 +664,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
      else if(Output_List->get<string>("O3.0: dft_output.dat: State Point Output")=="Density[all], Betamu[all], and pressure") Print_rho_switch=SWITCH_ALLTYPES;
      else if(Output_List->get<string>("O3.0: dft_output.dat: State Point Output")=="No State Point Output") Print_rho_switch=SWITCH_NO_STATEOUT;
 
-     if(Output_List->get<string>("O3.1: dft_output.dat: Adsorption & Energy Output")=="adsorption/volume and energy/volume (bulk density & pressure)"){
+     if(Output_List->get<string>("O3.1: dft_output.dat: Adsorption and Energy Output")=="adsorption/volume and energy/volume (bulk density and pressure)"){
          if(Print_rho_switch==SWITCH_ALLTYPES)  Print_rho_switch=SWITCH_BULK_OUTPUT_ALL;
          else Print_rho_switch=SWITCH_BULK_OUTPUT;
      }
@@ -692,11 +702,11 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
            Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Spinodal Continuation" ){
                 DensityFile2=(char*)DensProfile_List->get<string>("IG1.2: 2nd Density RestartFile").c_str();
         }
-        else DensityFile2=NULL;
+        else DensityFile2="./dft_dens2.dat";
     }
     else{
-       DensityFile=NULL;
-       DensityFile2=NULL;
+       DensityFile="./dft_dens.dat";
+       DensityFile2="./dft_dens2.dat";
     }
 
     Nmissing_densities=DensProfile_List->get<int>("IG1.3: Number of missing components");
@@ -747,35 +757,149 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     }
    
 
-
     /****************************************************/
     /* params from surface geometry section of the GUI  */
     /****************************************************/
 
- /*   Nwall=Surface_List->get<int>("S1: Number of Surfaces");
-    Nlink=Surface_List->get<int>("S2: Number of macro surfaces");
-    Nwall_type=Surface_List->get<int>("S3: Number of surface types");
+   Nwall=Surface_List->get<int>("S1: Number of Surfaces");
+   Nlink=Surface_List->get<int>("S2: Number of macro surfaces");
+   Nwall_type=Surface_List->get<int>("S3: Number of surface types");
 
-    Array<string> WallTypes=SurfaceGeometry_List->get<Array<string> >("SG1: Surface Type Array");
+    Teuchos::RCP<Teuchos::ParameterList> SurfGeom_List;
+
     for (i=0; i<Nwall_type; i++){
-       if (WallTypes[i]=="PLANE: Infinite in two dimensions")       Surface_type[i]=0;
-       else if (WallTypes[i]=="PLANE: Infinite in one dimension")   Surface_type[i]=1;
-       else if (WallTypes[i]=="CYLINDERICAL SURFACE: Infinite_L")   Surface_type[i]=2;
-       else if (WallTypes[i]=="CYLINDRICAL PORE: Infinite_L")       Surface_type[i]=7;
-       else if (WallTypes[i]=="SLIT PORE: Finite_L")                Surface_type[i]=8;
-       else if (WallTypes[i]=="SLIT TAPERED PORE: Finite_L")        Surface_type[i]=9;
-       else if (WallTypes[i]=="PLANE: Finite three dimensions")     Surface_type[i]=1;
-       else if (WallTypes[i]=="SPHERICAL SURFACE: COLLOID")         Surface_type[i]=2;
-       else if (WallTypes[i]=="SPHERICAL SURFACE: ATOM")            Surface_type[i]=3;
-       else if (WallTypes[i]=="SPHERICAL SURFACE: POINT ATOM")      Surface_type[i]=4;
-       else if (WallTypes[i]=="SPHERICAL CAVITY")                   Surface_type[i]=7;
-       else if (WallTypes[i]=="CYLINDERICAL SURFACE: Finite_L")     Surface_type[i]=5;
-       else if (WallTypes[i]=="CYLINDERICAL SURFACE PERIODIC: Infinite_L") Surface_type[i]=6;
-       else if (WallTypes[i]=="CYLINDRICAL PORE: Finite_L")         Surface_type[i]=8;
-       else if (WallTypes[i]=="CYLINDRICAL TAPERED PORE: Finite_L") Surface_type[i]=9;
-   }
-*/
+        if (i==0) SurfGeom_List=SurfGeom0_List;
+        if (i==1) SurfGeom_List=SurfGeom1_List;
+        if (i==2) SurfGeom_List=SurfGeom2_List;
+        if (i==3) SurfGeom_List=SurfGeom3_List;
+        if (i==4) SurfGeom_List=SurfGeom4_List;
+        if (i==5) SurfGeom_List=SurfGeom5_List;
+        if (i==6) SurfGeom_List=SurfGeom6_List;
+        if (i==7) SurfGeom_List=SurfGeom7_List;
+        if (i==8) SurfGeom_List=SurfGeom8_List;
+        if (i==9) SurfGeom_List=SurfGeom9_List;
 
+        Nperiodic_overlay[i]=0;
+        Nlinear_overlay[i]=0;
+        Lrough_surf[i]=FALSE;
+        Lwedge_cutout[i]=FALSE;
+        Lapply_offset[0]=Lapply_offset[1]=Lapply_offset[2]=FALSE;
+        Array<double> HalfWidth_Array=SurfGeom_List->get<Array<double> >("SG3: Half-width array"); 
+               
+        if (SurfGeom_List->get<string>("SG1: Surface Type")=="PLANE: 1D-2D-3D :Infinite in two dimensions"){
+            Surface_type[i]=smooth_planar_wall;
+            Orientation[i]=SurfGeom_List->get<int>("SG2: Orientation Plane");
+            WallParam[i]=SurfGeom_List->get<double>("SG3: Half-width");
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to HalfWidth(xdim)?")) Lrough_surf[i]=TRUE;
+            if (SurfGeom_List->get<bool>("SG5 :Add Periodic Func. to HalfWidth(xdim)?")) Nperiodic_overlay[i]=-1; 
+            if (SurfGeom_List->get<bool>("SG6 :Add Linear Func. to HalfWidth(xdim)?")) Nlinear_overlay[i]=-1;
+        }
+        else if(SurfGeom_List->get<string>("SG1: Surface Type")=="PLANE: 2D-3D :Finite length all dimensions"){
+            Surface_type[i]=finite_planar_wall;
+            WallParam[i]=HalfWidth_Array[0];
+            WallParam_2[i]=HalfWidth_Array[1];
+            WallParam_3[i]=HalfWidth_Array[2]; 
+
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to HalfWidth(xdim)?")){ Lrough_surf[i]=TRUE; Lapply_offset[0]=TRUE;}
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to HalfWidth(ydim)?")){ Lrough_surf[i]=TRUE; Lapply_offset[1]=TRUE;}
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to HalfWidth(zdim)?")){ Lrough_surf[i]=TRUE; Lapply_offset[2]=TRUE;}
+
+            if (SurfGeom_List->get<bool>("SG5 :Add Periodic Func. to HalfWidth(xdim)?")){Nperiodic_overlay[i]=-1; Lapply_offset[0]=TRUE;} 
+            if (SurfGeom_List->get<bool>("SG5 :Add Periodic Func. to HalfWidth(ydim)?")){Nperiodic_overlay[i]=-1; Lapply_offset[1]=TRUE;} 
+            if (SurfGeom_List->get<bool>("SG5 :Add Periodic Func. to HalfWidth(zdim)?")){Nperiodic_overlay[i]=-1; Lapply_offset[2]=TRUE;} 
+
+            if (SurfGeom_List->get<bool>("SG6 :Add Linear Func. to HalfWidth(xdim)?")){Nlinear_overlay[i]=-1; Lapply_offset[0]=TRUE;} 
+            if (SurfGeom_List->get<bool>("SG6 :Add Linear Func. to HalfWidth(ydim)?")){Nlinear_overlay[i]=-1; Lapply_offset[1]=TRUE;} 
+            if (SurfGeom_List->get<bool>("SG6 :Add Linear Func. to HalfWidth(zdim)?")){Nlinear_overlay[i]=-1; Lapply_offset[2]=TRUE;} 
+        }
+        else if(SurfGeom_List->get<string>("SG1: Surface Type")=="CYLINDER: 2D :Infinite length" ||
+                SurfGeom_List->get<string>("SG1: Surface Type")=="SPHERE : 3D :Radius will typically be larger than Sigma_w"){
+            Surface_type[i]=colloids_cyl_sphere;
+            WallParam[i]=SurfGeom_List->get<double>("SG3: Radius");
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to Radius?")) Lrough_surf[i]=TRUE;
+        }
+        else if(SurfGeom_List->get<string>("SG1: Surface Type")=="ATOMIC: 3D :Radius=Sigma_w"){
+            Surface_type[i]=atomic_centers;
+        }
+        else if(SurfGeom_List->get<string>("SG1: Surface Type")=="1-ELEMENT SURFACE: 1D-2D-3D :Membrane,Rod,Point"){
+            Surface_type[i]=point_surface;
+        }
+        else if(SurfGeom_List->get<string>("SG1: Surface Type")=="CYLINDER: 3D :Finite Length"){
+            Surface_type[i]=finite_cyl_3D;
+            Orientation[i]=SurfGeom_List->get<int>("SG2: Orientation Cylinder");
+            WallParam[i]=SurfGeom_List->get<double>("SG3: Radius");
+            WallParam_2[i]=SurfGeom_List->get<double>("SG3: Half-Length");
+
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to Radius?")){ Lrough_surf[i]=TRUE; Lapply_offset[0]=TRUE;}
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to HalfLength?")){ Lrough_surf[i]=TRUE; Lapply_offset[1]=TRUE;}
+
+            if(SurfGeom_List->get<bool>("SG5 :Add Periodic Func. to Radius?")){ Nperiodic_overlay[i]=-1; Lapply_offset[0]=TRUE;}
+            if(SurfGeom_List->get<bool>("SG5 :Add Periodic Func. to HalfLength?")){ Nperiodic_overlay[i]=-1; Lapply_offset[1]=TRUE;}
+
+            if(SurfGeom_List->get<bool>("SG6 :Add Linear Func. to Radius?")){ Nperiodic_overlay[i]=-1; Lapply_offset[0]=TRUE;}
+            if(SurfGeom_List->get<bool>("SG6 :Add Linear Func. to HalfLength?")){ Nperiodic_overlay[i]=-1; Lapply_offset[1]=TRUE;}
+        }
+        else if(SurfGeom_List->get<string>("SG1: Surface Type")=="PORE CYLINDRICAL: 2D :Infinite Length"||
+                SurfGeom_List->get<string>("SG1: Surface Type")=="PORE SPHERICAL: 3D :"){
+            Surface_type[i]=cyl2D_sphere3D_pore;
+            WallParam[i]=SurfGeom_List->get<double>("SG3: Radius");
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to Radius?")) Lrough_surf[i]=TRUE;
+        }
+        else if(SurfGeom_List->get<string>("SG1: Surface Type")=="PORE SLIT: 2D :Finite Length" ||
+                SurfGeom_List->get<string>("SG1: Surface Type")=="PORE CYLINDRICAL: 3D :Finite Length"){
+            Surface_type[i]=cyl3D_slit2D_pore;
+            Orientation[i]=SurfGeom_List->get<int>("SG2: Orientation Cylinder");
+            WallParam[i]=SurfGeom_List->get<double>("SG3: Radius");
+            WallParam_2[i]=SurfGeom_List->get<double>("SG3: Half-Length");
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to Radius?")) Lrough_surf[i]=TRUE;
+
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to Radius?")){ Lrough_surf[i]=TRUE; Lapply_offset[0]=TRUE;}
+            if(SurfGeom_List->get<bool>("SG4 : Apply Roughness to HalfLength?")){ Lrough_surf[i]=TRUE; Lapply_offset[1]=TRUE;}
+
+            if(SurfGeom_List->get<bool>("SG6 :Add Linear Func. to Radius?")){ Nperiodic_overlay[i]=-1; Lapply_offset[0]=TRUE;}
+            if(SurfGeom_List->get<bool>("SG6 :Add Linear Func. to HalfLength?")){ Nperiodic_overlay[i]=-1; Lapply_offset[1]=TRUE;}
+        }
+        if (Lrough_surf[i]==TRUE){
+            Rough_param_max[i]=SurfGeom_List->get<double>("SG4.1: Tau_max");
+            Rough_length[i]=SurfGeom_List->get<double>("SG4.2: TauLength");
+        }
+        if (Nperiodic_overlay[i]=-1){
+           Nperiodic_overlay[i]=SurfGeom_List->get<int>("SG5.1: Number of Periodic Fncs.");
+
+           Array<int> SG5_2_OrientPeriodic=SurfGeom_List->get<Array<int> >("SG5.2: Orientation Periodic Fnc."); 
+           for(ip=0;ip<Nperiodic_overlay[i];ip++) OrientationPeriodicFunc[i][ip]=SG5_2_OrientPeriodic[ip];
+
+           Array<double> SG5_3_AmpPeriodic=SurfGeom_List->get<Array<double> >("SG5.3: Amplitude Periodic Fnc."); 
+           for(ip=0;ip<Nperiodic_overlay[i];ip++) AmplitudePeriodicFunc[i][ip]=SG5_3_AmpPeriodic[ip];
+
+           Array<double> SG5_4_WaveLgthPeriodic=SurfGeom_List->get<Array<double> >("SG5.4: Period of Periodic Fnc."); 
+           for(ip=0;ip<Nperiodic_overlay[i];ip++) WavelengthPeriodicFunc[i][ip]=SG5_4_WaveLgthPeriodic[ip];
+
+           Array<double> SG5_5_OriginPeriodic=SurfGeom_List->get<Array<double> >("SG5.5: Origin of Periodic Fnc."); 
+           for(ip=0;ip<Nperiodic_overlay[i];ip++) OriginPeriodicFunc[i][ip]=SG5_5_OriginPeriodic[ip];
+        } 
+        if (Nlinear_overlay[i]=-1){
+           Nlinear_overlay[i]=SurfGeom_List->get<int>("SG6.1: Number of Linear Fncs.");
+
+           Array<int> SG6_2_OrientLinear=SurfGeom_List->get<Array<int> >("SG6.2: Orientation Linear Fnc."); 
+           for(ip=0;ip<Nlinear_overlay[i];ip++) OrientationLinearFunc[i][ip]=SG6_2_OrientLinear[ip];
+
+           Array<double> SG6_3_SlopeLinear=SurfGeom_List->get<Array<double> >("SG6.3: Slope of Linear Fnc."); 
+           for(ip=0;ip<Nlinear_overlay[i];ip++) SlopeLinearFunc[i][ip]=SG6_3_SlopeLinear[ip];
+
+           Array<double> SG6_4_OriginLinear=SurfGeom_List->get<Array<double> >("SG6.4: Origin of Linear Fnc."); 
+           for(ip=0;ip<Nlinear_overlay[i];ip++) OriginLinearFunc[i][ip]=SG6_4_OriginLinear[ip];
+
+           Array<double> SG6_5_EndptLinear=SurfGeom_List->get<Array<double> >("SG6.5: End Point for Linear Fnc."); 
+           for(ip=0;ip<Nlinear_overlay[i];ip++) EndpointLinearFunc[i][ip]=SG6_5_EndptLinear[ip];
+        } 
+        if (SurfGeom_List->get<bool>("SG7 : Angular cutouts from the surface?")){
+            Lwedge_cutout[i]=TRUE;
+            Angle_wedge_start[i]=SurfGeom_List->get<double>("SG7.1: Angle start");
+            Angle_wedge_end[i]=SurfGeom_List->get<double>("SG7.2: Angle end");
+        }
+    }
+    
     /****************************************************/
     /* params from solvers section of the GUI  */
     /****************************************************/
