@@ -3,6 +3,7 @@ using namespace std;
 #include "dft_globals_const.h" 
 #include "dft_GUI.h"
 #include "dft_GUI.hpp"
+
 using namespace Teuchos;
 using namespace Optika;
 
@@ -10,23 +11,90 @@ using namespace Optika;
 
 extern "C" void dft_OptikaGUI()
 {
-  int i;
-  bool test_input_file=true;
-  bool read_input_old_format=true;
+  int i,n;
+  bool read_xml_file=false, read_input_old_format=false,start_GUI=true;
+  string runpath, InputOLD_File,InputXML_File, InputGUI_File;
 
- /* this file is built based on the examples provided with the optika package with the intent
-    of beginning GUI development for Tramonto.  This is a first working version that handles only
-    the first few parameters in the Tramonto input file.  In order to even implement the first few
-    parameters, dependencies and validators are needed */
 
+  /* set up a parameter list for a very simple GUI to select the type of run we are interested in */
+  RCP<ParameterList> RunType_List = RCP<ParameterList>((new ParameterList("Root RunType List")));
+  RCP<DependencySheet> depSheet_RunType = rcp(new DependencySheet());
+
+  RCP<StringValidator> RunTypeValidator = rcp(
+        new StringValidator(tuple<std::string>(
+           "GUI - Defaults", 
+           "GUI - Old Format File Parameters",
+           "GUI - XML File Parameters",
+           "No GUI / Old Format File",
+           "No GUI / XML File")));
+ 
+  RCP<FileNameValidator> InputXMLFileVal = rcp (new FileNameValidator);
+  RCP<FileNameValidator> InputOLDFileVal = rcp (new FileNameValidator);
+  RCP<FileNameValidator> InputGUIFileVal = rcp (new FileNameValidator);
+
+  RunType_List->set("R1: Run Type","GUI - Defaults","Indicate how you would like to run Tramonto for this job.",RunTypeValidator);
+
+  RunType_List->set("R2: Input File (OLD format)","","select the OLD format input file. This choice also sets run directory.",InputOLDFileVal);
+  RunType_List->set("R2: Input File (XML)","","select the XML input file. This choice also sets run directory.",InputXMLFileVal);
+  RunType_List->set("R2: Select Any File in Desired Directory","","select any file in desired directory.  The runpath will be extracted from the filename.",InputGUIFileVal);
+
+   RCP<StringVisualDependency> RunType_Dep1 = rcp(new StringVisualDependency(
+          RunType_List->getEntryRCP("R1: Run Type"), RunType_List->getEntryRCP("R2: Select Any File in Desired Directory"), 
+          tuple<std::string>("GUI - Defaults")));
+
+   RCP<StringVisualDependency> RunType_Dep2 = rcp(new StringVisualDependency(
+          RunType_List->getEntryRCP("R1: Run Type"), RunType_List->getEntryRCP("R2: Input File (XML)"), 
+          tuple<std::string>("GUI - XML File Parameters","No GUI / XML File")));
+
+   RCP<StringVisualDependency> RunType_Dep3 = rcp(new StringVisualDependency(
+          RunType_List->getEntryRCP("R1: Run Type"), RunType_List->getEntryRCP("R2: Input File (OLD format)"), 
+          tuple<std::string>("GUI - Old Format File Parameters","No GUI / Old Format File")));
+
+   depSheet_RunType->addDependency(RunType_Dep1);
+   depSheet_RunType->addDependency(RunType_Dep2);
+   depSheet_RunType->addDependency(RunType_Dep3);
+  
+ /* Greate the GUI window for run startup for Tramonto  */
+  Optika::getInput(RunType_List,depSheet_RunType);
+
+
+  if (RunType_List->get<string>("R1: Run Type")=="GUI - Defaults"){
+     InputGUI_File=RunType_List->get<string>("R2: Select Any File in Desired Directory");
+     string::size_type n=InputGUI_File.find_last_of("/");
+     runpath=InputGUI_File.substr(0,n);
+  }
+  else if (RunType_List->get<string>("R1: Run Type")=="GUI - Old Format File Parameters"){
+     InputOLD_File=RunType_List->get<string>("R2: Input File (OLD format)");
+     string::size_type n=InputOLD_File.find_last_of("/");
+     runpath=InputOLD_File.substr(0,n);
+     read_input_old_format=true;
+  }
+  else if (RunType_List->get<string>("R1: Run Type")=="GUI - XML File Parameters"){
+     InputXML_File=RunType_List->get<string>("R2: Input File (XML)");
+     string::size_type n=InputXML_File.find_last_of("/");
+     runpath=InputXML_File.substr(0,n);
+     read_xml_file=true;
+  }
+  else if (RunType_List->get<string>("R1: Run Type")=="No GUI / Old Format File"){
+     InputOLD_File=RunType_List->get<string>("R2: Input File (OLD format)");
+     string::size_type n=InputOLD_File.find_last_of("/");
+     runpath=InputOLD_File.substr(0,n);
+     read_input_old_format=true;
+     start_GUI=false;
+  }
+  else if (RunType_List->get<string>("R1: Run Type")=="No GUI / XML File"){
+     InputXML_File=RunType_List->get<string>("R2: Input File (XML)");
+     string::size_type n=InputXML_File.find_last_of("/");
+     runpath=InputXML_File.substr(0,n);
+     read_xml_file=true;
+     start_GUI=false;
+  }
+  
            /* Create the empty parameter list called Tramonto_List. *
             * All Tramonto parameters will be added to this list.   */
 
   RCP<ParameterList> Tramonto_List = RCP<ParameterList>((new ParameterList("Root Tramonto List")));
 
-            /* Create a  dependency sheet for the GUI*/
-
-  RCP<DependencySheet> depSheet_Tramonto = rcp(new DependencySheet());
 
             /* Create sublists that must be passed around */
   RCP<ParameterList> Mesh_List = sublist(Tramonto_List,"Sect. 1: Computational Domain");
@@ -47,23 +115,24 @@ extern "C" void dft_OptikaGUI()
 
   RCP<ParameterList> Surface_List = sublist(Tramonto_List, "Sect. 4: Surfaces");
 
-  RCP<ParameterList> SurfGeom0_List = sublist(Surface_List, "SL1: GeomParams SurfType 0");
-  RCP<ParameterList> SurfGeom1_List = sublist(Surface_List, "SL1: GeomParams SurfType 1");
-  RCP<ParameterList> SurfGeom2_List = sublist(Surface_List, "SL1: GeomParams SurfType 2");
-  RCP<ParameterList> SurfGeom3_List = sublist(Surface_List, "SL1: GeomParams SurfType 3");
-  RCP<ParameterList> SurfGeom4_List = sublist(Surface_List, "SL1: GeomParams SurfType 4");
-  RCP<ParameterList> SurfGeom5_List = sublist(Surface_List, "SL1: GeomParams SurfType 5");
-  RCP<ParameterList> SurfGeom6_List = sublist(Surface_List, "SL1: GeomParams SurfType 6");
-  RCP<ParameterList> SurfGeom7_List = sublist(Surface_List, "SL1: GeomParams SurfType 7");
-  RCP<ParameterList> SurfGeom8_List = sublist(Surface_List, "SL1: GeomParams SurfType 8");
-  RCP<ParameterList> SurfGeom9_List = sublist(Surface_List, "SL1: GeomParams SurfType 9");
-  RCP<ParameterList> SurfGeom10_List = sublist(Surface_List, "SL1: GeomParams SurfType 9");
-  RCP<ParameterList> SurfGeom11_List = sublist(Surface_List, "SL1: GeomParams SurfType 9");
+  RCP<ParameterList> Geometry_List = sublist(Surface_List, "S4: Surface Geometry");
+  RCP<ParameterList> SurfGeom0_List = sublist(Geometry_List, "SurfType 1 : Geometry");
+  RCP<ParameterList> SurfGeom1_List = sublist(Geometry_List, "SurfType 2 : Geometry");
+  RCP<ParameterList> SurfGeom2_List = sublist(Geometry_List, "SurfType 3 : Geometry");
+  RCP<ParameterList> SurfGeom3_List = sublist(Geometry_List, "SurfType 4 : Geometry");
+  RCP<ParameterList> SurfGeom4_List = sublist(Geometry_List, "SurfType 5 : Geometry");
+  RCP<ParameterList> SurfGeom5_List = sublist(Geometry_List, "SurfType 6 : Geometry");
+  RCP<ParameterList> SurfGeom6_List = sublist(Geometry_List, "SurfType 7 : Geometry");
+  RCP<ParameterList> SurfGeom7_List = sublist(Geometry_List, "SurfType 8 : Geometry");
+  RCP<ParameterList> SurfGeom8_List = sublist(Geometry_List, "SurfType 9 : Geometry");
+  RCP<ParameterList> SurfGeom9_List = sublist(Geometry_List, "SurfType 10: Geometry");
+  RCP<ParameterList> SurfGeom10_List = sublist(Geometry_List, "SurfType 11: Geometry");
+  RCP<ParameterList> SurfGeom11_List = sublist(Geometry_List, "SurfType 12: Geometry");
 
-  RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "SL2: Interaction Params");
-  RCP<ParameterList> SurfaceParamCharge_List = sublist(Surface_List, "SL3: Charged Surface Params");
-  RCP<ParameterList> SurfaceInteraction_List = sublist(Surface_List, "SL4: Fluid-Surface Interactions");
-  RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "SL5: Fluid-Surface Potential Params");
+  RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "S5: Surface Interactions");
+  RCP<ParameterList> SurfaceParamCharge_List = sublist(Surface_List, "S6: Charged Surfaces and Sources");
+  RCP<ParameterList> SurfaceInteraction_List = sublist(Surface_List, "S7: Fluid-Surface Interaction Types");
+  RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "S7: Fluid-Surface Potential Parameterss");
 
   RCP<ParameterList> Continuation_List = sublist(Tramonto_List, "Sect. 6: Continuation");
   RCP<ParameterList> DensProfile_List = sublist(Tramonto_List, "Sect. 7: Initial Guess Options");
@@ -76,16 +145,24 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> Coarsening_List = sublist(Solver_List, "SL4: Numerical Coarsening Options");
   RCP<ParameterList> LoadBalance_List = sublist(Solver_List, "SL5: Load Balancing Options");
 
-  if (test_input_file){
+  if (read_xml_file){
 
   /**
    * Then we just call getInput! There's a little more to it, so let's
    * head on over to the inputs.xml file to see what's going on there.
    */
-cout << "reading inputs.xml" << "test_input_file="<<test_input_file<<endl;
-        Optika::getInput("inputs.xml", Tramonto_List);
+        Optika::getInput(RunType_List->get<string>("R2: Input File (XML)"), Tramonto_List);
+cout << "done with GUI - heading over to Tramonto data format translation....."<<endl;
+        dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
+                     PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
+                     StatePoint_List,Diffusion_List,ChargedFluid_List,Continuation_List,
+                     Solver_List,Coarsening_List,LoadBalance_List,PhysicsMethod_List,LinearSolver_List,NonlinearSolver_List,Output_List,
+                     DensProfile_List,Surface_List,SurfGeom0_List, SurfGeom1_List, SurfGeom2_List, SurfGeom3_List, SurfGeom4_List, SurfGeom5_List,
+                     SurfGeom6_List, SurfGeom7_List, SurfGeom8_List, SurfGeom9_List, SurfGeom10_List,SurfGeom11_List);
   }
   else{
+            /* Create a  dependency sheet for the GUI*/
+     RCP<DependencySheet> depSheet_Tramonto = rcp(new DependencySheet());
 
     /* set defaults for each section of the GUI */
      dft_GUI_mesh_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List);
@@ -108,6 +185,7 @@ cout << "reading inputs.xml" << "test_input_file="<<test_input_file<<endl;
         else if (i==9) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
         else if (i==9) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
      }
+     dft_GUI_potentialsWW_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsFF_List,PotentialsWW_List,SurfaceParamCharge_List);
      dft_GUI_Continuation_set_defaults(Tramonto_List,depSheet_Tramonto,Continuation_List);
      dft_GUI_NumericalMethods_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Solver_List,
                               Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
@@ -134,6 +212,7 @@ cout << "reading inputs.xml" << "test_input_file="<<test_input_file<<endl;
            else if (i==9) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
            else if (i==9) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
         }
+        dft_GUI_potentialsWW_set_OldFormat(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsFF_List,PotentialsWW_List,SurfaceParamCharge_List);
         dft_GUI_Continuation_set_OldFormat(Tramonto_List,depSheet_Tramonto,Continuation_List);
         dft_GUI_NumericalMethods_set_OldFormat(Tramonto_List,depSheet_Tramonto,Solver_List,
                                  Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
@@ -160,11 +239,11 @@ cout << "reading inputs.xml" << "test_input_file="<<test_input_file<<endl;
         else if (i==9) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
         else if (i==9) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
      }
+     dft_GUI_potentialsWW_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsFF_List,PotentialsWW_List,SurfaceParamCharge_List);
      dft_GUI_Continuation_dependencies(Tramonto_List,depSheet_Tramonto,PotentialsFF_List,Continuation_List);
      dft_GUI_NumericalMethods_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,Solver_List,
                               Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
 
-  dft_GUI_potentialsWW(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsWW_List,SurfaceParamCharge_List);
   dft_GUI_vextType(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfaceInteraction_List);
   dft_GUI_potentialsWF(Tramonto_List,depSheet_Tramonto,Functional_List, Surface_List,
                        SurfaceInteraction_List,Fluid_List,PotentialsWF_List); 
@@ -179,7 +258,6 @@ cout << "reading inputs.xml" << "test_input_file="<<test_input_file<<endl;
               * will finish right after all of the input values are    *
               * stored in My_List.                                     */
 
-  }
 
 /* set up list dependencies */
   
@@ -208,23 +286,20 @@ cout << "reading inputs.xml" << "test_input_file="<<test_input_file<<endl;
    depSheet_Tramonto->addDependency(ChargedFluidList_Dep);
 
              /* Greate the GUI windows for data entry with all dependencies.  */
-    Optika::getInput(Tramonto_List,depSheet_Tramonto);
-
-             /* Print out what the user entered in nice XML format.  */
-
-  RCP<FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
-  writeParameterListToXmlOStream(*Tramonto_List, *out);
-
-  dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
+        if (start_GUI){
+            Optika::getInput(Tramonto_List,depSheet_Tramonto);
+            dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
                      StatePoint_List,Diffusion_List,ChargedFluid_List,Continuation_List,
                      Solver_List,Coarsening_List,LoadBalance_List,PhysicsMethod_List,LinearSolver_List,NonlinearSolver_List,Output_List,
                      DensProfile_List,Surface_List,SurfGeom0_List, SurfGeom1_List, SurfGeom2_List, SurfGeom3_List, SurfGeom4_List, SurfGeom5_List,
                      SurfGeom6_List, SurfGeom7_List, SurfGeom8_List, SurfGeom9_List, SurfGeom10_List,SurfGeom11_List);
-
-             /* Here save parameter a to return to C code --- a fully 
-                functioning GUI will need to return all parameters entered
-                by the user to Tramonto properly. */
+        }
+  }
+  
+  /* Print out what the user entered in nice XML format.  */
+/*  RCP<FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
+  writeParameterListToXmlOStream(*Tramonto_List, *out);*/
 
   return;
 }

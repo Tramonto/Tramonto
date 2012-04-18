@@ -25,7 +25,7 @@ extern int **Nelems_S;
 #define CONST_POTENTIAL  1
 #define NWALL_MAX 600 
 extern int WallType[NWALL_MAX];
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern int Type_bc_elec[NWALL_MAX_TYPE];
 extern int Nlists_HW;
 extern int *B2L_node;

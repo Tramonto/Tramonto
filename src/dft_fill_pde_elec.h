@@ -58,7 +58,7 @@ extern int Nnodes_per_el_V;
 extern double Elec_param_w[NWALL_MAX];
 #define CONST_POTENTIAL  1
 extern int WallType[NWALL_MAX];
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern int Type_bc_elec[NWALL_MAX_TYPE];
 extern int Nlists_HW;
 extern int **Nodes_2_boundary_wall;

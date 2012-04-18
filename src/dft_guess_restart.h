@@ -41,7 +41,7 @@ extern int Nnodes_box;
 int locate_inode_old(int *ijk);
 extern int Pos_new_nodes;
 void node_to_ijk(int node,int *ijk);
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern double Del_1[NWALL_MAX_TYPE];
 extern int Plane_new_nodes;
 #define NDIM_MAX  3

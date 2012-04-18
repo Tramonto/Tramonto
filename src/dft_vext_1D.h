@@ -30,7 +30,7 @@ extern double VEXT_MAX;
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double Vext_LJ9_3_shiftX_CS(double x,int icomp,int iwall_type);
 double Vextderiv_LJ7YukawaSum(double r,int icomp,int iwall_type);
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 double Vext_LJ7YukawaSum(double r,int icomp,int iwall_type);

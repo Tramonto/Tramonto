@@ -880,12 +880,8 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
         if (Mix_type==0) {jmin=i; jmax=i+1;}
         else if (Mix_type==1) {jmin=0;jmax=Nwall_type;}
         for (j=jmin; j<jmax; j++){
-	  if (Mix_type==1){ fscanf(fpinput,"%lf",&EpsYukawa_ww[i][j]);
-	                     fprintf(fpecho,"%f  ",EpsYukawa_ww[i][j]);
-                          }
-          else            { fscanf(fpinput,"%lf",&EpsYukawa_w[i]);
-	                     fprintf(fpecho,"%f  ",EpsYukawa_w[i]);
-                          }
+	  fscanf(fpinput,"%lf",&EpsYukawa_ww[i][j]);
+	  fprintf(fpecho,"%f  ",EpsYukawa_ww[i][j]);
         }
       }
 
@@ -894,12 +890,8 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
         if (Mix_type==0) {jmin=i; jmax=i+1;}
         else if (Mix_type==1) {jmin=0;jmax=Nwall_type;}
         for (j=jmin; j<jmax; j++){
-	  if (Mix_type==1){ fscanf(fpinput,"%lf",&YukawaK_ww[i][j]);
-	                     fprintf(fpecho,"%f  ",YukawaK_ww[i][j]);
-                          }
-          else            { fscanf(fpinput,"%lf",&YukawaK_w[i]);
-	                     fprintf(fpecho,"%f  ",YukawaK_w[i]);
-                          }
+	  fscanf(fpinput,"%lf",&YukawaK_ww[i][j]);
+	  fprintf(fpecho,"%f  ",YukawaK_ww[i][j]);
         }
       }
   }

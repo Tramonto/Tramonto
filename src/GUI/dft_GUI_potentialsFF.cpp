@@ -79,6 +79,13 @@ void dft_GUI_potentialsFF_set_defaults(Teuchos::RCP<Teuchos::ParameterList> Tram
  Array<double> CutF_Array( (Fluid_List->get<int>("F1_Ncomp")),3.0);
  PotentialsFF_List->set("PF3_CutF", CutF_Array, "Cutoff distance for fluid-fluid pair interactions (diagonal entries only)");
 
+ Array<double> EpsYukawaF_Array( (Fluid_List->get<int>("F1_Ncomp")),1.0);
+ PotentialsFF_List->set("PF4_EpsYukawaF", EpsYukawaF_Array, "AYuk - Energy prefactor for Yukawa term in fluid-fluid pair interactions (diagonal entries only)");
+
+ Array<double> YukawaKF_Array( (Fluid_List->get<int>("F1_Ncomp")),1.0);
+ PotentialsFF_List->set("PF5_ExpDecayParamF", YukawaKF_Array, "alpha - exponential decay parameter in fluid-fluid pair interactions (diagonal entries only)");
+
+
      /* set up for 2D arrays needed when we do a manual definition of interactions */
 
  TwoDArray<double> SigmaFF_Array( (Fluid_List->get<int>("F1_Ncomp"))*(Fluid_List->get<int>("F1_Ncomp")),1.0);
@@ -94,7 +101,7 @@ void dft_GUI_potentialsFF_set_defaults(Teuchos::RCP<Teuchos::ParameterList> Tram
  PotentialsFF_List->set("PF4_EpsYukawaFF", EpsYukawaFF_Array, "AYuk - Energy prefactor for Yukawa term in fluid-fluid pair interactions");
 
  TwoDArray<double> YukawaKFF_Array( (Fluid_List->get<int>("F1_Ncomp"))*(Fluid_List->get<int>("F1_Ncomp")),1.0);
- PotentialsFF_List->set("PF5_ExpDecayParamFF", YukawaKFF_Array, "alpha - exponential parameter in Yukawa term of fluid-fluid pair interactions");
+ PotentialsFF_List->set("PF5_ExpDecayParamFF", YukawaKFF_Array, "alpha - exponential decay parameter in fluid-fluid pair interactions");
 
  TwoDArray<double> NpowFF_Array( (Fluid_List->get<int>("F1_Ncomp"))*(Fluid_List->get<int>("F1_Ncomp")),12.0);
  PotentialsFF_List->set("PF6_NpowFF", NpowFF_Array, "n - variable power for r^-n repulsive term in Fluid-fluid pair interactions");
@@ -196,6 +203,16 @@ void dft_GUI_potentialsFF_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tra
   Array<double> CutF_Array(tmp_1D,tmp_1D+Ncomp);
   PotentialsFF_List->set("PF3_CutF", CutF_Array, "Cutoff distance for fluid-fluid pair interactions (diagonal entries only)");
 
+  for (i=0;i<Ncomp;i++) tmp_1D[i]=EpsYukawa_ff[i][i];
+  Array<double> EpsYukawaF_Array(tmp_1D,tmp_1D+Ncomp);
+  PotentialsFF_List->set("PF4_EpsYukawaF", EpsYukawaF_Array, "AYuk - Energy prefactor for Yukawa term in fluid-fluid pair interactions");
+
+  for (i=0;i<Ncomp;i++) tmp_1D[i]=YukawaK_ff[i][i];
+  Array<double> YukawaKF_Array(tmp_1D,tmp_1D+Ncomp);
+  PotentialsFF_List->set("PF5_ExpDecayParamF", YukawaKF_Array, "alpha - exponential decay parameter in fluid-fluid pair interactions");
+
+
+
   TwoDArray<double> SigmaFF_Array(Ncomp,Ncomp);
   for (i=0; i<Ncomp;i++) for (j=0; j<Ncomp;j++) SigmaFF_Array(i,j)=Sigma_ff[i][j];
   PotentialsFF_List->set("PF1_SigmaFF", SigmaFF_Array, "Sigma - Characteristic diameter fluid-fluid pair interactions");
@@ -211,9 +228,10 @@ void dft_GUI_potentialsFF_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tra
   TwoDArray<double> EpsYukawaFF_Array(Ncomp,Ncomp);
   for (i=0; i<Ncomp;i++) for (j=0; j<Ncomp;j++) EpsYukawaFF_Array(i,j)=EpsYukawa_ff[i][j]; 
   PotentialsFF_List->set("PF4_EpsYukawaFF", EpsYukawaFF_Array, "AYuk - Energy prefactor for Yukawa term in fluid-fluid pair interactions");
+
   TwoDArray<double> YukawaKFF_Array(Ncomp,Ncomp);
   for (i=0; i<Ncomp;i++) for (j=0; j<Ncomp;j++) YukawaKFF_Array(i,j)=YukawaK_ff[i][j]; 
-  PotentialsFF_List->set("PF5_ExpDecayParamFF", YukawaKFF_Array, "alpha - exponential parameter in Yukawa term of fluid-fluid pair interactions");
+  PotentialsFF_List->set("PF5_ExpDecayParamFF", YukawaKFF_Array, "alpha - exponential decay parameter in fluid-fluid pair interactions");
 
   TwoDArray<double> NpowFF_Array(Ncomp,Ncomp);
   for (i=0; i<Ncomp;i++) for (j=0; j<Ncomp;j++) NpowFF_Array(i,j)=Npow_ff[i][j]; 
@@ -348,22 +366,44 @@ void dft_GUI_potentialsFF_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tram
       new StringVisualDependency(Functional_List->getEntryRCP("F1_HS_Functional"), Fluid_List->getEntryRCP("F2_HSDiamType"),
                                  "Ideal Fluid / No Volume Exclusion",false));
 
-  RCP<StringVisualDependency> EpsYukawaFFArray_Dep = rcp(
-      new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"),
-                                 PotentialsFF_List->getEntryRCP("PF4_EpsYukawaFF"),  
+  RCP<StringCondition> EpsYukawaStringCon1 = rcp(
+      new StringCondition(Fluid_List->getEntryRCP("F4_PairPotType"),
                                  tuple<std::string>("Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
-                                 "r^12 repulsion plus Yukawa potential (cut/shift)",
-                                 "r^18 repulsion plus Yukawa potential (cut/shift)",
-                                 "r^N repulsion plus Yukawa potential (cut/shift)"),true));
+                                 "r^12 repulsion plus Yukawa potential (cut/shift)", "r^18 repulsion plus Yukawa potential (cut/shift)",
+                                 "r^N repulsion plus Yukawa potential (cut/shift)")));
 
-  RCP<StringVisualDependency> YukawaKFFArray_Dep = rcp(
-      new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"),
-                                 PotentialsFF_List->getEntryRCP("PF5_ExpDecayParamFF"), 
+      /* set up EpsYukawaFF conditions */
+  Condition::ConstConditionList EpsYukawaFF_conList=tuple<RCP<const Condition> >(ATTFuncStringCon1,EpsYukawaStringCon1,PotTypeStringCon);
+  RCP<AndCondition> EpsYukawaFF_allowed = rcp(new AndCondition(EpsYukawaFF_conList));
+  RCP<ConditionVisualDependency> EpsYukawaFF_Dep = rcp(
+       new ConditionVisualDependency(EpsYukawaFF_allowed, PotentialsFF_List->getEntryRCP("PF4_EpsYukawaFF"), true));
+
+      /* now set up EpsYukawaF conditions */
+  Condition::ConstConditionList EpsYukawaF_conList=tuple<RCP<const Condition> >(ATTFuncStringCon1,EpsYukawaStringCon1,PotTypeStringConF);
+  RCP<AndCondition> EpsYukawaF_allowed = rcp(new AndCondition(EpsYukawaF_conList));
+  RCP<ConditionVisualDependency> EpsYukawaF_Dep = rcp(
+       new ConditionVisualDependency(EpsYukawaF_allowed, PotentialsFF_List->getEntryRCP("PF4_EpsYukawaF"), true));
+
+  RCP<StringCondition> YukawaKStringCon1 = rcp(
+      new StringCondition(Fluid_List->getEntryRCP("F4_PairPotType"),
                                  tuple<std::string>("Exponential potential (cut/shift)",
                                  "Yukawa potential (cut/shift)","LJ 12-6 plus Yukawa potential (cut/shift)",
                                  "r^12 repulsion plus Yukawa potential (cut/shift)",
                                  "r^18 repulsion plus Yukawa potential (cut/shift)",
-                                 "r^N repulsion plus Yukawa potential (cut/shift)"),true));
+                                 "r^N repulsion plus Yukawa potential (cut/shift)")));
+
+      /* set up YukawaKFF conditions */
+  Condition::ConstConditionList YukawaKFF_conList=tuple<RCP<const Condition> >(ATTFuncStringCon1,YukawaKStringCon1,PotTypeStringCon);
+  RCP<AndCondition> YukawaKFF_allowed = rcp(new AndCondition(YukawaKFF_conList));
+  RCP<ConditionVisualDependency> YukawaKFF_Dep = rcp(
+       new ConditionVisualDependency(YukawaKFF_allowed, PotentialsFF_List->getEntryRCP("PF5_ExpDecayParamFF"), true));
+
+      /* now set up YukawaKF conditions */
+  Condition::ConstConditionList YukawaKF_conList=tuple<RCP<const Condition> >(ATTFuncStringCon1,YukawaKStringCon1,PotTypeStringConF);
+  RCP<AndCondition> YukawaKF_allowed = rcp(new AndCondition(YukawaKF_conList));
+  RCP<ConditionVisualDependency> YukawaKF_Dep = rcp(
+       new ConditionVisualDependency(YukawaKF_allowed, PotentialsFF_List->getEntryRCP("PF5_ExpDecayParamF"), true));
+
 
    RCP<StringVisualDependency> NpowFFArray_Dep = rcp(
       new StringVisualDependency(Fluid_List->getEntryRCP("F4_PairPotType"), 
@@ -416,15 +456,17 @@ void dft_GUI_potentialsFF_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tram
    RCP<TwoDColDependency<int,double> > PotFF2DColNumber_Dep = rcp(
              new TwoDColDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"),PotFF2DColNumber_Dependents));
 
-   Dependency::ParameterEntryList PotFF2ArrayLength_Dependents;
-   PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF7_Mass"));
-   PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF8_Charge"));
-   PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF9_Polarization"));
-   PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF1_SigmaF"));
-   PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF2_EpsF"));
-   PotFF2ArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF3_CutF"));
-   RCP<NumberArrayLengthDependency<int,double> > PotFFArrayLength2_Dep = rcp(
-             new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"), PotFF2ArrayLength_Dependents));
+   Dependency::ParameterEntryList PotFFArrayLength_Dependents;
+   PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF7_Mass"));
+   PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF8_Charge"));
+   PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF9_Polarization"));
+   PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF1_SigmaF"));
+   PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF2_EpsF"));
+   PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF3_CutF"));
+   PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF4_EpsYukawaF"));
+   PotFFArrayLength_Dependents.insert(PotentialsFF_List->getEntryRCP("PF5_ExpDecayParamF"));
+   RCP<NumberArrayLengthDependency<int,double> > PotFFArrayLength_Dep = rcp(
+             new NumberArrayLengthDependency<int,double>(Fluid_List->getEntryRCP("F1_Ncomp"), PotFFArrayLength_Dependents));
 
 
  /*****************************************/
@@ -439,8 +481,10 @@ void dft_GUI_potentialsFF_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tram
     depSheet_Tramonto->addDependency(EpsF_Dep);
     depSheet_Tramonto->addDependency(CutF_Dep);
     depSheet_Tramonto->addDependency(CutFF_Dep);
-    depSheet_Tramonto->addDependency(EpsYukawaFFArray_Dep);
-    depSheet_Tramonto->addDependency(YukawaKFFArray_Dep);
+    depSheet_Tramonto->addDependency(EpsYukawaFF_Dep);
+    depSheet_Tramonto->addDependency(EpsYukawaF_Dep);
+    depSheet_Tramonto->addDependency(YukawaKF_Dep);
+    depSheet_Tramonto->addDependency(YukawaKFF_Dep);
     depSheet_Tramonto->addDependency(NpowFFArray_Dep);
     depSheet_Tramonto->addDependency(ChargeArray_Dep);
     depSheet_Tramonto->addDependency(ChargeArray_Dep2);
@@ -450,10 +494,9 @@ void dft_GUI_potentialsFF_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tram
     depSheet_Tramonto->addDependency(SigmaF_Dep);
     depSheet_Tramonto->addDependency(SigmaFF_Dep);
     depSheet_Tramonto->addDependency(PotFFentry_Dep);
-/*      depSheet_Tramonto->addDependency(MixType2_Dep);*/
-     
-    depSheet_Tramonto->addDependency(PotFFArrayLength2_Dep);
+    depSheet_Tramonto->addDependency(PotFFArrayLength_Dep);
     depSheet_Tramonto->addDependency(PotFF2DRowNumber_Dep);
     depSheet_Tramonto->addDependency(PotFF2DColNumber_Dep);
+
     return;
 }

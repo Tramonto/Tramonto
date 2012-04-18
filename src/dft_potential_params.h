@@ -16,14 +16,15 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define NCOMP_MAX 5
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double YukawaK_w[NWALL_MAX_TYPE];
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
+extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern int Type_uwwPot;
 extern int Vext_PotentialID[NWALL_MAX_TYPE];
 extern double Eps_w[NWALL_MAX_TYPE];
@@ -32,6 +33,7 @@ extern double Sigma_w[NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern int Nwall_type;
 extern double YukawaK_ff[NCOMP_MAX][NCOMP_MAX];
+extern double EpsYukawa_ff[NCOMP_MAX][NCOMP_MAX];
 #define PAIR_r18andYUKAWA_CS  8
 #define PAIR_r12andYUKAWA_CS  7
 #define PAIR_LJandYUKAWA_CS   6

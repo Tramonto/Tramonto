@@ -36,7 +36,7 @@ extern double Rho_b_LBB[NCOMP_MAX];
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 #define cyl3D_slit2D_pore               8
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define atomic_centers                  3
 #define finite_cyl_3D                   5

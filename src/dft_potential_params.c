@@ -65,20 +65,21 @@ void pot_parameters(char *file_echoinput)
            if (Type_pairPot==PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS || 
                Type_pairPot==PAIR_LJandYUKAWA_CS || Type_pairPot==PAIR_r12andYUKAWA_CS ||   
                Type_pairPot==PAIR_r18andYUKAWA_CS) {
-			   YukawaK_ff[i][j]=0.5*(YukawaK_ff[i][i]+YukawaK_ff[j][j]);
+                     EpsYukawa_ff[i][j] = sqrt(EpsYukawa_ff[i][i]*EpsYukawa_ff[j][j]); 
+		     YukawaK_ff[i][j]=0.5*(YukawaK_ff[i][i]+YukawaK_ff[j][j]);
            }
         }
      
         if (printproc) {
            fprintf(fp2,"\ti:%d  j:%d",i,j);
-           fprintf(fp2,"   Sigma_ff: %9.6f  Cut_ff: %9.6f  Eps_ff: %9.6f  Bond_ff: %9.6f \n",
+           fprintf(fp2,"   Sigma_ff: %9.6f  Cut_ff: %9.6f  Eps_ff: %9.6f  Bond_ff: %9.6f ",
                    Sigma_ff[i][j],Cut_ff[i][j],Eps_ff[i][j],Bond_ff[i][j]);
            if (Type_pairPot==PAIR_YUKAWA_CS || Type_pairPot == PAIR_EXP_CS || 
                Type_pairPot==PAIR_LJandYUKAWA_CS || Type_pairPot==PAIR_r12andYUKAWA_CS ||
                 Type_pairPot==PAIR_r18andYUKAWA_CS) {
-               fprintf(fp2,"\ti:%d  j:%d",i,j);
-               fprintf(fp2,"   YukawaK_ff: %9.6f\n",YukawaK_ff[i][j]);
+               fprintf(fp2,"   YukawaK_ff: %9.6f  EpsYukawa_ff: %9.6f ",YukawaK_ff[i][j],EpsYukawa_ff[i][j]);
            }
+           fprintf(fp2,"\n");
         }
      }
  } 
@@ -93,23 +94,24 @@ void pot_parameters(char *file_echoinput)
             Vext_PotentialID[jw]==PAIR_LJandYUKAWA_CS || Vext_PotentialID[jw]==PAIR_r12andYUKAWA_CS || Vext_PotentialID[jw]==PAIR_r18andYUKAWA_CS ||
             Type_uwwPot==PAIR_YUKAWA_CS || Type_uwwPot==PAIR_EXP_CS || 
             Type_uwwPot==PAIR_LJandYUKAWA_CS || Type_uwwPot==PAIR_r12andYUKAWA_CS || Type_uwwPot==PAIR_r18andYUKAWA_CS) {
-                 YukawaK_ww[iw][jw]=0.5*(YukawaK_w[iw]+YukawaK_w[jw]);
+                 EpsYukawa_ww[iw][jw] = sqrt(EpsYukawa_ww[iw][iw]*EpsYukawa_ww[jw][jw]);
+                 YukawaK_ww[iw][jw]=0.5*(YukawaK_ww[iw][iw]+YukawaK_ww[jw][jw]);
         }
         if (iw != jw){
            Cut_ww[iw][jw] = 0.5*(Cut_ww[iw][iw]+Cut_ww[jw][jw]);
         }
         if (printproc){
           fprintf(fp2,"\tiwall_type:%d  jwall_type:%d",iw,jw);
-          fprintf(fp2,"   Sigma_ww: %9.6f  Cut_ww: %9.6f  Eps_ww: %9.6f\n",
+          fprintf(fp2,"   Sigma_ww: %9.6f  Cut_ww: %9.6f  Eps_ww: %9.6f",
                            Sigma_ww[iw][jw],Cut_ww[iw][jw],Eps_ww[iw][jw]);
           if (Vext_PotentialID[iw]==PAIR_YUKAWA_CS || Vext_PotentialID[jw]==PAIR_YUKAWA_CS || Type_uwwPot==PAIR_YUKAWA_CS || 
               Vext_PotentialID[iw]==PAIR_EXP_CS || Vext_PotentialID[jw]==PAIR_EXP_CS ||Type_uwwPot==PAIR_EXP_CS ||
               Vext_PotentialID[iw]==PAIR_LJandYUKAWA_CS || Vext_PotentialID[jw]==PAIR_LJandYUKAWA_CS || Type_uwwPot==PAIR_LJandYUKAWA_CS ||
               Vext_PotentialID[iw]==PAIR_r12andYUKAWA_CS || Vext_PotentialID[jw]==PAIR_r12andYUKAWA_CS || Type_uwwPot==PAIR_r12andYUKAWA_CS ||
               Vext_PotentialID[iw]==PAIR_r18andYUKAWA_CS || Vext_PotentialID[jw]==PAIR_r18andYUKAWA_CS ||Type_uwwPot==PAIR_r18andYUKAWA_CS ){
-              fprintf(fp2,"\tiwall_type:%d  jwall_type:%d",iw,jw);
-              fprintf(fp2,"   YukawaK_ww: %9.6f\n",YukawaK_ww[iw][jw]);
+              fprintf(fp2,"   YukawaK_ww: %9.6f  EpsYukawa_ww: %9.6f\n",YukawaK_ww[iw][jw],EpsYukawa_ww[iw][jw]);
           }
+          fprintf(fp2,"\n");
         }
    }
  }
@@ -123,18 +125,18 @@ void pot_parameters(char *file_echoinput)
         if (Vext_PotentialID[iw]==PAIR_YUKAWA_CS || Vext_PotentialID[iw]==PAIR_EXP_CS || 
             Vext_PotentialID[iw]==PAIR_LJandYUKAWA_CS || Vext_PotentialID[iw]==PAIR_r12andYUKAWA_CS ||
             Vext_PotentialID[iw]==PAIR_r18andYUKAWA_CS){ 
+               EpsYukawa_wf[i][iw] = sqrt(EpsYukawa_ff[i][i]*EpsYukawa_ww[iw][iw]);
                YukawaK_wf[i][iw] = 0.5*(YukawaK_ff[i][i]+YukawaK_ww[iw][iw]);
         }
 
         if (printproc) {
           fprintf(fp2,"\ti:%d  iwall_type:%d",i,iw);
-          fprintf(fp2,"   Sigma_wf: %9.6f  Cut_wf: %9.6f  Eps_wf: %9.6f\n",
+          fprintf(fp2,"   Sigma_wf: %9.6f  Cut_wf: %9.6f  Eps_wf: %9.6f",
            Sigma_wf[i][iw],Cut_wf[i][iw],Eps_wf[i][iw]);
           if (Vext_PotentialID[iw]==PAIR_YUKAWA_CS || Vext_PotentialID[iw]==PAIR_EXP_CS || 
               Vext_PotentialID[iw]==PAIR_LJandYUKAWA_CS || Vext_PotentialID[iw]==PAIR_r12andYUKAWA_CS ||
               Vext_PotentialID[iw]==PAIR_r18andYUKAWA_CS) {
-             fprintf(fp2,"\ti:%d  iwall_type:%d",i,iw);
-             fprintf(fp2,"   YukawaK_wf: %9.6f \n",YukawaK_wf[i][iw]);
+             fprintf(fp2,"   YukawaK_wf: %9.6f EpsYukawa_wf: %9.6f \n",YukawaK_wf[i][iw],EpsYukawa_wf[i][iw]);
           }
         }
      }

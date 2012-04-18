@@ -111,7 +111,7 @@ extern "C" {
 #define NCOMP_MAX 5
 #define NDIM_MAX  3
 #define NWALL_MAX 600 
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 #define NPERIODIC_MAX 4
 
 #define NBOND_MAX 4
@@ -1016,11 +1016,9 @@ extern double  Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w interact
 extern double  Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];  /* Array of w-w cutoff distances      */
 extern double  EpsYukawa_ff[NCOMP_MAX][NCOMP_MAX]; /* Yukawa prefactor for fluid-fluid interactions */
 extern double  EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE]; /* Yukawa prefactor for wallfluid interactions */
-extern double  EpsYukawa_w[NWALL_MAX_TYPE]; /* Yukawa prefactor for wall-wall interactions */
 extern double  EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa prefactor for wall-wall interactions */
 extern double  YukawaK_ff[NCOMP_MAX][NCOMP_MAX]; /* Yukawa decay constant on fluid-fluid interactions */
 extern double  YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE]; /* Yukawa decay constant on wall-fluid interactions */
-extern double  YukawaK_w[NWALL_MAX_TYPE]; /* Yukawa decay constant on wall-wall interactions */
 extern double  YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE]; /* Yukawa decay constant on wall-wall interactions */
 
 extern int     **Lsemiperm; /*Array of logicals for semi-permeable surfaces */

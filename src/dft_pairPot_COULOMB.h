@@ -34,7 +34,7 @@ void uCOULOMB_setparams(int context,int i,int j,double *param1,double *param2,do
 #define NONE        -1
 #define NONE        -1
 extern int Iwrite_screen;
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define WALL_WALL   2
 #define NWALL_MAX 600 

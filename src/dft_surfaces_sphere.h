@@ -34,7 +34,7 @@ typedef struct SurfaceGeom_Struct SurfaceGeom_Struct;
 extern struct SurfaceGeom_Struct *SGeom;
 #define NWALL_MAX 600 
 extern int Lwedge_cutout[NWALL_MAX];
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern int Lperiodic_overlay[NWALL_MAX_TYPE];
 extern int Nperiodic_overlay[NWALL_MAX_TYPE];
 #define NPERIODIC_MAX 4

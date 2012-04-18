@@ -21,7 +21,7 @@ double surface_cylinder3D_roughness(double *fluidEl_center,int iwall_type,int iw
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 double surface_cylinder2D_roughness(double *fluidEl_center,int iwall_type,int iwall);
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 #define MAX_ROUGH_BLOCK 100
 extern double Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
 extern double Size_x[NDIM_MAX];

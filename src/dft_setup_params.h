@@ -22,7 +22,7 @@
 #define colloids_cyl_sphere             2
 #define point_surface                   4
 #define finite_planar_wall              1
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 #define NPERIODIC_MAX 4
 extern double EndpointLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
 extern double OriginLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
@@ -79,7 +79,6 @@ extern struct Loca_Struct Loca;
 extern double **Vext_membrane;
 extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
-extern double EpsYukawa_w[NWALL_MAX_TYPE];
 extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_w[NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
@@ -103,7 +102,6 @@ extern double YukawaK_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
-extern double YukawaK_w[NWALL_MAX_TYPE];
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define PAIR_r18andYUKAWA_CS  8
 #define PAIR_r12andYUKAWA_CS  7

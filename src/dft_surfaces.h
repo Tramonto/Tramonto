@@ -54,7 +54,7 @@ extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Lhard_surf;
 #define NWALL_MAX 600 
 extern int Lwedge_cutout[NWALL_MAX];
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern int Llinear_overlay[NWALL_MAX_TYPE];
 extern int Lperiodic_overlay[NWALL_MAX_TYPE];
 extern double Esize_x[NDIM_MAX];

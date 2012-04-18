@@ -266,10 +266,7 @@ void make_length_params_dimensionless()
       || Type_uwwPot==PAIR_r18andYUKAWA_CS){
 
      for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
-        if (Mix_type=1){
-            for (jwall_type=0;jwall_type<Nwall_type;jwall_type++) YukawaK_ww[iwall_type][jwall_type]*=Length_ref;
-        }
-        else  YukawaK_w[iwall_type]*=Length_ref;
+        for (jwall_type=0;jwall_type<Nwall_type;jwall_type++) YukawaK_ww[iwall_type][jwall_type]*=Length_ref;
      }
   }
 
@@ -336,12 +333,8 @@ void make_energy_params_dimensionless()
       Type_uwwPot==PAIR_LJandYUKAWA_CS || Type_uwwPot==PAIR_r12andYUKAWA_CS
       || Type_uwwPot==PAIR_r18andYUKAWA_CS){
 
-     for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
-        if (Mix_type=1){
+     for (iwall_type=0;iwall_type<Nwall_type;iwall_type++)
             for (jwall_type=0;jwall_type<Nwall_type;jwall_type++) EpsYukawa_ww[iwall_type][jwall_type]/=Temp;
-        }
-        else  EpsYukawa_w[iwall_type]/=Temp;
-     }
   }
 
   if (Mix_type==1) 

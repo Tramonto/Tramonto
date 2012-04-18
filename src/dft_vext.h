@@ -34,7 +34,7 @@ void comm_loc_to_glob_vec(int *n_loc,int *in_loc_vec,int *out_glob_vec);
 int el_box_to_el(int iel_box);
 double integrate_potential(int typePot,double param1,double param2,double param3,double param4,double param5,double param6,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);
 #define NCOMP_MAX 5
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 void find_images(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
 extern int *B2G_node;

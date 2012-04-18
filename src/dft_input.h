@@ -17,7 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 #define NZONE_MAX  10 
 extern int Num_Proc;
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 #define NWALL_MAX 600 
 void error_check(void);
 #define REFLECT              2
@@ -206,9 +206,7 @@ extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
-extern double YukawaK_w[NWALL_MAX_TYPE];
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double EpsYukawa_w[NWALL_MAX_TYPE];
 extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_w[NWALL_MAX_TYPE];

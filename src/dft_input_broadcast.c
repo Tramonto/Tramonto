@@ -209,14 +209,8 @@ void broadcast_input()
      if (Type_uwwPot==PAIR_YUKAWA_CS || Type_uwwPot == PAIR_EXP_CS || 
          Type_uwwPot==PAIR_LJandYUKAWA_CS || Type_uwwPot==PAIR_r12andYUKAWA_CS
          || Type_uwwPot==PAIR_r18andYUKAWA_CS){
-        if (Mix_type==1){
            MPI_Bcast(EpsYukawa_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
            MPI_Bcast(YukawaK_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-        }
-        else{
-          MPI_Bcast(EpsYukawa_w,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-          MPI_Bcast(YukawaK_w,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-        }
      }
   }
 

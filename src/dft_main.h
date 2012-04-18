@@ -24,7 +24,7 @@ extern int Nwall;
 extern int Pos_new_nodes;
 int round_to_int(double x);
 extern int Plane_new_nodes;
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern double Del_1[NWALL_MAX_TYPE];
 extern double Size_x[NDIM_MAX];
 extern double Energy;

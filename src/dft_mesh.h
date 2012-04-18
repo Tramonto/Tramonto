@@ -59,7 +59,7 @@ int element_box_to_node_box(int iel_box);
 #define BACKGROUND   2
 extern int Charge_type_local;
 void els_charge_spheres(double radius,double *x,int *nelems,int *nelems_unique,int *elems,int charge_type);
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define POINT_CHARGE 0
 extern int Charge_type_atoms;

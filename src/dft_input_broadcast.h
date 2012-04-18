@@ -33,7 +33,7 @@ extern struct Loca_Struct Loca;
 #define USE_LOCA
 extern int Pos_new_nodes;
 extern int Plane_new_nodes;
-#define NWALL_MAX_TYPE 10 
+#define NWALL_MAX_TYPE 20 
 extern double Del_1[NWALL_MAX_TYPE];
 extern int Nruns;
 extern double Az_tolerance;
@@ -171,8 +171,6 @@ extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
-extern double YukawaK_w[NWALL_MAX_TYPE];
-extern double EpsYukawa_w[NWALL_MAX_TYPE];
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
