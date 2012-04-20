@@ -147,6 +147,7 @@ extern double DielecConst_plasma;
 extern double Temp_K_plasma;
 extern double Sigma_Angstroms_plasma;
 extern int Type_dielec;
+#define POINT_CHARGE 0
 extern int Charge_type_local;
 extern int Charge_type_atoms;
 #define ATOMIC_CHARGE    3
@@ -209,9 +210,7 @@ extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double Eps_w[NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double Sigma_w[NWALL_MAX_TYPE];
 #define atomic_centers                  3
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Rho_w[NWALL_MAX_TYPE];

@@ -367,8 +367,6 @@ int    **Zero_density_TF; /* array [Nnodes][icomp] indicates where VEXT_MAX */
 double  Betamu_att[NCOMP_MAX];  /* sum over jcomp of Van der waals constant a(icomp,jcomp)*/
 double  Avdw[NCOMP_MAX][NCOMP_MAX];    /* Van der waals constant a(icomp,jcomp)*/
 
-double  Sigma_w[NWALL_MAX_TYPE];  /* Array[Nwall] of w-w interaction diameters    */
-double  Eps_w[NWALL_MAX_TYPE];    /* Array[Nwall] of w-w interaction energies     */
 double  Rho_w[NWALL_MAX_TYPE];    /* Array[Nwall] of w-w interaction energies     */
 double  Elec_param_w[NWALL_MAX]; /* Array: surf charge (potential) per area  */
 int     Type_bc_elec[NWALL_MAX_TYPE];/* Array of surface b.c.'s for charged systems*/

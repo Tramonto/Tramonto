@@ -130,9 +130,10 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> SurfGeom11_List = sublist(Geometry_List, "SurfType 12: Geometry");
 
   RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "S5: Surface Interactions");
-  RCP<ParameterList> SurfaceParamCharge_List = sublist(Surface_List, "S6: Charged Surfaces and Sources");
-  RCP<ParameterList> SurfaceInteraction_List = sublist(Surface_List, "S7: Fluid-Surface Interaction Types");
-  RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "S7: Fluid-Surface Potential Parameterss");
+  RCP<ParameterList> SurfaceParamCharge_List = sublist(Surface_List, "S6: Surface Charges and Other Charge Sources");
+  RCP<ParameterList> SurfacePosition_List = sublist(Surface_List, "S7: Surface Positions and Properites");
+  RCP<ParameterList> SurfaceInteraction_List = sublist(Surface_List, "S8: Fluid-Surface Interaction Types");
+  RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "S9: Fluid-Surface Potential Parameterss");
 
   RCP<ParameterList> Continuation_List = sublist(Tramonto_List, "Sect. 6: Continuation");
   RCP<ParameterList> DensProfile_List = sublist(Tramonto_List, "Sect. 7: Initial Guess Options");
@@ -170,7 +171,7 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
      dft_GUI_potentialsFF_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,PotentialsFF_List);
      dft_GUI_Polymer_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
      dft_GUI_StatePoint_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
-     dft_GUI_surfaces_set_defaults(Tramonto_List,depSheet_Tramonto,Surface_List);
+     dft_GUI_surfaces_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfacePosition_List);
      for (i=0;i<10;i++){
              if (i==0) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom0_List);
         else if (i==1) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom1_List);
@@ -185,7 +186,7 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
         else if (i==9) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
         else if (i==9) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
      }
-     dft_GUI_potentialsWW_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsFF_List,PotentialsWW_List,SurfaceParamCharge_List);
+     dft_GUI_potentialsWW_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsWW_List,SurfaceParamCharge_List);
      dft_GUI_Continuation_set_defaults(Tramonto_List,depSheet_Tramonto,Continuation_List);
      dft_GUI_NumericalMethods_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Solver_List,
                               Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
@@ -197,7 +198,7 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
         dft_GUI_potentialsFF_set_OldFormat(Tramonto_List,depSheet_Tramonto,Fluid_List,PotentialsFF_List);
         dft_GUI_Polymer_set_OldFormat(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
         dft_GUI_StatePoint_set_OldFormat(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
-        dft_GUI_surfaces_set_OldFormat(Tramonto_List,depSheet_Tramonto,Surface_List);
+        dft_GUI_surfaces_set_OldFormat(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfacePosition_List);
         for (i=0;i<Nwall_type;i++){
                 if (i==0) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom0_List);
            else if (i==1) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom1_List);
@@ -212,7 +213,7 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
            else if (i==9) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
            else if (i==9) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
         }
-        dft_GUI_potentialsWW_set_OldFormat(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsFF_List,PotentialsWW_List,SurfaceParamCharge_List);
+        dft_GUI_potentialsWW_set_OldFormat(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsWW_List,SurfaceParamCharge_List);
         dft_GUI_Continuation_set_OldFormat(Tramonto_List,depSheet_Tramonto,Continuation_List);
         dft_GUI_NumericalMethods_set_OldFormat(Tramonto_List,depSheet_Tramonto,Solver_List,
                                  Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
@@ -224,7 +225,7 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
      dft_GUI_potentialsFF_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,PotentialsFF_List);
      dft_GUI_Polymer_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
      dft_GUI_StatePoint_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
-     dft_GUI_surfaces_dependencies(Tramonto_List,depSheet_Tramonto,Surface_List);
+     dft_GUI_surfaces_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfacePosition_List);
      for (i=0;i<10;i++){
              if (i==0) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom0_List);
         else if (i==1) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom1_List);
@@ -239,7 +240,8 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
         else if (i==9) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
         else if (i==9) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
      }
-     dft_GUI_potentialsWW_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsFF_List,PotentialsWW_List,SurfaceParamCharge_List);
+     dft_GUI_potentialsWW_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfacePosition_List,
+                                       PotentialsFF_List,ChargedFluid_List,PotentialsWW_List,SurfaceParamCharge_List);
      dft_GUI_Continuation_dependencies(Tramonto_List,depSheet_Tramonto,PotentialsFF_List,Continuation_List);
      dft_GUI_NumericalMethods_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,Solver_List,
                               Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
@@ -275,6 +277,11 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
            StatePoint_List->getEntryRCP("BFL1: Fluids with Charge and Electrostatics"),
            tuple<std::string>("Charge_Mean_Field","Charge_with_DeltaC_RPM", "Charge_with_DeltaC_General","Charge(MF)_with_Polarization")));
 
+   RCP<StringVisualDependency> ChargedSurfaceList_Dep = rcp( new StringVisualDependency(
+           Functional_List->getEntryRCP("F3_CHARGE_Functional"),
+           Surface_List->getEntryRCP("S6: Surface Charges and Other Charge Sources"),
+           tuple<std::string>("Charge_Mean_Field","Charge_with_DeltaC_RPM", "Charge_with_DeltaC_General","Charge(MF)_with_Polarization")));
+
 /*   RCP<SimpleFunctionObject<int> >test_NsurfTypes(int,int);
    RCP<NumberVisualDependency<int> > SurfaceTypeList_DepN8=rcp(new NumberVisualDependency<int>(
          Surface_List->getEntry("S3: Number of surface types"),
@@ -284,6 +291,7 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
    depSheet_Tramonto->addDependency(PolyList_Dep);
    depSheet_Tramonto->addDependency(DiffusionList_Dep);
    depSheet_Tramonto->addDependency(ChargedFluidList_Dep);
+   depSheet_Tramonto->addDependency(ChargedSurfaceList_Dep);
 
              /* Greate the GUI windows for data entry with all dependencies.  */
         if (start_GUI){

@@ -196,14 +196,8 @@ void broadcast_input()
 
   if (Nwall_type>0){
      MPI_Bcast(Rho_w,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-     if (Mix_type==1){
-            MPI_Bcast(Sigma_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-            MPI_Bcast(Eps_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-     }
-     else {      
-            MPI_Bcast(Sigma_w,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-            MPI_Bcast(Eps_w,NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
-     }
+     MPI_Bcast(Sigma_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
+     MPI_Bcast(Eps_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
      MPI_Bcast(Cut_ww,NWALL_MAX_TYPE*NWALL_MAX_TYPE,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
      if (Type_uwwPot==PAIR_YUKAWA_CS || Type_uwwPot == PAIR_EXP_CS || 

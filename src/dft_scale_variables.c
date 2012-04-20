@@ -173,7 +173,7 @@ void scale_all_epsParams(double ratio)
         for (icomp=0; icomp<Ncomp; icomp++) Eps_ff[icomp][icomp] /= ratio;
      }
      for (i=0; i<Nwall_type;i++){
-        if(Ipot_wf_n[i] != VEXT_HARD) Eps_w[i] /= ratio;
+        if(Ipot_wf_n[i] != VEXT_HARD) Eps_ww[i][i] /= ratio;
      }
   }
   else if (Mix_type==1){

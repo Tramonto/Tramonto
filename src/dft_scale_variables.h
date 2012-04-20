@@ -45,9 +45,8 @@ extern int Type_poly;
 extern double Rho_b[NCOMP_MAX];
 void calc_new_density(int icomp,char *output_file1);
 #define NWALL_MAX_TYPE 20 
-extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
-extern double Eps_w[NWALL_MAX_TYPE];
+extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define VEXT_HARD        1
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Nwall_type;

@@ -80,7 +80,6 @@ extern double **Vext_membrane;
 extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double Eps_w[NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double EpsYukawa_ff[NCOMP_MAX][NCOMP_MAX];
 extern double X_1D_bc;
@@ -97,6 +96,7 @@ extern int Type_interface;
 extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
+extern int Mix_type;
 extern double YukawaK_ff[NCOMP_MAX][NCOMP_MAX];
 #define PAIR_rNandYUKAWA_CS   9
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
@@ -110,9 +110,7 @@ extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define PAIR_YUKAWA_CS        3
 extern int Type_uwwPot;
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double Sigma_w[NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern int Mix_type;
 extern double WallParam_3[NWALL_MAX_TYPE];
 extern double WallParam_2[NWALL_MAX_TYPE];
 extern double WallParam[NWALL_MAX_TYPE];

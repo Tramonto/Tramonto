@@ -69,7 +69,7 @@ double get_init_param_value(int cont_type,int Loca_contID)
            break;    
 
       case CONT_EPSW_I:   
-          if (Mix_type==0) return Eps_w[Cont_ID[Loca_contID][0]];
+          if (Mix_type==0) return Eps_ww[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][0]];
           else             return Eps_ww[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]];
           break;
 
@@ -171,8 +171,8 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
       case CONT_EPSW_I:  
           iwall_type=Cont_ID[Loca_contID][0];
           if (Mix_type ==0) {
-              param_old=Eps_w[iwall_type];
-              Eps_w[iwall_type] = param;
+              param_old=Eps_ww[iwall_type][iwall_type];
+              Eps_ww[iwall_type][iwall_type] = param;
           }
           else{
              jwall_type=Cont_ID[Loca_contID][1];
@@ -541,7 +541,7 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
         break;
 
       case CONT_EPSW_I:
-         if (Mix_type==0) fprintf(fp,"Eps_w[%d]  ",Cont_ID[Loca_contID][0]);
+         if (Mix_type==0) fprintf(fp,"Eps_ww[%d][%d]  ",Cont_ID[Loca_contID][0],Cont_ID[Loca_contID][0]);
          else             fprintf(fp,"Eps_ww[%d][%d]  ",Cont_ID[Loca_contID][0],Cont_ID[Loca_contID][1]);
          break;
 
@@ -813,7 +813,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
          break;
 
       case CONT_EPSW_I:
-         if (Mix_type==0) fprintf(fp,"%11.8f   ", Eps_w[Cont_ID[Loca_contID][0]]);
+         if (Mix_type==0) fprintf(fp,"%11.8f   ", Eps_ww[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][0]]);
          else fprintf(fp,"%11.8f   ", Eps_ww[Cont_ID[Loca_contID][0]][Cont_ID[Loca_contID][1]]);
 
          break;

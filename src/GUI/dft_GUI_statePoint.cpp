@@ -315,7 +315,7 @@ void dft_GUI_StatePoint_dependencies( Teuchos::RCP<Teuchos::ParameterList> Tramo
    DielecPoreDependents.insert(ChargedFluid_List->getEntryRCP("CF4.2: Size of Near Wall region"));
    RCP<StringVisualDependency> DielecPore_Dep = rcp(
        new StringVisualDependency( ChargedFluid_List->getEntryRCP("CF1: Type Dielectric Constant(s)"),DielecPoreDependents,
-           tuple<std::string>("2-Dielec Const: fluid and wall regions","3-Dielec Const: bulk fluid, fluid near wall, wall regions"))); 
+           tuple<std::string>("3-Dielec Const: bulk fluid, fluid near wall, wall regions"))); 
 
        /* set up two dependees for the electrostatic condition */
    RCP<StringCondition> ChargeCon1 = rcp(

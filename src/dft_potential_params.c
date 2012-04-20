@@ -86,8 +86,8 @@ void pot_parameters(char *file_echoinput)
        
  for (iw=0; iw<Nwall_type; iw++){
    for (jw=0; jw<Nwall_type; jw++){
-        Sigma_ww[iw][jw] = 0.5*(Sigma_w[iw]+Sigma_w[jw]);
-        Eps_ww[iw][jw] = sqrt(Eps_w[iw]*Eps_w[jw]);
+        Sigma_ww[iw][jw] = 0.5*(Sigma_ww[iw][iw]+Sigma_ww[jw][jw]);
+        Eps_ww[iw][jw] = sqrt(Eps_ww[iw][iw]*Eps_ww[jw][jw]);
         if ( Vext_PotentialID[iw]==PAIR_YUKAWA_CS || Vext_PotentialID[iw]==PAIR_EXP_CS || 
             Vext_PotentialID[iw]==PAIR_LJandYUKAWA_CS || Vext_PotentialID[iw]==PAIR_r12andYUKAWA_CS || Vext_PotentialID[iw]==PAIR_r18andYUKAWA_CS ||
             Vext_PotentialID[jw]==PAIR_YUKAWA_CS || Vext_PotentialID[jw]==PAIR_EXP_CS || 
@@ -119,8 +119,8 @@ void pot_parameters(char *file_echoinput)
  for (i=0; i<Ncomp; i++){
 
      for (iw=0; iw<Nwall_type; iw++){
-        Sigma_wf[i][iw] = 0.5*(Sigma_ff[i][i] + Sigma_w[iw]);
-        Eps_wf[i][iw] = sqrt(Eps_ff[i][i]*Eps_w[iw]);
+        Sigma_wf[i][iw] = 0.5*(Sigma_ff[i][i] + Sigma_ww[iw][iw]);
+        Eps_wf[i][iw] = sqrt(Eps_ff[i][i]*Eps_ww[iw][iw]);
         Cut_wf[i][iw] = 0.5*(Cut_ff[i][i]+Cut_ww[iw][iw]);
         if (Vext_PotentialID[iw]==PAIR_YUKAWA_CS || Vext_PotentialID[iw]==PAIR_EXP_CS || 
             Vext_PotentialID[iw]==PAIR_LJandYUKAWA_CS || Vext_PotentialID[iw]==PAIR_r12andYUKAWA_CS ||

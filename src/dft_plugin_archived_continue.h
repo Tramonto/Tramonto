@@ -28,6 +28,7 @@ extern int WallType[NWALL_MAX];
 extern int Nwall;
 void setup_pairPotentials(char *file_echoinput);
 extern int Nwall_type;
+extern int Mix_type;
 extern int Ncomp;
 #define FILES_BASIC        0
 void thermodynamics(char *file_echoinput,int iwrite_screen,int iwrite_files);
@@ -47,8 +48,6 @@ extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 #define CONT_EPSWF_ALL	        105
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double Eps_w[NWALL_MAX_TYPE];
-extern int Mix_type;
 #define CONT_EPSW_ALL		104
 #define CONT_RHO_ALL		103
 #define CONT_RHO_CONST_XSOLV    102

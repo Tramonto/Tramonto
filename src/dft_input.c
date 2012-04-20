@@ -827,16 +827,9 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
       else if (Mix_type==1) {jmin=0;jmax=Nwall_type;}
 
       for (j=jmin; j<jmax; j++){
-          if (Mix_type==1){ 
-             fscanf(fpinput,"%lf",&Sigma_ww[i][j]);
-              fprintf(fpecho,"%f  ",Sigma_ww[i][j]);
-             if (Surface_type[i] == atomic_centers && j==i) WallParam[i] = Sigma_ww[i][i]/2.0;
-          }
-          else { 
-             fscanf(fpinput,"%lf",&Sigma_w[i]);
-              fprintf(fpecho,"%f  ",Sigma_w[i]);
-             if (Surface_type[i] == atomic_centers) WallParam[i] = Sigma_w[i]/2.0;
-          }
+         fscanf(fpinput,"%lf",&Sigma_ww[i][j]);
+         fprintf(fpecho,"%f  ",Sigma_ww[i][j]);
+         if (Surface_type[i] == atomic_centers && j==i) WallParam[i] = Sigma_ww[i][i]/2.0;
       }
   }
 
@@ -847,15 +840,9 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
       else if (Mix_type==1) {jmin=0;jmax=Nwall_type;}
 
       for (j=jmin; j<jmax; j++){
-          if (Mix_type==1){ 
-              fscanf(fpinput,"%lf",&Eps_ww[i][j]);
-	       fprintf(fpecho,"%f  ",Eps_ww[i][j]);
-          }
-          else { 
-              fscanf(fpinput,"%lf",&Eps_w[i]);
-	       fprintf(fpecho,"%f  ",Eps_w[i]);
-          }
-        }
+          fscanf(fpinput,"%lf",&Eps_ww[i][j]);
+	 fprintf(fpecho,"%f  ",Eps_ww[i][j]);
+      }
   }
 
                        /*Cut_ww */
@@ -1288,7 +1275,10 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
       fscanf(fpinput,"%d  %d", &Charge_type_atoms, &Charge_type_local);
        fprintf(fpecho,"%d  %d ",Charge_type_atoms,Charge_type_local);
     }
-    else  fprintf(fpecho,"n/a:  ncharge=0 and walls are not atoms");
+    else{  
+       Charge_type_atoms=Charge_type_local=POINT_CHARGE;
+       fprintf(fpecho,"n/a:  ncharge=0 and walls are not atoms");
+    }
   }
   else{
       read_junk(fpinput,fpecho);

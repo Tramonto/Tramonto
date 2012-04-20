@@ -174,8 +174,6 @@ extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double YukawaK_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double EpsYukawa_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double Eps_w[NWALL_MAX_TYPE];
-extern double Sigma_w[NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Rho_w[NWALL_MAX_TYPE];

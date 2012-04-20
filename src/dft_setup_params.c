@@ -254,10 +254,7 @@ void make_length_params_dimensionless()
   }
 
   for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
-     if (Mix_type=1){
-         for (jwall_type=0;jwall_type<Nwall_type;jwall_type++) Sigma_ww[iwall_type][jwall_type]/=Length_ref;
-     }
-     else  Sigma_w[iwall_type]/=Length_ref;
+     for (jwall_type=0;jwall_type<Nwall_type;jwall_type++) Sigma_ww[iwall_type][jwall_type]/=Length_ref;
      for (jwall_type=0;jwall_type<Nwall_type;jwall_type++) Cut_ww[iwall_type][jwall_type]/=Length_ref;
   }
 
@@ -323,10 +320,7 @@ void make_energy_params_dimensionless()
   }
 
   for (iwall_type=0; iwall_type<Nwall_type; iwall_type++){
-     if (Mix_type==1){
-         for (jwall_type=0;iwall_type<Nwall_type;iwall_type++) Eps_ww[iwall_type][jwall_type]/=Temp;
-     }
-     else Eps_w[iwall_type]/=Temp;
+     for (jwall_type=0;iwall_type<Nwall_type;iwall_type++) Eps_ww[iwall_type][jwall_type]/=Temp;
   }
    
   if (Type_uwwPot==PAIR_YUKAWA_CS || Type_uwwPot == PAIR_EXP_CS || 

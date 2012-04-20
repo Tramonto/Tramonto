@@ -64,8 +64,7 @@ double get_init_param_archived_plugin(int cont_type,int Loca_contID)
         return Rho_b[0];
         break;
       case CONT_EPSW_ALL:
-        if (Mix_type==0) return Eps_w[0];
-        else             return Eps_ww[0][0];
+        return Eps_ww[0][0];
         break;
       case CONT_EPSWF_ALL:
         return Eps_wf[0][0];
@@ -158,10 +157,10 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
       case CONT_EPSW_ALL: 
             /* vary wall-wall interactions for all surfaces simultaneously */
             if (Mix_type==0){
-                 ratio = 1.0/Eps_w[0];
-                 Eps_w[0]=param;
-                 ratio*= Eps_w[0];
-                 for (i=0;i<Nwall_type;i++) Eps_w[i] *= ratio;
+                 ratio = 1.0/Eps_ww[0][0];
+                 Eps_ww[0][0]=param;
+                 ratio*= Eps_ww[0][0];
+                 for (i=0;i<Nwall_type;i++) Eps_ww[i][i] *= ratio;
 
                  for (i=0; i<Ncomp; i++){ 
                    for (iw=0; iw<Nwall_type; iw++) eps_wf_save[i][iw]=Eps_wf[i][iw];
@@ -294,10 +293,10 @@ void print_cont_type_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
       case CONT_EPSW_ALL:
          if (Mix_type==0){
             if (Nwall_type <=5){
-              for (i=0;i<Nwall_type;i++) fprintf(fp,"Eps_w[%d]  ",i);
+              for (i=0;i<Nwall_type;i++) fprintf(fp,"Eps_ww[%d][%d]  ",i,i);
             } 
             else{
-              fprintf(fp,"Eps_w[0](all)  ");
+              fprintf(fp,"Eps_ww[0][0](all)  ");
             }
           }
           else{ 
@@ -391,10 +390,10 @@ void print_cont_variable_archived_plugin(int cont_type,FILE *fp,int Loca_contID)
       case CONT_EPSW_ALL:
          if (Mix_type==0){
             if (Nwall_type <=5){
-              for (i=0;i<Nwall_type;i++) fprintf(fp,"%11.7f  ",Eps_w[i]);
+              for (i=0;i<Nwall_type;i++) fprintf(fp,"%11.7f  ",Eps_ww[i][i]);
             } 
             else{
-              fprintf(fp,"%11.7f  ",Eps_w[0]);
+              fprintf(fp,"%11.7f  ",Eps_ww[0][0]);
             }
           }
           else{ 

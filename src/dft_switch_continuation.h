@@ -169,7 +169,6 @@ extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 #define CONT_EPSWF_IJ      5    /* Wall-Fluid Energy Params for IJ term */
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
-extern double Eps_w[NWALL_MAX_TYPE];
 extern int Mix_type;
 #define CONT_EPSW_I        4    /* Wall-Wall Energy Params for wall I */
 extern double Betamu[NCOMP_MAX];
