@@ -56,7 +56,7 @@ void setup_wall_wall_potentials()
   
   /********************** BEGIN EXECUTION ************************************/
 
-  if (Proc==0) printf("\n %s: Setting up Wall-Wall Potentials ... \n",yo);
+  if (Proc==0 && Iwrite_screen==SCREEN_VERBOSE) printf("\n %s: Setting up Wall-Wall Potentials ... \n",yo);
   /*
    * Allocate and zero the arrays we will calculate here
    */

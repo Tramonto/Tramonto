@@ -105,7 +105,7 @@ void dft_GUI_potentialsWW_set_defaults(Teuchos::RCP<Teuchos::ParameterList> Tram
    SurfaceParamCharge_List->set("SC2.4: Charge Source Position",ChargePos_Array,"Enter the location of each charge source.");
 
    Array<double> SurfaceCharge_Array(Surface_List->get<int>("S1: Number of Surfaces"),0.0);
-   SurfaceParamCharge_List->set("SC3: Surface Charges", SurfaceCharge_Array, "Charge (or surface potential) on each surface in the system.");
+   SurfaceParamCharge_List->set("SC3: Surface Charge or Potential", SurfaceCharge_Array, "Charge (or surface potential) on each surface in the system.");
 
 
    return;
@@ -152,15 +152,17 @@ void dft_GUI_potentialsWW_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tra
    PotentialsWW_List->set(" Compute interactions for spherical surfaces?",tmp_bool,"Indicate whether interactions between spherical surfaces to be output." );
 
    if (Type_uwwPot==PAIR_HARD) tmp_string="none";
-   if (Type_uwwPot==PAIR_LJ12_6_CS) tmp_string="LJ 12-6 potential (cut/shift)";
-   if (Type_uwwPot==PAIR_COULOMB_CS) tmp_string="Coulomb potential as mean field (cut/shift)";
-   if (Type_uwwPot==PAIR_COULOMB) tmp_string="Coulomb potential as mean field (cut only)";
-   if (Type_uwwPot==PAIR_YUKAWA_CS) tmp_string="Yukawa potential (cut/shift)";
-   if (Type_uwwPot==PAIR_EXP_CS) tmp_string="Exponential potential (cut/shift)";
-   if (Type_uwwPot==PAIR_SW) tmp_string="Square Well potential";
-   if (Type_uwwPot==PAIR_LJandYUKAWA_CS) tmp_string="LJ 12-6 plus Yukawa potential (cut/shift)";
-   if (Type_uwwPot==PAIR_r12andYUKAWA_CS) tmp_string="r^12 repulsion plus Yukawa potential (cut/shift)";
-   if (Type_uwwPot==PAIR_rNandYUKAWA_CS) tmp_string="r^18 repulsion plus Yukawa potential (cut/shift)";
+   else if (Type_uwwPot==PAIR_LJ12_6_CS) tmp_string="LJ 12-6 potential (cut/shift)";
+   else if (Type_uwwPot==PAIR_COULOMB_CS) tmp_string="Coulomb potential as mean field (cut/shift)";
+   else if (Type_uwwPot==PAIR_COULOMB) tmp_string="Coulomb potential as mean field (cut only)";
+   else if (Type_uwwPot==PAIR_YUKAWA_CS) tmp_string="Yukawa potential (cut/shift)";
+   else if (Type_uwwPot==PAIR_EXP_CS) tmp_string="Exponential potential (cut/shift)";
+   else if (Type_uwwPot==PAIR_SW) tmp_string="Square Well potential";
+   else if (Type_uwwPot==PAIR_LJandYUKAWA_CS) tmp_string="LJ 12-6 plus Yukawa potential (cut/shift)";
+   else if (Type_uwwPot==PAIR_r12andYUKAWA_CS) tmp_string="r^12 repulsion plus Yukawa potential (cut/shift)";
+   else  if (Type_uwwPot==PAIR_r18andYUKAWA_CS) tmp_string="r^18 repulsion plus Yukawa potential (cut/shift)";
+   else tmp_string="none";
+  
    PotentialsWW_List->set(" Type of wall-wall interactions",tmp_string,"Identify type of interactions between fixed spherical surfaces. Selection applies to all.",PairPotValidator);
 
        /* Using mixing rules for cross terms */
@@ -197,8 +199,7 @@ void dft_GUI_potentialsWW_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tra
    TwoDArray<double> CutWW_Array(Nwall_type,Nwall_type);
    for (i=0; i<Nwall_type;i++) for (j=0; j<Nwall_type;j++) CutWW_Array(i,j)=Cut_ww[i][j];
    PotentialsWW_List->set("WW5: Cut_ww",CutWW_Array,"Array for cutoff distances in wall-wall interactions.");
-
-   TwoDArray<double> EpsYukawaWW_Array(Nwall_type,Nwall_type);
+TwoDArray<double> EpsYukawaWW_Array(Nwall_type,Nwall_type);
    for (i=0; i<Nwall_type;i++) for (j=0; j<Nwall_type;j++) EpsYukawaWW_Array(i,j)=EpsYukawa_ww[i][j];
    PotentialsWW_List->set("WW6: EpsYukawa_ww",EpsYukawaWW_Array,"Array for prefactor of Yukawa term in wall-wall interactions.");
 
@@ -221,12 +222,11 @@ void dft_GUI_potentialsWW_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tra
    Array<string> TypeBCElec_Array(tmpstring_1D, tmpstring_1D+Nwall_type);
    SurfaceParamCharge_List->set("SC1: Type_elec_BC",TypeBCElec_Array,"Select type of boundary condition you would like to apply at the charged surfaces.",SurfElecBCArray_Val);
 
-   if (Ipot_ff_c == COULOMB){
+   if (Type_coul != NONE){
       for (i=0;i<Nwall_type;i++) tmp_1D[i]=Dielec_wall[i];
       Array<double> DielecW_Array(tmp_1D, tmp_1D+Nwall_type);
       SurfaceParamCharge_List->set("SC0.1: DielecConst_Wall Array",DielecW_Array,"Set the dielectric constant in each of the surfaces.  Entries will be reduced by reference value if one was provided.");
    }
-
 
    if (Charge_type_atoms==POINT_CHARGE) SurfaceParamCharge_List->set("SC1.1: Treatment of atomic charges","point charge","Enter method for treating fixed atomic charges.");
    else     SurfaceParamCharge_List->set("SC1.1: Treatment of atomic charges","charged smeared in spherical volume","Enter method for treating fixed atomic charges.");
@@ -252,7 +252,7 @@ void dft_GUI_potentialsWW_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tra
 
    for (i=0;i<Nwall;i++) tmp_1D[i]=Elec_param_w[i];
    Array<double> SurfaceCharge_Array(tmp_1D,tmp_1D+Nwall);
-   SurfaceParamCharge_List->set("SC3: Surface Charges", SurfaceCharge_Array, "Charge (or surface potential) on each surface in the system.");
+   SurfaceParamCharge_List->set("SC3: Surface Charge or Potential", SurfaceCharge_Array, "Charge (or surface potential) on each surface in the system.");
 
    return;
 }
@@ -279,6 +279,10 @@ void dft_GUI_potentialsWW_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tram
 
   Condition::ConstConditionList Spherical_conList=tuple<RCP<const Condition> >(SphericalSurfBoolCon,SphericalSurfBoolCon2);
   RCP<AndCondition> SphericalSurf_request = rcp(new AndCondition(Spherical_conList));
+
+  Condition::ConstConditionList WWcompute_conList=tuple<RCP<const Condition> >(LBMixCond,SphericalSurfBoolCon2);
+  RCP<OrCondition> WWcompute_ORcondition = rcp(new OrCondition(WWcompute_conList));
+  RCP<ConditionVisualDependency> WWcompute_Dep = rcp( new ConditionVisualDependency(WWcompute_ORcondition, PotentialsWW_List->getEntryRCP(" Type of wall-wall interactions"), true));
 
       /* set up SigmaWW conditions */
   Condition::ConstConditionList SigmaWW_conList=tuple<RCP<const Condition> >(SphericalSurfBoolCon,SphericalSurfBoolCon2,ManualMixCon);
@@ -440,12 +444,13 @@ void dft_GUI_potentialsWW_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tram
    RCP<AndCondition>SurfChargeNwall_andCon=rcp(new AndCondition(SurfChargeNwall_ConList));
    
    RCP<ConditionVisualDependency> SurfChargeNwall_Dep=rcp(new ConditionVisualDependency(SurfChargeNwall_andCon, 
-                                  SurfaceParamCharge_List->getEntryRCP("SC3: Surface Charges"),true));
+                                  SurfaceParamCharge_List->getEntryRCP("SC3: Surface Charge or Potential"),true));
 
    RCP<NumberArrayLengthDependency<int,double> > SurfChargeNwallLength_Dep = rcp(
-             new NumberArrayLengthDependency<int,double>(Surface_List->getEntryRCP("S1: Number of Surfaces"), SurfaceParamCharge_List->getEntryRCP("SC3: Surface Charges")));
+             new NumberArrayLengthDependency<int,double>(Surface_List->getEntryRCP("S1: Number of Surfaces"), SurfaceParamCharge_List->getEntryRCP("SC3: Surface Charge or Potential")));
 
    /* DEPENDENCY SHEET ENTRIES*/
+  depSheet_Tramonto->addDependency(WWcompute_Dep);
   depSheet_Tramonto->addDependency(SigmaWW_Dep);
   depSheet_Tramonto->addDependency(SigmaW_Dep);
   depSheet_Tramonto->addDependency(EpsWW_Dep);

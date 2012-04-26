@@ -61,7 +61,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
    int icomp, jcomp, iwall,iwall_type, idim, ipol,
        i, izone, j, jwall,new_wall,logical,ncharge, seg, block[NCOMP_MAX][NBLOCK_MAX],
        block_type[NBLOCK_MAX],pol_number, nlink_chk,irand,irand_range,itmp,
-       dim_tmp,Lauto_center,Lauto_size,jmin=0,jmax=0,
+       dim_tmp,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
    double rho_tmp[NCOMP_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
    int iblock,jblock,itype_poly,repeat_type,graft_logical;
@@ -115,6 +115,11 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   DensityFile=DensityFile_array;
   DensityFile2=DensityFile2_array;
 
+  /**************************************************************************/
+  /* Set a directory and default filename for surface position and charge input  */
+  /**************************************************************************/
+  sprintf(wallPos_file_array, "./dft_surfaces.dat");
+  WallPos_file_name=wallPos_file_array;
 
   /********************************************/
   /* Initialize and Read Dimension Parameters */
@@ -268,8 +273,8 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   if (Nwall_type > 0){
     for (idim=0; idim<Ndim; idim++){ minpos[idim] = 1000.; maxpos[idim]=-1000.;}
 
-    if( (fpsurfaces  = fopen("dft_surfaces.dat","r")) == NULL) {
-	printf("Can't open file dft_surfaces.dat\n"); exit(-1);
+    if( (fpsurfaces  = fopen(WallPos_file_name,"r")) == NULL) {
+	printf("Can't open file %s\n",WallPos_file_name); exit(-1);
     }
 
     for (iwall=0; iwall<Nwall; iwall++){
@@ -288,6 +293,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
                                          /* flag value for the WallPos variable.  This needs */
                                          /* to be changed to a proper selection int he input file*/
           if (fabs(WallPos[dim_tmp][iwall]+9999.0)<1.e-6) { 
+            Lrandom_walls=TRUE;
             #ifndef _MSC_VER
               irand = random();
             #else
@@ -322,8 +328,8 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
        if (new_wall) nlink_chk++;
      }
      if (nlink_chk != Nlink){
-       printf("Check Nlink in dft_input.dat: %d and assignments in dft_surfaces.dat: %d\n",
-	     Nlink,nlink_chk);
+       printf("Check Nlink in dft_input.dat: %d and assignments in %s: %d\n",
+	     Nlink,WallPos_file_name,nlink_chk);
       exit(-1);
      }
   }
@@ -1485,7 +1491,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
     Iwrite_files=FILES_DEBUG_MATRIX;
   }
 
-  if (fabs(charge_sum) > 1.e-8 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) printf("\n TOTAL CHARGE IN dft_surfaces.dat = %9.6f\n",charge_sum);
+  if (fabs(charge_sum) > 1.e-8 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) printf("\n TOTAL CHARGE IN %s = %9.6f\n",WallPos_file_name,charge_sum);
 
   /**************************************************/
   /* Numerical Methods ... Mesh/Jacobian Coarsening */

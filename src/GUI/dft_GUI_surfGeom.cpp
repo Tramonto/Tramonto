@@ -55,17 +55,22 @@ void dft_GUI_surface_geometry_set_defaults(Teuchos::RCP<Teuchos::ParameterList> 
 
  /* SET UP PARAMEBERS */
 
-  switch(Mesh_List->get("M1_Ndim", (int)NULL)){    /* note that all are set to Vali3 right now because the RangeValidatorDependency isn't working right */
+  switch(Mesh_List->get<int>("M1_Ndim")){    /* note that all are set to Vali3 right now because the RangeValidatorDependency isn't working right */
        case 1: SurfGeom_List->set("SG1: Surface Type", "PLANE: 1D-2D-3D :Infinite in two dimensions", "Set base surface type", surfTypeVali3); break;
        case 2: SurfGeom_List->set("SG1: Surface Type", "PLANE: 1D-2D-3D :Infinite in two dimensions", "Set base surface type", surfTypeVali3); break;
        case 3: SurfGeom_List->set("SG1: Surface Type", "PLANE: 1D-2D-3D :Infinite in two dimensions", "Set base surface type", surfTypeVali3); break;
        default: SurfGeom_List->set("SG1: Surface Type", "PLANE: 1D-2D-3D :Infinite in two dimensions", "Set base surface type", surfTypeVali3); break;
+
+/*       case 1: SurfGeom_List->set("SG1: Surface Type", "PLANE: 1D-2D-3D :Infinite in two dimensions", "Set base surface type", surfTypeVali1); break;
+       case 2: SurfGeom_List->set("SG1: Surface Type", "PLANE: 1D-2D-3D :Infinite in two dimensions", "Set base surface type", surfTypeVali2); break;
+       case 3: SurfGeom_List->set("SG1: Surface Type", "PLANE: 1D-2D-3D :Infinite in two dimensions", "Set base surface type", surfTypeVali3); break;
+       default: SurfGeom_List->set("SG1: Surface Type", "PLANE: 1D-2D-3D :Infinite in two dimensions", "Set base surface type", surfTypeVali3); break;*/
   }
 
   SurfGeom_List->set("SG2: Orientation Plane",0,"Enter the direction of the normal to the planar base surface",DimValidator);
   SurfGeom_List->set("SG2: Orientation Cylinder",0,"Enter the direction of the long axis of the cylindrical base surface",DimValidator);
   SurfGeom_List->set("SG3: Radius",1.0,"Enter the base radius of the cylindrical or spherical surface");
-  SurfGeom_List->set("SG3: Half-width",1.1,"Enter the distance from the center to the edge of the surface.");
+  SurfGeom_List->set("SG3: Half-width",1.0,"Enter the distance from the center to the edge of the surface.");
   Array<double>HalfWidth_Array(Mesh_List->get<int>("M1_Ndim"),1.0);
   SurfGeom_List->set("SG3: Half-width array",HalfWidth_Array,"Enter the distance from the center to the edge of the surface in all Ndim.");
   SurfGeom_List->set("SG3: Half-Length",1.0,"Enter the distance from the center to the edge of the surface down long axis of cylinder.");

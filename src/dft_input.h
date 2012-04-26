@@ -278,6 +278,7 @@ extern double Elec_param_w[NWALL_MAX];
 #if !(defined(DEC_ALPHA))
 #define POW_INT (int)pow
 #endif
+extern int Lrandom_walls;
 #define NDIM_MAX  3
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern int Link[NWALL_MAX];
@@ -288,6 +289,8 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern int **Xtest_reflect_TF;
+extern int Lauto_size;
+extern int Lauto_center;
 extern int Nlink;
 extern int Nwall;
 extern int Nwall_type;
@@ -321,6 +324,8 @@ extern double Temp;
 extern double Density_ref;
 extern double Length_ref;
 void read_junk(FILE *fpinput,FILE *fpecho);
+extern char *WallPos_file_name;
+extern char wallPos_file_array[FILENAME_LENGTH];
 extern char *DensityFile2;
 extern char *DensityFile;
 extern char DensityFile2_array[FILENAME_LENGTH];

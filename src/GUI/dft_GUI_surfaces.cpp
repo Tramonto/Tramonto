@@ -90,12 +90,14 @@ void dft_GUI_surfaces_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tramonto
         new NumberVisualDependency<int>( Surface_List->getEntryRCP("S1: Number of Surfaces"), Surface_List->getEntryRCP("S2: Number of macro surfaces")));
 
   Dependency::ParameterEntryList ShowSurfacePosition_Deps;
-  ShowSurfacePosition_Deps.insert(SurfacePosition_List->getEntryRCP("SP4: Surface Positions"));
   ShowSurfacePosition_Deps.insert(SurfacePosition_List->getEntryRCP("SP3: Surface Macro IDs"));
   ShowSurfacePosition_Deps.insert(SurfacePosition_List->getEntryRCP("SP2: Surface Type IDs"));
 
+  RCP<StringVisualDependency> SurfType_Dep=rcp(new StringVisualDependency(SurfacePosition_List->getEntryRCP("SP0: Type of surface position/charge entry"),
+                                              ShowSurfacePosition_Deps,tuple<std::string>("Set up in GUI","Random placement of walls")));
+
   RCP<StringVisualDependency> SurfPos_Dep=rcp(new StringVisualDependency(SurfacePosition_List->getEntryRCP("SP0: Type of surface position/charge entry"),
-                                              ShowSurfacePosition_Deps,"Set up in GUI"));
+                                              SurfacePosition_List->getEntryRCP("SP4: Surface Positions"),"Set up in GUI"));
 
   RCP<StringVisualDependency> SurfFile_Dep=rcp(new StringVisualDependency(SurfacePosition_List->getEntryRCP("SP0: Type of surface position/charge entry"),
          SurfacePosition_List->getEntryRCP("SP1: file containing surface positions and charges"),"Read From File"));

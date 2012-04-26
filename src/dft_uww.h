@@ -39,6 +39,8 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double **Uww;
+#define SCREEN_VERBOSE     3 
+extern int Iwrite_screen;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

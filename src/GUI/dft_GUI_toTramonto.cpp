@@ -29,6 +29,11 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                         Teuchos::RCP<Teuchos::ParameterList> Output_List,
                         Teuchos::RCP<Teuchos::ParameterList> DensProfile_List,
                         Teuchos::RCP<Teuchos::ParameterList> Surface_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfacePosition_List,
+                        Teuchos::RCP<Teuchos::ParameterList> PotentialsWW_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfaceParamCharge_List,
+                        Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List,
+                        Teuchos::RCP<Teuchos::ParameterList> PotentialsWF_List,
                         Teuchos::RCP<Teuchos::ParameterList> SurfGeom0_List,
                         Teuchos::RCP<Teuchos::ParameterList> SurfGeom1_List,
                         Teuchos::RCP<Teuchos::ParameterList> SurfGeom2_List,
@@ -44,6 +49,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 {
   string str_tmp;
   int i,j,k,counter,ip;
+  int lzeros=FALSE,ltrues=FALSE;
   /****************************** DIMENSION PARAMETER SECTION **********************************************************/
   /* this routine translates the parameters from the GUI to Tramonto.  */
 
@@ -765,8 +771,41 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
    Nlink=Surface_List->get<int>("S2: Number of macro surfaces");
    Nwall_type=Surface_List->get<int>("S3: Number of surface types");
 
+   if (SurfacePosition_List->get<string>("SP0: Type of surface position/charge entry")=="Read From File") {
+       WallPos_file_name=(char*)SurfacePosition_List->get<string>("SP1: file containing surface positions and charges").c_str();
+   }
+   else WallPos_file_name=NULL;
+
+   if (SurfacePosition_List->get<string>("SP0: Type of surface position/charge entry")=="Random placement of walls"){
+      Array<int> SurfaceTypesID_Array=SurfacePosition_List->get<Array<int> >("SP2: Surface Type IDs"); 
+      Array<int> SurfaceMacroID_Array=SurfacePosition_List->get<Array<int> >("SP3: Surface Macro IDs"); 
+      for (i=0;i<Nwall;i++){
+           WallType[i]=SurfaceTypesID_Array[i];
+           Link[i]=SurfaceMacroID_Array[i];
+      }
+      Lrandom_walls=TRUE;
+   }
+   else Lrandom_walls=FALSE;
+
+   if (SurfacePosition_List->get<string>("SP0: Type of surface position/charge entry")=="Set up in GUI"){
+      Array<int> SurfaceTypesID_Array=SurfacePosition_List->get<Array<int> >("SP2: Surface Type IDs"); 
+      Array<int> SurfaceMacroID_Array=SurfacePosition_List->get<Array<int> >("SP3: Surface Macro IDs"); 
+      for (i=0;i<Nwall;i++){
+           WallType[i]=SurfaceTypesID_Array[i];
+           Link[i]=SurfaceMacroID_Array[i];
+      }
+      TwoDArray<double> SP4_SurfacePos=SurfacePosition_List->get<TwoDArray<double> >("SP4: Surface Positions");
+      for (i=0; i<Ndim; i++)  
+         for (j=0; j<Nwall; j++){ WallPos[i][j]=SP4_SurfacePos[j][i]; 
+      }
+   }
+
     Teuchos::RCP<Teuchos::ParameterList> SurfGeom_List;
 
+    if (Nwall_type>12){
+      cout<<"Error - GUI is only built for Nwall_type<=12"<<endl;
+      exit(-1);
+    }
     for (i=0; i<Nwall_type; i++){
         if (i==0) SurfGeom_List=SurfGeom0_List;
         if (i==1) SurfGeom_List=SurfGeom1_List;
@@ -778,6 +817,8 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
         if (i==7) SurfGeom_List=SurfGeom7_List;
         if (i==8) SurfGeom_List=SurfGeom8_List;
         if (i==9) SurfGeom_List=SurfGeom9_List;
+        if (i==10) SurfGeom_List=SurfGeom10_List;
+        if (i==11) SurfGeom_List=SurfGeom11_List;
 
         Nperiodic_overlay[i]=0;
         Nlinear_overlay[i]=0;
@@ -899,16 +940,175 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
             Angle_wedge_end[i]=SurfGeom_List->get<double>("SG7.2: Angle end");
         }
     }
-    
-    /****************************************************/
-    /* params from solvers section of the GUI  */
-    /****************************************************/
 
-    /****************************************************/
-    /* params from continuation section of the GUI  */
-    /****************************************************/
-    
+
+    /****************************************************************/
+    /* params from surface-surface interactions section of the GUI  */
+    /****************************************************************/
+    if (PotentialsWW_List->get<bool>(" Compute interactions for spherical surfaces?")) Lprint_pmf=TRUE;
+    if (PotentialsWW_List->get<string>(" Type of wall-wall interactions")=="none") Type_uwwPot=PAIR_HARD;
+    else if (PotentialsWW_List->get<string>(" Type of wall-wall interactions")=="LJ 12-6 potential (cut/shift)") Type_uwwPot=PAIR_LJ12_6_CS;
+    else if (PotentialsWW_List->get<string>(" Type of wall-wall interactions")=="Coulomb potential as mean field (cut/shift)") Type_uwwPot=PAIR_COULOMB_CS;
+    else if (PotentialsWW_List->get<string>(" Type of wall-wall interactions")=="Coulomb potential as mean field (cut only)") Type_uwwPot=PAIR_COULOMB;
+    else if (PotentialsWW_List->get<string>(" Type of wall-wall interactions")=="Yukawa potential (cut/shift)") Type_uwwPot=PAIR_YUKAWA_CS;
+    else if (PotentialsWW_List->get<string>(" Type of wall-wall interactions")=="Exponential potential (cut/shift)") Type_uwwPot=PAIR_EXP_CS;
+    else if (PotentialsWW_List->get<string>(" Type of wall-wall interactions")=="Square Well potential") Type_uwwPot=PAIR_SW;
+    else if (PotentialsWW_List->get<string>(" Type of wall-wall interactions")=="LJ 12-6 plus Yukawa potential (cut/shift)") Type_uwwPot=PAIR_LJandYUKAWA_CS;
+    else if (PotentialsWW_List->get<string>(" Type of wall-wall interactions")=="r^12 repulsion plus Yukawa potential (cut/shift)") Type_uwwPot=PAIR_r12andYUKAWA_CS;
+    else if (PotentialsWW_List->get<string>(" Type of wall-wall interactions")=="r^18 repulsion plus Yukawa potential (cut/shift)") Type_uwwPot=PAIR_r18andYUKAWA_CS;
+
+    if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Lorentz-Berthlot Mixing"){ 
+         Array<double> SigW=PotentialsWW_List->get<Array<double> >("W3: Sigma_w");
+         Array<double> EpsW=PotentialsWW_List->get<Array<double> >("W4: Eps_w");
+         Array<double> CutW=PotentialsWW_List->get<Array<double> >("W5: Cut_w");
+         Array<double> EpsYukW=PotentialsWW_List->get<Array<double> >("W6: EpsYukawa_w");
+         Array<double> ExpDecayW=PotentialsWW_List->get<Array<double> >("W7: ExpDecayParam_w");
+         for (i=0;i<Nwall_type;i++){
+            Sigma_ww[i][i] = SigW[i];
+            Eps_ww[i][i] = EpsW[i];
+            Cut_ww[i][i] = CutW[i];
+            EpsYukawa_ww[i][i] = EpsYukW[i];
+            YukawaK_ww[i][i] = ExpDecayW[i];
+         }
+    }
+    else{
+         TwoDArray<double> SigWW=PotentialsWW_List->get<TwoDArray<double> >("WW3: Sigma_ww");
+         TwoDArray<double> EpsWW=PotentialsWW_List->get<TwoDArray<double> >("WW4: Eps_ww");
+         TwoDArray<double> CutWW=PotentialsWW_List->get<TwoDArray<double> >("WW5: Cut_ww");
+         TwoDArray<double> EpsYukWW=PotentialsWW_List->get<TwoDArray<double> >("WW6: EpsYukawa_ww");
+         TwoDArray<double> ExpDecayWW=PotentialsWW_List->get<TwoDArray<double> >("WW7: ExpDecayParam_ww");
+         for (i=0;i<Nwall_type;i++){
+            for (j=0;j<Nwall_type;j++){
+                Sigma_ww[i][j] = SigWW[i][j];
+                Eps_ww[i][j] = EpsWW[i][j];
+                Cut_ww[i][j] = CutWW[i][j];
+                EpsYukawa_ww[i][j] = EpsYukWW[i][j];
+                YukawaK_ww[i][j] = ExpDecayWW[i][j];
+            }
+         }
+    }
+    /****************************************************************/
+    /* charged surface and source parameters                        */
+    /****************************************************************/
+    Array<string> TypeBCElec_Array=SurfaceParamCharge_List->get<Array<string> >("SC1: Type_elec_BC");
+    for (i=0;i<Nwall_type;i++){
+       if (TypeBCElec_Array[i]=="constant surface charge density") Type_bc_elec[i]=CONST_CHARGE;
+       if (TypeBCElec_Array[i]=="constant potential surfaces") Type_bc_elec[i]=CONST_POTENTIAL;
+       if (TypeBCElec_Array[i]=="discrete atomic charges") Type_bc_elec[i]=ATOMIC_CHARGE;
+       if (TypeBCElec_Array[i]=="none - neutral surfaces") Type_bc_elec[i]=NONE;
+    }
+
+    if (Type_coul != NONE){
+       Array<double> DielecW_Array=SurfaceParamCharge_List->get<Array<double> >("SC0.1: DielecConst_Wall Array");
+       for (i=0;i<Nwall_type;i++) Dielec_wall[i]=DielecW_Array[i];
+
+       if (SurfaceParamCharge_List->get<string>("SC1.1: Treatment of atomic charges")=="point charge") Charge_type_atoms=POINT_CHARGE;
+
+       else if (SurfaceParamCharge_List->get<string>("SC1.1: Treatment of atomic charges")=="charged smeared in spherical volume") Charge_type_atoms=SMEAR_CHARGE;
+       else Charge_type_atoms=NONE;
+
+       Nlocal_charge=SurfaceParamCharge_List->get<int>("SC2: Number of additional Charge Sources");
+       if (SurfaceParamCharge_List->get<string>("SC2.1: Treatment of charge sources")=="point charge") Charge_type_local=POINT_CHARGE;
+
+       else if (SurfaceParamCharge_List->get<string>("SC2.1: Treatment of charge sources")=="charged smeared in spherical volume") Charge_type_local=SMEAR_CHARGE;
+       else Charge_type_local=NONE;
+
+       Array<double> ChargeLoc_Array=SurfaceParamCharge_List->get<Array<double> >("SC2.2: Charge of the source points");
+       for (i=0;i<Nlocal_charge;i++) Charge[i]=ChargeLoc_Array[i];
+
+       Array<double> ChargeDiam_Array=SurfaceParamCharge_List->get<Array<double> >("SC2.3: Charge Source Diameter");
+       for (i=0;i<Nlocal_charge;i++) Charge_Diam[i]=ChargeDiam_Array[i];
+
+       TwoDArray<double> ChargePos_Array=SurfaceParamCharge_List->get<TwoDArray<double> >("SC2.4: Charge Source Position");
+       for (i=0;i<Ndim;i++) for (j=0;j<Nlocal_charge;j++) Charge_x[i][j]=ChargePos_Array[i][j];
        
+    }
+    Array<double> ElecParamW_Array=SurfaceParamCharge_List->get<Array<double> >("SC3: Surface Charge or Potential");
+    for (i=0;i<Nlocal_charge;i++) Elec_param_w[i]=ElecParamW_Array[i];
+   
+
+    /****************************************************************/
+    /* params from surface-fluid interactions section of the GUI  */
+    /****************************************************************/
+
+    Array<string> WF_Method_Array=SurfaceInteraction_List->get<Array<string> >("SI0.1: Wall-Fluid Computation Method");
+    for (i=0;i<Nwall_type;i++){
+       if (WF_Method_Array[i]=="Pure exclusions / hard surface") Ipot_wf_n[i]=VEXT_HARD;
+       else if (WF_Method_Array[i]=="V(r or x=dist. to surface)") Ipot_wf_n[i]=VEXT_DIST_TO_SURF;
+       else if (WF_Method_Array[i]=="V(r or x=dist. to center)") Ipot_wf_n[i]=VEXT_DIST_TO_CENTER;
+       else if (WF_Method_Array[i]=="V=integral(U(r))") Ipot_wf_n[i]=VEXT_3D_INTEGRATED;
+    }
+   
+    VEXT_MAX= SurfaceInteraction_List->get<double>("SI1: VEXT_MAX"); 
+
+    Array<string> VextType_Array=SurfaceInteraction_List->get<Array<string> >("SI2.1: Type_vext");
+    Array<string> Vext1DSelect_Array=SurfaceInteraction_List->get<Array<string> >("SI3: V(x) 1D");
+    Array<string> UpairSelect_Array=SurfaceInteraction_List->get<Array<string> >("SI4: Upair(r) for Vext(Upair(r))");
+    for (i=0;i<Nwall_type;i++){
+       if (VextType_Array[i]=="Vext(x)") Type_vext[i]=VEXT_DEFINED;
+       else if (VextType_Array[i]=="U(r) for Vext(U(r))") Type_vext[i]=VEXT_PAIR_POTENTIAL;
+    
+       if (Type_vext[i]==VEXT_DEFINED){
+         if (Vext1DSelect_Array[i]=="LJ 9-3 (cut/shift)") Vext_PotentialID[i]=LJ9_3_CS;
+         else if (Vext1DSelect_Array[i]=="LJ 9-3 (v2) (c/s)") Vext_PotentialID[i]=LJ9_3_v2_CS;
+         else if (Vext1DSelect_Array[i]=="LJ 9-3 (no c/s)") Vext_PotentialID[i]=LJ9_3_noCS;
+         else if (Vext1DSelect_Array[i]=="LJ 9-3 shifted x") Vext_PotentialID[i]=LJ9_3_shiftX_CS;
+         else if (Vext1DSelect_Array[i]=="r9 repulsive (no c/s)") Vext_PotentialID[i]=REPULSIVE9_noCS;
+         else if (Vext1DSelect_Array[i]=="Exponential (no c/s)") Vext_PotentialID[i]=EXP_ATT_noCS;
+         else if (Vext1DSelect_Array[i]=="Linear field (no c/s)") Vext_PotentialID[i]=LINEAR_noCS;
+         else if (Vext1DSelect_Array[i]=="R7 + Yukawa (c/s)") Vext_PotentialID[i]=R7_YUKAWA_SUM_CS;
+       }
+       else if (Type_vext[i]==VEXT_PAIR_POTENTIAL){
+         if (Vext1DSelect_Array[i]=="LJ 12-6 (cut/shift)") Vext_PotentialID[i]=PAIR_LJ12_6_CS;
+         if (Vext1DSelect_Array[i]=="Coulomb(1/r) as mean field (c/s)") Vext_PotentialID[i]=PAIR_COULOMB_CS;
+         if (Vext1DSelect_Array[i]=="Coulomb(1/r) as mean field (cut only)") Vext_PotentialID[i]=PAIR_COULOMB;
+         if (Vext1DSelect_Array[i]=="Yukawa(exp(-alpha r)/r (c/s)") Vext_PotentialID[i]=PAIR_YUKAWA_CS;
+         if (Vext1DSelect_Array[i]=="Exponential(exp(-alpha r) (c/s)") Vext_PotentialID[i]=PAIR_EXP_CS;
+         if (Vext1DSelect_Array[i]=="Square Well") Vext_PotentialID[i]=PAIR_SW;
+         if (Vext1DSelect_Array[i]=="LJ 12-6 plus Yukawa(c/s)") Vext_PotentialID[i]=PAIR_LJandYUKAWA_CS;
+         if (Vext1DSelect_Array[i]=="r12 repulsion + Yukawa(c/s)") Vext_PotentialID[i]=PAIR_r12andYUKAWA_CS;
+         if (Vext1DSelect_Array[i]=="r18 repulsion + Yukawa(c/s)") Vext_PotentialID[i]=PAIR_r18andYUKAWA_CS;
+       }
+    }
+
+  if (SurfaceInteraction_List->get<bool>("SI5: Careful Boundaries?")) Lhard_surf=TRUE;
+  else Lhard_surf=FALSE;
+
+  if (SurfaceInteraction_List->get<string>("SI6: Semipermeable walls")=="No semi-permeable surfaces") lzeros=TRUE;
+  if (SurfaceInteraction_List->get<string>("SI6: Semipermeable walls")=="All surfaces are semi-permeable") ltrues=TRUE;
+
+  TwoDArray<double> VextSemiPerm_Array=SurfaceInteraction_List->get<TwoDArray<double> >("SI7: Vext_semiperm Array");
+  for (i=0;i<Nwall_type;i++){
+     for (j=0;j<Ncomp;j++){
+         Vext_membrane[i][j]=VextSemiPerm_Array[i][j];
+         if (lzeros==TRUE) Lsemiperm[i][j]=FALSE;
+         else if (ltrues==TRUE) Lsemiperm[i][j]=TRUE;
+         else{
+           if (Vext_membrane[i][j] <VEXT_MAX) Lsemiperm[i][j]=TRUE;
+           else Lsemiperm[i][j]=FALSE;
+         }
+     }
+  }
+    /****************************************************/
+    /* surface-fluid interactions potential parameters  */
+    /****************************************************/
+    if (PotentialsFF_List->get<string>("PF0_Off_Diagonal_Definitions")=="Manual Definition"){ 
+         TwoDArray<double> SigWF=PotentialsWF_List->get<TwoDArray<double> >("WF1: Sigma_wf");
+         TwoDArray<double> EpsWF=PotentialsWF_List->get<TwoDArray<double> >("WF2: Eps_wf");
+         TwoDArray<double> CutWF=PotentialsWF_List->get<TwoDArray<double> >("WF3: Cut_wf");
+         TwoDArray<double> EpsYukWF=PotentialsWF_List->get<TwoDArray<double> >("WF4: EpsYukawa_wf");
+         TwoDArray<double> ExpDecayWF=PotentialsWF_List->get<TwoDArray<double> >("WF5: ExpDecayParam_wf");
+         for (i=0;i<Ncomp;i++){
+            for (j=0;j<Nwall_type;j++){
+                Sigma_wf[i][j] = SigWF[i][j];
+                Eps_wf[i][j] = EpsWF[i][j];
+                Cut_wf[i][j] = CutWF[i][j];
+                EpsYukawa_wf[i][j] = EpsYukWF[i][j];
+                YukawaK_wf[i][j] = ExpDecayWF[i][j];
+            }
+         }
+    }
+
   return;
 }
 

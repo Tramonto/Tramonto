@@ -205,13 +205,14 @@ void dft_GUI_NumericalMethods_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList>
 	"Jacobian: use 2nd most coarse zone in all but most coarse region",
 	"Jacobian: set Esize_jac for all matrix calculations")));
 
-
    if (Load_Bal_Flag==LB_LINEAR) 
         LoadBalance_List->set("LB1: Load Balancing Approach", "Linear Matrix Balance", "Select a method for load balancing a parallel processing job", LoadBalValidator);
    else if (Load_Bal_Flag==LB_WEIGHTS) 
-        LoadBalance_List->set("LB2: Load Balancing Approach", "Weighted Recursive Bisection", "Select a method for load balancing a parallel processing job", LoadBalValidator);
+        LoadBalance_List->set("LB1: Load Balancing Approach", "Weighted Recursive Bisection", "Select a method for load balancing a parallel processing job", LoadBalValidator);
    else if (Load_Bal_Flag==LB_BOX) 
-        LoadBalance_List->set("LB2: Load Balancing Approach", "Geometric Recursive Bisection", "Select a method for load balancing a parallel processing job", LoadBalValidator);
+        LoadBalance_List->set("LB1: Load Balancing Approach", "Geometric Recursive Bisection", "Select a method for load balancing a parallel processing job", LoadBalValidator);
+
+    LoadBalance_List->set("LB2: Load Balancing Weights", "Set automatically", "How to assign weights for weighted rcb method", LoadBalWeightValidator);
 
    if (Mesh_coarsening==FALSE)          Coarsening_List->set("C1: Coarsening Type", "none", str_coarse, CoarsenTypeValidator);
    else if (Mesh_coarsening==TRUE)      Coarsening_List->set("C1: Coarsening Type", "residual and jacobian coarsening", str_coarse, CoarsenTypeValidator);

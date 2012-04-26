@@ -896,6 +896,9 @@ extern  int    OrientationLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The 
 extern  double SlopeLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The slope of linear functions to apply */
 extern  double OriginLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The origin of linear functions to apply */
 extern  double EndpointLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];     /* The endpoint of linear functions to apply */
+extern int     Lauto_center; /* Logical to automatically center the surfaces in the domain */
+extern int     Lauto_size; /* Logical to automatically size the domain */
+extern int     Lrandom_walls; /* Logical to turn on random wall placement */
 extern double  WallPos[NDIM_MAX][NWALL_MAX]; /* Array of the centers of the surfaces*/
 extern double  **WallPos_Images; /* Array of the centers of the surfaces including periodic and reflected images*/
 extern int     *WallType_Images; /* Array of the types of the surfaces including periodic and reflected images*/
@@ -1230,6 +1233,8 @@ extern char cr_file_array[FILENAME_LENGTH];
 extern char cr_file2_array[FILENAME_LENGTH];
 extern char *Poly_file_name;
 extern char poly_file_array[FILENAME_LENGTH]; 
+extern char *WallPos_file_name;
+extern char wallPos_file_array[FILENAME_LENGTH]; 
 extern char *OutputFileDir;
 extern char OutputFileDir_array[FILENAME_LENGTH]; 
 extern char *DensityFile;

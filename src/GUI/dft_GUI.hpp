@@ -144,13 +144,11 @@ void dft_GUI_surface_geometry_set_defaults(Teuchos::RCP<Teuchos::ParameterList> 
                       Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
                       Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                       Teuchos::RCP<Teuchos::ParameterList> SurfGeom_List);
-
 void dft_GUI_surface_geometry_set_OldFormat(int iwall_type,Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                       Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
                       Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
                       Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                       Teuchos::RCP<Teuchos::ParameterList> SurfGeom_List);
-
 void dft_GUI_surface_geometry_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                       Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
                       Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
@@ -179,14 +177,41 @@ void dft_GUI_potentialsWW_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tram
                       Teuchos::RCP<Teuchos::ParameterList> PotentialsWW_List,
                       Teuchos::RCP<Teuchos::ParameterList> SurfaceParamCharge_List); 
 
-void dft_GUI_vextType(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
+void dft_GUI_vextType_set_defaults(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                       Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
                       Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Surface_List,
+                      Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List); 
+void dft_GUI_vextType_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
+                      Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                      Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Surface_List,
+                      Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List); 
+void dft_GUI_vextType_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
+                      Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                      Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
                       Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                       Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List); 
 
 
-void dft_GUI_potentialsWF(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
+void dft_GUI_potentialsWF_set_defaults(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
+                      Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                      Teuchos::RCP<Teuchos::ParameterList> Functional_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Surface_List,
+                      Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                      Teuchos::RCP<Teuchos::ParameterList> PotentialsWF_List); 
+void dft_GUI_potentialsWF_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
+                      Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                      Teuchos::RCP<Teuchos::ParameterList> Functional_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Surface_List,
+                      Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List,
+                      Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                      Teuchos::RCP<Teuchos::ParameterList> PotentialsWF_List); 
+void dft_GUI_potentialsWF_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List, 
                       Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
                       Teuchos::RCP<Teuchos::ParameterList> Functional_List,
                       Teuchos::RCP<Teuchos::ParameterList> Surface_List,
@@ -227,6 +252,11 @@ void dft_GUI_toTramonto(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Teuchos::ParameterList> Output_List, 
                          Teuchos::RCP<Teuchos::ParameterList> DensProfile_List, 
                          Teuchos::RCP<Teuchos::ParameterList> Surface_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> SurfacePosition_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> PotentialsWW_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> SurfaceParamCharge_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List, 
+                         Teuchos::RCP<Teuchos::ParameterList> PotentialsWF_List, 
                          Teuchos::RCP<Teuchos::ParameterList> SurfGeom0_List,
                          Teuchos::RCP<Teuchos::ParameterList> SurfGeom1_List,
                          Teuchos::RCP<Teuchos::ParameterList> SurfGeom2_List,
@@ -240,7 +270,17 @@ void dft_GUI_toTramonto(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Teuchos::ParameterList> SurfGeom10_List, 
                          Teuchos::RCP<Teuchos::ParameterList> SurfGeom11_List); 
 
-void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
+void dft_GUI_OutputParams_set_defaults(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
+                         Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                         Teuchos::RCP<Teuchos::ParameterList> Functional_List,
+                         Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                         Teuchos::RCP<Teuchos::ParameterList> Output_List);
+void dft_GUI_OutputParams_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
+                         Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                         Teuchos::RCP<Teuchos::ParameterList> Functional_List,
+                         Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                         Teuchos::RCP<Teuchos::ParameterList> Output_List);
+void dft_GUI_OutputParams_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
                          Teuchos::RCP<Teuchos::ParameterList> Mesh_List,
                          Teuchos::RCP<Teuchos::ParameterList> Functional_List,
@@ -249,7 +289,15 @@ void dft_GUI_OutputParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Teuchos::ParameterList> SurfaceInteraction_List,
                          Teuchos::RCP<Teuchos::ParameterList> Output_List);
 
-void dft_GUI_DensityStartupParams(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
+void dft_GUI_DensityStartupParams_set_defaults(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
+                         Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                         Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                         Teuchos::RCP<Teuchos::ParameterList> DensProfile_List);
+void dft_GUI_DensityStartupParams_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
+                         Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
+                         Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
+                         Teuchos::RCP<Teuchos::ParameterList> DensProfile_List);
+void dft_GUI_DensityStartupParams_dependencies(Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
                          Teuchos::RCP<Optika::DependencySheet> depSheet_Tramonto,
                          Teuchos::RCP<Teuchos::ParameterList> Fluid_List,
                          Teuchos::RCP<Teuchos::ParameterList> Continuation_List,

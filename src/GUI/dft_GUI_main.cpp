@@ -129,11 +129,11 @@ extern "C" void dft_OptikaGUI()
   RCP<ParameterList> SurfGeom10_List = sublist(Geometry_List, "SurfType 11: Geometry");
   RCP<ParameterList> SurfGeom11_List = sublist(Geometry_List, "SurfType 12: Geometry");
 
-  RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "S5: Surface Interactions");
+  RCP<ParameterList> PotentialsWW_List = sublist(Surface_List, "S5: Surface-Surface Interactions");
   RCP<ParameterList> SurfaceParamCharge_List = sublist(Surface_List, "S6: Surface Charges and Other Charge Sources");
   RCP<ParameterList> SurfacePosition_List = sublist(Surface_List, "S7: Surface Positions and Properites");
   RCP<ParameterList> SurfaceInteraction_List = sublist(Surface_List, "S8: Fluid-Surface Interaction Types");
-  RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "S9: Fluid-Surface Potential Parameterss");
+  RCP<ParameterList> PotentialsWF_List = sublist(Surface_List, "S9: Fluid-Surface Potential Parameters");
 
   RCP<ParameterList> Continuation_List = sublist(Tramonto_List, "Sect. 6: Continuation");
   RCP<ParameterList> DensProfile_List = sublist(Tramonto_List, "Sect. 7: Initial Guess Options");
@@ -153,12 +153,13 @@ extern "C" void dft_OptikaGUI()
    * head on over to the inputs.xml file to see what's going on there.
    */
         Optika::getInput(RunType_List->get<string>("R2: Input File (XML)"), Tramonto_List);
-cout << "done with GUI - heading over to Tramonto data format translation....."<<endl;
+
         dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
                      StatePoint_List,Diffusion_List,ChargedFluid_List,Continuation_List,
                      Solver_List,Coarsening_List,LoadBalance_List,PhysicsMethod_List,LinearSolver_List,NonlinearSolver_List,Output_List,
-                     DensProfile_List,Surface_List,SurfGeom0_List, SurfGeom1_List, SurfGeom2_List, SurfGeom3_List, SurfGeom4_List, SurfGeom5_List,
+                     DensProfile_List,Surface_List,SurfacePosition_List,PotentialsWW_List,SurfaceParamCharge_List,
+                     SurfaceInteraction_List,PotentialsWF_List,SurfGeom0_List, SurfGeom1_List, SurfGeom2_List, SurfGeom3_List, SurfGeom4_List, SurfGeom5_List,
                      SurfGeom6_List, SurfGeom7_List, SurfGeom8_List, SurfGeom9_List, SurfGeom10_List,SurfGeom11_List);
   }
   else{
@@ -172,7 +173,7 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
      dft_GUI_Polymer_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
      dft_GUI_StatePoint_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
      dft_GUI_surfaces_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfacePosition_List);
-     for (i=0;i<10;i++){
+     for (i=0;i<12;i++){
              if (i==0) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom0_List);
         else if (i==1) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom1_List);
         else if (i==2) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom2_List);
@@ -183,13 +184,17 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
         else if (i==7) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom7_List);
         else if (i==8) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom8_List);
         else if (i==9) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom9_List);
-        else if (i==9) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
-        else if (i==9) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
+        else if (i==10) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
+        else if (i==11) dft_GUI_surface_geometry_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
      }
      dft_GUI_potentialsWW_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsWW_List,SurfaceParamCharge_List);
      dft_GUI_Continuation_set_defaults(Tramonto_List,depSheet_Tramonto,Continuation_List);
      dft_GUI_NumericalMethods_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,Solver_List,
                               Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
+     dft_GUI_DensityStartupParams_set_defaults(Tramonto_List,depSheet_Tramonto,Fluid_List,DensProfile_List);
+     dft_GUI_OutputParams_set_defaults(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Output_List);
+     dft_GUI_vextType_set_defaults(Tramonto_List,depSheet_Tramonto,Mesh_List,Fluid_List,Surface_List,SurfaceInteraction_List);
+     dft_GUI_potentialsWF_set_defaults(Tramonto_List,depSheet_Tramonto,Functional_List, Surface_List, SurfaceInteraction_List,Fluid_List,PotentialsWF_List); 
 
     /* replace defauls if requested for each section of the GUI */
      if (read_input_old_format){ 
@@ -210,13 +215,17 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
            else if (i==7) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom7_List);
            else if (i==8) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom8_List);
            else if (i==9) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom9_List);
-           else if (i==9) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
-           else if (i==9) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
+           else if (i==10) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
+           else if (i==11) dft_GUI_surface_geometry_set_OldFormat(i,Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
         }
         dft_GUI_potentialsWW_set_OldFormat(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,PotentialsWW_List,SurfaceParamCharge_List);
         dft_GUI_Continuation_set_OldFormat(Tramonto_List,depSheet_Tramonto,Continuation_List);
         dft_GUI_NumericalMethods_set_OldFormat(Tramonto_List,depSheet_Tramonto,Solver_List,
                                  Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
+        dft_GUI_DensityStartupParams_set_OldFormat(Tramonto_List,depSheet_Tramonto,Fluid_List,DensProfile_List);
+        dft_GUI_vextType_set_OldFormat(Tramonto_List,depSheet_Tramonto,Mesh_List,Fluid_List,Surface_List,SurfaceInteraction_List);
+        dft_GUI_potentialsWF_set_OldFormat(Tramonto_List,depSheet_Tramonto,Functional_List, Surface_List, SurfaceInteraction_List,Fluid_List,PotentialsWF_List); 
+        dft_GUI_OutputParams_set_OldFormat(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Output_List);
      }
 
     /* set dependencies for each section of the GUI */
@@ -226,7 +235,7 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
      dft_GUI_Polymer_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,PolymerCMS_List,PolymerArch_List,PolymerGraft_List);
      dft_GUI_StatePoint_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List, StatePoint_List,Diffusion_List,ChargedFluid_List);
      dft_GUI_surfaces_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfacePosition_List);
-     for (i=0;i<10;i++){
+     for (i=0;i<12;i++){
              if (i==0) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom0_List);
         else if (i==1) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom1_List);
         else if (i==2) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom2_List);
@@ -237,22 +246,21 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
         else if (i==7) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom7_List);
         else if (i==8) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom8_List);
         else if (i==9) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom9_List);
-        else if (i==9) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
-        else if (i==9) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
+        else if (i==10) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom10_List);
+        else if (i==11) dft_GUI_surface_geometry_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfGeom11_List);
      }
      dft_GUI_potentialsWW_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfacePosition_List,
                                        PotentialsFF_List,ChargedFluid_List,PotentialsWW_List,SurfaceParamCharge_List);
      dft_GUI_Continuation_dependencies(Tramonto_List,depSheet_Tramonto,PotentialsFF_List,Continuation_List);
      dft_GUI_NumericalMethods_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List,Fluid_List,Polymer_List,Solver_List,
                               Coarsening_List,LoadBalance_List,PhysicsMethod_List,NonlinearSolver_List,LinearSolver_List);
+     dft_GUI_DensityStartupParams_dependencies(Tramonto_List,depSheet_Tramonto,Fluid_List,Continuation_List,DensProfile_List);
+     dft_GUI_vextType_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Fluid_List,Surface_List,SurfaceInteraction_List);
+     dft_GUI_potentialsWF_dependencies(Tramonto_List,depSheet_Tramonto,Functional_List, Surface_List, SurfaceInteraction_List,Fluid_List,PotentialsWF_List); 
 
-  dft_GUI_vextType(Tramonto_List,depSheet_Tramonto,Mesh_List,Surface_List,SurfaceInteraction_List);
-  dft_GUI_potentialsWF(Tramonto_List,depSheet_Tramonto,Functional_List, Surface_List,
-                       SurfaceInteraction_List,Fluid_List,PotentialsWF_List); 
+     dft_GUI_OutputParams_dependencies(Tramonto_List,depSheet_Tramonto,Mesh_List,Functional_List,Fluid_List,Continuation_List,SurfaceInteraction_List,Output_List);
 
 
-  dft_GUI_DensityStartupParams(Tramonto_List,depSheet_Tramonto,Fluid_List,Continuation_List,DensProfile_List);
-  dft_GUI_OutputParams(Tramonto_List,depSheet_Tramonto,Mesh_List,Functional_List,Fluid_List,Continuation_List,SurfaceInteraction_List,Output_List);
 
              /* The getInput function starts up an Optika GUI and      *
               * lets the user start to input parameter values. When    *
@@ -282,6 +290,19 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
            Surface_List->getEntryRCP("S6: Surface Charges and Other Charge Sources"),
            tuple<std::string>("Charge_Mean_Field","Charge_with_DeltaC_RPM", "Charge_with_DeltaC_General","Charge(MF)_with_Polarization")));
 
+   Dependency::ParameterEntryList NSurf_Deps;
+   NSurf_Deps.insert(Surface_List->getEntryRCP("S4: Surface Geometry"));
+   NSurf_Deps.insert(Surface_List->getEntryRCP("S5: Surface-Surface Interactions"));
+   NSurf_Deps.insert(Surface_List->getEntryRCP("S7: Surface Positions and Properites"));
+   NSurf_Deps.insert(Surface_List->getEntryRCP("S8: Fluid-Surface Interaction Types"));
+   NSurf_Deps.insert(Surface_List->getEntryRCP("S9: Fluid-Surface Potential Parameters"));
+
+   RCP<NumberVisualDependency<int> > NsurfList_Dep = rcp(new NumberVisualDependency<int>(Surface_List->getEntryRCP("S1: Number of Surfaces"), NSurf_Deps));
+
+   RCP<StringVisualDependency> WFPotList_Dep = rcp(new StringVisualDependency(
+          PotentialsFF_List->getEntryRCP("PF0_Off_Diagonal_Definitions"), Surface_List->getEntryRCP("S9: Fluid-Surface Potential Parameters"), 
+          tuple<std::string>("Manual Definition")));
+
 /*   RCP<SimpleFunctionObject<int> >test_NsurfTypes(int,int);
    RCP<NumberVisualDependency<int> > SurfaceTypeList_DepN8=rcp(new NumberVisualDependency<int>(
          Surface_List->getEntry("S3: Number of surface types"),
@@ -292,6 +313,8 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
    depSheet_Tramonto->addDependency(DiffusionList_Dep);
    depSheet_Tramonto->addDependency(ChargedFluidList_Dep);
    depSheet_Tramonto->addDependency(ChargedSurfaceList_Dep);
+   depSheet_Tramonto->addDependency(NsurfList_Dep);
+   depSheet_Tramonto->addDependency(WFPotList_Dep);
 
              /* Greate the GUI windows for data entry with all dependencies.  */
         if (start_GUI){
@@ -300,7 +323,8 @@ cout << "done with GUI - heading over to Tramonto data format translation....."<
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
                      StatePoint_List,Diffusion_List,ChargedFluid_List,Continuation_List,
                      Solver_List,Coarsening_List,LoadBalance_List,PhysicsMethod_List,LinearSolver_List,NonlinearSolver_List,Output_List,
-                     DensProfile_List,Surface_List,SurfGeom0_List, SurfGeom1_List, SurfGeom2_List, SurfGeom3_List, SurfGeom4_List, SurfGeom5_List,
+                     DensProfile_List,Surface_List,SurfacePosition_List, PotentialsWW_List,SurfaceParamCharge_List,SurfaceInteraction_List,
+                     PotentialsWF_List,SurfGeom0_List, SurfGeom1_List, SurfGeom2_List, SurfGeom3_List, SurfGeom4_List, SurfGeom5_List,
                      SurfGeom6_List, SurfGeom7_List, SurfGeom8_List, SurfGeom9_List, SurfGeom10_List,SurfGeom11_List);
         }
   }

@@ -97,6 +97,11 @@ void setup_params_for_dft(char *input_file, char *file_echoinput)
     if (Temp>0. && Type_coul!=NONE) Flag_mV_elecpot=TRUE;
     else         Flag_mV_elecpot=FALSE;
 #endif 
+
+    if (Nwall >0 && WallPos_file_name!=NULL) readIn_wall_positions_and_charges(WallPos_file_name,fpecho);
+    if (Nwall >0 && Lrandom_walls==TRUE) setup_random_wall_positions(fpecho);
+    if (Lauto_center == TRUE ) center_the_surfaces(fpecho);
+    if (Lauto_size == TRUE  && Mesh_coarsening==2) autosize_the_domain(fpecho);
   }
 
    /*******************************************************************/
@@ -176,6 +181,12 @@ void setup_other_run_constants()
                 /*************************************************************************/
   
   if (read_rough){
+     #ifndef _MSC_VER
+       srandom(135649);
+     #else
+       srand(135649);
+     #endif
+
      for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
        for (iblock=0;iblock<MAX_ROUGH_BLOCK;iblock++){
          for (jblock=0;jblock<MAX_ROUGH_BLOCK;jblock++){
@@ -193,7 +204,6 @@ void setup_other_run_constants()
        }
      }
   }
-
                 /***************************************************/
                 /* Calculate a Total Density for SCFT calculations */
                 /***************************************************/
@@ -631,3 +641,135 @@ void fill_surfGeom_struct()
   return;
 }
 /****************************************************************************************************************/
+void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho)
+{
+   int iwall,idim,dim_tmp,nlink_chk,new_wall,jwall;
+   FILE *fpsurfaces;
+   double charge_sum=0.0;
+
+    if( (fpsurfaces  = fopen(WallPos_file_name,"r")) == NULL) {
+        printf("Can't open file %s\n",WallPos_file_name); exit(-1);
+    }
+    else{ printf("Read in surface infomration from %s\n",WallPos_file_name); }
+
+    for (iwall=0; iwall<Nwall; iwall++){
+       fscanf(fpsurfaces,"%d  %d",&WallType[iwall], &Link[iwall]);
+       for (idim=0; idim<Ndim; idim++) {
+          dim_tmp=idim;
+                      /* temporary rotation of coordinates
+                                if (idim==0) dim_tmp=1;
+                                else if (idim==1) dim_tmp=2;
+                                else if (idim==2) dim_tmp=0;*/
+                      /* end of temporary code */
+          fscanf(fpsurfaces,"%lf",&WallPos[dim_tmp][iwall]);
+       }
+       fscanf(fpsurfaces,"%lf",&Elec_param_w[iwall]);
+       charge_sum+=Elec_param_w[iwall];
+     }
+     fclose(fpsurfaces);
+
+     nlink_chk = 1;
+     for (iwall=1; iwall<Nwall; iwall++){
+       new_wall = TRUE;
+       for (jwall=0; jwall<iwall; jwall++)
+        if (Link[iwall] == Link[jwall]) new_wall=FALSE;
+       if (new_wall) nlink_chk++;
+     }
+     if (nlink_chk != Nlink){
+       printf("Check Nlink in dft_input.dat: %d and assignments in %s: %d\n",
+             Nlink,nlink_chk,WallPos_file_name);
+      exit(-1);
+     }
+
+
+    for (iwall=0; iwall<Nwall; iwall++){
+          fprintf(fpecho,"iwall=%d  WallType=%d  Link=%d Elec_param_w=%g",iwall,WallType[iwall],Link[iwall],Elec_param_w[iwall]);
+       for (idim=0; idim<Ndim; idim++)  fprintf(fpecho,"   WallPos[idim]=%g\n",idim,WallPos[idim][iwall]);
+    }
+    if (fabs(charge_sum) > 1.e-8 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) 
+            printf("\n TOTAL CHARGE IN %s = %9.6f\n",WallPos_file_name,charge_sum);
+
+        
+  return;
+}
+/****************************************************************************************************/
+void setup_random_wall_positions(FILE *fpecho){
+                                         /* below is simple code for random placement of surface */
+                                         /* coordinates. This could be modified to disallow */
+                                         /* overlaps or to apply it only to selected surfaces */
+                                         /* to be changed to a proper selection in the input file*/
+int irand,irand_range,iwall,idim,dim_tmp;
+
+  #ifndef _MSC_VER
+    srandom(135649);
+  #else
+    srand(135649);
+  #endif
+
+ for (iwall=0; iwall<Nwall; iwall++){
+    for (idim=0; idim<Ndim; idim++) {
+       dim_tmp=idim;
+                      /* temporary rotation of coordinates
+                                if (idim==0) dim_tmp=1;
+                                else if (idim==1) dim_tmp=2;
+                                else if (idim==2) dim_tmp=0;*/
+                      /* end of temporary code */
+       if (Lrandom_walls==TRUE || fabs(WallPos[dim_tmp][iwall]+9999.0)<1.e-6) {
+            #ifndef _MSC_VER
+              irand = random();
+            #else
+              irand = rand();
+            #endif
+            irand_range = POW_INT(2,31)-1;
+            WallPos[dim_tmp][iwall] = Size_x[idim]*(-0.5+( ((double)irand)/((double)irand_range)));
+            fprintf(fpecho,"\n Wall %d dim %d gets WallPos:%g \n",iwall,idim,WallPos[idim][iwall]);
+          }  
+     }
+  }
+  return;
+}
+/****************************************************************************************************/
+void center_the_surfaces(FILE *fpecho)
+{
+  int iwall,idim,dim_tmp;
+  double maxpos[3],minpos[3];
+
+  for (idim=0; idim<Ndim; idim++){ minpos[idim] = 1000.; maxpos[idim]=-1000.;}
+  for (iwall=0;iwall<Nwall;iwall++){
+     for (idim=0;idim<Ndim;idim++){
+           dim_tmp=idim;
+           if (WallPos[dim_tmp][iwall] < minpos[dim_tmp]) minpos[dim_tmp]=WallPos[dim_tmp][iwall];
+           if (WallPos[dim_tmp][iwall] > maxpos[dim_tmp]) maxpos[dim_tmp]=WallPos[dim_tmp][iwall];
+     }
+  }
+
+  for (iwall=0; iwall<Nwall; iwall++) for (idim=0; idim<Ndim; idim++) {
+       WallPos[idim][iwall] -= 0.5*(maxpos[idim] + minpos[idim]);
+       fprintf(fpecho,"iwall=%d  idim=%d  (centered)WallPos=%g\n",iwall,idim,WallPos[idim][iwall]);
+  }
+
+return;
+}
+/****************************************************************************************************/
+void autosize_the_domain(FILE *fpecho)
+{
+  int iwall,idim,dim_tmp;
+  double maxpos[3],minpos[3];
+
+  for (idim=0; idim<Ndim; idim++){ minpos[idim] = 1000.; maxpos[idim]=-1000.;}
+  for (iwall=0;iwall<Nwall;iwall++){
+     for (idim=0;idim<Ndim;idim++){
+           dim_tmp=idim;
+           if (WallPos[dim_tmp][iwall] < minpos[dim_tmp]) minpos[dim_tmp]=WallPos[dim_tmp][iwall];
+           if (WallPos[dim_tmp][iwall] > maxpos[dim_tmp]) maxpos[dim_tmp]=WallPos[dim_tmp][iwall];
+     }
+  }
+
+  for (idim=0; idim<Ndim; idim++){
+      Size_x[idim] = maxpos[idim]-minpos[idim] + 2.0*(Rmax_zone[0]+Sigma_ff[0][0]); 
+      fprintf(fpecho,"idim=%d  (auto)Size_x=%g\n",idim,Size_x[idim]);
+  }
+
+  return;
+}
+/****************************************************************************************************/
