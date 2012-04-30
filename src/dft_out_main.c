@@ -47,9 +47,9 @@ void post_process (double **x,int *niters,
        *AdsorptionSR_Filename="dft_ads_sum_rule.dat",
        *MainOutput_Filename="dft_output.dat",
        *GofR_Filename="dft_gofr.dat",
-       *output_flux= "dft_flux.dat",
-       *outPath=NULL;
-  char filename[FILENAME_LENGTH],outPath_array[FILENAME_LENGTH],Density_file[FILENAME_LENGTH],DensityCounter_file[FILENAME_LENGTH];
+       *output_flux= "dft_flux.dat",tmp_string;
+  char filename[FILENAME_LENGTH],Density_file[FILENAME_LENGTH],
+       DensityCounter_file[FILENAME_LENGTH],tmp_string_array[FILENAME_LENGTH];
  
   double t1,energy;
   double fac_area,fac_vol;
@@ -64,8 +64,6 @@ void post_process (double **x,int *niters,
   static double mu_previous,mu_2previous;
   double derivative,cont_var,surface_sep,derivative_avg,mu;
 
-  if (Proc==0) strcpy(outPath_array,OutputFileDir);
-
   if (Nruns>1) loop1=Imain_loop;
   counter=loop1;
 
@@ -75,17 +73,11 @@ void post_process (double **x,int *niters,
         if (binodal_flag==TRUE) sprintf(filename, "dft_dens2.%0d", counter); 
         else                    sprintf(filename, "dft_dens.%0d", counter); 
 
-        strcpy(DensityCounter_file,strcat(strcat(outPath_array,"/"),filename));
-        strcpy(outPath_array,OutputFileDir);
+        strcpy(DensityCounter_file,filename);
      }
      else {
-        strcpy(Density_file,strcat(strcat(outPath_array,"/"),"dft_dens.dat"));
-        strcpy(outPath_array,OutputFileDir);
-
-        if (binodal_flag==TRUE){
-           strcpy(Density_file,strcat(strcat(outPath_array,"/"),"dft_dens2.dat"));
-           strcpy(outPath_array,OutputFileDir);
-        }
+        strcpy(Density_file,"dft_dens.dat");
+        if (binodal_flag==TRUE) strcpy(Density_file,"dft_dens2.dat");
      }
   }
 
@@ -135,16 +127,19 @@ void post_process (double **x,int *niters,
    /* open dft_output.dat file */
    if (!(Nruns>1 && Loca.method!=-1 && call_from_flag==FROM_MAIN)){
    if (Proc ==0){
-      if( (fp = fopen(MainOutput_Filename,"a"))==NULL) {
+      strcpy(tmp_string_array,Outpath_array);
+      if( (fp = fopen(strcat(tmp_string_array,MainOutput_Filename),"a"))==NULL) {
 	printf("Can't open file %s\n", MainOutput_Filename);
       }
       if(Nruns>2 && (Nwall==1 || Nwall==2)){
-      if( (fpFSR = fopen(ForceSR_Filename,"a"))==NULL) {
+      strcpy(tmp_string_array,Outpath_array);
+      if( (fpFSR = fopen(strcat(tmp_string_array,ForceSR_Filename),"a"))==NULL) {
 	printf("Can't open file %s\n", ForceSR_Filename);
 	exit(1);
       }}
       if (Loca.method!=-1 && Loca.cont_type1==CONT_BETAMU_I){
-      if( (fpASR = fopen(AdsorptionSR_Filename,"a"))==NULL) {
+      strcpy(tmp_string_array,Outpath_array);
+      if( (fpASR = fopen(strcat(tmp_string_array,AdsorptionSR_Filename),"a"))==NULL) {
 	printf("Can't open file %s\n", AdsorptionSR_Filename);
 	exit(1);
       } }

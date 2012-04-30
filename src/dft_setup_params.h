@@ -231,6 +231,9 @@ extern int Lrandom_walls;
 extern char *WallPos_file_name;
 void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho);
 extern int Nwall;
+extern char *Outpath;
+extern char Outpath_array[FILENAME_LENGTH];
+extern char wallPos_file_array[FILENAME_LENGTH];
 extern int Flag_mV_elecpot;
 extern int Type_coul;
 extern double Temp;
@@ -242,6 +245,17 @@ void setup_chain_architecture(char *poly_file,FILE *fpecho);
 #define NONE        -1
 extern int Type_poly;
 void read_input_file(FILE *fpinput,FILE *fpecho);
+extern int Set_GUIDefaults_to_OLD_File;
+extern char *InputOLD_File;
+extern char EchoInputFile_array[FILENAME_LENGTH];
+extern char *Runpath;
+extern char Runpath_array[FILENAME_LENGTH];
+extern int Proc;
+#if defined(DEBUG)
+extern int Proc;
+#endif
+extern int Read_XMLInput_File;
+extern int Read_OLDInput_File;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -250,10 +264,6 @@ void read_input_file(FILE *fpinput,FILE *fpecho);
 #define FALSE 0
 #endif
 extern int Open_GUI;
-extern int Proc;
-#if defined(DEBUG)
-extern int Proc;
-#endif
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

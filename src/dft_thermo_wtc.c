@@ -35,7 +35,7 @@ Wertheim-Tripathi-Chapman bonded fluid.
 /****************************************************************************/
 /* WTC_thermo_precalc: call all routines needed to process bulk properties of 
                           WTC functionals */
-void WTC_thermo_precalc(char *output_file1)
+void WTC_thermo_precalc(char *file_echoinput)
 {
   int iseg;
 
@@ -49,7 +49,7 @@ void WTC_thermo_precalc(char *output_file1)
      }
      else Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
   }
-  compute_bulk_nonlocal_wtc_properties(output_file1); 
+  compute_bulk_nonlocal_wtc_properties(file_echoinput); 
 
   return;
 }
@@ -287,16 +287,16 @@ void WTC_overlap()
 /* compute_bulk_nonlocal_wtc_properties: compute some additional bulk properties we
    need to carry around the calculation. These are based on the input densities
    and particle sizes. */
-void compute_bulk_nonlocal_wtc_properties(char *output_file1)
+void compute_bulk_nonlocal_wtc_properties(char *file_echoinput)
 {
   int i,icomp,printproc;
   int ibond,iseg,jseg,pol_number,type_jseg;
   FILE *fp2=NULL;
-  if (Proc==0 && output_file1 !=NULL) printproc = TRUE;
+  if (Proc==0 && file_echoinput !=NULL) printproc = TRUE;
   else printproc=FALSE;
   if (printproc) {
-    if( (fp2 = fopen(output_file1,"a+"))==NULL) {
-      printf("Can't open file %s\n", output_file1);
+    if( (fp2 = fopen(file_echoinput,"a+"))==NULL) {
+      printf("Can't open file %s\n", file_echoinput);
       exit(1);
     }
   }

@@ -71,7 +71,7 @@ double get_init_param_user_plugin(int cont_type,int Loca_contID)
   return 0.0;
 }
 /*****************************************************************************/
-void assign_param_user_plugin(int cont_type, int Loca_contID, double param,char *output_file1)
+void assign_param_user_plugin(int cont_type, int Loca_contID, double param,char *EchoInputFile_array)
 {
  double param_old;
  /* note that depending on which variables you are adjusting you may need to recalculate stencils, external fields, or 
@@ -104,7 +104,7 @@ void assign_param_user_plugin(int cont_type, int Loca_contID, double param,char 
      dft_switch_continuation.c.  That routine sets a series of logical to turn on various types
      of adjustments that may be needed for a given type of continuation */ 
 
-  adjust_dep_params(cont_type,Loca_contID,param_old,param,output_file1);  
+  adjust_dep_params(cont_type,Loca_contID,param_old,param,EchoInputFile_array);  
   return;
 }
 /*****************************************************************************/

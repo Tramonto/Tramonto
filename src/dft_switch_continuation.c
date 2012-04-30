@@ -121,9 +121,9 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
 {
   int i,j,icomp,jcomp,iw,iwall_type,inode,kcomp,jwall_type;
   double ratio,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE],param_old,rho_chain;
-  char     *output_file1;
+  char     *file_echoinput;
   
-  output_file1 = "dft_out.lis";
+  file_echoinput = EchoInputFile_array;
   switch(cont_type){
      case CONT_MESH: 
        /* don't actually set parameter here */
@@ -237,7 +237,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
            assign_param_archived_plugin(cont_type,Loca_contID,param); 
         }
         else if (cont_type >= 200 && cont_type<299){
-           assign_param_user_plugin(cont_type,Loca_contID,param,output_file1); 
+           assign_param_user_plugin(cont_type,Loca_contID,param,file_echoinput); 
         }
         else{
            if (Iwrite_screen != SCREEN_NONE)  printf("ERROR: Unknown Continuation parameter %d\n",cont_type);
@@ -245,11 +245,11 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
         }
         break;
   }
-  adjust_dep_params(cont_type,Loca_contID,param_old,param,output_file1);
+  adjust_dep_params(cont_type,Loca_contID,param_old,param,file_echoinput);
   return;
 }
 /*****************************************************************************/
-void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double param_new,char *output_file1)
+void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double param_new,char *file_echoinput)
 {
   int i,iwall_type,icomp,nloop;
   double ratio;
@@ -356,7 +356,7 @@ void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double par
   } 
 
   if (Ladjust_all_epsParams)            scale_all_epsParams(ratio);
-  if (Ladjust_pairPot)                  setup_pairPotentials(output_file1);
+  if (Ladjust_pairPot)                  setup_pairPotentials(file_echoinput);
 
   if (Ladjust_electparam_walls)         scale_elec_param(ratio); 
 
@@ -380,9 +380,9 @@ void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double par
 
   if (Ladjust_stencils)                 recalculate_stencils();
   
-  if (Ladjust_density)                  calc_new_density(icomp,output_file1);
+  if (Ladjust_density)                  calc_new_density(icomp,file_echoinput);
 
-  if (Ladjust_thermo) 			thermodynamics(output_file1,SCREEN_NONE,FILES_BASIC);
+  if (Ladjust_thermo) 			thermodynamics(file_echoinput,SCREEN_NONE,FILES_BASIC);
 }
 /*****************************************************************************/
 /*print_cont_type: Here print the type of the variable that

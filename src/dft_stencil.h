@@ -95,6 +95,8 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern struct Stencil_Struct ***Stencil;
+#define FILENAME_LENGTH 300
+extern char Outpath_array[FILENAME_LENGTH];
 #define FILES_DEBUG        2
 extern int Iwrite_files;
 extern int Proc;

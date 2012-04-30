@@ -192,7 +192,7 @@ void scale_all_epsParams(double ratio)
 /*****************************************************************************/
 /* calc_new_density: use a quick iterative scheme to update a density for a
 specified continuation variable while holding the other densities constant */
-void calc_new_density(int icomp,char *output_file1)
+void calc_new_density(int icomp,char *file_echoinput)
 {
   int jcomp,i,ncount=0,Lconverged,ipol;
   double mu_new_icomp,tol=1.e-8,rho_save_icomp,betamu_test,percent_change,rho_new_test;
@@ -206,7 +206,7 @@ void calc_new_density(int icomp,char *output_file1)
 
   while(Lconverged==FALSE && ncount<10000){
      
-     thermodynamics(output_file1,SCREEN_NONE,FILES_BASIC);
+     thermodynamics(file_echoinput,SCREEN_NONE,FILES_BASIC);
 
      if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) betamu_test=Betamu_chain[icomp];
      else                                                         betamu_test=Betamu[icomp];

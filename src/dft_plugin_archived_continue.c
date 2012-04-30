@@ -93,9 +93,9 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
 {
   int i,j,iw;
   double ratio,eps_wf_save[NCOMP_MAX][NWALL_MAX_TYPE];
-  char     *output_file1;
+  char     *file_echoinput;
   
-  output_file1 = "dft_out.lis";
+  file_echoinput = EchoInputFile_array;
   switch(cont_type){
      case CONT_LOG_RHO_I:
            ratio=1./Rho_b[Cont_ID[Loca_contID][0]];
@@ -121,7 +121,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
 
              if (Type_poly == CMS) setup_polymer_cr();
              recalculate_stencils();
-             thermodynamics(output_file1,Iwrite_screen,FILES_BASIC);
+             thermodynamics(file_echoinput,Iwrite_screen,FILES_BASIC);
              break;
 
       case CONT_RHO_CONST_XSOLV:
@@ -134,7 +134,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
              Rho_b[1]*=ratio; 
              if (Type_poly == CMS) setup_polymer_cr();
              recalculate_stencils();
-             thermodynamics(output_file1,Iwrite_screen,FILES_BASIC);
+             thermodynamics(file_echoinput,Iwrite_screen,FILES_BASIC);
              break;
 
       case CONT_RHO_ALL: 
@@ -151,7 +151,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
              } 
              if (Type_poly == CMS) setup_polymer_cr();
              recalculate_stencils();
-             thermodynamics(output_file1,Iwrite_screen,FILES_BASIC);
+             thermodynamics(file_echoinput,Iwrite_screen,FILES_BASIC);
              break; 
                  
       case CONT_EPSW_ALL: 

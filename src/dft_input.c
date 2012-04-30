@@ -60,7 +60,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
    char *yo = "read_input_file";
    int icomp, jcomp, iwall,iwall_type, idim, ipol,
        i, izone, j, jwall,new_wall,logical,ncharge, seg, block[NCOMP_MAX][NBLOCK_MAX],
-       block_type[NBLOCK_MAX],pol_number, nlink_chk,irand,irand_range,itmp,
+       block_type[NBLOCK_MAX],pol_number, itmp,
        dim_tmp,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
    double rho_tmp[NCOMP_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
@@ -72,7 +72,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   
   /********************** BEGIN EXECUTION ************************************/
 
-    printf("Reading Input File\n");
+    printf("Reading Static Format Input File\n");
   
   /* Read in the Mesh, Surface, Potential Type, Fluid Particle, 
      Surface Particle, State Point, Functional, and Run Control Parameters.
@@ -89,37 +89,6 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   LDeBroglie=FALSE;
   LBulk=FALSE;
   Type_interface=UNIFORM_INTERFACE;
-
-  /********************************************/
-  /* Look for request for GUI                 */
-  /********************************************/
-   Open_GUI=FALSE;
-   fgets(unk_char,5,fpinput);
-   if (strncmp(unk_char,"GUI",3)==0){
-     Open_GUI=TRUE;
-   }
-
-  /**************************************************************************/
-  /* Set a directory for output and default density files for Tramonto run */
-  /**************************************************************************/
-/*      read_junk(fpinput,fpecho);
-      fscanf(fpinput,"%s", OutputFileDir_array);
-      fprintf(fpecho,"%s  ",OutputFileDir_array);
-      OutputFileDir=OutputFileDir_array; */
-
-      OutputFileDir=".";   /* just set to cwd for now...*/
-
-  sprintf(DensityFile_array, "./dft_dens.dat");
-  sprintf(DensityFile2_array, "./dft_dens2.dat");
-
-  DensityFile=DensityFile_array;
-  DensityFile2=DensityFile2_array;
-
-  /**************************************************************************/
-  /* Set a directory and default filename for surface position and charge input  */
-  /**************************************************************************/
-  sprintf(wallPos_file_array, "./dft_surfaces.dat");
-  WallPos_file_name=wallPos_file_array;
 
   /********************************************/
   /* Initialize and Read Dimension Parameters */
@@ -260,81 +229,6 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
     }
   else  fprintf(fpecho,"Orientation n/a");
 
-                   /****************************/
-                   /* set up surface positions */
-                   /****************************/
-  charge_sum=0.0;
-  #ifndef _MSC_VER
-    srandom(135649);
-  #else
-    srand(135649);
-  #endif
-
-  if (Nwall_type > 0){
-    for (idim=0; idim<Ndim; idim++){ minpos[idim] = 1000.; maxpos[idim]=-1000.;}
-
-    if( (fpsurfaces  = fopen(WallPos_file_name,"r")) == NULL) {
-	printf("Can't open file %s\n",WallPos_file_name); exit(-1);
-    }
-
-    for (iwall=0; iwall<Nwall; iwall++){
-       fscanf(fpsurfaces,"%d  %d",&WallType[iwall], &Link[iwall]);
-       for (idim=0; idim<Ndim; idim++) {
-          dim_tmp=idim;
-                      /* temporary rotation of coordinates 
-                                if (idim==0) dim_tmp=1;
-                                else if (idim==1) dim_tmp=2;
-                                else if (idim==2) dim_tmp=0;*/
-                      /* end of temporary code */
-          fscanf(fpsurfaces,"%lf",&WallPos[dim_tmp][iwall]);
-
-                                         /* below is code for random placement of surface */
-                                         /* coordinates - it is accomplished with a known */
-                                         /* flag value for the WallPos variable.  This needs */
-                                         /* to be changed to a proper selection int he input file*/
-          if (fabs(WallPos[dim_tmp][iwall]+9999.0)<1.e-6) { 
-            Lrandom_walls=TRUE;
-            #ifndef _MSC_VER
-              irand = random();
-            #else
-              irand = rand();
-            #endif
-            irand_range = POW_INT(2,31)-1;
-            WallPos[dim_tmp][iwall] = Size_x[idim]*(-0.5+( ((double)irand)/((double)irand_range)));
-            printf("\n  Wall %d dim %d gets WallPos:%g \n",iwall,idim,WallPos[idim][iwall]);
-             fprintf(fpecho,"\n Wall %d dim %d gets WallPos:%g \n",iwall,idim,WallPos[idim][iwall]);
-          }   /* end random wall placement */
-
-
-           if (WallPos[dim_tmp][iwall] < minpos[dim_tmp]) minpos[dim_tmp]=WallPos[dim_tmp][iwall];
-           if (WallPos[dim_tmp][iwall] > maxpos[dim_tmp]) maxpos[dim_tmp]=WallPos[dim_tmp][iwall];
-       }
-
-       fscanf(fpsurfaces,"%lf",&Elec_param_w[iwall]);
-       charge_sum+=Elec_param_w[iwall];
-     } 
-
-     /*for (idim=0; idim<Ndim; idim++) printf("\n idim: %d min pos: %9.6f max pos %9.6f \n",idim,minpos[idim],maxpos[idim]);*/
-     if (Lauto_center){
-       for (iwall=0; iwall<Nwall; iwall++) for (idim=0; idim<Ndim; idim++) WallPos[idim][iwall] -= 0.5*(maxpos[idim] + minpos[idim]);
-     }
-     fclose(fpsurfaces);
-
-     nlink_chk = 1;
-     for (iwall=1; iwall<Nwall; iwall++){
-       new_wall = TRUE;
-       for (jwall=0; jwall<iwall; jwall++)
-  	if (Link[iwall] == Link[jwall]) new_wall=FALSE;
-       if (new_wall) nlink_chk++;
-     }
-     if (nlink_chk != Nlink){
-       printf("Check Nlink in dft_input.dat: %d and assignments in %s: %d\n",
-	     Nlink,WallPos_file_name,nlink_chk);
-      exit(-1);
-     }
-  }
-  else{ Nwall = 0; Nlink = 0; }
-  
                             /**************************************/
                             /* Set Up Surface Geometry Parameters */
                             /**************************************/
@@ -1490,8 +1384,6 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
     Iwrite_screen=SCREEN_BASIC;
     Iwrite_files=FILES_DEBUG_MATRIX;
   }
-
-  if (fabs(charge_sum) > 1.e-8 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) printf("\n TOTAL CHARGE IN %s = %9.6f\n",WallPos_file_name,charge_sum);
 
   /**************************************************/
   /* Numerical Methods ... Mesh/Jacobian Coarsening */

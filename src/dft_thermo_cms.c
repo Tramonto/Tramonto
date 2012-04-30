@@ -32,13 +32,13 @@ dft_thermo_cms.c:  Calculate relevant thermodynamic properties for CMS polymer f
 
 /****************************************************************************/
 /* CMS_thermo_precalc: call all routines needed to process bulk properties of CMS functionals */
-void CMS_thermo_precalc(char *output_file1)
+void CMS_thermo_precalc(char *file_echoinput)
 {
   if (Type_interface==UNIFORM_INTERFACE)
-     compute_bulk_nonlocal_cms_properties(output_file1,Rho_b,Field_CMS_b,G_CMS_b);
+     compute_bulk_nonlocal_cms_properties(file_echoinput,Rho_b,Field_CMS_b,G_CMS_b);
   else{
-     compute_bulk_nonlocal_cms_properties(output_file1,Rho_b_LBB,Field_CMS_LBB,G_CMS_LBB);
-     compute_bulk_nonlocal_cms_properties(output_file1,Rho_b_RTF,Field_CMS_RTF,G_CMS_RTF);
+     compute_bulk_nonlocal_cms_properties(file_echoinput,Rho_b_LBB,Field_CMS_LBB,G_CMS_LBB);
+     compute_bulk_nonlocal_cms_properties(file_echoinput,Rho_b_RTF,Field_CMS_RTF,G_CMS_RTF);
   }
   return;
 }
@@ -391,7 +391,7 @@ void setup_polymer_cr()
 /*************************************************************************************/
 /* compute_bulk_nonlocal_cms_properties: compute some additional bulk properties we
    need to carry around the calculation. */
-void compute_bulk_nonlocal_cms_properties(char *output_file1,double *rho, 
+void compute_bulk_nonlocal_cms_properties(char *file_echoinput,double *rho, 
                                         double *field_CMS, double *g_CMS)
 {
   int icomp,jcomp,printproc;
@@ -401,11 +401,11 @@ void compute_bulk_nonlocal_cms_properties(char *output_file1,double *rho,
   FILE *fp2=NULL;
 
 
-  if (Proc==0 && output_file1 !=NULL) printproc = TRUE;
+  if (Proc==0 && file_echoinput !=NULL) printproc = TRUE;
   else printproc=FALSE;
   if (printproc) {
-    if( (fp2 = fopen(output_file1,"a+"))==NULL) {
-      printf("Can't open file %s\n", output_file1);
+    if( (fp2 = fopen(file_echoinput,"a+"))==NULL) {
+      printf("Can't open file %s\n", file_echoinput);
       exit(1);
     }
   }

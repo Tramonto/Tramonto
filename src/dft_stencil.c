@@ -61,6 +61,8 @@ void calc_stencils(void)
 
   double esize_zone[3];
   int  zone_coarseness=0;
+
+  char tmp_str_array[FILENAME_LENGTH];
   /********************** BEGIN EXECUTION ************************************/
 
   if (Proc==0) {
@@ -69,8 +71,12 @@ void calc_stencils(void)
          printf("Calculating stencils ... \n");
     }*/
     t1 = MPI_Wtime();
-    if (Iwrite_files == FILES_DEBUG) fp_stencil = fopen("stencil.out", "w");
+    if (Iwrite_files == FILES_DEBUG){
+         strcpy(tmp_str_array,Outpath_array);
+         fp_stencil = fopen(strcat(tmp_str_array,"stencil.out"), "w");
+    }
   }
+
 
  /*
   * Allocate the Stencil variable to be a 3D array of structures

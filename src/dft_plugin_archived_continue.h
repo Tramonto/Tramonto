@@ -35,6 +35,8 @@ void thermodynamics(char *file_echoinput,int iwrite_screen,int iwrite_files);
 void recalculate_stencils();
 void setup_polymer_cr();
 #define CMS          0
+#define FILENAME_LENGTH 300
+extern char EchoInputFile_array[FILENAME_LENGTH];
 #define NWALL_MAX_TYPE 20 
 #define NCOMP_MAX 5
 void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);

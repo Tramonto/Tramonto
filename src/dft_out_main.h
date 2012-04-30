@@ -61,6 +61,8 @@ extern int Print_rho_switch;
 #endif
 #define CONT_BETAMU_I      3  /* Vary chemical potential for species I */
 extern int Nwall;
+#define FILENAME_LENGTH 300
+extern char Outpath_array[FILENAME_LENGTH];
 #define FROM_MAIN 1
 typedef struct Loca_Struct Loca_Struct;
 struct Loca_Struct {
@@ -94,16 +96,14 @@ extern double *X2_old;
 extern int Iwrite_screen;
 #define PRINT_RHO_0      0
 extern int Print_rho_type;
-extern int Imain_loop;
-extern int Nruns;
-extern char *OutputFileDir;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+extern int Imain_loop;
+extern int Nruns;
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-#define FILENAME_LENGTH 300
 void post_process(double **x,int *niters,double *time_save,int loop1,int binodal_flag,int call_from_flag);

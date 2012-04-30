@@ -87,7 +87,7 @@ extern double Rho_b_LBB[NCOMP_MAX];
 extern double G_CMS_b[NMER_MAX *NBOND_MAX];
 extern double Field_CMS_b[NMER_MAX];
 extern double Rho_b[NCOMP_MAX];
-void compute_bulk_nonlocal_cms_properties(char *output_file1,double *rho,double *field_CMS,double *g_CMS);
+void compute_bulk_nonlocal_cms_properties(char *file_echoinput,double *rho,double *field_CMS,double *g_CMS);
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
-void CMS_thermo_precalc(char *output_file1);
+void CMS_thermo_precalc(char *file_echoinput);

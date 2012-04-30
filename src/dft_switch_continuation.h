@@ -104,7 +104,7 @@ extern int Print_mesh_switch;
 void print_cont_type(int cont_type,FILE *fp,int Loca_contID);
 #define FILES_BASIC        0
 void thermodynamics(char *file_echoinput,int iwrite_screen,int iwrite_files);
-void calc_new_density(int icomp,char *output_file1);
+void calc_new_density(int icomp,char *file_echoinput);
 void recalculate_stencils();
 void setup_polymer_cr();
 void calc_InvR_params();
@@ -147,8 +147,10 @@ extern int Ipot_ff_c;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double param_new,char *output_file1);
-void assign_param_user_plugin(int cont_type,int Loca_contID,double param,char *output_file1);
+void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double param_new,char *file_echoinput);
+#define FILENAME_LENGTH 300
+extern char EchoInputFile_array[FILENAME_LENGTH];
+void assign_param_user_plugin(int cont_type,int Loca_contID,double param,char *EchoInputFile_array);
 void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
 extern int Unk2Comp[NMER_MAX];
 extern int Ntype_mer;

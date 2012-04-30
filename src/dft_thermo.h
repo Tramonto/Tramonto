@@ -92,19 +92,19 @@ extern int Lseg_densities;
 extern int Type_interface;
 void calc_pressure(char *file_echoinput,int iwrite_screen,int iwrite_files);
 void calc_chempot(char *file_echoinput,int iwrite_screen,int iwrite_files);
-void WJDC_thermo_precalc(char *output_file1);
+void WJDC_thermo_precalc(char *file_echoinput);
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int Npol_comp;
 extern int Ncomp;
 void ATT_thermo_precalc();
 extern int Type_attr;
-void HS_thermo_precalc(char *output_file1);
+void HS_thermo_precalc(char *file_echoinput);
 #define NONE       -1
 #define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;
-void WTC_thermo_precalc(char *output_file1);
+void WTC_thermo_precalc(char *file_echoinput);
 #define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3

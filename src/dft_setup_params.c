@@ -45,58 +45,102 @@ void setup_params_for_dft(char *input_file, char *file_echoinput)
 {
   int input_file_exists=TRUE,i,j,nseg,nmer_max,pol_number;
   FILE *fpinput, *fpecho;
+  char *tmp_string;
+  char tmp_string_array[FILENAME_LENGTH];
+
+  Open_GUI=FALSE;
+  Read_OLDInput_File=TRUE;
+  Read_XMLInput_File=FALSE;
+
 
   /****************************************************/
   /* first do all the things that only Proc 0 will do */
   /****************************************************/
   if (Proc==0) {
-                /*********************************/
-                /* attempt to open an input file */
-                /*********************************/
-    if( (fpinput  = fopen(input_file,"r")) == NULL) {
-      printf("Can't open file %s\n", input_file);
+
+            /* first set basic selections for starting a problem */
 #ifdef BUILD_GUI
-      printf("Must enter all params from the GUI\n");
-      Open_GUI=TRUE;
+        dft_OptikaGUI_control();
+
+        sprintf(Runpath_array, Runpath);
+        Runpath=Runpath_array;
+
+        strcpy(tmp_string_array,Runpath_array);
+        strcpy(EchoInputFile_array,strcat(Runpath_array,file_echoinput));
+        strcpy(Runpath_array,tmp_string_array);
+        Runpath=Runpath_array;
+        file_echoinput=EchoInputFile_array;
+
+        fpecho  = fopen(file_echoinput,"w+");
+
+        if (Read_OLDInput_File==TRUE){
+            input_file=InputOLD_File;
+            if( (fpinput  = fopen(input_file,"r")) == NULL) {
+                printf("Can't open file %s\n", input_file);
+                printf("Must enter all params from the GUI\n");
+                Open_GUI=TRUE;
+                input_file_exists=FALSE;
+                Set_GUIDefaults_to_OLD_File=FALSE;
+            }
+            else{
+               input_file_exists=TRUE;
+               Set_GUIDefaults_to_OLD_File=TRUE;
+            }
+            if(input_file_exists==TRUE) read_input_file(fpinput,fpecho);
+        }
+
+
+        if (Open_GUI==TRUE){
+             dft_OptikaGUI();
+             /* set up the chain architecture based on selections in GUI */
+             if (Type_poly != NONE) setup_chain_architecture(Poly_file_name,fpecho);
+        }
+        else{
+           if (Temp>0. && Type_coul!=NONE) Flag_mV_elecpot=TRUE;
+           else         Flag_mV_elecpot=FALSE;
+        }
+
 #else
-      exit(-1);
-#endif
-      input_file_exists=FALSE;
-    }
-    if( (fpecho = fopen(file_echoinput,"w+")) == NULL) {
-      printf("Can't open file %s\n", file_echoinput);
-      exit(-1);
-    }
-    fprintf(fpecho,"test out the printing %s\n",file_echoinput);
+        Open_GUI=FALSE;
 
-    if (input_file_exists==TRUE) read_input_file(fpinput,fpecho);
+        strcpy(Runpath_array,"./");
+        Runpath=Runpath_array;
 
+        strcpy(EchoInputFile_array,strcat(Runpath_array,file_echoinput));
+        file_echoinput=EchoInputFile_array;
+        strcpy(Runpath_array,"./");
 
-        /******************************************************************/
-        /* read a parameter from file to indicate if GUI should be opened */ 
-        /* temporarily set always to TRUE */
-        /******************************************************************/
+        fpecho  = fopen(file_echoinput,"w+");
 
-        /*****************************/
-        /* open the GUI if requested */ 
-        /*****************************/
-#ifdef BUILD_GUI
-    if (Open_GUI==TRUE){
-        dft_OptikaGUI();
-        /* set up the chain architecture based on selections in GUI */
-        if (Type_poly != NONE) setup_chain_architecture(Poly_file_name,fpecho);
-    }
-    else{
+        if( (fpinput  = fopen(strcat(Runpath_array,input_file),"r")) == NULL) {
+           strcpy(Runpath_array,"./");
+           printf("Can't open file %s\n", strcat(Runpath_array,input_file));
+           exit(-1);
+        }
+        strcpy(Runpath_array,"./");
+
+        read_input_file(fpinput,fpecho);
         if (Temp>0. && Type_coul!=NONE) Flag_mV_elecpot=TRUE;
         else         Flag_mV_elecpot=FALSE;
-    }
-#else
-    if (Open_GUI==TRUE){
-       printf("GUI request is ignored because the code was not built with a GUI\n");
-    }
-    if (Temp>0. && Type_coul!=NONE) Flag_mV_elecpot=TRUE;
-    else         Flag_mV_elecpot=FALSE;
-#endif 
+        
+        sprintf(wallPos_file_array, strcat(Runpath_array,"dft_surfaces.dat"));
+        strcpy(Runpath_array,"./");
+        WallPos_file_name=wallPos_file_array;
+
+        strcpy(DensityFile_array,strcat(Runpath_array,"dft_dens.dat"));
+        strcpy(Runpath_array,"./");
+
+        strcpy(DensityFile2_array,strcat(Runpath_array,"dft_dens2.dat"));
+        strcpy(Runpath_array,"./");
+#endif
+
+    DensityFile=DensityFile_array;
+    if (Lbinodal) DensityFile2=DensityFile2_array;
+ printf("in setup DensityFile=%s\n",DensityFile);
+
+    /* could set up possible different path for output - set to the one Runpath for now */
+    strcpy(Outpath_array,Runpath_array);
+    Outpath=Outpath_array;
 
     if (Nwall >0 && WallPos_file_name!=NULL) readIn_wall_positions_and_charges(WallPos_file_name,fpecho);
     if (Nwall >0 && Lrandom_walls==TRUE) setup_random_wall_positions(fpecho);
@@ -234,11 +278,6 @@ void setup_other_run_constants()
 
   if (Type_poly!=NONE && Physics_scaling != FALSE) Lprint_scaleFacWJDC=TRUE;
   else Lprint_scaleFacWJDC=FALSE;
-
-  if (Proc==0){   
-    strcpy(DensityFile_array,DensityFile);
-    if (Lbinodal==TRUE) strcpy(DensityFile2_array,DensityFile2);
-  }
 
   return;
 }
@@ -648,9 +687,9 @@ void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho)
    double charge_sum=0.0;
 
     if( (fpsurfaces  = fopen(WallPos_file_name,"r")) == NULL) {
-        printf("Can't open file %s\n",WallPos_file_name); exit(-1);
+        printf("Can't open file %s and no other file was specified in GUI.\n",WallPos_file_name); exit(-1);
     }
-    else{ printf("Read in surface infomration from %s\n",WallPos_file_name); }
+    else{ printf("Read in surface positions and charges from %s\n",WallPos_file_name); }
 
     for (iwall=0; iwall<Nwall; iwall++){
        fscanf(fpsurfaces,"%d  %d",&WallType[iwall], &Link[iwall]);

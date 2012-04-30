@@ -12,21 +12,22 @@ void dft_GUI_surfaces_set_defaults(Teuchos::RCP<Teuchos::ParameterList> Tramonto
                       Teuchos::RCP<Teuchos::ParameterList> Surface_List,
                       Teuchos::RCP<Teuchos::ParameterList> SurfacePosition_List)
 {
+  string surface_file_default;
+  surface_file_default=(string)Runpath+"dft_surfaces.dat";
   /* VALIDATORS*/
   RCP<EnhancedNumberValidator<int> > NwallValidator = rcp(new EnhancedNumberValidator<int>(0,1000,1));
   RCP<EnhancedNumberValidator<int> > NwallTypeValidator = rcp(new EnhancedNumberValidator<int>(0,12,1));
   RCP<FileNameValidator> SurfaceFile_Validator = rcp(new FileNameValidator);
   RCP<StringValidator> SurfacePos_Validator = rcp<StringValidator>(new StringValidator(tuple<std::string>(
         "Read From File","Set up in GUI","Random placement of walls")));
-
-
+  
   /* Set Surface PARAMETERS */
   Surface_List->set("S1: Number of Surfaces", 0, "Number of surfaces (or total surface subunits) in the problem",NwallValidator);
   Surface_List->set("S2: Number of macro surfaces",  Surface_List->get<int>("S1: Number of Surfaces"), "Indicates if groups of surface form macrosurfaces.\n For example atoms that are part of a single molecule would have Nsurf_macro=1 and Nsurf>1)",NwallValidator);
   Surface_List->set("S3: Number of surface types", 1, "Number of different types surfaces (or total surface subunits) in the problem",NwallTypeValidator);
 
   SurfacePosition_List->set("SP0: Type of surface position/charge entry", "Read From File", "Identify how the positions and charges of individual files will be set up",SurfacePos_Validator);
-  SurfacePosition_List->set("SP1: file containing surface positions and charges","dft_surfaces.dat","Enter the file name where the polymer architecture can be found.", SurfaceFile_Validator);
+  SurfacePosition_List->set("SP1: file containing surface positions and charges",surface_file_default,"Enter the file name where the polymer architecture can be found.", SurfaceFile_Validator);
 
   Array<int> SurfaceType_Array(Surface_List->get<int>("S1: Number of Surfaces"),0);
   SurfacePosition_List->set("SP2: Surface Type IDs", SurfaceType_Array, "Type ID for each surface in the system.  Surface type IDs identify geometry and properties of surfaces.  Many surfaces may have the same type ID. Indexing starts with 0.");
@@ -48,6 +49,9 @@ void dft_GUI_surfaces_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tramont
 {
   int i,j;
   int tmp_1D[NWALL_MAX];
+  string surface_file_default;
+  surface_file_default=(string)Runpath+"dft_surfaces.dat";
+
   /* VALIDATORS*/
   RCP<EnhancedNumberValidator<int> > NwallValidator = rcp(new EnhancedNumberValidator<int>(0,1000,1));
   RCP<EnhancedNumberValidator<int> > NwallTypeValidator = rcp(new EnhancedNumberValidator<int>(0,12,1));
@@ -59,8 +63,8 @@ void dft_GUI_surfaces_set_OldFormat(Teuchos::RCP<Teuchos::ParameterList> Tramont
   Surface_List->set("S2: Number of macro surfaces",  Nlink, "Indicates if groups of surface form macrosurfaces.\n For example atoms that are part of a single molecule would have Nsurf_macro=1 and Nsurf>1)",NwallValidator);
   Surface_List->set("S3: Number of surface types", Nwall_type, "Number of different types surfaces (or total surface subunits) in the problem",NwallTypeValidator);
 
-  SurfacePosition_List->set("SP0: Type of surface position/charge entry", "Set up in GUI", "Identify how the positions and charges of individual files will be set up",SurfacePos_Validator);
-  SurfacePosition_List->set("SP1: file containing surface positions and charges","dft_surfaces.dat","Enter the file name where the polymer architecture can be found.", SurfaceFile_Validator);
+  SurfacePosition_List->set("SP0: Type of surface position/charge entry", "Read From File", "Identify how the positions and charges of individual files will be set up",SurfacePos_Validator);
+  SurfacePosition_List->set("SP1: file containing surface positions and charges",surface_file_default,"Enter the file name where the polymer architecture can be found.", SurfaceFile_Validator);
 
   for (i=0;i<Nwall;i++) tmp_1D[i]=WallType[i]; 
   Array<int> SurfaceType_Array(tmp_1D, tmp_1D+Nwall);

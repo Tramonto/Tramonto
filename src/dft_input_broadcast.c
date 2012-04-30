@@ -416,6 +416,13 @@ void broadcast_input()
   MPI_Bcast(&Iwrite_screen,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Iwrite_files,1,MPI_INT,0,MPI_COMM_WORLD);
 
+  /************************************/
+  /* Broadcast Path Strings for I/O   */
+  /************************************/
+   MPI_Bcast(&Runpath_array, FILENAME_LENGTH*sizeof(char), MPI_CHAR, 0, MPI_COMM_WORLD);
+   MPI_Bcast(&Outpath_array, FILENAME_LENGTH*sizeof(char), MPI_CHAR, 0, MPI_COMM_WORLD);
+   MPI_Bcast(&EchoInputFile_array, FILENAME_LENGTH*sizeof(char), MPI_CHAR, 0, MPI_COMM_WORLD);
+
   /********************************************************/
   /* Broadcast Settings for Numerical Methods: Coarsening */
   /********************************************************/

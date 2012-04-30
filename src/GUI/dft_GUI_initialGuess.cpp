@@ -12,6 +12,10 @@ void dft_GUI_DensityStartupParams_set_defaults(Teuchos::RCP<Teuchos::ParameterLi
                          Teuchos::RCP<Teuchos::ParameterList> DensProfile_List)
 {
    string str_densityType, str_densityConstructor,str_fieldConstructor, str_extfieldType;
+   string densFile1_default,densFile2_default;
+
+   densFile1_default=(string)Runpath+"dft_dens.dat";
+   densFile2_default=(string)Runpath+"dft_dens2.dat";
 
    /************************************/
    /* a few helpful string constants */
@@ -47,8 +51,8 @@ void dft_GUI_DensityStartupParams_set_defaults(Teuchos::RCP<Teuchos::ParameterLi
 
 
    DensProfile_List->set("IG1: Initial Guess Type", "Construct a new Density Profile", str_densityType,RestartValidator);
-   DensProfile_List->set("IG1.1: Density Restart File", "./dft_dens.dat", "Select the file that contains a density profile for restart", DensityFileValidator);
-   DensProfile_List->set("IG1.2: 2nd Density RestartFile", "./dft_dens2.dat", "Select a 2nd file that contains a density profile for binodal restart", DensityFile2Validator);
+   DensProfile_List->set("IG1.1: Density Restart File", densFile1_default, "Select the file that contains a density profile for restart", DensityFileValidator);
+   DensProfile_List->set("IG1.2: 2nd Density RestartFile", densFile2_default, "Select a 2nd file that contains a density profile for binodal restart", DensityFile2Validator);
    DensProfile_List->set("IG1.3: Number of missing components", 0, "Set the number of components that are not included in the file.  They must have the highest density IDs");
    DensProfile_List->set("IG1.4: Rho max", 1000., "Set the maximum value allowed in densities that are read from a file." );
 
@@ -82,6 +86,10 @@ void dft_GUI_DensityStartupParams_set_OldFormat(Teuchos::RCP<Teuchos::ParameterL
 {
    int i,j;
    string str_densityType, str_densityConstructor,str_fieldConstructor, str_extfieldType;
+   string densFile1_default,densFile2_default;
+
+   densFile1_default=(string)Runpath+"dft_dens.dat";
+   densFile2_default=(string)Runpath+"dft_dens2.dat";
 
    /************************************/
    /* a few helpful string constants */
@@ -122,8 +130,8 @@ void dft_GUI_DensityStartupParams_set_OldFormat(Teuchos::RCP<Teuchos::ParameterL
    else if (Restart==RESTART_FEWERCOMP) DensProfile_List->set("IG1: Initial Guess Type", "Restart incomplete Ncomp", str_densityType,RestartValidator);
    else if (Restart==RESTART_1DTOND) DensProfile_List->set("IG1: Initial Guess Type", "Restart with 1D profile (in 2D or 3D)", str_densityType,RestartValidator);
 
-   DensProfile_List->set("IG1.1: Density Restart File",(string)DensityFile, "Select the file that contains an external field for restart", DensityFileValidator);
-   DensProfile_List->set("IG1.2: 2nd Density RestartFile",(string)DensityFile2, "Select a 2nd (static to continuation) file that contains an external field for restart", DensityFile2Validator);
+   DensProfile_List->set("IG1.1: Density Restart File",densFile1_default, "Select the file that contains an external field for restart", DensityFileValidator);
+   DensProfile_List->set("IG1.2: 2nd Density RestartFile",densFile2_default, "Select a 2nd (static to continuation) file that contains an external field for restart", DensityFile2Validator);
 
    DensProfile_List->set("IG1.3: Number of missing components", Nmissing_densities, "Set the number of components that are not included in the file.  They must have the highest density IDs");
    DensProfile_List->set("IG1.4: Rho max", Rho_max, "Set the maximum value allowed in densities that are read from a file." );

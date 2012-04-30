@@ -270,7 +270,7 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
 
   int ntot_per_list,ntot_per_list_all_procs,*el_tmp,*elems_w_per_w_proc_0_tmp,ncount;
   double pos_xyz[3];
-  char proc_file[FILENAME_LENGTH];
+  char proc_file[FILENAME_LENGTH],tmp_str_array[FILENAME_LENGTH];
   FILE *fp_L2Gmap=NULL;
   FILE *fp_B2Gmap=NULL;
   
@@ -287,10 +287,14 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
   setup_basic_box(fpecho, update);
   /* here is some debugging code to make sure we understand the basic box and the coordinate systems */
    if (Iwrite_files==FILES_DEBUG){
+       strcpy(tmp_str_array,Outpath_array);
        sprintf(proc_file,"L2GMap_%d",Proc);
-       fp_L2Gmap = fopen(proc_file,"w");
+       fp_L2Gmap = fopen(strcat(tmp_str_array,proc_file),"w");
+
+       strcpy(tmp_str_array,Outpath_array);
        sprintf(proc_file,"B2GMap_%d",Proc);
-       fp_B2Gmap = fopen(proc_file,"w");
+       fp_B2Gmap = fopen(strcat(tmp_str_array,proc_file),"w");
+
        fprintf(fp_L2Gmap,"loc_inode   L2G_node[loc_inode]   L2B_node[loc_inode]  xpos  ypos\n");
        for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
             node_to_position(L2G_node[loc_inode],pos_xyz);
@@ -693,9 +697,11 @@ void setup_basic_box(FILE *fpecho, int *update)
   double max_cut=0.0;
   int ijk_1D=0;
   FILE *fp_procmesh;
+  char tmp_str_array[FILENAME_LENGTH];
 
   if (Iwrite_files==FILES_DEBUG) {
-    if( (fp_procmesh = fopen("proc_mesh.dat","a+")) == NULL) {
+    strcpy(tmp_str_array,Outpath_array);
+    if( (fp_procmesh = fopen(strcat(tmp_str_array,"proc_mesh.dat"),"a+")) == NULL) {
       if(Iwrite_screen != SCREEN_NONE) printf("Can't open file proc_mesh.dat\n");
       exit(1);
     }
@@ -2688,8 +2694,13 @@ void setup_area_IC(void)
   double nodepos[3],rad,xleft,xright;
   char *filename = "Area_IC.dat";
   FILE *fp_AreaIC=NULL;
+  char tmp_str_array[FILENAME_LENGTH];
 
-  if (Iwrite_files == FILES_DEBUG && Proc==0) fp_AreaIC=fopen(filename,"w");
+  
+  if (Proc==0 && Iwrite_files == FILES_DEBUG){
+     strcpy(tmp_str_array,Outpath_array);
+     fp_AreaIC=fopen(strcat(tmp_str_array,filename),"w");
+  }
 
   idim = Grad_dim;
   for (inode_box=0; inode_box <Nnodes_box; inode_box++){

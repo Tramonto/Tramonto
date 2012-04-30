@@ -73,6 +73,7 @@ void dftmain(double * engptr)
   double    min_nodesLoc_over_nodesBox,max_nodesLoc_over_nodesBox;
   FILE      *fptime;
   char crfile[FILENAME_LENGTH];
+  char tmp_str_array[FILENAME_LENGTH];
   int izone,isten,jcomp,jmax;
   struct Stencil_Struct *sten;
 /*  char line[100],linecwd[100];*/
@@ -131,6 +132,7 @@ void dftmain(double * engptr)
 
 
   setup_params_for_dft(input_file,file_echoinput);
+  file_echoinput=EchoInputFile_array;
 
   setup_stencil_logicals();
   if (Type_attr != NONE) setup_stencil_uattr_core_properties();
@@ -343,7 +345,8 @@ void dftmain(double * engptr)
       MPI_Gather(&Time_fill_first,1,MPI_DOUBLE,t_fill_first_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
       MPI_Gather(&Time_fill_av,1,MPI_DOUBLE,t_fill_av_array,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
       if (Proc==0 && Iwrite_files==FILES_DEBUG){
-         fptime  = fopen("dft_time.out","w");
+         strcpy(tmp_str_array,Outpath);
+         fptime  = fopen(strcat(tmp_str_array,"dft_time.out"),"w");
             fprintf(fptime,"\n Time histogram for the fill on the first iteration\n\n");
             for (i=0;i<Num_Proc;i++) fprintf(fptime,"\t %d  %9.6f\n",i,t_fill_first_array[i]);
             fprintf(fptime,"\n Time histogram for the fill averaging the 2-%d iterations\n\n",niters);

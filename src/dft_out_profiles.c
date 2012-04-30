@@ -192,6 +192,7 @@ void print_profile(char *Density_FileName,double *xold)
     
   char gfile[FILENAME_LENGTH],segfile[FILENAME_LENGTH];
   char compfile[FILENAME_LENGTH];
+  char tmp_str_array[FILENAME_LENGTH];
   FILE *fp_Density=NULL,*fp_Gfile=NULL,*fp_DensSegComp=NULL;
   /* 
    *  print out the densities (and electrostatic potential)
@@ -199,24 +200,28 @@ void print_profile(char *Density_FileName,double *xold)
    */
 
            /* open primary output file .... densities, electrostatic potential, and CMS fields */
-     fp_Density = fopen(Density_FileName,"w");
+     strcpy(tmp_str_array,Outpath_array);
+     fp_Density = fopen(strcat(tmp_str_array,Density_FileName),"w");
 
            /* open file for G_CHAIN variables ... */
      if ((Iwrite_files==FILES_EXTENDED || Iwrite_files==FILES_DEBUG) &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
+       strcpy(tmp_str_array,Outpath_array);
        sprintf(gfile,"%sg",Density_FileName);
-       fp_Gfile = fopen(gfile,"w");
+       fp_Gfile = fopen(strcat(tmp_str_array,gfile),"w");
      } 
 
            /* open file for segment type densities per chain ... */
      if ((Iwrite_files==FILES_EXTENDED|| Iwrite_files==FILES_DEBUG) &&( Type_poly == WTC || Type_poly==WJDC || Type_poly==WJDC2)){
+       strcpy(tmp_str_array,Outpath_array);
        sprintf(compfile,"%s_comp",Density_FileName);
-       fp_DensSegComp = fopen(compfile,"w");
+       fp_DensSegComp = fopen(strcat(tmp_str_array,compfile),"w");
      } 
 
            /* open file for segment densities */
      if ((Iwrite_files==FILES_EXTENDED || Iwrite_files==FILES_DEBUG) &&(Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)){
+       strcpy(tmp_str_array,Outpath_array);
        sprintf(segfile,"%s_seg",Density_FileName);
-       fp_DensSegComp = fopen(segfile,"w");
+       fp_DensSegComp = fopen(strcat(tmp_str_array,segfile),"w");
      }
 
            /* print order of unknowns at the top of the file */
@@ -489,12 +494,14 @@ void print_gofr(char *GofR_Filename,double *xold)
   int icomp,inode,ijk[3],idim,nunk_print,npol=0,iwall,iunk,end_loop;
   double r,rsq;
   FILE *fp_gofr=NULL;
+  char tmp_str_array[FILENAME_LENGTH];
   /* 
    *  print out the densities (and electrostatic potential)
    *  to the file dft_dens.dat or dft_dens.?.?   
    */
 
-     fp_gofr = fopen(GofR_Filename,"w");
+     strcpy(tmp_str_array,Outpath_array);
+     fp_gofr = fopen(strcat(tmp_str_array,GofR_Filename),"w");
 
      if (L_HSperturbation) nunk_print = Nunk_per_node;
      else nunk_print = 2*Ncomp;
@@ -549,9 +556,11 @@ void print_zeroTF(int **zero_TF, char *ZeroTF_filename)
   int icomp,loc_inode,inode,ijk[3],*index,idim,inode_box;
   int *unk_loc,*unk_global,**unk;
   FILE *fp_zeroTF=NULL;
+  char tmp_str_array[FILENAME_LENGTH];
 
   if (Proc == 0) {
-       fp_zeroTF = fopen(ZeroTF_filename,"w");
+       strcpy(tmp_str_array,Outpath_array);
+       fp_zeroTF = fopen(strcat(tmp_str_array,ZeroTF_filename),"w");
        unk = (int **) array_alloc (2, Nnodes, Ncomp+1, sizeof(int));
   }
 
@@ -623,9 +632,11 @@ void print_Nodes_to_zone(int *node_to_zone, char *Nodes2Zone_Filename)
   int loc_inode,inode,ijk[3],*index,idim,inode_box;
   int *unk,*unk_loc, *unk_global;
   FILE *fp_Nodes2Zone=NULL;
+  char tmp_str_array[FILENAME_LENGTH];
 
   if (Proc == 0){
-     fp_Nodes2Zone = fopen(Nodes2Zone_Filename,"w");
+     strcpy(tmp_str_array,Outpath_array);
+     fp_Nodes2Zone = fopen(strcat(tmp_str_array,Nodes2Zone_Filename),"w");
      unk = (int *) array_alloc (1, Nnodes, sizeof(int));
   }
 
@@ -694,11 +705,13 @@ void print_charge_surf(double **charge_w_sum, char *output_file)
   int *comm_icount_proc, *comm_offset_icount;
   double **unk,*unk_loc, *unk_global;
   FILE *ifp=NULL;
+  char tmp_str_array[FILENAME_LENGTH];
 
 
   if (Proc == 0){
      unk = (double **) array_alloc (2, Nnodes, Ndim, sizeof(double));
-     ifp = fopen(output_file,"w");
+     strcpy(tmp_str_array,Outpath_array);
+     ifp = fopen(strcat(tmp_str_array,output_file),"w");
   }
   reflect_flag[0] = reflect_flag[1] = reflect_flag[2] = FALSE;
 
@@ -791,12 +804,14 @@ void print_freen_profile_1D(double *freen_profile_1D, char *output_file)
   int *comm_icount_proc, *comm_offset_icount;
   double *unk,*unk_loc, *unk_global;
   FILE *ifp=NULL;
+  char tmp_str_array[FILENAME_LENGTH];
 
   reflect_flag[0] = reflect_flag[1] = reflect_flag[2] = FALSE;
 
   if (Proc == 0){
      unk = (double *) array_alloc (1, Nnodes, sizeof(double));
-     ifp = fopen(output_file,"w");
+     strcpy(tmp_str_array,Outpath_array);
+     ifp = fopen(strcat(tmp_str_array,output_file),"w");
   }
 
   index_loc = (int *) array_alloc (1, Nnodes_per_proc, sizeof(int));
@@ -884,12 +899,14 @@ void print_charge_vol(double *charge_els, char *output_file)
   int *comm_icount_proc, *comm_offset_icount;
   double *unk,*unk_loc, *unk_global,charge_total;
   FILE *ifp=NULL;
+  char tmp_str_array[FILENAME_LENGTH];
 
   reflect_flag[0] = reflect_flag[1] = reflect_flag[2] = FALSE;
 
   if (Proc == 0){
      unk = (double *) array_alloc (1, Nelements, sizeof(double));
-     ifp = fopen(output_file,"w");
+     strcpy(tmp_str_array,Outpath_array);
+     ifp = fopen(strcat(tmp_str_array,output_file),"w");
   }
 
   index_loc = (int *) array_alloc (1, Nnodes_per_proc, sizeof(int));
@@ -989,9 +1006,11 @@ void print_vext(double **vext, char *output_file)
   int icomp,loc_inode,inode,ijk[3],*index,idim;
   double *unk_loc,*unk_global,**unk,rsq,r;
   FILE *ifp=NULL;
+  char tmp_str_array[FILENAME_LENGTH];
 
   if (Proc == 0) {
-       ifp = fopen(output_file,"w");
+       strcpy(tmp_str_array,Outpath_array);
+       ifp = fopen(strcat(tmp_str_array,output_file),"w");
        unk = (double **) array_alloc (2, Nnodes, Ncomp, sizeof(double));
   }
 

@@ -21,6 +21,8 @@ void fill_test(double **x,int flag);
 #define NO_SCREEN    4 
 extern int *L2G_node;
 int find_length_of_file(char *filename);
+#define FILENAME_LENGTH 300
+extern char Outpath_array[FILENAME_LENGTH];
 #define CALC_AND_FILL_RESID_ONLY  4
 extern int Nnodes;
 extern int Lseg_densities;
@@ -72,7 +74,6 @@ extern int Iwrite_screen;
 extern double Time_fill_av;
 extern double Time_fill_first;
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
-#define FILENAME_LENGTH 300
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

@@ -53,6 +53,11 @@ void setup_wall_wall_potentials()
    char *yo = "wall_wall_potentials";
    int iwall,jwall,itype_w,jtype_w;
    FILE *fp10, *fp11;
+   char *Uww_filename="dft_uww.dat";
+   char Uww_file[FILENAME_LENGTH];
+   char *Uww_link_filename="dft_uww_link.dat";
+   char Uww_link_file[FILENAME_LENGTH];
+   char tmp_string_array[FILENAME_LENGTH];
   
   /********************** BEGIN EXECUTION ************************************/
 
@@ -61,14 +66,22 @@ void setup_wall_wall_potentials()
    * Allocate and zero the arrays we will calculate here
    */
 
-  if( (fp10  = fopen("dft_uww.dat","w")) == NULL) {
-    printf("Can't open file dft_uww.dat\n");
-    exit(1);
-  }
-  if( (fp11  = fopen("dft_uww_link.dat","w")) == NULL) {
-    printf("Can't open file dft_uww.dat\n");
-    exit(1);
-  }
+   if (Proc==0){
+      strcpy(tmp_string_array,Outpath_array);
+      strcpy(Uww_file,strcat(tmp_string_array,Uww_filename));
+
+      strcpy(tmp_string_array,Outpath_array);
+      strcpy(Uww_link_file,strcat(tmp_string_array,Uww_link_filename));
+
+     if( (fp10  = fopen((char *)Uww_file,"w")) == NULL) {
+       printf("Can't open file %s\n",(char *)Uww_file);
+       exit(-1);
+     }
+     if( (fp11  = fopen((char *)Uww_link_file,"w")) == NULL) {
+       printf("Can't open file %s\n",(char *)Uww_link_file);
+       exit(-1);
+     }
+   }
 
    Uww = (double **) array_alloc (2,Nwall,Nwall, sizeof(double));
    Uww_link = (double **) array_alloc (2,Nlink,Nlink, sizeof(double));
@@ -101,11 +114,11 @@ void setup_wall_wall_potentials()
          if (Link[iwall] != Link[jwall])
          Uww_link[Link[iwall]][Link[jwall]] += Uww[iwall][jwall];
          Uww_link[Link[jwall]][Link[iwall]] += Uww[iwall][jwall];
-         fprintf(fp10," %d  %d  %9.6f\n",iwall,jwall,Uww[iwall][jwall]);
+         if (Proc==0) fprintf(fp10," %d  %d  %9.6f\n",iwall,jwall,Uww[iwall][jwall]);
      }
   }
 
-  if (Nwall != Nlink){
+  if (Nwall != Nlink && Proc==0){
      for (iwall=0; iwall<Nlink-1; iwall){
          for (jwall=iwall; jwall<Nlink; jwall){
             fprintf(fp11," %d  %d  %9.6f\n",iwall,jwall,Uww_link[Link[iwall]][Link[jwall]]);
@@ -113,8 +126,10 @@ void setup_wall_wall_potentials()
       }
   }
 
-  fclose (fp10);
-  fclose (fp11);
+  if (Proc==0){
+    fclose (fp10);
+    fclose (fp11);
+  }
   return;
 }
 /******************************************************************************/

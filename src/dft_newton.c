@@ -399,6 +399,7 @@ void do_numerical_jacobian(double **x)
   double **resid, **resid_tmp;
   resid = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   resid_tmp = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
+  char tmp_str_array[FILENAME_LENGTH];
 
   dft_linprobmgr_getrhs(LinProbMgr_manager, resid);
 
@@ -462,17 +463,21 @@ void do_numerical_jacobian(double **x)
   if (Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY)printf("Proc: %d finished computing numerical jacobian !!\n",Proc);
 
   /* print out nonzero entries of numerical jacobian */
+  strcpy(tmp_str_array,Outpath_array);
   sprintf(filename, "jn%0d",Proc);
-  ifp = fopen(filename,"w");
+  ifp = fopen(strcat(tmp_str_array,filename),"w");
 
   sprintf(filename, "ja%0d",Proc);
   lines_jafile=find_length_of_file(filename);
 
+  strcpy(tmp_str_array,Outpath_array);
   sprintf(filename, "jdiff%0d",Proc);
-  ifp3 = fopen(filename,"w");
+  ifp3 = fopen(strcat(tmp_str_array,filename),"w");
 
+  strcpy(tmp_str_array,Outpath_array);
   sprintf(filename, "ja%0d",Proc);
-  ifp2 = fopen(filename,"r");
+  ifp2 = fopen(strcat(tmp_str_array,filename),"w");
+
   for (i=0;i<2;i++) while ((c=getc(ifp2)) != EOF && c !='\n'); /* skip first two lines of ja0 */
 
   for (ilines=0;ilines<lines_jafile-2;ilines++){
@@ -541,8 +546,12 @@ void print_resid_norm(int iter)
   double **f;
   FILE *fp_resid;
   char filename[FILENAME_LENGTH]="./Resid.dat";
+  char tmp_str_array[FILENAME_LENGTH];
 
-  if (Proc==0 && Iwrite_files==FILES_DEBUG) fp_resid=fopen(filename,"w+");
+  if (Proc==0 && Iwrite_files==FILES_DEBUG) {
+       strcpy(tmp_str_array,Outpath_array);
+       fp_resid=fopen(strcat(tmp_str_array,filename),"w+");
+  }
 
   f = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   dft_linprobmgr_getrhs(LinProbMgr_manager, f);

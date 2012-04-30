@@ -19,6 +19,7 @@ double pairPot_ATT_CS_switch(double r,int icomp,int jcomp,int typePairPot);
 #define NCOMP_MAX 5
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 #define FILENAME_LENGTH 300
+extern char Outpath_array[FILENAME_LENGTH];
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

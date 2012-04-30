@@ -43,7 +43,7 @@ extern double Betamu_chain[NMER_MAX];
 #define WJDC         3
 extern int Type_poly;
 extern double Rho_b[NCOMP_MAX];
-void calc_new_density(int icomp,char *output_file1);
+void calc_new_density(int icomp,char *file_echoinput);
 #define NWALL_MAX_TYPE 20 
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];

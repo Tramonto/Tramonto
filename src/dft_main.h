@@ -156,6 +156,8 @@ void setup_stencil_uattr_core_properties();
 #define NONE        -1
 extern int Type_attr;
 void setup_stencil_logicals();
+#define FILENAME_LENGTH 300
+extern char EchoInputFile_array[FILENAME_LENGTH];
 void setup_params_for_dft(char *input_file,char *file_echoinput);
 extern int Proc;
 #if defined(DEBUG)
@@ -169,5 +171,4 @@ extern double Time_manager_av;
 extern double Time_manager_first;
 extern double Time_linsolver_av;
 extern double Time_linsolver_first;
-#define FILENAME_LENGTH 300
 void dftmain(double *engptr);

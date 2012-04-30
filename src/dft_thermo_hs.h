@@ -86,10 +86,10 @@ extern double Inv_rad[NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 #define PI    3.141592653589793238462643383279502884197169399375
 extern double Inv_4pi;
-void compute_bulk_FMT_properties(char *output_file1);
+void compute_bulk_FMT_properties(char *file_echoinput);
 void calc_InvR_params();
 extern double Fac_overlap_hs[NCOMP_MAX];
 extern int Ncomp;
 #define WTC          2
 extern int Type_poly;
-void HS_thermo_precalc(char *output_file1);
+void HS_thermo_precalc(char *file_echoinput);

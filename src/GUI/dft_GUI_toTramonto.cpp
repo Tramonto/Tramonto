@@ -708,12 +708,15 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
            Continuation_List->get<string>("C1: Continuation Type")=="LOCA: Spinodal Continuation" ){
                 DensityFile2=(char*)DensProfile_List->get<string>("IG1.2: 2nd Density RestartFile").c_str();
         }
-        else DensityFile2="./dft_dens2.dat";
+/*        else DensityFile2=(char *)((string)Runpath+"./dft_dens2.dat");*/
     }
     else{
-       DensityFile="./dft_dens.dat";
-       DensityFile2="./dft_dens2.dat";
+/*       DensityFile=(char *)((string)Runpath+"./dft_dens.dat");
+       DensityFile2=(char *)((string)Runpath+"./dft_dens2.dat");*/
     }
+
+cout<< "in toTramonto...DensityFile="<<DensityFile<<endl;
+cout<< "in toTramonto...DensityFile2="<<DensityFile2<<endl;
 
     Nmissing_densities=DensProfile_List->get<int>("IG1.3: Number of missing components");
     Rho_max=DensProfile_List->get<double>("IG1.4: Rho max");

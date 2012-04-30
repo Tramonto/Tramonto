@@ -37,17 +37,17 @@ function variables .
 /****************************************************************************/
 /* WJDC_thermo_precalc: call all routines needed to process bulk properties of
                           WJDC functionals */
-void WJDC_thermo_precalc(char *output_file1)
+void WJDC_thermo_precalc(char *file_echoinput)
 { 
   if (Type_interface==UNIFORM_INTERFACE) {
 
-     compute_bulk_nonlocal_wjdc_properties(output_file1,Dphi_Drhobar_b,Rho_b,Rho_seg_b,
+     compute_bulk_nonlocal_wjdc_properties(file_echoinput,Dphi_Drhobar_b,Rho_b,Rho_seg_b,
                                              	       Xi_cav_b,Field_WJDC_b,G_WJDC_b);
   }
   else{
-     compute_bulk_nonlocal_wjdc_properties(output_file1,Dphi_Drhobar_LBB,Rho_b_LBB,Rho_seg_LBB,
+     compute_bulk_nonlocal_wjdc_properties(file_echoinput,Dphi_Drhobar_LBB,Rho_b_LBB,Rho_seg_LBB,
                                              	       Xi_cav_LBB,Field_WJDC_LBB,G_WJDC_LBB);
-     compute_bulk_nonlocal_wjdc_properties(output_file1,Dphi_Drhobar_RTF,Rho_b_RTF,Rho_seg_RTF,
+     compute_bulk_nonlocal_wjdc_properties(file_echoinput,Dphi_Drhobar_RTF,Rho_b_RTF,Rho_seg_RTF,
                                              	       Xi_cav_RTF,Field_WJDC_RTF,G_WJDC_RTF);
   }
   return;
@@ -55,7 +55,7 @@ void WJDC_thermo_precalc(char *output_file1)
 /*******************************************************************************/
 /* compute_bulk_nonlocal_wjdc_properties: compute some additional bulk properties we
    need to carry around the calculation. */
-void compute_bulk_nonlocal_wjdc_properties(char *output_file1,double *dphi_drhobar, double *rho,
+void compute_bulk_nonlocal_wjdc_properties(char *file_echoinput,double *dphi_drhobar, double *rho,
      double *rho_seg, double *xi_cav, double *field_WJDC, double *g_WJDC)
 {
   int i,icomp,jcomp,printproc;
@@ -65,11 +65,11 @@ void compute_bulk_nonlocal_wjdc_properties(char *output_file1,double *dphi_drhob
   FILE *fp2=NULL;
 
 
-  if (Proc==0 && output_file1 !=NULL) printproc = TRUE;
+  if (Proc==0 && file_echoinput !=NULL) printproc = TRUE;
   else printproc=FALSE;
   if (printproc) {
-    if( (fp2 = fopen(output_file1,"a+"))==NULL) {
-      printf("Can't open file %s\n", output_file1);
+    if( (fp2 = fopen(file_echoinput,"a+"))==NULL) {
+      printf("Can't open file %s\n", file_echoinput);
       exit(1);
     }
   }

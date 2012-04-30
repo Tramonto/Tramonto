@@ -13,82 +13,12 @@ extern "C" void dft_OptikaGUI()
 {
   int i,n;
   bool read_xml_file=false, read_input_old_format=false,start_GUI=true;
-  string runpath, InputOLD_File,InputXML_File, InputGUI_File;
+
+  if (Set_GUIDefaults_to_OLD_File==TRUE) read_input_old_format=true;
+  if (Read_XMLInput_File==TRUE) read_xml_file=true;
+  if (Open_GUI==FALSE) start_GUI=false;
 
 
-  /* set up a parameter list for a very simple GUI to select the type of run we are interested in */
-  RCP<ParameterList> RunType_List = RCP<ParameterList>((new ParameterList("Root RunType List")));
-  RCP<DependencySheet> depSheet_RunType = rcp(new DependencySheet());
-
-  RCP<StringValidator> RunTypeValidator = rcp(
-        new StringValidator(tuple<std::string>(
-           "GUI - Defaults", 
-           "GUI - Old Format File Parameters",
-           "GUI - XML File Parameters",
-           "No GUI / Old Format File",
-           "No GUI / XML File")));
- 
-  RCP<FileNameValidator> InputXMLFileVal = rcp (new FileNameValidator);
-  RCP<FileNameValidator> InputOLDFileVal = rcp (new FileNameValidator);
-  RCP<FileNameValidator> InputGUIFileVal = rcp (new FileNameValidator);
-
-  RunType_List->set("R1: Run Type","GUI - Defaults","Indicate how you would like to run Tramonto for this job.",RunTypeValidator);
-
-  RunType_List->set("R2: Input File (OLD format)","","select the OLD format input file. This choice also sets run directory.",InputOLDFileVal);
-  RunType_List->set("R2: Input File (XML)","","select the XML input file. This choice also sets run directory.",InputXMLFileVal);
-  RunType_List->set("R2: Select Any File in Desired Directory","","select any file in desired directory.  The runpath will be extracted from the filename.",InputGUIFileVal);
-
-   RCP<StringVisualDependency> RunType_Dep1 = rcp(new StringVisualDependency(
-          RunType_List->getEntryRCP("R1: Run Type"), RunType_List->getEntryRCP("R2: Select Any File in Desired Directory"), 
-          tuple<std::string>("GUI - Defaults")));
-
-   RCP<StringVisualDependency> RunType_Dep2 = rcp(new StringVisualDependency(
-          RunType_List->getEntryRCP("R1: Run Type"), RunType_List->getEntryRCP("R2: Input File (XML)"), 
-          tuple<std::string>("GUI - XML File Parameters","No GUI / XML File")));
-
-   RCP<StringVisualDependency> RunType_Dep3 = rcp(new StringVisualDependency(
-          RunType_List->getEntryRCP("R1: Run Type"), RunType_List->getEntryRCP("R2: Input File (OLD format)"), 
-          tuple<std::string>("GUI - Old Format File Parameters","No GUI / Old Format File")));
-
-   depSheet_RunType->addDependency(RunType_Dep1);
-   depSheet_RunType->addDependency(RunType_Dep2);
-   depSheet_RunType->addDependency(RunType_Dep3);
-  
- /* Greate the GUI window for run startup for Tramonto  */
-  Optika::getInput(RunType_List,depSheet_RunType);
-
-
-  if (RunType_List->get<string>("R1: Run Type")=="GUI - Defaults"){
-     InputGUI_File=RunType_List->get<string>("R2: Select Any File in Desired Directory");
-     string::size_type n=InputGUI_File.find_last_of("/");
-     runpath=InputGUI_File.substr(0,n);
-  }
-  else if (RunType_List->get<string>("R1: Run Type")=="GUI - Old Format File Parameters"){
-     InputOLD_File=RunType_List->get<string>("R2: Input File (OLD format)");
-     string::size_type n=InputOLD_File.find_last_of("/");
-     runpath=InputOLD_File.substr(0,n);
-     read_input_old_format=true;
-  }
-  else if (RunType_List->get<string>("R1: Run Type")=="GUI - XML File Parameters"){
-     InputXML_File=RunType_List->get<string>("R2: Input File (XML)");
-     string::size_type n=InputXML_File.find_last_of("/");
-     runpath=InputXML_File.substr(0,n);
-     read_xml_file=true;
-  }
-  else if (RunType_List->get<string>("R1: Run Type")=="No GUI / Old Format File"){
-     InputOLD_File=RunType_List->get<string>("R2: Input File (OLD format)");
-     string::size_type n=InputOLD_File.find_last_of("/");
-     runpath=InputOLD_File.substr(0,n);
-     read_input_old_format=true;
-     start_GUI=false;
-  }
-  else if (RunType_List->get<string>("R1: Run Type")=="No GUI / XML File"){
-     InputXML_File=RunType_List->get<string>("R2: Input File (XML)");
-     string::size_type n=InputXML_File.find_last_of("/");
-     runpath=InputXML_File.substr(0,n);
-     read_xml_file=true;
-     start_GUI=false;
-  }
   
            /* Create the empty parameter list called Tramonto_List. *
             * All Tramonto parameters will be added to this list.   */
@@ -152,7 +82,7 @@ extern "C" void dft_OptikaGUI()
    * Then we just call getInput! There's a little more to it, so let's
    * head on over to the inputs.xml file to see what's going on there.
    */
-        Optika::getInput(RunType_List->get<string>("R2: Input File (XML)"), Tramonto_List);
+        Optika::getInput(InputXML_File, Tramonto_List);
 
         dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,

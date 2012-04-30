@@ -77,10 +77,10 @@ extern double Jac_threshold;
 extern int Lcut_jac;
 extern double Jac_grid;
 extern int Coarser_jac;
+#define SCREEN_ERRORS_ONLY  0 
 extern int Mesh_coarsening;
 extern double Rmax_zone[5];
 extern int Nzone;
-#define SCREEN_ERRORS_ONLY  0 
 #define FILES_DEBUG_MATRIX 3 
 #define VERBOSE_MATRIX    5 
 #define SCREEN_NONE       -1 
@@ -264,6 +264,13 @@ extern int Lperiodic_overlay[NWALL_MAX_TYPE];
 extern int read_periodic;
 extern double Rough_length[NWALL_MAX_TYPE];
 extern double Rough_param_max[NWALL_MAX_TYPE];
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
 extern int Lrough_surf[NWALL_MAX_TYPE];
 extern int read_rough;
 extern int Lapply_offset[3];
@@ -271,18 +278,6 @@ extern double WallParam_3[NWALL_MAX_TYPE];
 extern double WallParam_2[NWALL_MAX_TYPE];
 #define point_surface                   4
 extern double WallParam[NWALL_MAX_TYPE];
-extern double Elec_param_w[NWALL_MAX];
-#if defined(DEC_ALPHA)
-#define POW_INT powii
-#endif
-#if !(defined(DEC_ALPHA))
-#define POW_INT (int)pow
-#endif
-extern int Lrandom_walls;
-#define NDIM_MAX  3
-extern double WallPos[NDIM_MAX][NWALL_MAX];
-extern int Link[NWALL_MAX];
-extern int WallType[NWALL_MAX];
 extern int Orientation[NWALL_MAX_TYPE];
 extern int Surface_type[NWALL_MAX_TYPE];
 void *array_alloc(int numdim,...);
@@ -314,6 +309,7 @@ extern int Type_attr;
 extern int Type_hsdiam;
 extern int Type_func;
 #define PERIODIC             1
+#define NDIM_MAX  3
 extern int Type_bc[NDIM_MAX][2];
 extern double Esize_x[NDIM_MAX];
 extern double Size_x[NDIM_MAX];
@@ -324,21 +320,10 @@ extern double Temp;
 extern double Density_ref;
 extern double Length_ref;
 void read_junk(FILE *fpinput,FILE *fpecho);
-extern char *WallPos_file_name;
-extern char wallPos_file_array[FILENAME_LENGTH];
 extern char *DensityFile2;
 extern char *DensityFile;
 extern char DensityFile2_array[FILENAME_LENGTH];
 extern char DensityFile_array[FILENAME_LENGTH];
-extern char *OutputFileDir;
-#define TRUE  1
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(TRUE) && !defined(_CON_CONST_H_)
-#define TRUE  1
-#endif
-extern int Open_GUI;
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
 extern int LBulk;

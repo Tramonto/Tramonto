@@ -39,7 +39,7 @@ in the code.  These should give the same results.
 /********************************************************************************
 /*HS_thermo_precalc: logic to control preprocessing of needed parameters when 
                    we are using FMT functionals */
-void HS_thermo_precalc(char *output_file1)
+void HS_thermo_precalc(char *file_echoinput)
 {
    int icomp;
 
@@ -48,7 +48,7 @@ void HS_thermo_precalc(char *output_file1)
 
    calc_InvR_params();
 
-  compute_bulk_FMT_properties(output_file1);
+  compute_bulk_FMT_properties(file_echoinput);
 
 
    return;
@@ -224,7 +224,7 @@ void chempot_PY_hs(double *rho)
 /*******************************************************************************/
 /* compute_bulk_FMT_properties: compute some additional bulk values of
    nonlocal densities.  It is convenient to compute these once up front.  */
-void compute_bulk_FMT_properties(char *output_file1)
+void compute_bulk_FMT_properties(char *file_echoinput)
 {
   int i,icomp,iunk,printproc;
   int nloop,iloop;
@@ -232,8 +232,9 @@ void compute_bulk_FMT_properties(char *output_file1)
   if (Proc==0) printproc = TRUE;
   else printproc=FALSE;
   if (printproc) {
-    if( (fp2 = fopen(output_file1,"a+"))==NULL) {
-      printf("Can't open file %s\n", output_file1);
+printf("in compute_bulk_FMT... opening file %s\n",file_echoinput);
+    if( (fp2 = fopen(file_echoinput,"a+"))==NULL) {
+      printf("Can't open file in compute_bulk_FMT_properties %s\n", file_echoinput);
       exit(1);
     }
   }

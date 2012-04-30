@@ -233,8 +233,9 @@ extern int Nlists_HW;
 extern int Nwall;
 void linsolver_setup_control();
 void node_to_position(int inode,double *NodePos);
-void setup_basic_box(FILE *fpecho,int *update);
 #define FILENAME_LENGTH 300
+extern char Outpath_array[FILENAME_LENGTH];
+void setup_basic_box(FILE *fpecho,int *update);
 extern int *L2G_node;
 extern int *B2L_node;
 extern int *L2B_node;

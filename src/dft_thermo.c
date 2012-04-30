@@ -33,6 +33,7 @@ void  thermodynamics(char *file_echoinput,int iwrite_screen, int iwrite_files)
    char *yo = "thermodynamics";
    double scale_fac_tmp[NCOMP_MAX][NCOMP_MAX];
    int pol_num,icomp;
+
    if (Proc==0 && iwrite_screen !=SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY){
           printf("\n-------------------------------------------------------------------------------\n");
           printf("Doing Thermo precalculations\n");
@@ -107,12 +108,14 @@ void calc_pressure(char *file_echoinput,int iwrite_screen, int iwrite_files)
    betap_att_LBB = 0.0;
      betap_att_RTF = 0.0;
 
+   if (Proc==0){
 /*   if (Iwrite_files == FILES_DEBUG){*/
    if( (fp = fopen(file_echoinput,"a+")) == NULL) {
-      printf("Can't open file %s\n", file_echoinput);
+      printf("Can't open file in calc_pressure %s\n", file_echoinput);
       exit(1);
    }
    /*}*/
+   }
  
    if (Type_interface!=UNIFORM_INTERFACE){      
       if (L_HSperturbation){
@@ -227,7 +230,7 @@ void calc_pressure(char *file_echoinput,int iwrite_screen, int iwrite_files)
          /* put a calculation of CMS pressure here */
       }
    }
-   fclose(fp);
+   if (Proc==0) fclose(fp);
    return;
 }
 /***************************************************************************************/
@@ -238,9 +241,11 @@ void calc_chempot(char *file_echoinput,int iwrite_screen, int iwrite_files)
    int icomp,iseg,ipol;
    FILE *fp;
 
-   if( (fp = fopen(file_echoinput,"a+")) == NULL) {
-      printf("Can't open file %s\n", file_echoinput);
-      exit(1);
+   if (Proc==0){
+      if( (fp = fopen(file_echoinput,"a+")) == NULL) {
+         printf("Can't open file in calc_chempot %s\n", file_echoinput);
+         exit(1);
+      }
    }
 
    if (Type_interface !=UNIFORM_INTERFACE){          /* CASE WITH DIFFUSION */
@@ -476,7 +481,7 @@ void calc_chempot(char *file_echoinput,int iwrite_screen, int iwrite_files)
          /* put a calculation of CMS chemical potentials here */
       }
    }
-   fclose(fp);
+   if (Proc==0) fclose(fp);
    return;
 }
 /***************************************************************************************/

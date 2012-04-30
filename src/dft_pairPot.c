@@ -218,14 +218,18 @@ void print_potentials_fluid(int type_pairPot,int icomp,int jcomp){
   double param1, param2, param3, param4,param5,param6,r,uatt,ucs,delr;
   char filename[FILENAME_LENGTH], filenameATT[FILENAME_LENGTH], filenameCS[FILENAME_LENGTH];
   FILE *fpATT, *fpCS;
+  char tmp_str_array[FILENAME_LENGTH];
 
   pairPotparams_switch(Type_pairPot,FLUID_FLUID,icomp,jcomp,&param1,&param2,&param3,&param4,&param5,&param6);
 
   sprintf(filenameATT, "dft_uATT%0d%0d.dat", icomp,jcomp);
+  strcpy(tmp_str_array,Outpath_array);
+  fpATT=fopen(strcat(tmp_str_array,filenameATT),"w");
+
   sprintf(filenameCS, "dft_uCS%0d%0d.dat", icomp,jcomp);
-  fpATT=fopen(filenameATT,"w");
-  fpCS=fopen(filenameCS,"w");
- 
+  strcpy(tmp_str_array,Outpath_array);
+  fpCS=fopen(strcat(tmp_str_array,filenameCS),"w");
+
   delr=Esize_x[0]/10; 
   for (r=delr; r<Cut_ff[icomp][jcomp]+1.0; r+=delr){
      uatt=pairPot_ATT_CS_switch(r,icomp,jcomp,type_pairPot);

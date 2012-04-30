@@ -47,6 +47,8 @@ void guess_restart_from_files(int start_no_info,int guess_type,double **xInBox)
      DensityFile=DensityFile_array;
      if (Lbinodal && guess_type==BINODAL_FLAG) DensityFile2=DensityFile2_array;
 
+printf("starting guess restart DensityFile=%s\n",DensityFile);
+
      if ( Imain_loop == 0){
 
          /* START FROM AN OLD FILE - otherwise if on second or greater step in a 

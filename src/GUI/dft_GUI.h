@@ -31,6 +31,7 @@
 extern "C" {
 #endif
 
+//  void dft_OptikaGUI_control();
   void dft_OptikaGUI();
 
 #ifdef __cplusplus
