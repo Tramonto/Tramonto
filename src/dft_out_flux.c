@@ -47,10 +47,12 @@ void calc_flux(FILE *fp, char *output_flux,double *X_old)
   int inode_minus1,inode_plus1,ijk_minus1[3],ijk_plus1[3];
   double grad_mu[NCOMP_MAX],current,flux[NCOMP_MAX];
   FILE *ifp;
+  char tmp_str_array[FILENAME_LENGTH];
 /*  static int first=TRUE;*/
 
 /*  if(!first) {*/
-  ifp = fopen(output_flux,"w");
+  strcpy(tmp_str_array,Outpath_array);
+  ifp = fopen(strcat(tmp_str_array,output_flux),"w");
   for (inode=0; inode < Nnodes; inode++ ){
       node_to_ijk(inode,ijk);
 

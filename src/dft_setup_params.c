@@ -62,18 +62,23 @@ void setup_params_for_dft(char *input_file, char *file_echoinput)
 #ifdef BUILD_GUI
         dft_OptikaGUI_control();
 
-        sprintf(Runpath_array, Runpath);
+        strcpy(Runpath_array, Runpath);
         Runpath=Runpath_array;
 
-        strcpy(tmp_string_array,Runpath_array);
-        strcpy(EchoInputFile_array,strcat(Runpath_array,file_echoinput));
-        strcpy(Runpath_array,tmp_string_array);
-        Runpath=Runpath_array;
+        strcpy(Outpath_array, Outpath);
+        Outpath=Outpath_array;
+
+         /* add path to filename for this case because it is opened and closed several times */
+         /* note that for all other cases, the pathname is added to the filename at the point where fopen is called. */
+        strcpy(tmp_string_array,Outpath_array);
+        strcpy(EchoInputFile_array,strcat(tmp_string_array,file_echoinput));
         file_echoinput=EchoInputFile_array;
 
         fpecho  = fopen(file_echoinput,"w+");
 
         if (Read_OLDInput_File==TRUE){
+            strcpy(InputOLDFile_array,InputOLD_File);
+            InputOLD_File=InputOLDFile_array;
             input_file=InputOLD_File;
             if( (fpinput  = fopen(input_file,"r")) == NULL) {
                 printf("Can't open file %s\n", input_file);
@@ -89,16 +94,71 @@ void setup_params_for_dft(char *input_file, char *file_echoinput)
             if(input_file_exists==TRUE) read_input_file(fpinput,fpecho);
         }
 
-
         if (Open_GUI==TRUE){
              dft_OptikaGUI();
+
+             /* set up the Density File to be the defined GUE value */
+             if (Restart != NORESTART) {
+               strcpy(DensityFile_array,DensityFile);
+               DensityFile=DensityFile_array;
+
+               if (Lbinodal==TRUE){
+                  strcpy(DensityFile2_array,DensityFile2);
+                  DensityFile2=DensityFile2_array; 
+               }
+             }
+
+             if (Type_poly != NONE && Type_poly_arch==POLY_ARCH_FILE){
+                 strcpy(poly_file_array,Poly_file_name);
+                 Poly_file_name=poly_file_array; 
+             }
+             if (Type_poly == CMS || Type_poly==CMS_SCFT){
+                 strcpy(cr_file_array,Cr_file);
+                 Cr_file=cr_file_array; 
+                 if (Ncr_files==2){
+                    strcpy(cr_file2_array,Cr_file2);
+                    Cr_file2=cr_file2_array; 
+                 }
+             }
+
              /* set up the chain architecture based on selections in GUI */
              if (Type_poly != NONE) setup_chain_architecture(Poly_file_name,fpecho);
+             
         }
         else{
            if (Temp>0. && Type_coul!=NONE) Flag_mV_elecpot=TRUE;
            else         Flag_mV_elecpot=FALSE;
+
+           if (Restart != NORESTART) {
+              strcpy(tmp_string_array,Runpath_array);
+              strcpy(DensityFile_array,strcat(tmp_string_array,"dft_dens.dat"));
+              DensityFile=DensityFile_array;
+
+              if (Lbinodal==TRUE){
+                 strcpy(tmp_string_array,Runpath_array);
+                 strcpy(DensityFile2_array,strcat(tmp_string_array,"dft_dens2.dat"));
+                 DensityFile2=DensityFile2_array;
+              }
+           }
+
+           if (Type_poly != NONE && Type_poly_arch==POLY_ARCH_FILE){
+                 strcpy(tmp_string_array,Runpath_array);
+                 strcpy(poly_file_array,strcat(tmp_string_array,Poly_file_name));
+                 Poly_file_name=poly_file_array; 
+           }
+           if (Type_poly == CMS || Type_poly==CMS_SCFT){
+                 strcpy(tmp_string_array,Runpath_array);
+                 strcpy(cr_file_array,strcat(tmp_string_array,Cr_file));
+                 Cr_file=cr_file_array; 
+                 if (Ncr_files==2){
+                    strcpy(tmp_string_array,Runpath_array);
+                    strcpy(cr_file2_array,strcat(tmp_string_array,Cr_file2));
+                    Cr_file2=cr_file2_array; 
+                 }
+           }
+
         }
+
 
 #else
         Open_GUI=FALSE;
@@ -106,41 +166,59 @@ void setup_params_for_dft(char *input_file, char *file_echoinput)
         strcpy(Runpath_array,"./");
         Runpath=Runpath_array;
 
-        strcpy(EchoInputFile_array,strcat(Runpath_array,file_echoinput));
+        strcpy(tmp_string_array,Runpath_array);
+        strcpy(EchoInputFile_array,strcat(tmp_string_array,file_echoinput));
         file_echoinput=EchoInputFile_array;
-        strcpy(Runpath_array,"./");
 
         fpecho  = fopen(file_echoinput,"w+");
 
-        if( (fpinput  = fopen(strcat(Runpath_array,input_file),"r")) == NULL) {
-           strcpy(Runpath_array,"./");
+        strcpy(tmp_string_array,Runpath_array);
+        if( (fpinput  = fopen(strcat(tmp_string_array,input_file),"r")) == NULL) {
            printf("Can't open file %s\n", strcat(Runpath_array,input_file));
            exit(-1);
         }
-        strcpy(Runpath_array,"./");
 
         read_input_file(fpinput,fpecho);
+
         if (Temp>0. && Type_coul!=NONE) Flag_mV_elecpot=TRUE;
         else         Flag_mV_elecpot=FALSE;
         
-        sprintf(wallPos_file_array, strcat(Runpath_array,"dft_surfaces.dat"));
-        strcpy(Runpath_array,"./");
+        strcpy(tmp_string_array,Runpath_array);
+        sprintf(wallPos_file_array, strcat(tmp_string_array,"dft_surfaces.dat"));
         WallPos_file_name=wallPos_file_array;
 
-        strcpy(DensityFile_array,strcat(Runpath_array,"dft_dens.dat"));
-        strcpy(Runpath_array,"./");
+        if (Restart != NORESTART) {
+           strcpy(tmp_string_array,Runpath_array);
+           strcpy(DensityFile_array,strcat(tmp_string_array,"dft_dens.dat"));
+           DensityFile=DensityFile_array;
 
-        strcpy(DensityFile2_array,strcat(Runpath_array,"dft_dens2.dat"));
-        strcpy(Runpath_array,"./");
+           if(Lbinodal==TRUE){
+              strcpy(tmp_string_array,Runpath_array);
+              strcpy(DensityFile2_array,strcat(tmp_string_array,"dft_dens2.dat"));
+              DensityFile2=DensityFile2_array;
+           }
+        }
+        if (Type_poly != NONE && Type_poly_arch==POLY_ARCH_FILE){
+              strcpy(tmp_string_array,Runpath_array);
+              strcpy(poly_file_array,strcat(tmp_string_array,Poly_file_name));
+              Poly_file_name=poly_file_array; 
+        }
+        if (Type_poly == CMS || Type_poly==CMS_SCFT){
+                 strcpy(tmp_string_array,Runpath_array);
+                 strcpy(cr_file_array,strcat(tmp_string_array,Cr_file));
+                 Cr_file=cr_file_array; 
+                 if (Ncr_files==2){
+                    strcpy(tmp_string_array,Runpath_array);
+                    strcpy(cr_file2_array,strcat(tmp_string_array,Cr_file2));
+                    Cr_file2=cr_file2_array; 
+                 }
+         }
+
+        /* Outpath=Runpath */
+        strcpy(Outpath_array,Runpath_array);
+        Outpath=Outpath_array;
 #endif
 
-    DensityFile=DensityFile_array;
-    if (Lbinodal) DensityFile2=DensityFile2_array;
- printf("in setup DensityFile=%s\n",DensityFile);
-
-    /* could set up possible different path for output - set to the one Runpath for now */
-    strcpy(Outpath_array,Runpath_array);
-    Outpath=Outpath_array;
 
     if (Nwall >0 && WallPos_file_name!=NULL) readIn_wall_positions_and_charges(WallPos_file_name,fpecho);
     if (Nwall >0 && Lrandom_walls==TRUE) setup_random_wall_positions(fpecho);

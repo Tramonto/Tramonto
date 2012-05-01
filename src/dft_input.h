@@ -320,10 +320,6 @@ extern double Temp;
 extern double Density_ref;
 extern double Length_ref;
 void read_junk(FILE *fpinput,FILE *fpecho);
-extern char *DensityFile2;
-extern char *DensityFile;
-extern char DensityFile2_array[FILENAME_LENGTH];
-extern char DensityFile_array[FILENAME_LENGTH];
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
 extern int LBulk;

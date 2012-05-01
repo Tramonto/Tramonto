@@ -50,6 +50,8 @@ void setup_polymer_cr()
    int i,j,lines,ir;
    double r,u,cr_rad_max,rsave,dummy_read,crread;
    double crfac1,crfac2,crfac3,crfac4,xs=0.0;
+   char tmp_str_array[FILENAME_LENGTH];
+
    char c;
 
    /* note that this routine is set up to use either a single direct correlation function as input - or
@@ -295,8 +297,9 @@ void setup_polymer_cr()
   /* add attractions to polymer c(r)  */
 
    if (Iwrite == VERBOSE && Proc==0){
-      if( (fp7  = fopen("cr.out","w")) == NULL) {
-	printf("Can't open file cr.out\n");
+      strcpy(tmp_str_array,Outpath_array);
+      if( (fp7  = fopen(strcat(tmp_str_array,"cr.out"),"w")) == NULL) {
+	printf("Can't open file cr.out in directory %s\n",Outpath_array);
 	exit(1);
       }
       for (ir=0; ir <= Last_nz_cr; ++ir){
@@ -337,8 +340,9 @@ void setup_polymer_cr()
        }
    }
    if (Iwrite == VERBOSE && Proc==0){
-      if( (fp7  = fopen("cr.lj.out","w"))==NULL) {
-	printf("Can't open file cr.lj.out\n");
+      strcpy(tmp_str_array,Outpath_array);
+      if( (fp7  = fopen(strcat(tmp_str_array,"cr.lj.out"),"w"))==NULL) {
+	printf("Can't open file cr.lj.out in directory %s\n",Outpath_array);
 	exit(1);
       }
       for (ir=0; ir <= Last_nz_cr; ++ir){

@@ -108,6 +108,8 @@ extern int *Nbonds_SegAll;
 extern int Grafted[NCOMP_MAX];
 void safe_free(void **ptr);
 void safe_free(void **ptr);
+#define FILENAME_LENGTH 300
+extern char Outpath_array[FILENAME_LENGTH];
 void print_residuals(int loc_inode,int iunk,double *resid_unk);
 #define SCREEN_DEBUG_RESID 2
 double load_standard_node(int loc_inode,int inode_box,int *ijk_box,int iunk,double **x,struct RB_Struct *dphi_drb,double *resid_unk,int mesh_coarsen_flag_i,int resid_only_flag);
@@ -160,7 +162,6 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
-#define FILENAME_LENGTH 300
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */
   double    S1;      /*   1/(4*pi*Ri)    * Delta_fn   */

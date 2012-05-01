@@ -118,12 +118,6 @@ extern double WallParam[NWALL_MAX_TYPE];
 extern double WallPos[NDIM_MAX][NWALL_MAX];
 extern double Esize_x[NDIM_MAX];
 extern double Size_x[NDIM_MAX];
-extern char *DensityFile2;
-#define FILENAME_LENGTH 300
-extern char DensityFile2_array[FILENAME_LENGTH];
-extern int Lbinodal;
-extern char *DensityFile;
-extern char DensityFile_array[FILENAME_LENGTH];
 extern int Lprint_scaleFacWJDC;
 extern int Physics_scaling;
 extern int Nzone;
@@ -146,7 +140,6 @@ extern double Temp_elec;
 extern double Rho_b[NCOMP_MAX];
 extern int Ncomp;
 extern double Rho_t;
-#define CMS_SCFT     1
 extern double Rough_param_max[NWALL_MAX_TYPE];
 #define MAX_ROUGH_BLOCK 100
 extern double Rough_precalc[NWALL_MAX_TYPE][MAX_ROUGH_BLOCK][MAX_ROUGH_BLOCK];
@@ -232,21 +225,40 @@ extern char *WallPos_file_name;
 void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho);
 extern int Nwall;
 extern char *Outpath;
+#define FILENAME_LENGTH 300
 extern char Outpath_array[FILENAME_LENGTH];
 extern char wallPos_file_array[FILENAME_LENGTH];
 extern int Flag_mV_elecpot;
 extern int Type_coul;
 extern double Temp;
-extern char *Poly_file_name;
 void setup_chain_architecture(char *poly_file,FILE *fpecho);
+extern char *Cr_file2;
+extern char cr_file2_array[FILENAME_LENGTH];
+extern int Ncr_files;
+extern char *Cr_file;
+extern char cr_file_array[FILENAME_LENGTH];
+#define CMS_SCFT     1
+#define CMS          0
+extern char *Poly_file_name;
+extern char poly_file_array[FILENAME_LENGTH];
+#define POLY_ARCH_FILE 0
+extern int Type_poly_arch;
 #define NONE       -1
 #define NONE          -1
 #define NONE        -1
 #define NONE        -1
 extern int Type_poly;
+extern char *DensityFile2;
+extern char DensityFile2_array[FILENAME_LENGTH];
+extern int Lbinodal;
+extern char *DensityFile;
+extern char DensityFile_array[FILENAME_LENGTH];
+#define NORESTART          0
+extern int Restart;
 void read_input_file(FILE *fpinput,FILE *fpecho);
 extern int Set_GUIDefaults_to_OLD_File;
 extern char *InputOLD_File;
+extern char InputOLDFile_array[FILENAME_LENGTH];
 extern char EchoInputFile_array[FILENAME_LENGTH];
 extern char *Runpath;
 extern char Runpath_array[FILENAME_LENGTH];

@@ -142,7 +142,6 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   /*********************************************/
   /* Initialize and Read Functional Selections */
   /*********************************************/
-
   /***************************/
   /* hard sphere functionals */
   /***************************/
@@ -952,6 +951,8 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
             fprintf(fpecho,"%s  ",poly_file_array);
            Poly_file_name=poly_file_array;
       }
+      else Poly_file_name="None";
+     
 
     /* now set up the chain architecture...either from a file or from known structure */
     setup_chain_architecture(poly_file_array,fpecho);
@@ -999,12 +1000,17 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
           read_junk(fpinput,fpecho);
            fprintf(fpecho,"\n NO LIQUID STATE INPUT FOR NON-CMS RUN\n  n/a   ");
           for (i=0; i<2; i++) { read_junk(fpinput,fpecho);  fprintf(fpecho,"n/a   "); }       
+          Cr_file="None";
+          Cr_file2="None";
        }
   }    
   else{
      read_junk(fpinput,fpecho);
       fprintf(fpecho,"\n POLYMER INPUT NOT RELEVENT FOR THIS RUN\n not read  ");
      for (i=0; i<10; i++) { read_junk(fpinput,fpecho);  fprintf(fpecho,"not read  - no polymers  "); }
+     Poly_file_name="None";
+     Cr_file="None";
+     Cr_file2="None";
   }
   /* end of polymer input */
 

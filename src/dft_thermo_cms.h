@@ -58,6 +58,8 @@ extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 #define NONE        -1
 #define NONE        -1
 extern int Type_attr;
+#define FILENAME_LENGTH 300
+extern char Outpath_array[FILENAME_LENGTH];
 extern double ***Rism_cr;
 extern int Last_nz_cr;
 #define N_NZCR_MAX   200   /* maximum # of non-zero's in direct correlation fn */

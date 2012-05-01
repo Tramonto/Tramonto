@@ -715,9 +715,6 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        DensityFile2=(char *)((string)Runpath+"./dft_dens2.dat");*/
     }
 
-cout<< "in toTramonto...DensityFile="<<DensityFile<<endl;
-cout<< "in toTramonto...DensityFile2="<<DensityFile2<<endl;
-
     Nmissing_densities=DensProfile_List->get<int>("IG1.3: Number of missing components");
     Rho_max=DensProfile_List->get<double>("IG1.4: Rho max");
 

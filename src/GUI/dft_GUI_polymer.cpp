@@ -18,6 +18,12 @@ void dft_GUI_Polymer_set_defaults( Teuchos::RCP<Teuchos::ParameterList> Tramonto
                   Teuchos::RCP<Teuchos::ParameterList> PolymerGraft_List)
 {
 
+   string CrFile1_default,CrFile2_default,PolyFile_default;
+
+   CrFile1_default=(string)Runpath+"CMS_cr.dat";
+   CrFile2_default=(string)Runpath+"CMS_cr2.dat";
+   PolyFile_default=(string)Runpath+"poly_file.dat";
+
      /**************************************/
      /* Define validators for this section.*/
      /**************************************/
@@ -47,7 +53,7 @@ void dft_GUI_Polymer_set_defaults( Teuchos::RCP<Teuchos::ParameterList> Tramonto
 
    Polymer_List->set("P6: Polymer achitecture entry", "Read From File", "Identify how the polymer architecture will be set up",PolyArch_Validator);
 
-   Polymer_List->set("P7: Polymer architecture filename","","Enter the file name where the polymer architecture can be found.", polyFile_Validator);
+   Polymer_List->set("P7: Polymer architecture filename",PolyFile_default,"Enter the file name where the polymer architecture can be found.", polyFile_Validator);
 
 
 
@@ -66,9 +72,9 @@ void dft_GUI_Polymer_set_defaults( Teuchos::RCP<Teuchos::ParameterList> Tramonto
 
    PolymerCMS_List->set("CMS1: N_CrFiles",1,"Number of direct correlation function files to be read",Ncrfile_Validator); 
 
-   PolymerCMS_List->set("CMS2: Cr_File_1", "", "Enter filename for a file containing a direct correlation function",CrFile_Validator);
+   PolymerCMS_List->set("CMS2: Cr_File_1", "CrFile1_default", "Enter filename for a file containing a direct correlation function",CrFile_Validator);
 
-   PolymerCMS_List->set("CMS3: Cr_File_2", "", "Enter filename for a file containing a second direct correlation function (DCF).\n If two files are provided, Tramonto will take an average of the two files using a parameter Crfac to compute a new direct correlation function.i\n  Specifically the hybrid DCF will be Crfac*Cr_File_1+(1.0-Crfac)*Cr_File_2.",CrFile_Validator);
+   PolymerCMS_List->set("CMS3: Cr_File_2", "CrFile2_default", "Enter filename for a file containing a second direct correlation function (DCF).\n If two files are provided, Tramonto will take an average of the two files using a parameter Crfac to compute a new direct correlation function.i\n  Specifically the hybrid DCF will be Crfac*Cr_File_1+(1.0-Crfac)*Cr_File_2.",CrFile_Validator);
 
    PolymerCMS_List->set("CMS4: CrFac",1.0,"Factor used for mixing of two direct correlation functions from different files.\n Specifically the hybrid DCF will be Crfac*Cr_File_1+(1.0-Crfac)*Cr_File_2."); 
 
@@ -107,6 +113,16 @@ void dft_GUI_Polymer_set_OldFormat( Teuchos::RCP<Teuchos::ParameterList> Tramont
 {
   bool bool_tmp;
   int i,j,k,max,counter;
+  string CrFile1_default,CrFile2_default,PolyFile_default;
+
+  if ((string)Cr_file != "None") CrFile1_default=(string)Runpath+(string)Cr_file;
+  else                           CrFile1_default=(string)Runpath+"cr.dat";
+
+  if ((string)Cr_file2 != "None") CrFile2_default=(string)Runpath+(string)Cr_file2;
+  else                            CrFile2_default=(string)Runpath+"cr2.dat";
+
+  if ((string)Poly_file_name != "None") PolyFile_default=(string)Runpath+(string)Poly_file_name;
+  else                                  PolyFile_default=(string)Runpath+"poly_file.dat";
 
      /**************************************/
      /* Define validators for this section.*/
@@ -146,7 +162,7 @@ void dft_GUI_Polymer_set_OldFormat( Teuchos::RCP<Teuchos::ParameterList> Tramont
       else                                   Polymer_List->set("P6: Polymer achitecture entry", "Set up in GUI", "Identify how the polymer architecture will be set up",PolyArch_Validator);
 
       if (Type_poly_arch==POLY_ARCH_FILE)
-               Polymer_List->set("P7: Polymer architecture filename",(string)Poly_file_name,"Enter the file name where the polymer architecture can be found.", polyFile_Validator);
+               Polymer_List->set("P7: Polymer architecture filename",PolyFile_default,"Enter the file name where the polymer architecture can be found.", polyFile_Validator);
       else     Polymer_List->set("P7: Polymer architecture filename","","Enter the file name where the polymer architecture can be found.", polyFile_Validator);
 
       bool_tmp=false;
@@ -162,9 +178,9 @@ void dft_GUI_Polymer_set_OldFormat( Teuchos::RCP<Teuchos::ParameterList> Tramont
       if (Type_poly == CMS || Type_poly==SCFT){
          PolymerCMS_List->set("CMS1: N_CrFiles",Ncr_files,"Number of direct correlation function files to be read",Ncrfile_Validator); 
 
-         PolymerCMS_List->set("CMS2: Cr_File_1", (string)Cr_file, "Enter filename for a file containing a direct correlation function",CrFile_Validator);
+         PolymerCMS_List->set("CMS2: Cr_File_1", CrFile1_default, "Enter filename for a file containing a direct correlation function",CrFile_Validator);
 
-         if (Ncr_files>1) PolymerCMS_List->set("CMS3: Cr_File_2", (string)Cr_file2, "Enter filename for a file containing a second direct correlation function (DCF).\n If two files are provided, Tramonto will take an average of the two files using a parameter Crfac to compute a new direct correlation function.i\n  Specifically the hybrid DCF will be Crfac*Cr_File_1+(1.0-Crfac)*Cr_File_2.",CrFile_Validator);
+         if (Ncr_files>1) PolymerCMS_List->set("CMS3: Cr_File_2", CrFile2_default, "Enter filename for a file containing a second direct correlation function (DCF).\n If two files are provided, Tramonto will take an average of the two files using a parameter Crfac to compute a new direct correlation function.i\n  Specifically the hybrid DCF will be Crfac*Cr_File_1+(1.0-Crfac)*Cr_File_2.",CrFile_Validator);
          else              PolymerCMS_List->set("CMS3: Cr_File_2", "", "Enter filename for a file containing a second direct correlation function (DCF).\n If two files are provided, Tramonto will take an average of the two files using a parameter Crfac to compute a new direct correlation function.i\n  Specifically the hybrid DCF will be Crfac*Cr_File_1+(1.0-Crfac)*Cr_File_2.",CrFile_Validator);
 
          PolymerCMS_List->set("CMS4: CrFac",Crfac,"Factor used for mixing of two direct correlation functions from different files.\n Specifically the hybrid DCF will be Crfac*Cr_File_1+(1.0-Crfac)*Cr_File_2."); 

@@ -53,6 +53,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   FILE *fparray;
   char filename[FILENAME_LENGTH];
   char *fileArray;
+  char tmp_str_array[FILENAME_LENGTH];
 
   int i,j;
 
@@ -145,7 +146,8 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   if (Iwrite_files==FILES_DEBUG_MATRIX){
      sprintf(filename,"matrix_proc%0d.dat",Proc);
      fileArray=filename;
-     fparray=fopen(fileArray,"w");
+     strcpy(tmp_str_array,Outpath_array);
+     fparray=fopen(strcat(tmp_str_array,fileArray),"w");
 
      for (i=0;i<Nunk_per_node*Nnodes;i++){
         for (j=0;j<Nunk_per_node*Nnodes;j++){
