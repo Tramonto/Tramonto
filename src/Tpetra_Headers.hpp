@@ -21,6 +21,7 @@
 #include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_Assert.hpp"
+#include "Teuchos_RCPDecl.hpp"
 
 #include "Thyra_TpetraThyraWrappers.hpp"
 #include "Thyra_LinearOpWithSolveFactoryBase.hpp"
@@ -56,6 +57,7 @@ using Teuchos::FancyOStream;
 using Teuchos::Array;
 using Teuchos::ArrayView;
 using Teuchos::ArrayRCP;
+using Teuchos::rcp_dynamic_cast;
 
 using Thyra::SolveStatus;
 using Thyra::createVector;

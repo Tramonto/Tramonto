@@ -227,19 +227,11 @@ finalizeBlockStructure
 
   if (hasPoisson_ && !poissonInA11)
   {
-#if A22_BELOS_APPLY_INVERSE == 1
-    A22_ = rcp(new P22CBO(cmsRowMap_, densityRowMap_, poissonRowMap_, extraRowMap_, block2RowMap_, parameterList_));
-#else
     A22_ = rcp(new P22CO(cmsRowMap_, densityRowMap_, poissonRowMap_, extraRowMap_, block2RowMap_, parameterList_));
-#endif
   }  //end if
   else
   {
-#if A22_BELOS_APPLY_INVERSE == 1
-    A22_ = rcp(new P22TBO(cmsRowMap_, densityRowMap_, block2RowMap_, parameterList_));
-#else
     A22_ = rcp(new P22TO(cmsRowMap_, densityRowMap_, block2RowMap_, parameterList_));
-#endif
   }
   if (debug_)
   {
@@ -495,6 +487,7 @@ setupSolver
 {
   TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
+  int poissonInA11 = Teuchos::getParameter<LocalOrdinal>(*parameterList_, "P_location");
 
   schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
 
@@ -515,6 +508,12 @@ setupSolver
   lowsFactory_ = solver_->createLinearSolveStrategy("");
   lows_ = linearOpWithSolve<Scalar>(*lowsFactory_, thyraOp_);
 #else
+  if (hasPoisson_ && !poissonInA11) {
+    //    const RCP<const P22CBO> A22prec = rcp_dynamic_cast<const P22CBO>(A22_);
+  } else {
+    //    const RCP<const P22TBO> A22prec = rcp_dynamic_cast<const P22TBO>(A22_);
+  }
+  //  problem_->setLeftPrec(A22prec);
   problem_ = rcp(new LinPROB(schurOperator_, lhs2_, rhsSchur_));
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
