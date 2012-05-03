@@ -302,6 +302,7 @@ protected:
   RCP<MAT> A12_;
   RCP<MAT> A21_;
   RCP<P22TO> A22_;
+  RCP<P22TO> A22prec_;
   RCP<const MAP> block1RowMap_;
   RCP<const MAP> block2RowMap_;
   RCP<const MAP> cmsRowMap_;
