@@ -25,7 +25,6 @@ extern "C" void dft_OptikaGUI()
 
   RCP<ParameterList> Tramonto_List = RCP<ParameterList>((new ParameterList("Root Tramonto List")));
 
-
             /* Create sublists that must be passed around */
   RCP<ParameterList> Mesh_List = sublist(Tramonto_List,"Sect. 1: Computational Domain");
   RCP<ParameterList> Functional_List = sublist(Tramonto_List,"Sect. 2: Functionals");
@@ -260,8 +259,9 @@ extern "C" void dft_OptikaGUI()
   }
   
   /* Print out what the user entered in nice XML format.  */
-/*  RCP<FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
-  writeParameterListToXmlOStream(*Tramonto_List, *out);*/
+  RCP<FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
+  writeParameterListToXmlOStream(*Tramonto_List, *out);
+  Teuchos::ParameterEntryXMLConverterDB::printKnownConverters(*out);
 
   return;
 }
