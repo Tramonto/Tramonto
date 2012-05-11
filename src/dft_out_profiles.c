@@ -346,28 +346,28 @@ void print_profile(char *Density_FileName,double *xold)
             }
             switch(Unk2Phys[iunk]){
                 case DENSITY:
-/*                fprintf(fp_Density,"%g\t", xold[iunk+node_start]/Rho_b[icomp]);*/
-                  if (xold[iunk+node_start]<0.0 && Rho_b[icomp]<1.e-20) fprintf(fp_Density,"%g\t", Rho_b[icomp]);
-                  else fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
+/*                fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]/Rho_b[icomp]);*/
+                  if (xold[iunk+node_start]<0.0 && Rho_b[icomp]<1.e-20) fprintf(fp_Density,"%.10le\t", Rho_b[icomp]);
+                  else fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]);
                   break;
 
                 case DIFFUSION:
                   if (LDeBroglie){
-                       fprintf(fp_Density,"%g\t", xold[iunk+node_start]
+                       fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]
                             + 3.0*log(Sigma_ff[icomp][icomp]) + 1.5*log(Mass[icomp]*Temp)  );
                   }
-                  else fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
+                  else fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]);
                   break;
 
                 case POISSON:
-                  fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
+                  fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]);
                   break;
 
                 case MF_EQ:
                 case HSRHOBAR:
                 case CAVWTC:
                 case BONDWTC:
-                  if (Iwrite_files==FILES_DEBUG) fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
+                  if (Iwrite_files==FILES_DEBUG) fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]);
                   break;
 
                 case CMS_FIELD:
@@ -375,30 +375,30 @@ void print_profile(char *Density_FileName,double *xold)
 	        case SCF_FIELD:
                    if(Iwrite_files==FILES_DEBUG || Type_poly==WJDC3){
                       /*if (fabs(xold[iunk+node_start]) > 1.e-12 && -log(xold[iunk+node_start]) < VEXT_MAX){
-                          fprintf(fp_Density,"%g\t", -log(xold[iunk+node_start]));
+                          fprintf(fp_Density,"%.10le\t", -log(xold[iunk+node_start]));
                       }
-                      else fprintf(fp_Density,"%g\t", VEXT_MAX);*/
+                      else fprintf(fp_Density,"%.10le\t", VEXT_MAX);*/
 
                      if (Unk2Phys[iunk]!=WJDC_FIELD){ 
-                         fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
+                         fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]);
                      }
                      else{
                        for (pol_number=0;pol_number<Npol_comp;pol_number++) {
                           if (Nseg_type_pol[pol_number][icomp] !=0) scalefac=Scale_fac_WJDC[pol_number][icomp];
                         }
-                        fprintf(fp_Density,"%g\t", xold[iunk+node_start]/exp(scalefac));
+                        fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]/exp(scalefac));
                      }
                    }
                    break;
 					
 	       case SCF_CONSTR:
 		    if(Iwrite_files==FILES_DEBUG){
-		         fprintf(fp_Density,"%g\t", xold[iunk+node_start]);
+		         fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]);
 		    }
                    break;
 
                 case G_CHAIN:
-                   if (Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) fprintf(fp_Gfile,"%g\t", xold[iunk+node_start]);
+                   if (Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) fprintf(fp_Gfile,"%.10le\t", xold[iunk+node_start]);
                    break;
             }
 
@@ -407,7 +407,7 @@ void print_profile(char *Density_FileName,double *xold)
                 /* print the Poisson-Boltzmann solution based on the computed electrostatic field */
         if (Ipot_ff_c == 1 && Type_poly==NONE){
         for (icomp=0; icomp<Ncomp; icomp++)
-          fprintf(fp_Density,"%g\t",
+          fprintf(fp_Density,"%.10le\t",
                   Rho_b[icomp]*exp(-Charge_f[icomp]*xold[Phys2Unk_first[POISSON]+node_start]
                                                               -Vext_old[inode*Ncomp+icomp]));
         }
@@ -447,7 +447,7 @@ void print_profile(char *Density_FileName,double *xold)
                    else site_dens=0.0;
 
                    sumsegdens[itype_mer]+=site_dens;
-                   if (Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED)fprintf(fp_DensSegComp,"%g\t", site_dens);
+                   if (Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED)fprintf(fp_DensSegComp,"%.10le\t", site_dens);
                  }
               }
         }
@@ -463,7 +463,7 @@ void print_profile(char *Density_FileName,double *xold)
                    flag_type_mer[Type_mer[ipol][iseg]]=TRUE;
                 }
                 for (itype_mer=0;itype_mer<Ncomp;itype_mer++){
-                   if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) && flag_type_mer[itype_mer]==TRUE)  fprintf(fp_DensSegComp,"%g\t",sumsegdens[itype_mer]);
+                   if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) && flag_type_mer[itype_mer]==TRUE)  fprintf(fp_DensSegComp,"%.10le\t",sumsegdens[itype_mer]);
                 }
               }
         }

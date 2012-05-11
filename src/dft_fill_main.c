@@ -112,7 +112,6 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
 
     inode_box = L2B_node[loc_inode];
     node_box_to_ijk_box(inode_box, ijk_box);
-
     if ( ((Mesh_coarsening != FALSE) && (Nwall_type >0)) || L1D_bc) mesh_coarsen_flag_i = Mesh_coarsen_flag[inode_box];
     else mesh_coarsen_flag_i = 0;
     for (iunk=iunk_start; iunk<iunk_end; iunk++) {
@@ -138,7 +137,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
       }
 
      /* print for debugging purposes call this print routine */ 
-       if (Iwrite_screen==SCREEN_DEBUG_RESID) print_residuals(loc_inode,iunk,resid_unk);
+       if (Iwrite_screen==SCREEN_DEBUG_RESID)  print_residuals(loc_inode,iunk,resid_unk);
 
     } /* end of loop over # of unknowns per node */
   } /* end of loop over local nodes */
