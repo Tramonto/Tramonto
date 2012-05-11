@@ -318,7 +318,7 @@
 ************ NONLINEAR SOLVER PARAMETERS *************************************
 @ 0 50 0 1 0    NL_Solver Max_NL_iter Physics_scaling ATTInA22Block Analyt_WJDC_Jac
 @ n/a           Scale_fac_WJDC[ipol][icomp]
-@ 1.0e-3 1.0e-8 0.1 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
+@ 1.0e-3 1.0e-8 1.0 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
 @ 1.e-3 1.e-8   NL_rel_tol_picard NL_abs_tol_picard
 @ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
