@@ -14,7 +14,7 @@ Input Files for Test problem:
    - dft_dens.dat
 
 Key Output Parameters :
-   - niter=9
+   - niter=1
    - rho_avg[0]=0.240388 
    - rho_avg[2]=0.0300485
    - rho_avg[3]=0.642518
