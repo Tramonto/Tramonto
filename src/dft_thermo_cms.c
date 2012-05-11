@@ -42,7 +42,7 @@ void CMS_thermo_precalc(char *file_echoinput)
   }
   return;
 }
-/***************************************************************
+/***************************************************************/
 /*setup_polymer_cr: read in c(r) from file and add attractions*/
 void setup_polymer_cr()
 {     

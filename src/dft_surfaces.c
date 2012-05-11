@@ -237,7 +237,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
   fp_roughness=NULL;
   fp_angleCutout=NULL;
   fp_inSurfaceTest=NULL;
-  fp_periodic==NULL;
+  fp_periodic=NULL;
   switch(surfaceTypeID)
   {
      case smooth_planar_wall:

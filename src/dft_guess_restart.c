@@ -250,7 +250,7 @@ void read_in_a_file(int guess_type,char *filename)
                   for (i=0;i<Nseg_tot;i++) unk_to_eq_in_file[iunk++]=WJDC_FIELD;
                   unk_in_file+=Nseg_tot;
              }
-             else if (Type_poly==WJDC2 || WJDC3){
+             else if (Type_poly==WJDC2 || Type_poly==WJDC3){
                   if (Restart==RESTART_FEWERCOMP) n_entries=Ncomp-Nmissing_densities;
                   else                           n_entries=Ncomp;
                   unk_in_file+=n_entries;

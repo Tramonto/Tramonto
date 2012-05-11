@@ -153,7 +153,7 @@ void set_up_mesh (char *file_echoinput,char *output_file2)
       * And redo the mesh variables based on the new
       * load balancing.
       */
-     if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE) printf("\n%Setting up the mesh again after load balance... \n");
+     if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE) printf("\n Setting up the mesh again after load balance... \n");
      /* Call the destructor for the dft_Linprobmgr */
      dft_linprobmgr_destruct(LinProbMgr_manager);
 

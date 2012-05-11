@@ -321,7 +321,7 @@ void calc_chempot(char *file_echoinput,int iwrite_screen, int iwrite_files)
              for (icomp=0;icomp<Ncomp;icomp++){
                     if (fabs(Betamu_LBB[icomp]-Betamu_RTF[icomp])/fabs(Betamu_LBB[icomp]) >0.1){
                        printf("ERROR: you are attempting to compute a two phase interface,\n");
-                       printf("but the chemical potentials of ipol_comp=%d are more than 10% different in the two bulk regions\n",icomp);
+                       printf("but the chemical potentials of ipol_comp=%d are more than 10 percent different in the two bulk regions\n",icomp);
                        printf("use arc-length continuation and/or binodal calculation methods to more\n");
                        printf("precisely determine the bulk coexistence densities of the fluid\n");
                        printf("Betamu_LBB=%g  Betamu_RTF=%g\n",Betamu_LBB[icomp],Betamu_RTF[icomp]);

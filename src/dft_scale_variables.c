@@ -248,7 +248,7 @@ void calc_new_density(int icomp,char *file_echoinput)
   }
   if (ncount>=4000) {
      if (Iwrite_screen==SCREEN_VERBOSE)
-         printf("new bulk densities not converged after 10000 iterations (Proc=%d): currently Rho_b[icomp]=%g\n",Rho_b[icomp],Proc);
+         printf("new bulk densities not converged after 10000 iterations (Proc=%d): currently Rho_b[icomp]=%g\n",Proc,Rho_b[icomp]);
      exit(-1);
   }
   else if (Lconverged==TRUE){ if( Iwrite_screen!=SCREEN_NONE && Iwrite_screen!=SCREEN_ERRORS_ONLY && Proc==0)  

@@ -531,7 +531,7 @@ void make_density_params_dimensionless()
 
 #ifdef USE_LOCA
   if (Loca.method !=-1){
-    if (Loca.cont_type1 == CONT_RHO_I || Loca.cont_type1 == CONT_LOG_RHO_I) Loca.step_size/Density_ref;
+    if (Loca.cont_type1 == CONT_RHO_I || Loca.cont_type1 == CONT_LOG_RHO_I) Loca.step_size/=Density_ref;
   }
 #endif
   return;
@@ -794,14 +794,14 @@ void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho)
      }
      if (nlink_chk != Nlink){
        printf("Check Nlink in dft_input.dat: %d and assignments in %s: %d\n",
-             Nlink,nlink_chk,WallPos_file_name);
+             Nlink,WallPos_file_name,nlink_chk);
       exit(-1);
      }
 
 
     for (iwall=0; iwall<Nwall; iwall++){
           fprintf(fpecho,"iwall=%d  WallType=%d  Link=%d Elec_param_w=%g",iwall,WallType[iwall],Link[iwall],Elec_param_w[iwall]);
-       for (idim=0; idim<Ndim; idim++)  fprintf(fpecho,"   WallPos[idim]=%g\n",idim,WallPos[idim][iwall]);
+       for (idim=0; idim<Ndim; idim++)  fprintf(fpecho,"   WallPos[idim=%d]=%g\n",idim,WallPos[idim][iwall]);
     }
     if (fabs(charge_sum) > 1.e-8 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) 
             printf("\n TOTAL CHARGE IN %s = %9.6f\n",WallPos_file_name,charge_sum);

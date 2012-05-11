@@ -31,8 +31,8 @@ corrections are turned on.
 --------------------------------------------------------------------------------------------*/
 #include "dft_thermo_elec_MSA.h"
 
-/********************************************************************
-chempot_ELEC_MSA_RPM: Here we compute the chemical potential contribution due
+/********************************************************************/
+/*chempot_ELEC_MSA_RPM: Here we compute the chemical potential contribution due
       to cross correlations between the hard sphere and coulomb parts of 
       the potential for the restricted primitive model based using the 
       mean spherical approximation (following the work of Tang and Davis)*/

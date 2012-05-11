@@ -119,8 +119,8 @@ void setup_wall_wall_potentials()
   }
 
   if (Nwall != Nlink && Proc==0){
-     for (iwall=0; iwall<Nlink-1; iwall){
-         for (jwall=iwall; jwall<Nlink; jwall){
+     for (iwall=0; iwall<Nlink-1; iwall++){
+         for (jwall=iwall; jwall<Nlink; jwall++){
             fprintf(fp11," %d  %d  %9.6f\n",iwall,jwall,Uww_link[Link[iwall]][Link[jwall]]);
          }
       }

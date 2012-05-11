@@ -36,7 +36,7 @@ in the code.  These should give the same results.
 ------------------------------------------------------------*/
 #include "dft_thermo_hs.h"
 
-/********************************************************************************
+/*********************************************************************************/
 /*HS_thermo_precalc: logic to control preprocessing of needed parameters when 
                    we are using FMT functionals */
 void HS_thermo_precalc(char *file_echoinput)

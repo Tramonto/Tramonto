@@ -407,7 +407,7 @@ void setup_vext_XRSurf(int iwall)
                  else sign=1.0;
 
                  if (Vext[loc_inode][icomp]==Vext_set[loc_inode][icomp]){
-                       Vext_dash[loc_inode][iunk][idim]==0.0;
+                       Vext_dash[loc_inode][iunk][idim]=0.0;
                  }
                  else{
                      if ((fabs(vtmpUP-Vext_set[loc_inode][icomp])<1.e-6 && fabs(vtmpDOWN-Vext_set[loc_inode][icomp])>1.e-6) ||

@@ -487,7 +487,7 @@ void do_numerical_jacobian(double **x)
       diff=fabs((full[i][j]-coef_ij));
       error=100.0*fabs((full[i][j]-coef_ij)/full[i][j]);
       if (diff > 1.e-6 && error>1. && x[j/Nnodes][j-Nnodes*(int)(j/Nnodes)] >1.e-10){ 
-          fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
+          fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g \n",
                   i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
           count_diff++;
       }
@@ -506,7 +506,7 @@ void do_numerical_jacobian(double **x)
              diff=fabs((full[i][j]));
              error=100.;
              if (diff > 1.e-6 && error>1. && x[junk][jnode]>1.e-10){ 
-               fprintf(ifp3,"NONZERO_NUM_ONLY %d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g %\n",
+               fprintf(ifp3,"NONZERO_NUM_ONLY %d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g \n",
                i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
                count_diff++;
              }
@@ -529,7 +529,7 @@ void do_numerical_jacobian(double **x)
       printf("number of matrix coefficients where nonzeros are only in numerical jacobian=%d\n",count_nonzeros_num);
       printf("number of warnings where differences between analytical and numerical results\n \t may not be real due to small residuals and resulting inaccurate jacobians=%d\n",count_warnings);
       printf("See jdiff0 for summary of matrix coefficients where differences\n");
-      printf("between analytical and numerical results are greater than 1%. \n\n");
+      printf("between analytical and numerical results are greater than 1 percent. \n\n");
       printf("KILLING CODE AT END OF NUMERICAL JACOBIAN\n");
   }
   exit(0);

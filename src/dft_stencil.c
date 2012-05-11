@@ -741,7 +741,7 @@ void print_out_stencil(int isten, int izone,
             fprintf(fp_stencil," %5f",sten->HW_Weight[i][j]);
           }
     }
-    if ( Ndim<3 || Ndim==3 &&sten->Length < 2500 || sten->Offset[i][0]==0) fprintf(fp_stencil,"\n");
+    if ( Ndim<3 || (Ndim==3 && sten->Length < 2500) || sten->Offset[i][0]==0) fprintf(fp_stencil,"\n");
   }
   fprintf(fp_stencil,"\tSUM OF WEIGHTS = %e\n\n",sum);
 
