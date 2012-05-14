@@ -357,7 +357,7 @@
                 9 =  CONT_SEMIPERM_IJ   Continue in strength of semipermeable membrane potential.
 
 @ 0.03 	Parameter initial step size 
-@ 12 0.0 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
+@ 10 0.0 	N Steps, Step Control Aggressiveness (0.0 = constant step) 
 @ 2 1 0 	Continuation_Type2, NID_Cont, ID1, ID2 
            (2nd parameter for  Spinodal and Binoadal Calculations (see listabove).
 *********** END OF INPUT FILE ******************************************
