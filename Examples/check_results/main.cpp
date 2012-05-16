@@ -127,7 +127,7 @@ public:
   {}
   bool operator()(const IntOrDouble& lhs) {
     if (lhs.isInt() && value_.isInt()) {
-      return std::abs(lhs.getInt() - value_.getInt()) < iterationBound_;
+      return std::abs(lhs.getInt() - value_.getInt()) <= iterationBound_;
     } else if (lhs.isDouble() && value_.isDouble()) {
       return (std::abs(lhs.getDouble() - value_.getDouble()) < tolerance_);
     } else {
