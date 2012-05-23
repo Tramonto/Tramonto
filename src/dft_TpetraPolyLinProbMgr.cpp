@@ -228,13 +228,12 @@ finalizeBlockStructure
   if (hasPoisson_ && !poissonInA11)
   {
     A22_ = rcp(new P22CO(cmsRowMap_, densityRowMap_, poissonRowMap_, extraRowMap_, block2RowMap_, parameterList_));
-    A22prec_ = rcp(new P22CBO(cmsRowMap_, densityRowMap_, poissonRowMap_, extraRowMap_, block2RowMap_, parameterList_));
-  }  //end if
+  }
   else
   {
     A22_ = rcp(new P22TO(cmsRowMap_, densityRowMap_, block2RowMap_, parameterList_));
-    A22prec_ = rcp(new P22TBO(cmsRowMap_, densityRowMap_, block2RowMap_, parameterList_));
   }
+  A22precond_ = rcp(new INVOP(A22_));
   if (debug_)
   {
     globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
@@ -300,8 +299,6 @@ initializeProblemValues
   A11_->initializeProblemValues();
   A22_->setFieldOnDensityIsLinear(isLinear_);  // Set current state of linearity for F
   A22_->initializeProblemValues();
-  A22prec_->setFieldOnDensityIsLinear(isLinear_);
-  A22prec_->initializeProblemValues();
 
 } //end initializeProblemValues
 //=============================================================================
@@ -336,13 +333,10 @@ insertMatrixValue
     // if cms then blockColFlag = 2
     if (isCmsEquation_[boxPhysicsID]) {
       A22_->insertMatrixValue(rowGID, colGID, value, 2);
-      A22prec_->insertMatrixValue(rowGID, colGID, value, 2);
     }else if (isDensityEquation_[boxPhysicsID]) {
       A22_->insertMatrixValue(rowGID, colGID, value, 1);
-      A22prec_->insertMatrixValue(rowGID, colGID, value, 1);
     }else if (isPoissonEquation_[boxPhysicsID]) {
       A22_->insertMatrixValue(rowGID, colGID, value, 0);
-      A22prec_->insertMatrixValue(rowGID, colGID, value, 0);
     }else{
       TEUCHOS_TEST_FOR_EXCEPT_MSG(1, "Unknown box physics ID in A22.");
     }
@@ -471,7 +465,6 @@ finalizeProblemValues
 
   A11_->finalizeProblemValues();
   A22_->finalizeProblemValues();
-  A22prec_->finalizeProblemValues();
 
   //cout << "Inf Norm of A12 = " << A12_->NormInf() << endl;
   //cout << "Inf Norm of A21 = " << A21_->NormInf() << endl;
@@ -511,7 +504,7 @@ setupSolver
   lows_ = linearOpWithSolve<Scalar>(*lowsFactory_, thyraOp_);
 #else
   problem_ = rcp(new LinPROB(schurOperator_, lhs2_, rhsSchur_));
-  problem_->setLeftPrec(A22prec_);
+  problem_->setLeftPrec(A22precond_);
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 #endif

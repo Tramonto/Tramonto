@@ -33,8 +33,6 @@
 #include "dft_PolyA22_Coulomb_Tpetra_Operator.hpp"
 #include "dft_Schur_Tpetra_Operator.hpp"
 #include "dft_TpetraBasicLinProbMgr.hpp"
-#include "dft_PolyA22_Tpetra_Belos_Operator.hpp"
-#include "dft_PolyA22_Coulomb_Tpetra_Belos_Operator.hpp"
 
 //====================================================
 
@@ -54,9 +52,7 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   typedef dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
   typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P11CO;
   typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
-  typedef dft_PolyA22_Tpetra_Belos_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TBO;
   typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P22CO;
-  typedef dft_PolyA22_Coulomb_Tpetra_Belos_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P22CBO;
   typedef dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
 
   //@{ \name Constructors/destructor.
@@ -302,7 +298,7 @@ protected:
   RCP<MAT> A12_;
   RCP<MAT> A21_;
   RCP<P22TO> A22_;
-  RCP<P22TO> A22prec_;
+  RCP<INVOP> A22precond_;
   RCP<const MAP> block1RowMap_;
   RCP<const MAP> block2RowMap_;
   RCP<const MAP> cmsRowMap_;

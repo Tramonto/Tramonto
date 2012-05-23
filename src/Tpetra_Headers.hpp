@@ -13,6 +13,7 @@
 #include "Tpetra_Vector.hpp"
 #include "Tpetra_Operator.hpp"
 #include "Tpetra_OperatorApplyInverse.hpp"
+#include "Tpetra_InvOperator.hpp"
 
 #include "Teuchos_Comm.hpp"
 #include "Teuchos_CommHelpers.hpp"
@@ -79,6 +80,7 @@ using Belos::ReturnType;
   typedef Tpetra::Vector<SCALAR,LO,GO,Node> VEC; \
   typedef Tpetra::Operator<SCALAR,LO,GO,Node> OP; \
   typedef Tpetra::OperatorApplyInverse<SCALAR,LO,GO,Node> APINV; \
+  typedef Tpetra::InvOperator<SCALAR,LO,GO,Node> INVOP; \
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,Node> MAP; \
   typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
@@ -98,6 +100,7 @@ using Belos::ReturnType;
   typedef Tpetra::Vector<SCALAR,LO,GO,Node> VEC; \
   typedef Tpetra::Operator<SCALAR,LO,GO,Node> OP; \
   typedef Tpetra::OperatorApplyInverse<SCALAR,LO,GO,Node> APINV; \
+  typedef Tpetra::InvOperator<SCALAR,LO,GO,Node> INVOP; \
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,Node> MAP; \
   typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
@@ -110,6 +113,7 @@ using Belos::ReturnType;
   typedef Tpetra::Vector<halfScalar,LO,GO,Node> VEC_H;		   \
   typedef Tpetra::Operator<halfScalar,LO,GO,Node> OP_H;			\
   typedef Tpetra::OperatorApplyInverse<halfScalar,LO,GO,Node> APINV_H;	\
+  typedef Tpetra::InvOperator<halfScalar,LO,GO,Node> INVOP_H; \
   typedef Tpetra::CrsMatrix<halfScalar,LO,GO,Node> MAT_H;			\
   typedef Belos::SolverManager<halfScalar, MV_H, OP_H> SolMGR_H;		\
   typedef Belos::LinearProblem<halfScalar, MV_H, OP_H> LinPROB_H;		\

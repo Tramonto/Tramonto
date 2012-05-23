@@ -419,7 +419,8 @@ endif(BUILD_GUI)
 # Handle selective compilation of Tpetra source
 if (USE_TPETRA)
   message("USE_TPETRA defined. Compiling against Tpetra code.")
-#  list(APPEND common_h Tpetra_OperatorApplyInverse.hpp)
+  list(APPEND common_h Tpetra_OperatorApplyInverse.hpp)
+  list(APPEND common_h Tpetra_InvOperator.hpp)
 
   list(REMOVE_ITEM common_h dft_BasicLinProbMgr.hpp)
   list(REMOVE_ITEM common_cxx dft_BasicLinProbMgr.cpp)
@@ -455,13 +456,8 @@ if (USE_TPETRA)
 
   list(APPEND common_h dft_PolyA22_Tpetra_Operator.hpp)
   list(APPEND common_cxx dft_PolyA22_Tpetra_Operator.cpp)
-  list(APPEND common_h dft_PolyA22_Tpetra_Belos_Operator.hpp)
-  list(APPEND common_cxx dft_PolyA22_Tpetra_Belos_Operator.cpp)
   list(APPEND common_h dft_PolyA22_Coulomb_Tpetra_Operator.hpp)
   list(APPEND common_cxx dft_PolyA22_Coulomb_Tpetra_Operator.cpp)
-  list(APPEND common_h dft_PolyA22_Coulomb_Tpetra_Belos_Operator.hpp)
-  list(APPEND common_cxx dft_PolyA22_Coulomb_Tpetra_Belos_Operator.cpp)
-
 
   list(APPEND common_h dft_Schur_Tpetra_Operator.hpp)
   list(APPEND common_cxx dft_Schur_Tpetra_Operator.cpp)
