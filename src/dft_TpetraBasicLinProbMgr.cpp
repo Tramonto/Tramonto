@@ -437,7 +437,7 @@ setMachineParams
   naeHalf_ = as<halfScalar>(as<Scalar>(n_)*anorm_*epsHalf_);
   snaeHalf_ = as<halfScalar>(sqrt(as<Scalar>(n_))*anorm_*epsHalf_);
   machineParamsSet_ = true;
-  std::cout << "PROBLEM CONSTANTS--- anorm = " << anorm_ << " n = " << n_ << " snae = " << snae_ << std::endl;
+  //  std::cout << "PROBLEM CONSTANTS--- anorm = " << anorm_ << " n = " << n_ << " snae = " << snae_ << std::endl;
 
 }
 //=============================================================================
