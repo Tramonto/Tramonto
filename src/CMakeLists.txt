@@ -421,6 +421,7 @@ if (USE_TPETRA)
   message("USE_TPETRA defined. Compiling against Tpetra code.")
   list(APPEND common_h Tpetra_OperatorApplyInverse.hpp)
   list(APPEND common_h Tpetra_InvOperator.hpp)
+  list(APPEND common_h Tpetra_ParameterListConverter.hpp)
 
   list(REMOVE_ITEM common_h dft_BasicLinProbMgr.hpp)
   list(REMOVE_ITEM common_cxx dft_BasicLinProbMgr.cpp)

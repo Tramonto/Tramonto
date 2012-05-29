@@ -14,6 +14,7 @@
 #include "Tpetra_Operator.hpp"
 #include "Tpetra_OperatorApplyInverse.hpp"
 #include "Tpetra_InvOperator.hpp"
+#include "Tpetra_ParameterListConverter.hpp"
 
 #include "Teuchos_Comm.hpp"
 #include "Teuchos_CommHelpers.hpp"

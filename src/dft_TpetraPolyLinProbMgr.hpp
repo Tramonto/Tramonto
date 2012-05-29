@@ -336,6 +336,7 @@ protected:
   using BLPM::globalRowMap_;
   using BLPM::comm_;
   using BLPM::parameterList_;
+  using BLPM::tpetraParameterList_;
   using BLPM::globalMatrix_;
   using BLPM::globalRhs_;
   using BLPM::globalLhs_;

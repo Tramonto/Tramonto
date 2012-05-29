@@ -420,6 +420,7 @@ protected:
   RCP<VEC> globalRhs_;
   RCP<VEC> globalLhs_;
   RCP<ParameterList> parameterList_;
+  RCP<ParameterList> tpetraParameterList_;
   GlobalOrdinal curRow_;
   std::map<GlobalOrdinal, Scalar> curRowValues_;
   Array<GlobalOrdinal> indices_;

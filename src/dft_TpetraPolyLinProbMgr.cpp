@@ -489,8 +489,14 @@ setupSolver
   TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
 
-  schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
+  // Convert Epetra parameters to Tpetra parameters
+  RCP<Tpetra::ParameterListConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > pListConverter = rcp(new Tpetra::ParameterListConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node>(parameterList_));
+  pListConverter->convert();
+  ParameterList convertedParameters = pListConverter->getConvertedList();
+  tpetraParameterList_ = rcp( new Teuchos::ParameterList(convertedParameters) );
 
+  schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
+  
 #ifdef SUPPORTS_STRATIMIKOS
   thyraRhs_ = createVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(rhsSchur_);
   thyraLhs_ = createVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(lhs2_);
@@ -506,7 +512,7 @@ setupSolver
   problem_ = rcp(new LinPROB(schurOperator_, lhs2_, rhsSchur_));
   problem_->setLeftPrec(A22precond_);
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
-  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
+  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, tpetraParameterList_));
 #endif
 
 } //end setupSolver
