@@ -15,6 +15,7 @@
 #include "Tpetra_OperatorApplyInverse.hpp"
 #include "Tpetra_InvOperator.hpp"
 #include "Tpetra_ParameterListConverter.hpp"
+#include "Tpetra_ScalingCrsMatrix.hpp"
 
 #include "Teuchos_Comm.hpp"
 #include "Teuchos_CommHelpers.hpp"

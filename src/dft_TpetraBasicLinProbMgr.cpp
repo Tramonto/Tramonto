@@ -450,11 +450,11 @@ setupSolver
   TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
   // If solver is already setup, just reset the problem
-    if (solver_ != Teuchos::null ) {
-      solver_->reset(Belos::Problem);
-      return;  //Already setup
-    }
-
+  if (solver_ != Teuchos::null ) {
+    solver_->reset(Belos::Problem);
+    return;  //Already setup
+  }
+  
   // Convert Epetra parameters to Tpetra parameters
   RCP<Tpetra::ParameterListConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > pListConverter = rcp(new Tpetra::ParameterListConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node>(parameterList_));
   pListConverter->convert();
@@ -463,6 +463,15 @@ setupSolver
 
   // Setup machine constants
   setMachineParams();
+
+  // Perform scaling
+  scalingMatrix_ = rcp(new Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GlobalOrdinal,Node>(globalMatrix_));
+  rowScaleFactors_ = rcp(new VEC(globalMatrix_->getDomainMap()));
+  LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
+  globalMatrix_->resumeFill();
+  LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
+  globalMatrix_->fillComplete();
+  globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
 
 #ifdef SUPPORTS_STRATIMIKOS
   thyraRhs_ = createVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(globalRhs_);
@@ -514,6 +523,12 @@ solve
     writeRhs("b_ref.dat");
     writePermutation("p_ref.dat");
   }
+  // Undo scaling
+  rowScaleFactors_->reciprocal( *rowScaleFactors_ );
+  globalMatrix_->resumeFill();
+  LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
+  globalMatrix_->fillComplete();
+  globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>

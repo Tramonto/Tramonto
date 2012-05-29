@@ -496,7 +496,7 @@ setupSolver
   tpetraParameterList_ = rcp( new Teuchos::ParameterList(convertedParameters) );
 
   schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
-  
+
 #ifdef SUPPORTS_STRATIMIKOS
   thyraRhs_ = createVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(rhsSchur_);
   thyraLhs_ = createVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(lhs2_);

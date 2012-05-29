@@ -422,6 +422,7 @@ if (USE_TPETRA)
   list(APPEND common_h Tpetra_OperatorApplyInverse.hpp)
   list(APPEND common_h Tpetra_InvOperator.hpp)
   list(APPEND common_h Tpetra_ParameterListConverter.hpp)
+  list(APPEND common_h Tpetra_ScalingCrsMatrix.hpp)
 
   list(REMOVE_ITEM common_h dft_BasicLinProbMgr.hpp)
   list(REMOVE_ITEM common_cxx dft_BasicLinProbMgr.cpp)

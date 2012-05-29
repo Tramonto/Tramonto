@@ -417,6 +417,8 @@ protected:
   RCP<IMP> ownedToBoxImporter_;
   RCP<const MAP> globalRowMap_;
   RCP<MAT> globalMatrix_;
+  RCP<Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GlobalOrdinal,Node> > scalingMatrix_;
+  RCP<VEC> rowScaleFactors_;
   RCP<VEC> globalRhs_;
   RCP<VEC> globalLhs_;
   RCP<ParameterList> parameterList_;
