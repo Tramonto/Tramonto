@@ -95,33 +95,43 @@ namespace Tpetra {
       // Ifpack2 Parameters
       //
       // Level of fill
-      outputList_.set( "fact: ilut level-of-fill", inputList_->template get<Scalar>("Ilut_fill") );
+      outputList_.set( "fact: ilut level-of-fill", 
+		       inputList_->template get<Scalar>("Ilut_fill") );
       // Absolute threshold
-      outputList_.set( "fact: absolute threshold", inputList_->template get<Scalar>("Athresh") );
+      outputList_.set( "fact: absolute threshold", 
+		       inputList_->template get<Scalar>("Athresh") );
       // Relative threshold
       sParam = inputList_->template get<Scalar>("Rthresh");
       if (sParam == 0.0)
 	// The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
-	outputList_.set( "fact: relative threshold", 1.0 );
+	outputList_.set( "fact: relative threshold", 
+			 1.0 );
       else
-	outputList_.set( "fact: relative threshold", inputList_->template get<Scalar>("Rthresh") );
+	outputList_.set( "fact: relative threshold", 
+			 inputList_->template get<Scalar>("Rthresh") );
       // Drop tolerance
-      outputList_.set( "fact: drop tolerance", inputList_->template get<Scalar>("Drop") );
+      outputList_.set( "fact: drop tolerance", 
+		       inputList_->template get<Scalar>("Drop") );
 
       //
       // Belos Parameters
       //
       // Block size
       GlobalOrdinal blockSize = 1;
-      outputList_.set( "Block Size", blockSize);
+      outputList_.set( "Block Size", 
+		       blockSize);
       // Number of blocks
-      outputList_.set( "Num Blocks", 3 * inputList_->template get<GlobalOrdinal>("Kspace") / blockSize );
+      outputList_.set( "Num Blocks", 
+		       4 * inputList_->template get<GlobalOrdinal>("Kspace") / blockSize );
       // Maximum iterations
-      outputList_.set( "Maximum Iterations", 3 * inputList_->template get<GlobalOrdinal>("Max_iter") );
+      outputList_.set( "Maximum Iterations", 
+		       4 * inputList_->template get<GlobalOrdinal>("Max_iter") );
       // Convergence tolerance
-      outputList_.set( "Covergence Tolerance", inputList_->template get<Scalar>("Tol") );
+      outputList_.set( "Covergence Tolerance", 
+		       inputList_->template get<Scalar>("Tol") );
       // Output
-      outputList_.set( "Output Frequency", 10 );
+      outputList_.set( "Output Frequency", 
+		       10 );
       
       isConverted_ = true;
     }

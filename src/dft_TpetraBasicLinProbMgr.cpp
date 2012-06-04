@@ -39,7 +39,6 @@ dft_BasicLinProbMgr
     groupByPhysics_(true),
     firstTime_(true),
     numUnknownsPerNode_(numUnknownsPerNode),
-    parameterList_(parameterList),
     numOwnedNodes_(0),
     numBoxNodes_(0),
     numGlobalNodes_(0),
@@ -49,6 +48,12 @@ dft_BasicLinProbMgr
     comm_(comm),
     curRow_(-1)
 {
+  // Convert Epetra parameters to Tpetra parameters
+  RCP<Tpetra::ParameterListConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > pListConverter = rcp(new Tpetra::ParameterListConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node>(parameterList));
+  pListConverter->convert();
+  ParameterList convertedParameters = pListConverter->getConvertedList();
+  parameterList_ = rcp( new Teuchos::ParameterList(convertedParameters) );
+
   return;
 }
 //=============================================================================
@@ -455,12 +460,6 @@ setupSolver
     return;  //Already setup
   }
   
-  // Convert Epetra parameters to Tpetra parameters
-  RCP<Tpetra::ParameterListConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > pListConverter = rcp(new Tpetra::ParameterListConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node>(parameterList_));
-  pListConverter->convert();
-  ParameterList convertedParameters = pListConverter->getConvertedList();
-  tpetraParameterList_ = rcp( new Teuchos::ParameterList(convertedParameters) );
-
   // Setup machine constants
   setMachineParams();
 
@@ -490,12 +489,12 @@ setupSolver
   Ifpack2::Factory factory;
   RCP<const MAT> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT>(globalMatrix_);
   preconditioner_ = factory.create("ILUT", const_globalMatrix_);
-  preconditioner_->setParameters(*tpetraParameterList_);
+  preconditioner_->setParameters(*parameterList_);
   preconditioner_->initialize();
   preconditioner_->compute();
   //  problem_->setLeftPrec(preconditioner_);
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
-  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, tpetraParameterList_));
+  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 #endif
 }
 //=============================================================================

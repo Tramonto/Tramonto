@@ -436,8 +436,8 @@ if (USE_TPETRA)
 
   list(REMOVE_ITEM common_h dft_HardSphereLinProbMgr.hpp)
   list(REMOVE_ITEM common_cxx dft_HardSphereLinProbMgr.cpp)
-#  list(APPEND common_h dft_TpetraHardSphereLinProbMgr.hpp)
-#  list(APPEND common_cxx dft_TpetraHardSphereLinProbMgr.cpp)
+  list(APPEND common_h dft_TpetraHardSphereLinProbMgr.hpp)
+  list(APPEND common_cxx dft_TpetraHardSphereLinProbMgr.cpp)
 
   list(REMOVE_ITEM common_cxx  dft_basic_lin_prob_mgr_wrapper.cpp)
   list(APPEND common_cxx dft_tpetra_basic_lin_prob_mgr_wrapper.cpp)
@@ -448,8 +448,8 @@ if (USE_TPETRA)
   list(REMOVE_ITEM common_cxx  dft_hardsphere_lin_prob_mgr_wrapper.cpp)
   list(APPEND common_cxx dft_tpetra_hardsphere_lin_prob_mgr_wrapper.cpp)
 
-#  list(APPEND common_h dft_A22Matrix_Tpetra_Operator.hpp)
-#  list(APPEND common_cxx dft_A22Matrix_Tpetra_Operator.cpp)
+  list(APPEND common_h dft_A22Matrix_Tpetra_Operator.hpp)
+  list(APPEND common_cxx dft_A22Matrix_Tpetra_Operator.cpp)
 
   list(APPEND common_h dft_PolyA11_Tpetra_Operator.hpp)
   list(APPEND common_cxx dft_PolyA11_Tpetra_Operator.cpp)
@@ -464,10 +464,10 @@ if (USE_TPETRA)
   list(APPEND common_h dft_Schur_Tpetra_Operator.hpp)
   list(APPEND common_cxx dft_Schur_Tpetra_Operator.cpp)
 
-#  list(APPEND common_h dft_HardSphereA11_Tpetra_Operator.hpp)
-#  list(APPEND common_cxx dft_HardSphereA11_Tpetra_Operator.cpp)
-#  list(APPEND common_h dft_HardSphereA22_Tpetra_Operator.hpp)
-#  list(APPEND common_cxx dft_HardSphereA22_Tpetra_Operator.cpp)
+  list(APPEND common_h dft_HardSphereA11_Tpetra_Operator.hpp)
+  list(APPEND common_cxx dft_HardSphereA11_Tpetra_Operator.cpp)
+  list(APPEND common_h dft_HardSphereA22_Tpetra_Operator.hpp)
+  list(APPEND common_cxx dft_HardSphereA22_Tpetra_Operator.cpp)
 
    list(APPEND Tramonto_Trilinos_LIBRARIES ${Tpetra_LIBRARIES} ${Ifpack2_LIBRARIES} )
 
