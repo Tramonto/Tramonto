@@ -74,7 +74,7 @@ namespace Tpetra {
     //! @name Constructor
     //@{
     //! Facilitates the conversion from Epetra parameters to Tpetra parameters.
-    /*! 
+    /*!
       \param In - A Teuchos ParameterList.
     */
     ParameterListConverter(Teuchos::RCP<Teuchos::ParameterList>& parameterListIn)
@@ -95,22 +95,21 @@ namespace Tpetra {
       // Ifpack2 Parameters
       //
       // Level of fill
-      outputList_.set( "fact: ilut level-of-fill", 
+      outputList_.set( "fact: ilut level-of-fill",
 		       inputList_->template get<Scalar>("Ilut_fill") );
       // Absolute threshold
-      outputList_.set( "fact: absolute threshold", 
+      outputList_.set( "fact: absolute threshold",
 		       inputList_->template get<Scalar>("Athresh") );
       // Relative threshold
       sParam = inputList_->template get<Scalar>("Rthresh");
       if (sParam == 0.0)
 	// The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
-	outputList_.set( "fact: relative threshold", 
-			 1.0 );
+	outputList_.set( "fact: relative threshold", 1.0 );
       else
-	outputList_.set( "fact: relative threshold", 
+	outputList_.set( "fact: relative threshold",
 			 inputList_->template get<Scalar>("Rthresh") );
       // Drop tolerance
-      outputList_.set( "fact: drop tolerance", 
+      outputList_.set( "fact: drop tolerance",
 		       inputList_->template get<Scalar>("Drop") );
 
       //
@@ -118,21 +117,37 @@ namespace Tpetra {
       //
       // Block size
       GlobalOrdinal blockSize = 1;
-      outputList_.set( "Block Size", 
-		       blockSize);
+      outputList_.set( "Block Size", blockSize);
       // Number of blocks
-      outputList_.set( "Num Blocks", 
+      outputList_.set( "Num Blocks",
 		       4 * inputList_->template get<GlobalOrdinal>("Kspace") / blockSize );
       // Maximum iterations
-      outputList_.set( "Maximum Iterations", 
+      outputList_.set( "Maximum Iterations",
 		       4 * inputList_->template get<GlobalOrdinal>("Max_iter") );
       // Convergence tolerance
-      outputList_.set( "Covergence Tolerance", 
+      outputList_.set( "Covergence Tolerance",
 		       inputList_->template get<Scalar>("Tol") );
       // Output
-      outputList_.set( "Output Frequency", 
-		       10 );
-      
+      outputList_.set( "Output Frequency", 10 );
+
+      //
+      // Muelu Parameters
+      //
+      // ML output
+      outputList_.set( "ML output", 0 );
+
+      // Smoother sweeps
+      outputList_.set( "smoother: sweeps",  2 );
+
+      // Smoother type
+      outputList_.set( "smoother: type", "Chebyshev" );
+
+      // Coarse sweeps
+      outputList_.set( "coarse: sweeps",  6 );
+
+      // Coarse type
+      outputList_.set( "coarse: type",  "Chebyshev" );
+
       isConverted_ = true;
     }
 

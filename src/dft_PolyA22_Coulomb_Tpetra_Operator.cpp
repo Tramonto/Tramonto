@@ -51,13 +51,6 @@ dft_PolyA22_Coulomb_Tpetra_Operator
   cmsOnPoissonMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnPoissonMatrix");
   poissonOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::poissonOnDensityMatrix");
 
-  MueluList_ = rcp(new Teuchos::ParameterList());
-  MueluList_->set("ML output", 0);
-  MueluList_->set("smoother: sweeps", 2);
-  MueluList_->set("smoother: type","Chebyshev");
-  MueluList_->set("coarse: sweeps", 6);
-  MueluList_->set("coarse: type", "Chebyshev");
-
 } //end constructor
 //==============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -337,7 +330,7 @@ finalizeProblemValues
   if (firstTime_) {
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP  = rcp(new Xpetra::CrsOperator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
-    MLParameterListInterpreter mueluFactory(*MueluList_);
+    MLParameterListInterpreter mueluFactory(*parameterList_);
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_HIGH);
     H_->GetLevel(0)->Set("A", mueluPP);
