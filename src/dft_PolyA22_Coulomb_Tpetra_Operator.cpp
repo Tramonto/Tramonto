@@ -330,7 +330,7 @@ finalizeProblemValues
   if (firstTime_) {
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP  = rcp(new Xpetra::CrsOperator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
-    MLParameterListInterpreter mueluFactory(*parameterList_);
+    MueLu::MLParameterListInterpreter<Scalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(*parameterList_);
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_HIGH);
     H_->GetLevel(0)->Set("A", mueluPP);

@@ -96,21 +96,21 @@ namespace Tpetra {
       //
       // Level of fill
       outputList_.set( "fact: ilut level-of-fill",
-		       inputList_->template get<Scalar>("Ilut_fill") );
+		       inputList_->template get<double>("Ilut_fill") );
       // Absolute threshold
       outputList_.set( "fact: absolute threshold",
-		       inputList_->template get<Scalar>("Athresh") );
+		       inputList_->template get<double>("Athresh") );
       // Relative threshold
-      sParam = inputList_->template get<Scalar>("Rthresh");
+      sParam = inputList_->template get<double>("Rthresh");
       if (sParam == 0.0)
 	// The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
 	outputList_.set( "fact: relative threshold", 1.0 );
       else
 	outputList_.set( "fact: relative threshold",
-			 inputList_->template get<Scalar>("Rthresh") );
+			 inputList_->template get<double>("Rthresh") );
       // Drop tolerance
       outputList_.set( "fact: drop tolerance",
-		       inputList_->template get<Scalar>("Drop") );
+		       inputList_->template get<double>("Drop") );
 
       //
       // Belos Parameters
@@ -120,13 +120,13 @@ namespace Tpetra {
       outputList_.set( "Block Size", blockSize);
       // Number of blocks
       outputList_.set( "Num Blocks",
-		       4 * inputList_->template get<GlobalOrdinal>("Kspace") / blockSize );
+		       4 * inputList_->template get<int>("Kspace") / blockSize );
       // Maximum iterations
       outputList_.set( "Maximum Iterations",
-		       4 * inputList_->template get<GlobalOrdinal>("Max_iter") );
+		       4 * inputList_->template get<int>("Max_iter") );
       // Convergence tolerance
       outputList_.set( "Covergence Tolerance",
-		       inputList_->template get<Scalar>("Tol") );
+		       inputList_->template get<int>("Tol") );
       // Output
       outputList_.set( "Output Frequency", 10 );
 
