@@ -421,7 +421,10 @@ if (USE_TPETRA)
   message("USE_TPETRA defined. Compiling against Tpetra code.")
   list(APPEND common_h Tpetra_OperatorApplyInverse.hpp)
   list(APPEND common_h Tpetra_InvOperator.hpp)
+  list(APPEND common_h Tpetra_HalfOperator.hpp)
+  list(APPEND common_h Tpetra_HalfOperatorApplyInverse.hpp)
   list(APPEND common_h Tpetra_ParameterListConverter.hpp)
+  list(APPEND common_h Tpetra_MultiVectorConverter.hpp)
   list(APPEND common_h Tpetra_ScalingCrsMatrix.hpp)
 
   list(REMOVE_ITEM common_h dft_BasicLinProbMgr.hpp)
@@ -502,6 +505,15 @@ if (USE_TPETRA)
      message("No precision specified. Using double precision for linear solver code.")
      ADD_DEFINITIONS(-DLINSOLVE_PREC=1)   
    endif (LINSOLVE_PREC_FLOAT)
+
+#  Select half precision for preconditioning
+   if (MIXED_PRECISION)   
+     message("MIXED_PRECISION defined. Using mixed precision.")
+     ADD_DEFINITIONS(-DMIXED_PREC=1)
+   else () 
+     message("No mixed precision specified.")
+     ADD_DEFINITIONS(-DMIXED_PREC=0)   
+   endif (MIXED_PRECISION)
 
 endif(USE_TPETRA)
 

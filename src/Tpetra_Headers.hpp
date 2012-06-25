@@ -14,7 +14,10 @@
 #include "Tpetra_Operator.hpp"
 #include "Tpetra_OperatorApplyInverse.hpp"
 #include "Tpetra_InvOperator.hpp"
+#include "Tpetra_HalfOperator.hpp"
+#include "Tpetra_HalfOperatorApplyInverse.hpp"
 #include "Tpetra_ParameterListConverter.hpp"
+#include "Tpetra_MultiVectorConverter.hpp"
 #include "Tpetra_ScalingCrsMatrix.hpp"
 
 #include "Teuchos_Comm.hpp"
@@ -103,6 +106,8 @@ using Belos::ReturnType;
   typedef Tpetra::Operator<SCALAR,LO,GO,Node> OP; \
   typedef Tpetra::OperatorApplyInverse<SCALAR,LO,GO,Node> APINV; \
   typedef Tpetra::InvOperator<SCALAR,LO,GO,Node> INVOP; \
+  typedef Tpetra::HalfOperator<SCALAR,LO,GO,Node> HOP; \
+  typedef Tpetra::HalfOperatorApplyInverse<SCALAR,LO,GO,Node> HAPINV; \
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,Node> MAP; \
   typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
