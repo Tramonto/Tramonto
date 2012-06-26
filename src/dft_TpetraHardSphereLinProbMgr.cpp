@@ -151,14 +151,38 @@ finalizeBlockStructure
   */
 
   A11_ = rcp(new HS11TO(indNonLocalRowMap_, depNonLocalRowMap_, block1RowMap_));
+
+#if MIXED_PREC == 1
+  A12_ = rcp(new MAT_H(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
+  A21_ = rcp(new MAT_H(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
+#elif MIXED_PREC == 0
   A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
   A21_ = rcp(new MAT(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
+#endif
+
   if (isA22Diagonal_) {
     A22Diagonal_ = rcp(new HS22TO(block2RowMap_));
   }
   else {
     A22Matrix_ = rcp(new A22MTO(block2RowMap_, parameterList_));
   }
+
+#if MIXED_PREC == 1
+  if (isA22Diagonal_) {
+    A22DiagonalPrecond_ = rcp(new INVOP_H(A22Diagonal_));
+    A22DiagonalPrecondMixed_ = rcp(new HAPINV(A22DiagonalPrecond_));
+  } else {
+    A22MatrixPrecond_ = rcp(new INVOP_H(A22Matrix_));
+    A22MatrixPrecondMixed_ = rcp(new HAPINV(A22MatrixPrecond_));
+  }
+#elif MIXED_PREC == 0
+  if (isA22Diagonal_) {
+    A22DiagonalPrecond_ = rcp(new INVOP(A22Diagonal_));
+  } else {
+    A22MatrixPrecond_ = rcp(new INVOP(A22Matrix_));
+  }
+#endif
+
   if (debug_) {
     globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
     globalMatrix_->setObjectLabel("HardSphere::globalMatrix");
@@ -179,6 +203,15 @@ finalizeBlockStructure
     schurOperator_ = rcp(new ScTO(A11_, A12_, A21_, A22Diagonal_));
   else
     schurOperator_ = rcp(new ScTO(A11_, A12_, A21_, A22Matrix_));
+
+#if MIXED_PREC == 1
+  rhs1Half_ = rcp(new VEC_H(block1RowMap_));
+  rhs2Half_ = rcp(new VEC_H(block2RowMap_));
+  rhsSchurHalf_ = rcp(new VEC_H(block2RowMap_));
+  lhs1Half_ = rcp(new VEC_H(block1RowMap_));
+  lhs2Half_ = rcp(new VEC_H(block2RowMap_));
+  schurOperatorMixed_ = rcp(new HAPINV(schurOperator_));
+#endif
 
   isBlockStructureSet_ = true;
   isGraphStructureSet_ = true;
@@ -233,7 +266,11 @@ insertMatrixValue
 
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
+#if MIXED_PREC == 1
+  Array<halfScalar> vals(1);
+#elif MIXED_PREC == 0
   Array<Scalar> vals(1);
+#endif
   vals[0] = value;
 
   if (schurBlockRow1 && schurBlockCol1) { // A11 block
@@ -290,7 +327,7 @@ insertRowA12
     valuesA12_.resize(numEntries);
   }
   LocalOrdinal i=0;
-  typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+  ITERATOR pos;
   for (pos = curRowValuesA12_.begin(); pos != curRowValuesA12_.end(); ++pos) {
     indicesA12_[i] = pos->first;
     valuesA12_[i++] = pos->second;
@@ -319,7 +356,7 @@ insertRowA21
     valuesA21_.resize(numEntries);
   }
   LocalOrdinal i=0;
-  typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+  ITERATOR pos;
   for (pos = curRowValuesA21_.begin(); pos != curRowValuesA21_.end(); ++pos) {
     indicesA21_[i] = pos->first;
     valuesA21_[i++] = pos->second;
@@ -383,10 +420,43 @@ setupSolver
   TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 			     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
 
+#if MIXED_PREC == 1
+
+  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+
+  // Demote rhs1_ and rhs2_ to half precision
+  mvConverter->scalarToHalf( *rhs1_, *rhs1Half_ );
+  mvConverter->scalarToHalf( *rhs2_, *rhs2Half_ );
+
+  schurOperator_->ComputeRHS(*rhs1Half_, *rhs2Half_, *rhsSchurHalf_);
+
+  // Promote rhsSchurHalf_ to Scalar precision
+  mvConverter->halfToScalar( *rhsSchurHalf_, *rhsSchur_ );
+
+#elif MIXED_PREC == 0
+
   schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
+
+#endif
 
   ////  if (solver_ != Teuchos::null ) return(0);  //Already setup
 
+#if MIXED_PREC == 1
+  problem_ = rcp(new LinPROB(schurOperatorMixed_, lhs2_, rhsSchur_));
+
+  if (formSchurMatrix_) {// We have S explicitly available, so let's use it
+    if (isA22Diagonal_)
+      schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Diagonal_->getA22Matrix());
+    else
+      schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Matrix_->getA22Matrix());
+    schurComplement_ = rcp(new HOP(schurOperator_->getSchurComplement()));
+    problem_->setOperator(schurComplement_);
+  }
+  if (isA22Diagonal_)
+    problem_->setLeftPrec(A22DiagonalPrecondMixed_);
+  else
+    problem_->setLeftPrec(A22MatrixPrecondMixed_);
+#elif MIXED_PREC == 0
   problem_ = rcp(new LinPROB(schurOperator_, lhs2_, rhsSchur_));
 
   if (formSchurMatrix_) {// We have S explicitly available, so let's use it
@@ -397,10 +467,10 @@ setupSolver
     problem_->setOperator(schurOperator_->getSchurComplement());
   }
   if (isA22Diagonal_)
-    problem_->setLeftPrec(A22Diagonal_);
+    problem_->setLeftPrec(A22DiagonalPrecond_);
   else
-    problem_->setLeftPrec(A22Matrix_);
-
+    problem_->setLeftPrec(A22MatrixPrecond_);
+#endif
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 
@@ -420,14 +490,48 @@ solve
 
   ReturnType ret = solver_->solve();
 
+#if MIXED_PREC == 1
+
+  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+
+  // Demote lhs2_ to half precision
+  mvConverter->scalarToHalf( *lhs2_, *lhs2Half_ );
+
+  schurOperator_->ComputeX1(*rhs1Half_, *lhs2Half_, *lhs1Half_); // Compute rest of solution
+
+  // Promote lhs1Half_ to Scalar precision
+  mvConverter->halfToScalar( *lhs1Half_, *lhs1_ );
+
+#elif MIXED_PREC == 0
+
   schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_); // Compute rest of solution
+
+#endif
 
   if (debug_) {
     RCP<VEC> tmpRhs = rcp(new VEC(globalRowMap_));
     RCP<VEC> tmprhs1 = tmpRhs->offsetViewNonConst(block1RowMap_, 0)->getVectorNonConst(0);
     RCP<VEC> tmprhs2 = tmpRhs->offsetViewNonConst(block2RowMap_, block1RowMap_->getNodeNumElements())->getVectorNonConst(0);
 
+#if MIXED_PREC == 1
+
+    RCP<VEC_H> tmprhs1Half = rcp(new VEC_H(tmprhs1->getMap()));
+    RCP<VEC_H> tmprhs2Half = rcp(new VEC_H(tmprhs2->getMap()));
+    // Demote lhs1_ and lhs2_ to half precision
+    mvConverter->scalarToHalf( *lhs1_, *lhs1Half_ );
+    mvConverter->scalarToHalf( *lhs2_, *lhs2Half_ );
+
+    schurOperator_->ApplyGlobal(*lhs1Half_, *lhs2Half_, *tmprhs1Half, *tmprhs2Half);
+
+    // Promote tmprhs1Half_ and tmprhs2Half_ to Scalar precision
+    mvConverter->halfToScalar( *tmprhs1Half, *tmprhs1 );
+    mvConverter->halfToScalar( *tmprhs2Half, *tmprhs2 );
+
+#elif MIXED_PREC ==0
+
     schurOperator_->ApplyGlobal(*lhs1_, *lhs2_, *tmprhs1, *tmprhs2);
+
+#endif
 
     tmpRhs->update(-1.0, *globalRhs_, 1.0);
     Scalar resid=0.0;
@@ -453,7 +557,26 @@ applyMatrix
 (const ArrayView<const ArrayView<const Scalar> >& x) const
 {
   setLhs(x);
+
+#if MIXED_PREC == 1
+  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+
+  // Demote lhs1_ and lhs2_ to half precision
+  mvConverter->scalarToHalf( *lhs1_, *lhs1Half_ );
+  mvConverter->scalarToHalf( *lhs2_, *lhs2Half_ );
+
+  schurOperator_->ApplyGlobal(*lhs1Half_, *lhs2Half_, *rhs1Half_, *rhs2Half_);
+
+  // Promote rhs1Half_ and rhs2Half_ to Scalar precision
+  mvConverter->halfToScalar( *rhs1Half_, *rhs1_ );
+  mvConverter->halfToScalar( *rhs2Half_, *rhs2_ );
+
+#elif MIXED_PREC == 0
+
   schurOperator_->ApplyGlobal(*lhs1_, *lhs2_, *rhs1_, *rhs2_);
+
+#endif
+
   return (getRhs());
 }
 //=============================================================================

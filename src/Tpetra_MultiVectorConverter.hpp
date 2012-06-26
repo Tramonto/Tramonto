@@ -76,7 +76,7 @@ namespace Tpetra {
     virtual ~MultiVectorConverter() {}
     //@}
 
-    void scalarToHalf(const MV& X, MV_H Y)
+    void scalarToHalf(const MV& X, MV_H& Y)
     {
       // Demote X from scalar precision to halfPrecision
       Teuchos::RCP<const Tpetra::Vector<Scalar,LocalOrdinal,GlobalOrdinal,Node> > scalarVec;
@@ -94,7 +94,7 @@ namespace Tpetra {
       }
     }
 
-    void doubleToScalar(const MV_D& X, MV Y)
+    void doubleToScalar(const MV_D& X, MV& Y)
     {
       // Demote X from doubleScalar precision to scalar precision
       Teuchos::RCP<const Tpetra::Vector<doubleScalar,LocalOrdinal,GlobalOrdinal,Node> > doubleScalarVec;
@@ -112,7 +112,7 @@ namespace Tpetra {
       }
     }
 
-    void scalarToDouble(const MV& X, MV_D Y)
+    void scalarToDouble(const MV& X, MV_D& Y)
     {
       // Promote X from scalar precision to doublePrecision
       Teuchos::RCP<const Tpetra::Vector<Scalar,LocalOrdinal,GlobalOrdinal,Node> > scalarVec;

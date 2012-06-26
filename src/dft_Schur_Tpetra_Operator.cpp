@@ -29,12 +29,12 @@
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_Schur_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
 dft_Schur_Tpetra_Operator
-(RCP<APINV> A11, RCP<MAT> A12, RCP<MAT> A21, RCP<APINV> A22) 
+(RCP<APINV> A11, RCP<MAT> A12, RCP<MAT> A21, RCP<APINV> A22)
   : A11_(A11),
     A12_(A12),
     A21_(A21),
     A22_(A22),
-    Label_(0) 
+    Label_(0)
 {
 
   Label_ = "dft_Schur_Tpetra_Operator";
@@ -52,16 +52,16 @@ dft_Schur_Tpetra_Operator
   assert(A22->ReplaceRowMap(Row2Map)==0);
   assert(A22->ReplaceColMap(Col2Map)==0);
 
-  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA21.dat", *A21, "HardSphere_A21", 
+  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA21.dat", *A21, "HardSphere_A21",
 					  "The 2,1 block of HardSphere Problem with Explicit non-local densities",
 					  true);
-  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA12.dat", *A12, "HardSphere_A12", 
+  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA12.dat", *A12, "HardSphere_A12",
 					  "The 1,2 block of HardSphere Problem with Explicit non-local densities",
 					  true);
-  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA11.dat", *A11, "HardSphere_A11", 
+  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA11.dat", *A11, "HardSphere_A11",
 					  "The 1,1 block of HardSphere Problem with Explicit non-local densities",
 					  true);
-  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA22.dat", *A22, "HardSphere_A22", 
+  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA22.dat", *A22, "HardSphere_A22",
 					  "The 2,2 block of HardSphere Problem with Explicit non-local densities",
 					  true);
   abort();
@@ -71,7 +71,7 @@ dft_Schur_Tpetra_Operator
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_Schur_Tpetra_Operator
-() 
+()
 {
 } //end destructor
 //==============================================================================
@@ -79,7 +79,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
-(const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const 
+(const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
   // Scalar normvalue;
   //X.NormInf(&normvalue);
@@ -94,7 +94,7 @@ apply
   RCP<MV > Y1 = rcp(new MV(A12_->getRangeMap(), X.getNumVectors()));
   RCP<MV > Y11 = rcp(new MV(A12_->getRangeMap(), X.getNumVectors()));
   RCP<MV > Y2 = rcp(new MV(A21_->getRangeMap(), X.getNumVectors()));
- 
+
   Y.putScalar(0.0);
   A12_->apply(X, *Y1);
   //Y1.NormInf(&normvalue);
@@ -116,7 +116,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 ComputeRHS
-(const MV& B1, const MV& B2, MV& B2S) const 
+(const MV& B1, const MV& B2, MV& B2S) const
 {
   // Compute B2S =  B2 - A21*inv(A11)B1
 
@@ -130,7 +130,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 ComputeX1
-(const MV& B1, const MV& X2, MV& X1) const 
+(const MV& B1, const MV& X2, MV& X1) const
 {
   // Compute X1 =  inv(A11)(B1 - A12*X2)
 
@@ -145,7 +145,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 ApplyGlobal
-(const MV& X1, const MV& X2, MV& Y1, MV& Y2) const 
+(const MV& X1, const MV& X2, MV& Y1, MV& Y2) const
 {
   TEUCHOS_TEST_FOR_EXCEPT(!X1.getMap()->isSameAs(*A11_->getDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!X2.getMap()->isSameAs(*A22_->getDomainMap()));
@@ -159,7 +159,7 @@ ApplyGlobal
   RCP<MV > Y12 = rcp(new MV(A12_->getRangeMap(), X1.getNumVectors()));
   RCP<MV > Y21 = rcp(new MV(A21_->getRangeMap(), X1.getNumVectors()));
   RCP<MV > Y22 = rcp(new MV(A22_->getRangeMap(), X1.getNumVectors()));
- 
+
   Y1.putScalar(0.0);
   Y2.putScalar(0.0);
   A11_->apply(X1, *Y11);
@@ -174,23 +174,23 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 RCP<Tpetra::CrsMatrix<Scalar,LocalOrdinal,GlobalOrdinal,Node> >
 dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 getSchurComplement
-() 
+()
 {
-  if (A11invMatrix_.is_null() || A22Matrix_.is_null()) 
+  if (A11invMatrix_.is_null() || A22Matrix_.is_null())
   {
     RCP<MAT> null;
     return(null);  // We cannot form S without the component matrices
   } //end if
   if (S_.get()==0)  // Form S
   {
-    A11invA12_ = rcp(new MAT(A12_->getRowMap(), 0)); 
+    A11invA12_ = rcp(new MAT(A12_->getRowMap(), 0));
     A11invA12_->setObjectLabel("SchurComplement::A11invA12");
-    A21A11invA12_ = rcp(new MAT(A21_->getRowMap(), 0)); 
+    A21A11invA12_ = rcp(new MAT(A21_->getRowMap(), 0));
     A21A11invA12_->setObjectLabel("SchurComplement::A21A11invA12");
-    S_ = rcp(new MAT(A21_->getRowMap(), 0)); 
+    S_ = rcp(new MAT(A21_->getRowMap(), 0));
     S_->setObjectLabel("SchurComplement::S");
   } //end if
-  
+
   // Compute inv(A11)*A12
   //////////EpetraExt::MatrixMatrix::Multiply(*A11invMatrix_, false, *A12_, false, *A11invA12_);
   // Compute A21A11invA12
@@ -199,7 +199,7 @@ getSchurComplement
 
   //Initialize if S already filled
   bool sfilled = S_->isFillComplete();
-  if (sfilled) 
+  if (sfilled)
   {
     S_->setAllToScalar(0.0);
   } //end if
@@ -217,17 +217,17 @@ getSchurComplement
   LocalOrdinal NumMyRows = S_->getNodeNumRows();
   LocalOrdinal Row, err;
 
-  for( LocalOrdinal i = 0; i < NumMyRows; ++i ) 
+  for( LocalOrdinal i = 0; i < NumMyRows; ++i )
   {
     Row = S_->getDomainMap()->getGlobalElement(i);
     A22Matrix_->getGlobalRowCopy(Row, Indices, Values, NumEntries);
     if( sfilled ) //Sum In Values
     {
-      S_->sumIntoGlobalValues( Row, Indices, Values); 
+      S_->sumIntoGlobalValues( Row, Indices, Values);
     } //end if
-    else 
+    else
     {
-      S_->insertGlobalValues( Row, Indices, Values); 
+      S_->insertGlobalValues( Row, Indices, Values);
     } //end else
     A21A11invA12_->getGlobalRowCopy( Row, Indices, Values, NumEntries);
     for( LocalOrdinal j = 0; j < NumEntries; ++j )
@@ -236,11 +236,11 @@ getSchurComplement
     } //end for
     if( sfilled ) //Sum In Values
     {
-      S_->sumIntoGlobalValues( Row, Indices, Values); 
+      S_->sumIntoGlobalValues( Row, Indices, Values);
     } //end if
-    else 
+    else
     {
-      S_->insertGlobalValues( Row, Indices, Values); 
+      S_->insertGlobalValues( Row, Indices, Values);
     } //end else
   } //end for
 
@@ -257,11 +257,19 @@ template class dft_Schur_Tpetra_Operator<float, int, int>;
 #elif LINSOLVE_PREC == 1
 // Use double
 template class dft_Schur_Tpetra_Operator<double, int, int>;
+#if MIXED_PREC == 1
+template class dft_Schur_Tpetra_Operator<float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_Schur_Tpetra_Operator<qd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_Schur_Tpetra_Operator<dd_real, int, int>;
+#endif
 #elif LINSOLVE_PREC == 3
 // Use double double
 template class dft_Schur_Tpetra_Operator<dd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_Schur_Tpetra_Operator<double, int, int>;
 #endif
-
+#endif

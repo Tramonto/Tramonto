@@ -42,6 +42,8 @@
 #ifndef TPETRA_PARAMETERLISTCONVERTER_HPP
 #define TPETRA_PARAMETERLISTCONVERTER_HPP
 
+#include "BelosTypes.hpp"
+
 namespace Tpetra {
 
   //! ParameterListConverter: A means of converting an Epetra ParameterList to a corresponding Tpetra ParameterList.
@@ -120,15 +122,25 @@ namespace Tpetra {
       outputList_.set( "Block Size", blockSize);
       // Number of blocks
       outputList_.set( "Num Blocks",
-		       4 * inputList_->template get<int>("Kspace") / blockSize );
+		       500 );
+      //      4 * inputList_->template get<int>("Kspace") / blockSize );
       // Maximum iterations
       outputList_.set( "Maximum Iterations",
-		       4 * inputList_->template get<int>("Max_iter") );
+		       500 );
+    //		       4 * inputList_->template get<int>("Max_iter") );
       // Convergence tolerance
+#if MIXED_PREC == 1
+      outputList_.template set<Scalar>( "Convergence Tolerance",
+      					inputList_->template get<double>("Tol") );
+#elif MIXED_PREC == 0
       outputList_.template set<Scalar>( "Convergence Tolerance",
 					inputList_->template get<double>("Tol") );
+#endif
+
       // Output
-      outputList_.set( "Output Frequency", 10 );
+      //      outputList_.set( "Output Frequency", 10 );
+      //      outputList_.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+      //      outputList_.set( "Output Style", Belos::Brief);
 
       //
       // Muelu Parameters

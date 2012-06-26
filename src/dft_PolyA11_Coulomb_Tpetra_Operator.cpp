@@ -1,5 +1,5 @@
 //@HEADER
-// ******************************************************************** 
+// ********************************************************************
 // Tramonto: A molecular theory code for structured and uniform fluids
 //                 Copyright (2006) Sandia Corporation
 //
@@ -29,9 +29,9 @@
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyA11_Coulomb_Tpetra_Operator
-(RCP<const MAP > & ownedMap, RCP<const MAP > & block1Map, 
- RCP<const MAP > & allGMap, RCP<const MAP > & poissonMap, 
- RCP<ParameterList> parameterList) 
+(RCP<const MAP > & ownedMap, RCP<const MAP > & block1Map,
+ RCP<const MAP > & allGMap, RCP<const MAP > & poissonMap,
+ RCP<ParameterList> parameterList)
   : dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>(ownedMap, allGMap),
     //dft_PolyA11_Tpetra_Operator(ownedMap, allGMap, parameterList),
     //dft_PolyA11_Tpetra_Operator(ownedMap, block1Map),
@@ -39,7 +39,7 @@ dft_PolyA11_Coulomb_Tpetra_Operator
     allGMap_(allGMap),
     poissonMap_(poissonMap),
     block1Map_(block1Map),
-    curPoissonRow_(-1) 
+    curPoissonRow_(-1)
 {
 
   Label_ = "dft_PolyA11_Coulomb_Tpetra_Operator";
@@ -51,7 +51,7 @@ dft_PolyA11_Coulomb_Tpetra_Operator
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_PolyA11_Coulomb_Tpetra_Operator
-() 
+()
 {
   return;
 } //end destructor
@@ -60,27 +60,27 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
-() 
+()
 {
-  
-  TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n"); 
+
+  TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n");
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
-  if (!firstTime_) 
+  if (!firstTime_)
   {
     for (LocalOrdinal i=0; i<numBlocks_; i++)
     {
       matrix_[i]->setAllToScalar(0.0);
     } //end for
     poissonMatrix_->setAllToScalar(0.0);
-  } //end if 
+  } //end if
 } //end initializeProblemValues
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value) 
+(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value)
 {
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
@@ -88,9 +88,9 @@ insertMatrixValue
   vals[0] = value;
   if (ownedPhysicsID >= numBlocks_) //insert it into Poisson part
   {
-    if (firstTime_) 
+    if (firstTime_)
     {
-      if (rowGID != curPoissonRow_) 
+      if (rowGID != curPoissonRow_)
       {
 	insertPoissonRow();
 	curPoissonRow_ = rowGID;
@@ -98,22 +98,22 @@ insertMatrixValue
       } //end if
       curPoissonRowValues_[colGID] += value;
     } //end if
-    else 
+    else
     {
       poissonMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
     } //end else
   } //end if
   else //insert it into G part
   {
-    if (rowGID!=colGID) 
+    if (rowGID!=colGID)
     {
       value = -value; // negate off-diagonal values to simplify kernel calls
     } //end if
 
-    if (firstTime_) 
+    if (firstTime_)
     {
-      if (rowGID!=curRow_) 
-      { 
+      if (rowGID!=curRow_)
+      {
       P11TO::insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       curRow_=rowGID;
       curOwnedPhysicsID_ = ownedPhysicsID;
@@ -132,7 +132,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertPoissonRow
-() 
+()
 {
   if (curPoissonRowValues_.empty()) return;
   size_t numEntries = curPoissonRowValues_.size();
@@ -154,27 +154,27 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeProblemValues
-() 
+()
 {
-  if (isLinearProblemSet_) 
+  if (isLinearProblemSet_)
   {
     return; // nothing to do
   } //end if
-  
-  if (firstTime_) 
-  { 
+
+  if (firstTime_)
+  {
     P11TO::insertRow();
     // Dump any remaining entries
     insertPoissonRow();
   } //end if
-  for (LocalOrdinal i=0; i<numBlocks_; i++) 
+  for (LocalOrdinal i=0; i<numBlocks_; i++)
   {
     matrix_[i]->fillComplete(allGMap_, ownedMap_);
     //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
   } //end for
-  poissonMatrix_->fillComplete(poissonMap_, poissonMap_); 
+  poissonMatrix_->fillComplete(poissonMap_, poissonMap_);
 
-  for (LocalOrdinal i = 0; i < poissonMap_->getNodeNumElements(); i++) 
+  for (LocalOrdinal i = 0; i < poissonMap_->getNodeNumElements(); i++)
   {
     GlobalOrdinal row = poissonMatrix_->getRowMap()->getGlobalElement(i);
     Array<Scalar> values(1);
@@ -192,9 +192,9 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
-(const MV& X, MV& Y) const 
+(const MV& X, MV& Y) const
 {
-  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
   TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 
@@ -211,9 +211,9 @@ applyInverse
   RCP<MV> Y1 = Y.offsetViewNonConst(allGMap_, 0);
   RCP<MV> Y1tmp = Y.offsetViewNonConst(ownedMap_, 0);
   // Start Y1tmp to view first numNodes elements of Y1
-  
+
   LocalOrdinal offsetAmount = 0;
-  for (LocalOrdinal i=0; i< numBlocks_; i++) 
+  for (LocalOrdinal i=0; i< numBlocks_; i++)
   {
     matrix_[i]->apply(*Y1, *Y1tmp);
     offsetAmount += numMyElements;
@@ -244,7 +244,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
-(const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const 
+(const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
   TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
@@ -261,7 +261,7 @@ apply
    // Start Xtmp to view first numNodes elements of X
 
   LocalOrdinal offsetValue = 0;
-  for (LocalOrdinal i=0; i< numBlocks_; i++) 
+  for (LocalOrdinal i=0; i< numBlocks_; i++)
   {
     matrix_[i]->apply(*X1, *Y1tmp); // This gives a result that is X - off-diagonal-matrix*X
     Y1tmp->update(-2.0, *Xtmp, 1.0); // This gives a result of -X - off-diagonal-matrix*X
@@ -285,11 +285,19 @@ template class dft_PolyA11_Coulomb_Tpetra_Operator<float, int, int>;
 #elif LINSOLVE_PREC == 1
 // Use double
 template class dft_PolyA11_Coulomb_Tpetra_Operator<double, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Coulomb_Tpetra_Operator<float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_PolyA11_Coulomb_Tpetra_Operator<qd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Coulomb_Tpetra_Operator<dd_real, int, int>;
+#endif
 #elif LINSOLVE_PREC == 3
 // Use double double
 template class dft_PolyA11_Coulomb_Tpetra_Operator<dd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Coulomb_Tpetra_Operator<double, int, int>;
 #endif
-
+#endif

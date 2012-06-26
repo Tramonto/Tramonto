@@ -48,10 +48,15 @@ public:
   TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   typedef dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
-  typedef dft_HardSphereA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> HS11TO;
-  typedef dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> HS22TO;
-  typedef dft_A22Matrix_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> A22MTO;
-  typedef dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
+#if MIXED_PREC == 1
+  typedef halfScalar opScalar;
+#elif MIXED_PREC == 0
+  typedef Scalar opScalar;
+#endif
+  typedef dft_HardSphereA11_Tpetra_Operator<opScalar,LocalOrdinal,GlobalOrdinal,Node> HS11TO;
+  typedef dft_HardSphereA22_Tpetra_Operator<opScalar,LocalOrdinal,GlobalOrdinal,Node> HS22TO;
+  typedef dft_A22Matrix_Tpetra_Operator<opScalar,LocalOrdinal,GlobalOrdinal,Node> A22MTO;
+  typedef dft_Schur_Tpetra_Operator<opScalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
 
   //@{ \name Constructors/destructor.
   //! dft_HardSphereLinProbMgr Constructor.
@@ -264,16 +269,38 @@ protected:
   Array<LocalOrdinal> depNonLocalEquations_;
   Array<LocalOrdinal> densityEquations_;
   RCP<HS11TO> A11_;
-  RCP<MAT> A12_;
-  RCP<MAT> A21_;
   RCP<A22MTO> A22Matrix_;
   RCP<HS22TO> A22Diagonal_;
+#if MIXED_PREC == 1
+  RCP<MAT_H> A12_;
+  RCP<MAT_H> A21_;
+  RCP<INVOP_H> A22MatrixPrecond_;
+  RCP<INVOP_H> A22DiagonalPrecond_;
+  RCP<HAPINV> A22MatrixPrecondMixed_;
+  RCP<HAPINV> A22DiagonalPrecondMixed_;
+#elif MIXED_PREC == 0
+  RCP<MAT> A12_;
+  RCP<MAT> A21_;
+  RCP<INVOP> A22MatrixPrecond_;
+  RCP<INVOP> A22DiagonalPrecond_;
+#endif
   RCP<const MAP> block1RowMap_;
   RCP<const MAP> block2RowMap_;
   RCP<const MAP> indNonLocalRowMap_;
   RCP<const MAP> depNonLocalRowMap_;
   Array<GlobalOrdinal> physicsIdToSchurBlockId_;
+#if MIXED_PREC == 1
   RCP<ScTO> schurOperator_;
+  RCP<HAPINV> schurOperatorMixed_;
+  RCP<HOP> schurComplement_;
+  RCP<VEC_H> rhs1Half_;
+  RCP<VEC_H> rhs2Half_;
+  RCP<VEC_H> rhsSchurHalf_;
+  RCP<VEC_H> lhs1Half_;
+  RCP<VEC_H> lhs2Half_;
+#elif MIXED_PREC == 0
+  RCP<ScTO> schurOperator_;
+#endif
   RCP<VEC> rhs1_;
   RCP<VEC> rhs2_;
   RCP<VEC> rhsSchur_;
@@ -283,13 +310,22 @@ protected:
   bool formSchurMatrix_;
   bool debug_;
   GlobalOrdinal curRowA12_;
-  std::map<GlobalOrdinal, Scalar> curRowValuesA12_;
   Array<GlobalOrdinal> indicesA12_;
-  Array<Scalar> valuesA12_;
   int curRowA21_;
-  std::map<GlobalOrdinal, Scalar> curRowValuesA21_;
   Array<GlobalOrdinal> indicesA21_;
+#if MIXED_PREC == 1
+  typedef typename std::map<GlobalOrdinal, halfScalar>::iterator ITERATOR;
+  std::map<GlobalOrdinal, halfScalar> curRowValuesA12_;
+  Array<halfScalar> valuesA12_;
+  std::map<GlobalOrdinal, halfScalar> curRowValuesA21_;
+  Array<halfScalar> valuesA21_;
+#elif MIXED_PREC == 0
+  typedef typename std::map<GlobalOrdinal, Scalar>::iterator ITERATOR;
+  std::map<GlobalOrdinal, Scalar> curRowValuesA12_;
+  Array<Scalar> valuesA12_;
+  std::map<GlobalOrdinal, Scalar> curRowValuesA21_;
   Array<Scalar> valuesA21_;
+#endif
 
   using BLPM::parameterList_;
   using BLPM::isBlockStructureSet_;
