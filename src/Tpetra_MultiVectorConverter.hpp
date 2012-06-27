@@ -54,9 +54,6 @@ namespace Tpetra {
 
     /** \name Typedefs that give access to the template parameters. */
     //@{
-
-    /// \typedef scalar_type
-    /// \brief The type of the entries of the input and output multivectors.
     typedef typename Teuchos::ScalarTraits<Scalar>::halfPrecision halfScalar;
     typedef typename Teuchos::ScalarTraits<Scalar>::doublePrecision doubleScalar;
     typedef Tpetra::MultiVector<Scalar,LocalOrdinal,GlobalOrdinal,Node> MV;

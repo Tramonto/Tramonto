@@ -54,22 +54,8 @@ namespace Tpetra {
 
     /** \name Typedefs that give access to the template parameters. */
     //@{
-
-    /// \typedef scalar_type
-    /// \brief The type of the entries of the input and output multivectors.
-    typedef Scalar scalar_type;
-
-    /// \typedef local_ordinal_type
-    /// \brief The local index type.
-    typedef LocalOrdinal local_ordinal_type;
-
-    /// \typedef global_ordinal_type
-    /// \brief The global index type.
-    typedef GlobalOrdinal global_ordinal_type;
-
-    /// \typedef node_type
-    /// \brief The Kokkos Node type.
-    typedef Node node_type;
+    typedef typename Teuchos::ScalarTraits<Scalar>::halfPrecision halfScalar;
+    typedef typename Teuchos::ScalarTraits<Scalar>::doublePrecision doubleScalar;
 
     //@}
 
@@ -131,10 +117,12 @@ namespace Tpetra {
       // Convergence tolerance
 #if MIXED_PREC == 1
       outputList_.template set<Scalar>( "Convergence Tolerance",
-      					inputList_->template get<double>("Tol") );
+      					std::max( Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")),
+						  2 * Teuchos::ScalarTraits<halfScalar>::eps() ) );
 #elif MIXED_PREC == 0
       outputList_.template set<Scalar>( "Convergence Tolerance",
-					inputList_->template get<double>("Tol") );
+					std::max( Teuchos::as<Scalar>(inputList_->template get<double>("Tol")),
+						  2 * Teuchos::ScalarTraits<Scalar>::eps() ) );
 #endif
 
       // Output
