@@ -342,13 +342,13 @@ protected:
   GlobalOrdinal curRowA21_;
   Array<GlobalOrdinal> indicesA21_;
 #if MIXED_PREC == 1
-  typedef typename std::map<GlobalOrdinal, halfScalar>::iterator ITERATOR;
+  typedef typename std::map<GlobalOrdinal, halfScalar>::iterator ITER;
   std::map<GlobalOrdinal, halfScalar> curRowValuesA12_;
   Array<halfScalar> valuesA12_;
   std::map<GlobalOrdinal, halfScalar> curRowValuesA21_;
   Array<halfScalar> valuesA21_;
 #elif MIXED_PREC == 0
-  typedef typename std::map<GlobalOrdinal, Scalar>::iterator ITERATOR;
+  typedef typename std::map<GlobalOrdinal, Scalar>::iterator ITER;
   std::map<GlobalOrdinal, Scalar> curRowValuesA12_;
   Array<Scalar> valuesA12_;
   std::map<GlobalOrdinal, Scalar> curRowValuesA21_;

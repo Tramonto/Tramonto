@@ -111,6 +111,7 @@ using Belos::ReturnType;
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,Node> MAP; \
   typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
+  typedef Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GlobalOrdinal,Node> SCALE; \
   typedef Tpetra::Import<LO,GO,Node> IMP; \
   typedef Belos::SolverManager<SCALAR, MV, OP> SolMGR; \
   typedef Belos::LinearProblem<SCALAR, MV, OP> LinPROB; \
@@ -122,6 +123,7 @@ using Belos::ReturnType;
   typedef Tpetra::OperatorApplyInverse<halfScalar,LO,GO,Node> APINV_H;	\
   typedef Tpetra::InvOperator<halfScalar,LO,GO,Node> INVOP_H; \
   typedef Tpetra::CrsMatrix<halfScalar,LO,GO,Node> MAT_H;			\
+  typedef Tpetra::ScalingCrsMatrix<halfScalar,LocalOrdinal,GlobalOrdinal,Node> SCALE_H; \
   typedef Belos::SolverManager<halfScalar, MV_H, OP_H> SolMGR_H;		\
   typedef Belos::LinearProblem<halfScalar, MV_H, OP_H> LinPROB_H;		\
   typedef Ifpack2::Preconditioner<halfScalar, LO, GO, Node> PRECOND_H;

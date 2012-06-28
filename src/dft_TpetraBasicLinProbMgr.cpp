@@ -170,7 +170,13 @@ finalizeBlockStructure
   }
 
   globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_));
+#if MIXED_PREC == 1
+  globalMatrix_ = rcp(new MAT_H(globalRowMap_, 0));
+  globalMatrixMixed_ = rcp(new HOP(globalMatrix_));
+  globalRhsHalf_ = rcp(new VEC_H(globalRowMap_));
+#elif MIXED_PREC == 0
   globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
+#endif
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
   globalLhs_ = rcp(new VEC(globalRowMap_));
@@ -238,7 +244,11 @@ insertMatrixValue
     curRowValues_[colGID] += value;
   }
   else {
+#if MIXED_PREC == 1
+    Array<halfScalar> vals(1);
+#elif MIXED_PREC == 0
     Array<Scalar> vals(1);
+#endif
     vals[0] = value;
     Array<GlobalOrdinal> globalCols(1);
     globalCols[0] = colGID;
@@ -254,7 +264,7 @@ insertRow
 {
   if (curRowValues_.empty()) return;
 
-  typename std::map<LocalOrdinal, Scalar>::iterator pos;
+  ITER pos;
   for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
     indices_.append(pos->first);
     values_.append(pos->second);
@@ -279,7 +289,11 @@ getMatrixValue
   GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
   size_t numEntries;
   ArrayView<const GlobalOrdinal> indices;
+#if MIXED_PREC == 1
+  ArrayView<const halfScalar> values;
+#elif MIXED_PREC == 0
   ArrayView<const Scalar> values;
+#endif
   if (globalMatrix_->isGloballyIndexed())
   {
     globalMatrix_->getGlobalRowView(rowGID, indices, values); // get view of current row
@@ -459,18 +473,36 @@ setupSolver
     solver_->reset(Belos::Problem);
     return;  //Already setup
   }
-  
+
   // Setup machine constants
   setMachineParams();
 
   // Perform scaling
-  scalingMatrix_ = rcp(new Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GlobalOrdinal,Node>(globalMatrix_));
+#if MIXED_PREC == 1
+  scalingMatrix_ = rcp(new SCALE_H(globalMatrix_));
+  rowScaleFactors_ = rcp(new VEC_H(globalMatrix_->getDomainMap()));
+#elif MIXED_PREC == 0
+  scalingMatrix_ = rcp(new SCALE(globalMatrix_));
   rowScaleFactors_ = rcp(new VEC(globalMatrix_->getDomainMap()));
+#endif
   LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
   globalMatrix_->resumeFill();
   LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
   globalMatrix_->fillComplete();
+#if MIXED_PREC == 1
+
+  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+  // Demote globalRhs_ to half precision
+  mvConverter->scalarToHalf( *globalRhs_, *globalRhsHalf_ );
+
+  globalRhsHalf_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhsHalf_, 0.0 );
+
+  // Promote globalRhsHalf_ to Scalar precision
+  mvConverter->halfToScalar( *globalRhsHalf_, *globalRhs_ );
+
+#elif MIXED_PREC == 0
   globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
+#endif
 
 #ifdef SUPPORTS_STRATIMIKOS
   thyraRhs_ = createVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(globalRhs_);
@@ -485,14 +517,26 @@ setupSolver
   lows_ = linearOpWithSolve<Scalar>(*lowsFactory_, thyraOp_);
 #else
 
-  problem_ = rcp(new LinPROB(globalMatrix_, globalLhs_, globalRhs_));
+#if MIXED_PREC == 1
+  problem_ = rcp(new LinPROB(globalMatrixMixed_, globalLhs_, globalRhs_));
+  RCP<const MAT_H> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT_H>(globalMatrix_);
   Ifpack2::Factory factory;
+  preconditioner_ = factory.create("ILUT", const_globalMatrix_);
+  preconditioner_->setParameters(*parameterList_);
+  preconditioner_->initialize();
+  preconditioner_->compute();
+  preconditionerMixed_ = rcp(new HOP(preconditioner_));
+  //  problem_->setLeftPrec(preconditionerMixed_);
+#elif MIXED_PREC == 0
+  problem_ = rcp(new LinPROB(globalMatrix_, globalLhs_, globalRhs_));
   RCP<const MAT> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT>(globalMatrix_);
+  Ifpack2::Factory factory;
   preconditioner_ = factory.create("ILUT", const_globalMatrix_);
   preconditioner_->setParameters(*parameterList_);
   preconditioner_->initialize();
   preconditioner_->compute();
   //  problem_->setLeftPrec(preconditioner_);
+#endif
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 #endif
@@ -527,7 +571,20 @@ solve
   globalMatrix_->resumeFill();
   LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
   globalMatrix_->fillComplete();
+#if MIXED_PREC == 1
+
+  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+  // Demote globalRhs_ to half precision
+  mvConverter->scalarToHalf( *globalRhs_, *globalRhsHalf_ );
+
+  globalRhsHalf_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhsHalf_, 0.0 );
+
+  // Promote globalRhsHalf_ to Scalar precision
+  mvConverter->halfToScalar( *globalRhsHalf_, *globalRhs_ );
+
+#elif MIXED_PREC == 0
   globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
+#endif
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -537,7 +594,21 @@ applyMatrix
 (const ArrayView<const ArrayView<const Scalar> >& x) const
 {
   setLhs(x);
+#if MIXED_PREC == 1
+
+  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+
+  // Demote globalLhs_ to half precision
+  mvConverter->scalarToHalf( *globalLhs_, *globalLhsHalf_ );
+
+  globalMatrix_->apply(*globalLhsHalf_, *globalRhsHalf_);
+
+  // Promote globalRhsHalf_ to Scalar precision
+  mvConverter->halfToScalar( *globalRhsHalf_, *globalRhs_ );
+
+#elif MIXED_PREC == 0
   globalMatrix_->apply(*globalLhs_, *globalRhs_);
+#endif
 
   return(getRhs());
 }
@@ -594,7 +665,11 @@ writeMatrix
   std::string str_matrixName(matrixName);
   std::string str_matrixDescription(matrixDescription);
 
+#if MIXED_PREC == 1
+  Tpetra::MatrixMarket::Writer<MAT_H>::writeSparseFile(str_filename,globalMatrix_,str_matrixName,str_matrixDescription);
+#elif MIXED_PREC == 0
   Tpetra::MatrixMarket::Writer<MAT>::writeSparseFile(str_filename,globalMatrix_,str_matrixName,str_matrixDescription);
+#endif
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>

@@ -248,7 +248,11 @@ finalizeBlockStructure
 
   if (debug_)
   {
+#if MIXED_PREC == 1
+    globalMatrix_ = rcp(new MAT_H(globalRowMap_, 0));
+#elif MIXED_PREC == 0
     globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
+#endif
     globalMatrix_->setObjectLabel("PolyLinProbMgr::globalMatrix");
   } //end if
   else
@@ -414,7 +418,7 @@ insertRowA12
     valuesA12_.resize(numEntries);
   } //end if
   LocalOrdinal i=0;
-  ITERATOR pos;
+  ITER pos;
   for (pos = curRowValuesA12_.begin(); pos != curRowValuesA12_.end(); ++pos)
   {
     indicesA12_[i] = pos->first;
@@ -445,7 +449,7 @@ insertRowA21
     valuesA21_.resize(numEntries);
   } //end if
   LocalOrdinal i=0;
-  ITERATOR pos;
+  ITER pos;
   for (pos = curRowValuesA21_.begin(); pos != curRowValuesA21_.end(); ++pos)
   {
     indicesA21_[i] = pos->first;
