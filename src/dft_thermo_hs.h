@@ -28,6 +28,9 @@ extern int Type_interface;
 #define NMER_MAX     200
 extern double Rho_seg_b[NMER_MAX];
 void rhobar_icomp(double rho,int icomp,double *rhobar);
+extern int Icomp_to_polID[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
+extern int Grafted_Logical;
 extern int Unk2Comp[NMER_MAX];
 extern int Nseg_tot;
 extern int Lseg_densities;

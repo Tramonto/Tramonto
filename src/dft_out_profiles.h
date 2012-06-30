@@ -46,16 +46,20 @@ extern int Nodes_x[NDIM_MAX];
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-#define NCOMP_MAX 5
-#define NMER_MAX     200
-extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+#define NMER_MAX     200
 extern double Betamu_chain[NMER_MAX];
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
+extern double *Gsum_graft;
+#define NCOMP_MAX 5
+extern double Rho_g[NCOMP_MAX];
+extern int Grafted_SegID[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
+extern int Grafted_Logical;
 #define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #if defined(DEC_ALPHA)
@@ -73,6 +77,9 @@ extern int Nmer[NCOMP_MAX];
 #define NONE          -1
 #define NONE        -1
 #define NONE        -1
+extern int *Unk_to_Seg;
+extern int *Unk_to_Poly;
+extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 #define G_CHAIN       11 
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int **Nseg_type_pol;

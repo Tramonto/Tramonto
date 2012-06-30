@@ -1,5 +1,4 @@
 /* This file was automatically generated.  Do not edit! */
-double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box,double **x);
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -16,6 +15,18 @@ double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box,double **x);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+#define NCOMP_MAX 5
+extern int Icomp_to_polID[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+extern int Grafted_Logical;
+double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box,double **x);
 #define NMER_MAX     200
 extern double Betamu_chain[NMER_MAX];
 #define DIFFUSION      6
@@ -29,7 +40,6 @@ extern int Type_interface;
 #endif
 extern int **Poly_to_Unk_SegAll;
 #define G_CHAIN       11 
-#define NCOMP_MAX 5
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int **Nseg_type_pol;

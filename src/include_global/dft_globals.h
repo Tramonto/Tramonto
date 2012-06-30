@@ -403,6 +403,17 @@ int     **Nwall_owners; /*Array[Nilists][el_box] of number of walls
 int     ***Wall_owners; /*Array[ilist][iel_box][Nwall_owners] that stores
                           all of the wall owners of a given element */
 
+/* surface arrays for cases where global surface information is required */
+int *NodesS_global;   /* total number of surface nodes in the problem */
+int **NodesS_GID_global;   /* Global IDs for every surface nodes in the problem */
+int **NelemsS_global;  /* store the number of surface elements touched by each surface node */
+int ***Surf_normal_global;  /* store the surface normals for each surface element touched by a surface node */
+int ***Surf_elem_to_wall_global;  /* store the wall ID associated with each surface element touched by each surface node */
+int Nnodes_box_extra;  /* Nnodes_box augmented by surface nodes */
+int *B2G_node_extra; /* array to index Box to global for all nodes including the extra surface nodes */
+int **S2B_node; /* array to translate surface nodes to box nodes for efficient Gsum calculations*/
+
+
 /* Steady State Solutions Info */
 
 int    Type_interface;          /*Select type if interfacial problem to study*/
@@ -550,10 +561,13 @@ double Cr_rad_hs[NCOMP_MAX][NCOMP_MAX];
 int Nblock[NCOMP_MAX],Ntype_mer,Nmer[NCOMP_MAX],Type_mer[NCOMP_MAX][NMER_MAX];
 int Nseg_per_block[NCOMP_MAX][NBLOCK_MAX];
 int SegType_per_block[NCOMP_MAX][NBLOCK_MAX];
+int Grafted_Logical;
 int Grafted[NCOMP_MAX];
 int Graft_wall[NCOMP_MAX];
+int GraftedWall_TF[NWALL_MAX_TYPE];
 double *Poly_graft_dist;     /* distance associated with polymer grafting - */
 double Rho_g[NCOMP_MAX];
+double G_prefactor;
 int Npol_comp,Nmer_t[NCOMP_MAX][NBLOCK_MAX],Last_nz_cr;
 int Nmer_t_total[NBLOCK_MAX];
 int Type_mer_to_Pol[NBLOCK_MAX];
@@ -561,6 +575,10 @@ int Poly_to_Type[NCOMP_MAX][NBLOCK_MAX];
 int Poly_to_Ntype[NCOMP_MAX];
 int Nseg_tot;
 int Nseg_type[NCOMP_MAX];
+int Icomp_to_polID[NCOMP_MAX];
+int Grafted_SegID[NCOMP_MAX];
+int Grafted_SegIDAll[NCOMP_MAX];
+int Grafted_TypeID[NCOMP_MAX];
 int **Nseg_type_pol;
 int Geqn_start[NCOMP_MAX];
 /*char Cr_file[FILENAME_LENGTH],Cr_file2[FILENAME_LENGTH],Cr_file3[FILENAME_LENGTH],Cr_file4[FILENAME_LENGTH];*/
@@ -600,6 +618,17 @@ int *BondAll_to_ibond;
 int Unk2Comp[NMER_MAX],SegChain2SegAll[NCOMP_MAX][NMER_MAX],**Bonds_SegAll,*Nbonds_SegAll;
 int Nmer_comp[NCOMP_MAX];
 double Gsum[NCOMP_MAX];
+double *Total_area_graft;        /* Total surface area to use for grafted chains */
+double *Gsum_graft;      /* prefactor term for grafted chains */
+double *Gsum_graft_noVolume;     /* prefactor term for grafted chains */
+double **GsumPrefac_XiDerivs; /* keep track of prefactors so we can implement Jacobians for tethered chains */
+double ***GsumPrefac_GDerivs; /* keep track of prefactors so we can implement Jacobians for tethered chains */
+int **Index_SurfNodes_Gsum; /* keep track of surface nodes we can implement Jacobians for tethered chains */
+int ***Index_UnkGQ_Gsum; /* keep track of unknowns when computing Gsum for tethered chains */
+int **Index_UnkB_Gsum; /* keep track of unknowns when computing Gsum for tethered chains */
+int *Nodes_Surf_Gsum; /* counter for surface nodes used to compute Gsum for tethered chains */
+
+
 
 /*some continuation related arrayes */
 int Cont_ID[NCONT_MAX][2];  /* Array of iwall/icomp ids for use in continuation.  */

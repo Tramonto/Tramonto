@@ -234,6 +234,7 @@ void free_mesh_arrays(void)
    safe_free((void *) &B2L_node);
    safe_free((void *) &L2G_node);
 
+
    return;
 }
 /************************************************/
@@ -320,6 +321,7 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
   linsolver_setup_control();
   (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
   (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
+
 
   /*
    * Set up all arrays for surface geometry, external fields, and
@@ -505,7 +507,7 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
 
      /*if (Mesh_coarsening !=FALSE || L1D_bc)*/ set_mesh_coarsen_flag();
      /* send solver manager information about mesh coarsening */
-       dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);
+      dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);
 
      /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
      ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
@@ -613,6 +615,28 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
       Area_IC = (double *) array_alloc (1, Nnodes_box, sizeof(double));
       setup_area_IC();
   }
+  /*
+   * set up communication maps so that local information can be efficiently moved to box coordinates 
+   */
+
+/*  dft_linprobmgr_destruct(LinProbMgr_manager);
+  linsolver_setup_control();
+  (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);*/
+
+  /* Every processor will need to know about the surface nodes for walls with grafted chains to complete the Jacobian entries. 
+     So, the B2G_nodes list is expanded to B2G_nodes_extended by Nnodes_OffBox. */
+/*  if(Type_poly==WJDC3 && Grafted_Logical ==TRUE) setup_global_surfaces();
+
+  (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box     , B2G_node);
+
+  if (Nwall != 0)  dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);*/
+
+     /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
+/*     ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
+     if (ierr!=0){
+            if (Iwrite_screen != SCREEN_NONE) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
+            exit(-1);
+     }*/
 
   return;
 }
@@ -929,9 +953,17 @@ void boundary_free(void)
           if (Surf_charge_flag) safe_free((void *) &Charge_w_sum_els);
      }
 
+     if (Type_poly==WJDC3 && Grafted_Logical==TRUE){
+         safe_free((void *)&Surf_normal_global);
+         safe_free((void *)&Surf_elem_to_wall_global);
+         safe_free((void *)&NodesS_global);
+         safe_free((void *)&NodesS_GID_global);
+         safe_free((void *)&NelemsS_global);
+         safe_free((void *)&B2G_node_extra);
+         safe_free((void *)&S2B_node);
+     }
   }
 }
-
 /*****************************************************************************
 setup_zeroTF_and_Node2bound: This routine take the information about which elements
                     are wall and fluid elements, and translates that into
@@ -1574,6 +1606,148 @@ Zero_density_TF[inode_box][ilist] = TRUE;
  return;
 }
 /***************************************************************************
+*setup_global_surfaces:  For grafted chains every processor must have access
+*                      to all of the surface information for every surface that
+*                      has a grafted chain.  In this routine, we set up those
+*                      global arrays */
+void setup_global_surfaces()
+{
+  int count_surf_nodes,loc_inode,iwall,jwall,ilist,i,j,k,inodeS,iel_w,n_loc;
+  int *loc_surf_GID,*loc_nelemsS,*loc_surf_normal,*loc_surf_elem_to_wall;
+  int *surf_normal_global_tmp, *surf_elem_to_wall_global_tmp;
+  int in_box_list,in_extrabox_list,inode_S,ntot_Snodes,inode_box;
+
+
+  NodesS_global=(int *) array_alloc(1,Nlists_HW,sizeof(int));
+  NodesS_GID_global=(int **) array_alloc(1,Nlists_HW, sizeof(int *));
+  NelemsS_global=(int **) array_alloc(1,Nlists_HW, sizeof(int *));
+  Surf_normal_global=(int ***) array_alloc(1,Nlists_HW,sizeof(int **));
+  Surf_elem_to_wall_global=(int ***) array_alloc(1,Nlists_HW,sizeof(int **));
+  S2B_node=(int **) array_alloc(1,Nlists_HW,sizeof(int *));
+
+  Nnodes_box_extra=0;
+  ntot_Snodes=0;
+  for (ilist=0;ilist<Nlists_HW; ilist++){
+       count_surf_nodes=0;
+       for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
+          if (Nodes_2_boundary_wall[ilist][L2B_node[loc_inode]] !=-1){
+             iwall=Nodes_2_boundary_wall[ilist][L2B_node[loc_inode]];
+             if (GraftedWall_TF[WallType[iwall]]==TRUE) count_surf_nodes++;
+          }
+       }
+       loc_surf_GID=(int *) array_alloc(1,count_surf_nodes,sizeof(int)); 
+       loc_nelemsS=(int *) array_alloc(1,count_surf_nodes,sizeof(int)); 
+       loc_surf_normal=(int *) array_alloc(1,count_surf_nodes*Nnodes_per_el_S,sizeof(int)); 
+       loc_surf_elem_to_wall=(int *) array_alloc(1,count_surf_nodes*Nnodes_per_el_S,sizeof(int)); 
+
+       count_surf_nodes=0;
+       for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
+       
+       if (Nodes_2_boundary_wall[ilist][L2B_node[loc_inode]] !=-1){
+          iwall=Nodes_2_boundary_wall[ilist][L2B_node[loc_inode]];
+          if (GraftedWall_TF[WallType[iwall]]==TRUE){
+             loc_surf_GID[count_surf_nodes]=L2G_node[loc_inode];
+             loc_nelemsS[count_surf_nodes]=Nelems_S[ilist][loc_inode];
+
+             for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++){
+                loc_surf_normal[count_surf_nodes*Nnodes_per_el_S+iel_w] = Surf_normal[ilist][loc_inode][iel_w];
+                loc_surf_elem_to_wall[count_surf_nodes*Nnodes_per_el_S+iel_w]=Surf_elem_to_wall[ilist][loc_inode][iel_w];
+             }
+             count_surf_nodes++;
+          }
+       }
+       }
+
+       /* now share the surface information with all procesors so it becomes global information */
+       NodesS_global[ilist]=gsum_int(count_surf_nodes);
+       NodesS_GID_global[ilist]=(int *) array_alloc(1,NodesS_global[ilist],sizeof(int));
+       NelemsS_global[ilist]=(int *) array_alloc(1,NodesS_global[ilist],sizeof(int));
+       S2B_node[ilist]=(int *) array_alloc(1,NodesS_global[ilist],sizeof(int));
+
+       surf_normal_global_tmp=(int *) array_alloc(1,NodesS_global[ilist]*Nnodes_per_el_S,sizeof(int));
+       surf_elem_to_wall_global_tmp=(int *) array_alloc(1,NodesS_global[ilist]*Nnodes_per_el_S,sizeof(int));
+
+       comm_loc_to_glob_vec(&count_surf_nodes,loc_nelemsS,NelemsS_global[ilist]);
+       comm_loc_to_glob_vec(&count_surf_nodes,loc_surf_GID,NodesS_GID_global[ilist]);
+       n_loc=count_surf_nodes*Nnodes_per_el_S;
+       comm_loc_to_glob_vec(&n_loc,loc_surf_normal,surf_normal_global_tmp);
+       comm_loc_to_glob_vec(&n_loc,loc_surf_elem_to_wall,surf_elem_to_wall_global_tmp);
+   
+       Surf_normal_global[ilist]=(int **) array_alloc(2,NodesS_global[ilist],Nnodes_per_el_S,sizeof(int));
+       Surf_elem_to_wall_global[ilist]=(int **) array_alloc(2,NodesS_global[ilist],Nnodes_per_el_S,sizeof(int));
+
+       for (inodeS=0;inodeS<NodesS_global[ilist];inodeS++){
+          for (iel_w=0; iel_w<NelemsS_global[ilist][inodeS]; iel_w++){
+              Surf_normal_global[ilist][inodeS][iel_w]=surf_normal_global_tmp[inodeS*Nnodes_per_el_S+iel_w];
+              Surf_elem_to_wall_global[ilist][inodeS][iel_w]=surf_elem_to_wall_global_tmp[inodeS*Nnodes_per_el_S+iel_w];
+          }
+       }
+
+       safe_free((void *)&loc_nelemsS);
+       safe_free((void *)&loc_surf_GID);
+       safe_free((void *)&loc_surf_normal);
+       safe_free((void *)&loc_surf_elem_to_wall);
+       safe_free((void *)&surf_normal_global_tmp);
+       safe_free((void *)&surf_elem_to_wall_global_tmp);
+
+/*       if (Iwrite_screen==SCREEN_VERBOSE) {
+          printf("Proc=%d gets NodesS_global[ilist=%d]=%d\n",Proc,ilist,NodesS_global[ilist]);
+          for (i=0;i<Num_Proc;i++){
+              if (Proc==i){
+                   for (j=0;j<NodesS_global[ilist];j++){
+                       printf("Proc=%d: NodesS_GID_global[ilist=%d][j=%d]=%d  NelemsS_global[ilist=%d][j=%d]=%d \n",
+                                Proc,ilist,j,NodesS_GID_global[ilist][j],ilist,j,NelemsS_global[ilist][j]);
+                       for (k=0;k<NelemsS_global[ilist][j];k++){
+                         printf("\t \t Proc=%d: Surf_normal[ilist=%d][j=%d][iel_w=%d]=%d  Surf_elem_to_wall=%d\n",
+                                 Proc,ilist,j,k,Surf_normal_global[ilist][j][k],Surf_elem_to_wall_global[ilist][k][k] );
+                       }
+                   }
+              }
+          }
+       }
+*/
+       ntot_Snodes+=NodesS_global[ilist];
+  }
+
+/*  printf("Proc=%d ::: ntot_Snodes=%d\n",Proc,ntot_Snodes);*/
+  B2G_node_extra=(int *)array_alloc(1,ntot_Snodes+Nnodes_box,sizeof(int));
+
+  for (ilist=0;ilist<Nlists_HW; ilist++){
+       for (inode_S=0;inode_S<NodesS_global[ilist];inode_S++){
+          in_box_list=FALSE;
+          in_extrabox_list=FALSE;
+          for (inode_box=0;inode_box<Nnodes_box;inode_box++){
+              B2G_node_extra[inode_box]=B2G_node[inode_box];
+              if (NodesS_GID_global[ilist][inode_S]==B2G_node[inode_box]){   /* found in existing list */
+                   in_box_list=TRUE;
+                   S2B_node[ilist][inode_S]=inode_box;
+              }
+          }
+          if (in_box_list==FALSE){
+              in_extrabox_list=FALSE;
+              for (j=0;j<Nnodes_box_extra;j++){
+                 if (NodesS_GID_global[ilist][inode_S]==B2G_node_extra[Nnodes_box+j]){ /* found in the list of new nodes we are accumulating */
+                   in_extrabox_list=TRUE;
+                 } 
+              }
+          }
+          if (in_box_list==FALSE && in_extrabox_list==FALSE){    /* found a node that is not currently in the list */
+             S2B_node[ilist][inode_S]=Nnodes_box+Nnodes_box_extra;
+             B2G_node_extra[S2B_node[ilist][inode_S]]=NodesS_GID_global[ilist][inode_S];
+             Nnodes_box_extra++;
+          }
+       }
+  }
+
+ /* printf("Proc=%d  :: Nnodes_box=%d  Nnodes_box_extra=%d  total extended box nodes=%d\n",
+         Proc,Nnodes_box,Nnodes_box_extra,Nnodes_box+Nnodes_box_extra);*/
+
+  Nnodes_box_extra += Nnodes_box;
+
+
+  return;
+}
+/***************************************************************************
 *boundary_properties:  In this routine we identify the surface elements     *
 *                      that each boundary node is a part of.  We store      *
 *                      the normal to the surface element for future use.    */
@@ -2101,12 +2275,14 @@ void boundary_properties(FILE *fpecho)
      fprintf(fpecho,"\nProc: %d\n",Proc);
   }
 
-  if (Proc == 0 && Imain_loop>=0 && Iwrite_files==FILES_DEBUG) {
+  if (Proc == 0 && Imain_loop>=0 && (Iwrite_files==FILES_DEBUG || Iwrite_screen==SCREEN_VERBOSE)) {
      for (ilist=0; ilist<Nlists_HW; ilist++){
         fprintf (fpecho,"\nilist: %d\n",ilist); 
         sarea_sum=0.0;
         for (iwall=0; iwall<Nwall; iwall++){
             if (Proc==0) fprintf (fpecho,"\t iwall: %d \t S_area_tot[ilist][iwall]: %9.6f\n",
+                                            iwall, S_area_tot[ilist][iwall]); 
+            if (Proc==0) printf ("\t iwall: %d \t S_area_tot[ilist][iwall]: %9.6f\n",
                                             iwall, S_area_tot[ilist][iwall]); 
             sarea_sum += S_area_tot[ilist][iwall];
             for (idim=0; idim<Ndim; idim++){

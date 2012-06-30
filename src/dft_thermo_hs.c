@@ -232,7 +232,6 @@ void compute_bulk_FMT_properties(char *file_echoinput)
   if (Proc==0) printproc = TRUE;
   else printproc=FALSE;
   if (printproc) {
-printf("in compute_bulk_FMT... opening file %s\n",file_echoinput);
     if( (fp2 = fopen(file_echoinput,"a+"))==NULL) {
       printf("Can't open file in compute_bulk_FMT_properties %s\n", file_echoinput);
       exit(1);
@@ -254,18 +253,19 @@ printf("in compute_bulk_FMT... opening file %s\n",file_echoinput);
   for (iloop=0; iloop<nloop; iloop++){
        if (Lseg_densities) icomp=Unk2Comp[iloop];
        else                icomp=iloop;
-
-       if (Lseg_densities){
+ 
+       if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[icomp]]==FALSE){
+         if (Lseg_densities){
            rhobar_icomp(Rho_seg_b[iloop],icomp,Rhobar_b);
-       }
-       else{
-          if (Type_interface!=UNIFORM_INTERFACE){
+         }
+         else{
+            if (Type_interface!=UNIFORM_INTERFACE){
                  rhobar_icomp(Rho_b_LBB[icomp],icomp,Rhobar_b_LBB);
                  rhobar_icomp(Rho_b_RTF[icomp],icomp,Rhobar_b_RTF);
-          }
-          else rhobar_icomp(Rho_b[icomp],icomp,Rhobar_b);
-   
-       }
+            }
+            else rhobar_icomp(Rho_b[icomp],icomp,Rhobar_b);
+         }
+      }
   }
   dphi_drb_bulk(Rhobar_b,Dphi_Drhobar_b);
   if (Type_interface != UNIFORM_INTERFACE){

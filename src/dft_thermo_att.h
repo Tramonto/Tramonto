@@ -23,6 +23,16 @@ void chempot_att(double *rho);
 double pressure_att(double *rho);
 #define THETA_PAIRPOT_RCUT    2
 double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(double,int,int));
+extern int Icomp_to_polID[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+extern int Grafted_Logical;
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
 void calc_Avdw_att();

@@ -43,6 +43,9 @@ double integrand_att_freen_bulk(int iunk,int inode_box, double **x)
      int icomp,i;
 
      i= iunk-Phys2Unk_first[DENSITY];
+
+     if (Grafted_Logical==FALSE || (Type_poly==WJDC3 && Grafted[Icomp_to_polID[i]]==FALSE)){
+
      if (Lseg_densities){
            icomp = Unk2Comp[i];
            if (Type_interface!=UNIFORM_INTERFACE) rho_bulk = Rho_seg_RTF[i];
@@ -55,6 +58,8 @@ double integrand_att_freen_bulk(int iunk,int inode_box, double **x)
      }
 
      integrand = 0.5*rho_bulk*Betamu_att[icomp];
+     }
+     else integrand=0.0;
      return(integrand);
 }
 /****************************************************************************/

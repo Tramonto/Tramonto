@@ -41,8 +41,10 @@ void WJDC_thermo_precalc(char *file_echoinput)
 { 
   if (Type_interface==UNIFORM_INTERFACE) {
 
+printf("calling compute_bulk_nonlocal_wjdc...\n");
      compute_bulk_nonlocal_wjdc_properties(file_echoinput,Dphi_Drhobar_b,Rho_b,Rho_seg_b,
                                              	       Xi_cav_b,Field_WJDC_b,G_WJDC_b);
+printf("after compute_bulk_nonlocal_wjdc...\n");
   }
   else{
      compute_bulk_nonlocal_wjdc_properties(file_echoinput,Dphi_Drhobar_LBB,Rho_b_LBB,Rho_seg_LBB,
@@ -64,6 +66,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *file_echoinput,double *dphi_drh
   double field,sten_sum[4];
   FILE *fp2=NULL;
 
+printf("in compute routine\n");
 
   if (Proc==0 && file_echoinput !=NULL) printproc = TRUE;
   else printproc=FALSE;
@@ -80,6 +83,8 @@ void compute_bulk_nonlocal_wjdc_properties(char *file_echoinput,double *dphi_drh
   for (iseg=0;iseg<Nseg_tot;iseg++){
     pol_num=SegAll_to_Poly[iseg];
     field=0.0;
+
+    if (Grafted_Logical==FALSE || Grafted[pol_num]==FALSE){
     icomp=Unk2Comp[iseg];
 
   /* First include the Hard Sphere parts */
@@ -108,7 +113,11 @@ void compute_bulk_nonlocal_wjdc_properties(char *file_echoinput,double *dphi_drh
      field_WJDC[icomp]=exp(field)*exp(Scale_fac_WJDC[pol_num][icomp]);
 
      if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_WJDC=%9.6f\n",iseg,field,field_WJDC[icomp]);
-
+     }
+     else{
+        icomp=Unk2Comp[iseg];
+        field_WJDC[icomp]=1.0;
+     }
   } /* end of bulk field calculations */
 
   /* (2) compute bulk G - chain propogator values.  Note that we need to start at the ends of 
@@ -138,13 +147,15 @@ void compute_bulk_nonlocal_wjdc_properties(char *file_echoinput,double *dphi_drh
            }
            if (test==TRUE){     /* compute a bulk G */
               if (jseg == -1 || jseg == -2){
-                  g_WJDC[ibond]=field_WJDC[icomp]; /* end segment is simple */
+                if (Grafted_Logical==FALSE || Grafted[pol_num]==FALSE) g_WJDC[ibond]=field_WJDC[icomp]; /* end segment is simple */
+                else g_WJDC[ibond]=0.0;
               }
               else{
                   icomp=Unk2Comp[SegChain2SegAll[pol_num][iseg]];
                   jcomp=Unk2Comp[SegChain2SegAll[pol_num][jseg]];
-                  g_WJDC[ibond]=field_WJDC[icomp]*
+                  if (Grafted_Logical==FALSE || Grafted[pol_num]==FALSE) g_WJDC[ibond]=field_WJDC[icomp]*
                                   y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_cav[2],xi_cav[3]);
+                  else g_WJDC[ibond]=0.0;
            
                   for (jbond=0;jbond<Nbond[pol_num][jseg];jbond++){
                      if (Bonds[pol_num][jseg][jbond] != iseg){ 
@@ -187,24 +198,26 @@ void chempot_chain_wjdc(double *rho,double *betamu_chain,double *field_WJDC, dou
    for (iseg=0;iseg<Nseg_tot;iseg++){
       icomp=Unk2Comp[iseg];
       mu_chain=0.0;
+      if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[icomp]]==FALSE){
 
-      /* density term */
-      mu_chain += log(rho[iseg]);
+        /* density term */
+        mu_chain += log(rho[iseg]);
 
-      /* field term */
-      mu_chain += (double)((Nbonds_SegAll[iseg]-1))*log(field_WJDC[icomp]);
+        /* field term */
+        mu_chain += (double)((Nbonds_SegAll[iseg]-1))*log(field_WJDC[icomp]);
 
-      /* bonding term */
-      gproduct=1.0;
-      for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
-             unk_G=Poly_to_Unk_SegAll[iseg][ibond];
-             pol_num=Unk_to_Poly[unk_G];
-             gproduct *=g_WJDC[unk_G];
+        /* bonding term */
+        gproduct=1.0;
+        for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
+               unk_G=Poly_to_Unk_SegAll[iseg][ibond];
+               pol_num=Unk_to_Poly[unk_G];
+               gproduct *=g_WJDC[unk_G];
+        }
+        mu_chain -= log(gproduct);
+
+        betamu_chain[pol_num]=mu_chain;
+        if (printproc) printf("iseg=%d pol_num=%d mu_chain=%g\n",iseg,pol_num,betamu_chain[pol_num]);
       }
-      mu_chain -= log(gproduct);
-
-      betamu_chain[pol_num]=mu_chain;
-      if (printproc) printf("iseg=%d pol_num=%d mu_chain=%g\n",iseg,pol_num,betamu_chain[pol_num]);
    } 
    return;
 }

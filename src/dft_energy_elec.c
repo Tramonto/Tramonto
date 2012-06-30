@@ -76,6 +76,10 @@ double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box, double **x)
      double integrand,rho_bulk;
      int icomp,iseg;
 
+     if (Grafted_Logical==FALSE || (Type_poly==WJDC3 && 
+           Grafted[Icomp_to_polID[iunk-Phys2Unk_first[DENSITY]]]==FALSE)){
+
+
      if (Lseg_densities){
          iseg = iunk-Phys2Unk_first[DENSITY];
          icomp = Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
@@ -89,6 +93,8 @@ double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box, double **x)
      }
 
      integrand = -0.5*rho_bulk*Deltac_b[icomp];
+     }
+     else integrand=0.0;
      return(integrand);
 }
 /****************************************************************************/

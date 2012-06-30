@@ -25,6 +25,8 @@ extern int Proc;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void check_zero_densities_owned(double **xOwned);
+void calc_Gsum_new(double **x);
+extern int Grafted_Logical;
 void chop_profile(double **xInBox,int guess_type);
 #define RESTART_STEP       2
 void setup_polymer_G_wjdc(double **xOwned);

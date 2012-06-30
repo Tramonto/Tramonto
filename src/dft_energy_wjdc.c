@@ -143,6 +143,9 @@ double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box, double **x)
 
                            /* for WJDC3 polymers where we are concerned with component densities,                      
                            we need to perform a sum over segment of a given type */
+
+     if (Grafted_Logical==FALSE || (Type_poly==WJDC3 && Grafted[Icomp_to_polID[icomp]]==FALSE)){
+
      npol = 0;
      while (Nmer_t[npol][icomp]==0){ npol++; }                     
      loop_start=0;      
@@ -167,6 +170,8 @@ double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box, double **x)
         }
      }
      }
+     }
+     else integrand=0.0;
      return(integrand);
 }
 /****************************************************************************/

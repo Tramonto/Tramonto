@@ -88,11 +88,7 @@ void WJDC_Jacobian_GCHAIN_derivCAVITY(int iunk,int loc_inode,int pol_num,int jse
 void WJDC_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 void WJDC_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 double load_WJDC_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-extern double Gsum[NCOMP_MAX];
-extern double Rho_g[NCOMP_MAX];
 #define NMER_MAX     200
-extern int Type_mer[NCOMP_MAX][NMER_MAX];
-extern int Grafted[NCOMP_MAX];
 extern double Betamu_chain[NMER_MAX];
 #define DIFFUSION      6
 #define DIFFUSIVE_INTERFACE 1
@@ -100,6 +96,16 @@ extern int Type_interface;
 extern int **Nseg_type_pol;
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
+extern double *Gsum_graft;
+extern int Type_mer[NCOMP_MAX][NMER_MAX];
+extern double Rho_g[NCOMP_MAX];
+extern int Grafted_SegIDAll[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
+#define TRUE  1
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
+extern int Grafted_Logical;
 extern int SegAll_to_Poly[NMER_MAX];
 double prefactor_rho_wjdc(int iseg,int inode_box,double **x);
 #define G_CHAIN       11 

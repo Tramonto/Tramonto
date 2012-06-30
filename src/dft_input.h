@@ -185,6 +185,10 @@ extern char poly_file_array[FILENAME_LENGTH];
 extern int Type_poly_arch;
 extern double Rho_g[NCOMP_MAX];
 extern int Graft_wall[NCOMP_MAX];
+extern int GraftedWall_TF[NWALL_MAX_TYPE];
+extern int Grafted_TypeID[NCOMP_MAX];
+extern int Grafted_SegIDAll[NCOMP_MAX];
+extern int Grafted_SegID[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];
 #define NBLOCK_MAX   20 
 extern int Poly_to_Type[NCOMP_MAX][NBLOCK_MAX];
@@ -201,6 +205,7 @@ extern int Nseg_per_block[NCOMP_MAX][NBLOCK_MAX];
 extern int Nmer[NCOMP_MAX];
 extern int Nblock[NCOMP_MAX];
 extern int Npol_comp;
+extern int Grafted_Logical;
 extern int Unk2Comp[NMER_MAX];
 extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];

@@ -97,16 +97,18 @@ void calc_density_next_iter_HSperturb(double **xInBox,double **xOwned);
 #define NONE        -1
 extern int Type_coul;
 extern int L_HSperturbation;
-void calc_Gsum(double **x);
-#define WJDC3        5 
+void calc_Gsum_new(double **x);
 #define CMS          0
-extern int Type_poly;
 void print_resid_norm_picard(double **x,int iter);
 #define SCREEN_VERBOSE     3 
 #define SCREEN_BASIC       1
 extern int Iwrite_screen;
 extern int Max_NL_iter;
 extern int Nnodes_box;
+extern int Nnodes_box_extra;
+extern int Grafted_Logical;
+#define WJDC3        5 
+extern int Type_poly;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

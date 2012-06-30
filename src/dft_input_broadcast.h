@@ -149,7 +149,11 @@ extern int ***pol_sym_tmp;
 extern int ***Bonds;
 extern int **Nbond;
 extern int Type_poly_arch;
+extern int Grafted_TypeID[NCOMP_MAX];
+extern int Grafted_SegIDAll[NCOMP_MAX];
+extern int Grafted_SegID[NCOMP_MAX];
 extern double Rho_g[NCOMP_MAX];
+extern int GraftedWall_TF[NWALL_MAX_TYPE];
 extern int Graft_wall[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];
 #define NBLOCK_MAX   20 
@@ -169,6 +173,7 @@ extern int Npol_comp;
 #define NONE          -1
 #define NONE        -1
 #define NONE        -1
+extern int Grafted_Logical;
 extern int Unk2Comp[NMER_MAX];
 extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];

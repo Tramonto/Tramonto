@@ -28,6 +28,15 @@ extern double Betamu_wtc_RTF[NMER_MAX];
 extern double Betamu_seg_RTF[NMER_MAX];
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
 extern int Nmer[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+extern int Grafted_Logical;
 extern double Betamu_wtc_LBB[NMER_MAX];
 extern double Betamu_seg[NMER_MAX];
 extern double Betamu_seg_LBB[NMER_MAX];

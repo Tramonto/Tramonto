@@ -63,35 +63,36 @@ void setup_chain_architecture(char *poly_file,FILE *fpecho)
 /* read in a file that contains chain architecture */
 void setup_chain_from_file(FILE *fpecho, char *poly_file)
 {
-   int pol_number,iseg,seg_id,ibond;
+   int pol_number,iseg,seg_id,ibond,graft_point_indicated=FALSE;
    FILE *fppoly;
 
-   if (Proc==0){
-      if( (fppoly  = fopen(poly_file,"r")) == NULL) {
+   if( (fppoly  = fopen(poly_file,"r")) == NULL) {
            if (Iwrite_screen != SCREEN_NONE) printf("Can't open file %s and no other file was specified in GUI.\n", poly_file);
            exit(-1);
-      }
    }
 
    Nbond_max=0; 
    for (pol_number=0; pol_number<Npol_comp; ++pol_number){
       for (iseg=0; iseg<Nmer[pol_number]; iseg++){
-	if (Proc==0){ 
            fscanf(fppoly,"%d %d",&seg_id, &Nbond[pol_number][iseg]);
            if (Nbond[pol_number][iseg]>Nbond_max) Nbond_max=Nbond[pol_number][iseg];
            if (seg_id != iseg){
                if (Iwrite_screen != SCREEN_NONE) printf("problem with seg_ids in file - there should be no skips, and every chain starts at 0\n");
                exit(-1);
            }
-        }
 
 	for (ibond=0; ibond<Nbond[pol_number][iseg]; ibond++){
-	  if (Proc==0) {
 	    fscanf(fppoly,"%d  %d", &Bonds[pol_number][iseg][ibond],&pol_sym_tmp[pol_number][iseg][ibond]);
 	    if (Iwrite_files == FILES_DEBUG) fprintf(fpecho,"%d  ",Bonds[pol_number][iseg][ibond]);
-	  }
-
+            if(Type_poly==WJDC3 && Grafted[pol_number] && iseg==Grafted_SegID[pol_number]){
+               if (Bonds[pol_number][iseg][ibond]==-1) graft_point_indicated=TRUE;
+            }
 	} /* end of loop over ibond */
+        if (Type_poly==WJDC3 && Grafted[pol_number] && iseg==Grafted_SegID[pol_number] && graft_point_indicated==FALSE){
+             Bonds[pol_number][iseg][Nbond[pol_number][iseg]]=-1;
+             pol_sym_tmp[pol_number][iseg][Nbond[pol_number][iseg]]=-1;
+             Nbond[pol_number][iseg]+=1;
+        }
       } /* end of loop over iseg */
    }
    if (Proc==0 && Iwrite_files==FILES_DEBUG) fclose (fppoly);
@@ -202,7 +203,6 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max,FILE *fpecho)
     nbond_tot = (int *) array_alloc (1, Npol_comp, sizeof(int));
     Nseg_type_pol = (int **) array_alloc (2, Npol_comp,Ncomp,sizeof(int));
 
-
     /* now zero some counters and arrays */
     nbond_all = 0; 
     Nbonds=0;
@@ -267,6 +267,7 @@ void setup_chain_indexing_arrays(int nseg, int nmer_max,FILE *fpecho)
         Nmer_comp[Unk2Comp[seg_tot]]++;
         seg_tot++;
         Nseg_type_pol[pol_number][Type_mer[pol_number][iseg]]++;
+        Icomp_to_polID[Type_mer[pol_number][iseg]]=pol_number;
       } /* end of loop over iseg */
     }
 

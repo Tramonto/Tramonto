@@ -68,6 +68,7 @@ double phispt_switch(double *n)
 void FMT1stDeriv_switch(double **x, struct RB_Struct *dphi_drb)
 { 
   int inode_box;
+
   switch(Type_func){
      case FMT1:
         for (inode_box=0;inode_box<Nnodes_box; inode_box++)

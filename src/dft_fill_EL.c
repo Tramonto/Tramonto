@@ -118,7 +118,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
       }
    }
 
-
    /* now fill EL physics dependent terms */ 
    resid=0.0; 
    resid+=fill_EL_ideal_gas(iunk,icomp,loc_inode,inode_box,x,resid_only_flag);

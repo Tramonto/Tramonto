@@ -342,6 +342,7 @@ void calc_chempot(char *file_echoinput,int iwrite_screen, int iwrite_files)
                }
                for (ipol=0;ipol<Npol_comp;ipol++){
                   Betamu_chain_LBB[ipol]=0.0;
+                  if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE) 
                   for (iseg=0;iseg<Nmer[ipol];iseg++){
                      Betamu_chain_LBB[ipol]+= Betamu_seg_LBB[SegChain2SegAll[ipol][iseg]];
                   }
@@ -353,6 +354,7 @@ void calc_chempot(char *file_echoinput,int iwrite_screen, int iwrite_files)
                }
                for (ipol=0;ipol<Npol_comp;ipol++){
                   Betamu_chain_RTF[ipol]=0.0;
+                  if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE) 
                   for (iseg=0;iseg<Nmer[ipol];iseg++){
                      Betamu_chain_RTF[ipol]+= Betamu_seg_RTF[SegChain2SegAll[ipol][iseg]];
                   }
@@ -369,20 +371,20 @@ void calc_chempot(char *file_echoinput,int iwrite_screen, int iwrite_files)
                   for (iseg=0;iseg<Nseg_tot;iseg++) print_to_file_comp(fp,iseg,Betamu_seg_RTF[iseg],"Betamu_seg_RTF",2);
                   }
                   if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY){
-                      for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");
-                      for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");
+                      for (ipol=0;ipol<Npol_comp;ipol++) { if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");}
+                      for (ipol=0;ipol<Npol_comp;ipol++) { if(Grafted_Logical==FALSE || Grafted[ipol]==FALSE)  print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");}
                   }
-                  for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);
-                  for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
+                  for (ipol=0;ipol<Npol_comp;ipol++) {if(Grafted_Logical==FALSE || Grafted[ipol]==FALSE)  print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);}
+                  for (ipol=0;ipol<Npol_comp;ipol++)  {if(Grafted_Logical==FALSE || Grafted[ipol]==FALSE) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);}
                }
                else{
                   if (Type_poly==WJDC3) {
                      if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY){
-                         for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");
-                         for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");
+                         for (ipol=0;ipol<Npol_comp;ipol++) {if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE) print_to_screen_comp(ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB");}
+                         for (ipol=0;ipol<Npol_comp;ipol++) {if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE) print_to_screen_comp(ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF");}
                      }
-                     for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);
-                     for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);
+                     for (ipol=0;ipol<Npol_comp;ipol++) {if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE) print_to_file_comp(fp,ipol,Betamu_chain_LBB[ipol],"Betamu_chain_LBB",2);}
+                     for (ipol=0;ipol<Npol_comp;ipol++) {if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE) print_to_file_comp(fp,ipol,Betamu_chain_RTF[ipol],"Betamu_chain_RTF",2);}
                   }
                   else{
                      if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) {
@@ -444,6 +446,7 @@ void calc_chempot(char *file_echoinput,int iwrite_screen, int iwrite_files)
                if (Type_poly==WTC){
                   for (ipol=0;ipol<Npol_comp;ipol++){
                      Betamu_chain[ipol]=0.0;
+                     if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE)
                      for (iseg=0;iseg<Nmer[ipol];iseg++){
                         Betamu_chain[ipol]+= Betamu_seg[SegChain2SegAll[ipol][iseg]];
                      }
@@ -466,10 +469,14 @@ void calc_chempot(char *file_echoinput,int iwrite_screen, int iwrite_files)
                }
                if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
                   if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY)printf("\n");
-                  if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) for (ipol=0;ipol<Npol_comp;ipol++) print_to_screen_comp(ipol,Betamu_chain[ipol],"Betamu_chain");
-                  for (ipol=0;ipol<Npol_comp;ipol++) print_to_file_comp(fp,ipol,Betamu_chain[ipol],"Betamu_chain",2);
-
-                 
+                  if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) 
+                     for (ipol=0;ipol<Npol_comp;ipol++){
+                         if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE) print_to_screen_comp(ipol,Betamu_chain[ipol],"Betamu_chain");
+                         else printf("polymer ipol=%d is grafted to surfaces - it does not exist in bulk fluid\n",ipol);
+                     }
+                  for (ipol=0;ipol<Npol_comp;ipol++){
+                      if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE)  print_to_file_comp(fp,ipol,Betamu_chain[ipol],"Betamu_chain",2);
+                   }
                }
                else{
                   if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) for (icomp=0;icomp<Ncomp;icomp++) print_to_screen_comp(icomp,Betamu[icomp],"Betamu");

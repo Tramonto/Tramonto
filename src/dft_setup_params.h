@@ -224,9 +224,7 @@ extern int Lrandom_walls;
 extern char *WallPos_file_name;
 void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho);
 extern int Nwall;
-extern char *Outpath;
 #define FILENAME_LENGTH 300
-extern char Outpath_array[FILENAME_LENGTH];
 extern char wallPos_file_array[FILENAME_LENGTH];
 extern int Flag_mV_elecpot;
 extern int Type_coul;
@@ -260,6 +258,8 @@ extern int Set_GUIDefaults_to_OLD_File;
 extern char *InputOLD_File;
 extern char InputOLDFile_array[FILENAME_LENGTH];
 extern char EchoInputFile_array[FILENAME_LENGTH];
+extern char *Outpath;
+extern char Outpath_array[FILENAME_LENGTH];
 extern char *Runpath;
 extern char Runpath_array[FILENAME_LENGTH];
 extern int Proc;

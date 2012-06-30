@@ -41,7 +41,6 @@ extern int *B2G_node;
 extern double NL_update_scalingParam;
 extern int *Pol_Sym_Seg;
 #define WTC          2
-extern int Type_poly;
 #define DENSITY        0
 #define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
@@ -52,6 +51,7 @@ extern int *Pol_Sym;
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 double gsum_double(double c);
 #define SCREEN_BASIC       1
+#define SCREEN_ERRORS_ONLY  0 
 double gmin_double(double c);
 int update_solution_new(double **x,double **delta_x,int iter);
 extern int Proc;
@@ -68,12 +68,15 @@ extern double Time_linsolver_first;
 extern double Time_manager_av;
 extern double Time_manager_first;
 void print_resid_norm(int iter);
-#define SCREEN_ERRORS_ONLY  0 
 #define SCREEN_NONE       -1 
 extern int Iwrite_screen;
 extern double Time_fill_av;
 extern double Time_fill_first;
 double fill_resid_and_matrix_control(double **x,int iter,int resid_only_flag);
+extern int Nnodes_box_extra;
+extern int Grafted_Logical;
+#define WJDC3        5 
+extern int Type_poly;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

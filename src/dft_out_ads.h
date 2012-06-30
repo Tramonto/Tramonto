@@ -26,6 +26,14 @@ double integrand_fluid_charge(int iunk,int inode_box,double **x);
 double integrateInSpace_SumInComp(double(*fp_integrand)(int,int,double **),int **nelhit,double **x,double *profile);
 void calc_fluid_charge(FILE *fp,double **x);
 #define VERBOSE      3 
+#define UNIFORM_INTERFACE  0
+extern int Type_interface;
+extern int Nwall;
+extern int LBulk;
+extern int **Nel_hit;
+double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
+extern int Icomp_to_polID[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -33,12 +41,7 @@ void calc_fluid_charge(FILE *fp,double **x);
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-#define UNIFORM_INTERFACE  0
-extern int Type_interface;
-extern int Nwall;
-extern int LBulk;
-extern int **Nel_hit;
-double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
+extern int Grafted_Logical;
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first);
 void print_to_screen_comp(int icomp,double val,char *var_label);
 #define SWITCH_BULK_OUTPUT_ALL 6
@@ -71,4 +74,4 @@ extern double *Integration_profile;
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
-void calc_adsorption(FILE *fp,double **x);
+void calc_adsorption(FILE *fp,double **x,double *Ads_total);

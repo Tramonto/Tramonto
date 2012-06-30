@@ -73,6 +73,10 @@ extern int **Nelems_S;
 #define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 void node_to_position(int inode,double *NodePos);
+extern int Graft_wall[NCOMP_MAX];
+extern int Grafted_TypeID[NCOMP_MAX];
+extern int Icomp_to_polID[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
 extern int **Nodes_2_boundary_wall;
 extern int *L2B_node;
 extern int Nnodes_per_proc;
@@ -119,6 +123,9 @@ extern struct SurfaceGeom_Struct *SGeom;
 extern int WallType[NWALL_MAX];
 extern int Nlink;
 void sum_rho_wall(double **x,double **Sum_rho);
+extern int Grafted_Logical;
+#define WJDC3        5 
+extern int Type_poly;
 extern int Lhard_surf;
 void integrate_rho_vdash(double **x,double **rho_vdash);
 extern int Lvext_dash;

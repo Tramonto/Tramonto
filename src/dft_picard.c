@@ -94,8 +94,14 @@ int picard_solver(double **x, double **xOwned, int subIters){
   int skip_convergence_test=FALSE,Lprint_screen;
   double **x_old, **delta_x;
 
-  x_old = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
-  delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
+  if (Type_poly==WJDC3 && Grafted_Logical){
+     x_old = (double **) array_alloc(2, Nunk_per_node, Nnodes_box_extra, sizeof(double));
+     delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box_extra, sizeof(double));
+  }
+  else{
+     x_old = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
+     delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
+  }
 
   if (subIters == -1) max_iters = Max_NL_iter;
   else {
@@ -127,11 +133,13 @@ int picard_solver(double **x, double **xOwned, int subIters){
     }
 
      /* copy current fields to the x_old array */
-     for (iunk=0; iunk<Nunk_per_node;iunk++)
-       for (ibox=0; ibox<Nnodes_box;ibox++) x_old[iunk][ibox]=x[iunk][ibox];
+     for (iunk=0; iunk<Nunk_per_node;iunk++){
+        if (Type_poly==WJDC3 && Grafted_Logical){ for (ibox=0; ibox<Nnodes_box_extra;ibox++) x_old[iunk][ibox]=x[iunk][ibox];}
+        else{ for (ibox=0; ibox<Nnodes_box;ibox++) x_old[iunk][ibox]=x[iunk][ibox];}
+     }
 	  
 	  /* for grafted chains */
-     if(Type_poly==CMS || Type_poly==WJDC3) calc_Gsum(x);
+     if(Type_poly==CMS || Type_poly==WJDC3) calc_Gsum_new(x);
 
      /* use successive substitution to update density field, then compute all other fields */ 
      if ((L_HSperturbation || Type_coul != NONE) && Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3) 
@@ -145,9 +153,9 @@ int picard_solver(double **x, double **xOwned, int subIters){
         (void) dft_linprobmgr_importsingleunknownr2c(LinProbMgr_manager, xOwned[iunk], x[iunk]);
      }
 
-     for (iunk=0; iunk<Nunk_per_node;iunk++)
-       for (ibox=0; ibox<Nnodes_box;ibox++){
-         delta_x[iunk][ibox]=x[iunk][ibox]-x_old[iunk][ibox];
+     for (iunk=0; iunk<Nunk_per_node;iunk++){
+         if (Type_poly==WJDC3 && Grafted_Logical){ for (ibox=0; ibox<Nnodes_box_extra;ibox++) delta_x[iunk][ibox]=x[iunk][ibox]-x_old[iunk][ibox]; }
+         else{ for (ibox=0; ibox<Nnodes_box;ibox++) delta_x[iunk][ibox]=x[iunk][ibox]-x_old[iunk][ibox]; }
      }
 
 
@@ -155,6 +163,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
 
     /* Do: x += delta_x, and check for convergence .... */
     converged = update_solution_picard(x_old, xOwned, delta_x, iter,Lprint_screen);
+
     if (converged==TRUE){ 
         if (Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) print_resid_norm_picard(x,iter);
         Lprint_screen=TRUE;
@@ -164,9 +173,11 @@ int picard_solver(double **x, double **xOwned, int subIters){
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x_old);
     if (skip_convergence_test) converged=FALSE;
 
-     for (iunk=0; iunk<Nunk_per_node;iunk++)
-       for (ibox=0; ibox<Nnodes_box;ibox++) x[iunk][ibox]=x_old[iunk][ibox];
-       fix_symmetries(x);
+     for (iunk=0; iunk<Nunk_per_node;iunk++){
+       if (Type_poly==WJDC3 && Grafted_Logical){ for (ibox=0; ibox<Nnodes_box_extra;ibox++) x[iunk][ibox]=x_old[iunk][ibox];}
+       else { for (ibox=0; ibox<Nnodes_box;ibox++) x[iunk][ibox]=x_old[iunk][ibox];}
+     }
+     fix_symmetries(x);
  
      /* now update all other fields in the solution vector */
      /* update all other fields (other than density - based on new density profile) */
@@ -274,7 +285,9 @@ void calc_density_next_iter_HSperturb(double **xInBox, double **xOwned)
   izone=0;
   mesh_coarsen_flag_i=0;
 
-  x_InBoxOld = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
+  
+  if (Type_poly==WJDC3 && Grafted_Logical) x_InBoxOld = (double **) array_alloc(2, Nunk_per_node, Nnodes_box_extra, sizeof(double));
+  else x_InBoxOld = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
   
   if (Type_func !=NONE){
      dphi_drb = (struct RB_Struct *) array_alloc (1, Nnodes_box, sizeof(struct RB_Struct));

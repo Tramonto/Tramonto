@@ -71,8 +71,9 @@ void calc_force(FILE *fp, double **x,double fac_area)
 
    if(first!=TRUE) {
 
+
     if (Lvext_dash) integrate_rho_vdash(x,p_tilde_vdash);
-    if (Lhard_surf) sum_rho_wall(x, p_tilde_sumwall);
+    if (Lhard_surf || (Type_poly==WJDC3 && Grafted_Logical==TRUE)) sum_rho_wall(x, p_tilde_sumwall);
 
 
 
@@ -227,12 +228,17 @@ void sum_rho_wall(double **x, double **Sum_rho)
        if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
        else                                  ilist = icomp;
 
+
        for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
           inode = L2B_node[loc_inode];
           inode_box = L2B_node[loc_inode];
           iwall = Nodes_2_boundary_wall[ilist][inode_box];
 
           if (iwall != -1){
+
+          if (Type_poly !=WJDC3 || Grafted_Logical==FALSE || 
+             (Grafted[Icomp_to_polID[icomp]]==TRUE && icomp==Grafted_TypeID[Icomp_to_polID[icomp]]&&
+              WallType[iwall] == Graft_wall[Icomp_to_polID[icomp]])){
 
              node_to_position(inode,nodepos); 
 	     iunk = Phys2Unk_first[DENSITY]+iloop;
@@ -254,6 +260,7 @@ void sum_rho_wall(double **x, double **Sum_rho)
                  else             Sum_rho[jwall][idim] += prefac*x[iunk][inode_box];
 
              } /* end of surface element loop */ 
+            }
           }    /* end of test for boundary node */
        }       /* end of loop over nodes on this processor */
     }          /* end of icomp loop */
@@ -603,6 +610,7 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
     for (i=0; i<nloop; i++){
       if (Lseg_densities) icomp=Unk2Comp[i];
       else                icomp=i;
+      if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[icomp]]==FALSE || icomp!=Grafted_TypeID[Icomp_to_polID[icomp]]){
       for (iwall=0; iwall<Nwall; iwall++){
 
 
@@ -638,6 +646,7 @@ void integrate_rho_vdash(double **x,double **rho_vdash)
 
         }  /* end of idim loop */
       }     /* end of Nwall loop */
+      }
 
     }        /* end of icomp loop */
   }            /* end of loc_inode loop */

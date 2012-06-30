@@ -179,6 +179,7 @@ void set_initial_guess (int guess_type, double** xOwned)
      }
   }
   if (Restart == RESTART_STEP) chop_profile(xInBox,guess_type);  /* special case for treating wetting problems */
+  if (Type_poly==WJDC3 && Grafted_Logical==TRUE) calc_Gsum_new(xInBox);
 
   check_zero_densities_owned(xOwned);              
   safe_free((void **) &xInBox);

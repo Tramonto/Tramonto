@@ -101,7 +101,9 @@ void calc_init_WJDC_field(double **xInBox,double **xOwned)
                           xInBox,dphi_drb,mesh_coarsen_flag_i,INIT_GUESS_FLAG);
           xInBox[iunk][inode_box]=resid_EL;
        }
-       else xInBox[iunk][inode_box]=0.0; 
+       else{ 
+          xInBox[iunk][inode_box]=0.0; 
+       }
        xOwned[iunk][loc_inode]=xInBox[iunk][inode_box];
      }
   }

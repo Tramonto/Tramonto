@@ -46,6 +46,18 @@ extern double Rho_seg_b[NMER_MAX];
 extern double Rho_seg_RTF[NMER_MAX];
 #define UNIFORM_INTERFACE  0
 extern int Type_interface;
+extern int Icomp_to_polID[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
+#define WJDC3        5 
+extern int Type_poly;
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+extern int Grafted_Logical;
 double integrand_elec_MSAcorr_freen_bulk(int iunk,int inode_box,double **x);
 #define THETA_CR_GENERAL_MSA  7
 #define DELTAC_GENERAL 2

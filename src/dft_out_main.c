@@ -63,6 +63,7 @@ void post_process (double **x,int *niters,
   static double omega_s_previous,omega_s_2previous,separation_previous,separation_2previous,derivative_previous;
   static double mu_previous,mu_2previous;
   double derivative,cont_var,surface_sep,derivative_avg,mu;
+  double Ads[NCOMP_MAX];
 
   if (Nruns>1) loop1=Imain_loop;
   counter=loop1;
@@ -122,6 +123,10 @@ void post_process (double **x,int *niters,
    }
 
    if (Proc==0) safe_free((void *) &Vext_old);
+   if (Gsum_graft != NULL){
+     safe_free((void *) &Gsum_graft);
+     safe_free((void *) &Gsum_graft_noVolume);
+   }
 
 
    /* open dft_output.dat file */
@@ -241,7 +246,7 @@ void post_process (double **x,int *niters,
        }
    }
 
-   calc_adsorption(fp,x);
+   calc_adsorption(fp,x,Ads);
    if (Type_coul != NONE) calc_fluid_charge(fp,x); 
    if (Type_interface != DIFFUSIVE_INTERFACE) calc_force(fp,x,fac_area);   
    energy=calc_free_energy(fp,x); 

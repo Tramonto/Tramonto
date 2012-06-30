@@ -17,10 +17,11 @@
 #include "Tramonto_ConfigDefs.h"
 extern int **Poly_to_Unk_SegAll;
 extern int *Nbonds_SegAll;
+#define NCOMP_MAX 5
+extern int Icomp_to_polID[NCOMP_MAX];
 #define VERBOSE      3 
 extern int Iwrite;
 void chempot_chain_wjdc(double *rho,double *betamu_chain,double *field_WJDC,double *g_WJDC);
-#define NCOMP_MAX 5
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern int Geqn_start[NCOMP_MAX];
@@ -52,6 +53,9 @@ extern double Fac_overlap_hs[NCOMP_MAX];
 #define PI    3.141592653589793238462643383279502884197169399375
 extern double HS_diam[NCOMP_MAX];
 extern int Unk2Comp[NMER_MAX];
+extern int Grafted[NCOMP_MAX];
+extern int Npol_comp;
+extern int Grafted_Logical;
 extern int SegAll_to_Poly[NMER_MAX];
 extern int Nseg_tot;
 #define FALSE 0

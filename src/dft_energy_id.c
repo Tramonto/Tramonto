@@ -45,11 +45,17 @@ double integrand_ideal_gas_freen(int iunk,int inode_box, double **x)
 double integrand_ideal_gas_freen_bulk(int iunk,int inode_box, double **x)
 {
      double integrand,rho_bulk;
+     int icomp;
+   
+     if (Grafted_Logical==FALSE || (Type_poly==WJDC3 && 
+           Grafted[Icomp_to_polID[iunk-Phys2Unk_first[DENSITY]]]==FALSE)){
 
-     if (Lseg_densities) rho_bulk = Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
-     else                rho_bulk = Rho_b[iunk-Phys2Unk_first[DENSITY]];
+        if (Lseg_densities) rho_bulk = Rho_seg_b[iunk-Phys2Unk_first[DENSITY]];
+        else                rho_bulk = Rho_b[iunk-Phys2Unk_first[DENSITY]];
 
-     integrand = rho_bulk*(log(rho_bulk)-1.0);
+         integrand = rho_bulk*(log(rho_bulk)-1.0);
+     }
+     else integrand=0.0;
      return(integrand);
 }
 /****************************************************************************/

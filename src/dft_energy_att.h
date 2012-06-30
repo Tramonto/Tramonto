@@ -26,6 +26,18 @@ extern double Rho_seg_RTF[NMER_MAX];
 extern int Type_interface;
 extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
+extern int Icomp_to_polID[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
+#define WJDC3        5 
+extern int Type_poly;
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
+extern int Grafted_Logical;
 #define DENSITY        0
 #define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];

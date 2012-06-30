@@ -50,7 +50,10 @@ void calc_Avdw_att()
 
   for (icomp=0; icomp<Ncomp; icomp++) {
      for (jcomp=0; jcomp<Ncomp;jcomp++){
-       Avdw[icomp][jcomp] = int_stencil_bulk(THETA_PAIRPOT_RCUT,icomp,jcomp,NULL);
+       if (Grafted_Logical==FALSE || 
+          (Grafted[Icomp_to_polID[icomp]]==FALSE && Grafted[Icomp_to_polID[jcomp]]==FALSE)){
+             Avdw[icomp][jcomp] = int_stencil_bulk(THETA_PAIRPOT_RCUT,icomp,jcomp,NULL);
+       }
        /*printf("Avdw[%d][%d]=%g\n",icomp,jcomp,Avdw[icomp][jcomp]);*/
      }
   }
@@ -68,7 +71,10 @@ double pressure_att(double *rho)
 
   for (icomp=0; icomp<Ncomp; icomp++) {
      for (jcomp=0; jcomp<Ncomp;jcomp++){
-       betap_att += 0.5*Avdw[icomp][jcomp]*rho[icomp]*rho[jcomp];
+       if (Grafted_Logical==FALSE || 
+          (Grafted[Icomp_to_polID[icomp]]==FALSE && Grafted[Icomp_to_polID[jcomp]]==FALSE)){
+              betap_att += 0.5*Avdw[icomp][jcomp]*rho[icomp]*rho[jcomp];
+       }
      }
   }
   return(betap_att);

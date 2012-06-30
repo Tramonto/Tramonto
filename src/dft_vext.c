@@ -59,7 +59,6 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
   
   /********************** BEGIN EXECUTION ************************************/
 
-  MPI_Barrier(MPI_COMM_WORLD);
   if (Proc==0 &&Iwrite==VERBOSE) printf("\n %s: Setting up External Field ... \n",yo);
   t1 -= MPI_Wtime();
   /*
@@ -269,6 +268,7 @@ void setup_vext_max()
   double xpos[3];
 
 
+
   for (icomp=0; icomp<Ncomp; icomp++){ 
      if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
      else                                  ilist = icomp;
@@ -285,6 +285,18 @@ void setup_vext_max()
                 for (idim=0; idim<Ndim; idim++) Vext_dash[loc_inode][iunk][idim] = 0.0;
             }  /* end of loop over iwall */
             }
+         }
+         if (Grafted[Icomp_to_polID[icomp]]==TRUE && icomp==Grafted_TypeID[Icomp_to_polID[icomp]] && (
+             Nodes_2_boundary_wall[ilist][inode_box]<0 || 
+             WallType[Nodes_2_boundary_wall[ilist][inode_box]] != Graft_wall[Icomp_to_polID[icomp]])){
+             Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp];
+             Zero_density_TF[inode_box][icomp] = TRUE;
+             if (Lvext_dash){
+             for (iwall=0; iwall<Nwall; iwall++) {
+                iunk = iwall*Ncomp + icomp;
+                for (idim=0; idim<Ndim; idim++) Vext_dash[loc_inode][iunk][idim] = 0.0;
+             }   /*end of loop over iwall */
+             }
          }
      }        /* end of loop over nodes */
   }           /* end of loop over components */
@@ -343,13 +355,19 @@ void setup_semiperm(int **nelems_w_per_w, int ***elems_w_per_w)
 void setup_vext_XRSurf(int iwall)
 {
   int iwall_type,icomp,loc_inode,ijk_box[3],ijk_box_tmp[3],iunk, inode_box_tmp, idim;
-  int flag_on_cutoff;
+  int flag_on_cutoff,logical_setup_vext;
   double xORr, fluid_pos[3], sign, vtmpUP, vtmpDOWN, xORr_tmp;
   double param1,param2,param3,param4,param5,param6;
 
   iwall_type=WallType_Images[iwall];
     for (icomp=0; icomp<Ncomp;icomp++){
-      
+       logical_setup_vext=TRUE;
+       if (Grafted_Logical==TRUE && Type_poly==WJDC3 &&
+           Grafted[Icomp_to_polID[icomp]]==TRUE && icomp==Grafted_TypeID[Icomp_to_polID[icomp]] && 
+           WallType[iwall] == Graft_wall[Icomp_to_polID[icomp]]){ logical_setup_vext=FALSE;
+       }
+     
+       if (logical_setup_vext==TRUE){ 
        if (Type_vext[iwall_type]==VEXT_PAIR_POTENTIAL) pairPotparams_switch(Vext_PotentialID[iwall_type],WALL_FLUID, icomp,iwall,
                                                        &param1,&param2,&param3,&param4,&param5,&param6);
        for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
@@ -426,6 +444,7 @@ void setup_vext_XRSurf(int iwall)
 
        }  /*zero check */
     } /*loc_inode*/
+    }
    } /*icomp */
    return;
 }

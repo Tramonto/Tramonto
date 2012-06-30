@@ -37,17 +37,21 @@ Wertheim-Tripathi-Chapman bonded fluid.
                           WTC functionals */
 void WTC_thermo_precalc(char *file_echoinput)
 {
-  int iseg;
+  int iseg,i;
 
   WTC_overlap();
 
   /* compute bulk segment densities from polymer component densities */
   for (iseg=0;iseg<Nseg_tot;iseg++){
+     Rho_seg_LBB[iseg]=0.0;
+     Rho_seg_RTF[iseg]=0.0;
+     Rho_seg_b[iseg]=0.0;
+     i=Unk2Comp[iseg];
      if (Type_interface!=UNIFORM_INTERFACE){
-        Rho_seg_LBB[iseg]=Rho_b_LBB[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
-        Rho_seg_RTF[iseg]=Rho_b_RTF[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
+           Rho_seg_LBB[iseg]=Rho_b_LBB[i]/(double)Nmer_t_total[i];
+           Rho_seg_RTF[iseg]=Rho_b_RTF[i]/(double)Nmer_t_total[i];
      }
-     else Rho_seg_b[iseg]=Rho_b[Unk2Comp[iseg]]/(double)Nmer_t_total[Unk2Comp[iseg]];
+     else Rho_seg_b[iseg]=Rho_b[i]/(double)Nmer_t_total[i];
   }
   compute_bulk_nonlocal_wtc_properties(file_echoinput); 
 
@@ -58,7 +62,7 @@ void WTC_thermo_precalc(char *file_echoinput)
    for the WTC functional */
 double pressure_WTC(double *rho_seg,double *xi_cav)
 {
-  int iseg,icomp,count_bond,ibond;
+  int iseg,i,count_bond,ibond;
   double betap_wtc,term_iseg;
 
   betap_wtc = 0.0;
@@ -70,14 +74,17 @@ double pressure_WTC(double *rho_seg,double *xi_cav)
      for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
         if (Bonds_SegAll[iseg][ibond]!=-1 && Bonds_SegAll[iseg][ibond]!=-2) count_bond++;
      }  
-     betap_wtc -= 0.5*rho_seg[iseg]*count_bond;
+     i=Unk2Comp[iseg];
+     if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[i]]==FALSE) betap_wtc -= 0.5*rho_seg[iseg]*count_bond;
   }
 
   /* now calculate the chain term for the pressure */
   for (iseg=0;iseg<Nseg_tot;iseg++){
-     icomp = Unk2Comp[iseg];
-     term_iseg=chain_term(iseg,icomp,rho_seg,xi_cav);
-     betap_wtc -= term_iseg*rho_seg[iseg];
+     i = Unk2Comp[iseg];
+     if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[i]]==FALSE){
+        term_iseg=chain_term(iseg,i,rho_seg,xi_cav);
+        betap_wtc -= term_iseg*rho_seg[iseg];
+     }
   }
 
   return(betap_wtc);
@@ -110,22 +117,24 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
       /* first do ideal gas correction for segment densities rather than component densities */ 
    for (iseg=0; iseg<Nseg_tot;iseg++){
       icomp=Unk2Comp[iseg];
-      Betamu_seg[iseg]=betamu[icomp]-log(Nmer_t_total[icomp]); 
+      if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[icomp]]==FALSE) Betamu_seg[iseg]=betamu[icomp]-log(Nmer_t_total[icomp]); 
    }
 
    /* first compute terms that are based on bond pairs starting from segment iseg*/
    /* note that in the bulk the BondWTC is identical to the site density of the jth segment */
    for (iseg=0; iseg<Nseg_tot;iseg++){
       icomp=Unk2Comp[iseg];
-      for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
-          jseg=Bonds_SegAll[iseg][ibond];
-          if (jseg >=0){
-          jcomp=Unk2Comp[jseg];
-          y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_cav[2],xi_cav[3]);
-          Betamu_seg[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
-                              - rho_seg[jseg]/rho_seg[iseg]);
-          Betamu_wtc[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
-                              -rho_seg[jseg]/rho_seg[iseg]);
+      if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[icomp]]==FALSE){
+         for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
+             jseg=Bonds_SegAll[iseg][ibond];
+             if (jseg >=0){
+             jcomp=Unk2Comp[jseg];
+             y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_cav[2],xi_cav[3]);
+             Betamu_seg[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
+                                 - rho_seg[jseg]/rho_seg[iseg]);
+             Betamu_wtc[iseg] += 0.5*(1.0-Fac_overlap[icomp][jcomp]*log(y)-log(rho_seg[jseg])
+                                 -rho_seg[jseg]/rho_seg[iseg]);
+            }
          }
       }
    }
@@ -134,9 +143,11 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
       components than the one where the iseg segment is found ! */
    for (kseg=0; kseg<Nseg_tot;kseg++){
      kcomp = Unk2Comp[kseg];
-     term_kseg=chain_term(kseg,kcomp,rho_seg,xi_cav);
-     Betamu_seg[kseg] -= term_kseg;
-     Betamu_wtc[kseg] -= term_kseg;
+     if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[kcomp]]==FALSE){
+        term_kseg=chain_term(kseg,kcomp,rho_seg,xi_cav);
+        Betamu_seg[kseg] -= term_kseg;
+        Betamu_wtc[kseg] -= term_kseg;
+     }
    }
 
    if (Physics_scaling==AUTOMATIC &&(Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){
@@ -179,9 +190,10 @@ double chain_term(int kseg,int kcomp,double *rho_seg,double *xi_cav)
   sig2=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
   sig3=Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp]*Sigma_ff[kcomp][kcomp];
   for (iseg=0; iseg<Nseg_tot;iseg++){
-        icomp=Unk2Comp[iseg];
+     icomp=Unk2Comp[iseg];
+     if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[icomp]]==FALSE){
         for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
-          if(Bonds_SegAll[iseg][ibond] != -1 && Bonds_SegAll[iseg][ibond] != -2){
+          if(Bonds_SegAll[iseg][ibond] != -1){
              jseg=Bonds_SegAll[iseg][ibond];
              jcomp=Unk2Comp[jseg];
              y = y_cav(Sigma_ff[icomp][icomp],Sigma_ff[jcomp][jcomp],xi_cav[2],xi_cav[3]);
@@ -190,6 +202,7 @@ double chain_term(int kseg,int kcomp,double *rho_seg,double *xi_cav)
              term_kseg += Fac_overlap[icomp][jcomp]*(PI/12.0)*(rho_seg[iseg]/y)*(dydxi2*sig2+dydxi3*sig3); 
           }
         }
+      }
   }
   return(term_kseg);
 }

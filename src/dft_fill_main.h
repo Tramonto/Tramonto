@@ -26,7 +26,6 @@ double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izon
 #define G_CHAIN       11 
 typedef struct RB_Struct RB_Struct;
 double load_WJDC_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,struct RB_Struct *dphi_drb,int mesh_coarsen_flag_i,int resid_only_flag);
-#define WJDC_FIELD     8
 double load_CMS_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define CMS_FIELD      7
 double load_bond_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
@@ -34,13 +33,6 @@ double load_bond_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone
 double load_cavity_wtc(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_nonlinear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 double load_linear_transport_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
-#define TRUE  1
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(TRUE) && !defined(_CON_CONST_H_)
-#define TRUE  1
-#endif
 extern int Linear_transport;
 #define DIFFUSION      6
 double load_poisson_control(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
@@ -88,24 +80,56 @@ struct Stencil_Struct {
 #define SCREEN_NONE       -1 
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CAVWTC         4
-#define NEQ_TYPE       12 
-extern int Phys2Unk_first[NEQ_TYPE];
 #define DELTA_FN_BOND         6
 double grafted_int(int sten_type,int itype_mer,int *ijk_box,int izone,int unk_G,double **x);
+#define CMS          0
 int node_to_node_box(int inode);
 int position_to_node(double *NodePos);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double *Poly_graft_dist;
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
-extern int WallType[NWALL_MAX];
-extern int Graft_wall[NCOMP_MAX];
 void node_to_position(int inode,double *NodePos);
 extern int **Nodes_2_boundary_wall;
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
+void calc_Gsum(double **x);
+extern double **S_area_tot;
 extern int ***Bonds;
+#if defined(DEC_ALPHA)
+#define POW_DOUBLE_INT powi
+#endif
+#if !(defined(DEC_ALPHA))
+#define POW_DOUBLE_INT pow
+#endif
+extern double Esize_x[NDIM_MAX];
+extern double Area_surf_el[3];
+extern int WallType[NWALL_MAX];
+extern int ***Surf_elem_to_wall_global;
+extern int ***Surf_normal_global;
+extern int **NelemsS_global;
+extern int **S2B_node;
+extern int *NodesS_global;
+extern int Nlists_HW;
+#define WJDC_FIELD     8
+#define NEQ_TYPE       12 
+extern int Phys2Unk_first[NEQ_TYPE];
 extern int *Nbonds_SegAll;
+extern int Grafted_TypeID[NCOMP_MAX];
+extern int Graft_wall[NCOMP_MAX];
+extern int Grafted_SegIDAll[NCOMP_MAX];
+extern int Grafted_SegID[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];
+extern int **Index_UnkB_Gsum;
+#define NBOND_MAX 4
+extern double *Gsum_graft_noVolume;
+extern double *Gsum_graft;
+extern int Nwall;
+extern double ***GsumPrefac_GDerivs;
+extern double **GsumPrefac_XiDerivs;
+extern double *Total_area_graft;
+extern int *Nodes_Surf_Gsum;
+extern int ***Index_UnkGQ_Gsum;
+extern int **Index_SurfNodes_Gsum;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 #define FILENAME_LENGTH 300
@@ -122,14 +146,21 @@ extern int *Mesh_coarsen_flag;
 extern int L1D_bc;
 extern int Nwall_type;
 #define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
 extern int Mesh_coarsening;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
-void calc_Gsum(double **x);
+void calc_Gsum_new(double **x);
+#define TRUE  1
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
+extern int Grafted_Logical;
 #define WJDC3        5 
-#define CMS          0
 double gsum_double(double c);
 extern int Nnodes_per_el_V;
 extern double Vol_el;
@@ -162,6 +193,7 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+extern double Ads[NCOMP_MAX][2];
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */
   double    S1;      /*   1/(4*pi*Ri)    * Delta_fn   */

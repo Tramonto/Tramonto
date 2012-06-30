@@ -62,7 +62,6 @@ int solve_problem(double **x, double **x2)
 
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
-
   /* If requested, write out initial guess */
    if (Iwrite_files == FILES_DEBUG)  print_profile_box(x,"rho_init.dat");
 
@@ -138,7 +137,10 @@ int newton_solver(double** x, void* con_ptr) {
   char filename[FILENAME_LENGTH]="./matrix.dat";
   double start_t;
   double** delta_x,resid_sum;
-  delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
+
+  if (Type_poly==WJDC3 && Grafted_Logical==TRUE) 
+       delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box_extra, sizeof(double));
+  else delta_x = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
 
   do {
     iter++;
@@ -154,10 +156,11 @@ int newton_solver(double** x, void* con_ptr) {
 
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_finalizeproblemvalues(LinProbMgr_manager);
-    if (Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) print_resid_norm(iter);
+    if (Iwrite_screen != SCREEN_NONE) print_resid_norm(iter);
     (void) dft_linprobmgr_setupsolver(LinProbMgr_manager);
     if (iter==1) Time_manager_first=MPI_Wtime()-start_t;
     else         Time_manager_av+=(MPI_Wtime()-start_t);
+
 /*#ifdef NUMERICAL_JACOBIAN*/
    /*if (Iwrite_files==FILES_DEBUG_MATRIX) do_numerical_jacobian(x);*/
 /*#endif*/
@@ -206,7 +209,7 @@ int update_solution_new(double** x, double** delta_x, int iter) {
  *       iter  value may be used in some damping methods
  */
 
-  int iunk, ibox, inode;
+  int iunk, ibox, inode, nnodes_loop;
   double updateNorm=0.0, temp,frac_min;
   char *yo = "newupdate solution";
 
@@ -220,7 +223,10 @@ int update_solution_new(double** x, double** delta_x, int iter) {
      else printf("\tUpdate Frac = %g percent\n",frac_min*100);
   }
 
-  for (ibox=0; ibox<Nnodes_box; ibox++) {
+  if (Type_poly==WJDC3 && Grafted_Logical==TRUE) nnodes_loop=Nnodes_box_extra;
+  else nnodes_loop=Nnodes_box;
+
+  for (ibox=0; ibox<nnodes_loop; ibox++) {
 
     /* Increment updateNorm only for owned nodes (inode=-1 for ghosts) */
     inode = B2L_node[ibox];
@@ -261,16 +267,18 @@ int update_solution(double** x, double** delta_x, int iter) {
  *       iter  value may be used in some damping methods
  */
 
-  int iunk, ibox, inode,inodeG,ijk[3],go_update,idim;
+  int iunk, ibox, inode,inodeG,ijk[3],go_update,idim,nnodes_loop;
   double updateNorm=0.0, temp,frac_min,frac;
   char *yo = "newupdate solution";
 
+  if (Type_poly==WJDC3 && Grafted_Logical==TRUE) nnodes_loop=Nnodes_box_extra;
+  else nnodes_loop=Nnodes_box;
      
    /* Certain unknowns - specifically densities and Gs in CMS DFT cannot be less than 0.
       Here we locate problems, and scale the entire update vector to prevent this from 
       happening. */
   frac_min=1.0;
-  for (ibox=0; ibox<Nnodes_box; ibox++) { /* find minimum update fraction in entire domain */
+  for (ibox=0; ibox<nnodes_loop; ibox++) { /* find minimum update fraction in entire domain */
     for (iunk=0; iunk<Nunk_per_node; iunk++){
       if ( (Unk2Phys[iunk]==G_CHAIN  && Pol_Sym[iunk-Phys2Unk_first[G_CHAIN]] == -1) ||
            (Unk2Phys[iunk]==DENSITY && (!(Type_poly==WTC) || (Pol_Sym_Seg[iunk-Phys2Unk_first[DENSITY]] ==-1) )) ){
@@ -293,7 +301,7 @@ int update_solution(double** x, double** delta_x, int iter) {
      else printf("\tUpdate Frac = %g percent\n",frac_min*100);
   }
 
-  for (ibox=0; ibox<Nnodes_box; ibox++) {
+  for (ibox=0; ibox<nnodes_loop; ibox++) {
 
     /* Increment updateNorm only for owned nodes (inode=-1 for ghosts) */
     inode = B2L_node[ibox];

@@ -188,12 +188,13 @@ void print_profile(char *Density_FileName,double *xold)
   int icomp,iunk,i,inode,ijk[3],idim,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
   int node_start,jcomp,pol_number;
   double kappa_sq,kappa,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term,scalefac,mu;
+  double save_field[NCOMP_MAX];
   char *unk_char;
     
-  char gfile[FILENAME_LENGTH],segfile[FILENAME_LENGTH];
+  char gfile[FILENAME_LENGTH],segfile[FILENAME_LENGTH],ifile[FILENAME_LENGTH];
   char compfile[FILENAME_LENGTH];
   char tmp_str_array[FILENAME_LENGTH];
-  FILE *fp_Density=NULL,*fp_Gfile=NULL,*fp_DensSegComp=NULL;
+  FILE *fp_Density=NULL,*fp_Gfile=NULL,*fp_DensSegComp=NULL,*fp_Ifile=NULL;
   /* 
    *  print out the densities (and electrostatic potential)
    *  to the file dft_dens.dat or dft_dens.?.?   
@@ -208,6 +209,10 @@ void print_profile(char *Density_FileName,double *xold)
        strcpy(tmp_str_array,Outpath_array);
        sprintf(gfile,"%sg",Density_FileName);
        fp_Gfile = fopen(strcat(tmp_str_array,gfile),"w");
+
+       strcpy(tmp_str_array,Outpath_array);
+       sprintf(ifile,"%si",Density_FileName);
+       fp_Ifile = fopen(strcat(tmp_str_array,ifile),"w");
      } 
 
            /* open file for segment type densities per chain ... */
@@ -324,6 +329,7 @@ void print_profile(char *Density_FileName,double *xold)
             if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) &&
                 (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3))  {
                                    fprintf(fp_Gfile,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
+                                   fprintf(fp_Ifile,"%9.6f\t ",ijk[idim]*Esize_x[idim]);
             }
             if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) &&
                 (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly == CMS  || Type_poly==CMS_SCFT || Type_poly==WJDC3)) 
@@ -381,12 +387,14 @@ void print_profile(char *Density_FileName,double *xold)
 
                      if (Unk2Phys[iunk]!=WJDC_FIELD){ 
                          fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]);
+                         save_field[iunk-Phys2Unk_first[WJDC_FIELD]]=xold[iunk+node_start];
                      }
                      else{
                        for (pol_number=0;pol_number<Npol_comp;pol_number++) {
                           if (Nseg_type_pol[pol_number][icomp] !=0) scalefac=Scale_fac_WJDC[pol_number][icomp];
                         }
                         fprintf(fp_Density,"%.10le\t", xold[iunk+node_start]/exp(scalefac));
+                        save_field[iunk-Phys2Unk_first[WJDC_FIELD]]=xold[iunk+node_start]/exp(scalefac);
                      }
                    }
                    break;
@@ -398,7 +406,12 @@ void print_profile(char *Density_FileName,double *xold)
                    break;
 
                 case G_CHAIN:
-                   if (Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) fprintf(fp_Gfile,"%.10le\t", xold[iunk+node_start]);
+                   if (Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED){
+                          fprintf(fp_Gfile,"%.10le\t", xold[iunk+node_start]);
+                          icomp=Unk2Comp[SegChain2SegAll[Unk_to_Poly[iunk-Phys2Unk_first[G_CHAIN]]][Unk_to_Seg[iunk-Phys2Unk_first[G_CHAIN]]]];
+                          if (fabs (xold[iunk+node_start])>1.e-12) fprintf(fp_Ifile,"%.10le\t", xold[iunk+node_start]/save_field[icomp]);
+                          else                                     fprintf(fp_Ifile,"%.10le\t", 0.0);
+                   }
                    break;
             }
 
@@ -439,9 +452,15 @@ void print_profile(char *Density_FileName,double *xold)
                       site_dens=bondproduct*POW_DOUBLE_INT(xold[unk_B+node_start],-(Nbond[ipol][iseg]-1));
                       if (Type_poly==CMS || Type_poly==CMS_SCFT) site_dens*=Rho_b[itype_mer]/Nmer_t[ipol][itype_mer];
                       else if (Type_poly==WJDC3) {
+                         if (Grafted_Logical && Grafted[ipol]){
+                             if (iseg==Grafted_SegID[ipol]) site_dens=Rho_g[ipol];
+                             else site_dens*=Rho_g[ipol]/Gsum_graft[ipol];
+                         }
+                         else{
                              if (Type_interface==DIFFUSIVE_INTERFACE)  mu=xold[ipol+Phys2Unk_first[DIFFUSION]+node_start];
                              else                                      mu=Betamu_chain[ipol];
                              site_dens*=exp(mu+scale_term);
+                         }
                       }
                    }
                    else site_dens=0.0;
@@ -470,7 +489,10 @@ void print_profile(char *Density_FileName,double *xold)
  
                 /* add a carriage return to the file to start a new line */
         fprintf(fp_Density,"\n");
-        if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) && (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)) fprintf(fp_Gfile,"\n");
+        if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) && (Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3)){ 
+              fprintf(fp_Gfile,"\n");
+              fprintf(fp_Ifile,"\n");
+        }
         if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) && (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 ||((Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)))) fprintf(fp_DensSegComp,"\n");
 
                 /* add some blank lines for improved graphics in 2D and 3D gnuplot */

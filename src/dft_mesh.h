@@ -91,7 +91,11 @@ double gsum_double(double c);
 #define UP_BACK      0
 void surf_el_to_list(int loc_inode,int ilist,int *iel_box,int el,int type,int normal,int idim,double esize1,double esize2);
 void find_local_els(int inode,int *iel,int *iel_box,int flag);
+void comm_loc_to_glob_vec(int *n_loc,int *in_loc_vec,int *out_glob_vec);
 extern int Nnodes_per_el_S;
+extern int GraftedWall_TF[NWALL_MAX_TYPE];
+extern int Nnodes_box_extra;
+void setup_global_surfaces();
 extern int Link[NWALL_MAX];
 #define NDIM_MAX  3
 extern double WallPos[NDIM_MAX][NWALL_MAX];
@@ -143,6 +147,16 @@ struct SurfaceGeom_Struct {
   int    *ReflectionsAreIndependent;  /* TRUE or FALSE for treating special boundary conditions */
 };
 void setup_zeroTF_and_Node2bound(FILE *fpecho,int ***el_type);
+extern int **S2B_node;
+extern int *B2G_node_extra;
+extern int **NelemsS_global;
+extern int **NodesS_GID_global;
+extern int *NodesS_global;
+extern int ***Surf_elem_to_wall_global;
+extern int ***Surf_normal_global;
+extern int Grafted_Logical;
+#define WJDC3        5 
+extern int Type_poly;
 extern double **Charge_w_sum_els;
 extern double *Charge_vol_els;
 extern double **S_area_tot;

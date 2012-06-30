@@ -78,7 +78,8 @@ double load_WJDC_density(int iunk, int loc_inode, int inode_box, double **x,int 
       else if (Type_poly==WJDC)                 unk_B=Phys2Unk_first[WJDC_FIELD]+iseg; 
 
 /*      resid_R+=resid_and_Jac_ChainDensity_WJDC2 (G_CHAIN,x,iunk,unk_B,loc_inode,inode_box,
-                                           resid_only_flag, &prefactor_rho_wjdc);*/
+                                            resid_only_flag, &prefactor_rho_wjdc);*/
+
       resid_R+=resid_and_Jac_ChainDensity (G_CHAIN,x,iunk,unk_B,loc_inode,inode_box,
                                            resid_only_flag, &prefactor_rho_wjdc);
    }
@@ -93,22 +94,28 @@ double prefactor_rho_wjdc(int iseg,int inode_box,double **x)
   pol_number=SegAll_to_Poly[iseg];
   scale_term=0.0;
 
+  if(Type_poly==WJDC3 && Grafted_Logical==TRUE && Grafted[pol_number])  {
+            if (iseg==Grafted_SegIDAll[pol_number]){
+/*                fac=Rho_g[pol_number]/Gsum_noVolume[pol_number];*/
+                fac=Rho_g[pol_number];
+            }
+            else{
+                icomp=Type_mer[pol_number][iseg];
+		fac = Rho_g[pol_number]/Gsum_graft[pol_number]; 
+            }
+   }
+   else{
+      for (icomp=0;icomp<Ncomp;icomp++){
+         scale_term-=Scale_fac_WJDC[pol_number][icomp]*Nseg_type_pol[pol_number][icomp];
+      }
 
-  for (icomp=0;icomp<Ncomp;icomp++){
-     scale_term-=Scale_fac_WJDC[pol_number][icomp]*Nseg_type_pol[pol_number][icomp];
-  }
+      if (Type_interface==DIFFUSIVE_INTERFACE){
+         mu=x[Phys2Unk_first[DIFFUSION]+pol_number][inode_box];
+      }
+      else mu=Betamu_chain[pol_number];
 
-  if (Type_interface==DIFFUSIVE_INTERFACE){
-     mu=x[Phys2Unk_first[DIFFUSION]+pol_number][inode_box];
-  }
-  else mu=Betamu_chain[pol_number];
-
-  fac=exp(mu+scale_term);
-
-	if(Grafted[pol_number] && Type_poly==WJDC3)  {
-		icomp = Type_mer[pol_number][iseg];
-		fac = Rho_g[pol_number]/Gsum[pol_number]; 
-	}
+      fac=exp(mu+scale_term);
+   }
 
   return (fac);
 }

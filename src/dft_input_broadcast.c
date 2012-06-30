@@ -230,6 +230,7 @@ void broadcast_input()
 
   MPI_Bcast(Unk2Comp,NMER_MAX,MPI_INT,0,MPI_COMM_WORLD);
 
+  MPI_Bcast(&Grafted_Logical,1,MPI_INT,0,MPI_COMM_WORLD);
   if (Type_poly != NONE){
     MPI_Bcast(&Npol_comp,1,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Nblock,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
@@ -244,7 +245,11 @@ void broadcast_input()
     MPI_Bcast(Type_mer_to_Pol,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Grafted,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Graft_wall,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(GraftedWall_TF,NWALL_MAX_TYPE,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(Rho_g,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(Grafted_SegID,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(Grafted_SegIDAll,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(Grafted_TypeID,NCOMP_MAX,MPI_INT,0,MPI_COMM_WORLD);
 
     MPI_Bcast(&Type_poly_arch,1,MPI_INT,0,MPI_COMM_WORLD);
 

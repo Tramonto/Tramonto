@@ -41,7 +41,10 @@ double pressure_ideal_gas(double *rho)
       for (i=0;i<Nseg_tot;i++) betap+=rho[i];
    }
    else{
-      for (i=0;i<Ncomp;i++) betap+=rho[i];
+      for (i=0;i<Ncomp;i++){
+           if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[i]]==FALSE)
+           betap+=rho[i];
+      }
    }
    return(betap);
 }
@@ -52,10 +55,10 @@ void chempot_ideal_gas(double *rho,double *betamu)
    int i;
    
    for (i=0;i<Ncomp;i++){
-       betamu[i] = log(rho[i]);
+       if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[i]]==FALSE) betamu[i] = log(rho[i]);
        if (LDeBroglie){
-           betamu[i]+=  (- 3.0*log(Sigma_ff[i][i]) -
-                               1.5*log(Mass[i]*Temp)); 
+           if (Grafted_Logical==FALSE || Grafted[Icomp_to_polID[i]]==FALSE)
+                   betamu[i]+=  (- 3.0*log(Sigma_ff[i][i]) - 1.5*log(Mass[i]*Temp)); 
        }
    }
    return;

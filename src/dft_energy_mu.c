@@ -67,6 +67,10 @@ double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
 
      i = iunk-Phys2Unk_first[DENSITY];
 
+     if (Grafted_Logical==FALSE || (Type_poly==WJDC3 && 
+           Grafted[Icomp_to_polID[iunk-Phys2Unk_first[DENSITY]]]==FALSE)){
+
+
      if (Type_interface==DIFFUSIVE_INTERFACE){
         if (Lseg_densities){
                icomp = Unk2Comp[i];
@@ -95,6 +99,8 @@ double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
 
 /*     printf("BULK TERM: iunk=%d inode_box=%d rho_i=%9.6f mu_i=%9.6f\n",iunk,inode_box,rho_i,mu_i);*/
      integrand = -rho_i*mu_i;
+     }
+     else integrand=0.0;
      return(integrand);
 }
 

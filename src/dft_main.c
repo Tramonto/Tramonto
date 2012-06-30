@@ -69,8 +69,8 @@ void dftmain(double * engptr)
   double    *t_linsolv_first_array,*t_linsolv_av_array;
   double    *t_manager_first_array,*t_manager_av_array;
   double    *t_fill_first_array,*t_fill_av_array;
-  int       min_nnodes_per_proc,max_nnodes_per_proc,min_nnodes_box,max_nnodes_box;
-  double    min_nodesLoc_over_nodesBox,max_nodesLoc_over_nodesBox;
+  int       min_nnodes_per_proc,max_nnodes_per_proc,min_nnodes_box,max_nnodes_box,ipol;
+  double    min_nodesLoc_over_nodesBox,max_nodesLoc_over_nodesBox,sigma_save[NCOMP_MAX];
   FILE      *fptime;
   char crfile[FILENAME_LENGTH];
   char tmp_str_array[FILENAME_LENGTH];
@@ -78,7 +78,7 @@ void dftmain(double * engptr)
   struct Stencil_Struct *sten;
 /*  char line[100],linecwd[100];*/
   int proper_bc;
-  int argc=1;
+  int argc=1,ierr;
 
   Time_linsolver_first=0.0;
   Time_linsolver_av=0.0;
@@ -210,13 +210,61 @@ void dftmain(double * engptr)
            safe_free((void *)&Nel_hit);
            safe_free((void *)&Nel_hit2);
      }
+     if (Lhard_surf==TRUE && Type_poly==WJDC3 && Grafted_Logical==TRUE){       /* for hard walls graft the chain to the surface as in the Jain paper */
+          for(ipol=0; ipol<Npol_comp; ipol++){
+             if(Grafted[ipol]){ 
+                 sigma_save[Grafted_TypeID[ipol]]=Sigma_ff[Grafted_TypeID[ipol]][Grafted_TypeID[ipol]];
+                 Sigma_ff[Grafted_TypeID[ipol]][Grafted_TypeID[ipol]]=0.001;
+             }
+          }
+     }
+
      set_up_mesh(file_echoinput,Vext_Filename);
+
+     if (Lhard_surf && Type_poly==WJDC3 && Grafted_Logical==TRUE){       /* for hard walls graft the chain to the surface as in the Jain paper */
+         for(ipol=0; ipol<Npol_comp; ipol++){
+             if(Grafted[ipol]) Sigma_ff[Grafted_TypeID[ipol]][Grafted_TypeID[ipol]]=sigma_save[Grafted_TypeID[ipol]];
+          }
+     }
 
     /*
      * Set up boundary and surface charge information -- this must come
      * after load-balancing because quantities are local on a Proc
      */
      boundary_setup(file_echoinput);
+
+
+     /*
+      * Need to set up global surface arrays if we have tethered chains.  
+      * This modification requires us to reinitialize the LinProblemManager
+      */
+     if (Type_poly==WJDC3 && Grafted_Logical==TRUE){   
+ 
+         dft_linprobmgr_destruct(LinProbMgr_manager);
+         linsolver_setup_control();
+         (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
+         if(Type_poly==WJDC3 && Grafted_Logical ==TRUE) setup_global_surfaces();
+
+         /*for (i=0;i<Nnodes_box_extra;i++){
+            if (i<Nnodes_box){
+               if (B2L_node[i]!=-1) printf ("inode_box=%d:: local node::  loc_inode=%d  B2G_node_extra=%d  B2G_node=%d  L2G_node=%d\n",
+                                              i,B2L_node[i],B2G_node_extra[i],B2G_node[i],L2G_node[i]);
+               else printf ("inode_box=%d:: box node::   B2G_node_extra=%d  B2G_node=%d  \n", i,B2G_node_extra[i],B2G_node[i]);
+            }
+            else printf("inode_box=%d:: extended node::  B2G_node_extra=%d\n",i,B2G_node_extra[i]);
+         }*/
+         (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box_extra     , B2G_node_extra);
+
+/*          if (Nwall != 0)  dft_linprobmgr_setcoarsenednodeslist(LinProbMgr_manager, Nnodes_coarse_loc, List_coarse_nodes);*/
+
+          /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
+          ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
+          if (ierr!=0){
+            if (Iwrite_screen != SCREEN_NONE) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
+            exit(-1);
+          }
+     }
+
 
      /*
       * bvbw moved setup_integral after boundary_setup to eliminate seg fault
@@ -256,18 +304,24 @@ void dftmain(double * engptr)
       * (see file dft_newton.c, which calls dft_fill.c and Aztec library)
       * The variable "niters" is positive if Newton's method converrged.
       */
-      x = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
-      if (Lbinodal) x2 = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
+      if (Type_poly==WJDC3 && Grafted_Logical==TRUE){ 
+         x = (double **) array_alloc (2, Nunk_per_node, Nnodes_box_extra, sizeof(double));
+         if (Lbinodal) x2 = (double **) array_alloc (2, Nunk_per_node, Nnodes_box_extra, sizeof(double));
+      }
+      else{
+         x = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
+         if (Lbinodal) x2 = (double **) array_alloc (2, Nunk_per_node, Nnodes_box, sizeof(double));
+      }
 
       t_preprocess += MPI_Wtime();
       t_solve = -MPI_Wtime();
       if (NL_Solver == PICARD_BUILT_IN || NL_Solver==PICARD_NOX ||
            NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN){
-          if (NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN) NL_update_scalingParam/=100.;
+          if (NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN) NL_update_scalingParam/=10.;
           if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) printf("\nCalling Picard Solver!\n");
           niters = solve_problem_picard(x, x2);
           if (NL_Solver==PICNEWTON_NOX || NL_Solver==PICNEWTON_BUILT_IN){
-              NL_update_scalingParam*=100.;
+              NL_update_scalingParam*=10.;
 
               print_profile_box(x,"dft_dens_picard.dat");
               if (Lbinodal){ print_profile_box(x2,"dft_dens_picard2.dat"); }

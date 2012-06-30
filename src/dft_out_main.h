@@ -29,7 +29,7 @@ void calc_fluid_charge(FILE *fp,double **x);
 #define NONE        -1
 #define NONE        -1
 extern int Type_coul;
-void calc_adsorption(FILE *fp,double **x);
+void calc_adsorption(FILE *fp,double **x,double *Ads_total);
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
 #define NWALL_MAX 600 
@@ -74,6 +74,8 @@ struct Loca_Struct {
   double step_size;   /* initial continuation step size               */
 };
 extern struct Loca_Struct Loca;
+extern double *Gsum_graft_noVolume;
+extern double *Gsum_graft;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void print_gofr(char *GofR_Filename,double *xold);
@@ -102,6 +104,7 @@ extern int Proc;
 #endif
 extern int Imain_loop;
 extern int Nruns;
+extern double Ads[NCOMP_MAX][2];
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1

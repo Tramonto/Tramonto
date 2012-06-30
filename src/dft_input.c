@@ -64,7 +64,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
        dim_tmp,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
    double rho_tmp[NCOMP_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
-   int iblock,jblock,itype_poly,repeat_type,graft_logical;
+   int iblock,jblock,itype_poly,repeat_type,grafted_segID_tmp;
    char unk_char[20];
    char *densityFile_tmp,*densityFile2_tmp;
 
@@ -849,6 +849,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   /************************************************/
 
   for (icomp=0;icomp<Ncomp;icomp++) Unk2Comp[icomp]=icomp;    /* this will be reset for polymers where we track segments */
+  Grafted_Logical=FALSE;
 
   if (Type_poly != NONE){
 
@@ -918,26 +919,43 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
       }
       Ntype_mer++;
 
-      graft_logical=FALSE;
       read_junk(fpinput,fpecho);
       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
           fscanf(fpinput,"%d",&Grafted[pol_number]);
            fprintf(fpecho,"%d   ",Grafted[pol_number]);
-          if (Grafted[pol_number]==TRUE) graft_logical=TRUE;
+          if (Grafted[pol_number]==TRUE) Grafted_Logical=TRUE;
       }
 
       read_junk(fpinput,fpecho);
+      if(Grafted_Logical==TRUE) {
+         for (pol_number=0; pol_number<Npol_comp; ++pol_number){
+            fscanf(fpinput,"%d",&grafted_segID_tmp);
+            fprintf(fpecho,"%d   ",grafted_segID_tmp);
+/*            grafted_segID_tmp=0;
+            grafted_segID_tmp=4;*/
+            if (Grafted[pol_number]){
+                 Grafted_SegID[pol_number]=grafted_segID_tmp;
+                 Grafted_SegIDAll[pol_number]=SegChain2SegAll[pol_number][grafted_segID_tmp];
+                 Grafted_TypeID[pol_number]=Type_mer[pol_number][grafted_segID_tmp];
+            }
+            else Grafted_SegID[pol_number]=-1;
+         }
+      }
+
+      for (i=0;i<Nwall_type;i++) GraftedWall_TF[i]=FALSE;
+      read_junk(fpinput,fpecho);
       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-         if(graft_logical==TRUE) {
+         if(Grafted_Logical==TRUE) {
             fscanf(fpinput,"%d", &Graft_wall[pol_number]);
              fprintf(fpecho,"%d  ",Graft_wall[pol_number]);
+             GraftedWall_TF[Graft_wall[pol_number]]=TRUE;
          }
          else Graft_wall[pol_number]=-1;
       }
 
       read_junk(fpinput,fpecho);
       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
-          if(graft_logical==TRUE) {
+          if(Grafted_Logical==TRUE) {
               fscanf(fpinput,"%lf",&Rho_g[pol_number]);
                fprintf(fpecho,"%f   ",Rho_g[pol_number]);
           }
@@ -1007,7 +1025,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   else{
      read_junk(fpinput,fpecho);
       fprintf(fpecho,"\n POLYMER INPUT NOT RELEVENT FOR THIS RUN\n not read  ");
-     for (i=0; i<10; i++) { read_junk(fpinput,fpecho);  fprintf(fpecho,"not read  - no polymers  "); }
+     for (i=0; i<11; i++) { read_junk(fpinput,fpecho);  fprintf(fpecho,"not read  - no polymers  "); }
      Poly_file_name="None";
      Cr_file="None";
      Cr_file2="None";

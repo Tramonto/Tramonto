@@ -63,6 +63,9 @@ extern int Vext_PotentialID[NWALL_MAX_TYPE];
 void pairPotparams_switch(int typePairPot,int context,int i,int j,double *param1,double *param2,double *param3,double *param4,double *param5,double *param6);
 #define VEXT_PAIR_POTENTIAL  1
 extern int Type_vext[NWALL_MAX_TYPE];
+#define WJDC3        5 
+extern int Type_poly;
+extern int Grafted_Logical;
 extern double **Vext_membrane;
 int ijk_box_to_node_box(int *ijk_box);
 extern int Nodes_x[NDIM_MAX];
@@ -71,6 +74,11 @@ extern int Nnodes_per_el_V;
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 int element_box_to_node_box(int iel_box);
 extern int **Lsemiperm;
+extern int Graft_wall[NCOMP_MAX];
+extern int **Nodes_2_boundary_wall;
+extern int Grafted_TypeID[NCOMP_MAX];
+extern int Icomp_to_polID[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
 void node_to_position(int inode,double *NodePos);
 extern int *L2G_node;
 extern int Nnodes;

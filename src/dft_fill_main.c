@@ -50,15 +50,17 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   double *resid_unk,resid_sum=0.0,resid_term;
   double sum_i, vol;
   double **array_test;
+  double Ads[NCOMP_MAX],pos_xyz[3];
   FILE *fparray;
   char filename[FILENAME_LENGTH];
   char *fileArray;
   char tmp_str_array[FILENAME_LENGTH];
 
-  int i,j;
+  int i,j,ipol,iseg_test,icomp;
 
   if (Proc == 0 && !resid_only_flag && Iwrite_screen == SCREEN_VERBOSE) printf("\n\t%s: Doing fill of residual and matrix\n",yo);
   resid_unk = (double *) array_alloc (1, Nunk_per_node, sizeof(double));
+
 
   if (Iwrite_files==FILES_DEBUG_MATRIX){
       Array_test = (double **) array_alloc (2, Nunk_per_node*Nnodes,Nunk_per_node*Nnodes, sizeof(double));
@@ -102,8 +104,8 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   } 
  
 	/* ALF: for grafted chains */
-	if(Type_poly==CMS || Type_poly==WJDC3)
-		calc_Gsum(x);
+/*	if(Type_poly==CMS || Type_poly==WJDC3) calc_Gsum(x);*/
+	if(Type_poly==WJDC3 && Grafted_Logical==TRUE){ calc_Gsum_new(x); }
 		
 		/* Load residuals and matrix */
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
@@ -156,12 +158,148 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
      fclose(fparray);
   }
 
+  if(Type_poly==WJDC3 && Grafted_Logical==TRUE){
+           safe_free((void *) &Index_SurfNodes_Gsum);
+           safe_free((void *) &Index_UnkGQ_Gsum);
+    /*       safe_free((void *) &Gsum_graft);
+           safe_free((void *) &Gsum_graft_noVolume);*/
+           safe_free((void *) &Nodes_Surf_Gsum);
+           safe_free((void *) &Total_area_graft);
+           safe_free((void *) &GsumPrefac_XiDerivs);
+           safe_free((void *) &GsumPrefac_GDerivs);
+  }
+
   safe_free((void *) &resid_unk);
-  if (Type_poly==CMS_SCFT) safe_free((void *) &Gsum);
+/*  if (Type_poly==CMS_SCFT) safe_free((void *) &Gsum);*/
   return(resid_sum);
 }
 
 /*************************************************************************************************/
+void calc_Gsum_new(double **x)
+{
+  double *integrand,*integrand2;
+  double prefac,prefac2,gproduct,gproduct_deriv;
+  int  surf_norm,idim,iwall_type_graft,iel_w,jbond;
+  int icomp,ilist,ipol,ibond,unk_GQ,loc_inode,iseg_graft,isegALL_graft,iwall,unk_B,Nbond_graft,inode,inode_box;
+
+  integrand = (double *) array_alloc (1, Nwall, sizeof(double));
+  integrand2 = (double *) array_alloc (1, Nwall, sizeof(double));
+
+  if(Type_poly==WJDC3 && Grafted_Logical ==TRUE) {
+    Nodes_Surf_Gsum = (int *) array_alloc (1, Nwall, sizeof(int));
+    Index_SurfNodes_Gsum = (int **) array_alloc(2, Nwall, Nnodes_per_proc, sizeof(int));
+    if (Gsum_graft==NULL){
+    Gsum_graft = (double *) array_alloc(1, Npol_comp, sizeof(double));
+    Gsum_graft_noVolume = (double *) array_alloc(1, Npol_comp, sizeof(double));
+    }
+    Total_area_graft = (double *) array_alloc(1, Npol_comp, sizeof(double));
+
+    Index_UnkGQ_Gsum = (int ***) array_alloc(3, Nwall, Nnodes_per_proc, NBOND_MAX, sizeof(int));
+    Index_UnkB_Gsum = (int **) array_alloc(2, Nwall, Nnodes_per_proc, sizeof(int));
+    GsumPrefac_XiDerivs = (double **) array_alloc (2, Nwall, Nnodes_per_proc, sizeof(double));
+    GsumPrefac_GDerivs = (double ***) array_alloc (3, Nwall, Nnodes_per_proc, NBOND_MAX, sizeof(double));
+
+    for(ipol=0; ipol<Npol_comp; ipol++){
+      Gsum_graft[ipol]=1.0;
+      if(Grafted[ipol]) {
+
+        iseg_graft=Grafted_SegID[ipol];
+        isegALL_graft=Grafted_SegIDAll[ipol];
+        iwall_type_graft=Graft_wall[ipol];
+        icomp=Grafted_TypeID[ipol];
+        Nbond_graft=Nbonds_SegAll[isegALL_graft];
+        unk_B=Phys2Unk_first[WJDC_FIELD]+icomp;
+
+        if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
+        else                                  ilist = icomp;
+
+        for (iwall=0;iwall<Nwall;iwall++){
+            integrand[iwall]=0.0;
+            integrand2[iwall]=0.0;
+            Nodes_Surf_Gsum[iwall]=0;
+        }
+
+/*        for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) 
+            if (Nodes_2_boundary_wall[ilist][L2B_node[loc_inode]] !=-1)*/
+
+        for (inode=0;inode<NodesS_global[ilist];inode++){
+          inode_box=S2B_node[ilist][inode];
+
+/*        for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++)
+            surf_norm = Surf_normal[ilist][loc_inode][iel_w];*/
+
+        for (iel_w=0; iel_w<NelemsS_global[ilist][inode]; iel_w++){
+            surf_norm = Surf_normal_global[ilist][inode][iel_w];
+ 
+            idim = abs(surf_norm) - 1;
+
+/*            iwall=Surf_elem_to_wall[ilist][loc_inode][iel_w];*/
+            iwall=Surf_elem_to_wall_global[ilist][inode][iel_w];
+
+            if (WallType[iwall]==iwall_type_graft){
+    /*           prefac = Area_surf_el[idim]*Esize_x[idim]/Nelems_S[ilist][loc_inode];
+               prefac2 = Area_surf_el[idim]/Nelems_S[ilist][loc_inode];*/
+
+               prefac = Area_surf_el[idim]*Esize_x[idim]/NelemsS_global[ilist][inode];
+               prefac2 = Area_surf_el[idim]/NelemsS_global[ilist][inode];
+
+               Index_UnkB_Gsum[iwall][Nodes_Surf_Gsum[iwall]]=unk_B;
+               GsumPrefac_XiDerivs[iwall][Nodes_Surf_Gsum[iwall]]=
+                    ((double)(Nbond_graft-2))*prefac/(POW_DOUBLE_INT(x[unk_B][inode_box],Nbond_graft-1));
+ 
+               prefac/=POW_DOUBLE_INT(x[unk_B][inode_box],Nbond_graft-2);
+               prefac2/=POW_DOUBLE_INT(x[unk_B][inode_box],Nbond_graft-2);
+ 
+               gproduct=1.0; 
+               for(ibond=0; ibond<Nbonds_SegAll[isegALL_graft]; ibond++) {
+                    if(Bonds[ipol][iseg_graft][ibond] != -1) {
+
+                       unk_GQ = Geqn_start[ipol] + Poly_to_Unk[ipol][iseg_graft][ibond];
+                       gproduct*=x[unk_GQ][inode_box];
+
+                       gproduct_deriv=1.0;
+                       for (jbond=0; jbond<Nbonds_SegAll[isegALL_graft]; jbond++){
+                          if(Bonds[ipol][iseg_graft][jbond] != -1 && (Bonds[ipol][iseg_graft][ibond] != Bonds[ipol][iseg_graft][jbond])) {
+                          unk_GQ = Geqn_start[ipol] + Poly_to_Unk[ipol][iseg_graft][jbond];
+                          gproduct_deriv*=x[unk_GQ][inode_box];
+                          }
+                       }
+                       Index_UnkGQ_Gsum[iwall][Nodes_Surf_Gsum[iwall]][ibond]=unk_GQ;
+                       GsumPrefac_GDerivs[iwall][Nodes_Surf_Gsum[iwall]][ibond]=gproduct_deriv*prefac;
+                    }
+               }
+               integrand[iwall]+=prefac*gproduct;
+               integrand2[iwall]+=prefac2*gproduct;
+               GsumPrefac_XiDerivs[iwall][Nodes_Surf_Gsum[iwall]]*=gproduct;
+               Index_SurfNodes_Gsum[iwall][Nodes_Surf_Gsum[iwall]]=S2B_node[ilist][inode];
+               Nodes_Surf_Gsum[iwall]+=1;
+            }
+         }
+         }
+
+         Gsum_graft[ipol]=0.0;
+         Total_area_graft[ipol]=0.0;
+         Gsum_graft_noVolume[ipol]=0.0;
+         for (iwall=0;iwall<Nwall;iwall++){
+            if (WallType[iwall]==iwall_type_graft){
+               Gsum_graft[ipol]+=(integrand[iwall]);
+/*               Gsum_graft_noVolume[ipol]+=2.0*integrand2[iwall];*/
+               Total_area_graft[ipol]+=S_area_tot[ilist][iwall];
+            }
+         }
+         Gsum_graft[ipol]/=Total_area_graft[ipol];
+/*         Gsum_graft_noVolume[ipol]/=Total_area_graft[ipol];*/
+        }
+     }
+  }
+
+  safe_free((void *) &integrand);
+  safe_free((void *) &integrand2);
+
+  return;
+}
+/*************************************************************************************************/
+
 void calc_Gsum(double **x) 
 {
 	int npol,ibond,iseg,itype_mer,unk_G;
@@ -409,7 +547,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                   kind of analysis may require multiple runs and so output to a file is recommended. */
 
     /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-    if (fabs(resid_unk[iunk])>1.e-3){
+/*    if (fabs(resid_unk[iunk])>1.e-3){*/
     switch(Unk2Phys[iunk]){
        case DENSITY:  printf("Proc=%d: loc_inode=%d of %d (Global val=%d) iunk_rho=%d ", Proc,loc_inode,Nnodes_per_proc,L2G_node[loc_inode],iunk); break;
        case HSRHOBAR: printf("Proc=%d: loc_inode=%d iunk_rbar=%d ", Proc,loc_inode,iunk); break;
@@ -425,7 +563,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
        case MF_EQ: printf("Proc=%d: loc_inode=%d  iunk_MFeq=%d ",Proc,loc_inode,iunk); break;
     }
     printf(" resid=%11.8f \n",resid_unk[iunk]); 
-    }
+/*    }*/
 
     return;
 }
