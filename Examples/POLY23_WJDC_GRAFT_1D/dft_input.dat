@@ -3,7 +3,7 @@
 ************* MESH PARAMETERS *************************************************
 @ 1 	Ndim 
 @ 30.0 	Size_x(idim): idim=0,Ndim-1 
-@ 0.05 	Esize_x(idim): idim=0,Ndim-1 
+@ 0.1 0.05 	Esize_x(idim): idim=0,Ndim-1 
 @ -1 2 	Type_bc(x0,: left, right) (-1=IN_WALL, 0=IN_BULK, 1=PERIODIC, 2=REFLECT, 3=LAST_NODE, 4=LAST_NODE_RESTART) 
 @ 0 0 	Type_bc(x1,: down, up) 
 @ 0 0 	Type_bc(x2,: back, front) 
@@ -58,7 +58,7 @@
                    8 = pores of finite length:  slits(2D) OR cylindrical(3D)
 
 @ 0 	Orientation[iwall_type]: iwall_type=0,Nwall_type-1 
-@ 0.0 	WallParam[iwall_type] 
+@ 1.0 	WallParam[iwall_type] 
 @ 0. 	WallParam2[iwall_type] 
 @ 0. 	WallParam3[iwall_type] 
 @ 0 0 0  Lapply_offest[3] (logical for whether to apply offsets (rough, periodic, or linear)
@@ -122,15 +122,15 @@
           (Type_uwwPot options: 0=PAIR_LJ12_6_CS, 1=PAIR_COULOMB, 2=PAIR_COULOMB, 3=PAIR_YUKAWA_CS)
 
 ************** FLUID INTERACTION PARAMETERS  ************************************
-@ 1 1 	Ncomp Mix_type (0=L-B Rules, 1=manual input) 
+@ 2 1 	Ncomp Mix_type (0=L-B Rules, 1=manual input) 
 
-@ 1.       HS_diam[i] i=0,Ncomp-1  This is only read if Type_hsdiam is set to MANUAL
-@ 1. 1. 1. 	Mass[i] i=0,Ncomp-1 
-@ 0. 0. 0. 	Charge[i] i=0,Ncomp-1 
-@ 0. 0. 0. 	Pol[i] i=0,Ncomp-1 
+@ 1. 1.       HS_diam[i] i=0,Ncomp-1  This is only read if Type_hsdiam is set to MANUAL
+@ 1. 1.  	Mass[i] i=0,Ncomp-1 
+@ 0. 0.  	Charge[i] i=0,Ncomp-1 
+@ 0. 0.  	Pol[i] i=0,Ncomp-1 
 
 @ 1. 1. 1. 1.	Sigma_ff[i][j], [0][1]...[0][Ncomp-1]; 
-@ 0.2 0.2 0.2  0.0 	Eps_ff[i][j] 
+@ 0.2 0.2 0.2  0.2 	Eps_ff[i][j] 
 @ 1. 1. 1. 1. 	Cut_ff[i][j] 
 @ 1. 1. 1. 1.  	Bond_ff[i][j] 
 @ 0.            EpsYukawa_ff[i][j]
@@ -144,9 +144,9 @@
 @ 0.    EpsYukawa_ww[i][j]
 @ 0. 	YukawaK_ww[i][j] 
 
-@ 1. 1. 1. 	Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1] 
-@ 3. 3. 3. 	Eps_wf[i][j] 
-@ 3. 3. 3. 	Cut_wf[i][j] 
+@ 1. 1.  	Sigma_wf[i][j] [i=0,Ncomp-1][j=0,Nwall_type-1] 
+@ 3. 3.  	Eps_wf[i][j] 
+@ 3. 3.  	Cut_wf[i][j] 
 @ 0.    EpsYukawa_wf[i][j]
 @ 0. 	YukawaK_wf[i][j] 
 
@@ -157,13 +157,14 @@
 
 ************* POLYMER INPUT PARAMETERS ****************************************
 @ 1 	Npol_comp: Number of (co)polymer components 
-@ 1  	Nblock[pol_number]: Number of blocks in each copolymer 
-@ 49  	block[pol_number][iblock]: Number of segments in each block 
-@ 0  	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
+@ 2  	Nblock[pol_number]: Number of blocks in each copolymer 
+@ 1 49 	block[pol_number][iblock]: Number of segments in each block 
+@ 0 1 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
 @ 1  	Grafted[pol_number]: 1 if polymer is grafted to surface, 0 otherwise
+@ 0           Graft_SegID[pol_number]: indicated segment to graft to surface
 @ 0  	Graft_wall[pol_number]: which polymer is grafted to which wall
 @ 0.1   Rho_g[pol_number]: grafting density of chains on surface
-@ 0 lin_49	poly_file: File containing polymer connectivity 
+@ 0 lin_50	poly_file: File containing polymer connectivity 
 @ 1 1. n/a 	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
                  NCrfiles (number of cr files - up to 4 to be read in)
                  Crfac (multiplicative factor for the first c(r).
@@ -241,7 +242,7 @@
 @ 0. 0. 0. 	Radius_L, Radius_R, Length 
 
 ************** STARTUP CONTROL PARAMETERS ********************************
-@ 0 0  Iguess Iguess_fields 
+@ 0 1  Iguess Iguess_fields 
            [Iguess options:  0: Constant Bulk Density
                              1: rho_bulk*exp(-Vext/kT)
                              2: step function profile
@@ -307,7 +308,7 @@
 @ 0 100. 	Ljac_cut Jac_threshold 
 @ 0 0. 		L1D_bc, X_1D_bc 
 ************ NONLINEAR SOLVER PARAMETERS *************************************
-@ 2 200 0 1 0    NL_Solver Max_NL_iter Physics_scaling ATTInA22Block Analyt_WJDC_Jac
+@ 4 50 0 1 0    NL_Solver Max_NL_iter Physics_scaling ATTInA22Block Analyt_WJDC_Jac
 			NL_Solver = 0  Newton_built_in
 				    1  NEWTON_NOX
 					2 PICARD_BUILT_IN
@@ -315,7 +316,7 @@
 					4 PICNEWTON_BUILT_IN
 					5 PICNEWTON_NOX
 @ n/a           Scale_fac_WJDC[ipol][icomp]
-@ 1.0e-5 1.0e-6 0.1     NL_rel_tol NL_abs_tol NL_update_scalingParam
+@ 1.0e-5 1.0e-6 1.0     NL_rel_tol NL_abs_tol NL_update_scalingParam
 @ 1.e-3 1.e-8   NL_rel_tol_picard NL_abs_tol_picard
 @ 2     Load balance switch (0=linear,1=box,2=weights, 3=timings)
 ************ LINEAR SOLVER PARAMETERS ****************************************

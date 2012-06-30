@@ -161,6 +161,7 @@
 @ 10 1 	block[pol_number][iblock]: Number of segments in each block 
 @ 0  1	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
 @ 1 0 	Grafted[pol_number]: 1 if polymer is grafted to surface, 0 otherwise
+@ 0           Graft_SegID[pol_number]: indicated segment to graft to surface
 @ 0 0 	Graft_wall[pol_number]: which polymer is grafted to which wall
 @ 0.07 0  Rho_g[pol_number]: grafting density of chains on surface
 @ lin_10_1	poly_file: File containing polymer connectivity 

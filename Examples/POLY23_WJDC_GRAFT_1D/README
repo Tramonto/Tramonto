@@ -1,5 +1,5 @@
 /*! \file 
- \brief grafted, length 49 hard polymer grafted to a hard wall.
+ \brief grafted, length 50 hard polymer grafted to a hard wall.
 
 Functionals: WJDC, FMT1
 
@@ -15,8 +15,7 @@ Input Files for Test problem:
    - lin_49
 
 Key Output Parameters:
-   - niter=117 
-   - adsorption[0]=5.02942 
-   - energy=4.80519 
+   - niter=5
+   - adsorption[0]=4.59304 
    .
 */

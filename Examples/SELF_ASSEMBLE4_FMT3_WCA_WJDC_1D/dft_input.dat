@@ -180,6 +180,7 @@
 @ 1 1 1 1 	block[pol_number][iblock]: Number of segments in each block 
 @ 0 1 2 3 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
 @ 0  	Grafted[pol_number]: 1 if polymer is grafted to surface, 0 otherwise
+@ 0           Graft_SegID[pol_number]: indicated segment to graft to surface
 @ n/a  	Graft_wall[pol_number]: which polymer is grafted to which wall
 @ n/a   Rho_g[pol_number]: grafting density of chains on surface
 @ 1 lin_18_1	 Type_poly_arch poly_file: File containing polymer connectivity 
@@ -338,7 +339,7 @@
 ************ NONLINEAR SOLVER PARAMETERS *************************************
 @ 4 50 1 1 0    NL_Solver Max_NL_iter Physics_scaling ATTInA22Block Analyt_WJDC_Jac
 @ 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.  Scale_fac_WJDC[ipol][icomp]
-@ 1.0e-3 1.0e-5 0.2 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
+@ 1.0e-3 1.0e-5 1.0 	NL_rel_tol NL_abs_tol NL_update_scalingParam 
 @ 1.e-3 1.e-8   NL_rel_tol_picard NL_abs_tol_picard
 @ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
