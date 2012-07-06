@@ -41,10 +41,8 @@ void WJDC_thermo_precalc(char *file_echoinput)
 { 
   if (Type_interface==UNIFORM_INTERFACE) {
 
-printf("calling compute_bulk_nonlocal_wjdc...\n");
      compute_bulk_nonlocal_wjdc_properties(file_echoinput,Dphi_Drhobar_b,Rho_b,Rho_seg_b,
                                              	       Xi_cav_b,Field_WJDC_b,G_WJDC_b);
-printf("after compute_bulk_nonlocal_wjdc...\n");
   }
   else{
      compute_bulk_nonlocal_wjdc_properties(file_echoinput,Dphi_Drhobar_LBB,Rho_b_LBB,Rho_seg_LBB,
@@ -65,8 +63,6 @@ void compute_bulk_nonlocal_wjdc_properties(char *file_echoinput,double *dphi_drh
   int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill,test,power;
   double field,sten_sum[4];
   FILE *fp2=NULL;
-
-printf("in compute routine\n");
 
   if (Proc==0 && file_echoinput !=NULL) printproc = TRUE;
   else printproc=FALSE;
