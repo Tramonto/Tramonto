@@ -92,9 +92,6 @@ typedef dft_BasicLinProbMgr<dd_real,int,int> BLPM;
   }
 
   int dft_linprobmgr_setcoarsenednodeslist(void * linprobmgr, int numgids, int * gids) {
-    if(numgids == 0){
-      return( 0 );
-    }
     ArrayView<const int> gid_arr(gids, numgids);
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     linprobmgr_->setCoarsenedNodesList(gid_arr);
