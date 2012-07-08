@@ -127,11 +127,6 @@ dft_hardsphere_lin_prob_mgr_setdepnonlocalequationids
   BLPM * tmp = (BLPM *) linprobmgr;
   HSLPM * linprobmgr_ = dynamic_cast<HSLPM *>(tmp);
 
-  if(numgids == 0)
-  {
-    return 0;
-  }
-
   ArrayView<const int> gid_arr(gids, numgids);
   linprobmgr_->setDepNonLocalEquationIDs(gid_arr);
   return 0;

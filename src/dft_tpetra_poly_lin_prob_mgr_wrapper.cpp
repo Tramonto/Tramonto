@@ -1,5 +1,5 @@
 //@HEADER
-// ******************************************************************** 
+// ********************************************************************
 // Tramonto: A molecular theory code for structured and uniform fluids
 //                 Copyright (2006) Sandia Corporation
 //
@@ -27,7 +27,7 @@
 #include "dft_TpetraPolyLinProbMgr.hpp"
 
 #ifdef __cplusplus
-extern "C" 
+extern "C"
 {
 #endif
 
@@ -76,9 +76,9 @@ typedef dft_PolyLinProbMgr<dd_real,int,int> PLPM;
   /**                  dft_BasicLinProbMgr            **/
   /*****************************************************/
 
-void * 
+void *
 dft_poly_lin_prob_mgr_create
-(int numUnks, void * Parameterlist_list, MPI_Comm comm) 
+(int numUnks, void * Parameterlist_list, MPI_Comm comm)
 {
   RCP<ParameterList> my_list = rcp( (ParameterList *) Parameterlist_list, false);
   RCP<const COMM> my_comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
@@ -88,9 +88,9 @@ dft_poly_lin_prob_mgr_create
   return((void *)linprobmgr_);
 }
 
-void * 
+void *
 dft_poly_lin_prob_mgr_create_debug
-(int numUnks, void * Parameterlist_list, MPI_Comm comm) 
+(int numUnks, void * Parameterlist_list, MPI_Comm comm)
 {
   RCP<ParameterList> my_list = rcp( (ParameterList *) Parameterlist_list, false);
   RCP<const COMM> my_comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
@@ -99,30 +99,30 @@ dft_poly_lin_prob_mgr_create_debug
   return((void *)linprobmgr_);
 }
 
-void 
+void
 dft_poly_lin_prob_mgr_destruct
-(void * linprobmgr) 
+(void * linprobmgr)
 {
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
   delete linprobmgr_;
 }
 
-int 
+int
 dft_poly_lin_prob_mgr_setgequationids
-(void * linprobmgr, int numgids, int * gids) 
+(void * linprobmgr, int numgids, int * gids)
 {
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
-  
+
   ArrayView<const int> gid_arr(gids, numgids);
   linprobmgr_->setGEquationIDs(gid_arr);
   return 0;
 }
 
-int 
+int
 dft_poly_lin_prob_mgr_setginvequationids
-(void * linprobmgr, int numgids, int * gids) 
+(void * linprobmgr, int numgids, int * gids)
 {
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_  = dynamic_cast<PLPM *>(tmp);
@@ -132,21 +132,21 @@ dft_poly_lin_prob_mgr_setginvequationids
   return 0;
 }
 
-int 
+int
 dft_poly_lin_prob_mgr_setcmsequationids
-(void * linprobmgr, int numgids, int * gids) 
+(void * linprobmgr, int numgids, int * gids)
 {
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
-  
+
   ArrayView<const int> gid_arr(gids, numgids);
   linprobmgr_->setCmsEquationIDs(gid_arr);
   return 0;
 }
 
-int 
+int
 dft_poly_lin_prob_mgr_setdensityequationids
-(void * linprobmgr, int numgids, int * gids) 
+(void * linprobmgr, int numgids, int * gids)
 {
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
@@ -157,9 +157,9 @@ dft_poly_lin_prob_mgr_setdensityequationids
   return 0;
 }
 
-int 
+int
 dft_poly_lin_prob_mgr_setfieldondensityislinear
-(void * linprobmgr, int isLinear) 
+(void * linprobmgr, int isLinear)
 {
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
@@ -168,16 +168,13 @@ dft_poly_lin_prob_mgr_setfieldondensityislinear
   return 0;
 }
 
-int 
+int
 dft_poly_lin_prob_mgr_setpoissonequationids
-(void * linprobmgr, int numgids, int * gids) 
+(void * linprobmgr, int numgids, int * gids)
 {
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
 
-  if(numgids == 0){
-    return 0;
-  }
   ArrayView<const int> gid_arr(gids, numgids);
   linprobmgr_->setPoissonEquationIDs(gid_arr);
   return 0;
