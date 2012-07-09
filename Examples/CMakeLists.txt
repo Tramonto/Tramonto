@@ -14,7 +14,7 @@ set(Tramonto_TEST_HARNESS_DEFAULT_PROCESSES 4 CACHE STRING
 set(Tramonto_TEST_HARNESS_FAIL_TOLERANCE 0.001 CACHE STRING
   "Maximum difference between floating point values before test is considered a failure.")
 
-set(Tramonto_TEST_HARNESS_ITERATION_BOUND 2 CACHE STRING
+set(Tramonto_TEST_HARNESS_ITERATION_BOUND 4 CACHE STRING
   "Maximum number of iterations a test is allowed to differ by before it is considered a failure.")
 
 set(Tramonto_TEST_HARNESS_Sanity_TIMEOUT 20 CACHE STRING
