@@ -143,11 +143,13 @@ finalizeProblemValues
     return; // nothing to do
   }
 
-  if (firstTime_)
-    if (matrix_!=Teuchos::null) {
-      insertRow(); // Dump any remaining entries
-      matrix_->fillComplete(indNonLocalMap_, depNonLocalMap_);
-    }
+  if (firstTime_) {
+    insertRow(); // Dump any remaining entries
+  }
+
+  if (matrix_!=Teuchos::null) {
+    matrix_->fillComplete(indNonLocalMap_, depNonLocalMap_);
+  }
 
   //  std::cout << *matrix_;
   isLinearProblemSet_ = true;

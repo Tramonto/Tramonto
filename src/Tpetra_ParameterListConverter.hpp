@@ -84,7 +84,8 @@ namespace Tpetra {
       //
       // Level of fill
       outputList_.template set<Scalar>( "fact: ilut level-of-fill",
-					inputList_->template get<double>("Ilut_fill") );
+					1.0 );
+      //					inputList_->template get<double>("Ilut_fill") );
       // Absolute threshold
       outputList_.template set<Scalar>( "fact: absolute threshold",
 					inputList_->template get<double>("Athresh") );

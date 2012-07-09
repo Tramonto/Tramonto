@@ -1,5 +1,5 @@
 //@HEADER
-// ******************************************************************** 
+// ********************************************************************
 // Tramonto: A molecular theory code for structured and uniform fluids
 //                 Copyright (2006) Sandia Corporation
 //
@@ -29,7 +29,7 @@
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyA11_Tpetra_Operator
-(const RCP<const MAP> & ownedMap, const RCP<const MAP> & block1Map) 
+(const RCP<const MAP> & ownedMap, const RCP<const MAP> & block1Map)
   : ownedMap_(ownedMap),
     block1Map_(block1Map),
     numBlocks_(block1Map->getNodeNumElements()/ownedMap->getNodeNumElements()),
@@ -39,14 +39,14 @@ dft_PolyA11_Tpetra_Operator
     firstTime_(true),
     curRow_(-1),
     curOwnedPhysicsID_(-1),
-    curOwnedNode_(-1) 
+    curOwnedNode_(-1)
 {
 
   Label_ = "dft_PolyA11_Tpetra_Operator";
 
   invDiagonal_ = rcp(new VEC(block1Map));
   matrix_.resize(numBlocks_-1);
-  for (LocalOrdinal i=0; i<numBlocks_-1; i++) 
+  for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
     matrix_[i] = rcp(new MAT(ownedMap, 0));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
@@ -59,8 +59,8 @@ dft_PolyA11_Tpetra_Operator
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyA11_Tpetra_Operator
-(const RCP<const MAP > & ownedMap, const RCP<const MAP > & block1Map, 
- RCP<ParameterList> parameterList) 
+(const RCP<const MAP > & ownedMap, const RCP<const MAP > & block1Map,
+ RCP<ParameterList> parameterList)
   : ownedMap_(ownedMap),
     block1Map_(block1Map),
     parameterList_(parameterList),
@@ -71,14 +71,14 @@ dft_PolyA11_Tpetra_Operator
     firstTime_(true),
     curRow_(-1),
     curOwnedPhysicsID_(-1),
-    curOwnedNode_(-1) 
+    curOwnedNode_(-1)
 {
   Label_ = "dft_PolyA11_Tpetra_Operator";
 
   invDiagonal_ = rcp(new VEC(block1Map));
 
   matrix_.resize(numBlocks_-1);
-  for (LocalOrdinal i=0; i<numBlocks_-1; i++) 
+  for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
     matrix_[i] = rcp(new MAT(ownedMap, 0));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
@@ -90,7 +90,7 @@ dft_PolyA11_Tpetra_Operator
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_PolyA11_Tpetra_Operator
-() 
+()
 {
   return;
 } //end destructor
@@ -99,16 +99,16 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
-() 
+()
 {
-  TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n"); 
+  TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n");
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
-  if (!firstTime_) 
+  if (!firstTime_)
   {
     for (LocalOrdinal i=0; i<numBlocks_-1; i++)
-    { 
-      matrix_[i]->resumeFill(); 
+    {
+      matrix_[i]->resumeFill();
       matrix_[i]->setAllToScalar(0.0);
     } //end for
 
@@ -121,20 +121,20 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value) 
+(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value)
 {
 
   Array<GlobalOrdinal> cols(1);
   Array<Scalar> vals(1);
   cols[0] = colGID;
   vals[0] = value;
-  if (rowGID==colGID) 
+  if (rowGID==colGID)
   {
     LocalOrdinal locDiag = block1Map_->getLocalElement(colGID);
     invDiagonal_->sumIntoLocalValue(locDiag, value);
     return;
   } //end if
-  TEUCHOS_TEST_FOR_EXCEPTION(block1Map_->getLocalElement(colGID)> block1Map_->getLocalElement(rowGID), std::runtime_error,  
+  TEUCHOS_TEST_FOR_EXCEPTION(block1Map_->getLocalElement(colGID)> block1Map_->getLocalElement(rowGID), std::runtime_error,
     std::cout << "Encountered an illegal non-zero entry in dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::insertMatrixValue." << std::endl
 	 << "The A11 block cannot have nonzero terms in the upper diagonal." << std::endl
 	 << "Input parameters:" << std::endl
@@ -146,10 +146,10 @@ insertMatrixValue
 	 << "  block1Map_.LID(colGID)         = " << block1Map_->getLocalElement(colGID) << std::endl
 	 << "  value          = " << value << std::endl);
 
-  if (firstTime_) 
+  if (firstTime_)
   {
-    if (rowGID!=curRow_) 
-    { 
+    if (rowGID!=curRow_)
+    {
       insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       curRow_=rowGID;
       curOwnedPhysicsID_ = ownedPhysicsID;
@@ -168,21 +168,21 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertRow
-() 
+()
 {
-  if (curRowValues_.empty()) 
+  if (curRowValues_.empty())
   {
     return;
   } //end if
   size_t numEntries = curRowValues_.size();
-  if (numEntries>indices_.size()) 
+  if (numEntries>indices_.size())
   {
     indices_.resize(numEntries);
     values_.resize(numEntries);
   } //end if
   LocalOrdinal i=0;
   typename std::map<GlobalOrdinal, Scalar>::iterator pos;
-  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) 
+  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos)
   {
     indices_[i] = pos->first;
     values_[i++] = pos->second;
@@ -199,18 +199,18 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeProblemValues
-() 
+()
 {
-  if (isLinearProblemSet_) 
+  if (isLinearProblemSet_)
   {
     return; // nothing to do
   } //end if
 
-  if (firstTime_) 
+  if (firstTime_)
   {
     insertRow(); // Dump any remaining entries
   } //end if
-  for (LocalOrdinal i=0; i<numBlocks_-1; i++) 
+  for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
     matrix_[i]->fillComplete(block1Map_, ownedMap_);
     //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << endl;
@@ -218,8 +218,8 @@ finalizeProblemValues
   } //end for
   invDiagonal_->reciprocal(*invDiagonal_); // Invert diagonal values for faster applyInverse() method
 
-  /*    
-  for (LocalOrdinal i=0; i<numBlocks_-1; i++) 
+  /*
+  for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
     std::cout << "matrix " << i << *matrix_[i];
   } //end for
@@ -232,9 +232,9 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
-(const MV& X, MV& Y) const 
+(const MV& X, MV& Y) const
 {
-  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap())); 
+  TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
   TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 #ifdef KDEBUG
@@ -246,7 +246,7 @@ applyInverse
   RCP<MV > Ytmp = rcp(new MV(ownedMap_,NumVectors));
 
   Y=X; // We can safely do this
-  
+
   RCP<MV > curY = Y.offsetViewNonConst(ownedMap_, 0);
   // Start Ytmp to view first numNodes elements of Y
 
@@ -255,12 +255,12 @@ applyInverse
   curY->elementWiseMultiply(1.0, *diagVec, *curY, 0.0); // Scale Y by the first block diagonal
 
   // Loop over block 1 through numBlocks (indexing 0 to numBlocks-1)
-  for (LocalOrdinal i=0; i< numBlocks_-1; i++) 
-  { 
+  for (LocalOrdinal i=0; i< numBlocks_-1; i++)
+  {
     // Update views of Y and diagonal blocks
-    //for (LocalOrdinal j=0; j<NumVectors; j++) 
+    //for (LocalOrdinal j=0; j<NumVectors; j++)
     curY = Y.offsetViewNonConst(ownedMap_, (i+1)*numMyElements);
-    
+
     diagVec = invDiagonal_->offsetViewNonConst(ownedMap_, (i+1)*numMyElements)->getVectorNonConst(0);
 
     matrix_[i]->apply(Y, *Ytmp); // Multiply block lower triangular block
@@ -273,7 +273,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
-(const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const 
+(const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
   TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
@@ -300,7 +300,7 @@ template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 Check
-(bool verbose) const 
+(bool verbose) const
 {
   RCP<VEC > x = rcp(new VEC(getDomainMap()));
   RCP<VEC > b = rcp(new VEC(getRangeMap()));
@@ -314,12 +314,12 @@ Check
   Scalar normX = x->norm2();
   Scalar resid = absResid / normX;
 
-  if (verbose) 
+  if (verbose)
   {
     std::cout << "A11 self-check residual = " << resid << std::endl;
   } //end if
 
-  TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n"); 
+  TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
 
 } //end Check
 #if LINSOLVE_PREC == 0

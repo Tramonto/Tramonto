@@ -468,11 +468,6 @@ setupSolver
 {
   TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
-  // If solver is already setup, just reset the problem
-  if (solver_ != Teuchos::null ) {
-    solver_->reset(Belos::Problem);
-    return;  //Already setup
-  }
 
   // Setup machine constants
   setMachineParams();
@@ -526,7 +521,7 @@ setupSolver
   preconditioner_->initialize();
   preconditioner_->compute();
   preconditionerMixed_ = rcp(new HOP(preconditioner_));
-  //  problem_->setLeftPrec(preconditionerMixed_);
+  problem_->setLeftPrec(preconditionerMixed_);
 #elif MIXED_PREC == 0
   problem_ = rcp(new LinPROB(globalMatrix_, globalLhs_, globalRhs_));
   RCP<const MAT> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT>(globalMatrix_);
@@ -535,7 +530,7 @@ setupSolver
   preconditioner_->setParameters(*parameterList_);
   preconditioner_->initialize();
   preconditioner_->compute();
-  //  problem_->setLeftPrec(preconditioner_);
+  problem_->setLeftPrec(preconditioner_);
 #endif
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
