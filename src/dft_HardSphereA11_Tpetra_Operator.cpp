@@ -140,7 +140,7 @@ finalizeProblemValues
 ()
 {
   if (isLinearProblemSet_) {
-    return; // nothing to do
+    return;
   }
 
   if (firstTime_) {

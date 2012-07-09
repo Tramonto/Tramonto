@@ -203,13 +203,13 @@ finalizeProblemValues
 {
   if (isLinearProblemSet_)
   {
-    return; // nothing to do
-  } //end if
+    return;
+  }
 
   if (firstTime_)
   {
     insertRow(); // Dump any remaining entries
-  } //end if
+  }
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
     matrix_[i]->fillComplete(block1Map_, ownedMap_);
