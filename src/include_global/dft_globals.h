@@ -317,6 +317,7 @@ int     Ipot_wf_c;    /* Potential Type for charged part of w-f interactions */
 int     Lhard_surf;   /* Logical indicating if surfaces are hard core */
 int     Lvext_dash;   /* Logical indicating if the Vext_dash array should be set up */
 int     Iguess;        /* Type of initial guess */
+double  random_rho;			/*Amount of randomness to add to rho for random initial guess LMH*/
 int     Iguess_fields;        /* Type of initial guess */
 int     Nsteps;         /* Number of steps for a step profile initial guess */
 int     Orientation_step[NSTEPS_MAX]; /* orientation of the step profile */
