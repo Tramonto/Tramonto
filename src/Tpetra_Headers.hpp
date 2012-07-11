@@ -15,6 +15,7 @@
 #include "Tpetra_OperatorApplyInverse.hpp"
 #include "Tpetra_InvOperator.hpp"
 #include "Tpetra_HalfOperator.hpp"
+#include "Tpetra_MixedOperator.hpp"
 #include "Tpetra_HalfOperatorApplyInverse.hpp"
 #include "Tpetra_ParameterListConverter.hpp"
 #include "Tpetra_MultiVectorConverter.hpp"
@@ -107,6 +108,7 @@ using Belos::ReturnType;
   typedef Tpetra::OperatorApplyInverse<SCALAR,LO,GO,Node> APINV; \
   typedef Tpetra::InvOperator<SCALAR,LO,GO,Node> INVOP; \
   typedef Tpetra::HalfOperator<SCALAR,LO,GO,Node> HOP; \
+  typedef Tpetra::MixedOperator<SCALAR,LO,GO,Node> MOP; \
   typedef Tpetra::HalfOperatorApplyInverse<SCALAR,LO,GO,Node> HAPINV; \
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,Node> MAP; \
@@ -127,6 +129,32 @@ using Belos::ReturnType;
   typedef Belos::SolverManager<halfScalar, MV_H, OP_H> SolMGR_H;		\
   typedef Belos::LinearProblem<halfScalar, MV_H, OP_H> LinPROB_H;		\
   typedef Ifpack2::Preconditioner<halfScalar, LO, GO, Node> PRECOND_H;
+
+#if MIXED_PREC == 1
+
+#define TYPEDEF_MIXED(SCALAR, LO, GO, NODE) \
+  \
+  typedef halfScalar precScalar; \
+  typedef MAT_H MAT_P; \
+  typedef OP_H OP_P; \
+  typedef VEC_H VEC_P; \
+  typedef MV_H MV_P; \
+  typedef PRECOND_H PRECOND_P; \
+  typedef SCALE_H SCALE_P;
+
+#elif MIXED_PREC == 0
+
+#define TYPEDEF_MIXED(SCALAR, LO, GO, NODE) \
+  \
+  typedef Scalar precScalar; \
+  typedef MAT MAT_P; \
+  typedef OP OP_P; \
+  typedef VEC VEC_P; \
+  typedef MV MV_P; \
+  typedef PRECOND PRECOND_P; \
+  typedef SCALE SCALE_P;
+
+#endif // MIXED_PREC
 
 #endif //SUPPORTS_STRATIMIKOS
 

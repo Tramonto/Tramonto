@@ -170,13 +170,9 @@ finalizeBlockStructure
   }
 
   globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_));
-#if MIXED_PREC == 1
-  globalMatrix_ = rcp(new MAT_H(globalRowMap_, 0));
-  globalMatrixMixed_ = rcp(new HOP(globalMatrix_));
+  globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
+  globalOperator_ = rcp(new MOP((RCP<OP_P>)globalMatrix_));
   globalRhsHalf_ = rcp(new VEC_H(globalRowMap_));
-#elif MIXED_PREC == 0
-  globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
-#endif
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
   globalLhs_ = rcp(new VEC(globalRowMap_));
@@ -244,11 +240,7 @@ insertMatrixValue
     curRowValues_[colGID] += value;
   }
   else {
-#if MIXED_PREC == 1
-    Array<halfScalar> vals(1);
-#elif MIXED_PREC == 0
-    Array<Scalar> vals(1);
-#endif
+    Array<precScalar> vals(1);
     vals[0] = value;
     Array<GlobalOrdinal> globalCols(1);
     globalCols[0] = colGID;
@@ -289,11 +281,8 @@ getMatrixValue
   GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
   size_t numEntries;
   ArrayView<const GlobalOrdinal> indices;
-#if MIXED_PREC == 1
-  ArrayView<const halfScalar> values;
-#elif MIXED_PREC == 0
-  ArrayView<const Scalar> values;
-#endif
+  ArrayView<const precScalar> values;
+
   if (globalMatrix_->isGloballyIndexed())
   {
     globalMatrix_->getGlobalRowView(rowGID, indices, values); // get view of current row
@@ -473,13 +462,9 @@ setupSolver
   setMachineParams();
 
   // Perform scaling
-#if MIXED_PREC == 1
-  scalingMatrix_ = rcp(new SCALE_H(globalMatrix_));
-  rowScaleFactors_ = rcp(new VEC_H(globalMatrix_->getDomainMap()));
-#elif MIXED_PREC == 0
-  scalingMatrix_ = rcp(new SCALE(globalMatrix_));
-  rowScaleFactors_ = rcp(new VEC(globalMatrix_->getDomainMap()));
-#endif
+  scalingMatrix_ = rcp(new SCALE_P(globalMatrix_));
+  rowScaleFactors_ = rcp(new VEC_P(globalMatrix_->getDomainMap()));
+
   LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
   globalMatrix_->resumeFill();
   LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
@@ -512,26 +497,16 @@ setupSolver
   lows_ = linearOpWithSolve<Scalar>(*lowsFactory_, thyraOp_);
 #else
 
-#if MIXED_PREC == 1
-  problem_ = rcp(new LinPROB(globalMatrixMixed_, globalLhs_, globalRhs_));
-  RCP<const MAT_H> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT_H>(globalMatrix_);
+  problem_ = rcp(new LinPROB(globalOperator_, globalLhs_, globalRhs_));
+  RCP<const MAT_P> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT_P>(globalMatrix_);
   Ifpack2::Factory factory;
   preconditioner_ = factory.create("ILUT", const_globalMatrix_);
   preconditioner_->setParameters(*parameterList_);
   preconditioner_->initialize();
   preconditioner_->compute();
-  preconditionerMixed_ = rcp(new HOP(preconditioner_));
-  problem_->setLeftPrec(preconditionerMixed_);
-#elif MIXED_PREC == 0
-  problem_ = rcp(new LinPROB(globalMatrix_, globalLhs_, globalRhs_));
-  RCP<const MAT> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT>(globalMatrix_);
-  Ifpack2::Factory factory;
-  preconditioner_ = factory.create("ILUT", const_globalMatrix_);
-  preconditioner_->setParameters(*parameterList_);
-  preconditioner_->initialize();
-  preconditioner_->compute();
-  problem_->setLeftPrec(preconditioner_);
-#endif
+  preconditionerOperator_ = rcp(new MOP((RCP<OP_P>)preconditioner_));
+  problem_->setLeftPrec(preconditionerOperator_);
+
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 #endif
@@ -660,11 +635,8 @@ writeMatrix
   std::string str_matrixName(matrixName);
   std::string str_matrixDescription(matrixDescription);
 
-#if MIXED_PREC == 1
-  Tpetra::MatrixMarket::Writer<MAT_H>::writeSparseFile(str_filename,globalMatrix_,str_matrixName,str_matrixDescription);
-#elif MIXED_PREC == 0
-  Tpetra::MatrixMarket::Writer<MAT>::writeSparseFile(str_filename,globalMatrix_,str_matrixName,str_matrixDescription);
-#endif
+  Tpetra::MatrixMarket::Writer<MAT_P>::writeSparseFile(str_filename,globalMatrix_,str_matrixName,str_matrixDescription);
+
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>

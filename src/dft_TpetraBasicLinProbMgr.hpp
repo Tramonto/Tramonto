@@ -39,6 +39,7 @@ class dft_BasicLinProbMgr {
 
   public:
   TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   //@{ \name Constructors/destructor.
 
@@ -416,33 +417,21 @@ protected:
   RCP<VEC> boxNodeIsCoarsened_;
   RCP<IMP> ownedToBoxImporter_;
   RCP<const MAP> globalRowMap_;
-#if MIXED_PREC == 1
-  RCP<MAT_H> globalMatrix_;
-  RCP<HOP> globalMatrixMixed_;
-  RCP<SCALE_H> scalingMatrix_;
-  RCP<VEC_H> rowScaleFactors_;
+  RCP<MAT_P> globalMatrix_;
+  RCP<SCALE_P> scalingMatrix_;
+  RCP<VEC_P> rowScaleFactors_;
+  RCP<MOP> globalOperator_;
   RCP<VEC_H> globalRhsHalf_;
   RCP<VEC_H> globalLhsHalf_;
-#elif MIXED_PREC == 0
-  RCP<MAT> globalMatrix_;
-  RCP<SCALE> scalingMatrix_;
-  RCP<VEC> rowScaleFactors_;
-#endif
   RCP<VEC> globalRhs_;
   RCP<VEC> globalLhs_;
   RCP<ParameterList> parameterList_;
   RCP<ParameterList> tpetraParameterList_;
   GlobalOrdinal curRow_;
   Array<GlobalOrdinal> indices_;
-#if MIXED_PREC == 1
-  typedef typename std::map<GlobalOrdinal, halfScalar>::iterator ITER;
-  std::map<GlobalOrdinal, halfScalar> curRowValues_;
-  Array<halfScalar> values_;
-#elif MIXED_PREC == 0
-  typedef typename std::map<GlobalOrdinal, Scalar>::iterator ITER;
-  std::map<GlobalOrdinal, Scalar> curRowValues_;
-  Array<Scalar> values_;
-#endif
+  typedef typename std::map<GlobalOrdinal, precScalar>::iterator ITER;
+  std::map<GlobalOrdinal, precScalar> curRowValues_;
+  Array<precScalar> values_;
   GlobalOrdinal n_;
   Scalar eps_;
   halfScalar epsHalf_;
@@ -467,12 +456,8 @@ protected:
 #else
   RCP<SolMGR> solver_;
   RCP<LinPROB> problem_;
-#if MIXED_PREC == 1
-  RCP<PRECOND_H> preconditioner_;
-  RCP<HOP> preconditionerMixed_;
-#elif MIXED_PREC == 0
-  RCP<PRECOND> preconditioner_;
-#endif
+  RCP<PRECOND_P> preconditioner_;
+  RCP<MOP> preconditionerOperator_;
 #endif
 
 };
