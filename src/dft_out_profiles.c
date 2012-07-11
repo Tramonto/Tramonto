@@ -508,6 +508,97 @@ void print_profile(char *Density_FileName,double *xold)
   return;
 }
 /*******************************************************************************
+ print_profile_box_vtk: LMH  for vtk file This routine prints out the density profile. It gathers 
+ the solution vector on Proc 0 and then prints it out using print_profile      */ 
+
+void print_profile_box_vtk(double **x, char *outfile)
+{
+	
+	if (Proc == 0){
+		X_old = (double *) array_alloc (1, Nnodes*Nunk_per_node, sizeof(double));
+		Vext_old = (double *) array_alloc (1, Nnodes*Ncomp, sizeof(double));
+	}
+	
+	collect_x_old(x,X_old);
+	collect_vext_old();
+	
+	if (Proc==0) {
+		print_profile_vtk(outfile,X_old);
+		safe_free((void *) &X_old);
+		safe_free((void *) &Vext_old);
+	}
+}
+/*******************************************************************************
+ print_profile_vtk: LMH This routine prints out the density profile.        
+ this routine is only ever called by Proc 0                                    */ 
+
+void print_profile_vtk(char *Density_FileName, double *xold)
+{
+	int icomp,iunk,inode,ijk[3];
+	int node_start;
+	char tmp_str_array[FILENAME_LENGTH];
+    
+	FILE *fp_Density=NULL;
+	/* 
+	 *  print out the densities 
+	 *  to the file dft_dens[Nstep].0   
+	 */
+	
+	/* open primary output file .... densities*/
+	strcpy(tmp_str_array,Outpath_array);
+	fp_Density = fopen(strcat(tmp_str_array,Density_FileName),"w");
+	
+	/* Start description at the top of the file */
+	fprintf(fp_Density,"# vtk DataFile Version 3.0\n");
+	fprintf(fp_Density,"Tramonto data output: DENSITY\n"); 
+	fprintf(fp_Density,"ASCII\n");
+	fprintf(fp_Density,"DATASET STRUCTURED_POINTS\n");	
+	node_to_ijk(Nnodes-1,ijk);
+	/*LMH add 1 to the number of elements because I want to write as cell data--there are more cells than points--
+	 so that ParaView doesn't interpolate but just plots data voxel by voxel (and add another 1 due to zero based indexing)*/
+	switch (Ndim) {
+		case 3:  fprintf(fp_Density,"DIMENSIONS %i %i %i\n",ijk[0]+2,ijk[1]+2,ijk[2]+2); break;
+		case 2:  fprintf(fp_Density,"DIMENSIONS %i %i %i\n",ijk[0]+2,ijk[1]+2,2); break;
+		case 1:  fprintf(fp_Density,"DIMENSIONS %i %i %i\n",ijk[0]+2,2,2); break;
+	}
+	fprintf(fp_Density,"ORIGIN 0 0 0\n");
+	/*LMH none of the spacing values is supposed to be 0, so use the other sizes if 1 or 2 dimensions*/
+	switch (Ndim) {
+		case 3:  fprintf(fp_Density,"SPACING %f %f %f\n",Esize_x[0],Esize_x[1],Esize_x[2]); break;
+		case 2:  fprintf(fp_Density,"SPACING %f %f %f\n",Esize_x[0],Esize_x[1],Esize_x[1]); break;
+		case 1:  fprintf(fp_Density,"SPACING %f %f %f\n",Esize_x[0],Esize_x[0],Esize_x[0]); break;
+	}
+	fprintf(fp_Density,"CELL_DATA %i\n",Nnodes);
+	for (iunk=0; iunk<Nunk_per_node; iunk++){
+	    switch (Unk2Phys[iunk]) {
+            case DENSITY:  //LMH this could be an if statement now, but I kept the earlier construction so other outputs could be added to the file later
+                /* print the variable name then all of its data, one per line*/
+                fprintf(fp_Density,"SCALARS density%i double\n",iunk+1);
+                fprintf(fp_Density,"LOOKUP_TABLE default\n");
+                for (inode=0; inode<Nnodes; inode++){
+                    node_to_ijk(inode,ijk);
+                    node_start = Nunk_per_node*inode;
+                    
+                    icomp = iunk-Phys2Unk_first[DENSITY];
+                    if (xold[iunk+node_start]<0.0 && Rho_b[icomp]<1.e-20) fprintf(fp_Density,"%.10le\n", Rho_b[icomp]);
+                    else fprintf(fp_Density,"%.10le\n", xold[iunk+node_start]);
+                    /* add a carriage return to the file to start a new line */
+                    //fprintf(fp_Density,"\n");
+                    /* add some blank lines for improved graphics in 2D and 3D gnuplot */
+                    if (ijk[0] == Nodes_x[0]-1) fprintf(fp_Density,"\n");	
+                }    /* end loop over all nodes LMH:switched order of loops */
+                break;
+            default:
+                break;
+        }
+	}    /* end loop over unknowns in the run */
+	
+	/* close file */
+	fclose(fp_Density);
+	
+	return;
+}
+/*******************************************************************************
 print_gofr: This routine prints out the density profile.        
 this routine is only ever called by Proc 0                                    */ 
 

@@ -1298,8 +1298,9 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   /******************************************************************/
 
   read_junk(fpinput,fpecho);
-  fscanf(fpinput,"%d %d",&Iguess,&Iguess_fields);
-   fprintf(fpecho,"%d  %d ",Iguess,Iguess_fields);
+	fscanf(fpinput,"%d %d %lf",&Iguess,&Iguess_fields,&random_rho);
+	fprintf(fpecho,"%d  %d %lf",Iguess,Iguess_fields, random_rho);
+
 
   if (Iguess != STEP_PROFILE) Nsteps=1;
   if (Iguess==STEP_PROFILE || (Iguess>=CHOP_RHO && Iguess<= CHOP_RHO_STEP)){

@@ -60,7 +60,10 @@ extern int Ncomp;
 extern double Rho_b[NCOMP_MAX];
 extern int Nseg_tot;
 extern double Rho_seg_b[NMER_MAX];
+extern double random_rho;
 void setup_const_density(double **xInBox,double *rho,int nloop,int index);
 extern int Lseg_densities;
 #define CONST_RHO        0 
+#define RAND_RHO        6 
 void setup_density(double **xInBox,double **xOwned,int guess_type);
+void setup_rand_density(double **xInBox,double *rho,double random_rho, int nloop,int index);

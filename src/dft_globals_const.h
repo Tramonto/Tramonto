@@ -387,6 +387,7 @@ extern "C" {
 #define CHOP_RHO         3
 #define CHOP_RHO_STEP    4
 #define LINEAR           5
+#define RAND_RHO		 6  //LMH
 
 /*
  * The following are choices for how to handle the density profile
@@ -991,6 +992,7 @@ extern int     Lhard_surf;   /* Logical indicating if the surfaces have hard cor
 extern int     Lvext_dash;   /* Logical indicating if the Vext_dash array should be set up */
 extern int     Iguess;        /* Type of initial guess */
 extern int     Iguess_fields;        /* Type of initial guess */
+extern double  random_rho;			/*Amount of randomness to add to rho for random initial guess LMH*/
 extern int     Nsteps;         /* Number of steps for a step profile initial guess */
 extern int     Orientation_step[NSTEPS_MAX]; /* orientation of the step profile */
 extern double  Xstart_step[NSTEPS_MAX];  /* start position array for the step profile */

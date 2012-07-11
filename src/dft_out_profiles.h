@@ -131,6 +131,8 @@ void print_profile(char *Density_FileName,double *xold);
 extern double *X_old;
 void print_profile_box(double **x,char *outfile);
 extern double *Vext_old;
+void print_profile_vtk(char *Density_FileName,double *xold);
+void print_profile_box_vtk(double **x,char *outfile);
 extern int Num_Proc;
 extern double **Vext;
 extern int Ncomp;

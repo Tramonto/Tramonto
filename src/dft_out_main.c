@@ -48,7 +48,7 @@ void post_process (double **x,int *niters,
        *MainOutput_Filename="dft_output.dat",
        *GofR_Filename="dft_gofr.dat",
        *output_flux= "dft_flux.dat",tmp_string;
-  char filename[FILENAME_LENGTH],Density_file[FILENAME_LENGTH],
+  char filename[FILENAME_LENGTH],tempfilename[FILENAME_LENGTH],Density_file[FILENAME_LENGTH],
        DensityCounter_file[FILENAME_LENGTH],tmp_string_array[FILENAME_LENGTH];
  
   double t1,energy;
@@ -109,12 +109,28 @@ void post_process (double **x,int *niters,
                                 /* always write density files */
    if (Proc == 0) {
         if (binodal_flag==TRUE){
-           if (Print_rho_type != PRINT_RHO_0) print_profile((char *)DensityCounter_file,X2_old);
-           else                               print_profile((char *)Density_file,X2_old);
+            if (Print_rho_type != PRINT_RHO_0){ 
+                print_profile((char *)DensityCounter_file,X2_old);
+                sprintf(tempfilename,"%s.vtk",DensityCounter_file); //LMH
+				print_profile_vtk(tempfilename,X_old); //LMH print density for visualizing
+            }
+            else {
+                print_profile((char *)Density_file,X2_old);
+                sprintf(tempfilename,"%s.vtk",Density_file); //LMH
+				print_profile_vtk(tempfilename,X_old); //LMH print density for visualizing
+            }
         }
         else{
-           if (Print_rho_type != PRINT_RHO_0) print_profile((char *)DensityCounter_file,X_old);
-           else                               print_profile((char *)Density_file,X_old);
+            if (Print_rho_type != PRINT_RHO_0){
+                print_profile((char *)DensityCounter_file,X_old);
+                sprintf(tempfilename,"%s.vtk",DensityCounter_file); //LMH
+				print_profile_vtk(tempfilename,X_old); //LMH print density for visualizing
+            }
+            else {
+                print_profile((char *)Density_file,X_old);
+                sprintf(tempfilename,"%s.vtk",Density_file); //LMH
+				print_profile_vtk(tempfilename,X_old); //LMH print density for visualizing
+            }
         }
    }
    if (Proc==0 && Lprint_gofr && (Nlink==1 || Nlocal_charge>0)){

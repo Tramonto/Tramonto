@@ -110,3 +110,4 @@ extern double Ads[NCOMP_MAX][2];
 #define TRUE  1
 #endif
 void post_process(double **x,int *niters,double *time_save,int loop1,int binodal_flag,int call_from_flag);
+void print_profile_vtk(char *Density_FileName,double *xold);

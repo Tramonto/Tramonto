@@ -397,6 +397,7 @@ void broadcast_input()
 
   MPI_Bcast(&Iguess,1,MPI_INT,0,MPI_COMM_WORLD);
   MPI_Bcast(&Iguess_fields,1,MPI_INT,0,MPI_COMM_WORLD);
+  MPI_Bcast(&random_rho,1,MPI_DOUBLE,0,MPI_COMM_WORLD); //LMH
 
   if (Iguess==STEP_PROFILE || (Iguess>=CHOP_RHO && Iguess<= CHOP_RHO_STEP)){
     MPI_Bcast(&Nsteps,1,MPI_INT,0,MPI_COMM_WORLD);

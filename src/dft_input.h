@@ -334,3 +334,5 @@ extern int LBulk;
 #endif
 extern int LDeBroglie;
 void read_input_file(FILE *fpinput,FILE *fpecho);
+extern double random_rho;
+

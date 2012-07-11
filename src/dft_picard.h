@@ -140,3 +140,7 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 int solve_problem_picard(double **x,double **x2);
+#define FILENAME_LENGTH 300
+void print_profile_box(double **x,char *outfile);
+void print_profile_box_vtk(double **x,char *outfile); //LMH
+

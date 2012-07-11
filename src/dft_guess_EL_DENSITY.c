@@ -44,7 +44,12 @@ void setup_density(double **xInBox,double **xOwned,int guess_type)
             }
             else              setup_const_density(xInBox,Rho_b,Ncomp,0);
             break;
-
+      case RAND_RHO: //LMH:  my new choice copied from above except with new function (see below)
+            if (Lseg_densities){
+				setup_rand_density(xInBox,Rho_seg_b, random_rho, Nseg_tot,0);
+            }
+            else              setup_rand_density(xInBox,Rho_b, random_rho, Ncomp,0);
+            break;
       case EXP_RHO:
             if (Lseg_densities){
                  setup_exp_density(xInBox,Rho_seg_b,Nseg_tot,0);
@@ -83,6 +88,40 @@ void setup_const_density(double **xInBox, double *rho,int nloop,int index)
       }
   }
   return;
+}
+/*********************************************************/
+/*setup_rand_density: LMH my new random guess; based on constant
+ guess; needs new parameter rand in this routine set up a random
+ density profile wherever Zero_density_TF = FALSE */
+
+void setup_rand_density(double **xInBox, double *rho, double randrho, int nloop,int index)
+{
+	int i,inode_box,iunk,zeroTF;
+	double temprand;  //for now, the adding to the correct total only works for 2 components
+	//unsigned int myseed = 42;  //I am trying to get this to work in parallel without repeating random numbers LMH
+	//I switched from rand() to rand_r(&myseed)
+	
+	for (inode_box=0; inode_box<Nnodes_box; inode_box++){ //loop over box position
+		temprand=((double)arc4random()/(double)RAND_MAX - 1.0)*randrho/2.0;  //pseudorandom number from -randrho*0.5 to randrho*0.5
+		for (i=0; i<nloop; i++){  //loop over type of bead
+			if (Restart==RESTART_FEWERCOMP && i<nloop-Nmissing_densities) i=nloop-Nmissing_densities;
+			iunk = i+Phys2Unk_first[DENSITY];
+			if (Lseg_densities) zeroTF=Zero_density_TF[inode_box][Unk2Comp[i]];
+			else                zeroTF=Zero_density_TF[inode_box][i];
+			if (!zeroTF){
+				if (nloop == 2) {
+					if (i == 0) xInBox[iunk][inode_box] = rho[i]+temprand; 
+					else xInBox[iunk][inode_box] = rho[i]-temprand;
+				}
+				else if (nloop > 2) {
+					xInBox[iunk][inode_box] = rho[index]+((double)arc4random()/(double)RAND_MAX - 1.0)*randrho/2.0;
+				}
+				else           xInBox[iunk][inode_box] = rho[index]+temprand;
+			}
+			else xInBox[iunk][inode_box] = 0.0;
+		}
+	}
+	return;
 }
 /*********************************************************/
 /*setup_stepped_profile: in this routine set up a stepped
