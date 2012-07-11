@@ -110,20 +110,20 @@ namespace Tpetra {
       // Number of blocks
       outputList_.set( "Num Blocks",
 		       500 );
-      //      4 * inputList_->template get<int>("Kspace") / blockSize );
+      //      2 * inputList_->template get<int>("Kspace") / blockSize );
       // Maximum iterations
       outputList_.set( "Maximum Iterations",
 		       500 );
-    //		       4 * inputList_->template get<int>("Max_iter") );
+      //      2 * inputList_->template get<int>("Max_iter") );
       // Convergence tolerance
 #if MIXED_PREC == 1
       outputList_.template set<Scalar>( "Convergence Tolerance",
-      					std::max( Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")),
-						  10 * Teuchos::ScalarTraits<halfScalar>::eps() ) );
+      					std::max( 2*sqrt(Teuchos::as<halfScalar>(inputList_->template get<double>("Tol"))),
+						  10*Teuchos::ScalarTraits<halfScalar>::eps() ) );
 #elif MIXED_PREC == 0
       outputList_.template set<Scalar>( "Convergence Tolerance",
 					std::max( Teuchos::as<Scalar>(inputList_->template get<double>("Tol")),
-						  10 * Teuchos::ScalarTraits<Scalar>::eps() ) );
+						  10*Teuchos::ScalarTraits<Scalar>::eps() ) );
 #endif
 
       // Output
