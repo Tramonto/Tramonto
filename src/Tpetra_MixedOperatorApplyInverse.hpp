@@ -39,13 +39,13 @@
 // ************************************************************************
 // @HEADER
 
-#ifndef TPETRA_MIXEDOPERATOR_HPP
-#define TPETRA_MIXEDOPERATOR_HPP
+#ifndef TPETRA_MIXEDOPERATORAPPLYINVERSE_HPP
+#define TPETRA_MIXEDOPERATORAPPLYINVERSE_HPP
 
 #include <Kokkos_DefaultNode.hpp>
 #include <Teuchos_Describable.hpp>
 #include "Tpetra_Map.hpp"
-#include "Tpetra_Operator.hpp"
+#include "Tpetra_OperatorApplyInverse.hpp"
 #include "Tpetra_MultiVectorConverter.hpp"
 
 #define SCALAR_P      0
@@ -53,13 +53,13 @@
 
 namespace Tpetra {
 
-  //! MixedOperator: An implementation of the Operator class that does the Operator apply() to a doublePrecision vector.
-  /*! The MixedOperator class implements Operator using another pre-constructed Operator object.
-    Once constructed, an MixedOperator can be used to apply the input operator to doublePrecision vectors
-    as long as the appropriate apply method is implemented in the original Operator object.
+  //! MixedOperatorApplyInverse: An implementation of the OperatorApplyInverse class that does the Operator apply() and applyInverse() to a doublePrecision vector.
+  /*! The MixedOperatorApplyInverse class implements OperatorApplyInverse using another pre-constructed OperatorApplyInverse object.
+    Once constructed, an MixedOperatorApplyInverse can be used to apply the input operator to doublePrecision vectors
+    as long as the appropriate apply and applyInverse methods are implemented in the original OperatorApplyInverse object.
   */
   template<class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
-  class MixedOperator: public virtual Tpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> {
+  class MixedOperatorApplyInverse: public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node> {
   public:
 
     /** \name Typedefs that give access to the template parameters. */
@@ -74,13 +74,13 @@ namespace Tpetra {
     /*! Facilitates the use of an Operator instance as an inverse operator.
       \param In - A fully-constructed Operator object.
     */
-    MixedOperator(Teuchos::RCP<Tpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > operatorIn) {
+    MixedOperatorApplyInverse(Teuchos::RCP<Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node> > operatorIn) {
       operator_ = operatorIn;
       operatorPrec_ = SCALAR_P;
       return;
     }
 #if MIXED_PREC == 1
-    MixedOperator(Teuchos::RCP<Tpetra::Operator<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > operatorIn) {
+    MixedOperatorApplyInverse(Teuchos::RCP<Tpetra::OperatorApplyInverse<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > operatorIn) {
       operatorHalf_ = operatorIn;
       operatorPrec_ = HALF_SCALAR_P;
       return;
@@ -88,13 +88,13 @@ namespace Tpetra {
 #endif
 
     //! Destructor
-    virtual ~MixedOperator(){}
+    virtual ~MixedOperatorApplyInverse(){}
     //@}
 
     //! @name Mathematical functions
     //@{
 
-    //! Returns the result of an MixedOperator applied to a MultiVector X in Y.
+    //! Returns the result of an MixedOperatorApplyInverse applied to a MultiVector X in Y.
     /*! Loosely, performs \f$Y = \alpha \cdot A^{\textrm{mode}} \cdot X + \beta \cdot Y\f$. However, the details of operation
       vary according to the values of \c alpha and \c beta. Specifically
       - if <tt>beta == 0</tt>, apply() <b>must</b> overwrite \c Y, so that any values in \c Y (including NaNs) are ignored.
@@ -134,11 +134,41 @@ namespace Tpetra {
 
     }
 
+    //! Returns the result of an MixedOperatorApplyInverse inverse applied to a MultiVector X in Y.
+
+    void applyInverse(const Tpetra::MultiVector<Scalar,LocalOrdinal,GlobalOrdinal,Node>& X,
+		      Tpetra::MultiVector<Scalar,LocalOrdinal,GlobalOrdinal,Node>& Y) const
+    {
+      if (operatorPrec_ == HALF_SCALAR_P) {
+
+	Teuchos::RCP<Tpetra::MultiVector<halfScalar,LocalOrdinal,GlobalOrdinal,Node> > halfX =
+	  Teuchos::rcp( new Tpetra::MultiVector<halfScalar,LocalOrdinal,GlobalOrdinal,Node>( X.getMap(), X.getNumVectors() ) );
+	Teuchos::RCP<Tpetra::MultiVector<halfScalar,LocalOrdinal,GlobalOrdinal,Node> > halfY =
+	  Teuchos::rcp( new Tpetra::MultiVector<halfScalar,LocalOrdinal,GlobalOrdinal,Node>( Y.getMap(), Y.getNumVectors() ) );
+
+	// Demote X from scalar precision to halfPrecision
+	mvConverter->scalarToHalf( X, *halfX );
+
+	// Apply the inverse operator
+	operatorHalf_->applyInverse(*halfX,*halfY);
+
+	// Promote halfY from halfPrecision to scalar precision
+	mvConverter->halfToScalar( *halfY, Y );
+
+      } else if (operatorPrec_ == SCALAR_P) {
+
+	// Apply the operator
+	operator_->applyInverse(X,Y);
+
+      }
+
+    }
+
   //! @name Attribute access functions
   //@{
 
-  //! Returns a pointer to the Operator operator object that was used to create this MixedOperator object.
-    Teuchos::RCP<Tpetra::Operator<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const {return(operator_);}
+  //! Returns a pointer to the Operator operator object that was used to create this MixedOperatorApplyInverse object.
+    Teuchos::RCP<Tpetra::OperatorApplyInverse<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const {return(operator_);}
 
   //! Returns the BlockMap object associated with the domain of this matrix operator.
     const Teuchos::RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> > & getDomainMap() const
@@ -163,11 +193,11 @@ namespace Tpetra {
 
  protected:
     int operatorPrec_;
-    Teuchos::RCP<Tpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > operator_;
-    Teuchos::RCP<Tpetra::Operator<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > operatorHalf_;
+    Teuchos::RCP<Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node> > operator_;
+    Teuchos::RCP<Tpetra::OperatorApplyInverse<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > operatorHalf_;
     Teuchos::RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
 };
 
 }
 
-#endif /* TPETRA_MIXEDOPERATOR_H */
+#endif /* TPETRA_MIXEDOPERATORAPPLYINVERSE_H */

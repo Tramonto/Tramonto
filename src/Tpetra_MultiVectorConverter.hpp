@@ -134,7 +134,7 @@ namespace Tpetra {
       for (size_t j=0; j<X.getNumVectors(); j++) {
 	halfScalarVec = X.getVector( j );
 	ArrayRCP<const halfScalar> vecVals = halfScalarVec->get1dView();
-	Array<doubleScalar> new_vals;
+	Array<Scalar> new_vals;
 	new_vals.resize(vecVals.size());
 	if( vecVals.size() > 0 ) {
 	  std::transform( vecVals.begin(), vecVals.end(), new_vals.begin(), Teuchos::asFunc<Scalar>() );

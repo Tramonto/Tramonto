@@ -16,6 +16,7 @@
 #include "Tpetra_InvOperator.hpp"
 #include "Tpetra_HalfOperator.hpp"
 #include "Tpetra_MixedOperator.hpp"
+#include "Tpetra_MixedOperatorApplyInverse.hpp"
 #include "Tpetra_HalfOperatorApplyInverse.hpp"
 #include "Tpetra_ParameterListConverter.hpp"
 #include "Tpetra_MultiVectorConverter.hpp"
@@ -110,6 +111,7 @@ using Belos::ReturnType;
   typedef Tpetra::HalfOperator<SCALAR,LO,GO,Node> HOP; \
   typedef Tpetra::MixedOperator<SCALAR,LO,GO,Node> MOP; \
   typedef Tpetra::HalfOperatorApplyInverse<SCALAR,LO,GO,Node> HAPINV; \
+  typedef Tpetra::MixedOperatorApplyInverse<SCALAR,LO,GO,Node> MAPINV; \
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,Node> MAP; \
   typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
@@ -140,6 +142,8 @@ using Belos::ReturnType;
   typedef VEC_H VEC_P; \
   typedef MV_H MV_P; \
   typedef PRECOND_H PRECOND_P; \
+  typedef APINV_H APINV_P; \
+  typedef INVOP_H INVOP_P; \
   typedef SCALE_H SCALE_P;
 
 #elif MIXED_PREC == 0
@@ -152,6 +156,8 @@ using Belos::ReturnType;
   typedef VEC VEC_P; \
   typedef MV MV_P; \
   typedef PRECOND PRECOND_P; \
+  typedef APINV APINV_P; \
+  typedef INVOP INVOP_P; \
   typedef SCALE SCALE_P;
 
 #endif // MIXED_PREC

@@ -420,7 +420,7 @@ protected:
   RCP<MAT_P> globalMatrix_;
   RCP<SCALE_P> scalingMatrix_;
   RCP<VEC_P> rowScaleFactors_;
-  RCP<MOP> globalOperator_;
+  RCP<MOP> globalMixed_;
   RCP<VEC_H> globalRhsHalf_;
   RCP<VEC_H> globalLhsHalf_;
   RCP<VEC> globalRhs_;
@@ -457,7 +457,7 @@ protected:
   RCP<SolMGR> solver_;
   RCP<LinPROB> problem_;
   RCP<PRECOND_P> preconditioner_;
-  RCP<MOP> preconditionerOperator_;
+  RCP<MOP> preconditionerMixed_;
 #endif
 
 };

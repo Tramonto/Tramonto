@@ -171,11 +171,14 @@ finalizeBlockStructure
 
   globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_));
   globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
-  globalOperator_ = rcp(new MOP((RCP<OP_P>)globalMatrix_));
-  globalRhsHalf_ = rcp(new VEC_H(globalRowMap_));
+  globalMixed_ = rcp(new MOP((RCP<OP_P>)globalMatrix_));
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
   globalLhs_ = rcp(new VEC(globalRowMap_));
+#if MIXED_PREC == 1
+  globalRhsHalf_ = rcp(new VEC_H(globalRowMap_));
+  globalLhsHalf_ = rcp(new VEC_H(globalRowMap_));
+#endif
   ownedToBoxImporter_ = rcp(new IMP(ownedMap_, boxMap_));
 
   isBlockStructureSet_ = true;
@@ -497,15 +500,15 @@ setupSolver
   lows_ = linearOpWithSolve<Scalar>(*lowsFactory_, thyraOp_);
 #else
 
-  problem_ = rcp(new LinPROB(globalOperator_, globalLhs_, globalRhs_));
+  problem_ = rcp(new LinPROB(globalMixed_, globalLhs_, globalRhs_));
   RCP<const MAT_P> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT_P>(globalMatrix_);
   Ifpack2::Factory factory;
   preconditioner_ = factory.create("ILUT", const_globalMatrix_);
   preconditioner_->setParameters(*parameterList_);
   preconditioner_->initialize();
   preconditioner_->compute();
-  preconditionerOperator_ = rcp(new MOP((RCP<OP_P>)preconditioner_));
-  problem_->setLeftPrec(preconditionerOperator_);
+  preconditionerMixed_ = rcp(new MOP((RCP<OP_P>)preconditioner_));
+  problem_->setLeftPrec(preconditionerMixed_);
 
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));

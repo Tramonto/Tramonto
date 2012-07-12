@@ -222,13 +222,8 @@ finalizeBlockStructure
     A11_ = rcp(new P11TO(ownedMap_, block1RowMap_, parameterList_));
   } //end else
 
-#if MIXED_PREC == 1
-  A12_ = rcp(new MAT_H(block1RowMap_, 0)); A12_->setObjectLabel("PolyLinProbMgr::A12");
-  A21_ = rcp(new MAT_H(block2RowMap_, 0)); A21_->setObjectLabel("PolyLinProbMgr::A21");
-#elif MIXED_PREC == 0
-  A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("PolyLinProbMgr::A12");
-  A21_ = rcp(new MAT(block2RowMap_, 0)); A21_->setObjectLabel("PolyLinProbMgr::A21");
-#endif
+  A12_ = rcp(new MAT_P(block1RowMap_, 0)); A12_->setObjectLabel("PolyLinProbMgr::A12");
+  A21_ = rcp(new MAT_P(block2RowMap_, 0)); A21_->setObjectLabel("PolyLinProbMgr::A21");
 
   if (hasPoisson_ && !poissonInA11)
   {
@@ -239,20 +234,12 @@ finalizeBlockStructure
     A22_ = rcp(new P22TO(cmsRowMap_, densityRowMap_, block2RowMap_, parameterList_));
   }
 
-#if MIXED_PREC == 1
-  A22precond_ = rcp(new INVOP_H(A22_));
-  A22precondMixed_ = rcp(new HAPINV(A22precond_));
-#elif MIXED_PREC == 0
-  A22precond_ = rcp(new INVOP(A22_));
-#endif
+  A22precond_ = rcp(new INVOP_P(A22_));
+  A22precondMixed_ = rcp(new MAPINV((RCP<APINV_P>)A22precond_));
 
   if (debug_)
   {
-#if MIXED_PREC == 1
-    globalMatrix_ = rcp(new MAT_H(globalRowMap_, 0));
-#elif MIXED_PREC == 0
-    globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
-#endif
+    globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
     globalMatrix_->setObjectLabel("PolyLinProbMgr::globalMatrix");
   } //end if
   else
@@ -276,15 +263,14 @@ finalizeBlockStructure
   lhs2_ = globalLhs_->offsetViewNonConst(block2RowMap_, offset2)->getVectorNonConst(0);
 
   schurOperator_ = rcp(new ScTO(A11_, A12_, A21_, A22_));
-
 #if MIXED_PREC == 1
   rhs1Half_ = rcp(new VEC_H(block1RowMap_));
   rhs2Half_ = rcp(new VEC_H(block2RowMap_));
   rhsSchurHalf_ = rcp(new VEC_H(block2RowMap_));
   lhs1Half_ = rcp(new VEC_H(block1RowMap_));
   lhs2Half_ = rcp(new VEC_H(block2RowMap_));
-  schurOperatorMixed_ = rcp(new HAPINV(schurOperator_));
 #endif
+  schurOperatorMixed_ = rcp(new MAPINV((RCP<APINV_P>)schurOperator_));
 
   // RN_20100113: The following is no longer needed.
 
@@ -346,11 +332,7 @@ insertMatrixValue
   //     << "] = " << value << endl;
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
-#if MIXED_PREC == 1
-  Array<halfScalar> vals(1);
-#elif MIXED_PREC == 0
-  Array<Scalar> vals(1);
-#endif
+  Array<precScalar> vals(1);
   vals[0] = value;
 
   if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
@@ -550,13 +532,9 @@ setupSolver
   lows_ = linearOpWithSolve<Scalar>(*lowsFactory_, thyraOp_);
 #else
 
-#if MIXED_PREC == 1
   problem_ = rcp(new LinPROB(schurOperatorMixed_, lhs2_, rhsSchur_));
   problem_->setLeftPrec(A22precondMixed_);
-#elif MIXED_PREC == 0
-  problem_ = rcp(new LinPROB(schurOperator_, lhs2_, rhsSchur_));
-  problem_->setLeftPrec(A22precond_);
-#endif
+
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 #endif

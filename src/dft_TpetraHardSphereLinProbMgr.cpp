@@ -152,13 +152,8 @@ finalizeBlockStructure
 
   A11_ = rcp(new HS11TO(indNonLocalRowMap_, depNonLocalRowMap_, block1RowMap_));
 
-#if MIXED_PREC == 1
-  A12_ = rcp(new MAT_H(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
-  A21_ = rcp(new MAT_H(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
-#elif MIXED_PREC == 0
-  A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
-  A21_ = rcp(new MAT(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
-#endif
+  A12_ = rcp(new MAT_P(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
+  A21_ = rcp(new MAT_P(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
 
   if (isA22Diagonal_) {
     A22Diagonal_ = rcp(new HS22TO(block2RowMap_));
@@ -167,28 +162,16 @@ finalizeBlockStructure
     A22Matrix_ = rcp(new A22MTO(block2RowMap_, parameterList_));
   }
 
-#if MIXED_PREC == 1
   if (isA22Diagonal_) {
-    A22DiagonalPrecond_ = rcp(new INVOP_H(A22Diagonal_));
-    A22DiagonalPrecondMixed_ = rcp(new HAPINV(A22DiagonalPrecond_));
+    A22DiagonalPrecond_ = rcp(new INVOP_P(A22Diagonal_));
+    A22DiagonalPrecondMixed_ = rcp(new MAPINV((RCP<APINV_P>)A22DiagonalPrecond_));
   } else {
-    A22MatrixPrecond_ = rcp(new INVOP_H(A22Matrix_));
-    A22MatrixPrecondMixed_ = rcp(new HAPINV(A22MatrixPrecond_));
+    A22MatrixPrecond_ = rcp(new INVOP_P(A22Matrix_));
+    A22MatrixPrecondMixed_ = rcp(new MAPINV((RCP<APINV_P>)A22MatrixPrecond_));
   }
-#elif MIXED_PREC == 0
-  if (isA22Diagonal_) {
-    A22DiagonalPrecond_ = rcp(new INVOP(A22Diagonal_));
-  } else {
-    A22MatrixPrecond_ = rcp(new INVOP(A22Matrix_));
-  }
-#endif
 
   if (debug_) {
-#if MIXED_PREC == 1
-    globalMatrix_ = rcp(new MAT_H(globalRowMap_, 0));
-#elif MIXED_PREC == 0
-    globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
-#endif
+    globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
     globalMatrix_->setObjectLabel("HardSphere::globalMatrix");
     }
   else
@@ -207,15 +190,14 @@ finalizeBlockStructure
     schurOperator_ = rcp(new ScTO(A11_, A12_, A21_, A22Diagonal_));
   else
     schurOperator_ = rcp(new ScTO(A11_, A12_, A21_, A22Matrix_));
-
 #if MIXED_PREC == 1
   rhs1Half_ = rcp(new VEC_H(block1RowMap_));
   rhs2Half_ = rcp(new VEC_H(block2RowMap_));
   rhsSchurHalf_ = rcp(new VEC_H(block2RowMap_));
   lhs1Half_ = rcp(new VEC_H(block1RowMap_));
   lhs2Half_ = rcp(new VEC_H(block2RowMap_));
-  schurOperatorMixed_ = rcp(new HAPINV(schurOperator_));
 #endif
+  schurOperatorMixed_ = rcp(new MAPINV((RCP<APINV_P>)schurOperator_));
 
   isBlockStructureSet_ = true;
   isGraphStructureSet_ = true;
@@ -270,11 +252,7 @@ insertMatrixValue
 
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
-#if MIXED_PREC == 1
-  Array<halfScalar> vals(1);
-#elif MIXED_PREC == 0
-  Array<Scalar> vals(1);
-#endif
+  Array<precScalar> vals(1);
   vals[0] = value;
 
   if (schurBlockRow1 && schurBlockCol1) { // A11 block
@@ -443,9 +421,6 @@ setupSolver
 
 #endif
 
-  ////  if (solver_ != Teuchos::null ) return(0);  //Already setup
-
-#if MIXED_PREC == 1
   problem_ = rcp(new LinPROB(schurOperatorMixed_, lhs2_, rhsSchur_));
 
   if (formSchurMatrix_) {// We have S explicitly available, so let's use it
@@ -453,28 +428,14 @@ setupSolver
       schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Diagonal_->getA22Matrix());
     else
       schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Matrix_->getA22Matrix());
-    schurComplement_ = rcp(new HOP(schurOperator_->getSchurComplement()));
+    schurComplement_ = rcp(new MOP((RCP<OP_P>)schurOperator_->getSchurComplement()));
     problem_->setOperator(schurComplement_);
   }
   if (isA22Diagonal_)
     problem_->setLeftPrec(A22DiagonalPrecondMixed_);
   else
     problem_->setLeftPrec(A22MatrixPrecondMixed_);
-#elif MIXED_PREC == 0
-  problem_ = rcp(new LinPROB(schurOperator_, lhs2_, rhsSchur_));
 
-  if (formSchurMatrix_) {// We have S explicitly available, so let's use it
-    if (isA22Diagonal_)
-      schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Diagonal_->getA22Matrix());
-    else
-      schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Matrix_->getA22Matrix());
-    problem_->setOperator(schurOperator_->getSchurComplement());
-  }
-  if (isA22Diagonal_)
-    problem_->setLeftPrec(A22DiagonalPrecond_);
-  else
-    problem_->setLeftPrec(A22MatrixPrecond_);
-#endif
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
 

@@ -47,18 +47,14 @@ class dft_PolyLinProbMgr:
 {
   public:
 TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   typedef dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
-#if MIXED_PREC == 1
-  typedef halfScalar opScalar;
-#elif MIXED_PREC == 0
-  typedef Scalar opScalar;
-#endif
-  typedef dft_PolyA11_Tpetra_Operator<opScalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
-  typedef dft_PolyA11_Coulomb_Tpetra_Operator<opScalar,LocalOrdinal,GlobalOrdinal> P11CO;
-  typedef dft_PolyA22_Tpetra_Operator<opScalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
-  typedef dft_PolyA22_Coulomb_Tpetra_Operator<opScalar,LocalOrdinal,GlobalOrdinal> P22CO;
-  typedef dft_Schur_Tpetra_Operator<opScalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
+  typedef dft_PolyA11_Tpetra_Operator<precScalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
+  typedef dft_PolyA11_Coulomb_Tpetra_Operator<precScalar,LocalOrdinal,GlobalOrdinal> P11CO;
+  typedef dft_PolyA22_Tpetra_Operator<precScalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
+  typedef dft_PolyA22_Coulomb_Tpetra_Operator<precScalar,LocalOrdinal,GlobalOrdinal> P22CO;
+  typedef dft_Schur_Tpetra_Operator<precScalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
 
   //@{ \name Constructors/destructor.
   //! dft_PolyLinProbMgr Constructor.
@@ -301,16 +297,10 @@ protected:
   Array<LocalOrdinal> isPoissonEquation_;
   RCP<P11TO> A11_;
   RCP<P22TO> A22_;
-#if MIXED_PREC == 1
-  RCP<MAT_H> A12_;
-  RCP<MAT_H> A21_;
-  RCP<INVOP_H> A22precond_;
-  RCP<HAPINV> A22precondMixed_;
-#elif MIXED_PREC == 0
-  RCP<MAT> A12_;
-  RCP<MAT> A21_;
-  RCP<INVOP> A22precond_;
-#endif
+  RCP<MAT_P> A12_;
+  RCP<MAT_P> A21_;
+  RCP<INVOP_P> A22precond_;
+  RCP<MAPINV> A22precondMixed_;
   RCP<const MAP> block1RowMap_;
   RCP<const MAP> block2RowMap_;
   RCP<const MAP> cmsRowMap_;
@@ -319,17 +309,13 @@ protected:
   RCP<const MAP> poissonRowMap_;
   bool hasPoisson_;
   Array<GlobalOrdinal> physicsIdToSchurBlockId_;
-#if MIXED_PREC == 1
   RCP<ScTO> schurOperator_;
-  RCP<HAPINV> schurOperatorMixed_;
   RCP<VEC_H> rhs1Half_;
   RCP<VEC_H> rhs2Half_;
   RCP<VEC_H> rhsSchurHalf_;
   RCP<VEC_H> lhs1Half_;
   RCP<VEC_H> lhs2Half_;
-#elif MIXED_PREC == 0
-  RCP<ScTO> schurOperator_;
-#endif
+  RCP<MAPINV> schurOperatorMixed_;
   RCP<VEC> rhs1_;
   RCP<VEC> rhs2_;
   RCP<VEC> rhsSchur_;
@@ -341,19 +327,11 @@ protected:
   Array<GlobalOrdinal> indicesA12_;
   GlobalOrdinal curRowA21_;
   Array<GlobalOrdinal> indicesA21_;
-#if MIXED_PREC == 1
-  typedef typename std::map<GlobalOrdinal, halfScalar>::iterator ITER;
-  std::map<GlobalOrdinal, halfScalar> curRowValuesA12_;
-  Array<halfScalar> valuesA12_;
-  std::map<GlobalOrdinal, halfScalar> curRowValuesA21_;
-  Array<halfScalar> valuesA21_;
-#elif MIXED_PREC == 0
-  typedef typename std::map<GlobalOrdinal, Scalar>::iterator ITER;
-  std::map<GlobalOrdinal, Scalar> curRowValuesA12_;
-  Array<Scalar> valuesA12_;
-  std::map<GlobalOrdinal, Scalar> curRowValuesA21_;
-  Array<Scalar> valuesA21_;
-#endif
+  typedef typename std::map<GlobalOrdinal, precScalar>::iterator ITER;
+  std::map<GlobalOrdinal, precScalar> curRowValuesA12_;
+  Array<precScalar> valuesA12_;
+  std::map<GlobalOrdinal, precScalar> curRowValuesA21_;
+  Array<precScalar> valuesA21_;
 
   using BLPM::isBlockStructureSet_;
   using BLPM::numGlobalNodes_;
