@@ -5,6 +5,7 @@
 #include "Tpetra_ConfigDefs.hpp"
 #include "Tpetra_MultiVector.hpp"
 #include "Tpetra_CrsMatrix.hpp"
+#include "Tpetra_CrsMatrixMixed.hpp"
 #include "Tpetra_DefaultPlatform.hpp"
 #include "Tpetra_Import.hpp"
 #include "Tpetra_Export.hpp"
@@ -18,6 +19,7 @@
 #include "Tpetra_MixedOperator.hpp"
 #include "Tpetra_MixedOperatorApplyInverse.hpp"
 #include "Tpetra_HalfOperatorApplyInverse.hpp"
+#include "Tpetra_MixedMatrixOperator.hpp"
 #include "Tpetra_ParameterListConverter.hpp"
 #include "Tpetra_MultiVectorConverter.hpp"
 #include "Tpetra_ScalingCrsMatrix.hpp"
@@ -110,11 +112,13 @@ using Belos::ReturnType;
   typedef Tpetra::InvOperator<SCALAR,LO,GO,Node> INVOP; \
   typedef Tpetra::HalfOperator<SCALAR,LO,GO,Node> HOP; \
   typedef Tpetra::MixedOperator<SCALAR,LO,GO,Node> MOP; \
+  typedef Tpetra::MixedMatrixOperator<SCALAR,LO,GO,Node> MMOP; \
   typedef Tpetra::HalfOperatorApplyInverse<SCALAR,LO,GO,Node> HAPINV; \
   typedef Tpetra::MixedOperatorApplyInverse<SCALAR,LO,GO,Node> MAPINV; \
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,Node> MAP; \
   typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
+  typedef Tpetra::CrsMatrixMixed<SCALAR,LO,GO,Node> MATM; \
   typedef Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GlobalOrdinal,Node> SCALE; \
   typedef Tpetra::Import<LO,GO,Node> IMP; \
   typedef Belos::SolverManager<SCALAR, MV, OP> SolMGR; \
@@ -127,6 +131,7 @@ using Belos::ReturnType;
   typedef Tpetra::OperatorApplyInverse<halfScalar,LO,GO,Node> APINV_H;	\
   typedef Tpetra::InvOperator<halfScalar,LO,GO,Node> INVOP_H; \
   typedef Tpetra::CrsMatrix<halfScalar,LO,GO,Node> MAT_H;			\
+  typedef Tpetra::CrsMatrixMixed<halfScalar,LO,GO,Node> MATM_H;			\
   typedef Tpetra::ScalingCrsMatrix<halfScalar,LocalOrdinal,GlobalOrdinal,Node> SCALE_H; \
   typedef Belos::SolverManager<halfScalar, MV_H, OP_H> SolMGR_H;		\
   typedef Belos::LinearProblem<halfScalar, MV_H, OP_H> LinPROB_H;		\
@@ -138,6 +143,7 @@ using Belos::ReturnType;
   \
   typedef halfScalar precScalar; \
   typedef MAT_H MAT_P; \
+  typedef MATM_H MATM_P; \
   typedef OP_H OP_P; \
   typedef VEC_H VEC_P; \
   typedef MV_H MV_P; \
@@ -152,6 +158,7 @@ using Belos::ReturnType;
   \
   typedef Scalar precScalar; \
   typedef MAT MAT_P; \
+  typedef MATM MATM_P; \
   typedef OP OP_P; \
   typedef VEC VEC_P; \
   typedef MV MV_P; \

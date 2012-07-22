@@ -417,10 +417,10 @@ protected:
   RCP<VEC> boxNodeIsCoarsened_;
   RCP<IMP> ownedToBoxImporter_;
   RCP<const MAP> globalRowMap_;
-  RCP<MAT_P> globalMatrix_;
+  RCP<MATM_P> globalMatrix_;
   RCP<SCALE_P> scalingMatrix_;
   RCP<VEC_P> rowScaleFactors_;
-  RCP<MOP> globalMixed_;
+  RCP<MMOP> globalMixed_;
   RCP<VEC_H> globalRhsHalf_;
   RCP<VEC_H> globalLhsHalf_;
   RCP<VEC> globalRhs_;

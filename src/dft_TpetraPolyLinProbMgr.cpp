@@ -239,7 +239,7 @@ finalizeBlockStructure
 
   if (debug_)
   {
-    globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
+    globalMatrix_ = rcp(new MATM_P(globalRowMap_, 0));
     globalMatrix_->setObjectLabel("PolyLinProbMgr::globalMatrix");
   } //end if
   else

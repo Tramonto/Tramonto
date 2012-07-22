@@ -170,8 +170,8 @@ finalizeBlockStructure
   }
 
   globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_));
-  globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
-  globalMixed_ = rcp(new MOP((RCP<OP_P>)globalMatrix_));
+  globalMatrix_ = rcp(new MATM_P(globalRowMap_, 0));
+  globalMixed_ = rcp(new MMOP(globalMatrix_));
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
   globalLhs_ = rcp(new VEC(globalRowMap_));
