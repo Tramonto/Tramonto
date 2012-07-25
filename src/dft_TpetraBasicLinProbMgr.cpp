@@ -175,10 +175,6 @@ finalizeBlockStructure
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
   globalLhs_ = rcp(new VEC(globalRowMap_));
-#if MIXED_PREC == 1
-  globalRhsHalf_ = rcp(new VEC_H(globalRowMap_));
-  globalLhsHalf_ = rcp(new VEC_H(globalRowMap_));
-#endif
   ownedToBoxImporter_ = rcp(new IMP(ownedMap_, boxMap_));
 
   isBlockStructureSet_ = true;
@@ -467,6 +463,7 @@ setupSolver
   // Perform scaling
   scalingMatrix_ = rcp(new SCALE_P(globalMatrix_));
   rowScaleFactors_ = rcp(new VEC_P(globalMatrix_->getDomainMap()));
+  rowScaleFactorsScalar_ = rcp(new VEC(globalMatrix_->getDomainMap()));
 
   LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
   globalMatrix_->resumeFill();
@@ -475,13 +472,10 @@ setupSolver
 #if MIXED_PREC == 1
 
   RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
-  // Demote globalRhs_ to half precision
-  mvConverter->scalarToHalf( *globalRhs_, *globalRhsHalf_ );
+  // Promote rowScaleFactors to scalar precision
+  mvConverter->halfToScalar( *rowScaleFactors_, *rowScaleFactorsScalar_ );
 
-  globalRhsHalf_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhsHalf_, 0.0 );
-
-  // Promote globalRhsHalf_ to Scalar precision
-  mvConverter->halfToScalar( *globalRhsHalf_, *globalRhs_ );
+  globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactorsScalar_, *globalRhs_, 0.0 );
 
 #elif MIXED_PREC == 0
   globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
@@ -547,13 +541,10 @@ solve
 #if MIXED_PREC == 1
 
   RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
-  // Demote globalRhs_ to half precision
-  mvConverter->scalarToHalf( *globalRhs_, *globalRhsHalf_ );
+  // Promote rowScaleFactors to scalar precision
+  mvConverter->halfToScalar( *rowScaleFactors_, *rowScaleFactorsScalar_ );
 
-  globalRhsHalf_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhsHalf_, 0.0 );
-
-  // Promote globalRhsHalf_ to Scalar precision
-  mvConverter->halfToScalar( *globalRhsHalf_, *globalRhs_ );
+  globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactorsScalar_, *globalRhs_, 0.0 );
 
 #elif MIXED_PREC == 0
   globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
@@ -567,21 +558,8 @@ applyMatrix
 (const ArrayView<const ArrayView<const Scalar> >& x) const
 {
   setLhs(x);
-#if MIXED_PREC == 1
 
-  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
-
-  // Demote globalLhs_ to half precision
-  mvConverter->scalarToHalf( *globalLhs_, *globalLhsHalf_ );
-
-  globalMatrix_->apply(*globalLhsHalf_, *globalRhsHalf_);
-
-  // Promote globalRhsHalf_ to Scalar precision
-  mvConverter->halfToScalar( *globalRhsHalf_, *globalRhs_ );
-
-#elif MIXED_PREC == 0
   globalMatrix_->apply(*globalLhs_, *globalRhs_);
-#endif
 
   return(getRhs());
 }

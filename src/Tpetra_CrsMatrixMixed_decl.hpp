@@ -288,11 +288,11 @@ namespace Tpetra {
     /*! Performs \f$Y = \alpha A^{\textrm{mode}} X + \beta Y\f$, with one special exceptions:
       - if <tt>beta == 0</tt>, apply() overwrites \c Y, so that any values in \c Y (including NaNs) are ignored.
     */
-    void applyDouble(const MultiVector<double_scalar_type,LocalOrdinal,GlobalOrdinal,Node> & X,
-		     MultiVector<double_scalar_type,LocalOrdinal,GlobalOrdinal,Node> &Y,
-		     Teuchos::ETransp mode = Teuchos::NO_TRANS,
-		     double_scalar_type alpha = ScalarTraits<double_scalar_type>::one(),
-		     double_scalar_type beta = ScalarTraits<double_scalar_type>::zero()) const;
+    void apply(const MultiVector<double_scalar_type,LocalOrdinal,GlobalOrdinal,Node> & X,
+	       MultiVector<double_scalar_type,LocalOrdinal,GlobalOrdinal,Node> &Y,
+	       Teuchos::ETransp mode = Teuchos::NO_TRANS,
+	       double_scalar_type alpha = ScalarTraits<double_scalar_type>::one(),
+	       double_scalar_type beta = ScalarTraits<double_scalar_type>::zero()) const;
 
     //@}
 

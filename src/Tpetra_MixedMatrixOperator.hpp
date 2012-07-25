@@ -112,7 +112,7 @@ namespace Tpetra {
       if (operatorPrec_ == HALF_SCALAR_P) {
 
 	// Apply the operator
-	matrixHalf_->applyDouble(X,Y,mode,alpha,beta);
+	matrixHalf_->apply(X,Y,mode,alpha,beta);
 
       } else if (operatorPrec_ == SCALAR_P) {
 

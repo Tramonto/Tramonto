@@ -156,7 +156,7 @@ namespace Tpetra {
   /////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
   template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalMatOps>
-  void CrsMatrixMixed<Scalar,LocalOrdinal,GlobalOrdinal,Node,LocalMatOps>::applyDouble(
+  void CrsMatrixMixed<Scalar,LocalOrdinal,GlobalOrdinal,Node,LocalMatOps>::apply(
 	    const MultiVector<typename Teuchos::ScalarTraits<Scalar>::doublePrecision,LocalOrdinal,GlobalOrdinal,Node> &X,
 	    MultiVector<typename Teuchos::ScalarTraits<Scalar>::doublePrecision,LocalOrdinal,GlobalOrdinal,Node> &Y,
 	    Teuchos::ETransp mode,

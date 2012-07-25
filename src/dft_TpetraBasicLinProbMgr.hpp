@@ -420,9 +420,8 @@ protected:
   RCP<MATM_P> globalMatrix_;
   RCP<SCALE_P> scalingMatrix_;
   RCP<VEC_P> rowScaleFactors_;
+  RCP<VEC> rowScaleFactorsScalar_;
   RCP<MMOP> globalMixed_;
-  RCP<VEC_H> globalRhsHalf_;
-  RCP<VEC_H> globalLhsHalf_;
   RCP<VEC> globalRhs_;
   RCP<VEC> globalLhs_;
   RCP<ParameterList> parameterList_;
