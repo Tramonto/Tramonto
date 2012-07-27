@@ -102,7 +102,7 @@ void setup_rand_density(double **xInBox, double *rho, double randrho, int nloop,
 	//I switched from rand() to rand_r(&myseed)
 	
 	for (inode_box=0; inode_box<Nnodes_box; inode_box++){ //loop over box position
-		temprand=((double)arc4random()/(double)RAND_MAX - 1.0)*randrho/2.0;  //pseudorandom number from -randrho*0.5 to randrho*0.5
+		temprand=((double)rand()/(double)RAND_MAX - 1.0)*randrho/2.0;  //pseudorandom number from -randrho*0.5 to randrho*0.5
 		for (i=0; i<nloop; i++){  //loop over type of bead
 			if (Restart==RESTART_FEWERCOMP && i<nloop-Nmissing_densities) i=nloop-Nmissing_densities;
 			iunk = i+Phys2Unk_first[DENSITY];
@@ -114,7 +114,7 @@ void setup_rand_density(double **xInBox, double *rho, double randrho, int nloop,
 					else xInBox[iunk][inode_box] = rho[i]-temprand;
 				}
 				else if (nloop > 2) {
-					xInBox[iunk][inode_box] = rho[index]+((double)arc4random()/(double)RAND_MAX - 1.0)*randrho/2.0;
+					xInBox[iunk][inode_box] = rho[index]+((double)rand()/(double)RAND_MAX - 1.0)*randrho/2.0;
 				}
 				else           xInBox[iunk][inode_box] = rho[index]+temprand;
 			}
