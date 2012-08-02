@@ -76,13 +76,13 @@ namespace Tpetra {
     /*! Facilitates the use of an Operator instance as an inverse operator.
       \param In - A fully-constructed Operator object.
     */
-    MixedMatrixOperator(Teuchos::RCP<Tpetra::CrsMatrixMixed<Scalar, LocalOrdinal, GlobalOrdinal, Node> > matrixIn) {
+    MixedMatrixOperator(Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > matrixIn) {
       matrix_ = matrixIn;
       operatorPrec_ = SCALAR_P;
       return;
     }
 #if MIXED_PREC == 1
-    MixedMatrixOperator(Teuchos::RCP<Tpetra::CrsMatrixMixed<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > matrixIn) {
+    MixedMatrixOperator(Teuchos::RCP<Tpetra::CrsMatrix<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > matrixIn) {
       matrixHalf_ = matrixIn;
       operatorPrec_ = HALF_SCALAR_P;
       return;
@@ -155,8 +155,8 @@ namespace Tpetra {
 
  protected:
     int operatorPrec_;
-    Teuchos::RCP<Tpetra::CrsMatrixMixed<Scalar, LocalOrdinal, GlobalOrdinal, Node> > matrix_;
-    Teuchos::RCP<Tpetra::CrsMatrixMixed<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > matrixHalf_;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > matrix_;
+    Teuchos::RCP<Tpetra::CrsMatrix<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > matrixHalf_;
 
 };
 

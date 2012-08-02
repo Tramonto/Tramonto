@@ -522,6 +522,15 @@ if (USE_TPETRA)
      ADD_DEFINITIONS(-DMIXED_PREC=0)
    endif (MIXED_PRECISION)
 
+#  Enable Muelu
+   if (ENABLE_MUELU)
+     message("ENABLE_MUELU defined. Using Muelu.")
+     ADD_DEFINITIONS(-DENABLE_MUELU=1)
+   else ()
+     message("No Muelu code will be used.")
+     ADD_DEFINITIONS(-DENABLE_MUELU=0)
+   endif (ENABLE_MUELU)
+
 endif(USE_TPETRA)
 
 # add dft library

@@ -162,10 +162,12 @@ protected:
   std::map<GlobalOrdinal, Scalar> curRowValuesCmsOnPoisson_, curRowValuesPoissonOnPoisson_, curRowValuesPoissonOnDensity_;
   Array<GlobalOrdinal> indicesCmsOnPoisson_, indicesPoissonOnPoisson_, indicesPoissonOnDensity_;
   Array<Scalar> valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;
+#if ENABLE_MUELU == 1
   RCP<MueLu::Hierarchy<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps> > H_;
   RCP<Xpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps > > mueluPP_;
   RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
   FactoryManager M_;
+#endif
 
   using P22TO::isGraphStructureSet_;
   using P22TO::Label_;

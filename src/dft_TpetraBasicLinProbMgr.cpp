@@ -170,8 +170,8 @@ finalizeBlockStructure
   }
 
   globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_));
-  globalMatrix_ = rcp(new MATM_P(globalRowMap_, 0));
-  globalMixed_ = rcp(new MMOP(globalMatrix_));
+  globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
+  globalMatrixOperator_ = rcp(new MMOP(globalMatrix_));
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
   globalLhs_ = rcp(new VEC(globalRowMap_));
@@ -494,7 +494,7 @@ setupSolver
   lows_ = linearOpWithSolve<Scalar>(*lowsFactory_, thyraOp_);
 #else
 
-  problem_ = rcp(new LinPROB(globalMixed_, globalLhs_, globalRhs_));
+  problem_ = rcp(new LinPROB(globalMatrixOperator_, globalLhs_, globalRhs_));
   RCP<const MAT_P> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT_P>(globalMatrix_);
   Ifpack2::Factory factory;
   preconditioner_ = factory.create("ILUT", const_globalMatrix_);

@@ -327,6 +327,7 @@ finalizeProblemValues
   cmsOnPoissonMatrix_->fillComplete(poissonMap_, cmsMap_);
   poissonOnDensityMatrix_->fillComplete(densityMap_, poissonMap_);
 
+#if ENABLE_MUELU == 1
   if (firstTime_) {
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP  = rcp(new Xpetra::CrsOperator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
@@ -336,6 +337,7 @@ finalizeProblemValues
     H_->GetLevel(0)->Set("A", mueluPP);
     mueluFactory.SetupHierarchy(*H_);
   }
+#endif
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -424,8 +426,10 @@ applyInverse
   RCP<VEC> tmp2 = rcp(new VEC(densityMap_));
   tmp->reciprocal(*densityOnDensityMatrix_);
   int nIts = 10;
+#if ENABLE_MUELU == 1
   RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluX;
   RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluB;
+#endif
   if (F_location_ == 1)
   {
     // Third block row: Y2 = DD\X2
@@ -433,9 +437,11 @@ applyInverse
     // First block row: Y0 = PP \ (X0 - PD*Y2);
     poissonOnDensityMatrix_->apply(*Y2, *Y0tmp);
     Y0tmp->update(1.0, *X0, -1.0);
+#if ENABLE_MUELU == 1
     mueluX = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
     mueluB = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
     H_->Iterate(*mueluB, nIts, *mueluX);
+#endif
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
     cmsOnPoissonMatrix_->apply(*Y0, *Y1tmp1);
     cmsOnDensityMatrix_->apply(*Y2, *Y1tmp2);
@@ -454,9 +460,11 @@ applyInverse
     // First block row: Y0 = PP \ (X0 - PD*Y1);
     poissonOnDensityMatrix_->apply(*Y1, *Y0tmp);
     Y0tmp->update( 1.0, *X0, -1.0 );
+#if ENABLE_MUELU == 1
     mueluX = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
     mueluB = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
     H_->Iterate(*mueluB, nIts, *mueluX);
+#endif
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
     cmsOnPoissonMatrix_->apply(*Y0, *Y2tmp1);
     cmsOnDensityMatrix_->apply(*Y1, *Y2tmp2);
