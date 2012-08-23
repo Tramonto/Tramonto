@@ -93,6 +93,7 @@ void node_to_position(int inode,double *NodePos);
 extern int **Nodes_2_boundary_wall;
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 void calc_Gsum(double **x);
+#define GRAFT_DENSITY 1
 extern double **S_area_tot;
 extern int ***Bonds;
 #if defined(DEC_ALPHA)

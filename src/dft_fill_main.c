@@ -287,7 +287,7 @@ void calc_Gsum_new(double **x)
                Total_area_graft[ipol]+=S_area_tot[ilist][iwall];
             }
          }
-         Gsum_graft[ipol]/=Total_area_graft[ipol];
+         if (Grafted[ipol]==GRAFT_DENSITY) Gsum_graft[ipol]/=Total_area_graft[ipol];
 /*         Gsum_graft_noVolume[ipol]/=Total_area_graft[ipol];*/
         }
      }

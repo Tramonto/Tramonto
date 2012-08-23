@@ -286,7 +286,7 @@ void setup_vext_max()
             }  /* end of loop over iwall */
             }
          }
-         if (Grafted[Icomp_to_polID[icomp]]==TRUE && icomp==Grafted_TypeID[Icomp_to_polID[icomp]] && (
+         if (Grafted[Icomp_to_polID[icomp]]!=FALSE && icomp==Grafted_TypeID[Icomp_to_polID[icomp]] && (
              Nodes_2_boundary_wall[ilist][inode_box]<0 || 
              WallType[Nodes_2_boundary_wall[ilist][inode_box]] != Graft_wall[Icomp_to_polID[icomp]])){
              Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp];
@@ -363,7 +363,7 @@ void setup_vext_XRSurf(int iwall)
     for (icomp=0; icomp<Ncomp;icomp++){
        logical_setup_vext=TRUE;
        if (Grafted_Logical==TRUE && Type_poly==WJDC3 &&
-           Grafted[Icomp_to_polID[icomp]]==TRUE && icomp==Grafted_TypeID[Icomp_to_polID[icomp]] && 
+           Grafted[Icomp_to_polID[icomp]]!=FALSE && icomp==Grafted_TypeID[Icomp_to_polID[icomp]] && 
            WallType[iwall] == Graft_wall[Icomp_to_polID[icomp]]){ logical_setup_vext=FALSE;
        }
      

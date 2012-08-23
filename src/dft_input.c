@@ -923,7 +923,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
       for (pol_number=0; pol_number<Npol_comp; ++pol_number){
           fscanf(fpinput,"%d",&Grafted[pol_number]);
            fprintf(fpecho,"%d   ",Grafted[pol_number]);
-          if (Grafted[pol_number]==TRUE) Grafted_Logical=TRUE;
+          if (Grafted[pol_number]!=FALSE) Grafted_Logical=TRUE;
       }
 
       read_junk(fpinput,fpecho);
@@ -933,7 +933,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
             fprintf(fpecho,"%d   ",grafted_segID_tmp);
 /*            grafted_segID_tmp=0;
             grafted_segID_tmp=4;*/
-            if (Grafted[pol_number]){
+            if (Grafted[pol_number]!=FALSE){
                  Grafted_SegID[pol_number]=grafted_segID_tmp;
                  Grafted_SegIDAll[pol_number]=SegChain2SegAll[pol_number][grafted_segID_tmp];
                  Grafted_TypeID[pol_number]=Type_mer[pol_number][grafted_segID_tmp];

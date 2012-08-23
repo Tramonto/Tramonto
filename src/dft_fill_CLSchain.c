@@ -169,7 +169,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
          else{
               resid = -fac1;
          }
-         if(resid_only_flag==FALSE && Grafted_Logical==TRUE && Grafted[npol]==TRUE){    /* one more Jacobian entry to account for G_0^1 terms in grafted prefactor */
+         if(resid_only_flag==FALSE && Grafted_Logical==TRUE && Grafted[npol]!=FALSE){    /* one more Jacobian entry to account for G_0^1 terms in grafted prefactor */
            icomp_graft=Grafted_TypeID[npol];
            for (iwall=0;iwall<Nwall;iwall++){
              if (WallType[iwall]==Graft_wall[npol]){
@@ -178,7 +178,9 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
 
                  if (Nbonds_SegAll[Grafted_SegIDAll[npol]]>2){
                     unk_B=Index_UnkB_Gsum[iwall][jsurf_node];
-                    mat_val=resid*(GsumPrefac_XiDerivs[iwall][jsurf_node]/(Total_area_graft[npol]*Gsum_graft[npol]));
+                    if (Grafted[npol]==GRAFT_DENSITY) mat_val=resid*(GsumPrefac_XiDerivs[iwall][jsurf_node]/(Total_area_graft[npol]*Gsum_graft[npol]));
+                    else                              mat_val=resid*(GsumPrefac_XiDerivs[iwall][jsurf_node]/Gsum_graft[npol]);
+           
                     if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node_extra[jnode_box]+unk_B*Nnodes]+=mat_val;
                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,jnode_box,mat_val);
                  }
@@ -186,7 +188,8 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                  for (jbond=0;jbond<Nbonds_SegAll[Grafted_SegIDAll[npol]];jbond++){
                     if (Bonds[npol][Grafted_SegID[npol]][jbond] != -1){
                       unk_GQ=Index_UnkGQ_Gsum[iwall][jsurf_node][jbond];
-                      mat_val=-resid*(GsumPrefac_GDerivs[iwall][jsurf_node][jbond]/(Total_area_graft[npol]*Gsum_graft[npol]));
+                      if (Grafted[npol]==GRAFT_DENSITY) mat_val=-resid*(GsumPrefac_GDerivs[iwall][jsurf_node][jbond]/(Total_area_graft[npol]*Gsum_graft[npol]));
+                      else                              mat_val=-resid*(GsumPrefac_GDerivs[iwall][jsurf_node][jbond]/Gsum_graft[npol]);
            
                       if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node_extra[jnode_box]+unk_GQ*Nnodes]+=mat_val;
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,jnode_box,mat_val);

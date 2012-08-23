@@ -94,10 +94,11 @@ double prefactor_rho_wjdc(int iseg,int inode_box,double **x)
   pol_number=SegAll_to_Poly[iseg];
   scale_term=0.0;
 
-  if(Type_poly==WJDC3 && Grafted_Logical==TRUE && Grafted[pol_number])  {
+  if(Type_poly==WJDC3 && Grafted_Logical==TRUE && Grafted[pol_number]!=FALSE)  {
             if (iseg==Grafted_SegIDAll[pol_number]){
 /*                fac=Rho_g[pol_number]/Gsum_noVolume[pol_number];*/
-                fac=Rho_g[pol_number];
+                if (Grafted[pol_number]==GRAFT_DENSITY) fac=Rho_g[pol_number];
+                else fac=Rho_g[pol_number]/Total_area_graft[pol_number];
             }
             else{
                 icomp=Type_mer[pol_number][iseg];

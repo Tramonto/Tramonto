@@ -30,13 +30,6 @@ extern int *Nbonds_SegAll;
 double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,int *reflect_flag);
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
-#define FALSE 0
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
-#endif
 double calc_dens_seg(int iseg,int inode_box,double **x,int flag);
 extern int Nseg_type[NCOMP_MAX];
 #define INIT_GUESS_FLAG  2
@@ -98,8 +91,17 @@ extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
 extern double *Gsum_graft;
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
+extern double *Total_area_graft;
 extern double Rho_g[NCOMP_MAX];
+#define GRAFT_DENSITY 1
 extern int Grafted_SegIDAll[NCOMP_MAX];
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
 extern int Grafted[NCOMP_MAX];
 #define TRUE  1
 #if !defined(TRUE) && !defined(_CON_CONST_H_)

@@ -604,6 +604,10 @@ extern "C" {
 #define JAC_ZONES_SECONDMOSTCOARSE     4
 #define JAC_ZONES_SETFIXED_ESIZE       5
 
+/* options for how to specify quantity of grafted chains */
+#define GRAFT_DENSITY 1
+#define GRAFT_NUMBER 2
+
 /****************************************************************************/
 
 /*** Definitions of structures, enumerated types, typdefs, ...  ***/

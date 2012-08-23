@@ -239,11 +239,14 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
 
            /* Variables specific to Grafted polymers */
     if (PolymerGraft_List->get<bool>("PG1: Grafted Polymers?")){
-/**       Array<bool> PG2_GraftPolymerTF=PolymerGraft_List->get<Array<bool> >("PG2: Grafted_polymer_TF");
-       for (i=0; i<Npol_comp; i++) if(PG2_GraftPolymerTF[i]) Grafted[i]=TRUE;
-       else Grafted[i]=FALSE; ***/
+       Array<string> PG2_GraftPolymer_type=PolymerGraft_List->get<Array<string> >("PG2: Grafted_polymer_type");
+       for (i=0; i<Npol_comp; i++){
+          if(PG2_GraftPolymer_type[i]=="Not Grafted") Grafted[i]=FALSE;
+          else if(PG2_GraftPolymer_type[i]=="Grafted: known surf. density") Grafted[i]=GRAFT_DENSITY;
+          else if(PG2_GraftPolymer_type[i]=="Grafted: known number") Grafted[i]=GRAFT_NUMBER;
+       }
 
-       Array<int> PG3_GraftWallID=PolymerGraft_List->get<Array<int> >("PG3: Grafted_wall_ID[ipol_comp]");
+       Array<int> PG3_GraftWallID=PolymerGraft_List->get<Array<int> >("PG3: Grafted_wallType_ID[ipol_comp]");
        for (i=0; i<Npol_comp; i++) {
             Graft_wall[i]=PG3_GraftWallID[i]; 
             if (Graft_wall[i]<0) Grafted[i]=FALSE;

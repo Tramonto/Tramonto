@@ -247,7 +247,9 @@ extern "C" void dft_OptikaGUI()
 
              /* Greate the GUI windows for data entry with all dependencies.  */
         if (start_GUI){
+cout << "creating the gui\n"<<endl;
             Optika::getInput(Tramonto_List,depSheet_Tramonto);
+cout << "calling GUI_to_tramonto\n"<<endl;
             dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
                      StatePoint_List,Diffusion_List,ChargedFluid_List,Continuation_List,
@@ -255,10 +257,12 @@ extern "C" void dft_OptikaGUI()
                      DensProfile_List,Surface_List,SurfacePosition_List, PotentialsWW_List,SurfaceParamCharge_List,SurfaceInteraction_List,
                      PotentialsWF_List,SurfGeom0_List, SurfGeom1_List, SurfGeom2_List, SurfGeom3_List, SurfGeom4_List, SurfGeom5_List,
                      SurfGeom6_List, SurfGeom7_List, SurfGeom8_List, SurfGeom9_List, SurfGeom10_List,SurfGeom11_List);
+cout << "after GUI_to_tramonto\n"<<endl;
         }
   }
   
   /* Print out what the user entered in nice XML format.  */
+cout << "Trying to print out the xml file\n" << endl;
   RCP<FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
   writeParameterListToXmlOStream(*Tramonto_List, *out);
   Teuchos::ParameterEntryXMLConverterDB::printKnownConverters(*out);

@@ -81,6 +81,7 @@ extern int *B2G_node_extra;
 extern double *Gsum_graft;
 extern double *Total_area_graft;
 extern double **GsumPrefac_XiDerivs;
+#define GRAFT_DENSITY 1
 extern int **Index_UnkB_Gsum;
 extern int **Index_SurfNodes_Gsum;
 extern int *Nodes_Surf_Gsum;

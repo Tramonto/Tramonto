@@ -237,7 +237,7 @@ void sum_rho_wall(double **x, double **Sum_rho)
           if (iwall != -1){
 
           if (Type_poly !=WJDC3 || Grafted_Logical==FALSE || 
-             (Grafted[Icomp_to_polID[icomp]]==TRUE && icomp==Grafted_TypeID[Icomp_to_polID[icomp]]&&
+             (Grafted[Icomp_to_polID[icomp]]!=FALSE && icomp==Grafted_TypeID[Icomp_to_polID[icomp]]&&
               WallType[iwall] == Graft_wall[Icomp_to_polID[icomp]])){
 
              node_to_position(inode,nodepos); 

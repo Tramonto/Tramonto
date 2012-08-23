@@ -54,7 +54,6 @@ extern double Fac_overlap_hs[NCOMP_MAX];
 extern double HS_diam[NCOMP_MAX];
 extern int Unk2Comp[NMER_MAX];
 extern int Grafted[NCOMP_MAX];
-extern int Npol_comp;
 extern int Grafted_Logical;
 extern int SegAll_to_Poly[NMER_MAX];
 extern int Nseg_tot;
