@@ -29,7 +29,7 @@
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_Schur_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
 dft_Schur_Tpetra_Operator
-(RCP<APINV> A11, RCP<MAT> A12, RCP<MAT> A21, RCP<APINV> A22)
+(RCP<APINV> A11, RCP<MAT_P> A12, RCP<MAT_P> A21, RCP<APINV> A22)
   : A11_(A11),
     A12_(A12),
     A21_(A21),

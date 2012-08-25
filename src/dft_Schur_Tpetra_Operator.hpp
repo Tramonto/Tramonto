@@ -33,33 +33,34 @@
 #include "dft_PolyA22_Coulomb_Tpetra_Operator.hpp"
 
 /*! Special 2-by-2 block operator for Tramonto polymer and explicit non-local density problems.
-*/    
+*/
 
 template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
   class Node=Kokkos::DefaultNode::DefaultNodeType>
-class dft_Schur_Tpetra_Operator: 
-  public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node> 
+class dft_Schur_Tpetra_Operator:
+  public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
-      
+
  public:
 TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2-by-2 block system
 
   dft_Schur_Tpetra_Operator
-  (RCP<APINV> A11, RCP<MAT> A12, RCP<MAT> A21, RCP<APINV> A22);
+  (RCP<APINV> A11, RCP<MAT_P> A12, RCP<MAT_P> A21, RCP<APINV> A22);
   //@}
   //@{ \name Destructor.
     //! Destructor
   ~dft_Schur_Tpetra_Operator();
   //@}
-  
+
   //@{ \name Atribute set methods.
   void
   SetSchurComponents
-  (RCP<MAT > A11invMatrix, RCP<MAT > A22Matrix) 
-  { 
+  (RCP<MAT > A11invMatrix, RCP<MAT > A22Matrix)
+  {
     A11invMatrix_ = A11invMatrix;
     A22Matrix_ = A22Matrix;
   }
@@ -72,38 +73,38 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
     TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "SetUseTranspose is not supported.\n");
   };
   //@}
-  
+
   //@{ \name Mathematical functions.
 
     //! Returns the result of a dft_Schur_Tpetra_Operator applied to a MultiVector X in Y.
-    /*! 
+    /*!
     \param In
 	   X - A MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
 	   Y -A MultiVector of dimension NumVectors containing result.
   */
-  void 
+  void
   apply
   (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const;
 
   //! Unsupported feature, throws an exception.
   void
   applyInverse
-  (const MV& X, MV& Y) const 
+  (const MV& X, MV& Y) const
   {
     TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "applyInverse is not supported.\n");
   };
-  
+
   //! Generate RHS.
   void
   ComputeRHS
   (const MV& B1, const MV& B2, MV& B) const;
-  
+
   //! Generate X1.
   void
   ComputeX1
   (const MV& B1, const MV& X2, MV& X1) const;
-  
+
   //! Apply global operator.
   void
   ApplyGlobal
@@ -115,85 +116,85 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   //! Returns the infinity norm of the global matrix.
   /* Returns the quantity \f$ \| A \|_\infty\f$ such that
      \f[\| A \|_\infty = \max_{1\lei\lem} \sum_{j=1}^n |a_{ij}| \f].
-     
+
      \warning This method must not be called unless HasNormInf() returns true.
-  */ 
-  Scalar 
+  */
+  Scalar
   NormInf
-  () const 
+  () const
   {
     return(0.0);
   };
   //@}
-  
+
   //@{ \name Atribute access functions
 
   //! Returns a character string describing the operator
-  const char * 
+  const char *
   Label
   () const
   {
     return(Label_);
   };
-  
+
   //! Returns the current UseTranspose setting.
-  bool 
+  bool
   UseTranspose
-  () const 
+  () const
   {
     return(false);
   };
-  
+
   //! Returns true if the \e this object can provide an approximate Inf-norm, false otherwise.
-  bool 
+  bool
   HasNormInf
   () const
   {
     return(false);
   };
-  
+
   //! Returns a pointer to the Comm communicator associated with this operator.
-  const RCP<const COMM> & 
+  const RCP<const COMM> &
   Comm
   () const
   {
     return(A22_->getDomainMap()->getComm());
   };
-  
+
   //! Returns the Map object associated with the domain of this operator.
-  const RCP<const MAP > & 
+  const RCP<const MAP > &
   getDomainMap
-  () const 
+  () const
   {
     return(A22_->getDomainMap());
   };
-  
+
   //! Returns the Map object associated with the range of this operator.
-  const RCP<const MAP>& 
+  const RCP<const MAP>&
   getRangeMap
-  () const 
+  () const
   {
     return(A22_->getRangeMap());
   };
   //@}
 
-  RCP<APINV> A11_; 
+  RCP<APINV> A11_;
   /*!< The 1,1 block of the 2 by 2 block matrix */
-  RCP<MAT> A12_; 
+  RCP<MAT_P> A12_;
   /*!< The 1,2 block of the 2 by 2 block matrix */
-  RCP<MAT> A21_; 
+  RCP<MAT_P> A21_;
   /*!< The 2,1 block of the 2 by 2 block matrix */
-  RCP<APINV> A22_; 
+  RCP<APINV> A22_;
   /*!< The 2,2 block of the 2 by 2 block matrix */
-  RCP<MAT> A11invMatrix_; 
+  RCP<MAT> A11invMatrix_;
   /*!< The inverse of A11 in matrix form, if available */
-  RCP<MAT> A22Matrix_; 
+  RCP<MAT> A22Matrix_;
   /*!< A22 as a matrix, if available */
-  RCP<MAT> A11invA12_; 
+  RCP<MAT> A11invA12_;
   /* Intermediate matrix containing inv(A11)*A12 */
-  RCP<MAT> A21A11invA12_; 
+  RCP<MAT> A21A11invA12_;
   /* Intermediate matrix containing A21*inv(A11)*A12 */
-  RCP<MAT> S_; 
+  RCP<MAT> S_;
   /* Schur complement, if formed */
   char * Label_; /*!< Description of object */
 };

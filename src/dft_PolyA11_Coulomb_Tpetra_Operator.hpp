@@ -1,5 +1,5 @@
 //@HEADER
-// ******************************************************************** 
+// ********************************************************************
 // Tramonto: A molecular theory code for structured and uniform fluids
 //                 Copyright (2006) Sandia Corporation
 //
@@ -32,16 +32,18 @@
 
 //! dft_PolyA11_Coulomb_Tpetra_Operator: An implementation of the Operator class for Tramonto Schur complements with Coulomb effects.
 /*! Special 2*numBeads by 2*numBeads (plus Coulomb) for Tramonto polymer problems.
-*/    
+*/
 
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal, 
-         class Node = Kokkos::DefaultNode::DefaultNodeType>
-class dft_PolyA11_Coulomb_Tpetra_Operator: 
-  public virtual dft_PolyA11_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> 
+template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+	 class Node = Kokkos::DefaultNode::DefaultNodeType>
+class dft_PolyA11_Coulomb_Tpetra_Operator:
+  public virtual dft_PolyA11_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
-      
+
  public:
 TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+
   typedef dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
 
   //@{ \name Constructors.
@@ -49,14 +51,14 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   /*  dft_PolyA11_Coulomb_Operator(const Map & ownedMap, const Map & block1Map, const Map & allGMap, const Map & poissonMap, LocalOrdinal * solverOptions, Scalar * solverParams);*/
 
   dft_PolyA11_Coulomb_Tpetra_Operator
-  (RCP<const MAP > & ownedMap,  RCP<const MAP > & block1Map, RCP<const MAP > & allGMap, 
+  (RCP<const MAP > & ownedMap,  RCP<const MAP > & block1Map, RCP<const MAP > & allGMap,
    RCP<const MAP > & poissonMap, RCP<ParameterList> parameterList);
   //@}
   //@{ \name Assembly methods.
   void
   initializeProblemValues
   ();
- 
+
   void
   insertMatrixValue
   (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value);
@@ -73,18 +75,18 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   //@{ \name Mathematical functions.
 
     //! Returns the result of a dft_PolyA11_Coulomb_Tpetra_Operator applied to a MultiVector X in Y.
-    /*! 
+    /*!
     \param In
 	   X - A MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
 	   Y -A MultiVector of dimension NumVectors containing result.
   */
-  void 
+  void
   apply
   (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const;
 
   //! Returns the result of an inverse dft_PolyA11_Coulomb_Tpetra_Operator applied to a MultiVector X in Y.
-  /*! 
+  /*!
     \param In
     X - A MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
@@ -95,28 +97,28 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   (const MV& X, MV& Y) const;
 
   //@}
-  
+
   //@{ \name Atribute access functions
   //! Returns a pointer to the Comm communicator associated with this operator.
-  const RCP<const COMM> & 
+  const RCP<const COMM> &
   Comm
   () const
   {
     return(block1Map_->getComm());
   };
-  
+
   //! Returns the Map object associated with the domain of this operator.
-  const RCP<const MAP> & 
+  const RCP<const MAP> &
   getDomainMap
-  () const 
-  { 
+  () const
+  {
     return(block1Map_);
   };
-  
+
   //! Returns the Map object associated with the range of this operator.
-  const RCP<const MAP> & 
+  const RCP<const MAP> &
   getRangeMap
-  () const 
+  () const
   {
     return(block1Map_);
   };
@@ -129,10 +131,11 @@ protected:
   const RCP<const MAP> allGMap_;
   const RCP<const MAP> poissonMap_;
   RCP<ParameterList> parameterList_;
-  RCP<MAT> poissonMatrix_;
+  RCP<MAT_P> poissonMatrix_;
+  RCP<MMOP> poissonMatrixOperator_;
   GlobalOrdinal curPoissonRow_;
   GlobalOrdinal curPoissonOwnedNode_;
-  std::map<GlobalOrdinal, Scalar> curPoissonRowValues_;
+  std::map<GlobalOrdinal, precScalar> curPoissonRowValues_;
   using P11TO::isGraphStructureSet_;
   using P11TO::Label_;
   using P11TO::isLinearProblemSet_;

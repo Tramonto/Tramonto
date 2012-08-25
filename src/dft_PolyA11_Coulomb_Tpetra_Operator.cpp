@@ -43,7 +43,8 @@ dft_PolyA11_Coulomb_Tpetra_Operator
 {
 
   Label_ = "dft_PolyA11_Coulomb_Tpetra_Operator";
-  poissonMatrix_ = rcp(new MAT(poissonMap, 0));
+  poissonMatrix_ = rcp(new MAT_P(poissonMap, 0));
+  poissonMatrixOperator_ = rcp(new MMOP(poissonMatrix_));
   poissonMatrix_->setObjectLabel("PolyA11Coulomb::poissonMatrix");
   return;
 } //end constructor
@@ -84,7 +85,7 @@ insertMatrixValue
 {
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
-  Array<Scalar> vals(1);
+  Array<precScalar> vals(1);
   vals[0] = value;
   if (ownedPhysicsID >= numBlocks_) //insert it into Poisson part
   {
@@ -141,7 +142,7 @@ insertPoissonRow
     values_.resize(numEntries);
   }
   LocalOrdinal i=0;
-  typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+  ITER pos;
   for (pos=curPoissonRowValues_.begin(); pos!=curPoissonRowValues_.end(); ++pos) {
     indices_[i] = pos->first;
     values_[i++] = pos->second;
@@ -177,7 +178,7 @@ finalizeProblemValues
   for (LocalOrdinal i = 0; i < poissonMap_->getNodeNumElements(); i++)
   {
     GlobalOrdinal row = poissonMatrix_->getRowMap()->getGlobalElement(i);
-    Array<Scalar> values(1);
+    Array<precScalar> values(1);
     values[0] =10.0e-12;
     Array<GlobalOrdinal> indices(1);
     indices[0] = row;
@@ -233,7 +234,7 @@ applyInverse
 
   SolveStatus<Scalar> status = lows->solve(Thyra::NOTRANS, *thyraY, thyraY.ptr());
 #else
-  RCP<LinPROB> problem = rcp(new LinPROB(poissonMatrix_, Y2, Y2));
+  RCP<LinPROB> problem = rcp(new LinPROB(poissonMatrixOperator_, Y2, Y2));
   TEUCHOS_TEST_FOR_EXCEPT(problem->setProblem() == false);
   RCP<SolMGR> solver = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem, parameterList_));
   ReturnType ret = solver->solve();
@@ -285,19 +286,10 @@ template class dft_PolyA11_Coulomb_Tpetra_Operator<float, int, int>;
 #elif LINSOLVE_PREC == 1
 // Use double
 template class dft_PolyA11_Coulomb_Tpetra_Operator<double, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA11_Coulomb_Tpetra_Operator<float, int, int>;
-#endif
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_PolyA11_Coulomb_Tpetra_Operator<qd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA11_Coulomb_Tpetra_Operator<dd_real, int, int>;
-#endif
 #elif LINSOLVE_PREC == 3
 // Use double double
 template class dft_PolyA11_Coulomb_Tpetra_Operator<dd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA11_Coulomb_Tpetra_Operator<double, int, int>;
-#endif
 #endif
