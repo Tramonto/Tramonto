@@ -41,9 +41,9 @@ dft_PolyA22_Coulomb_Tpetra_Operator
     curCPRow_(-1),
     curPDRow_(-1)
 {
-  poissonOnPoissonMatrix_ = rcp(new MAT(poissonMap, 0));
-  cmsOnPoissonMatrix_ = rcp(new MAT(cmsMap, 0));
-  poissonOnDensityMatrix_ = rcp(new MAT(poissonMap, 0));
+  poissonOnPoissonMatrix_ = rcp(new MAT_P(poissonMap, 0));
+  cmsOnPoissonMatrix_ = rcp(new MAT_P(cmsMap, 0));
+  poissonOnDensityMatrix_ = rcp(new MAT_P(poissonMap, 0));
   Label_ = "dft_PolyA22_Coulomb_Tpetra_Operator";
   cmsOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnDensityMatrix");
   cmsOnCmsMatrix2_->setObjectLabel("PolyA22Coulomb::cmsOnCmsMatrix");
@@ -103,7 +103,7 @@ insertMatrixValue
 
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
-  Array<Scalar> vals(1);
+  Array<precScalar> vals(1);
   vals[0] = value;
 
   /* The poissonMatrix_, poissonOnDensityMatrix_, cmsOnPoissonMatrix_, and cmsOnDensityMatrix_ values do not change between iterations */
@@ -223,7 +223,7 @@ insertRow
       valuesCmsOnDensity_.resize(numEntriesCmsOnDensity);
     }
     LocalOrdinal i=0;
-    typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+    ITER pos;
     for (pos = curRowValuesCmsOnDensity_.begin(); pos != curRowValuesCmsOnDensity_.end(); ++pos) {
       indicesCmsOnDensity_[i] = pos->first;
       valuesCmsOnDensity_[i++] = pos->second;
@@ -237,7 +237,7 @@ insertRow
       valuesCmsOnCms_.resize(numEntriesCmsOnCms);
     }
     LocalOrdinal i=0;
-    typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+    ITER pos;
     for (pos = curRowValuesCmsOnCms_.begin(); pos != curRowValuesCmsOnCms_.end(); ++pos) {
       indicesCmsOnCms_[i] = pos->first;
       valuesCmsOnCms_[i++] = pos->second;
@@ -251,7 +251,7 @@ insertRow
       valuesPoissonOnPoisson_.resize(numEntriesPoissonOnPoisson);
     }
     LocalOrdinal i=0;
-    typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+    ITER pos;
     for (pos = curRowValuesPoissonOnPoisson_.begin(); pos != curRowValuesPoissonOnPoisson_.end(); ++pos) {
       indicesPoissonOnPoisson_[i] = pos->first;
       valuesPoissonOnPoisson_[i++] = pos->second;
@@ -265,7 +265,7 @@ insertRow
       valuesCmsOnPoisson_.resize(numEntriesCmsOnPoisson);
     }
     LocalOrdinal i=0;
-    typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+    ITER pos;
     for (pos = curRowValuesCmsOnPoisson_.begin(); pos != curRowValuesCmsOnPoisson_.end(); ++pos) {
       indicesCmsOnPoisson_[i] = pos->first;
       valuesCmsOnPoisson_[i++] = pos->second;
@@ -279,7 +279,7 @@ insertRow
       valuesPoissonOnDensity_.resize(numEntriesPoissonOnDensity);
     }
     LocalOrdinal i=0;
-    typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+    ITER pos;
     for (pos = curRowValuesPoissonOnDensity_.begin(); pos != curRowValuesPoissonOnDensity_.end(); ++pos) {
       indicesPoissonOnDensity_[i] = pos->first;
       valuesPoissonOnDensity_[i++] = pos->second;
@@ -329,9 +329,9 @@ finalizeProblemValues
 
 #if ENABLE_MUELU == 1
   if (firstTime_) {
-    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
-    mueluPP  = rcp(new Xpetra::CrsOperator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
-    MueLu::MLParameterListInterpreter<Scalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(*parameterList_);
+    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
+    mueluPP  = rcp(new Xpetra::CrsOperator<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(*parameterList_);
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_HIGH);
     H_->GetLevel(0)->Set("A", mueluPP);
@@ -427,8 +427,8 @@ applyInverse
   tmp->reciprocal(*densityOnDensityMatrix_);
   int nIts = 10;
 #if ENABLE_MUELU == 1
-  RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluX;
-  RCP<Xpetra::MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node> > mueluB;
+  RCP<Xpetra::MultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node> > mueluX;
+  RCP<Xpetra::MultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node> > mueluB;
 #endif
   if (F_location_ == 1)
   {
@@ -438,8 +438,8 @@ applyInverse
     poissonOnDensityMatrix_->apply(*Y2, *Y0tmp);
     Y0tmp->update(1.0, *X0, -1.0);
 #if ENABLE_MUELU == 1
-    mueluX = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
-    mueluB = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
+    mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
+    mueluB = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
     H_->Iterate(*mueluB, nIts, *mueluX);
 #endif
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
@@ -447,9 +447,19 @@ applyInverse
     cmsOnDensityMatrix_->apply(*Y2, *Y1tmp2);
     Y1tmp1->update(1.0, *X1, -1.0, *Y1tmp2, -1.0);
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
-    VEC cmsOnCmsDiag(cmsMap_);
+    VEC_P cmsOnCmsDiag(cmsMap_);
+    VEC cmsOnCmsDiagScalar(cmsMap_);
     cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
+#if MIXED_PREC == 1
+    RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+    // Promote cmsOnCmsDiag to Scalar precision
+    mvConverter->halfToScalar( cmsOnCmsDiag, cmsOnCmsDiagScalar );
+
+    tmp2->reciprocal(cmsOnCmsDiagScalar);
+#elif MIXED_PREC == 0
     tmp2->reciprocal(cmsOnCmsDiag);
+#endif
+
     Y1->elementWiseMultiply(1.0, *tmp2, *Y1tmp1, 0.0);
 
   } //end if
@@ -461,8 +471,8 @@ applyInverse
     poissonOnDensityMatrix_->apply(*Y1, *Y0tmp);
     Y0tmp->update( 1.0, *X0, -1.0 );
 #if ENABLE_MUELU == 1
-    mueluX = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
-    mueluB = rcp(new Xpetra::TpetraMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
+    mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
+    mueluB = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
     H_->Iterate(*mueluB, nIts, *mueluX);
 #endif
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
@@ -470,9 +480,19 @@ applyInverse
     cmsOnDensityMatrix_->apply(*Y1, *Y2tmp2);
     Y2tmp1->update(1.0, *X2, -1.0, *Y2tmp2, -1.0);
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
-    VEC cmsOnCmsDiag(cmsMap_);
+    VEC_P cmsOnCmsDiag(cmsMap_);
+    VEC cmsOnCmsDiagScalar(cmsMap_);
     cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
+#if MIXED_PREC == 1
+    RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+    // Promote cmsOnCmsDiag to Scalar precision
+    mvConverter->halfToScalar( cmsOnCmsDiag, cmsOnCmsDiagScalar );
+
+    tmp2->reciprocal(cmsOnCmsDiagScalar);
+#elif MIXED_PREC == 0
     tmp2->reciprocal(cmsOnCmsDiag);
+#endif
+
     Y2->elementWiseMultiply(1.0, *tmp2, *Y2tmp1, 0.0);
 
   } //end else
@@ -646,19 +666,10 @@ template class dft_PolyA22_Coulomb_Tpetra_Operator<float, int, int>;
 #elif LINSOLVE_PREC == 1
 // Use double
 template class dft_PolyA22_Coulomb_Tpetra_Operator<double, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA22_Coulomb_Tpetra_Operator<float, int, int>;
-#endif
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_PolyA22_Coulomb_Tpetra_Operator<qd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA22_Coulomb_Tpetra_Operator<dd_real, int, int>;
-#endif
 #elif LINSOLVE_PREC == 3
 // Use double double
 template class dft_PolyA22_Coulomb_Tpetra_Operator<dd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA22_Coulomb_Tpetra_Operator<double, int, int>;
-#endif
 #endif

@@ -42,8 +42,8 @@ dft_PolyA22_Tpetra_Operator
     curRow_(-1)
 {
 
-  cmsOnDensityMatrix_ = rcp(new MAT(cmsMap, 0));
-  cmsOnCmsMatrix2_ = rcp(new MAT(cmsMap, 0));
+  cmsOnDensityMatrix_ = rcp(new MAT_P(cmsMap, 0));
+  cmsOnCmsMatrix2_ = rcp(new MAT_P(cmsMap, 0));
   densityOnDensityMatrix_ = rcp(new VEC(densityMap));
   densityOnCmsMatrix_ = rcp(new VEC(densityMap));
   Label_ = "dft_PolyA22_Tpetra_Operator";
@@ -94,7 +94,7 @@ insertMatrixValue
   // if cms then blockColFlag = 2
 
   Array<GlobalOrdinal> cols(1);
-  Array<Scalar> vals(1);
+  Array<precScalar> vals(1);
   cols[0] = colGID;
   vals[0] = value;
 
@@ -165,7 +165,7 @@ insertRow
       valuesCmsOnDensity_.resize(numEntriesCmsOnDensity);
     }
     LocalOrdinal i=0;
-    typename std::map<LocalOrdinal, Scalar>::iterator pos;
+    ITER pos;
     for (pos = curRowValuesCmsOnDensity_.begin(); pos != curRowValuesCmsOnDensity_.end(); ++pos) {
       indicesCmsOnDensity_[i] = pos->first;
       valuesCmsOnDensity_[i++] = pos->second;
@@ -180,7 +180,7 @@ insertRow
       valuesCmsOnCms_.resize(numEntriesCmsOnCms);
     }
     LocalOrdinal i=0;
-    typename std::map<LocalOrdinal, Scalar>::iterator pos;
+    ITER pos;
     for (pos = curRowValuesCmsOnCms_.begin(); pos != curRowValuesCmsOnCms_.end(); ++pos) {
       indicesCmsOnCms_[i] = pos->first;
       valuesCmsOnCms_[i++] = pos->second;
@@ -316,9 +316,20 @@ applyInverse
     cmsOnDensityMatrix_->apply(*Y2, *Y1tmp);
     Y1tmp->update(1.0, *X1, -1.0);
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
-    VEC cmsOnCmsDiag(cmsMap_);
+    VEC_P cmsOnCmsDiag(cmsMap_);
+    VEC cmsOnCmsDiagScalar(cmsMap_);
     cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
+#if MIXED_PREC == 1
+
+    RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+    // Promote cmsOnCmsDiag to Scalar precision
+    mvConverter->halfToScalar( cmsOnCmsDiag, cmsOnCmsDiagScalar );
+
+    tmp2->reciprocal(cmsOnCmsDiagScalar);
+#elif MIXED_PREC == 0
     tmp2->reciprocal(cmsOnCmsDiag);
+#endif
+
     Y1->elementWiseMultiply(1.0, *tmp2, *Y1tmp, 0.0);
 
   } //end if
@@ -340,9 +351,20 @@ applyInverse
     cmsOnDensityMatrix_->apply(*Y1, *Y2tmp);
     Y2tmp->update(1.0, *X2, -1.0);
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
-    VEC cmsOnCmsDiag(cmsMap_);
+    VEC_P cmsOnCmsDiag(cmsMap_);
+    VEC cmsOnCmsDiagScalar(cmsMap_);
     cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
+#if MIXED_PREC == 1
+
+    RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+    // Promote cmsOnCmsDiag to Scalar precision
+    mvConverter->halfToScalar( cmsOnCmsDiag, cmsOnCmsDiagScalar );
+
+    tmp2->reciprocal(cmsOnCmsDiagScalar);
+#elif MIXED_PREC == 0
     tmp2->reciprocal(cmsOnCmsDiag);
+#endif
+
     Y2->elementWiseMultiply(1.0, *tmp2, *Y2tmp, 0.0);
 
   } //end else
@@ -468,19 +490,10 @@ template class dft_PolyA22_Tpetra_Operator<float, int, int>;
 #elif LINSOLVE_PREC == 1
 // Use double
 template class dft_PolyA22_Tpetra_Operator<double, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA22_Tpetra_Operator<float, int, int>;
-#endif
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_PolyA22_Tpetra_Operator<qd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA22_Tpetra_Operator<dd_real, int, int>;
-#endif
 #elif LINSOLVE_PREC == 3
 // Use double double
 template class dft_PolyA22_Tpetra_Operator<dd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA22_Tpetra_Operator<double, int, int>;
-#endif
 #endif

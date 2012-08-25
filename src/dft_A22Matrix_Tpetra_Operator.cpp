@@ -38,7 +38,7 @@ dft_A22Matrix_Tpetra_Operator
     firstTime_(true),
     curRow_(-1) {
 
-  A22Matrix_ = rcp(new MAT(block2Map, 0));
+  A22Matrix_ = rcp(new MAT_P(block2Map, 0));
   Label_ = "dft_A22Matrix_Tpetra_Operator";
   A22Matrix_->setObjectLabel("dft_A22Matrix_Tpetra_Operator::A22Matrix");
 }
@@ -73,7 +73,7 @@ insertMatrixValue
 (GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value)
 {
   Array<GlobalOrdinal> cols(1);
-  Array<Scalar> vals(1);
+  Array<precScalar> vals(1);
   cols[0] = colGID;
   vals[0] = value;
 
@@ -104,7 +104,7 @@ insertRow
     values_.resize(numEntries);
   }
   GlobalOrdinal i=0;
-  typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+  ITER pos;
   for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
     indices_[i] = pos->first;
     values_[i++] = pos->second;
@@ -147,8 +147,9 @@ finalizeProblemValues
     // it is ignored.
 
     Ifpack2::Factory factory;
-    RCP<const MAT> const_matrix = Teuchos::rcp_implicit_cast<const MAT>(A22Matrix_);
+    RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(A22Matrix_);
     A22Inverse_ = factory.create(PrecType, const_matrix);
+    A22InverseMixed_ = rcp(new MOP((RCP<OP_P>)A22Inverse_));
 
     TEUCHOS_TEST_FOR_EXCEPT(A22Inverse_==Teuchos::null);
 
@@ -177,7 +178,7 @@ applyInverse
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
   TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 
-  A22Inverse_->apply(X, Y);
+  A22InverseMixed_->apply(X, Y);
 
 }
 //==============================================================================
@@ -200,19 +201,10 @@ template class dft_A22Matrix_Tpetra_Operator<float, int, int>;
 #elif LINSOLVE_PREC == 1
 // Use double
 template class dft_A22Matrix_Tpetra_Operator<double, int, int>;
-#if MIXED_PREC == 1
-template class dft_A22Matrix_Tpetra_Operator<float, int, int>;
-#endif
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_A22Matrix_Tpetra_Operator<qd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_A22Matrix_Tpetra_Operator<dd_real, int, int>;
-#endif
 #elif LINSOLVE_PREC == 3
 // Use double double
 template class dft_A22Matrix_Tpetra_Operator<dd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_A22Matrix_Tpetra_Operator<double, int, int>;
-#endif
 #endif

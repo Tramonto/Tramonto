@@ -50,11 +50,11 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   typedef dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
-  typedef dft_PolyA11_Tpetra_Operator<precScalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
-  typedef dft_PolyA11_Coulomb_Tpetra_Operator<precScalar,LocalOrdinal,GlobalOrdinal> P11CO;
-  typedef dft_PolyA22_Tpetra_Operator<precScalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
-  typedef dft_PolyA22_Coulomb_Tpetra_Operator<precScalar,LocalOrdinal,GlobalOrdinal> P22CO;
-  typedef dft_Schur_Tpetra_Operator<precScalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
+  typedef dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
+  typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P11CO;
+  typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
+  typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P22CO;
+  typedef dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
 
   //@{ \name Constructors/destructor.
   //! dft_PolyLinProbMgr Constructor.
@@ -299,8 +299,7 @@ protected:
   RCP<P22TO> A22_;
   RCP<MAT_P> A12_;
   RCP<MAT_P> A21_;
-  RCP<INVOP_P> A22precond_;
-  RCP<MAPINV> A22precondMixed_;
+  RCP<INVOP> A22precond_;
   RCP<const MAP> block1RowMap_;
   RCP<const MAP> block2RowMap_;
   RCP<const MAP> cmsRowMap_;
@@ -310,11 +309,6 @@ protected:
   bool hasPoisson_;
   Array<GlobalOrdinal> physicsIdToSchurBlockId_;
   RCP<ScTO> schurOperator_;
-  RCP<VEC_H> rhs1Half_;
-  RCP<VEC_H> rhs2Half_;
-  RCP<VEC_H> rhsSchurHalf_;
-  RCP<VEC_H> lhs1Half_;
-  RCP<VEC_H> lhs2Half_;
   RCP<MAPINV> schurOperatorMixed_;
   RCP<VEC> rhs1_;
   RCP<VEC> rhs2_;
@@ -327,7 +321,6 @@ protected:
   Array<GlobalOrdinal> indicesA12_;
   GlobalOrdinal curRowA21_;
   Array<GlobalOrdinal> indicesA21_;
-  typedef typename std::map<GlobalOrdinal, precScalar>::iterator ITER;
   std::map<GlobalOrdinal, precScalar> curRowValuesA12_;
   Array<precScalar> valuesA12_;
   std::map<GlobalOrdinal, precScalar> curRowValuesA21_;

@@ -39,6 +39,7 @@ class dft_HardSphereA22_Tpetra_Operator:
 
 public:
   TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
@@ -191,7 +192,7 @@ public:
   };
 
   //! Returns a pointer to the Epetra_CrsMatrix object that is the A22 matrix
-  RCP<MAT>
+  RCP<MAT_P>
   getA22Matrix
   ()
   {
@@ -204,7 +205,7 @@ private:
 
   const RCP<const MAP > block2Map_;
   RCP<VEC> densityOnDensityMatrix_;
-  RCP<MAT> A22Matrix_;
+  RCP<MAT_P> A22Matrix_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;

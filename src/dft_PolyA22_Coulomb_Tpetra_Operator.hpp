@@ -42,6 +42,8 @@ class dft_PolyA22_Coulomb_Tpetra_Operator:
 
  public:
 TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+
   typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
 
   //@{ \name Constructors.
@@ -150,22 +152,22 @@ protected:
   const RCP<const MAP> poissonMap_;
   const RCP<const MAP> cmsDensMap_;
   const RCP<const MAP> block2Map_;
-  RCP<MAT> poissonOnPoissonMatrix_;
-  RCP<MAT> cmsOnPoissonMatrix_;
-  RCP<MAT> poissonOnDensityMatrix_;
+  RCP<MAT_P> poissonOnPoissonMatrix_;
+  RCP<MAT_P> cmsOnPoissonMatrix_;
+  RCP<MAT_P> poissonOnDensityMatrix_;
   GlobalOrdinal curPoissonRow_;
-  std::map<GlobalOrdinal, Scalar> curPoissonRowValues_;
+  std::map<GlobalOrdinal, precScalar> curPoissonRowValues_;
   GlobalOrdinal curCPRow_;
-  std::map<GlobalOrdinal, Scalar> curCPRowValues_;
+  std::map<GlobalOrdinal, precScalar> curCPRowValues_;
   GlobalOrdinal curPDRow_;
-  std::map<GlobalOrdinal, Scalar> curPDRowValues_;
-  std::map<GlobalOrdinal, Scalar> curRowValuesCmsOnPoisson_, curRowValuesPoissonOnPoisson_, curRowValuesPoissonOnDensity_;
+  std::map<GlobalOrdinal, precScalar> curPDRowValues_;
+  std::map<GlobalOrdinal, precScalar> curRowValuesCmsOnPoisson_, curRowValuesPoissonOnPoisson_, curRowValuesPoissonOnDensity_;
   Array<GlobalOrdinal> indicesCmsOnPoisson_, indicesPoissonOnPoisson_, indicesPoissonOnDensity_;
-  Array<Scalar> valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;
+  Array<precScalar> valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;
 #if ENABLE_MUELU == 1
-  RCP<MueLu::Hierarchy<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps> > H_;
-  RCP<Xpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps > > mueluPP_;
-  RCP<Xpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
+  RCP<MueLu::Hierarchy<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps> > H_;
+  RCP<Xpetra::CrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps > > mueluPP_;
+  RCP<Xpetra::Operator<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
   FactoryManager M_;
 #endif
 

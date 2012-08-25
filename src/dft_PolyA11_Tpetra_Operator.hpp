@@ -1,5 +1,5 @@
 //@HEADER
-// ******************************************************************** 
+// ********************************************************************
 // Tramonto: A molecular theory code for structured and uniform fluids
 //                 Copyright (2006) Sandia Corporation
 //
@@ -30,15 +30,16 @@
 
 //! dft_PolyA11_Tpetra_Operator: An implementation of the Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
-*/    
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal, 
-         class Node = Kokkos::DefaultNode::DefaultNodeType>
-class dft_PolyA11_Tpetra_Operator: 
-  public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node> 
+*/
+template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+	 class Node = Kokkos::DefaultNode::DefaultNodeType>
+class dft_PolyA11_Tpetra_Operator:
+  public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
-      
+
  public:
 TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
@@ -69,7 +70,7 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
     //! Destructor
   virtual ~dft_PolyA11_Tpetra_Operator();
   //@}
-  
+
   //@{ \name Atribute set methods.
 
     //! Unsupported feature, throws an exception.
@@ -80,22 +81,22 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
     TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "SetUseTranspose is unsupported.\n");
   };
   //@}
-  
+
   //@{ \name Mathematical functions.
 
     //! Returns the result of a dft_PolyA11_Tpetra_Operator applied to a MultiVector X in Y.
-    /*! 
+    /*!
     \param In
 	   X - A MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
 	   Y -A MultiVector of dimension NumVectors containing result.
   */
-  virtual void 
+  virtual void
   apply
   (const MV& X, MV& Y, Teuchos::ETransp mode = Teuchos::NO_TRANS, Scalar alpha = 1.0, Scalar beta = 0.0) const;
 
   //! Returns the result of an inverse dft_PolyA11_Tpetra_Operator applied to a MultiVector X in Y.
-  /*! 
+  /*!
     \param In
     X - A MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
@@ -104,90 +105,90 @@ TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   virtual void
   applyInverse
   (const MV& X, MV& Y) const;
-  
-  
+
+
   //! Returns the infinity norm of the global matrix.
   /* Returns the quantity \f$ \| A \|_\infty\f$ such that
      \f[\| A \|_\infty = \max_{1\lei\lem} \sum_{j=1}^n |a_{ij}| \f].
-     
+
      \warning This method must not be called unless HasNormInf() returns true.
-  */ 
-  Scalar 
+  */
+  Scalar
   NormInf
-  () const 
+  () const
   {
     return(0.0);
   };
-  
+
   //! Check for inconsistencies in operators.
   /* \param verbose (In) Print the residual of inv(A11)*A11*x_random.
-     
+
   //! Throws an exception if the residual error is "large".
-  */ 
+  */
   void
   Check
   (bool verbose) const;
 
   //@}
-  
+
   //@{ \name Atribute access functions
 
   //! Returns a character string describing the operator
-  const char * 
+  const char *
   Label
   () const
   {
     return(Label_);
   };
-  
+
   //! Returns the current UseTranspose setting.
-  bool 
+  bool
   UseTranspose
-  () const 
+  () const
   {
     return(false);
   };
-  
+
   //! Returns true if the \e this object can provide an approximate Inf-norm, false otherwise.
-  bool 
+  bool
   HasNormInf
   () const
   {
     return(false);
   };
-  
+
   //! Returns a pointer to the Comm communicator associated with this operator.
-  virtual const RCP<const COMM> & 
+  virtual const RCP<const COMM> &
   Comm
   () const
   {
     return(block1Map_->getComm());
   };
-  
+
   //! Returns the Map object associated with the domain of this operator.
-  virtual const RCP<const MAP> & 
+  virtual const RCP<const MAP> &
   getDomainMap
-  () const 
+  () const
   {
     return(block1Map_);
   };
-  
+
   //! Returns the Map object associated with the range of this operator.
-  virtual const RCP<const MAP> & 
+  virtual const RCP<const MAP> &
   getRangeMap
-  () const 
+  () const
   {
     return(block1Map_);
   };
   //@}
-  
+
 protected:
 
   void insertRow();
   const RCP<const MAP> ownedMap_;
   const RCP<const MAP> block1Map_;
   size_t numBlocks_;
-  Array<RCP<MAT> > matrix_;
+  Array<RCP<MAT_P> > matrix_;
   RCP<VEC> invDiagonal_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
@@ -195,9 +196,9 @@ protected:
   GlobalOrdinal curRow_;
   LocalOrdinal curOwnedPhysicsID_;
   LocalOrdinal curOwnedNode_;
-  std::map<GlobalOrdinal, Scalar> curRowValues_;
+  std::map<GlobalOrdinal, precScalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
-  Array<Scalar> values_;
+  Array<precScalar> values_;
   bool firstTime_;
   // RN_20100326: This following is needed for Krylov solvers in the
   // applyInverse method.

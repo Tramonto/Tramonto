@@ -428,7 +428,6 @@ protected:
   RCP<ParameterList> tpetraParameterList_;
   GlobalOrdinal curRow_;
   Array<GlobalOrdinal> indices_;
-  typedef typename std::map<GlobalOrdinal, precScalar>::iterator ITER;
   std::map<GlobalOrdinal, precScalar> curRowValues_;
   Array<precScalar> values_;
   GlobalOrdinal n_;

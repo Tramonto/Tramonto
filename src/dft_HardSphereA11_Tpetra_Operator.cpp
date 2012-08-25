@@ -41,7 +41,7 @@ dft_HardSphereA11_Tpetra_Operator
 
   Label_ = "dft_HardSphereA11_Tpetra_Operator";
   if (depNonLocalMap_->getGlobalNumElements()>0) {
-    matrix_ = rcp(new MAT(depNonLocalMap_, 0));
+    matrix_ = rcp(new MAT_P(depNonLocalMap_, 0));
     matrix_->setObjectLabel("HardSphere::A11::matrix");
   }
 
@@ -79,7 +79,7 @@ insertMatrixValue
 
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
-  Array<Scalar> vals(1);
+  Array<precScalar> vals(1);
   vals[0] = value;
 
  // All ind NonLocal entries are diagonal values and 1, so we don't store them
@@ -120,7 +120,7 @@ insertRow
     values_.resize(numEntries);
   }
   LocalOrdinal i=0;
-  typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+  ITER pos;
   for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
     indices_[i] = pos->first;
     values_[i++] = pos->second;
@@ -293,7 +293,7 @@ formA11invMatrix
 {
   bool firstTime = false;
   if (A11invMatrix_ == Teuchos::null) {
-    A11invMatrix_ = rcp(new MAT(getRangeMap(), 0));
+    A11invMatrix_ = rcp(new MAT_P(getRangeMap(), 0));
     A11invMatrix_->setObjectLabel("HardSphereA11::A11invMatrix");
     firstTime = true;
   }
@@ -307,7 +307,7 @@ formA11invMatrix
     GlobalOrdinal row = A11invMatrix_->getDomainMap()->getGlobalElement(i);
     GlobalOrdinal col = row;
     Array<GlobalOrdinal> cols(1);
-    Array<Scalar> vals(1);
+    Array<precScalar> vals(1);
     cols[0] = col;
     vals[0] = value;
     if (firstTime)
@@ -321,7 +321,7 @@ formA11invMatrix
   if (numRows>0) {
     size_t numEntries;
     ArrayView<GlobalOrdinal> indices;
-    ArrayView<Scalar> values;
+    ArrayView<precScalar> values;
     for (LocalOrdinal i=0; i<numRows; i++) {
       GlobalOrdinal row = matrix_->getDomainMap()->getGlobalElement(i);
       matrix_->getGlobalRowCopy( row, indices, values, numEntries );
@@ -346,19 +346,10 @@ template class dft_HardSphereA11_Tpetra_Operator<float, int, int>;
 #elif LINSOLVE_PREC == 1
 // Use double
 template class dft_HardSphereA11_Tpetra_Operator<double, int, int>;
-#if MIXED_PREC == 1
-template class dft_HardSphereA11_Tpetra_Operator<float, int, int>;
-#endif
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_HardSphereA11_Tpetra_Operator<qd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_HardSphereA11_Tpetra_Operator<dd_real, int, int>;
-#endif
 #elif LINSOLVE_PREC == 3
 // Use double double
 template class dft_HardSphereA11_Tpetra_Operator<dd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_HardSphereA11_Tpetra_Operator<double, int, int>;
-#endif
 #endif

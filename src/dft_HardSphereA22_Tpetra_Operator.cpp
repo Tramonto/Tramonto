@@ -155,7 +155,7 @@ formA22Matrix
 ()
 {
   if (A22Matrix_ == Teuchos::null) {
-    A22Matrix_ = rcp(new MAT(getRangeMap(), 1));
+    A22Matrix_ = rcp(new MAT_P(getRangeMap(), 1));
     A22Matrix_->setObjectLabel("HardSphereA22::A22Matrix");
   }
   LocalOrdinal numRows = getRangeMap()->getNodeNumElements();
@@ -165,7 +165,7 @@ formA22Matrix
     Scalar value = vectorValues[i];
     GlobalOrdinal col = row;
     Array<GlobalOrdinal> cols(1);
-    Array<Scalar> vals(1);
+    Array<precScalar> vals(1);
     cols[0] = col;
     vals[0] = value;
     A22Matrix_->insertGlobalValues(row, cols, vals);
@@ -179,19 +179,10 @@ template class dft_HardSphereA22_Tpetra_Operator<float, int, int>;
 #elif LINSOLVE_PREC == 1
 // Use double
 template class dft_HardSphereA22_Tpetra_Operator<double, int, int>;
-#if MIXED_PREC == 1
-template class dft_HardSphereA22_Tpetra_Operator<float, int, int>;
-#endif
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_HardSphereA22_Tpetra_Operator<qd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_HardSphereA22_Tpetra_Operator<dd_real, int, int>;
-#endif
 #elif LINSOLVE_PREC == 3
 // Use double double
 template class dft_HardSphereA22_Tpetra_Operator<dd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_HardSphereA22_Tpetra_Operator<double, int, int>;
-#endif
 #endif

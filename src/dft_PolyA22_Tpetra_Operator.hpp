@@ -40,6 +40,7 @@ class dft_PolyA22_Tpetra_Operator:
 
  public:
 TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
@@ -212,8 +213,8 @@ protected:
   const RCP<const MAP > densityMap_;
   const RCP<const MAP > block2Map_;
   RCP<ParameterList> parameterList_;
-  RCP<MAT > cmsOnDensityMatrix_;
-  RCP<MAT > cmsOnCmsMatrix2_;
+  RCP<MAT_P> cmsOnDensityMatrix_;
+  RCP<MAT_P> cmsOnCmsMatrix2_;
   RCP<VEC > densityOnDensityMatrix_;
   RCP<VEC > densityOnCmsMatrix_;
   char * Label_; /*!< Description of object */
@@ -222,15 +223,15 @@ protected:
   bool isFLinear_;
   bool firstTime_;
   GlobalOrdinal curRow_;
-  std::map<GlobalOrdinal, Scalar> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_;
+  std::map<GlobalOrdinal, precScalar> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_;
   Array<GlobalOrdinal> indicesCmsOnDensity_, indicesCmsOnCms_;
-  Array<Scalar> valuesCmsOnDensity_, valuesCmsOnCms_;
+  Array<precScalar> valuesCmsOnDensity_, valuesCmsOnCms_;
   Teuchos::ParameterList IFList_;
   RCP<PRECOND> IFPrec;
   string IFPrecType; // incomplete LU
   GlobalOrdinal IFOverlapLevel;
-  std::map<GlobalOrdinal, Scalar> curRowValues_;
+  std::map<GlobalOrdinal, precScalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
-  Array<Scalar> values_;
+  Array<precScalar> values_;
 }; //class dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>
 #endif /* DFT_POLYA22_TPETRA_OPERATOR_H */

@@ -48,7 +48,7 @@ dft_PolyA11_Tpetra_Operator
   matrix_.resize(numBlocks_-1);
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
-    matrix_[i] = rcp(new MAT(ownedMap, 0));
+    matrix_[i] = rcp(new MAT_P(ownedMap, 0));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
   } //end for
   return;
@@ -80,7 +80,7 @@ dft_PolyA11_Tpetra_Operator
   matrix_.resize(numBlocks_-1);
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
-    matrix_[i] = rcp(new MAT(ownedMap, 0));
+    matrix_[i] = rcp(new MAT_P(ownedMap, 0));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
   } //end for
 
@@ -125,7 +125,7 @@ insertMatrixValue
 {
 
   Array<GlobalOrdinal> cols(1);
-  Array<Scalar> vals(1);
+  Array<precScalar> vals(1);
   cols[0] = colGID;
   vals[0] = value;
   if (rowGID==colGID)
@@ -181,7 +181,7 @@ insertRow
     values_.resize(numEntries);
   } //end if
   LocalOrdinal i=0;
-  typename std::map<GlobalOrdinal, Scalar>::iterator pos;
+  ITER pos;
   for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos)
   {
     indices_[i] = pos->first;
@@ -328,19 +328,10 @@ template class dft_PolyA11_Tpetra_Operator<float, int, int>;
 #elif LINSOLVE_PREC == 1
 // Use double
 template class dft_PolyA11_Tpetra_Operator<double, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA11_Tpetra_Operator<float, int, int>;
-#endif
 #elif LINSOLVE_PREC == 2
 // Use quad double
 template class dft_PolyA11_Tpetra_Operator<qd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA11_Tpetra_Operator<dd_real, int, int>;
-#endif
 #elif LINSOLVE_PREC == 3
 // Use double double
 template class dft_PolyA11_Tpetra_Operator<dd_real, int, int>;
-#if MIXED_PREC == 1
-template class dft_PolyA11_Tpetra_Operator<double, int, int>;
-#endif
 #endif

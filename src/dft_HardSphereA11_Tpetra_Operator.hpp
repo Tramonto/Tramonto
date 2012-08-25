@@ -40,6 +40,7 @@ class dft_HardSphereA11_Tpetra_Operator:
 
 public:
   TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
@@ -179,7 +180,7 @@ public:
   };
 
   //! Returns a pointer to the Epetra_CrsMatrix object that is the A22 matrix
-  RCP<MAT>
+  RCP<MAT_P>
   getA11invMatrix
   ()
   {
@@ -194,16 +195,16 @@ protected:
   const RCP<const MAP> indNonLocalMap_;
   const RCP<const MAP> depNonLocalMap_;
   const RCP<const MAP> block1Map_;
-  RCP<MAT> matrix_;
-  RCP<MAT> A11invMatrix_;
+  RCP<MAT_P> matrix_;
+  RCP<MAT_P> A11invMatrix_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool firstTime_;
   GlobalOrdinal curRow_;
-  std::map<GlobalOrdinal, Scalar> curRowValues_;
+  std::map<GlobalOrdinal, precScalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
-  Array<Scalar> values_;
+  Array<precScalar> values_;
   void formA11invMatrix();
 };
 

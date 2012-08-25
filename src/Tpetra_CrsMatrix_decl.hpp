@@ -93,21 +93,27 @@ namespace Tpetra {
 
    \tparam LocalOrdinal The type of local indices.  Same as the \c
      LocalOrdinal template parameter of \c Map objects used by this
-     matrix.  (In Epetra, this is just \c int.)
+     matrix.  (In Epetra, this is just \c int.)  The default type is
+     int, which should suffice for most users.
 
    \tparam GlobalOrdinal The type of global indices.  Same as the \c
      GlobalOrdinal template parameter of \c Map objects used by this
      matrix.  (In Epetra, this is just \c int.  One advantage of
      Tpetra over Epetra is that you can use a 64-bit integer type here
-     if you want to solve big problems.)
+     if you want to solve big problems.)  The default type is
+     LocalOrdinal, which is OK if you know that the global number of
+     rows and columns in the matrix fits.
 
    \tparam Node A class implementing on-node shared-memory parallel
      operations.  It must implement the
      \ref kokkos_node_api "Kokkos Node API."
-     The default \c Node type depends on your Trilinos build options.
+     The default \c Node type depends on your Trilinos build options,
+     and should suffice for most users.
 
    \tparam LocalMatOps A local sparse matrix operations class.  It
-     must implement the \ref kokkos_crs_ops "Kokkos CRS Ops API."
+     must implement the \ref kokkos_crs_ops "Kokkos CRS Ops API."  The
+     default \c LocalMatOps type depends on your Trilinos build
+     options, and should suffice for most users.
 
    This class implements a distributed-memory parallel sparse matrix,
    and provides sparse matrix-vector multiply (including transpose)
@@ -165,7 +171,7 @@ namespace Tpetra {
 		    public DistObject<char, LocalOrdinal,GlobalOrdinal,Node> {
   public:
     typedef Scalar                                scalar_type;
-    typedef typename Teuchos::ScalarTraits<Scalar>::doublePrecision double_scalar_type;
+    typedef typename Teuchos::ScalarTraits<Scalar>::doublePrecision    double_scalar_type;
     typedef LocalOrdinal                          local_ordinal_type;
     typedef GlobalOrdinal                         global_ordinal_type;
     typedef Node                                  node_type;
@@ -217,7 +223,7 @@ namespace Tpetra {
     ///   null, any missing parameters will be filled in with their
     ///   default values.
     CrsMatrix (const Teuchos::RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> >& rowMap,
-	       const ArrayRCP<const LocalOrdinal>& NumEntriesPerRowToAlloc,
+	       const ArrayRCP<const size_t>& NumEntriesPerRowToAlloc,
 	       ProfileType pftype = DynamicProfile,
 	       const Teuchos::RCP<Teuchos::ParameterList>& params = Teuchos::null);
 
@@ -273,7 +279,7 @@ namespace Tpetra {
     ///   default values.
     CrsMatrix (const Teuchos::RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> >& rowMap,
 	       const Teuchos::RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> >& colMap,
-	       const ArrayRCP<const LocalOrdinal>& NumEntriesPerRowToAlloc,
+	       const ArrayRCP<const size_t>& NumEntriesPerRowToAlloc,
 	       ProfileType pftype = DynamicProfile,
 	       const Teuchos::RCP<Teuchos::ParameterList>& params = Teuchos::null);
 
@@ -331,7 +337,9 @@ namespace Tpetra {
        \note If the matrix row already contains entries at the indices corresponding to values in \c cols, then the new values will be summed with the old values; this may happen at insertion or during the next call to fillComplete().
        \note If <tt>hasColMap() == true</tt>, only (cols[i],vals[i]) where cols[i] belongs to the column map on this node will be inserted into the matrix.
     */
-    void insertLocalValues(LocalOrdinal localRow, const ArrayView<const LocalOrdinal> &cols, const ArrayView<const Scalar> &vals);
+    void insertLocalValues(LocalOrdinal localRow,
+			   const ArrayView<const LocalOrdinal> &cols,
+			   const ArrayView<const Scalar> &vals);
 
     //! \brief Replace matrix entries, using global IDs.
     /** All index values must be in the global space.
@@ -764,42 +772,6 @@ namespace Tpetra {
 		      Distributor &distor,
 		      CombineMode combineMode);
     //@}
-    //! \name Deprecated routines to be removed at some point in the future.
-    //@{
-
-    /** \brief Deprecated. Re-allocate the data into contiguous storage.
-
-	This method is deprecated and will be removed in a future version of Tpetra, as
-	the implementation of storage optimization has been below Tpetra to Kokkos.
-
-	Currently, the implementation simply calls resumeFill() and then fillComplete(OptimizeStorage). As such, it is
-	required to be called by all nodes that participate in the associated communicator.
-    */
-    TPETRA_DEPRECATED void optimizeStorage();
-
-    //! Deprecated. Get a persisting const view of the entries in a specified global row of this matrix.
-    TPETRA_DEPRECATED void getGlobalRowView(GlobalOrdinal GlobalRow, ArrayRCP<const GlobalOrdinal> &indices, ArrayRCP<const Scalar> &values) const;
-
-    //! Deprecated. Get a persisting const view of the entries in a specified local row of this matrix.
-    TPETRA_DEPRECATED void getLocalRowView(LocalOrdinal LocalRow, ArrayRCP<const LocalOrdinal> &indices, ArrayRCP<const Scalar> &values) const;
-
-    //! Deprecated. Replaced by localMultiply().
-    template <class DomainScalar, class RangeScalar>
-    TPETRA_DEPRECATED
-    void multiply(const MultiVector<DomainScalar,LocalOrdinal,GlobalOrdinal,Node> & X, MultiVector<RangeScalar,LocalOrdinal,GlobalOrdinal,Node> &Y, Teuchos::ETransp trans, RangeScalar alpha, RangeScalar beta) const;
-
-    //! Deprecated. Replaced by localSolve().
-    template <class DomainScalar, class RangeScalar>
-    TPETRA_DEPRECATED
-    void solve(const MultiVector<RangeScalar,LocalOrdinal,GlobalOrdinal,Node> & Y, MultiVector<DomainScalar,LocalOrdinal,GlobalOrdinal,Node> &X, Teuchos::ETransp trans) const;
-
-    //! Deprecated. Now takes a ParameterList.
-    TPETRA_DEPRECATED void fillComplete(const RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> > &domainMap, const RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> > &rangeMap, OptimizeOption os);
-
-    //! Deprecated. Now takes a ParameterList.
-    TPETRA_DEPRECATED void fillComplete(OptimizeOption os);
-
-    //@}
 
   private:
     // We forbid copy construction by declaring this method private
@@ -967,11 +939,21 @@ namespace Tpetra {
     // debugging
     void checkInternalState() const;
 
-    // Two graph pointers needed in order to maintain const-correctness:
-    // staticGraph_ is a graph passed to the constructor. We are not allowed to modify it. it is always a valid pointer.
-    // myGraph_     is a graph created here. We are allowed to modify it. if myGraph_ != null, then staticGraph_ = myGraph_
+    /// \name (Global) graph pointers
+    ///
+    /// We keep two graph pointers in order to maintain const
+    /// correctness.  myGraph_ is a graph which we create internally.
+    /// Operations that change the sparsity structure also modify
+    /// myGraph_.  If myGraph_ != null, then staticGraph_ == myGraph_
+    /// pointerwise (we set the pointers equal to each other when we
+    /// create myGraph_).  myGraph_ is only null if this CrsMatrix was
+    /// created using the constructor with a const CrsGraph input
+    /// argument.  In this case, staticGraph_ is set to the input
+    /// CrsGraph.
+    //@{
     RCP<const Graph> staticGraph_;
     RCP<      Graph>     myGraph_;
+    //@}
 
     RCP<sparse_ops_type>   lclMatOps_;
     RCP<local_matrix_type> lclMatrix_;

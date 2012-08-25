@@ -119,7 +119,7 @@ using Belos::ReturnType;
   typedef Tpetra::Map<LO,GO,Node> MAP; \
   typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
   typedef Tpetra::CrsMatrixMixed<SCALAR,LO,GO,Node> MATM; \
-  typedef Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GlobalOrdinal,Node> SCALE; \
+  typedef Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GO,Node> SCALE; \
   typedef Tpetra::Import<LO,GO,Node> IMP; \
   typedef Belos::SolverManager<SCALAR, MV, OP> SolMGR; \
   typedef Belos::LinearProblem<SCALAR, MV, OP> LinPROB; \
@@ -132,7 +132,7 @@ using Belos::ReturnType;
   typedef Tpetra::InvOperator<halfScalar,LO,GO,Node> INVOP_H; \
   typedef Tpetra::CrsMatrix<halfScalar,LO,GO,Node> MAT_H;			\
   typedef Tpetra::CrsMatrixMixed<halfScalar,LO,GO,Node> MATM_H;			\
-  typedef Tpetra::ScalingCrsMatrix<halfScalar,LocalOrdinal,GlobalOrdinal,Node> SCALE_H; \
+  typedef Tpetra::ScalingCrsMatrix<halfScalar,LocalOrdinal,GO,Node> SCALE_H; \
   typedef Belos::SolverManager<halfScalar, MV_H, OP_H> SolMGR_H;		\
   typedef Belos::LinearProblem<halfScalar, MV_H, OP_H> LinPROB_H;		\
   typedef Ifpack2::Preconditioner<halfScalar, LO, GO, Node> PRECOND_H;
@@ -142,6 +142,7 @@ using Belos::ReturnType;
 #define TYPEDEF_MIXED(SCALAR, LO, GO, NODE) \
   \
   typedef halfScalar precScalar; \
+  typedef typename std::map<GO, precScalar>::iterator ITER; \
   typedef MAT_H MAT_P; \
   typedef MATM_H MATM_P; \
   typedef OP_H OP_P; \
@@ -157,6 +158,7 @@ using Belos::ReturnType;
 #define TYPEDEF_MIXED(SCALAR, LO, GO, NODE) \
   \
   typedef Scalar precScalar; \
+  typedef typename std::map<GO, precScalar>::iterator ITER; \
   typedef MAT MAT_P; \
   typedef MATM MATM_P; \
   typedef OP OP_P; \
