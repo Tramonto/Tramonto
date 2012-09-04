@@ -18,7 +18,6 @@
 #include "Tpetra_InvOperator.hpp"
 #include "Tpetra_HalfOperator.hpp"
 #include "Tpetra_MixedOperator.hpp"
-#include "Tpetra_DoubledMatVec.hpp"
 #include "Tpetra_MixedOperatorApplyInverse.hpp"
 #include "Tpetra_HalfOperatorApplyInverse.hpp"
 #include "Tpetra_MixedMatrixOperator.hpp"
