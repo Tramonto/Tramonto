@@ -39,6 +39,7 @@ dft_A22Matrix_Tpetra_Operator
     curRow_(-1) {
 
   A22Matrix_ = rcp(new MAT_P(block2Map, 0));
+  A22MatrixOperator_ = rcp(new DMOP_P(A22Matrix_));
   Label_ = "dft_A22Matrix_Tpetra_Operator";
   A22Matrix_->setObjectLabel("dft_A22Matrix_Tpetra_Operator::A22Matrix");
 }
@@ -192,7 +193,7 @@ apply
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
   TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 
-  A22Matrix_->apply(X, Y);
+  A22MatrixOperator_->apply(X, Y);
 
 }
 #if LINSOLVE_PREC == 0

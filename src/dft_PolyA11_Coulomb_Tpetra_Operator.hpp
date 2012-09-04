@@ -132,7 +132,7 @@ protected:
   const RCP<const MAP> poissonMap_;
   RCP<ParameterList> parameterList_;
   RCP<MAT_P> poissonMatrix_;
-  RCP<MMOP> poissonMatrixOperator_;
+  RCP<DMOP_P> poissonMatrixOperator_;
   GlobalOrdinal curPoissonRow_;
   GlobalOrdinal curPoissonOwnedNode_;
   std::map<GlobalOrdinal, precScalar> curPoissonRowValues_;
@@ -143,6 +143,7 @@ protected:
   using P11TO::numBlocks_;
   using P11TO::curRow_;
   using P11TO::matrix_;
+  using P11TO::matrixOperator_;
   using P11TO::curOwnedPhysicsID_;
   using P11TO::curRowValues_;
   using P11TO::indices_;

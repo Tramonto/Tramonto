@@ -183,6 +183,7 @@ private:
   const RCP<const MAP > block2Map_;
   RCP<ParameterList> parameterList_;
   RCP<MAT_P> A22Matrix_;
+  RCP<DMOP_P> A22MatrixOperator_;
   RCP<PRECOND_P> A22Inverse_;
   RCP<MOP> A22InverseMixed_;
   const char * Label_; /*!< Description of object */

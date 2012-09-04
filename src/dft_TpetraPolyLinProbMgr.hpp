@@ -309,7 +309,6 @@ protected:
   bool hasPoisson_;
   Array<GlobalOrdinal> physicsIdToSchurBlockId_;
   RCP<ScTO> schurOperator_;
-  RCP<MAPINV> schurOperatorMixed_;
   RCP<VEC> rhs1_;
   RCP<VEC> rhs2_;
   RCP<VEC> rhsSchur_;

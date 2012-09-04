@@ -189,6 +189,7 @@ protected:
   const RCP<const MAP> block1Map_;
   size_t numBlocks_;
   Array<RCP<MAT_P> > matrix_;
+  Array<RCP<DMOP_P> > matrixOperator_;
   RCP<VEC> invDiagonal_;
   char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;

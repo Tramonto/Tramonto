@@ -38,6 +38,8 @@ dft_Schur_Tpetra_Operator
 {
 
   Label_ = "dft_Schur_Tpetra_Operator";
+  A12op_ = rcp(new DMOP_P(A12_));
+  A21op_ = rcp(new DMOP_P(A21_));
   /* Used to capture matrix data
   LocalOrdinal nrows1 = A11->RowMap().NumGlobalElements();
   LocalOrdinal nrows2 = A22->RowMap().NumGlobalElements();
@@ -96,13 +98,13 @@ apply
   RCP<MV > Y2 = rcp(new MV(A21_->getRangeMap(), X.getNumVectors()));
 
   Y.putScalar(0.0);
-  A12_->apply(X, *Y1);
+  A12op_->apply(X, *Y1);
   //Y1.NormInf(&normvalue);
   //cout << "Norm of Y1 in Schur Apply = " << normvalue << endl;
   //cout << *A12_ << endl;
   //exit(1);
   A11_->applyInverse(*Y1, *Y11);
-  A21_->apply(*Y11, *Y2);
+  A21op_->apply(*Y11, *Y2);
   //Y2.NormInf(&normvalue);
   //cout << "Norm of Y2 in Schur Apply = " << normvalue << endl;
   A22_->apply(X, Y);
@@ -122,7 +124,7 @@ ComputeRHS
 
   RCP<MV > Y1 = rcp(new MV(A11_->getDomainMap(), B1.getNumVectors()));
   A11_->applyInverse(B1, *Y1);
-  A21_->apply(*Y1, B2S);
+  A21op_->apply(*Y1, B2S);
   B2S.update(1.0, B2, -1.0);
 } //end ComputeRHS
 //==============================================================================
@@ -135,7 +137,7 @@ ComputeX1
   // Compute X1 =  inv(A11)(B1 - A12*X2)
 
   RCP<MV > Y1 = rcp(new MV(A12_->getRangeMap(), X1.getNumVectors()));
-  A12_->apply(X2, *Y1);
+  A12op_->apply(X2, *Y1);
   Y1->update(1.0, B1, -1.0);
   A11_->applyInverse(*Y1, X1);
 } //end ComputeX1
@@ -163,8 +165,8 @@ ApplyGlobal
   Y1.putScalar(0.0);
   Y2.putScalar(0.0);
   A11_->apply(X1, *Y11);
-  A12_->apply(X2, *Y12);
-  A21_->apply(X1, *Y21);
+  A12op_->apply(X2, *Y12);
+  A21op_->apply(X1, *Y21);
   A22_->apply(X2, *Y22);
   Y1.update(1.0, *Y11, 1.0, *Y12, 0.0);
   Y2.update(1.0, *Y21, 1.0, *Y22, 0.0);

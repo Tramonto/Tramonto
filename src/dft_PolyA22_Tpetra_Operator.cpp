@@ -43,7 +43,9 @@ dft_PolyA22_Tpetra_Operator
 {
 
   cmsOnDensityMatrix_ = rcp(new MAT_P(cmsMap, 0));
-  cmsOnCmsMatrix2_ = rcp(new MAT_P(cmsMap, 0));
+  cmsOnDensityMatrixOp_ = rcp(new DMOP_P(cmsOnDensityMatrix_));
+  cmsOnCmsMatrix_ = rcp(new MAT_P(cmsMap, 0));
+  cmsOnCmsMatrixOp_ = rcp(new DMOP_P(cmsOnCmsMatrix_));
   densityOnDensityMatrix_ = rcp(new VEC(densityMap));
   densityOnCmsMatrix_ = rcp(new VEC(densityMap));
   Label_ = "dft_PolyA22_Tpetra_Operator";
@@ -76,8 +78,8 @@ initializeProblemValues
       cmsOnDensityMatrix_->resumeFill();
       cmsOnDensityMatrix_->setAllToScalar(0.0);
     } //end if
-    cmsOnCmsMatrix2_->resumeFill();
-    cmsOnCmsMatrix2_->setAllToScalar(0.0);
+    cmsOnCmsMatrix_->resumeFill();
+    cmsOnCmsMatrix_->setAllToScalar(0.0);
     densityOnDensityMatrix_->putScalar(0.0);
     densityOnCmsMatrix_->putScalar(0.0);
   } //end if
@@ -108,7 +110,7 @@ insertMatrixValue
 	curRowValuesCmsOnCms_[colGID] += value;
       }
       else
-	cmsOnCmsMatrix2_->sumIntoGlobalValues(rowGID, cols, vals);
+	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
     }
     else if (blockColFlag == 1) { // Insert into cmsOnDensityMatrix ("F matrix")
       if (firstTime_) {
@@ -185,7 +187,7 @@ insertRow
       indicesCmsOnCms_[i] = pos->first;
       valuesCmsOnCms_[i++] = pos->second;
     }
-    cmsOnCmsMatrix2_->insertGlobalValues(curRow_, indicesCmsOnCms_, valuesCmsOnCms_);
+    cmsOnCmsMatrix_->insertGlobalValues(curRow_, indicesCmsOnCms_, valuesCmsOnCms_);
   }
 
   indicesCmsOnDensity_.clear();
@@ -211,7 +213,7 @@ finalizeProblemValues
   bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
   insertRow(); // Dump any remaining entries
-  cmsOnCmsMatrix2_->fillComplete();
+  cmsOnCmsMatrix_->fillComplete();
   if (!isFLinear_) {
     insertRow(); // Dump any remaining entries
     cmsOnDensityMatrix_->fillComplete(densityMap_, cmsMap_);
@@ -313,12 +315,12 @@ applyInverse
     // Second block row: Y2 = DD\X2
     Y2->elementWiseMultiply(1.0, *tmp, *X2, 0.0);
     // First block row: Y1 = CC \ (X1 - CD*Y2)
-    cmsOnDensityMatrix_->apply(*Y2, *Y1tmp);
+    cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp);
     Y1tmp->update(1.0, *X1, -1.0);
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
     VEC_P cmsOnCmsDiag(cmsMap_);
     VEC cmsOnCmsDiagScalar(cmsMap_);
-    cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
+    cmsOnCmsMatrix_->getLocalDiagCopy(cmsOnCmsDiag);
 #if MIXED_PREC == 1
 
     RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
@@ -348,12 +350,12 @@ applyInverse
     // First block row: Y1 = DD\X1
     Y1->elementWiseMultiply(1.0, *tmp, *X1, 0.0);
     // Second block row: Y2 = CC \ (X2 - CD*Y1)
-    cmsOnDensityMatrix_->apply(*Y1, *Y2tmp);
+    cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp);
     Y2tmp->update(1.0, *X2, -1.0);
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
     VEC_P cmsOnCmsDiag(cmsMap_);
     VEC cmsOnCmsDiagScalar(cmsMap_);
-    cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
+    cmsOnCmsMatrix_->getLocalDiagCopy(cmsOnCmsDiag);
 #if MIXED_PREC == 1
 
     RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
@@ -398,9 +400,9 @@ apply
     RCP<const MV> X2 = X.offsetView(densityMap_, numCmsElements);
     // Start X2 to view last numDensity elements of X
 
-    cmsOnDensityMatrix_->apply(*X2, *Y1);
+    cmsOnDensityMatrixOp_->apply(*X2, *Y1);
     RCP<MV > Y1tmp = rcp(new MV(*Y1));
-    cmsOnCmsMatrix2_->apply(*X1, *Y1tmp);
+    cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp);
     Y1->update(1.0, *Y1tmp, 1.0);
     Y2->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X1, 0.0);
     Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 1.0);
@@ -424,9 +426,9 @@ apply
       // Momentarily make X2 compatible with densityMap_
     } //end if
     Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 1.0);
-    cmsOnDensityMatrix_->apply(*X1, *Y2);
+    cmsOnDensityMatrixOp_->apply(*X1, *Y2);
     RCP<MV > Y2tmp = rcp(new MV(*Y2));
-    cmsOnCmsMatrix2_->apply(*X2, *Y2tmp);
+    cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp);
     Y2->update(1.0, *Y2tmp, 1.0);
 
   } //end else

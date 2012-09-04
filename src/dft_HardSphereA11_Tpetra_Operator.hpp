@@ -196,7 +196,9 @@ protected:
   const RCP<const MAP> depNonLocalMap_;
   const RCP<const MAP> block1Map_;
   RCP<MAT_P> matrix_;
+  RCP<DMOP_P> matrixOperator_;
   RCP<MAT_P> A11invMatrix_;
+  RCP<DMOP_P> A11invMatrixOperator_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;

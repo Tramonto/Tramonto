@@ -181,8 +181,10 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   RCP<APINV> A11_;
   /*!< The 1,1 block of the 2 by 2 block matrix */
   RCP<MAT_P> A12_;
+  RCP<DMOP_P> A12op_;
   /*!< The 1,2 block of the 2 by 2 block matrix */
   RCP<MAT_P> A21_;
+  RCP<DMOP_P> A21op_;
   /*!< The 2,1 block of the 2 by 2 block matrix */
   RCP<APINV> A22_;
   /*!< The 2,2 block of the 2 by 2 block matrix */

@@ -44,7 +44,7 @@ dft_PolyA11_Coulomb_Tpetra_Operator
 
   Label_ = "dft_PolyA11_Coulomb_Tpetra_Operator";
   poissonMatrix_ = rcp(new MAT_P(poissonMap, 0));
-  poissonMatrixOperator_ = rcp(new MMOP(poissonMatrix_));
+  poissonMatrixOperator_ = rcp(new DMOP_P(poissonMatrix_));
   poissonMatrix_->setObjectLabel("PolyA11Coulomb::poissonMatrix");
   return;
 } //end constructor
@@ -216,7 +216,7 @@ applyInverse
   LocalOrdinal offsetAmount = 0;
   for (LocalOrdinal i=0; i< numBlocks_; i++)
   {
-    matrix_[i]->apply(*Y1, *Y1tmp);
+    matrixOperator_[i]->apply(*Y1, *Y1tmp);
     offsetAmount += numMyElements;
     Y1tmp = Y.offsetViewNonConst(ownedMap_, offsetAmount);
     // Reset view to next block
@@ -264,7 +264,7 @@ apply
   LocalOrdinal offsetValue = 0;
   for (LocalOrdinal i=0; i< numBlocks_; i++)
   {
-    matrix_[i]->apply(*X1, *Y1tmp); // This gives a result that is X - off-diagonal-matrix*X
+    matrixOperator_[i]->apply(*X1, *Y1tmp); // This gives a result that is X - off-diagonal-matrix*X
     Y1tmp->update(-2.0, *Xtmp, 1.0); // This gives a result of -X - off-diagonal-matrix*X
     Y1tmp->scale(-1.0); // Finally negate to get the desired result
     offsetValue += numMyElements;
@@ -277,7 +277,7 @@ apply
   //now to apply the poissonMatrix_ to the last chunk of X
   RCP<MV > Y2 = Y.offsetViewNonConst(poissonMap_, numMyElements*numBlocks_);
 
-  poissonMatrix_->apply(*X2, *Y2);
+  poissonMatrixOperator_->apply(*X2, *Y2);
 
 } //end Apply
 #if LINSOLVE_PREC == 0

@@ -46,9 +46,11 @@ dft_PolyA11_Tpetra_Operator
 
   invDiagonal_ = rcp(new VEC(block1Map));
   matrix_.resize(numBlocks_-1);
+  matrixOperator_.resize(numBlocks_-1);
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
     matrix_[i] = rcp(new MAT_P(ownedMap, 0));
+    matrixOperator_[i] = rcp(new DMOP_P(matrix_[i]));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
   } //end for
   return;
@@ -78,9 +80,11 @@ dft_PolyA11_Tpetra_Operator
   invDiagonal_ = rcp(new VEC(block1Map));
 
   matrix_.resize(numBlocks_-1);
+  matrixOperator_.resize(numBlocks_-1);
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
     matrix_[i] = rcp(new MAT_P(ownedMap, 0));
+    matrixOperator_[i] = rcp(new DMOP_P(matrix_[i]));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
   } //end for
 
@@ -263,7 +267,7 @@ applyInverse
 
     diagVec = invDiagonal_->offsetViewNonConst(ownedMap_, (i+1)*numMyElements)->getVectorNonConst(0);
 
-    matrix_[i]->apply(Y, *Ytmp); // Multiply block lower triangular block
+    matrixOperator_[i]->apply(Y, *Ytmp); // Multiply block lower triangular block
     curY->update(-1.0, *Ytmp, 1.0); // curY = curX - Ytmp (Note that curX is in curY from initial copy Y = X)
     curY->elementWiseMultiply(1.0, *diagVec, *curY, 0.0); // Scale Y by the first block diagonal
   } //end for
@@ -286,7 +290,7 @@ apply
 
   for (LocalOrdinal i=0; i< numBlocks_-1; i++) {
     curY = Y.offsetViewNonConst(ownedMap_, (i+1)*numMyElements);
-    matrix_[i]->apply(X, *curY); // This gives a result that is off-diagonal-matrix*X
+    matrixOperator_[i]->apply(X, *curY); // This gives a result that is off-diagonal-matrix*X
   } //end for
 
   RCP<VEC> tempVec = rcp(new VEC(invDiagonal_->getMap()));

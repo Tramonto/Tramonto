@@ -42,6 +42,7 @@ dft_HardSphereA11_Tpetra_Operator
   Label_ = "dft_HardSphereA11_Tpetra_Operator";
   if (depNonLocalMap_->getGlobalNumElements()>0) {
     matrix_ = rcp(new MAT_P(depNonLocalMap_, 0));
+    matrixOperator_ = rcp(new DMOP_P(matrix_));
     matrix_->setObjectLabel("HardSphere::A11::matrix");
   }
 
@@ -199,13 +200,13 @@ applyInverse
   LocalOrdinal ierr = 0;
   if (&X.getVector(0)==&Y.getVector(0)) { // X and Y are the same
     RCP<MV> Y2tmp = rcp(new MV(depNonLocalMap_, NumVectors));
-    matrix_->apply(*X1, *Y2tmp);
+    matrixOperator_->apply(*X1, *Y2tmp);
     Y2->update(-1.0, *Y2tmp, -1.0, *X2, 0.0); // Gives us Y2 = -X2 - B*X1
     Y1->scale(-1.0, *X1);
   }
   else {
     Y1->scale(-1.0, *X1);
-    matrix_->apply(*X1, *Y2);
+    matrixOperator_->apply(*X1, *Y2);
     Y2->update(-1.0, *X2, -1.0); // Gives us Y2 = -X2 - B*X1
   }
 
@@ -247,13 +248,13 @@ apply
   LocalOrdinal ierr = 0;
   if (&X.getVector(0)==&Y.getVector(0)) { // X and Y are the same
     RCP<MV> Y2tmp = rcp(new MV(depNonLocalMap_, NumVectors));
-    matrix_->apply(*X1, *Y2tmp);
+    matrixOperator_->apply(*X1, *Y2tmp);
     Y2->update(1.0, *Y2tmp, -1.0, *X2, 0.0); // Gives us Y2 = -X2 + B*X1
     Y1->scale(-1.0, *X1);
   }
   else {
     Y1->scale(-1.0, *X1);
-    matrix_->apply(*X1, *Y2);
+    matrixOperator_->apply(*X1, *Y2);
     Y2->update(-1.0, *X2, 1.0); // Gives us Y2 = -X2 + B*X1
   }
 

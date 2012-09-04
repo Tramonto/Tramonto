@@ -42,11 +42,14 @@ dft_PolyA22_Coulomb_Tpetra_Operator
     curPDRow_(-1)
 {
   poissonOnPoissonMatrix_ = rcp(new MAT_P(poissonMap, 0));
+  poissonOnPoissonMatrixOp_ = rcp(new DMOP_P(poissonOnPoissonMatrix_));
   cmsOnPoissonMatrix_ = rcp(new MAT_P(cmsMap, 0));
+  cmsOnPoissonMatrixOp_ = rcp(new DMOP_P(cmsOnPoissonMatrix_));
   poissonOnDensityMatrix_ = rcp(new MAT_P(poissonMap, 0));
+  poissonOnDensityMatrixOp_ = rcp(new DMOP_P(poissonOnDensityMatrix_));
   Label_ = "dft_PolyA22_Coulomb_Tpetra_Operator";
   cmsOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnDensityMatrix");
-  cmsOnCmsMatrix2_->setObjectLabel("PolyA22Coulomb::cmsOnCmsMatrix");
+  cmsOnCmsMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnCmsMatrix");
   poissonOnPoissonMatrix_->setObjectLabel("PolyA22Coulomb::poissonOnPoissonMatrix");
   cmsOnPoissonMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnPoissonMatrix");
   poissonOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::poissonOnDensityMatrix");
@@ -78,8 +81,8 @@ initializeProblemValues
       cmsOnDensityMatrix_->resumeFill();
       cmsOnDensityMatrix_->setAllToScalar(0.0);
     } //end if
-    cmsOnCmsMatrix2_->resumeFill();
-    cmsOnCmsMatrix2_->setAllToScalar(0.0);
+    cmsOnCmsMatrix_->resumeFill();
+    cmsOnCmsMatrix_->setAllToScalar(0.0);
     densityOnDensityMatrix_->putScalar(0.0);
     densityOnCmsMatrix_->putScalar(0.0);
     poissonOnPoissonMatrix_->resumeFill();
@@ -158,7 +161,7 @@ insertMatrixValue
 	curRowValuesCmsOnCms_[colGID] += value;
       }
       else
-	cmsOnCmsMatrix2_->sumIntoGlobalValues(rowGID, cols, vals);
+	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
     }
     else if (blockColFlag == 1) { // Insert into cmsOnDensityMatrix ("F matrix")
       if (firstTime_) {
@@ -242,7 +245,7 @@ insertRow
       indicesCmsOnCms_[i] = pos->first;
       valuesCmsOnCms_[i++] = pos->second;
     }
-    cmsOnCmsMatrix2_->insertGlobalValues(curRow_, indicesCmsOnCms_, valuesCmsOnCms_);
+    cmsOnCmsMatrix_->insertGlobalValues(curRow_, indicesCmsOnCms_, valuesCmsOnCms_);
   }
   if (!curRowValuesPoissonOnPoisson_.empty()) {
     int numEntriesPoissonOnPoisson = curRowValuesPoissonOnPoisson_.size();
@@ -316,7 +319,7 @@ finalizeProblemValues
     return; // nothing to do
   } //end if
   insertRow(); // Dump any remaining entries
-  cmsOnCmsMatrix2_->fillComplete();
+  cmsOnCmsMatrix_->fillComplete();
 
   if (!isFLinear_) {
     cmsOnDensityMatrix_->fillComplete(densityMap_,cmsMap_);
@@ -435,7 +438,7 @@ applyInverse
     // Third block row: Y2 = DD\X2
     Y2->elementWiseMultiply(1.0, *tmp, *X2, 0.0);
     // First block row: Y0 = PP \ (X0 - PD*Y2);
-    poissonOnDensityMatrix_->apply(*Y2, *Y0tmp);
+    poissonOnDensityMatrixOp_->apply(*Y2, *Y0tmp);
     Y0tmp->update(1.0, *X0, -1.0);
 #if ENABLE_MUELU == 1
     mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
@@ -443,13 +446,13 @@ applyInverse
     H_->Iterate(*mueluB, nIts, *mueluX);
 #endif
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
-    cmsOnPoissonMatrix_->apply(*Y0, *Y1tmp1);
-    cmsOnDensityMatrix_->apply(*Y2, *Y1tmp2);
+    cmsOnPoissonMatrixOp_->apply(*Y0, *Y1tmp1);
+    cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp2);
     Y1tmp1->update(1.0, *X1, -1.0, *Y1tmp2, -1.0);
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
     VEC_P cmsOnCmsDiag(cmsMap_);
     VEC cmsOnCmsDiagScalar(cmsMap_);
-    cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
+    cmsOnCmsMatrix_->getLocalDiagCopy(cmsOnCmsDiag);
 #if MIXED_PREC == 1
     RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
     // Promote cmsOnCmsDiag to Scalar precision
@@ -468,7 +471,7 @@ applyInverse
     // Second block row: Y1 = DD\X1
     Y1->elementWiseMultiply(1.0, *tmp, *X1, 0.0);
     // First block row: Y0 = PP \ (X0 - PD*Y1);
-    poissonOnDensityMatrix_->apply(*Y1, *Y0tmp);
+    poissonOnDensityMatrixOp_->apply(*Y1, *Y0tmp);
     Y0tmp->update( 1.0, *X0, -1.0 );
 #if ENABLE_MUELU == 1
     mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
@@ -476,13 +479,13 @@ applyInverse
     H_->Iterate(*mueluB, nIts, *mueluX);
 #endif
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
-    cmsOnPoissonMatrix_->apply(*Y0, *Y2tmp1);
-    cmsOnDensityMatrix_->apply(*Y1, *Y2tmp2);
+    cmsOnPoissonMatrixOp_->apply(*Y0, *Y2tmp1);
+    cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp2);
     Y2tmp1->update(1.0, *X2, -1.0, *Y2tmp2, -1.0);
     // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
     VEC_P cmsOnCmsDiag(cmsMap_);
     VEC cmsOnCmsDiagScalar(cmsMap_);
-    cmsOnCmsMatrix2_->getLocalDiagCopy(cmsOnCmsDiag);
+    cmsOnCmsMatrix_->getLocalDiagCopy(cmsOnCmsDiag);
 #if MIXED_PREC == 1
     RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
     // Promote cmsOnCmsDiag to Scalar precision
@@ -566,13 +569,13 @@ apply
   if (F_location_ == 1)
   {
     // First block row
-    poissonOnPoissonMatrix_->apply(*X0, *Y0);
-    poissonOnDensityMatrix_->apply(*X2, *Y0tmp);
+    poissonOnPoissonMatrixOp_->apply(*X0, *Y0);
+    poissonOnDensityMatrixOp_->apply(*X2, *Y0tmp);
     Y0->update(1.0, *Y0tmp, 1.0);
     // Second block row
-    cmsOnPoissonMatrix_->apply(*X0, *Y1);
-    cmsOnCmsMatrix2_->apply(*X1, *Y1tmp1);
-    cmsOnDensityMatrix_->apply(*X2, *Y1tmp2);
+    cmsOnPoissonMatrixOp_->apply(*X0, *Y1);
+    cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp1);
+    cmsOnDensityMatrixOp_->apply(*X2, *Y1tmp2);
     Y1->update(1.0, *Y1tmp1, 1.0);
     Y1->update(1.0, *Y1tmp2, 1.0);
     // Third block row
@@ -582,16 +585,16 @@ apply
   else
   {
     // First block row
-    poissonOnPoissonMatrix_->apply(*X0, *Y0);
-    poissonOnDensityMatrix_->apply(*X1, *Y0tmp);
+    poissonOnPoissonMatrixOp_->apply(*X0, *Y0);
+    poissonOnDensityMatrixOp_->apply(*X1, *Y0tmp);
     Y0->update(1.0, *Y0tmp, 1.0);
     // Second block row
     Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 0.0);
     Y1->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X2, 1.0);
     // Third block row
-    cmsOnPoissonMatrix_->apply(*X0, *Y2);
-    cmsOnDensityMatrix_->apply(*X1, *Y2tmp1);
-    cmsOnCmsMatrix2_->apply(*X2, *Y2tmp2);
+    cmsOnPoissonMatrixOp_->apply(*X0, *Y2);
+    cmsOnDensityMatrixOp_->apply(*X1, *Y2tmp1);
+    cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp2);
     Y2->update(1.0, *Y2tmp1, 1.0);
     Y2->update(1.0, *Y2tmp2, 1.0);
   } //end else
