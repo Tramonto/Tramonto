@@ -418,7 +418,7 @@ protected:
   RCP<IMP> ownedToBoxImporter_;
   RCP<const MAP> globalRowMap_;
   RCP<MAT_P> globalMatrix_;
-  RCP<MMOP> globalMatrixOperator_;
+  RCP<OP> globalMatrixOperator_;
   RCP<SCALE_P> scalingMatrix_;
   RCP<VEC_P> rowScaleFactors_;
   RCP<VEC> rowScaleFactorsScalar_;

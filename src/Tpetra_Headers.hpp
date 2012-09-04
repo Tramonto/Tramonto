@@ -5,6 +5,7 @@
 #include "Tpetra_ConfigDefs.hpp"
 #include "Tpetra_MultiVector.hpp"
 #include "Tpetra_CrsMatrix.hpp"
+#include "Tpetra_CrsMatrixMultiplyOp.hpp"
 #include "Tpetra_CrsMatrixMixed.hpp"
 #include "Tpetra_DefaultPlatform.hpp"
 #include "Tpetra_Import.hpp"
@@ -17,6 +18,7 @@
 #include "Tpetra_InvOperator.hpp"
 #include "Tpetra_HalfOperator.hpp"
 #include "Tpetra_MixedOperator.hpp"
+#include "Tpetra_DoubledMatVec.hpp"
 #include "Tpetra_MixedOperatorApplyInverse.hpp"
 #include "Tpetra_HalfOperatorApplyInverse.hpp"
 #include "Tpetra_MixedMatrixOperator.hpp"
@@ -113,6 +115,7 @@ using Belos::ReturnType;
   typedef Tpetra::HalfOperator<SCALAR,LO,GO,Node> HOP; \
   typedef Tpetra::MixedOperator<SCALAR,LO,GO,Node> MOP; \
   typedef Tpetra::MixedMatrixOperator<SCALAR,LO,GO,Node> MMOP; \
+  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,SCALAR,LO,GO,Node> DMOP; \
   typedef Tpetra::HalfOperatorApplyInverse<SCALAR,LO,GO,Node> HAPINV; \
   typedef Tpetra::MixedOperatorApplyInverse<SCALAR,LO,GO,Node> MAPINV; \
   typedef Teuchos::Comm<int> COMM; \
@@ -125,6 +128,7 @@ using Belos::ReturnType;
   typedef Belos::LinearProblem<SCALAR, MV, OP> LinPROB; \
   typedef Ifpack2::Preconditioner<SCALAR, LO, GO, Node> PRECOND; \
   typedef typename Teuchos::ScalarTraits<SCALAR>::halfPrecision halfScalar; \
+  typedef typename Teuchos::ScalarTraits<SCALAR>::doublePrecision doubleScalar; \
   typedef Tpetra::MultiVector<halfScalar,LO,GO,Node> MV_H; \
   typedef Tpetra::Vector<halfScalar,LO,GO,Node> VEC_H;		   \
   typedef Tpetra::Operator<halfScalar,LO,GO,Node> OP_H;			\
@@ -132,6 +136,7 @@ using Belos::ReturnType;
   typedef Tpetra::InvOperator<halfScalar,LO,GO,Node> INVOP_H; \
   typedef Tpetra::CrsMatrix<halfScalar,LO,GO,Node> MAT_H;			\
   typedef Tpetra::CrsMatrixMixed<halfScalar,LO,GO,Node> MATM_H;			\
+  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,halfScalar,LO,GO,Node> DMOP_H; \
   typedef Tpetra::ScalingCrsMatrix<halfScalar,LocalOrdinal,GO,Node> SCALE_H; \
   typedef Belos::SolverManager<halfScalar, MV_H, OP_H> SolMGR_H;		\
   typedef Belos::LinearProblem<halfScalar, MV_H, OP_H> LinPROB_H;		\
@@ -145,6 +150,7 @@ using Belos::ReturnType;
   typedef typename std::map<GO, precScalar>::iterator ITER; \
   typedef MAT_H MAT_P; \
   typedef MATM_H MATM_P; \
+  typedef DMOP_H DMOP_P; \
   typedef OP_H OP_P; \
   typedef VEC_H VEC_P; \
   typedef MV_H MV_P; \
@@ -161,6 +167,7 @@ using Belos::ReturnType;
   typedef typename std::map<GO, precScalar>::iterator ITER; \
   typedef MAT MAT_P; \
   typedef MATM MATM_P; \
+  typedef DMOP DMOP_P; \
   typedef OP OP_P; \
   typedef VEC VEC_P; \
   typedef MV MV_P; \
