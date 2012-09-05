@@ -559,7 +559,7 @@ applyMatrix
 {
   setLhs(x);
 
-  globalMatrix_->apply(*globalLhs_, *globalRhs_);
+  globalMatrixOperator_->apply(*globalLhs_, *globalRhs_);
 
   return(getRhs());
 }
