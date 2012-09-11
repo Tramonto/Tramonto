@@ -1,0 +1,21 @@
+/*! \file 
+ \brief grafted 49mer polymer attached to a noninteracting wall. This chain is grafted at segment 24 (the middle of the chain) rather than at the end.
+
+Functionals: WJDC, FMT1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example is for a grafted polymer where the grafting segment is in the middle of the chain.  This example is similar to POLYGRAFT2 and comparing density profiles clearly shows that the chains are packed nearer the surface with the midpoint grafting as expected.  The adsorption of the free chain in this case should be ads[0]=4.8. Resutls are within 0.4% of that value.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_49
+
+Key Output Parameters:
+   - niter=8
+   - adsorption[0]=4.78075
+   .
+*/
