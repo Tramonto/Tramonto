@@ -1,0 +1,21 @@
+/*! \file 
+ \brief grafted, length 50 hard polymer grafted to a hard wall.
+
+Functionals: WJDC, FMT1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example is for a grafted polymer.  This example is identical to POLYGRAFT1 except the Lhard condition is turned off and the end segment is not assumed to be embedded in the surface.  The solution is observed to be much less dependent on mesh spacing.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_50
+
+Key Output Parameters:
+   - niter=5
+   - adsorption[0]=4.89184
+   .
+*/
