@@ -5,5 +5,5 @@ Tramonto_add_test(
     dft_input.dat
     dft_surfaces.dat
     lin_50
-  TYPE ContinuousS
+  TYPE Continuous
 )
