@@ -82,6 +82,7 @@ void print_gofr(char *GofR_Filename,double *xold);
 extern int Nlocal_charge;
 extern int Nlink;
 extern int Lprint_gofr;
+void print_profile_vtk(char *Density_FileName,double *xold);
 void print_profile(char *Density_FileName,double *xold);
 void collect_vext_old();
 void collect_x_old(double **x,double *xold);
@@ -110,4 +111,3 @@ extern double Ads[NCOMP_MAX][2];
 #define TRUE  1
 #endif
 void post_process(double **x,int *niters,double *time_save,int loop1,int binodal_flag,int call_from_flag);
-void print_profile_vtk(char *Density_FileName,double *xold);

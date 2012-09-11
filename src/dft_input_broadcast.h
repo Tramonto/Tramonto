@@ -88,9 +88,9 @@ extern int Nsteps;
 #define CHOP_RHO_STEP    4
 #define CHOP_RHO         3
 #define STEP_PROFILE     2
+extern double random_rho;
 extern int Iguess_fields;
 extern int Iguess;
-extern double random_rho; 
 extern double *Lseg_IC;
 extern double *Pore_rad_R_IC;
 extern double *Pore_rad_L_IC;

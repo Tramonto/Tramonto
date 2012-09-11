@@ -99,6 +99,8 @@ extern int Type_coul;
 extern int L_HSperturbation;
 void calc_Gsum_new(double **x);
 #define CMS          0
+void print_profile_box_vtk(double **x,char *outfile);
+#define FILES_BASIC        0
 void print_resid_norm_picard(double **x,int iter);
 #define SCREEN_VERBOSE     3 
 #define SCREEN_BASIC       1
@@ -116,6 +118,7 @@ extern int Type_poly;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+#define FILENAME_LENGTH 300
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 int picard_solver(double **x,double **xOwned,int subIters);
@@ -140,7 +143,3 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 int solve_problem_picard(double **x,double **x2);
-#define FILENAME_LENGTH 300
-void print_profile_box(double **x,char *outfile);
-void print_profile_box_vtk(double **x,char *outfile); //LMH
-

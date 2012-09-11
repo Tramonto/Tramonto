@@ -57,7 +57,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
     /***************************************/
     /* params from mesh section of the GUI */
     /***************************************/
-    
+
     if (Mesh_List->get<bool>("M2_Dimensionless_Distance_Entry")) Length_ref=-1.0; 
     else               Length_ref=Mesh_List->get<double>("M3_Reference_Length");
 
@@ -907,7 +907,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
             Rough_param_max[i]=SurfGeom_List->get<double>("SG4.1: Tau_max");
             Rough_length[i]=SurfGeom_List->get<double>("SG4.2: TauLength");
         }
-        if (Nperiodic_overlay[i]=-1){
+        if (Nperiodic_overlay[i]==-1){
            Nperiodic_overlay[i]=SurfGeom_List->get<int>("SG5.1: Number of Periodic Fncs.");
 
            Array<int> SG5_2_OrientPeriodic=SurfGeom_List->get<Array<int> >("SG5.2: Orientation Periodic Fnc."); 
@@ -922,7 +922,7 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
            Array<double> SG5_5_OriginPeriodic=SurfGeom_List->get<Array<double> >("SG5.5: Origin of Periodic Fnc."); 
            for(ip=0;ip<Nperiodic_overlay[i];ip++) OriginPeriodicFunc[i][ip]=SG5_5_OriginPeriodic[ip];
         } 
-        if (Nlinear_overlay[i]=-1){
+        if (Nlinear_overlay[i]==-1){
            Nlinear_overlay[i]=SurfGeom_List->get<int>("SG6.1: Number of Linear Fncs.");
 
            Array<int> SG6_2_OrientLinear=SurfGeom_List->get<Array<int> >("SG6.2: Orientation Linear Fnc."); 

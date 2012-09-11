@@ -118,6 +118,8 @@ int picard_solver(double **x, double **xOwned, int subIters){
        if ((Iwrite_screen== SCREEN_BASIC && (iter%(max_iters/1)==0 || iter==1)) || Iwrite_screen==SCREEN_VERBOSE){
           print_resid_norm_picard(x,iter);
           Lprint_screen=TRUE;
+       }
+       if ((Iwrite_files!= FILES_BASIC) && (iter%(max_iters/1)==0 || iter==1)){
           sprintf(tempfilename,"dft_dens%d.vtk",iter); //LMH
           print_profile_box_vtk(x,tempfilename); //LMH print density for visualizing
           sprintf(tempfilename,"dft_dens%i.0",iter); //LMH
@@ -128,6 +130,8 @@ int picard_solver(double **x, double **xOwned, int subIters){
        if ((Iwrite_screen== SCREEN_BASIC && (iter%(max_iters/20)==0 || iter==1)) || Iwrite_screen==SCREEN_VERBOSE){
           print_resid_norm_picard(x,iter);
           Lprint_screen=TRUE;
+       }
+       if ((Iwrite_files!= FILES_BASIC && (iter%(max_iters/20)==0 || iter==1))){
            sprintf(tempfilename,"dft_dens%i.vtk",iter); //LMH
            print_profile_box_vtk(x,tempfilename); //LMH print density for visualizing
            sprintf(tempfilename,"dft_dens%i.0",iter); //LMH
@@ -138,6 +142,8 @@ int picard_solver(double **x, double **xOwned, int subIters){
        if ((Iwrite_screen== SCREEN_BASIC && (iter%(max_iters/50)==0 || iter==1)) || Iwrite_screen==SCREEN_VERBOSE){
           print_resid_norm_picard(x,iter);
           Lprint_screen=TRUE;
+       }
+       if (Iwrite_files != FILES_BASIC && (iter%(max_iters/50)==0 || iter==1)){
            sprintf(tempfilename,"dft_dens%i.vtk",iter); //LMH
            print_profile_box_vtk(x,tempfilename); //LMH print density for visualizing
            sprintf(tempfilename,"dft_dens%i.0",iter); //LMH

@@ -38,6 +38,8 @@ extern int Nlocal_charge;
 extern int Nwall;
 extern int L_HSperturbation;
 void print_gofr(char *GofR_Filename,double *xold);
+void print_profile_vtk(char *Density_FileName,double *xold);
+void print_profile_box_vtk(double **x,char *outfile);
 extern int Nodes_x[NDIM_MAX];
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
@@ -131,8 +133,6 @@ void print_profile(char *Density_FileName,double *xold);
 extern double *X_old;
 void print_profile_box(double **x,char *outfile);
 extern double *Vext_old;
-void print_profile_vtk(char *Density_FileName,double *xold);
-void print_profile_box_vtk(double **x,char *outfile);
 extern int Num_Proc;
 extern double **Vext;
 extern int Ncomp;

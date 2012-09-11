@@ -126,6 +126,7 @@ extern int Orientation_step[NSTEPS_MAX];
 #define CHOP_RHO         3
 extern int Nsteps;
 #define STEP_PROFILE     2
+extern double random_rho;
 extern int Iguess_fields;
 extern int Iguess;
 extern double *Lseg_IC;
@@ -334,5 +335,3 @@ extern int LBulk;
 #endif
 extern int LDeBroglie;
 void read_input_file(FILE *fpinput,FILE *fpecho);
-extern double random_rho;
-
