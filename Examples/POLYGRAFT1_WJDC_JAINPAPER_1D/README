@@ -1,0 +1,21 @@
+/*! \file 
+ \brief grafted, length 50 hard polymer grafted to a hard wall.
+
+Functionals: WJDC, FMT1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example is for a grafted polymer.  This example is designed to reproduce Fig. 2 in: Jain et al, "Modified interfacial statistical associating fluid theory: Application to tethered polymer chains," J Chem Phys 128, 154910 (2008).  In that paper, the grafted end is effectively embedded in the surface since the second bead on the chain is not allowed to overlap with the grafted segment.  In order to reproduce this effect the Lhard parameter must be turned on.  If Lhard and Type_poly=WJDC3, Tramonto will assume that the size of the first bead is 0 when it sets up the external fields at the hard wall.  The result agrees reasonably well with the paper, however, the result is more sensitive to mesh spacing than it should be.  See the POLYGRAFT2 case for a situation where Lhard is turned off and the second bead is allowed to lie next to the grafted end segment.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_50
+
+Key Output Parameters:
+   - niter=5
+   - adsorption[0]=4.73021 
+   .
+*/
