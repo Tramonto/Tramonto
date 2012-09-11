@@ -1,5 +1,5 @@
 /*! \file 
- \brief grafted, length 50 hard polymer grafted to a hard wall.
+ \brief grafted 50mer polymer attached to a noninteracting wall.
 
 Functionals: WJDC, FMT1
 

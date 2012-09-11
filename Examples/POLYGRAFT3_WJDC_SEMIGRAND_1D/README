@@ -1,0 +1,23 @@
+/*! \file 
+ \brief grafted 10-mer polymer: end graft to a noninteracting wall. This case includes a free solvent.
+
+Functionals: WJDC, FMT1
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: This example is for a grafted polymer immersed in a solvent.   Note that the adsorption of the free chains of the grafted polymer should be 1.8.  The computed
+result has an error of 1.2% for a mesh spacing of 0.1sigma.
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_10_1
+
+Key Output Parameters:
+   - niter=7
+   - adsorption[1]=1.77697
+   - adsorption[2]=4.90067
+   .
+*/
