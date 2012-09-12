@@ -653,9 +653,11 @@ void check_zero_densities(double **xInBox)
   if (Lseg_densities) nloop=Nseg_tot;
   else nloop=Ncomp;
 
+
   for (inode_box=0; inode_box<Nnodes_box; inode_box++){
       for (iloop=0; iloop<nloop; iloop++){
-         icomp=Unk2Comp[iloop];
+         if (Lseg_densities) icomp=Unk2Comp[iloop];
+         else                icomp=iloop;
 	 iunk = Phys2Unk_first[DENSITY]+iloop;
          if (Zero_density_TF[inode_box][icomp])
                  xInBox[iunk][inode_box] = 0.0;
@@ -686,10 +688,10 @@ void check_zero_densities_owned(double **xOwned)
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       for (iloop=0; iloop<nloop; iloop++){
-         icomp=Unk2Comp[iloop];
+         if (Lseg_densities) icomp=Unk2Comp[iloop];
+         else icomp=iloop;
 	 iunk = Phys2Unk_first[DENSITY]+iloop;
-         if (Zero_density_TF[L2B_node[loc_inode]][icomp])
-                 xOwned[iunk][loc_inode] = 0.0;
+         if (Zero_density_TF[L2B_node[loc_inode]][icomp]) xOwned[iunk][loc_inode] = 0.0;
          else{
            if (Lseg_densities)
               if (xOwned[iunk][loc_inode] < Rho_seg_b[iunk]*exp(-VEXT_MAX)) {

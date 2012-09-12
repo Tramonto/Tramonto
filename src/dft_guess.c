@@ -88,8 +88,6 @@ void set_initial_guess (int guess_type, double** xOwned)
                 if (Iwrite_screen != SCREEN_NONE) printf("we don't have the ability to restart without a density field at this time\n");
                 exit(-1);
            }
-           else{
-           }
            break;
          case MF_EQ:
            if (Phys2Nunk[MF_EQ]>0 && (start_no_info || Restart_field[MF_EQ]==FALSE ||Restart==RESTART_DENSONLY || Restart==RESTART_FEWERCOMP)){
@@ -188,6 +186,7 @@ void set_initial_guess (int guess_type, double** xOwned)
         printf("\nInitial guess took %g secs\n",MPI_Wtime()-t1);
         printf("-----------------------------------------------------------------\n");
   }
+
   return;
 }
 /********************************************************************************************************/

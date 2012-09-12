@@ -59,7 +59,7 @@ int solve_problem_picard(double **x, double **x2)
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
   /* If requested, write out initial guess */
-   if (Iwrite_files == FILES_DEBUG) print_profile_box(x,"rho_init.dat");
+   if (Iwrite_files == FILES_DEBUG) print_profile_box(x,"rho_init_picard.dat");
 
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
@@ -69,7 +69,7 @@ int solve_problem_picard(double **x, double **x2)
     set_initial_guess(BINODAL_FLAG, x2Owned);
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
 
-    if (Iwrite_files == FILES_DEBUG) print_profile_box(x2,"rho_init2.dat");
+    if (Iwrite_files == FILES_DEBUG) print_profile_box(x2,"rho_init2_picard.dat");
   }
 
   if (NL_Solver==PICARD_NOX || NL_Solver==PICNEWTON_NOX) iter=NOXLOCA_Solver(x, xOwned, x2Owned, TRUE);
