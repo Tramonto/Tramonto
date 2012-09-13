@@ -173,7 +173,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
            icomp_graft=Grafted_TypeID[npol];
            for (iwall=0;iwall<Nwall;iwall++){
              if (WallType[iwall]==Graft_wall[npol]){
-               for (jsurf_node=0;jsurf_node<Nodes_Surf_Gsum[iwall];jsurf_node++){
+               for (jsurf_node=0;jsurf_node<Nodes_Surf_Gsum[npol][iwall];jsurf_node++){
                  jnode_box=Index_SurfNodes_Gsum[iwall][jsurf_node];
 
                  if (Nbonds_SegAll[Grafted_SegIDAll[npol]]>2){

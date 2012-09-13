@@ -1309,7 +1309,7 @@ extern double ***GsumPrefac_GDerivs; /* keep track of prefactors so we can imple
 extern int **Index_SurfNodes_Gsum; /* keep track of surface nodes we can implement Jacobians for tethered chains */
 extern int ***Index_UnkGQ_Gsum; /* keep track of unknowns when computing Gsum for tethered chains */
 extern int **Index_UnkB_Gsum; /* keep track of unknowns when computing Gsum for tethered chains */
-extern int *Nodes_Surf_Gsum; /* counter for surface nodes used to compute Gsum for tethered chains */
+extern int **Nodes_Surf_Gsum; /* counter for surface nodes used to compute Gsum for tethered chains */
 
 /*some continuation related arrayes */
 extern int  Cont_ID[NCONT_MAX][2];  /* Array of iwall/icomp ids for use in continuation.  */

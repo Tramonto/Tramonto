@@ -627,7 +627,7 @@ double ***GsumPrefac_GDerivs; /* keep track of prefactors so we can implement Ja
 int **Index_SurfNodes_Gsum; /* keep track of surface nodes we can implement Jacobians for tethered chains */
 int ***Index_UnkGQ_Gsum; /* keep track of unknowns when computing Gsum for tethered chains */
 int **Index_UnkB_Gsum; /* keep track of unknowns when computing Gsum for tethered chains */
-int *Nodes_Surf_Gsum; /* counter for surface nodes used to compute Gsum for tethered chains */
+int **Nodes_Surf_Gsum; /* counter for surface nodes used to compute Gsum for tethered chains */
 
 
 

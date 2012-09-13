@@ -84,9 +84,9 @@ extern double **GsumPrefac_XiDerivs;
 #define GRAFT_DENSITY 1
 extern int **Index_UnkB_Gsum;
 extern int **Index_SurfNodes_Gsum;
-extern int *Nodes_Surf_Gsum;
-extern int Graft_wall[NCOMP_MAX];
+extern int **Nodes_Surf_Gsum;
 extern int WallType[NWALL_MAX];
+extern int Graft_wall[NCOMP_MAX];
 extern int Nwall;
 #define TRUE  1
 #if !defined(_CON_CONST_H_)

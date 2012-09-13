@@ -128,7 +128,7 @@ extern int Nwall;
 extern double ***GsumPrefac_GDerivs;
 extern double **GsumPrefac_XiDerivs;
 extern double *Total_area_graft;
-extern int *Nodes_Surf_Gsum;
+extern int **Nodes_Surf_Gsum;
 extern int ***Index_UnkGQ_Gsum;
 extern int **Index_SurfNodes_Gsum;
 void safe_free(void **ptr);

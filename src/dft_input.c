@@ -63,7 +63,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
        block_type[NBLOCK_MAX],pol_number, itmp,
        dim_tmp,jmin=0,jmax=0,
        lzeros,latoms,ltrues,jwall_type,seg_tot;
-   double rho_tmp[NCOMP_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
+   double rho_tmp[NCOMP_MAX],rho_tmp_step[NCOMP_MAX][NSTEPS_MAX],dtmp,charge_sum,minpos[3],maxpos[3];
    int iblock,jblock,itype_poly,repeat_type,grafted_segID_tmp;
    char unk_char[20];
    char *densityFile_tmp,*densityFile2_tmp;
@@ -1329,10 +1329,27 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
       }
 
       read_junk(fpinput,fpecho);
-      for (icomp=0; icomp<Ncomp; ++icomp){
-          for (i=0; i<Nsteps; ++i){
-   	    fscanf(fpinput,"%lf", &Rho_step[icomp][i]);
-	     fprintf(fpecho,"%f  ",Rho_step[icomp][i]);
+      if (Type_poly==NONE || Ntype_mer == 1){
+         for (icomp=0; icomp<Ncomp; ++icomp){
+             for (i=0; i<Nsteps; ++i){
+                fscanf(fpinput,"%lf", &Rho_step[icomp][i]);
+                fprintf(fpecho,"%f  ",Rho_step[icomp][i]);
+             }
+         }
+      }
+      else{
+          /*first scan in polymer densities */
+          for (icomp=0; icomp<Npol_comp; icomp++) {
+              for (i=0; i<Nsteps; ++i){ 
+                   fscanf(fpinput,"%lf", &rho_tmp_step[icomp][i]);
+                   fprintf(fpecho,"%f  ",Rho_step[icomp][i]);
+               }
+          }
+          for (icomp=0; icomp<Ntype_mer; icomp++){
+             for (i=0; i<Nsteps; ++i){
+                 Rho_step[icomp][i] = 0.;
+                 for (j=0; j<Npol_comp; j++)  Rho_step[icomp][i] += (double)Nmer_t[j][icomp]*rho_tmp_step[j][i]/(double)Nmer[j];
+             }
           }
       }
   }

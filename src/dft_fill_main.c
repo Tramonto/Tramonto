@@ -186,7 +186,7 @@ void calc_Gsum_new(double **x)
   integrand2 = (double *) array_alloc (1, Nwall, sizeof(double));
 
   if(Type_poly==WJDC3 && Grafted_Logical ==TRUE) {
-    Nodes_Surf_Gsum = (int *) array_alloc (1, Nwall, sizeof(int));
+    Nodes_Surf_Gsum = (int **) array_alloc (2, Npol_comp,Nwall, sizeof(int));
     Index_SurfNodes_Gsum = (int **) array_alloc(2, Nwall, Nnodes_per_proc, sizeof(int));
     if (Gsum_graft==NULL){
     Gsum_graft = (double *) array_alloc(1, Npol_comp, sizeof(double));
@@ -216,7 +216,7 @@ void calc_Gsum_new(double **x)
         for (iwall=0;iwall<Nwall;iwall++){
             integrand[iwall]=0.0;
             integrand2[iwall]=0.0;
-            Nodes_Surf_Gsum[iwall]=0;
+            Nodes_Surf_Gsum[ipol][iwall]=0;
         }
 
 /*        for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) 
@@ -243,8 +243,8 @@ void calc_Gsum_new(double **x)
                prefac = Area_surf_el[idim]*Esize_x[idim]/NelemsS_global[ilist][inode];
                prefac2 = Area_surf_el[idim]/NelemsS_global[ilist][inode];
 
-               Index_UnkB_Gsum[iwall][Nodes_Surf_Gsum[iwall]]=unk_B;
-               GsumPrefac_XiDerivs[iwall][Nodes_Surf_Gsum[iwall]]=
+               Index_UnkB_Gsum[iwall][Nodes_Surf_Gsum[ipol][iwall]]=unk_B;
+               GsumPrefac_XiDerivs[iwall][Nodes_Surf_Gsum[ipol][iwall]]=
                     ((double)(Nbond_graft-2))*prefac/(POW_DOUBLE_INT(x[unk_B][inode_box],Nbond_graft-1));
  
                prefac/=POW_DOUBLE_INT(x[unk_B][inode_box],Nbond_graft-2);
@@ -264,15 +264,15 @@ void calc_Gsum_new(double **x)
                           gproduct_deriv*=x[unk_GQ][inode_box];
                           }
                        }
-                       Index_UnkGQ_Gsum[iwall][Nodes_Surf_Gsum[iwall]][ibond]=unk_GQ;
-                       GsumPrefac_GDerivs[iwall][Nodes_Surf_Gsum[iwall]][ibond]=gproduct_deriv*prefac;
+                       Index_UnkGQ_Gsum[iwall][Nodes_Surf_Gsum[ipol][iwall]][ibond]=unk_GQ;
+                       GsumPrefac_GDerivs[iwall][Nodes_Surf_Gsum[ipol][iwall]][ibond]=gproduct_deriv*prefac;
                     }
                }
                integrand[iwall]+=prefac*gproduct;
                integrand2[iwall]+=prefac2*gproduct;
-               GsumPrefac_XiDerivs[iwall][Nodes_Surf_Gsum[iwall]]*=gproduct;
-               Index_SurfNodes_Gsum[iwall][Nodes_Surf_Gsum[iwall]]=S2B_node[ilist][inode];
-               Nodes_Surf_Gsum[iwall]+=1;
+               GsumPrefac_XiDerivs[iwall][Nodes_Surf_Gsum[ipol][iwall]]*=gproduct;
+               Index_SurfNodes_Gsum[iwall][Nodes_Surf_Gsum[ipol][iwall]]=S2B_node[ilist][inode];
+               Nodes_Surf_Gsum[ipol][iwall]+=1;
             }
          }
          }

@@ -63,7 +63,7 @@ int solve_problem(double **x, double **x2)
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
   /* If requested, write out initial guess */
-   if (Iwrite_files == FILES_DEBUG)  print_profile_box(x,"rho_init_newton.dat");
+   if (Iwrite_files == FILES_DEBUG && NL_Solver!=PICNEWTON_BUILT_IN && NL_Solver!=PICNEWTON_NOX)  print_profile_box(x,"rho_init.dat");
 
   /* Do same for second solution vector when Lbinodal is true */
   if (Lbinodal) {
@@ -79,7 +79,7 @@ int solve_problem(double **x, double **x2)
     else{ 
      set_initial_guess(BINODAL_FLAG, x2Owned);}
     (void) dft_linprobmgr_importr2c(LinProbMgr_manager, x2Owned, x2);
-    if (Iwrite_files == FILES_DEBUG)  print_profile_box(x2,"rho_init2_newton.dat");
+    if (Iwrite_files == FILES_DEBUG && NL_Solver!=PICNEWTON_BUILT_IN && NL_Solver!=PICNEWTON_NOX)  print_profile_box(x2,"rho_init2.dat");
   }
 
 
