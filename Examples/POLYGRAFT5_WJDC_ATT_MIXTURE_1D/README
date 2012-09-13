@@ -1,0 +1,24 @@
+/*! \file 
+ \brief Mixture of grafted chains at different walls with attractions, external field, and midpoint grafting. 
+
+Functionals: WJDC, FMT1, ATT
+
+Dimensions: 1
+
+Diffusion: No
+
+Notes: 
+Mixture of grafted chains at different walls. The wall on the left has a 9-mer that is grafted at the 4th segment.  The wall on the right has a 9-mer that is grafted at the end segment. These two polymer grafted surfaces are immersed in a solvent that is attractive to itself and the chain on the right wall.  As a result the chains on the left wall are collapsed near the wall while the chains on the right are nearly fully extended into the solvent.  Note that the grafting density is twice as high for the end grafted chain on the right wall, and the adsorption results are perfect in this case. Only nonbonded segment densities are reported here. 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_9_9_1
+
+Key Output Parameters:
+   - niter=7
+   - adsorption[0]=0.8
+   - adsorption[3]=1.6
+   - adsorption[4]=8.95522
+   .
+*/
