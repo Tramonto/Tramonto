@@ -74,7 +74,7 @@ void calc_init_WJDC_field(double **xInBox,double **xOwned)
      for (inode_box=0;inode_box<Nnodes_box;inode_box++){
       loc_inode = B2L_node[inode_box];
   }
-	
+
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, xInBox);  /* make sure all previously calculated 
                                                                            parameters are up to date in box coords */
 

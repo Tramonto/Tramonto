@@ -1724,7 +1724,6 @@ void setup_global_surfaces()
               }
           }
           if (in_box_list==FALSE){
-              in_extrabox_list=FALSE;
               for (j=0;j<Nnodes_box_extra;j++){
                  if (NodesS_GID_global[ilist][inode_S]==B2G_node_extra[Nnodes_box+j]){ /* found in the list of new nodes we are accumulating */
                    in_extrabox_list=TRUE;

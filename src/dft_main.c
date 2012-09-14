@@ -78,7 +78,7 @@ void dftmain(double * engptr)
   struct Stencil_Struct *sten;
 /*  char line[100],linecwd[100];*/
   int proper_bc;
-  int argc=1,ierr;
+  int argc=1,ierr,iproc,loc_inode;
 
   Time_linsolver_first=0.0;
   Time_linsolver_av=0.0;
@@ -245,13 +245,26 @@ void dftmain(double * engptr)
          (void) dft_linprobmgr_setnodalrowmap(LinProbMgr_manager, Nnodes_per_proc, L2G_node);
          if(Type_poly==WJDC3 && Grafted_Logical ==TRUE) setup_global_surfaces();
 
-         /*for (i=0;i<Nnodes_box_extra;i++){
+/*         MPI_Barrier(MPI_COMM_WORLD);
+           for (iproc=0;iproc<Num_Proc;iproc++){
+              MPI_Barrier(MPI_COMM_WORLD);
+              if (iproc==Proc){
+                   for (loc_inode=0;loc_inode<Nnodes_per_proc;loc_inode++){
+                      printf("Proc=%d loc_inode=%d  global_node=%d\n",Proc,loc_inode,L2G_node[loc_inode]);
+                   }
+                    printf("\t \t \t \n");
+              }
+           }
+         MPI_Barrier(MPI_COMM_WORLD);*/
+
+/*         if (Proc==7){ for (i=0;i<Nnodes_box_extra;i++){
             if (i<Nnodes_box){
-               if (B2L_node[i]!=-1) printf ("inode_box=%d:: local node::  loc_inode=%d  B2G_node_extra=%d  B2G_node=%d  L2G_node=%d\n",
+               if (B2L_node[i]!=-1) printf ("LOCAL:  inode_box=%d:: loc_inode=%d  B2G_node_extra=%d  B2G_node=%d  L2G_node=%d\n",
                                               i,B2L_node[i],B2G_node_extra[i],B2G_node[i],L2G_node[i]);
-               else printf ("inode_box=%d:: box node::   B2G_node_extra=%d  B2G_node=%d  \n", i,B2G_node_extra[i],B2G_node[i]);
+               else printf ("BOX:  inode_box=%d:: B2G_node_extra=%d  B2G_node=%d  \n", i,B2G_node_extra[i],B2G_node[i]);
             }
-            else printf("inode_box=%d:: extended node::  B2G_node_extra=%d\n",i,B2G_node_extra[i]);
+            else printf("EXTENDED:  inode_box=%d  B2G_node_extra=%d\n",i,B2G_node_extra[i]);
+         }
          }*/
          (void) dft_linprobmgr_setnodalcolmap(LinProbMgr_manager, Nnodes_box_extra     , B2G_node_extra);
 

@@ -480,32 +480,33 @@ int update_solution_picard(double** x, double **xOwned, double **delta_x, int it
     
     /* Increment updateNorm only for owned nodes (inode=-1 for ghosts) */
     inode = B2L_node[ibox];
-    if (inode != -1) {
+    if (inode >=0) {
       for (iunk=0; iunk<Nunk_per_node; iunk++) {
         temp =(NL_update_scalingParam*delta_x[iunk][ibox])/(NL_rel_tol_picard*x[iunk][ibox] + NL_abs_tol_picard);
         updateNorm +=  temp*temp;
       }
-    }
+
   /* For some cases, we need to be able to keep the solution values at the boundaries constant
      and set equal to the values that are read in from a file.  Do not update the solution
      vector at these points */
-    inodeG=L2G_node[inode]; 
-    node_to_ijk(inodeG,ijk);
-    go_update=TRUE;
-    for (idim=0; idim<Ndim;idim++){
-       if (  (ijk[idim]==0 && Type_bc[idim][0] == LAST_NODE_RESTART) ||
-          (ijk[idim]==Nodes_x[idim]-1 && Type_bc[idim][1] == LAST_NODE_RESTART)) go_update=FALSE;
-    }
+       inodeG=L2G_node[inode]; 
+       node_to_ijk(inodeG,ijk);
+       go_update=TRUE;
+       for (idim=0; idim<Ndim;idim++){
+          if (  (ijk[idim]==0 && Type_bc[idim][0] == LAST_NODE_RESTART) ||
+             (ijk[idim]==Nodes_x[idim]-1 && Type_bc[idim][1] == LAST_NODE_RESTART)) go_update=FALSE;
+       }
     
     /* Update all solution componenets */
-    if (go_update){
-       for (i=0; i<nloop; i++) {
-          iunk=i+Phys2Unk_first[DENSITY];
-          x[iunk][ibox] += NL_update_scalingParam*delta_x[iunk][ibox];
+       if (go_update){
+          for (i=0; i<nloop; i++) {
+             iunk=i+Phys2Unk_first[DENSITY];
+             x[iunk][ibox] += NL_update_scalingParam*delta_x[iunk][ibox];
+          }
        }
        /*if (Type_coul != NONE) x[POISSON][ibox] += NL_update_scalingParam*delta_x[POISSON][ibox];*/
-    }
-    if (inode>=0){ for (iunk=0; iunk<Nunk_per_node; iunk++) xOwned[iunk][inode]=x[iunk][ibox];}
+       for (iunk=0; iunk<Nunk_per_node; iunk++) xOwned[iunk][inode]=x[iunk][ibox];
+     }
   }
   
   updateNorm = sqrt(gsum_double(updateNorm));

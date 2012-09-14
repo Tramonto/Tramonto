@@ -26,12 +26,10 @@ void safe_free(void **ptr);
 void safe_free(void **ptr);
 void check_zero_densities_owned(double **xOwned);
 void calc_Gsum_new(double **x);
-extern int Grafted_Logical;
 void chop_profile(double **xInBox,int guess_type);
 #define RESTART_STEP       2
 void setup_polymer_G_wjdc(double **xOwned);
 void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned);
-#define WJDC3        5 
 #define WJDC2        4 
 #define WJDC         3
 void calc_init_polymer_G_SCF(double **xInBox,double **xOwned);
@@ -78,7 +76,6 @@ void setup_density(double **xInBox,double **xOwned,int guess_type);
 void setup_polymer_rho(double **xInBox,double **xOwned,int guess_type);
 #define CMS_SCFT     1
 #define CMS          0
-extern int Type_poly;
 #define RESTART_FEWERCOMP  4
 #define NEQ_TYPE       12 
 extern int Phys2Nunk[NEQ_TYPE];
@@ -101,8 +98,12 @@ extern int Restart;
 #endif
 extern int Restart_field[NEQ_TYPE];
 extern int Nnodes_box;
+extern int Nnodes_box_extra;
 extern int Nunk_per_node;
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
+extern int Grafted_Logical;
+#define WJDC3        5 
+extern int Type_poly;
 void set_initial_guess(int guess_type,double **xOwned);

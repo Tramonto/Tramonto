@@ -201,14 +201,13 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
    fprintf(fpecho,"%d  %d  %d  %d  %d",Nwall_type,Nwall,Nlink,Lauto_center,Lauto_size);
 
 
-  if (Nwall>0) Xtest_reflect_TF = (int **) array_alloc (2, Nlink,Ndim, sizeof(int));
   read_junk(fpinput,fpecho);
-  if (Nwall > 0){
-    for (i=0; i < Nlink; i++)
-      for (idim=0; idim< Ndim; idim++){
+  if (Nwall>0){
+    Xtest_reflect_TF = (int **) array_alloc (2, Nlink,Ndim, sizeof(int));
+    for (i=0; i < Nlink; i++) for (idim=0; idim< Ndim; idim++){
          fscanf(fpinput,"%d",&Xtest_reflect_TF[i][idim]);
-	  fprintf(fpecho,"%d  ",Xtest_reflect_TF[i][idim]);
-      }
+         fprintf(fpecho,"%d  ",Xtest_reflect_TF[i][idim]);
+    }
   }
   else  fprintf(fpecho,"Xtest_reflect_TF n/a");
 
@@ -1665,7 +1664,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
                 input file for the run of interest.                 */
 void read_junk(FILE *fpinput, FILE *fpecho)
 {
-   int c;
+   char c;
    fprintf(fpecho,"   junk:");
    while ((c=getc(fpinput)) != EOF && c !='@') putc(c,fpecho);
    fprintf(fpecho,"   data:");

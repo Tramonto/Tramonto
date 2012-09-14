@@ -49,7 +49,9 @@ void set_initial_guess (int guess_type, double** xOwned)
 
   /* temporary array set to size of box node to allow us to compute some variables
      that require integrations over densities */ 
-  xInBox = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
+  if (Type_poly==WJDC3 && Grafted_Logical) xInBox = (double **) array_alloc(2, Nunk_per_node, Nnodes_box_extra, sizeof(double));
+  else                                     xInBox = (double **) array_alloc(2, Nunk_per_node, Nnodes_box, sizeof(double));
+ 
   for (iunk=0;iunk< Nunk_per_node; iunk++)
    for (inode_box=0;inode_box<Nnodes_box; inode_box++) xInBox[iunk][inode_box]=0.0;
 
