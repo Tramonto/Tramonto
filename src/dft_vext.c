@@ -363,7 +363,7 @@ void setup_vext_XRSurf(int iwall)
        logical_setup_vext=TRUE;
        if (Grafted_Logical==TRUE && Type_poly==WJDC3 &&
            Grafted[Icomp_to_polID[icomp]]!=FALSE && icomp==Grafted_TypeID[Icomp_to_polID[icomp]] && 
-           WallType[iwall] == Graft_wall[Icomp_to_polID[icomp]]){ logical_setup_vext=FALSE;
+           WallType[RealWall_Images[iwall]] == Graft_wall[Icomp_to_polID[icomp]]){ logical_setup_vext=FALSE;
        }
      
        if (logical_setup_vext==TRUE){ 
@@ -466,6 +466,7 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
    double max_cut,**image_pos,node_pos[3],node_pos_w[3],
           node_pos_f[3],node_pos_w2[3],vext,r_center_sq;
    double param1,param2,param3,param4,param5,param6;
+   int logical_setup_vext;
 
    iwall_type = WallType_Images[iwall];
    max_cut = 0.0;
@@ -512,7 +513,16 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
         node_to_ijk(B2G_node[inode_box],ijk);
 
         for (icomp=0; icomp<Ncomp; icomp++) {
-        if (!Zero_density_TF[inode_box][icomp]) {
+          logical_setup_vext=TRUE;
+          if (Grafted_Logical==TRUE && Type_poly==WJDC3 &&
+              Grafted[Icomp_to_polID[icomp]]!=FALSE && 
+              icomp==Grafted_TypeID[Icomp_to_polID[icomp]] && 
+              WallType[RealWall_Images[iwall]] == Graft_wall[Icomp_to_polID[icomp]]){ 
+
+              logical_setup_vext=FALSE;
+           }
+     
+       if (!Zero_density_TF[inode_box][icomp] && logical_setup_vext==TRUE) {
 
            image = 1;
            inode = L2G_node[loc_inode];
@@ -560,7 +570,6 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
                                 (node_pos_w2[idim]-node_pos_f[idim]);
              }
              if (Lsemiperm[iwall_type][icomp] && r_center_sq<Sigma_wf[icomp][iwall_type]){
-             /*if (Lsemiperm[iwall_type][icomp] && r_center_sq<1.1224620*Sigma_wf[icomp][iwall_type]){*/
                  Vext_set[loc_inode][icomp] = Vext_membrane[WallType[iwall]][icomp];
              }
              if (r_center_sq < 4.0) {
@@ -587,12 +596,6 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
 
 	     
              Vext[loc_inode][icomp] += vext;
-
-             /*for (jdim=0;jdim<Ndim;jdim++){
-                for (i=-1,i<2,i+=2){
-                     
-                }
-             }*/
 
           }  /* end of loop over the surface elements and its images */
              if (Vext[loc_inode][icomp] >= Vext_set[loc_inode][icomp]) 
