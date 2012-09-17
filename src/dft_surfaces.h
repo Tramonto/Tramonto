@@ -32,7 +32,6 @@ extern int ***Wall_owners;
 extern int **Nwall_owners;
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
-#define REFLECT              2
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 extern double Rmax_zone[5];
@@ -41,8 +40,6 @@ extern int Nnodes_wall_box;
 int ijk_box_to_node_box(int *ijk_box);
 void ijk_to_ijk_box(int *ijk,int *ijk_box);
 int position_to_node(double *NodePos);
-#define PERIODIC             1
-extern int Type_bc[NDIM_MAX][2];
 extern int Nodes_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);
 extern double Dielec_pore;
@@ -123,6 +120,9 @@ extern int **Wall_elems;
 extern int Nzone;
 #define JAC_ZONES_SETFIXED_ESIZE       5
 extern int Coarser_jac;
+#define PERIODIC             1
+#define REFLECT              2
+extern int Type_bc[NDIM_MAX][2];
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

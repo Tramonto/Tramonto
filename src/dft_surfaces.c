@@ -43,7 +43,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
  /* Local variable declarations */
   int itype,iwall,ilist,iel_box,izone, **L_wall,idim,inode_box,inode_box_tmp,save_dim,inode_global;
   int loc_inode,real_wall,flag,flag_X_to_center;
-  int iel,inode,angle_test,jdim,save_el_wall;
+  int iel,inode,angle_test,jdim,save_el_wall,fac_image;
   int edge_element, ijk[3],imax[3],ix[3],Linwall,Lfind_images[3],ijk_global[3],ijk_box_tmp[3];
   double xtest[3],dist_roughness,dist_periodic, dist_linear,node_pos[3],xtest_tmp[3];
   double *x_min;
@@ -72,6 +72,11 @@ void setup_surface (FILE *fp2, int *nelems_f,
   for (i=0;i<Nwall_type;i++) if (Ipot_wf_n[i]==VEXT_DIST_TO_SURF || Ipot_wf_n[i]==VEXT_DIST_TO_CENTER)  flag=TRUE;
   for (idim=0;idim<Ndim;idim++) xtest[idim]=0.0;
 
+  fac_image=1;
+  for (idim=0; idim<Ndim; idim++){
+      if (Type_bc[idim][0]==REFLECT || Type_bc[idim][1]==PERIODIC ||
+      Type_bc[idim][1]==REFLECT || Type_bc[idim][1]==PERIODIC) fac_image*=3; }
+
   for (iel_box=0; iel_box<Nelements_box; iel_box++){
      if (Coarser_jac != JAC_ZONES_SETFIXED_ESIZE) elem_zones[iel_box] = Nzone - 1;
      else                  elem_zones[iel_box] = Nzone - 2;
@@ -79,7 +84,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
      for (ilist=0; ilist<Nlists_HW; ilist++){
         L_wall[ilist][iel_box] = FALSE;
         Wall_elems[ilist][iel_box] = -1;
-        for (iwall=0; iwall<Nwall; iwall++) el_type[iwall][ilist][iel_box] = FLUID_EL;
+        for (iwall=0; iwall<Nwall*fac_image; iwall++) el_type[iwall][ilist][iel_box] = FLUID_EL;
      }
   }
 
@@ -505,7 +510,6 @@ void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
    int ijk[3],idim,nadd,i,new_wall,new_entry;
    int imax[3],ix[3],iw,ijk_box[3],inode_box,inode_tmp_box,ijk_tmp_box[3],index;
    imax[0]=imax[1]=imax[2]=1;
-
 
    new_wall=TRUE;
    for (i=0; i<Nwall_owners[ilist][iel_box]; i++)

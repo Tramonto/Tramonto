@@ -448,7 +448,7 @@ void print_resid_norm_picard(double **x, int iter)
   sum_local=fill_resid_and_matrix_control(x,iter,CALC_RESID_ONLY);
   norm = gsum_double(sum_local);
 
-  if (Proc==0) printf("\tIter=%d\t::::\tResid norm=%g",iter, sqrt(norm)); 
+  if (Proc==0) printf("\tIter=%d\t::::\tNLResid_pic=%g",iter, sqrt(norm)); 
 
   return;
 }

@@ -108,6 +108,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
 	if(Type_poly==WJDC3 && Grafted_Logical==TRUE){ calc_Gsum_new(x); }
 		
 		/* Load residuals and matrix */
+
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
 
     /* convert local node to global */

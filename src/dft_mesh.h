@@ -96,6 +96,7 @@ extern int Nnodes_per_el_S;
 extern int GraftedWall_TF[NWALL_MAX_TYPE];
 extern int Nnodes_box_extra;
 void setup_global_surfaces();
+extern int *RealWall_Images;
 extern int Link[NWALL_MAX];
 #define NDIM_MAX  3
 extern double WallPos[NDIM_MAX][NWALL_MAX];

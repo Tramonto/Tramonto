@@ -1304,12 +1304,8 @@ void setup_zeroTF_and_Node2bound_new (FILE *fpecho,int ***el_type)
  for (idim=0; idim<Ndim; idim++) reflect_flag[idim] = FALSE;
 
  for (inode_box=0; inode_box<Nnodes_box; inode_box++){
-    for (ilist=0; ilist<Nlists_HW; ilist++) {
-            Nodes_2_boundary_wall[ilist][inode_box] = -1;
-    }
-    for (icomp=0; icomp<Ncomp+1; icomp++) {
-            Zero_density_TF[inode_box][icomp] = FALSE;
-    }
+    for (ilist=0; ilist<Nlists_HW; ilist++) Nodes_2_boundary_wall[ilist][inode_box] = -1;
+    for (icomp=0; icomp<Ncomp+1; icomp++)  Zero_density_TF[inode_box][icomp] = FALSE;
  }
 
    /* special case of zeolites for M.Mitchell 
@@ -1346,8 +1342,8 @@ void setup_zeroTF_and_Node2bound_new (FILE *fpecho,int ***el_type)
 
  /* 
   * loop over all nodes in the box coordinates of this processor
+  * that do touch at least one wall !! 
   * to set up Nodes_2_boundary_wall array -----
-  * only loop over nodes in the box that actually do touch at least one wall !! 
   */
  for (index=0; index<Nnodes_wall_box; index++) {
 
@@ -1357,8 +1353,6 @@ void setup_zeroTF_and_Node2bound_new (FILE *fpecho,int ***el_type)
     node_to_position(inode,node_pos);
 
     for (index_w=0; index_w<Nwall_touch_node[index]; index_w++){
-/*printf("position=%g %g  Nwall_touch_node=%d indexw=%d  WallID=%d\n",
-    node_pos[0]+0.5*Size_x[0],node_pos[1]+0.5*Size_x[1],Nwall_touch_node[index],index_w,Wall_touch_node[index][index_w]);*/
        n_fluid_els[index_w] = 0;
        countw_per_w[index_w]=0;
     }
@@ -1369,15 +1363,14 @@ void setup_zeroTF_and_Node2bound_new (FILE *fpecho,int ***el_type)
     n_el_in_box=0; 
 
     for (loc_node_el=0; loc_node_el<Nnodes_per_el_V ; loc_node_el++){
-       iel = node_to_elem_return_dim(inode, loc_node_el,reflect_flag,
-                                     &idim,&iside,&periodic_flag);
+       iel = node_to_elem_return_dim(inode, loc_node_el,reflect_flag, &idim,&iside,&periodic_flag);
        if (iel >= 0) iel_box = el_to_el_box(iel); 
        if (iel < 0 || iel_box > Nelements_box) iel_box=0;     /*catch a parallel bug with periodic boundaries - may need more work here */
 
        if (iel_box>=0 || iel==-2 || iel==-1) n_el_in_box++;
 
        for (ilist=0;ilist<Nlists_HW; ilist++){
-              counted_list[ilist]=FALSE;
+             counted_list[ilist]=FALSE;
              for (ilink=0;ilink<Nlink;ilink++) counted_link[ilist+Nlists_HW*ilink]=FALSE;
        }
 
@@ -1445,8 +1438,9 @@ void setup_zeroTF_and_Node2bound_new (FILE *fpecho,int ***el_type)
            if (countw_per_w[index_w]==Nnodes_per_el_V || 
                countw_per_list[ilist]==Nnodes_per_el_V ||
                countw_per_link[ilist+Nlists_HW*Link[iwall]]==Nnodes_per_el_V){ 
-               for (jw=0; jw<Nwall_touch_node[index]; jw++) 
+               for (jw=0; jw<Nwall_touch_node[index]; jw++) {
                     if (ilist==List_wall_node[index][jw]) n_fluid_els[jw]=0;
+               }
            }
        }
     }
@@ -1472,7 +1466,7 @@ Zero_density_TF[inode_box][ilist] = TRUE;
         }
 
         else if ((n_fluid_els[index_w] != n_el_in_box) /*&& n_fluid_els[index_w]>0*/) {
-            Nodes_2_boundary_wall[ilist][inode_box] = Wall_touch_node[index][index_w]; 
+            Nodes_2_boundary_wall[ilist][inode_box] = RealWall_Images[Wall_touch_node[index][index_w]]; 
 /*if ((Wall_touch_node[index][index_w]==0 || Wall_touch_node[index][index_w]==1) && ilist==Nlists_HW-1)
       printf("iwall=%d  node_pos=%g %g \n",Wall_touch_node[index][index_w],node_pos[0]+Size_x[0]/2.,node_pos[1]+Size_x[1]/2.);*/
         }

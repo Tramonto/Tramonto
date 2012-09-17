@@ -105,6 +105,7 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
   setup_vext_max();
   setup_zero();
 
+
   t_vext -=MPI_Wtime();
   for (iwall=0;iwall<Nwall_Images;iwall++){
      switch(Ipot_wf_n[WallType_Images[iwall]])
@@ -266,8 +267,6 @@ void setup_vext_max()
   int ilist, loc_inode, icomp, iwall, iunk, idim ,inode_box;
   int inode;
   double xpos[3];
-
-
 
   for (icomp=0; icomp<Ncomp; icomp++){ 
      if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
