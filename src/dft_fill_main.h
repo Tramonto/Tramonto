@@ -89,7 +89,6 @@ extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double *Poly_graft_dist;
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
-void node_to_position(int inode,double *NodePos);
 extern int **Nodes_2_boundary_wall;
 extern int Type_mer[NCOMP_MAX][NMER_MAX];
 void calc_Gsum(double **x);
@@ -102,6 +101,10 @@ extern int ***Bonds;
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
+#define REFLECT              2
+extern int Type_bc[NDIM_MAX][2];
+extern int **NodesS_GID_global;
+void node_to_position(int inode,double *NodePos);
 extern double Esize_x[NDIM_MAX];
 extern double Area_surf_el[3];
 extern int WallType[NWALL_MAX];
@@ -121,7 +124,6 @@ extern int Grafted_SegIDAll[NCOMP_MAX];
 extern int Grafted_SegID[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];
 extern int **Index_UnkB_Gsum;
-#define NBOND_MAX 4
 extern double *Gsum_graft_noVolume;
 extern double *Gsum_graft;
 extern int Nwall;
@@ -194,6 +196,7 @@ extern int Proc;
 #if defined(DEBUG)
 extern int Proc;
 #endif
+#define NBOND_MAX 4
 extern double Ads[NCOMP_MAX][2];
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */

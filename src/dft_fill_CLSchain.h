@@ -46,7 +46,6 @@ struct Stencil_Struct {
 extern double *Poly_graft_dist;
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
-void node_to_position(int inode,double *NodePos);
 double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double load_polymer_recursion(int sten_type,int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int unk_B,int itype_mer,int izone,int *ijk_box,double **x,int resid_only_flag);
 double dy_dxi3_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
@@ -105,6 +104,7 @@ extern int *Pol_Sym;
 extern int **Poly_to_Unk_SegAll;
 extern int Grafted_SegIDAll[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];
+void node_to_position(int inode,double *NodePos);
 extern double Gsum[NCOMP_MAX];
 extern int *Nbonds_SegAll;
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];

@@ -47,8 +47,9 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
   int jsurf_node,icomp,icomp_graft,ilist;
   double nodepos[3],nodeposc[3],prefac;
   double fac1,fac2,mat_val,resid=0.0,resid_sum=0.0,resid_sum2=0.0,values[2];
-  int inodel, inode_boxl,izone,graft_seg,graft_bond,gbond,jtmp;
+  int inodel, inode_boxl,izone,graft_seg,graft_bond,gbond,jtmp,idim;
   double y,ysqrt,xi_2,xi_3,dummy=0.0;
+
 
   if (Lconstrain_interface && Type_interface==PHASE_INTERFACE && B2G_node[inode_box]==(int)(0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]) && 
            iunk==Phys2Unk_first[DENSITY]){

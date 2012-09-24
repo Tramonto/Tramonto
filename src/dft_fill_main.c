@@ -55,6 +55,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
   char filename[FILENAME_LENGTH];
   char *fileArray;
   char tmp_str_array[FILENAME_LENGTH];
+  double resid_per_unk[NCOMP_MAX*2+12+NMER_MAX*NBOND_MAX],tmp_double;
 
   int i,j,ipol,iseg_test,icomp;
 
@@ -108,6 +109,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
 	if(Type_poly==WJDC3 && Grafted_Logical==TRUE){ calc_Gsum_new(x); }
 		
 		/* Load residuals and matrix */
+    for (iunk=iunk_start; iunk<iunk_end; iunk++) resid_per_unk[iunk]=0.0;
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
 
@@ -137,9 +139,16 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
                                resid_unk,mesh_coarsen_flag_i,resid_only_flag);
           resid_sum+=resid_term;
 /*          if (switch_constmatrix) resid_only_flag=FALSE;*/
+/*          resid_per_unk[iunk]+=resid_term;
+if (iunk==0 && fabs(resid_term >1.e-8)) {
+	node_to_position(L2G_node[loc_inode],nodepos); 
+        printf("%g  %g  %g  ",nodepos[0],nodepos[1],nodepos[2]);
+        printf("iunk=%d loc_inode=%d  resid_term=%g\n",iunk,loc_inode,resid_term);
+}*/
       }
 
      /* print for debugging purposes call this print routine */ 
+/*Iwrite_screen=SCREEN_DEBUG_RESID;*/
        if (Iwrite_screen==SCREEN_DEBUG_RESID)  print_residuals(loc_inode,iunk,resid_unk);
 
     } /* end of loop over # of unknowns per node */
@@ -172,6 +181,10 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
 
   safe_free((void *) &resid_unk);
 /*  if (Type_poly==CMS_SCFT) safe_free((void *) &Gsum);*/
+/*    for (iunk=iunk_start; iunk<iunk_end; iunk++){
+		 tmp_double=gsum_double(resid_per_unk[iunk]); 
+                 if (Proc==0) printf("resid_per_unk[%d]=%g\n",iunk,tmp_double);
+    }*/
   return(resid_sum);
 }
 
@@ -179,7 +192,7 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
 void calc_Gsum_new(double **x)
 {
   double *integrand,*integrand2;
-  double prefac,prefac2,gproduct,gproduct_deriv;
+  double prefac,prefac2,gproduct,gproduct_deriv,nodepos[3],reflect_fac;
   int  surf_norm,idim,iwall_type_graft,iel_w,jbond;
   int icomp,ilist,ipol,ibond,unk_GQ,loc_inode,iseg_graft,isegALL_graft,iwall,unk_B,Nbond_graft,inode,inode_box;
 
@@ -243,6 +256,18 @@ void calc_Gsum_new(double **x)
 
                prefac = Area_surf_el[idim]*Esize_x[idim]/NelemsS_global[ilist][inode];
                prefac2 = Area_surf_el[idim]/NelemsS_global[ilist][inode];
+ 
+               node_to_position(NodesS_GID_global[ilist][inode],nodepos);
+               reflect_fac=1.0;     /* modify prefactor for reflective boundaries */
+               for (idim=0;idim<Ndim;idim++){
+                   if ((Type_bc[idim][0] == REFLECT && fabs(nodepos[idim]+0.5*Size_x[idim])<1.e-8) ||
+                       (Type_bc[idim][1] == REFLECT && fabs(nodepos[idim]-0.5*Size_x[idim])<1.e-8)){
+                           reflect_fac*=2.0;
+                   }
+               }
+               prefac/=reflect_fac;
+               prefac2/=reflect_fac;
+
 
                Index_UnkB_Gsum[iwall][Nodes_Surf_Gsum[ipol][iwall]]=unk_B;
                GsumPrefac_XiDerivs[iwall][Nodes_Surf_Gsum[ipol][iwall]]=
@@ -548,7 +573,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
                   kind of analysis may require multiple runs and so output to a file is recommended. */
 
     /* PRINT STATEMENTS FOR PHYSICS DEBUGGING .... CHECK RESIDUALS INDEPENDENTLY  */
-/*    if (fabs(resid_unk[iunk])>1.e-3){*/
+    if (fabs(resid_unk[iunk])>1.e-3){
     switch(Unk2Phys[iunk]){
        case DENSITY:  printf("Proc=%d: loc_inode=%d of %d (Global val=%d) iunk_rho=%d ", Proc,loc_inode,Nnodes_per_proc,L2G_node[loc_inode],iunk); break;
        case HSRHOBAR: printf("Proc=%d: loc_inode=%d iunk_rbar=%d ", Proc,loc_inode,iunk); break;
@@ -564,7 +589,7 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
        case MF_EQ: printf("Proc=%d: loc_inode=%d  iunk_MFeq=%d ",Proc,loc_inode,iunk); break;
     }
     printf(" resid=%11.8f \n",resid_unk[iunk]); 
-/*    }*/
+    }
 
     return;
 }
