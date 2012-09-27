@@ -331,6 +331,25 @@ finalizeProblemValues
   poissonOnDensityMatrix_->fillComplete(densityMap_, poissonMap_);
 
 #if ENABLE_MUELU == 1
+#if LINSOLVE_PREC_DOUBLE_DOUBLE == 1 || LINSOLVE_PREC_QUAD_DOUBLE == 1
+  // Default of SuperLU doesn't compile with double-double or quad-double, so use ILUT instead.
+  if (firstTime_) {
+    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
+    mueluPP  = rcp(new Xpetra::CrsOperator<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(*parameterList_);
+    H_ = mueluFactory.CreateHierarchy();
+    H_->setVerbLevel(Teuchos::VERB_HIGH);
+    H_->GetLevel(0)->Set("A", mueluPP);
+    ParameterList coarseParamList;
+    coarseParamList.set("fact: level-of-fill", 0);
+    RCP<SmootherPrototype> coarsePrototype = rcp( new TrilinosSmoother("ILUT", coarseParamList) );
+    RCP<SmootherFactory> coarseSolverFact = rcp( new SmootherFactory(coarsePrototype, Teuchos::null) );
+    RCP<FactoryManager> fm = rcp( new FactoryManager() );
+    fm->SetFactory("CoarseSolver", coarseSolverFact);
+    H_->Setup(*fm);
+  }
+#else
+  // Okay to use default of SuperLU if not double-double or quad-double
   if (firstTime_) {
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP  = rcp(new Xpetra::CrsOperator<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
@@ -340,6 +359,7 @@ finalizeProblemValues
     H_->GetLevel(0)->Set("A", mueluPP);
     mueluFactory.SetupHierarchy(*H_);
   }
+#endif
 #endif
 
   isLinearProblemSet_ = true;
