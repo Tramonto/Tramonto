@@ -170,7 +170,7 @@ protected:
 #if ENABLE_MUELU == 1
   RCP<MueLu::Hierarchy<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps> > H_;
   RCP<Xpetra::CrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps > > mueluPP_;
-  RCP<Xpetra::Operator<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
+  RCP<Xpetra::Matrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
   FactoryManager M_;
 #endif
 
