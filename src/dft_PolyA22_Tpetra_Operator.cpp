@@ -137,8 +137,15 @@ insertMatrixValue
       densityOnDensityMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
     }
     else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
-      TEUCHOS_TEST_FOR_EXCEPT(densityMap_->getLocalElement(rowGID)!=cmsMap_->getLocalElement(colGID)); // Confirm that this is a diagonal value
-      densityOnCmsMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
+      //      TEUCHOS_TEST_FOR_EXCEPT(densityMap_->getLocalElement(rowGID)!=cmsMap_->getLocalElement(colGID)); // Confirm that this is a diagonal value
+      // The density-on-cms matrix is presumed to be diagonal and stored as a vector.
+      // New functionality in the physics breaks this assumption
+      // If non-diagonal entries are inserted, discard them and warn the user. This will result in an approximate Jacobian
+      if ( densityMap_->getLocalElement(rowGID) == cmsMap_->getLocalElement(colGID) )
+	densityOnCmsMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value); // Storing this density block in a vector since it is diagonal
+      else {
+	if (this->Comm()->getRank()==0) cout << "Warning! Discarding off-diagonal entry inserted into density-on-cms block. Jacobian will be inexact." << std::endl;
+      }
     }
     else {
       char err_msg[200];
