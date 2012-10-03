@@ -226,12 +226,13 @@ int dft_PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(int rowGID, int colGI
     }
     else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
       //TEUCHOS_TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // Confirm that this is a diagonal value
-      if (densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)) {
-        char err_msg[200];
-        sprintf(err_msg,"PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(): Invalid argument -- Inserting non-diagonal element into densityOnCms matrix.");
-        TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
+      // The density-on-cms matrix is presumed to be diagonal and stored as a vector. New functionality in the physics breaks this assumption
+      // If non-diagonal entries are inserted, discard them and warn the user. This will result in an approximate Jacobian
+      if ( densityMap_.LID(rowGID) == cmsMap_.LID(colGID) )
+        (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
+      else {
+       if (this->Comm().MyPID()==0) cout << "Warning! Discarding off-diagonal entry inserted into density-on-cms block. Jacobian will be inexact." << std::endl;
       }
-      (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
     }
     else {
       char err_msg[200];
