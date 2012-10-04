@@ -15,7 +15,7 @@ Input Files for Test problem:
    - lin_50
 
 Key Output Parameters:
-   - niter=5
+   - niter=4
    - adsorption[0]=4.89184
    .
 */
