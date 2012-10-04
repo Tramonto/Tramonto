@@ -142,8 +142,10 @@ int dft_PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(int rowGID, int colGI
   // if poisson then blockColFlag = 0
   // if density then blockColFlag = 1
   // if cms then blockColFlag = 2
-
   /* The poissonMatrix_, poissonOnDensityMatrix_, cmsOnPoissonMatrix_, and cmsOnDensityMatrix_ values do not change between iterations */  
+
+  // Flag to indicate if we've alreay thrown a warning
+  static bool offDiagonalDiscarded = false;
 
   if (poissonMap_.MyGID(rowGID)) { // Insert into poissonOnPoissonMatrix or poissonOnDensityMatrix
     if ( blockColFlag == 0 ) { // Insert into poissonOnPoissonMatrix
@@ -231,7 +233,8 @@ int dft_PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(int rowGID, int colGI
       if ( densityMap_.LID(rowGID) == cmsMap_.LID(colGID) )
         (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
       else {
-       if (this->Comm().MyPID()==0) cout << "Warning! Discarding off-diagonal entry inserted into density-on-cms block. Jacobian will be inexact." << std::endl;
+       if (!offDiagonalDiscarded) cout << "Warning! Off-diagonal entries detected in density-on-cms block. Jacobian will be inexact.  If code fails try turning off Schur solver." << std::endl;
+       offDiagonalDiscarded = true;
       }
     }
     else {

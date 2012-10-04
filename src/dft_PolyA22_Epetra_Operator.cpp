@@ -87,6 +87,9 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
   // if density then blockColFlag = 1
   // if cms then blockColFlag = 2
 
+  // Flag to indicate if we've alreay thrown a warning
+  static bool offDiagonalDiscarded = false;
+
   if (cmsMap_.MyGID(rowGID)) { // Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
     if ( blockColFlag == 2 ) { // Insert into cmsOnCmsMatrix
       if (firstTime_) {
@@ -130,7 +133,8 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
       if ( densityMap_.LID(rowGID) == cmsMap_.LID(colGID) )
         (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
       else {
-       if (this->Comm().MyPID()==0) cout << "Warning! Off-diagonal entries detected in density-on-cms block. Jacobian will be inexact.  If code fails try turning off Schur solver." << std::endl;
+       if (!offDiagonalDiscarded) cout << "Warning! Off-diagonal entries detected in density-on-cms block. Jacobian will be inexact.  If code fails try turning off Schur solver." << std::endl;
+       offDiagonalDiscarded = true;
       }
     }
     else {
