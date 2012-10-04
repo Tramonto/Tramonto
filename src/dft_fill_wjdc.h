@@ -15,6 +15,20 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+extern double ***GsumPrefac_GDerivs;
+extern int ***Index_UnkGQ_Gsum;
+#define NCOMP_MAX 5
+extern int Grafted_SegID[NCOMP_MAX];
+extern int ***Bonds;
+extern int *B2G_node_extra;
+extern double **GsumPrefac_XiDerivs;
+extern int **Index_UnkB_Gsum;
+extern int **Index_SurfNodes_Gsum;
+extern int **Nodes_Surf_Gsum;
+extern int Graft_wall[NCOMP_MAX];
+#define NWALL_MAX 600 
+extern int WallType[NWALL_MAX];
+extern int Nwall;
 extern int Analyt_WJDC_Jac;
 double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond,double **x,int flag);
 extern int **Poly_to_Unk_SegAll;
@@ -22,7 +36,6 @@ double d2y_dxi3_dxi2(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double d2y_dxi3_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CALC_RESID_ONLY  3
-#define NCOMP_MAX 5
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 #define PI    3.141592653589793238462643383279502884197169399375
 extern int **Bonds_SegAll;
@@ -37,6 +50,8 @@ extern int Nlists_HW;
 extern int *Pol_Sym_Seg;
 extern int Nseg_tot;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
+#define NBLOCK_MAX   20 
+extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #define THETA_FN_SIG          5
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;

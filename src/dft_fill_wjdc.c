@@ -308,6 +308,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
   int jzone,jnode_box,jlist,reflect_flag[3],jnode_boxJ;
   int   **sten_offset, *offset, isten;
   int   **sten_offsetJ, *offsetJ;
+  int npol,jbond,iwall,jsurf_node;
   double *sten_weightJ,weightJ;
   double *sten_weight,  weight;
   struct Stencil_Struct *sten;
@@ -330,6 +331,10 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
   stenJ = &(Stencil[THETA_FN_SIG][jzone][icomp]);
   sten_offsetJ = stenJ->Offset;
   sten_weightJ = stenJ->Weight;
+
+  npol = 0;
+  while (Nmer_t[npol][icomp]==0){ npol++; }
+
 
   for (isten = 0; isten < sten->Length; isten++) {
     offset = sten_offset[isten];
@@ -389,7 +394,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
             }
 
         } /* end of bond pair loop */
-    }        /* end of jseg loop */
+    }       /*  end of jseg loop */
 
 
     if (resid_only_flag==FALSE) {
@@ -522,8 +527,9 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                          if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+unk_GQ*Nnodes]+=mat_val;
                          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, unk_GQ,jnode_boxJ,mat_val);
                      }
-                   }
 
+
+                 }
 
             }  /* check that the node has nonzero density */
           }  /* loop over all jseg */
@@ -531,6 +537,38 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
      }  /* end Jacobian fill */
 
   } /* end of loop over stencil !! */
+
+  /* Analytic Matrix entries for grafted chains */
+  if(Analyt_WJDC_Jac!=FALSE && resid_only_flag==FALSE && Grafted_Logical==TRUE && Grafted[npol]!=FALSE){ 
+     for (iwall=0;iwall<Nwall;iwall++){
+          if (WallType[iwall]==Graft_wall[npol]){
+            for (jsurf_node=0;jsurf_node<Nodes_Surf_Gsum[npol][iwall];jsurf_node++){
+                  jnode_box=Index_SurfNodes_Gsum[iwall][jsurf_node];
+
+                  if (Nbonds_SegAll[Grafted_SegIDAll[npol]]>2){
+                         unk_B=Index_UnkB_Gsum[iwall][jsurf_node];
+                         if (Grafted[npol]==GRAFT_DENSITY) mat_val=resid_sum*(GsumPrefac_XiDerivs[iwall][jsurf_node]/(Total_area_graft[npol]*Gsum_graft[npol]));
+                         else                              mat_val=resid_sum*(GsumPrefac_XiDerivs[iwall][jsurf_node]/Gsum_graft[npol]);
+
+                         if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node_extra[jnode_box]+unk_B*Nnodes]+=mat_val;
+                         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,jnode_box,mat_val);
+                   }
+
+                   for (jbond=0;jbond<Nbonds_SegAll[Grafted_SegIDAll[npol]];jbond++){
+                         if (Bonds[npol][Grafted_SegID[npol]][jbond] != -1){
+                           unk_GQ=Index_UnkGQ_Gsum[iwall][jsurf_node][jbond];
+                           if (Grafted[npol]==GRAFT_DENSITY) mat_val=-resid_sum*(GsumPrefac_GDerivs[iwall][jsurf_node][jbond]/(Total_area_graft[npol]*Gsum_graft[npol]));
+                           else                              mat_val=-resid_sum*(GsumPrefac_GDerivs[iwall][jsurf_node][jbond]/Gsum_graft[npol]);
+
+                           if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node_extra[jnode_box]+unk_GQ*Nnodes]+=mat_val;
+                           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,jnode_box,mat_val);
+                         }
+                    }
+                 }
+
+             }
+        }
+  }
 
   return resid_sum;
 }
@@ -564,7 +602,7 @@ double calc_dens_seg(int iseg,int inode_box,double **x,int flag)
 double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond, double **x,int flag)
 {
    int boltz_pow,unk_GQ,ibond,itype_mer,unk_B;
-   double fac1,dens;
+   double fac1,gderiv;
 /* int unk_GQ_test; */
 
    boltz_pow = -(Nbonds_SegAll[iseg]-1);
@@ -582,7 +620,7 @@ double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond, double **x,int fla
               fac1 *= x[unk_GQ][inode_box];
          }
     }
-   dens = fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
-   return(dens);
+   gderiv = fac1*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
+   return(gderiv);
 }
 /********************************************************************************************/

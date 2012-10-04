@@ -130,7 +130,7 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
       if ( densityMap_.LID(rowGID) == cmsMap_.LID(colGID) )
         (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
       else {
-       if (this->Comm().MyPID()==0) cout << "Warning! Discarding off-diagonal entry inserted into density-on-cms block. Jacobian will be inexact." << std::endl;
+       if (this->Comm().MyPID()==0) cout << "Warning! Off-diagonal entries detected in density-on-cms block. Jacobian will be inexact.  If code fails try turning off Schur solver." << std::endl;
       }
     }
     else {
