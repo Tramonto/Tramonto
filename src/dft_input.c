@@ -892,6 +892,9 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
 	 for (i=0; i<Nblock[pol_number]; ++i){
 	     fscanf(fpinput,"%d", &block_type[i]);
 	      fprintf(fpecho,"%d  ",block_type[i]);
+         }
+	 for (i=0; i<Nblock[pol_number]; ++i){
+/*	     fscanf(fpinput,"%d", &block_type[i]);*/
              SegType_per_block[pol_number][i]=block_type[i];
              Nmer_t[pol_number][block_type[i]] += block[pol_number][i];
              Nmer_t_total[block_type[i]] += block[pol_number][i];

@@ -63,7 +63,7 @@ void setup_chain_architecture(char *poly_file,FILE *fpecho)
 /* read in a file that contains chain architecture */
 void setup_chain_from_file(FILE *fpecho, char *poly_file)
 {
-   int pol_number,iseg,seg_id,ibond,graft_point_indicated=FALSE;
+   int pol_number,iseg,seg_id,ibond,graft_point_indicated;
    FILE *fppoly;
 
    if( (fppoly  = fopen(poly_file,"r")) == NULL) {
@@ -73,6 +73,7 @@ void setup_chain_from_file(FILE *fpecho, char *poly_file)
 
    Nbond_max=0; 
    for (pol_number=0; pol_number<Npol_comp; ++pol_number){
+      graft_point_indicated=FALSE;
       for (iseg=0; iseg<Nmer[pol_number]; iseg++){
            fscanf(fppoly,"%d %d",&seg_id, &Nbond[pol_number][iseg]);
            if (Nbond[pol_number][iseg]>Nbond_max) Nbond_max=Nbond[pol_number][iseg];
