@@ -1,0 +1,23 @@
+/*! \file 
+ \brief Mixture of two types of grafted chains on cylindrical walls in a 2D system, One chain is end grafted, the other is not. 
+
+Functionals: WJDC, FMT3
+
+Dimensions: 2
+
+Diffusion: No
+
+Notes: 
+The system has two 10-mer polymers.  One is end grafted to one surface, the other is grafted at the second segment.  The surface densities are Rho_g=0.05 and Rho_g=0.02 respectively.  The surface areas in the computational domain are 8.0 and 4.0 respectively (one is a half cylinder, the other is a quarter cylinder.  However since there are periodic boundaries in y, the surface area of the quarter cylinder in the domain is doubled.  The adsorptions of the nontethered segments in the domain should be 0.05*8*9=3.6 and 0.02*8*9=1.44.  These are very close to the reported results below. 
+
+Input Files for Test problem:
+   - dft_input.dat
+   - dft_surfaces.dat
+   - lin_10_10
+
+Key Output Parameters:
+   - niter=8
+   - adsorption[1]=3.6
+   - adsorption[2]=1.40483
+   .
+*/
