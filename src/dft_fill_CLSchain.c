@@ -141,6 +141,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                    if (Type_poly==CMS_SCFT) fac2 /=Gsum[npol];
                }
                else                     fac2=1.0;
+/*	    if (loc_inode==44 && iunk==1 && unk_GQ==27) printf("prefactor starts as fac2=%g\n",fac2); */
 
                for (jbond=0; jbond<Nbonds_SegAll[iseg]; jbond++) {
                   if (jbond != ibond){
@@ -148,11 +149,14 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                      unk_GQ_j_test=unk_GQ_j-Phys2Unk_first[func_type];
                      if (Pol_Sym[unk_GQ_j_test] != -1) unk_GQ_j=Pol_Sym[unk_GQ_j_test] + Phys2Unk_first[func_type];
                      fac2 *= x[unk_GQ_j][inode_box];
+/*	    if (loc_inode==44 && iunk==1 && unk_GQ==27) printf("multiply prefactor by %g at unk_GQj=%d to get fac2=%g\n",x[unk_GQ_j][inode_box],unk_GQ_j,fac2); */
                    }
                }
                if (-boltz_pow > 0) mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
                else mat_val=-fac2;
                if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+unk_GQ*Nnodes]+=mat_val;
+/*	    if (loc_inode==44 && iunk==1 && unk_GQ==27) printf("5.  inserting mat_val=%g (boltz_pow=%d  fac2=%g unk_B_term=%g) into matrix at node=%d for unk=%d\n", 
+                                              mat_val,boltz_pow,fac2,POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow),inode_box,unk_GQ);*/
                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
              }
         } /* end loop over ibond */			

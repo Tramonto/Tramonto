@@ -162,7 +162,7 @@ int newton_solver(double** x, void* con_ptr) {
     else         Time_manager_av+=(MPI_Wtime()-start_t);
 
 /*#ifdef NUMERICAL_JACOBIAN*/
-   /*if (Iwrite_files==FILES_DEBUG_MATRIX) do_numerical_jacobian(x);*/
+   if (Iwrite_files==FILES_DEBUG_MATRIX)   do_numerical_jacobian(x);
 /*#endif*/
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);
@@ -475,7 +475,9 @@ void do_numerical_jacobian(double **x)
   sprintf(filename, "jn%0d",Proc);
   ifp = fopen(strcat(tmp_str_array,filename),"w");
 
+/*  strcpy(tmp_str_array,Outpath_array);*/
   sprintf(filename, "ja%0d",Proc);
+  /*strcat(tmp_str_array,filename);*/
   lines_jafile=find_length_of_file(filename);
 
   strcpy(tmp_str_array,Outpath_array);
@@ -484,7 +486,7 @@ void do_numerical_jacobian(double **x)
 
   strcpy(tmp_str_array,Outpath_array);
   sprintf(filename, "ja%0d",Proc);
-  ifp2 = fopen(strcat(tmp_str_array,filename),"w");
+  ifp2 = fopen(strcat(tmp_str_array,filename),"r");
 
   for (i=0;i<2;i++) while ((c=getc(ifp2)) != EOF && c !='\n'); /* skip first two lines of ja0 */
 
@@ -495,8 +497,8 @@ void do_numerical_jacobian(double **x)
       diff=fabs((full[i][j]-coef_ij));
       error=100.0*fabs((full[i][j]-coef_ij)/full[i][j]);
       if (diff > 1.e-6 && error>1. && x[j/Nnodes][j-Nnodes*(int)(j/Nnodes)] >1.e-10){ 
-          fprintf(ifp3,"%d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g \n",
-                  i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
+          fprintf(ifp3,"%d  (inode=%d iunk=%d) |  %d (jnode=%d junk=%d) | analyt_ij=%g | numer_ij=%g | diff=%g | error=%g \n",
+                  i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,coef_ij,full[i][j],diff,error);
           count_diff++;
       }
       else count_same++;
@@ -514,7 +516,7 @@ void do_numerical_jacobian(double **x)
              diff=fabs((full[i][j]));
              error=100.;
              if (diff > 1.e-6 && error>1. && x[junk][jnode]>1.e-10){ 
-               fprintf(ifp3,"NONZERO_NUM_ONLY %d  (node=%d iunk=%d) |  %d (node=%d iunk=%d) | diff=%g | error=%g \n",
+               fprintf(ifp3,"NONZERO_NUM_ONLY %d  (inode=%d iunk=%d) |  %d (jnode=%d junk=%d) | diff=%g | error=%g \n",
                i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,diff,error);
                count_diff++;
              }

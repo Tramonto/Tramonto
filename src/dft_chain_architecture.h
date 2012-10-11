@@ -65,13 +65,13 @@ extern int Grafted[NCOMP_MAX];
 extern int Type_poly;
 #define FILES_DEBUG        2
 extern int Iwrite_files;
-extern int Nbond_max;
-#define SCREEN_NONE       -1 
-extern int Iwrite_screen;
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
+extern int Nbond_max;
+#define SCREEN_NONE       -1 
+extern int Iwrite_screen;
 void setup_chain_linear_symmetric(FILE *fpecho);
 #define LIN_POLY_SYM 2
 void setup_chain_linear(FILE *fpecho);

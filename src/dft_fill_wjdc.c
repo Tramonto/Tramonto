@@ -308,18 +308,18 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
   int jzone,jnode_box,jlist,reflect_flag[3],jnode_boxJ;
   int   **sten_offset, *offset, isten;
   int   **sten_offsetJ, *offsetJ;
-  int npol,jbond,iwall,jsurf_node;
+  int npol,jbond,iwall,jsurf_node,jpol;
   double *sten_weightJ,weightJ;
   double *sten_weight,  weight;
   struct Stencil_Struct *sten;
   struct Stencil_Struct *stenJ;
-  double resid,mat_val,resid_sum,first_deriv,first_deriv_sum,dens,dens_Gderiv;
+  double resid,mat_val,resid_sum,first_deriv,first_deriv_sum,dens,dens_Gderiv,resid_sum_tethered;
 
 /* int iseg;
    if (Type_poly==WJDC) iseg = iunk-Phys2Unk_first[WJDC_FIELD];
   else                 iseg = iunk - Phys2Unk_first[DENSITY];*/
 
-  resid_sum=resid=0.0;
+  resid_sum=resid=resid_sum_tethered=0.0;
   unk_xi2 = Phys2Unk_first[CAVWTC];
   unk_xi3 = Phys2Unk_first[CAVWTC]+1;
   jzone=izone;
@@ -350,6 +350,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
     }
 
 
+
     resid=0.0;
     for (jseg=0;jseg<Nseg_tot;jseg++){
       
@@ -376,8 +377,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
        else                                                     dens=0.0;
 
        for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
-            kseg = Bonds_SegAll[jseg][kbond];
-            if (Bonds_SegAll[jseg][kbond] !=-1){	/* ALF: need to fix? */
+            if (Bonds_SegAll[jseg][kbond] !=-1){	
+               kseg = Bonds_SegAll[jseg][kbond];
                kcomp=Unk2Comp[kseg];
                s2=Sigma_ff[kcomp][kcomp];
 /*               s2=Bond_ff[kcomp][kcomp];*/
@@ -391,6 +392,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                resid = -0.5*Fac_overlap[jcomp][kcomp]*weight*dens*(1./y)*(prefac2*dy_dxi2 + prefac3*dy_dxi3);
                if (resid_only_flag !=INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
                resid_sum += resid;
+               if (Grafted[SegAll_to_Poly[jseg]]==TRUE) resid_sum_tethered+=resid; 
             }
 
         } /* end of bond pair loop */
@@ -437,8 +439,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                 dens = calc_dens_seg(jseg,jnode_boxJ,x,FALSE);
                 first_deriv_sum=0.0;
                 for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
-                  kseg = Bonds_SegAll[jseg][kbond];
                   if (Bonds_SegAll[jseg][kbond] != -1){
+                  kseg = Bonds_SegAll[jseg][kbond];
                   kcomp=Unk2Comp[kseg];
                   s2=Sigma_ff[kcomp][kcomp];
 /*                  s2=Bond_ff[kcomp][kcomp];*/
@@ -463,8 +465,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                 for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
                   unk_GQ  = Phys2Unk_first[G_CHAIN] + Poly_to_Unk_SegAll[jseg][kbond];
                   dens_Gderiv=calc_dens_seg_Gderiv(jseg,jnode_boxJ,kbond,x,FALSE);
-                  kseg = Bonds_SegAll[jseg][kbond];
                   if (Bonds_SegAll[jseg][kbond] != -1){
+                  kseg = Bonds_SegAll[jseg][kbond];
                   kcomp=Unk2Comp[kseg];
                   s2=Sigma_ff[kcomp][kcomp];
 /*                     s2=Bond_ff[kcomp][kcomp];*/
@@ -529,7 +531,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                      }
 
 
-                 }
+                 } /* end of analytical Jacobian section */
 
             }  /* check that the node has nonzero density */
           }  /* loop over all jseg */
@@ -539,16 +541,17 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
   } /* end of loop over stencil !! */
 
   /* Analytic Matrix entries for grafted chains */
-  if(Analyt_WJDC_Jac!=FALSE && resid_only_flag==FALSE && Grafted_Logical==TRUE && Grafted[npol]!=FALSE){ 
+  if(Analyt_WJDC_Jac!=FALSE && resid_only_flag==FALSE && Grafted_Logical==TRUE){ 
      for (iwall=0;iwall<Nwall;iwall++){
+        for (npol=0;npol<Npol_comp;npol++){
           if (WallType[iwall]==Graft_wall[npol]){
             for (jsurf_node=0;jsurf_node<Nodes_Surf_Gsum[npol][iwall];jsurf_node++){
                   jnode_box=Index_SurfNodes_Gsum[iwall][jsurf_node];
 
                   if (Nbonds_SegAll[Grafted_SegIDAll[npol]]>2){
                          unk_B=Index_UnkB_Gsum[iwall][jsurf_node];
-                         if (Grafted[npol]==GRAFT_DENSITY) mat_val=resid_sum*(GsumPrefac_XiDerivs[iwall][jsurf_node]/(Total_area_graft[npol]*Gsum_graft[npol]));
-                         else                              mat_val=resid_sum*(GsumPrefac_XiDerivs[iwall][jsurf_node]/Gsum_graft[npol]);
+                         if (Grafted[npol]==GRAFT_DENSITY) mat_val=resid_sum_tethered*(GsumPrefac_XiDerivs[iwall][jsurf_node]/(Total_area_graft[npol]*Gsum_graft[npol]));
+                         else                              mat_val=resid_sum_tethered*(GsumPrefac_XiDerivs[iwall][jsurf_node]/Gsum_graft[npol]);
 
                          if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node_extra[jnode_box]+unk_B*Nnodes]+=mat_val;
                          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_B,jnode_box,mat_val);
@@ -557,8 +560,8 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                    for (jbond=0;jbond<Nbonds_SegAll[Grafted_SegIDAll[npol]];jbond++){
                          if (Bonds[npol][Grafted_SegID[npol]][jbond] != -1){
                            unk_GQ=Index_UnkGQ_Gsum[iwall][jsurf_node][jbond];
-                           if (Grafted[npol]==GRAFT_DENSITY) mat_val=-resid_sum*(GsumPrefac_GDerivs[iwall][jsurf_node][jbond]/(Total_area_graft[npol]*Gsum_graft[npol]));
-                           else                              mat_val=-resid_sum*(GsumPrefac_GDerivs[iwall][jsurf_node][jbond]/Gsum_graft[npol]);
+                           if (Grafted[npol]==GRAFT_DENSITY) mat_val=-resid_sum_tethered*(GsumPrefac_GDerivs[iwall][jsurf_node][jbond]/(Total_area_graft[npol]*Gsum_graft[npol]));
+                           else                              mat_val=-resid_sum_tethered*(GsumPrefac_GDerivs[iwall][jsurf_node][jbond]/Gsum_graft[npol]);
 
                            if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node_extra[jnode_box]+unk_GQ*Nnodes]+=mat_val;
                            dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,jnode_box,mat_val);
@@ -567,6 +570,7 @@ double load_polyWJDC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int
                  }
 
              }
+          }
         }
   }
 
