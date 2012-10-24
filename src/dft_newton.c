@@ -496,7 +496,7 @@ void do_numerical_jacobian(double **x)
       count_nonzeros_a[i][j]=TRUE; /* record all nonzero analytical jacobian entries */
       diff=fabs((full[i][j]-coef_ij));
       error=100.0*fabs((full[i][j]-coef_ij)/full[i][j]);
-      if (diff > 1.e-6 && error>1. && x[j/Nnodes][j-Nnodes*(int)(j/Nnodes)] >1.e-10){ 
+      if (diff > 1.e-5 && error>5. && x[j/Nnodes][j-Nnodes*(int)(j/Nnodes)] >1.e-10){ 
           fprintf(ifp3,"%d  (inode=%d iunk=%d) |  %d (jnode=%d junk=%d) | analyt_ij=%g | numer_ij=%g | diff=%g | error=%g \n",
                   i,i-Nnodes*(int)(i/Nnodes),i/Nnodes,j,j-Nnodes*(int)(j/Nnodes),j/Nnodes,coef_ij,full[i][j],diff,error);
           count_diff++;

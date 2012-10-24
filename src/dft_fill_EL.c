@@ -189,8 +189,11 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                                   izone,ijk_box,x,resid_only_flag);
    }
 
+/*if (loc_inode==30 && iunk==10) printf("resid after cavity term=%g\n",resid);*/
+
    if (resid_only_flag==INIT_GUESS_FLAG) return(exp(-resid));
    else                                  return(resid);
+
 }
 
 /******************************************************************************************/

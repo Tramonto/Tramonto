@@ -23,6 +23,13 @@ extern double **Array_test;
 #define FILES_DEBUG_MATRIX 3 
 extern int Iwrite_files;
 extern int **Zero_density_TF;
+#define FALSE 0
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(FALSE) && !defined(_CON_CONST_H_)
+#define FALSE 0
+#endif
 extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
@@ -66,12 +73,9 @@ extern int Iwrite_screen;
 #define FLAG_PBELEC -777
 #define FLAG_BULK   -888
 int find_jzone(int izone,int inode_box);
-#define FALSE 0
-#if !defined(_CON_CONST_H_)
-#define _CON_CONST_H_
-#endif
-#if !defined(FALSE) && !defined(_CON_CONST_H_)
-#define FALSE 0
+#define TRUE  1
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
 #endif
 extern int Ndim;
 #define NDIM_MAX  3
