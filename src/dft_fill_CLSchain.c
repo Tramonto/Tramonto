@@ -153,7 +153,6 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
                if (-boltz_pow > 0) mat_val = -fac2*POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow);
                else mat_val=-fac2;
                if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+unk_GQ*Nnodes]+=mat_val;
-                                              mat_val,boltz_pow,fac2,POW_DOUBLE_INT(x[unk_B][inode_box],boltz_pow),inode_box,unk_GQ);*/
                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_GQ,inode_box,mat_val);
              }
         } /* end loop over ibond */			

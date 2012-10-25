@@ -28,7 +28,6 @@ extern int **Nodes_Surf_Gsum;
 extern int Graft_wall[NCOMP_MAX];
 #define NWALL_MAX 600 
 extern int WallType[NWALL_MAX];
-extern int Npol_comp;
 extern int Nwall;
 extern int Analyt_WJDC_Jac;
 double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond,double **x,int flag);
@@ -56,6 +55,7 @@ extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 #define THETA_FN_SIG          5
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
+extern int Npol_comp;
 struct Stencil_Struct {
   int        Length;      /* Number of nodes that interact with current 
                              node through this stencil                    */
