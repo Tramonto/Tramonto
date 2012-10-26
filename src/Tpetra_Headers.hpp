@@ -47,7 +47,9 @@
 #include "BelosBlockGmresSolMgr.hpp"
 #include "Ifpack2_Factory.hpp"
 #include "Ifpack2_Preconditioner.hpp"
+#if ENABLE_MUELU == 1
 #include <MueLu.hpp>
+#include <MueLu_Level.hpp>
 #include <MueLu_TrilinosSmoother.hpp>
 #include "MueLu_Hierarchy.hpp"
 #include <MueLu_RAPFactory.hpp>
@@ -57,6 +59,7 @@
 #include <MueLu_MLParameterListInterpreter.hpp>
 #include <MueLu_UseDefaultTypes.hpp>
 #include <MueLu_UseShortNames.hpp>
+#endif
 #include "Kokkos_DefaultNode.hpp"
 #include <map>
 

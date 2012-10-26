@@ -118,12 +118,12 @@ namespace Tpetra {
       // Convergence tolerance
 #if MIXED_PREC == 1
       outputList_.template set<Scalar>( "Convergence Tolerance",
-      					std::max( 2*std::sqrt(Teuchos::as<halfScalar>(inputList_->template get<double>("Tol"))),
-						  10*Teuchos::ScalarTraits<halfScalar>::eps() ) );
+      					std::max( Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")),
+						  5*Teuchos::ScalarTraits<halfScalar>::eps() ) );
 #elif MIXED_PREC == 0
       outputList_.template set<Scalar>( "Convergence Tolerance",
 					std::max( Teuchos::as<Scalar>(inputList_->template get<double>("Tol")),
-						  10*Teuchos::ScalarTraits<Scalar>::eps() ) );
+						  5*Teuchos::ScalarTraits<Scalar>::eps() ) );
 #endif
 
       // Output
