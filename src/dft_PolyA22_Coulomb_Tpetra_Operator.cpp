@@ -423,6 +423,7 @@ applyInverse
   size_t numCmsElements = cmsMap_->getNodeNumElements();
   size_t numDensityElements = densityMap_->getNodeNumElements(); // == numCmsElements
   size_t numPoissonElements = poissonMap_->getNodeNumElements();
+  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
 
   RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
   // X0 is a view of the first numPoisson elements of X
@@ -434,6 +435,14 @@ applyInverse
   RCP<MV> Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements);
   // Y1 is a view of the middle numDensity/numCms elements of Y
   RCP<MV> Y2;
+
+#if MIXED_PREC == 1
+  // Demote Y0 and X0 to halfScalar precision
+  RCP<MV_H> Y0half = rcp(new MV_H(poissonMap_, Y0->getNumVectors()));
+  RCP<MV_H> X0half = rcp(new MV_H(poissonMap_, X0->getNumVectors()));
+  mvConverter->scalarToHalf( *Y0, *Y0half );
+  mvConverter->scalarToHalf( *X0, *X0half );
+#endif
 
   if (F_location_ == 1)  //F in NE part
   {
@@ -470,9 +479,22 @@ applyInverse
     poissonOnDensityMatrixOp_->apply(*Y2, *Y0tmp);
     Y0tmp->update(1.0, *X0, -1.0);
 #if ENABLE_MUELU == 1
+#if MIXED_PREC == 1
+    // Demote Y0 and Y0tmp to halfScalar precision
+    RCP<MV_H> Y0tmphalf = rcp(new MV_H(*Y0half));
+    mvConverter->scalarToHalf( *Y0, *Y0half );
+    mvConverter->scalarToHalf( *Y0tmp, *Y0tmphalf );
+    mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0half));
+    mueluB = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmphalf));
+    H_->Iterate(*mueluB, nIts, *mueluX);
+    // Promote Y0half to Scalar precision
+    mvConverter->halfToScalar( *Y0half, *Y0 );
+#else
     mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
     mueluB = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
     H_->Iterate(*mueluB, nIts, *mueluX);
+#endif
+
 #endif
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y1tmp1);
@@ -483,7 +505,6 @@ applyInverse
     VEC cmsOnCmsDiagScalar(cmsMap_);
     cmsOnCmsMatrix_->getLocalDiagCopy(cmsOnCmsDiag);
 #if MIXED_PREC == 1
-    RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
     // Promote cmsOnCmsDiag to Scalar precision
     mvConverter->halfToScalar( cmsOnCmsDiag, cmsOnCmsDiagScalar );
 
@@ -503,9 +524,22 @@ applyInverse
     poissonOnDensityMatrixOp_->apply(*Y1, *Y0tmp);
     Y0tmp->update( 1.0, *X0, -1.0 );
 #if ENABLE_MUELU == 1
+#if MIXED_PREC == 1
+    // Demote Y0 and Y0tmp to halfScalar precision
+    RCP<MV_H> Y0tmphalf = rcp(new MV_H(*Y0half));
+    mvConverter->scalarToHalf( *Y0, *Y0half );
+    mvConverter->scalarToHalf( *Y0tmp, *Y0tmphalf );
+    mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0half));
+    mueluB = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmphalf));
+    H_->Iterate(*mueluB, nIts, *mueluX);
+    // Promote Y0half to Scalar precision
+    mvConverter->halfToScalar( *Y0half, *Y0 );
+#else
     mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
     mueluB = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
     H_->Iterate(*mueluB, nIts, *mueluX);
+#endif
+
 #endif
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y2tmp1);
@@ -516,7 +550,6 @@ applyInverse
     VEC cmsOnCmsDiagScalar(cmsMap_);
     cmsOnCmsMatrix_->getLocalDiagCopy(cmsOnCmsDiag);
 #if MIXED_PREC == 1
-    RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
     // Promote cmsOnCmsDiag to Scalar precision
     mvConverter->halfToScalar( cmsOnCmsDiag, cmsOnCmsDiagScalar );
 
