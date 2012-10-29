@@ -343,8 +343,15 @@ finalizeProblemValues
   if (firstTime_) {
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP  = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    mueluList_.set( "ML output", 0 );
+    mueluList_.set( "smoother: sweeps",  2 );
+    mueluList_.set( "smoother: type", "Chebyshev" );
+    mueluList_.set( "coarse: sweeps",  6 );
+    mueluList_.set( "coarse: type",  "Chebyshev" );
 
-    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(*parameterList_);
+    // We want to pass in *parameterList_ here instead but that generates Muelu errors
+    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
+
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_HIGH);
     H_->GetLevel(0)->Set("A", mueluPP);
@@ -361,8 +368,15 @@ finalizeProblemValues
   if (firstTime_) {
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    mueluList_.set( "ML output", 0 );
+    mueluList_.set( "smoother: sweeps",  2 );
+    mueluList_.set( "smoother: type", "Chebyshev" );
+    mueluList_.set( "coarse: sweeps",  6 );
+    mueluList_.set( "coarse: type",  "Chebyshev" );
 
-    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(*parameterList_);
+    // We want to pass in *parameterList_ here instead but that generates Muelu errors
+    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
+
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_HIGH);
     H_->GetLevel(0)->Set("A", mueluPP);

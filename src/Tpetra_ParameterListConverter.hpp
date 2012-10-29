@@ -84,7 +84,7 @@ namespace Tpetra {
       //
       // Level of fill
       outputList_.template set<Scalar>( "fact: ilut level-of-fill",
-					1.0 );
+      					1.0 );
       //					inputList_->template get<double>("Ilut_fill") );
       // Absolute threshold
       outputList_.template set<Scalar>( "fact: absolute threshold",
@@ -133,6 +133,9 @@ namespace Tpetra {
 
       //
       // Muelu Parameters
+      //
+      // Note: These have no effect right now because a separate parameter list is passed to Muelu in
+      // dft_PolyA22_Coulomb_Tpetra_Operator.cpp
       //
       // ML output
       outputList_.set( "ML output", 0 );
