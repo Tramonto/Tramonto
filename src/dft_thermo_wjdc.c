@@ -180,7 +180,7 @@ void compute_bulk_nonlocal_wjdc_properties(char *file_echoinput,double *dphi_drh
 /*chempot_chain_wjdc- Here compute "Chain" chemical potentials for use with WJDC functionals.  */
 void chempot_chain_wjdc(double *rho,double *betamu_chain,double *field_WJDC, double *g_WJDC)
 {
-   int iseg,ibond,unk_G,pol_num,printproc,icomp;
+   int iseg,ibond,unk_G,pol_num=0,printproc,icomp;
    double mu_chain,gproduct;
 
    if (Proc==0 && Iwrite==VERBOSE) printproc = TRUE;

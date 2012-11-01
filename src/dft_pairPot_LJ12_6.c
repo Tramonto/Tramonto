@@ -187,7 +187,6 @@ double uLJ12_6_ATT_noCS(double r,int i, int j)
      case ATTCORE_UCSZERO:    r_min=Rzero_ff[i][j]; break;
   }
 
-  r_min = Sigma_ff[i][j] * pow(2.0,1.0/6.0);
   if ((r < r_min && Type_CoreATT_CONST==CORECONST_ZERO) ||
      (r<Sigma_ff[i][j] && Type_CoreATT_R==ATTCORE_SIGTOUMIN))  uatt=0.0;
   else{

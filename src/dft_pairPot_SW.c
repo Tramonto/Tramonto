@@ -136,9 +136,8 @@ double uSW_ATT_noCS(double r,int i, int j)
 
 double uSW_Integral(double r,int i, int j)
 {
-	double uatt_int,eps;
-	
-	eps=Eps_ff[i][j];	
+	double uatt_int;
+
 	uatt_int = -(4.0/3.0)*PI*Eps_ff[i][j]*pow(r,3);
 	
 	return uatt_int;

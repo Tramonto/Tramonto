@@ -159,7 +159,7 @@ double resid_and_Jac_sten_fill_sum_Ncomp (int sten_type, double **x, int iunk,
                          (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                    }
                    mat_val = weightJ*fac*(*fp_jacobian)(junk,jnode_box,x);
-                   if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+junk*Nnodes]+=mat_val;
+                   if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[jnode_boxJ]+Solver_Unk[junk]*Nnodes]+=mat_val;
                    dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
             }
          }
@@ -233,7 +233,7 @@ double resid_and_Jac_sten_fill (int sten_type, double **x, int iunk, int junk,
                      (jcomp,jlist,stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                }
                mat_val = weightJ*fac*(*fp_jacobian)(junk,jnode_box,x);
-               if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+junk*Nnodes]+=mat_val;
+               if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[jnode_boxJ]+Solver_Unk[junk]*Nnodes]+=mat_val;
                dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,jnode_boxJ,mat_val);
         }
      }

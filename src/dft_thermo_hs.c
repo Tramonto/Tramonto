@@ -192,7 +192,7 @@ chempot_PY_hs:  This routine calculates the excess chemical potential for
 void chempot_PY_hs(double *rho)
 {
    int icomp;
-   double pi6, hs_diam_cubed, xsi0, xsi1, xsi2, xsi3, y1, y2, y3;
+   double pi6, hs_diam_cubed, xsi0, xsi1, xsi2, xsi3, y1, y2;
 
    xsi0=xsi1=xsi2=xsi3=0.0;
    pi6 = PI/6.0;                 /* shorthand  for pi/6                 */
@@ -208,7 +208,6 @@ void chempot_PY_hs(double *rho)
    }
    y1 = 1.0 - xsi3;
    y2 = y1 * y1;
-   y3 = y1 * y1 * y1;
 
    /* the excess hard sphere chemical potential in units of kT */
 
@@ -377,7 +376,7 @@ double dmu_drho_hs_PY(double *rho)
 {
    int icomp;
    double hs_diam_cubed,pi6;
-   double xsi0,xsi1,xsi2,xsi3,y1,y2,y3,dy1_drho,dy2_drho,dy3_drho;
+   double xsi0,xsi1,xsi2,xsi3,y1,y2,dy1_drho,dy2_drho;
    double dmu_drho;
 
    xsi0 = xsi1 = xsi2 = xsi3 = 0.0;
@@ -396,11 +395,9 @@ double dmu_drho_hs_PY(double *rho)
    }
    y1 = 1.0 - xsi3;
    y2 = y1 * y1;
-   y3 = y1 * y1 * y1;
 
    dy1_drho = xsi3/rho[0];
    dy2_drho = 2*y1*dy1_drho;
-   dy3_drho = 3*y1*y1*dy1_drho;
 
    dmu_drho = - dy1_drho/y1 + 
         pi6 * dp_drho_hs_PY(rho) * POW_DOUBLE_INT(Sigma_ff[0][0],3) +

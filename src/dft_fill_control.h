@@ -32,6 +32,13 @@ void *array_alloc(int numdim,...);
 #define NONE        -1
 #define NONE        -1
 extern int Type_func;
+#define TRUE  1
+#if !defined(_CON_CONST_H_)
+#define _CON_CONST_H_
+#endif
+#if !defined(TRUE) && !defined(_CON_CONST_H_)
+#define TRUE  1
+#endif
 #define NDIM_MAX  3
 struct RB_Struct {
   double    S0;      /*   1/(4*pi*Ri*Ri) * Delta_fn   */

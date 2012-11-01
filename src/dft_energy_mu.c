@@ -31,7 +31,7 @@
 double integrand_mu_freen(int iunk,int inode_box, double **x)
 {
      double integrand,rho_i,mu_i;
-     int icomp,i,unk_mu;
+     int i,unk_mu;
 
      i = iunk-Phys2Unk_first[DENSITY];
 
@@ -41,7 +41,6 @@ double integrand_mu_freen(int iunk,int inode_box, double **x)
      }
      else {
         if (Lseg_densities){
-               icomp = Unk2Comp[i];
                mu_i = Betamu_seg[i];
                /*if (Type_coul != NONE) mu_i -= log(Rho_seg_b[i]);*/ /* this bit is only for Reiner-Radke approach */
         }
@@ -63,7 +62,7 @@ double integrand_mu_freen(int iunk,int inode_box, double **x)
 double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
 {
      double integrand,rho_i,mu_i;
-     int icomp,i;
+     int i;
 
      i = iunk-Phys2Unk_first[DENSITY];
 
@@ -73,7 +72,6 @@ double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
 
      if (Type_interface==DIFFUSIVE_INTERFACE){
         if (Lseg_densities){
-               icomp = Unk2Comp[i];
                /*mu_i = Betamu_seg_RTF[i];*/ /* note we need to fix up WTC for diffusion */
                mu_i = Betamu_RTF[i];
                /*if (Type_coul != NONE) mu_i -= log(Rho_seg_RTF[i]);*/  /* this bit is for Reiner-Radke approach */
@@ -86,7 +84,6 @@ double integrand_mu_freen_bulk(int iunk,int inode_box, double **x)
      }
      else {
         if (Type_poly==WTC){
-               icomp = Unk2Comp[i];
                mu_i = Betamu_seg[i];
               /* if (Type_coul != NONE) mu_i -= log(Rho_seg_b[i]);*/ /* this bit is for Reiner-Radke approach */
                rho_i = Rho_seg_b[i];

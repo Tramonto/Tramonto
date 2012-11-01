@@ -36,7 +36,6 @@ extern double Size_x[NDIM_MAX];
 extern double **Charge_x;
 extern int Nlocal_charge;
 extern int Nwall;
-extern int L_HSperturbation;
 void print_gofr(char *GofR_Filename,double *xold);
 void print_profile_vtk(char *Density_FileName,double *xold);
 void print_profile_box_vtk(double **x,char *outfile);

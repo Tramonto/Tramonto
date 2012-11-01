@@ -36,6 +36,10 @@
 /*******************************************************************************/
 void linsolver_setup_control()
 {
+   int iunk;
+   for (iunk=0;iunk<Nunk_per_node;iunk++){
+      Solver_Unk[iunk]=iunk;  /* set default - this needs to be adjusted to actual solver ordering in routines below - only WJDC implemented at this time */
+   }
    if (L_Schur && Type_poly == CMS)    linsolver_setup_CMSTYPE();
    else if (L_Schur && (Type_poly == WJDC || Type_poly==WJDC3))   linsolver_setup_WJDCTYPE();
    else if (L_Schur && Type_func != NONE) linsolver_setup_HSTYPE();
@@ -238,12 +242,11 @@ void linsolver_setup_HSTYPE()
 /*******************************************************************************/
 void linsolver_setup_WJDCTYPE()
 {
-  int iunk,i;
+  int iunk,i,icount;
   double **xOwned;
-  int *geq, *gonlyeq, *wjdceq, *densityeq,first_time;
+  int *geq, *gonlyeq, *wjdceq, *densityeq;
   int count_density,count_wjdc_field,count_geqn,count_geqn_save;
   int count_indnonlocal,count_depnonlocal;
-  int one_particle_size;
   int count_poisson;
   int *poissoneq;
 
@@ -260,26 +263,27 @@ void linsolver_setup_WJDCTYPE()
   count_density=count_wjdc_field=count_geqn=0;
   count_indnonlocal=count_depnonlocal=0;
   count_poisson = 0;
-  first_time=TRUE;
-
-  one_particle_size=FALSE;
-  if ((Lhard_surf && Nlists_HW == 2) || (!Lhard_surf && Nlists_HW == 1)) one_particle_size=TRUE;
 
   for (iunk=0;iunk<Nunk_per_node;iunk++){
      switch(Unk2Phys[iunk]){
      case DENSITY:
+       Solver_Unk[iunk]=count_density;
        densityeq[count_density++]=iunk; 
        break; 
      case HSRHOBAR:
+       Solver_Unk[iunk]=Nunk_per_node-(Phys2Nunk[HSRHOBAR]-count_geqn);
          geq[count_geqn++]=iunk;
        break;
      case MF_EQ:
+         Solver_Unk[iunk]=Nunk_per_node-(Phys2Nunk[MF_EQ]+Phys2Nunk[HSRHOBAR]-(iunk-Phys2Unk_first[MF_EQ]));
          geq[count_geqn++]=iunk;
        break;
      case CAVWTC:
+         Solver_Unk[iunk]=Nunk_per_node-(Phys2Nunk[MF_EQ]+Phys2Nunk[HSRHOBAR]+Phys2Nunk[CAVWTC]-(iunk-Phys2Unk_first[CAVWTC]));
          geq[count_geqn++]=iunk;
          break;
      case WJDC_FIELD:                  
+       Solver_Unk[iunk]=Phys2Nunk[DENSITY]+count_wjdc_field;
        wjdceq[count_wjdc_field++]=iunk; 
          break; 
      case G_CHAIN:                  
@@ -287,6 +291,7 @@ void linsolver_setup_WJDCTYPE()
        break;
      case DIFFUSION:
      case POISSON:
+       Solver_Unk[iunk]=Phys2Nunk[DENSITY]+count_wjdc_field;
        poissoneq[count_poisson++]=iunk; 
        break; 
      default:
@@ -298,7 +303,16 @@ void linsolver_setup_WJDCTYPE()
 
    count_geqn_save=count_geqn;
    count_geqn+=discover_G_ordering_LT(gonlyeq);
-   for (i=count_geqn_save;i<count_geqn;i++) geq[i]=gonlyeq[i-count_geqn_save];
+   icount=1;
+   for (i=count_geqn_save;i<count_geqn;i++){
+        geq[i]=gonlyeq[i-count_geqn_save];
+        Solver_Unk[geq[i]]=Nunk_per_node-(Phys2Nunk[MF_EQ]+Phys2Nunk[HSRHOBAR]+Phys2Nunk[CAVWTC])-icount;
+        icount++;
+   }
+/*   for (iunk=0;iunk<Nunk_per_node;iunk++){
+     printf("iunk=%d  Solver_Unk=%d\n",iunk,Solver_Unk[iunk]);
+   }*/
+
 
    LinProbMgr_manager = dft_poly_lin_prob_mgr_create(Nunk_per_node, ParameterList_list, MPI_COMM_WORLD);
 
@@ -327,7 +341,6 @@ void linsolver_setup_WJDCTYPE_LINEARONLY()
   int *geq, *ginveq, *geq_sym, *wjdceq, *densityeq, *indnonlocaleq, *depnonlocaleq,ginv_eq_start,first_time;
   int count_density,count_wjdc_field,count_geqn,count_ginv_eqn,count_g_sym,count_ginv_eqn_old;
   int count_indnonlocal,count_depnonlocal,index_save;
-  int one_particle_size;
   int count_poisson;
   int *poissoneq;
 
@@ -345,9 +358,6 @@ void linsolver_setup_WJDCTYPE_LINEARONLY()
   count_indnonlocal=count_depnonlocal=0;
   count_poisson = 0;
   first_time=TRUE;
-
-  one_particle_size=FALSE;
-  if ((Lhard_surf && Nlists_HW == 2) || (!Lhard_surf && Nlists_HW == 1)) one_particle_size=TRUE;
 
   for (iunk=0;iunk<Nunk_per_node;iunk++){
      switch(Unk2Phys[iunk]){

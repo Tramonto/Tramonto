@@ -41,8 +41,9 @@ double fill_resid_and_matrix_control (double **x, int iter, int resid_only_flag)
    int i,iter_tmp;
    double l2norm=0.0;
    struct  RB_Struct *dphi_drb=NULL;
-   if (resid_only_flag) iter_tmp=1;
-   else iter_tmp=iter;
+
+   if (resid_only_flag==TRUE) iter_tmp=1;
+   else                       iter_tmp=iter;
 
   /* pre calculations required for the Hard sphere (FMT) functionals only*/
 

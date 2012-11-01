@@ -121,6 +121,7 @@ extern int Unk2Comp[NMER_MAX];
 #define WJDC         3
 extern int Type_poly;
 extern int Nnodes;
+extern int Solver_Unk[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int *L2G_node;
 extern double **Array_test;
 #define FILES_DEBUG_MATRIX 3 

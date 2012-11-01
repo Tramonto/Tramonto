@@ -604,7 +604,7 @@ this routine is only ever called by Proc 0                                    */
 
 void print_gofr(char *GofR_Filename,double *xold)
 {
-  int icomp,inode,ijk[3],idim,nunk_print,npol=0,iwall,iunk,end_loop;
+  int icomp,inode,ijk[3],idim,npol=0,iwall,iunk,end_loop;
   double r,rsq;
   FILE *fp_gofr=NULL;
   char tmp_str_array[FILENAME_LENGTH];
@@ -615,9 +615,6 @@ void print_gofr(char *GofR_Filename,double *xold)
 
      strcpy(tmp_str_array,Outpath_array);
      fp_gofr = fopen(strcat(tmp_str_array,GofR_Filename),"w");
-
-     if (L_HSperturbation) nunk_print = Nunk_per_node;
-     else nunk_print = 2*Ncomp;
 
      if(Nwall > 0) end_loop=Nwall;
      if(Nwall==0 && Nlocal_charge !=0) end_loop=Nlocal_charge;
@@ -763,6 +760,11 @@ void print_Nodes_to_zone(int *node_to_zone, char *Nodes2Zone_Filename)
   if (Proc ==0){
     index = (int *) array_alloc (1, Nnodes, sizeof(int));
     unk_global = (int *) array_alloc (1, Nnodes, sizeof(int));
+
+    for (inode=0; inode < Nnodes; inode++ ){
+         index[inode]=-1;
+         unk_global[inode]=0.0;
+    }
   }
 
   /* collect the global indices from all processors */

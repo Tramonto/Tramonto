@@ -18,7 +18,6 @@
 #define NCOMP_MAX 5
 #define NMER_MAX     200
 extern int SegChain2SegAll[NCOMP_MAX][NMER_MAX];
-extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int *Unk_to_Bond;
 extern int ***Bonds;
 extern int *Unk_to_Poly;

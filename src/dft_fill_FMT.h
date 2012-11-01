@@ -35,6 +35,8 @@ extern int Lhard_surf;
 double load_rho_bar_s(int sten_type,double **x,int iunk,int loc_inode,int inode_box,int izone,int *ijk_box,int resid_only_flag);
 extern int *B2G_node;
 extern int Nnodes;
+#define NCOMP_MAX 5
+extern int Solver_Unk[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int *L2G_node;
 extern double **Array_test;
 #define FILES_DEBUG_MATRIX 3 
@@ -62,7 +64,6 @@ extern double Dphi_Drhobar_RTF[10];
 extern double Dphi_Drhobar_LBB[10];
 extern double Dphi_Drhobar_b[10];
 #define THETA_FN_R            1
-#define NCOMP_MAX 5
 extern double Inv_rad[NCOMP_MAX];
 extern double Esize_x[NDIM_MAX];
 extern double Inv_4pir[NCOMP_MAX];

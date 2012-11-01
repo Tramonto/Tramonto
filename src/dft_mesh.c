@@ -1747,7 +1747,7 @@ void setup_global_surfaces()
 
 void boundary_properties(FILE *fpecho)
 {
-  int norm,ilist,loc_inode,iwall,i,j,*iel,idim,inode,iel_s,
+  int ilist,loc_inode,iwall,i,j,*iel,idim,inode,iel_s,
       loc_node_el,reflect_flag[3], ijk[3],inode_box,surf_norm,
       sum[3],sum_all[3],*iel_box,flag,el,type,normal;
   double  s_area_tot_proc,esize1=1.0,esize2=1.0,sarea_sum;
@@ -1768,7 +1768,6 @@ void boundary_properties(FILE *fpecho)
   S_area_tot = (double **) array_alloc(2, Nlists_HW, Nwall,sizeof(double));
   Surf_elem_to_wall = (int ***) array_alloc (3, Nlists_HW,Nnodes_per_proc,
                                          2*Nnodes_per_el_V,sizeof(int));
-  norm = Nnodes_per_el_S;
 
   for (ilist=0; ilist<Nlists_HW; ilist++){
 
@@ -2560,11 +2559,10 @@ void setup_linear_grad_of_charge(void)
 void setup_volume_charge1(int iwall)
 {
 
-  int nmax,idim,iel,nelems,nelems_unique, *elems,iwall_type;
+  int idim,iel,nelems,nelems_unique, *elems,iwall_type;
   double r,x[3],charge_per_el, esize_x_min = 10.;
   struct SurfaceGeom_Struct *sgeom_iw;
 
-  nmax = Nwall;
   for (idim=0; idim<Ndim; idim++) esize_x_min = AZ_MIN(Esize_x[idim],esize_x_min);
 
   elems = (int *) array_alloc(1, Nelements_box, sizeof(int));

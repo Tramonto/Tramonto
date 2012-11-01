@@ -56,7 +56,6 @@ int surface_angleCutout2D(int iwall,int iwall_type,double *fluidEl_center, doubl
    }
    r=sqrt(rsq);
 
-   idim=1;
    cos_angle=vecB[0]/r;
    angle = acos(cos_angle);
    angle_deg=180.*angle/PI;

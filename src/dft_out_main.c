@@ -51,7 +51,7 @@ void post_process (double **x,int *niters,
   char filename[FILENAME_LENGTH],tempfilename[FILENAME_LENGTH],Density_file[FILENAME_LENGTH],
        DensityCounter_file[FILENAME_LENGTH],tmp_string_array[FILENAME_LENGTH];
  
-  double t1,energy;
+  double energy;
   double fac_area,fac_vol;
   int i,iwall,idim,first_local,counter,icomp,pol_num;
   int out_loop,contID0_tmp[2];
@@ -86,7 +86,6 @@ void post_process (double **x,int *niters,
           printf("\n-------------------------------------------------------------------------------\n");
           printf("\nDoing post_processing and output of results ...\n");
   }
-  t1 = MPI_Wtime();
  /*
   * First exchange boundary information as necessary !! 
   */

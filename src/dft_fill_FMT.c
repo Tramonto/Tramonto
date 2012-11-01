@@ -164,7 +164,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
             indexUnks[0]=junk; indexUnks[1]=junk+1; indexUnks[2]=junk+2; indexUnks[3]=junk+3;
             if (Iwrite_files==FILES_DEBUG_MATRIX){
               for (jtmp=0; jtmp<numEntries;jtmp++) 
-                  Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+indexUnks[jtmp]*Nnodes]+=values[jtmp]; 
+                  Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[jnode_boxJ]+Solver_Unk[indexUnks[jtmp]]*Nnodes]+=values[jtmp]; 
             }
             dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode, indexUnks, jnode_boxJ, values, numEntries);
 
@@ -177,7 +177,7 @@ double load_nonlocal_hs_rosen_rb(int sten_type, int iunk, int loc_inode,
                indexUnks[1]=indexUnks[0]+Ndim; 
                if (Iwrite_files==FILES_DEBUG_MATRIX){
                  for (jtmp=0; jtmp<numEntries;jtmp++)
-                     Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+indexUnks[jtmp]*Nnodes]+=values[jtmp]; 
+                     Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[jnode_boxJ]+Solver_Unk[indexUnks[jtmp]]*Nnodes]+=values[jtmp]; 
                }
                dft_linprobmgr_insertmultiphysicsmatrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                     indexUnks, jnode_boxJ, values, numEntries);
@@ -207,7 +207,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      if (resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (resid_only_flag==FALSE){
         mat_val=-1.0;
-        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val; 
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[iunk]*Nnodes]+=mat_val; 
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
      }
   }
@@ -226,7 +226,7 @@ double load_rho_bar_s(int sten_type,double **x, int iunk,
      if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) 
                            dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (resid_only_flag==FALSE) {
-        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+junk*Nnodes]+=mat_val; 
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[junk]*Nnodes]+=mat_val; 
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
      }
      resid_sum+=resid;
@@ -297,7 +297,7 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
      if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (resid_only_flag==FALSE){
        mat_val=-1.0;
-       if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val; 
+       if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[iunk]*Nnodes]+=mat_val; 
        dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
      }
   }
@@ -314,7 +314,7 @@ double load_rho_bar_v(double **x,int iunk, int loc_inode,int inode_box,
                dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag){
         mat_val = Inv_4pir[0];
-        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+junk*Nnodes]+=mat_val; 
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[junk]*Nnodes]+=mat_val; 
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
      }
   }

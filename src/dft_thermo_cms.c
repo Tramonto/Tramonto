@@ -166,7 +166,6 @@ void setup_polymer_cr()
    }
    MPI_Bcast(&Deltar_cr,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-   lines = 0;
    cr_rad_max=0.0;
    for (i=0; i < Ncomp; ++i)
       for (j=0; j<Ncomp; ++j){
@@ -418,7 +417,6 @@ void compute_bulk_nonlocal_cms_properties(char *file_echoinput,double *rho,
      equations is exp(-U+beta*Vext) in the bulk. */
 
   for (iseg=0;iseg<Nseg_tot;iseg++){
-    pol_num=SegAll_to_Poly[iseg];
     field=0.0;
     icomp=Unk2Comp[iseg];
 

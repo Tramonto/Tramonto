@@ -142,7 +142,7 @@ void setup_vext_coulomb_vol()
 
    gp = (double *) array_alloc (1, 12, sizeof(double));
    gw = (double *) array_alloc (1, 12, sizeof(double));
-   ngp1  = 6;  ngp2 = 3; 
+   /*ngp1  = 6;  ngp2 = 3; */
    ngp1  = 1;  ngp2 = 1; 
    set_gauss_quad(ngp1, gp1, gw1);
    set_gauss_quad(ngp2, gp2, gw2);

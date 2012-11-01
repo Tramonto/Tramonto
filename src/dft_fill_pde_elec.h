@@ -26,6 +26,7 @@ extern double Pol[NCOMP_MAX];
 extern int Lpolarize[NCOMP_MAX];
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
+#define KAPPA_H2O 78.5
 extern double Charge_f[NCOMP_MAX];
 extern int **Lsemiperm;
 extern int **Wall_elems;
@@ -35,7 +36,6 @@ extern int Lseg_densities;
 #define NEQ_TYPE       12 
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0
-#define KAPPA_H2O 78.5
 extern int **Zero_density_TF;
 extern int Ncomp;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
@@ -71,6 +71,7 @@ extern int Type_coul;
 extern double Elec_pot_RTF;
 extern int *B2G_node;
 extern int Nnodes;
+extern int Solver_Unk[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int *L2G_node;
 extern double **Array_test;
 #define FILES_DEBUG_MATRIX 3 

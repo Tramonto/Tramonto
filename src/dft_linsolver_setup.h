@@ -68,7 +68,6 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void linsolver_setup_CMSTYPE_LINEARONLY();
 extern void *ParameterList_list;
-extern int Nunk_per_node;
 extern void *LinProbMgr_manager;
 void linsolver_setup_HSTYPE();
 #define NONE       -1
@@ -83,4 +82,6 @@ void linsolver_setup_CMSTYPE();
 #define CMS          0
 extern int Type_poly;
 extern int L_Schur;
+extern int Solver_Unk[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
+extern int Nunk_per_node;
 void linsolver_setup_control();

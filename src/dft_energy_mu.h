@@ -39,7 +39,6 @@ double integrand_mu_freen_bulk(int iunk,int inode_box,double **x);
 #define DENSITY_MIN  1.e-20
 extern double Betamu[NCOMP_MAX];
 extern double Betamu_seg[NMER_MAX];
-extern int Unk2Comp[NMER_MAX];
 extern int Lseg_densities;
 #define DIFFUSION      6
 #define DIFFUSIVE_INTERFACE 1

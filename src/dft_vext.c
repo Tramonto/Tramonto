@@ -235,10 +235,8 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
 /* setup_zero: Set the external field to zero everywhere in the fluid */
 void setup_zero()
 {
-   int ilist, loc_inode, icomp, iwall, iunk, idim,inode_box;
+   int loc_inode, icomp, iwall, iunk, idim,inode_box;
    for (icomp=0; icomp<Ncomp; icomp++) {
-      if (Nlists_HW == 1 || Nlists_HW == 2) ilist = 0;
-      else                                  ilist = icomp;
       
       for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
          inode_box=L2B_node[loc_inode];

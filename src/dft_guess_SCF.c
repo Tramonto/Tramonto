@@ -63,10 +63,7 @@ void setup_polymer_SCF_field(double **xInBox, double **xOwned, int guess_type)
 void calc_init_SCFfield(double **xInBox, double **xOwned)
 {
 	int loc_inode,icomp,jcomp,jrho,iunk,unk_L,inode_box;
-	double field;
-	
-	field = 0.0;
-
+	double field=0.0;
 	
 	for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 		inode_box=L2B_node[loc_inode];

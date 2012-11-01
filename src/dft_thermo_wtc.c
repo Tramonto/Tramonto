@@ -157,6 +157,7 @@ void chempot_WTC(double *rho_seg,double *betamu, double *xi_cav)
       }
       for (icomp=0; icomp<Ncomp;icomp++){ 
             count_comp=0;
+            pol_num=0;
             for (iseg=0; iseg<Nseg_tot;iseg++){
                if (Unk2Comp[iseg]==icomp){  
                   count_comp++;
@@ -303,7 +304,7 @@ void WTC_overlap()
 void compute_bulk_nonlocal_wtc_properties(char *file_echoinput)
 {
   int i,icomp,printproc;
-  int ibond,iseg,jseg,pol_number,type_jseg;
+  int ibond,iseg,jseg,pol_number;
   FILE *fp2=NULL;
   if (Proc==0 && file_echoinput !=NULL) printproc = TRUE;
   else printproc=FALSE;
@@ -353,7 +354,6 @@ void compute_bulk_nonlocal_wtc_properties(char *file_echoinput)
         iseg=Unk_to_Seg[ibond];
         pol_number=Unk_to_Poly[ibond];
         jseg=Bonds[pol_number][iseg][Unk_to_Bond[ibond]]/*+SegChain2SegAll[pol_number][0]*/;
-        type_jseg=Type_mer[pol_number][jseg];
         jseg=SegChain2SegAll[pol_number][jseg];
         BondWTC_b[ibond]=Rho_seg_b[jseg];
         if (Type_interface!=UNIFORM_INTERFACE){

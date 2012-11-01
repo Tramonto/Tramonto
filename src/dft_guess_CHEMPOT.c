@@ -61,7 +61,7 @@ void setup_chem_pot(double **xOwned)
         if (Type_poly==NONE)icomp=i;
         else{
            if (Lseg_densities) icomp=Unk2Comp[i];
-           else                ipol=i;
+           ipol=i;
         }
  
         if (Type_poly==NONE && Zero_density_TF[L2B_node[loc_inode]][icomp]==TRUE) xOwned[iunk][loc_inode] = -VEXT_MAX;

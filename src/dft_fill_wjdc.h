@@ -29,12 +29,12 @@ extern int Graft_wall[NCOMP_MAX];
 #define NWALL_MAX 600 
 extern int WallType[NWALL_MAX];
 extern int Nwall;
-extern int Analyt_WJDC_Jac;
 double calc_dens_seg_Gderiv(int iseg,int inode_box,int kbond,double **x,int flag);
-extern int **Poly_to_Unk_SegAll;
+extern int Analyt_WJDC_Jac;
 double d2y_dxi3_dxi2(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double d2y_dxi3_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
 double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2,double xi_3);
+extern int **Poly_to_Unk_SegAll;
 #define CALC_RESID_ONLY  3
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 #define PI    3.141592653589793238462643383279502884197169399375
@@ -78,6 +78,8 @@ double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern void *LinProbMgr_manager;
 extern int *B2G_node;
 extern int Nnodes;
+#define NMER_MAX     200
+extern int Solver_Unk[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int *L2G_node;
 extern double **Array_test;
 #define FILES_DEBUG_MATRIX 3 
@@ -89,6 +91,7 @@ extern int Iwrite_files;
 #define POW_DOUBLE_INT pow
 #endif
 double yterm_wjdc(int icomp,int jcomp,int jnode_box,double **x);
+extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern int **Nbond;
 double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_sums,void(*funcArray_Jac[3])(int,int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG)(int,int,int,int,int,int,int,int *,double,double **),double(*fp_ResidG_Bulk)(int,int,int,int,int,int,int,int *,double,double **),int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 double WJDC_Resid_Bulk_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
@@ -97,7 +100,6 @@ void WJDC_Jacobian_GCHAIN_derivCAVITY(int iunk,int loc_inode,int pol_num,int jse
 void WJDC_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 void WJDC_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 double load_WJDC_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define NMER_MAX     200
 extern double Betamu_chain[NMER_MAX];
 #define DIFFUSION      6
 #define DIFFUSIVE_INTERFACE 1
@@ -106,7 +108,6 @@ extern int **Nseg_type_pol;
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
 extern double *Gsum_graft;
-extern int Type_mer[NCOMP_MAX][NMER_MAX];
 extern double *Total_area_graft;
 extern double Rho_g[NCOMP_MAX];
 #define GRAFT_DENSITY 1

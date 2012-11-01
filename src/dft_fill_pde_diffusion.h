@@ -58,7 +58,10 @@ double constant_boundary(int iunk,int jnode_box);
 extern double X_const_mu;
 extern double Esize_x[NDIM_MAX];
 extern int Grad_dim;
+extern int *B2G_node;
 extern int Nnodes;
+#define NMER_MAX     200
+extern int Solver_Unk[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int *L2G_node;
 extern double **Array_test;
 #define FILES_DEBUG_MATRIX 3 
@@ -74,7 +77,6 @@ extern int Nlists_HW;
 #define DIFFUSION      6
 #define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
-extern int *B2G_node;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_

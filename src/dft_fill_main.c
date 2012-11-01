@@ -120,10 +120,8 @@ double fill_resid_and_matrix (double **x, struct RB_Struct *dphi_drb, int iter, 
     if ( ((Mesh_coarsening != FALSE) && (Nwall_type >0)) || L1D_bc) mesh_coarsen_flag_i = Mesh_coarsen_flag[inode_box];
     else mesh_coarsen_flag_i = 0;
     for (iunk=iunk_start; iunk<iunk_end; iunk++) {
-      resid_term=0.0;
 
       resid_unk[iunk]=0.0;
-
       if (mesh_coarsen_flag_i == FLAG_1DBC) load_coarse_node_1dim(loc_inode,inode_box,ijk_box,iunk,x,resid_only_flag);
 
       else if (mesh_coarsen_flag_i < 0 && 
@@ -162,7 +160,7 @@ if (iunk==0 && fabs(resid_term >1.e-8)) {
 
      for (i=0;i<Nunk_per_node*Nnodes;i++){
         for (j=0;j<Nunk_per_node*Nnodes;j++){
-            if (fabs(Array_test[i][j])>1.e-12) fprintf(fparray,"%d  %d  %d  %g\n",Proc,Nunk_per_node*Nnodes-j,i,Array_test[j][i]);
+            if (fabs(Array_test[i][j])>1.e-12) fprintf(fparray,"%d  %d  %d  %.10le\n",Proc,Nunk_per_node*Nnodes-j,i,Array_test[j][i]);
      }}
      safe_free((void *) &Array_test);
      fclose(fparray);
@@ -329,7 +327,7 @@ void calc_Gsum_new(double **x)
 void calc_Gsum(double **x) 
 {
 	int npol,ibond,iseg,itype_mer,unk_G;
-	int graft_seg,graft_bond,gbond,izone, unk_xi2,unk_xi3;
+	int graft_seg,graft_bond,gbond=0,izone, unk_xi2,unk_xi3;
 	int iwall,pwall,pwall_type,inode_w;
 	int loc_inode,inode,inode_box,ijk_box[3];
 	double gsum,nodepos[3],nodeposc[3];
@@ -349,8 +347,9 @@ void calc_Gsum(double **x)
 				}
 			}			
 			/* find correct G; assumes 2 bonds only for grafting site */
-			for (ibond=0; ibond<Nbonds_SegAll[graft_seg]; ibond++)
+			for (ibond=0; ibond<Nbonds_SegAll[graft_seg]; ibond++){
 				if(ibond != graft_bond) gbond = ibond;
+                        }
 			unk_G = Geqn_start[npol] + Poly_to_Unk[npol][graft_seg][gbond];
 			 
 			 /* find wall position and do integral with stencil */

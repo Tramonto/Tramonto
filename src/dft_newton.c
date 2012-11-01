@@ -162,7 +162,7 @@ int newton_solver(double** x, void* con_ptr) {
     else         Time_manager_av+=(MPI_Wtime()-start_t);
 
 /*#ifdef NUMERICAL_JACOBIAN*/
-   if (Iwrite_files==FILES_DEBUG_MATRIX)   do_numerical_jacobian(x);
+/*   if (Iwrite_files==FILES_DEBUG_MATRIX) */  /*do_numerical_jacobian(x);*/
 /*#endif*/
     start_t=MPI_Wtime();
     (void) dft_linprobmgr_solve(LinProbMgr_manager);

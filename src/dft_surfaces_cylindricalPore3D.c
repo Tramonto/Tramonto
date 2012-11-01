@@ -70,7 +70,7 @@ void surface_cylindricalPore3D_inSurfaceTest(int iwall,int iwall_type,
           xtest[1] = fluid_testpos[0]; dim[1] = 0;
           xtest[2] = fluid_testpos[1]; dim[2] = 1;
           break;
-       case 0:
+       default:
           xtest[0] = fluid_testpos[1]; dim[0] = 1;
           xtest[1] = fluid_testpos[2]; dim[1] = 2;
           xtest[2] = fluid_testpos[0]; dim[2] = 0;

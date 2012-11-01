@@ -76,16 +76,16 @@ double load_polyTC_diagEL(int iunk,int loc_inode,int inode_box, int icomp,
 
      if (resid_only_flag==FALSE){
         mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./y)*dy_dxi2;
-        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+unk_xi2*Nnodes]+=mat_val;
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[unk_xi2]*Nnodes]+=mat_val;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_xi2,inode_box,mat_val);
 
         mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./y)*dy_dxi3;
-        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+unk_xi3*Nnodes]+=mat_val;
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[unk_xi3]*Nnodes]+=mat_val;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_xi3,inode_box,mat_val);
 
         /*mat_val = -0.5*Fac_overlap[icomp][jcomp]*(1./n);*/
         mat_val = -0.5*(1./n);
-        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+unk_bond*Nnodes]+=mat_val;
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[unk_bond]*Nnodes]+=mat_val;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,unk_bond,inode_box,mat_val);
      }
    }
@@ -165,11 +165,11 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
                           weightJ = HW_boundary_weight (jcomp, jlist,
                             stenJ->HW_Weight[isten], jnode_boxJ, reflect_flag);
                     }
-                    mat_val = -0.5*weight/x[unk_bond][jnode_boxJ];
+                    mat_val = -0.5*weightJ/x[unk_bond][jnode_boxJ];
                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                  junk_rho,jnode_boxJ,mat_val);
-                    mat_val = 0.5*weight*x[junk_rho][jnode_box]/(x[unk_bond][jnode_boxJ]*x[unk_bond][jnode_boxJ]);
-                    if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+unk_bond*Nnodes]+=mat_val;
+                    mat_val = 0.5*weightJ*x[junk_rho][jnode_box]/(x[unk_bond][jnode_boxJ]*x[unk_bond][jnode_boxJ]);
+                    if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[jnode_boxJ]+Solver_Unk[unk_bond]*Nnodes]+=mat_val;
                     dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, unk_bond,jnode_boxJ,mat_val);
               }
            }
@@ -185,7 +185,7 @@ double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izo
                        to the Euler-Lagrange equation for the Wertheim-Tripathi-Chapman theory */
 double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag)
 {
-  int jseg,kseg,kbond,jcomp,unk_xi2,unk_xi3,unk_rho,kunk_rho,kcomp;
+  int jseg,kseg,kbond,jcomp,unk_xi2,unk_xi3,unk_rho,kcomp;
   double xi_2,xi_3,s1,s2,y,dy_dxi2,dy_dxi3,prefac2,prefac3;
   double d2y_dxi2_2,d2y_dxi3_2,d2y_dxi2_dxi3;
   int jzone,jnode_box,jlist,reflect_flag[3],jnode_boxJ;
@@ -246,9 +246,6 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
        for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
             kseg = Bonds_SegAll[jseg][kbond];
             if (Bonds_SegAll[jseg][kbond] !=-1){
-               kunk_rho = kseg;
-               if (Pol_Sym_Seg[kseg] != -1) kunk_rho=Pol_Sym_Seg[kseg];
-               kunk_rho += Phys2Unk_first[DENSITY];
                kcomp=Unk2Comp[kseg];
                s2=Sigma_ff[kcomp][kcomp];
 /*               s2=Bond_ff[kcomp][kcomp];*/
@@ -306,9 +303,6 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
                 for (kbond=0; kbond<Nbonds_SegAll[jseg]; kbond++){
                   kseg = Bonds_SegAll[jseg][kbond];
                   if (Bonds_SegAll[jseg][kbond] != -1){
-                  kunk_rho = kseg;
-                  if (Pol_Sym_Seg[kseg] != -1) kunk_rho = Pol_Sym_Seg[kseg];
-                  kunk_rho += Phys2Unk_first[DENSITY];
                   kcomp=Unk2Comp[kseg];
                   s2=Sigma_ff[kcomp][kcomp];
 /*                  s2=Bond_ff[kcomp][kcomp];*/
@@ -329,21 +323,21 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
                       first_deriv = (prefac2*dy_dxi2 + prefac3*dy_dxi3)/y;
   
                       mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*first_deriv;
-                      if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+unk_rho*Nnodes]+=mat_val;
+                      if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[jnode_boxJ]+Solver_Unk[unk_rho]*Nnodes]+=mat_val;
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                 unk_rho,jnode_boxJ,mat_val);
   
                       mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*dens* ( 
                                 (prefac2*d2y_dxi2_2 + prefac3*d2y_dxi2_dxi3)/y 
                                 - first_deriv*dy_dxi2/y );
-                      if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+unk_xi2*Nnodes]+=mat_val;
+                      if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[jnode_boxJ]+Solver_Unk[unk_xi2]*Nnodes]+=mat_val;
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                 unk_xi2,jnode_boxJ,mat_val);
   
                       mat_val = -0.5*Fac_overlap[jcomp][kcomp]*weightJ*dens* (
                                  (prefac2*d2y_dxi2_dxi3 + prefac3*d2y_dxi3_2)/y
                                  - first_deriv*dy_dxi3/y );
-                      if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[jnode_boxJ]+unk_xi3*Nnodes]+=mat_val;
+                      if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[jnode_boxJ]+Solver_Unk[unk_xi3]*Nnodes]+=mat_val;
                       dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
                                                                 unk_xi3,jnode_boxJ,mat_val);
                   }
@@ -361,9 +355,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
 /********************************************************************************************/
    double d2y_dxi2_sq(double sigma_1,double sigma_2,double xi_2, double xi_3)
 {
-   double one_m_xi3_sq,one_m_xi3_cb,sig_sum,sig_m,d2y_dxi2sq;
+   double one_m_xi3_cb,sig_sum,sig_m,d2y_dxi2sq;
 
-   one_m_xi3_sq= (1.-xi_3)*(1.-xi_3); 
    one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3); 
    sig_sum=sigma_1+sigma_2;
    sig_m=sigma_1*sigma_2;
@@ -375,9 +368,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
 /*******************************************************************************************/
    double d2y_dxi3_dxi2(double sigma_1,double sigma_2,double xi_2, double xi_3)
 {
-   double one_m_xi3_sq,one_m_xi3_cb,one_m_xi3_4th,sig_sum,sig_m,d2y_dxi3_dxi2;
+   double one_m_xi3_cb,one_m_xi3_4th,sig_sum,sig_m,d2y_dxi3_dxi2;
 
-   one_m_xi3_sq= (1.-xi_3)*(1.-xi_3); 
    one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3); 
    one_m_xi3_4th= (1.-xi_3)*one_m_xi3_cb; 
    sig_sum=sigma_1+sigma_2;
@@ -391,9 +383,8 @@ double load_polyTC_cavityEL(int iunk,int loc_inode,int inode_box,int icomp,int i
 /********************************************************************************************/
    double d2y_dxi3_sq(double sigma_1,double sigma_2,double xi_2, double xi_3)
 {
-   double one_m_xi3_sq,one_m_xi3_cb,one_m_xi3_4th,one_m_xi3_5th,sig_sum,sig_m,d2y_dxi3sq;
+   double one_m_xi3_cb,one_m_xi3_4th,one_m_xi3_5th,sig_sum,sig_m,d2y_dxi3sq;
 
-   one_m_xi3_sq= (1.-xi_3)*(1.-xi_3); 
    one_m_xi3_cb= (1.-xi_3)*(1.-xi_3)*(1.-xi_3); 
    one_m_xi3_4th= (1.-xi_3)*one_m_xi3_cb; 
    one_m_xi3_5th= (1.-xi_3)*one_m_xi3_4th; 
@@ -420,7 +411,7 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
      if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag){
         mat_val=-1.0;
-        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[iunk]*Nnodes]+=mat_val;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
      }
   }
@@ -455,7 +446,7 @@ double load_bond_wtc(int iunk, int loc_inode, int inode_box,int *ijk_box,
           dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       if (resid_only_flag==FALSE){
          mat_val=1.0; 
-         if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+junk*Nnodes]+=mat_val;
+         if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[junk]*Nnodes]+=mat_val;
          dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,junk,inode_box,mat_val);
       }
   }
@@ -478,7 +469,7 @@ double load_cavity_wtc(int iunk, int loc_inode, int inode_box, int *ijk_box,
      if (resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
      if (!resid_only_flag){
         mat_val=-1.0;
-        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+iunk*Nnodes][B2G_node[inode_box]+iunk*Nnodes]+=mat_val;
+        if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[iunk]*Nnodes]+=mat_val;
         dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,iunk,inode_box,mat_val);
      }
   }

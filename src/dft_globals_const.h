@@ -193,6 +193,20 @@ extern "C" {
 #define SCF_FIELD	  10
 #define G_CHAIN       11 
 
+/*
+#define DENSITY        0
+#define CMS_FIELD      1
+#define WJDC_FIELD     2
+#define SCF_FIELD      3 
+#define POISSON        4
+#define DIFFUSION      5
+#define HSRHOBAR       6
+#define CAVWTC         7
+#define BONDWTC        8
+#define MF_EQ          9
+#define G_CHAIN       10 
+#define SCF_CONSTR    11
+*/
 
 
 /* Here are some constants needed to make the physics based ordering of the
@@ -731,6 +745,7 @@ extern int Phys2Unk_first[NEQ_TYPE]; /* starting unknown number for a given equa
 extern int Phys2Unk_last[NEQ_TYPE]; /* ending unknown number for a given equation type */
 extern int Unk2Phys[3*NCOMP_MAX+2*NMER_MAX+NMER_MAX*NMER_MAX+13]; /* array that gives equation type
                                                                          given an unknown index */
+extern int Solver_Unk[3*NCOMP_MAX+2*NMER_MAX+NMER_MAX*NMER_MAX+13]; /* translation to solver ids */
 
 /* Mesh info */
 

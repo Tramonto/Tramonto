@@ -42,7 +42,7 @@ void surface_block_inSurfaceTest(int iwall,int iwall_type,
 {
   double x12,rsqsum_to_surface,rsqsum_to_center,xtest;
   double roff=0.00000000001,halfwidth;
-  int npos,idim;
+  int idim;
   struct SurfaceGeom_Struct *sgeom_iw;
 
   sgeom_iw=&(SGeom[iwall_type]);
@@ -50,8 +50,6 @@ void surface_block_inSurfaceTest(int iwall,int iwall_type,
   if (Ipot_ff_c==COULOMB) *logical_nearWallDielec=TRUE;
   *logical_inwall=TRUE;
 
-
-  npos = 0;
   rsqsum_to_surface=0.0;
   rsqsum_to_center=0.0;
   for (idim=0; idim<Ndim; idim++){

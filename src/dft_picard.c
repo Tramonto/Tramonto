@@ -341,11 +341,9 @@ void calc_density_next_iter_HSperturb(double **xInBox, double **xOwned)
    we are doing CMS-DFT calculations */
 void calc_density_next_iter_CMS(double **xInBox,double **xOwned)
 {
-  int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i,i;
+  int loc_inode,inode_box,ijk_box[3],iloop,iunk,i;
   double resid;
   struct  RB_Struct *dphi_drb=NULL;
-  izone=0;
-  mesh_coarsen_flag_i=0;
 
   calc_init_CMSfield(xInBox,xOwned);
 
@@ -381,11 +379,9 @@ void calc_density_next_iter_CMS(double **xInBox,double **xOwned)
    we are doing WJDC-DFT calculations */
 void calc_density_next_iter_WJDC(double **xInBox,double **xOwned)
 {
-  int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i,iloop_max,i;
+  int loc_inode,inode_box,ijk_box[3],iloop,iunk,iloop_max,i;
   double resid;
   struct  RB_Struct *dphi_drb=NULL;
-  izone=0;
-  mesh_coarsen_flag_i=0;
   if (Type_poly==WJDC3) iloop_max=Ncomp;
   else iloop_max=Nseg_tot;
 
@@ -420,11 +416,9 @@ void calc_density_next_iter_WJDC(double **xInBox,double **xOwned)
 we are doing CMS-SCFT calculations */
 void calc_density_next_iter_SCF(double **xInBox,double **xOwned)
 {
-	int loc_inode,inode_box,ijk_box[3],iloop,iunk,izone,mesh_coarsen_flag_i;
+	int loc_inode,inode_box,ijk_box[3],iloop,iunk;
 	double resid;
 	struct  RB_Struct *dphi_drb=NULL;
-	izone=0;
-	mesh_coarsen_flag_i=0;
 	
 	for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 		inode_box=L2B_node[loc_inode]; 

@@ -64,6 +64,9 @@ struct Stencil_Struct {
 double load_polyTC_bondEL(int iunk,int loc_inode,int inode_box,int icomp,int izone,int *ijk_box,double **x,int resid_only_flag);
 extern int *B2G_node;
 extern int Nnodes;
+#define NCOMP_MAX 5
+#define NMER_MAX     200
+extern int Solver_Unk[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int *L2G_node;
 extern double **Array_test;
 #define FILES_DEBUG_MATRIX 3 
@@ -78,7 +81,6 @@ extern int Iwrite_files;
 extern void *LinProbMgr_manager;
 #define INIT_GUESS_FLAG  2
 #define CALC_RESID_ONLY  3
-#define NCOMP_MAX 5
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 #define BONDWTC        5
 extern int *Pol_Sym;
@@ -88,7 +90,6 @@ double dy_dxi2_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double y_cav(double sigma_1,double sigma_2,double xi_2,double xi_3);
 #define CAVWTC         4
-#define NMER_MAX     200
 extern int Unk2Comp[NMER_MAX];
 extern int **Bonds_SegAll;
 extern int *Nbonds_SegAll;

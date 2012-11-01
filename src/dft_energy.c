@@ -83,9 +83,9 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
        if (Type_poly != WJDC && Type_poly !=WJDC2 && Type_poly!=WJDC3){
           omega_id=omega_id_b=0.0;
           for (iunk=Phys2Unk_first[DENSITY];iunk<Phys2Unk_last[DENSITY];iunk++) {
-   	     if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
+/*   	     if (Lseg_densities) icomp=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];
    	     else                icomp=iunk-Phys2Unk_first[DENSITY];
-/*             if (fabs(Charge_f[icomp])<1.e-12 || Type_coul==NONE){*/  /* only want this condition for Reiner-Radke approach*/
+             if (fabs(Charge_f[icomp])<1.e-12 || Type_coul==NONE){*/  /* only want this condition for Reiner-Radke approach*/
                  omega_id+=integrateInSpace(&integrand_ideal_gas_freen,iunk,Nel_hit2,x,Integration_profile);
                  omega_id_b+=integrateInSpace(&integrand_ideal_gas_freen_bulk,iunk,Nel_hit,x,Integration_profile);
             /* }*/

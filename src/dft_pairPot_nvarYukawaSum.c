@@ -220,7 +220,7 @@ double urNandYUKAWA_ATT_noCS(double r,int i, int j)
 double urNandYUKAWA_Integral(double r,int i, int j)
 {
   double uatt_int, sigma,c,alpha,eps,Ayukawa,npow;
-  double r_inv,r3_inv,r9_inv,r15_inv;
+  double r_inv;
 
   sigma=Sigma_ff[i][j];
   eps=Eps_ff[i][j];
@@ -231,11 +231,6 @@ double urNandYUKAWA_Integral(double r,int i, int j)
   c=alpha/sigma;
 
   r_inv = 1.0/r;
-
-  r3_inv  = r_inv*r_inv*r_inv;
-  r9_inv  = r3_inv*r3_inv*r3_inv;
-  r15_inv  = r9_inv*r3_inv*r3_inv;
-
 
   uatt_int = -4.*PI*eps*pow(sigma,npow)*pow(r_inv,npow-3.0)/(npow-3.0) +
              4*PI*Ayukawa*sigma*exp(alpha)*((exp(-c*r)/(c*c))*(-c*r-1.0));

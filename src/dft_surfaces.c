@@ -44,7 +44,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
   int itype,iwall,ilist,iel_box,izone, **L_wall,idim,inode_box,inode_box_tmp,save_dim,inode_global;
   int loc_inode,real_wall,flag,flag_X_to_center;
   int iel,inode,angle_test,jdim,save_el_wall,fac_image;
-  int edge_element, ijk[3],imax[3],ix[3],Linwall,Lfind_images[3],ijk_global[3],ijk_box_tmp[3];
+  int ijk[3],imax[3],ix[3],Linwall,Lfind_images[3],ijk_global[3],ijk_box_tmp[3];
   double xtest[3],dist_roughness,dist_periodic, dist_linear,node_pos[3],xtest_tmp[3];
   double *x_min;
 
@@ -139,7 +139,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
      sgeom_iw = &(SGeom[itype]);
      orientation = sgeom_iw->orientation;
      surfaceTypeID = sgeom_iw->surfaceTypeID;
-     if (surfaceTypeID==smooth_planar_wall) {
+     if (surfaceTypeID == smooth_planar_wall) {
          for (idim=0;idim<Ndim;idim++){
               if (idim!=orientation) Lfind_images[idim]=FALSE;
          }
@@ -149,7 +149,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
      for (i=0; i<image_old; i++){
          if (RealWall_Images[i]==iwall){
         for (idim=0; idim<Ndim; idim++)  pos[idim] = WallPos_Images[iwall][idim];
-        if (Lfind_images[0]) find_wall_images(0,&image,WallPos_Images,pos);
+        if (Lfind_images[0]==TRUE) find_wall_images(0,&image,WallPos_Images,pos);
         }
      }
      for (i=image_old;i<image;i++){
@@ -228,7 +228,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
      sgeom_iw=&(SGeom[itype]);
      surfaceTypeID = sgeom_iw->surfaceTypeID;
   
-     real_wall = RealWall_Images[iwall];
+     /*real_wall = RealWall_Images[iwall];*/
      if(Ipot_wf_n[itype]==VEXT_DIST_TO_CENTER) flag_X_to_center=TRUE;
      else                              flag_X_to_center=FALSE;
      MPI_Barrier(MPI_COMM_WORLD);     /* this may be a bug, but without this barrier statement we have issues with the surface areas */
@@ -275,6 +275,11 @@ void setup_surface (FILE *fp2, int *nelems_f,
           fp_roughness=&surface_cylinder2D_roughness;
           fp_angleCutout=&surface_angleCutout2D;
        }
+       else{
+          printf ("ERROR:the surface type chosen is not available for a 1D problem \n");
+          printf ("Surface type:%d\n",surfaceTypeID);
+          exit(-1);
+       }
        break;
 
      case point_surface:
@@ -303,6 +308,11 @@ void setup_surface (FILE *fp2, int *nelems_f,
          fp_roughness=&surface_cylinder2D_roughness;
          fp_angleCutout=&surface_angleCutout2D;
        }
+       else{
+          printf ("ERROR:the surface type chosen is not available for a 1D problem \n");
+          printf ("Surface type:%d\n",surfaceTypeID);
+          exit(-1);
+       }
        break;
 
      case cyl3D_slit2D_pore:
@@ -317,6 +327,11 @@ void setup_surface (FILE *fp2, int *nelems_f,
          fp_roughness=&surface_cylinder2D_roughness;
          fp_angleCutout=&surface_angleCutout2D;
          fp_linear=&surface_linear_offset;
+       }
+       else{
+          printf ("ERROR:the surface type chosen is not available for a 1D problem \n");
+          printf ("Surface type:%d\n",surfaceTypeID);
+          exit(-1);
        }
        break;
 
@@ -372,7 +387,6 @@ void setup_surface (FILE *fp2, int *nelems_f,
                /*  first identify if this is an edge element where all nodes must be considered */
            if (flag==TRUE) {  
               node_to_ijk(inode,ijk);
-              edge_element=FALSE;
               imax[0]=imax[1]=imax[2]=1;     
               for (idim=0; idim<Ndim; idim++){
                    if (ijk[idim]==Nodes_x[idim]-2 && Type_bc[idim][1] !=PERIODIC) imax[idim]=2;

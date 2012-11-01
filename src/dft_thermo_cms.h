@@ -34,7 +34,6 @@ extern int *Unk_to_Poly;
 extern int Nbonds;
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 extern int Unk2Comp[NMER_MAX];
-extern int SegAll_to_Poly[NMER_MAX];
 extern int Nseg_tot;
 #define FALSE 0
 #if !defined(_CON_CONST_H_)

@@ -78,7 +78,7 @@ int StenTheta_GENmsa_NquadPtsGaussIntegrand(double r)
    else if (r<= 16.00000001) npt=20;
    else                      npt=12;
 
-   npt=20;   /* setting from old stencil code */ 
+   /*npt=20;*/   /* setting from old stencil code */ 
    return(npt);
 }
 /*********************************************************************/

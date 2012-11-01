@@ -25,6 +25,7 @@ extern int Nmer[NCOMP_MAX];
 #if !defined(TRUE) && !defined(_CON_CONST_H_)
 #define TRUE  1
 #endif
+extern double Rho_b[NCOMP_MAX];
 #define NBLOCK_MAX   20 
 extern int Nmer_t[NCOMP_MAX][NBLOCK_MAX];
 extern int Npol_comp;
@@ -42,7 +43,6 @@ extern double Betamu_chain[NMER_MAX];
 #define WJDC2        4 
 #define WJDC         3
 extern int Type_poly;
-extern double Rho_b[NCOMP_MAX];
 void calc_new_density(int icomp,char *file_echoinput);
 #define NWALL_MAX_TYPE 20 
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];

@@ -65,7 +65,6 @@ extern double NL_abs_tol,NL_rel_tol;
 int continuation_hook_conwrap(double **xx,double **delta_xx,void *con_ptr,double reltol,double abstol);
 extern double Time_linsolver_av;
 extern double Time_linsolver_first;
-#define FILES_DEBUG_MATRIX 3 
 extern double Time_manager_av;
 extern double Time_manager_first;
 void print_resid_norm(int iter);

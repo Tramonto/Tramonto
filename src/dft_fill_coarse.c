@@ -36,14 +36,13 @@
 /********************************************************************/
 void load_coarse_node_1dim(int loc_inode, int inode_box, int *ijk_box,int iunk, double **x,int resid_only_flag)
 {
-    int idim,ijk_tmp[3],jnode_box,loc_jnode,numEntries,
+    int idim,ijk_tmp[3],jnode_box,numEntries,
         nodeIndices[2];
     double resid,values[2];
 
     for (idim=0; idim<Ndim; idim++) ijk_tmp[idim]=0;
     ijk_tmp[Grad_dim]=ijk_box[Grad_dim];
     jnode_box = ijk_box_to_node_box(ijk_tmp);
-    loc_jnode = B2L_node[jnode_box]; 
 
     if (jnode_box <0 ){
         if (Iwrite_screen != SCREEN_NONE) 
@@ -68,7 +67,7 @@ double load_coarse_node_Ndim(int loc_inode, int inode_box, int iunk, double **x,
 {
     double fac_a11,resid,mat_value,fac_coarse;
 
-    if (Unk2Phys[iunk] ==DENSITY || POISSON) fac_a11=1.0; /* temporary factor to keep -1 on diagonal of A11 block */
+    if (Unk2Phys[iunk]==DENSITY || Unk2Phys[iunk]==POISSON) fac_a11=1.0; /* temporary factor to keep -1 on diagonal of A11 block */
     else fac_a11=-1.0;
 
     resid= fac_a11*x[iunk][inode_box];

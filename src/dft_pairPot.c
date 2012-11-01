@@ -97,8 +97,8 @@ Note that the distances here are returned in units of r/sigma_ref so no adjustme
 
 double pairPot_find_rmin(int i, int j,double param1, double param2, double param3,double param4,double param5,double param6,int typePairPot){
 
-  int logical_update=FALSE,count;
-  double r,rcut,rmin,umin,umin_old,rstart,delr,sigma,tol=1.e-8,error=1.0,u,uleft,uright,delr_old,rlast;
+  int logical_update=FALSE;
+  double r,rcut,rmin,umin,umin_old,rstart,delr,sigma,tol=1.e-8,error=1.0,u,uleft,delr_old,rlast;
 
   rcut=param3;
   sigma=param1;
@@ -124,13 +124,10 @@ double pairPot_find_rmin(int i, int j,double param1, double param2, double param
       return(sigma);
   }
   else{                          /* now refine the position of r_min */
-      count=1;
-
       while(error>tol){
            umin_old=umin;
            delr_old=delr; 
            uleft=pairPot_switch(rmin-delr_old, param1,param2,param3,param4,param5,param6,typePairPot);
-           uright=pairPot_switch(rmin+delr_old, param1,param2,param3,param4,param5,param6,typePairPot);
        
            rstart=rmin-delr_old;
            r=rstart;
@@ -158,8 +155,8 @@ double pairPot_find_rmin(int i, int j,double param1, double param2, double param
   Note that the distances here are returned in units of r/sigma_ref so no adjustment is needed later.*/
 double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double param3,double param4,double param5,double param6,int typePairPot){
 
-  int logical_update=FALSE,count;
-  double r,rcut,rmin,umin,umin_old,rstart,delr,sigma,tol=1.e-8,error=1.0,u,uleft,uright,delr_old,rlast;
+  int logical_update=FALSE;
+  double r,rcut,rmin,umin,rstart,delr,sigma,tol=1.e-8,error=1.0,u,uleft,delr_old;
 
   rcut=param3;
   sigma=param1;
@@ -176,7 +173,6 @@ double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double 
           rmin=r;
           logical_update=TRUE;
       }
-      rlast=r;
   }
 
   if (logical_update==FALSE){  
@@ -185,13 +181,9 @@ double pairPot_find_r_ZeroCut(int i, int j,double param1, double param2, double 
       return(sigma);
   }
   else{                          /* now refine the position of r_min */
-      count=1;
-
       while(error>tol){
-           umin_old=umin;
            delr_old=delr; 
            uleft=pairPot_switch(rmin-delr_old, param1,param2,param3,param4,param5,param6,typePairPot);
-           uright=pairPot_switch(rmin+delr_old, param1,param2,param3,param4,param5,param6,typePairPot);
        
            rstart=rmin-delr_old; 
            umin=uleft;

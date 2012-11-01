@@ -35,6 +35,7 @@ double integrand_WJDCcomp_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_WJDCcomp_freen(int iunk,int inode_box,double **x);
 double integrand_WJDC_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_WJDC_freen(int iunk,int inode_box,double **x);
+extern int Lseg_densities;
 double integrand_WTC_freen_bulk(int iunk,int inode_box,double **x);
 double integrand_WTC_freen(int iunk,int inode_box,double **x);
 #define WTC          2
@@ -73,9 +74,6 @@ double integrand_ideal_gas_freen_bulk(int iunk,int inode_box,double **x);
 extern int **Nel_hit2;
 double integrand_ideal_gas_freen(int iunk,int inode_box,double **x);
 double integrateInSpace(double(*fp_integrand)(int,int,double **),int iunk,int **nelhit,double **x,double *profile);
-#define NMER_MAX     200
-extern int Unk2Comp[NMER_MAX];
-extern int Lseg_densities;
 #define NEQ_TYPE       12 
 extern int Phys2Unk_last[NEQ_TYPE];
 #define DENSITY        0

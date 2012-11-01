@@ -150,7 +150,6 @@ if (icomp==0 && jcomp==0 && fabs(r_low-3.411270)<1.e-4 && fabs(r_upp- 3.42500)<1
 */
   rusq = r_upp*r_upp;
   rlsq = r_low*r_low;
-  temp=0.0;
   if (Ndim == 1)   {
     temp = 2.*PI*(
       ( rusq*(Rism_cr[icomp][jcomp][irmin] - slope_dr*irmin)/2. +

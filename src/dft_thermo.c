@@ -104,10 +104,6 @@ void calc_pressure(char *file_echoinput,int iwrite_screen, int iwrite_files)
    double betap_elec_LBB, betap_elec_RTF;
    FILE *fp;
 
-   betap_att = 0.0;
-   betap_att_LBB = 0.0;
-     betap_att_RTF = 0.0;
-
    if (Proc==0){
 /*   if (Iwrite_files == FILES_DEBUG){*/
    if( (fp = fopen(file_echoinput,"a+")) == NULL) {

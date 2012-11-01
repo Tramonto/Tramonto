@@ -18,6 +18,9 @@ double resid_and_Jac_sten_fill(int sten_type,double **x,int iunk,int junk,int ic
 #include "Tramonto_ConfigDefs.h"
 extern int *B2G_node;
 extern int Nnodes;
+#define NCOMP_MAX 5
+#define NMER_MAX     200
+extern int Solver_Unk[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int *L2G_node;
 extern double **Array_test;
 #define FILES_DEBUG_MATRIX 3 
@@ -30,7 +33,6 @@ double HW_boundary_weight(int icomp,int ilist,double *hw_weight,int inode_box,in
 extern int **Nodes_2_boundary_wall;
 extern int Lhard_surf;
 int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
-#define NCOMP_MAX 5
 extern double Rho_b[NCOMP_MAX];
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
@@ -45,7 +47,6 @@ extern struct Stencil_Struct ***Stencil;
 #define WJDC         3
 extern int Type_poly;
 #define MF_EQ          3
-#define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 #define THETA_PAIRPOT_RCUT    2
 extern int Nlists_HW;

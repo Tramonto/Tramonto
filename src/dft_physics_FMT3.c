@@ -102,7 +102,7 @@ struct RB_Struct d2phi_drb2_delta_rb_FMT3(double *n, int *offset, double *sign, 
 
 {
   struct RB_Struct tmp;
-  double n3sq,n3cb,n3_4th,n2sq,n2cb;
+  double n3sq,n3cb,n2sq;
   double inv_n3[5],DOT_22,DOT_12,fac1,fac2,fac3,vector[NDIM_MAX];
   int idim,i2v,i1v;
 
@@ -123,10 +123,8 @@ struct RB_Struct d2phi_drb2_delta_rb_FMT3(double *n, int *offset, double *sign, 
 
   n3sq=n[3]*n[3];
   n3cb=n3sq*n[3];
-  n3_4th=n3cb*n[3];
 
   n2sq=n[2]*n[2];
-  n2cb=n2sq*n[2];
 
   if (n[3]>1.e-10){
      fac1 = n[3]-2*(1.-n[3])*log(1.-n[3]);
@@ -168,12 +166,11 @@ struct RB_Struct d2phi_drb2_delta_rb_FMT3(double *n, int *offset, double *sign, 
 
      for (idim = 0; idim<Ndim; idim++){
        i2v=Nrho_bar_s+Ndim+idim;
-       i1v=Nrho_bar_s+idim;
 
        tmp.V2[idim] = sign[idim]*
                     ( -n[i2v]*inv_n3[2]*fac2/(6.*PI*n3sq)
                     - (-Inv_4pir[icomp]*inv_n3[1] - n[2]*fac2*inv_n3[2]/(6.*PI*n3sq))*vector[idim]);
-		}
+     }
   }
   else{
     tmp.S2 = 0.0;

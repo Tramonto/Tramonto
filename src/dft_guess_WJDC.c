@@ -133,7 +133,7 @@ void setup_polymer_G_wjdc(double **xOwned)
 in the wjdc functional */
 void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned)
 {
-  int loc_inode,iunk,inode_box,icomp_iseg;
+  int loc_inode,iunk,inode_box;
   int ibond,jbond,index,iseg,jseg,pol_num,bond_num,test,ijk_box[3];
   double resid_G;
   int array_val[NMER_MAX*NBOND_MAX],array_fill,count_fill;
@@ -156,7 +156,6 @@ void calc_init_polymer_G_wjdc(double **xInBox,double **xOwned)
      for (ibond=0;ibond<Nbonds;ibond++){
         pol_num=Unk_to_Poly[ibond];
         iseg=Unk_to_Seg[ibond];
-        icomp_iseg=Unk2Comp[iseg];
         bond_num=Unk_to_Bond[ibond];
 
         if (array_val[ibond]==FALSE){

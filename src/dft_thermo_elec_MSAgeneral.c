@@ -69,7 +69,7 @@ double pressure_elec_MSA(double *rho)
 double deltaC_GENERAL_MSA(double r,int i, int j)
 {
   double deltac;
-  double NplusGammaX_i,NplusGammaX_itemp;
+  double NplusGammaX_itemp;
   int itemp,jtemp;
 
   /* note that the parameters X_MSA, N_SMA, Gamma_MSA are computed in the routine
@@ -79,7 +79,6 @@ double deltaC_GENERAL_MSA(double r,int i, int j)
   if (HS_diam[j]<HS_diam[i]){ itemp=j; jtemp=i; }
   else                      { itemp=i; jtemp=j; }
 
-  NplusGammaX_i=N_MSA[i]+Gamma_MSA*X_MSA[i];
   NplusGammaX_itemp=N_MSA[itemp]+Gamma_MSA*X_MSA[itemp];
 
   if (r == 0.0) printf("trouble with deltaC term .... r=0");

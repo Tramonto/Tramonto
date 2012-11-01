@@ -275,7 +275,7 @@ void force_elec(double **x, double **Sum_dphi_dx)
    int  iunk,loc_inode,iwall,idim,jdim,
        iel_w,inode,surf_norm,ijk_box[3],
        el_type,offset[3],reflect_flag[3],
-       match,test,inode_box,jnode_box,blocked,jwall;
+       inode_box,jnode_box,blocked,jwall;
 
    double prefac,nodepos[3],
           deriv_x[12][3],dot_prod[12],integrand,store1,store2,
@@ -306,11 +306,6 @@ void force_elec(double **x, double **Sum_dphi_dx)
               surf_norm = Surf_normal[Nlists_HW-1][loc_inode][iel_w];*/
           for (iel_w=0; iel_w<Nelems_S[0][loc_inode]; iel_w++){
               surf_norm = Surf_normal[0][loc_inode][iel_w];
-              if (iel_w == 0) {
-                   test = surf_norm; 
-                   match = TRUE;
-              }
-              else if (surf_norm != test) match = FALSE;
           }
 
          /* for (iel_w=0; iel_w<Nelems_S[Nlists_HW-1][loc_inode]; iel_w++){*/

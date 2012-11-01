@@ -90,8 +90,6 @@ double surface_cylinder2D_roughness(double *fluidEl_center,int iwall_type,int iw
   }
   r=sqrt(rsq);
 
-  idim=1;
-
   cos_angle=vecB[0]/r;
   angle = acos(cos_angle);
   angle_deg=180.*angle/PI;

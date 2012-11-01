@@ -73,9 +73,9 @@ int StenTheta_RPMmsa_NquadPtsGauss(double r)
 int StenTheta_RPMmsa_NquadPtsGaussIntegrand(double r)
 {
    int npt;
-   if (r <= 4.000000001)     npt=40;
+/*   if (r <= 4.000000001)     npt=40;
    else if (r<= 16.00000001) npt=20;
-   else                      npt=12;
+   else                      npt=12;*/
 
    npt=20;   /* setting from old stencil code */ 
    return(npt);

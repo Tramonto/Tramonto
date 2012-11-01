@@ -46,9 +46,9 @@ void surface_atoms_inSurfaceTest(int iwall,int iwall_type,
   double x12,radius,r12sq_sum,r12;
   double roff=0.00000000001,halfwidth;
   int idim;
-  struct SurfaceGeom_Struct *sgeom_iw;
 
-  sgeom_iw=&(SGeom[iwall_type]);
+/*  struct SurfaceGeom_Struct *sgeom_iw;
+  sgeom_iw=&(SGeom[iwall_type]);*/
 
   if (Ipot_ff_c==COULOMB) *logical_nearWallDielec=FALSE;
   *logical_inwall=FALSE;

@@ -102,7 +102,7 @@ void FMT4_1stderiv(double *n,double DOT_12,double DOT_22,double *inv_n3, double 
 struct RB_Struct d2phi_drb2_delta_rb_FMT4(double *n, int *offset, double *sign, int icomp)
 {
   struct RB_Struct tmp;
-  double n3sq,n3cb,n3_4th,n2sq,n2cb;
+  double n3sq,n3cb,n2sq,n2cb;
   double inv_n3[5],DOT_22,DOT_12,DOT_nw,fac,fac1,fac2,fac3,vector[NDIM_MAX];
   int idim,i2v,i1v;
 
@@ -123,7 +123,6 @@ struct RB_Struct d2phi_drb2_delta_rb_FMT4(double *n, int *offset, double *sign, 
 
   n3sq=n[3]*n[3];
   n3cb=n3sq*n[3];
-  n3_4th=n3cb*n[3];
 
   n2sq=n[2]*n[2];
   n2cb=n2sq*n[2];
@@ -175,7 +174,7 @@ struct RB_Struct d2phi_drb2_delta_rb_FMT4(double *n, int *offset, double *sign, 
     
      for (idim = 0; idim<Ndim; idim++){
        i2v=Nrho_bar_s+Ndim+idim;
-       i1v=Nrho_bar_s+idim;
+/*       i1v=Nrho_bar_s+idim;*/
 
        tmp.V2[idim] = sign[idim]*
                     ( -(n[i2v]*inv_n3[2]*fac2/(6.*PI*n3sq))*(fac*fac-4*DOT_22*fac/n[2]+4*DOT_nw*fac/n[2])

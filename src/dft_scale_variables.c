@@ -195,10 +195,9 @@ specified continuation variable while holding the other densities constant */
 void calc_new_density(int icomp,char *file_echoinput)
 {
   int jcomp,i,ncount=0,Lconverged,ipol;
-  double mu_new_icomp,tol=1.e-8,rho_save_icomp,betamu_test,percent_change,rho_new_test;
+  double mu_new_icomp,tol=1.e-8,betamu_test,percent_change,rho_new_test;
   double rho_tmp[NCOMP_MAX];
 
-  rho_save_icomp=Rho_b[icomp];
   if (Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) mu_new_icomp=Betamu_chain[icomp]; 
   else                                                         mu_new_icomp=Betamu[icomp];
   Lconverged=FALSE;

@@ -86,7 +86,7 @@ void calc_init_CMSfield(double **xInBox,double **xOwned)
                        for the polymers variables for SCF case    */
 void setup_polymer_simple(double **xInBox, int guess_type)
 {
-  int loc_inode,inode_box,ijk_box[3],i, iunk,junk;
+  int loc_inode,inode_box,ijk_box[3],i, iunk;
   double temp;
   int itype_mer,jtype_mer,inode;
   double nodepos[3];
@@ -101,7 +101,6 @@ void setup_polymer_simple(double **xInBox, int guess_type)
         if (!Zero_density_TF[inode_box][itype_mer]){
            temp = 0.;
            for (jtype_mer=0; jtype_mer<Ncomp; jtype_mer++){
-	     junk = Phys2Unk_first[CMS_FIELD]+jtype_mer;
            
 	     if (guess_type == CONST_RHO) {
 	       temp = 0.;

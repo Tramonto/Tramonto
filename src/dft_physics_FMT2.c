@@ -105,10 +105,10 @@ struct RB_Struct d2phi_drb2_delta_rb_FMT2(double *n, int *offset, double *sign,i
 {
   struct RB_Struct tmp;
   double n1v[NDIM_MAX], n2v[NDIM_MAX];
-  double inv_one_m_n3, inv_one_m_n3_sq, inv_one_m_n3_3rd, inv_one_m_n3_4th;
+  double inv_one_m_n3, inv_one_m_n3_sq, inv_one_m_n3_3rd;
   double vector[NDIM_MAX];
   int idim;
-  double DOT_rho22,alpha,alpha_sq,alpha_cb,beta,gamma[3],DOT_gamma,eps;
+  double DOT_rho22,alpha,alpha_sq,beta,gamma[3],DOT_gamma,eps;
   
   for (idim = 0; idim<Ndim; idim++) {
     n2v[idim] = sign[idim]*n[Nrho_bar_s+Ndim+idim];
@@ -137,12 +137,10 @@ struct RB_Struct d2phi_drb2_delta_rb_FMT2(double *n, int *offset, double *sign,i
       eps=1.0;
   }
   alpha_sq=alpha*alpha;
-  alpha_cb=alpha_sq*alpha;
 
   inv_one_m_n3 = 1.0 / (1.0 - n[3]);
   inv_one_m_n3_sq = inv_one_m_n3*inv_one_m_n3;
   inv_one_m_n3_3rd = inv_one_m_n3_sq*inv_one_m_n3;
-  inv_one_m_n3_4th = inv_one_m_n3_sq*inv_one_m_n3_sq;
   for (idim = 0; idim<Ndim; idim++) 
     vector[idim] = offset[idim] * Esize_x[idim] * Inv_rad[icomp];
 
