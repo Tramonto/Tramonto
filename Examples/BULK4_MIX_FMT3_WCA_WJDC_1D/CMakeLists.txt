@@ -4,5 +4,5 @@ Tramonto_add_test(
     README
     dft_input.dat
     lin_2mer
-  TYPE Nightly 
+  TYPE Occasional
 )
