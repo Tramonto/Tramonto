@@ -3,4 +3,5 @@ Tramonto_add_test(
   INPUT_FILES
     README
     dft_input.dat
+   TYPE Continuous
 )

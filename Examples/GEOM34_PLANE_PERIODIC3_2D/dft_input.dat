@@ -323,7 +323,7 @@
 @ 1.e-3 1.e-8   NL_rel_tol_picard NL_abs_tol_picard
 @ 2 	Load balance switch (0=linear,1=box,2=weights, 3=timings) 
 ************ LINEAR SOLVER PARAMETERS ****************************************
-@ 1 0 100 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
+@ 0 0 100 	L_Schur, Solver (0=gmres, 1=cg, 2=tfqmr, 3=cg2, 4=bicgstab), Az_kpace 
 @ -1 	Scaling (0=row_sum, 1=Jacobi, 2=symrow_sum, -1=none) 
 @ 4 4 	Preconditioner (0=ilu, 1=Jacobi, 2=symGS, 3=LSpoly3, -1=none), level 
 @ 100 1.e-8 	Max iterations and Convergence Tolerance for Linear Solver 

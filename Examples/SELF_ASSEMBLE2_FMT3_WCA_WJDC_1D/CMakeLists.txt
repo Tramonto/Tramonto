@@ -8,4 +8,5 @@ Tramonto_add_test(
     dft_surfaces.dat
     dsave_whole_bilayer
     lin_18_1
+    TYPE Checkin
 )

@@ -4,4 +4,5 @@ Tramonto_add_test(
     README
     dft_dens.dat
     dft_input.dat
+  TYPE Sanity
 )

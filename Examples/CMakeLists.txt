@@ -17,19 +17,19 @@ set(Tramonto_TEST_HARNESS_FAIL_TOLERANCE 0.001 CACHE STRING
 set(Tramonto_TEST_HARNESS_ITERATION_BOUND 4 CACHE STRING
   "Maximum number of iterations a test is allowed to differ by before it is considered a failure.")
 
-set(Tramonto_TEST_HARNESS_Sanity_TIMEOUT 20 CACHE STRING
+set(Tramonto_TEST_HARNESS_Sanity_TIMEOUT 30 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Sanity test suite.")
 
-set(Tramonto_TEST_HARNESS_Checkin_TIMEOUT 30 CACHE STRING
+set(Tramonto_TEST_HARNESS_Checkin_TIMEOUT 100 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Checkin test suite.")
 
-set(Tramonto_TEST_HARNESS_Continuous_TIMEOUT 300 CACHE STRING
+set(Tramonto_TEST_HARNESS_Continuous_TIMEOUT 600 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Continuous test suite.")
 
-set(Tramonto_TEST_HARNESS_Nightly_TIMEOUT 3600 CACHE STRING
+set(Tramonto_TEST_HARNESS_Nightly_TIMEOUT 2000 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Nightly test suite.")
 
-set(Tramonto_TEST_HARNESS_Occasional_TIMEOUT 36000 CACHE STRING
+set(Tramonto_TEST_HARNESS_Occasional_TIMEOUT 7200 CACHE STRING
   "Maximum runtime for a test that gets run as part of the Occasional test suite.")
 
 set(Tramonto_TEST_HARNESS_CHECK_JOB_TIMEOUT 2 CACHE STRING

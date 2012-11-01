@@ -5,4 +5,5 @@ Tramonto_add_test(
     dft_dens.dat
     dft_input.dat
     dft_surfaces.dat
+  TYPE Checkin
 )
