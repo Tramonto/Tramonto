@@ -5,5 +5,5 @@ Tramonto_add_test(
     dft_input.dat
     dft_surfaces.dat
     lin_10_10
-  TYPE Nightly
+  TYPE Occasional
 )
