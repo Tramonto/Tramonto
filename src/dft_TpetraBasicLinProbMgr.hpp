@@ -430,6 +430,7 @@ protected:
   Array<GlobalOrdinal> indices_;
   std::map<GlobalOrdinal, precScalar> curRowValues_;
   Array<precScalar> values_;
+  GlobalOrdinal scaling_;
   GlobalOrdinal n_;
   Scalar eps_;
   halfScalar epsHalf_;

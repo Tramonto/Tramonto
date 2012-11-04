@@ -460,26 +460,29 @@ setupSolver
   // Setup machine constants
   setMachineParams();
 
+  scaling_ = parameterList_->template get<int>( "Scaling" );
   // Perform scaling
-  scalingMatrix_ = rcp(new SCALE_P(globalMatrix_));
-  rowScaleFactors_ = rcp(new VEC_P(globalMatrix_->getDomainMap()));
-  rowScaleFactorsScalar_ = rcp(new VEC(globalMatrix_->getDomainMap()));
+  if (scaling_ != AZ_none) {
+    scalingMatrix_ = rcp(new SCALE_P(globalMatrix_));
+    rowScaleFactors_ = rcp(new VEC_P(globalMatrix_->getDomainMap()));
+    rowScaleFactorsScalar_ = rcp(new VEC(globalMatrix_->getDomainMap()));
 
-  LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
-  globalMatrix_->resumeFill();
-  LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
-  globalMatrix_->fillComplete();
+    LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
+    globalMatrix_->resumeFill();
+    LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
+    globalMatrix_->fillComplete();
 #if MIXED_PREC == 1
 
-  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
-  // Promote rowScaleFactors to scalar precision
-  mvConverter->halfToScalar( *rowScaleFactors_, *rowScaleFactorsScalar_ );
+    RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+    // Promote rowScaleFactors to scalar precision
+    mvConverter->halfToScalar( *rowScaleFactors_, *rowScaleFactorsScalar_ );
 
-  globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactorsScalar_, *globalRhs_, 0.0 );
+    globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactorsScalar_, *globalRhs_, 0.0 );
 
 #elif MIXED_PREC == 0
-  globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
+    globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
 #endif
+  }
 
 #ifdef SUPPORTS_STRATIMIKOS
   thyraRhs_ = createVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(globalRhs_);
@@ -497,12 +500,15 @@ setupSolver
   problem_ = rcp(new LinPROB(globalMatrixOperator_, globalLhs_, globalRhs_));
   RCP<const MAT_P> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT_P>(globalMatrix_);
   Ifpack2::Factory factory;
-  preconditioner_ = factory.create("ILUT", const_globalMatrix_);
-  preconditioner_->setParameters(*parameterList_);
-  preconditioner_->initialize();
-  preconditioner_->compute();
-  preconditionerMixed_ = rcp(new MOP((RCP<OP_P>)preconditioner_));
-  problem_->setLeftPrec(preconditionerMixed_);
+  int precond  = parameterList_->template get<int>( "Precond" );
+  if (precond != AZ_none) {
+    preconditioner_ = factory.create("ILUT", const_globalMatrix_);
+    preconditioner_->setParameters(*parameterList_);
+    preconditioner_->initialize();
+    preconditioner_->compute();
+    preconditionerMixed_ = rcp(new MOP((RCP<OP_P>)preconditioner_));
+    problem_->setLeftPrec(preconditionerMixed_);
+  }
 
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
@@ -534,21 +540,23 @@ solve
     writePermutation("p_ref.dat");
   }
   // Undo scaling
-  rowScaleFactors_->reciprocal( *rowScaleFactors_ );
-  globalMatrix_->resumeFill();
-  LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
-  globalMatrix_->fillComplete();
+  if (scaling_ != AZ_none) {
+    rowScaleFactors_->reciprocal( *rowScaleFactors_ );
+    globalMatrix_->resumeFill();
+    LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
+    globalMatrix_->fillComplete();
 #if MIXED_PREC == 1
 
-  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
-  // Promote rowScaleFactors to scalar precision
-  mvConverter->halfToScalar( *rowScaleFactors_, *rowScaleFactorsScalar_ );
+    RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+    // Promote rowScaleFactors to scalar precision
+    mvConverter->halfToScalar( *rowScaleFactors_, *rowScaleFactorsScalar_ );
 
-  globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactorsScalar_, *globalRhs_, 0.0 );
+    globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactorsScalar_, *globalRhs_, 0.0 );
 
 #elif MIXED_PREC == 0
-  globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
+    globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
 #endif
+  }
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>

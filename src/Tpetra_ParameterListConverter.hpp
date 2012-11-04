@@ -43,6 +43,7 @@
 #define TPETRA_PARAMETERLISTCONVERTER_HPP
 
 #include "BelosTypes.hpp"
+#include "AztecOO.h"
 
 namespace Tpetra {
 
@@ -80,41 +81,55 @@ namespace Tpetra {
     {
       Scalar sParam;
       //
-      // Ifpack2 Parameters
+      // Select scaling
       //
-      // Level of fill
-      outputList_.template set<Scalar>( "fact: ilut level-of-fill",
-      					1.0 );
-      //					inputList_->template get<double>("Ilut_fill") );
-      // Absolute threshold
-      outputList_.template set<Scalar>( "fact: absolute threshold",
-					inputList_->template get<double>("Athresh") );
-      // Relative threshold
-      sParam = inputList_->template get<double>("Rthresh");
-      if (sParam == 0.0)
-	// The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
-	outputList_.template set<Scalar>( "fact: relative threshold", 1.0 );
-      else
-	outputList_.template set<Scalar>( "fact: relative threshold",
-					  inputList_->template get<double>("Rthresh") );
-      // Drop tolerance
-      outputList_.template set<Scalar>( "fact: drop tolerance",
-					inputList_->template get<double>("Drop") );
-
+      int scaling  = inputList_->template get<int>( "Scaling" );
+      outputList_.template set<int>( "Scaling",
+				     scaling );
+      //
+      // Select preconditioner
+      //
+      int precond  = inputList_->template get<int>( "Precond" );
+      double fill = inputList_->template get<double>("Ilut_fill");
+      outputList_.template set<int>( "Precond",
+				     precond );
+      if (precond != AZ_none) {
+	// Use Ifpack2 ILUT
+	//
+	// Ifpack2 Parameters
+	//
+	// Level of fill
+	outputList_.template set<Scalar>( "fact: ilut level-of-fill",
+					  1.0 );
+	//					  inputList_->template get<double>("Ilut_fill") );
+	// Absolute threshold
+	outputList_.template set<Scalar>( "fact: absolute threshold",
+					  inputList_->template get<double>("Athresh") );
+	// Relative threshold
+	sParam = inputList_->template get<double>("Rthresh");
+	if (sParam == 0.0)
+	  // The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
+	  outputList_.template set<Scalar>( "fact: relative threshold", 1.0 );
+	else
+	  outputList_.template set<Scalar>( "fact: relative threshold",
+					    inputList_->template get<double>("Rthresh") );
+	// Drop tolerance
+	outputList_.template set<Scalar>( "fact: drop tolerance",
+					  inputList_->template get<double>("Drop") );
+      }
       //
       // Belos Parameters
       //
       // Block size
       GlobalOrdinal blockSize = 1;
       outputList_.set( "Block Size", blockSize);
-      // Number of blocks
       outputList_.set( "Num Blocks",
-		       500 );
-      //      2 * inputList_->template get<int>("Kspace") / blockSize );
+		       std::max( 500,
+				 inputList_->template get<int>("Kspace") / blockSize ) );
       // Maximum iterations
       outputList_.set( "Maximum Iterations",
-		       500 );
-      //      2 * inputList_->template get<int>("Max_iter") );
+		       std::max( 500,
+				 inputList_->template get<int>("Max_iter") ) );
       // Convergence tolerance
 #if MIXED_PREC == 1
       outputList_.template set<Scalar>( "Convergence Tolerance",
@@ -122,8 +137,10 @@ namespace Tpetra {
 						  5*Teuchos::ScalarTraits<halfScalar>::eps() ) );
 #elif MIXED_PREC == 0
       outputList_.template set<Scalar>( "Convergence Tolerance",
-					std::max( Teuchos::as<Scalar>(inputList_->template get<double>("Tol")),
-						  5*Teuchos::ScalarTraits<Scalar>::eps() ) );
+					Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
+      //      outputList_.template set<Scalar>( "Convergence Tolerance",
+      //					std::max( Teuchos::as<Scalar>(inputList_->template get<double>("Tol")),
+      //						  5*Teuchos::ScalarTraits<Scalar>::eps() ) );
 #endif
 
       // Output
