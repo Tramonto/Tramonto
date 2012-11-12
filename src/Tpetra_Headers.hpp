@@ -47,6 +47,7 @@
 #include "BelosBlockGmresSolMgr.hpp"
 #include "Ifpack2_Factory.hpp"
 #include "Ifpack2_Preconditioner.hpp"
+#include "Ifpack2_AdditiveSchwarz.hpp"
 #if ENABLE_MUELU == 1
 #include <MueLu.hpp>
 #include <MueLu_Level.hpp>

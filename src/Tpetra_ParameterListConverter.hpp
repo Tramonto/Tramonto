@@ -93,10 +93,26 @@ namespace Tpetra {
       double fill = inputList_->template get<double>("Ilut_fill");
       outputList_.template set<int>( "Precond",
 				     precond );
-      if (precond != AZ_none) {
-	// Use Ifpack2 ILUT
+      //
+      // Ifpack2 Parameters
+      //
+      if (precond == AZ_dom_decomp) {
 	//
-	// Ifpack2 Parameters
+	// Use Ifpack2 Additive Schwarz
+	//
+	// Reordering
+	// Doesn't work yet because of Zoltan2 build error
+	//	Teuchos::ParameterList zlist;
+	//	zlist.set("order_method","rcm");
+	//	outputList_.set( "schwarz: use reordering",
+	//			 true );
+	//	outputList_.set( "schwarz: reordering list",
+	//			 zlist );
+      }
+
+      if (precond != AZ_none) {
+	//
+	// Use Ifpack2 ILUT on entire matrix or on subdomains with Additive Schwarz
 	//
 	// Level of fill
 	outputList_.template set<Scalar>( "fact: ilut level-of-fill",

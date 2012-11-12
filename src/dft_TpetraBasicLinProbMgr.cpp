@@ -501,8 +501,13 @@ setupSolver
   RCP<const MAT_P> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT_P>(globalMatrix_);
   Ifpack2::Factory factory;
   int precond  = parameterList_->template get<int>( "Precond" );
-  if (precond != AZ_none) {
+  if (precond == AZ_dom_decomp) {
+    LocalOrdinal overlapLevel=0;
+    preconditioner_ = rcp(new Ifpack2::AdditiveSchwarz<MAT_P,Ifpack2::ILUT<MAT_P > > (const_globalMatrix_,overlapLevel));
+  } else if (precond != AZ_none) {
     preconditioner_ = factory.create("ILUT", const_globalMatrix_);
+  }
+  if (precond != AZ_none) {
     preconditioner_->setParameters(*parameterList_);
     preconditioner_->initialize();
     preconditioner_->compute();
