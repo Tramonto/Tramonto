@@ -396,15 +396,14 @@ setupSolver
 
   problem_ = rcp(new LinPROB(schurOperator_, lhs2_, rhsSchur_));
 
-  /* Leave this out for now; it doesn't compile in mixed precision
   if (formSchurMatrix_) {// We have S explicitly available, so let's use it
     if (isA22Diagonal_)
       schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Diagonal_->getA22Matrix());
     else
       schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Matrix_->getA22Matrix());
-    problem_->setOperator(schurOperator_->getSchurComplement());
+    schurComplementMatrixOperator_ = rcp(new DMOP_P(schurOperator_->getSchurComplement()));
+    problem_->setOperator(schurComplementMatrixOperator_);
   }
-  */
   if (isA22Diagonal_)
     problem_->setLeftPrec(A22DiagonalPrecond_);
   else

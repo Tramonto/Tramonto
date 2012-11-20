@@ -4,6 +4,7 @@
 #include "Kokkos_NodeTrace.hpp"
 #include "Tpetra_ConfigDefs.hpp"
 #include "Tpetra_MultiVector.hpp"
+#include "TpetraExt_MatrixMatrix.hpp"
 #include "Tpetra_CrsMatrix.hpp"
 #include "Tpetra_CrsMatrixMultiplyOp.hpp"
 #include "Tpetra_CrsMatrixMixed.hpp"

@@ -28,7 +28,7 @@
 
 #include "Tpetra_Headers.hpp"
 
-//! dft_HardSphereA22_Epetra_Operator: An implementation of the Epetra_Operator class for Tramonto Schur complements.
+//! dft_HardSphereA22_Tpetra_Operator: An implementation of the Tpetra_Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
 */
 
@@ -69,7 +69,7 @@ public:
 
   //@{ \name Atribute get methods.
 
-  //! Returns an Epetra_Operator pointer that is actually the \e this object, since this class implements Epetra_Operator.
+  //! Returns an Tpetra_Operator pointer that is actually the \e this object, since this class implements Tpetra_Operator.
   virtual RCP<OP>
   getA22Inv
   ()
@@ -91,12 +91,12 @@ public:
 
   //@{ \name Mathematical functions.
 
-    //! Returns the result of a dft_HardSphereA22_Epetra_Operator applied to a Epetra_MultiVector X in Y.
+    //! Returns the result of a dft_HardSphereA22_Tpetra_Operator applied to a Tpetra_MultiVector X in Y.
     /*!
     \param In
-	   X - An Epetra_MultiVector of dimension NumVectors to multiply with matrix.
+	   X - An Tpetra_MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
-	   Y -An Epetra_MultiVector of dimension NumVectors containing result.
+	   Y -An Tpetra_MultiVector of dimension NumVectors containing result.
 
     \return Integer error code, set to 0 if successful.
   */
@@ -104,12 +104,12 @@ public:
   apply
   (const MV& X, MV& Y, Teuchos::ETransp mode = Teuchos::NO_TRANS, Scalar alpha = 1.0, Scalar beta = 0.0) const;
 
-  //! Returns the result of an inverse dft_HardSphereA22_Epetra_Operator applied to a Epetra_MultiVector X in Y.
+  //! Returns the result of an inverse dft_HardSphereA22_Tpetra_Operator applied to a Tpetra_MultiVector X in Y.
   /*!
     \param In
-    X - An Epetra_MultiVector of dimension NumVectors to multiply with matrix.
+    X - An Tpetra_MultiVector of dimension NumVectors to multiply with matrix.
     \param Out
-    Y - An Epetra_MultiVector of dimension NumVectors containing result.
+    Y - An Tpetra_MultiVector of dimension NumVectors containing result.
 
     \return Integer error code, set to 0 if successful.
   */
@@ -167,7 +167,7 @@ public:
     return(false);
   };
 
-  //! Returns a pointer to the Epetra_Comm communicator associated with this operator.
+  //! Returns a pointer to the Tpetra_Comm communicator associated with this operator.
   virtual const RCP<const COMM> &
   Comm
   () const
@@ -175,7 +175,7 @@ public:
     return(block2Map_->getComm());
   };
 
-  //! Returns the Epetra_Map object associated with the domain of this operator.
+  //! Returns the Tpetra_Map object associated with the domain of this operator.
   virtual const RCP<const MAP> &
   getDomainMap
   () const
@@ -183,7 +183,7 @@ public:
     return(block2Map_);
   };
 
-  //! Returns the Epetra_Map object associated with the range of this operator.
+  //! Returns the Tpetra_Map object associated with the range of this operator.
   virtual const RCP<const MAP> &
   getRangeMap
   () const
@@ -191,13 +191,13 @@ public:
     return(block2Map_);
   };
 
-  //! Returns a pointer to the Epetra_CrsMatrix object that is the A22 matrix
+  //! Returns a pointer to the Tpetra_CrsMatrix object that is the A22 matrix
   RCP<MAT_P>
   getA22Matrix
   ()
   {
-    //    formA22Matrix();
-    //    return(A22Matrix_.get());
+    formA22Matrix();
+    return(A22Matrix_);
   }
   //@}
 

@@ -59,7 +59,7 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   //@{ \name Atribute set methods.
   void
   SetSchurComponents
-  (RCP<MAT > A11invMatrix, RCP<MAT > A22Matrix)
+  (RCP<MAT_P> A11invMatrix, RCP<MAT_P> A22Matrix)
   {
     A11invMatrix_ = A11invMatrix;
     A22Matrix_ = A22Matrix;
@@ -111,7 +111,21 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   (const MV& X1, const MV& X2, MV& Y1, MV& Y2) const;
 
   //! Explicitly form Schur complement as an CrsMatrix and return a pointer to it.
-  RCP<MAT> getSchurComplement();
+  void formSchurComplement();
+
+  //! Returns a pointer to the Tpetra_CrsMatrix object that is the schur complement
+  RCP<MAT_P>
+  getSchurComplement
+  ()
+  {
+    if (A11invMatrix_.is_null() || A22Matrix_.is_null())
+      {
+	RCP<MAT_P> null;
+	return(null);  // We cannot form S without the component matrices
+      } //end if
+    formSchurComplement();
+    return(S_);
+  }
 
   //! Returns the infinity norm of the global matrix.
   /* Returns the quantity \f$ \| A \|_\infty\f$ such that
@@ -188,15 +202,15 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   /*!< The 2,1 block of the 2 by 2 block matrix */
   RCP<APINV> A22_;
   /*!< The 2,2 block of the 2 by 2 block matrix */
-  RCP<MAT> A11invMatrix_;
+  RCP<MAT_P> A11invMatrix_;
   /*!< The inverse of A11 in matrix form, if available */
-  RCP<MAT> A22Matrix_;
+  RCP<MAT_P> A22Matrix_;
   /*!< A22 as a matrix, if available */
-  RCP<MAT> A11invA12_;
+  RCP<MAT_P> A11invA12_;
   /* Intermediate matrix containing inv(A11)*A12 */
-  RCP<MAT> A21A11invA12_;
+  RCP<MAT_P> A21A11invA12_;
   /* Intermediate matrix containing A21*inv(A11)*A12 */
-  RCP<MAT> S_;
+  RCP<MAT_P> S_;
   /* Schur complement, if formed */
   char * Label_; /*!< Description of object */
 };

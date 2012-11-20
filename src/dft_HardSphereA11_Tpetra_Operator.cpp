@@ -298,14 +298,16 @@ formA11invMatrix
     A11invMatrix_->setObjectLabel("HardSphereA11::A11invMatrix");
     firstTime = true;
   }
-  else
+  else {
+    A11invMatrix_->resumeFill();
     A11invMatrix_->setAllToScalar(0.0); // reset values
+  }
 
   // insert -I for diagonal first
   LocalOrdinal numRows = getRangeMap()->getNodeNumElements();
   Scalar value = -1.0;
   for (LocalOrdinal i=0; i<numRows; i++) {
-    GlobalOrdinal row = A11invMatrix_->getDomainMap()->getGlobalElement(i);
+    GlobalOrdinal row = A11invMatrix_->getRowMap()->getGlobalElement(i);
     GlobalOrdinal col = row;
     Array<GlobalOrdinal> cols(1);
     Array<precScalar> vals(1);
@@ -324,7 +326,7 @@ formA11invMatrix
     ArrayView<GlobalOrdinal> indices;
     ArrayView<precScalar> values;
     for (LocalOrdinal i=0; i<numRows; i++) {
-      GlobalOrdinal row = matrix_->getDomainMap()->getGlobalElement(i);
+      GlobalOrdinal row = matrix_->getRowMap()->getGlobalElement(i);
       matrix_->getGlobalRowCopy( row, indices, values, numEntries );
       for( LocalOrdinal j = 0; j < numEntries; ++j )  {
 	values[j] = - values[j];

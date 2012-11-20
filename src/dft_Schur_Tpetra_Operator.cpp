@@ -173,55 +173,65 @@ ApplyGlobal
 } //end ApplyGlobal
 //==============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-RCP<Tpetra::CrsMatrix<Scalar,LocalOrdinal,GlobalOrdinal,Node> >
+void
 dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-getSchurComplement
+formSchurComplement
 ()
 {
   if (A11invMatrix_.is_null() || A22Matrix_.is_null())
-  {
-    RCP<MAT> null;
-    return(null);  // We cannot form S without the component matrices
-  } //end if
+    {
+      return;  // We cannot form S without the component matrices
+    } //end if
+
   if (S_.get()==0)  // Form S
-  {
-    A11invA12_ = rcp(new MAT(A12_->getRowMap(), 0));
-    A11invA12_->setObjectLabel("SchurComplement::A11invA12");
-    A21A11invA12_ = rcp(new MAT(A21_->getRowMap(), 0));
-    A21A11invA12_->setObjectLabel("SchurComplement::A21A11invA12");
-    S_ = rcp(new MAT(A21_->getRowMap(), 0));
-    S_->setObjectLabel("SchurComplement::S");
+    {
+      A11invA12_ = rcp(new MAT_P(A12_->getRowMap(), 0));
+      A11invA12_->setObjectLabel("SchurComplement::A11invA12");
+      A21A11invA12_ = rcp(new MAT_P(A21_->getRowMap(), 0));
+      A21A11invA12_->setObjectLabel("SchurComplement::A21A11invA12");
+      S_ = rcp(new MAT_P(A21_->getRowMap(), 0));
+      S_->setObjectLabel("SchurComplement::S");
   } //end if
 
+  bool A11invA12filled = A11invA12_->isFillComplete();
+  bool A21A11invA12filled = A21A11invA12_->isFillComplete();
+
+  if (A11invA12filled)
+    A11invA12_->resumeFill();
+  if (A21A11invA12filled)
+    A11invA12_->resumeFill();
+
   // Compute inv(A11)*A12
-  //////////EpetraExt::MatrixMatrix::Multiply(*A11invMatrix_, false, *A12_, false, *A11invA12_);
+    Tpetra::MatrixMatrix::Multiply(*A11invMatrix_, false, *A12_, false, *A11invA12_);
   // Compute A21A11invA12
-  /////////////EpetraExt::MatrixMatrix::Multiply(*A21_, false, *A11invA12_, false, *A21A11invA12_);
-  // Finally compute S = A22 - A21A11invA12, do this manually
+    Tpetra::MatrixMatrix::Multiply(*A21_, false, *A11invA12_, false, *A21A11invA12_);
+
+  // Finally compute S = A22 - A21A11invA12 manually
 
   //Initialize if S already filled
   bool sfilled = S_->isFillComplete();
   if (sfilled)
   {
+    S_->resumeFill();
     S_->setAllToScalar(0.0);
   } //end if
 
   //Loop over rows and sum into
   size_t maxNumEntries = A22Matrix_->getGlobalMaxNumRowEntries();
   if(A21A11invA12_->getGlobalMaxNumRowEntries() > maxNumEntries)
-  {
-    maxNumEntries = A21A11invA12_->getGlobalMaxNumRowEntries();
-  } //end if
+    {
+      maxNumEntries = A21A11invA12_->getGlobalMaxNumRowEntries();
+    } //end if
   size_t NumEntries;
   Array<GlobalOrdinal> Indices(maxNumEntries);
-  Array<Scalar> Values(maxNumEntries);
+  Array<precScalar> Values(maxNumEntries);
 
   LocalOrdinal NumMyRows = S_->getNodeNumRows();
   LocalOrdinal Row, err;
 
   for( LocalOrdinal i = 0; i < NumMyRows; ++i )
   {
-    Row = S_->getDomainMap()->getGlobalElement(i);
+    Row = S_->getRowMap()->getGlobalElement(i);
     A22Matrix_->getGlobalRowCopy(Row, Indices, Values, NumEntries);
     if( sfilled ) //Sum In Values
     {
@@ -233,17 +243,17 @@ getSchurComplement
     } //end else
     A21A11invA12_->getGlobalRowCopy( Row, Indices, Values, NumEntries);
     for( LocalOrdinal j = 0; j < NumEntries; ++j )
-    {
-      Values[j] = - Values[j];
-    } //end for
+      {
+	Values[j] = - Values[j];
+      } //end for
     if( sfilled ) //Sum In Values
-    {
-      S_->sumIntoGlobalValues( Row, Indices, Values);
-    } //end if
+      {
+	S_->sumIntoGlobalValues( Row, Indices, Values);
+      } //end if
     else
-    {
-      S_->insertGlobalValues( Row, Indices, Values);
-    } //end else
+      {
+	S_->insertGlobalValues( Row, Indices, Values);
+      } //end else
   } //end for
 
   if( !sfilled )
@@ -251,8 +261,7 @@ getSchurComplement
     S_->fillComplete();
   } //end if
 
-  return(S_);
-} //end getSchurCompliment
+} //end getFormCompliment
 #if LINSOLVE_PREC == 0
 // Use float
 template class dft_Schur_Tpetra_Operator<float, int, int>;

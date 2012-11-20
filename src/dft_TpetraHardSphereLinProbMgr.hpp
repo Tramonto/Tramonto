@@ -277,6 +277,7 @@ protected:
   RCP<const MAP> depNonLocalRowMap_;
   Array<GlobalOrdinal> physicsIdToSchurBlockId_;
   RCP<ScTO> schurOperator_;
+  RCP<DMOP_P> schurComplementMatrixOperator_;
   RCP<VEC> rhs1_;
   RCP<VEC> rhs2_;
   RCP<VEC> rhsSchur_;
