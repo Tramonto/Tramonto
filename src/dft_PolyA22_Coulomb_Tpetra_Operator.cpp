@@ -42,11 +42,11 @@ dft_PolyA22_Coulomb_Tpetra_Operator
     curPDRow_(-1)
 {
   poissonOnPoissonMatrix_ = rcp(new MAT_P(poissonMap, 0));
-  poissonOnPoissonMatrixOp_ = rcp(new DMOP_P(poissonOnPoissonMatrix_));
+  poissonOnPoissonMatrixOp_ = rcp(new MMOP_P(poissonOnPoissonMatrix_));
   cmsOnPoissonMatrix_ = rcp(new MAT_P(cmsMap, 0));
-  cmsOnPoissonMatrixOp_ = rcp(new DMOP_P(cmsOnPoissonMatrix_));
+  cmsOnPoissonMatrixOp_ = rcp(new MMOP_P(cmsOnPoissonMatrix_));
   poissonOnDensityMatrix_ = rcp(new MAT_P(poissonMap, 0));
-  poissonOnDensityMatrixOp_ = rcp(new DMOP_P(poissonOnDensityMatrix_));
+  poissonOnDensityMatrixOp_ = rcp(new MMOP_P(poissonOnDensityMatrix_));
   Label_ = "dft_PolyA22_Coulomb_Tpetra_Operator";
   cmsOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnDensityMatrix");
   cmsOnCmsMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnCmsMatrix");

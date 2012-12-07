@@ -116,16 +116,11 @@ using Belos::ReturnType;
   typedef Tpetra::Operator<SCALAR,LO,GO,Node> OP; \
   typedef Tpetra::OperatorApplyInverse<SCALAR,LO,GO,Node> APINV; \
   typedef Tpetra::InvOperator<SCALAR,LO,GO,Node> INVOP; \
-  typedef Tpetra::HalfOperator<SCALAR,LO,GO,Node> HOP; \
   typedef Tpetra::MixedOperator<SCALAR,LO,GO,Node> MOP; \
-  typedef Tpetra::MixedMatrixOperator<SCALAR,LO,GO,Node> MMOP; \
-  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,SCALAR,LO,GO,Node> DMOP; \
-  typedef Tpetra::HalfOperatorApplyInverse<SCALAR,LO,GO,Node> HAPINV; \
-  typedef Tpetra::MixedOperatorApplyInverse<SCALAR,LO,GO,Node> MAPINV; \
+  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,SCALAR,LO,GO,Node> MMOP; \
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,Node> MAP; \
   typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
-  typedef Tpetra::CrsMatrixMixed<SCALAR,LO,GO,Node> MATM; \
   typedef Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GO,Node> SCALE; \
   typedef Tpetra::Import<LO,GO,Node> IMP; \
   typedef Belos::SolverManager<SCALAR, MV, OP> SolMGR; \
@@ -136,14 +131,9 @@ using Belos::ReturnType;
   typedef Tpetra::MultiVector<halfScalar,LO,GO,Node> MV_H; \
   typedef Tpetra::Vector<halfScalar,LO,GO,Node> VEC_H;		   \
   typedef Tpetra::Operator<halfScalar,LO,GO,Node> OP_H;			\
-  typedef Tpetra::OperatorApplyInverse<halfScalar,LO,GO,Node> APINV_H;	\
-  typedef Tpetra::InvOperator<halfScalar,LO,GO,Node> INVOP_H; \
   typedef Tpetra::CrsMatrix<halfScalar,LO,GO,Node> MAT_H;			\
-  typedef Tpetra::CrsMatrixMixed<halfScalar,LO,GO,Node> MATM_H;			\
-  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,halfScalar,LO,GO,Node> DMOP_H; \
+  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,halfScalar,LO,GO,Node> MMOP_H; \
   typedef Tpetra::ScalingCrsMatrix<halfScalar,LocalOrdinal,GO,Node> SCALE_H; \
-  typedef Belos::SolverManager<halfScalar, MV_H, OP_H> SolMGR_H;		\
-  typedef Belos::LinearProblem<halfScalar, MV_H, OP_H> LinPROB_H;		\
   typedef Ifpack2::Preconditioner<halfScalar, LO, GO, Node> PRECOND_H;
 
 #if MIXED_PREC == 1
@@ -153,14 +143,11 @@ using Belos::ReturnType;
   typedef halfScalar precScalar; \
   typedef typename std::map<GO, precScalar>::iterator ITER; \
   typedef MAT_H MAT_P; \
-  typedef MATM_H MATM_P; \
-  typedef DMOP_H DMOP_P; \
+  typedef MMOP_H MMOP_P; \
   typedef OP_H OP_P; \
   typedef VEC_H VEC_P; \
   typedef MV_H MV_P; \
   typedef PRECOND_H PRECOND_P; \
-  typedef APINV_H APINV_P; \
-  typedef INVOP_H INVOP_P; \
   typedef SCALE_H SCALE_P;
 
 #elif MIXED_PREC == 0
@@ -170,14 +157,11 @@ using Belos::ReturnType;
   typedef Scalar precScalar; \
   typedef typename std::map<GO, precScalar>::iterator ITER; \
   typedef MAT MAT_P; \
-  typedef MATM MATM_P; \
-  typedef DMOP DMOP_P; \
+  typedef MMOP MMOP_P; \
   typedef OP OP_P; \
   typedef VEC VEC_P; \
   typedef MV MV_P; \
   typedef PRECOND PRECOND_P; \
-  typedef APINV APINV_P; \
-  typedef INVOP INVOP_P; \
   typedef SCALE SCALE_P;
 
 #endif // MIXED_PREC

@@ -153,11 +153,11 @@ protected:
   const RCP<const MAP> cmsDensMap_;
   const RCP<const MAP> block2Map_;
   RCP<MAT_P> poissonOnPoissonMatrix_;
-  RCP<DMOP_P> poissonOnPoissonMatrixOp_;
+  RCP<MMOP_P> poissonOnPoissonMatrixOp_;
   RCP<MAT_P> cmsOnPoissonMatrix_;
-  RCP<DMOP_P> cmsOnPoissonMatrixOp_;
+  RCP<MMOP_P> cmsOnPoissonMatrixOp_;
   RCP<MAT_P> poissonOnDensityMatrix_;
-  RCP<DMOP_P> poissonOnDensityMatrixOp_;
+  RCP<MMOP_P> poissonOnDensityMatrixOp_;
   GlobalOrdinal curPoissonRow_;
   std::map<GlobalOrdinal, precScalar> curPoissonRowValues_;
   GlobalOrdinal curCPRow_;

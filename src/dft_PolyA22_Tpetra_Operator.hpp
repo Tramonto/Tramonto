@@ -214,9 +214,9 @@ protected:
   const RCP<const MAP > block2Map_;
   RCP<ParameterList> parameterList_;
   RCP<MAT_P> cmsOnDensityMatrix_;
-  RCP<DMOP_P> cmsOnDensityMatrixOp_;
+  RCP<MMOP_P> cmsOnDensityMatrixOp_;
   RCP<MAT_P> cmsOnCmsMatrix_;
-  RCP<DMOP_P> cmsOnCmsMatrixOp_;
+  RCP<MMOP_P> cmsOnCmsMatrixOp_;
   RCP<VEC > densityOnDensityMatrix_;
   RCP<VEC > densityOnCmsMatrix_;
   char * Label_; /*!< Description of object */

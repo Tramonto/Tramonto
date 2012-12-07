@@ -39,7 +39,7 @@ dft_A22Matrix_Tpetra_Operator
     curRow_(-1) {
 
   A22Matrix_ = rcp(new MAT_P(block2Map, 0));
-  A22MatrixOperator_ = rcp(new DMOP_P(A22Matrix_));
+  A22MatrixOperator_ = rcp(new MMOP_P(A22Matrix_));
   Label_ = "dft_A22Matrix_Tpetra_Operator";
   A22Matrix_->setObjectLabel("dft_A22Matrix_Tpetra_Operator::A22Matrix");
 }

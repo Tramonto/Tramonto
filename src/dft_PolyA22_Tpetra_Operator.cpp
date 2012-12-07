@@ -43,9 +43,9 @@ dft_PolyA22_Tpetra_Operator
 {
 
   cmsOnDensityMatrix_ = rcp(new MAT_P(cmsMap, 0));
-  cmsOnDensityMatrixOp_ = rcp(new DMOP_P(cmsOnDensityMatrix_));
+  cmsOnDensityMatrixOp_ = rcp(new MMOP_P(cmsOnDensityMatrix_));
   cmsOnCmsMatrix_ = rcp(new MAT_P(cmsMap, 0));
-  cmsOnCmsMatrixOp_ = rcp(new DMOP_P(cmsOnCmsMatrix_));
+  cmsOnCmsMatrixOp_ = rcp(new MMOP_P(cmsOnCmsMatrix_));
   densityOnDensityMatrix_ = rcp(new VEC(densityMap));
   densityOnCmsMatrix_ = rcp(new VEC(densityMap));
   Label_ = "dft_PolyA22_Tpetra_Operator";

@@ -401,7 +401,7 @@ setupSolver
       schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Diagonal_->getA22Matrix());
     else
       schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Matrix_->getA22Matrix());
-    schurComplementMatrixOperator_ = rcp(new DMOP_P(schurOperator_->getSchurComplement()));
+    schurComplementMatrixOperator_ = rcp(new MMOP_P(schurOperator_->getSchurComplement()));
     problem_->setOperator(schurComplementMatrixOperator_);
   }
   if (isA22Diagonal_)

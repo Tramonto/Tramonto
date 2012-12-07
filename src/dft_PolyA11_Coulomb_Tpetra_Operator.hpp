@@ -132,7 +132,7 @@ protected:
   const RCP<const MAP> poissonMap_;
   RCP<ParameterList> parameterList_;
   RCP<MAT_P> poissonMatrix_;
-  RCP<DMOP_P> poissonMatrixOperator_;
+  RCP<MMOP_P> poissonMatrixOperator_;
   GlobalOrdinal curPoissonRow_;
   GlobalOrdinal curPoissonOwnedNode_;
   std::map<GlobalOrdinal, precScalar> curPoissonRowValues_;

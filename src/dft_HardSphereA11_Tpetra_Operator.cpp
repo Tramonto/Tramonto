@@ -42,7 +42,7 @@ dft_HardSphereA11_Tpetra_Operator
   Label_ = "dft_HardSphereA11_Tpetra_Operator";
   if (depNonLocalMap_->getGlobalNumElements()>0) {
     matrix_ = rcp(new MAT_P(depNonLocalMap_, 0));
-    matrixOperator_ = rcp(new DMOP_P(matrix_));
+    matrixOperator_ = rcp(new MMOP_P(matrix_));
     matrix_->setObjectLabel("HardSphere::A11::matrix");
   }
 

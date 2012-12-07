@@ -50,7 +50,7 @@ dft_PolyA11_Tpetra_Operator
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
     matrix_[i] = rcp(new MAT_P(ownedMap, 0));
-    matrixOperator_[i] = rcp(new DMOP_P(matrix_[i]));
+    matrixOperator_[i] = rcp(new MMOP_P(matrix_[i]));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
   } //end for
   return;
@@ -84,7 +84,7 @@ dft_PolyA11_Tpetra_Operator
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
     matrix_[i] = rcp(new MAT_P(ownedMap, 0));
-    matrixOperator_[i] = rcp(new DMOP_P(matrix_[i]));
+    matrixOperator_[i] = rcp(new MMOP_P(matrix_[i]));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
   } //end for
 

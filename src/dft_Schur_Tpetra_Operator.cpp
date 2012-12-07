@@ -38,8 +38,8 @@ dft_Schur_Tpetra_Operator
 {
 
   Label_ = "dft_Schur_Tpetra_Operator";
-  A12op_ = rcp(new DMOP_P(A12_));
-  A21op_ = rcp(new DMOP_P(A21_));
+  A12op_ = rcp(new MMOP_P(A12_));
+  A21op_ = rcp(new MMOP_P(A21_));
   /* Used to capture matrix data
   LocalOrdinal nrows1 = A11->RowMap().NumGlobalElements();
   LocalOrdinal nrows2 = A22->RowMap().NumGlobalElements();

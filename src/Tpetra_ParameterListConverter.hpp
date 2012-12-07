@@ -102,12 +102,12 @@ namespace Tpetra {
 	//
 	// Reordering
 	// Doesn't work yet because of Zoltan2 build error
-	//	Teuchos::ParameterList zlist;
-	//	zlist.set("order_method","rcm");
-	//	outputList_.set( "schwarz: use reordering",
-	//			 true );
-	//	outputList_.set( "schwarz: reordering list",
-	//			 zlist );
+	Teuchos::ParameterList zlist;
+	zlist.set("order_method","rcm");
+	outputList_.set( "schwarz: use reordering",
+			 true );
+	outputList_.set( "schwarz: reordering list",
+			 zlist );
       }
 
       if (precond != AZ_none) {

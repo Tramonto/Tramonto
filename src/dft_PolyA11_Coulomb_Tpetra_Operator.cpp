@@ -44,7 +44,7 @@ dft_PolyA11_Coulomb_Tpetra_Operator
 
   Label_ = "dft_PolyA11_Coulomb_Tpetra_Operator";
   poissonMatrix_ = rcp(new MAT_P(poissonMap, 0));
-  poissonMatrixOperator_ = rcp(new DMOP_P(poissonMatrix_));
+  poissonMatrixOperator_ = rcp(new MMOP_P(poissonMatrix_));
   poissonMatrix_->setObjectLabel("PolyA11Coulomb::poissonMatrix");
   return;
 } //end constructor
