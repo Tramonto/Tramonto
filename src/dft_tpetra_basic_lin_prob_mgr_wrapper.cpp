@@ -195,7 +195,6 @@ typedef dft_BasicLinProbMgr<dd_real,int,int> BLPM;
 
   int dft_linprobmgr_getlhs(void * linprobmgr, double** x) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
     ArrayRCP<ArrayRCP<WORKING_PREC> > data = linprobmgr_->getLhs();
     for(int j = 0; j < numUnknownsPerNode; j++){
@@ -208,7 +207,6 @@ typedef dft_BasicLinProbMgr<dd_real,int,int> BLPM;
 
   int dft_linprobmgr_getrhs(void * linprobmgr, double** x) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
     ArrayRCP<ArrayRCP<WORKING_PREC> > data = linprobmgr_->getRhs();
     for(int j = 0; j < data.size(); j++){
@@ -239,21 +237,21 @@ typedef dft_BasicLinProbMgr<dd_real,int,int> BLPM;
 
   int dft_linprobmgr_applymatrix(void * linprobmgr, double**x, double** b) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
+    int numBoxNodes = linprobmgr_->getNumBoxNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
 
     WORKING_PREC **fx;
     fx = new WORKING_PREC*[numUnknownsPerNode];
     for (int i=0; i<numUnknownsPerNode;i++)
-      fx[i] = new WORKING_PREC[numOwnedNodes];
+      fx[i] = new WORKING_PREC[numBoxNodes];
     for(int i=0;i<numUnknownsPerNode;i++)
-      for(int j=0;j<numOwnedNodes;j++)
+      for(int j=0;j<numBoxNodes;j++)
 	fx[i][j] = WORKING_CAST(x[i][j]);
 
     Array<ArrayView<const WORKING_PREC> > x_views(numUnknownsPerNode);
 
     for(int i = 0; i < numUnknownsPerNode; i++){
-      x_views[i] = Teuchos::arrayView(fx[i], numOwnedNodes);
+      x_views[i] = Teuchos::arrayView(fx[i], numBoxNodes);
     }
 
     ArrayView<ArrayView<const WORKING_PREC> > my_view(x_views);

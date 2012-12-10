@@ -359,6 +359,13 @@ class dft_BasicLinProbMgr {
     return numOwnedNodes_;
   }
 
+  virtual size_t
+  getNumBoxNodes
+  ()
+  {
+    return numBoxNodes_;
+  }
+
 protected:
 
   void

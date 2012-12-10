@@ -74,6 +74,7 @@ setNodalRowMap
   {
     return; // Already been here
   }
+
   numOwnedNodes_ = GIDs.size();
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
 				  &numOwnedNodes_, &numGlobalNodes_);
@@ -379,8 +380,9 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 setLhs
 (const ArrayView<const ArrayView<const Scalar> > &x) const
 {
+  ArrayRCP<const Scalar> xtmp;
   for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++) {
-    ArrayRCP<const Scalar> xtmp = exportC2R(Teuchos::arcpFromArrayView<const Scalar>(x[i])); // Use simple import
+    xtmp = exportC2R(Teuchos::arcpFromArrayView<const Scalar>(x[i])); // Use simple import
     for (LocalOrdinal j=0; j<numOwnedNodes_; j++) {
       globalLhs_->replaceLocalValue(ownedToSolverLID(i,j), xtmp[j]);
     }
