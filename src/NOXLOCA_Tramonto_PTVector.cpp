@@ -268,7 +268,7 @@ double& NOXLOCA::Tramonto::PTVector::PTP()
 const double& NOXLOCA::Tramonto::PTVector::PTP() const
 { return ptp; }
 
-ostream& NOXLOCA::Tramonto::PTVector::leftshift(ostream& stream) const
+std::ostream& NOXLOCA::Tramonto::PTVector::leftshift(std::ostream& stream) const
 {
   stream << "{ ";
   stream <<  x1.leftshift(stream) << " " << x2.leftshift(stream)
@@ -277,13 +277,13 @@ ostream& NOXLOCA::Tramonto::PTVector::leftshift(ostream& stream) const
   return stream;
 }
 
-ostream& operator<<(ostream& stream, const NOXLOCA::Tramonto::PTVector& v)
+std::ostream& operator<<(std::ostream& stream, const NOXLOCA::Tramonto::PTVector& v)
 {
   return v.leftshift(stream);
 }
 
 void NOXLOCA::Tramonto::PTVector::print(std::ostream& stream) const
 {
-  stream << *this << endl;
+  stream << *this << std::endl;
 }
 

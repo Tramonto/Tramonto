@@ -163,7 +163,7 @@ namespace NOXLOCA {
       void setParam(int paramID, double val);
 
       //! Set parameter indexed by (string) paramID
-      void setParam(string paramID, double val);
+      void setParam(std::string paramID, double val);
 
       //! Return a const reference to the ParameterVector owned by the group.
       const LOCA::ParameterVector& getParams() const;
@@ -172,7 +172,7 @@ namespace NOXLOCA {
       double getParam(int paramID) const;
 
       //! Return copy of parameter indexed by (string) paramID
-      double getParam(string paramID) const;
+      double getParam(std::string paramID) const;
 
       //! Set parameter indexed by (string) paramID
       void printSolution(const NOX::Abstract::Vector& solution, const double param) const;

@@ -77,7 +77,7 @@ int NOXLOCA_Solver(double **xBox, double **xOwned, double **x2Owned, bool doPica
         p.addParameter("BifParam", init_bif_param);
       }
 
-if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so far!" << endl; }
+      if (Loca.method == 4) { std::cout << "NO PHASE TRANSITION ALG just double-solving so far!" << std::endl; }
     }
 
     stepperList.set("Max Value", 1.0e8);
@@ -225,13 +225,13 @@ if (Loca.method == 4) { cout << "NO PHASE TRANSITION ALG just double-solving so 
   }
 
   catch (std::exception& e) {
-    cout << e.what() << endl;
+    std::cout << e.what() << std::endl;
   }
   catch (const char *s) {
-    cout << s << endl;
+    std::cout << s << std::endl;
   }
   catch (...) {
-    cout << "Caught unknown exception!" << endl;
+    std::cout << "Caught unknown exception!" << std::endl;
   }
 
   return NewtonIters;

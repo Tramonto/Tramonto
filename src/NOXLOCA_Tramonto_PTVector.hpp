@@ -139,7 +139,7 @@ namespace NOXLOCA {
       double&  PTP();
       const double&  PTP() const;
 
-      ostream& leftshift(ostream& stream) const;
+      std::ostream& leftshift(std::ostream& stream) const;
 
     private:
 
@@ -153,6 +153,6 @@ namespace NOXLOCA {
 } // namespace NOX
 
 //! Function for printing
-ostream& operator<<(ostream& stream, const NOXLOCA::Tramonto::PTVector& v);
+std::ostream& operator<<(std::ostream& stream, const NOXLOCA::Tramonto::PTVector& v);
 
 #endif

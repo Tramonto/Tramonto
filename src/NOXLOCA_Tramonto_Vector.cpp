@@ -241,7 +241,7 @@ double NOXLOCA::Tramonto::Vector::norm(const NOX::Abstract::Vector& weights) con
 double NOXLOCA::Tramonto::Vector::norm(const NOXLOCA::Tramonto::Vector& weights) const
 {
   if (weights.length() != n_global) {
-    cerr << "NOXLOCA::Tramonto::Vector::norm - size mismatch for weights vector" << endl;
+    std::cerr << "NOXLOCA::Tramonto::Vector::norm - size mismatch for weights vector" << std::endl;
     throw "NOXLOCA::Tramonto Error";
   }
 
@@ -264,8 +264,8 @@ double NOXLOCA::Tramonto::Vector::innerProduct(const NOX::Abstract::Vector& y) c
 double NOXLOCA::Tramonto::Vector::innerProduct(const NOXLOCA::Tramonto::Vector& y) const
 {
   if (y.length() != n_global) {
-    cerr << "NOXLOCA::Tramonto::Vector::innerProduct - size mismatch for y vector" 
-	 << endl;
+    std::cerr << "NOXLOCA::Tramonto::Vector::innerProduct - size mismatch for y vector" 
+	      << std::endl;
     throw "NOX::Tramonto Error";
   }
 
@@ -303,7 +303,7 @@ const double& NOXLOCA::Tramonto::Vector::operator() (int i) const
   return x[i];
 }
 
-ostream& NOXLOCA::Tramonto::Vector::leftshift(ostream& stream) const
+std::ostream& NOXLOCA::Tramonto::Vector::leftshift(std::ostream& stream) const
 {
   stream << "[ ";
   for (int i = 0; i < n; i ++)
@@ -312,14 +312,14 @@ ostream& NOXLOCA::Tramonto::Vector::leftshift(ostream& stream) const
   return stream;
 }
 
-ostream& operator<<(ostream& stream, const NOXLOCA::Tramonto::Vector& v)
+std::ostream& operator<<(std::ostream& stream, const NOXLOCA::Tramonto::Vector& v)
 {
   return v.leftshift(stream);
 }
 
 void NOXLOCA::Tramonto::Vector::print(std::ostream& stream) const
 {
-  stream << *this << endl;
+  stream << *this << std::endl;
 }
 
 double** NOXLOCA::Tramonto::Vector::get() const

@@ -156,7 +156,7 @@ namespace NOXLOCA {
 	\f[ \left[ \; 0.1 \; 2.34 \; 5 \; \right] \f] 
 	It will be all on one line, with a single space between each entry, bracketed on either side.
       */
-      ostream& leftshift(ostream& stream) const;
+      std::ostream& leftshift(std::ostream& stream) const;
 
       // derived
       void print(std::ostream& stream) const;
@@ -188,7 +188,7 @@ namespace NOXLOCA {
 } // namespace NOX
 
 //! Function for printing
-ostream& operator<<(ostream& stream, const NOXLOCA::Tramonto::Vector& v);
+std::ostream& operator<<(std::ostream& stream, const NOXLOCA::Tramonto::Vector& v);
 
 
 

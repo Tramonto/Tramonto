@@ -68,7 +68,7 @@ NOXLOCA::Tramonto::PTGroup::PTGroup(const NOXLOCA::Tramonto::PTGroup& source, NO
     break;
 
   default:
-    cerr << "NOXLOCA:Tramonto::PTGroup - invalid CopyType for copy constructor." << endl;
+    std::cerr << "NOXLOCA:Tramonto::PTGroup - invalid CopyType for copy constructor." << std::endl;
     throw "NOXLOCA Tramonto Error";
   }
 
@@ -190,12 +190,12 @@ NOX::Abstract::Group::ReturnType NOXLOCA::Tramonto::PTGroup::computeNewton(Teuch
     return NOX::Abstract::Group::Ok;
 
   if (!isF()) {
-    cerr << "ERROR: NOX::Example::Group::computeNewton() - invalid F" << endl;
+    std::cerr << "ERROR: NOX::Example::Group::computeNewton() - invalid F" << std::endl;
     throw "NOX Error";
   }
 
   if (!isJacobian()) {
-    cerr << "ERROR: NOX::Example::Group::computeNewton() - invalid Jacobian" << endl;
+    std::cerr << "ERROR: NOX::Example::Group::computeNewton() - invalid Jacobian" << std::endl;
     throw "NOX Error";
   }
 
@@ -222,7 +222,7 @@ NOX::Abstract::Group::ReturnType
 NOXLOCA::Tramonto::PTGroup::applyJacobian(const NOXLOCA::Tramonto::PTVector& input,
                                           NOXLOCA::Tramonto::PTVector& result) const
 {
-  cout << "ERROR:  Apply Jacobian not implemented for PTGroup !!!!" << endl;
+  std::cout << "ERROR:  Apply Jacobian not implemented for PTGroup !!!!" << std::endl;
 
   return NOX::Abstract::Group::Ok;
 }
@@ -373,29 +373,29 @@ const NOX::Abstract::Vector& NOXLOCA::Tramonto::PTGroup::getNewton() const
 
 const NOX::Abstract::Vector& NOXLOCA::Tramonto::PTGroup::getGradient() const 
 {
-  cout << "ERROR: GRADIENT VECTOR NOT CALCULATEED IN TRAMONTO_GROUP!! " << endl;
+  std::cout << "ERROR: GRADIENT VECTOR NOT CALCULATEED IN TRAMONTO_GROUP!! " << std::endl;
   return newtonVector;
 }
 
 
 void NOXLOCA::Tramonto::PTGroup::print() const
 {
-  cout << "x = " << xVector << "\n";
+  std::cout << "x = " << xVector << "\n";
 
   if (isValidF) {
-    cout << "F(x) = " << fVector << "\n";
-    cout << "|| F(x) || = " << normF << "\n";
+    std::cout << "F(x) = " << fVector << "\n";
+    std::cout << "|| F(x) || = " << normF << "\n";
   }
   else
-    cout << "F(x) has not been computed" << "\n";
+    std::cout << "F(x) has not been computed" << "\n";
   
-  cout << endl;
+  std::cout << std::endl;
 }
 
 void  NOXLOCA::Tramonto::PTGroup::setParams(const LOCA::ParameterVector& p)
 { trGrp->setParams(p);}
 
-void  NOXLOCA::Tramonto::PTGroup::setParam(string paramID, double val)
+void  NOXLOCA::Tramonto::PTGroup::setParam(std::string paramID, double val)
 { 
   resetIsValid();
   trGrp->setParam(paramID, val);
@@ -406,7 +406,7 @@ void  NOXLOCA::Tramonto::PTGroup::setParam(int paramID, double val)
 
 const LOCA::ParameterVector&  NOXLOCA::Tramonto::PTGroup::getParams() const
 { return trGrp->getParams(); }
-double  NOXLOCA::Tramonto::PTGroup::getParam(string paramID) const
+double  NOXLOCA::Tramonto::PTGroup::getParam(std::string paramID) const
 {  return trGrp->getParam(paramID); }
 double  NOXLOCA::Tramonto::PTGroup::getParam(int paramID) const
 {  return trGrp->getParam(paramID); }
