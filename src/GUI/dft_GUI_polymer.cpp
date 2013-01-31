@@ -68,10 +68,13 @@ void dft_GUI_Polymer_set_defaults( Teuchos::RCP<Teuchos::ParameterList> Tramonto
    PolymerGraft_List->set("PG2: Grafted_polymer_type", GraftedPolymer_Array, "Select graft type for each polymer",Graft_valid_array);
 
    Array<int> GraftedWall_Array( (Polymer_List->get<int>("P1: Npoly_comp")),-1);
-   PolymerGraft_List->set("PG3: Grafted_wallType_ID[ipol_comp]", GraftedWall_Array, "Identify the wall to which each polymer is grafted.\n  The flag value of -1 indicates no grafting.");
+   PolymerGraft_List->set("PG3: Grafted_wallType_ID[ipol_comp]", GraftedWall_Array, "Identify the wall type to which each polymer is grafted.\n  The flag value of -1 indicates no grafting.");
 
    Array<double> GraftedDensity_Array( (Polymer_List->get<int>("P1: Npoly_comp")),0.0);
    PolymerGraft_List->set("PG4: Grafted_wall_Density[ipol_comp]", GraftedDensity_Array, "The desired density of grafted chains on the surface.");
+
+   Array<int> GraftedSeg_Array( (Polymer_List->get<int>("P1: Npoly_comp")),-1);
+   PolymerGraft_List->set("PG5: Grafted_segID[ipol_comp]", GraftedSeg_Array, "Identify the segment ID on the polymer that is grafted to the surface.\n  The flag value of -1 indicates no grafting");
 
    PolymerCMS_List->set("CMS1: N_CrFiles",1,"Number of direct correlation function files to be read",Ncrfile_Validator); 
 
@@ -190,10 +193,13 @@ void dft_GUI_Polymer_set_OldFormat( Teuchos::RCP<Teuchos::ParameterList> Tramont
       PolymerGraft_List->set("PG2: Grafted_polymer_type", GraftedPolymer_Array, "Select graft type for each polymer",Graft_valid_array);
 
       Array<int> GraftedWall_Array(Graft_wall,Graft_wall+Npol_comp);
-      PolymerGraft_List->set("PG3: Grafted_wallType_ID[ipol_comp]", GraftedWall_Array, "Identify the wall to which each polymer is grafted.\n  The flag value of -1 indicates no grafting.");
+      PolymerGraft_List->set("PG3: Grafted_wallType_ID[ipol_comp]", GraftedWall_Array, "Identify the wall type to which each polymer is grafted.\n  The flag value of -1 indicates no grafting.");
 
       Array<double> GraftedDensity_Array(Rho_g,Rho_g+Npol_comp);
       PolymerGraft_List->set("PG4: Grafted_wall_Density[ipol_comp]", GraftedDensity_Array, "The desired density of grafted chains on the surface.");
+
+      Array<int> GraftedSeg_Array(Grafted_SegID,Grafted_SegID+Npol_comp);
+      PolymerGraft_List->set("PG5: Grafted_segID[ipol_comp]", GraftedSeg_Array, "Identify the segment ID on the polymer that is grafted to the surface.\n  The flag value of -1 indicates no grafting.");
 
       if (Type_poly == CMS || Type_poly==SCFT){
          PolymerCMS_List->set("CMS1: N_CrFiles",Ncr_files,"Number of direct correlation function files to be read",Ncrfile_Validator); 
@@ -277,6 +283,7 @@ void dft_GUI_Polymer_dependencies( Teuchos::RCP<Teuchos::ParameterList> Tramonto
    PolymerDependents.insert(PolymerGraft_List->getEntryRCP("PG1: Grafted Polymers?"));
    PolymerDependents.insert(PolymerGraft_List->getEntryRCP("PG3: Grafted_wallType_ID[ipol_comp]"));
    PolymerDependents.insert(PolymerGraft_List->getEntryRCP("PG4: Grafted_wall_Density[ipol_comp]"));
+   PolymerDependents.insert(PolymerGraft_List->getEntryRCP("PG5: Grafted_segID[ipol_comp]"));
 
    RCP<StringVisualDependency> PolyAll_Dep = rcp(new StringVisualDependency(Functional_List->getEntryRCP("F4_POLYMER_Functional"), PolymerDependents, 
            tuple<std::string>("Polymer_CMS","Polymer_CMS_SCFT","Polymer_TC_iSAFT","Polymer_JDC_iSAFT(seg)","Polymer_JDC_iSAFT(segRho compField)","Polymer_JDC_iSAFT(comp)")));
@@ -285,6 +292,7 @@ void dft_GUI_Polymer_dependencies( Teuchos::RCP<Teuchos::ParameterList> Tramonto
    GraftDependents.insert(PolymerGraft_List->getEntryRCP("PG2: Grafted_polymer_type"));
    GraftDependents.insert(PolymerGraft_List->getEntryRCP("PG3: Grafted_wallType_ID[ipol_comp]"));
    GraftDependents.insert(PolymerGraft_List->getEntryRCP("PG4: Grafted_wall_Density[ipol_comp]"));
+   GraftDependents.insert(PolymerGraft_List->getEntryRCP("PG5: Grafted_segID[ipol_comp]"));
 
    RCP<BoolVisualDependency> Graft_Dep = rcp(
         new BoolVisualDependency(PolymerGraft_List->getEntryRCP("PG1: Grafted Polymers?"), GraftDependents, true));
@@ -330,6 +338,7 @@ void dft_GUI_Polymer_dependencies( Teuchos::RCP<Teuchos::ParameterList> Tramonto
    Dependency::ParameterEntryList PolymerIntArrayLength_Deps;
    PolymerIntArrayLength_Deps.insert(Polymer_List->getEntryRCP("P2: Nblock_per_polymer"));
    PolymerIntArrayLength_Deps.insert(PolymerGraft_List->getEntryRCP("PG3: Grafted_wallType_ID[ipol_comp]"));
+   PolymerIntArrayLength_Deps.insert(PolymerGraft_List->getEntryRCP("PG5: Grafted_segID[ipol_comp]"));
    RCP<NumberArrayLengthDependency<int,int> > PolyIntLength_Dep = rcp(
            new NumberArrayLengthDependency<int,int>(Polymer_List->getEntryRCP("P1: Npoly_comp"), PolymerIntArrayLength_Deps));
 

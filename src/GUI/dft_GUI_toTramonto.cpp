@@ -247,14 +247,13 @@ void dft_GUI_toTramonto( Teuchos::RCP<Teuchos::ParameterList> Tramonto_List,
        }
 
        Array<int> PG3_GraftWallID=PolymerGraft_List->get<Array<int> >("PG3: Grafted_wallType_ID[ipol_comp]");
-       for (i=0; i<Npol_comp; i++) {
-            Graft_wall[i]=PG3_GraftWallID[i]; 
-            if (Graft_wall[i]<0) Grafted[i]=FALSE;
-            else Grafted[i]=TRUE;
-       }
+       for (i=0; i<Npol_comp; i++)  Graft_wall[i]=PG3_GraftWallID[i]; 
 
        Array<double> PG4_GraftDensity=PolymerGraft_List->get<Array<double> >("PG4: Grafted_wall_Density[ipol_comp]");
        for (i=0; i<Npol_comp; i++) Rho_g[i]=PG4_GraftDensity[i]; 
+
+       Array<int> PG5_GraftSegID=PolymerGraft_List->get<Array<int> >("PG5: Grafted_segID[ipol_comp]");
+       for (i=0; i<Npol_comp; i++)  Grafted_SegID[i]=PG5_GraftSegID[i]; 
     }
     
           /* CMS specific variables */
