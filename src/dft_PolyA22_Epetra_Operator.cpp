@@ -52,7 +52,7 @@ dft_PolyA22_Epetra_Operator::dft_PolyA22_Epetra_Operator(const Epetra_Map & cmsM
   cmsOnCmsMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, cmsMap, 0));
   cmsOnCmsMatrix_->SetLabel("PolyA22::cmsOnCmsMatrix");
   densityOnDensityMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
-  densityOnCmsMatrix_ = Teuchos::rcp(new Epetra_Vector(densityMap));
+  densityOnCmsMatrix_ = Teuchos::rcp(new Epetra_CrsMatrix(Copy, densityMap, 0));
   Label_ = "dft_PolyA22_Epetra_Operator";
   cmsOnDensityMatrix_->SetLabel("PolyA22::cmsOnDensityMatrix");
   F_location_ = Teuchos::getParameter<int>(*parameterList_, "F_location"); //F in NE if F_location = 1, F in SW otherwise
@@ -87,14 +87,11 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
   // if density then blockColFlag = 1
   // if cms then blockColFlag = 2
 
-  // Flag to indicate if we've alreay thrown a warning
-  static bool offDiagonalDiscarded = false;
-
   if (cmsMap_.MyGID(rowGID)) { // Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
     if ( blockColFlag == 2 ) { // Insert into cmsOnCmsMatrix
       if (firstTime_) {
 	if (rowGID!=curRow_) { 
-	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+	  insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
 	  curRow_=rowGID;
 	}
 	curRowValuesCmsOnCms_[colGID] += value;
@@ -105,7 +102,7 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
     else if (blockColFlag == 1) { // Insert into cmsOnDensityMatrix ("F matrix")
       if (firstTime_) {
 	if (rowGID!=curRow_) { 
-	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+	  insertRow();  // Dump the current contents of curRowValues maps into matrix and clear map
 	  curRow_=rowGID;
 	}
 	curRowValuesCmsOnDensity_[colGID] += value;
@@ -128,14 +125,16 @@ int dft_PolyA22_Epetra_Operator::insertMatrixValue(int rowGID, int colGID, doubl
     }
     else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
       //TEUCHOS_TEST_FOR_EXCEPT(densityMap_.LID(rowGID)!=cmsMap_.LID(colGID)); // Confirm that this is a diagonal value
-      // The density-on-cms matrix is presumed to be diagonal and stored as a vector. New functionality in the physics breaks this assumption
-      // If non-diagonal entries are inserted, discard them and warn the user. This will result in an approximate Jacobian
-      if ( densityMap_.LID(rowGID) == cmsMap_.LID(colGID) )
-        (*densityOnCmsMatrix_)[densityMap_.LID(rowGID)] += value; // Storing this density block in a vector since it is diagonal
-      else {
-       if (!offDiagonalDiscarded) cout << "Warning! Off-diagonal entries detected in density-on-cms block. Jacobian will be inexact.  If code fails try turning off Schur solver." << std::endl;
-       offDiagonalDiscarded = true;
+      // The density-on-cms matrix is diagonal for most but not all use cases.
+      if (firstTime_) {
+        if (rowGID!=curRow_) {
+          insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
+          curRow_=rowGID;
+        }
+        curRowValuesDensityOnCms_[colGID] += value;
       }
+      else
+        densityOnCmsMatrix_->SumIntoGlobalValues(rowGID, 1, &value, &colGID);
     }
     else {
       char err_msg[200];
@@ -183,9 +182,25 @@ int dft_PolyA22_Epetra_Operator::insertRow() {
     }
     cmsOnCmsMatrix_->InsertGlobalValues(curRow_, numEntriesCmsOnCms, valuesCmsOnCms_.Values(), indicesCmsOnCms_.Values());
   }
+  // Fill row of densityOnCms matrix
+  if (!curRowValuesDensityOnCms_.empty()) {
+    int numEntriesDensityOnCms = curRowValuesDensityOnCms_.size();
+    if (numEntriesDensityOnCms>indicesDensityOnCms_.Length()) {
+      indicesDensityOnCms_.Resize(numEntriesDensityOnCms);
+      valuesDensityOnCms_.Resize(numEntriesDensityOnCms);
+    }
+    int i=0;
+    std::map<int, double>::iterator pos;
+    for (pos = curRowValuesDensityOnCms_.begin(); pos != curRowValuesDensityOnCms_.end(); ++pos) {
+      indicesDensityOnCms_[i] = pos->first;
+      valuesDensityOnCms_[i++] = pos->second;
+    }
+    densityOnCmsMatrix_->InsertGlobalValues(curRow_, numEntriesDensityOnCms, valuesDensityOnCms_.Values(), indicesDensityOnCms_.Values());
+  }
   
   curRowValuesCmsOnDensity_.clear();
   curRowValuesCmsOnCms_.clear();
+  curRowValuesDensityOnCms_.clear();
   return(0);
 
 }
@@ -195,6 +210,7 @@ int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
   // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
   bool hasDensityOnCms = cmsMap_.NumGlobalElements()==densityMap_.NumGlobalElements(); 
 
+  // Finalize CMS blocks
   insertRow(); // Dump any remaining entries
   cmsOnCmsMatrix_->FillComplete();
   cmsOnCmsMatrix_->OptimizeStorage();
@@ -208,10 +224,15 @@ int dft_PolyA22_Epetra_Operator::finalizeProblemValues() {
     // cout << " Average Nonzeros per row of F block   = " << cmsOnDensityMatrix_->NumGlobalNonzeros()/cmsOnDensityMatrix_->NumGlobalRows() << endl;
   }
 
+  // Finalize density blocks
   if (!hasDensityOnCms) { // Confirm that densityOnCmsMatrix is zero
-    double normvalue;
-    densityOnCmsMatrix_->NormInf(&normvalue);
+    double normvalue = densityOnCmsMatrix_->NormInf();
     TEUCHOS_TEST_FOR_EXCEPT(normvalue!=0.0);
+  }
+  else {
+    insertRow(); // Dump any remaining entries
+    densityOnCmsMatrix_->FillComplete(cmsMap_, densityMap_);
+    densityOnCmsMatrix_->OptimizeStorage();
   }
 
   // IFPack preconditioner for CC block disabled for now
@@ -282,7 +303,7 @@ int dft_PolyA22_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
 
   // where
   // DD is Density on Density (diagonal),
-  // DC is Density on Cms (diagonal),
+  // DC is Density on Cms (general),
   // CD is Cms on Density (general, also called the "F matrix")
   // CC is Cms on Cms (general).
   //
@@ -434,8 +455,15 @@ int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
     Epetra_MultiVector Y1tmp(Y1);
     TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X1, Y1tmp));
     TEUCHOS_TEST_FOR_EXCEPT(Y1.Update(1.0, Y1tmp, 1.0));
-    TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnCmsMatrix_, X1, 0.0));
-    TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0));
+
+    if (hasDensityOnCms) {
+      TEUCHOS_TEST_FOR_EXCEPT(densityOnCmsMatrix_->Apply(X1, Y2));
+      TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 1.0)); 
+    }
+    else {
+     TEUCHOS_TEST_FOR_EXCEPT(Y2.Multiply(1.0, *densityOnDensityMatrix_, X2, 0.0)); 
+    }
+
   }
   else {
     for (int i=0; i<NumVectors; i++) {
@@ -447,12 +475,14 @@ int dft_PolyA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
     Epetra_MultiVector Y2(View, cmsMap_, Y2ptr, NumVectors); // Start Y2 to view last numCms elements of Y
     Epetra_MultiVector X1(View, densityMap_, X1ptr, NumVectors); // Start X1 to view first numDensity elements of X
     Epetra_MultiVector X2(View, cmsMap_, X2ptr, NumVectors); // Start X2 to view last numCms elements of X
+
     if (hasDensityOnCms) {
-      // convert X2 map
-      Epetra_MultiVector X2tmp(View, densityMap_, X2ptr, NumVectors);
-      TEUCHOS_TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnCmsMatrix_, X2tmp, 0.0)); // Momentarily make X2 compatible with densityMap_
+      TEUCHOS_TEST_FOR_EXCEPT(densityOnCmsMatrix_->Apply(X2, Y1));
+      TEUCHOS_TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 1.0));
     }
-    TEUCHOS_TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 1.0));
+    else {
+      TEUCHOS_TEST_FOR_EXCEPT(Y1.Multiply(1.0, *densityOnDensityMatrix_, X1, 0.0));
+    }
     TEUCHOS_TEST_FOR_EXCEPT(cmsOnDensityMatrix_->Apply(X1, Y2));
     Epetra_MultiVector Y2tmp(Y2);
     TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsMatrix_->Apply(X2, Y2tmp));
@@ -479,18 +509,22 @@ int dft_PolyA22_Epetra_Operator::Check(bool verbose) const {
   Apply(x, b); // Forward operation
 
   if (hasDensityOnCms) {
-      
+
     if (F_location_ == 1) {//F in NE
       // Inverse is not exact, so we must modify b2 first:
-      Epetra_Vector x1(View, densityMap_, x.Values()); // Start x1 to view first numCmsElements elements of x
       Epetra_Vector b2(View, densityMap_, b.Values()+cmsMap_.NumMyElements()); // Start b2 to view last numDensity elements of b
-      b2.Multiply(-1.0, *densityOnCmsMatrix_, x1, 1.0);
+      Epetra_Vector x1(View, cmsMap_, x.Values()); // Start x1 to view first numCmsElements elements of x
+      Epetra_Vector DCx1(b2);
+      TEUCHOS_TEST_FOR_EXCEPT(densityOnCmsMatrix_->Apply(x1, DCx1));
+      b2.Update(-1.0, DCx1, 1.0); // b2 = b2 - DC*x1
     }
     else {
       // Inverse is not exact, so we must modify b1 first:
-      Epetra_Vector x2(View, densityMap_, x.Values()+densityMap_.NumMyElements()); //Start x2 to view last numCms elements of x
+      Epetra_Vector x2(View, cmsMap_, x.Values()+densityMap_.NumMyElements()); //Start x2 to view last numCms elements of x
       Epetra_Vector b1(View, densityMap_, b.Values()); // Start b1 to view first numDensity elements of b
-      b1.Multiply(-1.0, *densityOnCmsMatrix_, x2, 1.0);
+      Epetra_Vector DCx2(b1);
+      TEUCHOS_TEST_FOR_EXCEPT(densityOnCmsMatrix_->Apply(x2, DCx2));
+      b1.Update(-1.0, DCx2, 1.0); // b1 = b1 - DC*x2
     }
   }
 
@@ -506,4 +540,5 @@ int dft_PolyA22_Epetra_Operator::Check(bool verbose) const {
 
   if (resid > 1.0E-12) return(-1); // Bad residual
   return(0);
+
 }

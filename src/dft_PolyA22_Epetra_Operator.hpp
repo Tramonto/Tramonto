@@ -168,16 +168,16 @@ protected:
   Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnDensityMatrix_;
   Teuchos::RefCountPtr<Epetra_CrsMatrix> cmsOnCmsMatrix_;
   Teuchos::RefCountPtr<Epetra_Vector> densityOnDensityMatrix_;
-  Teuchos::RefCountPtr<Epetra_Vector> densityOnCmsMatrix_;
+  Teuchos::RefCountPtr<Epetra_CrsMatrix> densityOnCmsMatrix_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool isFLinear_;
   bool firstTime_;
   int curRow_;
-  std::map<int, double> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_;
-  Epetra_IntSerialDenseVector indicesCmsOnDensity_, indicesCmsOnCms_;
-  Epetra_SerialDenseVector valuesCmsOnDensity_, valuesCmsOnCms_;
+  std::map<int, double> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_, curRowValuesDensityOnCms_;
+  Epetra_IntSerialDenseVector indicesCmsOnDensity_, indicesCmsOnCms_, indicesDensityOnCms_;
+  Epetra_SerialDenseVector valuesCmsOnDensity_, valuesCmsOnCms_, valuesDensityOnCms_;
   Teuchos::ParameterList IFList_;
   Teuchos::RCP<Ifpack_Preconditioner> IFPrec;
   string IFPrecType; // incomplete LU
