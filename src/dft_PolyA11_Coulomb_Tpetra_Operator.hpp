@@ -41,8 +41,8 @@ class dft_PolyA11_Coulomb_Tpetra_Operator:
 {
 
  public:
-TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
-TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
   typedef dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
 

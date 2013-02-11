@@ -39,8 +39,8 @@ class dft_HardSphereA11_Tpetra_Operator:
 {
 
 public:
-  TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
-  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+  TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system

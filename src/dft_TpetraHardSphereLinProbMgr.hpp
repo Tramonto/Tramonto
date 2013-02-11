@@ -45,8 +45,8 @@ class dft_HardSphereLinProbMgr:
   public virtual dft_BasicLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
 public:
-  TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
-  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+  TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
   typedef dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
   typedef dft_HardSphereA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> HS11TO;

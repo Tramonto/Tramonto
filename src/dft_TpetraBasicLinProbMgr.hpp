@@ -38,8 +38,8 @@ template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
 class dft_BasicLinProbMgr {
 
   public:
-  TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
-  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+  TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
   //@{ \name Constructors/destructor.
 

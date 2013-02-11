@@ -42,8 +42,8 @@ class dft_Schur_Tpetra_Operator:
 {
 
  public:
-TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node);
-TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
+TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2-by-2 block system
@@ -212,7 +212,7 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node);
   /* Intermediate matrix containing A21*inv(A11)*A12 */
   RCP<MAT_P> S_;
   /* Schur complement, if formed */
-  char * Label_; /*!< Description of object */
+  const char * Label_; /*!< Description of object */
 };
 
 #endif /* DFT_SCHUR_TPETRA_OPERATOR_H */
