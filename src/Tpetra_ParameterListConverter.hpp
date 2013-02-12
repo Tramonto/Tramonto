@@ -101,13 +101,15 @@ namespace Tpetra {
 	// Use Ifpack2 Additive Schwarz
 	//
 	// Reordering
-	// Doesn't work yet because of Zoltan2 build error
-	Teuchos::ParameterList zlist;
-	zlist.set("order_method","rcm");
-	outputList_.set( "schwarz: use reordering",
-			 true );
-	outputList_.set( "schwarz: reordering list",
-			 zlist );
+	int reorder = inputList_->template get<int>( "Reorder" );
+	if (reorder == 1) {
+	  Teuchos::ParameterList zlist;
+	  zlist.set("order_method","rcm");
+	  outputList_.set( "schwarz: use reordering",
+			   true );
+	  outputList_.set( "schwarz: reordering list",
+			   zlist );
+	}
       }
 
       if (precond != AZ_none) {
