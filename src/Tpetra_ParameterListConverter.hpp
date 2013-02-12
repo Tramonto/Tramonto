@@ -169,23 +169,24 @@ namespace Tpetra {
       //
       // Muelu Parameters
       //
-      // Note: These have no effect right now because a separate parameter list is passed to Muelu in
-      // dft_PolyA22_Coulomb_Tpetra_Operator.cpp
-      //
+      Teuchos::ParameterList mueluList;
+
       // ML output
-      outputList_.set( "ML output", 0 );
+      mueluList.set( "ML output", 0 );
 
       // Smoother sweeps
-      outputList_.set( "smoother: sweeps",  2 );
+      mueluList.set( "smoother: sweeps",  2 );
 
       // Smoother type
-      outputList_.set( "smoother: type", "Chebyshev" );
+      mueluList.set( "smoother: type", "Chebyshev" );
 
       // Coarse sweeps
-      outputList_.set( "coarse: sweeps",  6 );
+      mueluList.set( "coarse: sweeps",  6 );
 
       // Coarse type
-      outputList_.set( "coarse: type",  "Chebyshev" );
+      mueluList.set( "coarse: type",  "Chebyshev" );
+
+      outputList_.set( "mueluList", mueluList );
 
       isConverted_ = true;
     }
