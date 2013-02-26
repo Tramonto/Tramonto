@@ -67,7 +67,7 @@ void setup_chain_from_file(FILE *fpecho, char *poly_file)
    FILE *fppoly;
 
    if( (fppoly  = fopen(poly_file,"r")) == NULL) {
-           if (Iwrite_screen != SCREEN_NONE) printf("Can't open file %s and no other file was specified in GUI.\n", poly_file);
+           if (Iwrite_screen != SCREEN_NONE) printf("Can't open poly file %s and no other file was specified in GUI.\n", poly_file);
            exit(-1);
    }
 
