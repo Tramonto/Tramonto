@@ -300,11 +300,28 @@
 @ 0 0 0 0 	Lper_area Lcount_reflect Lprint_gofr Lprint_uww 
 @ 0 	Print_rho_type (0= all output in dft_dens.dat, 
                                1= each run gets a different file)
-@ 0 0 	Print_rho_switch Print_mesh_switch 
-               switches to determine how output will look in dft_force file
-               rho: (0 - all densities, 1=p/po, 2=kappa, 3=all betamu)
-               mesh: (0=surface separations, 1=wall positions)
-@ 1 	IWRITE (0=MINIMAL, 1=DENSITY_PROF, 2=NO_SCREEN, 3=VERBOSE) 
+@ 0 0 	Print_rho_switch Print_mesh_switch :::: switches to determine how output will look in dft_output.dat file
+               Print_rho_switch options: 
+                  -1: No state point output.
+                   0: Print density of one species.
+                   1: Print density and chem. pot. of one species as well as pressure
+                   2: Print Debye screening length (charged systems only)
+                   3: Print chemical potential of one species.
+                   4: Print density and chem. pot. of ALL species as well as pressure
+                   5: Print density and chem. pot. of one species as well as pressure.**
+                   6: Print density and chem. pot. of ALL species as well as pressure.**
+                   ** For these cases (5,6), also present adsorption as mean density 
+                      and free energy as pressure as is appropriate for a BULK fluid calculation.
+               Print_mesh_switch options:
+                   0: Print surface separations 
+                   1: Print all surface positions
+@ 1     IWRITE :::: select desired output level
+               0=MINIMAL    (almost no output - just dft_output.dat)
+               1=DENSITIES  (also print density profiles)
+               2=EXTENDED   (also print external fields)
+               3=VERBOSE    (print all debugging output)
+               4=NO_SCREEN  (turn off all screen output)
+               5=VERBOSE_MATRIX (output a matrix then quit)      
 
 *********** COARSENING SWITCHES ************************************************
 @ 1 	Nzone (Coarsens Mesh/Jacobian by factor of 2) 
