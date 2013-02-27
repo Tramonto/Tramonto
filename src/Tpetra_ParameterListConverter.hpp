@@ -118,8 +118,7 @@ namespace Tpetra {
 	//
 	// Level of fill
 	outputList_.template set<Scalar>( "fact: ilut level-of-fill",
-					  1.0 );
-	//					  inputList_->template get<double>("Ilut_fill") );
+					  inputList_->template get<double>("Ilut_fill") );
 	// Absolute threshold
 	outputList_.template set<Scalar>( "fact: absolute threshold",
 					  inputList_->template get<double>("Athresh") );
@@ -142,12 +141,10 @@ namespace Tpetra {
       GlobalOrdinal blockSize = 1;
       outputList_.set( "Block Size", blockSize);
       outputList_.set( "Num Blocks",
-		       std::max( 500,
-				 inputList_->template get<int>("Kspace") / blockSize ) );
+		       inputList_->template get<int>("Kspace") / blockSize );
       // Maximum iterations
       outputList_.set( "Maximum Iterations",
-		       std::max( 500,
-				 inputList_->template get<int>("Max_iter") ) );
+		       inputList_->template get<int>("Max_iter") );
       // Convergence tolerance
 #if MIXED_PREC == 1
       outputList_.template set<Scalar>( "Convergence Tolerance",
