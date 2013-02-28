@@ -27,5 +27,5 @@ int StenTheta_RPMmsa_Njcomp();
 double deltaC_MSA_int(double r,int i,int j);
 double StenTheta_RPMmsa_sten_vol(int i,int j);
 #define NCOMP_MAX 5
-extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
+extern double HS_diam[NCOMP_MAX];
 double StenTheta_RPMmsa_sten_rad(int icomp);
