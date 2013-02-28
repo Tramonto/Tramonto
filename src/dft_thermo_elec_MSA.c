@@ -34,19 +34,21 @@ corrections are turned on.
 /********************************************************************/
 /*chempot_ELEC_MSA_RPM: Here we compute the chemical potential contribution due
       to cross correlations between the hard sphere and coulomb parts of 
-      the potential for the restricted primitive model based using the 
+      the potential for the restricted primitive model using the 
       mean spherical approximation (following the work of Tang and Davis)*/
 void chempot_ELEC_MSA_RPM(double *rho)
 {
    int icomp,jcomp;
+    double temp;
 
    Deltac_b = (double *) array_alloc (1, Ncomp, sizeof(double));
-   for (icomp=0; icomp<Ncomp; icomp++) Deltac_b[icomp] = 0.0;
-
-   for (icomp=0; icomp<Ncomp; icomp++) 
+    for (icomp=0; icomp<Ncomp; icomp++) Deltac_b[icomp] = 0.0;
+          
+    for (icomp=0; icomp<Ncomp; icomp++) 
       for (jcomp=0; jcomp<Ncomp;jcomp++){
-          Deltac_b[icomp]+= rho[jcomp]*int_stencil_bulk(THETA_CR_RPM_MSA,icomp,jcomp,NULL);
-      }
+          Deltac_b[icomp] += rho[jcomp]*int_stencil_bulk(THETA_CR_RPM_MSA,icomp,jcomp,NULL);
+      } 
+   
    return;
 }
 /*******************************************************************************/
@@ -83,7 +85,7 @@ double deltaC_MSA(double r,int i, int j)
   return deltac;
 }
 /*******************************************************************************/
-/* deltaC_MSA_int:  given range of integrattion, r, calculate the 
+/* deltaC_MSA_int:  given range of integration, r, calculate the 
            integral of deltac_MSA over all space */
 
 double deltaC_MSA_int(double r,int i, int j)
@@ -99,8 +101,8 @@ double deltaC_MSA_int(double r,int i, int j)
   B = (kappa*HS_diam[i] + 1.0 - sqrt(1.0+2.0*kappa*HS_diam[i]))/(kappa*HS_diam[i]);
 
 
-   /********* NOTE --- does 4PI r^2 here is the integration over the spherical surface at a distance r, and is not
-       related to the plasma parameters (T_elec).*/
+   /********* NOTE --- the factor of 4PI r^2 here is the integration over the spherical surface at a distance r, and is not
+       related to the reduced temperature (T_elec).*/
 
    deltac_int = -(4*PI*r*r)*(Charge_f[i]*Charge_f[j]/Temp_elec)*
                (  2*B*r/(3.0*HS_diam[i]) - 0.5

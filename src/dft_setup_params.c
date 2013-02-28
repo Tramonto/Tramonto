@@ -337,7 +337,11 @@ void setup_other_run_constants()
   if (Type_coul!=NONE || Type_pairPot==PAIR_COULOMB_CS || Type_pairPot==PAIR_COULOMB) {
        Temp_elec = 4.0*PI*KBOLTZ*Temp_K_plasma*DielecConst_plasma*EPSILON_0*Sigma_Angstroms_plasma*1.e-10/(E_CONST*E_CONST);
       /*Temp_elec = 4*PI*KBOLTZ*298.0*KAPPA_H2O*EPSILON_0*4.25e-10/(E_CONST*E_CONST);  Tang-Davis Paper Parameters*/
-       if (Proc==0 && (Iwrite_screen!=SCREEN_NONE || Iwrite_screen!=SCREEN_ERRORS_ONLY)) printf("\t plasma parameter=%9.6f\n",1./Temp_elec);
+      if (Proc==0 && (Iwrite_screen!=SCREEN_NONE || Iwrite_screen!=SCREEN_ERRORS_ONLY))  {
+          printf("\t reduced temperature Telec = %9.6f\n", Temp_elec);
+          printf("\t Bjerrum length = d/Telec = %9.6f\n", Sigma_Angstroms_plasma/Temp_elec);
+           printf("\t plasma parameter = 1/Telec = %9.6f\n",1./Temp_elec);
+      }
   }
 
   Nnodes_per_el_V = POW_INT(2, Ndim);

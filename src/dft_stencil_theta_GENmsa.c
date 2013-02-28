@@ -85,35 +85,34 @@ int StenTheta_GENmsa_NquadPtsGaussIntegrand(double r)
 double StenTheta_GENmsa_GetWeightFromSten(int icomp, int jcomp, double rsq,
                                          int ngpu, double *gpu, double *gwu)
 {
-  double weight, zmax, z, rho;
+  double weight, zmax, z, rho, hs;
   int i;
-
+    
+    hs = (HS_diam[icomp]+HS_diam[jcomp])/2.;
+    
   weight = 0.0;
   zmax = sqrt(1 - rsq);
   switch(Ndim){
   case 1:
      for (i=0; i < ngpu; i++) {
          z = zmax * gpu[i];
-         /* perhaps rho doesn't need Sigma_ff multiplier */
-         rho = sqrt(rsq + z*z) * Sigma_ff[icomp][jcomp];
+         rho = sqrt(rsq + z*z) * hs;
          weight += gwu[i] * z *  deltaC_GENERAL_MSA(rho, icomp, jcomp);
      }
-     return(2.0 * PI * weight * Sigma_ff[icomp][jcomp]
-                            * Sigma_ff[icomp][jcomp] * zmax);
+     return(2.0 * PI * weight * hs * hs * zmax);
      break;
 
   case 2:
      for (i=0; i < ngpu; i++) {
          z = zmax * gpu[i];
-         /* perhaps rho doesn't need Sigma_ff multiplier */
-         rho = sqrt(rsq + z*z) * Sigma_ff[icomp][jcomp];
+         rho = sqrt(rsq + z*z) * hs;
          weight += gwu[i] *  deltaC_GENERAL_MSA(rho, icomp, jcomp);
      }
-     return(2.0 * weight * Sigma_ff[icomp][jcomp] * zmax);
+     return(2.0 * weight * hs * zmax);
      break;
 
   case 3:
-     rho = sqrt(rsq) * Sigma_ff[icomp][jcomp];
+     rho = sqrt(rsq) * hs;
      weight = deltaC_GENERAL_MSA(rho, icomp, jcomp);
      return(weight);
      break;
