@@ -50,7 +50,7 @@ void chempot_ELEC_MSA_GENERAL(double *rho)
    return;
 }
 /*******************************************************************************/
-/*pressure_elec_MSA: Here we compute the chemical potential contribution due
+/*pressure_elec_MSA: Here we compute the pressure contribution due
       to cross correlations between the hard sphere and coulomb parts of
       the potential. */
 double pressure_elec_MSA(double *rho)
@@ -73,7 +73,7 @@ double deltaC_GENERAL_MSA(double r,int i, int j)
   int itemp,jtemp;
 
   /* note that the parameters X_MSA, N_SMA, Gamma_MSA are computed in the routine
-     precalc_GENmsa_params wich is called at the top of dft_stencil.c outside the quadrature 
+     precalc_GENmsa_params, which is called at the top of dft_stencil.c outside the quadrature 
      loops of the stencil computation */
  
   if (HS_diam[j]<HS_diam[i]){ itemp=j; jtemp=i; }
@@ -104,7 +104,7 @@ double deltaC_GENERAL_MSA(double r,int i, int j)
   return deltac;
 }
 /*******************************************************************************/
-/* deltaC_MSAgeneral_int:  given range of calculate the 
+/* deltaC_MSAgeneral_int:  calculate the 
            integral of deltac_MSA at r */
 
 double deltaC_GENERAL_MSA_int(double r,int i, int j)
@@ -143,18 +143,19 @@ double deltaC_GENERAL_MSA_int(double r,int i, int j)
 void precalc_GENmsa_params(double *rho, double *x_msa, double *n_msa, double gamma)
 {
   int i,j,iter=0;
-  double c,densitySum,sum_num,sum_denom,xsum,nsum;
+  double c,csum,densitySum,sum_num,sum_denom,xsum,nsum;
   double tol=1.e-12,error=1.0,xsum_old=0.0,nsum_old=0.0,gamma_old=0.0;
   double NplusGammaX_i,NplusGammaX_j;
    
 
   gamma=1.0;
-  c = 0.0;
+  csum = 0.0;
   for (i=0;i<Ncomp;i++){
      x_msa[i]=1.0;
      n_msa[i]=1.0;
-     c += (PI/2.0)*(1./(1.-(PI/6.)*rho[i]*POW_DOUBLE_INT(HS_diam[i],3)));
+     csum += rho[i]*POW_DOUBLE_INT(HS_diam[i],3);
   }
+    c = (PI/2.0)*(1./(1.-(PI/6.)*csum));
 
   while (error>tol && iter <10000){
 
