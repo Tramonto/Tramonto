@@ -115,7 +115,7 @@ dft_poly_lin_prob_mgr_setgequationids
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
 
-  ArrayView<const int> gid_arr(gids, numgids);
+  ArrayView<const int> gid_arr((numgids == 0)? NULL : gids, numgids);
   linprobmgr_->setGEquationIDs(gid_arr);
   return 0;
 }
@@ -127,7 +127,7 @@ dft_poly_lin_prob_mgr_setginvequationids
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_  = dynamic_cast<PLPM *>(tmp);
 
-  ArrayView<const int> gid_arr(gids, numgids);
+  ArrayView<const int> gid_arr((numgids == 0)? NULL : gids, numgids);
   linprobmgr_->setGInvEquationIDs(gid_arr);
   return 0;
 }
@@ -139,7 +139,7 @@ dft_poly_lin_prob_mgr_setcmsequationids
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
 
-  ArrayView<const int> gid_arr(gids, numgids);
+  ArrayView<const int> gid_arr((numgids == 0)? NULL : gids, numgids);
   linprobmgr_->setCmsEquationIDs(gid_arr);
   return 0;
 }
@@ -151,8 +151,7 @@ dft_poly_lin_prob_mgr_setdensityequationids
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
 
-  ArrayView<const int> gid_arr(gids, numgids);
-
+  ArrayView<const int> gid_arr((numgids == 0)? NULL : gids, numgids);
   linprobmgr_->setDensityEquationIDs(gid_arr);
   return 0;
 }
@@ -175,7 +174,7 @@ dft_poly_lin_prob_mgr_setpoissonequationids
   BLPM * tmp = (BLPM *) linprobmgr;
   PLPM * linprobmgr_ = dynamic_cast<PLPM *>(tmp);
 
-  ArrayView<const int> gid_arr(gids, numgids);
+  ArrayView<const int> gid_arr((numgids == 0)? NULL : gids, numgids);
   linprobmgr_->setPoissonEquationIDs(gid_arr);
   return 0;
 }

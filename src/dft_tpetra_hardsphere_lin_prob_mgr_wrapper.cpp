@@ -115,7 +115,7 @@ dft_hardsphere_lin_prob_mgr_setindnonlocalequationids
   BLPM * tmp = (BLPM *) linprobmgr;
   HSLPM * linprobmgr_ = dynamic_cast<HSLPM *>(tmp);
 
-  ArrayView<const int> gid_arr(gids, numgids);
+  ArrayView<const int> gid_arr((numgids == 0)? NULL : gids, numgids);
   linprobmgr_->setIndNonLocalEquationIDs(gid_arr);
   return 0;
 }
@@ -127,7 +127,7 @@ dft_hardsphere_lin_prob_mgr_setdepnonlocalequationids
   BLPM * tmp = (BLPM *) linprobmgr;
   HSLPM * linprobmgr_ = dynamic_cast<HSLPM *>(tmp);
 
-  ArrayView<const int> gid_arr(gids, numgids);
+  ArrayView<const int> gid_arr((numgids == 0)? NULL : gids, numgids);
   linprobmgr_->setDepNonLocalEquationIDs(gid_arr);
   return 0;
 }
@@ -139,7 +139,7 @@ dft_hardsphere_lin_prob_mgr_setdensityequationids
   BLPM * tmp = (BLPM *) linprobmgr;
   HSLPM * linprobmgr_ = dynamic_cast<HSLPM *>(tmp);
 
-  ArrayView<const int> gid_arr(gids, numgids);
+  ArrayView<const int> gid_arr((numgids == 0)? NULL : gids, numgids);
   linprobmgr_->setDensityEquationIDs(gid_arr);
   return 0;
 }
