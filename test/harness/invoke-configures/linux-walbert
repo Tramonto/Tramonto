@@ -1,3 +1,0 @@
-../configure \
---with-trilinos=/home/jmwille/TrilinosInstall/9.0.2tramonto
-

@@ -1,2 +1,0 @@
-../configure \
---with-trilinos="/common/TrilinosInstall/7.0.4"

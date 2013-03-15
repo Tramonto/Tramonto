@@ -1,4 +1,0 @@
-cmake \
-     -DTRILINOS_PATH=/Users/hudson/slave/workspace/tramonto-trilinos-dev-ictinus-gcc/TriDevInstall \
-     ..
-

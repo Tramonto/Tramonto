@@ -1,4 +1,0 @@
-cmake \
- -DTRILINOS_PATH=/home/hudson/slave/workspace/tramonto-trilinos-dev-linux-gcc/TriDevInstall \
- ..
-

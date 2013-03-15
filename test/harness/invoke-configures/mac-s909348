@@ -1,9 +1,0 @@
-../configure  \
-CXX=/Users/bmpersc/bin/openmpi-1.3.2/bin/mpicxx \
-CC=/Users/bmpersc/bin/openmpi-1.3.2/bin/mpicc \
-F77=/Users/bmpersc/bin/openmpi-1.3.2/bin/mpif77 \
-CXXFLAGS=-O3 \
-CFLAGS=-O3 \
-FFLAGS=-O3 \
-        --with-gnumake \
-        --with-trilinos=/Users/jmwille/TramontoTestHarness/9.0.2install

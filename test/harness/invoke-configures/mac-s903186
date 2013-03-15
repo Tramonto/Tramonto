@@ -1,4 +1,0 @@
-cmake \
-     -DTRILINOS_PATH=/Users/jmwille/TramontoTestHarness/TriDev \
-     ..
-
