@@ -436,12 +436,12 @@ applyInverse
 
   RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
   // X0 is a view of the first numPoisson elements of X
-  RCP<const MV> X1 = X.offsetView(densityMap_, numPoissonElements);
+  RCP<const MV> X1;
   // X1 is a view of the middle numDensity/numCms elements of X
   RCP<const MV> X2;
   RCP<MV> Y0 = Y.offsetViewNonConst(poissonMap_, 0);
   // Y0 is a view of the first numPoisson elements of Y
-  RCP<MV> Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements);
+  RCP<MV> Y1;
   // Y1 is a view of the middle numDensity/numCms elements of Y
   RCP<MV> Y2;
 
@@ -455,11 +455,15 @@ applyInverse
 
   if (F_location_ == 1)  //F in NE part
   {
+    X1 = X.offsetView(cmsMap_, numPoissonElements);
+    Y1 = Y.offsetViewNonConst(cmsMap_, numPoissonElements);
     X2 = X.offsetView(densityMap_, numPoissonElements+numCmsElements);
     Y2 = Y.offsetViewNonConst(densityMap_, numPoissonElements+numCmsElements);
   } //end if
   else  //F in SW part
   {
+    X1 = X.offsetView(densityMap_, numPoissonElements);
+    Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements);
     X2 = X.offsetView(cmsMap_, numPoissonElements+numDensityElements);
     Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements+numDensityElements);
   } //end else
@@ -608,24 +612,28 @@ apply
 
   RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
   // Start X0 to view the first numPoisson elements of X
-  RCP<const MV> X1 = X.offsetView(densityMap_, numPoissonElements);
+  RCP<const MV> X1;
   // Start X1 to view middle numDensityElements/numCms elements of X
   RCP<const MV> X2;
   // Start X2 to view last numDensity/numCms elements of X - was cms
   RCP<MV > Y0 = Y.offsetViewNonConst(poissonMap_, 0);
   // Y0 is a view of the first numPoisson elements of Y
-  RCP<MV > Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements);
+  RCP<MV > Y1;
   // Y1 is a view of the middle numDensity/numCms elements of Y
   RCP<MV > Y2;
   // Y2 is a view of the last numDensity/numCms elements of Y
 
   if (F_location_ == 1)
   {
+    X1 = X.offsetView(cmsMap_, numPoissonElements);
+    Y1 = Y.offsetViewNonConst(cmsMap_, numPoissonElements);
     X2 = X.offsetView(densityMap_, numPoissonElements+numCmsElements);
     Y2 = Y.offsetViewNonConst(densityMap_, numPoissonElements+numCmsElements);
   } //end if
   else
   {
+    X1 = X.offsetView(densityMap_, numPoissonElements);
+    Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements);
     X2 = X.offsetView(cmsMap_, numPoissonElements+numDensityElements);
     Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements+numDensityElements);
   } //end else
