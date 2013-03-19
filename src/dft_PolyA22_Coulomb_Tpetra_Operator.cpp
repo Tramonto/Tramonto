@@ -491,6 +491,7 @@ applyInverse
     // First block row: Y0 = PP \ (X0 - PD*Y2);
     poissonOnDensityMatrixOp_->apply(*Y2, *Y0tmp);
     Y0tmp->update(1.0, *X0, -1.0);
+    Y0->putScalar(0.0);
 #if ENABLE_MUELU == 1
 #if MIXED_PREC == 1
     // Demote Y0 and Y0tmp to halfScalar precision
@@ -536,6 +537,7 @@ applyInverse
     // First block row: Y0 = PP \ (X0 - PD*Y1);
     poissonOnDensityMatrixOp_->apply(*Y1, *Y0tmp);
     Y0tmp->update( 1.0, *X0, -1.0 );
+    Y0->putScalar(0.0);
 #if ENABLE_MUELU == 1
 #if MIXED_PREC == 1
     // Demote Y0 and Y0tmp to halfScalar precision
