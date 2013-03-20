@@ -96,44 +96,45 @@ namespace Tpetra {
       //
       // Ifpack2 Parameters
       //
-      if (precond == AZ_dom_decomp) {
-	//
-	// Use Ifpack2 Additive Schwarz
-	//
-	// Reordering
-	int reorder = inputList_->template get<int>( "Reorder" );
-	if (reorder == 1) {
-	  Teuchos::ParameterList zlist;
-	  zlist.set("order_method","rcm");
-	  outputList_.set( "schwarz: use reordering",
-			   true );
-	  outputList_.set( "schwarz: reordering list",
-			   zlist );
-	}
+      Teuchos::ParameterList ifpack2List;
+
+      //
+      // Use Ifpack2 Additive Schwarz
+      //
+      // Reordering
+      int reorder = inputList_->template get<int>( "Reorder" );
+      if (reorder == 1) {
+	Teuchos::ParameterList zlist;
+	zlist.set("order_method","rcm");
+	ifpack2List.set( "schwarz: use reordering",
+			 true );
+	ifpack2List.set( "schwarz: reordering list",
+			 zlist );
       }
 
-      if (precond != AZ_none) {
-	//
-	// Use Ifpack2 ILUT on entire matrix or on subdomains with Additive Schwarz
-	//
-	// Level of fill
-	outputList_.template set<Scalar>( "fact: ilut level-of-fill",
-					  inputList_->template get<double>("Ilut_fill") );
-	// Absolute threshold
-	outputList_.template set<Scalar>( "fact: absolute threshold",
-					  inputList_->template get<double>("Athresh") );
-	// Relative threshold
-	sParam = inputList_->template get<double>("Rthresh");
-	if (sParam == 0.0)
-	  // The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
-	  outputList_.template set<Scalar>( "fact: relative threshold", 1.0 );
-	else
-	  outputList_.template set<Scalar>( "fact: relative threshold",
-					    inputList_->template get<double>("Rthresh") );
-	// Drop tolerance
-	outputList_.template set<Scalar>( "fact: drop tolerance",
-					  inputList_->template get<double>("Drop") );
-      }
+      //
+      // Use Ifpack2 ILUT on entire matrix or on subdomains with Additive Schwarz
+      //
+      // Level of fill
+      ifpack2List.template set<Scalar>( "fact: ilut level-of-fill",
+					inputList_->template get<double>("Ilut_fill") );
+      // Absolute threshold
+      ifpack2List.template set<Scalar>( "fact: absolute threshold",
+					inputList_->template get<double>("Athresh") );
+      // Relative threshold
+      sParam = inputList_->template get<double>("Rthresh");
+      if (sParam == 0.0)
+	// The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
+	ifpack2List.template set<Scalar>( "fact: relative threshold", 1.0 );
+      else
+	ifpack2List.template set<Scalar>( "fact: relative threshold",
+					  inputList_->template get<double>("Rthresh") );
+      // Drop tolerance
+      ifpack2List.template set<Scalar>( "fact: drop tolerance",
+					inputList_->template get<double>("Drop") );
+
+      outputList_.set( "ifpack2List", ifpack2List );
+
       //
       // Belos Parameters
       //
@@ -158,9 +159,9 @@ namespace Tpetra {
 #endif
 
       // Output
-      //      belosList.set( "Output Frequency", 10 );
-      //      belosList.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
-      //      belosList.set( "Output Style", Belos::Brief);
+      //  belosList.set( "Output Frequency", 10 );
+      //  belosList.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+      //  belosList.set( "Output Style", Belos::Brief);
 
       outputList_.set( "belosList", belosList );
 
