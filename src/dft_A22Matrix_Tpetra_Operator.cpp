@@ -125,43 +125,29 @@ finalizeProblemValues
 ()
 {
   if (isLinearProblemSet_) {
-    return; // nothing to do
+    return;
   }
 
-  insertRow(); // Dump any remaining entries
+  insertRow();
   A22Matrix_->fillComplete();
-
-  //EpetraExt::RowMatrixToMatrixMarketFile( "A22.dat", A22Matrix_, "CMS and Density blocks",
-  //				  "The 2,2 block of  problem",
-  //				  true);
- // abort();
-
-  //  std::cout << A22Matrix_<< std::endl;
 
   if (firstTime_) {
 
-    // create the preconditioner. For valid PrecType values,
-    // please check the documentation
-    string PrecType = "ILUT"; // incomplete LU
-    //string PrecType = "point relaxation"; // Gauss-Seidel
-    int OverlapLevel = 0; // must be >= 0. If Comm.NumProc() == 1,
-    // it is ignored.
-
     Ifpack2::Factory factory;
     RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(A22Matrix_);
-    A22Inverse_ = factory.create(PrecType, const_matrix);
+    LocalOrdinal overlapLevel = 0;
+    A22Inverse_ = rcp(new Ifpack2::AdditiveSchwarz<MAT_P,Ifpack2::ILUT<MAT_P > > (const_matrix,overlapLevel));
     A22InverseMixed_ = rcp(new MOP((RCP<OP_P>)A22Inverse_));
 
     TEUCHOS_TEST_FOR_EXCEPT(A22Inverse_==Teuchos::null);
 
-    A22Inverse_->setParameters(*parameterList_);
+    //    ParameterList ifpack2List;
+    //    ifpack2List.set( "fact: ilut level-of-fill", 2 );
+    //    A22Inverse_->setParameters(ifpack2List);
 
-    // initialize the preconditioner. At this point the matrix must
-    // have been FillComplete()'d, but actual values are ignored.
     A22Inverse_->initialize();
   }
-  // Builds the preconditioners, by looking for the values of
-  // the matrix.
+
   A22Inverse_->compute();
 
   isLinearProblemSet_ = true;
