@@ -137,31 +137,32 @@ namespace Tpetra {
       //
       // Belos Parameters
       //
+      Teuchos::ParameterList belosList;
+
       // Block size
       GlobalOrdinal blockSize = 1;
-      outputList_.set( "Block Size", blockSize);
-      outputList_.set( "Num Blocks",
-		       inputList_->template get<int>("Kspace") / blockSize );
+      belosList.set( "Block Size", blockSize);
+      belosList.set( "Num Blocks",
+		     inputList_->template get<int>("Kspace") / blockSize );
       // Maximum iterations
-      outputList_.set( "Maximum Iterations",
-		       inputList_->template get<int>("Max_iter") );
+      belosList.set( "Maximum Iterations",
+		     inputList_->template get<int>("Max_iter") );
       // Convergence tolerance
 #if MIXED_PREC == 1
-      outputList_.template set<Scalar>( "Convergence Tolerance",
-      					std::max( Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")),
-						  5*Teuchos::ScalarTraits<halfScalar>::eps() ) );
+      belosList.template set<Scalar>( "Convergence Tolerance",
+				      std::max( Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")),
+						5*Teuchos::ScalarTraits<halfScalar>::eps() ) );
 #elif MIXED_PREC == 0
-      outputList_.template set<Scalar>( "Convergence Tolerance",
-					Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
-      //      outputList_.template set<Scalar>( "Convergence Tolerance",
-      //					std::max( Teuchos::as<Scalar>(inputList_->template get<double>("Tol")),
-      //						  5*Teuchos::ScalarTraits<Scalar>::eps() ) );
+      belosList.template set<Scalar>( "Convergence Tolerance",
+				      Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
 #endif
 
       // Output
-      //      outputList_.set( "Output Frequency", 10 );
-      //      outputList_.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
-      //      outputList_.set( "Output Style", Belos::Brief);
+      //      belosList.set( "Output Frequency", 10 );
+      //      belosList.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+      //      belosList.set( "Output Style", Belos::Brief);
+
+      outputList_.set( "belosList", belosList );
 
       //
       // Muelu Parameters

@@ -510,7 +510,8 @@ setupSolver
   problem_->setLeftPrec(A22precond_);
 
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
-  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, parameterList_));
+  RCP<ParameterList> belosList = rcp(new ParameterList(parameterList_->sublist("belosList")));
+  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, belosList));
 #endif
 
 } //end setupSolver
