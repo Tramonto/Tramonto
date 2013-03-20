@@ -323,16 +323,15 @@ finalizeProblemValues
 {
   if (isLinearProblemSet_)
   {
-    return; // nothing to do
-  } //end if
+    return;
+  }
   insertRow(); // Dump any remaining entries
   cmsOnCmsMatrix_->fillComplete();
 
   if (!isFLinear_) {
     cmsOnDensityMatrix_->fillComplete(densityMap_,cmsMap_);
-  } //end if<
+  }
 
-  //only need to do the following the firstTime_
   poissonOnPoissonMatrix_->fillComplete();
   cmsOnPoissonMatrix_->fillComplete(poissonMap_, cmsMap_);
   poissonOnDensityMatrix_->fillComplete(densityMap_, poissonMap_);
@@ -363,13 +362,8 @@ finalizeProblemValues
   if (firstTime_) {
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
-    mueluList_.set( "ML output", 0 );
-    mueluList_.set( "smoother: sweeps",  2 );
-    mueluList_.set( "smoother: type", "Chebyshev" );
-    mueluList_.set( "coarse: sweeps",  6 );
-    mueluList_.set( "coarse: type",  "Chebyshev" );
+    mueluList_ = parameterList_->sublist("mueluList");
 
-    // We want to pass in *parameterList_ here instead but that generates Muelu errors
     MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
 
     H_ = mueluFactory.CreateHierarchy();
