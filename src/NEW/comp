@@ -1,6 +1,0 @@
-g++ -c -O0 -g -DHAVE_DFT_SCHUR_SOLVER -DHAVE_CONFIG_H -I/home/mheroux/Trilinos/DEFAULT_MPI_DEBUG/include -I.. dft_schur_solver.cpp dft_schur_epetra_operator.cpp
-rm -f libmylib.a
-ar qv libmylib.a dft_schur_solver.o dft_schur_epetra_operator.o
-mv libmylib.a /home/mheroux/Trilinos/DEFAULT_MPI_DEBUG/lib
-pushd /home/mheroux/Tramonto/MPI_DEBUG_NEW; make; popd
-pushd /home/mheroux/Tramonto/hard_spheres; rm -f dft_intel_linux; ln ../MPI_DEBUG_NEW/src/dft_intel_linux .; popd
