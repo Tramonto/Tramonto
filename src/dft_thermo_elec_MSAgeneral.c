@@ -191,7 +191,7 @@ void precalc_GENmsa_params(double *rho, double *x_msa, double *n_msa, double gam
       gamma_old=gamma; xsum_old=xsum; nsum_old=nsum;
       iter++;
   }
-  if (error >tol || iter==10,000){
+  if (error >tol || iter==10000){
       printf("unable to converge general MSA properties\n");
       printf("iter=%d  tol=%g  \n",iter,tol);
       for (i=0;i<Ncomp;i++) printf("icomp=%d  gamma=%g  x_msa[%d]=%g  n_msa[%d]=%g\n",

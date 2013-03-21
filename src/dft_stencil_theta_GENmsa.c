@@ -117,6 +117,9 @@ double StenTheta_GENmsa_GetWeightFromSten(int icomp, int jcomp, double rsq,
      return(weight);
      break;
 
+  default:
+     return(0.0);
+     break;
   }
 }
 /*********************************************************************/
