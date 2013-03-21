@@ -729,12 +729,12 @@ Check
   RCP<MV> x0 = x->offsetViewNonConst(poissonMap_, 0);
   RCP<MV> b0 = b->offsetViewNonConst(poissonMap_, 0);
   RCP<MV> x1 = x->offsetViewNonConst(densityMap_, poissonMap_->getNodeNumElements());
-  // Start x1 to view middle numCmsElements elements of x
+  // Start x1 to view middle numDensity elements of x
   RCP<MV> b1 = b->offsetViewNonConst(densityMap_, poissonMap_->getNodeNumElements());
   // Start b1 to view middle numDensity elements of b
-  RCP<MV> b2 = b->offsetViewNonConst(densityMap_, poissonMap_->getNodeNumElements()+densityMap_->getNodeNumElements());
-  // Start b2 to view last numDensity elements of b
-  RCP<MV> x2 = x->offsetViewNonConst(densityMap_, poissonMap_->getNodeNumElements()+densityMap_->getNodeNumElements());
+  RCP<MV> b2 = b->offsetViewNonConst(cmsMap_, poissonMap_->getNodeNumElements()+densityMap_->getNodeNumElements());
+  // Start b2 to view last numCms elements of b
+  RCP<MV> x2 = x->offsetViewNonConst(cmsMap_, poissonMap_->getNodeNumElements()+densityMap_->getNodeNumElements());
   //Start x2 to view last numCms elements of x
 
   // The poisson-on-poisson matrix is singular. Make x0 orthogonal to the kernel.

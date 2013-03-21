@@ -491,7 +491,7 @@ Check
     if (F_location_ == 1) //F in NE
     {
       // Inverse is not exact, so we must modify b2 first:
-      RCP<MV> x1 = x->offsetViewNonConst(densityMap_, 0);
+      RCP<MV> x1 = x->offsetViewNonConst(cmsMap_, 0);
       // Start x1 to view first numCmsElements elements of x
       RCP<MV> b2 = b->offsetViewNonConst(densityMap_, cmsMap_->getNodeNumElements());
       // Start b2 to view last numDensity elements of b
@@ -502,7 +502,7 @@ Check
     else
     {
       // Inverse is not exact, so we must modify b1 first:
-      RCP<MV> x2 = x->offsetViewNonConst(densityMap_, densityMap_->getNodeNumElements());
+      RCP<MV> x2 = x->offsetViewNonConst(cmsMap_, densityMap_->getNodeNumElements());
       //Start x2 to view last numCms elements of x
       RCP<MV> b1 = b->offsetViewNonConst(densityMap_, 0);
       // Start b1 to view first numDensity elements of b
