@@ -210,6 +210,7 @@ void free_mesh_arrays(void)
    safe_free((void *) &Wall_owners);
 
    /*if (Mesh_coarsening != FALSE || L1D_bc)*/ safe_free((void *) &Mesh_coarsen_flag);
+   if (List_coarse_nodes !=NULL) safe_free((void *) &List_coarse_nodes);
 
    if (Ipot_ff_c == COULOMB) safe_free((void *) &Dielec);
 
@@ -2849,6 +2850,8 @@ void set_mesh_coarsen_flag(void)
      nodes_coarse=gsum_int(count_coarse);
      if (Proc==0&&Iwrite_screen==VERBOSE) printf(" %d nodes of %d total will be coarsened\n",nodes_coarse,Nnodes);
   }
+
+  safe_free((void *) &List_coarse_nodes);
   if (Nnodes_coarse_loc==0) List_coarse_nodes=NULL;
 
   return;
