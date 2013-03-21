@@ -2851,8 +2851,10 @@ void set_mesh_coarsen_flag(void)
      if (Proc==0&&Iwrite_screen==VERBOSE) printf(" %d nodes of %d total will be coarsened\n",nodes_coarse,Nnodes);
   }
 
-  safe_free((void *) &List_coarse_nodes);
-  if (Nnodes_coarse_loc==0) List_coarse_nodes=NULL;
+  if (Nnodes_coarse_loc==0) {
+    safe_free((void *) &List_coarse_nodes);
+    List_coarse_nodes=NULL;
+  } 
 
   return;
 
