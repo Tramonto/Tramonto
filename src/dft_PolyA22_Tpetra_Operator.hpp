@@ -217,17 +217,18 @@ protected:
   RCP<MMOP_P> cmsOnDensityMatrixOp_;
   RCP<MAT_P> cmsOnCmsMatrix_;
   RCP<MMOP_P> cmsOnCmsMatrixOp_;
-  RCP<VEC > densityOnDensityMatrix_;
-  RCP<VEC > densityOnCmsMatrix_;
+  RCP<VEC> densityOnDensityMatrix_;
+  RCP<MAT_P> densityOnCmsMatrix_;
+  RCP<MMOP_P> densityOnCmsMatrixOp_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool isFLinear_;
   bool firstTime_;
   GlobalOrdinal curRow_;
-  std::map<GlobalOrdinal, precScalar> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_;
-  Array<GlobalOrdinal> indicesCmsOnDensity_, indicesCmsOnCms_;
-  Array<precScalar> valuesCmsOnDensity_, valuesCmsOnCms_;
+  std::map<GlobalOrdinal, precScalar> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_, curRowValuesDensityOnCms_;
+  Array<GlobalOrdinal> indicesCmsOnDensity_, indicesCmsOnCms_, indicesDensityOnCms_;
+  Array<precScalar> valuesCmsOnDensity_, valuesCmsOnCms_, valuesDensityOnCms_;
   Teuchos::ParameterList IFList_;
   RCP<PRECOND> IFPrec;
   string IFPrecType; // incomplete LU

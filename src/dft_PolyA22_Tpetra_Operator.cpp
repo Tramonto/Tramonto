@@ -47,7 +47,8 @@ dft_PolyA22_Tpetra_Operator
   cmsOnCmsMatrix_ = rcp(new MAT_P(cmsMap, 0));
   cmsOnCmsMatrixOp_ = rcp(new MMOP_P(cmsOnCmsMatrix_));
   densityOnDensityMatrix_ = rcp(new VEC(densityMap));
-  densityOnCmsMatrix_ = rcp(new VEC(densityMap));
+  densityOnCmsMatrix_ = rcp(new MAT_P(densityMap, 0));
+  densityOnCmsMatrixOp_ = rcp(new MMOP_P(densityOnCmsMatrix_));
   Label_ = "dft_PolyA22_Tpetra_Operator";
   cmsOnDensityMatrix_->setObjectLabel("PolyA22::cmsOnDensityMatrix");
   F_location_ = Teuchos::getParameter<LocalOrdinal>(*parameterList_, "F_location");
@@ -81,7 +82,8 @@ initializeProblemValues
     cmsOnCmsMatrix_->resumeFill();
     cmsOnCmsMatrix_->setAllToScalar(0.0);
     densityOnDensityMatrix_->putScalar(0.0);
-    densityOnCmsMatrix_->putScalar(0.0);
+    densityOnCmsMatrix_->resumeFill();
+    densityOnCmsMatrix_->setAllToScalar(0.0);
   } //end if
 } //end initializeProblemValues
 //=============================================================================
@@ -137,15 +139,16 @@ insertMatrixValue
       densityOnDensityMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
     }
     else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
-      //      TEUCHOS_TEST_FOR_EXCEPT(densityMap_->getLocalElement(rowGID)!=cmsMap_->getLocalElement(colGID)); // Confirm that this is a diagonal value
-      // The density-on-cms matrix is presumed to be diagonal and stored as a vector.
-      // New functionality in the physics breaks this assumption
-      // If non-diagonal entries are inserted, discard them and warn the user. This will result in an approximate Jacobian
-      if ( densityMap_->getLocalElement(rowGID) == cmsMap_->getLocalElement(colGID) )
-	densityOnCmsMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value); // Storing this density block in a vector since it is diagonal
-      else {
-	if (this->Comm()->getRank()==0) cout << "Warning! Discarding off-diagonal entry inserted into density-on-cms block. Jacobian will be inexact." << std::endl;
+      // The density-on-cms matrix is diagonal for most but not all use cases.
+      if (firstTime_) {
+	if (rowGID!=curRow_) {
+	  insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
+	  curRow_=rowGID;
+	}
+	curRowValuesDensityOnCms_[colGID] += value;
       }
+      else
+      	densityOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
     }
     else {
       char err_msg[200];
@@ -197,12 +200,30 @@ insertRow
     cmsOnCmsMatrix_->insertGlobalValues(curRow_, indicesCmsOnCms_, valuesCmsOnCms_);
   }
 
+  if (!curRowValuesDensityOnCms_.empty()) {
+    size_t numEntriesDensityOnCms = curRowValuesDensityOnCms_.size();
+    if (numEntriesDensityOnCms>indicesDensityOnCms_.size()) {
+      indicesDensityOnCms_.resize(numEntriesDensityOnCms);
+      valuesDensityOnCms_.resize(numEntriesDensityOnCms);
+    }
+    LocalOrdinal i=0;
+    ITER pos;
+    for (pos = curRowValuesDensityOnCms_.begin(); pos != curRowValuesDensityOnCms_.end(); ++pos) {
+      indicesDensityOnCms_[i] = pos->first;
+      valuesDensityOnCms_[i++] = pos->second;
+    }
+    densityOnCmsMatrix_->insertGlobalValues(curRow_, indicesDensityOnCms_, valuesDensityOnCms_);
+  }
+
   indicesCmsOnDensity_.clear();
   valuesCmsOnDensity_.clear();
   indicesCmsOnCms_.clear();
   valuesCmsOnCms_.clear();
+  indicesDensityOnCms_.clear();
+  valuesDensityOnCms_.clear();
   curRowValuesCmsOnDensity_.clear();
   curRowValuesCmsOnCms_.clear();
+  curRowValuesDensityOnCms_.clear();
 
 } //end insertRow
 //=============================================================================
@@ -228,9 +249,12 @@ finalizeProblemValues
 
   if (!hasDensityOnCms)  // Confirm that densityOnCmsMatrix is zero
   {
-    Scalar normvalue = densityOnCmsMatrix_->normInf();
-    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=0.0);
-  } //end if
+    //    Scalar normvalue = densityOnCmsMatrix_->normInf();
+    //    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=0.0);
+  } else {
+    insertRow(); // Dump any remaining entries
+    densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_);
+  }
   //cout << "CmsOnDensityMatrix Inf Norm = " << cmsOnDensityMatrix_->NormInf() << endl;
   //densityOnDensityMatrix_->NormInf(&normvalue);
   //cout << "DensityOnDensityMatrix Inf Norm = " << normvalue << endl;
@@ -411,8 +435,13 @@ apply
     RCP<MV > Y1tmp = rcp(new MV(*Y1));
     cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp);
     Y1->update(1.0, *Y1tmp, 1.0);
-    Y2->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X1, 0.0);
-    Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 1.0);
+
+    if (hasDensityOnCms) {
+      densityOnCmsMatrixOp_->apply(*X1, *Y2);
+      Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 1.0);
+    } else {
+      Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 0.0);
+    }
 
   } //end if
   else
@@ -425,14 +454,14 @@ apply
     // Start X1 to view first numDensity elements of X
     RCP<const MV> X2 = X.offsetView(cmsMap_, numDensityElements);//rcp(new MV(cmsMap_, X2ptr, NumVectors));
     // Start X2 to view last numCms elements of X
-    if (hasDensityOnCms)
-    {
-      // convert X2 map
-      RCP<const MV> X2tmp = X.offsetView(densityMap_, numDensityElements);
-      Y1->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X2tmp, 0.0);
-      // Momentarily make X2 compatible with densityMap_
-    } //end if
-    Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 1.0);
+
+    if (hasDensityOnCms) {
+      densityOnCmsMatrixOp_->apply(*X2, *Y1);
+      Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 1.0);
+    } else {
+      Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 0.0);
+    }
+
     cmsOnDensityMatrixOp_->apply(*X1, *Y2);
     RCP<MV > Y2tmp = rcp(new MV(*Y2));
     cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp);
@@ -466,8 +495,10 @@ Check
       // Start x1 to view first numCmsElements elements of x
       RCP<MV> b2 = b->offsetViewNonConst(densityMap_, cmsMap_->getNodeNumElements());
       // Start b2 to view last numDensity elements of b
-      b2->elementWiseMultiply(-1.0, *densityOnCmsMatrix_, *x1, 1.0);
-    } //end if
+      RCP<MV > DCx1 = rcp(new MV(*b2));
+      densityOnCmsMatrixOp_->apply(*x1, *DCx1);
+      b2->update(-1.0, *DCx1, 1.0); // b2 = b2 - DC*x1
+    }
     else
     {
       // Inverse is not exact, so we must modify b1 first:
@@ -475,9 +506,11 @@ Check
       //Start x2 to view last numCms elements of x
       RCP<MV> b1 = b->offsetViewNonConst(densityMap_, 0);
       // Start b1 to view first numDensity elements of b
-      b1->elementWiseMultiply(-1.0, *densityOnCmsMatrix_, *x2, 1.0);
-    } //end else
-  } //end if
+      RCP<MV > DCx2 = rcp(new MV(*b1));
+      densityOnCmsMatrixOp_->apply(*x2, *DCx2);
+      b1->update(-1.0, *DCx2, 1.0); // b1 = b1 - DC*x2
+    }
+  }
 
   applyInverse(*b, *b); // Reverse operation
 

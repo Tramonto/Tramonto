@@ -159,9 +159,9 @@ namespace Tpetra {
 #endif
 
       // Output
-      //  belosList.set( "Output Frequency", 10 );
-      //  belosList.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
-      //  belosList.set( "Output Style", Belos::Brief);
+      //belosList.set( "Output Frequency", 10 );
+      //belosList.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+      //belosList.set( "Output Style", Belos::Brief);
 
       outputList_.set( "belosList", belosList );
 

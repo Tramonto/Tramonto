@@ -183,12 +183,15 @@ protected:
   using P22TO::curRowValues_;
   using P22TO::curRowValuesCmsOnDensity_;
   using P22TO::curRowValuesCmsOnCms_;
+  using P22TO::curRowValuesDensityOnCms_;
   using P22TO::indices_;
   using P22TO::indicesCmsOnCms_;
   using P22TO::indicesCmsOnDensity_;
+  using P22TO::indicesDensityOnCms_;
   using P22TO::values_;
   using P22TO::valuesCmsOnCms_;
   using P22TO::valuesCmsOnDensity_;
+  using P22TO::valuesDensityOnCms_;
   using P22TO::cmsOnDensityMatrix_;
   using P22TO::cmsOnDensityMatrixOp_;
   using P22TO::densityMap_;
@@ -196,6 +199,7 @@ protected:
   using P22TO::cmsOnCmsMatrix_;
   using P22TO::cmsOnCmsMatrixOp_;
   using P22TO::densityOnCmsMatrix_;
+  using P22TO::densityOnCmsMatrixOp_;
   using P22TO::F_location_;
   using P22TO::cmsMap_;
   using P22TO::isFLinear_;

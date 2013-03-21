@@ -84,7 +84,8 @@ initializeProblemValues
     cmsOnCmsMatrix_->resumeFill();
     cmsOnCmsMatrix_->setAllToScalar(0.0);
     densityOnDensityMatrix_->putScalar(0.0);
-    densityOnCmsMatrix_->putScalar(0.0);
+    densityOnCmsMatrix_->resumeFill();
+    densityOnCmsMatrix_->setAllToScalar(0.0);
     poissonOnPoissonMatrix_->resumeFill();
     poissonOnPoissonMatrix_->setAllToScalar(0.0);
     cmsOnPoissonMatrix_->resumeFill();
@@ -191,19 +192,16 @@ insertMatrixValue
       densityOnDensityMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
     }
     else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
-      //      if (densityMap_->getLocalElement(rowGID)!=cmsMap_->getLocalElement(colGID)) {
-	//	char err_msg[200];
-	//	sprintf(err_msg,"PolyA22_Coulomb_Epetra_Operator::insertMatrixValue(): Invalid argument -- Inserting non-diagonal element into densityOnCms matrix.");
-	//	TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
-      //      }
-      // The density-on-cms matrix is presumed to be diagonal and stored as a vector.
-      // New functionality in the physics breaks this assumption
-      // If non-diagonal entries are inserted, discard them and warn the user. This will result in an approximate Jacobian
-      if ( densityMap_->getLocalElement(rowGID) == cmsMap_->getLocalElement(colGID) )
-	densityOnCmsMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value); // Storing this density block in a vector since it is diagonal
-      else {
-	if (this->Comm()->getRank()==0) cout << "Warning! Discarding off-diagonal entry inserted into density-on-cms block. Jacobian will be inexact." << std::endl;
+      // The density-on-cms matrix is diagonal for most but not all use cases.
+      if (firstTime_) {
+	if (rowGID!=curRow_) {
+	  insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
+	  curRow_=rowGID;
+	}
+	curRowValuesDensityOnCms_[colGID] += value;
       }
+      else
+      	densityOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
     }
     else {
       char err_msg[200];
@@ -297,6 +295,21 @@ insertRow
     poissonOnDensityMatrix_->insertGlobalValues(curRow_, indicesPoissonOnDensity_, valuesPoissonOnDensity_);
   }
 
+  if (!curRowValuesDensityOnCms_.empty()) {
+    size_t numEntriesDensityOnCms = curRowValuesDensityOnCms_.size();
+    if (numEntriesDensityOnCms>indicesDensityOnCms_.size()) {
+      indicesDensityOnCms_.resize(numEntriesDensityOnCms);
+      valuesDensityOnCms_.resize(numEntriesDensityOnCms);
+    }
+    LocalOrdinal i=0;
+    ITER pos;
+    for (pos = curRowValuesDensityOnCms_.begin(); pos != curRowValuesDensityOnCms_.end(); ++pos) {
+      indicesDensityOnCms_[i] = pos->first;
+      valuesDensityOnCms_[i++] = pos->second;
+    }
+    densityOnCmsMatrix_->insertGlobalValues(curRow_, indicesDensityOnCms_, valuesDensityOnCms_);
+  }
+
   indicesCmsOnDensity_.clear();
   valuesCmsOnDensity_.clear();
   indicesCmsOnCms_.clear();
@@ -307,11 +320,14 @@ insertRow
   valuesCmsOnPoisson_.clear();
   indicesPoissonOnDensity_.clear();
   valuesPoissonOnDensity_.clear();
+  indicesDensityOnCms_.clear();
+  valuesDensityOnCms_.clear();
   curRowValuesCmsOnDensity_.clear();
   curRowValuesCmsOnCms_.clear();
   curRowValuesPoissonOnPoisson_.clear();
   curRowValuesCmsOnPoisson_.clear();
   curRowValuesPoissonOnDensity_.clear();
+  curRowValuesDensityOnCms_.clear();
 
 }
 //=============================================================================
@@ -326,6 +342,10 @@ finalizeProblemValues
     return;
   }
   insertRow(); // Dump any remaining entries
+
+  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
+  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
+
   cmsOnCmsMatrix_->fillComplete();
 
   if (!isFLinear_) {
@@ -335,6 +355,15 @@ finalizeProblemValues
   poissonOnPoissonMatrix_->fillComplete();
   cmsOnPoissonMatrix_->fillComplete(poissonMap_, cmsMap_);
   poissonOnDensityMatrix_->fillComplete(densityMap_, poissonMap_);
+
+  if (!hasDensityOnCms)  // Confirm that densityOnCmsMatrix is zero
+  {
+    //    Scalar normvalue = densityOnCmsMatrix_->normInf();
+    //    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=0.0);
+  } else {
+    insertRow(); // Dump any remaining entries
+    densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_);
+  }
 
 #if ENABLE_MUELU == 1
 #if LINSOLVE_PREC_DOUBLE_DOUBLE == 1 || LINSOLVE_PREC_QUAD_DOUBLE == 1
@@ -606,6 +635,9 @@ apply
   size_t numDensityElements = densityMap_->getNodeNumElements();
   size_t numPoissonElements = poissonMap_->getNodeNumElements();
 
+  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
+  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
+
   RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
   // Start X0 to view the first numPoisson elements of X
   RCP<const MV> X1;
@@ -654,9 +686,13 @@ apply
     Y1->update(1.0, *Y1tmp1, 1.0);
     Y1->update(1.0, *Y1tmp2, 1.0);
     // Third block row
-    Y2->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X1, 0.0);
-    Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 1.0);
-  } //end if
+    if (hasDensityOnCms) {
+      densityOnCmsMatrixOp_->apply(*X1, *Y2);
+      Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 1.0);
+    } else {
+      Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 0.0);
+    }
+  }
   else
   {
     // First block row
@@ -664,8 +700,12 @@ apply
     poissonOnDensityMatrixOp_->apply(*X1, *Y0tmp);
     Y0->update(1.0, *Y0tmp, 1.0);
     // Second block row
-    Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 0.0);
-    Y1->elementWiseMultiply(1.0, *densityOnCmsMatrix_, *X2, 1.0);
+    if (hasDensityOnCms) {
+      densityOnCmsMatrixOp_->apply(*X2, *Y1);
+      Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 1.0);
+    } else {
+      Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 0.0);
+    }
     // Third block row
     cmsOnPoissonMatrixOp_->apply(*X0, *Y2);
     cmsOnDensityMatrixOp_->apply(*X1, *Y2tmp1);
@@ -720,12 +760,16 @@ Check
   // Inverse if not exact, so we must modify b first:
   if (F_location_ == 1)
   {
-    b2->elementWiseMultiply(-1.0, *densityOnCmsMatrix_, *x1, 1.0);
-  } //end if
+    RCP<MV > DCx1 = rcp(new MV(*b2));
+    densityOnCmsMatrixOp_->apply(*x1, *DCx1);
+    b2->update(-1.0, *DCx1, 1.0); // b2 = b2 - DC*x1
+  }
   else
   {
-    b1->elementWiseMultiply(-1.0, *densityOnCmsMatrix_, *x2, 1.0);
-  } //end else
+    RCP<MV > DCx2 = rcp(new MV(*b1));
+    densityOnCmsMatrixOp_->apply(*x2, *DCx2);
+    b1->update(-1.0, *DCx2, 1.0); // b1 = b1 - DC*x2
+  }
 
   applyInverse(*b, *bb); // Reverse operation
   bb->update(-1.0, *x, 1.0); // Should be zero
