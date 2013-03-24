@@ -499,9 +499,6 @@ applyInverse
   RCP<MV > Y2tmp1 = rcp(new MV(*Y2));
   RCP<MV > Y2tmp2 = rcp(new MV(*Y2));
 
-  RCP<VEC> tmp = rcp(new VEC(densityMap_));
-  RCP<VEC> tmp2 = rcp(new VEC(densityMap_));
-  tmp->reciprocal(*densityOnDensityMatrix_);
   int nIts = 10;
 #if ENABLE_MUELU == 1
   RCP<Xpetra::MultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node> > mueluX;
@@ -509,6 +506,10 @@ applyInverse
 #endif
   if (F_location_ == 1)
   {
+    RCP<VEC> tmp = rcp(new VEC(*(X2->getVector(0))));
+    RCP<VEC> tmp2 = rcp(new VEC(*(Y1tmp1->getVector(0))));
+    tmp->reciprocal(*densityOnDensityMatrix_);
+
     // Third block row: Y2 = DD\X2
     Y2->elementWiseMultiply(1.0, *tmp, *X2, 0.0);
     // First block row: Y0 = PP \ (X0 - PD*Y2);
@@ -555,6 +556,10 @@ applyInverse
   } //end if
   else
   {
+    RCP<VEC> tmp = rcp(new VEC(*(X1->getVector(0))));
+    RCP<VEC> tmp2 = rcp(new VEC(*(Y2tmp1->getVector(0))));
+    tmp->reciprocal(*densityOnDensityMatrix_);
+
     // Second block row: Y1 = DD\X1
     Y1->elementWiseMultiply(1.0, *tmp, *X1, 0.0);
     // First block row: Y0 = PP \ (X0 - PD*Y1);

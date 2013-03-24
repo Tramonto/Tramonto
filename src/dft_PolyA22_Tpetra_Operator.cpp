@@ -326,11 +326,6 @@ applyInverse
   size_t numCmsElements = cmsMap_->getNodeNumElements();
   size_t numDensityElements = densityMap_->getNodeNumElements();
 
-  RCP<VEC> tmp = rcp(new VEC(densityMap_));
-  RCP<VEC> tmp2 = rcp(new VEC(densityMap_));
-
-  tmp->reciprocal(*densityOnDensityMatrix_);
-
   if (F_location_ == 1)  //F in NE
   {
     RCP<MV > Y1 = Y.offsetViewNonConst(cmsMap_, 0);
@@ -342,6 +337,10 @@ applyInverse
     RCP<const MV > X2 = X.offsetView(densityMap_, numCmsElements);
     // Start X2 to view last numDensity elements of X
     RCP<MV > Y1tmp = rcp(new MV(*Y1));
+
+    RCP<VEC> tmp = rcp(new VEC(*(X2->getVector(0))));
+    RCP<VEC> tmp2 = rcp(new VEC(*(Y1tmp->getVector(0))));
+    tmp->reciprocal(*densityOnDensityMatrix_);
 
     // Second block row: Y2 = DD\X2
     Y2->elementWiseMultiply(1.0, *tmp, *X2, 0.0);
@@ -377,6 +376,10 @@ applyInverse
     RCP<const MV > X2 = X.offsetView(cmsMap_, numDensityElements);
     // Start X2 to view last numCms elements of X
     RCP<MV > Y2tmp = rcp(new MV(*Y2));
+
+    RCP<VEC> tmp = rcp(new VEC(*(X1->getVector(0))));
+    RCP<VEC> tmp2 = rcp(new VEC(*(Y2tmp->getVector(0))));
+    tmp->reciprocal(*densityOnDensityMatrix_);
 
     // First block row: Y1 = DD\X1
     Y1->elementWiseMultiply(1.0, *tmp, *X1, 0.0);
