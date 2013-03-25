@@ -158,6 +158,9 @@ namespace Tpetra {
 				      Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
 #endif
 
+      belosList.set( "Orthogonalization",
+		     "IMGS" );
+
       // Output
       //belosList.set( "Output Frequency", 10 );
       //belosList.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );

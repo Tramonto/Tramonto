@@ -24,7 +24,6 @@
 #include "Tpetra_MixedMatrixOperator.hpp"
 #include "Tpetra_ParameterListConverter.hpp"
 #include "Tpetra_MultiVectorConverter.hpp"
-#include "Tpetra_MultiVectorReciprocalMultiply.hpp"
 #include "Tpetra_ScalingCrsMatrix.hpp"
 
 #include "Teuchos_Comm.hpp"
@@ -123,7 +122,6 @@ using Belos::ReturnType;
   typedef Tpetra::Map<LO,GO,Node> MAP; \
   typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
   typedef Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GO,Node> SCALE; \
-  typedef Tpetra::MultiVectorReciprocalMultiply<Scalar,LocalOrdinal,GO,Node> MVRM; \
   typedef Tpetra::Import<LO,GO,Node> IMP; \
   typedef Belos::SolverManager<SCALAR, MV, OP> SolMGR; \
   typedef Belos::LinearProblem<SCALAR, MV, OP> LinPROB; \
@@ -136,7 +134,6 @@ using Belos::ReturnType;
   typedef Tpetra::CrsMatrix<halfScalar,LO,GO,Node> MAT_H;			\
   typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,halfScalar,LO,GO,Node> MMOP_H; \
   typedef Tpetra::ScalingCrsMatrix<halfScalar,LocalOrdinal,GO,Node> SCALE_H; \
-  typedef Tpetra::MultiVectorReciprocalMultiply<halfScalar,LocalOrdinal,GO,Node> MVRM_H; \
   typedef Ifpack2::Preconditioner<halfScalar, LO, GO, Node> PRECOND_H;
 
 #if MIXED_PREC == 1

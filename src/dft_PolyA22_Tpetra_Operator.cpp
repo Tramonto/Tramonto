@@ -343,8 +343,6 @@ applyInverse
     tmp->reciprocal(*densityOnDensityMatrix_);
 
     // Second block row: Y2 = DD\X2
-    //    MVRM mvRMult(Y2);
-    //    mvRMult.reciprocalMultiply( *densityOnDensityMatrix_, *X2 );
     Y2->elementWiseMultiply(1.0, *tmp, *X2, 0.0);
     // First block row: Y1 = CC \ (X1 - CD*Y2)
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp);
@@ -384,8 +382,6 @@ applyInverse
     tmp->reciprocal(*densityOnDensityMatrix_);
 
     // First block row: Y1 = DD\X1
-    //    MVRM mvRMult(Y1);
-    //    mvRMult.reciprocalMultiply( *densityOnDensityMatrix_, *X1 );
     Y1->elementWiseMultiply(1.0, *tmp, *X1, 0.0);
     // Second block row: Y2 = CC \ (X2 - CD*Y1)
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp);
