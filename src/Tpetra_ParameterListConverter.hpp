@@ -158,8 +158,17 @@ namespace Tpetra {
 				      Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
 #endif
 
-      belosList.set( "Orthogonalization",
-		     "IMGS" );
+      // Orthogonalization
+      int orthog  = inputList_->template get<int>( "Orthog" );
+      if (orthog == AZ_modified) {
+	// Modified Gram Schmidt
+	belosList.set( "Orthogonalization",
+		       "IMGS" );
+      } else {
+	// Classic Gram Schmidt
+	belosList.set( "Orthogonalization",
+		       "ICGS" );
+      }
 
       // Output
       //belosList.set( "Output Frequency", 10 );
