@@ -469,15 +469,17 @@ applyInverse
   size_t numPoissonElements = poissonMap_->getNodeNumElements();
   RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
 
-  RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
   // X0 is a view of the first numPoisson elements of X
-  RCP<const MV> X1;
+  RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
   // X1 is a view of the middle numDensity/numCms elements of X
+  RCP<const MV> X1;
+  // X2 is a view of the last numDensity/numCms elements of X
   RCP<const MV> X2;
-  RCP<MV> Y0 = Y.offsetViewNonConst(poissonMap_, 0);
   // Y0 is a view of the first numPoisson elements of Y
-  RCP<MV> Y1;
+  RCP<MV> Y0 = Y.offsetViewNonConst(poissonMap_, 0);
   // Y1 is a view of the middle numDensity/numCms elements of Y
+  RCP<MV> Y1;
+  // Y2 is a view of the last numDensity/numCms elements of Y
   RCP<MV> Y2;
 
 #if MIXED_PREC == 1
@@ -488,22 +490,22 @@ applyInverse
   mvConverter->scalarToHalf( *X0, *X0half );
 #endif
 
-  if (F_location_ == 1)  //F in NE part
+  if (F_location_ == 1)
   {
+    //F in NE part
     X1 = X.offsetView(cmsMap_, numPoissonElements);
     Y1 = Y.offsetViewNonConst(cmsMap_, numPoissonElements);
     X2 = X.offsetView(densityMap_, numPoissonElements+numCmsElements);
     Y2 = Y.offsetViewNonConst(densityMap_, numPoissonElements+numCmsElements);
-  } //end if
-  else  //F in SW part
+  }
+  else
   {
+    //F in SW part
     X1 = X.offsetView(densityMap_, numPoissonElements);
     Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements);
     X2 = X.offsetView(cmsMap_, numPoissonElements+numDensityElements);
     Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements+numDensityElements);
-  } //end else
-  // X2 is a view of the last numDensity/numCms elements of X
-  // Y2 is a view of the last numDensity/numCms elements of Y
+  }
 
   RCP<MV > Y0tmp = rcp(new MV(*Y0));
   RCP<MV > Y1tmp1 = rcp(new MV(*Y1));
@@ -520,6 +522,7 @@ applyInverse
   {
     // Third block row: Y2 = DD\X2
     Y2->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X2, 0.0);
+
     // First block row: Y0 = PP \ (X0 - PD*Y2);
     poissonOnDensityMatrixOp_->apply(*Y2, *Y0tmp);
     Y0tmp->update(1.0, *X0, -1.0);
@@ -542,16 +545,19 @@ applyInverse
 #endif
 
 #endif
+
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y1tmp1);
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp2);
     Y1tmp1->update(1.0, *X1, -1.0, *Y1tmp2, -1.0);
     cmsOnCmsInverseMixed_->apply(*Y1tmp1, *Y1);
+
   }
   else
   {
     // Second block row: Y1 = DD\X1
     Y1->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X1, 0.0);
+
     // First block row: Y0 = PP \ (X0 - PD*Y1);
     poissonOnDensityMatrixOp_->apply(*Y1, *Y0tmp);
     Y0tmp->update( 1.0, *X0, -1.0 );
@@ -574,11 +580,13 @@ applyInverse
 #endif
 
 #endif
+
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y2tmp1);
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp2);
     Y2tmp1->update(1.0, *X2, -1.0, *Y2tmp2, -1.0);
     cmsOnCmsInverseMixed_->apply(*Y2tmp1, *Y2);
+
   }
   /*
 #ifdef SUPPORTS_STRATIMIKOS
@@ -619,33 +627,35 @@ apply
   // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
   bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
+  // X0 is a view of the first numPoisson elements of X
   RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
-  // Start X0 to view the first numPoisson elements of X
+  // X1 is a view of the middle numDensityElements/numCms elements of X
   RCP<const MV> X1;
-  // Start X1 to view middle numDensityElements/numCms elements of X
+  // X2 is a view of the last numDensity/numCms elements of X
   RCP<const MV> X2;
-  // Start X2 to view last numDensity/numCms elements of X - was cms
-  RCP<MV > Y0 = Y.offsetViewNonConst(poissonMap_, 0);
   // Y0 is a view of the first numPoisson elements of Y
-  RCP<MV > Y1;
+  RCP<MV > Y0 = Y.offsetViewNonConst(poissonMap_, 0);
   // Y1 is a view of the middle numDensity/numCms elements of Y
-  RCP<MV > Y2;
+  RCP<MV > Y1;
   // Y2 is a view of the last numDensity/numCms elements of Y
+  RCP<MV > Y2;
 
   if (F_location_ == 1)
   {
+    // F in NE
     X1 = X.offsetView(cmsMap_, numPoissonElements);
     Y1 = Y.offsetViewNonConst(cmsMap_, numPoissonElements);
     X2 = X.offsetView(densityMap_, numPoissonElements+numCmsElements);
     Y2 = Y.offsetViewNonConst(densityMap_, numPoissonElements+numCmsElements);
-  } //end if
+  }
   else
   {
+    // F in SW
     X1 = X.offsetView(densityMap_, numPoissonElements);
     Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements);
     X2 = X.offsetView(cmsMap_, numPoissonElements+numDensityElements);
     Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements+numDensityElements);
-  } //end else
+  }
 
   RCP<MV > Y0tmp = rcp(new MV(*Y0));
   RCP<MV > Y0tmp2 = rcp(new MV(*Y0));
@@ -660,12 +670,14 @@ apply
     poissonOnPoissonMatrixOp_->apply(*X0, *Y0);
     poissonOnDensityMatrixOp_->apply(*X2, *Y0tmp);
     Y0->update(1.0, *Y0tmp, 1.0);
+
     // Second block row
     cmsOnPoissonMatrixOp_->apply(*X0, *Y1);
     cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp1);
     cmsOnDensityMatrixOp_->apply(*X2, *Y1tmp2);
     Y1->update(1.0, *Y1tmp1, 1.0);
     Y1->update(1.0, *Y1tmp2, 1.0);
+
     // Third block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X1, *Y2);
@@ -680,6 +692,7 @@ apply
     poissonOnPoissonMatrixOp_->apply(*X0, *Y0);
     poissonOnDensityMatrixOp_->apply(*X1, *Y0tmp);
     Y0->update(1.0, *Y0tmp, 1.0);
+
     // Second block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X2, *Y1);
@@ -687,13 +700,14 @@ apply
     } else {
       Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 0.0);
     }
+
     // Third block row
     cmsOnPoissonMatrixOp_->apply(*X0, *Y2);
     cmsOnDensityMatrixOp_->apply(*X1, *Y2tmp1);
     cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp2);
     Y2->update(1.0, *Y2tmp1, 1.0);
     Y2->update(1.0, *Y2tmp2, 1.0);
-  } //end else
+  }
 } //end Apply
 //==============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>

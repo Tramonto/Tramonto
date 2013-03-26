@@ -335,20 +335,23 @@ applyInverse
   size_t numCmsElements = cmsMap_->getNodeNumElements();
   size_t numDensityElements = densityMap_->getNodeNumElements();
 
-  if (F_location_ == 1)  //F in NE
+  if (F_location_ == 1)
   {
-    RCP<MV > Y1 = Y.offsetViewNonConst(cmsMap_, 0);
+    //F in NE
+
     // Y1 is a view of the first numCms elements of Y
+    RCP<MV > Y1 = Y.offsetViewNonConst(cmsMap_, 0);
+    // Y2 is a view of the last numDensity elements of Y
     RCP<MV > Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements);
-    // Start Y2 to view last numDensity elements of Y
+    // X1 is a view of the first numCms elements of X
     RCP<const MV > X1 = X.offsetView(cmsMap_, 0);
-    // Start X1 to view first numCms elements of X
+    // X2 is a view of the last numDensity elements of X
     RCP<const MV > X2 = X.offsetView(densityMap_, numCmsElements);
-    // Start X2 to view last numDensity elements of X
     RCP<MV > Y1tmp = rcp(new MV(*Y1));
 
     // Second block row: Y2 = DD\X2
     Y2->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X2, 0.0);
+
     // First block row: Y1 = CC \ (X1 - CD*Y2)
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp);
     Y1tmp->update(1.0, *X1, -1.0);
@@ -357,18 +360,21 @@ applyInverse
   }
   else
   {
-    RCP<MV > Y1 = Y.offsetViewNonConst(densityMap_, 0);
+    //F in SW
+
     // Y1 is a view of the first numDensity elements of Y
+    RCP<MV > Y1 = Y.offsetViewNonConst(densityMap_, 0);
+    // Y2 is a view of the last numCms elements of Y
     RCP<MV > Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements);
-    // Start Y2 to view last numCms elements of Y
+    // X1 is a view of the first numDensity elements of X
     RCP<const MV > X1 = X.offsetView(densityMap_, 0);
-    // Start X1 to view first numDensity elements of X
+    // X2 is a view of the last numCms elements of X
     RCP<const MV > X2 = X.offsetView(cmsMap_, numDensityElements);
-    // Start X2 to view last numCms elements of X
     RCP<MV > Y2tmp = rcp(new MV(*Y2));
 
     // First block row: Y1 = DD\X1
     Y1->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X1, 0.0);
+
     // Second block row: Y2 = CC \ (X2 - CD*Y1)
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp);
     Y2tmp->update(1.0, *X2, -1.0);
@@ -393,22 +399,26 @@ apply
   // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
   bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
-  if (F_location_ == 1) //F in NE
+  if (F_location_ == 1)
   {
-    RCP<MV> Y1 = Y.offsetViewNonConst(cmsMap_, 0);
-    // Y1 is a view of the first numCms elements of Y
-    RCP<MV> Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements);
-    // Start Y2 to view last numDensity elements of Y
-    RCP<const MV> X1 = X.offsetView(cmsMap_, 0);
-    // Start X1 to view first numCms elements of X
-    RCP<const MV> X2 = X.offsetView(densityMap_, numCmsElements);
-    // Start X2 to view last numDensity elements of X
+    //F in NE
 
+    // Y1 is a view of the first numCms elements of Y
+    RCP<MV> Y1 = Y.offsetViewNonConst(cmsMap_, 0);
+    // Y2 is a view of the last numDensity elements of Y
+    RCP<MV> Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements);
+    // X1 is a view of the first numCms elements of X
+    RCP<const MV> X1 = X.offsetView(cmsMap_, 0);
+    // X2 is a view of the last numDensity elements of X
+    RCP<const MV> X2 = X.offsetView(densityMap_, numCmsElements);
+
+    // First block row
     cmsOnDensityMatrixOp_->apply(*X2, *Y1);
     RCP<MV > Y1tmp = rcp(new MV(*Y1));
     cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp);
     Y1->update(1.0, *Y1tmp, 1.0);
 
+    // Second block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X1, *Y2);
       Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 1.0);
@@ -416,18 +426,21 @@ apply
       Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 0.0);
     }
 
-  } //end if
+  }
   else
   {
-    RCP<MV> Y1 = Y.offsetViewNonConst(densityMap_, 0);//rcp(new MV(densityMap_, Y1ptr, NumVectors));
-    // Y1 is a view of the first numDensity elements of Y
-    RCP<MV> Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements);//rcp(new MV(cmsMap_, Y2ptr, NumVectors));
-    // Start Y2 to view last numCms elements of Y
-    RCP<const MV> X1 = X.offsetView(densityMap_, 0);//rcp(new MV(densityMap_, X1ptr, NumVectors));
-    // Start X1 to view first numDensity elements of X
-    RCP<const MV> X2 = X.offsetView(cmsMap_, numDensityElements);//rcp(new MV(cmsMap_, X2ptr, NumVectors));
-    // Start X2 to view last numCms elements of X
+    //F in SW
 
+    // Y1 is a view of the first numDensity elements of Y
+    RCP<MV> Y1 = Y.offsetViewNonConst(densityMap_, 0);
+    // Y2 is a view of the last numCms elements of Y
+    RCP<MV> Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements);
+    // X1 is a view of the first numDensity elements of X
+    RCP<const MV> X1 = X.offsetView(densityMap_, 0);
+    // X2 is a view of the last numCms elements of X
+    RCP<const MV> X2 = X.offsetView(cmsMap_, numDensityElements);
+
+    // First block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X2, *Y1);
       Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 1.0);
@@ -435,12 +448,13 @@ apply
       Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 0.0);
     }
 
+    // Second block row
     cmsOnDensityMatrixOp_->apply(*X1, *Y2);
     RCP<MV > Y2tmp = rcp(new MV(*Y2));
     cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp);
     Y2->update(1.0, *Y2tmp, 1.0);
 
-  } //end else
+  }
 
 } //end Apply
 //==============================================================================
