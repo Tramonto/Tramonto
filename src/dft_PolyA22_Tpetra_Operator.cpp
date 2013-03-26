@@ -47,6 +47,7 @@ dft_PolyA22_Tpetra_Operator
   cmsOnCmsMatrix_ = rcp(new MAT_P(cmsMap, 0));
   cmsOnCmsMatrixOp_ = rcp(new MMOP_P(cmsOnCmsMatrix_));
   densityOnDensityMatrix_ = rcp(new VEC(densityMap));
+  densityOnDensityInverse_ = rcp(new VEC(densityMap));
   densityOnCmsMatrix_ = rcp(new MAT_P(densityMap, 0));
   densityOnCmsMatrixOp_ = rcp(new MMOP_P(densityOnCmsMatrix_));
   Label_ = "dft_PolyA22_Tpetra_Operator";
@@ -82,6 +83,7 @@ initializeProblemValues
     cmsOnCmsMatrix_->resumeFill();
     cmsOnCmsMatrix_->setAllToScalar(0.0);
     densityOnDensityMatrix_->putScalar(0.0);
+    densityOnDensityInverse_->putScalar(0.0);
     densityOnCmsMatrix_->resumeFill();
     densityOnCmsMatrix_->setAllToScalar(0.0);
   } //end if
@@ -255,10 +257,9 @@ finalizeProblemValues
     insertRow(); // Dump any remaining entries
     densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_);
   }
-  //cout << "CmsOnDensityMatrix Inf Norm = " << cmsOnDensityMatrix_->NormInf() << endl;
-  //densityOnDensityMatrix_->NormInf(&normvalue);
-  //cout << "DensityOnDensityMatrix Inf Norm = " << normvalue << endl;
-  //cout << "DensityOnCmsMatrix Inf Norm = " << normvalue << endl;
+
+  // Form the inverse of the densityOnDensityMatrix
+  densityOnDensityInverse_->reciprocal(*densityOnDensityMatrix_);
 
   // Use a diagonal preconditioner for the cmsOnCmsMatrix
   RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(cmsOnCmsMatrix_);
@@ -347,9 +348,7 @@ applyInverse
     RCP<MV > Y1tmp = rcp(new MV(*Y1));
 
     // Second block row: Y2 = DD\X2
-    RCP<VEC> densityOnDensityInverse = rcp(new VEC(*(X2->getVector(0))));
-    densityOnDensityInverse->reciprocal(*densityOnDensityMatrix_);
-    Y2->elementWiseMultiply(1.0, *densityOnDensityInverse, *X2, 0.0);
+    Y2->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X2, 0.0);
     // First block row: Y1 = CC \ (X1 - CD*Y2)
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp);
     Y1tmp->update(1.0, *X1, -1.0);
@@ -369,9 +368,7 @@ applyInverse
     RCP<MV > Y2tmp = rcp(new MV(*Y2));
 
     // First block row: Y1 = DD\X1
-    RCP<VEC> densityOnDensityInverse = rcp(new VEC(*(X1->getVector(0))));
-    densityOnDensityInverse->reciprocal(*densityOnDensityMatrix_);
-    Y1->elementWiseMultiply(1.0, *densityOnDensityInverse, *X1, 0.0);
+    Y1->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X1, 0.0);
     // Second block row: Y2 = CC \ (X2 - CD*Y1)
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp);
     Y2tmp->update(1.0, *X2, -1.0);

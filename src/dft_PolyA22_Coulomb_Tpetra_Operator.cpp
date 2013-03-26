@@ -84,6 +84,7 @@ initializeProblemValues
     cmsOnCmsMatrix_->resumeFill();
     cmsOnCmsMatrix_->setAllToScalar(0.0);
     densityOnDensityMatrix_->putScalar(0.0);
+    densityOnDensityInverse_->putScalar(0.0);
     densityOnCmsMatrix_->resumeFill();
     densityOnCmsMatrix_->setAllToScalar(0.0);
     poissonOnPoissonMatrix_->resumeFill();
@@ -365,6 +366,9 @@ finalizeProblemValues
     densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_);
   }
 
+  // Form the inverse of the densityOnDensityMatrix
+  densityOnDensityInverse_->reciprocal(*densityOnDensityMatrix_);
+
   // Use a diagonal preconditioner for the cmsOnCmsMatrix
   RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(cmsOnCmsMatrix_);
   cmsOnCmsInverse_ = rcp(new Ifpack2::Diagonal<MAT_P> (const_matrix));
@@ -515,9 +519,7 @@ applyInverse
   if (F_location_ == 1)
   {
     // Third block row: Y2 = DD\X2
-    RCP<VEC> densityOnDensityInverse = rcp(new VEC(*(X2->getVector(0))));
-    densityOnDensityInverse->reciprocal(*densityOnDensityMatrix_);
-    Y2->elementWiseMultiply(1.0, *densityOnDensityInverse, *X2, 0.0);
+    Y2->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X2, 0.0);
     // First block row: Y0 = PP \ (X0 - PD*Y2);
     poissonOnDensityMatrixOp_->apply(*Y2, *Y0tmp);
     Y0tmp->update(1.0, *X0, -1.0);
@@ -545,13 +547,11 @@ applyInverse
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp2);
     Y1tmp1->update(1.0, *X1, -1.0, *Y1tmp2, -1.0);
     cmsOnCmsInverseMixed_->apply(*Y1tmp1, *Y1);
-  } //end if
+  }
   else
   {
     // Second block row: Y1 = DD\X1
-    RCP<VEC> densityOnDensityInverse = rcp(new VEC(*(X1->getVector(0))));
-    densityOnDensityInverse->reciprocal(*densityOnDensityMatrix_);
-    Y1->elementWiseMultiply(1.0, *densityOnDensityInverse, *X1, 0.0);
+    Y1->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X1, 0.0);
     // First block row: Y0 = PP \ (X0 - PD*Y1);
     poissonOnDensityMatrixOp_->apply(*Y1, *Y0tmp);
     Y0tmp->update( 1.0, *X0, -1.0 );
@@ -579,7 +579,7 @@ applyInverse
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp2);
     Y2tmp1->update(1.0, *X2, -1.0, *Y2tmp2, -1.0);
     cmsOnCmsInverseMixed_->apply(*Y2tmp1, *Y2);
-  } //end else
+  }
   /*
 #ifdef SUPPORTS_STRATIMIKOS
   RCP<ThyraMV> thyraY = createMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y0);

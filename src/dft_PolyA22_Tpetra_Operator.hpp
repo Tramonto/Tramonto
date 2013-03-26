@@ -218,6 +218,7 @@ protected:
   RCP<MAT_P> cmsOnCmsMatrix_;
   RCP<MMOP_P> cmsOnCmsMatrixOp_;
   RCP<VEC> densityOnDensityMatrix_;
+  RCP<VEC> densityOnDensityInverse_;
   RCP<MAT_P> densityOnCmsMatrix_;
   RCP<MMOP_P> densityOnCmsMatrixOp_;
   const char * Label_; /*!< Description of object */
@@ -229,10 +230,6 @@ protected:
   std::map<GlobalOrdinal, precScalar> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_, curRowValuesDensityOnCms_;
   Array<GlobalOrdinal> indicesCmsOnDensity_, indicesCmsOnCms_, indicesDensityOnCms_;
   Array<precScalar> valuesCmsOnDensity_, valuesCmsOnCms_, valuesDensityOnCms_;
-  Teuchos::ParameterList IFList_;
-  RCP<PRECOND> IFPrec;
-  string IFPrecType; // incomplete LU
-  GlobalOrdinal IFOverlapLevel;
   RCP<PRECOND_P> cmsOnCmsInverse_;
   RCP<MOP> cmsOnCmsInverseMixed_;
   std::map<GlobalOrdinal, precScalar> curRowValues_;

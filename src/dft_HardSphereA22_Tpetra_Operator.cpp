@@ -32,6 +32,7 @@ dft_HardSphereA22_Tpetra_Operator
 (const RCP<const MAP> & block2Map)
   : block2Map_(block2Map),
     densityOnDensityMatrix_(rcp(new VEC(block2Map))),
+    densityOnDensityInverse_(rcp(new VEC(block2Map))),
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
@@ -58,6 +59,7 @@ initializeProblemValues
 
   if (!firstTime_) {
     densityOnDensityMatrix_->putScalar(0.0);
+    densityOnDensityInverse_->putScalar(0.0);
   }
 
 }
@@ -84,6 +86,9 @@ finalizeProblemValues()
     return; // nothing to do
   }
 
+  // Form the inverse of densityOnDensityMatrix
+  densityOnDensityInverse_->reciprocal(*densityOnDensityMatrix_);
+
   isLinearProblemSet_ = true;
   firstTime_ = false;
 
@@ -102,9 +107,7 @@ applyInverse
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
   TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 
-  RCP<VEC> tmp = rcp(new VEC(block2Map_));
-  tmp->reciprocal(*densityOnDensityMatrix_);
-  Y.elementWiseMultiply(1.0, *tmp, X, 0.0);
+  Y.elementWiseMultiply(1.0, *densityOnDensityInverse_, X, 0.0);
 
 }
 //==============================================================================

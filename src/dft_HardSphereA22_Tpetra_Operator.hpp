@@ -205,6 +205,7 @@ private:
 
   const RCP<const MAP > block2Map_;
   RCP<VEC> densityOnDensityMatrix_;
+  RCP<VEC> densityOnDensityInverse_;
   RCP<MAT_P> A22Matrix_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
