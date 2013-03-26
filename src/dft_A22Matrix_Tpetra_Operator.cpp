@@ -131,7 +131,6 @@ finalizeProblemValues
   insertRow();
   A22Matrix_->fillComplete();
 
-
   Ifpack2::Factory factory;
   RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(A22Matrix_);
   LocalOrdinal overlapLevel = 0;
@@ -140,9 +139,9 @@ finalizeProblemValues
 
   TEUCHOS_TEST_FOR_EXCEPT(A22Inverse_==Teuchos::null);
 
-    //    ParameterList ifpack2List;
-    //    ifpack2List.set( "fact: ilut level-of-fill", 2 );
-    //    A22Inverse_->setParameters(ifpack2List);
+  ParameterList ifpack2List;
+  ifpack2List.set( "fact: ilut level-of-fill", 4.0 );
+  A22Inverse_->setParameters(ifpack2List);
 
   A22Inverse_->initialize();
 
