@@ -198,6 +198,8 @@ protected:
   using P22TO::densityOnDensityMatrix_;
   using P22TO::cmsOnCmsMatrix_;
   using P22TO::cmsOnCmsMatrixOp_;
+  using P22TO::cmsOnCmsInverse_;
+  using P22TO::cmsOnCmsInverseMixed_;
   using P22TO::densityOnCmsMatrix_;
   using P22TO::densityOnCmsMatrixOp_;
   using P22TO::F_location_;

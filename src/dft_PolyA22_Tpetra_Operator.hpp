@@ -233,6 +233,8 @@ protected:
   RCP<PRECOND> IFPrec;
   string IFPrecType; // incomplete LU
   GlobalOrdinal IFOverlapLevel;
+  RCP<PRECOND_P> cmsOnCmsInverse_;
+  RCP<MOP> cmsOnCmsInverseMixed_;
   std::map<GlobalOrdinal, precScalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
   Array<precScalar> values_;

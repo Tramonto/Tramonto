@@ -365,6 +365,14 @@ finalizeProblemValues
     densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_);
   }
 
+  // Use a diagonal preconditioner for the cmsOnCmsMatrix
+  RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(cmsOnCmsMatrix_);
+  cmsOnCmsInverse_ = rcp(new Ifpack2::Diagonal<MAT_P> (const_matrix));
+  cmsOnCmsInverseMixed_ = rcp(new MOP((RCP<OP_P>)cmsOnCmsInverse_));
+  TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsInverse_==Teuchos::null);
+  cmsOnCmsInverse_->initialize();
+  cmsOnCmsInverse_->compute();
+
 #if ENABLE_MUELU == 1
 #if LINSOLVE_PREC_DOUBLE_DOUBLE == 1 || LINSOLVE_PREC_QUAD_DOUBLE == 1
   // Default of SuperLU doesn't compile with double-double or quad-double, so use ILUT instead.
@@ -506,12 +514,10 @@ applyInverse
 #endif
   if (F_location_ == 1)
   {
-    RCP<VEC> tmp = rcp(new VEC(*(X2->getVector(0))));
-    RCP<VEC> tmp2 = rcp(new VEC(*(Y1tmp1->getVector(0))));
-    tmp->reciprocal(*densityOnDensityMatrix_);
-
     // Third block row: Y2 = DD\X2
-    Y2->elementWiseMultiply(1.0, *tmp, *X2, 0.0);
+    RCP<VEC> densityOnDensityInverse = rcp(new VEC(*(X2->getVector(0))));
+    densityOnDensityInverse->reciprocal(*densityOnDensityMatrix_);
+    Y2->elementWiseMultiply(1.0, *densityOnDensityInverse, *X2, 0.0);
     // First block row: Y0 = PP \ (X0 - PD*Y2);
     poissonOnDensityMatrixOp_->apply(*Y2, *Y0tmp);
     Y0tmp->update(1.0, *X0, -1.0);
@@ -538,30 +544,14 @@ applyInverse
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y1tmp1);
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp2);
     Y1tmp1->update(1.0, *X1, -1.0, *Y1tmp2, -1.0);
-    // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
-    VEC_P cmsOnCmsDiag(cmsMap_);
-    VEC cmsOnCmsDiagScalar(cmsMap_);
-    cmsOnCmsMatrix_->getLocalDiagCopy(cmsOnCmsDiag);
-#if MIXED_PREC == 1
-    // Promote cmsOnCmsDiag to Scalar precision
-    mvConverter->halfToScalar( cmsOnCmsDiag, cmsOnCmsDiagScalar );
-
-    tmp2->reciprocal(cmsOnCmsDiagScalar);
-#elif MIXED_PREC == 0
-    tmp2->reciprocal(cmsOnCmsDiag);
-#endif
-
-    Y1->elementWiseMultiply(1.0, *tmp2, *Y1tmp1, 0.0);
-
+    cmsOnCmsInverseMixed_->apply(*Y1tmp1, *Y1);
   } //end if
   else
   {
-    RCP<VEC> tmp = rcp(new VEC(*(X1->getVector(0))));
-    RCP<VEC> tmp2 = rcp(new VEC(*(Y2tmp1->getVector(0))));
-    tmp->reciprocal(*densityOnDensityMatrix_);
-
     // Second block row: Y1 = DD\X1
-    Y1->elementWiseMultiply(1.0, *tmp, *X1, 0.0);
+    RCP<VEC> densityOnDensityInverse = rcp(new VEC(*(X1->getVector(0))));
+    densityOnDensityInverse->reciprocal(*densityOnDensityMatrix_);
+    Y1->elementWiseMultiply(1.0, *densityOnDensityInverse, *X1, 0.0);
     // First block row: Y0 = PP \ (X0 - PD*Y1);
     poissonOnDensityMatrixOp_->apply(*Y1, *Y0tmp);
     Y0tmp->update( 1.0, *X0, -1.0 );
@@ -588,21 +578,7 @@ applyInverse
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y2tmp1);
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp2);
     Y2tmp1->update(1.0, *X2, -1.0, *Y2tmp2, -1.0);
-    // Extract diagonal of cmsOnCmsMatrix and use that as preconditioner
-    VEC_P cmsOnCmsDiag(cmsMap_);
-    VEC cmsOnCmsDiagScalar(cmsMap_);
-    cmsOnCmsMatrix_->getLocalDiagCopy(cmsOnCmsDiag);
-#if MIXED_PREC == 1
-    // Promote cmsOnCmsDiag to Scalar precision
-    mvConverter->halfToScalar( cmsOnCmsDiag, cmsOnCmsDiagScalar );
-
-    tmp2->reciprocal(cmsOnCmsDiagScalar);
-#elif MIXED_PREC == 0
-    tmp2->reciprocal(cmsOnCmsDiag);
-#endif
-
-    Y2->elementWiseMultiply(1.0, *tmp2, *Y2tmp1, 0.0);
-
+    cmsOnCmsInverseMixed_->apply(*Y2tmp1, *Y2);
   } //end else
   /*
 #ifdef SUPPORTS_STRATIMIKOS
