@@ -131,22 +131,20 @@ finalizeProblemValues
   insertRow();
   A22Matrix_->fillComplete();
 
-  if (firstTime_) {
 
-    Ifpack2::Factory factory;
-    RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(A22Matrix_);
-    LocalOrdinal overlapLevel = 0;
-    A22Inverse_ = rcp(new Ifpack2::AdditiveSchwarz<MAT_P,Ifpack2::ILUT<MAT_P > > (const_matrix,overlapLevel));
-    A22InverseMixed_ = rcp(new MOP((RCP<OP_P>)A22Inverse_));
+  Ifpack2::Factory factory;
+  RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(A22Matrix_);
+  LocalOrdinal overlapLevel = 0;
+  A22Inverse_ = rcp(new Ifpack2::AdditiveSchwarz<MAT_P,Ifpack2::ILUT<MAT_P > > (const_matrix,overlapLevel));
+  A22InverseMixed_ = rcp(new MOP((RCP<OP_P>)A22Inverse_));
 
-    TEUCHOS_TEST_FOR_EXCEPT(A22Inverse_==Teuchos::null);
+  TEUCHOS_TEST_FOR_EXCEPT(A22Inverse_==Teuchos::null);
 
     //    ParameterList ifpack2List;
     //    ifpack2List.set( "fact: ilut level-of-fill", 2 );
     //    A22Inverse_->setParameters(ifpack2List);
 
-    A22Inverse_->initialize();
-  }
+  A22Inverse_->initialize();
 
   A22Inverse_->compute();
 
