@@ -527,13 +527,21 @@ solve
   printf("\n\n\n\ndft_PolyLinProbMgr::solve()\n\n\n\n");
 #endif
 
+  // Solve the Schur complement system
 #ifdef SUPPORTS_STRATIMIKOS
-  SolveStatus<double> status = lows_->solve(Thyra::NOTRANS, *thyraRhs_, thyraLhs_.ptr()); // Try to solve
+  SolveStatus<double> status = lows_->solve(Thyra::NOTRANS, *thyraRhs_, thyraLhs_.ptr());
 #else
-  ReturnType ret = solver_->solve();
+  try {
+    ReturnType ret = solver_->solve();
+  }
+  catch (Belos::StatusTestError& e) {
+    std::cout << "Belos failed to solve the linear problem! Belos threw exception "
+	      << e.what() << std::endl;
+  }
 #endif
 
-  schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_); // Compute rest of solution
+ // Compute the rest of the solution
+  schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_);
 
   if (debug_)
   {

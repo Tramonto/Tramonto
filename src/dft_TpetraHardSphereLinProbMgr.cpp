@@ -421,15 +421,17 @@ solve
 ()
 {
 
-  //writeMatrix("2D.mm", "Small HardSpheremer Matrix", "Global Matrix from Small HardSpheremer Problem");
-  //abort();
+  // Solve the Schur complement system
+  try {
+    ReturnType ret = solver_->solve();
+  }
+  catch (Belos::StatusTestError& e) {
+    std::cout << "Belos failed to solve the linear problem! Belos threw exception "
+	      << e.what() << std::endl;
+  }
 
-  //  const int * options = solver_->GetAllAztecOptions();
-  //  const double * params = solver_->GetAllAztecParams();
-
-  ReturnType ret = solver_->solve();
-
-  schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_); // Compute rest of solution
+ // Compute the rest of the solution
+  schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_);
 
   if (debug_) {
     RCP<VEC> tmpRhs = rcp(new VEC(globalRowMap_));
@@ -450,8 +452,6 @@ solve
       BLPM::writePermutation("p.dat");
     }
   }
-  //std::cout << "Global RHS = " << *globalRhs_ << std::endl
-  //          << "Global LHS = " << *globalLhs_ << std::endl;
 
 }
 //=============================================================================

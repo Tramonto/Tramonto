@@ -530,10 +530,17 @@ solve
   printf("\n\n\n\ndft_BasicLinProbMgr::solve()\n\n\n\n");
 #endif
 
+  // Solve the global system
 #ifdef SUPPORTS_STRATIMIKOS
   SolveStatus<Scalar> status = lows_->solve(Thyra::NOTRANS, *thyraRhs_, thyraLhs_.ptr());
 #else
-  ReturnType ret = solver_->solve();
+  try {
+    ReturnType ret = solver_->solve();
+  }
+  catch (Belos::StatusTestError& e) {
+    std::cout << "Belos failed to solve the linear problem! Belos threw exception "
+	      << e.what() << std::endl;
+  }
 #endif
 
   bool writeMatrixNow = false;
