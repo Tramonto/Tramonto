@@ -804,7 +804,7 @@ void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho)
 
 
     for (iwall=0; iwall<Nwall; iwall++){
-          fprintf(fpecho,"iwall=%d  WallType=%d  Link=%d Elec_param_w=%g",iwall,WallType[iwall],Link[iwall],Elec_param_w[iwall]);
+          fprintf(fpecho,"\niwall=%d  WallType=%d  Link=%d Elec_param_w=%g",iwall,WallType[iwall],Link[iwall],Elec_param_w[iwall]);
        for (idim=0; idim<Ndim; idim++)  fprintf(fpecho,"   WallPos[idim=%d]=%g\n",idim,WallPos[idim][iwall]);
     }
     if (fabs(charge_sum) > 1.e-8 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) 

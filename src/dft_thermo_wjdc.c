@@ -64,14 +64,15 @@ void compute_bulk_nonlocal_wjdc_properties(char *file_echoinput,double *dphi_drh
   double field,sten_sum[4];
   FILE *fp2=NULL;
 
-  if (Proc==0 && file_echoinput !=NULL) printproc = TRUE;
+    /* uncomment this if additional debugging output is desired */
+/*  if (Proc==0 && file_echoinput !=NULL) printproc = TRUE;
   else printproc=FALSE;
   if (printproc) {
     if( (fp2 = fopen(file_echoinput,"a+"))==NULL) {
       printf("Can't open file %s\n", file_echoinput);
       exit(1);
     }
-  }
+  }*/
 
   /* (1) compute bulk field variable -- note the variable explicitly solved in the residual
      equations is exp(D-beta*Vext) or exp(D) in the bulk. */
@@ -108,7 +109,6 @@ void compute_bulk_nonlocal_wjdc_properties(char *file_echoinput,double *dphi_drh
                 /* note that this routine musbe called twice because Scale_fac_WJDC is not known for the first call */
      field_WJDC[icomp]=exp(field)*exp(Scale_fac_WJDC[pol_num][icomp]);
 
-     if(printproc) fprintf(fp2,"iseg=%d field=%9.6f FIELD_WJDC=%9.6f\n",iseg,field,field_WJDC[icomp]);
      }
      else{
         icomp=Unk2Comp[iseg];
@@ -165,14 +165,13 @@ void compute_bulk_nonlocal_wjdc_properties(char *file_echoinput,double *dphi_drh
               }
               count_fill++;
               array_val[ibond]=TRUE;
-              if (printproc)  fprintf(fp2,"ibond=%d  G=%g\n",ibond,g_WJDC[ibond]);
            }
         }
      }
      if (count_fill==Nbonds) array_fill=TRUE;
   }
 
-  if (printproc) fclose(fp2);
+  /* if (printproc) fclose(fp2);*/
 
   return;
 }
