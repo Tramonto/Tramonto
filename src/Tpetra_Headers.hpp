@@ -7,7 +7,6 @@
 #include "TpetraExt_MatrixMatrix.hpp"
 #include "Tpetra_CrsMatrix.hpp"
 #include "Tpetra_CrsMatrixMultiplyOp.hpp"
-#include "Tpetra_CrsMatrixMixed.hpp"
 #include "Tpetra_DefaultPlatform.hpp"
 #include "Tpetra_Import.hpp"
 #include "Tpetra_Export.hpp"
