@@ -57,6 +57,8 @@ namespace Tpetra {
     //@{
     typedef typename Teuchos::ScalarTraits<Scalar>::halfPrecision halfScalar;
     typedef typename Teuchos::ScalarTraits<Scalar>::doublePrecision doubleScalar;
+    typedef typename Teuchos::ScalarTraits<Scalar> STS;
+    typedef typename Teuchos::ScalarTraits<halfScalar> STHS;
 
     //@}
 
@@ -116,8 +118,13 @@ namespace Tpetra {
       // Use Ifpack2 ILUT on entire matrix or on subdomains with Additive Schwarz
       //
       // Level of fill
+#if MIXED_PREC == 1
+      ifpack2List.template set<Scalar>( "fact: ilut level-of-fill",
+      					Teuchos::as<halfScalar>(inputList_->template get<double>("Ilut_fill")) );
+#else
       ifpack2List.template set<Scalar>( "fact: ilut level-of-fill",
 					inputList_->template get<double>("Ilut_fill") );
+#endif
       // Absolute threshold
       ifpack2List.template set<Scalar>( "fact: absolute threshold",
 					inputList_->template get<double>("Athresh") );
@@ -148,12 +155,13 @@ namespace Tpetra {
       // Maximum iterations
       belosList.set( "Maximum Iterations",
 		     inputList_->template get<int>("Max_iter") );
+
       // Convergence tolerance
 #if MIXED_PREC == 1
       belosList.template set<Scalar>( "Convergence Tolerance",
-				      std::max( Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")),
-						5*Teuchos::ScalarTraits<halfScalar>::eps() ) );
-#elif MIXED_PREC == 0
+      TEUCHOS_MAX(STHS::squareroot(Teuchos::as<halfScalar>(inputList_->template get<double>("Tol"))),
+		  5*STHS::eps() ) );
+#else
       belosList.template set<Scalar>( "Convergence Tolerance",
 				      Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
 #endif
