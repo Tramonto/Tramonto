@@ -21,7 +21,6 @@
 #include "Tpetra_MixedOperator.hpp"
 #include "Tpetra_MixedOperatorApplyInverse.hpp"
 #include "Tpetra_HalfOperatorApplyInverse.hpp"
-#include "Tpetra_MixedMatrixOperator.hpp"
 #include "Tpetra_ParameterListConverter.hpp"
 #include "Tpetra_MultiVectorConverter.hpp"
 #include "Tpetra_ScalingCrsMatrix.hpp"
