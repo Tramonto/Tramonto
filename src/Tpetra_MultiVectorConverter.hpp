@@ -76,17 +76,11 @@ namespace Tpetra {
     void scalarToHalf(const MV& X, MV_H& Y)
     {
       // Demote X from scalar precision to halfPrecision
-      Teuchos::RCP<const Tpetra::Vector<Scalar,LocalOrdinal,GlobalOrdinal,Node> > scalarVec;
       for (size_t j=0; j<X.getNumVectors(); j++) {
-	scalarVec = X.getVector( j );
-	ArrayRCP<const Scalar> vecVals = scalarVec->get1dView();
-	Array<halfScalar> new_vals;
-	new_vals.resize(vecVals.size());
+	ArrayRCP<const Scalar> vecVals = X.getVector( j )->get1dView();
+	ArrayRCP<halfScalar> hvecVals = Y.getVectorNonConst( j )->get1dViewNonConst();
 	if( vecVals.size() > 0 ) {
-	  std::transform( vecVals.begin(), vecVals.end(), new_vals.begin(), Teuchos::asFunc<halfScalar>() );
-	}
-	for( LocalOrdinal li=X.getMap()->getMinLocalIndex(); li <= X.getMap()->getMaxLocalIndex(); ++li ) {
-	  Y.replaceLocalValue( li, j, new_vals[li] );
+	  std::transform( vecVals.begin(), vecVals.end(), hvecVals.begin(), Teuchos::asFunc<halfScalar>() );
 	}
       }
     }
@@ -94,17 +88,11 @@ namespace Tpetra {
     void doubleToScalar(const MV_D& X, MV& Y)
     {
       // Demote X from doubleScalar precision to scalar precision
-      Teuchos::RCP<const Tpetra::Vector<doubleScalar,LocalOrdinal,GlobalOrdinal,Node> > doubleScalarVec;
       for (size_t j=0; j<X.getNumVectors(); j++) {
-	doubleScalarVec = X.getVector( j );
-	ArrayRCP<const doubleScalar> vecVals = doubleScalarVec->get1dView();
-	Array<Scalar> new_vals;
-	new_vals.resize(vecVals.size());
+	ArrayRCP<const doubleScalar> vecVals = X.getVector( j )->get1dView();
+	ArrayRCP<Scalar> svecVals = Y.getVectorNonConst( j )->get1dViewNonConst();
 	if( vecVals.size() > 0 ) {
-	  std::transform( vecVals.begin(), vecVals.end(), new_vals.begin(), Teuchos::asFunc<Scalar>() );
-	}
-	for( LocalOrdinal li=X.getMap()->getMinLocalIndex(); li <= X.getMap()->getMaxLocalIndex(); ++li ) {
-	  Y.replaceLocalValue( li, j, new_vals[li] );
+	  std::transform( vecVals.begin(), vecVals.end(), svecVals.begin(), Teuchos::asFunc<Scalar>() );
 	}
       }
     }
@@ -112,35 +100,23 @@ namespace Tpetra {
     void scalarToDouble(const MV& X, MV_D& Y)
     {
       // Promote X from scalar precision to doublePrecision
-      Teuchos::RCP<const Tpetra::Vector<Scalar,LocalOrdinal,GlobalOrdinal,Node> > scalarVec;
       for (size_t j=0; j<X.getNumVectors(); j++) {
-	scalarVec = X.getVector( j );
-	ArrayRCP<const Scalar> vecVals = scalarVec->get1dView();
-	Array<doubleScalar> new_vals;
-	new_vals.resize(vecVals.size());
+	ArrayRCP<const Scalar> vecVals = X.getVector( j )->get1dView();
+	ArrayRCP<doubleScalar> dvecVals = Y.getVectorNonConst( j )->get1dViewNonConst();
 	if( vecVals.size() > 0 ) {
-	  std::transform( vecVals.begin(), vecVals.end(), new_vals.begin(), Teuchos::asFunc<doubleScalar>() );
-	}
-	for( LocalOrdinal li=X.getMap()->getMinLocalIndex(); li <= X.getMap()->getMaxLocalIndex(); ++li ) {
-	  Y.replaceLocalValue( li, j, new_vals[li] );
+	  std::transform( vecVals.begin(), vecVals.end(), dvecVals.begin(), Teuchos::asFunc<doubleScalar>() );
 	}
       }
     }
 
     void halfToScalar(const MV_H& X , MV& Y)
     {
-      // Promote X from scalar precision to doublePrecision
-      Teuchos::RCP<const Tpetra::Vector<halfScalar,LocalOrdinal,GlobalOrdinal,Node> > halfScalarVec;
+      // Promote X from halfScalar precision to scalar precision
       for (size_t j=0; j<X.getNumVectors(); j++) {
-	halfScalarVec = X.getVector( j );
-	ArrayRCP<const halfScalar> vecVals = halfScalarVec->get1dView();
-	Array<Scalar> new_vals;
-	new_vals.resize(vecVals.size());
+	ArrayRCP<const halfScalar> vecVals = X.getVector( j )->get1dView();
+	ArrayRCP<Scalar> svecVals = Y.getVectorNonConst( j )->get1dViewNonConst();
 	if( vecVals.size() > 0 ) {
-	  std::transform( vecVals.begin(), vecVals.end(), new_vals.begin(), Teuchos::asFunc<Scalar>() );
-	}
-	for( LocalOrdinal li=X.getMap()->getMinLocalIndex(); li <= X.getMap()->getMaxLocalIndex(); ++li ) {
-	  Y.replaceLocalValue( li, j, new_vals[li] );
+	  std::transform( vecVals.begin(), vecVals.end(), svecVals.begin(), Teuchos::asFunc<Scalar>() );
 	}
       }
     }
