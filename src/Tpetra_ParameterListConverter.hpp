@@ -207,6 +207,36 @@ namespace Tpetra {
 
       outputList_.set( "mueluList", mueluList );
 
+      //
+      // Use Ifpack2 ILUT on subdomains with Additive Schwarz for A22 block
+      //
+      Teuchos::ParameterList ifpack2ListA22;
+
+      // Level of fill
+#if MIXED_PREC == 1
+      ifpack2ListA22.template set<Scalar>( "fact: ilut level-of-fill",
+					   Teuchos::as<halfScalar>(inputList_->template get<double>("Ilut_fill")) );
+#else
+      ifpack2ListA22.template set<Scalar>( "fact: ilut level-of-fill",
+					   inputList_->template get<double>("Ilut_fill") );
+#endif
+      // Absolute threshold
+      ifpack2ListA22.template set<Scalar>( "fact: absolute threshold",
+					   inputList_->template get<double>("Athresh") );
+      // Relative threshold
+      sParam = inputList_->template get<double>("Rthresh");
+      if (sParam == 0.0)
+	// The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
+	ifpack2ListA22.template set<Scalar>( "fact: relative threshold", 1.0 );
+      else
+	ifpack2ListA22.template set<Scalar>( "fact: relative threshold",
+					     inputList_->template get<double>("Rthresh") );
+      // Drop tolerance
+      ifpack2ListA22.template set<Scalar>( "fact: drop tolerance",
+					   inputList_->template get<double>("Drop") );
+
+      outputList_.set( "ifpack2ListA22", ifpack2ListA22 );
+
       isConverted_ = true;
     }
 

@@ -139,8 +139,7 @@ finalizeProblemValues
 
   TEUCHOS_TEST_FOR_EXCEPT(A22Inverse_==Teuchos::null);
 
-  ParameterList ifpack2List;
-  ifpack2List.set( "fact: ilut level-of-fill", 4.0 );
+  ParameterList ifpack2List = parameterList_->sublist("ifpack2ListA22");
   A22Inverse_->setParameters(ifpack2List);
 
   A22Inverse_->initialize();
