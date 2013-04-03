@@ -187,7 +187,7 @@ void print_profile(char *Density_FileName,double *xold)
 {
   int icomp,iunk,i,inode,ijk[3],idim,ipol,iseg,itype_mer,ibond,unk_GQ,unk_B;
   int node_start,jcomp,pol_number;
-  double kappa_sq,kappa,bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term,scalefac,mu;
+  double bondproduct,site_dens=0.,sumsegdens[NCOMP_MAX],flag_type_mer[NMER_MAX],scale_term,scalefac,mu;
   double save_field[NCOMP_MAX];
   char *unk_char;
     
@@ -302,16 +302,6 @@ void print_profile(char *Density_FileName,double *xold)
          }
      }
 
-           /* compute DeBroglie wavelength for charged systems */
-     if (Npoisson >0 ){
-        kappa_sq = 0.0;
-        if (Ipot_ff_c == COULOMB){
-        for(icomp = 0; icomp<Ncomp; icomp++)
-           kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
-                        Charge_f[icomp]*Charge_f[icomp];
-        }
-        kappa = sqrt(kappa_sq);
-     }
 
      if (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 || ((Type_poly == CMS  || Type_poly==CMS_SCFT || Type_poly==WJDC3))) {
         if (Lseg_densities) unk_char = "DENSITY"; 

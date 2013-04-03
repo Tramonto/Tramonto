@@ -485,7 +485,7 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
          if (Ipot_ff_c==COULOMB &&(Print_rho_switch==SWITCH_ION || 
             Print_rho_switch==SWITCH_ALLTYPES || Print_rho_switch==SWITCH_ALLTYPES_ICOMP||
             Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL)){
-              fprintf(fp,"KAPPA   ");
+              fprintf(fp,"kappa   ");
         }
 
         if (cont_type==CONT_BETAMU_I || Print_rho_switch == SWITCH_MU || Print_rho_switch==SWITCH_ALLTYPES || 
@@ -759,7 +759,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
              for(icomp = 0; icomp<Ncomp; icomp++)
                 kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*
                            Charge_f[icomp]*Charge_f[icomp];
-             kappa = sqrt(kappa_sq);
+             kappa = 1.0/sqrt(kappa_sq);
              fprintf(fp,"%11.8f   ", kappa);
          }
 

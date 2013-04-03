@@ -64,7 +64,8 @@ double deltaC_MSA(double r,int i, int j)
      kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*Charge_f[icomp]*Charge_f[icomp];
   kappa = sqrt(kappa_sq);
 
-  /* note that kappa is in units of (kappa*sigma_ref) so we need to explicitly include
+  /* note that kappa (the inverse Debye screening length, here) is in units of (kappa*sigma_ref) 
+   so we need to explicitly include
      hard sphere diameters (units of HS_diam/sigma_ref) */
 
   /******* NOTE ----- epsilon in the Davis and Hanson papers should be interpreted 
