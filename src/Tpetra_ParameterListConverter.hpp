@@ -159,8 +159,7 @@ namespace Tpetra {
       // Convergence tolerance
 #if MIXED_PREC == 1
       belosList.template set<Scalar>( "Convergence Tolerance",
-      TEUCHOS_MAX(STHS::squareroot(Teuchos::as<halfScalar>(inputList_->template get<double>("Tol"))),
-		  5*STHS::eps() ) );
+				      Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")));
 #else
       belosList.template set<Scalar>( "Convergence Tolerance",
 				      Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
