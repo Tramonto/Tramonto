@@ -57,6 +57,9 @@
 #include <MueLu_MLParameterListInterpreter.hpp>
 #include <MueLu_UseDefaultTypes.hpp>
 #include <MueLu_UseShortNames.hpp>
+#include <BelosXpetraAdapter.hpp>
+#include <BelosMueLuAdapter.hpp>
+#include <MueLu_TpetraOperator.hpp>
 #endif
 #include "Kokkos_DefaultNode.hpp"
 #include <map>

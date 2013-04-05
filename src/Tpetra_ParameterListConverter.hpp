@@ -184,13 +184,53 @@ namespace Tpetra {
 
       outputList_.set( "belosList", belosList );
 
+      Teuchos::ParameterList belosListSchur;
+
+      // Block size
+      GlobalOrdinal blockSizeSchur = 1;
+      GlobalOrdinal maxIterSchur = 500;
+      belosListSchur.set( "Block Size", blockSizeSchur);
+      belosListSchur.set( "Num Blocks",
+			  maxIterSchur / blockSizeSchur );
+      // Maximum iterations
+      belosListSchur.set( "Maximum Iterations",
+			  maxIterSchur );
+
+      // Convergence tolerance
+#if MIXED_PREC == 1
+      belosListSchur.template set<Scalar>( "Convergence Tolerance",
+					   Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")));
+#else
+      belosListSchur.template set<Scalar>( "Convergence Tolerance",
+					   Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
+#endif
+
+      // Orthogonalization
+      int orthogSchur  = inputList_->template get<int>( "Orthog" );
+      if (orthogSchur == AZ_modified) {
+	// Modified Gram Schmidt
+	belosListSchur.set( "Orthogonalization",
+			    "IMGS" );
+      } else {
+	// Classic Gram Schmidt
+	belosListSchur.set( "Orthogonalization",
+			    "ICGS" );
+      }
+
+      // Output
+      //belosListSchur.set( "Output Frequency", 10 );
+      //belosListSchur.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+      //belosListSchur.set( "Output Style", Belos::Brief);
+
+      outputList_.set( "belosListSchur", belosListSchur );
+
       //
       // Muelu Parameters
       //
       Teuchos::ParameterList mueluList;
 
       // ML output
-      mueluList.set( "ML output", 0 );
+      //      mueluList.set( "ML output", 0 );
 
       // Smoother sweeps
       mueluList.set( "smoother: sweeps",  2 );
@@ -214,10 +254,12 @@ namespace Tpetra {
       // Level of fill
 #if MIXED_PREC == 1
       ifpack2ListA22.template set<Scalar>( "fact: ilut level-of-fill",
-					   Teuchos::as<halfScalar>(inputList_->template get<double>("Ilut_fill")) );
+					   2.0 );
+      //				   Teuchos::as<halfScalar>(inputList_->template get<double>("Ilut_fill")) );
 #else
       ifpack2ListA22.template set<Scalar>( "fact: ilut level-of-fill",
-					   inputList_->template get<double>("Ilut_fill") );
+					   2.0 );
+      //				   inputList_->template get<double>("Ilut_fill") );
 #endif
       // Absolute threshold
       ifpack2ListA22.template set<Scalar>( "fact: absolute threshold",
@@ -232,7 +274,8 @@ namespace Tpetra {
 					     inputList_->template get<double>("Rthresh") );
       // Drop tolerance
       ifpack2ListA22.template set<Scalar>( "fact: drop tolerance",
-					   inputList_->template get<double>("Drop") );
+					   1.e-9 );
+    //					   inputList_->template get<double>("Drop") );
 
       outputList_.set( "ifpack2ListA22", ifpack2ListA22 );
 

@@ -173,6 +173,9 @@ protected:
   RCP<Xpetra::Matrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
   FactoryManager M_;
   ParameterList mueluList_;
+  RCP<MueLu::TpetraOperator<precScalar, LocalOrdinal, GlobalOrdinal, Node> > poissonOnPoissonInverse_;
+  RCP<MOP> poissonOnPoissonInverseMixed_;
+					   
 #endif
 
   using P22TO::isGraphStructureSet_;

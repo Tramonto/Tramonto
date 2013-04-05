@@ -380,39 +380,37 @@ finalizeProblemValues
 #if ENABLE_MUELU == 1
 #if LINSOLVE_PREC_DOUBLE_DOUBLE == 1 || LINSOLVE_PREC_QUAD_DOUBLE == 1
   // Default of SuperLU doesn't compile with double-double or quad-double, so use ILUT instead.
-  if (firstTime_) {
-    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
-    mueluPP  = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
-    mueluList_ = parameterList_->get("mueluList");
+  mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
+  mueluPP  = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+  mueluList_ = parameterList_->get("mueluList");
 
-    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
+  MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
 
-    H_ = mueluFactory.CreateHierarchy();
-    H_->setVerbLevel(Teuchos::VERB_HIGH);
-    H_->GetLevel(0)->Set("A", mueluPP);
-    ParameterList coarseParamList;
-    coarseParamList.set("fact: level-of-fill", 0);
-    RCP<SmootherPrototype> coarsePrototype = rcp( new TrilinosSmoother("ILUT", coarseParamList) );
-    RCP<SmootherFactory> coarseSolverFact = rcp( new SmootherFactory(coarsePrototype, Teuchos::null) );
-    RCP<FactoryManager> fm = rcp( new FactoryManager() );
-    fm->SetFactory("CoarseSolver", coarseSolverFact);
-    H_->Setup(*fm);
-  }
+  H_ = mueluFactory.CreateHierarchy();
+  H_->setVerbLevel(Teuchos::VERB_NONE);
+  H_->GetLevel(0)->Set("A", mueluPP);
+  ParameterList coarseParamList;
+  coarseParamList.set("fact: level-of-fill", 0);
+  RCP<SmootherPrototype> coarsePrototype = rcp( new TrilinosSmoother("ILUT", coarseParamList) );
+  RCP<SmootherFactory> coarseSolverFact = rcp( new SmootherFactory(coarsePrototype, Teuchos::null) );
+  RCP<FactoryManager> fm = rcp( new FactoryManager() );
+  fm->SetFactory("CoarseSolver", coarseSolverFact);
+  H_->Setup(*fm);
 #else
   // Okay to use default of SuperLU if not double-double or quad-double
-  if (firstTime_) {
-    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
-    mueluPP = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
-    mueluList_ = parameterList_->sublist("mueluList");
+  mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
+  mueluPP = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+  mueluList_ = parameterList_->sublist("mueluList");
 
-    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
+  MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
 
-    H_ = mueluFactory.CreateHierarchy();
-    H_->setVerbLevel(Teuchos::VERB_HIGH);
-    H_->GetLevel(0)->Set("A", mueluPP);
-    mueluFactory.SetupHierarchy(*H_);
-  }
+  H_ = mueluFactory.CreateHierarchy();
+  H_->setVerbLevel(Teuchos::VERB_NONE);
+  H_->GetLevel(0)->Set("A", mueluPP);
+  mueluFactory.SetupHierarchy(*H_);
 #endif
+  poissonOnPoissonInverse_ = rcp(new MueLu::TpetraOperator<precScalar, LocalOrdinal, GlobalOrdinal>(H_));
+  poissonOnPoissonInverseMixed_ = rcp(new MOP((RCP<OP_P>)poissonOnPoissonInverse_));
 #endif
 
   isLinearProblemSet_ = true;
@@ -513,11 +511,6 @@ applyInverse
   RCP<MV > Y2tmp1 = rcp(new MV(*Y2));
   RCP<MV > Y2tmp2 = rcp(new MV(*Y2));
 
-  int nIts = 10;
-#if ENABLE_MUELU == 1
-  RCP<Xpetra::MultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node> > mueluX;
-  RCP<Xpetra::MultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node> > mueluB;
-#endif
   if (F_location_ == 1)
   {
     // Third block row: Y2 = DD\X2
@@ -528,22 +521,7 @@ applyInverse
     Y0tmp->update(1.0, *X0, -1.0);
     Y0->putScalar(0.0);
 #if ENABLE_MUELU == 1
-#if MIXED_PREC == 1
-    // Demote Y0 and Y0tmp to halfScalar precision
-    RCP<MV_H> Y0tmphalf = rcp(new MV_H(*Y0half));
-    mvConverter->scalarToHalf( *Y0, *Y0half );
-    mvConverter->scalarToHalf( *Y0tmp, *Y0tmphalf );
-    mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0half));
-    mueluB = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmphalf));
-    H_->Iterate(*mueluB, nIts, *mueluX);
-    // Promote Y0half to Scalar precision
-    mvConverter->halfToScalar( *Y0half, *Y0 );
-#else
-    mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
-    mueluB = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
-    H_->Iterate(*mueluB, nIts, *mueluX);
-#endif
-
+    poissonOnPoissonInverseMixed_->apply(*Y0tmp, *Y0);
 #endif
 
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
@@ -563,22 +541,7 @@ applyInverse
     Y0tmp->update( 1.0, *X0, -1.0 );
     Y0->putScalar(0.0);
 #if ENABLE_MUELU == 1
-#if MIXED_PREC == 1
-    // Demote Y0 and Y0tmp to halfScalar precision
-    RCP<MV_H> Y0tmphalf = rcp(new MV_H(*Y0half));
-    mvConverter->scalarToHalf( *Y0, *Y0half );
-    mvConverter->scalarToHalf( *Y0tmp, *Y0tmphalf );
-    mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0half));
-    mueluB = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmphalf));
-    H_->Iterate(*mueluB, nIts, *mueluX);
-    // Promote Y0half to Scalar precision
-    mvConverter->halfToScalar( *Y0half, *Y0 );
-#else
-    mueluX = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0));
-    mueluB = rcp(new Xpetra::TpetraMultiVector<precScalar, LocalOrdinal, GlobalOrdinal, Node>(Y0tmp));
-    H_->Iterate(*mueluB, nIts, *mueluX);
-#endif
-
+    poissonOnPoissonInverseMixed_->apply(*Y0tmp, *Y0);
 #endif
 
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
