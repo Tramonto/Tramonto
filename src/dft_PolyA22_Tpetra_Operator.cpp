@@ -263,8 +263,8 @@ finalizeProblemValues
 
   // Use a diagonal preconditioner for the cmsOnCmsMatrix
   RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(cmsOnCmsMatrix_);
-  cmsOnCmsInverse_ = rcp(new Ifpack2::Diagonal<MAT_P> (const_matrix));
-  cmsOnCmsInverseMixed_ = rcp(new MOP((RCP<OP_P>)cmsOnCmsInverse_));
+  cmsOnCmsInverse_ = rcp(new PRECOND_D(const_matrix));
+  cmsOnCmsInverseOp_ = rcp(new PRECOND_D_OP(cmsOnCmsInverse_));
   TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsInverse_==Teuchos::null);
   cmsOnCmsInverse_->initialize();
   cmsOnCmsInverse_->compute();
@@ -355,7 +355,7 @@ applyInverse
     // First block row: Y1 = CC \ (X1 - CD*Y2)
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp);
     Y1tmp->update(1.0, *X1, -1.0);
-    cmsOnCmsInverseMixed_->apply(*Y1tmp, *Y1);
+    cmsOnCmsInverseOp_->apply(*Y1tmp, *Y1);
 
   }
   else
@@ -378,7 +378,7 @@ applyInverse
     // Second block row: Y2 = CC \ (X2 - CD*Y1)
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp);
     Y2tmp->update(1.0, *X2, -1.0);
-    cmsOnCmsInverseMixed_->apply(*Y2tmp, *Y2);
+    cmsOnCmsInverseOp_->apply(*Y2tmp, *Y2);
   }
 
 } //end applyInverse

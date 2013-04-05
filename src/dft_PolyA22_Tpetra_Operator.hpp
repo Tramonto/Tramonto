@@ -217,6 +217,8 @@ protected:
   RCP<MMOP_P> cmsOnDensityMatrixOp_;
   RCP<MAT_P> cmsOnCmsMatrix_;
   RCP<MMOP_P> cmsOnCmsMatrixOp_;
+  RCP<PRECOND_D> cmsOnCmsInverse_;
+  RCP<PRECOND_D_OP> cmsOnCmsInverseOp_;
   RCP<VEC> densityOnDensityMatrix_;
   RCP<VEC> densityOnDensityInverse_;
   RCP<MAT_P> densityOnCmsMatrix_;
@@ -230,8 +232,6 @@ protected:
   std::map<GlobalOrdinal, precScalar> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_, curRowValuesDensityOnCms_;
   Array<GlobalOrdinal> indicesCmsOnDensity_, indicesCmsOnCms_, indicesDensityOnCms_;
   Array<precScalar> valuesCmsOnDensity_, valuesCmsOnCms_, valuesDensityOnCms_;
-  RCP<PRECOND_P> cmsOnCmsInverse_;
-  RCP<MOP> cmsOnCmsInverseMixed_;
   std::map<GlobalOrdinal, precScalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
   Array<precScalar> values_;
