@@ -184,8 +184,8 @@ private:
   RCP<ParameterList> parameterList_;
   RCP<MAT_P> A22Matrix_;
   RCP<MMOP_P> A22MatrixOperator_;
-  RCP<PRECOND_P> A22Inverse_;
-  RCP<MOP> A22InverseMixed_;
+  RCP<PRECOND_AS> A22Inverse_;
+  RCP<PRECOND_AS_OP> A22InverseOp_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;

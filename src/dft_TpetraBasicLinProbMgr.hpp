@@ -462,8 +462,8 @@ protected:
 #else
   RCP<SolMGR> solver_;
   RCP<LinPROB> problem_;
-  RCP<PRECOND_P> preconditioner_;
-  RCP<MOP> preconditionerMixed_;
+  RCP<PRECOND_AS> preconditioner_;
+  RCP<PRECOND_AS_OP> preconditionerOp_;
 #endif
 
 };

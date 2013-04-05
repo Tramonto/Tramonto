@@ -17,6 +17,7 @@
 #include "Tpetra_OperatorApplyInverse.hpp"
 #include "Tpetra_InvOperator.hpp"
 #include "Tpetra_MixedOperator.hpp"
+#include "Tpetra_ApplyOp.hpp"
 #include "Tpetra_ParameterListConverter.hpp"
 #include "Tpetra_MultiVectorConverter.hpp"
 #include "Tpetra_ScalingCrsMatrix.hpp"
@@ -143,7 +144,13 @@ using Belos::ReturnType;
   typedef VEC_H VEC_P; \
   typedef MV_H MV_P; \
   typedef PRECOND_H PRECOND_P; \
-  typedef SCALE_H SCALE_P;
+  typedef SCALE_H SCALE_P; \
+  typedef Ifpack2::ILUT<MAT_P> PRECOND_ILUT; \
+  typedef Ifpack2::AdditiveSchwarz<MAT_P,PRECOND_ILUT> PRECOND_AS; \
+  typedef Ifpack2::Diagonal<MAT_P> PRECOND_D; \
+  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_ILUT> PRECOND_ILUT_OP; \
+  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_AS> PRECOND_AS_OP;	\
+  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_D> PRECOND_D_OP;
 
 #elif MIXED_PREC == 0
 
@@ -157,7 +164,13 @@ using Belos::ReturnType;
   typedef VEC VEC_P; \
   typedef MV MV_P; \
   typedef PRECOND PRECOND_P; \
-  typedef SCALE SCALE_P;
+  typedef SCALE SCALE_P; \
+  typedef Ifpack2::ILUT<MAT_P> PRECOND_ILUT; \
+  typedef Ifpack2::AdditiveSchwarz<MAT_P,PRECOND_ILUT> PRECOND_AS; \
+  typedef Ifpack2::Diagonal<MAT_P> PRECOND_D; \
+  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_ILUT> PRECOND_ILUT_OP; \
+  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_AS> PRECOND_AS_OP;	\
+  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_D> PRECOND_D_OP;
 
 #endif // MIXED_PREC
 

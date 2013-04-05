@@ -134,8 +134,8 @@ finalizeProblemValues
   Ifpack2::Factory factory;
   RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(A22Matrix_);
   LocalOrdinal overlapLevel = 0;
-  A22Inverse_ = rcp(new Ifpack2::AdditiveSchwarz<MAT_P,Ifpack2::ILUT<MAT_P > > (const_matrix,overlapLevel));
-  A22InverseMixed_ = rcp(new MOP((RCP<OP_P>)A22Inverse_));
+  A22Inverse_ = rcp(new PRECOND_AS(const_matrix,overlapLevel));
+  A22InverseOp_ = rcp(new PRECOND_AS_OP(A22Inverse_));
 
   TEUCHOS_TEST_FOR_EXCEPT(A22Inverse_==Teuchos::null);
 
@@ -161,7 +161,7 @@ applyInverse
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
   TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 
-  A22InverseMixed_->apply(X, Y);
+  A22InverseOp_->apply(X, Y);
 
 }
 //==============================================================================

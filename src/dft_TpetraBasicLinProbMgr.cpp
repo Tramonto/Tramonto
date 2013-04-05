@@ -505,13 +505,13 @@ setupSolver
   int precond  = parameterList_->template get<int>( "Precond" );
   if (precond != AZ_none) {
     LocalOrdinal overlapLevel = 0;
-    preconditioner_ = rcp(new Ifpack2::AdditiveSchwarz<MAT_P,Ifpack2::ILUT<MAT_P > > (const_globalMatrix_,overlapLevel));
+    preconditioner_ = rcp(new PRECOND_AS(const_globalMatrix_));
+    preconditionerOp_ = rcp(new PRECOND_AS_OP(preconditioner_));
     ParameterList ifpack2List = parameterList_->sublist("ifpack2List");
     preconditioner_->setParameters(ifpack2List);
     preconditioner_->initialize();
     preconditioner_->compute();
-    preconditionerMixed_ = rcp(new MOP((RCP<OP_P>)preconditioner_));
-    problem_->setLeftPrec(preconditionerMixed_);
+    problem_->setLeftPrec(preconditionerOp_);
   }
 
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
