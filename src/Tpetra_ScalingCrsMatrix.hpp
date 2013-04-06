@@ -99,7 +99,6 @@ namespace Tpetra {
     LocalOrdinal getRowScaleFactors( RCP<Tpetra::Vector<Scalar,LocalOrdinal,GlobalOrdinal,Node> > x, GlobalOrdinal norm ) const
     {
       // Matrix must be filled first
-      if( !matrix_->isFillComplete() ) return(-1);
       LocalOrdinal ierr = 0;
 
       // Zero out target vector
@@ -160,7 +159,6 @@ namespace Tpetra {
     LocalOrdinal leftScale( const RCP<Tpetra::Vector<Scalar,LocalOrdinal,GlobalOrdinal,Node> > x ) const
     {
       // Matrix must be filled
-      if( matrix_->isFillComplete() ) return(-1);
       LocalOrdinal ierr = 0;
       ArrayRCP<const Scalar> xp = x->getData(0);
 

@@ -470,9 +470,7 @@ setupSolver
     rowScaleFactorsScalar_ = rcp(new VEC(globalMatrix_->getDomainMap()));
 
     LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
-    globalMatrix_->resumeFill();
-    LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
-    globalMatrix_->fillComplete();
+    globalMatrix_->leftScale( *rowScaleFactors_ );
 #if MIXED_PREC == 1
 
     RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
@@ -554,9 +552,7 @@ solve
   // Undo scaling
   if (scaling_ != AZ_none) {
     rowScaleFactors_->reciprocal( *rowScaleFactors_ );
-    globalMatrix_->resumeFill();
-    LocalOrdinal sret = scalingMatrix_->leftScale( rowScaleFactors_ );
-    globalMatrix_->fillComplete();
+    globalMatrix_->leftScale( *rowScaleFactors_ );
 #if MIXED_PREC == 1
 
     RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
