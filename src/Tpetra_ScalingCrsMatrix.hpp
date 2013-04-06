@@ -105,7 +105,7 @@ namespace Tpetra {
       x->putScalar( Teuchos::ScalarTraits<Scalar>::zero() );
       ArrayRCP<Scalar> xp = x->getDataNonConst(0);
 
-      if( (matrix_->getDomainMap())->isSameAs(*(x->getMap())) ) {
+      if( (matrix_->getRowMap())->isSameAs(*(x->getMap())) ) {
 	for( LocalOrdinal i = Teuchos::OrdinalTraits<LocalOrdinal>::zero(); Teuchos::as<size_t>(i) < matrix_->getNodeNumRows(); i++ ) {
 	  LocalOrdinal NumEntries = matrix_->getNumEntriesInLocalRow( i );
 	  ArrayView<const LocalOrdinal> rowIndices;

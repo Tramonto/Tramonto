@@ -466,8 +466,8 @@ setupSolver
   // Perform scaling
   if (scaling_ != AZ_none) {
     scalingMatrix_ = rcp(new SCALE_P(globalMatrix_));
-    rowScaleFactors_ = rcp(new VEC_P(globalMatrix_->getDomainMap()));
-    rowScaleFactorsScalar_ = rcp(new VEC(globalMatrix_->getDomainMap()));
+    rowScaleFactors_ = rcp(new VEC_P(globalRowMap_));
+    rowScaleFactorsScalar_ = rcp(new VEC(globalRowMap_));
 
     LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
     globalMatrix_->leftScale( *rowScaleFactors_ );
