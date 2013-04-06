@@ -130,20 +130,19 @@ finalizeProblemValues
 
   insertRow();
   A22Matrix_->fillComplete();
+  if (firstTime_) {
 
-  Ifpack2::Factory factory;
-  RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(A22Matrix_);
-  LocalOrdinal overlapLevel = 0;
-  A22Inverse_ = rcp(new PRECOND_AS(const_matrix,overlapLevel));
-  A22InverseOp_ = rcp(new PRECOND_AS_OP(A22Inverse_));
-
-  TEUCHOS_TEST_FOR_EXCEPT(A22Inverse_==Teuchos::null);
-
-  ParameterList ifpack2List = parameterList_->sublist("ifpack2ListA22");
-  A22Inverse_->setParameters(ifpack2List);
-
-  A22Inverse_->initialize();
-
+    LocalOrdinal overlapLevel = 0;
+    A22Inverse_ = rcp(new PRECOND_AS(A22Matrix_,overlapLevel));
+    A22InverseOp_ = rcp(new PRECOND_AS_OP(A22Inverse_));
+    
+    TEUCHOS_TEST_FOR_EXCEPT(A22Inverse_==Teuchos::null);
+    
+    ParameterList ifpack2List = parameterList_->sublist("ifpack2ListA22");
+    A22Inverse_->setParameters(ifpack2List);
+    
+    A22Inverse_->initialize();
+  }
   A22Inverse_->compute();
 
   isLinearProblemSet_ = true;

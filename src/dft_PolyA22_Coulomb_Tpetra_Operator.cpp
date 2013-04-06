@@ -377,41 +377,43 @@ finalizeProblemValues
   cmsOnCmsInverse_->initialize();
   cmsOnCmsInverse_->compute();
 
+  if (firstTime_) {
 #if ENABLE_MUELU == 1
 #if LINSOLVE_PREC_DOUBLE_DOUBLE == 1 || LINSOLVE_PREC_QUAD_DOUBLE == 1
-  // Default of SuperLU doesn't compile with double-double or quad-double, so use ILUT instead.
-  mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
-  mueluPP  = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
-  mueluList_ = parameterList_->get("mueluList");
-
-  MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
-
-  H_ = mueluFactory.CreateHierarchy();
-  H_->setVerbLevel(Teuchos::VERB_NONE);
-  H_->GetLevel(0)->Set("A", mueluPP);
-  ParameterList coarseParamList;
-  coarseParamList.set("fact: level-of-fill", 0);
-  RCP<SmootherPrototype> coarsePrototype = rcp( new TrilinosSmoother("ILUT", coarseParamList) );
-  RCP<SmootherFactory> coarseSolverFact = rcp( new SmootherFactory(coarsePrototype, Teuchos::null) );
-  RCP<FactoryManager> fm = rcp( new FactoryManager() );
-  fm->SetFactory("CoarseSolver", coarseSolverFact);
-  H_->Setup(*fm);
+    // Default of SuperLU doesn't compile with double-double or quad-double, so use ILUT instead.
+    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
+    mueluPP  = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    mueluList_ = parameterList_->get("mueluList");
+    
+    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
+    
+    H_ = mueluFactory.CreateHierarchy();
+    H_->setVerbLevel(Teuchos::VERB_NONE);
+    H_->GetLevel(0)->Set("A", mueluPP);
+    ParameterList coarseParamList;
+    coarseParamList.set("fact: level-of-fill", 0);
+    RCP<SmootherPrototype> coarsePrototype = rcp( new TrilinosSmoother("ILUT", coarseParamList) );
+    RCP<SmootherFactory> coarseSolverFact = rcp( new SmootherFactory(coarsePrototype, Teuchos::null) );
+    RCP<FactoryManager> fm = rcp( new FactoryManager() );
+    fm->SetFactory("CoarseSolver", coarseSolverFact);
+    H_->Setup(*fm);
 #else
-  // Okay to use default of SuperLU if not double-double or quad-double
-  mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
-  mueluPP = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
-  mueluList_ = parameterList_->sublist("mueluList");
-
-  MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
-
-  H_ = mueluFactory.CreateHierarchy();
-  H_->setVerbLevel(Teuchos::VERB_NONE);
-  H_->GetLevel(0)->Set("A", mueluPP);
-  mueluFactory.SetupHierarchy(*H_);
+    // Okay to use default of SuperLU if not double-double or quad-double
+    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
+    mueluPP = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    mueluList_ = parameterList_->sublist("mueluList");
+    
+    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
+    
+    H_ = mueluFactory.CreateHierarchy();
+    H_->setVerbLevel(Teuchos::VERB_NONE);
+    H_->GetLevel(0)->Set("A", mueluPP);
+    mueluFactory.SetupHierarchy(*H_);
 #endif
-  poissonOnPoissonInverse_ = rcp(new MueLu::TpetraOperator<precScalar, LocalOrdinal, GlobalOrdinal>(H_));
-  poissonOnPoissonInverseMixed_ = rcp(new MOP((RCP<OP_P>)poissonOnPoissonInverse_));
+    poissonOnPoissonInverse_ = rcp(new MueLu::TpetraOperator<precScalar, LocalOrdinal, GlobalOrdinal>(H_));
+    poissonOnPoissonInverseMixed_ = rcp(new MOP((RCP<OP_P>)poissonOnPoissonInverse_));
 #endif
+  }
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
