@@ -172,7 +172,6 @@ finalizeBlockStructure
 
   globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_));
   globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
-  globalMatrixOperator_ = rcp(new MMOP_P(globalMatrix_));
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
   globalLhs_ = rcp(new VEC(globalRowMap_));
@@ -199,8 +198,13 @@ initializeProblemValues
  // first time a matrix was filled, because matrix entries are being put
  // in on residual-only fills, which can occur before matrix fills.
 
-  globalMatrix_->resumeFill();
-  globalMatrix_->setAllToScalar(0.0);
+  if (firstTime_) {
+    globalMatrix_->resumeFill();
+    globalMatrix_->setAllToScalar(0.0);
+  } else {
+    globalMatrixStatic_->resumeFill();
+    globalMatrixStatic_->setAllToScalar(0.0);
+  }
   globalRhs_->putScalar(0.0);
   globalLhs_->putScalar(0.0);
 
@@ -244,7 +248,7 @@ insertMatrixValue
     vals[0] = value;
     Array<GlobalOrdinal> globalCols(1);
     globalCols[0] = colGID;
-    globalMatrix_->sumIntoGlobalValues(rowGID, globalCols, vals);
+    globalMatrixStatic_->sumIntoGlobalValues(rowGID, globalCols, vals);
   }
 }
 //=============================================================================
@@ -275,7 +279,7 @@ dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 getMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode)
 {
-  TEUCHOS_TEST_FOR_EXCEPTION(globalMatrix_.get()==0, std::runtime_error, "Global Matrix is not constructed, must set debug flag to enable this feature.\n");
+  TEUCHOS_TEST_FOR_EXCEPTION(globalMatrixStatic_.get()==0, std::runtime_error, "Global Matrix is not constructed, must set debug flag to enable this feature.\n");
 
   GlobalOrdinal rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
@@ -283,9 +287,9 @@ getMatrixValue
   ArrayView<const GlobalOrdinal> indices;
   ArrayView<const precScalar> values;
 
-  if (globalMatrix_->isGloballyIndexed())
+  if (globalMatrixStatic_->isGloballyIndexed())
   {
-    globalMatrix_->getGlobalRowView(rowGID, indices, values); // get view of current row
+    globalMatrixStatic_->getGlobalRowView(rowGID, indices, values); // get view of current row
     numEntries = indices.size();
     for (LocalOrdinal i=0; i<numEntries; i++)
     {
@@ -297,9 +301,9 @@ getMatrixValue
   }
   else
   {
-    rowGID = globalMatrix_->getRowMap()->getLocalElement(rowGID); // get local row ID
-    colGID = globalMatrix_->getColMap()->getLocalElement(colGID); // get local column ID
-    globalMatrix_->getLocalRowView(rowGID, indices, values); // get view of current row
+    rowGID = globalMatrixStatic_->getRowMap()->getLocalElement(rowGID); // get local row ID
+    colGID = globalMatrixStatic_->getColMap()->getLocalElement(colGID); // get local column ID
+    globalMatrixStatic_->getLocalRowView(rowGID, indices, values); // get view of current row
     numEntries = indices.size();
     for (LocalOrdinal i=0; i<numEntries; i++)
     {
@@ -349,11 +353,32 @@ finalizeProblemValues
     return; // nothing to do
 
   if (firstTime_) {
+
     insertRow();
+
+    if(!globalMatrix_->isFillComplete()){
+      RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
+      pl->set( "Preserve Local Graph", true );
+      globalMatrix_->fillComplete( pl );
+    }
+
+    globalGraph_ = globalMatrix_->getCrsGraph();
+    globalMatrixStatic_ = rcp(new MAT_P(globalGraph_));
+    globalMatrixStatic_->setAllToScalar(0.0);
+
+    for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
+      ArrayView<const GlobalOrdinal> indices;
+      ArrayView<const Scalar> values;
+      globalMatrix_->getLocalRowView( i, indices, values );
+      globalMatrixStatic_->sumIntoLocalValues( i, indices(), values() );
+    }
+    globalMatrixStatic_->fillComplete();
+    globalMatrixOperator_ = rcp(new MMOP_P(globalMatrixStatic_));
   }
-  if(!globalMatrix_->isFillComplete()){
+
+  if(!globalMatrixStatic_->isFillComplete()){
     RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
-    globalMatrix_->fillComplete( pl );
+    globalMatrixStatic_->fillComplete( pl );
   }
 
   isLinearProblemSet_ = true;
@@ -438,10 +463,10 @@ setMachineParams
   TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
   // Get machine parameters
-  n_ = globalMatrix_->getGlobalNumCols();
+  n_ = globalMatrixStatic_->getGlobalNumCols();
   eps_ = Teuchos::ScalarTraits<Scalar>::eps();
   epsHalf_ = ScalarTraits<halfScalar>::eps();
-  anorm_ = globalMatrix_->getFrobeniusNorm();
+  anorm_ = globalMatrixStatic_->getFrobeniusNorm();
   nae_ = as<Scalar>(n_) * anorm_ * eps_;
   snae_ = sqrt(as<Scalar>(n_))*anorm_*eps_;
   naeHalf_ = as<halfScalar>(as<Scalar>(n_)*anorm_*epsHalf_);
@@ -466,12 +491,12 @@ setupSolver
   scaling_ = parameterList_->template get<int>( "Scaling" );
   // Perform scaling
   if (scaling_ != AZ_none) {
-    scalingMatrix_ = rcp(new SCALE_P(globalMatrix_));
+    scalingMatrix_ = rcp(new SCALE_P(globalMatrixStatic_));
     rowScaleFactors_ = rcp(new VEC_P(globalRowMap_));
     rowScaleFactorsScalar_ = rcp(new VEC(globalRowMap_));
 
     LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
-    globalMatrix_->leftScale( *rowScaleFactors_ );
+    globalMatrixStatic_->leftScale( *rowScaleFactors_ );
 #if MIXED_PREC == 1
 
     RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
@@ -488,7 +513,7 @@ setupSolver
 #ifdef SUPPORTS_STRATIMIKOS
   thyraRhs_ = createVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(globalRhs_);
   thyraLhs_ = createVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(globalLhs_);
-  thyraOp_ = createLinearOp<Scalar, LocalOrdinal, GlobalOrdinal, Node>(globalMatrix_);
+  thyraOp_ = createLinearOp<Scalar, LocalOrdinal, GlobalOrdinal, Node>(globalMatrixStatic_);
 
   solver_ = rcp(new DefaultLinearSolverBuilder("./dft_input.xml"));
   RCP<FancyOStream> out = VerboseObjectBase::getDefaultOStream();
@@ -499,7 +524,7 @@ setupSolver
 #else
 
   problem_ = rcp(new LinPROB(globalMatrixOperator_, globalLhs_, globalRhs_));
-  RCP<const MAT_P> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT_P>(globalMatrix_);
+  RCP<const MAT_P> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT_P>(globalMatrixStatic_);
   Ifpack2::Factory factory;
   int precond  = parameterList_->template get<int>( "Precond" );
   if (precond != AZ_none) {
@@ -553,7 +578,7 @@ solve
   // Undo scaling
   if (scaling_ != AZ_none) {
     rowScaleFactors_->reciprocal( *rowScaleFactors_ );
-    globalMatrix_->leftScale( *rowScaleFactors_ );
+    globalMatrixStatic_->leftScale( *rowScaleFactors_ );
 #if MIXED_PREC == 1
 
     RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
@@ -633,7 +658,7 @@ writeMatrix
   std::string str_matrixName(matrixName);
   std::string str_matrixDescription(matrixDescription);
 
-  Tpetra::MatrixMarket::Writer<MAT_P>::writeSparseFile(str_filename,globalMatrix_,str_matrixName,str_matrixDescription);
+  Tpetra::MatrixMarket::Writer<MAT_P>::writeSparseFile(str_filename,globalMatrixStatic_,str_matrixName,str_matrixDescription);
 
 }
 //=============================================================================
