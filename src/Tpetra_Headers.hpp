@@ -6,6 +6,7 @@
 #include "Tpetra_MultiVector.hpp"
 #include "TpetraExt_MatrixMatrix.hpp"
 #include "Tpetra_CrsMatrix.hpp"
+#include "Tpetra_CrsGraph.hpp"
 #include "Tpetra_CrsMatrixMultiplyOp.hpp"
 #include "Tpetra_DefaultPlatform.hpp"
 #include "Tpetra_Import.hpp"
@@ -120,6 +121,7 @@ using Belos::ReturnType;
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,Node> MAP; \
   typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
+  typedef Tpetra::CrsGraph<LO,GO,Node> GRAPH; \
   typedef Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GO,Node> SCALE; \
   typedef Tpetra::Import<LO,GO,Node> IMP; \
   typedef Belos::SolverManager<SCALAR, MV, OP> SolMGR; \
