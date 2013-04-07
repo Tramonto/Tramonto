@@ -79,7 +79,7 @@ setNodalRowMap
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
 				  &numOwnedNodes_, &numGlobalNodes_);
 
-  ownedMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), GIDs, 0, comm_));
+  ownedMap_ = rcp(new MAP(numGlobalNodes_, GIDs, 0, comm_));
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -97,7 +97,7 @@ setNodalColMap
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
 			       &numBoxNodes_, &numGlobalBoxNodes_);
 
-  boxMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), GIDs, 0, comm_));
+  boxMap_ = rcp(new MAP(numGlobalBoxNodes_, GIDs, 0, comm_));
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -114,7 +114,7 @@ setCoarsenedNodesList(const ArrayView<const GlobalOrdinal> &GIDs)
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
 			       &numCoarsenedNodes_, &numGlobalCoarsenedNodes_);
 
-  coarsenedNodesMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), GIDs, 0, comm_));
+  coarsenedNodesMap_ = rcp(new MAP(numGlobalCoarsenedNodes_, GIDs, 0, comm_));
 }
 //=============================================================================
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
