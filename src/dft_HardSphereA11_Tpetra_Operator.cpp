@@ -29,10 +29,12 @@
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_HardSphereA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_HardSphereA11_Tpetra_Operator
-(const RCP<const MAP> & indNonLocalMap, const RCP<const MAP> & depNonLocalMap, const RCP<const MAP> & block1Map)
+(const RCP<const MAP> & indNonLocalMap, const RCP<const MAP> & depNonLocalMap, const RCP<const MAP> & block1Map,
+ RCP<ParameterList> parameterList)
   : indNonLocalMap_(indNonLocalMap),
     depNonLocalMap_(depNonLocalMap),
     block1Map_(block1Map),
+    parameterList_(parameterList),
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
@@ -148,8 +150,9 @@ finalizeProblemValues
     insertRow(); // Dump any remaining entries
   }
 
+  RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   if (matrix_!=Teuchos::null) {
-    matrix_->fillComplete(indNonLocalMap_, depNonLocalMap_);
+    matrix_->fillComplete(indNonLocalMap_, depNonLocalMap_, pl);
   }
 
   //  std::cout << *matrix_;

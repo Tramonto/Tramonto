@@ -243,10 +243,11 @@ finalizeProblemValues
   bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
   insertRow(); // Dump any remaining entries
-  cmsOnCmsMatrix_->fillComplete();
+  RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
+  cmsOnCmsMatrix_->fillComplete(pl);
   if (!isFLinear_) {
     insertRow(); // Dump any remaining entries
-    cmsOnDensityMatrix_->fillComplete(densityMap_, cmsMap_);
+    cmsOnDensityMatrix_->fillComplete(densityMap_, cmsMap_, pl);
   } //end if
 
   if (!hasDensityOnCms)  // Confirm that densityOnCmsMatrix is zero
@@ -255,7 +256,7 @@ finalizeProblemValues
     //    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=0.0);
   } else {
     insertRow(); // Dump any remaining entries
-    densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_);
+    densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_, pl);
   }
 
   // Form the inverse of the densityOnDensityMatrix

@@ -44,13 +44,6 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
-  dft_PolyA11_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>(const RCP<const MAP> & ownedMap, const RCP<const MAP> & block1Map);
-  //@}
-  // RN_20100326: The following constructor takes a parameter list of
-  // Krylov solvers in the applyInverse method.
-  //@{ \name Constructors.
-    //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
-
   dft_PolyA11_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>(const RCP<const MAP> & ownedMap, const RCP<const MAP> & block1Map, RCP<ParameterList> parameterList);
   //@}
   //@{ \name Assembly methods.

@@ -46,7 +46,8 @@ public:
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
   dft_HardSphereA11_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>
-  (const RCP<const MAP> & indNonLocalRowMap, const RCP<const MAP> & depNonLocalRowMap, const RCP<const MAP> & block1Map);
+  (const RCP<const MAP> & indNonLocalRowMap, const RCP<const MAP> & depNonLocalRowMap, const RCP<const MAP> & block1Map,
+   RCP<ParameterList> parameterList);
   //@}
   //@{ \name Assembly methods.
   virtual void
@@ -208,6 +209,7 @@ protected:
   Array<GlobalOrdinal> indices_;
   Array<precScalar> values_;
   void formA11invMatrix();
+  RCP<ParameterList> parameterList_;
 };
 
 #endif /* DFT_HARDSPHEREA11_TPETRA_OPERATOR_H */

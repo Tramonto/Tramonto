@@ -352,7 +352,8 @@ finalizeProblemValues
     insertRow();
   }
   if(!globalMatrix_->isFillComplete()){
-    globalMatrix_->fillComplete();
+    RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
+    globalMatrix_->fillComplete( pl );
   }
 
   isLinearProblemSet_ = true;

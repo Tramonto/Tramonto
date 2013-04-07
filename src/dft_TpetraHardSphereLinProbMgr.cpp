@@ -150,7 +150,7 @@ finalizeBlockStructure
     << " DepNonLocal Row Map " << *depNonLocalRowMap_ << std::endl;
   */
 
-  A11_ = rcp(new HS11TO(indNonLocalRowMap_, depNonLocalRowMap_, block1RowMap_));
+  A11_ = rcp(new HS11TO(indNonLocalRowMap_, depNonLocalRowMap_, block1RowMap_, parameterList_));
 
   A12_ = rcp(new MAT_P(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
   A21_ = rcp(new MAT_P(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
@@ -363,11 +363,12 @@ finalizeProblemValues
   //std::cout << *A12_ << endl
   //          << *A21_ << endl;
 
+  RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   if(!A12_->isFillComplete()){
-    A12_->fillComplete(block2RowMap_,block1RowMap_);
+    A12_->fillComplete(block2RowMap_,block1RowMap_,pl);
   }
   if(!A21_->isFillComplete()) {
-    A21_->fillComplete(block1RowMap_,block2RowMap_);
+    A21_->fillComplete(block1RowMap_,block2RowMap_,pl);
   }
 
   A11_->finalizeProblemValues();

@@ -347,15 +347,16 @@ finalizeProblemValues
   // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
   bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
-  cmsOnCmsMatrix_->fillComplete();
+  RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
+  cmsOnCmsMatrix_->fillComplete(pl);
 
   if (!isFLinear_) {
-    cmsOnDensityMatrix_->fillComplete(densityMap_,cmsMap_);
+    cmsOnDensityMatrix_->fillComplete(densityMap_, cmsMap_, pl);
   }
 
-  poissonOnPoissonMatrix_->fillComplete();
-  cmsOnPoissonMatrix_->fillComplete(poissonMap_, cmsMap_);
-  poissonOnDensityMatrix_->fillComplete(densityMap_, poissonMap_);
+  poissonOnPoissonMatrix_->fillComplete(pl);
+  cmsOnPoissonMatrix_->fillComplete(poissonMap_, cmsMap_, pl);
+  poissonOnDensityMatrix_->fillComplete(densityMap_, poissonMap_, pl);
 
   if (!hasDensityOnCms)  // Confirm that densityOnCmsMatrix is zero
   {
@@ -363,7 +364,7 @@ finalizeProblemValues
     //    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=0.0);
   } else {
     insertRow(); // Dump any remaining entries
-    densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_);
+    densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_, pl);
   }
 
   // Form the inverse of the densityOnDensityMatrix

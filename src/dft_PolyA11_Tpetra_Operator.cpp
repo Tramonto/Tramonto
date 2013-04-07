@@ -29,38 +29,6 @@
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyA11_Tpetra_Operator
-(const RCP<const MAP> & ownedMap, const RCP<const MAP> & block1Map)
-  : ownedMap_(ownedMap),
-    block1Map_(block1Map),
-    numBlocks_(block1Map->getNodeNumElements()/ownedMap->getNodeNumElements()),
-    Label_(0),
-    isGraphStructureSet_(false),
-    isLinearProblemSet_(false),
-    firstTime_(true),
-    curRow_(-1),
-    curOwnedPhysicsID_(-1),
-    curOwnedNode_(-1)
-{
-
-  Label_ = "dft_PolyA11_Tpetra_Operator";
-
-  invDiagonal_ = rcp(new VEC(block1Map));
-  matrix_.resize(numBlocks_-1);
-  matrixOperator_.resize(numBlocks_-1);
-  for (LocalOrdinal i=0; i<numBlocks_-1; i++)
-  {
-    matrix_[i] = rcp(new MAT_P(ownedMap, 0));
-    matrixOperator_[i] = rcp(new MMOP_P(matrix_[i]));
-    matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
-  } //end for
-  return;
-} //end constructor
-//=============================================================================
-// RN_20100326: A constructor that in addition takes a parameter list. This
-// is for Krylov solvers used in the applyInverse method.
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-dft_PolyA11_Tpetra_Operator
 (const RCP<const MAP > & ownedMap, const RCP<const MAP > & block1Map,
  RCP<ParameterList> parameterList)
   : ownedMap_(ownedMap),
@@ -214,9 +182,10 @@ finalizeProblemValues
   {
     insertRow(); // Dump any remaining entries
   }
+  RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
-    matrix_[i]->fillComplete(block1Map_, ownedMap_);
+    matrix_[i]->fillComplete(block1Map_, ownedMap_, pl);
     //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << endl;
     //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
   } //end for

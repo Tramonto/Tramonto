@@ -32,7 +32,7 @@ dft_PolyA11_Coulomb_Tpetra_Operator
 (RCP<const MAP > & ownedMap, RCP<const MAP > & block1Map,
  RCP<const MAP > & allGMap, RCP<const MAP > & poissonMap,
  RCP<ParameterList> parameterList)
-  : dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>(ownedMap, allGMap),
+  : dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>(ownedMap, allGMap, parameterList),
     //dft_PolyA11_Tpetra_Operator(ownedMap, allGMap, parameterList),
     //dft_PolyA11_Tpetra_Operator(ownedMap, block1Map),
     parameterList_(parameterList),
@@ -168,12 +168,13 @@ finalizeProblemValues
     // Dump any remaining entries
     insertPoissonRow();
   } //end if
+  RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   for (LocalOrdinal i=0; i<numBlocks_; i++)
   {
-    matrix_[i]->fillComplete(allGMap_, ownedMap_);
+    matrix_[i]->fillComplete(allGMap_, ownedMap_, pl);
     //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
   } //end for
-  poissonMatrix_->fillComplete(poissonMap_, poissonMap_);
+  poissonMatrix_->fillComplete(poissonMap_, poissonMap_, pl);
 
   for (LocalOrdinal i = 0; i < poissonMap_->getNodeNumElements(); i++)
   {

@@ -227,6 +227,17 @@ namespace Tpetra {
       //
       // Muelu Parameters
       //
+      Teuchos::ParameterList fillCompleteList;
+
+      // Promise that no nonlocal changes have been made
+      // This prevents unnecessary communication in fillComplete()
+      fillCompleteList.set( "No Nonlocal Changes", true );
+
+      outputList_.set( "fillCompleteList", fillCompleteList );
+
+      //
+      // Muelu Parameters
+      //
       Teuchos::ParameterList mueluList;
 
       // ML output
