@@ -261,8 +261,6 @@ finalizeBlockStructure
   lhs1_ = globalLhs_->offsetViewNonConst(block1RowMap_, 0)->getVectorNonConst(0);
   lhs2_ = globalLhs_->offsetViewNonConst(block2RowMap_, offset2)->getVectorNonConst(0);
 
-  schurOperator_ = rcp(new ScTO(A11_, A12_, A21_, A22_));
-
   // RN_20100113: The following is no longer needed.
 
   ownedToBoxImporter_ = rcp(new IMP(ownedMap_, boxMap_));
@@ -286,10 +284,10 @@ initializeProblemValues
 
   if (!firstTime_)
   {
-    A12_->resumeFill();
-    A21_->resumeFill();
-    A12_->setAllToScalar(0.0);
-    A21_->setAllToScalar(0.0);
+    A12Static_->resumeFill();
+    A21Static_->resumeFill();
+    A12Static_->setAllToScalar(0.0);
+    A21Static_->setAllToScalar(0.0);
     globalRhs_->putScalar(0.0);
     globalLhs_->putScalar(0.0);
     if (debug_)
@@ -352,7 +350,7 @@ insertMatrixValue
       curRowValuesA21_[colGID] += value;
     }
     else{
-      A21_->sumIntoGlobalValues(rowGID, cols, vals);
+      A21Static_->sumIntoGlobalValues(rowGID, cols, vals);
     }
   }
   else { // A12 block
@@ -364,7 +362,7 @@ insertMatrixValue
       curRowValuesA12_[colGID] += value;
     }
     else{
-      A12_->sumIntoGlobalValues(rowGID, cols, vals);
+      A12Static_->sumIntoGlobalValues(rowGID, cols, vals);
     }
   }
 
@@ -450,6 +448,40 @@ finalizeProblemValues
   {
     insertRowA12(); // Dump any remaining entries
     insertRowA21(); // Dump any remaining entries
+
+    RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
+    pl->set( "Preserve Local Graph", true );
+    if(!A12_->isFillComplete()){
+      A12_->fillComplete(block2RowMap_,block1RowMap_,pl);
+    }
+    if(!A21_->isFillComplete()) {
+      A21_->fillComplete(block1RowMap_,block2RowMap_,pl);
+    }
+
+    A12Graph_ = A12_->getCrsGraph();
+    A21Graph_ = A21_->getCrsGraph();
+    A12Static_ = rcp(new MAT_P(A12Graph_));
+    A21Static_ = rcp(new MAT_P(A21Graph_));
+    A12Static_->setAllToScalar(0.0);
+    A21Static_->setAllToScalar(0.0);
+
+    for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
+      ArrayView<const GlobalOrdinal> indices;
+      ArrayView<const Scalar> values;
+      A12_->getLocalRowView( i, indices, values );
+      A12Static_->sumIntoLocalValues( i, indices(), values() );
+    }
+    A12Static_->fillComplete(block2RowMap_,block1RowMap_,pl);
+    for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
+      ArrayView<const GlobalOrdinal> indices;
+      ArrayView<const Scalar> values;
+      A21_->getLocalRowView( i, indices, values );
+      A21Static_->sumIntoLocalValues( i, indices(), values() );
+    }
+    A21Static_->fillComplete(block1RowMap_,block2RowMap_,pl);
+
+    schurOperator_ = rcp(new ScTO(A11_, A12Static_, A21Static_, A22_));
+
     if (debug_)
     {
       globalMatrix_->fillComplete();
@@ -457,11 +489,11 @@ finalizeProblemValues
 
   } //end if
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
-  if(!A12_->isFillComplete()){
-    A12_->fillComplete(block2RowMap_,block1RowMap_,pl);
+  if(!A12Static_->isFillComplete()){
+    A12Static_->fillComplete(block2RowMap_,block1RowMap_,pl);
   }
-  if(!A21_->isFillComplete()) {
-    A21_->fillComplete(block1RowMap_,block2RowMap_,pl);
+  if(!A21Static_->isFillComplete()) {
+    A21Static_->fillComplete(block1RowMap_,block2RowMap_,pl);
   }
   //std::cout << *A12_ << endl
   //          << *A21_ << endl;

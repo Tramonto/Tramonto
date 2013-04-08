@@ -269,6 +269,10 @@ protected:
   RCP<HS22TO> A22Diagonal_;
   RCP<MAT_P> A12_;
   RCP<MAT_P> A21_;
+  RCP<const GRAPH> A12Graph_;
+  RCP<const GRAPH> A21Graph_;
+  RCP<MAT_P> A12Static_;
+  RCP<MAT_P> A21Static_;
   RCP<INVOP> A22MatrixPrecond_;
   RCP<INVOP> A22DiagonalPrecond_;
   RCP<const MAP> block1RowMap_;
