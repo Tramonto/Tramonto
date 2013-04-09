@@ -183,6 +183,8 @@ private:
   const RCP<const MAP > block2Map_;
   RCP<ParameterList> parameterList_;
   RCP<MAT_P> A22Matrix_;
+  RCP<const GRAPH> A22Graph_;
+  RCP<MAT_P> A22MatrixStatic_;
   RCP<MMOP_P> A22MatrixOperator_;
   RCP<PRECOND_AS> A22Inverse_;
   RCP<PRECOND_AS_OP> A22InverseOp_;

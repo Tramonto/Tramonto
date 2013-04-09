@@ -39,7 +39,6 @@ dft_A22Matrix_Tpetra_Operator
     curRow_(-1) {
 
   A22Matrix_ = rcp(new MAT_P(block2Map, 0));
-  A22MatrixOperator_ = rcp(new MMOP_P(A22Matrix_));
   Label_ = "dft_A22Matrix_Tpetra_Operator";
   A22Matrix_->setObjectLabel("dft_A22Matrix_Tpetra_Operator::A22Matrix");
 }
@@ -60,9 +59,12 @@ initializeProblemValues
   TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n");
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
-  if (!firstTime_) {
+  if (firstTime_) {
     A22Matrix_->resumeFill();
     A22Matrix_->setAllToScalar(0.0);
+  } else {
+    A22MatrixStatic_->resumeFill();
+    A22MatrixStatic_->setAllToScalar(0.0);
   }
 
 }
@@ -86,7 +88,7 @@ insertMatrixValue
     curRowValues_[colGID] += value;
   }
   else
-    A22Matrix_->sumIntoGlobalValues(rowGID, cols, vals);
+    A22MatrixStatic_->sumIntoGlobalValues(rowGID, cols, vals);
 
 }
 //=============================================================================
@@ -128,19 +130,40 @@ finalizeProblemValues
     return;
   }
 
-  insertRow();
-  RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
-  A22Matrix_->fillComplete(pl);
+  if (firstTime_) {
+    insertRow();
+    RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
+    pl->set( "Preserve Local Graph", true );
+    A22Matrix_->fillComplete(pl);
+
+    A22Graph_ = A22Matrix_->getCrsGraph();
+    A22MatrixStatic_ = rcp(new MAT_P(A22Graph_));
+    A22MatrixStatic_->setAllToScalar(0.0);
+
+    for (LocalOrdinal i = 0; i < block2Map_->getNodeNumElements(); ++i) {
+      ArrayView<const GlobalOrdinal> indices;
+      ArrayView<const Scalar> values;
+      A22Matrix_->getLocalRowView( i, indices, values );
+      A22MatrixStatic_->sumIntoLocalValues( i, indices(), values() );
+    }
+    A22MatrixStatic_->fillComplete();
+    A22MatrixOperator_ = rcp(new MMOP_P(A22MatrixStatic_));
+  }
+
+  if (!A22MatrixStatic_->isFillComplete()) {
+    RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
+    A22MatrixStatic_->fillComplete(pl);
+  }
 
   LocalOrdinal overlapLevel = 0;
-  A22Inverse_ = rcp(new PRECOND_AS(A22Matrix_,overlapLevel));
+  A22Inverse_ = rcp(new PRECOND_AS(A22MatrixStatic_,overlapLevel));
   A22InverseOp_ = rcp(new PRECOND_AS_OP(A22Inverse_));
-  
+
   TEUCHOS_TEST_FOR_EXCEPT(A22Inverse_==Teuchos::null);
-  
+
   ParameterList ifpack2List = parameterList_->sublist("ifpack2ListA22");
   A22Inverse_->setParameters(ifpack2List);
-  
+
   A22Inverse_->initialize();
 
   A22Inverse_->compute();
