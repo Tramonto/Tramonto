@@ -426,7 +426,7 @@ protected:
   RCP<const MAP> globalRowMap_;
   RCP<MAT_P> globalMatrix_;
   RCP<MAT_P> globalMatrixStatic_;
-  RCP<const GRAPH> globalGraph_;
+  RCP<GRAPH> globalGraph_;
   RCP<OP> globalMatrixOperator_;
   RCP<SCALE_P> scalingMatrix_;
   RCP<VEC_P> rowScaleFactors_;

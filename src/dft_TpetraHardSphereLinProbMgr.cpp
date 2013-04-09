@@ -360,8 +360,31 @@ finalizeProblemValues
       A21_->fillComplete(block1RowMap_,block2RowMap_,pl);
     }
 
-    A12Graph_ = A12_->getCrsGraph();
-    A21Graph_ = A21_->getCrsGraph();
+    ArrayRCP<size_t> numEntriesPerRowA12(A12_->getRowMap()->getNodeNumElements());
+    for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
+      numEntriesPerRowA12[i] = A12_->getNumEntriesInLocalRow( i );
+    }
+    ArrayRCP<size_t> numEntriesPerRowA21(A21_->getRowMap()->getNodeNumElements());
+    for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
+      numEntriesPerRowA21[i] = A21_->getNumEntriesInLocalRow( i );
+    }
+
+    A12Graph_ = rcp(new GRAPH(A12_->getRowMap(), A12_->getColMap(), numEntriesPerRowA12, Tpetra::StaticProfile));
+    A21Graph_ = rcp(new GRAPH(A21_->getRowMap(), A21_->getColMap(), numEntriesPerRowA21, Tpetra::StaticProfile));
+    for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
+      ArrayView<const GlobalOrdinal> indices;
+      ArrayView<const Scalar> values;
+      A12_->getLocalRowView( i, indices, values );
+      A12Graph_->insertLocalIndices( i, indices );
+    }
+    for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
+      ArrayView<const GlobalOrdinal> indices;
+      ArrayView<const Scalar> values;
+      A21_->getLocalRowView( i, indices, values );
+      A21Graph_->insertLocalIndices( i, indices );
+    }
+    A12Graph_->fillComplete(block2RowMap_,block1RowMap_);
+    A21Graph_->fillComplete(block1RowMap_,block2RowMap_);
     A12Static_ = rcp(new MAT_P(A12Graph_));
     A21Static_ = rcp(new MAT_P(A21Graph_));
     A12Static_->setAllToScalar(0.0);

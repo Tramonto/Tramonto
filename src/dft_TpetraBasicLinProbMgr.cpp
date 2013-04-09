@@ -361,11 +361,20 @@ finalizeProblemValues
       pl->set( "Preserve Local Graph", true );
       globalMatrix_->fillComplete( pl );
     }
-
-    globalGraph_ = globalMatrix_->getCrsGraph();
+    ArrayRCP<size_t> numEntriesPerRow(globalRowMap_->getNodeNumElements());
+    for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
+      numEntriesPerRow[i] = globalMatrix_->getNumEntriesInLocalRow( i );
+    }
+    globalGraph_ = rcp(new GRAPH(globalRowMap_, globalMatrix_->getColMap(), numEntriesPerRow, Tpetra::StaticProfile));
+    for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
+      ArrayView<const GlobalOrdinal> indices;
+      ArrayView<const Scalar> values;
+      globalMatrix_->getLocalRowView( i, indices, values );
+      globalGraph_->insertLocalIndices( i, indices );
+    }
+    globalGraph_->fillComplete();
     globalMatrixStatic_ = rcp(new MAT_P(globalGraph_));
     globalMatrixStatic_->setAllToScalar(0.0);
-
     for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const Scalar> values;

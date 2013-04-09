@@ -299,8 +299,8 @@ protected:
   RCP<P22TO> A22_;
   RCP<MAT_P> A12_;
   RCP<MAT_P> A21_;
-  RCP<const GRAPH> A12Graph_;
-  RCP<const GRAPH> A21Graph_;
+  RCP<GRAPH> A12Graph_;
+  RCP<GRAPH> A21Graph_;
   RCP<MAT_P> A12Static_;
   RCP<MAT_P> A21Static_;
   RCP<INVOP> A22precond_;

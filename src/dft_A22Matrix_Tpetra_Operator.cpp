@@ -136,7 +136,18 @@ finalizeProblemValues
     pl->set( "Preserve Local Graph", true );
     A22Matrix_->fillComplete(pl);
 
-    A22Graph_ = A22Matrix_->getCrsGraph();
+    ArrayRCP<size_t> numEntriesPerRow(block2Map_->getNodeNumElements());
+    for (LocalOrdinal i = 0; i < block2Map_->getNodeNumElements(); ++i) {
+      numEntriesPerRow[i] = A22Matrix_->getNumEntriesInLocalRow( i );
+    }
+    A22Graph_ = rcp(new GRAPH(block2Map_, A22Matrix_->getColMap(), numEntriesPerRow, Tpetra::StaticProfile));
+    for (LocalOrdinal i = 0; i < block2Map_->getNodeNumElements(); ++i) {
+      ArrayView<const GlobalOrdinal> indices;
+      ArrayView<const Scalar> values;
+      A22Matrix_->getLocalRowView( i, indices, values );
+      A22Graph_->insertLocalIndices( i, indices );
+    }
+    A22Graph_->fillComplete();
     A22MatrixStatic_ = rcp(new MAT_P(A22Graph_));
     A22MatrixStatic_->setAllToScalar(0.0);
 
