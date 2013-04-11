@@ -458,10 +458,13 @@ setupSolver
     schurComplementMatrixOperator_ = rcp(new MMOP_P(schurOperator_->getSchurComplement()));
     problem_->setOperator(schurComplementMatrixOperator_);
   }
-  if (isA22Diagonal_)
-    problem_->setLeftPrec(A22DiagonalPrecond_);
-  else
-    problem_->setLeftPrec(A22MatrixPrecond_);
+  int precond  = parameterList_->template get<int>( "Precond" );
+  if (precond != AZ_none) {
+    if (isA22Diagonal_)
+      problem_->setLeftPrec(A22DiagonalPrecond_);
+    else
+      problem_->setLeftPrec(A22MatrixPrecond_);
+  }
 
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   RCP<ParameterList> belosList = rcp(new ParameterList(parameterList_->sublist("belosList")));

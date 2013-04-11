@@ -137,8 +137,13 @@ namespace Tpetra {
 	ifpack2List.template set<Scalar>( "fact: relative threshold",
 					  inputList_->template get<double>("Rthresh") );
       // Drop tolerance
-      ifpack2List.template set<Scalar>( "fact: drop tolerance",
-					inputList_->template get<double>("Drop") );
+      sParam = inputList_->template get<double>("Drop");
+      if (sParam == 0.0) {
+	// Don't set the drop tolerence, let Ifpack2 choose the default
+      } else {
+	ifpack2List.template set<Scalar>( "fact: drop tolerance",
+					  inputList_->template get<double>("Drop") );
+      }
 
       outputList_.set( "ifpack2List", ifpack2List );
 
@@ -284,9 +289,13 @@ namespace Tpetra {
 	ifpack2ListA22.template set<Scalar>( "fact: relative threshold",
 					     inputList_->template get<double>("Rthresh") );
       // Drop tolerance
-      ifpack2ListA22.template set<Scalar>( "fact: drop tolerance",
-					   1.e-9 );
-    //					   inputList_->template get<double>("Drop") );
+      sParam = inputList_->template get<double>("Drop");
+      if (sParam == 0.0) {
+	// Don't set the drop tolerence, let Ifpack2 choose the default
+      } else {
+	ifpack2ListA22.template set<Scalar>( "fact: drop tolerance",
+					     inputList_->template get<double>("Drop") );
+      }
 
       outputList_.set( "ifpack2ListA22", ifpack2ListA22 );
 

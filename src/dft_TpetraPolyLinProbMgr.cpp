@@ -563,7 +563,10 @@ setupSolver
 #else
 
   problem_ = rcp(new LinPROB(schurOperator_, lhs2_, rhsSchur_));
-  problem_->setLeftPrec(A22precond_);
+  int precond  = parameterList_->template get<int>( "Precond" );
+  if (precond != AZ_none) {
+    problem_->setLeftPrec(A22precond_);
+  }
 
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   RCP<ParameterList> belosList = rcp(new ParameterList(parameterList_->sublist("belosList")));
