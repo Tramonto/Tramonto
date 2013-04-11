@@ -53,7 +53,7 @@ typedef dft_BasicLinProbMgr<qd_real,int,int> BLPM;
 #define WORKING_CAST( x ) qd_real(x)
 #define DOUBLE_CAST( x ) to_double(x)
 #elif LINSOLVE_PREC == 3
-// Use quad double
+// Use double double
 typedef dft_BasicLinProbMgr<dd_real,int,int> BLPM;
 #define WORKING_PREC dd_real
 #include <qd/dd_real.h>
