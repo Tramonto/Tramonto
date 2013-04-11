@@ -471,13 +471,13 @@ finalizeProblemValues
     A21Graph_ = rcp(new GRAPH(A21_->getRowMap(), A21_->getColMap(), numEntriesPerRowA21, Tpetra::StaticProfile));
     for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const Scalar> values;
+      ArrayView<const precScalar> values;
       A12_->getLocalRowView( i, indices, values );
       A12Graph_->insertLocalIndices( i, indices );
     }
     for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const Scalar> values;
+      ArrayView<const precScalar> values;
       A21_->getLocalRowView( i, indices, values );
       A21Graph_->insertLocalIndices( i, indices );
     }
@@ -490,14 +490,14 @@ finalizeProblemValues
 
     for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const Scalar> values;
+      ArrayView<const precScalar> values;
       A12_->getLocalRowView( i, indices, values );
       A12Static_->sumIntoLocalValues( i, indices(), values() );
     }
     A12Static_->fillComplete(block2RowMap_,block1RowMap_,pl);
     for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const Scalar> values;
+      ArrayView<const precScalar> values;
       A21_->getLocalRowView( i, indices, values );
       A21Static_->sumIntoLocalValues( i, indices(), values() );
     }

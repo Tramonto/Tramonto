@@ -143,7 +143,7 @@ finalizeProblemValues
     A22Graph_ = rcp(new GRAPH(block2Map_, A22Matrix_->getColMap(), numEntriesPerRow, Tpetra::StaticProfile));
     for (LocalOrdinal i = 0; i < block2Map_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const Scalar> values;
+      ArrayView<const precScalar> values;
       A22Matrix_->getLocalRowView( i, indices, values );
       A22Graph_->insertLocalIndices( i, indices );
     }
@@ -153,7 +153,7 @@ finalizeProblemValues
 
     for (LocalOrdinal i = 0; i < block2Map_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const Scalar> values;
+      ArrayView<const precScalar> values;
       A22Matrix_->getLocalRowView( i, indices, values );
       A22MatrixStatic_->sumIntoLocalValues( i, indices(), values() );
     }

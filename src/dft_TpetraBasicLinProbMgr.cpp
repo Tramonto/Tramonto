@@ -368,7 +368,7 @@ finalizeProblemValues
     globalGraph_ = rcp(new GRAPH(globalRowMap_, globalMatrix_->getColMap(), numEntriesPerRow, Tpetra::StaticProfile));
     for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const Scalar> values;
+      ArrayView<const precScalar> values;
       globalMatrix_->getLocalRowView( i, indices, values );
       globalGraph_->insertLocalIndices( i, indices );
     }
@@ -377,7 +377,7 @@ finalizeProblemValues
     globalMatrixStatic_->setAllToScalar(0.0);
     for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const Scalar> values;
+      ArrayView<const precScalar> values;
       globalMatrix_->getLocalRowView( i, indices, values );
       globalMatrixStatic_->sumIntoLocalValues( i, indices(), values() );
     }
