@@ -249,7 +249,7 @@ apply
   RCP<const MV> X2 = X.offsetView(depNonLocalMap_, offset);
 
   LocalOrdinal ierr = 0;
-  if (&X.getVector(0)==&Y.getVector(0)) { // X and Y are the same
+  if (X.getVector(0)==Y.getVector(0)) { // X and Y are the same
     RCP<MV> Y2tmp = rcp(new MV(depNonLocalMap_, NumVectors));
     matrixOperator_->apply(*X1, *Y2tmp);
     Y2->update(1.0, *Y2tmp, -1.0, *X2, 0.0); // Gives us Y2 = -X2 + B*X1
