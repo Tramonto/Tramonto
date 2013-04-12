@@ -468,7 +468,6 @@ applyInverse
   size_t numCmsElements = cmsMap_->getNodeNumElements();
   size_t numDensityElements = densityMap_->getNodeNumElements(); // == numCmsElements
   size_t numPoissonElements = poissonMap_->getNodeNumElements();
-  RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
 
   // X0 is a view of the first numPoisson elements of X
   RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
@@ -482,14 +481,6 @@ applyInverse
   RCP<MV> Y1;
   // Y2 is a view of the last numDensity/numCms elements of Y
   RCP<MV> Y2;
-
-#if MIXED_PREC == 1
-  // Demote Y0 and X0 to halfScalar precision
-  RCP<MV_H> Y0half = rcp(new MV_H(poissonMap_, Y0->getNumVectors()));
-  RCP<MV_H> X0half = rcp(new MV_H(poissonMap_, X0->getNumVectors()));
-  mvConverter->scalarToHalf( *Y0, *Y0half );
-  mvConverter->scalarToHalf( *X0, *X0half );
-#endif
 
   if (F_location_ == 1)
   {
