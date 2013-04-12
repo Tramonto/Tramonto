@@ -157,6 +157,19 @@ using Belos::ReturnType;
   typedef Tpetra::details::ApplyOp<Scalar,PRECOND_AS> PRECOND_AS_OP;	\
   typedef Tpetra::details::ApplyOp<Scalar,PRECOND_D> PRECOND_D_OP;
 
+#if LINSOLVE_PREC == 2
+// Use double double
+#define PREC_CAST( x ) to_double(x)
+#define SCALAR_CAST( x ) dd_real(x)
+#elif LINSOLVE_PREC == 3
+// Use quad double
+#define PREC_CAST( x ) dd_real(x)
+#define SCALAR_CAST( x ) qd_real(x)
+#else
+#define PREC_CAST( x ) (x)
+#define SCALAR_CAST( x ) (x)
+#endif
+
 #elif MIXED_PREC == 0
 
 #define TYPEDEF_MIXED(SCALAR, LO, GO, NODE) \
@@ -176,6 +189,9 @@ using Belos::ReturnType;
   typedef Tpetra::details::ApplyOp<Scalar,PRECOND_ILUT> PRECOND_ILUT_OP; \
   typedef Tpetra::details::ApplyOp<Scalar,PRECOND_AS> PRECOND_AS_OP;	\
   typedef Tpetra::details::ApplyOp<Scalar,PRECOND_D> PRECOND_D_OP;
+
+#define PREC_CAST( x ) (x)
+#define SCALAR_CAST( x ) (x)
 
 #endif // MIXED_PREC
 

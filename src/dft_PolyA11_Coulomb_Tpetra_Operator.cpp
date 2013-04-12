@@ -86,7 +86,7 @@ insertMatrixValue
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
   Array<precScalar> vals(1);
-  vals[0] = value;
+  vals[0] = PREC_CAST(value);
   if (ownedPhysicsID >= numBlocks_) //insert it into Poisson part
   {
     if (firstTime_)
@@ -97,7 +97,7 @@ insertMatrixValue
 	curPoissonRow_ = rowGID;
 	curPoissonOwnedNode_ = ownedNode;
       } //end if
-      curPoissonRowValues_[colGID] += value;
+      curPoissonRowValues_[colGID] += PREC_CAST(value);
     } //end if
     else
     {
@@ -120,7 +120,7 @@ insertMatrixValue
       curOwnedPhysicsID_ = ownedPhysicsID;
       curOwnedNode_ = ownedNode;
       } //end if
-    curRowValues_[colGID] += value;
+      curRowValues_[colGID] += PREC_CAST(value);
     } //end if
     else
     {

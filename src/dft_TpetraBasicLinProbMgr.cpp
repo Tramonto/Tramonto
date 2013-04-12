@@ -241,11 +241,11 @@ insertMatrixValue
       insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       curRow_=rowGID;
     }
-    curRowValues_[colGID] += value;
+    curRowValues_[colGID] += PREC_CAST(value);
   }
   else {
     Array<precScalar> vals(1);
-    vals[0] = value;
+    vals[0] = PREC_CAST(value);
     Array<GlobalOrdinal> globalCols(1);
     globalCols[0] = colGID;
     globalMatrixStatic_->sumIntoGlobalValues(rowGID, globalCols, vals);

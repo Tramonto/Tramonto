@@ -83,7 +83,7 @@ insertMatrixValue
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
   Array<precScalar> vals(1);
-  vals[0] = value;
+  vals[0] = PREC_CAST(value);
 
  // All ind NonLocal entries are diagonal values and 1, so we don't store them
   if (matrix_==Teuchos::null) {
@@ -101,7 +101,7 @@ insertMatrixValue
       insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       curRow_=rowGID;
     }
-    curRowValues_[colGID] += value;
+    curRowValues_[colGID] += PREC_CAST(value);
   }
   else
     matrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -308,7 +308,7 @@ formA11invMatrix
 
   // insert -I for diagonal first
   LocalOrdinal numRows = getRangeMap()->getNodeNumElements();
-  Scalar value = -1.0;
+  precScalar value = -1.0;
   for (LocalOrdinal i=0; i<numRows; i++) {
     GlobalOrdinal row = A11invMatrix_->getRowMap()->getGlobalElement(i);
     GlobalOrdinal col = row;

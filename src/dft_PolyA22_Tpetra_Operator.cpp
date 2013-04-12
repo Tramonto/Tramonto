@@ -102,7 +102,7 @@ insertMatrixValue
   Array<GlobalOrdinal> cols(1);
   Array<precScalar> vals(1);
   cols[0] = colGID;
-  vals[0] = value;
+  vals[0] = PREC_CAST(value);
 
   if (cmsMap_->isNodeGlobalElement(rowGID)) { // Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
     if ( blockColFlag == 2 ) { // Insert into cmsOnCmsMatrix
@@ -111,7 +111,7 @@ insertMatrixValue
 	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
 	  curRow_=rowGID;
 	}
-	curRowValuesCmsOnCms_[colGID] += value;
+	curRowValuesCmsOnCms_[colGID] += PREC_CAST(value);
       }
       else
 	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -122,7 +122,7 @@ insertMatrixValue
       	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
 	  curRow_=rowGID;
       	}
-	curRowValuesCmsOnDensity_[colGID] += value;
+	curRowValuesCmsOnDensity_[colGID] += PREC_CAST(value);
       }
       else if (!isFLinear_) {
 	//cout<< "row GID = " << rowGID << " value = " << value << " colGID = " << colGID << endl;
@@ -147,7 +147,7 @@ insertMatrixValue
 	  insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
 	  curRow_=rowGID;
 	}
-	curRowValuesDensityOnCms_[colGID] += value;
+	curRowValuesDensityOnCms_[colGID] += PREC_CAST(value);
       }
       else
       	densityOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);

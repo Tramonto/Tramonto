@@ -109,7 +109,7 @@ insertMatrixValue
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
   Array<precScalar> vals(1);
-  vals[0] = value;
+  vals[0] = PREC_CAST(value);
 
   /* The poissonMatrix_, poissonOnDensityMatrix_, cmsOnPoissonMatrix_, and cmsOnDensityMatrix_ values do not change between iterations */
 
@@ -120,7 +120,7 @@ insertMatrixValue
 	  insertRow();
 	  curRow_ = rowGID;
 	}
-	curRowValuesPoissonOnPoisson_[colGID] += value;
+	curRowValuesPoissonOnPoisson_[colGID] += PREC_CAST(value);
       }
       else
 	poissonOnPoissonMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -131,7 +131,7 @@ insertMatrixValue
       	  insertRow();
       	  curRow_ = rowGID;
       	}
-      	curRowValuesPoissonOnDensity_[colGID] += value;
+      	curRowValuesPoissonOnDensity_[colGID] += PREC_CAST(value);
       }
       else
       	poissonOnDensityMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -149,7 +149,7 @@ insertMatrixValue
 	  insertRow();
 	  curRow_ = rowGID;
 	}
-	curRowValuesCmsOnPoisson_[colGID] += value;
+	curRowValuesCmsOnPoisson_[colGID] += PREC_CAST(value);
       }
       else
 	cmsOnPoissonMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -160,7 +160,7 @@ insertMatrixValue
 	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
 	  curRow_=rowGID;
 	}
-	curRowValuesCmsOnCms_[colGID] += value;
+	curRowValuesCmsOnCms_[colGID] += PREC_CAST(value);
       }
       else
 	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -171,7 +171,7 @@ insertMatrixValue
       	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       	  curRow_=rowGID;
       	}
-      	curRowValuesCmsOnDensity_[colGID] += value;
+      	curRowValuesCmsOnDensity_[colGID] += PREC_CAST(value);
       }
       else if (!isFLinear_) {
       	cmsOnDensityMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -199,7 +199,7 @@ insertMatrixValue
 	  insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
 	  curRow_=rowGID;
 	}
-	curRowValuesDensityOnCms_[colGID] += value;
+	curRowValuesDensityOnCms_[colGID] += PREC_CAST(value);
       }
       else
       	densityOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);

@@ -170,7 +170,7 @@ formA22Matrix
     Array<GlobalOrdinal> cols(1);
     Array<precScalar> vals(1);
     cols[0] = col;
-    vals[0] = value;
+    vals[0] = PREC_CAST(value);
     A22Matrix_->insertGlobalValues(row, cols, vals);
   }
   A22Matrix_->fillComplete();

@@ -238,7 +238,7 @@ insertMatrixValue
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
   Array<precScalar> vals(1);
-  vals[0] = value;
+  vals[0] = PREC_CAST(value);
 
   if (schurBlockRow1 && schurBlockCol1) { // A11 block
     A11_->insertMatrixValue(rowGID, colGID, value);
@@ -255,7 +255,7 @@ insertMatrixValue
 	insertRowA21();  // Dump the current contents of curRowValues_ into matrix and clear map
 	curRowA21_=rowGID;
       }
-      curRowValuesA21_[colGID] += value;
+      curRowValuesA21_[colGID] += PREC_CAST(value);
     }
     else
       A21Static_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -266,7 +266,7 @@ insertMatrixValue
 	insertRowA12();  // Dump the current contents of curRowValues_ into matrix and clear map
 	curRowA12_=rowGID;
       }
-      curRowValuesA12_[colGID] += value;
+      curRowValuesA12_[colGID] += PREC_CAST(value);
     }
     else
       A12Static_->sumIntoGlobalValues(rowGID, cols, vals);

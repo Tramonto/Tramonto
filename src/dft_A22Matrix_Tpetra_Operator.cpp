@@ -78,14 +78,14 @@ insertMatrixValue
   Array<GlobalOrdinal> cols(1);
   Array<precScalar> vals(1);
   cols[0] = colGID;
-  vals[0] = value;
+  vals[0] = PREC_CAST(value);
 
   if (firstTime_) {
     if (rowGID!=curRow_) {
       insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       curRow_=rowGID;
     }
-    curRowValues_[colGID] += value;
+    curRowValues_[colGID] += PREC_CAST(value);
   }
   else
     A22MatrixStatic_->sumIntoGlobalValues(rowGID, cols, vals);

@@ -118,13 +118,9 @@ namespace Tpetra {
       // Use Ifpack2 ILUT on entire matrix or on subdomains with Additive Schwarz
       //
       // Level of fill
-#if MIXED_PREC == 1
       ifpack2List.template set<Scalar>( "fact: ilut level-of-fill",
-      					Teuchos::as<halfScalar>(inputList_->template get<double>("Ilut_fill")) );
-#else
-      ifpack2List.template set<Scalar>( "fact: ilut level-of-fill",
-					inputList_->template get<double>("Ilut_fill") );
-#endif
+      					inputList_->template get<double>("Ilut_fill") );
+
       // Absolute threshold
       ifpack2List.template set<Scalar>( "fact: absolute threshold",
 					inputList_->template get<double>("Athresh") );
@@ -268,15 +264,9 @@ namespace Tpetra {
       Teuchos::ParameterList ifpack2ListA22;
 
       // Level of fill
-#if MIXED_PREC == 1
       ifpack2ListA22.template set<Scalar>( "fact: ilut level-of-fill",
 					   2.0 );
-      //				   Teuchos::as<halfScalar>(inputList_->template get<double>("Ilut_fill")) );
-#else
-      ifpack2ListA22.template set<Scalar>( "fact: ilut level-of-fill",
-					   2.0 );
-      //				   inputList_->template get<double>("Ilut_fill") );
-#endif
+
       // Absolute threshold
       ifpack2ListA22.template set<Scalar>( "fact: absolute threshold",
 					   inputList_->template get<double>("Athresh") );

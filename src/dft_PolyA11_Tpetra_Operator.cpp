@@ -99,7 +99,7 @@ insertMatrixValue
   Array<GlobalOrdinal> cols(1);
   Array<precScalar> vals(1);
   cols[0] = colGID;
-  vals[0] = value;
+  vals[0] = PREC_CAST(value);
   if (rowGID==colGID)
   {
     LocalOrdinal locDiag = block1Map_->getLocalElement(colGID);
@@ -127,7 +127,7 @@ insertMatrixValue
       curOwnedPhysicsID_ = ownedPhysicsID;
       curOwnedNode_ = ownedNode;
     } //end if
-    curRowValues_[colGID] += value;
+    curRowValues_[colGID] += PREC_CAST(value);
   } //end if
   else
   {
