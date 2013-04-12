@@ -118,26 +118,26 @@ namespace Tpetra {
       // Use Ifpack2 ILUT on entire matrix or on subdomains with Additive Schwarz
       //
       // Level of fill
-      ifpack2List.template set<Scalar>( "fact: ilut level-of-fill",
+      ifpack2List.template set<double>( "fact: ilut level-of-fill",
       					inputList_->template get<double>("Ilut_fill") );
 
       // Absolute threshold
-      ifpack2List.template set<Scalar>( "fact: absolute threshold",
+      ifpack2List.template set<double>( "fact: absolute threshold",
 					inputList_->template get<double>("Athresh") );
       // Relative threshold
       sParam = inputList_->template get<double>("Rthresh");
       if (sParam == 0.0)
 	// The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
-	ifpack2List.template set<Scalar>( "fact: relative threshold", 1.0 );
+	ifpack2List.template set<double>( "fact: relative threshold", 1.0 );
       else
-	ifpack2List.template set<Scalar>( "fact: relative threshold",
+	ifpack2List.template set<double>( "fact: relative threshold",
 					  inputList_->template get<double>("Rthresh") );
       // Drop tolerance
       sParam = inputList_->template get<double>("Drop");
       if (sParam == 0.0) {
 	// Don't set the drop tolerence, let Ifpack2 choose the default
       } else {
-	ifpack2List.template set<Scalar>( "fact: drop tolerance",
+	ifpack2List.template set<double>( "fact: drop tolerance",
 					  inputList_->template get<double>("Drop") );
       }
 
@@ -264,26 +264,26 @@ namespace Tpetra {
       Teuchos::ParameterList ifpack2ListA22;
 
       // Level of fill
-      ifpack2ListA22.template set<Scalar>( "fact: ilut level-of-fill",
+      ifpack2ListA22.template set<double>( "fact: ilut level-of-fill",
 					   2.0 );
 
       // Absolute threshold
-      ifpack2ListA22.template set<Scalar>( "fact: absolute threshold",
+      ifpack2ListA22.template set<double>( "fact: absolute threshold",
 					   inputList_->template get<double>("Athresh") );
       // Relative threshold
       sParam = inputList_->template get<double>("Rthresh");
       if (sParam == 0.0)
 	// The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
-	ifpack2ListA22.template set<Scalar>( "fact: relative threshold", 1.0 );
+	ifpack2ListA22.template set<double>( "fact: relative threshold", 1.0 );
       else
-	ifpack2ListA22.template set<Scalar>( "fact: relative threshold",
+	ifpack2ListA22.template set<double>( "fact: relative threshold",
 					     inputList_->template get<double>("Rthresh") );
       // Drop tolerance
       sParam = inputList_->template get<double>("Drop");
       if (sParam == 0.0) {
 	// Don't set the drop tolerence, let Ifpack2 choose the default
       } else {
-	ifpack2ListA22.template set<Scalar>( "fact: drop tolerance",
+	ifpack2ListA22.template set<double>( "fact: drop tolerance",
 					     inputList_->template get<double>("Drop") );
       }
 
