@@ -36,61 +36,39 @@ typedef Teuchos::Comm<int> COMM;
 #if LINSOLVE_PREC == 0
 // Solver precision
 #define SCALAR                    float
-#define SCALAR_CAST( x )          float(x)
-#define SCALAR_DBL_CAST( x )      double(x)
 // Matrix precision
 #define MAT_SCALAR                SCALAR
-#define MAT_SCALAR_CAST( x )      SCALAR_CAST( x )
-#define MAT_SCALAR_DBL_CAST( x )  SCALAR_DBL_CAST( x )
 
 #elif LINSOLVE_PREC == 1
 // Solver precision
 #define SCALAR                    double
-#define SCALAR_CAST( x )          (x)
-#define SCALAR_DBL_CAST( x )      (x)
 // Matrix precision
 #if MIXED_PREC == 1
 #define MAT_SCALAR                float
-#define MAT_SCALAR_CAST( x )      float(x)
-#define MAT_SCALAR_DBL_CAST( x )  double(x)
 #else
 #define MAT_SCALAR                SCALAR
-#define MAT_SCALAR_CAST( x )      SCALAR_CAST( x )
-#define MAT_SCALAR_DBL_CAST( x )  SCALAR_DBL_CAST( x )
 #endif
 
 #elif LINSOLVE_PREC == 2
 #include <qd/dd_real.h>
 // Solver precision
 #define SCALAR                    dd_real
-#define SCALAR_CAST( x )          dd_real(x)
-#define SCALAR_DBL_CAST( x )      to_double(x)
 // Matrix precision
 #if MIXED_PREC == 1
 #define MAT_SCALAR                double
-#define MAT_SCALAR_CAST( x )      (x)
-#define MAT_SCALAR_DBL_CAST( x )  (x)
 #else
 #define MAT_SCALAR                SCALAR
-#define MAT_SCALAR_CAST( x )      SCALAR_CAST( x )
-#define MAT_SCALAR_DBL_CAST( x )  SCALAR_DBL_CAST( x )
 #endif
 
 #elif LINSOLVE_PREC == 3
 #include <qd/qd_real.h>
 // Solver precision
 #define SCALAR                    qd_real
-#define SCALAR_CAST( x )          qd_real(x)
-#define SCALAR_DBL_CAST( x )      to_double(x)
 // Matrix precision
 #if MIXED_PREC == 1
 #define MAT_SCALAR                dd_real
-#define MAT_SCALAR_CAST( x )      dd_real(x)
-#define MAT_SCALAR_DBL_CAST( x )  to_double(x)
 #else
 #define MAT_SCALAR                SCALAR
-#define MAT_SCALAR_CAST( x )      SCALAR_CAST( x )
-#define MAT_SCALAR_DBL_CAST( x )  SCALAR_DBL_CAST( x )
 #endif
 
 #endif
@@ -148,7 +126,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
 
   int dft_linprobmgr_insertrhsvalue (void * linprobmgr, int iunk, int inode, double value) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    SCALAR val = SCALAR_CAST(value);
+    SCALAR val = Teuchos::as<SCALAR>(value);
     linprobmgr_->insertRhsValue(iunk, inode, val);
     return( 0 );
   }
@@ -156,7 +134,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
   int dft_linprobmgr_insertonematrixvalue (void * linprobmgr, int iunk, int ownednode,
 					   int junk, int boxnode, double value) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    MAT_SCALAR val = MAT_SCALAR_CAST(value);
+    MAT_SCALAR val = Teuchos::as<MAT_SCALAR>(value);
     linprobmgr_->insertMatrixValue(iunk, ownednode, junk, boxnode, val);
     return( 0 );
   }
@@ -167,7 +145,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
     MAT_SCALAR *fvalues;
     fvalues = new MAT_SCALAR[numEntries];
     for (int i=0;i<numEntries;i++)
-      fvalues[i] = MAT_SCALAR_CAST(values[i]);
+      fvalues[i] = Teuchos::as<MAT_SCALAR>(values[i]);
     ArrayView<const MAT_SCALAR> vals(fvalues, numEntries);
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     linprobmgr_->insertMatrixValues(iunk, ownednode, junk, indices, vals);
@@ -181,7 +159,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
     MAT_SCALAR *fvalues;
     fvalues = new MAT_SCALAR[numEntries];
     for (int i=0;i<numEntries;i++)
-      fvalues[i] = MAT_SCALAR_CAST(values[i]);
+      fvalues[i] = Teuchos::as<MAT_SCALAR>(values[i]);
     ArrayView<const MAT_SCALAR> vals(fvalues, numEntries);
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     linprobmgr_->insertMatrixValues(iunk, ownednode, indices, boxnode, vals);
@@ -199,7 +177,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
 					int junk, int boxnode) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     MAT_SCALAR retval1 = linprobmgr_->getMatrixValue(iunk, ownednode, junk, boxnode);
-    double retval2 = MAT_SCALAR_DBL_CAST(retval1);
+    double retval2 = Teuchos::as<double>(retval1);
     return retval2;
   }
 
@@ -214,7 +192,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
       fx[i] = new SCALAR[numOwnedNodes];
     for(int i=0;i<numUnknownsPerNode;i++)
       for(int j=0;j<numOwnedNodes;j++)
-	fx[i][j] = SCALAR_CAST(x[i][j]);
+	fx[i][j] = Teuchos::as<SCALAR>(x[i][j]);
 
     Array<ArrayView<const SCALAR> > my_x(numUnknownsPerNode);
     for(int i = 0; i < numUnknownsPerNode; i++){
@@ -235,7 +213,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
     ArrayRCP<ArrayRCP<SCALAR> > data = linprobmgr_->getLhs();
     for(int j = 0; j < numUnknownsPerNode; j++){
       for(int k = 0; k < data[j].size(); k++){
-	x[j][k] = SCALAR_DBL_CAST(data[j][k]);
+	x[j][k] = Teuchos::as<double>(data[j][k]);
       }
     }
     return( 0 );
@@ -247,7 +225,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
     ArrayRCP<ArrayRCP<SCALAR> > data = linprobmgr_->getRhs();
     for(int j = 0; j < data.size(); j++){
       for(int k = 0; k < data[j].size(); k++){
-	x[j][k] = SCALAR_DBL_CAST(data[j][k]);
+	x[j][k] = Teuchos::as<double>(data[j][k]);
       }
     }
     return( 0 );
@@ -282,7 +260,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
       fx[i] = new SCALAR[numBoxNodes];
     for(int i=0;i<numUnknownsPerNode;i++)
       for(int j=0;j<numBoxNodes;j++)
-	fx[i][j] = SCALAR_CAST(x[i][j]);
+	fx[i][j] = Teuchos::as<SCALAR>(x[i][j]);
 
     Array<ArrayView<const SCALAR> > x_views(numUnknownsPerNode);
 
@@ -294,7 +272,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
     ArrayRCP<ArrayRCP<SCALAR> > b_data = linprobmgr_->applyMatrix(my_view);
     for(int i = 0; i < b_data.size(); i++){
       for(int j = 0; j < b_data[i].size(); j++){
-	b[i][j] = SCALAR_DBL_CAST(b_data[i][j]);
+	b[i][j] = Teuchos::as<double>(b_data[i][j]);
       }
     }
     for (int i = 0; i < numUnknownsPerNode; ++i)
@@ -315,7 +293,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
       fx[i] = new SCALAR[numOwnedNodes];
     for(int i=0;i<numUnknownsPerNode;i++)
       for(int j=0;j<numOwnedNodes;j++)
-	fx[i][j] = SCALAR_CAST(x[i][j]);
+	fx[i][j] = Teuchos::as<SCALAR>(x[i][j]);
 
     ArrayRCP<ArrayRCP<const SCALAR> > my_x = Teuchos::arcp<ArrayRCP<const SCALAR> >(numUnknownsPerNode);
     for(int i = 0; i < numUnknownsPerNode; i++){
@@ -325,7 +303,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
     ArrayRCP<ArrayRCP<SCALAR> > my_b = linprobmgr_->importR2C(my_x);
     for(int i = 0; i < my_b.size(); i++){
       for(int j = 0; j < my_b[i].size(); j++){
-	b[i][j] = SCALAR_DBL_CAST(my_b[i][j]);
+	b[i][j] = Teuchos::as<double>(my_b[i][j]);
       }
     }
     for (int i = 0; i < numUnknownsPerNode; ++i)
@@ -343,7 +321,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
     SCALAR *fx;
     fx = new SCALAR[numOwnedNodes];
     for(int i=0;i<numOwnedNodes;i++)
-      fx[i] = SCALAR_CAST(x[i]);
+      fx[i] = Teuchos::as<SCALAR>(x[i]);
 
     ArrayRCP<SCALAR> my_x = Teuchos::arcp<SCALAR> (numOwnedNodes);
 
@@ -351,7 +329,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
 
     ArrayRCP<SCALAR> my_b = linprobmgr_->importR2C(my_x);
     for(int j = 0; j < my_b.size(); j++){
-      b[j] = SCALAR_DBL_CAST(my_b[j]);
+      b[j] = Teuchos::as<double>(my_b[j]);
     }
     delete [] fx;
 
@@ -366,13 +344,13 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
     SCALAR *fx;
     fx = new SCALAR[numOwnedNodes];
     for(int i=0;i<numOwnedNodes;i++)
-      fx[i] = SCALAR_CAST(x[i]);
+      fx[i] = Teuchos::as<SCALAR>(x[i]);
 
     ArrayRCP<SCALAR> ret_x = Teuchos::arcp<SCALAR>(fx, 0, numOwnedNodes, false);
 
     ArrayRCP<SCALAR> ret_val = linprobmgr_->importR2C(ret_x);
     for(int i = 0; i < ret_val.size(); i++){
-      b[i] = SCALAR_DBL_CAST(ret_val[i]);
+      b[i] = Teuchos::as<double>(ret_val[i]);
     }
     delete [] fx;
 

@@ -288,6 +288,6 @@ template class dft_Schur_Tpetra_Operator<dd_real, dd_real, int, int>;
 #if MIXED_PREC == 1
 template class dft_Schur_Tpetra_Operator<qd_real, dd_real, int, int>;
 #else
-template class dft_Schur_Tpetra_Operator<qd_real, dd_real, int, int>;
+template class dft_Schur_Tpetra_Operator<qd_real, qd_real, int, int>;
 #endif
 #endif
