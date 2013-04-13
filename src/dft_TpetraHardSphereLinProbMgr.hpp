@@ -39,16 +39,16 @@
 /*! The dft_HardSphereLinProbMgr class supports solver capabilities for Tramonto.
 
 */
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
 	 class Node=Kokkos::DefaultNode::DefaultNodeType>
 class dft_HardSphereLinProbMgr:
-  public virtual dft_BasicLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>
+  public virtual dft_BasicLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
 {
 public:
   TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
   TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
-  typedef dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
+  typedef dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
   typedef dft_HardSphereA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> HS11TO;
   typedef dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> HS22TO;
   typedef dft_A22Matrix_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> A22MTO;

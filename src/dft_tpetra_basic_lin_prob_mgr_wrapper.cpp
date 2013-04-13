@@ -35,29 +35,32 @@ typedef Teuchos::Comm<int> COMM;
 
 #if LINSOLVE_PREC == 0
 // Use float
-typedef dft_BasicLinProbMgr<float,int,int> BLPM;
+typedef dft_BasicLinProbMgr<float,float,int,int> BLPM;
 #define WORKING_PREC float
 #define WORKING_CAST( x ) float(x)
 #define DOUBLE_CAST( x ) double(x)
+
 #elif LINSOLVE_PREC == 1
 // Use double
-typedef dft_BasicLinProbMgr<double,int,int> BLPM;
+typedef dft_BasicLinProbMgr<double,double,int,int> BLPM;
 #define WORKING_PREC double
 #define WORKING_CAST( x ) (x)
 #define DOUBLE_CAST( x ) (x)
+
 #elif LINSOLVE_PREC == 2
 // Use quad double
-typedef dft_BasicLinProbMgr<qd_real,int,int> BLPM;
-#define WORKING_PREC qd_real
-#include <qd/qd_real.h>
-#define WORKING_CAST( x ) qd_real(x)
-#define DOUBLE_CAST( x ) to_double(x)
-#elif LINSOLVE_PREC == 3
-// Use double double
-typedef dft_BasicLinProbMgr<dd_real,int,int> BLPM;
+typedef dft_BasicLinProbMgr<dd_real,dd_real,int,int> BLPM;
 #define WORKING_PREC dd_real
 #include <qd/dd_real.h>
 #define WORKING_CAST( x ) dd_real(x)
+#define DOUBLE_CAST( x ) to_double(x)
+
+#elif LINSOLVE_PREC == 3
+// Use double double
+typedef dft_BasicLinProbMgr<qd_real,qd_real,int,int> BLPM;
+#define WORKING_PREC qd_real
+#include <qd/qd_real.h>
+#define WORKING_CAST( x ) qd_real(x)
 #define DOUBLE_CAST( x ) to_double(x)
 #endif
 

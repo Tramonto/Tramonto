@@ -33,7 +33,7 @@
 /*! The dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> class supports solver capabilities for Tramonto.
 */
 
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+template<class Scalar,class MatScalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
 	 class Node=Kokkos::DefaultNode::DefaultNodeType>
 class dft_BasicLinProbMgr {
 

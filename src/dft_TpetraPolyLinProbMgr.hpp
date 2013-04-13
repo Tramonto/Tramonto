@@ -40,16 +40,16 @@
 /*! The dft_PolyLinProbMgr class supports polymer solver capabilities for Tramonto.
 
 */
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
 	 class Node=Kokkos::DefaultNode::DefaultNodeType>
 class dft_PolyLinProbMgr:
-  public virtual dft_BasicLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>
+  public virtual dft_BasicLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
 {
   public:
 TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
-  typedef dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
+  typedef dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
   typedef dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
   typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P11CO;
   typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;

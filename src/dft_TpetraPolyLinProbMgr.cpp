@@ -26,12 +26,12 @@
 #include "dft_TpetraPolyLinProbMgr.hpp"
 
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 dft_PolyLinProbMgr
 (LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList,
  RCP<const COMM> comm, bool debug)
-  : dft_BasicLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>
+  : dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>
     (numUnknownsPerNode, parameterList, comm),
     isLinear_(false),
     debug_(debug),
@@ -47,17 +47,17 @@ dft_PolyLinProbMgr
   return;
 } //end constructor
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 ~dft_PolyLinProbMgr
 ()
 {
   return;
 } //end destructor
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 finalizeBlockStructure
 ()
 {
@@ -270,9 +270,9 @@ finalizeBlockStructure
 
 } //end finalizeBlockStructure
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 initializeProblemValues
 ()
 {
@@ -302,9 +302,9 @@ initializeProblemValues
 
 } //end initializeProblemValues
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 insertMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, Scalar value)
 {
@@ -372,9 +372,9 @@ insertMatrixValue
   } //end if
 } //insertMatrixValue
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 insertRowA12
 ()
 {
@@ -403,9 +403,9 @@ insertRowA12
 
 } //end insertRowA12
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 insertRowA21
 ()
 {
@@ -433,9 +433,9 @@ insertRowA21
   curRowValuesA21_.clear();
 } //end insertRowA21
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 finalizeProblemValues
 ()
 {
@@ -538,9 +538,9 @@ finalizeProblemValues
 
 } //end finalizeProblemValues
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 setupSolver
 ()
 {
@@ -575,9 +575,9 @@ setupSolver
 
 } //end setupSolver
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 solve
 ()
 {
@@ -626,9 +626,9 @@ solve
 
 } //end Solve
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 ArrayRCP<ArrayRCP<Scalar> >
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 applyMatrix
 (const ArrayView<const ArrayView<const Scalar> >& x) const
 {
@@ -639,9 +639,9 @@ applyMatrix
   return (getRhs());
 } //end applyMatrix
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 Check
 (bool verbose) const
 {
@@ -649,9 +649,9 @@ Check
   A22_->Check(verbose);
 } //end Check
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyLinProbMgr<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 writeMatrix
 (const char * filename, const char * matrixName, const char * matrixDescription) const
 {
@@ -667,14 +667,14 @@ writeMatrix
 } //end writeMatrix
 #if LINSOLVE_PREC == 0
 // Use float
-template class dft_PolyLinProbMgr<float, int, int>;
+template class dft_PolyLinProbMgr<float, float, int, int>;
 #elif LINSOLVE_PREC == 1
 // Use double
-template class dft_PolyLinProbMgr<double, int, int>;
+template class dft_PolyLinProbMgr<double, double, int, int>;
 #elif LINSOLVE_PREC == 2
-// Use quad double
-template class dft_PolyLinProbMgr<qd_real, int, int>;
-#elif LINSOLVE_PREC == 3
 // Use double double
-template class dft_PolyLinProbMgr<dd_real, int, int>;
+template class dft_PolyLinProbMgr<dd_real, dd_real, int, int>;
+#elif LINSOLVE_PREC == 3
+// Use quad double
+template class dft_PolyLinProbMgr<qd_real, qd_real, int, int>;
 #endif
