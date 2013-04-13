@@ -26,8 +26,8 @@
 #include "dft_HardSphereA22_Tpetra_Operator.hpp"
 
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_HardSphereA22_Tpetra_Operator
 (const RCP<const MAP> & block2Map)
   : block2Map_(block2Map),
@@ -41,16 +41,16 @@ dft_HardSphereA22_Tpetra_Operator
   Label_ = "dft_HardSphereA22_Tpetra_Operator";
 }
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_HardSphereA22_Tpetra_Operator
 ()
 {
 }
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
 ()
 {
@@ -64,11 +64,11 @@ initializeProblemValues
 
 }
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value)
+(GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value)
 {
   TEUCHOS_TEST_FOR_EXCEPTION(rowGID!=colGID, std::logic_error, "Only diagonals are supposed to be entered.");
 
@@ -77,9 +77,9 @@ insertMatrixValue
 
 }
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeProblemValues()
 {
   if (isLinearProblemSet_) {
@@ -94,9 +94,9 @@ finalizeProblemValues()
 
 }
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
 (const MV& X, MV& Y) const
 {
@@ -111,9 +111,9 @@ applyInverse
 
 }
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -126,9 +126,9 @@ apply
 
 }
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 Check
 (bool verbose) const
 {
@@ -151,14 +151,14 @@ Check
 
 }
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 formA22Matrix
 ()
 {
   if (A22Matrix_ == Teuchos::null) {
-    A22Matrix_ = rcp(new MAT_P(getRangeMap(), 1));
+    A22Matrix_ = rcp(new MAT(getRangeMap(), 1));
     A22Matrix_->setObjectLabel("HardSphereA22::A22Matrix");
   }
   LocalOrdinal numRows = getRangeMap()->getNodeNumElements();
@@ -168,9 +168,9 @@ formA22Matrix
     Scalar value = vectorValues[i];
     GlobalOrdinal col = row;
     Array<GlobalOrdinal> cols(1);
-    Array<precScalar> vals(1);
+    Array<MatScalar> vals(1);
     cols[0] = col;
-    vals[0] = PREC_CAST(value);
+    vals[0] = Teuchos::as<MatScalar>(value);
     A22Matrix_->insertGlobalValues(row, cols, vals);
   }
   A22Matrix_->fillComplete();
@@ -178,14 +178,30 @@ formA22Matrix
 }
 #if LINSOLVE_PREC == 0
 // Use float
-template class dft_HardSphereA22_Tpetra_Operator<float, int, int>;
+#if MIXED_PREC == 1
+template class dft_HardSphereA22_Tpetra_Operator<float, float, int, int>;
+#else
+template class dft_HardSphereA22_Tpetra_Operator<float, float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 1
 // Use double
-template class dft_HardSphereA22_Tpetra_Operator<double, int, int>;
+#if MIXED_PREC == 1
+template class dft_HardSphereA22_Tpetra_Operator<double, float, int, int>;
+#else
+template class dft_HardSphereA22_Tpetra_Operator<double, double, int, int>;
+#endif
 #elif LINSOLVE_PREC == 2
 // Use double double
-template class dft_HardSphereA22_Tpetra_Operator<dd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_HardSphereA22_Tpetra_Operator<dd_real, double, int, int>;
+#else
+template class dft_HardSphereA22_Tpetra_Operator<dd_real, dd_real, int, int>;
+#endif
 #elif LINSOLVE_PREC == 3
 // Use quad double
-template class dft_HardSphereA22_Tpetra_Operator<qd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_HardSphereA22_Tpetra_Operator<qd_real, dd_real, int, int>;
+#else
+template class dft_HardSphereA22_Tpetra_Operator<qd_real, qd_real, int, int>;
+#endif
 #endif

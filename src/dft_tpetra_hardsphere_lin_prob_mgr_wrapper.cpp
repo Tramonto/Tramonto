@@ -37,39 +37,46 @@ extern "C"
 typedef Teuchos::Comm<int> COMM;
 
 #if LINSOLVE_PREC == 0
-// Use float
-typedef dft_BasicLinProbMgr<float,float,int,int> BLPM;
-typedef dft_HardSphereLinProbMgr<float,float,int,int> HSLPM;
-#define WORKING_PREC float
-#define WORKING_CAST( x ) float(x)
-#define DOUBLE_CAST( x ) double(x)
+// Solver precision
+#define SCALAR                 float
+// Matrix precision
+#define MAT_SCALAR             SCALAR
 
 #elif LINSOLVE_PREC == 1
-// Use double
-typedef dft_BasicLinProbMgr<double,double,int,int> BLPM;
-typedef dft_HardSphereLinProbMgr<double,double,int,int> HSLPM;
-#define WORKING_PREC double
-#define WORKING_CAST( x ) (x)
-#define DOUBLE_CAST( x ) (x)
+// Solver precision
+#define SCALAR                 double
+// Matrix precision
+#if MIXED_PREC == 1
+#define MAT_SCALAR             float
+#else
+#define MAT_SCALAR             SCALAR
+#endif
 
 #elif LINSOLVE_PREC == 2
-// Use double double
-typedef dft_BasicLinProbMgr<dd_real,dd_real,int,int> BLPM;
-typedef dft_HardSphereLinProbMgr<dd_real,dd_real,int,int> HSLPM;
-#define WORKING_PREC dd_real
 #include <qd/dd_real.h>
-#define WORKING_CAST( x ) dd_real(x)
-#define DOUBLE_CAST( x ) to_double(x)
+// Solver precision
+#define SCALAR                 dd_real
+// Matrix precision
+#if MIXED_PREC == 1
+#define MAT_SCALAR             double
+#else
+#define MAT_SCALAR             SCALAR
+#endif
 
 #elif LINSOLVE_PREC == 3
-// Use quad double
-typedef dft_BasicLinProbMgr<qd_real,qd_real,int,int> BLPM;
-typedef dft_HardSphereLinProbMgr<qd_real,qd_real,int,int> HSLPM;
-#define WORKING_PREC qd_real
 #include <qd/qd_real.h>
-#define WORKING_CAST( x ) qd_real(x)
-#define DOUBLE_CAST( x ) to_double(x)
+// Solver precision
+#define SCALAR                 qd_real
+// Matrix precision
+#if MIXED_PREC == 1
+#define MAT_SCALAR             dd_real
+#else
+#define MAT_SCALAR             SCALAR
 #endif
+#endif
+
+typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
+typedef dft_HardSphereLinProbMgr<SCALAR,MAT_SCALAR,int,int> HSLPM;
 
 
   /*****************************************************/

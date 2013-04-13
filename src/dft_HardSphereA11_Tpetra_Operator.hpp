@@ -32,20 +32,19 @@
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
 */
 
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
 	 class Node = Kokkos::DefaultNode::DefaultNodeType>
 class dft_HardSphereA11_Tpetra_Operator:
   public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
 
 public:
-  TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
-  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
-  dft_HardSphereA11_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>
+  dft_HardSphereA11_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
   (const RCP<const MAP> & indNonLocalRowMap, const RCP<const MAP> & depNonLocalRowMap, const RCP<const MAP> & block1Map,
    RCP<ParameterList> parameterList);
   //@}
@@ -56,7 +55,7 @@ public:
 
   virtual void
   insertMatrixValue
-  (LocalOrdinal rowGID, LocalOrdinal colGID, Scalar value);
+  (LocalOrdinal rowGID, LocalOrdinal colGID, MatScalar value);
 
   virtual void
   finalizeProblemValues
@@ -181,7 +180,7 @@ public:
   };
 
   //! Returns a pointer to the Epetra_CrsMatrix object that is the A22 matrix
-  RCP<MAT_P>
+  RCP<MAT>
   getA11invMatrix
   ()
   {
@@ -196,18 +195,18 @@ protected:
   const RCP<const MAP> indNonLocalMap_;
   const RCP<const MAP> depNonLocalMap_;
   const RCP<const MAP> block1Map_;
-  RCP<MAT_P> matrix_;
-  RCP<MMOP_P> matrixOperator_;
-  RCP<MAT_P> A11invMatrix_;
-  RCP<MMOP_P> A11invMatrixOperator_;
+  RCP<MAT> matrix_;
+  RCP<MMOP> matrixOperator_;
+  RCP<MAT> A11invMatrix_;
+  RCP<MMOP> A11invMatrixOperator_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool firstTime_;
   GlobalOrdinal curRow_;
-  std::map<GlobalOrdinal, precScalar> curRowValues_;
+  std::map<GlobalOrdinal, MatScalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
-  Array<precScalar> values_;
+  Array<MatScalar> values_;
   void formA11invMatrix();
   RCP<ParameterList> parameterList_;
 };

@@ -35,21 +35,20 @@
 /*! Special 2-by-2 block operator for Tramonto polymer and explicit non-local density problems.
 */
 
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
   class Node=Kokkos::DefaultNode::DefaultNodeType>
 class dft_Schur_Tpetra_Operator:
   public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
 
  public:
-TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
-TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2-by-2 block system
 
   dft_Schur_Tpetra_Operator
-  (RCP<APINV> A11, RCP<MAT_P> A12, RCP<MAT_P> A21, RCP<APINV> A22);
+  (RCP<APINV> A11, RCP<MAT> A12, RCP<MAT> A21, RCP<APINV> A22);
   //@}
   //@{ \name Destructor.
     //! Destructor
@@ -59,7 +58,7 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
   //@{ \name Atribute set methods.
   void
   SetSchurComponents
-  (RCP<MAT_P> A11invMatrix, RCP<MAT_P> A22Matrix)
+  (RCP<MAT> A11invMatrix, RCP<MAT> A22Matrix)
   {
     A11invMatrix_ = A11invMatrix;
     A22Matrix_ = A22Matrix;
@@ -114,13 +113,13 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
   void formSchurComplement();
 
   //! Returns a pointer to the Tpetra_CrsMatrix object that is the schur complement
-  RCP<MAT_P>
+  RCP<MAT>
   getSchurComplement
   ()
   {
     if (A11invMatrix_.is_null() || A22Matrix_.is_null())
       {
-	RCP<MAT_P> null;
+	RCP<MAT> null;
 	return(null);  // We cannot form S without the component matrices
       } //end if
     formSchurComplement();
@@ -194,23 +193,23 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
   RCP<APINV> A11_;
   /*!< The 1,1 block of the 2 by 2 block matrix */
-  RCP<MAT_P> A12_;
-  RCP<MMOP_P> A12op_;
+  RCP<MAT> A12_;
+  RCP<MMOP> A12op_;
   /*!< The 1,2 block of the 2 by 2 block matrix */
-  RCP<MAT_P> A21_;
-  RCP<MMOP_P> A21op_;
+  RCP<MAT> A21_;
+  RCP<MMOP> A21op_;
   /*!< The 2,1 block of the 2 by 2 block matrix */
   RCP<APINV> A22_;
   /*!< The 2,2 block of the 2 by 2 block matrix */
-  RCP<MAT_P> A11invMatrix_;
+  RCP<MAT> A11invMatrix_;
   /*!< The inverse of A11 in matrix form, if available */
-  RCP<MAT_P> A22Matrix_;
+  RCP<MAT> A22Matrix_;
   /*!< A22 as a matrix, if available */
-  RCP<MAT_P> A11invA12_;
+  RCP<MAT> A11invA12_;
   /* Intermediate matrix containing inv(A11)*A12 */
-  RCP<MAT_P> A21A11invA12_;
+  RCP<MAT> A21A11invA12_;
   /* Intermediate matrix containing A21*inv(A11)*A12 */
-  RCP<MAT_P> S_;
+  RCP<MAT> S_;
   /* Schur complement, if formed */
   const char * Label_; /*!< Description of object */
 };

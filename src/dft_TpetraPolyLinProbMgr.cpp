@@ -222,9 +222,9 @@ finalizeBlockStructure
     A11_ = rcp(new P11TO(ownedMap_, block1RowMap_, parameterList_));
   } //end else
 
-  A12_ = rcp(new MAT_P(block1RowMap_, 0)); A12_->setObjectLabel("PolyLinProbMgr::A12");
-  A21_ = rcp(new MAT_P(block2RowMap_, 0)); A21_->setObjectLabel("PolyLinProbMgr::A21");
-
+  A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("PolyLinProbMgr::A12");
+  A21_ = rcp(new MAT(block2RowMap_, 0)); A21_->setObjectLabel("PolyLinProbMgr::A21");
+  
   if (hasPoisson_ && !poissonInA11)
   {
     A22_ = rcp(new P22CO(cmsRowMap_, densityRowMap_, poissonRowMap_, extraRowMap_, block2RowMap_, parameterList_));
@@ -238,7 +238,7 @@ finalizeBlockStructure
 
   if (debug_)
   {
-    globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
+    globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
     globalMatrix_->setObjectLabel("PolyLinProbMgr::globalMatrix");
   } //end if
   else
@@ -306,7 +306,7 @@ template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal
 void
 dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 insertMatrixValue
-(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, Scalar value)
+(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, MatScalar value)
 {
 
   LocalOrdinal schurBlockRow = physicsIdToSchurBlockId_[ownedPhysicsID];
@@ -321,8 +321,8 @@ insertMatrixValue
   //     << "] = " << value << endl;
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
-  Array<precScalar> vals(1);
-  vals[0] = PREC_CAST(value);
+  Array<MatScalar> vals(1);
+  vals[0] = value;
 
   if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
     A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->getGlobalElement(ownedNode), rowGID, colGID, value);
@@ -347,7 +347,7 @@ insertMatrixValue
 	insertRowA21();  // Dump the current contents of curRowValues_ into matrix and clear map
 	curRowA21_=rowGID;
       }
-      curRowValuesA21_[colGID] += PREC_CAST(value);
+      curRowValuesA21_[colGID] += value;
     }
     else{
       A21Static_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -359,7 +359,7 @@ insertMatrixValue
 	insertRowA12();  // Dump the current contents of curRowValues_ into matrix and clear map
 	curRowA12_=rowGID;
       }
-      curRowValuesA12_[colGID] += PREC_CAST(value);
+      curRowValuesA12_[colGID] += value;
     }
     else{
       A12Static_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -471,33 +471,33 @@ finalizeProblemValues
     A21Graph_ = rcp(new GRAPH(A21_->getRowMap(), A21_->getColMap(), numEntriesPerRowA21, Tpetra::StaticProfile));
     for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const precScalar> values;
+      ArrayView<const MatScalar> values;
       A12_->getLocalRowView( i, indices, values );
       A12Graph_->insertLocalIndices( i, indices );
     }
     for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const precScalar> values;
+      ArrayView<const MatScalar> values;
       A21_->getLocalRowView( i, indices, values );
       A21Graph_->insertLocalIndices( i, indices );
     }
     A12Graph_->fillComplete(block2RowMap_,block1RowMap_);
     A21Graph_->fillComplete(block1RowMap_,block2RowMap_);
-    A12Static_ = rcp(new MAT_P(A12Graph_));
-    A21Static_ = rcp(new MAT_P(A21Graph_));
+    A12Static_ = rcp(new MAT(A12Graph_));
+    A21Static_ = rcp(new MAT(A21Graph_));
     A12Static_->setAllToScalar(0.0);
     A21Static_->setAllToScalar(0.0);
 
     for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const precScalar> values;
+      ArrayView<const MatScalar> values;
       A12_->getLocalRowView( i, indices, values );
       A12Static_->sumIntoLocalValues( i, indices(), values() );
     }
     A12Static_->fillComplete(block2RowMap_,block1RowMap_,pl);
     for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const precScalar> values;
+      ArrayView<const MatScalar> values;
       A21_->getLocalRowView( i, indices, values );
       A21Static_->sumIntoLocalValues( i, indices(), values() );
     }
@@ -667,14 +667,30 @@ writeMatrix
 } //end writeMatrix
 #if LINSOLVE_PREC == 0
 // Use float
+#if MIXED_PREC == 1
 template class dft_PolyLinProbMgr<float, float, int, int>;
+#else
+template class dft_PolyLinProbMgr<float, float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 1
 // Use double
+#if MIXED_PREC == 1
+template class dft_PolyLinProbMgr<double, float, int, int>;
+#else
 template class dft_PolyLinProbMgr<double, double, int, int>;
+#endif
 #elif LINSOLVE_PREC == 2
 // Use double double
+#if MIXED_PREC == 1
+template class dft_PolyLinProbMgr<dd_real, double, int, int>;
+#else
 template class dft_PolyLinProbMgr<dd_real, dd_real, int, int>;
+#endif
 #elif LINSOLVE_PREC == 3
 // Use quad double
+#if MIXED_PREC == 1
+template class dft_PolyLinProbMgr<qd_real, dd_real, int, int>;
+#else
 template class dft_PolyLinProbMgr<qd_real, qd_real, int, int>;
+#endif
 #endif

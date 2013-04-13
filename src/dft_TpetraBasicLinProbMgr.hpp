@@ -38,8 +38,7 @@ template<class Scalar,class MatScalar,class LocalOrdinal=int,class GlobalOrdinal
 class dft_BasicLinProbMgr {
 
   public:
-  TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
-  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
   //@{ \name Constructors/destructor.
 
@@ -144,7 +143,7 @@ class dft_BasicLinProbMgr {
   */
   virtual void
   insertMatrixValue
-  (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, Scalar value);
+  (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, MatScalar value);
 
   //! Insert matrix coefficients for a given row, where columns are all from the same physics type at different nodes.
   /*! Insert values into matrix for a given row, where columns are all from the same physics type at different nodes.
@@ -163,7 +162,7 @@ class dft_BasicLinProbMgr {
   virtual void
   insertMatrixValues
   (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID,
-   const ArrayView<const LocalOrdinal> &boxNodeList, const ArrayView<const Scalar>& values);
+   const ArrayView<const LocalOrdinal> &boxNodeList, const ArrayView<const MatScalar>& values);
 
   //! Insert matrix coefficients for a given row, where columns are from different physics types at the same node.
   /*! Insert values into matrix for a given row, where columns are from different physics types at the same node.
@@ -183,7 +182,7 @@ class dft_BasicLinProbMgr {
   virtual void
   insertMatrixValues
   (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, const ArrayView<const LocalOrdinal> &boxPhysicsIDList,
-   LocalOrdinal boxNode, const ArrayView<const Scalar> &values);
+   LocalOrdinal boxNode, const ArrayView<const MatScalar> &values);
 
   //! Method that must be called each time matrix value insertion is complete (usually once per nonlinear iteration).
   virtual void
@@ -209,7 +208,7 @@ class dft_BasicLinProbMgr {
      \param boxNode (In) Current box node ID.  Local ID based on the box node ordering.
      \return The requested matrix value is returned; if the value is not present, the return value will be zero.
   */
-  virtual Scalar
+  virtual MatScalar
   getMatrixValue
   (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode);
 
@@ -424,12 +423,12 @@ protected:
   RCP<VEC> boxNodeIsCoarsened_;
   RCP<IMP> ownedToBoxImporter_;
   RCP<const MAP> globalRowMap_;
-  RCP<MAT_P> globalMatrix_;
-  RCP<MAT_P> globalMatrixStatic_;
+  RCP<MAT> globalMatrix_;
+  RCP<MAT> globalMatrixStatic_;
   RCP<GRAPH> globalGraph_;
-  RCP<OP> globalMatrixOperator_;
-  RCP<SCALE_P> scalingMatrix_;
-  RCP<VEC_P> rowScaleFactors_;
+  RCP<OP> globalMatrixOp_;
+  RCP<SCALE> scalingMatrix_;
+  RCP<VEC_M> rowScaleFactors_;
   RCP<VEC> rowScaleFactorsScalar_;
   RCP<VEC> globalRhs_;
   RCP<VEC> globalLhs_;
@@ -437,8 +436,8 @@ protected:
   RCP<ParameterList> tpetraParameterList_;
   GlobalOrdinal curRow_;
   Array<GlobalOrdinal> indices_;
-  std::map<GlobalOrdinal, precScalar> curRowValues_;
-  Array<precScalar> values_;
+  std::map<GlobalOrdinal, MatScalar> curRowValues_;
+  Array<MatScalar> values_;
   GlobalOrdinal scaling_;
   GlobalOrdinal n_;
   Scalar eps_;
@@ -464,8 +463,8 @@ protected:
 #else
   RCP<SolMGR> solver_;
   RCP<LinPROB> problem_;
-  RCP<PRECOND_AS> preconditioner_;
-  RCP<PRECOND_AS_OP> preconditionerOp_;
+  RCP<SCHWARZ> preconditioner_;
+  RCP<SCHWARZ_OP> preconditionerOp_;
 #endif
 
 };

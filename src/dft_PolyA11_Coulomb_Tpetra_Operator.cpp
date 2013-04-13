@@ -26,13 +26,13 @@
 #include "dft_PolyA11_Coulomb_Tpetra_Operator.hpp"
 
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyA11_Coulomb_Tpetra_Operator
 (RCP<const MAP > & ownedMap, RCP<const MAP > & block1Map,
  RCP<const MAP > & allGMap, RCP<const MAP > & poissonMap,
  RCP<ParameterList> parameterList)
-  : dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>(ownedMap, allGMap, parameterList),
+  : dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>(ownedMap, allGMap, parameterList),
     //dft_PolyA11_Tpetra_Operator(ownedMap, allGMap, parameterList),
     //dft_PolyA11_Tpetra_Operator(ownedMap, block1Map),
     parameterList_(parameterList),
@@ -43,23 +43,23 @@ dft_PolyA11_Coulomb_Tpetra_Operator
 {
 
   Label_ = "dft_PolyA11_Coulomb_Tpetra_Operator";
-  poissonMatrix_ = rcp(new MAT_P(poissonMap, 0));
-  poissonMatrixOperator_ = rcp(new MMOP_P(poissonMatrix_));
+  poissonMatrix_ = rcp(new MAT(poissonMap, 0));
+  poissonMatrixOperator_ = rcp(new MMOP(poissonMatrix_));
   poissonMatrix_->setObjectLabel("PolyA11Coulomb::poissonMatrix");
   return;
 } //end constructor
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_PolyA11_Coulomb_Tpetra_Operator
 ()
 {
   return;
 } //end destructor
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
 ()
 {
@@ -77,16 +77,16 @@ initializeProblemValues
   } //end if
 } //end initializeProblemValues
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value)
+(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value)
 {
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
-  Array<precScalar> vals(1);
-  vals[0] = PREC_CAST(value);
+  Array<MatScalar> vals(1);
+  vals[0] = value;
   if (ownedPhysicsID >= numBlocks_) //insert it into Poisson part
   {
     if (firstTime_)
@@ -97,7 +97,7 @@ insertMatrixValue
 	curPoissonRow_ = rowGID;
 	curPoissonOwnedNode_ = ownedNode;
       } //end if
-      curPoissonRowValues_[colGID] += PREC_CAST(value);
+      curPoissonRowValues_[colGID] += value;
     } //end if
     else
     {
@@ -120,7 +120,7 @@ insertMatrixValue
       curOwnedPhysicsID_ = ownedPhysicsID;
       curOwnedNode_ = ownedNode;
       } //end if
-      curRowValues_[colGID] += PREC_CAST(value);
+      curRowValues_[colGID] += value;
     } //end if
     else
     {
@@ -129,9 +129,9 @@ insertMatrixValue
   } //end else
 } //end insertMatrixValues
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertPoissonRow
 ()
 {
@@ -151,9 +151,9 @@ insertPoissonRow
   curPoissonRowValues_.clear();
 }
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeProblemValues
 ()
 {
@@ -179,7 +179,7 @@ finalizeProblemValues
   for (LocalOrdinal i = 0; i < poissonMap_->getNodeNumElements(); i++)
   {
     GlobalOrdinal row = poissonMatrix_->getRowMap()->getGlobalElement(i);
-    Array<precScalar> values(1);
+    Array<MatScalar> values(1);
     values[0] =10.0e-12;
     Array<GlobalOrdinal> indices(1);
     indices[0] = row;
@@ -190,9 +190,9 @@ finalizeProblemValues
   firstTime_ = false;
 } //end finalizeProblemValues
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
 (const MV& X, MV& Y) const
 {
@@ -242,9 +242,9 @@ applyInverse
 #endif
 } //end applyInverse
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -283,14 +283,30 @@ apply
 } //end Apply
 #if LINSOLVE_PREC == 0
 // Use float
-template class dft_PolyA11_Coulomb_Tpetra_Operator<float, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Coulomb_Tpetra_Operator<float, float, int, int>;
+#else
+template class dft_PolyA11_Coulomb_Tpetra_Operator<float, float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 1
 // Use double
-template class dft_PolyA11_Coulomb_Tpetra_Operator<double, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Coulomb_Tpetra_Operator<double, float, int, int>;
+#else
+template class dft_PolyA11_Coulomb_Tpetra_Operator<double, double, int, int>;
+#endif
 #elif LINSOLVE_PREC == 2
 // Use double double
-template class dft_PolyA11_Coulomb_Tpetra_Operator<dd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Coulomb_Tpetra_Operator<dd_real, double, int, int>;
+#else
+template class dft_PolyA11_Coulomb_Tpetra_Operator<dd_real, dd_real, int, int>;
+#endif
 #elif LINSOLVE_PREC == 3
 // Use quad double
-template class dft_PolyA11_Coulomb_Tpetra_Operator<qd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Coulomb_Tpetra_Operator<qd_real, dd_real, int, int>;
+#else
+template class dft_PolyA11_Coulomb_Tpetra_Operator<qd_real, qd_real, int, int>;
+#endif
 #endif

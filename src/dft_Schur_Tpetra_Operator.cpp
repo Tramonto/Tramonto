@@ -26,10 +26,10 @@
 #include "dft_Schur_Tpetra_Operator.hpp"
 
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_Schur_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_Schur_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 dft_Schur_Tpetra_Operator
-(RCP<APINV> A11, RCP<MAT_P> A12, RCP<MAT_P> A21, RCP<APINV> A22)
+(RCP<APINV> A11, RCP<MAT> A12, RCP<MAT> A21, RCP<APINV> A22)
   : A11_(A11),
     A12_(A12),
     A21_(A21),
@@ -38,8 +38,8 @@ dft_Schur_Tpetra_Operator
 {
 
   Label_ = "dft_Schur_Tpetra_Operator";
-  A12op_ = rcp(new MMOP_P(A12_));
-  A21op_ = rcp(new MMOP_P(A21_));
+  A12op_ = rcp(new MMOP(A12_));
+  A21op_ = rcp(new MMOP(A21_));
   /* Used to capture matrix data
   LocalOrdinal nrows1 = A11->RowMap().NumGlobalElements();
   LocalOrdinal nrows2 = A22->RowMap().NumGlobalElements();
@@ -70,16 +70,16 @@ dft_Schur_Tpetra_Operator
   */
 } //end constructor
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_Schur_Tpetra_Operator
 ()
 {
 } //end destructor
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -114,9 +114,9 @@ apply
   //cout << "Norm of Y in Schur Apply = " << normvalue << endl;
 } //end Apply
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ComputeRHS
 (const MV& B1, const MV& B2, MV& B2S) const
 {
@@ -128,9 +128,9 @@ ComputeRHS
   B2S.update(1.0, B2, -1.0);
 } //end ComputeRHS
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ComputeX1
 (const MV& B1, const MV& X2, MV& X1) const
 {
@@ -143,9 +143,9 @@ ComputeX1
 } //end ComputeX1
 
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ApplyGlobal
 (const MV& X1, const MV& X2, MV& Y1, MV& Y2) const
 {
@@ -172,9 +172,9 @@ ApplyGlobal
   Y2.update(1.0, *Y21, 1.0, *Y22, 0.0);
 } //end ApplyGlobal
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 formSchurComplement
 ()
 {
@@ -185,11 +185,11 @@ formSchurComplement
 
   if (S_.get()==0)  // Form S
     {
-      A11invA12_ = rcp(new MAT_P(A12_->getRowMap(), 0));
+      A11invA12_ = rcp(new MAT(A12_->getRowMap(), 0));
       A11invA12_->setObjectLabel("SchurComplement::A11invA12");
-      A21A11invA12_ = rcp(new MAT_P(A21_->getRowMap(), 0));
+      A21A11invA12_ = rcp(new MAT(A21_->getRowMap(), 0));
       A21A11invA12_->setObjectLabel("SchurComplement::A21A11invA12");
-      S_ = rcp(new MAT_P(A21_->getRowMap(), 0));
+      S_ = rcp(new MAT(A21_->getRowMap(), 0));
       S_->setObjectLabel("SchurComplement::S");
   } //end if
 
@@ -224,7 +224,7 @@ formSchurComplement
     } //end if
   size_t NumEntries;
   Array<GlobalOrdinal> Indices(maxNumEntries);
-  Array<precScalar> Values(maxNumEntries);
+  Array<MatScalar> Values(maxNumEntries);
 
   LocalOrdinal NumMyRows = S_->getNodeNumRows();
   LocalOrdinal Row, err;
@@ -264,23 +264,30 @@ formSchurComplement
 } //end getFormCompliment
 #if LINSOLVE_PREC == 0
 // Use float
-template class dft_Schur_Tpetra_Operator<float, int, int>;
+#if MIXED_PREC == 1
+template class dft_Schur_Tpetra_Operator<float, float, int, int>;
+#else
+template class dft_Schur_Tpetra_Operator<float, float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 1
 // Use double
-template class dft_Schur_Tpetra_Operator<double, int, int>;
 #if MIXED_PREC == 1
-template class dft_Schur_Tpetra_Operator<float, int, int>;
+template class dft_Schur_Tpetra_Operator<double, float, int, int>;
+#else
+template class dft_Schur_Tpetra_Operator<double, double, int, int>;
 #endif
 #elif LINSOLVE_PREC == 2
 // Use double double
-template class dft_Schur_Tpetra_Operator<dd_real, int, int>;
 #if MIXED_PREC == 1
-template class dft_Schur_Tpetra_Operator<double, int, int>;
+template class dft_Schur_Tpetra_Operator<dd_real, double, int, int>;
+#else
+template class dft_Schur_Tpetra_Operator<dd_real, dd_real, int, int>;
 #endif
 #elif LINSOLVE_PREC == 3
 // Use quad double
-template class dft_Schur_Tpetra_Operator<qd_real, int, int>;
 #if MIXED_PREC == 1
-template class dft_Schur_Tpetra_Operator<dd_real, int, int>;
+template class dft_Schur_Tpetra_Operator<qd_real, dd_real, int, int>;
+#else
+template class dft_Schur_Tpetra_Operator<qd_real, dd_real, int, int>;
 #endif
 #endif

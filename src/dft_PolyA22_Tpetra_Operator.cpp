@@ -25,8 +25,8 @@
 
 #include "dft_PolyA22_Tpetra_Operator.hpp"
 
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyA22_Tpetra_Operator
 (const RCP<const MAP > & cmsMap, const RCP<const MAP > & densityMap, const RCP<const MAP > & block2Map,
  RCP<ParameterList> parameterList)
@@ -42,14 +42,14 @@ dft_PolyA22_Tpetra_Operator
     curRow_(-1)
 {
 
-  cmsOnDensityMatrix_ = rcp(new MAT_P(cmsMap, 0));
-  cmsOnDensityMatrixOp_ = rcp(new MMOP_P(cmsOnDensityMatrix_));
-  cmsOnCmsMatrix_ = rcp(new MAT_P(cmsMap, 0));
-  cmsOnCmsMatrixOp_ = rcp(new MMOP_P(cmsOnCmsMatrix_));
+  cmsOnDensityMatrix_ = rcp(new MAT(cmsMap, 0));
+  cmsOnDensityMatrixOp_ = rcp(new MMOP(cmsOnDensityMatrix_));
+  cmsOnCmsMatrix_ = rcp(new MAT(cmsMap, 0));
+  cmsOnCmsMatrixOp_ = rcp(new MMOP(cmsOnCmsMatrix_));
   densityOnDensityMatrix_ = rcp(new VEC(densityMap));
   densityOnDensityInverse_ = rcp(new VEC(densityMap));
-  densityOnCmsMatrix_ = rcp(new MAT_P(densityMap, 0));
-  densityOnCmsMatrixOp_ = rcp(new MMOP_P(densityOnCmsMatrix_));
+  densityOnCmsMatrix_ = rcp(new MAT(densityMap, 0));
+  densityOnCmsMatrixOp_ = rcp(new MMOP(densityOnCmsMatrix_));
   Label_ = "dft_PolyA22_Tpetra_Operator";
   cmsOnDensityMatrix_->setObjectLabel("PolyA22::cmsOnDensityMatrix");
   F_location_ = Teuchos::getParameter<LocalOrdinal>(*parameterList_, "F_location");
@@ -57,16 +57,16 @@ dft_PolyA22_Tpetra_Operator
   //F in NE if F_location = 1, F in SW otherwise
 } //end constructor
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_PolyA22_Tpetra_Operator
 ()
 {
 } //end destructor
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
 ()
 {
@@ -89,20 +89,20 @@ initializeProblemValues
   } //end if
 } //end initializeProblemValues
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag )
+(GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value, GlobalOrdinal blockColFlag )
 {
   // if poisson then blockColFlag = 0
   // if density then blockColFlag = 1
   // if cms then blockColFlag = 2
 
   Array<GlobalOrdinal> cols(1);
-  Array<precScalar> vals(1);
+  Array<MatScalar> vals(1);
   cols[0] = colGID;
-  vals[0] = PREC_CAST(value);
+  vals[0] = value;
 
   if (cmsMap_->isNodeGlobalElement(rowGID)) { // Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
     if ( blockColFlag == 2 ) { // Insert into cmsOnCmsMatrix
@@ -111,7 +111,7 @@ insertMatrixValue
 	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
 	  curRow_=rowGID;
 	}
-	curRowValuesCmsOnCms_[colGID] += PREC_CAST(value);
+	curRowValuesCmsOnCms_[colGID] += value;
       }
       else
 	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -122,7 +122,7 @@ insertMatrixValue
       	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
 	  curRow_=rowGID;
       	}
-	curRowValuesCmsOnDensity_[colGID] += PREC_CAST(value);
+	curRowValuesCmsOnDensity_[colGID] += value;
       }
       else if (!isFLinear_) {
 	//cout<< "row GID = " << rowGID << " value = " << value << " colGID = " << colGID << endl;
@@ -147,7 +147,7 @@ insertMatrixValue
 	  insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
 	  curRow_=rowGID;
 	}
-	curRowValuesDensityOnCms_[colGID] += PREC_CAST(value);
+	curRowValuesDensityOnCms_[colGID] += value;
       }
       else
       	densityOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -165,9 +165,9 @@ insertMatrixValue
   }
 } //end insertMatrixValue
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertRow
 ()
 {
@@ -229,9 +229,9 @@ insertRow
 
 } //end insertRow
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeProblemValues
 ()
 {
@@ -263,9 +263,9 @@ finalizeProblemValues
   densityOnDensityInverse_->reciprocal(*densityOnDensityMatrix_);
 
   // Use a diagonal preconditioner for the cmsOnCmsMatrix
-  RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(cmsOnCmsMatrix_);
-  cmsOnCmsInverse_ = rcp(new PRECOND_D(const_matrix));
-  cmsOnCmsInverseOp_ = rcp(new PRECOND_D_OP(cmsOnCmsInverse_));
+  RCP<const MAT> const_matrix = Teuchos::rcp_implicit_cast<const MAT>(cmsOnCmsMatrix_);
+  cmsOnCmsInverse_ = rcp(new DIAGONAL(const_matrix));
+  cmsOnCmsInverseOp_ = rcp(new DIAGONAL_OP(cmsOnCmsInverse_));
   TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsInverse_==Teuchos::null);
   cmsOnCmsInverse_->initialize();
   cmsOnCmsInverse_->compute();
@@ -274,9 +274,9 @@ finalizeProblemValues
   firstTime_ = false;
 } //end finalizeProblemValues
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
 (const MV& X, MV& Y) const
 {
@@ -384,9 +384,9 @@ applyInverse
 
 } //end applyInverse
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -459,9 +459,9 @@ apply
 
 } //end Apply
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 Check
 (bool verbose) const
 {
@@ -516,14 +516,30 @@ Check
 } //end Check
 #if LINSOLVE_PREC == 0
 // Use float
-template class dft_PolyA22_Tpetra_Operator<float, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA22_Tpetra_Operator<float, float, int, int>;
+#else
+template class dft_PolyA22_Tpetra_Operator<float, float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 1
 // Use double
-template class dft_PolyA22_Tpetra_Operator<double, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA22_Tpetra_Operator<double, float, int, int>;
+#else
+template class dft_PolyA22_Tpetra_Operator<double, double, int, int>;
+#endif
 #elif LINSOLVE_PREC == 2
 // Use double double
-template class dft_PolyA22_Tpetra_Operator<dd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA22_Tpetra_Operator<dd_real, double, int, int>;
+#else
+template class dft_PolyA22_Tpetra_Operator<dd_real, dd_real, int, int>;
+#endif
 #elif LINSOLVE_PREC == 3
 // Use quad double
-template class dft_PolyA22_Tpetra_Operator<qd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA22_Tpetra_Operator<qd_real, dd_real, int, int>;
+#else
+template class dft_PolyA22_Tpetra_Operator<qd_real, qd_real, int, int>;
+#endif
 #endif

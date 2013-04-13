@@ -46,15 +46,14 @@ class dft_PolyLinProbMgr:
   public virtual dft_BasicLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
 {
   public:
-TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
-TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
   typedef dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
-  typedef dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
-  typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P11CO;
-  typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
-  typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal> P22CO;
-  typedef dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
+  typedef dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
+  typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal> P11CO;
+  typedef dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
+  typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal> P22CO;
+  typedef dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
 
   //@{ \name Constructors/destructor.
   //! dft_PolyLinProbMgr Constructor.
@@ -223,7 +222,7 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
   */
   virtual void
   insertMatrixValue
-  (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, Scalar value);
+  (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, MatScalar value);
 
   //! Method that must be called each time matrix value insertion is complete (usually once per nonlinear iteration).
   virtual void
@@ -297,12 +296,12 @@ protected:
   Array<LocalOrdinal> isPoissonEquation_;
   RCP<P11TO> A11_;
   RCP<P22TO> A22_;
-  RCP<MAT_P> A12_;
-  RCP<MAT_P> A21_;
+  RCP<MAT> A12_;
+  RCP<MAT> A21_;
   RCP<GRAPH> A12Graph_;
   RCP<GRAPH> A21Graph_;
-  RCP<MAT_P> A12Static_;
-  RCP<MAT_P> A21Static_;
+  RCP<MAT> A12Static_;
+  RCP<MAT> A21Static_;
   RCP<INVOP> A22precond_;
   RCP<const MAP> block1RowMap_;
   RCP<const MAP> block2RowMap_;
@@ -324,10 +323,10 @@ protected:
   Array<GlobalOrdinal> indicesA12_;
   GlobalOrdinal curRowA21_;
   Array<GlobalOrdinal> indicesA21_;
-  std::map<GlobalOrdinal, precScalar> curRowValuesA12_;
-  Array<precScalar> valuesA12_;
-  std::map<GlobalOrdinal, precScalar> curRowValuesA21_;
-  Array<precScalar> valuesA21_;
+  std::map<GlobalOrdinal, MatScalar> curRowValuesA12_;
+  Array<MatScalar> valuesA12_;
+  std::map<GlobalOrdinal, MatScalar> curRowValuesA21_;
+  Array<MatScalar> valuesA21_;
 
   using BLPM::isBlockStructureSet_;
   using BLPM::numGlobalNodes_;

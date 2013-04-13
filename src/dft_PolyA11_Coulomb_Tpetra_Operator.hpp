@@ -34,17 +34,16 @@
 /*! Special 2*numBeads by 2*numBeads (plus Coulomb) for Tramonto polymer problems.
 */
 
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
 	 class Node = Kokkos::DefaultNode::DefaultNodeType>
 class dft_PolyA11_Coulomb_Tpetra_Operator:
-  public virtual dft_PolyA11_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>
+  public virtual dft_PolyA11_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
 {
 
  public:
-TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
-TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
-  typedef dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
+  typedef dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads (plus Coulomb) system
@@ -61,7 +60,7 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
   void
   insertMatrixValue
-  (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value);
+  (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value);
 
   void
   finalizeProblemValues
@@ -131,11 +130,11 @@ protected:
   const RCP<const MAP> allGMap_;
   const RCP<const MAP> poissonMap_;
   RCP<ParameterList> parameterList_;
-  RCP<MAT_P> poissonMatrix_;
-  RCP<MMOP_P> poissonMatrixOperator_;
+  RCP<MAT> poissonMatrix_;
+  RCP<MMOP> poissonMatrixOperator_;
   GlobalOrdinal curPoissonRow_;
   GlobalOrdinal curPoissonOwnedNode_;
-  std::map<GlobalOrdinal, precScalar> curPoissonRowValues_;
+  std::map<GlobalOrdinal, MatScalar> curPoissonRowValues_;
   using P11TO::isGraphStructureSet_;
   using P11TO::Label_;
   using P11TO::isLinearProblemSet_;

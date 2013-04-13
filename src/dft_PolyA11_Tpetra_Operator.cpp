@@ -26,8 +26,8 @@
 #include "dft_PolyA11_Tpetra_Operator.hpp"
 
 ///==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyA11_Tpetra_Operator
 (const RCP<const MAP > & ownedMap, const RCP<const MAP > & block1Map,
  RCP<ParameterList> parameterList)
@@ -51,25 +51,25 @@ dft_PolyA11_Tpetra_Operator
   matrixOperator_.resize(numBlocks_-1);
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
-    matrix_[i] = rcp(new MAT_P(ownedMap, 0));
-    matrixOperator_[i] = rcp(new MMOP_P(matrix_[i]));
+    matrix_[i] = rcp(new MAT(ownedMap, 0));
+    matrixOperator_[i] = rcp(new MMOP(matrix_[i]));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
   } //end for
 
   return;
 } //end constructor
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_PolyA11_Tpetra_Operator
 ()
 {
   return;
 } //end destructor
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
 ()
 {
@@ -89,17 +89,17 @@ initializeProblemValues
 
 } //end initializeProblemValues
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value)
+(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value)
 {
 
   Array<GlobalOrdinal> cols(1);
-  Array<precScalar> vals(1);
+  Array<MatScalar> vals(1);
   cols[0] = colGID;
-  vals[0] = PREC_CAST(value);
+  vals[0] = value;
   if (rowGID==colGID)
   {
     LocalOrdinal locDiag = block1Map_->getLocalElement(colGID);
@@ -127,7 +127,7 @@ insertMatrixValue
       curOwnedPhysicsID_ = ownedPhysicsID;
       curOwnedNode_ = ownedNode;
     } //end if
-    curRowValues_[colGID] += PREC_CAST(value);
+    curRowValues_[colGID] += value;
   } //end if
   else
   {
@@ -136,9 +136,9 @@ insertMatrixValue
   } //end else
 } //end insertMatrixValue
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertRow
 ()
 {
@@ -167,9 +167,9 @@ insertRow
   curRowValues_.clear();
 } //end insertRow
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeProblemValues
 ()
 {
@@ -201,9 +201,9 @@ finalizeProblemValues
   firstTime_ = false;
 } //end finalizeProblemValues
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
 (const MV& X, MV& Y) const
 {
@@ -242,9 +242,9 @@ applyInverse
   } //end for
 } //end applyInverse
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -269,9 +269,9 @@ apply
 
 } //end Apply
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 Check
 (bool verbose) const
 {
@@ -297,14 +297,30 @@ Check
 } //end Check
 #if LINSOLVE_PREC == 0
 // Use float
-template class dft_PolyA11_Tpetra_Operator<float, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Tpetra_Operator<float, float, int, int>;
+#else
+template class dft_PolyA11_Tpetra_Operator<float, float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 1
 // Use double
-template class dft_PolyA11_Tpetra_Operator<double, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Tpetra_Operator<double, float, int, int>;
+#else
+template class dft_PolyA11_Tpetra_Operator<double, double, int, int>;
+#endif
 #elif LINSOLVE_PREC == 2
 // Use double double
-template class dft_PolyA11_Tpetra_Operator<dd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Tpetra_Operator<dd_real, double, int, int>;
+#else
+template class dft_PolyA11_Tpetra_Operator<dd_real, dd_real, int, int>;
+#endif
 #elif LINSOLVE_PREC == 3
 // Use quad double
-template class dft_PolyA11_Tpetra_Operator<qd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA11_Tpetra_Operator<qd_real, dd_real, int, int>;
+#else
+template class dft_PolyA11_Tpetra_Operator<qd_real, qd_real, int, int>;
+#endif
 #endif

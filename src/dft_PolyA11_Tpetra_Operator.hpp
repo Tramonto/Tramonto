@@ -31,20 +31,19 @@
 //! dft_PolyA11_Tpetra_Operator: An implementation of the Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
 */
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
 	 class Node = Kokkos::DefaultNode::DefaultNodeType>
 class dft_PolyA11_Tpetra_Operator:
   public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
 
  public:
-TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
-TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
-  dft_PolyA11_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>(const RCP<const MAP> & ownedMap, const RCP<const MAP> & block1Map, RCP<ParameterList> parameterList);
+  dft_PolyA11_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>(const RCP<const MAP> & ownedMap, const RCP<const MAP> & block1Map, RCP<ParameterList> parameterList);
   //@}
   //@{ \name Assembly methods.
   virtual void
@@ -53,7 +52,7 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
   virtual void
   insertMatrixValue
-  (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value);
+  (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value);
 
   virtual void
   finalizeProblemValues
@@ -181,8 +180,8 @@ protected:
   const RCP<const MAP> ownedMap_;
   const RCP<const MAP> block1Map_;
   size_t numBlocks_;
-  Array<RCP<MAT_P> > matrix_;
-  Array<RCP<MMOP_P> > matrixOperator_;
+  Array<RCP<MAT> > matrix_;
+  Array<RCP<MMOP> > matrixOperator_;
   RCP<VEC> invDiagonal_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
@@ -190,9 +189,9 @@ protected:
   GlobalOrdinal curRow_;
   LocalOrdinal curOwnedPhysicsID_;
   LocalOrdinal curOwnedNode_;
-  std::map<GlobalOrdinal, precScalar> curRowValues_;
+  std::map<GlobalOrdinal, MatScalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
-  Array<precScalar> values_;
+  Array<MatScalar> values_;
   bool firstTime_;
   // RN_20100326: This following is needed for Krylov solvers in the
   // applyInverse method.

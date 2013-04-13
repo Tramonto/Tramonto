@@ -26,13 +26,13 @@
 #include "dft_PolyA22_Coulomb_Tpetra_Operator.hpp"
 
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_PolyA22_Coulomb_Tpetra_Operator
 (const RCP<const MAP> & cmsMap, const RCP<const MAP> & densityMap,
  const RCP<const MAP> & poissonMap, const RCP<const MAP> & cmsDensMap,
  const RCP<const MAP> & block2Map,  RCP<ParameterList> parameterList)
-  : dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>
+  : dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>
 	      (cmsMap, densityMap, cmsDensMap, parameterList),
     poissonMap_(poissonMap),
     cmsDensMap_(cmsDensMap),
@@ -41,12 +41,12 @@ dft_PolyA22_Coulomb_Tpetra_Operator
     curCPRow_(-1),
     curPDRow_(-1)
 {
-  poissonOnPoissonMatrix_ = rcp(new MAT_P(poissonMap, 0));
-  poissonOnPoissonMatrixOp_ = rcp(new MMOP_P(poissonOnPoissonMatrix_));
-  cmsOnPoissonMatrix_ = rcp(new MAT_P(cmsMap, 0));
-  cmsOnPoissonMatrixOp_ = rcp(new MMOP_P(cmsOnPoissonMatrix_));
-  poissonOnDensityMatrix_ = rcp(new MAT_P(poissonMap, 0));
-  poissonOnDensityMatrixOp_ = rcp(new MMOP_P(poissonOnDensityMatrix_));
+  poissonOnPoissonMatrix_ = rcp(new MAT(poissonMap, 0));
+  poissonOnPoissonMatrixOp_ = rcp(new MMOP(poissonOnPoissonMatrix_));
+  cmsOnPoissonMatrix_ = rcp(new MAT(cmsMap, 0));
+  cmsOnPoissonMatrixOp_ = rcp(new MMOP(cmsOnPoissonMatrix_));
+  poissonOnDensityMatrix_ = rcp(new MAT(poissonMap, 0));
+  poissonOnDensityMatrixOp_ = rcp(new MMOP(poissonOnDensityMatrix_));
   Label_ = "dft_PolyA22_Coulomb_Tpetra_Operator";
   cmsOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnDensityMatrix");
   cmsOnCmsMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnCmsMatrix");
@@ -56,17 +56,17 @@ dft_PolyA22_Coulomb_Tpetra_Operator
 
 } //end constructor
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ~dft_PolyA22_Coulomb_Tpetra_Operator
 ()
 {
   return;
 } //end destructor
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
 ()
 {
@@ -96,11 +96,11 @@ initializeProblemValues
   } //end if
 } //end initializeProblemValues
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag)
+(GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value, GlobalOrdinal blockColFlag)
 {
   // if poisson then blockColFlag = 0
   // if density then blockColFlag = 1
@@ -108,8 +108,8 @@ insertMatrixValue
 
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
-  Array<precScalar> vals(1);
-  vals[0] = PREC_CAST(value);
+  Array<MatScalar> vals(1);
+  vals[0] = value;
 
   /* The poissonMatrix_, poissonOnDensityMatrix_, cmsOnPoissonMatrix_, and cmsOnDensityMatrix_ values do not change between iterations */
 
@@ -120,7 +120,7 @@ insertMatrixValue
 	  insertRow();
 	  curRow_ = rowGID;
 	}
-	curRowValuesPoissonOnPoisson_[colGID] += PREC_CAST(value);
+	curRowValuesPoissonOnPoisson_[colGID] += value;
       }
       else
 	poissonOnPoissonMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -131,7 +131,7 @@ insertMatrixValue
       	  insertRow();
       	  curRow_ = rowGID;
       	}
-      	curRowValuesPoissonOnDensity_[colGID] += PREC_CAST(value);
+      	curRowValuesPoissonOnDensity_[colGID] += value;
       }
       else
       	poissonOnDensityMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -149,7 +149,7 @@ insertMatrixValue
 	  insertRow();
 	  curRow_ = rowGID;
 	}
-	curRowValuesCmsOnPoisson_[colGID] += PREC_CAST(value);
+	curRowValuesCmsOnPoisson_[colGID] += value;
       }
       else
 	cmsOnPoissonMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -160,7 +160,7 @@ insertMatrixValue
 	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
 	  curRow_=rowGID;
 	}
-	curRowValuesCmsOnCms_[colGID] += PREC_CAST(value);
+	curRowValuesCmsOnCms_[colGID] += value;
       }
       else
 	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -171,7 +171,7 @@ insertMatrixValue
       	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       	  curRow_=rowGID;
       	}
-      	curRowValuesCmsOnDensity_[colGID] += PREC_CAST(value);
+      	curRowValuesCmsOnDensity_[colGID] += value;
       }
       else if (!isFLinear_) {
       	cmsOnDensityMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -199,7 +199,7 @@ insertMatrixValue
 	  insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
 	  curRow_=rowGID;
 	}
-	curRowValuesDensityOnCms_[colGID] += PREC_CAST(value);
+	curRowValuesDensityOnCms_[colGID] += value;
       }
       else
       	densityOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -218,9 +218,9 @@ insertMatrixValue
 
 } //end insertMatrixValue
 //=============================================================================
-template<class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template<class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertRow
 ()
 {
@@ -332,9 +332,9 @@ insertRow
 
 }
 //=============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeProblemValues
 ()
 {
@@ -371,9 +371,9 @@ finalizeProblemValues
   densityOnDensityInverse_->reciprocal(*densityOnDensityMatrix_);
 
   // Use a diagonal preconditioner for the cmsOnCmsMatrix
-  RCP<const MAT_P> const_matrix = Teuchos::rcp_implicit_cast<const MAT_P>(cmsOnCmsMatrix_);
-  cmsOnCmsInverse_ = rcp(new PRECOND_D(const_matrix));
-  cmsOnCmsInverseOp_ = rcp(new PRECOND_D_OP(cmsOnCmsInverse_));
+  RCP<const MAT> const_matrix = Teuchos::rcp_implicit_cast<const MAT>(cmsOnCmsMatrix_);
+  cmsOnCmsInverse_ = rcp(new DIAGONAL(const_matrix));
+  cmsOnCmsInverseOp_ = rcp(new DIAGONAL_OP(cmsOnCmsInverse_));
   TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsInverse_==Teuchos::null);
   cmsOnCmsInverse_->initialize();
   cmsOnCmsInverse_->compute();
@@ -382,11 +382,11 @@ finalizeProblemValues
 #if ENABLE_MUELU == 1
 #if LINSOLVE_PREC_DOUBLE_DOUBLE == 1 || LINSOLVE_PREC_QUAD_DOUBLE == 1
     // Default of SuperLU doesn't compile with double-double or quad-double, so use ILUT instead.
-    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
-    mueluPP  = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
+    mueluPP  = rcp(new Xpetra::CrsMatrixWrap<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
     mueluList_ = parameterList_->get("mueluList");
     
-    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
+    MueLu::MLParameterListInterpreter<MatScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
     
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_NONE);
@@ -400,19 +400,19 @@ finalizeProblemValues
     H_->Setup(*fm);
 #else
     // Okay to use default of SuperLU if not double-double or quad-double
-    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
-    mueluPP = rcp(new Xpetra::CrsMatrixWrap<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
+    mueluPP = rcp(new Xpetra::CrsMatrixWrap<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
     mueluList_ = parameterList_->sublist("mueluList");
     
-    MueLu::MLParameterListInterpreter<precScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
+    MueLu::MLParameterListInterpreter<MatScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
     
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_NONE);
     H_->GetLevel(0)->Set("A", mueluPP);
     mueluFactory.SetupHierarchy(*H_);
 #endif
-    poissonOnPoissonInverse_ = rcp(new MueLu::TpetraOperator<precScalar, LocalOrdinal, GlobalOrdinal>(H_));
-    poissonOnPoissonInverseMixed_ = rcp(new MOP((RCP<OP_P>)poissonOnPoissonInverse_));
+    poissonOnPoissonInverse_ = rcp(new MueLu::TpetraOperator<MatScalar, LocalOrdinal, GlobalOrdinal>(H_));
+    poissonOnPoissonInverseMixed_ = rcp(new MOP((RCP<OP_M>)poissonOnPoissonInverse_));
 #endif
   }
 
@@ -420,9 +420,9 @@ finalizeProblemValues
   firstTime_ = false;
 } //end finalizeProblemValues
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyInverse
 (const MV& X, MV& Y) const
 {
@@ -567,9 +567,9 @@ applyInverse
 
 } //end applyInverse
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -667,9 +667,9 @@ apply
   }
 } //end Apply
 //==============================================================================
-template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 Check
 (bool verbose) const
 {
@@ -736,14 +736,30 @@ Check
 } //end Check
 #if LINSOLVE_PREC == 0
 // Use float
-template class dft_PolyA22_Coulomb_Tpetra_Operator<float, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA22_Coulomb_Tpetra_Operator<float, float, int, int>;
+#else
+template class dft_PolyA22_Coulomb_Tpetra_Operator<float, float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 1
 // Use double
-template class dft_PolyA22_Coulomb_Tpetra_Operator<double, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA22_Coulomb_Tpetra_Operator<double, float, int, int>;
+#else
+template class dft_PolyA22_Coulomb_Tpetra_Operator<double, double, int, int>;
+#endif
 #elif LINSOLVE_PREC == 2
 // Use double double
-template class dft_PolyA22_Coulomb_Tpetra_Operator<dd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA22_Coulomb_Tpetra_Operator<dd_real, double, int, int>;
+#else
+template class dft_PolyA22_Coulomb_Tpetra_Operator<dd_real, dd_real, int, int>;
+#endif
 #elif LINSOLVE_PREC == 3
 // Use quad double
-template class dft_PolyA22_Coulomb_Tpetra_Operator<qd_real, int, int>;
+#if MIXED_PREC == 1
+template class dft_PolyA22_Coulomb_Tpetra_Operator<qd_real, dd_real, int, int>;
+#else
+template class dft_PolyA22_Coulomb_Tpetra_Operator<qd_real, qd_real, int, int>;
+#endif
 #endif

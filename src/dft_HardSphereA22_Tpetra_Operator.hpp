@@ -32,14 +32,13 @@
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
 */
 
-template <class Scalar, class LocalOrdinal=int, class GlobalOrdinal=LocalOrdinal, class Node=Kokkos::DefaultNode::DefaultNodeType>
+template <class Scalar, class MatScalar=Scalar, class LocalOrdinal=int, class GlobalOrdinal=LocalOrdinal, class Node=Kokkos::DefaultNode::DefaultNodeType>
 class dft_HardSphereA22_Tpetra_Operator:
   public virtual Tpetra::OperatorApplyInverse<Scalar,LocalOrdinal,GlobalOrdinal,Node>
 {
 
 public:
-  TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
-  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
@@ -55,7 +54,7 @@ public:
 
   virtual void
   insertMatrixValue
-  (GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value);
+  (GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value);
 
   virtual void
   finalizeProblemValues
@@ -192,7 +191,7 @@ public:
   };
 
   //! Returns a pointer to the Tpetra_CrsMatrix object that is the A22 matrix
-  RCP<MAT_P>
+  RCP<MAT>
   getA22Matrix
   ()
   {
@@ -206,7 +205,7 @@ private:
   const RCP<const MAP > block2Map_;
   RCP<VEC> densityOnDensityMatrix_;
   RCP<VEC> densityOnDensityInverse_;
-  RCP<MAT_P> A22Matrix_;
+  RCP<MAT> A22Matrix_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;

@@ -33,14 +33,13 @@
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
 */
 
-template <class Scalar, class LocalOrdinal=int, class GlobalOrdinal=LocalOrdinal, class Node=Kokkos::DefaultNode::DefaultNodeType>
+template <class Scalar, class MatScalar=Scalar, class LocalOrdinal=int, class GlobalOrdinal=LocalOrdinal, class Node=Kokkos::DefaultNode::DefaultNodeType>
 class dft_PolyA22_Tpetra_Operator:
   public virtual Tpetra::OperatorApplyInverse<Scalar,LocalOrdinal,GlobalOrdinal,Node>
 {
 
  public:
-TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
-TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
@@ -72,7 +71,7 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
   virtual void
   insertMatrixValue
-  (GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag);
+  (GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value, GlobalOrdinal blockColFlag);
 
   virtual void
   finalizeProblemValues
@@ -213,27 +212,27 @@ protected:
   const RCP<const MAP > densityMap_;
   const RCP<const MAP > block2Map_;
   RCP<ParameterList> parameterList_;
-  RCP<MAT_P> cmsOnDensityMatrix_;
-  RCP<MMOP_P> cmsOnDensityMatrixOp_;
-  RCP<MAT_P> cmsOnCmsMatrix_;
-  RCP<MMOP_P> cmsOnCmsMatrixOp_;
-  RCP<PRECOND_D> cmsOnCmsInverse_;
-  RCP<PRECOND_D_OP> cmsOnCmsInverseOp_;
+  RCP<MAT> cmsOnDensityMatrix_;
+  RCP<MMOP> cmsOnDensityMatrixOp_;
+  RCP<MAT> cmsOnCmsMatrix_;
+  RCP<MMOP> cmsOnCmsMatrixOp_;
+  RCP<DIAGONAL> cmsOnCmsInverse_;
+  RCP<DIAGONAL_OP> cmsOnCmsInverseOp_;
   RCP<VEC> densityOnDensityMatrix_;
   RCP<VEC> densityOnDensityInverse_;
-  RCP<MAT_P> densityOnCmsMatrix_;
-  RCP<MMOP_P> densityOnCmsMatrixOp_;
+  RCP<MAT> densityOnCmsMatrix_;
+  RCP<MMOP> densityOnCmsMatrixOp_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;
   bool isFLinear_;
   bool firstTime_;
   GlobalOrdinal curRow_;
-  std::map<GlobalOrdinal, precScalar> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_, curRowValuesDensityOnCms_;
+  std::map<GlobalOrdinal, MatScalar> curRowValuesCmsOnDensity_, curRowValuesCmsOnCms_, curRowValuesDensityOnCms_;
   Array<GlobalOrdinal> indicesCmsOnDensity_, indicesCmsOnCms_, indicesDensityOnCms_;
-  Array<precScalar> valuesCmsOnDensity_, valuesCmsOnCms_, valuesDensityOnCms_;
-  std::map<GlobalOrdinal, precScalar> curRowValues_;
+  Array<MatScalar> valuesCmsOnDensity_, valuesCmsOnCms_, valuesDensityOnCms_;
+  std::map<GlobalOrdinal, MatScalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
-  Array<precScalar> values_;
+  Array<MatScalar> values_;
 }; //class dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>
 #endif /* DFT_POLYA22_TPETRA_OPERATOR_H */

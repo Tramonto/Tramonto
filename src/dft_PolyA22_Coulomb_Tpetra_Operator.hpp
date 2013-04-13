@@ -34,17 +34,16 @@
 /*! Special 2*numBeads by 2*numBeads (plus Coulomb) for Tramonto polymer problems.
 */
 
-template<class Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
+template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
 	 class Node = Kokkos::DefaultNode::DefaultNodeType>
 class dft_PolyA22_Coulomb_Tpetra_Operator:
-  public virtual dft_PolyA22_Tpetra_Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>
+  public virtual dft_PolyA22_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
 {
 
  public:
-TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
-TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
-  typedef dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
+  typedef dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads (plus Coulomb) system
@@ -62,7 +61,7 @@ TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
 
   void
   insertMatrixValue
-  (GlobalOrdinal rowGID, GlobalOrdinal colGID, Scalar value, GlobalOrdinal blockColFlag);
+  (GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value, GlobalOrdinal blockColFlag);
 
   void
   finalizeProblemValues
@@ -152,28 +151,28 @@ protected:
   const RCP<const MAP> poissonMap_;
   const RCP<const MAP> cmsDensMap_;
   const RCP<const MAP> block2Map_;
-  RCP<MAT_P> poissonOnPoissonMatrix_;
-  RCP<MMOP_P> poissonOnPoissonMatrixOp_;
-  RCP<MAT_P> cmsOnPoissonMatrix_;
-  RCP<MMOP_P> cmsOnPoissonMatrixOp_;
-  RCP<MAT_P> poissonOnDensityMatrix_;
-  RCP<MMOP_P> poissonOnDensityMatrixOp_;
+  RCP<MAT> poissonOnPoissonMatrix_;
+  RCP<MMOP> poissonOnPoissonMatrixOp_;
+  RCP<MAT> cmsOnPoissonMatrix_;
+  RCP<MMOP> cmsOnPoissonMatrixOp_;
+  RCP<MAT> poissonOnDensityMatrix_;
+  RCP<MMOP> poissonOnDensityMatrixOp_;
   GlobalOrdinal curPoissonRow_;
-  std::map<GlobalOrdinal, precScalar> curPoissonRowValues_;
+  std::map<GlobalOrdinal, MatScalar> curPoissonRowValues_;
   GlobalOrdinal curCPRow_;
-  std::map<GlobalOrdinal, precScalar> curCPRowValues_;
+  std::map<GlobalOrdinal, MatScalar> curCPRowValues_;
   GlobalOrdinal curPDRow_;
-  std::map<GlobalOrdinal, precScalar> curPDRowValues_;
-  std::map<GlobalOrdinal, precScalar> curRowValuesCmsOnPoisson_, curRowValuesPoissonOnPoisson_, curRowValuesPoissonOnDensity_;
+  std::map<GlobalOrdinal, MatScalar> curPDRowValues_;
+  std::map<GlobalOrdinal, MatScalar> curRowValuesCmsOnPoisson_, curRowValuesPoissonOnPoisson_, curRowValuesPoissonOnDensity_;
   Array<GlobalOrdinal> indicesCmsOnPoisson_, indicesPoissonOnPoisson_, indicesPoissonOnDensity_;
-  Array<precScalar> valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;
+  Array<MatScalar> valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;
 #if ENABLE_MUELU == 1
-  RCP<MueLu::Hierarchy<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps> > H_;
-  RCP<Xpetra::CrsMatrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps > > mueluPP_;
-  RCP<Xpetra::Matrix<precScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<precScalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
+  RCP<MueLu::Hierarchy<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps> > H_;
+  RCP<Xpetra::CrsMatrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps > > mueluPP_;
+  RCP<Xpetra::Matrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
   FactoryManager M_;
   ParameterList mueluList_;
-  RCP<MueLu::TpetraOperator<precScalar, LocalOrdinal, GlobalOrdinal, Node> > poissonOnPoissonInverse_;
+  RCP<MueLu::TpetraOperator<MatScalar, LocalOrdinal, GlobalOrdinal, Node> > poissonOnPoissonInverse_;
   RCP<MOP> poissonOnPoissonInverseMixed_;
 					   
 #endif

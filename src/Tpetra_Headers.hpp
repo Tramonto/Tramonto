@@ -109,7 +109,7 @@ using Belos::ReturnType;
 
 #else
 
-#define TYPEDEF(SCALAR, LO, GO, NODE) \
+#define TYPEDEF(SCALAR, MATSCALAR, LO, GO, NODE)	\
   \
   typedef Tpetra::MultiVector<SCALAR,LO,GO,Node> MV; \
   typedef Tpetra::Vector<SCALAR,LO,GO,Node> VEC; \
@@ -117,83 +117,29 @@ using Belos::ReturnType;
   typedef Tpetra::OperatorApplyInverse<SCALAR,LO,GO,Node> APINV; \
   typedef Tpetra::InvOperator<SCALAR,LO,GO,Node> INVOP; \
   typedef Tpetra::MixedOperator<SCALAR,LO,GO,Node> MOP; \
-  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,SCALAR,LO,GO,Node> MMOP; \
+  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,MATSCALAR,LO,GO,Node> MMOP; \
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,Node> MAP; \
-  typedef Tpetra::CrsMatrix<SCALAR,LO,GO,Node> MAT; \
+  typedef Tpetra::CrsMatrix<MATSCALAR,LO,GO,Node> MAT; \
   typedef Tpetra::CrsGraph<LO,GO,Node> GRAPH; \
-  typedef Tpetra::ScalingCrsMatrix<Scalar,LocalOrdinal,GO,Node> SCALE; \
+  typedef Tpetra::ScalingCrsMatrix<MATSCALAR,LocalOrdinal,GO,Node> SCALE; \
   typedef Tpetra::Import<LO,GO,Node> IMP; \
   typedef Belos::SolverManager<SCALAR, MV, OP> SolMGR; \
   typedef Belos::LinearProblem<SCALAR, MV, OP> LinPROB; \
   typedef Ifpack2::Preconditioner<SCALAR, LO, GO, Node> PRECOND; \
   typedef typename Teuchos::ScalarTraits<SCALAR>::halfPrecision halfScalar; \
   typedef typename Teuchos::ScalarTraits<SCALAR>::doublePrecision doubleScalar; \
-  typedef Tpetra::MultiVector<halfScalar,LO,GO,Node> MV_H; \
-  typedef Tpetra::Vector<halfScalar,LO,GO,Node> VEC_H;		   \
-  typedef Tpetra::Operator<halfScalar,LO,GO,Node> OP_H;			\
-  typedef Tpetra::CrsMatrix<halfScalar,LO,GO,Node> MAT_H;			\
-  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,halfScalar,LO,GO,Node> MMOP_H; \
-  typedef Tpetra::ScalingCrsMatrix<halfScalar,LocalOrdinal,GO,Node> SCALE_H; \
-  typedef Ifpack2::Preconditioner<halfScalar, LO, GO, Node> PRECOND_H;
-
-#if MIXED_PREC == 1
-
-#define TYPEDEF_MIXED(SCALAR, LO, GO, NODE) \
-  \
-  typedef halfScalar precScalar; \
-  typedef typename std::map<GO, precScalar>::iterator ITER; \
-  typedef MAT_H MAT_P; \
-  typedef MMOP_H MMOP_P; \
-  typedef OP_H OP_P; \
-  typedef VEC_H VEC_P; \
-  typedef MV_H MV_P; \
-  typedef PRECOND_H PRECOND_P; \
-  typedef SCALE_H SCALE_P; \
-  typedef Ifpack2::ILUT<MAT_P> PRECOND_ILUT; \
-  typedef Ifpack2::AdditiveSchwarz<MAT_P,PRECOND_ILUT> PRECOND_AS; \
-  typedef Ifpack2::Diagonal<MAT_P> PRECOND_D; \
-  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_ILUT> PRECOND_ILUT_OP; \
-  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_AS> PRECOND_AS_OP;	\
-  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_D> PRECOND_D_OP;
-
-#if LINSOLVE_PREC == 2
-// Use double double
-#define PREC_CAST( x ) to_double(x)
-#define SCALAR_CAST( x ) dd_real(x)
-#elif LINSOLVE_PREC == 3
-// Use quad double
-#define PREC_CAST( x ) dd_real(x)
-#define SCALAR_CAST( x ) qd_real(x)
-#else
-#define PREC_CAST( x ) (x)
-#define SCALAR_CAST( x ) (x)
-#endif
-
-#elif MIXED_PREC == 0
-
-#define TYPEDEF_MIXED(SCALAR, LO, GO, NODE) \
-  \
-  typedef Scalar precScalar; \
-  typedef typename std::map<GO, precScalar>::iterator ITER; \
-  typedef MAT MAT_P; \
-  typedef MMOP MMOP_P; \
-  typedef OP OP_P; \
-  typedef VEC VEC_P; \
-  typedef MV MV_P; \
-  typedef PRECOND PRECOND_P; \
-  typedef SCALE SCALE_P; \
-  typedef Ifpack2::ILUT<MAT_P> PRECOND_ILUT; \
-  typedef Ifpack2::AdditiveSchwarz<MAT_P,PRECOND_ILUT> PRECOND_AS; \
-  typedef Ifpack2::Diagonal<MAT_P> PRECOND_D; \
-  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_ILUT> PRECOND_ILUT_OP; \
-  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_AS> PRECOND_AS_OP;	\
-  typedef Tpetra::details::ApplyOp<Scalar,PRECOND_D> PRECOND_D_OP;
-
-#define PREC_CAST( x ) (x)
-#define SCALAR_CAST( x ) (x)
-
-#endif // MIXED_PREC
+  typedef Tpetra::MultiVector<MATSCALAR,LO,GO,Node> MV_M; \
+  typedef Tpetra::Vector<MATSCALAR,LO,GO,Node> VEC_M;		   \
+  typedef Tpetra::Operator<MATSCALAR,LO,GO,Node> OP_M;			\
+  typedef typename std::map<GO, MATSCALAR>::iterator ITER_M; \
+  typedef Ifpack2::ILUT<MAT> ILUT; \
+  typedef Ifpack2::AdditiveSchwarz<MAT,ILUT> SCHWARZ; \
+  typedef Tpetra::details::ApplyOp<Scalar,ILUT> ILUT_OP; \
+  typedef Ifpack2::Diagonal<MAT> DIAGONAL; \
+  typedef Tpetra::details::ApplyOp<Scalar,SCHWARZ> SCHWARZ_OP;	\
+  typedef Tpetra::details::ApplyOp<Scalar,DIAGONAL> DIAGONAL_OP; \
+  typedef typename std::map<GO, MATSCALAR>::iterator ITER;
 
 #endif //SUPPORTS_STRATIMIKOS
 

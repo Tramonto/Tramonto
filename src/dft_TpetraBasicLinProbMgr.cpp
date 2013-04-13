@@ -171,7 +171,7 @@ finalizeBlockStructure
   }
 
   globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_));
-  globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
+  globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
   globalLhs_ = rcp(new VEC(globalRowMap_));
@@ -226,7 +226,7 @@ template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal
 void
 dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
-(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, Scalar value)
+(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, MatScalar value)
 {
   GlobalOrdinal rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
@@ -241,11 +241,11 @@ insertMatrixValue
       insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       curRow_=rowGID;
     }
-    curRowValues_[colGID] += PREC_CAST(value);
+    curRowValues_[colGID] += value;
   }
   else {
-    Array<precScalar> vals(1);
-    vals[0] = PREC_CAST(value);
+    Array<MatScalar> vals(1);
+    vals[0] = value;
     Array<GlobalOrdinal> globalCols(1);
     globalCols[0] = colGID;
     globalMatrixStatic_->sumIntoGlobalValues(rowGID, globalCols, vals);
@@ -260,7 +260,7 @@ insertRow
 {
   if (curRowValues_.empty()) return;
 
-  ITER pos;
+  ITER_M pos;
   for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
     indices_.append(pos->first);
     values_.append(pos->second);
@@ -274,7 +274,7 @@ insertRow
 }
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-Scalar
+MatScalar
 dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 getMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode)
@@ -285,7 +285,7 @@ getMatrixValue
   GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
   size_t numEntries;
   ArrayView<const GlobalOrdinal> indices;
-  ArrayView<const precScalar> values;
+  ArrayView<const MatScalar> values;
 
   if (globalMatrixStatic_->isGloballyIndexed())
   {
@@ -322,7 +322,7 @@ void
 dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValues
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID,
- const ArrayView<const LocalOrdinal>& boxNodeList, const ArrayView<const Scalar>& values)
+ const ArrayView<const LocalOrdinal>& boxNodeList, const ArrayView<const MatScalar>& values)
 {
   for (LocalOrdinal i=0; i<boxNodeList.size(); i++)
   {
@@ -335,7 +335,7 @@ void
 dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValues
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, const ArrayView<const LocalOrdinal> &boxPhysicsIDList,
- LocalOrdinal boxNode, const ArrayView<const Scalar> &values)
+ LocalOrdinal boxNode, const ArrayView<const MatScalar> &values)
 {
   for (LocalOrdinal i=0; i<boxPhysicsIDList.size(); i++)
   {
@@ -368,21 +368,21 @@ finalizeProblemValues
     globalGraph_ = rcp(new GRAPH(globalRowMap_, globalMatrix_->getColMap(), numEntriesPerRow, Tpetra::StaticProfile));
     for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const precScalar> values;
+      ArrayView<const MatScalar> values;
       globalMatrix_->getLocalRowView( i, indices, values );
       globalGraph_->insertLocalIndices( i, indices );
     }
     globalGraph_->fillComplete();
-    globalMatrixStatic_ = rcp(new MAT_P(globalGraph_));
+    globalMatrixStatic_ = rcp(new MAT(globalGraph_));
     globalMatrixStatic_->setAllToScalar(0.0);
     for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const precScalar> values;
+      ArrayView<const MatScalar> values;
       globalMatrix_->getLocalRowView( i, indices, values );
       globalMatrixStatic_->sumIntoLocalValues( i, indices(), values() );
     }
     globalMatrixStatic_->fillComplete();
-    globalMatrixOperator_ = rcp(new MMOP_P(globalMatrixStatic_));
+    globalMatrixOp_ = rcp(new MMOP(globalMatrixStatic_));
   }
 
   if(!globalMatrixStatic_->isFillComplete()){
@@ -498,14 +498,16 @@ setupSolver
   setMachineParams();
 
   scaling_ = parameterList_->template get<int>( "Scaling" );
+
   // Perform scaling
   if (scaling_ != AZ_none) {
-    scalingMatrix_ = rcp(new SCALE_P(globalMatrixStatic_));
-    rowScaleFactors_ = rcp(new VEC_P(globalRowMap_));
+    scalingMatrix_ = rcp(new SCALE(globalMatrixStatic_));
+    rowScaleFactors_ = rcp(new VEC_M(globalRowMap_));
     rowScaleFactorsScalar_ = rcp(new VEC(globalRowMap_));
 
     LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
     globalMatrixStatic_->leftScale( *rowScaleFactors_ );
+
 #if MIXED_PREC == 1
 
     RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
@@ -532,14 +534,14 @@ setupSolver
   lows_ = linearOpWithSolve<Scalar>(*lowsFactory_, thyraOp_);
 #else
 
-  problem_ = rcp(new LinPROB(globalMatrixOperator_, globalLhs_, globalRhs_));
-  RCP<const MAT_P> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT_P>(globalMatrixStatic_);
+  problem_ = rcp(new LinPROB(globalMatrixOp_, globalLhs_, globalRhs_));
+  RCP<const MAT> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT>(globalMatrixStatic_);
   Ifpack2::Factory factory;
   int precond  = parameterList_->template get<int>( "Precond" );
   if (precond != AZ_none) {
     LocalOrdinal overlapLevel = 0;
-    preconditioner_ = rcp(new PRECOND_AS(const_globalMatrix_));
-    preconditionerOp_ = rcp(new PRECOND_AS_OP(preconditioner_));
+    preconditioner_ = rcp(new SCHWARZ(const_globalMatrix_));
+    preconditionerOp_ = rcp(new SCHWARZ_OP(preconditioner_));
     ParameterList ifpack2List = parameterList_->sublist("ifpack2List");
     preconditioner_->setParameters(ifpack2List);
     preconditioner_->initialize();
@@ -600,6 +602,7 @@ solve
     globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
 #endif
   }
+
 }
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -610,7 +613,7 @@ applyMatrix
 {
   setLhs(x);
 
-  globalMatrixOperator_->apply(*globalLhs_, *globalRhs_);
+  globalMatrixOp_->apply(*globalLhs_, *globalRhs_);
 
   return(getRhs());
 }
@@ -667,7 +670,7 @@ writeMatrix
   std::string str_matrixName(matrixName);
   std::string str_matrixDescription(matrixDescription);
 
-  Tpetra::MatrixMarket::Writer<MAT_P>::writeSparseFile(str_filename,globalMatrixStatic_,str_matrixName,str_matrixDescription);
+  Tpetra::MatrixMarket::Writer<MAT>::writeSparseFile(str_filename,globalMatrixStatic_,str_matrixName,str_matrixDescription);
 
 }
 //=============================================================================
@@ -681,7 +684,7 @@ writeLhs
   std::string str_matrixName("LHS");
   std::string str_matrixDescription("LHS");
 
-  Tpetra::MatrixMarket::Writer<MAT>::writeDenseFile(str_filename,globalLhs_,str_matrixName,str_matrixDescription);
+  //  Tpetra::MatrixMarket::Writer<MAT>::writeDenseFile(str_filename,globalLhs_,str_matrixName,str_matrixDescription);
 }
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -694,7 +697,7 @@ writeRhs
   std::string str_matrixName("RHS");
   std::string str_matrixDescription("RHS");
 
-  Tpetra::MatrixMarket::Writer<MAT>::writeDenseFile(str_filename,globalRhs_,str_matrixName,str_matrixDescription);
+  //  Tpetra::MatrixMarket::Writer<MAT>::writeDenseFile(str_filename,globalRhs_,str_matrixName,str_matrixDescription);
 }
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -734,14 +737,30 @@ const  {
 }
 #if LINSOLVE_PREC == 0
 // Use float
+#if MIXED_PREC == 1
 template class dft_BasicLinProbMgr<float, float, int, int>;
+#else
+template class dft_BasicLinProbMgr<float, float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 1
 // Use double
+#if MIXED_PREC == 1
+template class dft_BasicLinProbMgr<double, float, int, int>;
+#else
 template class dft_BasicLinProbMgr<double, double, int, int>;
+#endif
 #elif LINSOLVE_PREC == 2
 // Use double double
+#if MIXED_PREC == 1
+template class dft_BasicLinProbMgr<dd_real, double, int, int>;
+#else
 template class dft_BasicLinProbMgr<dd_real, dd_real, int, int>;
+#endif
 #elif LINSOLVE_PREC == 3
 // Use quad double
+#if MIXED_PREC == 1
+template class dft_BasicLinProbMgr<qd_real, dd_real, int, int>;
+#else
 template class dft_BasicLinProbMgr<qd_real, qd_real, int, int>;
+#endif
 #endif

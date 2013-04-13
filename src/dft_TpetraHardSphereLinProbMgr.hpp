@@ -45,14 +45,13 @@ class dft_HardSphereLinProbMgr:
   public virtual dft_BasicLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
 {
 public:
-  TYPEDEF(Scalar, LocalOrdinal, GlobalOrdinal, Node)
-  TYPEDEF_MIXED(Scalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
   typedef dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
-  typedef dft_HardSphereA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> HS11TO;
-  typedef dft_HardSphereA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> HS22TO;
-  typedef dft_A22Matrix_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> A22MTO;
-  typedef dft_Schur_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
+  typedef dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> HS11TO;
+  typedef dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> HS22TO;
+  typedef dft_A22Matrix_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> A22MTO;
+  typedef dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
 
   //@{ \name Constructors/destructor.
   //! dft_HardSphereLinProbMgr Constructor.
@@ -193,7 +192,7 @@ public:
   */
   virtual void
   insertMatrixValue
-  (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, Scalar value);
+  (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, MatScalar value);
 
   //! Method that must be called each time matrix value insertion is complete (usually once per nonlinear iteration).
   virtual void
@@ -267,12 +266,12 @@ protected:
   RCP<HS11TO> A11_;
   RCP<A22MTO> A22Matrix_;
   RCP<HS22TO> A22Diagonal_;
-  RCP<MAT_P> A12_;
-  RCP<MAT_P> A21_;
+  RCP<MAT> A12_;
+  RCP<MAT> A21_;
   RCP<GRAPH> A12Graph_;
   RCP<GRAPH> A21Graph_;
-  RCP<MAT_P> A12Static_;
-  RCP<MAT_P> A21Static_;
+  RCP<MAT> A12Static_;
+  RCP<MAT> A21Static_;
   RCP<INVOP> A22MatrixPrecond_;
   RCP<INVOP> A22DiagonalPrecond_;
   RCP<const MAP> block1RowMap_;
@@ -281,7 +280,7 @@ protected:
   RCP<const MAP> depNonLocalRowMap_;
   Array<GlobalOrdinal> physicsIdToSchurBlockId_;
   RCP<ScTO> schurOperator_;
-  RCP<MMOP_P> schurComplementMatrixOperator_;
+  RCP<MMOP> schurComplementMatrixOperator_;
   RCP<VEC> rhs1_;
   RCP<VEC> rhs2_;
   RCP<VEC> rhsSchur_;
@@ -294,10 +293,10 @@ protected:
   Array<GlobalOrdinal> indicesA12_;
   int curRowA21_;
   Array<GlobalOrdinal> indicesA21_;
-  std::map<GlobalOrdinal, precScalar> curRowValuesA12_;
-  Array<precScalar> valuesA12_;
-  std::map<GlobalOrdinal, precScalar> curRowValuesA21_;
-  Array<precScalar> valuesA21_;
+  std::map<GlobalOrdinal, MatScalar> curRowValuesA12_;
+  Array<MatScalar> valuesA12_;
+  std::map<GlobalOrdinal, MatScalar> curRowValuesA21_;
+  Array<MatScalar> valuesA21_;
 
   using BLPM::parameterList_;
   using BLPM::isBlockStructureSet_;

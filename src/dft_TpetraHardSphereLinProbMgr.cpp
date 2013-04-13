@@ -152,8 +152,8 @@ finalizeBlockStructure
 
   A11_ = rcp(new HS11TO(indNonLocalRowMap_, depNonLocalRowMap_, block1RowMap_, parameterList_));
 
-  A12_ = rcp(new MAT_P(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
-  A21_ = rcp(new MAT_P(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
+  A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
+  A21_ = rcp(new MAT(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
 
   if (isA22Diagonal_) {
     A22Diagonal_ = rcp(new HS22TO(block2RowMap_));
@@ -169,7 +169,7 @@ finalizeBlockStructure
   }
 
   if (debug_) {
-    globalMatrix_ = rcp(new MAT_P(globalRowMap_, 0));
+    globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
     globalMatrix_->setObjectLabel("HardSphere::globalMatrix");
     }
   else
@@ -224,7 +224,7 @@ initializeProblemValues
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void dft_HardSphereLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 insertMatrixValue
-(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, Scalar value) {
+(LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, MatScalar value) {
 
   ArrayRCP<const Scalar> ownedNodeIsCoarsenedValues = ownedNodeIsCoarsened_->get1dView();
   ArrayRCP<const Scalar> boxNodeIsCoarsenedValues = boxNodeIsCoarsened_->get1dView();
@@ -237,8 +237,8 @@ insertMatrixValue
 
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
-  Array<precScalar> vals(1);
-  vals[0] = PREC_CAST(value);
+  Array<MatScalar> vals(1);
+  vals[0] = value;
 
   if (schurBlockRow1 && schurBlockCol1) { // A11 block
     A11_->insertMatrixValue(rowGID, colGID, value);
@@ -255,7 +255,7 @@ insertMatrixValue
 	insertRowA21();  // Dump the current contents of curRowValues_ into matrix and clear map
 	curRowA21_=rowGID;
       }
-      curRowValuesA21_[colGID] += PREC_CAST(value);
+      curRowValuesA21_[colGID] += value;
     }
     else
       A21Static_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -266,7 +266,7 @@ insertMatrixValue
 	insertRowA12();  // Dump the current contents of curRowValues_ into matrix and clear map
 	curRowA12_=rowGID;
       }
-      curRowValuesA12_[colGID] += PREC_CAST(value);
+      curRowValuesA12_[colGID] += value;
     }
     else
       A12Static_->sumIntoGlobalValues(rowGID, cols, vals);
@@ -373,33 +373,33 @@ finalizeProblemValues
     A21Graph_ = rcp(new GRAPH(A21_->getRowMap(), A21_->getColMap(), numEntriesPerRowA21, Tpetra::StaticProfile));
     for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const precScalar> values;
+      ArrayView<const MatScalar> values;
       A12_->getLocalRowView( i, indices, values );
       A12Graph_->insertLocalIndices( i, indices );
     }
     for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const precScalar> values;
+      ArrayView<const MatScalar> values;
       A21_->getLocalRowView( i, indices, values );
       A21Graph_->insertLocalIndices( i, indices );
     }
     A12Graph_->fillComplete(block2RowMap_,block1RowMap_);
     A21Graph_->fillComplete(block1RowMap_,block2RowMap_);
-    A12Static_ = rcp(new MAT_P(A12Graph_));
-    A21Static_ = rcp(new MAT_P(A21Graph_));
+    A12Static_ = rcp(new MAT(A12Graph_));
+    A21Static_ = rcp(new MAT(A21Graph_));
     A12Static_->setAllToScalar(0.0);
     A21Static_->setAllToScalar(0.0);
 
     for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const precScalar> values;
+      ArrayView<const MatScalar> values;
       A12_->getLocalRowView( i, indices, values );
       A12Static_->sumIntoLocalValues( i, indices(), values() );
     }
     A12Static_->fillComplete(block2RowMap_,block1RowMap_,pl);
     for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
-      ArrayView<const precScalar> values;
+      ArrayView<const MatScalar> values;
       A21_->getLocalRowView( i, indices, values );
       A21Static_->sumIntoLocalValues( i, indices(), values() );
     }
@@ -455,7 +455,7 @@ setupSolver
       schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Diagonal_->getA22Matrix());
     else
       schurOperator_->SetSchurComponents(A11_->getA11invMatrix(), A22Matrix_->getA22Matrix());
-    schurComplementMatrixOperator_ = rcp(new MMOP_P(schurOperator_->getSchurComplement()));
+    schurComplementMatrixOperator_ = rcp(new MMOP(schurOperator_->getSchurComplement()));
     problem_->setOperator(schurComplementMatrixOperator_);
   }
   int precond  = parameterList_->template get<int>( "Precond" );
@@ -557,14 +557,30 @@ writeMatrix
 }
 #if LINSOLVE_PREC == 0
 // Use float
+#if MIXED_PREC == 1
 template class dft_HardSphereLinProbMgr<float, float, int, int>;
+#else
+template class dft_HardSphereLinProbMgr<float, float, int, int>;
+#endif
 #elif LINSOLVE_PREC == 1
 // Use double
+#if MIXED_PREC == 1
+template class dft_HardSphereLinProbMgr<double, float, int, int>;
+#else
 template class dft_HardSphereLinProbMgr<double, double, int, int>;
+#endif
 #elif LINSOLVE_PREC == 2
 // Use double double
+#if MIXED_PREC == 1
+template class dft_HardSphereLinProbMgr<dd_real, double, int, int>;
+#else
 template class dft_HardSphereLinProbMgr<dd_real, dd_real, int, int>;
+#endif
 #elif LINSOLVE_PREC == 3
 // Use quad double
+#if MIXED_PREC == 1
+template class dft_HardSphereLinProbMgr<qd_real, dd_real, int, int>;
+#else
 template class dft_HardSphereLinProbMgr<qd_real, qd_real, int, int>;
+#endif
 #endif
