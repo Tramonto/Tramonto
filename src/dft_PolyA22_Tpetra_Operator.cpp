@@ -518,32 +518,5 @@ Check
   TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
 
 } //end Check
-#if LINSOLVE_PREC == 0
-// Use float
-#if MIXED_PREC == 1
-template class dft_PolyA22_Tpetra_Operator<float, float, int, int>;
-#else
-template class dft_PolyA22_Tpetra_Operator<float, float, int, int>;
-#endif
-#elif LINSOLVE_PREC == 1
-// Use double
-#if MIXED_PREC == 1
-template class dft_PolyA22_Tpetra_Operator<double, float, int, int>;
-#else
-template class dft_PolyA22_Tpetra_Operator<double, double, int, int>;
-#endif
-#elif LINSOLVE_PREC == 2
-// Use double double
-#if MIXED_PREC == 1
-template class dft_PolyA22_Tpetra_Operator<dd_real, double, int, int>;
-#else
-template class dft_PolyA22_Tpetra_Operator<dd_real, dd_real, int, int>;
-#endif
-#elif LINSOLVE_PREC == 3
-// Use quad double
-#if MIXED_PREC == 1
-template class dft_PolyA22_Tpetra_Operator<qd_real, dd_real, int, int>;
-#else
-template class dft_PolyA22_Tpetra_Operator<qd_real, qd_real, int, int>;
-#endif
-#endif
+
+TRAMONTO_INST_HELPER(dft_PolyA22_Tpetra_Operator)

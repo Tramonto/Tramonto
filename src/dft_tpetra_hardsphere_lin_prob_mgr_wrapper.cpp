@@ -75,8 +75,26 @@ typedef Teuchos::Comm<int> COMM;
 #endif
 #endif
 
-typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
-typedef dft_HardSphereLinProbMgr<SCALAR,MAT_SCALAR,int,int> HSLPM;
+#if NODE_TYPE == 0
+#define NODE Kokkos::TPINode
+#elif NODE_TYPE == 1
+#define NODE Kokkos::TBBNode
+#elif NODE_TYPE == 2
+#define NODE Kokkos::OpenMPNode
+#else
+#define NODE Kokkos::SerialNode
+#endif
+
+#if PLATFORM_TYPE == 0
+#define PLATFORM Tpetra::SerialPlatform<NODE>
+#else
+#define PLATFORM Tpetra::MpiPlatform<NODE>
+#endif
+
+#define THREAD_NUMBER 1
+
+typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
+typedef dft_HardSphereLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> HSLPM;
 
 
   /*****************************************************/
@@ -87,9 +105,13 @@ dft_hardsphere_lin_prob_mgr_create
 (int numUnks, void * Parameterlist_list, MPI_Comm comm)
 {
   RCP<ParameterList> my_list = rcp( (ParameterList *) Parameterlist_list, false);
-  RCP<const COMM> my_comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+  ParameterList nodeParams;
+  nodeParams.set<int>("Num Threads", THREAD_NUMBER);
+  RCP<NODE> my_node = rcp(new NODE(nodeParams));
+  RCP<PLATFORM> platform = rcp(new PLATFORM(my_node));
+  const RCP<const COMM> my_comm = platform->getComm();
 
-  HSLPM * tmp = new HSLPM(numUnks, my_list, my_comm);
+  HSLPM * tmp = new HSLPM(numUnks, my_list, my_comm, my_node);
   BLPM* linprobmgr_ = dynamic_cast<BLPM*>(tmp);
   return((void *)linprobmgr_);
 }
@@ -99,9 +121,13 @@ dft_hardsphere_lin_prob_mgr_create_debug
 (int numUnks, void * Parameterlist_list, MPI_Comm comm)
 {
   RCP<ParameterList> my_list = rcp((ParameterList *) Parameterlist_list, false);
-  RCP<const COMM> my_comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+  ParameterList nodeParams;
+  nodeParams.set<int>("Num Threads", THREAD_NUMBER);
+  RCP<NODE> my_node = rcp(new NODE(nodeParams));
+  RCP<PLATFORM> platform = rcp(new PLATFORM(my_node));
+  const RCP<const COMM> my_comm = platform->getComm();
 
-  HSLPM * tmp = new HSLPM(numUnks, my_list, my_comm, true);
+  HSLPM * tmp = new HSLPM(numUnks, my_list, my_comm, my_node, true);
   BLPM * linprobmgr_ = dynamic_cast<BLPM *>(tmp);
   return((void *)linprobmgr_);
 }

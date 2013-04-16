@@ -385,9 +385,9 @@ finalizeProblemValues
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP  = rcp(new Xpetra::CrsMatrixWrap<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
     mueluList_ = parameterList_->get("mueluList");
-    
+
     MueLu::MLParameterListInterpreter<MatScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
-    
+
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_NONE);
     H_->GetLevel(0)->Set("A", mueluPP);
@@ -403,15 +403,15 @@ finalizeProblemValues
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP = rcp(new Xpetra::CrsMatrixWrap<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
     mueluList_ = parameterList_->sublist("mueluList");
-    
+
     MueLu::MLParameterListInterpreter<MatScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
-    
+
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_NONE);
     H_->GetLevel(0)->Set("A", mueluPP);
     mueluFactory.SetupHierarchy(*H_);
 #endif
-    poissonOnPoissonInverse_ = rcp(new MueLu::TpetraOperator<MatScalar, LocalOrdinal, GlobalOrdinal>(H_));
+    poissonOnPoissonInverse_ = rcp(new MueLu::TpetraOperator<MatScalar, LocalOrdinal, GlobalOrdinal, Node>(H_));
     poissonOnPoissonInverseMixed_ = rcp(new MOP((RCP<OP_M>)poissonOnPoissonInverse_));
 #endif
   }
@@ -738,32 +738,5 @@ Check
 
   TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
 } //end Check
-#if LINSOLVE_PREC == 0
-// Use float
-#if MIXED_PREC == 1
-template class dft_PolyA22_Coulomb_Tpetra_Operator<float, float, int, int>;
-#else
-template class dft_PolyA22_Coulomb_Tpetra_Operator<float, float, int, int>;
-#endif
-#elif LINSOLVE_PREC == 1
-// Use double
-#if MIXED_PREC == 1
-template class dft_PolyA22_Coulomb_Tpetra_Operator<double, float, int, int>;
-#else
-template class dft_PolyA22_Coulomb_Tpetra_Operator<double, double, int, int>;
-#endif
-#elif LINSOLVE_PREC == 2
-// Use double double
-#if MIXED_PREC == 1
-template class dft_PolyA22_Coulomb_Tpetra_Operator<dd_real, double, int, int>;
-#else
-template class dft_PolyA22_Coulomb_Tpetra_Operator<dd_real, dd_real, int, int>;
-#endif
-#elif LINSOLVE_PREC == 3
-// Use quad double
-#if MIXED_PREC == 1
-template class dft_PolyA22_Coulomb_Tpetra_Operator<qd_real, dd_real, int, int>;
-#else
-template class dft_PolyA22_Coulomb_Tpetra_Operator<qd_real, qd_real, int, int>;
-#endif
-#endif
+
+TRAMONTO_INST_HELPER(dft_PolyA22_Coulomb_Tpetra_Operator)

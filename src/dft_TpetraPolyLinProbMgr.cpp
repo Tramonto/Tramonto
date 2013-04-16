@@ -30,9 +30,9 @@ template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal
 dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 dft_PolyLinProbMgr
 (LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList,
- RCP<const COMM> comm, bool debug)
+ RCP<const COMM> comm, RCP<Node> node, bool debug)
   : dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>
-    (numUnknownsPerNode, parameterList, comm),
+    (numUnknownsPerNode, parameterList, comm, node),
     isLinear_(false),
     debug_(debug),
     hasPoisson_(false),
@@ -179,39 +179,39 @@ finalizeBlockStructure
     } //end for
   } //end for
 
-  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0,numUnks), 0, comm_));
+  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0,numUnks), 0, comm_, node_));
   if (poissonInA11)
   {
-    block1RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numUnks1+numUnksP), 0, comm_));
-    block2RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numUnks2), 0, comm_));
+    block1RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numUnks1+numUnksP), 0, comm_, node_));
+    block2RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numUnks2), 0, comm_, node_));
   } //end if
   else
   {
-    block1RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numUnks1), 0, comm_));
-    block2RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1, numUnks2+numUnksP), 0, comm_));
+    block1RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numUnks1), 0, comm_, node_));
+    block2RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1, numUnks2+numUnksP), 0, comm_, node_));
   } //end else
 
   if (F_location == 1) //F in NE
   {
-    cmsRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numCms), 0, comm_));
-    densityRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP+numCms, numDensity), 0, comm_));
+    cmsRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numCms), 0, comm_, node_));
+    densityRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP+numCms, numDensity), 0, comm_, node_));
   } //end if
   else  //F in SW
   {
-    densityRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numDensity), 0, comm_));
-    cmsRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP+numDensity, numCms), 0, comm_));
+    densityRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numDensity), 0, comm_, node_));
+    cmsRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP+numDensity, numCms), 0, comm_, node_));
   } //end else
   if (hasPoisson_)
   {
-    poissonRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1, numUnksP), 0, comm_));
+    poissonRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1, numUnksP), 0, comm_, node_));
     if (poissonInA11)
     {
-      extraRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numUnks1), 0, comm_));
+      extraRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numUnks1), 0, comm_, node_));
       A11_ = rcp(new P11CO(ownedMap_, block1RowMap_,extraRowMap_, poissonRowMap_, parameterList_));
     } //end if
     else  //poisson in A22
     {
-      extraRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numUnks2), 0, comm_));
+      extraRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numUnks2), 0, comm_, node_));
       A11_ = rcp(new P11TO(ownedMap_, block1RowMap_, parameterList_));
     } //end else
   } //end if
@@ -224,7 +224,7 @@ finalizeBlockStructure
 
   A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("PolyLinProbMgr::A12");
   A21_ = rcp(new MAT(block2RowMap_, 0)); A21_->setObjectLabel("PolyLinProbMgr::A21");
-  
+
   if (hasPoisson_ && !poissonInA11)
   {
     A22_ = rcp(new P22CO(cmsRowMap_, densityRowMap_, poissonRowMap_, extraRowMap_, block2RowMap_, parameterList_));
@@ -665,32 +665,5 @@ writeMatrix
     return; // Not available if not in debug mode
   } //end else
 } //end writeMatrix
-#if LINSOLVE_PREC == 0
-// Use float
-#if MIXED_PREC == 1
-template class dft_PolyLinProbMgr<float, float, int, int>;
-#else
-template class dft_PolyLinProbMgr<float, float, int, int>;
-#endif
-#elif LINSOLVE_PREC == 1
-// Use double
-#if MIXED_PREC == 1
-template class dft_PolyLinProbMgr<double, float, int, int>;
-#else
-template class dft_PolyLinProbMgr<double, double, int, int>;
-#endif
-#elif LINSOLVE_PREC == 2
-// Use double double
-#if MIXED_PREC == 1
-template class dft_PolyLinProbMgr<dd_real, double, int, int>;
-#else
-template class dft_PolyLinProbMgr<dd_real, dd_real, int, int>;
-#endif
-#elif LINSOLVE_PREC == 3
-// Use quad double
-#if MIXED_PREC == 1
-template class dft_PolyLinProbMgr<qd_real, dd_real, int, int>;
-#else
-template class dft_PolyLinProbMgr<qd_real, qd_real, int, int>;
-#endif
-#endif
+
+TRAMONTO_INST_HELPER(dft_PolyLinProbMgr)

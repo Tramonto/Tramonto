@@ -80,7 +80,7 @@ public:
 
      \param debug (In) Turns debug mode on if set to true, false by default.
   */
-  dft_HardSphereLinProbMgr(LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, bool formSchurMatrix = false, bool debug = false);
+  dft_HardSphereLinProbMgr(LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, RCP<Node> node, bool formSchurMatrix = false, bool debug = false);
 
   //! dft_HardSphereLinProbMgr Destructor.
   /*! Completely deletes a dft_HardSphereLinProbMgr object.
@@ -320,6 +320,7 @@ protected:
   using BLPM::globalRhs_;
   using BLPM::globalLhs_;
   using BLPM::comm_;
+  using BLPM::node_;
   using BLPM::getRhs;
   using BLPM::ownedNodeIsCoarsened_;
   using BLPM::boxNodeIsCoarsened_;

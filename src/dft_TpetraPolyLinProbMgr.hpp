@@ -50,9 +50,9 @@ class dft_PolyLinProbMgr:
 
   typedef dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
   typedef dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
-  typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal> P11CO;
+  typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P11CO;
   typedef dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
-  typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal> P22CO;
+  typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P22CO;
   typedef dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
 
   //@{ \name Constructors/destructor.
@@ -63,7 +63,7 @@ class dft_PolyLinProbMgr:
      \param comm (In) Teuchos communicator that should be used by the solver.
      \param debug (In) Turns debug mode on if set to true, false by default.
   */
-  dft_PolyLinProbMgr(LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, bool debug = false);
+  dft_PolyLinProbMgr(LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, RCP<Node> node, bool debug = false);
 
   //! dft_PolyLinProbMgr Destructor.
   /*! Completely deletes a dft_PolyLinProbMgr object.
@@ -339,6 +339,7 @@ protected:
   using BLPM::ownedMap_;
   using BLPM::globalRowMap_;
   using BLPM::comm_;
+  using BLPM::node_;
   using BLPM::parameterList_;
   using BLPM::tpetraParameterList_;
   using BLPM::globalMatrix_;

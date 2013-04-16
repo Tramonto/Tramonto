@@ -29,9 +29,9 @@
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_HardSphereLinProbMgr
-(LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, bool formSchurMatrix, bool debug)
+(LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, RCP<Node> node, bool formSchurMatrix, bool debug)
   : dft_BasicLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
-    (numUnknownsPerNode, parameterList, comm),
+    (numUnknownsPerNode, parameterList, comm, node),
     isA22Diagonal_(false),
     formSchurMatrix_(formSchurMatrix),
     debug_(debug),
@@ -137,11 +137,11 @@ finalizeBlockStructure
     }
   }
 
-  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0,numUnks), 0, comm_));
-  block1RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0,numUnks1), 0, comm_));
-  block2RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1, numUnks2), 0, comm_));
-  indNonLocalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numIndNonLocal), 0, comm_));
-  depNonLocalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numIndNonLocal, numDepNonLocal), 0, comm_));
+  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0,numUnks), 0, comm_, node_));
+  block1RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0,numUnks1), 0, comm_, node_));
+  block2RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1, numUnks2), 0, comm_, node_));
+  indNonLocalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numIndNonLocal), 0, comm_, node_));
+  depNonLocalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numIndNonLocal, numDepNonLocal), 0, comm_, node_));
 
   /*
     std::cout << " Global Row Map" << *globalRowMap_ << std::endl
@@ -555,32 +555,5 @@ writeMatrix
   }
   */
 }
-#if LINSOLVE_PREC == 0
-// Use float
-#if MIXED_PREC == 1
-template class dft_HardSphereLinProbMgr<float, float, int, int>;
-#else
-template class dft_HardSphereLinProbMgr<float, float, int, int>;
-#endif
-#elif LINSOLVE_PREC == 1
-// Use double
-#if MIXED_PREC == 1
-template class dft_HardSphereLinProbMgr<double, float, int, int>;
-#else
-template class dft_HardSphereLinProbMgr<double, double, int, int>;
-#endif
-#elif LINSOLVE_PREC == 2
-// Use double double
-#if MIXED_PREC == 1
-template class dft_HardSphereLinProbMgr<dd_real, double, int, int>;
-#else
-template class dft_HardSphereLinProbMgr<dd_real, dd_real, int, int>;
-#endif
-#elif LINSOLVE_PREC == 3
-// Use quad double
-#if MIXED_PREC == 1
-template class dft_HardSphereLinProbMgr<qd_real, dd_real, int, int>;
-#else
-template class dft_HardSphereLinProbMgr<qd_real, qd_real, int, int>;
-#endif
-#endif
+
+TRAMONTO_INST_HELPER(dft_HardSphereLinProbMgr)

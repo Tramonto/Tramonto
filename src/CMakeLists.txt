@@ -488,6 +488,41 @@ if (USE_TPETRA)
      MESSAGE(FATAL_ERROR "Could not find Trilinos package Ifpack2!")
    ENDIF()
 
+#  Select node type
+   if (TPI_NODE)
+     message("TPI_NODE defined. Using TPI node type.")
+     ADD_DEFINITIONS(-DNODE_TYPE=0)
+   elseif (TBB_NODE)
+     message("TBB_NODE defined. Using Intel TBB node type.")
+     ADD_DEFINITIONS(-DNODE_TYPE=1)
+   elseif (OPENMP_NODE)
+     message("OPENMP_NODE defined. Using OpenMP node type.")
+     ADD_DEFINITIONS(-DNODE_TYPE=2)
+   else ()
+     message("Threaded node not specified. Using serial node type. NUM_THREADS will have no effect.")
+     ADD_DEFINITIONS(-DNODE_TYPE=3)
+   endif (TPI_NODE)
+
+#  Select number of threads
+   set(Tramonto_DEFAULT_THREADS 1 CACHE STRING	
+     "Default number of threads per node.")
+
+   if (NOT NUM_THREADS)
+      message("NUM_THREADS not specified. Setting NUM_THREADS to ${Tramonto_DEFAULT_THREADS}")
+      set(THREADS "${Tramonto_DEFAULT_THREADS}")
+   else ()
+      message("NUM_THREADS defined. Using ${NUM_THREADS} threads per node.")
+   endif ()
+
+#  Select platform type
+   if (SERIAL_PLATFORM)
+     message("SERIAL_PLATFORM defined. Using serial platform type.")
+     ADD_DEFINITIONS(-DPLATFORM_TYPE=0)
+   else ()
+     message("Using MPI platform type.")
+     ADD_DEFINITIONS(-DPLATFORM_TYPE=1)
+   endif (SERIAL_PLATFORM)
+
 #  Select precision of linear solver
    if (LINSOLVE_PREC_FLOAT)
      message("LINSOLVE_PREC_FLOAT defined. Using float precision for linear solver code.")

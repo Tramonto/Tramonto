@@ -31,7 +31,7 @@
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 dft_BasicLinProbMgr
-(size_t numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm)
+(size_t numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, RCP<Node> node)
   : isBlockStructureSet_(false),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
@@ -46,6 +46,7 @@ dft_BasicLinProbMgr
     numCoarsenedNodes_(0),
     numGlobalCoarsenedNodes_(0),
     comm_(comm),
+    node_(node),
     curRow_(-1)
 {
   // Convert Epetra parameters to Tpetra parameters
@@ -79,7 +80,7 @@ setNodalRowMap
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
 				  &numOwnedNodes_, &numGlobalNodes_);
 
-  ownedMap_ = rcp(new MAP(numGlobalNodes_, GIDs, 0, comm_));
+  ownedMap_ = rcp(new MAP(numGlobalNodes_, GIDs, 0, comm_, node_));
 }
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -97,7 +98,7 @@ setNodalColMap
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
 			       &numBoxNodes_, &numGlobalBoxNodes_);
 
-  boxMap_ = rcp(new MAP(numGlobalBoxNodes_, GIDs, 0, comm_));
+  boxMap_ = rcp(new MAP(numGlobalBoxNodes_, GIDs, 0, comm_, node_));
 }
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -114,7 +115,7 @@ setCoarsenedNodesList(const ArrayView<const GlobalOrdinal> &GIDs)
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
 			       &numCoarsenedNodes_, &numGlobalCoarsenedNodes_);
 
-  coarsenedNodesMap_ = rcp(new MAP(numGlobalCoarsenedNodes_, GIDs, 0, comm_));
+  coarsenedNodesMap_ = rcp(new MAP(numGlobalCoarsenedNodes_, GIDs, 0, comm_, node_));
 }
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -170,7 +171,7 @@ finalizeBlockStructure
     }
   }
 
-  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_));
+  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_, node_));
   globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
@@ -735,32 +736,5 @@ const  {
   }
 
 }
-#if LINSOLVE_PREC == 0
-// Use float
-#if MIXED_PREC == 1
-template class dft_BasicLinProbMgr<float, float, int, int>;
-#else
-template class dft_BasicLinProbMgr<float, float, int, int>;
-#endif
-#elif LINSOLVE_PREC == 1
-// Use double
-#if MIXED_PREC == 1
-template class dft_BasicLinProbMgr<double, float, int, int>;
-#else
-template class dft_BasicLinProbMgr<double, double, int, int>;
-#endif
-#elif LINSOLVE_PREC == 2
-// Use double double
-#if MIXED_PREC == 1
-template class dft_BasicLinProbMgr<dd_real, double, int, int>;
-#else
-template class dft_BasicLinProbMgr<dd_real, dd_real, int, int>;
-#endif
-#elif LINSOLVE_PREC == 3
-// Use quad double
-#if MIXED_PREC == 1
-template class dft_BasicLinProbMgr<qd_real, dd_real, int, int>;
-#else
-template class dft_BasicLinProbMgr<qd_real, qd_real, int, int>;
-#endif
-#endif
+
+TRAMONTO_INST_HELPER(dft_BasicLinProbMgr)

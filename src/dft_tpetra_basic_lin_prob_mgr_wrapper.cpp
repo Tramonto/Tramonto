@@ -73,7 +73,25 @@ typedef Teuchos::Comm<int> COMM;
 
 #endif
 
-typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
+#if NODE_TYPE == 0
+#define NODE Kokkos::TPINode
+#elif NODE_TYPE == 1
+#define NODE Kokkos::TBBNode
+#elif NODE_TYPE == 2
+#define NODE Kokkos::OpenMPNode
+#else
+#define NODE Kokkos::SerialNode
+#endif
+
+#if PLATFORM_TYPE == 0
+#define PLATFORM Tpetra::SerialPlatform<NODE>
+#else
+#define PLATFORM Tpetra::MpiPlatform<NODE>
+#endif
+
+#define THREAD_NUMBER 1
+
+typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
 
   /*****************************************************/
   /**                  dft_BasicLinProbMgr            **/
@@ -81,8 +99,13 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int> BLPM;
 
   void * dft_basic_lin_prob_mgr_create(int numUnks, void * Parameterlist_list, MPI_Comm comm) {
     RCP<ParameterList> my_list = rcp( (ParameterList *) Parameterlist_list, false);
-    const RCP<const COMM> my_comm = Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
-    BLPM * linprobmgr_ = new BLPM(numUnks, my_list, my_comm);
+    ParameterList nodeParams;
+    nodeParams.set<int>("Num Threads", THREAD_NUMBER);
+    RCP<NODE> my_node = rcp(new NODE(nodeParams));
+    RCP<PLATFORM> platform = rcp(new PLATFORM(my_node));
+    const RCP<const COMM> my_comm = platform->getComm();
+
+    BLPM * linprobmgr_ = new BLPM(numUnks, my_list, my_comm, my_node);
     return( (void *)linprobmgr_ );
   }
 
