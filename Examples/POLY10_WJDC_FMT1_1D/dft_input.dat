@@ -180,7 +180,7 @@
 @ 5 	Nblock[pol_number]: Number of blocks in each copolymer 
 @ 1 1 1 1 1 	block[pol_number][iblock]: Number of segments in each block 
 @ 0 1 2 3 4 	block_type[iblock_tot]: Segment types in each block (start w/0, must not skip) 
-@ 0  	Grafted[pol_number]: 1 if polymer is grafted to surface, 0 otherwise
+@ 0  	Grafted[pol_number]: 0=No Grafting; 1=grafted at known density; 2=grafted with known number
 @ 0           Graft_SegID[pol_number]: indicated segment to graft to surface
 @ n/a  	Graft_wall[pol_number]: which polymer is grafted to which wall
 @ n/a   Rho_g[pol_number]: grafting density of chains on surface
@@ -189,12 +189,12 @@
                 0=POLY_ARCH_FILE (poly_file required)
                 1=LIN_POLY       (NO poly_file required)
                 2=LIN_POLY_SYM   (NO poly_file required)
-@ 1 1. n/a 	NCrfiles Crfac Cr_file Cr_file2 Cr_file3 Cr_file4: 
-                 NCrfiles (number of cr files - up to 4 to be read in)
+@ n/a  	NCrfiles Crfac Cr_file Cr_file2: 
+                 NCrfiles (number of cr files - up to 2 to be read in)
                  Crfac (multiplicative factor for the first c(r).
                         The second c(r) is multiplied by (1.-crfac)
 @ n/a 	Cr_break[i=0;NCr_files-2] 
-@ 1. 	Cr_rad: c(r) radius (units of sigma) 
+@ n/a	Cr_rad: c(r) radius (units of sigma) 
 
 ************** SEMI-PERMEABLE SURFACE PARAMETERS *******************************
 @ -2 	Lsemiperm[iwall_type][icomp]; [0][0],[0][1],...[0][Ncomp-1][1][0]... 
