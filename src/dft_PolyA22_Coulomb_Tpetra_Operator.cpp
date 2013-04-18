@@ -79,20 +79,20 @@ initializeProblemValues
     if (!isFLinear_)
     {
       cmsOnDensityMatrix_->resumeFill();
-      cmsOnDensityMatrix_->setAllToScalar(0.0);
+      cmsOnDensityMatrix_->setAllToScalar(STMS::zero());
     } //end if
     cmsOnCmsMatrix_->resumeFill();
-    cmsOnCmsMatrix_->setAllToScalar(0.0);
-    densityOnDensityMatrix_->putScalar(0.0);
-    densityOnDensityInverse_->putScalar(0.0);
+    cmsOnCmsMatrix_->setAllToScalar(STMS::zero());
+    densityOnDensityMatrix_->putScalar(STS::zero());
+    densityOnDensityInverse_->putScalar(STS::zero());
     densityOnCmsMatrix_->resumeFill();
-    densityOnCmsMatrix_->setAllToScalar(0.0);
+    densityOnCmsMatrix_->setAllToScalar(STMS::zero());
     poissonOnPoissonMatrix_->resumeFill();
-    poissonOnPoissonMatrix_->setAllToScalar(0.0);
+    poissonOnPoissonMatrix_->setAllToScalar(STMS::zero());
     cmsOnPoissonMatrix_->resumeFill();
-    cmsOnPoissonMatrix_->setAllToScalar(0.0);
+    cmsOnPoissonMatrix_->setAllToScalar(STMS::zero());
     poissonOnDensityMatrix_->resumeFill();
-    poissonOnDensityMatrix_->setAllToScalar(0.0);
+    poissonOnDensityMatrix_->setAllToScalar(STMS::zero());
   } //end if
 } //end initializeProblemValues
 //=============================================================================
@@ -361,7 +361,7 @@ finalizeProblemValues
   if (!hasDensityOnCms)  // Confirm that densityOnCmsMatrix is zero
   {
     //    Scalar normvalue = densityOnCmsMatrix_->normInf();
-    //    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=0.0);
+    //    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=STS::zero());
   } else {
     insertRow(); // Dump any remaining entries
     densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_, pl);
@@ -508,12 +508,12 @@ applyInverse
   if (F_location_ == 1)
   {
     // Third block row: Y2 = DD\X2
-    Y2->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X2, 0.0);
+    Y2->elementWiseMultiply(STS::one(), *densityOnDensityInverse_, *X2, STS::zero());
 
     // First block row: Y0 = PP \ (X0 - PD*Y2);
     poissonOnDensityMatrixOp_->apply(*Y2, *Y0tmp);
-    Y0tmp->update(1.0, *X0, -1.0);
-    Y0->putScalar(0.0);
+    Y0tmp->update(STS::one(), *X0, -STS::one());
+    Y0->putScalar(STS::zero());
 #if ENABLE_MUELU == 1
     poissonOnPoissonInverseMixed_->apply(*Y0tmp, *Y0);
 #endif
@@ -521,19 +521,19 @@ applyInverse
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y1tmp1);
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp2);
-    Y1tmp1->update(1.0, *X1, -1.0, *Y1tmp2, -1.0);
+    Y1tmp1->update(STS::one(), *X1, -STS::one(), *Y1tmp2, -STS::one());
     cmsOnCmsInverseOp_->apply(*Y1tmp1, *Y1);
 
   }
   else
   {
     // Second block row: Y1 = DD\X1
-    Y1->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X1, 0.0);
+    Y1->elementWiseMultiply(STS::one(), *densityOnDensityInverse_, *X1, STS::zero());
 
     // First block row: Y0 = PP \ (X0 - PD*Y1);
     poissonOnDensityMatrixOp_->apply(*Y1, *Y0tmp);
-    Y0tmp->update( 1.0, *X0, -1.0 );
-    Y0->putScalar(0.0);
+    Y0tmp->update( STS::one(), *X0, -STS::one() );
+    Y0->putScalar(STS::zero());
 #if ENABLE_MUELU == 1
     poissonOnPoissonInverseMixed_->apply(*Y0tmp, *Y0);
 #endif
@@ -541,7 +541,7 @@ applyInverse
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y2tmp1);
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp2);
-    Y2tmp1->update(1.0, *X2, -1.0, *Y2tmp2, -1.0);
+    Y2tmp1->update(STS::one(), *X2, -STS::one(), *Y2tmp2, -STS::one());
     cmsOnCmsInverseOp_->apply(*Y2tmp1, *Y2);
 
   }
@@ -630,21 +630,21 @@ apply
     // First block row
     poissonOnPoissonMatrixOp_->apply(*X0, *Y0);
     poissonOnDensityMatrixOp_->apply(*X2, *Y0tmp);
-    Y0->update(1.0, *Y0tmp, 1.0);
+    Y0->update(STS::one(), *Y0tmp, STS::one());
 
     // Second block row
     cmsOnPoissonMatrixOp_->apply(*X0, *Y1);
     cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp1);
     cmsOnDensityMatrixOp_->apply(*X2, *Y1tmp2);
-    Y1->update(1.0, *Y1tmp1, 1.0);
-    Y1->update(1.0, *Y1tmp2, 1.0);
+    Y1->update(STS::one(), *Y1tmp1, STS::one());
+    Y1->update(STS::one(), *Y1tmp2, STS::one());
 
     // Third block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X1, *Y2);
-      Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 1.0);
+      Y2->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X2, STS::one());
     } else {
-      Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 0.0);
+      Y2->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X2, STS::zero());
     }
   }
   else
@@ -652,22 +652,22 @@ apply
     // First block row
     poissonOnPoissonMatrixOp_->apply(*X0, *Y0);
     poissonOnDensityMatrixOp_->apply(*X1, *Y0tmp);
-    Y0->update(1.0, *Y0tmp, 1.0);
+    Y0->update(STS::one(), *Y0tmp, STS::one());
 
     // Second block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X2, *Y1);
-      Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 1.0);
+      Y1->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X1, STS::one());
     } else {
-      Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 0.0);
+      Y1->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X1, STS::zero());
     }
 
     // Third block row
     cmsOnPoissonMatrixOp_->apply(*X0, *Y2);
     cmsOnDensityMatrixOp_->apply(*X1, *Y2tmp1);
     cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp2);
-    Y2->update(1.0, *Y2tmp1, 1.0);
-    Y2->update(1.0, *Y2tmp2, 1.0);
+    Y2->update(STS::one(), *Y2tmp1, STS::one());
+    Y2->update(STS::one(), *Y2tmp2, STS::one());
   }
 } //end Apply
 //==============================================================================
@@ -701,15 +701,15 @@ Check
   Array<Scalar> dot(1);
   ArrayView<Scalar> norms = norm.view( 0, 1 );
   ArrayView<Scalar> dots = dot.view( 0, 1 );
-  ones->putScalar( 1.0 );
+  ones->putScalar( STS::one() );
   ones->norm2( norms );
   alpha = norms[0];
-  alpha = 1.0 / alpha;
+  alpha = STS::one() / alpha;
   ones->scale( alpha );
   ones->dot( *x0, dots );
   alpha = dots[0];
-  alpha = -1.0*alpha;
-  x0->update( alpha, *ones, 1.0 );
+  alpha = -STS::one()*alpha;
+  x0->update( alpha, *ones, STS::one() );
 
   apply(*x, *b); // Forward operation
 
@@ -718,17 +718,17 @@ Check
   {
     RCP<MV > DCx1 = rcp(new MV(*b2));
     densityOnCmsMatrixOp_->apply(*x1, *DCx1);
-    b2->update(-1.0, *DCx1, 1.0); // b2 = b2 - DC*x1
+    b2->update(-STS::one(), *DCx1, STS::one()); // b2 = b2 - DC*x1
   }
   else
   {
     RCP<MV > DCx2 = rcp(new MV(*b1));
     densityOnCmsMatrixOp_->apply(*x2, *DCx2);
-    b1->update(-1.0, *DCx2, 1.0); // b1 = b1 - DC*x2
+    b1->update(-STS::one(), *DCx2, STS::one()); // b1 = b1 - DC*x2
   }
 
   applyInverse(*b, *bb); // Reverse operation
-  bb->update(-1.0, *x, 1.0); // Should be zero
+  bb->update(-STS::one(), *x, STS::one()); // Should be zero
   Scalar resid = bb->norm2();
 
   if (verbose)

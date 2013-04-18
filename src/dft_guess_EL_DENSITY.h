@@ -58,7 +58,7 @@ void setup_exp_density(double **xInBox,double *rho,int nloop,int index);
 #define EXP_RHO          1
 extern double random_rho;
 void setup_rand_density(double **xInBox,double *rho,double randrho,int nloop,int index);
-#define RAND_RHO		 6  //LMH
+#define RAND_RHO		 6  /*LMH*/
 extern int Ncomp;
 extern double Rho_b[NCOMP_MAX];
 extern int Nseg_tot;

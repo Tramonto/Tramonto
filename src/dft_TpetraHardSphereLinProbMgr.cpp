@@ -104,7 +104,7 @@ finalizeBlockStructure
   if (numGlobalCoarsenedNodes_>0) {
     setA22BlockIsDiagonal(false); // A22 block is not diagonal when some nodes are coarsened
     for (LocalOrdinal i=0; i<numCoarsenedNodes_; i++)
-      ownedNodeIsCoarsened_->replaceLocalValue(ownedMap_->getLocalElement(coarsenedNodesMap_->getGlobalElement(i)), 1.0);
+      ownedNodeIsCoarsened_->replaceLocalValue(ownedMap_->getLocalElement(coarsenedNodesMap_->getGlobalElement(i)), STS::one());
     boxNodeIsCoarsened_->doImport(*ownedNodeIsCoarsened_, *ownedToBoxImporter_, Tpetra::INSERT); // Now each processor knows which of its box nodes is coarsened
   }
   const size_t numUnks = numOwnedNodes_*numUnknownsPerNode_;
@@ -204,12 +204,12 @@ initializeProblemValues
   if (!firstTime_) {
     A12Static_->resumeFill();
     A21Static_->resumeFill();
-    A12Static_->setAllToScalar(0.0);
-    A21Static_->setAllToScalar(0.0);
-    globalRhs_->putScalar(0.0);
-    globalLhs_->putScalar(0.0);
+    A12Static_->setAllToScalar(STMS::zero());
+    A21Static_->setAllToScalar(STMS::zero());
+    globalRhs_->putScalar(STS::zero());
+    globalLhs_->putScalar(STS::zero());
     if (debug_) {
-      globalMatrix_->setAllToScalar(0.0);
+      globalMatrix_->setAllToScalar(STMS::zero());
     }
   }
 
@@ -387,8 +387,8 @@ finalizeProblemValues
     A21Graph_->fillComplete(block1RowMap_,block2RowMap_);
     A12Static_ = rcp(new MAT(A12Graph_));
     A21Static_ = rcp(new MAT(A21Graph_));
-    A12Static_->setAllToScalar(0.0);
-    A21Static_->setAllToScalar(0.0);
+    A12Static_->setAllToScalar(STMS::zero());
+    A21Static_->setAllToScalar(STMS::zero());
 
     for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
@@ -497,8 +497,8 @@ solve
 
     schurOperator_->ApplyGlobal(*lhs1_, *lhs2_, *tmprhs1, *tmprhs2);
 
-    tmpRhs->update(-1.0, *globalRhs_, 1.0);
-    Scalar resid=0.0;
+    tmpRhs->update(-STS::one(), *globalRhs_, STS::one());
+    Scalar resid = STS::zero();
     resid = tmpRhs->norm2();
     std::cout << "Global Residual for solution = " << resid << std::endl;
     bool writeMatrixNow = true;

@@ -177,6 +177,8 @@ using Belos::ReturnType;
   typedef Belos::SolverManager<SCALAR, MV, OP> SolMGR; \
   typedef Belos::LinearProblem<SCALAR, MV, OP> LinPROB; \
   typedef Ifpack2::Preconditioner<SCALAR, LO, GO, NODE> PRECOND; \
+  typedef Teuchos::ScalarTraits<SCALAR> STS; \
+  typedef Teuchos::ScalarTraits<MATSCALAR> STMS; \
   typedef typename Teuchos::ScalarTraits<SCALAR>::halfPrecision halfScalar; \
   typedef typename Teuchos::ScalarTraits<SCALAR>::doublePrecision doubleScalar; \
   typedef Tpetra::MultiVector<MATSCALAR,LO,GO,NODE> MV_M; \

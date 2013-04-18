@@ -71,9 +71,9 @@ initializeProblemValues
   {
     for (LocalOrdinal i=0; i<numBlocks_; i++)
     {
-      matrix_[i]->setAllToScalar(0.0);
+      matrix_[i]->setAllToScalar(STMS::zero());
     } //end for
-    poissonMatrix_->setAllToScalar(0.0);
+    poissonMatrix_->setAllToScalar(STMS::zero());
   } //end if
 } //end initializeProblemValues
 //=============================================================================
@@ -270,8 +270,8 @@ apply
   for (LocalOrdinal i=0; i< numBlocks_; i++)
   {
     matrixOperator_[i]->apply(*X1, *Y1tmp); // This gives a result that is X - off-diagonal-matrix*X
-    Y1tmp->update(-2.0, *Xtmp, 1.0); // This gives a result of -X - off-diagonal-matrix*X
-    Y1tmp->scale(-1.0); // Finally negate to get the desired result
+    Y1tmp->update(-2.0, *Xtmp, STS::one()); // This gives a result of -X - off-diagonal-matrix*X
+    Y1tmp->scale(-STS::one()); // Finally negate to get the desired result
     offsetValue += numMyElements;
     Y1tmp = Y.offsetViewNonConst(ownedMap_, offsetValue);
     // Reset view to next block

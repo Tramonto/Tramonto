@@ -110,25 +110,25 @@ void post_process (double **x,int *niters,
         if (binodal_flag==TRUE){
             if (Print_rho_type != PRINT_RHO_0){ 
                 print_profile((char *)DensityCounter_file,X2_old);
-                sprintf(tempfilename,"%s.vtk",DensityCounter_file); //LMH
-				print_profile_vtk(tempfilename,X2_old); //LMH print density for visualizing
+                sprintf(tempfilename,"%s.vtk",DensityCounter_file); /*LMH*/
+		print_profile_vtk(tempfilename,X2_old); /*LMH print density for visualizing*/
             }
             else {
                 print_profile((char *)Density_file,X2_old);
-                sprintf(tempfilename,"%s.vtk",Density_file); //LMH
-				print_profile_vtk(tempfilename,X2_old); //LMH print density for visualizing
+                sprintf(tempfilename,"%s.vtk",Density_file); /*LMH*/
+		print_profile_vtk(tempfilename,X2_old); /*LMH print density for visualizing*/
             }
         }
         else{
             if (Print_rho_type != PRINT_RHO_0){
                 print_profile((char *)DensityCounter_file,X_old);
-                sprintf(tempfilename,"%s.vtk",DensityCounter_file); //LMH
-				print_profile_vtk(tempfilename,X_old); //LMH print density for visualizing
+                sprintf(tempfilename,"%s.vtk",DensityCounter_file); /*LMH*/
+		print_profile_vtk(tempfilename,X_old); /*LMH print density for visualizing*/
             }
             else {
                 print_profile((char *)Density_file,X_old);
-                sprintf(tempfilename,"%s.vtk",Density_file); //LMH
-				print_profile_vtk(tempfilename,X_old); //LMH print density for visualizing
+                sprintf(tempfilename,"%s.vtk",Density_file); /*LMH*/
+		print_profile_vtk(tempfilename,X_old); /*LMH print density for visualizing*/
             }
         }
    }

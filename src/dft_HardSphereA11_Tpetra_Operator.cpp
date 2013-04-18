@@ -70,7 +70,7 @@ initializeProblemValues
   if (!firstTime_)
     if (matrix_!=Teuchos::null) {
       matrix_->resumeFill();
-      matrix_->setAllToScalar(0.0);
+      matrix_->setAllToScalar(STMS::zero());
     }
 }
 //=============================================================================
@@ -188,7 +188,7 @@ applyInverse
 
 
   if (matrix_ == Teuchos::null) {
-    Y.scale(-1.0, X); // Y = -X
+    Y.scale(-STS::one(), X); // Y = -X
     return;  // Nothing else to do
   }
 
@@ -207,13 +207,13 @@ applyInverse
   if (&X.getVector(0)==&Y.getVector(0)) { // X and Y are the same
     RCP<MV> Y2tmp = rcp(new MV(depNonLocalMap_, NumVectors));
     matrixOperator_->apply(*X1, *Y2tmp);
-    Y2->update(-1.0, *Y2tmp, -1.0, *X2, 0.0); // Gives us Y2 = -X2 - B*X1
-    Y1->scale(-1.0, *X1);
+    Y2->update(-STS::one(), *Y2tmp, -STS::one(), *X2, 0.0); // Gives us Y2 = -X2 - B*X1
+    Y1->scale(-STS::one(), *X1);
   }
   else {
-    Y1->scale(-1.0, *X1);
+    Y1->scale(-STS::one(), *X1);
     matrixOperator_->apply(*X1, *Y2);
-    Y2->update(-1.0, *X2, -1.0); // Gives us Y2 = -X2 - B*X1
+    Y2->update(-STS::one(), *X2, -STS::one()); // Gives us Y2 = -X2 - B*X1
   }
 
 }
@@ -239,7 +239,7 @@ apply
   // We store only the X portion
 
   if (matrix_ == Teuchos::null) {
-    Y.scale(-1.0, X); // Y = -X
+    Y.scale(-STS::one(), X); // Y = -X
     return;  // Nothing else to do
   }
 
@@ -258,13 +258,13 @@ apply
   if (X.getVector(0)==Y.getVector(0)) { // X and Y are the same
     RCP<MV> Y2tmp = rcp(new MV(depNonLocalMap_, NumVectors));
     matrixOperator_->apply(*X1, *Y2tmp);
-    Y2->update(1.0, *Y2tmp, -1.0, *X2, 0.0); // Gives us Y2 = -X2 + B*X1
-    Y1->scale(-1.0, *X1);
+    Y2->update(STS::one(), *Y2tmp, -STS::one(), *X2, 0.0); // Gives us Y2 = -X2 + B*X1
+    Y1->scale(-STS::one(), *X1);
   }
   else {
-    Y1->scale(-1.0, *X1);
+    Y1->scale(-STS::one(), *X1);
     matrixOperator_->apply(*X1, *Y2);
-    Y2->update(-1.0, *X2, 1.0); // Gives us Y2 = -X2 + B*X1
+    Y2->update(-STS::one(), *X2, STS::one()); // Gives us Y2 = -X2 + B*X1
   }
 
 }
@@ -281,7 +281,7 @@ Check
   x->randomize(); // Fill x with random numbers
   apply(*x, *b); // Forward operation
   applyInverse(*b, *b); // Reverse operation
-  b->update(-1.0, *x, 1.0); // Should be zero
+  b->update(-STS::one(), *x, STS::one()); // Should be zero
 
   Scalar absResid = b->norm2();
   Scalar normX = x->norm2();
@@ -309,12 +309,12 @@ formA11invMatrix
   }
   else {
     A11invMatrix_->resumeFill();
-    A11invMatrix_->setAllToScalar(0.0); // reset values
+    A11invMatrix_->setAllToScalar(STMS::zero()); // reset values
   }
 
   // insert -I for diagonal first
   LocalOrdinal numRows = getRangeMap()->getNodeNumElements();
-  MatScalar value = -1.0;
+  MatScalar value = -STS::one();
   for (LocalOrdinal i=0; i<numRows; i++) {
     GlobalOrdinal row = A11invMatrix_->getRowMap()->getGlobalElement(i);
     GlobalOrdinal col = row;

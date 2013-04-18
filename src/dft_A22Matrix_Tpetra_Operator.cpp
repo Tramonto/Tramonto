@@ -61,10 +61,10 @@ initializeProblemValues
 
   if (firstTime_) {
     A22Matrix_->resumeFill();
-    A22Matrix_->setAllToScalar(0.0);
+    A22Matrix_->setAllToScalar(STMS::zero());
   } else {
     A22MatrixStatic_->resumeFill();
-    A22MatrixStatic_->setAllToScalar(0.0);
+    A22MatrixStatic_->setAllToScalar(STMS::zero());
   }
 
 }
@@ -149,7 +149,7 @@ finalizeProblemValues
     }
     A22Graph_->fillComplete();
     A22MatrixStatic_ = rcp(new MAT(A22Graph_));
-    A22MatrixStatic_->setAllToScalar(0.0);
+    A22MatrixStatic_->setAllToScalar(STMS::zero());
 
     for (LocalOrdinal i = 0; i < block2Map_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;

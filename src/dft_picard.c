@@ -90,7 +90,7 @@ int picard_solver(double **x, double **xOwned, int subIters){
      will just proceed for subIters iterations and return. */
   int iter=0,i, max_iters;
   int iunk, ibox;
-    char tempfilename[FILENAME_LENGTH]; //LMH
+  char tempfilename[FILENAME_LENGTH]; /*LMH*/
   int converged=FALSE;
   int skip_convergence_test=FALSE,Lprint_screen;
   double **x_old, **delta_x;
@@ -120,10 +120,10 @@ int picard_solver(double **x, double **xOwned, int subIters){
           Lprint_screen=TRUE;
        }
        if ((Iwrite_files!= FILES_BASIC) && (iter%(max_iters/1)==0 || iter==1)){
-          sprintf(tempfilename,"dft_dens%d.vtk",iter); //LMH
-          print_profile_box_vtk(x,tempfilename); //LMH print density for visualizing
-          sprintf(tempfilename,"dft_dens%i.0",iter); //LMH
-          print_profile_box(x,tempfilename); //LMH also save for restarting
+	 sprintf(tempfilename,"dft_dens%d.vtk",iter); /*LMH*/
+	 print_profile_box_vtk(x,tempfilename); /*LMH print density for visualizing*/
+	 sprintf(tempfilename,"dft_dens%i.0",iter); /*LMH*/
+	 print_profile_box(x,tempfilename); /*LMH also save for restarting*/
        }
     }
     else if (max_iters<5000){
@@ -132,10 +132,10 @@ int picard_solver(double **x, double **xOwned, int subIters){
           Lprint_screen=TRUE;
        }
        if ((Iwrite_files!= FILES_BASIC && (iter%(max_iters/20)==0 || iter==1))){
-           sprintf(tempfilename,"dft_dens%i.vtk",iter); //LMH
-           print_profile_box_vtk(x,tempfilename); //LMH print density for visualizing
-           sprintf(tempfilename,"dft_dens%i.0",iter); //LMH
-           print_profile_box(x,tempfilename); //LMH also save for restarting
+	 sprintf(tempfilename,"dft_dens%i.vtk",iter); /*LMH*/
+	 print_profile_box_vtk(x,tempfilename); /*LMH print density for visualizing*/
+	 sprintf(tempfilename,"dft_dens%i.0",iter); /*LMH*/
+	 print_profile_box(x,tempfilename); /*LMH also save for restarting*/
        }
     }
     else{
@@ -144,10 +144,10 @@ int picard_solver(double **x, double **xOwned, int subIters){
           Lprint_screen=TRUE;
        }
        if (Iwrite_files != FILES_BASIC && (iter%(max_iters/50)==0 || iter==1)){
-           sprintf(tempfilename,"dft_dens%i.vtk",iter); //LMH
-           print_profile_box_vtk(x,tempfilename); //LMH print density for visualizing
-           sprintf(tempfilename,"dft_dens%i.0",iter); //LMH
-           print_profile_box(x,tempfilename); //LMH also save for restarting
+	 sprintf(tempfilename,"dft_dens%i.vtk",iter); /*LMH*/
+	 print_profile_box_vtk(x,tempfilename); /*LMH print density for visualizing*/
+	 sprintf(tempfilename,"dft_dens%i.0",iter); /*LMH*/
+	 print_profile_box(x,tempfilename); /*LMH also save for restarting*/
        }
     }
 

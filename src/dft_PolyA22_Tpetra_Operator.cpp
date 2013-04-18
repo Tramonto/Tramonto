@@ -78,14 +78,14 @@ initializeProblemValues
     if (!isFLinear_)
     {
       cmsOnDensityMatrix_->resumeFill();
-      cmsOnDensityMatrix_->setAllToScalar(0.0);
+      cmsOnDensityMatrix_->setAllToScalar(STMS::zero());
     } //end if
     cmsOnCmsMatrix_->resumeFill();
-    cmsOnCmsMatrix_->setAllToScalar(0.0);
-    densityOnDensityMatrix_->putScalar(0.0);
-    densityOnDensityInverse_->putScalar(0.0);
+    cmsOnCmsMatrix_->setAllToScalar(STMS::zero());
+    densityOnDensityMatrix_->putScalar(STS::zero());
+    densityOnDensityInverse_->putScalar(STS::zero());
     densityOnCmsMatrix_->resumeFill();
-    densityOnCmsMatrix_->setAllToScalar(0.0);
+    densityOnCmsMatrix_->setAllToScalar(STMS::zero());
   } //end if
 } //end initializeProblemValues
 //=============================================================================
@@ -351,11 +351,11 @@ applyInverse
     RCP<MV > Y1tmp = rcp(new MV(*Y1));
 
     // Second block row: Y2 = DD\X2
-    Y2->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X2, 0.0);
+    Y2->elementWiseMultiply(STS::one(), *densityOnDensityInverse_, *X2, STS::zero());
 
     // First block row: Y1 = CC \ (X1 - CD*Y2)
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp);
-    Y1tmp->update(1.0, *X1, -1.0);
+    Y1tmp->update(STS::one(), *X1, -STS::one());
     cmsOnCmsInverseOp_->apply(*Y1tmp, *Y1);
 
   }
@@ -374,11 +374,11 @@ applyInverse
     RCP<MV > Y2tmp = rcp(new MV(*Y2));
 
     // First block row: Y1 = DD\X1
-    Y1->elementWiseMultiply(1.0, *densityOnDensityInverse_, *X1, 0.0);
+    Y1->elementWiseMultiply(STS::one(), *densityOnDensityInverse_, *X1, STS::zero());
 
     // Second block row: Y2 = CC \ (X2 - CD*Y1)
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp);
-    Y2tmp->update(1.0, *X2, -1.0);
+    Y2tmp->update(STS::one(), *X2, -STS::one());
     cmsOnCmsInverseOp_->apply(*Y2tmp, *Y2);
   }
 
@@ -421,14 +421,14 @@ apply
     cmsOnDensityMatrixOp_->apply(*X2, *Y1);
     RCP<MV > Y1tmp = rcp(new MV(*Y1));
     cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp);
-    Y1->update(1.0, *Y1tmp, 1.0);
+    Y1->update(STS::one(), *Y1tmp, STS::one());
 
     // Second block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X1, *Y2);
-      Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 1.0);
+      Y2->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X2, STS::one());
     } else {
-      Y2->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X2, 0.0);
+      Y2->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X2, STS::zero());
     }
 
   }
@@ -448,16 +448,16 @@ apply
     // First block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X2, *Y1);
-      Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 1.0);
+      Y1->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X1, STS::one());
     } else {
-      Y1->elementWiseMultiply(1.0, *densityOnDensityMatrix_, *X1, 0.0);
+      Y1->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X1, STS::zero());
     }
 
     // Second block row
     cmsOnDensityMatrixOp_->apply(*X1, *Y2);
     RCP<MV > Y2tmp = rcp(new MV(*Y2));
     cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp);
-    Y2->update(1.0, *Y2tmp, 1.0);
+    Y2->update(STS::one(), *Y2tmp, STS::one());
 
   }
 
@@ -489,7 +489,7 @@ Check
       // Start b2 to view last numDensity elements of b
       RCP<MV > DCx1 = rcp(new MV(*b2));
       densityOnCmsMatrixOp_->apply(*x1, *DCx1);
-      b2->update(-1.0, *DCx1, 1.0); // b2 = b2 - DC*x1
+      b2->update(-STS::one(), *DCx1, STS::one()); // b2 = b2 - DC*x1
     }
     else
     {
@@ -500,13 +500,13 @@ Check
       // Start b1 to view first numDensity elements of b
       RCP<MV > DCx2 = rcp(new MV(*b1));
       densityOnCmsMatrixOp_->apply(*x2, *DCx2);
-      b1->update(-1.0, *DCx2, 1.0); // b1 = b1 - DC*x2
+      b1->update(-STS::one(), *DCx2, STS::one()); // b1 = b1 - DC*x2
     }
   }
 
   applyInverse(*b, *b); // Reverse operation
 
-  b->update(-1.0, *x, 1.0); // Should be zero
+  b->update(-STS::one(), *x, STS::one()); // Should be zero
 
   Scalar resid = b->norm2();
 

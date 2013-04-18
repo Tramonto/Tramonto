@@ -81,10 +81,10 @@ initializeProblemValues
     for (LocalOrdinal i=0; i<numBlocks_-1; i++)
     {
       matrix_[i]->resumeFill();
-      matrix_[i]->setAllToScalar(0.0);
+      matrix_[i]->setAllToScalar(STMS::zero());
     } //end for
 
-    invDiagonal_->putScalar(0.0);
+    invDiagonal_->putScalar(STS::zero());
   } //end if
 
 } //end initializeProblemValues
@@ -226,7 +226,7 @@ applyInverse
 
   RCP<VEC> diagVec = invDiagonal_->offsetViewNonConst(ownedMap_, 0)->getVectorNonConst(0);
 
-  curY->elementWiseMultiply(1.0, *diagVec, *curY, 0.0); // Scale Y by the first block diagonal
+  curY->elementWiseMultiply(STS::one(), *diagVec, *curY, STS::zero()); // Scale Y by the first block diagonal
 
   // Loop over block 1 through numBlocks (indexing 0 to numBlocks-1)
   for (LocalOrdinal i=0; i< numBlocks_-1; i++)
@@ -238,8 +238,8 @@ applyInverse
     diagVec = invDiagonal_->offsetViewNonConst(ownedMap_, (i+1)*numMyElements)->getVectorNonConst(0);
 
     matrixOperator_[i]->apply(Y, *Ytmp); // Multiply block lower triangular block
-    curY->update(-1.0, *Ytmp, 1.0); // curY = curX - Ytmp (Note that curX is in curY from initial copy Y = X)
-    curY->elementWiseMultiply(1.0, *diagVec, *curY, 0.0); // Scale Y by the first block diagonal
+    curY->update(-STS::one(), *Ytmp, STS::one()); // curY = curX - Ytmp (Note that curX is in curY from initial copy Y = X)
+    curY->elementWiseMultiply(STS::one(), *diagVec, *curY, STS::zero()); // Scale Y by the first block diagonal
   } //end for
 } //end applyInverse
 //==============================================================================
@@ -270,7 +270,7 @@ apply
   RCP<VEC> tempVec = rcp(new VEC(invDiagonal_->getMap()));
   tempVec->reciprocal(*invDiagonal_);
 
-  Y.elementWiseMultiply(1.0,*tempVec, X, 1.0); // Add diagonal contribution
+  Y.elementWiseMultiply(STS::one(),*tempVec, X, STS::one()); // Add diagonal contribution
 
 } //end Apply
 //==============================================================================
@@ -286,7 +286,7 @@ Check
   x->randomize(); // Fill x with random numbers
   apply(*x, *b); // Forward operation
   applyInverse(*b, *b); // Reverse operation
-  b->update(-1.0, *x, 1.0); // Should be zero
+  b->update(-STS::one(), *x, STS::one()); // Should be zero
 
   Scalar absResid = b->norm2();
   Scalar normX = x->norm2();

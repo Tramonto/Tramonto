@@ -58,8 +58,8 @@ initializeProblemValues
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_) {
-    densityOnDensityMatrix_->putScalar(0.0);
-    densityOnDensityInverse_->putScalar(0.0);
+    densityOnDensityMatrix_->putScalar(STS::zero());
+    densityOnDensityInverse_->putScalar(STS::zero());
   }
 
 }
@@ -109,7 +109,7 @@ applyInverse
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
 #endif
 
-  Y.elementWiseMultiply(1.0, *densityOnDensityInverse_, X, 0.0);
+  Y.elementWiseMultiply(STS::one(), *densityOnDensityInverse_, X, STS::zero());
 
 }
 //==============================================================================
@@ -126,7 +126,7 @@ apply
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
 #endif
 
-  Y.elementWiseMultiply(1.0, *densityOnDensityMatrix_, X, 1.0);
+  Y.elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, X, STS::one());
 
 }
 //==============================================================================
@@ -143,7 +143,7 @@ Check
 
   apply(*x, *b); // Forward operation
   applyInverse(*b, *b); // Reverse operation
-  b->update(-1.0, *x, 1.0); // Should be zero
+  b->update(-STS::one(), *x, STS::one()); // Should be zero
 
   Scalar resid = b->norm2();
 

@@ -286,13 +286,13 @@ initializeProblemValues
   {
     A12Static_->resumeFill();
     A21Static_->resumeFill();
-    A12Static_->setAllToScalar(0.0);
-    A21Static_->setAllToScalar(0.0);
-    globalRhs_->putScalar(0.0);
-    globalLhs_->putScalar(0.0);
+    A12Static_->setAllToScalar(STMS::zero());
+    A21Static_->setAllToScalar(STMS::zero());
+    globalRhs_->putScalar(STS::zero());
+    globalLhs_->putScalar(STS::zero());
     if (debug_)
     {
-      globalMatrix_->setAllToScalar(0.0);
+      globalMatrix_->setAllToScalar(STMS::zero());
     } //end if
   } //end if
 
@@ -485,8 +485,8 @@ finalizeProblemValues
     A21Graph_->fillComplete(block1RowMap_,block2RowMap_);
     A12Static_ = rcp(new MAT(A12Graph_));
     A21Static_ = rcp(new MAT(A21Graph_));
-    A12Static_->setAllToScalar(0.0);
-    A21Static_->setAllToScalar(0.0);
+    A12Static_->setAllToScalar(STMS::zero());
+    A21Static_->setAllToScalar(STMS::zero());
 
     for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
@@ -610,8 +610,8 @@ solve
 
     schurOperator_->ApplyGlobal(*lhs1_, *lhs2_, *tmprhs1, *tmprhs2);
 
-    tmpRhs->update(-1.0, *globalRhs_, 1.0);
-    Scalar resid=0.0;
+    tmpRhs->update(-STS::one(), *globalRhs_, STS::one());
+    Scalar resid = STS::zero();
     resid = tmpRhs->norm2();
     std::cout << "Global Residual for solution = " << resid << std::endl;
     bool writeMatrixNow = false;

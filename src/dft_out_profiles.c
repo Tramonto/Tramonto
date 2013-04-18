@@ -561,7 +561,7 @@ void print_profile_vtk(char *Density_FileName, double *xold)
 	fprintf(fp_Density,"CELL_DATA %i\n",Nnodes);
 	for (iunk=0; iunk<Nunk_per_node; iunk++){
 	    switch (Unk2Phys[iunk]) {
-            case DENSITY:  //LMH this could be an if statement now, but I kept the earlier construction so other outputs could be added to the file later
+            case DENSITY:  /*LMH this could be an if statement now, but I kept the earlier construction so other outputs could be added to the file later*/
                 /* print the variable name then all of its data, one per line*/
                 fprintf(fp_Density,"SCALARS density%i double\n",iunk+1);
                 fprintf(fp_Density,"LOOKUP_TABLE default\n");
@@ -573,7 +573,7 @@ void print_profile_vtk(char *Density_FileName, double *xold)
                     if (xold[iunk+node_start]<0.0 && Rho_b[icomp]<1.e-20) fprintf(fp_Density,"%.10le\n", Rho_b[icomp]);
                     else fprintf(fp_Density,"%.10le\n", xold[iunk+node_start]);
                     /* add a carriage return to the file to start a new line */
-                    //fprintf(fp_Density,"\n");
+                    /*fprintf(fp_Density,"\n");*/
                     /* add some blank lines for improved graphics in 2D and 3D gnuplot */
                     if (ijk[0] == Nodes_x[0]-1) fprintf(fp_Density,"\n");	
                 }    /* end loop over all nodes LMH:switched order of loops */

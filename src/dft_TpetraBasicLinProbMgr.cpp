@@ -201,13 +201,13 @@ initializeProblemValues
 
   if (firstTime_) {
     globalMatrix_->resumeFill();
-    globalMatrix_->setAllToScalar(0.0);
+    globalMatrix_->setAllToScalar(STMS::zero());
   } else {
     globalMatrixStatic_->resumeFill();
-    globalMatrixStatic_->setAllToScalar(0.0);
+    globalMatrixStatic_->setAllToScalar(STMS::zero());
   }
-  globalRhs_->putScalar(0.0);
-  globalLhs_->putScalar(0.0);
+  globalRhs_->putScalar(STS::zero());
+  globalLhs_->putScalar(STS::zero());
 
  }
 //=============================================================================
@@ -315,7 +315,7 @@ getMatrixValue
     }
   }
 
-  return(0.0);
+  return(STMS::zero());
 }
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -375,7 +375,7 @@ finalizeProblemValues
     }
     globalGraph_->fillComplete();
     globalMatrixStatic_ = rcp(new MAT(globalGraph_));
-    globalMatrixStatic_->setAllToScalar(0.0);
+    globalMatrixStatic_->setAllToScalar(STMS::zero());
     for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
@@ -515,10 +515,10 @@ setupSolver
     // Promote rowScaleFactors to scalar precision
     mvConverter->halfToScalar( *rowScaleFactors_, *rowScaleFactorsScalar_ );
 
-    globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactorsScalar_, *globalRhs_, 0.0 );
+    globalRhs_->elementWiseMultiply( STS::one(), *rowScaleFactorsScalar_, *globalRhs_, STS::zero() );
 
 #elif MIXED_PREC == 0
-    globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
+    globalRhs_->elementWiseMultiply( STS::one(), *rowScaleFactors_, *globalRhs_, STS::zero() );
 #endif
   }
 
@@ -597,10 +597,10 @@ solve
     // Promote rowScaleFactors to scalar precision
     mvConverter->halfToScalar( *rowScaleFactors_, *rowScaleFactorsScalar_ );
 
-    globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactorsScalar_, *globalRhs_, 0.0 );
+    globalRhs_->elementWiseMultiply( STS::one(), *rowScaleFactorsScalar_, *globalRhs_, STS::zero() );
 
 #elif MIXED_PREC == 0
-    globalRhs_->elementWiseMultiply( 1.0, *rowScaleFactors_, *globalRhs_, 0.0 );
+    globalRhs_->elementWiseMultiply( STS::one(), *rowScaleFactors_, *globalRhs_, STS::zero() );
 #endif
   }
 

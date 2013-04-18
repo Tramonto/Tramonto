@@ -98,7 +98,7 @@ apply
   RCP<MV > Y11 = rcp(new MV(A12_->getRangeMap(), X.getNumVectors()));
   RCP<MV > Y2 = rcp(new MV(A21_->getRangeMap(), X.getNumVectors()));
 
-  Y.putScalar(0.0);
+  Y.putScalar(STS::zero());
   A12op_->apply(X, *Y1);
   //Y1.NormInf(&normvalue);
   //cout << "Norm of Y1 in Schur Apply = " << normvalue << endl;
@@ -109,7 +109,7 @@ apply
   //Y2.NormInf(&normvalue);
   //cout << "Norm of Y2 in Schur Apply = " << normvalue << endl;
   A22_->apply(X, Y);
-  Y.update(-1.0, *Y2, 1.0);
+  Y.update(-STS::one(), *Y2, STS::one());
 
   //Y.NormInf(&normvalue);
   //cout << "Norm of Y in Schur Apply = " << normvalue << endl;
@@ -126,7 +126,7 @@ ComputeRHS
   RCP<MV > Y1 = rcp(new MV(A11_->getDomainMap(), B1.getNumVectors()));
   A11_->applyInverse(B1, *Y1);
   A21op_->apply(*Y1, B2S);
-  B2S.update(1.0, B2, -1.0);
+  B2S.update(STS::one(), B2, -STS::one());
 } //end ComputeRHS
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -139,7 +139,7 @@ ComputeX1
 
   RCP<MV > Y1 = rcp(new MV(A12_->getRangeMap(), X1.getNumVectors()));
   A12op_->apply(X2, *Y1);
-  Y1->update(1.0, B1, -1.0);
+  Y1->update(STS::one(), B1, -STS::one());
   A11_->applyInverse(*Y1, X1);
 } //end ComputeX1
 
@@ -166,14 +166,14 @@ ApplyGlobal
   RCP<MV > Y21 = rcp(new MV(A21_->getRangeMap(), X1.getNumVectors()));
   RCP<MV > Y22 = rcp(new MV(A22_->getRangeMap(), X1.getNumVectors()));
 
-  Y1.putScalar(0.0);
-  Y2.putScalar(0.0);
+  Y1.putScalar(STS::zero());
+  Y2.putScalar(STS::zero());
   A11_->apply(X1, *Y11);
   A12op_->apply(X2, *Y12);
   A21op_->apply(X1, *Y21);
   A22_->apply(X2, *Y22);
-  Y1.update(1.0, *Y11, 1.0, *Y12, 0.0);
-  Y2.update(1.0, *Y21, 1.0, *Y22, 0.0);
+  Y1.update(STS::one(), *Y11, STS::one(), *Y12, STS::zero());
+  Y2.update(STS::one(), *Y21, STS::one(), *Y22, STS::zero());
 } //end ApplyGlobal
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -217,7 +217,7 @@ formSchurComplement
   if (sfilled)
   {
     S_->resumeFill();
-    S_->setAllToScalar(0.0);
+    S_->setAllToScalar(STS::zero());
   } //end if
 
   //Loop over rows and sum into
