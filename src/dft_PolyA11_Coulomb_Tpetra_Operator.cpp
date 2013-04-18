@@ -270,7 +270,7 @@ apply
   for (LocalOrdinal i=0; i< numBlocks_; i++)
   {
     matrixOperator_[i]->apply(*X1, *Y1tmp); // This gives a result that is X - off-diagonal-matrix*X
-    Y1tmp->update(-2.0, *Xtmp, STS::one()); // This gives a result of -X - off-diagonal-matrix*X
+    Y1tmp->update(-(STS::one()+STS::one()), *Xtmp, STS::one()); // This gives a result of -X - off-diagonal-matrix*X
     Y1tmp->scale(-STS::one()); // Finally negate to get the desired result
     offsetValue += numMyElements;
     Y1tmp = Y.offsetViewNonConst(ownedMap_, offsetValue);
