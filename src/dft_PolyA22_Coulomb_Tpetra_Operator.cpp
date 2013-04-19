@@ -54,6 +54,10 @@ dft_PolyA22_Coulomb_Tpetra_Operator
   cmsOnPoissonMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnPoissonMatrix");
   poissonOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::poissonOnDensityMatrix");
 
+  tmpCmsVec_ = rcp(new MV(cmsMap_,1));
+  tmpCmsVec2_ = rcp(new MV(cmsMap_,1));
+  tmpPoissonVec_ = rcp(new MV(poissonMap_,1));
+
 } //end constructor
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -502,30 +506,24 @@ applyInverse
     Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements+numDensityElements);
   }
 
-  RCP<MV > Y0tmp = rcp(new MV(*Y0));
-  RCP<MV > Y1tmp1 = rcp(new MV(*Y1));
-  RCP<MV > Y1tmp2 = rcp(new MV(*Y1));
-  RCP<MV > Y2tmp1 = rcp(new MV(*Y2));
-  RCP<MV > Y2tmp2 = rcp(new MV(*Y2));
-
   if (F_location_ == 1)
   {
     // Third block row: Y2 = DD\X2
     Y2->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X2, ZERO);
 
     // First block row: Y0 = PP \ (X0 - PD*Y2);
-    poissonOnDensityMatrixOp_->apply(*Y2, *Y0tmp);
-    Y0tmp->update(ONE, *X0, -ONE);
+    poissonOnDensityMatrixOp_->apply(*Y2, *tmpPoissonVec_);
+    tmpPoissonVec_->update(ONE, *X0, -ONE);
     Y0->putScalar(ZERO);
 #if ENABLE_MUELU == 1
-    poissonOnPoissonInverseMixed_->apply(*Y0tmp, *Y0);
+    poissonOnPoissonInverseMixed_->apply(*tmpPoissonVec_, *Y0);
 #endif
 
     // Second block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
-    cmsOnPoissonMatrixOp_->apply(*Y0, *Y1tmp1);
-    cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp2);
-    Y1tmp1->update(ONE, *X1, -ONE, *Y1tmp2, -ONE);
-    cmsOnCmsInverseOp_->apply(*Y1tmp1, *Y1);
+    cmsOnPoissonMatrixOp_->apply(*Y0, *tmpCmsVec_);
+    cmsOnDensityMatrixOp_->apply(*Y2, *tmpCmsVec2_);
+    tmpCmsVec_->update(ONE, *X1, -ONE, *tmpCmsVec2_, -ONE);
+    cmsOnCmsInverseOp_->apply(*tmpCmsVec_, *Y1);
 
   }
   else
@@ -534,18 +532,18 @@ applyInverse
     Y1->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X1, ZERO);
 
     // First block row: Y0 = PP \ (X0 - PD*Y1);
-    poissonOnDensityMatrixOp_->apply(*Y1, *Y0tmp);
-    Y0tmp->update(ONE, *X0, -ONE);
+    poissonOnDensityMatrixOp_->apply(*Y1, *tmpPoissonVec_);
+    tmpPoissonVec_->update(ONE, *X0, -ONE);
     Y0->putScalar(ZERO);
 #if ENABLE_MUELU == 1
-    poissonOnPoissonInverseMixed_->apply(*Y0tmp, *Y0);
+    poissonOnPoissonInverseMixed_->apply(*tmpPoissonVec_, *Y0);
 #endif
 
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
-    cmsOnPoissonMatrixOp_->apply(*Y0, *Y2tmp1);
-    cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp2);
-    Y2tmp1->update(ONE, *X2, -ONE, *Y2tmp2, -ONE);
-    cmsOnCmsInverseOp_->apply(*Y2tmp1, *Y2);
+    cmsOnPoissonMatrixOp_->apply(*Y0, *tmpCmsVec_);
+    cmsOnDensityMatrixOp_->apply(*Y1, *tmpCmsVec2_);
+    tmpCmsVec_->update(ONE, *X2, -ONE, *tmpCmsVec2_, -ONE);
+    cmsOnCmsInverseOp_->apply(*tmpCmsVec_, *Y2);
 
   }
   /*
@@ -624,26 +622,19 @@ apply
     Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements+numDensityElements);
   }
 
-  RCP<MV > Y0tmp = rcp(new MV(*Y0));
-  RCP<MV > Y0tmp2 = rcp(new MV(*Y0));
-  RCP<MV > Y1tmp1 = rcp(new MV(*Y1));
-  RCP<MV > Y1tmp2 = rcp(new MV(*Y1));
-  RCP<MV > Y2tmp1 = rcp(new MV(*Y2));
-  RCP<MV > Y2tmp2 = rcp(new MV(*Y2));
-
   if (F_location_ == 1)
   {
     // First block row
     poissonOnPoissonMatrixOp_->apply(*X0, *Y0);
-    poissonOnDensityMatrixOp_->apply(*X2, *Y0tmp);
-    Y0->update(ONE, *Y0tmp, ONE);
+    poissonOnDensityMatrixOp_->apply(*X2, *tmpPoissonVec_);
+    Y0->update(ONE, *tmpPoissonVec_, ONE);
 
     // Second block row
     cmsOnPoissonMatrixOp_->apply(*X0, *Y1);
-    cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp1);
-    cmsOnDensityMatrixOp_->apply(*X2, *Y1tmp2);
-    Y1->update(ONE, *Y1tmp1, ONE);
-    Y1->update(ONE, *Y1tmp2, ONE);
+    cmsOnCmsMatrixOp_->apply(*X1, *tmpCmsVec_);
+    cmsOnDensityMatrixOp_->apply(*X2, *tmpCmsVec2_);
+    Y1->update(ONE, *tmpCmsVec_, ONE);
+    Y1->update(ONE, *tmpCmsVec2_, ONE);
 
     // Third block row
     if (hasDensityOnCms) {
@@ -657,8 +648,8 @@ apply
   {
     // First block row
     poissonOnPoissonMatrixOp_->apply(*X0, *Y0);
-    poissonOnDensityMatrixOp_->apply(*X1, *Y0tmp);
-    Y0->update(ONE, *Y0tmp, ONE);
+    poissonOnDensityMatrixOp_->apply(*X1, *tmpPoissonVec_);
+    Y0->update(ONE, *tmpPoissonVec_, ONE);
 
     // Second block row
     if (hasDensityOnCms) {
@@ -670,10 +661,10 @@ apply
 
     // Third block row
     cmsOnPoissonMatrixOp_->apply(*X0, *Y2);
-    cmsOnDensityMatrixOp_->apply(*X1, *Y2tmp1);
-    cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp2);
-    Y2->update(ONE, *Y2tmp1, ONE);
-    Y2->update(ONE, *Y2tmp2, ONE);
+    cmsOnDensityMatrixOp_->apply(*X1, *tmpCmsVec_);
+    cmsOnCmsMatrixOp_->apply(*X2, *tmpCmsVec2_);
+    Y2->update(ONE, *tmpCmsVec_, ONE);
+    Y2->update(ONE, *tmpCmsVec2_, ONE);
   }
 } //end Apply
 //==============================================================================

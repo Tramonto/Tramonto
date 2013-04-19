@@ -54,6 +54,8 @@ dft_PolyA22_Tpetra_Operator
   cmsOnDensityMatrix_->setObjectLabel("PolyA22::cmsOnDensityMatrix");
   F_location_ = Teuchos::getParameter<LocalOrdinal>(*parameterList_, "F_location");
 
+  tmpCmsVec_ = rcp(new MV(cmsMap_, 1));
+
   //F in NE if F_location = 1, F in SW otherwise
 } //end constructor
 //==============================================================================
@@ -351,15 +353,15 @@ applyInverse
     RCP<const MV > X1 = X.offsetView(cmsMap_, 0);
     // X2 is a view of the last numDensity elements of X
     RCP<const MV > X2 = X.offsetView(densityMap_, numCmsElements);
-    RCP<MV > Y1tmp = rcp(new MV(*Y1));
+    //    RCP<MV > Y1tmp = rcp(new MV(*Y1));
 
     // Second block row: Y2 = DD\X2
     Y2->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X2, ZERO);
 
     // First block row: Y1 = CC \ (X1 - CD*Y2)
-    cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp);
-    Y1tmp->update(ONE, *X1, -ONE);
-    cmsOnCmsInverseOp_->apply(*Y1tmp, *Y1);
+    cmsOnDensityMatrixOp_->apply(*Y2, *tmpCmsVec_);
+    tmpCmsVec_->update(ONE, *X1, -ONE);
+    cmsOnCmsInverseOp_->apply(*tmpCmsVec_, *Y1);
 
   }
   else
@@ -374,15 +376,15 @@ applyInverse
     RCP<const MV > X1 = X.offsetView(densityMap_, 0);
     // X2 is a view of the last numCms elements of X
     RCP<const MV > X2 = X.offsetView(cmsMap_, numDensityElements);
-    RCP<MV > Y2tmp = rcp(new MV(*Y2));
+    //    RCP<MV > Y2tmp = rcp(new MV(*Y2));
 
     // First block row: Y1 = DD\X1
     Y1->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X1, ZERO);
 
     // Second block row: Y2 = CC \ (X2 - CD*Y1)
-    cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp);
-    Y2tmp->update(ONE, *X2, -ONE);
-    cmsOnCmsInverseOp_->apply(*Y2tmp, *Y2);
+    cmsOnDensityMatrixOp_->apply(*Y1, *tmpCmsVec_);
+    tmpCmsVec_->update(ONE, *X2, -ONE);
+    cmsOnCmsInverseOp_->apply(*tmpCmsVec_, *Y2);
   }
 
 } //end applyInverse
@@ -425,9 +427,9 @@ apply
 
     // First block row
     cmsOnDensityMatrixOp_->apply(*X2, *Y1);
-    RCP<MV > Y1tmp = rcp(new MV(*Y1));
-    cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp);
-    Y1->update(ONE, *Y1tmp, ONE);
+    //    RCP<MV > Y1tmp = rcp(new MV(*Y1));
+    cmsOnCmsMatrixOp_->apply(*X1, *tmpCmsVec_);
+    Y1->update(ONE, *tmpCmsVec_, ONE);
 
     // Second block row
     if (hasDensityOnCms) {
@@ -461,9 +463,9 @@ apply
 
     // Second block row
     cmsOnDensityMatrixOp_->apply(*X1, *Y2);
-    RCP<MV > Y2tmp = rcp(new MV(*Y2));
-    cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp);
-    Y2->update(ONE, *Y2tmp, ONE);
+    //    RCP<MV > Y2tmp = rcp(new MV(*Y2));
+    cmsOnCmsMatrixOp_->apply(*X2, *tmpCmsVec_);
+    Y2->update(ONE, *tmpCmsVec_, ONE);
 
   }
 

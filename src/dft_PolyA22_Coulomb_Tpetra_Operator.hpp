@@ -147,6 +147,9 @@ class dft_PolyA22_Coulomb_Tpetra_Operator:
 
 protected:
 
+  RCP<MV> tmpCmsVec_;
+  RCP<MV> tmpCmsVec2_;
+  RCP<MV> tmpPoissonVec_;
   void insertRow();
   const RCP<const MAP> poissonMap_;
   const RCP<const MAP> cmsDensMap_;

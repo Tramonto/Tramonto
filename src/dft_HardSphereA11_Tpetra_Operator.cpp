@@ -210,7 +210,7 @@ applyInverse
   if (X.getVector(0)==Y.getVector(0)) { // X and Y are the same
     RCP<MV> Y2tmp = rcp(new MV(depNonLocalMap_, NumVectors));
     matrixOperator_->apply(*X1, *Y2tmp);
-    Y2->update(-ONE, *Y2tmp, -ONE, *X2, 0.0); // Gives us Y2 = -X2 - B*X1
+    Y2->update(-ONE, *Y2tmp, -ONE, *X2, ZERO); // Gives us Y2 = -X2 - B*X1
     Y1->scale(-ONE, *X1);
   }
   else {

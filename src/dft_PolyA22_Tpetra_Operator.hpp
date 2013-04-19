@@ -206,6 +206,7 @@ class dft_PolyA22_Tpetra_Operator:
 
 protected:
 
+  RCP<MV> tmpCmsVec_;
   LocalOrdinal F_location_;
   void insertRow();
   const RCP<const MAP > cmsMap_;
