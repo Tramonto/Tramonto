@@ -531,7 +531,7 @@ applyInverse
   else
   {
     // Second block row: Y1 = DD\X1
-    Y1->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X1, ONE);
+    Y1->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X1, ZERO);
 
     // First block row: Y0 = PP \ (X0 - PD*Y1);
     poissonOnDensityMatrixOp_->apply(*Y1, *Y0tmp);
