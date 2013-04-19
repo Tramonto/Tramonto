@@ -336,6 +336,9 @@ applyInverse
   size_t numCmsElements = cmsMap_->getNodeNumElements();
   size_t numDensityElements = densityMap_->getNodeNumElements();
 
+  Scalar ONE = STS::one();
+  Scalar ZERO = STS::zero();
+
   if (F_location_ == 1)
   {
     //F in NE
@@ -351,11 +354,11 @@ applyInverse
     RCP<MV > Y1tmp = rcp(new MV(*Y1));
 
     // Second block row: Y2 = DD\X2
-    Y2->elementWiseMultiply(STS::one(), *densityOnDensityInverse_, *X2, STS::zero());
+    Y2->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X2, ZERO);
 
     // First block row: Y1 = CC \ (X1 - CD*Y2)
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp);
-    Y1tmp->update(STS::one(), *X1, -STS::one());
+    Y1tmp->update(ONE, *X1, -ONE);
     cmsOnCmsInverseOp_->apply(*Y1tmp, *Y1);
 
   }
@@ -374,11 +377,11 @@ applyInverse
     RCP<MV > Y2tmp = rcp(new MV(*Y2));
 
     // First block row: Y1 = DD\X1
-    Y1->elementWiseMultiply(STS::one(), *densityOnDensityInverse_, *X1, STS::zero());
+    Y1->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X1, ZERO);
 
     // Second block row: Y2 = CC \ (X2 - CD*Y1)
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp);
-    Y2tmp->update(STS::one(), *X2, -STS::one());
+    Y2tmp->update(ONE, *X2, -ONE);
     cmsOnCmsInverseOp_->apply(*Y2tmp, *Y2);
   }
 
@@ -404,6 +407,9 @@ apply
   // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
   bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
+  Scalar ONE = STS::one();
+  Scalar ZERO = STS::zero();
+
   if (F_location_ == 1)
   {
     //F in NE
@@ -421,14 +427,14 @@ apply
     cmsOnDensityMatrixOp_->apply(*X2, *Y1);
     RCP<MV > Y1tmp = rcp(new MV(*Y1));
     cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp);
-    Y1->update(STS::one(), *Y1tmp, STS::one());
+    Y1->update(ONE, *Y1tmp, ONE);
 
     // Second block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X1, *Y2);
-      Y2->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X2, STS::one());
+      Y2->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X2, ONE);
     } else {
-      Y2->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X2, STS::zero());
+      Y2->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X2, ZERO);
     }
 
   }
@@ -448,16 +454,16 @@ apply
     // First block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X2, *Y1);
-      Y1->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X1, STS::one());
+      Y1->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X1, ONE);
     } else {
-      Y1->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X1, STS::zero());
+      Y1->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X1, ONE);
     }
 
     // Second block row
     cmsOnDensityMatrixOp_->apply(*X1, *Y2);
     RCP<MV > Y2tmp = rcp(new MV(*Y2));
     cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp);
-    Y2->update(STS::one(), *Y2tmp, STS::one());
+    Y2->update(ONE, *Y2tmp, ONE);
 
   }
 

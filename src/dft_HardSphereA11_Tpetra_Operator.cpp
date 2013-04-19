@@ -174,6 +174,9 @@ applyInverse
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
 #endif
 
+  Scalar ONE = STS::one();
+  Scalar ZERO = STS::zero();
+
   // Matrix is of the form
   //
   // | -I  0 |
@@ -188,7 +191,7 @@ applyInverse
 
 
   if (matrix_ == Teuchos::null) {
-    Y.scale(-STS::one(), X); // Y = -X
+    Y.scale(-ONE, X); // Y = -X
     return;  // Nothing else to do
   }
 
@@ -207,13 +210,13 @@ applyInverse
   if (&X.getVector(0)==&Y.getVector(0)) { // X and Y are the same
     RCP<MV> Y2tmp = rcp(new MV(depNonLocalMap_, NumVectors));
     matrixOperator_->apply(*X1, *Y2tmp);
-    Y2->update(-STS::one(), *Y2tmp, -STS::one(), *X2, 0.0); // Gives us Y2 = -X2 - B*X1
-    Y1->scale(-STS::one(), *X1);
+    Y2->update(-ONE, *Y2tmp, -ONE, *X2, 0.0); // Gives us Y2 = -X2 - B*X1
+    Y1->scale(-ONE, *X1);
   }
   else {
-    Y1->scale(-STS::one(), *X1);
+    Y1->scale(-ONE, *X1);
     matrixOperator_->apply(*X1, *Y2);
-    Y2->update(-STS::one(), *X2, -STS::one()); // Gives us Y2 = -X2 - B*X1
+    Y2->update(-ONE, *X2, -ONE); // Gives us Y2 = -X2 - B*X1
   }
 
 }
@@ -231,6 +234,9 @@ apply
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
 #endif
 
+  Scalar ONE = STS::one();
+  Scalar ZERO = STS::zero();
+
   // Matrix is of the form
   //
   // | -I  0 |
@@ -239,7 +245,7 @@ apply
   // We store only the X portion
 
   if (matrix_ == Teuchos::null) {
-    Y.scale(-STS::one(), X); // Y = -X
+    Y.scale(-ONE, X); // Y = -X
     return;  // Nothing else to do
   }
 
@@ -258,13 +264,13 @@ apply
   if (X.getVector(0)==Y.getVector(0)) { // X and Y are the same
     RCP<MV> Y2tmp = rcp(new MV(depNonLocalMap_, NumVectors));
     matrixOperator_->apply(*X1, *Y2tmp);
-    Y2->update(STS::one(), *Y2tmp, -STS::one(), *X2, 0.0); // Gives us Y2 = -X2 + B*X1
-    Y1->scale(-STS::one(), *X1);
+    Y2->update(ONE, *Y2tmp, -ONE, *X2, ZERO); // Gives us Y2 = -X2 + B*X1
+    Y1->scale(-ONE, *X1);
   }
   else {
-    Y1->scale(-STS::one(), *X1);
+    Y1->scale(-ONE, *X1);
     matrixOperator_->apply(*X1, *Y2);
-    Y2->update(-STS::one(), *X2, STS::one()); // Gives us Y2 = -X2 + B*X1
+    Y2->update(-ONE, *X2, ONE); // Gives us Y2 = -X2 + B*X1
   }
 
 }

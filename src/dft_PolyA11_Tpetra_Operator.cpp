@@ -215,6 +215,9 @@ applyInverse
   printf("\n\n\n\ndft_PolyA11_Tpetra_Operator::applyInverse()\n\n\n\n");
 #endif
 
+  Scalar ONE = STS::one();
+  Scalar ZERO = STS::zero();
+
   size_t NumVectors = Y.getNumVectors();
   size_t numMyElements = ownedMap_->getNodeNumElements();
   RCP<MV > Ytmp = rcp(new MV(ownedMap_,NumVectors));
@@ -226,7 +229,7 @@ applyInverse
 
   RCP<VEC> diagVec = invDiagonal_->offsetViewNonConst(ownedMap_, 0)->getVectorNonConst(0);
 
-  curY->elementWiseMultiply(STS::one(), *diagVec, *curY, STS::zero()); // Scale Y by the first block diagonal
+  curY->elementWiseMultiply(ONE, *diagVec, *curY, ZERO); // Scale Y by the first block diagonal
 
   // Loop over block 1 through numBlocks (indexing 0 to numBlocks-1)
   for (LocalOrdinal i=0; i< numBlocks_-1; i++)
@@ -238,8 +241,8 @@ applyInverse
     diagVec = invDiagonal_->offsetViewNonConst(ownedMap_, (i+1)*numMyElements)->getVectorNonConst(0);
 
     matrixOperator_[i]->apply(Y, *Ytmp); // Multiply block lower triangular block
-    curY->update(-STS::one(), *Ytmp, STS::one()); // curY = curX - Ytmp (Note that curX is in curY from initial copy Y = X)
-    curY->elementWiseMultiply(STS::one(), *diagVec, *curY, STS::zero()); // Scale Y by the first block diagonal
+    curY->update(-ONE, *Ytmp, ONE); // curY = curX - Ytmp (Note that curX is in curY from initial copy Y = X)
+    curY->elementWiseMultiply(ONE, *diagVec, *curY, ZERO); // Scale Y by the first block diagonal
   } //end for
 } //end applyInverse
 //==============================================================================

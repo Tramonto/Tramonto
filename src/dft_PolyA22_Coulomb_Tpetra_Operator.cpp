@@ -482,6 +482,9 @@ applyInverse
   // Y2 is a view of the last numDensity/numCms elements of Y
   RCP<MV> Y2;
 
+  Scalar ONE = STS::one();
+  Scalar ZERO = STS::zero();
+
   if (F_location_ == 1)
   {
     //F in NE part
@@ -508,12 +511,12 @@ applyInverse
   if (F_location_ == 1)
   {
     // Third block row: Y2 = DD\X2
-    Y2->elementWiseMultiply(STS::one(), *densityOnDensityInverse_, *X2, STS::zero());
+    Y2->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X2, ZERO);
 
     // First block row: Y0 = PP \ (X0 - PD*Y2);
     poissonOnDensityMatrixOp_->apply(*Y2, *Y0tmp);
-    Y0tmp->update(STS::one(), *X0, -STS::one());
-    Y0->putScalar(STS::zero());
+    Y0tmp->update(ONE, *X0, -ONE);
+    Y0->putScalar(ZERO);
 #if ENABLE_MUELU == 1
     poissonOnPoissonInverseMixed_->apply(*Y0tmp, *Y0);
 #endif
@@ -521,19 +524,19 @@ applyInverse
     // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y1tmp1);
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp2);
-    Y1tmp1->update(STS::one(), *X1, -STS::one(), *Y1tmp2, -STS::one());
+    Y1tmp1->update(ONE, *X1, -ONE, *Y1tmp2, -ONE);
     cmsOnCmsInverseOp_->apply(*Y1tmp1, *Y1);
 
   }
   else
   {
     // Second block row: Y1 = DD\X1
-    Y1->elementWiseMultiply(STS::one(), *densityOnDensityInverse_, *X1, STS::zero());
+    Y1->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X1, ONE);
 
     // First block row: Y0 = PP \ (X0 - PD*Y1);
     poissonOnDensityMatrixOp_->apply(*Y1, *Y0tmp);
-    Y0tmp->update( STS::one(), *X0, -STS::one() );
-    Y0->putScalar(STS::zero());
+    Y0tmp->update(ONE, *X0, -ONE);
+    Y0->putScalar(ZERO);
 #if ENABLE_MUELU == 1
     poissonOnPoissonInverseMixed_->apply(*Y0tmp, *Y0);
 #endif
@@ -541,7 +544,7 @@ applyInverse
     // Third block row: Y2 = CC \ (X2 - CP*Y0 - CD*Y1)
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y2tmp1);
     cmsOnDensityMatrixOp_->apply(*Y1, *Y2tmp2);
-    Y2tmp1->update(STS::one(), *X2, -STS::one(), *Y2tmp2, -STS::one());
+    Y2tmp1->update(ONE, *X2, -ONE, *Y2tmp2, -ONE);
     cmsOnCmsInverseOp_->apply(*Y2tmp1, *Y2);
 
   }
@@ -601,6 +604,9 @@ apply
   // Y2 is a view of the last numDensity/numCms elements of Y
   RCP<MV > Y2;
 
+  Scalar ONE = STS::one();
+  Scalar ZERO = STS::zero();
+
   if (F_location_ == 1)
   {
     // F in NE
@@ -630,21 +636,21 @@ apply
     // First block row
     poissonOnPoissonMatrixOp_->apply(*X0, *Y0);
     poissonOnDensityMatrixOp_->apply(*X2, *Y0tmp);
-    Y0->update(STS::one(), *Y0tmp, STS::one());
+    Y0->update(ONE, *Y0tmp, ONE);
 
     // Second block row
     cmsOnPoissonMatrixOp_->apply(*X0, *Y1);
     cmsOnCmsMatrixOp_->apply(*X1, *Y1tmp1);
     cmsOnDensityMatrixOp_->apply(*X2, *Y1tmp2);
-    Y1->update(STS::one(), *Y1tmp1, STS::one());
-    Y1->update(STS::one(), *Y1tmp2, STS::one());
+    Y1->update(ONE, *Y1tmp1, ONE);
+    Y1->update(ONE, *Y1tmp2, ONE);
 
     // Third block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X1, *Y2);
-      Y2->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X2, STS::one());
+      Y2->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X2, ONE);
     } else {
-      Y2->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X2, STS::zero());
+      Y2->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X2, ZERO);
     }
   }
   else
@@ -652,22 +658,22 @@ apply
     // First block row
     poissonOnPoissonMatrixOp_->apply(*X0, *Y0);
     poissonOnDensityMatrixOp_->apply(*X1, *Y0tmp);
-    Y0->update(STS::one(), *Y0tmp, STS::one());
+    Y0->update(ONE, *Y0tmp, ONE);
 
     // Second block row
     if (hasDensityOnCms) {
       densityOnCmsMatrixOp_->apply(*X2, *Y1);
-      Y1->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X1, STS::one());
+      Y1->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X1, ONE);
     } else {
-      Y1->elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, *X1, STS::zero());
+      Y1->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X1, ZERO);
     }
 
     // Third block row
     cmsOnPoissonMatrixOp_->apply(*X0, *Y2);
     cmsOnDensityMatrixOp_->apply(*X1, *Y2tmp1);
     cmsOnCmsMatrixOp_->apply(*X2, *Y2tmp2);
-    Y2->update(STS::one(), *Y2tmp1, STS::one());
-    Y2->update(STS::one(), *Y2tmp2, STS::one());
+    Y2->update(ONE, *Y2tmp1, ONE);
+    Y2->update(ONE, *Y2tmp2, ONE);
   }
 } //end Apply
 //==============================================================================
