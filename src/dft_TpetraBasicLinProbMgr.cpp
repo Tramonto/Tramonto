@@ -612,7 +612,7 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 applyMatrix
 (const ArrayView<const ArrayView<const Scalar> >& x) const
 {
-  setLhs(x);
+  this->setLhs(x);
 
   globalMatrixOp_->apply(*globalLhs_, *globalRhs_);
 

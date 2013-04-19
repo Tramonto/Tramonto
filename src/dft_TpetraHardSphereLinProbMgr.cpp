@@ -232,8 +232,8 @@ insertMatrixValue
 			 ownedNodeIsCoarsenedValues[ownedNode]==0);
   bool schurBlockCol1 = (physicsIdToSchurBlockId_[boxPhysicsID]==1 &&
 			 boxNodeIsCoarsenedValues[boxNode]==0);
-  GlobalOrdinal rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
-  GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
+  GlobalOrdinal rowGID = this->ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
+  GlobalOrdinal colGID = this->boxToSolverGID(boxPhysicsID, boxNode);
 
   Array<GlobalOrdinal> cols(1);
   cols[0] = colGID;
@@ -518,7 +518,7 @@ dft_HardSphereLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 applyMatrix
 (const ArrayView<const ArrayView<const Scalar> >& x) const
 {
-  setLhs(x);
+  this->setLhs(x);
 
   schurOperator_->ApplyGlobal(*lhs1_, *lhs2_, *rhs1_, *rhs2_);
 

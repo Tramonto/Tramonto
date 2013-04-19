@@ -521,7 +521,7 @@ applyInverse
     poissonOnPoissonInverseMixed_->apply(*Y0tmp, *Y0);
 #endif
 
-    // Third block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
+    // Second block row: Y1 = CC \ (X1 - CP*Y0 - CD*Y2)
     cmsOnPoissonMatrixOp_->apply(*Y0, *Y1tmp1);
     cmsOnDensityMatrixOp_->apply(*Y2, *Y1tmp2);
     Y1tmp1->update(ONE, *X1, -ONE, *Y1tmp2, -ONE);

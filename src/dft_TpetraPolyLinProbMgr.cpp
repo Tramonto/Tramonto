@@ -632,7 +632,7 @@ dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 applyMatrix
 (const ArrayView<const ArrayView<const Scalar> >& x) const
 {
-  setLhs(x);
+  this->setLhs(x);
 
   schurOperator_->ApplyGlobal(*lhs1_, *lhs2_, *rhs1_, *rhs2_);
 
