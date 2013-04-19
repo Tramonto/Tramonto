@@ -456,7 +456,7 @@ apply
       densityOnCmsMatrixOp_->apply(*X2, *Y1);
       Y1->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X1, ONE);
     } else {
-      Y1->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X1, ONE);
+      Y1->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X1, ZERO);
     }
 
     // Second block row
