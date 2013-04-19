@@ -58,13 +58,14 @@ namespace Tpetra {
     Once constructed, an MixedOperator can be used to apply the input operator to doublePrecision vectors
     as long as the appropriate apply method is implemented in the original Operator object.
   */
-  template<class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
+  template<class Scalar, class OpScalar=Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
   class MixedOperator: public virtual Tpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> {
   public:
 
-    /** \name Typedefs that give access to the template parameters. */
+    /** \name Typedefs */
     //@{
-    typedef typename Teuchos::ScalarTraits<Scalar>::halfPrecision halfScalar;
+    typedef Tpetra::MultiVector<Scalar,LocalOrdinal,GlobalOrdinal,Node> MV;
+    typedef Tpetra::MultiVector<OpScalar,LocalOrdinal,GlobalOrdinal,Node> OMV;
 
     //@}
 
@@ -74,18 +75,12 @@ namespace Tpetra {
     /*! Facilitates the use of an Operator instance as an inverse operator.
       \param In - A fully-constructed Operator object.
     */
-    MixedOperator(Teuchos::RCP<Tpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > operatorIn) {
+    MixedOperator(Teuchos::RCP<Tpetra::Operator<OpScalar, LocalOrdinal, GlobalOrdinal, Node> > operatorIn) {
       operator_ = operatorIn;
-      operatorPrec_ = SCALAR_P;
+      mvConverterSO_ = Teuchos::rcp(new Tpetra::MultiVectorConverter<Scalar,OpScalar,LocalOrdinal,GlobalOrdinal,Node>());
+      mvConverterOS_ = Teuchos::rcp(new Tpetra::MultiVectorConverter<OpScalar,Scalar,LocalOrdinal,GlobalOrdinal,Node>());
       return;
     }
-#if MIXED_PREC == 1
-    MixedOperator(Teuchos::RCP<Tpetra::Operator<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > operatorIn) {
-      operatorHalf_ = operatorIn;
-      operatorPrec_ = HALF_SCALAR_P;
-      return;
-    }
-#endif
 
     //! Destructor
     virtual ~MixedOperator(){}
@@ -106,66 +101,47 @@ namespace Tpetra {
 	       Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
 	       Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const
     {
-      if (operatorPrec_ == HALF_SCALAR_P) {
 
-	Teuchos::RCP<Tpetra::MultiVector<halfScalar,LocalOrdinal,GlobalOrdinal,Node> > halfX =
-	  Teuchos::rcp( new Tpetra::MultiVector<halfScalar,LocalOrdinal,GlobalOrdinal,Node>(X.getMap(), X.getNumVectors()) );
-	Teuchos::RCP<Tpetra::MultiVector<halfScalar,LocalOrdinal,GlobalOrdinal,Node> > halfY =
-	  Teuchos::rcp( new Tpetra::MultiVector<halfScalar,LocalOrdinal,GlobalOrdinal,Node>(Y.getMap(), Y.getNumVectors()) );
-	// Cast alpha, beta to halfPrecision
-	halfScalar alphaHalf = Teuchos::as<halfScalar>(alpha);
-	halfScalar betaHalf = Teuchos::as<halfScalar>(beta);
+      Teuchos::RCP<OMV> OX = Teuchos::rcp(new OMV(X.getMap(), X.getNumVectors()));
+      Teuchos::RCP<OMV> OY = Teuchos::rcp(new OMV(Y.getMap(), Y.getNumVectors()));
 
-	// Demote X from scalar precision to halfPrecision
-	mvConverter->scalarToHalf( X, *halfX );
+      // Convert the input multivectors to OpScalar precision
+      mvConverterSO_->convert( X, *OX );
+      mvConverterSO_->convert( Y, *OY );
 
-	// Apply the operator
-	operatorHalf_->apply(*halfX,*halfY,mode,alphaHalf,betaHalf);
+      // Apply the operator
+      operator_->apply( *OX, *OY, mode, Teuchos::as<OpScalar>(alpha), Teuchos::as<OpScalar>(beta) );
 
-	// Promote halfY from halfPrecision to scalar precision
-	mvConverter->halfToScalar( *halfY, Y );
+      // Convert the output multivectors to Scalar precision
+      mvConverterOS_->convert( *OY, Y );
 
-      } else if (operatorPrec_ == SCALAR_P) {
-
-	// Apply the operator
-	operator_->apply(X,Y,mode,alpha,beta);
-
-      }
-
+      return;
     }
 
   //! @name Attribute access functions
   //@{
 
   //! Returns a pointer to the Operator operator object that was used to create this MixedOperator object.
-    Teuchos::RCP<Tpetra::Operator<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const {return(operator_);}
+    Teuchos::RCP<Tpetra::Operator<OpScalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const {return(operator_);}
 
   //! Returns the BlockMap object associated with the domain of this matrix operator.
     const Teuchos::RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> > & getDomainMap() const
     {
-      if (operatorPrec_ == HALF_SCALAR_P) {
-	return(operatorHalf_->getDomainMap());
-      } else if (operatorPrec_ == SCALAR_P) {
-	return(operator_->getDomainMap());
-      }
+      return(operator_->getDomainMap());
     }
 
   //! Returns the BlockMap object associated with the range of this matrix operator.
     const Teuchos::RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> > & getRangeMap() const
     {
-      if (operatorPrec_ == HALF_SCALAR_P) {
-	return(operatorHalf_->getRangeMap());
-      } else if (operatorPrec_ == SCALAR_P) {
-	return(operator_->getRangeMap());
-      }
+      return(operator_->getRangeMap());
     }
   //@}
 
  protected:
-    int operatorPrec_;
-    Teuchos::RCP<Tpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> > operator_;
-    Teuchos::RCP<Tpetra::Operator<halfScalar, LocalOrdinal, GlobalOrdinal, Node> > operatorHalf_;
-    Teuchos::RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+
+    Teuchos::RCP<Tpetra::Operator<OpScalar, LocalOrdinal, GlobalOrdinal, Node> > operator_;
+    Teuchos::RCP<Tpetra::MultiVectorConverter<Scalar,OpScalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverterSO_;
+    Teuchos::RCP<Tpetra::MultiVectorConverter<OpScalar,Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverterOS_;
 };
 
 }

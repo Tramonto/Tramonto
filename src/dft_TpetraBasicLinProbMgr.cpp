@@ -261,7 +261,7 @@ insertRow
 {
   if (curRowValues_.empty()) return;
 
-  ITER_M pos;
+  ITER pos;
   for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
     indices_.append(pos->first);
     values_.append(pos->second);
@@ -511,9 +511,9 @@ setupSolver
 
 #if MIXED_PREC == 1
 
-    RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
-    // Promote rowScaleFactors to scalar precision
-    mvConverter->halfToScalar( *rowScaleFactors_, *rowScaleFactorsScalar_ );
+    RCP<Tpetra::MultiVectorConverter<MatScalar,Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+    // Convert rowScaleFactors to scalar precision
+    mvConverter->convert( *rowScaleFactors_, *rowScaleFactorsScalar_ );
 
     globalRhs_->elementWiseMultiply( STS::one(), *rowScaleFactorsScalar_, *globalRhs_, STS::zero() );
 
@@ -593,9 +593,9 @@ solve
     globalMatrixStatic_->leftScale( *rowScaleFactors_ );
 #if MIXED_PREC == 1
 
-    RCP<Tpetra::MultiVectorConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
-    // Promote rowScaleFactors to scalar precision
-    mvConverter->halfToScalar( *rowScaleFactors_, *rowScaleFactorsScalar_ );
+    RCP<Tpetra::MultiVectorConverter<MatScalar,Scalar,LocalOrdinal,GlobalOrdinal,Node> > mvConverter;
+    // Convert rowScaleFactors to scalar precision
+    mvConverter->convert( *rowScaleFactors_, *rowScaleFactorsScalar_ );
 
     globalRhs_->elementWiseMultiply( STS::one(), *rowScaleFactorsScalar_, *globalRhs_, STS::zero() );
 

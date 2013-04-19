@@ -166,7 +166,7 @@ using Belos::ReturnType;
   typedef Tpetra::Operator<SCALAR,LO,GO,NODE> OP; \
   typedef Tpetra::OperatorApplyInverse<SCALAR,LO,GO,NODE> APINV; \
   typedef Tpetra::InvOperator<SCALAR,LO,GO,NODE> INVOP; \
-  typedef Tpetra::MixedOperator<SCALAR,LO,GO,NODE> MOP; \
+  typedef Tpetra::MixedOperator<SCALAR,MATSCALAR,LO,GO,NODE> MOP;	\
   typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,MATSCALAR,LO,GO,NODE> MMOP; \
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,NODE> MAP; \
@@ -184,7 +184,6 @@ using Belos::ReturnType;
   typedef Tpetra::MultiVector<MATSCALAR,LO,GO,NODE> MV_M; \
   typedef Tpetra::Vector<MATSCALAR,LO,GO,NODE> VEC_M;		   \
   typedef Tpetra::Operator<MATSCALAR,LO,GO,NODE> OP_M;			\
-  typedef typename std::map<GO, MATSCALAR>::iterator ITER_M; \
   typedef Ifpack2::ILUT<MAT> ILUT; \
   typedef Ifpack2::AdditiveSchwarz<MAT,ILUT> SCHWARZ; \
   typedef Tpetra::details::ApplyOp<Scalar,ILUT> ILUT_OP; \

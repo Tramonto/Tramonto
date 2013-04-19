@@ -48,17 +48,14 @@ namespace Tpetra {
 
   //! MultiVectorConverter: A means of converting a Tpetra Multivector to a different scalar precision.
 
-  template<class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
+  template<class DomainScalar, class RangeScalar=DomainScalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
   class MultiVectorConverter {
   public:
 
-    /** \name Typedefs that give access to the template parameters. */
+    /** \name Typedefs */
     //@{
-    typedef typename Teuchos::ScalarTraits<Scalar>::halfPrecision halfScalar;
-    typedef typename Teuchos::ScalarTraits<Scalar>::doublePrecision doubleScalar;
-    typedef Tpetra::MultiVector<Scalar,LocalOrdinal,GlobalOrdinal,Node> MV;
-    typedef Tpetra::MultiVector<halfScalar,LocalOrdinal,GlobalOrdinal,Node> MV_H;
-    typedef Tpetra::MultiVector<doubleScalar,LocalOrdinal,GlobalOrdinal,Node> MV_D;
+    typedef Tpetra::MultiVector<DomainScalar,LocalOrdinal,GlobalOrdinal,Node> DMV;
+    typedef Tpetra::MultiVector<RangeScalar,LocalOrdinal,GlobalOrdinal,Node> RMV;
 
     //@}
 
@@ -72,53 +69,18 @@ namespace Tpetra {
     //! Destructor
     virtual ~MultiVectorConverter() {}
     //@}
-
-    void scalarToHalf(const MV& X, MV_H& Y)
+    
+    void convert(const DMV& X, RMV& Y)
     {
-      // Demote X from scalar precision to halfPrecision
-      for (size_t j=0; j<X.getNumVectors(); j++) {
-	ArrayRCP<const Scalar> vecVals = X.getVector( j )->get1dView();
-	ArrayRCP<halfScalar> hvecVals = Y.getVectorNonConst( j )->get1dViewNonConst();
-	if( vecVals.size() > 0 ) {
-	  std::transform( vecVals.begin(), vecVals.end(), hvecVals.begin(), Teuchos::asFunc<halfScalar>() );
+      // Convert X from DomainScalar precision to RangeScalar precision
+      for (size_t j=0; j<X.getNumVectors(); ++j) {
+	ArrayRCP<const DomainScalar> xvecVals = X.getVector( j )->get1dView();
+	ArrayRCP<RangeScalar> yvecVals = Y.getVectorNonConst( j )->get1dViewNonConst();
+	if( xvecVals.size() > 0 ) {
+	  std::transform( xvecVals.begin(), xvecVals.end(), yvecVals.begin(), Teuchos::asFunc<RangeScalar>() );
 	}
       }
-    }
-
-    void doubleToScalar(const MV_D& X, MV& Y)
-    {
-      // Demote X from doubleScalar precision to scalar precision
-      for (size_t j=0; j<X.getNumVectors(); j++) {
-	ArrayRCP<const doubleScalar> vecVals = X.getVector( j )->get1dView();
-	ArrayRCP<Scalar> svecVals = Y.getVectorNonConst( j )->get1dViewNonConst();
-	if( vecVals.size() > 0 ) {
-	  std::transform( vecVals.begin(), vecVals.end(), svecVals.begin(), Teuchos::asFunc<Scalar>() );
-	}
-      }
-    }
-
-    void scalarToDouble(const MV& X, MV_D& Y)
-    {
-      // Promote X from scalar precision to doublePrecision
-      for (size_t j=0; j<X.getNumVectors(); j++) {
-	ArrayRCP<const Scalar> vecVals = X.getVector( j )->get1dView();
-	ArrayRCP<doubleScalar> dvecVals = Y.getVectorNonConst( j )->get1dViewNonConst();
-	if( vecVals.size() > 0 ) {
-	  std::transform( vecVals.begin(), vecVals.end(), dvecVals.begin(), Teuchos::asFunc<doubleScalar>() );
-	}
-      }
-    }
-
-    void halfToScalar(const MV_H& X , MV& Y)
-    {
-      // Promote X from halfScalar precision to scalar precision
-      for (size_t j=0; j<X.getNumVectors(); j++) {
-	ArrayRCP<const halfScalar> vecVals = X.getVector( j )->get1dView();
-	ArrayRCP<Scalar> svecVals = Y.getVectorNonConst( j )->get1dViewNonConst();
-	if( vecVals.size() > 0 ) {
-	  std::transform( vecVals.begin(), vecVals.end(), svecVals.begin(), Teuchos::asFunc<Scalar>() );
-	}
-      }
+      return;
     }
 
   };
