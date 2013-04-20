@@ -320,7 +320,7 @@ formA11invMatrix
 
   // insert -I for diagonal first
   LocalOrdinal numRows = getRangeMap()->getNodeNumElements();
-  MatScalar value = -STS::one();
+  MatScalar value = -STMS::one();
   for (LocalOrdinal i=0; i<numRows; i++) {
     GlobalOrdinal row = A11invMatrix_->getRowMap()->getGlobalElement(i);
     GlobalOrdinal col = row;

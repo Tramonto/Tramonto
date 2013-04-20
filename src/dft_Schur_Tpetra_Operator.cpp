@@ -217,7 +217,7 @@ formSchurComplement
   if (sfilled)
   {
     S_->resumeFill();
-    S_->setAllToScalar(STS::zero());
+    S_->setAllToScalar(STMS::zero());
   } //end if
 
   //Loop over rows and sum into
