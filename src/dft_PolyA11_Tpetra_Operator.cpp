@@ -45,6 +45,7 @@ dft_PolyA11_Tpetra_Operator
 {
   Label_ = "dft_PolyA11_Tpetra_Operator";
 
+  diagonal_ = rcp(new VEC(block1Map));
   invDiagonal_ = rcp(new VEC(block1Map));
 
   matrix_.resize(numBlocks_-1);
@@ -84,6 +85,7 @@ initializeProblemValues
       matrix_[i]->setAllToScalar(STMS::zero());
     } //end for
 
+    diagonal_->putScalar(STS::zero());
     invDiagonal_->putScalar(STS::zero());
   } //end if
 
@@ -103,7 +105,7 @@ insertMatrixValue
   if (rowGID==colGID)
   {
     LocalOrdinal locDiag = block1Map_->getLocalElement(colGID);
-    invDiagonal_->sumIntoLocalValue(locDiag, value);
+    diagonal_->sumIntoLocalValue(locDiag, value);
     return;
   } //end if
   TEUCHOS_TEST_FOR_EXCEPTION(block1Map_->getLocalElement(colGID)> block1Map_->getLocalElement(rowGID), std::runtime_error,
@@ -189,7 +191,7 @@ finalizeProblemValues
     //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << endl;
     //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
   } //end for
-  invDiagonal_->reciprocal(*invDiagonal_); // Invert diagonal values for faster applyInverse() method
+  invDiagonal_->reciprocal(*diagonal_); // Invert diagonal values for faster applyInverse() method
 
   /*
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
@@ -270,10 +272,7 @@ apply
     matrixOperator_[i]->apply(X, *curY); // This gives a result that is off-diagonal-matrix*X
   } //end for
 
-  RCP<VEC> tempVec = rcp(new VEC(invDiagonal_->getMap()));
-  tempVec->reciprocal(*invDiagonal_);
-
-  Y.elementWiseMultiply(STS::one(),*tempVec, X, STS::one()); // Add diagonal contribution
+  Y.elementWiseMultiply(STS::one(),*diagonal_, X, STS::one()); // Add diagonal contribution
 
 } //end Apply
 //==============================================================================

@@ -182,6 +182,7 @@ protected:
   size_t numBlocks_;
   Array<RCP<MAT> > matrix_;
   Array<RCP<MMOP> > matrixOperator_;
+  RCP<VEC> diagonal_;
   RCP<VEC> invDiagonal_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
