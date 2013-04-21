@@ -302,13 +302,13 @@ getMatrixValue
   }
   else
   {
-    rowGID = globalMatrixStatic_->getRowMap()->getLocalElement(rowGID); // get local row ID
-    colGID = globalMatrixStatic_->getColMap()->getLocalElement(colGID); // get local column ID
-    globalMatrixStatic_->getLocalRowView(rowGID, indices, values); // get view of current row
+    LocalOrdinal rowLID = globalMatrixStatic_->getRowMap()->getLocalElement(rowGID);
+    LocalOrdinal colLID = globalMatrixStatic_->getColMap()->getLocalElement(colGID);
+    globalMatrixStatic_->getLocalRowView(rowLID, indices, values);
     numEntries = indices.size();
     for (LocalOrdinal i=0; i<numEntries; i++)
     {
-      if (colGID==indices[i])
+      if (colLID==indices[i])
       {
 	return(values[i]);
       }
