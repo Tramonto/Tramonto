@@ -195,7 +195,6 @@ private:
   std::map<GlobalOrdinal, MatScalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
   Array<MatScalar> values_;
-  Ifpack2::Factory factory_;
 };
 
 #endif /* DFT_A22MATRIX_TPETRA_OPERATOR_H */

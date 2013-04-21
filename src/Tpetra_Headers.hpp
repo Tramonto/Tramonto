@@ -30,8 +30,8 @@
 #include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_Assert.hpp"
-#include "Teuchos_RCPDecl.hpp"
 
+#ifdef SUPPORTS_STRATIMIKOS
 #include "Thyra_TpetraThyraWrappers.hpp"
 #include "Thyra_LinearOpWithSolveFactoryBase.hpp"
 #include "Thyra_LinearOpWithSolveBase.hpp"
@@ -39,13 +39,17 @@
 #include "Thyra_PreconditionerFactoryHelpers.hpp"
 
 #include "Stratimikos_DefaultLinearSolverBuilder.hpp"
+#endif
+
 #include "BelosConfigDefs.hpp"
 #include "BelosLinearProblem.hpp"
 #include "BelosTpetraAdapter.hpp"
 #include "BelosBlockGmresSolMgr.hpp"
-#include "Ifpack2_Factory.hpp"
+
+#include "Ifpack2_Diagonal.hpp"
 #include "Ifpack2_Preconditioner.hpp"
 #include "Ifpack2_AdditiveSchwarz.hpp"
+
 #if ENABLE_MUELU == 1
 #include <MueLu.hpp>
 #include <MueLu_Level.hpp>
@@ -75,6 +79,7 @@ using Teuchos::ArrayView;
 using Teuchos::ArrayRCP;
 using Teuchos::rcp_dynamic_cast;
 
+#ifdef SUPPORTS_STRATIMIKOS
 using Thyra::SolveStatus;
 using Thyra::createVector;
 using Thyra::createMultiVector;
@@ -83,6 +88,8 @@ using Thyra::linearOpWithSolve;
 using Thyra::prec;
 
 using Stratimikos::DefaultLinearSolverBuilder;
+#endif
+
 using Belos::ReturnType;
 
 //#define KDEBUG

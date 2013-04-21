@@ -537,7 +537,7 @@ setupSolver
 
   problem_ = rcp(new LinPROB(globalMatrixOp_, globalLhs_, globalRhs_));
   RCP<const MAT> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT>(globalMatrixStatic_);
-  Ifpack2::Factory factory;
+
   int precond  = parameterList_->template get<int>( "Precond" );
   if (precond != AZ_none) {
     LocalOrdinal overlapLevel = 0;
