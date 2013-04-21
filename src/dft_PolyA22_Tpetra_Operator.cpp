@@ -54,8 +54,6 @@ dft_PolyA22_Tpetra_Operator
   cmsOnDensityMatrix_->setObjectLabel("PolyA22::cmsOnDensityMatrix");
   F_location_ = Teuchos::getParameter<LocalOrdinal>(*parameterList_, "F_location");
 
-  numCmsElements_ = cmsMap_->getNodeNumElements();
-  numDensityElements_ = densityMap_->getNodeNumElements();
   // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
   hasDensityOnCms_ = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
@@ -346,15 +344,16 @@ applyInverse
   {
     //F in NE
 
+    size_t numCmsElements = cmsMap_->getNodeNumElements();
+
     // Y1 is a view of the first numCms elements of Y
     RCP<MV > Y1 = Y.offsetViewNonConst(cmsMap_, 0);
     // Y2 is a view of the last numDensity elements of Y
-    RCP<MV > Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements_);
+    RCP<MV > Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements);
     // X1 is a view of the first numCms elements of X
     RCP<const MV > X1 = X.offsetView(cmsMap_, 0);
     // X2 is a view of the last numDensity elements of X
-    RCP<const MV > X2 = X.offsetView(densityMap_, numCmsElements_);
-    //    RCP<MV > Y1tmp = rcp(new MV(*Y1));
+    RCP<const MV > X2 = X.offsetView(densityMap_, numCmsElements);
 
     // Second block row: Y2 = DD\X2
     Y2->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X2, ZERO);
@@ -369,15 +368,16 @@ applyInverse
   {
     //F in SW
 
+    size_t numDensityElements = densityMap_->getNodeNumElements();
+
     // Y1 is a view of the first numDensity elements of Y
     RCP<MV > Y1 = Y.offsetViewNonConst(densityMap_, 0);
     // Y2 is a view of the last numCms elements of Y
-    RCP<MV > Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements_);
+    RCP<MV > Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements);
     // X1 is a view of the first numDensity elements of X
     RCP<const MV > X1 = X.offsetView(densityMap_, 0);
     // X2 is a view of the last numCms elements of X
-    RCP<const MV > X2 = X.offsetView(cmsMap_, numDensityElements_);
-    //    RCP<MV > Y2tmp = rcp(new MV(*Y2));
+    RCP<const MV > X2 = X.offsetView(cmsMap_, numDensityElements);
 
     // First block row: Y1 = DD\X1
     Y1->elementWiseMultiply(ONE, *densityOnDensityInverse_, *X1, ZERO);
@@ -412,18 +412,19 @@ apply
   {
     //F in NE
 
+    size_t numCmsElements = cmsMap_->getNodeNumElements();
+
     // Y1 is a view of the first numCms elements of Y
     RCP<MV> Y1 = Y.offsetViewNonConst(cmsMap_, 0);
     // Y2 is a view of the last numDensity elements of Y
-    RCP<MV> Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements_);
+    RCP<MV> Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements);
     // X1 is a view of the first numCms elements of X
     RCP<const MV> X1 = X.offsetView(cmsMap_, 0);
     // X2 is a view of the last numDensity elements of X
-    RCP<const MV> X2 = X.offsetView(densityMap_, numCmsElements_);
+    RCP<const MV> X2 = X.offsetView(densityMap_, numCmsElements);
 
     // First block row
     cmsOnDensityMatrixOp_->apply(*X2, *Y1);
-    //    RCP<MV > Y1tmp = rcp(new MV(*Y1));
     cmsOnCmsMatrixOp_->apply(*X1, *tmpCmsVec_);
     Y1->update(ONE, *tmpCmsVec_, ONE);
 
@@ -440,14 +441,16 @@ apply
   {
     //F in SW
 
+    size_t numDensityElements = densityMap_->getNodeNumElements();
+
     // Y1 is a view of the first numDensity elements of Y
     RCP<MV> Y1 = Y.offsetViewNonConst(densityMap_, 0);
     // Y2 is a view of the last numCms elements of Y
-    RCP<MV> Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements_);
+    RCP<MV> Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements);
     // X1 is a view of the first numDensity elements of X
     RCP<const MV> X1 = X.offsetView(densityMap_, 0);
     // X2 is a view of the last numCms elements of X
-    RCP<const MV> X2 = X.offsetView(cmsMap_, numDensityElements_);
+    RCP<const MV> X2 = X.offsetView(cmsMap_, numDensityElements);
 
     // First block row
     if (hasDensityOnCms_) {
@@ -459,7 +462,6 @@ apply
 
     // Second block row
     cmsOnDensityMatrixOp_->apply(*X1, *Y2);
-    //    RCP<MV > Y2tmp = rcp(new MV(*Y2));
     cmsOnCmsMatrixOp_->apply(*X2, *tmpCmsVec_);
     Y2->update(ONE, *tmpCmsVec_, ONE);
 
