@@ -54,6 +54,8 @@ dft_PolyA22_Coulomb_Tpetra_Operator
   cmsOnPoissonMatrix_->setObjectLabel("PolyA22Coulomb::cmsOnPoissonMatrix");
   poissonOnDensityMatrix_->setObjectLabel("PolyA22Coulomb::poissonOnDensityMatrix");
 
+  numPoissonElements_ = poissonMap_->getNodeNumElements();
+
   tmpCmsVec_ = rcp(new MV(cmsMap_,1));
   tmpCmsVec2_ = rcp(new MV(cmsMap_,1));
   tmpPoissonVec_ = rcp(new MV(poissonMap_,1));
@@ -348,9 +350,6 @@ finalizeProblemValues
   }
   insertRow(); // Dump any remaining entries
 
-  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
-  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
-
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   cmsOnCmsMatrix_->fillComplete(pl);
 
@@ -362,7 +361,7 @@ finalizeProblemValues
   cmsOnPoissonMatrix_->fillComplete(poissonMap_, cmsMap_, pl);
   poissonOnDensityMatrix_->fillComplete(densityMap_, poissonMap_, pl);
 
-  if (!hasDensityOnCms)  // Confirm that densityOnCmsMatrix is zero
+  if (!hasDensityOnCms_)  // Confirm that densityOnCmsMatrix is zero
   {
     //    Scalar normvalue = densityOnCmsMatrix_->normInf();
     //    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=STS::zero());
@@ -469,9 +468,6 @@ applyInverse
 #endif
 
   size_t NumVectors = Y.getNumVectors();
-  size_t numCmsElements = cmsMap_->getNodeNumElements();
-  size_t numDensityElements = densityMap_->getNodeNumElements(); // == numCmsElements
-  size_t numPoissonElements = poissonMap_->getNodeNumElements();
 
   // X0 is a view of the first numPoisson elements of X
   RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
@@ -492,18 +488,18 @@ applyInverse
   if (F_location_ == 1)
   {
     //F in NE part
-    X1 = X.offsetView(cmsMap_, numPoissonElements);
-    Y1 = Y.offsetViewNonConst(cmsMap_, numPoissonElements);
-    X2 = X.offsetView(densityMap_, numPoissonElements+numCmsElements);
-    Y2 = Y.offsetViewNonConst(densityMap_, numPoissonElements+numCmsElements);
+    X1 = X.offsetView(cmsMap_, numPoissonElements_);
+    Y1 = Y.offsetViewNonConst(cmsMap_, numPoissonElements_);
+    X2 = X.offsetView(densityMap_, numPoissonElements_+numCmsElements_);
+    Y2 = Y.offsetViewNonConst(densityMap_, numPoissonElements_+numCmsElements_);
   }
   else
   {
     //F in SW part
-    X1 = X.offsetView(densityMap_, numPoissonElements);
-    Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements);
-    X2 = X.offsetView(cmsMap_, numPoissonElements+numDensityElements);
-    Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements+numDensityElements);
+    X1 = X.offsetView(densityMap_, numPoissonElements_);
+    Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements_);
+    X2 = X.offsetView(cmsMap_, numPoissonElements_+numDensityElements_);
+    Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements_+numDensityElements_);
   }
 
   if (F_location_ == 1)
@@ -582,12 +578,6 @@ apply
 #endif
 
   size_t NumVectors = Y.getNumVectors();
-  size_t numCmsElements = cmsMap_->getNodeNumElements();
-  size_t numDensityElements = densityMap_->getNodeNumElements();
-  size_t numPoissonElements = poissonMap_->getNodeNumElements();
-
-  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
-  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
   // X0 is a view of the first numPoisson elements of X
   RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
@@ -608,18 +598,18 @@ apply
   if (F_location_ == 1)
   {
     // F in NE
-    X1 = X.offsetView(cmsMap_, numPoissonElements);
-    Y1 = Y.offsetViewNonConst(cmsMap_, numPoissonElements);
-    X2 = X.offsetView(densityMap_, numPoissonElements+numCmsElements);
-    Y2 = Y.offsetViewNonConst(densityMap_, numPoissonElements+numCmsElements);
+    X1 = X.offsetView(cmsMap_, numPoissonElements_);
+    Y1 = Y.offsetViewNonConst(cmsMap_, numPoissonElements_);
+    X2 = X.offsetView(densityMap_, numPoissonElements_+numCmsElements_);
+    Y2 = Y.offsetViewNonConst(densityMap_, numPoissonElements_+numCmsElements_);
   }
   else
   {
     // F in SW
-    X1 = X.offsetView(densityMap_, numPoissonElements);
-    Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements);
-    X2 = X.offsetView(cmsMap_, numPoissonElements+numDensityElements);
-    Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements+numDensityElements);
+    X1 = X.offsetView(densityMap_, numPoissonElements_);
+    Y1 = Y.offsetViewNonConst(densityMap_, numPoissonElements_);
+    X2 = X.offsetView(cmsMap_, numPoissonElements_+numDensityElements_);
+    Y2 = Y.offsetViewNonConst(cmsMap_, numPoissonElements_+numDensityElements_);
   }
 
   if (F_location_ == 1)
@@ -637,7 +627,7 @@ apply
     Y1->update(ONE, *tmpCmsVec2_, ONE);
 
     // Third block row
-    if (hasDensityOnCms) {
+    if (hasDensityOnCms_) {
       densityOnCmsMatrixOp_->apply(*X1, *Y2);
       Y2->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X2, ONE);
     } else {
@@ -652,7 +642,7 @@ apply
     Y0->update(ONE, *tmpPoissonVec_, ONE);
 
     // Second block row
-    if (hasDensityOnCms) {
+    if (hasDensityOnCms_) {
       densityOnCmsMatrixOp_->apply(*X2, *Y1);
       Y1->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X1, ONE);
     } else {

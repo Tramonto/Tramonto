@@ -169,6 +169,7 @@ protected:
   std::map<GlobalOrdinal, MatScalar> curRowValuesCmsOnPoisson_, curRowValuesPoissonOnPoisson_, curRowValuesPoissonOnDensity_;
   Array<GlobalOrdinal> indicesCmsOnPoisson_, indicesPoissonOnPoisson_, indicesPoissonOnDensity_;
   Array<MatScalar> valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;
+  size_t numPoissonElements_;
 #if ENABLE_MUELU == 1
   RCP<MueLu::Hierarchy<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps> > H_;
   RCP<Xpetra::CrsMatrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps > > mueluPP_;
@@ -212,5 +213,8 @@ protected:
   using P22TO::cmsMap_;
   using P22TO::isFLinear_;
   using P22TO::parameterList_;
+  using P22TO::numCmsElements_;
+  using P22TO::numDensityElements_;
+  using P22TO::hasDensityOnCms_;
 };
 #endif /* DFT_POLYA22_COULOMB_TPETRA_OPERATOR_H */

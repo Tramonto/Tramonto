@@ -54,6 +54,11 @@ dft_PolyA22_Tpetra_Operator
   cmsOnDensityMatrix_->setObjectLabel("PolyA22::cmsOnDensityMatrix");
   F_location_ = Teuchos::getParameter<LocalOrdinal>(*parameterList_, "F_location");
 
+  numCmsElements_ = cmsMap_->getNodeNumElements();
+  numDensityElements_ = densityMap_->getNodeNumElements();
+  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
+  hasDensityOnCms_ = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
+
   tmpCmsVec_ = rcp(new MV(cmsMap_, 1));
 
   //F in NE if F_location = 1, F in SW otherwise
@@ -241,8 +246,6 @@ finalizeProblemValues
   {
     return; // nothing to do
   } //end if
-  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
-  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
   insertRow(); // Dump any remaining entries
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
@@ -252,7 +255,7 @@ finalizeProblemValues
     cmsOnDensityMatrix_->fillComplete(densityMap_, cmsMap_, pl);
   } //end if
 
-  if (!hasDensityOnCms)  // Confirm that densityOnCmsMatrix is zero
+  if (!hasDensityOnCms_)  // Confirm that densityOnCmsMatrix is zero
   {
     //    Scalar normvalue = densityOnCmsMatrix_->normInf();
     //    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=0.0);
@@ -335,8 +338,6 @@ applyInverse
 #endif
 
   size_t NumVectors = Y.getNumVectors();
-  size_t numCmsElements = cmsMap_->getNodeNumElements();
-  size_t numDensityElements = densityMap_->getNodeNumElements();
 
   Scalar ONE = STS::one();
   Scalar ZERO = STS::zero();
@@ -348,11 +349,11 @@ applyInverse
     // Y1 is a view of the first numCms elements of Y
     RCP<MV > Y1 = Y.offsetViewNonConst(cmsMap_, 0);
     // Y2 is a view of the last numDensity elements of Y
-    RCP<MV > Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements);
+    RCP<MV > Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements_);
     // X1 is a view of the first numCms elements of X
     RCP<const MV > X1 = X.offsetView(cmsMap_, 0);
     // X2 is a view of the last numDensity elements of X
-    RCP<const MV > X2 = X.offsetView(densityMap_, numCmsElements);
+    RCP<const MV > X2 = X.offsetView(densityMap_, numCmsElements_);
     //    RCP<MV > Y1tmp = rcp(new MV(*Y1));
 
     // Second block row: Y2 = DD\X2
@@ -371,11 +372,11 @@ applyInverse
     // Y1 is a view of the first numDensity elements of Y
     RCP<MV > Y1 = Y.offsetViewNonConst(densityMap_, 0);
     // Y2 is a view of the last numCms elements of Y
-    RCP<MV > Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements);
+    RCP<MV > Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements_);
     // X1 is a view of the first numDensity elements of X
     RCP<const MV > X1 = X.offsetView(densityMap_, 0);
     // X2 is a view of the last numCms elements of X
-    RCP<const MV > X2 = X.offsetView(cmsMap_, numDensityElements);
+    RCP<const MV > X2 = X.offsetView(cmsMap_, numDensityElements_);
     //    RCP<MV > Y2tmp = rcp(new MV(*Y2));
 
     // First block row: Y1 = DD\X1
@@ -403,11 +404,6 @@ apply
 #endif
 
   size_t NumVectors = Y.getNumVectors();
-  size_t numCmsElements = cmsMap_->getNodeNumElements();
-  size_t numDensityElements = densityMap_->getNodeNumElements();
-
-  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
-  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
 
   Scalar ONE = STS::one();
   Scalar ZERO = STS::zero();
@@ -419,11 +415,11 @@ apply
     // Y1 is a view of the first numCms elements of Y
     RCP<MV> Y1 = Y.offsetViewNonConst(cmsMap_, 0);
     // Y2 is a view of the last numDensity elements of Y
-    RCP<MV> Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements);
+    RCP<MV> Y2 = Y.offsetViewNonConst(densityMap_, numCmsElements_);
     // X1 is a view of the first numCms elements of X
     RCP<const MV> X1 = X.offsetView(cmsMap_, 0);
     // X2 is a view of the last numDensity elements of X
-    RCP<const MV> X2 = X.offsetView(densityMap_, numCmsElements);
+    RCP<const MV> X2 = X.offsetView(densityMap_, numCmsElements_);
 
     // First block row
     cmsOnDensityMatrixOp_->apply(*X2, *Y1);
@@ -432,7 +428,7 @@ apply
     Y1->update(ONE, *tmpCmsVec_, ONE);
 
     // Second block row
-    if (hasDensityOnCms) {
+    if (hasDensityOnCms_) {
       densityOnCmsMatrixOp_->apply(*X1, *Y2);
       Y2->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X2, ONE);
     } else {
@@ -447,14 +443,14 @@ apply
     // Y1 is a view of the first numDensity elements of Y
     RCP<MV> Y1 = Y.offsetViewNonConst(densityMap_, 0);
     // Y2 is a view of the last numCms elements of Y
-    RCP<MV> Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements);
+    RCP<MV> Y2 = Y.offsetViewNonConst(cmsMap_, numDensityElements_);
     // X1 is a view of the first numDensity elements of X
     RCP<const MV> X1 = X.offsetView(densityMap_, 0);
     // X2 is a view of the last numCms elements of X
-    RCP<const MV> X2 = X.offsetView(cmsMap_, numDensityElements);
+    RCP<const MV> X2 = X.offsetView(cmsMap_, numDensityElements_);
 
     // First block row
-    if (hasDensityOnCms) {
+    if (hasDensityOnCms_) {
       densityOnCmsMatrixOp_->apply(*X2, *Y1);
       Y1->elementWiseMultiply(ONE, *densityOnDensityMatrix_, *X1, ONE);
     } else {
@@ -481,12 +477,9 @@ Check
   RCP<VEC > b = rcp(new VEC(getRangeMap()));
   x->randomize(); // Fill x with random numbers
 
-  // densityOnCmsMatrix will be nonzero only if cms and density maps are the same size
-  bool hasDensityOnCms = cmsMap_->getGlobalNumElements()==densityMap_->getGlobalNumElements();
-
   apply(*x, *b); // Forward operation
 
-  if (hasDensityOnCms)
+  if (hasDensityOnCms_)
   {
     if (F_location_ == 1) //F in NE
     {

@@ -235,5 +235,8 @@ protected:
   std::map<GlobalOrdinal, MatScalar> curRowValues_;
   Array<GlobalOrdinal> indices_;
   Array<MatScalar> values_;
+  size_t numCmsElements_;
+  size_t numDensityElements_;
+  bool hasDensityOnCms_;
 }; //class dft_PolyA22_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>
 #endif /* DFT_POLYA22_TPETRA_OPERATOR_H */
