@@ -42,8 +42,6 @@
 #ifndef TPETRA_MULTIVECTORCONVERTER_HPP
 #define TPETRA_MULTIVECTORCONVERTER_HPP
 
-#include "BelosTypes.hpp"
-
 namespace Tpetra {
 
   //! MultiVectorConverter: A means of converting a Tpetra Multivector to a different scalar precision.

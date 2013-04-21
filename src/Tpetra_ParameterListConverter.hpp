@@ -42,8 +42,7 @@
 #ifndef TPETRA_PARAMETERLISTCONVERTER_HPP
 #define TPETRA_PARAMETERLISTCONVERTER_HPP
 
-#include "BelosTypes.hpp"
-#include "AztecOO.h"
+#include "az_aztec_defs.h"
 
 namespace Tpetra {
 

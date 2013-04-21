@@ -42,9 +42,6 @@
 #ifndef TPETRA_OPERATORAPPLYINVERSE_HPP
 #define TPETRA_OPERATORAPPLYINVERSE_HPP
 
-#include "Tpetra_Operator.hpp"
-#include "Tpetra_MultiVector.hpp"
-
 namespace Tpetra{
 
   //! \brief A pure virtual interface for Operators with the applyInverse() method.
@@ -55,7 +52,7 @@ namespace Tpetra{
     The \c Node type defaults to the default node in Kokkos.
   */
   template <class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
-  class OperatorApplyInverse : virtual public Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> {
+  class OperatorApplyInverse : virtual public Tpetra::Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> {
   public:
     //! @name Destructor Method
     //@{
@@ -64,8 +61,8 @@ namespace Tpetra{
     virtual ~OperatorApplyInverse();
 
     //! Apply the inverse of this operator to the multivectors.
-    virtual void applyInverse(const MultiVector<Scalar,LocalOrdinal,GlobalOrdinal,Node> &X,
-			      MultiVector<Scalar,LocalOrdinal,GlobalOrdinal,Node> &Y) const = 0;
+    virtual void applyInverse(const Tpetra::MultiVector<Scalar,LocalOrdinal,GlobalOrdinal,Node> &X,
+			      Tpetra::MultiVector<Scalar,LocalOrdinal,GlobalOrdinal,Node> &Y) const = 0;
 
   }; // class OperatorApplyInverse
 

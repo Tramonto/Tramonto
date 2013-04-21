@@ -1,7 +1,6 @@
 #ifndef TPETRA_HEADERS_H
 #define TPETRA_HEADERS_H
 
-#include "Kokkos_NodeTrace.hpp"
 #include "Tpetra_ConfigDefs.hpp"
 #include "Tpetra_MultiVector.hpp"
 #include "TpetraExt_MatrixMatrix.hpp"

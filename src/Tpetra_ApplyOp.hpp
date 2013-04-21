@@ -42,11 +42,6 @@
 #ifndef TPETRA_APPLYOP_HPP
 #define TPETRA_APPLYOP_HPP
 
-#include "Tpetra_ConfigDefs.hpp"
-#include "Tpetra_Operator.hpp"
-#include "Tpetra_MultiVector.hpp"
-
-
 /*! \file Tpetra_ApplyOp_decl.hpp
 
     The implementations for the class Tpetra::ApplyOp and related non-member constructors.

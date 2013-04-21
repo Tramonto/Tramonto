@@ -42,11 +42,6 @@
 #ifndef TPETRA_SCALINGCRSMATRIX_HPP
 #define TPETRA_SCALINGCRSMATRIX_HPP
 
-#include <Kokkos_DefaultNode.hpp>
-#include <Teuchos_Describable.hpp>
-#include "Tpetra_Map.hpp"
-#include "Tpetra_CrsMatrix.hpp"
-
 namespace Tpetra {
 
   //! InvOperator: A class to scale a CrsMatrix.

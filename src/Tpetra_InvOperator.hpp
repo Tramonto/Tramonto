@@ -42,9 +42,6 @@
 #ifndef TPETRA_INVOPERATOR_HPP
 #define TPETRA_INVOPERATOR_HPP
 
-#include <Kokkos_DefaultNode.hpp>
-#include <Teuchos_Describable.hpp>
-#include "Tpetra_Map.hpp"
 #include "Tpetra_OperatorApplyInverse.hpp"
 
 namespace Tpetra {

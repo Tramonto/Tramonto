@@ -42,10 +42,6 @@
 #ifndef TPETRA_MIXEDOPERATOR_HPP
 #define TPETRA_MIXEDOPERATOR_HPP
 
-#include <Kokkos_DefaultNode.hpp>
-#include <Teuchos_Describable.hpp>
-#include "Tpetra_Map.hpp"
-#include "Tpetra_Operator.hpp"
 #include "Tpetra_MultiVectorConverter.hpp"
 
 #define SCALAR_P      0
