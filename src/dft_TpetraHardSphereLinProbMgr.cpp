@@ -54,18 +54,22 @@ dft_HardSphereLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 finalizeBlockStructure
 ()
 {
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(isBlockStructureSet_, std::runtime_error, "Block structure already set.\n");
-
+#endif
   // Create importer to map from owned nodes to box nodes
 
   ownedToBoxImporter_ = Teuchos::rcp(new IMP(ownedMap_, boxMap_));
 
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION((numGlobalNodes_==0 ||
 			      numGlobalBoxNodes_==0 ||
 			      indNonLocalEquations_.size()==0 ||
 			      depNonLocalEquations_.size()<0  ||
 			      densityEquations_.size()==0), std::logic_error,
 			     "One or more set methods not called.");
+#endif
+
   //Not checking if poissonEquations_.Length()==0 because don't HAVE to have Poisson equations
   //Not checking if gInvEquations_.Length()==0 because we don't have to have G inv equations
 
@@ -145,13 +149,6 @@ finalizeBlockStructure
   indNonLocalRowMap_ = rcp(new MAP(INVALID, globalGIDList(0, numIndNonLocal), 0, comm_, node_));
   depNonLocalRowMap_ = rcp(new MAP(INVALID, globalGIDList(numIndNonLocal, numDepNonLocal), 0, comm_, node_));
 
-  /*
-    std::cout << " Global Row Map" << *globalRowMap_ << std::endl
-    << " Block 1     Row Map " << *block1RowMap_ << std::endl
-    << " Block 2     Row Map " << *block2RowMap_ << std::endl
-    << " DepNonLocal Row Map " << *depNonLocalRowMap_ << std::endl;
-  */
-
   A11_ = rcp(new HS11TO(indNonLocalRowMap_, depNonLocalRowMap_, block1RowMap_, parameterList_));
 
   A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
@@ -196,11 +193,12 @@ dft_HardSphereLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 initializeProblemValues
 ()
 {
-
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error,
 			     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
   TEUCHOS_TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error,
 			     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
+#endif
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_) {
@@ -450,9 +448,10 @@ dft_HardSphereLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 setupSolver
 ()
 {
-
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 			     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
+#endif
 
   schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
 

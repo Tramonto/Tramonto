@@ -49,7 +49,7 @@ dft_BasicLinProbMgr
     node_(node),
     curRow_(-1)
 {
-  // Convert Epetra parameters to Tpetra parameters
+  // Setup global parameter list
   RCP<Tpetra::ParameterListConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node> > pListConverter = rcp(new Tpetra::ParameterListConverter<Scalar,LocalOrdinal,GlobalOrdinal,Node>(parameterList));
   pListConverter->convert();
   ParameterList convertedParameters = pListConverter->getConvertedList();
@@ -124,7 +124,9 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 finalizeBlockStructure
 ()
 {
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(isBlockStructureSet_, std::runtime_error, "Already set block structure.\n");
+#endif
 
   const size_t numUnks = numOwnedNodes_*numUnknownsPerNode_;
   Array<LocalOrdinal> globalGIDList(numUnks);
@@ -190,10 +192,12 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 initializeProblemValues
 ()
 {
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error,
 		     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
   TEUCHOS_TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error,
 		     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
+#endif
 
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
@@ -273,7 +277,9 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 getMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode)
 {
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(globalMatrixStatic_.get()==0, std::runtime_error, "Global Matrix is not constructed, must set debug flag to enable this feature.\n");
+#endif
 
   GlobalOrdinal rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
@@ -432,7 +438,7 @@ getLhs
     for (LocalOrdinal j=0; j<numOwnedNodes_; j++) {
       temp[j] = tmp[ownedToSolverLID(i,j)];
     }
-    ArrayOfPtrs[i] = importR2C(temp.getConst()); // Use simple import (uses view so doesn't work)
+    ArrayOfPtrs[i] = importR2C(temp.getConst());
   }
   return ArrayOfPtrs;
 }
@@ -460,20 +466,20 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 setMachineParams
 ()
 {
-  using Teuchos::as;
-  using Teuchos::ScalarTraits;
-
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
+#endif
+
   // Get machine parameters
   n_ = globalMatrixStatic_->getGlobalNumCols();
   eps_ = Teuchos::ScalarTraits<Scalar>::eps();
-  epsHalf_ = ScalarTraits<halfScalar>::eps();
+  epsHalf_ = Teuchos::ScalarTraits<halfScalar>::eps();
   anorm_ = globalMatrixStatic_->getFrobeniusNorm();
-  nae_ = as<Scalar>(n_) * anorm_ * eps_;
-  snae_ = sqrt(as<Scalar>(n_))*anorm_*eps_;
-  naeHalf_ = as<halfScalar>(as<Scalar>(n_)*anorm_*epsHalf_);
-  snaeHalf_ = as<halfScalar>(sqrt(as<Scalar>(n_))*anorm_*epsHalf_);
+  nae_ = Teuchos::as<Scalar>(n_) * anorm_ * eps_;
+  snae_ = sqrt(Teuchos::as<Scalar>(n_))*anorm_*eps_;
+  naeHalf_ = Teuchos::as<halfScalar>(Teuchos::as<Scalar>(n_)*anorm_*epsHalf_);
+  snaeHalf_ = Teuchos::as<halfScalar>(sqrt(Teuchos::as<Scalar>(n_))*anorm_*epsHalf_);
   machineParamsSet_ = true;
   //  std::cout << "PROBLEM CONSTANTS--- anorm = " << anorm_ << " n = " << n_ << " snae = " << snae_ << std::endl;
 
@@ -485,11 +491,13 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 setupSolver
 ()
 {
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
+#endif
 
   // Setup machine constants
-  setMachineParams();
+  //  setMachineParams();
 
   scaling_ = parameterList_->template get<int>( "Scaling" );
 
@@ -529,12 +537,11 @@ setupSolver
 #else
 
   problem_ = rcp(new LinPROB(globalMatrixOp_, globalLhs_, globalRhs_));
-  RCP<const MAT> const_globalMatrix_ = Teuchos::rcp_implicit_cast<const MAT>(globalMatrixStatic_);
 
   int precond  = parameterList_->template get<int>( "Precond" );
   if (precond != AZ_none) {
     LocalOrdinal overlapLevel = 0;
-    preconditioner_ = rcp(new SCHWARZ(const_globalMatrix_));
+    preconditioner_ = rcp(new SCHWARZ(globalMatrixStatic_,overlapLevel));
     preconditionerOp_ = rcp(new SCHWARZ_OP(preconditioner_));
     ParameterList ifpack2List = parameterList_->sublist("ifpack2List");
     preconditioner_->setParameters(ifpack2List);
@@ -709,6 +716,7 @@ void
 dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 checkPhysicsOrdering()
 const  {
+
   TEUCHOS_TEST_FOR_EXCEPTION(physicsOrdering_.size()==0, std::runtime_error, "No unknowns are registered with this problem manager.\n");
 
   size_t numUnks = physicsOrdering_.size();

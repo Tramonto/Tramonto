@@ -104,58 +104,72 @@ insertMatrixValue
   // if density then blockColFlag = 1
   // if cms then blockColFlag = 2
 
-  if (cmsMap_->isNodeGlobalElement(rowGID)) { // Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
-    if ( blockColFlag == 2 ) { // Insert into cmsOnCmsMatrix
+  if (cmsMap_->isNodeGlobalElement(rowGID)) {
+    // Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
+    switch (blockColFlag)
+    {
+    case 2:
+      // Insert into cmsOnCmsMatrix
       if (firstTime_) {
 	if (rowGID!=curRow_) {
-	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+	  // Dump the current contents of curRowValues_ into matrix and clear map
+	  insertRow();  
 	  curRow_=rowGID;
 	}
 	curRowValuesCmsOnCms_[colGID] += value;
       }
       else
 	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-    }
-    else if (blockColFlag == 1) { // Insert into cmsOnDensityMatrix ("F matrix")
+      break;
+    case 1:
+      // Insert into cmsOnDensityMatrix ("F matrix")
       if (firstTime_) {
 	if (rowGID!=curRow_) {
-      	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+	  // Dump the current contents of curRowValues_ into matrix and clear map
+      	  insertRow();
 	  curRow_=rowGID;
       	}
 	curRowValuesCmsOnDensity_[colGID] += value;
       }
       else if (!isFLinear_) {
-	//cout<< "row GID = " << rowGID << " value = " << value << " colGID = " << colGID << endl;
       	cmsOnDensityMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
       }
-    }
-    else {
+      break;
+    default:
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Epetra_Operator::insertMatrixValue(): Invalid argument -- row in cmsMap, but blockColFlag not set for cms or density equations.");
       TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
+      break;
     }
   } // end Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
-  else if (densityMap_->isNodeGlobalElement(rowGID)) { // Insert into densityOnDensityMatrix or densityOnCmsMatrix
-    if ( blockColFlag == 1 ) { // Insert into densityOnDensityMatrix
+  else if (densityMap_->isNodeGlobalElement(rowGID)) {
+    // Insert into densityOnDensityMatrix or densityOnCmsMatrix
+    switch (blockColFlag)
+    {
+    case 1:
+      // Insert into densityOnDensityMatrix
       TEUCHOS_TEST_FOR_EXCEPT(rowGID!=colGID); // Confirm that this is a diagonal value
       densityOnDensityMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
-    }
-    else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
+      break;
+    case 2:
+      // Insert into densityOnCmsMatrix
       // The density-on-cms matrix is diagonal for most but not all use cases.
       if (firstTime_) {
 	if (rowGID!=curRow_) {
-	  insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
+	  // Dump the current contents of curRowValues maps  into matrix and clear map
+	  insertRow();  
 	  curRow_=rowGID;
 	}
 	curRowValuesDensityOnCms_[colGID] += value;
       }
       else
       	densityOnCmsMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-    }
-    else {
+      break;
+    default:
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Epetra_Operator::insertMatrixValue(): Invalid argument -- row in densityMap, but blockColFlag not set for cms or density equations.");
       TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
+      break;
     }
   } // end Insert into densityOnDensityMatrix or densityOnCmsMatrix
   else { // Problem! rowGID not in cmsMap or densityMap
@@ -264,7 +278,9 @@ finalizeProblemValues
   RCP<const MAT> const_matrix = Teuchos::rcp_implicit_cast<const MAT>(cmsOnCmsMatrix_);
   cmsOnCmsInverse_ = rcp(new DIAGONAL(const_matrix));
   cmsOnCmsInverseOp_ = rcp(new DIAGONAL_OP(cmsOnCmsInverse_));
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsInverse_==Teuchos::null);
+#endif
   cmsOnCmsInverse_->initialize();
   cmsOnCmsInverse_->compute();
 

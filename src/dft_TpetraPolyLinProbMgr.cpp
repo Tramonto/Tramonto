@@ -61,12 +61,14 @@ dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 finalizeBlockStructure
 ()
 {
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(isBlockStructureSet_, std::runtime_error, "Block structure already set.\n");
 
   TEUCHOS_TEST_FOR_EXCEPTION((numGlobalNodes_==0 || numGlobalBoxNodes_==0 ||
 		      gEquations_.size()==0 || cmsEquations_.size()==0 ||
 		      densityEquations_.size()==0),
 		      std::logic_error, "One or more set methods not called.");
+#endif
   //Not checking if poissonEquations_.Length()==0 because don't HAVE to have Poisson equations
   //Not checking if gInvEquations_.Length()==0 because we don't have to have G inv equations
 
@@ -278,10 +280,12 @@ dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 initializeProblemValues
 ()
 {
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(!isBlockStructureSet_, std::logic_error,
     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
   TEUCHOS_TEST_FOR_EXCEPTION(!isGraphStructureSet_, std::logic_error,
     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
+#endif
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_)
@@ -519,19 +523,9 @@ finalizeProblemValues
   if(!A21Static_->isFillComplete()) {
     A21Static_->fillComplete(block1RowMap_,block2RowMap_,pl);
   }
-  //std::cout << *A12_ << endl
-  //          << *A21_ << endl;
 
   A11_->finalizeProblemValues();
   A22_->finalizeProblemValues();
-
-  //cout << "Inf Norm of A12 = " << A12_->NormInf() << endl;
-  //cout << "Inf Norm of A21 = " << A21_->NormInf() << endl;
-  //cout << "Fro Norm of A12 = " << A12_->NormFrobenius() << endl;
-  //cout << "Fro Norm of A21 = " << A21_->NormFrobenius() << endl;
-  //Check(true);
-
-  //cout << *A21_ << endl;
 
   //  Check(true);
   isLinearProblemSet_ = true;
@@ -545,8 +539,10 @@ dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 setupSolver
 ()
 {
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(!isLinearProblemSet_, std::logic_error,
 		     "Linear problem must be completely set up.  This requires a sequence of calls, ending with finalizeProblemValues");
+#endif
 
   schurOperator_->ComputeRHS(*rhs1_, *rhs2_, *rhsSchur_);
 

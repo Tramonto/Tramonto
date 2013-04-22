@@ -74,8 +74,9 @@ dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,
 initializeProblemValues
 ()
 {
-
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(isGraphStructureSet_, std::runtime_error, "Graph structure must be set.\n");
+#endif
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
   if (!firstTime_)
@@ -112,8 +113,12 @@ insertMatrixValue
 
   /* The poissonMatrix_, poissonOnDensityMatrix_, cmsOnPoissonMatrix_, and cmsOnDensityMatrix_ values do not change between iterations */
 
-  if (poissonMap_->isNodeGlobalElement(rowGID)) { // Insert into poissonOnPoissonMatrix or poissonOnDensityMatrix
-    if ( blockColFlag == 0 ) { // Insert into poissonOnPoissonMatrix
+  if (poissonMap_->isNodeGlobalElement(rowGID)) { 
+    // Insert into poissonOnPoissonMatrix or poissonOnDensityMatrix
+    switch (blockColFlag)
+    {
+    case 0:
+      // Insert into poissonOnPoissonMatrix
       if (firstTime_) {
 	if (rowGID != curRow_) {
 	  insertRow();
@@ -123,8 +128,9 @@ insertMatrixValue
       }
       else
 	poissonOnPoissonMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-    }
-    else if ( blockColFlag == 1 ) { // Insert into poissonOnDensityMatrix
+      break;
+    case 1:
+      // Insert into poissonOnDensityMatrix
       if (firstTime_) {
       	if (rowGID != curRow_) {
       	  insertRow();
@@ -134,15 +140,20 @@ insertMatrixValue
       }
       else
       	poissonOnDensityMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-    }
-    else {
+      break;
+    default:
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- row in poissonMap, but blockColFlag not set for Poisson or density equations.");
       TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
+      break;
     }
   } //end if poissonMap_.MyGID(rowGID)
-  else if (cmsMap_->isNodeGlobalElement(rowGID)) { // Insert into cmsOnPoissonMatrix or cmsOnCmsMatrix or cmsOnDensityMatrix
-    if ( blockColFlag == 0 ) { // Insert into cmsOnPoissonMatrix
+  else if (cmsMap_->isNodeGlobalElement(rowGID)) { 
+    // Insert into cmsOnPoissonMatrix or cmsOnCmsMatrix or cmsOnDensityMatrix
+    switch (blockColFlag)
+    {
+    case 0:
+      // Insert into cmsOnPoissonMatrix
       if (firstTime_) {
 	if (rowGID != curRow_) {
 	  insertRow();
@@ -152,22 +163,24 @@ insertMatrixValue
       }
       else
 	cmsOnPoissonMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-    }
-    else if ( blockColFlag == 2 ) { // Insert into cmsOnCmsMatrix
+      break;
+    case 2:
+      // Insert into cmsOnCmsMatrix
       if (firstTime_) {
 	if (rowGID!=curRow_) {
-	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+	  insertRow();
 	  curRow_=rowGID;
 	}
 	curRowValuesCmsOnCms_[colGID] += value;
       }
       else
 	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-    }
-    else if (blockColFlag == 1) { // Insert into cmsOnDensityMatrix ("F matrix")
+      break;
+    case 1:
+      // Insert into cmsOnDensityMatrix ("F matrix")
       if (firstTime_) {
       	if (rowGID!=curRow_) {
-      	  insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+      	  insertRow();
       	  curRow_=rowGID;
       	}
       	curRowValuesCmsOnDensity_[colGID] += value;
@@ -175,23 +188,31 @@ insertMatrixValue
       else if (!isFLinear_) {
       	cmsOnDensityMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
       }
-    }
-    else {
+      break;
+    default:
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- row in cmsMap, but blockColFlag not set for Poisson,density, or cms equations.");
       TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
+      break;
     }
   } // end Insert into cmsOnPoisson or cmsOnCmsMatrix or cmsOnDensityMatrix
-  else if (densityMap_->isNodeGlobalElement(rowGID)) { // Insert into densityOnDensityMatrix or densityOnCmsMatrix
-    if ( blockColFlag == 1 ) { // Insert into densityOnDensityMatrix
+  else if (densityMap_->isNodeGlobalElement(rowGID)) { 
+    // Insert into densityOnDensityMatrix or densityOnCmsMatrix
+    switch (blockColFlag)
+    {
+    case 1:
+      // Insert into densityOnDensityMatrix
+#ifdef KDEBUG
       if (rowGID!=colGID) {
 	char err_msg[200];
 	sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- Inserting non-diagonal element into densityOnDensity matrix.");
 	TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg); // Confirm that this is a diagonal value
       }
+#endif
       densityOnDensityMatrix_->sumIntoLocalValue(densityMap_->getLocalElement(rowGID), value);
-    }
-    else if ( blockColFlag == 2) { // Insert into densityOnCmsMatrix
+      break;
+    case 2:
+      // Insert into densityOnCmsMatrix
       // The density-on-cms matrix is diagonal for most but not all use cases.
       if (firstTime_) {
 	if (rowGID!=curRow_) {
@@ -202,11 +223,12 @@ insertMatrixValue
       }
       else
       	densityOnCmsMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-    }
-    else {
+      break;
+    default:
       char err_msg[200];
       sprintf(err_msg,"PolyA22_Coulomb_Tpetra_Operator::insertMatrixValue(): Invalid argument -- row in densityMap, but blockColFlag not set for cms or density equations.");
       TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
+      break;
     }
   } // end Insert into densityOnDensityMatrix or densityOnCmsMatrix
   else { // Problem! rowGID not in cmsMap or densityMap or poissonMap
@@ -370,7 +392,9 @@ finalizeProblemValues
   RCP<const MAT> const_matrix = Teuchos::rcp_implicit_cast<const MAT>(cmsOnCmsMatrix_);
   cmsOnCmsInverse_ = rcp(new DIAGONAL(const_matrix));
   cmsOnCmsInverseOp_ = rcp(new DIAGONAL_OP(cmsOnCmsInverse_));
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsInverse_==Teuchos::null);
+#endif
   cmsOnCmsInverse_->initialize();
   cmsOnCmsInverse_->compute();
 
