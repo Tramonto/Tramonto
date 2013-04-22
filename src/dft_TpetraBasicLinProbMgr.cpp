@@ -261,8 +261,7 @@ insertRow
 {
   if (curRowValues_.empty()) return;
 
-  ITER pos;
-  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos) {
+  for (ITER pos = curRowValues_.begin(), e = curRowValues_.end(); pos != e; ++pos) {
     indices_.append(pos->first);
     values_.append(pos->second);
   }

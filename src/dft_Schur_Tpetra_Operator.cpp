@@ -94,11 +94,14 @@ apply
 
   // Apply (A22 - A21*inv(A11)*A12 to X
 
+  Scalar ZERO = STS::zero();
+  Scalar ONE = STS::one();
+
   RCP<MV > Y1 = rcp(new MV(A12_->getRangeMap(), X.getNumVectors()));
   RCP<MV > Y11 = rcp(new MV(A12_->getRangeMap(), X.getNumVectors()));
   RCP<MV > Y2 = rcp(new MV(A21_->getRangeMap(), X.getNumVectors()));
 
-  Y.putScalar(STS::zero());
+  Y.putScalar(ZERO);
   A12op_->apply(X, *Y1);
   //Y1.NormInf(&normvalue);
   //cout << "Norm of Y1 in Schur Apply = " << normvalue << endl;
@@ -109,7 +112,7 @@ apply
   //Y2.NormInf(&normvalue);
   //cout << "Norm of Y2 in Schur Apply = " << normvalue << endl;
   A22_->apply(X, Y);
-  Y.update(-STS::one(), *Y2, STS::one());
+  Y.update(-ONE, *Y2, ONE);
 
   //Y.NormInf(&normvalue);
   //cout << "Norm of Y in Schur Apply = " << normvalue << endl;
@@ -123,10 +126,12 @@ ComputeRHS
 {
   // Compute B2S =  B2 - A21*inv(A11)B1
 
+  Scalar ONE = STS::one();
+
   RCP<MV > Y1 = rcp(new MV(A11_->getDomainMap(), B1.getNumVectors()));
   A11_->applyInverse(B1, *Y1);
   A21op_->apply(*Y1, B2S);
-  B2S.update(STS::one(), B2, -STS::one());
+  B2S.update(ONE, B2, -ONE);
 } //end ComputeRHS
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -137,9 +142,11 @@ ComputeX1
 {
   // Compute X1 =  inv(A11)(B1 - A12*X2)
 
+  Scalar ONE = STS::one();
+
   RCP<MV > Y1 = rcp(new MV(A12_->getRangeMap(), X1.getNumVectors()));
   A12op_->apply(X2, *Y1);
-  Y1->update(STS::one(), B1, -STS::one());
+  Y1->update(ONE, B1, -ONE);
   A11_->applyInverse(*Y1, X1);
 } //end ComputeX1
 
@@ -161,19 +168,22 @@ ApplyGlobal
 
   // Apply (A22 - A21*inv(A11)*A12 to X
 
+  Scalar ZERO = STS::zero();
+  Scalar ONE = STS::one();
+
   RCP<MV > Y11 = rcp(new MV(A11_->getRangeMap(), X1.getNumVectors()));
   RCP<MV > Y12 = rcp(new MV(A12_->getRangeMap(), X1.getNumVectors()));
   RCP<MV > Y21 = rcp(new MV(A21_->getRangeMap(), X1.getNumVectors()));
   RCP<MV > Y22 = rcp(new MV(A22_->getRangeMap(), X1.getNumVectors()));
 
-  Y1.putScalar(STS::zero());
-  Y2.putScalar(STS::zero());
+  Y1.putScalar(ZERO);
+  Y2.putScalar(ZERO);
   A11_->apply(X1, *Y11);
   A12op_->apply(X2, *Y12);
   A21op_->apply(X1, *Y21);
   A22_->apply(X2, *Y22);
-  Y1.update(STS::one(), *Y11, STS::one(), *Y12, STS::zero());
-  Y2.update(STS::one(), *Y21, STS::one(), *Y22, STS::zero());
+  Y1.update(ONE, *Y11, ONE, *Y12, ZERO);
+  Y2.update(ONE, *Y21, ONE, *Y22, ZERO);
 } //end ApplyGlobal
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>

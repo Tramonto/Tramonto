@@ -236,8 +236,8 @@ insertRow
       valuesCmsOnDensity_.resize(numEntriesCmsOnDensity);
     }
     LocalOrdinal i=0;
-    ITER pos;
-    for (pos = curRowValuesCmsOnDensity_.begin(); pos != curRowValuesCmsOnDensity_.end(); ++pos) {
+
+    for (ITER pos = curRowValuesCmsOnDensity_.begin(), e = curRowValuesCmsOnDensity_.end(); pos != e; ++pos) {
       indicesCmsOnDensity_[i] = pos->first;
       valuesCmsOnDensity_[i++] = pos->second;
     }
@@ -250,8 +250,8 @@ insertRow
       valuesCmsOnCms_.resize(numEntriesCmsOnCms);
     }
     LocalOrdinal i=0;
-    ITER pos;
-    for (pos = curRowValuesCmsOnCms_.begin(); pos != curRowValuesCmsOnCms_.end(); ++pos) {
+
+    for (ITER pos = curRowValuesCmsOnCms_.begin(), e = curRowValuesCmsOnCms_.end(); pos != e; ++pos) {
       indicesCmsOnCms_[i] = pos->first;
       valuesCmsOnCms_[i++] = pos->second;
     }
@@ -264,8 +264,8 @@ insertRow
       valuesPoissonOnPoisson_.resize(numEntriesPoissonOnPoisson);
     }
     LocalOrdinal i=0;
-    ITER pos;
-    for (pos = curRowValuesPoissonOnPoisson_.begin(); pos != curRowValuesPoissonOnPoisson_.end(); ++pos) {
+
+    for (ITER pos = curRowValuesPoissonOnPoisson_.begin(), e = curRowValuesPoissonOnPoisson_.end(); pos != e; ++pos) {
       indicesPoissonOnPoisson_[i] = pos->first;
       valuesPoissonOnPoisson_[i++] = pos->second;
     }
@@ -278,8 +278,8 @@ insertRow
       valuesCmsOnPoisson_.resize(numEntriesCmsOnPoisson);
     }
     LocalOrdinal i=0;
-    ITER pos;
-    for (pos = curRowValuesCmsOnPoisson_.begin(); pos != curRowValuesCmsOnPoisson_.end(); ++pos) {
+
+    for (ITER pos = curRowValuesCmsOnPoisson_.begin(), e = curRowValuesCmsOnPoisson_.end(); pos != e; ++pos) {
       indicesCmsOnPoisson_[i] = pos->first;
       valuesCmsOnPoisson_[i++] = pos->second;
     }
@@ -292,8 +292,8 @@ insertRow
       valuesPoissonOnDensity_.resize(numEntriesPoissonOnDensity);
     }
     LocalOrdinal i=0;
-    ITER pos;
-    for (pos = curRowValuesPoissonOnDensity_.begin(); pos != curRowValuesPoissonOnDensity_.end(); ++pos) {
+
+    for (ITER pos = curRowValuesPoissonOnDensity_.begin(), e = curRowValuesPoissonOnDensity_.end(); pos != e; ++pos) {
       indicesPoissonOnDensity_[i] = pos->first;
       valuesPoissonOnDensity_[i++] = pos->second;
     }
@@ -307,8 +307,8 @@ insertRow
       valuesDensityOnCms_.resize(numEntriesDensityOnCms);
     }
     LocalOrdinal i=0;
-    ITER pos;
-    for (pos = curRowValuesDensityOnCms_.begin(); pos != curRowValuesDensityOnCms_.end(); ++pos) {
+
+    for (ITER pos = curRowValuesDensityOnCms_.begin(), e = curRowValuesDensityOnCms_.end(); pos != e; ++pos) {
       indicesDensityOnCms_[i] = pos->first;
       valuesDensityOnCms_[i++] = pos->second;
     }

@@ -389,8 +389,8 @@ insertRowA12
     valuesA12_.resize(numEntries);
   } //end if
   LocalOrdinal i=0;
-  ITER pos;
-  for (pos = curRowValuesA12_.begin(); pos != curRowValuesA12_.end(); ++pos)
+
+  for (ITER pos = curRowValuesA12_.begin(), e = curRowValuesA12_.end(); pos != e; ++pos)
   {
     indicesA12_[i] = pos->first;
     valuesA12_[i++] = pos->second;
@@ -420,8 +420,8 @@ insertRowA21
     valuesA21_.resize(numEntries);
   } //end if
   LocalOrdinal i=0;
-  ITER pos;
-  for (pos = curRowValuesA21_.begin(); pos != curRowValuesA21_.end(); ++pos)
+
+  for (ITER pos = curRowValuesA21_.begin(), e = curRowValuesA21_.end(); pos != e; ++pos)
   {
     indicesA21_[i] = pos->first;
     valuesA21_[i++] = pos->second;

@@ -155,8 +155,8 @@ insertRow
     values_.resize(numEntries);
   } //end if
   LocalOrdinal i=0;
-  ITER pos;
-  for (pos = curRowValues_.begin(); pos != curRowValues_.end(); ++pos)
+
+  for (ITER pos = curRowValues_.begin(), e = curRowValues_.end(); pos != e; ++pos)
   {
     indices_[i] = pos->first;
     values_[i++] = pos->second;
