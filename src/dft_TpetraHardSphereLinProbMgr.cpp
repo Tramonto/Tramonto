@@ -230,43 +230,54 @@ insertMatrixValue
 
   ArrayRCP<const Scalar> ownedNodeIsCoarsenedValues = ownedNodeIsCoarsened_->get1dView();
   ArrayRCP<const Scalar> boxNodeIsCoarsenedValues = boxNodeIsCoarsened_->get1dView();
-  bool schurBlockRow1 = (physicsIdToSchurBlockId_[ownedPhysicsID]==1 &&
-			 ownedNodeIsCoarsenedValues[ownedNode]==0);
-  bool schurBlockCol1 = (physicsIdToSchurBlockId_[boxPhysicsID]==1 &&
-			 boxNodeIsCoarsenedValues[boxNode]==0);
+  LocalOrdinal schurBlockRow = (physicsIdToSchurBlockId_[ownedPhysicsID]==1 &&
+				ownedNodeIsCoarsenedValues[ownedNode]==0) ? 1: 2;
+  LocalOrdinal schurBlockCol = (physicsIdToSchurBlockId_[boxPhysicsID]==1 &&
+				boxNodeIsCoarsenedValues[boxNode]==0) ? 1: 2;
   GlobalOrdinal rowGID = this->ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   GlobalOrdinal colGID = this->boxToSolverGID(boxPhysicsID, boxNode);
 
-  if (schurBlockRow1 && schurBlockCol1) { // A11 block
+  LocalOrdinal schurBlockNumber = 10 * schurBlockRow + schurBlockCol;
+
+  switch (schurBlockNumber)
+  {
+  case 11:
+    // A11 block
     A11_->insertMatrixValue(rowGID, colGID, value);
-  }
-  else if (!schurBlockRow1 && !schurBlockCol1) { // A22 block
+    break;
+  case 22:
+    // A22 block
     if (isA22Diagonal_ && numCoarsenedNodes_==0)
       A22Diagonal_->insertMatrixValue(rowGID, colGID, value);
     else
      A22Matrix_->insertMatrixValue(rowGID, colGID, value);
-  }
-  else if (!schurBlockRow1 && schurBlockCol1) { // A21 block
+    break;
+  case 21:
+    // A21 block
     if (firstTime_) {
       if (rowGID!=curRowA21_) {
-	insertRowA21();  // Dump the current contents of curRowValues_ into matrix and clear map
+	// Dump the current contents of curRowValues_ into matrix and clear map
+	insertRowA21();
 	curRowA21_=rowGID;
       }
       curRowValuesA21_[colGID] += value;
     }
     else
       A21Static_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-  }
-  else { // A12 block
+    break;
+  case 12:
+    // A12 block
     if (firstTime_) {
       if (rowGID!=curRowA12_) {
-	insertRowA12();  // Dump the current contents of curRowValues_ into matrix and clear map
+	// Dump the current contents of curRowValues_ into matrix and clear map
+	insertRowA12();
 	curRowA12_=rowGID;
       }
       curRowValuesA12_[colGID] += value;
     }
     else
       A12Static_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
+    break;
   }
 
   if (debug_) {

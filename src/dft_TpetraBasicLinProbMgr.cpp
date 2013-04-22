@@ -234,14 +234,10 @@ insertMatrixValue
   GlobalOrdinal rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
 
-  //cout << std::setprecision(2);
-  //cout << "A[ownedPhysicsID="<<ownedPhysicsID<<"][ownedNode="<<ownedNode
-  //     << "][boxPhysicsID="  <<boxPhysicsID  <<"][boxNode="  <<boxNode
-  //     << "][rowGID="        <<rowGID        <<"][colGID="   <<colGID
-  //     << "] = " << value << endl;
   if (firstTime_) {
     if (rowGID!=curRow_) {
-      insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+      // Dump the current contents of curRowValues_ into matrix and clear map
+      insertRow();
       curRow_=rowGID;
     }
     curRowValues_[colGID] += value;

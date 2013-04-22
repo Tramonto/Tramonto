@@ -316,16 +316,16 @@ insertMatrixValue
   GlobalOrdinal rowGID = BLPM::ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   GlobalOrdinal colGID = BLPM::boxToSolverGID(boxPhysicsID, boxNode);
 
-  //cout << std::setprecision(2);
-  //cout << "A[ownedPhysicsID="<<ownedPhysicsID<<"][ownedNode="<<ownedNode
-  //     << "][boxPhysicsID="  <<boxPhysicsID  <<"][boxNode="  <<boxNode
-  //     << "][rowGID="        <<rowGID        <<"][colGID="   <<colGID
-  //     << "] = " << value << endl;
+  LocalOrdinal schurBlockNumber = 10 * schurBlockRow + schurBlockCol;
 
-  if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
+  switch (schurBlockNumber)
+  {
+  case 11:
+    // A11 block
     A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->getGlobalElement(ownedNode), rowGID, colGID, value);
-  }
-  else if (schurBlockRow==2 && schurBlockCol==2) { // A22 block
+    break;
+  case 22:
+    // A22 block
     // if poisson then blockColFlag = 0
     // if density then blockColFlag = 1
     // if cms then blockColFlag = 2
@@ -338,36 +338,39 @@ insertMatrixValue
     }else{
       TEUCHOS_TEST_FOR_EXCEPT_MSG(1, "Unknown box physics ID in A22.");
     }
-  }
-  else if (schurBlockRow==2 && schurBlockCol==1) { // A21 block
+    break;
+  case 21:
+    // A12 block
     if (firstTime_) {
       if (rowGID!=curRowA21_) {
-	insertRowA21();  // Dump the current contents of curRowValues_ into matrix and clear map
+	// Dump the current contents of curRowValues_ into matrix and clear map
+	insertRowA21();
 	curRowA21_=rowGID;
       }
       curRowValuesA21_[colGID] += value;
     }
     else
       A21Static_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-
-  }
-  else { // A12 block
+    break;
+  case 12:
+    // A12 block
     if (firstTime_) {
       if (rowGID!=curRowA12_) {
-	insertRowA12();  // Dump the current contents of curRowValues_ into matrix and clear map
+	// Dump the current contents of curRowValues_ into matrix and clear map
+	insertRowA12();
 	curRowA12_=rowGID;
       }
       curRowValuesA12_[colGID] += value;
     }
     else
       A12Static_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-
+    break;
   }
 
   if (debug_)
   {
     BLPM::insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, value);
-  } //end if
+  }
 } //insertMatrixValue
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
