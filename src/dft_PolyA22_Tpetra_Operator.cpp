@@ -104,11 +104,6 @@ insertMatrixValue
   // if density then blockColFlag = 1
   // if cms then blockColFlag = 2
 
-  Array<GlobalOrdinal> cols(1);
-  Array<MatScalar> vals(1);
-  cols[0] = colGID;
-  vals[0] = value;
-
   if (cmsMap_->isNodeGlobalElement(rowGID)) { // Insert into cmsOnCmsMatrix or cmsOnDensityMatrix
     if ( blockColFlag == 2 ) { // Insert into cmsOnCmsMatrix
       if (firstTime_) {
@@ -119,7 +114,7 @@ insertMatrixValue
 	curRowValuesCmsOnCms_[colGID] += value;
       }
       else
-	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
+	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
     }
     else if (blockColFlag == 1) { // Insert into cmsOnDensityMatrix ("F matrix")
       if (firstTime_) {
@@ -131,7 +126,7 @@ insertMatrixValue
       }
       else if (!isFLinear_) {
 	//cout<< "row GID = " << rowGID << " value = " << value << " colGID = " << colGID << endl;
-      	cmsOnDensityMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
+      	cmsOnDensityMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
       }
     }
     else {
@@ -155,7 +150,7 @@ insertMatrixValue
 	curRowValuesDensityOnCms_[colGID] += value;
       }
       else
-      	densityOnCmsMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
+      	densityOnCmsMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
     }
     else {
       char err_msg[200];

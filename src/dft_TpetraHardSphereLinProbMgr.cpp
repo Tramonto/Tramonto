@@ -137,11 +137,13 @@ finalizeBlockStructure
     }
   }
 
-  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0,numUnks), 0, comm_, node_));
-  block1RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0,numUnks1), 0, comm_, node_));
-  block2RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1, numUnks2), 0, comm_, node_));
-  indNonLocalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numIndNonLocal), 0, comm_, node_));
-  depNonLocalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numIndNonLocal, numDepNonLocal), 0, comm_, node_));
+  Tpetra::global_size_t INVALID = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
+
+  globalRowMap_ = rcp(new MAP(INVALID, globalGIDList(0,numUnks), 0, comm_, node_));
+  block1RowMap_ = rcp(new MAP(INVALID, globalGIDList(0,numUnks1), 0, comm_, node_));
+  block2RowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1, numUnks2), 0, comm_, node_));
+  indNonLocalRowMap_ = rcp(new MAP(INVALID, globalGIDList(0, numIndNonLocal), 0, comm_, node_));
+  depNonLocalRowMap_ = rcp(new MAP(INVALID, globalGIDList(numIndNonLocal, numDepNonLocal), 0, comm_, node_));
 
   /*
     std::cout << " Global Row Map" << *globalRowMap_ << std::endl
@@ -235,11 +237,6 @@ insertMatrixValue
   GlobalOrdinal rowGID = this->ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
   GlobalOrdinal colGID = this->boxToSolverGID(boxPhysicsID, boxNode);
 
-  Array<GlobalOrdinal> cols(1);
-  cols[0] = colGID;
-  Array<MatScalar> vals(1);
-  vals[0] = value;
-
   if (schurBlockRow1 && schurBlockCol1) { // A11 block
     A11_->insertMatrixValue(rowGID, colGID, value);
   }
@@ -258,7 +255,7 @@ insertMatrixValue
       curRowValuesA21_[colGID] += value;
     }
     else
-      A21Static_->sumIntoGlobalValues(rowGID, cols, vals);
+      A21Static_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
   }
   else { // A12 block
     if (firstTime_) {
@@ -269,7 +266,7 @@ insertMatrixValue
       curRowValuesA12_[colGID] += value;
     }
     else
-      A12Static_->sumIntoGlobalValues(rowGID, cols, vals);
+      A12Static_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
   }
 
   if (debug_) {

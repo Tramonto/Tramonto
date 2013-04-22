@@ -83,10 +83,7 @@ dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,
 insertMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value)
 {
-  Array<GlobalOrdinal> cols(1);
-  cols[0] = colGID;
-  Array<MatScalar> vals(1);
-  vals[0] = value;
+
   if (ownedPhysicsID >= numBlocks_) //insert it into Poisson part
   {
     if (firstTime_)
@@ -100,9 +97,8 @@ insertMatrixValue
       curPoissonRowValues_[colGID] += value;
     } //end if
     else
-    {
-      poissonMatrix_->sumIntoGlobalValues(rowGID, cols, vals);
-    } //end else
+      poissonMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
+    
   } //end if
   else //insert it into G part
   {
@@ -123,9 +119,8 @@ insertMatrixValue
       curRowValues_[colGID] += value;
     } //end if
     else
-    {
-      matrix_[ownedPhysicsID]->sumIntoGlobalValues(ownedNode, cols, vals);
-    } //end else
+      matrix_[ownedPhysicsID]->sumIntoGlobalValues(ownedNode, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
+
   } //end else
 } //end insertMatrixValues
 //=============================================================================

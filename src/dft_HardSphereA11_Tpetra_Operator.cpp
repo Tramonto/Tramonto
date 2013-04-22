@@ -80,11 +80,6 @@ dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,No
 insertMatrixValue
 (LocalOrdinal rowGID, LocalOrdinal colGID, MatScalar value) {
 
-  Array<GlobalOrdinal> cols(1);
-  cols[0] = colGID;
-  Array<MatScalar> vals(1);
-  vals[0] = value;
-
  // All ind NonLocal entries are diagonal values and 1, so we don't store them
   if (matrix_==Teuchos::null) {
     return; // No dependent nonlocal entries at all
@@ -104,7 +99,7 @@ insertMatrixValue
     curRowValues_[colGID] += value;
   }
   else
-    matrix_->sumIntoGlobalValues(rowGID, cols, vals);
+    matrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
 
 }
 //=============================================================================
@@ -323,15 +318,10 @@ formA11invMatrix
   MatScalar value = -STMS::one();
   for (LocalOrdinal i=0; i<numRows; i++) {
     GlobalOrdinal row = A11invMatrix_->getRowMap()->getGlobalElement(i);
-    GlobalOrdinal col = row;
-    Array<GlobalOrdinal> cols(1);
-    Array<MatScalar> vals(1);
-    cols[0] = col;
-    vals[0] = value;
     if (firstTime)
-      A11invMatrix_->insertGlobalValues(row, cols, vals);
+      A11invMatrix_->insertGlobalValues(row, Array<GlobalOrdinal>(1,row), Array<MatScalar>(1,value));
     else
-      A11invMatrix_->sumIntoGlobalValues(row, cols, vals);
+      A11invMatrix_->sumIntoGlobalValues(row, Array<GlobalOrdinal>(1,row), Array<MatScalar>(1,value));
   }
 
   // Now insert lower triangle

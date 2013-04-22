@@ -98,10 +98,6 @@ insertMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value)
 {
 
-  Array<GlobalOrdinal> cols(1);
-  Array<MatScalar> vals(1);
-  cols[0] = colGID;
-  vals[0] = value;
   if (rowGID==colGID)
   {
     LocalOrdinal locDiag = block1Map_->getLocalElement(colGID);
@@ -132,10 +128,8 @@ insertMatrixValue
     curRowValues_[colGID] += value;
   } //end if
   else
-  {
-    matrix_[ownedPhysicsID-1]->sumIntoGlobalValues(ownedNode, cols, vals);
+    matrix_[ownedPhysicsID-1]->sumIntoGlobalValues(ownedNode, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
 
-  } //end else
 } //end insertMatrixValue
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>

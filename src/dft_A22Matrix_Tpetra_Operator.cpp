@@ -75,10 +75,6 @@ dft_A22Matrix_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>:
 insertMatrixValue
 (GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value)
 {
-  Array<GlobalOrdinal> cols(1);
-  Array<MatScalar> vals(1);
-  cols[0] = colGID;
-  vals[0] = value;
 
   if (firstTime_) {
     if (rowGID!=curRow_) {
@@ -88,7 +84,7 @@ insertMatrixValue
     curRowValues_[colGID] += value;
   }
   else
-    A22MatrixStatic_->sumIntoGlobalValues(rowGID, cols, vals);
+    A22MatrixStatic_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
 
 }
 //=============================================================================

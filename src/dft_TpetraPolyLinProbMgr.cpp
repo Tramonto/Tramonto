@@ -179,39 +179,41 @@ finalizeBlockStructure
     } //end for
   } //end for
 
-  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0,numUnks), 0, comm_, node_));
+  Tpetra::global_size_t INVALID = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
+
+  globalRowMap_ = rcp(new MAP(INVALID, globalGIDList(0,numUnks), 0, comm_, node_));
   if (poissonInA11)
   {
-    block1RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numUnks1+numUnksP), 0, comm_, node_));
-    block2RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numUnks2), 0, comm_, node_));
+    block1RowMap_ = rcp(new MAP(INVALID, globalGIDList(0, numUnks1+numUnksP), 0, comm_, node_));
+    block2RowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP, numUnks2), 0, comm_, node_));
   } //end if
   else
   {
-    block1RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numUnks1), 0, comm_, node_));
-    block2RowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1, numUnks2+numUnksP), 0, comm_, node_));
+    block1RowMap_ = rcp(new MAP(INVALID, globalGIDList(0, numUnks1), 0, comm_, node_));
+    block2RowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1, numUnks2+numUnksP), 0, comm_, node_));
   } //end else
 
   if (F_location == 1) //F in NE
   {
-    cmsRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numCms), 0, comm_, node_));
-    densityRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP+numCms, numDensity), 0, comm_, node_));
+    cmsRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP, numCms), 0, comm_, node_));
+    densityRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP+numCms, numDensity), 0, comm_, node_));
   } //end if
   else  //F in SW
   {
-    densityRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numDensity), 0, comm_, node_));
-    cmsRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP+numDensity, numCms), 0, comm_, node_));
+    densityRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP, numDensity), 0, comm_, node_));
+    cmsRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP+numDensity, numCms), 0, comm_, node_));
   } //end else
   if (hasPoisson_)
   {
-    poissonRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1, numUnksP), 0, comm_, node_));
+    poissonRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1, numUnksP), 0, comm_, node_));
     if (poissonInA11)
     {
-      extraRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(0, numUnks1), 0, comm_, node_));
+      extraRowMap_ = rcp(new MAP(INVALID, globalGIDList(0, numUnks1), 0, comm_, node_));
       A11_ = rcp(new P11CO(ownedMap_, block1RowMap_,extraRowMap_, poissonRowMap_, parameterList_));
     } //end if
     else  //poisson in A22
     {
-      extraRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList(numUnks1+numUnksP, numUnks2), 0, comm_, node_));
+      extraRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP, numUnks2), 0, comm_, node_));
       A11_ = rcp(new P11TO(ownedMap_, block1RowMap_, parameterList_));
     } //end else
   } //end if
@@ -319,10 +321,6 @@ insertMatrixValue
   //     << "][boxPhysicsID="  <<boxPhysicsID  <<"][boxNode="  <<boxNode
   //     << "][rowGID="        <<rowGID        <<"][colGID="   <<colGID
   //     << "] = " << value << endl;
-  Array<GlobalOrdinal> cols(1);
-  cols[0] = colGID;
-  Array<MatScalar> vals(1);
-  vals[0] = value;
 
   if (schurBlockRow==1 && schurBlockCol==1) { // A11 block
     A11_->insertMatrixValue(solverOrdering_[ownedPhysicsID], ownedMap_->getGlobalElement(ownedNode), rowGID, colGID, value);
@@ -349,9 +347,9 @@ insertMatrixValue
       }
       curRowValuesA21_[colGID] += value;
     }
-    else{
-      A21Static_->sumIntoGlobalValues(rowGID, cols, vals);
-    }
+    else
+      A21Static_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
+
   }
   else { // A12 block
     if (firstTime_) {
@@ -361,9 +359,9 @@ insertMatrixValue
       }
       curRowValuesA12_[colGID] += value;
     }
-    else{
-      A12Static_->sumIntoGlobalValues(rowGID, cols, vals);
-    }
+    else
+      A12Static_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
+
   }
 
   if (debug_)

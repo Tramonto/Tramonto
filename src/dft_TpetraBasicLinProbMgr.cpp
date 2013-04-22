@@ -171,7 +171,9 @@ finalizeBlockStructure
     }
   }
 
-  globalRowMap_ = rcp(new MAP(Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid(), globalGIDList, 0, comm_, node_));
+  Tpetra::global_size_t INVALID = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
+
+  globalRowMap_ = rcp(new MAP(INVALID, globalGIDList, 0, comm_, node_));
   globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
   globalMatrix_->setObjectLabel("BasicLinProbMgr::globalMatrix");
   globalRhs_ = rcp(new VEC(globalRowMap_));
@@ -244,13 +246,9 @@ insertMatrixValue
     }
     curRowValues_[colGID] += value;
   }
-  else {
-    Array<MatScalar> vals(1);
-    vals[0] = value;
-    Array<GlobalOrdinal> globalCols(1);
-    globalCols[0] = colGID;
-    globalMatrixStatic_->sumIntoGlobalValues(rowGID, globalCols, vals);
-  }
+  else
+    globalMatrixStatic_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
+
 }
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
