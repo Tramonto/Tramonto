@@ -199,9 +199,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
   double dft_linprobmgr_getmatrixvalue (void * linprobmgr, int iunk, int ownednode,
 					int junk, int boxnode) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    MAT_SCALAR retval1 = linprobmgr_->getMatrixValue(iunk, ownednode, junk, boxnode);
-    double retval2 = Teuchos::as<double>(retval1);
-    return retval2;
+    return Teuchos::as<double>(linprobmgr_->getMatrixValue(iunk, ownednode, junk, boxnode));
   }
 
   int dft_linprobmgr_setrhs(void * linprobmgr, double** x) {
