@@ -70,7 +70,9 @@ dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,No
 insertMatrixValue
 (GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value)
 {
+#ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPTION(rowGID!=colGID, std::logic_error, "Only diagonals are supposed to be entered.");
+#endif
 
   // Storing this density block in a vector since it is diagonal
   densityOnDensityMatrix_->sumIntoLocalValue(block2Map_->getLocalElement(rowGID), value);
