@@ -67,15 +67,18 @@ namespace Tpetra {
     //! Destructor
     virtual ~MultiVectorConverter() {}
     //@}
-    
+
+    inline
     void convert(const DMV& X, RMV& Y)
     {
       // Convert X from DomainScalar precision to RangeScalar precision
       for (size_t j=0; j<X.getNumVectors(); ++j) {
 	ArrayRCP<const DomainScalar> xvecVals = X.getVector( j )->get1dView();
-	ArrayRCP<RangeScalar> yvecVals = Y.getVectorNonConst( j )->get1dViewNonConst();
-	if( xvecVals.size() > 0 ) {
-	  std::transform( xvecVals.begin(), xvecVals.end(), yvecVals.begin(), Teuchos::asFunc<RangeScalar>() );
+	if( xvecVals.size() ) {
+	  std::transform( xvecVals.begin(), 
+			  xvecVals.end(), 
+			  Y.getVectorNonConst( j )->get1dViewNonConst().begin(), 
+			  Teuchos::asFunc<RangeScalar>() );
 	}
       }
       return;
