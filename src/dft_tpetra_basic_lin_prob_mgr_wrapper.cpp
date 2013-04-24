@@ -149,16 +149,14 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
 
   int dft_linprobmgr_insertrhsvalue (void * linprobmgr, int iunk, int inode, double value) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    SCALAR val = Teuchos::as<SCALAR>(value);
-    linprobmgr_->insertRhsValue(iunk, inode, val);
+    linprobmgr_->insertRhsValue(iunk, inode, Teuchos::as<SCALAR>(value));
     return( 0 );
   }
 
   int dft_linprobmgr_insertonematrixvalue (void * linprobmgr, int iunk, int ownednode,
 					   int junk, int boxnode, double value) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    MAT_SCALAR val = Teuchos::as<MAT_SCALAR>(value);
-    linprobmgr_->insertMatrixValue(iunk, ownednode, junk, boxnode, val);
+    linprobmgr_->insertMatrixValue(iunk, ownednode, junk, boxnode, Teuchos::as<MAT_SCALAR>(value));
     return( 0 );
   }
 
