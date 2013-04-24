@@ -266,7 +266,6 @@ finalizeBlockStructure
   lhs2_ = globalLhs_->offsetViewNonConst(block2RowMap_, offset2)->getVectorNonConst(0);
 
   // RN_20100113: The following is no longer needed.
-
   ownedToBoxImporter_ = rcp(new IMP(ownedMap_, boxMap_));
 
   isBlockStructureSet_ = true;

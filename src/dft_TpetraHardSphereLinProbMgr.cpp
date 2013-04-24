@@ -154,19 +154,17 @@ finalizeBlockStructure
   A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
   A21_ = rcp(new MAT(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
 
-  if (isA22Diagonal_) {
-    A22Diagonal_ = rcp(new HS22TO(block2RowMap_));
-  }
-  else {
-    A22Matrix_ = rcp(new A22MTO(block2RowMap_, parameterList_));
-  }
-
-  if (isA22Diagonal_) {
-    A22DiagonalPrecond_ = rcp(new INVOP(A22Diagonal_));
-  } else {
-    A22MatrixPrecond_ = rcp(new INVOP(A22Matrix_));
-  }
-
+  if (isA22Diagonal_) 
+    {
+      A22Diagonal_ = rcp(new HS22TO(block2RowMap_));
+      A22DiagonalPrecond_ = rcp(new INVOP(A22Diagonal_));
+    }
+  else 
+    {
+      A22Matrix_ = rcp(new A22MTO(block2RowMap_, parameterList_));
+      A22MatrixPrecond_ = rcp(new INVOP(A22Matrix_));
+    }
+  
   if (debug_) {
     globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
     globalMatrix_->setObjectLabel("HardSphere::globalMatrix");
