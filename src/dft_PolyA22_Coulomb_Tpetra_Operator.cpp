@@ -113,7 +113,7 @@ insertMatrixValue
 
   /* The poissonMatrix_, poissonOnDensityMatrix_, cmsOnPoissonMatrix_, and cmsOnDensityMatrix_ values do not change between iterations */
 
-  if (poissonMap_->isNodeGlobalElement(rowGID)) { 
+  if (poissonMap_->isNodeGlobalElement(rowGID)) {
     // Insert into poissonOnPoissonMatrix or poissonOnDensityMatrix
     switch (blockColFlag)
     {
@@ -148,7 +148,7 @@ insertMatrixValue
       break;
     }
   } //end if poissonMap_.MyGID(rowGID)
-  else if (cmsMap_->isNodeGlobalElement(rowGID)) { 
+  else if (cmsMap_->isNodeGlobalElement(rowGID)) {
     // Insert into cmsOnPoissonMatrix or cmsOnCmsMatrix or cmsOnDensityMatrix
     switch (blockColFlag)
     {
@@ -196,7 +196,7 @@ insertMatrixValue
       break;
     }
   } // end Insert into cmsOnPoisson or cmsOnCmsMatrix or cmsOnDensityMatrix
-  else if (densityMap_->isNodeGlobalElement(rowGID)) { 
+  else if (densityMap_->isNodeGlobalElement(rowGID)) {
     // Insert into densityOnDensityMatrix or densityOnCmsMatrix
     switch (blockColFlag)
     {
@@ -259,7 +259,12 @@ insertRow
       valuesCmsOnDensity_[i++] = pos->second;
     }
     cmsOnDensityMatrix_->insertGlobalValues(curRow_, indicesCmsOnDensity_, valuesCmsOnDensity_);
+
+    indicesCmsOnDensity_.clear();
+    valuesCmsOnDensity_.clear();
+    curRowValuesCmsOnDensity_.clear();
   }
+
   if (!curRowValuesCmsOnCms_.empty()) {
     int numEntriesCmsOnCms = curRowValuesCmsOnCms_.size();
     if (numEntriesCmsOnCms>indicesCmsOnCms_.size()) {
@@ -273,7 +278,12 @@ insertRow
       valuesCmsOnCms_[i++] = pos->second;
     }
     cmsOnCmsMatrix_->insertGlobalValues(curRow_, indicesCmsOnCms_, valuesCmsOnCms_);
+
+    indicesCmsOnCms_.clear();
+    valuesCmsOnCms_.clear();
+    curRowValuesCmsOnCms_.clear();
   }
+
   if (!curRowValuesPoissonOnPoisson_.empty()) {
     int numEntriesPoissonOnPoisson = curRowValuesPoissonOnPoisson_.size();
     if (numEntriesPoissonOnPoisson>indicesPoissonOnPoisson_.size()) {
@@ -287,7 +297,12 @@ insertRow
       valuesPoissonOnPoisson_[i++] = pos->second;
     }
     poissonOnPoissonMatrix_->insertGlobalValues(curRow_, indicesPoissonOnPoisson_, valuesPoissonOnPoisson_);
+
+    indicesPoissonOnPoisson_.clear();
+    valuesPoissonOnPoisson_.clear();
+    curRowValuesPoissonOnPoisson_.clear();
   }
+
   if (!curRowValuesCmsOnPoisson_.empty()) {
     int numEntriesCmsOnPoisson = curRowValuesCmsOnPoisson_.size();
     if (numEntriesCmsOnPoisson>indicesCmsOnPoisson_.size()) {
@@ -301,7 +316,12 @@ insertRow
       valuesCmsOnPoisson_[i++] = pos->second;
     }
     cmsOnPoissonMatrix_->insertGlobalValues(curRow_, indicesCmsOnPoisson_, valuesCmsOnPoisson_);
+
+    indicesCmsOnPoisson_.clear();
+    valuesCmsOnPoisson_.clear();
+    curRowValuesCmsOnPoisson_.clear();
   }
+
   if (!curRowValuesPoissonOnDensity_.empty()) {
     int numEntriesPoissonOnDensity = curRowValuesPoissonOnDensity_.size();
     if (numEntriesPoissonOnDensity>indicesPoissonOnDensity_.size()) {
@@ -315,6 +335,10 @@ insertRow
       valuesPoissonOnDensity_[i++] = pos->second;
     }
     poissonOnDensityMatrix_->insertGlobalValues(curRow_, indicesPoissonOnDensity_, valuesPoissonOnDensity_);
+
+    indicesPoissonOnDensity_.clear();
+    valuesPoissonOnDensity_.clear();
+    curRowValuesPoissonOnDensity_.clear();
   }
 
   if (!curRowValuesDensityOnCms_.empty()) {
@@ -330,26 +354,11 @@ insertRow
       valuesDensityOnCms_[i++] = pos->second;
     }
     densityOnCmsMatrix_->insertGlobalValues(curRow_, indicesDensityOnCms_, valuesDensityOnCms_);
-  }
 
-  indicesCmsOnDensity_.clear();
-  valuesCmsOnDensity_.clear();
-  indicesCmsOnCms_.clear();
-  valuesCmsOnCms_.clear();
-  indicesPoissonOnPoisson_.clear();
-  valuesPoissonOnPoisson_.clear();
-  indicesCmsOnPoisson_.clear();
-  valuesCmsOnPoisson_.clear();
-  indicesPoissonOnDensity_.clear();
-  valuesPoissonOnDensity_.clear();
-  indicesDensityOnCms_.clear();
-  valuesDensityOnCms_.clear();
-  curRowValuesCmsOnDensity_.clear();
-  curRowValuesCmsOnCms_.clear();
-  curRowValuesPoissonOnPoisson_.clear();
-  curRowValuesCmsOnPoisson_.clear();
-  curRowValuesPoissonOnDensity_.clear();
-  curRowValuesDensityOnCms_.clear();
+    indicesDensityOnCms_.clear();
+    valuesDensityOnCms_.clear();
+    curRowValuesDensityOnCms_.clear();
+  }
 
 }
 //=============================================================================

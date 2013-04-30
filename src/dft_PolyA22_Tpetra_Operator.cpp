@@ -113,7 +113,7 @@ insertMatrixValue
       if (firstTime_) {
 	if (rowGID!=curRow_) {
 	  // Dump the current contents of curRowValues_ into matrix and clear map
-	  insertRow();  
+	  insertRow();
 	  curRow_=rowGID;
 	}
 	curRowValuesCmsOnCms_[colGID] += value;
@@ -157,7 +157,7 @@ insertMatrixValue
       if (firstTime_) {
 	if (rowGID!=curRow_) {
 	  // Dump the current contents of curRowValues maps  into matrix and clear map
-	  insertRow();  
+	  insertRow();
 	  curRow_=rowGID;
 	}
 	curRowValuesDensityOnCms_[colGID] += value;
@@ -199,6 +199,10 @@ insertRow
       valuesCmsOnDensity_[i++] = pos->second;
     }
     cmsOnDensityMatrix_->insertGlobalValues(curRow_, indicesCmsOnDensity_, valuesCmsOnDensity_);
+
+    indicesCmsOnDensity_.clear();
+    valuesCmsOnDensity_.clear();
+    curRowValuesCmsOnDensity_.clear();
   }
 
   if (!curRowValuesCmsOnCms_.empty()) {
@@ -214,6 +218,10 @@ insertRow
       valuesCmsOnCms_[i++] = pos->second;
     }
     cmsOnCmsMatrix_->insertGlobalValues(curRow_, indicesCmsOnCms_, valuesCmsOnCms_);
+
+    indicesCmsOnCms_.clear();
+    valuesCmsOnCms_.clear();
+    curRowValuesCmsOnCms_.clear();
   }
 
   if (!curRowValuesDensityOnCms_.empty()) {
@@ -229,17 +237,11 @@ insertRow
       valuesDensityOnCms_[i++] = pos->second;
     }
     densityOnCmsMatrix_->insertGlobalValues(curRow_, indicesDensityOnCms_, valuesDensityOnCms_);
-  }
 
-  indicesCmsOnDensity_.clear();
-  valuesCmsOnDensity_.clear();
-  indicesCmsOnCms_.clear();
-  valuesCmsOnCms_.clear();
-  indicesDensityOnCms_.clear();
-  valuesDensityOnCms_.clear();
-  curRowValuesCmsOnDensity_.clear();
-  curRowValuesCmsOnCms_.clear();
-  curRowValuesDensityOnCms_.clear();
+    indicesDensityOnCms_.clear();
+    valuesDensityOnCms_.clear();
+    curRowValuesDensityOnCms_.clear();
+  }
 
 } //end insertRow
 //=============================================================================
