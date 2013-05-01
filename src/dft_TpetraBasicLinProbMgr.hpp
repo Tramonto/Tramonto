@@ -27,7 +27,6 @@
 #define DFT_BASICLINPROBMGR_HPP
 
 #include "Tpetra_Headers.hpp"
-#include "dft_direct_solver_const.h"
 
 //! dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node>:  Solver manager class for Tramonto using Trilinos.
 /*! The dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> class supports solver capabilities for Tramonto.

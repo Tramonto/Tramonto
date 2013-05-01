@@ -27,7 +27,6 @@
 #define DFT_POLYA22_TPETRA_OPERATOR_H
 
 #include "Tpetra_Headers.hpp"
-#include "Ifpack.h"
 
 //! dft_PolyA22_Tpetra_Operator: An implementation of the Tpetra_Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.

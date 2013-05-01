@@ -42,7 +42,6 @@
 
 #include "BelosConfigDefs.hpp"
 #include "BelosLinearProblem.hpp"
-#include "BelosTpetraAdapter.hpp"
 #include "BelosBlockGmresSolMgr.hpp"
 
 #include "Ifpack2_Diagonal.hpp"
@@ -50,20 +49,16 @@
 #include "Ifpack2_AdditiveSchwarz.hpp"
 
 #if ENABLE_MUELU == 1
-#include <MueLu.hpp>
-#include <MueLu_Level.hpp>
 #include <MueLu_TrilinosSmoother.hpp>
 #include "MueLu_Hierarchy.hpp"
-#include <MueLu_RAPFactory.hpp>
-#include "MueLu_AmesosSmoother.hpp"
 #include "MueLu_Amesos2Smoother.hpp"
 #include "MueLu_Utilities.hpp"
 #include <MueLu_MLParameterListInterpreter.hpp>
 #include <MueLu_UseDefaultTypes.hpp>
-#include <MueLu_UseShortNames.hpp>
 #include <BelosXpetraAdapter.hpp>
 #include <BelosMueLuAdapter.hpp>
 #include <MueLu_TpetraOperator.hpp>
+#include <MueLu_UseShortNames.hpp>
 #endif
 #include "Kokkos_DefaultNode.hpp"
 #include <map>

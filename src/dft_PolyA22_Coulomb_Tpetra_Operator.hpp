@@ -28,7 +28,6 @@
 
 #include "Tpetra_Headers.hpp"
 #include "dft_PolyA22_Tpetra_Operator.hpp"
-#include "dft_direct_solver_const.h"
 
 //! dft_PolyA22_Tpetra_Operator: An implementation of the Operator class for Tramonto Schur complements with Coulomb effects.
 /*! Special 2*numBeads by 2*numBeads (plus Coulomb) for Tramonto polymer problems.

@@ -27,10 +27,6 @@
 #define DFT_SCHUR_TPETRA_OPERATOR_H
 
 #include "Tpetra_Headers.hpp"
-#include "dft_PolyA11_Tpetra_Operator.hpp"
-#include "dft_PolyA11_Coulomb_Tpetra_Operator.hpp"
-#include "dft_PolyA22_Tpetra_Operator.hpp"
-#include "dft_PolyA22_Coulomb_Tpetra_Operator.hpp"
 
 /*! Special 2-by-2 block operator for Tramonto polymer and explicit non-local density problems.
 */
