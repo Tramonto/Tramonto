@@ -44,9 +44,6 @@
 
 #include "Tpetra_MultiVectorConverter.hpp"
 
-#define SCALAR_P      0
-#define HALF_SCALAR_P 1
-
 namespace Tpetra {
 
   //! MixedOperator: An implementation of the Operator class that does the Operator apply() to a doublePrecision vector.

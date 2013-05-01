@@ -42,8 +42,6 @@
 #ifndef TPETRA_INVOPERATOR_HPP
 #define TPETRA_INVOPERATOR_HPP
 
-#include "Tpetra_OperatorApplyInverse.hpp"
-
 namespace Tpetra {
 
   //! InvOperator: An implementation of the OperatorApplyInverse class that reverses the role of apply() and applyInverse() methods.
