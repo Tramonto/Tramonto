@@ -485,7 +485,7 @@ solve
 
   // Solve the Schur complement system
   try {
-    ReturnType ret = solver_->solve();
+    solver_->solve();
   }
   catch (Belos::StatusTestError& e) {
     std::cout << "Belos failed to solve the linear problem! Belos threw exception "

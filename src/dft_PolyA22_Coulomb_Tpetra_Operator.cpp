@@ -493,8 +493,6 @@ applyInverse
   printf("\n\n\n\ndft_PolyA22_Coulomb_Tpetra_Operator::applyInverse()\n\n\n\n");
 #endif
 
-  size_t NumVectors = Y.getNumVectors();
-
   // X0 is a view of the first numPoisson elements of X
   RCP<const MV> X0 = X.offsetView(poissonMap_, 0);
   // X1 is a view of the middle numDensity/numCms elements of X
@@ -606,8 +604,6 @@ apply
   TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
 #endif
-
-  size_t NumVectors = Y.getNumVectors();
 
   // X0 is a view of the first numPoisson elements of X
   RCP<const MV> X0 = X.offsetView(poissonMap_, 0);

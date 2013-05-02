@@ -241,7 +241,7 @@ formSchurComplement
   Array<MatScalar> Values(maxNumEntries);
 
   LocalOrdinal NumMyRows = S_->getNodeNumRows();
-  LocalOrdinal Row, err;
+  LocalOrdinal Row;
 
   for( LocalOrdinal i = 0; i < NumMyRows; ++i )
   {

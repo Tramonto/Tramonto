@@ -199,7 +199,6 @@ applyInverse
   printf("\n\n\n\ndft_PolyA11_Coulomb_Tpetra_Operator::applyInverse()\n\n\n\n");
 #endif
 
-  size_t NumVectors = Y.getNumVectors();
   size_t numMyElements = ownedMap_->getNodeNumElements();
 
   Y=X; // We can safely do this
@@ -233,7 +232,7 @@ applyInverse
   RCP<LinPROB> problem = rcp(new LinPROB(poissonMatrixOperator_, Y2, Y2));
   TEUCHOS_TEST_FOR_EXCEPT(problem->setProblem() == false);
   RCP<SolMGR> solver = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem, parameterList_));
-  ReturnType ret = solver->solve();
+  solver->solve();
 #endif
 } //end applyInverse
 //==============================================================================
@@ -251,9 +250,7 @@ apply
 #endif
 
   Scalar ONE = STS::one();
-  Scalar ZERO = STS::zero();
 
-  size_t NumVectors = Y.getNumVectors();
   size_t numMyElements = ownedMap_->getNodeNumElements();
 
   RCP<const MV> X1 = X.offsetView(allGMap_, 0);

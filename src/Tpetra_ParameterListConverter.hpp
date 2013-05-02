@@ -90,10 +90,8 @@ namespace Tpetra {
       //
       // Select preconditioner
       //
-      int precond  = inputList_->template get<int>( "Precond" );
-      double fill = inputList_->template get<double>("Ilut_fill");
       outputList_.template set<int>( "Precond",
-				     precond );
+				     inputList_->template get<int>( "Precond" ) );
       //
       // Ifpack2 Parameters
       //

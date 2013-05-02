@@ -240,7 +240,6 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
 
   int dft_linprobmgr_getrhs(void * linprobmgr, double** x) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
-    int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
     ArrayRCP<ArrayRCP<SCALAR> > data = linprobmgr_->getRhs();
     for(int j = 0; j < data.size(); j++){
       for(int k = 0; k < data[j].size(); k++){
@@ -335,7 +334,6 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
   int dft_linprobmgr_importsingleunknownr2c(void * linprobmgr, double* x, double *b) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
-    int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
 
     SCALAR *fx;
     fx = new SCALAR[numOwnedNodes];
@@ -358,7 +356,6 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
   int dft_linprobmgr_importnodalr2c(void * linprobmgr, double* x, double *b) {
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
-    int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
 
     SCALAR *fx;
     fx = new SCALAR[numOwnedNodes];

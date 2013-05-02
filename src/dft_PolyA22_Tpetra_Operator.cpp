@@ -348,8 +348,6 @@ applyInverse
   printf("\n\n\n\ndft_PolyA22_Tpetra_Operator::applyInverse()\n\n\n\n");
 #endif
 
-  size_t NumVectors = Y.getNumVectors();
-
   Scalar ONE = STS::one();
   Scalar ZERO = STS::zero();
 
@@ -415,8 +413,6 @@ apply
   TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
 #endif
-
-  size_t NumVectors = Y.getNumVectors();
 
   Scalar ONE = STS::one();
   Scalar ZERO = STS::zero();

@@ -255,7 +255,6 @@ apply
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
 #endif
 
-  size_t NumVectors = Y.getNumVectors();
   size_t numMyElements = ownedMap_->getNodeNumElements();
 
   RCP<MV > curY = Y.offsetViewNonConst(ownedMap_, 0);

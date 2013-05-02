@@ -201,7 +201,6 @@ applyInverse
   RCP<const MV> X1 = X.offsetView(indNonLocalMap_, 0);
   RCP<const MV> X2 = X.offsetView(depNonLocalMap_, offset);
 
-  LocalOrdinal ierr = 0;
   if (X.getVector(0)==Y.getVector(0)) { // X and Y are the same
     RCP<MV> Y2tmp = rcp(new MV(depNonLocalMap_, NumVectors));
     matrixOperator_->apply(*X1, *Y2tmp);
@@ -255,7 +254,6 @@ apply
   RCP<const MV> X1 = X.offsetView(indNonLocalMap_, 0);
   RCP<const MV> X2 = X.offsetView(depNonLocalMap_, offset);
 
-  LocalOrdinal ierr = 0;
   if (X.getVector(0)==Y.getVector(0)) { // X and Y are the same
     RCP<MV> Y2tmp = rcp(new MV(depNonLocalMap_, NumVectors));
     matrixOperator_->apply(*X1, *Y2tmp);

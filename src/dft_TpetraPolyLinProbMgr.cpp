@@ -587,7 +587,7 @@ solve
   SolveStatus<double> status = lows_->solve(Thyra::NOTRANS, *thyraRhs_, thyraLhs_.ptr());
 #else
   try {
-    ReturnType ret = solver_->solve();
+    solver_->solve();
   }
   catch (Belos::StatusTestError& e) {
     std::cout << "Belos failed to solve the linear problem! Belos threw exception "

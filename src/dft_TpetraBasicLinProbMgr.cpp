@@ -507,7 +507,7 @@ setupSolver
     rowScaleFactors_ = rcp(new VEC_M(globalRowMap_));
     rowScaleFactorsScalar_ = rcp(new VEC(globalRowMap_));
 
-    LocalOrdinal iret = scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
+    scalingMatrix_->getRowScaleFactors( rowScaleFactors_, 1 );
     globalMatrixStatic_->leftScale( *rowScaleFactors_ );
 
 #if MIXED_PREC == 1
@@ -571,7 +571,7 @@ solve
   SolveStatus<Scalar> status = lows_->solve(Thyra::NOTRANS, *thyraRhs_, thyraLhs_.ptr());
 #else
   try {
-    ReturnType ret = solver_->solve();
+    solver_->solve();
   }
   catch (Belos::StatusTestError& e) {
     std::cout << "Belos failed to solve the linear problem! Belos threw exception "
