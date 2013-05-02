@@ -23,7 +23,6 @@
 #include "Tpetra_ScalingCrsMatrix.hpp"
 
 #include "Teuchos_Comm.hpp"
-#include "Teuchos_CommHelpers.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
@@ -40,7 +39,6 @@
 #include "Stratimikos_DefaultLinearSolverBuilder.hpp"
 #endif
 
-#include "BelosConfigDefs.hpp"
 #include "BelosLinearProblem.hpp"
 #include "BelosBlockGmresSolMgr.hpp"
 
@@ -84,7 +82,7 @@ using Thyra::prec;
 using Stratimikos::DefaultLinearSolverBuilder;
 #endif
 
-using Belos::ReturnType;
+//using Belos::ReturnType;
 
 //#define KDEBUG
 //#define SUPPORTS_STRATIMIKOS
