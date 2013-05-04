@@ -42,6 +42,7 @@
 #include <BelosLinearProblem.hpp>
 #include <BelosBlockGmresSolMgr.hpp>
 
+#include <Ifpack2_ILUT.hpp>
 #include <Ifpack2_Diagonal.hpp>
 #include <Ifpack2_Preconditioner.hpp>
 #include <Ifpack2_AdditiveSchwarz.hpp>
