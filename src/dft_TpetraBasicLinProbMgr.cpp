@@ -73,7 +73,8 @@ setNodalRowMap
 {
   if (numGlobalNodes_!=0)
   {
-    return; // Already been here
+    // Already been here
+    return;
   }
 
   numOwnedNodes_ = GIDs.size();
@@ -91,12 +92,13 @@ setNodalColMap
 {
   if (numGlobalBoxNodes_!=0)
   {
-    return; // Already been here
+    // Already been here
+    return;
   }
 
   numBoxNodes_ = GIDs.size();
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
-			       &numBoxNodes_, &numGlobalBoxNodes_);
+				  &numBoxNodes_, &numGlobalBoxNodes_);
 
   boxMap_ = rcp(new MAP(numGlobalBoxNodes_, GIDs, 0, comm_, node_));
 }
@@ -108,12 +110,13 @@ setCoarsenedNodesList(const ArrayView<const GlobalOrdinal> &GIDs)
 {
   if (numGlobalCoarsenedNodes_!=0)
   {
-    return; // Already been here
+    // Already been here
+    return;
   }
 
   numCoarsenedNodes_ = GIDs.size();
   Teuchos::reduceAll<int, size_t>(*comm_, Teuchos::REDUCE_SUM, 1,
-			       &numCoarsenedNodes_, &numGlobalCoarsenedNodes_);
+				  &numCoarsenedNodes_, &numGlobalCoarsenedNodes_);
 
   coarsenedNodesMap_ = rcp(new MAP(numGlobalCoarsenedNodes_, GIDs, 0, comm_, node_));
 }
@@ -133,39 +136,39 @@ finalizeBlockStructure
 
   // Physics ordering for Basic Linear Problem is natural ordering:
   physicsOrdering_.resize(numUnknownsPerNode_);
-  for (LocalOrdinal i=0; i<physicsOrdering_.size(); i++)
+  for (LocalOrdinal i=0; i<physicsOrdering_.size(); ++i)
   {
     physicsOrdering_[i] = i;
   }
 
-  // create inverse mapping of where each physics unknown is ordered for the solver
+  // Create inverse mapping of where each physics unknown is ordered for the solver
   solverOrdering_.resize(numUnknownsPerNode_);
-  for (LocalOrdinal i=0; i<physicsOrdering_.size(); i++)
+  for (LocalOrdinal i=0; i<physicsOrdering_.size(); ++i)
   {
     solverOrdering_[physicsOrdering_[i]]=i;
   }
 
   // Sanity check of physics ordering
-  checkPhysicsOrdering();
+  this->checkPhysicsOrdering();
 
   ArrayView<const GlobalOrdinal> GIDs = ownedMap_->getNodeElementList();
   LocalOrdinal k=0;
   if (groupByPhysics_)
   {
-    for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++)
+    for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i)
     {
       LocalOrdinal ii=physicsOrdering_[i];
-      for (LocalOrdinal j=0; j<numOwnedNodes_; j++)
+      for (LocalOrdinal j=0; j<numOwnedNodes_; ++j)
       {
-	      globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
+	globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
       }
     }
   }
   else
   {
-    for (LocalOrdinal j=0; j<numOwnedNodes_; j++)
+    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j)
     {
-      for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++)
+      for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i)
       {
 	LocalOrdinal ii=physicsOrdering_[i];
 	globalGIDList[k++] = ii + GIDs[j]*numUnknownsPerNode_;
@@ -199,11 +202,12 @@ initializeProblemValues
 		     "Linear problem structure must be completely set up.  This requires a sequence of calls, ending with finalizeBlockStructure");
 #endif
 
-  isLinearProblemSet_ = false; // We are reinitializing the linear problem
+  // Re-initialize the linear problem
+  isLinearProblemSet_ = false;
 
- // AGS: I found that we needed to initialize the matrix even the
- // first time a matrix was filled, because matrix entries are being put
- // in on residual-only fills, which can occur before matrix fills.
+  // We need to initialize the matrix the first time it is filled because matrix
+  // entries may be put in on residual-only fills, which can occur before matrix
+  // fills.
 
   if (firstTime_) {
     globalMatrix_->resumeFill();
@@ -216,6 +220,7 @@ initializeProblemValues
   globalLhs_->putScalar(STS::zero());
 
  }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -223,11 +228,10 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertRhsValue
 (GlobalOrdinal ownedPhysicsID, GlobalOrdinal ownedNode, Scalar value)
 {
-  LocalOrdinal rhsLID = ownedToSolverLID(ownedPhysicsID, ownedNode); // Get solver LID
+  LocalOrdinal rhsLID = this->ownedToSolverLID(ownedPhysicsID, ownedNode); // Get solver LID
   globalRhs_->sumIntoLocalValue(rhsLID, value);
-  //cout << std::setprecision(2);
-  //cout << "b[ownedPhysicsID="<<ownedPhysicsID<<"][ownedNode="<<ownedNode<<"] = " << value << endl;
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -235,12 +239,12 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, MatScalar value)
 {
-  GlobalOrdinal rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
-  GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
+  GlobalOrdinal rowGID = this->ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
+  GlobalOrdinal colGID = this->boxToSolverGID(boxPhysicsID, boxNode);
 
   if (firstTime_) {
     if (rowGID!=curRow_) {
-      // Dump the current contents of curRowValues_ into matrix and clear map
+      // Insert the current row values into the matrix and move on to the next row
       insertRow();
       curRow_=rowGID;
     }
@@ -270,6 +274,7 @@ insertRow
   values_.clear();
   curRowValues_.clear();
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 MatScalar
@@ -281,7 +286,7 @@ getMatrixValue
   TEUCHOS_TEST_FOR_EXCEPTION(globalMatrixStatic_.get()==0, std::runtime_error, "Global Matrix is not constructed, must set debug flag to enable this feature.\n");
 #endif
 
-  GlobalOrdinal rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
+  GlobalOrdinal rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode);
   GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
   size_t numEntries;
   ArrayView<const GlobalOrdinal> indices;
@@ -289,9 +294,9 @@ getMatrixValue
 
   if (globalMatrixStatic_->isGloballyIndexed())
   {
-    globalMatrixStatic_->getGlobalRowView(rowGID, indices, values); // get view of current row
+    globalMatrixStatic_->getGlobalRowView(rowGID, indices, values);
     numEntries = indices.size();
-    for (LocalOrdinal i=0; i<numEntries; i++)
+    for (LocalOrdinal i=0; i<numEntries; ++i)
     {
       if (colGID==indices[i])
       {
@@ -305,7 +310,7 @@ getMatrixValue
     LocalOrdinal colLID = globalMatrixStatic_->getColMap()->getLocalElement(colGID);
     globalMatrixStatic_->getLocalRowView(rowLID, indices, values);
     numEntries = indices.size();
-    for (LocalOrdinal i=0; i<numEntries; i++)
+    for (LocalOrdinal i=0; i<numEntries; ++i)
     {
       if (colLID==indices[i])
       {
@@ -316,6 +321,7 @@ getMatrixValue
 
   return(STMS::zero());
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -324,11 +330,12 @@ insertMatrixValues
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID,
  const ArrayView<const LocalOrdinal>& boxNodeList, const ArrayView<const MatScalar>& values)
 {
-  for (LocalOrdinal i=0; i<boxNodeList.size(); i++)
+  for (LocalOrdinal i=0; i<boxNodeList.size(); ++i)
   {
-    insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNodeList[i], values[i]);
+    this->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNodeList[i], values[i]);
   }
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -337,11 +344,12 @@ insertMatrixValues
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, const ArrayView<const LocalOrdinal> &boxPhysicsIDList,
  LocalOrdinal boxNode, const ArrayView<const MatScalar> &values)
 {
-  for (LocalOrdinal i=0; i<boxPhysicsIDList.size(); i++)
+  for (LocalOrdinal i=0; i<boxPhysicsIDList.size(); ++i)
   {
-    insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsIDList[i], boxNode, values[i]);
+    this->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsIDList[i], boxNode, values[i]);
   }
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -350,7 +358,7 @@ finalizeProblemValues
 ()
 {
   if (isLinearProblemSet_)
-    return; // nothing to do
+    return;
 
   if (firstTime_) {
 
@@ -393,8 +401,8 @@ finalizeProblemValues
   isLinearProblemSet_ = true;
   firstTime_ = false;
 
-  //writeMatrix("basica.dat", "", "");
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -402,12 +410,13 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 setRhs
 (const ArrayView<const ArrayView<const Scalar> >& b)
 {
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++) {
-    for (LocalOrdinal j=0; j<numOwnedNodes_; j++) {
+  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
+    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j) {
       globalRhs_->replaceLocalValue(ownedToSolverLID(i,j), b[i][j]);
     }
   }
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -416,13 +425,14 @@ setLhs
 (const ArrayView<const ArrayView<const Scalar> > &x) const
 {
   ArrayRCP<const Scalar> xtmp;
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++) {
-    xtmp = exportC2R(Teuchos::arcpFromArrayView<const Scalar>(x[i])); // Use simple import
-    for (LocalOrdinal j=0; j<numOwnedNodes_; j++) {
+  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
+    xtmp = exportC2R(Teuchos::arcpFromArrayView<const Scalar>(x[i]));
+    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j) {
       globalLhs_->replaceLocalValue(ownedToSolverLID(i,j), xtmp[j]);
     }
   }
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 ArrayRCP<ArrayRCP<Scalar> >
@@ -433,15 +443,16 @@ getLhs
   ArrayRCP<ArrayRCP<Scalar> > ArrayOfPtrs = Teuchos::arcp<ArrayRCP<Scalar> >(numUnknownsPerNode_);
   ArrayRCP<Scalar> tmp = globalLhs_->get1dViewNonConst();
 
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++) {
+  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
     ArrayRCP<Scalar> temp(numOwnedNodes_);
-    for (LocalOrdinal j=0; j<numOwnedNodes_; j++) {
+    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j) {
       temp[j] = tmp[ownedToSolverLID(i,j)];
     }
-    ArrayOfPtrs[i] = importR2C(temp.getConst());
+    ArrayOfPtrs[i] = this->importR2C(temp.getConst());
   }
   return ArrayOfPtrs;
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 ArrayRCP<ArrayRCP<Scalar> >
@@ -451,14 +462,15 @@ getRhs
 {
   ArrayRCP<ArrayRCP<Scalar> > ArrayOfPtrs = Teuchos::arcp<ArrayRCP<Scalar> >(numUnknownsPerNode_);
   ArrayRCP<Scalar> tmp = globalRhs_->get1dViewNonConst();
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++) {
+  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
     ArrayOfPtrs[i] = Teuchos::arcp<Scalar>(numOwnedNodes_);
-    for (LocalOrdinal j=0; j<numOwnedNodes_; j++) {
+    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j) {
       ArrayOfPtrs[i][j] = tmp[ownedToSolverLID(i,j)];
     }
   }
   return ArrayOfPtrs;
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -484,6 +496,7 @@ setMachineParams
   //  std::cout << "PROBLEM CONSTANTS--- anorm = " << anorm_ << " n = " << n_ << " snae = " << snae_ << std::endl;
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -555,6 +568,7 @@ setupSolver
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, belosList));
 #endif
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -587,6 +601,7 @@ solve
     writeRhs("b_ref.dat");
     writePermutation("p_ref.dat");
   }
+
   // Undo scaling
   if (scaling_ != AZ_none) {
     rowScaleFactors_->reciprocal( *rowScaleFactors_ );
@@ -605,6 +620,7 @@ solve
   }
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 ArrayRCP<ArrayRCP<Scalar> >
@@ -616,8 +632,9 @@ applyMatrix
 
   globalMatrixOp_->apply(*globalLhs_, *globalRhs_);
 
-  return(getRhs());
+  return(this->getRhs());
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 ArrayRCP<ArrayRCP<Scalar> >
@@ -626,12 +643,13 @@ importR2C
 (const ArrayRCP<const ArrayRCP<const Scalar> >& xOwned) const
 {
   ArrayRCP<ArrayRCP<Scalar> > my_xBox = Teuchos::arcp<ArrayRCP<Scalar> >(numUnknownsPerNode_);
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++) {
-    my_xBox[i] = importR2C(xOwned[i]);
+  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
+    my_xBox[i] = this->importR2C(xOwned[i]);
   }
 
   return(my_xBox);
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 ArrayRCP<Scalar>
@@ -646,6 +664,7 @@ importR2C
 
   return (box->get1dViewNonConst());
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 ArrayRCP<Scalar>
@@ -656,10 +675,11 @@ exportC2R
   RCP<VEC> owned =  rcp(new VEC(ownedMap_));
   RCP<VEC> box = rcp(new VEC(boxMap_, aBox()));
 
-  owned->doExport(*box, *ownedToBoxImporter_, Tpetra::INSERT); // Use importer, but zero out off-processor contributions.
+  owned->doExport(*box, *ownedToBoxImporter_, Tpetra::INSERT);
 
   return(owned->get1dViewNonConst());
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -674,6 +694,7 @@ writeMatrix
   Tpetra::MatrixMarket::Writer<MAT>::writeSparseFile(str_filename,globalMatrixStatic_,str_matrixName,str_matrixDescription);
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -687,6 +708,7 @@ writeLhs
 
   //  Tpetra::MatrixMarket::Writer<MAT>::writeDenseFile(str_filename,globalLhs_,str_matrixName,str_matrixDescription);
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -700,6 +722,7 @@ writeRhs
 
   //  Tpetra::MatrixMarket::Writer<MAT>::writeDenseFile(str_filename,globalRhs_,str_matrixName,str_matrixDescription);
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -710,6 +733,7 @@ writePermutation
   return;
     //(EpetraExt::BlockMapToMatrixMarketFile(filename, *globalRowMap_, " ", " ", false));
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -721,7 +745,7 @@ const  {
 
   size_t numUnks = physicsOrdering_.size();
   Array<Scalar> tmp(numUnks);
-  for (LocalOrdinal i=0; i<numUnks; i++)
+  for (LocalOrdinal i=0; i<numUnks; ++i)
   {
     LocalOrdinal curID = physicsOrdering_[i];
     TEUCHOS_TEST_FOR_EXCEPTION(curID <0, std::runtime_error, "Invalid unknown number " << curID << " is less than 0.\n");
@@ -730,7 +754,7 @@ const  {
       // Increment counter for this ID (at the end each ID should appear exactly one time).
   }
 
-  for (LocalOrdinal i=0; i<numUnks; i++)
+  for (LocalOrdinal i=0; i<numUnks; ++i)
   {
     TEUCHOS_TEST_FOR_EXCEPTION(tmp[i]==0, std::runtime_error, "Unknown number " << i << " is not present and should be.\n");
     TEUCHOS_TEST_FOR_EXCEPTION(tmp[i]>1, std::runtime_error, "Unknown number " << i << " is present " << tmp[i] << " times and should be present only once.\n");
