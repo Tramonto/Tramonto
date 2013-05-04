@@ -55,7 +55,7 @@ dft_PolyA11_Tpetra_Operator
     matrix_[i] = rcp(new MAT(ownedMap, 0));
     matrixOperator_[i] = rcp(new MMOP(matrix_[i]));
     matrix_[i]->setObjectLabel("PolyA11::matrix[i]");
-  } //end for
+  }
 
   return;
 } //end constructor
@@ -83,11 +83,11 @@ initializeProblemValues
     {
       matrix_[i]->resumeFill();
       matrix_[i]->setAllToScalar(STMS::zero());
-    } //end for
+    }
 
     diagonal_->putScalar(STS::zero());
     invDiagonal_->putScalar(STS::zero());
-  } //end if
+  }
 
 } //end initializeProblemValues
 //=============================================================================
@@ -103,7 +103,7 @@ insertMatrixValue
     LocalOrdinal locDiag = block1Map_->getLocalElement(colGID);
     diagonal_->sumIntoLocalValue(locDiag, value);
     return;
-  } //end if
+  }
   TEUCHOS_TEST_FOR_EXCEPTION(block1Map_->getLocalElement(colGID)> block1Map_->getLocalElement(rowGID), std::runtime_error,
     std::cout << "Encountered an illegal non-zero entry in dft_PolyA11_Tpetra_Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node>::insertMatrixValue." << std::endl
 	 << "The A11 block cannot have nonzero terms in the upper diagonal." << std::endl
@@ -124,9 +124,9 @@ insertMatrixValue
       curRow_=rowGID;
       curOwnedPhysicsID_ = ownedPhysicsID;
       curOwnedNode_ = ownedNode;
-    } //end if
+    }
     curRowValues_[colGID] += value;
-  } //end if
+  }
   else
     matrix_[ownedPhysicsID-1]->sumIntoGlobalValues(ownedNode, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
 
@@ -141,20 +141,20 @@ insertRow
   if (curRowValues_.empty())
   {
     return;
-  } //end if
+  }
   size_t numEntries = curRowValues_.size();
   if (numEntries>indices_.size())
   {
     indices_.resize(numEntries);
     values_.resize(numEntries);
-  } //end if
+  }
   LocalOrdinal i=0;
 
   for (ITER pos = curRowValues_.begin(), e = curRowValues_.end(); pos != e; ++pos)
   {
     indices_[i] = pos->first;
     values_[i++] = pos->second;
-  } //end for
+  }
 
   matrix_[curOwnedPhysicsID_-1]->insertGlobalValues(curOwnedNode_, indices_, values_);
 
@@ -184,14 +184,14 @@ finalizeProblemValues
     matrix_[i]->fillComplete(block1Map_, ownedMap_, pl);
     //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << endl;
     //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
-  } //end for
+  }
   invDiagonal_->reciprocal(*diagonal_); // Invert diagonal values for faster applyInverse() method
 
   /*
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)
   {
     std::cout << "matrix " << i << *matrix_[i];
-  } //end for
+  }
   */
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -239,7 +239,7 @@ applyInverse
     matrixOperator_[i]->apply(Y, *Ytmp); // Multiply block lower triangular block
     curY->update(-ONE, *Ytmp, ONE); // curY = curX - Ytmp (Note that curX is in curY from initial copy Y = X)
     curY->elementWiseMultiply(ONE, *diagVec, *curY, ZERO); // Scale Y by the first block diagonal
-  } //end for
+  }
 } //end applyInverse
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -263,7 +263,7 @@ apply
   for (LocalOrdinal i=0; i< numBlocks_-1; i++) {
     curY = Y.offsetViewNonConst(ownedMap_, (i+1)*numMyElements);
     matrixOperator_[i]->apply(X, *curY); // This gives a result that is off-diagonal-matrix*X
-  } //end for
+  }
 
   Y.elementWiseMultiply(STS::one(),*diagonal_, X, STS::one()); // Add diagonal contribution
 
@@ -290,7 +290,7 @@ Check
   if (verbose)
   {
     std::cout << "A11 self-check residual = " << resid << std::endl;
-  } //end if
+  }
 
   TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
 

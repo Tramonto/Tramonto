@@ -228,7 +228,7 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertRhsValue
 (GlobalOrdinal ownedPhysicsID, GlobalOrdinal ownedNode, Scalar value)
 {
-  LocalOrdinal rhsLID = this->ownedToSolverLID(ownedPhysicsID, ownedNode); // Get solver LID
+  LocalOrdinal rhsLID = this->ownedToSolverLID(ownedPhysicsID, ownedNode);
   globalRhs_->sumIntoLocalValue(rhsLID, value);
 }
 
@@ -239,14 +239,14 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 insertMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, MatScalar value)
 {
-  GlobalOrdinal rowGID = this->ownedToSolverGID(ownedPhysicsID, ownedNode); // Get solver Row GID
+  GlobalOrdinal rowGID = this->ownedToSolverGID(ownedPhysicsID, ownedNode);
   GlobalOrdinal colGID = this->boxToSolverGID(boxPhysicsID, boxNode);
 
   if (firstTime_) {
     if (rowGID!=curRow_) {
       // Insert the current row values into the matrix and move on to the next row
       insertRow();
-      curRow_=rowGID;
+      curRow_ = rowGID;
     }
     curRowValues_[colGID] += value;
   }

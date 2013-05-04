@@ -46,6 +46,7 @@ dft_PolyLinProbMgr
 #endif
   return;
 } //end constructor
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
@@ -54,6 +55,7 @@ dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 {
   return;
 } //end destructor
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -85,76 +87,76 @@ finalizeBlockStructure
   isDensityEquation_.resize(numUnknownsPerNode_);
   isPoissonEquation_.resize(numUnknownsPerNode_);
 
-  for (LocalOrdinal i=0; i<gEquations_.size(); i++)
+  for (LocalOrdinal i=0; i<gEquations_.size(); ++i)
   {
     physicsOrdering_.append(gEquations_[i]);
     physicsIdToSchurBlockId_[gEquations_[i]] = 1;
-  } //end for
-  for (LocalOrdinal i=0; i<gInvEquations_.size(); i++)
+  }
+  for (LocalOrdinal i=0; i<gInvEquations_.size(); ++i)
   {
     physicsOrdering_.append(gInvEquations_[i]);
     physicsIdToSchurBlockId_[gInvEquations_[i]] = 1;
-  } //end for
+  }
 
   if (poissonInA11)
   {
-    for (LocalOrdinal i=0; i<poissonEquations_.size(); i++)
+    for (LocalOrdinal i=0; i<poissonEquations_.size(); ++i)
     {
       physicsOrdering_.append(poissonEquations_[i]);
       physicsIdToSchurBlockId_[poissonEquations_[i]] = 1; //so it's in A11
       isPoissonEquation_[poissonEquations_[i]] = 1;
-    } //end for
-  } //end if
+    }
+  }
   else
   {
-    for (LocalOrdinal i=0; i<poissonEquations_.size(); i++)
+    for (LocalOrdinal i=0; i<poissonEquations_.size(); ++i)
     {
       physicsOrdering_.append(poissonEquations_[i]);
       (physicsIdToSchurBlockId_)[poissonEquations_[i]] = 2; //so it's in A22
       isPoissonEquation_[poissonEquations_[i]] = 1;
-    } //end for
-  } //end else
+    }
+  }
 
   if (F_location == 1)  //F in NE
   {
-    for (LocalOrdinal i=0; i<cmsEquations_.size(); i++)
+    for (LocalOrdinal i=0; i<cmsEquations_.size(); ++i)
     {
       physicsOrdering_.append(cmsEquations_[i]);
       physicsIdToSchurBlockId_[cmsEquations_[i]] = 2;
       isCmsEquation_[cmsEquations_[i]] = 1;
-    } //end for
-    for (LocalOrdinal i=0; i<densityEquations_.size(); i++)
+    }
+    for (LocalOrdinal i=0; i<densityEquations_.size(); ++i)
     {
       physicsOrdering_.append(densityEquations_[i]);
       physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
       isDensityEquation_[densityEquations_[i]] = 1;
-    } //end for
-  } //end if
+    }
+  }
   else  //F in SW
   {
-    for (LocalOrdinal i=0; i<densityEquations_.size(); i++)
+    for (LocalOrdinal i=0; i<densityEquations_.size(); ++i)
     {
       physicsOrdering_.append(densityEquations_[i]);
       physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
       isDensityEquation_[densityEquations_[i]] = 1;
-    } //end for
-    for (LocalOrdinal i=0;  i<cmsEquations_.size(); i++)
+    }
+    for (LocalOrdinal i=0;  i<cmsEquations_.size(); ++i)
     {
       physicsOrdering_.append(cmsEquations_[i]);
       physicsIdToSchurBlockId_[cmsEquations_[i]] = 2;
       isCmsEquation_[cmsEquations_[i]] = 1;
-    } //end for
-  } //end else
+    }
+  }
 
   // Sanity check of physics ordering
   //  BLPM::checkPhysicsOrdering();
 
   // create inverse mapping of where each physics unknown is ordered for the solver
   solverOrdering_.resize(numUnknownsPerNode_);
-  for (LocalOrdinal i=0; i<physicsOrdering_.size(); i++)
+  for (LocalOrdinal i=0; i<physicsOrdering_.size(); ++i)
   {
     solverOrdering_[physicsOrdering_[i]]=i;
-  } //end for
+  }
 
   const size_t numUnks = numOwnedNodes_*numUnknownsPerNode_;
   const size_t numUnks1 = numOwnedNodes_*(gEquations_.size()+gInvEquations_.size());
@@ -163,7 +165,7 @@ finalizeBlockStructure
   if (numUnksP > 0)
   {
     hasPoisson_ = true;
-  } //end if
+  }
   assert(numUnks==(numUnks1+numUnks2+numUnksP)); //Sanity test
   const size_t numCms = numOwnedNodes_*(cmsEquations_.size());
   const size_t numDensity = numOwnedNodes_*(densityEquations_.size());
@@ -172,14 +174,14 @@ finalizeBlockStructure
   ArrayView<const GlobalOrdinal> GIDs = ownedMap_->getNodeElementList();
 
   LocalOrdinal k=0;
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++)
+  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i)
   {
     LocalOrdinal ii=physicsOrdering_[i];
-    for (LocalOrdinal j=0; j<numOwnedNodes_; j++)
+    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j)
     {
       globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
-    } //end for
-  } //end for
+    }
+  }
 
   Tpetra::global_size_t INVALID = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
 
@@ -188,23 +190,23 @@ finalizeBlockStructure
   {
     block1RowMap_ = rcp(new MAP(INVALID, globalGIDList(0, numUnks1+numUnksP), 0, comm_, node_));
     block2RowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP, numUnks2), 0, comm_, node_));
-  } //end if
+  }
   else
   {
     block1RowMap_ = rcp(new MAP(INVALID, globalGIDList(0, numUnks1), 0, comm_, node_));
     block2RowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1, numUnks2+numUnksP), 0, comm_, node_));
-  } //end else
+  }
 
   if (F_location == 1) //F in NE
   {
     cmsRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP, numCms), 0, comm_, node_));
     densityRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP+numCms, numDensity), 0, comm_, node_));
-  } //end if
+  }
   else  //F in SW
   {
     densityRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP, numDensity), 0, comm_, node_));
     cmsRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP+numDensity, numCms), 0, comm_, node_));
-  } //end else
+  }
   if (hasPoisson_)
   {
     poissonRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1, numUnksP), 0, comm_, node_));
@@ -212,19 +214,19 @@ finalizeBlockStructure
     {
       extraRowMap_ = rcp(new MAP(INVALID, globalGIDList(0, numUnks1), 0, comm_, node_));
       A11_ = rcp(new P11CO(ownedMap_, block1RowMap_,extraRowMap_, poissonRowMap_, parameterList_));
-    } //end if
+    }
     else  //poisson in A22
     {
       extraRowMap_ = rcp(new MAP(INVALID, globalGIDList(numUnks1+numUnksP, numUnks2), 0, comm_, node_));
       A11_ = rcp(new P11TO(ownedMap_, block1RowMap_, parameterList_));
-    } //end else
-  } //end if
+    }
+  }
   else  //does not have Poisson equations
   {
     poissonRowMap_ = Teuchos::null;
     extraRowMap_ = Teuchos::null;
     A11_ = rcp(new P11TO(ownedMap_, block1RowMap_, parameterList_));
-  } //end else
+  }
 
   A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("PolyLinProbMgr::A12");
   A21_ = rcp(new MAT(block2RowMap_, 0)); A21_->setObjectLabel("PolyLinProbMgr::A21");
@@ -244,11 +246,11 @@ finalizeBlockStructure
   {
     globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
     globalMatrix_->setObjectLabel("PolyLinProbMgr::globalMatrix");
-  } //end if
+  }
   else
   {
     globalMatrix_ = Teuchos::null; // not used by this solver
-  } //end else
+  }
 
   globalRhs_ = rcp(new VEC(globalRowMap_));
   globalLhs_ = rcp(new VEC(globalRowMap_));
@@ -258,7 +260,7 @@ finalizeBlockStructure
   if (hasPoisson_ && poissonInA11)
   {
     offset2 += numUnksP;
-  } //end if
+  }
   rhs1_ = globalRhs_->offsetViewNonConst(block1RowMap_, 0)->getVectorNonConst(0);
   rhs2_ = globalRhs_->offsetViewNonConst(block2RowMap_, offset2)->getVectorNonConst(0);
   rhsSchur_ = rcp(new VEC(*rhs2_));
@@ -272,6 +274,7 @@ finalizeBlockStructure
   isGraphStructureSet_ = true;
 
 } //end finalizeBlockStructure
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -298,14 +301,15 @@ initializeProblemValues
     if (debug_)
     {
       globalMatrix_->setAllToScalar(STMS::zero());
-    } //end if
-  } //end if
+    }
+  }
 
   A11_->initializeProblemValues();
   A22_->setFieldOnDensityIsLinear(isLinear_);  // Set current state of linearity for F
   A22_->initializeProblemValues();
 
 } //end initializeProblemValues
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -346,7 +350,7 @@ insertMatrixValue
     // A12 block
     if (firstTime_) {
       if (rowGID!=curRowA21_) {
-	// Dump the current contents of curRowValues_ into matrix and clear map
+	// Insert the current row values into the matrix and move on to the next row
 	insertRowA21();
 	curRowA21_=rowGID;
       }
@@ -359,7 +363,7 @@ insertMatrixValue
     // A12 block
     if (firstTime_) {
       if (rowGID!=curRowA12_) {
-	// Dump the current contents of curRowValues_ into matrix and clear map
+	// Insert the current row values into the matrix and move on to the next row
 	insertRowA12();
 	curRowA12_=rowGID;
       }
@@ -375,6 +379,7 @@ insertMatrixValue
     BLPM::insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNode, value);
   }
 } //insertMatrixValue
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -385,20 +390,20 @@ insertRowA12
   if (curRowValuesA12_.empty())
   {
     return;
-  } //end if
+  }
   size_t numEntries = curRowValuesA12_.size();
   if (numEntries>indicesA12_.size())
   {
     indicesA12_.resize(numEntries);
     valuesA12_.resize(numEntries);
-  } //end if
+  }
   LocalOrdinal i=0;
 
   for (ITER pos = curRowValuesA12_.begin(), e = curRowValuesA12_.end(); pos != e; ++pos)
   {
     indicesA12_[i] = pos->first;
     valuesA12_[i++] = pos->second;
-  } //end for
+  }
    A12_->insertGlobalValues(curRowA12_, indicesA12_, valuesA12_);
 
   indicesA12_.clear();
@@ -406,6 +411,7 @@ insertRowA12
   curRowValuesA12_.clear();
 
 } //end insertRowA12
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -416,26 +422,27 @@ insertRowA21
   if (curRowValuesA21_.empty())
   {
     return;
-  } //end if
+  }
   size_t numEntries = curRowValuesA21_.size();
   if (numEntries>indicesA21_.size())
   {
     indicesA21_.resize(numEntries);
     valuesA21_.resize(numEntries);
-  } //end if
+  }
   LocalOrdinal i=0;
 
   for (ITER pos = curRowValuesA21_.begin(), e = curRowValuesA21_.end(); pos != e; ++pos)
   {
     indicesA21_[i] = pos->first;
     valuesA21_[i++] = pos->second;
-  } //end for
+  }
    A21_->insertGlobalValues(curRowA21_, indicesA21_, valuesA21_);
 
   indicesA21_.clear();
   valuesA21_.clear();
   curRowValuesA21_.clear();
 } //end insertRowA21
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -446,7 +453,7 @@ finalizeProblemValues
   if (isLinearProblemSet_)
   {
     return; // nothing to do
-  } //end if
+  }
 
   if (firstTime_)
   {
@@ -512,9 +519,9 @@ finalizeProblemValues
     if (debug_)
     {
       globalMatrix_->fillComplete();
-    } //end if
+    }
 
-  } //end if
+  }
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   if(!A12Static_->isFillComplete()){
     A12Static_->fillComplete(block2RowMap_,block1RowMap_,pl);
@@ -526,11 +533,11 @@ finalizeProblemValues
   A11_->finalizeProblemValues();
   A22_->finalizeProblemValues();
 
-  //  Check(true);
   isLinearProblemSet_ = true;
   firstTime_ = false;
 
 } //end finalizeProblemValues
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -570,6 +577,7 @@ setupSolver
 #endif
 
 } //end setupSolver
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -577,7 +585,7 @@ dft_PolyLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 solve
 ()
 {
-  //  A11_->Check(true);
+
 #ifdef KDEBUG
   printf("\n\n\n\ndft_PolyLinProbMgr::solve()\n\n\n\n");
 #endif
@@ -595,7 +603,7 @@ solve
   }
 #endif
 
- // Compute the rest of the solution
+  // Compute the rest of the solution
   schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_);
 
   if (debug_)
@@ -617,10 +625,11 @@ solve
       BLPM::writeLhs("x.dat");
       BLPM::writeRhs("b.dat");
       BLPM::writePermutation("p.dat");
-    } //end if
-  } //end if
+    }
+  }
 
 } //end Solve
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 ArrayRCP<ArrayRCP<Scalar> >
@@ -634,6 +643,7 @@ applyMatrix
 
   return (getRhs());
 } //end applyMatrix
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -644,6 +654,7 @@ Check
   A11_->Check(verbose);
   A22_->Check(verbose);
 } //end Check
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -655,7 +666,7 @@ writeMatrix
   {
     //return(EpetraExt::RowMatrixToMatrixMarketFile
     //      (filename, *globalMatrix_, matrixName, matrixDescription));
-  } //end if
+  }
   else
   {
     return; // Not available if not in debug mode

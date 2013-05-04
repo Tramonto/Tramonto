@@ -134,6 +134,8 @@ protected:
   GlobalOrdinal curPoissonRow_;
   GlobalOrdinal curPoissonOwnedNode_;
   std::map<GlobalOrdinal, MatScalar> curPoissonRowValues_;
+  RCP<LinPROBL> problem_;
+  RCP<SolMGR> solver_;
   using P11TO::isGraphStructureSet_;
   using P11TO::Label_;
   using P11TO::isLinearProblemSet_;

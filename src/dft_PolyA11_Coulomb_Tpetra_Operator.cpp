@@ -72,9 +72,9 @@ initializeProblemValues
     for (LocalOrdinal i=0; i<numBlocks_; i++)
     {
       matrix_[i]->setAllToScalar(STMS::zero());
-    } //end for
+    }
     poissonMatrix_->setAllToScalar(STMS::zero());
-  } //end if
+  }
 } //end initializeProblemValues
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -93,19 +93,19 @@ insertMatrixValue
 	insertPoissonRow();
 	curPoissonRow_ = rowGID;
 	curPoissonOwnedNode_ = ownedNode;
-      } //end if
+      }
       curPoissonRowValues_[colGID] += value;
-    } //end if
+    }
     else
       poissonMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
-    
-  } //end if
+
+  }
   else //insert it into G part
   {
     if (rowGID!=colGID)
     {
       value = -value; // negate off-diagonal values to simplify kernel calls
-    } //end if
+    }
 
     if (firstTime_)
     {
@@ -115,9 +115,9 @@ insertMatrixValue
       curRow_=rowGID;
       curOwnedPhysicsID_ = ownedPhysicsID;
       curOwnedNode_ = ownedNode;
-      } //end if
+      }
       curRowValues_[colGID] += value;
-    } //end if
+    }
     else
       matrix_[ownedPhysicsID]->sumIntoGlobalValues(ownedNode, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
 
@@ -155,31 +155,27 @@ finalizeProblemValues
   if (isLinearProblemSet_)
   {
     return; // nothing to do
-  } //end if
+  }
 
   if (firstTime_)
   {
     P11TO::insertRow();
     // Dump any remaining entries
     insertPoissonRow();
-  } //end if
+  }
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   for (LocalOrdinal i=0; i<numBlocks_; i++)
   {
     matrix_[i]->fillComplete(allGMap_, ownedMap_, pl);
     //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
-  } //end for
+  }
   poissonMatrix_->fillComplete(poissonMap_, poissonMap_, pl);
 
   for (LocalOrdinal i = 0; i < poissonMap_->getNodeNumElements(); i++)
   {
     GlobalOrdinal row = poissonMatrix_->getRowMap()->getGlobalElement(i);
-    Array<MatScalar> values(1);
-    values[0] =10.0e-12;
-    Array<GlobalOrdinal> indices(1);
-    indices[0] = row;
-    poissonMatrix_->sumIntoGlobalValues(row, indices, values);
-  } //end for
+    poissonMatrix_->sumIntoGlobalValues(row, Array<GlobalOrdinal>(1,row), Array<MatScalar>(1,(MatScalar)1e-12));
+  }
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -215,7 +211,7 @@ applyInverse
     offsetAmount += numMyElements;
     Y1tmp = Y.offsetViewNonConst(ownedMap_, offsetAmount);
     // Reset view to next block
-  } //end for
+  }
 
 #ifdef SUPPORTS_STRATIMIKOS
   RCP<ThyraMV> thyraY = createMultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>(Y2);
@@ -272,7 +268,7 @@ apply
     // Reset view to next block
     Xtmp = X.offsetView(ownedMap_, offsetValue);
     // Reset view to next block
-  } //end for
+  }
 
   //now to apply the poissonMatrix_ to the last chunk of X
   RCP<MV > Y2 = Y.offsetViewNonConst(poissonMap_, numMyElements*numBlocks_);

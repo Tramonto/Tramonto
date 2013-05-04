@@ -39,6 +39,7 @@ dft_HardSphereLinProbMgr
     curRowA21_(-1) {
   return;
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_HardSphereLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
@@ -47,6 +48,7 @@ dft_HardSphereLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
 {
    return;
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -78,15 +80,15 @@ finalizeBlockStructure
   physicsOrdering_.clear();
   physicsIdToSchurBlockId_.resize(numUnknownsPerNode_);
 
-  for (LocalOrdinal i=0; i<indNonLocalEquations_.size(); i++) {
+  for (LocalOrdinal i=0; i<indNonLocalEquations_.size(); ++i) {
     physicsOrdering_.append(indNonLocalEquations_[i]);
     physicsIdToSchurBlockId_[indNonLocalEquations_[i]] = 1;
   }
-  for (LocalOrdinal i=0; i<depNonLocalEquations_.size(); i++) {
+  for (LocalOrdinal i=0; i<depNonLocalEquations_.size(); ++i) {
     physicsOrdering_.append(depNonLocalEquations_[i]);
     physicsIdToSchurBlockId_[depNonLocalEquations_[i]] = 1;
   }
-  for (LocalOrdinal i=0; i<densityEquations_.size(); i++) {
+  for (LocalOrdinal i=0; i<densityEquations_.size(); ++i) {
     physicsOrdering_.append(densityEquations_[i]);
     physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
   }
@@ -96,7 +98,7 @@ finalizeBlockStructure
 
   // create inverse mapping of where each physics unknown is ordered for the solver
   solverOrdering_.resize(numUnknownsPerNode_);
-  for (LocalOrdinal i=0; i<physicsOrdering_.size(); i++) {
+  for (LocalOrdinal i=0; i<physicsOrdering_.size(); ++i) {
     solverOrdering_[physicsOrdering_[i]]=i;
   }
 
@@ -107,7 +109,7 @@ finalizeBlockStructure
 
   if (numGlobalCoarsenedNodes_>0) {
     setA22BlockIsDiagonal(false); // A22 block is not diagonal when some nodes are coarsened
-    for (LocalOrdinal i=0; i<numCoarsenedNodes_; i++)
+    for (LocalOrdinal i=0; i<numCoarsenedNodes_; ++i)
       ownedNodeIsCoarsened_->replaceLocalValue(ownedMap_->getLocalElement(coarsenedNodesMap_->getGlobalElement(i)), STS::one());
     boxNodeIsCoarsened_->doImport(*ownedNodeIsCoarsened_, *ownedToBoxImporter_, Tpetra::INSERT); // Now each processor knows which of its box nodes is coarsened
   }
@@ -124,14 +126,14 @@ finalizeBlockStructure
   ArrayView<const GlobalOrdinal> GIDs = ownedMap_->getNodeElementList();
   LocalOrdinal k=0;
   LocalOrdinal k1 = (numOwnedNodes_ - numCoarsenedNodes_) * numUnknownsPerNode_; // starting point for coarsened variables
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; i++) {
+  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
     LocalOrdinal ii=physicsOrdering_[i];
     if (numCoarsenedNodes_==0) {
-      for (LocalOrdinal j=0; j<numOwnedNodes_; j++)
+      for (LocalOrdinal j=0; j<numOwnedNodes_; ++j)
 	globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
     }
     else {
-      for (LocalOrdinal j=0; j<numOwnedNodes_; j++) {
+      for (LocalOrdinal j=0; j<numOwnedNodes_; ++j) {
 	LocalOrdinal curGID = GIDs[j];
 	if (coarsenedNodesMap_->isNodeGlobalElement(curGID))
 	  globalGIDList[k1++] = ii*numGlobalNodes_ + GIDs[j];
@@ -154,17 +156,17 @@ finalizeBlockStructure
   A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
   A21_ = rcp(new MAT(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
 
-  if (isA22Diagonal_) 
+  if (isA22Diagonal_)
     {
       A22Diagonal_ = rcp(new HS22TO(block2RowMap_));
       A22DiagonalPrecond_ = rcp(new INVOP(A22Diagonal_));
     }
-  else 
+  else
     {
       A22Matrix_ = rcp(new A22MTO(block2RowMap_, parameterList_));
       A22MatrixPrecond_ = rcp(new INVOP(A22Matrix_));
     }
-  
+
   if (debug_) {
     globalMatrix_ = rcp(new MAT(globalRowMap_, 0));
     globalMatrix_->setObjectLabel("HardSphere::globalMatrix");
@@ -184,6 +186,7 @@ finalizeBlockStructure
   isBlockStructureSet_ = true;
   isGraphStructureSet_ = true;
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -218,6 +221,7 @@ initializeProblemValues
     A22Matrix_->initializeProblemValues();
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void dft_HardSphereLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
@@ -252,7 +256,7 @@ insertMatrixValue
     // A21 block
     if (firstTime_) {
       if (rowGID!=curRowA21_) {
-	// Dump the current contents of curRowValues_ into matrix and clear map
+	// Insert the current row values into the matrix and move on to the next row
 	insertRowA21();
 	curRowA21_=rowGID;
       }
@@ -265,7 +269,7 @@ insertMatrixValue
     // A12 block
     if (firstTime_) {
       if (rowGID!=curRowA12_) {
-	// Dump the current contents of curRowValues_ into matrix and clear map
+	// Insert the current row values into the matrix and move on to the next row
 	insertRowA12();
 	curRowA12_=rowGID;
       }
@@ -281,6 +285,7 @@ insertMatrixValue
   }
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -310,6 +315,7 @@ insertRowA12
   curRowValuesA12_.clear();
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -339,6 +345,7 @@ insertRowA21
   curRowValuesA21_.clear();
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -439,6 +446,7 @@ finalizeProblemValues
   firstTime_ = false;
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -476,6 +484,7 @@ setupSolver
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem_, belosList));
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void dft_HardSphereLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
@@ -492,7 +501,7 @@ solve
 	      << e.what() << std::endl;
   }
 
- // Compute the rest of the solution
+  // Compute the rest of the solution
   schurOperator_->ComputeX1(*rhs1_, *lhs2_, *lhs1_);
 
   if (debug_) {
@@ -516,6 +525,7 @@ solve
   }
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 ArrayRCP<ArrayRCP<Scalar> >
@@ -529,6 +539,7 @@ applyMatrix
 
   return (getRhs());
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void dft_HardSphereLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
@@ -541,6 +552,7 @@ Check
   }
 
 }
+
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
