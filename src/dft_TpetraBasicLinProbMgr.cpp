@@ -286,8 +286,8 @@ getMatrixValue
   TEUCHOS_TEST_FOR_EXCEPTION(globalMatrixStatic_.get()==0, std::runtime_error, "Global Matrix is not constructed, must set debug flag to enable this feature.\n");
 #endif
 
-  GlobalOrdinal rowGID = ownedToSolverGID(ownedPhysicsID, ownedNode);
-  GlobalOrdinal colGID = boxToSolverGID(boxPhysicsID, boxNode);
+  GlobalOrdinal rowGID = this->ownedToSolverGID(ownedPhysicsID, ownedNode);
+  GlobalOrdinal colGID = this->boxToSolverGID(boxPhysicsID, boxNode);
   size_t numEntries;
   ArrayView<const GlobalOrdinal> indices;
   ArrayView<const MatScalar> values;
