@@ -177,6 +177,10 @@ finalizeProblemValues
     poissonMatrix_->sumIntoGlobalValues(row, Array<GlobalOrdinal>(1,row), Array<MatScalar>(1,(MatScalar)1e-12));
   }
 
+  problem_ = rcp(new LinPROB());
+  solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>());
+  solver_->setParameters(parameterList_);
+
   isLinearProblemSet_ = true;
   firstTime_ = false;
 } //end finalizeProblemValues
@@ -225,10 +229,12 @@ applyInverse
 
   SolveStatus<Scalar> status = lows->solve(Thyra::NOTRANS, *thyraY, thyraY.ptr());
 #else
-  RCP<LinPROB> problem = rcp(new LinPROB(poissonMatrixOperator_, Y2, Y2));
-  TEUCHOS_TEST_FOR_EXCEPT(problem->setProblem() == false);
-  RCP<SolMGR> solver = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>(problem, parameterList_));
-  solver->solve();
+  problem_->setOperator(poissonMatrixOperator_);
+  problem_->setLHS(Y2);
+  problem_->setRHS(Y2);
+  TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
+  solver_->setProblem(problem_);
+  solver_->solve();
 #endif
 } //end applyInverse
 //==============================================================================
