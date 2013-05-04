@@ -1,19 +1,19 @@
 #ifndef TPETRA_HEADERS_H
 #define TPETRA_HEADERS_H
 
-#include "Tpetra_ConfigDefs.hpp"
-#include "Tpetra_MultiVector.hpp"
-#include "TpetraExt_MatrixMatrix.hpp"
-#include "Tpetra_CrsMatrix.hpp"
-#include "Tpetra_CrsGraph.hpp"
-#include "Tpetra_CrsMatrixMultiplyOp.hpp"
-#include "Tpetra_DefaultPlatform.hpp"
-#include "Tpetra_Import.hpp"
-#include "Tpetra_Export.hpp"
-#include "Tpetra_Map.hpp"
-#include "Tpetra_MultiVector.hpp"
-#include "Tpetra_Vector.hpp"
-#include "Tpetra_Operator.hpp"
+#include <Tpetra_ConfigDefs.hpp>
+#include <Tpetra_MultiVector.hpp>
+#include <TpetraExt_MatrixMatrix.hpp>
+#include <Tpetra_CrsMatrix.hpp>
+#include <Tpetra_CrsGraph.hpp>
+#include <Tpetra_CrsMatrixMultiplyOp.hpp>
+#include <Tpetra_DefaultPlatform.hpp>
+#include <Tpetra_Import.hpp>
+#include <Tpetra_Export.hpp>
+#include <Tpetra_Map.hpp>
+#include <Tpetra_MultiVector.hpp>
+#include <Tpetra_Vector.hpp>
+#include <Tpetra_Operator.hpp>
 #include "Tpetra_OperatorApplyInverse.hpp"
 #include "Tpetra_InvOperator.hpp"
 #include "Tpetra_MixedOperator.hpp"
@@ -22,35 +22,35 @@
 #include "Tpetra_MultiVectorConverter.hpp"
 #include "Tpetra_ScalingCrsMatrix.hpp"
 
-#include "Teuchos_Comm.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Array.hpp"
-#include "Teuchos_ArrayRCP.hpp"
-#include "Teuchos_ParameterList.hpp"
-#include "Teuchos_Assert.hpp"
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_ParameterList.hpp>
+#include <Teuchos_Assert.hpp>
 
 #ifdef SUPPORTS_STRATIMIKOS
-#include "Thyra_TpetraThyraWrappers.hpp"
-#include "Thyra_LinearOpWithSolveFactoryBase.hpp"
-#include "Thyra_LinearOpWithSolveBase.hpp"
-#include "Thyra_LinearOpWithSolveFactoryHelpers.hpp"
-#include "Thyra_PreconditionerFactoryHelpers.hpp"
+#include <Thyra_TpetraThyraWrappers.hpp>
+#include <Thyra_LinearOpWithSolveFactoryBase.hpp>
+#include <Thyra_LinearOpWithSolveBase.hpp>
+#include <Thyra_LinearOpWithSolveFactoryHelpers.hpp>
+#include <Thyra_PreconditionerFactoryHelpers.hpp>
 
-#include "Stratimikos_DefaultLinearSolverBuilder.hpp"
+#include <Stratimikos_DefaultLinearSolverBuilder.hpp>
 #endif
 
-#include "BelosLinearProblem.hpp"
-#include "BelosBlockGmresSolMgr.hpp"
+#include <BelosLinearProblem.hpp>
+#include <BelosBlockGmresSolMgr.hpp>
 
-#include "Ifpack2_Diagonal.hpp"
-#include "Ifpack2_Preconditioner.hpp"
-#include "Ifpack2_AdditiveSchwarz.hpp"
+#include <Ifpack2_Diagonal.hpp>
+#include <Ifpack2_Preconditioner.hpp>
+#include <Ifpack2_AdditiveSchwarz.hpp>
 
 #if ENABLE_MUELU == 1
 #include <MueLu_TrilinosSmoother.hpp>
-#include "MueLu_Hierarchy.hpp"
-#include "MueLu_Amesos2Smoother.hpp"
-#include "MueLu_Utilities.hpp"
+#include <MueLu_Hierarchy.hpp>
+#include <MueLu_Amesos2Smoother.hpp>
+#include <MueLu_Utilities.hpp>
 #include <MueLu_MLParameterListInterpreter.hpp>
 #include <MueLu_UseDefaultTypes.hpp>
 #include <BelosXpetraAdapter.hpp>
@@ -58,7 +58,7 @@
 #include <MueLu_TpetraOperator.hpp>
 #include <MueLu_UseShortNames.hpp>
 #endif
-#include "Kokkos_DefaultNode.hpp"
+#include <Kokkos_DefaultNode.hpp>
 #include <map>
 
 using Teuchos::RCP;
