@@ -178,8 +178,20 @@ finalizeProblemValues
   }
 
   problem_ = rcp(new LinPROB());
+  int precond  = parameterList_->template get<int>( "Precond" );
+  if (precond != AZ_none) {
+    LocalOrdinal overlapLevel = 0;
+    preconditioner_ = rcp(new SCHWARZ(poissonMatrix_,overlapLevel));
+    preconditionerOp_ = rcp(new SCHWARZ_OP(preconditioner_));
+    ParameterList ifpack2List = parameterList_->sublist("ifpack2ListA11");
+    preconditioner_->setParameters(ifpack2List);
+    preconditioner_->initialize();
+    preconditioner_->compute();
+    problem_->setLeftPrec(preconditionerOp_);
+  }
+  RCP<ParameterList> belosList = rcp(new ParameterList(parameterList_->sublist("belosListA11")));
   solver_ = rcp(new Belos::BlockGmresSolMgr<Scalar, MV, OP>());
-  solver_->setParameters(parameterList_);
+  solver_->setParameters(belosList);
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
@@ -229,12 +241,14 @@ applyInverse
 
   SolveStatus<Scalar> status = lows->solve(Thyra::NOTRANS, *thyraY, thyraY.ptr());
 #else
+
   problem_->setOperator(poissonMatrixOperator_);
   problem_->setLHS(Y2);
   problem_->setRHS(Y2);
   TEUCHOS_TEST_FOR_EXCEPT(problem_->setProblem() == false);
   solver_->setProblem(problem_);
   solver_->solve();
+
 #endif
 } //end applyInverse
 //==============================================================================

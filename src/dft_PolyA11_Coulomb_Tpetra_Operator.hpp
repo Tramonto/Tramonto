@@ -136,6 +136,8 @@ protected:
   std::map<GlobalOrdinal, MatScalar> curPoissonRowValues_;
   RCP<LinPROB> problem_;
   RCP<SolMGR> solver_;
+  RCP<SCHWARZ> preconditioner_;
+  RCP<SCHWARZ_OP> preconditionerOp_;
   using P11TO::isGraphStructureSet_;
   using P11TO::Label_;
   using P11TO::isLinearProblemSet_;

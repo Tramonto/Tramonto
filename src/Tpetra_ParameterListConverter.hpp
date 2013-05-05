@@ -222,6 +222,46 @@ namespace Tpetra {
 
       outputList_.set( "belosListSchur", belosListSchur );
 
+      Teuchos::ParameterList belosListA11;
+
+      // Block size
+      GlobalOrdinal blockSizeA11 = 1;
+      GlobalOrdinal maxIterA11 = 500;
+      belosListA11.set( "Block Size", blockSizeA11);
+      belosListA11.set( "Num Blocks",
+			  maxIterA11 / blockSizeA11 );
+      // Maximum iterations
+      belosListA11.set( "Maximum Iterations",
+			  maxIterA11 );
+
+      // Convergence tolerance
+#if MIXED_PREC == 1
+      belosListA11.template set<Scalar>( "Convergence Tolerance",
+					   Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")));
+#else
+      belosListA11.template set<Scalar>( "Convergence Tolerance",
+					   Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
+#endif
+
+      // Orthogonalization
+      int orthogA11  = inputList_->template get<int>( "Orthog" );
+      if (orthogA11 == AZ_modified) {
+	// Modified Gram Schmidt
+	belosListA11.set( "Orthogonalization",
+			    "IMGS" );
+      } else {
+	// Classic Gram Schmidt
+	belosListA11.set( "Orthogonalization",
+			    "ICGS" );
+      }
+
+      // Output
+      //belosListA11.set( "Output Frequency", 10 );
+      //belosListA11.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+      //belosListA11.set( "Output Style", Belos::Brief);
+
+      outputList_.set( "belosListA11", belosListA11 );
+
       //
       // Muelu Parameters
       //
@@ -285,6 +325,37 @@ namespace Tpetra {
       }
 
       outputList_.set( "ifpack2ListA22", ifpack2ListA22 );
+
+      //
+      // Use Ifpack2 ILUT on subdomains with Additive Schwarz for A11 block
+      //
+      Teuchos::ParameterList ifpack2ListA11;
+
+      // Level of fill
+      ifpack2ListA11.template set<double>( "fact: ilut level-of-fill",
+					   inputList_->template get<double>("Ilut_fill") );
+
+      // Absolute threshold
+      ifpack2ListA11.template set<double>( "fact: absolute threshold",
+					   inputList_->template get<double>("Athresh") );
+      // Relative threshold
+      sParam = inputList_->template get<double>("Rthresh");
+      if (sParam == 0.0)
+	// The default value in AztecOO is 0.0; in Ifpack2 it is 1.0
+	ifpack2ListA11.template set<double>( "fact: relative threshold", 1.0 );
+      else
+	ifpack2ListA11.template set<double>( "fact: relative threshold",
+					     inputList_->template get<double>("Rthresh") );
+      // Drop tolerance
+      sParam = inputList_->template get<double>("Drop");
+      if (sParam == 0.0) {
+	// Don't set the drop tolerence, let Ifpack2 choose the default
+      } else {
+	ifpack2ListA11.template set<double>( "fact: drop tolerance",
+					     inputList_->template get<double>("Drop") );
+      }
+
+      outputList_.set( "ifpack2ListA11", ifpack2ListA11 );
 
       isConverted_ = true;
     }
