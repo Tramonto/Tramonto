@@ -120,7 +120,7 @@ insertMatrixValue
   {
     if (rowGID!=curRow_)
     {
-      insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+      this->insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       curRow_=rowGID;
       curOwnedPhysicsID_ = ownedPhysicsID;
       curOwnedNode_ = ownedNode;
@@ -176,7 +176,7 @@ finalizeProblemValues
 
   if (firstTime_)
   {
-    insertRow(); // Dump any remaining entries
+    this->insertRow(); // Dump any remaining entries
   }
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   for (LocalOrdinal i=0; i<numBlocks_-1; i++)

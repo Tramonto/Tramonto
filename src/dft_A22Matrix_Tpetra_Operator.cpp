@@ -78,7 +78,7 @@ insertMatrixValue
 
   if (firstTime_) {
     if (rowGID!=curRow_) {
-      insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+      this->insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       curRow_=rowGID;
     }
     curRowValues_[colGID] += value;
@@ -127,7 +127,7 @@ finalizeProblemValues
   }
 
   if (firstTime_) {
-    insertRow();
+    this->insertRow();
     RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
     pl->set( "Preserve Local Graph", true );
     A22Matrix_->fillComplete(pl);

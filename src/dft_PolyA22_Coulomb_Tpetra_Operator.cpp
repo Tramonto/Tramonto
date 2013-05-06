@@ -121,7 +121,7 @@ insertMatrixValue
       // Insert into poissonOnPoissonMatrix
       if (firstTime_) {
 	if (rowGID != curRow_) {
-	  insertRow();
+	  this->insertRow();
 	  curRow_ = rowGID;
 	}
 	curRowValuesPoissonOnPoisson_[colGID] += value;
@@ -133,7 +133,7 @@ insertMatrixValue
       // Insert into poissonOnDensityMatrix
       if (firstTime_) {
       	if (rowGID != curRow_) {
-      	  insertRow();
+      	  this->insertRow();
       	  curRow_ = rowGID;
       	}
       	curRowValuesPoissonOnDensity_[colGID] += value;
@@ -156,7 +156,7 @@ insertMatrixValue
       // Insert into cmsOnPoissonMatrix
       if (firstTime_) {
 	if (rowGID != curRow_) {
-	  insertRow();
+	  this->insertRow();
 	  curRow_ = rowGID;
 	}
 	curRowValuesCmsOnPoisson_[colGID] += value;
@@ -168,7 +168,7 @@ insertMatrixValue
       // Insert into cmsOnCmsMatrix
       if (firstTime_) {
 	if (rowGID!=curRow_) {
-	  insertRow();
+	  this->insertRow();
 	  curRow_=rowGID;
 	}
 	curRowValuesCmsOnCms_[colGID] += value;
@@ -180,7 +180,7 @@ insertMatrixValue
       // Insert into cmsOnDensityMatrix ("F matrix")
       if (firstTime_) {
       	if (rowGID!=curRow_) {
-      	  insertRow();
+      	  this->insertRow();
       	  curRow_=rowGID;
       	}
       	curRowValuesCmsOnDensity_[colGID] += value;
@@ -216,7 +216,7 @@ insertMatrixValue
       // The density-on-cms matrix is diagonal for most but not all use cases.
       if (firstTime_) {
 	if (rowGID!=curRow_) {
-	  insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
+	  this->insertRow();  // Dump the current contents of curRowValues maps  into matrix and clear map
 	  curRow_=rowGID;
 	}
 	curRowValuesDensityOnCms_[colGID] += value;
@@ -372,7 +372,7 @@ finalizeProblemValues
   {
     return;
   }
-  insertRow(); // Dump any remaining entries
+  this->insertRow(); // Dump any remaining entries
 
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   cmsOnCmsMatrix_->fillComplete(pl);
@@ -390,7 +390,7 @@ finalizeProblemValues
     //    Scalar normvalue = densityOnCmsMatrix_->normInf();
     //    TEUCHOS_TEST_FOR_EXCEPT(normvalue!=STS::zero());
   } else {
-    insertRow(); // Dump any remaining entries
+    this->insertRow(); // Dump any remaining entries
     densityOnCmsMatrix_->fillComplete(cmsMap_, densityMap_, pl);
   }
 

@@ -245,7 +245,7 @@ insertMatrixValue
   if (firstTime_) {
     if (rowGID!=curRow_) {
       // Insert the current row values into the matrix and move on to the next row
-      insertRow();
+      this->insertRow();
       curRow_ = rowGID;
     }
     curRowValues_[colGID] += value;
@@ -362,7 +362,7 @@ finalizeProblemValues
 
   if (firstTime_) {
 
-    insertRow();
+    this->insertRow();
 
     if(!globalMatrix_->isFillComplete()){
       RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
@@ -442,9 +442,8 @@ getLhs
 {
   ArrayRCP<ArrayRCP<Scalar> > ArrayOfPtrs = Teuchos::arcp<ArrayRCP<Scalar> >(numUnknownsPerNode_);
   ArrayRCP<Scalar> tmp = globalLhs_->get1dViewNonConst();
-
+  ArrayRCP<Scalar> temp(numOwnedNodes_);
   for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
-    ArrayRCP<Scalar> temp(numOwnedNodes_);
     for (LocalOrdinal j=0; j<numOwnedNodes_; ++j) {
       temp[j] = tmp[ownedToSolverLID(i,j)];
     }

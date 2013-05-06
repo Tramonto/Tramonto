@@ -93,7 +93,7 @@ insertMatrixValue
 
   if (firstTime_) {
     if (rowGID!=curRow_) {
-      insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
+      this->insertRow();  // Dump the current contents of curRowValues_ into matrix and clear map
       curRow_=rowGID;
     }
     curRowValues_[colGID] += value;
@@ -142,7 +142,7 @@ finalizeProblemValues
   }
 
   if (firstTime_) {
-    insertRow(); // Dump any remaining entries
+    this->insertRow(); // Dump any remaining entries
   }
 
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));

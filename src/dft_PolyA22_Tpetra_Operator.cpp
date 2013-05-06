@@ -113,7 +113,7 @@ insertMatrixValue
       if (firstTime_) {
 	if (rowGID!=curRow_) {
 	  // Dump the current contents of curRowValues_ into matrix and clear map
-	  insertRow();
+	  this->insertRow();
 	  curRow_=rowGID;
 	}
 	curRowValuesCmsOnCms_[colGID] += value;
@@ -126,7 +126,7 @@ insertMatrixValue
       if (firstTime_) {
 	if (rowGID!=curRow_) {
 	  // Dump the current contents of curRowValues_ into matrix and clear map
-      	  insertRow();
+      	  this->insertRow();
 	  curRow_=rowGID;
       	}
 	curRowValuesCmsOnDensity_[colGID] += value;

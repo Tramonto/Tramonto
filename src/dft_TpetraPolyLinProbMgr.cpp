@@ -351,7 +351,7 @@ insertMatrixValue
     if (firstTime_) {
       if (rowGID!=curRowA21_) {
 	// Insert the current row values into the matrix and move on to the next row
-	insertRowA21();
+	this->insertRowA21();
 	curRowA21_=rowGID;
       }
       curRowValuesA21_[colGID] += value;
@@ -364,7 +364,7 @@ insertMatrixValue
     if (firstTime_) {
       if (rowGID!=curRowA12_) {
 	// Insert the current row values into the matrix and move on to the next row
-	insertRowA12();
+	this->insertRowA12();
 	curRowA12_=rowGID;
       }
       curRowValuesA12_[colGID] += value;
@@ -457,8 +457,8 @@ finalizeProblemValues
 
   if (firstTime_)
   {
-    insertRowA12(); // Dump any remaining entries
-    insertRowA21(); // Dump any remaining entries
+    this->insertRowA12(); // Dump any remaining entries
+    this->insertRowA21(); // Dump any remaining entries
 
     RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
     pl->set( "Preserve Local Graph", true );
