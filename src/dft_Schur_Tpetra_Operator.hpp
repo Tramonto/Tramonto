@@ -206,6 +206,13 @@ class dft_Schur_Tpetra_Operator:
   RCP<MAT> A21A11invA12_;
   /* Intermediate matrix containing A21*inv(A11)*A12 */
   RCP<MAT> S_;
+  /* Temporary vectors */
+  RCP<MV> A12rangeVec_;
+  RCP<MV> A12rangeVec2_;
+  RCP<MV> A21rangeVec_;
+  RCP<MV> A11rangeVec_;
+  RCP<MV> A11domainVec_;
+  RCP<MV> A22rangeVec_;
   /* Schur complement, if formed */
   const char * Label_; /*!< Description of object */
 };

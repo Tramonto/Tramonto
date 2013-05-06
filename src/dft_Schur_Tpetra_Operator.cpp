@@ -36,39 +36,18 @@ dft_Schur_Tpetra_Operator
     A22_(A22),
     Label_(0)
 {
-
   Label_ = "dft_Schur_Tpetra_Operator";
   A12op_ = rcp(new MMOP(A12_));
   A21op_ = rcp(new MMOP(A21_));
-  /* Used to capture matrix data
-  LocalOrdinal nrows1 = A11->RowMap().NumGlobalElements();
-  LocalOrdinal nrows2 = A22->RowMap().NumGlobalElements();
-  LocalOrdinal ncols1 = A11->ColMap().NumGlobalElements();
-  LocalOrdinal ncols2 = A22->ColMap().NumGlobalElements();
-  assert(A11->ReplaceRowMap(Row1Map)==0);
-  assert(A11->ReplaceColMap(Col1Map)==0);
-  assert(A12->ReplaceRowMap(Row1Map)==0);
-  assert(A12->ReplaceColMap(Col2Map)==0);
-  assert(A21->ReplaceRowMap(Row2Map)==0);
-  assert(A21->ReplaceColMap(Col1Map)==0);
-  assert(A22->ReplaceRowMap(Row2Map)==0);
-  assert(A22->ReplaceColMap(Col2Map)==0);
+  A12rangeVec_ = rcp(new MV(A12_->getRangeMap(), 1));
+  A12rangeVec2_ = rcp(new MV(A12_->getRangeMap(), 1));
+  A21rangeVec_ = rcp(new MV(A21_->getRangeMap(), 1));
+  A11rangeVec_ = rcp(new MV(A11_->getRangeMap(), 1));
+  A11domainVec_ = rcp(new MV(A11_->getDomainMap(), 1));
+  A22rangeVec_ = rcp(new MV(A22_->getRangeMap(), 1));
 
-  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA21.dat", *A21, "HardSphere_A21",
-					  "The 2,1 block of HardSphere Problem with Explicit non-local densities",
-					  true);
-  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA12.dat", *A12, "HardSphere_A12",
-					  "The 1,2 block of HardSphere Problem with Explicit non-local densities",
-					  true);
-  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA11.dat", *A11, "HardSphere_A11",
-					  "The 1,1 block of HardSphere Problem with Explicit non-local densities",
-					  true);
-  EpetraExt::RowMatrixToMatrixMarketFile( "HardSphereA22.dat", *A22, "HardSphere_A22",
-					  "The 2,2 block of HardSphere Problem with Explicit non-local densities",
-					  true);
-  abort();
-  */
 } //end constructor
+
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
@@ -76,6 +55,7 @@ dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ()
 {
 } //end destructor
+
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -83,40 +63,27 @@ dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
-  // Scalar normvalue;
-  //X.NormInf(&normvalue);
-  //cout << "Norm of X in Schur Apply = " << normvalue << endl;
   TEUCHOS_TEST_FOR_EXCEPT(Y.getNumVectors()!=X.getNumVectors());
 #ifdef KDEBUG
   TEUCHOS_TEST_FOR_EXCEPT(!X.getMap()->isSameAs(*getDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
 #endif
 
-  // Apply (A22 - A21*inv(A11)*A12 to X
-
   Scalar ZERO = STS::zero();
   Scalar ONE = STS::one();
 
-  RCP<MV > Y1 = rcp(new MV(A12_->getRangeMap(), X.getNumVectors()));
-  RCP<MV > Y11 = rcp(new MV(A12_->getRangeMap(), X.getNumVectors()));
-  RCP<MV > Y2 = rcp(new MV(A21_->getRangeMap(), X.getNumVectors()));
-
+  // Implicitly apply the Schur complement (A22 - A21*inv(A11)*A12) to X
   Y.putScalar(ZERO);
-  A12op_->apply(X, *Y1);
-  //Y1.NormInf(&normvalue);
-  //cout << "Norm of Y1 in Schur Apply = " << normvalue << endl;
-  //cout << *A12_ << endl;
-  //exit(1);
-  A11_->applyInverse(*Y1, *Y11);
-  A21op_->apply(*Y11, *Y2);
-  //Y2.NormInf(&normvalue);
-  //cout << "Norm of Y2 in Schur Apply = " << normvalue << endl;
-  A22_->apply(X, Y);
-  Y.update(-ONE, *Y2, ONE);
 
-  //Y.NormInf(&normvalue);
-  //cout << "Norm of Y in Schur Apply = " << normvalue << endl;
-} //end Apply
+  A12op_->apply(X, *A12rangeVec_);
+  A11_->applyInverse(*A12rangeVec_, *A12rangeVec2_);
+  A21op_->apply(*A12rangeVec2_, *A21rangeVec_);
+  A22_->apply(X, Y);
+
+  Y.update(-ONE, *A21rangeVec_, ONE);
+
+} //end apply
+
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -124,15 +91,14 @@ dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ComputeRHS
 (const MV& B1, const MV& B2, MV& B2S) const
 {
-  // Compute B2S =  B2 - A21*inv(A11)B1
-
   Scalar ONE = STS::one();
 
-  RCP<MV > Y1 = rcp(new MV(A11_->getDomainMap(), B1.getNumVectors()));
-  A11_->applyInverse(B1, *Y1);
-  A21op_->apply(*Y1, B2S);
+  // Compute B2S =  B2 - A21*inv(A11)B1
+  A11_->applyInverse(B1, *A11domainVec_);
+  A21op_->apply(*A11domainVec_, B2S);
   B2S.update(ONE, B2, -ONE);
 } //end ComputeRHS
+
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
@@ -140,14 +106,13 @@ dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 ComputeX1
 (const MV& B1, const MV& X2, MV& X1) const
 {
-  // Compute X1 =  inv(A11)(B1 - A12*X2)
-
   Scalar ONE = STS::one();
 
-  RCP<MV > Y1 = rcp(new MV(A12_->getRangeMap(), X1.getNumVectors()));
-  A12op_->apply(X2, *Y1);
-  Y1->update(ONE, B1, -ONE);
-  A11_->applyInverse(*Y1, X1);
+  // Compute X1 =  inv(A11)(B1 - A12*X2)
+  A12op_->apply(X2, *A12rangeVec_);
+  A12rangeVec_->update(ONE, B1, -ONE);
+  A11_->applyInverse(*A12rangeVec_, X1);
+
 } //end ComputeX1
 
 //==============================================================================
@@ -166,25 +131,21 @@ ApplyGlobal
   TEUCHOS_TEST_FOR_EXCEPT(!Y2.getMap()->isSameAs(*A22_->getRangeMap()));
 #endif
 
-  // Apply (A22 - A21*inv(A11)*A12 to X
-
   Scalar ZERO = STS::zero();
   Scalar ONE = STS::one();
 
-  RCP<MV > Y11 = rcp(new MV(A11_->getRangeMap(), X1.getNumVectors()));
-  RCP<MV > Y12 = rcp(new MV(A12_->getRangeMap(), X1.getNumVectors()));
-  RCP<MV > Y21 = rcp(new MV(A21_->getRangeMap(), X1.getNumVectors()));
-  RCP<MV > Y22 = rcp(new MV(A22_->getRangeMap(), X1.getNumVectors()));
-
+  // Apply (A22 - A21*inv(A11)*A12 to X
   Y1.putScalar(ZERO);
   Y2.putScalar(ZERO);
-  A11_->apply(X1, *Y11);
-  A12op_->apply(X2, *Y12);
-  A21op_->apply(X1, *Y21);
-  A22_->apply(X2, *Y22);
-  Y1.update(ONE, *Y11, ONE, *Y12, ZERO);
-  Y2.update(ONE, *Y21, ONE, *Y22, ZERO);
+
+  A11_->apply(X1, *A11rangeVec_);
+  A12op_->apply(X2, *A12rangeVec_);
+  A21op_->apply(X1, *A21rangeVec_);
+  A22_->apply(X2, *A22rangeVec_);
+  Y1.update(ONE, *A11rangeVec_, ONE, *A12rangeVec_, ZERO);
+  Y2.update(ONE, *A21rangeVec_, ONE, *A22rangeVec_, ZERO);
 } //end ApplyGlobal
+
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void
