@@ -42,6 +42,7 @@
 #ifndef TPETRA_PARAMETERLISTCONVERTER_HPP
 #define TPETRA_PARAMETERLISTCONVERTER_HPP
 
+#include "BelosTypes.hpp"
 #include "az_aztec_defs.h"
 
 namespace Tpetra {
@@ -176,9 +177,9 @@ namespace Tpetra {
       }
 
       // Output
-      //belosList.set( "Output Frequency", 10 );
-      //belosList.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
-      //belosList.set( "Output Style", Belos::Brief);
+      // belosList.set( "Output Frequency", 20 );
+      // belosList.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+      // belosList.set( "Output Style", Belos::Brief);
 
       outputList_.set( "belosList", belosList );
 
@@ -229,18 +230,18 @@ namespace Tpetra {
       GlobalOrdinal maxIterA11 = 500;
       belosListA11.set( "Block Size", blockSizeA11);
       belosListA11.set( "Num Blocks",
-			  maxIterA11 / blockSizeA11 );
+			maxIterA11 / blockSizeA11 );
       // Maximum iterations
       belosListA11.set( "Maximum Iterations",
-			  maxIterA11 );
+			maxIterA11 );
 
       // Convergence tolerance
 #if MIXED_PREC == 1
       belosListA11.template set<Scalar>( "Convergence Tolerance",
-					   Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")));
+					 Teuchos::as<halfScalar>(inputList_->template get<double>("Tol")));
 #else
       belosListA11.template set<Scalar>( "Convergence Tolerance",
-					   Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
+					 Teuchos::as<Scalar>(inputList_->template get<double>("Tol")) );
 #endif
 
       // Orthogonalization
@@ -248,11 +249,11 @@ namespace Tpetra {
       if (orthogA11 == AZ_modified) {
 	// Modified Gram Schmidt
 	belosListA11.set( "Orthogonalization",
-			    "IMGS" );
+			  "IMGS" );
       } else {
 	// Classic Gram Schmidt
 	belosListA11.set( "Orthogonalization",
-			    "ICGS" );
+			  "ICGS" );
       }
 
       // Output
@@ -312,7 +313,7 @@ namespace Tpetra {
 
       // Level of fill
       ifpack2ListA22.template set<double>( "fact: ilut level-of-fill",
-					   2.0 );
+					   7.0 );
 
       // Absolute threshold
       ifpack2ListA22.template set<double>( "fact: absolute threshold",
