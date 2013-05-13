@@ -97,7 +97,7 @@ int dft_HardSphereA22_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra
   TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
   TEUCHOS_TEST_FOR_EXCEPT(Y.NumVectors()!=X.NumVectors());
 
-  Y.Multiply(1.0, densityOnDensityMatrix_, X, 1.0);
+  Y.Multiply(1.0, densityOnDensityMatrix_, X, 0.0);
 
   return(0);
 }

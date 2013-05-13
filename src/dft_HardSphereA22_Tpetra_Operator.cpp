@@ -128,7 +128,7 @@ apply
   TEUCHOS_TEST_FOR_EXCEPT(!Y.getMap()->isSameAs(*getRangeMap()));
 #endif
 
-  Y.elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, X, STS::one());
+  Y.elementWiseMultiply(STS::one(), *densityOnDensityMatrix_, X, STS::zero());
 
 }
 //==============================================================================
