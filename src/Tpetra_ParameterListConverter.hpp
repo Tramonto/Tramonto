@@ -299,6 +299,16 @@ namespace Tpetra {
       // Use Ifpack2 ILUT on subdomains with Additive Schwarz for A22 block
       //
       Teuchos::ParameterList ifpack2ListA22;
+      // Reordering
+      int reorderA22 = inputList_->template get<int>( "Reorder" );
+      if (reorderA22 == 1) {
+	Teuchos::ParameterList zlist;
+	zlist.set("order_method","rcm");
+	ifpack2ListA22.set( "schwarz: use reordering",
+			    true );
+	ifpack2ListA22.set( "schwarz: reordering list",
+			    zlist );
+      }
 
       // Level of fill
       ifpack2ListA22.template set<double>( "fact: ilut level-of-fill",
