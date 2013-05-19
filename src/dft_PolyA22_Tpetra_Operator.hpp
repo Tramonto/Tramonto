@@ -215,6 +215,8 @@ protected:
   RCP<MAT> cmsOnDensityMatrix_;
   RCP<MMOP> cmsOnDensityMatrixOp_;
   RCP<MAT> cmsOnCmsMatrix_;
+  RCP<MAT> cmsOnCmsMatrixStatic_;
+  RCP<GRAPH> cmsOnCmsGraph_;
   RCP<MMOP> cmsOnCmsMatrixOp_;
   RCP<DIAGONAL> cmsOnCmsInverse_;
   RCP<DIAGONAL_OP> cmsOnCmsInverseOp_;

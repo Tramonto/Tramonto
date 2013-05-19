@@ -79,15 +79,20 @@ initializeProblemValues
 #endif
   isLinearProblemSet_ = false; // We are reinitializing the linear problem
 
-  if (!firstTime_)
+  if (firstTime_)
+  {
+    cmsOnCmsMatrix_->resumeFill();
+    cmsOnCmsMatrix_->setAllToScalar(STMS::zero());
+  }
+  else
   {
     if (!isFLinear_)
     {
       cmsOnDensityMatrix_->resumeFill();
       cmsOnDensityMatrix_->setAllToScalar(STMS::zero());
     } //end if
-    cmsOnCmsMatrix_->resumeFill();
-    cmsOnCmsMatrix_->setAllToScalar(STMS::zero());
+    cmsOnCmsMatrixStatic_->resumeFill();
+    cmsOnCmsMatrixStatic_->setAllToScalar(STMS::zero());
     densityOnDensityMatrix_->putScalar(STS::zero());
     densityOnDensityInverse_->putScalar(STS::zero());
     densityOnCmsMatrix_->resumeFill();
@@ -174,7 +179,7 @@ insertMatrixValue
 	curRowValuesCmsOnCms_[colGID] += value;
       }
       else
-	cmsOnCmsMatrix_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
+	cmsOnCmsMatrixStatic_->sumIntoGlobalValues(rowGID, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
       break;
     case 1:
       // Insert into cmsOnDensityMatrix ("F matrix")
@@ -374,8 +379,43 @@ finalizeProblemValues
   }
   this->insertRow(); // Dump any remaining entries
 
+  if (firstTime_) {
+    RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
+    pl->set( "Preserve Local Graph", true );
+    cmsOnCmsMatrix_->fillComplete(pl);
+
+    ArrayRCP<size_t> numEntriesPerRow(cmsMap_->getNodeNumElements());
+    for (LocalOrdinal i = 0; i < cmsMap_->getNodeNumElements(); ++i) {
+      numEntriesPerRow[i] = cmsOnCmsMatrix_->getNumEntriesInLocalRow( i );
+    }
+    cmsOnCmsGraph_ = rcp(new GRAPH(cmsMap_, cmsOnCmsMatrix_->getColMap(), numEntriesPerRow, Tpetra::StaticProfile));
+    for (LocalOrdinal i = 0; i < cmsMap_->getNodeNumElements(); ++i) {
+      ArrayView<const GlobalOrdinal> indices;
+      ArrayView<const MatScalar> values;
+      cmsOnCmsMatrix_->getLocalRowView( i, indices, values );
+      cmsOnCmsGraph_->insertLocalIndices( i, indices );
+    }
+    cmsOnCmsGraph_->fillComplete();
+    cmsOnCmsMatrixStatic_ = rcp(new MAT(cmsOnCmsGraph_));
+    cmsOnCmsMatrixStatic_->setAllToScalar(STMS::zero());
+
+    for (LocalOrdinal i = 0; i < cmsMap_->getNodeNumElements(); ++i) {
+      ArrayView<const GlobalOrdinal> indices;
+      ArrayView<const MatScalar> values;
+      cmsOnCmsMatrix_->getLocalRowView( i, indices, values );
+      cmsOnCmsMatrixStatic_->sumIntoLocalValues( i, indices(), values() );
+    }
+    cmsOnCmsMatrixStatic_->fillComplete();
+    cmsOnCmsMatrixOp_ = rcp(new MMOP(cmsOnCmsMatrixStatic_));
+
+  }
+
+  if (!cmsOnCmsMatrixStatic_->isFillComplete()) {
+    RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
+    cmsOnCmsMatrixStatic_->fillComplete(pl);
+  }
+
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
-  cmsOnCmsMatrix_->fillComplete(pl);
 
   if (!isFLinear_) {
     cmsOnDensityMatrix_->fillComplete(densityMap_, cmsMap_, pl);
@@ -398,13 +438,15 @@ finalizeProblemValues
   densityOnDensityInverse_->reciprocal(*densityOnDensityMatrix_);
 
   // Use a diagonal preconditioner for the cmsOnCmsMatrix
-  RCP<const MAT> const_matrix = Teuchos::rcp_implicit_cast<const MAT>(cmsOnCmsMatrix_);
-  cmsOnCmsInverse_ = rcp(new DIAGONAL(const_matrix));
-  cmsOnCmsInverseOp_ = rcp(new DIAGONAL_OP(cmsOnCmsInverse_));
+  if (firstTime_) {
+    RCP<const MAT> const_matrix = Teuchos::rcp_implicit_cast<const MAT>(cmsOnCmsMatrixStatic_);
+    cmsOnCmsInverse_ = rcp(new DIAGONAL(const_matrix));
+    cmsOnCmsInverseOp_ = rcp(new DIAGONAL_OP(cmsOnCmsInverse_));
 #ifdef KDEBUG
-  TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsInverse_==Teuchos::null);
+    TEUCHOS_TEST_FOR_EXCEPT(cmsOnCmsInverse_==Teuchos::null);
 #endif
-  cmsOnCmsInverse_->initialize();
+    cmsOnCmsInverse_->initialize();
+  }
   cmsOnCmsInverse_->compute();
 
   if (firstTime_) {

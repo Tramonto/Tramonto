@@ -203,7 +203,9 @@ protected:
   using P22TO::densityOnDensityMatrix_;
   using P22TO::densityOnDensityInverse_;
   using P22TO::cmsOnCmsMatrix_;
+  using P22TO::cmsOnCmsMatrixStatic_;
   using P22TO::cmsOnCmsMatrixOp_;
+  using P22TO::cmsOnCmsGraph_;
   using P22TO::cmsOnCmsInverse_;
   using P22TO::cmsOnCmsInverseOp_;
   using P22TO::densityOnCmsMatrix_;
