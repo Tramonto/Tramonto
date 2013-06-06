@@ -31,37 +31,36 @@ Tramonto v5.0 Release Notes
    - Fickian Diffusion code extended to chain molecules. (see
      Tramonto/Examples/DIFFUSION2_FMT1_WCA_WJDC_1D)
 
-   - A New chemical potential continuation method is implemented that embeds an iterative scheme to update bulk density.
-             In a multicomponent system, the method assumes that chemical potential continuation is being done while holding other species at
-             constant density.  So, after changing chemical potential of the desired continuaution component, i, the interative scheme
-             determines a new bulk density for the component i as well as new chemical potentials of all other species.</li>
- Not fully tested.-->
+   - Tethered chain capability rewritten and generalized to be able to treat:
 
-        <li> Tethered chain capability rewritten and generalized to be able to treat:
-         <ul>
-          <li> arbitrary surface geometry </li>
-          <li> 2D and 3D systems </li>
-          <li> mixtures of tethered chains </li>
-          <li> tethered branched chains </li>
-          <li> constant surface density or number of tethered chains </li>
-         </ul>
-         See the Tramonto/Examples/POLYGRAFT cases.
-         </li>
-        </ul>
-        <h3> New Solver Functionality </h3>
-        <ul>
-        <li> Tpetra based solvers delivered for Tramonto, enabling extended-precision computation. </li>
-        <li> Picard solver extended to electrostatic systems. (see Tramonto/Examples/MIX13_ELEC_PICARD_1D)</li>
-        <li> Picard solver extended to diffusion systems. </li>
-        <li> Newton solver extended to tehtered chain systems. </li>
-        <li> Parallel computing capability implemented for tethered chain systems. </li>
-        </ul>
-        <h3> Refactored Code and Bug fixes </h3>
-        <li> Addition of more than 14 new example problems to the release with an emphasis on diffusion and tethered polymer cases. </li>
-        <li> Refactored of file I/O to allow for user definition of input and output paths. </li>
-        <li> Refactored of input code to allow for GUI based input streams.  The code allows generation of a GUI state using static input parameters. </li>
-        <ul>
-        </ul>
+        -- arbitrary surface geometry
+        -- 2D and 3D systems
+        -- mixtures of tethered chains
+        -- tethered branched chains
+        -- constant surface density or number of tethered chains
+
+     See the Tramonto/Examples/POLYGRAFT cases.
+
+  New Solver Functionality
+
+   - Tpetra based solvers delivered for Tramonto, enabling extended-precision computation.
+
+   - Picard solver extended to electrostatic systems. (see Tramonto/Examples/MIX13_ELEC_PICARD_1D)
+
+   - Picard solver extended to diffusion systems.
+
+   - Newton solver extended to tehtered chain systems.
+
+   - Parallel computing capability implemented for tethered chain systems.
+
+  Refactored Code and Bug fixes
+
+   - Addition of more than 14 new example problems to the release with an emphasis on diffusion and tethered polymer cases.
+
+   - Refactored file I/O to allow for user definition of input and output paths.
+
+   - Refactored of input code to allow for GUI based input streams.  The code allows generation of a GUI state using static input parameters.
+
 ---------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------
 Tramonto v4.0.1 Release Notes
