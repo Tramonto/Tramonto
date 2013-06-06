@@ -1,0 +1,326 @@
+# Tramonto: A molecular theory code for structured and uniform fluids
+#                 Copyright (2006) Sandia Corporation
+#
+# Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive
+# license for use of this work by or on behalf of the U.S. Government.
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either version 2.1
+# of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+                       How to Build Trilinos for Tramonto 5.0
+
+Note:
+
+    When accessing these instructions from the website, it is a good idea
+    to verify that you have the version of the instructions that corresponds
+    to your version of Tramonto.  The correct version of the instructions can
+    always be found in the README file in the top level directory of a Tramonto
+    tarball, or a checked out copy of the Tramonto source code repository.
+
+Contents:
+    1. Prerequisites
+    2. Building Trilinos - general instructions
+        2.1 Epetra Configure
+        2.2 Tpetra Configure
+
+1. Prerequisites:
+
+    Tramonto depends on a number of other software packages.  Below is a 
+    list of the required packages and links from which you can download 
+    any packages that are not available on your system.  There is a good
+    chance that BLAS, LAPACK and an MPI implementation are already installed
+    on your system.  It is especially important to have a BLAS library that
+    is optimized for your machine.  
+
+        Package                       Web Reference
+        BLAS             	http://www.netlib.org
+        LAPACK           	http://www.netlib.org
+        MPI              	http://www-unix.mcs.anl.gov/mpi/mpich2
+                         	http://www.open-mpi.org
+        Trilinos         	http://trilinos.sandia.gov
+	SuperLU (optional)	http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
+        QT (optional)    	http://www.qt-project.org
+        QD (optional)    	http://crd.lbl.gov/~dhbailey/mpdist/qd-2.3.13.tar.gz 
+        Eigen (optional) 	http://eigen.tuxfamily.org/
+
+    
+    The Tramonto 5.0 release includes a beta version of a Qt based GUI
+    for Tramonto.  Qt can be downloaded from http://www.qt-project.org.  The
+    Tramonto GUI is compatible with Qt-4.8. QD is useful only with the 
+    Tpetra-based solver stack in Trilinos (see below for more information.)
+
+2. Building Trilinos - general instructions:
+
+    While BLAS, LAPACK and MPI could be available on your system, you will
+    most likely have to build Trilinos yourself.  
+
+    There are two different Trilinos builds that can be used with Tramonto. You must 
+    choose one. The first option is to use the older but very stable Epetra-based 
+    solver stack, and the second option is to use the next-generation Tpetra-based 
+    solver stack, currently  under very active development. It is recommended that 
+    you build Tramonto with the most recent versions of the trilinos library. 
+    As of March 2013, that is trilinos-11.0.3.
+
+    The Epetra-based solver stack utilizes the Epetra parallel matrix/vector 
+    library within Trilinos, as well as closely related packages. The average 
+    Tramonto user will want to use this solver stack. To use Tramonto with the 
+    Epetra-based solver stack, Trilinos must be built with the following trilinos packages: 
+    amesos, aztecoo, triutils, ifpack, epetraext, epetra, loca, ml, nox, teuchos, and
+    optionally optika (to enable the GUI).
+
+    The Tpetra-based solver stack utilizes the Tpetra (templated Petra) parallel matrix/vector 
+    library within Trilinos, as well as closely related packages. Tpetra and related packages 
+    represent the next generation of software with Trilinos. These packages template the scalar 
+    and ordinal types, allowing, for example, computation in extended-precision, as well as 
+    the solution of problems with more than 2 billion unknowns. Tramonto users facing extremely 
+    large or challenging problems may wan to use this solver stack. 
+    To use Tramonto with the Tpetra-based solver stack, Trilinos 
+    must be built with the following trilinos packages: 
+    amezoz, aztecoo, belos, epetra, epetraext, ifpack, ifpack2, ml, muelu, nox, stratimikos,
+    teuchos, thyra, thyratpetraadapeters, tpetra, zoltan2, and optionally optika (to enable the GUI).
+
+    Note that as of March 2013, MueLu has not been released as part of the trilinos library, but will
+    be made available in a future 2013 release. For now, to obtain MueLu, you must check out 
+    a copy of Trilinos from the public git repository by following the instructions here:
+    http://trilinos.sandia.gov/publicRepo/index.html. 
+
+    The Tpetra-based solver stack requires that the SuperLU library be installed, and that 
+    Trilinos be configured with SuperLU enabled. Instructions for this are given at the bottom.
+    
+    To enable extended precision computation, the QD library must also be built, and Trilinos
+    must be configured with QD and a third-party-library. Instructions for this are given at the 
+    bottom. 
+
+    Trilinos has a webpage for new users available at
+    http://trilinos.sandia.gov/getting_started.html.
+    Below you will find a brief set of instructions that focus on building
+    Trilinos for use with Tramonto.  If these instructions prove insufficient,
+    please visit the website listed above.
+    
+    Trilinos can be downloaded from the the Trilinos home page listed above.
+    There are many options available in configuring Trilinos, some of the 
+    most important one are:
+    
+    CMAKE_INSTALL_PREFIX:PATH=
+
+        This option specifies where to install Trilinos.  For example,
+        CMAKE_INSTALL_PREFIX:PATH=/path/TrilinosInstall will install Trilinos
+        libraries in /path/TrilinosInstall/lib and Trilinos header files in
+        /path/TrilinosInstall/include.
+
+    TPL_ENABLE_MPI:BOOL=ON
+
+        This option indicates that a parallel, rather than serial, 
+        version of Trilinos should be built.
+
+    DMPI_BASE_DIR:PATH=
+
+        Use this option to specify the base installation directory for MPI.
+        In many cases when using a standard setup, this is not necessary,
+        but the option is useful when a machine contains multiple mpi
+        installations, or mpi is installed in a non-standard location.  If
+        /path is the base installation directory, /path/include contains mpi.h,
+        /path/lib includes the mpi libraries, and /path/bin contains mpiexec
+        (or equivalent mpi executable).
+ 
+    TPL_BLAS_LIBRARIES:STRING=
+    TPL_LAPACK_LIBRARIES:SRING=
+
+        These options are used to specify the names or locations of the BLAS
+        and LAPACK libraries.  If the options are not specified, Trilinos
+        will attempt to find BLAS and LAPACK.  Again, it is best to 
+        explicitly list the libraries you want to use if there are 
+        multiple libraries available on your machine.  Example usage:
+        TPL_BLAS_LIBRARIES:STRING="-lcblas;-lf77blas;-latlas;-lgfortran" or 
+        TPL_BLAS_LIBRARIES:STRING=/usr/lib64/libblas.so and
+        TPL_LAPACK_LIBRARIES:STRING=/usr/lib64/liblapack.so
+
+    Trilinos_ENABLE_ALL_PACKAGES:BOOL=OFF 
+    Trilinos_ENABLE_<package>:BOOL=ON
+
+        The best way to build only the packages that Tramonto uses is to use 
+        the Trilinos_ENABLE_ALL_PACKAGES:BOOL=OFF option in conjunction with
+        a Trilinos_ENABLE_<package>:BOOL=ON option for each required
+        Trilinos package.  For example Trilinos_ENABLE_AztecOO:BOOL=ON, etc.
+        Note that it is not necessary to disable all of the packages that
+        Tramonto does not use; this is especially useful when building Tramonto
+        on a machine that has a pre-installed version of Trilinos.  It can be
+        helpful to disable unneeded packages to make it easier and faster to
+        build Trilinos.
+
+
+2.1 Epetra based Trilinos Build:
+    Below are examples of ways to properly configure Trilinos for Epetra builds.  
+    You can find more examples in the "sampleScripts" directory in the Trilinos
+    distribution.  The configure command points up one directory because the
+    preferred directory structure for building Trilinos has separate build and 
+    source trees.  For example, for a build tree named "TramontoInstall",
+    from the top-level Trilinos directory, type "mkdir TramontoInstall",
+    then "cd TramontoInstall", and finally provide the proper configure
+    arguments.  Some users prefer for the build tree to be a peer to the
+    top-level Trilinos directory.  The source tree can be in any arbitrary
+    location; the last argument in the configuration command simply has to
+    point to the source tree with an absolute or relative path.  Often it is
+    convenient to create a script (like those in the sampleScripts directory
+    mentioned above) in the build directory and then simply source the script.
+    If a separate build tree is not used, the configure process will terminate
+    with an error.
+		
+    Linux 
+     cmake \
+     -DTPL_ENABLE_MPI:BOOL=ON \
+     -DTrilinos_ENABLE_ALL_PACKAGES:BOOL=OFF \
+     -DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
+     -DTrilinos_ENABLE_Amesos:BOOL=ON \
+     -DTrilinos_ENABLE_AztecOO:BOOL=ON \
+     -DTrilinos_ENABLE_Triutils:BOOL=ON \
+     -DTrilinos_ENABLE_Ifpack:BOOL=ON \
+     -DTrilinos_ENABLE_EpetraExt:BOOL=ON \
+     -DTrilinos_ENABLE_Epetra:BOOL=ON \
+     -DNOX_ENABLE_LOCA:BOOL=ON \
+     -DTrilinos_ENABLE_ML:BOOL=ON \
+     -DTrilinos_ENABLE_NOX:BOOL=ON \
+     -DTrilinos_ENABLE_Teuchos:BOOL=ON \
+     -DTrilinos_ENABLE_TESTS:BOOL=ON \
+     -DCMAKE_CXX_FLAGS:STRING="-O3" \
+     -DCMAKE_C_FLAGS:STRING="-O3" \
+     -DCMAKE_Fortran_FLAGS:STRING="-O5" \
+     -DTPL_BLAS_LIBRARIES:STRING="-lcblas;-lf77blas;-latlas;-lgfortran" \
+     -DCMAKE_INSTALL_PREFIX:PATH=/home/jmwille/TramontoTestHarness/Tri10.10 \
+     ..
+
+    Mac OSX (with optika enabled for GUI)
+     cmake \
+     -D Trilinos_WARNINGS_AS_ERRORS_FLAGS:STRING="" \
+     -D TPL_ENABLE_MPI:BOOL=ON \
+     -D MPI_BASE_DIR:PATH=/usr/local/openMPI_clang/lib/openmpi \
+     -D CMAKE_CXX_COMPILER:PATH=/usr/local/openMPI_clang/bin/mpic++ \
+     -D CMAKE_C_COMPILER:PATH=/usr/local/openMPI_clang/bin/mpicc \
+     -D CMAKE_Fortran_COMPILER:PATH=/usr/local/openMPI_clang/bin/mpif90 \
+     -D CMAKE_BUILD_TYPE:STRING=RELEASE \
+     -D CMAKE_CXX_FLAGS:STRING=-O3 \
+     -D CMAKE_C_FLAGS:STRING=-O3 \
+     -D CMAKE_Fortran_FLAGS:STRING=-O3 \
+     -D HAVE_GCC_ABI_DEMANGLE:BOOL=ON \
+     -D DART_TESTING_TIMEOUT:STRING=600 \
+     -D CMAKE_VERBOSE_MAKEFILE:BOOL=TRUE \
+     -D Trilinos_ENABLE_ALL_PACKAGES:BOOL=OFF \
+     -D Trilinos_ENABLE_ML:BOOL=ON \
+     -D Trilinos_ENABLE_Amesos:BOOL=ON \
+     -D Trilinos_ENABLE_NOX:BOOL=ON \
+     -D Trilinos_ENABLE_AztecOO:BOOL=ON \
+     -D Trilinos_ENABLE_Ifpack:BOOL=ON \
+     -D Trilinos_ENABLE_EpetraExt:BOOL=ON \
+     -D Trilinos_ENABLE_Epetra:BOOL=ON \
+     -D Trilinos_ENABLE_Teuchos:BOOL=ON \
+     -D Trilinos_ENABLE_Optika:BOOL=ON \
+     -D CMAKE_INSTALL_PREFIX="/Users/ljdfrink/src/trilinos-11.0.3-Source/BUILD_FAST_CLANG" \
+     $EXTRA_ARGS \
+     ../
+
+    Once you have configured Trilinos, build it by typing "make".  
+    This will build the libraries, tests (if Trilinos_ENABLE_TESTS:BOOL=ON),
+    and examples for the packages that were enabled at configure time.  If
+    the tests were compiled, a test suite can be run by typing "ctest".
+    Finally, install Trilinos using "make install".
+
+2.2 Tpetra based Trilinos Build:
+    Below are examples of ways to properly configure Trilinos for Tpetra builds.  
+    You can find more examples in the "sampleScripts" directory in the Trilinos
+    distribution.  The configure command points up one directory because the
+    preferred directory structure for building Trilinos has separate build and 
+    source trees.  For example, for a build tree named "TramontoInstall",
+    from the top-level Trilinos directory, type "mkdir TramontoInstall",
+    then "cd TramontoInstall", and finally provide the proper configure
+    arguments.  Some users prefer for the build tree to be a peer to the
+    top-level Trilinos directory.  The source tree can be in any arbitrary
+    location; the last argument in the configuration command simply has to
+    point to the source tree with an absolute or relative path.  Often it is
+    convenient to create a script (like those in the sampleScripts directory
+    mentioned above) in the build directory and then simply source the script.
+    If a separate build tree is not used, the configure process will terminate
+    with an error.
+
+     cmake \
+     -DTPL_ENABLE_MPI:BOOL=ON \
+     -DTPL_ENABLE_QD:BOOL=ON \
+     -DTPL_ENABLE_SuperLU:BOOL=ON \
+     -DCMAKE_BUILD_TYPE:STRING=RELEASE \
+     -DTrilinos_ENABLE_ALL_PACKAGES:BOOL=OFF \
+     -DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
+     -DTrilinos_ENABLE_Amesos:BOOL=ON \
+     -DTrilinos_ENABLE_AztecOO:BOOL=ON \
+     -DTrilinos_ENABLE_Belos:BOOL=ON \
+     -DTrilinos_ENABLE_Epetra:BOOL=ON \
+     -DTrilinos_ENABLE_EpetraExt:BOOL=ON \
+     -DTrilinos_ENABLE_Ifpack:BOOL=ON \
+     -DTrilinos_ENABLE_Ifpack2:BOOL=ON \
+     -DTrilinos_ENABLE_ML:BOOL=ON \
+     -DTrilinos_ENABLE_MueLu:BOOL=ON \
+     -DTrilinos_ENABLE_NOX:BOOL=ON \
+     -DTrilinos_ENABLE_Stratimikos:BOOL=ON \
+     -DTrilinos_ENABLE_Teuchos:BOOL=ON \
+     -DTrilinos_ENABLE_Thyra:BOOL=ON \
+     -DTrilinos_ENABLE_ThyraTpetraAdapters:BOOL=ON \
+     -DTrilinos_ENABLE_Tpetra:BOOL=ON \
+     -DTrilinos_ENABLE_Zoltan2:BOOL=ON \
+     -DTrilinos_ENABLE_TESTS:BOOL=ON \
+     -DCMAKE_CXX_FLAGS:STRING="-O3" \
+     -DCMAKE_C_FLAGS:STRING="-O3" \
+     -DCMAKE_Fortran_FLAGS:STRING="-O5" \
+     -DCMAKE_INSTALL_PREFIX:PATH=/home/myhome/TrilinosInstall \
+     ../Trilinos
+
+2.3 Required Libraries for Tpetra based Build:
+    * SuperLU
+    The SuperLU library, written by X. Sherry Li, Jim Demmel, John Gilbert, Laura Grigori, Meiyue Shao, and Ichitaro Yamazakim, is a general purpose library 
+    to compute the LU factorization of a matrix and perform triangular solves through forward and back substitution.
+    To install SuperLU on your machine, follow the build instructions distributed with SuperLU. 
+
+2.4 Optional Libraries for Tpetra based Build:
+    Additional functionality can be enabled through the Tpetra based build via 
+    additional libraries, which we describe below. 
+
+    * QD
+    The QD library, or "quad-double" library, written by David Bailey,
+    enables extended precision computation. This allows the Tpetra based solvers
+    to solve linear systems in much higher precision than afforded by double precision.
+    This is especially useful for physically ill-conditioned systems, where a quad-double
+    precision solver may converge even if a double precision solver never will. 
+
+    After installing the QD library, add the following lines to your Trilinos configuration
+    script to tell Trilinos where the QD library is installed:
+     -DTPL_ENABLE_QD:BOOL=ON \
+     -DTPL_QD_LIBRARIES:FILEPATH=/usr/local/qd/lib/libqd.a \
+     -DTPL_QD_INCLUDE_DIRS:FILEPATH=/usr/local/qd/include \
+
+    * Eigen
+    Eigen is a C++ template library for linear algebra. It provides a templated implementation 
+    of LAPACK routines used by other Trilinos solver components within Tramonto, and is required
+    when doing extended-precision computation (i.e., when not using double or single precision
+    arithmetic.)
+
+
+    After installing the Eigen library, add the following lines to your Trilinos configuration
+    script to tell Trilinos where the Eigen library is installed:
+    -DTPL_ENABLE_Eigen:BOOL=ON \
+    -DTPL_Eigen_INCLUDE_DIRS:FILEPATH=/usr/local/eigen/include/eigen3 \
+   
+
+    You must follow some additional steps when building Tramonto to get it to utilize 
+    extended precision arithmetic. These are detailed in the section describing the 
+    setup of Tramonto. 
+
+     

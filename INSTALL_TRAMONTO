@@ -1,0 +1,151 @@
+# Tramonto: A molecular theory code for structured and uniform fluids
+#                 Copyright (2006) Sandia Corporation
+#
+# Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive
+# license for use of this work by or on behalf of the U.S. Government.
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either version 2.1
+# of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+               How to Build Tramonto 5.0
+
+Notes:
+    These instructions are complete for Linux and Mac OS X operating systems. 
+    Additional instructions for Windows systems are found in the file INSTALL_WINDOWS. 
+
+    When accessing these instructions from the website, it is a good idea
+    to verify that you have the version of the instructions that corresponds
+    to your version of Tramonto.  The correct version of the instructions can
+    always be found in the README file in the top level directory of a Tramonto
+    tarball, or a checked out copy of the Tramonto source code repository.
+
+Contents:
+    1. Prerequisites
+    2. Building Tramonto
+        2.1 Require configure commands
+        2.2 Optional configure commands
+              2.2.1 Ctest configure
+              2.2.2 GUI configure
+              2.2.3 Tpetra configure
+              2.2.4 Optimization configure
+    
+1. Prerequisites:
+   
+    Tramonto depends on the trilinos libraries which in turn depend on the 
+    installation of several other libraries.  See the INSTALL_LIBRARIES file
+    for instructions on how to properly install trilinos on your platform.
+    
+2. Building Tramonto:
+
+    Once Trilinos has been built, building Tramonto tends to be 
+    straightforward because most of the options that were used to build
+    Trilinos can be used automatically to build Tramonto.  As with Trilinos, 
+    it is necessary to configure and then build Tramonto.  Since 
+    Tramonto produces only a single executable, there is no need to 
+    install it and at this time there is not a make target for testing.
+   
+2.1 Required configure commands 
+    To configure Tramonto, it is only necessary to indicate the location of the
+    installed Trilinos libraries and header files.  This can be done using the
+    TRILINOS_PATH option.  This option points to the base of the installed
+    version of Trilinos.  For example, if Trilinos is configured with
+    CMAKE_INSTALL_PREFIX:PATH=/Users/jmwille/TramontoTestHarness/Tri10.10, use
+    the same path in the tramonto build:
+
+    -DTRILINOS_PATH:PATH=/Users/jmwille/TramontoTestHarness/Tri10.10
+
+    Alternatively, you may use the standard CMake option CMAKE_PREFIX_PATH:
+
+    -DCMAKE_PREFIX_PATH:PATH=/Users/jmwille/TramontoTestHarness/Tri10.10
+   
+    So, building Tramonto can be as simple as
+
+    cmake \
+     -DTRILINOS_PATH=/home/jmwille/TramontoTestHarness/Tri10.2 \
+     ..
+
+    Once the configure script completes, you can type "make" to 
+    build Tramonto. The Tramonto binary, "dft_exec" will be found 
+    in your defined build directory.  It is strongly recommended that 
+    you build with ctest turned on (see below), and run through at least
+    the Sanity tests to verify your build.
+
+2.2 Optional configure commands
+    There are several additional configure commands that are needed to 
+    build specialized versions of Tramonto that can fully utilize ctest, the GUI (beta), 
+    Tpetra solvers, and various code optimization levels. 
+
+2.2.1 Ctest commands
+
+     to turn on testing capabilities ...
+     -DBUILD_TESTING=ON \
+
+     to define the default number of processes for running ctest
+     -DTramonto_TEST_HARNESS_DEFAULT_PROCESSES=4 \
+
+     (optional if you are experiencing many timeouts)
+     to define new timeout limits for various test harness categories
+     -DTramonto_TEST_HARNESS_Sanity_TIMEOUT=30 \
+     -DTramonto_TEST_HARNESS_Checkin_TIMEOUT=100 \
+     -DTramonto_TEST_HARNESS_Continuous_TIMEOUT=600 \
+     -DTramonto_TEST_HARNESS_Nightly_TIMEOUT=2000 \
+     -DTramonto_TEST_HARNESS_Occasional_TIMEOUT=7200 \
+
+    When you run configure and make with testing turned on, the make process will
+    copy of all of the test harnes problems found in Tramonto/Examples into
+    your build directory.  There are five different testing categories defined in 
+    Tramonto that group together runs of different length.  The categories from fastest
+    to slowest are Sanity, Checkin, Continuous, Nightly, and Occasional.  Run the Sanity 
+    tests from your ctest enabled build directory using the command
+
+         ctest -L Sanity 
+
+    Note that if you choose a different test category, all of the runs in that category as
+    well as the faster runs will be executed.  So the command "ctest -L Continuous" will 
+    run Continuous, Checkin, and Sanity tests.  The exception is "ctest -L Occasional",
+    which runs only a few long-running example problems.  To run all of the
+    example problems (which takes several hours typically), omit the -L option.
+
+2.2.2 GUI commands
+
+     To build the Tramonto GUI (beta release) your configure script must include:
+     -DBUILD_GUI="true" \
+
+2.2.3 Tpetra commands
+     To build Tramonto so it uses the Tpetra stack of the solver libraries your Tramonto configure 
+     script must include:
+
+     -D USE_TPETRA:BOOL=ON \
+     -D ENABLE_MUELU:BOOL=ON \
+
+     Optionally, include the following commands to enable extended-precision linear solves.
+     You must have built Trilinos with the QD and Eigen libraries enabled. 
+
+     For double-double precision linear solves, use
+     -D LINSOLVE_PREC_DOUBLE_DOUBLE:BOOL=ON \
+
+     For quad-double precision linear solves, use
+     -D LINSOLVE_PREC_QUAD_DOUBLE:BOOL=ON \
+
+2.2.4 Optimization commands
+  
+    to set an optimization level for C and C++ compilers ...
+     -DCMAKE_CXX_FLAGS:STRING="-O3" \
+     -DCMAKE_C_FLAGS:STRING="-O3" \
+
+    Note: when using debugging tools such as gdb or valgrind, it may be necessary to build
+    Trilinos and Tramonto with consistent levels of optimization.  
+
+
