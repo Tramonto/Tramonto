@@ -405,9 +405,9 @@ void do_numerical_jacobian(double **x)
   int count_warnings=0;
   double coef_ij,diff,error,fac,resid_sum;
   double **resid, **resid_tmp;
+  char tmp_str_array[FILENAME_LENGTH];
   resid = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
   resid_tmp = (double **) array_alloc(2, Nunk_per_node, Nnodes_per_proc, sizeof(double));
-  char tmp_str_array[FILENAME_LENGTH];
 
   dft_linprobmgr_getrhs(LinProbMgr_manager, resid);
 

@@ -1,5 +1,5 @@
 /*#include "Teuchos_ParameterList.hpp"*/
-using namespace std;
+//using namespace std;
 #include <iostream>
 #include "dft_globals_const.h"
 #include "dft_GUI.h"

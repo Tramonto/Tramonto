@@ -37,6 +37,10 @@
 
 #include "dft_globals_const.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Basic Equation info */
 int Phys2Nunk[NEQ_TYPE];  /* Number of unknowns of a particular equation type */
 int Phys2Unk_first[NEQ_TYPE]; /* starting unknown number for a given equation type */
@@ -637,3 +641,6 @@ int **Nodes_Surf_Gsum; /* counter for surface nodes used to compute Gsum for tet
 int Cont_ID[NCONT_MAX][2];  /* Array of iwall/icomp ids for use in continuation.  */
 int NID_Cont;
 
+#ifdef __cplusplus
+}
+#endif
