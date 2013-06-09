@@ -451,7 +451,7 @@ finalizeProblemValues
 
   if (firstTime_) {
 #if ENABLE_MUELU == 1
-#if LINSOLVE_PREC_DOUBLE_DOUBLE == 1 || LINSOLVE_PREC_QUAD_DOUBLE == 1
+#if LINSOLVE_PREC_DOUBLE_DOUBLE == 1 || (LINSOLVE_PREC_QUAD_DOUBLE == 1 && MIXED_PREC == 0)
     // Default of SuperLU doesn't compile with double-double or quad-double, so use ILUT instead.
     mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
     mueluPP  = rcp(new Xpetra::CrsMatrixWrap<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));

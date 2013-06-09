@@ -83,10 +83,7 @@ using Thyra::prec;
 using Stratimikos::DefaultLinearSolverBuilder;
 #endif
 
-//using Belos::ReturnType;
-
 //#define KDEBUG
-//#define SUPPORTS_STRATIMIKOS
 
 #define TRAMONTO_INST(CLASSNAME,S,MS,LO,GO,NODE)      \
   template class CLASSNAME<S,MS,LO,GO,NODE>;

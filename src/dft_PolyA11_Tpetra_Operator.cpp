@@ -187,12 +187,6 @@ finalizeProblemValues
   }
   invDiagonal_->reciprocal(*diagonal_); // Invert diagonal values for faster applyInverse() method
 
-  /*
-  for (LocalOrdinal i=0; i<numBlocks_-1; i++)
-  {
-    std::cout << "matrix " << i << *matrix_[i];
-  }
-  */
   isLinearProblemSet_ = true;
   firstTime_ = false;
 } //end finalizeProblemValues
