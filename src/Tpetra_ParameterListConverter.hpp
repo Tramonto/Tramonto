@@ -177,9 +177,11 @@ namespace Tpetra {
       }
 
       // Output
-      // belosList.set( "Output Frequency", 20 );
-      // belosList.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
-      // belosList.set( "Output Style", Belos::Brief);
+#if VERB_LEVEL > 0
+      belosList.set( "Output Frequency", 10 );
+      belosList.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+      belosList.set( "Output Style", Belos::Brief);
+#endif
 
       outputList_.set( "belosList", belosList );
 
@@ -217,9 +219,11 @@ namespace Tpetra {
       }
 
       // Output
-      //belosListSchur.set( "Output Frequency", 10 );
-      //belosListSchur.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
-      //belosListSchur.set( "Output Style", Belos::Brief);
+#if VERB_LEVEL > 0
+      belosListSchur.set( "Output Frequency", 10 );
+      belosListSchur.set( "Verbosity", Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails );
+      belosListSchur.set( "Output Style", Belos::Brief);
+#endif
 
       outputList_.set( "belosListSchur", belosListSchur );
 

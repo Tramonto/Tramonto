@@ -559,6 +559,15 @@ if (USE_TPETRA)
      ADD_DEFINITIONS(-DENABLE_MUELU=0)
    endif (ENABLE_MUELU)
 
+#  Select verbosity
+   if (VERBOSE)
+     message("VERBOSE defined. Printing linear solver details.")
+     ADD_DEFINITIONS(-DVERB_LEVEL=1)
+   else ()
+     message("No linear solver verbosity specified.")
+     ADD_DEFINITIONS(-DVERB_LEVEL=0)
+   endif (VERBOSE)
+
 endif(USE_TPETRA)
 
 # add dft library
