@@ -103,7 +103,7 @@ public:
       return; // Already been here
     }
     indNonLocalEquations_.resize(physicsIDs.size());
-    for (LocalOrdinal i=0; i<physicsIDs.size(); i++) {
+    for (LocalOrdinal i=OTLO::zero(); i<physicsIDs.size(); i++) {
       indNonLocalEquations_[i] = physicsIDs[i];
     }
   }
@@ -121,7 +121,7 @@ public:
       return; // Already been here
     }
     depNonLocalEquations_.resize(physicsIDs.size());
-    for (LocalOrdinal i=0; i<physicsIDs.size(); i++) {
+    for (LocalOrdinal i=OTLO::zero(); i<physicsIDs.size(); i++) {
       depNonLocalEquations_[i] = physicsIDs[i];
     }
   }
@@ -139,7 +139,7 @@ public:
       return; // Already been here
     }
     densityEquations_.resize(physicsIDs.size());
-    for (LocalOrdinal i=0; i<physicsIDs.size(); i++) {
+    for (LocalOrdinal i=OTLO::zero(); i<physicsIDs.size(); i++) {
       densityEquations_[i] = physicsIDs[i];
     }
   }

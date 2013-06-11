@@ -87,7 +87,7 @@ class dft_PolyLinProbMgr:
       return; // Already been here
     } //end if
     gEquations_.resize(physicsIDs.size());
-    for (LocalOrdinal i=0; i<physicsIDs.size(); i++)
+    for (LocalOrdinal i=OTLO::zero(); i<physicsIDs.size(); i++)
     {
       gEquations_[i] = physicsIDs[i];
     } //end for
@@ -107,7 +107,7 @@ class dft_PolyLinProbMgr:
       return; // Already been here
     } //end if
     gInvEquations_.resize(physicsIDs.size());
-    for (LocalOrdinal i=0; i<physicsIDs.size(); i++)
+    for (LocalOrdinal i=OTLO::zero(); i<physicsIDs.size(); i++)
     {
       gInvEquations_[i] = physicsIDs[i];
     } //end for
@@ -127,7 +127,7 @@ class dft_PolyLinProbMgr:
       return; // Already been here
     } //end if
     cmsEquations_.resize(physicsIDs.size());
-    for (LocalOrdinal i=0; i<physicsIDs.size(); i++)
+    for (LocalOrdinal i=OTLO::zero(); i<physicsIDs.size(); i++)
     {
       cmsEquations_[i] = physicsIDs[i];
     } //end for
@@ -147,7 +147,7 @@ class dft_PolyLinProbMgr:
       return; // Already been here
     } //end if
     densityEquations_.resize(physicsIDs.size());
-    for (LocalOrdinal i=0; i<physicsIDs.size(); i++)
+    for (LocalOrdinal i=OTLO::zero(); i<physicsIDs.size(); i++)
     {
       densityEquations_[i] = physicsIDs[i];
     } //end for
@@ -167,7 +167,7 @@ class dft_PolyLinProbMgr:
       return; //Already been here
     } //end if
     poissonEquations_.resize(physicsIDs.size());
-    for (LocalOrdinal i=0; i<physicsIDs.size(); i++)
+    for (LocalOrdinal i=OTLO::zero(); i<physicsIDs.size(); i++)
     {
       poissonEquations_[i] = physicsIDs[i];
     } //end for
