@@ -69,7 +69,7 @@ initializeProblemValues
 
   if (!firstTime_)
   {
-    for (LocalOrdinal i=0; i<numBlocks_; i++)
+    for (LocalOrdinal i=OTLO::zero(); i<numBlocks_; i++)
     {
       matrix_[i]->setAllToScalar(STMS::zero());
     }
@@ -136,7 +136,7 @@ insertPoissonRow
     indices_.resize(numEntries);
     values_.resize(numEntries);
   }
-  LocalOrdinal i=0;
+  LocalOrdinal i=OTLO::zero();
   ITER pos;
   for (pos=curPoissonRowValues_.begin(); pos!=curPoissonRowValues_.end(); ++pos) {
     indices_[i] = pos->first;
@@ -164,14 +164,14 @@ finalizeProblemValues
     insertPoissonRow();
   }
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
-  for (LocalOrdinal i=0; i<numBlocks_; i++)
+  for (LocalOrdinal i=OTLO::zero(); i<numBlocks_; i++)
   {
     matrix_[i]->fillComplete(allGMap_, ownedMap_, pl);
     //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
   }
   poissonMatrix_->fillComplete(poissonMap_, poissonMap_, pl);
 
-  for (LocalOrdinal i = 0; i < poissonMap_->getNodeNumElements(); i++)
+  for (LocalOrdinal i = OTLO::zero(); i < poissonMap_->getNodeNumElements(); i++)
   {
     GlobalOrdinal row = poissonMatrix_->getRowMap()->getGlobalElement(i);
     poissonMatrix_->sumIntoGlobalValues(row, Array<GlobalOrdinal>(1,row), Array<MatScalar>(1,(MatScalar)1e-12));
@@ -221,7 +221,7 @@ applyInverse
   // Start Y1tmp to view first numNodes elements of Y1
 
   LocalOrdinal offsetAmount = 0;
-  for (LocalOrdinal i=0; i< numBlocks_; i++)
+  for (LocalOrdinal i=OTLO::zero(); i< numBlocks_; i++)
   {
     matrixOperator_[i]->apply(*Y1, *Y1tmp);
     offsetAmount += numMyElements;
@@ -278,7 +278,7 @@ apply
    // Start Xtmp to view first numNodes elements of X
 
   LocalOrdinal offsetValue = 0;
-  for (LocalOrdinal i=0; i< numBlocks_; i++)
+  for (LocalOrdinal i=OTLO::zero(); i<numBlocks_; i++)
   {
     matrixOperator_[i]->apply(*X1, *Y1tmp); // This gives a result that is X - off-diagonal-matrix*X
     Y1tmp->update(-(ONE+ONE), *Xtmp, ONE); // This gives a result of -X - off-diagonal-matrix*X

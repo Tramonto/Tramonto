@@ -257,7 +257,7 @@ insertRow
       indicesCmsOnDensity_.resize(numEntriesCmsOnDensity);
       valuesCmsOnDensity_.resize(numEntriesCmsOnDensity);
     }
-    LocalOrdinal i=0;
+    LocalOrdinal i=OTLO::zero();
 
     for (ITER pos = curRowValuesCmsOnDensity_.begin(), e = curRowValuesCmsOnDensity_.end(); pos != e; ++pos) {
       indicesCmsOnDensity_[i] = pos->first;
@@ -276,7 +276,7 @@ insertRow
       indicesCmsOnCms_.resize(numEntriesCmsOnCms);
       valuesCmsOnCms_.resize(numEntriesCmsOnCms);
     }
-    LocalOrdinal i=0;
+    LocalOrdinal i=OTLO::zero();
 
     for (ITER pos = curRowValuesCmsOnCms_.begin(), e = curRowValuesCmsOnCms_.end(); pos != e; ++pos) {
       indicesCmsOnCms_[i] = pos->first;
@@ -295,7 +295,7 @@ insertRow
       indicesPoissonOnPoisson_.resize(numEntriesPoissonOnPoisson);
       valuesPoissonOnPoisson_.resize(numEntriesPoissonOnPoisson);
     }
-    LocalOrdinal i=0;
+    LocalOrdinal i=OTLO::zero();
 
     for (ITER pos = curRowValuesPoissonOnPoisson_.begin(), e = curRowValuesPoissonOnPoisson_.end(); pos != e; ++pos) {
       indicesPoissonOnPoisson_[i] = pos->first;
@@ -314,7 +314,7 @@ insertRow
       indicesCmsOnPoisson_.resize(numEntriesCmsOnPoisson);
       valuesCmsOnPoisson_.resize(numEntriesCmsOnPoisson);
     }
-    LocalOrdinal i=0;
+    LocalOrdinal i=OTLO::zero();
 
     for (ITER pos = curRowValuesCmsOnPoisson_.begin(), e = curRowValuesCmsOnPoisson_.end(); pos != e; ++pos) {
       indicesCmsOnPoisson_[i] = pos->first;
@@ -333,7 +333,7 @@ insertRow
       indicesPoissonOnDensity_.resize(numEntriesPoissonOnDensity);
       valuesPoissonOnDensity_.resize(numEntriesPoissonOnDensity);
     }
-    LocalOrdinal i=0;
+    LocalOrdinal i=OTLO::zero();
 
     for (ITER pos = curRowValuesPoissonOnDensity_.begin(), e = curRowValuesPoissonOnDensity_.end(); pos != e; ++pos) {
       indicesPoissonOnDensity_[i] = pos->first;
@@ -352,7 +352,7 @@ insertRow
       indicesDensityOnCms_.resize(numEntriesDensityOnCms);
       valuesDensityOnCms_.resize(numEntriesDensityOnCms);
     }
-    LocalOrdinal i=0;
+    LocalOrdinal i=OTLO::zero();
 
     for (ITER pos = curRowValuesDensityOnCms_.begin(), e = curRowValuesDensityOnCms_.end(); pos != e; ++pos) {
       indicesDensityOnCms_[i] = pos->first;
@@ -385,11 +385,11 @@ finalizeProblemValues
     cmsOnCmsMatrix_->fillComplete(pl);
 
     ArrayRCP<size_t> numEntriesPerRow(cmsMap_->getNodeNumElements());
-    for (LocalOrdinal i = 0; i < cmsMap_->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < cmsMap_->getNodeNumElements(); ++i) {
       numEntriesPerRow[i] = cmsOnCmsMatrix_->getNumEntriesInLocalRow( i );
     }
     cmsOnCmsGraph_ = rcp(new GRAPH(cmsMap_, cmsOnCmsMatrix_->getColMap(), numEntriesPerRow, Tpetra::StaticProfile));
-    for (LocalOrdinal i = 0; i < cmsMap_->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < cmsMap_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
       cmsOnCmsMatrix_->getLocalRowView( i, indices, values );
@@ -399,7 +399,7 @@ finalizeProblemValues
     cmsOnCmsMatrixStatic_ = rcp(new MAT(cmsOnCmsGraph_));
     cmsOnCmsMatrixStatic_->setAllToScalar(STMS::zero());
 
-    for (LocalOrdinal i = 0; i < cmsMap_->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < cmsMap_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
       cmsOnCmsMatrix_->getLocalRowView( i, indices, values );

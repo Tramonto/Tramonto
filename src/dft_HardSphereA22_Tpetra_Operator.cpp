@@ -169,7 +169,7 @@ formA22Matrix
   }
   LocalOrdinal numRows = getRangeMap()->getNodeNumElements();
   Teuchos::ArrayRCP<const Scalar> vectorValues = densityOnDensityMatrix_->get1dView();
-  for (LocalOrdinal i=0; i<numRows; i++) {
+  for (LocalOrdinal i=OTLO::zero(); i<numRows; i++) {
     GlobalOrdinal row = A22Matrix_->getRowMap()->getGlobalElement(i);
     Scalar value = vectorValues[i];
     GlobalOrdinal col = row;

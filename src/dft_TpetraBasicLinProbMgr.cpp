@@ -136,14 +136,14 @@ finalizeBlockStructure
 
   // Physics ordering for Basic Linear Problem is natural ordering:
   physicsOrdering_.resize(numUnknownsPerNode_);
-  for (LocalOrdinal i=0; i<physicsOrdering_.size(); ++i)
+  for (LocalOrdinal i=OTLO::zero(); i<physicsOrdering_.size(); ++i)
   {
     physicsOrdering_[i] = i;
   }
 
   // Create inverse mapping of where each physics unknown is ordered for the solver
   solverOrdering_.resize(numUnknownsPerNode_);
-  for (LocalOrdinal i=0; i<physicsOrdering_.size(); ++i)
+  for (LocalOrdinal i=OTLO::zero(); i<physicsOrdering_.size(); ++i)
   {
     solverOrdering_[physicsOrdering_[i]]=i;
   }
@@ -152,13 +152,13 @@ finalizeBlockStructure
   this->checkPhysicsOrdering();
 
   ArrayView<const GlobalOrdinal> GIDs = ownedMap_->getNodeElementList();
-  LocalOrdinal k=0;
+  LocalOrdinal k=OTLO::zero();
   if (groupByPhysics_)
   {
-    for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i)
+    for (LocalOrdinal i=OTLO::zero(); i<numUnknownsPerNode_; ++i)
     {
       LocalOrdinal ii=physicsOrdering_[i];
-      for (LocalOrdinal j=0; j<numOwnedNodes_; ++j)
+      for (LocalOrdinal j=OTLO::zero(); j<numOwnedNodes_; ++j)
       {
 	globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
       }
@@ -166,9 +166,9 @@ finalizeBlockStructure
   }
   else
   {
-    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j)
+    for (LocalOrdinal j=OTLO::zero(); j<numOwnedNodes_; ++j)
     {
-      for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i)
+      for (LocalOrdinal i=OTLO::zero(); i<numUnknownsPerNode_; ++i)
       {
 	LocalOrdinal ii=physicsOrdering_[i];
 	globalGIDList[k++] = ii + GIDs[j]*numUnknownsPerNode_;
@@ -296,7 +296,7 @@ getMatrixValue
   {
     globalMatrixStatic_->getGlobalRowView(rowGID, indices, values);
     numEntries = indices.size();
-    for (LocalOrdinal i=0; i<numEntries; ++i)
+    for (LocalOrdinal i=OTLO::zero(); i<numEntries; ++i)
     {
       if (colGID==indices[i])
       {
@@ -310,7 +310,7 @@ getMatrixValue
     LocalOrdinal colLID = globalMatrixStatic_->getColMap()->getLocalElement(colGID);
     globalMatrixStatic_->getLocalRowView(rowLID, indices, values);
     numEntries = indices.size();
-    for (LocalOrdinal i=0; i<numEntries; ++i)
+    for (LocalOrdinal i=OTLO::zero(); i<numEntries; ++i)
     {
       if (colLID==indices[i])
       {
@@ -330,7 +330,7 @@ insertMatrixValues
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID,
  const ArrayView<const LocalOrdinal>& boxNodeList, const ArrayView<const MatScalar>& values)
 {
-  for (LocalOrdinal i=0; i<boxNodeList.size(); ++i)
+  for (LocalOrdinal i=OTLO::zero(); i<boxNodeList.size(); ++i)
   {
     this->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsID, boxNodeList[i], values[i]);
   }
@@ -344,7 +344,7 @@ insertMatrixValues
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, const ArrayView<const LocalOrdinal> &boxPhysicsIDList,
  LocalOrdinal boxNode, const ArrayView<const MatScalar> &values)
 {
-  for (LocalOrdinal i=0; i<boxPhysicsIDList.size(); ++i)
+  for (LocalOrdinal i=OTLO::zero(); i<boxPhysicsIDList.size(); ++i)
   {
     this->insertMatrixValue(ownedPhysicsID, ownedNode, boxPhysicsIDList[i], boxNode, values[i]);
   }
@@ -370,11 +370,11 @@ finalizeProblemValues
       globalMatrix_->fillComplete( pl );
     }
     ArrayRCP<size_t> numEntriesPerRow(globalRowMap_->getNodeNumElements());
-    for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < globalRowMap_->getNodeNumElements(); ++i) {
       numEntriesPerRow[i] = globalMatrix_->getNumEntriesInLocalRow( i );
     }
     globalGraph_ = rcp(new GRAPH(globalRowMap_, globalMatrix_->getColMap(), numEntriesPerRow, Tpetra::StaticProfile));
-    for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < globalRowMap_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
       globalMatrix_->getLocalRowView( i, indices, values );
@@ -383,7 +383,7 @@ finalizeProblemValues
     globalGraph_->fillComplete();
     globalMatrixStatic_ = rcp(new MAT(globalGraph_));
     globalMatrixStatic_->setAllToScalar(STMS::zero());
-    for (LocalOrdinal i = 0; i < globalRowMap_->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < globalRowMap_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
       globalMatrix_->getLocalRowView( i, indices, values );
@@ -410,8 +410,8 @@ dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 setRhs
 (const ArrayView<const ArrayView<const Scalar> >& b)
 {
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
-    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j) {
+  for (LocalOrdinal i=OTLO::zero(); i<numUnknownsPerNode_; ++i) {
+    for (LocalOrdinal j=OTLO::zero(); j<numOwnedNodes_; ++j) {
       globalRhs_->replaceLocalValue(ownedToSolverLID(i,j), b[i][j]);
     }
   }
@@ -425,9 +425,9 @@ setLhs
 (const ArrayView<const ArrayView<const Scalar> > &x) const
 {
   ArrayRCP<const Scalar> xtmp;
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
+  for (LocalOrdinal i=OTLO::zero(); i<numUnknownsPerNode_; ++i) {
     xtmp = exportC2R(Teuchos::arcpFromArrayView<const Scalar>(x[i]));
-    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j) {
+    for (LocalOrdinal j=OTLO::zero(); j<numOwnedNodes_; ++j) {
       globalLhs_->replaceLocalValue(ownedToSolverLID(i,j), xtmp[j]);
     }
   }
@@ -443,8 +443,8 @@ getLhs
   ArrayRCP<ArrayRCP<Scalar> > ArrayOfPtrs = Teuchos::arcp<ArrayRCP<Scalar> >(numUnknownsPerNode_);
   ArrayRCP<Scalar> tmp = globalLhs_->get1dViewNonConst();
   ArrayRCP<Scalar> temp(numOwnedNodes_);
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
-    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j) {
+  for (LocalOrdinal i=OTLO::zero(); i<numUnknownsPerNode_; ++i) {
+    for (LocalOrdinal j=OTLO::zero(); j<numOwnedNodes_; ++j) {
       temp[j] = tmp[ownedToSolverLID(i,j)];
     }
     ArrayOfPtrs[i] = this->importR2C(temp.getConst());
@@ -461,9 +461,9 @@ getRhs
 {
   ArrayRCP<ArrayRCP<Scalar> > ArrayOfPtrs = Teuchos::arcp<ArrayRCP<Scalar> >(numUnknownsPerNode_);
   ArrayRCP<Scalar> tmp = globalRhs_->get1dViewNonConst();
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
+  for (LocalOrdinal i=OTLO::zero(); i<numUnknownsPerNode_; ++i) {
     ArrayOfPtrs[i] = Teuchos::arcp<Scalar>(numOwnedNodes_);
-    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j) {
+    for (LocalOrdinal j=OTLO::zero(); j<numOwnedNodes_; ++j) {
       ArrayOfPtrs[i][j] = tmp[ownedToSolverLID(i,j)];
     }
   }
@@ -642,7 +642,7 @@ importR2C
 (const ArrayRCP<const ArrayRCP<const Scalar> >& xOwned) const
 {
   ArrayRCP<ArrayRCP<Scalar> > my_xBox = Teuchos::arcp<ArrayRCP<Scalar> >(numUnknownsPerNode_);
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i) {
+  for (LocalOrdinal i=OTLO::zero(); i<numUnknownsPerNode_; ++i) {
     my_xBox[i] = this->importR2C(xOwned[i]);
   }
 
@@ -744,7 +744,7 @@ const  {
 
   size_t numUnks = physicsOrdering_.size();
   Array<Scalar> tmp(numUnks);
-  for (LocalOrdinal i=0; i<numUnks; ++i)
+  for (LocalOrdinal i=OTLO::zero(); i<numUnks; ++i)
   {
     LocalOrdinal curID = physicsOrdering_[i];
     TEUCHOS_TEST_FOR_EXCEPTION(curID <0, std::runtime_error, "Invalid unknown number " << curID << " is less than 0.\n");
@@ -753,7 +753,7 @@ const  {
       // Increment counter for this ID (at the end each ID should appear exactly one time).
   }
 
-  for (LocalOrdinal i=0; i<numUnks; ++i)
+  for (LocalOrdinal i=OTLO::zero(); i<numUnks; ++i)
   {
     TEUCHOS_TEST_FOR_EXCEPTION(tmp[i]==0, std::runtime_error, "Unknown number " << i << " is not present and should be.\n");
     TEUCHOS_TEST_FOR_EXCEPTION(tmp[i]>1, std::runtime_error, "Unknown number " << i << " is present " << tmp[i] << " times and should be present only once.\n");

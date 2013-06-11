@@ -117,7 +117,7 @@ insertRow
     indices_.resize(numEntries);
     values_.resize(numEntries);
   }
-  LocalOrdinal i=0;
+  LocalOrdinal i=OTLO::zero();
 
   for (ITER pos = curRowValues_.begin(), e = curRowValues_.end(); pos != e; ++pos) {
     indices_[i] = pos->first;
@@ -314,7 +314,7 @@ formA11invMatrix
   // insert -I for diagonal first
   LocalOrdinal numRows = getRangeMap()->getNodeNumElements();
   MatScalar value = -STMS::one();
-  for (LocalOrdinal i=0; i<numRows; i++) {
+  for (LocalOrdinal i=OTLO::zero(); i<numRows; i++) {
     GlobalOrdinal row = A11invMatrix_->getRowMap()->getGlobalElement(i);
     if (firstTime)
       A11invMatrix_->insertGlobalValues(row, Array<GlobalOrdinal>(1,row), Array<MatScalar>(1,value));
@@ -328,10 +328,10 @@ formA11invMatrix
     size_t numEntries;
     ArrayView<GlobalOrdinal> indices;
     ArrayView<MatScalar> values;
-    for (LocalOrdinal i=0; i<numRows; i++) {
+    for (LocalOrdinal i=OTLO::zero(); i<numRows; i++) {
       GlobalOrdinal row = matrix_->getRowMap()->getGlobalElement(i);
       matrix_->getGlobalRowCopy( row, indices, values, numEntries );
-      for( LocalOrdinal j = 0; j < numEntries; ++j )  {
+      for( LocalOrdinal j = OTLO::zero(); j < numEntries; ++j )  {
 	values[j] = - values[j];
       }
       if( firstTime ) {//Sum In Values

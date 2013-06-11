@@ -50,7 +50,7 @@ dft_PolyA11_Tpetra_Operator
 
   matrix_.resize(numBlocks_-1);
   matrixOperator_.resize(numBlocks_-1);
-  for (LocalOrdinal i=0; i<numBlocks_-1; i++)
+  for (LocalOrdinal i=OTLO::zero(); i<numBlocks_-1; i++)
   {
     matrix_[i] = rcp(new MAT(ownedMap, 0));
     matrixOperator_[i] = rcp(new MMOP(matrix_[i]));
@@ -79,7 +79,7 @@ initializeProblemValues
 
   if (!firstTime_)
   {
-    for (LocalOrdinal i=0; i<numBlocks_-1; i++)
+    for (LocalOrdinal i=OTLO::zero(); i<numBlocks_-1; i++)
     {
       matrix_[i]->resumeFill();
       matrix_[i]->setAllToScalar(STMS::zero());
@@ -148,7 +148,7 @@ insertRow
     indices_.resize(numEntries);
     values_.resize(numEntries);
   }
-  LocalOrdinal i=0;
+  LocalOrdinal i=OTLO::zero();
 
   for (ITER pos = curRowValues_.begin(), e = curRowValues_.end(); pos != e; ++pos)
   {
@@ -179,7 +179,7 @@ finalizeProblemValues
     this->insertRow(); // Dump any remaining entries
   }
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
-  for (LocalOrdinal i=0; i<numBlocks_-1; i++)
+  for (LocalOrdinal i=OTLO::zero(); i<numBlocks_-1; i++)
   {
     matrix_[i]->fillComplete(block1Map_, ownedMap_, pl);
     //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << endl;
@@ -222,7 +222,7 @@ applyInverse
   curY->elementWiseMultiply(ONE, *diagVec, *curY, ZERO); // Scale Y by the first block diagonal
 
   // Loop over block 1 through numBlocks (indexing 0 to numBlocks-1)
-  for (LocalOrdinal i=0; i< numBlocks_-1; i++)
+  for (LocalOrdinal i=OTLO::zero(); i< numBlocks_-1; i++)
   {
     // Update views of Y and diagonal blocks
     //for (LocalOrdinal j=0; j<NumVectors; j++)
@@ -254,7 +254,7 @@ apply
   RCP<MV > curY = Y.offsetViewNonConst(ownedMap_, 0);
   // Start curY to view first numNodes elements of Y
 
-  for (LocalOrdinal i=0; i< numBlocks_-1; i++) {
+  for (LocalOrdinal i=OTLO::zero(); i< numBlocks_-1; i++) {
     curY = Y.offsetViewNonConst(ownedMap_, (i+1)*numMyElements);
     matrixOperator_[i]->apply(X, *curY); // This gives a result that is off-diagonal-matrix*X
   }

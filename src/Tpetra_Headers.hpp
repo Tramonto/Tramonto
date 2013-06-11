@@ -176,6 +176,8 @@ using Stratimikos::DefaultLinearSolverBuilder;
   typedef Ifpack2::Preconditioner<SCALAR, LO, GO, NODE> PRECOND; \
   typedef Teuchos::ScalarTraits<SCALAR> STS; \
   typedef Teuchos::ScalarTraits<MATSCALAR> STMS; \
+  typedef Teuchos::OrdinalTraits<LO> OTLO; \
+  typedef Teuchos::OrdinalTraits<GO> OTGO; \
   typedef typename Teuchos::ScalarTraits<SCALAR>::halfPrecision halfScalar; \
   typedef typename Teuchos::ScalarTraits<SCALAR>::doublePrecision doubleScalar; \
   typedef Tpetra::MultiVector<MATSCALAR,LO,GO,NODE> MV_M; \

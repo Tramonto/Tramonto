@@ -102,7 +102,7 @@ insertRow
     indices_.resize(numEntries);
     values_.resize(numEntries);
   }
-  GlobalOrdinal i=0;
+  GlobalOrdinal i=OTGO::zero();
 
   for (ITER pos = curRowValues_.begin(), e = curRowValues_.end(); pos != e; ++pos) {
     indices_[i] = pos->first;
@@ -133,11 +133,11 @@ finalizeProblemValues
     A22Matrix_->fillComplete(pl);
 
     ArrayRCP<size_t> numEntriesPerRow(block2Map_->getNodeNumElements());
-    for (LocalOrdinal i = 0; i < block2Map_->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < block2Map_->getNodeNumElements(); ++i) {
       numEntriesPerRow[i] = A22Matrix_->getNumEntriesInLocalRow( i );
     }
     A22Graph_ = rcp(new GRAPH(block2Map_, A22Matrix_->getColMap(), numEntriesPerRow, Tpetra::StaticProfile));
-    for (LocalOrdinal i = 0; i < block2Map_->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < block2Map_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
       A22Matrix_->getLocalRowView( i, indices, values );
@@ -147,7 +147,7 @@ finalizeProblemValues
     A22MatrixStatic_ = rcp(new MAT(A22Graph_));
     A22MatrixStatic_->setAllToScalar(STMS::zero());
 
-    for (LocalOrdinal i = 0; i < block2Map_->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < block2Map_->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
       A22Matrix_->getLocalRowView( i, indices, values );

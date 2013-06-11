@@ -204,7 +204,7 @@ formSchurComplement
   LocalOrdinal NumMyRows = S_->getNodeNumRows();
   LocalOrdinal Row;
 
-  for( LocalOrdinal i = 0; i < NumMyRows; ++i )
+  for( LocalOrdinal i = OTLO::zero(); i < NumMyRows; ++i )
   {
     Row = S_->getRowMap()->getGlobalElement(i);
     A22Matrix_->getGlobalRowCopy(Row, Indices, Values, NumEntries);
@@ -217,18 +217,18 @@ formSchurComplement
       S_->insertGlobalValues( Row, Indices, Values);
     } //end else
     A21A11invA12_->getGlobalRowCopy( Row, Indices, Values, NumEntries);
-    for( LocalOrdinal j = 0; j < NumEntries; ++j )
-      {
-	Values[j] = - Values[j];
-      } //end for
+    for( LocalOrdinal j = OTLO::zero(); j < NumEntries; ++j )
+    {
+      Values[j] = - Values[j];
+    } //end for
     if( sfilled ) //Sum In Values
-      {
-	S_->sumIntoGlobalValues( Row, Indices, Values);
-      } //end if
+    {
+      S_->sumIntoGlobalValues( Row, Indices, Values);
+    } //end if
     else
-      {
-	S_->insertGlobalValues( Row, Indices, Values);
-      } //end else
+    {
+      S_->insertGlobalValues( Row, Indices, Values);
+    } //end else
   } //end for
 
   if( !sfilled )

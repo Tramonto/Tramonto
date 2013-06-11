@@ -87,12 +87,12 @@ finalizeBlockStructure
   isDensityEquation_.resize(numUnknownsPerNode_);
   isPoissonEquation_.resize(numUnknownsPerNode_);
 
-  for (LocalOrdinal i=0; i<gEquations_.size(); ++i)
+  for (LocalOrdinal i=OTLO::zero(); i<gEquations_.size(); ++i)
   {
     physicsOrdering_.append(gEquations_[i]);
     physicsIdToSchurBlockId_[gEquations_[i]] = 1;
   }
-  for (LocalOrdinal i=0; i<gInvEquations_.size(); ++i)
+  for (LocalOrdinal i=OTLO::zero(); i<gInvEquations_.size(); ++i)
   {
     physicsOrdering_.append(gInvEquations_[i]);
     physicsIdToSchurBlockId_[gInvEquations_[i]] = 1;
@@ -100,7 +100,7 @@ finalizeBlockStructure
 
   if (poissonInA11)
   {
-    for (LocalOrdinal i=0; i<poissonEquations_.size(); ++i)
+    for (LocalOrdinal i=OTLO::zero(); i<poissonEquations_.size(); ++i)
     {
       physicsOrdering_.append(poissonEquations_[i]);
       physicsIdToSchurBlockId_[poissonEquations_[i]] = 1; //so it's in A11
@@ -109,7 +109,7 @@ finalizeBlockStructure
   }
   else
   {
-    for (LocalOrdinal i=0; i<poissonEquations_.size(); ++i)
+    for (LocalOrdinal i=OTLO::zero(); i<poissonEquations_.size(); ++i)
     {
       physicsOrdering_.append(poissonEquations_[i]);
       (physicsIdToSchurBlockId_)[poissonEquations_[i]] = 2; //so it's in A22
@@ -119,13 +119,13 @@ finalizeBlockStructure
 
   if (F_location == 1)  //F in NE
   {
-    for (LocalOrdinal i=0; i<cmsEquations_.size(); ++i)
+    for (LocalOrdinal i=OTLO::zero(); i<cmsEquations_.size(); ++i)
     {
       physicsOrdering_.append(cmsEquations_[i]);
       physicsIdToSchurBlockId_[cmsEquations_[i]] = 2;
       isCmsEquation_[cmsEquations_[i]] = 1;
     }
-    for (LocalOrdinal i=0; i<densityEquations_.size(); ++i)
+    for (LocalOrdinal i=OTLO::zero(); i<densityEquations_.size(); ++i)
     {
       physicsOrdering_.append(densityEquations_[i]);
       physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
@@ -134,13 +134,13 @@ finalizeBlockStructure
   }
   else  //F in SW
   {
-    for (LocalOrdinal i=0; i<densityEquations_.size(); ++i)
+    for (LocalOrdinal i=OTLO::zero(); i<densityEquations_.size(); ++i)
     {
       physicsOrdering_.append(densityEquations_[i]);
       physicsIdToSchurBlockId_[densityEquations_[i]] = 2;
       isDensityEquation_[densityEquations_[i]] = 1;
     }
-    for (LocalOrdinal i=0;  i<cmsEquations_.size(); ++i)
+    for (LocalOrdinal i=OTLO::zero();  i<cmsEquations_.size(); ++i)
     {
       physicsOrdering_.append(cmsEquations_[i]);
       physicsIdToSchurBlockId_[cmsEquations_[i]] = 2;
@@ -153,7 +153,7 @@ finalizeBlockStructure
 
   // create inverse mapping of where each physics unknown is ordered for the solver
   solverOrdering_.resize(numUnknownsPerNode_);
-  for (LocalOrdinal i=0; i<physicsOrdering_.size(); ++i)
+  for (LocalOrdinal i=OTLO::zero(); i<physicsOrdering_.size(); ++i)
   {
     solverOrdering_[physicsOrdering_[i]]=i;
   }
@@ -173,11 +173,11 @@ finalizeBlockStructure
 
   ArrayView<const GlobalOrdinal> GIDs = ownedMap_->getNodeElementList();
 
-  LocalOrdinal k=0;
-  for (LocalOrdinal i=0; i<numUnknownsPerNode_; ++i)
+  LocalOrdinal k=OTLO::zero();
+  for (LocalOrdinal i=OTLO::zero(); i<numUnknownsPerNode_; ++i)
   {
     LocalOrdinal ii=physicsOrdering_[i];
-    for (LocalOrdinal j=0; j<numOwnedNodes_; ++j)
+    for (LocalOrdinal j=OTLO::zero(); j<numOwnedNodes_; ++j)
     {
       globalGIDList[k++] = ii*numGlobalNodes_ + GIDs[j];
     }
@@ -397,7 +397,7 @@ insertRowA12
     indicesA12_.resize(numEntries);
     valuesA12_.resize(numEntries);
   }
-  LocalOrdinal i=0;
+  LocalOrdinal i=OTLO::zero();
 
   for (ITER pos = curRowValuesA12_.begin(), e = curRowValuesA12_.end(); pos != e; ++pos)
   {
@@ -429,7 +429,7 @@ insertRowA21
     indicesA21_.resize(numEntries);
     valuesA21_.resize(numEntries);
   }
-  LocalOrdinal i=0;
+  LocalOrdinal i=OTLO::zero();
 
   for (ITER pos = curRowValuesA21_.begin(), e = curRowValuesA21_.end(); pos != e; ++pos)
   {
@@ -470,23 +470,23 @@ finalizeProblemValues
     }
 
     ArrayRCP<size_t> numEntriesPerRowA12(A12_->getRowMap()->getNodeNumElements());
-    for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       numEntriesPerRowA12[i] = A12_->getNumEntriesInLocalRow( i );
     }
     ArrayRCP<size_t> numEntriesPerRowA21(A21_->getRowMap()->getNodeNumElements());
-    for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < A21_->getRowMap()->getNodeNumElements(); ++i) {
       numEntriesPerRowA21[i] = A21_->getNumEntriesInLocalRow( i );
     }
 
     A12Graph_ = rcp(new GRAPH(A12_->getRowMap(), A12_->getColMap(), numEntriesPerRowA12, Tpetra::StaticProfile));
     A21Graph_ = rcp(new GRAPH(A21_->getRowMap(), A21_->getColMap(), numEntriesPerRowA21, Tpetra::StaticProfile));
-    for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
       A12_->getLocalRowView( i, indices, values );
       A12Graph_->insertLocalIndices( i, indices );
     }
-    for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < A21_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
       A21_->getLocalRowView( i, indices, values );
@@ -499,14 +499,14 @@ finalizeProblemValues
     A12Static_->setAllToScalar(STMS::zero());
     A21Static_->setAllToScalar(STMS::zero());
 
-    for (LocalOrdinal i = 0; i < A12_->getRowMap()->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < A12_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
       A12_->getLocalRowView( i, indices, values );
       A12Static_->sumIntoLocalValues( i, indices(), values() );
     }
     A12Static_->fillComplete(block2RowMap_,block1RowMap_,pl);
-    for (LocalOrdinal i = 0; i < A21_->getRowMap()->getNodeNumElements(); ++i) {
+    for (LocalOrdinal i = OTLO::zero(); i < A21_->getRowMap()->getNodeNumElements(); ++i) {
       ArrayView<const GlobalOrdinal> indices;
       ArrayView<const MatScalar> values;
       A21_->getLocalRowView( i, indices, values );
