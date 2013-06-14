@@ -41,6 +41,7 @@
 
 #include <BelosLinearProblem.hpp>
 #include <BelosBlockGmresSolMgr.hpp>
+#include <BelosTpetraAdapter.hpp>
 
 #include <Ifpack2_ILUT.hpp>
 #include <Ifpack2_Diagonal.hpp>
