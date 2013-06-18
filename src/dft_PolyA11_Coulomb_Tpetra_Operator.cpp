@@ -90,7 +90,7 @@ insertMatrixValue
     {
       if (rowGID != curPoissonRow_)
       {
-	insertPoissonRow();
+	this->insertPoissonRow();
 	curPoissonRow_ = rowGID;
 	curPoissonOwnedNode_ = ownedNode;
       }
@@ -161,7 +161,7 @@ finalizeProblemValues
   {
     P11TO::insertRow();
     // Dump any remaining entries
-    insertPoissonRow();
+    this->insertPoissonRow();
   }
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   for (LocalOrdinal i=OTLO::zero(); i<numBlocks_; i++)
