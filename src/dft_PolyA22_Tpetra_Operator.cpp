@@ -302,7 +302,7 @@ finalizeProblemValues
   if (!isFLinear_) {
     insertRow(); // Dump any remaining entries
     cmsOnDensityMatrix_->fillComplete(densityMap_, cmsMap_, pl);
-  } //end if
+  }
 
   if (!hasDensityOnCms_)  // Confirm that densityOnCmsMatrix is zero
   {
@@ -558,7 +558,8 @@ Check
     }
   }
 
-  applyInverse(*b, *b); // Reverse operation
+  // Reverse operation
+  applyInverse(*b, *b);
 
   b->update(-STS::one(), *x, STS::one()); // Should be zero
 
@@ -567,7 +568,7 @@ Check
   if (verbose)
   {
     std::cout << "A22 self-check residual = " << resid << std::endl;
-  } //end if
+  }
 
   TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
 

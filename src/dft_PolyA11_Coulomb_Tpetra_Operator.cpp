@@ -167,7 +167,6 @@ finalizeProblemValues
   for (LocalOrdinal i=OTLO::zero(); i<numBlocks_; i++)
   {
     matrix_[i]->fillComplete(allGMap_, ownedMap_, pl);
-    //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
   }
   poissonMatrix_->fillComplete(poissonMap_, poissonMap_, pl);
 
@@ -218,10 +217,9 @@ applyInverse
   RCP<MV> Y2 = Y.offsetViewNonConst(poissonMap_, numMyElements*numBlocks_);
   RCP<MV> Y1 = Y.offsetViewNonConst(allGMap_, 0);
   RCP<MV> Y1tmp = Y.offsetViewNonConst(ownedMap_, 0);
-  // Start Y1tmp to view first numNodes elements of Y1
 
   LocalOrdinal offsetAmount = 0;
-  for (LocalOrdinal i=OTLO::zero(); i< numBlocks_; i++)
+  for (LocalOrdinal i=OTLO::zero(); i<numBlocks_; i++)
   {
     matrixOperator_[i]->apply(*Y1, *Y1tmp);
     offsetAmount += numMyElements;
@@ -272,10 +270,8 @@ apply
   RCP<const MV> X1 = X.offsetView(allGMap_, 0);
   RCP<const MV> X2 = X.offsetView(poissonMap_, 0);
   RCP<MV> Y1tmp = Y.offsetViewNonConst(ownedMap_, 0);
-  // Start Y1tmp to view first numNodes elements of Y1
 
   RCP<const MV> Xtmp = X.offsetView(ownedMap_, 0);
-   // Start Xtmp to view first numNodes elements of X
 
   LocalOrdinal offsetValue = 0;
   for (LocalOrdinal i=OTLO::zero(); i<numBlocks_; i++)
@@ -285,7 +281,6 @@ apply
     Y1tmp->scale(-ONE); // Finally negate to get the desired result
     offsetValue += numMyElements;
     Y1tmp = Y.offsetViewNonConst(ownedMap_, offsetValue);
-    // Reset view to next block
     Xtmp = X.offsetView(ownedMap_, offsetValue);
     // Reset view to next block
   }

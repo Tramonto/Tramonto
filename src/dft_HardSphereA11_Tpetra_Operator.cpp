@@ -150,7 +150,6 @@ finalizeProblemValues
     matrix_->fillComplete(indNonLocalMap_, depNonLocalMap_, pl);
   }
 
-  //  std::cout << *matrix_;
   isLinearProblemSet_ = true;
   firstTime_ = false;
 
@@ -193,7 +192,6 @@ applyInverse
   size_t NumVectors = Y.getNumVectors();
   size_t numMyElements = matrix_->getNodeNumRows();
   size_t offset = Y.getLocalLength() - numMyElements; // We need to skip elements of Y associated with ind nonlocals
-  //Commented out 20-Nov-2006 assert(numMyElements==offset); // The two by two blocks should have the same dimension
 
   RCP<MV> Y1 = Y.offsetViewNonConst(indNonLocalMap_, 0);
   RCP<MV> Y2 = Y.offsetViewNonConst(depNonLocalMap_, offset);
@@ -246,7 +244,6 @@ apply
   size_t NumVectors = Y.getNumVectors();
   size_t numMyElements = matrix_->getNodeNumRows();
   size_t offset = Y.getLocalLength() - numMyElements; // We need to skip elements of Y associated with ind nonlocals
-  //Commented out 20-Nov-2006 assert(numMyElements==offset); // The two by two blocks should have the same dimension
 
   RCP<MV> Y1 = Y.offsetViewNonConst(indNonLocalMap_, 0);
   RCP<MV> Y2 = Y.offsetViewNonConst(depNonLocalMap_, offset);

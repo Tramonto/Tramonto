@@ -182,8 +182,6 @@ finalizeProblemValues
   for (LocalOrdinal i=OTLO::zero(); i<numBlocks_-1; i++)
   {
     matrix_[i]->fillComplete(block1Map_, ownedMap_, pl);
-    //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << endl;
-    //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
   }
   invDiagonal_->reciprocal(*diagonal_); // Invert diagonal values for faster applyInverse() method
 
@@ -215,7 +213,6 @@ applyInverse
   Y=X; // We can safely do this
 
   RCP<MV > curY = Y.offsetViewNonConst(ownedMap_, 0);
-  // Start Ytmp to view first numNodes elements of Y
 
   RCP<VEC> diagVec = invDiagonal_->offsetViewNonConst(ownedMap_, 0)->getVectorNonConst(0);
 
@@ -225,7 +222,6 @@ applyInverse
   for (LocalOrdinal i=OTLO::zero(); i< numBlocks_-1; i++)
   {
     // Update views of Y and diagonal blocks
-    //for (LocalOrdinal j=0; j<NumVectors; j++)
     curY = Y.offsetViewNonConst(ownedMap_, (i+1)*numMyElements);
 
     diagVec = invDiagonal_->offsetViewNonConst(ownedMap_, (i+1)*numMyElements)->getVectorNonConst(0);
@@ -252,7 +248,6 @@ apply
   size_t numMyElements = ownedMap_->getNodeNumElements();
 
   RCP<MV > curY = Y.offsetViewNonConst(ownedMap_, 0);
-  // Start curY to view first numNodes elements of Y
 
   for (LocalOrdinal i=OTLO::zero(); i< numBlocks_-1; i++) {
     curY = Y.offsetViewNonConst(ownedMap_, (i+1)*numMyElements);
