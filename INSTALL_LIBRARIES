@@ -125,7 +125,7 @@ Contents:
         This option indicates that a parallel, rather than serial, 
         version of Trilinos should be built.
 
-    DMPI_BASE_DIR:PATH=
+    MPI_BASE_DIR:PATH=
 
         Use this option to specify the base installation directory for MPI.
         In many cases when using a standard setup, this is not necessary,
