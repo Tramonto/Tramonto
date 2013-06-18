@@ -670,7 +670,7 @@ writeMatrix
   else
   {
     return; // Not available if not in debug mode
-  } //end else
+  }
 } //end writeMatrix
 
 TRAMONTO_INST_HELPER(dft_PolyLinProbMgr)

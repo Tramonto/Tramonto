@@ -121,7 +121,7 @@ insertMatrixValue
     else
       matrix_[ownedPhysicsID]->sumIntoGlobalValues(ownedNode, Array<GlobalOrdinal>(1,colGID), Array<MatScalar>(1,value));
 
-  } //end else
+  }
 } //end insertMatrixValues
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>

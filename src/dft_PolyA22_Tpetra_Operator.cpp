@@ -88,14 +88,14 @@ initializeProblemValues
     {
       cmsOnDensityMatrix_->resumeFill();
       cmsOnDensityMatrix_->setAllToScalar(STMS::zero());
-    } //end if
+    }
     cmsOnCmsMatrixStatic_->resumeFill();
     cmsOnCmsMatrixStatic_->setAllToScalar(STMS::zero());
     densityOnDensityMatrix_->putScalar(STS::zero());
     densityOnDensityInverse_->putScalar(STS::zero());
     densityOnCmsMatrix_->resumeFill();
     densityOnCmsMatrix_->setAllToScalar(STMS::zero());
-  } //end if
+  }
 } //end initializeProblemValues
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -258,7 +258,7 @@ finalizeProblemValues
   if (isLinearProblemSet_)
   {
     return; // nothing to do
-  } //end if
+  }
 
   insertRow(); // Dump any remaining entries
 

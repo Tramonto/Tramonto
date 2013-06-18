@@ -90,7 +90,7 @@ initializeProblemValues
     {
       cmsOnDensityMatrix_->resumeFill();
       cmsOnDensityMatrix_->setAllToScalar(STMS::zero());
-    } //end if
+    }
     cmsOnCmsMatrixStatic_->resumeFill();
     cmsOnCmsMatrixStatic_->setAllToScalar(STMS::zero());
     densityOnDensityMatrix_->putScalar(STS::zero());
@@ -103,7 +103,7 @@ initializeProblemValues
     cmsOnPoissonMatrix_->setAllToScalar(STMS::zero());
     poissonOnDensityMatrix_->resumeFill();
     poissonOnDensityMatrix_->setAllToScalar(STMS::zero());
-  } //end if
+  }
 } //end initializeProblemValues
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
@@ -152,7 +152,7 @@ insertMatrixValue
       TEUCHOS_TEST_FOR_EXCEPT_MSG(1, err_msg);
       break;
     }
-  } //end if poissonMap_.MyGID(rowGID)
+  }
   else if (cmsMap_->isNodeGlobalElement(rowGID)) {
     // Insert into cmsOnPoissonMatrix or cmsOnCmsMatrix or cmsOnDensityMatrix
     switch (blockColFlag)
@@ -793,7 +793,7 @@ Check
   if (verbose)
   {
     std::cout << "A22 self-check residual = " << resid << std::endl;
-  } //end if
+  }
 
   TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
 } //end Check

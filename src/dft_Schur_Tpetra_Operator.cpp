@@ -156,7 +156,7 @@ formSchurComplement
   if (A11invMatrix_.is_null() || A22Matrix_.is_null())
     {
       return;  // We cannot form S without the component matrices
-    } //end if
+    }
 
   if (S_.get()==0)  // Form S
     {
@@ -166,7 +166,7 @@ formSchurComplement
       A21A11invA12_->setObjectLabel("SchurComplement::A21A11invA12");
       S_ = rcp(new MAT(A21_->getRowMap(), 0));
       S_->setObjectLabel("SchurComplement::S");
-  } //end if
+  }
 
   bool A11invA12filled = A11invA12_->isFillComplete();
   bool A21A11invA12filled = A21A11invA12_->isFillComplete();
@@ -189,14 +189,14 @@ formSchurComplement
   {
     S_->resumeFill();
     S_->setAllToScalar(STMS::zero());
-  } //end if
+  }
 
   //Loop over rows and sum into
   size_t maxNumEntries = A22Matrix_->getGlobalMaxNumRowEntries();
   if(A21A11invA12_->getGlobalMaxNumRowEntries() > maxNumEntries)
     {
       maxNumEntries = A21A11invA12_->getGlobalMaxNumRowEntries();
-    } //end if
+    }
   size_t NumEntries;
   Array<GlobalOrdinal> Indices(maxNumEntries);
   Array<MatScalar> Values(maxNumEntries);
@@ -211,30 +211,30 @@ formSchurComplement
     if( sfilled ) //Sum In Values
     {
       S_->sumIntoGlobalValues( Row, Indices, Values);
-    } //end if
+    }
     else
     {
       S_->insertGlobalValues( Row, Indices, Values);
-    } //end else
+    }
     A21A11invA12_->getGlobalRowCopy( Row, Indices, Values, NumEntries);
     for( LocalOrdinal j = OTLO::zero(); j < NumEntries; ++j )
     {
       Values[j] = - Values[j];
-    } //end for
+    }
     if( sfilled ) //Sum In Values
     {
       S_->sumIntoGlobalValues( Row, Indices, Values);
-    } //end if
+    }
     else
     {
       S_->insertGlobalValues( Row, Indices, Values);
-    } //end else
-  } //end for
+    }
+  }
 
   if( !sfilled )
   {
     S_->fillComplete();
-  } //end if
+  }
 
 } //end getFormCompliment
 
