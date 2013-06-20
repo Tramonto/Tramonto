@@ -408,7 +408,7 @@ if (BUILD_GUI)
   list(APPEND common_cxx GUI/dft_GUI_potentialsWW.cpp)
   list(APPEND common_cxx GUI/dft_GUI_potentialsFF.cpp)
   list(APPEND common_cxx GUI/dft_GUI_statePoint.cpp)
-  list(APPEND common_cxx GUI/dft_GUI_Polymer.cpp)
+  list(APPEND common_cxx GUI/dft_GUI_polymer.cpp)
   list(APPEND common_cxx GUI/dft_GUI_continuation.cpp)
   list(APPEND common_cxx GUI/dft_GUI_initialGuess.cpp)
 
