@@ -187,7 +187,7 @@ class dft_PolyA22_Tpetra_Operator:
   };
 
   //! Returns the Map object associated with the domain of this operator.
-  virtual const RCP<const MAP > &
+  virtual RCP<const MAP >
   getDomainMap
   () const
   {
@@ -195,7 +195,7 @@ class dft_PolyA22_Tpetra_Operator:
   };
 
   //! Returns the Map object associated with the range of this operator.
-  virtual const RCP<const MAP > &
+  virtual RCP<const MAP >
   getRangeMap
   () const
   {

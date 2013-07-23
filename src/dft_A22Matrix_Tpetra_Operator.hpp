@@ -152,7 +152,7 @@ public:
   };
 
   //! Returns the Epetra_Map object associated with the domain of this operator.
-  virtual const RCP<const MAP> &
+  virtual RCP<const MAP>
   getDomainMap
   () const
   {
@@ -160,7 +160,7 @@ public:
   };
 
   //! Returns the Epetra_Map object associated with the range of this operator.
-  virtual const RCP<const MAP> &
+  virtual RCP<const MAP>
   getRangeMap
   () const
   {

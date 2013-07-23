@@ -118,13 +118,13 @@ namespace Tpetra {
     Teuchos::RCP<Tpetra::Operator<OpScalar, LocalOrdinal, GlobalOrdinal, Node> > getOperator() const {return(operator_);}
 
   //! Returns the BlockMap object associated with the domain of this matrix operator.
-    const Teuchos::RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> > & getDomainMap() const
+    Teuchos::RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> > getDomainMap() const
     {
       return(operator_->getDomainMap());
     }
 
   //! Returns the BlockMap object associated with the range of this matrix operator.
-    const Teuchos::RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> > & getRangeMap() const
+    Teuchos::RCP<const Map<LocalOrdinal,GlobalOrdinal,Node> > getRangeMap() const
     {
       return(operator_->getRangeMap());
     }

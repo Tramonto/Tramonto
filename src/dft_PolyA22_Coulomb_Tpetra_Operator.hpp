@@ -128,7 +128,7 @@ class dft_PolyA22_Coulomb_Tpetra_Operator:
   };
 
   //! Returns the Map object associated with the domain of this operator.
-  const RCP<const MAP > &
+  RCP<const MAP >
   getDomainMap
   () const
   {
@@ -136,7 +136,7 @@ class dft_PolyA22_Coulomb_Tpetra_Operator:
   };
 
   //! Returns the Map object associated with the range of this operator.
-  const RCP<const MAP > &
+  RCP<const MAP >
   getRangeMap
   () const
   {
