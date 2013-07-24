@@ -36,7 +36,11 @@ dft_HardSphereLinProbMgr
     formSchurMatrix_(formSchurMatrix),
     debug_(debug),
     curRowA12_(-1),
-    curRowA21_(-1) {
+    curRowA21_(-1) 
+{
+#if VERB_LEVEL > 0
+  printf("\n\n\nCreated a HardSphereLinProbMgr.\n\n\n");
+#endif
   return;
 }
 

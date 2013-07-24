@@ -39,6 +39,10 @@ dft_HardSphereA22_Tpetra_Operator
     firstTime_(true) {
 
   Label_ = "dft_HardSphereA22_Tpetra_Operator";
+
+#if VERB_LEVEL > 0
+  printf("\n\nCreated a HardSphereA22TpetraOperator.\n\n");
+#endif
 }
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>

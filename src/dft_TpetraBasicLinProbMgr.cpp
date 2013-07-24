@@ -55,6 +55,9 @@ dft_BasicLinProbMgr
   ParameterList convertedParameters = pListConverter->getConvertedList();
   parameterList_ = rcp( new Teuchos::ParameterList(convertedParameters) );
 
+#if VERB_LEVEL > 0
+  printf("\n\n\nCreated a BasicLinProbMgr.\n\n\n");
+#endif
   return;
 }
 //=============================================================================

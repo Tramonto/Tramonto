@@ -58,6 +58,9 @@ dft_PolyA22_Tpetra_Operator
 
   tmpCmsVec_ = rcp(new MV(cmsMap_, 1));
 
+#if VERB_LEVEL > 0
+  printf("\n\nCreated a PolyA22TpetraOperator.\n\n");
+#endif
   //F in NE if F_location = 1, F in SW otherwise
 } //end constructor
 //==============================================================================

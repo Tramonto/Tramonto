@@ -41,6 +41,10 @@ dft_A22Matrix_Tpetra_Operator
   A22Matrix_ = rcp(new MAT(block2Map, 0));
   Label_ = "dft_A22Matrix_Tpetra_Operator";
   A22Matrix_->setObjectLabel("dft_A22Matrix_Tpetra_Operator::A22Matrix");
+
+#if VERB_LEVEL > 0
+  printf("\n\nCreated a A22MatrixTpetraOperator.\n\n");
+#endif
 }
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>

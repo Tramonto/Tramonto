@@ -58,6 +58,9 @@ dft_PolyA22_Coulomb_Tpetra_Operator
   tmpCmsVec2_ = rcp(new MV(cmsMap_,1));
   tmpPoissonVec_ = rcp(new MV(poissonMap_,1));
 
+#if VERB_LEVEL > 0
+  printf("\n\nCreated a PolyA22CoulombTpetraOperator.\n\n");
+#endif
 } //end constructor
 //==============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>

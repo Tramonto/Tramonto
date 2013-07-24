@@ -41,7 +41,7 @@ dft_PolyLinProbMgr
 {
   parameterList_->set("P_location", 0); //change
   parameterList_->set("F_location", 0); //change
-#ifdef KDEBUG
+#if VERB_LEVEL > 0
   printf("\n\n\nCreated a PolyLinProbMgr.\n\n\n");
 #endif
   return;
