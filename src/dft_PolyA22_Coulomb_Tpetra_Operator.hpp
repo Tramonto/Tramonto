@@ -215,5 +215,6 @@ protected:
   using P22TO::isFLinear_;
   using P22TO::parameterList_;
   using P22TO::hasDensityOnCms_;
+  using P22TO::nnz_;
 };
 #endif /* DFT_POLYA22_COULOMB_TPETRA_OPERATOR_H */

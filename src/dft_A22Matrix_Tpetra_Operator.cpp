@@ -32,6 +32,7 @@ dft_A22Matrix_Tpetra_Operator
 (const RCP<const MAP> & block2Map, RCP<ParameterList> parameterList)
   : block2Map_(block2Map),
     parameterList_(parameterList),
+    nnz_(0),
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
@@ -178,6 +179,9 @@ finalizeProblemValues
   A22Inverse_->initialize();
 
   A22Inverse_->compute();
+
+  // Compute number of entries in the A22 block
+  nnz_ = A22MatrixStatic_->getGlobalNumEntries();
 
   isLinearProblemSet_ = true;
   firstTime_ = false;

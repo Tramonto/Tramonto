@@ -34,6 +34,7 @@ dft_PolyA22_Tpetra_Operator
     densityMap_(densityMap),
     block2Map_(block2Map),
     parameterList_(parameterList),
+    nnz_(0),
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
@@ -330,6 +331,12 @@ finalizeProblemValues
     cmsOnCmsInverse_->initialize();
   }
   cmsOnCmsInverse_->compute();
+
+  // Compute the total number of entries in the A22 block
+  nnz_ = cmsOnCmsMatrixStatic_->getGlobalNumEntries() + \
+	 cmsOnDensityMatrix_->getGlobalNumEntries() + \
+	 densityOnCmsMatrix_->getGlobalNumEntries() + \
+	 densityOnDensityMatrix_->getGlobalLength();
 
   isLinearProblemSet_ = true;
   firstTime_ = false;

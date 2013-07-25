@@ -166,6 +166,14 @@ public:
     return(false);
   };
 
+  //! Return the number of entries in this block
+  virtual GlobalOrdinal
+  getNumEntries
+  () const
+  {
+    return(nnz_);
+  }
+
   //! Returns a pointer to the Tpetra_Comm communicator associated with this operator.
   virtual const RCP<const COMM> &
   Comm
@@ -206,6 +214,7 @@ private:
   RCP<VEC> densityOnDensityMatrix_;
   RCP<VEC> densityOnDensityInverse_;
   RCP<MAT> A22Matrix_;
+  GlobalOrdinal nnz_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;

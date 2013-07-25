@@ -404,6 +404,12 @@ finalizeProblemValues
   isLinearProblemSet_ = true;
   firstTime_ = false;
 
+  // Compute the dimension and total number of entries of the matrix
+  GlobalOrdinal dim = globalMatrixStatic_->getGlobalNumRows();
+  GlobalOrdinal nnz = globalMatrixStatic_->getGlobalNumEntries();
+#if VERB_LEVEL > 0
+  printf("\n\nGlobal matrix has %d rows and %d nonzeros..\n\n", dim, nnz);
+#endif
 }
 
 //=============================================================================

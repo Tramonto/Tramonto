@@ -149,6 +149,14 @@ class dft_PolyA11_Tpetra_Operator:
     return(false);
   };
 
+  //! Return the number of entries in this block
+  virtual GlobalOrdinal
+  getNumEntries
+  () const
+  {
+    return(nnz_);
+  }
+
   //! Returns a pointer to the Comm communicator associated with this operator.
   virtual const RCP<const COMM> &
   Comm
@@ -172,6 +180,7 @@ class dft_PolyA11_Tpetra_Operator:
   {
     return(block1Map_);
   };
+
   //@}
 
 protected:
@@ -184,6 +193,7 @@ protected:
   Array<RCP<MMOP> > matrixOperator_;
   RCP<VEC> diagonal_;
   RCP<VEC> invDiagonal_;
+  GlobalOrdinal nnz_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;

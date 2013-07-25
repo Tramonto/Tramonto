@@ -35,6 +35,7 @@ dft_PolyA11_Tpetra_Operator
     block1Map_(block1Map),
     parameterList_(parameterList),
     numBlocks_(block1Map->getNodeNumElements()/ownedMap->getNodeNumElements()),
+    nnz_(0),
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
@@ -179,9 +180,13 @@ finalizeProblemValues
     this->insertRow(); // Dump any remaining entries
   }
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
+
+  // Fill complete, and compute the total number of entries in the A11 block  
+  nnz_ = 0;
   for (LocalOrdinal i=OTLO::zero(); i<numBlocks_-1; i++)
   {
     matrix_[i]->fillComplete(block1Map_, ownedMap_, pl);
+    nnz_ += matrix_[i]->getGlobalNumEntries();
   }
   invDiagonal_->reciprocal(*diagonal_); // Invert diagonal values for faster applyInverse() method
 

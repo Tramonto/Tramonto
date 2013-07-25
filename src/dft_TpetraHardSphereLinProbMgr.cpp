@@ -445,6 +445,24 @@ finalizeProblemValues
   else
     A22Matrix_->finalizeProblemValues();
 
+  // Compute the dimension and total number of entries of the matrix
+  GlobalOrdinal dim = globalRowMap_->getGlobalNumElements();
+  GlobalOrdinal nnz = A11_->getNumEntries() + 
+                      A12Static_->getGlobalNumEntries() + 
+                      A12Static_->getGlobalNumEntries();
+  if (isA22Diagonal_) 
+  {
+    nnz +=  A22Diagonal_->getNumEntries();
+  } 
+  else 
+  {
+    nnz +=  A22Matrix_->getNumEntries();
+  }
+
+#if VERB_LEVEL > 0
+  printf("\n\nGlobal matrix has %d rows and %d nonzeros..\n\n", dim, nnz);
+#endif
+
   //  Check(true);
   isLinearProblemSet_ = true;
   firstTime_ = false;

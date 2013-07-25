@@ -155,6 +155,14 @@ public:
     return(false);
   };
 
+  //! Return the number of entries in this block
+  virtual GlobalOrdinal
+  getNumEntries
+  () const
+  {
+    return(nnz_);
+  }
+
   //! Returns a pointer to the Epetra_Comm communicator associated with this operator.
   virtual const RCP<const COMM> &
   Comm
@@ -199,6 +207,7 @@ protected:
   RCP<MMOP> matrixOperator_;
   RCP<MAT> A11invMatrix_;
   RCP<MMOP> A11invMatrixOperator_;
+  GlobalOrdinal nnz_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;

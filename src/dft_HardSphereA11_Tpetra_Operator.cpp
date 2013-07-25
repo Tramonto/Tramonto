@@ -35,6 +35,7 @@ dft_HardSphereA11_Tpetra_Operator
     depNonLocalMap_(depNonLocalMap),
     block1Map_(block1Map),
     parameterList_(parameterList),
+    nnz_(0),
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
@@ -148,6 +149,9 @@ finalizeProblemValues
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   if (matrix_!=Teuchos::null) {
     matrix_->fillComplete(indNonLocalMap_, depNonLocalMap_, pl);
+
+    // Compute the number of entries in the A11 block
+    nnz_ = matrix_->getGlobalNumEntries();
   }
 
   isLinearProblemSet_ = true;

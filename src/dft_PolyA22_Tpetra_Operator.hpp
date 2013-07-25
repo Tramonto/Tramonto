@@ -178,6 +178,14 @@ class dft_PolyA22_Tpetra_Operator:
     return(false);
   };
 
+  //! Return the number of entries in this block
+  virtual GlobalOrdinal
+  getNumEntries
+  () const
+  {
+    return(nnz_);
+  }
+
   //! Returns a pointer to the Comm communicator associated with this operator.
   virtual const RCP<const COMM> &
   Comm
@@ -224,6 +232,7 @@ protected:
   RCP<VEC> densityOnDensityInverse_;
   RCP<MAT> densityOnCmsMatrix_;
   RCP<MMOP> densityOnCmsMatrixOp_;
+  GlobalOrdinal nnz_;
   const char * Label_; /*!< Description of object */
   bool isGraphStructureSet_;
   bool isLinearProblemSet_;

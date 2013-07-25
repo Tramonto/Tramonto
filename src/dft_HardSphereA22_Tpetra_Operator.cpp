@@ -33,6 +33,7 @@ dft_HardSphereA22_Tpetra_Operator
   : block2Map_(block2Map),
     densityOnDensityMatrix_(rcp(new VEC(block2Map))),
     densityOnDensityInverse_(rcp(new VEC(block2Map))),
+    nnz_(0),
     Label_(0),
     isGraphStructureSet_(false),
     isLinearProblemSet_(false),
@@ -94,6 +95,9 @@ finalizeProblemValues()
 
   // Form the inverse of densityOnDensityMatrix
   densityOnDensityInverse_->reciprocal(*densityOnDensityMatrix_);
+
+  // Compute the number of entries in the A22 block
+  nnz_ = densityOnDensityMatrix_->getGlobalLength();
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
