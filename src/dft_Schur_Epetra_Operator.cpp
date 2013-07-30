@@ -88,7 +88,7 @@ int dft_Schur_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVe
 
   // double normvalue;
   //X.NormInf(&normvalue);
-  //cout << "Norm of X in Schur Epetra Apply = " << normvalue << endl;
+  //cout << "Norm of X in Schur Epetra Apply = " << normvalue << std::endl;
 
   TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
@@ -103,18 +103,18 @@ int dft_Schur_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_MultiVe
   Y.PutScalar(0.0);
   A12_->Apply(X, Y1);
   //Y1.NormInf(&normvalue);
-  //cout << "Norm of Y1 in Schur Epetra Apply = " << normvalue << endl;
-  //cout << *A12_ << endl;
+  //cout << "Norm of Y1 in Schur Epetra Apply = " << normvalue << std::endl;
+  //cout << *A12_ << std::endl;
   //exit(1);
   A11_->ApplyInverse(Y1, Y11);
   A21_->Apply(Y11, Y2);
   //Y2.NormInf(&normvalue);
-  //cout << "Norm of Y2 in Schur Epetra Apply = " << normvalue << endl;
+  //cout << "Norm of Y2 in Schur Epetra Apply = " << normvalue << std::endl;
   A22_->Apply(X, Y);
   Y.Update(-1.0, Y2, 1.0);
 
   //Y.NormInf(&normvalue);
-  //cout << "Norm of Y in Schur Epetra Apply = " << normvalue << endl;
+  //cout << "Norm of Y in Schur Epetra Apply = " << normvalue << std::endl;
   return(0);
 }
 //==============================================================================
@@ -219,7 +219,7 @@ Epetra_CrsMatrix * dft_Schur_Epetra_Operator::getSchurComplement() {
       err = S_->SumIntoGlobalValues( Row, NumEntries, Values, Indices ); assert( err == 0 );
     }
     else {
-cout <<"Row="<<Row<< "NumEntries="<<NumEntries<<endl;
+      std::cout <<"Row="<<Row<< "NumEntries="<<NumEntries<<std::endl;
       err = S_->InsertGlobalValues( Row, NumEntries, Values, Indices ); assert( err == 0 || err == 1 );
     }
   }

@@ -87,16 +87,16 @@ int dft_PolyA11_Epetra_Operator::insertMatrixValue(int ownedPhysicsID, int owned
     return(0);
   }
   else if (block1Map_.LID(colGID)> block1Map_.LID(rowGID)) {
-    cout << "Encountered an illegal non-zero entry in dft_PolyA11_Epetra_Operator::insertMatrixValue." << endl
-	 << "The A11 block cannot have nonzero terms in the upper diagonal." << endl
-	 << "Input parameters:" << endl
-	 << "  ownedPhysicsID = " << ownedPhysicsID << endl
-	 << "  ownedNode      = " << ownedNode << endl
-	 << "  rowGID         = " << rowGID << endl
-	 << "  colGID         = " << colGID << endl
-	 << "  block1Map_.LID(rowGID)         = " << block1Map_.LID(rowGID) << endl
-	 << "  block1Map_.LID(colGID)         = " << block1Map_.LID(colGID) << endl
-	 << "  value          = " << value << endl;
+    std::cout << "Encountered an illegal non-zero entry in dft_PolyA11_Epetra_Operator::insertMatrixValue." << std::endl
+	      << "The A11 block cannot have nonzero terms in the upper diagonal." << std::endl
+	      << "Input parameters:" << std::endl
+	      << "  ownedPhysicsID = " << ownedPhysicsID << std::endl
+	      << "  ownedNode      = " << ownedNode << std::endl
+	      << "  rowGID         = " << rowGID << std::endl
+	      << "  colGID         = " << colGID << std::endl
+	      << "  block1Map_.LID(rowGID)         = " << block1Map_.LID(rowGID) << std::endl
+	      << "  block1Map_.LID(colGID)         = " << block1Map_.LID(colGID) << std::endl
+	      << "  value          = " << value << std::endl;
     return(-1);
   }
 
@@ -142,7 +142,7 @@ int dft_PolyA11_Epetra_Operator::finalizeProblemValues() {
     for (int i=0; i<numBlocks_-1; i++) {
       matrix_[i]->FillComplete(block1Map_, ownedMap_);
       matrix_[i]->OptimizeStorage();
-      //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << endl;
+      //cout << "PolyA11["<< i << "] Inf Norm = " << matrix_[i]->NormInf() << std::endl;
       //TEUCHOS_TEST_FOR_EXCEPT(!matrix_[i]->LowerTriangular());
     }
     invDiagonal_->Reciprocal(*invDiagonal_); // Invert diagonal values for faster ApplyInverse() method
@@ -159,7 +159,7 @@ int dft_PolyA11_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
 
   //double normvalue;
   //X.NormInf(&normvalue);
-  //cout << "Norm of X in PolyA11 ApplyInverse = " << normvalue << endl;
+  //cout << "Norm of X in PolyA11 ApplyInverse = " << normvalue << std::endl;
 
   TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap())); 
   TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
@@ -197,7 +197,7 @@ int dft_PolyA11_Epetra_Operator::ApplyInverse(const Epetra_MultiVector& X, Epetr
   delete [] curYptr;
 
   // Y.NormInf(&normvalue);
-  //cout << "Norm of Y in PolyA11 ApplyInverse = " << normvalue << endl;
+  //cout << "Norm of Y in PolyA11 ApplyInverse = " << normvalue << std::endl;
   return(0);
 }
 //==============================================================================
@@ -205,7 +205,7 @@ int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
 
   //double normvalue;
   //X.NormInf(&normvalue);
-  //cout << "Norm of X in PolyA11 Apply = " << normvalue << endl;
+  //cout << "Norm of X in PolyA11 Apply = " << normvalue << std::endl;
 
   TEUCHOS_TEST_FOR_EXCEPT(!X.Map().SameAs(OperatorDomainMap()));
   TEUCHOS_TEST_FOR_EXCEPT(!Y.Map().SameAs(OperatorRangeMap()));
@@ -231,7 +231,7 @@ int dft_PolyA11_Epetra_Operator::Apply(const Epetra_MultiVector& X, Epetra_Multi
   delete [] curYptr;
 
   //Y.NormInf(&normvalue);
-  //cout << "Norm of Y in PolyA11 Apply = " << normvalue << endl;
+  //cout << "Norm of Y in PolyA11 Apply = " << normvalue << std::endl;
 
   return(0);
 }
@@ -250,7 +250,7 @@ int dft_PolyA11_Epetra_Operator::Check(bool verbose) const {
   b.Norm2(&resid);
 
   if (verbose) 
-    std::cout << "A11 self-check residual = " << resid << endl;
+    std::cout << "A11 self-check residual = " << resid << std::endl;
 
   if (resid > 1.0E-12) return(-1); // Bad residual
   return(0);
