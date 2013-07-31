@@ -182,11 +182,12 @@ finalizeProblemValues
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
 
   // Fill complete, and compute the total number of entries in the A11 block  
-  nnz_ = 0;
   for (LocalOrdinal i=OTLO::zero(); i<numBlocks_-1; i++)
   {
     matrix_[i]->fillComplete(block1Map_, ownedMap_, pl);
-    nnz_ += matrix_[i]->getGlobalNumEntries();
+    if (firstTime_) {
+      nnz_ += matrix_[i]->getGlobalNumEntries();
+    }
   }
   invDiagonal_->reciprocal(*diagonal_); // Invert diagonal values for faster applyInverse() method
 

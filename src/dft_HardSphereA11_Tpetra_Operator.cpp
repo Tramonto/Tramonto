@@ -151,7 +151,9 @@ finalizeProblemValues
     matrix_->fillComplete(indNonLocalMap_, depNonLocalMap_, pl);
 
     // Compute the number of entries in the A11 block
-    nnz_ = matrix_->getGlobalNumEntries();
+    if (firstTime_) {
+      nnz_ = matrix_->getGlobalNumEntries();
+    }
   }
 
   isLinearProblemSet_ = true;

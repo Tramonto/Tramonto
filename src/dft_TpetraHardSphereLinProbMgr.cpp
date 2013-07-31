@@ -36,7 +36,7 @@ dft_HardSphereLinProbMgr
     formSchurMatrix_(formSchurMatrix),
     debug_(debug),
     curRowA12_(-1),
-    curRowA21_(-1) 
+    curRowA21_(-1)
 {
 #if VERB_LEVEL > 0
   printf("\n\n\nCreated a HardSphereLinProbMgr.\n\n\n");
@@ -428,6 +428,7 @@ finalizeProblemValues
     if (debug_) {
       globalMatrix_->fillComplete();
     }
+
   }
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   if(!A12Static_->isFillComplete()){
@@ -446,22 +447,25 @@ finalizeProblemValues
     A22Matrix_->finalizeProblemValues();
 
   // Compute the dimension and total number of entries of the matrix
-  GlobalOrdinal dim = globalRowMap_->getGlobalNumElements();
-  GlobalOrdinal nnz = A11_->getNumEntries() + 
-                      A12Static_->getGlobalNumEntries() + 
-                      A12Static_->getGlobalNumEntries();
-  if (isA22Diagonal_) 
-  {
-    nnz +=  A22Diagonal_->getNumEntries();
-  } 
-  else 
-  {
-    nnz +=  A22Matrix_->getNumEntries();
-  }
+  if (firstTime_) {
+    GlobalOrdinal nnz = 0;
+    if (isA22Diagonal_)
+    {
+      nnz =  A22Diagonal_->getNumEntries();
+    }
+    else
+    {
+      nnz =  A22Matrix_->getNumEntries();
+    }
+    GlobalOrdinal dim = globalRowMap_->getGlobalNumElements();
+    nnz += A11_->getNumEntries();
+    nnz += A12Static_->getGlobalNumEntries();
+    nnz += A21Static_->getGlobalNumEntries();
 
 #if VERB_LEVEL > 0
-  printf("\n\nGlobal matrix has %d rows and %d nonzeros..\n\n", dim, nnz);
+    printf("\n\nGlobal matrix has %d rows and %d nonzeros..\n\n", dim, nnz);
 #endif
+  }
 
   //  Check(true);
   isLinearProblemSet_ = true;

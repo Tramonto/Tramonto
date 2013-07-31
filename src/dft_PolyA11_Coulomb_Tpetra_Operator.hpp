@@ -152,6 +152,7 @@ protected:
   using P11TO::values_;
   using P11TO::ownedMap_;
   using P11TO::curOwnedNode_;
+  using P11TO::nnz_;
 
 };
 #endif /* DFT_POLYA11_COULOMB_TPETRA_OPERATOR_H */

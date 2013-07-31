@@ -333,10 +333,12 @@ finalizeProblemValues
   cmsOnCmsInverse_->compute();
 
   // Compute the total number of entries in the A22 block
-  nnz_ = cmsOnCmsMatrixStatic_->getGlobalNumEntries() + \
-	 cmsOnDensityMatrix_->getGlobalNumEntries() + \
-	 densityOnCmsMatrix_->getGlobalNumEntries() + \
-	 densityOnDensityMatrix_->getGlobalLength();
+  if (firstTime_) {
+    nnz_ = cmsOnCmsMatrixStatic_->getGlobalNumEntries() + \
+   	   cmsOnDensityMatrix_->getGlobalNumEntries() + \
+	   densityOnCmsMatrix_->getGlobalNumEntries() +	\
+	   densityOnDensityMatrix_->getGlobalLength();
+  }
 
   isLinearProblemSet_ = true;
   firstTime_ = false;

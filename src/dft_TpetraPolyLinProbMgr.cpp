@@ -521,6 +521,17 @@ finalizeProblemValues
       globalMatrix_->fillComplete();
     }
 
+    // Compute the dimension and total number of entries of the matrix
+    GlobalOrdinal dim = globalRowMap_->getGlobalNumElements();
+    GlobalOrdinal nnz = A11_->getNumEntries() + \
+			A22_->getNumEntries() + \
+			A12Static_->getGlobalNumEntries() + \
+			A21Static_->getGlobalNumEntries();
+
+#if VERB_LEVEL > 0
+    printf("\n\nGlobal matrix has %d rows and %d nonzeros..\n\n", dim, nnz);
+#endif
+
   }
   RCP<ParameterList> pl = rcp(new ParameterList(parameterList_->sublist("fillCompleteList")));
   if(!A12Static_->isFillComplete()){
@@ -532,16 +543,6 @@ finalizeProblemValues
 
   A11_->finalizeProblemValues();
   A22_->finalizeProblemValues();
-
-  // Compute the dimension and total number of entries of the matrix
-  GlobalOrdinal dim = globalRowMap_->getGlobalNumElements();
-  GlobalOrdinal nnz = A11_->getNumEntries() + 
-                      A22_->getNumEntries() + 
-                      A12Static_->getGlobalNumEntries() + 
-                      A12Static_->getGlobalNumEntries();
-#if VERB_LEVEL > 0
-  printf("\n\nGlobal matrix has %d rows and %d nonzeros..\n\n", dim, nnz);
-#endif
 
   isLinearProblemSet_ = true;
   firstTime_ = false;

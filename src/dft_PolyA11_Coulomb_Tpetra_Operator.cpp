@@ -176,6 +176,10 @@ finalizeProblemValues
     poissonMatrix_->sumIntoGlobalValues(row, Array<GlobalOrdinal>(1,row), Array<MatScalar>(1,(MatScalar)1e-12));
   }
 
+  if (firstTime_) {
+    nnz_ = poissonMatrix_->getGlobalNumEntries();
+  }
+
   problem_ = rcp(new LinPROB());
   int precond  = parameterList_->template get<int>( "Precond" );
   if (precond != AZ_none) {

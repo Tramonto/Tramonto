@@ -181,7 +181,9 @@ finalizeProblemValues
   A22Inverse_->compute();
 
   // Compute number of entries in the A22 block
-  nnz_ = A22MatrixStatic_->getGlobalNumEntries();
+  if (firstTime_) {
+    nnz_ = A22MatrixStatic_->getGlobalNumEntries();
+  }
 
   isLinearProblemSet_ = true;
   firstTime_ = false;

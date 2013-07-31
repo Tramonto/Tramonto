@@ -97,7 +97,9 @@ finalizeProblemValues()
   densityOnDensityInverse_->reciprocal(*densityOnDensityMatrix_);
 
   // Compute the number of entries in the A22 block
-  nnz_ = densityOnDensityMatrix_->getGlobalLength();
+  if (firstTime_) {
+    nnz_ = densityOnDensityMatrix_->getGlobalLength();
+  }
 
   isLinearProblemSet_ = true;
   firstTime_ = false;

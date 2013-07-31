@@ -491,13 +491,15 @@ finalizeProblemValues
   }
 
   // Compute the total number of entries in the A22 block
-  nnz_ = cmsOnCmsMatrix_->getGlobalNumEntries() +
-	 cmsOnDensityMatrix_->getGlobalNumEntries() +
-	 densityOnCmsMatrix_->getGlobalNumEntries() +
-	 densityOnDensityMatrix_->getGlobalLength() +
-	 poissonOnPoissonMatrix_->getGlobalNumEntries() +
-	 cmsOnPoissonMatrix_->getGlobalNumEntries() +
-	 poissonOnDensityMatrix_->getGlobalNumEntries();
+  if (firstTime_) {
+    nnz_ = cmsOnCmsMatrix_->getGlobalNumEntries() + \
+  	   cmsOnDensityMatrix_->getGlobalNumEntries() + \
+	   densityOnCmsMatrix_->getGlobalNumEntries() + \
+	   densityOnDensityMatrix_->getGlobalLength() + \
+	   poissonOnPoissonMatrix_->getGlobalNumEntries() + \
+	   cmsOnPoissonMatrix_->getGlobalNumEntries() + \
+	   poissonOnDensityMatrix_->getGlobalNumEntries();
+  }
 
   isLinearProblemSet_ = true;
   firstTime_ = false;
