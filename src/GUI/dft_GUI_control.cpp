@@ -26,9 +26,21 @@ extern "C" void dft_OptikaGUI_control()
            "No GUI / Old Format File",
            "No GUI / XML File")));
  
+  const bool useFileDialogForDir = false;
+
   RCP<FileNameValidator> inputXMLFileVal = rcp (new FileNameValidator);
   RCP<FileNameValidator> inputOLDFileVal = rcp (new FileNameValidator);
   RCP<FileNameValidator> inputGUIFileVal = rcp (new FileNameValidator);
+
+  inputXMLFileVal->setFileMustExist(true);
+  inputXMLFileVal->setFileEmptyNameOK(true);
+  inputOLDFileVal->setFileMustExist(true);
+  inputOLDFileVal->setFileEmptyNameOK(true);
+
+  if(useFileDialogForDir)
+    inputGUIFileVal->setFileMustExist(true);
+
+  inputGUIFileVal->setFileEmptyNameOK(true);
 
   RCP<FileNameValidator> outputFileVal = rcp (new FileNameValidator);
 
@@ -36,12 +48,22 @@ extern "C" void dft_OptikaGUI_control()
 
   RunType_List->set("R2: Input File (OLD format)","","select the OLD format input file. This choice also sets run directory.",inputOLDFileVal);
   RunType_List->set("R2: Input File (XML)","","select the XML input file. This choice also sets run directory.",inputXMLFileVal);
-  RunType_List->set("R2: Input Directory (Set any File)","","select any file in desired directory.  The runpath will be extracted from the filename.",inputGUIFileVal);
 
-  RunType_List->set("R3: Output Directory (Set any File)","","set any file in a desired output directory.  The output path will be extracted from the filename.",outputFileVal);
+  if(useFileDialogForDir)
+    RunType_List->set("R2: Input Directory (Set any File)","","select any file in desired directory.  The runpath will be extracted from the filename.",inputGUIFileVal);
+  else
+    RunType_List->set("R2: Input Directory","","select any input directory.",inputGUIFileVal);
+
+  if(useFileDialogForDir)
+    RunType_List->set("R3: Output Directory (Set any File)","","set any file in a desired output directory.  The output path will be extracted from the filename.",outputFileVal);
+  else
+    RunType_List->set("R3: Output Directory","","set any output directory.",outputFileVal);
 
    RCP<StringVisualDependency> RunType_Dep1 = rcp(new StringVisualDependency(
-          RunType_List->getEntryRCP("R1: Run Type"), RunType_List->getEntryRCP("R2: Input Directory (Set any File)"), 
+          RunType_List->getEntryRCP("R1: Run Type"),
+          useFileDialogForDir ?
+            RunType_List->getEntryRCP("R2: Input Directory (Set any File)") :
+            RunType_List->getEntryRCP("R2: Input Directory"),
           tuple<std::string>("GUI - Defaults")));
 
    RCP<StringVisualDependency> RunType_Dep2 = rcp(new StringVisualDependency(
@@ -61,18 +83,29 @@ extern "C" void dft_OptikaGUI_control()
 
 
   if (RunType_List->get<string>("R1: Run Type")=="GUI - Defaults"){
-     output_File=RunType_List->get<string>("R3: Output Directory (Set any File)");
-     string::size_type m=output_File.find_last_of("/");
-     outpath=output_File.substr(0,m);
+    if(useFileDialogForDir) {
+      output_File=RunType_List->get<string>("R3: Output Directory (Set any File)");
+      string::size_type m=output_File.find_last_of("/");
+      outpath=output_File.substr(0,m);
 
-     inputGUI_File=RunType_List->get<string>("R2: Select Any File in Desired Directory");
-     string::size_type n=inputGUI_File.find_last_of("/");
-     runpath=inputGUI_File.substr(0,n);
+      inputGUI_File=RunType_List->get<string>("R2: Select Any File in Desired Directory");
+      string::size_type n=inputGUI_File.find_last_of("/");
+      runpath=inputGUI_File.substr(0,n);
+    }
+    else {
+      outpath=RunType_List->get<string>("R3: Output Directory");
+      runpath=RunType_List->get<string>("R2: Input Directory");
+    }
   }
   else if (RunType_List->get<string>("R1: Run Type")=="GUI - Old Format File Parameters"){
-     output_File=RunType_List->get<string>("R3: Output Directory (Set any File)");
-     string::size_type m=output_File.find_last_of("/");
-     outpath=output_File.substr(0,m);
+    if(useFileDialogForDir) {
+      output_File=RunType_List->get<string>("R3: Output Directory (Set any File)");
+      string::size_type m=output_File.find_last_of("/");
+      outpath=output_File.substr(0,m);
+    }
+    else {
+      outpath=RunType_List->get<string>("R3: Output Directory");
+    }
 
      inputOLD_File=RunType_List->get<string>("R2: Input File (OLD format)");
      string::size_type n=inputOLD_File.find_last_of("/");
@@ -80,9 +113,14 @@ extern "C" void dft_OptikaGUI_control()
      read_input_old_format=true;
   }
   else if (RunType_List->get<string>("R1: Run Type")=="GUI - XML File Parameters"){
-     output_File=RunType_List->get<string>("R3: Output Directory (Set any File)");
-     string::size_type m=output_File.find_last_of("/");
-     outpath=output_File.substr(0,m);
+    if(useFileDialogForDir) {
+      output_File=RunType_List->get<string>("R3: Output Directory (Set any File)");
+      string::size_type m=output_File.find_last_of("/");
+      outpath=output_File.substr(0,m);
+    }
+    else {
+      outpath=RunType_List->get<string>("R3: Output Directory");
+    }
 
      inputXML_File=RunType_List->get<string>("R2: Input File (XML)");
      string::size_type n=inputXML_File.find_last_of("/");
@@ -90,9 +128,14 @@ extern "C" void dft_OptikaGUI_control()
      read_xml_file=true;
   }
   else if (RunType_List->get<string>("R1: Run Type")=="No GUI / Old Format File"){
-     output_File=RunType_List->get<string>("R3: Output Directory (Set any File)");
-     string::size_type m=output_File.find_last_of("/");
-     outpath=output_File.substr(0,m);
+    if(useFileDialogForDir) {
+      output_File=RunType_List->get<string>("R3: Output Directory (Set any File)");
+      string::size_type m=output_File.find_last_of("/");
+      outpath=output_File.substr(0,m);
+    }
+    else {
+      outpath=RunType_List->get<string>("R3: Output Directory");
+    }
 
      inputOLD_File=RunType_List->get<string>("R2: Input File (OLD format)");
      string::size_type n=inputOLD_File.find_last_of("/");
@@ -101,9 +144,14 @@ extern "C" void dft_OptikaGUI_control()
      start_GUI=false;
   }
   else if (RunType_List->get<string>("R1: Run Type")=="No GUI / XML File"){
-     output_File=RunType_List->get<string>("R3: Output Directory (Set any File)");
-     string::size_type m=output_File.find_last_of("/");
-     outpath=output_File.substr(0,m);
+    if(useFileDialogForDir) {
+      output_File=RunType_List->get<string>("R3: Output Directory (Set any File)");
+      string::size_type m=output_File.find_last_of("/");
+      outpath=output_File.substr(0,m);
+    }
+    else {
+      outpath=RunType_List->get<string>("R3: Output Directory");
+    }
 
      inputXML_File=RunType_List->get<string>("R2: Input File (XML)");
      string::size_type n=inputXML_File.find_last_of("/");
