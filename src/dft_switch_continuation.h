@@ -148,7 +148,7 @@ extern int Ipot_ff_c;
 #define FALSE 0
 #endif
 void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double param_new,char *file_echoinput);
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char EchoInputFile_array[FILENAME_LENGTH];
 void assign_param_user_plugin(int cont_type,int Loca_contID,double param,char *EchoInputFile_array);
 void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);

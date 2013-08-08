@@ -134,7 +134,7 @@ extern int Restart;
 int find_length_of_file(char *filename);
 extern int Nodes_old;
 extern int Imain_loop;
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char DensityFile2_array[FILENAME_LENGTH];
 extern char *DensityFile2;
 #define BINODAL_FLAG  -1325  /* to let initial guess routine know we need to fill X2 */

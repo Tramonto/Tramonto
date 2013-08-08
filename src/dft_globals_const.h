@@ -119,7 +119,7 @@ extern "C" {
 #define NSTEPS_MAX 10
 
 #define MAX_ROUGH_BLOCK 100
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 
 /* a constat flag to indicate that there is no bond between a pair of segments in 
    a polymer problems */

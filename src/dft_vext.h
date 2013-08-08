@@ -15,7 +15,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char vext_file2_array[FILENAME_LENGTH];
 #define READ_VEXT_SUMTWO     2
 int ijk_to_node(int *ijk);

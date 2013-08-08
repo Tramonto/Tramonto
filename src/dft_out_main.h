@@ -61,7 +61,7 @@ extern int Print_rho_switch;
 #endif
 #define CONT_BETAMU_I      3  /* Vary chemical potential for species I */
 extern int Nwall;
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char Outpath_array[FILENAME_LENGTH];
 #define FROM_MAIN 1
 typedef struct Loca_Struct Loca_Struct;

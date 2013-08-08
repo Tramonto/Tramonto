@@ -57,7 +57,7 @@ extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 #define NONE        -1
 #define NONE        -1
 extern int Type_attr;
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char Outpath_array[FILENAME_LENGTH];
 extern double ***Rism_cr;
 extern int Last_nz_cr;

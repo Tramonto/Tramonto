@@ -65,7 +65,7 @@ extern int Coarser_jac;
 extern int Mesh_coarsening;
 extern double Rmax_zone[5];
 extern int Nzone;
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char EchoInputFile_array[FILENAME_LENGTH];
 extern char Outpath_array[FILENAME_LENGTH];
 extern char Runpath_array[FILENAME_LENGTH];

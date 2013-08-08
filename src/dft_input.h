@@ -106,7 +106,7 @@ extern int Lcount_reflect;
 extern int Lper_area;
 extern double Rho_max;
 extern char *Vext_filename2;
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char vext_file2_array[FILENAME_LENGTH];
 #define READ_VEXT_STATIC     3
 #define READ_VEXT_SUMTWO     2

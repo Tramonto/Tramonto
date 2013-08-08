@@ -135,7 +135,7 @@ extern int ***Index_UnkGQ_Gsum;
 extern int **Index_SurfNodes_Gsum;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char Outpath_array[FILENAME_LENGTH];
 void print_residuals(int loc_inode,int iunk,double *resid_unk);
 #define SCREEN_DEBUG_RESID 2

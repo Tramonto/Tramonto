@@ -39,7 +39,7 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double **Uww;
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char Outpath_array[FILENAME_LENGTH];
 #define SCREEN_VERBOSE     3 
 extern int Iwrite_screen;

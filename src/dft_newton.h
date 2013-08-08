@@ -21,7 +21,7 @@ void fill_test(double **x,int flag);
 #define NO_SCREEN    4 
 extern int *L2G_node;
 int find_length_of_file(char *filename);
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char Outpath_array[FILENAME_LENGTH];
 #define CALC_AND_FILL_RESID_ONLY  4
 extern int Nnodes;

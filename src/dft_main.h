@@ -172,7 +172,7 @@ void setup_stencil_uattr_core_properties();
 #define NONE        -1
 extern int Type_attr;
 void setup_stencil_logicals();
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char EchoInputFile_array[FILENAME_LENGTH];
 void setup_params_for_dft(char *input_file,char *file_echoinput);
 extern int Proc;

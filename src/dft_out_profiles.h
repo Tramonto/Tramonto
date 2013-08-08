@@ -126,7 +126,7 @@ extern int Type_poly;
 #define FILES_DEBUG        2
 #define FILES_EXTENDED     1 
 extern int Iwrite_files;
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char Outpath_array[FILENAME_LENGTH];
 void print_profile(char *Density_FileName,double *xold);
 extern double *X_old;

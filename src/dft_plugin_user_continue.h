@@ -18,7 +18,7 @@ void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double par
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char EchoInputFile_array[FILENAME_LENGTH];
 void assign_param_user_plugin(int cont_type,int Loca_contID,double param,char *EchoInputFile_array);
 double get_init_param_user_plugin(int cont_type,int Loca_contID);

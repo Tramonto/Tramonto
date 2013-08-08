@@ -118,7 +118,7 @@ extern int Type_poly;
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
 #endif
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 int picard_solver(double **x,double **xOwned,int subIters);

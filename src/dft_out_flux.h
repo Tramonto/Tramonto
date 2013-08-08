@@ -43,7 +43,7 @@ extern int Ndim;
 #endif
 void node_to_ijk(int node,int *ijk);
 extern int Nnodes;
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char Outpath_array[FILENAME_LENGTH];
 extern double *X_old;
 void calc_flux(FILE *fp,char *output_flux,double *X_old);

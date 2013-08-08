@@ -224,7 +224,7 @@ extern int Lrandom_walls;
 extern char *WallPos_file_name;
 void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho);
 extern int Nwall;
-#define FILENAME_LENGTH 300
+#define FILENAME_LENGTH 4096
 extern char wallPos_file_array[FILENAME_LENGTH];
 extern int Flag_mV_elecpot;
 extern int Type_coul;
