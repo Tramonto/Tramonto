@@ -81,7 +81,7 @@ extern "C" void dft_OptikaGUI()
    * Then we just call getInput! There's a little more to it, so let's
    * head on over to the inputs.xml file to see what's going on there.
    */
-        Optika::getInput(InputXML_File,Tramonto_List);
+        Optika::getInputNoSaveOption(InputXML_File,Tramonto_List);
 
         dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,
@@ -240,7 +240,7 @@ extern "C" void dft_OptikaGUI()
 
              /* Greate the GUI windows for data entry with all dependencies.  */
         if (start_GUI){
-            Optika::getInput(Tramonto_List,depSheet_Tramonto);
+            Optika::getInputNoSaveOption(Tramonto_List,depSheet_Tramonto);
 
             dft_GUI_toTramonto(Tramonto_List,Mesh_List,Functional_List,Fluid_List,
                      PotentialsFF_List,Polymer_List,PolymerGraft_List,PolymerArch_List,PolymerCMS_List,

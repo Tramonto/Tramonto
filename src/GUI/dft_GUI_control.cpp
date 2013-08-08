@@ -79,7 +79,7 @@ extern "C" void dft_OptikaGUI_control()
    depSheet_RunType->addDependency(RunType_Dep3);
   
  /* Greate the GUI window for run startup for Tramonto  */
-  Optika::getInput(RunType_List,depSheet_RunType);
+  Optika::getInputNoSaveOption(RunType_List,depSheet_RunType);
 
 
   if (RunType_List->get<string>("R1: Run Type")=="GUI - Defaults"){
