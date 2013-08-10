@@ -288,6 +288,7 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
 
     ArrayView<ArrayView<const SCALAR> > my_view(x_views);
     ArrayRCP<ArrayRCP<SCALAR> > b_data = linprobmgr_->applyMatrix(my_view);
+
     for(int i = 0; i < b_data.size(); i++){
       for(int j = 0; j < b_data[i].size(); j++){
 	b[i][j] = Teuchos::as<double>(b_data[i][j]);
@@ -305,28 +306,19 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
     int numUnknownsPerNode = linprobmgr_->getNumUnknownsPerNode();
 
-    SCALAR **fx;
-    fx = new SCALAR*[numUnknownsPerNode];
-    for (int i=0; i<numUnknownsPerNode;i++)
-      fx[i] = new SCALAR[numOwnedNodes];
-    for(int i=0;i<numUnknownsPerNode;i++)
-      for(int j=0;j<numOwnedNodes;j++)
-	fx[i][j] = x[i][j];
+    ArrayRCP<ArrayRCP<const double> > my_x = Teuchos::arcp<ArrayRCP<const double> >(numUnknownsPerNode);
 
-    ArrayRCP<ArrayRCP<const SCALAR> > my_x = Teuchos::arcp<ArrayRCP<const SCALAR> >(numUnknownsPerNode);
     for(int i = 0; i < numUnknownsPerNode; i++){
-      my_x[i] = Teuchos::arcp<SCALAR>(fx[i], 0, numOwnedNodes, false);
+      my_x[i] = Teuchos::arcp<double>(x[i], 0, numOwnedNodes, false);
     }
 
-    ArrayRCP<ArrayRCP<SCALAR> > my_b = linprobmgr_->importR2C(my_x);
+    ArrayRCP<ArrayRCP<double> > my_b = linprobmgr_->importR2C_d(my_x);
+
     for(int i = 0; i < my_b.size(); i++){
       for(int j = 0; j < my_b[i].size(); j++){
-	b[i][j] = Teuchos::as<double>(my_b[i][j]);
+	b[i][j] = my_b[i][j];
       }
     }
-    for (int i = 0; i < numUnknownsPerNode; ++i)
-      delete [] fx[i];
-    delete [] fx;
 
     return( 0 );
   }
@@ -335,20 +327,13 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
 
-    SCALAR *fx;
-    fx = new SCALAR[numOwnedNodes];
-    for(int i=0;i<numOwnedNodes;i++)
-      fx[i] = x[i];
+    ArrayRCP<double> my_x = Teuchos::arcp<double> (x, 0, numOwnedNodes, false);
 
-    ArrayRCP<SCALAR> my_x = Teuchos::arcp<SCALAR> (numOwnedNodes);
+    ArrayRCP<double> my_b = linprobmgr_->importR2C_d(my_x);
 
-    my_x = Teuchos::arcp<SCALAR>(fx, 0, numOwnedNodes, false);
-
-    ArrayRCP<SCALAR> my_b = linprobmgr_->importR2C(my_x);
     for(int j = 0; j < my_b.size(); j++){
-      b[j] = Teuchos::as<double>(my_b[j]);
+      b[j] = my_b[j];
     }
-    delete [] fx;
 
     return( 0 );
   }
@@ -357,18 +342,13 @@ typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
     BLPM * linprobmgr_ = (BLPM *) linprobmgr;
     int numOwnedNodes = linprobmgr_->getNumOwnedNodes();
 
-    SCALAR *fx;
-    fx = new SCALAR[numOwnedNodes];
-    for(int i=0;i<numOwnedNodes;i++)
-      fx[i] = x[i];
+    ArrayRCP<double> ret_x = Teuchos::arcp<double>(x, 0, numOwnedNodes, false);
 
-    ArrayRCP<SCALAR> ret_x = Teuchos::arcp<SCALAR>(fx, 0, numOwnedNodes, false);
+    ArrayRCP<double> ret_val = linprobmgr_->importR2C_d(ret_x);
 
-    ArrayRCP<SCALAR> ret_val = linprobmgr_->importR2C(ret_x);
     for(int i = 0; i < ret_val.size(); i++){
-      b[i] = Teuchos::as<double>(ret_val[i]);
+      b[i] = ret_val[i];
     }
-    delete [] fx;
 
     return( 0 );
   }

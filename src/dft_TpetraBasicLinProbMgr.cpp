@@ -662,6 +662,21 @@ importR2C
 
 //=============================================================================
 template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+ArrayRCP<ArrayRCP<double> >
+dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+importR2C_d
+(const ArrayRCP<const ArrayRCP<const double> >& xOwned) const
+{
+  ArrayRCP<ArrayRCP<double> > my_xBox = Teuchos::arcp<ArrayRCP<double> >(numUnknownsPerNode_);
+  for (LocalOrdinal i=OTLO::zero(); i<numUnknownsPerNode_; ++i) {
+    my_xBox[i] = this->importR2C_d(xOwned[i]);
+  }
+
+  return(my_xBox);
+}
+
+//=============================================================================
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 ArrayRCP<Scalar>
 dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
 importR2C
@@ -669,6 +684,21 @@ importR2C
 {
   RCP<VEC> owned = rcp(new VEC(ownedMap_, aOwned()));
   RCP<VEC>  box = rcp(new VEC(boxMap_));
+
+  box->doImport(*owned, *ownedToBoxImporter_, Tpetra::INSERT);
+
+  return (box->get1dViewNonConst());
+}
+
+//=============================================================================
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+ArrayRCP<double>
+dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+importR2C_d
+(const ArrayRCP<const double> &aOwned) const
+{
+  RCP<VEC_D> owned = rcp(new VEC_D(ownedMap_, aOwned()));
+  RCP<VEC_D>  box = rcp(new VEC_D(boxMap_));
 
   box->doImport(*owned, *ownedToBoxImporter_, Tpetra::INSERT);
 

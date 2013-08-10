@@ -317,6 +317,10 @@ class dft_BasicLinProbMgr {
   importR2C
   (const ArrayRCP<const ArrayRCP<const Scalar> >& xOwned) const;
 
+  virtual ArrayRCP<ArrayRCP<double> >
+  importR2C_d
+  (const ArrayRCP<const ArrayRCP<const double> >& xOwned) const;
+
   //! Fill the array aBox with aOwned, i.e., fill in ghost values on each processor.
   //! Fill the arrays aBox with aOwned for a single physics types.
   /*! Fills in aBox with values from aOwned such that ghost values from other processors are updated.
@@ -328,6 +332,10 @@ class dft_BasicLinProbMgr {
   virtual ArrayRCP<Scalar>
   importR2C
   (const ArrayRCP<const Scalar> &aOwned) const;
+
+  virtual ArrayRCP<double>
+  importR2C_d
+  (const ArrayRCP<const double> &aOwned) const;
 
   //! Fill the array aOwned with aBox, i.e., filter out ghost values on each processor.
   //! Fill the arrays aOwned with aBox for a single physics types.

@@ -183,6 +183,7 @@ using Stratimikos::DefaultLinearSolverBuilder;
   typedef typename Teuchos::ScalarTraits<SCALAR>::doublePrecision doubleScalar; \
   typedef Tpetra::MultiVector<MATSCALAR,LO,GO,NODE> MV_M; \
   typedef Tpetra::Vector<MATSCALAR,LO,GO,NODE> VEC_M;		   \
+  typedef Tpetra::Vector<double,LO,GO,NODE> VEC_D;		   \
   typedef Tpetra::Operator<MATSCALAR,LO,GO,NODE> OP_M;			\
   typedef Ifpack2::ILUT<MAT> ILUT; \
   typedef Ifpack2::AdditiveSchwarz<MAT,ILUT> SCHWARZ; \
