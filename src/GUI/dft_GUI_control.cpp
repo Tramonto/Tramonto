@@ -79,7 +79,9 @@ extern "C" void dft_OptikaGUI_control()
    depSheet_RunType->addDependency(RunType_Dep3);
   
  /* Greate the GUI window for run startup for Tramonto  */
-  Optika::getInputNoSaveOption(RunType_List,depSheet_RunType);
+  std::string qss("tramonto_stylesheet.qss");
+  std::string icon("sandia_logo.png");
+  Optika::getInputExtraOptions(RunType_List,depSheet_RunType,qss,icon);
 
 
   if (RunType_List->get<string>("R1: Run Type")=="GUI - Defaults"){
