@@ -27,6 +27,7 @@
 #define DFT_POLYA22_COULOMB_TPETRA_OPERATOR_H
 
 #include "Tpetra_Headers.hpp"
+#include "MueLu_Headers.hpp"
 #include "dft_PolyA22_Tpetra_Operator.hpp"
 
 //! dft_PolyA22_Tpetra_Operator: An implementation of the Operator class for Tramonto Schur complements with Coulomb effects.
@@ -42,6 +43,7 @@ class dft_PolyA22_Coulomb_Tpetra_Operator:
  public:
 
   TYPEDEF(Scalar, MatrixType)
+  MUELU_TYPEDEF(MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalMatOps)
 
   typedef dft_PolyA22_Tpetra_Operator<Scalar,MatrixType> P22TO;
 

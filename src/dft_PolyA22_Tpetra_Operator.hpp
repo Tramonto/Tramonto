@@ -35,7 +35,10 @@
 template <class Scalar, 
 	  class MatrixType>
 class dft_PolyA22_Tpetra_Operator:
-  public virtual Tpetra::OperatorApplyInverse<Scalar,LocalOrdinal,GlobalOrdinal,Node>
+  public virtual Tpetra::OperatorApplyInverse<Scalar,
+					      typename MatrixType::local_ordinal_type,
+					      typename MatrixType::global_ordinal_type,
+					      typename MatrixType::node_type>
 {
 
  public:

@@ -53,18 +53,6 @@
 #include <Ifpack2_Preconditioner.hpp>
 #include <Ifpack2_AdditiveSchwarz.hpp>
 
-#if ENABLE_MUELU == 1
-#include <MueLu_TrilinosSmoother.hpp>
-#include <MueLu_Hierarchy.hpp>
-#include <MueLu_Amesos2Smoother.hpp>
-#include <MueLu_Utilities.hpp>
-#include <MueLu_MLParameterListInterpreter.hpp>
-#include <MueLu_UseDefaultTypes.hpp>
-#include <BelosXpetraAdapter.hpp>
-#include <BelosMueLuAdapter.hpp>
-#include <MueLu_TpetraOperator.hpp>
-#include <MueLu_UseShortNames.hpp>
-#endif
 #include <Kokkos_DefaultNode.hpp>
 #include <map>
 
@@ -231,7 +219,7 @@ using Stratimikos::DefaultLinearSolverBuilder;
 
 #else
 
-#define TYPEDEF(SCALAR, MATRIX_TYPE)	\
+#define TYPEDEF(SC, MATRIX_TYPE)	\
   \
   typedef MATRIX_TYPE MAT; \
   typedef typename MAT::scalar_type MatScalar; \
@@ -242,7 +230,7 @@ using Stratimikos::DefaultLinearSolverBuilder;
   typedef typename MAT::global_ordinal_type GO; \
   typedef typename MAT::node_type Node; \
   typedef typename MAT::node_type NO; \
-  typedef typename MAT::mat_vec_type LocalSparseOps; \
+  typedef typename MAT::mat_vec_type LocalMatOps; \
   typedef typename MAT::mat_vec_type LMO; \
   typedef Tpetra::MultiVector<SC,LO,GO,NO> MV; \
   typedef Tpetra::Vector<SC,LO,GO,NO> VEC; \
@@ -275,14 +263,7 @@ using Stratimikos::DefaultLinearSolverBuilder;
   typedef Ifpack2::Diagonal<MAT> DIAGONAL; \
   typedef Tpetra::details::ApplyOp<SC,SCHWARZ> SCHWARZ_OP;	\
   typedef Tpetra::details::ApplyOp<SC,DIAGONAL> DIAGONAL_OP; \
-  typedef typename std::map<GO, MSC>::iterator ITER; \
-  typedef MueLu::Hierarchy<MSC,LO,GO,NO,LMO> Hierarchy; \
-  typedef MueLu::MLParameterListInterpreter<MSC,LO,GO,NO,LMO> MLFactory; \
-  typedef Xpetra::TpetraCrsMatrix<MSC,LO,GO,NO,LMO> XpetraTpetraCrsMatrix; \
-  typedef Xpetra::CrsMatrix<MSC,LO,GO,NO,LMO> XpetraCrsMatrix; \
-  typedef Xpetra::Matrix<MSC,LO,GO,NO,LMO> XpetraMatrix; \
-  typedef Xpetra::CrsMatrixWrap<MSC,LO,GO,NO,LMO> XpetraCrsWrap; \
-  typedef MueLu::TpetraOperator<MSC,LO,GO,NO,LMO> MueLuOP;
+  typedef typename std::map<GO, MSC>::iterator ITER;
 
 #endif //SUPPORTS_STRATIMIKOS
 
