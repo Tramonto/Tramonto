@@ -51,7 +51,7 @@
 namespace KokkosClassic {
 
   template <class Scalar, class OffsetType, class Ordinal, class DomainScalar, class RangeScalar, int NO_BETA_AND_OVERWRITE>
-  struct TramontoSpareMultiplyOp {
+  struct TramontoSparseMultiplyOp {
     // mat data
     const OffsetType *offs;
     const Ordinal    *inds;
@@ -72,7 +72,7 @@ namespace KokkosClassic {
     // Added specific cases for 1,2,3,4 RHS vectors.
     //
     // Unrolling and specialization are invisible to code that calls
-    // TramontoSpareMultiplyOP, since these operations are handled via
+    // TramontoSparseMultiplyOP, since these operations are handled via
     // an if-else within the execute function.  Without unrolling one
     // would lose about 1/3 in performance (on Intel Sandy Bridge).
     //
@@ -86,7 +86,7 @@ namespace KokkosClassic {
     // to ignore the SIMD reduction directive when the template
     // parameter type does not support the SIMD vector instructions.
     // This results in a compile error.  One workaround would be to
-    // specialize TramontoSpareMultiplyOp for various RangeScalar
+    // specialize TramontoSparseMultiplyOp for various RangeScalar
     // types, and only insert the pragma in the specialized versions.
     //
     // mfh (27 Jul 2012): Note that with the Intel compiler, #pragma

@@ -803,8 +803,8 @@ namespace KokkosClassic {
                                                               MultiVector< RangeScalar,Node> &X) const
   {
     std::string tfecfFuncName("solve(trans,Y,X)");
-    typedef DefaultSparseSolveOp<         Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar>   Op;
-    typedef DefaultSparseTransposeSolveOp<Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar>  TOp;
+    typedef TramontoSparseSolveOp<         Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar>   Op;
+    typedef TramontoSparseTransposeSolveOp<Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar>  TOp;
     ArrayRCP<const OffsetType> ptrs;
     getOffsets(ptrs);
     ReadyBufferHelper<Node> rbh(node_);
@@ -1073,8 +1073,8 @@ namespace KokkosClassic {
   {
     // the 1 template parameter below means that beta is not used in computations
     // and the output multivector enjoys overwrite semantics (i.e., will overwrite data/NaNs in Y)
-    typedef DefaultSparseMultiplyOp<         Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar, 1>  Op;
-    typedef DefaultSparseTransposeMultiplyOp<Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar, 1> TOp;
+    typedef TramontoSparseMultiplyOp<         Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar, 1>  Op;
+    typedef TramontoSparseTransposeMultiplyOp<Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar, 1> TOp;
     ArrayRCP<const OffsetType> ptrs;
     getOffsets(ptrs);
     ReadyBufferHelper<Node> rbh(node_);
@@ -1159,8 +1159,8 @@ namespace KokkosClassic {
     std::string tfecfFuncName("multiply(trans,alpha,X,beta,Y)");
     // the 0 template parameter below means that beta is used in computations
     // and the output multivector enjoys accumulation semantics (i.e., will not overwrite data/NaNs in Y)
-    typedef DefaultSparseMultiplyOp<         Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar, 0>  Op;
-    typedef DefaultSparseTransposeMultiplyOp<Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar, 0> TOp;
+    typedef TramontoSparseMultiplyOp<         Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar, 0>  Op;
+    typedef TramontoSparseTransposeMultiplyOp<Scalar,OffsetType,Ordinal,DomainScalar,RangeScalar, 0> TOp;
     ArrayRCP<const OffsetType> ptrs;
     getOffsets(ptrs);
     ReadyBufferHelper<Node> rbh(node_);
