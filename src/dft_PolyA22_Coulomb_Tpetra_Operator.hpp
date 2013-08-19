@@ -34,19 +34,16 @@
 */
 
 template <class Scalar, 
-	  class MatScalar       = Scalar, 
-	  class LocalOrdinal    = int, 
-	  class GlobalOrdinal   = LocalOrdinal, 
-	  class Node            = Kokkos::DefaultNode::DefaultNodeType,
-	  class LocalSparseOps  = typename KokkosClassic::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps>
+	  class MatrixType>
 class dft_PolyA22_Coulomb_Tpetra_Operator:
-  public virtual dft_PolyA22_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps>
+  public virtual dft_PolyA22_Tpetra_Operator<Scalar, MatrixType>
 {
 
  public:
-  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps)
 
-  typedef dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> P22TO;
+  TYPEDEF(Scalar, MatrixType)
+
+  typedef dft_PolyA22_Tpetra_Operator<Scalar,MatrixType> P22TO;
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads (plus Coulomb) system

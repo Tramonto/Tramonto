@@ -41,23 +41,20 @@
 
 */
 template <class Scalar, 
-	  class MatScalar       = Scalar, 
-	  class LocalOrdinal    = int, 
-	  class GlobalOrdinal   = LocalOrdinal, 
-	  class Node            = Kokkos::DefaultNode::DefaultNodeType,
-	  class LocalSparseOps  = typename KokkosClassic::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps>
+	  class MatrixType>
 class dft_PolyLinProbMgr:
-  public virtual dft_BasicLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps>
+  public virtual dft_BasicLinProbMgr<Scalar, MatrixType>
 {
   public:
-  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps)
 
-  typedef dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> BLPM;
-  typedef dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> P11TO;
-  typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> P11CO;
-  typedef dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> P22TO;
-  typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> P22CO;
-  typedef dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> ScTO;
+  TYPEDEF(Scalar, MatrixType)
+
+  typedef dft_BasicLinProbMgr<Scalar,MatrixType> BLPM;
+  typedef dft_PolyA11_Tpetra_Operator<Scalar,MatrixType> P11TO;
+  typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatrixType> P11CO;
+  typedef dft_PolyA22_Tpetra_Operator<Scalar,MatrixType> P22TO;
+  typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType> P22CO;
+  typedef dft_Schur_Tpetra_Operator<Scalar,MatrixType> ScTO;
 
   //@{ \name Constructors/destructor.
   //! dft_PolyLinProbMgr Constructor.

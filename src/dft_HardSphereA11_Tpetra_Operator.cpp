@@ -26,8 +26,8 @@
 #include "dft_HardSphereA11_Tpetra_Operator.hpp"
 
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 dft_HardSphereA11_Tpetra_Operator
 (const RCP<const MAP> & indNonLocalMap, const RCP<const MAP> & depNonLocalMap, const RCP<const MAP> & block1Map,
  RCP<ParameterList> parameterList)
@@ -52,16 +52,16 @@ dft_HardSphereA11_Tpetra_Operator
 
 }
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 ~dft_HardSphereA11_Tpetra_Operator
 ()
 {
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 initializeProblemValues
 ()
 {
@@ -75,9 +75,9 @@ initializeProblemValues
     }
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 insertMatrixValue
 (LocalOrdinal rowGID, LocalOrdinal colGID, MatScalar value) {
 
@@ -104,9 +104,9 @@ insertMatrixValue
 
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 insertRow
 ()
 {
@@ -132,9 +132,9 @@ insertRow
 
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 finalizeProblemValues
 ()
 {
@@ -161,9 +161,9 @@ finalizeProblemValues
 
 }
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 applyInverse
 (const MV& X, MV& Y) const
 {
@@ -219,9 +219,9 @@ applyInverse
 
 }
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -271,9 +271,9 @@ apply
 
 }
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 Check
 (bool verbose) const
 {
@@ -297,9 +297,9 @@ Check
 
 }
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 formA11invMatrix
 ()
 {

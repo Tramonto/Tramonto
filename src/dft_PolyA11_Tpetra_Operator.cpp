@@ -26,8 +26,8 @@
 #include "dft_PolyA11_Tpetra_Operator.hpp"
 
 ///==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>::
 dft_PolyA11_Tpetra_Operator
 (const RCP<const MAP > & ownedMap, const RCP<const MAP > & block1Map,
  RCP<ParameterList> parameterList)
@@ -61,17 +61,17 @@ dft_PolyA11_Tpetra_Operator
   return;
 } //end constructor
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>::
 ~dft_PolyA11_Tpetra_Operator
 ()
 {
   return;
 } //end destructor
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>::
 initializeProblemValues
 ()
 {
@@ -92,9 +92,9 @@ initializeProblemValues
 
 } //end initializeProblemValues
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>::
 insertMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value)
 {
@@ -133,9 +133,9 @@ insertMatrixValue
 
 } //end insertMatrixValue
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>::
 insertRow
 ()
 {
@@ -164,9 +164,9 @@ insertRow
   curRowValues_.clear();
 } //end insertRow
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>::
 finalizeProblemValues
 ()
 {
@@ -195,9 +195,9 @@ finalizeProblemValues
   firstTime_ = false;
 } //end finalizeProblemValues
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>::
 applyInverse
 (const MV& X, MV& Y) const
 {
@@ -238,9 +238,9 @@ applyInverse
   }
 } //end applyInverse
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -264,9 +264,9 @@ apply
 
 } //end Apply
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>::
 Check
 (bool verbose) const
 {

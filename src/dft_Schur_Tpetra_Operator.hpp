@@ -32,17 +32,14 @@
 */
 
 template <class Scalar, 
-	  class MatScalar       = Scalar, 
-	  class LocalOrdinal    = int, 
-	  class GlobalOrdinal   = LocalOrdinal, 
-	  class Node            = Kokkos::DefaultNode::DefaultNodeType,
-	  class LocalSparseOps  = typename KokkosClassic::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps>
+	  class MatrixType>
 class dft_Schur_Tpetra_Operator:
   public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
 
  public:
-  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps)
+
+  TYPEDEF(Scalar, MatrixType)
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2-by-2 block system

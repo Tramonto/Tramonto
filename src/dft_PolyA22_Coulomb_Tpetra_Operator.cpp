@@ -26,13 +26,13 @@
 #include "dft_PolyA22_Coulomb_Tpetra_Operator.hpp"
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 dft_PolyA22_Coulomb_Tpetra_Operator
 (const RCP<const MAP> & cmsMap, const RCP<const MAP> & densityMap,
  const RCP<const MAP> & poissonMap, const RCP<const MAP> & cmsDensMap,
  const RCP<const MAP> & block2Map,  RCP<ParameterList> parameterList)
-  : dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>
+  : dft_PolyA22_Tpetra_Operator<Scalar,MatrixType>
 	      (cmsMap, densityMap, cmsDensMap, parameterList),
     poissonMap_(poissonMap),
     cmsDensMap_(cmsDensMap),
@@ -63,17 +63,17 @@ dft_PolyA22_Coulomb_Tpetra_Operator
 #endif
 } //end constructor
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 ~dft_PolyA22_Coulomb_Tpetra_Operator
 ()
 {
   return;
 } //end destructor
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 initializeProblemValues
 ()
 {
@@ -109,9 +109,9 @@ initializeProblemValues
   }
 } //end initializeProblemValues
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 insertMatrixValue
 (GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value, GlobalOrdinal blockColFlag)
 {
@@ -247,9 +247,9 @@ insertMatrixValue
 
 } //end insertMatrixValue
 //=============================================================================
-template<class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template<class Scalar, class MatrixType>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 insertRow
 ()
 {
@@ -370,9 +370,9 @@ insertRow
 
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 finalizeProblemValues
 ()
 {
@@ -505,9 +505,9 @@ finalizeProblemValues
   firstTime_ = false;
 } //end finalizeProblemValues
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 applyInverse
 (const MV& X, MV& Y) const
 {
@@ -648,9 +648,9 @@ applyInverse
 
 } //end applyInverse
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -744,9 +744,9 @@ apply
   }
 } //end Apply
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 Check
 (bool verbose) const
 {

@@ -28,8 +28,8 @@
 #include "dft_TpetraBasicLinProbMgr.hpp"
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 dft_BasicLinProbMgr
 (size_t numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, RCP<Node> node)
   : isBlockStructureSet_(false),
@@ -61,16 +61,16 @@ dft_BasicLinProbMgr
   return;
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 ~dft_BasicLinProbMgr()
 {
   return;
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 setNodalRowMap
 (const ArrayView<const GlobalOrdinal>& GIDs, LocalOrdinal nx, LocalOrdinal ny, LocalOrdinal nz)
 {
@@ -87,9 +87,9 @@ setNodalRowMap
   ownedMap_ = rcp(new MAP(numGlobalNodes_, GIDs, 0, comm_, node_));
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 setNodalColMap
 (const ArrayView<const GlobalOrdinal> &GIDs, LocalOrdinal nx, LocalOrdinal ny, LocalOrdinal nz)
 {
@@ -106,9 +106,9 @@ setNodalColMap
   boxMap_ = rcp(new MAP(numGlobalBoxNodes_, GIDs, 0, comm_, node_));
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 setCoarsenedNodesList(const ArrayView<const GlobalOrdinal> &GIDs)
 {
   if (numGlobalCoarsenedNodes_!=0)
@@ -124,9 +124,9 @@ setCoarsenedNodesList(const ArrayView<const GlobalOrdinal> &GIDs)
   coarsenedNodesMap_ = rcp(new MAP(numGlobalCoarsenedNodes_, GIDs, 0, comm_, node_));
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 finalizeBlockStructure
 ()
 {
@@ -192,9 +192,9 @@ finalizeBlockStructure
   isGraphStructureSet_ = true;
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 initializeProblemValues
 ()
 {
@@ -225,9 +225,9 @@ initializeProblemValues
  }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 insertRhsValue
 (GlobalOrdinal ownedPhysicsID, GlobalOrdinal ownedNode, Scalar value)
 {
@@ -236,9 +236,9 @@ insertRhsValue
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 insertMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, MatScalar value)
 {
@@ -258,9 +258,9 @@ insertMatrixValue
 
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 insertRow
 ()
 {
@@ -279,9 +279,9 @@ insertRow
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-MatScalar
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+typename MatrixType::scalar_type
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 getMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode)
 {
@@ -326,9 +326,9 @@ getMatrixValue
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 insertMatrixValues
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID,
  const ArrayView<const LocalOrdinal>& boxNodeList, const ArrayView<const MatScalar>& values)
@@ -340,9 +340,9 @@ insertMatrixValues
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 insertMatrixValues
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, const ArrayView<const LocalOrdinal> &boxPhysicsIDList,
  LocalOrdinal boxNode, const ArrayView<const MatScalar> &values)
@@ -354,9 +354,9 @@ insertMatrixValues
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 finalizeProblemValues
 ()
 {
@@ -415,9 +415,9 @@ finalizeProblemValues
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 setRhs
 (const ArrayView<const ArrayView<const Scalar> >& b)
 {
@@ -429,9 +429,9 @@ setRhs
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 setLhs
 (const ArrayView<const ArrayView<const Scalar> > &x) const
 {
@@ -445,9 +445,9 @@ setLhs
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 ArrayRCP<ArrayRCP<Scalar> >
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 getLhs
 () const
 {
@@ -464,9 +464,9 @@ getLhs
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 ArrayRCP<ArrayRCP<Scalar> >
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 getRhs
 () const
 {
@@ -482,9 +482,9 @@ getRhs
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 setMachineParams
 ()
 {
@@ -508,9 +508,9 @@ setMachineParams
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 setupSolver
 ()
 {
@@ -580,9 +580,9 @@ setupSolver
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 solve
 ()
 {
@@ -632,9 +632,9 @@ solve
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 ArrayRCP<ArrayRCP<Scalar> >
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 applyMatrix
 (const ArrayView<const ArrayView<const Scalar> >& x) const
 {
@@ -646,9 +646,9 @@ applyMatrix
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 ArrayRCP<ArrayRCP<Scalar> >
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 importR2C
 (const ArrayRCP<const ArrayRCP<const Scalar> >& xOwned) const
 {
@@ -661,9 +661,9 @@ importR2C
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 ArrayRCP<ArrayRCP<double> >
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 importR2C_d
 (const ArrayRCP<const ArrayRCP<const double> >& xOwned) const
 {
@@ -676,9 +676,9 @@ importR2C_d
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 ArrayRCP<Scalar>
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 importR2C
 (const ArrayRCP<const Scalar> &aOwned) const
 {
@@ -691,9 +691,9 @@ importR2C
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 ArrayRCP<double>
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 importR2C_d
 (const ArrayRCP<const double> &aOwned) const
 {
@@ -706,9 +706,9 @@ importR2C_d
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 ArrayRCP<Scalar>
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 exportC2R
 (const ArrayRCP<const Scalar>& aBox) const
 {
@@ -721,9 +721,9 @@ exportC2R
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 writeMatrix
 (const char * filename, const char * matrixName, const char * matrixDescription) const  {
 
@@ -736,9 +736,9 @@ writeMatrix
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 writeLhs
 (const char * filename) const  {
 
@@ -750,9 +750,9 @@ writeLhs
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 writeRhs
 (const char * filename) const  {
 
@@ -764,9 +764,9 @@ writeRhs
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 writePermutation
 (const char * filename) const  {
   //int dft_BasicLinProbMgr::writePermutation(const char * filename) const  {
@@ -775,9 +775,9 @@ writePermutation
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_BasicLinProbMgr<Scalar,MatrixType>::
 checkPhysicsOrdering()
 const  {
 

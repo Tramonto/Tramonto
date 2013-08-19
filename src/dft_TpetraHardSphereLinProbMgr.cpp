@@ -26,11 +26,11 @@
 #include "dft_TpetraHardSphereLinProbMgr.hpp"
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 dft_HardSphereLinProbMgr
 (LocalOrdinal numUnknownsPerNode, RCP<ParameterList> parameterList, RCP<const COMM> comm, RCP<Node> node, bool formSchurMatrix, bool debug)
-  : dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>
+  : dft_BasicLinProbMgr<Scalar,MatrixType>
     (numUnknownsPerNode, parameterList, comm, node),
     isA22Diagonal_(false),
     formSchurMatrix_(formSchurMatrix),
@@ -45,8 +45,8 @@ dft_HardSphereLinProbMgr
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 ~dft_HardSphereLinProbMgr
 ()
 {
@@ -54,9 +54,9 @@ dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalS
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 finalizeBlockStructure
 ()
 {
@@ -192,9 +192,9 @@ finalizeBlockStructure
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 initializeProblemValues
 ()
 {
@@ -227,8 +227,8 @@ initializeProblemValues
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-void dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+void dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 insertMatrixValue
 (LocalOrdinal ownedPhysicsID, LocalOrdinal ownedNode, LocalOrdinal boxPhysicsID, LocalOrdinal boxNode, MatScalar value) {
 
@@ -291,9 +291,9 @@ insertMatrixValue
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 insertRowA12
 ()
 {
@@ -321,9 +321,9 @@ insertRowA12
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 insertRowA21
 ()
 {
@@ -351,9 +351,9 @@ insertRowA21
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 finalizeProblemValues
 ()
 {
@@ -474,9 +474,9 @@ finalizeProblemValues
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 setupSolver
 ()
 {
@@ -512,8 +512,8 @@ setupSolver
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-void dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+void dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 solve
 ()
 {
@@ -553,9 +553,9 @@ solve
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 ArrayRCP<ArrayRCP<Scalar> >
-dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 applyMatrix
 (const ArrayView<const ArrayView<const Scalar> >& x) const
 {
@@ -567,8 +567,8 @@ applyMatrix
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
-void dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+template <class Scalar, class MatrixType>
+void dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 Check
 (bool verbose) const
 {
@@ -580,9 +580,9 @@ Check
 }
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+template <class Scalar, class MatrixType>
 void
-dft_HardSphereLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
+dft_HardSphereLinProbMgr<Scalar,MatrixType>::
 writeMatrix
 (const char * filename, const char * matrixName, const char * matrixDescription) const
 {
