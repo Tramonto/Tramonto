@@ -26,8 +26,8 @@
 #include "dft_Schur_Tpetra_Operator.hpp"
 
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_Schur_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 dft_Schur_Tpetra_Operator
 (RCP<APINV> A11, RCP<MAT> A12, RCP<MAT> A21, RCP<APINV> A22)
   : A11_(A11),
@@ -49,17 +49,17 @@ dft_Schur_Tpetra_Operator
 } //end constructor
 
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 ~dft_Schur_Tpetra_Operator
 ()
 {
 } //end destructor
 
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -85,9 +85,9 @@ apply
 } //end apply
 
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 ComputeRHS
 (const MV& B1, const MV& B2, MV& B2S) const
 {
@@ -100,9 +100,9 @@ ComputeRHS
 } //end ComputeRHS
 
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 ComputeX1
 (const MV& B1, const MV& X2, MV& X1) const
 {
@@ -116,9 +116,9 @@ ComputeX1
 } //end ComputeX1
 
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 ApplyGlobal
 (const MV& X1, const MV& X2, MV& Y1, MV& Y2) const
 {
@@ -147,9 +147,9 @@ ApplyGlobal
 } //end ApplyGlobal
 
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 formSchurComplement
 ()
 {

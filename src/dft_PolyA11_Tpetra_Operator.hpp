@@ -31,19 +31,23 @@
 //! dft_PolyA11_Tpetra_Operator: An implementation of the Operator class for Tramonto Schur complements.
 /*! Special 2*numBeads by 2*numBeads for Tramonto polymer problems.
 */
-template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
-	 class Node = Kokkos::DefaultNode::DefaultNodeType>
+template <class Scalar, 
+	  class MatScalar       = Scalar, 
+	  class LocalOrdinal    = int, 
+	  class GlobalOrdinal   = LocalOrdinal, 
+	  class Node            = Kokkos::DefaultNode::DefaultNodeType,
+	  class LocalSparseOps  = typename KokkosClassic::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps>
 class dft_PolyA11_Tpetra_Operator:
   public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node>
 {
 
  public:
-  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps)
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
-  dft_PolyA11_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>(const RCP<const MAP> & ownedMap, const RCP<const MAP> & block1Map, RCP<ParameterList> parameterList);
+  dft_PolyA11_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps>(const RCP<const MAP> & ownedMap, const RCP<const MAP> & block1Map, RCP<ParameterList> parameterList);
   //@}
   //@{ \name Assembly methods.
   virtual void

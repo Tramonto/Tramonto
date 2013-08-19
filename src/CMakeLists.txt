@@ -426,6 +426,9 @@ if (USE_TPETRA)
   list(APPEND common_h Tpetra_ParameterListConverter.hpp)
   list(APPEND common_h Tpetra_MultiVectorConverter.hpp)
   list(APPEND common_h Tpetra_ScalingCrsMatrix.hpp)
+  list(APPEND common_h Kokkos_TramontoSparseMultiplyKernelOps.hpp)  
+  list(APPEND common_h Kokkos_TramontoSparseSolveKernelOps.hpp)  
+  list(APPEND common_h Kokkos_TramontoSparseOps.hpp)  
 
   list(REMOVE_ITEM common_h dft_BasicLinProbMgr.hpp)
   list(REMOVE_ITEM common_cxx dft_BasicLinProbMgr.cpp)
@@ -509,10 +512,21 @@ if (USE_TPETRA)
 
    if (NOT NUM_THREADS)
       message("NUM_THREADS not specified. Setting NUM_THREADS to ${Tramonto_DEFAULT_THREADS}")
-      set(THREADS "${Tramonto_DEFAULT_THREADS}")
+      ADD_DEFINITIONS(-DNUM_THREADS="${Tramonto_DEFAULT_THREADS}")	  
+#    set(THREADS "${Tramonto_DEFAULT_THREADS}")
    else ()
       message("NUM_THREADS defined. Using ${NUM_THREADS} threads per node.")
+      ADD_DEFINITIONS(-DNUM_THREADS=${NUM_THREADS})
    endif ()
+
+#  Select sparse ops type
+   if (TRAMONTO_SPARSEOPS)
+     message("TRAMONTO_SPARSEOPS defined. Using custom Tramonto sparse ops.")
+     ADD_DEFINITIONS(-DSPARSEOPS_TYPE=1)
+   else ()
+     message("Sparse ops not specified. Using default Kokkos sparse ops.")
+     ADD_DEFINITIONS(-DSPARSEOPS_TYPE=0)
+   endif (TRAMONTO_SPARSEOPS)
 
 #  Select platform type
    if (SERIAL_PLATFORM)

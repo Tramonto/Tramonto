@@ -39,19 +39,23 @@
 /*! The dft_HardSphereLinProbMgr class supports solver capabilities for Tramonto.
 
 */
-template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
-	 class Node=Kokkos::DefaultNode::DefaultNodeType>
+template <class Scalar, 
+	  class MatScalar       = Scalar, 
+	  class LocalOrdinal    = int, 
+	  class GlobalOrdinal   = LocalOrdinal, 
+	  class Node            = Kokkos::DefaultNode::DefaultNodeType,
+	  class LocalSparseOps  = typename KokkosClassic::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps>
 class dft_HardSphereLinProbMgr:
-  public virtual dft_BasicLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
+  public virtual dft_BasicLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps>
 {
 public:
-  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps)
 
-  typedef dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
-  typedef dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> HS11TO;
-  typedef dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> HS22TO;
-  typedef dft_A22Matrix_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> A22MTO;
-  typedef dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
+  typedef dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> BLPM;
+  typedef dft_HardSphereA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> HS11TO;
+  typedef dft_HardSphereA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> HS22TO;
+  typedef dft_A22Matrix_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> A22MTO;
+  typedef dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> ScTO;
 
   //@{ \name Constructors/destructor.
   //! dft_HardSphereLinProbMgr Constructor.

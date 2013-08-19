@@ -40,20 +40,24 @@
 /*! The dft_PolyLinProbMgr class supports polymer solver capabilities for Tramonto.
 
 */
-template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
-	 class Node=Kokkos::DefaultNode::DefaultNodeType>
+template <class Scalar, 
+	  class MatScalar       = Scalar, 
+	  class LocalOrdinal    = int, 
+	  class GlobalOrdinal   = LocalOrdinal, 
+	  class Node            = Kokkos::DefaultNode::DefaultNodeType,
+	  class LocalSparseOps  = typename KokkosClassic::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps>
 class dft_PolyLinProbMgr:
-  public virtual dft_BasicLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
+  public virtual dft_BasicLinProbMgr<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps>
 {
   public:
-  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps)
 
-  typedef dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> BLPM;
-  typedef dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P11TO;
-  typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P11CO;
-  typedef dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
-  typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P22CO;
-  typedef dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> ScTO;
+  typedef dft_BasicLinProbMgr<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> BLPM;
+  typedef dft_PolyA11_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> P11TO;
+  typedef dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> P11CO;
+  typedef dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> P22TO;
+  typedef dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> P22CO;
+  typedef dft_Schur_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> ScTO;
 
   //@{ \name Constructors/destructor.
   //! dft_PolyLinProbMgr Constructor.

@@ -21,6 +21,11 @@
 #include "Tpetra_ParameterListConverter.hpp"
 #include "Tpetra_MultiVectorConverter.hpp"
 #include "Tpetra_ScalingCrsMatrix.hpp"
+#include "Kokkos_DefaultKernels.hpp"
+#include "Kokkos_TramontoSparseOps.hpp"
+#include "Kokkos_TramontoSparseMultiplyKernelOps.hpp"
+#include "Kokkos_TramontoSparseSolveKernelOps.hpp"
+
 
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_RCP.hpp>
@@ -86,8 +91,14 @@ using Stratimikos::DefaultLinearSolverBuilder;
 
 //#define KDEBUG
 
-#define TRAMONTO_INST(CLASSNAME,S,MS,LO,GO,NODE)      \
-  template class CLASSNAME<S,MS,LO,GO,NODE>;
+#define TRAMONTO_TYPEDEF(CLASSNAME,S,MS,LO,GO,NODE,LMO,NAME)	\
+  typedef CLASSNAME<S,MS,LO,GO,NODE,LMO> NAME;
+
+#define TRAMONTO_SPARSEOPS_TYPEDEF(CLASSNAME,S,LO,NODE,NAME)	\
+  typedef CLASSNAME<S,LO,NODE> NAME;
+
+#define TRAMONTO_INST(CLASSNAME,S,MS,LO,GO,NODE,LMO)	\
+  template class CLASSNAME<S,MS,LO,GO,NODE,LMO>;
 
 #if NODE_TYPE == 0
 #define NODE Kokkos::TPINode
@@ -105,39 +116,64 @@ using Stratimikos::DefaultLinearSolverBuilder;
 #define PLATFORM Tpetra::MpiPlatform<NODE>
 #endif
 
-#if MIXED_PREC == 1
-#if LINSOLVE_PREC == 0
-#define TRAMONTO_INST_HELPER(CLASSNAME)	\
-  TRAMONTO_INST(CLASSNAME, float, float, int, int, NODE)
-#elif LINSOLVE_PREC == 1
-#define TRAMONTO_INST_HELPER(CLASSNAME)      \
-  TRAMONTO_INST(CLASSNAME, double, float, int, int, NODE)
-#elif LINSOLVE_PREC == 2
-#define TRAMONTO_INST_HELPER(CLASSNAME)      \
-  TRAMONTO_INST(CLASSNAME, dd_real, double, int, int, NODE)
-#elif LINSOLVE_PREC == 3
-#define TRAMONTO_INST_HELPER(CLASSNAME)      \
-  TRAMONTO_INST(CLASSNAME, qd_real, dd_real, int, int, NODE)
+#if SPARSEOPS_TYPE == 0
+#define SPARSEOPS_STRING KokkosClassic::DefaultHostSparseOps
+#elif SPARSEOPS_TYPE == 1
+#define SPARSEOPS_STRING KokkosClassic::TramontoHostLocalSparseOps
 #endif
 
-#else
 #if LINSOLVE_PREC == 0
-#define TRAMONTO_INST_HELPER(CLASSNAME)      \
-  TRAMONTO_INST(CLASSNAME, float, float, int, int, NODE)
+// Solver precision
+#define SCALAR                 float
+// Matrix precision
+#define MAT_SCALAR             SCALAR
+
 #elif LINSOLVE_PREC == 1
-#define TRAMONTO_INST_HELPER(CLASSNAME)      \
-  TRAMONTO_INST(CLASSNAME, double, double, int, int, NODE)
+// Solver precision
+#define SCALAR                 double
+// Matrix precision
+#if MIXED_PREC == 1
+#define MAT_SCALAR             float
+#else
+#define MAT_SCALAR             SCALAR
+#endif
+
 #elif LINSOLVE_PREC == 2
-#define TRAMONTO_INST_HELPER(CLASSNAME)      \
-  TRAMONTO_INST(CLASSNAME, dd_real, dd_real, int, int, NODE)
+#include <qd/dd_real.h>
+// Solver precision
+#define SCALAR                 dd_real
+// Matrix precision
+#if MIXED_PREC == 1
+#define MAT_SCALAR             double
+#else
+#define MAT_SCALAR             SCALAR
+#endif
+
 #elif LINSOLVE_PREC == 3
-#define TRAMONTO_INST_HELPER(CLASSNAME)      \
-  TRAMONTO_INST(CLASSNAME, qd_real, qd_real, int, int, NODE)
+#include <qd/qd_real.h>
+// Solver precision
+#define SCALAR                 qd_real
+// Matrix precision
+#if MIXED_PREC == 1
+#define MAT_SCALAR             dd_real
+#else
+#define MAT_SCALAR             SCALAR
 #endif
 #endif
+
+#define LO                     int
+#define GO                     int
+
+#define TRAMONTO_TYPEDEF_HELPER(CLASSNAME,NAME)	\
+  TRAMONTO_SPARSEOPS_TYPEDEF(SPARSEOPS_STRING,MAT_SCALAR,LO,NODE,SPARSEOPS) \
+  TRAMONTO_TYPEDEF(CLASSNAME, SCALAR, MAT_SCALAR, LO, GO, NODE, SPARSEOPS, NAME)
+
+#define TRAMONTO_INST_HELPER(CLASSNAME)	\
+  TRAMONTO_SPARSEOPS_TYPEDEF(SPARSEOPS_STRING,MAT_SCALAR,LO,NODE,SPARSEOPS) \
+  TRAMONTO_INST(CLASSNAME, SCALAR, MAT_SCALAR, LO, GO, NODE, SPARSEOPS)
 
 #ifdef SUPPORTS_STRATIMIKOS
-#define TYPEDEF(SCALAR, LO, GO, NODE) \
+#define TYPEDEF(SCALAR, LO, GO, NODE, LMO)		\
   \
   typedef Tpetra::MultiVector<SCALAR,LO,GO,Node> MV; \
   typedef Tpetra::Vector<SCALAR,LO,GO,Node> VEC; \
@@ -157,7 +193,7 @@ using Stratimikos::DefaultLinearSolverBuilder;
 
 #else
 
-#define TYPEDEF(SCALAR, MATSCALAR, LO, GO, NODE)	\
+#define TYPEDEF(SCALAR, MATSCALAR, LO, GO, NODE, LMO)	\
   \
   typedef Tpetra::MultiVector<SCALAR,LO,GO,NODE> MV; \
   typedef Tpetra::Vector<SCALAR,LO,GO,NODE> VEC; \
@@ -165,16 +201,16 @@ using Stratimikos::DefaultLinearSolverBuilder;
   typedef Tpetra::OperatorApplyInverse<SCALAR,LO,GO,NODE> APINV; \
   typedef Tpetra::InvOperator<SCALAR,LO,GO,NODE> INVOP; \
   typedef Tpetra::MixedOperator<SCALAR,MATSCALAR,LO,GO,NODE> MOP;	\
-  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,MATSCALAR,LO,GO,NODE> MMOP; \
+  typedef Tpetra::CrsMatrixMultiplyOp<SCALAR,MATSCALAR,LO,GO,NODE,LMO> MMOP; \
   typedef Teuchos::Comm<int> COMM; \
   typedef Tpetra::Map<LO,GO,NODE> MAP; \
-  typedef Tpetra::CrsMatrix<MATSCALAR,LO,GO,NODE> MAT; \
-  typedef Tpetra::CrsGraph<LO,GO,NODE> GRAPH; \
-  typedef Tpetra::ScalingCrsMatrix<MATSCALAR,LocalOrdinal,GO,NODE> SCALE; \
+  typedef Tpetra::CrsMatrix<MATSCALAR,LO,GO,NODE,LMO> MAT; \
+  typedef Tpetra::CrsGraph<LO,GO,NODE,LMO> GRAPH;	\
+  typedef Tpetra::ScalingCrsMatrix<MATSCALAR,LO,GO,NODE,LMO> SCALE; \
   typedef Tpetra::Import<LO,GO,NODE> IMP; \
   typedef Belos::SolverManager<SCALAR, MV, OP> SolMGR; \
   typedef Belos::LinearProblem<SCALAR, MV, OP> LinPROB; \
-  typedef Ifpack2::Preconditioner<SCALAR, LO, GO, NODE> PRECOND; \
+  typedef Ifpack2::Preconditioner<SCALAR,LO,GO,NODE> PRECOND; \
   typedef Teuchos::ScalarTraits<SCALAR> STS; \
   typedef Teuchos::ScalarTraits<MATSCALAR> STMS; \
   typedef Teuchos::OrdinalTraits<LO> OTLO; \
@@ -187,11 +223,18 @@ using Stratimikos::DefaultLinearSolverBuilder;
   typedef Tpetra::Operator<MATSCALAR,LO,GO,NODE> OP_M;			\
   typedef Ifpack2::ILUT<MAT> ILUT; \
   typedef Ifpack2::AdditiveSchwarz<MAT,ILUT> SCHWARZ; \
-  typedef Tpetra::details::ApplyOp<Scalar,ILUT> ILUT_OP; \
+  typedef Tpetra::details::ApplyOp<SCALAR,ILUT> ILUT_OP; \
   typedef Ifpack2::Diagonal<MAT> DIAGONAL; \
-  typedef Tpetra::details::ApplyOp<Scalar,SCHWARZ> SCHWARZ_OP;	\
-  typedef Tpetra::details::ApplyOp<Scalar,DIAGONAL> DIAGONAL_OP; \
-  typedef typename std::map<GO, MATSCALAR>::iterator ITER;
+  typedef Tpetra::details::ApplyOp<SCALAR,SCHWARZ> SCHWARZ_OP;	\
+  typedef Tpetra::details::ApplyOp<SCALAR,DIAGONAL> DIAGONAL_OP; \
+  typedef typename std::map<GO, MATSCALAR>::iterator ITER; \
+  typedef MueLu::Hierarchy<MATSCALAR,LO,GO,NODE,LMO> Hierarchy; \
+  typedef MueLu::MLParameterListInterpreter<MATSCALAR,LO,GO,NODE,LMO> MLFactory; \
+  typedef Xpetra::TpetraCrsMatrix<MATSCALAR,LO,GO,NODE,LMO> XpetraTpetraCrsMatrix; \
+  typedef Xpetra::CrsMatrix<MATSCALAR,LO,GO,NODE,LMO> XpetraCrsMatrix; \
+  typedef Xpetra::Matrix<MATSCALAR,LO,GO,NODE,LMO> XpetraMatrix; \
+  typedef Xpetra::CrsMatrixWrap<MATSCALAR,LO,GO,NODE,LMO> XpetraCrsWrap; \
+  typedef MueLu::TpetraOperator<MATSCALAR,LO,GO,NODE,LMO> MueLuOP;
 
 #endif //SUPPORTS_STRATIMIKOS
 

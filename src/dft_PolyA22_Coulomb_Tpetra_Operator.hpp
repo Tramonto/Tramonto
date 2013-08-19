@@ -33,16 +33,20 @@
 /*! Special 2*numBeads by 2*numBeads (plus Coulomb) for Tramonto polymer problems.
 */
 
-template<class Scalar,class MatScalar=Scalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
-	 class Node = Kokkos::DefaultNode::DefaultNodeType>
+template <class Scalar, 
+	  class MatScalar       = Scalar, 
+	  class LocalOrdinal    = int, 
+	  class GlobalOrdinal   = LocalOrdinal, 
+	  class Node            = Kokkos::DefaultNode::DefaultNodeType,
+	  class LocalSparseOps  = typename KokkosClassic::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps>
 class dft_PolyA22_Coulomb_Tpetra_Operator:
-  public virtual dft_PolyA22_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node>
+  public virtual dft_PolyA22_Tpetra_Operator<Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps>
 {
 
  public:
-  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps)
 
-  typedef dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node> P22TO;
+  typedef dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps> P22TO;
 
   //@{ \name Constructors.
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads (plus Coulomb) system
@@ -170,12 +174,12 @@ protected:
   Array<MatScalar> valuesCmsOnPoisson_, valuesPoissonOnPoisson_, valuesPoissonOnDensity_;
 
 #if ENABLE_MUELU == 1
-  RCP<MueLu::Hierarchy<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps> > H_;
-  RCP<Xpetra::CrsMatrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps > > mueluPP_;
-  RCP<Xpetra::Matrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps> > mueluPP;
+  RCP<Hierarchy> H_;
+  RCP<XpetraCrsMatrix> mueluPP_;
+  RCP<XpetraMatrix> mueluPP;
   FactoryManager M_;
   ParameterList mueluList_;
-  RCP<MueLu::TpetraOperator<MatScalar, LocalOrdinal, GlobalOrdinal, Node> > poissonOnPoissonInverse_;
+  RCP<MueLuOP> poissonOnPoissonInverse_;
   RCP<MOP> poissonOnPoissonInverseMixed_;
 					   
 #endif

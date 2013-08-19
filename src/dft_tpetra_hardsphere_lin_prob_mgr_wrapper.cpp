@@ -31,71 +31,10 @@ extern "C"
 {
 #endif
 
-//template class dft_HardSphereLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal>;
-//template class dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal>;
-
 typedef Teuchos::Comm<int> COMM;
 
-#if LINSOLVE_PREC == 0
-// Solver precision
-#define SCALAR                 float
-// Matrix precision
-#define MAT_SCALAR             SCALAR
-
-#elif LINSOLVE_PREC == 1
-// Solver precision
-#define SCALAR                 double
-// Matrix precision
-#if MIXED_PREC == 1
-#define MAT_SCALAR             float
-#else
-#define MAT_SCALAR             SCALAR
-#endif
-
-#elif LINSOLVE_PREC == 2
-#include <qd/dd_real.h>
-// Solver precision
-#define SCALAR                 dd_real
-// Matrix precision
-#if MIXED_PREC == 1
-#define MAT_SCALAR             double
-#else
-#define MAT_SCALAR             SCALAR
-#endif
-
-#elif LINSOLVE_PREC == 3
-#include <qd/qd_real.h>
-// Solver precision
-#define SCALAR                 qd_real
-// Matrix precision
-#if MIXED_PREC == 1
-#define MAT_SCALAR             dd_real
-#else
-#define MAT_SCALAR             SCALAR
-#endif
-#endif
-
-#if NODE_TYPE == 0
-#define NODE Kokkos::TPINode
-#elif NODE_TYPE == 1
-#define NODE Kokkos::TBBNode
-#elif NODE_TYPE == 2
-#define NODE Kokkos::OpenMPNode
-#else
-#define NODE Kokkos::SerialNode
-#endif
-
-#if PLATFORM_TYPE == 0
-#define PLATFORM Tpetra::SerialPlatform<NODE>
-#else
-#define PLATFORM Tpetra::MpiPlatform<NODE>
-#endif
-
-#define THREAD_NUMBER 1
-
-typedef dft_BasicLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> BLPM;
-typedef dft_HardSphereLinProbMgr<SCALAR,MAT_SCALAR,int,int,NODE> HSLPM;
-
+TRAMONTO_TYPEDEF_HELPER(dft_BasicLinProbMgr,BLPM)
+TRAMONTO_TYPEDEF_HELPER(dft_HardSphereLinProbMgr,HSLPM)
 
   /*****************************************************/
   /**                  dft_HardSphereLinProbMgr       **/
@@ -106,7 +45,7 @@ dft_hardsphere_lin_prob_mgr_create
 {
   RCP<ParameterList> my_list = rcp( (ParameterList *) Parameterlist_list, false);
   ParameterList nodeParams;
-  nodeParams.set<int>("Num Threads", THREAD_NUMBER);
+  nodeParams.set<int>("Num Threads", NUM_THREADS);
   RCP<NODE> my_node = rcp(new NODE(nodeParams));
   RCP<PLATFORM> platform = rcp(new PLATFORM(my_node));
   const RCP<const COMM> my_comm = platform->getComm();
@@ -122,7 +61,7 @@ dft_hardsphere_lin_prob_mgr_create_debug
 {
   RCP<ParameterList> my_list = rcp((ParameterList *) Parameterlist_list, false);
   ParameterList nodeParams;
-  nodeParams.set<int>("Num Threads", THREAD_NUMBER);
+  nodeParams.set<int>("Num Threads", NUM_THREADS);
   RCP<NODE> my_node = rcp(new NODE(nodeParams));
   RCP<PLATFORM> platform = rcp(new PLATFORM(my_node));
   const RCP<const COMM> my_comm = platform->getComm();

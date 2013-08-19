@@ -32,12 +32,16 @@
 /*! The dft_BasicLinProbMgr<Scalar,LocalOrdinal,GlobalOrdinal,Node> class supports solver capabilities for Tramonto.
 */
 
-template<class Scalar,class MatScalar,class LocalOrdinal=int,class GlobalOrdinal=LocalOrdinal,
-	 class Node=Kokkos::DefaultNode::DefaultNodeType>
+template <class Scalar, 
+	  class MatScalar       = Scalar, 
+	  class LocalOrdinal    = int, 
+	  class GlobalOrdinal   = LocalOrdinal, 
+	  class Node            = Kokkos::DefaultNode::DefaultNodeType,
+	  class LocalSparseOps  = typename KokkosClassic::DefaultKernels<MatScalar,LocalOrdinal,Node>::SparseOps>
 class dft_BasicLinProbMgr {
 
   public:
-  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node)
+  TYPEDEF(Scalar, MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalSparseOps)
 
   //@{ \name Constructors/destructor.
 

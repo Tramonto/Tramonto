@@ -26,13 +26,13 @@
 #include "dft_PolyA22_Coulomb_Tpetra_Operator.hpp"
 
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 dft_PolyA22_Coulomb_Tpetra_Operator
 (const RCP<const MAP> & cmsMap, const RCP<const MAP> & densityMap,
  const RCP<const MAP> & poissonMap, const RCP<const MAP> & cmsDensMap,
  const RCP<const MAP> & block2Map,  RCP<ParameterList> parameterList)
-  : dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>
+  : dft_PolyA22_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>
 	      (cmsMap, densityMap, cmsDensMap, parameterList),
     poissonMap_(poissonMap),
     cmsDensMap_(cmsDensMap),
@@ -63,17 +63,17 @@ dft_PolyA22_Coulomb_Tpetra_Operator
 #endif
 } //end constructor
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 ~dft_PolyA22_Coulomb_Tpetra_Operator
 ()
 {
   return;
 } //end destructor
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 initializeProblemValues
 ()
 {
@@ -109,9 +109,9 @@ initializeProblemValues
   }
 } //end initializeProblemValues
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 insertMatrixValue
 (GlobalOrdinal rowGID, GlobalOrdinal colGID, MatScalar value, GlobalOrdinal blockColFlag)
 {
@@ -247,9 +247,9 @@ insertMatrixValue
 
 } //end insertMatrixValue
 //=============================================================================
-template<class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template<class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 insertRow
 ()
 {
@@ -370,9 +370,9 @@ insertRow
 
 }
 //=============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 finalizeProblemValues
 ()
 {
@@ -456,11 +456,11 @@ finalizeProblemValues
 #if ENABLE_MUELU == 1
 #if LINSOLVE_PREC_DOUBLE_DOUBLE == 1 || (LINSOLVE_PREC_QUAD_DOUBLE == 1 && MIXED_PREC == 0)
     // Default of SuperLU doesn't compile with double-double or quad-double, so use ILUT instead.
-    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
-    mueluPP  = rcp(new Xpetra::CrsMatrixWrap<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    mueluPP_ = rcp(new XpetraTpetraCrsMatrix(poissonOnPoissonMatrix_));
+    mueluPP  = rcp(new XpetraCrsWrap(mueluPP_));
     mueluList_ = parameterList_->get("mueluList");
 
-    MueLu::MLParameterListInterpreter<MatScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
+    MLFactory mueluFactory(mueluList_);
 
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_NONE);
@@ -474,18 +474,18 @@ finalizeProblemValues
     H_->Setup(*fm);
 #else
     // Okay to use default of SuperLU if not double-double or quad-double
-    mueluPP_ = rcp(new Xpetra::TpetraCrsMatrix<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >(poissonOnPoissonMatrix_));
-    mueluPP = rcp(new Xpetra::CrsMatrixWrap<MatScalar, LocalOrdinal, GlobalOrdinal, Node, typename Kokkos::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps>(mueluPP_));
+    mueluPP_ = rcp(new XpetraTpetraCrsMatrix(poissonOnPoissonMatrix_));
+    mueluPP = rcp(new XpetraCrsWrap(mueluPP_));
     mueluList_ = parameterList_->sublist("mueluList");
 
-    MueLu::MLParameterListInterpreter<MatScalar, LocalOrdinal, GlobalOrdinal, Node> mueluFactory(mueluList_);
+    MLFactory mueluFactory(mueluList_);
 
     H_ = mueluFactory.CreateHierarchy();
     H_->setVerbLevel(Teuchos::VERB_NONE);
     H_->GetLevel(0)->Set("A", mueluPP);
     mueluFactory.SetupHierarchy(*H_);
 #endif
-    poissonOnPoissonInverse_ = rcp(new MueLu::TpetraOperator<MatScalar, LocalOrdinal, GlobalOrdinal, Node>(H_));
+    poissonOnPoissonInverse_ = rcp(new MueLuOP(H_));
     poissonOnPoissonInverseMixed_ = rcp(new MOP((RCP<OP_M>)poissonOnPoissonInverse_));
 #endif
   }
@@ -505,9 +505,9 @@ finalizeProblemValues
   firstTime_ = false;
 } //end finalizeProblemValues
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 applyInverse
 (const MV& X, MV& Y) const
 {
@@ -648,9 +648,9 @@ applyInverse
 
 } //end applyInverse
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 apply
 (const MV& X, MV& Y, Teuchos::ETransp mode, Scalar alpha, Scalar beta) const
 {
@@ -744,9 +744,9 @@ apply
   }
 } //end Apply
 //==============================================================================
-template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node>
+template <class Scalar, class MatScalar, class LocalOrdinal, class GlobalOrdinal, class Node, class LocalSparseOps>
 void
-dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node>::
+dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatScalar,LocalOrdinal,GlobalOrdinal,Node,LocalSparseOps>::
 Check
 (bool verbose) const
 {
