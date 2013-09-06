@@ -138,10 +138,11 @@ void post_process (double **x,int *niters,
    }
 
    if (Proc==0) safe_free((void *) &Vext_old);
-   if (Gsum_graft != NULL){
+    
+/*   if (Gsum_graft != NULL){
      safe_free((void *) &Gsum_graft);
      safe_free((void *) &Gsum_graft_noVolume);
-   }
+   }*/
 
 
    /* open dft_output.dat file */
@@ -332,8 +333,14 @@ void post_process (double **x,int *niters,
    if(first==TRUE) first = FALSE;
 
    } /* end of loop over out_loop */
+       
+       if (Gsum_graft != NULL){
+           safe_free((void *) &Gsum_graft);
+           safe_free((void *) &Total_area_graft);
+           safe_free((void *) &Gsum_graft_noVolume);
+       }
    
-   if (Proc==0)  fclose(fp); 
+   if (Proc==0)  fclose(fp);
    if (Loca.cont_type1==CONT_BETAMU_I){ if (Proc==0)  fclose(fpASR); }
    if (Nruns>2 && (Nwall==1 || Nwall==2)){ if (Proc==0)  fclose(fpFSR); }
    }

@@ -467,7 +467,7 @@ void calc_chempot(char *file_echoinput,int iwrite_screen, int iwrite_files)
                   if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY)printf("\n");
                   if (iwrite_screen != SCREEN_NONE && iwrite_screen != SCREEN_ERRORS_ONLY) 
                      for (ipol=0;ipol<Npol_comp;ipol++){
-                         if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE) print_to_screen_comp(ipol,Betamu_chain[ipol],"Betamu_chain");
+                         if (Grafted_Logical==FALSE || Grafted[ipol]==FALSE) printf("\t\t Betamu_chain[ipol=%d]=%g\n",ipol,Betamu_chain[ipol]);
                          else printf("polymer ipol=%d is grafted to surfaces - it does not exist in bulk fluid\n",ipol);
                      }
                   for (ipol=0;ipol<Npol_comp;ipol++){

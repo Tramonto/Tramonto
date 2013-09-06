@@ -62,6 +62,7 @@ void calc_adsorption(FILE *fp,double **x, double *Ads_total)
      for (idim=0;idim<Ndim;idim++) volume*=Size_x[idim];
      for (icomp=0;icomp<nloop;icomp++){
           Ads_total[icomp]=ads[icomp];
+         if(Grafted_Logical==FALSE || icomp != Grafted_TypeID[Icomp_to_polID[icomp]]) {
           if(!first){
                if (Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
                  if ( Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL) print_to_screen_comp(icomp,ads[icomp]/volume,"DENSITY");
@@ -77,8 +78,9 @@ void calc_adsorption(FILE *fp,double **x, double *Ads_total)
                }
                else       print_to_file_comp(fp,icomp,ads[icomp],"ads",first);
           }
-      }
-  }    
+         }
+     }
+  }
 
  if(!first) {
   for (icomp=0;icomp<nloop;icomp++) ads_b[icomp]=0.0;
@@ -92,12 +94,15 @@ void calc_adsorption(FILE *fp,double **x, double *Ads_total)
   }
  }
 
+  if(Grafted_Logical==FALSE) {
   if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
      printf("\t\t----------------------------------------\n");
      for (icomp=0;icomp<nloop;icomp++){
         if(!first &&  (!LBulk || Nwall>0) && Type_interface==UNIFORM_INTERFACE ) print_to_screen_comp(icomp,ads_ex[icomp],"EXCESS ADSORPTION");
         if (fp !=NULL && (!LBulk || Nwall>0) && Type_interface==UNIFORM_INTERFACE) print_to_file_comp(fp,icomp,ads_ex[icomp],"ads_ex",first);
+         
      }    
+  }
   }
   if (first) first=FALSE;
   if (Proc==0 && Iwrite_screen == VERBOSE){

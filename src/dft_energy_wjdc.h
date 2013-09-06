@@ -65,3 +65,10 @@ extern int Unk2Comp[NMER_MAX];
 #define NEQ_TYPE       12 
 extern int Phys2Unk_first[NEQ_TYPE];
 double integrand_WJDC_freen(int iunk,int inode_box,double **x);
+extern double *Gsum_graft;
+extern double *Total_area_graft;
+extern double Rho_g[NCOMP_MAX];
+extern int Grafted_SegID[NCOMP_MAX];
+#define GRAFT_DENSITY 1
+
+

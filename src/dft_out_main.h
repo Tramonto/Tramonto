@@ -61,7 +61,7 @@ extern int Print_rho_switch;
 #endif
 #define CONT_BETAMU_I      3  /* Vary chemical potential for species I */
 extern int Nwall;
-#define FILENAME_LENGTH 4096
+#define FILENAME_LENGTH 300
 extern char Outpath_array[FILENAME_LENGTH];
 #define FROM_MAIN 1
 typedef struct Loca_Struct Loca_Struct;
@@ -111,3 +111,4 @@ extern double Ads[NCOMP_MAX][2];
 #define TRUE  1
 #endif
 void post_process(double **x,int *niters,double *time_save,int loop1,int binodal_flag,int call_from_flag);
+extern double *Total_area_graft;

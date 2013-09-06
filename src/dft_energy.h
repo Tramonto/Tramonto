@@ -111,3 +111,6 @@ extern int Ndim;
 #define TRUE  1
 #endif
 double calc_free_energy(FILE *fp,double **x);
+double WJDCgraft_freen(double **x);
+extern int Grafted_Logical;
+

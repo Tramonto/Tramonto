@@ -112,22 +112,39 @@ double integrand_WJDCcomp_freen(int iunk,int inode_box, double **x)
         rho_i=bondproduct*POW_DOUBLE_INT(x[unk_field][inode_box],-(Nbonds_SegAll[iseg]-1));        
         else rho_i=0.0;
 
-/*      rho_i*=prefactor_rho_wjdc(iseg);*/
         if (Type_interface==DIFFUSIVE_INTERFACE){
            mu=x[Phys2Unk_first[DIFFUSION]+npol][inode_box];
         }
         else mu=Betamu_chain[npol];
 
-        rho_i*=exp(mu+scale_term);
+         /*   rho_i*=prefactor_rho_wjdc(iseg);*/
+         /* rho_i*=exp(mu+scale_term);*/
+         
+         if (Grafted[npol]){
+             if (iseg==Grafted_SegID[npol]) {
+                 rho_i=Rho_g[npol]; /*do this term separately */
+             }
+             else {
+                 if(Grafted[npol]==GRAFT_DENSITY)
+                     rho_i*=Rho_g[npol]/Gsum_graft[npol];
+                 else
+                     rho_i*=Rho_g[npol]/(Gsum_graft[npol]*Total_area_graft[npol]);
+             }
+         }
+         else {
+             rho_i*=exp(mu+scale_term);
+         }
 
         count_ends=0;
         for (ibond=0;ibond<Nbonds_SegAll[iseg];ibond++){
           if(Bonds_SegAll[iseg][ibond]==-1) count_ends++;
         }
 
-        if (rho_i > 1.e-9){
+        if (rho_i > 1.e-9 && x[unk_field][inode_box] > 1.e-9){
            integrand += rho_i*(log(x[unk_field][inode_box]/exp(Scale_fac_WJDC[npol][icomp])) 
                       + 0.5*(Nbonds_SegAll[iseg]-count_ends)-1.0);
+            if(iseg==Grafted_SegID[npol])
+                printf("iseg=%d,integrand=%f\n",iseg,integrand);
         }
      }
      }

@@ -30,8 +30,8 @@
 /****************************************************************************/
 double calc_free_energy(FILE *fp, double **x)
 {
-double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
-       omega_hs,omega_hs_b,omega_hs_surf_ex,
+double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex, 
+       omega_hs,omega_hs_b,omega_hs_surf_ex, f_WJDC,
        omega_att,omega_att_b,omega_att_surf_ex,
        omega_wtc,omega_wtc_b,
        omega_psirho,omega_psirho_surf_ex,
@@ -289,6 +289,7 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
        }
 
        if (Type_poly == WJDC || Type_poly==WJDC2 || Type_poly==WJDC3){
+        if(Grafted_Logical==FALSE){
 
           if (Lseg_densities){
              omega_WJDC=integrateInSpace_SumInComp(&integrand_WJDC_freen,Nel_hit2,x,Integration_profile);
@@ -309,6 +310,13 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
 
           omega_sum += omega_WJDC;
           omega_s_sum += omega_WJDC_surf_ex;
+        }
+        else {       /* grafted polymers */
+            omega_WJDC=WJDCgraft_freen(x);
+            if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE) print_to_screen(omega_WJDC,"WJDC-GRAFTED");
+            omega_sum += omega_WJDC;
+        }
+
        }
 
       } /* end of if(!first || !lfirst) */
@@ -316,8 +324,12 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
       if (Proc==0 && Iwrite_screen != NO_SCREEN && Iwrite_screen != SCREEN_ERRORS_ONLY && fp != NULL){
         if(!first || !lfirst) {
         printf("\t\t----------------------------------------\n");
-        print_to_screen(omega_sum,"TOTAL GRAND POTENTIAL");
-        print_to_screen(omega_s_sum,"TOTAL SURF EX FREE ENERGY");
+        if(Grafted_Logical==FALSE) {
+            print_to_screen(omega_sum,"TOTAL GRAND POTENTIAL");
+            print_to_screen(omega_s_sum,"TOTAL SURF EX FREE ENERGY");
+        }
+        else
+            print_to_screen(omega_sum,"TOTAL SEMI-GRAND POTENTIAL");
         printf("\t\t----------------------------------------\n");
         }
       }
@@ -329,7 +341,8 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
             if(Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL) 
                                                      print_to_file(fp,-omega_sum/volume,"omega/V",first);
             else                                     print_to_file(fp,omega_sum,"omega",first);
-            if (Type_interface == UNIFORM_INTERFACE) print_to_file(fp,omega_s_sum,"omega_s",first);
+             if (Type_interface == UNIFORM_INTERFACE && Grafted_Logical == FALSE)
+                 print_to_file(fp,omega_s_sum,"omega_s",first);
          }
       }
     }
@@ -361,7 +374,10 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
        }
     }
 
-    energy = omega_s_sum;
+    if(Grafted_Logical==FALSE)
+        energy = omega_s_sum;
+    else
+        energy = omega_sum;
 
     if (first && lfirst) first=FALSE;
  

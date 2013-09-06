@@ -100,6 +100,7 @@ set(common_h
 	dft_energy_mu.h
 	dft_energy_cms.h
 	dft_energy_CLSintsten.h
+	dft_energy_grafted.h
 	dft_out_force.h
 	dft_out_flux.h
 	dft_out_profiles.h
@@ -226,6 +227,7 @@ set(common_c
 	dft_energy_mu.c
 	dft_energy_cms.c
 	dft_energy_CLSintsten.c
+	dft_energy_grafted.c
 	dft_out_force.c
 	dft_out_flux.c
 	dft_out_profiles.c

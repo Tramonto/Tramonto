@@ -33,6 +33,7 @@ extern int LBulk;
 extern int **Nel_hit;
 double integrand_adsorption_bulk(int iunk,int inode_box,double **x);
 extern int Icomp_to_polID[NCOMP_MAX];
+extern int Grafted_TypeID[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
