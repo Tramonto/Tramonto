@@ -1344,7 +1344,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
           for (icomp=0; icomp<Npol_comp; icomp++) {
               for (i=0; i<Nsteps; ++i){ 
                    fscanf(fpinput,"%lf", &rho_tmp_step[icomp][i]);
-                   fprintf(fpecho,"%f  ",Rho_step[icomp][i]);
+                   fprintf(fpecho,"%f  ",rho_tmp_step[icomp][i]);
                }
           }
           for (icomp=0; icomp<Ntype_mer; icomp++){
