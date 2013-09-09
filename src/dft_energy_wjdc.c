@@ -143,8 +143,6 @@ double integrand_WJDCcomp_freen(int iunk,int inode_box, double **x)
         if (rho_i > 1.e-9 && x[unk_field][inode_box] > 1.e-9){
            integrand += rho_i*(log(x[unk_field][inode_box]/exp(Scale_fac_WJDC[npol][icomp])) 
                       + 0.5*(Nbonds_SegAll[iseg]-count_ends)-1.0);
-            if(iseg==Grafted_SegID[npol])
-                printf("iseg=%d,integrand=%f\n",iseg,integrand);
         }
      }
      }
