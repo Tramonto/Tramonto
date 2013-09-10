@@ -33,7 +33,7 @@
 
 double WJDCgraft_freen(double **x)
 {
-    int pol_comp,icomp,iunk,inode;
+    int i,pol_comp,icomp,iunk,inode;
     double omega[NCOMP_MAX],fhelm[NCOMP_MAX],fid[NCOMP_MAX];
     double om[NCOMP_MAX][NCOMP_MAX],fh[NCOMP_MAX][NCOMP_MAX];
     double omega_wjdc,fidtot,ftot,freen_tot,rho_i;
@@ -50,21 +50,26 @@ double WJDCgraft_freen(double **x)
         /* loop over components in polymer */
         for(icomp=0;icomp<Ncomp;icomp++){
             iunk = Phys2Unk_first[DENSITY]+icomp;
+            if(pol_comp==Icomp_to_polID[icomp]) {
             if (Lseg_densities)
                 om[pol_comp][icomp]=integrateInSpace(&integrand_WJDC_freen,iunk,Nel_hit2,x,NULL);
             else
                 om[pol_comp][icomp]=integrateInSpace(&integrand_WJDCcomp_freen,iunk,Nel_hit2,x,NULL);
-            /* add grafted segment contribution */
              omega[pol_comp] += om[pol_comp][icomp];
+            }
         }
+        if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE) printf("ipol=%d,omega=%f\n",pol_comp,omega[pol_comp]);
         if(Grafted[pol_comp]) {
             /* calculate extra term in semi-grand free energy for grafted chains */
             /* loop over components in polymer */
             for(icomp=0;icomp<Ncomp;icomp++){
                 iunk = Phys2Unk_first[DENSITY]+icomp;
+                if(pol_comp==Icomp_to_polID[icomp]) {
                 fh[pol_comp][icomp] = graft_freen(pol_comp,iunk,icomp,x);
                 fhelm[pol_comp] += fh[pol_comp][icomp];
+                }
             }
+            if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE) printf("ipol=%d,fh=%f\n",pol_comp,fhelm[pol_comp]);
         }
         omega_wjdc += omega[pol_comp];
         ftot += fhelm[pol_comp];
