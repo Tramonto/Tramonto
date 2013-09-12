@@ -160,7 +160,7 @@ Check
   Scalar resid = b->norm2();
 
   if (verbose) {
-    std::cout << "A22 self-check residual = " << resid << endl;
+    std::cout << "A22 self-check residual = " << resid << std::endl;
   }
 
   TEUCHOS_TEST_FOR_EXCEPTION(resid > 1.0E-12, std::runtime_error, "Bad residual.\n");
