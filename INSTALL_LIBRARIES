@@ -66,42 +66,53 @@ Contents:
     While BLAS, LAPACK and MPI could be available on your system, you will
     most likely have to build Trilinos yourself.  
 
-    There are two different Trilinos builds that can be used with Tramonto. You must 
-    choose one. The first option is to use the older but very stable Epetra-based 
-    solver stack, and the second option is to use the next-generation Tpetra-based 
-    solver stack, currently  under very active development. It is recommended that 
-    you build Tramonto with the most recent versions of the trilinos library. 
-    As of March 2013, that is trilinos-11.0.3.
+    There are two different Trilinos builds that can be used with Tramonto. You
+    must choose one. The first option is to use the older but very stable
+    Epetra-based solver stack, and the second option is to use the
+    next-generation Tpetra-based solver stack, currently under very active
+    development. It is recommended that you build Tramonto with the most recent 
+    release version of the trilinos libraries when using the Epetra-based solver
+    stack. As of October 2013, that is Trilinos 11.4.1. When building Tramonto
+    with the Tpetra-based solver stack, it is necessary to use a development
+    version of Trilinos until MueLu is released. See:
+    http://trilinos.sandia.gov/publicRepo/index.html for information about
+    obtaining a development version of Trilinos. The development version of
+    Trilinos is also necessary for trying the new GUI features.
 
     The Epetra-based solver stack utilizes the Epetra parallel matrix/vector 
     library within Trilinos, as well as closely related packages. The average 
     Tramonto user will want to use this solver stack. To use Tramonto with the 
-    Epetra-based solver stack, Trilinos must be built with the following trilinos packages: 
-    amesos, aztecoo, triutils, ifpack, epetraext, epetra, loca, ml, nox, teuchos, and
+    Epetra-based solver stack, Trilinos must be built with the following
+    trilinos packages: amesos, aztecoo, triutils, ifpack, epetraext, epetra,
+    loca, ml, nox, teuchos, and optionally optika (to enable the GUI).
+
+    The Tpetra-based solver stack utilizes the Tpetra (templated Petra) parallel
+    matrix/vector library within Trilinos, as well as closely related packages.
+    Tpetra and related packages represent the next generation of software with
+    Trilinos. These packages template the scalar and ordinal types, allowing,
+    for example, computation in extended-precision, as well as the solution of
+    problems with more than 2 billion unknowns. Tramonto users facing extremely 
+    large or challenging problems may want to use this solver stack. 
+
+    To use Tramonto with the Tpetra-based solver stack, Trilinos 
+    must be built with the following Trilinos packages: 
+    amesos, aztecoo, belos, epetra, epetraext, ifpack, ifpack2, ml, muelu, nox,
+    stratimikos, teuchos, thyra, thyratpetraadapeters, tpetra, zoltan2, and
     optionally optika (to enable the GUI).
 
-    The Tpetra-based solver stack utilizes the Tpetra (templated Petra) parallel matrix/vector 
-    library within Trilinos, as well as closely related packages. Tpetra and related packages 
-    represent the next generation of software with Trilinos. These packages template the scalar 
-    and ordinal types, allowing, for example, computation in extended-precision, as well as 
-    the solution of problems with more than 2 billion unknowns. Tramonto users facing extremely 
-    large or challenging problems may wan to use this solver stack. 
-    To use Tramonto with the Tpetra-based solver stack, Trilinos 
-    must be built with the following trilinos packages: 
-    amezoz, aztecoo, belos, epetra, epetraext, ifpack, ifpack2, ml, muelu, nox, stratimikos,
-    teuchos, thyra, thyratpetraadapeters, tpetra, zoltan2, and optionally optika (to enable the GUI).
-
-    Note that as of March 2013, MueLu has not been released as part of the trilinos library, but will
-    be made available in a future 2013 release. For now, to obtain MueLu, you must check out 
-    a copy of Trilinos from the public git repository by following the instructions here:
+    Note that as of October 2013, MueLu has not been released as part of 
+    Trilinos, but will be made available in a future release. For now, to
+    obtain MueLu, you must check out a copy of Trilinos from the public git
+    repository by following the instructions here:
     http://trilinos.sandia.gov/publicRepo/index.html. 
 
-    The Tpetra-based solver stack requires that the SuperLU library be installed, and that 
-    Trilinos be configured with SuperLU enabled. Instructions for this are given at the bottom.
+    The Tpetra-based solver stack requires that the SuperLU library be
+    installed, and that Trilinos be configured with SuperLU enabled.
+    Instructions for this are given at the bottom.
     
-    To enable extended precision computation, the QD library must also be built, and Trilinos
-    must be configured with QD and a third-party-library. Instructions for this are given at the 
-    bottom. 
+    To enable extended precision computation, the QD library must also be
+    built, and Trilinos must be configured with QD and a third-party-library.
+    Instructions for this are given at the bottom. 
 
     Trilinos has a webpage for new users available at
     http://trilinos.sandia.gov/getting_started.html.
