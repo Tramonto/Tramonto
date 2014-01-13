@@ -308,7 +308,7 @@ void dftmain(double * engptr)
         print_vext(Vext,Vext_Filename);
         if (Restart_Vext == READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");
         print_zeroTF(Zero_density_TF,ZeroTF_filename);
-        if (Vol_charge_flag && Ndim==3) print_vext(Vext_coul,VextCoul_Filename);
+        if (Vol_charge_flag && Ndim==3 && proper_bc) print_vext(Vext_coul,VextCoul_Filename);
      }
 
 
