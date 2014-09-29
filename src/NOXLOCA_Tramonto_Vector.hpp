@@ -142,7 +142,7 @@ namespace NOXLOCA {
       //@}
   
       // derived
-      int length() const;
+      NOX::size_type length() const;
   
       //! Return the i-th element
       double& operator() (int i);
@@ -175,7 +175,7 @@ namespace NOXLOCA {
       int n1; //first dimention
       int n2; //second dimension
       int n;  //total length, n1*n2
-      int n_global;  //global length, gsum(n)
+      NOX::size_type n_global;  //global length, gsum(n)
 
       //! The vector owned by this object
       double** x2d; // Allocated  [n1][n2]

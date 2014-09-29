@@ -250,9 +250,9 @@ double NOXLOCA::Tramonto::PTVector::innerProduct(const NOXLOCA::Tramonto::PTVect
   return value;
 }
 
-int NOXLOCA::Tramonto::PTVector::length() const
+NOX::size_type NOXLOCA::Tramonto::PTVector::length() const
 {
-  return x1.length() + x2.length() + 1;;
+  return x1.length() + x2.length() + 1;
 }
 
 NOXLOCA::Tramonto::Vector& NOXLOCA::Tramonto::PTVector::X1()

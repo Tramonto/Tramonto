@@ -126,7 +126,7 @@ namespace NOXLOCA {
       //@}
   
       // derived
-      int length() const;
+      NOX::size_type length() const;
   
       // derived
       void print(std::ostream& stream) const;

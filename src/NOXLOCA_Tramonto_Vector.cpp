@@ -278,7 +278,7 @@ double NOXLOCA::Tramonto::Vector::innerProduct(const NOXLOCA::Tramonto::Vector& 
   return value;
 }
 
-int NOXLOCA::Tramonto::Vector::length() const
+NOX::size_type NOXLOCA::Tramonto::Vector::length() const
 {
   return n_global;
 }
