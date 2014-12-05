@@ -578,6 +578,17 @@ void print_profile_vtk(char *Density_FileName, double *xold)
                     if (ijk[0] == Nodes_x[0]-1) fprintf(fp_Density,"\n");	
                 }    /* end loop over all nodes LMH:switched order of loops */
                 break;
+            case POISSON:
+                fprintf(fp_Density,"SCALARS phi double\n");
+                fprintf(fp_Density,"LOOKUP_TABLE default\n");
+                for (inode=0; inode<Nnodes; inode++){
+                    node_to_ijk(inode,ijk);
+                    node_start = Nunk_per_node*inode;
+                    fprintf(fp_Density,"%.10le\n", xold[iunk+node_start]);
+                    /* add some blank lines for improved graphics in 2D and 3D gnuplot */
+                    if (ijk[0] == Nodes_x[0]-1) fprintf(fp_Density,"\n");
+                }
+                break;
             default:
                 break;
         }
