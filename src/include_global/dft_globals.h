@@ -135,7 +135,7 @@ int     Non_unique_G2B[4];   /* Flag indicating which box dimensions
                                 wrap around completely, resulting in a
                                 non-unique G2B mapping */
 int   **Nodes_2_boundary_wall;  /* Array[Nlists_HW][Nnodes] -1 if nod b.n. else b.n.*/
-int   **Wall_elems;  /* Array[Nlists_HW][Nelements] TRUE for wall elements  */
+int   **Wall_elems;  /* Array[Nlists_HW][Nelements_box] TRUE for wall elements  */
 int   ****Touch_domain_boundary; /*Array[Nwall][Nlists_HW][[Ndim][2] =0 if surface hits 
                         left boundary = 1 if hits right domain boundary else -1 */
 int   **Xtest_reflect_TF; /* Array[Nwall][Ndim] for reflections/wall-wall boundaries */ 
