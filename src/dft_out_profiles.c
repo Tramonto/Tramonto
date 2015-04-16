@@ -407,14 +407,7 @@ void print_profile(char *Density_FileName,double *xold)
 
         }    /* end loop over unknowns in the run */
 
-                /* print the Poisson-Boltzmann solution based on the computed electrostatic field */
-        if (Ipot_ff_c == 1 && Type_poly==NONE){
-        for (icomp=0; icomp<Ncomp; icomp++)
-          fprintf(fp_Density,"%.10le\t",
-                  Rho_b[icomp]*exp(-Charge_f[icomp]*xold[Phys2Unk_first[POISSON]+node_start]
-                                                              -Vext_old[inode*Ncomp+icomp]));
-        }
- 
+  
                /* print segment densities for a CMS polymer run ... print component densities in WTC run*/
         if ((Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)){
               for (itype_mer=0;itype_mer<Ncomp;itype_mer++) sumsegdens[itype_mer]=0.0;
