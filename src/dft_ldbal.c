@@ -139,6 +139,7 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
     MPI_Barrier(MPI_COMM_WORLD);
     timestart = time1 = MPI_Wtime();
   }
+
   /* setup for parallel */
 
   MPI_Comm_rank(MPI_COMM_WORLD,&proc);
@@ -169,8 +170,8 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
 
   allocflag = 0;
   if (dotmax > 0) {
-    dotmark = (int *) malloc((unsigned) dotmax * sizeof(int));
-    dotlist = (int *) malloc((unsigned) dotmax * sizeof(int));
+    dotmark = (int *) array_alloc(1, dotmax, sizeof(int));
+    dotlist = (int *) array_alloc(1, dotmax, sizeof(int));
     if (dotmark == NULL || dotlist == NULL) rcb_error(dotmax*sizeof(int));
   }
   else {
@@ -246,7 +247,6 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
     procmid = proclower + (procupper - proclower) / 2 + 1;
 
     /* determine communication partner(s) */
-
     if (proc < procmid)
       procpartner = proc + (procmid - proclower);
     else
@@ -261,7 +261,7 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
       readnumber = 2;
       procpartner2 = procpartner + 1;
     }
-    
+
     /* weight = summed weight of entire partition */
     /* search tolerance = largest single weight (plus epsilon) */
     /* targetlo = desired weight in lower half of partition */
@@ -298,10 +298,10 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
 
     if (allocflag) {
       allocflag = 0;
-      free(dotlist);
-      free(dotmark);
-      dotmark = (int *) malloc((unsigned) dotmax * sizeof(int));
-      dotlist = (int *) malloc((unsigned) dotmax * sizeof(int));
+      safe_free((void**)&dotlist);
+      safe_free((void**)&dotmark);
+      dotmark = (int *) array_alloc(1, dotmax, sizeof(int));
+      dotlist = (int *) array_alloc(1, dotmax, sizeof(int));
       if (dotmark == NULL || dotlist == NULL) rcb_error(dotmax*sizeof(int));
     }
 
@@ -567,11 +567,22 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
 
     if (dotnew > dotmax) {
       allocflag = 1;
+
+      int dotmax_old = dotmax;
+
       dotmax = overalloc * dotnew;
       if (dotmax < dotnew) dotmax = dotnew;
-      dotpt = (struct rcb_dot *) 
-	realloc(dotpt,(unsigned) dotmax * sizeof(struct rcb_dot));
-      if (dotpt == NULL) rcb_error(dotmax*sizeof(struct rcb_dot));
+
+      struct rcb_dot *tmp = (struct rcb_dot *) 
+        array_alloc(1, dotmax, sizeof(struct rcb_dot));
+
+      if (tmp == NULL) rcb_error(dotmax*sizeof(struct rcb_dot));
+
+      memcpy(tmp, dotpt, sizeof(struct rcb_dot)*dotmax_old);
+      safe_free((void**)&dotpt);
+
+      dotpt = tmp;
+
       *dots = dotpt;
       if (RCB_STATS) counters[6]++;
     }
@@ -587,7 +598,7 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
 
     if (outgoing > 0) {
       dotbuf = (struct rcb_dot *)
-        malloc((unsigned) outgoing * sizeof(struct rcb_dot));
+        array_alloc(1, outgoing, sizeof(struct rcb_dot));
       if (dotbuf == NULL) rcb_error(outgoing*sizeof(struct rcb_dot));
     }
     else 
@@ -642,7 +653,7 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
 
     length = outgoing * sizeof(struct rcb_dot);
     MPI_Rsend(dotbuf,length,MPI_CHAR,procpartner,1,MPI_COMM_WORLD);
-    free(dotbuf);
+    safe_free((void**)&dotbuf);
     
     dotnum = dotnew;
 
@@ -687,8 +698,8 @@ struct rcb_tree  *treept      /* tree of RCB cuts - only single cut on exit */
   MPI_Op_free(&box_op);
   MPI_Op_free(&med_op);
 
-  free(dotlist);
-  free(dotmark);
+  safe_free((void**)&dotlist);
+  safe_free((void**)&dotmark);
 
   if (RCB_STATS) {
     MPI_Barrier(MPI_COMM_WORLD);
@@ -1205,8 +1216,8 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
   /* Allocate and set up the array of struct of coordinates and weights */
 
   dots = (struct rcb_dot*) array_alloc
-                                (1, Nnodes_per_proc, sizeof(struct rcb_dot));
-
+    (1, Nnodes_per_proc, sizeof(struct rcb_dot));
+  
   for (loc_inode = 0; loc_inode < Nnodes_per_proc; loc_inode++) {
 
     if (MATRIX_FILL_NODAL) inode = (*update)[loc_inode * Nunk_per_node] / Nunk_per_node;
@@ -1235,6 +1246,7 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
     }
   }
 
+
   /* set other parameters */
 
   pdotmax = Nnodes_per_proc;
@@ -1250,11 +1262,11 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
   navg = gsum_double((double)*N_update) / (double)Num_Proc;
   if (Proc == 0&&Iwrite_screen==SCREEN_VERBOSE)
     printf("\tBefore load_balance: Max %d  Min %d  Ave %g Unknowns per Proc\n",
-             nmax, nmin, navg);
+           nmax, nmin, navg);
 
   /* Reset  arrays for unknowns owned by this proc and print new stats*/
-
   safe_free((void *) update);
+
   *N_update = Nunk_per_node * Nnodes_per_proc;
   *update = (int *) array_alloc(1, *N_update, sizeof(int));
   /*printf("in dft_ldbal: *update allocated to %d length\n",*N_update);*/
@@ -1265,7 +1277,6 @@ void load_balance(int flag, double *fill_time, int *N_update, int **update)
   if (Proc == 0 && Iwrite_screen == SCREEN_VERBOSE)
     printf("\tAfter load_balance: Max=%d  Min=%d  Avg=%g (Unknowns per Proc)\n",
              nmax, nmin, navg);
-
 
   /* Initialize max and min dimensions for each dimension */
  

@@ -259,6 +259,10 @@ void *array_alloc(int numdim, ...)
 
 /* Modified by Scott Hutchinson (1421) 20 January 1993 */
 
+// add spacer
+static const size_t g_memory_head = 16;
+static const size_t g_memory_tail = 16;
+
 static void * smalloc(size_t n)
 
 {
@@ -267,14 +271,17 @@ static void * smalloc(size_t n)
   int Proc = 0;
 #endif
 
+  pntr = NULL;
   if (n < 0) {
     fprintf(stderr, "smalloc ERROR: Non-positive argument. (%d)\n", n);
     exit(EXIT_FAILURE);
   }
-  else if (n == 0)
-    pntr = NULL;
-  else
-    pntr = (void *) malloc((size_t) n);
+  else {
+    pntr = (void *) malloc((size_t) n + (g_memory_head + g_memory_tail)*sizeof(void*));
+    
+    if (pntr != NULL) 
+      pntr += g_memory_head;
+  }
 
   if (pntr == NULL && n != 0) {
     fprintf(stderr, "smalloc (Proc = %d): Out of space - number of bytes "
@@ -299,9 +306,9 @@ void safe_free (void **ptr)
  */
  
   if (*ptr != NULL) {
- 
-    free(*ptr);
- 
+    void *pntr = (*ptr - g_memory_head);
+
+    free(pntr);
     /*
      *  Set the value of ptr to NULL, so that further references
      *  to it will be flagged.

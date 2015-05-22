@@ -129,7 +129,7 @@ void set_up_mesh (char *file_echoinput,char *output_file2)
       * and then free all the old global mesh arrays.
       */
     load_balance(1,NULL, &N_update, &update);
-
+  
     if (Iwrite_screen==SCREEN_VERBOSE) printf("Proc: %d Nodes_per_proc: %d\n",Proc,Nnodes_per_proc);
 
 
@@ -3311,10 +3311,9 @@ void MY_read_update(int *N_update, int *update[],
         *N_update = chunk * (end_x - start_x) * (end_y - start_y);
 
         /* if (!AZ_using_fortran) */
-              *update     = (int *) calloc(*N_update, sizeof(int));
+        *update = (int *) array_alloc (1, *N_update, sizeof(int));
 
         /* set update[] */
-
         count = 0;
         for (j = start_y; j < end_y; j++ ) {
           for (i = start_x; i < end_x; i++ ) {
@@ -3356,7 +3355,7 @@ void MY_read_update(int *N_update, int *update[],
     t2   *= chunk;
 
     /*if (!AZ_using_fortran) */
-      *update = (int *) calloc(*N_update,sizeof(int));
+    *update = (int *) array_alloc(1, *N_update, sizeof(int));
     if ( (*update == NULL) && (*N_update != 0) && Iwrite_screen != SCREEN_NONE) {
       (void) fprintf (stderr, "Not enough space to allocate 'update'\n");
       exit(-1);
