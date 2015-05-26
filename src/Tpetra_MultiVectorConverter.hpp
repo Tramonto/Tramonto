@@ -46,7 +46,7 @@ namespace Tpetra {
 
   //! MultiVectorConverter: A means of converting a Tpetra Multivector to a different scalar precision.
 
-  template<class DomainScalar, class RangeScalar=DomainScalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
+  template<class DomainScalar, class RangeScalar=DomainScalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Details::DefaultTypes::node_type>
   class MultiVectorConverter {
   public:
 

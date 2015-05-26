@@ -46,7 +46,7 @@ namespace Tpetra {
 
   //! InvOperator: A class to scale a CrsMatrix.
 
-  template<class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType, class LocalMatOps = typename KokkosClassic::DefaultKernels<Scalar,LocalOrdinal,Node>::SparseOps >
+  template<class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Details::DefaultTypes::node_type>
   class ScalingCrsMatrix {
   public:
 
@@ -77,7 +77,7 @@ namespace Tpetra {
     /*!
       \param In - A fully-constructed CrsMatrix object.
     */
-    ScalingCrsMatrix(Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, LocalMatOps> > matrixIn) {
+    ScalingCrsMatrix(Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > matrixIn) {
       matrix_ = matrixIn;
       return;
     }
@@ -187,12 +187,12 @@ namespace Tpetra {
   //@{
 
   //! Returns a pointer to the OperatorApplyInverse operator object that was used to create this InvOperator object.
-  Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, LocalMatOps> > getMatrix() const {return(matrix_);}
+  Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > getMatrix() const {return(matrix_);}
 
   //@}
 
  protected:
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node, LocalMatOps> > matrix_;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > matrix_;
 };
 
 }

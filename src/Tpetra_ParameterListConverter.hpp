@@ -49,7 +49,7 @@ namespace Tpetra {
 
   //! ParameterListConverter: A means of converting an Epetra ParameterList to a corresponding Tpetra ParameterList.
 
-  template<class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
+  template<class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Details::DefaultTypes::node_type>
   class ParameterListConverter {
   public:
 

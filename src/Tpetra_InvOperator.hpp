@@ -49,7 +49,7 @@ namespace Tpetra {
     Once constructed, an InvOperator can be used as the inverse of the input operator
     object as long as the appropriate apply and applyInverse methods are implemented in the original OperatorApplyInverse object.
   */
-  template<class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
+  template<class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Details::DefaultTypes::node_type>
   class InvOperator: public virtual Tpetra::OperatorApplyInverse<Scalar, LocalOrdinal, GlobalOrdinal, Node> {
   public:
 

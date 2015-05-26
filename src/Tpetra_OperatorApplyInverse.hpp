@@ -51,7 +51,7 @@ namespace Tpetra{
     The \c GlobalOrdinal type defaults to the \c LocalOrdinal type.
     The \c Node type defaults to the default node in Kokkos.
   */
-  template <class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
+  template <class Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Details::DefaultTypes::node_type>
   class OperatorApplyInverse : virtual public Tpetra::Operator<Scalar,LocalOrdinal,GlobalOrdinal,Node> {
   public:
     //! @name Destructor Method

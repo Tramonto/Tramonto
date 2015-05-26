@@ -51,7 +51,7 @@ namespace Tpetra {
     Once constructed, an MixedOperator can be used to apply the input operator to doublePrecision vectors
     as long as the appropriate apply method is implemented in the original Operator object.
   */
-  template<class Scalar, class OpScalar=Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Kokkos::DefaultNode::DefaultNodeType>
+  template<class Scalar, class OpScalar=Scalar, class LocalOrdinal = int, class GlobalOrdinal = LocalOrdinal, class Node = Details::DefaultTypes::node_type>
   class MixedOperator: public virtual Tpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node> {
   public:
 
