@@ -43,7 +43,7 @@ class dft_PolyA22_Coulomb_Tpetra_Operator:
  public:
 
   TYPEDEF(Scalar, MatrixType)
-  MUELU_TYPEDEF(MatScalar, LocalOrdinal, GlobalOrdinal, Node, LocalMatOps)
+  MUELU_TYPEDEF(MatScalar, LocalOrdinal, GlobalOrdinal, Node)
 
   typedef dft_PolyA22_Tpetra_Operator<Scalar,MatrixType> P22TO;
 

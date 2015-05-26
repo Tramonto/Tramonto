@@ -11,12 +11,12 @@
 #include <MueLu_UseShortNames.hpp>
 #endif
 
-#define MUELU_TYPEDEF(MSC, LO, GO, NO, LMO)	\
+#define MUELU_TYPEDEF(MSC, LO, GO, NO)	\
   \
-  typedef MueLu::Hierarchy<MSC,LO,GO,NO,LMO> Hierarchy; \
-  typedef MueLu::MLParameterListInterpreter<MSC,LO,GO,NO,LMO> MLFactory; \
-  typedef Xpetra::TpetraCrsMatrix<MSC,LO,GO,NO,LMO> XpetraTpetraCrsMatrix; \
-  typedef Xpetra::CrsMatrix<MSC,LO,GO,NO,LMO> XpetraCrsMatrix; \
-  typedef Xpetra::Matrix<MSC,LO,GO,NO,LMO> XpetraMatrix; \
-  typedef Xpetra::CrsMatrixWrap<MSC,LO,GO,NO,LMO> XpetraCrsWrap; \
-  typedef MueLu::TpetraOperator<MSC,LO,GO,NO,LMO> MueLuOP;
+  typedef MueLu::Hierarchy<MSC,LO,GO,NO> Hierarchy; \
+  typedef MueLu::MLParameterListInterpreter<MSC,LO,GO,NO> MLFactory; \
+  typedef Xpetra::TpetraCrsMatrix<MSC,LO,GO,NO> XpetraTpetraCrsMatrix; \
+  typedef Xpetra::CrsMatrix<MSC,LO,GO,NO> XpetraCrsMatrix; \
+  typedef Xpetra::Matrix<MSC,LO,GO,NO> XpetraMatrix; \
+  typedef Xpetra::CrsMatrixWrap<MSC,LO,GO,NO> XpetraCrsWrap; \
+  typedef MueLu::TpetraOperator<MSC,LO,GO,NO> MueLuOP;
