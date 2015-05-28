@@ -48,7 +48,7 @@ class dft_PolyA11_Tpetra_Operator:
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
   dft_PolyA11_Tpetra_Operator
-  (const RCP<const MAP> & ownedMap, const RCP<const MAP> & block1Map, RCP<ParameterList> parameterList);
+  (const RCP<const MAP> ownedMap, const RCP<const MAP> block1Map, RCP<ParameterList> parameterList);
   //@}
   //@{ \name Assembly methods.
   virtual void
@@ -163,7 +163,7 @@ class dft_PolyA11_Tpetra_Operator:
   }
 
   //! Returns a pointer to the Comm communicator associated with this operator.
-  virtual const RCP<const COMM> &
+  virtual RCP<const COMM> 
   Comm
   () const
   {
@@ -191,8 +191,8 @@ class dft_PolyA11_Tpetra_Operator:
 protected:
 
   void insertRow();
-  const RCP<const MAP> ownedMap_;
-  const RCP<const MAP> block1Map_;
+  RCP<const MAP> ownedMap_;
+  RCP<const MAP> block1Map_;
   size_t numBlocks_;
   Array<RCP<MAT> > matrix_;
   Array<RCP<MMOP> > matrixOperator_;

@@ -29,7 +29,7 @@
 template <class Scalar, class MatrixType>
 dft_HardSphereA11_Tpetra_Operator<Scalar,MatrixType>::
 dft_HardSphereA11_Tpetra_Operator
-(const RCP<const MAP> & indNonLocalMap, const RCP<const MAP> & depNonLocalMap, const RCP<const MAP> & block1Map,
+(const RCP<const MAP> indNonLocalMap, const RCP<const MAP> depNonLocalMap, const RCP<const MAP> block1Map,
  RCP<ParameterList> parameterList)
   : indNonLocalMap_(indNonLocalMap),
     depNonLocalMap_(depNonLocalMap),

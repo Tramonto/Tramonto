@@ -567,6 +567,16 @@ setupSolver
     preconditioner_ = rcp(new SCHWARZ(globalMatrixStatic_,overlapLevel));
     preconditionerOp_ = rcp(new SCHWARZ_OP(preconditioner_));
     ParameterList ifpack2List = parameterList_->sublist("ifpack2List");
+    ifpack2List.set ("inner preconditioner name", "ILUT");
+    {
+      ParameterList innerList;
+      innerList.set ("fact: ilut level-of-fill", 1.0);
+      innerList.set ("fact: drop tolerance", 0.0);
+      ifpack2List.set ("inner preconditioner parameters", innerList);
+    }
+    //ifpack2List.set ("schwarz: overlap level", static_cast<int> (0));
+    ifpack2List.set ("schwarz: combine mode", "Zero");
+    ifpack2List.set ("schwarz: use reordering", false);
     preconditioner_->setParameters(ifpack2List);
     preconditioner_->initialize();
     preconditioner_->compute();

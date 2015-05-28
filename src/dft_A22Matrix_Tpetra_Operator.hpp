@@ -50,7 +50,7 @@ public:
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
   dft_A22Matrix_Tpetra_Operator
-  (const RCP<const MAP > & block2Map, RCP<ParameterList> parameterList);
+  (const RCP<const MAP > block2Map, RCP<ParameterList> parameterList);
   //@}
   //@{ \name Assembly methods.
   void
@@ -156,7 +156,7 @@ public:
   }
 
   //! Returns a pointer to the Epetra_Comm communicator associated with this operator.
-  virtual const RCP<const COMM> &
+  virtual RCP<const COMM>
   Comm
   () const
   {
@@ -191,7 +191,7 @@ public:
 private:
 
   void insertRow();
-  const RCP<const MAP > block2Map_;
+  RCP<const MAP > block2Map_;
   RCP<ParameterList> parameterList_;
   RCP<MAT> A22Matrix_;
   RCP<GRAPH> A22Graph_;

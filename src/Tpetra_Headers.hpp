@@ -21,10 +21,10 @@
 #include "Tpetra_ParameterListConverter.hpp"
 #include "Tpetra_MultiVectorConverter.hpp"
 #include "Tpetra_ScalingCrsMatrix.hpp"
-#include "Kokkos_DefaultKernels.hpp"
-#include "Kokkos_TramontoSparseOps.hpp"
-#include "Kokkos_TramontoSparseMultiplyKernelOps.hpp"
-#include "Kokkos_TramontoSparseSolveKernelOps.hpp"
+//#include "Kokkos_DefaultKernels.hpp"
+//#include "Kokkos_TramontoSparseOps.hpp"
+//#include "Kokkos_TramontoSparseMultiplyKernelOps.hpp"
+//#include "Kokkos_TramontoSparseSolveKernelOps.hpp"
 
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_RCP.hpp>
@@ -248,7 +248,7 @@ typedef Kokkos::Compat::KokkosDeviceWrapperNode<KOKKOS_NODE_STRING> KokkosNode;
   typedef Tpetra::Vector<double,LO,GO,NO> VEC_D;	\
   typedef Tpetra::Operator<MSC,LO,GO,NO> OP_M; \
   typedef Ifpack2::ILUT<MAT> ILUT; \
-  typedef Ifpack2::AdditiveSchwarz<MAT,ILUT> SCHWARZ; \
+  typedef Ifpack2::AdditiveSchwarz<MAT> SCHWARZ; \
   typedef Tpetra::details::ApplyOp<SC,ILUT> ILUT_OP; \
   typedef Ifpack2::Diagonal<MAT> DIAGONAL; \
   typedef Tpetra::details::ApplyOp<SC,SCHWARZ> SCHWARZ_OP;	\

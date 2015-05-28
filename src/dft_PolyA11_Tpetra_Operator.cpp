@@ -29,7 +29,7 @@
 template <class Scalar, class MatrixType>
 dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>::
 dft_PolyA11_Tpetra_Operator
-(const RCP<const MAP > & ownedMap, const RCP<const MAP > & block1Map,
+(const RCP<const MAP > ownedMap, const RCP<const MAP > block1Map,
  RCP<ParameterList> parameterList)
   : ownedMap_(ownedMap),
     block1Map_(block1Map),

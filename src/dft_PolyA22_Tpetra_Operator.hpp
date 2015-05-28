@@ -50,8 +50,8 @@ class dft_PolyA22_Tpetra_Operator:
   /* dft_PolyA22_Tpetra_Operator(const Map & cmsMap, const Map & densityMap, const Map & block2Map, LocalOrdinal * options, Scalar * params);*/
 
   dft_PolyA22_Tpetra_Operator
-  (const RCP<const MAP > & cmsMap, const RCP<const MAP > & densityMap,
-   const RCP<const MAP > & block2Map, RCP<ParameterList> parameterList);
+  (const RCP<const MAP > cmsMap, const RCP<const MAP > densityMap,
+   const RCP<const MAP > block2Map, RCP<ParameterList> parameterList);
   //@}
   //@{ \name Assembly methods.
 
@@ -192,7 +192,7 @@ class dft_PolyA22_Tpetra_Operator:
   }
 
   //! Returns a pointer to the Comm communicator associated with this operator.
-  virtual const RCP<const COMM> &
+  virtual RCP<const COMM> 
   Comm
   () const
   {
@@ -221,9 +221,9 @@ protected:
   RCP<MV> tmpCmsVec_;
   LocalOrdinal F_location_;
   void insertRow();
-  const RCP<const MAP > cmsMap_;
-  const RCP<const MAP > densityMap_;
-  const RCP<const MAP > block2Map_;
+  RCP<const MAP > cmsMap_;
+  RCP<const MAP > densityMap_;
+  RCP<const MAP > block2Map_;
   RCP<ParameterList> parameterList_;
   RCP<MAT> cmsOnDensityMatrix_;
   RCP<MMOP> cmsOnDensityMatrixOp_;

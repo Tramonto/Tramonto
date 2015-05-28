@@ -51,9 +51,9 @@ class dft_PolyA22_Coulomb_Tpetra_Operator:
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads (plus Coulomb) system
 
   dft_PolyA22_Coulomb_Tpetra_Operator
-  (const RCP<const MAP> & cmsMap,const RCP<const MAP> & densityMap,
-   const RCP<const MAP> & poissonMap, const RCP<const MAP> & cmsDensMap,
-   const RCP<const MAP> & block2Map, RCP<ParameterList> parameterList);
+  (const RCP<const MAP> cmsMap,const RCP<const MAP> densityMap,
+   const RCP<const MAP> poissonMap, const RCP<const MAP> cmsDensMap,
+   const RCP<const MAP> block2Map, RCP<ParameterList> parameterList);
 
   //@}
   //@{ \name Assembly methods.
@@ -123,7 +123,7 @@ class dft_PolyA22_Coulomb_Tpetra_Operator:
   //@{ \name Atribute access functions
 
   //! Returns a pointer to the Comm communicator associated with this operator.
-  const RCP<const COMM> &
+  RCP<const COMM> 
   Comm
   () const
   {
@@ -153,9 +153,9 @@ protected:
   RCP<MV> tmpCmsVec2_;
   RCP<MV> tmpPoissonVec_;
   void insertRow();
-  const RCP<const MAP> poissonMap_;
-  const RCP<const MAP> cmsDensMap_;
-  const RCP<const MAP> block2Map_;
+  RCP<const MAP> poissonMap_;
+  RCP<const MAP> cmsDensMap_;
+  RCP<const MAP> block2Map_;
   RCP<MAT> poissonOnPoissonMatrix_;
   RCP<MMOP> poissonOnPoissonMatrixOp_;
   RCP<MAT> cmsOnPoissonMatrix_;

@@ -29,7 +29,7 @@
 template <class Scalar, class MatrixType>
 dft_A22Matrix_Tpetra_Operator<Scalar,MatrixType>::
 dft_A22Matrix_Tpetra_Operator
-(const RCP<const MAP> & block2Map, RCP<ParameterList> parameterList)
+(const RCP<const MAP> block2Map, RCP<ParameterList> parameterList)
   : block2Map_(block2Map),
     parameterList_(parameterList),
     nnz_(0),

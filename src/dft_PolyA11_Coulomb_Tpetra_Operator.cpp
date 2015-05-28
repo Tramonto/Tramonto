@@ -29,8 +29,8 @@
 template <class Scalar, class MatrixType>
 dft_PolyA11_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 dft_PolyA11_Coulomb_Tpetra_Operator
-(RCP<const MAP > & ownedMap, RCP<const MAP > & block1Map,
- RCP<const MAP > & allGMap, RCP<const MAP > & poissonMap,
+(RCP<const MAP > ownedMap, RCP<const MAP > block1Map,
+ RCP<const MAP > allGMap, RCP<const MAP > poissonMap,
  RCP<ParameterList> parameterList)
   : dft_PolyA11_Tpetra_Operator<Scalar,MatrixType>(ownedMap, allGMap, parameterList),
     //dft_PolyA11_Tpetra_Operator(ownedMap, allGMap, parameterList),

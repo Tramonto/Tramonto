@@ -49,7 +49,7 @@ public:
     //! Builds an implicit composite operator from a 2*numBeads by 2*numBeads system
 
   dft_HardSphereA22_Tpetra_Operator
-  (const RCP<const MAP > & block2Map);
+  (const RCP<const MAP > block2Map);
   //@}
 
   //@{ \name Assembly methods.
@@ -180,7 +180,7 @@ public:
   }
 
   //! Returns a pointer to the Tpetra_Comm communicator associated with this operator.
-  virtual const RCP<const COMM> &
+  virtual RCP<const COMM>
   Comm
   () const
   {
@@ -215,7 +215,7 @@ public:
 
 private:
 
-  const RCP<const MAP > block2Map_;
+  RCP<const MAP > block2Map_;
   RCP<VEC> densityOnDensityMatrix_;
   RCP<VEC> densityOnDensityInverse_;
   RCP<MAT> A22Matrix_;

@@ -29,7 +29,7 @@
 template <class Scalar, class MatrixType>
 dft_HardSphereA22_Tpetra_Operator<Scalar,MatrixType>::
 dft_HardSphereA22_Tpetra_Operator
-(const RCP<const MAP> & block2Map)
+(const RCP<const MAP> block2Map)
   : block2Map_(block2Map),
     densityOnDensityMatrix_(rcp(new VEC(block2Map))),
     densityOnDensityInverse_(rcp(new VEC(block2Map))),

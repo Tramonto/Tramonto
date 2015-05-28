@@ -29,9 +29,9 @@
 template <class Scalar, class MatrixType>
 dft_PolyA22_Coulomb_Tpetra_Operator<Scalar,MatrixType>::
 dft_PolyA22_Coulomb_Tpetra_Operator
-(const RCP<const MAP> & cmsMap, const RCP<const MAP> & densityMap,
- const RCP<const MAP> & poissonMap, const RCP<const MAP> & cmsDensMap,
- const RCP<const MAP> & block2Map,  RCP<ParameterList> parameterList)
+(const RCP<const MAP> cmsMap, const RCP<const MAP> densityMap,
+ const RCP<const MAP> poissonMap, const RCP<const MAP> cmsDensMap,
+ const RCP<const MAP> block2Map,  RCP<ParameterList> parameterList)
   : dft_PolyA22_Tpetra_Operator<Scalar,MatrixType>
 	      (cmsMap, densityMap, cmsDensMap, parameterList),
     poissonMap_(poissonMap),

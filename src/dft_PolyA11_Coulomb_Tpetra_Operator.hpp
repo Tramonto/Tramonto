@@ -49,8 +49,8 @@ class dft_PolyA11_Coulomb_Tpetra_Operator:
   /*  dft_PolyA11_Coulomb_Operator(const Map & ownedMap, const Map & block1Map, const Map & allGMap, const Map & poissonMap, LocalOrdinal * solverOptions, Scalar * solverParams);*/
 
   dft_PolyA11_Coulomb_Tpetra_Operator
-  (RCP<const MAP > & ownedMap,  RCP<const MAP > & block1Map, RCP<const MAP > & allGMap,
-   RCP<const MAP > & poissonMap, RCP<ParameterList> parameterList);
+  (RCP<const MAP > ownedMap,  RCP<const MAP > block1Map, RCP<const MAP > allGMap,
+   RCP<const MAP > poissonMap, RCP<ParameterList> parameterList);
   //@}
   //@{ \name Assembly methods.
   void
@@ -98,7 +98,7 @@ class dft_PolyA11_Coulomb_Tpetra_Operator:
 
   //@{ \name Atribute access functions
   //! Returns a pointer to the Comm communicator associated with this operator.
-  const RCP<const COMM> &
+  RCP<const COMM> 
   Comm
   () const
   {
@@ -125,9 +125,9 @@ class dft_PolyA11_Coulomb_Tpetra_Operator:
 protected:
 
   void insertPoissonRow();
-  const RCP<const MAP> block1Map_;
-  const RCP<const MAP> allGMap_;
-  const RCP<const MAP> poissonMap_;
+  RCP<const MAP> block1Map_;
+  RCP<const MAP> allGMap_;
+  RCP<const MAP> poissonMap_;
   RCP<ParameterList> parameterList_;
   RCP<MAT> poissonMatrix_;
   RCP<MMOP> poissonMatrixOperator_;

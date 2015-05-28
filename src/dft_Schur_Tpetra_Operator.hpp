@@ -167,7 +167,7 @@ class dft_Schur_Tpetra_Operator:
   };
 
   //! Returns a pointer to the Comm communicator associated with this operator.
-  const RCP<const COMM> &
+  RCP<const COMM> 
   Comm
   () const
   {
