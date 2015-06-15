@@ -279,7 +279,7 @@ protected:
   RCP<const MAP> block2RowMap_;
   RCP<const MAP> indNonLocalRowMap_;
   RCP<const MAP> depNonLocalRowMap_;
-  RCP<const MAP> uniformColMap_;
+  //RCP<const MAP> uniformColMap_;
   Array<GlobalOrdinal> physicsIdToSchurBlockId_;
   RCP<ScTO> schurOperator_;
   RCP<MMOP> schurComplementMatrixOperator_;

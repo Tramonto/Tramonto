@@ -180,7 +180,7 @@ protected:
   Epetra_SerialDenseVector valuesCmsOnDensity_, valuesCmsOnCms_, valuesDensityOnCms_;
   Teuchos::ParameterList IFList_;
   Teuchos::RCP<Ifpack_Preconditioner> IFPrec;
-  string IFPrecType; // incomplete LU
+  std::string IFPrecType; // incomplete LU
   int IFOverlapLevel;
 };
 

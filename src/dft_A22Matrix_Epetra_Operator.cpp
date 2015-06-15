@@ -116,7 +116,7 @@ int dft_A22Matrix_Epetra_Operator::finalizeProblemValues() {
     Teuchos::ParameterList list;
     // create the preconditioner. For valid PrecType values,
     // please check the documentation
-    string PrecType = "ILU"; // incomplete LU
+    std::string PrecType = "ILU"; // incomplete LU
     //string PrecType = "point relaxation"; // Gauss-Seidel
     int OverlapLevel = 0; // must be >= 0. If Comm.NumProc() == 1,
     // it is ignored.

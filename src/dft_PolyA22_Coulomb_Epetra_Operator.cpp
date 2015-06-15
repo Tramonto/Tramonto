@@ -788,7 +788,7 @@ int dft_PolyA22_Coulomb_Epetra_Operator::Check(bool verbose) const {
   // Warning: poisson-on-poisson matrix is singular; expect low accuracy from
   // ML preconditioner
   if (verbose) 
-    std::cout << "A22 self-check residual = " << resid << endl;
+    std::cout << "A22 self-check residual = " << resid << std::endl;
 
   if (resid > 1.0E-12) return(-1); // Bad residual
   return(0);

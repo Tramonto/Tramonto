@@ -156,13 +156,13 @@ finalizeBlockStructure
   indNonLocalRowMap_ = rcp(new MAP(INVALID, globalGIDList(0, numIndNonLocal), 0, comm_, node_));
   depNonLocalRowMap_ = rcp(new MAP(INVALID, globalGIDList(numIndNonLocal, numDepNonLocal), 0, comm_, node_));
 
-  uniformColMap_ = rcp(new MAP(globalRowMap_->getGlobalNumElements(), 0, comm_, 
-                               Tpetra::LocallyReplicated, node_));
+  //uniformColMap_ = rcp(new MAP(globalRowMap_->getGlobalNumElements(), 0, comm_, 
+  //                             Tpetra::LocallyReplicated, node_));
 
   A11_ = rcp(new HS11TO(indNonLocalRowMap_, depNonLocalRowMap_, block1RowMap_, parameterList_));
 
-  A12_ = rcp(new MAT(block1RowMap_, uniformColMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
-  A21_ = rcp(new MAT(block2RowMap_, uniformColMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
+  A12_ = rcp(new MAT(block1RowMap_, 0)); A12_->setObjectLabel("HardSphere::A12");
+  A21_ = rcp(new MAT(block2RowMap_, 0)); A21_->setObjectLabel("HardSphere::A21");
 
   if (isA22Diagonal_)
     {

@@ -116,7 +116,7 @@ int dft_HardSphereA22_Epetra_Operator::Check(bool verbose) const {
   b.Norm2(&resid);
 
   if (verbose) 
-    std::cout << "A22 self-check residual = " << resid << endl;
+    std::cout << "A22 self-check residual = " << resid << std::endl;
 
   if (resid > 1.0E-12) return(-1); // Bad residual
   return(0);
