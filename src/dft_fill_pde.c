@@ -270,6 +270,20 @@ void basis_fn_calc(double **phi, double ***grad_phi, double *evol)
         }
       }
    }
+   else if (Ndim == 2) {
+
+      *evol = Esize_x[0] * Esize_x[1];
+      
+      for (iln=0; iln<4; iln++) {
+        for (igp=0; igp<4; igp++) {
+          phi[iln][igp] = gp[(iln+igp)%2] * gp[((iln/2) + (igp/2))%2];
+          grad_phi[iln][igp][0] = gp[((iln/2) + (igp/2))%2] / Esize_x[0];
+          if (((iln+igp)%2)==0) grad_phi[iln][igp][0] *= -1.0;
+          grad_phi[iln][igp][1] = gp[(iln+igp)%2]/ Esize_x[1];
+          if (((iln/2) + (igp/2))%2==0) grad_phi[iln][igp][1] *= -1.0;
+        }
+      }
+   }
    else {
      if (Proc==0 && Iwrite_screen != SCREEN_NONE) printf("ERROR basis_fn_calc: Only for 3D\n");
      exit(-1);

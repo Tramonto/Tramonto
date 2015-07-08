@@ -53,13 +53,24 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
   /* pre calc basis function stuff for 3D */
 
   int igp,numEntries;
-  double rho, grad_mu[3], grad_mu_dot_grad_phi;
+
+
+/*   I added a new array for the 2D chemical potential gradient since the gradient in 2D is in R^2. (grad_mu_2D) James Cheung, July 19, 2015    */
+  double rho, grad_mu[3], grad_mu_dot_grad_phi, grad_mu_2D[2]; 
   static double **phi, ***grad_phi, evol;
   static int first=TRUE;
   if (first) {
-    phi = (double **) array_alloc(2, 8, 8, sizeof(double));
-    grad_phi = (double ***) array_alloc(3, 8, 8, 3, sizeof(double));
-    if (Ndim==3) basis_fn_calc(phi, grad_phi, &evol);
+	if (Ndim == 3){
+		phi = (double **) array_alloc(2, 8, 8, sizeof(double));
+		grad_phi = (double ***) array_alloc(3, 8, 8, 3, sizeof(double));
+	}
+
+	//I modified this for 2D to save a little memory. James Cheung, July 19, 2015
+	else if (Ndim == 2){
+		phi = (double **) array_alloc(2, 4, 4, sizeof(double));
+		grad_phi = (double ***) array_alloc(3, 4, 4, 2, sizeof(double));
+	}
+    if (Ndim == 2 || Ndim ==3) basis_fn_calc(phi, grad_phi, &evol);
     first = FALSE;
   }
 
@@ -344,10 +355,13 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                           if (Type_poly==NONE){
                              for (jln_tmp=0; jln_tmp<8; jln_tmp++){values_rho[jln_tmp]= evol * phi[jln_tmp][igp] * grad_mu_dot_grad_phi;}
                              numEntries=8;
-                             if (Iwrite_files==FILES_DEBUG_MATRIX){
-                                for (jtmp=0;jtmp<numEntries;jtmp++)
+/*   check is not correct, value is an array of size 2.     
+                            if (Iwrite_files==FILES_DEBUG_MATRIX){
+                                for (jtmp=0;jtmp<numEntries;jtmp++) { 
                                     Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[nodeIndices[jtmp]]+Solver_Unk[junk_rho]*Nnodes]+=values[jtmp];
+                                 }
                              }
+*/
                              dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                               junk_rho, nodeIndices,values_rho,numEntries);
                           }
@@ -356,10 +370,12 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                                  junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
                                  for (jln_tmp=0; jln_tmp<8; jln_tmp++){values_rho[jln_tmp]= evol * phi[jln_tmp][igp] * grad_mu_dot_grad_phi;}
                                  numEntries=8;
+/*   check is not correct, value is an array of size 2.  
                                  if (Iwrite_files==FILES_DEBUG_MATRIX){
                                     for (jtmp=0;jtmp<numEntries;jtmp++)
                                         Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[nodeIndices[jtmp]]+Solver_Unk[junk_rho]*Nnodes]+=values[jtmp];
                                  }
+*/
                                  dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
                                                                  junk_rho, nodeIndices,values_rho,numEntries);
                              }
@@ -384,10 +400,105 @@ double load_nonlinear_transport_eqn(int iunk, int loc_inode, int inode_box,
                                      
                 }
               }
-              else {
-                if (Iwrite_screen != SCREEN_NONE && Proc==0) printf("load_transport not written for 2D yet\n");
-                exit(-1);
-              }  
+
+
+
+
+	/*
+				2D MATRIX ASSEMBLY
+	*/
+	else if (Ndim==2){     /* Ndim==2 case */
+       
+ 	 /* loop over all quad points */
+                 for (igp=0; igp<4; igp++) {   
+                   /* calculate quantities at quad point */
+                   rho = 0.0; 
+                   grad_mu_2D[0] = grad_mu_2D[1] = 0.0;
+                   if (Type_poly==NONE){
+                     junk_rho = Phys2Unk_first[DENSITY]+iunk-Phys2Unk_first[DIFFUSION];
+                     for (jln=0; jln<4; jln++) {
+                        rho += phi[jln][igp] * x[junk_rho][nodeIndices[jln]];
+                     }
+                   }
+                   else{
+                      ipol=iunk-Phys2Unk_first[DIFFUSION];
+                      for (itype=0; itype<Poly_to_Ntype[ipol];itype++){
+                          junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
+                          for (jln=0; jln<4; jln++) {
+                              rho += phi[jln][igp] * x[junk_rho][nodeIndices[jln]];
+                          }
+                      }
+                   }
+
+                   for (jln=0; jln<4; jln++) {
+                      grad_mu_2D[0] = grad_phi[jln][igp][0] * x[junk_mu][nodeIndices[jln]];
+                      grad_mu_2D[1] = grad_phi[jln][igp][1] * x[junk_mu][nodeIndices[jln]];
+
+                      grad_mu_dot_grad_phi = grad_mu_2D[0]*grad_phi[iln][igp][0]
+                                            + grad_mu_2D[1]*grad_phi[iln][igp][1];
+
+                      if(resid_only_flag != INIT_GUESS_FLAG || junk_mu != iunk || nodeIndices[jln] != inode_box){
+                         resid = evol * rho * grad_mu_dot_grad_phi;
+                         resid_sum +=resid;
+
+                         if (resid_only_flag != INIT_GUESS_FLAG &&
+                              resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+
+                        if (resid_only_flag==FALSE){
+                           if (Type_poly==NONE){
+                              for (jln_tmp=0; jln_tmp<4; jln_tmp++){values_rho[jln_tmp]= evol * phi[jln_tmp][igp] * grad_mu_dot_grad_phi;}
+
+
+							  /*  I changed this from 8 to 4. James Cheung. June 19, 2015   */
+                              numEntries=4;
+//    check is not correct, value is an array of size 2.                               
+//                              if (Iwrite_files==FILES_DEBUG_MATRIX){
+//                                 for (jtmp=0;jtmp<numEntries;jtmp++)
+//                                     Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[nodeIndices[jtmp]]+Solver_Unk[junk_rho]*Nnodes]+=values[jtmp];
+//                              }
+
+                              dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                               junk_rho, nodeIndices,values_rho,numEntries);
+                           }
+                           else{ 
+                              for (itype=0; itype<Poly_to_Ntype[ipol];itype++){
+                                  junk_rho=Poly_to_Type[ipol][itype]+Phys2Unk_first[DENSITY];
+                                  for (jln_tmp=0; jln_tmp<4; jln_tmp++){values_rho[jln_tmp]= evol * phi[jln_tmp][igp] * grad_mu_dot_grad_phi;}
+
+								  /*  I changed this from 8 to 4. James Cheung. June 19, 2015   */
+                                  numEntries=4;
+ /*   check is not correct, value is an array of size 2.  
+                                  if (Iwrite_files==FILES_DEBUG_MATRIX){
+                                     for (jtmp=0;jtmp<numEntries;jtmp++)
+                                         Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[nodeIndices[jtmp]]+Solver_Unk[junk_rho]*Nnodes]+=values[jtmp];
+                                  }
+ */
+                                  dft_linprobmgr_insertmultinodematrixvalues(LinProbMgr_manager,iunk,loc_inode,
+                                                                  junk_rho, nodeIndices,values_rho,numEntries);
+                              }
+                           }
+                           mat_val= evol * rho * (
+                                          grad_phi[jln][igp][0] * grad_phi[iln][igp][0]
+                                        + grad_phi[jln][igp][1] * grad_phi[iln][igp][1]);
+                           if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[nodeIndices[jln]]+Solver_Unk[junk_mu]*Nnodes]+=mat_val;
+                           dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode,
+                                                                  junk_mu, nodeIndices[jln],mat_val);
+                        }
+                      }
+                      else{
+                         prefactor_sum += evol*rho*( 
+                                          grad_phi[jln][igp][0] * grad_phi[iln][igp][0]
+                                        + grad_phi[jln][igp][1] * grad_phi[iln][igp][1] );
+                      }
+                   }
+                                   
+                 }
+
+              }
+//              else {
+//                if (Iwrite_screen != SCREEN_NONE && Proc==0) printf("load_transport not written for 2D yet\n");
+//                exit(-1);
+//              }  
            }
          }
        }
