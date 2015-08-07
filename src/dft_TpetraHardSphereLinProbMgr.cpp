@@ -187,7 +187,7 @@ finalizeBlockStructure
 
   rhs1_ = globalRhs_->offsetViewNonConst(block1RowMap_, 0)->getVectorNonConst(0);
   rhs2_ = globalRhs_->offsetViewNonConst(block2RowMap_, numUnks1)->getVectorNonConst(0);
-  rhsSchur_ = rcp(new VEC(*rhs2_));
+  rhsSchur_ = rcp(new VEC(rhs2_->getMap()));
   lhs1_ = globalLhs_->offsetViewNonConst(block1RowMap_, 0)->getVectorNonConst(0);
   lhs2_ = globalLhs_->offsetViewNonConst(block2RowMap_, numUnks1)->getVectorNonConst(0);
 

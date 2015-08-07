@@ -95,7 +95,7 @@ ComputeRHS
 
   // Compute B2S =  B2 - A21*inv(A11)B1
   A11_->applyInverse(B1, *A11domainVec_);
-  A21op_->apply(*A11domainVec_, B2S);
+  A21_->apply(*A11domainVec_, B2S);
   B2S.update(ONE, B2, -ONE);
 } //end ComputeRHS
 
