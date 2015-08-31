@@ -222,7 +222,8 @@ typedef Kokkos::Compat::KokkosDeviceWrapperNode<KOKKOS_NODE_STRING> KokkosNode;
   typedef typename MAT::global_ordinal_type GO; \
   typedef typename MAT::node_type Node; \
   typedef typename MAT::node_type NO; \
-  typedef Tpetra::MultiVector<SC,LO,GO,NO> MV; \
+  typedef Tpetra::RowMatrix<SC,LO,GO,NO> ROWMAT; \
+  typedef Tpetra::MultiVector<SC,LO,GO,NO> MV;   \
   typedef Tpetra::Vector<SC,LO,GO,NO> VEC; \
   typedef Tpetra::Operator<SC,LO,GO,NO> OP; \
   typedef Tpetra::OperatorApplyInverse<SC,LO,GO,NO> APINV; \
@@ -246,11 +247,11 @@ typedef Kokkos::Compat::KokkosDeviceWrapperNode<KOKKOS_NODE_STRING> KokkosNode;
   typedef Tpetra::MultiVector<MSC,LO,GO,NO> MV_M; \
   typedef Tpetra::Vector<MSC,LO,GO,NO> VEC_M;  \
   typedef Tpetra::Vector<double,LO,GO,NO> VEC_D;	\
-  typedef Tpetra::Operator<MSC,LO,GO,NO> OP_M; \
-  typedef Ifpack2::ILUT<MAT> ILUT; \
-  typedef Ifpack2::AdditiveSchwarz<MAT> SCHWARZ; \
-  typedef Tpetra::details::ApplyOp<SC,ILUT> ILUT_OP; \
-  typedef Ifpack2::Diagonal<MAT> DIAGONAL; \
+  typedef Tpetra::Operator<MSC,LO,GO,NO> OP_M;                          \
+  typedef Ifpack2::ILUT<ROWMAT>ILUT;           \
+  typedef Ifpack2::AdditiveSchwarz<ROWMAT> SCHWARZ; \
+  typedef Tpetra::details::ApplyOp<SC,ILUT> ILUT_OP;                    \
+  typedef Ifpack2::Diagonal<ROWMAT> DIAGONAL;   \
   typedef Tpetra::details::ApplyOp<SC,SCHWARZ> SCHWARZ_OP;	\
   typedef Tpetra::details::ApplyOp<SC,DIAGONAL> DIAGONAL_OP; \
   typedef typename std::map<GO, MSC>::iterator ITER;
