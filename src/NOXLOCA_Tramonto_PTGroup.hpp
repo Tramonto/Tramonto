@@ -54,8 +54,8 @@ namespace NOXLOCA {
     public:
 
       //! Constructor
-      PTGroup(const Teuchos::RefCountPtr<LOCA::GlobalData> gD,
-              const Teuchos::RefCountPtr<NOXLOCA::Tramonto::Group>& grp_,
+      PTGroup(const Teuchos::RCP<LOCA::GlobalData> gD,
+              const Teuchos::RCP<NOXLOCA::Tramonto::Group>& grp_,
               const NOXLOCA::Tramonto::PTVector& ptVec);
 
       //! Copy constructor
@@ -143,9 +143,17 @@ namespace NOXLOCA {
 
       const NOX::Abstract::Vector& getGradient() const;
 
+      Teuchos::RCP< const NOX::Abstract::Vector > getXPtr() const;
+
+      Teuchos::RCP< const NOX::Abstract::Vector > getFPtr() const;
+
+      Teuchos::RCP< const NOX::Abstract::Vector > getGradientPtr() const;
+
+      Teuchos::RCP< const NOX::Abstract::Vector > getNewtonPtr() const;
+
       //@}
 
-      virtual Teuchos::RefCountPtr<NOX::Abstract::Group> 
+      virtual Teuchos::RCP<NOX::Abstract::Group>
       clone(NOX::CopyType type = NOX::DeepCopy) const;
 
       //! Print out the group
@@ -187,8 +195,13 @@ namespace NOXLOCA {
 
     protected:
 
+      //! Pointer to the container of solvers for each problem to be coupled
+      Teuchos::RCP<std::vector<Teuchos::RCP<NOX::Solver::Generic> > > solversVecPtr;
+
+    protected:
+
       //! Solution vector.
-      Teuchos::RefCountPtr<NOXLOCA::Tramonto::Group> trGrp;
+      Teuchos::RCP<NOXLOCA::Tramonto::Group> trGrp;
 
       /** @name Vectors */
       //@{
@@ -211,7 +224,7 @@ namespace NOXLOCA {
       //@}
 
       double normF;
-      const Teuchos::RefCountPtr<LOCA::GlobalData> globalData;
+      const Teuchos::RCP<LOCA::GlobalData> globalData;
 
     };
 

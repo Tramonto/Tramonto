@@ -378,6 +378,38 @@ const NOX::Abstract::Vector& NOXLOCA::Tramonto::PTGroup::getGradient() const
 }
 
 
+Teuchos::RCP< const NOX::Abstract::Vector >
+NOXLOCA::Tramonto::PTGroup::getXPtr() const
+{
+  std::cout << "ERROR: getXPtr not debugged for NOXLOCA::Tramonto::PTGroup!!!!" << std::endl;
+  throw "NOX Error";
+  return (*solversVecPtr)[0]->getSolutionGroup().getXPtr();
+}
+
+Teuchos::RCP< const NOX::Abstract::Vector >
+NOXLOCA::Tramonto::PTGroup::getFPtr() const
+{
+  std::cout << "ERROR: getFPtr not debugged for NOXLOCA::Tramonto::PTGroup!!!!" << std::endl;
+  throw "NOX Error";
+  return (*solversVecPtr)[0]->getSolutionGroup().getFPtr();
+}
+
+Teuchos::RCP< const NOX::Abstract::Vector >
+NOXLOCA::Tramonto::PTGroup::getGradientPtr() const
+{
+  std::cout << "ERROR: getGradientPtr not debugged for NOXLOCA::Tramonto::PTGroup!!!!" << std::endl;
+  throw "NOX Error";
+  return (*solversVecPtr)[0]->getSolutionGroup().getGradientPtr();
+}
+
+Teuchos::RCP< const NOX::Abstract::Vector >
+NOXLOCA::Tramonto::PTGroup::getNewtonPtr() const
+{
+  std::cout << "ERROR: getNewtonPtr not debugged for NOXLOCA::Tramonto::PTGroup!!!!" << std::endl;
+  throw "NOX Error";
+  return (*solversVecPtr)[0]->getSolutionGroup().getNewtonPtr();
+}
+
 void NOXLOCA::Tramonto::PTGroup::print() const
 {
   std::cout << "x = " << xVector << "\n";

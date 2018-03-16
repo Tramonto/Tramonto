@@ -268,11 +268,12 @@ double& NOXLOCA::Tramonto::PTVector::PTP()
 const double& NOXLOCA::Tramonto::PTVector::PTP() const
 { return ptp; }
 
+/* ALF: the line below causes compile problems on Mac; I don't think this function is used anyway */
 std::ostream& NOXLOCA::Tramonto::PTVector::leftshift(std::ostream& stream) const
 {
   stream << "{ ";
-  stream <<  x1.leftshift(stream) << " " << x2.leftshift(stream)
-         <<  " [ " << ptp << "] ";
+  /* stream <<  x1.leftshift(stream) << " " << x2.leftshift(stream)
+     <<  " [ " << ptp << "] ";*/
   stream << "}";
   return stream;
 }
