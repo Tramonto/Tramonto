@@ -32,6 +32,7 @@
 #include "LOCA_Abstract_Group.H"  // base class
 #include "LOCA_Parameter_Vector.H"
 #include "Teuchos_ParameterList.hpp"
+#include "NOX.H"                        // for NOX::Solver::Manager
 
 #include "NOX_Common.H"             // class data element (string)
 #include "NOXLOCA_Tramonto_Vector.hpp"	    // class data element
@@ -48,17 +49,18 @@ namespace NOX {
 }
 
 namespace NOXLOCA {
+
   namespace Tramonto {
 
-    //class Group : public virtual NOX::Abstract::Group {
-    class Group : public virtual LOCA::Abstract::Group {
+    //class Group : public NOX::Abstract::Group {
+    class Group : public LOCA::Abstract::Group {
 
     public:
 
       //! Constructor
-      Group(const Teuchos::RefCountPtr<LOCA::GlobalData>& gD, NOXLOCA::Tramonto::Vector& xOwned,
+      Group(const Teuchos::RCP<LOCA::GlobalData>& gD, NOXLOCA::Tramonto::Vector& xOwned,
             double** xBox, const LOCA::ParameterVector& pVec,
-            const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList, bool doPicard);
+            const Teuchos::RCP<Teuchos::ParameterList>& paramList, bool doPicard);
 
       //! Copy constructor
       Group(const NOXLOCA::Tramonto::Group& source, NOX::CopyType type = NOX::DeepCopy);
@@ -88,6 +90,7 @@ namespace NOXLOCA {
       NOX::Abstract::Group::ReturnType computeJacobian();
 
       NOX::Abstract::Group::ReturnType computeNewton(Teuchos::ParameterList& params);
+
 
       //@}
 
@@ -145,9 +148,17 @@ namespace NOXLOCA {
 
       const NOX::Abstract::Vector& getGradient() const;
 
+      Teuchos::RCP< const NOX::Abstract::Vector > getXPtr() const;
+
+      Teuchos::RCP< const NOX::Abstract::Vector > getFPtr() const;
+
+      Teuchos::RCP< const NOX::Abstract::Vector > getGradientPtr() const;
+
+      Teuchos::RCP< const NOX::Abstract::Vector > getNewtonPtr() const;
+
       //@}
 
-      virtual Teuchos::RefCountPtr<NOX::Abstract::Group> 
+      virtual Teuchos::RCP<NOX::Abstract::Group>
       clone(NOX::CopyType type = NOX::DeepCopy) const;
 
       //! Print out the group
@@ -156,7 +167,7 @@ namespace NOXLOCA {
       //! Start methods for LOCA::Abstract::Group
 
       //@{
-      void copy(const NOX::Abstract::Group& source) { *this = source; }
+      void copy(const NOX::Abstract::Group& source);
 
       //! Set the parameter vector in the group to p (pVector = p).
       void setParams(const LOCA::ParameterVector& p);
@@ -196,6 +207,11 @@ namespace NOXLOCA {
 
     protected:
 
+      //! Pointer to the container of solvers for each problem to be coupled
+      Teuchos::RCP<std::vector<Teuchos::RCP<NOX::Solver::Generic> > > solversVecPtr;
+
+    protected:
+
       /** @name Vectors */
       //@{
       //! Solution vector.
@@ -224,8 +240,8 @@ namespace NOXLOCA {
       LOCA::ParameterVector paramVec;
       mutable int contStep; // Printing index
       mutable bool secondSolution;
-      const Teuchos::RefCountPtr<LOCA::GlobalData> globalData;
-      const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList;
+      const Teuchos::RCP<LOCA::GlobalData> globalData;
+      const Teuchos::RCP<Teuchos::ParameterList>& paramList;
 
       bool doPicard;
     };

@@ -35,10 +35,11 @@ void box2owned(double**, double**);
 extern void post_process(double**, int*, double*, int, int,int);
 }
 
+
 NOXLOCA::Tramonto::Group::Group(const Teuchos::RefCountPtr<LOCA::GlobalData>& gD,
                                 NOXLOCA::Tramonto::Vector& xVector_, double** xBox_,
                                 const LOCA::ParameterVector& paramVec_,
-                        const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList_,
+								const Teuchos::RefCountPtr<Teuchos::ParameterList>& paramList_,
                                 bool doPicard_):
   LOCA::Abstract::Group(gD),
   xVector(xVector_),	// deep copy      
@@ -105,7 +106,7 @@ void NOXLOCA::Tramonto::Group::resetIsValid() //private
 Teuchos::RefCountPtr<NOX::Abstract::Group> NOXLOCA::Tramonto::Group::
 clone(NOX::CopyType type) const 
 {
-  Teuchos::RefCountPtr<NOX::Abstract::Group> newgrp = 
+  Teuchos::RefCountPtr<NOX::Abstract::Group> newgrp =
     Teuchos::rcp(new NOXLOCA::Tramonto::Group(*this, type));
   return newgrp;
 }
@@ -358,6 +359,38 @@ const NOX::Abstract::Vector& NOXLOCA::Tramonto::Group::getGradient() const
 }
 
 
+Teuchos::RCP< const NOX::Abstract::Vector >
+NOXLOCA::Tramonto::Group::getXPtr() const
+{
+  std::cout << "ERROR: getXPtr not debugged for NOXLOCA::Tramonto::Group!!!!" << std::endl;
+  throw "NOX Error";
+  return (*solversVecPtr)[0]->getSolutionGroup().getXPtr();
+}
+
+Teuchos::RCP< const NOX::Abstract::Vector >
+NOXLOCA::Tramonto::Group::getFPtr() const
+{
+  std::cout << "ERROR: getFPtr not debugged for NOXLOCA::Tramonto::Group!!!!" << std::endl;
+  throw "NOX Error";
+  return (*solversVecPtr)[0]->getSolutionGroup().getFPtr();
+}
+
+Teuchos::RCP< const NOX::Abstract::Vector >
+NOXLOCA::Tramonto::Group::getGradientPtr() const
+{
+  std::cout << "ERROR: getGradientPtr not debugged for NOXLOCA::Tramonto::Group!!!!" << std::endl;
+  throw "NOX Error";
+  return (*solversVecPtr)[0]->getSolutionGroup().getGradientPtr();
+}
+
+Teuchos::RCP< const NOX::Abstract::Vector >
+NOXLOCA::Tramonto::Group::getNewtonPtr() const
+{
+  std::cout << "ERROR: getNewtonPtr not debugged for NOXLOCA::Tramonto::Group!!!!" << std::endl;
+  throw "NOX Error";
+  return (*solversVecPtr)[0]->getSolutionGroup().getNewtonPtr();
+}
+
 void NOXLOCA::Tramonto::Group::print() const
 {
   std::cout << "x = " << xVector << "\n";
@@ -371,6 +404,9 @@ void NOXLOCA::Tramonto::Group::print() const
   
   std::cout << std::endl;
 }
+
+void NOXLOCA::Tramonto::Group::copy(const NOX::Abstract::Group& source)
+{ *this = source; }
 
 void  NOXLOCA::Tramonto::Group::setParams(const LOCA::ParameterVector& p)
 { for (int i=0; i<<paramVec.length(); i++) setParam(i, paramVec.getValue(i));}
