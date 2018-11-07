@@ -353,7 +353,7 @@ void setup_vext_XRSurf(int iwall)
 {
   int iwall_type,icomp,loc_inode,ijk_box[3],ijk_box_tmp[3],iunk, inode_box_tmp, idim;
   int flag_on_cutoff,logical_setup_vext;
-  double xORr, fluid_pos[3], sign, vtmpUP, vtmpDOWN, xORr_tmp;
+  double xORr, fluid_pos[3], sign, vtmpUP, vtmpDOWN, vtmpLOC, xORr_tmp;
   double param1,param2,param3,param4,param5,param6;
 
   iwall_type=WallType_Images[iwall];
@@ -397,7 +397,8 @@ void setup_vext_XRSurf(int iwall)
               }
         
               for (idim=0;idim<Ndim; idim++) ijk_box_tmp[idim]=ijk_box[idim];
-    
+   
+	/* this section of the code computes numerical derivatives of Vext in each dimension */	 
               for (idim=0;idim<Ndim; idim++){
                  xORr_tmp=Xwall_delUP[L2B_node[loc_inode]][iwall][idim];
                  if (xORr>0.001){
@@ -416,6 +417,16 @@ void setup_vext_XRSurf(int iwall)
                       else {vtmpDOWN = Vext_1D(xORr_tmp,icomp,iwall_type);}
                  }
                  else vtmpDOWN=Vext_set[loc_inode][icomp];
+
+                 xORr_tmp=X_wall[L2B_node[loc_inode]][iwall];
+                 if (xORr>0.001){ 
+                     if (Type_vext[iwall_type]==VEXT_PAIR_POTENTIAL) {
+                          vtmpLOC = pairPot_switch(xORr_tmp,param1,param2,param3,param4,param5,param6,Vext_PotentialID[iwall_type]);
+                      }
+                      else {vtmpLOC = Vext_1D(xORr_tmp,icomp,iwall_type);}
+                 }
+                 else vtmpLOC=Vext_set[loc_inode][icomp];
+
  
                  iunk=RealWall_Images[iwall]*Ncomp+icomp;
                  if (WallPos_Images[iwall][idim] > fluid_pos[idim]) sign=-1.0;
@@ -426,15 +437,15 @@ void setup_vext_XRSurf(int iwall)
                  }
                  else{
                      if ((fabs(vtmpUP-Vext_set[loc_inode][icomp])<1.e-6 && fabs(vtmpDOWN-Vext_set[loc_inode][icomp])>1.e-6) ||
-                         (fabs(vtmpUP)<1.e-6 && flag_on_cutoff==TRUE)){
-                        Vext_dash[loc_inode][iunk][idim]+=sign*(Vext[loc_inode][icomp]-vtmpDOWN)/VDASH_DELTA;
+                         (fabs(vtmpUP)<1.e-6 && flag_on_cutoff==TRUE && sign>0.0)){     
+                        Vext_dash[loc_inode][iunk][idim]+=sign*(vtmpLOC-vtmpDOWN)/VDASH_DELTA; /* backward difference only */
                      }
                      else if ((fabs(vtmpDOWN-Vext_set[loc_inode][icomp])<1.e-6 && fabs(vtmpUP-Vext_set[loc_inode][icomp])>1.e-6) ||
-                         (fabs(vtmpDOWN<1.e-6) && flag_on_cutoff==TRUE)){
-                        Vext_dash[loc_inode][iunk][idim]+=sign*(vtmpUP-Vext[loc_inode][icomp])/VDASH_DELTA;
+                         (fabs(vtmpDOWN)<1.e-6 && flag_on_cutoff==TRUE && sign<0.0)){
+                        Vext_dash[loc_inode][iunk][idim]+=sign*(vtmpUP-vtmpLOC)/VDASH_DELTA;   /* forward difference only */
                      }
                      else{
-                        Vext_dash[loc_inode][iunk][idim]+=sign*(vtmpUP-vtmpDOWN)/(2.0*VDASH_DELTA);
+                        Vext_dash[loc_inode][iunk][idim]+=sign*(vtmpUP-vtmpDOWN)/(2.0*VDASH_DELTA);  /* central difference */
                      }
                  }
               }
