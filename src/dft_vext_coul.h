@@ -22,7 +22,7 @@ extern int Type_pairPot;
 #define NONE        -1
 #define NONE        -1
 extern int Type_attr;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Charge_f[NCOMP_MAX];
 #define PAIR_COULOMB          2
 double integrate_potential(int typePot,double param1,double param2,double param3,double param4,double param5,double param6,int ngp,int ngpu,double *gp,double *gpu,double *gw,double *gwu,double *node_pos,double *node_pos_f);

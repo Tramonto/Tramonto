@@ -31,7 +31,7 @@ extern int Nrho_bar_s;
 #define THETA_FN_R            1
 #define HSRHOBAR       2
 double int_stencil_HSFMT(double **x,int inode_box,int iunk);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rho_b[NCOMP_MAX];
 double int_stencil_CMSField(double **x,int inode_box,int iunk,int sten_type);
 double constant_boundary(int iunk,int jnode_box);

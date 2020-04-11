@@ -28,6 +28,6 @@ extern int Ncomp;
 int StenTheta_CrCMS_Njcomp();
 #define NO_RENORMALIZATION_FLAG -888
 double StenTheta_CrCMS_sten_vol(int icomp,int jcomp);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Cr_rad[NCOMP_MAX][NCOMP_MAX];
 double StenTheta_CrCMS_sten_rad(int icomp,int jcomp);

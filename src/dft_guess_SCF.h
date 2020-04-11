@@ -20,7 +20,7 @@ double load_Chain_Geqns_SCF(int func_type_field,int Njacobian_types,int Njacobia
 #define G_CHAIN       11 
 void node_box_to_ijk_box(int node_box,int *ijk_box);
 extern void *LinProbMgr_manager;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern int Geqn_start[NCOMP_MAX];
 extern int ***Poly_to_Unk;
 extern int **Nbond;

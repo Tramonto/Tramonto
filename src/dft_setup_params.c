@@ -296,6 +296,7 @@ void setup_other_run_constants()
   Nwall_this_link = (int *) array_alloc (1, Nlink,sizeof(int));
   for (i=0; i<Nlink; i++) Nwall_this_link[i]=0;
   for (iwall=0; iwall<Nwall; iwall++){Link_list[Link[iwall]][Nwall_this_link[Link[iwall]]++]=iwall; } 
+  irand_range = 2147483647;
 
                 /*************************************************************************/
                 /* For Rough Surfaces.....populate a roughness array with random numbers */
@@ -303,24 +304,25 @@ void setup_other_run_constants()
                 /*************************************************************************/
   
   if (read_rough){
-     #ifndef _MSC_VER
+/*     #ifndef _MSC_VER
        srandom(135649);
      #else
        srand(135649);
-     #endif
+     #endif*/
+       srand(135649);
 
      for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
        for (iblock=0;iblock<MAX_ROUGH_BLOCK;iblock++){
          for (jblock=0;jblock<MAX_ROUGH_BLOCK;jblock++){
             if (Proc==0){
-            #ifndef _MSC_VER
+/*            #ifndef _MSC_VER
               irand = random();
             #else
               irand = rand();
-            #endif
+            #endif*/
+            irand = rand() % irand_range;
             }
             MPI_Bcast(&irand,1,MPI_INT,0,MPI_COMM_WORLD);  /* need this for parallel jobs to be identical to serial jobs */
-            irand_range = POW_INT(2,31)-1;
             Rough_precalc[iwall_type][iblock][jblock]= Rough_param_max[iwall_type]*(-0.5+( ((double)irand)/((double)irand_range)));
          }
        }
@@ -519,18 +521,20 @@ void make_dielecConst_params_dimensionless()
 /******************************************************************************/
 void make_density_params_dimensionless()
 {
-  int iwall_type,icomp,ipol_comp;
+  int iwall_type,icomp,ipol_comp,ncomp_tot;
+
+  if (Type_poly != NONE) ncomp_tot=Npol_comp;
+  else ncomp_tot=Ncomp;
+  
 
   for (iwall_type=0;iwall_type<Nwall_type;iwall_type++) Rho_w[iwall_type] /=Density_ref;
 
-  if (Type_poly==NONE || Ntype_mer==1){
-    for (icomp=0;icomp<Ncomp;icomp++) {
+  for (icomp=0;icomp<ncomp_tot;icomp++) {
         if (Type_interface == UNIFORM_INTERFACE) Rho_b[icomp]/=Density_ref;
         else {
            Rho_b_LBB[icomp]/=Density_ref;
            Rho_b_RTF[icomp]/=Density_ref;
         }
-    }
   }
 
 #ifdef USE_LOCA
@@ -696,6 +700,7 @@ void fill_surfGeom_struct()
             if (Lrough_surf[iw]==TRUE){
                sgeom_iw->roughness=Rough_param_max[iw];
                sgeom_iw->roughness_length=Rough_length[iw];
+printf("iw=%d roughness=%9.4f roughness_length=%9.4f",iw,sgeom_iw->roughness,sgeom_iw->roughness_length);
             }
             sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
             if(Lwedge_cutout[iw]==TRUE){
@@ -821,11 +826,14 @@ void setup_random_wall_positions(FILE *fpecho){
                                          /* to be changed to a proper selection in the input file*/
 int irand,irand_range,iwall,idim,dim_tmp;
 
-  #ifndef _MSC_VER
+  irand_range = 2147483647;
+
+/*  #ifndef _MSC_VER
     srandom(135649);
   #else
     srand(135649);
-  #endif
+  #endif*/
+    srand(135649);
 
  for (iwall=0; iwall<Nwall; iwall++){
     for (idim=0; idim<Ndim; idim++) {
@@ -836,12 +844,12 @@ int irand,irand_range,iwall,idim,dim_tmp;
                                 else if (idim==2) dim_tmp=0;*/
                       /* end of temporary code */
        if (Lrandom_walls==TRUE || fabs(WallPos[dim_tmp][iwall]+9999.0)<1.e-6) {
-            #ifndef _MSC_VER
+/*            #ifndef _MSC_VER
               irand = random();
             #else
               irand = rand();
-            #endif
-            irand_range = POW_INT(2,31)-1;
+            #endif*/
+            irand = rand() % irand_range;
             WallPos[dim_tmp][iwall] = Size_x[idim]*(-0.5+( ((double)irand)/((double)irand_range)));
             fprintf(fpecho,"\n Wall %d dim %d gets WallPos:%g \n",iwall,idim,WallPos[idim][iwall]);
           }  

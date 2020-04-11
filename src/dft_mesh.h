@@ -190,7 +190,7 @@ extern int Max_sten_length[3];
 extern int Min_IJK[3];
 extern int Min_IJK_box[3];
 extern double X_1D_bc;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 #define HARD_SPHERE  1
 extern int Nunknowns;

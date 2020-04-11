@@ -48,7 +48,7 @@ extern int Surface_type[NWALL_MAX_TYPE];
 extern double *Poly_graft_dist;
 #define CONT_LOG_RHO_I          100
 #define CONT_RHO_I         2
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
 extern int Ntype_mer;

@@ -53,7 +53,7 @@ extern int ATTInA22Block;
 extern int Physics_scaling;
 extern int NL_Solver;
 extern int Max_NL_iter;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern double X_1D_bc;
 extern int Dim_1Dbc;

@@ -52,17 +52,23 @@ void surface_block_inSurfaceTest(int iwall,int iwall_type,
 
   rsqsum_to_surface=0.0;
   rsqsum_to_center=0.0;
+
   for (idim=0; idim<Ndim; idim++){
-    /* if (Lapply_offset[idim]==TRUE)*/ halfwidth=sgeom_iw->halfwidth[idim]+dist_adjustments-roff;
-/*     else                           halfwidth=sgeom_iw->halfwidth[idim]-roff;*/
+     halfwidth=sgeom_iw->halfwidth[idim] + dist_adjustments-roff;
      x12 = fabs(wall_pos[iwall][idim] - fluid_testpos[idim]);
+
      if (x12 > halfwidth)                                *logical_inwall = FALSE;
      if (Ipot_ff_c==COULOMB && x12 > halfwidth+Dielec_X) *logical_nearWallDielec  = FALSE;
 
      xtest=x12-halfwidth;
-     if (xtest > 0) rsqsum_to_surface+=xtest*xtest;
-     if (xtest > 0) rsqsum_to_center+=x12*x12;
+     if (xtest > 0){
+        if (Lvext_finiteSurf_xdimOnly==FALSE || (Lvext_finiteSurf_xdimOnly==TRUE && idim==0)){
+            rsqsum_to_surface += xtest*xtest;  
+        }
+        rsqsum_to_center+=x12*x12;
+     }
   }
+  
   if (*logical_inwall==TRUE) {
           *delx_vext = 0.0;   /* element in wall */
           *delx_zone = 0.0;   /* element in wall */

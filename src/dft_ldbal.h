@@ -61,7 +61,7 @@ extern double Esize_x[NDIM_MAX];
 #define REFLECT              2
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 #define NONE       -1

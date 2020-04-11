@@ -66,7 +66,7 @@ double stencil_radius_switch(int sten,int icomp,int jcomp);
 double stencil_volume_switch(int sten,int icomp,int jcomp);
 int stencil_Njcomp_switch(int sten);
 extern double Gamma_MSA;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double N_MSA[NCOMP_MAX];
 extern double X_MSA[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];

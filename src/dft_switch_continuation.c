@@ -49,14 +49,19 @@ double get_init_param_value(int cont_type,int Loca_contID)
       case CONT_RHO_I:   
              if (Type_poly==NONE) return Rho_b[Cont_ID[Loca_contID][0]]; 
              else{
-                sum=0.0;
-                for (i=0;i<Nseg_tot;i++){
-                  if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) {
-                      sum += Rho_seg_b[i];
-                  }
+                if (Grafted[Cont_ID[Loca_contID][0]]==TRUE){
+                    return Rho_g[Cont_ID[Loca_contID][0]];
                 }
-                param=sum;
-                return param;
+                else{
+                   sum=0.0;
+                   for (i=0;i<Nseg_tot;i++){
+                     if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) {
+                         sum += Rho_seg_b[i];
+                     }
+                   }
+                   param=sum;
+                   return param;
+                }
              }
              break;   
 
@@ -141,19 +146,25 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
                  Rho_b[Cont_ID[Loca_contID][0]]=param; 
             }
             else{
-              rho_chain=0.0;
-              for (i=0;i<Nseg_tot; i++){
-                  if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_b[i];
-              }
-              param_old=rho_chain;
-              ratio=param/rho_chain;
+	       if(Grafted[Cont_ID[Loca_contID][0]]==TRUE){
+                  param_old=Rho_g[Cont_ID[Loca_contID][0]];
+                  Rho_g[Cont_ID[Loca_contID][0]]=param; 
+               }
+               else{
+                  rho_chain=0.0;
+                  for (i=0;i<Nseg_tot; i++){
+                      if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) rho_chain+= Rho_seg_b[i];
+                  }
+                  param_old=rho_chain;
+                  ratio=param/rho_chain;
 
-              for (i=0;i<Ntype_mer;i++) Rho_b[i]=0.0;
-              for (i=0;i<Nseg_tot; i++){
-                 if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) Rho_seg_b[i]*=ratio;
-                 Rho_b[Unk2Comp[i]]+=Rho_seg_b[i];
+                  for (i=0;i<Ntype_mer;i++) Rho_b[i]=0.0;
+                  for (i=0;i<Nseg_tot; i++){
+                     if (SegAll_to_Poly[i]==Cont_ID[Loca_contID][0]) Rho_seg_b[i]*=ratio;
+                     Rho_b[Unk2Comp[i]]+=Rho_seg_b[i];
+                  }
+                } 
               }
-            }
             break;
 
       case CONT_BETAMU_I: 
@@ -220,7 +231,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
           icomp=Cont_ID[Loca_contID][0];
           jcomp=Cont_ID[Loca_contID][1];
           param_old=Sigma_ff[icomp][jcomp];
-          if (icomp != jcomp && fabs(Sigma_ff[icomp][jcomp]-Sigma_ff[jcomp][icomp]<1.e-8)){
+          if (icomp != jcomp && fabs(Sigma_ff[icomp][jcomp]-Sigma_ff[jcomp][icomp])<1.e-8){
              Sigma_ff[jcomp][icomp]=param;
           }
           Sigma_ff[icomp][jcomp]=param;  
@@ -462,23 +473,30 @@ void print_cont_type(int cont_type,FILE *fp,int Loca_contID)
                   }
                }
                else{
-                  if (Type_interface==UNIFORM_INTERFACE){
-                     if (nloop==1) fprintf(fp,"Rho_chain_b[%d]  ",Cont_ID[Loca_contID][0]);
-                     else          fprintf(fp,"Rho_chain_b[%d]  ",i);
+                  if (Grafted[Cont_ID[Loca_contID][0]]){
+                        if (nloop==1) fprintf(fp,"Rho_g[%d]  ",Cont_ID[Loca_contID][0]);
+                        else          fprintf(fp,"Rho_g[%d]  ",i);
                   }
-                  else{
-                     if (nloop==1) {
-                          fprintf(fp,"Rho_chain_b_LBB[%d]  ",Cont_ID[Loca_contID][0]);
-                          fprintf(fp,"Rho_chain_b_RTF[%d]  ",Cont_ID[Loca_contID][0]);
+                  else{  /* not a grafted chain */
+                     if (Type_interface==UNIFORM_INTERFACE){
+                        if (nloop==1) fprintf(fp,"Rho_chain_b[%d]  ",Cont_ID[Loca_contID][0]);
+                        else          fprintf(fp,"Rho_chain_b[%d]  ",i);
                      }
-                     else{          
-                        fprintf(fp,"Rho_chain_b_LBB[%d]  ",i);
-                        fprintf(fp,"Rho_chain_b_RTF[%d]  ",i);
+                     else{
+                        if (nloop==1) {
+                             fprintf(fp,"Rho_chain_b_LBB[%d]  ",Cont_ID[Loca_contID][0]);
+                             fprintf(fp,"Rho_chain_b_RTF[%d]  ",Cont_ID[Loca_contID][0]);
+                        }
+                        else{          
+                           fprintf(fp,"Rho_chain_b_LBB[%d]  ",i);
+                           fprintf(fp,"Rho_chain_b_RTF[%d]  ",i);
+                        }
                      }
                   }
                }
              }}}
           }
+
          /*  alternate print types for the density variable */
         /* for (i=0; i<nloop; i++) fprintf(fp, "Rho_b[%d]/Rho_sum  ", i);*/
 
@@ -713,6 +731,12 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                   }
                }
                else{
+                    if (Grafted[Cont_ID[Loca_contID][0]]==TRUE){
+                       rho_chain=Rho_g[Cont_ID[Loca_contID][0]];
+                       if (rho_chain>1.e-6) fprintf(fp,"%11.8f  ",rho_chain);
+                       else fprintf(fp,"%g  ",rho_chain);
+                    }
+                    else{
                     if (Type_interface==UNIFORM_INTERFACE){
                        rho_chain=0.0;
                        for (iseg=0;iseg<Nseg_tot; iseg++){
@@ -738,6 +762,7 @@ double print_cont_variable(int cont_type,FILE *fp,int Loca_contID)
                        }
                        if (rho_chain>1.e-6) fprintf(fp,"%11.8f  ",rho_chain);
                        else fprintf(fp,"%g  ",rho_chain);
+                    }
                     }
                }
              }

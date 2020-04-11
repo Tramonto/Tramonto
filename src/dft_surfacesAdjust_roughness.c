@@ -73,6 +73,7 @@ double surface_cylinder2D_roughness(double *fluidEl_center,int iwall_type,int iw
   rough_length=sgeom_iw->roughness_length;
   radius=sgeom_iw->radius;
 
+
   for (iblock=0;iblock<2;iblock++) rough_block[iblock]=0;
   rough_block[1] = 0;
 

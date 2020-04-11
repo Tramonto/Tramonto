@@ -17,7 +17,7 @@ double load_Chain_Geqns(int func_type_field,int Njacobian_types,int Njacobian_su
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern int *Pol_Sym;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern int Geqn_start[NCOMP_MAX];
 extern int ***Poly_to_Unk;
 extern int **Nbond;

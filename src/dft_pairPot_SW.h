@@ -31,7 +31,7 @@ extern double Cut_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Eps_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 extern double Sigma_ww[NWALL_MAX_TYPE][NWALL_MAX_TYPE];
 #define WALL_WALL   2
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Cut_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double Eps_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 #define NWALL_MAX 600 

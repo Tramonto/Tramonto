@@ -43,6 +43,6 @@ extern double Esize_x[NDIM_MAX];
 extern int Type_pairPot;
 void pairPot_InnerCore_switch(int icomp,int jcomp,int typePairPot,double *rCore_left,double *rCore_right,double *epsCore);
 double StenTheta_uattr_sten_vol(int i,int j);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 double StenTheta_uattr_sten_rad(int icomp,int jcomp);

@@ -17,7 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 extern double *X_old;
 void calc_flux(FILE *fp,char *output_flux,double *X_old);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Betamu[NCOMP_MAX];
 double calc_free_energy(FILE *fp,double **x);
 void calc_force(FILE *fp,double **x,double fac_area);

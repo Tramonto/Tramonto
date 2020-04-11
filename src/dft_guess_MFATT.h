@@ -19,7 +19,7 @@
 double int_stencil(double **x,int inode_box,int iunk,int sten_type);
 extern int *L2B_node;
 void calc_init_mf_attract(double **xInBox,double **xOwned);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rho_b[NCOMP_MAX];
 extern double Avdw[NCOMP_MAX][NCOMP_MAX];
 #define SCREEN_NONE       -1 

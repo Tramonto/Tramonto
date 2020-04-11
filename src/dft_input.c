@@ -212,10 +212,15 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   else  fprintf(fpecho,"Xtest_reflect_TF n/a");
 
   read_junk(fpinput,fpecho);
+  Lvext_finiteSurf_xdimOnly=FALSE;
   if (Nwall_type > 0) 
     for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
         fscanf(fpinput,"%d", &Surface_type[iwall_type]);
 	 fprintf(fpecho,"%d  ",Surface_type[iwall_type]);
+         if (Surface_type[iwall_type]==finite_surface_xonlyVext){
+               Lvext_finiteSurf_xdimOnly=TRUE;
+               Surface_type[iwall_type]=finite_surface_general;
+         } 
     }
   else  fprintf(fpecho,"Surface_type n/a");
 

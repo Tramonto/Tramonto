@@ -29,7 +29,7 @@ extern void *LinProbMgr_manager;
 #define NEQ_TYPE       12 
 extern int Phys2Nunk[NEQ_TYPE];
 extern double Rho_t;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Ncomp;
 double load_SCF_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);

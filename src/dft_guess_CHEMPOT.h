@@ -25,7 +25,7 @@ void calc_init_chem_pot(double **xInBox,double **xOwned);
 #define NMER_MAX     200
 extern double Betamu_chain_RTF[NMER_MAX];
 extern double Betamu_chain_LBB[NMER_MAX];
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
 #define POISSON        1

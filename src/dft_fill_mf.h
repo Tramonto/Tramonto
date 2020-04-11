@@ -22,7 +22,7 @@ extern void *LinProbMgr_manager;
 #define CALC_RESID_ONLY  3
 #define INIT_GUESS_FLAG  2
 #define MF_EQ          3
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int ATTInA22Block;

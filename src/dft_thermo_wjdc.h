@@ -17,7 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 extern int **Poly_to_Unk_SegAll;
 extern int *Nbonds_SegAll;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern int Icomp_to_polID[NCOMP_MAX];
 #define VERBOSE      3 
 extern int Iwrite;

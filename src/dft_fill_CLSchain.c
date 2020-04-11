@@ -50,7 +50,6 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
   int inodel, inode_boxl,izone,graft_seg,graft_bond,gbond,jtmp,idim;
   double y,ysqrt,xi_2,xi_3,dummy=0.0;
 
-
   if (Lconstrain_interface && Type_interface==PHASE_INTERFACE && B2G_node[inode_box]==(int)(0.5*Size_x[Grad_dim]/Esize_x[Grad_dim]) && 
            iunk==Phys2Unk_first[DENSITY]){
          fill_constant_density_chain(iunk,0,0,x[unk_B][inode_box],loc_inode,inode_box,x,resid_only_flag);
@@ -92,6 +91,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
         }
       }
   }
+
 
   if (Type_poly==WJDC || Type_poly==WJDC2){
      itype_mer=Unk2Comp[iunk-Phys2Unk_first[DENSITY]];

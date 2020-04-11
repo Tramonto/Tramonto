@@ -1366,7 +1366,7 @@ void setup_zeroTF_and_Node2bound_new (FILE *fpecho,int ***el_type)
     for (loc_node_el=0; loc_node_el<Nnodes_per_el_V ; loc_node_el++){
        iel = node_to_elem_return_dim(inode, loc_node_el,reflect_flag, &idim,&iside,&periodic_flag);
        if (iel >= 0) iel_box = el_to_el_box(iel); 
-       if (iel < 0 || iel_box > Nelements_box) iel_box=0;     /*catch a parallel bug with periodic boundaries - may need more work here */
+       if (iel < 0 || iel_box > Nelements_box) iel_box=0;    /*may need to catch a parallel bug with periodic boundaries */
 
        if (iel_box>=0 || iel==-2 || iel==-1) n_el_in_box++;
 
@@ -1428,10 +1428,13 @@ void setup_zeroTF_and_Node2bound_new (FILE *fpecho,int ***el_type)
 
 
     /* in the case where n_el_in_box==Nnodes_per_el_V...
-         if (i) any one wall or (ii) any linked wall or (iii) any list has all walls
-         in the absence of hard surfaces then ...
+         if (i) any one wall or 
+            (ii) any linked wall or 
+            (iii) any list has all walls
+       in the absence of hard surfaces then ...
        the number of fluid elements is zero for all walls that touch this node
        and have the same list number*/
+
     if (n_el_in_box==Nnodes_per_el_V){
        for (index_w=0; index_w<Nwall_touch_node[index]; index_w++){
            ilist=List_wall_node[index][index_w];
@@ -1465,12 +1468,10 @@ Zero_density_TF[inode_box][ilist] = TRUE;
                  for (icomp=0; icomp<Ncomp; icomp++)  Zero_density_TF[inode_box][icomp] = TRUE; 
             }*/
         }
-
         else if ((n_fluid_els[index_w] != n_el_in_box) /*&& n_fluid_els[index_w]>0*/) {
             Nodes_2_boundary_wall[ilist][inode_box] = RealWall_Images[Wall_touch_node[index][index_w]]; 
-/*if ((Wall_touch_node[index][index_w]==0 || Wall_touch_node[index][index_w]==1) && ilist==Nlists_HW-1)
-      printf("iwall=%d  node_pos=%g %g \n",Wall_touch_node[index][index_w],node_pos[0]+Size_x[0]/2.,node_pos[1]+Size_x[1]/2.);*/
         }
+
     }
 
 
@@ -1589,7 +1590,7 @@ Zero_density_TF[inode_box][ilist] = TRUE;
          }
     }
     fprintf (fpecho,"\n---------------------------------------------------------------\n");
- } 
+ }
 
  safe_free((void *) &n_fluid_els);
  safe_free((void *) &Touch_domain_boundary);

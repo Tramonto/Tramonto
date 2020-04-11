@@ -16,7 +16,7 @@ double pairPot_ATT_CS_switch(double r,int icomp,int jcomp,int typePairPot);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 #define FILENAME_LENGTH 4096
 extern char Outpath_array[FILENAME_LENGTH];

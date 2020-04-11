@@ -62,7 +62,7 @@ extern double NL_update_scalingParam;
 extern double NL_abs_tol,NL_rel_tol;
 #define CALC_ALL_FIELDS   1
 #define PICARD_BUILT_IN       2
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 #define WJDC2        4 
 #define WJDC         3
@@ -283,6 +283,9 @@ extern int Lapply_offset[3];
 extern double WallParam_3[NWALL_MAX_TYPE];
 extern double WallParam_2[NWALL_MAX_TYPE];
 #define point_surface                   4
+#define finite_surface_xonlyVext         9
+#define finite_surface_general         1
+extern int Lvext_finiteSurf_xdimOnly;
 extern double WallParam[NWALL_MAX_TYPE];
 extern int Orientation[NWALL_MAX_TYPE];
 extern int Surface_type[NWALL_MAX_TYPE];

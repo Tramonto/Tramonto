@@ -20,7 +20,7 @@ extern double BondWTC_b[NMER_MAX *NMER_MAX];
 extern double Xi_cav_b[4];
 extern double Rho_seg_b[NMER_MAX];
 double integrand_WTC_freen_bulk(int iunk,int inode_box,double **x);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Fac_overlap[NCOMP_MAX][NCOMP_MAX];
 #define BONDWTC        5
 extern int **Poly_to_Unk_SegAll;

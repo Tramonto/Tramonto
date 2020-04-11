@@ -30,6 +30,7 @@ extern double Energy;
 extern double *Vext_old;
 extern double *X2_old;
 extern double *X_old;
+extern int Lvext_finiteSurf_xdimOnly;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 int stencil_Njcomp_switch(int sten);
@@ -112,7 +113,7 @@ void linsolver_setup_control();
 extern void *LinProbMgr_manager;
 void boundary_setup(char *file_echoinput);
 void set_up_mesh(char *file_echoinput,char *output_file2);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int Grafted_TypeID[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];

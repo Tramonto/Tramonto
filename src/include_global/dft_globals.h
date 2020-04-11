@@ -193,6 +193,7 @@ int     Link[NWALL_MAX]; /* Index iwall to a particular macro-surface */
 int     *Nwall_this_link; /* Number of walls linked together in a particular macro-surface */
 int     **Link_list; /* List of walls linked in a particular macro-surface */
 int     Surface_type[NWALL_MAX_TYPE];    /* Type of surfaces of interest                     */
+int     Lvext_finiteSurf_xdimOnly; /* special case of finite surface for patchy walls */
 int     Orientation[NWALL_MAX_TYPE];  /* Orientation of planar/bumpy infinite walls*/
 double  WallParam[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
 double  WallParam_2[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/

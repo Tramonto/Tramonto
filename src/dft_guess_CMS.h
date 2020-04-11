@@ -40,7 +40,7 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int Nlists_HW;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 extern double *Poly_graft_dist;
 #define NDIM_MAX  3

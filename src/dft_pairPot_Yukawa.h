@@ -17,7 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 #define PI    3.141592653589793238462643383279502884197169399375
 double uYUKAWA_Integral(double r,int i,int j);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 double uYUKAWA_ATT_CS(double r,int i,int j);
 #define CORECONST_ZERO      1

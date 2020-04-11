@@ -17,7 +17,8 @@
 #include "Tramonto_ConfigDefs.h"
 extern double ***GsumPrefac_GDerivs;
 extern int ***Index_UnkGQ_Gsum;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
+extern int Proc;
 extern int Grafted_SegID[NCOMP_MAX];
 extern int ***Bonds;
 extern int *B2G_node_extra;

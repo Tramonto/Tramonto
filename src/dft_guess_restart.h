@@ -17,7 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 extern double **Vext;
 void setup_exp_density_with_profile(double **xInBox);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NSTEPS_MAX 10
 extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];
 #define CHOP_RHO_STEP    4

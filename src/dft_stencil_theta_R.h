@@ -28,6 +28,6 @@ int StenTheta_R_Njcomp();
 #endif
 #define PI    3.141592653589793238462643383279502884197169399375
 double StenTheta_R_sten_vol(int i);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double HS_diam[NCOMP_MAX];
 double StenTheta_R_sten_rad(int icomp);

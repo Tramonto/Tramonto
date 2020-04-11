@@ -55,7 +55,7 @@ extern int Ncomp;
 extern int Iwrite_screen;
 #define MF_EQ          3
 #define POISSON        1
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern int Geqn_start[NCOMP_MAX];
 extern int *Pol_Sym;
 #define G_CHAIN       11 

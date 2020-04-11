@@ -23,7 +23,7 @@ extern double Betap;
 #define NMER_MAX     200
 extern double Betamu_chain_RTF[NMER_MAX];
 extern double Betamu_chain_LBB[NMER_MAX];
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
@@ -32,6 +32,8 @@ extern double Rho_seg_RTF[NMER_MAX];
 extern double Rho_seg_LBB[NMER_MAX];
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
+extern double Rho_g[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
 #define NDIM_MAX  3
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];

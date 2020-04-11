@@ -22,6 +22,6 @@ extern int Ndim;
 int StenTheta_Sigma_NquadPtsBoundary();
 int StenTheta_Sigma_Njcomp();
 double StenTheta_Sigma_sten_vol(int icomp);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double StenTheta_Sigma_sten_rad(int icomp);

@@ -235,7 +235,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
 
   /* NEW CODE STARTS */
 
-/*  would like to move switch to function, but it doesn't return the correct function pointers for some reason */
+/*  would like to move switch to function at some point...may have issue with function pointers */
 /* put switch here for now */
 /*     setup_surface_fnc_pointers(sgeom_iw->surfaceTypeID,
                    fp_roughness, fp_periodic, fp_angleCutout, fp_inSurfaceTest);*/
@@ -347,6 +347,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
 
            iel=el_box_to_el(iel_box);
            inode = element_to_node(iel);
+           delx_vext=0.0;
 
     
               /* find center of element - and set up all surface logical, wall elements, and x_min based on element center */
@@ -354,6 +355,8 @@ void setup_surface (FILE *fp2, int *nelems_f,
            inode_box = element_box_to_node_box(iel_box);
            loc_inode=B2L_node[inode_box];
            for (idim=0;idim<Ndim;idim++) xtest[idim]=node_pos[idim]+0.5*Esize_x[idim];
+
+
 
            /* compute adjustments to basic geometries*/
            dist_roughness=0.0; dist_periodic=0.0; dist_linear=0.0; angle_test=TRUE;
@@ -565,6 +568,7 @@ void flag_wall_el(int inode,int ilist,int iwall,int iel_box, int **L_wall,
       inode_box = element_box_to_node_box(iel_box);
       node_box_to_ijk_box(inode_box,ijk_box);
       for (idim=0; idim<Ndim; idim++) imax[idim]=2;
+
 
       for (ix[2]=0; ix[2]<imax[2]; ix[2]++){
         for (ix[1]=0; ix[1]<imax[1]; ix[1]++){

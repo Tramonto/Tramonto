@@ -46,7 +46,7 @@ extern int *Pol_Sym_Seg;
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *Pol_Sym;
 #define G_CHAIN       11 
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 double gsum_double(double c);

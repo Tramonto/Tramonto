@@ -16,7 +16,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define SCREEN_ERRORS_ONLY  0 
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern int Nmer[NCOMP_MAX];
 #define TRUE  1
 #if !defined(_CON_CONST_H_)

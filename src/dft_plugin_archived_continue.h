@@ -38,7 +38,7 @@ void setup_polymer_cr();
 #define FILENAME_LENGTH 4096
 extern char EchoInputFile_array[FILENAME_LENGTH];
 #define NWALL_MAX_TYPE 20 
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 void assign_param_archived_plugin(int cont_type,int Loca_contID,double param);
 #define SCREEN_NONE       -1 
 extern int Iwrite_screen;
