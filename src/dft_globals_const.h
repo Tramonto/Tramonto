@@ -1051,10 +1051,11 @@ extern int     **Lsemiperm; /*Array of logicals for semi-permeable surfaces */
 extern double  **Vext_membrane; /*Array potentials for semi-perm surfaces */
 extern double  **Vext_set;      /*Array of maximum set points for ext potentials */
 extern double **Vext;        /* External field array [Nnodes_local][Ncomp]           */
+extern double ***Vext_perWallType;  /* External field array per wall type [Nnodes_local][Ncomp][Nwall_type]           */
 extern double **Vext_static; /* Static part of external field [Nnodes_local][Ncomp] */
 extern double **Vext_coul;        /* Coulomb External field array [Nnodes]           */
 extern double *Vext_old;        /* for post processing: ext field array           */
-extern double ***Vext_dash;  /* derivative of external field [Nnodes][Ncomp][Nwall]*/
+extern double ***Vext_dash;  /* derivative of external field [Nnodes][Ncomp*Nwall][Ndim]*/
 extern double **Uww;        /* Wall-Wall interactions [Nwall-1][Nwall-1]           */
 extern double **Uww_link;        /* Wall-Wall interactions [Nlink-1][Nlink-1]           */
 extern double **X_wall;  /* Distance from inode to iwall [Nnodes][Nwall]    */

@@ -56,7 +56,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    }
    else         icomp=i;
 
-
                    /* note that there are several cases where the euler-lagrange fill
                       is preempted by a simpler residual equation.  We check for each
                       of these cases first.  If none are true, the full EL residual is filled */
@@ -355,7 +354,9 @@ double fill_EL_ideal_gas(int iunk, int icomp, int loc_inode, int inode_box, doub
    int pol_number;
 
    if (resid_only_flag != INIT_GUESS_FLAG){
+
       resid = log(x[iunk][inode_box]); 
+
       resid_ig=resid;
       if (resid_only_flag !=CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
       if (!resid_only_flag){

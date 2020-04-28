@@ -46,7 +46,7 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
    /* Local variable declarations */
    
    char *yo = "external_field_neutral";
-   int idim,icomp,iwall,iunk,loc_inode,ilist;
+   int idim,icomp,iwall,iunk,loc_inode,ilist,iw_type;
    int **elems_w_per_w_global, *nelems_w_per_w_global;
    int inode_box;
    /*int **nodes_vext_max,*nnodes_vext_max;*/
@@ -68,6 +68,7 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
 
    Vext = (double **) array_alloc (2,Nnodes_per_proc,Ncomp, sizeof(double));
    Vext_set = (double **) array_alloc (2,Nnodes_per_proc,Ncomp, sizeof(double));
+   Vext_perWallType = (double ***) array_alloc (3,Nnodes_per_proc,Ncomp, Nwall_type,sizeof(double));
 
    /* set up the Vext_dash array if we will need it */
    Lvext_dash=FALSE;
@@ -83,6 +84,7 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
      for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
 
         Vext[loc_inode][icomp] = UNINIT_VEC;
+        for (iw_type=0;iw_type<Nwall_type; iw_type++) Vext_perWallType[loc_inode][icomp][iw_type] = UNINIT_VEC;
 
         if (Lvext_dash){
         for (iwall=0; iwall<Nwall; iwall++){
@@ -239,7 +241,7 @@ void setup_external_field_n( int **nelems_w_per_w, int ***elems_w_per_w)
 /* setup_zero: Set the external field to zero everywhere in the fluid */
 void setup_zero()
 {
-   int loc_inode, icomp, iwall, iunk, idim,inode_box;
+   int loc_inode, icomp, iwall, iunk, idim,inode_box,iw_type;
    for (icomp=0; icomp<Ncomp; icomp++) {
       
       for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++) {
@@ -247,6 +249,7 @@ void setup_zero()
 
           if (!Zero_density_TF[inode_box][icomp]){
             Vext[loc_inode][icomp] = 0.0;
+            for (iw_type=0;iw_type<Nwall_type; iw_type++) Vext_perWallType[loc_inode][icomp][iw_type] = 0.0;
             if (Lvext_dash){
             for (iwall=0; iwall<Nwall; iwall++) {
                 iunk = iwall*Ncomp + icomp;
@@ -266,7 +269,7 @@ void setup_zero()
 in the first 1/2 sigma from the wall for each component.                      */
 void setup_vext_max()
 {
-  int ilist, loc_inode, icomp, iwall, iunk, idim ,inode_box;
+  int ilist, loc_inode, icomp, iwall, iunk, idim ,inode_box,iw_type;
   int inode;
   double xpos[3];
 
@@ -280,6 +283,7 @@ void setup_vext_max()
          node_to_position(inode,xpos);
          if (Zero_density_TF[inode_box][icomp]) {
             Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp];
+            for (iw_type=0;iw_type<Nwall_type; iw_type++) Vext_perWallType[loc_inode][icomp][iw_type] = Vext_set[loc_inode][icomp];
             if (Lvext_dash){
             for (iwall=0; iwall<Nwall; iwall++) {
                 iunk = iwall*Ncomp + icomp;
@@ -291,6 +295,7 @@ void setup_vext_max()
              Nodes_2_boundary_wall[ilist][inode_box]<0 || 
              WallType[Nodes_2_boundary_wall[ilist][inode_box]] != Graft_wall[Icomp_to_polID[icomp]])){
              Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp];
+             for (iw_type=0;iw_type<Nwall_type; iw_type++) Vext_perWallType[loc_inode][icomp][iw_type] = Vext_set[loc_inode][icomp];
              Zero_density_TF[inode_box][icomp] = TRUE;
              if (Lvext_dash){
              for (iwall=0; iwall<Nwall; iwall++) {
@@ -357,7 +362,7 @@ void setup_vext_XRSurf(int iwall)
 {
   int iwall_type,icomp,loc_inode,ijk_box[3],ijk_box_tmp[3],iunk, inode_box_tmp, idim;
   int flag_on_cutoff,logical_setup_vext;
-  double xORr, fluid_pos[3], sign, vtmpUP, vtmpDOWN, vtmpLOC, xORr_tmp;
+  double xORr, fluid_pos[3], sign, vtmpUP, vtmpDOWN, vtmpLOC, xORr_tmp,vext;
   double param1,param2,param3,param4,param5,param6;
   double node_pos[3];
 
@@ -402,15 +407,27 @@ void setup_vext_XRSurf(int iwall)
                  if (xORr>0.001){
 
                      if (Type_vext[iwall_type]==VEXT_PAIR_POTENTIAL) {
-                          Vext[loc_inode][icomp] += pairPot_switch(xORr,param1,param2,param3,param4,param5,param6,Vext_PotentialID[iwall_type]);
+                          vext=pairPot_switch(xORr,param1,param2,param3,param4,param5,param6,Vext_PotentialID[iwall_type]);
+                          Vext[loc_inode][icomp] += vext;
+                          Vext_perWallType[loc_inode][icomp][iwall_type] += vext;
                      }
-                     else Vext[loc_inode][icomp]+= Vext_1D(xORr,icomp,iwall_type);
+                     else {
+                          vext = Vext_1D(xORr,icomp,iwall_type);
+                          Vext[loc_inode][icomp]+= vext;
+                          Vext_perWallType[loc_inode][icomp][iwall_type] += vext;
+                     }
                      if (fabs(xORr-Cut_wf[icomp][iwall_type])<1.e-6) flag_on_cutoff=TRUE;
                  }
-                 else Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; 
+                 else{
+                      vext = Vext_set[loc_inode][icomp];
+                      Vext[loc_inode][icomp] = vext; 
+                      Vext_perWallType[loc_inode][icomp][iwall_type] = vext;
+                 }
               } 
               if (Vext[loc_inode][icomp] >= Vext_set[loc_inode][icomp]) {
-                    Vext[loc_inode][icomp] = Vext_set[loc_inode][icomp]; 
+                    vext = Vext_set[loc_inode][icomp];
+                    Vext[loc_inode][icomp] = vext;
+                    Vext_perWallType[loc_inode][icomp][iwall_type] = vext;
               }
         
               for (idim=0;idim<Ndim; idim++) ijk_box_tmp[idim]=ijk_box[idim];
@@ -622,6 +639,7 @@ void setup_integrated_LJ_walls(int iwall, int *nelems_w_per_w,int **elems_w_per_
 
 	     
              Vext[loc_inode][icomp] += vext;
+             Vext_perWallType[loc_inode][icomp][iwall_type] += vext;
 
           }  /* end of loop over the surface elements and its images */
              if (Vext[loc_inode][icomp] >= Vext_set[loc_inode][icomp]) 

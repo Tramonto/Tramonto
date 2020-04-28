@@ -1604,7 +1604,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
     }
     if (Mix_type == 0 && (Loca.cont_type1 == CONT_EPSWF_IJ ||  
                           Loca.cont_type1 == CONT_EPSWF_ALL)){
-        printf("ERROR: Can't do continuation in Eps_wf when the Mix_type is 0\n");
+        printf("ERROR: Can't do continuation in Eps_wf when the Mix_type is 0 because Eps_wf is internally computed from Eps_w and Eps_ff inputs\n");
         exit(-1);
     } 
   }

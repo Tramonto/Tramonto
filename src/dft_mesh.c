@@ -216,6 +216,7 @@ void free_mesh_arrays(void)
 
    /* external field arrays */
    safe_free((void *) &Vext);
+   safe_free((void *) &Vext_perWallType);
    if (Lvext_dash) safe_free((void *) &Vext_dash);
    safe_free((void *) &Zero_density_TF);
    flag=FALSE;

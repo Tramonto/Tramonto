@@ -479,7 +479,7 @@ void print_profile(char *Density_FileName,double *xold)
         if ((Iwrite_files==FILES_DEBUG || Iwrite_files==FILES_EXTENDED) && (Type_poly==WTC || Type_poly==WJDC || Type_poly==WJDC2 ||((Type_poly == CMS || Type_poly==CMS_SCFT || Type_poly==WJDC3)))) fprintf(fp_DensSegComp,"\n");
 
                 /* add some blank lines for improved graphics in 2D and 3D gnuplot */
-        if (ijk[0] == Nodes_x[0]-1) fprintf(fp_Density,"\n");
+        if (ijk[0] == Nodes_x[0]-1) fprintf(fp_Density,"\n");  
 
      }    /* loop over all nodes  */
 

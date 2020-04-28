@@ -126,6 +126,7 @@ extern double ***Vext_dash;
 extern int WallType[NWALL_MAX];
 extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Nwall;
+extern int     Nwall_type;       /* Number of surface types in the problem */
 #define FALSE 0
 #if !defined(FALSE) && !defined(_CON_CONST_H_)
 #define FALSE 0
@@ -138,6 +139,7 @@ void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 void *array_alloc(int numdim,...);
 extern double **Vext;
+extern double ***Vext_perWallType;
 #define VERBOSE      3 
 extern int Iwrite;
 extern int Proc;

@@ -49,6 +49,7 @@ struct Loca_Struct {
 };
 extern struct Loca_Struct Loca;
 extern int LBulk;
+extern void node_to_position(int inode,double *NodePos);
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int **Nseg_type_pol;
 extern int Npol_comp;

@@ -169,7 +169,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
                  for (i=0; i<Ncomp; i++){
                    for (iw=0; iw<Nwall; iw++){
                       ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
-                      scale_vext_epswf(ratio,i,iw); 
+/*                      scale_vext_epswf(ratio,i,iw); code has changed*/
                    }
                  }
              }
@@ -190,7 +190,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
             for (iw=0;iw<Nwall_type;iw++){
                for (i=0; i<Ncomp-1; i++){ 
                   Eps_wf[i][iw]*=ratio;
-                  scale_vext_epswf(ratio,i,iw);
+                  /*scale_vext_epswf(ratio,i,iw); code has changed*/
                }
             }
             break;
@@ -202,9 +202,9 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
 /*            Eps_wf[1][1] *= ratio;*/
             Eps_wf[2][0] *= ratio;
 /*            Eps_wf[2][1] *= ratio;*/
-            scale_vext_epswf(ratio,1,0); 
+            /*scale_vext_epswf(ratio,1,0); code has changed */ 
 /*            scale_vext_epswf(ratio,1,1); */
-            scale_vext_epswf(ratio,2,0);
+           /* scale_vext_epswf(ratio,2,0); code has changed*/
 /*            scale_vext_epswf(ratio,2,1); */
             break;
 
@@ -225,7 +225,7 @@ void assign_param_archived_plugin(int cont_type, int Loca_contID, double param)
                 for (i=0; i<Ncomp; i++){
                   for (iw=0; iw<Nwall; iw++){
                     ratio = Eps_wf[i][WallType[iw]]/eps_wf_save[i][WallType[iw]];
-                    scale_vext_epswf(ratio,i,iw); 
+                    /*scale_vext_epswf(ratio,i,iw); code has changed*/
                 }
 
               }

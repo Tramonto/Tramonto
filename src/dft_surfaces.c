@@ -357,12 +357,13 @@ void setup_surface (FILE *fp2, int *nelems_f,
            for (idim=0;idim<Ndim;idim++) xtest[idim]=node_pos[idim]+0.5*Esize_x[idim];
 
 
-
            /* compute adjustments to basic geometries*/
            dist_roughness=0.0; dist_periodic=0.0; dist_linear=0.0; angle_test=TRUE;
            if (sgeom_iw->Lrough_surface && fp_roughness!=NULL &&Ndim>1) dist_roughness=(*fp_roughness)(xtest,itype,iwall); 
            if (sgeom_iw->Lperiodic_overlay && fp_periodic!=NULL) dist_periodic=(*fp_periodic)(xtest,itype,iwall); 
-           if (sgeom_iw->Llinear_overlay && fp_linear!=NULL) dist_linear=(*fp_linear)(xtest,itype,iwall); 
+           if (sgeom_iw->Llinear_overlay && fp_linear!=NULL){
+                   dist_linear=(*fp_linear)(xtest,itype,iwall); 
+           }
            if (sgeom_iw->Lwedge_cutout && fp_angleCutout!=NULL)  angle_test=(*fp_angleCutout)(iwall,itype,xtest,WallPos_Images); 
 
            /*if (Lhard_surf && ilist !=Nlists_HW-1) dist_adjustments=0.5*Sigma_wf[ilist][itype]; */

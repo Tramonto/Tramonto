@@ -263,7 +263,7 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
 void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double param_new,char *file_echoinput)
 {
   int i,iwall_type,icomp,nloop;
-  double ratio;
+  double ratio,ratio_epsWF;
   int Ladjust_uattCore=FALSE;
   int Ladjust_pairPot=FALSE;
   int Ladjust_CMSpolymerCr=FALSE;
@@ -373,10 +373,20 @@ void adjust_dep_params(int cont_type,int Loca_contID,double param_old,double par
 
   if (Ladjust_external_field){
        for (i=0;i<nloop;i++){           
-           if (cont_type==CONT_EPSW_I)  icomp=i;
-           if (cont_type==CONT_EPSFF_IJ)iwall_type=i;
-           scale_vext_epswf(ratio,icomp,iwall_type);
+           if (cont_type==CONT_EPSW_I) {
+                  icomp=i;                      /*iwall_type_set above based on ContID*/
+                  ratio_epsWF=sqrt(ratio);
+           }
+           else if (cont_type==CONT_EPSFF_IJ) {
+                  iwall_type=i;                 /*icomp set above based on ContID*/
+                  ratio_epsWF=sqrt(ratio);
+           }
+           else if (cont_type==CONT_EPSWF_IJ) { /*iwall_type and icomp set above based on ContID*/
+                  ratio_epsWF=ratio;
+           }
+           scale_vext_epswf_terms(ratio, icomp, iwall_type);
        }
+       sum_vext_epswf_terms();  /* now that the proper terms have been adjusted, Vext can be reassembled. */
   }
   if (Ladjust_external_field_allTemp) scale_vext_temp(ratio);
 

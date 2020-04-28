@@ -265,6 +265,7 @@ extern int Ipot_wf_n[NWALL_MAX_TYPE];
 extern int Nwall_type;
 extern int **Zero_density_TF;
 extern double ***Vext_dash;
+extern double ***Vext_perWallType;  
 extern int Lvext_dash;
 extern double **Vext;
 extern double *Dielec;
