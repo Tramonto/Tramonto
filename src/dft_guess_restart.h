@@ -17,7 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 extern double **Vext;
 void setup_exp_density_with_profile(double **xInBox);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NSTEPS_MAX 10
 extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];
 #define CHOP_RHO_STEP    4
@@ -37,7 +37,9 @@ extern int *L2B_node;
 extern int Nnodes_per_proc;
 void communicate_to_fill_in_box_values(double **xInBox);
 extern int *B2G_node;
+extern int *B2G_node_extra;
 extern int Nnodes_box;
+extern int Nnodes_box_extra;
 int locate_inode_old(int *ijk);
 extern int Pos_new_nodes;
 void node_to_ijk(int node,int *ijk);

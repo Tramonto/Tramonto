@@ -64,7 +64,7 @@ void recalculate_stencils()
 /*****************************************************************************/
 /*****************************************************************************/
 /* scale_external_field: when changing eps wall only a
-   simple scaling is required. */
+   simple scaling is required. This is just an adjustment of the prefactor for all Vext terms.*/
 void scale_vext_temp(double ratio)
 {
    int loc_inode,icomp,iwall,idim,iunk;
@@ -98,32 +98,71 @@ void scale_vext_temp(double ratio)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* scale_external_field: when changing eps wall-fluid for the
-   first component, only a simple scaling is required. */
+/* scale_external_field: be careful when changing eps_wf for just one walltype-fluid component
+   pair.  Only some parts of Vext are affected by the scaling. The external field array
+   is reassembled after the scaling is done. */
 
-void scale_vext_epswf(double ratio, int icomp,int iwall)
+void scale_vext_epswf_terms(double ratio, int icomp, int iwall_type)
 {
-   int loc_inode,idim,iunk;
+   int loc_inode,idim,iunk,iwall;
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-       if (Restart_Vext != READ_VEXT_STATIC){
-            Vext[loc_inode][icomp] *= ratio;
+       if (Nwall_type>0) Vext_perWallType[loc_inode][icomp][iwall_type] *= ratio;
+
+       if (Lvext_dash){
+          for (iwall=0;iwall<Nwall;iwall++){
+             if (WallType[iwall]==iwall_type){
+                iunk = iwall*Ncomp+icomp;
+                for (idim=0; idim<Ndim; idim++) Vext_dash[loc_inode][iunk][idim] *= ratio;
+             }
+          }
        }
-       else{
-           Vext[loc_inode][icomp] -= Vext_static[loc_inode][icomp];
-           Vext[loc_inode][icomp] *= ratio;
-           Vext[loc_inode][icomp] += Vext_static[loc_inode][icomp];
-       }
-       if (Lvext_dash && Restart_Vext == READ_VEXT_FALSE){
-       iunk = iwall*Ncomp+icomp;
-       for (idim=0; idim<Ndim; idim++) Vext_dash[loc_inode][iunk][idim] *= ratio;
-       }
-   }
-   if (Iwrite==VERBOSE) {
-      print_vext(Vext,"dft_vext_cont1.dat");
-      if (Restart_Vext==READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");
    }
    return;
 }
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* sum_external_field_terms: here is where the external field is reassembled
+   after some terms have been scaled (routine above).*/ 
+
+void sum_vext_epswf_terms()
+{
+   int loc_inode,idim,iunk,icomp,iwall_type;
+
+/*   if (Restart_Vext != READ_VEXT_STATIC){*/
+       for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+           for (icomp=0;icomp<Ncomp;icomp++){
+               for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
+                     Vext[loc_inode][icomp] = 0.0;
+               }
+           }
+       }
+       if (Nwall_type>0){
+         for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+            for (icomp=0;icomp<Ncomp;icomp++){
+               for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
+                     Vext[loc_inode][icomp] += Vext_perWallType[loc_inode][icomp][iwall_type];
+               }
+            }
+         }
+       }
+ /*    }
+    else{      ** this bit seems silly  - when do we want to do continuation with a static file?**
+       for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+           for (icomp=0;icomp<Ncomp;icomp++){
+              Vext[loc_inode][icomp] -= Vext_static[loc_inode][icomp];
+              Vext[loc_inode][icomp] *= ratio;
+              Vext[loc_inode][icomp] += Vext_static[loc_inode][icomp];
+           }
+       }
+   }*/
+   if (Iwrite==VERBOSE) {
+      print_vext(Vext,"dft_vext_cont1.dat");
+/*      if (Restart_Vext==READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");*/
+   }
+   return;
+}
+/*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

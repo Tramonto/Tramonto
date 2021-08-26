@@ -15,9 +15,10 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern double HS_diam[NCOMP_MAX];
+extern int Type_coul;
 #if defined(DEC_ALPHA)
 #define POW_DOUBLE_INT powi
 #endif
@@ -37,6 +38,7 @@ extern int Nnodes_per_el_V;
 double calc_local_pressure(double **x,int iden_first,int inode_box);
 #define IDEAL_GAS    0
 extern int Ipot_ff_n;
+extern double Charge_f[NCOMP_MAX];
 #define NDIM_MAX  3
 extern int Nodes_x[NDIM_MAX];
 void node_to_ijk(int node,int *ijk);

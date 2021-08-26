@@ -212,10 +212,15 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
   else  fprintf(fpecho,"Xtest_reflect_TF n/a");
 
   read_junk(fpinput,fpecho);
+  Lvext_finiteSurf_xdimOnly=FALSE;
   if (Nwall_type > 0) 
     for (iwall_type=0; iwall_type < Nwall_type; ++iwall_type){
         fscanf(fpinput,"%d", &Surface_type[iwall_type]);
 	 fprintf(fpecho,"%d  ",Surface_type[iwall_type]);
+         if (Surface_type[iwall_type]==finite_surface_xonlyVext){
+               Lvext_finiteSurf_xdimOnly=TRUE;
+               Surface_type[iwall_type]=finite_surface_general;
+         } 
     }
   else  fprintf(fpecho,"Surface_type n/a");
 
@@ -1599,7 +1604,7 @@ void read_input_file(FILE *fpinput, FILE *fpecho)
     }
     if (Mix_type == 0 && (Loca.cont_type1 == CONT_EPSWF_IJ ||  
                           Loca.cont_type1 == CONT_EPSWF_ALL)){
-        printf("ERROR: Can't do continuation in Eps_wf when the Mix_type is 0\n");
+        printf("ERROR: Can't do continuation in Eps_wf when the Mix_type is 0 because Eps_wf is internally computed from Eps_w and Eps_ff inputs\n");
         exit(-1);
     } 
   }

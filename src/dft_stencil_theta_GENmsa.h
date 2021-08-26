@@ -17,7 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 #define PI    3.141592653589793238462643383279502884197169399375
 double deltaC_GENERAL_MSA(double r,int i,int j);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 double StenTheta_GENmsa_GetWeightFromSten(int icomp,int jcomp,double rsq,int ngpu,double *gpu,double *gwu);
 int StenTheta_GENmsa_NquadPtsGaussIntegrand(double r);

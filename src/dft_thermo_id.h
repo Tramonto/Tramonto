@@ -16,7 +16,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern double Temp;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Mass[NCOMP_MAX];
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 extern int LDeBroglie;

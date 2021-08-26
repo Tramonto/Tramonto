@@ -23,6 +23,6 @@ int StenDelta_Bond_NquadPtsBoundary();
 extern int Ncomp;
 int StenDelta_Bond_Njcomp();
 double StenDelta_Bond_sten_vol(int icomp,int jcomp);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Bond_ff[NCOMP_MAX][NCOMP_MAX];
 double StenDelta_Bond_sten_rad(int icomp,int jcomp);

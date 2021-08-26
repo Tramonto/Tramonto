@@ -62,6 +62,7 @@ double load_WJDC_density(int iunk, int loc_inode, int inode_box, double **x,int 
 
    resid_R=0.0;
 
+
    if (Type_poly==WJDC || Type_poly==WJDC2){
       iseg = iunk-Phys2Unk_first[DENSITY];
       itype_mer=Unk2Comp[iseg]; /* note that itype_mer is also known as icomp */
@@ -69,6 +70,7 @@ double load_WJDC_density(int iunk, int loc_inode, int inode_box, double **x,int 
    else if (Type_poly==WJDC3){
       itype_mer=iunk-Phys2Unk_first[DENSITY];
    }
+
 
    if (Zero_density_TF[inode_box][itype_mer] || Vext[loc_inode][itype_mer] == VEXT_MAX){
          resid_R=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);

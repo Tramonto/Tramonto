@@ -23,7 +23,7 @@ double ur12andYUKAWA_ATT_noCS(double r,int i,int j);
 #define CORECONST_UCONST    0
 extern int Type_CoreATT_CONST;
 #define ATTCORE_SIGTOUMIN   3
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rzero_ff[NCOMP_MAX][NCOMP_MAX];
 #define ATTCORE_UCSZERO     2
 extern double Rmin_ff[NCOMP_MAX][NCOMP_MAX];

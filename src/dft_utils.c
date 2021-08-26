@@ -244,25 +244,29 @@ void pass_part_of_solnVector(double **xOwned, double **x,int iunk_start,int nunk
 /*****************************************************************************************************/
 void print_to_screen(double val,char *var_label)
 {
-  printf("\t\t %s=%g\n",var_label,val); return;
+/*  printf("\t\t %s=%g\n",var_label,val); return;*/
+  printf("\t\t %s=%.8e\n",var_label,val); return;
 }
 /**************************************************************************************/
 void print_to_screen_comp(int icomp,double val,char *var_label)
 {
-  printf("\t\t %s[icomp=%d]=%g\n",var_label,icomp,val); return;
+  /*printf("\t\t %s[icomp=%d]=%g\n",var_label,icomp,val); return;*/
+  printf("\t\t %s[icomp=%d]=%.10e\n",var_label,icomp,val); return;
 }
 /**************************************************************************************/
 void print_to_file(FILE *fp,double val,char *var_label,int first)
 {
   if (first != FALSE)  fprintf(fp,"%s  ",var_label); 
-  if (first != TRUE)   fprintf(fp,"%g  ",val); 
+/*  if (first != TRUE)   fprintf(fp,"%g  ",val); */
+  if (first != TRUE)   fprintf(fp,"%.10e  ",val); 
   return;
 }
 /**************************************************************************************/
 void print_to_file_comp(FILE *fp,int icomp,double val,char *var_label,int first)
 {
   if (first != FALSE) fprintf(fp,"%s[%d]  ",var_label,icomp); 
-  if (first != TRUE)  fprintf(fp,"%g  ",val); 
+/*  if (first != TRUE)  fprintf(fp,"%g  ",val); */
+  if (first != TRUE)  fprintf(fp,"%.10e  ",val); 
   return;
 }
 /**************************************************************************************/

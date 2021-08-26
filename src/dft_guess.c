@@ -70,6 +70,7 @@ void set_initial_guess (int guess_type, double** xOwned)
        start_no_info = FALSE;
        guess_restart_from_files(start_no_info,guess_type,xInBox);  
        translate_xInBox_to_xOwned(xInBox,xOwned);
+
   } 
   else start_no_info = TRUE;
 

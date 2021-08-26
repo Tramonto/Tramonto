@@ -24,6 +24,7 @@ extern int Proc;
 void basis_fn_calc(double **phi,double ***grad_phi,double *evol);
 extern int Nnodes_per_el_V;
 void set_fem_1el_weights(double **wt_lp_1el_ptr,double **wt_s_1el_ptr,int ***elem_permute);
+void set_fem_surfsrc_weights(double ***wt_surfsrc_1el_ptr);
 #define NDIM_MAX  3
 extern double Esize_x[NDIM_MAX];
 void *array_alloc(int numdim,...);

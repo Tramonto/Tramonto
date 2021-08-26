@@ -54,6 +54,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
    int orientation,surfaceTypeID;
    struct SurfaceGeom_Struct *sgeom_iw;
 
+
    p_tilde_vdash = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
    p_tilde_sumwall = (double **) array_alloc (2, Nwall, Ndim, sizeof(double));
    for (iwall=0;iwall<Nwall;iwall++)
@@ -81,7 +82,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
          rho_sum_tot = gsum_double(rho_sum_mid);*/
    }
     /* calculate the electrostatic contribution to the force */
-/*    if (Ipot_wf_c == 1) force_elec(x,f_elec);*/
+    if (Ipot_wf_c == 1 && Type_coul !=-1) force_elec(x, f_elec);
 
     /* deal with linked surfaces */
     p_tilde_L = (double **) array_alloc (2, Nlink, Ndim, sizeof(double));
@@ -98,7 +99,7 @@ void calc_force(FILE *fp, double **x,double fac_area)
             surfaceTypeID = sgeom_iw->surfaceTypeID;
 
             Linclude_pressure[Link[iwall]]=FALSE;
-            if (surfaceTypeID==smooth_planar_wall){
+            if (surfaceTypeID==smooth_planar_wall /*&& Ipot_wf_c !=1*/ /* turn off for charged systems since Betap calc is incomplete...2020 I think it is ok*/){
                  orient=sgeom_iw->orientation;
                  if ( Type_bc[orient][0]==IN_WALL && fabs(WallPos[orient][iwall]+Size_x[orient]/2.)<=sgeom_iw->halfwidth[orient]){
                     Linclude_pressure[Link[iwall]]=TRUE;
@@ -134,7 +135,20 @@ void calc_force(FILE *fp, double **x,double fac_area)
 
          p_tilde_iwall_idim = gsum_double(p_tilde_L[i][idim]);
 
-         force = p_tilde_iwall_idim + f_elec_iwall_idim;
+         force = p_tilde_iwall_idim - f_elec_iwall_idim;
+   if (Ipot_wf_c == 1 && Proc==0) {
+      printf("\nCharged wall detected, ");  
+      if (Type_coul==-1){
+      printf("but Poisson's eqn was NOT solved.\n So ptilde is just sumRhoWall[iwall][idim]=%g (f_elec=%g)\n",p_tilde_iwall_idim,f_elec_iwall_idim);
+      }
+      else{
+      printf("and Poisson's eqn was solved.\n So ptilde is the sum of two terms sumRhoWall[iwall][idim]=%g and f_elec[iwall][idim]=%.10e\n",p_tilde_iwall_idim,f_elec_iwall_idim);
+      }
+      if (Nwall==1){
+      printf("\t For 1 wall, the sum rule requires that total force = Betap (within a sign)\n");
+      printf("\t Error in the 1 wall sum rule = %g percent \n", 100*(fabs(force)-(Betap))/Betap);
+      }
+   }
 
          if (Proc == 0) {
          
@@ -156,13 +170,14 @@ void calc_force(FILE *fp, double **x,double fac_area)
             }
 
             if (Iwrite_screen == SCREEN_VERBOSE || Iwrite_screen == SCREEN_BASIC){
-               printf("iwall: %d \t idim: %d ",i,idim);
+               printf("\t iwall: %d    idim: %d ",i,idim);
                if (Iwrite_screen==SCREEN_VERBOSE){
                   printf("fac: %9.6f  area: %9.6f\n",fac_area,area);
-                  printf("\t\t p_tilde[][]: %9.6f\n",p_tilde_iwall_idim);
-                  printf("\t\t f_elec [][]: %9.6f\n",f_elec_iwall_idim);
+                  printf("\t p_tilde[][]: %9.6f\n",p_tilde_iwall_idim);
+                  printf("\t f_elec [][]: %9.6f\n",f_elec_iwall_idim);
+                  if (sign_pressure[i] !=0) printf("\t\t bulk pressure(on outside): %9.6f\n",sign_pressure[i]*Betap);
                }
-               printf("\t\t total force: %9.6f\n",force);
+               printf("\t ptilde=%g\n",force);
             }
 	 } 
        } /* end of if(first!=TRUE) */
@@ -179,9 +194,9 @@ void calc_force(FILE *fp, double **x,double fac_area)
  	     print_to_file(fp,force+sign_pressure[i]*Betap,forceInfo,first);
           }
           else{
-             if (idim==0) sprintf(forceInfo, "force_x[%d]", i);
-             else if (idim==1) sprintf(forceInfo, "force_y[%d]", i);
-             else if (idim==2) sprintf(forceInfo, "force_z[%d]", i);
+             if (idim==0) sprintf(forceInfo, "ptilde_x[%d]", i);
+             else if (idim==1) sprintf(forceInfo, "ptilde_y[%d]", i);
+             else if (idim==2) sprintf(forceInfo, "ptilde_z[%d]", i);
  	     print_to_file(fp,force,forceInfo,first);
           }
        }
@@ -256,8 +271,12 @@ void sum_rho_wall(double **x, double **Sum_rho)
                     from above.  Remainder of profile is unaffected by 
                     these points so they have a weight of 1 */
 
+                  /* total solvation force*/
                  if (iwall == -2) Sum_rho[jwall][idim] += 0.5*prefac*x[iunk][inode_box];
                  else             Sum_rho[jwall][idim] += prefac*x[iunk][inode_box];
+                  /* separating ion contribution to solvation force*/
+/*                 if (iwall == -2) {if (fabs(Charge_f[icomp])>1.e-10) Sum_rho[jwall][idim] += 0.5*prefac*x[iunk][inode_box];}
+                 else             {if (fabs(Charge_f[icomp])>1.e-10) Sum_rho[jwall][idim] += prefac*x[iunk][inode_box];}*/
 
              } /* end of surface element loop */ 
           /*  } */
@@ -280,7 +299,6 @@ void force_elec(double **x, double **Sum_dphi_dx)
    double prefac,nodepos[3],
           deriv_x[12][3],dot_prod[12],integrand,store1,store2,
           store1_tot,store2_tot;
-
     store1 = 0.0;
     store2 = 0.0;
 
@@ -297,7 +315,6 @@ void force_elec(double **x, double **Sum_dphi_dx)
        iwall = Nodes_2_boundary_wall[0][inode_box];
 
        if (iwall != -1){
-
           node_box_to_ijk_box(inode_box,ijk_box);
 
           node_to_position(inode,nodepos); 
@@ -325,6 +342,7 @@ void force_elec(double **x, double **Sum_dphi_dx)
 
               for (jdim=0; jdim<Ndim; jdim++){
                  if (jdim == idim){
+
                     if (surf_norm < 0) deriv_x[iel_w][jdim] = calc_deriv(idim,inode_box,BFD,&blocked,x,0);
                     else               deriv_x[iel_w][jdim] = calc_deriv(idim,inode_box,FFD,&blocked,x,0);
                  }
@@ -439,6 +457,7 @@ double calc_deriv(int idim,int inode0,int flag,int *blocked, double **x, int ili
        offset1[jdim] = 0;
        offset2[jdim] = 0;
    }
+
 
    switch(flag)
    {

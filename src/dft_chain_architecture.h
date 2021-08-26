@@ -17,7 +17,7 @@ void safe_free(void **ptr);
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern int Geqn_start[NCOMP_MAX];
 extern int Ngeqn_tot;
 #define SCREEN_VERBOSE     3 

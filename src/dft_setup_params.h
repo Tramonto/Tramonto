@@ -24,6 +24,7 @@
 #define finite_planar_wall              1
 #define NWALL_MAX_TYPE 20 
 #define NPERIODIC_MAX 4
+#define CONST_POTENTIAL  1
 extern double EndpointLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
 extern double OriginLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
 extern double SlopeLinearFunc[NWALL_MAX_TYPE][NPERIODIC_MAX];
@@ -48,9 +49,10 @@ extern int Surface_type[NWALL_MAX_TYPE];
 extern double *Poly_graft_dist;
 #define CONT_LOG_RHO_I          100
 #define CONT_RHO_I         2
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
+extern double Charge_f[NCOMP_MAX];
 extern int Ntype_mer;
 extern double Rho_w[NWALL_MAX_TYPE];
 extern double *Dielec_wall;

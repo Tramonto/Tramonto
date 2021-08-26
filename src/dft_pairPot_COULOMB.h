@@ -24,7 +24,7 @@ double uCOULOMB_ATT_CS(double r,int i,int j);
 double uCOULOMB_ATT_noCS(double r,int i,int j);
 #define CORECONST_UCONST    0
 extern int Type_CoreATT_CONST;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Sigma_ff[NCOMP_MAX][NCOMP_MAX];
 void uCOULOMB_InnerCore(int i,int j,double *rCore_left,double *rCore_right,double *epsCore);
 double uCOULOMB_CS_DERIV1D(double r,double x,double z1,double z2,double rcut);

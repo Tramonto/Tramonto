@@ -16,6 +16,9 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern int *L2G_node;
+extern int *B2G_node;
+extern int *B2G_node_extra;
+extern int *B2L_node;
 double load_lambda_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define SCF_CONSTR	   9
 double load_SCF_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
@@ -56,7 +59,7 @@ double load_euler_lagrange(int iunk,int loc_inode,int inode_box,int *ijk_box,int
 #define WJDC         3
 extern int L_HSperturbation;
 #define DENSITY        0
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int **Zero_density_TF;

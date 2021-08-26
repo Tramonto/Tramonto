@@ -38,7 +38,7 @@ extern int *B2G_node;
 void node_to_ijk(int node,int *ijk);
 double integrand_maxwell_stress_freen(int iunk,int inode_box,double **x);
 extern double *Deltac_b;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rho_b[NCOMP_MAX];
 extern double Rho_b_RTF[NCOMP_MAX];
 #define NMER_MAX     200

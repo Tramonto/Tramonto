@@ -49,7 +49,7 @@ double integrand_att_freen_bulk(int iunk,int inode_box, double **x)
      if (Lseg_densities){
            icomp = Unk2Comp[i];
            if (Type_interface!=UNIFORM_INTERFACE) rho_bulk = Rho_seg_RTF[i];
-           else rho_bulk = rho_bulk = Rho_seg_b[i];
+           else rho_bulk = Rho_seg_b[i];
      }
      else{
            icomp = i;

@@ -22,7 +22,7 @@ double deltaC_MSA_int(double r,int i,int j);
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double HS_diam[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
 extern double Rho_b[NCOMP_MAX];

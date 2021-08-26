@@ -24,7 +24,7 @@ extern int Proc;
 void precalc_GENmsa_params(double *rho,double *x_msa,double *n_msa,double gamma);
 #define PI    3.141592653589793238462643383279502884197169399375
 double deltaC_GENERAL_MSA_int(double r,int i,int j);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double MSAgen_term4[NCOMP_MAX][NCOMP_MAX];
 extern double MSAgen_term3[NCOMP_MAX][NCOMP_MAX];
 extern double MSAgen_term2[NCOMP_MAX][NCOMP_MAX];

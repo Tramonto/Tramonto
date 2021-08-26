@@ -15,7 +15,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Eps_ff[NCOMP_MAX][NCOMP_MAX];
 extern double Cut_ff[NCOMP_MAX][NCOMP_MAX];
 double uLJ12_6_ATT_SIGTORCUT_CS(double r,int i,int j);

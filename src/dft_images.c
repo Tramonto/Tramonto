@@ -35,6 +35,8 @@
 #include "dft_images.h"
 
 /******************************************************************/
+/* LJDF AUGUST 2021 - THIS CODE IS NO LONGER USED - IT WILL BE 
+REMOVED AT A LATER DATE */
 /*find_images: here we take all the element positions in image_pos
  *          and then find the images of these elements in the
  *          direction idim.  The counter image tells us how many

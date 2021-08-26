@@ -17,7 +17,7 @@ double int_stencil_bulk(int sten_type,int icomp,int jcomp,double(*fp_integrand)(
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 extern int Ncomp;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rho_b[NCOMP_MAX];
 double integrand_CMS_freen_bulk(int iunk,int inode_box,double **x);
 extern int Nmer[NCOMP_MAX];

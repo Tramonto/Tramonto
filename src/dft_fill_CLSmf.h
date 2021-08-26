@@ -18,7 +18,7 @@ double resid_and_Jac_sten_fill(int sten_type,double **x,int iunk,int junk,int ic
 #include "Tramonto_ConfigDefs.h"
 extern int *B2G_node;
 extern int Nnodes;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NMER_MAX     200
 extern int Solver_Unk[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int *L2G_node;

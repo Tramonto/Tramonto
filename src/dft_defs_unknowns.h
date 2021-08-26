@@ -18,7 +18,7 @@
 #define NEQ_TYPE       12 
 extern int Constant_row_flag[NEQ_TYPE];
 #define SCREEN_VERBOSE     3 
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern int Geqn_start[NCOMP_MAX];
 #define NO_UNK        -888
 extern int Nunk_per_node;

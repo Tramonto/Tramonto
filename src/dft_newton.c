@@ -82,7 +82,6 @@ int solve_problem(double **x, double **x2)
     if (Iwrite_files == FILES_DEBUG && NL_Solver!=PICNEWTON_BUILT_IN && NL_Solver!=PICNEWTON_NOX)  print_profile_box(x2,"rho_init2.dat");
   }
 
-
   (void) dft_linprobmgr_importr2c(LinProbMgr_manager, xOwned, x);
 
   start_t=MPI_Wtime();
@@ -169,7 +168,7 @@ int newton_solver(double** x, void* con_ptr) {
     if (iter==1) Time_linsolver_first=MPI_Wtime()-start_t;
     else         Time_linsolver_av+=(MPI_Wtime()-start_t);
     
-    /* I am assuming getLhs returns box coordinates (e.g. Column Map)!! */
+    /* Assuming getLhs returns box coordinates (e.g. Column Map)!! */
     (void) dft_linprobmgr_getlhs(LinProbMgr_manager, delta_x);
 
 /*      for (iunk=0; iunk<Nunk_per_node; iunk++)
@@ -211,6 +210,7 @@ int update_solution_new(double** x, double** delta_x, int iter) {
 
   int iunk, ibox, inode, nnodes_loop;
   double updateNorm=0.0, temp,frac_min;
+/*  double updateNorm_unk=0.0,temp_unk;*/
   char *yo = "newupdate solution";
 
 
@@ -234,6 +234,7 @@ int update_solution_new(double** x, double** delta_x, int iter) {
       for (iunk=0; iunk<Nunk_per_node; iunk++) {
         temp =(frac_min*delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
         updateNorm +=  temp*temp;
+/*        if (iunk==0){ updateNorm_unk +=  temp*temp; }*/
       }
     }
 
@@ -247,10 +248,14 @@ int update_solution_new(double** x, double** delta_x, int iter) {
   }
   
   updateNorm = sqrt(gsum_double(updateNorm));
+  /*updateNorm_unk = sqrt(gsum_double(updateNorm_unk));*/
 
   if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
-    if (Iwrite_screen==SCREEN_BASIC) printf("\tWeighted norm update vec =  %g\n", updateNorm);
-    else                             printf("\n\t\t Weighted norm of update vector =  %g\n", updateNorm);
+    if (Iwrite_screen==SCREEN_BASIC){ 
+/*             printf("\tUnk 0 Weighted norm update vec =  %g", updateNorm_unk);*/
+             printf("\tWeighted norm update vec =  %g\n", updateNorm);
+    }
+    else     printf("\n\t\t Weighted norm of update vector =  %g\n", updateNorm);
   }
 
   if (updateNorm > 1.0) return(FALSE);
@@ -269,6 +274,8 @@ int update_solution(double** x, double** delta_x, int iter) {
 
   int iunk, ibox, inode,inodeG,ijk[3],go_update,idim,nnodes_loop;
   double updateNorm=0.0, temp,frac_min,frac;
+/*  double updateNorm_unk=0.0;
+  int unk_test=7;*/
   char *yo = "newupdate solution";
 
   if (Type_poly==WJDC3 && Grafted_Logical==TRUE) nnodes_loop=Nnodes_box_extra;
@@ -300,7 +307,7 @@ int update_solution(double** x, double** delta_x, int iter) {
      if (Iwrite_screen == SCREEN_BASIC) printf("\tUpdate percent=%g ",frac_min*100);
      else printf("\tUpdate Frac = %g percent\n",frac_min*100);
   }
-
+  
   for (ibox=0; ibox<nnodes_loop; ibox++) {
 
     /* Increment updateNorm only for owned nodes (inode=-1 for ghosts) */
@@ -309,6 +316,10 @@ int update_solution(double** x, double** delta_x, int iter) {
       for (iunk=0; iunk<Nunk_per_node; iunk++) {
         temp =(frac_min*delta_x[iunk][ibox])/(NL_rel_tol*x[iunk][ibox] + NL_abs_tol);
         updateNorm +=  temp*temp;
+/*        if (iunk==unk_test){ 
+             updateNorm_unk +=  temp*temp; 
+             if (iter==8 && B2G_node[ibox]==491) printf("%d  %g %g %g %g %g %g %g\n",B2G_node[ibox],temp,updateNorm_unk,frac_min,NL_rel_tol,NL_abs_tol,delta_x[iunk][ibox],x[iunk][ibox]);
+        }*/
       }
     }
 
@@ -351,12 +362,15 @@ int update_solution(double** x, double** delta_x, int iter) {
     }
     }
   }
-  
-
+ 
   updateNorm = sqrt(gsum_double(updateNorm));
+  /*updateNorm_unk = sqrt(gsum_double(updateNorm_unk));*/
 
   if (Proc==0 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY){
-    if (Iwrite_screen == SCREEN_BASIC) printf("\tWeighted norm update vec =  %g\n", updateNorm);
+    if (Iwrite_screen == SCREEN_BASIC){
+/*           printf("\tUnk %d Weighted norm update vec =  %g", unk_test,updateNorm_unk);*/
+           printf("\tWeighted norm update vec =  %g\n", updateNorm);
+    }
     else    printf("\n\t\tWeighted norm of update vector =  %g\n", updateNorm);
   }
 
@@ -555,11 +569,12 @@ void print_resid_norm(int iter)
   double norm=0.0,l2norm_term;
   double **f;
   FILE *fp_resid;
-  char filename[FILENAME_LENGTH]="./Resid.dat";
-  char tmp_str_array[FILENAME_LENGTH];
+  char filename[FILENAME_LENGTH],tmp_str_array[FILENAME_LENGTH];
 
-  if (Proc==0 && Iwrite_files==FILES_DEBUG) {
+
+  if (Iwrite_files==FILES_DEBUG) {
        strcpy(tmp_str_array,Outpath_array);
+       sprintf(filename,"Resid_%d",Proc);
        fp_resid=fopen(strcat(tmp_str_array,filename),"w+");
   }
 
@@ -567,15 +582,16 @@ void print_resid_norm(int iter)
   dft_linprobmgr_getrhs(LinProbMgr_manager, f);
 
 
+  if(Iwrite_files==FILES_DEBUG) fprintf(fp_resid," iunk j L2G_node[j]   f[iunk][j]  norm\n");
   for (j=0; j< Nnodes_per_proc; j++) {
     for (iunk=0; iunk<Nunk_per_node; iunk++) {
        l2norm_term=f[iunk][j]*f[iunk][j];
        norm += f[iunk][j] * f[iunk][j];
 
-       if(Proc==0 && Iwrite_files==FILES_DEBUG) fprintf(fp_resid," %d  %d  %14.11f  %14.11f\n",iunk,L2G_node[j],f[iunk][j],norm);
+       if(Iwrite_files==FILES_DEBUG) fprintf(fp_resid," %d  %d %d  %14.11f  %14.11f\n",iunk,j,L2G_node[j],f[iunk][j],norm);
     }
   }
-  if (Proc==0 && Iwrite_files==FILES_DEBUG) fclose(fp_resid);
+  if (Iwrite_files==FILES_DEBUG) fclose(fp_resid);
 
   safe_free((void **) &f);
   norm = gsum_double(norm);

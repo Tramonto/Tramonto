@@ -15,7 +15,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
 #define NMER_MAX     200
@@ -29,6 +29,7 @@ extern int Ncomp;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int **Nbond;
+extern int Proc;
 extern int Nlists_HW;
 #define NDIM_MAX  3
 struct Stencil_Struct {

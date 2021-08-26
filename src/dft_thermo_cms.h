@@ -21,7 +21,7 @@
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern int Geqn_start[NCOMP_MAX];
 extern int ***Poly_to_Unk;
 extern int **Nbond;

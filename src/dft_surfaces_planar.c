@@ -55,6 +55,7 @@ void surface_planar_inSurfaceTest(int iwall,int iwall_type,
 
   halfwidth +=dist_adjustments-roff;
 
+
   x12 = fabs(wall_pos[iwall][orientation] - fluid_testpos[orientation]);
 
   if (x12 <= halfwidth) *logical_inwall=TRUE;

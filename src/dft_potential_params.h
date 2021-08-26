@@ -15,7 +15,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NWALL_MAX_TYPE 20 
 extern double YukawaK_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 extern double EpsYukawa_wf[NCOMP_MAX][NWALL_MAX_TYPE];

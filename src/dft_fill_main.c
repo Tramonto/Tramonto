@@ -158,9 +158,11 @@ if (iunk==0 && fabs(resid_term >1.e-8)) {
      strcpy(tmp_str_array,Outpath_array);
      fparray=fopen(strcat(tmp_str_array,fileArray),"w");
 
+     fprintf(fparray,"Nunk_per_node=%d Nnodes=%d indexes i,j over Nunk_per_node*Nnodes \n iproc, i, j Array[i][j] \n",Nunk_per_node,Nnodes);
      for (i=0;i<Nunk_per_node*Nnodes;i++){
         for (j=0;j<Nunk_per_node*Nnodes;j++){
-            if (fabs(Array_test[i][j])>1.e-12) fprintf(fparray,"%d  %d  %d  %.10le\n",Proc,Nunk_per_node*Nnodes-j,i,Array_test[j][i]);
+            /*if (fabs(Array_test[i][j])>1.e-12) fprintf(fparray,"%d  %d  %d  %.10le\n",Proc,Nunk_per_node*Nnodes-j,i,Array_test[j][i]);*/
+            if (fabs(Array_test[i][j])>1.e-12) fprintf(fparray,"%d  %d  %d  %.10le\n",Proc,i,j,Array_test[i][j]);
      }}
      safe_free((void *) &Array_test);
      fclose(fparray);
@@ -280,7 +282,6 @@ void calc_Gsum_new(double **x)
 
                        unk_GQ = Geqn_start[ipol] + Poly_to_Unk[ipol][iseg_graft][ibond];
                        gproduct*=x[unk_GQ][inode_box];
-
                        gproduct_deriv=1.0;
                        for (jbond=0; jbond<Nbonds_SegAll[isegALL_graft]; jbond++){
                           if(Bonds[ipol][iseg_graft][jbond] != -1 && (Bonds[ipol][iseg_graft][ibond] != Bonds[ipol][iseg_graft][jbond])) {
@@ -461,12 +462,15 @@ double load_standard_node(int loc_inode,int inode_box, int *ijk_box, int iunk, d
    switch(Unk2Phys[iunk]){
        case DENSITY: 
              if (L_HSperturbation && Type_poly != WJDC && Type_poly != WJDC2 && Type_poly != WJDC3){
+
                 resid_unk[iunk]=load_euler_lagrange(iunk,loc_inode,inode_box,ijk_box,izone,x,
                                                     dphi_drb,mesh_coarsen_flag_i,resid_only_flag);
              }
              else if(Type_poly==CMS  || Type_poly==WJDC || Type_poly==WJDC2 || Type_poly==WJDC3) {                              
-                if (Type_poly==CMS) resid_unk[iunk]=load_CMS_density(iunk,loc_inode,inode_box,x,resid_only_flag);
-                else                resid_unk[iunk]=load_WJDC_density(iunk,loc_inode,inode_box,x,resid_only_flag);
+                if (Type_poly==CMS){ resid_unk[iunk]=load_CMS_density(iunk,loc_inode,inode_box,x,resid_only_flag);
+                }
+                else{                resid_unk[iunk]=load_WJDC_density(iunk,loc_inode,inode_box,x,resid_only_flag);
+                }
              }
 	     else if(Type_poly == CMS_SCFT) {
 		 resid_unk[iunk]=load_SCF_density(iunk,loc_inode,inode_box,x,resid_only_flag); 

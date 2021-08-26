@@ -56,7 +56,7 @@ extern double Betamu_chain[NMER_MAX];
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
 extern double *Gsum_graft;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rho_g[NCOMP_MAX];
 extern int Grafted_SegID[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];

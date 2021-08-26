@@ -16,7 +16,7 @@
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
 #define SCREEN_ERRORS_ONLY  0 
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern int Nmer[NCOMP_MAX];
 #define TRUE  1
 #if !defined(_CON_CONST_H_)
@@ -75,7 +75,8 @@ extern int Vol_charge_flag;
 extern double **Charge_w_sum_els;
 extern int Surf_charge_flag;
 void scale_elec_param(double ratio);
-void scale_vext_epswf(double ratio,int icomp,int iwall);
+void scale_vext_epswf_terms(double ratio,int icomp,int iwall_type);
+void sum_vext_epswf_terms();
 void print_vext(double **vext,char *output_file);
 #define VERBOSE      3 
 extern int Iwrite;
@@ -87,6 +88,8 @@ extern int Lvext_dash;
 extern double VEXT_MAX;
 extern double **Vext_static;
 extern double **Vext;
+extern double ***Vext_perWallType;
+extern int     WallType[NWALL_MAX]; /* array containing type number for each surface */
 #define READ_VEXT_STATIC     3
 extern int Restart_Vext;
 extern int Nnodes_per_proc;

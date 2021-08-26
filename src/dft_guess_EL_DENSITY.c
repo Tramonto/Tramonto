@@ -134,6 +134,8 @@ void setup_stepped_profile(double **xInBox)
   if (Lseg_densities) nloop=Nseg_tot;
   else                nloop=Ncomp;
 
+   printf("nloop=%d  Nseg_tot=%d   Ncomp=%d\n",nloop,Nseg_tot,Ncomp);
+
   for (inode_box=0; inode_box<Nnodes_box; inode_box++){
      inode = B2G_node[inode_box];
      node_to_position(inode,nodepos);

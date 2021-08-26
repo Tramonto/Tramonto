@@ -40,6 +40,7 @@ extern int Nperiodic_overlay[NWALL_MAX_TYPE];
 #define NPERIODIC_MAX 4
 extern int Llinear_overlay[NWALL_MAX_TYPE];
 extern int Nlinear_overlay[NWALL_MAX_TYPE];
+extern int Lvext_finiteSurf_xdimOnly;
 struct SurfaceGeom_Struct {
   int       surfaceTypeID;    /* ID of the type of surface */
   int       orientation;  /* orientation of the surface */

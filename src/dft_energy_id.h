@@ -15,7 +15,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rho_b[NCOMP_MAX];
 #define NMER_MAX     200
 extern double Rho_seg_b[NMER_MAX];

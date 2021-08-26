@@ -37,6 +37,8 @@ extern int Nodes_x[NDIM_MAX];
 extern int Type_bc[NDIM_MAX][2];
 extern int Ndim;
 void node_to_ijk(int node,int *ijk);
+int NOXLOCA_Solver(double **xBox, double **xOwned, double **x2Owned, int doPicard);
+void dft_parameterlist_destruct(void * parameterlistptr);
 extern int *B2G_node;
 extern double NL_update_scalingParam;
 extern int *Pol_Sym_Seg;
@@ -46,7 +48,7 @@ extern int *Pol_Sym_Seg;
 extern int Phys2Unk_first[NEQ_TYPE];
 extern int *Pol_Sym;
 #define G_CHAIN       11 
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 double gsum_double(double c);
@@ -54,6 +56,7 @@ double gsum_double(double c);
 #define SCREEN_ERRORS_ONLY  0 
 double gmin_double(double c);
 int update_solution_new(double **x,double **delta_x,int iter);
+extern int Num_Proc;
 extern int Proc;
 #if defined(DEBUG)
 extern int Proc;

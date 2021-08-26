@@ -26,7 +26,7 @@ struct RB_Struct {
   double    V2[NDIM_MAX];      /*                unit_vec * Delta_Fn   */
 };
 struct RB_Struct d2phi_drb2_theta_rb_FMT2(double *n);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Inv_4pirsq[NCOMP_MAX];
 extern double Inv_4pi;
 extern double Inv_4pir[NCOMP_MAX];

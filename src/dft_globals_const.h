@@ -108,7 +108,7 @@ extern "C" {
 #define WALL_EL        0 
 #define FLUID_EL       1 
 
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NDIM_MAX  3
 #define NWALL_MAX 600 
 #define NWALL_MAX_TYPE 20 
@@ -238,6 +238,7 @@ extern "C" {
 
 #define cyl2D_sphere3D_pore             7
 #define cyl3D_slit2D_pore               8
+#define finite_surface_xonlyVext        9
 
 /* 
  * These constants identify the functional choices (Type_func).
@@ -888,6 +889,7 @@ extern int     Link[NWALL_MAX]; /* Index iwall to a particular macro-surface */
 extern int     *Nwall_this_link; /* Number of walls linked together in a particular macro-surface */
 extern int     **Link_list; /* List of walls linked in a particular macro-surface */
 extern int     Surface_type[NWALL_MAX_TYPE];    /* Type of surfaces of interest                     */
+extern int     Lvext_finiteSurf_xdimOnly; /* Logical for special case of finite surfaces - using to create patchy walls */
 extern int     Orientation[NWALL_MAX_TYPE];  /* Orientation of planar/bumpy infinite walls*/
 extern double  WallParam[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
 extern double  WallParam_2[NWALL_MAX_TYPE];/* Array[Nwall] of a characteristic wall parameter*/
@@ -1049,10 +1051,11 @@ extern int     **Lsemiperm; /*Array of logicals for semi-permeable surfaces */
 extern double  **Vext_membrane; /*Array potentials for semi-perm surfaces */
 extern double  **Vext_set;      /*Array of maximum set points for ext potentials */
 extern double **Vext;        /* External field array [Nnodes_local][Ncomp]           */
+extern double ***Vext_perWallType;  /* External field array per wall type [Nnodes_local][Ncomp][Nwall_type]           */
 extern double **Vext_static; /* Static part of external field [Nnodes_local][Ncomp] */
 extern double **Vext_coul;        /* Coulomb External field array [Nnodes]           */
 extern double *Vext_old;        /* for post processing: ext field array           */
-extern double ***Vext_dash;  /* derivative of external field [Nnodes][Ncomp][Nwall]*/
+extern double ***Vext_dash;  /* derivative of external field [Nnodes][Ncomp*Nwall][Ndim]*/
 extern double **Uww;        /* Wall-Wall interactions [Nwall-1][Nwall-1]           */
 extern double **Uww_link;        /* Wall-Wall interactions [Nlink-1][Nlink-1]           */
 extern double **X_wall;  /* Distance from inode to iwall [Nnodes][Nwall]    */

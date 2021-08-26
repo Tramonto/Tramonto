@@ -29,7 +29,7 @@ double CMS_Resid_GCHAIN(int iunk,int pol_num,int jseg,int unk_B,int inode_box,in
 void CMS_Jacobian_GCHAIN_derivFIELD(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 void CMS_Jacobian_GCHAIN_derivG(int iunk,int loc_inode,int pol_num,int jseg,int unk_B,int inode_box,int jnode_box,int nunk,int *unk,double weight,double **x);
 double load_CMS_Geqns(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Rho_b[NCOMP_MAX];
 extern double Gsum[NCOMP_MAX];
 extern double Rho_g[NCOMP_MAX];

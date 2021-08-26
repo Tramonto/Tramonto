@@ -616,7 +616,7 @@ void communicate_profile(double *x_new, double** xInBox)
   
     MPI_Bcast (x_new, Nnodes*Nunk_per_node,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-    for (inode_box=0; inode_box<Nnodes_box; inode_box++){
+    for (inode_box=0; inode_box<Nnodes_box; inode_box++){  
        inode = B2G_node[inode_box];
        for (iunk=0; iunk<Nunk_per_node; iunk++){
            xInBox[iunk][inode_box] = x_new[inode*Nunk_per_node+iunk];
@@ -656,20 +656,23 @@ void check_zero_densities(double **xInBox)
 
   for (inode_box=0; inode_box<Nnodes_box; inode_box++){
       for (iloop=0; iloop<nloop; iloop++){
-         if (Lseg_densities) icomp=Unk2Comp[iloop];
-         else                icomp=iloop;
+         if (Lseg_densities==TRUE) icomp=Unk2Comp[iloop];
+         else                      icomp=iloop;
 	 iunk = Phys2Unk_first[DENSITY]+iloop;
-         if (Zero_density_TF[inode_box][icomp])
+         if (Zero_density_TF[inode_box][icomp]==TRUE){
                  xInBox[iunk][inode_box] = 0.0;
+         }
          else{
-           if (Lseg_densities)
+           if (Lseg_densities==TRUE){
               if (xInBox[iunk][inode_box] < Rho_seg_b[iunk]*exp(-VEXT_MAX)) {
                   xInBox[iunk][inode_box] = Rho_seg_b[iunk]*exp(-VEXT_MAX); /*DENSITY_MIN*/
               }
-           else
+           }
+           else{
               if (xInBox[iunk][inode_box] < Rho_b[icomp]*exp(-VEXT_MAX)) {
                   xInBox[iunk][inode_box] = Rho_b[icomp]*exp(-VEXT_MAX); /*DENSITY_MIN*/
               }
+           }
          }
       }
   }
@@ -688,19 +691,23 @@ void check_zero_densities_owned(double **xOwned)
 
   for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
       for (iloop=0; iloop<nloop; iloop++){
-         if (Lseg_densities) icomp=Unk2Comp[iloop];
+         if (Lseg_densities==TRUE) icomp=Unk2Comp[iloop];
          else icomp=iloop;
 	 iunk = Phys2Unk_first[DENSITY]+iloop;
-         if (Zero_density_TF[L2B_node[loc_inode]][icomp]) xOwned[iunk][loc_inode] = 0.0;
+	 if (Zero_density_TF[L2B_node[loc_inode]][icomp]==TRUE) {
+               xOwned[iunk][loc_inode] = 0.0;
+         }
          else{
-           if (Lseg_densities)
+           if (Lseg_densities==TRUE){
               if (xOwned[iunk][loc_inode] < Rho_seg_b[iunk]*exp(-VEXT_MAX)) {
                   xOwned[iunk][loc_inode] = Rho_seg_b[iunk]*exp(-VEXT_MAX); /*DENSITY_MIN*/
               }
-           else
+           }
+           else{
               if (xOwned[iunk][loc_inode] < Rho_b[icomp]*exp(-VEXT_MAX)) {
                   xOwned[iunk][loc_inode] = Rho_b[icomp]*exp(-VEXT_MAX); /*DENSITY_MIN*/
               }
+           }
          }
       }
   }

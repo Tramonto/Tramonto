@@ -24,7 +24,7 @@ double load_coarse_variable(double **x,int jnode_box,double fac,int iunk,int loc
 void locate_neighbor_unks(double **x,int iunk,int loc_inode,int node_box,double fac,double *resid,int resid_only_flag);
 #define POISSON        1
 #define DENSITY        0
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NMER_MAX     200
 extern int Unk2Phys[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 double load_coarse_node_Ndim(int loc_inode,int inode_box,int iunk,double **x,int resid_only_flag);

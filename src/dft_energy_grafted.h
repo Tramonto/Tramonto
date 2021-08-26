@@ -14,9 +14,10 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern int Icomp_to_polID[NCOMP_MAX];
 extern int Grafted[NCOMP_MAX];
+void print_to_screen(double val,char *var_label);
 #define FALSE 0
 #if !defined(_CON_CONST_H_)
 #define _CON_CONST_H_
@@ -38,7 +39,6 @@ extern int Proc;
 #if !(defined(DEC_ALPHA))
 #define POW_DOUBLE_INT pow
 #endif
-#define NCOMP_MAX 5
 #define NDIM_MAX  3
 extern double Size_x[NDIM_MAX];
 extern int Ndim;

@@ -1,0 +1,14 @@
+This folder contains a few useful scripts that have been developed for Tramonto
+
+# Data Handling
+
+1. gnuplot_heatplots2D - this short script has been developed to generate color contour plots of 
+   Tramonto density output using the free software gnuplot.  It is set up for 2D systems.  The top of the
+   script should be edited for a particular case.
+
+2. reflection.py - this python3 script was developed to automatically create reflections of datasets and then
+   print them out in a file with the same structure as the original Tramonto output.  This can be helpful
+   when visualizing a system where the computational domain is minimized with use of reflective boundary 
+   conditions, but a better understanding of the physical system can be gained by showing an extended domain
+   that captures the reflected boundary conditions.
+

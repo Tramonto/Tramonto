@@ -286,6 +286,8 @@ void setup_params_for_dft(char *input_file, char *file_echoinput)
 void setup_other_run_constants()
 {
   int i,iwall,iwall_type,iblock,jblock,irand,irand_range,icomp;
+  double kappa,kappa_sq,lambda_B,lambda_D,lambda_GC,charge_sum;
+  int test_CC;
 
   Lmesh_refine=FALSE;    /* used for automated mesh refinement - not currently used */
 
@@ -296,6 +298,7 @@ void setup_other_run_constants()
   Nwall_this_link = (int *) array_alloc (1, Nlink,sizeof(int));
   for (i=0; i<Nlink; i++) Nwall_this_link[i]=0;
   for (iwall=0; iwall<Nwall; iwall++){Link_list[Link[iwall]][Nwall_this_link[Link[iwall]]++]=iwall; } 
+  irand_range = 2147483647;
 
                 /*************************************************************************/
                 /* For Rough Surfaces.....populate a roughness array with random numbers */
@@ -303,24 +306,25 @@ void setup_other_run_constants()
                 /*************************************************************************/
   
   if (read_rough){
-     #ifndef _MSC_VER
+/*     #ifndef _MSC_VER
        srandom(135649);
      #else
        srand(135649);
-     #endif
+     #endif*/
+       srand(135649);
 
      for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
        for (iblock=0;iblock<MAX_ROUGH_BLOCK;iblock++){
          for (jblock=0;jblock<MAX_ROUGH_BLOCK;jblock++){
             if (Proc==0){
-            #ifndef _MSC_VER
+/*            #ifndef _MSC_VER
               irand = random();
             #else
               irand = rand();
-            #endif
+            #endif*/
+            irand = rand() % irand_range;
             }
             MPI_Bcast(&irand,1,MPI_INT,0,MPI_COMM_WORLD);  /* need this for parallel jobs to be identical to serial jobs */
-            irand_range = POW_INT(2,31)-1;
             Rough_precalc[iwall_type][iblock][jblock]= Rough_param_max[iwall_type]*(-0.5+( ((double)irand)/((double)irand_range)));
          }
        }
@@ -338,11 +342,49 @@ void setup_other_run_constants()
        Temp_elec = 4.0*PI*KBOLTZ*Temp_K_plasma*DielecConst_plasma*EPSILON_0*Sigma_Angstroms_plasma*1.e-10/(E_CONST*E_CONST);
       /*Temp_elec = 4*PI*KBOLTZ*298.0*KAPPA_H2O*EPSILON_0*4.25e-10/(E_CONST*E_CONST);  Tang-Davis Paper Parameters*/
       if (Proc==0 && (Iwrite_screen!=SCREEN_NONE || Iwrite_screen!=SCREEN_ERRORS_ONLY))  {
-          printf("\t reduced temperature Telec = %9.6f\n", Temp_elec);
-          printf("\t Bjerrum length = d/Telec = %9.6f\n", Sigma_Angstroms_plasma/Temp_elec);
-           printf("\t plasma parameter = 1/Telec = %9.6f\n",1./Temp_elec);
+          printf("------------------------------------------------------------------------\n");
+          printf("Electrostatics parameters .......\n\n");
+          printf("\t Electrostatics are set up in standard units rather than Gaussian units\n");
+          printf("\t Plasma parameter settings: \n \t\t d=%g Angstroms \n \t\t T=%g K \n \t\t epsilon_s=%g\n",
+                    Sigma_Angstroms_plasma,Temp_K_plasma,DielecConst_plasma);
+
+          printf("\t The computed reduced temperature is Telec = 4pi(kT)(epsilon_s epsilon_0)d/e^2 = %9.6f\n", Temp_elec);
+          printf("\t (Note: A plasma parameter Gamma=(1/Telec) is defined in some literature)\n");
+          printf("\n \t The Bjerrum length:\n");
+          printf("\t\t lambda_B = d/Telec = %9.6f Angstroms\n", Sigma_Angstroms_plasma/Temp_elec);
+          printf("\t\t lambda_B/d = 1/Telec = %9.6f\n", 1/Temp_elec);
+          lambda_B=1./Temp_elec;
+          kappa_sq = 0.0;
+             for(icomp = 0; icomp<Ncomp; icomp++)
+                  kappa_sq += (4.0*PI/Temp_elec)*Rho_b[icomp]*Charge_f[icomp]*Charge_f[icomp];
+              kappa = sqrt(kappa_sq);
+              lambda_D=1.0/kappa;
+          printf("\n \t Debye Length:\n");
+          printf("\t\t lambda_D=%9.6f Angstroms\n",Sigma_Angstroms_plasma/kappa);
+          printf("\t\t lambda_D/d=%9.6f\n",lambda_D);
+          test_CC=TRUE;
+          for (iwall_type=0; iwall_type<Nwall_type; ++iwall_type) if (Type_bc_elec[iwall_type]==CONST_POTENTIAL) test_CC=FALSE;
+          if (test_CC==TRUE){
+               charge_sum=0.0;
+               for (iwall=0; iwall<Nwall; ++iwall) charge_sum+=Elec_param_w[iwall];
+               printf("\n \t Constant charge surfaces detected....\n");
+               printf("\t Total charge expeced in fluid = %9.6f\n",charge_sum);
+
+               printf("\n\t Gouy Chapman length for each surface interacting with an ion of valence 1 is: \n");
+               for (iwall=0; iwall<Nwall; ++iwall){ 
+                    lambda_GC=1./(2*PI*lambda_B*fabs(Elec_param_w[WallType[iwall]]));
+                    printf("\t\t iwall=%d: \n \t\t\t lambda_GC=%9.6f Angstroms \n\t\t\t lambda_GC/d=%9.6f \n\t\t\t lambda_GC/lambda_D=%9.6f\n",
+                       iwall,Sigma_Angstroms_plasma*lambda_GC,lambda_GC,lambda_GC/lambda_D);
+               }
+               printf("\n \t lambda_B/lambda_GC=\%9.6f\n",lambda_B/lambda_GC);
+               printf("\t (Recall that weak coupling has lambda_B/lambda_GC<1)\n");
+
+          }
+          else printf("\n \t Constant potential surfaces detected....surface charge is unknown\n");
+          printf("------------------------------------------------------------------------\n");
       }
   }
+
 
   Nnodes_per_el_V = POW_INT(2, Ndim);
   Nnodes_per_el_S = POW_INT(2, Ndim-1);
@@ -519,18 +561,20 @@ void make_dielecConst_params_dimensionless()
 /******************************************************************************/
 void make_density_params_dimensionless()
 {
-  int iwall_type,icomp,ipol_comp;
+  int iwall_type,icomp,ipol_comp,ncomp_tot;
+
+  if (Type_poly != NONE) ncomp_tot=Npol_comp;
+  else ncomp_tot=Ncomp;
+  
 
   for (iwall_type=0;iwall_type<Nwall_type;iwall_type++) Rho_w[iwall_type] /=Density_ref;
 
-  if (Type_poly==NONE || Ntype_mer==1){
-    for (icomp=0;icomp<Ncomp;icomp++) {
+  for (icomp=0;icomp<ncomp_tot;icomp++) {
         if (Type_interface == UNIFORM_INTERFACE) Rho_b[icomp]/=Density_ref;
         else {
            Rho_b_LBB[icomp]/=Density_ref;
            Rho_b_RTF[icomp]/=Density_ref;
         }
-    }
   }
 
 #ifdef USE_LOCA
@@ -696,6 +740,7 @@ void fill_surfGeom_struct()
             if (Lrough_surf[iw]==TRUE){
                sgeom_iw->roughness=Rough_param_max[iw];
                sgeom_iw->roughness_length=Rough_length[iw];
+printf("iw=%d roughness=%9.4f roughness_length=%9.4f",iw,sgeom_iw->roughness,sgeom_iw->roughness_length);
             }
             sgeom_iw->Lwedge_cutout=Lwedge_cutout[iw];
             if(Lwedge_cutout[iw]==TRUE){
@@ -766,7 +811,6 @@ void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho)
 {
    int iwall,idim,dim_tmp,nlink_chk,new_wall,jwall;
    FILE *fpsurfaces;
-   double charge_sum=0.0;
 
     if( (fpsurfaces  = fopen(WallPos_file_name,"r")) == NULL) {
         printf("Can't open file %s and no other file was specified in GUI.\n",WallPos_file_name); exit(-1);
@@ -785,7 +829,6 @@ void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho)
           fscanf(fpsurfaces,"%lf",&WallPos[dim_tmp][iwall]);
        }
        fscanf(fpsurfaces,"%lf",&Elec_param_w[iwall]);
-       charge_sum+=Elec_param_w[iwall];
      }
      fclose(fpsurfaces);
 
@@ -807,9 +850,6 @@ void readIn_wall_positions_and_charges(char *WallPos_file_name,FILE *fpecho)
           fprintf(fpecho,"\niwall=%d  WallType=%d  Link=%d Elec_param_w=%g",iwall,WallType[iwall],Link[iwall],Elec_param_w[iwall]);
        for (idim=0; idim<Ndim; idim++)  fprintf(fpecho,"   WallPos[idim=%d]=%g\n",idim,WallPos[idim][iwall]);
     }
-    if (fabs(charge_sum) > 1.e-8 && Iwrite_screen != SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) 
-            printf("\n TOTAL CHARGE IN %s = %9.6f\n",WallPos_file_name,charge_sum);
-
         
   return;
 }
@@ -821,11 +861,14 @@ void setup_random_wall_positions(FILE *fpecho){
                                          /* to be changed to a proper selection in the input file*/
 int irand,irand_range,iwall,idim,dim_tmp;
 
-  #ifndef _MSC_VER
+  irand_range = 2147483647;
+
+/*  #ifndef _MSC_VER
     srandom(135649);
   #else
     srand(135649);
-  #endif
+  #endif*/
+    srand(135649);
 
  for (iwall=0; iwall<Nwall; iwall++){
     for (idim=0; idim<Ndim; idim++) {
@@ -836,12 +879,12 @@ int irand,irand_range,iwall,idim,dim_tmp;
                                 else if (idim==2) dim_tmp=0;*/
                       /* end of temporary code */
        if (Lrandom_walls==TRUE || fabs(WallPos[dim_tmp][iwall]+9999.0)<1.e-6) {
-            #ifndef _MSC_VER
+/*            #ifndef _MSC_VER
               irand = random();
             #else
               irand = rand();
-            #endif
-            irand_range = POW_INT(2,31)-1;
+            #endif*/
+            irand = rand() % irand_range;
             WallPos[dim_tmp][iwall] = Size_x[idim]*(-0.5+( ((double)irand)/((double)irand_range)));
             fprintf(fpecho,"\n Wall %d dim %d gets WallPos:%g \n",iwall,idim,WallPos[idim][iwall]);
           }  

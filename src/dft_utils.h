@@ -77,7 +77,7 @@ extern double Xi_cav_b[4];
 #define CAVWTC         4
 extern double Betamu_chain_RTF[NMER_MAX];
 extern double Betamu_chain_LBB[NMER_MAX];
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
 #define NONE       -1

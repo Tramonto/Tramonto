@@ -18,7 +18,7 @@ double Vextderiv_LINEAR(double x,int icomp,int iwall_type);
 #include "Tramonto_ConfigDefs.h"
 #define NWALL_MAX 600 
 extern double Elec_param_w[NWALL_MAX];
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Charge_f[NCOMP_MAX];
 extern double Temp_elec;
 double Vext_LINEAR_noCS(double x,int icomp,int iwall_type);

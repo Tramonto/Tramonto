@@ -30,7 +30,7 @@ extern int *B2L_node;
 extern int Iwrite_screen;
 #define DIFFUSIVE_INTERFACE 1
 extern int Type_interface;
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 #define NSTEPS_MAX 10
 extern double Rho_step[NCOMP_MAX][NSTEPS_MAX];
 extern double Xend_step[NSTEPS_MAX];

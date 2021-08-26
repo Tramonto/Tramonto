@@ -23,7 +23,7 @@ extern double Betap;
 #define NMER_MAX     200
 extern double Betamu_chain_RTF[NMER_MAX];
 extern double Betamu_chain_LBB[NMER_MAX];
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Betamu_RTF[NCOMP_MAX];
 extern double Betamu_LBB[NCOMP_MAX];
 extern double Charge_f[NCOMP_MAX];
@@ -32,6 +32,8 @@ extern double Rho_seg_RTF[NMER_MAX];
 extern double Rho_seg_LBB[NMER_MAX];
 extern double Rho_b_RTF[NCOMP_MAX];
 extern double Rho_b_LBB[NCOMP_MAX];
+extern double Rho_g[NCOMP_MAX];
+extern int Grafted[NCOMP_MAX];
 #define NDIM_MAX  3
 #define NWALL_MAX 600 
 extern double WallPos[NDIM_MAX][NWALL_MAX];
@@ -113,7 +115,8 @@ void set_new_membrane_potential(double param_old,double param_new,int icomp);
 void setup_wall_wall_potentials();
 extern int Lprint_pmf;
 void scale_vext_temp(double ratio);
-void scale_vext_epswf(double ratio,int icomp,int iwall);
+void scale_vext_epswf_terms(double ratio,int icomp,int iwall_type);
+void sum_vext_epswf_terms();
 void scale_elec_param(double ratio);
 void setup_pairPotentials(char *file_echoinput);
 void scale_all_epsParams(double ratio);

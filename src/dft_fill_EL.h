@@ -15,7 +15,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
-#define NCOMP_MAX 5
+#define NCOMP_MAX 6
 extern double Pol[NCOMP_MAX];
 extern int ***Surf_normal;
 extern int **Nodes_2_boundary_wall;
@@ -49,6 +49,7 @@ struct Loca_Struct {
 };
 extern struct Loca_Struct Loca;
 extern int LBulk;
+extern void node_to_position(int inode,double *NodePos);
 extern double Scale_fac_WJDC[NCOMP_MAX][NCOMP_MAX];
 extern int **Nseg_type_pol;
 extern int Npol_comp;

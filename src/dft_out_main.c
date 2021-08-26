@@ -68,6 +68,7 @@ void post_process (double **x,int *niters,
   if (Nruns>1) loop1=Imain_loop;
   counter=loop1;
 
+
                         /* set up filename arrays with proper output directory */
   if (Proc==0){
      if (Print_rho_type != PRINT_RHO_0){
@@ -103,6 +104,7 @@ void post_process (double **x,int *niters,
   if (binodal_flag==TRUE)  collect_x_old(x,X2_old);
   else  collect_x_old(x,X_old);
   collect_vext_old();
+
 
 
                                 /* always write density files */
