@@ -1,0 +1,89 @@
+# A script file for creating gnuplot combined contour and heat plots for 2D calculations.
+# Edit the first section of the file to fine tune the plots.
+# Written by LJD Frink, April 2020.
+
+
+
+#--------  SET UP PARAMETERS HERE ---------------
+
+# Number of components in the problem and the file name for the results
+Ncomp=5
+filename="../dft_dens.dat"
+
+# The minimum and maximum position in x and y
+array Xmin[2]
+   Xmin[1]=0
+   Xmax[2]=30
+
+array Xmax[2]
+   Xmin[1]=0
+   Xmax[2]=40
+
+# Set up for the properties of the contours for various cases
+array contour_min[Ncomp]
+   contour_min[1]=0
+   contour_min[2]=0
+   contour_min[3]=0
+   contour_min[4]=0
+   contour_min[5]=0
+
+array contour_inc[Ncomp]
+   contour_inc[1]=0.01
+   contour_inc[2]=0.1
+   contour_inc[3]=0.01
+   contour_inc[4]=0.1
+   contour_inc[5]=0.01
+
+array contour_max[Ncomp]
+   contour_max[1]=0.1
+   contour_max[2]=0.8
+   contour_max[3]=0.1
+   contour_max[4]=0.8
+   contour_max[5]=0.08
+
+# Set up the range of values colored by the chosen palette (heat map)
+# It may be helpful to match the contour levels.
+array cbrange_max[Ncomp]
+   cbrange_max[1]=0.1
+   cbrange_max[2]=0.8
+   cbrange_max[3]=0.1
+   cbrange_max[4]=0.8
+   cbrange_max[5]=0.08
+
+
+#---- CREATE ALL HEATPLOTS: Output both svg and postscript files ----
+
+
+do for [k=1:Ncomp]{
+    set xrange[Xmin[0]:Xmax[0]]
+    set yrange[Xmin[1]:Xmax[1]]
+    set isosample 200,200
+    set table sprintf("icomp%d_iso.dat",k)
+    splot filename u 1:2:k+2
+    unset table
+
+    set contour base
+    set cntrparam level incremental contour_min[k],contour_inc[k],contour_max[k]
+#    set cntrparam levels 10
+    set cntrlabel start 2 font "7"
+    unset surface
+    set table sprintf("icomp%d_cont.dat",k)
+    splot filename u 1:2:k+2
+    unset table
+
+    reset
+    set xrange[Xmin[0]:Xmax[0]]
+    set yrange[Xmin[1]:Xmax[1]]
+    unset key
+    set cbrange[0:cbrange_max[k]]
+    set palette rgbformulae 33,13,10
+    plot sprintf("icomp%d_iso.dat",k) with image, sprintf("icomp%d_cont.dat",k) w l lt -1 lw 1.5
+
+    set terminal svg
+    set output sprintf("icomp%d.svg",k)
+    replot
+   
+    set terminal postscript
+    set output sprintf("icomp%d.ps",k)
+    replot
+}
