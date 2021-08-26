@@ -6,7 +6,7 @@
 @ 0.25 0.25 0.25 	Esize_x(idim): idim=0,Ndim-1 
 @ 2 3 	Type_bc(x0,: left, right) (-1=IN_WALL, 0=IN_BULK, 1=PERIODIC, 2=REFLECT, 3=LAST_NODE, 4=LAST_NODE_RESTART) 
 @ 3 2 	Type_bc(x1,: down, up) 
-@ 3 3 	Type_bc(x2,: back, front) 
+@ 2 2 	Type_bc(x2,: back, front) 
 
 ************ FUNCTIONAL SWITCHES *********************************************
 @ 2 0 	Type_func (-1=No HS functional, 0=FMT1, 1=FMT2, 2=FMT3, 3=FMT4) Type_hsdiam(0=SIGMA_DIAM 1=BH_DIAM 2=MANUAL_INPUT)
@@ -304,7 +304,7 @@
                Print_mesh_switch options:
                    0: Print surface separations 
                    1: Print all surface positions
-@ 3     IWRITE :::: select desired output level
+@ 1     IWRITE :::: select desired output level
                0=MINIMAL    (almost no output - just dft_output.dat)
                1=DENSITIES  (also print density profiles)
                2=EXTENDED   (also print external fields)

@@ -22,7 +22,7 @@ Key Output Parameters:
    - niter=8
    - adsorption[0]= 0.342487  
    - adsorption[1]= 0.942487
-   - ptilde = 1.048839
-   - surface_energy = 1.05215
+   - ptilde = 0.1058091
+   - surface_energy = 1.0521478
    .
 */

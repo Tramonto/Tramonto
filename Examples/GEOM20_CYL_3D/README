@@ -16,9 +16,9 @@ Input Files for Test problem:
 
 Key Output Parameters:
    - niter=8
-   - adsorption[0]=792.265
-   - adsorption[1]=792.265
-   - surf_ex_energy=149.629
+   - adsorption[0]=792.244
+   - adsorption[1]=792.244
+   - surf_ex_energy=150.704639
    .
 */
 
