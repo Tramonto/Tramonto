@@ -106,7 +106,7 @@ void scale_vext_epswf_terms(double ratio, int icomp, int iwall_type)
 {
    int loc_inode,idim,iunk,iwall;
    for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-       Vext_perWallType[loc_inode][icomp][iwall_type] *= ratio;
+       if (Nwall_type>0) Vext_perWallType[loc_inode][icomp][iwall_type] *= ratio;
 
        if (Lvext_dash){
           for (iwall=0;iwall<Nwall;iwall++){
@@ -137,12 +137,14 @@ void sum_vext_epswf_terms()
                }
            }
        }
-       for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
-           for (icomp=0;icomp<Ncomp;icomp++){
+       if (Nwall_type>0){
+         for (loc_inode=0; loc_inode<Nnodes_per_proc; loc_inode++){
+            for (icomp=0;icomp<Ncomp;icomp++){
                for (iwall_type=0;iwall_type<Nwall_type;iwall_type++){
                      Vext[loc_inode][icomp] += Vext_perWallType[loc_inode][icomp][iwall_type];
                }
-           }
+            }
+         }
        }
  /*    }
     else{      ** this bit seems silly  - when do we want to do continuation with a static file?**

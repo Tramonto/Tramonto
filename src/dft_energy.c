@@ -239,8 +239,8 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
          if (Proc==0 && Iwrite_screen == SCREEN_VERBOSE){
                           print_to_screen(omega_surface_charge,"SURFACE CHARGE TERM");
          }   
-         omega_sum += 0.5*omega_surface_charge;
-         omega_s_sum += 0.5*omega_surface_charge;
+         omega_sum += omega_surface_charge;
+         omega_s_sum += omega_surface_charge;
 
 
                                  /* CHARGED EXTERNAL FIELD CONTRIBUTIONS */
@@ -339,8 +339,8 @@ double omega_sum, omega_s_sum, omega_id, omega_id_b,omega_id_surf_ex,
          for (idim=0;idim<Ndim; idim++) volume*=Size_x[0];
          if (fp !=NULL){
             if(Print_rho_switch==SWITCH_BULK_OUTPUT || Print_rho_switch==SWITCH_BULK_OUTPUT_ALL) 
-                                                     print_to_file(fp,-omega_sum/volume,"omega/V",first);
-            else                                     print_to_file(fp,omega_sum,"omega",first);
+                                                     print_to_file(fp,-omega_sum/volume,"-Omega/V:(p_bulk)",first);
+            else                                     print_to_file(fp,omega_sum,"Omega",first);
              if (Type_interface == UNIFORM_INTERFACE && Grafted_Logical == FALSE)
                  print_to_file(fp,omega_s_sum,"omega_s",first);
          }

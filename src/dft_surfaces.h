@@ -120,8 +120,12 @@ extern int **Wall_elems;
 extern int Nzone;
 #define JAC_ZONES_SETFIXED_ESIZE       5
 extern int Coarser_jac;
+#define IN_WALL             -1
+#define IN_BULK              0
 #define PERIODIC             1
 #define REFLECT              2
+#define LAST_NODE            3
+#define LAST_NODE_RESTART    4
 extern int Type_bc[NDIM_MAX][2];
 #define TRUE  1
 #if !defined(_CON_CONST_H_)

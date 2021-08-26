@@ -29,6 +29,7 @@ extern int Ncomp;
 typedef struct Stencil_Struct Stencil_Struct;
 extern struct Stencil_Struct ***Stencil;
 extern int **Nbond;
+extern int Proc;
 extern int Nlists_HW;
 #define NDIM_MAX  3
 struct Stencil_Struct {

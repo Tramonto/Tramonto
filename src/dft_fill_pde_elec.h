@@ -18,10 +18,12 @@ double load_poisson_bc(int iunk,int loc_inode,int inode_box,int resid_only_flag)
 #include "Tramonto_ConfigDefs.h"
 extern double *Dielec;
 void ijk_box_to_ijk(int *ijk_box,int *ijk);
+extern int ***Surf_normal;
 extern double Area_surf_el[3];
 extern double **Charge_w_sum_els;
 #define CONST_CHARGE     2
 #define NCOMP_MAX 6
+extern double Rho_b[NCOMP_MAX];
 extern double Pol[NCOMP_MAX];
 extern int Lpolarize[NCOMP_MAX];
 #define NDIM_MAX  3
@@ -45,6 +47,12 @@ int offset_to_node_box(int *ijk_box,int *offset,int *reflect_flag);
 #if !(defined(DEC_ALPHA))
 #define POW_INT (int)pow
 #endif
+#if defined(DEC_ALPHA)
+#define POW_DOUBLE_INT powi
+#endif
+#if !(defined(DEC_ALPHA))
+#define POW_DOUBLE_INT pow
+#endif
 #define POISSON        1
 extern int Phys2Unk_first[NEQ_TYPE];
 extern double Temp_elec;
@@ -63,6 +71,7 @@ extern int Type_bc_elec[NWALL_MAX_TYPE];
 extern int Nlists_HW;
 extern int **Nodes_2_boundary_wall;
 void set_fem_1el_weights(double **wt_lp_1el_ptr,double **wt_s_1el_ptr,int ***elem_permute);
+void set_fem_surfsrc_weights(double ***wt_surfsrc_1el_ptr);
 extern int Ndim;
 double load_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
 double load_polarize_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_box,double **x,int resid_only_flag);
@@ -70,6 +79,7 @@ double load_polarize_poissons_eqn(int iunk,int loc_inode,int inode_box,int *ijk_
 extern int Type_coul;
 extern double Elec_pot_RTF;
 extern int *B2G_node;
+extern int *B2L_node;
 extern int Nnodes;
 extern int Solver_Unk[3 *NCOMP_MAX+2 *NMER_MAX+NMER_MAX *NMER_MAX+13];
 extern int *L2G_node;

@@ -221,6 +221,7 @@ void dftmain(double * engptr)
 
      set_up_mesh(file_echoinput,Vext_Filename);
 
+
      if (Lhard_surf && Type_poly==WJDC3 && Grafted_Logical==TRUE){       /* for hard walls graft the chain to the surface as in the Jain paper */
          for(ipol=0; ipol<Npol_comp; ipol++){
              if(Grafted[ipol]) Sigma_ff[Grafted_TypeID[ipol]][Grafted_TypeID[ipol]]=sigma_save[Grafted_TypeID[ipol]];
@@ -272,11 +273,13 @@ void dftmain(double * engptr)
 
           /* Linprobmgr can now set up its own numbering scheme, set up unknown-based Maps */
           ierr = dft_linprobmgr_finalizeblockstructure(LinProbMgr_manager);
+
           if (ierr!=0){
             if (Iwrite_screen != SCREEN_NONE) printf("Fatal error in dft_linprobmgr_finalizeblockstructure = %d\n", ierr);
             exit(-1);
           }
      }
+     else Nnodes_box_extra=Nnodes_box;
 
 
      /*
@@ -304,8 +307,9 @@ void dftmain(double * engptr)
            if(Iwrite_screen ==SCREEN_VERBOSE) printf("Not computing vext_coulomb due to boundary conditions\n");
          }
      }
+     print_vext(Vext,Vext_Filename);
      if (Iwrite_files==FILES_EXTENDED || Iwrite_files==FILES_DEBUG) {
-        print_vext(Vext,Vext_Filename);
+        /*print_vext(Vext,Vext_Filename);*/
         if (Restart_Vext == READ_VEXT_STATIC) print_vext(Vext_static,"dft_vext_static.dat");
         print_zeroTF(Zero_density_TF,ZeroTF_filename);
         if (Vol_charge_flag && Ndim==3 && proper_bc) print_vext(Vext_coul,VextCoul_Filename);
@@ -343,7 +347,9 @@ void dftmain(double * engptr)
           }
       }
       else if (NL_Solver == NEWTON_BUILT_IN || NL_Solver==NEWTON_NOX){
+fflush(stdout);
             if (Proc==0 && Iwrite_screen !=SCREEN_NONE && Iwrite_screen != SCREEN_ERRORS_ONLY) printf("\nCalling Newton Solver!\n");
+fflush(stdout);
             niters = solve_problem(x, x2);
       }
       else {

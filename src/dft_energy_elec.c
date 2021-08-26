@@ -142,15 +142,23 @@ double integrand_maxwell_stress_freen(int iunk,int inode_box, double **x)
 double integrand_surface_charge(int iunk,int inode_box,int iwall,double **x)
 {
   int loc_inode,idim,iel_w,surf_norm,ilist,int_type[3];
-  double integrand,charge_i,prefac,deriv;
+  double integrand,charge_i,prefac,deriv,fac;
+  int iunk_rho;
+  double pconst, alpha1,alpha2,psi_s,b1,b2,rho1,rho2,K1,K2;
 
   integrand=0.0;
   iunk = Phys2Unk_first[POISSON];
+  iunk_rho = Phys2Unk_first[DENSITY];
+  
   loc_inode=B2L_node[inode_box];
   int_type[0]=int_type[1]=int_type[2]=CFD;
 
+      /* NOTE - Don't completely understand this yet, but it is needed to make the force sum rule work for const potential boundaries*/
+  if (Type_bc_elec[WallType[iwall]]==CONST_POTENTIAL) fac=-1.0;
+  else                                                fac=1.0;
+
   ilist = Nlists_HW - 1;
-  if (Type_bc_elec[WallType[iwall]] != CONST_POTENTIAL){
+/*  if (Type_bc_elec[WallType[iwall]] != CONST_POTENTIAL){ .... from first implementation - see note below*/
   for (iel_w=0; iel_w<Nelems_S[ilist][loc_inode]; iel_w++){
 
               surf_norm = Surf_normal[ilist][loc_inode][iel_w];
@@ -162,18 +170,58 @@ double integrand_surface_charge(int iunk,int inode_box,int iwall,double **x)
               else              int_type[idim]=FFD;
               deriv=calc_deriv_epot(idim,inode_box,int_type,x);
 
-              charge_i = prefac*(Temp_elec/(4.0*PI))*deriv;
-              integrand -= (charge_i*x[iunk][inode_box]);
+/*              charge_i = -fac*prefac*(Temp_elec/(4.0*PI))*deriv;  old code - multiply constants below instead*/
+
+               /* this is the expression used for CC and/or CP cases */
+                 charge_i = -fac*prefac*(deriv);
+                 charge_i *= Temp_elec/(4.0*PI);
+
+               /* Try a few things for the integrand when charge regulating boundaries */
+               /* Doing the case with two reaction types at independent reaction sites */
+               pconst=0.7;
+               alpha1=-6.0;
+               alpha2=-24.0;
+               psi_s=x[iunk][inode_box];
+
+
+               /* this is the q_s - equivalent of eq. 15 from Reiner and Radke 1993*/ 
+               /* this is used as the source term in Poisson's equation */
+/*               charge_i=-( (pconst*Rho_b[0]/(Rho_b[0]+exp(alpha1+psi_s)))-
+                             ((1.-pconst)*Rho_b[1]/(Rho_b[1]+exp(alpha2-psi_s)))); using surface potential approach*/
+
+               /* same q_s eq 15 from RR, but using surface densities */
+/*             K1=exp(alpha1);
+             K2=exp(alpha2);
+             rho1=x[iunk_rho][inode_box];
+             rho2=x[iunk_rho+1][inode_box];
+             charge_i = -(pconst*rho1/(K1+rho1) - (1.0-pconst)*rho2/(K2+rho2));*/
+
+             integrand += 0.5*(charge_i*x[iunk][inode_box]);
+
+               /* this is the Q_s computed using eq. 19 from Reiner and Radke 1993 */
+               /* first implementation used surface potentials -as in RR */
+                b1=exp(alpha1)/Rho_b[0];
+                b2=exp(alpha2)/Rho_b[1];
+/*                charge_i=( pconst*(psi_s-log((1.+b1*exp(psi_s))/(1.+b1)))-
+                             (1.-pconst)*(psi_s+log((1.+b2*exp(-psi_s))/(1.+b2))));*/
+
+               /* second implementation uses surface densities -as is better for DFT */
+
+/*                charge_i=-pconst*(log((rho1+K1)/(Rho_b[0]+K1)) )
+                         -(1.-pconst)*(log((rho2+K2)/(Rho_b[1]+K2)) );
+
+              integrand += (charge_i);*/
 
   } /* end of surface element loop */
 
-/*         charge_i = 0.0;
+/* NOTE... this was the first version implemented that would only work for CONST_CHARGE BC.
+          charge_i = 0.0;
          for (idim=0; idim<Ndim; idim++){
              charge_i -= Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
          }
  */
-  }
-  else integrand=0.0;
+ /* }
+  else integrand=0.0;*/
 
   return integrand;
   

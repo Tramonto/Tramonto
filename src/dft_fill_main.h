@@ -17,6 +17,7 @@
 #include "Tramonto_ConfigDefs.h"
 extern int *L2G_node;
 extern int *B2G_node;
+extern int *B2G_node_extra;
 extern int *B2L_node;
 double load_lambda_field(int iunk,int loc_inode,int inode_box,int *ijk_box,int izone,double **x,int resid_only_flag);
 #define SCF_CONSTR	   9

@@ -39,7 +39,7 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
                     double **x,struct  RB_Struct *dphi_drb,int mesh_coarsen_flag_i, int resid_only_flag)
 {
    int i,iseg,icomp,zero_TF,bulk_TF,sym_WTC_TF,iunk_att,first_unk,offset[3],reflect_flag[3],idim,jnode_box;
-   double resid=0.0,resid_att,mat_val,resid_charge;
+   double resid=0.0,resid_att=0.0,resid_DeltaC=0.0,mat_val,resid_charge;
 
 
                   /* set icomp and iseg(WTC) */
@@ -65,8 +65,6 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
        resid=fill_zero_value(iunk,loc_inode,inode_box,x,resid_only_flag);
        return(resid);
    }
-
-
 
    bulk_TF=FALSE;
    if (mesh_coarsen_flag_i == FLAG_BULK) bulk_TF=TRUE;
@@ -164,12 +162,14 @@ double load_euler_lagrange(int iunk,int loc_inode, int inode_box, int *ijk_box, 
    }
 
    if (Type_coul==DELTAC_RPM) {   /* load electrostatics deltac correlations - RPM for now*/
-         resid+=load_mean_field(THETA_CR_RPM_MSA,iunk,loc_inode,
+         resid_DeltaC=load_mean_field(THETA_CR_RPM_MSA,iunk,loc_inode,
                           icomp,izone,ijk_box,x, resid_only_flag);
+         resid+=resid_DeltaC;
    }
    else if (Type_coul==DELTAC_GENERAL) {   /* load electrostatics deltac correlations - RPM for now*/
-         resid+=load_mean_field(THETA_CR_GENERAL_MSA,iunk,loc_inode,
+         resid_DeltaC=load_mean_field(THETA_CR_GENERAL_MSA,iunk,loc_inode,
                           icomp,izone,ijk_box,x, resid_only_flag);
+         resid+=resid_DeltaC;
    }
 
 

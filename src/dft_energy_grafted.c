@@ -102,8 +102,8 @@ double graft_freen(int npol, int iunk, int icomp, double **x)
         /*divide by chain length to get segment chemical potential */
         rho_lam = lambda*x[iunk][inode_box]/Nmer[npol];
      /*   if(Grafted_TypeID[npol]==icomp){
-            /*sum_i += rho_lam;*/
-     /*   }
+            sum_i += rho_lam;
+        }
         else    */
             sum_i += rho_lam*Nel_hit2[icomp][inode_box]*Vol_el/((double)Nnodes_per_el_V);
     }

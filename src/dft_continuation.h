@@ -180,6 +180,7 @@ struct Loca_Struct {
 };
 extern struct Loca_Struct Loca;
 extern int Nnodes_box;
+extern int Nnodes_box_extra;
 extern int Nnodes_per_proc;
 extern int Nunk_per_node;
 void *array_alloc(int numdim,...);

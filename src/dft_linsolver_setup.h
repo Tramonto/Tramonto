@@ -15,6 +15,7 @@
 #include "dft_poly_lin_prob_mgr_wrapper.h"
 #include "dft_hardsphere_lin_prob_mgr_wrapper.h"
 #include "Tramonto_ConfigDefs.h"
+int dft_hardsphere_lin_prob_mgr_seta22blockisdiagonal(void * linprobmgr, int isa22diagonal);
 extern int **Bonds_SegAll;
 extern int **Poly_to_Unk_SegAll;
 extern int *Nbonds_SegAll;

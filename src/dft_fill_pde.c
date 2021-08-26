@@ -240,6 +240,75 @@ void set_fem_1el_weights(double **wt_lp_1el_ptr, double **wt_s_1el_ptr,
     }
   }
 }
+/****************************************************************************/
+void set_fem_surfsrc_weights(double ***wt_surfsrc_1el_ptr)
+/* This routine sets the fem weights for a source term on a surface (surface charge or reaction) */
+
+{
+  double evol;
+
+  if (*wt_surfsrc_1el_ptr == NULL) {
+    *wt_surfsrc_1el_ptr  = (double **) array_alloc(2, Nnodes_per_el_V,Ndim,sizeof(double));
+  }
+
+  if (Ndim == 1) {
+    /*Finite element weights for source terms on rectangular grid */
+    (*wt_surfsrc_1el_ptr)[0][0]  = 1.0/2.0;
+    (*wt_surfsrc_1el_ptr)[1][0]  = 0.;
+  }
+
+  else  if (Ndim == 2) {
+    /*Finite element weights for surface source terms on rectangular grid with normal in x direction*/
+    evol=Esize_x[1];
+    (*wt_surfsrc_1el_ptr)[0][0] = evol/6.0;
+    (*wt_surfsrc_1el_ptr)[1][0] = 0.0;
+    (*wt_surfsrc_1el_ptr)[2][0] = evol/12.0;
+    (*wt_surfsrc_1el_ptr)[3][0] = 0.0;
+
+    /*Finite element weights for surface source terms on rectangular grid with normal in y direction*/
+    evol=Esize_x[0];
+    (*wt_surfsrc_1el_ptr)[0][1] = evol/6.0;
+    (*wt_surfsrc_1el_ptr)[1][1] = evol/12.0;
+    (*wt_surfsrc_1el_ptr)[2][1] = 0.0;
+    (*wt_surfsrc_1el_ptr)[3][1] = 0.0;
+  }
+
+  else {
+    /*Finite element weights for surface source terms on rectangular grid with normal in x direction*/
+    evol = Esize_x[1]*Esize_x[2];
+    (*wt_surfsrc_1el_ptr)[0][1] = evol/18.0;
+    (*wt_surfsrc_1el_ptr)[1][1] = 0.0;      
+    (*wt_surfsrc_1el_ptr)[2][1] = evol/36.0;
+    (*wt_surfsrc_1el_ptr)[3][1] = 0.0;      
+    (*wt_surfsrc_1el_ptr)[4][1] = evol/36.0;
+    (*wt_surfsrc_1el_ptr)[5][1] = 0.0;      
+    (*wt_surfsrc_1el_ptr)[6][1] = evol/72.0;
+    (*wt_surfsrc_1el_ptr)[7][1] = 0.0;
+
+    /*Finite element weights for surface source terms on rectangular grid with normal in y direction*/
+    evol = Esize_x[0]*Esize_x[2];
+    (*wt_surfsrc_1el_ptr)[0][0] = evol/18.0;
+    (*wt_surfsrc_1el_ptr)[1][0] = evol/36.0;
+    (*wt_surfsrc_1el_ptr)[2][0] = 0.0;
+    (*wt_surfsrc_1el_ptr)[3][0] = 0.0;
+    (*wt_surfsrc_1el_ptr)[4][0] = evol/36.0;
+    (*wt_surfsrc_1el_ptr)[5][0] = evol/72.0;
+    (*wt_surfsrc_1el_ptr)[6][0] = 0.0;
+    (*wt_surfsrc_1el_ptr)[7][0] = 0.0;
+
+    /*Finite element weights for surface source terms on rectangular grid with normal in z direction*/
+    evol = Esize_x[0]*Esize_x[1];
+    (*wt_surfsrc_1el_ptr)[0][2] = evol/18.0;
+    (*wt_surfsrc_1el_ptr)[1][2] = evol/36.0;
+    (*wt_surfsrc_1el_ptr)[2][2] = evol/36.0;
+    (*wt_surfsrc_1el_ptr)[3][2] = evol/72.0;
+    (*wt_surfsrc_1el_ptr)[4][2] = 0.0;
+    (*wt_surfsrc_1el_ptr)[5][2] = 0.0;
+    (*wt_surfsrc_1el_ptr)[6][2] = 0.0;
+    (*wt_surfsrc_1el_ptr)[7][2] = 0.0;
+
+  }
+}
 /*****************************************************************************/
 /* basis_fn_calc: calcs phi and grad_phi for regular hex element */
 void basis_fn_calc(double **phi, double ***grad_phi, double *evol)

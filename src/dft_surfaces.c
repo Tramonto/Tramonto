@@ -47,6 +47,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
   int ijk[3],imax[3],ix[3],Linwall,Lfind_images[3],ijk_global[3],ijk_box_tmp[3];
   double xtest[3],dist_roughness,dist_periodic, dist_linear,node_pos[3],xtest_tmp[3];
   double *x_min;
+  int itemp_im,imageStartWall;
 
   int image,image_x,image_xy,i,image_old,icount,orientation,surfaceTypeID;
   double pos[3],**image_pos;
@@ -74,7 +75,8 @@ void setup_surface (FILE *fp2, int *nelems_f,
 
   fac_image=1;
   for (idim=0; idim<Ndim; idim++){
-      if (Type_bc[idim][0]==REFLECT || Type_bc[idim][1]==PERIODIC ||
+/*      if (Type_bc[idim][0]==REFLECT || Type_bc[idim][1]==PERIODIC ||*/
+      if (Type_bc[idim][0]==REFLECT || Type_bc[idim][0]==PERIODIC ||
       Type_bc[idim][1]==REFLECT || Type_bc[idim][1]==PERIODIC) fac_image*=3; }
 
   for (iel_box=0; iel_box<Nelements_box; iel_box++){
@@ -122,9 +124,10 @@ void setup_surface (FILE *fp2, int *nelems_f,
   Image_IDCheck = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(int));
   /*Image_Link = (int *) array_alloc (1, Nwall*POW_INT(3,Ndim), sizeof(int));*/
 
-  image=0;
+  /* put real walls into image lists first */
+  image=0; /* counter for images */
   image_old = 0;
-  for (iwall=0; iwall<Nwall; iwall++){  /* put real walls into image list first */
+  for (iwall=0; iwall<Nwall; iwall++){  
       for (idim=0;idim<Ndim;idim++) WallPos_Images[iwall][idim]=WallPos[idim][iwall];
       WallType_Images[iwall]=WallType[iwall];
       Image_IDCheck[iwall]=iwall;
@@ -132,22 +135,26 @@ void setup_surface (FILE *fp2, int *nelems_f,
   }
   image=Nwall;
 
+  /* now expand arrays to include periodic and reflective images */
   for (iwall=0; iwall<Nwall; iwall++){
+     imageStartWall=image;
 
      for (idim=0;idim<Ndim;idim++) Lfind_images[idim]=TRUE;
      itype = WallType[iwall];
      sgeom_iw = &(SGeom[itype]);
      orientation = sgeom_iw->orientation;
      surfaceTypeID = sgeom_iw->surfaceTypeID;
-     if (surfaceTypeID == smooth_planar_wall) {
+         /* for smooth planar wall, images are not needed parallel to the wall */
+/*     if (surfaceTypeID == smooth_planar_wall) {
          for (idim=0;idim<Ndim;idim++){
               if (idim!=orientation) Lfind_images[idim]=FALSE;
          }
-     }
-   
-     image_old=image;
+     }*/
+ 
+     /* find images in x */ 
+     image_old=image;  
      for (i=0; i<image_old; i++){
-         if (RealWall_Images[i]==iwall){
+        if (RealWall_Images[i]==iwall){
         for (idim=0; idim<Ndim; idim++)  pos[idim] = WallPos_Images[iwall][idim];
         if (Lfind_images[0]==TRUE) find_wall_images(0,&image,WallPos_Images,pos);
         }
@@ -158,6 +165,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
           Image_IDCheck[i]=-1;
      }
 
+     /* find images in y */ 
      if (Ndim>1){
      image_old=image;
      for (i=0; i<image_old; i++){
@@ -173,6 +181,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
      }
      }
 
+     /* find images in z */ 
      if (Ndim==3){ 
      image_old=image;
      for (i=0; i<image_old; i++){
@@ -190,6 +199,7 @@ void setup_surface (FILE *fp2, int *nelems_f,
   }
   Nwall_Images = image;
 
+
   for (iwall=0; iwall<Nwall_Images; iwall++)
     for (ilist=0; ilist<Nlists_HW; ilist++){
        nelems_w_per_w[ilist][iwall] = 0;
@@ -204,7 +214,8 @@ void setup_surface (FILE *fp2, int *nelems_f,
   if (Proc==0 && Iwrite==VERBOSE){
       printf("Number of surfaces requested=%d   Number of additional images=%d\n",Nwall,Nwall_Images-Nwall);
       for (iwall=0;iwall<Nwall_Images;iwall++){
-         printf("image=%d  Image_IDCheck=%d  position=%g %g\n",iwall,Image_IDCheck[iwall],WallPos_Images[iwall][0],WallPos_Images[iwall][1]);
+         printf("image=%d  Image_IDCheck=%d  position=%g %g RealWall_Image=%d\n",
+              iwall,Image_IDCheck[iwall],WallPos_Images[iwall][0],WallPos_Images[iwall][1],RealWall_Images[iwall]);
       }
   }
 
@@ -223,7 +234,8 @@ void setup_surface (FILE *fp2, int *nelems_f,
   }
 
   icount=0;
-  for (iwall=0; iwall<Nwall_Images; iwall++){
+ /* for (iwall=0; iwall<Nwall_Images; iwall++){*/
+  for (iwall=0; iwall<Nwall; iwall++){
      itype = WallType_Images[iwall];
      sgeom_iw=&(SGeom[itype]);
      surfaceTypeID = sgeom_iw->surfaceTypeID;
@@ -461,7 +473,12 @@ void setup_surface (FILE *fp2, int *nelems_f,
                                               Proc,iwall,Nwall_Images,Nnodes_wall_box);
      }  
      else icount++;
-  } /* end of loop over walls */
+  } /* end of loop over real walls */
+  for (iwall=Nwall; iwall<Nwall_Images;iwall++){
+     for (ilist=0; ilist<Nlists_HW; ilist++){
+           nelems_w_per_w[ilist][iwall]=nelems_w_per_w[ilist][RealWall_Images[iwall]];
+     }
+  }
 
   /* now finish setting up fluid element list and zones */
   for (ilist=0; ilist<Nlists_HW; ilist++){
@@ -491,29 +508,25 @@ void setup_surface (FILE *fp2, int *nelems_f,
 void find_wall_images(int idim, int *image, double **image_pos, double *pos)
 {
   int iside,jdim;
-  double sign,shift=0,node_image[3];
+  double sign,shift=0,new_image_pos[3];
 
   for (iside = 0; iside < 2; iside++){
      if (iside == 0) sign=-1.0; else sign=1.0;
   
-     if (Type_bc[idim][iside] == PERIODIC ||
-         Type_bc[idim][iside] == REFLECT) {
+     if (Type_bc[idim][iside] == PERIODIC || Type_bc[idim][iside]==REFLECT){
 
-        if (Type_bc[idim][iside] == PERIODIC)
-           shift = Size_x[idim];
-        else if (Type_bc[idim][iside] == REFLECT)
-           shift = 2.0*fabs(sign*0.5*Size_x[idim] - pos[idim]);
+        if (Type_bc[idim][iside] == PERIODIC) shift = Size_x[idim];
+        else if (Type_bc[idim][iside]==REFLECT) shift = 2.0*fabs(sign*0.5*Size_x[idim] - pos[idim]);
 
-        if (fabs(shift) > 0.000000001) {
+/*        if (fabs(shift) > 0.000000001) {*/ /*for refactored vext_integrated, the images at boundaries need to be included */
            for (jdim=0; jdim<Ndim; jdim++){
-              if (jdim==idim) node_image[jdim] = pos[jdim] + sign*shift;
-              else            node_image[jdim] = pos[jdim];
+              if (jdim==idim) new_image_pos[jdim] = pos[jdim] + sign*shift;
+              else            new_image_pos[jdim] = pos[jdim];
            }
-;
            for (jdim=0; jdim<Ndim; jdim++)
-              image_pos[*image][jdim] = node_image[jdim];
+              image_pos[*image][jdim] = new_image_pos[jdim];
            (*image)++;
-        }
+        /*}*/
 
      }  /* end of check for b.c. type */
    }  /* end of left side / right side test */

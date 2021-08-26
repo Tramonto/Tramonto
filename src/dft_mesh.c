@@ -216,7 +216,7 @@ void free_mesh_arrays(void)
 
    /* external field arrays */
    safe_free((void *) &Vext);
-   safe_free((void *) &Vext_perWallType);
+   if (Nwall_type>0) safe_free((void *) &Vext_perWallType);
    if (Lvext_dash) safe_free((void *) &Vext_dash);
    safe_free((void *) &Zero_density_TF);
    flag=FALSE;
@@ -276,7 +276,6 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
   char proc_file[FILENAME_LENGTH],tmp_str_array[FILENAME_LENGTH];
   FILE *fp_L2Gmap=NULL;
   FILE *fp_B2Gmap=NULL;
-  
   reflect_flag[0]=reflect_flag[1]=reflect_flag[2] = FALSE;
 
   /*
@@ -286,7 +285,6 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
    * Elements_x_box[],Nodes_plane_box, Elements_plane_box,
    * Nunknowns_box. 
    */
-
   setup_basic_box(fpecho, update);
   /* here is some debugging code to make sure we understand the basic box and the coordinate systems */
    if (Iwrite_files==FILES_DEBUG){
@@ -361,7 +359,6 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
      for (idim=0; idim<Ndim; idim++){
          if (Type_bc[idim][0]==REFLECT || Type_bc[idim][1]==PERIODIC || 
          Type_bc[idim][1]==REFLECT || Type_bc[idim][1]==PERIODIC) fac_image*=3; }
-     
      elems_w_per_w =(int ***)array_alloc(3, Nlists_HW,Nelements_box,Nwall*fac_image,sizeof(int));
      nelems_w_per_w  =(int **) array_alloc(2, Nlists_HW, Nwall*fac_image, sizeof(int));
 
@@ -540,11 +537,13 @@ void control_mesh(FILE *fpecho,char *output_file2,int print_flag, int *update)
     /*
      * Set up the neutral part of the external field.
      */
- 
+
      if (Restart_Vext != READ_VEXT_FALSE) { 
        read_external_field_n();     
      }
-     else              setup_external_field_n(nelems_w_per_w,elems_w_per_w);
+     else {
+              setup_external_field_n(nelems_w_per_w,elems_w_per_w);
+      }
      if (Nwall > 1 && Lprint_pmf) setup_wall_wall_potentials();
 
 

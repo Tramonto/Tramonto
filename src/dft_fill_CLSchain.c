@@ -126,6 +126,7 @@ double resid_and_Jac_ChainDensity (int func_type, double **x, int iunk, int unk_
         }
         else  fac1=1.0;
 
+
         if (Grafted_Logical==FALSE || Grafted[npol]==FALSE ||iseg !=Grafted_SegIDAll[npol]) {
         for (ibond=0; ibond<Nbonds_SegAll[iseg]; ibond++) {
             unk_GQ  = Phys2Unk_first[func_type] + Poly_to_Unk_SegAll[iseg][ibond];

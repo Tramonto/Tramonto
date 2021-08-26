@@ -353,15 +353,17 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
 {
 
   int iwall,  isten, icomp,ilist,idim;
-  int iln, jln, elem, offset[3], el_box;
+  int iln, jln, elem, offset[3], el_box,inormal;
   int nodes_volm_el, nodes_surf_el, junk2[3];
   /* static variables keep their value for every time the function is called*/
-  static double *wt_lp_1el, *wt_s_1el;
+  static double *wt_lp_1el, *wt_s_1el, **wt_surfsrc_1el;
   static int   **elem_permute;
   int off_ref[2][2]; /*= { {0,1}, {-1,0}};*/
-  int jnode_box,junk,junkP;
+  int jnode_box,junk,junkP,junk2react;
   int reflect_flag[3],ijk[3],flag_bulk_boundary;
   double resid,mat_val,resid_sum=0.0,elec_param_bulk_boundary,prefactor_sum,charge_i;
+  double fac_react,fac_react2,alpha_2,pconst,mat_val2;
+  int nshift;
   off_ref[0][0]=0;
   off_ref[0][1]=1;
   off_ref[1][0]=-1;
@@ -371,8 +373,10 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
 
   for (idim=0; idim<Ndim; idim++) reflect_flag[idim]=FALSE;
   ijk_box_to_ijk(ijk_box,ijk);
+
   
   set_fem_1el_weights(&wt_lp_1el, &wt_s_1el, &elem_permute);
+  set_fem_surfsrc_weights(&wt_surfsrc_1el);
 
 /* if we are at a boundary node and the boundary condition is constant
  * potential, then solve the equation psi = constant ..... in all other
@@ -497,6 +501,83 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
              }   /* end of icomp (source term) loop */
 
 
+/* Deal with charge regulating surfaces **/
+/* NEW CODE - IMPLEMENTATION STARTED FOR SPATIALLY VARYING CONSTANT CHARGE AND
+              SPATIALLY VARYING CHARGE REGULATING SURFACES.  CODE FOR UNIFORM SURFACE CHARGES
+              IS FOUND BELOW THESE LOOPS, AND WILL BE USED TO TEST THIS MORE GENERAL CODE AUGUST 2021, LJDF*/
+             if (Nodes_2_boundary_wall[Nlists_HW-1][jnode_box] != -1){
+                 iwall     = Nodes_2_boundary_wall[Nlists_HW-1][jnode_box];
+                 if (Type_bc_elec[WallType[iwall]] == CONST_CHARGE ){
+/*****CONST CHARGE --- GOOD TEST CASE*****
+         charge_i = 0.0;
+         for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[B2L_node[jnode_box]][idim]*Area_surf_el[idim];
+         inormal=abs(Surf_normal[0][B2L_node[jnode_box]][0])-1;
+         resid = -(wt_surfsrc_1el[isten][inormal])*4.0*PI*charge_i/Temp_elec;
+         if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+         resid_sum +=resid;
+END CONST CHARGE*/
+/******REACT SURF TYPE 1********
+         charge_i = 0.0;
+                     for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[B2L_node[jnode_box]][idim];
+                     inormal=abs(Surf_normal[0][B2L_node[jnode_box]][0])-1;
+                     fac_react=Rho_b[0]*exp(-charge_i+x[iunk][jnode_box]);
+                     resid = -(wt_surfsrc_1el[isten][inormal])*(4.0*PI/Temp_elec)*(1./(1.+fac_react));
+                     if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+                     resid_sum +=resid;
+
+                     if (resid_only_flag==FALSE){
+                            mat_val=-(wt_surfsrc_1el[isten][inormal])*(4.0*PI/Temp_elec)*(-fac_react/POW_DOUBLE_INT((1+fac_react),2));
+                            if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[iunk]*Nnodes]+=mat_val;
+                            dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,jnode_box,mat_val);
+                     }
+******END REACT SURF TYPE 1********/
+/******REACT SURF TYPE 2********
+             charge_i = 0.0;
+             for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[loc_inode][idim];
+             inormal=abs(Surf_normal[0][B2L_node[jnode_box]][0])-1;
+             fac_react=exp(charge_i+x[iunk][inode_box]);
+             resid = -(wt_surfsrc_1el[isten][inormal])*(4.0*PI/Temp_elec)*Rho_b[0]/(Rho_b[0]+fac_react);
+             if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             resid_sum +=resid;
+
+          if (resid_only_flag==FALSE){
+               mat_val=-(wt_surfsrc_1el[isten][inormal])*(4.0*PI/Temp_elec)*(-Rho_b[0]*fac_react/POW_DOUBLE_INT((Rho_b[0]+fac_react),2));
+             if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[iunk]*Nnodes]+=mat_val;
+             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
+          }
+
+******END REACT SURF TYPE 2********/
+/******REACT SURF TYPE 3*********
+             if (WallType[iwall]==0){ 
+                  pconst=0.7;
+                  alpha_2=-24.0;
+             }
+             else {
+                  pconst=0.5;
+                  alpha_2=-9.0;
+             }
+             charge_i = 0.0;
+             for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[loc_inode][idim];
+             inormal=abs(Surf_normal[0][B2L_node[jnode_box]][0])-1;
+             fac_react=exp(charge_i+x[iunk][inode_box]);
+             fac_react2=exp(alpha_2-x[iunk][inode_box]);
+             resid = -(wt_surfsrc_1el[isten][inormal])*(4.0*PI/Temp_elec)*((Rho_b[0]*pconst/(Rho_b[0]+fac_react))
+                                         -(Rho_b[0]*(1.0-pconst)/(Rho_b[0]+fac_react2)));
+             if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             resid_sum +=resid;
+
+          if (resid_only_flag==FALSE){
+               mat_val=-(wt_surfsrc_1el[isten][inormal])*(4.0*PI/Temp_elec)*((-Rho_b[0]*pconst*fac_react/POW_DOUBLE_INT((Rho_b[0]+fac_react),2))
+                                            -(Rho_b[0]*(1.-pconst)*fac_react2/POW_DOUBLE_INT((Rho_b[0]+fac_react2),2)));
+             if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[iunk]*Nnodes]+=mat_val;
+             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
+          }
+******END REACT SURF TYPE 3********/
+                 }
+             }
+/* End of new code for charge regulating surfaces*/
+
+
            }     /* end of loop over all local nodes in this fluid element */
          }       /* end of test to be sure element is in fluid */
        }         /* end of possible local node positions */
@@ -506,12 +587,82 @@ double load_poissons_eqn(int iunk, int loc_inode, int inode_box, int *ijk_box, d
 
            iwall     = Nodes_2_boundary_wall[Nlists_HW-1][inode_box];
            if (Type_bc_elec[WallType[iwall]] == CONST_CHARGE ){
-
+/* CORRECT CODE FOR UNIFORM CONSTANT CHARGE BC*/
              charge_i = 0.0;
              for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[loc_inode][idim]*Area_surf_el[idim];
              resid = -4.0*PI*charge_i/Temp_elec;
              if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
              resid_sum +=resid;
+/**use to comment out... */
+
+/* CASE 3 FOR CHARGE REGULATING SURFACE.  Same as CASE 3, but including all params (not alpha_2=-infty)
+ * ASSUME thate Charge_w_sum_els contains instead the parameter alpha. 
+ * NOTE THAT TO DO THIS PROPERLY, alpha (or K_d or pK) will be read into a unique storate location.*
+             if (WallType[iwall]==0){ 
+                  pconst=0.7;
+                  alpha_2=-24.0;
+             }
+             else {
+                  pconst=0.7;
+                  alpha_2=-24.0;
+             }
+             charge_i = 0.0;
+             for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[loc_inode][idim];
+             fac_react=exp(charge_i+x[iunk][inode_box]);
+             fac_react2=exp(alpha_2-x[iunk][inode_box]);
+             resid = -(4.0*PI/Temp_elec)*((Rho_b[0]*pconst/(Rho_b[0]+fac_react))
+                                         -(Rho_b[0]*(1.0-pconst)/(Rho_b[0]+fac_react2)));
+             if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             resid_sum +=resid;
+
+          if (resid_only_flag==FALSE){
+               mat_val=-(4.0*PI/Temp_elec)*((-Rho_b[0]*pconst*fac_react/POW_DOUBLE_INT((Rho_b[0]+fac_react),2))
+                                            -(Rho_b[0]*(1.-pconst)*fac_react2/POW_DOUBLE_INT((Rho_b[0]+fac_react2),2)));
+             if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[inode_box]+Solver_Unk[iunk]*Nnodes]+=mat_val;
+             dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, iunk,inode_box,mat_val);
+          }
+* END OF FAKE CODE FOR CR SURFACES*/
+/* CASE 4 FOR CHARGE REGULATING SURFACE.  Same as CASE 3, but using density rather than electrostatic potential
+ * in the boundary conditions - first step to generalize beyond PB electrolytes...*
+             if (WallType[iwall]==0){ 
+                  pconst=0.7;
+                  alpha_2=-24.;
+             }
+             else {
+                  pconst=0.5;
+                  alpha_2=-9.0;
+             }
+             charge_i = 0.0;
+             for (idim=0; idim<Ndim; idim++) charge_i += Charge_w_sum_els[loc_inode][idim];
+             junk=Phys2Unk_first[DENSITY];
+             junk2react=Phys2Unk_first[DENSITY]+1;
+             nshift=(int)((0.5+1.e-10)/Esize_x[0]);
+       nshift=0; *for PB model*
+             if (Surf_normal[Nlists_HW-1][B2L_node[inode_box]][0]>0) {jnode_box=inode_box+nshift;}
+             else if (Surf_normal[Nlists_HW-1][B2L_node[inode_box]][0]<0) {jnode_box=inode_box-nshift;}
+             else{
+                 printf("Problem with Surf_normal in applying reacting boundary conditions\n");
+                 printf("inode_box=%d iwall=%d Nlists_HW=%d surf_norm[Nlits_HW-1]=%d surf_normal[0]=%d\n",
+                         inode_box,iwall,Nlists_HW,Surf_normal[Nlists_HW-1][B2L_node[inode_box]][0],Surf_normal[0][B2L_node[inode_box]][0]  );
+                 exit(-1);
+             }
+             fac_react=1./(exp(charge_i)+x[junk][jnode_box]);
+             fac_react2=1./(exp(alpha_2)+x[junk2react][jnode_box]);
+             resid = -(4.0*PI/Temp_elec)*((pconst*x[junk][jnode_box]*fac_react) - ((1.0-pconst)*x[junk2react][jnode_box]*fac_react2));
+
+             if (resid_only_flag != INIT_GUESS_FLAG && resid_only_flag != CALC_RESID_ONLY) dft_linprobmgr_insertrhsvalue(LinProbMgr_manager,iunk,loc_inode,-resid);
+             resid_sum +=resid;
+
+          if (resid_only_flag==FALSE){
+               mat_val=-(4.0*PI/Temp_elec)*((   pconst*(fac_react)*(1.0-x[junk][jnode_box]*fac_react)));
+               if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[jnode_box]+Solver_Unk[junk]*Nnodes]+=mat_val;
+               dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, junk,jnode_box,mat_val);
+               mat_val2=-(4.0*PI/Temp_elec)*( -((1.0-pconst)*(fac_react2)*(1.0-x[junk2react][jnode_box]*fac_react2)));
+             if (Iwrite_files==FILES_DEBUG_MATRIX) Array_test[L2G_node[loc_inode]+Solver_Unk[iunk]*Nnodes][B2G_node[jnode_box]+Solver_Unk[junk2react]*Nnodes]+=mat_val2;
+              dft_linprobmgr_insertonematrixvalue(LinProbMgr_manager,iunk,loc_inode, junk2react,jnode_box,mat_val2);
+          }
+
+* END OF FAKE CODE FOR CR SURFACES*/
 
         }   /* check for charge b.c. on this wall */
      }      /* end of check for if this is a boundary node */

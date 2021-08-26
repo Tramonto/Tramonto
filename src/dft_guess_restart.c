@@ -616,7 +616,7 @@ void communicate_profile(double *x_new, double** xInBox)
   
     MPI_Bcast (x_new, Nnodes*Nunk_per_node,MPI_DOUBLE,0,MPI_COMM_WORLD);
 
-    for (inode_box=0; inode_box<Nnodes_box; inode_box++){
+    for (inode_box=0; inode_box<Nnodes_box; inode_box++){  
        inode = B2G_node[inode_box];
        for (iunk=0; iunk<Nunk_per_node; iunk++){
            xInBox[iunk][inode_box] = x_new[inode*Nunk_per_node+iunk];

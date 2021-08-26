@@ -204,10 +204,10 @@ void assign_parameter_tramonto(int cont_type, double param,int Loca_contID)
           if (Mix_type==0) jcomp=icomp;
           else             jcomp=Cont_ID[Loca_contID][1];
           param_old=Eps_ff[icomp][jcomp];
+          Eps_ff[icomp][jcomp]=param;
           if (icomp != jcomp && (Eps_ff[jcomp][icomp]-Eps_ff[icomp][jcomp]<1.e-8)){ 
              Eps_ff[jcomp][icomp]=param;
           }
-          Eps_ff[icomp][jcomp]=param;  
           break;
 
       case CONT_ELECPARAM_I: 

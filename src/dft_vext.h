@@ -41,7 +41,14 @@ extern double Sigma_wf[NCOMP_MAX][NWALL_MAX_TYPE];
 void find_images(int idim,double cut,int *image,double **image_pos,double *node_image,double *node_ref);
 extern int *B2G_node;
 void node_to_ijk(int node,int *ijk);
+#define LAST_NODE_RESTART    4
+#define LAST_NODE            3
+#define IN_WALL             -1
+#define REFLECT              2
+#define PERIODIC             1
 #define NDIM_MAX  3
+extern int Type_bc[NDIM_MAX][2];
+extern double Size_x[NDIM_MAX];
 extern double Esize_x[NDIM_MAX];
 int element_to_node(int ielement);
 void set_gauss_quad(int ngp,double *gp,double *gw);
@@ -100,6 +107,7 @@ extern int *RealWall_Images;
 void safe_free(void **ptr);
 void safe_free(void **ptr);
 void setup_integrated_LJ_walls(int iwall,int *nelems_w_per_w,int **elems_w_per_w);
+void setup_integrated_LJ_walls_old(int iwall,int *nelems_w_per_w,int **elems_w_per_w);
 void comm_wall_els(int iwall,int **nelems_w_per_w,int ***elems_w_per_w,int *nelems_w_per_w_global,int **elems_w_per_w_global);
 extern int Nlists_HW;
 void setup_vext_XRSurf(int iwall);
